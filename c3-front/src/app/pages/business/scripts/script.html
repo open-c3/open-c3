@@ -1,0 +1,133 @@
+<div>
+    <div class="pull-left mb10">
+        <h4>{{scripts.nodeStr}}</h4>
+    </div>
+
+    <hr class="mv20 clear">
+
+    <div class="panel panel-primary">
+
+        <div class="panel-heading">
+            <h5>查询条件</h5>
+        </div>
+
+        <div class="panel-body">
+
+            <div class="form-horizontal">
+
+                <form class="form-inline" name="searchForm" novalidate>
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="form-group col-sm-4" style="padding: 0">
+                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">脚本名称：</label>
+                                <input type="text" class="form-control"  ng-model="scripts.scriptname" placeholder="脚本名称关键字">
+                            </div>
+                            <div class="form-group col-sm-4" style="padding: 0">
+                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">创建人：</label>
+                                <input type="text" class="form-control" ng-model="scripts.createuser" placeholder="创建人全称">
+                                <button type="submit" class="btn btn-default" ng-click="scripts.getMe()">我</button>
+                            </div>
+                            <div class="form-group col-sm-4" style="padding: 0">
+                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">编辑人：</label>
+                                <input type="text" class="form-control" ng-model="scripts.edituser" placeholder="编辑人全称">
+                            </div>
+
+                        </div>
+
+                        <div class="row" style="margin-top: 23px">
+
+                            <div class="form-group col-sm-6" style="padding: 0">
+                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">创建时间：</label>
+                                <div style="width: 30%" class='input-group date' id='createstart'>
+                                    <input type='text' class="form-control"  ng-model="scripts.createStart" placeholder="开始时间"/>
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                                <span style="margin: 0 5px;">-</span>
+                                <div style="width: 30%" class='input-group date' id='createend'>
+                                    <input type='text' class="form-control" ng-model="scripts.createEnd" placeholder="结束时间"/>
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+
+                            </div>
+
+                            <div class="form-group col-sm-6" style="padding: 0">
+                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">修改时间：</label>
+                                <div style="width: 30%" class='input-group date' id='editstart'>
+                                    <input type='text' class="form-control"  ng-model="scripts.editStart" placeholder="开始时间"/>
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                                <span style="margin: 0 5px;">-</span>
+                                <div style="width: 30%" class='input-group date' id='editend'>
+                                    <input type='text' class="form-control" ng-model="scripts.editEnd" placeholder="结束时间"/>
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                </form>
+
+                <hr class="mv20 clear" style="margin-top: 50px!important;">
+                <div class="col-md-10">
+                    <button class="btn btn-primary" ng-click="scripts.reload()">
+                        <i class="fa fa-search fa-fw"></i>查询
+                    </button>
+                    <button class="btn btn-success" ng-click="scripts.Reset(scripts)">
+                        <i class="fa fa-refresh fa-fw"></i>重置
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div style="padding: 10px 0;">
+        <button class="btn btn-primary" ng-click="scripts.createScript()">
+            <i class="fa fa-clone fa-fw"></i>新建脚本
+        </button>
+    </div>
+
+    <div class="panel panel-dark">
+
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-dark" uib-tooltip="刷新" ng-click="scripts.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!scripts.loadover}" ></i></button>
+            </span>
+ 
+            <h5>脚本信息</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="panel-tabs">
+                <table ng-table="scripts.data_Table" class="table table-hover text-center table-condensed">
+                <tr ng-repeat="ss in $data">
+                    <td data-title="'脚本名称'">{{ss.name}}</td>
+                    <td data-title="'类型'">{{ss.type}}</td>
+                    <td data-title="'创建用户'">{{ss.create_user}}</td>
+                    <td data-title="'创建时间'">{{ss.create_time}}</td>
+                    <td data-title="'修改用户'">{{ss.edit_user}}</td>
+                    <td data-title="'最后修改时间'">{{ss.edit_time}}</td>
+                    <td data-title="'关联作业'">{{ss.jobname}}</td>
+                    <td data-title="'操作'">
+                        <button ng-if="ss.projectid == scripts.treeid" class="btn btn-warning btn-sm" ng-click="scripts.editScript(ss.id)">编辑</button>
+                        <button class="btn btn-primary btn-sm" ng-click="scripts.runScript(ss.id)">执行</button>
+                        <button ng-if="ss.projectid ==scripts.treeid" class="btn btn-danger btn-sm" ng-click="scripts.delete(ss.id, ss.jobname)">删除</button>
+                    </td>
+                </tr>
+            </table>
+            </div>
+        </div>
+    </div>
+
+</div>

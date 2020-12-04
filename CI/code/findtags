@@ -1,0 +1,86 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use POSIX;
+use Code;
+use Logs;
+use Util;
+use uuid;
+use keepalive;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    id => id,
+
+    logs => 日志对象
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $id, $logs ) = @param{qw( db id logs )};
+
+    $logs = Logs->new( 'code.findtags' ) unless $logs;
+
+    $logs->die( "id format error" ) unless $id =~ /^\d+$/;
+
+    my $starttime = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
+    print "开始时间: $starttime\n";
+
+    my $myname = Util::myname();
+    eval{ $db->execute( "update `project` set last_findtags='$starttime',slave='$myname' where id='$id'" ); };
+    $logs->die( "update project info fail:$@" ) if $@;
+
+    my $x = eval{ $db->query( "select `addr`,`ticketid`,`autobuild`,`tag_regex` from project  where id='$id'" ); };
+    $logs->die( "get project info fail:$@" ) if $@;
+    $logs->die( "get project info from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
+    $logs->die( "project id is illegal, mismatch: $id" ) unless @$x;
+    my ( $addr, $ticketid, $autobuild, $tag_regex ) = @{$x->[0]};
+
+	my $type = ( $addr =~ /git@/ || $addr =~ /\.git/  )? 'git': $addr =~ /^\s*rsync\s*$/ ? 'pkgrsync' : 'svn';
+  	my @tags = eval{ Code->new( "findtags.plugin/$type" )->run( 
+            db => $db, 
+            id => $id,
+            addr => $addr,
+            ticketid => $ticketid,
+        );
+    };
+    $logs->die( "run findtags.plugin/$type fail:$@" ) if $@;
+
+    @tags = grep{ $_ =~ /^release/ }@tags;
+    @tags = grep{ $_ =~ /$tag_regex/ }@tags if defined $tag_regex && $tag_regex =~ /[a-zA-Z0-9]/;
+    my $v = eval{ $db->query( "select `name` from version where projectid='$id'" ); };
+    
+    my %tags;
+    map{ $tags{$_->[0]} = 1 }@$v;
+    print '-' x 35, "\n";
+    for( @tags )
+    {
+        printf  "$_ %s\n", $tags{$_} ? '已标记':'新发现';
+    }
+    print "在仓库中没发现任何tags\n" unless @tags;
+
+    print "\n";
+
+    @tags = grep{ !$tags{$_} }@tags;
+    my $tag_count = scalar @tags;
+    my ( $status, $reason ) = ($autobuild && $tag_count < 3)? ( 'init', '' ) : ( 'done', 'auto build off' );
+    map{
+        my $uuid = uuid->new()->create_str;
+        my $slave = eval{ keepalive->new( $db )->slave() };
+        eval{ $db->execute( "insert into version (`projectid`,`name`,`status`,`calltype`,`user`,`uuid`,`slave`,`reason`) 
+                values('$id','$_','$status','findtags','crontab','$uuid','$slave','$reason')" ); };       
+    }@tags;
+
+    my $finishtime = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
+
+    print "结束时间: $finishtime\n";
+
+    eval{ $db->execute( "update `project` set last_findtags_success='$finishtime' where id='$id'" ); };
+    $logs->die( "update project info fail:$@" ) if $@;
+}

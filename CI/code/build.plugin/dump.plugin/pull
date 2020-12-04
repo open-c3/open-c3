@@ -1,0 +1,30 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use Code;
+use Logs;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    logs => 日志对象
+
+    # projectid addr ticketid rely name temp(logs目录下的临时目录名) uuid
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $logs  ) = @param{qw( db logs )};
+
+    $logs = Logs->new( 'code.build.dump.pull' ) unless $logs;
+
+    my $type = ( $param{addr} =~ /git@/ || $param{addr} =~ /\.git/  )? 'git' : $param{addr} =~ /^\s*rsync\s*$/ ? 'pkgrsync' : 'svn';
+
+    eval{ Code->new( "build.plugin/dump.plugin/pull.plugin/$type" )->run( %param ); };
+
+    $logs->die( "run code.build.dump.pull.$type fail:$@" ) if $@;
+}

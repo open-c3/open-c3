@@ -1,0 +1,25 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use MYDB;
+use FindBin qw( $RealBin );
+use Data::Dumper;
+use Code;
+
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 [--id projectid]
+
+=cut
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( id=i ) )->dump();
+
+$option->assert( 'id' );
+
+my $db = MYDB->new( "$RealBin/../conf/conn" );
+
+my @id = Code->new( 'projectdescendant' )->run( db => $db, %o );
+print "projectdescendant: \n";
+print Dumper \@id;

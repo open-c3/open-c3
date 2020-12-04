@@ -1,0 +1,44 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use YAML::XS;
+use MYDan;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $base = $RealBin;
+$base =~ s#/[^/]+$##;
+
+print "start ci\n";
+
+
+my $Config = eval{ YAML::XS::LoadFile "$RealBin/../config/Config";};
+die "load Config fail: $!" unless $Config;
+
+my $envname = `cat $RealBin/../conf/envname`;
+chomp $envname;
+die "envname undef" unless $envname;
+
+die "envname $envname undef in Config" unless $Config = $Config->{$envname};
+
+die "port undef" unless my $port = $Config->{port};
+
+my $supervisor = "$MYDan::PATH/dan/tools/supervisor --name ci_supervisor";
+
+map{
+    die "start api fail: $!" if  system "$supervisor --cmd '$base/bin/api -p $_' --log '$base/logs/server/api.$_' --http http://127.0.0.1:$_/mon --check ok";
+    print "start api port: $_\n"
+}$port->{api}{from} .. $port->{api}{to};
+
+map{
+    die "start api.slave fail: $!" if system "$supervisor --cmd '$MYDan::PATH/perl/bin/twiggy $base/bin/api.slave --port $_' --log '$base/logs/server/api.slave.$_' --http http://127.0.0.1:$_/mon --check ok";
+    print "start api.slave port: $_\n"
+}$port->{'api.slave'}{from} .. $port->{'api.slave'}{to};
+map{
+    die "start $_ fail: $!" if system "$supervisor --cmd '$base/server/$_' --log '$base/logs/server/$_'";
+}qw( keepalive findtags build bury clean pkgrsync );

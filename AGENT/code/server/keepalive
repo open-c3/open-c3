@@ -1,0 +1,32 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib -I/data/Software/mydan/AGENT/private/lib
+use strict;
+use warnings;
+use Util;
+use Logs;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+
+=cut
+
+#负责更新心跳，在更新失败后写日志并推出,由守护进程重新拉起
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $myname, $logs ) = ( $param{db}, Util::myname(), Logs->new( 'keepalive' ) );
+
+    eval{ $db->execute( sprintf "replace into keepalive (`slave`,`time`) values( '$myname','%d')", time ); };
+    $logs->die( "update keepalive fail: $@" ) if $@;
+    while( 1 )
+    {
+        warn "do ...\n";
+        sleep 45;
+        $db->execute( sprintf "update keepalive set time='%d' where slave='$myname'", time );
+        $logs->die( "update keepalive fail: $@" ) if $@;
+    }
+}

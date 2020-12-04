@@ -1,0 +1,103 @@
+<div>
+
+    <div class="row" style="padding: 0 20px 0;">
+        <nodestr></nodestr>
+    </div>
+
+    <hr class="mv10 clear">
+
+    <div class="panel panel-info">
+
+        <div class="panel-heading">
+            <h5>查询条件</h5>
+        </div>
+
+        <div class="panel-body">
+
+            <div class="form-horizontal">
+
+                <form class="form-inline" name="searchForm" novalidate>
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="form-group col-sm-3" style="padding: 0">
+                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">启动人：</label>
+                                <input type="text" class="form-control" ng-model="historyterminal.startuser" placeholder="启动人">
+                                <button type="submit" class="btn btn-default" ng-click="historyterminal.getMe()">我</button>
+                            </div>
+                            <div class="form-group col-sm-3" style="padding: 0">
+                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">执行节点：</label>
+                                <input type="text" class="form-control" ng-model="historyterminal.runnode" placeholder="执行节点">
+                            </div>
+                            <div class="form-group col-sm-3" style="padding: 0">
+                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">执行账户：</label>
+                                <input type="text" class="form-control" ng-model="historyterminal.runusr" placeholder="执行账户">
+                            </div>
+                            <div class="form-group col-sm-3" style="padding: 0">
+                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">执行命令：</label>
+                                <input type="text" class="form-control" ng-model="historyterminal.runcmd" placeholder="执行命令">
+                            </div>
+                        </div>
+
+                        <div class="row" style="margin-top: 23px">
+                            <div class="form-group col-sm-6" style="padding: 0">
+                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">执行时间：</label>
+                                <div style="width: 30%" class='input-group date' id='time_start'>
+                                    <input type='text' class="form-control"  ng-model="historyterminal.timeStart" placeholder="开始时间"/>
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                                <span style="margin: 0 5px;">-</span>
+                                <div style="width: 30%" class='input-group date' id='time_end'>
+                                    <input type='text' class="form-control" ng-model="historyterminal.timeEnd" placeholder="结束时间"/>
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+
+                    </div>
+
+                </form>
+
+                <hr class="mv20 clear" style="margin-top: 30px!important;">
+                <div class="col-md-10">
+                    <button class="btn btn-primary" ng-click="historyterminal.reload()">
+                        <i class="fa fa-search fa-fw"></i>查询
+                    </button>
+                    <button class="btn btn-success" ng-click="historyterminal.Reset()">
+                        <i class="fa fa-refresh fa-fw"></i>重置
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="panel panel-dark">
+
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-dark" uib-tooltip="刷新" ng-click="historyterminal.reload()" ><i class="fa fa-refresh fa-fw" style="" ng-class="{'fa-spin':!historyterminal.loadover}" ></i></button>
+            </span>
+            <h5>命令执行日志</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="panel-tabs">
+                <table ng-table="historyterminal.data_Table" class="table table-hover text-center table-condensed">
+                <tr ng-repeat="ss in $data">
+                    <td data-title="'时间'">{{ss.time}}</td>
+                    <td data-title="'执行命令'">{{ss.cmd}}</td>
+                    <td data-title="'用户'">{{ss.usr}}</td>
+                    <td data-title="'执行节点'">{{ss.node}}</td>
+                    <td data-title="'启动人'">{{ss.user}}</td>
+                </tr>
+            </table>
+            </div>
+        </div>
+    </div>
+</div>

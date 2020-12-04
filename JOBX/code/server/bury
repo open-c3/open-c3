@@ -1,0 +1,110 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOBX/lib -I/data/Software/mydan/JOBX/private/lib
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use POSIX;
+use Util;
+use Logs;
+use YAML::XS;
+use LWP::UserAgent;
+use JSON;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+
+=cut
+
+sub getjobstatus
+{
+    my ( $projectid, $uuid )= @_;
+    my $ua = LWP::UserAgent->new();
+    $ua->agent('Mozilla/9 [en] (Centos; Linux)');
+    my %env = eval{ Util::envinfo( qw( appkey appname envname ) ) };
+    return +{ stat => $JSON::false, info => "fromat error $@" } if $@;
+    $ua->default_header( map{ $_ => $env{$_} }qw( appname appkey) );
+    $ua->timeout( 10 );
+    $ua->default_header ( 'Cache-control' => 'no-cache', 'Pragma' => 'no-cache' );
+    my $url = "http://api.job.open-c3.org/task/$projectid/$uuid";
+    my $res = $ua->get( $url );
+    my $cont = $res->content;
+    return +{ stat => $JSON::false, info => "get subtask status fail", call => $url, content => $cont } unless $res->is_success;
+    my $data = eval{JSON::from_json $cont};
+    return +{ stat => $JSON::false, info => "get subtask status no json", call => $url, content => $cont }  if $@;
+    return +{ stat => $JSON::false, info => "get subtask status, stat no true", call => $url, content => $cont } unless $data->{stat};
+    return +{ stat => $JSON::false, info => "get subtask status, data no HASH", call => $url, content => $cont }
+        unless $data->{data} && ref $data->{data} eq 'HASH';
+    return +{ stat => $JSON::false, info => "nofind job status" }  unless $data->{data}{status};
+    return +{ status => $data->{data}{status} };
+};
+
+return sub
+{
+    my %param = @_;
+
+    my ( $myname, $db, $logs ) = ( Util::myname(), $param{db}, Logs->new( 'bury' ) );
+
+    while(1)
+    {
+        warn "do ...\n";
+
+        my $x = eval{ $db->query( "select id,pid,uuid,starttime,starttimems,projectid from task 
+            where slave='$myname' and pid is not null and status<>'success' and status<>'fail'" );};
+        $logs->die( "mysql query fail: $@" ) if $@;
+        $logs->die( "get list fail from mysql" ) unless defined $x && ref $x eq 'ARRAY';
+
+        my $timeout = time - 259200;
+        for my $r ( @$x )
+        {
+            my ( $id, $pid, $uuid, $starttime, $starttimems, $projectid ) = @$r;
+            next unless $pid =~ /^\d+$/;
+            next unless $starttimems =~ /^[\.\d]+$/;
+            next unless $uuid =~ /^[a-zA-Z0-9]+$/;
+
+            if( $starttimems && $starttimems < $timeout )
+            {
+                $db->execute( "update task set reason='kill by jobx\@app, Task timeout' where id=$id and reason is null" );
+                system "killall -9 jobx_worker_task_$uuid";
+            }
+
+            next if kill( 0, $pid );
+
+            my $subtask = eval{ $db->query( "select uuid from subtask where parent_uuid='$uuid' and status='running'"); };
+            $logs->die( "mysql query fail: $@" ) if $@;
+            if( $subtask && @$subtask > 0 )
+            {
+                my $js = getjobstatus( $projectid, $subtask->[0][0] );
+                $logs->die( "getjobstatus fail:". YAML::XS::Dump $js ) unless $js && $js->{status};
+                use Data::Dumper;
+                print Dumper $js;
+                ##TODO norun : Maybe the mission didn't start immediately
+                next unless( $js->{status} eq 'success' || $js->{status} eq 'fail' || $js->{status} eq 'norun' );
+            }
+
+            #my $mtime = ( stat  "$RealBin/../logs/task/$uuid" )[9];
+            my $mtime = time;
+
+            my ( $runtime, $finishtime, $finishtimems );
+
+            if( $mtime )
+            {
+                $mtime ++ if $mtime < $starttimems;
+                $mtime = $starttimems if $mtime < $starttimems;
+                $runtime = sprintf "%0.3f", $mtime - $starttimems;
+                $finishtime = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( int $mtime ) );
+                $finishtimems = $mtime;
+            }
+            else
+            {
+                ( $runtime, $finishtime, $finishtimems ) = ( 0, $starttime, $starttimems );
+            }
+
+            eval{ $db->execute( "update task set status='fail',runtime='$runtime',
+                finishtime='$finishtime',finishtimems='$finishtimems' where id=$id" );};
+            $logs->err( "update task status fail: id=$id :$@" ) if $@;
+        }
+        sleep 3;
+    }
+}

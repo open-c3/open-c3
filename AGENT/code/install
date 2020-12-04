@@ -1,0 +1,66 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib -I/data/Software/mydan/AGENT/private/lib
+use strict;
+use warnings;
+
+use Data::Dumper;
+
+use POSIX;
+
+use Code;
+use Logs;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    uuid => uuid,
+
+    logs => 日志对象
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $uuid, $logs ) = @param{qw( db uuid logs )};
+
+    $logs = Logs->new( 'code.install' ) unless $logs;
+
+    $logs->die( "uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
+
+    my ( $stimems, $stime ) = ( time, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ) );
+
+    my $x = $db->execute( "update install set pid='$$',starttime='$stime',
+        starttimems='$stimems',status='running' where uuid='$uuid' and pid is null" );
+    $logs->die( "install $uuid Already running" ) unless $x && $x eq 1;
+
+    $x = $db->query( "select `type` from install where uuid='$uuid'" );
+    $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
+    $logs->die( "install uuid null: $uuid" ) unless @$x;
+
+    my ( $type ) = @{$x->[0]};
+
+    my $status;
+    eval{
+        $status = Code->new( "install.plugin/$type" )->run( db => $db, uuid => $uuid );
+    };
+
+    warn "install fail: $@" if $@;
+
+    $status = ( $@ || $status ne 'success' ) ? 'fail' : 'success';
+
+    my ( $ftimems, $ftime ) = ( time, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ) );
+    my $runtime = sprintf "%0.3f", $ftimems - $stimems;
+
+    my $s = eval{ $db->query( "select status from install_detail where uuid='$uuid'" ); };
+    $logs->die( "update install status fail:$@" ) if $@;
+
+    my %c = ( fail => 0, success => 0 );
+    map{ $c{$_->[0]}++ }@$s;
+
+    eval{ $db->execute( "update install set finishtime='$ftime',finishtimems='$ftimems',
+        status='$status',runtime='$runtime',success='$c{success}',fail='$c{fail}' where uuid='$uuid'" ); };
+    $logs->die( "update install status fail:$@" ) if $@;
+}

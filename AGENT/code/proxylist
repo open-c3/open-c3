@@ -1,0 +1,47 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib -I/data/Software/mydan/AGENT/private/lib
+use strict;
+use warnings;
+
+use POSIX;
+use Code;
+use Logs;
+use Util;
+
+use MYDan::Util::OptConf;
+use MYDan::Agent::Client;
+use MYDan::VSSH::Print;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    id => id,
+
+    logs => 日志对象
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $id, $logs ) = @param{qw(db id logs)};
+
+    $logs = Logs->new( 'code.proxylist' ) unless $logs;
+
+    my $x = eval{ $db->query( "select projectid,ip from proxy where status='success'" ) };
+    $logs->die( "mysql query fail: $@" ) if $@;
+    $logs->die( "get proxylist list from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
+
+    my %myip;
+    grep{ $myip{"$1\\.$2\\."} = 1 if $_ =~ /^(\d+)\.(\d+)\.\d+\.\d+$/ }split /\s+/, `hostname -I`;
+    my @ip;
+    for my $ip ( map{$_->[1]}@$x )
+    {
+        next if grep{$ip =~ /^$_/ }keys %myip;
+        push @ip, $ip;
+    }
+    return @ip;
+
+}

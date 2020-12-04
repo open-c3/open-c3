@@ -1,0 +1,77 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use Code;
+use MYDB;
+
+exit unless my $argv = shift;
+
+my ( $u, $projectid, $node, $sudo, $bash, $tail );
+
+eval{
+    if( $argv =~ /^\?u=(.+)&projectid=(\d+)&node=([a-zA-Z0-9\.\-,]+)$/ )
+    {
+        ( $u, $projectid, $node, $sudo ) = ( $1, $2, $3, 'root' );
+    }
+    elsif( $argv =~ /^\?u=(.+)&projectid=(\d+)&node=([a-zA-Z0-9\.\-,]+)&sudo=([a-zA-Z0-9\.\@\_-]+)$/ )
+    {
+        ( $u, $projectid, $node, $sudo ) = ( $1, $2, $3, $4 );
+    }
+    elsif( $argv =~ /^\?u=(.+)&projectid=(\d+)&node=([a-zA-Z0-9\.\-,]+)&bash=1$/ )
+    {
+        ( $u, $projectid, $node, $sudo, $bash ) = ( $1, $2, $3, 'root', 1 );
+    }
+    elsif( $argv =~ /^\?u=(.+)&projectid=(\d+)&node=([a-zA-Z0-9\.\-,]+)&sudo=([a-zA-Z0-9\.\@\_-]+)&bash=1$/ )
+    {
+        ( $u, $projectid, $node, $sudo, $bash ) = ( $1, $2, $3, $4, 1 );
+    }
+    elsif( $argv =~ /^\?u=(.+)&projectid=(\d+)&node=([a-zA-Z0-9\.\-,]+)&tail=1$/ )
+    {
+        ( $u, $projectid, $node, $sudo, $tail ) = ( $1, $2, $3, 'root', 1 );
+    }
+    elsif( $argv =~ /^\?u=(.+)&projectid=(\d+)&node=([a-zA-Z0-9\.\-,]+)&sudo=([a-zA-Z0-9\.\@\_-]+)&tail=1$/ )
+    {
+        ( $u, $projectid, $node, $sudo, $tail ) = ( $1, $2, $3, $4, 1 );
+    }
+    else
+    {
+        die "param error\n";
+    }
+    
+    print "projectid: $projectid\n";
+    print "node: $node\n";
+    
+    my ( $sso, $pms, $nodeinfo_check ) = map{ Code->new( $_ ) } qw( auth/sso auth/pms nodeinfo_check );
+
+    my $user = eval{ $sso->run( cookie =>  $u ) };
+    die "get user name fail" unless $user;
+
+    my $db = MYDB->new( "$RealBin/../conf/conn" );
+    my $checkerror = eval{ $nodeinfo_check->run( db => $db, id => $projectid, node => $node ) };
+    die "nodeinfo_check code err:$@\n" if $@;
+    die "check node error,no belong the project: $checkerror\n" if $checkerror;
+
+    my $p = eval{ $pms->run( cookie => $u, treeid => $projectid, point => $sudo eq 'nobody' ? 'openc3_job_vsshnobody' : 'openc3_job_vssh' ) };
+    die "no permission\n" unless $p;
+    
+    print "OK\n";
+    
+    my $tsocks = -e "/usr/bin/tsocks" ? "/usr/bin/tsocks " : '';
+    if( $bash )
+    {
+        system "$tsocks$RealBin/cmd.bash --host '$node' --user '$user' --sudo '$sudo' --projectid $projectid";
+    }
+    elsif( $tail )
+    {
+        system "$tsocks$RealBin/cmd.tail --host '$node' --user '$user' --sudo '$sudo' --projectid $projectid";
+    }
+    else
+    {
+        system "$tsocks$RealBin/cmd.vssh --range '$node' --user '$user' --sudo '$sudo' --projectid $projectid";
+    }
+};
+
+print $@ if $@;
+
+sleep 1000;

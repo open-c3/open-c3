@@ -1,0 +1,32 @@
+<div class="modal-header">
+    <h4  class="modal-title">填写空变量</h4>
+</div>
+<div>
+    <form name="varForm">
+    <div class="panel-tabs" style="width: 100%">
+        <table class="table table-hover text-center table-condensed">
+            <thead>
+            <tr>
+                <th style="text-align: center;">#</th>
+                <th style="text-align: center;">变量名</th>
+                <th style="text-align: center;">值</th>
+                <th style="text-align: center;">描述</th>
+            </tr>
+            </thead>
+            <tr ng-repeat="ss in emptyvars.emptyVar">
+                <td style="width: 5%">{{$index}}</td>
+                <td ><input type="text" class="form-control input-global" ng-model="ss.name" readonly></td>
+                <td ><input type="text" class="form-control input-global" ng-model="ss.value"  required></td>
+                <td ><input type="text" class="form-control input-global" ng-model="ss.describe" readonly></td>
+            </tr>
+        </table>
+    </div>
+    <div class="row">
+        <div class="col-sm-5 form-group pull-right">
+            <button class="btn btn-primary" ng-disabled="varForm.$invalid" ng-click="emptyvars.inputOver()">确认</button>
+            <button class="btn btn-warning" ng-click="emptyvars.cancel()">取消</button>
+        </div>
+    </div>
+    </form>
+</div>
+

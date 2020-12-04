@@ -1,0 +1,54 @@
+<div class="row block" id="changewidth">
+    <div class="panel panel-success">
+
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-success" ng-click="historyjobdetailsublog.init()">
+                    <i class="fa fa-refresh fa-fw" ng-if="historyjobdetailsublog.taskInfo.status=='running'" ng-class="{'fa-spin':historyjobdetailsublog.taskInfo.status=='running'}"></i>
+                </button>
+                <button class="btn btn-success" ng-click="historyjobdetailsublog.cancel()" uib-tooltip="关闭">
+                    <i class="fa fa-times fa-fw"></i>
+                </button>
+            </span>
+            <h5>任务执行日志</h5>
+        </div>
+        <div class="table-responsive" style="width: 100%">
+            <table class="table table-bordered" style="font-weight: bold;border: 0px;">
+                <tbody>
+                <tr>
+                    <td>任务名称</td>
+                    <td>{{historyjobdetailsublog.taskInfo.extended.name}}</td>
+                    <td>任务类型</td>
+                    <td>{{historyjobdetailsublog.pluginname[historyjobdetailsublog.taskInfo.subtask_type]}}{{plugin}}</td>
+                    <td>执行账户</td>
+                    <td>{{historyjobdetailsublog.taskInfo.extended.user }}{{ historyjobdetailsublog.taskInfo.extended.approver}}</td>
+                    <td>耗时</td>
+                    <td>{{historyjobdetailsublog.seftime(historyjobdetailsublog.taskInfo.starttime,historyjobdetailsublog.taskInfo.finishtime)}}</td>
+                </tr>
+                <tr>
+                    <td>任务状态</td>
+                    <td><span style="font-weight: 'bold'" ng-style="statucolor">{{historyjobdetailsublog.statuszh[historyjobdetailsublog.taskInfo.status]}}</span></td>
+                    <td>开始时间</td>
+                    <td>{{historyjobdetailsublog.taskInfo.starttime}}</td>
+                    <td>结束时间</td>
+                    <td>{{historyjobdetailsublog.taskInfo.finishtime}}</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="panel-body">
+            <div>
+                <h5 class="fwbold">日志详情</h5>
+                <job-subtask-log-area jobuuid="historyjobdetailsublog.taskuuid" loguuid="historyjobdetailsublog.loguuid" jobaddr="historyjobdetailsublog.logaddr"  class="fluid-width"></job-subtask-log-area>
+            </div>
+        </div>
+
+        <div class="panel-footer text-right">
+            <button class="btn btn-warning" ng-click="historyjobdetailsublog.cancel()">Cancel</button>
+        </div>
+
+    </div>
+
+</div>

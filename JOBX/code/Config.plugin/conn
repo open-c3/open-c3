@@ -1,0 +1,35 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOBX/lib -I/data/Software/mydan/JOBX/private/lib
+use strict;
+use warnings;
+use Code;
+use YAML::XS;
+use FindBin qw( $RealBin );
+
+$| ++;
+
+=head1 SYNOPSIS
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $Config, $envname ) = @param{qw( Config envname )};
+
+    die "mysql config undef" unless $Config->{mysql};
+
+    my %macro = ( %{$Config->{mysql}}, envname => $envname );
+
+    die "config/conn.Template null" unless my $conn = `cat $RealBin/../config/conn.Template`;
+
+
+    for my $k ( keys %macro )
+    {
+        $conn =~ s#\[\[:$k:\]\]#$macro{$k}#g;
+    }
+
+    open my $H , ">$RealBin/../conf/conn" or die "open conf/conn fail:$!";
+    print $H $conn;
+    close $H;
+}

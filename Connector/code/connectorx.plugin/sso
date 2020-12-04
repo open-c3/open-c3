@@ -1,0 +1,57 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
+use strict;
+use warnings;
+use JSON;
+use YAML::XS;
+use LWP::UserAgent;
+my %app;
+my $ssousername;
+BEGIN{
+    for my $file ( glob "/data/Software/mydan/*/conf/appname" )
+    {
+        my $name = `cat $file`;
+        chomp $name;
+        $file =~ s/appname/appkey/;
+        my $key = `cat $file`;
+        chomp $key;
+        $app{$name} = $key;
+    }
+    my $config = eval{ YAML::XS::LoadFile '/data/Software/mydan/Connector/config.inix' };
+    die "load config.ini fail: $@" if $@;
+    die "ssousername undef on config.ini" unless $ssousername = $config->{ssousername};
+};
+
+$| ++;
+
+=head1 SYNOPSIS
+
+#第一种
+    cookie => 'MTUxNTAzMzg1NnxEdi1CQkFFQ180SUFBUXdCRUFBQU5mLUNBQUVGZEc5clpXNEdjM1J5YVc1bkRDSUFJREk0T1Rsa1l6aG1ZMk5tWWpRMk16TmtaV1kzTlRSbE1XWmtNVFpsTW1JeHyVJcLDk8iEGWlwsv8le0WzgNxhZ6JIYRFMOYzE8fKecA==',
+
+#第二种
+    appkey =>
+    appname => 
+
+=cut
+
+return sub
+{
+    my %param = @_;
+    return 'debug@api' if $ENV{MYDan_DEBUG};
+    if( $param{appkey} && $param{appname} )
+    {
+         return ( $app{$param{appname}} && $app{$param{appname}} eq $param{appkey} ) ? "$param{appname}\@app" : undef;
+    }
+    else
+    {
+        my $ua = LWP::UserAgent->new;
+        my $res = $ua->get( "$ssousername$param{cookie}" );
+        if($res->is_success)
+        {
+            my $v = eval{decode_json $res->decoded_content};
+            return $v->{data} if $v->{stat};
+        }
+        return;
+    }
+}
+

@@ -1,0 +1,56 @@
+<div class="row block">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="关闭" ng-click="add_image.cancel_show()"><i class="fa fa-times" aria-hidden="true"></i></button>
+            </span>
+            <h5>添加镜像方法</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="pt20">
+                <span class="panel-controls">
+                        1.修改本地配置，添加镜像仓库地址：
+                    <br>
+                        &emsp;在/etc/docker/daemon.json添加下面内容
+
+                        {
+                          "registry-mirrors": ["https://registry.docker-cn.com"],
+                           "insecure-registries": ["10.10.10.10:5000"]
+                        }
+                    <br>
+                    <br>
+                        2.添加用户名密码：
+                    <br>
+                            &emsp;到 http://job.open-c3.org/#/work/common/14496 执行”添加docker仓库用户“作业添加用户名密码
+                    <br>
+                    <br>
+                        3.docker登录：
+                    <br>
+                            &emsp;docker login -u 用户名 -p 密码 10.10.10.10:5000
+                    <br>
+                    <br>
+                        4.打tag：
+                    <br>
+                            &emsp;如： docker tag docker.io/centos:6 10.10.10.10:5000/centos:6
+                    <br>
+                    <br>
+                        5.上传镜像：
+                    <br>
+                            &emsp;如： docker push 10.10.10.10:5000/centos:6
+                    <br>
+                    <br>
+                        6. 发布镜像到构建系统：
+                    <br>
+                            &emsp;到 http://job.open-c3.org/#/work/common/14496 执行“从镜像仓库把镜像同步到国内CI”作业，image名就是要发布的名字
+                    <br>
+                    <br>
+                        7.登出：
+                    <br>
+                            &emsp;docker logout
+                </span>
+
+
+            </div>
+    </div>
+</div>

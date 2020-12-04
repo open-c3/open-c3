@@ -1,0 +1,23 @@
+#This is AntDen Dockerfile#version 1.0
+#Author: lijinfeng2011@gmail.com
+#Base image 基础镜像
+
+FROM centos:7
+MAINTAINER lijinfeng2011
+
+RUN yum -y install make gcc gcc-c++ libstdc++-devel bzip2 git
+ADD https://nodejs.org/dist/v8.5.0/node-v8.5.0-linux-x64.tar.gz /node-v8.5.0-linux-x64.tar.gz
+RUN tar -zxvf node-v8.5.0-linux-x64.tar.gz -C /
+RUN ln -fsn /node-v8.5.0-linux-x64/bin/node  /usr/bin/node
+RUN ln -fsn /node-v8.5.0-linux-x64/bin/npm  /usr/bin/npm
+
+RUN npm rebuild node-sass
+RUN npm install -g gulp
+RUN npm install -g bower
+
+RUN ln -fsn /node-v8.5.0-linux-x64/bin/gulp /usr/bin/gulp
+RUN ln -fsn /node-v8.5.0-linux-x64/bin/bower /usr/bin/bower
+
+RUN rm -f /node-v8.5.0-linux-x64.tar.gz
+
+WORKDIR /code

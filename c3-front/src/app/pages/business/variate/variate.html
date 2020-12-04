@@ -1,0 +1,37 @@
+<!--<cmloading ng-if="variate.isLoading"></cmloading>-->
+
+<!--<div ng-if="!variate.isLoading">-->
+<div style="background-color: #fff;" >
+
+    <div class="row" style="padding: 0 20px 0;">
+        <nodestr></nodestr>
+    </div>
+
+    <hr class="mv10 clear">
+
+    <div class="panel panel-dark">
+
+        <div class="panel-heading">
+            <h5>变量信息</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="panel-tabs">
+                <table ng-table="variate.data_Table" class="table table-hover text-center table-condensed">
+                    <thead>
+                        <th ng-repeat="item in heads">
+                            {{item}}
+                        </th>
+                        <th>删除</th>
+                    </thead>
+                    <tr ng-repeat="ss in $data">
+                        <td ng-repeat="item in ss track by $index"">{{item}}</td>
+                        <td><a class="fa fa-close fa-fw" ng-click="variate.delete(ss)" style="color: red;"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <dataerror ng-hide="dataready" errmsg={{dataerror}}></dataerror>
+    </div>
+
+</div>

@@ -1,0 +1,53 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use MYDan::Node;
+use MYDan::Util::OptConf;
+
+use MYDan::VSSH;
+use MYDan::VSSH::Execute;
+use FindBin qw( $RealBin );
+use MYDB;
+use Util;
+
+$MYDan::VSSH::Execute::dan=1;
+
+$MYDan::Util::OptConf::THIS = 'vssh';
+
+=head1 SYNOPSIS
+
+ $0 [--range host] [--user foo] [--sudo sudoer ] [--projectid 1]
+
+    [--timeout seconds (default 500)]
+    [--max number (default 128)] \
+
+    
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( range=s user=s sudo=s timeout=i max=i projectid=i ) )->dump( 'vssh' );
+my $range = MYDan::Node->new( $option->dump( 'range' ) );
+ 
+$option->assert( qw( range user sudo projectid ) );
+
+exit unless my @node = $range->load( delete $o{range} )->list;
+
+my $node = join ',', sort @node;
+
+my $db = MYDB->new( "$RealBin/../conf/conn" );
+
+my $audit = sub
+{
+    my $cmd = shift;
+    $cmd =~ s/'/"/g;
+    $db->execute( "insert into cmdlog (`projectid`,`user`,`node`,`usr`,`cmd`) values('$o{projectid}','$o{user}','$node','$o{sudo}','$cmd')" );
+};
+
+my %env = Util::envinfo( qw( envname domainname appname appkey ) );
+
+$ENV{MYDan_Agent_Proxy_Addr} = "http://api.agent.open-c3.org/proxy/$o{projectid}";
+$ENV{MYDan_Agent_Proxy_Header} = "appname:$env{appname},appkey:$env{appkey}";
+
+MYDan::VSSH->new( node => \@node )->run( %o, audit => $audit  );
+
+exit 0;

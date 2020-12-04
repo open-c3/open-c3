@@ -1,0 +1,25 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use MYDB;
+use FindBin qw( $RealBin );
+
+use Code;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 [--id id] 
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( id=i ) )->dump();
+$option->assert( 'id' );
+
+system "killall ci_findtags_$o{id} 2>/dev/null";
+$0 = "ci_findtags_$o{id}";
+
+my $db = MYDB->new( "$RealBin/../conf/conn" );
+
+Code->new( 'findtags' )->run( db => $db, %o );

@@ -1,0 +1,44 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOBX/lib -I/data/Software/mydan/JOBX/private/lib
+use strict;
+use warnings;
+use Code;
+use YAML::XS;
+use FindBin qw( $RealBin );
+use File::Basename;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my $envname = `cat $RealBin/../conf/envname`;
+    chomp $envname;
+    die "envname undef" unless $envname;
+
+    my $Config = eval{ YAML::XS::LoadFile "$RealBin/../config/Config" };
+    die "load config fail: $@" if $@;
+
+    die "envnaem $envname undef in config/Config" unless $Config = $Config->{$envname};
+    
+    my $status = 0;
+    for (  glob "$RealBin/../code/Check.plugin/*" )
+    {
+        my $name = basename $_;
+        print '#' x 75, "\n";
+        print "check: $name\n";
+        my $stat = eval{ Code->new( "Check.plugin/$name" )->run( Config => $Config, envname => $envname );};
+        if( $@ )
+        {
+            warn "run $name fail: $@\n";
+            $stat = 2;
+        }
+        print "stat: $stat\n";
+        $status = $stat if $stat > $status;
+    }
+    return $status;
+}

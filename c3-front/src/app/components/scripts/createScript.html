@@ -1,0 +1,102 @@
+<div class="modal-header">
+    <h4  class="modal-title">新建脚本</h4>
+</div>
+<div class="modal-body">
+    <form class="form-horizontal" role="form" name="createForm">
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">脚本名称 <span style="color: red">*</span> :</label>
+                <div class="col-sm-9">
+                    <input type="text" name="scriptname" class="form-control" ng-model="scriptName" ng-minlength="2" required />
+                    <span style="color:red" ng-show="createForm.scriptname.$error.minlength">不少于2字符</span>
+                    {{name}}
+                </div>
+            </div>
+        </div>
+        <div class="row" ng-hide="editStatus">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">脚本来源 <span style="color: red">*</span> :</label>
+                <div class="col-sm-9">
+                    <!--选择 仓库类型-->
+                    <div class="admin-form" ng-disabled="unClick">
+                        <div class="option-group field">
+                            <label class="option option-primary">
+                                <input type="radio" name="src"  ng-model="createS.from" value="manual" ng-disabled="unClick" ng-click="createS.scriptManual()">
+                                <span class="radio" style="padding-top: 0;min-height: 0"></span>手工录入
+                            </label>
+                            <label class="option option-primary">
+                                <input type="radio" name="src" ng-model="createS.from" value="clone" ng-disabled="unClick" ng-click="createS.scriptClone()">
+                                <span class="radio" style="padding-top: 0;min-height: 0"></span>脚本克隆
+                            </label>
+
+                        </div>
+                        <div ng-hide="createS.scriptHide" style="padding-top: 10px; padding-left: 0;">
+                            <select class="form-control"  ng-model="selectedScript" ng-change="createS.inputScript()" ng-options="s.name for s in allScript">
+                            </select>
+                            <dataerror ng-hide="dataready" errmsg={{dataerror}}></dataerror>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">脚本内容 <span style="color: red">*</span> :</label>
+                <div class="col-sm-9">
+                    <div class="panel panel-primary">
+                        <div style="border: 1px solid #e5e5e5;padding: 10px">
+
+                            <!--选择 仓库类型-->
+                            <div class="admin-form">
+                                <div class="option-group field" style="padding-bottom: 9px;">
+                                    <label class="option option-primary">
+                                        <input type="radio" name="code" ng-model="scriptType" ng-click="createS.editorSh()" value="shell">
+                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>shell
+                                    </label>
+                                    <label class="option option-primary">
+                                        <input type="radio" name="code" ng-model="scriptType" ng-click="createS.editorPy()" value="python">
+                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>python
+                                    </label>
+                                    <label class="option option-primary">
+                                        <input type="radio" name="code" ng-model="scriptType" ng-click="createS.editorPerl()" value="perl">
+                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>perl
+                                    </label>
+                                    <label class="option option-primary">
+                                        <input type="radio" name="code" ng-model="scriptType" ng-click="createS.editorPhp()" value="php">
+                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>php
+                                    </label>
+                                    <label class="option option-primary">
+                                        <input type="radio" name="code" ng-model="scriptType" ng-click="createS.editorBuildin()" value="buildin">
+                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>内建
+                                    </label>
+
+                                    <label class="option option-primary">
+                                        <input type="radio" name="code" ng-model="scriptType" ng-click="createS.editorAuto()" value="auto">
+                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>自动识别
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div class="form-horizontal">
+                                <!-- shell -->
+                                <div style="height:400px;" class="form-group" id="editor" ></div>
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-5 form-group pull-right">
+                <button class="btn btn-primary" ng-disabled="createForm.$invalid" ng-click="createS.save()">保存</button>
+                <button class="btn btn-warning" ng-click="createS.cancel()">取消</button>
+            </div>
+        </div>
+    </form>
+
+</div>
+

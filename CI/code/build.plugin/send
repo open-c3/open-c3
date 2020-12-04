@@ -1,0 +1,50 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use Code;
+use Logs;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    logs => 日志对象
+
+    uuid => version的uuid
+
+#只有使用uuid来构建的时候才允许send
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $logs, $uuid ) = @param{qw( db logs uuid )};
+
+    $logs = Logs->new( 'code.build.send' ) unless $logs;
+
+    $logs->die( "uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
+
+    my $x = eval{ $db->query( "select project.id,project.name,excuteflow,project.calljobx,project.calljob,project.follow_up,project.callback,project.groupid,version.name,
+            version.tagger, version.taginfo, version.uuid, project.callonlineenv, project.calltestenv from version,project where project.id=version.projectid and uuid='$uuid'",
+            [qw( projectid name excuteflow calljobx calljob follow_up callback groupid version tagger taginfo uuid callonlineenv calltestenv )] );
+    };
+    $logs->die( "get info fail:$@" ) if $@;
+    $logs->die( "get info from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
+    $logs->die( "version uuid is illegal, mismatch: $uuid" ) unless @$x;
+
+    my %data = %{$x->[0]};
+    $data{uuid} = $uuid;
+
+    eval{ Code->new( "build.plugin/send.plugin/torepo" )->run( db => $db, %data ); };
+    $logs->die( "run build.send.torepo fail:$@" ) if $@;
+
+    for(qw( follow_up callback calljobx calljob excuteflow calltestenv callonlineenv ))
+    {
+        next unless $data{$_};
+        eval{ Code->new( "build.plugin/send.plugin/$_" )->run( db => $db, %data ); };
+        $logs->die( "run build.send.$_ fail:$@" ) if $@;
+    }
+}

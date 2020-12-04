@@ -1,0 +1,84 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use Code;
+use Logs;
+
+use FindBin qw( $RealBin );
+
+use Digest::MD5;
+use MYDan::Util::FLock;
+
+use Data::Dumper;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    logs => 日志对象
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $ctrl, $addr, $tag, $logs, $topath ) = @param{qw( ctrl addr tag log topath )};
+    $logs = Logs->new( 'code.build.dump.gitclonebycache' ) unless $logs;
+
+    my $md5 = Digest::MD5->new->add( $param{addr} )->hexdigest;
+    print "cacheid: $md5\n";
+
+    my $path = "$RealBin/../logs/git_cache";
+    my $temppath = "$path/$md5";
+    my $lock = MYDan::Util::FLock->new( "$temppath.lock" );
+
+    print "get lock.\n";
+    for( 1 .. 20 )
+    {
+        last if $lock->lock();
+        $logs->die( "Locked by other processes." ) unless $_ eq 20;
+        sleep 3;
+    }
+    print "get lock success\n";
+
+    eval{
+
+        unless( -d $temppath )
+        {
+            die( "clone error:$!" ) if system "cd $path && $ctrl clone $addr $md5";
+        }
+
+        die( "rev-parse error:$!" ) if system "cd $temppath && $ctrl rev-parse --is-inside-work-tree";
+        die( "config remote.origin.url error:$!" ) if system "cd $temppath && $ctrl config remote.origin.url $addr";
+        die( "fetch error:$!" ) if system "cd $temppath && $ctrl fetch --tags --progress $addr +refs/heads/*:refs/remotes/origin/*";
+        my @tags = `cd $temppath && $ctrl show-ref --tags -d && echo SUCCESS`;
+
+        chomp @tags;
+        print Dumper \@tags;
+
+        die( "show-ref error:$!" ) if $tags[-1] ne "SUCCESS";
+
+        if( $tag )
+        {
+            my $id;
+            map{ $id = $1 if $_ =~ /^([a-z0-9]{40})\s+refs\/tags\/$tag$/;}@tags;
+            die "nofind tags:$tag id\n" unless $id;
+            print "tags: $tag => id: $id\n";
+            die( "config core.sparsecheckout error:$!" ) if system "cd $temppath && $ctrl config core.sparsecheckout true";
+            die( "checkout error:$!" ) if system "cd $temppath && $ctrl checkout -f $id";
+        }
+
+        die "update submodule fail:$!" if system "cd $temppath && $ctrl submodule update --init --recursive";
+        die( "log error:$!" ) if system "cd $temppath && $ctrl log --oneline --graph --all|head -n 30";
+
+        die "cp error:$!" if system "cp -r $temppath $topath/data";
+        die "mv .git error:$!" if system "mv $topath/data/.git $topath/info";
+
+    };
+
+    $logs->die( "ERROR $@" ) if $@;
+
+    $lock->unlock();
+};

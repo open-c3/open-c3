@@ -1,0 +1,81 @@
+<div class="row block">
+    <nodestr></nodestr>
+    <hr class="mv20 clear">
+
+    <div>
+        <div style="float: right;">
+            <form class="form-inline" name="myForm" novalidate>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="cigroup.createProject()"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i> 新建空白流水线</button>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="cigroup.createProjectByTemplate()"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i> 通过模版建流水线</button>
+            </form>
+        </div>
+        <div style="clear: both;">&nbsp;</div>
+    </div>
+
+
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="cigroup.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!cigroup.loadover}" ></i></button>
+            </span>
+            <h5>流水线</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="pt20">
+                <table ng-table="cigroup.activeRegionTable" class="table table-hover text-center table-condensed" show-filter="true">
+                    <tr ng-repeat="m in $data">
+                        <td style="width: 10%" data-title="'ID'" filter="{ id: 'text'}" sortable="'id'">
+                            <i class="fa fa-star-o fa-1x" aria-hidden="true"  ng-if="!m.favorites" ng-click="cigroup.addToFavorites(m.id,m.name)" uib-tooltip="收藏" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-star fa-1x" aria-hidden="true"  ng-if="m.favorites" ng-click="cigroup.delToFavorites(m.id,m.name)" uib-tooltip="取消收藏" style="cursor:pointer;color: #339094;" ></i>
+                            {{m.id}}
+                        </td>
+                        <td style="width: 10%" data-title="'名称'" filter="{ name: 'text'}" sortable="'name'">{{m.name}}</td>
+                        <td style="width: 10%" data-title="'别名'" filter="{ alias: 'text'}" sortable="'alias'">{{m.alias}}</td>
+                        <td style="width: 10%" data-title="'构建状态'">
+                                <div class="panel panel-info" ng-if="m.lastbuild.status" style="cursor:pointer;background-color: {{panelcolor[m.lastbuild.status]}};margin: 0 0 0 " ng-click="cigroup.showlog(m.lastbuild.uuid, m.lastbuild.slave)">
+                                    <i class="fa fa-cloud" ng-if="m.lastbuild.status=='fail'" aria-hidden="true"></i>
+                                    <i class="fa fa-spinner" ng-if="m.lastbuild.status=='running'" ng-class="{'fa-spin':1}" aria-hidden="true"></i>
+                                    <i class="fa fa-sun-o" ng-if="m.lastbuild.status=='success'" aria-hidden="true"></i>
+                                    {{m.lastbuild.name}} <br>{{cigroup.time2date(m.lastbuild.starttime)}}
+                                </div>
+                        </td>
+                        <td style="width: 15%" data-title="'测试环境状态'">
+                                <div class="panel panel-info" ng-if="cigroup.taskInfoTest[m.id]" style="cursor:pointer;background-color: {{panelcolor[cigroup.taskInfoTest[m.id].status]}};margin: 0 0 0 " ng-click="cigroup.deployDetail(cigroup.taskInfoTest[m.id].uuid)">
+                                    <i class="fa fa-cloud" ng-if="cigroup.taskInfoTest[m.id].status=='fail'" aria-hidden="true"></i>
+                                    <i class="fa fa-spinner" ng-if="cigroup.taskInfoTest[m.id].status=='running'" ng-class="{'fa-spin':1}" aria-hidden="true"></i>
+                                    <i class="fa fa-sun-o" ng-if="cigroup.taskInfoTest[m.id].status=='success'" aria-hidden="true"></i>
+                                    {{cigroup.taskInfoTest[m.id].version}} <br>{{cigroup.time2date(cigroup.taskInfoTest[m.id].starttime)}}
+                                    <i class="fa fa-spinner" ng-if="cigroup.taskInfoTestRunning[m.id] && cigroup.taskInfoTest[m.id].status!='running' " ng-class="{'fa-spin':1}" aria-hidden="true"></i>
+                                </div>
+                        </td>
+ 
+                        <td style="width: 15%" data-title="'线上环境状态'">
+                                <div class="panel panel-info" ng-if="cigroup.taskInfoOnline[m.id]" style="cursor:pointer;background-color: {{panelcolor[cigroup.taskInfoOnline[m.id].status]}};margin: 0 0 0 " ng-click="cigroup.deployDetail(cigroup.taskInfoOnline[m.id].uuid)">
+                                    {{cigroup.deployType(cigroup.taskInfoOnline[m.id].uuid)}}
+                                    <i class="fa fa-cloud" ng-if="cigroup.taskInfoOnline[m.id].status=='fail'" aria-hidden="true"></i>
+                                    <i class="fa fa-spinner" ng-if="cigroup.taskInfoOnline[m.id].status=='running'" ng-class="{'fa-spin':1}" aria-hidden="true"></i>
+                                    <i class="fa fa-sun-o" ng-if="cigroup.taskInfoOnline[m.id].status=='success'" aria-hidden="true"></i>
+                                    {{cigroup.taskInfoOnline[m.id].version}} <br>{{cigroup.time2date(cigroup.taskInfoOnline[m.id].starttime)}}
+                                    <i class="fa fa-spinner" ng-if="cigroup.taskInfoOnlineRunning[m.id] && cigroup.taskInfoOnline[m.id].status!='running'" ng-class="{'fa-spin':1}" aria-hidden="true"></i>
+                                </div>
+                        </td>
+ 
+                        <td style="width: 8%" data-title="'编辑者'" filter="{ edit_user: 'text'}" sortable="'edit_user'">{{m.edit_user}}</td>
+                        <td style="width: 15%" data-title="'操作'">
+                            <nobr>
+                                <i class="fa fa-chevron-circle-right fa-2x" aria-hidden="true" ng-click="cigroup.versiondetail(m.id)" uib-tooltip="进入" style="cursor:pointer;color: #339094;" ></i>
+                                <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="cigroup.editconfig(m.id,m.name)" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
+                                <i class="fa fa-clone fa-2x" aria-hidden="true" ng-click="cigroup.copyProject(m.id,m.name)" uib-tooltip="复制为" style="cursor:pointer;color: #339094;" ></i>
+                                <i class="fa fa-bookmark fa-2x" aria-hidden="true" ng-click="cigroup.copyProjectToTemplate(m.id,m.name)" uib-tooltip="另存为模版" style="cursor:pointer;color: #339094;" ></i>
+                                <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="cigroup.deleteProject(m.id)" uib-tooltip="删除" style="cursor:pointer;color: red;" ></i>
+</nobr>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>

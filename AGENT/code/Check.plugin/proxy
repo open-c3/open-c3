@@ -1,0 +1,128 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib -I/data/Software/mydan/AGENT/private/lib
+use strict;
+use warnings;
+
+use Data::Dumper;
+
+use Code;
+use Logs;
+use Util;
+
+use MYDan::Util::OptConf;
+use MYDan::Agent::Client;
+use MYDan::VSSH::Print;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    id => id,
+
+    logs => 日志对象
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $id, $logs ) = @param{qw(db id logs )};
+
+    $logs = Logs->new( 'code.check.proxy' ) unless $logs;
+
+    $logs->die( "id format error" ) unless $id =~ /^\d++$/;
+
+    my $proxy = $db->query( "select id,regionid,ip,status,fail from proxy 
+        where regionid in ( select id from region where projectid='$id') order by id", 
+        [qw( id regionid ip status fail )] 
+    );
+
+    my %node;
+    map{ $node{$_->{ip}}++ }@$proxy;
+    my @node = keys %node;
+
+    return +{} unless @node;
+
+    $MYDan::Util::OptConf::THIS = 'agent';
+    my %o = MYDan::Util::OptConf->load()->dump();
+    $o{verbose} = 1;
+    $o{user} = 'agentsys';
+
+    my %query = ( 
+        code => 'version', 
+        map{ $_ => $o{$_} }qw( user sudo )
+    );
+
+    delete $query{auth};
+    my %result = MYDan::Agent::Client->new(
+        @node
+    )->run( %o, query => \%query );
+    my @failed;
+    map{ 
+        my $exit = $result{$_} && $result{$_} =~ /--- (\d+)\r?\n$/ ? $1 : 1;
+        push( @failed, $_ ) if $exit;
+    }@node;
+    MYDan::VSSH::Print::result( 'rcal' => %result );
+
+    if( @failed )
+    {
+        print "failed:\n";
+        map{ print "  $_\n"; }@failed;
+    }
+
+    my %reason = %Util::reason;
+
+    my %status = map{ $_ => 'success' }@node;
+    for my $node ( @failed )
+    {
+        $status{$node} = 'unkwon error';
+        for my $k ( keys %reason )
+        {
+            if( $result{$node} =~ /$k/  )
+            {
+                $status{$node} = $reason{$k};
+                last;
+            }
+        }
+
+     }    
+
+    my %ok;
+    for my $p ( @$proxy )
+    {
+        if( $p->{status} eq 'success' )
+        {
+            if( $status{$p->{ip}} eq 'success' ) # success to success
+            {
+                if( $p->{fail} > 0 )
+                {
+                    eval{ $db->execute( "update proxy set status='success',reason='',fail=0 where id='$p->{id}'" ) };
+                    $logs->die( "update proxy info fail:$@" ) if $@;
+                }
+                $ok{$p->{regionid}} = $p->{ip} unless $ok{$p->{regionid}};
+            }
+            else  #success to fail
+            {
+                my $s = $p->{fail} >= 10 ? 'fail' : 'success';
+                eval{ $db->execute( "update proxy set status='$s',reason='$status{$p->{ip}}',fail=fail+1 where id='$p->{id}'" ) };
+                $logs->die( "update proxy info fail:$@" ) if $@;
+            }
+        }
+        else
+        {
+            if( $status{$p->{ip}} eq 'success' ) #fail to success
+            {
+                eval{ $db->execute( "update proxy set status='success',reason='',fail=0 where id='$p->{id}'" ) };
+                $logs->die( "update proxy info fail:$@" ) if $@;
+                $ok{$p->{regionid}} = $p->{ip} unless $ok{$p->{regionid}};
+            }
+            else #fail to fail
+            {
+                eval{ $db->execute( "update proxy set reason='$status{$p->{ip}}',fail=fail+1 where id='$p->{id}'" ) };
+                $logs->die( "update proxy info fail:$@" ) if $@;
+            }
+        }
+    }
+    return \%ok;
+}

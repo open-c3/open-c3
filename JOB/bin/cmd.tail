@@ -1,0 +1,145 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use MYDan::Util::OptConf;
+
+use FindBin qw( $RealBin );
+use MYDB;
+use Util;
+
+use AnyEvent;  
+use AnyEvent::Impl::Perl;  
+use AnyEvent::Socket;  
+use AnyEvent::Handle;  
+  
+use MYDan::Node;
+
+use MYDan::Agent::Client;
+use MYDan::Util::OptConf;
+use Data::UUID;
+
+
+$MYDan::Util::OptConf::THIS = 'agent';
+
+=head1 SYNOPSIS
+
+ $0 [--host host] [--user foo] [--sudo sudoer ] [--projectid 1]
+
+    [--timeout seconds (default 500)]
+    [--max number (default 128)] \
+
+    
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->set( timeout => 900 )->get( qw( host=s user=s sudo=s timeout=i max=i projectid=i ) )->dump( 'agent' );
+$option->assert( qw( host user sudo projectid ) );
+
+my $db = MYDB->new( "$RealBin/../conf/conn" );
+$db->execute( "insert into cmdlog (`projectid`,`user`,`node`,`usr`,`cmd`) values('$o{projectid}','$o{user}','$o{host}','$o{sudo}','remotetail')" );
+
+my %env = Util::envinfo( qw( envname domainname appname appkey ) );
+
+$ENV{MYDan_Agent_Proxy_Addr} = "http://api.agent.open-c3.org/proxy/$o{projectid}";
+$ENV{MYDan_Agent_Proxy_Header} = "appname:$env{appname},appkey:$env{appkey}";
+
+$o{addr} = `cat /etc/job.exip`;
+chomp $o{addr};
+die "addr format error" unless $o{addr} && $o{addr} =~ /^[a-zA-Z0-9\._-]+$/;
+
+my $range = MYDan::Node->new( $option->dump( 'host' ) );
+exit unless my @node = $range->load( delete $o{host} )->list;
+
+my $listen = $o{listen};
+
+my $uuid = $o{uuid} || Data::UUID->new->create_str();
+warn "[MYDan]task uuid $uuid\n";
+
+unless( $listen )
+{
+    my $scan = `netstat  -tun|awk '{print \$4}'|awk -F: '{print \$2}'`;
+    my %open = map{ $_ => 1 }my @open = $scan =~ /(\d+)/g;
+    my %port = map{ $_ => 1 }65135 .. 65535;
+    ( $listen ) = grep{ ! $open{$_} }keys %port;
+}
+
+
+my ( $cv, $index, %index, %head ) = ( AE::cv, 0 );
+
+tcp_server undef, $listen, sub {
+    my ( $fh, $ip, $port ) = @_ or die "[MYDan]tcp_server: $!";
+
+    $index ++;
+    warn "[MYDan]tcp connet from $ip:$port\n";
+
+	my $handle; $handle = new AnyEvent::Handle(
+		fh => $fh,
+		rbuf_max => 10240000,
+		wbuf_max => 10240000,
+		autocork => 1,
+		on_read => sub {
+			my $self = shift;
+            $self->unshift_read (
+            	chunk => length $self->{rbuf},
+            	sub {
+                    if( $head{$ip} )
+                    {
+                        print $_[1];
+                    }
+                    else
+                    {
+                        my $x = $_[1];
+                        $x =~ s/^([^:]+):([^:]+)://;
+                        if( $1 ne $uuid )
+                        {
+                            $handle->push_shutdown;
+                            return;
+                        }
+            		    warn "[MYDan]host:$2 ip:$ip port:$port:\n";
+                        print $x;
+                        $head{$ip} = 1;
+                    }
+            	},
+            )
+		},
+
+		on_error => sub{
+			warn "[MYDan]tcp error: $ip:$port\n";
+		},
+		on_eof => sub{
+			warn "[MYDan]tcp close: $ip:$port\n";
+		},
+	);
+    $index{$index}{handle} = $handle;
+};
+
+$o{user} = `id -un` and chop $o{user}  unless $o{user};
+
+my %query = (
+    code => 'tail2tcp',
+    argv => +{ 
+        addr => $o{addr}, 
+        port => $listen, 
+        uuid => $uuid,
+        seek => $o{seek},
+        file => @ARGV ? \@ARGV : '/etc/wk.tail',
+    },
+    map{ $_ => $o{$_} }qw( user sudo )
+);
+
+my %result = MYDan::Agent::Client->new( 
+    @node
+)->run( %o, query => \%query ); 
+
+map
+{
+    chomp $result{$_};
+    my $stat = $result{$_} && $result{$_} =~ s/--- 0$// ? 'success' : 'fail';
+    warn "[MYDan]call $_ $stat $result{$_}\n";
+}@node;
+
+my $int = AnyEvent->signal( signal => "INT", cb => sub{ warn "kill.\n"; $cv->send; } );
+
+$cv->recv;
+
+exit 0;

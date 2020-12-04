@@ -1,0 +1,94 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use MIME::Base64;
+use FindBin qw( $RealBin );
+use Time::HiRes qw/time/;
+use YAML::XS;
+use uuid;
+use Logs;
+use keepalive;
+use Encode;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    uuid => uuid,
+
+    logs => 日志对象
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $uuid, $logs ) = @param{qw( db uuid logs )};
+
+    $logs = Logs->new( 'code.webhooks' ) unless $logs;
+
+    $logs->die( "uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
+
+    my $conf = eval{ YAML::XS::LoadFile "$RealBin/../logs/webhooks_data/$uuid" };
+    $logs->die( "load data uuid: $uuid fail : $@" ) if $@; 
+
+    map { $logs->die( "$_ undef" ) unless $conf->{$_}; }qw( ref event_name TOKEN project user_email );
+
+    $logs->die(  "nofind addr" )  unless my @addr =  grep{ $_ }map{ $conf->{project}{$_} }qw( git_http_url git_ssh_url );
+
+    my $password = encode_base64( encode('UTF-8',  $conf->{TOKEN}) );
+    my $x = $db->query( 
+        sprintf "select id,autobuild,webhook_release from project where webhook='1' and webhook_password='$password' and addr in( %s )", join ',', map{ "'$_'" }@addr
+    );
+    $logs->die( "get info fail:$@" ) if $@;
+    $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
+    $logs->die( "build uuid null: $uuid" ) unless @$x;
+
+    my $version;
+    my $branch;
+    if( $conf->{event_name} eq 'tag_push' )
+    {
+        $version = $conf->{ref};
+        $branch = $version;
+        $logs->die( "ref error" ) unless $version =~ s#^refs/tags/##;
+    }
+    elsif( $conf->{event_name} eq 'push')
+    {
+        $branch =  $conf->{ref};
+        $logs->die( "ref error" ) unless $branch =~ s#^refs/heads/##;
+        $branch =~ s#/#._.#g;
+        $version = "release-testonly-$uuid-$branch";
+    }
+    else
+    {
+        $logs->die( 'unkown event_name' );
+    }
+
+    for( @$x )
+    {
+        my ( $projectid, $autobuild, $webhook_release ) = @$_;
+        my @webhook_releases = split(/,/, $webhook_release);
+        my $releas_status;
+        if ($webhook_release && grep /^$branch$/, @webhook_releases) {
+            $releas_status=1;
+        } elsif ($webhook_release){
+            $releas_status=0;
+        } else {
+            $releas_status=1;
+        }
+
+        if ($releas_status) {
+            my ( $status, $reason ) = $autobuild ? ( 'init', '' ) : ( 'done', 'auto build off' );
+            my $uuid = uuid->new()->create_str;
+            my $slave = eval{ keepalive->new( $db )->slave() }; 
+            eval{ $db->execute( "insert into version (`projectid`,`name`,`status`,`calltype`,`user`,`uuid`,`tagger`,`slave`,`reason`)
+                    values('$projectid','$version','$status','webhook','$conf->{user_email}','$uuid','$conf->{user_email}','$slave','$reason')" ); };
+        } else {
+            $logs->say("$branch not in @webhook_releases");
+        }
+
+
+    }
+}

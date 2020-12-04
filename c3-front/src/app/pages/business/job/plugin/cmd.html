@@ -1,0 +1,188 @@
+<div class="modal-header">
+    <h4  class="modal-title">新建脚本步骤</h4>
+</div>
+    <div class="panel panel-primary">
+        <div class="panel-body">
+
+            <div class="form-horizontal">
+
+                <form class="form-horizontal" name="scriptForm"  role="form" novalidate>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">作业名称 <span style="color: red">*</span></label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" name="s_name" ng-model="scriptjob.s_name" ng-minlength="3" ng-disabled="unClick" required />
+
+                                <span style="color:red" ng-show="scriptForm.s_name.$error.minlength">不少于2字符</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">执行账户 <span style="color: red">*</span></label>
+                            <div class="col-sm-7">
+                                <select  class="form-control " style="font-size: 18px;padding: 0 12px;" ng-model="selectedUser" ng-options="s.username as s.username for s in allProUsers" required>
+                                </select>
+
+                            </div>
+                            <button class="btn btn-primary col-sm-1" uib-tooltip="添加" ng-click="scriptjob.addProUser()"><i class="fa fa-plus"></i></button>
+
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-10 form-group" style="margin-top: -23px;">
+                            <label class="col-sm-3 control-label"></span></label>
+                            <div class="col-sm-7">
+                                <dataerror ng-hide="dataready" errmsg={{dataerror}}></dataerror>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">目标机器 <span style="color: red">*</span></label>
+                            <div class="col-sm-9">
+                                <button class="btn btn-primary" ng-click="scriptjob.choiceServer()" required >选择服务器</button>
+                                <table ng-table="choice.choiceResult" class="table table-hover" ng-show="choiceShow" style="margin-top: 10px;border: 1px solid #ddd;" >
+                                    <thead >
+                                        <tr>
+                                            <th style="text-align: left;">编号</th>
+                                            <th style="text-align: left;">名称</th>
+                                            <th style="text-align: left;">类型</th>
+                                            <th style="text-align: left;">操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="ss in choiceResult">
+                                            <td>{{$index + 1}}</td>
+                                            <td ng-if="nodeType =='group'"  >{{ss.name}}</td>
+                                            <td ng-if="nodeType =='builtin'">{{ss}}</td>
+                                            <td ng-if="nodeType =='variable'">{{ss.variable}}</td>
+                                            <td>{{choiceType}}</td>
+                                            <td>
+                                                <button ng-if="nodeType =='group'"  ng-click="scriptjob.delChoice($index, ss.name)">删除</button>
+                                                <button ng-if="nodeType =='builtin'" ng-click="scriptjob.delChoice($index, ss)">删除</button>
+                                                <button ng-if="nodeType =='variable'" ng-click="scriptjob.delChoice($index, ss.variable)">删除</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">脚本来源 <span style="color: red">*</span></label>
+                            <div class="col-sm-9">
+                                <div class="admin-form">
+                                    <div class="option-group field" >
+                                        <label class="option option-primary" ng-model="unClick">
+                                            <input type="radio" name="src" ng-model="scriptjob.from" value="manual" ng-click="scriptjob.scriptManual()" ng-disabled="unClick">
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>手工录入
+                                        </label>
+                                        <label class="option option-primary">
+                                            <input type="radio" name="src" ng-model="scriptjob.from" value="clone" ng-click="scriptjob.scriptClone()" ng-disabled="unClick">
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>脚本克隆
+                                        </label>
+                                        <label class="option option-primary">
+                                            <input type="radio" name="src" ng-model="scriptjob.from" value="local" ng-click="scriptjob.scriptLocal()" ng-disabled="unClick">
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>本地脚本
+                                        </label>
+                                    </div>
+
+                                    <div ng-hide="scriptjob.scriptHide" style="padding-top: 10px; padding-left: 0;">
+                                        <select class="form-control"  ng-model="selectedScript" ng-change="scriptjob.inputScript()" ng-options="s.name for s in allScript">
+                                        </select>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">脚本内容 <span style="color: red">*</span></label>
+                            <div class="col-sm-9">
+                                <div class="panel panel-primary">
+                                    <div style="border: 1px solid #e5e5e5;padding: 10px">
+
+                                        <div class="admin-form">
+                                            <div class="option-group field" style="padding-bottom: 9px;">
+                                                <label class="option option-primary">
+                                                    <input type="radio" name="cont" ng-model="scriptType" ng-click="scriptjob.editorSh()" ng-disabled="scriptUnclick" value="shell">
+                                                    <span class="radio" style="padding-top: 0;min-height: 0"></span>shell
+                                                </label>
+                                                <label class="option option-primary">
+                                                    <input type="radio" name="cont" ng-model="scriptType" ng-click="scriptjob.editorPy()" ng-disabled="scriptUnclick" value="python">
+                                                    <span class="radio" style="padding-top: 0;min-height: 0"></span>python
+                                                </label>
+                                                <label class="option option-primary">
+                                                    <input type="radio" name="cont" ng-model="scriptType" ng-click="scriptjob.editorPerl()" ng-disabled="scriptUnclick" value="perl">
+                                                    <span class="radio" style="padding-top: 0;min-height: 0"></span>perl
+                                                </label>
+                                                <label class="option option-primary">
+                                                    <input type="radio" name="cont" ng-model="scriptType" ng-click="scriptjob.editorPhp()" ng-disabled="scriptUnclick" value="php">
+                                                    <span class="radio" style="padding-top: 0;min-height: 0"></span>php
+                                                </label>
+                                                <label class="option option-primary">
+                                                    <input type="radio" name="cont" ng-model="scriptType" ng-click="scriptjob.editorBuildin()" ng-disabled="scriptUnclick" value="buildin">
+                                                    <span class="radio" style="padding-top: 0;min-height: 0"></span>内建
+                                                </label>
+                                                <label class="option option-primary">
+                                                    <input type="radio" name="cont" ng-model="scriptType" ng-click="scriptjob.editorAuto()" ng-disabled="scriptUnclick" value="auto">
+                                                    <span class="radio" style="padding-top: 0;min-height: 0"></span>自动识别
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-horizontal">
+                                                <div style="height:400px;" class="form-group" id="editor" ></div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">脚本参数</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control"  ng-model="s_argv">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">超时时间</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" placeholder="脚本执行超时时间，单位为秒，默认60秒" ng-model="s_timeout">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">结束是否暂停</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" placeholder="任务执行结束后是否暂停，如果不填，则表示不停止。" ng-model="pause">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-3 form-group" style="margin-left: 40%;">
+                            <button class="btn btn-success" ng-disabled="scriptForm.$invalid" ng-click="scriptjob.returnSave(scriptForm)">保存</button>
+                            <button class="btn btn-warning" ng-click="scriptjob.cancel(scriptForm)">取消</button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+
+
+        </div>
+    </div>

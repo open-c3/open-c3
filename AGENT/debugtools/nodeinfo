@@ -1,0 +1,21 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib -I/data/Software/mydan/AGENT/private/lib
+use strict;
+use warnings;
+use MYDB;
+use FindBin qw( $RealBin );
+use Data::Dumper;
+
+use MYDan::Util::OptConf;
+use Code;
+
+=head1 SYNOPSIS
+
+ $0 [--id projectid] 
+
+=cut
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( id=i ) )->dump();
+$option->assert( 'id' );
+
+my @node = Code->new( 'nodeinfo' )->run( %o );
+print Dumper \@node;

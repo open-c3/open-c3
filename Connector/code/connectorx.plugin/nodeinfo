@@ -1,0 +1,43 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
+use strict;
+use warnings;
+use Logs;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    id => 1,
+    logs => 日志对象
+
+=cut
+
+my ( $nodeinfo, %env );
+BEGIN{
+    my $config = eval{ YAML::XS::LoadFile '/data/Software/mydan/Connector/config.inix' };
+    die "load config.ini fail: $@" if $@;
+    die "nodeinfo unfind in config.inix" unless $nodeinfo = $config->{nodeinfo};
+    %env = %{$config->{nodeinfoenv}} if $config->{nodeinfoenv} && ref $config->{nodeinfoenv} eq 'HASH';
+};
+
+
+return sub
+{
+    my ( %param )= @_;
+    my ( $id, $logs ) = @param{qw(id logs)};
+
+    $logs = Logs->new( 'code.nodeinfo' ) unless $logs;
+
+    $logs->die( "id not a number" ) unless $id =~ /^\d+$/;
+
+    my $ua = LWP::UserAgent->new;
+    $ua->default_header( %env ) if %env;
+    my $res = $ua->get( "$nodeinfo$id" );
+    if($res->is_success)
+    {
+        my $v = eval{decode_json $res->decoded_content};
+        return @{$v->{data}} if $v->{stat} && ref $v->{data} eq 'ARRAY';
+    }
+    #TODO die
+    die "die";
+}

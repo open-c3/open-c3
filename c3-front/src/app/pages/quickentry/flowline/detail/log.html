@@ -1,0 +1,25 @@
+<div class="row block">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="cictrlLog.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!cictrlLog.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="关闭" ng-click="cictrlLog.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
+            </span>
+            <h5>{{ cictrlLog.nodeStr }}</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="pt20">
+                <table ng-table="cictrlLog.activeRegionTable" class="table table-hover text-center table-condensed">
+                    <tr ng-repeat="m in $data">
+                        <td data-title="'编号'">{{m.id}}</td>
+                        <td data-title="'操作人'">{{m.user}}</td>
+                        <td data-title="'日志内容'">{{m.info}}</td>
+                        <td data-title="'操作时间'">{{m.create_time}}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

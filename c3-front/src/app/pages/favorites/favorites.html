@@ -1,0 +1,84 @@
+<div class="row block">
+
+    <div>
+        <div style="float: right;">
+            <form class="form-inline" name="myForm" novalidate>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="favorites.addFavorites()"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i> 更多待收藏</button>
+            </form>
+        </div>
+        <div style="clear: both;">&nbsp;</div>
+    </div>
+
+    <div class="panel panel-primary">
+        <div style="padding: 10px">
+        </div>
+
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="favorites.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!favorites.loadover}" ></i></button>
+            </span>
+            <h5>我收藏的流水线</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="pt20">
+                <table ng-table="favorites.activeRegionTable" class="table table-hover text-center table-condensed" show-filter="true">
+                    <tr ng-repeat="m in $data">
+                        <td style="width: 10%" data-title="'ID'" filter="{ id: 'text'}" sortable="'id'">
+                            <i class="fa fa-star fa-1x" aria-hidden="true"  ng-if="m.favorites" ng-click="favorites.delToFavorites(m.id,m.name)" uib-tooltip="取消收藏" style="cursor:pointer;color: #339094;" ></i>
+                            {{m.id}}
+                        </td>
+                        <td style="width: 10%" data-title="'名称'" filter="{ name: 'text'}" sortable="'name'">{{m.name}}</td>
+                        <td style="width: 10%" data-title="'别名'" filter="{ alias: 'text'}" sortable="'alias'">{{m.alias}}</td>
+                        <td style="width: 10%" data-title="'服务树名'" filter="{ treename: 'text'}" sortable="'treename'">
+                            <nobr>
+                                {{m.treename}}
+                                <i class="fa fa-chevron-circle-right fa-1x" aria-hidden="true" ng-click="favorites.treedetail(m.groupid)" uib-tooltip="进入" style="cursor:pointer;color: #339094;" ></i>
+                            </nobr>
+                        </td>
+
+
+                        <td style="width: 10%" data-title="'构建状态'">
+                                <div class="panel panel-info" ng-if="m.lastbuild.status" style="cursor:pointer;background-color: {{panelcolor[m.lastbuild.status]}};margin: 0 0 0" ng-click="favorites.showlog(m.lastbuild.uuid, m.lastbuild.slave)">
+                                    <i class="fa fa-cloud" ng-if="m.lastbuild.status=='fail'" aria-hidden="true"></i>
+                                    <i class="fa fa-spinner" ng-if="m.lastbuild.status=='running'" ng-class="{'fa-spin':1}" aria-hidden="true"></i>
+                                    <i class="fa fa-sun-o" ng-if="m.lastbuild.status=='success'" aria-hidden="true"></i>
+                                    # {{m.lastbuild.name}} <br>耗时 {{favorites.seftime(m.lastbuild.starttime,m.lastbuild.finishtime)}}<br>{{favorites.time2date(m.lastbuild.starttime)}}
+                                </div>
+                        </td>
+                        <td style="width: 15%" data-title="'测试环境状态'">
+                                <div class="panel panel-info" ng-if="favorites.taskInfoTest[m.id]" style="cursor:pointer;background-color: {{panelcolor[favorites.taskInfoTest[m.id].status]}};margin: 0 0 0" ng-click="favorites.deployDetail(favorites.taskInfoTest[m.id].projectid,favorites.taskInfoTest[m.id].uuid)">
+                                    <i class="fa fa-cloud" ng-if="favorites.taskInfoTest[m.id].status=='fail'" aria-hidden="true"></i>
+                                    <i class="fa fa-spinner" ng-if="favorites.taskInfoTest[m.id].status=='running'" ng-class="{'fa-spin':1}" aria-hidden="true"></i>
+                                    <i class="fa fa-sun-o" ng-if="favorites.taskInfoTest[m.id].status=='success'" aria-hidden="true"></i>
+                                    # {{favorites.taskInfoTest[m.id].version}} <br>耗时 {{favorites.seftime(favorites.taskInfoTest[m.id].starttime, favorites.taskInfoTest[m.id].finishtime)}}<br>{{favorites.time2date(favorites.taskInfoTest[m.id].starttime)}}
+                                    <i class="fa fa-spinner" ng-if="favorites.taskInfoTestRunning[m.id] && favorites.taskInfoTest[m.id].status!='running' " ng-class="{'fa-spin':1}" aria-hidden="true"></i>
+                                </div>
+                        </td>
+ 
+                        <td style="width: 15%" data-title="'线上环境状态'">
+                                <div class="panel panel-info" ng-if="favorites.taskInfoOnline[m.id]" style="cursor:pointer;background-color: {{panelcolor[favorites.taskInfoOnline[m.id].status]}};margin: 0 0 0" ng-click="favorites.deployDetail(favorites.taskInfoOnline[m.id].projectid,favorites.taskInfoOnline[m.id].uuid)">
+                                    {{favorites.deployType(favorites.taskInfoOnline[m.id].uuid)}}
+                                    <i class="fa fa-cloud" ng-if="favorites.taskInfoOnline[m.id].status=='fail'" aria-hidden="true"></i>
+                                    <i class="fa fa-spinner" ng-if="favorites.taskInfoOnline[m.id].status=='running'" ng-class="{'fa-spin':1}" aria-hidden="true"></i>
+                                    <i class="fa fa-sun-o" ng-if="favorites.taskInfoOnline[m.id].status=='success'" aria-hidden="true"></i>
+                                    # {{favorites.taskInfoOnline[m.id].version}} <br>耗时 {{favorites.seftime(favorites.taskInfoOnline[m.id].starttime, favorites.taskInfoOnline[m.id].finishtime)}}<br>{{favorites.time2date(favorites.taskInfoOnline[m.id].starttime)}}
+                                    <i class="fa fa-spinner" ng-if="favorites.taskInfoOnlineRunning[m.id] && favorites.taskInfoOnline[m.id].status!='running'" ng-class="{'fa-spin':1}" aria-hidden="true"></i>
+                                </div>
+                        </td>
+ 
+
+
+                        <td style="width: 10%" data-title="'编辑者'" filter="{ user: 'text'}" sortable="'user'">{{m.edit_user}}</td>
+                        <td data-title="'操作'">
+                            <nobr>
+                                <i class="fa fa-chevron-circle-right fa-2x" aria-hidden="true" ng-click="favorites.versiondetail(m.id)" uib-tooltip="进入" style="cursor:pointer;color: #339094;" ></i>
+                            </nobr>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>

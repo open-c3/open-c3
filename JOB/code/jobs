@@ -1,0 +1,92 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use Code;
+use Logs;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    uuid => 1,
+    taskuuid => 1, # Used to make a pause
+    projectid => 1, # To determine the file system path
+    variable => hash
+    logs => 日志对象
+
+=cut
+
+return sub
+{
+    my %param = @_;
+    my ( $db, $uuid, $taskuuid, $projectid, $variable, $logs ) 
+        = @param{qw(db uuid taskuuid projectid variable logs )};
+
+    $logs = Logs->new( 'code.jobs' ) unless $logs;
+
+    $logs->die( "code.jobs uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
+
+    my $x = eval{ $db->query( "select uuids from jobs where uuid='$uuid'" ); };
+    $logs->die( "code.jobs get uuids from mysql fail:$@" ) if $@;
+    $logs->die( "code.jobs get uuid from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
+    $logs->die( "jobs uuid mismatch: $uuid" ) unless @$x;
+
+    my $uuids = $x->[0][0];
+
+    my @job;
+    map{ push @job, [ $1, $2 ] if  $_ =~ /^([a-z]+)_([a-zA-Z0-9]+)$/; }split /,/, $uuids;
+
+    my $jobstatus = 'success';
+    for( @job )
+    {
+
+        #需要初始化subtask，api里面会获取subtask的列表用于显示状态
+        my ( $plugin_type, $plugin_uuid ) = @$_;
+    
+        eval{ $db->execute( 
+                 "replace into `subtask` (`parent_uuid`,`subtask_type`,`uuid` )
+                     values('$taskuuid','$plugin_type','$plugin_uuid')" ) };
+        $logs->die( "init subtask fail:$@" ) if $@;
+ 
+    }
+    my $index = 0;
+    for( @job )
+    {
+        my ( $plugin_type, $plugin_uuid ) = @$_;
+        $index ++;
+
+        my $status = eval{ Code->new( "plugin_$plugin_type" )->run( 
+            db => $db,
+            uuid => $plugin_uuid,
+            taskuuid => $taskuuid,
+            projectid => $projectid,
+            fromjob => $uuid, 
+            variable => $variable,
+            logs => $logs,
+            head => $index == 1 ? 1 : 0,
+            tail => $index == @job ? 1 : 0,
+        );};
+
+        if( $@ )
+        {
+            my $err = $@;
+            eval{ $logs->die( "code.jobs run plugin_$plugin_type fail: uuid=$plugin_uuid,taskuuid=$taskuuid,projectid=$projectid $err" ) };
+            $status = 'fail';
+        }
+
+        if( $status eq 'skipSameVersion' )
+        {
+            $jobstatus = 'success';
+            last;
+        }
+ 
+        if( $status eq 'fail' )
+        {
+            $jobstatus = 'fail';
+            last;
+        }
+        
+    }
+    return $jobstatus;
+}

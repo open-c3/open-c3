@@ -1,0 +1,47 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use Code;
+use Logs;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    logs => 日志对象
+
+    uuid => version的uuid
+
+#只有使用uuid来构建的时候才允许merge
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $logs, $uuid ) = @param{qw( db logs uuid )};
+
+    $logs = Logs->new( 'code.build.merge' ) unless $logs;
+
+    $logs->die( "uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
+
+    my $x = eval{ $db->query( "select project.id,project.buildimage,project.buildscripts
+            from version,project where project.id=version.projectid and uuid='$uuid'", 
+            [qw( projectid buildimage buildscripts )]  );
+    };
+    $logs->die( "get info fail:$@" ) if $@;
+    $logs->die( "get info from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
+    $logs->die( "version uuid is illegal, mismatch: $uuid" ) unless @$x;
+
+    my %data = %{$x->[0]};
+    $data{temp} = 'build_temp_uuid';
+    $data{uuid} = $uuid;
+
+    map{
+  	    eval{ Code->new( "build.plugin/merge.plugin/$_" )->run( db => $db, %data ); };
+        $logs->die( "run build.merge.$_ fail:$@" ) if $@;
+    }qw( makedist makepkgs );
+    return $data{uuid};
+}

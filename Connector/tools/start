@@ -1,0 +1,42 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use YAML::XS;
+use MYDan;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $base = $RealBin;
+$base =~ s#/[^/]+$##;
+
+print "start connector\n";
+
+
+my $Config = eval{ YAML::XS::LoadFile "$RealBin/../config/Config";};
+die "load Config fail: $!" unless $Config;
+
+my $envname = `cat $RealBin/../conf/envname`;
+chomp $envname;
+die "envname undef" unless $envname;
+
+die "envname $envname undef in Config" unless $Config = $Config->{$envname};
+
+die "port undef" unless my $port = $Config->{port};
+
+my $supervisor = "$MYDan::PATH/dan/tools/supervisor --name connector_supervisor";
+
+map{
+    die "start api fail: $!" if  system "$supervisor --cmd '$base/bin/api -p $_' --log '$base/logs/server/api.$_' --http http://127.0.0.1:$_/mon --check ok";
+    print "start api port: $_\n"
+}$port->{api}{from} .. $port->{api}{to};
+
+my $mymarkfile = '/etc/connector.mark';
+my $user = `id -un`;chop $user;
+my $sudo = $user eq 'root' ? '' : 'sudo ';
+
+die "set connector.myip fail:$!" if system( "${sudo}sh -c 'date > $mymarkfile'" );

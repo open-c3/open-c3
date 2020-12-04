@@ -1,0 +1,21 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib -I/data/Software/mydan/AGENT/private/lib
+use strict;
+use warnings;
+use Data::Dumper;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+
+    phone => [ '13300000000', '13300000001' ],
+    mesg => 'hello'
+
+=cut
+
+return sub
+{
+    my %param = @_;
+    print Dumper 'send sms',\%param;
+    return 1;
+}

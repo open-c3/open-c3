@@ -1,0 +1,19 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use MIME::Base64;
+use Encode qw(encode);
+
+use MYDan::Util::OptConf;
+=head1 SYNOPSIS
+
+ $0 [--file /foo/bar ] || [--content string ]
+
+=cut
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( file=s content=s ) )->dump();
+
+my $cont = $o{file} ? `cat '$o{file}'` : $o{content} ? $o{content}: undef;
+$option->assert() unless $cont;
+
+print encode_base64( encode('UTF-8',$cont) ), "\n";

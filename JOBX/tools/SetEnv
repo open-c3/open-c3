@@ -1,0 +1,48 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use MYDan::Util::OptConf;
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ $0 [--envname foo] 
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( envname=s ) )->dump();
+$option->assert( 'envname' );
+
+mkdir "$RealBin/../conf" unless -e "$RealBin/../conf";
+
+my $Config = eval{ YAML::XS::LoadFile "$RealBin/../config/Config"; };
+die "load config/Config fail:$@" if $@;
+die "envname $o{envname} undef" unless $Config = $Config->{$o{envname}};
+
+die "Config fail: $!" if system "$RealBin/Config --envname '$o{envname}'";
+
+my $base = $RealBin;
+$base =~ s#/[^/]+$##;
+
+map{
+    die "$_ fail: $!" if system $_;
+}(
+    "mkdir -p /data/logs/JOBX/task", 
+    "ln -fsn /data/logs/JOBX $base/logs",
+);
+
+my $mynamefile = '/etc/jobx.myip';
+
+my $user = `id -un`;chop $user;
+my $sudo = $user eq 'root' ? '' : 'sudo ';
+
+unless( -e $mynamefile )
+{
+    die "set jobx.myip fail:$!" if system( "${sudo}sh -c 'hostname > $mynamefile'" ) 
+}
+
+die "cp nginx config fail: $!" if system "${sudo}cp $base/conf/*.open-c3.org.conf /etc/nginx/conf.d/";
+
+die "reload nginx fail: $!" if system "${sudo}nginx -s reload";

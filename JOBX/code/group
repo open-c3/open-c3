@@ -1,0 +1,42 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOBX/lib -I/data/Software/mydan/JOBX/private/lib
+use strict;
+use warnings;
+use Code;
+use Logs;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    id => 1,
+    logs => 日志对象
+
+=cut
+
+return sub
+{
+    my %param = @_;
+    my ( $db, $id, $logs ) = @param{qw(db id logs )};
+
+    $logs = Logs->new( 'code.group' ) unless $logs;
+
+    $logs->die( "code.group id format error" ) unless $id =~ /^\d+$/;
+
+    my $x = eval{ $db->query( "select `group_type`,`group_uuid`,`projectid` from `group` where id='$id'" ); };
+    $logs->die( "code.group get groupinfo from mysql fail:$@" ) if $@;
+    $logs->die( "code.group get groupinfo from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
+    $logs->die( "group id mismatch: $id" ) unless @$x;
+
+    my ( $group_type, $group_uuid, $projectid ) = @{$x->[0]};
+
+    $logs->die( "group_type format error" ) unless $group_type && $group_type =~ /^[a-zA-Z0-9]+$/;
+    my @group = eval{ Code->new( "group.plugin/$group_type" )->run( 
+            db => $db,
+            uuid => $group_uuid,
+            projectid => $projectid,
+        );};
+
+    $logs->die( "run group.plugin/$group_type fail:$@" ) if $@;
+    return @group;
+}

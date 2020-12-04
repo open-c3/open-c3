@@ -1,0 +1,58 @@
+<div class="row block" id="changewidth">
+
+    <div class="panel panel-success">
+
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-success" style="cursor:default;">
+                    <i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!jobDetail.loadover}"></i>
+                </button>
+                <button class="btn btn-success" ng-click="jobDetail.cancel()" uib-tooltip="关闭">
+                    <i class="fa fa-times fa-fw"></i>
+                </button>
+            </span>
+            <h5>任务执行日志</h5>
+        </div>
+        <div class="table-responsive" style="width: 100%">
+            <table class="table table-bordered" style="font-weight: bold;border: 0px;">
+
+                <tbody>
+                <tr>
+                    <td>任务名称</td>
+                    <td>{{jobDetail.taskInfo.name}}</td>
+                    <td>任务类型</td>
+                    <td>{{jobDetail.pluginname[jobDetail.taskInfo.jobtype]}}</td>
+                    <td>执行账户</td>
+                    <td>{{jobDetail.taskInfo.user}}</td>
+                    <td>耗时</td>
+                    <td>{{jobDetail.seftime(jobDetail.taskInfo.starttime,jobDetail.taskInfo.finishtime)}}</td>
+                </tr>
+                <tr>
+                    <td>任务状态</td>
+                    <td><span ng-style="statucolor">{{jobDetail.jobState}}</span></td>
+                    <td>开始时间</td>
+                    <td>{{jobDetail.taskInfo.starttime}}</td>
+                    <td>结束时间</td>
+                    <td>{{jobDetail.taskInfo.finishtime}}</td>
+                    <td></td>
+                    <td></td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="panel-body">
+
+            <div>
+                <h5 class="fwbold">日志详情</h5>
+                <job-subtask-log-area jobuuid="jobDetail.jobuuid" loguuid="jobDetail.loguuid" jobaddr="jobDetail.jobaddr"  class="fluid-width"></job-subtask-log-area>
+            </div>
+
+        </div>
+
+        <div class="panel-footer text-right">
+            <button class="btn btn-warning" ng-click="jobDetail.cancel()">关闭</button>
+        </div>
+
+    </div>
+
+</div>

@@ -1,0 +1,50 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use Logs;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    taskuuid => 'uuid',
+    subtaskuuid => 'uuid',
+    subtasktype => 'cmd'
+
+    logs => 日志对象
+
+=cut
+
+return sub
+{
+    my %param = @_;
+    my ( $db, $taskuuid, $subtaskuuid, $subtasktype, $logs ) 
+        = @param{qw(db taskuuid subtaskuuid subtasktype logs )};
+
+    $logs = Logs->new( 'code.pause' ) unless $logs;
+    map{ 
+        $logs->die( "$_ format error" ) unless defined $param{$_} && $param{$_} =~ /^[a-zA-Z0-9]+$/
+    }qw( taskuuid subtaskuuid subtasktype );
+
+    print "wait to unlock, taskuuid='$taskuuid', subtaskuuid='$subtaskuuid', subtasktype='$subtasktype'\n";
+
+    eval{ $db->execute( "update `task` set status='waiting',notify='0' where uuid='$taskuuid'") };
+    $logs->die( "set task status to waiting fail: taskuuid=$taskuuid" ) if $@;
+    while(1)
+    {
+        sleep 3;
+        my $x = eval{ $db->query( "select uuid from subtask where parent_uuid='$taskuuid' 
+                    and uuid='$subtaskuuid' and subtask_type='$subtasktype' and pause=''" );};
+
+        $logs->die( "check task's pause status fail:$@" ) if $@;
+        $logs->die( "check task's pause status fail" ) unless defined $x && ref $x eq 'ARRAY';
+        if( @$x > 0 )
+        {
+            print "unlocked\n";
+            last;
+        }
+    }
+    eval{ $db->execute( "update `task` set status='running',notify='0' where uuid='$taskuuid'") };
+    $logs->die( "set task status to running fail: taskuuid=$taskuuid" ) if $@;
+}

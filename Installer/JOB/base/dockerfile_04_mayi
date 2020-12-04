@@ -1,0 +1,19 @@
+#This is AntDen Dockerfile#version 1.0
+#Author: lijinfeng2011@gmail.com
+#Base image 基础镜像
+
+FROM openc3/job-base-perlmodule:latest
+MAINTAINER lijinfeng2011
+
+RUN yum -y install git
+WORKDIR /data/Software/mydan
+RUN git clone https://github.com/mydan/mayi.git
+
+WORKDIR /data/Software/mydan/mayi
+
+RUN /data/Software/mydan/perl/bin/perl Makefile.PL
+RUN make
+RUN make install dan=1 box=1 def=1
+
+WORKDIR /data/Software/mydan
+RUN rm -rf mayi

@@ -1,0 +1,58 @@
+<div class="row block">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="关闭" ng-click="editrely.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
+            </span>
+            <h5> {{ editrely.nodeStr }}</h5>
+        </div>
+        <div class="panel-body">
+            <div class="pt20">
+                <div >
+                    <table ng-table="editrely.relyTable" class="table table-hover text-center table-condensed">
+                        <tr ng-repeat="m in $data">
+                            <td data-title="'仓库地址'">{{m.addr}}</td>
+                            <td data-title="'subdir'">{{m.path}}</td>
+                            <td data-title="'tags'">{{m.tags}}</td>
+                            <td data-title="'票据'">{{m.ticketname}}</td>
+                            <td data-title="'编辑人'">{{m.edit_user}}</td>
+                            <td data-title="'编辑时间'">{{m.edit_time}}</td>
+                            <td data-title="'删除'">
+                                <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="editrely.del(m.id)" uib-tooltip="删除依赖" style="cursor:pointer;color: red;" ></i>
+                        </tr>
+                    </table>
+
+                    <hr>
+
+                    <div class="row">
+                        <label class="col-md-2 control-label fwbold">代码地址:</label>
+                        <div class="col-md-8"> <input class="form-control" ng-model="editrely.newrely.addr" ng-change="editrely.changeaddr()" placeholder="git或者svn地址,如:git@git.liebaopay.com:ops/test.git"/> </div>
+                    </div>
+
+                    <div class="row">
+                        <label class="col-md-2 control-label fwbold">subdir:</label>
+                        <div class="col-md-4"> <input class="form-control" ng-model="editrely.newrely.path"  placeholder="subdir"/> </div>
+
+                        <label class="col-md-2 control-label fwbold">tags:</label>
+                        <div class="col-md-4"> <input class="form-control" ng-model="editrely.newrely.tags"  placeholder="tags"/> </div>
+                    </div>
+                   <div class="row" >
+                        <label class="col-md-2 control-label fwbold">票据</label>
+                        <div class="col-md-6 form-inline">
+                            <select class="form-control"  ng-model="editrely.newrely.ticketid" ng-options="o.id as o.name for o in editrely.ticketinfo"> </select>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <div class="panel-footer text-right">
+            <button class="btn btn-primary" ng-click="editrely.add()"><i class="fa fa-floppy-o" aria-hidden="true"></i> 保存</button>
+        </div>
+
+    </div>
+
+</div>
+

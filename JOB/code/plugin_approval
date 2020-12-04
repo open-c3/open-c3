@@ -1,0 +1,195 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+
+use FindBin qw( $RealBin );
+use MIME::Base64;
+use Data::Dumper;
+
+use MYDan::Util::OptConf;
+use MYDan::Agent::Client;
+use MYDan::VSSH::Print;
+use Digest::MD5;
+use Code;
+use Logs;
+use variable;
+use Buildin;
+use uuid;
+use Util;
+use LWP::UserAgent;
+
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    uuid => 'uuid',
+    taskuuid => 'uuid', # Used to make a pause
+    projectid => 1, ? check node info
+    fromjob => jobuuid or undef , It is used to determine the subtask, Rely on the taskuuid . and the jobuuid use for variable replace
+    variable => hash
+
+    logs => 日志对象
+
+    head => 0 or 1
+    tail => 0 or 1
+
+=cut
+
+return sub
+{
+    my %param = @_;
+    my ( $db, $uuid, $taskuuid, $projectid, $fromjob, $variable, $logs, $head, $tail )
+        = @param{qw(db uuid taskuuid projectid fromjob variable logs head tail )};
+
+    $logs = Logs->new( 'code.plugin_approval' ) unless $logs;
+
+    if( $taskuuid )
+    {
+        open STDOUT, '>>', "$RealBin/../logs/task/${taskuuid}${uuid}approval" 
+            or $logs->die( "Can't open 'logs/task/${taskuuid}${uuid}approval': $!" );
+        open (STDERR, ">&STDOUT") or $logs->die( "open STDERR failed: $uuid" );
+    }
+
+    $logs->die( "uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
+
+    my $submitter = eval{ $db->query( "select user from task where uuid='$taskuuid'" );};
+    $logs->die( "get submitter fail:$@" ) if $@;
+    $logs->die( "nofind submitter" ) unless $submitter && @$submitter > 0;
+    $submitter = $submitter->[0][0];
+
+    print "submitter: $submitter\n";
+
+    my %env = Util::envinfo( qw( appname appkey ) );
+    my $ua = LWP::UserAgent->new;
+    $ua->default_header( %env );
+    my $res = $ua->get( "http://api.jobx.open-c3.org/subtask/$projectid/$taskuuid/mystatus" );
+    $logs->die( "get task status from jobx fail" ) unless $res->is_success;
+    my $data = eval{JSON::from_json $res->content};
+    $logs->die( "get task status from jobx fail:". $data->{info} || '' ) unless $data->{stat};
+
+use Data::Dumper;
+print Dumper $data;
+
+    $data->{data}{action} ||= 'nofind';
+    $data->{data}{deployenv} ||= 'nofind';
+    $data->{data}{batches} ||= 0;
+    $data->{data}{submitter} ||= 'nofind';
+
+    $submitter = $data->{data}{submitter} if $submitter eq 'jobx@app' && $data->{data}{submitter} ne 'nofind';
+
+    print "submitter: $submitter\n";
+
+    my $x = eval{ $db->query( "select jobuuid,name,cont,approver,deployenv,action,batches,everyone,timeout,pause from plugin_approval where uuid='$uuid'" );};
+    $logs->die( "get plugin_approval info from mysql fail plugin_approval uuid=$uuid: $@" ) if $@;
+    $logs->die( "get plugin_approval info from mysql fail plugin_approval uuid=$uuid" ) unless defined $x && ref $x eq 'ARRAY';
+    $logs->die( "plugin_approval uuid mismatch uuid=$uuid" ) unless @$x;
+
+    my ( $jobuuid, $name, $cont, $approver, $deployenv, $action, $batches, $everyone, $timeout, $pause ) = @{$x->[0]};
+ 
+    print "check deployenv\n";
+    print "expect deployenv: $deployenv; real deployenv:$data->{data}{deployenv}\n";
+
+    return 'success' if $deployenv eq 'test' && $data->{data}{deployenv} ne 'test';
+    return 'success' if $deployenv eq 'online' && $data->{data}{deployenv} ne 'online';
+      
+    print "check action\n";
+    print "expect action: $action; real action:$data->{data}{action}\n";
+
+    return 'success' if $action eq 'deploy' && $data->{data}{action} ne 'deploy';
+    return 'success' if $action eq 'rollback' && $data->{data}{action} ne 'rollback';
+      
+
+    print "check batches\n";
+    print "expect batches: $batches real batches: $data->{data}{batches}\n";
+
+    return 'success' if $batches eq 'firsttime' && $data->{data}{batches} ne 1;
+
+    $timeout ||= 86400;
+
+    $everyone = ( $everyone && $everyone eq 'on' ) ? 1 : 0;
+
+    my ( $subtasktimems, $subtaskstarttime ) 
+        = ( time, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ) );
+
+    if( $taskuuid && $fromjob )
+    {
+        eval{ $db->execute( 
+                "update `subtask` set nodecount='1',starttime='$subtaskstarttime',runtime='0.00',pause='$pause',status='running'
+                     where parent_uuid='$taskuuid' and subtask_type='approval' and uuid='$uuid'") };
+        $logs->die( "set status to subtask fail:$@" ) if $@;
+    }
+
+    my @approver = split /,/, $approver;
+    my $puuid = uuid->new()->create_str;
+
+    for my $user ( @approver )
+    {
+        my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
+        my $muuid = uuid->new()->create_str;
+        print "Send mesg to $user, wait for his confirmation\n";
+        eval{ $db->execute( 
+            "insert into approval (`taskuuid`,`uuid`,`user`,`submitter`,`cont`,`opinion`,`remarks`,`create_time`,`notifystatus`,`oauuid`,`name`)values('$puuid','$muuid','$user','$submitter','$cont','unconfirmed', '','$time', 'null', '0','$name' )"
+        ) };
+        $logs->die("insert to mysql fail: $@") if $@;
+    }
+
+    my %approver = map{ $_ => 1 }@approver;
+
+    my $rtime = int ( $timeout / 3 ) + 1;
+    my $subtaskstatus = 'success'; #runnigs,fail,success,decision,ignore
+    for( 1 .. $rtime )
+    {
+        my $stat = eval{ $db->query( "select opinion,user,remarks from approval where taskuuid='$puuid'" );};
+        for( @$stat )
+        {
+            my ( $opinion, $user, $remarks ) = @$_;
+            next if $opinion eq 'unconfirmed';
+            if( $opinion eq 'refuse' )
+            {
+                print "refuse by user $user , reason: $remarks\n";
+                $subtaskstatus = 'fail';
+                last;
+            }elsif( $opinion eq 'agree' )
+            {
+                next unless $approver{$user};
+                print "$user: agree\n";
+                delete $approver{$user};
+                %approver = () unless $everyone;
+            }
+            else { $logs->die("unkown opinion: $opinion"); }
+        }
+        if( $subtaskstatus eq 'fail' ){
+            last;
+        }
+        unless( %approver )
+        {
+            print "OK\n";
+            $subtaskstatus = 'success';
+            last;
+        }
+
+        if( $_ >= $rtime )
+        {
+            print "timeout.\n";
+            $subtaskstatus = 'fail';
+        }
+        sleep 3;
+    }
+ 
+    print "substatus = $subtaskstatus\n";
+
+    if( $taskuuid && $fromjob )
+    {
+         my $subtaskruntime = sprintf "%0.3f", time - $subtasktimems;
+         my $subtaskfinishtime = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
+         eval{ $db->execute( "update `subtask` set runtime='$subtaskruntime',finishtime='$subtaskfinishtime',status='$subtaskstatus' 
+                 where parent_uuid='$taskuuid' and subtask_type='approval' and uuid='$uuid'") };
+    }
+
+    return $subtaskstatus unless $taskuuid && $fromjob && $pause;
+
+    Code->new( 'pause' )->run( db => $db,  taskuuid => $taskuuid, subtaskuuid => $uuid, subtasktype => 'approval', logs => $logs );
+    return $subtaskstatus;
+}

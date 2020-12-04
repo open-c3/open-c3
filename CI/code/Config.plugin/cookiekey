@@ -1,0 +1,30 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use LWP::UserAgent;
+use JSON;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+=cut
+
+return sub
+{
+    my $ua = LWP::UserAgent->new;
+    my $res = $ua->get( "http://api.connector.open-c3.org/connectorx/cookiekey" );
+    die "get cookiekey from api.connector fail" unless $res->is_success;
+
+    my $v = eval{decode_json $res->decoded_content};
+    die "get cookiekey fail" unless $v && ref $v eq 'HASH' && $v->{stat};
+ 
+    my $cookiekey = $v->{data};
+    die "get cookiekey from api.connector fail" unless $cookiekey && $cookiekey =~ /^[a-zA-Z]*$/;
+
+    print "cookiekey: $cookiekey\n";
+    open my $H , ">$RealBin/../conf/cookiekey" or die "open conf/cookiekey fail:$!";
+    print $H $cookiekey;
+    close $H;
+}

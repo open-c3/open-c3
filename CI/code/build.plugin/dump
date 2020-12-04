@@ -1,0 +1,84 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use Code;
+use Logs;
+use Util;
+use uuid;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    logs => 日志对象
+
+### 第一种
+    uuid => version的uuid
+
+### 第二种
+    projectid =>
+    tags => '' 可以为空，空时获取主分支
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $logs, $uuid, $projectid, $tags ) = @param{qw( db logs uuid projectid tags )};
+
+    $logs = Logs->new( 'code.build.dump' ) unless $logs;
+
+    my %data;
+    if( $uuid )
+    {
+        $logs->die( "uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
+
+        my $x = eval{ $db->query( "select project.id,project.addr,project.ticketid,project.rely,version.name 
+                from version,project where project.id=version.projectid and uuid='$uuid'", 
+                [qw( projectid addr ticketid rely name )]  );
+        };
+        $logs->die( "get info fail:$@" ) if $@;
+        $logs->die( "get from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
+        $logs->die( "version uuid is illegal, mismatch: $uuid" ) unless @$x;
+
+        %data = %{$x->[0]};
+        $data{temp} = 'build_temp_uuid';
+        $data{uuid} = $uuid;
+    }
+    else
+    {
+        $logs->die( "projectid format error" ) unless $projectid =~ /^\d+$/;
+
+        my $x = eval{ $db->query( "select id,addr,ticketid,rely from project where id='$projectid'", 
+                [qw( projectid addr ticketid rely )]  );
+        };
+        $logs->die( "get info fail:$@" ) if $@;
+        $logs->die( "get info from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
+        $logs->die( "project id is illegal, mismatch: $projectid" ) unless @$x;
+
+        %data = %{$x->[0]};
+        $data{name} = $tags;
+        $data{temp} = 'build_temp_projectid';
+        $data{uuid} = uuid->new()->create_str;
+    }
+
+
+  	eval{ Code->new( "build.plugin/dump.plugin/pull" )->run( db => $db, %data ); };
+    $logs->die( "run build.dump.pull fail:$@" ) if $@;
+
+    return $data{uuid} if defined $data{name} && $data{name} =~ /^release-testonly-\d{40}_0/;
+
+    if( $data{rely} || $data{rely} eq '1' )
+    {
+  	    eval{ Code->new( "build.plugin/dump.plugin/rely" )->run( 
+                db => $db, 
+                map{ $_ => $data{$_} }qw( projectid uuid temp )
+            );
+        };
+        $logs->die( "run build.dump.rely fail:$@" ) if $@;
+    }
+
+    return $data{uuid};
+}

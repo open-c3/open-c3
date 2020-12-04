@@ -1,0 +1,79 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use Util;
+use Logs;
+use JobHash;
+use POSIX ":sys_wait_h";
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $interval, $logs, $myname ) = ( $param{db}, 60, Logs->new( 'findtags' ), Util::myname() );
+    my %time;
+
+    $SIG{'CHLD'} = sub {
+		while((my $pid = waitpid(-1, WNOHANG)) >0)
+		{
+			my $code = ( $? == -1 || $? & 127 ) ? 110 : $? >> 8;
+			print "chld: $pid exit $code.\n";;
+		}
+	};
+    my @num_list = (0,10,20,30,40,50);
+    my $num;
+    while( 1 )
+    {
+        warn "do ...\n";
+
+        my $time = time;
+
+        my $x = eval{ $db->query( "select id,findtags_at_once from `project` 
+                where status='1' and ( autofindtags='1' or findtags_at_once='1' ) order by id" ) };
+        $logs->die( "mysql query fail: $@" ) if $@;
+        $logs->die( "get project list from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
+
+        my $jobhash = JobHash->new( $db );
+
+        for ( @$x )
+        {
+            my ( $id, $findtags_at_once ) = @$_;
+
+            $time{$id} = 0 if $findtags_at_once;
+
+            next unless $jobhash->hash( $id );
+            next if $time{$id} && $time{$id} > $time;
+
+            unless ( $num % 20 )
+            {
+                map{sleep 1;}1..15;
+            }
+            print "do $id\n";
+            unless( fork() )
+            {
+                $logs->say( "findtags $id" );
+                $ENV{CI_CHECK_ID} = "XXX${id}XXX";
+                open STDOUT, '>', "$RealBin/../logs/findtags/$id" or $logs->die( "Can't open 'logs/findtags/$id': $!" );
+                open (STDERR, ">&STDOUT") or $logs->die( "open STDERR failed: $id" );
+                exec "setsid $RealBin/../bin/findtags -id $id";
+            }
+            warn "start findtags $id\n";
+            $num ++;
+            print "num is :", $num_list[$num%6], "\n";
+            $time{$id} = $time + $interval + $num_list[$num%6];
+
+            $db->execute( "update project set findtags_at_once=0 where id='$id'" );
+        }
+
+        sleep 6;
+    }
+}

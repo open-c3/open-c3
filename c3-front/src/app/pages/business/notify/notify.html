@@ -1,0 +1,78 @@
+<div>
+    <nodestr></nodestr>
+    <hr class="mv20 clear">
+
+    <div class="panel panel-primary">
+
+        <div class="panel-heading">
+            <h5>查询条件</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="form-horizontal">
+
+                <form class="form-inline" name="searchForm" novalidate>
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="form-group col-sm-4" style="padding: 0">
+                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">通知人名称：</label>
+                                <input type="text" class="form-control" ng-model="notify.username" placeholder="通知人名称">
+                                <button type="submit" class="btn btn-default" ng-click="notify.getMe()">我</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                    <hr class="mv20 clear" style="margin-top: 30px!important;">
+                    <div class="col-md-10">
+                        <button class="btn btn-primary" ng-click="notify.reload()">
+                            <i class="fa fa-search fa-fw"></i>查询
+                        </button>
+                        <button class="btn btn-success" ng-click="notify.Reset()">
+                            <i class="fa fa-refresh fa-fw"></i>重置
+                        </button>
+                    </div>
+
+                </div>
+        </div>
+    </div>
+
+
+    <div>
+        <div style="float: right;">
+            <form class="form-inline" name="myForm" novalidate>
+                <div class="form-group" ng-init="newUser=''">
+                    <input type="text" class="form-control" ng-model="newUser"  placeholder="添加报警人" required>
+                </div>
+                <button type="submit" ng-disabled="myForm.$invalid" class="btn btn-primary" ng-click="notify.createUser()"><i class="fa fa-user fa-lg" aria-hidden="true"></i>添加报警人</button>
+            </form>
+        </div>
+        <div style="clear: both;">&nbsp;</div>
+    </div>
+
+    <div class="panel panel-dark">
+
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-dark" uib-tooltip="刷新" ng-click="notify.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!notify.loadover}" ></i></button>
+            </span>
+            <h5>通知用户</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="panel-tabs">
+
+            <table ng-table="notify.notify_Table" class="table table-hover text-center table-condensed">
+                <tr ng-repeat="ss in $data">
+                    <td data-title="'账户名'" >{{ss.user}}</td>
+                    <td data-title="'创建人'">{{ss.create_user}}</td>
+                    <td data-title="'创建时间'">{{ss.create_time}}</td>
+                    <td data-title="'操作'">
+                        <button class="btn btn-primary btn-sm" ng-click="notify.delete(ss.id)">删除</button>
+                    </td>
+                </tr>
+            </table>
+            </div>
+        </div>
+    </div>
+

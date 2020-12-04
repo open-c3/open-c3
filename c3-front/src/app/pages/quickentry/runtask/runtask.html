@@ -1,0 +1,44 @@
+    <div class="row" style="padding: 10px 20px 0px;">
+        <nodestr></nodestr>
+    </div>
+    <div class="panel panel-primary" style="width: 100%">
+        <div class="panel-body">
+            <div class="form-horizontal">
+                <form class="form-horizontal" name="runtaskForm"  role="form" novalidate>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">作业: &nbsp;</label>
+                            <div class="col-sm-6">
+                                <select  class="form-control " style="font-size: 15px;height: 42px"  ng-model="choiceJob" ng-options="s.alias for s in allJobs" required>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row" ng-repeat="ss in jobVar">
+                        <div class="col-sm-10 form-group">
+
+                            <div ng-if="ss.name == 'ip'" >
+                                <label class="col-sm-3 control-label">分组: &nbsp;</label>
+                                <div class="col-sm-6"> <select  class="form-control " style="font-size: 15px;height: 42px"  ng-model="taskData.group" ng-options="s.name as s.alias for s in allGroups" required> </select> </div>
+                            </div>
+                            <div ng-if="ss.name != 'ip'" >
+                                <label class="col-sm-3 control-label">{{ss.name}}: &nbsp;</label>
+                                <div class="col-sm-6"> <input type="text" class="form-control" ng-model="ss.value" placeholder="填写任务变量" required> </div>
+                                <label class="col-sm-3" style="color: gray" >{{ss.describe}}</label>
+                            </div>
+
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3 form-group" style="margin-left: 40%;">
+                            <button class="btn btn-primary" ng-disabled="runtaskForm.$invalid" ng-click="runtask.runTask()">确认</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>

@@ -1,0 +1,38 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
+use strict;
+use warnings;
+use Logs;
+use LWP::UserAgent;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    cookie => 'cookiestring',
+    logs => 日志对象
+
+=cut
+
+my $usertree;
+BEGIN{
+    my $config = eval{ YAML::XS::LoadFile '/data/Software/mydan/Connector/config.inix' };
+    die "load config.ini fail: $@" if $@;
+    $usertree = $config->{usertree};
+};
+
+return sub
+{
+    my ( %param )= @_;
+    my ( $cookie, $logs ) = @param{qw(cookie logs)};
+
+    $logs = Logs->new( 'code.usertree' ) unless $logs;
+
+    my $ua = LWP::UserAgent->new;
+    my $res = $ua->get( "$usertree?cookie=$cookie" );
+    if($res->is_success)
+    {
+        my $v = eval{decode_json $res->decoded_content};
+        return $v->{data} if $v->{stat};
+    }
+    die $res->content;
+}

@@ -1,0 +1,81 @@
+version: '2.0'
+
+services:
+  job-mysql:
+    container_name: job-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "job123456^!"
+      MYSQL_USER: 'job'
+      MYSQL_PASS: 'job123456^!'
+      TZ: 'Asia/Shanghai'
+    image: "mysql:5.5"
+    restart: always
+    volumes:
+      - "./mysql/db:/var/lib/mysql"
+      - "./mysql/conf/my.cnf:/etc/my.cnf"
+      - "./mysql/init:/docker-entrypoint-initdb.d/"
+    networks:
+      JobNet:
+        aliases:
+          - JOB_DB_IP
+
+  job-server:
+    build:
+      context: JOB/
+    hostname: wk-job-srv-docker
+    environment:
+      TZ: 'Asia/Shanghai'
+      OPEN_C3_EXIP: ${OPEN_C3_EXIP}
+    extra_hosts:
+      - "api.agent.open-c3.org:127.0.0.1"
+      - "api.job.open-c3.org:127.0.0.1"
+      - "api.jobx.open-c3.org:127.0.0.1"
+      - "api.ci.open-c3.org:127.0.0.1"
+      - "api.connector.open-c3.org:127.0.0.1"
+    ports:
+      - "80:88"
+      - "81:3388"
+      - "65135-65535:65135-65535"
+    volumes:
+      - "../../C3-PRIVATE:/data/Software/mydan/C3-PRIVATE"
+      - "../../Connector:/data/Software/mydan/Connector"
+      - "../../MYDan:/data/Software/mydan/MYDan"
+      - "../../JOBX:/data/Software/mydan/JOBX"
+      - "../../JOB:/data/Software/mydan/JOB"
+      - "../../AGENT:/data/Software/mydan/AGENT"
+      - "../../CI:/data/Software/mydan/CI"
+      - "../../c3-front:/data/Software/mydan/c3-front"
+      - "../../web-shell:/data/Software/mydan/web-shell"
+      #- "./JOB/auth:/data/Software/mydan/etc/agent/auth"  
+      #- "./JOB/logs:/data/logs" 
+      #- "./JOB/glusterfs:/data/glusterfs" 
+      - "/data/open-c3-data/auth:/data/Software/mydan/etc/agent/auth"  
+      - "/data/open-c3-data/logs:/data/logs" 
+      - "/data/open-c3-data/glusterfs:/data/glusterfs" 
+      - "/bin/docker:/bin/docker" 
+      - "/var/run/docker.sock:/var/run/docker.sock" 
+    depends_on:
+      - job-mysql
+    networks:
+      JobNet:
+        aliases:
+          - JOB_SERVER_IP
+
+#  job-nginx:
+#    image: 'nginx:latest'
+#    ports:
+#      - "80:80"
+#    environment:
+#        TZ: 'Asia/Shanghai'
+#    volumes:
+#      - "./nginx/conf.d:/etc/nginx/conf.d"
+#    depends_on:
+#      - job-server
+#    networks:
+#      JobNet:
+#        aliases:
+#          - JOB_NGINX_IP
+
+networks:
+  JobNet:
+    driver: bridge

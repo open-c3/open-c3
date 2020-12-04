@@ -1,0 +1,242 @@
+<div class="modal-header">
+    <h4  class="modal-title">新建分发文件步骤</h4>
+</div>
+    <form class="form-horizontal" name="dstForm"  role="form" novalidate>
+
+    <div class="" style="width: 90%;margin-left: 5%;margin-bottom: 15px;margin-top: 10px;">
+            <div class="row">
+                <div class="col-sm-10">
+                    <label class="col-sm-2  control-label">作业名称 <span style="color: red">*</span></label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="s_name" ng-model="dstDate.name" required />
+                        <span style="color:red" ng-show="dstForm.s_name.$dirty && dstForm.s_name.$error.required">输入作业名称</span>
+
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="panel panel-primary" style="width: 90%;margin-left: 5%;">
+        <div class="panel-body">
+            <div class="form-horizontal">
+                    <div class="row">
+                        <div class="col-sm-12 form-group">
+                            <label class="col-sm-2" style="font-size: 16px;padding-top: 10px;">
+                                <span class="glyphicon glyphicon-hdd" style="padding: 0 3px;"></span>源文件
+                            </label>
+                            <label class="col-sm-3" style="font-size: 16px;padding-top: 3px;">
+                                <span style="font-weight: normal;font-size: 12px">注意：本地文件上传会有同名文件覆盖危险</span>
+                            </label>
+
+                            <div class="col-sm-7">
+                                <button class="btn btn-primary" ng-click="scpjob.choiceShareFiles()" >
+                                    <span class="glyphicon glyphicon-cloud" style="padding: 0 3px;"></span>选择共享文件
+                                </button>
+                                <button class="btn btn-primary" ng-click="scpjob.choiceSourceFile()" >
+                                    <span class="glyphicon glyphicon-oil" style="padding: 0 3px;"></span>选择源服务器文件
+                                </button>
+                                <button class="btn btn-primary" ng-click="scpjob.choiceVariable()" >
+                                    选择构建文件
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-11 " style="margin-left: 1%;">
+                                <table ng-table="choice.shareResult" class="table table-hover" style="border: 1px solid #ddd;" >
+                                    <thead >
+                                        <tr ng-if="!varShow">
+                                            <th style="text-align: left;width: 27%">文件列表</th>
+                                            <th style="text-align: left;width: 29%">服务器地址</th>
+                                            <th ng-hide="true" style="text-align: left;width: 25%">执行账户</th>
+                                        </tr>
+                                        <tr ng-if="varShow">
+                                            <th style="text-align: left;width: 27%">环境</th>
+                                            <th style="text-align: left;width: 29%">版本</th>
+                                            <th ng-hide="true" style="text-align: left;width: 25%">执行账户</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="srcbody">
+                                        <!--共享文件-->
+                                        <tr ng-repeat="ss in shareResult">
+                                            <td>{{ss.name}}</td>
+                                            <td>默认空</td>
+                                            <td ng-hide="true"><select class="form-control " style="font-size: 18px" disabled="disabled" ng-model="dstUser" ng-options="s.username as s.username for s in allProUsers" ></select></td>
+                                        </tr>
+                                        <!--构建文件-->
+                                        <tr ng-show = varShow>
+                                            <td>{{varData.ci}}</td>
+                                            <td>{{varData.version}}</td>
+                                            <td ng-hide="true"><select class="form-control " style="font-size: 18px" disabled="disabled" ng-model="dstUser" ng-options="s.username as s.username for s in allProUsers" ></select></td>
+                                        </tr>
+                                        <!--原服务器文件-->
+                                        <tr ng-show="srcShow">
+                                            <td><textarea ng-model="copySrcdata.sp" style="min-height: 40px;min-width: 100%" placeholder="输入文件地址" required></textarea></td>
+                                            <td>
+                                                <div>
+                                                    <div>
+                                                        <span>{{srouceServerResult}}</span>
+                                                    </div>
+                                                    <div>
+                                                        <button ng-hide="true" id="click123" class="btn btn-default btn-xs" style="margin-left: 73%;" ng-click="scpjob.choiceSourceServer($event)" required >添加</button>
+                                                        <span style="color: red" ng-show="srcServerShow">必选源服务器</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td ng-hide="true">
+                                                <select  class="form-control " style="font-size: 15px" disabled="disabled" ng-model="dstUser" ng-options="s.username as s.username for s in allProUsers"></select>
+                                            </td>
+
+                                        </tr>
+                                    </tbody>
+                                </table>
+                        </div>
+                    </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-primary" style="width: 90%;margin-left: 5%;">
+        <div class="panel-body">
+
+            <div class="form-horizontal">
+
+                    <div class="row">
+                        <div class="col-sm-12 form-group">
+                            <label class="col-sm-6 " style="font-size: 16px;padding-top: 10px;">
+                                <span class="glyphicon glyphicon-folder-open" style="padding: 0 3px;"></span>目标文件
+                            </label>
+
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">目标路径 <span style="color: red">*</span></label>
+                            <div class="col-sm-8">
+                                <input type="text" class="form-control" ng-model="dstDate.dp" name="dstpath" placeholder="请填写分发路径"  required />
+                                <span style="color:red" ng-show="dstForm.dstpath.$dirty && dstForm.dstpath.$error.required">输入目标文件路径</span>
+                            </div>
+                            <span class="glyphicon glyphicon-question-sign" data-toggle="tooltip" data-placement="right" uib-tooltip="目标路径以'/'结尾代表一个目录，不以‘/’结尾表示一个文件。如：/tmp/表示将文件保存到此目录下，/tmp/test.txt表示将文件保存到此目录下，文件名为test.txt" aria-hidden="true" style="padding-top: 11px;font-size: larger;"></span>
+                        </div>
+                    </div>
+                    <div class="row" ng-show="scp_dir">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-md-3 control-label" >同步delete</label>
+                            <div class="col-md-2 admin-form">
+                                <label class="switch switch-system mt5">
+                                    <input type="checkbox" id="scp_delete" ng-model="dstDate.scp_delete">
+                                    <label for="scp_delete" data-on="ON" data-off="OFF"></label>
+                                </label>
+                            </div>
+                            <span class="glyphicon glyphicon-question-sign" data-toggle="tooltip" data-placement="right" uib-tooltip="开启后，同步文件夹时删除DEST中SRC没有的文件" aria-hidden="true" style="padding-top: 11px;font-size: larger;"></span>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">执行账户 <span style="color: red">*</span></label>
+                            <div class="col-sm-7">
+                                <select  class="form-control " style="font-size: 18px;padding: 0 12px;"  ng-model="dstUser" ng-options="s.username as s.username for s in allProUsers" required>
+                                </select>
+                                <span style="color: red" ng-show="userShow">必选执行用户</span>
+                            </div>
+                            <button class="btn btn-primary col-sm-1" uib-tooltip="添加" ng-click="scpjob.addProUser()"><i class="fa fa-plus"></i></button>
+
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-10 form-group" style="margin-top: -23px;">
+                            <label class="col-sm-3 control-label"></span></label>
+                            <div class="col-sm-7">
+                                <dataerror ng-hide="dataready" errmsg={{dataerror}}></dataerror>
+
+                            </div>
+
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">目标机器 <span style="color: red">*</span></label>
+                            <div class="col-sm-9">
+                                <button class="btn btn-primary" ng-click="scpjob.choiceServer()" required >选择服务器</button>
+                                <span style="color: red" ng-show="dstServerShow">必须目标服务器</span>
+                                <table ng-table="scpjob.choiceResult" class="table table-hover" ng-show="choiceShow" style="margin-top: 10px;border: 1px solid #ddd;" >
+                                    <thead >
+                                        <tr>
+                                            <th style="text-align: left;">编号</th>
+                                            <th style="text-align: left;">名称</th>
+                                            <th style="text-align: left;">类型</th>
+                                            <th style="text-align: left;">操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="ss in choiceResult">
+                                            <td>{{$index + 1}}</td>
+                                            <td ng-if="dstDate.dst_type =='group'"  >{{ss.name}}</td>
+                                            <td ng-if="dstDate.dst_type =='builtin'">{{ss}}</td>
+                                            <td ng-if="dstDate.dst_type =='variable'">{{ss.variable}}</td>
+                                            <td>{{choiceType}}</td>
+                                            <td>
+                                                <button ng-if="dstDate.dst_type =='group'"  ng-click="scpjob.delChoice($index, ss.name)">删除</button>
+                                                <button ng-if="dstDate.dst_type =='builtin'" ng-click="scpjob.delChoice($index, ss)">删除</button>
+                                                <button ng-if="dstDate.dst_type =='variable'" ng-click="scpjob.delChoice($index, ss.variable)">删除</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">文件归属者 &nbsp;</label>
+                            <div class="col-sm-7">
+                                <select  class="form-control " style="font-size: 18px;padding: 0 12px;"  ng-model="fileChown" ng-options="s.username as s.username for s in allProUsers" required>
+                                </select>
+                                <span style="color: red" ng-show="chownShow">必选文件所有者</span>
+
+                            </div>
+                            <button class="btn btn-primary col-sm-1" uib-tooltip="添加" ng-click="scpjob.addProUser()"><i class="fa fa-plus"></i></button>
+
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">文件权限 &nbsp;</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" ng-model="dstDate.chmod" name="dstchmod" required />
+                                <span style="color:red" ng-show="dstForm.dstchmod.$dirty && dstForm.dstchmod.$error.required">输入目标文件权限</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">超时时间 <span style="color: red">*</span></label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" ng-model="dstDate.timeout" name="timeout" required />
+                                <span style="color:red" ng-show="dstForm.timeout.$dirty && dstForm.timeout.$error.required">超时时间必填</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">结束是否暂停 </label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" ng-model="dstDate.pause" name="pause" placeholder="任务执行结束后是否暂停，如果不填，则表示不停止。" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-3 form-group" style="margin-left: 40%;">
+                            <button class="btn btn-primary" ng-disabled="dstForm.$invalid" ng-click="scpjob.returnData()">保存</button>
+                            <button class="btn btn-warning" ng-click="scpjob.cancel()">取消</button>
+                        </div>
+                    </div>
+
+            </div>
+
+        </div>
+      </div>
+    </form>

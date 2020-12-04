@@ -1,0 +1,34 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use POSIX;
+use Util;
+use Logs;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $myname, $db, $logs ) = ( Util::myname(), $param{db}, Logs->new( 'clean' ) );
+
+    while(1)
+    {
+        warn "do ...\n";
+
+        for my $c ( qw( clean_opened_dockershell clean_logs_build_temp_projectid clean_logs_build_temp_uuid ) )
+        {
+            eval{ Code->new( "server/clean.plugin/$c" )->run( %param ); };
+
+        }
+        sleep 3600;
+    }
+}

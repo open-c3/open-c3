@@ -1,0 +1,52 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use POSIX;
+use MIME::Base64;
+use Logs;
+use YAML::XS;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    logs => 日志对象
+
+=cut
+
+return sub
+{
+    my %param = @_;
+    my ( $db, $logs, $year ) = @param{qw( db logs year )};
+
+    $logs = Logs->new( 'code.deploy_statistics' ) unless $logs;
+    $year = POSIX::strftime( "%Y", localtime ) unless $year && $year =~ /^\d+$/;;
+
+    my $all = 0;
+    for my $month ( 1 .. 12 )
+    {
+        $month = "0$month" if $month =~ /^\d$/;
+        my ( $x, %variable  ) = $db->query( "select projectid,variable from task where starttime like \"$year-$month-%\"" );
+        $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
+
+        for my $r ( @$x )
+        {
+            next unless $r->[1];
+            my $y =  eval{ YAML::XS::Load( decode_base64( $r->[1] )) };
+            next if $@;
+            next unless my $v = $y->{version};
+            next if $v =~ /^release-testonly/;
+            next unless $v =~ /^release/;
+	    $variable{$r->[0]}{$v}=1;
+        }
+
+        my $sum = 0;
+        map{ $sum += scalar keys %$_ }values %variable;
+
+        print "$year-$month: $sum\n";
+
+        $all += $sum;
+    }
+
+    print "all: $all\n";
+}

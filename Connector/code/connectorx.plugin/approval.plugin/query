@@ -1,0 +1,52 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
+use strict;
+use warnings;
+use YAML::XS;
+use Logs;
+use LWP::UserAgent;
+use uuid;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    uuid => '',
+
+=cut
+
+my ( $approver, %env );
+BEGIN{
+    my $config = eval{ YAML::XS::LoadFile '/data/Software/mydan/Connector/config.inix' };
+    die "load config.ini fail: $@" if $@;
+    $approver = $config->{approver};
+    %env = %{$config->{approverenv}} if $config->{approverenv} && ref $config->{approverenv} eq 'HASH';
+};
+
+return sub
+{
+    my %param = @_;
+
+    if( $approver )
+    {
+        my $ua = LWP::UserAgent->new;
+        $ua->default_header( %env ) if %env;
+
+        my $res = $ua->get( "$approver?uuid=$param{uuid}");
+
+        if($res->is_success)
+        {
+            my $v = eval{decode_json $res->decoded_content};
+            return $v->{data} if $v->{stat};
+        }
+        #TODO
+        die "die" . YAML::XS::Dump $approver;
+    }
+    else
+    {
+        my $x = `cat /tmp/$param{uuid}`;
+        chomp $x;
+
+        my $status = $x eq 'agree' ? 'agree' : $x eq 'refuse' ? 'refuse': 'unconfirmed';
+        return +{ status => $status, reason => 'null' };
+    }
+}

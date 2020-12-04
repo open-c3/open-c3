@@ -1,0 +1,172 @@
+<div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h5>全局变量参数</h5>
+        </div>
+        <div class="panel-body" style="padding: 10px">
+            <div class="panel-tabs">
+                <table class="table table-hover text-center table-condensed">
+                    <thead>
+                    <tr>
+                        <th style="text-align: center;">变量名称</th>
+                        <th style="text-align: center;">变量默认值</th>
+                        <th style="text-align: center;">变量描述</th>
+                        <th style="text-align: center;">操作</th>
+                    </tr>
+                    </thead>
+                    <tr ng-repeat="ss in editjob2ci.allVar">
+                        <td ><input type="text" class="form-control input-global" ng-model="ss.name" ng-readonly="ss.id"></td>
+                        <td ><input type="text" class="form-control input-global" ng-model="ss.value" ></td>
+                        <td ><input type="text" class="form-control input-global" ng-model="ss.describe" ></td>
+                        <td >
+                            <button class="btn btn-danger btn-sm" ng-click="editjob2ci.delVar($index, ss)">删除</button>
+                        </td>
+                    </tr>
+                </table>
+                <button class="btn btn-primary col-sm-1" style="width: 5%;padding: 6px 12px" uib-tooltip="添加变量" ng-click="editjob2ci.addVar()"><i class="fa fa-plus"></i></button>
+            </div>
+        </div>
+    </div>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        <h5>作业步骤</h5>
+    </div>
+ 
+    <div style="margin-bottom: 15px;"  ng-hide="saveHide">
+        <button class="btn btn-success " ng-click="editjob2ci.createScriptJob()">
+            <i class="glyphicon glyphicon-copy"></i> 添加脚本步骤</button>
+        <button class="btn btn-primary" ng-click="editjob2ci.createScpJob()">
+            <i class="glyphicon glyphicon-file"></i> 添加分发文件步骤</button>
+        <button class="btn btn-primary" ng-click="editjob2ci.createApprovalJob()">
+            <i class="fa fa-id-card"></i> 添加审批步骤</button>
+    </div>
+
+    <div ng-repeat="item in editjob2ci.allNewJob">
+        <div ng-if="item.plugin_type == 'cmd'" class="panel panel-success">
+            <div style="padding: 2px">
+                <strong style="font-size: 15px">步骤.{{$index+1}}</strong>
+                <button class="btn btn-success btn-xs" ng-click="editjob2ci.createScriptJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>脚本</button>
+                <button class="btn btn-primary btn-xs" ng-click="editjob2ci.createScpJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>文件</button>
+                <button class="btn btn-primary btn-xs" ng-click="editjob2ci.createApprovalJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>审批</button>
+            </div>
+            <div class="panel-heading">
+                <h5>脚本作业</h5>
+            </div>
+            <div class="panel-body" style="padding: 10px">
+                <div class="panel-tabs">
+                    <table class="table table-hover text-center table-condensed" style="margin-bottom: 0">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center;">作业名称</th>
+                                <th style="text-align: center;">执行账户</th>
+                                <th style="text-align: center;">服务器类型</th>
+                                <th style="text-align: center;">脚本参数</th>
+                                <th style="text-align: center;">操作</th>
+                            </tr>
+                        </thead>
+                        <tr>
+                            <td>{{item.name}}</td>
+                            <td>{{item.user}}</td>
+                            <td>{{item.node_type}}</td>
+                            <td>{{item.scripts_argv}}</td>
+                            <td>
+                                <button class="btn btn-warning btn-sm" ng-hide="saveHide" ng-click="editjob2ci.editScript($index)">编辑</button>
+                                <button class="btn btn-danger btn-sm" ng-hide="saveHide" ng-click="editjob2ci.deljobdata($index)">删除</button>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div ng-if="item.plugin_type == 'scp'" class="panel panel-primary">
+            <div style="padding: 1px">
+                <strong style="font-size: 15px">步骤.{{$index+1}}</strong>
+                <button class="btn btn-success btn-xs" ng-click="editjob2ci.createScriptJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>脚本</button>
+                <button class="btn btn-primary btn-xs" ng-click="editjob2ci.createScpJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>文件</button>
+                <button class="btn btn-primary btn-xs" ng-click="editjob2ci.createApprovalJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>审批</button>
+            </div>
+            <div class="panel-heading">
+                <h5>文件作业</h5>
+            </div>
+            <div class="panel-body"  style="padding: 10px">
+                <div class="panel-tabs">
+                    <table class="table table-hover text-center table-condensed" style="margin-bottom: 0;width: 100%">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center;">作业名称</th>
+                                <th style="text-align: center;">执行账户</th>
+                                <th style="text-align: center;max-width:600px;">目标服务器</th>
+                                <th style="text-align: center;">目标路径</th>
+                                <th style="text-align: center;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td >{{item.name}}</td>
+                                <td >{{item.user}}</td>
+                                <td style="max-width:600px;">{{item.dst}}</td>
+                                <td >{{item.dp}}</td>
+                                <td >
+                                    <button class="btn btn-warning btn-sm" ng-hide="saveHide" ng-click="editjob2ci.editScp($index)">编辑</button>
+                                    <button class="btn btn-danger btn-sm" ng-hide="saveHide" ng-click="editjob2ci.deljobdata($index)">删除</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div ng-if="item.plugin_type == 'approval'" class="panel panel-primary">
+            <div style="padding: 1px">
+                <strong style="font-size: 15px">步骤.{{$index+1}}</strong>
+                <button class="btn btn-success btn-xs" ng-click="editjob2ci.createScriptJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>脚本</button>
+                <button class="btn btn-primary btn-xs" ng-click="editjob2ci.createScpJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>文件</button>
+                <button class="btn btn-primary btn-xs" ng-click="editjob2ci.createApprovalJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>审批</button>
+            </div>
+            <div class="panel-heading">
+                <h5>审批作业</h5>
+            </div>
+            <div class="panel-body"  style="padding: 10px">
+                <div class="panel-tabs">
+                    <table class="table table-hover text-center table-condensed" style="margin-bottom: 0;width: 100%">
+                        <thead>
+                            <tr>
+                                <th style="text-align: center;">作业名称</th>
+                                <th style="text-align: center;">审批人</th>
+                                <th style="text-align: center;max-width:600px;">审批内容</th>
+                                <th style="text-align: center;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td >{{item.name}}</td>
+                                <td >{{item.approver}}</td>
+                                <td style="max-width:600px;">{{item.cont}}</td>
+                                <td >
+                                    <button class="btn btn-warning btn-sm" ng-hide="saveHide" ng-click="editjob2ci.editApproval($index)">编辑</button>
+                                    <button class="btn btn-danger btn-sm" ng-hide="saveHide" ng-click="editjob2ci.deljobdata($index)">删除</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+
+    </div>
+</div>
+
+
+
+
+    <div style="margin-bottom: 15px">
+        <div style="margin-left: 40%;">
+            <button ng-if="!editjob2ci.copyjob" class="btn btn-primary" ng-hide="saveHide" ng-click="editjob2ci.saveCreateData()"> 保存 </button>
+            <button class="btn btn-warning" ng-click="editjob2ci.cancel()"> 关闭 </button>
+        </div>
+    </div>
+
+</div>

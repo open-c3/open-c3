@@ -1,0 +1,48 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use MYDB;
+use FindBin qw( $RealBin );
+use Code;
+use MIME::Base64;
+
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 [--projectid projectid] [--image centos:7 ]
+
+ $0 [--projectid projectid] [--image centos:7 ] [--tags release-001] 
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( projectid=i image=s tags=s ) )->dump();
+
+$option->assert( qw( projectid image ) );
+
+my $db = MYDB->new( "$RealBin/../conf/conn" );
+
+my $uuid = Code->new( 'build.plugin/dump' )->run( db => $db, map{ $_ => $o{$_} }qw( projectid tags )  );
+
+my $x = eval{ $db->query( "select buildscripts from project where id='$o{projectid}'" ) };
+die( "get buildscripts info fail:$@" ) if $@;
+die( "get buildscripts from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
+die( "projectid is illegal, mismatch: $o{projectid}" ) unless @$x;
+
+if( $x->[0][0] )
+{
+    my $run = Temp->new( chmod => 0755 )->dump( decode_base64( $x->[0][0] ) );
+    die "write run file fail:$!" if system "mv '$run' '$RealBin/../logs/build_temp_projectid/$uuid/run'";
+}
+
+my $entrypoint = $o{image} =~ /^ci\// ? '/welcome.sh' : '/bin/bash';
+
+my $user = `id -un`;chop $user;
+my $sudo = $user eq 'root' ? '' : 'sudo ';
+
+my $xx = `cat /proc/1/cgroup 2>/dev/null`;
+my $indocker = $xx =~ /\b1:.+(docker|lxc|kubepods)/ ? 1 : 0;
+my $logpath = $indocker ? "/data/open-c3-data/logs/CI" : "$RealBin/../logs";
+
+exec "${sudo}/usr/bin/docker run -it --rm -v $logpath/build_temp_projectid/$uuid:/build --workdir=/build/data --name dockershell_ci_$uuid $o{image} $entrypoint";

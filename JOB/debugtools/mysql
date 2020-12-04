@@ -1,0 +1,30 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+
+use FindBin qw( $RealBin );
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0
+
+ $0 -f xxx.sql
+
+ $0 --sql 'select count(*) from task'
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( sql=s file=s ) )->dump();
+
+my $conn = eval{ YAML::XS::LoadFile "$RealBin/../conf/conn" };
+die "load conf/conn fail: $@" if $@;
+
+map{ die "$_ undef in conn" unless $conn->{$_} }qw( host port username password database );
+
+my $mysql = "mysql -h$conn->{host} --port $conn->{port} -u$conn->{username} -p$conn->{password} $conn->{database}";
+
+exec "$mysql < '$o{file}'" if $o{file};
+exec "echo '$o{sql}'|$mysql" if $o{sql};
+exec $mysql;

@@ -1,0 +1,9 @@
+#This is AntDen Dockerfile#version 1.0
+#Author: lijinfeng2011@gmail.com
+#Base image 基础镜像
+
+FROM openc3/job-base-perl:latest
+MAINTAINER lijinfeng2011
+
+ADD dockerfile_02_nginx.db/nginx.repo /etc/yum.repos.d/nginx.repo
+RUN yum -y install nginx

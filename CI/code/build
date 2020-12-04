@@ -1,0 +1,82 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use Time::HiRes qw/time/;
+use POSIX;
+use Code;
+use Logs;
+use Util;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    uuid => uuid,
+
+    logs => 日志对象
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    binmode STDOUT, ":utf8";
+    my ( $db, $uuid, $logs ) = @param{qw( db uuid logs )};
+
+    $logs = Logs->new( 'code.build' ) unless $logs;
+
+    $logs->die( "uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
+
+    my ( $stimems, $stime ) = ( time, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ) );
+    my $myname =Util::myname();
+
+    my $x = $db->execute( "update version set pid='$$',starttime='$stime',starttimems='$stimems',status='running'
+        where uuid='$uuid' and slave='$myname' and pid is null" );
+    $logs->die( "build $uuid Already running, or no belong to the slave" ) unless $x && $x eq 1;
+
+    $x = $db->query( "select `projectid`,`name` from version where uuid='$uuid'" );
+    $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
+    $logs->die( "build uuid null: $uuid" ) unless @$x;
+
+    my ( $projectid, $name ) = @{$x->[0]};
+
+    my ( $status, $errormsg ) = ( 'success', '' );
+    for my $job ( qw( dump merge send ) )
+    {
+        eval{
+
+            my $tagsname = Code->new( "build.plugin/$job" )->run( 
+                db => $db, 
+                uuid => $uuid,
+            );
+        };
+        if( $@ )
+        {
+            warn "build fail($job): $@";
+            $errormsg .= "build fail($job): $@";
+            $status = 'fail';
+            last;
+        }
+
+    }
+
+    eval{
+        Code->new( "build.plugin/notify" )->run(
+            db => $db,
+            uuid => $uuid,
+            status => $status,
+            errormsg => $errormsg,
+        );
+    };
+
+    print "notify fail: $@" if $@;
+
+    my ( $ftimems, $ftime ) = ( time, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ) );
+    my $runtime = sprintf "%0.3f", $ftimems - $stimems;
+
+    eval{ $db->execute( "update version set finishtime='$ftime',finishtimems='$ftimems',
+        status='$status',runtime='$runtime' where uuid='$uuid'" ); };
+    $logs->die( "update build status fail:$@" ) if $@;
+}

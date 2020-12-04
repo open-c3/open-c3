@@ -1,0 +1,139 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+$| ++;
+
+use Logs;
+use Code;
+use Util;
+use JSON;
+use Encode;
+use FindBin qw( $RealBin );
+use LWP::UserAgent;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    logs => 日志对象
+
+    uuid => version的uuid
+
+#只有使用uuid来构建的时候才允许send
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    print "notify...\n";
+
+    my ( $db, $uuid, $logs, $status, $errormsg ) = @param{qw( db uuid logs status errormsg )};
+
+    $logs = Logs->new( 'code.build.notify' ) unless $logs;
+
+    $logs->die( "uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
+
+    my @col;
+    map{ push @col, "version.$_" } qw( projectid name user status starttime finishtime calltype runtime );
+    map{ push @col, "project.$_" } qw( groupid name addr calltestenv callonlineenv );
+    
+    my $x = eval{ $db->query( sprintf( "select %s from version,project where version.projectid=project.id and uuid='$uuid'", join( ',',@col) ), \@col ); };
+
+    $logs->die( "get version info fail:$@" ) if $@;
+    $logs->die( "get version info from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
+    $logs->die( "version uuid is illegal, mismatch: $uuid" ) unless @$x;
+
+    my %x = %{$x->[0]};
+    use Data::Dumper;
+
+    my %env = Util::envinfo( qw( appname appkey ) );
+    my $ua = LWP::UserAgent->new;
+ 
+
+    $ua->default_header( %env );
+    my $res = $ua->get( "http://api.job.open-c3.org/environment" );
+
+    $logs->die( "call job get environment table fail" ) unless $res->is_success;
+    my $data = eval{JSON::from_json $res->content};
+    $logs->die( "call job get environment stat fail" ) unless $data->{stat};
+
+    my $environment = $data->{data};
+
+
+    my $notify = $ua->get( "http://api.job.open-c3.org/notify/$x{'project.groupid'}" );
+
+    $logs->die( "call job get notify table fail" ) unless $notify->is_success;
+    my $datanotify = eval{JSON::from_json $notify->content};
+    $logs->die( "call job get environment stat fail" ) unless $datanotify->{stat};
+
+    my %notify = map{ $_->{user} => 1  }@{$datanotify->{data}};
+
+
+    my %template = 
+    (
+        ciTemplateEmailTitle => 'build: project: ${projectname} version=${version}',
+        ciTemplateEmailContent => 'status: ${status} \n projectname: ${projectname} \n addr: ${addr} \n version: ${version} \n calltestenv: ${calltestenv} \n callonlineenv: ${callonlineenv} \n errormsg: ${errormsg} buildlog: ${buildlog}',
+        ciTemplateSmsContent => 'build: project: ${projectname} version=${version}: status:${status}',
+    );
+ 
+
+    my $perfix = "isCi". ( $status eq 'success' ? 'Success' : 'Fail' );
+
+    my $stat = 1;
+
+    my %senddata;
+    $senddata{title} = $environment->{ciTemplateEmailTitle} || $template{ciTemplateEmailTitle};
+    $senddata{content} = $environment->{ciTemplateEmailContent} || $template{ciTemplateEmailContent};
+    $senddata{mesg} = $environment->{ciTemplateSmsContent} || $template{ciTemplateSmsContent};
+
+
+    my $tagger = `cat '$RealBin/../logs/build_temp_uuid/$uuid/info/tagger'`;
+    chomp $tagger;
+    print "tagger: $tagger\n";
+ 
+    $notify{$tagger} ++;
+
+    my %replace;
+    $replace{buildlog} = `head -n 200 $RealBin/../logs/build/$uuid`;
+    $replace{projectname} = $x{'project.name'};
+    $replace{version} = $x{'version.name'};
+    $replace{status} = $status;
+    $replace{addr} = $x{'project.addr'};
+    $replace{calltestenv} = $x{'project.calltestenv'} ? 'Yes' : 'No';
+    $replace{callonlineenv} = $x{'project.callonlineenv'} ? 'Yes' : 'No';
+    $replace{errormsg} = $errormsg;
+
+    for my $key ( keys %senddata )
+    {
+
+        if( Encode::is_utf8($senddata{$key}) )
+        {
+            $senddata{$key} = 'build: project: ${projectname} version=${version}: status:${status}';
+        }
+        for ( keys %replace )
+        {
+            next if Encode::is_utf8($replace{$_});
+            $senddata{$key} =~ s/\$\{$_\}/$replace{$_}/g;
+        }
+    }
+
+    for my $type ( qw( email sms ) )
+    {
+        my $tmptype = $type; $tmptype =~ s/^[a-z]/\u$&/;
+        my $keyname = "${perfix}${tmptype}";
+
+        next unless $environment->{$keyname} && $environment->{$keyname} eq 'true'; 
+        my $s = eval{ Code->new( "build.plugin/notify.plugin/$type" )->run( %senddata, to => [ keys %notify ] ); };
+        if( $@ )
+        {
+            print "notify.plugin/$type fail uuid=$param{uuid} $@\n";
+            $logs->err( "notify.plugin/$type fail uuid=$param{uuid}" );
+            $stat = 0;
+        }
+        $stat = 0 unless $s;
+ 
+    }
+
+    return $stat;
+}

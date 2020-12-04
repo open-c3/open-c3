@@ -1,0 +1,52 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use Code;
+use Logs;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    logs => 日志对象
+
+    # projectid uuid temp(临时目录名)
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $logs, $uuid, $projectid, $temp ) = @param{qw( db logs uuid projectid temp )};
+
+    $logs = Logs->new( 'code.build.dump.rely' ) unless $logs;
+
+    $logs->die( "uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
+    $logs->die( "projectid format error" ) unless $projectid =~ /^\d+$/;
+
+    my $x = eval{ 
+        $db->query( "select path,addr,ticketid,tags from rely where projectid='$projectid' order by id", 
+            [qw( path addr ticketid tags )]  ); 
+    };
+    $logs->die( "get rely info fail:$@" ) if $@;
+    $logs->die( "get rely info from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
+
+    my $index = 0;
+    for( @$x )
+    {
+        $index ++;
+        my $type = ( $_->{addr} =~ /git@/ || $_->{addr} =~ /\.git/  ) ? 'git':'svn';
+  	    eval{ Code->new( "build.plugin/dump.plugin/rely.plugin/$type" )->run( 
+                db => $db, 
+                index => $index,
+                uuid => $uuid,
+                temp => $temp,
+                %$_,
+            );
+        };
+        $logs->die( "run build.dump.rely.$type fail:$@" ) if $@;
+    }
+    #index uuid temp path addr ticketid tags
+}

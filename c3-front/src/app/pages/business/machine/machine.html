@@ -1,0 +1,112 @@
+<div>
+    <nodestr></nodestr>
+    <hr class="mv20 clear">
+
+    <div class="panel panel-primary">
+
+        <div class="panel-heading">
+            <h5>查询条件</h5>
+        </div>
+
+        <div class="panel-body">
+
+                <form class="form-inline" name="searchForm" novalidate>
+                        <div class="row">
+                            <div class="form-group col-md-3" >
+                                <div class="input-group fluid-width">
+                                    <input type="text" class="form-control"  ng-model="machine.name" placeholder="机器名称包含的字符">
+                                </div>
+                            </div>
+                            <div class="form-group col-md-3" >
+                                <div class="input-group fluid-width">
+                                    <input type="text" class="form-control" ng-model="machine.createuser" placeholder="创建人全称">
+                                    <span class="input-group-btn">
+                                        <button type="submit" class="btn btn-default fluid-width" ng-click="machine.getMe()">我</button>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-3" >
+                                <div class="input-group fluid-width">
+                                    <input type="text" class="form-control"  ng-model="machine.inip" placeholder="内网IP">
+                                </div>
+                            </div>
+                            <div class="form-group col-md-3" >
+                                <div class="input-group fluid-width">
+                                    <input type="text" class="form-control"  ng-model="machine.exip" placeholder="外网IP">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row" style="margin-top: 23px">
+                            <div class="form-group col-md-3" >
+                                <div class='input-group fluid-width date' id='createstart'>
+                                    <input type='text' class="form-control"  ng-model="machine.createStart" placeholder="开始时间"/>
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group col-md-3" >
+                                <div class='input-group fluid-width date' id='createend'>
+                                    <input type='text' class="form-control" ng-model="machine.createEnd" placeholder="结束时间"/>
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                </form>
+                    <div class="col-md-10" style="padding-top: 20px;">
+                        <button class="btn btn-primary" ng-click="machine.reload()">
+                            <i class="fa fa-search fa-fw"></i>查询
+                        </button>
+                        <button class="btn btn-success" ng-click="machine.Reset()">
+                            <i class="fa fa-refresh fa-fw"></i>重置
+                        </button>
+                    </div>
+
+                </div>
+        </div>
+    </div>
+
+    <div>
+        <div style="float: right;">
+            <form class="form-inline" name="myForm" novalidate>
+                <div class="form-group" ng-init="newMachine=''">
+                    <input type="text" class="form-control" ng-model="newMachine"  placeholder="机器ip" required>
+                </div>
+                <button type="submit" ng-disabled="myForm.$invalid" class="btn btn-primary" ng-click="machine.createMachine()"><i class="fa fa-desktop fa-lg" aria-hidden="true"></i>添加机器</button>
+            </form>
+        </div>
+        <div style="clear: both;">&nbsp;</div>
+    </div>
+
+
+    <div class="panel panel-dark">
+
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-dark" uib-tooltip="刷新" ng-click="machine.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!machine.loadover}" ></i></button>
+            </span>
+            <h5>机器列表</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="panel-tabs">
+
+            <table ng-table="machine.user_Table" class="table table-hover text-center table-condensed">
+                <tr ng-repeat="ss in $data">
+                    <td data-title="'机器名'" >{{ss.name}}</td>
+                    <td data-title="'创建人'">{{ss.create_user}}</td>
+                    <td data-title="'内网IP'">{{ss.inip}}</td>
+                    <td data-title="'外网IP'">{{ss.exip}}</td>
+                    <td data-title="'创建时间'">{{ss.create_time}}</td>
+                    <td data-title="'操作'">
+                        <button class="btn btn-danger btn-sm" ng-click="machine.delete(ss.id)">删除</button>
+                    </td>
+                </tr>
+            </table>
+            </div>
+        </div>
+    </div>
+

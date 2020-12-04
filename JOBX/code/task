@@ -1,0 +1,114 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOBX/lib -I/data/Software/mydan/JOBX/private/lib
+use strict;
+use warnings;
+
+use MIME::Base64;
+use Data::Dumper;
+
+use Digest::MD5;
+use FindBin qw( $RealBin );
+use Time::HiRes qw/time/;
+use POSIX;
+use Code;
+use YAML::XS;
+use Logs;
+use uuid;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    uuid => uuid,
+
+    logs => 日志对象
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $uuid, $logs ) = @param{qw( db uuid logs )};
+
+    $logs = Logs->new( 'code.task', $uuid =~ /^[a-zA-Z0-9]+$/ ? (  $uuid, $db ) : () ) unless $logs;
+
+    $logs->die( "uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
+
+    my ( $stimems, $stime ) = ( time, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ) );
+
+    my $x = $db->execute( "update task set pid='$$',starttime='$stime',
+        starttimems='$stimems',status='running' where uuid='$uuid' and pid is null" );
+    $logs->die( "task $uuid Already running" ) unless $x && $x eq 1;
+
+    $x = $db->query( "select `projectid`,`name`,`group`,`variable` from task where uuid='$uuid'" );
+    $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
+    $logs->die( "task uuid null: $uuid" ) unless @$x;
+    my ( $projectid, $name, $group, $variable ) = @{$x->[0]};
+
+
+    if( $variable && uuid::get_role( $uuid ) eq 'deploy' )
+    {
+        my $var  = eval{ YAML::XS::Load decode_base64( $variable ) };
+        $logs->die( "task variable decode load error:$@" ) if $@;
+        unless( $var && $var->{_rollbackVersion_} )
+        {
+            my $ruuid =  uuid::get_rollback_uuid( $uuid );
+            eval{ $db->execute( "insert into task (`projectid`,`uuid`,`name`,`group`,`user`,`slave`,`status`,`calltype`,`variable`) values('$projectid','$ruuid','_skip_','_null_','sys','_null_', 'success','sys','')" ); };
+            $logs->die( "write _null_ task fail:$@" ) if $@;
+        }
+    }
+
+    $x = $db->query( "select `id` from `group` where projectid='$projectid' and name='$group'" );
+    $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
+    $logs->die( "group name null: $group" ) unless @$x;
+    my $groupid = $x->[0][0];
+
+    my @group = Code->new( 'group' )->run( db => $db, id => $groupid, logs => $logs );
+
+    my @subtask_uuid;
+
+	for( @group )
+	{
+        my $subtask_uuid = uuid->new()->create_str;
+        push @subtask_uuid, $subtask_uuid;
+        my $nodecount = scalar @$_;
+        my $nodelist = join ',',@$_;
+        eval{ 
+            $db->execute(
+                "insert into subtask (`parent_uuid`,`uuid`,`nodelist`,`nodecount`,`status`) values('$uuid','$subtask_uuid','$nodelist','$nodecount','init')"
+        ); };
+        $logs->die( "set subtask info fail:$@" ) if $@;
+    }
+    
+    my $status = 'success';
+    eval{
+        for( @subtask_uuid )
+        {
+             #status = cancel,success,fail
+             my $s = Code->new( "subtask" )->run( 
+				db => $db, 
+				uuid => $_, 
+                logs => $logs,
+			);
+            $status = 'fail' if $s eq 'fail' || $s  eq 'cancel';
+            last if $s eq 'cancel';
+		}
+    };
+
+    if( $@ )
+    {
+        warn "task fail: $@";
+        $status = 'fail';
+    }
+
+
+    my ( $ftimems, $ftime ) = ( time, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ) );
+    my $runtime = sprintf "%0.3f", $ftimems - $stimems;
+
+    eval{ $db->execute( "update task set finishtime='$ftime',finishtimems='$ftimems',
+        status='$status',runtime='$runtime' where uuid='$uuid'" ); };
+    $logs->die( "update task status fail:$@" ) if $@;
+
+    return $status;
+}

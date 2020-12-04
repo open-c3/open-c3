@@ -1,0 +1,105 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib -I/data/Software/mydan/AGENT/private/lib
+use strict;
+use warnings;
+
+use Code;
+use Logs;
+use Util;
+use Util;
+use POSIX;
+
+use MYDan::Util::OptConf;
+use MYDan::Agent::Client;
+use MYDan::VSSH::Print;
+
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    id => id,
+
+    logs => 日志对象
+    proxy => +{ regionid1 => '10.10.10.1', regionid2 => 10.10.10.2 }
+
+=cut
+
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $id, $logs, $proxy ) = @param{qw( db id logs proxy )};
+
+use Data::Dumper;
+    $logs = Logs->new( 'code.check.proxy' ) unless $logs;
+
+    $logs->die( "id format error" ) unless $id =~ /^\d++$/;
+
+    ##TODO clean monitor: delete from monitor where time < xxx
+    my $failcount = $db->query( "select ip,fail from monitor where projectid='$id'");
+    my %failcount;
+    map{ $failcount{$_->[0]} = $_->[1] }@$failcount;
+
+
+    my @nn;
+
+    my %env = Util::envinfo( qw( appname appkey ) );
+    use JSON;
+    my $ua = LWP::UserAgent->new;
+    $ua->default_header( %env ) if %env;
+    my $res = $ua->get( "http://api.job.open-c3.org/nodeinfo/$id" );
+    if($res->is_success)
+    { 
+        my $v = eval{decode_json $res->decoded_content};
+        die "die" unless $v->{stat} && ref $v->{data} eq 'ARRAY';
+        @nn = @{$v->{data}};
+    }
+
+    my %ip; map{ $ip{$_->{inip}} = 1; $ip{$_->{exip}} = 1; }@nn;
+
+    my @ip = grep{ /^\d+\.\d+\.\d+\.\d+$/ }keys %ip;
+    $ENV{MYDan_Agent_Proxy_Addr} = "http://api.agent.open-c3.org/proxy/$id";
+    $ENV{MYDan_Agent_Proxy_Header} = "appname:$env{appname},appkey:$env{appkey}";
+
+    $MYDan::Util::OptConf::THIS = 'agent';
+    my %o = MYDan::Util::OptConf->load()->dump();
+    $o{verbose} = 1;
+    $o{user} = 'agentsys';
+
+    my %query = ( 
+        code => 'version', 
+        map{ $_ => $o{$_} }qw( user sudo )
+    );
+
+    delete $query{auth};
+    my %result = MYDan::Agent::Client->new(
+        @ip
+    )->run( %o, query => \%query );
+    print Dumper \%result;
+
+    for my $ip ( keys %result )
+    {
+        my $result = $result{$ip} || '';
+        my $version = '0';
+        my $status = 'fail';
+        my $reason = $result;
+        my $fail = 0;
+        if( $result =~ /file version:(\d+)/ )
+        {
+            $version = $1;
+            $status = 'success';
+            $reason = 'ok';
+        }
+        else
+        {
+            my $fc = $failcount{$ip} || 0;
+            $fail = $fc +1;
+        }
+
+        my $edit_time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
+        eval{ $db->execute( "replace into monitor (`projectid`,`ip`,`status`,`fail`,`reason`,`version`,`edit_time`) values('$id','$ip','$status','$fail','$reason','$version','$edit_time')" ) };
+       #TODO
+    }
+}

@@ -1,0 +1,103 @@
+<div>
+
+    <div class="row" style="padding: 0 20px 0;">
+        <nodestr></nodestr>
+    </div>
+
+    <hr class="mv10 clear">
+    <div class="row">
+        <div class="col-sm-8 form-group">
+            <label class="control-label" style="padding-top: 8px;padding-right: 0;width: 11%;float: left;position: relative;min-height: 1px;padding-left: 15px;">
+                执行账户
+            </label>
+            <div class="col-sm-4">
+                <form action="">
+                    <select  class="form-control" style="font-size: 15px;height: 35px;padding: 3px 12px"  ng-model="selectedUser" ng-options="s.username as s.username for s in allProUsers" required>
+                    </select>
+                </form>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="panel panel-dark">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-dark" uib-tooltip="刷新" ng-click="templatecmd.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!templatecmd.loadover}" ></i></button>
+            </span>
+            <h5>选择操作节点</h5>
+        </div>
+
+        <div class="panel-body">
+
+            <div style="float: left;width: 60%;">
+                <table ng-table="templatecmd.machine_Table" class="table table-hover text-center table-condensed" show-filter="true" style="border: 1px solid #ddd;">
+                    
+                        <tr ng-repeat="ss in $data" style="text-align: left">
+                            <td style="width: 15%" data-title="'机器名称'" filter="{ name: 'text'}"><input id="{{ss.name}}" type="checkbox" name="selected"  ng-checked="isSelected(ss.name)" ng-click="nameUpdateSelection($event, ss.id, ss.name)" style="zoom: 125%"/>
+                                <a style="cursor: pointer;" title="打开终端" ng-click="openOneTab(ss.name)">{{ss.name}}</a></td>
+                            <td style="width: 5%" data-title="'类型'" filter="{ type: 'text'}">{{ss.type}}</td>
+                            <td style="width: 15%" data-title="'内网IP'" filter="{ inip: 'text'}"><input id="{{ss.inip}}" ng-if="ss.inip" type="checkbox" name="selected"  ng-checked="isSelected(ss.inip)" ng-click="inipUpdateSelection($event, ss.id, ss.inip)" style="zoom: 125%"/>
+                                <a style="cursor: pointer;" title="打开终端" ng-click="openOneTab(ss.inip)">{{ss.inip}}</a>
+                                    <i ng-if="ss.inip && ! ss.inips.status" class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                                    <i ng-if="ss.inip && ss.inips.status=='fail'" class="fa fa-circle" style="color: red;" aria-hidden="true"></i>
+                                    <i ng-if="ss.inip && ss.inips.status=='success'" class="fa fa-circle" style="color: green;" aria-hidden="true"></i>
+                            </td>
+                            <td style="width: 15%" data-title="'外网ip'" filter="{ exip: 'text'}"><input ng-if="ss.exip" id="{{ss.exip}}" type="checkbox" name="selected"  ng-checked="isSelected(ss.exip)" ng-click="exipUpdateSelection($event, ss.id, ss.exip)" style="zoom: 125%"/>
+                                <a style="cursor: pointer;" title="打开终端" ng-click="openOneTab(ss.exip)">{{ss.exip}}</a>
+                                    <i ng-if="ss.exip && ! ss.exips.status" class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                                    <i ng-if="ss.exip && ss.exips.status=='fail'" class="fa fa-circle" style="color: red;" aria-hidden="true"></i>
+                                    <i ng-if="ss.exip && ss.exips.status=='success'" class="fa fa-circle" style="color: green;" aria-hidden="true"></i>
+                            </td>
+                            <td style="width: 5%" data-title="'客户端版本'">
+                                <a ng-if="ss.inip">{{ss.inips.version}}</a>
+                                <a ng-if="ss.exip && ! ss.inip">{{ss.exips.version}}</a>
+                            </td>
+
+                            <td style="width: 20%" data-title="'客户端上一次检测时间'">
+                                <a ng-if="ss.inip">{{ss.inips.edit_time}}</a>
+                                <a ng-if="ss.exip && ! ss.inip">{{ss.exips.edit_time}}</a>
+                            </td>
+
+                            <td style="width: 20%" data-title="'客户端错误原因'">
+                                <a ng-if="ss.inip && ss.inips.status=='fail'">failcount:{{ss.inips.fail}}; {{ss.inips.reason}}</a>
+                                <a ng-if="ss.exip && ! ss.inip && ss.exips.status=='fail'">failcount:{{ss.exips.fail}}; {{ss.exips.reason}}</a>
+                            </td>
+
+ 
+                        </tr>
+
+                </table>
+            </div>
+            <div style="float: right;width: 37%">
+                <table ng-table="choice.choiceResult" class="table table-hover" style="border: 1px solid #ddd;" >
+                    <thead >
+                    <tr>
+                        <th style="text-align: left;">地址</th>
+                        <th style="text-align: left;">操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr ng-repeat="ss in selectedData">
+                        <td>{{ss}}</td>
+                        <td><button ng-click="templatecmd.delChoice($index)">删除</button></td>
+                    </tr>
+                    </tbody>
+                </table>
+                <div>
+                    <button class="btn btn-info" style="margin-left: 42%" ng-click="templatecmd.openTailLog()">
+                        实时日志
+                    </button>
+                    <button class="btn btn-success" ng-click="templatecmd.openNewTab()">
+                        开始操作
+                    </button>
+                    <button class="btn btn-danger" ng-click="templatecmd.delAllData()">
+                        清除
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</div>

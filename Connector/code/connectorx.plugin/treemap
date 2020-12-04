@@ -1,0 +1,45 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
+use strict;
+use warnings;
+use Logs;
+use LWP::UserAgent;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    cookie => 'cookiestring',
+    logs => 日志对象
+
+=cut
+
+my ( $treemap, %env );
+BEGIN{
+    my $config = eval{ YAML::XS::LoadFile '/data/Software/mydan/Connector/config.inix' };
+    die "load config.ini fail: $@" if $@;
+    $treemap = $config->{treemap};
+    %env = %{$config->{treemapenv}} if $config->{treemapenv} && ref $config->{treemapenv} eq 'HASH';
+};
+
+
+
+return sub
+{
+    my ( %param )= @_;
+    my ( $cookie, $logs ) = @param{qw(cookie logs)};
+
+    $logs = Logs->new( 'code.treemap' ) unless $logs;
+#    $logs->die( "id not a number" ) unless $id =~ /^\d+$/;
+
+    my $ua = LWP::UserAgent->new;
+    $ua->default_header( %env ) if %env;
+    my $res = $ua->get( $treemap );
+    if($res->is_success)
+    {
+        my $v = eval{decode_json $res->decoded_content};
+        return $v->{data} if $v->{stat};
+    }
+    #TODO die
+
+    die "die";
+}

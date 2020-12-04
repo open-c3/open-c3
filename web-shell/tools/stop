@@ -1,0 +1,18 @@
+#!/usr/bin/env perl
+
+use FindBin qw($RealBin);
+
+my $base = $RealBin; $base =~ s/\/[a-z]+$//;
+
+die "chdir fail" unless chdir $base;
+
+my $c = `cat node_modules/tty.js/config.json`;
+
+my $port =  $c =~ /"port": (\d+),/ ? $1 : die "get port info fail";
+
+print "stop port: $port\n";
+
+system '/usr/sbin/lsof -i:'.$port.'|tail -n 1|awk \'{print $2}\'|xargs -i{} kill {}';
+
+system "/usr/sbin/lsof -i:$port";
+

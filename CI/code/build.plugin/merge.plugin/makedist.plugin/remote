@@ -1,0 +1,52 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use Logs;
+use MIME::Base64;
+use Temp;
+use MYDan;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    logs => 日志对象
+
+    #temp uuid buildimage buildscripts projectid
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $logs, $temp, $uuid, $buildimage, $buildscripts, $projectid ) 
+        = @param{qw(db logs temp uuid buildimage buildscripts projectid )};
+
+    $logs = Logs->new( 'code.build.merge.makedist.remote' ) unless $logs;
+
+    my $temppath = "$RealBin/../logs/$temp/$uuid";
+
+    return if -d "$temppath/dist";
+
+    $logs->die( "buildscripts null" )  unless  $buildscripts ;
+    $logs->die( "buildscripts decode fail" )  unless my $runcont = decode_base64( $buildscripts );
+
+    my $run = Temp->new( chmod => 0755 )->dump( $runcont );
+
+    my $remotepath = "/data/wkci/$uuid";
+
+    map{
+        $logs->die( "run build.merge.makedist.remote fail:$!" ) if system $_;       
+    }(
+        "mv '$run' '$temppath/run'",
+	    "cd '$temppath' && tar -zcvf ciTempData.tar.gz *",
+	    "$MYDan::PATH/dan/tools/rcall -r '$buildimage' dump $temppath/ciTempData.tar.gz --path '$remotepath/ciTempData.tar.gz'",
+	    "$MYDan::PATH/dan/tools/rcall -r '$buildimage' exec 'cd $remotepath && tar -m -zxvf ciTempData.tar.gz &&CIPATH='$remotepath' ./run && tar -zcvf dist.tar.gz dist'",
+	    "$MYDan::PATH/dan/tools/load -h '$buildimage' --sp '$remotepath/dist.tar.gz' --dp '$temppath/dist.tar.gz'",
+	    "cd '$temppath' && tar -m -zxvf dist.tar.gz",
+    );
+
+    $logs->die( "run build.merge.makedist.docker fail:The dist is not a directory" ) unless -d "$temppath/dist";
+    $logs->die( "run build.merge.makedist.docker fail:The dist is a soft link" ) if -l "$temppath/dist";
+}

@@ -1,0 +1,22 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use MYDB;
+use FindBin qw( $RealBin );
+use Data::Dumper;
+
+use MYDan::Util::OptConf;
+use Code;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( )->dump();
+
+my $db = MYDB->new( "$RealBin/../conf/conn" );
+
+$0 = 'ci_server_keepalive';
+Code->new( 'server/keepalive' )->run( db => $db, %o );

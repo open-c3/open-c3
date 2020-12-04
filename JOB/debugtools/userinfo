@@ -1,0 +1,22 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use MYDB;
+use FindBin qw( $RealBin );
+use Data::Dumper;
+
+use MYDan::Util::OptConf;
+use Code;
+
+=head1 SYNOPSIS
+
+ $0 [--user lijinfeng2011@gmail.com]
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( user=s ) )->dump();
+$option->assert( qw( user ) );
+
+my $info = Code->new( 'userinfo' )->run( $o{user} );
+print Dumper $info;

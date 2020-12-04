@@ -1,0 +1,47 @@
+<div class="row block">
+
+    <div class="panel panel-primary">
+
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="host.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!host.loadover}" ></i></button>
+            </span>
+ 
+            <h5> {{ host.nodeStr }} : regionid:{{host.regionid}}</h5>
+        </div>
+
+
+        <div class="panel-body">
+            <div class="pt20">
+                <table ng-table="host.hostlistTable" class="table table-hover text-center table-condensed">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th><input type="checkbox" ng-model="all_name" ng-click="host.check_name(all_name)" > 机器名</th>
+                            <th>类型</th>
+                            <th><input type="checkbox" ng-model="all_inip" ng-click="host.check_inip(all_inip)">内外IP</th>
+                            <th><input type="checkbox" ng-model="all_exip" ng-click="host.check_exip(all_exip)">外网IP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                            <tr ng-repeat="m in $data">
+                                    <td >{{m.id}}</td>
+                                    <td ><input type="checkbox" ng-model="m.selected_name" ng-checked="s_name">  {{m.name}}</td>
+                                    <td >{{m.type}}</td>
+                                    <td ><input ng-if="m.inip" type="checkbox" ng-model="m.selected_inip" ng-checked="s_inip">{{m.inip}}</td>
+                                    <td ><input ng-if="m.exip" type="checkbox" ng-model="m.selected_exip" ng-checked="s_exip">{{m.exip}}</td>
+                            </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="panel-footer text-right">
+            <button class="btn btn-primary" ng-click="host.save()">选中</button>
+            <button class="btn btn-warning" ng-click="host.cancel()">取消</button>
+        </div>
+
+    </div>
+
+</div>
+

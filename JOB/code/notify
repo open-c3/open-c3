@@ -1,0 +1,77 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use MIME::Base64;
+use Code;
+use Logs;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    #从code/server/notify那里拿到一个要发送的消息，这个插件需要判断是非需要发送，找出要发送的人员列表，调用指定的差价把信息发送出去
+    #
+    db => $db,
+
+    'finishtime' => '2018-01-20 17:15:54',
+    'status' => 'fail',
+    'calltype' => 'page',
+    'name' => 'foo',
+    'id' => 57,
+    'uuid' => 'ByrweYI7PQHJ',
+    'user' => 'debug@job',
+    'projectid' => 1,
+    'starttime' => '2018-01-20 17:15:21',
+    'environment' => {
+                       'isCronFailEmail' => 'true',
+                       'isApiFailEmail' => 'true'
+                     }
+
+
+    projectname => 项目名
+    logs => 日志对象
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $logs ) = @param{qw( db logs )};
+    $logs = Logs->new( 'code.notify' ) unless $logs;
+
+    $logs->die( "projectid no a number" ) unless defined $param{projectid} && $param{projectid} =~ /^\d+$/;
+    my $x = eval{ $db->query( "select `user` from notify where projectid='$param{projectid}'");};
+    $logs->die( "get user list from mysql fail:$@" ) if $@;
+    $logs->die( "get user list from mysql fail" )  unless defined $x && ref $x eq 'ARRAY';
+
+    return 1 unless @$x;
+
+    my %send; map { $send{ $_->[0] eq '_' ? $param{user} : $_->[0] } ++; }@$x;
+    my @send = keys %send;
+
+    return 1 unless @send;
+
+    my $perfix = sprintf "is%s%s", map{ my $t = $param{$_} ; $t =~ s/^[a-z]/\u$&/; $t  }qw( calltype status );
+
+
+    my $status = 1;
+    for my $type ( qw( email sms ) )
+    {
+
+        my $tmptype = $type; $tmptype =~ s/^[a-z]/\u$&/;
+        my $keyname = "${perfix}${tmptype}";
+
+        next unless $param{environment} && ref $param{environment} eq 'HASH' 
+            && $param{environment}{$keyname} && $param{environment}{$keyname} eq 'true';
+
+        my $s = eval{ Code->new( "notify.plugin/$type" )->run( %param, to => \@send, notifytype => 'notify' ); };
+        if( $@ )
+        {
+            $logs->err( "notify.plugin/$type fail uuid=$param{uuid}" );
+            $status = 0;
+        }
+        $status = 0 unless $s;
+    }
+
+    return $status;
+}

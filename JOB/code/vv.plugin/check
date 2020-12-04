@@ -1,0 +1,39 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use Code;
+use YAML::XS;
+use FindBin qw( $RealBin );
+use File::Basename;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    projectid => 1,
+    node => [ node1, node2, node3, node4, ..]
+    key => 'key',
+    val => 'val',
+
+    logs => 日志对象
+
+
+=cut
+
+return sub
+{
+    my %param = @_;
+    my ( $db, $projectid, $node, $key, $val, $logs )
+        = @param{qw(db projectid node key val logs )};
+    $logs = Logs->new( 'code.vv.check' ) unless $logs;
+
+    my $x = eval{ $db->query( "select node from vv where projectid='$projectid' and name='$key' and value='$val'" ) };
+    $logs->die( "vv.check query fail :$@" ) if $@;
+
+    my %x = map{ $_->[0] => 1 }@$x;
+
+    my @nosame = grep{ ! $x{$_} }@$node;
+
+    return @nosame ? 0 : 1;
+}

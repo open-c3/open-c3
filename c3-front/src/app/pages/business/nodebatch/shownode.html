@@ -1,0 +1,23 @@
+<div class="modal-header">
+    <h4  class="modal-title">分组机器列表</h4>
+</div>
+<div class="modal-body">
+    <form class="form-horizontal" name="addForm" role="form">
+        <div class="row" ng-repeat="group in showIPstr">
+            <div class="col-sm-12 form-group">
+                <label class="col-sm-2 control-label">分组{{$index+1}}({{group.num}}台机器):
+                </label>
+                <div class="col-sm-9" style="padding-top: 10px">
+                    <p ng-repeat="ip in group.infos">{{ip}}</p>
+                </div>
+            </div>
+        </div>
+    </form>
+    <div class="row">
+        <div class="col-sm-2 form-group pull-right">
+            <button class="btn btn-warning" ng-click="showip.cancel()">取消</button>
+        </div>
+    </div>
+
+</div>
+

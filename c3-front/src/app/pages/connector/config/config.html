@@ -1,0 +1,207 @@
+<div>
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="保存" ng-click="connectorconfig.save()"><i class="fa fa-floppy-o" aria-hidden="true"></i></button>
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="connectorconfig.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!connectorconfig.loadover}" ></i></button>
+            </span>
+            <h5>连接器配置管理</h5>
+        </div>
+
+
+        <div class="panel-body">
+            <div class="form-horizontal">
+                <div class="container-fluid">
+
+                   <h4>历史连接器</h4>
+
+                   <div class="row" >
+                        <div class="col-sm-10 form-group">
+                        <label class="col-md-2 control-label fwbold">连接器切换(重新保存后生效)</label>
+                        <div class="col-md-9 form-inline">
+                            <select class="form-control"  ng-model="connectorconfig.name" ng-change="connectorconfig.reload()">
+                                 <option ng-repeat="x in connectorconfig.configlist" value="{{x}}">{{x}}</option>
+                            </select>
+                        </div>
+                        </div>
+                    </div>
+
+                  <hr>
+                  <h4>登录</h4>
+
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">获取用户信息</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" ng-model="connectorconfig.config.ssousername" required />
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">用户登出</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" ng-model="connectorconfig.config.ssologoutapi" required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">回调</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" ng-model="connectorconfig.config.ssocallback" required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">cookie名</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" ng-model="connectorconfig.config.cookiekey" required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">修改密码</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" ng-model="connectorconfig.config.ssochpasswd" required />
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                  <h4>服务树</h4>
+
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">用户服务树</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" ng-model="connectorconfig.config.usertree" required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">全量服务树</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" ng-model="connectorconfig.config.treemap" required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label"></label>
+                            <label class="col-sm-2 control-label">appname</label>
+                            <div class="col-sm-2">
+                                <input type="text" class="form-control" ng-model="connectorconfig.config.treemapenv.appname" required />
+                            </div>
+
+                            <label class="col-sm-2 control-label">appkey</label>
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" ng-model="connectorconfig.config.treemapenv.appkey" required />
+                            </div>
+                        </div>
+                    </div>
+
+
+
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">服务树资源</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" ng-model="connectorconfig.config.nodeinfo" required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label"></label>
+                            <label class="col-sm-2 control-label">appname</label>
+                            <div class="col-sm-2">
+                                <input type="text" class="form-control" ng-model="connectorconfig.config.nodeinfoenv.appname" required />
+                            </div>
+
+                            <label class="col-sm-2 control-label">appkey</label>
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" ng-model="connectorconfig.config.nodeinfoenv.appkey" required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">权限控制</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" ng-model="connectorconfig.config.pmspoint" required />
+                            </div>
+                        </div>
+                    </div>
+
+
+                  <h4>消息出口</h4>
+
+
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">邮件</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" ng-model="connectorconfig.config.usermail" required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label"></label>
+                            <label class="col-sm-2 control-label">appname</label>
+                            <div class="col-sm-2">
+                                <input type="text" class="form-control" ng-model="connectorconfig.config.usermailenv.appname" required />
+                            </div>
+
+                            <label class="col-sm-2 control-label">appkey</label>
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" ng-model="connectorconfig.config.usermailenv.appkey" required />
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">短信</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" ng-model="connectorconfig.config.usermesg" required />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label"></label>
+                            <label class="col-sm-2 control-label">appname</label>
+                            <div class="col-sm-2">
+                                <input type="text" class="form-control" ng-model="connectorconfig.config.usermesgenv.appname" required />
+                            </div>
+
+                            <label class="col-sm-2 control-label">appkey</label>
+                            <div class="col-sm-3">
+                                <input type="text" class="form-control" ng-model="connectorconfig.config.usermesgenv.appkey" required />
+                            </div>
+                        </div>
+                    </div>
+
+        </div>
+    </div>
+</div>
+
+

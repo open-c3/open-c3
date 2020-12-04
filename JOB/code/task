@@ -1,0 +1,99 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+
+use MIME::Base64;
+use Data::Dumper;
+
+use Digest::MD5;
+use FindBin qw( $RealBin );
+use Time::HiRes qw/time/;
+use POSIX;
+use Code;
+use Encode qw(decode);
+use YAML::XS;
+use Logs;
+use Util;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    uuid => uuid,
+
+    logs => 日志对象
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $uuid, $logs ) = @param{qw(db uuid logs )};
+
+    $logs = Logs->new( 'code.task', $uuid =~ /^[a-zA-Z0-9]+$/ ? (  $uuid, $db ) : () ) unless $logs;
+
+    $logs->die( "uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
+
+    my ( $stimems, $stime ) = ( time, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ) );
+
+    my $x = $db->execute( "update task set pid='$$',starttime='$stime',
+        starttimems='$stimems',status='running' where uuid='$uuid' and pid is null" );
+    $logs->die( "task $uuid Already running" ) unless $x && $x eq 1;
+
+    $x = $db->query( "select `projectid`,`jobtype`,`jobuuid`,`mutex`,`variable` from task where uuid='$uuid'" );
+    $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
+    $logs->die( "task uuid null: $uuid" ) unless @$x;
+    my ( $projectid, $jobtype, $jobuuid, $mutex, $variable ) = @{$x->[0]};
+
+    my %env = Util::envinfo( qw( envname domainname appname appkey ) );
+    $ENV{MYDan_Agent_Proxy_Addr} = "http://api.agent.open-c3.org/proxy/$projectid";
+    $ENV{MYDan_Agent_Proxy_Header} = "appname:$env{appname},appkey:$env{appkey}";
+
+    if( $variable )
+    {
+        $variable  = eval{ YAML::XS::Load decode("UTF-8", decode_base64( $variable ) )};
+        $logs->die( "task variable decode load error:$@" ) if $@;
+        map{ 
+            $logs->die( "variable $_ format error" ) if $_ =~ /'/;
+            $logs->die( "variable $_ value format error" ) if $variable->{$_} =~ /'/;
+        }keys %$variable;
+    }
+
+    my $status;
+    eval{
+        if( $jobtype eq 'jobs' )
+        {
+            $x = $db->query( "select count(*) from task where status in ('waiting', 'running') and jobuuid in
+                ( select jobuuid from task where uuid='$uuid' ) and jobtype='jobs'" );
+            $logs->die( "Too many waiting or running tasks" ) if $x->[0][0] >= 10;
+        }
+ 
+        if( $mutex && $mutex =~ /^[a-zA-Z0-9]+$/ )
+        {
+            $x = $db->query( "select * from task where status='running' 
+                and uuid<>'$uuid' and projectid='$projectid' and mutex='$mutex'" );
+
+            $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
+            $logs->die( sprintf( "task mutex from: %s", join ',', grep{ defined $_ }map{ @$_ }@$x ) ) if @$x;
+        }
+
+        $logs->die( "jobtype unkown" ) unless grep{ $_ eq $jobtype }qw( jobs plugin_cmd plugin_scp plugin_approval );
+
+
+        $status = Code->new( $jobtype )->run( 
+            db => $db, uuid => $jobuuid, taskuuid => $uuid, projectid => $projectid, variable => $variable, logs => $logs );
+    };
+
+    warn "task fail: $@" if $@;
+
+    $status = ( $@ || $status ne 'success' ) ? 'fail' : 'success';
+
+    my ( $ftimems, $ftime ) = ( time, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ) );
+    my $runtime = sprintf "%0.3f", $ftimems - $stimems;
+
+    eval{ $db->execute( "update task set finishtime='$ftime',finishtimems='$ftimems',
+        status='$status',runtime='$runtime' where uuid='$uuid'" ); };
+    $logs->die( "update task status fail:$@" ) if $@;
+}

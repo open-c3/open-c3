@@ -1,0 +1,20 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use Code;
+use YAML::XS;
+use FindBin qw( $RealBin );
+use File::Basename;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+=cut
+
+return sub
+{
+    my $cont = `$RealBin/../debugtools/email --to 'lijinfeng2011\@gmail.com' 2>&1`;
+    print "$cont";
+    return $cont =~ /Mail sent OK./ ? 0 : 1;
+}

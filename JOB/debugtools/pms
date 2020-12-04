@@ -1,0 +1,22 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use MYDB;
+use FindBin qw( $RealBin );
+use Data::Dumper;
+
+use MYDan::Util::OptConf;
+use Code;
+
+=head1 SYNOPSIS
+
+ $0 [--cookie MTUxNTAzMzg1NnxEdi1CQkFFQ180SUFBUXdCRUFBQU5mLUNBQUVGZEc5clpXNEdjM1J5YVc1bkRDSUFJREk0T1Rsa1l6aG1ZMk5tWWpRMk16TmtaV1kzTlRSbE1XWmtNVFpsTW1JeHyVJcLDk8iEGWlwsv8le0WzgNxhZ6JIYRFMOYzE8fKecA==] [--point] [--treeid 123]
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( cookie=s point=s treeid=s ) )->dump();
+$option->assert( qw( cookie point treeid ) );
+
+my $status = Code->new( 'auth/pms' )->run( %o );
+print Dumper $status;

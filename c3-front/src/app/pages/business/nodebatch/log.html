@@ -1,0 +1,23 @@
+<div>
+    <div class="panel panel-dark">
+        <div class="panel-heading">
+            <h5>分批编辑日志</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="panel-tabs">
+                <table ng-table="operation.log_Table" class="table table-hover text-center table-condensed">
+                <tr ng-repeat="ss in $data">
+                    <td data-title="'时间'">{{ss.create_time}}</td>
+                    <td data-title="'操作'">{{ss.info}}</td>
+                    <td data-title="'用户'">{{ss.user}}</td>
+                </tr>
+            </table>
+            </div>
+        </div>
+    </div>
+
+        <div class="panel-footer text-right">
+            <button class="btn btn-warning" ng-click="operation.cancel()">取消</button>
+        </div>
+</div>

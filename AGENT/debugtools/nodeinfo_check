@@ -1,0 +1,26 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use MYDB;
+use FindBin qw( $RealBin );
+use Data::Dumper;
+
+use MYDan::Util::OptConf;
+
+use Code;
+=head1 SYNOPSIS
+
+ $0 [--id projectid] node1 node2 node3 
+
+ $0 [--id projectid] [ --node node1,node2,node3  ]
+
+=cut
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( id=i node=s ) )->dump();
+$option->assert( 'id' );
+
+
+$o{node} = [ @ARGV ] unless defined $o{node};
+
+my @node = Code->new( 'nodeinfo_check' )->run( %o );
+print Dumper \@node;

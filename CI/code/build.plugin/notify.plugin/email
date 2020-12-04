@@ -1,0 +1,59 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use Data::Dumper;
+use LWP::UserAgent;
+use Util;
+use JSON;
+
+$| ++;
+
+=head1 SYNOPSIS
+    to => [ 'foo@job.com', '123@job.com' ],
+
+    title => 'projectid: ${projectid} job ${status}',
+    content => 'task ${uuid} :${status}',
+    mesg => 'projectid=${projectid} taskuuid=${uuid}: ${status}',
+
+
+=cut
+
+return sub
+{
+    my %param = @_;
+    print Dumper 'sendemail',\%param;
+
+    return 1 unless @{$param{to}};
+
+    my %env = Util::envinfo( qw( appname appkey ) );
+    my $ua = LWP::UserAgent->new;
+    $ua->default_header( %env );
+    my %form = (
+        data => [
+            +{
+                type => 'email',
+                title => $param{title},
+                content => $param{content},
+                to => $param{to},
+            }
+        ]
+    );
+
+    my $res = $ua->post( "http://api.connector.open-c3.org/connectorx/notify", 
+        Content => JSON::to_json(\%form), 'Content-Type' => 'application/json'
+    );
+
+    unless( $res->is_success )
+    {
+#TODO 确认上层调用是否捕获这个die
+        die "call notify fail";
+    }
+
+    my $data = eval{JSON::from_json $res->content};
+    unless ( $data->{stat} ) {
+#TODO 确认上层调用是否捕获这个die
+        die "call notify result". $data->{info} || '';
+    }
+ 
+    return 1;
+}

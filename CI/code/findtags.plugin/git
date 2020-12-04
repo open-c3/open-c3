@@ -1,0 +1,54 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use Logs;
+use FindBin qw( $RealBin );
+use Temp;
+use MIME::Base64;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    id => id,
+
+    logs => 日志对象
+
+    addr => ''
+    ticketid => ''
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $id, $logs, $addr, $ticketid )
+        = @param{qw( db id logs addr ticketid )};
+
+    $logs = Logs->new( 'code.findtags.git' ) unless $logs;
+    $logs->die( "id format error" ) unless $id =~ /^\d+$/;
+
+    my $ssh_key;
+
+    if( $ticketid )
+    {
+        my $x = eval{ $db->query( "select ticket from ticket where id='$ticketid' and type='UsernamePassword'" )};  
+        $logs->die( "get data from ticket fail:$@" ) if $@;
+        $ssh_key = $x->[0][0] if @$x;
+    }
+
+    #TODO
+    #my $ctrl = $ssh_key ? "$RealBin/../../dan/tools/git -i " . Temp->new( chmod => 0600 )->dump( decode_base64( $ssh_key ) ) : 'git';
+    my $ctrl = $ssh_key ? "$RealBin/../../dan/tools/git -i " . Temp->new( chmod => 0600 )->dump( $ssh_key ) : 'git';
+
+    my @list; eval{ alarm 10; @list = `$ctrl ls-remote --tags $addr`; alarm 0; };
+    map{ chomp $_ }@list;
+
+    my @tags;
+    map{ push @tags, $1 if $_ =~ /\w+\s+refs\/tags\/(release.*)/ }@list;
+    @tags = grep{ $_ !~ /\^\{\}$/ } @tags;
+
+    return @tags;
+}

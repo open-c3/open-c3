@@ -1,0 +1,55 @@
+<div style="width: 100%">
+    <div id="sidebar_left" style="width: 100%;">
+            <div id="sidebar-scroll nav sidebar-menu">
+                <div class="sidebar-content">
+                    <div class="panel" style="margin: 0;">
+                        <div class="panel-heading" style="background-color: #4a89dc;color: #fff;">
+                            <span class="panel-title">服务树编辑</span>
+                            <span class="panel-controls">
+
+                                <a href="javascript:void(0)" style="color: #fff;" ng-click="connectortree.focusCurrent()"><i class="fa fa-map-marker"></i></a>
+                                <a href="javascript:void(0)" style="color: #fff;" ng-click="connectortree.expandAll(true)"><i class="fa fa-plus"></i></a>
+                                <a href="javascript:void(0)" style="color: #fff;" ng-click="connectortree.expandAll(false)"><i class="fa fa-minus"></i></a>
+                                <a href="javascript:void(0)" style="color: #fff;" ng-click="connectortree.reload()"><i class="treeFresh fa fa-refresh"></i></a>
+                            </span>
+                        </div>
+                        <div class="panel-body prn" style=";padding: 0">
+                            <perfect-scrollbar class="scroller" >
+                                <ul class="ztree" id="openc3treeclone" ></ul>
+                            </perfect-scrollbar>
+                        </div>
+                        <!-- start: right click menu -->
+                        <div class="clickMenu" ng-class="{open: !connectortree.hideMenu}">
+                            <ul class="dropdown-menu tree-menu text-left">
+                                <li class="dropdown-header">
+                                    <strong>{{ connectortree.menuTags }}</strong>
+                                </li>
+                                <li class="divider"></li>
+                                <li ng-show="connectortree.canAddNode">
+                                    <a href="javascript:void(0)" ng-click="connectortree.addNode()">
+                                        <i class="fa fa-plus pull-right"></i>
+                                        添加节点
+                                    </a>
+                               </li>
+                               <li ng-show="connectortree.canDelNode">
+                                   <a href="javascript:void(0)" ng-click="connectortree.delNode()">
+                                       <i class="fa fa-trash pull-right"></i>
+                                       删除节点
+                                   </a>
+                               </li>
+<!--
+                               <li ng-show="connectortree.canEditNode">
+                                   <a href="javascript:void(0)" ng-click="connectortree.renameNode()">
+                                       <i class="fa fa-pencil-square-o pull-right"></i>
+                                       重命名
+                                   </a>
+                              </li>
+-->
+                           </ul>
+                     </div>
+                     <!-- end: right click menu -->
+                    </div>
+                </div>
+            </div>
+    </div>
+</div>

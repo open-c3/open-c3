@@ -1,0 +1,68 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use MYDan::Util::OptConf;
+use YAML::XS;
+use Sys::Hostname;
+
+=head1 SYNOPSIS
+
+ $0 [--envname foo] 
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( envname=s ) )->dump();
+$option->assert( 'envname' );
+
+mkdir "$RealBin/../conf" unless -e "$RealBin/../conf";
+
+my $Config = eval{ YAML::XS::LoadFile "$RealBin/../config/Config"; };
+die "load config/Config fail:$@" if $@;
+die "envname $o{envname} undef" unless $Config = $Config->{$o{envname}};
+
+die "Config fail: $!" if system "$RealBin/Config --envname '$o{envname}'";
+
+my $base = $RealBin;
+$base =~ s#/[^/]+$##;
+
+my $repopath = '/data/glusterfs/ci_repo';
+unless( -e $repopath )
+{
+    die "glusterfs: $!" if system( "mkdir '$repopath'" );
+}
+
+map{
+    die "$_ fail: $!" if system $_;
+}(
+    "mkdir -p /data/logs/CI/{build,build_merge_project_link,build_temp_projectid,build_temp_uuid,findtags,pkgs,git_cache}", 
+    "mkdir -p /data/logs/CI/pkgrsync/{curr,repo,mail}",
+    "ln -fsn /data/logs/CI $base/logs",
+);
+
+my $mynamefile = '/etc/ci.myip';
+
+my $user = `id -un`;chop $user;
+my $sudo = $user eq 'root' ? '' : 'sudo ';
+
+unless( -e $mynamefile )
+{
+    die "set ci.myip fail:$!" if system( "${sudo}sh -c 'hostname > $mynamefile'" ) 
+}
+
+my $exipfile = '/etc/ci.exip';
+unless( -e $exipfile )
+{
+    my $hostname = Sys::Hostname::hostname;
+    die "nofind host info $hostname\n" unless my $myinfo = $Config->{host}{$hostname};
+    my $exip = $myinfo->{exip} || $myinfo->{inip};
+    $exip = $ENV{OPEN_C3_EXIP} if $ENV{OPEN_C3_EXIP};
+    
+    die "nofind exip" unless $exip && $exip =~ /^[0-9\.]+$/;
+    die "set job.myip fail:$!" if system( "${sudo}sh -c 'echo $exip > $exipfile'" );
+}
+
+die "cp nginx config fail: $!" if system "${sudo}cp $base/conf/*.open-c3.org.conf /etc/nginx/conf.d/";
+
+die "reload nginx fail: $!" if system "${sudo}nginx -s reload";

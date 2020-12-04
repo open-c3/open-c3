@@ -1,0 +1,33 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use Tie::File;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $perl = $^X;
+if ($^O eq "darwin") {
+	$perl = "/data/Software/mydan/perl/bin/perl";
+}
+
+my $base = $RealBin;
+$base =~ s#/[^/]+$##;
+
+$base = $ARGV[0] if $ARGV[0];
+
+my $path = join ' ', map{ "'$base/$_'" }qw(bin server debugtools code private/code);
+for my $file ( `find $path` )
+{
+    chomp $file;
+    next unless -f $file;
+    tie my @file, 'Tie::File', $file;
+
+    $file[0] = "#!$perl -I$base/lib -I$base/private/lib" if $file[0] =~ /^#![^#]*perl.*$/;
+    untie @file;
+}
+

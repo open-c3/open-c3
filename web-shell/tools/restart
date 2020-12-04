@@ -1,0 +1,9 @@
+#!/usr/bin/env perl
+
+use FindBin qw($RealBin);
+
+my $base = $RealBin; $base =~ s/\/[a-z]+$//;
+
+die "chdir fail" unless chdir $base;
+
+system "cd tools && ./stop && ./start";

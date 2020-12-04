@@ -1,0 +1,79 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use Data::Dumper;
+use LWP::UserAgent;
+use Util;
+use JSON;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    'finishtime' => '2018-01-20 17:15:54',
+    'status' => 'fail',
+    'calltype' => 'page',
+    'name' => 'foo',
+    'id' => 57,
+    'uuid' => 'ByrweYI7PQHJ',
+    'user' => 'debug@job',
+    'projectid' => 1,
+    'starttime' => '2018-01-20 17:15:21',
+    notifytype => 'notify'
+
+    to => [ 'foo@job.com', '123@job.com' ],
+
+    'environment' => {
+        notifyTemplateEmailTitle => 'projectid: ${projectid} job ${status}',
+        notifyTemplateEmailContent => 'task ${uuid} :${status}',
+        notifyTemplateSmsContent => 'projectid=${projectid} taskuuid=${uuid}: ${status}',
+    }
+
+
+=cut
+
+return sub
+{
+    my %param = @_;
+    print Dumper 'sendsms',\%param;
+
+    return 1 unless  @{$param{to}};
+
+    my %data = map{ $_ => $param{environment}{$_} } map{ "$param{notifytype}$_" }qw( TemplateSmsContent );
+
+    while( my ( $k, $v ) = each %param )
+    {
+        map{ $data{$_} =~ s/\$\{$k\}/$v/g }keys %data;
+    }
+
+    my %env = Util::envinfo( qw( appname appkey ) );
+    my $ua = LWP::UserAgent->new;
+    $ua->default_header( %env );
+    my %form = (
+        data => [
+            +{
+                type => 'sms',
+                mesg => $data{"$param{notifytype}TemplateSmsContent"},
+                to => $param{to},
+            }
+        ]
+    );
+
+    my $res = $ua->post( "http://api.connector.open-c3.org/connectorx/notify", 
+        Content => JSON::to_json(\%form), 'Content-Type' => 'application/json'
+    );
+
+    unless( $res->is_success )
+    {
+#TODO 确认上层调用是否捕获这个die
+        die "call notify fail";
+    }
+
+    my $data = eval{JSON::from_json $res->content};
+    unless ( $data->{stat} ) {
+#TODO 确认上层调用是否捕获这个die
+        die "call notify result". $data->{info} || '';
+    }
+ 
+    return 1;
+}

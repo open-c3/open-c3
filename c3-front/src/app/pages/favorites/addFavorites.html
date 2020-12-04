@@ -1,0 +1,34 @@
+<div class="row block">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="addfavorites.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!addfavorites.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="关闭" ng-click="addfavorites.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
+            </span>
+            <h5>我的流水线</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="pt20">
+                <table ng-table="addfavorites.activeRegionTable" class="table table-hover text-center table-condensed" show-filter="true">
+                    <tr ng-repeat="m in $data">
+                        <td style="width: 5%" data-title="'ID'" filter="{ id: 'text'}" sortable="'id'">
+
+                            <i class="fa fa-star-o fa-1x" aria-hidden="true"  ng-if="!m.favorites" ng-click="addfavorites.addToFavorites(m.id,m.name)" uib-tooltip="收藏" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-star fa-1x" aria-hidden="true"  ng-if="m.favorites" ng-click="addfavorites.delToFavorites(m.id,m.name)" uib-tooltip="取消收藏" style="cursor:pointer;color: #339094;" ></i>
+                            {{m.id}}
+                        </td>
+                        <td style="width: 15%" data-title="'名称'" filter="{ name: 'text'}" sortable="'name'">{{m.name}}</td>
+                        <td style="width: 15%" data-title="'别名'" filter="{ alias: 'text'}" sortable="'alias'">{{m.alias}}</td>
+                        <td style="width: 25%" data-title="'服务树名'" filter="{ treename: 'text'}" sortable="'treename'">{{m.treename}}</td>
+                        <td style="width: 30%" data-title="'代码仓库地址'" filter="{ addr: 'text'}" sortable="'addr'">{{m.addr}}</td>
+                        <td style="width: 5%" data-title="'编辑者'" filter="{ user: 'text'}" sortable="'user'">{{m.edit_user}}</td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<style>.modal-dialog {width: 100%;} </style>

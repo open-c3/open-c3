@@ -1,0 +1,59 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use LWP::UserAgent;
+use JSON;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+  #1
+    cookie => 'MTUxNTAzMzg1NnxEdi1CQkFFQ180SUFBUXdCRUFBQU5mLUNBQUVGZEc5clpXNEdjM1J5YVc1bkRDSUFJREk0T1Rsa1l6aG1ZMk5tWWpRMk16TmtaV1kzTlRSbE1XWmtNVFpsTW1JeHyVJcLDk8iEGWlwsv8le0WzgNxhZ6JIYRFMOYzE8fKecA==',
+    point => 'job_r'
+    treeid => 123
+  #3
+    appname: xx
+    appkey: xx
+
+    return 1 if ok
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my $ua = LWP::UserAgent->new;
+
+
+    if( $param{appname} && $param{appkey} )
+    {
+        my $res = $ua->get( "http://api.connector.open-c3.org/connectorx/username?appname=$param{appname}&appkey=$param{appkey}" );
+        unless( $res->is_success )
+        {
+             die "call username fail:" . $res->content;
+        }
+        my $data = eval{JSON::from_json $res->content};
+        unless ( $data->{stat} ) {
+            die "call username result". $data->{info} || '';
+        }
+ 
+        return $data->{data} ? 1 : 0;
+    }
+    else
+    {
+        my $treestr = ( defined $param{treeid} ) ? "&treeid=$param{treeid}" : '';
+        my $res = $ua->get( "http://api.connector.open-c3.org/connectorx/point?point=$param{point}$treestr&cookie=$param{cookie}" ); 
+        unless( $res->is_success )
+        {
+             die "call userauth.point fail:" . $res->content;
+        }
+        my $data = eval{JSON::from_json $res->content};
+        unless ( $data->{stat} ) {
+            die "call userauth.point result". $data->{info} || '';
+        }
+ 
+        return $data->{data};
+    }
+}
+

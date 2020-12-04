@@ -1,0 +1,32 @@
+<div class="row block">
+
+    <div class="panel panel-primary">
+
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="createProjectByTemplate.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!createProjectByTemplate.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="关闭" ng-click="createProjectByTemplate.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
+            </span>
+            <h5>通过模版创建流水线</h5>
+        </div>
+
+
+        <div class="modal-body">
+            <div class="panel-body">
+                <div class="pt20">
+                    <table ng-table="createProjectByTemplate.activeRegionTable" class="table table-hover text-center table-condensed" show-filter="true">
+                        <tr ng-repeat="m in $data">
+                            <td style="width: 30%" data-title="'ID'" filter="{ id: 'text'}" sortable="'id'">{{m.id}}</td>
+                            <td style="width: 30%" data-title="'名称'" filter="{ name: 'text'}" sortable="'name'">{{m.name}}</td>
+                            <td style="width: 30%" data-title="'编辑者'" filter="{ user: 'text'}" sortable="'user'">{{m.edit_user}}</td>
+                            <td data-title="'操作'">
+                                <i class="fa fa-clone fa-2x" aria-hidden="true" ng-click="createProjectByTemplate.copyProjectByTemplate(m.id,m.name)" uib-tooltip="复制为" style="cursor:pointer;color: #339094;" ></i>
+                            </td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>

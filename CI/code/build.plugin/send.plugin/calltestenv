@@ -1,0 +1,75 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use JSON;
+use Logs;
+use LWP::UserAgent;
+use Encode;
+use Util;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    logs => 日志对象
+=cut
+
+return sub
+{
+    my %param = @_;
+    my ( $logs, $projectid, $groupid, $version ) = @param{qw( logs projectid groupid version )};
+    print '=' x 75, "\n";
+    print "calltestenv...\n";
+
+    $logs = Logs->new( 'code.build.send.calltestenv' ) unless $logs;
+
+    my $ua = LWP::UserAgent->new();
+    $ua->agent('Mozilla/9 [en] (Centos; Linux)');
+
+    #HTTP::Message content must be bytes at
+    my ( $jobname, $jobgroup ) = ( '_ci_' . $projectid . '_', '_ci_test_' . $projectid . '_');
+
+    my %env = eval{ Util::envinfo( qw( appkey appname ) )};
+    $logs->die( "fromat error $@" ) if $@;
+
+    $ua->default_header( map{ $_ => $env{$_} }qw( appname appkey ) );
+ 
+    $ua->timeout( 10 );
+    $ua->default_header ( 'Cache-control' => 'no-cache', 'Pragma' => 'no-cache' );
+
+    my $url = "http://api.jobx.open-c3.org/task/$groupid/job/byname";
+    my $res = $ua->post( $url, 
+        Content => JSON::to_json( +{ jobname => $jobname, group => $jobgroup, variable => +{ version => $version, '_jobtype_' => 'test' } } ), 
+        'Content-Type' => 'application/json' 
+    );
+
+    my $cont = $res->content;
+    $logs->die( "calljobx fail: $cont" ) unless $res->is_success;
+
+    my $data = eval{JSON::from_json $cont};
+    $logs->die( "calljobx fail: $cont : no json $@" ) if $@;
+
+    $logs->die( "calljobx fail: $cont : stat fail" )  unless $data->{stat};
+
+    printf "call jobx ok: jobxuuid:%s\n", $data->{uuid};
+
+    print "wait test env finish...\n";
+
+    while(1)
+    {
+        my $rest = $ua->get( "http://api.jobx.open-c3.org/task/$groupid/$data->{uuid}" );
+        my $contt = $rest->content;
+        $logs->die( "calljobx fail: $contt" ) unless $rest->is_success;
+
+        my $datat = eval{JSON::from_json $contt};
+        $logs->die( "get status from jobx fail: $contt : no json $@" ) if $@;
+        $logs->die( "get status from jobx fail: $cont : stat fail" )  unless $datat->{stat};
+
+        return if $datat->{data}{status} eq 'success';
+        $logs->die( "jobx status fail" ) if $datat->{data}{status} eq 'fail';
+
+        print "#";
+        sleep 3;
+    }
+}

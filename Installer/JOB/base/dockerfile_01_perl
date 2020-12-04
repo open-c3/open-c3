@@ -1,0 +1,27 @@
+#This is AntDen Dockerfile#version 1.0
+#Author: lijinfeng2011@gmail.com
+#Base image 基础镜像
+
+FROM centos:7
+MAINTAINER lijinfeng2011
+
+
+RUN yum -y install make gcc lsof psmisc wget
+
+RUN mkdir -p /data/Software/mydan
+WORKDIR /data/Software/mydan
+ADD http://www.cpan.org/src/5.0/perl-5.24.0.tar.gz /data/Software/mydan/perl-5.24.0.tar.gz
+
+RUN tar -zxvf perl-5.24.0.tar.gz
+RUN rm -f perl-5.24.0.tar.gz
+
+WORKDIR /data/Software/mydan/perl-5.24.0
+RUN ./Configure -des -Dprefix=/data/Software/mydan/perl  -Dusethreads -Uinstalluserbinperl
+
+RUN make
+#RUN make test #TODO
+RUN make install
+
+RUN rm -rf /data/Software/mydan/perl-5.24.0*
+
+WORKDIR /data/Software/mydan

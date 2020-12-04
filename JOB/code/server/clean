@@ -1,0 +1,29 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use POSIX;
+use Util;
+use Logs;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $myname, $db, $logs ) = ( Util::myname(), $param{db}, Logs->new( 'clean' ) );
+
+    while(1)
+    {
+        warn "do ...\n";
+
+        sleep 60;
+    }
+}

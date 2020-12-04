@@ -1,0 +1,32 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+
+use FindBin qw( $RealBin );
+use YAML::XS;
+
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    id => 1,
+
+=cut
+
+return sub
+{
+    my %param = @_;
+    my $id = $param{id};
+    die "id not a number" unless $id =~ /^\d+$/;
+
+    #my $r = CALL::ua("http://api/openapi/pmsapi/api/v1/node/$id");
+
+    #die "api.pms fail" unless $r && ref $r eq 'HASH';
+    #die "get project name fail" unless $r->{code} eq '200' && $r->{msg} eq 'Success';
+    #my $name = $r->{data}{name};
+
+    #return $name;
+    
+    return "project_$id";
+}

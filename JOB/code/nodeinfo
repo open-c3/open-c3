@@ -1,0 +1,53 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use Logs;
+use Util;
+use LWP::UserAgent;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    id => 1,
+    logs => 日志对象
+
+=cut
+
+return sub
+{
+    my ( %param, @list )= @_;
+    my ( $db, $id, $logs ) = @param{qw( db id logs)};
+
+    $logs = Logs->new( 'code.nodeinfo' ) unless $logs;
+
+    $logs->die( "id not a number" ) unless $id =~ /^\d+$/;
+
+
+    my %env = Util::envinfo( qw( appname appkey ) );
+    my $ua = LWP::UserAgent->new;
+    $ua->default_header( %env );
+    my $res = $ua->get( "http://api.connector.open-c3.org/connectorx/nodeinfo/$id" );
+
+    unless( $res->is_success )
+    {
+#TODO 确认上层调用是否捕获这个die
+        die "call notify fail";
+    }
+
+    my $data = eval{JSON::from_json $res->content};
+    unless ( $data->{stat} ) {
+#TODO 确认上层调用是否捕获这个die
+        die "call notify result". $data->{info} || '';
+    }
+ 
+    push @list, @{$data->{data}};
+    my $i = @list;
+
+    my $x = $db->query( "select name,inip,exip from nodelist where projectid in ( '$id', '0' ) and status='available'" );
+    $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
+    map{ push @list, +{ id => $i++, name => $_->[0], inip => $_->[1], exip => $_->[2], type => 'extend' }; }@$x;
+
+    return @list;
+
+}

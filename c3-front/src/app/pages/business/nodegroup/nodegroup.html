@@ -1,0 +1,145 @@
+<div>
+    <nodestr></nodestr>
+    <hr class="mv20 clear">
+
+    <div class="panel panel-primary">
+
+        <div class="panel-heading">
+            <h5>查询条件</h5>
+        </div>
+
+        <div class="panel-body">
+
+            <div class="form-horizontal">
+
+                <form class="form-inline" name="searchForm" novalidate>
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="form-group col-sm-4" style="padding: 0">
+                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">分组名称：</label>
+                                <input type="text" class="form-control"  ng-model="group.groupname" placeholder="分组名称关键字">
+                            </div>
+                            <div class="form-group col-sm-4" style="padding: 0">
+                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">插件名称：</label>
+                                <input type="text" class="form-control"  ng-model="group.pluginname" placeholder="插件名称">
+                            </div>
+                            <div class="form-group col-sm-4" style="padding: 0">
+                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">作业名称：</label>
+                                <input type="text" class="form-control"  ng-model="group.jobname" placeholder="作业名称关键字">
+                            </div>
+
+
+                        </div>
+
+                        <div class="row" style="margin-top: 20px">
+                            <div class="form-group col-sm-4" style="padding: 0">
+                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">创建人：</label>
+                                <input type="text" class="form-control" ng-model="group.createuser" placeholder="创建人全称">
+                                <button type="submit" class="btn btn-default" ng-click="group.getMe()">我</button>
+                            </div>
+                            <div class="form-group col-sm-4" style="padding: 0">
+                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">编辑人：</label>
+                                <input type="text" class="form-control" ng-model="group.edituser" placeholder="编辑人全称">
+                                <button type="submit" class="btn btn-default" ng-click="group.getMe2()">我</button>
+                            </div>
+
+                        </div>
+
+                        <div class="row" style="margin-top: 20px">
+                            <div class="form-group col-sm-6" style="padding: 0">
+                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">创建时间：</label>
+                                <div style="width: 30%" class='input-group date' id='createstart'>
+                                    <input type='text' class="form-control"  ng-model="group.createStart" placeholder="开始时间"/>
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                                <span style="margin: 0 5px;">-</span>
+                                <div style="width: 30%" class='input-group date' id='createend'>
+                                    <input type='text' class="form-control" ng-model="group.createEnd" placeholder="结束时间"/>
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+
+                            </div>
+
+                            <div class="form-group col-sm-6" style="padding: 0">
+                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">修改时间：</label>
+                                <div style="width: 30%" class='input-group date' id='editstart'>
+                                    <input type='text' class="form-control"  ng-model="group.editStart" placeholder="开始时间"/>
+                                    <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                                </div>
+                                <span style="margin: 0 5px;">-</span>
+                                <div style="width: 30%" class='input-group date' id='editend'>
+                                    <input type='text' class="form-control" ng-model="group.editEnd" placeholder="结束时间"/>
+                                    <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                </form>
+
+
+                <hr class="mv20 clear" style="margin-top: 30px!important;">
+                    <div class="col-md-10">
+                        <button class="btn btn-primary" ng-click="group.reload()">
+                            <i class="fa fa-search fa-fw"></i>查询
+                        </button>
+                        <button class="btn btn-success" ng-click="group.Reset()">
+                            <i class="fa fa-refresh fa-fw"></i>重置
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+
+        </div>
+    </div>
+
+    <div>
+        <div style="float: right;">
+            <form class="form-inline" name="myForm" novalidate>
+                <button type="submit" class="btn btn-primary" ng-click="group.createGroup()"><i class="fa fa-object-ungroup fa-lg" aria-hidden="true"></i>新建分组</button>
+            </form>
+        </div>
+        <div style="clear: both;">&nbsp;</div>
+    </div>
+
+
+    <div class="panel panel-dark">
+
+        <div class="panel-heading">
+
+            <span class="panel-controls">
+                <button class="btn btn-dark" uib-tooltip="刷新" ng-click="group.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!group.loadover}" ></i></button>
+            </span>
+            <h5>分组信息</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="panel-tabs">
+
+            <table ng-table="group.group_Table" class="table table-hover text-center table-condensed">
+                <tr ng-repeat="ss in $data">
+                    <td data-title="'分组名称'" >{{ss.name}}</td>
+                    <td data-title="'创建人'">{{ss.create_user}}</td>
+                    <td data-title="'plugin'">{{ss.plugin}}</td>
+                    <td data-title="'创建时间'">{{ss.create_time}}</td>
+                    <td data-title="'操作'">
+                        <button class="btn btn-primary btn-sm" ng-click="group.edit(ss.id)">编辑</button>
+                        <button class="btn btn-danger btn-sm" ng-click="group.delete(ss.id)">删除</button>
+                    </td>
+                </tr>
+            </table>
+            </div>
+        </div>
+    </div>

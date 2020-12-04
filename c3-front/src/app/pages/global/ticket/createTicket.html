@@ -1,0 +1,83 @@
+<div class="row block">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="关闭" ng-click="createticket.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
+            </span>
+            <h5>{{createticket.title}}</h5>
+        </div>
+        <div class="panel-body">
+            <div class="pt20">
+                <div>
+                    <div class="form-group admin-form">
+                        <form class="form-horizontal" name="myForm" novalidate>
+                               <div class="row" ng-if="!createticket.ciid">
+                                    <div class="col-sm-10 form-group">
+                                        <label class="col-sm-3 control-label">名称</label>
+                                        <div class="col-sm-9">
+                                            <input type="text" class="form-control" name="addGroup" ng-minlength="2" ng-model="createticket.postData.name" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" ng-if="!createticket.ciid">
+                                    <div class="col-sm-10 form-group">
+                                        <label class="col-sm-3 control-label">描述</label>
+                                        <div class="col-sm-9">
+                                            <input type="text" class="form-control" name="addGroup" ng-minlength="2" ng-model="createticket.postData.describe" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-10 form-group">
+                                        <label class="col-sm-3 control-label">类型</label>
+                                        <div class="col-sm-9">
+                                            <div class="admin-form">
+                                                <div class="option-group field" >
+                                                    <label class="option option-primary">
+                                                        <input type="radio" ng-model="createticket.postData.type" value="SSHKey" >
+                                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>SSH Key
+                                                    </label>
+                                                    <label class="option option-primary">
+                                                        <input type="radio" ng-model="createticket.postData.type" value="UsernamePassword" >
+                                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>用户名密码
+                                                    </label>
+
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div ng-switch="createticket.postData.type" class="row">
+                                    <div ng-switch-when="SSHKey">
+                                        <div class="col-sm-10 form-group">
+                                            <label class="col-sm-3 control-label">SSH Key</label>
+                                            <div class="col-sm-9">
+                                                <textarea ng-model="createticket.postData.ticket.SSHKey" style="width: 100%; height: 110px"></textarea>
+                                                <span>SSH Key 适用于git</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div ng-switch-when="UsernamePassword">
+                                        <div class="col-sm-10 form-group">
+                                            <label class="col-sm-3 control-label">用户名</label>
+                                            <div class="col-sm-3"> <input ng-model="createticket.postData.ticket.Username"></input> </div>
+                                            <label class="col-sm-3 control-label">密码</label>
+                                            <div class="col-sm-3"> <input ng-model="createticket.postData.ticket.Password"></input> </div>
+                                        </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-5 form-group pull-right">
+                                        <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="createticket.saveTicket()">保存票据</button>
+                                    </div>
+                                </div>
+                         </form>
+                  </div>
+            </div>
+        </div>
+    </div>
+</div>

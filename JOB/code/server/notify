@@ -1,0 +1,120 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use Code;
+use Util;
+use Logs;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    #code/server/notify 只负责寻找需要发送的纪录信息和修改纪录状态
+    #
+    #至于这个要怎么发，发给谁,则由code/notidy来决定
+    #
+    #notify 的5个状态:  0=>没被处理过； 1=>正在处理；2=>处理成功; 3=>处理失败; 4=> 处理插件报错
+    #
+    db => $mysql,
+
+=cut
+
+return sub
+{
+    my %param = @_;
+    my ( $db, $myname, $logs, $notify, $notifyapproval ) 
+        = ( $param{db}, Util::myname(), Logs->new( 'server.notify' ), Code->new( 'notify' ), Code->new( 'notifyapproval' ) );
+
+    my %projectname;
+    my $projectname = eval{ Code->new( 'projectname' ) };
+    $logs->die( "load projectname fail:$@" ) if $@;
+
+    while(1)
+    {
+        warn "do ...\n";
+
+        my $x = eval{ $db->query( "select `key`,`value` from environment" ) };
+        $logs->die( "mysql query environment fail: $@" ) if $@;
+        $logs->die( "get environment info from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
+
+        my %environment = map{ @$_ }@$x;
+
+        my %template = 
+        (
+            notifyTemplateEmailTitle => 'projectid: ${projectid} job ${status}',
+            notifyTemplateEmailContent => 'task ${uuid} :${status}',
+            notifyTemplateSmsContent => 'projectid=${projectid} taskuuid=${uuid}: ${status}',
+
+            approvalTemplateEmailTitle => 'openc3 approval',
+            approvalTemplateEmailContent => '${content}',
+            approvalTemplateSmsContent => 'openc3 approval',
+        );
+        map{
+            $environment{$_} = defined $environment{$_} ? $environment{$_}: $template{$_};
+        }keys %template;
+
+        my @col = qw( id projectid uuid name user calltype status starttime finishtime );
+        $x = eval{ 
+            $db->query( 
+                sprintf( "select %s from task where notify=0 and status 
+                    in ( 'success', 'fail', 'waiting' )", join ',', @col ), \@col );};
+
+        $logs->die( "mysql query notify info fail: $@" ) if $@;
+        $logs->die( "get notify info from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
+
+        for my $row ( @$x )
+        {
+            unless( $row->{id} =~ /^\d+$/ )
+            {
+                $logs->err( "id not a number" );
+                next;
+            }
+
+            my $c = eval{ $db->execute( "update task set notify=1 where id=$row->{id} and notify=0" ) };
+            $logs->err( "update task.notify status fail:$@" ) if $@;
+            next unless $c &&  $c eq '1';
+
+            eval{ $projectname{$row->{projectid}} = $projectname->run( id => $row->{projectid} ) unless $projectname{$row->{projectid}}; };
+
+            my $status = eval{ $notify->run( %$row, environment => \%environment, db => $db, projectname => $projectname{$row->{projectid}} ) ? 2 : 3 };
+            if( $@ )
+            {
+                warn "notify error: $@\n";
+                $logs->err( "notify code error: $@" );
+                $status = 4;
+            }
+
+            eval{ $db->execute( "update task set notify=$status where id=$row->{id} and notify=1" ); };
+            $logs->err( "update task.notify status fail:$@" ) if $@;
+        }
+
+        @col = qw( id submitter cont user uuid );
+        $x = eval{ 
+            $db->query( 
+                sprintf( "select %s from approval where notifystatus='null'", join ',', @col ), \@col );};
+
+        $logs->die( "mysql query approval info fail: $@" ) if $@;
+        $logs->die( "get approval info from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
+
+        for my $row ( @$x )
+        {
+            my $c = eval{ $db->execute( "update approval set notifystatus='sending' where id=$row->{id} and notifystatus='null'" ) };
+            $logs->err( "update approval.notifystatus status fail:$@" ) if $@;
+            next unless $c &&  $c eq '1';
+
+            my $status = eval{ $notifyapproval->run( %$row, environment => \%environment, db => $db ) };
+            if( $@ )
+            {
+                warn "notifyapproval error: $@\n";
+                $logs->err( "notifyapproval code error: $@" );
+                $status = 'fail';
+            }
+
+            eval{ $db->execute( "update approval set notifystatus='$status' where id=$row->{id} and notifystatus='sending'" ) };
+            $logs->err( "update approval.notifystatus status fail:$@" ) if $@;
+        }
+
+
+        sleep 45;
+    }
+}

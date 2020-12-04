@@ -1,0 +1,53 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib -I/data/Software/mydan/AGENT/private/lib
+use strict;
+use warnings;
+use Logs;
+use Util;
+use LWP::UserAgent;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    id => 1,
+    logs => 日志对象
+
+=cut
+
+return sub
+{
+    my ( %param, @list )= @_;
+    my ( $db, $id, $logs ) = @param{qw( db id logs)};
+
+    $logs = Logs->new( 'code.nodeinfo' ) unless $logs;
+
+    $logs->die( "id not a number" ) unless $id =~ /^\d+$/;
+
+
+    my %env = Util::envinfo( qw( appname appkey ) );
+    my $ua = LWP::UserAgent->new;
+    $ua->default_header( %env );
+    my $res = $ua->get( "http://api.job.open-c3.org/nodeinfo/$id" );
+
+    unless( $res->is_success )
+    {
+#TODO 确认上层调用是否捕获这个die
+        die "call nodeinfo fail";
+    }
+
+    my $data = eval{JSON::from_json $res->content};
+    unless ( $data->{stat} ) {
+#TODO 确认上层调用是否捕获这个die
+        die "call nodeinfo result". $data->{info} || '';
+    }
+ 
+ 
+    my $x = $db->query( "select ip,status,fail,reason,version,edit_time from monitor where projectid=$id" );
+    $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
+    my %ip;
+    map{ $ip{$_->[0]} = +{ status => $_->[1], fail => $_->[2], reason => $_->[3], version => $_->[4], edit_time => $_->[5] } }@$x;
+
+    push @list, map{ +{ %$_, inips => $ip{$_->{inip}} || +{}, exips => $ip{$_->{exip}} || +{} } }@{$data->{data}};
+
+    return @list;
+}

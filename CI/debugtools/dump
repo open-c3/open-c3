@@ -1,0 +1,24 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use MYDB;
+use FindBin qw( $RealBin );
+use Data::Dumper;
+use Code;
+
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 [--uuid uuid]  #有uuid，首选uuid
+
+ $0 [--projectid projectid] [--tags || 可以为空] 
+
+=cut
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( uuid=s projectid=i tags=s ) )->dump();
+
+my $db = MYDB->new( "$RealBin/../conf/conn" );
+
+my $uuid = Code->new( 'build.plugin/dump' )->run( db => $db, %o );
+print "dump uuid: $uuid\n";

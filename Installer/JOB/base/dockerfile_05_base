@@ -1,0 +1,32 @@
+#This is AntDen Dockerfile#version 1.0
+#Author: lijinfeng2011@gmail.com
+#Base image 基础镜像
+
+FROM openc3/job-base-mayi:latest
+MAINTAINER lijinfeng2011
+
+RUN yum -y install git
+
+RUN /data/Software/mydan/perl/bin/cpan install LWP::UserAgent
+RUN /data/Software/mydan/perl/bin/cpan install Time::TAI64
+RUN /data/Software/mydan/perl/bin/cpan install Crypt::PK::RSA
+RUN /data/Software/mydan/perl/bin/cpan install Net::IP::Match::Regexp
+RUN /data/Software/mydan/perl/bin/cpan install Data::Validate::IP
+RUN /data/Software/mydan/perl/bin/cpan install Expect
+RUN /data/Software/mydan/perl/bin/cpan install Authen::OATH
+RUN /data/Software/mydan/perl/bin/cpan install Convert::Base32
+RUN /data/Software/mydan/perl/bin/cpan install Term::ReadKey
+RUN /data/Software/mydan/perl/bin/cpan install Data::UUID
+RUN /data/Software/mydan/perl/bin/cpan install Term::Size
+RUN /data/Software/mydan/perl/bin/cpan install Term::Completion
+RUN /data/Software/mydan/perl/bin/cpan install DBD::SQLite
+
+#web-shell
+RUN yum -y install net-tools
+WORKDIR /
+ADD https://nodejs.org/dist/v4.2.6/node-v4.2.6-linux-x64.tar.gz /node-v4.2.6-linux-x64.tar.gz
+RUN tar -zxvf node-v4.2.6-linux-x64.tar.gz -C /
+RUN ln -fsn /node-v4.2.6-linux-x64/bin/node  /usr/bin/node
+RUN ln -fsn /node-v4.2.6-linux-x64/bin/npm  /usr/bin/npm
+
+RUN yum install -y vixie-cron crontabs

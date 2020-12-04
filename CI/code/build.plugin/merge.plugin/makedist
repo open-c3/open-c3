@@ -1,0 +1,30 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+
+use Code;
+use Logs;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    logs => 日志对象
+
+    #temp uuid buildimage buildscripts projectid
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $logs, $temp, $uuid, $buildimage, $buildscripts, $projectid ) 
+        = @param{qw(db logs temp uuid buildimage buildscripts projectid  )};
+
+    $logs = Logs->new( 'code.build.merge.makedist' ) unless $logs;
+
+    my $type = $buildimage ? $buildimage =~ /^\d+\.\d+\.\d+\.\d+$/ ? 'remote': 'docker' : 'local';
+ 	eval{ Code->new( "build.plugin/merge.plugin/makedist.plugin/$type" )->run( %param ); };
+    $logs->die( "run build.merge.makedist.$type fail:$@" ) if $@;
+}

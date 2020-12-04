@@ -1,0 +1,60 @@
+<div style="width: 100%">
+    <div id="sidebar_left" class="affix" style="padding-top: 0;min-height: 540px">
+            <div id="sidebar-scroll nav sidebar-menu">
+                <div class="sidebar-content">
+                    <div class="panel" style="margin: 0;">
+                        <div class="panel-heading">
+                            <span class="panel-title">TREE</span>
+                            <span class="panel-controls">
+                                <a href="javascript:void(0)" ng-click="clonejob.focusCurrent()"><i class="fa fa-map-marker"></i></a>
+                                <a href="javascript:void(0)" ng-click="clonejob.expandAll(true)"><i class="fa fa-plus"></i></a>
+                                <a href="javascript:void(0)" ng-click="clonejob.expandAll(false)"><i class="fa fa-minus"></i></a>
+                                <a href="javascript:void(0)" ng-click="clonejob.refresh()"><i class="treeFresh fa fa-refresh"></i></a>
+                            </span>
+                        </div>
+                        <div class="panel-body prn" style=";padding: 0">
+                            <perfect-scrollbar class="scroller" >
+                                <ul class="ztree" id="openc3treeclone" ></ul>
+                            </perfect-scrollbar>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div id="content_wrapper" style="min-height: 540px">
+        <div class="panel-heading">
+            <span class="panel-title">目标节点</span>
+            <span class="panel-controls">
+                <a href="javascript:void(0)" ng-click="clonejob.cancel()"><i class="fa fa-close"></i></a>
+            </span>
+        </div>
+        <div class="panel-body" style="padding: 10px;height: 540px">
+            <div class="panel-tabs">
+                <table class="table table-hover text-center table-condensed">
+                    <thead>
+                        <tr>
+                            <th style="text-align: center;">节点ID</th>
+                            <th style="text-align: center;">节点名称</th>
+                            <th style="text-align: center;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="(k, node) in clonejob.cloneNodes ">
+                            <td>{{node.id}}</td>
+                            <td>{{node.name}}</td>
+                            <td>
+                                <button class="btn btn-danger btn-sm" ng-click="clonejob.delNode(k)">删除</button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-3 form-group" style="margin-left: 40%;">
+                <button class="btn btn-primary" ng-disabled="dstForm.$invalid" ng-click="clonejob.saveNode()">保存</button>
+                <button class="btn btn-warning" ng-click="clonejob.cancel()">取消</button>
+            </div>
+        </div>
+    </div>
+</div>

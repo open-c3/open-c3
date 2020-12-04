@@ -1,0 +1,302 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+
+use FindBin qw( $RealBin );
+use MIME::Base64;
+use Data::Dumper;
+
+use MYDan::Util::OptConf;
+use MYDan::Agent::Client;
+use MYDan::VSSH::Print;
+use Digest::MD5;
+use Code;
+use Logs;
+use variable;
+use Buildin;
+
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    uuid => 'uuid',
+    taskuuid => 'uuid', # Used to make a pause
+    projectid => 1, ? check node info
+    fromjob => jobuuid or undef , It is used to determine the subtask, Rely on the taskuuid . and the jobuuid use for variable replace
+    variable => hash
+
+    logs => 日志对象
+
+    head => 0 or 1
+    tail => 0 or 1
+
+=cut
+
+return sub
+{
+    my %param = @_;
+    my ( $db, $uuid, $taskuuid, $projectid, $fromjob, $variable, $logs, $head, $tail )
+        = @param{qw(db uuid taskuuid projectid fromjob variable logs head tail )};
+
+    delete $ENV{MYDanExtractFile};
+    delete $ENV{MYDanExtractFileAim};
+
+    $logs = Logs->new( 'code.plugin_cmd' ) unless $logs;
+    my $vv = Code->new( 'vv' );
+
+    if( $taskuuid )
+    {
+        open STDOUT, '>>', "$RealBin/../logs/task/${taskuuid}${uuid}cmd" 
+            or $logs->die( "Can't open 'logs/task/${taskuuid}${uuid}cmd': $!" );
+        open (STDERR, ">&STDOUT") or $logs->die( "open STDERR failed: $uuid" );
+    }
+
+    $logs->die( "uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
+
+    my $x = eval{ $db->query( "select user,node_type,node_cont,scripts_type,scripts_cont,scripts_argv,timeout,pause 
+            from plugin_cmd where uuid='$uuid'" );};
+    $logs->die( "get plugin_cmd info from mysql fail plugin_cmd uuid=$uuid: $@" ) if $@;
+    $logs->die( "get plugin_cmd info from mysql fail plugin_cmd uuid=$uuid" ) unless defined $x && ref $x eq 'ARRAY';
+    $logs->die( "plugin_cmd uuid mismatch uuid=$uuid" ) unless @$x;
+
+    my ( $user, $node_type, $node_cont, $scripts_type, $scripts_cont, $scripts_argv, $timeout, $pause ) = @{$x->[0]};
+    $logs->die( "user format error" ) unless defined $user && $user =~ /^[a-zA-Z0-9_\-]+$/;
+
+    $logs->die( "taskuuid format error" ) if defined $taskuuid && $taskuuid !~ /^[a-zA-Z0-9]+$/;
+    my ( $subtasktimems, $subtaskstarttime ) 
+        = ( time, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ) );
+
+    my @node;
+    if( $node_type eq 'builtin' )
+    {
+        @node = split /,/, $node_cont;
+    }
+    elsif( $node_type eq 'variable' )
+    {
+        eval { $node_cont = variable->new( variable => $variable, db => $db, jobuuid => $fromjob )->relpace( $node_cont ) if defined $node_cont; };
+        $logs->die( "relpace variable node_cont fail:$@" ) if $@;
+        @node = split /,/, $node_cont;
+    }
+    elsif( $node_type eq 'group' )
+    {
+        $logs->die( "node_cont not a number: plugin_cmd uuid=$uuid" ) 
+            unless $node_cont && $node_cont =~ /^\d+$/;
+        @node = eval{ Code->new( 'nodegroup' )->run( db => $db, id => $node_cont, logs => $logs );};
+        $logs->die( "nodegroup code run fail :$@" ) if $@;
+    }else
+    {
+        $logs->die( "node_type : $node_type unkown" );
+    }
+
+    if( $taskuuid && $fromjob )
+    {
+        my $nodecount = @node;
+        eval{ $db->execute( 
+                "update `subtask` set nodecount='$nodecount',starttime='$subtaskstarttime',runtime='0.00',pause='$pause',status='running'
+                     where parent_uuid='$taskuuid' and subtask_type='cmd' and uuid='$uuid'") };
+        $logs->die( "set status to subtask fail:$@" ) if $@;
+    }
+
+    $logs->die( "scripts_type undef" ) unless $scripts_type;
+    if( $scripts_type eq 'cite' )
+    {
+        $logs->die( "scripts_type no a number" ) unless $scripts_cont && $scripts_cont =~ /^\d+$/;
+        my $st = eval{ $db->query( "select type,cont from scripts where id='$scripts_cont' and status='available'" );};
+        $logs->die( "get scripts cite fail:$@" ) if $@;
+        $logs->die( "get scripts cite fail" ) unless defined $st && ref $st eq 'ARRAY';
+        $logs->die( "scripts id mismatch: $scripts_cont" ) unless @$st;
+        ( $scripts_type, $scripts_cont ) = @{$st->[0]};
+    }
+
+    $scripts_cont = decode_base64( $scripts_cont );
+    $scripts_argv = decode_base64( $scripts_argv ) if defined $scripts_argv;
+
+
+    eval { $scripts_argv = variable->new( variable => $variable, db => $db, jobuuid => $fromjob )->relpace( $scripts_argv ) if defined $scripts_argv; };
+    $logs->die( "relpace variable scripts_argv fail:$@" ) if $@;
+
+    my $_exit_;
+    eval { $_exit_ = variable->new( variable => $variable, db => $db, jobuuid => $fromjob )->get( '_exit_' ) };
+    $logs->die( "get variable _exit_ fail:$@" ) if $@;
+
+    $timeout = 60 unless $timeout && $timeout =~ /^\d+$/;
+
+    my $env = variable->new( variable => $variable, db => $db, jobuuid => $fromjob )->wk( $projectid );
+
+    $MYDan::Util::OptConf::THIS = 'agent';
+
+    my %type =
+    (
+        shell => '/bin/bash',
+        python => '/usr/bin/python',
+        perl => '/usr/bin/perl',
+        php => '/usr/bin/php',
+    );
+
+    my %o = MYDan::Util::OptConf->load()->dump();
+    $o{verbose} = 1;
+    $o{user} = 'jobsys';
+    $o{sudo} = $user;
+    $o{timeout} = $timeout;
+    my %query = ( 
+        env => $env,
+        code => 'scripts', 
+        argv => [ +{ 
+                 type => $type{$scripts_type}, 
+                 cont => $scripts_cont, 
+                 md5 => Digest::MD5->new()->add( $scripts_cont )->hexdigest(),  
+                 argv => $scripts_argv } ], 
+         map{ $_ => $o{$_} }qw( user sudo )
+     );
+
+
+    if( defined $projectid )
+    {
+        my $nodeinfo_check = Code->new( 'nodeinfo_check' );
+
+        my $checkerror = eval{ $nodeinfo_check->run( db => $db, id => $projectid, node => \@node ) };
+        $logs->die( "nodeinfo_check code err:$@" ) if $@;
+        $logs->die( "check node fail: $checkerror" ) if $checkerror;
+    }
+
+    my $vvv;
+    if( ( $head || $tail ) && defined $projectid )
+    {
+        eval { $vvv = variable->new( variable => $variable, db => $db, jobuuid => $fromjob )->get( 'version' ) };
+        $logs->die( "get variable verbose fail:$@" ) if $@;
+    }
+    my $appname;
+    if( ( $head || $tail )&& defined $vvv )
+    {
+        eval { $appname = variable->new( variable => $variable, db => $db, jobuuid => $fromjob )->get( '_appname_' ) };
+        $logs->die( "get variable verbose fail:$@" ) if $@;
+        $appname = defined $appname ? "APP_${appname}_VERSION" : 'VERSION';
+    }
+    if( $head && defined $vvv )
+    {
+        my $skipSameVersion = eval { variable->new( variable => $variable, db => $db, jobuuid => $fromjob )->get( '_skipSameVersion_' ) };
+        $logs->die( "get variable _skipSameVersion_ fail:$@" ) if $@;
+        if( $skipSameVersion )
+        {
+            my $vvCheckOk = eval{ Code->new( 'vv.plugin/check' )->run( db => $db, logs => $logs, projectid => $projectid, node => \@node, key => $appname, val => $vvv ) };
+            $logs->die( "vv.check code run fail :$@" ) if $@;
+            if( $vvCheckOk )
+            {
+                print "skipSameVersion: skip.\n";
+                return 'skipSameVersion'; 
+            }
+        }
+
+        eval{ map{ $vv->run( db => $db, logs => $logs, projectid => $projectid, node => $_, vv => [ $appname, "Do_$vvv" ] ) }@node };
+        $logs->die( "vv code run fail :$@" ) if $@;
+    }
+
+    my $subtaskstatus = 'success'; #runnigs,fail,success,decision,ignore
+
+    while(1)
+    {
+
+        delete $query{auth};
+        my %result;
+        if( $scripts_type && $scripts_type eq 'buildin' )
+        {
+            %result = Buildin->new(
+                @node
+            )->run( %o, query => \%query );
+        }
+        else
+        {
+            %result = MYDan::Agent::Client->new(
+                @node
+            )->run( %o, query => \%query );
+        }
+        my @failed;
+        map{ 
+            my $exit = $result{$_} && $result{$_} =~ /--- (\d+)\r?\n$/ ? $1 : 1;
+            push( @failed, $_ ) if $exit;
+        }@node;
+
+        MYDan::VSSH::Print::result( 'rcal' => %result );
+
+        if( defined $projectid )
+        {
+            for my $node ( sort keys %result )
+            {
+                my @x = $result{$node} =~ /([a-zA-Z][a-zA-Z0-9_]+):\[([a-z0-9\._\-]+)\]/g;
+                next unless @x;
+                eval{ $vv->run( db => $db, logs => $logs, projectid => $projectid, node => $node, vv => \@x ) };
+                $logs->die( "vv code run fail :$@" ) if $@;
+            }
+            if( $tail && defined $vvv )
+            {
+                my %failed = map{ $_ => 1 }@failed;
+                eval{ map{ $vv->run( db => $db, logs => $logs, projectid => $projectid, node => $_, vv => [ $appname, $vvv ] ) }grep{ ! $failed{$_} }@node };
+                $logs->die( "vv code run fail :$@" ) if $@;
+            }
+        }
+
+        if( @failed )
+        {
+            print "failed:\n";
+            map{ print "  $_\n"; }@failed;
+        }
+
+        unless( $taskuuid && $fromjob )
+        {
+            $subtaskstatus = @failed ? 'fail' : 'success';
+            last;
+        }
+
+        last unless @node = @failed;
+
+        eval{ $db->execute( "update `subtask` set status='decision' where parent_uuid='$taskuuid' and subtask_type='cmd' and uuid='$uuid'") };
+        eval{ $db->execute( "update `task` set status='waiting',notify='0' where uuid='$taskuuid'") };
+        my $tmpstatus;
+
+        if( $_exit_ && ( $_exit_ eq '1' || $_exit_ eq 'cmd' || $_exit_ eq 'true' ) )
+        {
+            $tmpstatus = 'fail';
+            eval{ $db->execute( "update task set reason='stop by sys._exit_' where uuid='$taskuuid' and reason is null" ) };
+            $logs->die( "update reason fail" ) if $@;
+
+        }
+        else
+        {
+            while(1)
+            {
+                $x = $db->query( "select status from subtask where parent_uuid='$taskuuid' and subtask_type='cmd' and uuid='$uuid'" );
+                $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
+                $logs->die( "subtask status null: parent_uuid='$taskuuid' and subtask_type='cmd' and uuid='$uuid'" ) unless @$x;
+                if( grep{ $x->[0][0] eq $_ }qw( fail ignore running ) )
+                {
+                    $tmpstatus = $x->[0][0];
+                    last;
+                }
+                sleep 3;
+            }
+        }
+
+        eval{ $db->execute( "update `task` set status='running',notify='0' where uuid='$taskuuid'") };
+
+        next if $tmpstatus eq 'running';
+        $subtaskstatus = $tmpstatus;
+        last;
+    }
+
+    print "substatus = $subtaskstatus\n";
+
+    if( $taskuuid && $fromjob )
+    {
+         my $subtaskruntime = sprintf "%0.3f", time - $subtasktimems;
+         my $subtaskfinishtime = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
+         eval{ $db->execute( "update `subtask` set runtime='$subtaskruntime',finishtime='$subtaskfinishtime',status='$subtaskstatus' 
+                 where parent_uuid='$taskuuid' and subtask_type='cmd' and uuid='$uuid'") };
+    }
+
+    return $subtaskstatus unless $taskuuid && $fromjob && $pause;
+
+    Code->new( 'pause' )->run( db => $db,  taskuuid => $taskuuid, subtaskuuid => $uuid, subtasktype => 'cmd', logs => $logs );
+    return $subtaskstatus;
+}

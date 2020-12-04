@@ -1,0 +1,30 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use POSIX;
+use Logs;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    logs => 日志对象
+
+=cut
+
+return sub
+{
+    my ( %param, @list )= @_;
+    my ( $db, $logs ) = @param{qw( db logs)};
+
+    $logs = Logs->new( 'code.task_statistics' ) unless $logs;
+
+    my $time = POSIX::strftime( "%Y-%m-%d 00:00:00", localtime( time - 2592000 ) );
+
+    my $i = 0;
+    my $x = $db->query( "select count(*),projectid from task where starttime>'$time' group by projectid order by count(*) desc" );
+    $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
+    map{ push @list, +{ id => $i++, count => $_->[0], id => $_->[1], name => $_->[1] }; }@$x;
+
+    return @list;
+}

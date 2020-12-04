@@ -1,0 +1,59 @@
+<div class="row block">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="修改记录" ng-click="agent.showctrlLog()">修改记录</button>
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="agent.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!agent.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="添加" ng-click="agent.addregion()"><i class="fa fa-plus"></i></button>
+            </span>
+            <h5>{{ agent.nodeStr }}</h5>
+        </div>
+
+        <div class="admin-form row">
+            <label class="col-md-2 control-label fwbold" style="padding-left: 27px;padding-right: 27px;padding-top: 6px;">状态自动监测更新</label>
+            <div class="col-md-1" style="padding: 0;">
+                <label class="switch switch-system mt5">
+                    <input type="checkbox" id="check_status" ng-model="agent.checknewstatus">
+                    <label for="check_status" data-on="ON" data-off="OFF"></label>
+                </label>
+            </div>
+            <div class="col-md-1" style="padding: 0;">
+                <button class="btn btn-primary" ng-if="agent.checkoldstatus!=agent.checknewstatus" uib-tooltip="添加机器" ng-click="agent.savecheckstatus()">保存新状态</button>
+            </div>
+        </div>
+
+
+        <div class="panel-body" ng-if="agent.checkstatusloadover" >
+            <div style="padding: 10px">
+                <span style="font-size: 14px;font-weight: bold; color: #626262">安装代理:</span>
+                <span style="color: red">curl -L http://{{agent.siteaddr}}/api/scripts/installProxy.sh |sudo OPEN_C3_ADDR={{agent.siteaddr}} bash</span>
+            </div>
+            <div style="padding: 10px">
+                <span style="font-size: 14px;font-weight: bold; color: #626262">安装AGENT:</span>
+                <span style="color: red">curl -L http://{{agent.siteaddr}}/api/scripts/installAgent.sh |sudo OPEN_C3_ADDR={{agent.siteaddr}} bash</span>
+            </div>
+            <div style="padding-left: 93%">
+                <a style="font-size: 14px;font-weight: bold" class="btn btn-primary" href="http://{{agent.siteaddr}}/api/agent/proxy/{{agent.treeid}}" target="_blank">代理接口</a>
+            </div>
+         </div>
+
+        <br>
+        <br>
+        <div class="panel-body">
+            <div class="pt20">
+                <table ng-table="agent.activeRegionTable" class="table table-hover text-center table-condensed">
+                    <tr ng-repeat="m in $data">
+                        <td data-title="'ID'">{{m.id}}</td>
+                        <td data-title="'区域'"><font size="5">{{m.region}}</font></td>
+                        <td data-title="'代理'">
+                            <font size="3" color="green">正常：{{m.proxy.success||0}}</font><br><font size="3" color="red">异常：{{m.proxy.fail||0}}</font><br>
+                            <button class="btn btn-primary" ng-if="m.regionprojectid == agent.treeid" uib-tooltip="添加代理" ng-click="agent.addproxy( m.id, m.region )"><i class="fa fa-plus"></i></button></td>
+                        <td data-title="'网段'">
+                            <font size="3" color="green">正常：{{m.agent.success||0}}</font><br><font size="3" color="red">异常：{{m.agent.fail||0}}</font><br>
+                            <button class="btn btn-primary" ng-if="m.proxy.success || m.agent.success > 0 || m.agent.fail > 0 " uib-tooltip="添加网段" ng-click="agent.addagent(m.id,m.region)"><i class="fa fa-plus"></i></button></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

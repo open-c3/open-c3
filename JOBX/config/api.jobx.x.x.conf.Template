@@ -1,0 +1,42 @@
+#upstream jobx_api{
+#  server 127.0.0.1:8021;
+#  server 127.0.0.1:8022;
+#  server 127.0.0.1:8023;
+#  server 127.0.0.1:8024;
+#  server 127.0.0.1:8025;
+#}
+#
+#upstream jobx_api_slave_10.10.10.10 {
+#  server 127.0.0.1:8026;
+#  server 127.0.0.1:8027;
+#  server 127.0.0.1:8028;
+#  server 127.0.0.1:8029;
+#  server 127.0.0.1:8030;
+#}
+#
+server {
+    listen       80;
+    server_name  api.jobx.open-c3.org;
+
+
+    location  ^~  /slave/ {
+        rewrite /slave/([0-9a-z\.-]+)/(.+)$ /$2 break;
+        proxy_pass http://jobx_api_slave_$1;
+
+        proxy_redirect    off;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Host $host:$server_port;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+
+    location / {
+        proxy_pass http://jobx_api;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $host:$server_port;
+    }
+}

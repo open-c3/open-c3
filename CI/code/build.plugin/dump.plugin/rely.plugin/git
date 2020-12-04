@@ -1,0 +1,98 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+
+use Logs;
+use FindBin qw( $RealBin );
+use Temp;
+use MIME::Base64;
+use File::Basename;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    logs => 日志对象
+
+    #index uuid temp path addr ticketid tags
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db,$logs, $index, $uuid, $temp, $path, $addr, $ticketid, $tags  ) 
+        = @param{qw(db logs index uuid temp path addr ticketid tags )};
+
+    $logs = Logs->new( 'code.build.dump.rely.git' ) unless $logs;
+
+    my $ssh_key;
+
+    if( $ticketid )
+    {
+        my $x = eval{ $db->query( "select ticket from ticket where id='$ticketid' and type='UsernamePassword'" )};  
+        $logs->die( "get data from ticket fail:$@" ) if $@;
+        $ssh_key = $x->[0][0] if @$x;
+    }
+
+    #TODO
+    #my $ctrl = $ssh_key ? "$RealBin/../../dan/tools/git -i " . Temp->new( chmod => 0600 )->dump( decode_base64( $ssh_key ) ) : 'git';
+    my $ctrl = $ssh_key ? "$RealBin/../../dan/tools/git -i " . Temp->new( chmod => 0600 )->dump( $ssh_key ) : 'git';
+
+    my $temppath = "$RealBin/../logs/$temp/$uuid/rely/$index";
+    if( -d $temppath )
+    {
+        $logs->die( "clean old temppath fail:$!" ) if system "rm -rf '$temppath'";
+    }
+    $logs->die( "mkdir temppath fail:$!" ) if system "mkdir -p '$temppath'";
+
+
+    my ( $dumptags, $version ) = ( '', 'release' );
+    if( $tags )
+    {
+        $logs->die( "tags format error" ) unless $tags =~ /^[a-zA-Z0-9\.\-_]+$/;
+        ( $dumptags, $version ) = ( "-b $tags", $tags );
+    }
+
+
+    $logs->die( "clone error:$!" )
+        if system "cd '$temppath' && rm -rf data data.tmp info && $ctrl clone --progress $dumptags --recursive $addr data.tmp && mkdir -p info && mv data.tmp/.git info/ && mv data.tmp data && echo '$version' > info/version";
+    
+    if( $path )
+    {
+        $logs->die( "path format error" ) unless $path =~ /^[a-zA-Z0-9\.\-\_\/]+$/ && $path =~ /[a-zA-Z0-9]+/;
+        my $subpath = "$RealBin/../logs/$temp/$uuid/data/$path";
+        my $pathbase = dirname $subpath;
+
+        unless( -d $pathbase )
+        {
+            $logs->die( "mkdir subpath fail:$!" ) if system( "mkdir -p '$pathbase'" );
+        }
+
+        if( -e $subpath )
+        {
+            $logs->die( "remove subpath fail:$!" ) if system( "rm -rf '$subpath'" );
+        }
+
+        $logs->die( "mv subpath fail:$!" ) if system "mv '$temppath/data' '$subpath'";
+    }
+    else
+    {
+        my $subpath = "$RealBin/../logs/$temp/$uuid/data$index";
+        my $pathbase = dirname $subpath;
+
+        unless( -d $pathbase )
+        {
+            $logs->die( "mkdir subpath fail:$!" ) if system( "mkdir -p '$pathbase'" );
+        }
+
+        if( -e $subpath )
+        {
+            $logs->die( "remove subpath fail:$!" ) if system( "rm -rf '$subpath'" );
+        }
+
+        $logs->die( "mv subpath fail:$!" ) if system "mv '$temppath/data' '$subpath'";
+    }
+}

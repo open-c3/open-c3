@@ -1,0 +1,39 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOBX/lib -I/data/Software/mydan/JOBX/private/lib
+use strict;
+use warnings;
+use Logs;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    uuid => ,
+    logs => 日志对象
+
+=cut
+
+return sub
+{
+    my %param = @_;
+    my ( $db, $uuid, $logs ) = @param{qw(db uuid logs )};
+
+    $logs = Logs->new( 'code.group.list' ) unless $logs;
+
+    $logs->die( "code.group.list uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
+
+    my $x = eval{ $db->query( "select `node` from `group_type_list` where uuid='$uuid'" ); };
+    $logs->die( "code.group.list get info from mysql fail:$@" ) if $@;
+    $logs->die( "code.group.list get info from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
+    $logs->die( "code.group.list uuid mismatch: $uuid" ) unless @$x;
+
+    my ( $node, @group ) = $x->[0][0];
+
+    for ( split /;/, $node )
+    {
+        my @n = split /,/, $_;
+        push @group, \@n if @n;
+    }
+
+    return @group;
+}

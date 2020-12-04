@@ -1,0 +1,48 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib -I/data/Software/mydan/AGENT/private/lib
+use strict;
+use warnings;
+
+use POSIX;
+use Code;
+use Logs;
+use Util;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    id => id,
+
+    logs => 日志对象
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $id, $logs ) = @param{qw(db id logs )};
+
+    $logs = Logs->new( 'code.check' ) unless $logs;
+
+    $logs->die( "id format error" ) unless $id =~ /^\d+$/;
+
+    my $starttime = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
+
+    my $myname =Util::myname();
+    eval{ $db->execute( "update `check` set last_check='$starttime',slave='$myname' where projectid='$id'" ); };
+    $logs->die( "update check info fail:$@" ) if $@;
+
+    my $proxy = eval{ Code->new( "check.plugin/proxy" )->run( db => $db, id => $id ); };
+    $logs->die( "run check.plugin/proxy fail:$@" ) if $@;
+
+    my $agent = eval{ Code->new( "check.plugin/agent" )->run( db => $db, id => $id, proxy => $proxy ); };
+    $logs->die( "run check.plugin/agent fail:$@" ) if $@;
+
+
+    my $finishtime = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
+
+    eval{ $db->execute( "update `check` set last_success='$finishtime' where projectid='$id'" ); };
+    $logs->die( "update check info fail:$@" ) if $@;
+}

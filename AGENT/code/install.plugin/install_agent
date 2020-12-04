@@ -1,0 +1,148 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib -I/data/Software/mydan/AGENT/private/lib
+use strict;
+use warnings;
+
+use FindBin qw( $RealBin );
+use MIME::Base64;
+use Data::Dumper;
+use YAML::XS;
+
+use Code;
+use Logs;
+use Util;
+
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    uuid => 'uuid',
+
+    logs => 日志对象
+
+=cut
+
+return sub
+{
+    my %param = @_;
+    my ( $db, $uuid, $logs ) = @param{qw( db uuid logs )};
+
+    $logs = Logs->new( 'code.install.plugin.agent' ) unless $logs;
+
+    $logs->die( "uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
+
+    my $x = eval{ $db->query( "select projectid,regionid,ip,username,password
+            from install where uuid='$uuid'" );};
+    $logs->die( "get install info from mysql fail install uuid=$uuid: $@" ) if $@;
+    $logs->die( "get install info from mysql fail install uuid=$uuid" ) unless defined $x && ref $x eq 'ARRAY';
+    $logs->die( "install uuid mismatch uuid=$uuid" ) unless @$x;
+
+
+    my ( $projectid, $regionid, $ip, $username, $password ) = @{$x->[0]};
+
+    my $p = eval{ $db->query( "select ip from proxy where regionid='$regionid' and status='success'" )};
+    $logs->die( "get install info from mysql fail install uuid=$uuid: $@" ) if $@;
+    $logs->die( "get install info from mysql fail install uuid=$uuid" ) unless defined $p && ref $p eq 'ARRAY';
+
+    $logs->die( "install uuid mismatch uuid=$uuid" ) unless @$p;
+
+    my $proxy = $p->[0][0];
+
+    $username ||= 'root';
+    $logs->die( "username format error" ) unless defined $username && $username =~ /^[a-zA-Z0-9_, \-\.]+$/;
+
+    $password = decode_base64( $password ) if $password;
+
+    my @ip = grep{ /^[a-zA-Z0-9_\-\.]+$/ }split /,| /, $ip;
+
+    my %reason = %Util::reason;
+
+    my $install = eval{ YAML::XS::LoadFile "$RealBin/../conf/install" };
+    $logs->die( "load install fail from conf/install:$@" ) if $@;
+
+    my $configkey = $password ? 'install_agent_haspass' : 'install_agent_nopass';
+    $logs->die( "conf/install no $configkey") unless $install && ref $install eq 'HASH' && $install->{$configkey};
+    $logs->die( "conf/install no get_agent_version" ) unless $install->{get_agent_version};
+
+    for my $node ( @ip )
+    {
+
+        my $starttime = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
+        eval{ $db->execute( "replace into install_detail (`uuid`,`ip`,`type`,`starttime`,`finishtime`,`status`,`reason`) 
+                values( '$uuid', '$node', 'agent', '$starttime','','','' )" ); };
+
+        my $install_agent = $install->{$configkey};
+        $install_agent =~ s/__NODE__/$node/g;
+        $install_agent =~ s/__PROXY__/$proxy/g;
+        $install_agent =~ s/__USERNAME__/$username/g;
+        $install_agent =~ s/__PASSWORD__/$password/g if defined $password;
+
+        my $cont = $password =~ /'/ ? 'password fromat error' :  `$install_agent 2>&1`; 
+        
+        print "cont: $cont\n";
+
+        my ( $status, $reason, $version ) = ( 'success', '', '0' );
+        unless( $cont && $cont =~ /__SUCCESS__/ )
+        {
+            $status = 'fail';
+            for my $k ( keys %reason )
+            {
+                if( $cont =~ /$k/ )
+                {
+                    $reason = $reason{$k};
+                    last;
+                }
+            }
+            $reason ||= 'unkown error'
+            
+        }
+
+
+        if( $status eq 'success' )
+        {
+            my $get_agent_version = $install->{get_agent_version};
+            $get_agent_version =~ s/__NODE__/$node/g;
+            $get_agent_version =~ s/__PROXY__/$proxy/g;
+
+            print "get_agent_version: $get_agent_version 2>&1\n";
+            my $vcont = `$get_agent_version 2>&1`;
+            print "get_agent_version: $vcont\n";
+
+            if( $vcont =~ /file version:(\d+)/  )
+            {
+                $version = $1;
+            }
+            else
+            {
+                $status = 'fail';
+                for my $k ( keys %reason )
+                {
+                    if( $vcont =~ /$k/ )
+                    {
+                        $reason = $reason{$k};
+                        last;
+                    }
+                }
+                $reason ||= 'unkown error'
+            }
+        }
+        
+
+        my $finishtime = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
+
+        eval{ $db->execute( "update install_detail set finishtime='$finishtime',status='$status',reason='$reason' 
+                where uuid='$uuid' and ip='$node'" ); };
+        $logs->die( "update install_detail info fail:$@" ) if $@;
+
+        eval{ $db->execute( "replace into agent(`relationid`,`ip`,`status`,`version`,`projectid`) 
+                select id, '$node', '$status', '$version','$projectid' 
+                from project_region_relation where projectid='$projectid' and regionid='$regionid'" 
+            ) if $status eq 'success';
+        };
+        $logs->die( "update agent info fail:$@" ) if $@;
+ 
+    }
+
+    return 'success';
+}

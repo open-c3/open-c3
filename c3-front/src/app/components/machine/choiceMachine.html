@@ -1,0 +1,128 @@
+<div class="modal-header">
+    <h4  class="modal-title">选择服务器</h4>
+</div>
+<div class="modal-body">
+    <form class="form-horizontal" name="addForm" role="form">
+        <div style="height: 40px;border-bottom: 1px solid #ddd;">
+            <div class="admin-form">
+                <div class="option-group field" >
+                    <label class="option option-primary">
+                        <input type="radio" ng-model="formType" value="ip" ng-click="choice.cleanSelected()">
+                        <span class="radio" style="padding-top: 0;min-height: 0"></span>通过IP选择服务器
+                    </label>
+                    <label ng-hide="groupHide" class="option option-primary">
+                        <input type="radio" ng-model="formType" value="group" ng-click="choice.cleanSelected()">
+                        <span class="radio" style="padding-top: 0;min-height: 0"></span>分组选择
+                    </label>
+                    <label ng-show="variableShow" class="option option-primary">
+                        <input type="radio" ng-model="formType" value="variable" ng-click="choice.cleanSelected()">
+                        <span class="radio" style="padding-top: 0;min-height: 0"></span>选择变量
+                    </label>
+                </div>
+            </div>
+        </div>
+    </form>
+
+        <div ng-switch="formType">
+            <div ng-switch-when="ip">
+                <dataerror ng-hide="dataready" errmsg={{dataerror}}></dataerror>
+                <div class="panel-tabs">
+
+                    <table ng-table="choice.machine_Table" show-filter="true" class="table table-hover text-center table-condensed" >
+                        <!--<table class="table table-hover text-center table-condensed">-->
+                            <tr ng-repeat="ss in $data" style="text-align: left">
+                                <td style="width: 20%" data-title="'机器名称'" filter="{ name: 'text'}"><label for="{{ss.name}}" style="font-weight: normal;height: 100%;width: 100%">{{ss.name}}</label></td>
+                                <td style="width: 15%" data-title="'类型'" filter="{ type: 'text'}">{{ss.type}}</td>
+                                <td style="width: 20%" data-title="'内网IP'" filter="{ inip: 'text'}"><label for="{{ss.inip}}" style="font-weight: normal;height: 100%;width: 100%"><input id="{{ss.inip}}" ng-if="ss.inip" type="checkbox" name="selected"  ng-checked="isSelected(ss.id, 'inip')" ng-click="inipUpdateSelection($event, ss.id, ss.inip)" style="zoom: 125%"/>{{ss.inip}}
+
+                                    <i ng-if="ss.inip && ! ss.inips.status" class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                                    <i ng-if="ss.inip && ss.inips.status=='fail'" class="fa fa-circle" style="color: red;" aria-hidden="true"></i>
+                                    <i ng-if="ss.inip && ss.inips.status=='success'" class="fa fa-circle" style="color: green;" aria-hidden="true"></i>
+                                    </label>
+                                </td>
+                                <td style="width: 20%" data-title="'外网ip'" filter="{ exip: 'text'}"><label for="{{ss.exip}}" style="font-weight: normal;height: 100%;width: 100%"><input ng-if="ss.exip" id="{{ss.exip}}" type="checkbox" name="selected"  ng-checked="isSelected(ss.id, 'exip')" ng-click="exipUpdateSelection($event, ss.id, ss.exip)" style="zoom: 125%"/>{{ss.exip}}
+
+                                    <i ng-if="ss.exip && ! ss.exips.status" class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                                    <i ng-if="ss.exip && ss.exips.status=='fail'" class="fa fa-circle" style="color: red;" aria-hidden="true"></i>
+                                    <i ng-if="ss.exip && ss.exips.status=='success'" class="fa fa-circle" style="color: green;" aria-hidden="true"></i>
+                                </label>
+                            </td>
+
+                            <td style="width: 5%" data-title="'客户端版本'">
+                                <a ng-if="ss.inip">{{ss.inips.version}}</a>
+                                <a ng-if="ss.exip && ! ss.inip">{{ss.exips.version}}</a>
+                            </td>
+
+                            <td style="width: 20%" data-title="'客户端上一次检测时间'">
+                                <a ng-if="ss.inip">{{ss.inips.edit_time}}</a>
+                                <a ng-if="ss.exip && ! ss.inip">{{ss.exips.edit_time}}</a>
+                            </td>
+
+                            <td style="width: 20%" data-title="'客户端错误原因'">
+                                <a ng-if="ss.inip && ss.inips.status=='fail'">failcount:{{ss.inips.fail}}; {{ss.inips.reason}}</a>
+                                <a ng-if="ss.exip && ! ss.inip && ss.exips.status=='fail'">failcount:{{ss.exips.fail}}; {{ss.exips.reason}}</a>
+                            </td>
+ 
+                            </tr>
+                    </table>
+                </div>
+            </div>
+            <!--组-->
+            <div ng-switch-when="group">
+                <dataerror ng-hide="dataready" errmsg={{dataerror}}></dataerror>
+
+                <div class="panel-tabs">
+                    <table ng-table="choice.group_Table" class="table table-hover text-center table-condensed">
+                        <!--<table class="table table-hover text-center table-condensed">-->
+                        <thead>
+                        <tr>
+                            <th>
+                                <!--<input type="checkbox" ng-click="selectAll($event)" ng-checked="isSelectedAll()" style="zoom: 125%" />-->
+                            </th>
+                            <th>名称</th>
+                            <th>插件</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="ss in $data">
+                            <td ><input type="radio" name="selected"  ng-checked="isSelected(ss.id)" ng-click="updateRadio($event, ss.id, ss)" style="zoom: 125%"/></td>
+                            <td>{{ss.name}}</td>
+                            <td>{{ss.plugin}}</td>
+                        </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+            <!--变量-->
+            <div ng-switch-when="variable" style="width: 40%">
+                <dataerror ng-hide="dataready" errmsg={{dataerror}}></dataerror>
+
+                <div class="panel-tabs">
+                    <table ng-table="choice.group_Table" class="table table-hover text-center table-condensed">
+                        <!--<table class="table table-hover text-center table-condensed">-->
+                        <thead>
+                            <tr>
+                                <th>名称</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td ><input type="text" class="form-control input-global" ng-model="ipVar.variable" ></td>
+                            </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-sm-5 form-group pull-right">
+                <button class="btn btn-primary" ng-disabled="addForm.$invalid" ng-click="choice.add()">确认</button>
+                <button class="btn btn-warning" ng-click="choice.cancel()">取消</button>
+            </div>
+        </div>
+
+</div>
+

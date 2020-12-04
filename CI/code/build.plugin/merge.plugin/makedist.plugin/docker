@@ -1,0 +1,60 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use Logs;
+use MIME::Base64;
+use Temp;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    logs => 日志对象
+
+    #temp uuid buildimage buildscripts projectid
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $logs, $temp, $uuid, $buildimage, $buildscripts, $projectid ) 
+        = @param{qw(db logs temp uuid buildimage buildscripts projectid )};
+
+    $logs = Logs->new( 'code.build.merge.makedist.docker' ) unless $logs;
+
+    my $temppath = "$RealBin/../logs/$temp/$uuid";
+
+    return if -d "$temppath/dist";
+
+    $logs->die( "buildscripts null" )  unless  $buildscripts ;
+    $logs->die( "buildscripts decode fail" )  unless my $runcont = decode_base64( $buildscripts );
+
+    my $run = Temp->new( chmod => 0755 )->dump( $runcont );
+    my $dinfo = `docker ps -a`;
+
+    my $dname = "ci_build_id_${projectid}_id.$buildimage"; $dname =~ s/:/_/g;  $dname =~ s#/#_#g;
+
+    my $dpath = "$RealBin/../logs/build_merge_project_link/$projectid";
+
+    my $x = `cat /proc/1/cgroup 2>/dev/null`;
+    my $indocker = $x =~ /\b1:.+(docker|lxc|kubepods)/ ? 1 : 0;
+    my $logpath = $indocker ? "/data/open-c3-data/logs/CI" : "$RealBin/../logs";
+
+    my $temppathx = "$logpath/$temp/$uuid";
+    my $dpathx = "$logpath/build_merge_project_link/$projectid";
+
+    map{
+        $logs->die( "run build.merge.makedist.docker fail:$!" ) if system $_;       
+    }(
+        "mv '$run' '$temppath/run'",
+        "ln -fsn '$temppathx' '$dpath'",
+        $dinfo =~ /$dname/ 
+            ? "docker start -i '$dname'"
+            : "docker run -v $dpathx:/build  --name '$dname' --workdir=/build/data '$buildimage' /bin/bash -c 'source /root/.bashrc && /build/run'"
+    );
+
+    $logs->die( "run build.merge.makedist.docker fail:The dist is not a directory" ) unless -d "$temppath/dist";
+    $logs->die( "run build.merge.makedist.docker fail:The dist is a soft link" ) if -l "$temppath/dist";
+}

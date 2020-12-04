@@ -1,0 +1,21 @@
+#!/usr/bin/env perl
+
+use FindBin qw($RealBin);
+my ( $port, $x ) = @ARGV;
+die "SYNOPSIS\n\t\$0 port\n" unless $port && $port =~ /^\d+$/;
+
+my $base = $RealBin;
+$base =~ s/\/[a-z]+$//;
+
+die "chdir fail" unless chdir $base;
+
+die "install tty.js fail:$!" if system "rm -rf node_modules && npm install tty.js";
+
+die "replace tty.js fail:$!" if system "rsync -av private/tty.js/ node_modules/tty.js/";
+
+die "replace port fail:$!" if system "sed -i 's/_X_PORT_X_/$port/' node_modules/tty.js/config.json";
+$x ||= "$base/bin/shell"; $x =~ s/\//\\\//g;
+die "replace port fail:$!" if system "sed -i 's/_X_SHELL_PATH_X_/$x/' node_modules/tty.js/config.json";
+
+
+

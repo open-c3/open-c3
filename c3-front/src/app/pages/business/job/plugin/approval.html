@@ -1,0 +1,145 @@
+<div class="modal-header">
+    <h4  class="modal-title">新建审批步骤</h4>
+</div>
+
+    <div class="panel panel-primary">
+        <div class="panel-body">
+            <div class="form-horizontal">
+                <form class="form-horizontal" name="myForm"  role="form" novalidate>
+
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">作业名称<span style="color: red">*</span></label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control"  ng-model="approvaljob.postdata.name" required/>
+                            </div>
+                        </div>
+                    </div>
+ 
+
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">审批内容<span style="color: red">*</span></label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control"  ng-model="approvaljob.postdata.cont" required/>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">审批人<span style="color: red">*</span></label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control"  ng-model="approvaljob.postdata.approver" required/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">生效环境 <span style="color: red">*</span></label>
+                            <div class="col-sm-9">
+                                <div class="admin-form">
+                                    <div class="option-group field" >
+                                        <label class="option option-primary" ng-model="unClickDeployenv">
+                                            <input type="radio" name="unClickDeployenv" ng-model="approvaljob.postdata.deployenv" value="always">
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>总是执行
+                                        </label>
+                                        <label class="option option-primary">
+                                            <input type="radio" name="unClickDeployenv" ng-model="approvaljob.postdata.deployenv" value="test">
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>测试环境
+                                        </label>
+                                        <label class="option option-primary">
+                                            <input type="radio" name="unClickDeployenv" ng-model="approvaljob.postdata.deployenv" value="online">
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>线上环境
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">生效动作 <span style="color: red">*</span></label>
+                            <div class="col-sm-9">
+                                <div class="admin-form">
+                                    <div class="option-group field" >
+                                        <label class="option option-primary" ng-model="unClickAction">
+                                            <input type="radio" name="unClickAction" ng-model="approvaljob.postdata.action" value="always">
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>总是执行
+                                        </label>
+                                        <label class="option option-primary">
+                                            <input type="radio" name="unClickAction" ng-model="approvaljob.postdata.action" value="deploy">
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>仅发布时执行
+                                        </label>
+                                        <label class="option option-primary">
+                                            <input type="radio" name="unClickAction" ng-model="approvaljob.postdata.action" value="rollback">
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>仅回滚时执行
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">分批 <span style="color: red">*</span></label>
+                            <div class="col-sm-9">
+                                <div class="admin-form">
+                                    <div class="option-group field" >
+                                        <label class="option option-primary" ng-model="unClickBatches">
+                                            <input type="radio" name="unClickBatches" ng-model="approvaljob.postdata.batches" value="always">
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>总是执行
+                                        </label>
+                                        <label class="option option-primary">
+                                            <input type="radio" name="unClickBatches" ng-model="approvaljob.postdata.batches" value="firsttime">
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>仅第一个分组
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">所有审批人都要审批<span style="color: red">*</span></label>
+                            <div class="col-sm-9">
+                                <div class="admin-form">
+                                    <div class="option-group field" >
+                                        <label class="option option-primary">
+                                            <input type="radio" name="unClickEveryone" ng-model="approvaljob.postdata.everyone" value="on">
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>是
+                                        </label>
+                                        <label class="option option-primary">
+                                            <input type="radio" name="unClickEveryone" ng-model="approvaljob.postdata.everyone" value="off">
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>只要一个人审批
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">超时时间</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" placeholder="脚本执行超时时间，单位为秒，默认60秒" ng-model="approvaljob.postdata.timeout">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-3 form-group" style="margin-left: 40%;">
+                            <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="approvaljob.returnData()">保存</button>
+                            <button class="btn btn-warning" ng-click="approvaljob.cancel()">取消</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+

@@ -1,0 +1,20 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    id => id,
+    projectid => id,
+    params => data,
+
+=cut
+
+return sub
+{
+    my %param = @_;
+    return defined $param{params} ? ( split /,/, $param{params} ):();
+}
+

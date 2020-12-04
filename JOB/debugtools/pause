@@ -1,0 +1,24 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use MYDB;
+use FindBin qw( $RealBin );
+use Data::Dumper;
+
+use MYDan::Util::OptConf;
+use Code;
+
+=head1 SYNOPSIS
+
+ $0 [--taskuuid uuid] [--subtaskuuid uuid] [--subtasktype type]
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( taskuuid=s subtaskuuid=s subtasktype=s ) )->dump();
+$option->assert( qw( taskuuid subtaskuuid subtasktype ) );
+
+my $db = MYDB->new( "$RealBin/../conf/conn" );
+
+my @node = Code->new( 'pause' )->run( db => $db, %o );
+print Dumper \@node;

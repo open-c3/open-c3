@@ -1,0 +1,27 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    #sso登录用户，不通的sso系统实现方式不一样，登录名可能是一个名字，也可能是一个邮箱
+    #在notify报警的时候,只能拿到用户名信息，需要通过这个插件来查询用户的其它属性信息，如邮箱和电话等等
+    #
+    #在这个缺省的插件里面，我们默认sso返回的是用户的邮箱,所以直接返回了邮箱信息
+    #需要重写的情况下，应该是通过这个用户名去另外一个系统查询这个信息
+    
+
+    user => 'abc',
+
+    如果没有对应的人，返回undef
+
+=cut
+
+return sub
+{
+    my ( $user ) = @_;
+    return +{ email => $user };
+
+}

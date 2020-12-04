@@ -1,0 +1,22 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use Tie::File;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $perl = $^X;
+
+my $base = $RealBin;
+$base =~ s#/[^/]+$##;
+
+system "$base/tools/stop && $base/tools/start";
+
+sleep 1;
+
+system "ps -ef|grep connector";

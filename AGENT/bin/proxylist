@@ -1,0 +1,23 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib -I/data/Software/mydan/AGENT/private/lib
+use strict;
+use warnings;
+use MYDB;
+use FindBin qw( $RealBin );
+
+use Code;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( 'quiet' )->dump();
+
+$0 = "agent_proxylist";
+
+my $db = MYDB->new( "$RealBin/../conf/conn" );
+
+map{ print "$_\n" }Code->new( 'proxylist' )->run( db => $db, %o );

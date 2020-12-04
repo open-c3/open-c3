@@ -1,0 +1,66 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use Logs;
+use FindBin qw( $RealBin );
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    logs => 日志对象
+
+    #temp uuid buildimage buildscripts projectid
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $logs, $temp, $uuid, $buildimage, $buildscripts, $projectid ) 
+        = @param{qw(db logs temp uuid buildimage buildscripts projectid  )};
+
+    $logs = Logs->new( 'code.build.merge.makepkgs' ) unless $logs;
+
+    my $temppath = "$RealBin/../logs/$temp/$uuid";
+    my $dstpath = "$RealBin/../logs/pkgs";
+
+    my @list = `cd '$temppath/dist' && ls -a|grep -v '^\\.\$'|grep -v '^\\.\\.\$'`;
+    $logs->die( "build fail: dist is empty" ) unless @list;
+
+    my ( @saveasdir, @cmd ) = `cat /etc/ci.saveasdir`;
+    chomp @saveasdir;
+    if( grep{ $projectid eq $_ }@saveasdir )
+    {
+        my $x = 'dist';
+        if ( -l "$temppath/dist" ) {
+            my $l = readlink "$temppath/dist";
+            $logs->die( "run build.merge.makepkgs fail:$!" ) unless $l && $l eq 'data';
+            $x = 'data';
+        }
+        my $user = `id -un`;chop $user;
+        my $sudo = $user eq 'root' ? '' : 'sudo ';
+        @cmd = (
+            "${sudo}rm -rf '$dstpath/$uuid'",
+            "${sudo}mv '$temppath/$x' '$dstpath/$uuid'"
+            );
+    }
+    else
+    {
+        my $tarmark = 'wk_ci_IgnoreOthers_KeepThisFileOnly';
+        if( -f "$temppath/dist/$tarmark" )
+        {
+            @cmd = ( "mv '$temppath/dist/$tarmark' '$dstpath/$uuid'" );
+        }
+        else
+        {
+            @cmd = (
+                "cd '$temppath/dist' && tar -zcf ../dist.tar.gz `ls -a|grep -v '^\\.\$'|grep -v '^\\.\\.\$'`",
+                "mv '$temppath/dist.tar.gz' '$dstpath/$uuid'"
+                );
+        }
+    }
+
+    map{ $logs->die( "run build.merge.makepkgs fail:$!" ) if system $_; }@cmd; 
+}

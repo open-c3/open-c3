@@ -1,0 +1,20 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use MYDB;
+use FindBin qw( $RealBin );
+use Data::Dumper;
+
+use MYDan::Util::OptConf;
+use Code;
+
+=head1 SYNOPSIS
+
+ $0
+ $0 year # $0 2019
+
+=cut
+
+my $db = MYDB->new( "$RealBin/../conf/conn" );
+
+Code->new( 'deploy_statistics_day' )->run( db => $db, @ARGV ? ( year => shift @ARGV ) : () );

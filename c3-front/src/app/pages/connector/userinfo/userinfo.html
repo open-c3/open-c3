@@ -1,0 +1,40 @@
+<div>
+    <div>
+        <div style="float: right;">
+            <form class="form-inline" name="myForm" novalidate>
+                <div class="form-group" ng-init="username=''">
+                    <input type="text" class="form-control" ng-model="username"  placeholder="用户登录名" required>
+                </div>
+                <button type="submit" ng-disabled="myForm.$invalid" class="btn btn-primary" ng-click="connectoruserinfo.addUser(username,'创建')"><i class="fa fa-user-circle-o fa-lg" aria-hidden="true"></i>添加用户</button>
+            </form>
+        </div>
+        <div style="clear: both;">&nbsp;</div>
+    </div>
+    <div class="panel panel-primary">
+
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="connectoruserinfo.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!connectoruserinfo.loadover}" ></i></button>
+            </span>
+            <h5>可登录用户</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="panel-tabs">
+                <table ng-table="connectoruserinfo.userTable" class="table table-hover text-center table-condensed" show-filter="true">
+                    <tr ng-repeat="user in $data">
+                        <td style="width: 10%" data-title="'用户'" filter="{ name: 'text'}" sortable="'name'">{{user.name}}</td>
+                        <td style="width: 10%" data-title="'密码未修改'" sortable="'pass'">
+                            <a ng-if="user.pass" style="color: red"> 是(危险) </a>
+                            <a ng-if="!user.pass" > 否 </a>
+                        </td>
+                        <td style="width: 10%" data-title="'操作'">
+                            <button class="btn btn-primary btn-md" ng-click="connectoruserinfo.addUser(user.name, '重置密码')">重置密码</button>
+                            <button class="btn btn-primary btn-md" ng-click="connectoruserinfo.delete(user.name)">删除</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

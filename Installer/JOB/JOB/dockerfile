@@ -1,0 +1,24 @@
+#This is MYDan Dockerfile#version 1.0
+#Author: lijinfeng2011@gmail.com
+
+FROM openc3/job-base:latest
+MAINTAINER lijinfeng2011
+
+#RUN sed -i 's/www.cpan.org/mirrors.163.com\/cpan/' /root/.cpan/CPAN/MyConfig.pm
+#RUN curl -L http://installbj.mydan.org | MYDanInstallLatestVersion=1 bash
+
+RUN mkdir -p /data/logs/JOB
+RUN mkdir -p /data/glusterfs/fileserver
+
+RUN mkdir -p /data/logs/JOBX
+
+RUN mkdir -p /data/logs/AGENT
+
+RUN mkdir -p /etc/cron.d.root
+
+RUN mkdir -p /data/logs/CI
+RUN mkdir -p /data/pkgrsync
+RUN mkdir -p /data/glusterfs/ci_repo
+
+ADD entrypoint.sh /
+ENTRYPOINT [ "/entrypoint.sh" ]

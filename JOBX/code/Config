@@ -1,0 +1,30 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOBX/lib -I/data/Software/mydan/JOBX/private/lib
+use strict;
+use warnings;
+use Code;
+use YAML::XS;
+use FindBin qw( $RealBin );
+
+$| ++;
+
+=head1 SYNOPSIS
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my $envname = $param{envname};
+
+    my $Config = eval{ YAML::XS::LoadFile "$RealBin/../config/Config" };
+    die "load config fail: $@" if $@;
+
+    die "envnaem $envname undef in config/Config" unless $Config->{$envname};
+    
+    for( qw( conn envinfo api.jobx.x.x.conf cookiekey ) )
+    {
+        Code->new( "Config.plugin/$_" )->run( Config => $Config->{$envname}, envname => $envname );
+
+    }
+}

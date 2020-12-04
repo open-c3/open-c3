@@ -1,0 +1,17 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
+use strict;
+use warnings;
+use Code;
+
+=head1 SYNOPSIS
+
+ $0 
+
+=cut
+
+my $status = Code->new( 'Check' )->run( );
+
+print "=" x 75, "\n";
+warn "Check status: $status\n";
+$status = 0 if $status == 1;
+exit $status;

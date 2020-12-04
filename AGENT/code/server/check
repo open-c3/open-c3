@@ -1,0 +1,68 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib -I/data/Software/mydan/AGENT/private/lib
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use Util;
+use Logs;
+use JobHash;
+use POSIX ":sys_wait_h";
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $interval, $logs, $myname ) = ( $param{db}, 10, Logs->new( 'check' ), Util::myname() );
+    my ( $count, %count ) = int time / $interval;
+    $SIG{'CHLD'} = sub {
+		while((my $pid = waitpid(-1, WNOHANG)) >0)
+		{
+			my $code = ( $? == -1 || $? & 127 ) ? 110 : $? >> 8;
+			print "chld: $pid exit $code.\n";;
+		}
+	};
+ 
+
+    while( 1 )
+    {
+        warn "do ...\n";
+        my $time = time;
+        my $counttmp = int time / $interval;
+        ( $count, %count ) = ( $counttmp ) if $count ne $counttmp;
+
+        my $x = eval{ $db->query( "select projectid from `check` where status='on'" ) };
+        $logs->die( "mysql query fail: $@" ) if $@;
+        $logs->die( "get check list from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
+
+        my $jobhash = JobHash->new( $db );
+
+        for my $id ( sort map{ $_->[0] }@$x )
+        {
+            next unless $jobhash->hash( $id );
+            print "do $id\n";
+            unless( fork() )
+            {
+                $logs->say( "check $id" );
+                $ENV{AGENT_CHECK_ID} = "XXX${id}XXX";
+                open STDOUT, '>', "$RealBin/../logs/check/$id" or $logs->die( "Can't open 'logs/check/$id': $!" );
+                open (STDERR, ">&STDOUT") or $logs->die( "open STDERR failed: $id" );
+                exec "$RealBin/../bin/check -id $id";
+            }
+            warn "start check $id\n";
+        }
+
+        while( 1 )
+        {
+            my $due = $time + 180 - time;
+            sleep $due if $due > 0;
+            last unless $due > 0;
+        }
+    }
+}

@@ -1,0 +1,174 @@
+    <div class="row" style="padding: 10px 20px 0px;">
+        <nodestr></nodestr>
+    </div>
+    <div class="panel panel-primary">
+
+
+        <div class="panel-body">
+
+            <div class="form-horizontal">
+
+                <form class="form-horizontal" name="scriptForm"  role="form" novalidate>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">脚本名称 <span style="color: red">*</span></label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" name="s_name" ng-model="quick.s_name" ng-minlength="3" ng-disabled="unClick" required />
+
+                                <span style="color:red" ng-show="scriptForm.s_name.$error.minlength">不少于2字符</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">执行账户 <span style="color: red">*</span></label>
+                            <div class="col-sm-7">
+                                <select  class="form-control " style="font-size: 15px;height: 42px"  ng-model="selectedUser" ng-options="s.username for s in allProUsers" required>
+                                </select>
+
+                            </div>
+                            <button class="btn btn-primary col-sm-1" uib-tooltip="添加" ng-click="quick.addProUser()"><i class="fa fa-plus"></i></button>
+
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">目标机器 <span style="color: red">*</span></label>
+                            <div class="col-sm-9">
+                                <button class="btn btn-primary" ng-click="quick.choiceServer()" required >选择服务器</button>
+                                <table ng-table="choice.choiceResult" class="table table-hover" ng-show="choiceShow" style="margin-top: 10px;border: 1px solid #ddd;" >
+                                    <thead >
+                                        <tr>
+                                            <th style="text-align: left;">编号</th>
+                                            <th style="text-align: left;">名称</th>
+                                            <th style="text-align: left;">类型</th>
+                                            <th style="text-align: left;">操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="ss in choiceResult">
+
+                                            <td>{{$index + 1}}</td>
+                                            <td ng-if="nodeType=='group'">{{ss.name}}</td>
+                                            <td ng-if="nodeType=='builtin'">{{ss}}</td>
+                                            <td>{{choiceType}}</td>
+                                            <td>
+                                                <button ng-if="nodeType=='group'" ng-click="quick.delChoice($index, ss.name)">删除</button>
+                                                <button ng-if="nodeType=='builtin'" ng-click="quick.delChoice($index, ss)">删除</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">脚本来源 <span style="color: red">*</span></label>
+                            <div class="col-sm-9">
+                                <div class="admin-form">
+                                    <div class="option-group field" >
+                                        <label class="option option-primary" ng-model="unClick">
+                                            <input type="radio" name="src" ng-model="quick.from" value="manual" ng-click="quick.scriptManual()" ng-disabled="unClick">
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>手工录入
+                                        </label>
+                                        <label class="option option-primary">
+                                            <input type="radio" name="src" ng-model="quick.from" value="clone" ng-click="quick.scriptClone()" ng-disabled="unClick">
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>脚本克隆
+                                        </label>
+                                        <label class="option option-primary">
+                                            <input type="radio" name="src" ng-model="quick.from" value="local" ng-click="quick.scriptLocal()" ng-disabled="unClick">
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>本地脚本
+                                        </label>
+                                    </div>
+
+                                    <div ng-hide="quick.scriptHide" style="padding-top: 10px; padding-left: 0;">
+                                        <select class="form-control"  ng-model="selectedScript" ng-change="quick.inputScript()" ng-options="s.name for s in allScript">
+                                        </select>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">脚本内容 <span style="color: red">*</span></label>
+                            <div class="col-sm-9">
+                                <div class="panel panel-primary">
+                                    <div style="border: 1px solid #e5e5e5;padding: 10px">
+
+                                        <div class="admin-form">
+                                            <div class="option-group field" style="padding-bottom: 9px;">
+                                                <label class="option option-primary">
+                                                    <input type="radio" name="cont" ng-model="scriptType" ng-click="quick.editorSh()" ng-disabled="unClick" value="shell">
+                                                    <span class="radio" style="padding-top: 0;min-height: 0"></span>shell
+                                                </label>
+                                                <label class="option option-primary">
+                                                    <input type="radio" name="cont" ng-model="scriptType" ng-click="quick.editorPy()" ng-disabled="unClick" value="python">
+                                                    <span class="radio" style="padding-top: 0;min-height: 0"></span>python
+                                                </label>
+                                                <label class="option option-primary">
+                                                    <input type="radio" name="cont" ng-model="scriptType" ng-click="quick.editorPerl()" ng-disabled="unClick" value="perl">
+                                                    <span class="radio" style="padding-top: 0;min-height: 0"></span>perl
+                                                </label>
+                                                <label class="option option-primary">
+                                                    <input type="radio" name="cont" ng-model="scriptType" ng-click="quick.editorPhp()" ng-disabled="unClick" value="php">
+                                                    <span class="radio" style="padding-top: 0;min-height: 0"></span>php
+                                                </label>
+                                                <label class="option option-primary">
+                                                    <input type="radio" name="cont" ng-model="scriptType" ng-click="quick.editorBuildin()" ng-disabled="unClick" value="buildin">
+                                                    <span class="radio" style="padding-top: 0;min-height: 0"></span>内建
+                                                </label>
+                                                <label class="option option-primary">
+                                                    <input type="radio" name="cont" ng-model="scriptType" ng-click="quick.editorAuto()" ng-disabled="unClick" value="auto">
+                                                    <span class="radio" style="padding-top: 0;min-height: 0"></span>自动识别
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                        <div class="form-horizontal">
+                                            <!-- shell -->
+                                                <div style="height:400px;" class="form-group" id="editor" ></div>
+
+                                            <!-- python -->
+                                                <!--<div style="height:400px;" class="form-group" ng-switch-when="python" id="editorPython"></div>-->
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">脚本参数</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control"  ng-model="s_argv">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">超时时间</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" placeholder="脚本执行超时时间，单位为秒，默认60秒" ng-model="s_timeout">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-3 form-group" style="margin-left: 40%;">
+                            <button class="btn btn-primary" ng-disabled="scriptForm.$invalid" ng-click="quick.run(scriptForm)">执行脚本</button>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+
+
+        </div>
+    </div>

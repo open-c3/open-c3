@@ -1,0 +1,33 @@
+#upstream connector_api{
+#  server 127.0.0.1:8021;
+#  server 127.0.0.1:8022;
+#  server 127.0.0.1:8023;
+#  server 127.0.0.1:8024;
+#  server 127.0.0.1:8025;
+#}
+#
+server {
+    listen       80;
+    server_name  api.connector.open-c3.org;
+
+    location  ^~  /default/ {
+        proxy_pass http://connector_api_default;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $host:$server_port;
+    }
+
+    location  ^~  /internal/ {
+        proxy_pass http://connector_api_internal;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $host:$server_port;
+    }
+
+    location / {
+        proxy_pass http://connector_api;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $host:$server_port;
+    }
+}

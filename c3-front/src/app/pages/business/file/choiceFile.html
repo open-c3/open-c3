@@ -1,0 +1,86 @@
+<div class="modal-header">
+    <h4  class="modal-title">服务器文件</h4>
+</div>
+<div>
+    <div style="margin: 1%">
+        <input type="file" id="choicefiles" style="display: none" onchange="angular.element(this).scope().upForm()" multiple="multiple" />
+        <button class="btn btn-primary" ng-click="choicefile.clickImport()" >
+            <span class="glyphicon glyphicon-upload" style="padding: 0 3px;"></span>上传文件
+        </button>
+        <div  class="form-inline" style="font-weight: bold">
+            <span id="upresult123">{{choicefile.up_re}}</span>
+        </div>
+    </div>
+    <div class="row">
+            <div class="col-sm-12 form-group">
+                <div  style="padding-left: 74%;">
+                    <div class="admin-form">
+                        <div class="option-group field" >
+                            <label class="option option-primary">
+                                <input type="radio" ng-model="choiceType" value="choice" >
+                                <span class="radio" style="padding-top: 0;min-height: 0"></span>选择文件
+                            </label>
+                            <label class="option option-primary">
+                                <input type="radio" ng-model="choiceType" value="input" >
+                                <span class="radio" style="padding-top: 0;min-height: 0"></span>手动输入
+                            </label>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+    </div>
+    <div class="row" ng-switch="choiceType">
+        <div class="panel-tabs col-sm-10" ng-switch-when="input" style="padding-left: 10%;padding-bottom: 5%;">
+            <label style="float: left; line-height: 34px;min-width: 90px;text-align: right;" for="jobName">文件名称：</label>
+            <input ng-model="choicefile.inputFileName" class="form-control" style="width: 80%"/>
+        </div>
+    </div>
+    <div ng-switch="choiceType">
+        <div class="panel-tabs" ng-switch-when="choice">
+            <table ng-table="choicefile.files_Table" class="table table-hover text-center table-condensed">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>文件名</th>
+                        <th>大小</th>
+                        <th>创建用户</th>
+                        <th>创建时间</th>
+                        <th>修改用户</th>
+                        <th>修改时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr ng-repeat="ss in $data">
+
+                        <td ><input type="radio" name="selected"  ng-checked="isSelected(ss.id)" ng-click="updateSelectFile($event, ss.id, ss)" style="zoom: 125%"/></td>
+                        <td>{{ss.name}}</td>
+                        <td>{{ss.size / 1000}}kb</td>
+                        <td>{{ss.create_user}}</td>
+                        <td>{{ss.create_time}}</td>
+                        <td>{{ss.edit_user}}</td>
+                        <td>{{ss.edit_time}}</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm" ng-click="choicefile.deleteFile(ss.id)" >
+                                删除
+                            </button>
+                        </td>
+                    </tr>
+                </tbody>
+
+            </table>
+        </div>
+    </div>
+    <div style="margin: 1%">
+        <button ng-click="choicefile.manageToken()">token管理</button>
+    </div>
+    <div class="row">
+        <div class="col-sm-5 form-group pull-right">
+            <button class="btn btn-primary" ng-disabled="addForm.$invalid" ng-click="choicefile.chioceover()">确认</button>
+            <button class="btn btn-warning" ng-click="choicefile.cancel()">取消</button>
+        </div>
+    </div>
+
+</div>
+

@@ -1,0 +1,42 @@
+#upstream ci_api{
+#  server 127.0.0.1:9011;
+#  server 127.0.0.1:9012;
+#  server 127.0.0.1:9013;
+#  server 127.0.0.1:9014;
+#  server 127.0.0.1:9015;
+#}
+#
+#upstream ci_api_slave_10.10.10.10 {
+#  server 127.0.0.1:9016;
+#  server 127.0.0.1:9017;
+#  server 127.0.0.1:9018;
+#  server 127.0.0.1:9019;
+#  server 127.0.0.1:9020;
+#}
+
+server {
+    listen       80;
+    server_name  api.ci.open-c3.org;
+
+
+    location  ^~  /slave/ {
+        rewrite /slave/([0-9a-z\.-]+)/(.+)$ /$2 break;
+        proxy_pass http://ci_api_slave_$1;
+
+        proxy_redirect    off;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Host $host:$server_port;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+
+    location / {
+        proxy_pass http://ci_api;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $host:$server_port;
+    }
+}

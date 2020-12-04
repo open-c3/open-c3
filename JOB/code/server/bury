@@ -1,0 +1,75 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use POSIX;
+use Util;
+use Logs;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $myname, $db, $logs ) = ( Util::myname(), $param{db}, Logs->new( 'bury' ) );
+
+    while(1)
+    {
+        warn "do ...\n";
+
+        my $x = eval{ $db->query( "select id,pid,uuid,starttime,starttimems from task 
+            where slave='$myname' and pid is not null and status<>'success' and status<>'fail'" );};
+        $logs->die( "mysql query fail: $@" ) if $@;
+        $logs->die( "get list fail from mysql" ) unless defined $x && ref $x eq 'ARRAY';
+
+        my $timeout = time - 86400;
+        for my $r ( @$x )
+        {
+            my ( $id, $pid, $uuid, $starttime, $starttimems ) = @$r;
+            next unless $pid =~ /^\d+$/;
+
+            next unless $starttimems =~ /^[\.\d]+$/;
+            next unless $uuid =~ /^[a-zA-Z0-9]+$/;
+
+            if( $starttimems && $starttimems < $timeout )
+            {
+                $db->execute( "update task set reason='kill by job\@app, Task timeout' where id=$id and reason is null" );
+                system "killall -9 job_worker_task_$uuid";
+            }
+
+            next if kill( 0, $pid );
+
+            #my $mtime = ( stat  "$RealBin/../logs/task/$uuid" )[9];
+            my $mtime = time;
+
+            my ( $runtime, $finishtime, $finishtimems );
+
+            if( $mtime )
+            {
+                $mtime ++ if $mtime < $starttimems;
+                $mtime = $starttimems if $mtime < $starttimems;
+                $runtime = sprintf "%0.3f", $mtime - $starttimems;
+                $finishtime = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( int $mtime ) );
+                $finishtimems = $mtime;
+            }
+            else
+            {
+                ( $runtime, $finishtime, $finishtimems ) = ( 0, $starttime, $starttimems );
+            }
+
+            eval{ $db->execute( "update task set status='fail',runtime='$runtime',
+                finishtime='$finishtime',finishtimems='$finishtimems' where id=$id" );
+                $db->execute( "update task set reason='unkown error exit' where id=$id and reason is null" );
+            };
+            $logs->err( "update task status fail: id=$id :$@" ) if $@;
+        }
+        sleep 3;
+    }
+}

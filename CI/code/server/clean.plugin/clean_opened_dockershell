@@ -1,0 +1,27 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use POSIX;
+use Util;
+use Logs;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $myname, $db, $logs ) = ( Util::myname(), $param{db}, $param{logs} );
+
+    my $logs = Logs->new( 'clean.clean_opened_dockershell' ) unless $logs;
+
+    $logs->die( "clean fail: $!" ) if system 'docker ps|grep dockershell_ci_ |grep -P "Up \d+ days"|awk ' ."'".'{print $1}'."'" .'|xargs -i{} docker stop {}';
+
+}

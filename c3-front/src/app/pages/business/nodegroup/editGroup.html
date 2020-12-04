@@ -1,0 +1,63 @@
+<div class="modal-header">
+    <h4  class="modal-title">编辑分组</h4>
+</div>
+<div class="modal-body">
+    <form class="form-horizontal" name="createForm" role="form">
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">分组名称</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" name="addGroup" placeholder="不少于2字符" ng-minlength="2" ng-model="groupName" required>
+                    <span style="color:red" ng-show="createForm.addGroup.$error.minlength">不少于2字符</span>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">分组类型 </label>
+                <div class="col-sm-9">
+                    <div class="admin-form">
+                        <div class="option-group field" >
+                            <label class="option option-primary" ng-model="unClick">
+                                <input type="radio" name="src" ng-model="selectedType" value="machineName" ng-click="edit.choiceInfo()">
+                                <span class="radio" style="padding-top: 0;min-height: 0"></span>根据机器名分组
+                            </label>
+                            <label class="option option-primary">
+                                <input type="radio" name="src" ng-model="selectedType" value="machineType" ng-click="edit.choiceInfo()">
+                                <span class="radio" style="padding-top: 0;min-height: 0"></span>根据机器类型分组
+                            </label>
+                        </div>
+                        <table ng-table="edit.editTable" class="table table-hover" style="margin-top: 10px;border: 1px solid #ddd;" >
+                            <thead >
+                            <tr>
+                                <th style="text-align: left;">#</th>
+                                <th style="text-align: left;">Name</th>
+                                <th style="text-align: left;">操作</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr ng-repeat="ss in editTable">
+                                <td>{{$index + 1}}</td>
+                                <td>{{ss}}</td>
+                                <td><button ng-click="edit.delChoice($index)">删除</button></td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-5 form-group pull-right">
+                <button class="btn btn-primary" ng-disabled="createForm.$invalid || editTable.length == 0" ng-click="edit.save()">确认修改</button>
+                <button class="btn btn-warning" ng-click="edit.cancel()">取消</button>
+            </div>
+
+        </div>
+    </form>
+
+</div>
+

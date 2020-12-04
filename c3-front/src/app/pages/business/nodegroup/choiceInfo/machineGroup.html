@@ -1,0 +1,83 @@
+<div class="modal-header">
+    <h4  class="modal-title">选择服务器</h4>
+</div>
+<div class="modal-body">
+    <div ng-hide="dataready"><span style="font-weight: bold;color: red">{{dataerror}}</span></div>
+    <form class="form-horizontal" name="addForm" role="form" ng-hide="true">
+        <div style="height: 40px;border-bottom: 1px solid #ddd;">
+            <div class="admin-form">
+                <div class="option-group field" >
+                    <label class="option option-primary">
+                        <input type="radio" ng-model="groupInfo.choiceType" value="ip" ng-disabled="unClick">
+                        <span class="radio" style="padding-top: 0;min-height: 0"></span>通过机器名分组
+                    </label>
+                    <label class="option option-primary">
+                        <input type="radio" ng-model="groupInfo.choiceType" value="group" ng-disabled="unClick">
+                        <span class="radio" style="padding-top: 0;min-height: 0"></span>通过机器类型分组
+                    </label>
+                </div>
+            </div>
+        </div>
+    </form>
+
+        <div ng-switch="groupInfo.choiceType">
+            <div ng-switch-when="ip">
+                <div class="panel-tabs">
+
+                    <table ng-table="groupInfo.machine_Table" show-filter="true" class="table table-hover text-center table-condensed">
+                            <tr ng-repeat="ss in $data" style="text-align: left">
+                                <td style="width: 30%" data-title="'机器名称'" filter="{ name: 'text'}"><label for="{{ss.name}}" style="font-weight: normal;height: 100%;width: 100%"><input id="{{ss.name}}" type="checkbox" name="selected"  ng-checked="isSelected(ss.id, 'name')" ng-click="nameUpdateSelection($event, ss.id, ss.name)" style="zoom: 125%"/>{{ss.name}}</label></td>
+                                <td style="width: 15%" data-title="'类型'" filter="{ type: 'text'}">{{ss.type}}</td>
+                                <td style="width: 20%" data-title="'内网IP'" filter="{ inip: 'text'}">
+                                    <label for="{{ss.inip}}" style="font-weight: normal;height: 100%;width: 100%">
+                                        <i ng-if="ss.inip && ! ss.inips.status" class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                                        <i ng-if="ss.inip && ss.inips.status=='fail'" class="fa fa-circle" style="color: red;" aria-hidden="true"></i>
+                                        <i ng-if="ss.inip && ss.inips.status=='success'" class="fa fa-circle" style="color: green;" aria-hidden="true"></i>
+                                        <input id="{{ss.inip}}" ng-if="ss.inip" type="checkbox" name="selected"  ng-checked="isSelected(ss.id, 'inip')" ng-click="inipUpdateSelection($event, ss.id, ss.inip)" style="zoom: 125%"/>{{ss.inip}}
+                                    </label>
+
+                                </td>
+                                <td style="width: 20%" data-title="'外网ip'" filter="{ exip: 'text'}">
+                                    <label for="{{ss.exip}}" style="font-weight: normal;height: 100%;width: 100%">
+                                        <i ng-if="ss.exip && ! ss.exips.status" class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                                        <i ng-if="ss.exip && ss.exips.status=='fail'" class="fa fa-circle" style="color: red;" aria-hidden="true"></i>
+                                        <i ng-if="ss.exip && ss.exips.status=='success'" class="fa fa-circle" style="color: green;" aria-hidden="true"></i>
+                                        <input id="{{ss.exip}}" ng-if="ss.exip"  type="checkbox" name="selected"  ng-checked="isSelected(ss.id, 'exip')" ng-click="exipUpdateSelection($event, ss.id, ss.exip)" style="zoom: 125%"/>{{ss.exip}}
+                                    </label>
+                                </td>
+                            </tr>
+
+                    </table>
+                </div>
+            </div>
+            <div ng-switch-when="group">
+                <div class="panel-tabs">
+
+                    <table ng-table="groupInfo.type_Table" class="table table-hover text-center table-condensed">
+                        <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>类型</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr ng-repeat="ss in $data">
+                            <td ><input type="checkbox" name="selected"  ng-checked="isTypeSelected(ss)" ng-click="updateTypeSelection($event, ss)" style="zoom: 125%"/></td>
+                            <td>{{ss}}</td>
+                        </tr>
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-sm-5 form-group pull-right">
+                <button class="btn btn-primary" ng-disabled="addForm.$invalid" ng-click="groupInfo.ok()">确认</button>
+                <button class="btn btn-warning" ng-click="groupInfo.ok()">取消</button>
+            </div>
+        </div>
+
+</div>
+

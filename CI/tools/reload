@@ -1,0 +1,38 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+print "reload ci\n";
+
+my $Config = eval{ YAML::XS::LoadFile "$RealBin/../config/Config";};
+die "load Config fail: $!" unless $Config;
+
+my $envname = `cat $RealBin/../conf/envname`;
+chomp $envname;
+die "envname undef" unless $envname;
+
+die "envname $envname undef in Config" unless $Config = $Config->{$envname};
+
+die "port undef" unless my $port = $Config->{port};
+
+for my $type ( qw( api api.slave ) )
+{
+    map{
+        system '/usr/bin/lsof -i:'.$_.'|tail -n 1|awk \'{print $2}\'|xargs -i{} kill {}';
+        print "reload $type port: $_\n";
+        sleep 1;
+    }$port->{$type}{from} .. $port->{$type}{to};
+}
+
+map{
+    system "killall ci_server_$_";
+    print "reload ci_server_$_\n"
+}qw( keepalive findtags build bury clean pkgrsync );

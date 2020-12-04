@@ -1,0 +1,44 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib -I/data/Software/mydan/AGENT/private/lib
+use strict;
+use warnings;
+use Code;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    id => 1,
+    node => node1,node2  or node => [ 'node1', 'node2' ]
+    logs => 日志对象
+
+    #用于检查项目编号下的任务允许使用的机器范围，id 为项目编号,node为要检查的机器，如果返回undef表示验证通过
+    
+=cut
+
+my $code;
+BEGIN { $code = Code->new( 'nodeinfo' ); };
+
+return sub
+{
+    my %param = @_;
+    my ( $id, $node, $logs )= @param{qw( id node logs )};
+
+    $logs = Logs->new( 'code.nodeinfo_check' ) unless $logs;
+    $logs->die( "id not a number" ) unless $id =~ /^\d+$/;
+
+    $logs->die( "node undef" ) unless defined $node;
+
+    $node = [ split /,/, $node ] unless ref $node;
+
+    return undef unless @$node;
+
+    my %node;
+    map{ 
+        $node{$_->{name}} = 1;
+        map{$node{$_}=1;}split /,/, $_->{ip} if defined $_->{ip};
+    } $code->run( id => $id );
+
+    my @fail;
+    map{ push( @fail, $_ ) unless $node{$_} }@$node;
+    return @fail ? join( ',', @fail ) : undef;
+}

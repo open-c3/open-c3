@@ -1,0 +1,181 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOBX/lib -I/data/Software/mydan/JOBX/private/lib
+use strict;
+use warnings;
+use Code;
+use Logs;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    uuid => ,
+    logs => 日志对象
+    projectid => 1
+
+=cut
+
+return sub
+{
+    my %param = @_;
+    my ( $db, $uuid, $projectid, $logs ) = @param{qw(db uuid projectid logs )};
+
+    $logs = Logs->new( 'code.group.percent' ) unless $logs;
+
+    $logs->die( "code.group.percent uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
+
+    my $x = eval{ $db->query( "select `percent` from `group_type_percent` where uuid='$uuid'" ); };
+    $logs->die( "code.group.percent get info from mysql fail:$@" ) if $@;
+    $logs->die( "code.group.percent get info from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
+    $logs->die( "code.group.percent uuid mismatch: $uuid" ) unless @$x;
+
+    my ( $percent, @group ) = $x->[0][0];
+
+    if( $percent && $percent =~ /;/ )
+    {
+        my @p = split /\n+/, $percent;
+        for my $p ( @p )
+        {
+            $logs->die( "fromat error $p" ) unless $p =~ /^([a-zA-Z0-9\,\._]*);([0-9,~]+);([0-9:%]+)$/;
+
+            my ( $subname, $range, $percent ) = ( $1, $2, $3 );
+            my @percent = split /:/, $percent;
+            @percent= ( 1 ) unless @percent;
+
+            my @range = split /,/, $range;
+            $logs->die( "range fromat error $p" ) unless @range;
+
+            my %range;
+            for my $r ( @range )
+            {
+                if( $r =~ /^\d+$/ )
+                {
+                    $range{$r} = 1;
+                }
+                elsif( $r =~ /^(\d+)~(\d+)$/ )
+                {
+                    $logs->die( "range fromat error $p" ) unless 1 <=$1 && $1<=$2;
+                    map{ $range{$_} = 1; }$1 .. $2;
+                }
+                else
+                {
+                    $logs->die( "range fromat error $p" );
+                }
+            }
+
+            my $sub_projectid = $projectid;
+            my @nodename_temp = ();
+            if ($subname =~ "[,]+") {
+                my @names = split /,/, $subname;
+                for my $name_one (@names)
+                {
+                    if (length $name_one > 0 )
+                    {
+                        my $projectname = eval{ Code->new( "group.plugin/percent.plugin/projectname" )->run( id => $projectid );};
+                        $logs->die( "get projectname fail: $@" ) if $@;
+
+                        $sub_projectid = eval{ Code->new( "group.plugin/percent.plugin/projectid" )->run( name => "$projectname.$name_one" ); };
+                        $logs->die( "get sub_projectid fail: $@" ) if $@;
+                    } else {
+                        $sub_projectid = $projectid;
+                    }
+
+                    my @node = eval{ Code->new( "nodeinfo" )->run( 
+                            db => $db,
+                            id => $sub_projectid,
+                        );};
+            
+                    $logs->die( "run nodeinfo fail: $@" ) if $@;
+                    my @node_info = map{ $_->{inip} ? $_->{inip} : $_->{exip} ? $_->{exip} : $_->{name} }@node;
+                    @nodename_temp = (@nodename_temp, @node_info);
+                }
+            } else {
+                if(length $subname > 0 )
+                {
+                    my $projectname = eval{ Code->new( "group.plugin/percent.plugin/projectname" )->run( id => $projectid );};
+                    $logs->die( "get projectname fail: $@" ) if $@;
+
+                    $sub_projectid = eval{ Code->new( "group.plugin/percent.plugin/projectid" )->run( name => "$projectname.$subname" ); };
+                    $logs->die( "get sub_projectid fail: $@" ) if $@;
+                }
+
+                my @node = eval{ Code->new( "nodeinfo" )->run( 
+                        db => $db,
+                        id => $sub_projectid,
+                    );};
+        
+                $logs->die( "run nodeinfo fail: $@" ) if $@;
+        
+                @nodename_temp = map{ $_->{inip} ? $_->{inip} : $_->{exip} ? $_->{exip} : $_->{name} }@node;
+
+            }
+
+            my @nodename; map{ push @nodename, $nodename_temp[$_-1]if $range{$_} }1 .. scalar @nodename_temp;
+            my $len = scalar @nodename;
+    
+            my $i = 0;
+            while( @nodename )
+            {
+                my $index = $i > $#percent ? $#percent : $i;
+                my $percent = $percent[$index];
+    
+                if( $percent =~ /^\d+$/ )
+                {
+                    push @group, [ splice @nodename, 0, $percent ];
+                }
+                elsif( $percent =~ /^(\d+)%$/ || $percent =~ /^(\d+\.\d+)%$/  )
+                {
+                    my $count = int ( $len * $1 / 100 );
+                    $count = 1 if $count < 1;
+                    push @group, [ splice @nodename, 0, $count ];
+                }
+                else
+                {
+                    $logs->die( "percent format error" );
+                }
+    
+                $i++;
+            }
+        }
+    }
+    else
+    {
+        my @percent = split /:/, $percent;
+        @percent= ( 1 ) unless @percent;
+
+        my @node = eval{ Code->new( "nodeinfo" )->run( 
+                db => $db,
+                id => $projectid,
+            );};
+
+        $logs->die( "run nodeinfo fail: $@" ) if $@;
+
+        my @nodename = map{ $_->{inip} ? $_->{inip} : $_->{exip} ? $_->{exip} : $_->{name} }@node;
+        my $len = scalar @nodename;
+
+        my $i = 0;
+        while( @nodename )
+        {
+            my $index = $i > $#percent ? $#percent : $i;
+            my $percent = $percent[$index];
+
+            if( $percent =~ /^\d+$/ )
+            {
+                push @group, [ splice @nodename, 0, $percent ];
+            }
+            elsif( $percent =~ /^(\d+)%$/ || $percent =~ /^(\d+\.\d+)%$/  )
+            {
+                my $count = int ( $len * $1 / 100 );
+                $count = 1 if $count < 1;
+                push @group, [ splice @nodename, 0, $count ];
+            }
+            else
+            {
+                $logs->die( "percent format error" );
+            }
+
+            $i++;
+        }
+    }
+    return @group;
+}

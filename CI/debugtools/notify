@@ -1,0 +1,24 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use MYDB;
+use FindBin qw( $RealBin );
+use Data::Dumper;
+use Code;
+
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 [--uuid uuid]
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( uuid=s ) )->dump();
+
+$option->assert( qw( uuid ) );
+
+my $db = MYDB->new( "$RealBin/../conf/conn" );
+
+Code->new( 'build.plugin/notify' )->run( db => $db, %o );

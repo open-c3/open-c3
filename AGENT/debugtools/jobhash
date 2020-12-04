@@ -1,0 +1,25 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib -I/data/Software/mydan/AGENT/private/lib
+use strict;
+use warnings;
+use MYDB;
+use FindBin qw( $RealBin );
+use Data::Dumper;
+
+use MYDan::Util::OptConf;
+use JobHash;
+
+=head1 SYNOPSIS
+
+ $0 [--projectid id] 
+
+=cut
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( projectid=i ) )->dump();
+$option->assert( 'projectid' );
+
+my $db = MYDB->new( "$RealBin/../conf/conn" );
+
+my $jobhash =  JobHash->new( $db );
+print Dumper $jobhash;
+
+print Dumper $jobhash->hash( $o{projectid} );

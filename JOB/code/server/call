@@ -1,0 +1,58 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use Util;
+use Logs;
+use POSIX ":sys_wait_h";
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $interval, $logs, $myname ) = ( $param{db}, 10, Logs->new( 'call' ), Util::myname() );
+    my ( $count, %count ) = int time / $interval;
+    $SIG{'CHLD'} = sub {
+		while((my $pid = waitpid(-1, WNOHANG)) >0)
+		{
+			my $code = ( $? == -1 || $? & 127 ) ? 110 : $? >> 8;
+			print "chld: $pid exit $code.\n";;
+		}
+	};
+ 
+    while( 1 )
+    {
+        warn "do ...\n";
+        my $counttmp = int time / $interval;
+        ( $count, %count ) = ( $counttmp ) if $count ne $counttmp;
+
+        my $x = eval{ $db->query( "select uuid from task where status='init' and slave='$myname' and pid is null" ) };
+        $logs->die( "mysql query fail: $@" ) if $@;
+        $logs->die( "get task list from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
+
+        for my $uuid ( map{ $_->[0] }@$x )
+        {
+            next if $count{$uuid} || $uuid !~ /^[a-zA-Z0-9]+$/;
+            unless( fork() )
+            {
+                $logs->say( "call task $uuid" );
+                $ENV{JOB_TASK_UUID} = "XXX${uuid}XXX";
+                open STDOUT, '>>', "$RealBin/../logs/task/$uuid" or $logs->die( "Can't open 'logs/task/$uuid': $!" );
+                open (STDERR, ">&STDOUT") or $logs->die( "open STDERR failed: $uuid" );
+                my $tsocks = -e "/usr/bin/tsocks" ? "/usr/bin/tsocks " : '';
+                exec "$tsocks$RealBin/../bin/task -uuid $uuid";
+            }
+            $count{$uuid} = 1;
+            warn "start task $uuid\n";
+        }
+        sleep 1;
+    }
+}

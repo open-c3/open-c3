@@ -1,0 +1,33 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use JSON;
+use LWP::UserAgent;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+#第一种
+    cookie => 'MTUxNTAzMzg1NnxEdi1CQkFFQ180SUFBUXdCRUFBQU5mLUNBQUVGZEc5clpXNEdjM1J5YVc1bkRDSUFJREk0T1Rsa1l6aG1ZMk5tWWpRMk16TmtaV1kzTlRSbE1XWmtNVFpsTW1JeHyVJcLDk8iEGWlwsv8le0WzgNxhZ6JIYRFMOYzE8fKecA==',
+
+#第二种
+    appkey =>
+    appname => 
+
+=cut
+
+return sub
+{
+    my %param = @_;
+    return 'debug@api' if $ENV{MYDan_DEBUG};
+
+    my $p = ( $param{appkey} && $param{appname} ) ? "appkey=$param{appkey}&appname=$param{appname}" : "cookie=$param{cookie}";
+    my $ua = LWP::UserAgent->new;
+    my $res = $ua->get( "http://api.connector.open-c3.org/connectorx/username?$p"  );
+    return unless $res->is_success;
+
+    my $v = eval{decode_json $res->decoded_content};
+    return ( $v && ref $v eq 'HASH' && $v->{stat} ) ? $v->{data} : undef;
+}
+

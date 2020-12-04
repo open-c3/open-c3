@@ -1,0 +1,32 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use Logs;
+use FindBin qw( $RealBin );
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    logs => 日志对象
+
+    #temp uuid
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $logs, $temp, $uuid ) = @param{qw(db logs temp uuid )};
+
+    $logs = Logs->new( 'code.build.merge.makedist.local' ) unless $logs;
+
+    my $temppath = "$RealBin/../logs/$temp/$uuid";
+
+    return if -d "$temppath/dist";
+
+    $logs->die( "link dist fail: $!" ) if system "cd '$temppath' && ln -fsn data dist";
+
+    $logs->die( "run build.merge.makedist.local fail:$@" ) unless -d "$temppath/dist";
+}

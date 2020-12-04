@@ -1,0 +1,103 @@
+<div>
+    <nodestr></nodestr>
+    <hr class="mv20 clear">
+
+    <div class="panel panel-system">
+
+        <div class="panel-heading">
+            <h5>查询条件</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="form-horizontal">
+                <form class="form-inline" name="searchForm" novalidate>
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="form-group col-sm-4" style="padding: 0">
+                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">任务名称：</label>
+                                <input type="text" class="form-control"  ng-model="searchData.name" placeholder="任务名称关键字">
+                            </div>
+                            <div class="form-group col-sm-4" style="padding: 0">
+                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">创建人：</label>
+                                <input type="text" class="form-control" ng-model="searchData.user" placeholder="创建人全称">
+                                <button type="submit" class="btn btn-default" ng-click="historyjobx.getMe()">我</button>
+                            </div>
+                            <div class="form-group col-sm-3" style="padding: 0">
+                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">任务状态：</label>
+                                <select class="form-control" ng-init='statusType= [ {"status":null, "name":"全部"}, {"status":"fail", "name":"执行失败"}, {"status":"success", "name":"执行成功"}, {"status":"running", "name":"执行中"}, {"status":"waiting", "name":"等待"} ]'  ng-model="searchData.status"  ng-options="o.status as o.name for o in statusType" > </select>
+                            </div>
+                        </div>
+
+                        <div class="row" style="margin-top: 20px">
+                            <div class="form-group col-sm-6" style="padding: 0">
+                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">创建时间：</label>
+                                <div style="width: 30%" class='input-group date' id='createstart'>
+                                    <input type='text' class="form-control"  ng-model="searchData.time_start" placeholder="开始时间"/>
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                                <span style="margin: 0 5px;">-</span>
+                                <div style="width: 30%" class='input-group date' id='createend'>
+                                    <input type='text' class="form-control" ng-model="searchData.time_end" placeholder="结束时间"/>
+                                    <span class="input-group-addon">
+                                        <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+                            <div class="form-group col-sm-6" style="padding: 0">
+                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">任务uuid：</label>
+                                <input type="text" class="form-control"  ng-model="searchData.taskuuid" placeholder="任务uuid">
+                            </div>
+                        </div>
+
+                    </div>
+                </form>
+
+                <hr class="mv20 clear" style="margin-top: 30px!important;">
+                <div class="col-md-10">
+                        <button class="btn btn-primary" ng-click="historyjobx.reload()">
+                            <i class="fa fa-search fa-fw"></i>查询
+                        </button>
+                        <button class="btn btn-success" ng-click="historyjobx.Reset()">
+                            <i class="fa fa-refresh fa-fw"></i>重置
+                        </button>
+                    </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+    <div class="panel panel-dark">
+
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-dark" uib-tooltip="刷新" ng-click="historyjobx.reload()" ><i class="fa fa-refresh fa-fw" style="" ng-class="{'fa-spin':!historyjobx.loadover}" ></i></button>
+            </span>
+            <h5>执行历史</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="panel-tabs" ng-init='calltype = { "page":"页面", "api":"API", "crontab":"计划任务" }'>
+
+            <table ng-table="historyjobx.task_Table" class="table table-hover text-center table-condensed">
+                <tr ng-repeat="ss in $data">
+                    <td data-title="'任务名称'" >{{ss.name}}</td>
+                    <td data-title="'关联流水线'" >{{historyjobx.ciinfo[ss.name]}}</td>
+                    <td data-title="'是回滚流程'" >{{historyjobx.showRollback(ss)}}</td>
+                    <td data-title="'创建人'">{{ss.user}}</td>
+                    <td data-title="'任务状态'">{{historyjobx.statuszh[ss.status]}}</td>
+                    <td data-title="'开始时间'">{{ss.starttime}}</td>
+                    <td data-title="'结束时间'">{{ss.finishtime}}</td>
+                    <td data-title="'耗间'">{{historyjobx.seftime(ss.starttime,ss.finishtime)}}</td>
+                    <td data-title="'启动方式'">{{calltype[ss.calltype]}}</td>
+                    <td data-title="'uuid'">{{ss.uuid}}</td>
+                    <td data-title="'version'">{{ss.variable | showversion}}</td>
+                    <td data-title="'操作'">
+                        <button class="btn btn-info btn-sm" ng-click="historyjobx.taskDetail(ss.uuid)">执行详情</button>
+                    </td>
+                </tr>
+            </table>
+            </div>
+        </div>
+    </div>

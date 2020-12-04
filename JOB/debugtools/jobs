@@ -1,0 +1,27 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use MYDB;
+use FindBin qw( $RealBin );
+use Data::Dumper;
+
+use MYDan::Util::OptConf;
+use Code;
+
+=head1 SYNOPSIS
+
+ $0 [--uuid uuid] 
+
+    [--taskuuid uuid]  # Used to make a pause
+    [--projectid id] # To determine the file system path
+
+
+=cut
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( uuid=s taskuuid=s projectid=i ) )->dump();
+$option->assert( 'uuid' );
+
+my $db = MYDB->new( "$RealBin/../conf/conn" );
+
+my @node = Code->new( 'jobs' )->run( db => $db, %o );
+print Dumper \@node;

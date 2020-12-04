@@ -1,0 +1,50 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use Data::Dumper;
+use FindBin qw( $RealBin );
+use Code;
+use MYDB;
+
+exit unless my $argv = shift;
+
+my ( $u, $image, $projectid, $tag );
+
+eval{
+    if( $argv =~ /^\?u=(.+)&image=(.+)&projectid=(.+)&tag=(.+)$/ )
+    {
+        ( $u, $image, $projectid, $tag ) = ( $1, $2, $3, $4 );
+    }
+    elsif( $argv =~ /^\?u=(.+)&image=(.+)&projectid=(.+)$/ )
+    {
+        ( $u, $image, $projectid ) = ( $1, $2, $3 );
+    }
+    else
+    {
+        die "param error\n";
+    }
+    
+    print "image: $image\n";
+    print "projectid: $projectid\n";
+    printf "tag: %s\n", $tag || 'null';
+    
+    my $db = MYDB->new( "$RealBin/../conf/conn" );
+    my $gid = $db->query( "select groupid from project where id=$projectid" );
+    die "nofind the projectid in ci" unless $gid && @$gid > 0;
+
+    my $treeid = $gid->[0][0];
+    print "treeid: $treeid\n";
+
+    my $pms = Code->new( 'auth/pms' );
+    my $p = eval{ $pms->run( cookie => $u, treeid => $treeid, point => 'openc3_ci_control' ) };
+    die "no permission\n" unless $p;
+    
+    print "OK\n";
+    
+    my $t = $tag ? " --tags $tag" : '';
+    system "$0.into --image '$image' --projectid '$projectid' $t";
+};
+
+print $@ if $@;
+
+sleep 1000;

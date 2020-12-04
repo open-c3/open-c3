@@ -1,0 +1,88 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use Digest::MD5;
+use FindBin qw( $RealBin );
+use File::Basename;
+use Util;
+use Logs;
+use POSIX ":sys_wait_h";
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $myname, $logs ) = ( $param{db}, Util::myname(), Logs->new( 'crontab' ) );
+
+    my $uuid = substr Digest::MD5->new->add( $RealBin )->hexdigest, 0, 7;
+
+    my $user = `id -un`; chomp $user;
+    $logs->die( "user format error" ) unless $user && $user =~ /^[a-zA-Z0-9_\.\-]+$/;
+
+    my ( $path, $prefix ) = ( "$RealBin/../logs/cron.d", "job_crontab_task_${uuid}_" );
+    mkdir $path unless -d $path;
+
+    $SIG{'CHLD'} = sub {
+        while((my $pid = waitpid(-1, WNOHANG)) >0)
+        {
+            my $code = ( $? == -1 || $? & 127 ) ? 110 : $? >> 8;
+            print "chld: $pid exit $code.\n";;
+        }
+    };
+
+    while(1)
+    {
+        warn "do ...\n";
+
+        my $x = eval{ $db->query( "select id,cron from crontab where status='available' 
+                and jobuuid in ( select uuid from jobs where projectid not in
+                    ( select id from project where status='inactive') )" ); };
+        $logs->die( "get crontab list from mysql fail: $@" ) if $@;
+        $logs->die( "get crontab list from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
+
+        my %id;
+        for my $r ( @$x )
+        {
+            my ( $id, $cron ) = @$r;
+
+            unless( $cron =~ /^[\*\/,0-9-]+\s+[\*\/,0-9-]+\s+[\*\/,0-9-]+\s+[\*\/,0-9-]+\s+[\*\/,0-9-]+$/ )
+            {
+                $logs->err( "crontab.cron format error: id=$id" );
+                next;
+            }
+
+            $id{$id} = 1;
+
+            my $cont = "$cron $RealBin/../bin/crontask -i $id 1>/dev/null 2>&1";
+
+            if( -f "$path/$prefix$id" )
+            {
+                my $x = `cat '$path/$prefix$id'`;
+                chomp $x;
+                next if $x eq $cont;
+            }
+
+            $logs->err( "wirte crontab fail $path/$prefix$id : $!" ) 
+                if system "echo '$cont' > '$path/$prefix$id'";
+        }
+
+        for my $filename ( glob "$path/*" )
+        {
+            my $basename = basename $filename;
+            next unless $basename =~ /$prefix(\d+)$/;
+            next if $id{$1};
+            unlink $filename or $logs->err( "Could not unlink $filename: $!" );
+        }
+        $logs->err( "wirte crontab fail: $!" ) if system "cat $path/*| crontab";
+
+        sleep 45;
+    }
+}

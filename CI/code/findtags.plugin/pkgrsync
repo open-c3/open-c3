@@ -1,0 +1,40 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use Logs;
+use FindBin qw( $RealBin );
+use File::Basename;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    id => id,
+
+    logs => 日志对象
+
+    addr => ''
+    ticketid => ''
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $id, $logs, $addr, $ticketid )
+        = @param{qw( db id logs addr ticketid )};
+
+    $logs = Logs->new( 'code.findtags.pkgrsync' ) unless $logs;
+    $logs->die( "id format error" ) unless $id =~ /^\d+$/;
+
+    my ( $path, @tags ) = ( "$RealBin/../pkgrsync" );
+    for my $file ( map{ basename $_ } glob "$path/repo/$id@*" )
+    {
+        next unless $file =~ /^$id@(.+)$/;
+        push @tags, $1;
+    }
+
+    return @tags;
+}

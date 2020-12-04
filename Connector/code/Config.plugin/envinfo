@@ -1,0 +1,28 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
+use strict;
+use warnings;
+use Code;
+use YAML::XS;
+use FindBin qw( $RealBin );
+
+$| ++;
+
+=head1 SYNOPSIS
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $Config, $envname ) = @param{qw( Config envname )};
+
+    die "envinfo config undef" unless $Config->{envinfo};
+
+    my %envinfo = ( %{$Config->{envinfo}}, envname => $envname );
+
+    for my $k ( keys %envinfo )
+    {
+        die "set conf/$k fail: $!" if system "echo '$envinfo{$k}' > $RealBin/../conf/$k";
+    }
+}

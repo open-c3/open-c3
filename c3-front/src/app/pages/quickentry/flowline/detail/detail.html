@@ -1,0 +1,97 @@
+<div class="row block">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" ng-disabled="ci.project.status!=1" uib-tooltip="查看Tag的发现情况" ng-click="ci.showTagFind()" >TAG发现</button> 
+                <!--<button class="btn btn-primary" uib-tooltip="查看记录" ng-click="ci.showEditLog()" >记录</button> -->
+                <button class="btn btn-primary" uib-tooltip="停止所有未进行的构建" ng-click="ci.stop()" ><i class="fa fa-stop fa-fw" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="编辑配置" ng-click="ci.editconfig()" ><i class="fa fa-cogs" aria-hidden="true"></i></button>
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="ci.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!ci.loadover}" ></i></button>
+            </span>
+            <h5>{{ ci.nodeStr }} => {{ ci.project.name }}</h5>
+        </div>
+
+
+        <div ng-repeat="version in ci.versions" class="col-lg-12 col-xs-12 ml0 pl0">
+            <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
+                <div class="panel-body" style="margin-top: 20px">
+                    <div id="{{version}}" style="height:150px"></div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="panel-body">
+            <div class="pt20">
+                <table ng-table="ci.activeRegionTable" class="table table-hover text-center table-condensed" show-filter="true">
+                    <tr ng-repeat="m in $data">
+                        <td style="width: 4%" data-title="'ID'" filter="{ id: 'text'}" sortable="'id'">{{m.id}}</td>
+                        <td style="width: 10%" data-title="'tag发现时间'" filter="{ create_time: 'text'}" sortable="'create_time'">{{m.create_time}}</td>
+                        <td style="width: 9%" data-title="'版本'" filter="{ name: 'text'}" sortable="'name'">{{m.name}}</td>
+                        <td style="width: 12%" data-title="'触发人'" filter="{ user: 'text'}" sortable="'user'">{{m.user}}</td>
+                        <td style="width: 10%" data-title="'构建状态'" filter="{ status: 'text'}" sortable="'status'">
+                                <div class="panel panel-info" ng-if="m.starttime" style="cursor:pointer;background-color: {{panelcolor[m.status]}};" ng-click="ci.showlog(m.uuid, m.slave)">
+                                    <i class="fa fa-cloud" ng-if="m.status=='fail'" aria-hidden="true"></i>
+                                    <i class="fa fa-spinner" ng-if="m.status=='running'" ng-class="{'fa-spin':1}" aria-hidden="true"></i>
+                                    <i class="fa fa-sun-o" ng-if="m.status=='success'" aria-hidden="true"></i>
+                                     耗时{{ci.seftime(m.starttime, m.finishtime)}}<br>{{m.starttime}}
+                                </div>
+ 
+                            <i class="fa fa-play-circle-o fa-2x" ng-if="m.status!='running'" aria-hidden="true" ng-click="ci.build(m.uuid)" uib-tooltip="构建" style="cursor:pointer;color: green;" ></i>
+                            <i class="fa fa-stop-circle-o fa-2x" ng-if="m.status=='running'" aria-hidden="true" ng-click="ci.killbuild(m.uuid, m.slave)" uib-tooltip="停止" style="cursor:pointer;color: red;" ></i>
+                            <a ng-disabled="!ci.project.buildimage" aria-hidden="true" target='_blank' ng-href="/api/ci/dockershell?image={{ci.project.buildimage}}&projectid={{ci.projectid}}&tag={{m.name}}" uib-tooltip="调试" style="cursor:pointer;"><i class="fa fa-arrow-circle-right fa-2x"  ></i></a>
+                        </td>
+                        <td style="width: 10%" data-title="'发布测试环境'" >
+                            <div ng-repeat="deploy in ci.taskInfoTest[m.name]">
+                                <div class="panel panel-info" style="cursor:pointer;background-color: {{panelcolor[deploy.status]}};margin-bottom: 5px" ng-click="ci.deployDetail(deploy.uuid)" >
+                                    <i class="fa fa-cloud" ng-if="deploy.status=='fail'" aria-hidden="true"></i>
+                                    <i class="fa fa-spinner" ng-if="deploy.status=='running'" ng-class="{'fa-spin':1}" aria-hidden="true"></i>
+                                    <i class="fa fa-sun-o" ng-if="deploy.status=='success'" aria-hidden="true" ></i>
+                                    #{{$index+1}} | 耗时{{ci.seftime(deploy.starttime, deploy.finishtime)}}<br>{{deploy.starttime}}
+                                </div>
+                             </div>
+                                <i class="fa fa-play-circle-o fa-2x" ng-if="ci.jobStepLen && showIPstrLen.test" aria-hidden="true" ng-click="ci.runJob(m.name, 'test')" uib-tooltip="测试" style="cursor:pointer;color: green;" ></i>
+                                <i class="fa fa-play-circle-o fa-2x" ng-if="!ci.jobStepLen || ! showIPstrLen.test" aria-hidden="true" uib-tooltip="没有配置" style="color: dimgray;" ></i>
+                        </td>
+                        <td style="width: 10%" data-title="'机器(发布中/线上)'" >
+                           ( {{ci.shownum(ci.projectvvversioncount["Do_"+m.name]) }} / {{ci.shownum(ci.projectvvversioncount[m.name]) }} )
+                        </td>
+ 
+                        <td style="width: 10%" data-title="'发布线上环境'" >
+                            <div ng-repeat="deploy in ci.taskInfoOnline[m.name]">
+                                <div class="panel panel-info" style="margin-bottom: 5px">
+                                    <div class="panel panel-info" style="margin-bottom: initial;cursor:pointer;background-color: {{panelcolor[deploy.status]}};" ng-click="ci.deployDetail(deploy.uuid)" >
+                                        发布<i class="fa fa-cloud" ng-if="deploy.status=='fail'" aria-hidden="true"></i>
+                                        <i class="fa fa-spinner" ng-if="deploy.status=='running'" ng-class="{'fa-spin':1}" aria-hidden="true"></i>
+                                        <i class="fa fa-sun-o" ng-if="deploy.status=='success'" aria-hidden="true"></i>
+                                        #{{$index+1}} |耗时{{ci.seftime(deploy.starttime, deploy.finishtime)}}<br>{{deploy.starttime}}
+                                    </div>
+                                    <div class="panel panel-info" ng-if="!ci.taskInfoRollback[deploy.uuid].status" style="background-color: #BBB;margin-bottom: 5px">
+                                        <div ng-if="!deploy.rollbackversion" > 回滚 #未配置</div>
+                                        <div ng-if="deploy.rollbackversion" > 回滚 #未进行 {{deploy.rollbackversion}}</div>
+                                    </div>
+ 
+                                    <div class="panel panel-info" ng-if="ci.taskInfoRollback[deploy.uuid].status && ci.taskInfoRollback[deploy.uuid].slave == '_null_'" style="cursor:pointer;background-color: #98b266;margin-bottom: 5px">
+                                        回滚 # 不回滚
+                                    </div>
+                                    <div class="panel panel-info" ng-if="ci.taskInfoRollback[deploy.uuid].status && ci.taskInfoRollback[deploy.uuid].slave != '_null_'" style="cursor:pointer;background-color: {{panelcolor[ci.taskInfoRollback[deploy.uuid].status]}};margin-bottom: 5px" ng-click="ci.deployDetail(ci.taskInfoRollback[deploy.uuid].uuid)" >
+                                        回滚<i class="fa fa-cloud" ng-if="ci.taskInfoRollback[deploy.uuid].status=='fail'" aria-hidden="true"></i>
+                                        <i class="fa fa-spinner" ng-if="ci.taskInfoRollback[deploy.uuid].status=='running'" ng-class="{'fa-spin':1}" aria-hidden="true"></i>
+                                        <i class="fa fa-sun-o" ng-if="ci.taskInfoRollback[deploy.uuid].status=='success'" aria-hidden="true"></i>
+                                        #{{ci.taskInfoRollback[deploy.uuid].version}}| 耗时{{ci.seftime( ci.taskInfoRollback[deploy.uuid].starttime,ci.taskInfoRollback[deploy.uuid].finishtime)}}<br>{{ci.taskInfoRollback[deploy.uuid].starttime}}
+                                    </div>
+ 
+                                </div>
+ 
+                             </div>
+                                <i class="fa fa-play-circle-o fa-2x" ng-if="ci.jobStepLen && showIPstrLen.online" aria-hidden="true" ng-click="ci.runJob(m.name, 'online')" uib-tooltip="发布" style="cursor:pointer;color: green;" ></i>
+                                <i class="fa fa-play-circle-o fa-2x" ng-if="!ci.jobStepLen || ! showIPstrLen.online" aria-hidden="true" uib-tooltip="没有配置" style="color: dimgray;" ></i>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+</div>

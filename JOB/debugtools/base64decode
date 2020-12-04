@@ -1,0 +1,20 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+
+use MIME::Base64;
+
+
+use MYDan::Util::OptConf;
+
+$MYDan::Util::OptConf::ARGC = 1;
+
+=head1 SYNOPSIS
+
+ $0 content
+
+=cut
+
+MYDan::Util::OptConf->load()->get()->dump();
+
+print decode_base64( shift ), "\n";
