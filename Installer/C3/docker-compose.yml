@@ -1,12 +1,12 @@
 version: '2.0'
 
 services:
-  job-mysql:
-    container_name: job-mysql
+  openc3-mysql:
+    container_name: openc3-mysql
     environment:
-      MYSQL_ROOT_PASSWORD: "job123456^!"
-      MYSQL_USER: 'job'
-      MYSQL_PASS: 'job123456^!'
+      MYSQL_ROOT_PASSWORD: "openc3123456^!"
+      MYSQL_USER: 'openc3'
+      MYSQL_PASS: 'openc3123456^!'
       TZ: 'Asia/Shanghai'
     image: "mysql:5.5"
     restart: always
@@ -17,12 +17,12 @@ services:
     networks:
       JobNet:
         aliases:
-          - JOB_DB_IP
+          - OPENC3_DB_IP
 
-  job-server:
+  openc3-server:
     build:
       context: JOB/
-    hostname: wk-job-srv-docker
+    hostname: openc3-srv-docker
     environment:
       TZ: 'Asia/Shanghai'
       OPEN_C3_EXIP: ${OPEN_C3_EXIP}
@@ -37,7 +37,6 @@ services:
       - "81:3388"
       - "65135-65535:65135-65535"
     volumes:
-      - "../../C3-PRIVATE:/data/Software/mydan/C3-PRIVATE"
       - "../../Connector:/data/Software/mydan/Connector"
       - "../../MYDan:/data/Software/mydan/MYDan"
       - "../../JOBX:/data/Software/mydan/JOBX"
@@ -55,26 +54,11 @@ services:
       - "/bin/docker:/bin/docker" 
       - "/var/run/docker.sock:/var/run/docker.sock" 
     depends_on:
-      - job-mysql
+      - openc3-mysql
     networks:
       JobNet:
         aliases:
-          - JOB_SERVER_IP
-
-#  job-nginx:
-#    image: 'nginx:latest'
-#    ports:
-#      - "80:80"
-#    environment:
-#        TZ: 'Asia/Shanghai'
-#    volumes:
-#      - "./nginx/conf.d:/etc/nginx/conf.d"
-#    depends_on:
-#      - job-server
-#    networks:
-#      JobNet:
-#        aliases:
-#          - JOB_NGINX_IP
+          - OPENC3_SERVER_IP
 
 networks:
   JobNet:

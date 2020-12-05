@@ -129,15 +129,15 @@ function install() {
     fi
 
     echo =================================================================
-    echo "[INFO]create Installer/JOB/mysql/init/init.sql ..."
+    echo "[INFO]create Installer/C3/mysql/init/init.sql ..."
 
-    cat $BASE_PATH/*/schema.sql > $BASE_PATH/Installer/JOB/mysql/init/init.sql
-    cat $BASE_PATH/Installer/JOB/mysql/init.sql >> $BASE_PATH/Installer/JOB/mysql/init/init.sql
+    cat $BASE_PATH/*/schema.sql > $BASE_PATH/Installer/C3/mysql/init/init.sql
+    cat $BASE_PATH/Installer/C3/mysql/init.sql >> $BASE_PATH/Installer/C3/mysql/init/init.sql
 
-    if [ -f "$BASE_PATH/Installer/JOB/mysql/init/init.sql" ]; then
-        echo "[SUCC]create Installer/JOB/mysql/init/init.sql success."
+    if [ -f "$BASE_PATH/Installer/C3/mysql/init/init.sql" ]; then
+        echo "[SUCC]create Installer/C3/mysql/init/init.sql success."
     else
-        echo "[FAIL]create Installer/JOB/mysql/init/init.sql fail."
+        echo "[FAIL]create Installer/C3/mysql/init/init.sql fail."
         exit 1
     fi
 }
@@ -145,13 +145,13 @@ function install() {
 function start() {
     echo =================================================================
     echo "[INFO]start ..."
-    cd $BASE_PATH/Installer/JOB/ && ../docker-compose up -d
+    cd $BASE_PATH/Installer/C3/ && ../docker-compose up -d
 }
 
 function stop() {
     echo =================================================================
     echo "[INFO]stop ..."
-    cd $BASE_PATH/Installer/JOB/ && ../docker-compose kill
+    cd $BASE_PATH/Installer/C3/ && ../docker-compose kill
 }
 
 case "$1" in
