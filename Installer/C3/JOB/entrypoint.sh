@@ -8,6 +8,13 @@ if [ "X$OPEN_C3_EXIP" == "X" ];then
     exit 1;
 fi
 
+if [ ! -f /data/Software/mydan/etc/agent/auth/c3_test.key ]; then
+    cd /data/Software/mydan/etc/agent/auth && \
+    ssh-keygen -f c3_test -P "" && \
+    mv c3_test c3_test.key && \
+    echo success
+fi
+
 nginx
 crond
 
