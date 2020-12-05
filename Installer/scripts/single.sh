@@ -20,14 +20,19 @@ function install() {
     cd $BASE_PATH || exit 1
 
     echo =================================================================
-    echo "[INFO]create Connector/.env"
+    echo "[INFO]create Installer/C3/.env"
 
     if [ "X$1" != "X" ]; then
         echo $1 |grep "^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$" > /dev/null
         if [ $? = 0 ]; then
             random=$(date +%N)
-            echo "OPEN_C3_RANDOM=$random" > $BASE_PATH/Connector/.env
-            echo "OPEN_C3_EXIP=$1" >> $BASE_PATH/Connector/.env
+            name="test"
+            if [ "X$OPEN_C3_NAME" != "X" ];then
+                name=$OPEN_C3_NAME
+            fi
+            echo "OPEN_C3_RANDOM=$random" > $BASE_PATH/Installer/C3/.env
+            echo "OPEN_C3_EXIP=$1" >> $BASE_PATH/Installer/C3/.env
+            echo "OPEN_C3_NAME=$name" >> $BASE_PATH/Installer/C3/.env
         else
             echo "$0 install 10.10.10.10(Your Internet IP)"
             exit 1
@@ -37,10 +42,10 @@ function install() {
         exit 1
     fi
 
-    if [ -f "$BASE_PATH/Connector/.env" ]; then
-        echo "[SUCC]create $BASE_PATH/Connector/.env success."
+    if [ -f "$BASE_PATH/Installer/C3/.env" ]; then
+        echo "[SUCC]create $BASE_PATH/Installer/C3/.env success."
     else
-        echo "[FAIL]create $BASE_PATH/Connector/.env fail."
+        echo "[FAIL]create $BASE_PATH/Installer/C3/.env fail."
         exit 1
     fi
 
