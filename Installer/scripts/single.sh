@@ -174,22 +174,50 @@ function install() {
 
     echo "[SUCC]openc-c3 installed successfully."
 
+    echo =================================================================
     echo "Web page: http://$1"
     echo "User: open-c3"
     echo "Password: changeme"
+
+    echo "[INFO]Run command to start service: $0 start"
 
 }
 
 function start() {
     echo =================================================================
     echo "[INFO]start ..."
+
     cd $BASE_PATH/Installer/C3/ && ../docker-compose up -d
+
+    echo "[SUCC]started."
 }
 
 function stop() {
     echo =================================================================
     echo "[INFO]stop ..."
+
     cd $BASE_PATH/Installer/C3/ && ../docker-compose kill
+
+    echo "[SUCC]stoped."
+}
+
+function check() {
+    module=$1
+    X=$(curl localhost/api/$module/mon 2>/dev/null)
+    if [ "X$X" = "Xok" ]; then
+        echo "[SUCC]module $module up."
+    else
+        echo "[FAIL]module $module down."
+    fi
+}
+
+function status() {
+    echo =================================================================
+    check connector
+    check agent
+    check job
+    check jobx
+    check ci
 }
 
 case "$1" in
@@ -202,8 +230,11 @@ start)
 stop)
     stop
     ;;
+status)
+    status
+    ;;
 *)
-    echo "Usage: $0 {start|stop|install}"
+    echo "Usage: $0 {start|stop|status|install}"
     echo "$0 install 10.10.10.10(Your Internet IP)"
     exit 2
 esac
