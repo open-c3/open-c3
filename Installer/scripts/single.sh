@@ -127,6 +127,19 @@ function install() {
         echo "[FAIL]create web-shell/node_modules fail."
         exit 1
     fi
+
+    echo =================================================================
+    echo "[INFO]create Installer/JOB/mysql/init/init.sql ..."
+
+    cat $BASE_PATH/*/schema.sql > $BASE_PATH/Installer/JOB/mysql/init/init.sql
+    cat $BASE_PATH/Installer/JOB/mysql/init.sql >> $BASE_PATH/Installer/JOB/mysql/init/init.sql
+
+    if [ -f "$BASE_PATH/Installer/JOB/mysql/init/init.sql" ]; then
+        echo "[SUCC]create Installer/JOB/mysql/init/init.sql success."
+    else
+        echo "[FAIL]create Installer/JOB/mysql/init/init.sql fail."
+        exit 1
+    fi
 }
 
 function start() {
