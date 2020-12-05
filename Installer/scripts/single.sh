@@ -201,6 +201,15 @@ function stop() {
     echo "[SUCC]stoped."
 }
 
+function restart() {
+    echo =================================================================
+    echo "[INFO]restart ..."
+    Date=$(date "+%F %H:%M:%S")
+    echo "#$Date" >> $BASE_PATH/Connector/config.ini/current 
+
+    echo "[SUCC]The operation is complete and the service will restart in a few seconds."
+}
+
 function check() {
     module=$1
     X=$(curl localhost/api/$module/mon 2>/dev/null)
@@ -233,8 +242,11 @@ stop)
 status)
     status
     ;;
+restart)
+    restart
+    ;;
 *)
-    echo "Usage: $0 {start|stop|status|install}"
+    echo "Usage: $0 {start|stop|status|restart|install}"
     echo "$0 install 10.10.10.10(Your Internet IP)"
     exit 2
 esac
