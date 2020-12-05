@@ -83,7 +83,7 @@ function install() {
     echo "[INFO]get open-c3-install-cache ..."
 
     if [ ! -d "$BASE_PATH/Installer/install-cache" ]; then
-        cd $BASE_PATH/Installer &&  git clone https://github.com/open-c3/open-c3-install-cache install-cache
+        cd $BASE_PATH/Installer && git clone https://github.com/open-c3/open-c3-install-cache install-cache
         cd $BASE_PATH
     fi
 
@@ -140,6 +140,42 @@ function install() {
         echo "[FAIL]create Installer/C3/mysql/init/init.sql fail."
         exit 1
     fi
+
+    echo =================================================================
+    echo "[INFO]get MYDan ..."
+
+    mkdir -p $BASE_PATH/MYDan
+    rm -rf $BASE_PATH/MYDan/repo
+
+    cd $BASE_PATH/MYDan && git clone https://github.com/MYDan/repo
+    cd $BASE_PATH
+
+    if [ -d "$BASE_PATH/MYDan/repo" ]; then
+        echo "[SUCC]get MYDan success."
+    else
+        echo "[FAIL]get MYDan fail."
+        exit 1
+    fi
+
+    echo =================================================================
+    echo "[INFO]sync MYDan/repo ..."
+
+    cd $BASE_PATH/MYDan/repo/scripts && ./sync.sh
+    cd $BASE_PATH
+
+    if [ $? = 0 ]; then
+        echo "[SUCC]sync MYDan/repo success."
+    else
+        echo "[FAIL]sync MYDan/repo fail."
+        exit 1
+    fi
+
+    echo "[SUCC]openc-c3 installed successfully."
+
+    echo "Web page: http://$1"
+    echo "User: open-c3"
+    echo "Password: changeme"
+
 }
 
 function start() {
