@@ -25,7 +25,9 @@ function install() {
     if [ "X$1" != "X" ]; then
         echo $1 |grep "^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$" > /dev/null
         if [ $? = 0 ]; then
-            echo "OPEN_C3_EXIP=$1" > $BASE_PATH/Connector/.env
+            random=$(date +%N)
+            echo "OPEN_C3_RANDOM=$random" > $BASE_PATH/Connector/.env
+            echo "OPEN_C3_EXIP=$1" >> $BASE_PATH/Connector/.env
         else
             echo "$0 install 10.10.10.10(Your Internet IP)"
             exit 1
