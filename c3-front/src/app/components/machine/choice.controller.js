@@ -30,6 +30,10 @@
             $scope.variableShow = true;
         }else if(ss.split("#")[1].indexOf("business") !=-1){
             $scope.variableShow = true;
+        }else if(ss.split("#")[1].indexOf("/quickentry/flowlinedetail") !=-1){
+            $scope.variableShow = true;
+        }else if(ss.split("#")[1].indexOf("/quickentry/flowline") !=-1){
+            $scope.variableShow = true;
         }
  
         vm.cancel = function(){ $uibModalInstance.dismiss()};
