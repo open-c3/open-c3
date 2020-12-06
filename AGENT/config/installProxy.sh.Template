@@ -19,6 +19,10 @@ ln -snf /data/mydan /opt/mydan
 
 MYDanPATH=/data/mydan
 
+if [[ -d $MYDanPATH/etc/agent/auth/ && ! -f $MYDanPATH/etc/agent/auth/c3_[[:envname:]].pub ]]; then
+    wget http://$OPEN_C3_ADDR/api/scripts/c3_[[:envname:]].pub -O $MYDanPATH/etc/agent/auth/c3_[[:envname:]].pub
+fi
+
 if [[ -d $MYDanPATH/etc && ! -f $MYDanPATH/etc/iamproxy ]];then
     touch $MYDanPATH/etc/iamproxy
 fi

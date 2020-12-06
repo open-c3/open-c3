@@ -22,6 +22,10 @@ MYDanPATH=/data/mydan
 #MYDAN_REPO_PRIVATE
 #export MYDAN_REPO_PRIVATE="http://10.10.10.10:9999"
 
+if [[ -d $MYDanPATH/etc/agent/auth/ && ! -f $MYDanPATH/etc/agent/auth/c3_[[:envname:]].pub ]]; then
+    wget http://$OPEN_C3_ADDR/api/scripts/c3_[[:envname:]].pub -O $MYDanPATH/etc/agent/auth/c3_[[:envname:]].pub
+fi
+
 curl -s http://$OPEN_C3_ADDR/api/scripts/MYDan_mydan_update.sh|bash
 
 curl --connect-timeout 5 -m 5 myip.ipip.net 2>/dev/null|awk '{print $2}'|awk -F： '{print $2}' >  $MYDanPATH/etc/ips

@@ -18,6 +18,8 @@ return sub
 
     my ( $Config, $envname ) = @param{qw( Config envname )};
 
+    $envname = $ENV{OPEN_C3_NAME} if $ENV{OPEN_C3_NAME};
+
     die "envinfo config undef" unless $Config->{envinfo};
 
     my %macro = ( %{$Config->{envinfo}}, envname => $envname );

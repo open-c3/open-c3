@@ -5,10 +5,15 @@ if [ "X$OPEN_C3_EXIP" == "X" ];then
     exit 1;
 fi
 
-if [ ! -f /data/Software/mydan/etc/agent/auth/c3_test.key ]; then
+if [ "X$OPEN_C3_NAME" == "X" ];then
+    echo "env OPEN_C3_NAME undef"
+    exit 1;
+fi
+
+if [ ! -f /data/Software/mydan/etc/agent/auth/c3_${OPEN_C3_NAME}.key ]; then
     cd /data/Software/mydan/etc/agent/auth && \
-    ssh-keygen -f c3_test -P "" && \
-    mv c3_test c3_test.key && \
+    ssh-keygen -f c3_${OPEN_C3_NAME} -P "" && \
+    mv c3_${OPEN_C3_NAME} c3_${OPEN_C3_NAME}.key && \
     echo success
 fi
 
