@@ -6,9 +6,9 @@ use LWP::UserAgent;
 
 my $ssologoutapi;
 BEGIN{
-    my $config = eval{ YAML::XS::LoadFile '/data/Software/mydan/Connector/config.inix' };
-    die "load config.ini fail: $@" if $@;
-    die "ssologoutapi undef on config.ini" unless $ssologoutapi = $config->{ssologoutapi};
+    use Config;
+    $ssologoutapi = Config::get( 'ssologoutapi' );
+    die "ssologoutapi undef on config.ini" unless $ssologoutapi;
 };
 
 $| ++;

@@ -15,13 +15,10 @@ $| ++;
 
 my ( $treemap, %env );
 BEGIN{
-    my $config = eval{ YAML::XS::LoadFile '/data/Software/mydan/Connector/config.inix' };
-    die "load config.ini fail: $@" if $@;
-    $treemap = $config->{treemap};
-    %env = %{$config->{treemapenv}} if $config->{treemapenv} && ref $config->{treemapenv} eq 'HASH';
+    use Config;
+    $treemap = Config::get( 'treemap' );
+    %env = Config::env( 'treemapenv' );
 };
-
-
 
 return sub
 {

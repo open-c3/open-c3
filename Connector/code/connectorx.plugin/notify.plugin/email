@@ -17,10 +17,9 @@ $| ++;
 
 my ( $usermail, %env );
 BEGIN{
-    my $config = eval{ YAML::XS::LoadFile '/data/Software/mydan/Connector/config.inix' };
-    die "load config.ini fail: $@" if $@;
-    $usermail = $config->{usermail};
-    %env = %{$config->{usermailenv}} if $config->{usermailenv} && ref $config->{usermailenv} eq 'HASH';
+    use Config;
+    $usermail = Config::get( 'usermail' );
+    %env = Config::env( 'usermailenv' );
 };
 
 return sub

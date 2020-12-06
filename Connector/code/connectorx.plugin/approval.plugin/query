@@ -16,10 +16,9 @@ $| ++;
 
 my ( $approver, %env );
 BEGIN{
-    my $config = eval{ YAML::XS::LoadFile '/data/Software/mydan/Connector/config.inix' };
-    die "load config.ini fail: $@" if $@;
-    $approver = $config->{approver};
-    %env = %{$config->{approverenv}} if $config->{approverenv} && ref $config->{approverenv} eq 'HASH';
+    use Config;
+    $approver = Config::get( 'approver' );
+    %env = Config::env( 'approverenv' );
 };
 
 return sub

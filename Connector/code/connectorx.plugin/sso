@@ -17,9 +17,9 @@ BEGIN{
         $app{$name} = $key;
         $app{$name} .= $ENV{OPEN_C3_RANDOM} if $ENV{OPEN_C3_RANDOM};
     }
-    my $config = eval{ YAML::XS::LoadFile '/data/Software/mydan/Connector/config.inix' };
-    die "load config.ini fail: $@" if $@;
-    die "ssousername undef on config.ini" unless $ssousername = $config->{ssousername};
+    use Config;
+    $ssousername = Config::get( 'ssousername' );
+    die "ssousername undef on config.ini" unless $ssousername;
 };
 
 $| ++;

@@ -17,11 +17,10 @@ $| ++;
 
 =cut
 
-my ( $pmspoint, %env );
+my ( $pmspoint );
 BEGIN{
-    my $config = eval{ YAML::XS::LoadFile '/data/Software/mydan/Connector/config.inix' };
-    die "load config.ini fail: $@" if $@;
-    $pmspoint = $config->{pmspoint};
+    use Config;
+    $pmspoint = Config::get( 'pmspoint' );
 };
 
 return sub

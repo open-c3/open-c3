@@ -15,9 +15,8 @@ $| ++;
 
 my $usertree;
 BEGIN{
-    my $config = eval{ YAML::XS::LoadFile '/data/Software/mydan/Connector/config.inix' };
-    die "load config.ini fail: $@" if $@;
-    $usertree = $config->{usertree};
+    use Config;
+    $usertree = Config::get( 'usertree' );
 };
 
 return sub

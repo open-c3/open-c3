@@ -5,11 +5,10 @@ use YAML::XS;
 
 my $config;
 BEGIN{
-    $config = eval{ YAML::XS::LoadFile '/data/Software/mydan/Connector/config.inix' };
-    die "load config.ini fail: $@" if $@;
+    use Config;
+    $config = Config::config();
     map{ die "$_ undefind on config.inix" unless $config->{$_} }qw( ssocallback cookiekey );
 };
-
 
 return sub
 {
