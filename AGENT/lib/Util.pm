@@ -29,7 +29,7 @@ sub envinfo
         chomp $env{$_};
         die "load envinfo $_ fail" unless defined $env{$_} && $env{$_} =~ /^[a-zA-Z0-9\.]+$/;
     }@_;
-    $env{appkey} .= $ENV{OPEN_C3_RANDOM} if $env{appkey} && $ENV{OPEN_C3_RANDOM};
+    $env{appkey} = $ENV{OPEN_C3_RANDOM} if $env{appkey} && $env{appkey} eq 'c3random' && $ENV{OPEN_C3_RANDOM};
     return %env;
 }
 1;

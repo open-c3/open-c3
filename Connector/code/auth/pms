@@ -21,8 +21,8 @@ $| ++;
 
 my ( $pmspoint, %app );
 BEGIN{
-    use Config;
-    $pmspoint = Config::get( 'pmspoint' );
+    use Configini;
+    $pmspoint = Configini::get( 'pmspoint' );
 
     for my $file ( glob "/data/Software/mydan/*/conf/appname" )
     {
@@ -31,7 +31,7 @@ BEGIN{
         $file =~ s/appname/appkey/;
         my $key = `cat $file`;
         chomp $key;
-        $app{$name} = $key;
+        $app{$name} = $key eq 'c3random' && $ENV{OPEN_C3_RANDOM} ? $ENV{OPEN_C3_RANDOM} : $key;
     }
 
 };

@@ -5,8 +5,8 @@ use YAML::XS;
 
 my $config;
 BEGIN{
-    use Config;
-    $config = Config::config();
+    use Configini;
+    $config = Configini::config();
     map{ die "$_ undefind on config.inix" unless $config->{$_} }qw( ssocallback cookiekey );
 };
 

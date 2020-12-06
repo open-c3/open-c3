@@ -16,9 +16,9 @@ $| ++;
 
 my ( $approver, %env );
 BEGIN{
-    use Config;
-    $approver = Config::get( 'approver' );
-    %env = Config::env( 'approverenv' );
+    use Configini;
+    $approver = Configini::get( 'approver' );
+    %env = Configini::env( 'approverenv' );
 };
 
 return sub

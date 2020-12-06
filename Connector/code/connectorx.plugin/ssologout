@@ -6,8 +6,8 @@ use LWP::UserAgent;
 
 my $ssologoutapi;
 BEGIN{
-    use Config;
-    $ssologoutapi = Config::get( 'ssologoutapi' );
+    use Configini;
+    $ssologoutapi = Configini::get( 'ssologoutapi' );
     die "ssologoutapi undef on config.ini" unless $ssologoutapi;
 };
 

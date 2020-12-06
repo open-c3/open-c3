@@ -14,11 +14,10 @@ BEGIN{
         $file =~ s/appname/appkey/;
         my $key = `cat $file`;
         chomp $key;
-        $app{$name} = $key;
-        $app{$name} .= $ENV{OPEN_C3_RANDOM} if $ENV{OPEN_C3_RANDOM};
+        $app{$name} = $key eq 'c3random' && $ENV{OPEN_C3_RANDOM} ? $ENV{OPEN_C3_RANDOM} : $key;
     }
-    use Config;
-    $ssousername = Config::get( 'ssousername' );
+    use Configini;
+    $ssousername = Configini::get( 'ssousername' );
     die "ssousername undef on config.ini" unless $ssousername;
 };
 

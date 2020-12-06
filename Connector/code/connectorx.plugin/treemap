@@ -15,9 +15,9 @@ $| ++;
 
 my ( $treemap, %env );
 BEGIN{
-    use Config;
-    $treemap = Config::get( 'treemap' );
-    %env = Config::env( 'treemapenv' );
+    use Configini;
+    $treemap = Configini::get( 'treemap' );
+    %env = Configini::env( 'treemapenv' );
 };
 
 return sub

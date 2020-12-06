@@ -25,7 +25,7 @@ function install() {
     if [ "X$1" != "X" ]; then
         echo $1 |grep "^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$" > /dev/null
         if [ $? = 0 ]; then
-            random=$(date +%N)
+            random=$RANDOM$RANDOM$RANDOM$RANDOM$RANDOM$RANDOM$RANDOM
             name="test"
             if [ "X$OPEN_C3_NAME" != "X" ];then
                 name=$OPEN_C3_NAME

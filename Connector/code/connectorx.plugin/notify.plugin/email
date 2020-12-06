@@ -17,9 +17,9 @@ $| ++;
 
 my ( $usermail, %env );
 BEGIN{
-    use Config;
-    $usermail = Config::get( 'usermail' );
-    %env = Config::env( 'usermailenv' );
+    use Configini;
+    $usermail = Configini::get( 'usermail' );
+    %env = Configini::env( 'usermailenv' );
 };
 
 return sub

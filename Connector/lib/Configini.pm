@@ -1,4 +1,4 @@
-package Config;
+package Configini;
 use warnings;
 use strict;
 
@@ -24,7 +24,10 @@ sub get
 sub env
 {
     my $name = shift @_;
-    return $config->{$name} && ref $config->{$name} eq 'HASH' ? %{$config->{$name}} : ();
+    my $conf = $config->{$name};
+    return () unless $conf && ref $conf eq 'HASH';
+    $conf->{appkey} = $ENV{OPEN_C3_RANDOM} if $conf->{appkey} && $conf->{appkey} eq 'c3random' && $ENV{OPEN_C3_RANDOM};
+    return %$conf;
 }
 
 1;
