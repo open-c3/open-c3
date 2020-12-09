@@ -1,0 +1,24 @@
+#!/usr/bin/env perl
+use FindBin qw($RealBin);
+
+my $base = $RealBin; $base =~ s/\/[a-z]+$//;
+
+die "chdir fail" unless chdir $base;
+
+my $c = `cat node_modules/tty.js/config.json`;
+
+my $port =  $c =~ /"port": (\d+),/ ? $1 : die "get port info fail";
+
+print "start port: $port\n";
+
+my $exip = `cat /etc/job.exip`;
+my $inip = `cat /etc/job.inip`;
+chomp $exip; chomp $inip;
+die "nofind /etc/job.exip" unless $exip && $exip =~ /^\d+\.\d+\.\d+\.\d+$/;
+die "nofind /etc/job.inip" unless $inip && $inip =~ /^\d+\.\d+\.\d+\.\d+$/;
+
+map{
+    die "write $_ to /etc/hosts fail: $!" if system "echo '$inip api.$_.open-c3.org' >> /etc/hosts";
+}qw( connector agent job jobx ci );
+
+exec "./node_modules/tty.js/bin/tty.js --config node_modules/tty.js/config.json";
