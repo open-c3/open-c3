@@ -78,17 +78,12 @@ get '/internal/user/username' => sub {
     my $sid = params()->{cookie};
     return +{ stat => JSON::false, info => 'sid format err' } unless $sid && $sid =~ /^[a-zA-Z0-9]{64}$/;
 
-    #TODO TEMP my $info = eval{ $api::mysql->query( sprintf "select name from `userinfo` where sid='$sid'" ) };
-    #
-    my $x = `cat /tmp/$sid`;
-    chomp $x;
-    return $x ?  +{ stat => JSON::true, data => $x } : +{ stat => JSON::false, info => 'Not logged in yet' };
-    #
-    #
-    #return +{ stat => $JSON::false, info => $@ } if $@;
+    my $info = eval{ $api::mysql->query( sprintf "select name from `userinfo` where sid='$sid'" ) };
+    
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
-    #return +{ stat => JSON::true, data => $info->[0][0] } if @$info;
-    #return +{ stat => JSON::false, info => 'Not logged in yet' };
+    return +{ stat => JSON::true, data => $info->[0][0] } if @$info;
+    return +{ stat => JSON::false, info => 'Not logged in yet' };
 
 };
 
@@ -99,12 +94,9 @@ any '/default/user/logout' => sub {
 
     return +{ stat => $JSON::true, info => 'ok' } unless $sid;
     return +{ stat => $JSON::false, info => 'sid format err' } unless $sid =~ /^[a-zA-Z0-9]{64}$/;
-    #TODO TEMP eval{ $api::mysql->execute( "update userinfo set expire=0,sid='' where sid='$sid'" ); };
-    #
-    return +{ stat => $JSON::false, info => $! } if system "rm /tmp/$sid";
-    #
-    #
-    #return +{ stat => $JSON::false, info => $@ } if $@;
+    eval{ $api::mysql->execute( "update userinfo set expire=0,sid='' where sid='$sid'" ); };
+    
+    return +{ stat => $JSON::false, info => $@ } if $@;
     return +{ stat => $JSON::true, info => 'ok' };
 };
 
@@ -126,9 +118,6 @@ any '/default/user/login' => sub {
         eval{ $api::mysql->execute( sprintf "update userinfo set expire=%d,sid='%s' where name='%s'", time + 8 * 3600, $keys, $user ); };
         return +{ stat => $JSON::false, info => $@ } if $@;
 
-        #TODO TEMP
-        return +{ stat => $JSON::false, info => $! } if system "echo $user > /tmp/$keys";
-        
         set_cookie( sid => $keys, http_only => 0, expires => time + 8 * 3600 );
         return +{ stat => $JSON::true, info => 'ok' };
     }
