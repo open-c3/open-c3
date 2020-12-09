@@ -81,7 +81,7 @@ my $listen;
 
 my $scan = `netstat  -tun|awk '{print \$4}'|awk -F: '{print \$2}'`;
 my %open = map{ $_ => 1 }my @open = $scan =~ /(\d+)/g;
-my %port = map{ $_ => 1 }65135 .. 65535;
+my %port = map{ $_ => 1 }65135 .. 65235;
 ( $listen ) = grep{ ! $open{$_} }keys %port;
 
 my $socket = IO::Socket::INET->new (
