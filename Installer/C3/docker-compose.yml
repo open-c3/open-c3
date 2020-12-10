@@ -11,7 +11,7 @@ services:
     image: "mysql:5.5"
     restart: always
     volumes:
-      - "./mysql/db:/var/lib/mysql"
+      - "/data/open-c3-data/mysql-data:/var/lib/mysql"
       - "./mysql/conf/my.cnf:/etc/my.cnf"
       - "./mysql/init:/docker-entrypoint-initdb.d/"
     networks:
