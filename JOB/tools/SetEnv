@@ -51,17 +51,20 @@ unless( -e $mynamefile )
     die "set job.myip fail:$!" if system( "${sudo}sh -c 'hostname > $mynamefile'" ) 
 }
 
-my $exipfile = '/etc/job.exip';
+my ( $exipfile, $inipfile ) = ( '/etc/job.exip', '/etc/job.inip' );
 unless( -e $exipfile )
 {
     my $hostname = Sys::Hostname::hostname;
     die "nofind host info $hostname\n" unless my $myinfo = $Config->{host}{$hostname};
     my $exip = $myinfo->{exip} || $myinfo->{inip};
+    my $inip = $myinfo->{inip} || $myinfo->{exip};
     
     $exip = $ENV{OPEN_C3_EXIP} if $ENV{OPEN_C3_EXIP};
 
     die "nofind exip" unless $exip && $exip =~ /^[0-9\.]+$/;
+    die "nofind inip" unless $inip && $inip =~ /^[0-9\.]+$/;
     die "set job.myip fail:$!" if system( "${sudo}sh -c 'echo $exip > $exipfile'" );
+    die "set job.myip fail:$!" if system( "${sudo}sh -c 'echo $inip > $inipfile'" );
 }
 
 die "cp nginx config fail: $!" if system "${sudo}cp $base/conf/*.open-c3.org.conf /etc/nginx/conf.d/";
