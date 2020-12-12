@@ -1,3 +1,13 @@
 #!/bin/bash
 
+if [ ! -f /etc/job.exip ];then
+    echo "nofind /etc/job.exip";
+    exit 1
+fi
+
+if [ ! -f /etc/job.inip ];then
+    echo "nofind /etc/job.inip";
+    exit 1
+fi
+
 docker run -itd -v /data:/data -v /bin/docker:/bin/docker -v /var/run/docker.sock:/var/run/docker.sock -v /etc/job.exip:/etc/job.exip -v  /etc/job.inip:/etc/job.inip  -p 81:3388 -p 65135-65235:65135-65235 --name open-c3-web-shell  docker.io/openc3/job-base  /data/Software/mydan/web-shell/tools/run
