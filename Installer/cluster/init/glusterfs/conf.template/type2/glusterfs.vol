@@ -1,0 +1,40 @@
+volume brick1
+
+ type protocol/client
+
+ option transport-type tcp/client
+
+ option remote-host OPENC3HOST1
+
+ option remote-subvolume brick
+
+end-volume
+
+volume brick2
+
+ type protocol/client
+
+ option transport-type tcp/client
+
+ option remote-host OPENC3HOST2
+
+ option remote-subvolume brick
+
+end-volume
+
+volume replicate1
+
+ type cluster/replicate
+
+ subvolumes brick1 brick2
+
+end-volume
+
+
+volume distribute1
+
+  type cluster/distribute
+
+  subvolumes replicate1
+
+end-volume

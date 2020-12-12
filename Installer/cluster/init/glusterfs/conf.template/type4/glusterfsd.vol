@@ -1,0 +1,25 @@
+volume posix
+type storage/posix 
+option directory /data/Software/mydan/glusterfs/data
+end-volume
+
+
+volume locks
+type features/locks
+subvolumes posix
+end-volume
+
+volume brick
+type performance/io-threads
+option thread-count 8 # default is 16
+subvolumes locks
+end-volume
+
+ 
+volume server
+type protocol/server
+option transport-type tcp
+subvolumes brick
+option auth.addr.brick.allow *
+end-volume
+
