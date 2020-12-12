@@ -4,6 +4,7 @@ use warnings;
 use FindBin qw( $RealBin );
 use MYDan::Util::OptConf;
 use YAML::XS;
+use Sys::Hostname;
 
 =head1 SYNOPSIS
 
@@ -38,9 +39,17 @@ my $mynamefile = '/etc/connector.myip';
 my $user = `id -un`;chop $user;
 my $sudo = $user eq 'root' ? '' : 'sudo ';
 
+my $hostname = Sys::Hostname::hostname;
+if( -f "$MYDan::PATH/.open-c3.hostname" )
+{
+    $hostname = `cat $MYDan::PATH/.open-c3.hostname`;
+    chomp $hostname;
+    die "get hostname from .open-c3.hostname error" unless $hostname && $hostname =~ /^[a-zA-Z0-9_\.\-]+$/;
+}
+
 unless( -e $mynamefile )
 {
-    die "set connector.myip fail:$!" if system( "${sudo}sh -c 'hostname > $mynamefile'" ) 
+    die "set connector.myip fail:$!" if system( "${sudo}sh -c 'echo $hostname > $mynamefile'" ) 
 }
 
 die "cp nginx config fail: $!" if system "${sudo}cp $base/conf/*.open-c3.org.conf /etc/nginx/conf.d/";

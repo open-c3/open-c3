@@ -2,6 +2,7 @@
 use strict;
 use warnings;
 use FindBin qw( $RealBin );
+use MYDan;
 use MYDan::Util::OptConf;
 use YAML::XS;
 use Sys::Hostname;
@@ -46,15 +47,22 @@ my $mynamefile = '/etc/job.myip';
 my $user = `id -un`;chop $user;
 my $sudo = $user eq 'root' ? '' : 'sudo ';
 
+my $hostname = Sys::Hostname::hostname;
+if( -f "$MYDan::PATH/.open-c3.hostname" )
+{
+    $hostname = `cat $MYDan::PATH/.open-c3.hostname`;
+    chomp $hostname;
+    die "get hostname from .open-c3.hostname error" unless $hostname && $hostname =~ /^[a-zA-Z0-9_\.\-]+$/;
+}
+
 unless( -e $mynamefile )
 {
-    die "set job.myip fail:$!" if system( "${sudo}sh -c 'hostname > $mynamefile'" ) 
+    die "set job.myip fail:$!" if system( "${sudo}sh -c 'echo $hostname > $mynamefile'" ) 
 }
 
 my ( $exipfile, $inipfile ) = ( '/etc/job.exip', '/etc/job.inip' );
 unless( -e $exipfile )
 {
-    my $hostname = Sys::Hostname::hostname;
     die "nofind host info $hostname\n" unless my $myinfo = $Config->{host}{$hostname};
     my $exip = $myinfo->{exip} || $myinfo->{inip};
     my $inip = $myinfo->{inip} || $myinfo->{exip};
