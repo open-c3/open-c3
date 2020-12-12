@@ -41,9 +41,9 @@ if( 1 < @inip && ! -d "$BASE_PATH/Installer/cluster/init/glusterfs/conf/$envname
     for( 0 .. $#inip )
     {
         my ( $ip, $id ) = ( $inip[$_], $_ + 1 );
-        system "sed -i 's/OPENC3HOST$id/$ip/g' $BASE_PATH/Installer/cluster/init/glusterfs/conf.template/type$type/glusterfs.vol";
+        system "sed -i 's/OPENC3HOST$id/$ip/g' $BASE_PATH/Installer/cluster/init/glusterfs/conf/$envname/glusterfs.vol";
     }
-    my $c = `cat $BASE_PATH/Installer/cluster/init/glusterfs/conf.template/type$type/glusterfs.vol`;
+    my $c = `cat $BASE_PATH/Installer/cluster/init/glusterfs/conf/$envname/glusterfs.vol`;
     die "config error.find OPENC3HOST" if $c =~ /OPENC3HOST/;
 }
 

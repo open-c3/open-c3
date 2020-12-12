@@ -14,7 +14,6 @@ $| ++;
 
 my $option = MYDan::Util::OptConf->load();
 my %o = $option->get( qw( username=s password=s ) )->dump();
-my $MYDan::PATH = "/data/Software/mydan";
 $option->assert( qw( username password  ) );
 
 my $e = $o{username} eq 'root' ? '' : "-e MYSQL_USER='$o{username}' -e MYSQL_PASS='$o{password}'";
