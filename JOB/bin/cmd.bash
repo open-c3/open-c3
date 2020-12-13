@@ -20,6 +20,7 @@ use POSIX qw( :sys_wait_h );
 use Data::UUID;
 use IO::Poll qw( POLLIN POLLHUP POLLOUT POLLERR);
 use Term::Size;
+use Sys::Hostname;
 
 
 $MYDan::Util::OptConf::THIS = 'agent';
@@ -71,36 +72,23 @@ my %env = Util::envinfo( qw( envname domainname appname appkey ) );
 $ENV{MYDan_Agent_Proxy_Addr} = "http://api.agent.open-c3.org/proxy/$o{projectid}";
 $ENV{MYDan_Agent_Proxy_Header} = "appname:$env{appname},appkey:$env{appkey}";
 
-$o{addr} = `cat /etc/job.exip`;
-chomp $o{addr};
-die "addr format error" unless $o{addr} && $o{addr} =~ /^[a-zA-Z0-9\._-]+$/;
-
 my $cv = AE::cv;  
 
-my $listen;
+my %proxy = MYDan::Agent::Proxy->new()->search( $host );
+my $proxy = $proxy{$host};
 
-my $scan = `netstat  -tun|awk '{print \$4}'|awk -F: '{print \$2}'`;
-my %open = map{ $_ => 1 }my @open = $scan =~ /(\d+)/g;
-my %port = map{ $_ => 1 }65135 .. 65235;
-( $listen ) = grep{ ! $open{$_} }keys %port;
-
-my $socket = IO::Socket::INET->new (
-    LocalPort => $listen,
-    Type      => SOCK_STREAM,
-    Reuse     => 1,
-    Listen    => 1
-) or die "listen $listen: $!\n";
-
+$o{ictrl} = $o{cmd} ? 1 : 0  unless defined $o{ictrl};
 $o{user} = `id -un` and chop $o{user}  unless $o{user};
 
 my $uuid = Data::UUID->new->create_str();
+my $md5 = Digest::MD5->new()->add( hostname.$$.time.rand 100000 )->hexdigest();
 
 my ($cols, $rows) = Term::Size::chars *STDOUT{IO};
 
 my %query = (
     env => +{ TERM => 'linux' },
     code => 'shell',
-    argv => [ $o{addr}, $listen, $uuid, $rows, $cols ],
+    argv => [ $proxy ? undef : '127.0.0.1', $o{port}, $uuid, $rows, $cols, $md5, $o{cmd}, $o{ictrl} ],
     map{ $_ => $o{$_} }qw( user sudo )
 );
 
@@ -112,7 +100,17 @@ my $call = $result{$host};
 die "call fail:$call\n" 
     unless $call && $call =~ /--- 0\n$/;
 
-my $soc = $socket->accept();
+my $soc = IO::Socket::INET->new(
+    PeerAddr => $proxy || $host,
+    PeerPort => $o{port},
+    Proto    => 'tcp'
+);
+
+die( sprintf "Connect %s fail\n", $proxy || $host ) unless $soc;
+
+my $head = "MYDanConnect_::${md5}::_MYDanConnect";
+syswrite( $soc, $head, length $head );
+
 $soc->blocking(0);
 
 my $poll = IO::Poll->new();
