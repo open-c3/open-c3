@@ -84,6 +84,12 @@ function start() {
         exit 1
     fi
 
+    if [ "X$IP" = "X0.0.0.0" ];then
+        echo =================================================================
+        echo "[INFO]build ..."
+        exec docker run -it -v /data/open-c3/c3-front/:/code openc3/gulp gulp build
+    fi
+
     echo =================================================================
     echo "[INFO]start web ..."
 
@@ -117,8 +123,11 @@ start)
 stop)
     stop
     ;;
+build)
+    start 0.0.0.0
+    ;;
 *)
-    echo "Usage: $0 {start|stop}"
+    echo "Usage: $0 {start|stop|build}"
     echo "$0 start 10.10.10.10(open-c3 api IP)"
     exit 2
 esac
