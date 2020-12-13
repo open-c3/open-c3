@@ -26,5 +26,3 @@ setenforce 0
 iptables -I INPUT -p tcp --dport 80 -j ACCEPT
 iptables -I INPUT -p tcp --dport 81 -j ACCEPT
 iptables -I INPUT -p tcp --dport 88 -j ACCEPT
-
-seq 65135 65235|xargs -i{} iptables -I INPUT -p tcp --dport {} -j ACCEPT
