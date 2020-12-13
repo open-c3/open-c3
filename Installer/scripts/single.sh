@@ -167,7 +167,7 @@ function install() {
     echo =================================================================
     echo "[INFO]sync MYDan/repo ..."
 
-    cd $BASE_PATH/MYDan/repo/scripts && ./sync.sh
+    cd $BASE_PATH/MYDan/repo/scripts && SYNC_MYDan_VERSION=20201213220001:10108f7303adc9992db663bfd99ddf1b ./sync.sh
     cd $BASE_PATH
 
     if [ $? = 0 ]; then
