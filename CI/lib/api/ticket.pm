@@ -12,7 +12,7 @@ use Format;
 get '/ticket' => sub {
     my $pmscheck = api::pmscheck( 'openc3_ci_root' ); return $pmscheck if $pmscheck;
 
-    my @col = qw( id name type ticket describe edit_user edit_time create_time );
+    my @col = qw( id name type ticket describe edit_user create_user edit_time create_time );
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from ticket", join( ',', map{"`$_`"}@col)), \@col )};
@@ -23,12 +23,14 @@ get '/ticket' => sub {
         my $t = $d->{ticket};
         if( $d->{type} eq 'SSHKey' )
         {
+            $t = substr( $t, 0, 100). "\n********\n" .substr($t, -100, 100);
             $d->{ticket} = +{ SSHKey => $t }
         }
 
         if( $d->{type} eq 'UsernamePassword' )
         {
             my ( $n, $p ) = split /_:separator:_/, $t;
+            $p = '********';
             $d->{ticket} = +{ Username => $n, Password => $p }
         }
 
@@ -46,7 +48,7 @@ get '/ticket/:ticketid' => sub {
 
     my $pmscheck = api::pmscheck( 'openc3_ci_root' ); return $pmscheck if $pmscheck;
 
-    my @col = qw( id name type ticket describe edit_user edit_time create_time );
+    my @col = qw( id name type ticket describe edit_user create_user edit_time create_time );
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from ticket where id='$param->{ticketid}'", join( ',', map{"`$_`"}@col)), \@col )};
@@ -57,12 +59,14 @@ get '/ticket/:ticketid' => sub {
         my $t = $d->{ticket};
         if( $d->{type} eq 'SSHKey' )
         {
+            $t = substr( $t, 0, 100). "\n********\n" .substr($t, -100, 100);
             $d->{ticket} = +{ SSHKey => $t }
         }
 
         if( $d->{type} eq 'UsernamePassword' )
         {
             my ( $n, $p ) = split /_:separator:_/, $t;
+            $p = '********';
             $d->{ticket} = +{ Username => $n, Password => $p }
         }
 
@@ -103,10 +107,11 @@ post '/ticket' => sub {
         $token = "$param->{ticket}{Username}_:separator:_$param->{ticket}{Password}";
     }
     
+    return  +{ stat => $JSON::false, info => "abnormal ticket format" } if $token =~ /\*{8}/;
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
 
     eval{ 
-        $api::mysql->execute( "insert into ticket (`name`,`type`, `ticket`,`describe`,`edit_user`,`edit_time`,`create_time` ) values( '$param->{name}', '$param->{type}', '$token', '$param->{describe}', '$user', '$time', '$time' )");
+        $api::mysql->execute( "insert into ticket (`name`,`type`, `ticket`,`describe`,`edit_user`,`create_user`,`edit_time`,`create_time` ) values( '$param->{name}', '$param->{type}', '$token', '$param->{describe}', '$user', '$user', '$time', '$time' )");
     };
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
@@ -144,6 +149,7 @@ post '/ticket/:ticketid' => sub {
     }
     
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
+    return  +{ stat => $JSON::false, info => "abnormal ticket format" } if $token =~ /\*{8}/;
 
     eval{ 
         $api::mysql->execute( "update ticket set name='$param->{name}',type='$param->{type}',ticket='$token',`describe`='$param->{describe}',edit_user='$user',edit_time='$time' where id=$param->{ticketid} " );
