@@ -45,4 +45,6 @@ my $xx = `cat /proc/1/cgroup 2>/dev/null`;
 my $indocker = $xx =~ /\b1:.+(docker|lxc|kubepods)/ ? 1 : 0;
 my $logpath = $indocker ? "/data/open-c3-data/logs/CI" : "$RealBin/../logs";
 
+$logpath = "$RealBin/../logs" if $ENV{C3_WEB_SHELL_CLUSTER_WEB_TYPE};
+
 exec "${sudo}/usr/bin/docker run -it --rm -v $logpath/build_temp_projectid/$uuid:/build --workdir=/build/data --name dockershell_ci_$uuid $o{image} $entrypoint";
