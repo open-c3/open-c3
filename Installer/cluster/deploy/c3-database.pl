@@ -38,5 +38,6 @@ unless( -f "$BASE_PATH/Installer/C3/mysql/init/init.sql" )
     system "cat $BASE_PATH/Installer/C3/mysql/init.sql >> $BASE_PATH/Installer/C3/mysql/init/init.sql";
 }
 
-die "rsync to $ip fail:$!\n" if system "sshpass -p '$config->{password}' rsync -av $BASE_PATH/Installer/ $config->{username}\@$ip:$MYDan_PATH/Installer/ --delete";
-die "local.c3-database.pl to $ip fail:$!\n" if system "sshpass -p '$config->{password}' ssh $config->{username}\@$ip \"$MYDan_PATH/Installer/cluster/deploy/local/c3-database.pl --username '$mysql->{username}' --password '$mysql->{password}'\"";
+die "mkdir $MYDan_PATH/Installer to $ip fail:$!\n" if system "sshpass -p '$config->{password}' ssh -o StrictHostKeyChecking=no $config->{username}\@$ip \"mkdir -p $MYDan_PATH/Installer\"";
+die "rsync to $ip fail:$!\n" if system "sshpass -p '$config->{password}' rsync -e 'ssh -o StrictHostKeyChecking=no' -av $BASE_PATH/Installer/ $config->{username}\@$ip:$MYDan_PATH/Installer/ --delete";
+die "local.c3-database.pl to $ip fail:$!\n" if system "sshpass -p '$config->{password}' ssh -o StrictHostKeyChecking=no $config->{username}\@$ip \"$MYDan_PATH/Installer/cluster/deploy/local/c3-database.pl --username '$mysql->{username}' --password '$mysql->{password}'\"";

@@ -21,7 +21,7 @@ updatehosts api.agent.open-c3.org
 updatehosts api.job.open-c3.org
 updatehosts api.jobx.open-c3.org
 
-setenforce 0
+setenforce 0 || echo setenforce 0 fail
 
 iptables -I INPUT -p tcp --dport 80 -j ACCEPT
 iptables -I INPUT -p tcp --dport 81 -j ACCEPT

@@ -57,7 +57,7 @@ sub inithost
     die "mkdir /data/Software/mydan fail:$!\n" if system "sshpass -p '$config->{password}' ssh -o StrictHostKeyChecking=no $config->{username}\@$ip 'mkdir -p /data/Software/mydan'";
     die "create /data/Software/mydan/.open-c3.hostname fail:$!\n" if system "sshpass -p '$config->{password}' ssh -o StrictHostKeyChecking=no $config->{username}\@$ip 'echo $hostname{$ip} > /data/Software/mydan/.open-c3.hostname'";
     die "rsync to $ip fail:$!\n" if system "sshpass -p '$config->{password}' rsync -av $BASE_PATH/Installer/ $config->{username}\@$ip:/data/Software/mydan/Installer/";
-    die "mkdir /data/Software/mydan fail:$!\n" if system "sshpass -p '$config->{password}' ssh $config->{username}\@$ip 'cd /data/Software/mydan/Installer/cluster && ./init.sh $envname $config->{username}'";
+    die "remote init.sh fail:$!\n" if system "sshpass -p '$config->{password}' ssh $config->{username}\@$ip 'cd /data/Software/mydan/Installer/cluster && ./init.sh $envname $config->{username}'";
 }
 
 map{ inithost( $envname, $_ ) }@exip;
