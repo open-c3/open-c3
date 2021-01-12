@@ -49,9 +49,10 @@ map
     die "rsync to $_ fail:$!\n" if system "sshpass -p '$config->{password}' rsync -av $BASE_PATH/c3-front/dist/ $config->{username}\@$_:$MYDan_PATH/PKG/c3-front-$o{version}/ --delete";
 }@ip unless $o{rollback};
 
+my $domain = $ENV{C3_DOMAIN} ? "--domain $ENV{C3_DOMAIN}"  : "";
 map
 {
     die "rsync to $_ fail:$!\n" if system "sshpass -p '$config->{password}' rsync -av $BASE_PATH/c3-front/nginxconf/ $config->{username}\@$_:$MYDan_PATH/PKG/c3-front-$o{version}/nginxconf/";
-    die "local.c3-front.pl to $_ fail:$!\n" if system "sshpass -p '$config->{password}' ssh $config->{username}\@$_ '$MYDan_PATH/Installer/cluster/deploy/local/c3-front.pl' -v '$o{version}'";
+    die "local.c3-front.pl to $_ fail:$!\n" if system "sshpass -p '$config->{password}' ssh $config->{username}\@$_ '$MYDan_PATH/Installer/cluster/deploy/local/c3-front.pl' -v '$o{version}' $domain";
 }@ip;
 
