@@ -33,7 +33,7 @@ return sub
     my $myname =Util::myname();
 
     my $x = $db->execute( "update version set pid='$$',starttime='$stime',starttimems='$stimems',status='running',slave='$myname'
-        where uuid='$uuid' and slave='' and pid is null" );
+        where uuid='$uuid' and ( slave='' or slave='$myname' ) and pid is null" );
     $logs->die( "build $uuid Already running, or no belong to the slave" ) unless $x && $x eq 1;
 
     $x = $db->query( "select `projectid`,`name` from version where uuid='$uuid'" );
