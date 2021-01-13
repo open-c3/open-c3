@@ -6,7 +6,6 @@ use Code;
 use Logs;
 use Util;
 use uuid;
-use keepalive;
 
 $| ++;
 
@@ -72,9 +71,8 @@ return sub
     my ( $status, $reason ) = ($autobuild && $tag_count < 3)? ( 'init', '' ) : ( 'done', 'auto build off' );
     map{
         my $uuid = uuid->new()->create_str;
-        my $slave = eval{ keepalive->new( $db )->slave() };
         eval{ $db->execute( "insert into version (`projectid`,`name`,`status`,`calltype`,`user`,`uuid`,`slave`,`reason`) 
-                values('$id','$_','$status','findtags','crontab','$uuid','$slave','$reason')" ); };       
+                values('$id','$_','$status','findtags','crontab','$uuid','','$reason')" ); };       
     }@tags;
 
     my $finishtime = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
