@@ -109,9 +109,13 @@ return sub
         $logs->die( "get nofind the version on ci" ) unless $data->{data}{slave};
         $logs->die( "the version no success on ci" ) unless $data->{data}{status} eq 'success';
 
-        my $slave = $data->{data}{slave};
-        my $hostname = Sys::Hostname::hostname;
-        @src = $slave eq $hostname ? () : ( $slave );
+        #my $slave = $data->{data}{slave};
+        #my $hostname = Sys::Hostname::hostname;
+        #@src = $slave eq $hostname ? () : ( $slave );
+        #
+        #JOB and CI share storage
+        #
+        @src = ();
         $sp = "/data/glusterfs/ci_repo/$src/$tv";
     }
     elsif( $src_type eq 'builtin' )
