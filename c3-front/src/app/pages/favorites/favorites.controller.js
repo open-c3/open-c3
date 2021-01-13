@@ -50,8 +50,8 @@
 
         }
 
-        vm.versiondetail = function (id) {
-            $state.go('home.quickentry.flowlinedetail', {treeid:vm.treeid, projectid: id});
+        vm.versiondetail = function (groupid,id) {
+            $state.go('home.quickentry.flowlinedetail', {treeid:groupid, projectid: id});
         };
 
         vm.treedetail = function (id) {
