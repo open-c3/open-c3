@@ -21,6 +21,7 @@
             'uuid':null,
         };
 
+
         vm.jobinfo;
         vm.getAllJob = function () {
             $http.get('/api/job/jobs/' + vm.treeid).then(
@@ -102,9 +103,12 @@
         vm.getAllGroup();
         vm.cancel = function(){ $uibModalInstance.dismiss()};
 
-        vm.versionitems = {};
-        vm.versions = [];
+        vm.setRollbackVersion = function ( version )
+        {
+            $scope.taskData.variable._rollbackVersion_ = version
+        }
 
+        vm.vvv = [];
         vm.getVersion = function () {
             $http.get('/api/job/vv/' + vm.treeid + '/analysis/version').then(
                 function successCallback(response) {
@@ -113,14 +117,11 @@
                         angular.forEach(vm.allversion, function(project){
                             if( project.name == 'APP__ci_' + projectid  + '__VERSION')
                             {
-                            vm.versionitems[project.name] = [];
-                                vm.versions.push(project.name);
                                 angular.forEach(project.data, function(value, key) {
-                                    vm.versionitems[project.name].push([key, parseFloat(value)]);
+                                    vm.vvv.push({ n: key, v: parseFloat(value)});
                                 });
                             }
                         });
-                        $timeout(function(){vm.showVersions(vm.versionitems)}, 0);
                     }else{
                         toastr.error( "获取作业信息失败：" + response.data.info )
                     };

@@ -6,12 +6,7 @@
         <div class="panel-body">
             <div class="form-horizontal">
                 <form class="form-horizontal" name="runtask2ciForm"  role="form" novalidate>
-                    <div class="row">
-                        <div class="col-sm-10 form-group">
-                        </div>
-                    </div>
-
-                    <h3>机器列表</h3>
+                    <h3 style="margin: 0px" >机器列表</h3>
                     <div class="row" ng-repeat="group in runtask2ci.showIPstr">
                         <div class="col-sm-12 form-group">
                             <label class="col-sm-3 control-label">分组{{$index+1}}: ({{group.num}}台机器)
@@ -22,11 +17,11 @@
                        </div>
                    </div>
 
-                   <hr>
+                   <hr style="margin: 5px">
 
-                   <h3>发布步骤</h3>
-                   <div class="row" ng-repeat="step in runtask2ci.jobStep">
-                        <div class="col-sm-12 form-group">
+                   <h3 style="margin: 0px" >发布步骤</h3>
+                   <div class="row" ng-repeat="step in runtask2ci.jobStep" style="margin: 0px">
+                        <div class="col-sm-12 form-group" style="margin-bottom: 0px" >
                             <label class="col-sm-3 control-label">第{{$index+1}}步:
                             </label>
                             <div class="col-sm-9" style="padding-top: 10px">
@@ -36,23 +31,20 @@
  
                    </div>
 
+                   <hr style="margin: 5px">
 
-                   <hr>
+                    <h3>当前发布版本:{{runtask2ci.version}}</h3>
 
                     <div class="row" ng-if="runtask2ci.jobtype=='online'">
-                        <div ng-repeat="version in runtask2ci.versions" class="col-lg-12 col-xs-12 ml0 pl0">
-                           <h3>线上版本</h3>
-                           <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
-                               <div class="panel-body" style="margin-top: 20px">
-                                   <div id="task{{version}}" style="height:350px"></div>
-                               </div>
+                        <div ng-if="runtask2ci.vvv.length > 0" >
+                             <label class="col-sm-3 control-label">当前线上版本: &nbsp;</label>
+                             <div ng-repeat="vv in runtask2ci.vvv" class="col-lg-12 col-xs-12 ml0 pl0">
+                                 <label class="col-sm-6 control-label" style="padding: 1px" >版本:{{vv.n}} 占比: {{vv.v}} %</label>
+                                 <div class="col-sm-3">
+                                     <button class="btn btn-danger" style="padding: 0px" ng-click="runtask2ci.setRollbackVersion(vv.n)">点击使用为回滚版本</button>
+                                 </div>
                             </div>
                         </div>
-                    </div>
-
-
-                    <h3>版本:{{runtask2ci.version}}</h3>
-                    <div class="row" ng-if="runtask2ci.jobtype=='online'">
                         <div class="col-sm-10 form-group">
                                 <label class="col-sm-3 control-label">回滚版本: &nbsp;</label>
                                 <div class="col-sm-9"> <input type="text" class="form-control" ng-model="taskData.variable._rollbackVersion_" placeholder="回滚版本" required> </div>
