@@ -15,7 +15,7 @@
             };
         }else {
             $scope.ciData = {
-                'ci':"$ci",
+                'ci':"default",
                 'version':"$version"
             };
         }

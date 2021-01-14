@@ -44,10 +44,10 @@ sub relpace
 
     unless( defined $DATA{$jobuuid} )
     {
-		my $x = eval{ $db->query( "select name,value from variable  where jobuuid='$jobuuid'" );};
+        my $x = eval{ $db->query( "select name,value from variable  where jobuuid='$jobuuid'" );};
         die( "get variable fail:$@" ) if $@;
         die( "get variable fail" ) unless defined $x && ref $x eq 'ARRAY';
-		$DATA{$jobuuid} = +{ map{ $_->[0] => $_->[1] }@$x };
+        $DATA{$jobuuid} = +{ map{ $_->[0] => $_->[1] }@$x };
     }
 
     my %x = %{$DATA{$jobuuid}};

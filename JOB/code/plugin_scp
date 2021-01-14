@@ -87,6 +87,19 @@ return sub
     {
         $logs->die( "projectid not a number" ) unless $projectid && $projectid =~ /^\d+$/;
 
+        if( $src eq 'default' && $fromjob )
+        {
+            my $jobname = $db->query( "select name from jobs where uuid='$fromjob'" );
+            $logs->die( "get jobname error from db" ) unless defined $jobname && ref $jobname eq 'ARRAY';
+            if( @$jobname > 0 )
+            {
+                if( $jobname->[0][0] =~ /^_ci_(\d+)_$/ )
+                {
+                    $src = $1;
+                }
+            }
+        }
+
         eval { $src = variable->new( variable => $variable, db => $db, jobuuid => $fromjob )->relpace( $src ) if defined $src; };
         $logs->die( "relpace variable src fail:$@" ) if $@;
 
