@@ -63,54 +63,48 @@ return sub
                 }
             }
 
-            my $sub_projectid = $projectid;
+            my @currentnode = eval{ Code->new( "nodeinfo" )->run( 
+                    db => $db,
+                    id => $projectid,
+                );};
+        
+            $logs->die( "run nodeinfo fail: $@" ) if $@;
+        
+            my %currentnode = map{ $_ => 1 }map{ $_->{inip} ? $_->{inip} : $_->{exip} ? $_->{exip} : $_->{name} }@currentnode;
+            my %addednode;
+
             my @nodename_temp = ();
-            if ($subname =~ "[,]+") {
-                my @names = split /,/, $subname;
-                for my $name_one (@names)
+
+            my @ids = split /,/, $subname;
+            @ids = ( '' ) unless @ids;
+
+            for my $id ( @ids )
+            {
+                $id = $projectid unless $id =~ /^\d+$/;
+                my @node;
+
+                if( $id eq $projectid )
                 {
-                    if (length $name_one > 0 )
-                    {
-                        my $projectname = eval{ Code->new( "group.plugin/percent.plugin/projectname" )->run( id => $projectid );};
-                        $logs->die( "get projectname fail: $@" ) if $@;
-
-                        $sub_projectid = eval{ Code->new( "group.plugin/percent.plugin/projectid" )->run( name => "$projectname.$name_one" ); };
-                        $logs->die( "get sub_projectid fail: $@" ) if $@;
-                    } else {
-                        $sub_projectid = $projectid;
-                    }
-
-                    my @node = eval{ Code->new( "nodeinfo" )->run( 
-                            db => $db,
-                            id => $sub_projectid,
-                        );};
-            
-                    $logs->die( "run nodeinfo fail: $@" ) if $@;
-                    my @node_info = map{ $_->{inip} ? $_->{inip} : $_->{exip} ? $_->{exip} : $_->{name} }@node;
-                    @nodename_temp = (@nodename_temp, @node_info);
+                     @node = @currentnode;
                 }
-            } else {
-                if(length $subname > 0 )
+                else
                 {
-                    my $projectname = eval{ Code->new( "group.plugin/percent.plugin/projectname" )->run( id => $projectid );};
-                    $logs->die( "get projectname fail: $@" ) if $@;
-
-                    $sub_projectid = eval{ Code->new( "group.plugin/percent.plugin/projectid" )->run( name => "$projectname.$subname" ); };
-                    $logs->die( "get sub_projectid fail: $@" ) if $@;
-                }
-
-                my @node = eval{ Code->new( "nodeinfo" )->run( 
+                    @node = eval{ Code->new( "nodeinfo" )->run( 
                         db => $db,
-                        id => $sub_projectid,
+                        id => $id,
                     );};
-        
-                $logs->die( "run nodeinfo fail: $@" ) if $@;
-        
-                @nodename_temp = map{ $_->{inip} ? $_->{inip} : $_->{exip} ? $_->{exip} : $_->{name} }@node;
-
+                    $logs->die( "run nodeinfo fail: $@" ) if $@;
+                }
+ 
+                my @node_info = grep{ $currentnode{$_} } map{ $_->{inip} ? $_->{inip} : $_->{exip} ? $_->{exip} : $_->{name} }@node;
+                
+                map{
+                    push @nodename_temp, $_ unless $addednode{$_};
+                    $addednode{$_} ++;
+                }@node_info;
             }
 
-            my @nodename; map{ push @nodename, $nodename_temp[$_-1]if $range{$_} }1 .. scalar @nodename_temp;
+            my @nodename; map{ push @nodename, $nodename_temp[$_-1] if $range{$_} } 1 .. scalar @nodename_temp;
             my $len = scalar @nodename;
     
             my $i = 0;
