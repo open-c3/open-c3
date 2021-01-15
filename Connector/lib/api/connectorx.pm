@@ -184,7 +184,7 @@ post '/connectorx/approval' => sub {
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    my $uuid = eval{ $approval{create}->run( $param ) };
+    my $uuid = eval{ $approval{create}->run( %$param ) };
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $uuid };
 };

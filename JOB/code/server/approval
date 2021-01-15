@@ -1,12 +1,14 @@
 #!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
 use strict;
 use warnings;
+use utf8;
 use Code;
 use Util;
 use Logs;
 use LWP::UserAgent;
 use JSON;
 use POSIX;
+use Encode;
 
 $| ++;
 
@@ -32,6 +34,9 @@ return sub
         for ( @$x )
         {
             my ( $id, $user, $cont, $submitter, $oauuid ) = @$_;
+            utf8::encode($cont); 
+            utf8::encode($user); 
+            utf8::encode($submitter); 
 
             my %env = Util::envinfo( qw( appname appkey ) );
             my $ua = LWP::UserAgent->new;

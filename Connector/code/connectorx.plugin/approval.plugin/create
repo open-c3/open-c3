@@ -1,7 +1,9 @@
 #!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
 use strict;
 use warnings;
+use utf8;
 use YAML::XS;
+use JSON;
 use Logs;
 use LWP::UserAgent;
 use uuid;
@@ -21,6 +23,8 @@ BEGIN{
     use Configini;
     $approver = Configini::get( 'approver' );
     %env = Configini::env( 'approverenv' );
+    use HTTP::Message;
+    *HTTP::Message::_utf8_downgrade = sub{};
 };
 
 return sub
@@ -32,9 +36,12 @@ return sub
         my $ua = LWP::UserAgent->new;
         $ua->default_header( %env ) if %env;
 
+        my $cont = JSON::to_json( \%param );
+        utf8::encode($cont);
+
         my $res = $ua->post(
             $approver,
-            Content => JSON::to_json( \%param ), 
+            Content => $cont, 
             'Content-Type' => 'application/json' 
         );
 
