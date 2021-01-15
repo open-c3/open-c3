@@ -28,24 +28,11 @@ return sub
     print "follow_up($follow_up)...\n";
 
     $logs = Logs->new( 'code.build.send.follow_up' ) unless $logs;
-    $logs->die( "format error" ) unless $follow_up =~ /^[a-zA-Z0-9][a-zA-Z0-9\._,\|\- \/\:=]*$/ &&  $follow_up !~ /\.\./;
+    $logs->die( "format error" ) unless $follow_up =~ /^[a-zA-Z0-9][a-zA-Z0-9\._,\;\- \/\:=]*$/ &&  $follow_up !~ /\.\./;
 
-    my $name = eval{ Code->new( "projectname" )->run( id => $projectid ); };
-    $logs->die( "get projectname fail:$@" ) if $@;
-    print "projectname: $name\n";
-    $logs->die( "projectname format error" ) unless $name && $name =~ /^[a-zA-Z0-9][a-zA-Z0-9\._\-]+$/;
-
-    if ($follow_up =~ /\|/g) {
-        my @infos = split(/\|/, $follow_up);
-        my $cmd;
-        map{
-            $_ =~ s/^ +//;
-            $cmd = "PROJECTNAME=$name VERSION=$version PROJECTID=$projectid /data/ci-scripts/$_";
-            $logs->die( "run build.send.follow_up fail:$!" ) if system "$cmd";
-            }@infos;
-    } else {
-        my $cmd = "PROJECTNAME=$name VERSION=$version PROJECTID=$projectid /data/ci-scripts/$follow_up";
-        $logs->die( "run build.send.follow_up fail:$!" ) if system "$cmd";
-    };
+    map{
+        $_ =~ s/^ +//;
+        $logs->die( "run build.send.follow_up fail:$!" ) if system "VERSION=$version PROJECTID=$projectid /data/Software/mydan/CI/follow_up/$_";
+    }split /;/, $follow_up;
 
 }
