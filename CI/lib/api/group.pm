@@ -21,7 +21,7 @@ get '/group/:groupid' => sub {
 
     my @col = qw( id status autobuild name excuteflow calljobx calljob
         webhook webhook_password webhook_release rely buildimage buildscripts
-        follow_up callback groupid addr notify
+        follow_up follow_up_ticketid callback groupid addr notify
         edit_user edit_time  slave last_findtags last_findtags_success 
         ticketid tag_regex autofindtags callonlineenv calltestenv findtags_at_once );
     my $r = eval{ 
@@ -68,7 +68,7 @@ get '/group/favorites/:groupid' => sub {
 
     my @col = qw( id status autobuild name excuteflow calljobx calljob
         webhook webhook_password webhook_release rely buildimage buildscripts
-        follow_up callback groupid addr notify
+        follow_up follow_up_ticketid callback groupid addr notify
         edit_user edit_time  slave last_findtags last_findtags_success 
         ticketid tag_regex autofindtags callonlineenv calltestenv findtags_at_once );
     my $r = eval{ 
@@ -125,7 +125,7 @@ get '/group/all/:groupid' => sub {
 
     my @col = qw( id status autobuild name excuteflow calljobx calljob
         webhook webhook_password webhook_release rely buildimage buildscripts
-        follow_up callback groupid addr notify
+        follow_up follow_up_ticketid callback groupid addr notify
         edit_user edit_time  slave last_findtags last_findtags_success 
         ticketid tag_regex autofindtags callonlineenv calltestenv findtags_at_once );
     my $r = eval{ 
@@ -181,7 +181,7 @@ post '/group/:groupid' => sub {
         {
             my $status = $param->{status} ? 1 : 0;
             my $x = join ',', map{"`$_`"}qw( autobuild excuteflow calljobx calljob webhook webhook_password webhook_release rely buildimage buildscripts 
-                  follow_up callback addr notify  edit_time  slave last_findtags last_findtags_success ticketid tag_regex autofindtags callonlineenv calltestenv findtags_at_once );
+                  follow_up follow_up_ticketid callback addr notify  edit_time  slave last_findtags last_findtags_success ticketid tag_regex autofindtags callonlineenv calltestenv findtags_at_once );
             $api::mysql->execute( "insert into project (`edit_user`,`name`, `groupid`, `status`,$x ) select '$user','$param->{name}','$groupid',$status, $x from project where id=$param->{sourceid}");
         }
         else

@@ -22,7 +22,7 @@ get '/project/:groupid/:projectid' => sub {
     my $relation = $param->{relation} ? ", '0'" : '';
     my @col = qw( id status autobuild name excuteflow calljobx calljob
         webhook webhook_password webhook_release rely buildimage buildscripts
-        follow_up callback groupid addr notify
+        follow_up follow_up_ticketid callback groupid addr notify
         edit_user edit_time  slave last_findtags last_findtags_success 
         ticketid tag_regex autofindtags callonlineenv calltestenv findtags_at_once );
     my $r = eval{ 
@@ -68,6 +68,8 @@ post '/project/:groupid/:projectid' => sub {
         autofindtags => qr/^\d+$/, 1,
         callonlineenv => qr/^\d+$/, 1,
         calltestenv => qr/^\d+$/, 1,
+        ticketid => qr/^\d+$/, 0,
+        follow_up_ticketid => qr/^\d+$/, 0,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -85,7 +87,7 @@ post '/project/:groupid/:projectid' => sub {
     my @col = qw( 
         status autobuild name excuteflow calljobx calljob
         webhook webhook_password webhook_release rely buildimage buildscripts
-        follow_up callback groupid addr
+        follow_up follow_up_ticketid callback groupid addr
         notify ticketid tag_regex autofindtags callonlineenv calltestenv
     );
     eval{ 

@@ -21,18 +21,32 @@ return sub
 {
     my %param = @_;
 
-    my ( $db, $logs, $uuid, $projectid, $version, $follow_up ) 
-        = @param{qw( db logs uuid projectid version follow_up )};
+    my ( $db, $logs, $uuid, $projectid, $version, $follow_up, $follow_up_ticketid ) 
+        = @param{qw( db logs uuid projectid version follow_up follow_up_ticketid )};
 
     print "=" x 75, "\n";
     print "follow_up($follow_up)...\n";
+
+    my $TICKET = '';
+
+    if( $follow_up_ticketid )
+    {
+        my $x = eval{ $db->query( "select ticket from ticket where id='$follow_up_ticketid' and type='UsernamePassword'" )};
+        $logs->die( "get data from ticket fail:$@" ) if $@;
+        my ( $user, $pass ) = split /_:separator:_/, $x->[0][0] if @$x;
+        if( $user )
+        {
+            $logs->die( "ticket format error" ) if $user =~ /'/ || $pass=~ /'/;
+            $TICKET = "TUSERNAME=$user TPASSWORD=$pass";
+        }
+    }
 
     $logs = Logs->new( 'code.build.send.follow_up' ) unless $logs;
     $logs->die( "format error" ) unless $follow_up =~ /^[a-zA-Z0-9][a-zA-Z0-9\._,\;\- \/\:=]*$/ &&  $follow_up !~ /\.\./;
 
     map{
         $_ =~ s/^ +//;
-        $logs->die( "run build.send.follow_up fail:$!" ) if system "VERSION=$version PROJECTID=$projectid /data/Software/mydan/CI/follow_up/$_";
+        $logs->die( "run build.send.follow_up fail:$!" ) if system "VERSION=$version PROJECTID=$projectid $TICKET /data/Software/mydan/CI/follow_up/$_";
     }split /;/, $follow_up;
 
 }

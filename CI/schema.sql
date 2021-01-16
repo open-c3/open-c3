@@ -25,6 +25,7 @@ create table `project`(
 `buildscripts` VARCHAR(8000) comment '容器中构建的脚本',
 
 `follow_up` VARCHAR(200) comment '后续调用的脚本', 
+`follow_up_ticketid` VARCHAR(20) comment '票据编号',
 `callback` VARCHAR(200) comment '回调地址',
 `groupid` VARCHAR(50) comment '组名,和服务树id一致',
 
