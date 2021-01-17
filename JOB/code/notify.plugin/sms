@@ -1,6 +1,7 @@
 #!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
 use strict;
 use warnings;
+use utf8;
 use Data::Dumper;
 use LWP::UserAgent;
 use Util;
@@ -59,8 +60,11 @@ return sub
         ]
     );
 
+    my $cont = JSON::to_json( \%form );
+    utf8::encode($cont);
+
     my $res = $ua->post( "http://api.connector.open-c3.org/connectorx/notify", 
-        Content => JSON::to_json(\%form), 'Content-Type' => 'application/json'
+        Content => $cont, 'Content-Type' => 'application/json'
     );
 
     unless( $res->is_success )
@@ -74,6 +78,6 @@ return sub
 #TODO 确认上层调用是否捕获这个die
         die "call notify result". $data->{info} || '';
     }
- 
+
     return 1;
 }

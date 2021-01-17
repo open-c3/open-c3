@@ -1,6 +1,7 @@
 #!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
 use strict;
 use warnings;
+use utf8;
 use YAML::XS;
 use Logs;
 use LWP::UserAgent;
@@ -30,9 +31,12 @@ return sub
 
     for my $to ( @{$param{to}} )
     {
+        my $cont = JSON::to_json( +{ user => $to, mesg => $param{mesg} } );
+        utf8::encode($cont);
+
         my $res = $ua->post(
             $usermesg,
-            Content => JSON::to_json( +{ user => $to, mesg => $param{mesg} } ), 
+            Content => $cont,
             'Content-Type' => 'application/json' 
         );
 

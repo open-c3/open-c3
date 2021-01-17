@@ -60,8 +60,11 @@ return sub
         ]
     );
 
+    my $cont = JSON::to_json( \%form );
+    utf8::encode($cont);
+
     my $res = $ua->post( "http://api.connector.open-c3.org/connectorx/notify", 
-        Content => JSON::to_json(\%form), 'Content-Type' => 'application/json'
+        Content => $cont, 'Content-Type' => 'application/json'
     );
 
     unless( $res->is_success )
