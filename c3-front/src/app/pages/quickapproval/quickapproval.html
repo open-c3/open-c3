@@ -1,0 +1,50 @@
+<div class="row block" id="changewidth" style="background: #fff;margin:0;padding:0;height:100%;width:100%;position:absolute;">
+    <div class="panel panel-primary">
+
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="quickapproval.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!quickapproval.loadover}" ></i></button>
+            </span>
+            <h5>审批:{{quickapproval.data.name}}</h5>
+        </div>
+
+        <div class="panel-body" ng-init="ns = { 'null': '未发送', 'sending': '发送中', 'done':'完成', 'skip': '忽略', 'fail': '失败'}">
+            <div class="panel-tabs">
+                <table ng-table="quickapproval.dataTable" class="table table-hover text-center table-condensed">
+                    <tr ng-repeat="d in $data">
+                        <td style="width: 10%" data-title="'审批人'">{{d.user}}</td>
+                        <td style="width: 10%" data-title="'耗时'">{{quickapproval.seftime(d.create_time,d.finishtime)}}</td>
+                        <td style="width: 10%" data-title="'审批状态'">
+                            <a ng-if="d.opinion == 'agree'" style="color: green"> 同意 </a>
+                            <a ng-if="d.opinion == 'unconfirmed'"> 未审批 </a>
+                            <a ng-if="d.opinion == 'refuse'" style="color: red"> 拒绝 </a>
+                       </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="row" >
+            <label class="col-md-2 control-label fwbold">创建时间</label>
+            <label class="col-md-4 control-label fwbold">{{quickapproval.data.create_time}}</label>
+        </div>
+
+        <div class="row" >
+            <label class="col-md-2 control-label fwbold">提交人</label>
+            <label class="col-md-4 control-label fwbold">{{quickapproval.data.submitter}}</label>
+        </div>
+
+        <div class="row" >
+            <label class="col-md-2 control-label fwbold">审批内容</label>
+            <label class="col-md-4 control-label fwbold">{{quickapproval.data.cont}}</label>
+        </div>
+
+
+        <div class="panel-footer text-right">
+            <button class="btn btn-success" ng-disabled="quickapproval.stat.opinion != 'unconfirmed'" ng-click="quickapproval.edit('agree')">同意</button>
+            <button class="btn btn-danger" ng-disabled="quickapproval.stat.opinion != 'unconfirmed'" ng-click="quickapproval.edit('refuse')">拒绝</button>
+        </div>
+
+    </div>
+
+</div>

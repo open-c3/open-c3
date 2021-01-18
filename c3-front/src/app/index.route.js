@@ -22,6 +22,12 @@
                 controller: 'LoginController',
                 controllerAs: 'login',
             })
+            .state('quickapproval', {
+                url: '/quickapproval/:uuid',
+                templateUrl: 'app/pages/quickapproval/quickapproval.html',
+                controller: 'QuickApprovalController',
+                controllerAs: 'quickapproval',
+            })
  
             .state('home.dashboard', {
                 url: 'dashboard/:treeid',
