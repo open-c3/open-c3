@@ -39,7 +39,7 @@ sub run
         return %result;
     }
 
-    my $path = "$MYDan::PATH/JOB-buildin/$build";
+    my $path = "$MYDan::PATH/JOB/buildin/$build";
     unless( -e $path )
     {
         print "nofind this buildin code\n";
