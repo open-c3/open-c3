@@ -6,7 +6,7 @@
     .factory('genericService', genericService);
 
 
-  function genericService($http, treeService, $q, $state, $filter) {
+  function genericService($http, $q, $state, $filter) {
 
         var fun = {};
         fun.seftime = function(starttime, finishtime ) {

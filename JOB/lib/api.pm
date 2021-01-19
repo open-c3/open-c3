@@ -32,7 +32,7 @@ hook 'before' => sub {
     my ( $uri, $method ) = ( request->path_info, request->method );
     $logs->say( sprintf "uri:$uri method:%s  param:%s", 
         $method, YAML::XS::Dump YAML::XS::Dump request->params() );
-    return if $uri =~ m{^/mon} || $uri =~ m{^/release} || $uri =~ m{^/fileserver/\d+/upload} || $uri =~ m{^/task/\d+/job/bymon} ;
+    return if $uri =~ m{^/mon} || $uri =~ m{^/release} || $uri =~ m{^/fileserver/\d+/upload} || $uri =~ m{^/task/\d+/job/bymon} || $uri =~ m{^/approval/control};
 
     halt( +{ stat => $JSON::false, code => 10000 } ) 
         unless (  cookie( $cookiekey ) || ( request->headers->{appkey} && request->headers->{appname} ) );

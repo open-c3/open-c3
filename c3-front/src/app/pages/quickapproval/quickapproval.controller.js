@@ -5,7 +5,7 @@
         .module('openc3')
         .controller('QuickApprovalController', QuickApprovalController);
 
-    function QuickApprovalController($scope, $state, $http, $injector, ngTableParams, genericService ) {
+    function QuickApprovalController($state, $http, $injector, ngTableParams, genericService ) {
         var vm = this;
         var toastr = toastr || $injector.get('toastr');
         var uuid = $state.params.uuid;
