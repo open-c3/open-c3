@@ -67,6 +67,7 @@
                 if( data.stat)
                 {
                     vm.ticketinfo = data.data;
+                    vm.ticketinfo.unshift({ id: '', name: '' })
                 }
                 else
                 {
