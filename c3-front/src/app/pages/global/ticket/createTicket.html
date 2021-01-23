@@ -41,7 +41,10 @@
                                                         <input type="radio" ng-model="createticket.postData.type" value="UsernamePassword" >
                                                         <span class="radio" style="padding-top: 0;min-height: 0"></span>用户名密码
                                                     </label>
-
+                                                    <label class="option option-primary">
+                                                        <input type="radio" ng-model="createticket.postData.type" value="JobBuildin" >
+                                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>作业内建插件
+                                                    </label>
                                                 </div>
                                             </div>
                                         </div>
@@ -50,7 +53,7 @@
                                 </div>
 
                                 <div ng-switch="createticket.postData.type" class="row">
-                                    <div ng-switch-when="SSHKey">
+                                    <div ng-if="createticket.postData.type=='SSHKey'">
                                         <div class="col-sm-10 form-group">
                                             <label class="col-sm-3 control-label">SSH Key</label>
                                             <div class="col-sm-9">
@@ -60,7 +63,7 @@
                                         </div>
                                     </div>
 
-                                    <div ng-switch-when="UsernamePassword">
+                                    <div ng-if="createticket.postData.type=='UsernamePassword'">
                                         <div class="col-sm-10 form-group">
                                             <label class="col-sm-3 control-label">用户名</label>
                                             <div class="col-sm-3"> <input ng-model="createticket.postData.ticket.Username"></input> </div>
@@ -69,6 +72,17 @@
                                         </div>
                                         </div>
                                     </div>
+
+                                    <div ng-if="createticket.postData.type=='JobBuildin'">
+                                        <div class="col-sm-10 form-group">
+                                            <label class="col-sm-3 control-label">内容</label>
+                                            <div class="col-sm-9">
+                                                <textarea ng-model="createticket.postData.ticket.JobBuildin" style="width: 100%; height: 110px"></textarea>
+                                                <span>适用于作业内建插件</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
                                 </div>
                                 <div class="row">
                                     <div class="col-sm-5 form-group pull-right">

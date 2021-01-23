@@ -34,6 +34,12 @@ get '/ticket' => sub {
             $d->{ticket} = +{ Username => $n, Password => $p }
         }
 
+        if( $d->{type} eq 'JobBuildin' )
+        {
+            $t = substr( $t, 0, 100). "\n********\n" .substr($t, -100, 100);
+            $d->{ticket} = +{ JobBuildin => $t }
+        }
+
     }
     return +{ stat => $JSON::true, data => $r };
 };
@@ -70,6 +76,12 @@ get '/ticket/:ticketid' => sub {
             $d->{ticket} = +{ Username => $n, Password => $p }
         }
 
+        if( $d->{type} eq 'JobBuildin' )
+        {
+            $t = substr( $t, 0, 100). "\n********\n" .substr($t, -100, 100);
+            $d->{ticket} = +{ JobBuildin => $t }
+        }
+
     }
 
 
@@ -81,7 +93,7 @@ post '/ticket' => sub {
     my $param = params();
     my $error = Format->new( 
         name => [ 'mismatch', qr/'/ ], 1,
-        type => [ 'in', 'SSHKey', 'UsernamePassword' ], 1,
+        type => [ 'in', 'SSHKey', 'UsernamePassword', 'JobBuildin' ], 1,
         describe => [ 'mismatch', qr/'/ ], 1,
     )->check( %$param );
 
@@ -105,6 +117,11 @@ post '/ticket' => sub {
         return  +{ stat => $JSON::false, info => "check format fail ticket" }
             unless $param->{ticket}{Username} && $param->{ticket}{Password};
         $token = "$param->{ticket}{Username}_:separator:_$param->{ticket}{Password}";
+    }
+    if( $param->{type} eq 'JobBuildin' )
+    {
+        return  +{ stat => $JSON::false, info => "check format fail ticket" }
+            unless $token = $param->{ticket}{JobBuildin};
     }
     
     return  +{ stat => $JSON::false, info => "abnormal ticket format" } if $token =~ /\*{8}/;
@@ -122,7 +139,7 @@ post '/ticket/:ticketid' => sub {
     my $error = Format->new( 
         ticketid => qr/^\d+$/, 1,
         name => [ 'mismatch', qr/'/ ], 1,
-        type => [ 'in', 'SSHKey', 'UsernamePassword' ], 1,
+        type => [ 'in', 'SSHKey', 'UsernamePassword', 'JobBuildin' ], 1,
         describe => [ 'mismatch', qr/'/ ], 1,
     )->check( %$param );
 
@@ -147,7 +164,12 @@ post '/ticket/:ticketid' => sub {
             unless $param->{ticket}{Username} && $param->{ticket}{Password};
         $token = "$param->{ticket}{Username}_:separator:_$param->{ticket}{Password}";
     }
-    
+    if( $param->{type} eq 'JobBuildin' )
+    {
+        return  +{ stat => $JSON::false, info => "check format fail ticket" }
+            unless $token = $param->{ticket}{JobBuildin};
+    }
+   
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     return  +{ stat => $JSON::false, info => "abnormal ticket format" } if $token =~ /\*{8}/;
 
