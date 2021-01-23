@@ -41,6 +41,8 @@ sub run
     }
 
 
+    my $JOBUUID = $run{jobuuid} ? "JOBUUID=$run{jobuuid}" : '';
+
     my $CONFIGPATH = '';
     if( length $cont )
     {
@@ -59,7 +61,7 @@ sub run
     }
 
     my $nodes = join ',', sort @node;
-    my $cmd = "NODE='$nodes' TIMEOUT=$timeout USER=$user $CONFIGPATH $path $argv";
+    my $cmd = "NODE='$nodes' TIMEOUT=$timeout USER=$user $JOBUUID $CONFIGPATH $path $argv";
 
     print "cmd:$cmd\n";
     unless( $cmd =~ /^[a-zA-Z0-9\.\-_ '=,\/:"]+$/ )

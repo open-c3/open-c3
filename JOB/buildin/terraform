@@ -1,0 +1,62 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 config
+ $0 config abc.tf
+ $0 init plan
+ $0 apply
+ $0 destroy
+    
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+$option->assert() unless @ARGV;
+
+die "onnode" unless $ENV{NODE};
+die  "This plug-in can only be used in jobs.\n" unless $ENV{JOBUUID};
+my $path = "/data/glusterfs/terraform_data/$ENV{JOBUUID}";
+warn "data: $path\n";
+
+sub success
+{
+    map{ print "$_:ok\n"; } split /,/, $ENV{NODE};
+    exit;
+}
+
+unless( -d $path )
+{
+    die "mkdir path fail:$!" if system "mkdir -p $path";
+}
+
+if( $ARGV[0] eq 'config' )
+{
+    my $name = $ARGV[1] || 'main.tf';
+    warn  "name: $name\n";
+    die "config null\n" unless $ENV{CONFIGPATH} && -f $ENV{CONFIGPATH};
+    die "copy fail:$!" if system "cp $ENV{CONFIGPATH} '$path/$name'";
+    success();
+}
+
+for my $task ( @ARGV )
+{
+    if( grep{ $task eq $_ }qw( init plan apply destroy ) )
+    {
+        my $cmd = "terraform $task -no-color";
+        if( grep{ $task eq $_  }qw( apply destroy ) )
+        {
+            $cmd .= " -auto-approve";
+        }
+        warn "$cmd\n";
+        die "run fail: $!" if system "cd $path && $cmd 1>&2";
+    }
+    else
+    {
+       die "$task undef.\n";
+    }
+}
+
+success();
