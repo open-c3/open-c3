@@ -1,5 +1,9 @@
 #!/data/Software/mydan/perl/bin/perl
 use strict;
 use warnings;
-die "onnode" unless $ENV{NODE};;
+die "onnode" unless $ENV{NODE};
 map{ print "$_:ok\n"; } split /,/, $ENV{NODE};
+
+exit unless $ENV{CONFIGPATH};
+my @x = `cat $ENV{CONFIGPATH} 2>&1`;
+warn @x, "\n";

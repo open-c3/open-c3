@@ -2,6 +2,7 @@ package Buildin;
 
 use warnings;
 use strict;
+use File::Temp;
 use MYDan;
 
 sub new
@@ -29,7 +30,7 @@ sub run
     $user ||= 'root';
 
     my $build;
-    if( $cont =~ /^#!([a-zA-Z0-9_]+)\b/ )
+    if( $cont =~ s/^#!([a-zA-Z0-9_]+)\n{0,1}// )
     {
         $build = $1;
     }
@@ -39,6 +40,17 @@ sub run
         return %result;
     }
 
+
+    my $CONFIGPATH = '';
+    if( length $cont )
+    {
+        my ( $TEMP, $tempfile ) = File::Temp::tempfile();
+        print $TEMP $cont;
+        close $TEMP;
+        $CONFIGPATH = "CONFIGPATH=$tempfile";
+    }
+
+
     my $path = "$MYDan::PATH/JOB/buildin/$build";
     unless( -e $path )
     {
@@ -47,7 +59,7 @@ sub run
     }
 
     my $nodes = join ',', sort @node;
-    my $cmd = "NODE='$nodes' TIMEOUT=$timeout USER=$user $path $argv";
+    my $cmd = "NODE='$nodes' TIMEOUT=$timeout USER=$user $CONFIGPATH $path $argv";
 
     print "cmd:$cmd\n";
     unless( $cmd =~ /^[a-zA-Z0-9\.\-_ '=,\/:"]+$/ )
