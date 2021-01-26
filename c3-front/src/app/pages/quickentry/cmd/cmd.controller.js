@@ -323,7 +323,7 @@
             cont = cont.replace(/\r\n/g, "\n");
             var post_data ={
                 'name': vm.s_name,
-                'user': $scope.selectedUser.username,
+                'user': $scope.selectedUser,
                 'node_type':$scope.nodeType,
                 'node_cont':vm.choiceNode.join(","),
                 'scripts_type':$scope.scriptType,
@@ -429,5 +429,21 @@
 
         }
         vm.getProUser();
+
+        vm.reloadticket = function(){
+            $http.get('/api/ci/ticket?type=JobBuildin').success(function(data){
+                if( data.stat)
+                {
+                    vm.ticketinfo = data.data;
+                    vm.ticketinfo.unshift({ id: '0', name: 'null' })
+                }
+                else
+                {
+                    toastr.error( "加载票据列表失败:" + data.info )
+                }
+            });
+        };
+
+        vm.reloadticket();
 
 }})();

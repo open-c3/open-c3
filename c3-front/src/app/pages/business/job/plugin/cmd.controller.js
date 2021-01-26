@@ -468,6 +468,22 @@
         }
         vm.getProUser();
 
+        vm.reloadticket = function(){
+            $http.get('/api/ci/ticket?type=JobBuildin').success(function(data){
+                if( data.stat)
+                {
+                    vm.ticketinfo = data.data;
+                    vm.ticketinfo.unshift({ id: '0', name: 'null' })
+                }
+                else
+                {
+                    toastr.error( "加载票据列表失败:" + data.info )
+                }
+            });
+        };
+
+        vm.reloadticket();
+
         $timeout(vm.editorSh, 500,true,"", false);
 
 }})();

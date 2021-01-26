@@ -10,12 +10,20 @@ use api;
 use Format;
 
 get '/ticket' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        type => [ 'in', 'SSHKey', 'UsernamePassword', 'JobBuildin' ], 0,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
     my $pmscheck = api::pmscheck( 'openc3_ci_root' ); return $pmscheck if $pmscheck;
+
+    my $where = $param->{type} ? "where type='$param->{type}'" : '';
 
     my @col = qw( id name type ticket describe edit_user create_user edit_time create_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from ticket", join( ',', map{"`$_`"}@col)), \@col )};
+            sprintf( "select %s from ticket $where", join( ',', map{"`$_`"}@col)), \@col )};
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     for my $d ( @$r )
@@ -65,20 +73,20 @@ get '/ticket/:ticketid' => sub {
         my $t = $d->{ticket};
         if( $d->{type} eq 'SSHKey' )
         {
-            $t = substr( $t, 0, 100). "\n********\n" .substr($t, -100, 100);
+            $t = substr( $t, 0, 100). "\n********\n" .substr($t, -100, 100) unless $param->{detail};
             $d->{ticket} = +{ SSHKey => $t }
         }
 
         if( $d->{type} eq 'UsernamePassword' )
         {
             my ( $n, $p ) = split /_:separator:_/, $t;
-            $p = '********';
+            $p = '********' unless $param->{detail};
             $d->{ticket} = +{ Username => $n, Password => $p }
         }
 
         if( $d->{type} eq 'JobBuildin' )
         {
-            $t = substr( $t, 0, 100). "\n********\n" .substr($t, -100, 100);
+            $t = substr( $t, 0, 100). "\n********\n" .substr($t, -100, 100) unless $param->{detail};
             $d->{ticket} = +{ JobBuildin => $t }
         }
 

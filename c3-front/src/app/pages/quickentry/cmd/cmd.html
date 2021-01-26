@@ -21,51 +21,6 @@
                     </div>
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">执行账户 <span style="color: red">*</span></label>
-                            <div class="col-sm-7">
-                                <select  class="form-control " style="font-size: 15px;height: 42px"  ng-model="selectedUser" ng-options="s.username for s in allProUsers" required>
-                                </select>
-
-                            </div>
-                            <button class="btn btn-primary col-sm-1" uib-tooltip="添加" ng-click="quick.addProUser()"><i class="fa fa-plus"></i></button>
-
-                        </div>
-
-                    </div>
-
-                    <div class="row">
-                        <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">目标机器 <span style="color: red">*</span></label>
-                            <div class="col-sm-9">
-                                <button class="btn btn-primary" ng-click="quick.choiceServer()" required >选择服务器</button>
-                                <table ng-table="choice.choiceResult" class="table table-hover" ng-show="choiceShow" style="margin-top: 10px;border: 1px solid #ddd;" >
-                                    <thead >
-                                        <tr>
-                                            <th style="text-align: left;">编号</th>
-                                            <th style="text-align: left;">名称</th>
-                                            <th style="text-align: left;">类型</th>
-                                            <th style="text-align: left;">操作</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr ng-repeat="ss in choiceResult">
-
-                                            <td>{{$index + 1}}</td>
-                                            <td ng-if="nodeType=='group'">{{ss.name}}</td>
-                                            <td ng-if="nodeType=='builtin'">{{ss}}</td>
-                                            <td>{{choiceType}}</td>
-                                            <td>
-                                                <button ng-if="nodeType=='group'" ng-click="quick.delChoice($index, ss.name)">删除</button>
-                                                <button ng-if="nodeType=='builtin'" ng-click="quick.delChoice($index, ss)">删除</button>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-sm-10 form-group">
                             <label class="col-sm-3 control-label">脚本来源 <span style="color: red">*</span></label>
                             <div class="col-sm-9">
                                 <div class="admin-form">
@@ -140,6 +95,63 @@
                                     </div>
                                 </div>
 
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="row" ng-show="scriptType!='buildin'">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">执行账户 <span style="color: red">*</span></label>
+                            <div class="col-sm-7">
+                                <select class="form-control" style="font-size: 15px;height: 42px" ng-model="selectedUser" >
+                                     <option ng-repeat="x in allProUsers" value="{{x.username}}">{{x.username}}</option>
+                                </select>
+
+                            </div>
+                            <button class="btn btn-primary col-sm-1" uib-tooltip="添加" ng-click="quick.addProUser()"><i class="fa fa-plus"></i></button>
+                        </div>
+                    </div>
+
+                    <div class="row" ng-show="scriptType=='buildin'">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">使用票据 &nbsp&nbsp</label>
+                            <div class="col-sm-7">
+                                <select class="form-control"  ng-model="selectedUser" >
+                                     <option ng-repeat="x in quick.ticketinfo" value="{{x.id}}">{{x.name}}</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">目标机器 <span style="color: red">*</span></label>
+                            <div class="col-sm-9">
+                                <button class="btn btn-primary" ng-click="quick.choiceServer()" required >选择服务器</button>
+                                <table ng-table="choice.choiceResult" class="table table-hover" ng-show="choiceShow" style="margin-top: 10px;border: 1px solid #ddd;" >
+                                    <thead >
+                                        <tr>
+                                            <th style="text-align: left;">编号</th>
+                                            <th style="text-align: left;">名称</th>
+                                            <th style="text-align: left;">类型</th>
+                                            <th style="text-align: left;">操作</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr ng-repeat="ss in choiceResult">
+
+                                            <td>{{$index + 1}}</td>
+                                            <td ng-if="nodeType=='group'">{{ss.name}}</td>
+                                            <td ng-if="nodeType=='builtin'">{{ss}}</td>
+                                            <td>{{choiceType}}</td>
+                                            <td>
+                                                <button ng-if="nodeType=='group'" ng-click="quick.delChoice($index, ss.name)">删除</button>
+                                                <button ng-if="nodeType=='builtin'" ng-click="quick.delChoice($index, ss)">删除</button>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>

@@ -4,6 +4,10 @@ use warnings;
 use strict;
 use File::Temp;
 use MYDan;
+use Util;
+use LWP::UserAgent;
+use JSON;
+use Temp;
 
 sub new
 {
@@ -25,9 +29,32 @@ sub run
         return %result;
     }
 
-    my ( $timeout, $user ) = @run{qw( timeout sudo )};
+    my ( $timeout, $ticketid, $ticketfile ) = @run{qw( timeout sudo )};
     $timeout ||= 60;
-    $user ||= 'root';
+    $ticketfile ||= 0;
+
+    if( $ticketid ) # != 0
+    {
+        my %env = Util::envinfo( qw( appname appkey ) );
+        my $ua = LWP::UserAgent->new;
+        $ua->default_header( %env );
+
+        my $res = $ua->get( "http://api.ci.open-c3.org/ticket/$ticketid?detail=1" );
+
+        unless( $res->is_success )
+        {
+            #TODO 确认上层调用是否捕获这个die
+            die "get ticket fail";
+        }
+
+        my $data = eval{JSON::from_json $res->content};
+        unless ( $data->{stat} && $data->{data} && $data->{data}{ticket} && $data->{data}{ticket}{JobBuildin} ) {
+            #TODO 确认上层调用是否捕获这个die
+            die "call ticket result". $data->{info} || '';
+        }
+
+        $ticketfile = Temp->new( chmod => 0600 )->dump( $data->{data}{ticket}{JobBuildin} );
+    }
 
     my $build;
     if( $cont =~ s/^#!([a-zA-Z0-9_]+)\n{0,1}// )
@@ -61,7 +88,7 @@ sub run
     }
 
     my $nodes = join ',', sort @node;
-    my $cmd = "NODE='$nodes' TIMEOUT=$timeout USER=$user $JOBUUID $CONFIGPATH $path $argv";
+    my $cmd = "NODE='$nodes' TIMEOUT=$timeout TICKETFILE=$ticketfile $JOBUUID $CONFIGPATH $path $argv";
 
     print "cmd:$cmd\n";
     unless( $cmd =~ /^[a-zA-Z0-9\.\-_ '=,\/:"]+$/ )
