@@ -250,6 +250,10 @@
             }
         }
 
+        vm.buildinSet = function( name ) {
+            vm.editorBuildin( '#!' + name, false );
+        }
+
         vm.scriptTypeEditor = {
             "shell": vm.editorSh,
             "python": vm.editorPy,

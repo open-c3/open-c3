@@ -84,6 +84,14 @@
                                             </div>
                                         </div>
 
+                                        <div ng-show="scriptType=='buildin' && quick.from == 'manual'" class="admin-form">
+                                            <div class="option-group field" style="padding-bottom: 9px;">
+                                                <label class="option option-primary" style="cursor:default;"></span>内建插件: </label>
+                                                <label class="option option-primary" ng-click="quick.buildinSet( 'kubectl' )" >kubectl</label>
+                                                <label class="option option-primary" ng-click="quick.buildinSet( 'terraform' )" >terraform</label>
+                                            </div>
+                                        </div>
+
                                         <div class="form-horizontal">
                                             <!-- shell -->
                                                 <div style="height:400px;" class="form-group" id="editor" ng-mouseleave="quick.leaveeditor()" ></div>
