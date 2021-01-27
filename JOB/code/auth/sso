@@ -28,6 +28,14 @@ return sub
     return unless $res->is_success;
 
     my $v = eval{decode_json $res->decoded_content};
-    return ( $v && ref $v eq 'HASH' && $v->{stat} ) ? $v->{data} : undef;
-}
 
+    return undef unless $v && ref $v eq 'HASH' && $v->{stat};
+
+    my @return = ( ref $v->{data} eq 'HASH' && $v->{data}{user} && $v->{data}{company} )
+        ? ( $v->{data}{user}, $v->{data}{company} )
+        : ( $v->{data}, $v->{data} =~ /(@.+)$/ ? $1 : 'default' );
+
+    $return[1] = '@app' if $param{appkey} && $param{appname};
+
+    return wantarray ? @return : $return[0];
+}
