@@ -1,0 +1,56 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use MYDan::Util::OptConf;
+use FindBin qw( $RealBin );
+
+=head1 SYNOPSIS
+
+ $0 apply
+ $0 check deployment namespace [desiredImage]
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+$option->assert() unless @ARGV;
+
+die "nonode" unless $ENV{NODE};
+die "noticket" unless $ENV{TICKETFILE};
+
+sub success
+{
+    map{ print "$_:ok\n"; } split /,/, $ENV{NODE};
+    exit;
+}
+
+if( $ARGV[0] eq 'apply' )
+{
+    if( $ARGV[1] )
+    {
+        die "rewrite DEPLOYVERSION fail!" if system "sed -i 's/DEPLOYVERSION/$ARGV[1]/g' $ENV{CONFIGPATH} 1>&1";
+    }
+
+    die "config null\n" unless $ENV{CONFIGPATH} && -f $ENV{CONFIGPATH};
+    my $cmd  = "KUBECONFIG=$ENV{TICKETFILE} kubectl apply -f $ENV{CONFIGPATH}";
+    warn "$cmd\n";
+    die "apply fail:$!" if system "$cmd 1>&2";
+    success();
+}
+
+if( $ARGV[0] eq 'check' )
+{
+    die "check param error" unless @ARGV >= 3;
+
+    my $timeout = $ENV{TIMEOUT} && $ENV{TIMEOUT} =~ /^\d+$/ ? time + $ENV{TIMEOUT} : time  +  60; 
+
+    my $cmd = sprintf "KUBECONFIG=$ENV{TICKETFILE} $RealBin/kubectl.code/deploymentcheck %s", join ' ', @ARGV[1,2,3];
+
+    warn  "$cmd\n";
+    for( 1 .. 360 )
+    {
+        last unless system "$cmd 1>&2"; 
+        sleep 10;
+        die "check timeout.\n" if time > $timeout;
+    }
+    success();
+}

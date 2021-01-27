@@ -3,9 +3,8 @@ use strict;
 use warnings;
 use Carp;
 use POSIX;
-use Data::Dumper;
 use File::Temp;
-use Digest::MD5;
+use uuid;
 $|++;
 sub new
 {
@@ -16,8 +15,7 @@ sub dump
 {
     my $this = shift;
     my $string = join "\n", @_;
-    my $user = `id -u`; chomp $user;
-    my $name = sprintf "/tmp/%s.$user.job_buildin_tmp", Digest::MD5->new->add( $string )->hexdigest;
+    my $name = sprintf "/tmp/%s.job_buildin_tmp", uuid->new()->create_str;;
     unless( -f $name )
     {
         my $tmp = File::Temp->new( SUFFIX => ".job_buildin_tmp", UNLINK => 1 );

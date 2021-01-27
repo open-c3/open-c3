@@ -1,0 +1,45 @@
+#! /bin/bash
+deployment=$1
+namespace=$2
+desiredImage=$3
+
+if [ "X$namespace" == "X" ]; then
+    echo $0 deployment namespace 
+    exit 1
+fi
+
+echo deployment: $deployment
+echo namespace: $namespace
+
+labels=$(kubectl get deployment $deployment -n $namespace -o jsonpath='{.spec.selector.matchLabels}')
+echo labels: $labels
+
+pairs=$(echo $labels | cut -d"[" -f2 | cut -d"]" -f1 | sed 's/:/=/g' | sed 's/ /,/g')
+echo pairs: $pairs
+
+desiredNum=$(kubectl get deployment $deployment -n $namespace -o jsonpath='{.spec.replicas}')
+echo desiredReplicas: $desiredNum 
+
+if [ "X$desiredImage" == "X" ]; then
+    desiredImage=$(kubectl get deployment $deployment -n $namespace -o jsonpath='{.spec.template.spec.containers[0].image}')
+fi
+echo desiredImage: $desiredImage
+
+count=0
+for img in $(kubectl get pods -n $namespace  -l $pairs -o=jsonpath="{range .items[*]}{.metadata.name}{\"\t\"}{.spec.containers[0].image}{\"\t\"}{.status.phase}{\"\n\"}{end}" | grep Running | awk '{print $2}')
+do
+    if [ $img == $desiredImage ]
+    then
+        count=$((count + 1))
+    fi
+done
+
+echo count: $count
+
+if [ $count -eq $desiredNum ]
+then
+    echo "update success"
+else
+    echo "updating"
+    exit 1
+fi
