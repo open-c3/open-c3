@@ -142,6 +142,7 @@
             if (re){
                 sheditor.setReadOnly(true)
             }
+            vm.leaveeditor();
         };
         vm.editorPy = function (data, re) {
             vm.pyEditor = ace.edit("editor");
@@ -158,6 +159,7 @@
             if (re){
                 pyeditor.setReadOnly(true)
             }
+            vm.leaveeditor();
         };
 
         vm.editorPerl = function (data, re) {
@@ -175,6 +177,7 @@
             if (re){
                 perleditor.setReadOnly(true)
             }
+            vm.leaveeditor();
         };
 
         vm.editorPhp = function (data, re) {
@@ -192,6 +195,7 @@
             if (re){
                 phpeditor.setReadOnly(true)
             }
+            vm.leaveeditor();
         };
 
         vm.editorBuildin = function (data, re) {
@@ -209,6 +213,7 @@
             if (re){
                 buildineditor.setReadOnly(true)
             }
+            vm.leaveeditor();
         };
 
         vm.editorAuto = function (data, re) {
@@ -225,7 +230,25 @@
             if (re){
                 autoeditor.setReadOnly(true)
             }
+            vm.leaveeditor();
         };
+
+        vm.showmachinelist = 1;
+
+        vm.leaveeditor = function() {
+            vm.showmachinelist = 1;
+            if($scope.scriptType == "buildin"){
+                var cont = vm.buildinEditor.getValue();
+                if( cont.search(/^#!kubectl\b/) == 0 )
+                {
+                    vm.showmachinelist = 0;
+                }
+                if( cont.search(/^#!terraform\b/) == 0 )
+                {
+                    vm.showmachinelist = 0;
+                }
+            }
+        }
 
         vm.scriptTypeEditor = {
             "shell": vm.editorSh,
@@ -306,6 +329,11 @@
                 cont = vm.phpEditor.getValue();
             }else if($scope.scriptType == "buildin"){
                 cont = vm.buildinEditor.getValue();
+                if( vm.showmachinelist == 0  )
+                {
+                    $scope.nodeType = 'builtin';
+                    vm.choiceNode = [ 'openc3skipnode' ]
+                }
             }else if($scope.scriptType == "auto"){
                 cont = vm.autoEditor.getValue();
             }

@@ -90,6 +90,9 @@ return sub
         $logs->die( "node_type : $node_type unkown" );
     }
 
+    my $openc3skipnode = ( grep{ $_ eq  'openc3skipnode' }@node  ) ? 1 : 0;
+    @node = ( 'openc3skipnode' ) if $openc3skipnode;
+
     if( $taskuuid && $fromjob )
     {
         my $nodecount = @node;
@@ -152,7 +155,7 @@ return sub
      );
 
 
-    if( defined $projectid )
+    if( defined $projectid && ! $openc3skipnode )
     {
         my $nodeinfo_check = Code->new( 'nodeinfo_check' );
 
@@ -218,7 +221,7 @@ return sub
             push( @failed, $_ ) if $exit;
         }@node;
 
-        MYDan::VSSH::Print::result( 'rcal' => %result );
+        MYDan::VSSH::Print::result( 'rcal' => %result ) unless $openc3skipnode;
 
         if( defined $projectid )
         {
