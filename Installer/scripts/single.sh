@@ -119,6 +119,21 @@ function install() {
     fi
 
     echo =================================================================
+    echo "[INFO]create c3-front/dist/book ..."
+
+    rm -rf $BASE_PATH/c3-front/dist/book
+    cd $BASE_PATH/c3-front/dist && git clone https://github.com/open-c3/open-c3.github.io book
+
+    if [ -d "$BASE_PATH/c3-front/dist/book" ]; then
+        echo "[SUCC]create c3-front/dist/book success."
+    else
+        echo "[FAIL]create c3-front/dist/book fail."
+        exit 1
+    fi
+
+    cd $BASE_PATH || exit 1
+
+    echo =================================================================
     echo "[INFO]create web-shell/node_modules ..."
 
     if [ -d "$BASE_PATH/Installer/install-cache/web-shell/node_modules" ]; then

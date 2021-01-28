@@ -87,7 +87,10 @@ function start() {
     if [ "X$IP" = "X0.0.0.0" ];then
         echo =================================================================
         echo "[INFO]build ..."
-        exec docker run -it -v /data/open-c3/c3-front/:/code openc3/gulp gulp build
+        docker run -it -v /data/open-c3/c3-front/:/code openc3/gulp gulp build
+        rm -rf $BASE_PATH/c3-front/dist/book
+        cd $BASE_PATH/c3-front/dist && git clone https://github.com/open-c3/open-c3.github.io book
+        exit
     fi
 
     echo =================================================================
