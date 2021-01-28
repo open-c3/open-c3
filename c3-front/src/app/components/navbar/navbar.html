@@ -25,12 +25,6 @@
 
     <ul class="nav navbar-nav navbar-left">
         <li>
-            <a ui-sref="home.favorites({treeid: nav.state.params.treeid})" > <span>我的收藏夹</span> </a>
-        </li>
-    </ul>
-
-    <ul class="nav navbar-nav navbar-left">
-        <li>
             <a ui-sref="home.quickentry.flowline({treeid: nav.state.params.treeid})" > <span>流水线</span> </a>
         </li>
     </ul>
@@ -98,10 +92,6 @@
             <!--<i class="fa fa-circle"></i>-->
         <!--</li>-->
 
-        <li>
-            <a ui-sref="home.approval({treeid: nav.state.params.treeid})" > <span>我的审批</span> </a>
-        </li>
-
         <li class="dropdown" uib-dropdown>
             <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple" uib-dropdown-toggle>
                 <span>管理员</span>
@@ -112,7 +102,6 @@
                 <li class="list-group-item">
                     <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.notify({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>通知管理</span> </a>
                     <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.template({treeid: nav.state.params.treeid})"  class="animated animated-short fadeInUp" > <span>模板管理</span> </a>
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.ticket({treeid: nav.state.params.treeid})"  class="animated animated-short fadeInUp" > <span>票据管理</span> </a>
                 </li>
             </ul>
 
@@ -158,6 +147,17 @@
             <ul class="dropdown-menu list-group dropdown-persist w250" uib-dropdown-menu>
                 <li class="dropdown-header clearfix">
                     <div class="pull-left ml10">{{ nav.user.email }}</div>
+                </li>
+                <li class="list-group-item">
+                    <a href="javascript:void(0)" class="animated animated-short fadeInUp" ui-sref="home.favorites({treeid: nav.state.params.treeid})">
+                        <span class="fa fa-star"></span><span>我的收藏夹</span>
+                    </a>
+                    <a href="javascript:void(0)" class="animated animated-short fadeInUp" ui-sref="home.approval({treeid: nav.state.params.treeid})">
+                        <span class="fa fa-hand-o-right"></span><span>我的审批</span>
+                    </a>
+                    <a href="javascript:void(0)" class="animated animated-short fadeInUp" ui-sref="home.global.ticket({treeid: nav.state.params.treeid})">
+                        <span class="fa fa-ticket"></span><span>我的票据</span>
+                    </a>
                 </li>
                 <li class="list-group-item">
                     <a href="javascript:void(0)" class="animated animated-short fadeInUp" ng-click="nav.chpasswd()">
