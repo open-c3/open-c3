@@ -568,7 +568,6 @@ post '/task/:projectid/plugin_approval' => sub {
 
     my $pmscheck = api::pmscheck( 'openc3_job_write', $param->{projectid} ); return $pmscheck if $pmscheck;
 
-    $param->{cont} = encode_base64( encode('UTF-8',$param->{cont}) );
     $param->{timeout} ||= 60;
 
     my $plugin_uuid = uuid->new()->create_str;
