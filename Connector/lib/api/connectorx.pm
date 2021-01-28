@@ -105,12 +105,12 @@ get '/connectorx/cookiekey' => sub {
 
 #获取用户信息，前端使用
 get '/connectorx/sso/userinfo' => sub {
-    my ( $user, $company, $admin )= eval{ $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) ) };
+    my ( $user, $company, $admin, $showconnector )= eval{ $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) ) };
     return( +{ stat => $JSON::false, info => "sso code error:$@" } ) if $@;
     return( +{ stat => $JSON::false, code => 10000 } ) unless $user;
     my $name = $user;
     $name =~ s/@.*//;
-    return +{ name => uc( $name ), email => $user, company => $company, admin => $admin };
+    return +{ name => uc( $name ), email => $user, company => $company, admin => $admin, showconnector => $showconnector };
 };
 #前端跳转登录
 any '/connectorx/sso/loginredirect' => sub {

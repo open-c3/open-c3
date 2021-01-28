@@ -88,7 +88,7 @@ get '/internal/user/username' => sub {
     my $level = eval{ $api::mysql->query( "select level from userauth where name='$user'" ) };
     my $userlevel = @$level ? $level->[0][0] : 0;
 
-    return +{ stat => JSON::true, data => +{ user => $user, company => $user =~ /(@.+)$/ ? $1 : 'default', admin => $userlevel >= 3 ? 1 : 0 }};
+    return +{ stat => JSON::true, data => +{ user => $user, company => $user =~ /(@.+)$/ ? $1 : 'default', admin => $userlevel >= 3 ? 1 : 0, showconnector => 1 }};
 };
 
 any '/default/user/logout' => sub {
