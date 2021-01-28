@@ -29,6 +29,26 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-sm-10 form-group">
+                                        <label class="col-sm-3 control-label">授权</label>
+                                        <div class="col-sm-9">
+                                            <div class="admin-form">
+                                                <div class="option-group field" >
+                                                    <label class="option option-primary">
+                                                        <input type="radio" ng-model="createticket.postData.share" value="false" >
+                                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>私人
+                                                    </label>
+                                                    <label class="option option-primary">
+                                                        <input type="radio" ng-model="createticket.postData.share" value="true" >
+                                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>共享给公司内部
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-10 form-group">
                                         <label class="col-sm-3 control-label">类型</label>
                                         <div class="col-sm-9">
                                             <div class="admin-form">
@@ -84,7 +104,7 @@
                                     </div>
 
                                 </div>
-                                <div class="row">
+                                <div class="row" ng-show="createticket.type!='show'">
                                     <div class="col-sm-5 form-group pull-right">
                                         <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="createticket.saveTicket()">保存票据</button>
                                     </div>

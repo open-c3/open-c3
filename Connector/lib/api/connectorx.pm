@@ -92,10 +92,10 @@ get '/connectorx/point' => sub {
 get '/connectorx/username' => sub {
     #cookie appname appkey
     my $param = params();
-    my $user = eval{ $api::sso->run( %$param ) };
+    my ( $user, $company ) = eval{ $api::sso->run( %$param ) };
 
     return( +{ stat => $JSON::false, info => "sso code error:$@" } ) if $@;
-    return( +{ stat => $JSON::true, data => $user } );
+    return( +{ stat => $JSON::true, data => +{ user  => $user, company => $company } } );
 };
 
 #cookie的key名称

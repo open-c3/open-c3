@@ -82,7 +82,7 @@ get '/internal/user/username' => sub {
     
     return +{ stat => $JSON::false, info => $@ } if $@;
 
-    return +{ stat => JSON::true, data => +{ user => $info->[0][0], company=> 'openc3' }} if @$info;
+    return +{ stat => JSON::true, data => +{ user => $info->[0][0], company => $info->[0][0] =~ /(@.+)$/ ? $1 : 'default' }} if @$info;
     return +{ stat => JSON::false, info => 'Not logged in yet' };
 
 };

@@ -20,6 +20,7 @@
                 resolve: {
                     ticketid: function () {},
                     homereload: function () { return vm.reload },
+                    type: function () { return 'create' },
                     title: function () { return '新建票据' },
                 }
             });
@@ -48,6 +49,23 @@
           });
         };
 
+        vm.showTicket = function(id){
+            $uibModal.open({
+                templateUrl: 'app/pages/global/ticket/createTicket.html',
+                controller: 'CreateTicketController',
+                controllerAs: 'createticket',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    ticketid: function () { return id},
+                    homereload: function () { return vm.reload },
+                    type: function () { return 'show' },
+                    title: function () { return '查看票据' },
+                }
+            });
+        };
 
         vm.editTicket = function(id){
             $uibModal.open({
@@ -61,6 +79,7 @@
                 resolve: {
                     ticketid: function () { return id},
                     homereload: function () { return vm.reload },
+                    type: function () { return 'edit' },
                     title: function () { return '编辑票据' },
                 }
             });

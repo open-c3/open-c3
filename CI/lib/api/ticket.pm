@@ -16,19 +16,21 @@ get '/ticket' => sub {
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    my $pmscheck = api::pmscheck( 'openc3_ci_root' ); return $pmscheck if $pmscheck;
+    my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
+        map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
-    my $where = $param->{type} ? "where type='$param->{type}'" : '';
+    my $where = $param->{type} ? "and type='$param->{type}'" : '';
 
-    my @col = qw( id name type ticket describe edit_user create_user edit_time create_time );
+    my @col = qw( id name type share ticket describe edit_user create_user edit_time create_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from ticket $where", join( ',', map{"`$_`"}@col)), \@col )};
+            sprintf( "select %s from ticket where ( create_user='$user' or share='$company' ) $where", join( ',', map{"`$_`"}@col)), \@col )};
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     for my $d ( @$r )
     {
         my $t = $d->{ticket};
+        $d->{self} = $d->{create_user} eq $user ? 1 : 0; 
         if( $d->{type} eq 'SSHKey' )
         {
             $t = substr( $t, 0, 100). "\n********\n" .substr($t, -100, 100);
@@ -47,7 +49,7 @@ get '/ticket' => sub {
             $t = substr( $t, 0, 100). "\n********\n" .substr($t, -100, 100);
             $d->{ticket} = +{ JobBuildin => $t }
         }
-
+        $d->{share} = $d->{share} ? 'true' : 'false';
     }
     return +{ stat => $JSON::true, data => $r };
 };
@@ -60,38 +62,41 @@ get '/ticket/:ticketid' => sub {
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    my $pmscheck = api::pmscheck( 'openc3_ci_root' ); return $pmscheck if $pmscheck;
+    my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
+        map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
-    my @col = qw( id name type ticket describe edit_user create_user edit_time create_time );
+    my @col = qw( id name type share ticket describe edit_user create_user edit_time create_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from ticket where id='$param->{ticketid}'", join( ',', map{"`$_`"}@col)), \@col )};
+            sprintf( "select %s from ticket where id='$param->{ticketid}' and ( create_user='$user' or share='$company' )", join( ',', map{"`$_`"}@col)), \@col )};
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     for my $d ( @$r )
     {
         my $t = $d->{ticket};
+
+        my $show = ( ( $d->{create_user} eq $user || $company eq '@app' ) && $param->{detail} ) ? 1 : 0;
+
         if( $d->{type} eq 'SSHKey' )
         {
-            $t = substr( $t, 0, 100). "\n********\n" .substr($t, -100, 100) unless $param->{detail};
+            $t = substr( $t, 0, 100). "\n********\n" .substr($t, -100, 100) unless $show;
             $d->{ticket} = +{ SSHKey => $t }
         }
 
         if( $d->{type} eq 'UsernamePassword' )
         {
             my ( $n, $p ) = split /_:separator:_/, $t;
-            $p = '********' unless $param->{detail};
+            $p = '********' unless $show;
             $d->{ticket} = +{ Username => $n, Password => $p }
         }
 
         if( $d->{type} eq 'JobBuildin' )
         {
-            $t = substr( $t, 0, 100). "\n********\n" .substr($t, -100, 100) unless $param->{detail};
+            $t = substr( $t, 0, 100). "\n********\n" .substr($t, -100, 100) unless $show;
             $d->{ticket} = +{ JobBuildin => $t }
         }
-
+        $d->{share} = $d->{share} ? 'true' : 'false';
     }
-
 
     return +{ stat => $JSON::true, data => $r->[0] || +{} };
 };
@@ -107,11 +112,10 @@ post '/ticket' => sub {
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    my $pmscheck = api::pmscheck( 'openc3_ci_root' ); return $pmscheck if $pmscheck;
-
-    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), 
+    my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
+    my $share = $param->{share} && $param->{share} eq 'true' ? $company : '';
     return  +{ stat => $JSON::false, info => "check format fail ticket" } unless $param->{ticket} && ref $param->{ticket} eq 'HASH';
 
     my $token = '';
@@ -136,7 +140,7 @@ post '/ticket' => sub {
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
 
     eval{ 
-        $api::mysql->execute( "insert into ticket (`name`,`type`, `ticket`,`describe`,`edit_user`,`create_user`,`edit_time`,`create_time` ) values( '$param->{name}', '$param->{type}', '$token', '$param->{describe}', '$user', '$user', '$time', '$time' )");
+        $api::mysql->execute( "insert into ticket (`name`,`type`, `share`, `ticket`,`describe`,`edit_user`,`create_user`,`edit_time`,`create_time` ) values( '$param->{name}', '$param->{type}', '$share', '$token', '$param->{describe}', '$user', '$user', '$time', '$time' )");
     };
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
@@ -153,10 +157,10 @@ post '/ticket/:ticketid' => sub {
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    my $pmscheck = api::pmscheck( 'openc3_ci_root' ); return $pmscheck if $pmscheck;
-
-    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), 
+    my ( $user, $company ) = $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    my $share = $param->{share} && $param->{share} eq 'true' ? $company : '';
 
     return  +{ stat => $JSON::false, info => "check format fail ticket" } unless $param->{ticket} && ref $param->{ticket} eq 'HASH';
 
@@ -181,11 +185,11 @@ post '/ticket/:ticketid' => sub {
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     return  +{ stat => $JSON::false, info => "abnormal ticket format" } if $token =~ /\*{8}/;
 
-    eval{ 
-        $api::mysql->execute( "update ticket set name='$param->{name}',type='$param->{type}',ticket='$token',`describe`='$param->{describe}',edit_user='$user',edit_time='$time' where id=$param->{ticketid} " );
+    my $update = eval{ 
+        $api::mysql->execute( "update ticket set name='$param->{name}',type='$param->{type}',share='$share',ticket='$token',`describe`='$param->{describe}',edit_user='$user',edit_time='$time' where id=$param->{ticketid} and create_user='$user'" );
     };
 
-    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
+    return $@ ? +{ stat => $JSON::false, info => $@ } : $update ? +{ stat => $JSON::true } : +{ stat => $JSON::false, info => 'not update' } ;
 };
 
 del '/ticket/:ticketid' => sub {
@@ -196,13 +200,14 @@ del '/ticket/:ticketid' => sub {
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    my $pmscheck = api::pmscheck( 'openc3_ci_root' ); return $pmscheck if $pmscheck;
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), 
+        map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
-    eval{ 
-        $api::mysql->execute( "delete from ticket where id='$param->{ticketid}'" );
+    my $update = eval{ 
+        $api::mysql->execute( "delete from ticket where id='$param->{ticketid}' and create_user='$user'" );
     };
 
-    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
+    return $@ ? +{ stat => $JSON::false, info => $@ } : $update ? +{ stat => $JSON::true } : +{ stat => $JSON::false, info => 'not delete' };
 };
 
 true;
