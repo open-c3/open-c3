@@ -68,7 +68,7 @@ get '/ticket/:ticketid' => sub {
     my @col = qw( id name type share ticket describe edit_user create_user edit_time create_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from ticket where id='$param->{ticketid}' and ( create_user='$user' or share='$company' )", join( ',', map{"`$_`"}@col)), \@col )};
+            sprintf( "select %s from ticket where id='$param->{ticketid}' and ( create_user='$user' or share='$company' or '$company'='\@app' )", join( ',', map{"`$_`"}@col)), \@col )};
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     for my $d ( @$r )
