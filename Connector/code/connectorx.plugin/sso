@@ -52,7 +52,7 @@ return sub
             my $v = eval{decode_json $res->decoded_content};
             return undef unless $v->{stat};
             my @return = ( ref $v->{data} eq 'HASH' && $v->{data}{user} && $v->{data}{company} )
-                ? ( $v->{data}{user}, $v->{data}{company} )
+                ? ( $v->{data}{user}, $v->{data}{company}, $v->{data}{admin} )
                 : ( $v->{data}, $v->{data} =~ /(@.+)$/ ? $1 : 'default' );
 
             return wantarray ? @return : $return[0];

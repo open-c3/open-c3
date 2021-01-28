@@ -92,7 +92,7 @@
             <!--<i class="fa fa-circle"></i>-->
         <!--</li>-->
 
-        <li class="dropdown" uib-dropdown>
+        <li ng-if="nav.user.admin==1" class="dropdown" uib-dropdown>
             <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple" uib-dropdown-toggle>
                 <span>管理员</span>
                 <span class="caret caret-tp hidden-xs"></span>
@@ -113,13 +113,13 @@
                 <span class="caret caret-tp hidden-xs"></span>
             </a>
             <ul class="dropdown-menu list-group dropdown-persist w250" uib-dropdown-menu>
-                <li class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">设置连接器</div> </li>
-                <li class="list-group-item">
+                <li ng-if="nav.user.admin==1" class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">设置连接器</div> </li>
+                <li ng-if="nav.user.admin==1" class="list-group-item">
                     <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.config({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>设置连接器</span> </a>
                 </li>
  
-                <li class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">登录管理(内置)</div> </li>
-                <li class="list-group-item">
+                <li ng-if="nav.user.admin==1" class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">登录管理(内置)</div> </li>
+                <li ng-if="nav.user.admin==1" class="list-group-item">
                     <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.userinfo({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>用户管理</span> </a>
                     <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.userauth({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>权限管理</span> </a>
                 </li>

@@ -81,10 +81,14 @@ get '/internal/user/username' => sub {
     my $info = eval{ $api::mysql->query( sprintf "select name from `userinfo` where sid='$sid'" ) };
     
     return +{ stat => $JSON::false, info => $@ } if $@;
+    return +{ stat => JSON::false, info => 'Not logged in yet' } unless @$info;
 
-    return +{ stat => JSON::true, data => +{ user => $info->[0][0], company => $info->[0][0] =~ /(@.+)$/ ? $1 : 'default' }} if @$info;
-    return +{ stat => JSON::false, info => 'Not logged in yet' };
+    my $user = $info->[0][0];
 
+    my $level = eval{ $api::mysql->query( "select level from userauth where name='$user'" ) };
+    my $userlevel = @$level ? $level->[0][0] : 0;
+
+    return +{ stat => JSON::true, data => +{ user => $user, company => $user =~ /(@.+)$/ ? $1 : 'default', admin => $userlevel >= 3 ? 1 : 0 }};
 };
 
 any '/default/user/logout' => sub {
