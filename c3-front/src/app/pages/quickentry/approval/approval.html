@@ -13,7 +13,7 @@
                         <div class="col-sm-10 form-group">
                             <label class="col-sm-3 control-label">作业名称 <span style="color: red">*</span></label>
                             <div class="col-sm-9">
-                                <input type="text" class="form-control" name="quickapproval.postdata.name" ng-model="quickapproval.postdata.name" ng-minlength="3" ng-disabled="unClick" required />
+                                <input type="text" class="form-control" name="quickentryapproval.postdata.name" ng-model="quickentryapproval.postdata.name" ng-minlength="3" ng-disabled="unClick" required />
 
                                 <span style="color:red" ng-show="myForm.s_name.$error.minlength">不少于2字符</span>
                             </div>
@@ -23,7 +23,7 @@
                         <div class="col-sm-10 form-group">
                             <label class="col-sm-3 control-label">审批内容<span style="color: red">*</span></label>
                             <div class="col-sm-9">
-                                <input type="text" class="form-control"  ng-model="quickapproval.postdata.cont" required>
+                                <input type="text" class="form-control"  ng-model="quickentryapproval.postdata.cont" required>
                             </div>
                         </div>
                     </div>
@@ -32,7 +32,7 @@
                         <div class="col-sm-10 form-group">
                             <label class="col-sm-3 control-label">审批人<span style="color: red">*</span></label>
                             <div class="col-sm-9">
-                                <input type="text" class="form-control"  ng-model="quickapproval.postdata.approver" required>
+                                <input type="text" class="form-control"  ng-model="quickentryapproval.postdata.approver" required>
                             </div>
                         </div>
                     </div>
@@ -44,15 +44,15 @@
                                 <div class="admin-form">
                                     <div class="option-group field" >
                                         <label class="option option-primary" ng-model="unClickDeployenv">
-                                            <input type="radio" name="unClickDeployenv" ng-model="quickapproval.postdata.deployenv" value="always">
+                                            <input type="radio" name="unClickDeployenv" ng-model="quickentryapproval.postdata.deployenv" value="always">
                                             <span class="radio" style="padding-top: 0;min-height: 0"></span>总是执行
                                         </label>
                                         <label class="option option-primary">
-                                            <input type="radio" name="unClickDeployenv" ng-model="quickapproval.postdata.deployenv" value="test">
+                                            <input type="radio" name="unClickDeployenv" ng-model="quickentryapproval.postdata.deployenv" value="test">
                                             <span class="radio" style="padding-top: 0;min-height: 0"></span>测试环境
                                         </label>
                                         <label class="option option-primary">
-                                            <input type="radio" name="unClickDeployenv" ng-model="quickapproval.postdata.deployenv" value="online">
+                                            <input type="radio" name="unClickDeployenv" ng-model="quickentryapproval.postdata.deployenv" value="online">
                                             <span class="radio" style="padding-top: 0;min-height: 0"></span>线上环境
                                         </label>
                                     </div>
@@ -69,15 +69,15 @@
                                 <div class="admin-form">
                                     <div class="option-group field" >
                                         <label class="option option-primary" ng-model="unClickAction">
-                                            <input type="radio" name="unClickAction" ng-model="quickapproval.postdata.action" value="always">
+                                            <input type="radio" name="unClickAction" ng-model="quickentryapproval.postdata.action" value="always">
                                             <span class="radio" style="padding-top: 0;min-height: 0"></span>总是执行
                                         </label>
                                         <label class="option option-primary">
-                                            <input type="radio" name="unClickAction" ng-model="quickapproval.postdata.action" value="deploy">
+                                            <input type="radio" name="unClickAction" ng-model="quickentryapproval.postdata.action" value="deploy">
                                             <span class="radio" style="padding-top: 0;min-height: 0"></span>仅发布时执行
                                         </label>
                                         <label class="option option-primary">
-                                            <input type="radio" name="unClickAction" ng-model="quickapproval.postdata.action" value="rollback">
+                                            <input type="radio" name="unClickAction" ng-model="quickentryapproval.postdata.action" value="rollback">
                                             <span class="radio" style="padding-top: 0;min-height: 0"></span>仅回滚时执行
                                         </label>
                                     </div>
@@ -93,11 +93,11 @@
                                 <div class="admin-form">
                                     <div class="option-group field" >
                                         <label class="option option-primary" ng-model="unClickBatches">
-                                            <input type="radio" name="unClickBatches" ng-model="quickapproval.postdata.batches" value="always">
+                                            <input type="radio" name="unClickBatches" ng-model="quickentryapproval.postdata.batches" value="always">
                                             <span class="radio" style="padding-top: 0;min-height: 0"></span>总是执行
                                         </label>
                                         <label class="option option-primary">
-                                            <input type="radio" name="unClickBatches" ng-model="quickapproval.postdata.batches" value="firsttime">
+                                            <input type="radio" name="unClickBatches" ng-model="quickentryapproval.postdata.batches" value="firsttime">
                                             <span class="radio" style="padding-top: 0;min-height: 0"></span>仅第一个分组
                                         </label>
                                     </div>
@@ -113,11 +113,11 @@
                                 <div class="admin-form">
                                     <div class="option-group field" >
                                         <label class="option option-primary">
-                                            <input type="radio" name="unClickEveryone" ng-model="quickapproval.postdata.everyone" value="on">
+                                            <input type="radio" name="unClickEveryone" ng-model="quickentryapproval.postdata.everyone" value="on">
                                             <span class="radio" style="padding-top: 0;min-height: 0"></span>是
                                         </label>
                                         <label class="option option-primary">
-                                            <input type="radio" name="unClickEveryone" ng-model="quickapproval.postdata.everyone" value="off">
+                                            <input type="radio" name="unClickEveryone" ng-model="quickentryapproval.postdata.everyone" value="off">
                                             <span class="radio" style="padding-top: 0;min-height: 0"></span>只要一个人审批
                                         </label>
                                     </div>
@@ -130,14 +130,14 @@
                         <div class="col-sm-10 form-group">
                             <label class="col-sm-3 control-label">超时时间</label>
                             <div class="col-sm-9">
-                                <input type="text" class="form-control" placeholder="脚本执行超时时间，单位为秒，默认60秒" ng-model="quickapproval.postdata.timeout" required>
+                                <input type="text" class="form-control" placeholder="脚本执行超时时间，单位为秒，默认60秒" ng-model="quickentryapproval.postdata.timeout" required>
                             </div>
                         </div>
                     </div>
 
                     <div class="row">
                         <div class="col-sm-3 form-group" style="margin-left: 40%;">
-                            <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="quickapproval.runapproval()">执行</button>
+                            <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="quickentryapproval.runapproval()">执行</button>
                         </div>
                     </div>
                 </form>

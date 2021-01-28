@@ -3,9 +3,9 @@
 
     angular
         .module('openc3')
-        .controller('QuickApprovalController', QuickApprovalController);
+        .controller('QuickentryApprovalController', QuickentryApprovalController);
 
-    function QuickApprovalController($scope,$filter, $state, $http,$window,$uibModal, $timeout,treeService,resoureceService, scriptId) {
+    function QuickentryApprovalController($scope,$filter, $state, $http,$window,$uibModal, $timeout, treeService, resoureceService, scriptId) {
 
         var vm = this;
         vm.treeid = $state.params.treeid;

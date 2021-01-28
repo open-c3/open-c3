@@ -141,8 +141,8 @@
             .state('home.quickentry.approval', {
                 url: 'approval/:treeid',
                 templateUrl: 'app/pages/quickentry/approval/approval.html',
-                controller: 'QuickApprovalController',
-                controllerAs: 'quickapproval'
+                controller: 'QuickentryApprovalController',
+                controllerAs: 'quickentryapproval'
             })
  
             .state('home.quickentry.scp', {
