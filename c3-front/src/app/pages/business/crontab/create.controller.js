@@ -66,7 +66,13 @@
             $http.get('/api/job/jobs/'  + vm.treeid).then(
                 function successCallback(response) {
                     if (response.data.stat){
-                        $scope.allJobs = response.data.data;
+                        $scope.allJobs = []
+                        angular.forEach(response.data.data, function (d, index) {
+                            if( d.hasvariable == 0 )
+                            {
+                                $scope.allJobs.push(d)
+                            }
+                        });
                     }else {
                         $scope.dataready = false;
                         toastr.error( "获取作业信息失败："+response.data.info );

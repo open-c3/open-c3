@@ -55,9 +55,19 @@ get '/jobs/:projectid' => sub {
                 where projectid='$param->{projectid}' and status='permanent' %s order by id desc", 
                 join( ',', @col ), @where ? ' and '.join( ' and ', @where ) : '' ), \@col )};
 
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
-    return $@ ? +{ stat => $JSON::false, info => $@ } :
-        +{ stat => $JSON::true, data => [ map{ +{ stepcount => scalar( split /,/, delete $_->{uuids}), %$_  }}@$r] };
+    my ( @uuid, %hasvariable ) = map{ $_->{uuid} }@$r;
+    if( @uuid )
+    {
+        my $v = eval{
+            $api::mysql->query( sprintf "select jobuuid from variable where value='' and jobuuid in ( %s )", join ',', map{"'$_'"}@uuid );
+        };
+        return +{ stat => $JSON::false, info => $@ } if $@;
+        map{ $hasvariable{$_->[0]} ++ }@$v;
+    }
+
+    return +{ stat => $JSON::true, data => [ map{ +{ stepcount => scalar( split /,/, delete $_->{uuids}), hasvariable => $hasvariable{$_->{uuid}} || 0, %$_  }}@$r] };
 };
 
 get '/jobs/:projectid/count' => sub {
