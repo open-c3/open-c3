@@ -15,14 +15,13 @@
             <div class="col-sm-10 form-group">
                 <label class="col-sm-3 control-label" style="padding-top: 16px;">作业名称 <span style="color: red">*</span> :</label>
                 <div class="col-sm-9">
-                    <div class="admin-form">
-                        <div style="padding-top: 10px; padding-left: 0;">
-                            <select class="form-control"  ng-model="selectedjob" ng-options="s.uuid as s.name for s in allJobs" required/>
-                        </div>
-                    </div>
+                    <select class="form-control"  ng-model="selectedjob" required>
+                         <option ng-repeat="x in allJobs" value="{{x.uuid}}">{{x.name}}</option>
+                    </select>
                 </div>
             </div>
         </div>
+
         <div class="row">
             <div class="col-sm-10 form-group">
                 <label class="col-sm-3 control-label">规 则 <span style="color: red">*</span> :</label>
