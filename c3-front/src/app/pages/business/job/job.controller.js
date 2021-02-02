@@ -144,7 +144,7 @@
                 keyboard: false,
                 bindToController: true,
                 resolve: {
-                    reloadCron: function () {return null},
+                    reloadhome: function () {return null},
                     cronData : function () {return null},
                     edit : function () {return null},
                     jobData : function () {return jobdata},
