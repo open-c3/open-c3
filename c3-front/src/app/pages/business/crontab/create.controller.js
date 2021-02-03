@@ -11,6 +11,7 @@
         vm.cancel = function(){ $uibModalInstance.dismiss()};
 
         vm.treeid = $state.params.treeid;
+        vm.edit = edit
         $scope.selectedjob = "";
         $scope.mutex = '';
         vm.cronlockstr = '';   
