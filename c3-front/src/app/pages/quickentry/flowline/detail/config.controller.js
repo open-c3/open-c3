@@ -48,10 +48,13 @@
         vm.reload();
 
         vm.reloadimage = function(){
-            $http.get('/api/ci/docker/' + vm.treeid +'/image').success(function(data){
+            $http.get('/api/ci/images').success(function(data){
                 if( data.stat )
                 {
-                     vm.dockerimage = data.data;
+                     vm.dockerimage = [ '', 'centos:5', 'centos:6', 'centos:7' ];
+                     angular.forEach(data.data, function (value, key) {
+                         vm.dockerimage.push(value.name)
+                     });
                 }
                 else
                 {
