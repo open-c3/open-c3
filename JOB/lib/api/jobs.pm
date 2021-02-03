@@ -64,7 +64,7 @@ get '/jobs/:projectid' => sub {
             $api::mysql->query( sprintf "select jobuuid from variable where value='' and jobuuid in ( %s )", join ',', map{"'$_'"}@uuid );
         };
         return +{ stat => $JSON::false, info => $@ } if $@;
-        map{ $hasvariable{$_->[0]} ++ }@$v;
+        map{ $hasvariable{$_->[0]} = 1 }@$v;
     }
 
     return +{ stat => $JSON::true, data => [ map{ +{ stepcount => scalar( split /,/, delete $_->{uuids}), hasvariable => $hasvariable{$_->{uuid}} || 0, %$_  }}@$r] };
