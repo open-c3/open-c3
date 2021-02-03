@@ -1,0 +1,61 @@
+<div class="row block">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="关闭" ng-click="createimages.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
+            </span>
+            <h5>{{createimages.title}}</h5>
+        </div>
+        <div class="panel-body">
+            <div class="pt20">
+                <div>
+                    <div class="form-group admin-form">
+                        <form class="form-horizontal" name="myForm" novalidate>
+                               <div class="row" ng-if="!createimages.ciid">
+                                    <div class="col-sm-10 form-group">
+                                        <label class="col-sm-3 control-label">名称</label>
+                                        <div class="col-sm-9">
+                                            <input type="text" class="form-control" name="addGroup" ng-minlength="2" ng-model="createimages.postData.name" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" ng-if="!createimages.ciid">
+                                    <div class="col-sm-10 form-group">
+                                        <label class="col-sm-3 control-label">描述</label>
+                                        <div class="col-sm-9">
+                                            <input type="text" class="form-control" name="addGroup" ng-minlength="2" ng-model="createimages.postData.describe" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row">
+                                    <div class="col-sm-10 form-group">
+                                        <label class="col-sm-3 control-label">授权</label>
+                                        <div class="col-sm-9">
+                                            <div class="admin-form">
+                                                <div class="option-group field" >
+                                                    <label class="option option-primary">
+                                                        <input type="radio" ng-model="createimages.postData.share" value="false" >
+                                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>私人
+                                                    </label>
+                                                    <label class="option option-primary">
+                                                        <input type="radio" ng-model="createimages.postData.share" value="true" >
+                                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>共享给公司内部
+                                                    </label>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="row" ng-show="createimages.type!='show'">
+                                    <div class="col-sm-5 form-group pull-right">
+                                        <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="createimages.saveImages()">保存镜像</button>
+                                    </div>
+                                </div>
+                         </form>
+                  </div>
+            </div>
+        </div>
+    </div>
+</div>

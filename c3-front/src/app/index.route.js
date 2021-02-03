@@ -117,6 +117,12 @@
                 controller: 'TicketController',
                 controllerAs: 'ticket'
             })
+            .state('home.global.images', {
+                url: 'images/:treeid',
+                templateUrl: 'app/pages/global/images/images.html',
+                controller: 'ImagesController',
+                controllerAs: 'images'
+            })
             .state('home.config', {
                 url: 'config/:treeid',
                 templateUrl: 'app/pages/config/config.html',
