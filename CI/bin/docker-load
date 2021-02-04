@@ -1,0 +1,54 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use JSON;
+use YAML::XS;
+use MYDan::Util::OptConf;
+use File::Temp qw/ tempfile tempdir /;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+ $0 [--file image.tar] [--name foo:123]
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( file=s name=s ) )->dump();
+$option->assert(qw( file name ));
+
+die "nofile $o{file}" unless -f $o{file};
+
+my $temppath = tempdir( CLEANUP => 1 );
+die "chdir to $temppath fail" unless chdir $temppath;
+
+die "tar xvf fail:$!" if system "tar -xvf $o{file} manifest.json";
+
+my $data = eval{ JSON::from_json `cat manifest.json` };
+die "load manifest.json fail: $@" if $@;
+
+die "manifest.json dada err" unless $data && ref $data eq 'ARRAY' && @$data;
+
+if( grep{ !( $_->{RepoTags} && @{$_->{RepoTags}} == 1 && $_->{RepoTags}[0] eq $o{name} ) }@$data )
+{
+    map{ $_->{RepoTags} = [ "$o{name}" ] }@$data;
+    my $str = eval{ JSON::to_json( $data ) };
+    die "manifest.json to json fail: $@" if $@;
+
+    my ( $fh, $filename ) = tempfile();
+    print $fh $str;
+    close $fh;
+
+    die "rename fail: $!" if system "mv $filename manifest.json";
+
+    die "tar rvf fail:$!" if system "tar -rvf $o{file} manifest.json";
+}
+
+die "load fail:$!" if system "docker load -i $o{file}";
+
+my $check = `docker images $o{name} --format "{{.Repository}}"`;
+chomp $check;
+
+my $name  = (split( /:/, $o{name} ))[0];
+die "check image fail" unless $name && $check && $name eq $check;
