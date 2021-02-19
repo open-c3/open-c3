@@ -23,7 +23,7 @@ die "nofile $o{file}" unless -f $o{file};
 my $temppath = tempdir( CLEANUP => 1 );
 die "chdir to $temppath fail" unless chdir $temppath;
 
-die "tar xvf fail:$!" if system "tar -xvf $o{file} manifest.json";
+die "tar xvf fail:$!" if system "tar -xvf $o{file}";
 
 my $data = eval{ JSON::from_json `cat manifest.json` };
 die "load manifest.json fail: $@" if $@;
@@ -42,7 +42,7 @@ if( grep{ !( $_->{RepoTags} && @{$_->{RepoTags}} == 1 && $_->{RepoTags}[0] eq $o
 
     die "rename fail: $!" if system "mv $filename manifest.json";
 
-    die "tar rvf fail:$!" if system "tar -rvf $o{file} manifest.json";
+    die "tar cvf fail:$!" if system "tar -cvf $o{file} *";
 }
 
 die "load fail:$!" if system "docker load -i $o{file}";
