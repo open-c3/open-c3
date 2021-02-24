@@ -51,9 +51,9 @@
             $http.get('/api/ci/images').success(function(data){
                 if( data.stat )
                 {
-                     vm.dockerimage = [ '', 'centos:5', 'centos:6', 'centos:7' ];
+                     vm.dockerimage = [ {id: '', name: '' }, { id: 'centos:5', name: 'centos:5' }, { id: 'centos:6', name: 'centos:6' }, { id: 'centos:7', name: 'centos:7' } ];
                      angular.forEach(data.data, function (value, key) {
-                         vm.dockerimage.push(value.name)
+                         vm.dockerimage.push(value)
                      });
                 }
                 else

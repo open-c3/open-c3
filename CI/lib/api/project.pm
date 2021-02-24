@@ -68,8 +68,8 @@ post '/project/:groupid/:projectid' => sub {
         autofindtags => qr/^\d+$/, 1,
         callonlineenv => qr/^\d+$/, 1,
         calltestenv => qr/^\d+$/, 1,
-        ticketid => qr/^\d*$/, 1,
-        follow_up_ticketid => qr/^\d*$/, 1,
+        ticketid => qr/^\d*$/, 0,
+        follow_up_ticketid => qr/^\d*$/, 0,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;

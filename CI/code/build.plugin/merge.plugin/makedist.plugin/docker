@@ -31,6 +31,20 @@ return sub
     $logs->die( "buildscripts null" )  unless  $buildscripts ;
     $logs->die( "buildscripts decode fail" )  unless my $runcont = decode_base64( $buildscripts );
 
+
+    if( $buildimage =~ /^\d+$/ )
+    {
+        my $x = `docker images openc3ci:$buildimage --format "{{.Repository}}"`;
+
+        unless( $x && $x =~ /^openc3ci/ )
+        {
+            print "load images\n";
+            my $imagesfilepath = "/data/glusterfs/dockerimage/$buildimage";
+            die "load images fail:$!" if system "/data/Software/mydan/CI/bin/docker-load --file $imagesfilepath --name openc3ci:$buildimage";
+        }
+        $buildimage = "openc3ci:$buildimage";
+    }
+
     my $run = Temp->new( chmod => 0755 )->dump( $runcont );
     my $dinfo = `docker ps -a`;
 

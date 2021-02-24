@@ -11,6 +11,15 @@
                 <div>
                     <div class="form-group admin-form">
                         <form class="form-horizontal" name="myForm" novalidate>
+                               <div class="row" ng-if="createimages.title=='编辑镜像'">
+                                    <div class="col-sm-10 form-group">
+                                        <label class="col-sm-3 control-label">编号</label>
+                                        <div class="col-sm-9">
+                                            <input type="text" disabled="disabled" class="form-control" name="addGroup" ng-minlength="2" ng-model="createimages.postData.id">
+                                        </div>
+                                    </div>
+                                </div>
+ 
                                <div class="row" ng-if="!createimages.ciid">
                                     <div class="col-sm-10 form-group">
                                         <label class="col-sm-3 control-label">名称</label>
@@ -47,6 +56,27 @@
 
                                     </div>
                                 </div>
+
+                                <div ng-if="createimages.imagesid" class="row">
+                                    <div class="col-sm-10 form-group">
+                                        <label class="col-sm-3 control-label">镜像文件信息</label>
+                                        <label ng-if="createimages.uploadstatus.status=='1'" class="col-sm-9 control-label" style="text-align: left" >上传时间:{{createimages.uploadstatus.time}} 镜像大小:{{createimages.bytesToSize(createimages.uploadstatus.size)}}</label>
+                                        <div ng-if="createimages.uploadstatus.status=='0'" class="col-sm-9">
+                                            <div class="admin-form">
+                                                <div class="option-group field" >
+                                                    <div>
+                                                        <input type="file" id="choicefilesx" style="display: none" onchange="angular.element(this).scope().upForm()" multiple="multiple" />
+                                                        <button class="btn btn-primary" ng-click="createimages.clickImport()" >
+                                                            <span class="glyphicon glyphicon-upload" style="padding: 0 3px;"></span>上传镜像
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
+
 
                                 <div class="row" ng-show="createimages.type!='show'">
                                     <div class="col-sm-5 form-group pull-right">

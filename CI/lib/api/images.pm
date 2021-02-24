@@ -117,4 +117,74 @@ del '/images/:imagesid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : $update ? +{ stat => $JSON::true } : +{ stat => $JSON::false, info => 'not delete' };
 };
 
+get '/images/:imagesid/upload' => sub {
+    my $param = params();
+    my $error = Format->new( imagesid => qr/^\d+$/, 1 )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $upload = request->uploads;
+    return  +{ stat => $JSON::false, info => 'upload undef' } unless $upload && ref $upload eq 'HASH';
+
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), 
+        map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    my $r = eval{ 
+        $api::mysql->query( 
+            "select name from images where id='$param->{imagesid}' and (create_user='$user')")};
+
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    return +{ stat => $JSON::false, info => 'nofind id' } unless $r && @$r > 0;
+
+    my $file = "/data/glusterfs/dockerimage/$param->{imagesid}";
+    my %result = ( status => 0 );
+    if( -f $file )
+    {
+        my @stat = stat $file;
+        %result = ( status => 1, time => POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime($stat[9]) ), size => $stat[7] );
+    }
+    return  +{ stat => $JSON::true, data => \%result };
+};
+
+post '/images/:imagesid/upload' => sub {
+    my $param = params();
+    my $error = Format->new( imagesid => qr/^\d+$/, 1 )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $upload = request->uploads;
+    return  +{ stat => $JSON::false, info => 'upload undef' } unless $upload && ref $upload eq 'HASH';
+
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), 
+        map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    my $r = eval{ 
+        $api::mysql->query( 
+            "select name from images where id='$param->{imagesid}' and (create_user='$user')")};
+
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    return +{ stat => $JSON::false, info => 'nofind id' } unless $r && @$r > 0;
+
+
+    my $path = "/data/glusterfs/dockerimage";
+    mkdir $path unless -d $path;
+
+    my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
+
+    for my $info ( values %$upload )
+    {
+        $error = Format->new( 
+            filename => [ 'mismatch', qr/'/ ], 1,
+            tempname => [ 'mismatch', qr/'/ ], 1,
+            size => qr/^\d+$/, 1,
+        )->check( %$info );
+        return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+        my ( $filename, $tempname, $size ) = @$info{qw( filename tempname size )};
+
+        return  +{ stat => $JSON::false, info => 'rename fail' } if system "mv '$tempname' '$path/$param->{imagesid}'";
+
+    }
+
+    return  +{ stat => $JSON::true, data => scalar keys %$upload };
+};
+
 true;

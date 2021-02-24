@@ -84,7 +84,10 @@
                         <label class="col-md-2 control-label fwbold">build镜像:</label>
 
                         <div class="col-md-6 form-inline">
-                            <select class="form-control"  ng-model="config.project.buildimage" ng-options="g for g in config.dockerimage"> </select>
+
+                            <select class="form-control"  ng-model="config.project.buildimage" > 
+                                 <option ng-repeat="x in config.dockerimage" value="{{x.id}}">{{x.name}}</option>
+                            </select>
                             <a ng-show="config.project.buildimage" class="btn btn-system" target='_blank' ng-href="/api/ci/dockershell?image={{config.project.buildimage}}&projectid={{config.projectid}}">调试</a>
                             <!--<a class="glyphicon glyphicon-question-sign" data-toggle="tooltip" data-placement="right" ng-click="config.show_help()" uib-tooltip="添加镜像的方法" aria-hidden="true" style="padding-top: 11px;font-size: larger;"></a> -->
                         </div>
