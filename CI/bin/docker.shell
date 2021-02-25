@@ -24,6 +24,7 @@ eval{
         die "param error\n";
     }
     
+    $image = "openc3ci:$image" if $image =~ /^\d+$/;
     print "image: $image\n";
     print "projectid: $projectid\n";
     printf "tag: %s\n", $tag || 'null';
