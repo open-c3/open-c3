@@ -24,7 +24,20 @@ eval{
         die "param error\n";
     }
     
-    $image = "openc3ci:$image" if $image =~ /^\d+$/;
+    if( $image =~ /^\d+$/ )
+    {
+        my $x = `docker images openc3ci:$image --format "{{.Repository}}"`;
+
+        unless( $x && $x =~ /^openc3ci/ )
+        {
+            print "load images\n";
+            my $imagesfilepath = "/data/glusterfs/dockerimage/$image";
+            die "load images fail:$!" if system "/data/Software/mydan/CI/bin/docker-load --file $imagesfilepath --name openc3ci:$image";
+        }
+        $image = "openc3ci:$image";
+    }
+
+
     print "image: $image\n";
     print "projectid: $projectid\n";
     printf "tag: %s\n", $tag || 'null';
