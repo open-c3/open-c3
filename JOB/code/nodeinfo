@@ -30,16 +30,11 @@ return sub
     $ua->default_header( %env );
     my $res = $ua->get( "http://api.connector.open-c3.org/connectorx/nodeinfo/$id" );
 
-    unless( $res->is_success )
-    {
-#TODO 确认上层调用是否捕获这个die
-        die "call notify fail";
-    }
+    die "call nodeinfo fail" unless $res->is_success;
 
     my $data = eval{JSON::from_json $res->content};
     unless ( $data->{stat} ) {
-#TODO 确认上层调用是否捕获这个die
-        die "call notify result". $data->{info} || '';
+        die "call nodeinfo result". $data->{info} || '';
     }
  
     push @list, @{$data->{data}};

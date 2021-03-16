@@ -30,25 +30,15 @@ return sub
     $ua->default_header( %env );
     my $res = $ua->get( "http://api.job.open-c3.org/nodeinfo/$id" );
 
-    unless( $res->is_success )
-    {
-#TODO 确认上层调用是否捕获这个die
-        die "call notify fail";
-    }
+    die "call nodeinfo fail" unless $res->is_success;
 
-    my $data = eval{JSON::from_json $res->content};
+    my $data = eval{ JSON::from_json $res->content };
     unless ( $data->{stat} ) {
-#TODO 确认上层调用是否捕获这个die
-        die "call notify result". $data->{info} || '';
+        die "call nodeinfo result". $data->{info} || '';
     }
  
     push @list, @{$data->{data}};
     my $i = @list;
 
-#    my $x = $db->query( "select name,inip,exip from nodelist where projectid in ( '$id', '0' ) and status='available'" );
-#    $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
-#    map{ push @list, +{ id => $i++, name => $_->[0], inip => $_->[1], exip => $_->[2], type => 'extend' }; }@$x;
-
     return @list;
-
 }
