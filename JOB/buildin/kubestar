@@ -1,0 +1,113 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use MYDan::Util::OptConf;
+use FindBin qw( $RealBin );
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ $0 apply
+ $0 check
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+$option->assert() unless @ARGV;
+
+die "nonode" unless $ENV{NODE};
+die "noticket" unless $ENV{TICKETFILE};
+
+sub success
+{
+    map{ print "$_:ok\n"; } split /,/, $ENV{NODE};
+    exit;
+}
+
+if( $ARGV[0] eq 'apply' )
+{
+    if( $ARGV[1] )
+    {
+        die "rewrite DEPLOYVERSION fail!" if system "sed -i 's/DEPLOYVERSION/$ARGV[1]/g' $ENV{CONFIGPATH} 1>&1";
+    }
+
+    my @argv = qw( vendor region cluster-name resource-type kubestar-addr access-key secret-key org namespace resource-name image name );
+    die "config null\n" unless $ENV{CONFIGPATH} && -f $ENV{CONFIGPATH};
+
+    my $config = eval{ YAML::XS::LoadFile $ENV{CONFIGPATH} };
+    die "load config fail: $@" if $@;
+    die "load yaml config fail" unless $config && ref $config eq 'HASH';
+
+    my $ticket = eval{ YAML::XS::LoadFile $ENV{TICKETFILE} };
+    die "load ticket fail: $@" if $@;
+    die "load yaml ticket fail" unless $ticket && ref $ticket eq 'HASH';
+
+    my %config = ( %$ticket, %$config );
+
+    my $argv = '';
+    map{
+        die "key '$_' undef in config or ticket" unless $config{$_};
+        die "key '$_' format error" unless $config{$_} =~ /^[\w:_\-\.]+$/;
+        $argv .= " --$_ \"$config{$_}\" ";
+    }@argv;
+   
+    my $cmd  = "kubestarctl $argv patch";
+    my $re = `$cmd`;
+
+    warn "$re\n";
+    die "apply fail. return code is not 0\n" unless $re =~ /"code"\s*:\s*0\s*,/;
+
+    success();
+}
+
+if( $ARGV[0] eq 'check' )
+{
+    if( $ARGV[1] )
+    {
+        die "rewrite DEPLOYVERSION fail!" if system "sed -i 's/DEPLOYVERSION/$ARGV[1]/g' $ENV{CONFIGPATH} 1>&1";
+    }
+
+    my @argv = qw( vendor region cluster-name resource-type kubestar-addr access-key secret-key org namespace resource-name image name );
+    die "config null\n" unless $ENV{CONFIGPATH} && -f $ENV{CONFIGPATH};
+
+    my $config = eval{ YAML::XS::LoadFile $ENV{CONFIGPATH} };
+    die "load config fail: $@" if $@;
+    die "load yaml config fail" unless $config && ref $config eq 'HASH';
+
+    my $ticket = eval{ YAML::XS::LoadFile $ENV{TICKETFILE} };
+    die "load ticket fail: $@" if $@;
+    die "load yaml ticket fail" unless $ticket && ref $ticket eq 'HASH';
+
+    my %config = ( %$ticket, %$config );
+
+    my $argv = '';
+    map{
+        die "key '$_' undef in config or ticket" unless $config{$_};
+        die "key '$_' format error" unless $config{$_} =~ /^[\w:_\-\.]+$/;
+        $argv .= " --$_ \"$config{$_}\" " if $_ ne 'resource-name' && $_ ne 'image' && $_ ne 'name';
+    }@argv;
+ 
+
+    my $timeout = $ENV{TIMEOUT} && $ENV{TIMEOUT} =~ /^\d+$/ ? time + $ENV{TIMEOUT} : time  +  60; 
+
+    my $cmd  = "kubestarctl $argv list apps";
+
+    for( 1 .. 360 )
+    {
+        my @re = `$cmd`;
+
+       warn "check ...\n";
+       map{
+           my ( $name, $namespace, $type, $image, undef, $status ) = split /\s+/, $_;
+           if( $name eq $config{'resource-name'} && $namespace eq $config{namespace} && $type eq $config{'resource-type'} && $image eq $config{image} )
+           {
+               warn "$_\n";
+               last if $status eq 'Running';
+           }
+       }@re;
+        sleep 10;
+        die "check timeout.\n" if time > $timeout;
+    }
+
+    success();
+}
