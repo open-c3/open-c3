@@ -66,7 +66,7 @@
         vm.reloadimage();
 
         vm.reloadticket = function(){
-            $http.get('/api/ci/ticket').success(function(data){
+            $http.get('/api/ci/ticket?projectid=' + vm.projectid).success(function(data){
                 if( data.stat)
                 {
                     vm.ticketinfo = data.data;

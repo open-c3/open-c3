@@ -13,6 +13,7 @@ get '/ticket' => sub {
     my $param = params();
     my $error = Format->new( 
         type => [ 'in', 'SSHKey', 'UsernamePassword', 'JobBuildin' ], 0,
+        projectid => qr/^\d+$/, 0,
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
@@ -20,11 +21,12 @@ get '/ticket' => sub {
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
     my $where = $param->{type} ? "and type='$param->{type}'" : '';
+    my $or = $param->{projectid} ? "or id in ( select ticketid from project where id='$param->{projectid}') or id in ( select follow_up_ticketid from project where id='$param->{projectid}')" : "";
 
     my @col = qw( id name type share ticket describe edit_user create_user edit_time create_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from ticket where ( create_user='$user' or share='$company' ) $where", join( ',', map{"`$_`"}@col)), \@col )};
+            sprintf( "select %s from ticket where ( create_user='$user' or share='$company' $or ) $where", join( ',', map{"`$_`"}@col)), \@col )};
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     for my $d ( @$r )
