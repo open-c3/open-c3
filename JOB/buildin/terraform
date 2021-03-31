@@ -21,6 +21,17 @@ die  "This plug-in can only be used in jobs.\n" unless $ENV{JOBUUID};
 my $path = "/data/glusterfs/terraform_data/$ENV{JOBUUID}";
 warn "data: $path\n";
 
+my $ticket = $ENV{TICKETFILE} ? ". $ENV{TICKETFILE} &&" : '';
+if( $ENV{TICKETFILE} )
+{
+    my @ticketstr = `cat $ENV{TICKETFILE}`;
+    die "ticket null" unless @ticketstr;
+    map{
+        chomp $_;
+        die "ticket content format error.\n" unless $_ =~ /^export\s+[A-Za-z0-9_]+="[A-Za-z0-9\/]+"\s*$/;
+    }@ticketstr;
+}
+
 sub success
 {
     map{ print "$_:ok\n"; } split /,/, $ENV{NODE};
@@ -45,7 +56,7 @@ for my $task ( @ARGV )
 {
     if( grep{ $task eq $_ }qw( init plan apply destroy ) )
     {
-        my $cmd = "terraform $task -no-color";
+        my $cmd = "$ticket terraform $task -no-color";
         if( grep{ $task eq $_  }qw( apply destroy ) )
         {
             $cmd .= " -auto-approve";
