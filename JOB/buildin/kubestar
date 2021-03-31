@@ -47,7 +47,7 @@ if( $ARGV[0] eq 'apply' )
     my $argv = '';
     map{
         die "key '$_' undef in config or ticket" unless $config{$_};
-        die "key '$_' format error" unless $config{$_} =~ /^[\w:_\-\.]+$/;
+        die "key '$_' format error" unless $config{$_} =~ /^[\w:_\-\.\/]+$/;
         $argv .= " --$_ \"$config{$_}\" ";
     }@argv;
    
@@ -83,7 +83,7 @@ if( $ARGV[0] eq 'check' )
     my $argv = '';
     map{
         die "key '$_' undef in config or ticket" unless $config{$_};
-        die "key '$_' format error" unless $config{$_} =~ /^[\w:_\-\.]+$/;
+        die "key '$_' format error" unless $config{$_} =~ /^[\w:_\-\.\/]+$/;
         $argv .= " --$_ \"$config{$_}\" " if $_ ne 'resource-name' && $_ ne 'image' && $_ ne 'name';
     }@argv;
  
