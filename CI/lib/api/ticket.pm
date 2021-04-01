@@ -14,6 +14,7 @@ get '/ticket' => sub {
     my $error = Format->new( 
         type => [ 'in', 'SSHKey', 'UsernamePassword', 'JobBuildin' ], 0,
         projectid => qr/^\d+$/, 0,
+        ticketid => qr/^\d+$/, 0,
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
@@ -22,6 +23,7 @@ get '/ticket' => sub {
 
     my $where = $param->{type} ? "and type='$param->{type}'" : '';
     my $or = $param->{projectid} ? "or id in ( select ticketid from project where id='$param->{projectid}') or id in ( select follow_up_ticketid from project where id='$param->{projectid}')" : "";
+    $or .= $param->{ticketid} ? " or id='$param->{ticketid}' " : "";
 
     my @col = qw( id name type share ticket describe edit_user create_user edit_time create_time );
     my $r = eval{ 

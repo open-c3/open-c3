@@ -504,8 +504,8 @@
         }
         vm.getProUser();
 
-        vm.reloadticket = function(){
-            $http.get('/api/ci/ticket?type=JobBuildin').success(function(data){
+        vm.reloadticket = function(ticketid){
+            $http.get('/api/ci/ticket?type=JobBuildin&ticketid=' + ticketid ).success(function(data){
                 if( data.stat)
                 {
                     vm.ticketinfo = data.data;
@@ -518,7 +518,17 @@
             });
         };
 
-        vm.reloadticket();
+        if( editData )
+        {
+            var reg1 = new RegExp(/^[0-9]+$/);
+            if (reg1.test(editData.user)) {
+                vm.reloadticket( editData.user );
+            }
+        }
+        else
+        {
+            vm.reloadticket( 0 );
+        }
 
         $timeout(vm.editorSh, 500,true,"", false);
 
