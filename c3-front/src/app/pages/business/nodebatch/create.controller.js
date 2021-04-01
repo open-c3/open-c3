@@ -128,6 +128,18 @@
             }
 
         };
+        vm.deleteGroup = function(){
+            if(groupid){
+                resoureceService.group.deletegroup([vm.treeid,groupid],null, null).finally(function(){
+                    vm.cancel();
+                });
+            }
+            else
+            {
+                vm.cancel();
+            }
+        };
+
         if(groupid){
             $http.get('/api/jobx/group/' + vm.treeid+"/"+groupid).then(
                 function successCallback(response) {
