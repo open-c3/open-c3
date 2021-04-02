@@ -7,7 +7,7 @@ use POSIX;
 use api;
 
 get '/monitor' => sub {
-    my $pmscheck = api::pmscheck( 'openc3_jobx_write', 0 ); return $pmscheck if $pmscheck;
+    my $pmscheck = api::pmscheck( 'openc3_jobx_read', 0 ); return $pmscheck if $pmscheck;
 
     my @col = qw( id time time_s stat host type key val );
     my $r = eval{ 
