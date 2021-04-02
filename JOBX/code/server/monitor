@@ -60,6 +60,13 @@ return sub
     my %param = @_;
 
     my ( $myname, $db, $logs ) = ( Util::myname(), $param{db}, Logs->new( 'monitor' ) );
+    my $slave = eval{ $db->query( sprintf "select slave from keepalive" ); };
+    $logs->die( "get slave from keepalive fail: $@" ) if $@;
+
+    my %slave = map{ $_->[0] => 1 }@$slave;;
+    my $slavepath = "/data/glusterfs/slavemonitor";
+    system( "mkdir -p '$slavepath'" ) unless -d $slavepath;
+    system "date > '$slavepath/$myname'";
 
     while(1)
     {
@@ -84,11 +91,17 @@ return sub
             }
         }@ps;
 
+        my $ins = "replace into monitor (`time`,`time_s`,`stat`,`host`,`type`,`key`,`val`)value('%s','%s','%s','%s','%s','%s','%s')";
         eval{
-            my $ins = "replace into monitor (`time`,`time_s`,`stat`,`host`,`type`,`key`,`val`)value('%s','%s','%s','%s','%s','%s','%s')";
             map{ $db->execute( sprintf $ins, $time, $t, $proc{$_} eq $c{$_} ? 'ok' : "err:$c{$_}", $myname, 'proc',$_, $proc{$_} ); }keys %proc;
             map{ $db->execute( sprintf $ins, $time, $t, $task{$_} > 100 ? 'danger' : $task{$_} > 10 ? 'warning' : 'healthy' , $myname, 'task',$_, $task{$_} ); }keys %task;
         };
+
+
+        my %slavefile = %slave;
+        map{ delete $slavefile{$_} if -f "$slavepath/$_"; }keys %slave;
+
+        $db->execute( sprintf $ins, $time, $t, %slavefile ? sprintf( "err:%s", scalar keys %slavefile ) : 'ok' , $myname, 'filesys', 'glusterfs', scalar keys %slave );
 
         my $due = time + 60 - $t;
         sleep $due if $due > 0;
