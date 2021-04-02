@@ -94,3 +94,16 @@ create table `log`(
 
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='log';
 
+
+create table `monitor`(
+`id` int(16) unsigned not null primary key auto_increment comment 'id',
+`time` VARCHAR(40) comment '时间',
+`time_s` VARCHAR(40) comment '时间秒数',
+`stat` VARCHAR(40) comment '状态',
+`host` VARCHAR(40) comment '机器',
+`type` VARCHAR(40) comment '类型',
+`key` VARCHAR(40) comment '监控名',
+`val` VARCHAR(40) comment '数值',
+UNIQUE KEY `uniq_host_type_key` ( `host`,`type`,`key`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='监控';
+

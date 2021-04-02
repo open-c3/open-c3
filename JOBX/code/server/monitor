@@ -1,0 +1,95 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOBX/lib -I/data/Software/mydan/JOBX/private/lib
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use Data::Dumper;
+use POSIX;
+use Util;
+use Logs;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+
+=cut
+
+my @c = qw(
+  job_api
+  job_server_approval
+  job_server_bury
+  job_server_call
+  job_server_clean
+  job_server_crontab
+  job_server_keepalive
+  job_server_notify
+  job_supervisor
+
+  jobx_api
+  jobx_server_bury
+  jobx_server_call
+  jobx_server_keepalive
+  jobx_supervisor
+
+  agent_api
+  agent_server_bury
+  agent_server_call
+  agent_server_check
+  agent_server_inherit
+  agent_server_keepalive
+  agent_supervisor
+
+  ci_api
+  ci_server_build
+  ci_server_bury
+  ci_server_clean
+  ci_server_findtags
+  ci_server_keepalive
+  ci_server_pkgrsync
+  ci_supervisor
+
+  connector_api
+  connector_supervisor
+);
+
+
+return sub
+{
+    my %param = @_;
+
+    my ( $myname, $db, $logs ) = ( Util::myname(), $param{db}, Logs->new( 'monitor' ) );
+
+    while(1)
+    {
+        warn "do ...\n";
+        my $t = time;
+
+        my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( $t ) );
+
+        my @ps = `ps -eo cmd`;
+        chomp @ps;
+
+        my %task = ( job_worker_task => 0, jobx_worker_task => 0 );
+        my %proc = map{ $_ => 0 }@c;
+
+        map{
+            if( defined $proc{$_} )
+            {
+                $proc{$_} ++;
+            }elsif( $_ =~ /^(job[x]{0,1}_worker_task)_[a-zA-Z0-9]{12}$/ )
+            {
+                $task{$1} ++;
+            }
+        }@ps;
+
+        eval{
+            my $ins = "replace into monitor (`time`,`time_s`,`stat`,`host`,`type`,`key`,`val`)value('%s','%s','%s','%s','%s','%s','%s')";
+            map{ $db->execute( sprintf $ins, $time, $t, 'ok', $myname, 'proc',$_, $proc{$_} ); }keys %proc;
+            map{ $db->execute( sprintf $ins, $time, $t, 'ok', $myname, 'task',$_, $task{$_} ); }keys %task;
+        };
+
+        my $due = time + 60 - $t;
+        sleep $due if $due > 0;
+    }
+}
