@@ -336,6 +336,12 @@
                 controller: 'NotifyController',
                 controllerAs: 'notify'
             })
+            .state('home.global.monitor', {
+                url: 'monitor/:treeid',
+                templateUrl: 'app/pages/global/monitor/monitor.html',
+                controller: 'MonitorController',
+                controllerAs: 'monitor'
+            })
             .state('home.global.template', {
                 url: 'template/:treeid',
                 templateUrl: 'app/pages/global/template/template.html',

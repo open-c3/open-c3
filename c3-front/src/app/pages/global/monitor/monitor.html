@@ -1,0 +1,27 @@
+<div>
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="monitor.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!monitor.loadover}" ></i></button>
+            </span>
+            <h5>系统监控信息</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="panel-tabs">
+                <table ng-table="monitor.monitorTable" class="table table-hover text-center table-condensed" show-filter="true">
+                    <tr ng-repeat="d in $data">
+                        <td data-title="'时间'" filter="{ time: 'text'}" sortable="'time'">{{d.time}}</td>
+                        <td data-title="'监控对象'" filter="{ title: 'text'}" sortable="'host'">{{d.host}}</td>
+                        <td data-title="'状态'" filter="{ title: 'text'}" sortable="'stat'">{{d.stat}}</td>
+                        <td data-title="'监控指标'" filter="{ content: 'text'}" sortable="'key'">{{d.key}}</td>
+                        <td data-title="'值'" filter="{ content: 'text'}" sortable="'val'">{{d.val}}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+
