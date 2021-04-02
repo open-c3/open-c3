@@ -15,42 +15,43 @@ $| ++;
 
 =cut
 
-my @c = qw(
-  job_api
-  job_server_approval
-  job_server_bury
-  job_server_call
-  job_server_clean
-  job_server_crontab
-  job_server_keepalive
-  job_server_notify
-  job_supervisor
+my %c = (
+  job_api => 5,
+  job_server_approval => 1,
+  job_server_bury => 1,
+  job_server_call => 1,
+  job_server_clean => 1,
+  job_server_crontab => 1,
+  job_server_keepalive => 1,
+  job_server_notify => 1,
+  job_supervisor => 17,
 
-  jobx_api
-  jobx_server_bury
-  jobx_server_call
-  jobx_server_keepalive
-  jobx_supervisor
+  jobx_api => 5,
+  jobx_server_bury => 1,
+  jobx_server_call => 1,
+  jobx_server_keepalive => 1,
+  jobx_server_monitor => 1,
+  jobx_supervisor => 14,
 
-  agent_api
-  agent_server_bury
-  agent_server_call
-  agent_server_check
-  agent_server_inherit
-  agent_server_keepalive
-  agent_supervisor
+  agent_api => 5,
+  agent_server_bury => 1,
+  agent_server_call => 1,
+  agent_server_check => 1,
+  agent_server_inherit => 1,
+  agent_server_keepalive => 1,
+  agent_supervisor => 15,
 
-  ci_api
-  ci_server_build
-  ci_server_bury
-  ci_server_clean
-  ci_server_findtags
-  ci_server_keepalive
-  ci_server_pkgrsync
-  ci_supervisor
+  ci_api => 5,
+  ci_server_build => 1,
+  ci_server_bury => 1,
+  ci_server_clean => 1,
+  ci_server_findtags => 1,
+  ci_server_keepalive => 1,
+  ci_server_pkgrsync => 1,
+  ci_supervisor => 16,
 
-  connector_api
-  connector_supervisor
+  connector_api => 10,
+  connector_supervisor => 10,
 );
 
 
@@ -71,7 +72,7 @@ return sub
         chomp @ps;
 
         my %task = ( job_worker_task => 0, jobx_worker_task => 0 );
-        my %proc = map{ $_ => 0 }@c;
+        my %proc = map{ $_ => 0 }keys %c;
 
         map{
             if( defined $proc{$_} )
@@ -85,8 +86,8 @@ return sub
 
         eval{
             my $ins = "replace into monitor (`time`,`time_s`,`stat`,`host`,`type`,`key`,`val`)value('%s','%s','%s','%s','%s','%s','%s')";
-            map{ $db->execute( sprintf $ins, $time, $t, 'ok', $myname, 'proc',$_, $proc{$_} ); }keys %proc;
-            map{ $db->execute( sprintf $ins, $time, $t, 'ok', $myname, 'task',$_, $task{$_} ); }keys %task;
+            map{ $db->execute( sprintf $ins, $time, $t, $proc{$_} eq $c{$_} ? 'ok' : "err:$c{$_}", $myname, 'proc',$_, $proc{$_} ); }keys %proc;
+            map{ $db->execute( sprintf $ins, $time, $t, $task{$_} > 100 ? 'danger' : $task{$_} > 10 ? 'warning' : 'healthy' , $myname, 'task',$_, $task{$_} ); }keys %task;
         };
 
         my $due = time + 60 - $t;

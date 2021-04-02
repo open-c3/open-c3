@@ -13,7 +13,10 @@
                     <tr ng-repeat="d in $data">
                         <td data-title="'时间'" filter="{ time: 'text'}" sortable="'time'">{{d.time}}</td>
                         <td data-title="'监控对象'" filter="{ title: 'text'}" sortable="'host'">{{d.host}}</td>
-                        <td data-title="'状态'" filter="{ title: 'text'}" sortable="'stat'">{{d.stat}}</td>
+                        <td data-title="'状态'" filter="{ title: 'text'}" sortable="'stat'">
+                            <span ng-if="d.stat=='ok' || d.stat=='healthy'" style="color: green">{{d.stat}}</span>
+                            <span ng-if="d.stat!='ok' && d.stat!='healthy'">{{d.stat}}</span>
+                        </td>
                         <td data-title="'监控指标'" filter="{ content: 'text'}" sortable="'key'">{{d.key}}</td>
                         <td data-title="'值'" filter="{ content: 'text'}" sortable="'val'">{{d.val}}</td>
                     </tr>
