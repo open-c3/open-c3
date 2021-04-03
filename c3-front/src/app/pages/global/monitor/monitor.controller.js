@@ -11,7 +11,7 @@
         var vm = this;
         vm.reload = function () {
             vm.loadover = false;
-            $http.get('/api/jobx/monitor').success(function(data){
+            $http.get('/api/jobx/monitor/metrics?json=1').success(function(data){
                 if (data.stat){
                     vm.monitorTable = new ngTableParams({count:100}, {counts:[],data:data.data});
                     vm.loadover = true;

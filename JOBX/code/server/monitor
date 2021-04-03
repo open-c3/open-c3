@@ -6,6 +6,7 @@ use Data::Dumper;
 use POSIX;
 use Util;
 use Logs;
+use LWP::UserAgent;
 
 $| ++;
 
@@ -93,15 +94,75 @@ return sub
 
         my $ins = "replace into monitor (`time`,`time_s`,`stat`,`host`,`type`,`key`,`val`)value('%s','%s','%s','%s','%s','%s','%s')";
         eval{
-            map{ $db->execute( sprintf $ins, $time, $t, $proc{$_} eq $c{$_} ? 'ok' : "err:$c{$_}", $myname, 'proc',$_, $proc{$_} ); }keys %proc;
-            map{ $db->execute( sprintf $ins, $time, $t, $task{$_} > 100 ? 'danger' : $task{$_} > 10 ? 'warning' : 'healthy' , $myname, 'task',$_, $task{$_} ); }keys %task;
+            map{ $db->execute( sprintf $ins, $time, $t, $proc{$_} eq $c{$_} ? 'ok' : "err:$c{$_}", $myname, 'proc','openc3_'.$_, $proc{$_} ); }keys %proc;
+            map{ $db->execute( sprintf $ins, $time, $t, $task{$_} > 100 ? 'danger' : $task{$_} > 10 ? 'warning' : 'healthy' , $myname, 'task','openc3_'.$_, $task{$_} ); }keys %task;
         };
 
 
         my %slavefile = %slave;
         map{ delete $slavefile{$_} if -f "$slavepath/$_"; }keys %slave;
 
-        $db->execute( sprintf $ins, $time, $t, %slavefile ? sprintf( "err:%s", scalar keys %slavefile ) : 'ok' , $myname, 'filesys', 'glusterfs', scalar keys %slave );
+        $db->execute( sprintf $ins, $time, $t, %slavefile ? sprintf( "err:%s", scalar keys %slavefile ) : 'ok' , $myname, 'filesys', 'openc3_glusterfs', scalar keys %slave );
+
+
+        my $getNginxStatus = sub{
+
+            my ( $url, $Host ) = @_;
+            my $ua = LWP::UserAgent->new;
+            $ua->default_header( Host => $Host ) if $Host;
+
+            $ua->timeout( 3 );
+
+            my $res = $ua->get( $url );
+            if( $res->is_success && $res->content =~ /Active connections:\s*(\d+)\s*\n\s*server accepts handled requests\n\s*(\d+)\s+(\d+)\s+(\d+)\s*\n\s*Reading:\s*(\d+)\s*Writing:\s*(\d+)\s*Waiting:\s*(\d+)/ )
+            {
+                return ( 'ok', +{ active => $1, server => $2, accepts => $3, handled => $4, reading => $5, writing => $6, waiting => $7 } );
+            }
+            else
+            {
+                return ( 'err', +{ active => 0, server => 0, accepts => 0, handled => 0, reading => 0, writing => 0, waiting => 0 } );
+            }
+        };
+
+        my @nginxcheck = (
+            +{
+                url => 'http://127.0.0.1:88/status/',
+                Host => undef,
+                name => 'api'
+            },
+            +{
+                url => 'http://127.0.0.1/status/',
+                Host => 'api.agent.open-c3.org',
+                name => 'agent'
+            },
+            +{
+                url => 'http://127.0.0.1/status/',
+                Host => 'api.ci.open-c3.org',
+                name => 'ci'
+            },
+            +{
+                url => 'http://127.0.0.1/status/',
+                Host => 'api.job.open-c3.org',
+                name => 'job'
+            },
+            +{
+                url => 'http://127.0.0.1/status/',
+                Host => 'api.jobx.open-c3.org',
+                name => 'jobx'
+            },
+            +{
+                url => 'http://127.0.0.1/status/',
+                Host => 'api.connector.open-c3.org',
+                name => 'connector'
+            },
+        );
+
+        for my $nginx ( @nginxcheck )
+        {
+            my ( $stat, $data ) = &$getNginxStatus($nginx->{url}, $nginx->{Host});
+            $db->execute( sprintf $ins, $time, $t, $stat, $myname, 'nginx',"openc3_$nginx->{name}_status", $stat eq 'ok' ? 1 : 0 );
+            map{ $db->execute( sprintf $ins, $time, $t, $stat, $myname, 'nginx',"openc3_$nginx->{name}_$_", $data->{$_} ); }keys %$data;
+        }
 
         my $due = time + 60 - $t;
         sleep $due if $due > 0;
