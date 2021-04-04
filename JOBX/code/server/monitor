@@ -227,6 +227,8 @@ return sub
         my $jobmetrics = &$getMetrics( 'http://127.0.0.1/monitor/metrics/app', 'api.job.open-c3.org');
         map{ $db->execute( sprintf $ins, $time, $t, 'ok', 'openc3', 'app',"openc3_job_app_$_", $jobmetrics->{$_} ); }keys %$jobmetrics;
 
+        my $agentmetrics = &$getMetrics( 'http://127.0.0.1/monitor/metrics/app', 'api.agent.open-c3.org');
+        map{ $db->execute( sprintf $ins, $time, $t, 'ok', 'openc3', 'app',"openc3_agent_app_$_", $agentmetrics->{$_} ); }keys %$agentmetrics;
 
         my $due = time + 60 - $t;
         sleep $due if $due > 0;
