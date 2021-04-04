@@ -220,6 +220,14 @@ return sub
         map{ $db->execute( sprintf $ins, $time, $t, 'ok', 'openc3', 'app',"openc3_ci_app_$_", $cimetrics->{$_} ); }keys %$cimetrics;
 
 
+        my $jobxmetrics = &$getMetrics( 'http://127.0.0.1/monitor/metrics/app', 'api.jobx.open-c3.org');
+        map{ $db->execute( sprintf $ins, $time, $t, 'ok', 'openc3', 'app',"openc3_jobx_app_$_", $jobxmetrics->{$_} ); }keys %$jobxmetrics;
+
+
+        my $jobmetrics = &$getMetrics( 'http://127.0.0.1/monitor/metrics/app', 'api.job.open-c3.org');
+        map{ $db->execute( sprintf $ins, $time, $t, 'ok', 'openc3', 'app',"openc3_job_app_$_", $jobmetrics->{$_} ); }keys %$jobmetrics;
+
+
         my $due = time + 60 - $t;
         sleep $due if $due > 0;
     }

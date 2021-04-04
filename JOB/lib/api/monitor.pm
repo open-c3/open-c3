@@ -28,4 +28,27 @@ get '/monitor/metrics/mysql' => sub {
     return +{ stat => $JSON::true, data => \%re };
 };
 
+get '/monitor/metrics/app' => sub {
+    my $param = params();
+
+    my %re;
+
+    my $t = eval{ $api::mysql->query( "select status,count(*) from task group by status" )};
+    my %t = map{ $_->[0] => $_->[1] }@$t;
+    map{ $t{$_} ||= 0 }qw( fail running success );
+
+    $re{task_total} = 0;
+    map{ $re{task_total} += $re{"task_$_"} = $t{$_} }qw( fail running success );
+
+
+    my $s = eval{ $api::mysql->query( "select status,count(*) from subtask group by status" )};
+    my %s = map{ $_->[0] => $_->[1] }@$s;
+    map{ $s{$_} ||= 0 }qw( runnigs fail success decision ignore next );
+
+    $re{subtask_total} = 0;
+    map{ $re{subtask_total} += $re{"subtask_$_"} = $s{$_} }qw( runnigs fail success decision ignore next );
+
+    return +{ stat => $JSON::true, data => \%re };
+};
+
 true;
