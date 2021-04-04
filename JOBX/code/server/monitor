@@ -253,6 +253,14 @@ return sub
         
         $db->execute( sprintf $ins, $time, $t, $load > 20 ? 'err' : 'ok'  , $myname, 'os',"openc3_os_load", $load );
 
+        my $gtime = POSIX::strftime( "%d_%H:%M", localtime( time - 60 ) );
+
+        my $failcount = `tail -n 10000 /var/log/open-c3.log|egrep ": FAIL |: ERROR "|grep -E "$gtime"|wc -l`;
+        chomp $failcount;
+        $failcount = 110 unless $failcount =~ /^\d+$/;
+
+        $db->execute( sprintf $ins, $time, $t, $failcount ? 'err' : 'ok'  , $myname, 'system',"openc3_system_fail", $failcount );
+
         my $due = time + 60 - $t;
         sleep $due if $due > 0;
     }
