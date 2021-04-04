@@ -4,6 +4,7 @@ use warnings;
 use FindBin qw( $RealBin );
 use Data::Dumper;
 use POSIX;
+use JSON;
 use Util;
 use Logs;
 use LWP::UserAgent;
@@ -162,6 +163,57 @@ return sub
             my ( $stat, $data ) = &$getNginxStatus($nginx->{url}, $nginx->{Host});
             $db->execute( sprintf $ins, $time, $t, $stat, $myname, 'nginx',"openc3_$nginx->{name}_status", $stat eq 'ok' ? 1 : 0 );
             map{ $db->execute( sprintf $ins, $time, $t, $stat, $myname, 'nginx',"openc3_$nginx->{name}_$_", $data->{$_} ); }keys %$data;
+        }
+
+        my $getMysqlStatus = sub{
+
+            my ( $url, $Host ) = @_;
+            my $ua = LWP::UserAgent->new;
+            $ua->default_header( Host => $Host ) if $Host;
+
+            $ua->timeout( 3 );
+
+            my $res = $ua->get( $url );
+
+            if( $res->is_success )
+            {
+                my $data = eval{ JSON::from_json $res->content };
+                return +{} if $@;
+                return $data->{data};
+            }
+            else
+            {
+                return +{};
+            }
+        };
+
+        my @mysqlcheck = (
+            +{
+                Host => 'api.agent.open-c3.org',
+                name => 'agent'
+            },
+            +{
+                Host => 'api.ci.open-c3.org',
+                name => 'ci'
+            },
+            +{
+                Host => 'api.job.open-c3.org',
+                name => 'job'
+            },
+            +{
+                Host => 'api.jobx.open-c3.org',
+                name => 'jobx'
+            },
+            +{
+                Host => 'api.connector.open-c3.org',
+                name => 'connector'
+            },
+        );
+
+        for my $mysql ( @mysqlcheck )
+        {
+            my $data = &$getMysqlStatus( 'http://127.0.0.1/monitor/metrics/mysql', $mysql->{Host});
+            map{ $db->execute( sprintf $ins, $time, $t, 'ok', 'openc3', 'mysql',"openc3_$mysql->{name}_mysql_$_", $data->{$_} ); }keys %$data;
         }
 
         my $due = time + 60 - $t;
