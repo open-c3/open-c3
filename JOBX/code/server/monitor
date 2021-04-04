@@ -8,6 +8,7 @@ use JSON;
 use Util;
 use Logs;
 use LWP::UserAgent;
+use MYDan::Collector::Util;
 
 $| ++;
 
@@ -229,6 +230,28 @@ return sub
 
         my $agentmetrics = &$getMetrics( 'http://127.0.0.1/monitor/metrics/app', 'api.agent.open-c3.org');
         map{ $db->execute( sprintf $ins, $time, $t, 'ok', 'openc3', 'app',"openc3_agent_app_$_", $agentmetrics->{$_} ); }keys %$agentmetrics;
+
+
+        my %diskalias = ( '/' => 'root', '/data' => 'data', '/data/glusterfs' => 'glusterfs' );
+        my %disk = ( '/' => 0, '/data' => 0, '/data/glusterfs' => 0 );
+        die "exec df fail.\n" unless my @df = MYDan::Collector::Util::qx( "LANG=en df -l 2>/dev/null" );
+        for my $df ( map { [ ( split /\s+/, $_, 7 )[ 5, 4 ] ] } @df )
+        {
+            next unless defined $disk{$df->[0]};
+            $df->[1] =~ s/%//;
+            $disk{$df->[0]} = $df->[1];
+        }
+
+        map{ $db->execute( sprintf $ins, $time, $t, $disk{$_} > 90 ? 'err' : 'ok'  , $myname, 'os',"openc3_os_disk_$diskalias{$_}", $disk{$_} ); }keys %disk;
+
+
+        my $load = 0;
+        if( `cat /proc/loadavg` =~ /^([\d\.]+)\s+/ )
+        {
+            $load = $1;
+        }
+        
+        $db->execute( sprintf $ins, $time, $t, $load > 20 ? 'err' : 'ok'  , $myname, 'os',"openc3_os_load", $load );
 
         my $due = time + 60 - $t;
         sleep $due if $due > 0;
