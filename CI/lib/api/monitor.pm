@@ -28,4 +28,25 @@ get '/monitor/metrics/mysql' => sub {
     return +{ stat => $JSON::true, data => \%re };
 };
 
+get '/monitor/metrics/app' => sub {
+    my $param = params();
+
+    my $p = eval{ $api::mysql->query( "select status,count(*) from project group by status" )};
+    my %p = map{ $_->[0] => $_->[1] }@$p;
+    map{ $p{$_} ||= 0 }(1 , 0 );
+    
+    my $v = eval{ $api::mysql->query( "select status,count(*) from version group by status" )};
+    my %v = map{ $_->[0] => $_->[1] }@$v;
+    map{ $v{$_} ||= 0 }qw( done fail running success );
+
+    my %re;
+    $re{project_total} = $p{0} + $p{1};
+    $re{project_active} = $p{1};
+
+    $re{build_total}  = 0;
+    map{ $re{build_total} += $re{"build_$_"} = $v{$_} }qw( done fail running success );
+
+    return +{ stat => $JSON::true, data => \%re };
+};
+
 true;

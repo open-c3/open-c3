@@ -165,7 +165,7 @@ return sub
             map{ $db->execute( sprintf $ins, $time, $t, $stat, $myname, 'nginx',"openc3_$nginx->{name}_$_", $data->{$_} ); }keys %$data;
         }
 
-        my $getMysqlStatus = sub{
+        my $getMetrics = sub{
 
             my ( $url, $Host ) = @_;
             my $ua = LWP::UserAgent->new;
@@ -212,9 +212,13 @@ return sub
 
         for my $mysql ( @mysqlcheck )
         {
-            my $data = &$getMysqlStatus( 'http://127.0.0.1/monitor/metrics/mysql', $mysql->{Host});
+            my $data = &$getMetrics( 'http://127.0.0.1/monitor/metrics/mysql', $mysql->{Host});
             map{ $db->execute( sprintf $ins, $time, $t, 'ok', 'openc3', 'mysql',"openc3_$mysql->{name}_mysql_$_", $data->{$_} ); }keys %$data;
         }
+
+        my $cimetrics = &$getMetrics( 'http://127.0.0.1/monitor/metrics/app', 'api.ci.open-c3.org');
+        map{ $db->execute( sprintf $ins, $time, $t, 'ok', 'openc3', 'app',"openc3_ci_app_$_", $cimetrics->{$_} ); }keys %$cimetrics;
+
 
         my $due = time + 60 - $t;
         sleep $due if $due > 0;
