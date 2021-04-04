@@ -43,9 +43,15 @@ return sub
     if( $@ )
     {
         my $tmperror = $@;
-        my $tr = eval{ $db->query( "select count(*) from crontablock where crontabid='$id' and timeid='$timeid'" ); };
-        $logs->err( "select from crontablock error:$@" ) if $@;
-        $logs->die( "insert into crntablock error: $tmperror" ) if $tr && ref $tr eq 'ARRAY' && $tr->[0][0] eq '1';
+        if( $tmperror =~ /Duplicate entry/ )
+        {
+            $logs->say( "crontab task $id doesn't belong to me" );
+            return;
+        }
+        else
+        {
+            $logs->die( "insert into crntablock error: $tmperror" );
+        }
     }
 
     eval{ $db->execute( 
