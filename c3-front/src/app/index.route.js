@@ -342,6 +342,12 @@
                 controller: 'MonitorController',
                 controllerAs: 'monitor'
             })
+            .state('home.global.versionlog', {
+                url: 'versionlog/:treeid',
+                templateUrl: 'app/pages/global/versionlog/versionlog.html',
+                controller: 'VersionLogController',
+                controllerAs: 'versionlog'
+            })
             .state('home.global.template', {
                 url: 'template/:treeid',
                 templateUrl: 'app/pages/global/template/template.html',
