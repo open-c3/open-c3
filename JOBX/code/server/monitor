@@ -261,6 +261,9 @@ return sub
 
         $db->execute( sprintf $ins, $time, $t, $failcount ? 'err' : 'ok'  , $myname, 'system',"openc3_system_fail", $failcount );
 
+        my $usetime = int( time - $t );
+        $db->execute( sprintf $ins, $time, $t, $usetime > 60 ? 'err' : 'ok'  , $myname, 'monitor',"openc3_monitor_usetime", $usetime );
+
         my $due = time + 60 - $t;
         sleep $due if $due > 0;
     }
