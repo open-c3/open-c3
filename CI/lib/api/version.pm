@@ -135,7 +135,6 @@ put '/version/:groupid/:projectid/:uuid/build' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     eval{ 
-        $api::mysql->execute( "insert into log (`projectid`,`user`,`info`)values('$projectid','$user','build uuid $param->{uuid}')" );
         $api::mysql->execute( "update version set status='init',user='$user',reason='call by page',pid=null 
             where uuid='$param->{uuid}' and ( status='fail' || status='success' || status='done')");
     };

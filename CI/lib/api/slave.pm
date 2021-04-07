@@ -225,8 +225,6 @@ put '/killbuild/:uuid' => sub {
 #
 #  kill 'KILL', $data->{pid};
 
-  eval{ $api::mysql->execute( "insert into log (`projectid`,`user`,`info`)values('$data->{projectid}','$user','kill build uuid $uuid')" ) if defined  $data->{projectid} && $user; };
-
   system "killall -9 'ci_worker_build_$uuid' >/dev/null 2>&1";
   return kill( 0, $data->{pid} )
       ? JSON::to_json( +{ stat => $JSON::false, info => "kill build fail" } )
