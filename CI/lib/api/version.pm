@@ -104,6 +104,10 @@ put '/version/:groupid/:projectid/stop_project' => sub {
     my $projectid = $param->{projectid};
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ),
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    eval{ $api::auditlog->run( user => $user, title => 'STOP ALL BUILD', content => "TREEID:$param->{groupid} FLOWLINEID:$param->{projectid}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     eval{
         $api::mysql->execute( "update version set status='done',reason='off by $user'
             where projectid=$projectid and  status='init'");
@@ -125,6 +129,10 @@ put '/version/:groupid/:projectid/:uuid/build' => sub {
     my $projectid = $param->{projectid};
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ),
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    my $tagname = eval{ $api::mysql->query( "select name from version where uuid='$param->{uuid}'")};
+    eval{ $api::auditlog->run( user => $user, title => 'START BUILD', content => "TREEID:$param->{groupid} FLOWLINEID:$param->{projectid} TAG:$tagname->[0][0]" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
     eval{ 
         $api::mysql->execute( "insert into log (`projectid`,`user`,`info`)values('$projectid','$user','build uuid $param->{uuid}')" );

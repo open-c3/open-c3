@@ -66,6 +66,9 @@ post '/images' => sub {
     my ( $user, $company ) = $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
+    eval{ $api::auditlog->run( user => $user, title => 'CREATE IMAGE', content => "NAME:$param->{name}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $share = $param->{share} && $param->{share} eq 'true' ? $company : '';
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
 
@@ -89,6 +92,9 @@ post '/images/:imagesid' => sub {
     my ( $user, $company ) = $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
+    eval{ $api::auditlog->run( user => $user, title => 'EDIT IMAGE', content => "IMAGEID:$param->{imagesid} NAME:$param->{name}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $share = $param->{share} && $param->{share} eq 'true' ? $company : '';
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
 
@@ -109,6 +115,10 @@ del '/images/:imagesid' => sub {
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    my $imagename = eval{ $api::mysql->query( "select name from images where id='$param->{imagesid}'")};
+    eval{ $api::auditlog->run( user => $user, title => 'DELETE IMAGE', content => "IMAGEID:$param->{imagesid} NAME:$imagename->[0][0]" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $update = eval{ 
         $api::mysql->execute( "delete from images where id='$param->{imagesid}' and create_user='$user'" );
@@ -155,6 +165,10 @@ post '/images/:imagesid/upload' => sub {
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    my $imagename = eval{ $api::mysql->query( "select name from images where id='$param->{imagesid}'")};
+    eval{ $api::auditlog->run( user => $user, title => 'UPLOAD IMAGE', content => "IMAGEID:$param->{imagesid} NAME:$imagename->[0][0]" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
         $api::mysql->query( 

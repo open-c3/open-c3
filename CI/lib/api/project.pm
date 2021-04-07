@@ -143,6 +143,10 @@ put '/project/:groupid/:projectid/findtags_at_once' => sub {
     my $projectid = $param->{projectid};
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    eval{ $api::auditlog->run( user => $user, title => 'FIND TAGS', content => "TREEID:$param->{groupid} FLOWLINEID:$param->{projectid}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     eval{ 
         $api::mysql->execute( "insert into log (`projectid`,`user`,`info`)values('$projectid','$user','findtags at once')" );
         $api::mysql->execute( "update project set findtags_at_once=1 where id=$param->{projectid}" ); 
