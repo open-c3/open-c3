@@ -18,7 +18,6 @@ $| ++;
 return sub
 {
     my %param = @_;
-    print Dumper 'auditlog',\%param;
 
     map{ die "$_ undef" unless $param{$_} }qw( user title content );
 

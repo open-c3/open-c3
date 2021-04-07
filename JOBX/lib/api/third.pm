@@ -354,7 +354,6 @@ post '/third/interface/stop' => sub {
     return +{ stat => $JSON::true, info => "jobx uuid:$uuid status: $status" } if $status eq 'fail' || $status eq 'success';
     
     eval{ 
-        $api::mysql->execute( "insert into log (`projectid`,`user`,`info`)values('$project_id','$user','stop task $uuid')" );
         $api::mysql->execute( "update subtask set status='cancel' where parent_uuid='$uuid' and status='init' 
                 and parent_uuid in( select uuid from task where projectid='$project_id')"
         );

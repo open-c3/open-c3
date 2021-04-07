@@ -73,6 +73,10 @@ post '/group/:projectid/copy/byname' => sub {
         return +{ stat => $JSON::false, info => 'unkown plugin' };
     }
 
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+    eval{ $api::auditlog->run( user => $user, title => 'CREATE BATCH', content => "TREEID:$param->{projectid} BATCHNAME:$param->{name}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $r = eval{ 
         $api::mysql->execute( 
             "insert into `group` (`projectid`,`name`,`note`,`group_type`,`group_uuid`)
@@ -213,8 +217,10 @@ post '/group/:projectid' => sub {
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
+    eval{ $api::auditlog->run( user => $user, title => 'CREATE BATCH', content => "TREEID:$param->{projectid} BATCHNAME:$param->{name}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $r = eval{ 
-        $api::mysql->execute( "insert into log (`projectid`,`user`,`info` )values('$param->{projectid}','$user','add group $param->{name}')" );
         $api::mysql->execute( 
             "insert into `group` (`projectid`,`name`,`note`,`group_type`,`group_uuid`)
                 values( '$param->{projectid}', '$param->{name}','$param->{note}', '$param->{group_type}', '$uuid' )")};
@@ -230,8 +236,6 @@ post '/group/:projectid/:id' => sub {
         name => [ 'mismatch', qr/'/ ], 1,
         note => [ 'mismatch', qr/'/ ], 0,
         group_type => qr/[a-zA-Z0-9]+/, 1,
-
-        
         node => qr/[a-zA-Z0-9_\-\.:;]+/, 0,
         percent => qr/[a-zA-Z0-9%:]+/, 0,
     )->check( %$param );
@@ -268,8 +272,10 @@ post '/group/:projectid/:id' => sub {
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
+    eval{ $api::auditlog->run( user => $user, title => 'EDIT BATCH', content => "TREEID:$param->{projectid} BATCHNAME:$param->{name}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $r = eval{ 
-        $api::mysql->execute( "insert into log (`projectid`,`user`,`info`)values('$param->{projectid}','$user','edit group $param->{name}')" );
         $api::mysql->execute( 
             "update `group` set name='$param->{name}',note='$param->{note}',group_type='$param->{group_type}',group_uuid='$uuid' where id='$param->{id}' and projectid='$param->{projectid}'"
                 )};
@@ -290,8 +296,11 @@ del '/group/:projectid/:id' => sub {
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
+    my $batchname = eval{ $api::mysql->query( "select name from `group` where id='$param->{id}' and projectid='$param->{projectid}'")};
+    eval{ $api::auditlog->run( user => $user, title => 'DELETE BATCH', content => "TREEID:$param->{projectid} BATCHNAME:$batchname->[0][0]" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $r = eval{ 
-        $api::mysql->execute( "insert into log (`projectid`,`user`,`info`) select '$param->{projectid}','$user',concat( 'delete group ', name ) from `group` where id='$param->{id}'" );
         $api::mysql->execute( "delete from `group` where id='$param->{id}' and projectid='$param->{projectid}'")
     };
 
@@ -310,6 +319,9 @@ del '/group/:projectid/:name/byname' => sub {
     my $pmscheck = api::pmscheck( 'openc3_jobx_delete', $param->{projectid} ); return $pmscheck if $pmscheck;
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+
+    eval{ $api::auditlog->run( user => $user, title => 'DELETE BATCH', content => "TREEID:$param->{projectid} BATCHNAME:$param->{name}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
     eval{ 
         $api::mysql->execute( "delete from `group` where name='$param->{name}' and projectid='$param->{projectid}'")
