@@ -11,7 +11,7 @@ set serializer => 'JSON';
 set show_errors => 1;
 
 our $VERSION = '0.1';
-our ( $mysql, $sso, $myname, $pms, $cookiekey, $logs );
+our ( $mysql, $sso, $myname, $pms, $cookiekey, $logs, $auditlog );
 
 BEGIN{
     $myname = Util::myname();
@@ -23,6 +23,8 @@ BEGIN{
     $cookiekey = $env{cookiekey};
 
     $logs = Logs->new( 'api' );
+
+    $auditlog = Code->new( 'auditlog' );
 };
 
 hook 'before' => sub {

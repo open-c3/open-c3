@@ -84,6 +84,9 @@ post '/project/:groupid/:projectid' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
+    eval{ $api::auditlog->run( user => $user, title => 'EDIT FLOWLINE CI', content => "TREEID:$param->{groupid} FLOWLINEID:$projectid NAME:$param->{name}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my @col = qw( 
         status autobuild name excuteflow calljobx calljob
         webhook webhook_password webhook_release rely buildimage buildscripts
@@ -115,6 +118,10 @@ del '/project/:groupid/:projectid' => sub {
     my ( $groupid, $projectid ) = @$param{qw( groupid projectid )};
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ),
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    my $flowname = eval{ $api::mysql->query( "select name from project where groupid='$groupid' and id='$projectid'" )}; 
+    eval{ $api::auditlog->run( user => $user, title => 'DELETE FLOWLINE', content => "TREEID:$groupid FLOWLINEID:$projectid NAME:$flowname->[0][0]" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
         $api::mysql->execute( "delete from project where groupid='$groupid' and id='$projectid'" );
