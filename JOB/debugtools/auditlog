@@ -1,0 +1,19 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use MYDB;
+use Code;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $ok = Code->new( 'auditlog' )->run( 
+    user => 'open-c3',
+    title => 'test auditlog',
+    content => 'success!'
+);
+
+$ok ? exit 0 : exit 1;

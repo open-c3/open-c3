@@ -202,5 +202,46 @@ get '/connectorx/approval' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $data };
 };
 
+post '/connectorx/auditlog' => sub {
+    my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
+
+    my $param = params();
+    my $error = Format->new(
+        user => qr/^[a-zA-Z0-9\@_\.\-]+$/, 1,
+        title => [ 'mismatch', qr/'/ ], 1,
+        content => [ 'mismatch', qr/'/ ], 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    eval{ $api::mysql->execute( "insert into auditlog (`user`,`title`,`content`) values('$param->{user}','$param->{title}','$param->{content}')" ); };
+
+    return $@ ? +{ stat => $JSON::false, info => "run auditlog fail:$@"  } : +{ stat => $JSON::true, info => 'ok' };
+};
+
+get '/connectorx/auditlog' => sub {
+    my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
+    my $param = params();
+    my $error = Format->new(
+        time => qr/^[0-9: \-]+$/, 0,
+        user => qr/^[a-zA-Z0-9\@_\.\-]+$/, 0,
+        title => [ 'mismatch', qr/'/ ], 0,
+        content => [ 'mismatch', qr/'/ ], 0,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my @where;
+    push @where, "user='$param->{user}'" if $param->{user};
+    push @where, "time like '$param->{time}%'" if $param->{time};
+    push @where, "title like '%$param->{title}%'" if $param->{title};
+    push @where, "content like '%$param->{content}%'" if $param->{content};
+
+    my $where = @where ? sprintf( "where %s", join ' and ', @where ) : '';
+
+    my $mesg = eval{ $api::mysql->query( "select time,user,title,content from `auditlog` $where order by id limit 1000", [ 'time', 'user', 'title', 'content' ] ) };
+
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $mesg };
+};
 
 true;

@@ -124,7 +124,7 @@ create table `usermail`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 `user` VARCHAR(100) comment 'name',
 `time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment 'time',
-`title` VARCHAR(200) comment 'mesg',
+`title` VARCHAR(200) comment 'title',
 `content` VARCHAR(2000) comment 'mesg'
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='usermail';
 
@@ -154,4 +154,12 @@ create table `nodelist`(
 
 UNIQUE KEY `uniq_projectname` (`projectid`,`name`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='机器列表';
+
+create table `auditlog`(
+`id`            int(16) unsigned not null primary key auto_increment comment 'id',
+`time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment 'time',
+`user` VARCHAR(100) comment 'name',
+`title` VARCHAR(200) comment 'title',
+`content` VARCHAR(1000) comment 'mesg'
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='auditlog';
 

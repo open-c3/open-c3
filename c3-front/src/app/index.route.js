@@ -348,6 +348,12 @@
                 controller: 'VersionLogController',
                 controllerAs: 'versionlog'
             })
+            .state('home.global.auditlog', {
+                url: 'auditlog/:treeid',
+                templateUrl: 'app/pages/global/auditlog/auditlog.html',
+                controller: 'AuditLogController',
+                controllerAs: 'auditlog'
+            })
             .state('home.global.template', {
                 url: 'template/:treeid',
                 templateUrl: 'app/pages/global/template/template.html',
