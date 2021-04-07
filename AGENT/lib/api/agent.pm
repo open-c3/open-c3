@@ -68,9 +68,11 @@ post '/agent/:projectid/:regionid/subnet' => sub {
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
+    eval{ $api::auditlog->run( user => $user, title => 'ADD SUBNET', content => "TREEID:$param->{projectid} REGIONID:$param->{regionid} SUBNET:$param->{subnet}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     eval{
         map{
-            $api::mysql->execute( "insert into log (`projectid`,`user`,`info`)values('$param->{projectid}','$user','add subnet $_ to region $param->{regionid}')" );   
             $api::mysql->execute( "replace into agent (`relationid`,`projectid`,`ip`,`status`,`reason`,`version`) 
             select id,'$param->{projectid}', '$_','success', 'subnet', '0' from project_region_relation where regionid='$param->{regionid}' and projectid='$param->{projectid}'" );
         }@subnet;
@@ -89,6 +91,11 @@ del '/agent/:projectid/:agentid' => sub {
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
     my $pmscheck = api::pmscheck( 'openc3_agent_delete', $param->{projectid} ); return $pmscheck if $pmscheck;
+
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+    my $agentip = eval{ $api::mysql->query( "select ip from agent where id='$param->{agentid}'")};
+    eval{ $api::auditlog->run( user => $user, title => 'DEL SUBNET', content => "TREEID:$param->{projectid} SUBNET:$agentip->[0][0]" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
         $api::mysql->execute(

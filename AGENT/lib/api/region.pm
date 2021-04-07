@@ -45,8 +45,10 @@ post '/region/:projectid' => sub {
     my $projectid = $param->{projectid};
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
+    eval{ $api::auditlog->run( user => $user, title => 'ADD REGION', content => "TREEID:$param->{projectid} NAME:$param->{name}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $r = eval{ 
-        $api::mysql->execute( "insert into log (`projectid`,`user`,`info`)values('$projectid','$user','add region $param->{name}')" );
         $api::mysql->execute( "insert into region (`projectid`,`name`) values( '$projectid', '$param->{name}' )");
     };
 
@@ -67,8 +69,11 @@ del '/region/:projectid/:regionid' => sub {
     my ( $regionid, $projectid ) = @$param{qw( regionid projectid )};
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
+    my $regionname = eval{ $api::mysql->query( "select name from region where id='$param->{regionid}'")};
+    eval{ $api::auditlog->run( user => $user, title => 'DEL REGION', content => "TREEID:$param->{projectid} NAME:$regionname->[0][0]" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $r = eval{ 
-        $api::mysql->execute( "insert into log (`projectid`,`user`,`info`) select '$projectid','$user',concat('delete regionid $regionid region name ', name ) from region where id='$regionid'" );
         $api::mysql->execute( "delete from agent where relationid in( select id from project_region_relation where regionid='$regionid' and projectid='$projectid')" );
         $api::mysql->execute( "delete from proxy where regionid in ( select id from region where id='$regionid' and projectid='$projectid')" );
         $api::mysql->execute( "delete from project_region_relation where regionid='$regionid' and projectid='$projectid'" );
