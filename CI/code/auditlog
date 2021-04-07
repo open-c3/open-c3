@@ -1,0 +1,46 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use LWP::UserAgent;
+use Util;
+use JSON;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    user => '',
+    title => '',
+    content => ''
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    map{ die "$_ undef" unless $param{$_} }qw( user title content );
+
+    my %env = Util::envinfo( qw( appname appkey ) );
+    my $ua = LWP::UserAgent->new;
+    $ua->default_header( %env );
+
+    my $cont = JSON::to_json( \%param );
+    utf8::encode($cont);
+
+    my $res = $ua->post( "http://api.connector.open-c3.org/connectorx/auditlog",
+        Content => $cont, 'Content-Type' => 'application/json'
+    );
+
+    unless( $res->is_success )
+    {
+        die "call auditlog fail";
+    }
+
+    my $data = eval{JSON::from_json $res->content};
+    unless ( $data->{stat} ) {
+        die "call auditlog result". $data->{info} || '';
+    }
+ 
+    return 1;
+}

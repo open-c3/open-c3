@@ -183,6 +183,9 @@ post '/task/:projectid/job/byname' => sub {
 
     my $variable = $param->{variable} ? encode_base64( encode('UTF-8', YAML::XS::Dump $param->{variable}) ) : '';
 
+    eval{ $api::auditlog->run( user => $user, title => 'START JOBX', content => "TREEID:$param->{projectid} JOBNAME:$param->{jobname} BATCHNAME:$param->{group}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $r = eval{ 
         $api::mysql->execute( "insert into task (`projectid`,`uuid`,`name`,`group`,`user`,`slave`,`status`,`calltype`,`variable`) 
             values('$param->{projectid}','$uuid','$param->{jobname}','$param->{group}','$user','$slave', 'init','$calltype','$variable')" )};
@@ -225,6 +228,10 @@ put '/task/:projectid/:uuid/:control' => sub {
     $variable->{version} = $v;
     $variable = encode_base64( encode('UTF-8', YAML::XS::Dump $variable) );
     my $ruuid = uuid::get_rollback_uuid( $param->{uuid} );
+
+    eval{ $api::auditlog->run( user => $user, title => 'JOBX TASK ROLLBACK', content => sprintf( "TREEID:$param->{projectid} UUID:$param->{uuid} ROLLBACK:%s", $param->{control} eq 'rollback' ? 'Yes' : 'No'  ) ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     eval{
         if( $param->{control} eq 'rollback' )
         {
@@ -251,8 +258,10 @@ any ['put', 'delete'] => '/task/:projectid/:uuid' => sub {
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
+    eval{ $api::auditlog->run( user => $user, title => 'KILL JOBX', content => "TREEID:$param->{projectid} TASKUUID:$param->{uuid}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     eval{ 
-        $api::mysql->execute( "insert into log (`projectid`,`user`,`info`)values('$param->{projectid}','$user','stop task $param->{uuid}')" );
         $api::mysql->execute( "update subtask set status='cancel' where parent_uuid='$param->{uuid}' and status='init' 
                 and parent_uuid in( select uuid from task where projectid='$param->{projectid}')"
         );

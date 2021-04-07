@@ -191,9 +191,12 @@ post '/group/:groupid' => sub {
     };
 
     return  +{ stat => $JSON::false, info => $@ } if $@;
-    my $r = eval{ $api::mysql->query( "select id from project where groupid='$groupid' and name='$param->{name}'" )};
+    my $flowid = eval{ $api::mysql->query( "select id from project where groupid='$groupid' and name='$param->{name}'" )};
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
-    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, id => $r->[0][0]};
+    eval{ $api::auditlog->run( user => $user, title => 'CREATE FLOWLINE', content => "TREEID:$groupid FLOWLINEID:$flowid->[0][0] NAME:$param->{name}" ); };
+
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, id => $flowid->[0][0]};
 };
 
 true;

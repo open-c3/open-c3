@@ -336,6 +336,24 @@
                 controller: 'NotifyController',
                 controllerAs: 'notify'
             })
+            .state('home.global.monitor', {
+                url: 'monitor/:treeid',
+                templateUrl: 'app/pages/global/monitor/monitor.html',
+                controller: 'MonitorController',
+                controllerAs: 'monitor'
+            })
+            .state('home.global.versionlog', {
+                url: 'versionlog/:treeid',
+                templateUrl: 'app/pages/global/versionlog/versionlog.html',
+                controller: 'VersionLogController',
+                controllerAs: 'versionlog'
+            })
+            .state('home.global.auditlog', {
+                url: 'auditlog/:treeid',
+                templateUrl: 'app/pages/global/auditlog/auditlog.html',
+                controller: 'AuditLogController',
+                controllerAs: 'auditlog'
+            })
             .state('home.global.template', {
                 url: 'template/:treeid',
                 templateUrl: 'app/pages/global/template/template.html',
