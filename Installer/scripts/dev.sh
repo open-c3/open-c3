@@ -88,6 +88,7 @@ function start() {
         echo =================================================================
         echo "[INFO]build ..."
         rm -rf $BASE_PATH/c3-front/dist
+        docker run -it -v /data/open-c3/c3-front/:/code openc3/gulp bower install --allow-root
         docker run -it -v /data/open-c3/c3-front/:/code openc3/gulp gulp build
         cd $BASE_PATH/c3-front/dist && git clone https://github.com/open-c3/open-c3.github.io book
 
