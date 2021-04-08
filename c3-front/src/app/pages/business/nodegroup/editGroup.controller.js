@@ -4,7 +4,7 @@
         .module('openc3')
         .controller('EditGroup', EditGroup);
 
-    function EditGroup($uibModalInstance,$uibModal, $http, $scope, ngTableParams,resoureceService, treeId, groupId, homereload) {
+    function EditGroup($uibModalInstance,$uibModal, $http, $scope, ngTableParams,resoureceService, treeId, groupId, homereload, $injector ) {
 
         var vm = this;
         $scope.selected = [];

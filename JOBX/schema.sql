@@ -82,19 +82,6 @@ create table `keepalive`(
 UNIQUE KEY `uniq_slave` (`slave`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='slave心跳';
 
-create table `log`(
-`id`            int(16) unsigned not null primary key auto_increment comment 'id',
-
-`projectid` int(16) unsigned comment '项目id',
-
-`user` VARCHAR(100) comment '操作人',
-`info` VARCHAR(200) comment '日志信息',
-
-`create_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间'
-
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='log';
-
-
 create table `monitor`(
 `id` int(16) unsigned not null primary key auto_increment comment 'id',
 `time` VARCHAR(40) comment '时间',

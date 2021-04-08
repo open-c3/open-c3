@@ -155,6 +155,9 @@ post '/task/:projectid/redo' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     my $calltype = $user =~ /\@app$/ ? 'api' : 'page';
 
+    eval{ $api::auditlog->run( user => $user, title => 'TASK REDO', content => "TREEID:$param->{projectid} TASKUUID:$param->{taskuuid}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $r = eval{ 
         $api::mysql->execute( "insert into task (`projectid`,`uuid`,`name`,`user`,`slave`,`status`,`calltype`,`jobtype`,`jobuuid`,`mutex`,`variable`) 
             select projectid,'$uuid',name,'$user','$slave','init','$calltype',jobtype,jobuuid,mutex,variable from task where uuid='$param->{taskuuid}' and projectid='$param->{projectid}'" )};
@@ -210,6 +213,9 @@ post '/task/:projectid/job' => sub {
     my $calltype = $user =~ /\@app$/ ? 'api' : 'page';
 
     my $variable = $param->{variable} ? encode_base64( encode('UTF-8', YAML::XS::Dump $param->{variable}) ) : '';
+
+    eval{ $api::auditlog->run( user => $user, title => 'START JOB TASK', content => "TREEID:$param->{projectid} JOBUUID:$param->{jobuuid}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
         $api::mysql->execute( "insert into task (`projectid`,`uuid`,`name`,`user`,`slave`,`status`,`calltype`,`jobtype`,`jobuuid`,`mutex`,`variable`) 
@@ -321,6 +327,9 @@ post '/task/:projectid/job/byname' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     my $calltype = $user =~ /\@app$/ ? 'api' : 'page';
 
+    eval{ $api::auditlog->run( user => $user, title => 'START JOB TASK', content => "TREEID:$param->{projectid} JOBUUID:$jobuuid" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $variable = $param->{variable} ? encode_base64( encode('UTF-8', YAML::XS::Dump $param->{variable}) ) : '';
 
     my $r = eval{ 
@@ -414,6 +423,9 @@ post '/task/:projectid/plugin_cmd' => sub {
     my $uuid = uuid->new()->create_str;
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     my $calltype = $user =~ /\@app$/ ? 'api' : 'page';
+
+    eval{ $api::auditlog->run( user => $user, title => 'START JOB CMD', content => "TREEID:$param->{projectid} TASKNAME:$param->{name} TASKUUID:$uuid" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $variable = $param->{variable} ? encode_base64( encode('UTF-8', YAML::XS::Dump $param->{variable}) ) : '';
     my $r = eval{ 
@@ -532,6 +544,9 @@ post '/task/:projectid/plugin_scp' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     my $calltype = $user =~ /\@app$/ ? 'api' : 'page';
 
+    eval{ $api::auditlog->run( user => $user, title => 'START JOB SCP', content => "TREEID:$param->{projectid} TASKNAME:$param->{name} TASKUUID:$uuid" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $variable = $param->{variable} ? encode_base64( encode('UTF-8', YAML::XS::Dump $param->{variable}) ) : '';
     my $r = eval{ 
         $api::mysql->execute( "insert into task (`projectid`,`uuid`,`name`,`user`,`slave`,`status`,`calltype`,`jobtype`,`jobuuid`,`mutex`,`variable`) 
@@ -583,6 +598,9 @@ post '/task/:projectid/plugin_approval' => sub {
     my $uuid = uuid->new()->create_str;
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     my $calltype = $user =~ /\@app$/ ? 'api' : 'page';
+
+    eval{ $api::auditlog->run( user => $user, title => 'START JOB APPROVAL', content => "TREEID:$param->{projectid} TASKNAME:$param->{name} TASKUUID:$uuid" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $variable = $param->{variable} ? encode_base64( encode('UTF-8', YAML::XS::Dump $param->{variable}) ) : '';
     my $r = eval{ 

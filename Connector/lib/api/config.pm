@@ -41,6 +41,9 @@ post '/config' => sub {
 
     my $time = POSIX::strftime( "%Y%m%d%H%M%S", localtime );
 
+    eval{ $api::mysql->execute( "insert into auditlog (`user`,`title`,`content`) values('$ssouser','EDIT CONNECTOR CONFIG','_')" ); };
+    return  +{ stat => $JSON::false, info => $@ } if $@; 
+
     eval{
         YAML::XS::DumpFile "$RealBin/../config.ini/current", $config;
         die "copy config fail: $!" if system "cp $RealBin/../config.ini/current $RealBin/../config.ini/$time";

@@ -68,6 +68,9 @@ post '/rely/:projectid' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ),
         map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
+    eval{ $api::auditlog->run( user => $user, title => 'ADD RELY', content => "FLOWLINEID:$param->{projectid} ADDR:$param->{addr}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my @col = qw( path addr ticketid tags );
     eval{ 
         $api::mysql->execute( 
@@ -97,6 +100,10 @@ del '/rely/:projectid/:relyid' => sub {
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ),
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    my $addr = eval{ $api::mysql->query( "select addr from rely where id='$param->{relyid}'")};
+    eval{ $api::auditlog->run( user => $user, title => 'DEL RELY', content => "FLOWLINEID:$param->{projectid} ADDR:$addr->[0][0]" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
         $api::mysql->execute( "delete from rely where id='$relyid' and projectid='$projectid'" );

@@ -40,6 +40,9 @@ post '/notify/:projectid' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
 
+    eval{ $api::auditlog->run( user => $user, title => 'ADD NOTIFY', content => "TREEID:$param->{projectid} USER:$param->{user}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $r = eval{ 
         $api::mysql->execute( 
             "insert into notify (`projectid`,`user`,`create_user`,`create_time`,`edit_user`,`edit_time`,`status`)
@@ -61,6 +64,10 @@ del '/notify/:projectid/:id' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     my $t    = Util::deleteSuffix();
+
+    my $notifyuser = eval{ $api::mysql->query( "select user from notify where id='$param->{id}'")};
+    eval{ $api::auditlog->run( user => $user, title => 'DEL NOTIFY', content => "TREEID:$param->{projectid} USER:$notifyuser->[0][0]" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
         $api::mysql->execute(

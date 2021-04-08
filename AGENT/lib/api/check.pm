@@ -45,8 +45,10 @@ post '/check/:projectid' => sub {
     $status = 'off' if$status ne 'on';
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
+    eval{ $api::auditlog->run( user => $user, title => 'AGENT CHECK', content => "TREEID:$projectid STATUS:$status" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $r = eval{ 
-        $api::mysql->execute( "insert into log (`projectid`,`user`,`info`)values('$projectid','$user','set check status to $status')" );
         $api::mysql->execute( "replace into `check` (`projectid`,`status`,`user`) values( '$projectid', '$status','$user' )");
     };
 

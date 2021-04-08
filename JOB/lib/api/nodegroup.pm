@@ -174,6 +174,9 @@ post '/nodegroup/:projectid' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ));
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
 
+    eval{ $api::auditlog->run( user => $user, title => 'CREATE NODEGROUP', content => "TREEID:$param->{projectid} NAME:$param->{name}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $r = eval{ 
         $api::mysql->execute( 
             "insert into nodegroup (`projectid`,`name`,`plugin`,`params`,`create_user`,`create_time`,`edit_user`,`edit_time`,`status`)
@@ -203,6 +206,9 @@ post '/nodegroup/:projectid/:id' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
 
+    eval{ $api::auditlog->run( user => $user, title => 'EDIT NODEGROUP', content => "TREEID:$param->{projectid} NAME:$param->{name}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $r = eval{ 
         $api::mysql->execute( 
             "update nodegroup set name='$param->{name}',plugin='$param->{plugin}',
@@ -226,6 +232,10 @@ del '/nodegroup/:projectid/:id' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     my $t    = Util::deleteSuffix();
+
+    my $nodegroupname = eval{ $api::mysql->query( "select name from nodegroup where id='$param->{id}'")};
+    eval{ $api::auditlog->run( user => $user, title => 'DELETE NODEGROUP', content => "TREEID:$param->{projectid} NAME:$nodegroupname->[0][0]" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
         $api::mysql->execute(

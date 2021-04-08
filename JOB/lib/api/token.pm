@@ -70,6 +70,10 @@ post '/token/:projectid' => sub {
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
+
+    eval{ $api::auditlog->run( user => $user, title => 'ADD FILESERVER TOKEN', content => "TREEID:$param->{projectid} NAME:$param->{describe}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $r = eval{ 
         $api::mysql->execute( 
             "insert into token (`projectid`,`token`,`describe`,`isjob`,`jobname`,`create_user`,`create_time`,`edit_user`,`edit_time`,`status`)
@@ -91,6 +95,10 @@ del '/token/:projectid/:id' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     my $t    = Util::deleteSuffix();
+
+    my $tokenname = eval{ $api::mysql->query( "select `describe` from token where id='$param->{id}'")};
+    eval{ $api::auditlog->run( user => $user, title => 'DEL FILESERVER TOKEN', content => "TREEID:$param->{projectid} NAME:$tokenname->[0][0]" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
         $api::mysql->execute(

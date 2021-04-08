@@ -90,6 +90,11 @@ del '/proxy/:projectid/:proxyid' => sub {
 
     my $pmscheck = api::pmscheck( 'openc3_agent_delete', $param->{projectid} ); return $pmscheck if $pmscheck;
 
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+    my $proxyip = eval{ $api::mysql->query( "select ip from proxy where id='$param->{proxyid}'")};
+    eval{ $api::auditlog->run( user => $user, title => 'DEL PROXY', content => "TREEID:$param->{projectid} REGIONID:$param->{regionid} PROXYIP:$proxyip->[0][0]" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $r = eval{ 
         $api::mysql->execute(
             "delete from proxy where id='$param->{proxyid}' and regionid in (select id from region where projectid='$param->{projectid}')"
@@ -114,6 +119,9 @@ post '/proxy/:projectid/:regionid' => sub {
     return  +{ stat => $JSON::false, info => "ip format error" } unless @node;
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+
+    eval{ $api::auditlog->run( user => $user, title => 'ADD PROXY', content => "TREEID:$param->{projectid} REGIONID:$param->{regionid} PROXYIP:$param->{ip}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
         map{

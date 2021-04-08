@@ -137,6 +137,10 @@ del '/vv/:projectid/:node' => sub {
 
     my $pmscheck = api::pmscheck( 'openc3_job_delete', $param->{projectid} ); return $pmscheck if $pmscheck;
 
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+    eval{ $api::auditlog->run( user => $user, title => 'DELETE VV', content => "TREEID:$param->{projectid} NODE:$param->{node}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     eval{
         $api::mysql->execute("delete from vv where projectid=$param->{projectid} and node='$param->{node}';");
      };

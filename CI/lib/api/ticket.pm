@@ -119,6 +119,9 @@ post '/ticket' => sub {
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
+    eval{ $api::auditlog->run( user => $user, title => 'CREATE TICKET', content => "NAME:$param->{name}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $share = $param->{share} && $param->{share} eq 'true' ? $company : '';
     return  +{ stat => $JSON::false, info => "check format fail ticket" } unless $param->{ticket} && ref $param->{ticket} eq 'HASH';
 
@@ -164,6 +167,9 @@ post '/ticket/:ticketid' => sub {
     my ( $user, $company ) = $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
+    eval{ $api::auditlog->run( user => $user, title => 'EDIT TICKET', content => "TICKETID:$param->{ticketid} NAME:$param->{name}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $share = $param->{share} && $param->{share} eq 'true' ? $company : '';
 
     return  +{ stat => $JSON::false, info => "check format fail ticket" } unless $param->{ticket} && ref $param->{ticket} eq 'HASH';
@@ -206,6 +212,10 @@ del '/ticket/:ticketid' => sub {
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    my $ticketname = eval{ $api::mysql->query( "select name from ticket where id='$param->{ticketid}'")};
+    eval{ $api::auditlog->run( user => $user, title => 'DELETE TICKET', content => "TICKETID:$param->{ticketid} NAME:$ticketname->[0][0]" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $update = eval{ 
         $api::mysql->execute( "delete from ticket where id='$param->{ticketid}' and create_user='$user'" );

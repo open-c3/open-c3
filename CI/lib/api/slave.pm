@@ -12,7 +12,7 @@ set show_errors => 1;
 
 our %conn;
 
-our ( $mysql, $myname, $sso, $pms, $cookiekey, $logs );
+our ( $mysql, $myname, $sso, $pms, $cookiekey, $logs, $auditlog );
 BEGIN{
     use lib "$RealBin/../private/lib";
 
@@ -25,6 +25,8 @@ BEGIN{
     $cookiekey = $env{cookiekey};
 
     $logs = Logs->new( 'apislave' );
+
+    $auditlog = Code->new( 'auditlog' );
 };
 
 sub replace
@@ -183,11 +185,14 @@ put '/killbuild/:uuid' => sub {
             request->method, request->env->{HTTP_X_FORWARDED_FOR}, YAML::XS::Dump YAML::XS::Dump request->params() );
   }
 
-  my @col = qw( pid projectid slave status );
+  my @col = qw( pid projectid slave status name);
   my $r = eval{ $mysql->query( sprintf( "select %s from version where uuid='$uuid'", join ',', @col ), \@col )};
   return JSON::to_json( +{ stat => $JSON::false, info => "Non-existent uuid:$uuid" } ) unless $r && @$r;
 
   my $data = $r->[0];
+
+  eval{ $auditlog->run( user => $user, title => 'KILL BUILD', content => "FLOWLINEID:$data->{projectid} TAG:$data->{name}" ); };
+  return +{ stat => $JSON::false, info => $@ } if $@;
 
   return JSON::to_json( +{ stat => $JSON::false, info => "build $uuid in slave $data->{slave}" } )
       unless $data->{slave} && $data->{slave} eq $myname;
@@ -219,8 +224,6 @@ put '/killbuild/:uuid' => sub {
 #      unless $environ =~ /CI_BUILD_UUID=XXX${uuid}XXX/;
 #
 #  kill 'KILL', $data->{pid};
-
-  eval{ $api::mysql->execute( "insert into log (`projectid`,`user`,`info`)values('$data->{projectid}','$user','kill build uuid $uuid')" ) if defined  $data->{projectid} && $user; };
 
   system "killall -9 'ci_worker_build_$uuid' >/dev/null 2>&1";
   return kill( 0, $data->{pid} )

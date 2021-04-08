@@ -39,10 +39,12 @@ post '/project_region_relation/:projectid' => sub {
     my $pmscheck = api::pmscheck( 'openc3_agent_write', $param->{projectid} ); return $pmscheck if $pmscheck;
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
-    my $r = eval{ 
 
-        $api::mysql->execute( "insert into log (`projectid`,`user`,`info`) select '$param->{projectid}','$user',concat('selected regionid $param->{regionid} region name ', name ) from region where id='$param->{regionid}'" );
-        $api::mysql->execute( "insert into project_region_relation (`projectid`,`regionid`) values( '$param->{projectid}', '$param->{regionid}' )")};
+    my $regionname = eval{ $api::mysql->query( "select name from region where id='$param->{regionid}'")};
+    eval{ $api::auditlog->run( user => $user, title => 'USE REGION', content => "TREEID:$param->{projectid} REGIONID:$param->{regionid} REGIONNAME:$regionname->[0][0]" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
+    my $r = eval{ $api::mysql->execute( "insert into project_region_relation (`projectid`,`regionid`) values( '$param->{projectid}', '$param->{regionid}' )")};
 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
@@ -60,9 +62,12 @@ del '/project_region_relation/:projectid/:regionid' => sub {
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     my ( $regionid, $projectid ) = @$param{qw( regionid projectid )};
-    my $r = eval{ 
 
-        $api::mysql->execute( "insert into log (`projectid`,`user`,`info`) select '$param->{projectid}','$user',concat('cancel regionid $param->{regionid} region name ', name ) from region where id='$param->{regionid}'" );
+    my $regionname = eval{ $api::mysql->query( "select name from region where id='$param->{regionid}'")};
+    eval{ $api::auditlog->run( user => $user, title => 'OUT REGION', content => "TREEID:$param->{projectid} REGIONID:$param->{regionid} REGIONNAME:$regionname->[0][0]" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
+    my $r = eval{ 
         $api::mysql->execute( "delete from agent where relationid in( select id from project_region_relation where regionid='$regionid' and projectid='$projectid')" );
         $api::mysql->execute( "delete from proxy where regionid in ( select id from region where id='$regionid' and projectid='$projectid')" );
         $api::mysql->execute( "delete from project_region_relation where regionid='$regionid' and projectid='$projectid'" );

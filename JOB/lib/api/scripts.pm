@@ -136,6 +136,9 @@ post '/scripts/:projectid' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
 
+    eval{ $api::auditlog->run( user => $user, title => 'CREATE SCRIPTS', content => "TREEID:$param->{projectid} NAME:$param->{name}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $r = eval{ 
         $api::mysql->execute( 
             "insert into scripts (`projectid`,`name`,`type`,`cont`,`create_user`,`create_time`,`edit_user`,`edit_time`,`status`)
@@ -166,6 +169,10 @@ post '/scripts/:projectid/:scriptsid' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
 
+    my $scriptsname = eval{ $api::mysql->query( "select name from scripts where id='$param->{scriptsid}'")};
+    eval{ $api::auditlog->run( user => $user, title => 'EDIT SCRIPTS', content => "TREEID:$param->{projectid} NAME:$scriptsname->[0][0]" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $r = eval{ 
         $api::mysql->execute( 
             "update scripts set name='$param->{name}',type='$param->{type}',cont='$param->{cont}',edit_user='$user',edit_time='$time'
@@ -188,6 +195,10 @@ del '/scripts/:projectid/:scriptsid' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     my $t    = POSIX::strftime( "%Y%m%d%H%M%S", localtime );
+
+    my $scriptsname = eval{ $api::mysql->query( "select name from scripts where id='$param->{scriptsid}'")};
+    eval{ $api::auditlog->run( user => $user, title => 'DELETE SCRIPTS', content => "TREEID:$param->{projectid} NAME:$scriptsname->[0][0]" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
         $api::mysql->execute(
