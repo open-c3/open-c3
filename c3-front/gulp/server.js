@@ -41,7 +41,7 @@ function browserSyncInit(baseDir, browser) {
       proxyMiddleware('/api/jobx/',{ pathRewrite:{'^/api/jobx/': '/'}, target: 'http://open-c3.org/api/jobx', changeOrigin: true}),
       proxyMiddleware('/api/job/',{ pathRewrite:{'^/api/job/': '/'}, target: 'http://open-c3.org/api/job', changeOrigin: true}),
       proxyMiddleware('/api/agent/',{ pathRewrite:{'^/api/agent/': '/'}, target: 'http://open-c3.org/api/agent', changeOrigin: true}),
-      proxyMiddleware('/api/ci/',{ pathRewrite:{'^/api/ci/': '/'}, target: 'http://open-c3.org/api/ci', changeOrigin: true}),
+      proxyMiddleware('/api/ci/',{ pathRewrite:{'^/api/ci/': '/'}, target: 'http://open-c3.org/api/ci', changeOrigin: true})
   ];
 
 
