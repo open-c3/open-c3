@@ -190,6 +190,9 @@ post '/jobs/:projectid/copy/byname' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
 
+    eval{ $api::auditlog->run( user => $user, title => 'CREATE JOB', content => "TREEID:$param->{projectid} NAME:$param->{toname}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $x = $api::mysql->query( "select `uuid`,`uuids`,`status`,`mon_ids`,`mon_status` from jobs where projectid='$fromprojectid' and name='$fromname'" );
     return +{ stat => $JSON::true, info => 'The source does not exist' } unless $x && @$x > 0;
     my ( $fromuuid, $uuids, $status, $mon_ids, $mon_status ) = @{$x->[0]};
@@ -257,6 +260,10 @@ post '/jobs/:projectid' => sub {
     my $projectid = $param->{projectid};
     return  +{ stat => $JSON::false, info => "data undef" } unless $param->{data};
     return  +{ stat => $JSON::false, info => "data not a array" } unless ref $param->{data} && @{$param->{data}};
+
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+    eval{ $api::auditlog->run( user => $user, title => 'CREATE JOB', content => "TREEID:$param->{projectid} NAME:$param->{name}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
     my @variable;
     my $index = 0;
@@ -488,7 +495,6 @@ post '/jobs/:projectid' => sub {
 
     }
 
-    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     my $step = join ',', @step;
 
@@ -533,6 +539,10 @@ post '/jobs/:projectid/:jobuuid' => sub {
     my ( $projectid, $jobuuid )= @$param{qw(projectid jobuuid)};
     return  +{ stat => $JSON::false, info => "data undef" } unless $param->{data};
     return  +{ stat => $JSON::false, info => "data not a array" } unless ref $param->{data} && @{$param->{data}};
+
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+    eval{ $api::auditlog->run( user => $user, title => 'EDIT JOB', content => "TREEID:$param->{projectid} NAME:$param->{name}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
     my @variable;
     my $index = 0;
@@ -767,7 +777,6 @@ post '/jobs/:projectid/:jobuuid' => sub {
     }
 
 
-    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     my $step = join ',', @step;
 
@@ -821,6 +830,10 @@ del '/jobs/:projectid/:jobuuid' => sub {
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     my $t    = POSIX::strftime( "%Y%m%d%H%M%S", localtime );
 
+    my $jobsname = eval{ $api::mysql->query( "select name from jobs where uuid='$param->{jobuuid}'")};
+    eval{ $api::auditlog->run( user => $user, title => 'DELETE JOB', content => "TREEID:$param->{projectid} NAME:$jobsname->[0][0]" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $r = eval{ 
         $api::mysql->execute(
             "update jobs set status='deleted',name=concat(name,'_$t'),edit_user='$user',edit_time='$time' 
@@ -845,6 +858,9 @@ del '/jobs/:projectid/:name/byname' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     my $t    = POSIX::strftime( "%Y%m%d%H%M%S", localtime );
+
+    eval{ $api::auditlog->run( user => $user, title => 'DELETE JOB', content => "TREEID:$param->{projectid} NAME:$param->{name}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
     eval{ 
         $api::mysql->execute(

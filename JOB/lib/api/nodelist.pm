@@ -77,6 +77,9 @@ post '/nodelist/:projectid' => sub {
 #        return  +{ stat => $JSON::false, info => "have no permission to add this server" };
 #    }
 
+    eval{ $api::auditlog->run( user => $user, title => 'ADD NODELIST', content => "TREEID:$param->{projectid} NAME:$param->{name}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $inip = ( $param->{name} =~ /^(172|10)\.\d+\.\d+\.\d+$/ ) ? $param->{name} : '';
     my $exip = ( $param->{name} =~ /^\d+\.\d+\.\d+\.\d+$/ &&  $param->{name} !~ /^(172|10)\.\d+\.\d+\.\d+$/  ) ? $param->{name} : '';
 
@@ -101,6 +104,10 @@ del '/nodelist/:projectid/:id' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     my $t    = Util::deleteSuffix();
+
+    my $nodelistname = eval{ $api::mysql->query( "select name from nodelist where id='$param->{id}'")};
+    eval{ $api::auditlog->run( user => $user, title => 'DEL NODELIST', content => "TREEID:$param->{projectid} NAME:$nodelistname->[0][0]" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
         $api::mysql->execute(

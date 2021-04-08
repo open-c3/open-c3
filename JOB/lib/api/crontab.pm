@@ -141,6 +141,9 @@ post '/crontab/:projectid' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ));
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
 
+    eval{ $api::auditlog->run( user => $user, title => 'CREATE CRONTAB', content => "TREEID:$param->{projectid} NAME:$param->{name}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $r = eval{ 
         $api::mysql->execute( 
             "insert into crontab (`name`,`jobuuid`,`cron`,`mutex`,`create_user`,`create_time`,`edit_user`,`edit_time`,`status`)
@@ -183,6 +186,9 @@ post '/crontab/:projectid/:crontabid' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ));
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
 
+    eval{ $api::auditlog->run( user => $user, title => 'EDIT CRONTAB', content => "TREEID:$param->{projectid} NAME:$param->{name}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $r = eval{ 
         $api::mysql->execute( 
             "update crontab set name='$param->{name}',jobuuid='$param->{jobuuid}',
@@ -208,6 +214,10 @@ post '/crontab/:projectid/:crontabid/status' => sub {
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ));
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
+
+    my $crontabname = eval{ $api::mysql->query( "select name from crontab where id='$param->{crontabid}'")};
+    eval{ $api::auditlog->run( user => $user, title => 'SWITCH CRONTAB', content => "TREEID:$param->{projectid} NAME:$crontabname->[0][0] STATUS:$param->{status}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $m = eval{ $api::mysql->query( "select count(*) from jobs,crontab where 
             crontab.jobuuid=jobs.uuid and jobs.projectid='$param->{projectid}' and crontab.id='$param->{crontabid}'" );};
@@ -248,6 +258,10 @@ del '/crontab/:projectid/:crontabid' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ));
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     my $t    = Util::deleteSuffix();
+
+    my $crontabname = eval{ $api::mysql->query( "select name from crontab where id='$param->{crontabid}'")};
+    eval{ $api::auditlog->run( user => $user, title => 'DELETE CRONTAB', content => "TREEID:$param->{projectid} NAME:$crontabname->[0][0]" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
         $api::mysql->execute(

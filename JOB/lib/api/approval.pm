@@ -34,6 +34,9 @@ post '/approval' => sub {
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
+    eval{ $api::auditlog->run( user => $user, title => 'USR APPROVAL', content => "UUID:$param->{uuid} OPINION:$param->{opinion}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     my $r = eval{ $api::mysql->execute( "update approval set opinion='$param->{opinion}',finishtime='$time' where uuid='$param->{uuid}' and user='$user' and opinion='unconfirmed'")};
 
@@ -104,6 +107,9 @@ post '/approval/control' => sub {
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    eval{ $api::auditlog->run( user => 'openapi', title => 'KEY APPROVAL', content => "UUID:$param->{uuid} OPINION:$param->{opinion}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     my $r = eval{ $api::mysql->execute( "update approval set opinion='$param->{opinion}',finishtime='$time' where uuid='$param->{uuid}' and opinion='unconfirmed'")};

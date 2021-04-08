@@ -55,6 +55,9 @@ post '/environment' => sub {
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
+    eval{ $api::auditlog->run( user => $user, title => 'EDIT ENVIRONMENT', content => "_" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     eval{ map{ $api::mysql->execute( "replace into environment (`key`,`value`,`create_user`)
         values('$_','$param->{$_}','$user')" ) }keys %$param; };
 
@@ -71,6 +74,10 @@ del '/environment' => sub {
     my $pmscheck = api::pmscheck( 'openc3_job_root' ); return $pmscheck if $pmscheck;
 
     map{ return  +{ stat => $JSON::false, info => "key name format error: $_" } unless $_ =~ /^[a-zA-Z0-9]+$/; }keys %$param;
+
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+    eval{ $api::auditlog->run( user => $user, title => 'EDIT ENVIRONMENT', content => "_" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
     eval{ map{   $api::mysql->execute( "delete from environment where `key`='$_'" ); }keys %$param; }; 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => scalar keys %$param };

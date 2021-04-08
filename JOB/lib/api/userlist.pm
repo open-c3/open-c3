@@ -67,6 +67,10 @@ post '/userlist/:projectid' => sub {
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
+
+    eval{ $api::auditlog->run( user => $user, title => 'ADD USERLIST', content => "TREEID:$param->{projectid} USERNAME:$param->{username}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $r = eval{ 
         $api::mysql->execute( 
             "insert into userlist (`projectid`,`username`,`create_user`,`create_time`,`edit_user`,`edit_time`,`status`)
@@ -88,6 +92,10 @@ del '/userlist/:projectid/:id' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     my $t    = Util::deleteSuffix();
+
+    my $userlistname = eval{ $api::mysql->query( "select username from userlist where id='$param->{id}'")};
+    eval{ $api::auditlog->run( user => $user, title => 'DEL USERLIST', content => "TREEID:$param->{projectid} USERNAME:$userlistname->[0][0]" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
         $api::mysql->execute(

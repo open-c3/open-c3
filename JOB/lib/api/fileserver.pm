@@ -59,6 +59,9 @@ post '/fileserver/:projectid' => sub {
 
         my ( $filename, $tempname, $size ) = @$info{qw( filename tempname size )};
 
+        eval{ $api::auditlog->run( user => $user, title => 'USER UPLOAD FILE', content => "TREEID:$param->{projectid} FILENAME:$filename" ); };
+        return +{ stat => $JSON::false, info => $@ } if $@;
+
         open my $fh, "<$tempname" or return +{ stat => $JSON::false, info => 'open file fail' };
         my $md5 = Digest::MD5->new()->addfile( $fh )->hexdigest;
         close $fh;
@@ -112,6 +115,9 @@ post '/fileserver/:projectid/upload' => sub {
 
         my ( $filename, $tempname, $size ) = @$info{qw( filename tempname size )};
         $upfilename = $filename;
+
+        eval{ $api::auditlog->run( user => 'token', title => 'TOKEN UPLOAD FILE', content => "TREEID:$param->{projectid} FILENAME:$filename" ); };
+        return +{ stat => $JSON::false, info => $@ } if $@;
 
         open my $fh, "<$tempname" or return +{ stat => $JSON::false, info => 'open file fail' };
         my $md5 = Digest::MD5->new()->addfile( $fh )->hexdigest;
@@ -177,6 +183,10 @@ del '/fileserver/:projectid/:fileserverid' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     my $t    = Util::deleteSuffix();
+
+    my $filename = eval{ $api::mysql->query( "select name from fileserver where id='$param->{fileserverid}'")};
+    eval{ $api::auditlog->run( user => $user, title => 'DELETE FILE', content => "TREEID:$param->{projectid} FILENAME:$filename->[0][0]" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
         $api::mysql->execute(

@@ -12,7 +12,7 @@ set show_errors => 1;
 
 our %conn;
 
-our ( $mysql, $myname, $sso, $pms, $cookiekey, $logs );
+our ( $mysql, $myname, $sso, $pms, $cookiekey, $logs, $auditlog );
 BEGIN{
     use lib "$RealBin/../private/lib";
 
@@ -24,6 +24,8 @@ BEGIN{
     $cookiekey = $env{cookiekey};
 
     $logs = Logs->new( 'apislave' );
+
+    $auditlog = Code->new( 'auditlog' );
 };
 
 sub replace
@@ -165,7 +167,7 @@ del '/killtask/:uuid' => sub {
             request->method, request->env->{HTTP_X_FORWARDED_FOR}, YAML::XS::Dump YAML::XS::Dump request->params() );
   }
 
-  my @col = qw( pid projectid slave status );
+  my @col = qw( pid projectid slave status name );
   my $r = eval{ $mysql->query( sprintf( "select %s from task where uuid='$uuid'", join ',', @col ), \@col )};
   return JSON::to_json( +{ stat => $JSON::false, info => "Non-existent uuid:$uuid" } ) unless $r && @$r;
 
@@ -192,6 +194,9 @@ del '/killtask/:uuid' => sub {
 
   return JSON::to_json( +{ stat => $JSON::true, info => "task $uuid has been exit,nofind pid $data->{pid}" } )
       unless kill( 0, $data->{pid} );
+
+  eval{ $api::auditlog->run( user => $user, title => 'KILL JOB TASK', content => "TREEID:$data->{projectid} TASKUUID:$uuid NAME:$data->{name}" ); };
+  return +{ stat => $JSON::false, info => $@ } if $@;
 
   my $killinfo = defined $user && $user =~ /^[a-zA-Z0-9\.\-\@_]+$/ ? "killed by $user" : 'killed';
   system "echo '$killinfo' >> $RealBin/../logs/task/$uuid; killall -9 job_worker_task_$uuid 1>/dev/null 2>&1";

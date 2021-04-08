@@ -104,6 +104,10 @@ post '/subtask/:projectid' => sub {
     my ( $projectid, $taskuuid, $subtaskuuid, $subtasktype, $control ) 
         = @$param{qw( projectid taskuuid subtaskuuid subtasktype control )};
 
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+    eval{ $api::auditlog->run( user => $user, title => 'JOB SUBTASK CONTROL', content => "TREEID:$param->{projectid} TASKUUID:$param->{taskuuid} SUBTASKUUID:$param->{subtaskuuid} CONTROL:$param->{control}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $sql;
     if( $control eq 'next' )
     {
@@ -123,7 +127,6 @@ post '/subtask/:projectid' => sub {
 
     if( $param->{control} eq 'fail' )
     {
-        my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
         eval{ $api::mysql->execute( "update task set reason='stop by $user' where uuid='$taskuuid' and reason is null" ) };
     }
 
@@ -147,6 +150,10 @@ put '/subtask/:projectid' => sub {
     my ( $projectid, $taskuuid, $subtaskuuid, $subtasktype, $control ) 
         = @$param{qw( projectid taskuuid subtaskuuid subtasktype control )};
 
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+    eval{ $api::auditlog->run( user => $user, title => 'JOB SUBTASK CONTROL', content => "TREEID:$param->{projectid} TASKUUID:$param->{taskuuid} SUBTASKUUID:$param->{subtaskuuid} CONTROL:$param->{control}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $sql;
     if( $control eq 'next' )
     {
@@ -166,7 +173,6 @@ put '/subtask/:projectid' => sub {
 
     if( $param->{control} eq 'fail' )
     {
-        my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
         eval{ $api::mysql->execute( "update task set reason='stop by $user' where uuid='$taskuuid' and reason is null" ) };
     }
 
