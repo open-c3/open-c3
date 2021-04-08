@@ -65,15 +65,22 @@
                                             <div class="admin-form">
                                                 <div class="option-group field" >
                                                     <div>
-                                                        <input type="file" id="choicefilesx" style="display: none" onchange="angular.element(this).scope().upForm()" multiple="multiple" />
+                                                        <input type="file" class="newFile" id="choicefilesx" style="display: none" onchange="angular.element(this).scope().upForm()" multiple="multiple" />
+                                                        <input type="hidden" name="newFileMsg" data-name=""/>
                                                         <button class="btn btn-primary" ng-click="createimages.clickImport()" >
                                                             <span class="glyphicon glyphicon-upload" style="padding: 0 3px;"></span>上传镜像
                                                         </button>
                                                     </div>
+                                                    <div style="display: none;" id="upload_progressBar_Module">
+                                                        <div class="progress">
+                                                            <div class="progress-bar" id="upload_progressBar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" style="width:0;" >
+                                                            </div>
+                                                        </div>
+                                                        <span id="percentage"></span><span id="time"></span>
+                                                    </div>
                                                 </div>
                                             </div>
                                         </div>
-
                                     </div>
                                 </div>
 
@@ -83,8 +90,9 @@
                                         <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="createimages.saveImages()">保存镜像</button>
                                     </div>
                                 </div>
-                         </form>
-                  </div>
+                        </form>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
