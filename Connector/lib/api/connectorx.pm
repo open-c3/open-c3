@@ -136,6 +136,7 @@ any '/connectorx/sso/chpasswdredirect' => sub {
 
 any '/connectorx/ssologout' => sub {
     my $user = eval{ $api::ssologout->run( cookie => cookie( $api::cookiekey ) ) };
+    set_cookie( $api::cookiekey => '', http_only => 0, expires => -1 );
     return +{ stat => $JSON::false, info => "sso code error:$@" } if $@;
     return +{ stat => $JSON::true, info => 'ok' };
 };
@@ -242,6 +243,22 @@ get '/connectorx/auditlog' => sub {
     my $mesg = eval{ $api::mysql->query( "select time,user,title,content from `auditlog` $where order by id limit 1000", [ 'time', 'user', 'title', 'content' ] ) };
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $mesg };
+};
+
+any '/connectorx/setcookie' => sub {
+    my $param = params();
+    my ( $cookie, $redirect ) = @$param{qw( cookie c3redirect )};
+
+    if( $cookie )
+    {
+        set_cookie( $api::cookiekey => $cookie, http_only => 0, expires => time + 8 * 3600 );
+        redirect $redirect;
+    }
+    else
+    {
+        set_cookie( $api::cookiekey => '', http_only => 0, expires => -1 );
+        redirect $redirect;
+    }
 };
 
 true;
