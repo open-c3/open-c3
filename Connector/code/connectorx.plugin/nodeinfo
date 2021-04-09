@@ -35,7 +35,11 @@ return sub
     if($res->is_success)
     {
         my $v = eval{decode_json $res->decoded_content};
-        return @{$v->{data}} if $v->{stat} && ref $v->{data} eq 'ARRAY';
+        if( $v->{stat} && ref $v->{data} eq 'ARRAY' )
+        {
+            map{ $_->{name} = "unkown" if $_->{name} !~ /^[a-zA-Z0-9\.\-_]$/ }@{$v->{data}};
+            return @{$v->{data}};
+        }
     }
     #TODO die
     die "die";
