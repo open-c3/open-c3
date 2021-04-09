@@ -23,7 +23,7 @@
             var k = 1000, // or 1024
                 sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
                 i = Math.floor(Math.log(bytes) / Math.log(k));
- 
+
            return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
         }
 
@@ -104,6 +104,10 @@
 
         vm.uploadComplete = function(){
             if(this.status === 200 && this.readyState === 4){
+                //进度条设置为100%；
+                $("#myModal_add_progressBar").css("width","100%");
+                $("#myModal_add_progressBar").html("100%");
+
                 vm.loadimagesinfo( imagesid )
             }else{
                 toastr.error("上传失败:" + this.responseText)
@@ -117,9 +121,9 @@
         vm.progressFunction = function(evt){
             // event.total是需要传输的总字节，event.loaded是已经传输的字节。如果event.lengthComputable不为真，则event.total等于0
             if (evt.lengthComputable){
-                $("#upload_progressBar").css("width",Math.round(evt.loaded / evt.total * 100) + "%");
-                $("#upload_progressBar").html(Math.round(evt.loaded / evt.total * 100) + "%");
-                $("#percentage").html("已上传"+Math.round(evt.loaded / evt.total * 100) + "%");
+                $("#upload_progressBar").css("width",Math.round(evt.loaded / evt.total * 100)-1 + "%");
+                $("#upload_progressBar").html(Math.round(evt.loaded / evt.total * 100)-1 + "%");
+                $("#percentage").html("已上传"+ (Math.round(evt.loaded / evt.total * 100)-1) + "%");
             }
             var nt = new Date().getTime();//获取当前时间
             var pertime = (nt-ot)/1000; //计算出上次调用该方法时到现在的时间差，单位为s
