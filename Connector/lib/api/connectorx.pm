@@ -135,10 +135,10 @@ any '/connectorx/sso/chpasswdredirect' => sub {
 };
 
 any '/connectorx/ssologout' => sub {
-    my $user = eval{ $api::ssologout->run( cookie => cookie( $api::cookiekey ) ) };
+    my $redirect = eval{ $api::ssologout->run( cookie => cookie( $api::cookiekey ) ) };
     set_cookie( $api::cookiekey => '', http_only => 0, expires => -1 );
     return +{ stat => $JSON::false, info => "sso code error:$@" } if $@;
-    return +{ stat => $JSON::true, info => 'ok' };
+    return +{ stat => $JSON::true, info => 'ok', data => $redirect };
 };
 #
 any '/connectorx/notify' => sub {

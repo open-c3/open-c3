@@ -4,11 +4,12 @@ use warnings;
 use JSON;
 use LWP::UserAgent;
 
-my $ssologoutapi;
+my ( $ssologoutapi, $ssologoutaddr );
 BEGIN{
     use Configini;
     $ssologoutapi = Configini::get( 'ssologoutapi' );
-    die "ssologoutapi undef on config.ini" unless $ssologoutapi;
+    $ssologoutaddr = Configini::get( 'ssologoutaddr' );
+    die "ssologoutapi or ssologoutaddr undef on config.ini" unless $ssologoutapi || $ssologoutaddr;
 };
 
 $| ++;
@@ -22,7 +23,8 @@ $| ++;
 return sub
 {
     my %param = @_;
-    return 'debug@api' if $ENV{MYDan_DEBUG};
+    return $ssologoutaddr if $ssologoutaddr;
+
     my $ua = LWP::UserAgent->new;
     my $res = $ua->get( "$ssologoutapi$param{cookie}" );
     return if $res->is_success;

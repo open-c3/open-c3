@@ -53,7 +53,14 @@
             $scope.ciUrls = { };
             vm.logout = function(){
                 $http.get('/api/connector/connectorx/ssologout').success(function(data){
-                    $window.location.reload();
+                    if(data.data)
+                    {
+                        $window.location.href=data.data
+                    }
+                    else
+                    {
+                        $window.location.reload();
+                    }
                 });
             };
 
