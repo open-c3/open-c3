@@ -19,10 +19,11 @@ $| ++;
     return 1 if ok
 =cut
 
-my ( $pmspoint, %app );
+my ( $pmspoint, %app, %env );
 BEGIN{
     use Configini;
     $pmspoint = Configini::get( 'pmspoint' );
+    %env = Configini::env( 'pmspointenv' );
 
     for my $file ( glob "/data/Software/mydan/*/conf/appname" )
     {
@@ -68,6 +69,7 @@ return sub
         }
 
         my $ua = LWP::UserAgent->new;
+        $ua->default_header( %env ) if %env;
         my $res = $ua->get( "$pmspoint?point=$point$treestr&cookie=$cookie" );
         unless( $res->is_success )
         {

@@ -13,10 +13,11 @@ $| ++;
 
 =cut
 
-my $usertree;
+my ( $usertree, %env );
 BEGIN{
     use Configini;
     $usertree = Configini::get( 'usertree' );
+    %env = Configini::env( 'usertreeenv' );
 };
 
 return sub
@@ -27,6 +28,7 @@ return sub
     $logs = Logs->new( 'code.usertree' ) unless $logs;
 
     my $ua = LWP::UserAgent->new;
+    $ua->default_header( %env ) if %env;
     my $res = $ua->get( "$usertree?cookie=$cookie" );
     if($res->is_success)
     {

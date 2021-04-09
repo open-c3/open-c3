@@ -5,7 +5,7 @@ use JSON;
 use YAML::XS;
 use LWP::UserAgent;
 my %app;
-my $ssousername;
+my ( $ssousername, %env );
 BEGIN{
     for my $file ( glob "/data/Software/mydan/*/conf/appname" )
     {
@@ -18,6 +18,7 @@ BEGIN{
     }
     use Configini;
     $ssousername = Configini::get( 'ssousername' );
+    %env = Configini::env( 'ssousernameenv' );
     die "ssousername undef on config.ini" unless $ssousername;
 };
 
@@ -46,6 +47,7 @@ return sub
     else
     {
         my $ua = LWP::UserAgent->new;
+        $ua->default_header( %env ) if %env;
         my $res = $ua->get( "$ssousername$param{cookie}" );
         if($res->is_success)
         {

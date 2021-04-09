@@ -17,10 +17,11 @@ $| ++;
 
 =cut
 
-my ( $pmspoint );
+my ( $pmspoint, %env );
 BEGIN{
     use Configini;
     $pmspoint = Configini::get( 'pmspoint' );
+    %env = Configini::env( 'pmspointenv' );
 };
 
 return sub
@@ -33,6 +34,7 @@ return sub
 #    $logs->die( "id not a number" ) unless $id =~ /^\d+$/;
 
     my $ua = LWP::UserAgent->new;
+    $ua->default_header( %env ) if %env;
 
     my $treestr = '';
     if( defined $treeid )
