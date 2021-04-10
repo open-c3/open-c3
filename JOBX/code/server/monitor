@@ -56,7 +56,7 @@ my %c = (
   connector_api => 10,
   connector_supervisor => 10,
 
-  'tty.js' => 1,
+  'job_webshell' => 1,
 );
 
 
@@ -87,6 +87,7 @@ return sub
         my %proc = map{ $_ => 0 }keys %c;
 
         map{
+            $_ = 'job_webshell' if $_ eq 'tty.js';
             if( defined $proc{$_} )
             {
                 $proc{$_} ++;
