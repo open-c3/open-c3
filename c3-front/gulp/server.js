@@ -27,6 +27,7 @@ function browserSyncInit(baseDir, browser) {
     routes: routes
   };
 
+  var proxyDomain = 'http://open-c3.org'
   /*
    * You can add a proxy to your backend by uncommenting the line below.
    * You just have to configure a context which will we redirected and the target url.
@@ -35,13 +36,13 @@ function browserSyncInit(baseDir, browser) {
    * For more details and option, https://github.com/chimurai/http-proxy-middleware/blob/v0.9.0/README.md
    */
   server.middleware = [
-      proxyMiddleware('/api/connector/',{ pathRewrite:{'^/api/connector/': '/'}, target: 'http://open-c3.org/api/connector', changeOrigin: true}),
-      proxyMiddleware('/api/pms/',{ pathRewrite:{'^/api/pms/': '/'}, target: 'http://open-c3.org/api/pms', changeOrigin: true}),
-      proxyMiddleware('/api/sso/',{ pathRewrite:{'^/api/sso/': '/'}, target: 'http://open-c3.org/api/sso', changeOrigin: true}),
-      proxyMiddleware('/api/jobx/',{ pathRewrite:{'^/api/jobx/': '/'}, target: 'http://open-c3.org/api/jobx', changeOrigin: true}),
-      proxyMiddleware('/api/job/',{ pathRewrite:{'^/api/job/': '/'}, target: 'http://open-c3.org/api/job', changeOrigin: true}),
-      proxyMiddleware('/api/agent/',{ pathRewrite:{'^/api/agent/': '/'}, target: 'http://open-c3.org/api/agent', changeOrigin: true}),
-      proxyMiddleware('/api/ci/',{ pathRewrite:{'^/api/ci/': '/'}, target: 'http://open-c3.org/api/ci', changeOrigin: true})
+      proxyMiddleware('/api/connector/',{ pathRewrite:{'^/api/connector/': '/'}, target: proxyDomain + '/api/connector', changeOrigin: true}),
+      proxyMiddleware('/api/pms/',{ pathRewrite:{'^/api/pms/': '/'}, target: proxyDomain + '/api/pms', changeOrigin: true}),
+      proxyMiddleware('/api/sso/',{ pathRewrite:{'^/api/sso/': '/'}, target: proxyDomain + '/api/sso', changeOrigin: true}),
+      proxyMiddleware('/api/jobx/',{ pathRewrite:{'^/api/jobx/': '/'}, target: proxyDomain + '/api/jobx', changeOrigin: true}),
+      proxyMiddleware('/api/job/',{ pathRewrite:{'^/api/job/': '/'}, target: proxyDomain + '/api/job', changeOrigin: true}),
+      proxyMiddleware('/api/agent/',{ pathRewrite:{'^/api/agent/': '/'}, target: proxyDomain + '/api/agent', changeOrigin: true}),
+      proxyMiddleware('/api/ci/',{ pathRewrite:{'^/api/ci/': '/'}, target: proxyDomain + '/api/ci', changeOrigin: true})
   ];
 
 
