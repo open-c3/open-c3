@@ -92,7 +92,7 @@ function start() {
         docker run -it -v /data/open-c3/c3-front/:/code openc3/gulp gulp build
         cd $BASE_PATH/c3-front/dist && git clone https://github.com/open-c3/open-c3.github.io book
 
-        git log --pretty=format:'%ai - %s' > $BASE_PATH/Connector/.versionlog
+        git log --pretty=format:'%ai - %s' |grep -v 'Merge branch' > $BASE_PATH/Connector/.versionlog
 
         exit
     fi
