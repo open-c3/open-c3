@@ -68,12 +68,12 @@
                                         #{{$index+1}} |耗时{{ci.seftime(deploy.starttime, deploy.finishtime)}}<br>{{deploy.starttime}}
                                     </div>
                                     <div class="panel panel-info" ng-if="!ci.taskInfoRollback[deploy.uuid].status" style="background-color: #BBB;margin-bottom: 5px">
-                                        <div ng-if="!deploy.rollbackversion" > 回滚 #未配置</div>
-                                        <div ng-if="deploy.rollbackversion" > 回滚 #未进行 {{deploy.rollbackversion}}</div>
+                                        <div ng-if="!deploy.rollbackversion" > 回滚未配置</div>
+                                        <div ng-if="deploy.rollbackversion" > 未选择是否需要回滚到 {{deploy.rollbackversion}}</div>
                                     </div>
  
                                     <div class="panel panel-info" ng-if="ci.taskInfoRollback[deploy.uuid].status && ci.taskInfoRollback[deploy.uuid].slave == '_null_'" style="cursor:pointer;background-color: #98b266;margin-bottom: 5px">
-                                        回滚 # 不回滚
+                                        已选择不回滚
                                     </div>
                                     <div class="panel panel-info" ng-if="ci.taskInfoRollback[deploy.uuid].status && ci.taskInfoRollback[deploy.uuid].slave != '_null_'" style="cursor:pointer;background-color: {{panelcolor[ci.taskInfoRollback[deploy.uuid].status]}};margin-bottom: 5px" ng-click="ci.deployDetail(ci.taskInfoRollback[deploy.uuid].uuid)" >
                                         回滚<i class="fa fa-cloud" ng-if="ci.taskInfoRollback[deploy.uuid].status=='fail'" aria-hidden="true"></i>
