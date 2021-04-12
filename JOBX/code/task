@@ -59,6 +59,17 @@ return sub
         }
     }
 
+    if( uuid::get_role( $uuid ) eq 'rollback' )
+    {
+        my $deployuuid =  uuid::get_deploy_uuid( $uuid );
+
+        my $deploystat = $db->query( "select `status` from task where uuid='$deployuuid'" );
+        $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
+        $logs->die( "task uuid null: $deployuuid" ) unless @$deploystat;
+
+        $logs->die( "The deploy task has been refused and should not be able to be run rollback task" ) if $deploystat->[0][0] eq 'refuse';
+    }
+
     $x = $db->query( "select `id` from `group` where projectid='$projectid' and name='$group'" );
     $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
     $logs->die( "group name null: $group" ) unless @$x;
