@@ -22,7 +22,7 @@ return sub
 
     $logs = Logs->new( 'code.build.dump.pull' ) unless $logs;
 
-    my $type = ( $param{addr} =~ /git@/ || $param{addr} =~ /\.git/  )? 'git' : $param{addr} =~ /^\s*rsync\s*$/ ? 'pkgrsync' : 'svn';
+    my $type = ( $param{addr} =~ /git@/ || $param{addr} =~ /\.git/  )? 'git' : $param{addr} eq 'openc3://*' ? 'openc3fileserver' : 'svn';
 
     eval{ Code->new( "build.plugin/dump.plugin/pull.plugin/$type" )->run( %param ); };
 

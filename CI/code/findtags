@@ -35,18 +35,19 @@ return sub
     eval{ $db->execute( "update `project` set last_findtags='$starttime',slave='$myname' where id='$id'" ); };
     $logs->die( "update project info fail:$@" ) if $@;
 
-    my $x = eval{ $db->query( "select `addr`,`ticketid`,`autobuild`,`tag_regex` from project  where id='$id'" ); };
+    my $x = eval{ $db->query( "select `addr`,`ticketid`,`autobuild`,`tag_regex`,`groupid` from project  where id='$id'" ); };
     $logs->die( "get project info fail:$@" ) if $@;
     $logs->die( "get project info from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
     $logs->die( "project id is illegal, mismatch: $id" ) unless @$x;
-    my ( $addr, $ticketid, $autobuild, $tag_regex ) = @{$x->[0]};
+    my ( $addr, $ticketid, $autobuild, $tag_regex, $groupid ) = @{$x->[0]};
 
-	my $type = ( $addr =~ /git@/ || $addr =~ /\.git/  )? 'git': $addr =~ /^\s*rsync\s*$/ ? 'pkgrsync' : 'svn';
+	my $type = ( $addr =~ /git@/ || $addr =~ /\.git/  )? 'git': $addr eq 'openc3://*' ? 'openc3fileserver' : 'svn';
   	my @tags = eval{ Code->new( "findtags.plugin/$type" )->run( 
             db => $db, 
             id => $id,
             addr => $addr,
             ticketid => $ticketid,
+            treeid => $groupid,
         );
     };
     $logs->die( "run findtags.plugin/$type fail:$@" ) if $@;

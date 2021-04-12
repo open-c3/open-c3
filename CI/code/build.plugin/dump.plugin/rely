@@ -27,8 +27,8 @@ return sub
     $logs->die( "projectid format error" ) unless $projectid =~ /^\d+$/;
 
     my $x = eval{ 
-        $db->query( "select path,addr,ticketid,tags from rely where projectid='$projectid' order by id", 
-            [qw( path addr ticketid tags )]  ); 
+        $db->query( "select rely.path,rely.addr,rely.ticketid,rely.tags,project.groupid from rely,project where rely.projectid=project.id and projectid='$projectid' order by rely.id", 
+            [qw( path addr ticketid tags treeid )]  ); 
     };
     $logs->die( "get rely info fail:$@" ) if $@;
     $logs->die( "get rely info from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
@@ -37,7 +37,7 @@ return sub
     for( @$x )
     {
         $index ++;
-        my $type = ( $_->{addr} =~ /git@/ || $_->{addr} =~ /\.git/  ) ? 'git':'svn';
+        my $type = ( $_->{addr} =~ /git@/ || $_->{addr} =~ /\.git/  ) ? 'git' : $_->{addr} eq 'openc3://*' ? 'openc3fileserver' :'svn';
   	    eval{ Code->new( "build.plugin/dump.plugin/rely.plugin/$type" )->run( 
                 db => $db, 
                 index => $index,
