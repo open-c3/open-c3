@@ -27,6 +27,8 @@ post '/default/mail' => sub {
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
+    map{ $param->{$_} =~ s/'/"/g }qw( title content );
+
     eval{ $api::mysql->execute( "insert into usermail (`user`,`title`,`content`) values('$param->{user}','$param->{title}','$param->{content}')" ); };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, info => 'ok' };
 };

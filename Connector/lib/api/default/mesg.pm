@@ -26,6 +26,8 @@ post '/default/mesg' => sub {
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
+    $param->{mesg} =~ s/'/"/g;
+
     eval{ $api::mysql->execute( "insert into usermesg (`user`,`mesg`) values('$param->{user}','$param->{mesg}')" ); };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, info => 'ok' };
 };
