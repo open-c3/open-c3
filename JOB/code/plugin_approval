@@ -69,8 +69,7 @@ return sub
     my $data = eval{JSON::from_json $res->content};
     $logs->die( "get task status from jobx fail:". $data->{info} || '' ) unless $data->{stat};
 
-use Data::Dumper;
-print Dumper $data;
+    print Dumper $data;
 
     $data->{data}{action} ||= 'nofind';
     $data->{data}{deployenv} ||= 'nofind';
@@ -138,10 +137,15 @@ print Dumper $data;
     my %approver = map{ $_ => 1 }@approver;
 
     my $rtime = int ( $timeout / 3 ) + 1;
-    my $subtaskstatus = 'success'; #runnigs,fail,success,decision,ignore
+    my $subtaskstatus = 'success'; #runnigs,fail,success,decision,ignore,refuse
     for( 1 .. $rtime )
     {
         my $stat = eval{ $db->query( "select opinion,user,remarks from approval where taskuuid='$puuid'" );};
+        if( $@ )
+        {
+            $logs->err("get approval stat err: $@");
+            $stat = [];
+        }
         for( @$stat )
         {
             my ( $opinion, $user, $remarks ) = @$_;
@@ -149,7 +153,7 @@ print Dumper $data;
             if( $opinion eq 'refuse' )
             {
                 print "refuse by user $user , reason: $remarks\n";
-                $subtaskstatus = 'fail';
+                $subtaskstatus = 'refuse';
                 last;
             }elsif( $opinion eq 'agree' )
             {
@@ -160,7 +164,7 @@ print Dumper $data;
             }
             else { $logs->die("unkown opinion: $opinion"); }
         }
-        if( $subtaskstatus eq 'fail' ){
+        if( $subtaskstatus eq 'fail' || $subtaskstatus eq 'refuse' ){
             last;
         }
         unless( %approver )

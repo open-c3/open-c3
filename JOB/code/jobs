@@ -81,9 +81,9 @@ return sub
             last;
         }
  
-        if( $status eq 'fail' )
+        if( $status eq 'fail' || $status eq 'refuse' )
         {
-            $jobstatus = 'fail';
+            $jobstatus = $status;
             last;
         }
         

@@ -68,8 +68,8 @@ return sub
 
     my @subtask_uuid;
 
-	for( @group )
-	{
+    for( @group )
+    {
         my $subtask_uuid = uuid->new()->create_str;
         push @subtask_uuid, $subtask_uuid;
         my $nodecount = scalar @$_;
@@ -85,15 +85,16 @@ return sub
     eval{
         for( @subtask_uuid )
         {
-             #status = cancel,success,fail
+             #status = cancel,success,fail,refuse
              my $s = Code->new( "subtask" )->run( 
-				db => $db, 
-				uuid => $_, 
-                logs => $logs,
-			);
+                 db => $db, 
+                 uuid => $_, 
+                 logs => $logs,
+            );
             $status = 'fail' if $s eq 'fail' || $s  eq 'cancel';
-            last if $s eq 'cancel';
-		}
+            $status = 'refuse' if $s eq 'refuse';
+            last if $s eq 'cancel' || $s eq 'refuse';
+        }
     };
 
     if( $@ )

@@ -25,7 +25,7 @@
                             <div class="form-group col-sm-4" style="padding: 0">
                                 <label style="line-height: 34px;min-width: 90px;text-align: right;">执行结果：</label>
                                 <span style="font-size: 15px">{{historyjobdetail.statuszh[status]}}</span>
-                                <i ng-if="status != 'success' && status != 'fail'" class="fa fa-refresh fa-fw" ng-class="{'fa-spin':1}"></i>
+                                <i ng-if="status != 'success' && status != 'fail' && status != 'refuse'" class="fa fa-refresh fa-fw" ng-class="{'fa-spin':1}"></i>
                                 <button ng-if="status == 'running' || status == 'waiting'" class="btn btn-danger btn-sm" ng-click="historyjobdetail.killTask()" style="border-radius: 10%;padding: 1px 10px;">终止任务 </button>
                             </div>
                             <div class="form-group col-sm-4" style="padding: 0">
@@ -362,8 +362,11 @@
                                     <td ng-if="item.status=='running'">
                                         <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">执行详情</button>
                                     </td>
-                                    <td ng-if="!item.status"> </td>
 
+                                    <td ng-if="item.status=='refuse'">
+                                        <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">执行详情</button>
+                                    </td>
+                                    <td ng-if="!item.status"> </td>
                                 </tr>
                                 </tbody>
                             </table>

@@ -25,7 +25,7 @@ return sub
         warn "do ...\n";
 
         my $x = eval{ $db->query( "select id,pid,uuid,starttime,starttimems from task 
-            where slave='$myname' and pid is not null and status<>'success' and status<>'fail'" );};
+            where slave='$myname' and pid is not null and status<>'success' and status<>'fail' and status<>'refuse'" );};
         $logs->die( "mysql query fail: $@" ) if $@;
         $logs->die( "get list fail from mysql" ) unless defined $x && ref $x eq 'ARRAY';
 

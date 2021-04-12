@@ -15,8 +15,8 @@
         vm.jobtype = $stateParams.jobtype;
         vm.tasklength = 0;
         vm.allRuningData = [];
-        vm.statuszh = { "": "等待执行", "success": "执行成功", "fail": "执行失败", "decision": "执行失败", "running": "执行中", "ignore": "忽略" }
-        vm.statuscolor = { "": "#aaa", "success": "green", "fail": "red", "decision": "red", "running": "orange" }
+        vm.statuszh = { "": "等待执行", "success": "执行成功", "fail": "执行失败","refuse":"审批拒绝", "decision": "执行失败", "running": "执行中", "ignore": "忽略" }
+        vm.statuscolor = { "": "#aaa", "success": "green", "fail": "red", "refuse": "orange", "decision": "red", "running": "orange" }
 
         $scope.setStatuColor = function (stat) {
             if(!stat){ stat = "" }

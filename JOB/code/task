@@ -87,8 +87,7 @@ return sub
     };
 
     warn "task fail: $@" if $@;
-
-    $status = ( $@ || $status ne 'success' ) ? 'fail' : 'success';
+    $status = 'fail' if $@ || ( $status ne 'success' && $status ne 'refuse' );
 
     my ( $ftimems, $ftime ) = ( time, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ) );
     my $runtime = sprintf "%0.3f", $ftimems - $stimems;

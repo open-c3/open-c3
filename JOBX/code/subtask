@@ -50,7 +50,7 @@ return sub
     $logs->die( "subtask uuid null: $uuid" ) unless @$x;
     my ( $name, $projectid, $variable, $nodelist, $status ) = @{$x->[0]};
 
-    return $status if grep{ $status eq $_ }qw( cancel success fail );
+    return $status if grep{ $status eq $_ }qw( cancel success fail refuse );
 
     if( $variable )
     {
@@ -138,7 +138,7 @@ return sub
                 {
                     $d = $data->{data};
                     my $s = $data->{data}{status};
-                    if ( $s && ( $s eq 'success' || $s eq 'fail' ) )
+                    if ( $s && ( $s eq 'success' || $s eq 'fail' || $s eq 'refuse' ) )
                     {
                         if( my @lose =  grep{ ! ( defined $d->{$_} && $d->{$_} !~ /'/  ) }qw( starttime finishtime runtime status ))
                         {

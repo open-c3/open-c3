@@ -78,8 +78,8 @@
         vm.mainjobinfobyuuid = {}
         var toastr = toastr || $injector.get('toastr');
 
-        $scope.panelcolor = { "success": "success", "fail": "danger", "running": "info", "decision": "warning", "ignore": "danger" }
-        vm.statuszh = { null: "准备","": "等待", "init": "就绪", "success": "成功", "fail": "失败", "decision": "待定", "running": "运行中", "ignore": "忽略" }
+        $scope.panelcolor = { "success": "success", "fail": "danger", "refuse": "danger", "running": "info", "decision": "warning", "ignore": "danger" }
+        vm.statuszh = { null: "准备","": "等待", "init": "就绪", "success": "成功", "fail": "失败", "refuse": "拒绝", "decision": "待定", "running": "运行中", "ignore": "忽略" }
         vm.backid;
         vm.backidcalled = false;
 
@@ -465,6 +465,8 @@
             else if (tag == "success"){
                 c = "green";
             }else if (tag == "fail"){
+                c = "red";
+            }else if (tag == "refuse"){
                 c = "red";
             }else if (tag == "init"){
                 c = "#473e3e"
