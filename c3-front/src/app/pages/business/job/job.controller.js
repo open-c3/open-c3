@@ -272,7 +272,7 @@
                 function successCallback(response) {
                     if (response.data.stat){
                         vm.loadover = true
-                        vm.dataTable = new ngTableParams({count:10}, {counts:[],data:response.data.data.reverse()});
+                        vm.dataTable = new ngTableParams({count:10}, {counts:[],data:response.data.data});
                     }else {
                         swal('获取列表失败', response.data.info, 'error');
                     }
