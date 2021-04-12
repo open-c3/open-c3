@@ -32,7 +32,7 @@ return sub
     {
         my $x = eval{ $db->query( "select ticket from ticket where id='$ticketid' and type='UsernamePassword'" )};  
         $logs->die( "get data from ticket fail:$@" ) if $@;
-        ( $user, $pass ) = split /_:separator:_/, $x->[0][0] if @$x;
+        ( $username, $pass ) = split /_:separator:_/, $x->[0][0] if @$x;
     }
 
     #TODO
