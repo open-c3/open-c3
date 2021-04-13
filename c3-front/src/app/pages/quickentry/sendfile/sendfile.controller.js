@@ -124,12 +124,28 @@
             var temphost = temppath.shift();
             var filepath = temppath.join("/");
  
-            var post_data = { "chmod": "755", "chown" : $scope.selectedUser, "dp": "/" + filepath + "/", "dst": temphost, "dst_type" : "builtin", "name": "sendfile_upload_" + vm.filepath + "/" + filename, "sp": filename, "src": "","src_type": "fileserver", "timeout" : 300, "user": $scope.selectedUser };
-            console.log("finally post data is :", JSON.stringify(post_data));
+            var post_data = { "chmod": "644", "chown" : $scope.selectedUser, "dp": "/" + filepath + "/", "dst": temphost, "dst_type" : "builtin", "name": "sendfile_upload_" + vm.filepath + "/" + filename, "sp": filename, "src": "","src_type": "fileserver", "timeout" : 300, "user": $scope.selectedUser };
             resoureceService.work.scp(vm.treeid, post_data, null)
                 .then(function (repo) {
                     if (repo.stat){
-                        // vm.reloadPage();
+                    }else{
+                        toastr.error( "提交任务失败:" + repo.info )
+                    }
+                }, function (repo) {
+                    toastr.error( "提交任务失败:" + repo )
+
+                })
+        };
+
+        vm.startDownloadTask = function ( filename ) {
+            var temppath = vm.filepath.split("/");
+            var temphost = temppath.shift();
+            var filepath = temppath.join("/");
+ 
+            var post_data = { "chmod": "644", "chown" : $scope.selectedUser, "dp": "/tmp/abc/", "dst": temphost, "dst_type" : "fileserver", "name": "sendfile_download_" + vm.filepath + "/" + filename, "sp": "/" + filepath + "/" + filename, "src": temphost,"src_type": "builtin", "timeout" : 300, "user": $scope.selectedUser };
+            resoureceService.work.scp(vm.treeid, post_data, null)
+                .then(function (repo) {
+                    if (repo.stat){
                     }else{
                         toastr.error( "提交任务失败:" + repo.info )
                     }

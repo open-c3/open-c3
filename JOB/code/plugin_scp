@@ -8,6 +8,7 @@ use Data::Dumper;
 use File::Basename;
 use Sys::Hostname;
 
+use POSIX;
 use MYDan::Util::OptConf;
 use MYDan::Agent::Client;
 use MYDan::VSSH::Print;
@@ -64,7 +65,7 @@ return sub
     my $ignore = 0;
 
     $logs->die( "src_type undef" ) unless defined $src_type;
-    my @srccheck;
+    my ( @srccheck, @dstcheck );
     if( $src_type eq 'fileserver' )
     {
         $logs->die( "projectid not a number" ) unless $projectid && $projectid =~ /^\d+$/;
@@ -158,18 +159,23 @@ return sub
     $logs->die( "dst_type undef" ) unless defined $dst_type;
     if( $dst_type eq 'builtin' )
     {
-        @dst = split /,/, $dst;
+        @dstcheck = @dst = split /,/, $dst;
     }
     elsif( $dst_type eq 'variable' )
     {
         eval { $dst = variable->new( variable => $variable, db => $db, jobuuid => $fromjob )->relpace( $dst ) if defined $dst; };
         $logs->die( "relpace variable dst fail:$@" ) if $@;
-        @dst = split /,/, $dst;
+        @dstcheck = @dst = split /,/, $dst;
     }
     elsif( $dst_type eq 'group' )
     {
         $logs->die( "dst not a number" ) unless $dst && $dst =~ /^\d+$/;
-        @dst = Code->new( 'nodegroup' )->run( db => $db, id => $dst );
+        @dstcheck = @dst = Code->new( 'nodegroup' )->run( db => $db, id => $dst );
+    }
+    elsif( $dst_type eq 'fileserver' )
+    {
+        $dp = "/data/fileservertemp/". time. rand 1000000;
+        @dst = ( '127.0.0.1' );
     }
     else
     {
@@ -209,7 +215,7 @@ return sub
 
     if( defined $projectid )
     {
-        my $checkerror = eval{ Code->new( 'nodeinfo_check' )->run( db => $db, id => $projectid, node => [ @srccheck, @dst ] ) };
+        my $checkerror = eval{ Code->new( 'nodeinfo_check' )->run( db => $db, id => $projectid, node => [ @srccheck, @dstcheck ] ) };
         $logs->die( "nodeinfo_check code err:$@" ) if $@;
         $logs->die( "the node not on tree: $checkerror" ) if $checkerror;
     }
@@ -311,6 +317,28 @@ return sub
     
         #my @failed = $grsync->run( %o )->failed();
         #die $range->load( \@failed )->dump . ": failed.\n\n" if @failed;
+
+        if( ! @failed && $dst_type eq 'fileserver' )
+        {
+            open my $fh, "<$dp" or $logs->die( "open file fail" );
+            my $md5 = Digest::MD5->new()->addfile( $fh )->hexdigest;
+            close $fh;
+
+            my $path = "$RealBin/../fileserver/$projectid";
+            mkdir $path unless -d $path;
+
+            my $size = ( stat $dp )[7];
+            $logs->die( "rename fail" ) if system "mv '$dp' '$path/$md5'";
+
+            my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
+
+            eval{
+              $db->execute(
+                "replace into fileserver (`projectid`,`name`,`size`,`md5`,`create_user`,`create_time`,`edit_user`,`edit_time`,`status`)
+                    values( '$projectid', '$filename','$size', '$md5', '$user','$time', '$user', '$time','available' )")};
+
+            $logs->die( "update db fail:$@" ) if $@;
+        }
 
         if( @failed )
         {
