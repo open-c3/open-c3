@@ -33,6 +33,11 @@ server {
         proxy_set_header Connection "upgrade";
     }
 
+    location  /download/ {
+        alias  /data/Software/mydan/JOB/downloadpath/;
+        index  index.php index.html index.htm index.pl;
+    }
+
     location / {
         proxy_pass http://job_api;
         proxy_set_header X-Real-IP $remote_addr;

@@ -79,6 +79,29 @@ post '/fileserver/:projectid' => sub {
     return  +{ stat => $JSON::true, data => scalar keys %$upload };
 };
 
+get '/fileserver/:projectid/download' => sub {
+    my $param = params();
+    my $error = Format->new( projectid => qr/^\d+$/, 1, name => qr/^[a-zA-Z0-9\@\._\-]+$/, 1 )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $pmscheck = api::pmscheck( 'openc3_job_write', $param->{projectid} ); return $pmscheck if $pmscheck;
+
+    my @col = qw( id name size md5 create_user create_time edit_user edit_time );
+    my $r = eval{ 
+        $api::mysql->query( 
+            sprintf( "select %s from fileserver
+                where projectid='$param->{projectid}' and status='available' and name='$param->{name}'", join ',', @col ), \@col )};
+
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    return +{ stat => $JSON::false, info => "notfind the file" } unless @$r;
+
+    my $path = "$RealBin/../fileserver/$param->{projectid}";
+    my $name = $param->{name}. '.' . time;
+
+    return +{ stat => $JSON::false, info => "link fail: $!" } if system "ln -fsn '$path/$r->[0]{md5}' '$RealBin/../downloadpath/$name'";
+    return +{ stat => $JSON::true, data => $name };
+};
+
 post '/fileserver/:projectid/upload' => sub {
     my $param = params();
 

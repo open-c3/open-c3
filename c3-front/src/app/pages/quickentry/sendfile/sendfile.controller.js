@@ -155,5 +155,22 @@
                 })
         };
 
+        vm.downloadfile = function (name) {
+            $http.get('/api/job/fileserver/' + vm.treeid + '/download?name=' + name).then(
+                function successCallback(response) {
+                    if (response.data.stat){
+                        var downloadAddr = "http://"+window.location.host+"/api/job/download/";
+                         window.open(downloadAddr+response.data.data, '_blank')
+                    }else {
+                        toastr.error( "获取下载地址失败："+response.data.info)
+                    }
+                },
+                function errorCallback (response ){
+                    toastr.error( "获取下载地址失败："+response.status)
+                });
+ 
+        };
+
+
     }
 })();
