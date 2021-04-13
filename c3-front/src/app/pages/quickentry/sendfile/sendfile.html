@@ -95,13 +95,13 @@
 
         <div class="panel-body">
 
-            <div>
+            <div style="float: left;width: 60%">
                 <table ng-table="sendfile.dir_Table" class="table table-hover text-center table-condensed" show-filter="true" style="border: 1px solid #ddd;">
                         <tr ng-repeat="ss in $data" style="text-align: left">
-                            <td data-title="'host'"> {{ss.host}} </td>
-                            <td data-title="'info'"> {{ss.info}} </td>
-                            <td data-title="'type'"> {{ss.type}} </td>
-                            <td data-title="'path'"> {{ss.path}} </td>
+                            <td data-title="'主机'"> {{ss.host}} </td>
+                            <td data-title="'信息'"> {{ss.info}} </td>
+                            <td data-title="'类型'"> {{ss.type}} </td>
+                            <td data-title="'路径'"> {{ss.path}} </td>
                             <td class="textcenter" width="75" data-title="'操作'">
                                 <nobr>
                                     <i ng-if="ss.type=='parent'" class="fa fa-chevron-circle-left fa-2x" aria-hidden="true" ng-click="sendfile.backdir()" uib-tooltip="返回上一层" style="cursor:pointer;color: #339094;" ></i>
@@ -111,7 +111,35 @@
                             </td>
                         </tr>
                 </table>
+
             </div>
+
+            <div style="float: right;width: 37%">
+
+                <table ng-table="sendfile.fileserver_Table" class="table table-hover text-center table-condensed" show-filter="true" style="border: 1px solid #ddd;">
+                        <tr ng-repeat="ss in $data" style="text-align: left">
+                            <td data-title="'文件名'"> {{ss.name}} </td>
+                            <td class="textcenter" width="75" data-title="'操作'">
+                                <nobr>
+                                    <i class="fa fa-upload fa-2x" aria-hidden="true" ng-click="sendfile.startUoloadTask( ss.name )" uib-tooltip="上传" style="cursor:pointer;color: #339094;" ></i>
+                                    <i class="fa fa-download fa-2x" aria-hidden="true" ng-click="sendfile.download(m.id,m.name)" uib-tooltip="下载" style="cursor:pointer;color: green;" ></i>
+                                </nobr>
+                            </td>
+                        </tr>
+                </table>
+
+
+                <table ng-table="sendfile.sendfiletask_Table" class="table table-hover text-center table-condensed" show-filter="true" style="border: 1px solid #ddd;">
+                        <tr ng-repeat="ss in $data" style="text-align: left">
+                            <td data-title="'今日任务'"> {{ss.name}} </td>
+                            <td data-title="'操作人'"> {{ss.user}} </td>
+                            <td data-title="'耗时(秒)'"> {{ss.runtime}} </td>
+                            <td data-title="'状态'"> {{ss.status}} </td>
+                        </tr>
+                </table>
+ 
+            </div>
+
         </div>
     </div>
 </div>

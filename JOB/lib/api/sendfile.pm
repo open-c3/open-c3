@@ -23,7 +23,7 @@ get '/sendfile/list/:projectid' => sub {
 
     my %env = Util::envinfo( qw( appname appkey ) );
 
-    my @x = `MYDan_Agent_Proxy_Addr=http://api.agent.open-c3.org/proxy/$param->{projectid} MYDan_Agent_Proxy_Header="appname:$env{appname},appkey:$env{appkey}" /data/Software/mydan/dan/tools/rcall --sudo '$param->{sudo}' -r '$host' exec 'ls -l "/$path"' --verbose`;
+    my @x = `MYDan_Agent_Proxy_Addr=http://api.agent.open-c3.org/proxy/$param->{projectid} MYDan_Agent_Proxy_Header="appname:$env{appname},appkey:$env{appkey}" /data/Software/mydan/dan/tools/rcall --sudo '$param->{sudo}' -r '$host' exec 'ls -lh "/$path"' --verbose`;
     chomp @x;
     my %type = ( d => 'dir', l => 'link', '-' => 'file', host => 'default' );
 

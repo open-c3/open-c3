@@ -5,7 +5,7 @@
         .module('openc3')
         .controller('SendfileController', SendfileController);
 
-    function SendfileController($timeout, $state, $http, $uibModal, $scope, treeService, ngTableParams, resoureceService, $injector) {
+    function SendfileController($timeout, $state, $http, $uibModal, $scope, treeService, ngTableParams, resoureceService, $injector, $filter) {
 
         var vm = this;
         vm.treeid = $state.params.treeid;
@@ -49,6 +49,34 @@
                     function errorCallback (response ){
                         toastr.error( "获取目录列表失败："+response.status)
                     });
+
+                $http.get('/api/job/fileserver/' + vm.treeid ).then(
+                    function successCallback(response) {
+                        if (response.data.stat){
+                            vm.fileserver_Table = new ngTableParams({count:15}, {counts:[],data:response.data.data});
+                            vm.loadover = true
+                        }else {
+                            toastr.error( "获取文件管理列表失败："+response.data.info)
+                        }
+                    },
+                    function errorCallback (response ){
+                        toastr.error( "获取文件管理列表失败："+response.status)
+                    });
+
+                var nowTime = $filter('date')(new Date, "yyyy-MM-dd");
+
+                $http.get('/api/job/task/' + vm.treeid + '?name=sendfile&time_start=' + nowTime ).then(
+                    function successCallback(response) {
+                        if (response.data.stat){
+                            vm.sendfiletask_Table = new ngTableParams({count:15}, {counts:[],data:response.data.data.reverse()});
+                            vm.loadover = true
+                        }else {
+                            toastr.error( "获取文件管理列表失败："+response.data.info)
+                        }
+                    },
+                    function errorCallback (response ){
+                        toastr.error( "获取文件管理列表失败："+response.status)
+                    });
             }
             else
             {
@@ -90,5 +118,26 @@
             vm.filepath = '';
             vm.reload();
         };
+
+        vm.startUoloadTask = function ( filename ) {
+            var temppath = vm.filepath.split("/");
+            var temphost = temppath.shift();
+            var filepath = temppath.join("/");
+ 
+            var post_data = { "chmod": "755", "chown" : $scope.selectedUser, "dp": "/" + filepath + "/", "dst": temphost, "dst_type" : "builtin", "name": "sendfile_upload_" + vm.filepath + "/" + filename, "sp": filename, "src": "","src_type": "fileserver", "timeout" : 300, "user": $scope.selectedUser };
+            console.log("finally post data is :", JSON.stringify(post_data));
+            resoureceService.work.scp(vm.treeid, post_data, null)
+                .then(function (repo) {
+                    if (repo.stat){
+                        // vm.reloadPage();
+                    }else{
+                        toastr.error( "提交任务失败:" + repo.info )
+                    }
+                }, function (repo) {
+                    toastr.error( "提交任务失败:" + repo )
+
+                })
+        };
+
     }
 })();
