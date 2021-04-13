@@ -378,6 +378,12 @@
                 controller: 'TerminalCmdController',
                 controllerAs: 'templatecmd',
             })
+            .state('home.quickentry.sendfile', {
+                url: 'sendfile/:treeid',
+                templateUrl: 'app/pages/quickentry/sendfile/sendfile.html',
+                controller: 'SendfileController',
+                controllerAs: 'sendfile',
+            })
             .state('home.history.terminal', {
                 url: 'terminal/:treeid',
                 templateUrl: 'app/pages/history/terminal/terminal.html',
