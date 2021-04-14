@@ -77,21 +77,24 @@
             <h5>文件管理</h5>
         </div>
 
-        <form class="form-horizontal" name="addForm" role="form">
+        <form class="form-horizontal" name="cForm" role="form">
             <div class="row">
                 <div class="col-sm-8 form-group">
-                    <label class="col-sm-3 control-label">地址</label>
-                    <div class="col-sm-9">
-                        <input type="text" class="form-control" name="adduser" placeholder="路径" ng-minlength="2" ng-model="sendfile.filepath" required>
-                        <span style="color:red" ng-show="addForm.adduser.$error.minlength">不少于2字符</span>
+                    <label class="col-sm-1 control-label">地址</label>
+                    <div class="col-sm-7">
+                        <input type="text" class="form-control" name="tpath" placeholder="路径" ng-minlength="2" ng-model="sendfile.filepath" required>
+                        <span style="color:red" ng-show="cForm.tpath.$error.minlength">不少于2字符</span>
                     </div>
                 </div>
-                <div class="col-sm-2 form-group pull-right">
-                    <button class="btn btn-primary" ng-disabled="addForm.$invalid" ng-click="sendfile.reload()">手动输入查询</button>
-                    <button class="btn btn-primary" ng-disabled="addForm.$invalid" ng-click="sendfile.reset()">重置</button>
+                <div class="col-sm-4 form-group">
+                    <button class="btn btn-primary" ng-click="sendfile.reload()">手动输入查询</button>
+                    <button class="btn btn-primary" ng-click="sendfile.reset()">重置</button>
+                    <button class="btn btn-primary" ng-click="sendfile.openOneTab()">打开主机终端</button>
                 </div>
             </div>
         </form>
+
+        <hr>
 
         <div class="panel-body">
 

@@ -239,5 +239,12 @@
             })
         };
 
+        vm.openOneTab = function () {
+            var temppath = vm.filepath.split("/");
+            var name = temppath.shift();
+            var terminalAddr = "http://"+window.location.host+"/api/job/cmd/";
+            var s = vm.treeid+"?node=" + name + '&bash=1' +'&sudo=' + $scope.selectedUser;
+            window.open(terminalAddr+s, '_blank')
+        };
     }
 })();
