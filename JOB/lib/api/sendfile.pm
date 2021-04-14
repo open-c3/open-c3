@@ -25,7 +25,7 @@ get '/sendfile/list/:projectid' => sub {
 
     my @x = `MYDan_Agent_Proxy_Addr=http://api.agent.open-c3.org/proxy/$param->{projectid} MYDan_Agent_Proxy_Header="appname:$env{appname},appkey:$env{appkey}" /data/Software/mydan/dan/tools/rcall --sudo '$param->{sudo}' -r '$host' exec 'ls -lh "/$path"' --verbose`;
     chomp @x;
-    my %type = ( d => 'dir', l => 'link', '-' => 'file', host => 'default' );
+    my %type = ( d => 'dir', l => 'link', '-' => 'file' );
 
     my @data = ( +{ type => 'parent', info => '..', path => '..' } );
     map{
@@ -37,7 +37,7 @@ get '/sendfile/list/:projectid' => sub {
         $_ =~ /^([\w\-])/;
         $x{type} = $type{$1} || 'other';
         my @p = split /\s+/, $_;
-        $x{path} = pop @p;
+        $x{path} = $type{$1} ? pop @p : '';
         push @data, \%x;
     }@x;
 
