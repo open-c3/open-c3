@@ -62,7 +62,13 @@ print "docker push $o{repository}:$ENV{VERSION}\n";
 die "docker push fail: $!" if system "docker push $o{repository}:$ENV{VERSION}";
 print "[INFO]docker push done.\n";
 
+print "docker push $o{repository}:latest\n";
+die "docker tag latest fail: $!" if system "docker tag $o{repository}:$ENV{VERSION} $o{repository}:latest";
+die "docker push fail: $!" if system "docker push $o{repository}:latest";
+print "[INFO]docker push done.\n";
+
 die "docker rmi fail: $!" if system "docker rmi $o{repository}:$ENV{VERSION}";
+die "docker rmi fail: $!" if system "docker rmi $o{repository}:latest";
 print "[INFO]docker rmi done.\n";
 
 die "remove temp fail:$!" if system "rm -rf '$temp'";
