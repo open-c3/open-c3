@@ -52,7 +52,8 @@
             $scope.mulUrls = { };
             $scope.ciUrls = { };
             vm.logout = function(){
-                $http.get('/api/connector/connectorx/ssologout').success(function(data){
+                var siteaddr = window.location.host;
+                $http.get('/api/connector/connectorx/ssologout?siteaddr=' + siteaddr ).success(function(data){
                     if(data.data)
                     {
                         $window.location.href=data.data

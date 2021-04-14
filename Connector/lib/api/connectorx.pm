@@ -120,6 +120,9 @@ any '/connectorx/sso/loginredirect' => sub {
     {
         $ssocallback = "http://$param->{siteaddr}$ssocallback";
     }
+
+    $ssocallback =~ s/\$\{siteaddr\}/$param->{siteaddr}/g if $param->{siteaddr};
+
     redirect $ssocallback . ( $param->{callback} || '' );
 };
 
@@ -135,7 +138,9 @@ any '/connectorx/sso/chpasswdredirect' => sub {
 };
 
 any '/connectorx/ssologout' => sub {
+    my $param = params();
     my $redirect = eval{ $api::ssologout->run( cookie => cookie( $api::cookiekey ) ) };
+    $redirect =~ s/\$\{siteaddr\}/$param->{siteaddr}/g if $redirect && $param->{siteaddr};
     set_cookie( $api::cookiekey => '', http_only => 0, expires => -1 );
     return +{ stat => $JSON::false, info => "sso code error:$@" } if $@;
     return +{ stat => $JSON::true, info => 'ok', data => $redirect };
