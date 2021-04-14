@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use Code;
 use Logs;
+use Temp;
 
 $| ++;
 
@@ -31,13 +32,21 @@ return sub
 
     if( $follow_up_ticketid )
     {
-        my $x = eval{ $db->query( "select ticket from ticket where id='$follow_up_ticketid' and type='UsernamePassword'" )};
+        my $x = eval{ $db->query( "select ticket,type from ticket where id='$follow_up_ticketid'" )};
         $logs->die( "get data from ticket fail:$@" ) if $@;
-        my ( $user, $pass ) = split /_:separator:_/, $x->[0][0] if @$x;
-        if( $user )
+        if( $x->[0][1] eq 'UsernamePassword' )
         {
-            $logs->die( "ticket format error" ) if $user =~ /'/ || $pass=~ /'/;
-            $TICKET = "TUSERNAME=$user TPASSWORD=$pass";
+            my ( $user, $pass ) = split /_:separator:_/, $x->[0][0] if @$x;
+            if( $user )
+            {
+                $logs->die( "ticket format error" ) if $user =~ /'/ || $pass=~ /'/;
+                $TICKET = "TUSERNAME=$user TPASSWORD=$pass";
+            }
+        }
+        else
+        {
+            my $ticketfile = Temp->new( chmod => 0600 )->dump( $x->[0][0] );
+            $TICKET = "TICKETFILE=$ticketfile";
         }
     }
 
