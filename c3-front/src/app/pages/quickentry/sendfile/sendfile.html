@@ -74,7 +74,7 @@
             <span class="panel-controls">
                 <button class="btn btn-dark" uib-tooltip="刷新" ng-click="sendfile.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!sendfile.loadover}" ></i></button>
             </span>
-            <h5>请点击选择节点</h5>
+            <h5>文件管理</h5>
         </div>
 
         <form class="form-horizontal" name="addForm" role="form">
@@ -107,6 +107,7 @@
                                     <i ng-if="ss.type=='parent'" class="fa fa-chevron-circle-left fa-2x" aria-hidden="true" ng-click="sendfile.backdir()" uib-tooltip="返回上一层" style="cursor:pointer;color: red;" ></i>
                                     <i ng-if="ss.type=='dir'" class="fa fa-chevron-circle-right fa-2x" aria-hidden="true" ng-click="sendfile.intodir( ss.path )" uib-tooltip="进入" style="cursor:pointer;color: #339094;" ></i>
                                     <i ng-if="ss.type=='file'" class="fa fa-download fa-2x" aria-hidden="true" ng-click="sendfile.startDownloadTask(ss.path)" uib-tooltip="下载" style="cursor:pointer;color: green;" ></i>
+                                    <i ng-if="ss.type=='file'" class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="sendfile.unlinkfile(ss.path)" uib-tooltip="删除文件" style="cursor:pointer;color: red;" ></i>
                                 </nobr>
                             </td>
                         </tr>
@@ -118,16 +119,18 @@
 
                 <table ng-table="sendfile.fileserver_Table" class="table table-hover text-center table-condensed" show-filter="true" style="border: 1px solid #ddd;">
                         <tr ng-repeat="ss in $data" style="text-align: left">
+                            <td data-title="'ID'"> {{ss.id}} </td>
                             <td data-title="'文件名'"> {{ss.name}} </td>
+                            <td data-title="'大小'"> {{sendfile.bytesToSize(ss.size)}} </td>
                             <td class="textcenter" width="75" data-title="'操作'">
                                 <nobr>
                                     <i class="fa fa-upload fa-2x" aria-hidden="true" ng-click="sendfile.startUoloadTask( ss.name )" uib-tooltip="上传" style="cursor:pointer;color: #339094;" ></i>
                                     <i class="fa fa-download fa-2x" aria-hidden="true" ng-click="sendfile.downloadfile(ss.name)" uib-tooltip="下载" style="cursor:pointer;color: green;" ></i>
+                                    <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="sendfile.deleteFile(ss.id)" uib-tooltip="删除" style="cursor:pointer;color: red;" ></i>
                                 </nobr>
                             </td>
                         </tr>
                 </table>
-
 
                 <table ng-table="sendfile.sendfiletask_Table" class="table table-hover text-center table-condensed" show-filter="true" style="border: 1px solid #ddd;">
                         <tr ng-repeat="ss in $data" style="text-align: left">

@@ -32,6 +32,20 @@
             );
         }
 
+        vm.reloadfileserver = function(){
+            $http.get('/api/job/fileserver/' + vm.treeid ).then(
+                function successCallback(response) {
+                    if (response.data.stat){
+                        vm.fileserver_Table = new ngTableParams({count:15}, {counts:[],data:response.data.data});
+                    }else {
+                        toastr.error( "获取文件管理列表失败："+response.data.info)
+                    }
+                },
+                function errorCallback (response ){
+                    toastr.error( "获取文件管理列表失败："+response.status)
+                });
+        }
+
         vm.reload = function () {
             vm.loadover = false
 
@@ -50,18 +64,7 @@
                         toastr.error( "获取目录列表失败："+response.status)
                     });
 
-                $http.get('/api/job/fileserver/' + vm.treeid ).then(
-                    function successCallback(response) {
-                        if (response.data.stat){
-                            vm.fileserver_Table = new ngTableParams({count:15}, {counts:[],data:response.data.data});
-                            vm.loadover = true
-                        }else {
-                            toastr.error( "获取文件管理列表失败："+response.data.info)
-                        }
-                    },
-                    function errorCallback (response ){
-                        toastr.error( "获取文件管理列表失败："+response.status)
-                    });
+                vm.reloadfileserver();
 
                 var nowTime = $filter('date')(new Date, "yyyy-MM-dd");
 
@@ -171,6 +174,42 @@
  
         };
 
+        vm.unlinkfile = function( filename )
+        {
+            $http.post('/api/job/sendfile/unlink/' + vm.treeid + '?sudo=' + $scope.selectedUser + '&path=' + vm.filepath + '/' + filename  ).then(
+                function successCallback(response) {
+                    if (response.data.stat){
+                        vm.reload()
+                    }else {
+                        toastr.error( "删除文件失败："+response.data.info)
+                    }
+                },
+                function errorCallback (response ){
+                    toastr.error( "删除文件失败："+response.status)
+                });
+         }
 
+        vm.deleteFile = function (idx) {
+            resoureceService.file.delete([vm.treeid, idx], null, null)
+                .then(function (repo) {
+                    if (repo.stat){
+                        vm.reloadfileserver();
+                    }
+                    else
+                    {
+                        toastr.error("删除失败:" + repo.info)
+                    }
+                })
+
+        };
+
+        vm.bytesToSize = function(bytes) {
+            if (bytes === 0) return '0 B';
+            var k = 1000, // or 1024
+                sizes = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'],
+                i = Math.floor(Math.log(bytes) / Math.log(k));
+
+           return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
+        }
     }
 })();
