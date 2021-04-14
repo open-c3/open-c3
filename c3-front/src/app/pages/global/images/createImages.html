@@ -11,7 +11,7 @@
                 <div>
                     <div class="form-group admin-form">
                         <form class="form-horizontal" name="myForm" novalidate>
-                               <div class="row" ng-if="createimages.title=='编辑镜像'">
+                               <div class="row" ng-show="createimages.title=='编辑镜像'">
                                     <div class="col-sm-10 form-group">
                                         <label class="col-sm-3 control-label">编号</label>
                                         <div class="col-sm-9">
@@ -20,7 +20,7 @@
                                     </div>
                                 </div>
 
-                               <div class="row" ng-if="!createimages.ciid">
+                               <div class="row" ng-show="!createimages.ciid">
                                     <div class="col-sm-10 form-group">
                                         <label class="col-sm-3 control-label">名称</label>
                                         <div class="col-sm-9">
@@ -28,7 +28,7 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="row" ng-if="!createimages.ciid">
+                                <div class="row" ng-show="!createimages.ciid">
                                     <div class="col-sm-10 form-group">
                                         <label class="col-sm-3 control-label">描述</label>
                                         <div class="col-sm-9">
@@ -87,7 +87,7 @@
 
                                 <div class="row" ng-show="createimages.type!='show'">
                                     <div class="col-sm-5 form-group pull-right">
-                                        <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="createimages.saveImages()">保存镜像</button>
+                                        <button class="btn btn-primary" ng-disabled="!( createimages.postData.describe && createimages.postData.name )" ng-click="createimages.saveImages()">保存镜像</button>
                                     </div>
                                 </div>
                         </form>
