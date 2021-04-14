@@ -35,23 +35,16 @@ get '/ticket' => sub {
     {
         my $t = $d->{ticket};
         $d->{self} = $d->{create_user} eq $user ? 1 : 0; 
-        if( $d->{type} eq 'SSHKey' )
-        {
-            $t = substr( $t, 0, 100). "\n********\n" .substr($t, -100, 100);
-            $d->{ticket} = +{ SSHKey => $t }
-        }
 
         if( $d->{type} eq 'UsernamePassword' )
         {
-            my ( $n, $p ) = split /_:separator:_/, $t;
-            $p = '********';
-            $d->{ticket} = +{ Username => $n, Password => $p }
+            my ( $n ) = split /_:separator:_/, $t;
+            $d->{ticket} = +{ Username => $n, Password => '********' }
         }
 
-        if( $d->{type} eq 'JobBuildin' )
+        if( $d->{type} eq 'JobBuildin' || $d->{type} eq 'SSHKey' )
         {
-            $t = substr( $t, 0, 100). "\n********\n" .substr($t, -100, 100);
-            $d->{ticket} = +{ JobBuildin => $t }
+            $d->{ticket} = +{ $d->{type} => '********' }
         }
         $d->{share} = $d->{share} ? 'true' : 'false';
     }
@@ -81,12 +74,6 @@ get '/ticket/:ticketid' => sub {
 
         my $show = ( ( $d->{create_user} eq $user || $company eq '@app' ) && $param->{detail} ) ? 1 : 0;
 
-        if( $d->{type} eq 'SSHKey' )
-        {
-            $t = substr( $t, 0, 100). "\n********\n" .substr($t, -100, 100) unless $show;
-            $d->{ticket} = +{ SSHKey => $t }
-        }
-
         if( $d->{type} eq 'UsernamePassword' )
         {
             my ( $n, $p ) = split /_:separator:_/, $t;
@@ -94,10 +81,10 @@ get '/ticket/:ticketid' => sub {
             $d->{ticket} = +{ Username => $n, Password => $p }
         }
 
-        if( $d->{type} eq 'JobBuildin' )
+        if( $d->{type} eq 'JobBuildin' || $d->{type} eq 'SSHKey' )
         {
-            $t = substr( $t, 0, 100). "\n********\n" .substr($t, -100, 100) unless $show;
-            $d->{ticket} = +{ JobBuildin => $t }
+            $t = '********' unless $show;
+            $d->{ticket} = +{ $d->{type} => $t }
         }
         $d->{share} = $d->{share} ? 'true' : 'false';
     }
