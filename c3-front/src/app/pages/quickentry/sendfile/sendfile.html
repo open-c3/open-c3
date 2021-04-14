@@ -117,6 +117,11 @@
 
             <div style="float: right;width: 37%">
 
+                <input type="file" id="choicefiles" style="display: none" onchange="angular.element(this).scope().upForm()" multiple="multiple" />
+                <button class="btn btn-primary" ng-click="sendfile.clickImport()" >
+                    <span class="glyphicon glyphicon-upload" style="padding: 0 3px;"></span>上传文件
+                </button>
+ 
                 <table ng-table="sendfile.fileserver_Table" class="table table-hover text-center table-condensed" show-filter="true" style="border: 1px solid #ddd;">
                         <tr ng-repeat="ss in $data" style="text-align: left">
                             <td data-title="'ID'"> {{ss.id}} </td>

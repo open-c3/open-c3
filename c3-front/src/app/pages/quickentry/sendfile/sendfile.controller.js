@@ -36,7 +36,7 @@
             $http.get('/api/job/fileserver/' + vm.treeid ).then(
                 function successCallback(response) {
                     if (response.data.stat){
-                        vm.fileserver_Table = new ngTableParams({count:15}, {counts:[],data:response.data.data});
+                        vm.fileserver_Table = new ngTableParams({count:15}, {counts:[],data:response.data.data.reverse()});
                     }else {
                         toastr.error( "获取文件管理列表失败："+response.data.info)
                     }
@@ -211,5 +211,33 @@
 
            return (bytes / Math.pow(k, i)).toPrecision(3) + ' ' + sizes[i];
         }
+
+        vm.clickImport = function () {
+            document.getElementById("choicefiles").click();
+        };
+
+        $scope.upForm = function () {
+            var form = new FormData();
+            var file = document.getElementById("choicefiles").files[0];
+            form.append('file', file);
+            $http({
+                method: 'POST',
+                url: '/api/job/fileserver/'+ vm.treeid,
+                data: form,
+                headers: {'Content-Type': undefined},
+                transformRequest: angular.identity
+            }).success(function (data) {
+                if (data.stat){
+                    vm.reload()
+                }
+                else
+                {
+                    toastr.error("上传失败:" + data.info)
+                }
+            }).error(function (data) {
+                toastr.error("上传失败:" + data)
+            })
+        };
+
     }
 })();
