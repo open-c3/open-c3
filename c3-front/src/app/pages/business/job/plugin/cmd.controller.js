@@ -251,6 +251,10 @@
                 {
                     vm.showmachinelist = 0;
                 }
+                if( cont.search(/^#!awsecs\b/) == 0 )
+                {
+                    vm.showmachinelist = 0;
+                }
             }
         }
 
