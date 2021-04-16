@@ -167,7 +167,10 @@ post '/group/:groupid' => sub {
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    my $pmscheck = api::pmscheck( 'openc3_ci_write', $param->{groupid} ); return $pmscheck if $pmscheck;
+    if( $param->{groupid} )
+    {
+        my $pmscheck = api::pmscheck( 'openc3_ci_write', $param->{groupid} ); return $pmscheck if $pmscheck;
+    }
 
     my $groupid = $param->{groupid};
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), 
