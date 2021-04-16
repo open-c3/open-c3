@@ -363,6 +363,12 @@
                         openResult.result.then(
                             function (result) {
                                 if (result){
+                                    $scope.newjobname = "";
+                                    $scope.saveHide = true;
+                                    $scope.saveOK = false;
+                                    $scope.jobuuid = result;
+                                    vm.editjobuuid = result;
+                                    vm.saveVar()
                                     $state.go('home.business.job',{treeid:vm.treeid})
                                 }
 

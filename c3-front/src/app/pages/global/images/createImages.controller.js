@@ -121,9 +121,15 @@
         vm.progressFunction = function(evt){
             // event.total是需要传输的总字节，event.loaded是已经传输的字节。如果event.lengthComputable不为真，则event.total等于0
             if (evt.lengthComputable){
-                $("#upload_progressBar").css("width",Math.round(evt.loaded / evt.total * 100)-1 + "%");
-                $("#upload_progressBar").html(Math.round(evt.loaded / evt.total * 100)-1 + "%");
-                $("#percentage").html("已上传"+ (Math.round(evt.loaded / evt.total * 100)-1) + "%");
+                if (Math.round(evt.loaded / evt.total * 100) < 99){
+                    $("#upload_progressBar").css("width",Math.round(evt.loaded / evt.total * 100) + "%");
+                    $("#upload_progressBar").html(Math.round(evt.loaded / evt.total * 100) + "%");
+                    $("#percentage").html("已上传"+ Math.round(evt.loaded / evt.total * 100) + "%");
+                }else{
+                    $("#upload_progressBar").css("width","99%");
+                    $("#upload_progressBar").html("99%");
+                    $("#percentage").html("已上传99%");
+                }
             }
             var nt = new Date().getTime();//获取当前时间
             var pertime = (nt-ot)/1000; //计算出上次调用该方法时到现在的时间差，单位为s
@@ -145,7 +151,11 @@
             speed = speed.toFixed(1);
             //剩余时间
             var resttime = ((evt.total-evt.loaded)/bspeed).toFixed(1);
-            $("#time").html('，速度：'+speed+units+'，剩余时间：'+resttime+'s');
+            if (Math.round(evt.loaded / evt.total * 100) < 99) {
+                $("#time").html('，速度：' + speed + units + '，剩余时间：' + resttime + 's');
+            }else{
+                $("#time").html('，速度：' + speed + units + '，剩余时间：' + resttime + 's'+ '，请等待后端处理结果');
+            }
         }
 
         vm.clickImport = function () {

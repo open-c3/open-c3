@@ -83,6 +83,7 @@
                         if (vm.copyJobDatas){
                             $state.go('home.business.jobedit', {
                                 treeid:vm.treeid,
+                                editjobuuid:vm.jobDetail.uuid,
                                 editdata:vm.copyJobDatas,
                                 jobtypes:vm.jobTypes,
                                 copyjob:true,

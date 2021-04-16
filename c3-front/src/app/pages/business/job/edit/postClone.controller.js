@@ -10,6 +10,7 @@
             var vm = this;
             vm.cancel = function(){ $uibModalInstance.dismiss()};
             vm.cloneNodes = cloneNodes;
+            vm.jobuuid = "";
 
             angular.forEach(vm.cloneNodes, function (node, id) {
                 vm.cloneNodes[id]["status"] = null;
@@ -20,6 +21,7 @@
                     function successCallback(response) {
                         if (response.data.stat){
                             vm.cloneNodes[id]["status"] = true;
+                            vm.jobuuid = response.data.uuid;
                         }else {
                             vm.cloneNodes[id]["status"] = false;
                             vm.cloneNodes[id]["msg"] = response.data.info;
@@ -34,7 +36,7 @@
 
             vm.closeTab = function () {
                 $uibModalInstance.close(
-                    true
+                    vm.jobuuid
                 );
             };
 
