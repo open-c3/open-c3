@@ -86,10 +86,6 @@ post '/variable/:projectid/update' => sub {
     return +{ stat => $JSON::false, info => 'no uuid from project' } unless $x && @$x;
 
     return +{ stat => $JSON::false, info => 'no data in ARRAY' } unless $param->{data} && ref $param->{data} eq 'ARRAY';
-
-    eval{ $api::mysql->execute( "delete from variable where jobuuid='$param->{jobuuid}'"); };
-    return +{ stat => $JSON::false, info => $@ } if $@;
-
     for my $d ( @{$param->{data}} )
     {
         $error = Format->new( 
@@ -99,7 +95,22 @@ post '/variable/:projectid/update' => sub {
         )->check( %$d );
         return  +{ stat => $JSON::false, info => "check data format fail $error" } if $error;
         $d->{value} = '' unless defined $d->{value};
-        eval{ $api::mysql->execute( "insert into variable ( `jobuuid`,`name`,`value`,`describe`,`create_user` ) values('$param->{jobuuid}','$d->{name}','$d->{value}','$d->{describe}','$user')"); };
+
+        if( grep{ $d->{name} eq $_ || $d->{name} =~ /^wk_/  }qw( _exit_ _appname_ _skipSameVersion_ _rollbackVersion_ _authorization_ ) )
+        {
+            eval{
+                $api::mysql->execute( "replace into variable ( `jobuuid`,`name`,`value`,`describe`,`create_user` ) 
+                    values('$param->{jobuuid}','$d->{name}','$d->{value}','$d->{describe}','$user')");
+            };
+
+        }
+        else
+        {
+            eval{
+                $api::mysql->execute( "update variable set value='$d->{value}',`describe`='$d->{describe}',create_user='$user' 
+                    where jobuuid='$param->{jobuuid}' and name='$d->{name}'");
+            };
+        }
         return +{ stat => $JSON::false, info => $@ } if $@;
 
     }
