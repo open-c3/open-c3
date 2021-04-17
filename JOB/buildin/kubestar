@@ -24,26 +24,48 @@ sub success
     exit;
 }
 
-if( $ARGV[0] eq 'apply' )
+die "config null\n" unless $ENV{CONFIGPATH} && -f $ENV{CONFIGPATH};
+
+my $config_str = `cat '$ENV{CONFIGPATH}'`;
+
+for( 1 .. @ARGV -1 )
 {
-    if( $ARGV[1] )
-    {
-        die "rewrite DEPLOYVERSION fail!" if system "sed -i 's/DEPLOYVERSION/$ARGV[1]/g' $ENV{CONFIGPATH} 1>&1";
-    }
+    $config_str =~ s/\$\{VERSION$_\}/$ARGV[$_]/g;
+}
 
-    my @argv = qw( vendor region cluster-name resource-type kubestar-addr access-key secret-key org namespace resource-name image name );
-    die "config null\n" unless $ENV{CONFIGPATH} && -f $ENV{CONFIGPATH};
+if( $ARGV[1] )
+{
+    $config_str =~ s/DEPLOYVERSION/$ARGV[1]/g;
+}
 
-    my $config = eval{ YAML::XS::LoadFile $ENV{CONFIGPATH} };
-    die "load config fail: $@" if $@;
-    die "load yaml config fail" unless $config && ref $config eq 'HASH';
+die "\${VERSION\\d+} no replace" if $config_str =~ /\$\{VERSION\d+\}/;
+die "DEPLOYVERSION no replace" if $config_str =~ /DEPLOYVERSION/;
 
-    my $ticket = eval{ YAML::XS::LoadFile $ENV{TICKETFILE} };
-    die "load ticket fail: $@" if $@;
-    die "load yaml ticket fail" unless $ticket && ref $ticket eq 'HASH';
+my $config = eval{ YAML::XS::Load $config_str };
+die "load config fail: $@" if $@;
+die "load yaml config fail" unless $config && ref $config eq 'HASH';
 
-    my %config = ( %$ticket, %$config );
+my $ticket = eval{ YAML::XS::LoadFile $ENV{TICKETFILE} };
+die "load ticket fail: $@" if $@;
+die "load yaml ticket fail" unless $ticket && ref $ticket eq 'HASH';
 
+my %config = ( %$ticket, %$config );
+
+my @containers = ( $config{containers} && ref $config{containers} eq 'ARRAY' ) ? @{$config{containers}} : ( +{ image => $config{image}, name => $config{name} } );
+die "nofind containers on config\n" unless @containers;
+
+for my $container ( @containers )
+{
+    die "name format error" unless $container->{name} && $container->{name} =~ /^[\w:_\-\.\/]+$/;
+    die "image format error" unless $container->{image} && $container->{image} =~ /^[\w:_\-\.\/]+$/;
+}
+
+
+
+my @argv = qw( vendor region cluster-name resource-type kubestar-addr access-key secret-key org namespace resource-name );
+
+if( $ARGV[0] && $ARGV[0] eq 'apply' )
+{
     my $argv = '';
     map{
         die "key '$_' undef in config or ticket" unless $config{$_};
@@ -51,35 +73,19 @@ if( $ARGV[0] eq 'apply' )
         $argv .= " --$_ \"$config{$_}\" ";
     }@argv;
    
-    my $cmd  = "kubestarctl $argv patch";
-    my $re = `$cmd`;
+    for my $container ( @containers )
+    {
+        $argv .= " --image '$container->{name}=$container->{image}'";
+    }
 
-    warn "$re\n";
-    die "apply fail. return code is not 0\n" unless $re =~ /"code"\s*:\s*0\s*,/;
+    my $cmd  = "kubestarctl.v2 $argv patch";
+    die "apply fail. return code is not 0\n" if system "$cmd 1>&2";
 
     success();
 }
 
 if( $ARGV[0] eq 'check' )
 {
-    if( $ARGV[1] )
-    {
-        die "rewrite DEPLOYVERSION fail!" if system "sed -i 's/DEPLOYVERSION/$ARGV[1]/g' $ENV{CONFIGPATH} 1>&1";
-    }
-
-    my @argv = qw( vendor region cluster-name resource-type kubestar-addr access-key secret-key org namespace resource-name image name );
-    die "config null\n" unless $ENV{CONFIGPATH} && -f $ENV{CONFIGPATH};
-
-    my $config = eval{ YAML::XS::LoadFile $ENV{CONFIGPATH} };
-    die "load config fail: $@" if $@;
-    die "load yaml config fail" unless $config && ref $config eq 'HASH';
-
-    my $ticket = eval{ YAML::XS::LoadFile $ENV{TICKETFILE} };
-    die "load ticket fail: $@" if $@;
-    die "load yaml ticket fail" unless $ticket && ref $ticket eq 'HASH';
-
-    my %config = ( %$ticket, %$config );
-
     my $argv = '';
     map{
         die "key '$_' undef in config or ticket" unless $config{$_};
@@ -87,24 +93,33 @@ if( $ARGV[0] eq 'check' )
         $argv .= " --$_ \"$config{$_}\" " if $_ ne 'resource-name' && $_ ne 'image' && $_ ne 'name';
     }@argv;
  
+    my $cmd  = "kubestarctl.v2 $argv list apps";
 
     my $timeout = $ENV{TIMEOUT} && $ENV{TIMEOUT} =~ /^\d+$/ ? time + $ENV{TIMEOUT} : time  +  60; 
 
-    my $cmd  = "kubestarctl $argv list apps";
+    my %check; map{ $check{"$config{'resource-name'}::$config{namespace}::$config{'resource-type'}::$_->{image}::Running"} = 1 }@containers;
+
+    warn "------\ncheck table:\n";
+    map{ warn "$_\n" }keys %check;
+    warn "------\n";
 
     for( 1 .. 360 )
     {
+
+        warn "check ...\n";
+
         my @re = `$cmd`;
 
-       warn "check ...\n";
-       map{
-           my ( $name, $namespace, $type, $image, undef, $status ) = split /\s+/, $_;
-           if( $name eq $config{'resource-name'} && $namespace eq $config{namespace} && $type eq $config{'resource-type'} && $image eq $config{image} )
-           {
-               warn "$_\n";
-               last if $status eq 'Running';
-           }
-       }@re;
+        warn @re;
+        my %tempcheck = %check;
+        map{
+           my ( $name, $namespace, $type, undef, $image, undef, $status ) = split /\s+/, $_;
+           my $check = "${name}::${namespace}::${type}::${image}::${status}";
+           delete $tempcheck{$check};
+        }@re;
+
+        last unless %tempcheck;
+
         sleep 10;
         die "check timeout.\n" if time > $timeout;
     }
