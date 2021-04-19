@@ -1,0 +1,123 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use Time::HiRes qw/time/;
+use POSIX;
+use Code;
+use Logs;
+use Util;
+use uuid;
+use FindBin qw( $RealBin );
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    flowlineid => flowlineid,
+    version => 'release-01',
+    logs => 日志对象
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $flowlineid, $version, $probabilityhour, $probabilityweek, $todate, $logs ) = @param{qw( db flowlineid version probabilityhour probabilityweek todate logs )};
+
+    $logs = Logs->new( 'code.expand' ) unless $logs;
+
+    my @col = qw( id projectid uuid name user slave status starttimems finishtimems starttime finishtime calltype pid runtime tagger taginfo reason create_time );
+    my $versionlist = $db->query( sprintf( "select %s from version where projectid='$flowlineid' order by create_time desc,id desc", join ',',map{"`$_`"}@col ), \@col );
+    $logs->die( "get data error from db" ) unless defined $versionlist && ref $versionlist eq 'ARRAY';
+    $logs->die( "get data from db null: projectid=$flowlineid" ) unless @$versionlist;
+
+    my ( $currentconfig, $taildate, @tailfree, $temptailid );
+
+    for my $id ( 0 .. @$versionlist -1 )
+    {
+        if( $versionlist->[$id]{starttime} )
+        {
+            $temptailid = $id + 1;
+            $taildate = $versionlist->[$id]->{starttime};
+            $taildate =~ s/ .*//;
+            $currentconfig = $versionlist->[$id] if $versionlist->[$id]{name} eq $version;
+        }
+    }
+
+    die "nofind version: $version\n" unless $currentconfig;
+
+    if( $temptailid && $temptailid < @$versionlist - 1 )
+    {
+        @tailfree = splice @$versionlist, $temptailid;
+    }
+
+    my ( @probabilityhour, @probabilityrand ) = split /,/, $probabilityhour;
+    for my $h ( 0 .. 23 )
+    {
+        push @probabilityrand, map{ $h } 1 .. ( $probabilityhour[$h] || 0 );
+    }
+
+    my ( @probabilityweek, %probabilityweek ) = split /,/, $probabilityweek;
+    for my $w ( 0 .. 6 )
+    {
+        my @xx = split /:/, $probabilityweek[$w] && $probabilityweek[$w] =~ /^\d+:\d+$/ ? $probabilityweek[$w] :  '0:0';
+        $probabilityweek{$w} = +{ docount => $xx[0], probability => $xx[1] };
+    }
+
+    my $basetime = time;
+    $basetime -= $basetime % 86400;
+    $basetime -= 8 * 3600;
+
+    for( 1 .. 1000 )
+    {
+        my $checktime = $basetime - 86400 * $_;
+        my $tempdate = POSIX::strftime( "%Y-%m-%d", localtime( $checktime ) );
+        my $tempweek = POSIX::strftime( "%w", localtime( $checktime ) );
+        my $weekprobability = $probabilityweek{$tempweek};
+
+        next unless $tempdate lt $taildate;
+        last if $todate gt $tempdate;
+
+        my @createversion;
+
+        for ( 1 .. $weekprobability->{docount} )
+        {
+            my $rand = int rand 100;
+            if( $rand > $weekprobability->{probability} )
+            {
+                my $hindex = int rand @probabilityrand;
+                push @createversion, $probabilityrand[$hindex] * 3600 + int( rand 3600 );
+            }
+        }
+
+        @createversion = reverse sort @createversion;
+
+        for my $index ( 0 .. @createversion - 1 )
+        {
+            my $starttimems = $checktime + $createversion[$index];
+            my $runtime = sprintf "%.03f", $currentconfig->{runtime} + $currentconfig->{runtime} * ( 0.2 * ( rand 100 ) / 100 );
+            my $finishtimems = sprintf "%.03f", $starttimems  + $runtime;
+
+            my %tempconfig = %$currentconfig;
+            $tempconfig{uuid} = uuid->new()->create_str;;
+
+            my $tempfree = shift @tailfree;
+            my $tempv = $tempdate; $tempv =~ s/-//g;
+            $tempconfig{name} = $tempfree ? $tempfree->{name} :  'release-'.$tempv. '_' . int( @createversion - $index );
+
+            $tempconfig{starttimems} = $starttimems;
+            $tempconfig{finishtimems} = $finishtimems;
+            $tempconfig{starttime} = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( $starttimems ) );
+            $tempconfig{finishtime} = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( $finishtimems ) );
+            $tempconfig{runtime} = $runtime;
+            $tempconfig{create_time} = $tempconfig{starttime};
+
+            my @cc = qw( projectid uuid name user slave status starttimems finishtimems starttime finishtime calltype pid runtime tagger taginfo reason create_time );
+
+            $db->execute( sprintf "replace into `version` (%s) values(%s)", join( ',', map{"`$_`"}@cc ),  join( ',', map{"'$_'"}map{ $tempconfig{$_} || ''}@cc ) );
+            symlink $currentconfig->{uuid}, "$RealBin/../logs/build/$tempconfig{uuid}"; 
+        }
+    }
+}

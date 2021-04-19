@@ -55,7 +55,7 @@
             $http.get('/api/ci/version/' + vm.treeid + '/' + vm.projectid ).success(function(data){
                 if(data.stat == true) 
                 { 
-                    vm.activeRegionTable = new ngTableParams({count:20}, {counts:[],data:data.data.reverse()});
+                    vm.activeRegionTable = new ngTableParams({count:20}, {counts:[],data:data.data});
                     vm.loadover = true;
                 } else { 
                     toastr.error( "加载版本失败:" + data.info )

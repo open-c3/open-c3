@@ -21,7 +21,7 @@ get '/v/:groupid/:projectid' => sub {
 
     my $r = eval{ 
         $api::mysql->query( 
-             "select name from version where projectid='$projectid' order by id desc" )};
+             "select name from version where projectid='$projectid' order by create_time desc,id desc" )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => , [map{$_->[0] }@$r] };
 };
@@ -41,7 +41,7 @@ get '/version/:groupid/:projectid' => sub {
     );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from version where projectid='$projectid' order by id", join( ',', @col)), \@col )};
+            sprintf( "select %s from version where projectid='$projectid' order by create_time desc,id desc", join( ',', @col)), \@col )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r ||[] };
 };
