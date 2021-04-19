@@ -1,0 +1,25 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use MYDB;
+use POSIX;
+use FindBin qw( $RealBin );
+use Data::Dumper;
+use Code;
+
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 [--fromuuid uuid] [--touuid uuid]
+    --deploy release-001   ( #default fromuuid )
+    --rollback release-001 ( #default fromuuid )
+
+=cut
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( fromuuid=s touuid=s deploy=s rollback=s ) )->dump();
+
+$option->assert( 'fromuuid', 'touuid' );
+
+my $db = MYDB->new( "$RealBin/../conf/conn" );
+Code->new( 'expand' )->run( db => $db, %o );

@@ -1,0 +1,45 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use Time::HiRes qw/time/;
+use POSIX;
+use Code;
+use Logs;
+use Util;
+use uuid;
+use FindBin qw( $RealBin );
+use Encode qw(decode encode);
+use MIME::Base64;
+use Data::Dumper;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    fromuuid => 'uuid',
+    touuid => 'uuid',
+    logs => 日志对象
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $fromuuid, $touuid, $deploy, $rollback, $logs ) = @param{qw( db fromuuid touuid deploy rollback logs )};
+
+    $logs = Logs->new( 'code.expand' ) unless $logs;
+
+    $db->execute( "insert into task (projectid,uuid,name,user,slave,status,starttimems,finishtimems,starttime,finishtime,calltype,jobtype,jobuuid,pid,runtime,mutex,notify,variable,reason )  select projectid,'$touuid',name,user,slave,status,starttimems,finishtimems,starttime,finishtime,calltype,jobtype,jobuuid,pid,runtime,mutex,notify,variable,reason from task where uuid='$fromuuid'");
+
+    $db->execute( "insert into subtask( parent_uuid, subtask_type, uuid, nodecount,starttime,finishtime,runtime,status,pause ) select '$touuid',subtask_type, uuid, nodecount,starttime,finishtime,runtime,status,pause  from subtask where parent_uuid='$fromuuid'" );
+
+    my $variable = $db->query( "select variable from task where uuid='$touuid'" );
+    my $v = YAML::XS::Load decode_base64( $variable->[0][0] );
+    $v->{version} = $deploy if defined $v->{version} && $deploy;
+    $v->{_rollbackVersion_} = $rollback if defined $v->{_rollbackVersion_} && $rollback;
+
+    my $newvariable = encode_base64( encode('UTF-8', YAML::XS::Dump $v) );
+    $db->execute( "update task set variable='$newvariable' where uuid='$touuid'" );
+}
