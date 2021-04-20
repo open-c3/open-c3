@@ -29,19 +29,21 @@ return sub
 {
     my %param = @_;
 
-    my ( $db, $fromuuid, $touuid, $deploy, $rollback, $choicenorollback, $starttime, $logs ) = @param{qw( db fromuuid touuid deploy rollback choicenorollback starttime logs )};
+    my ( $db, $fromuuid, $touuid, $deploy, $rollback, $choicenorollback, $starttime, $rename, $logs ) = @param{qw( db fromuuid touuid deploy rollback choicenorollback starttime rename logs )};
 
     $logs = Logs->new( 'code.expand' ) unless $logs;
 
     my $rollbackuuid = uuid::get_rollback_uuid( $touuid );
 
-    $db->execute( "insert into task (projectid,uuid,name,`group`,user,slave,status,starttimems,finishtimems,starttime,finishtime,calltype,pid,runtime,variable,reason )  select projectid,'$touuid',name,`group`,user,slave,status,starttimems,finishtimems,starttime,finishtime,calltype,pid,runtime,variable,reason from task where uuid='$fromuuid'");
+    my $newname = $rename ? "'$rename'" : 'name';
+    $db->execute( "insert into task (projectid,uuid,name,`group`,user,slave,status,starttimems,finishtimems,starttime,finishtime,calltype,pid,runtime,variable,reason )  select projectid,'$touuid',$newname,`group`,user,slave,status,starttimems,finishtimems,starttime,finishtime,calltype,pid,runtime,variable,reason from task where uuid='$fromuuid'");
 
-    $db->execute( "insert into task (projectid,uuid,name,`group`,user,slave,status,starttimems,finishtimems,starttime,finishtime,calltype,pid,runtime,variable,reason )  select projectid,'$rollbackuuid',name,'_null_',user,'_null_','success',starttimems,finishtimems,starttime,finishtime,calltype,pid,runtime,variable,reason from task where uuid='$fromuuid'") if $choicenorollback;
+    $db->execute( "insert into task (projectid,uuid,name,`group`,user,slave,status,starttimems,finishtimems,starttime,finishtime,calltype,pid,runtime,variable,reason )  select projectid,'$rollbackuuid',$newname,'_null_',user,'_null_','success',starttimems,finishtimems,starttime,finishtime,calltype,pid,runtime,variable,reason from task where uuid='$fromuuid'") if $choicenorollback;
 
     my $variable = $db->query( "select variable from task where uuid='$touuid'" );
     my $v = YAML::XS::Load decode_base64( $variable->[0][0] );
 
+    $v->{_appname_} = $rename if defined $v->{_appname_} && $rename;
     $v->{version} = $deploy if defined $v->{version} && $deploy;
     $v->{_rollbackVersion_} = $rollback if defined $v->{_rollbackVersion_} && $rollback;
 
@@ -67,6 +69,7 @@ return sub
     my $deploy_argv = $deploy ? " --deploy $deploy " : '';
     my $rollback_argv = $rollback ? " --rollback $rollback " : '';
 
+    my $renaem_argv = $rename ? "--rename $rename" : "";
     for my $sub ( @$subtask  )
     {
         $sub->{parent_uuid} = $touuid;
@@ -74,6 +77,6 @@ return sub
         $sub->{uuid} = uuid->new()->create_str;
 
         $db->execute( sprintf "insert into subtask ( %s ) values( %s )", join(',', @col), join( ',', map{"'$_'"}map{ $sub->{$_} || ''}@col ) );
-        system "$RealBin/../../JOB/debugtools/expandHistory --fromuuid  $olduuid  --touuid $sub->{uuid} $deploy_argv $rollback_argv --starttime $starttime";
+        system "$RealBin/../../JOB/debugtools/expandHistory --fromuuid  $olduuid  --touuid $sub->{uuid} $deploy_argv $rollback_argv --starttime $starttime $renaem_argv";
     }
 }

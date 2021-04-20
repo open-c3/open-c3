@@ -17,9 +17,11 @@ use MYDan::Util::OptConf;
 
     --starttime 1618888642 ( #default from fromuuid)
 
+    --rename _ci_1_
+
 =cut
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->get( qw( fromuuid=s touuid=s deploy=s rollback=s starttime=i ) )->dump();
+my %o = $option->get( qw( fromuuid=s touuid=s deploy=s rollback=s starttime=i rename=s ) )->dump();
 
 $option->assert( 'fromuuid', 'touuid' );
 

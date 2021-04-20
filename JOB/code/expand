@@ -27,16 +27,18 @@ return sub
 {
     my %param = @_;
 
-    my ( $db, $fromuuid, $touuid, $deploy, $rollback, $starttime, $logs ) = @param{qw( db fromuuid touuid deploy rollback starttime logs )};
+    my ( $db, $fromuuid, $touuid, $deploy, $rollback, $starttime, $rename, $logs ) = @param{qw( db fromuuid touuid deploy rollback starttime rename logs )};
 
     $logs = Logs->new( 'code.expand' ) unless $logs;
 
-    $db->execute( "insert into task (projectid,uuid,name,user,slave,status,starttimems,finishtimems,starttime,finishtime,calltype,jobtype,jobuuid,pid,runtime,mutex,notify,variable,reason )  select projectid,'$touuid',name,user,slave,status,starttimems,finishtimems,starttime,finishtime,calltype,jobtype,jobuuid,pid,runtime,mutex,notify,variable,reason from task where uuid='$fromuuid'");
+    my $newname = $rename ? "'$rename'" : 'name';
+    $db->execute( "insert into task (projectid,uuid,name,user,slave,status,starttimems,finishtimems,starttime,finishtime,calltype,jobtype,jobuuid,pid,runtime,mutex,notify,variable,reason )  select projectid,'$touuid',$newname,user,slave,status,starttimems,finishtimems,starttime,finishtime,calltype,jobtype,jobuuid,pid,runtime,mutex,notify,variable,reason from task where uuid='$fromuuid'");
 
     $db->execute( "insert into subtask( parent_uuid, subtask_type, uuid, nodecount,starttime,finishtime,runtime,status,pause ) select '$touuid',subtask_type, uuid, nodecount,starttime,finishtime,runtime,status,pause  from subtask where parent_uuid='$fromuuid' order by id" );
 
     my $variable = $db->query( "select variable from task where uuid='$touuid'" );
     my $v = YAML::XS::Load decode_base64( $variable->[0][0] );
+    $v->{_appname_} = $rename if defined $v->{_appname_} && $rename;
     $v->{version} = $deploy if defined $v->{version} && $deploy;
     $v->{_rollbackVersion_} = $rollback if defined $v->{_rollbackVersion_} && $rollback;
 
