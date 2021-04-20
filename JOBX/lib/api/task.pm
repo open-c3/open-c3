@@ -204,12 +204,13 @@ put '/task/:projectid/:uuid/:control' => sub {
 
     my $pmscheck = api::pmscheck( 'openc3_jobx_control', $param->{projectid} ); return $pmscheck if $pmscheck;
 
-    my $x = eval{ $api::mysql->query( "select variable from task where uuid='$param->{uuid}' and projectid='$param->{projectid}'" )};
+    my $x = eval{ $api::mysql->query( "select variable,starttimems from task where uuid='$param->{uuid}' and projectid='$param->{projectid}'" )};
     return +{ stat => $JSON::false, info => $@ } if $@;
     return  +{ stat => $JSON::false, info => "no find task" } unless $x && @$x;
 
     return +{ stat => $JSON::false, info => "role ne deploy" } unless uuid::get_role( $param->{uuid} ) eq 'deploy' ;
 
+    return +{ stat => $JSON::false, info => "flowline has timed out, rollback is not allowed." } if time > $x->[0][1] + 604800;
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     my $calltype = $user =~ /\@app$/ ? 'api' : 'page';
