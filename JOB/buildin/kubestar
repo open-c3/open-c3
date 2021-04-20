@@ -113,9 +113,13 @@ if( $ARGV[0] eq 'check' )
 
         my %tempcheck = %check;
         map{
-           my ( $name, $namespace, $type, undef, $image, undef, $status ) = split /\s+/, $_;
+
+           my @info = split /\s+/, $_;
+           my ( $name, $namespace, $type, undef, $image, undef, $status ) = @info;
+           ( $name, $namespace, $type, undef, undef, $image, undef, $status ) = @info if @info == 8;
+
            my $check = "${name}::${namespace}::${type}::${image}";
-           warn "$check => $status\n";
+           warn "$check => $status\n" if $tempcheck{$check};
            delete $tempcheck{$check} if $status eq 'Running';
         }@re;
 
