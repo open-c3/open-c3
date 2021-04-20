@@ -120,7 +120,7 @@ return sub
 
             $db->execute( sprintf "replace into `version` (%s) values(%s)", join( ',', map{"`$_`"}@cc ),  join( ',', map{"'$_'"}map{ $tempconfig{$_} || ''}@cc ) );
             symlink $currentconfig->{uuid}, "$RealBin/../logs/build/$tempconfig{uuid}"; 
-            push  @newjob, +{ version => $tempconfig{name}, rollback => $tempconfig{name} };
+            push  @newjob, +{ version => $tempconfig{name}, rollback => $tempconfig{name}, starttime => int( $starttimems + 10 + rand 10 ) };
         }
     }
 
@@ -131,7 +131,7 @@ return sub
 
     for my $job ( @newjob )
     {
-         system( sprintf "/data/Software/mydan/JOBX/debugtools/expandHistory --fromuuid '$deployuuid' --touuid '%s' --deploy '$job->{version}' --rollback '$job->{rollback}' --choicenorollback", uuid->new()->create_str ) if $deployuuid;
-         system( sprintf "/data/Software/mydan/JOBX/debugtools/expandHistory --fromuuid '$testuuid' --touuid '%s' --deploy '$job->{version}' --rollback '$job->{rollback}'", uuid->new()->create_str ) if $testuuid;
+         system( sprintf "$RealBin/../../JOBX/debugtools/expandHistory --fromuuid '$deployuuid' --touuid '%s' --deploy '$job->{version}' --rollback '$job->{rollback}' --starttime $job->{starttime} --choicenorollback", uuid->new()->create_str ) if $deployuuid;
+         system( sprintf "$RealBin/../../JOBX/debugtools/expandHistory --fromuuid '$testuuid' --touuid '%s' --deploy '$job->{version}' --rollback '$job->{rollback}' --starttime $job->{starttime} ", uuid->new()->create_str ) if $testuuid;
     }
 }

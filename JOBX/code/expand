@@ -12,6 +12,7 @@ use Encode qw(decode encode);
 use MIME::Base64;
 use Data::Dumper;
 use uuid;
+use YAML::XS;
 
 $| ++;
 
@@ -28,7 +29,7 @@ return sub
 {
     my %param = @_;
 
-    my ( $db, $fromuuid, $touuid, $deploy, $rollback, $choicenorollback, $logs ) = @param{qw( db fromuuid touuid deploy rollback choicenorollback logs )};
+    my ( $db, $fromuuid, $touuid, $deploy, $rollback, $choicenorollback, $starttime, $logs ) = @param{qw( db fromuuid touuid deploy rollback choicenorollback starttime logs )};
 
     $logs = Logs->new( 'code.expand' ) unless $logs;
 
@@ -48,6 +49,18 @@ return sub
     $db->execute( "update task set variable='$newvariable' where uuid='$touuid'" );
     $db->execute( "update task set variable='$newvariable' where uuid='$rollbackuuid'" ) if $choicenorollback;
 
+
+    if( $starttime )
+    {
+        my $starttimestr = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( $starttime ) );
+        my $rt = $db->query( "select runtime from task  where uuid='$touuid'" );
+        my $finishtime = $starttime + $rt->[0][0];
+        my $finishtimestr = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( $finishtime ) );
+
+        $db->execute( "update task set starttimems='$starttime',starttime='$starttimestr',finishtimems='$finishtime',finishtime='$finishtimestr' where uuid='$touuid'" );
+    }
+
+
     my @col = qw( parent_uuid uuid nodelist nodecount starttime finishtime runtime status confirm );
     my $subtask = $db->query( sprintf( "select %s from subtask where parent_uuid='$fromuuid'", join ',', @col ), \@col );
 
@@ -61,6 +74,6 @@ return sub
         $sub->{uuid} = uuid->new()->create_str;
 
         $db->execute( sprintf "insert into subtask ( %s ) values( %s )", join(',', @col), join( ',', map{"'$_'"}map{ $sub->{$_} || ''}@col ) );
-        system "$RealBin/../../JOB/debugtools/expandHistory --fromuuid  $olduuid  --touuid $sub->{uuid} $deploy_argv $rollback_argv";
+        system "$RealBin/../../JOB/debugtools/expandHistory --fromuuid  $olduuid  --touuid $sub->{uuid} $deploy_argv $rollback_argv --starttime $starttime";
     }
 }

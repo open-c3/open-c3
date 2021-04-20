@@ -16,9 +16,11 @@ use MYDan::Util::OptConf;
     --rollback release-001 ( #default fromuuid )
 
     --choicenorollback
+
+    --starttime 1618888642 ( #default from fromuuid)
 =cut
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->get( qw( fromuuid=s touuid=s deploy=s rollback=s choicenorollback ) )->dump();
+my %o = $option->get( qw( fromuuid=s touuid=s deploy=s rollback=s choicenorollback starttime=i ) )->dump();
 
 $option->assert( 'fromuuid', 'touuid' );
 
