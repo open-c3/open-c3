@@ -97,7 +97,7 @@ if( $ARGV[0] eq 'check' )
 
     my $timeout = $ENV{TIMEOUT} && $ENV{TIMEOUT} =~ /^\d+$/ ? time + $ENV{TIMEOUT} : time  +  60; 
 
-    my %check; map{ $check{"$config{'resource-name'}::$config{namespace}::$config{'resource-type'}::$_->{image}::Running"} = 1 }@containers;
+    my %check; map{ $check{"$config{'resource-name'}::$config{namespace}::$config{'resource-type'}::$_->{image}"} = 1 }@containers;
 
     warn "------\ncheck table:\n";
     map{ warn "$_\n" }keys %check;
@@ -109,13 +109,14 @@ if( $ARGV[0] eq 'check' )
         warn "check ...\n";
 
         my @re = `$cmd`;
+        shift @re;
 
-        warn @re;
         my %tempcheck = %check;
         map{
            my ( $name, $namespace, $type, undef, $image, undef, $status ) = split /\s+/, $_;
-           my $check = "${name}::${namespace}::${type}::${image}::${status}";
-           delete $tempcheck{$check};
+           my $check = "${name}::${namespace}::${type}::${image}";
+           warn "$check => $status\n";
+           delete $tempcheck{$check} if $status eq 'Running';
         }@re;
 
         last unless %tempcheck;
