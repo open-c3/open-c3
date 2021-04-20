@@ -24,7 +24,7 @@ return sub
 {
     my %param = @_;
 
-    my ( $db, $flowlineid, $version, $probabilityhour, $probabilityweek, $todate, $logs ) = @param{qw( db flowlineid version probabilityhour probabilityweek todate logs )};
+    my ( $db, $flowlineid, $version, $probabilityhour, $probabilityweek, $todate, $deployuuid, $testuuid, $logs ) = @param{qw( db flowlineid version probabilityhour probabilityweek todate deployuuid testuuid logs )};
 
     $logs = Logs->new( 'code.expand' ) unless $logs;
 
@@ -69,6 +69,8 @@ return sub
     my $basetime = time;
     $basetime -= $basetime % 86400;
     $basetime -= 8 * 3600;
+
+    my @newjob;
 
     for( 1 .. 1000 )
     {
@@ -118,6 +120,18 @@ return sub
 
             $db->execute( sprintf "replace into `version` (%s) values(%s)", join( ',', map{"`$_`"}@cc ),  join( ',', map{"'$_'"}map{ $tempconfig{$_} || ''}@cc ) );
             symlink $currentconfig->{uuid}, "$RealBin/../logs/build/$tempconfig{uuid}"; 
+            push  @newjob, +{ version => $tempconfig{name}, rollback => $tempconfig{name} };
         }
+    }
+
+    for ( 0 .. $#newjob -1 )
+    {
+        $newjob[$_]{rollback} = $newjob[$_+1]{version};
+    }
+
+    for my $job ( @newjob )
+    {
+         system( sprintf "/data/Software/mydan/JOBX/debugtools/expandHistory --fromuuid '$deployuuid' --touuid '%s' --deploy '$job->{version}' --rollback '$job->{rollback}' --choicenorollback", uuid->new()->create_str ) if $deployuuid;
+         system( sprintf "/data/Software/mydan/JOBX/debugtools/expandHistory --fromuuid '$testuuid' --touuid '%s' --deploy '$job->{version}' --rollback '$job->{rollback}'", uuid->new()->create_str ) if $testuuid;
     }
 }

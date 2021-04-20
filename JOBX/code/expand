@@ -11,6 +11,7 @@ use FindBin qw( $RealBin );
 use Encode qw(decode encode);
 use MIME::Base64;
 use Data::Dumper;
+use uuid;
 
 $| ++;
 
@@ -27,11 +28,15 @@ return sub
 {
     my %param = @_;
 
-    my ( $db, $fromuuid, $touuid, $deploy, $rollback, $logs ) = @param{qw( db fromuuid touuid deploy rollback logs )};
+    my ( $db, $fromuuid, $touuid, $deploy, $rollback, $choicenorollback, $logs ) = @param{qw( db fromuuid touuid deploy rollback choicenorollback logs )};
 
     $logs = Logs->new( 'code.expand' ) unless $logs;
 
+    my $rollbackuuid = uuid::get_rollback_uuid( $touuid );
+
     $db->execute( "insert into task (projectid,uuid,name,`group`,user,slave,status,starttimems,finishtimems,starttime,finishtime,calltype,pid,runtime,variable,reason )  select projectid,'$touuid',name,`group`,user,slave,status,starttimems,finishtimems,starttime,finishtime,calltype,pid,runtime,variable,reason from task where uuid='$fromuuid'");
+
+    $db->execute( "insert into task (projectid,uuid,name,`group`,user,slave,status,starttimems,finishtimems,starttime,finishtime,calltype,pid,runtime,variable,reason )  select projectid,'$rollbackuuid',name,'_null_',user,'_null_','success',starttimems,finishtimems,starttime,finishtime,calltype,pid,runtime,variable,reason from task where uuid='$fromuuid'") if $choicenorollback;
 
     my $variable = $db->query( "select variable from task where uuid='$touuid'" );
     my $v = YAML::XS::Load decode_base64( $variable->[0][0] );
@@ -41,6 +46,7 @@ return sub
 
     my $newvariable = encode_base64( encode('UTF-8', YAML::XS::Dump $v) );
     $db->execute( "update task set variable='$newvariable' where uuid='$touuid'" );
+    $db->execute( "update task set variable='$newvariable' where uuid='$rollbackuuid'" ) if $choicenorollback;
 
     my @col = qw( parent_uuid uuid nodelist nodecount starttime finishtime runtime status confirm );
     my $subtask = $db->query( sprintf( "select %s from subtask where parent_uuid='$fromuuid'", join ',', @col ), \@col );
