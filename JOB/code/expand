@@ -33,7 +33,7 @@ return sub
 
     $db->execute( "insert into task (projectid,uuid,name,user,slave,status,starttimems,finishtimems,starttime,finishtime,calltype,jobtype,jobuuid,pid,runtime,mutex,notify,variable,reason )  select projectid,'$touuid',name,user,slave,status,starttimems,finishtimems,starttime,finishtime,calltype,jobtype,jobuuid,pid,runtime,mutex,notify,variable,reason from task where uuid='$fromuuid'");
 
-    $db->execute( "insert into subtask( parent_uuid, subtask_type, uuid, nodecount,starttime,finishtime,runtime,status,pause ) select '$touuid',subtask_type, uuid, nodecount,starttime,finishtime,runtime,status,pause  from subtask where parent_uuid='$fromuuid'" );
+    $db->execute( "insert into subtask( parent_uuid, subtask_type, uuid, nodecount,starttime,finishtime,runtime,status,pause ) select '$touuid',subtask_type, uuid, nodecount,starttime,finishtime,runtime,status,pause  from subtask where parent_uuid='$fromuuid' order by id" );
 
     my $variable = $db->query( "select variable from task where uuid='$touuid'" );
     my $v = YAML::XS::Load decode_base64( $variable->[0][0] );
@@ -51,5 +51,21 @@ return sub
         my $finishtimestr = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( $finishtime ) );
 
         $db->execute( "update task set starttimems='$starttime',starttime='$starttimestr',finishtimems='$finishtime',finishtime='$finishtimestr' where uuid='$touuid'" );
+    }
+
+    my $uuids = $db->query( "select uuids from jobs  where uuid in ( select jobuuid from task where uuid='$touuid' )" );
+
+    my $rtime = 0;
+    for ( split /,/, $uuids->[0][0] )
+    {
+        my ( $type, $uuid ) = split /_/, $_;
+        my $starttimestr = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( $starttime + $rtime ) );
+        my $rt = $db->query( "select runtime from subtask where parent_uuid='$touuid' and uuid='$uuid'" );
+        $rtime = $rtime + ( $rt->[0][0] || 0 )+ 3;
+        my $finishtimestr = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( $starttime + $rtime ) );
+
+        $db->execute( "update subtask set starttime='$starttimestr',finishtime='$finishtimestr' where parent_uuid='$touuid' and uuid='$uuid'" );
+
+        symlink "$fromuuid$uuid$type", "$RealBin/../logs/task/$touuid$uuid$type";
     }
 }
