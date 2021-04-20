@@ -7,6 +7,7 @@ use Util;
 use Logs;
 use YAML::XS;
 use LWP::UserAgent;
+use uuid;
 use JSON;
 
 $| ++;
@@ -55,10 +56,27 @@ return sub
         $logs->die( "mysql query fail: $@" ) if $@;
         $logs->die( "get list fail from mysql" ) unless defined $x && ref $x eq 'ARRAY';
 
-        my $timeout = time - 259200;
+        my %realstarttime = map{ $_->[2] => $_->[4] }@$x;
+        if( my @rollbackuuid = map{ $_->[2] }grep{ $_->[2] =~ /[A-Z]$/ }@$x )
+        {
+            my $rollback = eval{ $db->query( sprintf "select uuid,starttimems from task where uuid in (%s)", join ',',
+                map{ "'".uuid::get_deploy_uuid( $_ )."'" }@rollbackuuid );};
+            $logs->die( "mysql query fail: $@" ) if $@;
+
+            map{
+                my ( $tuuid, $tstarttime ) = @$_;
+                $tuuid = uuid::get_rollback_uuid( $tuuid );
+                $realstarttime{$tuuid} = $tstarttime;
+            }@$rollback;
+        }
+
+        my $timeout = time - 604800;
         for my $r ( @$x )
         {
             my ( $id, $pid, $uuid, $starttime, $starttimems, $projectid ) = @$r;
+
+            $starttimems = $realstarttime{$uuid};
+
             next unless $pid =~ /^\d+$/;
             next unless $starttimems =~ /^[\.\d]+$/;
             next unless $uuid =~ /^[a-zA-Z0-9]+$/;

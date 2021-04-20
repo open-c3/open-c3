@@ -29,7 +29,7 @@ return sub
         $logs->die( "mysql query fail: $@" ) if $@;
         $logs->die( "get list fail from mysql" ) unless defined $x && ref $x eq 'ARRAY';
 
-        my $timeout = time - 86400;
+        my $timeout = time - 604800;
         for my $r ( @$x )
         {
             my ( $id, $pid, $uuid, $starttime, $starttimems ) = @$r;
