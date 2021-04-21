@@ -94,3 +94,12 @@ create table `monitor`(
 UNIQUE KEY `uniq_host_type_key` ( `host`,`type`,`key`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='监控';
 
+create table `flowline_version`(
+`id` int(16) unsigned not null primary key auto_increment comment 'id',
+`flowlineid` VARCHAR(40) comment 'flowlineid',
+`jobxuuid` VARCHAR(40) comment 'jobxuuid',
+`version` VARCHAR(80) comment 'version',
+`create_time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment 'create_time',
+UNIQUE KEY `uniq_flowlineid` (`flowlineid`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='flowline_version';
+

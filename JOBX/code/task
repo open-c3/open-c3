@@ -46,6 +46,17 @@ return sub
     $logs->die( "task uuid null: $uuid" ) unless @$x;
     my ( $projectid, $name, $group, $variable ) = @{$x->[0]};
 
+    my $clusterVersionTag;
+
+    if( $variable && $name =~ /^_ci_(\d+)_$/ )
+    {
+        my $flowlineid = $1;
+        my $var  = eval{ YAML::XS::Load decode_base64( $variable ) };
+        if( $var->{_jobtype_} eq 'online' && $var->{version} )
+        {
+            $clusterVersionTag = +{ flowlineid => $flowlineid, version => $var->{version}, jobxuuid => $uuid };
+        }
+    }
 
     if( $variable && uuid::get_role( $uuid ) eq 'deploy' )
     {
@@ -121,6 +132,12 @@ return sub
     eval{ $db->execute( "update task set finishtime='$ftime',finishtimems='$ftimems',
         status='$status',runtime='$runtime' where uuid='$uuid'" ); };
     $logs->die( "update task status fail:$@" ) if $@;
+
+    if( $clusterVersionTag && $status eq 'success' )
+    {
+        eval{ $db->execute( "replace into flowline_version (`flowlineid`,`version`,`jobxuuid`) values('$clusterVersionTag->{flowlineid}','$clusterVersionTag->{version}','$clusterVersionTag->{jobxuuid}')" ); };
+        $logs->die( "update task status fail:$@" ) if $@;
+    }
 
     return $status;
 }
