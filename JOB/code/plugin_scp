@@ -121,7 +121,7 @@ return sub
         my $data = eval{JSON::from_json $res->content};
         $logs->die( "get ciinfo fail" ) unless $data->{stat};
         $logs->die( "get nofind the version on ci" ) unless $data->{data}{slave};
-        $logs->die( "the version no success on ci" ) unless $data->{data}{status} eq 'success';
+        $logs->die( "the version no success on ci" ) unless $data->{data}{status} eq 'success' || $data->{data}{status} eq 'running';
 
         #my $slave = $data->{data}{slave};
         #my $hostname = Sys::Hostname::hostname;
