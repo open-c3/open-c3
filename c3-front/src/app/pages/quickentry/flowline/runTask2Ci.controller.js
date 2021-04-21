@@ -53,7 +53,7 @@
                                            }
                                            else
                                            {
-                                               $scope.taskData.variable = {version: version, '_jobtype_': jobtype, '_appname_': $scope.taskData.jobname, '_skipSameVersion_': 1 };
+                                               $scope.taskData.variable = {version: version, '_jobtype_': jobtype, '_appname_': $scope.taskData.jobname, '_skipSameVersion_': 0 };
                                            }
                                //        }
                                   }else {
