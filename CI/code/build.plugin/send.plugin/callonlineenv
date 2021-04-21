@@ -38,9 +38,21 @@ return sub
     $ua->timeout( 10 );
     $ua->default_header ( 'Cache-control' => 'no-cache', 'Pragma' => 'no-cache' );
 
+    my $lastversionres = $ua->get( "http://api.jobx.open-c3.org/flowline_version/$projectid" );
+    my $lastversioncont = $lastversionres->content;
+    $logs->die( "get last version info fail: $lastversioncont" ) unless $lastversionres->is_success;
+
+    my $lastversiondata = eval{JSON::from_json $lastversioncont};
+    $logs->die( "get last version info fail: $lastversioncont : no json $@" ) if $@;
+
+    $logs->die( "get last version info fail: $lastversioncont : stat fail" )  unless $lastversiondata->{stat};
+
+    my $variable = +{ version => $version, '_jobtype_' => 'online' };
+    $variable->{_rollbackVersion_} = $lastversiondata->{data}{version} if $lastversiondata->{data}{version};
+
     my $url = "http://api.jobx.open-c3.org/task/$groupid/job/byname";
     my $res = $ua->post( $url, 
-        Content => JSON::to_json( +{ jobname => $jobname, group => $jobgroup, variable => +{ version => $version, '_jobtype_' => 'online' } } ), 
+        Content => JSON::to_json( +{ jobname => $jobname, group => $jobgroup, variable => $variable } ), 
         'Content-Type' => 'application/json' 
     );
 
