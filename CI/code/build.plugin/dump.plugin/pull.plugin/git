@@ -104,7 +104,7 @@ return sub
     else
     {
         
-        my @cacheid = `cat /etc/ci.cache`;
+        my @cacheid = `cat /etc/ci.cache 2>/dev/null`;
         chomp @cacheid;
         if( grep{ $projectid eq $_ }@cacheid )
         {

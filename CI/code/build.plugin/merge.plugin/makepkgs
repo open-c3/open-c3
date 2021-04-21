@@ -29,7 +29,7 @@ return sub
     my @list = `cd '$temppath/dist' && ls -a|grep -v '^\\.\$'|grep -v '^\\.\\.\$'`;
     $logs->die( "build fail: dist is empty" ) unless @list;
 
-    my ( @saveasdir, @cmd ) = `cat /etc/ci.saveasdir`;
+    my ( @saveasdir, @cmd ) = `cat /etc/ci.saveasdir 2>/dev/null`;
     chomp @saveasdir;
     if( grep{ $projectid eq $_ }@saveasdir )
     {
