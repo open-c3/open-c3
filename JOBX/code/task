@@ -84,8 +84,17 @@ return sub
     my @group;
     if( uuid::get_role( $uuid ) eq 'rollback' )
     {
+        my $where = '';
+        if( $clusterVersionTag )
+        {
+            my $lastversion = $db->query( "select `version` from flowline_version where flowlineid='$clusterVersionTag->{flowlineid}'" );
+
+            $where = "and (  status != 'init' && status != 'cancel' )"
+                if $lastversion && @$lastversion > 0 && $lastversion->[0][0] eq $clusterVersionTag->{version};
+        }
+
         my $deployuuid =  uuid::get_deploy_uuid( $uuid );
-        my $nodelist = $db->query( "select nodelist from subtask where parent_uuid='$deployuuid' order by id" );
+        my $nodelist = $db->query( "select nodelist from subtask where parent_uuid='$deployuuid' $where order by id" );
         $logs->die( "get data error from db" ) unless defined $nodelist && ref $nodelist eq 'ARRAY';
 
         @group = map{ [ split /,/, $_->[0] ] }@$nodelist;
