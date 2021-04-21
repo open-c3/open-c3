@@ -108,20 +108,12 @@
             $scope.taskData.variable._rollbackVersion_ = version
         }
 
-        vm.vvv = [];
-        vm.getVersion = function () {
-            $http.get('/api/job/vv/' + vm.treeid + '/analysis/version').then(
+        vm.lastversion = {};
+        vm.getLastVersion = function () {
+            $http.get('/api/jobx/flowline_version/' + projectid ).then(
                 function successCallback(response) {
                     if (response.data.stat) {
-                        vm.allversion = response.data.data;
-                        angular.forEach(vm.allversion, function(project){
-                            if( project.name == 'APP__ci_' + projectid  + '__VERSION')
-                            {
-                                angular.forEach(project.data, function(value, key) {
-                                    vm.vvv.push({ n: key, v: parseFloat(value)});
-                                });
-                            }
-                        });
+                        vm.lastversion = response.data.data;
                     }else{
                         toastr.error( "获取作业信息失败：" + response.data.info )
                     };
@@ -132,8 +124,7 @@
         };
 
 
-        vm.getVersion();
-
+        vm.getLastVersion();
 
         vm.showVersions = function (data) {
             var data_info = JSON.stringify(data);
@@ -174,9 +165,6 @@
             });
 
         };
-
-
-
 
     }
 })();
