@@ -81,12 +81,24 @@ return sub
         $logs->die( "The deploy task has been refused and should not be able to be run rollback task" ) if $deploystat->[0][0] eq 'refuse';
     }
 
-    $x = $db->query( "select `id` from `group` where projectid='$projectid' and name='$group'" );
-    $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
-    $logs->die( "group name null: $group" ) unless @$x;
-    my $groupid = $x->[0][0];
+    my @group;
+    if( uuid::get_role( $uuid ) eq 'rollback' )
+    {
+        my $deployuuid =  uuid::get_deploy_uuid( $uuid );
+        my $nodelist = $db->query( "select nodelist from subtask where parent_uuid='$deployuuid' order by id" );
+        $logs->die( "get data error from db" ) unless defined $nodelist && ref $nodelist eq 'ARRAY';
 
-    my @group = Code->new( 'group' )->run( db => $db, id => $groupid, logs => $logs );
+        @group = map{ [ split /,/, $_->[0] ] }@$nodelist;
+    }
+    else
+    {
+        $x = $db->query( "select `id` from `group` where projectid='$projectid' and name='$group'" );
+        $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
+        $logs->die( "group name null: $group" ) unless @$x;
+        my $groupid = $x->[0][0];
+
+        @group = Code->new( 'group' )->run( db => $db, id => $groupid, logs => $logs );
+    }
 
     my @subtask_uuid;
 
