@@ -36,7 +36,7 @@ return sub
 
     my @col;
     map{ push @col, "version.$_" } qw( projectid name user status starttime finishtime calltype runtime );
-    map{ push @col, "project.$_" } qw( groupid name addr calltestenv callonlineenv );
+    map{ push @col, "project.$_" } qw( groupid name addr calltestenv callonlineenv notify );
     
     my $x = eval{ $db->query( sprintf( "select %s from version,project where version.projectid=project.id and uuid='$uuid'", join( ',',@col) ), \@col ); };
 
@@ -67,8 +67,8 @@ return sub
     my $datanotify = eval{JSON::from_json $notify->content};
     $logs->die( "call job get environment stat fail" ) unless $datanotify->{stat};
 
-    my %notify = map{ $_->{user} => 1  }@{$datanotify->{data}};
-
+    my %notify = map{ $_->{user} => 1 }@{$datanotify->{data}};
+    map{ $notify{$_} = 1 } split /,/, $x{'project.notify'} if $x{'project.notify'};
 
     my %template = 
     (
