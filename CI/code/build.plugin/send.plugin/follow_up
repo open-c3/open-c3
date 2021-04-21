@@ -40,7 +40,7 @@ return sub
             if( $user )
             {
                 $logs->die( "ticket format error" ) if $user =~ /'/ || $pass=~ /'/;
-                $TICKET = "TUSERNAME=$user TPASSWORD=$pass";
+                $TICKET = "TUSERNAME='$user' TPASSWORD='$pass'";
             }
         }
         else
