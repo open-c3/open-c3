@@ -30,6 +30,22 @@
             }
         };
         vm.seftime = genericService.seftime
+
+        vm.rollbackexpire = function( starttime )
+        {
+            var S = new Date()
+
+            var sec =   (S.getTime() - starttime * 1000)  /1000;
+            if( sec > 604800 )
+            {
+                return 1
+            }
+            else
+            {
+                return 0
+            }
+        }
+
         vm.firstload = true
         vm.changeUuid = function (uuid) {
             var endC = uuid.slice(uuid.length - 1);
