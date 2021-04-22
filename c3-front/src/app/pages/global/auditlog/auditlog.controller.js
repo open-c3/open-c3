@@ -49,7 +49,7 @@
                 function successCallback(response) {
                     vm.loadover = true;
                     if (response.data.stat){
-                        vm.auditlogTable = new ngTableParams({count:100}, {counts:[],data:response.data.data.reverse()});
+                        vm.auditlogTable = new ngTableParams({count:100}, {counts:[],data:response.data.data});
                     }else {
                         swal('获取列表失败', response.data.info, 'error');
                     }

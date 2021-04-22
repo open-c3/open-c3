@@ -245,7 +245,7 @@ get '/connectorx/auditlog' => sub {
 
     my $where = @where ? sprintf( "where %s", join ' and ', @where ) : '';
 
-    my $mesg = eval{ $api::mysql->query( "select time,user,title,content from `auditlog` $where order by id limit 1000", [ 'time', 'user', 'title', 'content' ] ) };
+    my $mesg = eval{ $api::mysql->query( "select time,user,title,content from `auditlog` $where order by id desc limit 1000", [ 'time', 'user', 'title', 'content' ] ) };
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $mesg };
 };
