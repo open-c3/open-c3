@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use Code;
 use Logs;
+use variable;
 
 $| ++;
 
@@ -50,6 +51,24 @@ return sub
         $logs->die( "init subtask fail:$@" ) if $@;
  
     }
+
+    my $vvv = eval { variable->new( variable => $variable, db => $db, jobuuid => $uuid )->get( 'version' ) };
+    $logs->die( "get variable verbose fail:$@" ) if $@;
+
+    my $appname = eval { variable->new( variable => $variable, db => $db, jobuuid => $uuid )->get( '_appname_' ) };
+    $logs->die( "get variable verbose fail:$@" ) if $@;
+    $appname = defined $appname ? "APP_${appname}_VERSION" : 'VERSION';
+
+    my $vvip = eval { variable->new( variable => $variable, db => $db, jobuuid => $uuid )->get( 'ip' ) };
+    $logs->die( "get variable verbose fail:$@" ) if $@;
+ 
+    my $vv = Code->new( 'vv' );
+    if( $vvv && $vvip )
+    {
+        eval{ map{ $vv->run( db => $db, logs => $logs, projectid => $projectid, node => $_, vv => [ $appname, "Do_$vvv" ] ) }split /,/, $vvip };
+        $logs->die( "vv code run fail :$@" ) if $@;
+    }
+
     my $index = 0;
     for( @job )
     {
@@ -64,8 +83,6 @@ return sub
             fromjob => $uuid, 
             variable => $variable,
             logs => $logs,
-            head => $index == 1 ? 1 : 0,
-            tail => $index == @job ? 1 : 0,
         );};
 
         if( $@ )
@@ -88,5 +105,12 @@ return sub
         }
         
     }
+
+    if( $vvv && $vvip && $jobstatus eq 'success' )
+    {
+        eval{ map{ $vv->run( db => $db, logs => $logs, projectid => $projectid, node => $_, vv => [ $appname, "$vvv" ] ) }split /,/, $vvip };
+        $logs->die( "vv code run fail :$@" ) if $@;
+    }
+
     return $jobstatus;
 }

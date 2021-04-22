@@ -297,38 +297,6 @@ return sub
 
     print YAML::XS::Dump \%o;
 
-    my $vvv;
-    if( ( $head || $tail ) && defined $projectid )
-    {
-        eval { $vvv = variable->new( variable => $variable, db => $db, jobuuid => $fromjob )->get( 'version' ) };
-        $logs->die( "get variable verbose fail:$@" ) if $@;
-    }
-    my $appname;
-    if( ( $head || $tail ) && defined $vvv )
-    {
-        eval { $appname = variable->new( variable => $variable, db => $db, jobuuid => $fromjob )->get( '_appname_' ) };
-        $logs->die( "get variable verbose fail:$@" ) if $@;
-        $appname = defined $appname ? "APP_${appname}_VERSION" : 'VERSION';
-    }
-    if( $head && defined $vvv )
-    {
-        my $skipSameVersion = eval { variable->new( variable => $variable, db => $db, jobuuid => $fromjob )->get( '_skipSameVersion_' ) };
-        $logs->die( "get variable _skipSameVersion_ fail:$@" ) if $@;
-        if( $skipSameVersion )
-        {
-            my $vvCheckOk = eval{ Code->new( 'vv.plugin/check' )->run( db => $db, logs => $logs, projectid => $projectid, node => \@dst, key => $appname, val => $vvv ) };
-            $logs->die( "vv.check code run fail :$@" ) if $@;
-            if( $vvCheckOk )
-            {
-                print "skipSameVersion: skip.\n";
-                return 'skipSameVersion'; 
-            }
-        }
-   
-        eval{ map{ $vv->run( db => $db, logs => $logs, projectid => $projectid, node => $_, vv => [ $appname, "Do_$vvv" ] ) }@dst };
-        $logs->die( "vv code run fail :$@" ) if $@;
-    }
-
     while( ! $ignore )
     {
         my %sync = (
@@ -379,13 +347,7 @@ return sub
             $subtaskstatus = @failed ? 'fail' : 'success'; 
             last;
         }
-        if( $tail && defined $vvv )
-        {
-            my %failed = map{ $_ => 1 }@failed;
-            eval{ map{ $vv->run( db => $db, logs => $logs, projectid => $projectid, node => $_, vv => [ $appname, $vvv ] ) }grep{ ! $failed{$_} }@dst };
-             $logs->die( "vv code run fail :$@" ) if $@;
-        }
- 
+
         last unless @failed;
 
         eval{ $db->execute( "update `subtask` set status='decision' where parent_uuid='$taskuuid' and subtask_type='scp' and uuid='$uuid'") };

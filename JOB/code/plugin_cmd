@@ -193,38 +193,6 @@ return sub
         $logs->die( "check node fail: $checkerror" ) if $checkerror;
     }
 
-    my $vvv;
-    if( ( $head || $tail ) && defined $projectid )
-    {
-        eval { $vvv = variable->new( variable => $variable, db => $db, jobuuid => $fromjob )->get( 'version' ) };
-        $logs->die( "get variable verbose fail:$@" ) if $@;
-    }
-    my $appname;
-    if( ( $head || $tail )&& defined $vvv )
-    {
-        eval { $appname = variable->new( variable => $variable, db => $db, jobuuid => $fromjob )->get( '_appname_' ) };
-        $logs->die( "get variable verbose fail:$@" ) if $@;
-        $appname = defined $appname ? "APP_${appname}_VERSION" : 'VERSION';
-    }
-    if( $head && defined $vvv )
-    {
-        my $skipSameVersion = eval { variable->new( variable => $variable, db => $db, jobuuid => $fromjob )->get( '_skipSameVersion_' ) };
-        $logs->die( "get variable _skipSameVersion_ fail:$@" ) if $@;
-        if( $skipSameVersion )
-        {
-            my $vvCheckOk = eval{ Code->new( 'vv.plugin/check' )->run( db => $db, logs => $logs, projectid => $projectid, node => \@node, key => $appname, val => $vvv ) };
-            $logs->die( "vv.check code run fail :$@" ) if $@;
-            if( $vvCheckOk )
-            {
-                print "skipSameVersion: skip.\n";
-                return 'skipSameVersion'; 
-            }
-        }
-
-        eval{ map{ $vv->run( db => $db, logs => $logs, projectid => $projectid, node => $_, vv => [ $appname, "Do_$vvv" ] ) }@node };
-        $logs->die( "vv code run fail :$@" ) if $@;
-    }
-
     my $subtaskstatus = 'success'; #runnigs,fail,success,decision,ignore
 
     while(1)
@@ -259,12 +227,6 @@ return sub
                 my @x = $result{$node} =~ /([a-zA-Z][a-zA-Z0-9_]+):\[([a-z0-9\._\-]+)\]/g;
                 next unless @x;
                 eval{ $vv->run( db => $db, logs => $logs, projectid => $projectid, node => $node, vv => \@x ) };
-                $logs->die( "vv code run fail :$@" ) if $@;
-            }
-            if( $tail && defined $vvv )
-            {
-                my %failed = map{ $_ => 1 }@failed;
-                eval{ map{ $vv->run( db => $db, logs => $logs, projectid => $projectid, node => $_, vv => [ $appname, $vvv ] ) }grep{ ! $failed{$_} }@node };
                 $logs->die( "vv code run fail :$@" ) if $@;
             }
         }
