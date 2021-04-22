@@ -103,6 +103,9 @@ create table `plugin_scp`(
 `timeout` VARCHAR(30) comment '超时时间',
 `scp_delete`  VARCHAR(20) comment '减法同步',
 `pause` VARCHAR(100) comment '需要暂停',
+`deployenv` VARCHAR(20) comment '什么时候生效,部署维度',  ###只允许 online, test, always
+`action` VARCHAR(20) comment '什么时候生效,动作维度',  ###只允许 deploy, rollback, always
+`batches` VARCHAR(20) comment '什么时候生效,分批维度',  ###只允许 firsttime, always
 `create_time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
 #UNIQUE KEY `uniq_jobuuidname` (`jobuuid`,`name`),###因为api在保存作业的时候，是重写写入新的，如果加了这个约束，会使得正在运行的作业找不到插件数据
 UNIQUE KEY `uniq_uuid` (`uuid`)

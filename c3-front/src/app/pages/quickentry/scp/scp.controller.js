@@ -19,6 +19,8 @@
         $scope.srcShow = false;
         $scope.choiceShow = false;
 
+        vm.postdata = { deployenv: 'always', action: 'always', batches: 'always' };
+
         $scope.userShow = false;
         $scope.chownShow = false;
         $scope.dstServerShow = false;
@@ -313,7 +315,11 @@
             }
             $scope.dstDate.timeout = parseInt($scope.dstDate.timeout);
             var post_data = $.extend($scope.dstDate, $scope.copySrcdata);
-            console.log("finally post data is :", JSON.stringify(post_data));
+
+            post_data.deployenv = vm.postdata.deployenv
+            post_data.action = vm.postdata.action
+            post_data.batches = vm.postdata.batches
+
             resoureceService.work.scp(vm.treeid, post_data, null)
                 .then(function (repo) {
                     if (repo.stat){

@@ -530,7 +530,7 @@ post '/task/:projectid/plugin_scp' => sub {
     map{ $param->{$_} = '' unless defined $param->{$_} }qw( chown chmod );
 
     my $plugin_uuid = uuid->new()->create_str;
-    my @plugin_col = qw( name user src_type src dst_type dst sp dp chown chmod timeout scp_delete);
+    my @plugin_col = qw( name user src_type src dst_type dst sp dp chown chmod timeout scp_delete deployenv action batches );
     eval{ $api::mysql->execute( sprintf "insert into plugin_scp (`uuid`,%s ) values('$plugin_uuid',%s)",
             join(',',map{"`$_`"}@plugin_col ), join(',',map{"'$param->{$_}'"}@plugin_col ));};
     return  +{ stat => $JSON::false, info => "insert into plugin_scp fail" } if $@;

@@ -136,7 +136,7 @@ get '/jobs/:projectid/:jobuuid' => sub {
 
     if( $hash{scp} )
     {
-        my @colscp = qw( uuid name user src src_type sp dst dst_type dp chown chmod timeout pause scp_delete);
+        my @colscp = qw( uuid name user src src_type sp dst dst_type dp chown chmod timeout pause scp_delete deployenv action batches );
         my $rscp = eval{ 
             $api::mysql->query( 
                 sprintf( "select %s from plugin_scp
@@ -212,7 +212,7 @@ post '/jobs/:projectid/copy/byname' => sub {
         }
         elsif( $type eq 'scp' )
         {
-            my @plugin_col = qw( name user src_type src dst_type dst sp dp chown chmod timeout pause jobuuid scp_delete);
+            my @plugin_col = qw( name user src_type src dst_type dst sp dp chown chmod timeout pause jobuuid scp_delete deployenv action batches );
             eval{ $api::mysql->execute( sprintf "insert into plugin_scp (`uuid`,%s ) select '$plugin_uuid',name,user,src_type,src,dst_type,dst,sp,dp,chown,chmod,timeout,pause,'$touuid',scp_delete from plugin_scp where uuid='$uuid' and jobuuid='$fromuuid'", join(',',map{"`$_`"}@plugin_col ));};
             return  +{ stat => $JSON::false, info => "insert into plugin_scp fail. $@" } if $@;
             push @step, "scp_$plugin_uuid";
@@ -478,7 +478,7 @@ post '/jobs/:projectid' => sub {
         }
         elsif( $data->{plugin_type} eq 'scp' )
         {
-            my @plugin_col = qw( name user src_type src dst_type dst sp dp chown chmod timeout pause jobuuid scp_delete);
+            my @plugin_col = qw( name user src_type src dst_type dst sp dp chown chmod timeout pause jobuuid scp_delete deployenv action batches );
             eval{ $api::mysql->execute( sprintf "insert into plugin_scp (`uuid`,%s ) values('$plugin_uuid',%s)",
                     join(',',map{"`$_`"}@plugin_col ), join(',',map{"'$data->{$_}'"}@plugin_col ));};
             return  +{ stat => $JSON::false, info => "$info: insert into plugin_scp fail. $@" } if $@;
@@ -758,7 +758,7 @@ post '/jobs/:projectid/:jobuuid' => sub {
         }
         elsif( $data->{plugin_type} eq 'scp' )
         {
-            my @plugin_col = qw( name user src_type src dst_type dst sp dp chown chmod timeout pause jobuuid scp_delete);
+            my @plugin_col = qw( name user src_type src dst_type dst sp dp chown chmod timeout pause jobuuid scp_delete deployenv action batches );
             eval{ $api::mysql->execute( sprintf "replace into plugin_scp (`uuid`,%s ) values('$plugin_uuid',%s)",
                     join(',',map{"`$_`"}@plugin_col ), join(',',map{"'$data->{$_}'"}@plugin_col ));};
             return  +{ stat => $JSON::false, info => "$info: insert into plugin_scp fail" } if $@;

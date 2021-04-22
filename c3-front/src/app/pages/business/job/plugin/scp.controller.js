@@ -19,6 +19,8 @@
         $scope.varShow = false;
         $scope.choiceShow = false;
 
+        vm.postdata = { deployenv: 'always', action: 'always', batches: 'always' };
+
         $scope.userShow = false;
         $scope.chownShow = false;
         $scope.dstServerShow = false;
@@ -315,6 +317,9 @@
             }
             $scope.dstDate.timeout = parseInt($scope.dstDate.timeout);
             var post_data = $.extend($scope.dstDate, $scope.copySrcdata);
+            post_data.deployenv = vm.postdata.deployenv;
+            post_data.action = vm.postdata.action;
+            post_data.batches = vm.postdata.batches;
             $uibModalInstance.close(
                 post_data
             );
@@ -325,6 +330,9 @@
         if (editData){
             $scope.editmode = true;
             $scope.dstDate.name = editData.name;
+
+            vm.postdata = { deployenv: editData.deployenv, action: editData.action, batches: editData.batches };
+
             if (editData.src_type == "fileserver"){
                 $scope.shareResult = [{"name":editData.sp}];
                 $scope.copySrcdata.sp = editData.sp;

@@ -50,11 +50,11 @@ return sub
     my $vv = Code->new( 'vv' );
 
     $logs->die( "uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
-    my $x = $db->query( "select user,src,src_type,sp,dst,dst_type,dp,chown,chmod,timeout,pause,scp_delete from plugin_scp where uuid='$uuid'" );
+    my $x = $db->query( "select user,src,src_type,sp,dst,dst_type,dp,chown,chmod,timeout,pause,scp_delete,deployenv,action,batches from plugin_scp where uuid='$uuid'" );
     $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
     $logs->die( "plugin_scp uuid null: $uuid" ) unless @$x;
 
-    my ( $user, $src, $src_type, $sp, $dst, $dst_type, $dp, $chown, $chmod, $timeout, $pause, $scp_delete) = @{$x->[0]};
+    my ( $user, $src, $src_type, $sp, $dst, $dst_type, $dp, $chown, $chmod, $timeout, $pause, $scp_delete, $deployenv, $action, $batches ) = @{$x->[0]};
 
     $logs->die( "taskuuid format error" ) if defined $taskuuid && $taskuuid !~ /^[a-zA-Z0-9]+$/;
     my ( $subtasktimems, $subtaskstarttime ) = ( time, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ) );
