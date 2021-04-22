@@ -62,6 +62,35 @@ return sub
     $logs->die( "plugin_cmd uuid mismatch uuid=$uuid" ) unless @$x;
 
     my ( $user, $node_type, $node_cont, $scripts_type, $scripts_cont, $scripts_argv, $timeout, $pause, $deployenv, $action, $batches ) = @{$x->[0]};
+
+    my %env = Util::envinfo( qw( appname appkey ) );
+    my $ua = LWP::UserAgent->new;
+    $ua->default_header( %env );
+    my $res = $ua->get( "http://api.jobx.open-c3.org/subtask/$projectid/$taskuuid/mystatus" );
+    $logs->die( "get task status from jobx fail" ) unless $res->is_success;
+    my $data = eval{JSON::from_json $res->content};
+    $logs->die( "get task status from jobx fail:". $data->{info} || '' ) unless $data->{stat};
+
+    print YAML::XS::Dump $data->{data};
+
+    $data->{data}{action} ||= 'nofind';
+    $data->{data}{deployenv} ||= 'nofind';
+    $data->{data}{batches} ||= 0;
+    $data->{data}{submitter} ||= 'nofind';
+
+    print "=" x 35, "\n";
+    print "check ...\n";
+    print "expect deployenv: $deployenv; real deployenv:$data->{data}{deployenv}\n";
+    return 'success' if $deployenv eq 'test' && $data->{data}{deployenv} ne 'test';
+    return 'success' if $deployenv eq 'online' && $data->{data}{deployenv} ne 'online';
+      
+    print "expect action: $action; real action:$data->{data}{action}\n";
+    return 'success' if $action eq 'deploy' && $data->{data}{action} ne 'deploy';
+    return 'success' if $action eq 'rollback' && $data->{data}{action} ne 'rollback';
+      
+    print "expect batches: $batches real batches: $data->{data}{batches}\n";
+    return 'success' if $batches eq 'firsttime' && $data->{data}{batches} ne 1;
+
     $logs->die( "user format error" ) unless defined $user && $user =~ /^[a-zA-Z0-9_\-]+$/;
 
     $logs->die( "taskuuid format error" ) if defined $taskuuid && $taskuuid !~ /^[a-zA-Z0-9]+$/;
