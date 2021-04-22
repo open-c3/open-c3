@@ -20,6 +20,8 @@
         $scope.s_timeout = '60';
         vm.s_name = "快速执行脚本-" + $filter('date')(new Date, "yyyyMMddHHmmss") + $filter('date')(new Date, "sss");
 
+        vm.postdata = { deployenv: 'always', action: 'always', batches: 'always' };
+
         treeService.sync.then(function(){      // when the tree was success.
             vm.nodeStr = treeService.selectname();  // get tree name
 
@@ -369,7 +371,10 @@
                 'scripts_type':$scope.scriptType,
                 'scripts_cont': cont,
                 'scripts_argv': $scope.s_argv,
-                'timeout': parseInt($scope.s_timeout)
+                'timeout': parseInt($scope.s_timeout),
+                'deployenv' : vm.postdata.deployenv,
+                'action' : vm.postdata.action,
+                'batches' : vm.postdata.batches
             };
             resoureceService.work.runScript(vm.treeid, post_data, null)
                 .then(function (repo) {

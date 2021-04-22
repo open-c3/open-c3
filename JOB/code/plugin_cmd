@@ -55,13 +55,13 @@ return sub
 
     $logs->die( "uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
 
-    my $x = eval{ $db->query( "select user,node_type,node_cont,scripts_type,scripts_cont,scripts_argv,timeout,pause 
+    my $x = eval{ $db->query( "select user,node_type,node_cont,scripts_type,scripts_cont,scripts_argv,timeout,pause,deployenv,action,batches
             from plugin_cmd where uuid='$uuid'" );};
     $logs->die( "get plugin_cmd info from mysql fail plugin_cmd uuid=$uuid: $@" ) if $@;
     $logs->die( "get plugin_cmd info from mysql fail plugin_cmd uuid=$uuid" ) unless defined $x && ref $x eq 'ARRAY';
     $logs->die( "plugin_cmd uuid mismatch uuid=$uuid" ) unless @$x;
 
-    my ( $user, $node_type, $node_cont, $scripts_type, $scripts_cont, $scripts_argv, $timeout, $pause ) = @{$x->[0]};
+    my ( $user, $node_type, $node_cont, $scripts_type, $scripts_cont, $scripts_argv, $timeout, $pause, $deployenv, $action, $batches ) = @{$x->[0]};
     $logs->die( "user format error" ) unless defined $user && $user =~ /^[a-zA-Z0-9_\-]+$/;
 
     $logs->die( "taskuuid format error" ) if defined $taskuuid && $taskuuid !~ /^[a-zA-Z0-9]+$/;

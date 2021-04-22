@@ -17,6 +17,8 @@
         $scope.scriptType = "shell";
         $scope.scriptUnclick = false;
 
+        vm.postdata = { deployenv: 'always', action: 'always', batches: 'always' };
+
         vm.cancel = function(){ $uibModalInstance.dismiss()};
 
         vm.getAllScript = function () {
@@ -377,12 +379,14 @@
                 'scripts_cont': cont,
                 'scripts_argv': $scope.s_argv,
                 'timeout': parseInt($scope.s_timeout),
-                'pause': $scope.pause
+                'pause': $scope.pause,
+                'deployenv' : vm.postdata.deployenv,
+                'action' : vm.postdata.action,
+                'batches' : vm.postdata.batches
             };
             $uibModalInstance.close(
                 post_data
             );
-
 
         };
 
@@ -474,7 +478,7 @@
             $scope.s_timeout = parseInt(editData.timeout);
             $scope.pause = editData.pause;
 
-
+            vm.postdata = { deployenv: editData.deployenv, action: editData.action, batches: editData.batches };
         }
         if (vm.scriptid){
             $http.get('/api/job/scripts/' + vm.treeid + "/" + vm.scriptid).success(function(data){

@@ -121,7 +121,7 @@ get '/jobs/:projectid/:jobuuid' => sub {
 
     if( $hash{cmd} )
     {
-        my @colcmd = qw( uuid name user node_type node_cont scripts_type scripts_cont scripts_argv timeout pause );
+        my @colcmd = qw( uuid name user node_type node_cont scripts_type scripts_cont scripts_argv timeout pause deployenv action batches );
         my $rcmd = eval{ 
             $api::mysql->query( 
                 sprintf( "select %s from plugin_cmd
@@ -205,7 +205,7 @@ post '/jobs/:projectid/copy/byname' => sub {
         my $plugin_uuid = uuid->new()->create_str;
         if( $type eq 'cmd' )
         {
-            my @plugin_col = qw( name user node_type node_cont scripts_type scripts_cont scripts_argv timeout pause jobuuid );
+            my @plugin_col = qw( name user node_type node_cont scripts_type scripts_cont scripts_argv timeout pause jobuuid deployenv action batches );
             eval{ $api::mysql->execute( sprintf "insert into plugin_cmd (`uuid`,%s ) select '$plugin_uuid',name,user,node_type,node_cont,scripts_type,scripts_cont,scripts_argv,timeout,pause,'$touuid' from plugin_cmd where uuid='$uuid' and jobuuid='$fromuuid'", join(',',map{"`$_`"}@plugin_col ));};
             return  +{ stat => $JSON::false, info => "insert into plugin_cmd fail. $@" } if $@;
             push @step, "cmd_$plugin_uuid";
@@ -470,7 +470,7 @@ post '/jobs/:projectid' => sub {
 
         if( $data->{plugin_type} eq 'cmd' )
         {
-            my @plugin_col = qw( name user node_type node_cont scripts_type scripts_cont scripts_argv timeout pause jobuuid );
+            my @plugin_col = qw( name user node_type node_cont scripts_type scripts_cont scripts_argv timeout pause jobuuid deployenv action batches );
             eval{ $api::mysql->execute( sprintf "insert into plugin_cmd (`uuid`,%s ) values('$plugin_uuid',%s)",
                     join(',',map{"`$_`"}@plugin_col ), join(',',map{"'$data->{$_}'"}@plugin_col ));};
             return  +{ stat => $JSON::false, info => "$info: insert into plugin_cmd fail. $@" } if $@;
@@ -750,7 +750,7 @@ post '/jobs/:projectid/:jobuuid' => sub {
 
         if( $data->{plugin_type} eq 'cmd' )
         {
-            my @plugin_col = qw( name user node_type node_cont scripts_type scripts_cont scripts_argv timeout pause jobuuid );
+            my @plugin_col = qw( name user node_type node_cont scripts_type scripts_cont scripts_argv timeout pause jobuuid deployenv action batches );
             eval{ $api::mysql->execute( sprintf "replace into plugin_cmd (`uuid`,%s ) values('$plugin_uuid',%s)",
                     join(',',map{"`$_`"}@plugin_col ), join(',',map{"'$data->{$_}'"}@plugin_col ));};
             return  +{ stat => $JSON::false, info => "$info: insert into plugin_cmd fail" } if $@;

@@ -410,7 +410,7 @@ post '/task/:projectid/plugin_cmd' => sub {
     $param->{timeout} ||= 60;
 
     my $plugin_uuid = uuid->new()->create_str;
-    my @plugin_col = qw( name user node_type node_cont scripts_type scripts_cont scripts_argv timeout );
+    my @plugin_col = qw( name user node_type node_cont scripts_type scripts_cont scripts_argv timeout deployenv action batches );
     eval{ $api::mysql->execute( sprintf "insert into plugin_cmd (`uuid`,%s ) values('$plugin_uuid',%s)",
             join(',',map{"`$_`"}@plugin_col ), join(',',map{"'$param->{$_}'"}@plugin_col ));};
     return  +{ stat => $JSON::false, info => "insert into plugin_cmd fail" } if $@;
