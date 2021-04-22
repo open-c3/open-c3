@@ -49,6 +49,13 @@ return sub
     $logs = Logs->new( 'code.plugin_scp' ) unless $logs;
     my $vv = Code->new( 'vv' );
 
+    if( $taskuuid )
+    {
+        open STDOUT, '>>', "$RealBin/../logs/task/${taskuuid}${uuid}scp" 
+            or $logs->die( "Can't open 'logs/task/${taskuuid}${uuid}scp': $!" );
+        open (STDERR, ">&STDOUT") || $logs->die( "open STDERR failed: $uuid" );
+    }
+
     $logs->die( "uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
     my $x = $db->query( "select user,src,src_type,sp,dst,dst_type,dp,chown,chmod,timeout,pause,scp_delete,deployenv,action,batches from plugin_scp where uuid='$uuid'" );
     $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
@@ -58,6 +65,34 @@ return sub
 
     $logs->die( "taskuuid format error" ) if defined $taskuuid && $taskuuid !~ /^[a-zA-Z0-9]+$/;
     my ( $subtasktimems, $subtaskstarttime ) = ( time, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ) );
+
+    my %env = Util::envinfo( qw( appname appkey ) );
+    my $ua = LWP::UserAgent->new;
+    $ua->default_header( %env );
+    my $res = $ua->get( "http://api.jobx.open-c3.org/subtask/$projectid/$taskuuid/mystatus" );
+    $logs->die( "get task status from jobx fail" ) unless $res->is_success;
+    my $data = eval{JSON::from_json $res->content};
+    $logs->die( "get task status from jobx fail:". $data->{info} || '' ) unless $data->{stat};
+
+    print YAML::XS::Dump $data->{data};
+
+    $data->{data}{action} ||= 'nofind';
+    $data->{data}{deployenv} ||= 'nofind';
+    $data->{data}{batches} ||= 0;
+    $data->{data}{submitter} ||= 'nofind';
+
+    print "=" x 35, "\n";
+    print "check ...\n";
+    print "expect deployenv: $deployenv; real deployenv:$data->{data}{deployenv}\n";
+    return 'success' if $deployenv eq 'test' && $data->{data}{deployenv} ne 'test';
+    return 'success' if $deployenv eq 'online' && $data->{data}{deployenv} ne 'online';
+      
+    print "expect action: $action; real action:$data->{data}{action}\n";
+    return 'success' if $action eq 'deploy' && $data->{data}{action} ne 'deploy';
+    return 'success' if $action eq 'rollback' && $data->{data}{action} ne 'rollback';
+      
+    print "expect batches: $batches real batches: $data->{data}{batches}\n";
+    return 'success' if $batches eq 'firsttime' && $data->{data}{batches} ne 1;
 
     my ( @src, @dst );
 
@@ -193,13 +228,6 @@ return sub
     $filename = basename $sp unless defined $filename;
     $dp = "$dp$filename" if $dp =~ m#/$# && $sp !~ m#/$#;
 
-    if( $taskuuid )
-    {
-        open STDOUT, '>>', "$RealBin/../logs/task/${taskuuid}${uuid}scp" 
-            or $logs->die( "Can't open 'logs/task/${taskuuid}${uuid}scp': $!" );
-        open (STDERR, ">&STDOUT") || $logs->die( "open STDERR failed: $uuid" );
-
-    }
 
     if( $taskuuid && $fromjob )
     {
