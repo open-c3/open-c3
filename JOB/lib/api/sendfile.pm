@@ -57,6 +57,10 @@ post '/sendfile/unlink/:projectid' => sub {
     my $pmscheck = api::pmscheck( 'openc3_job_write', $param->{projectid} ); return $pmscheck if $pmscheck;
     my ( $host, $path ) = split /\//, $param->{path}, 2;
 
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+    eval{ $api::auditlog->run( user => $user, title => 'UNLINK FILE', content => "TREEID:$param->{projectid} SUDO:$param->{sudo} PATH:$param->{path}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my %env = Util::envinfo( qw( appname appkey ) );
 
     my @x = `MYDan_Agent_Proxy_Addr=http://api.agent.open-c3.org/proxy/$param->{projectid} MYDan_Agent_Proxy_Header="appname:$env{appname},appkey:$env{appkey}" /data/Software/mydan/dan/tools/rcall --sudo '$param->{sudo}' -r '$host' exec 'rm "/$path"' --verbose 2>&1`;
