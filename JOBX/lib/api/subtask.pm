@@ -40,7 +40,7 @@ get '/subtask/:projectid/:subtaskuuid/mystatus' => sub {
     my @col = qw( id parent_uuid uuid );
     my $r = eval{ 
         $api::mysql->query(
-            sprintf( "select %s from subtask where parent_uuid in ( select parent_uuid from subtask where uuid='$param->{subtaskuuid}' ) order by id",
+            sprintf( "select %s from subtask where binary parent_uuid in ( select parent_uuid from subtask where uuid='$param->{subtaskuuid}' ) order by id",
                     join ',',@col ), \@col )};
     return +{ stat => $JSON::false, info => $@ } if $@;
 
