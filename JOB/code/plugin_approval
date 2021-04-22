@@ -69,7 +69,7 @@ return sub
     my $data = eval{JSON::from_json $res->content};
     $logs->die( "get task status from jobx fail:". $data->{info} || '' ) unless $data->{stat};
 
-    print Dumper $data;
+    print YAML::XS::Dump $data->{data};
 
     $data->{data}{action} ||= 'nofind';
     $data->{data}{deployenv} ||= 'nofind';
@@ -87,22 +87,18 @@ return sub
 
     my ( $jobuuid, $name, $cont, $approver, $deployenv, $action, $batches, $everyone, $timeout, $pause ) = @{$x->[0]};
  
-    print "check deployenv\n";
+    print "=" x 35, "\n";
+    print "check ...\n";
     print "expect deployenv: $deployenv; real deployenv:$data->{data}{deployenv}\n";
 
     return 'success' if $deployenv eq 'test' && $data->{data}{deployenv} ne 'test';
     return 'success' if $deployenv eq 'online' && $data->{data}{deployenv} ne 'online';
       
-    print "check action\n";
     print "expect action: $action; real action:$data->{data}{action}\n";
-
     return 'success' if $action eq 'deploy' && $data->{data}{action} ne 'deploy';
     return 'success' if $action eq 'rollback' && $data->{data}{action} ne 'rollback';
       
-
-    print "check batches\n";
     print "expect batches: $batches real batches: $data->{data}{batches}\n";
-
     return 'success' if $batches eq 'firsttime' && $data->{data}{batches} ne 1;
 
     $timeout ||= 86400;
