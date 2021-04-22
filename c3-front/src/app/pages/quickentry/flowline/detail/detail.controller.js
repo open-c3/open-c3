@@ -454,6 +454,23 @@
 
         vm.getVersion();
 
+        vm.lastversion = {};
+        vm.getLastVersion = function () {
+            $http.get('/api/jobx/flowline_version/' + vm.projectid ).then(
+                function successCallback(response) {
+                    if (response.data.stat) {
+                        vm.lastversion = response.data.data;
+                    }else{
+                        toastr.error( "获取作业信息失败：" + response.data.info )
+                    };
+                });
+                function errorCallback(response) {
+                    toastr.error( "获取作业信息失败：" + response.status )
+                }
+        };
+
+
+        vm.getLastVersion();
 
         vm.showVersions = function (data) {
             var data_info = JSON.stringify(data);
