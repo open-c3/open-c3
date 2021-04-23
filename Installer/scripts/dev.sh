@@ -90,6 +90,12 @@ function start() {
         rm -rf $BASE_PATH/c3-front/dist
         docker run -it -v /data/open-c3/c3-front/:/code openc3/gulp bower install --allow-root
         docker run -it -v /data/open-c3/c3-front/:/code openc3/gulp gulp build
+        
+        frontendstyleisjuyun=$(grep '^frontendstyle: juyun' $BASE_PATH/Connector/config.inix | wc -l)
+        if [ "X$frontendstyleisjuyun" == "X1" ];then
+            sed -i 's/openc3_style_ctrl=\\"[a-zA-Z0-9]*\\"/openc3_style_ctrl=\\"juyun\\"/g' $BASE_PATH/c3-front/dist/scripts/*
+        fi
+
         cd $BASE_PATH/c3-front/dist && git clone https://github.com/open-c3/open-c3.github.io book
 
         git log --pretty=format:'%ai - %s' |grep -v 'Merge branch' > $BASE_PATH/Connector/.versionlog

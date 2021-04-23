@@ -1,9 +1,14 @@
-<header class="navbar navbar-fixed-top bg-danger">
-
-    <div class="navbar-branding">
+<header ng-init='openc3color={ "openc3": "#f63", "juyun": "#24293e" };openc3_style_ctrl="openc3"' style="background-color: {{openc3color[openc3_style_ctrl]}} !important" class="navbar navbar-fixed-top bg-danger">
+    <div ng-if="openc3_style_ctrl == 'openc3'" class="navbar-branding">
         <a class="navbar-brand" ui-sref="home.dashboard({treeid: -1})">
             <img src="/assets/images/open-c3-logo.jpeg"/>
             <span>OPEN-C3</span>
+        </a>
+    </div>
+    <div ng-if="openc3_style_ctrl == 'juyun'" class="navbar-branding">
+        <a class="navbar-brand" ui-sref="home.dashboard({treeid: -1})">
+            <img style="width: 110px" src="/assets/images/juyun-logo.jpeg"/>
+            <span style="font-size: 10px;" >OPEN-C3</span>
         </a>
     </div>
 
