@@ -97,7 +97,14 @@
                 controllerAs: 'historyjobxdetail',
                 params:{"taskuuid":null, "accesspage":null}
             })
-//ci
+
+            .state('home.quickentry.smallapplication', {
+                url: 'smallapplication/:treeid',
+                templateUrl: 'app/pages/quickentry/smallapplication/smallapplication.html',
+                controller: 'SmallApplicationController',
+                controllerAs: 'smallapplication'
+            })
+ 
             .state('home.quickentry.flowline', {
                 url: 'flowline/:treeid',
                 templateUrl: 'app/pages/quickentry/flowline/flowline.html',
