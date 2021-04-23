@@ -384,4 +384,17 @@ create table `vv`(
 UNIQUE KEY `uniq_projectnodename` (`projectid`,`node`,`name`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='版本变量数据';
 
+create table `smallapplication`(
+`id` int(32) unsigned not null primary key auto_increment comment 'id',
+`jobid` VARCHAR(20) comment '作业ID',
+`type` VARCHAR(100) comment '分类',
+`title` VARCHAR(1000) comment '标题',
+`describe` VARCHAR(1000) comment '描述',
+`parameter` VARCHAR(1000) comment '描述',
+`edit_user` VARCHAR(100) comment '最后编辑用户',
+`create_user` VARCHAR(100) comment '创建者',
+`edit_time` TIMESTAMP NOT NULL DEFAULT '1971-01-01 00:00:00' comment '最后编辑时间',
+`create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP comment '更新时间',
+UNIQUE KEY `uniq_jobid` (`jobid`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='轻应用';
 

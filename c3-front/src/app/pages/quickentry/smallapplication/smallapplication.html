@@ -12,16 +12,23 @@
 
         <div class="panel-body">
             <div class="pt20" style="overflow: auto;">
-                <table ng-table="smallapplication.activeRegionTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
+                <table ng-table="smallapplication.dataTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
                         <td width="60" class="textcenter" data-title="'ID'" filter="{ id: 'text'}" sortable="'id'"> {{m.id}} </td>
                         <td data-title="'类型'" width="80" filter="{ type: 'text'}" sortable="'type'">{{m.type}}</td>
-                        <td data-title="'名称'" width="80" filter="{ name: 'text'}" sortable="'name'">{{m.name}}</td>
+                        <td data-title="'名称'" width="80" filter="{ title: 'text'}" sortable="'title'">{{m.title}}</td>
                         <td data-title="'描述'" width="80" filter="{ describe: 'text'}" sortable="'describe'">{{m.describe}}</td>
-                        <td data-title="'操作'" width="80" ></td>
+                        <td data-title="'创建人'" width="80" filter="{ create_user: 'text'}" sortable="'create_user'">{{m.create_user}}</td>
+                        <td data-title="'最后编辑人'" width="80" filter="{ edit_user: 'text'}" sortable="'edit_user'">{{m.edit_user}}</td>
+                        <td data-title="'创建时间'" width="80" filter="{ create_time: 'text'}" sortable="'create_time'">{{m.create_time}}</td>
+                        <td data-title="'最后更新时间'" width="80" filter="{ edit_time: 'text'}" sortable="'edit_time'">{{m.edit_time}}</td>
+                        <!--<td data-title="'操作'" width="80" >
+                            <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="smallapplicationedit.deleteSmallApplication(m.id)" uib-tooltip="删除" style="cursor:pointer;color: red;" ></i>
+                        </td> -->
                     </tr>
                 </table>
             </div>
         </div>
+
     </div>
 </div>

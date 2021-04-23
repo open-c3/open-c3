@@ -6,26 +6,17 @@
         .controller('SmallApplicationController', SmallApplicationController);
 
     /** @ngInject */
-    function SmallApplicationController( $state, $http, $scope ) {
+    function SmallApplicationController( $state, $http, $scope, ngTableParams ) {
 
         var vm = this;
 
         vm.reload = function () {
             vm.loadover = false
-            $http.get('/api/job/environment').then(
+            $http.get('/api/job/smallapplication').then(
                 function successCallback(response) {
                     if (response.data.stat){
-                        var data_dict = response.data.data;
-                         vm.loadover = true
-
-                        angular.forEach(data_dict, function (v, k) {
-                            if (v == "true"){
-                                v =true
-                            }else {
-                                v = false;
-                            }
-                            $scope[k] = Boolean(v);
-                        });
+                        vm.dataTable = new ngTableParams({count:100}, {counts:[],data:response.data.data});
+                        vm.loadover = true
                     }else {
                         swal('获取信息失败', response.data.info, 'error' );
                     }
