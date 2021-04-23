@@ -105,6 +105,13 @@
                 controllerAs: 'smallapplication'
             })
  
+            .state('home.quickentry.smallapplicationedit', {
+                url: 'smallapplicationedit/:treeid',
+                templateUrl: 'app/pages/quickentry/smallapplication/edit.html',
+                controller: 'SmallApplicationEditController',
+                controllerAs: 'smallapplicationedit'
+            })
+ 
             .state('home.quickentry.flowline', {
                 url: 'flowline/:treeid',
                 templateUrl: 'app/pages/quickentry/flowline/flowline.html',
