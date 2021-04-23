@@ -90,6 +90,13 @@
                 controllerAs: 'runtask'
             })
 
+            .state('home.quickentry.runtasksa', {
+                url: 'runtasksa/:treeid/:jobid',
+                templateUrl: 'app/pages/quickentry/runtask/runtask.html',
+                controller: 'RunTaskController',
+                controllerAs: 'runtask'
+            })
+
             .state('home.history.jobxdetail', {
                 url: 'jobxdetail/:treeid/:taskuuid',
                 templateUrl: 'app/pages/history/jobx/detail/detail.html',

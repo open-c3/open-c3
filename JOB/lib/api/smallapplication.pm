@@ -19,8 +19,8 @@ use Format;
 #edit_time
 #
 get '/smallapplication' => sub {
-    my @col = qw( id jobid type title describe parameter create_user edit_user edit_time create_time );
-    my $r = eval{ $api::mysql->query( sprintf( "select %s from smallapplication order by id", join( ',', map{"`$_`"}@col) ), \@col )};
+    my @col = qw( id jobid type title describe parameter edit_user create_user edit_time create_time projectid );
+    my $r = eval{ $api::mysql->query( "select smallapplication.*,jobs.projectid from smallapplication, jobs where jobs.id=smallapplication.jobid order by id", \@col )};
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
 
