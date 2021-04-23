@@ -94,6 +94,8 @@ function start() {
         frontendstyleisjuyun=$(grep '^frontendstyle: juyun' $BASE_PATH/Connector/config.inix | wc -l)
         if [ "X$frontendstyleisjuyun" == "X1" ];then
             sed -i 's/openc3_style_ctrl=\\"[a-zA-Z0-9]*\\"/openc3_style_ctrl=\\"juyun\\"/g' $BASE_PATH/c3-front/dist/scripts/*
+            sed -i 's/#f63/#24293e/g' $BASE_PATH/c3-front/dist/styles/*
+            sed -i 's/#e52/#293fbb/g' $BASE_PATH/c3-front/dist/styles/*
         fi
 
         cd $BASE_PATH/c3-front/dist && git clone https://github.com/open-c3/open-c3.github.io book
