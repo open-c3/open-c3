@@ -5,7 +5,7 @@
         .module('openc3')
         .controller('scriptJobController', scriptJobController);
 
-    function scriptJobController($scope,$filter, $state, $http,$window,$uibModal,$uibModalInstance, $timeout,treeService,resoureceService,treeId, editData) {
+    function scriptJobController($scope,$filter, $state, $http,$window,$uibModal,$uibModalInstance, $timeout,treeService,resoureceService,treeId, editData, jobName) {
         var vm = this;
 
         $scope.dataready = true;
@@ -16,6 +16,7 @@
         $scope.s_timeout = '60';
         $scope.scriptType = "shell";
         $scope.scriptUnclick = false;
+        if (jobName){$scope.s_name = jobName+"_脚本"};
 
         vm.cancel = function(){ $uibModalInstance.dismiss()};
 

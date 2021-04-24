@@ -100,7 +100,8 @@
                 bindToController: true,
                 resolve: {
                     treeId: function () { return vm.treeid},
-                    editData : function () {return ""}
+                    editData : function () {return ""},
+                    jobName: function () {return "流水线"}
                 }
             });
 
@@ -129,7 +130,8 @@
                 bindToController: true,
                 resolve: {
                     treeId: function () { return vm.treeid},
-                    editData : function () {return ""}
+                    editData : function () {return ""},
+                    jobName: function () {return "流水线"}
                 }
             });
 
@@ -158,7 +160,8 @@
                 bindToController: true,
                 resolve: {
                     treeId: function () { return vm.treeid},
-                    editData : function () {return ""}
+                    editData : function () {return ""},
+                    jobName: function () {return "流水线"}
                 }
             }); 
 
@@ -189,7 +192,8 @@
                 bindToController: true,
                 resolve: {
                     treeId: function () { return vm.treeid},
-                    editData : function () {return editData}
+                    editData : function () {return editData},
+                    jobName: function () {return ""}
                 }
             }); 
 
@@ -214,7 +218,8 @@
                 bindToController: true,
                 resolve: {
                     treeId: function () { return vm.treeid},
-                    editData : function () {return editData}
+                    editData : function () {return editData},
+                    jobName: function () {return ""}
                 }
             }); 
 
@@ -239,7 +244,8 @@
                 bindToController: true,
                 resolve: {
                     treeId: function () {return vm.treeid},
-                    editData : function () {return editData}
+                    editData : function () {return editData},
+                    jobName: function () {return ""}
                 }
             });
 
