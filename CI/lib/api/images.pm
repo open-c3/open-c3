@@ -73,8 +73,27 @@ post '/images' => sub {
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
 
     eval{ 
-        $api::mysql->execute( "insert into images (`name`, `share`,`describe`,`edit_user`,`create_user`,`edit_time`,`create_time` ) values( '$param->{name}', '$share', '$param->{describe}', '$user', '$user', '$time', '$time' )");
+        $api::mysql->execute( "insert into images (`name`, `share`,`describe`,`edit_user`,`create_user`,`edit_time`,`create_time` )
+            values( '$param->{name}', '$share', '$param->{describe}', '$user', '$user', '$time', '$time' )");
     };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
+    my $path = "/data/glusterfs/dockerimage";
+    mkdir $path unless -d $path;
+
+    my $ids = eval{ $api::mysql->query( "select id,name from images where name='$param->{name}'" )};
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
+    for my $id ( map{ $_->[0] }grep{ $_->[1] =~ /^\d+\.\d+\.\d+\.\d+$/ }@$ids )
+    {
+        my $temppath = "$path/$id.key";
+        mkdir $temppath unless -d $temppath;
+
+        next if -f "$temppath/c3_ci_$id.key";
+
+        return +{ stat => $JSON::false, info => "ssh-keygen fail:$!" }
+            if system "cd '$temppath' && rm -f c3_ci_* && ssh-keygen -f c3_ci_$id -P \"\" && mv c3_ci_$id c3_ci_$id.key";
+    }
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
@@ -97,6 +116,23 @@ post '/images/:imagesid' => sub {
 
     my $share = $param->{share} && $param->{share} eq 'true' ? $company : '';
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
+
+    if( $param->{name} =~ /^\d+\.\d+\.\d+\.\d+$/ )
+    {
+        my $id = $param->{imagesid};
+
+        my $path = "/data/glusterfs/dockerimage";
+        mkdir $path unless -d $path;
+
+        my $temppath = "$path/$id.key";
+        mkdir $temppath unless -d $temppath;
+
+        unless ( -f "$temppath/c3_ci_$id.key" )
+        {
+            return +{ stat => $JSON::false, info => "ssh-keygen fail:$!" }
+                if system "cd '$temppath' && rm -f c3_ci_* && ssh-keygen -f c3_ci_$id -P \"\" && mv c3_ci_$id c3_ci_$id.key";
+        }
+    }
 
     my $update = eval{ 
         $api::mysql->execute( "update images set name='$param->{name}',share='$share',`describe`='$param->{describe}',edit_user='$user',edit_time='$time' where id=$param->{imagesid} and create_user='$user'" );
