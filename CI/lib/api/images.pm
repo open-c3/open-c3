@@ -54,6 +54,21 @@ get '/images/:imagesid' => sub {
     return +{ stat => $JSON::true, data => $r->[0] || +{} };
 };
 
+get '/images/:imagesid/sshkey.pub' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        imagesid => qr/^\d+$/, 1,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $path = "/data/glusterfs/dockerimage/$param->{imagesid}.key/c3_ci_$param->{imagesid}.pub";
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } unless -f $path;
+
+    my $c = `cat '$path'`;
+    return $c;
+};
+
 post '/images' => sub {
     my $param = params();
     my $error = Format->new( 
