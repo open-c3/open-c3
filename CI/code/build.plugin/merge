@@ -27,9 +27,9 @@ return sub
 
     $logs->die( "uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
 
-    my $x = eval{ $db->query( "select project.id,project.buildimage,project.buildscripts
-            from version,project where project.id=version.projectid and uuid='$uuid'", 
-            [qw( projectid buildimage buildscripts )]  );
+    my $x = eval{ $db->query( "select project.id,project.buildimage,project.buildscripts,images.name
+        from version,project left join images on project.buildimage=images.id where project.id=version.projectid and uuid='$uuid'", 
+            [qw( projectid buildimage buildscripts imagename )]  );
     };
     $logs->die( "get info fail:$@" ) if $@;
     $logs->die( "get info from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';

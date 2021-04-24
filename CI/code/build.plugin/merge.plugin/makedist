@@ -12,19 +12,19 @@ $| ++;
     db => $mysql,
     logs => 日志对象
 
-    #temp uuid buildimage buildscripts projectid
+    #temp uuid buildimage buildscripts projectid imagename
 =cut
 
 return sub
 {
     my %param = @_;
 
-    my ( $db, $logs, $temp, $uuid, $buildimage, $buildscripts, $projectid ) 
-        = @param{qw(db logs temp uuid buildimage buildscripts projectid  )};
+    my ( $db, $logs, $temp, $uuid, $buildimage, $buildscripts, $projectid, $imagename ) 
+        = @param{qw(db logs temp uuid buildimage buildscripts projectid imagename )};
 
     $logs = Logs->new( 'code.build.merge.makedist' ) unless $logs;
 
-    my $type = $buildimage ? $buildimage =~ /^\d+\.\d+\.\d+\.\d+$/ ? 'remote': 'docker' : 'local';
+    my $type = $buildimage ? ( $imagename && $imagename =~ /^\d+\.\d+\.\d+\.\d+$/ ) ? 'remote': 'docker' : 'local';
  	eval{ Code->new( "build.plugin/merge.plugin/makedist.plugin/$type" )->run( %param ); };
     $logs->die( "run build.merge.makedist.$type fail:$@" ) if $@;
 }

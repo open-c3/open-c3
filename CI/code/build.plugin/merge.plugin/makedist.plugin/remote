@@ -13,15 +13,15 @@ $| ++;
     db => $mysql,
     logs => 日志对象
 
-    #temp uuid buildimage buildscripts projectid
+    #temp uuid buildimage buildscripts projectid imagename
 =cut
 
 return sub
 {
     my %param = @_;
 
-    my ( $db, $logs, $temp, $uuid, $buildimage, $buildscripts, $projectid ) 
-        = @param{qw(db logs temp uuid buildimage buildscripts projectid )};
+    my ( $db, $logs, $temp, $uuid, $buildimage, $buildscripts, $projectid, $imagename ) 
+        = @param{qw(db logs temp uuid buildimage buildscripts projectid imagename )};
 
     $logs = Logs->new( 'code.build.merge.makedist.remote' ) unless $logs;
 
@@ -34,17 +34,18 @@ return sub
 
     my $run = Temp->new( chmod => 0755 )->dump( $runcont );
 
-    my $remotepath = "/data/wkci/$uuid";
+    my $remotepath = "/data/open-c3-ci/$uuid";
+    print "build path: $imagename\@$remotepath\n";
 
     map{
-        $logs->die( "run build.merge.makedist.remote fail:$!" ) if system $_;       
+        $logs->die( "run build.merge.makedist.remote fail:$!" ) if system $_;
     }(
         "mv '$run' '$temppath/run'",
-	    "cd '$temppath' && tar -zcvf ciTempData.tar.gz *",
-	    "$MYDan::PATH/dan/tools/rcall -r '$buildimage' dump $temppath/ciTempData.tar.gz --path '$remotepath/ciTempData.tar.gz'",
-	    "$MYDan::PATH/dan/tools/rcall -r '$buildimage' exec 'cd $remotepath && tar -m -zxvf ciTempData.tar.gz &&CIPATH='$remotepath' ./run && tar -zcvf dist.tar.gz dist'",
-	    "$MYDan::PATH/dan/tools/load -h '$buildimage' --sp '$remotepath/dist.tar.gz' --dp '$temppath/dist.tar.gz'",
-	    "cd '$temppath' && tar -m -zxvf dist.tar.gz",
+        "cd '$temppath' && tar -zcvf openc3TempData.tar.gz *",
+        "$MYDan::PATH/dan/tools/rcall -r '$imagename' dump $temppath/openc3TempData.tar.gz --path '$remotepath/openc3TempData.tar.gz'",
+        "$MYDan::PATH/dan/tools/rcall -r '$imagename' exec 'cd $remotepath && tar -m -zxvf openc3TempData.tar.gz &&OPENC3CIPATH='$remotepath' ./run && tar -zcvf dist.tar.gz dist'",
+        "$MYDan::PATH/dan/tools/load -h '$imagename' --sp '$remotepath/dist.tar.gz' --dp '$temppath/dist.tar.gz'",
+        "cd '$temppath' && tar -m -zxvf dist.tar.gz",
     );
 
     $logs->die( "run build.merge.makedist.docker fail:The dist is not a directory" ) unless -d "$temppath/dist";
