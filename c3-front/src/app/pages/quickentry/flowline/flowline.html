@@ -26,12 +26,11 @@
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="cigroup.activeRegionTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td width="60" class="textcenter" data-title="'ID'" filter="{ id: 'text'}" sortable="'id'">
+                        <td width="60" data-title="'名称'" filter="{ name: 'text'}" sortable="'name'">
                             <i class="fa fa-star-o fa-1x" aria-hidden="true"  ng-if="!m.favorites" ng-click="cigroup.addToFavorites(m.id,m.name)" uib-tooltip="收藏" style="cursor:pointer;color: #339094;font-size: 18px;" ></i>
                             <i class="fa fa-star fa-1x" aria-hidden="true"  ng-if="m.favorites" ng-click="cigroup.delToFavorites(m.id,m.name)" uib-tooltip="取消收藏" style="cursor:pointer;color: #339094;font-size: 18px;" ></i>
-                            {{m.id}}
+                            {{m.name}}
                         </td>
-                        <td data-title="'名称'" width="80" filter="{ name: 'text'}" sortable="'name'">{{m.name}}</td>
                         <td data-title="'别名'" width="80" filter="{ alias: 'text'}" sortable="'alias'">{{m.alias}}</td>
                         <td data-title="'构建状态'">
                                 <div class="panel panel-info" ng-if="m.lastbuild.status" style="cursor:pointer;margin: 0 0 0 " ng-click="cigroup.showlog(m.lastbuild.uuid, m.lastbuild.slave)">
