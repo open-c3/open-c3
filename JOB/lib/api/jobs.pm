@@ -206,14 +206,14 @@ post '/jobs/:projectid/copy/byname' => sub {
         if( $type eq 'cmd' )
         {
             my @plugin_col = qw( name user node_type node_cont scripts_type scripts_cont scripts_argv timeout pause jobuuid deployenv action batches );
-            eval{ $api::mysql->execute( sprintf "insert into plugin_cmd (`uuid`,%s ) select '$plugin_uuid',name,user,node_type,node_cont,scripts_type,scripts_cont,scripts_argv,timeout,pause,'$touuid' from plugin_cmd where uuid='$uuid' and jobuuid='$fromuuid'", join(',',map{"`$_`"}@plugin_col ));};
+            eval{ $api::mysql->execute( sprintf "insert into plugin_cmd (`uuid`,%s ) select '$plugin_uuid',name,user,node_type,node_cont,scripts_type,scripts_cont,scripts_argv,timeout,pause,'$touuid',deployenv,action,batches from plugin_cmd where uuid='$uuid' and jobuuid='$fromuuid'", join(',',map{"`$_`"}@plugin_col ));};
             return  +{ stat => $JSON::false, info => "insert into plugin_cmd fail. $@" } if $@;
             push @step, "cmd_$plugin_uuid";
         }
         elsif( $type eq 'scp' )
         {
             my @plugin_col = qw( name user src_type src dst_type dst sp dp chown chmod timeout pause jobuuid scp_delete deployenv action batches );
-            eval{ $api::mysql->execute( sprintf "insert into plugin_scp (`uuid`,%s ) select '$plugin_uuid',name,user,src_type,src,dst_type,dst,sp,dp,chown,chmod,timeout,pause,'$touuid',scp_delete from plugin_scp where uuid='$uuid' and jobuuid='$fromuuid'", join(',',map{"`$_`"}@plugin_col ));};
+            eval{ $api::mysql->execute( sprintf "insert into plugin_scp (`uuid`,%s ) select '$plugin_uuid',name,user,src_type,src,dst_type,dst,sp,dp,chown,chmod,timeout,pause,'$touuid',scp_delete,deployenv,action,batches from plugin_scp where uuid='$uuid' and jobuuid='$fromuuid'", join(',',map{"`$_`"}@plugin_col ));};
             return  +{ stat => $JSON::false, info => "insert into plugin_scp fail. $@" } if $@;
             push @step, "scp_$plugin_uuid";
         }
