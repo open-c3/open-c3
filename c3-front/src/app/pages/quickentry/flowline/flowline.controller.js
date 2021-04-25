@@ -71,12 +71,14 @@
             });
         };
 
+        vm.flowlinecount = 0;
         vm.reload = function(){
             vm.loadover = false;
             $http.get('/api/ci/group/' + vm.treeid ).success(function(data){
                 if(data.stat == true) 
                 { 
                     vm.activeRegionTable = new ngTableParams({count:20}, {counts:[],data:data.data.reverse()});
+                    vm.flowlinecount = data.data.length
                     vm.loadover = true;
                 } else { 
                     toastr.error( "加载版本失败:" + data.info )
