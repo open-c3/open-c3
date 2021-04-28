@@ -86,6 +86,24 @@ return sub
     $logs->die( "plugin_approval uuid mismatch uuid=$uuid" ) unless @$x;
 
     my ( $jobuuid, $name, $cont, $approver, $deployenv, $action, $batches, $everyone, $timeout, $pause ) = @{$x->[0]};
+
+    if ($jobuuid){
+        my $x = eval{ $db->query( "select name,value from variable  where jobuuid='$jobuuid'" );};
+        die( "get variable fail:$@" ) if $@;
+        die( "get variable fail" ) unless defined $x && ref $x eq 'ARRAY';
+        my %var_map = map{ $_->[0] => $_->[1] }@$x;
+        while((my $k, my $v) = each(%var_map)){
+            if ($v){
+                $cont =~ s/\$\{\Q$k\E\}/\Q$v\E/g;
+            }
+        }
+
+        my $temp_variable = $db->query( "select variable from task where uuid='$taskuuid'" );
+        my $temp_var_map = YAML::XS::Load decode_base64( $temp_variable->[0][0] );
+        while((my $k, my $v) = each (%{$temp_var_map})){
+            $cont =~ s/\$\{\Q$k\E\}/\Q$v\E/g;
+        }
+    }
  
     print "=" x 35, "\n";
     print "check ...\n";

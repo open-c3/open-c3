@@ -444,6 +444,7 @@ post '/jobs/:projectid' => sub {
         }
         elsif( $data->{plugin_type} eq 'approval' )
         {
+            while($data->{cont}=~/\$\{(.+?)\}/mg) { push @variable,'$'.$1;}
             $error = Format->new( 
                 name => [ 'mismatch', qr/'/ ], 1, 
                 cont => [ 'mismatch', qr/'/ ], 1, 
@@ -723,6 +724,7 @@ post '/jobs/:projectid/:jobuuid' => sub {
         }
         elsif( $data->{plugin_type} eq 'approval' )
         {
+            while($data->{cont}=~/\$\{(.+?)\}/mg) { push @variable,'$'.$1;}
             $error = Format->new( 
                 name => [ 'mismatch', qr/'/ ], 1, 
                 cont => [ 'mismatch', qr/'/ ], 1, 
