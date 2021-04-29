@@ -23,14 +23,14 @@ return sub
     my %time;
 
     $SIG{'CHLD'} = sub {
-		while((my $pid = waitpid(-1, WNOHANG)) >0)
-		{
-			my $code = ( $? == -1 || $? & 127 ) ? 110 : $? >> 8;
-			print "chld: $pid exit $code.\n";;
-		}
-	};
-    my @num_list = (0,10,20,30,40,50);
-    my $num;
+        while( ( my $pid = waitpid(-1, WNOHANG) ) >0)
+        {
+            my $code = ( $? == -1 || $? & 127 ) ? 110 : $? >> 8;
+            print "chld: $pid exit $code.\n";;
+        }
+    };
+    my @num_list = ( 0, 10, 20, 30, 40, 50 );
+    my $num = 0;
     while( 1 )
     {
         warn "do ...\n";

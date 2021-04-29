@@ -68,8 +68,7 @@ return sub
     print "\n";
 
     @tags = grep{ !$tags{$_} }@tags;
-    my $tag_count = scalar @tags;
-    my ( $status, $reason ) = ($autobuild && $tag_count < 3)? ( 'init', '' ) : ( 'done', 'auto build off' );
+    my ( $status, $reason ) = ( $autobuild && @tags <= 3 ) ? ( 'init', '' ) : ( 'done', 'auto build off' );
     map{
         my $uuid = uuid->new()->create_str;
         eval{ $db->execute( "insert into version (`projectid`,`name`,`status`,`calltype`,`user`,`uuid`,`slave`,`reason`) 
