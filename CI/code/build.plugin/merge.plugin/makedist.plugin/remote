@@ -32,6 +32,8 @@ return sub
     $logs->die( "buildscripts null" )  unless  $buildscripts ;
     $logs->die( "buildscripts decode fail" )  unless my $runcont = decode_base64( $buildscripts );
 
+    my $agentauthpath = "/data/glusterfs/dockerimage/$buildimage.key";
+
     my $run = Temp->new( chmod => 0755 )->dump( $runcont );
 
     my $remotepath = "/data/open-c3-ci/$uuid";
@@ -42,9 +44,9 @@ return sub
     }(
         "mv '$run' '$temppath/run'",
         "cd '$temppath' && tar -zcvf openc3TempData.tar.gz *",
-        "$MYDan::PATH/dan/tools/rcall -r '$imagename' dump $temppath/openc3TempData.tar.gz --path '$remotepath/openc3TempData.tar.gz'",
-        "$MYDan::PATH/dan/tools/rcall -r '$imagename' exec 'cd $remotepath && tar -m -zxvf openc3TempData.tar.gz &&OPENC3CIPATH='$remotepath' ./run 2>&1 && tar -zcvf dist.tar.gz dist'",
-        "$MYDan::PATH/dan/tools/load -h '$imagename' --sp '$remotepath/dist.tar.gz' --dp '$temppath/dist.tar.gz'",
+        "MYDan_Agent_KEY_PATH='$agentauthpath' $MYDan::PATH/dan/tools/rcall -r '$imagename' dump $temppath/openc3TempData.tar.gz --path '$remotepath/openc3TempData.tar.gz'",
+        "MYDan_Agent_KEY_PATH='$agentauthpath' $MYDan::PATH/dan/tools/rcall -r '$imagename' exec 'cd $remotepath && tar -m -zxvf openc3TempData.tar.gz &&OPENC3CIPATH='$remotepath' ./run 2>&1 && tar -zcvf dist.tar.gz dist'",
+        "MYDan_Agent_KEY_PATH='$agentauthpath' $MYDan::PATH/dan/tools/load -h '$imagename' --sp '$remotepath/dist.tar.gz' --dp '$temppath/dist.tar.gz'",
         "cd '$temppath' && tar -m -zxvf dist.tar.gz",
     );
 
