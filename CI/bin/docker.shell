@@ -32,8 +32,15 @@ eval{
         my ( $user, $company ) = $sso->run( cookie => $u );
         print "user:$user, company:$company\n";
 
-        my $checkauth = $db->query( "select id from images where id='$image' and ( create_user='$user' or share='$company' )" );
+        my $checkauth = $db->query( "select name from images where id='$image' and ( create_user='$user' or share='$company' )" );
         die "no permission\n" unless @$checkauth;
+
+        my $imagename = $checkauth->[0][0];
+        if( $imagename =~ /^\d+\.\d+\.\d+\.\d+$/ )
+        {
+            system "MYDan_Agent_KEY_PATH=/data/glusterfs/dockerimage/$image.key /data/Software/mydan/JOB/bin/cmd.bash  --host '$imagename' --user 'root' --sudo 'root' --projectid $projectid";
+            sleep 100;
+        }
     }
 
     if( $image =~ /^\d+$/ )
