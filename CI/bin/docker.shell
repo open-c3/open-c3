@@ -24,6 +24,18 @@ eval{
         die "param error\n";
     }
     
+    my $db = MYDB->new( "$RealBin/../conf/conn" );
+
+    if( $image =~ /^\d+$/ )
+    {
+        my $sso = Code->new( 'auth/sso' );
+        my ( $user, $company ) = $sso->run( cookie => $u );
+        print "user:$user, company:$company\n";
+
+        my $checkauth = $db->query( "select id from images where id='$image' and ( create_user='$user' or share='$company' )" );
+        die "no permission\n" unless @$checkauth;
+    }
+
     if( $image =~ /^\d+$/ )
     {
         my $x = `docker images openc3ci:$image --format "{{.Repository}}"`;
@@ -42,7 +54,6 @@ eval{
     print "projectid: $projectid\n";
     printf "tag: %s\n", $tag || 'null';
     
-    my $db = MYDB->new( "$RealBin/../conf/conn" );
     my $gid = $db->query( "select groupid from project where id=$projectid" );
     die "nofind the projectid in ci" unless $gid && @$gid > 0;
 
