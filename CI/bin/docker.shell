@@ -32,6 +32,7 @@ eval{
     my $treeid = $gid->[0][0];
     print "treeid: $treeid\n";
 
+    my $imageid = $image =~ /^\d+$/ ? "--imageid $image" : '';
     if( $image =~ /^\d+$/ )
     {
         my $sso = Code->new( 'auth/sso' );
@@ -42,11 +43,7 @@ eval{
         die "no permission\n" unless @$checkauth;
 
         my $imagename = $checkauth->[0][0];
-        if( $imagename =~ /^\d+\.\d+\.\d+\.\d+$/ )
-        {
-            system "MYDan_Agent_KEY_PATH=/data/glusterfs/dockerimage/$image.key /data/Software/mydan/JOB/bin/cmd.bash  --host '$imagename' --user 'root' --sudo 'root' --projectid $treeid";
-            sleep 100;
-        }
+        $image = $checkauth->[0][0] if $checkauth->[0][0] =~ /^\d+\.\d+\.\d+\.\d+$/;
     }
 
     if( $image =~ /^\d+$/ )
@@ -74,7 +71,7 @@ eval{
     print "OK\n";
     
     my $t = $tag ? " --tags $tag" : '';
-    system "$0.into --image '$image' --projectid '$projectid' $t";
+    system "$0.into --image '$image' --projectid '$projectid' $t $imageid --treeid $treeid";
 };
 
 print $@ if $@;

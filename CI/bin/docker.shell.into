@@ -1,6 +1,7 @@
 #!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
 use strict;
 use warnings;
+use MYDan;
 use MYDB;
 use FindBin qw( $RealBin );
 use Code;
@@ -14,10 +15,12 @@ use MYDan::Util::OptConf;
 
  $0 [--projectid projectid] [--image centos:7 ] [--tags release-001] 
 
+    [--imageid id] [--treeid id]
+
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->get( qw( projectid=i image=s tags=s ) )->dump();
+my %o = $option->get( qw( projectid=i image=s tags=s imageid=i treeid=i ) )->dump();
 
 $option->assert( qw( projectid image ) );
 
@@ -47,4 +50,20 @@ my $logpath = $indocker ? "/data/open-c3-data/logs/CI" : "$RealBin/../logs";
 
 $logpath = "$RealBin/../logs" if $ENV{C3_WEB_SHELL_CLUSTER_WEB_TYPE};
 
-exec "${sudo}/usr/bin/docker run -it --rm -v $logpath/build_temp_projectid/$uuid:/build --workdir=/build/data --name dockershell_ci_$uuid $o{image} $entrypoint";
+if( $o{image} =~ /^\d+\.\d+\.\d+\.\d+$/ )
+{
+    die "nofind imageid or treeid" unless $o{imageid} && $o{treeid};
+
+    my ( $temppath, $agentauthpath, $remotepath ) = ( "$RealBin/../logs/build_temp_projectid/$uuid", "/data/glusterfs/dockerimage/$o{imageid}.key", "/data/open-c3-ci/$uuid" );
+    die "tar fail: $!" if system "cd '$temppath' && tar -zcvf openc3TempData.tar.gz *";
+    die "dump data fail: $!" if system "MYDan_Agent_KEY_PATH='$agentauthpath' $MYDan::PATH/dan/tools/rcall -r '$o{image}' dump $temppath/openc3TempData.tar.gz --path '$remotepath/openc3TempData.tar.gz'";
+    die "untar fail: $!" if system "YDan_Agent_KEY_PATH='$agentauthpath' $MYDan::PATH/dan/tools/rcall -r '$o{image}' exec 'cd $remotepath && tar -m -zxvf openc3TempData.tar.gz'";
+
+    print "path: $remotepath\n";
+
+    exec "MYDan_Agent_KEY_PATH=$agentauthpath /data/Software/mydan/JOB/bin/cmd.bash --host '$o{image}' --user 'root' --sudo 'root' --projectid $o{treeid}";
+}
+else
+{
+    exec "${sudo}/usr/bin/docker run -it --rm -v $logpath/build_temp_projectid/$uuid:/build --workdir=/build/data --name dockershell_ci_$uuid $o{image} $entrypoint";
+}
