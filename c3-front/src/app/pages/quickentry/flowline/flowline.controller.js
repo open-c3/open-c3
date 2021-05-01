@@ -96,6 +96,7 @@
                 backdrop: 'static', 
                 size: 'lg', 
                 keyboard: false,
+                windowClass:'modal-class',
                 bindToController: true,
                 resolve: {
                     nodeStr: function () { return vm.nodeStr },
