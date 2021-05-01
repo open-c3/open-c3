@@ -36,7 +36,7 @@ $MYDan::Util::OptConf::THIS = 'agent';
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->set( timeout => 900 )->get( qw( host=s user=s sudo=s timeout=i max=i projectid=i ) )->dump( 'agent' );
+my %o = $option->set( timeout => 900 )->get( qw( host=s user=s sudo=s timeout=i max=i projectid=i runcmd=s ) )->dump( 'agent' );
 $option->assert( qw( host user sudo projectid ) );
 
 my $db = MYDB->new( "$RealBin/../conf/conn" );
@@ -120,6 +120,7 @@ $poll->mask( \*STDIN => POLLIN );
 ReadMode(4);
 
 syswrite( $soc, $uuid, 36 );
+syswrite( $soc, $o{runcmd}, length $o{runcmd} ) if $o{runcmd};
 
 while ( $poll->handles && $soc ) {
     $poll->poll();

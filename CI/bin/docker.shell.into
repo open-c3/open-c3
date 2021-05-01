@@ -61,7 +61,7 @@ if( $o{image} =~ /^\d+\.\d+\.\d+\.\d+$/ )
 
     print "path: $remotepath\n";
 
-    exec "MYDan_Agent_KEY_PATH=$agentauthpath /data/Software/mydan/JOB/bin/cmd.bash --host '$o{image}' --user 'root' --sudo 'root' --projectid $o{treeid}";
+    exec "MYDan_Agent_KEY_PATH=$agentauthpath /data/Software/mydan/JOB/bin/cmd.bash --host '$o{image}' --user 'root' --sudo 'root' --projectid $o{treeid} --runcmd 'export OPENC3CIPATH='$remotepath' && cd $remotepath/data\n'";
 }
 else
 {
