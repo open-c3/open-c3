@@ -65,7 +65,7 @@ post '/group/:projectid/copy/byname' => sub {
     {
         eval{ 
             $api::mysql->execute( 
-                "insert into `openc3_jobx_group_type_$group_type` (`uuid`,`$col{$group_type}`) select '$uuid',$col{$group_type} from `penc3_jobx_group_type_$group_type` where uuid='$x->[0]{group_uuid}'")};
+                "insert into `openc3_jobx_group_type_$group_type` (`uuid`,`$col{$group_type}`) select '$uuid',$col{$group_type} from `openc3_jobx_group_type_$group_type` where uuid='$x->[0]{group_uuid}'")};
         return +{ stat => $JSON::false, info => $@ } if $@;
     }
     else
