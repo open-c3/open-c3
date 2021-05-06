@@ -37,11 +37,11 @@ return sub
 
     my ( $stimems, $stime ) = ( time, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ) );
 
-    my $x = $db->execute( "update task set pid='$$',starttime='$stime',
+    my $x = $db->execute( "update openc3_jobx_task set pid='$$',starttime='$stime',
         starttimems='$stimems',status='running' where uuid='$uuid' and pid is null" );
     $logs->die( "task $uuid Already running" ) unless $x && $x eq 1;
 
-    $x = $db->query( "select `projectid`,`name`,`group`,`variable` from task where uuid='$uuid'" );
+    $x = $db->query( "select `projectid`,`name`,`group`,`variable` from openc3_jobx_task where uuid='$uuid'" );
     $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
     $logs->die( "task uuid null: $uuid" ) unless @$x;
     my ( $projectid, $name, $group, $variable ) = @{$x->[0]};
@@ -65,7 +65,7 @@ return sub
         unless( $var && $var->{_rollbackVersion_} )
         {
             my $ruuid =  uuid::get_rollback_uuid( $uuid );
-            eval{ $db->execute( "insert into task (`projectid`,`uuid`,`name`,`group`,`user`,`slave`,`status`,`calltype`,`variable`) values('$projectid','$ruuid','_skip_','_null_','sys','_null_', 'success','sys','')" ); };
+            eval{ $db->execute( "insert into openc3_jobx_task (`projectid`,`uuid`,`name`,`group`,`user`,`slave`,`status`,`calltype`,`variable`) values('$projectid','$ruuid','_skip_','_null_','sys','_null_', 'success','sys','')" ); };
             $logs->die( "write _null_ task fail:$@" ) if $@;
         }
     }
@@ -74,7 +74,7 @@ return sub
     {
         my $deployuuid =  uuid::get_deploy_uuid( $uuid );
 
-        my $deploystat = $db->query( "select `status` from task where uuid='$deployuuid'" );
+        my $deploystat = $db->query( "select `status` from openc3_jobx_task where uuid='$deployuuid'" );
         $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
         $logs->die( "task uuid null: $deployuuid" ) unless @$deploystat;
 
@@ -87,21 +87,21 @@ return sub
         my $where = '';
         if( $clusterVersionTag )
         {
-            my $lastversion = $db->query( "select `version` from flowline_version where flowlineid='$clusterVersionTag->{flowlineid}'" );
+            my $lastversion = $db->query( "select `version` from openc3_jobx_flowline_version where flowlineid='$clusterVersionTag->{flowlineid}'" );
 
             $where = "and (  status != 'init' && status != 'cancel' )"
                 if $lastversion && @$lastversion > 0 && $lastversion->[0][0] eq $clusterVersionTag->{version};
         }
 
         my $deployuuid =  uuid::get_deploy_uuid( $uuid );
-        my $nodelist = $db->query( "select nodelist from subtask where parent_uuid='$deployuuid' $where order by id" );
+        my $nodelist = $db->query( "select nodelist from openc3_jobx_subtask where parent_uuid='$deployuuid' $where order by id" );
         $logs->die( "get data error from db" ) unless defined $nodelist && ref $nodelist eq 'ARRAY';
 
         @group = map{ [ split /,/, $_->[0] ] }@$nodelist;
     }
     else
     {
-        $x = $db->query( "select `id` from `group` where projectid='$projectid' and name='$group'" );
+        $x = $db->query( "select `id` from `openc3_jobx_group` where projectid='$projectid' and name='$group'" );
         $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
         $logs->die( "group name null: $group" ) unless @$x;
         my $groupid = $x->[0][0];
@@ -119,7 +119,7 @@ return sub
         my $nodelist = join ',',@$_;
         eval{ 
             $db->execute(
-                "insert into subtask (`parent_uuid`,`uuid`,`nodelist`,`nodecount`,`status`) values('$uuid','$subtask_uuid','$nodelist','$nodecount','init')"
+                "insert into openc3_jobx_subtask (`parent_uuid`,`uuid`,`nodelist`,`nodecount`,`status`) values('$uuid','$subtask_uuid','$nodelist','$nodecount','init')"
         ); };
         $logs->die( "set subtask info fail:$@" ) if $@;
     }
@@ -150,13 +150,13 @@ return sub
     my ( $ftimems, $ftime ) = ( time, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ) );
     my $runtime = sprintf "%0.3f", $ftimems - $stimems;
 
-    eval{ $db->execute( "update task set finishtime='$ftime',finishtimems='$ftimems',
+    eval{ $db->execute( "update openc3_jobx_task set finishtime='$ftime',finishtimems='$ftimems',
         status='$status',runtime='$runtime' where uuid='$uuid'" ); };
     $logs->die( "update task status fail:$@" ) if $@;
 
     if( $clusterVersionTag && $status eq 'success' )
     {
-        eval{ $db->execute( "replace into flowline_version (`flowlineid`,`version`,`jobxuuid`) values('$clusterVersionTag->{flowlineid}','$clusterVersionTag->{version}','$clusterVersionTag->{jobxuuid}')" ); };
+        eval{ $db->execute( "replace into openc3_jobx_flowline_version (`flowlineid`,`version`,`jobxuuid`) values('$clusterVersionTag->{flowlineid}','$clusterVersionTag->{version}','$clusterVersionTag->{jobxuuid}')" ); };
         $logs->die( "update task status fail:$@" ) if $@;
     }
 

@@ -21,7 +21,7 @@ get '/group/:projectid' => sub {
     my @col = qw( id name note group_type group_uuid edit_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from `group` where projectid='$param->{projectid}' order by id desc", join( ',', @col ) ), \@col
+            sprintf( "select %s from `openc3_jobx_group` where projectid='$param->{projectid}' order by id desc", join( ',', @col ) ), \@col
         )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
@@ -47,7 +47,7 @@ post '/group/:projectid/copy/byname' => sub {
 
     my @col = qw( id name note group_type group_uuid edit_time );
     my $x = eval{ 
-        $api::mysql->query( sprintf( "select %s from `group` where name='$param->{fromname}' and projectid='$fromprojectid'", join ',', @col ),
+        $api::mysql->query( sprintf( "select %s from `openc3_jobx_group` where name='$param->{fromname}' and projectid='$fromprojectid'", join ',', @col ),
              \@col )};
 
     return +{ stat => $JSON::true, info => 'The source does not exist' } unless $x && @$x > 0;
@@ -65,7 +65,7 @@ post '/group/:projectid/copy/byname' => sub {
     {
         eval{ 
             $api::mysql->execute( 
-                "insert into `group_type_$group_type` (`uuid`,`$col{$group_type}`) select '$uuid',$col{$group_type} from `group_type_$group_type` where uuid='$x->[0]{group_uuid}'")};
+                "insert into `openc3_jobx_group_type_$group_type` (`uuid`,`$col{$group_type}`) select '$uuid',$col{$group_type} from `penc3_jobx_group_type_$group_type` where uuid='$x->[0]{group_uuid}'")};
         return +{ stat => $JSON::false, info => $@ } if $@;
     }
     else
@@ -79,7 +79,7 @@ post '/group/:projectid/copy/byname' => sub {
 
     my $r = eval{ 
         $api::mysql->execute( 
-            "insert into `group` (`projectid`,`name`,`note`,`group_type`,`group_uuid`)
+            "insert into `openc3_jobx_group` (`projectid`,`name`,`note`,`group_type`,`group_uuid`)
                 values( '$toprojectid', '$param->{toname}','$x->[0]{note}', '$group_type', '$uuid' )")};
     
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
@@ -99,7 +99,7 @@ get '/group/:projectid/:id' => sub {
     my @col = qw( id projectid group_type group_uuid name note edit_time );
     my $r = eval{ 
         $api::mysql->query( 
-             sprintf( "select %s from `group` where id='$param->{id}' and projectid='$param->{projectid}'", join ',', @col ),
+             sprintf( "select %s from `openc3_jobx_group` where id='$param->{id}' and projectid='$param->{projectid}'", join ',', @col ),
              \@col
          )};
 
@@ -119,7 +119,7 @@ get '/group/:projectid/:id' => sub {
     {
         $r = eval{ 
             $api::mysql->query( 
-                sprintf( "select %s from `group_type_$group_type` where uuid='$group_uuid'", 
+                sprintf( "select %s from `openc3_jobx_group_type_$group_type` where uuid='$group_uuid'", 
                         join( ',', @{$col{$group_type}} ) ), $col{$group_type} )};
     
         return +{ stat => $JSON::false, info => $@ }  if $@;
@@ -162,7 +162,7 @@ get '/group/:projectid/:name/node/byname' => sub {
 
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select id from `group` where projectid='$param->{projectid}' and name='$param->{name}'" )
+            sprintf( "select id from `openc3_jobx_group` where projectid='$param->{projectid}' and name='$param->{name}'" )
         )};
 
      return  +{ stat => $JSON::false, info => $@ } if $@;
@@ -203,7 +203,7 @@ post '/group/:projectid' => sub {
         map{ return +{ stat => $JSON::false, info => "$_ undef" }  unless defined $param->{$_} }@{$col{$param->{group_type}}};
 
         eval{
-            $api::mysql->execute( sprintf "insert into group_type_$param->{group_type} (`uuid`,%s) values('$uuid',%s)", 
+            $api::mysql->execute( sprintf "insert into openc3_jobx_group_type_$param->{group_type} (`uuid`,%s) values('$uuid',%s)", 
                 join(',',map{"`$_`"}@{$col{$param->{group_type}}}),
                 join(',',map{"'$param->{$_}'"}@{$col{$param->{group_type}}}),
             );
@@ -222,7 +222,7 @@ post '/group/:projectid' => sub {
 
     my $r = eval{ 
         $api::mysql->execute( 
-            "insert into `group` (`projectid`,`name`,`note`,`group_type`,`group_uuid`)
+            "insert into `openc3_jobx_group` (`projectid`,`name`,`note`,`group_type`,`group_uuid`)
                 values( '$param->{projectid}', '$param->{name}','$param->{note}', '$param->{group_type}', '$uuid' )")};
     
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
@@ -258,7 +258,7 @@ post '/group/:projectid/:id' => sub {
         map{ return +{ stat => $JSON::false, info => "$_ undef" }  unless defined $param->{$_} }@{$col{$param->{group_type}}};
 
         eval{
-            $api::mysql->execute( sprintf "insert into group_type_$param->{group_type} (`uuid`,%s) values('$uuid',%s)", 
+            $api::mysql->execute( sprintf "insert into openc3_jobx_group_type_$param->{group_type} (`uuid`,%s) values('$uuid',%s)", 
                 join(',',map{"`$_`"}@{$col{$param->{group_type}}}),
                 join(',',map{"'$param->{$_}'"}@{$col{$param->{group_type}}}),
             );
@@ -277,7 +277,7 @@ post '/group/:projectid/:id' => sub {
 
     my $r = eval{ 
         $api::mysql->execute( 
-            "update `group` set name='$param->{name}',note='$param->{note}',group_type='$param->{group_type}',group_uuid='$uuid' where id='$param->{id}' and projectid='$param->{projectid}'"
+            "update `openc3_jobx_group` set name='$param->{name}',note='$param->{note}',group_type='$param->{group_type}',group_uuid='$uuid' where id='$param->{id}' and projectid='$param->{projectid}'"
                 )};
     
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
@@ -296,12 +296,12 @@ del '/group/:projectid/:id' => sub {
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
-    my $batchname = eval{ $api::mysql->query( "select name from `group` where id='$param->{id}' and projectid='$param->{projectid}'")};
+    my $batchname = eval{ $api::mysql->query( "select name from `openc3_jobx_group` where id='$param->{id}' and projectid='$param->{projectid}'")};
     eval{ $api::auditlog->run( user => $user, title => 'DELETE BATCH', content => "TREEID:$param->{projectid} BATCHNAME:$batchname->[0][0]" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
-        $api::mysql->execute( "delete from `group` where id='$param->{id}' and projectid='$param->{projectid}'")
+        $api::mysql->execute( "delete from `openc3_jobx_group` where id='$param->{id}' and projectid='$param->{projectid}'")
     };
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
@@ -324,7 +324,7 @@ del '/group/:projectid/:name/byname' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     eval{ 
-        $api::mysql->execute( "delete from `group` where name='$param->{name}' and projectid='$param->{projectid}'")
+        $api::mysql->execute( "delete from `openc3_jobx_group` where name='$param->{name}' and projectid='$param->{projectid}'")
     };
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };

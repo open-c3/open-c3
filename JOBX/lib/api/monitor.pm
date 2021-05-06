@@ -14,7 +14,7 @@ get '/monitor/metrics' => sub {
     my @col = qw( id time time_s stat host type key val );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from `monitor` order by id", join( ',', map{"`$_`"}@col ) ), \@col
+            sprintf( "select %s from `openc3_jobx_monitor` order by id", join( ',', map{"`$_`"}@col ) ), \@col
         )};
 
     my $err = 0;
@@ -71,7 +71,7 @@ get '/monitor/metrics/app' => sub {
 
     my %re;
 
-    my $t = eval{ $api::mysql->query( "select status,count(*) from task group by status" )};
+    my $t = eval{ $api::mysql->query( "select status,count(*) from openc3_jobx_task group by status" )};
     my %t = map{ $_->[0] => $_->[1] }@$t;
     map{ $t{$_} ||= 0 }qw( fail running success );
 
@@ -79,7 +79,7 @@ get '/monitor/metrics/app' => sub {
     map{ $re{task_total} += $re{"task_$_"} = $t{$_} }qw( fail running success );
 
 
-    my $s = eval{ $api::mysql->query( "select status,count(*) from subtask group by status" )};
+    my $s = eval{ $api::mysql->query( "select status,count(*) from openc3_jobx_subtask group by status" )};
     my %s = map{ $_->[0] => $_->[1] }@$s;
     map{ $s{$_} ||= 0 }qw( runnigs fail success decision ignore next );
 

@@ -36,11 +36,11 @@ return sub
     my $rollbackuuid = uuid::get_rollback_uuid( $touuid );
 
     my $newname = $rename ? "'$rename'" : 'name';
-    $db->execute( "insert into task (projectid,uuid,name,`group`,user,slave,status,starttimems,finishtimems,starttime,finishtime,calltype,pid,runtime,variable,reason )  select projectid,'$touuid',$newname,`group`,user,slave,status,starttimems,finishtimems,starttime,finishtime,calltype,pid,runtime,variable,reason from task where uuid='$fromuuid'");
+    $db->execute( "insert into openc3_jobx_task (projectid,uuid,name,`group`,user,slave,status,starttimems,finishtimems,starttime,finishtime,calltype,pid,runtime,variable,reason )  select projectid,'$touuid',$newname,`group`,user,slave,status,starttimems,finishtimems,starttime,finishtime,calltype,pid,runtime,variable,reason from openc3_jobx_task where uuid='$fromuuid'");
 
-    $db->execute( "insert into task (projectid,uuid,name,`group`,user,slave,status,starttimems,finishtimems,starttime,finishtime,calltype,pid,runtime,variable,reason )  select projectid,'$rollbackuuid',$newname,'_null_',user,'_null_','success',starttimems,finishtimems,starttime,finishtime,calltype,pid,runtime,variable,reason from task where uuid='$fromuuid'") if $choicenorollback;
+    $db->execute( "insert into openc3_jobx_task (projectid,uuid,name,`group`,user,slave,status,starttimems,finishtimems,starttime,finishtime,calltype,pid,runtime,variable,reason )  select projectid,'$rollbackuuid',$newname,'_null_',user,'_null_','success',starttimems,finishtimems,starttime,finishtime,calltype,pid,runtime,variable,reason from openc3_jobx_task where uuid='$fromuuid'") if $choicenorollback;
 
-    my $variable = $db->query( "select variable from task where uuid='$touuid'" );
+    my $variable = $db->query( "select variable from openc3_jobx_task where uuid='$touuid'" );
     my $v = YAML::XS::Load decode_base64( $variable->[0][0] );
 
     $v->{_appname_} = $rename if defined $v->{_appname_} && $rename;
@@ -48,23 +48,23 @@ return sub
     $v->{_rollbackVersion_} = $rollback if defined $v->{_rollbackVersion_} && $rollback;
 
     my $newvariable = encode_base64( encode('UTF-8', YAML::XS::Dump $v) );
-    $db->execute( "update task set variable='$newvariable' where uuid='$touuid'" );
-    $db->execute( "update task set variable='$newvariable' where uuid='$rollbackuuid'" ) if $choicenorollback;
+    $db->execute( "update openc3_jobx_task set variable='$newvariable' where uuid='$touuid'" );
+    $db->execute( "update openc3_jobx_task set variable='$newvariable' where uuid='$rollbackuuid'" ) if $choicenorollback;
 
 
     if( $starttime )
     {
         my $starttimestr = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( $starttime ) );
-        my $rt = $db->query( "select runtime from task  where uuid='$touuid'" );
+        my $rt = $db->query( "select runtime from openc3_jobx_task where uuid='$touuid'" );
         my $finishtime = $starttime + $rt->[0][0];
         my $finishtimestr = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( $finishtime ) );
 
-        $db->execute( "update task set starttimems='$starttime',starttime='$starttimestr',finishtimems='$finishtime',finishtime='$finishtimestr' where uuid='$touuid'" );
+        $db->execute( "update openc3_jobx_task set starttimems='$starttime',starttime='$starttimestr',finishtimems='$finishtime',finishtime='$finishtimestr' where uuid='$touuid'" );
     }
 
 
     my @col = qw( parent_uuid uuid nodelist nodecount starttime finishtime runtime status confirm );
-    my $subtask = $db->query( sprintf( "select %s from subtask where parent_uuid='$fromuuid'", join ',', @col ), \@col );
+    my $subtask = $db->query( sprintf( "select %s from openc3_jobx_subtask where parent_uuid='$fromuuid'", join ',', @col ), \@col );
 
     my $deploy_argv = $deploy ? " --deploy $deploy " : '';
     my $rollback_argv = $rollback ? " --rollback $rollback " : '';
@@ -76,7 +76,7 @@ return sub
         my $olduuid = $sub->{uuid};
         $sub->{uuid} = uuid->new()->create_str;
 
-        $db->execute( sprintf "insert into subtask ( %s ) values( %s )", join(',', @col), join( ',', map{"'$_'"}map{ $sub->{$_} || ''}@col ) );
+        $db->execute( sprintf "insert into openc3_jobx_subtask ( %s ) values( %s )", join(',', @col), join( ',', map{"'$_'"}map{ $sub->{$_} || ''}@col ) );
         system "$RealBin/../../JOB/debugtools/expandHistory --fromuuid  $olduuid  --touuid $sub->{uuid} $deploy_argv $rollback_argv --starttime $starttime $renaem_argv";
     }
 }

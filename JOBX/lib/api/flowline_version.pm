@@ -19,7 +19,7 @@ get '/flowline_version/:flowlineid' => sub {
     my @col = qw( jobxuuid version create_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from `flowline_version` where flowlineid='$param->{flowlineid}'", join( ',', @col ) ), \@col
+            sprintf( "select %s from `openc3_jobx_flowline_version` where flowlineid='$param->{flowlineid}'", join( ',', @col ) ), \@col
         )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => @$r ? $r->[0] : +{} };

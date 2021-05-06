@@ -1,7 +1,7 @@
 create database jobx;
 use jobx;
 
-create table `group`(
+create table `openc3_jobx_group`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 `projectid` int(16) unsigned comment '项目id',
 
@@ -15,7 +15,7 @@ create table `group`(
 UNIQUE KEY `uniq_pn` (`projectid`,`name`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='group';
 
-create table `group_type_list`(
+create table `openc3_jobx_group_type_list`(
 `id` int(32) unsigned not null primary key auto_increment comment 'id',
 `uuid` VARCHAR(20) comment '唯一编号',
 
@@ -24,7 +24,7 @@ create table `group_type_list`(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='列表分组';
 
 
-create table `group_type_percent`(
+create table `openc3_jobx_group_type_percent`(
 `id` int(32) unsigned not null primary key auto_increment comment 'id',
 `uuid` VARCHAR(20) comment '唯一编号',
 
@@ -33,7 +33,7 @@ create table `group_type_percent`(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='百分比分组';
 
 
-create table `task`(
+create table `openc3_jobx_task`(
 `id` int(16) unsigned not null primary key auto_increment comment 'id',
 `projectid` int(16) unsigned comment '项目id',
 
@@ -56,7 +56,7 @@ UNIQUE KEY `uniq_taskid` (`uuid`),
 INDEX index_name(`status`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='任务列表';
 
-create table `subtask`(
+create table `openc3_jobx_subtask`(
 `id` int(16) unsigned not null primary key auto_increment comment 'id',
 
 `parent_uuid` VARCHAR(20) comment '父任务uuid',
@@ -75,14 +75,14 @@ INDEX index_name(`parent_uuid`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='子任务列表';
 
 
-create table `keepalive`(
+create table `openc3_jobx_keepalive`(
 `id` int(16) unsigned not null primary key auto_increment comment 'id',
 `slave` VARCHAR(40) comment 'slave',
 `time` int(16) unsigned comment 'time',
 UNIQUE KEY `uniq_slave` (`slave`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='slave心跳';
 
-create table `monitor`(
+create table `openc3_jobx_monitor`(
 `id` int(16) unsigned not null primary key auto_increment comment 'id',
 `time` VARCHAR(40) comment '时间',
 `time_s` VARCHAR(40) comment '时间秒数',
@@ -94,7 +94,7 @@ create table `monitor`(
 UNIQUE KEY `uniq_host_type_key` ( `host`,`type`,`key`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='监控';
 
-create table `flowline_version`(
+create table `openc3_jobx_flowline_version`(
 `id` int(16) unsigned not null primary key auto_increment comment 'id',
 `flowlineid` VARCHAR(40) comment 'flowlineid',
 `jobxuuid` VARCHAR(40) comment 'jobxuuid',

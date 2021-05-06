@@ -24,7 +24,7 @@ return sub
 
     $logs->die( "code.group.percent uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
 
-    my $x = eval{ $db->query( "select `percent` from `group_type_percent` where uuid='$uuid'" ); };
+    my $x = eval{ $db->query( "select `percent` from `openc3_jobx_group_type_percent` where uuid='$uuid'" ); };
     $logs->die( "code.group.percent get info from mysql fail:$@" ) if $@;
     $logs->die( "code.group.percent get info from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
     $logs->die( "code.group.percent uuid mismatch: $uuid" ) unless @$x;

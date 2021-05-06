@@ -53,7 +53,7 @@ get '/task/:projectid' => sub {
     my @col = qw( id projectid uuid name user slave status starttime finishtime calltype runtime reason variable );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from task
+            sprintf( "select %s from openc3_jobx_task
                 where projectid in ( $projectid ) %s", join( ',', @col ), @where ? ' and '.join( ' and ', @where ):'' ), \@col )};
 
     map{
@@ -73,7 +73,7 @@ get '/task/:projectid/count' => sub {
 
     my $time = POSIX::strftime( "%Y-%m-00 00:00:00", localtime );
     my $r = eval{ 
-        $api::mysql->query( "select status,count(*) from task where projectid='$param->{projectid}' and starttime>'$time' group by status" )};
+        $api::mysql->query( "select status,count(*) from openc3_jobx_task where projectid='$param->{projectid}' and starttime>'$time' group by status" )};
 
     my %data = map{@$_}@$r;
 
@@ -94,7 +94,7 @@ get '/task/:projectid/total_count' => sub {
     my $pmscheck = api::pmscheck( 'openc3_jobx_read', $param->{projectid} ); return $pmscheck if $pmscheck;
 
     my $r = eval{
-        $api::mysql->query( "select status,count(*) from task where projectid='$param->{projectid}' and starttime>='$param->{time_start} 00:00:00' and starttime<='$param->{time_end} 23:59:59' group by status" )};
+        $api::mysql->query( "select status,count(*) from openc3_jobx_task where projectid='$param->{projectid}' and starttime>='$param->{time_start} 00:00:00' and starttime<='$param->{time_end} 23:59:59' group by status" )};
 
     return  +{ stat => $JSON::false, info => $@ } if $@;
 
@@ -117,7 +117,7 @@ get '/task/:projectid/:uuid' => sub {
     my @col = qw( id uuid name user slave status starttime finishtime calltype runtime  pid starttimems finishtimems reason variable );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from task
+            sprintf( "select %s from openc3_jobx_task
                 where uuid='$param->{uuid}' and projectid='$param->{projectid}'", join ',', @col ), \@col )};
     map{
         eval{ $_->{variable} = decode_base64( $_->{variable} ) } if defined $_->{variable};
@@ -187,7 +187,7 @@ post '/task/:projectid/job/byname' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
-        $api::mysql->execute( "insert into task (`projectid`,`uuid`,`name`,`group`,`user`,`slave`,`status`,`calltype`,`variable`) 
+        $api::mysql->execute( "insert into openc3_jobx_task (`projectid`,`uuid`,`name`,`group`,`user`,`slave`,`status`,`calltype`,`variable`) 
             values('$param->{projectid}','$uuid','$param->{jobname}','$param->{group}','$user','$slave', 'init','$calltype','$variable')" )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, uuid => $uuid, data => $r };
@@ -204,7 +204,7 @@ put '/task/:projectid/:uuid/:control' => sub {
 
     my $pmscheck = api::pmscheck( 'openc3_jobx_control', $param->{projectid} ); return $pmscheck if $pmscheck;
 
-    my $x = eval{ $api::mysql->query( "select variable,starttimems from task where uuid='$param->{uuid}' and projectid='$param->{projectid}'" )};
+    my $x = eval{ $api::mysql->query( "select variable,starttimems from openc3_jobx_task where uuid='$param->{uuid}' and projectid='$param->{projectid}'" )};
     return +{ stat => $JSON::false, info => $@ } if $@;
     return  +{ stat => $JSON::false, info => "no find task" } unless $x && @$x;
 
@@ -236,11 +236,11 @@ put '/task/:projectid/:uuid/:control' => sub {
     eval{
         if( $param->{control} eq 'rollback' )
         {
-            $api::mysql->execute(  "insert into task (`projectid`,`uuid`,`name`,`group`,`user`,`slave`,`status`,`calltype`,`variable`) select `projectid`,'$ruuid',`name`,`group`,'$user',`slave`,'init','$calltype','$variable' from task where uuid='$param->{uuid}'" );
+            $api::mysql->execute(  "insert into openc3_jobx_task (`projectid`,`uuid`,`name`,`group`,`user`,`slave`,`status`,`calltype`,`variable`) select `projectid`,'$ruuid',`name`,`group`,'$user',`slave`,'init','$calltype','$variable' from openc3_jobx_task where uuid='$param->{uuid}'" );
         }
         else
         {
-            $api::mysql->execute(  "insert into task (`projectid`,`uuid`,`name`,`group`,`user`,`slave`,`status`,`calltype`,`variable`) select `projectid`,'$ruuid',`name`,'_null_','$calltype','_null_','success','$calltype','$variable' from task where uuid='$param->{uuid}'" );
+            $api::mysql->execute(  "insert into openc3_jobx_task (`projectid`,`uuid`,`name`,`group`,`user`,`slave`,`status`,`calltype`,`variable`) select `projectid`,'$ruuid',`name`,'_null_','$calltype','_null_','success','$calltype','$variable' from openc3_jobx_task where uuid='$param->{uuid}'" );
         }
     };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, info => "ok" };
@@ -263,18 +263,18 @@ any ['put', 'delete'] => '/task/:projectid/:uuid' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     eval{ 
-        $api::mysql->execute( "update subtask set status='cancel' where parent_uuid='$param->{uuid}' and status='init' 
-                and parent_uuid in( select uuid from task where projectid='$param->{projectid}')"
+        $api::mysql->execute( "update openc3_jobx_subtask set status='cancel' where parent_uuid='$param->{uuid}' and status='init' 
+                and parent_uuid in( select uuid from openc3_jobx_task where projectid='$param->{projectid}')"
         );
-        $api::mysql->execute( "update subtask set confirm='task stop' where parent_uuid='$param->{uuid}' and confirm='WaitConfirm'
-                and parent_uuid in( select uuid from task where projectid='$param->{projectid}')"
+        $api::mysql->execute( "update openc3_jobx_subtask set confirm='task stop' where parent_uuid='$param->{uuid}' and confirm='WaitConfirm'
+                and parent_uuid in( select uuid from openc3_jobx_task where projectid='$param->{projectid}')"
         );
     };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{
-        $api::mysql->query( "select uuid from subtask where parent_uuid='$param->{uuid}' and status='running' 
-                and parent_uuid in( select uuid from task where projectid='$param->{projectid}')" );
+        $api::mysql->query( "select uuid from openc3_jobx_subtask where parent_uuid='$param->{uuid}' and status='running' 
+                and parent_uuid in( select uuid from openc3_jobx_task where projectid='$param->{projectid}')" );
     };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
@@ -339,7 +339,7 @@ get '/task/:projectid/analysis/last' => sub {
 
     my @col = qw( user runtime status name );
     my $r = eval{ $api::mysql->query( 
-            sprintf( "select %s from task where projectid='$param->{projectid}' order by id desc limit $param->{count}", join ',',@col ), \@col
+            sprintf( "select %s from openc3_jobx_task where projectid='$param->{projectid}' order by id desc limit $param->{count}", join ',',@col ), \@col
             )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
@@ -358,9 +358,9 @@ get '/task/:projectid/analysis/date' => sub {
     my $projectid = $param->{projectid};
 
     my $time = POSIX::strftime( "%Y-%m-%d 00:00:00", localtime( time - 2592000 ) );
-    my $all = eval{ $api::mysql->query( "select DATE_FORMAT(starttime, '%Y-%m-%d') as x,count(*)  from task
+    my $all = eval{ $api::mysql->query( "select DATE_FORMAT(starttime, '%Y-%m-%d') as x,count(*)  from openc3_jobx_task
             where projectid='$projectid' and starttime>'$time' group by x order by x" )};
-    my $success = eval{ $api::mysql->query( "select DATE_FORMAT(starttime, '%Y-%m-%d') as x,count(*)  from task
+    my $success = eval{ $api::mysql->query( "select DATE_FORMAT(starttime, '%Y-%m-%d') as x,count(*)  from openc3_jobx_task
             where projectid='$projectid' and status='success' and starttime>'$time' group by x order by x" )};
 
     my %success = map{ @$_ }@$success;
@@ -384,7 +384,7 @@ get '/task/:projectid/analysis/hour' => sub {
 
     my $time = POSIX::strftime( "%Y-%m-%d 00:00:00", localtime( time - 2592000 ) );
     my $r = eval{ 
-        $api::mysql->query( "select DATE_FORMAT(starttime, '%H'),count(*)  from task where projectid='$projectid' and starttime>'$time' group by DATE_FORMAT(starttime, '%H')" )};
+        $api::mysql->query( "select DATE_FORMAT(starttime, '%H'),count(*)  from openc3_jobx_task where projectid='$projectid' and starttime>'$time' group by DATE_FORMAT(starttime, '%H')" )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
@@ -404,7 +404,7 @@ get '/task/:projectid/analysis/runtime' => sub {
 
     my $time = POSIX::strftime( "%Y-%m-%d 00:00:00", localtime( time - 2592000 ) );
     my $r = eval{ 
-        $api::mysql->query( "select runtime from task where projectid='$projectid' and starttime>'$time'" )};
+        $api::mysql->query( "select runtime from openc3_jobx_task where projectid='$projectid' and starttime>'$time'" )};
 
     return  +{ stat => $JSON::false, info => $@ } if $@;
 

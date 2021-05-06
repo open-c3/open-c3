@@ -65,7 +65,7 @@ return sub
     my %param = @_;
 
     my ( $myname, $db, $logs ) = ( Util::myname(), $param{db}, Logs->new( 'monitor' ) );
-    my $slave = eval{ $db->query( sprintf "select slave from keepalive" ); };
+    my $slave = eval{ $db->query( sprintf "select slave from openc3_jobx_keepalive" ); };
     $logs->die( "get slave from keepalive fail: $@" ) if $@;
 
     my %slave = map{ $_->[0] => 1 }@$slave;;
@@ -97,7 +97,7 @@ return sub
             }
         }@ps;
 
-        my $ins = "replace into monitor (`time`,`time_s`,`stat`,`host`,`type`,`key`,`val`)value('%s','%s','%s','%s','%s','%s','%s')";
+        my $ins = "replace into openc3_jobx_monitor (`time`,`time_s`,`stat`,`host`,`type`,`key`,`val`)value('%s','%s','%s','%s','%s','%s','%s')";
         eval{
             map{ $db->execute( sprintf $ins, $time, $t, $proc{$_} eq $c{$_} ? 'ok' : "err:$c{$_}", $myname, 'proc','openc3_'.$_, $proc{$_} ); }keys %proc;
             map{ $db->execute( sprintf $ins, $time, $t, $task{$_} > 100 ? 'danger' : $task{$_} > 10 ? 'warning' : 'healthy' , $myname, 'task','openc3_'.$_, $task{$_} ); }keys %task;

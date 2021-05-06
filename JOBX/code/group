@@ -23,7 +23,7 @@ return sub
 
     $logs->die( "code.group id format error" ) unless $id =~ /^\d+$/;
 
-    my $x = eval{ $db->query( "select `group_type`,`group_uuid`,`projectid` from `group` where id='$id'" ); };
+    my $x = eval{ $db->query( "select `group_type`,`group_uuid`,`projectid` from `openc3_jobx_group` where id='$id'" ); };
     $logs->die( "code.group get groupinfo from mysql fail:$@" ) if $@;
     $logs->die( "code.group get groupinfo from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
     $logs->die( "group id mismatch: $id" ) unless @$x;

@@ -65,7 +65,7 @@ websocket_on_open sub {
         $logs->say( sprintf "user:$user uri:/ws?uuid=$uuid method:ws HTTP_X_FORWARDED_FOR:'' param:''", );
    
          my @col = qw( projectid );
-         my $r = eval{ $mysql->query( sprintf( "select %s from task where uuid='$uuid'", join ',', @col ), \@col )};
+         my $r = eval{ $mysql->query( sprintf( "select %s from openc3_jobx_task where uuid='$uuid'", join ',', @col ), \@col )};
 
          unless( $r && @$r )
          {
@@ -145,7 +145,7 @@ END
 };
 
 any '/mon' => sub {
-     eval{ $mysql->query( "select count(*) from keepalive" )};
+     eval{ $mysql->query( "select count(*) from openc3_jobx_keepalive" )};
      return $@ ? "ERR:$@" : "ok";
 };
 

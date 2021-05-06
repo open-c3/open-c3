@@ -27,7 +27,7 @@ post '/third/option/groupname' => sub {
     my $project_id = $param->{project_id};
 
     my $r = eval{ 
-        $api::mysql->query( "select name from `group` where projectid='$project_id'")};
+        $api::mysql->query( "select name from `openc3_jobx_group` where projectid='$project_id'")};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => [map{@$_}@$r] };
 };
@@ -103,7 +103,7 @@ post '/third/interface/dry-run' => sub {
     return +{ stat => $JSON::false, info => "system error: no slave" } unless defined $slave;
 
     my $uuid = makeuuid( %$param );
-    my $x = eval{ $api::mysql->query( "select uuid from task where uuid='$uuid'" ) };
+    my $x = eval{ $api::mysql->query( "select uuid from openc3_jobx_task where uuid='$uuid'" ) };
     return  +{ stat => $JSON::false, info => "get data error from db: $@" }  if $@;
     return  +{ stat => $JSON::false, info => "get data error from db" } unless defined $x && ref $x eq 'ARRAY';
     return  +{ stat => $JSON::flase, info => "uuid has already existed in the task" } if @$x;
@@ -148,7 +148,7 @@ post '/third/interface/invoke' => sub {
     return +{ stat => $JSON::false, info => "system error: no slave" } unless defined $slave;
 
     my $uuid = makeuuid( %$param );
-    my $x = eval{ $api::mysql->query( "select uuid from task where uuid='$uuid'" ) };
+    my $x = eval{ $api::mysql->query( "select uuid from openc3_jobx_task where uuid='$uuid'" ) };
     return  +{ stat => $JSON::false, info => "get data error from db: $@" }  if $@;
     return  +{ stat => $JSON::false, info => "get data error from db" } unless defined $x && ref $x eq 'ARRAY';
     return  +{ stat => $JSON::true, info => "This task has been successfully created" } if @$x;
@@ -159,7 +159,7 @@ post '/third/interface/invoke' => sub {
     my $variable = $params->{variable} ? encode_base64( encode('UTF-8', YAML::XS::Dump $params->{variable}) ) : '';
 
     my $r = eval{ 
-        $api::mysql->execute( "insert into task (`projectid`,`uuid`,`name`,`group`,`user`,`slave`,`status`,`calltype`,`variable`) 
+        $api::mysql->execute( "insert into openc3_jobx_task (`projectid`,`uuid`,`name`,`group`,`user`,`slave`,`status`,`calltype`,`variable`) 
             values('$param->{project_id}','$uuid','$params->{jobname}','$params->{group}','$user','$slave', 'init','$calltype','$variable')" )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, uuid => $uuid, data => $r };
@@ -181,7 +181,7 @@ post '/third/interface/query' => sub {
     my @col = qw(  status projectid slave );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from task
+            sprintf( "select %s from openc3_jobx_task
                 where uuid in ( '$uuid', '$ruuid' ) order by id", join ',', @col ), \@col )};
 
     return +{ stat => $JSON::false, info => $@ } if $@;
@@ -199,7 +199,7 @@ post '/third/interface/query' => sub {
             ctrl => [undef,"http://$env{envname}.jobx.$env{'domainname'}/#/detailforflow/${projectid}/$uuid"],
         );
 
-        my $rp = eval{ $api::mysql->query( "select starttime,status,uuid from subtask where parent_uuid='$uuid'" ); };
+        my $rp = eval{ $api::mysql->query( "select starttime,status,uuid from openc3_jobx_subtask where parent_uuid='$uuid'" ); };
         return +{ stat => $JSON::false, info => $@ } if $@;
         my ( $finish, @progress ) = (0,0,0);
         map{
@@ -241,7 +241,7 @@ post '/third/interface/query' => sub {
         {
             $status = $status eq 'success' ? 'complete' : $status eq 'fail' ? 'fail' : 'running';
             my $x = eval{ 
-                $api::mysql->query( "select count(*) from subtask where parent_uuid='$uuid' and confirm='WaitConfirm'" )};
+                $api::mysql->query( "select count(*) from openc3_jobx_subtask where parent_uuid='$uuid' and confirm='WaitConfirm'" )};
 
             return +{ stat => $JSON::false, info => $@ } if $@;
 
@@ -252,7 +252,7 @@ post '/third/interface/query' => sub {
                 ctrl => ["http://$env{envname}.jobx.$env{'domainname'}/#/detailforflow/${projectid}/$uuid"],
             ) if $x->[0][0]>0;
     
-            my $rp = eval{ $api::mysql->query( "select starttime,status,uuid from subtask where parent_uuid='$uuid'" ); };
+            my $rp = eval{ $api::mysql->query( "select starttime,status,uuid from openc3_jobx_subtask where parent_uuid='$uuid'" ); };
             return +{ stat => $JSON::false, info => $@ } if $@;
             my @progress = (0,0); map{ $progress[1]++; $progress[0]++ if $_->[0] }@$rp;
 
@@ -278,7 +278,7 @@ post '/third/interface/query' => sub {
         {
             $rstatus = $rstatus eq 'success' ? 'complete' : $rstatus eq 'fail' ? 'fail' : 'running';
             my $x = eval{ 
-                $api::mysql->query( "select count(*) from subtask where parent_uuid='$ruuid' and confirm='WaitConfirm'" )};
+                $api::mysql->query( "select count(*) from openc3_jobx_subtask where parent_uuid='$ruuid' and confirm='WaitConfirm'" )};
 
             return +{ stat => $JSON::false, info => $@ } if $@;
 
@@ -289,7 +289,7 @@ post '/third/interface/query' => sub {
                 ctrl => ["http://$env{envname}.jobx.$env{'domainname'}/#/detailforflow/${projectid}/$uuid"],
             ) if $x->[0][0]>0;
     
-            my $rp = eval{ $api::mysql->query( "select starttime,status,uuid from subtask where parent_uuid='$uuid'" ); };
+            my $rp = eval{ $api::mysql->query( "select starttime,status,uuid from openc3_jobx_subtask where parent_uuid='$uuid'" ); };
             return +{ stat => $JSON::false, info => $@ } if $@;
             my @progress = (0,0); map{ $progress[1]++; $progress[0]++ if $_->[0] }@$rp;
 
@@ -331,7 +331,7 @@ post '/third/interface/stop' => sub {
     my $uuid = makeuuid( %$param );
     my $ruuid = uuid::get_rollback_uuid( $uuid );
 
-    my $x = eval{ $api::mysql->query( "select uuid,projectid,status,slave from task where uuid in ( '$uuid', '$ruuid' ) order by id" )};
+    my $x = eval{ $api::mysql->query( "select uuid,projectid,status,slave from openc3_jobx_task where uuid in ( '$uuid', '$ruuid' ) order by id" )};
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     return  +{ stat => $JSON::false, info => "no find task" } unless $x && @$x;
@@ -339,10 +339,10 @@ post '/third/interface/stop' => sub {
     if( @$x != 2 )
     {
          eval{
-             $api::mysql->execute(  "insert into task (`projectid`,`uuid`,`name`,`group`,`user`,`slave`,`status`,`calltype`,`variable`) values('$x->[0][0]','$ruuid','_skip_','_null_','sys','_null_', 'success','sys','')" );
+             $api::mysql->execute(  "insert into openc3_jobx_task (`projectid`,`uuid`,`name`,`group`,`user`,`slave`,`status`,`calltype`,`variable`) values('$x->[0][0]','$ruuid','_skip_','_null_','sys','_null_', 'success','sys','')" );
          };
          return +{ stat => $JSON::false, info => $@ } if $@;
-         $x = eval{ $api::mysql->query( "select uuid,projectid,status,slave from task where uuid in ( '$uuid', '$ruuid' ) order by id" )};
+         $x = eval{ $api::mysql->query( "select uuid,projectid,status,slave from openc3_jobx_task where uuid in ( '$uuid', '$ruuid' ) order by id" )};
          return +{ stat => $JSON::false, info => $@ } if $@;
          return +{ stat => $JSON::false, info => "nofind rollback uuid in database" } if @$x != 2;
     }
@@ -354,19 +354,19 @@ post '/third/interface/stop' => sub {
     return +{ stat => $JSON::true, info => "jobx uuid:$uuid status: $status" } if $status eq 'fail' || $status eq 'success';
     
     eval{ 
-        $api::mysql->execute( "update subtask set status='cancel' where parent_uuid='$uuid' and status='init' 
-                and parent_uuid in( select uuid from task where projectid='$project_id')"
+        $api::mysql->execute( "update openc3_jobx_subtask set status='cancel' where parent_uuid='$uuid' and status='init' 
+                and parent_uuid in( select uuid from openc3_jobx_task where projectid='$project_id')"
         );
-        $api::mysql->execute( "update subtask set confirm='task stop' where parent_uuid='$uuid' and confirm='WaitConfirm'
-                and parent_uuid in( select uuid from task where projectid='$project_id')"
+        $api::mysql->execute( "update openc3_jobx_subtask set confirm='task stop' where parent_uuid='$uuid' and confirm='WaitConfirm'
+                and parent_uuid in( select uuid from openc3_jobx_task where projectid='$project_id')"
         );
  
     };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{
-        $api::mysql->query( "select uuid from subtask where parent_uuid='$uuid' and status='running' 
-                and parent_uuid in( select uuid from task where projectid='$project_id')" );
+        $api::mysql->query( "select uuid from openc3_jobx_subtask where parent_uuid='$uuid' and status='running' 
+                and parent_uuid in( select uuid from openc3_jobx_task where projectid='$project_id')" );
     };
     return +{ stat => $JSON::false, info => $@ } if $@;
 

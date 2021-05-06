@@ -44,8 +44,8 @@ return sub
 
     my ( $stimems, $stime ) = ( time, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ) );
 
-    $db->execute( "update subtask set status='running' where uuid='$uuid' and status='init'" );
-    my $x = $db->query( "select task.name,projectid,variable,nodelist,subtask.status  from task,subtask where task.uuid=subtask.parent_uuid and subtask.uuid='$uuid'" );
+    $db->execute( "update openc3_jobx_subtask set status='running' where uuid='$uuid' and status='init'" );
+    my $x = $db->query( "select openc3_jobx_task.name,projectid,variable,nodelist,openc3_jobx_subtask.status  from openc3_jobx_task,openc3_jobx_subtask where openc3_jobx_task.uuid=openc3_jobx_subtask.parent_uuid and openc3_jobx_subtask.uuid='$uuid'" );
     $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
     $logs->die( "subtask uuid null: $uuid" ) unless @$x;
     my ( $name, $projectid, $variable, $nodelist, $status ) = @{$x->[0]};
@@ -102,7 +102,7 @@ return sub
                 {
                     $logs->say( "calljob fail: $cont : stat fail" );
                     print "calljob fail: $cont : stat fail\n";
-                    eval{ $db->execute( "update subtask set starttime='$stime',finishtime='$stime',runtime=0,status='fail',confirm='' where uuid='$uuid'" ); };
+                    eval{ $db->execute( "update openc3_jobx_subtask set starttime='$stime',finishtime='$stime',runtime=0,status='fail',confirm='' where uuid='$uuid'" ); };
                     $logs->die( "update subtask status fail:$@" ) if $@;
                     return 'fail'
                 }
@@ -166,7 +166,7 @@ return sub
 
 
     my $confirm = $d->{status} eq 'fail' ? 'WaitConfirm' : '';
-    eval{ $db->execute( "update subtask set starttime='$d->{starttime}',finishtime='$d->{finishtime}',runtime='$d->{runtime}',status='$d->{status}',confirm='$confirm' where uuid='$uuid'" ); };
+    eval{ $db->execute( "update openc3_jobx_subtask set starttime='$d->{starttime}',finishtime='$d->{finishtime}',runtime='$d->{runtime}',status='$d->{status}',confirm='$confirm' where uuid='$uuid'" ); };
     $logs->die( "update subtask status fail:$@" ) if $@;
 
     if( $d->{status} eq 'fail' )
@@ -174,7 +174,7 @@ return sub
         while(1)
         {
             sleep 5;
-            my $c = $db->query( "select confirm from subtask where uuid='$uuid'" );
+            my $c = $db->query( "select confirm from openc3_jobx_subtask where uuid='$uuid'" );
             last if $c && $c->[0][0] ne 'WaitConfirm';
         }
     }

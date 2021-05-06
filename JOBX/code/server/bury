@@ -51,7 +51,7 @@ return sub
     {
         warn "do ...\n";
 
-        my $x = eval{ $db->query( "select id,pid,uuid,starttime,starttimems,projectid from task 
+        my $x = eval{ $db->query( "select id,pid,uuid,starttime,starttimems,projectid from openc3_jobx_task 
             where slave='$myname' and pid is not null and status<>'success' and status<>'fail' and status<>'refuse'" );};
         $logs->die( "mysql query fail: $@" ) if $@;
         $logs->die( "get list fail from mysql" ) unless defined $x && ref $x eq 'ARRAY';
@@ -59,7 +59,7 @@ return sub
         my %realstarttime = map{ $_->[2] => $_->[4] }@$x;
         if( my @rollbackuuid = map{ $_->[2] }grep{ $_->[2] =~ /[A-Z]$/ }@$x )
         {
-            my $rollback = eval{ $db->query( sprintf "select uuid,starttimems from task where uuid in (%s)", join ',',
+            my $rollback = eval{ $db->query( sprintf "select uuid,starttimems from openc3_jobx_task where uuid in (%s)", join ',',
                 map{ "'".uuid::get_deploy_uuid( $_ )."'" }@rollbackuuid );};
             $logs->die( "mysql query fail: $@" ) if $@;
 
@@ -83,13 +83,13 @@ return sub
 
             if( $starttimems && $starttimems < $timeout )
             {
-                $db->execute( "update task set reason='kill by jobx\@app, Task timeout' where id=$id and reason is null" );
+                $db->execute( "update openc3_jobx_task set reason='kill by jobx\@app, Task timeout' where id=$id and reason is null" );
                 system "killall -9 jobx_worker_task_$uuid";
             }
 
             next if kill( 0, $pid );
 
-            my $subtask = eval{ $db->query( "select uuid from subtask where parent_uuid='$uuid' and status='running'"); };
+            my $subtask = eval{ $db->query( "select uuid from openc3_jobx_subtask where parent_uuid='$uuid' and status='running'"); };
             $logs->die( "mysql query fail: $@" ) if $@;
             if( $subtask && @$subtask > 0 )
             {
@@ -119,7 +119,7 @@ return sub
                 ( $runtime, $finishtime, $finishtimems ) = ( 0, $starttime, $starttimems );
             }
 
-            eval{ $db->execute( "update task set status='fail',runtime='$runtime',
+            eval{ $db->execute( "update openc3_jobx_task set status='fail',runtime='$runtime',
                 finishtime='$finishtime',finishtimems='$finishtimems' where id=$id" );};
             $logs->err( "update task status fail: id=$id :$@" ) if $@;
         }
