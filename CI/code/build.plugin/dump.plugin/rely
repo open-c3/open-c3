@@ -27,7 +27,7 @@ return sub
     $logs->die( "projectid format error" ) unless $projectid =~ /^\d+$/;
 
     my $x = eval{ 
-        $db->query( "select rely.path,rely.addr,rely.ticketid,rely.tags,project.groupid from rely,project where rely.projectid=project.id and projectid='$projectid' order by rely.id", 
+        $db->query( "select openc3_ci_rely.path,openc3_ci_rely.addr,openc3_ci_rely.ticketid,openc3_ci_rely.tags,openc3_ci_project.groupid from openc3_ci_rely,openc3_ci_project where openc3_ci_rely.projectid=openc3_ci_project.id and projectid='$projectid' order by openc3_ci_rely.id", 
             [qw( path addr ticketid tags treeid )]  ); 
     };
     $logs->die( "get rely info fail:$@" ) if $@;

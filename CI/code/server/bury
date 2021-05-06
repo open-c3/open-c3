@@ -24,7 +24,7 @@ return sub
     {
         warn "do ...\n";
 
-        my $x = eval{ $db->query( "select id,pid,uuid,starttime,starttimems from version
+        my $x = eval{ $db->query( "select id,pid,uuid,starttime,starttimems from openc3_ci_version
             where slave='$myname' and pid is not null and status<>'success' and status<>'fail'" );};
         $logs->die( "mysql query fail: $@" ) if $@;
         $logs->die( "get list fail from mysql" ) unless defined $x && ref $x eq 'ARRAY';
@@ -55,7 +55,7 @@ return sub
                 ( $runtime, $finishtime, $finishtimems ) = ( 0, $starttime, $starttimems );
             }
 
-            eval{ $db->execute( "update version set status='fail',runtime='$runtime',
+            eval{ $db->execute( "update openc3_ci_version set status='fail',runtime='$runtime',
                 finishtime='$finishtime',finishtimems='$finishtimems' where id=$id" );};
             $logs->err( "update task status fail: id=$id :$@" ) if $@;
         }

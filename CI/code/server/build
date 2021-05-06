@@ -37,7 +37,7 @@ return sub
         my $counttmp = int time / $interval;
         ( $count, %count ) = ( $counttmp ) if $count ne $counttmp;
 
-        my $x = eval{ $db->query( "select projectid,uuid from `version` where status='init' and pid is null and projectid not in ( select projectid from `version` where status='running') order by id" ) };
+        my $x = eval{ $db->query( "select projectid,uuid from `openc3_ci_version` where status='init' and pid is null and projectid not in ( select projectid from `openc3_ci_version` where status='running') order by id" ) };
         $logs->die( "mysql query fail: $@" ) if $@;
         $logs->die( "get project list from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
 

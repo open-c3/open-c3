@@ -27,7 +27,7 @@ get '/project/:groupid/:projectid' => sub {
         ticketid tag_regex autofindtags callonlineenv calltestenv findtags_at_once );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from project where id='$projectid'", join( ',', @col)), \@col )};
+            sprintf( "select %s from openc3_ci_project where id='$projectid'", join( ',', @col)), \@col )};
 
     my $data = $r && @$r ? $r->[0] : +{};
 
@@ -95,7 +95,7 @@ post '/project/:groupid/:projectid' => sub {
     );
     eval{ 
         $api::mysql->execute(
-            sprintf "replace into project (`id`,`edit_user`,%s ) values( '$projectid','$user', %s )", 
+            sprintf "replace into openc3_ci_project (`id`,`edit_user`,%s ) values( '$projectid','$user', %s )", 
             join(',',map{"`$_`"}@col), join(',',map{"'$param->{$_}'"}@col)
         );
     };
@@ -118,12 +118,12 @@ del '/project/:groupid/:projectid' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ),
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
-    my $flowname = eval{ $api::mysql->query( "select name from project where groupid='$groupid' and id='$projectid'" )}; 
+    my $flowname = eval{ $api::mysql->query( "select name from openc3_ci_project where groupid='$groupid' and id='$projectid'" )}; 
     eval{ $api::auditlog->run( user => $user, title => 'DELETE FLOWLINE', content => "TREEID:$groupid FLOWLINEID:$projectid NAME:$flowname->[0][0]" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
-        $api::mysql->execute( "delete from project where groupid='$groupid' and id='$projectid'" );
+        $api::mysql->execute( "delete from openc3_ci_project where groupid='$groupid' and id='$projectid'" );
     };
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
@@ -147,7 +147,7 @@ put '/project/:groupid/:projectid/findtags_at_once' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     eval{ 
-        $api::mysql->execute( "update project set findtags_at_once=1 where id=$param->{projectid}" ); 
+        $api::mysql->execute( "update openc3_ci_project set findtags_at_once=1 where id=$param->{projectid}" ); 
     };
 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };

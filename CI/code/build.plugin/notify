@@ -35,10 +35,10 @@ return sub
     $logs->die( "uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
 
     my @col;
-    map{ push @col, "version.$_" } qw( projectid name user status starttime finishtime calltype runtime );
-    map{ push @col, "project.$_" } qw( groupid name addr calltestenv callonlineenv notify );
+    map{ push @col, "openc3_ci_version.$_" } qw( projectid name user status starttime finishtime calltype runtime );
+    map{ push @col, "openc3_ci_project.$_" } qw( groupid name addr calltestenv callonlineenv notify );
     
-    my $x = eval{ $db->query( sprintf( "select %s from version,project where version.projectid=project.id and uuid='$uuid'", join( ',',@col) ), \@col ); };
+    my $x = eval{ $db->query( sprintf( "select %s from openc3_ci_version,openc3_ci_project where openc3_ci_version.projectid=openc3_ci_project.id and uuid='$uuid'", join( ',',@col) ), \@col ); };
 
     $logs->die( "get version info fail:$@" ) if $@;
     $logs->die( "get version info from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
@@ -61,14 +61,14 @@ return sub
     my $environment = $data->{data};
 
 
-    my $notify = $ua->get( "http://api.job.open-c3.org/notify/$x{'project.groupid'}" );
+    my $notify = $ua->get( "http://api.job.open-c3.org/notify/$x{'openc3_ci_project.groupid'}" );
 
     $logs->die( "call job get notify table fail" ) unless $notify->is_success;
     my $datanotify = eval{JSON::from_json $notify->content};
     $logs->die( "call job get environment stat fail" ) unless $datanotify->{stat};
 
     my %notify = map{ $_->{user} => 1 }@{$datanotify->{data}};
-    map{ $notify{$_} = 1 } split /,/, $x{'project.notify'} if $x{'project.notify'};
+    map{ $notify{$_} = 1 } split /,/, $x{'openc3_ci_project.notify'} if $x{'openc3_ci_project.notify'};
 
     my %template = 
     (
@@ -96,12 +96,12 @@ return sub
 
     my %replace;
     $replace{buildlog} = `head -n 200 $RealBin/../logs/build/$uuid`;
-    $replace{projectname} = $x{'project.name'};
-    $replace{version} = $x{'version.name'};
+    $replace{projectname} = $x{'openc3_ci_project.name'};
+    $replace{version} = $x{'openc3_ci_version.name'};
     $replace{status} = $status;
-    $replace{addr} = $x{'project.addr'};
-    $replace{calltestenv} = $x{'project.calltestenv'} ? 'Yes' : 'No';
-    $replace{callonlineenv} = $x{'project.callonlineenv'} ? 'Yes' : 'No';
+    $replace{addr} = $x{'openc3_ci_project.addr'};
+    $replace{calltestenv} = $x{'openc3_ci_project.calltestenv'} ? 'Yes' : 'No';
+    $replace{callonlineenv} = $x{'openc3_ci_project.callonlineenv'} ? 'Yes' : 'No';
     $replace{errormsg} = $errormsg;
 
     for my $key ( keys %senddata )

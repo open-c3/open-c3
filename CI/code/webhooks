@@ -40,7 +40,7 @@ return sub
 
     my $password = encode_base64( encode('UTF-8',  $conf->{TOKEN}) );
     my $x = $db->query( 
-        sprintf "select id,autobuild,webhook_release from project where webhook='1' and webhook_password='$password' and addr in( %s )", join ',', map{ "'$_'" }@addr
+        sprintf "select id,autobuild,webhook_release from openc3_ci_project where webhook='1' and webhook_password='$password' and addr in( %s )", join ',', map{ "'$_'" }@addr
     );
     $logs->die( "get info fail:$@" ) if $@;
     $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
@@ -83,7 +83,7 @@ return sub
             my ( $status, $reason ) = $autobuild ? ( 'init', '' ) : ( 'done', 'auto build off' );
             my $uuid = uuid->new()->create_str;
             my $slave = eval{ keepalive->new( $db )->slave() }; 
-            eval{ $db->execute( "insert into version (`projectid`,`name`,`status`,`calltype`,`user`,`uuid`,`tagger`,`slave`,`reason`)
+            eval{ $db->execute( "insert into openc3_ci_version (`projectid`,`name`,`status`,`calltype`,`user`,`uuid`,`tagger`,`slave`,`reason`)
                     values('$projectid','$version','$status','webhook','$conf->{user_email}','$uuid','$conf->{user_email}','$slave','$reason')" ); };
         } else {
             $logs->say("$branch not in @webhook_releases");

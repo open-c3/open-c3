@@ -37,7 +37,7 @@ return sub
 
         my $time = time;
 
-        my $x = eval{ $db->query( "select id,findtags_at_once from `project` 
+        my $x = eval{ $db->query( "select id,findtags_at_once from `openc3_ci_project` 
                 where status='1' and ( autofindtags='1' or findtags_at_once='1' ) order by id" ) };
         $logs->die( "mysql query fail: $@" ) if $@;
         $logs->die( "get project list from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
@@ -71,7 +71,7 @@ return sub
             print "num is :", $num_list[$num%6], "\n";
             $time{$id} = $time + $interval + $num_list[$num%6];
 
-            $db->execute( "update project set findtags_at_once=0 where id='$id'" );
+            $db->execute( "update openc3_ci_project set findtags_at_once=0 where id='$id'" );
         }
 
         sleep 6;

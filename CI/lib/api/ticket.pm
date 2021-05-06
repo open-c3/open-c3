@@ -22,13 +22,13 @@ get '/ticket' => sub {
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
     my $where = $param->{type} ? "and type='$param->{type}'" : '';
-    my $or = $param->{projectid} ? "or id in ( select ticketid from project where id='$param->{projectid}') or id in ( select follow_up_ticketid from project where id='$param->{projectid}')" : "";
+    my $or = $param->{projectid} ? "or id in ( select ticketid from openc3_ci_project where id='$param->{projectid}') or id in ( select follow_up_ticketid from openc3_ci_project where id='$param->{projectid}')" : "";
     $or .= $param->{ticketid} ? " or id='$param->{ticketid}' " : "";
 
     my @col = qw( id name type share ticket describe edit_user create_user edit_time create_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from ticket where ( create_user='$user' or share='$company' $or ) $where", join( ',', map{"`$_`"}@col)), \@col )};
+            sprintf( "select %s from openc3_ci_ticket where ( create_user='$user' or share='$company' $or ) $where", join( ',', map{"`$_`"}@col)), \@col )};
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     for my $d ( @$r )
@@ -65,7 +65,7 @@ get '/ticket/:ticketid' => sub {
     my @col = qw( id name type share ticket describe edit_user create_user edit_time create_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from ticket where id='$param->{ticketid}' and ( create_user='$user' or share='$company' or '$company'='\@app' )", join( ',', map{"`$_`"}@col)), \@col )};
+            sprintf( "select %s from openc3_ci_ticket where id='$param->{ticketid}' and ( create_user='$user' or share='$company' or '$company'='\@app' )", join( ',', map{"`$_`"}@col)), \@col )};
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     for my $d ( @$r )
@@ -134,7 +134,7 @@ post '/ticket' => sub {
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
 
     eval{ 
-        $api::mysql->execute( "insert into ticket (`name`,`type`, `share`, `ticket`,`describe`,`edit_user`,`create_user`,`edit_time`,`create_time` ) values( '$param->{name}', '$param->{type}', '$share', '$token', '$param->{describe}', '$user', '$user', '$time', '$time' )");
+        $api::mysql->execute( "insert into openc3_ci_ticket (`name`,`type`, `share`, `ticket`,`describe`,`edit_user`,`create_user`,`edit_time`,`create_time` ) values( '$param->{name}', '$param->{type}', '$share', '$token', '$param->{describe}', '$user', '$user', '$time', '$time' )");
     };
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
@@ -183,7 +183,7 @@ post '/ticket/:ticketid' => sub {
     return  +{ stat => $JSON::false, info => "abnormal ticket format" } if $token =~ /\*{8}/;
 
     my $update = eval{ 
-        $api::mysql->execute( "update ticket set name='$param->{name}',type='$param->{type}',share='$share',ticket='$token',`describe`='$param->{describe}',edit_user='$user',edit_time='$time' where id=$param->{ticketid} and create_user='$user'" );
+        $api::mysql->execute( "update openc3_ci_ticket set name='$param->{name}',type='$param->{type}',share='$share',ticket='$token',`describe`='$param->{describe}',edit_user='$user',edit_time='$time' where id=$param->{ticketid} and create_user='$user'" );
     };
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : $update ? +{ stat => $JSON::true } : +{ stat => $JSON::false, info => 'not update' } ;
@@ -200,12 +200,12 @@ del '/ticket/:ticketid' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
-    my $ticketname = eval{ $api::mysql->query( "select name from ticket where id='$param->{ticketid}'")};
+    my $ticketname = eval{ $api::mysql->query( "select name from openc3_ci_ticket where id='$param->{ticketid}'")};
     eval{ $api::auditlog->run( user => $user, title => 'DELETE TICKET', content => "TICKETID:$param->{ticketid} NAME:$ticketname->[0][0]" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $update = eval{ 
-        $api::mysql->execute( "delete from ticket where id='$param->{ticketid}' and create_user='$user'" );
+        $api::mysql->execute( "delete from openc3_ci_ticket where id='$param->{ticketid}' and create_user='$user'" );
     };
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : $update ? +{ stat => $JSON::true } : +{ stat => $JSON::false, info => 'not delete' };

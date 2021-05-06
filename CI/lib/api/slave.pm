@@ -72,11 +72,11 @@ websocket_on_open sub {
 
         if( $checklog )
         {
-            $sql = "select %s from project where id='$uuid'";
+            $sql = "select %s from openc3_ci_project where id='$uuid'";
         }
         else
         {
-            $sql = "select %s from project where id in ( select projectid from version where uuid='$installuuid' )";
+            $sql = "select %s from openc3_ci_project where id in ( select projectid from openc3_ci_version where uuid='$installuuid' )";
         }
 
         {
@@ -186,7 +186,7 @@ put '/killbuild/:uuid' => sub {
   }
 
   my @col = qw( pid projectid slave status name);
-  my $r = eval{ $mysql->query( sprintf( "select %s from version where uuid='$uuid'", join ',', @col ), \@col )};
+  my $r = eval{ $mysql->query( sprintf( "select %s from openc3_ci_version where uuid='$uuid'", join ',', @col ), \@col )};
   return JSON::to_json( +{ stat => $JSON::false, info => "Non-existent uuid:$uuid" } ) unless $r && @$r;
 
   my $data = $r->[0];
@@ -206,7 +206,7 @@ put '/killbuild/:uuid' => sub {
 
   unless( $ENV{MYDan_DEBUG} )
   {
-      my $x = eval{ $mysql->query( "select groupid from project where id='$data->{projectid}'" )};
+      my $x = eval{ $mysql->query( "select groupid from openc3_ci_project where id='$data->{projectid}'" )};
       return JSON::to_json( +{ stat => $JSON::false, info =>  'nofind groupid' } ) unless $x && @$x > 0;
 
       my $p = eval{ $pms->run( cookie => cookie( $cookiekey ), 
@@ -232,7 +232,7 @@ put '/killbuild/:uuid' => sub {
 };
 
 any '/mon' => sub {
-     eval{ $mysql->query( "select count(*) from keepalive" )};
+     eval{ $mysql->query( "select count(*) from openc3_ci_keepalive" )};
      return $@ ? "ERR:$@" : "ok";
 };
 

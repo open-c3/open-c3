@@ -1,7 +1,7 @@
 create database ci;
 use ci;
 
-create table `project`(
+create table `openc3_ci_project`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 
 `status` VARCHAR(2) comment '状态', #0,1
@@ -46,7 +46,7 @@ create table `project`(
 `edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '最后编辑时间'
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='项目';
 
-create table `rely`(
+create table `openc3_ci_rely`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 
 `projectid` int(16) unsigned comment '项目id',
@@ -61,7 +61,7 @@ create table `rely`(
 
 
 
-create table `repository`(
+create table `openc3_ci_repository`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 
 `addr` VARCHAR(100) comment '仓库地址',
@@ -71,7 +71,7 @@ create table `repository`(
 UNIQUE KEY `uniq_addr` (`addr`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='仓库';
 
-create table `ticket`(
+create table `openc3_ci_ticket`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 `name` VARCHAR(100) comment '名称',
 `type` VARCHAR(100) comment '票据类型',
@@ -85,7 +85,7 @@ create table `ticket`(
 UNIQUE KEY `uniq_name` (`name`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='票据';
 
-create table `images`(
+create table `openc3_ci_images`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 `name` VARCHAR(100) comment '名称',
 `share` VARCHAR(100) comment '共享',
@@ -96,7 +96,7 @@ create table `images`(
 `create_time` TIMESTAMP comment '创建时间'
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='容器镜像';
 
-create table `version`(
+create table `openc3_ci_version`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 `projectid` int(16) unsigned comment '项目id',
 
@@ -124,14 +124,14 @@ UNIQUE KEY `uniq_uuid` (`uuid`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='版本';
 
 
-create table `keepalive`(
+create table `openc3_ci_keepalive`(
 `id` int(16) unsigned not null primary key auto_increment comment 'id',
 `slave` VARCHAR(40) comment 'slave',
 `time` int(16) unsigned comment 'time',
 UNIQUE KEY `uniq_slave` (`slave`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='slave心跳';
 
-create table `favorites`(
+create table `openc3_ci_favorites`(
 `id` int(16) unsigned not null primary key auto_increment comment 'id',
 `ciid` int(16) unsigned comment 'ciid',
 `name` VARCHAR(100) comment '别名',

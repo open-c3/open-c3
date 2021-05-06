@@ -31,7 +31,7 @@ return sub
 
     if( $ticketid )
     {
-        my $x = eval{ $db->query( "select ticket from ticket where id='$ticketid' and type='UsernamePassword'" )};  
+        my $x = eval{ $db->query( "select ticket from openc3_ci_ticket where id='$ticketid' and type='UsernamePassword'" )};  
         $logs->die( "get data from ticket fail:$@" ) if $@;
         ( $username, $pass ) = split /_:separator:_/, $x->[0][0] if @$x;
     }

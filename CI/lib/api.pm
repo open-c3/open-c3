@@ -60,7 +60,7 @@ hook before_error_render => sub {
 };
 
 any '/mon' => sub {
-    eval{ $mysql->query( "select count(*) from keepalive" )};
+    eval{ $mysql->query( "select count(*) from openc3_ci_keepalive" )};
     return $@ ? "ERR:$@" : "ok";
 };
 

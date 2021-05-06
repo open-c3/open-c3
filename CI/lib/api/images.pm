@@ -18,7 +18,7 @@ get '/images' => sub {
     my @col = qw( id name share describe edit_user create_user edit_time create_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from images where ( create_user='$user' or share='$company' )", join( ',', map{"`$_`"}@col)), \@col )};
+            sprintf( "select %s from openc3_ci_images where ( create_user='$user' or share='$company' )", join( ',', map{"`$_`"}@col)), \@col )};
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     for my $d ( @$r )
@@ -43,7 +43,7 @@ get '/images/:imagesid' => sub {
     my @col = qw( id name share describe edit_user create_user edit_time create_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from images where id='$param->{imagesid}' and ( create_user='$user' or share='$company' or '$company'='\@app' )", join( ',', map{"`$_`"}@col)), \@col )};
+            sprintf( "select %s from openc3_ci_images where id='$param->{imagesid}' and ( create_user='$user' or share='$company' or '$company'='\@app' )", join( ',', map{"`$_`"}@col)), \@col )};
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     for my $d ( @$r )
@@ -88,7 +88,7 @@ post '/images' => sub {
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
 
     eval{ 
-        $api::mysql->execute( "insert into images (`name`, `share`,`describe`,`edit_user`,`create_user`,`edit_time`,`create_time` )
+        $api::mysql->execute( "insert into openc3_ci_images (`name`, `share`,`describe`,`edit_user`,`create_user`,`edit_time`,`create_time` )
             values( '$param->{name}', '$share', '$param->{describe}', '$user', '$user', '$time', '$time' )");
     };
     return +{ stat => $JSON::false, info => $@ } if $@;
@@ -96,7 +96,7 @@ post '/images' => sub {
     my $path = "/data/glusterfs/dockerimage";
     mkdir $path unless -d $path;
 
-    my $ids = eval{ $api::mysql->query( "select id,name from images where name='$param->{name}'" )};
+    my $ids = eval{ $api::mysql->query( "select id,name from openc3_ci_images where name='$param->{name}'" )};
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     for my $id ( map{ $_->[0] }grep{ $_->[1] =~ /^\d+\.\d+\.\d+\.\d+$/ }@$ids )
@@ -150,7 +150,7 @@ post '/images/:imagesid' => sub {
     }
 
     my $update = eval{ 
-        $api::mysql->execute( "update images set name='$param->{name}',share='$share',`describe`='$param->{describe}',edit_user='$user',edit_time='$time' where id=$param->{imagesid} and create_user='$user'" );
+        $api::mysql->execute( "update openc3_ci_images set name='$param->{name}',share='$share',`describe`='$param->{describe}',edit_user='$user',edit_time='$time' where id=$param->{imagesid} and create_user='$user'" );
     };
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : $update ? +{ stat => $JSON::true } : +{ stat => $JSON::false, info => 'not update' } ;
@@ -167,12 +167,12 @@ del '/images/:imagesid' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
-    my $imagename = eval{ $api::mysql->query( "select name from images where id='$param->{imagesid}'")};
+    my $imagename = eval{ $api::mysql->query( "select name from openc3_ci_images where id='$param->{imagesid}'")};
     eval{ $api::auditlog->run( user => $user, title => 'DELETE IMAGE', content => "IMAGEID:$param->{imagesid} NAME:$imagename->[0][0]" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $update = eval{ 
-        $api::mysql->execute( "delete from images where id='$param->{imagesid}' and create_user='$user'" );
+        $api::mysql->execute( "delete from openc3_ci_images where id='$param->{imagesid}' and create_user='$user'" );
     };
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : $update ? +{ stat => $JSON::true } : +{ stat => $JSON::false, info => 'not delete' };
@@ -191,7 +191,7 @@ get '/images/:imagesid/upload' => sub {
 
     my $r = eval{ 
         $api::mysql->query( 
-            "select name from images where id='$param->{imagesid}' and (create_user='$user')")};
+            "select name from openc3_ci_images where id='$param->{imagesid}' and (create_user='$user')")};
 
     return +{ stat => $JSON::false, info => $@ } if $@;
     return +{ stat => $JSON::false, info => 'nofind id' } unless $r && @$r > 0;
@@ -217,13 +217,13 @@ post '/images/:imagesid/upload' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
-    my $imagename = eval{ $api::mysql->query( "select name from images where id='$param->{imagesid}'")};
+    my $imagename = eval{ $api::mysql->query( "select name from openc3_ci_images where id='$param->{imagesid}'")};
     eval{ $api::auditlog->run( user => $user, title => 'UPLOAD IMAGE', content => "IMAGEID:$param->{imagesid} NAME:$imagename->[0][0]" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
         $api::mysql->query( 
-            "select name from images where id='$param->{imagesid}' and (create_user='$user')")};
+            "select name from openc3_ci_images where id='$param->{imagesid}' and (create_user='$user')")};
 
     return +{ stat => $JSON::false, info => $@ } if $@;
     return +{ stat => $JSON::false, info => 'nofind id' } unless $r && @$r > 0;

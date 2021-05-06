@@ -31,11 +31,11 @@ get '/monitor/metrics/mysql' => sub {
 get '/monitor/metrics/app' => sub {
     my $param = params();
 
-    my $p = eval{ $api::mysql->query( "select status,count(*) from project group by status" )};
+    my $p = eval{ $api::mysql->query( "select status,count(*) from openc3_ci_project group by status" )};
     my %p = map{ $_->[0] => $_->[1] }@$p;
     map{ $p{$_} ||= 0 }(1 , 0 );
     
-    my $v = eval{ $api::mysql->query( "select status,count(*) from version group by status" )};
+    my $v = eval{ $api::mysql->query( "select status,count(*) from openc3_ci_version group by status" )};
     my %v = map{ $_->[0] => $_->[1] }@$v;
     map{ $v{$_} ||= 0 }qw( done fail running success );
 

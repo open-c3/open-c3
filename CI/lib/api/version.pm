@@ -21,7 +21,7 @@ get '/v/:groupid/:projectid' => sub {
 
     my $r = eval{ 
         $api::mysql->query( 
-             "select name from version where projectid='$projectid' order by create_time desc,id desc" )};
+             "select name from openc3_ci_version where projectid='$projectid' order by create_time desc,id desc" )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => , [map{$_->[0] }@$r] };
 };
@@ -41,7 +41,7 @@ get '/version/:groupid/:projectid' => sub {
     );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from version where projectid='$projectid' order by create_time desc,id desc", join( ',', @col)), \@col )};
+            sprintf( "select %s from openc3_ci_version where projectid='$projectid' order by create_time desc,id desc", join( ',', @col)), \@col )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r ||[] };
 };
@@ -62,7 +62,7 @@ get '/versiondetail/:projectid/:version' => sub {
     );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from version where projectid='$param->{projectid}' and name='$param->{version}'", join( ',', @col)), \@col )};
+            sprintf( "select %s from openc3_ci_version where projectid='$param->{projectid}' and name='$param->{version}'", join( ',', @col)), \@col )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => @$r ? $r->[0] : +{} };
 };
@@ -82,8 +82,8 @@ get '/versions' => sub {
     map{
         my $r = eval{
             $api::mysql->query(
-                sprintf( "select %s from version where status!='done' and projectid in 
-                    (select id from project where id in ('$_') and status =True) order by id desc",
+                sprintf( "select %s from openc3_ci_version where status!='done' and projectid in 
+                    (select id from openc3_ci_project where id in ('$_') and status =True) order by id desc",
                     join( ',', @col)), \@col )};
         $results{$_} = $r ||[];
         }@project_ids;
@@ -109,7 +109,7 @@ put '/version/:groupid/:projectid/stop_project' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     eval{
-        $api::mysql->execute( "update version set status='done',reason='off by $user'
+        $api::mysql->execute( "update openc3_ci_version set status='done',reason='off by $user'
             where projectid=$projectid and  status='init'");
     };
 
@@ -130,12 +130,12 @@ put '/version/:groupid/:projectid/:uuid/build' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ),
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
-    my $tagname = eval{ $api::mysql->query( "select name from version where uuid='$param->{uuid}'")};
+    my $tagname = eval{ $api::mysql->query( "select name from openc3_ci_version where uuid='$param->{uuid}'")};
     eval{ $api::auditlog->run( user => $user, title => 'START BUILD', content => "TREEID:$param->{groupid} FLOWLINEID:$param->{projectid} TAG:$tagname->[0][0]" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     eval{ 
-        $api::mysql->execute( "update version set status='init',user='$user',reason='call by page',pid=null 
+        $api::mysql->execute( "update openc3_ci_version set status='init',user='$user',reason='call by page',pid=null 
             where uuid='$param->{uuid}' and ( status='fail' || status='success' || status='done')");
     };
 
@@ -151,7 +151,7 @@ get '/version/:groupid/:projectid/count/calltype' => sub {
 
     my $time = POSIX::strftime( "%Y-%m-00 00:00:00", localtime );
     my $r = eval{
-        $api::mysql->query( "select calltype,count(id) from version where projectid='$param->{projectid}'  group by calltype" )};
+        $api::mysql->query( "select calltype,count(id) from openc3_ci_version where projectid='$param->{projectid}' group by calltype" )};
     my %data = map{@$_}@$r;
 
     map{$data{$_}||=0}qw( crontab webhook manmade );
@@ -167,7 +167,7 @@ get '/version/:groupid/:projectid/count/status' => sub {
 
     my $time = POSIX::strftime( "%Y-%m-00 00:00:00", localtime );
     my $r = eval{
-        $api::mysql->query( "select status,count(id) from version where projectid='$param->{projectid}'  group by status" )};
+        $api::mysql->query( "select status,count(id) from openc3_ci_version where projectid='$param->{projectid}' group by status" )};
     my %data = map{@$_}@$r;
 
     map{$data{$_}||=0}qw( running done );
@@ -189,7 +189,7 @@ get '/version/:groupid/:projectid/analysis/runtime' => sub {
 
     my $time = POSIX::strftime( "%Y-%m-%d 00:00:00", localtime( time - 2592000 ) );
     my $r = eval{ 
-        $api::mysql->query( "select runtime from version where projectid='$projectid' and starttime>'$time'" )};
+        $api::mysql->query( "select runtime from openc3_ci_version where projectid='$projectid' and starttime>'$time'" )};
 
     return  +{ stat => $JSON::false, info => $@ } if $@;
 
@@ -242,9 +242,9 @@ get '/version/:groupid/:projectid/analysis/date' => sub {
     my $projectid = $param->{projectid};
 
     my $time = POSIX::strftime( "%Y-%m-%d 00:00:00", localtime( time - 2592000 ) );
-    my $all = eval{ $api::mysql->query( "select DATE_FORMAT(starttime, '%Y-%m-%d') as x,count(*)  from version
+    my $all = eval{ $api::mysql->query( "select DATE_FORMAT(starttime, '%Y-%m-%d') as x,count(*) from openc3_ci_version
             where projectid='$projectid' and starttime>'$time' group by x order by x" )};
-    my $success = eval{ $api::mysql->query( "select DATE_FORMAT(starttime, '%Y-%m-%d') as x,count(*)  from version
+    my $success = eval{ $api::mysql->query( "select DATE_FORMAT(starttime, '%Y-%m-%d') as x,count(*)  from openc3_ci_version
             where projectid='$projectid' and status='success' and starttime>'$time' group by x order by x" )};
 
     my %success = map{ @$_ }@$success;
@@ -269,7 +269,7 @@ get '/version/:groupid/:projectid/analysis/last' => sub {
 
     my @col = qw( user runtime status name );
     my $r = eval{ $api::mysql->query( 
-            sprintf( "select %s from version where projectid='$param->{projectid}' order by id desc limit $param->{count}", join ',',@col ), \@col
+            sprintf( "select %s from openc3_ci_version where projectid='$param->{projectid}' order by id desc limit $param->{count}", join ',',@col ), \@col
             )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };

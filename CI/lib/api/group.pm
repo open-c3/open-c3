@@ -26,7 +26,7 @@ get '/group/:groupid' => sub {
         ticketid tag_regex autofindtags callonlineenv calltestenv findtags_at_once );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from project where groupid='$groupid'", join( ',', @col)), \@col )};
+            sprintf( "select %s from openc3_ci_project where groupid='$groupid'", join( ',', @col)), \@col )};
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my %v;
@@ -35,14 +35,14 @@ get '/group/:groupid' => sub {
         my @c = qw( id projectid uuid name user slave status starttimems finishtimems 
             starttime  finishtime calltype pid runtime reason create_time 
         );
-        my $v = eval{  $api::mysql->query( sprintf( "select %s from version where projectid in (%s)", join( ',',@c), join( ',', map{$_->{id}}@$r )), \@c); };
+        my $v = eval{  $api::mysql->query( sprintf( "select %s from openc3_ci_version where projectid in (%s)", join( ',',@c), join( ',', map{$_->{id}}@$r )), \@c); };
         return +{ stat => $JSON::false, info => $@ } if $@;
         map{ $v{$_->{projectid}} = $_ }@$v;
     }
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
-    my $f = eval{  $api::mysql->query( "select ciid,name from favorites where user='$user'" ); };
+    my $f = eval{  $api::mysql->query( "select ciid,name from openc3_ci_favorites where user='$user'" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my ( %favorites, %alias );
@@ -73,11 +73,11 @@ get '/group/favorites/:groupid' => sub {
         ticketid tag_regex autofindtags callonlineenv calltestenv findtags_at_once );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from project where id in( select ciid from favorites where user='$user')", join( ',', @col)), \@col )};
+            sprintf( "select %s from openc3_ci_project where id in( select ciid from openc3_ci_favorites where user='$user')", join( ',', @col)), \@col )};
     return +{ stat => $JSON::false, info => $@ } if $@;
 
 
-    my $f = eval{  $api::mysql->query( "select ciid,name from favorites where user='$user'" ); };
+    my $f = eval{  $api::mysql->query( "select ciid,name from openc3_ci_favorites where user='$user'" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my ( %favorites, %alias );
@@ -98,7 +98,7 @@ get '/group/favorites/:groupid' => sub {
         my @c = qw( id projectid uuid name user slave status starttimems finishtimems 
             starttime  finishtime calltype pid runtime reason create_time 
         );
-        my $v = eval{  $api::mysql->query( sprintf( "select %s from version where projectid in (%s)", join( ',',@c), join( ',', map{$_->{id}}@$r )), \@c); };
+        my $v = eval{  $api::mysql->query( sprintf( "select %s from openc3_ci_version where projectid in (%s)", join( ',',@c), join( ',', map{$_->{id}}@$r )), \@c); };
         return +{ stat => $JSON::false, info => $@ } if $@;
         map{ $v{$_->{projectid}} = $_ }@$v;
     }
@@ -130,11 +130,11 @@ get '/group/all/:groupid' => sub {
         ticketid tag_regex autofindtags callonlineenv calltestenv findtags_at_once );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from project", join( ',', @col)), \@col )};
+            sprintf( "select %s from openc3_ci_project", join( ',', @col)), \@col )};
     return +{ stat => $JSON::false, info => $@ } if $@;
 
 
-    my $f = eval{  $api::mysql->query( "select ciid,name from favorites where user='$user'" ); };
+    my $f = eval{  $api::mysql->query( "select ciid,name from openc3_ci_favorites where user='$user'" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my ( %favorites, %alias );
@@ -176,7 +176,7 @@ post '/group/:groupid' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
-    my $r = eval{ $api::mysql->query( "select id from project where groupid='$groupid' and name='$param->{name}'" )};
+    my $r = eval{ $api::mysql->query( "select id from openc3_ci_project where groupid='$groupid' and name='$param->{name}'" )};
     return  +{ stat => $JSON::false, info => 'The name already exists' } if $r && @$r > 0;
 
     eval{ 
@@ -185,21 +185,21 @@ post '/group/:groupid' => sub {
             my $status = $param->{status} ? 1 : 0;
             my $x = join ',', map{"`$_`"}qw( autobuild excuteflow calljobx calljob webhook webhook_password webhook_release rely buildimage buildscripts 
                   follow_up follow_up_ticketid callback addr notify  edit_time  slave last_findtags last_findtags_success ticketid tag_regex autofindtags callonlineenv calltestenv findtags_at_once );
-            $api::mysql->execute( "insert into project (`edit_user`,`name`, `groupid`, `status`,$x ) select '$user','$param->{name}','$groupid',$status, $x from project where id=$param->{sourceid}");
+            $api::mysql->execute( "insert into openc3_ci_project (`edit_user`,`name`, `groupid`, `status`,$x ) select '$user','$param->{name}','$groupid',$status, $x from openc3_ci_project where id=$param->{sourceid}");
         }
         else
         {
-            $api::mysql->execute( "insert into project (`edit_user`,`name`, `groupid` ) values( '$user', '$param->{name}', $groupid )");
+            $api::mysql->execute( "insert into openc3_ci_project (`edit_user`,`name`, `groupid` ) values( '$user', '$param->{name}', $groupid )");
         }
     };
 
     return  +{ stat => $JSON::false, info => $@ } if $@;
-    my $flowid = eval{ $api::mysql->query( "select id from project where groupid='$groupid' and name='$param->{name}'" )};
+    my $flowid = eval{ $api::mysql->query( "select id from openc3_ci_project where groupid='$groupid' and name='$param->{name}'" )};
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     eval{ $api::auditlog->run( user => $user, title => 'CREATE FLOWLINE', content => "TREEID:$groupid FLOWLINEID:$flowid->[0][0] NAME:$param->{name}" ); };
 
-    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, id => $flowid->[0][0]};
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, id => $flowid->[0][0] };
 };
 
 true;

@@ -32,7 +32,7 @@ return sub
 
     if( $ticketid )
     {
-        my $x = eval{ $db->query( "select ticket from ticket where id='$ticketid' and type='SSHKey'" )};  
+        my $x = eval{ $db->query( "select ticket from openc3_ci_ticket where id='$ticketid' and type='SSHKey'" )};  
         $logs->die( "get data from ticket fail:$@" ) if $@;
         $ssh_key = $x->[0][0] if @$x;
     }
@@ -97,7 +97,7 @@ return sub
                 if system "cd '$temppath' && rm -rf data data.tmp info && $ctrl clone --progress -b $branch --recursive $addr data.tmp && mkdir -p info && cd data.tmp && git reset --hard $commitid && cd .. && mv data.tmp/.git info/ && mv data.tmp data && echo '$version' > info/version && echo '$branch' > info/branch && echo '$event_name' > info/event_name";
         }
 
-        my $t = eval{ $db->query( "select `tagger` from version where projectid='$projectid' and name='$name'" )};  
+        my $t = eval{ $db->query( "select `tagger` from openc3_ci_version where projectid='$projectid' and name='$name'" )};  
         $logs->die( "get tagger from version  fail:$@" ) if $@;
         $tagger = $t->[0][0] if $t && ref $t && ref $t->[0];
     }

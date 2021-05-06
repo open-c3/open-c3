@@ -26,7 +26,7 @@ eval{
     
     my $db = MYDB->new( "$RealBin/../conf/conn" );
 
-    my $gid = $db->query( "select groupid from project where id=$projectid" );
+    my $gid = $db->query( "select groupid from openc3_ci_project where id=$projectid" );
     die "nofind the projectid in ci" unless $gid && @$gid > 0;
 
     my $treeid = $gid->[0][0];
@@ -39,7 +39,7 @@ eval{
         my ( $user, $company ) = $sso->run( cookie => $u );
         print "user:$user, company:$company\n";
 
-        my $checkauth = $db->query( "select name from images where id='$image' and ( create_user='$user' or share='$company' )" );
+        my $checkauth = $db->query( "select name from openc3_ci_images where id='$image' and ( create_user='$user' or share='$company' )" );
         die "no permission\n" unless @$checkauth;
 
         my $imagename = $checkauth->[0][0];

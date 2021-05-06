@@ -35,8 +35,8 @@ return sub
     {
         $logs->die( "uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
 
-        my $x = eval{ $db->query( "select project.id,project.addr,project.ticketid,project.rely,version.name,project.groupid 
-                from version,project where project.id=version.projectid and uuid='$uuid'", 
+        my $x = eval{ $db->query( "select openc3_ci_project.id,openc3_ci_project.addr,openc3_ci_project.ticketid,openc3_ci_project.rely,openc3_ci_version.name,openc3_ci_project.groupid 
+                from openc3_ci_version,openc3_ci_project where openc3_ci_project.id=openc3_ci_version.projectid and uuid='$uuid'", 
                 [qw( projectid addr ticketid rely name treeid )]  );
         };
         $logs->die( "get info fail:$@" ) if $@;
@@ -51,7 +51,7 @@ return sub
     {
         $logs->die( "projectid format error" ) unless $projectid =~ /^\d+$/;
 
-        my $x = eval{ $db->query( "select id,addr,ticketid,rely,groupid from project where id='$projectid'", 
+        my $x = eval{ $db->query( "select id,addr,ticketid,rely,groupid from openc3_ci_project where id='$projectid'", 
                 [qw( projectid addr ticketid rely treeid )]  );
         };
         $logs->die( "get info fail:$@" ) if $@;

@@ -32,11 +32,11 @@ return sub
     my ( $stimems, $stime ) = ( time, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ) );
     my $myname =Util::myname();
 
-    my $x = $db->execute( "update version set pid='$$',starttime='$stime',starttimems='$stimems',status='running',slave='$myname'
+    my $x = $db->execute( "update openc3_ci_version set pid='$$',starttime='$stime',starttimems='$stimems',status='running',slave='$myname'
         where uuid='$uuid' and ( slave='' or slave='$myname' ) and pid is null" );
     $logs->die( "build $uuid Already running, or no belong to the slave" ) unless $x && $x eq 1;
 
-    $x = $db->query( "select `projectid`,`name` from version where uuid='$uuid'" );
+    $x = $db->query( "select `projectid`,`name` from openc3_ci_version where uuid='$uuid'" );
     $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
     $logs->die( "build uuid null: $uuid" ) unless @$x;
 
@@ -76,7 +76,7 @@ return sub
     my ( $ftimems, $ftime ) = ( time, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ) );
     my $runtime = sprintf "%0.3f", $ftimems - $stimems;
 
-    eval{ $db->execute( "update version set finishtime='$ftime',finishtimems='$ftimems',
+    eval{ $db->execute( "update openc3_ci_version set finishtime='$ftime',finishtimems='$ftimems',
         status='$status',runtime='$runtime' where uuid='$uuid'" ); };
     $logs->die( "update build status fail:$@" ) if $@;
 }

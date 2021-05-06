@@ -29,7 +29,7 @@ return sub
     $logs = Logs->new( 'code.expand' ) unless $logs;
 
     my @col = qw( id projectid uuid name user slave status starttimems finishtimems starttime finishtime calltype pid runtime tagger taginfo reason create_time );
-    my $versionlist = $db->query( sprintf( "select %s from version where projectid='$flowlineid' order by create_time desc,id desc", join ',',map{"`$_`"}@col ), \@col );
+    my $versionlist = $db->query( sprintf( "select %s from openc3_ci_version where projectid='$flowlineid' order by create_time desc,id desc", join ',',map{"`$_`"}@col ), \@col );
     $logs->die( "get data error from db" ) unless defined $versionlist && ref $versionlist eq 'ARRAY';
     $logs->die( "get data from db null: projectid=$flowlineid" ) unless @$versionlist;
 
@@ -118,7 +118,7 @@ return sub
 
             my @cc = qw( projectid uuid name user slave status starttimems finishtimems starttime finishtime calltype pid runtime tagger taginfo reason create_time );
 
-            $db->execute( sprintf "replace into `version` (%s) values(%s)", join( ',', map{"`$_`"}@cc ),  join( ',', map{"'$_'"}map{ $tempconfig{$_} || ''}@cc ) );
+            $db->execute( sprintf "replace into `openc3_ci_version` (%s) values(%s)", join( ',', map{"`$_`"}@cc ),  join( ',', map{"'$_'"}map{ $tempconfig{$_} || ''}@cc ) );
             symlink $currentconfig->{uuid}, "$RealBin/../logs/build/$tempconfig{uuid}"; 
             push  @newjob, +{ version => $tempconfig{name}, rollback => $tempconfig{name}, starttime => int( $starttimems + 10 + rand 10 ) };
         }

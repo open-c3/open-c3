@@ -17,7 +17,7 @@ get '/rely/:projectid' => sub {
 
     my $projectid = $param->{projectid};
 
-    my $x = eval{ $api::mysql->query( "select groupid from project where id='$projectid'") };
+    my $x = eval{ $api::mysql->query( "select groupid from openc3_ci_project where id='$projectid'") };
     return  +{ stat => $JSON::false, info => $@ } if $@;
     return  +{ stat => $JSON::false, info => "nofind groupid" } unless $x && @$x > 0;
     my $pmscheck = api::pmscheck( 'openc3_ci_read', $x->[0][0] ); return $pmscheck if $pmscheck;
@@ -26,13 +26,13 @@ get '/rely/:projectid' => sub {
     my @col = qw( id path addr ticketid edit_user edit_time tags );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from rely where projectid='$projectid'", join( ',', @col)), \@col )};
+            sprintf( "select %s from openc3_ci_rely where projectid='$projectid'", join( ',', @col)), \@col )};
 
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     map{ $_->{password}  = decode_base64( $_->{password}  ) if defined $_->{password} }@$r;
 
-    my $ticket = eval{ $api::mysql->query( "select id,name from ticket" ); };
+    my $ticket = eval{ $api::mysql->query( "select id,name from openc3_ci_ticket" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my %ticket; map{ $ticket{$_->[0]} = $_->[1] }@$ticket;
@@ -58,7 +58,7 @@ post '/rely/:projectid' => sub {
 
     my $projectid = $param->{projectid};
 
-    my $x = eval{ $api::mysql->query( "select groupid from project where id='$projectid'") };
+    my $x = eval{ $api::mysql->query( "select groupid from openc3_ci_project where id='$projectid'") };
     return  +{ stat => $JSON::false, info => $@ } if $@;
     return  +{ stat => $JSON::false, info => "nofind groupid" } unless $x && @$x > 0;
     my $pmscheck = api::pmscheck( 'openc3_ci_write', $x->[0][0] ); return $pmscheck if $pmscheck;
@@ -74,7 +74,7 @@ post '/rely/:projectid' => sub {
     my @col = qw( path addr ticketid tags );
     eval{ 
         $api::mysql->execute( 
-            sprintf "insert into rely (`projectid`,`edit_user`,%s) values( '$projectid','$user', %s )", 
+            sprintf "insert into openc3_ci_rely (`projectid`,`edit_user`,%s) values( '$projectid','$user', %s )", 
             join(',',map{"`$_`"}@col), join(',',map{"'$param->{$_}'"}@col)
         );
     };
@@ -93,7 +93,7 @@ del '/rely/:projectid/:relyid' => sub {
 
     my ( $projectid, $relyid ) = @$param{qw( projectid relyid )};
 
-    my $x = eval{ $api::mysql->query( "select groupid from project where id='$projectid'") };
+    my $x = eval{ $api::mysql->query( "select groupid from openc3_ci_project where id='$projectid'") };
     return  +{ stat => $JSON::false, info => $@ } if $@;
     return  +{ stat => $JSON::false, info => "nofind groupid" } unless $x && @$x > 0;
     my $pmscheck = api::pmscheck( 'openc3_ci_delete', $x->[0][0] ); return $pmscheck if $pmscheck;
@@ -101,12 +101,12 @@ del '/rely/:projectid/:relyid' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ),
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
-    my $addr = eval{ $api::mysql->query( "select addr from rely where id='$param->{relyid}'")};
+    my $addr = eval{ $api::mysql->query( "select addr from openc3_ci_rely where id='$param->{relyid}'")};
     eval{ $api::auditlog->run( user => $user, title => 'DEL RELY', content => "FLOWLINEID:$param->{projectid} ADDR:$addr->[0][0]" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
-        $api::mysql->execute( "delete from rely where id='$relyid' and projectid='$projectid'" );
+        $api::mysql->execute( "delete from openc3_ci_rely where id='$relyid' and projectid='$projectid'" );
     };
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };

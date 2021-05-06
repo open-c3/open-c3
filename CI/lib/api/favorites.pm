@@ -25,7 +25,7 @@ post '/favorites/:groupid' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     eval{ 
-        $api::mysql->execute( "replace into favorites (`ciid`,`name`, `user` ) values( '$param->{ciid}', '$param->{name}', '$user' )");
+        $api::mysql->execute( "replace into openc3_ci_favorites (`ciid`,`name`, `user` ) values( '$param->{ciid}', '$param->{name}', '$user' )");
     };
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
@@ -47,7 +47,7 @@ del '/favorites/:groupid' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     eval{ 
-        $api::mysql->execute( "delete from favorites where ciid='$param->{ciid}' and user='$user'" );
+        $api::mysql->execute( "delete from openc3_ci_favorites where ciid='$param->{ciid}' and user='$user'" );
     };
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
