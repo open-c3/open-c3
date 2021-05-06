@@ -32,11 +32,11 @@ return sub
 
     my ( $stimems, $stime ) = ( time, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ) );
 
-    my $x = $db->execute( "update install set pid='$$',starttime='$stime',
+    my $x = $db->execute( "update openc3_agent_install set pid='$$',starttime='$stime',
         starttimems='$stimems',status='running' where uuid='$uuid' and pid is null" );
     $logs->die( "install $uuid Already running" ) unless $x && $x eq 1;
 
-    $x = $db->query( "select `type` from install where uuid='$uuid'" );
+    $x = $db->query( "select `type` from openc3_agent_install where uuid='$uuid'" );
     $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
     $logs->die( "install uuid null: $uuid" ) unless @$x;
 
@@ -54,13 +54,13 @@ return sub
     my ( $ftimems, $ftime ) = ( time, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ) );
     my $runtime = sprintf "%0.3f", $ftimems - $stimems;
 
-    my $s = eval{ $db->query( "select status from install_detail where uuid='$uuid'" ); };
+    my $s = eval{ $db->query( "select status from openc3_agent_install_detail where uuid='$uuid'" ); };
     $logs->die( "update install status fail:$@" ) if $@;
 
     my %c = ( fail => 0, success => 0 );
     map{ $c{$_->[0]}++ }@$s;
 
-    eval{ $db->execute( "update install set finishtime='$ftime',finishtimems='$ftimems',
+    eval{ $db->execute( "update openc3_agent_install set finishtime='$ftime',finishtimems='$ftimems',
         status='$status',runtime='$runtime',success='$c{success}',fail='$c{fail}' where uuid='$uuid'" ); };
     $logs->die( "update install status fail:$@" ) if $@;
 }

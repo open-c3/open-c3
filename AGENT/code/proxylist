@@ -30,7 +30,7 @@ return sub
 
     $logs = Logs->new( 'code.proxylist' ) unless $logs;
 
-    my $x = eval{ $db->query( "select projectid,ip from proxy where status='success'" ) };
+    my $x = eval{ $db->query( "select projectid,ip from openc3_agent_proxy where status='success'" ) };
     $logs->die( "mysql query fail: $@" ) if $@;
     $logs->die( "get proxylist list from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
 

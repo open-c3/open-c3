@@ -33,21 +33,21 @@ get '/monitor/metrics/app' => sub {
 
     my %re;
 
-    my $p = eval{ $api::mysql->query( "select status,count(*) from proxy group by status" )};
+    my $p = eval{ $api::mysql->query( "select status,count(*) from openc3_agent_proxy group by status" )};
     my %p = map{ $_->[0] => $_->[1] }@$p;
     map{ $p{$_} ||= 0 }qw( fail success );
 
     $re{proxy_total} = 0;
     map{ $re{proxy_total} += $re{"proxy_$_"} = $p{$_} }qw( fail success );
 
-    my $a = eval{ $api::mysql->query( "select status,count(*) from proxy group by status" )};
+    my $a = eval{ $api::mysql->query( "select status,count(*) from openc3_agent_proxy group by status" )};
     my %a = map{ $_->[0] => $_->[1] }@$a;
     map{ $a{$_} ||= 0 }qw( fail success );
 
     $re{agent_total} = 0;
     map{ $re{agent_total} += $re{"agent_$_"} = $a{$_} }qw( fail success );
 
-    my $c = eval{ $api::mysql->query( "select count(*) from `check` where status='on'" )};
+    my $c = eval{ $api::mysql->query( "select count(*) from `openc3_agent_check` where status='on'" )};
     $re{check_total} = $c->[0][0];
 
     return +{ stat => $JSON::true, data => \%re };

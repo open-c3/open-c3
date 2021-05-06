@@ -24,7 +24,7 @@ get '/region/:projectid' => sub {
     my @col = qw( id name projectid create_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from region
+            sprintf( "select %s from openc3_agent_region
                 where projectid in ( '$projectid' $relation ) order by projectid,id", join( ',', @col)), \@col )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
@@ -49,7 +49,7 @@ post '/region/:projectid' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
-        $api::mysql->execute( "insert into region (`projectid`,`name`) values( '$projectid', '$param->{name}' )");
+        $api::mysql->execute( "insert into openc3_agent_region (`projectid`,`name`) values( '$projectid', '$param->{name}' )");
     };
 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
@@ -69,15 +69,15 @@ del '/region/:projectid/:regionid' => sub {
     my ( $regionid, $projectid ) = @$param{qw( regionid projectid )};
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
-    my $regionname = eval{ $api::mysql->query( "select name from region where id='$param->{regionid}'")};
+    my $regionname = eval{ $api::mysql->query( "select name from openc3_agent_region where id='$param->{regionid}'")};
     eval{ $api::auditlog->run( user => $user, title => 'DEL REGION', content => "TREEID:$param->{projectid} NAME:$regionname->[0][0]" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
-        $api::mysql->execute( "delete from agent where relationid in( select id from project_region_relation where regionid='$regionid' and projectid='$projectid')" );
-        $api::mysql->execute( "delete from proxy where regionid in ( select id from region where id='$regionid' and projectid='$projectid')" );
-        $api::mysql->execute( "delete from project_region_relation where regionid='$regionid' and projectid='$projectid'" );
-        $api::mysql->execute( "delete from region where id='$regionid' and projectid='$projectid'" );
+        $api::mysql->execute( "delete from openc3_agent_agent where relationid in( select id from openc3_agent_project_region_relation where regionid='$regionid' and projectid='$projectid')" );
+        $api::mysql->execute( "delete from openc3_agent_proxy where regionid in ( select id from openc3_agent_region where id='$regionid' and projectid='$projectid')" );
+        $api::mysql->execute( "delete from openc3_agent_project_region_relation where regionid='$regionid' and projectid='$projectid'" );
+        $api::mysql->execute( "delete from openc3_agent_region where id='$regionid' and projectid='$projectid'" );
     };
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
@@ -98,16 +98,16 @@ get '/region/:projectid/active' => sub {
     my @col = qw( id name create_time );
     my $r = eval{ 
         $api::mysql->query( 
-            "select region.id,region.name,region.projectid from region,project_region_relation
-                where project_region_relation.regionid=region.id and project_region_relation.projectid='$param->{projectid}'", 
+            "select openc3_agent_region.id,openc3_agent_region.name,openc3_agent_region.projectid from openc3_agent_region,openc3_agent_project_region_relation
+                where openc3_agent_project_region_relation.regionid=openc3_agent_region.id and openc3_agent_project_region_relation.projectid='$param->{projectid}'", 
                 [qw( id region regionprojectid )]
         )};
 
     return  +{ stat => $JSON::false, info => $@ } if  $@;
     my $proxy = eval{
         $api::mysql->query(
-            "select regionid,count(ip),status  from proxy where regionid in
-                ( select regionid from project_region_relation where projectid='$param->{projectid}' )  group by regionid, status",
+            "select regionid,count(ip),status  from openc3_agent_proxy where regionid in
+                ( select regionid from openc3_agent_project_region_relation where projectid='$param->{projectid}' )  group by regionid, status",
             [qw( regionid ipcount status )]
         )
     };
@@ -116,8 +116,8 @@ get '/region/:projectid/active' => sub {
     my $agent = eval{
 
         $api::mysql->query(
-        "select project_region_relation.regionid,count(ip),status from agent,project_region_relation 
-            where project_region_relation.id=agent.relationid and project_region_relation.projectid='$param->{projectid}' group by project_region_relation.regionid,status",
+        "select openc3_agent_project_region_relation.regionid,count(ip),status from openc3_agent_agent,openc3_agent_project_region_relation 
+            where openc3_agent_project_region_relation.id=openc3_agent_agent.relationid and openc3_agent_project_region_relation.projectid='$param->{projectid}' group by openc3_agent_project_region_relation.regionid,status",
         [qw( regionid ipcount status )]
     )
     };

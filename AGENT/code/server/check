@@ -22,13 +22,13 @@ return sub
     my ( $db, $interval, $logs, $myname ) = ( $param{db}, 10, Logs->new( 'check' ), Util::myname() );
     my ( $count, %count ) = int time / $interval;
     $SIG{'CHLD'} = sub {
-		while((my $pid = waitpid(-1, WNOHANG)) >0)
-		{
-			my $code = ( $? == -1 || $? & 127 ) ? 110 : $? >> 8;
-			print "chld: $pid exit $code.\n";;
-		}
-	};
- 
+        while((my $pid = waitpid(-1, WNOHANG)) >0)
+        {
+            my $code = ( $? == -1 || $? & 127 ) ? 110 : $? >> 8;
+            print "chld: $pid exit $code.\n";;
+        }
+    };
+
 
     while( 1 )
     {
@@ -37,7 +37,7 @@ return sub
         my $counttmp = int time / $interval;
         ( $count, %count ) = ( $counttmp ) if $count ne $counttmp;
 
-        my $x = eval{ $db->query( "select projectid from `check` where status='on'" ) };
+        my $x = eval{ $db->query( "select projectid from `openc3_agent_check` where status='on'" ) };
         $logs->die( "mysql query fail: $@" ) if $@;
         $logs->die( "get check list from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
 

@@ -75,7 +75,7 @@ websocket_on_open sub {
         else
         {
              my @col = qw( projectid );
-             my $r = eval{ $mysql->query( sprintf( "select %s from install where uuid='$installuuid'", join ',', @col ), \@col )};
+             my $r = eval{ $mysql->query( sprintf( "select %s from openc3_agent_install where uuid='$installuuid'", join ',', @col ), \@col )};
 
              unless( $r && @$r )
              {
@@ -172,7 +172,7 @@ del '/killinstall/:uuid' => sub {
   }
 
   my @col = qw( pid projectid slave status );
-  my $r = eval{ $mysql->query( sprintf( "select %s from install where uuid='$uuid'", join ',', @col ), \@col )};
+  my $r = eval{ $mysql->query( sprintf( "select %s from openc3_agent_install where uuid='$uuid'", join ',', @col ), \@col )};
   return JSON::to_json( +{ stat => $JSON::false, info => "Non-existent uuid:$uuid" } ) unless $r && @$r;
 
   my $data = $r->[0];
@@ -208,7 +208,7 @@ del '/killinstall/:uuid' => sub {
 };
 
 any '/mon' => sub {
-     eval{ $mysql->query( "select count(*) from keepalive" )};
+     eval{ $mysql->query( "select count(*) from openc3_agent_keepalive" )};
      return $@ ? "ERR:$@" : "ok";
 };
 

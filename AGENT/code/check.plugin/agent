@@ -38,7 +38,7 @@ use Data::Dumper;
     $logs->die( "id format error" ) unless $id =~ /^\d++$/;
 
     ##TODO clean monitor: delete from monitor where time < xxx
-    my $failcount = $db->query( "select ip,fail from monitor where projectid='$id'");
+    my $failcount = $db->query( "select ip,fail from openc3_agent_monitor where projectid='$id'");
     my %failcount;
     map{ $failcount{$_->[0]} = $_->[1] }@$failcount;
 
@@ -99,7 +99,7 @@ use Data::Dumper;
         }
 
         my $edit_time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
-        eval{ $db->execute( "replace into monitor (`projectid`,`ip`,`status`,`fail`,`reason`,`version`,`edit_time`) values('$id','$ip','$status','$fail','$reason','$version','$edit_time')" ) };
+        eval{ $db->execute( "replace into openc3_agent_monitor (`projectid`,`ip`,`status`,`fail`,`reason`,`version`,`edit_time`) values('$id','$ip','$status','$fail','$reason','$version','$edit_time')" ) };
        #TODO
     }
 }

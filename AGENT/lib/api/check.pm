@@ -22,7 +22,7 @@ get '/check/:projectid' => sub {
     my @col = qw( status last_check last_check_s last_success last_success_s slave );
     my $r = eval{ 
         $api::mysql->query( 
-            "select status,last_check,UNIX_TIMESTAMP(last_check),last_success,UNIX_TIMESTAMP(last_success),slave from `check` where projectid='$projectid'", \@col )};
+            "select status,last_check,UNIX_TIMESTAMP(last_check),last_success,UNIX_TIMESTAMP(last_success),slave from `openc3_agent_check` where projectid='$projectid'", \@col )};
 
     my $data =  ($r && @$r ) ? $r->[0] : +{ status => 'off' };
     $data->{last_check_x} = ($data->{last_check_s} + 600 > time ) ? 0 : 1 if $data->{last_check_s};
@@ -49,7 +49,7 @@ post '/check/:projectid' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
-        $api::mysql->execute( "replace into `check` (`projectid`,`status`,`user`) values( '$projectid', '$status','$user' )");
+        $api::mysql->execute( "replace into `openc3_agent_check` (`projectid`,`status`,`user`) values( '$projectid', '$status','$user' )");
     };
 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };

@@ -43,7 +43,7 @@ return sub
     }
  
  
-    my $x = $db->query( "select ip,status,fail,reason,version,edit_time from monitor where projectid=$id" );
+    my $x = $db->query( "select ip,status,fail,reason,version,edit_time from openc3_agent_monitor where projectid=$id" );
     $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
     my %ip;
     map{ $ip{$_->[0]} = +{ status => $_->[1], fail => $_->[2], reason => $_->[3], version => $_->[4], edit_time => $_->[5] } }@$x;

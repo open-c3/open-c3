@@ -31,7 +31,7 @@ return sub
     my $starttime = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
 
     my $myname =Util::myname();
-    eval{ $db->execute( "update `check` set last_check='$starttime',slave='$myname' where projectid='$id'" ); };
+    eval{ $db->execute( "update `openc3_agent_check` set last_check='$starttime',slave='$myname' where projectid='$id'" ); };
     $logs->die( "update check info fail:$@" ) if $@;
 
     my $proxy = eval{ Code->new( "check.plugin/proxy" )->run( db => $db, id => $id ); };
@@ -43,6 +43,6 @@ return sub
 
     my $finishtime = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
 
-    eval{ $db->execute( "update `check` set last_success='$finishtime' where projectid='$id'" ); };
+    eval{ $db->execute( "update `openc3_agent_check` set last_success='$finishtime' where projectid='$id'" ); };
     $logs->die( "update check info fail:$@" ) if $@;
 }

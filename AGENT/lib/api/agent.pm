@@ -22,7 +22,7 @@ get '/agent/:projectid' => sub {
     my @col = qw( id status version edit_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from agent
+            sprintf( "select %s from openc3_agent_agent
                 where projectid='$projectid'", join( ',', @col)), \@col )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
@@ -44,8 +44,8 @@ get '/agent/:projectid/:regionid' => sub {
     my @col = qw( id ip status version edit_time fail reason );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from agent
-                where relationid in ( select id from project_region_relation where projectid='$projectid' and regionid='$param->{regionid}')", join( ',', @col)), \@col )};
+            sprintf( "select %s from openc3_agent_agent
+                where relationid in ( select id from openc3_agent_project_region_relation where projectid='$projectid' and regionid='$param->{regionid}')", join( ',', @col)), \@col )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
@@ -73,8 +73,8 @@ post '/agent/:projectid/:regionid/subnet' => sub {
 
     eval{
         map{
-            $api::mysql->execute( "replace into agent (`relationid`,`projectid`,`ip`,`status`,`reason`,`version`) 
-            select id,'$param->{projectid}', '$_','success', 'subnet', '0' from project_region_relation where regionid='$param->{regionid}' and projectid='$param->{projectid}'" );
+            $api::mysql->execute( "replace into openc3_agent_agent (`relationid`,`projectid`,`ip`,`status`,`reason`,`version`) 
+            select id,'$param->{projectid}', '$_','success', 'subnet', '0' from openc3_agent_project_region_relation where regionid='$param->{regionid}' and projectid='$param->{projectid}'" );
         }@subnet;
     };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
@@ -93,13 +93,13 @@ del '/agent/:projectid/:agentid' => sub {
     my $pmscheck = api::pmscheck( 'openc3_agent_delete', $param->{projectid} ); return $pmscheck if $pmscheck;
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
-    my $agentip = eval{ $api::mysql->query( "select ip from agent where id='$param->{agentid}'")};
+    my $agentip = eval{ $api::mysql->query( "select ip from openc3_agent_agent where id='$param->{agentid}'")};
     eval{ $api::auditlog->run( user => $user, title => 'DEL SUBNET', content => "TREEID:$param->{projectid} SUBNET:$agentip->[0][0]" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
         $api::mysql->execute(
-            "delete from agent where id='$param->{agentid}' and projectid='$param->{projectid}'")};
+            "delete from openc3_agent_agent where id='$param->{agentid}' and projectid='$param->{projectid}'")};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };

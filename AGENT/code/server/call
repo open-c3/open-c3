@@ -22,20 +22,20 @@ return sub
     my ( $count, %count ) = int time / $interval;
 
     $SIG{'CHLD'} = sub {
-		while((my $pid = waitpid(-1, WNOHANG)) >0)
-		{
-			my $code = ( $? == -1 || $? & 127 ) ? 110 : $? >> 8;
-			print "chld: $pid exit $code.\n";;
-		}
-	};
- 
+        while((my $pid = waitpid(-1, WNOHANG)) >0)
+        {
+            my $code = ( $? == -1 || $? & 127 ) ? 110 : $? >> 8;
+            print "chld: $pid exit $code.\n";;
+        }
+    };
+
     while( 1 )
     {
         warn "do ...\n";
         my $counttmp = int time / $interval;
         ( $count, %count ) = ( $counttmp ) if $count ne $counttmp;
 
-        my $x = eval{ $db->query( "select uuid from install where status='init' and slave='$myname' and pid is null" ) };
+        my $x = eval{ $db->query( "select uuid from openc3_agent_install where status='init' and slave='$myname' and pid is null" ) };
         $logs->die( "mysql query fail: $@" ) if $@;
         $logs->die( "get install list from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
 

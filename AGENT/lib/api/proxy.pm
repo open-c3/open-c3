@@ -14,12 +14,12 @@ sub getnet
     my $projectid = shift;
     my $proxy = eval{
         $api::mysql->query(
-            "select regionid,ip from proxy where status='success' and regionid in ( select regionid from project_region_relation where projectid='$projectid') order by id desc" )};
+            "select regionid,ip from openc3_agent_proxy where status='success' and regionid in ( select regionid from openc3_agent_project_region_relation where projectid='$projectid') order by id desc" )};
 
     my %proxy = map{ @$_ }@$proxy;
 
-    my $agent = eval{ $api::mysql->query( "select project_region_relation.regionid,agent.ip from agent,project_region_relation
-        where project_region_relation.id=agent.relationid and project_region_relation.projectid='$projectid'",
+    my $agent = eval{ $api::mysql->query( "select openc3_agent_project_region_relation.regionid,openc3_agent_agent.ip from openc3_agent_agent,openc3_agent_project_region_relation
+        where openc3_agent_project_region_relation.id=openc3_agent_agent.relationid and openc3_agent_project_region_relation.projectid='$projectid'",
         [qw( regionid ip )]
     )};
 
@@ -43,7 +43,7 @@ get '/proxy/:projectid' => sub {
 
     my $inherit = eval{
         $api::mysql->query(
-            "select inheritid from inherit where projectid='$projectid'" )};
+            "select inheritid from openc3_agent_inherit where projectid='$projectid'" )};
 
     return +{ stat => $JSON::false, info => $@ } if $@;
 
@@ -72,7 +72,7 @@ get '/proxy/:projectid/:regionid' => sub {
     my @col = qw( id status version edit_time ip fail reason );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from region,proxy where region.id=proxy.regionid and region.projectid=$param->{projectid} and proxy.regionid=$param->{regionid}", join(',', map{"proxy.$_"}@col) ),
+            sprintf( "select %s from openc3_agent_region,openc3_agent_proxy where openc3_agent_region.id=openc3_agent_proxy.regionid and openc3_agent_region.projectid=$param->{projectid} and openc3_agent_proxy.regionid=$param->{regionid}", join(',', map{"openc3_agent_proxy.$_"}@col) ),
             \@col )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
@@ -91,13 +91,13 @@ del '/proxy/:projectid/:proxyid' => sub {
     my $pmscheck = api::pmscheck( 'openc3_agent_delete', $param->{projectid} ); return $pmscheck if $pmscheck;
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
-    my $proxyip = eval{ $api::mysql->query( "select ip from proxy where id='$param->{proxyid}'")};
+    my $proxyip = eval{ $api::mysql->query( "select ip from openc3_agent_proxy where id='$param->{proxyid}'")};
     eval{ $api::auditlog->run( user => $user, title => 'DEL PROXY', content => "TREEID:$param->{projectid} REGIONID:$param->{regionid} PROXYIP:$proxyip->[0][0]" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
         $api::mysql->execute(
-            "delete from proxy where id='$param->{proxyid}' and regionid in (select id from region where projectid='$param->{projectid}')"
+            "delete from openc3_agent_proxy where id='$param->{proxyid}' and regionid in (select id from openc3_agent_region where projectid='$param->{projectid}')"
         )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
@@ -126,7 +126,7 @@ post '/proxy/:projectid/:regionid' => sub {
     my $r = eval{ 
         map{
         $api::mysql->execute(
-            "replace into proxy(`regionid`,`ip`,`status`,`version`,`projectid`) 
+            "replace into openc3_agent_proxy(`regionid`,`ip`,`status`,`version`,`projectid`) 
                  values( '$param->{regionid}', '$_', 'success', '1.0.0', '$param->{projectid}' )" 
         )
         }@node;

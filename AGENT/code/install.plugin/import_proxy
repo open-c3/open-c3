@@ -32,7 +32,7 @@ return sub
 
     $logs->die( "uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
 
-    my $x = eval{ $db->query( "select projectid,regionid,ip from install where uuid='$uuid'" );};
+    my $x = eval{ $db->query( "select projectid,regionid,ip from openc3_agent_install where uuid='$uuid'" );};
     $logs->die( "get install info from mysql fail install uuid=$uuid: $@" ) if $@;
     $logs->die( "get install info from mysql fail install uuid=$uuid" ) unless defined $x && ref $x eq 'ARRAY';
     $logs->die( "install uuid mismatch uuid=$uuid" ) unless @$x;
@@ -52,7 +52,7 @@ return sub
     for my $node ( @ip )
     {
         my $starttime = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
-        eval{ $db->execute( "replace into install_detail (`uuid`,`ip`,`type`,`starttime`,`finishtime`,`status`,`reason`) 
+        eval{ $db->execute( "replace into openc3_agent_install_detail (`uuid`,`ip`,`type`,`starttime`,`finishtime`,`status`,`reason`) 
                 values( '$uuid', '$node', 'proxy', '$starttime','','','' )" ); };
 
         my ( $status, $reason, $version ) = ( 'success', '', 0 );
@@ -84,10 +84,10 @@ return sub
         
 
         my $finishtime = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
-        eval{ $db->execute( "update install_detail set finishtime='$finishtime',status='$status',reason='$reason' where uuid='$uuid' and ip='$node'" ); };
+        eval{ $db->execute( "update openc3_agent_install_detail set finishtime='$finishtime',status='$status',reason='$reason' where uuid='$uuid' and ip='$node'" ); };
         $logs->die( "update install_detail info fail:$@" ) if $@;
 
-        eval{ $db->execute( "replace into proxy(`regionid`,`ip`,`status`,`version`,`projectid`) values( '$regionid', '$node', '$status', '$version', '$projectid' )" ) if $status eq 'success' };
+        eval{ $db->execute( "replace into openc3_agent_proxy(`regionid`,`ip`,`status`,`version`,`projectid`) values( '$regionid', '$node', '$status', '$version', '$projectid' )" ) if $status eq 'success' };
         $logs->die( "update install status fail:$@" ) if $@;
     }
 

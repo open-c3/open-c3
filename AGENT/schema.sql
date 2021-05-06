@@ -1,7 +1,7 @@
 create database agent;
 use agent;
 
-create table `region`(
+create table `openc3_agent_region`(
 `id`            int(16) unsigned not null primary key auto_increment  comment 'id',
 `projectid` int(16) unsigned comment '项目id',
 `name` VARCHAR(100) comment '区域名称',
@@ -11,7 +11,7 @@ create table `region`(
 UNIQUE KEY `uniq_projectid_name` (`projectid`,`name`) 
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='区域';
 
-create table `project_region_relation`(
+create table `openc3_agent_project_region_relation`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 `projectid` int(16) unsigned comment '项目id',
 `regionid` int(16) unsigned comment '区域id',
@@ -21,7 +21,7 @@ UNIQUE KEY `uniq_projectid_regionid` (`projectid`,`regionid`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='使用的区域';
 
 
-create table `proxy`(
+create table `openc3_agent_proxy`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 `regionid` int(16) unsigned comment '区域id',
 
@@ -37,7 +37,7 @@ UNIQUE KEY `uniq_projectid_ip` (`projectid`,`ip`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='proxy';
 
 
-create table `agent`(
+create table `openc3_agent_agent`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 `relationid` int(16) unsigned comment '关系id',
 
@@ -53,7 +53,7 @@ UNIQUE KEY `uniq_projectid_ip` (`projectid`,`ip`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='agent';
 
 
-create table `install`(
+create table `openc3_agent_install`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 
 `uuid` VARCHAR(100) comment '唯一编号',
@@ -87,7 +87,7 @@ UNIQUE KEY `uniq_uuid` (`uuid`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='install';
 
 
-create table `install_detail`(
+create table `openc3_agent_install_detail`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 
 `uuid` VARCHAR(100) comment 'install的编号编号',
@@ -103,14 +103,14 @@ create table `install_detail`(
 UNIQUE KEY `uniq_uuid_ip` (`uuid`,`ip`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='install_detail';
 
-create table `keepalive`(
+create table `openc3_agent_keepalive`(
 `id` int(16) unsigned not null primary key auto_increment comment 'id',
 `slave` VARCHAR(40) comment 'slave',
 `time` int(16) unsigned comment 'time',
 UNIQUE KEY `uniq_slave` (`slave`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='slave心跳';
 
-create table `check`(
+create table `openc3_agent_check`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 
 `projectid` int(16) unsigned comment '项目id',
@@ -128,7 +128,7 @@ create table `check`(
 UNIQUE KEY `uniq_projectid` (`projectid`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='check';
 
-create table `inherit`(
+create table `openc3_agent_inherit`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 
 `projectid` int(16) unsigned comment '项目id',
@@ -139,7 +139,7 @@ create table `inherit`(
 UNIQUE KEY `uniq_projectid` (`projectid`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='inherit';
 
-create table `monitor`(
+create table `openc3_agent_monitor`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 `projectid` int(16) unsigned comment '项目id,仅用于和ip字段做唯一建',
 `ip` VARCHAR(100) comment 'agent的ip',
