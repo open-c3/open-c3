@@ -40,7 +40,7 @@ return sub
     push @list, @{$data->{data}};
     my $i = @list;
 
-    my $x = $db->query( "select name,inip,exip from nodelist where projectid in ( '$id', '0' ) and status='available'" );
+    my $x = $db->query( "select name,inip,exip from openc3_job_nodelist where projectid in ( '$id', '0' ) and status='available'" );
     $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
     map{ push @list, +{ id => $i++, name => $_->[0], inip => $_->[1], exip => $_->[2], type => 'extend' }; }@$x;
 

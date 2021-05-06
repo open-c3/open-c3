@@ -24,7 +24,7 @@ return sub
     {
         warn "do ...\n";
 
-        my $x = eval{ $db->query( "select id,pid,uuid,starttime,starttimems from task 
+        my $x = eval{ $db->query( "select id,pid,uuid,starttime,starttimems from openc3_job_task 
             where slave='$myname' and pid is not null and status<>'success' and status<>'fail' and status<>'refuse'" );};
         $logs->die( "mysql query fail: $@" ) if $@;
         $logs->die( "get list fail from mysql" ) unless defined $x && ref $x eq 'ARRAY';
@@ -40,7 +40,7 @@ return sub
 
             if( $starttimems && $starttimems < $timeout )
             {
-                $db->execute( "update task set reason='kill by job\@app, Task timeout' where id=$id and reason is null" );
+                $db->execute( "update openc3_job_task set reason='kill by job\@app, Task timeout' where id=$id and reason is null" );
                 system "killall -9 job_worker_task_$uuid";
             }
 
@@ -64,9 +64,9 @@ return sub
                 ( $runtime, $finishtime, $finishtimems ) = ( 0, $starttime, $starttimems );
             }
 
-            eval{ $db->execute( "update task set status='fail',runtime='$runtime',
+            eval{ $db->execute( "update openc3_job_task set status='fail',runtime='$runtime',
                 finishtime='$finishtime',finishtimems='$finishtimems' where id=$id" );
-                $db->execute( "update task set reason='unkown error exit' where id=$id and reason is null" );
+                $db->execute( "update openc3_job_task set reason='unkown error exit' where id=$id and reason is null" );
             };
             $logs->err( "update task status fail: id=$id :$@" ) if $@;
         }

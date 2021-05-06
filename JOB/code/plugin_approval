@@ -54,7 +54,7 @@ return sub
 
     $logs->die( "uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
 
-    my $submitter = eval{ $db->query( "select user from task where uuid='$taskuuid'" );};
+    my $submitter = eval{ $db->query( "select user from openc3_job_task where uuid='$taskuuid'" );};
     $logs->die( "get submitter fail:$@" ) if $@;
     $logs->die( "nofind submitter" ) unless $submitter && @$submitter > 0;
     $submitter = $submitter->[0][0];
@@ -80,7 +80,7 @@ return sub
 
     print "submitter: $submitter\n";
 
-    my $x = eval{ $db->query( "select jobuuid,name,cont,approver,deployenv,action,batches,everyone,timeout,pause from plugin_approval where uuid='$uuid'" );};
+    my $x = eval{ $db->query( "select jobuuid,name,cont,approver,deployenv,action,batches,everyone,timeout,pause from openc3_job_plugin_approval where uuid='$uuid'" );};
     $logs->die( "get plugin_approval info from mysql fail plugin_approval uuid=$uuid: $@" ) if $@;
     $logs->die( "get plugin_approval info from mysql fail plugin_approval uuid=$uuid" ) unless defined $x && ref $x eq 'ARRAY';
     $logs->die( "plugin_approval uuid mismatch uuid=$uuid" ) unless @$x;
@@ -111,7 +111,7 @@ return sub
     if( $taskuuid && $fromjob )
     {
         eval{ $db->execute( 
-                "update `subtask` set nodecount='1',starttime='$subtaskstarttime',runtime='0.00',pause='$pause',status='running'
+                "update `openc3_job_subtask` set nodecount='1',starttime='$subtaskstarttime',runtime='0.00',pause='$pause',status='running'
                      where parent_uuid='$taskuuid' and subtask_type='approval' and uuid='$uuid'") };
         $logs->die( "set status to subtask fail:$@" ) if $@;
     }
@@ -125,7 +125,7 @@ return sub
         my $muuid = uuid->new()->create_str;
         print "Send mesg to $user, wait for his confirmation\n";
         eval{ $db->execute( 
-            "insert into approval (`taskuuid`,`uuid`,`user`,`submitter`,`cont`,`opinion`,`remarks`,`create_time`,`notifystatus`,`oauuid`,`name`)values('$puuid','$muuid','$user','$submitter','$cont','unconfirmed', '','$time', 'null', '0','$name' )"
+            "insert into openc3_job_approval (`taskuuid`,`uuid`,`user`,`submitter`,`cont`,`opinion`,`remarks`,`create_time`,`notifystatus`,`oauuid`,`name`)values('$puuid','$muuid','$user','$submitter','$cont','unconfirmed', '','$time', 'null', '0','$name' )"
         ) };
         $logs->die("insert to mysql fail: $@") if $@;
     }
@@ -136,7 +136,7 @@ return sub
     my $subtaskstatus = 'success'; #runnigs,fail,success,decision,ignore,refuse
     for( 1 .. $rtime )
     {
-        my $stat = eval{ $db->query( "select opinion,user,remarks from approval where taskuuid='$puuid'" );};
+        my $stat = eval{ $db->query( "select opinion,user,remarks from openc3_job_approval where taskuuid='$puuid'" );};
         if( $@ )
         {
             $logs->err("get approval stat err: $@");
@@ -184,7 +184,7 @@ return sub
     {
          my $subtaskruntime = sprintf "%0.3f", time - $subtasktimems;
          my $subtaskfinishtime = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
-         eval{ $db->execute( "update `subtask` set runtime='$subtaskruntime',finishtime='$subtaskfinishtime',status='$subtaskstatus' 
+         eval{ $db->execute( "update `openc3_job_subtask` set runtime='$subtaskruntime',finishtime='$subtaskfinishtime',status='$subtaskstatus' 
                  where parent_uuid='$taskuuid' and subtask_type='approval' and uuid='$uuid'") };
     }
 

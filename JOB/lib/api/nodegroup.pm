@@ -52,7 +52,7 @@ get '/nodegroup/:projectid' => sub {
 
     my $j = eval{
         $api::mysql->query(
-            "select name,uuids from jobs where projectid='$param->{projectid}' and status='permanent'" ); };
+            "select name,uuids from openc3_job_jobs where projectid='$param->{projectid}' and status='permanent'" ); };
     my %uuids;
 
     for ( @$j )
@@ -65,7 +65,7 @@ get '/nodegroup/:projectid' => sub {
     for( $uuids{cmd} )
     {
         my $x = eval{ $api::mysql->query( 
-                sprintf "select node_cont,uuid from plugin_cmd where uuid in ( %s ) and node_type='group'", 
+                sprintf "select node_cont,uuid from openc3_job_plugin_cmd where uuid in ( %s ) and node_type='group'", 
                     join ',',map{"'$_'"}keys %{$uuids{cmd}} ) };
         map{ $x{$_->[0]}{$uuids{cmd}{$_->[1]}} = 1 }@$x;
     }
@@ -73,7 +73,7 @@ get '/nodegroup/:projectid' => sub {
     {
         my $x = eval{ 
             $api::mysql->query(
-                sprintf "select src_type,src,dst_type,dst,uuid from plugin_cmd 
+                sprintf "select src_type,src,dst_type,dst,uuid from openc3_job_plugin_cmd 
                     where uuid in ( %s ) and ( src_type='group' or dst_type='group' )", 
                         join ',',map{"'$_'"}keys %{$uuids{scp}} ) };
         map{
@@ -87,7 +87,7 @@ get '/nodegroup/:projectid' => sub {
     my @col = qw( id name plugin create_user create_time edit_user edit_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from nodegroup
+            sprintf( "select %s from openc3_job_nodegroup
                 where projectid='$param->{projectid}' and status='available' %s order by id desc", 
                     join( ',', @col ), @where ? ' and '.join( ' and ', @where ) : '' ), \@col )};
 
@@ -120,7 +120,7 @@ get '/nodegroup/:projectid/:id' => sub {
     my @col = qw( id name plugin params create_user create_time edit_user edit_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from nodegroup 
+            sprintf( "select %s from openc3_job_nodegroup 
                 where id='$param->{id}' and projectid='$param->{projectid}' and status='available'",
                     join ',', @col ), \@col )};
 
@@ -143,7 +143,7 @@ get '/nodegroup/:projectid/:id/nodelist' => sub {
 
     my $r = eval{ 
         $api::mysql->query(
-            "select count(*) from nodegroup
+            "select count(*) from openc3_job_nodegroup
                 where id='$param->{id}' and projectid='$param->{projectid}' and status='available'" )};
     return  +{ stat => $JSON::false, info => $@ } if $@;
 
@@ -179,7 +179,7 @@ post '/nodegroup/:projectid' => sub {
 
     my $r = eval{ 
         $api::mysql->execute( 
-            "insert into nodegroup (`projectid`,`name`,`plugin`,`params`,`create_user`,`create_time`,`edit_user`,`edit_time`,`status`)
+            "insert into openc3_job_nodegroup (`projectid`,`name`,`plugin`,`params`,`create_user`,`create_time`,`edit_user`,`edit_time`,`status`)
                 values( '$param->{projectid}', '$param->{name}','$param->{plugin}', '$param->{params}', '$user','$time', '$user', '$time','available' )")};
 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
@@ -211,7 +211,7 @@ post '/nodegroup/:projectid/:id' => sub {
 
     my $r = eval{ 
         $api::mysql->execute( 
-            "update nodegroup set name='$param->{name}',plugin='$param->{plugin}',
+            "update openc3_job_nodegroup set name='$param->{name}',plugin='$param->{plugin}',
                 params='$param->{params}',edit_user='$user',edit_time='$time'
                     where id='$param->{id}' and projectid='$param->{projectid}' and status='available'")};
 
@@ -233,13 +233,13 @@ del '/nodegroup/:projectid/:id' => sub {
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     my $t    = Util::deleteSuffix();
 
-    my $nodegroupname = eval{ $api::mysql->query( "select name from nodegroup where id='$param->{id}'")};
+    my $nodegroupname = eval{ $api::mysql->query( "select name from openc3_job_nodegroup where id='$param->{id}'")};
     eval{ $api::auditlog->run( user => $user, title => 'DELETE NODEGROUP', content => "TREEID:$param->{projectid} NAME:$nodegroupname->[0][0]" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
         $api::mysql->execute(
-            "update nodegroup set status='deleted',name=concat(name,'_$t'),edit_user='$user',edit_time='$time' 
+            "update openc3_job_nodegroup set status='deleted',name=concat(name,'_$t'),edit_user='$user',edit_time='$time' 
                 where id='$param->{id}' and projectid='$param->{projectid}' and status='available'")};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };

@@ -18,7 +18,7 @@ get '/project/:projectid' => sub {
     my @col = qw( id status edit_user edit_time );
     my $r = eval{
         $api::mysql->query(
-            sprintf( "select %s from project
+            sprintf( "select %s from openc3_job_project
                 where id='$param->{projectid}'", join ',', @col ), \@col )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } 
@@ -40,7 +40,7 @@ post '/project/:projectid' => sub {
 
     my $r = eval{ 
         $api::mysql->execute( 
-            "replace into project (`id`,`status`,`edit_user` ) 
+            "replace into openc3_job_project (`id`,`status`,`edit_user` ) 
                 values( '$param->{projectid}', '$param->{status}','$user' ) ")
     };
 

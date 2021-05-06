@@ -30,8 +30,8 @@ get '/variable/:projectid/:jobuuid' => sub {
     my @col = qw( id name value describe create_user create_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from variable
-                where jobuuid in ( select uuid from jobs where projectid='$param->{projectid}' and uuid='$param->{jobuuid}') $w $exclude", 
+            sprintf( "select %s from openc3_job_variable
+                where jobuuid in ( select uuid from openc3_job_jobs where projectid='$param->{projectid}' and uuid='$param->{jobuuid}') $w $exclude", 
                     join ',',map{"`$_`"} @col ), \@col )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
@@ -58,9 +58,9 @@ post '/variable/:projectid' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     my $r = eval{ 
        $api::mysql->execute( 
-         "replace into variable (`jobuuid`,`name`,`value`,`describe`,`create_user`)
+         "replace into openc3_job_variable (`jobuuid`,`name`,`value`,`describe`,`create_user`)
              select uuid,'$param->{name}','$param->{value}', '$param->{describe}', '$user'
-                 from jobs where projectid='$param->{projectid}' and uuid='$param->{jobuuid}'")
+                 from openc3_job_jobs where projectid='$param->{projectid}' and uuid='$param->{jobuuid}'")
     };
 
     my $x = $@ ? $@ : $r > 0 ? undef : "no update anything:$r" ;
@@ -81,7 +81,7 @@ post '/variable/:projectid/update' => sub {
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
-    my $x = eval{ $api::mysql->query( "select uuid from jobs where projectid='$param->{projectid}' and uuid='$param->{jobuuid}'" ); };
+    my $x = eval{ $api::mysql->query( "select uuid from openc3_job_jobs where projectid='$param->{projectid}' and uuid='$param->{jobuuid}'" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
     return +{ stat => $JSON::false, info => 'no uuid from project' } unless $x && @$x;
 
@@ -99,7 +99,7 @@ post '/variable/:projectid/update' => sub {
         if( grep{ $d->{name} eq $_ || $d->{name} =~ /^wk_/  }qw( _exit_ _appname_ _skipSameVersion_ _rollbackVersion_ _authorization_ ) )
         {
             eval{
-                $api::mysql->execute( "replace into variable ( `jobuuid`,`name`,`value`,`describe`,`create_user` ) 
+                $api::mysql->execute( "replace into openc3_job_variable ( `jobuuid`,`name`,`value`,`describe`,`create_user` ) 
                     values('$param->{jobuuid}','$d->{name}','$d->{value}','$d->{describe}','$user')");
             };
 
@@ -107,7 +107,7 @@ post '/variable/:projectid/update' => sub {
         else
         {
             eval{
-                $api::mysql->execute( "update variable set value='$d->{value}',`describe`='$d->{describe}',create_user='$user' 
+                $api::mysql->execute( "update openc3_job_variable set value='$d->{value}',`describe`='$d->{describe}',create_user='$user' 
                     where jobuuid='$param->{jobuuid}' and name='$d->{name}'");
             };
         }
@@ -132,8 +132,8 @@ del '/variable/:projectid' => sub {
 
     my $r = eval{ 
         $api::mysql->execute(
-            "delete from variable where name='$param->{name}' and jobuuid in
-                ( select uuid from jobs where projectid='$param->{projectid}' and uuid='$param->{jobuuid}' )")};
+            "delete from openc3_job_variable where name='$param->{name}' and jobuuid in
+                ( select uuid from openc3_job_jobs where projectid='$param->{projectid}' and uuid='$param->{jobuuid}' )")};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
 };

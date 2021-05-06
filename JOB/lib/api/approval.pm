@@ -16,7 +16,7 @@ get '/approval' => sub {
     my @col = qw( id taskuuid uuid name opinion remarks create_time finishtime submitter oauuid notifystatus );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from approval
+            sprintf( "select %s from openc3_job_approval
                 where user='$user' order by id desc limit 100", join( ',', @col ) ), \@col )};
 
     return +{ stat => $JSON::false, info => $@ } if $@;
@@ -38,7 +38,7 @@ post '/approval' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
-    my $r = eval{ $api::mysql->execute( "update approval set opinion='$param->{opinion}',finishtime='$time' where uuid='$param->{uuid}' and user='$user' and opinion='unconfirmed'")};
+    my $r = eval{ $api::mysql->execute( "update openc3_job_approval set opinion='$param->{opinion}',finishtime='$time' where uuid='$param->{uuid}' and user='$user' and opinion='unconfirmed'")};
 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
 };
@@ -56,8 +56,8 @@ get '/approval/:uuid' => sub {
     my @col = qw( id taskuuid name cont opinion remarks create_time finishtime submitter oauuid notifystatus user );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from approval
-                where taskuuid in ( select taskuuid from approval where user='$user' and uuid='$param->{uuid}')", join( ',', @col ) ), \@col )};
+            sprintf( "select %s from openc3_job_approval
+                where taskuuid in ( select taskuuid from openc3_job_approval where user='$user' and uuid='$param->{uuid}')", join( ',', @col ) ), \@col )};
 
     return +{ stat => $JSON::false, info => $@ } if $@;
     return +{ stat => $JSON::true, data => $r };
@@ -74,8 +74,8 @@ get '/approval/control/:uuid' => sub {
     my @col = qw( id taskuuid name cont opinion remarks create_time finishtime submitter oauuid notifystatus user );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from approval
-                where taskuuid in ( select taskuuid from approval where uuid='$param->{uuid}')", join( ',', @col ) ), \@col )};
+            sprintf( "select %s from openc3_job_approval
+                where taskuuid in ( select taskuuid from openc3_job_approval where uuid='$param->{uuid}')", join( ',', @col ) ), \@col )};
 
     return +{ stat => $JSON::false, info => $@ } if $@;
     return +{ stat => $JSON::true, data => $r };
@@ -92,7 +92,7 @@ get '/approval/control/status/:uuid' => sub {
     my @col = qw( id taskuuid uuid name cont opinion remarks create_time finishtime submitter oauuid notifystatus user );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from approval where uuid='$param->{uuid}' ", join( ',', @col ) ), \@col )};
+            sprintf( "select %s from openc3_job_approval where uuid='$param->{uuid}' ", join( ',', @col ) ), \@col )};
 
     return +{ stat => $JSON::false, info => $@ } if $@;
     return +{ stat => $JSON::true, data => @$r ? $r->[0] : +{} };
@@ -112,7 +112,7 @@ post '/approval/control' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
-    my $r = eval{ $api::mysql->execute( "update approval set opinion='$param->{opinion}',finishtime='$time' where uuid='$param->{uuid}' and opinion='unconfirmed'")};
+    my $r = eval{ $api::mysql->execute( "update openc3_job_approval set opinion='$param->{opinion}',finishtime='$time' where uuid='$param->{uuid}' and opinion='unconfirmed'")};
 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
 };

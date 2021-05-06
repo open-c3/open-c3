@@ -1,7 +1,7 @@
 create database jobs;
 use jobs;
 
-create table `project`(
+create table `openc3_job_project`(
 `id`            int(16) unsigned not null primary key auto_increment  comment 'id',
 `status` VARCHAR(100) comment '状态', ###active,inactive
 
@@ -10,7 +10,7 @@ create table `project`(
 
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='项目';
 
-create table `approval`(
+create table `openc3_job_approval`(
 `id` int(32) unsigned not null primary key auto_increment comment 'id',
 `taskuuid` VARCHAR(20) comment '任务编号',
 `uuid` VARCHAR(20) comment '唯一编号',
@@ -28,7 +28,7 @@ UNIQUE KEY `uniq_uuid` (`uuid`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='approval';
 
 ###初始化的时候写如一个id为一亿的数据到plugin_approval
-create table `plugin_approval`(
+create table `openc3_job_plugin_approval`(
 `id` int(32) unsigned not null primary key auto_increment comment 'id',
 `jobuuid` VARCHAR(20) comment 'job uuid',
 `uuid` VARCHAR(20) comment '唯一编号',
@@ -47,7 +47,7 @@ UNIQUE KEY `uniq_uuid` (`uuid`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='approval插件';
 
 ###初始化的时候写如一个id为一亿的数据到plugin_cmd
-create table `plugin_cmd`(
+create table `openc3_job_plugin_cmd`(
 `id` int(32) unsigned not null primary key auto_increment comment 'id',
 `jobuuid` VARCHAR(20) comment 'job uuid',
 `uuid` VARCHAR(20) comment '唯一编号',
@@ -68,7 +68,7 @@ create table `plugin_cmd`(
 UNIQUE KEY `uniq_uuid` (`uuid`) 
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='cmd插件';
 
-create table `scripts`(
+create table `openc3_job_scripts`(
 `id` int(32) unsigned not null primary key auto_increment comment 'id',
 
 `projectid` int(16) unsigned comment '项目id',
@@ -84,7 +84,7 @@ UNIQUE KEY `uniq_pn` (`projectid`,`name`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='脚本';
 
 ###初始化的时候写如一个id为一亿的数据到plugin_scp
-create table `plugin_scp`(
+create table `openc3_job_plugin_scp`(
 `id` int(32) unsigned not null primary key auto_increment comment 'id',
 
 `jobuuid` VARCHAR(20) comment 'job uuid',
@@ -111,7 +111,7 @@ create table `plugin_scp`(
 UNIQUE KEY `uniq_uuid` (`uuid`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='scp插件';
 
-create table `jobs`(
+create table `openc3_job_jobs`(
 `id` int(16) unsigned not null primary key auto_increment comment 'id',
 `projectid` int(16) unsigned comment 'projectid',
 `uuid` VARCHAR(20) comment '唯一编号',
@@ -127,7 +127,7 @@ create table `jobs`(
 UNIQUE KEY `uniq_projectidname` (`projectid`,`name`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='作业';
 
-create table `crontab`(
+create table `openc3_job_crontab`(
 `id` int(16) unsigned not null primary key auto_increment comment 'id',
 `name` VARCHAR(100) comment '名称',
 `jobuuid` VARCHAR(20) comment 'jobuuid',
@@ -140,7 +140,7 @@ create table `crontab`(
 `status` VARCHAR(100) DEFAULT 'available' comment '状态' ###available,unavailable,deleted
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='定时任务';
 
-create table `crontablock`(
+create table `openc3_job_crontablock`(
 `id` int(16) unsigned not null primary key auto_increment comment 'id',
 `crontabid` int(16) unsigned comment 'crontabid',
 `timeid` int(16) unsigned comment 'timeid',
@@ -148,14 +148,14 @@ create table `crontablock`(
 UNIQUE KEY `uniq_ctid` (`crontabid`,`timeid`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='定时任务锁';
 
-create table `keepalive`(
+create table `openc3_job_keepalive`(
 `id` int(16) unsigned not null primary key auto_increment comment 'id',
 `slave` VARCHAR(40) comment 'slave',
 `time` int(16) unsigned comment 'time',
 UNIQUE KEY `uniq_slave` (`slave`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='slave心跳';
 
-create table `userlist`(
+create table `openc3_job_userlist`(
 `id` int(16) unsigned not null primary key auto_increment comment 'id',
 `projectid` int(16) unsigned comment 'projectid',
 `username` VARCHAR(100) comment '帐号',
@@ -169,7 +169,7 @@ create table `userlist`(
 UNIQUE KEY `uniq_projectusername` (`projectid`,`username`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='用户列表';
 
-create table `nodegroup`(
+create table `openc3_job_nodegroup`(
 `id` int(16) unsigned not null primary key auto_increment comment 'id',
 `projectid` int(16) unsigned comment '项目id',
 `name` VARCHAR(100) comment '分组名称',
@@ -184,7 +184,7 @@ create table `nodegroup`(
 UNIQUE KEY `uniq_projectidname` (`projectid`,`name`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='分组';
 
-create table `task`(
+create table `openc3_job_task`(
 `id` int(16) unsigned not null primary key auto_increment comment 'id',
 `projectid` int(16) unsigned comment '项目id',
 
@@ -210,7 +210,7 @@ UNIQUE KEY `uniq_taskid` (`uuid`),
 INDEX index_name(`status`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='任务列表';
 
-create table `subtask`(
+create table `openc3_job_subtask`(
 `id` int(16) unsigned not null primary key auto_increment comment 'id',
 
 `parent_uuid` VARCHAR(20) comment '父任务uuid',
@@ -230,7 +230,7 @@ INDEX index_name(`parent_uuid`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='子任务列表';
 
 
-create table `pause`(
+create table `openc3_job_pause`(
 `id` int(16) unsigned not null primary key auto_increment comment 'id',
 `taskuuid` VARCHAR(20) comment 'taskid',
 `pluginuuid` VARCHAR(20) comment 'pluginid',
@@ -242,7 +242,7 @@ UNIQUE KEY `uniq_tpidt` (`taskuuid`,`pluginuuid`,`plugin_type`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='暂停';
 
 
-create table `fileserver`(
+create table `openc3_job_fileserver`(
 `id` int(16) unsigned not null primary key auto_increment comment 'id',
 `projectid` int(16) unsigned comment '项目id',
 
@@ -259,7 +259,7 @@ create table `fileserver`(
 UNIQUE KEY `uniq_projectid_name` (`projectid`,`name`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='文件服务';
 
-create table `variable`(
+create table `openc3_job_variable`(
 `id` int(16) unsigned not null primary key auto_increment comment 'id',
 
 `jobuuid` VARCHAR(100) comment 'jobuuid',
@@ -274,7 +274,7 @@ create table `variable`(
 UNIQUE KEY `uniq_jobuuid_name` (`jobuuid`,`name`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='作业变量';
 
-create table `notify`(
+create table `openc3_job_notify`(
 `id` int(16) unsigned not null primary key auto_increment comment 'id',
 
 `projectid` int(16) unsigned comment '项目id',
@@ -291,7 +291,7 @@ UNIQUE KEY `uniq_projectid_user` (`projectid`,`user`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='通知人员信息';
 
 
-create table `environment`(
+create table `openc3_job_environment`(
 `id` int(16) unsigned not null primary key auto_increment comment 'id',
 
 `key` VARCHAR(200) comment '名称',
@@ -327,7 +327,7 @@ UNIQUE KEY `uniq_key` (`key`)
 #notifyTemplateEmailContent
 #notifyTemplateSmsContent
 
-create table `cmdlog`(
+create table `openc3_job_cmdlog`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 
 `projectid` int(16) unsigned comment '项目id',
@@ -341,7 +341,7 @@ create table `cmdlog`(
 
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='cmdlog';
 
-create table `nodelist`(
+create table `openc3_job_nodelist`(
 `id` int(16) unsigned not null primary key auto_increment comment 'id',
 `projectid` int(16) unsigned comment 'projectid',
 `name` VARCHAR(100) comment '机器名',
@@ -357,7 +357,7 @@ create table `nodelist`(
 UNIQUE KEY `uniq_projectname` (`projectid`,`name`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='机器列表';
 
-create table `token`(
+create table `openc3_job_token`(
 `id` int(16) unsigned not null primary key auto_increment comment 'id',
 `projectid` int(16) unsigned comment 'projectid',
 `token` VARCHAR(50) comment 'token',
@@ -374,7 +374,7 @@ create table `token`(
 UNIQUE KEY `uniq_projecttoken` (`projectid`,`token`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='token';
 
-create table `vv`(
+create table `openc3_job_vv`(
 `id` int(32) unsigned not null primary key auto_increment comment 'id',
 `projectid` VARCHAR(20) comment 'projectid',
 `node` VARCHAR(100) comment '机器',
@@ -384,7 +384,7 @@ create table `vv`(
 UNIQUE KEY `uniq_projectnodename` (`projectid`,`node`,`name`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='版本变量数据';
 
-create table `smallapplication`(
+create table `openc3_job_smallapplication`(
 `id` int(32) unsigned not null primary key auto_increment comment 'id',
 `jobid` VARCHAR(20) comment '作业ID',
 `type` VARCHAR(100) comment '分类',

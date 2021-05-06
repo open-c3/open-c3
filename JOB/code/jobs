@@ -28,7 +28,7 @@ return sub
 
     $logs->die( "code.jobs uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
 
-    my $x = eval{ $db->query( "select uuids from jobs where uuid='$uuid'" ); };
+    my $x = eval{ $db->query( "select uuids from openc3_job_jobs where uuid='$uuid'" ); };
     $logs->die( "code.jobs get uuids from mysql fail:$@" ) if $@;
     $logs->die( "code.jobs get uuid from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
     $logs->die( "jobs uuid mismatch: $uuid" ) unless @$x;
@@ -46,7 +46,7 @@ return sub
         my ( $plugin_type, $plugin_uuid ) = @$_;
     
         eval{ $db->execute( 
-                 "replace into `subtask` (`parent_uuid`,`subtask_type`,`uuid` )
+                 "replace into `openc3_job_subtask` (`parent_uuid`,`subtask_type`,`uuid` )
                      values('$taskuuid','$plugin_type','$plugin_uuid')" ) };
         $logs->die( "init subtask fail:$@" ) if $@;
  

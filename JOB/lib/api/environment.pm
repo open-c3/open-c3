@@ -12,7 +12,7 @@ get '/environment' => sub {
 
     my $projectid = $param->{projectid};
 
-    my $r = eval{ $api::mysql->query( "select `key`,`value` from environment")};
+    my $r = eval{ $api::mysql->query( "select `key`,`value` from openc3_job_environment")};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => +{ map{ @$_ }@$r } };
 };
@@ -58,7 +58,7 @@ post '/environment' => sub {
     eval{ $api::auditlog->run( user => $user, title => 'EDIT ENVIRONMENT', content => "_" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
-    eval{ map{ $api::mysql->execute( "replace into environment (`key`,`value`,`create_user`)
+    eval{ map{ $api::mysql->execute( "replace into openc3_job_environment (`key`,`value`,`create_user`)
         values('$_','$param->{$_}','$user')" ) }keys %$param; };
 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => scalar keys %$param };
@@ -79,7 +79,7 @@ del '/environment' => sub {
     eval{ $api::auditlog->run( user => $user, title => 'EDIT ENVIRONMENT', content => "_" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
-    eval{ map{   $api::mysql->execute( "delete from environment where `key`='$_'" ); }keys %$param; }; 
+    eval{ map{   $api::mysql->execute( "delete from openc3_job_environment where `key`='$_'" ); }keys %$param; }; 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => scalar keys %$param };
 };
 

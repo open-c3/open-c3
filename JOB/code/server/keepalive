@@ -20,13 +20,13 @@ return sub
 
     my ( $db, $myname, $logs ) = ( $param{db}, Util::myname(), Logs->new( 'keepalive' ) );
 
-    eval{ $db->execute( sprintf "replace into keepalive (`slave`,`time`) values( '$myname','%d')", time ); };
+    eval{ $db->execute( sprintf "replace into openc3_job_keepalive (`slave`,`time`) values( '$myname','%d')", time ); };
     $logs->die( "update keepalive fail: $@" ) if $@;
     while( 1 )
     {
         warn "do ...\n";
         sleep 45;
-        $db->execute( sprintf "update keepalive set time='%d' where slave='$myname'", time );
+        $db->execute( sprintf "update openc3_job_keepalive set time='%d' where slave='$myname'", time );
         $logs->die( "update keepalive fail: $@" ) if $@;
     }
 }

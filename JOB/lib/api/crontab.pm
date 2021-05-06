@@ -56,8 +56,8 @@ get '/crontab/:projectid' => sub {
 
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from crontab
-                where status<>'deleted' and jobuuid in ( select uuid from jobs where projectid='$param->{projectid}' ) %s", 
+            sprintf( "select %s from openc3_job_crontab
+                where status<>'deleted' and jobuuid in ( select uuid from openc3_job_jobs where projectid='$param->{projectid}' ) %s", 
                 join( ',', @col ),@where? ' and '.join( ' and ', @where ):'' ), \@col )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
@@ -73,9 +73,9 @@ get '/crontab/:projectid/count' => sub {
 
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select status,count(*) from crontab
+            sprintf( "select status,count(*) from openc3_job_crontab
                 where status<>'deleted' and jobuuid in
-                ( select uuid from jobs where projectid='$param->{projectid}' ) group by status" ) )};
+                ( select uuid from openc3_job_jobs where projectid='$param->{projectid}' ) group by status" ) )};
 
     my %data = map{ @$_ }@$r;
     map{ $data{$_}||= 0 }qw( available unavailable );
@@ -98,9 +98,9 @@ get '/crontab/:projectid/:crontabid' => sub {
     my @col = qw( id name jobuuid cron mutex status create_user create_time edit_user edit_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from crontab
+            sprintf( "select %s from openc3_job_crontab
                 where id='$param->{crontabid}' and status<>'deleted' and jobuuid in 
-                    ( select uuid from jobs where projectid='$param->{projectid}' )", join ',', @col ), \@col )};
+                    ( select uuid from openc3_job_jobs where projectid='$param->{projectid}' )", join ',', @col ), \@col )};
 
     my %x = %{$r->[0]};
     $x{cont} = decode_base64( $x{cont} );
@@ -131,7 +131,7 @@ post '/crontab/:projectid' => sub {
 
     $param->{mutex} ||='';
 
-    my $m = eval{ $api::mysql->query( "select count(*) from jobs
+    my $m = eval{ $api::mysql->query( "select count(*) from openc3_job_jobs
             where projectid='$param->{projectid}' and uuid='$param->{jobuuid}' " );};
 
     return  +{ stat => $JSON::false, info => $@ } if $@;
@@ -146,7 +146,7 @@ post '/crontab/:projectid' => sub {
 
     my $r = eval{ 
         $api::mysql->execute( 
-            "insert into crontab (`name`,`jobuuid`,`cron`,`mutex`,`create_user`,`create_time`,`edit_user`,`edit_time`,`status`)
+            "insert into openc3_job_crontab (`name`,`jobuuid`,`cron`,`mutex`,`create_user`,`create_time`,`edit_user`,`edit_time`,`status`)
                 values( '$param->{name}','$param->{jobuuid}', '$param->{cron}','$param->{mutex}', '$user','$time', '$user', '$time','unavailable' )")};
 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
@@ -176,7 +176,7 @@ post '/crontab/:projectid/:crontabid' => sub {
 
     $param->{mutex} ||='';
 
-    my $m = eval{ $api::mysql->query( "select count(*) from jobs
+    my $m = eval{ $api::mysql->query( "select count(*) from openc3_job_jobs
             where projectid='$param->{projectid}' and uuid='$param->{jobuuid}' " );};
 
     return  +{ stat => $JSON::false, info => $@ } if $@;
@@ -191,10 +191,10 @@ post '/crontab/:projectid/:crontabid' => sub {
 
     my $r = eval{ 
         $api::mysql->execute( 
-            "update crontab set name='$param->{name}',jobuuid='$param->{jobuuid}',
+            "update openc3_job_crontab set name='$param->{name}',jobuuid='$param->{jobuuid}',
                 cron='$param->{cron}',mutex='$param->{mutex}',edit_user='$user',edit_time='$time'
                     where id='$param->{crontabid}' and status<>'deleted' and jobuuid
-                        in ( select uuid from jobs where projectid='$param->{projectid}')")};
+                        in ( select uuid from openc3_job_jobs where projectid='$param->{projectid}')")};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
 };
@@ -215,12 +215,12 @@ post '/crontab/:projectid/:crontabid/status' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ));
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
 
-    my $crontabname = eval{ $api::mysql->query( "select name from crontab where id='$param->{crontabid}'")};
+    my $crontabname = eval{ $api::mysql->query( "select name from openc3_job_crontab where id='$param->{crontabid}'")};
     eval{ $api::auditlog->run( user => $user, title => 'SWITCH CRONTAB', content => "TREEID:$param->{projectid} NAME:$crontabname->[0][0] STATUS:$param->{status}" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
-    my $m = eval{ $api::mysql->query( "select count(*) from jobs,crontab where 
-            crontab.jobuuid=jobs.uuid and jobs.projectid='$param->{projectid}' and crontab.id='$param->{crontabid}'" );};
+    my $m = eval{ $api::mysql->query( "select count(*) from openc3_job_jobs,openc3_job_crontab where 
+            openc3_job_crontab.jobuuid=openc3_job_jobs.uuid and openc3_job_jobs.projectid='$param->{projectid}' and openc3_job_crontab.id='$param->{crontabid}'" );};
 
     return  +{ stat => $JSON::false, info => $@ } if $@;
     return  +{ stat => $JSON::false, info => "crontabid $param->{crontabid} not belong project $param->{projectid}" } 
@@ -229,9 +229,9 @@ post '/crontab/:projectid/:crontabid/status' => sub {
 
     my $r = eval{ 
         $api::mysql->execute( 
-            "update crontab set status='$param->{status}',edit_user='$user',edit_time='$time'
+            "update openc3_job_crontab set status='$param->{status}',edit_user='$user',edit_time='$time'
                 where id='$param->{crontabid}' and status<>'deleted' and jobuuid 
-                    in ( select uuid from jobs where projectid='$param->{projectid}')")};
+                    in ( select uuid from openc3_job_jobs where projectid='$param->{projectid}')")};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
 };
@@ -247,8 +247,8 @@ del '/crontab/:projectid/:crontabid' => sub {
 
     my $pmscheck = api::pmscheck( 'openc3_job_delete', $param->{projectid} ); return $pmscheck if $pmscheck;
 
-    my $m = eval{ $api::mysql->query( "select count(*) from jobs,crontab where 
-            crontab.jobuuid=jobs.uuid and jobs.projectid='$param->{projectid}' and crontab.id='$param->{crontabid}'" );};
+    my $m = eval{ $api::mysql->query( "select count(*) from openc3_job_jobs,openc3_job_crontab where 
+            openc3_job_crontab.jobuuid=openc3_job_jobs.uuid and openc3_job_jobs.projectid='$param->{projectid}' and openc3_job_crontab.id='$param->{crontabid}'" );};
 
     return  +{ stat => $JSON::false, info => $@ } if $@;
     return  +{ stat => $JSON::false, info => "crontabid $param->{crontabid} not belong project $param->{projectid}" } 
@@ -259,15 +259,15 @@ del '/crontab/:projectid/:crontabid' => sub {
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     my $t    = Util::deleteSuffix();
 
-    my $crontabname = eval{ $api::mysql->query( "select name from crontab where id='$param->{crontabid}'")};
+    my $crontabname = eval{ $api::mysql->query( "select name from openc3_job_crontab where id='$param->{crontabid}'")};
     eval{ $api::auditlog->run( user => $user, title => 'DELETE CRONTAB', content => "TREEID:$param->{projectid} NAME:$crontabname->[0][0]" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
         $api::mysql->execute(
-            "update crontab set status='deleted',name=concat(name,'_$t'),edit_user='$user',edit_time='$time' 
+            "update openc3_job_crontab set status='deleted',name=concat(name,'_$t'),edit_user='$user',edit_time='$time' 
                 where id='$param->{crontabid}' and status<>'deleted' and jobuuid 
-                    in ( select uuid from jobs where projectid='$param->{projectid}')")};
+                    in ( select uuid from openc3_job_jobs where projectid='$param->{projectid}')")};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
 };

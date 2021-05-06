@@ -28,7 +28,7 @@ return sub
         = @param{qw(db projectid node key val logs )};
     $logs = Logs->new( 'code.vv.check' ) unless $logs;
 
-    my $x = eval{ $db->query( "select node from vv where projectid='$projectid' and name='$key' and value='$val'" ) };
+    my $x = eval{ $db->query( "select node from openc3_job_vv where projectid='$projectid' and name='$key' and value='$val'" ) };
     $logs->die( "vv.check query fail :$@" ) if $@;
 
     my %x = map{ $_->[0] => 1 }@$x;

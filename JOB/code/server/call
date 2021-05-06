@@ -34,7 +34,7 @@ return sub
         my $counttmp = int time / $interval;
         ( $count, %count ) = ( $counttmp ) if $count ne $counttmp;
 
-        my $x = eval{ $db->query( "select uuid from task where status='init' and slave='$myname' and pid is null" ) };
+        my $x = eval{ $db->query( "select uuid from openc3_job_task where status='init' and slave='$myname' and pid is null" ) };
         $logs->die( "mysql query fail: $@" ) if $@;
         $logs->die( "get task list from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
 

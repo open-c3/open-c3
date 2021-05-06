@@ -56,7 +56,7 @@ return sub
     $logs->die( "uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
 
     my $x = eval{ $db->query( "select user,node_type,node_cont,scripts_type,scripts_cont,scripts_argv,timeout,pause,deployenv,action,batches
-            from plugin_cmd where uuid='$uuid'" );};
+            from openc3_job_plugin_cmd where uuid='$uuid'" );};
     $logs->die( "get plugin_cmd info from mysql fail plugin_cmd uuid=$uuid: $@" ) if $@;
     $logs->die( "get plugin_cmd info from mysql fail plugin_cmd uuid=$uuid" ) unless defined $x && ref $x eq 'ARRAY';
     $logs->die( "plugin_cmd uuid mismatch uuid=$uuid" ) unless @$x;
@@ -126,7 +126,7 @@ return sub
     {
         my $nodecount = @node;
         eval{ $db->execute( 
-                "update `subtask` set nodecount='$nodecount',starttime='$subtaskstarttime',runtime='0.00',pause='$pause',status='running'
+                "update `openc3_job_subtask` set nodecount='$nodecount',starttime='$subtaskstarttime',runtime='0.00',pause='$pause',status='running'
                      where parent_uuid='$taskuuid' and subtask_type='cmd' and uuid='$uuid'") };
         $logs->die( "set status to subtask fail:$@" ) if $@;
     }
@@ -135,7 +135,7 @@ return sub
     if( $scripts_type eq 'cite' )
     {
         $logs->die( "scripts_type no a number" ) unless $scripts_cont && $scripts_cont =~ /^\d+$/;
-        my $st = eval{ $db->query( "select type,cont from scripts where id='$scripts_cont' and status='available'" );};
+        my $st = eval{ $db->query( "select type,cont from openc3_job_scripts where id='$scripts_cont' and status='available'" );};
         $logs->die( "get scripts cite fail:$@" ) if $@;
         $logs->die( "get scripts cite fail" ) unless defined $st && ref $st eq 'ARRAY';
         $logs->die( "scripts id mismatch: $scripts_cont" ) unless @$st;
@@ -245,8 +245,8 @@ return sub
 
         last unless @node = @failed;
 
-        eval{ $db->execute( "update `subtask` set status='decision' where parent_uuid='$taskuuid' and subtask_type='cmd' and uuid='$uuid'") };
-        eval{ $db->execute( "update `task` set status='waiting',notify='0' where uuid='$taskuuid'") };
+        eval{ $db->execute( "update `openc3_job_subtask` set status='decision' where parent_uuid='$taskuuid' and subtask_type='cmd' and uuid='$uuid'") };
+        eval{ $db->execute( "update `openc3_job_task` set status='waiting',notify='0' where uuid='$taskuuid'") };
         my $tmpstatus;
 
         if( $_exit_ && ( $_exit_ eq '1' || $_exit_ eq 'cmd' || $_exit_ eq 'true' ) )
@@ -260,7 +260,7 @@ return sub
         {
             while(1)
             {
-                $x = $db->query( "select status from subtask where parent_uuid='$taskuuid' and subtask_type='cmd' and uuid='$uuid'" );
+                $x = $db->query( "select status from openc3_job_subtask where parent_uuid='$taskuuid' and subtask_type='cmd' and uuid='$uuid'" );
                 $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
                 $logs->die( "subtask status null: parent_uuid='$taskuuid' and subtask_type='cmd' and uuid='$uuid'" ) unless @$x;
                 if( grep{ $x->[0][0] eq $_ }qw( fail ignore running ) )
@@ -272,7 +272,7 @@ return sub
             }
         }
 
-        eval{ $db->execute( "update `task` set status='running',notify='0' where uuid='$taskuuid'") };
+        eval{ $db->execute( "update `openc3_job_task` set status='running',notify='0' where uuid='$taskuuid'") };
 
         next if $tmpstatus eq 'running';
         $subtaskstatus = $tmpstatus;
@@ -285,7 +285,7 @@ return sub
     {
          my $subtaskruntime = sprintf "%0.3f", time - $subtasktimems;
          my $subtaskfinishtime = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
-         eval{ $db->execute( "update `subtask` set runtime='$subtaskruntime',finishtime='$subtaskfinishtime',status='$subtaskstatus' 
+         eval{ $db->execute( "update `openc3_job_subtask` set runtime='$subtaskruntime',finishtime='$subtaskfinishtime',status='$subtaskstatus' 
                  where parent_uuid='$taskuuid' and subtask_type='cmd' and uuid='$uuid'") };
     }
 

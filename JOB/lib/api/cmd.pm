@@ -66,11 +66,10 @@ get '/cmd/:projectid/log' => sub {
 
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from cmdlog where projectid='$param->{projectid}' %s", 
+            sprintf( "select %s from openc3_job_cmdlog where projectid='$param->{projectid}' %s", 
                 join( ',', @col ), @where? ' and '.join( ' and ', @where ):'' ), \@col )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
-
 
 true;

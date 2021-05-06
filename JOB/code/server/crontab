@@ -42,9 +42,9 @@ return sub
     {
         warn "do ...\n";
 
-        my $x = eval{ $db->query( "select id,cron from crontab where status='available' 
-                and jobuuid in ( select uuid from jobs where projectid not in
-                    ( select id from project where status='inactive') )" ); };
+        my $x = eval{ $db->query( "select id,cron from openc3_job_crontab where status='available' 
+                and jobuuid in ( select uuid from openc3_job_jobs where projectid not in
+                    ( select id from openc3_job_project where status='inactive') )" ); };
         $logs->die( "get crontab list from mysql fail: $@" ) if $@;
         $logs->die( "get crontab list from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
 

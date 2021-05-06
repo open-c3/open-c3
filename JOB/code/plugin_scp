@@ -57,7 +57,7 @@ return sub
     }
 
     $logs->die( "uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
-    my $x = $db->query( "select user,src,src_type,sp,dst,dst_type,dp,chown,chmod,timeout,pause,scp_delete,deployenv,action,batches from plugin_scp where uuid='$uuid'" );
+    my $x = $db->query( "select user,src,src_type,sp,dst,dst_type,dp,chown,chmod,timeout,pause,scp_delete,deployenv,action,batches from openc3_job_plugin_scp where uuid='$uuid'" );
     $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
     $logs->die( "plugin_scp uuid null: $uuid" ) unless @$x;
 
@@ -111,7 +111,7 @@ return sub
         if ($sp =~ /^rollback:/ || $sp =~ /^comeback:/ || $sp =~ /^backup/) {
             $ignore = 1;
         }else{
-            my $tx = $db->query( "select md5 from fileserver where projectid='$projectid' and name='$sp' and status='available'" );
+            my $tx = $db->query( "select md5 from openc3_job_fileserver where projectid='$projectid' and name='$sp' and status='available'" );
             $logs->die( "get data error from db" ) unless defined $tx && ref $tx eq 'ARRAY';
             $logs->die( "fileserver null: $sp" ) unless @$tx;
 
@@ -125,7 +125,7 @@ return sub
 
         if( $src eq 'default' && $fromjob )
         {
-            my $jobname = $db->query( "select name from jobs where uuid='$fromjob'" );
+            my $jobname = $db->query( "select name from openc3_job_jobs where uuid='$fromjob'" );
             $logs->die( "get jobname error from db" ) unless defined $jobname && ref $jobname eq 'ARRAY';
             if( @$jobname > 0 )
             {
@@ -234,7 +234,7 @@ return sub
          my $nodecount = @dst;
 
          eval{ $db->execute( 
-                 "update `subtask` set nodecount='$nodecount',starttime='$subtaskstarttime',runtime='0.00',pause='$pause',status='running'
+                 "update `openc3_job_subtask` set nodecount='$nodecount',starttime='$subtaskstarttime',runtime='0.00',pause='$pause',status='running'
                      where parent_uuid='$taskuuid' and subtask_type='scp' and uuid='$uuid'") };
          $logs->die( "set status to subtask fail:$@" ) if $@;
     }
@@ -330,7 +330,7 @@ return sub
 
             eval{
               $db->execute(
-                "replace into fileserver (`projectid`,`name`,`size`,`md5`,`create_user`,`create_time`,`edit_user`,`edit_time`,`status`)
+                "replace into openc3_job_fileserver (`projectid`,`name`,`size`,`md5`,`create_user`,`create_time`,`edit_user`,`edit_time`,`status`)
                     values( '$projectid', '$filename','$size', '$md5', '$user','$time', '$user', '$time','available' )")};
 
             $logs->die( "update db fail:$@" ) if $@;
@@ -350,14 +350,14 @@ return sub
 
         last unless @failed;
 
-        eval{ $db->execute( "update `subtask` set status='decision' where parent_uuid='$taskuuid' and subtask_type='scp' and uuid='$uuid'") };
-        eval{ $db->execute( "update `task` set status='waiting',notify='0' where uuid='$taskuuid'") };
+        eval{ $db->execute( "update `openc3_job_subtask` set status='decision' where parent_uuid='$taskuuid' and subtask_type='scp' and uuid='$uuid'") };
+        eval{ $db->execute( "update `openc3_job_task` set status='waiting',notify='0' where uuid='$taskuuid'") };
 
         my $tmpstatus;
         if( $_exit_ && ( $_exit_ eq '1' || $_exit_ eq 'scp' || $_exit_ eq 'true' ) )
         {
             $tmpstatus = 'fail';
-            eval{ $db->execute( "update task set reason='stop by sys._exit_' where uuid='$taskuuid' and reason is null" ) };
+            eval{ $db->execute( "update openc3_job_task set reason='stop by sys._exit_' where uuid='$taskuuid' and reason is null" ) };
             $logs->die( "update reason fail" ) if $@;
 
         }
@@ -365,7 +365,7 @@ return sub
         {
             while(1)
             {
-                $x = $db->query( "select status from subtask where parent_uuid='$taskuuid' and subtask_type='scp' and uuid='$uuid'" );
+                $x = $db->query( "select status from openc3_job_subtask where parent_uuid='$taskuuid' and subtask_type='scp' and uuid='$uuid'" );
                 $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
                 $logs->die( "subtask status null: parent_uuid='$taskuuid' and subtask_type='cmd' and uuid='$uuid'" ) unless @$x;
                 if( grep{ $x->[0][0] eq $_ }qw( fail ignore running ) )
@@ -377,7 +377,7 @@ return sub
             }
         }
 
-        eval{ $db->execute( "update `task` set status='running',notify='0' where uuid='$taskuuid'") };
+        eval{ $db->execute( "update `openc3_job_task` set status='running',notify='0' where uuid='$taskuuid'") };
         if( $tmpstatus eq 'running' )
         {
             my %failed = map{ $_ => 1 }@failed;
@@ -393,7 +393,7 @@ return sub
     {
          my $subtaskruntime = sprintf "%0.3f", time - $subtasktimems;
          my $subtaskfinishtime = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
-         eval{ $db->execute( "update `subtask` set runtime='$subtaskruntime',finishtime='$subtaskfinishtime',status='$subtaskstatus' 
+         eval{ $db->execute( "update `openc3_job_subtask` set runtime='$subtaskruntime',finishtime='$subtaskfinishtime',status='$subtaskstatus' 
                  where parent_uuid='$taskuuid' and subtask_type='scp' and uuid='$uuid'") };
     }
 

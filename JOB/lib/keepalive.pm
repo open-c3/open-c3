@@ -6,7 +6,7 @@ use strict;
 sub new
 {
     my ( $class, $db ) = @_;
-    my $x = $db->query( "select `slave`,`time` from keepalive" );
+    my $x = $db->query( "select `slave`,`time` from openc3_job_keepalive" );
     die "get data error from db\n" unless defined $x && ref $x eq 'ARRAY';
     die "keepalive null" unless @$x;
 

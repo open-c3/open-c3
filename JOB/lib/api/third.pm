@@ -27,7 +27,7 @@ post '/third/option/jobname' => sub {
     my $project_id = $param->{project_id};
 
     my $r = eval{ 
-        $api::mysql->query( "select name from `jobs` where projectid='$project_id' and status='permanent'")};
+        $api::mysql->query( "select name from `openc3_job_jobs` where projectid='$project_id' and status='permanent'")};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => [map{@$_}@$r] };
 };
@@ -54,8 +54,8 @@ post '/third/option/variable' => sub {
     my @col = qw( name describe  );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from variable
-                where jobuuid in ( select uuid from jobs where projectid='$param->{project_id}' and name='$param->{jobname}') and value='' $exclude", 
+            sprintf( "select %s from openc3_job_variable
+                where jobuuid in ( select uuid from openc3_job_jobs where projectid='$param->{project_id}' and name='$param->{jobname}') and value='' $exclude", 
                     join ',',map{"`$_`"} @col ), \@col )};
 
     return +{ stat => $JSON::false, info => $@ }  if $@;
@@ -105,13 +105,13 @@ post '/third/interface/dry-run' => sub {
 
     my $uuid = makeuuid( %$param );
 
-    my $x = eval{ $api::mysql->query( "select uuid from task where uuid='$uuid'" ) };
+    my $x = eval{ $api::mysql->query( "select uuid from openc3_job_task where uuid='$uuid'" ) };
     return  +{ stat => $JSON::false, info => "get data error from db: $@" }  if $@;
     return  +{ stat => $JSON::false, info => "get data error from db" } unless defined $x && ref $x eq 'ARRAY';
     return  +{ stat => $JSON::false, info => "uuid has already existed in the task" } if @$x;
    
 
-    $x = eval{ $api::mysql->query( "select uuid from jobs where name='$params->{jobname}' and projectid=$param->{project_id}" ) };
+    $x = eval{ $api::mysql->query( "select uuid from openc3_job_jobs where name='$params->{jobname}' and projectid=$param->{project_id}" ) };
     return  +{ stat => $JSON::false, info => "get data error from db: $@" }  if $@;
     return  +{ stat => $JSON::false, info => "get data error from db" } unless defined $x && ref $x eq 'ARRAY';
     return  +{ stat => $JSON::false, info => "project_id, jobname nomatch" } unless @$x;
@@ -155,13 +155,13 @@ post '/third/interface/invoke' => sub {
     return +{ stat => $JSON::false, info => "system error: no slave" } unless defined $slave;
 
     my $uuid = makeuuid( %$param );
-    my $x = eval{ $api::mysql->query( "select uuid from task where uuid='$uuid'" ) };
+    my $x = eval{ $api::mysql->query( "select uuid from openc3_job_task where uuid='$uuid'" ) };
     return  +{ stat => $JSON::false, info => "get data error from db: $@" }  if $@;
     return  +{ stat => $JSON::false, info => "get data error from db" } unless defined $x && ref $x eq 'ARRAY';
     return  +{ stat => $JSON::true, info => "This task has been successfully created" } if @$x;
    
 
-    $x = eval{ $api::mysql->query( "select uuid from jobs where name='$params->{jobname}' and projectid=$param->{project_id}" ) };
+    $x = eval{ $api::mysql->query( "select uuid from openc3_job_jobs where name='$params->{jobname}' and projectid=$param->{project_id}" ) };
     return  +{ stat => $JSON::false, info => "get data error from db: $@" }  if $@;
     return  +{ stat => $JSON::false, info => "get data error from db" } unless defined $x && ref $x eq 'ARRAY';
     return  +{ stat => $JSON::false, info => "project_id, jobname nomatch" } unless @$x;
@@ -173,7 +173,7 @@ post '/third/interface/invoke' => sub {
     my $variable = $params->{variable} ? encode_base64( encode('UTF-8', YAML::XS::Dump $params->{variable}) ) : '';
 
     my $r = eval{ 
-        $api::mysql->execute( "insert into task (`projectid`,`uuid`,`name`,`user`,`slave`,`status`,`calltype`,`jobtype`,`jobuuid`,`mutex`,`variable`) 
+        $api::mysql->execute( "insert into openc3_job_task (`projectid`,`uuid`,`name`,`user`,`slave`,`status`,`calltype`,`jobtype`,`jobuuid`,`mutex`,`variable`) 
             values('$param->{project_id}','$uuid','$params->{jobname}','$user','$slave', 'init','$calltype','jobs','$jobuuid','','$variable')" )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, uuid => $uuid, data => $r };
@@ -193,7 +193,7 @@ post '/third/interface/query' => sub {
     my @col = qw(  status reason projectid );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from task
+            sprintf( "select %s from openc3_job_task
                 where uuid='$uuid'", join ',', @col ), \@col )};
 
     return +{ stat => $JSON::false, info => $@ } if $@;
@@ -210,7 +210,7 @@ post '/third/interface/query' => sub {
         ctrl => ["http://api.job.open-c3.org/#/taskstatusforflow/${projectid}/$uuid"],
     ) if $r->[0]{status} eq 'waiting';
 
-    my $rp = eval{ $api::mysql->query( "select status from subtask where parent_uuid='$uuid'" ); };
+    my $rp = eval{ $api::mysql->query( "select status from openc3_job_subtask where parent_uuid='$uuid'" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my @progress = (0,0); map{ $progress[1]++; $progress[0]++ if $_->[0] }@$rp;
@@ -237,7 +237,7 @@ post '/third/interface/stop' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
     my $uuid = makeuuid( %$param );
-    my $x = eval{ $api::mysql->query( "select projectid,slave,status from task where uuid='$uuid'" )};
+    my $x = eval{ $api::mysql->query( "select projectid,slave,status from openc3_job_task where uuid='$uuid'" )};
     return +{ stat => $JSON::false, info => $@ } if $@;
     return  +{ stat => $JSON::false, info => "no find task" } unless $x && @$x;
     my ( $project_id, $slave, $status )  = @{$x->[0]};

@@ -51,7 +51,7 @@ get '/jobs/:projectid' => sub {
     my @col = qw( id uuid name create_time uuids create_user edit_user edit_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from jobs
+            sprintf( "select %s from openc3_job_jobs
                 where projectid='$param->{projectid}' and status='permanent' %s order by id desc", 
                 join( ',', @col ), @where ? ' and '.join( ' and ', @where ) : '' ), \@col )};
 
@@ -61,7 +61,7 @@ get '/jobs/:projectid' => sub {
     if( @uuid )
     {
         my $v = eval{
-            $api::mysql->query( sprintf "select jobuuid from variable where value='' and jobuuid in ( %s )", join ',', map{"'$_'"}@uuid );
+            $api::mysql->query( sprintf "select jobuuid from openc3_job_variable where value='' and jobuuid in ( %s )", join ',', map{"'$_'"}@uuid );
         };
         return +{ stat => $JSON::false, info => $@ } if $@;
         map{ $hasvariable{$_->[0]} = 1 }@$v;
@@ -77,7 +77,7 @@ get '/jobs/:projectid/count' => sub {
 
     my $pmscheck = api::pmscheck( 'openc3_job_read', $param->{projectid} ); return $pmscheck if $pmscheck;
 
-    my $r = eval{ $api::mysql->query( "select count(id) from jobs where projectid='$param->{projectid}' and status='permanent'" )};
+    my $r = eval{ $api::mysql->query( "select count(id) from openc3_job_jobs where projectid='$param->{projectid}' and status='permanent'" )};
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => +{ permanent => $r->[0][0] }};
 };
 
@@ -96,7 +96,7 @@ get '/jobs/:projectid/:jobuuid' => sub {
     if( $param->{jobuuid} eq 'byname' )
     {
         return  +{ stat => $JSON::true, data => +{} } unless $param->{name};
-        my $fid = eval{ $api::mysql->query( "select uuid from jobs where projectid='$param->{projectid}' and name='$param->{name}'" ); };
+        my $fid = eval{ $api::mysql->query( "select uuid from openc3_job_jobs where projectid='$param->{projectid}' and name='$param->{name}'" ); };
         return  +{ stat => $JSON::false, info => $@ } if $@;
         return  +{ stat => $JSON::true, data => +{} } unless @$fid;
         $param->{jobuuid} = $fid->[0][0];
@@ -105,7 +105,7 @@ get '/jobs/:projectid/:jobuuid' => sub {
     my @col = qw( id name uuid uuids mon_ids mon_status create_user create_time edit_user edit_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from jobs
+            sprintf( "select %s from openc3_job_jobs
                 where uuid='$param->{jobuuid}' and projectid='$param->{projectid}' and status='permanent'", join ',', @col ), \@col )};
     my %x = %{$r->[0]};
 
@@ -124,7 +124,7 @@ get '/jobs/:projectid/:jobuuid' => sub {
         my @colcmd = qw( uuid name user node_type node_cont scripts_type scripts_cont scripts_argv timeout pause deployenv action batches );
         my $rcmd = eval{ 
             $api::mysql->query( 
-                sprintf( "select %s from plugin_cmd
+                sprintf( "select %s from openc3_job_plugin_cmd
                     where jobuuid='$param->{jobuuid}' and uuid in( %s )", 
                         join( ',', @colcmd ), join( ',', map{ "'$_'" } @{$myuuid{cmd}}) ), \@colcmd )};
 
@@ -139,7 +139,7 @@ get '/jobs/:projectid/:jobuuid' => sub {
         my @colscp = qw( uuid name user src src_type sp dst dst_type dp chown chmod timeout pause scp_delete deployenv action batches );
         my $rscp = eval{ 
             $api::mysql->query( 
-                sprintf( "select %s from plugin_scp
+                sprintf( "select %s from openc3_job_plugin_scp
                     where jobuuid='$param->{jobuuid}' and uuid in( %s )",
                         join( ',', @colscp ), join( ',', map{ "'$_'" } @{$myuuid{scp}}) ), \@colscp )};
 
@@ -151,7 +151,7 @@ get '/jobs/:projectid/:jobuuid' => sub {
         my @colapproval = qw( uuid name cont approver deployenv action batches everyone );
         my $rapproval = eval{ 
             $api::mysql->query( 
-                sprintf( "select %s from plugin_approval
+                sprintf( "select %s from openc3_job_plugin_approval
                     where jobuuid='$param->{jobuuid}' and uuid in( %s )",
                         join( ',', @colapproval ), join( ',', map{ "'$_'" } @{$myuuid{approval}}) ), \@colapproval )};
 
@@ -193,7 +193,7 @@ post '/jobs/:projectid/copy/byname' => sub {
     eval{ $api::auditlog->run( user => $user, title => 'CREATE JOB', content => "TREEID:$param->{projectid} NAME:$param->{toname}" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
-    my $x = $api::mysql->query( "select `uuid`,`uuids`,`status`,`mon_ids`,`mon_status` from jobs where projectid='$fromprojectid' and name='$fromname'" );
+    my $x = $api::mysql->query( "select `uuid`,`uuids`,`status`,`mon_ids`,`mon_status` from openc3_job_jobs where projectid='$fromprojectid' and name='$fromname'" );
     return +{ stat => $JSON::true, info => 'The source does not exist' } unless $x && @$x > 0;
     my ( $fromuuid, $uuids, $status, $mon_ids, $mon_status ) = @{$x->[0]};
 
@@ -206,21 +206,21 @@ post '/jobs/:projectid/copy/byname' => sub {
         if( $type eq 'cmd' )
         {
             my @plugin_col = qw( name user node_type node_cont scripts_type scripts_cont scripts_argv timeout pause jobuuid deployenv action batches );
-            eval{ $api::mysql->execute( sprintf "insert into plugin_cmd (`uuid`,%s ) select '$plugin_uuid',name,user,node_type,node_cont,scripts_type,scripts_cont,scripts_argv,timeout,pause,'$touuid',deployenv,action,batches from plugin_cmd where uuid='$uuid' and jobuuid='$fromuuid'", join(',',map{"`$_`"}@plugin_col ));};
+            eval{ $api::mysql->execute( sprintf "insert into openc3_job_plugin_cmd (`uuid`,%s ) select '$plugin_uuid',name,user,node_type,node_cont,scripts_type,scripts_cont,scripts_argv,timeout,pause,'$touuid',deployenv,action,batches from openc3_job_plugin_cmd where uuid='$uuid' and jobuuid='$fromuuid'", join(',',map{"`$_`"}@plugin_col ));};
             return  +{ stat => $JSON::false, info => "insert into plugin_cmd fail. $@" } if $@;
             push @step, "cmd_$plugin_uuid";
         }
         elsif( $type eq 'scp' )
         {
             my @plugin_col = qw( name user src_type src dst_type dst sp dp chown chmod timeout pause jobuuid scp_delete deployenv action batches );
-            eval{ $api::mysql->execute( sprintf "insert into plugin_scp (`uuid`,%s ) select '$plugin_uuid',name,user,src_type,src,dst_type,dst,sp,dp,chown,chmod,timeout,pause,'$touuid',scp_delete,deployenv,action,batches from plugin_scp where uuid='$uuid' and jobuuid='$fromuuid'", join(',',map{"`$_`"}@plugin_col ));};
+            eval{ $api::mysql->execute( sprintf "insert into openc3_job_plugin_scp (`uuid`,%s ) select '$plugin_uuid',name,user,src_type,src,dst_type,dst,sp,dp,chown,chmod,timeout,pause,'$touuid',scp_delete,deployenv,action,batches from openc3_job_plugin_scp where uuid='$uuid' and jobuuid='$fromuuid'", join(',',map{"`$_`"}@plugin_col ));};
             return  +{ stat => $JSON::false, info => "insert into plugin_scp fail. $@" } if $@;
             push @step, "scp_$plugin_uuid";
         }
         elsif( $type eq 'approval' )
         {
             my @plugin_col = qw( name cont approver deployenv action batches everyone timeout pause jobuuid );
-            eval{ $api::mysql->execute( sprintf "insert into plugin_approval (`uuid`,%s ) select '$plugin_uuid',name,cont,approver,deployenv,action,batches,everyone,timeout,pause,'$touuid' from plugin_approval where uuid='$uuid' and jobuuid='$fromuuid'", join(',',map{"`$_`"}@plugin_col ));};
+            eval{ $api::mysql->execute( sprintf "insert into openc3_job_plugin_approval (`uuid`,%s ) select '$plugin_uuid',name,cont,approver,deployenv,action,batches,everyone,timeout,pause,'$touuid' from openc3_job_plugin_approval where uuid='$uuid' and jobuuid='$fromuuid'", join(',',map{"`$_`"}@plugin_col ));};
             return  +{ stat => $JSON::false, info => "insert into plugin_approval fail. $@" } if $@;
             push @step, "approval_$plugin_uuid";
         }
@@ -230,13 +230,13 @@ post '/jobs/:projectid/copy/byname' => sub {
         }
     }
 
-    eval{ $api::mysql->execute( "insert into variable (`jobuuid`,`name`,`value`,`describe`,`create_user`) select '$touuid',name,value,`describe`,'$user' from variable where jobuuid='$fromuuid'" ); };
+    eval{ $api::mysql->execute( "insert into openc3_job_variable (`jobuuid`,`name`,`value`,`describe`,`create_user`) select '$touuid',name,value,`describe`,'$user' from openc3_job_variable where jobuuid='$fromuuid'" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $step = join ',', @step;
     eval{ 
         $api::mysql->execute( 
-            "insert into jobs (`projectid`,`uuid`,`name`,`uuids`,`status`,`mon_ids`,`mon_status`,`create_user`,`create_time`,`edit_user`,`edit_time`) values ( $toprojectid, '$touuid', '$param->{toname}', '$step', '$status','$mon_ids','$mon_status', '$user','$time', '$user', '$time' )")};
+            "insert into openc3_job_jobs (`projectid`,`uuid`,`name`,`uuids`,`status`,`mon_ids`,`mon_status`,`create_user`,`create_time`,`edit_user`,`edit_time`) values ( $toprojectid, '$touuid', '$param->{toname}', '$step', '$status','$mon_ids','$mon_status', '$user','$time', '$user', '$time' )")};
     return +{ stat => $JSON::false, info => $@ } if $@;
     return +{ stat => $JSON::true, uuid => $touuid };
 };
@@ -320,7 +320,7 @@ post '/jobs/:projectid' => sub {
                 )->check( %$data );
                 return  +{ stat => $JSON::false, info => "$info: check format fail $error" } if $error;
  
-                my $x = $api::mysql->query( "select id from nodegroup where id=$data->{node_cont} and projectid=$param->{projectid}" );
+                my $x = $api::mysql->query( "select id from openc3_job_nodegroup where id=$data->{node_cont} and projectid=$param->{projectid}" );
                 return  +{ stat => $JSON::false, info => "$info: get data error from db" } unless defined $x && ref $x eq 'ARRAY';
                 return  +{ stat => $JSON::false, info => "$info: nodegroup id $data->{node_cont} nofind" } unless @$x;
             }
@@ -339,7 +339,7 @@ post '/jobs/:projectid' => sub {
                 )->check( %$data );
                 return  +{ stat => $JSON::false, info => "$info: check format fail $error" } if $error;
  
-                my $x = $api::mysql->query( "select id from scripts where id=$data->{scripts_cont} and projectid in ( $param->{projectid}, 0 )" );
+                my $x = $api::mysql->query( "select id from openc3_job_scripts where id=$data->{scripts_cont} and projectid in ( $param->{projectid}, 0 )" );
                 return  +{ stat => $JSON::false, info => "$info: get data error from db" } unless defined $x && ref $x eq 'ARRAY';
                 return  +{ stat => $JSON::false, info => "$info: scripts id $data->{scripts_cont} nofind" } unless @$x;
             }
@@ -397,7 +397,7 @@ post '/jobs/:projectid' => sub {
                 )->check( %$data );
                 return  +{ stat => $JSON::false, info => "$info: check format fail $error" } if $error;
  
-                my $x = $api::mysql->query( "select id from nodegroup where id=$data->{src} and projectid=$param->{projectid}" );
+                my $x = $api::mysql->query( "select id from openc3_job_nodegroup where id=$data->{src} and projectid=$param->{projectid}" );
                 return  +{ stat => $JSON::false, info => "$info: get data error from db" } unless defined $x && ref $x eq 'ARRAY';
                 return  +{ stat => $JSON::false, info => "$info: nodegroup id $data->{src} nofind" } unless @$x;
             }
@@ -429,7 +429,7 @@ post '/jobs/:projectid' => sub {
                 )->check( %$data );
                 return  +{ stat => $JSON::false, info => "$info: check format fail $error" } if $error;
  
-                my $x = $api::mysql->query( "select id from nodegroup where id=$data->{dst} and projectid=$param->{projectid}" );
+                my $x = $api::mysql->query( "select id from openc3_job_nodegroup where id=$data->{dst} and projectid=$param->{projectid}" );
                 return  +{ stat => $JSON::false, info => "$info: get data error from db" } unless defined $x && ref $x eq 'ARRAY';
                 return  +{ stat => $JSON::false, info => "$info: nodegroup id $data->{dst} nofind" } unless @$x;
             }
@@ -471,7 +471,7 @@ post '/jobs/:projectid' => sub {
         if( $data->{plugin_type} eq 'cmd' )
         {
             my @plugin_col = qw( name user node_type node_cont scripts_type scripts_cont scripts_argv timeout pause jobuuid deployenv action batches );
-            eval{ $api::mysql->execute( sprintf "insert into plugin_cmd (`uuid`,%s ) values('$plugin_uuid',%s)",
+            eval{ $api::mysql->execute( sprintf "insert into openc3_job_plugin_cmd (`uuid`,%s ) values('$plugin_uuid',%s)",
                     join(',',map{"`$_`"}@plugin_col ), join(',',map{"'$data->{$_}'"}@plugin_col ));};
             return  +{ stat => $JSON::false, info => "$info: insert into plugin_cmd fail. $@" } if $@;
             push @step, "cmd_$plugin_uuid";
@@ -479,7 +479,7 @@ post '/jobs/:projectid' => sub {
         elsif( $data->{plugin_type} eq 'scp' )
         {
             my @plugin_col = qw( name user src_type src dst_type dst sp dp chown chmod timeout pause jobuuid scp_delete deployenv action batches );
-            eval{ $api::mysql->execute( sprintf "insert into plugin_scp (`uuid`,%s ) values('$plugin_uuid',%s)",
+            eval{ $api::mysql->execute( sprintf "insert into openc3_job_plugin_scp (`uuid`,%s ) values('$plugin_uuid',%s)",
                     join(',',map{"`$_`"}@plugin_col ), join(',',map{"'$data->{$_}'"}@plugin_col ));};
             return  +{ stat => $JSON::false, info => "$info: insert into plugin_scp fail. $@" } if $@;
             push @step, "scp_$plugin_uuid";
@@ -487,7 +487,7 @@ post '/jobs/:projectid' => sub {
         elsif( $data->{plugin_type} eq 'approval' )
         {
             my @plugin_col = qw( name cont approver deployenv action batches everyone timeout pause jobuuid );
-            eval{ $api::mysql->execute( sprintf "insert into plugin_approval (`uuid`,%s ) values('$plugin_uuid',%s)",
+            eval{ $api::mysql->execute( sprintf "insert into openc3_job_plugin_approval (`uuid`,%s ) values('$plugin_uuid',%s)",
                     join(',',map{"`$_`"}@plugin_col ), join(',',map{"'$data->{$_}'"}@plugin_col ));};
             return  +{ stat => $JSON::false, info => "$info: insert into plugin_approval fail. $@" } if $@;
             push @step, "approval_$plugin_uuid";
@@ -501,7 +501,7 @@ post '/jobs/:projectid' => sub {
     my $status = $param->{permanent} ? 'permanent' : 'transient';
     my $r = eval{ 
         $api::mysql->execute( 
-            "insert into jobs (`projectid`,`uuid`,`name`,`uuids`,`status`,`mon_ids`,`mon_status`,`create_user`,`create_time`,`edit_user`,`edit_time`) 
+            "insert into openc3_job_jobs (`projectid`,`uuid`,`name`,`uuids`,`status`,`mon_ids`,`mon_status`,`create_user`,`create_time`,`edit_user`,`edit_time`) 
                 values ( $projectid, '$jobuuid', '$param->{name}', '$step', '$status','$param->{mon_ids}','$param->{mon_status}', '$user','$time', '$user', '$time' )")};
 
     return +{ stat => $JSON::false, info => $@ }  if $@;
@@ -512,7 +512,7 @@ post '/jobs/:projectid' => sub {
     map{ $variable{$_} = 1 } $variable =~ /\$\{([a-zA-Z][a-zA-Z0-9_]+)\}/g;
 
     eval{
-        map{ $api::mysql->execute( "insert into variable (`jobuuid`,`name`,`value`,`describe`,`create_user`) values('$jobuuid','$_','','','$user')" ); }keys %variable;
+        map{ $api::mysql->execute( "insert into openc3_job_variable (`jobuuid`,`name`,`value`,`describe`,`create_user`) values('$jobuuid','$_','','','$user')" ); }keys %variable;
     };
     return +{ stat => $JSON::false, info => $@ }  if $@;
 
@@ -599,7 +599,7 @@ post '/jobs/:projectid/:jobuuid' => sub {
                 )->check( %$data );
                 return  +{ stat => $JSON::false, info => "$info: check format fail $error" } if $error;
  
-                my $x = $api::mysql->query( "select id from nodegroup where id=$data->{node_cont} and projectid=$param->{projectid}" );
+                my $x = $api::mysql->query( "select id from openc3_job_nodegroup where id=$data->{node_cont} and projectid=$param->{projectid}" );
                 return  +{ stat => $JSON::false, info => "$info: get data error from db" } unless defined $x && ref $x eq 'ARRAY';
                 return  +{ stat => $JSON::false, info => "$info: nodegroup id $data->{node_cont} nofind" } unless @$x;
             }
@@ -618,7 +618,7 @@ post '/jobs/:projectid/:jobuuid' => sub {
                 )->check( %$data );
                 return  +{ stat => $JSON::false, info => "$info: check format fail $error" } if $error;
  
-                my $x = $api::mysql->query( "select id from scripts where id=$data->{scripts_cont} and projectid in ( $param->{projectid}, 0 )" );
+                my $x = $api::mysql->query( "select id from openc3_job_scripts where id=$data->{scripts_cont} and projectid in ( $param->{projectid}, 0 )" );
                 return  +{ stat => $JSON::false, info => "$info: get data error from db" } unless defined $x && ref $x eq 'ARRAY';
                 return  +{ stat => $JSON::false, info => "$info: scripts id $data->{scripts_cont} nofind" } unless @$x;
             }
@@ -676,7 +676,7 @@ post '/jobs/:projectid/:jobuuid' => sub {
                 )->check( %$data );
                 return  +{ stat => $JSON::false, info => "$info: check format fail $error" } if $error;
  
-                my $x = $api::mysql->query( "select id from nodegroup where id=$data->{src} and projectid=$param->{projectid}" );
+                my $x = $api::mysql->query( "select id from openc3_job_nodegroup where id=$data->{src} and projectid=$param->{projectid}" );
                 return  +{ stat => $JSON::false, info => "$info: get data error from db" } unless defined $x && ref $x eq 'ARRAY';
                 return  +{ stat => $JSON::false, info => "$info: nodegroup id $data->{src} nofind" } unless @$x;
             }
@@ -708,7 +708,7 @@ post '/jobs/:projectid/:jobuuid' => sub {
                 )->check( %$data );
                 return  +{ stat => $JSON::false, info => "$info: check format fail $error" } if $error;
  
-                my $x = $api::mysql->query( "select id from nodegroup where id=$data->{dst} and projectid=$param->{projectid}" );
+                my $x = $api::mysql->query( "select id from openc3_job_nodegroup where id=$data->{dst} and projectid=$param->{projectid}" );
                 return  +{ stat => $JSON::false, info => "$info: get data error from db" } unless defined $x && ref $x eq 'ARRAY';
                 return  +{ stat => $JSON::false, info => "$info: nodegroup id $data->{dst} nofind" } unless @$x;
             }
@@ -751,7 +751,7 @@ post '/jobs/:projectid/:jobuuid' => sub {
         if( $data->{plugin_type} eq 'cmd' )
         {
             my @plugin_col = qw( name user node_type node_cont scripts_type scripts_cont scripts_argv timeout pause jobuuid deployenv action batches );
-            eval{ $api::mysql->execute( sprintf "replace into plugin_cmd (`uuid`,%s ) values('$plugin_uuid',%s)",
+            eval{ $api::mysql->execute( sprintf "replace into openc3_job_plugin_cmd (`uuid`,%s ) values('$plugin_uuid',%s)",
                     join(',',map{"`$_`"}@plugin_col ), join(',',map{"'$data->{$_}'"}@plugin_col ));};
             return  +{ stat => $JSON::false, info => "$info: insert into plugin_cmd fail" } if $@;
             push @step, "cmd_$plugin_uuid";
@@ -759,7 +759,7 @@ post '/jobs/:projectid/:jobuuid' => sub {
         elsif( $data->{plugin_type} eq 'scp' )
         {
             my @plugin_col = qw( name user src_type src dst_type dst sp dp chown chmod timeout pause jobuuid scp_delete deployenv action batches );
-            eval{ $api::mysql->execute( sprintf "replace into plugin_scp (`uuid`,%s ) values('$plugin_uuid',%s)",
+            eval{ $api::mysql->execute( sprintf "replace into openc3_job_plugin_scp (`uuid`,%s ) values('$plugin_uuid',%s)",
                     join(',',map{"`$_`"}@plugin_col ), join(',',map{"'$data->{$_}'"}@plugin_col ));};
             return  +{ stat => $JSON::false, info => "$info: insert into plugin_scp fail" } if $@;
             push @step, "scp_$plugin_uuid";
@@ -767,7 +767,7 @@ post '/jobs/:projectid/:jobuuid' => sub {
         elsif( $data->{plugin_type} eq 'approval' )
         {
             my @plugin_col = qw( name cont approver deployenv action batches everyone timeout pause jobuuid );
-            eval{ $api::mysql->execute( sprintf "insert into plugin_approval (`uuid`,%s ) values('$plugin_uuid',%s)",
+            eval{ $api::mysql->execute( sprintf "insert into openc3_job_plugin_approval (`uuid`,%s ) values('$plugin_uuid',%s)",
                     join(',',map{"`$_`"}@plugin_col ), join(',',map{"'$data->{$_}'"}@plugin_col ));};
             return  +{ stat => $JSON::false, info => "$info: insert into plugin_approval fail. $@" } if $@;
             push @step, "approval_$plugin_uuid";
@@ -782,7 +782,7 @@ post '/jobs/:projectid/:jobuuid' => sub {
 
     my $r = eval{ 
         $api::mysql->execute( 
-            "update jobs set name='$param->{name}',uuids='$step', mon_ids='$param->{mon_ids}',mon_status='$param->{mon_status}',edit_user='$user',edit_time='$time' where uuid='$jobuuid'")};
+            "update openc3_job_jobs set name='$param->{name}',uuids='$step', mon_ids='$param->{mon_ids}',mon_status='$param->{mon_status}',edit_user='$user',edit_time='$time' where uuid='$jobuuid'")};
 
 
     return +{ stat => $JSON::false, info => $@ }  if $@;
@@ -793,7 +793,7 @@ post '/jobs/:projectid/:jobuuid' => sub {
     map{ $variable{$_} = 1 } $variable =~ /\$\{([a-zA-Z][a-zA-Z0-9_]+)\}/g;
 
     eval{
-        my $v = $api::mysql->query( "select name from variable where jobuuid='$jobuuid'" );
+        my $v = $api::mysql->query( "select name from openc3_job_variable where jobuuid='$jobuuid'" );
         my %v = map{ $_->[0] => 1  }@$v;
         map{ 
             if( $v{$_} &&  $variable{$_} )
@@ -802,8 +802,8 @@ post '/jobs/:projectid/:jobuuid' => sub {
                 delete $variable{$_};
             }
         }(keys %variable),(keys %v);
-        map{ $api::mysql->execute( "insert into variable (`jobuuid`,`name`,`value`,`describe`,`create_user`) values('$jobuuid','$_','','','$user')" ); }keys %variable;
-        $api::mysql->execute( sprintf "delete from variable where jobuuid='$jobuuid' and name in ( %s )", join ',',map{"'$_'"}keys %v ) if keys %v;
+        map{ $api::mysql->execute( "insert into openc3_job_variable (`jobuuid`,`name`,`value`,`describe`,`create_user`) values('$jobuuid','$_','','','$user')" ); }keys %variable;
+        $api::mysql->execute( sprintf "delete from openc3_job_variable where jobuuid='$jobuuid' and name in ( %s )", join ',',map{"'$_'"}keys %v ) if keys %v;
     };
 
     return +{ stat => $JSON::false, info => $@ }  if $@;
@@ -830,13 +830,13 @@ del '/jobs/:projectid/:jobuuid' => sub {
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     my $t    = POSIX::strftime( "%Y%m%d%H%M%S", localtime );
 
-    my $jobsname = eval{ $api::mysql->query( "select name from jobs where uuid='$param->{jobuuid}'")};
+    my $jobsname = eval{ $api::mysql->query( "select name from openc3_job_jobs where uuid='$param->{jobuuid}'")};
     eval{ $api::auditlog->run( user => $user, title => 'DELETE JOB', content => "TREEID:$param->{projectid} NAME:$jobsname->[0][0]" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
         $api::mysql->execute(
-            "update jobs set status='deleted',name=concat(name,'_$t'),edit_user='$user',edit_time='$time' 
+            "update openc3_job_jobs set status='deleted',name=concat(name,'_$t'),edit_user='$user',edit_time='$time' 
                 where uuid='$jobuuid' and projectid='$projectid' and status='permanent'")};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
@@ -864,7 +864,7 @@ del '/jobs/:projectid/:name/byname' => sub {
 
     eval{ 
         $api::mysql->execute(
-            "update jobs set status='deleted',name=concat(name,'_$t'),edit_user='$user',edit_time='$time' 
+            "update openc3_job_jobs set status='deleted',name=concat(name,'_$t'),edit_user='$user',edit_time='$time' 
                 where name='$name' and projectid='$projectid' and status='permanent'");
     };
 

@@ -38,11 +38,11 @@ return sub
 
     my ( $stimems, $stime ) = ( time, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ) );
 
-    my $x = $db->execute( "update task set pid='$$',starttime='$stime',
+    my $x = $db->execute( "update openc3_job_task set pid='$$',starttime='$stime',
         starttimems='$stimems',status='running' where uuid='$uuid' and pid is null" );
     $logs->die( "task $uuid Already running" ) unless $x && $x eq 1;
 
-    $x = $db->query( "select `projectid`,`jobtype`,`jobuuid`,`mutex`,`variable` from task where uuid='$uuid'" );
+    $x = $db->query( "select `projectid`,`jobtype`,`jobuuid`,`mutex`,`variable` from openc3_job_task where uuid='$uuid'" );
     $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
     $logs->die( "task uuid null: $uuid" ) unless @$x;
     my ( $projectid, $jobtype, $jobuuid, $mutex, $variable ) = @{$x->[0]};
@@ -65,14 +65,14 @@ return sub
     eval{
         if( $jobtype eq 'jobs' )
         {
-            $x = $db->query( "select count(*) from task where status in ('waiting', 'running') and jobuuid in
-                ( select jobuuid from task where uuid='$uuid' ) and jobtype='jobs'" );
+            $x = $db->query( "select count(*) from openc3_job_task where status in ('waiting', 'running') and jobuuid in
+                ( select jobuuid from openc3_job_task where uuid='$uuid' ) and jobtype='jobs'" );
             $logs->die( "Too many waiting or running tasks" ) if $x->[0][0] >= 10;
         }
  
         if( $mutex && $mutex =~ /^[a-zA-Z0-9]+$/ )
         {
-            $x = $db->query( "select * from task where status='running' 
+            $x = $db->query( "select * from openc3_job_task where status='running' 
                 and uuid<>'$uuid' and projectid='$projectid' and mutex='$mutex'" );
 
             $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
@@ -92,7 +92,7 @@ return sub
     my ( $ftimems, $ftime ) = ( time, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ) );
     my $runtime = sprintf "%0.3f", $ftimems - $stimems;
 
-    eval{ $db->execute( "update task set finishtime='$ftime',finishtimems='$ftimems',
+    eval{ $db->execute( "update openc3_job_task set finishtime='$ftime',finishtimems='$ftimems',
         status='$status',runtime='$runtime' where uuid='$uuid'" ); };
     $logs->die( "update task status fail:$@" ) if $@;
 }

@@ -29,7 +29,7 @@ return sub
     while( @$vv )
     {
         my ( $k, $v ) = splice @$vv, 0, 2;
-        eval{ $db->execute( "replace into vv (`projectid`,`node`,`name`,`value`)values('$projectid','$node','$k','$v')") };
+        eval{ $db->execute( "replace into openc3_job_vv (`projectid`,`node`,`name`,`value`)values('$projectid','$node','$k','$v')") };
         $logs->die( "vv code write db fail :$@" ) if $@;
     }
     return;

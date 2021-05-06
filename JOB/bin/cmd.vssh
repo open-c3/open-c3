@@ -40,7 +40,7 @@ my $audit = sub
 {
     my $cmd = shift;
     $cmd =~ s/'/"/g;
-    $db->execute( "insert into cmdlog (`projectid`,`user`,`node`,`usr`,`cmd`) values('$o{projectid}','$o{user}','$node','$o{sudo}','$cmd')" );
+    $db->execute( "insert into openc3_job_cmdlog (`projectid`,`user`,`node`,`usr`,`cmd`) values('$o{projectid}','$o{user}','$node','$o{sudo}','$cmd')" );
 };
 
 my %env = Util::envinfo( qw( envname domainname appname appkey ) );

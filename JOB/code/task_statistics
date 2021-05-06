@@ -22,7 +22,7 @@ return sub
     my $time = POSIX::strftime( "%Y-%m-%d 00:00:00", localtime( time - 2592000 ) );
 
     my $i = 0;
-    my $x = $db->query( "select count(*),projectid from task where starttime>'$time' group by projectid order by count(*) desc" );
+    my $x = $db->query( "select count(*),projectid from openc3_job_task where starttime>'$time' group by projectid order by count(*) desc" );
     $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
     map{ push @list, +{ id => $i++, count => $_->[0], id => $_->[1], name => $_->[1] }; }@$x;
 

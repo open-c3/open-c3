@@ -29,7 +29,7 @@ return sub
         for my $day ( 1 .. 31 )
         {
         $day = "0$day" if $day =~ /^\d$/;
-        my ( $x, %variable  ) = $db->query( "select projectid,variable from task where starttime like \"$year-$month-$day %\"" );
+        my ( $x, %variable  ) = $db->query( "select projectid,variable from openc3_job_task where starttime like \"$year-$month-$day %\"" );
         $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
 
         for my $r ( @$x )

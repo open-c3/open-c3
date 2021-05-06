@@ -24,7 +24,7 @@ return sub
     $logs = Logs->new( 'code.nodegroup' ) unless $logs;
 
     $logs->die( "id not a number" ) unless $id =~ /^\d+$/;
-    my $x = eval{ $db->query( "select projectid,plugin,params from nodegroup where id='$id'" ) };
+    my $x = eval{ $db->query( "select projectid,plugin,params from openc3_job_nodegroup where id='$id'" ) };
     $logs->die( "code.nodegroup get nodegroup info from mysql fail: $@" ) if $@;
     $logs->die( "code.nodegroup get nodegroup info from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
     $logs->die( "code.nodegroup id mismatch: id=$id" ) unless @$x;

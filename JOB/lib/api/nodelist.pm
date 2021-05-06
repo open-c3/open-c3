@@ -50,7 +50,7 @@ get '/nodelist/:projectid' => sub {
     my @col = qw( id name inip exip create_user create_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from nodelist
+            sprintf( "select %s from openc3_job_nodelist
                 where projectid='$param->{projectid}' and status='available' %s",
                     join( ',', @col), @where ? ' and '.join( ' and ',@where ):'' ), \@col )};
 
@@ -85,7 +85,7 @@ post '/nodelist/:projectid' => sub {
 
     my $r = eval{ 
         $api::mysql->execute( 
-            "insert into nodelist (`projectid`,`name`,`inip`,`exip`,`create_user`,`create_time`,`edit_user`,`edit_time`,`status`)
+            "insert into openc3_job_nodelist (`projectid`,`name`,`inip`,`exip`,`create_user`,`create_time`,`edit_user`,`edit_time`,`status`)
                 values( '$param->{projectid}', '$param->{name}', '$inip','$exip','$user','$time', '$user', '$time','available' )")};
 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
@@ -105,13 +105,13 @@ del '/nodelist/:projectid/:id' => sub {
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     my $t    = Util::deleteSuffix();
 
-    my $nodelistname = eval{ $api::mysql->query( "select name from nodelist where id='$param->{id}'")};
+    my $nodelistname = eval{ $api::mysql->query( "select name from openc3_job_nodelist where id='$param->{id}'")};
     eval{ $api::auditlog->run( user => $user, title => 'DEL NODELIST', content => "TREEID:$param->{projectid} NAME:$nodelistname->[0][0]" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
         $api::mysql->execute(
-            "update nodelist set status='deleted',name=concat(name,'_$t'),edit_user='$user',edit_time='$time' 
+            "update openc3_job_nodelist set status='deleted',name=concat(name,'_$t'),edit_user='$user',edit_time='$time' 
                 where id='$param->{id}' and projectid='$param->{projectid}' and status='available'")};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };

@@ -63,7 +63,7 @@ my $audit = sub
     }
     map{
         $_ =~ s/'/"/g;
-        $db->execute( "insert into cmdlog (`projectid`,`user`,`node`,`usr`,`cmd`) values('$o{projectid}','$o{user}','$host','$o{sudo}','$_')" );
+        $db->execute( "insert into openc3_job_cmdlog (`projectid`,`user`,`node`,`usr`,`cmd`) values('$o{projectid}','$o{user}','$host','$o{sudo}','$_')" );
     }@cmd;
 };
 

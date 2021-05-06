@@ -19,7 +19,7 @@ get '/release' => sub {
 
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf "select count(*) from crontab where status='available' and jobuuid in ( select uuid from jobs where projectid in ( %s ) )", join ',', @id
+            sprintf "select count(*) from openc3_job_crontab where status='available' and jobuuid in ( select uuid from openc3_job_jobs where projectid in ( %s ) )", join ',', @id
             )};
 
     return +{ stat => $JSON::false, info => $@ } if $@;

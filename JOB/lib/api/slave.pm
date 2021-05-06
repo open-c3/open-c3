@@ -69,7 +69,7 @@ websocket_on_open sub {
         $logs->say( sprintf "user:$user uri:/ws?uuid=$uuid method:ws HTTP_X_FORWARDED_FOR:'' param:''", );
    
         my @col = qw( projectid );
-        my $r = eval{ $mysql->query( sprintf( "select %s from task where uuid='$taskuuid'", join ',', @col ), \@col )};
+        my $r = eval{ $mysql->query( sprintf( "select %s from openc3_job_task where uuid='$taskuuid'", join ',', @col ), \@col )};
 
          unless( $r && @$r )
          {
@@ -169,7 +169,7 @@ del '/killtask/:uuid' => sub {
   }
 
   my @col = qw( pid projectid slave status name );
-  my $r = eval{ $mysql->query( sprintf( "select %s from task where uuid='$uuid'", join ',', @col ), \@col )};
+  my $r = eval{ $mysql->query( sprintf( "select %s from openc3_job_task where uuid='$uuid'", join ',', @col ), \@col )};
   return JSON::to_json( +{ stat => $JSON::false, info => "Non-existent uuid:$uuid" } ) unless $r && @$r;
 
   my $data = $r->[0];
@@ -201,7 +201,7 @@ del '/killtask/:uuid' => sub {
 
   my $killinfo = defined $user && $user =~ /^[a-zA-Z0-9\.\-\@_]+$/ ? "killed by $user" : 'killed';
   system "echo '$killinfo' >> $RealBin/../logs/task/$uuid; killall -9 job_worker_task_$uuid 1>/dev/null 2>&1";
-  eval{ $mysql->execute( "update task set reason='$killinfo' where uuid='$uuid' and reason is null" ); };
+  eval{ $mysql->execute( "update openc3_job_task set reason='$killinfo' where uuid='$uuid' and reason is null" ); };
 
   return kill( 0, $data->{pid} )
       ? JSON::to_json( +{ stat => $JSON::false, info => "kill task fail" } )
@@ -209,7 +209,7 @@ del '/killtask/:uuid' => sub {
 };
 
 any '/mon' => sub {
-     eval{ $mysql->query( "select count(*) from keepalive" )};
+     eval{ $mysql->query( "select count(*) from openc3_job_keepalive" )};
      return $@ ? "ERR:$@" : "ok";
 };
 

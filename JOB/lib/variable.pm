@@ -44,7 +44,7 @@ sub relpace
 
     unless( defined $DATA{$jobuuid} )
     {
-        my $x = eval{ $db->query( "select name,value from variable  where jobuuid='$jobuuid'" );};
+        my $x = eval{ $db->query( "select name,value from openc3_job_variable where jobuuid='$jobuuid'" );};
         die( "get variable fail:$@" ) if $@;
         die( "get variable fail" ) unless defined $x && ref $x eq 'ARRAY';
         $DATA{$jobuuid} = +{ map{ $_->[0] => $_->[1] }@$x };
@@ -72,10 +72,10 @@ sub wk
 
     if( $jobuuid && ! defined $DATA{$jobuuid} )
     {
-        my $x = eval{ $db->query( "select name,value from variable  where jobuuid='$jobuuid'" );};
+        my $x = eval{ $db->query( "select name,value from openc3_job_variable  where jobuuid='$jobuuid'" );};
         die( "get variable fail:$@" ) if $@;
         die( "get variable fail" ) unless defined $x && ref $x eq 'ARRAY';
-	$DATA{$jobuuid} = +{ map{ $_->[0] => $_->[1] }@$x };
+        $DATA{$jobuuid} = +{ map{ $_->[0] => $_->[1] }@$x };
     }
 
     my ( %x, %var, @fail );
@@ -85,8 +85,8 @@ sub wk
     %var = %$variable if $variable && ref $variable eq 'HASH';
     for my $k ( keys %x )
     {
-	if( defined $var{$k} && $var{$k} ne '' )
-	{
+        if( defined $var{$k} && $var{$k} ne '' )
+        {
             $x{$k} = $var{$k};
         }
         
@@ -110,16 +110,15 @@ sub get
 
     unless( defined $DATA{$jobuuid} )
     {
-		my $x = eval{ $db->query( "select name,value from variable  where jobuuid='$jobuuid'" );};
+        my $x = eval{ $db->query( "select name,value from openc3_job_variable  where jobuuid='$jobuuid'" );};
         die( "get variable fail:$@" ) if $@;
         die( "get variable fail" ) unless defined $x && ref $x eq 'ARRAY';
-		$DATA{$jobuuid} = +{ map{ $_->[0] => $_->[1] }@$x };
+        $DATA{$jobuuid} = +{ map{ $_->[0] => $_->[1] }@$x };
     }
 
     my %x = %{$DATA{$jobuuid}};
 
     return defined $x{$var} ? $x{$var} : undef;
 }
-
 
 1;

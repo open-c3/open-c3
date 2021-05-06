@@ -36,7 +36,7 @@ my %o = $option->set( timeout => 900 )->get( qw( host=s user=s sudo=s timeout=i 
 $option->assert( qw( host user sudo projectid ) );
 
 my $db = MYDB->new( "$RealBin/../conf/conn" );
-$db->execute( "insert into cmdlog (`projectid`,`user`,`node`,`usr`,`cmd`) values('$o{projectid}','$o{user}','$o{host}','$o{sudo}','remotetail')" );
+$db->execute( "insert into openc3_job_cmdlog (`projectid`,`user`,`node`,`usr`,`cmd`) values('$o{projectid}','$o{user}','$o{host}','$o{sudo}','remotetail')" );
 
 my %env = Util::envinfo( qw( envname domainname appname appkey ) );
 

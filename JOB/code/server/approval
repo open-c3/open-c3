@@ -27,7 +27,7 @@ return sub
     {
         warn "do ...\n";
 
-        my $x = eval{ $db->query( "select id,user,cont,submitter,oauuid from approval where opinion='unconfirmed' and oauuid != '1'" ) };
+        my $x = eval{ $db->query( "select id,user,cont,submitter,oauuid from openc3_job_approval where opinion='unconfirmed' and oauuid != '1'" ) };
         $logs->die( "mysql query fail: $@" ) if $@;
         $logs->die( "get approval info from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
 
@@ -54,7 +54,7 @@ return sub
                         if( $data->{data}{status} eq 'agree' || $data->{data}{status} eq 'refuse' )
                         {
                             my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
-                            eval{ $db->execute( "update approval set opinion='$data->{data}{status}',finishtime='$time' where id=$id and opinion='unconfirmed'" ) };
+                            eval{ $db->execute( "update openc3_job_approval set opinion='$data->{data}{status}',finishtime='$time' where id=$id and opinion='unconfirmed'" ) };
                             $logs->err( "update approval.opinion status fail:$@" ) if $@;
                         }
                     }#TODO
@@ -62,7 +62,7 @@ return sub
             }
             else
             {
-                eval{ $db->execute( "update approval set oauuid='1' where id=$id and oauuid='0'" ) };
+                eval{ $db->execute( "update openc3_job_approval set oauuid='1' where id=$id and oauuid='0'" ) };
                 $logs->err( "update approval.oauuid status fail:$@" ) if $@;
 
                 my %form = (
@@ -79,7 +79,7 @@ return sub
                     my $data = eval{JSON::from_json $res->content};
                     if( $data && $data->{stat} && $data->{stat} =~ /^[a-zA-Z0-9\._\-]+$/ )
                     {
-                        eval{ $db->execute( "update approval set oauuid='$data->{data}' where id=$id and oauuid='1'" ) };
+                        eval{ $db->execute( "update openc3_job_approval set oauuid='$data->{data}' where id=$id and oauuid='1'" ) };
                         $logs->err( "update approval.oauuid status fail:$@" ) if $@;
                     }#TODO
                 }

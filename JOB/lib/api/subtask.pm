@@ -21,8 +21,8 @@ get '/subtask/:projectid/:taskuuid' => sub {
     my @col = qw( id subtask_type uuid nodecount starttime finishtime runtime status pause );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from subtask
-                where parent_uuid in ( select uuid from task where projectid='$param->{projectid}' and uuid='$param->{taskuuid}') order by id asc",
+            sprintf( "select %s from openc3_job_subtask
+                where parent_uuid in ( select uuid from openc3_job_task where projectid='$param->{projectid}' and uuid='$param->{taskuuid}') order by id asc",
                     join ',',@col ), \@col )};
     return +{ stat => $JSON::false, info => $@ } if $@;
 
@@ -40,7 +40,7 @@ get '/subtask/:projectid/:taskuuid' => sub {
     {
         next unless $extended{$type};
         my $col = $col{$type};
-        my $t = eval{ $api::mysql->query( sprintf( "select %s from plugin_$type where uuid in( %s )", 
+        my $t = eval{ $api::mysql->query( sprintf( "select %s from openc3_job_plugin_$type where uuid in( %s )", 
                     join( ',',@$col ), join( ',', map{"'$_'"}@{$extended{$type}}) ), $col) };
         return +{ stat => $JSON::false, info => $@ } if $@;
         map{ $_->{scripts_cont} =  Encode::decode("utf8",  decode_base64( $_->{scripts_cont} )) if $_->{scripts_cont} !~ /^\d+$/; }@$t if $type eq 'cmd';
@@ -64,8 +64,8 @@ get '/subtask/:projectid/:taskuuid/:subtaskuuid' => sub {
     my @col = qw( id subtask_type uuid nodecount starttime finishtime runtime status pause );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from subtask
-                where uuid='$param->{subtaskuuid}' and parent_uuid in ( select uuid from task where projectid='$param->{projectid}' and uuid='$param->{taskuuid}')",
+            sprintf( "select %s from openc3_job_subtask
+                where uuid='$param->{subtaskuuid}' and parent_uuid in ( select uuid from openc3_job_task where projectid='$param->{projectid}' and uuid='$param->{taskuuid}')",
                     join ',',@col ), \@col )};
     return +{ stat => $JSON::false, info => $@ } if $@;
     return +{ stat => $JSON::false, info => 'nofind' } unless $r && @$r;
@@ -75,7 +75,7 @@ get '/subtask/:projectid/:taskuuid/:subtaskuuid' => sub {
     #TODO delete user
     my $col = [qw( id uuid name user timeout pause)];
     $col = [qw( id uuid name approver timeout pause)] if $data->{subtask_type} eq 'approval';
-    my $t = eval{ $api::mysql->query( sprintf( "select %s from plugin_$data->{subtask_type} where uuid ='$data->{uuid}'", join( ',',@$col )), $col) };
+    my $t = eval{ $api::mysql->query( sprintf( "select %s from openc3_job_plugin_$data->{subtask_type} where uuid ='$data->{uuid}'", join( ',',@$col )), $col) };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     $data->{extended} = $t->[0] if $t->[0]{uuid} eq $data->{uuid};
@@ -111,23 +111,23 @@ post '/subtask/:projectid' => sub {
     my $sql;
     if( $control eq 'next' )
     {
-        $sql = "update subtask set pause='' where parent_uuid='$taskuuid' and uuid='$subtaskuuid' and subtask_type='$subtasktype' 
-                and pause<>'' and parent_uuid in ( select uuid from task where projectid='$projectid' )";
+        $sql = "update openc3_job_subtask set pause='' where parent_uuid='$taskuuid' and uuid='$subtaskuuid' and subtask_type='$subtasktype' 
+                and pause<>'' and parent_uuid in ( select uuid from openc3_job_task where projectid='$projectid' )";
     }
     else
     {
-        $sql = "update subtask set status='$control' where parent_uuid='$taskuuid' and uuid='$subtaskuuid' and subtask_type='$subtasktype' 
-                and status='decision' and parent_uuid in ( select uuid from task where projectid='$projectid' )";
+        $sql = "update openc3_job_subtask set status='$control' where parent_uuid='$taskuuid' and uuid='$subtaskuuid' and subtask_type='$subtasktype' 
+                and status='decision' and parent_uuid in ( select uuid from openc3_job_task where projectid='$projectid' )";
     }
 
-    my $r = eval{ $api::mysql->execute(  $sql) };
+    my $r = eval{ $api::mysql->execute( $sql ) };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $x = $@ ? $@ : $r > 0 ? undef : "no update anything:$r" ;
 
     if( $param->{control} eq 'fail' )
     {
-        eval{ $api::mysql->execute( "update task set reason='stop by $user' where uuid='$taskuuid' and reason is null" ) };
+        eval{ $api::mysql->execute( "update openc3_job_task set reason='stop by $user' where uuid='$taskuuid' and reason is null" ) };
     }
 
     return $x ?  +{ stat => $JSON::false, info => $x } : +{ stat => $JSON::true, data => $r };
@@ -157,23 +157,23 @@ put '/subtask/:projectid' => sub {
     my $sql;
     if( $control eq 'next' )
     {
-        $sql = "update subtask set pause='' where parent_uuid='$taskuuid' and uuid='$subtaskuuid' and subtask_type='$subtasktype' 
-                and pause<>'' and parent_uuid in ( select uuid from task where projectid='$projectid' )";
+        $sql = "update openc3_job_subtask set pause='' where parent_uuid='$taskuuid' and uuid='$subtaskuuid' and subtask_type='$subtasktype' 
+                and pause<>'' and parent_uuid in ( select uuid from openc3_job_task where projectid='$projectid' )";
     }
     else
     {
-        $sql = "update subtask set status='$control' where parent_uuid='$taskuuid' and uuid='$subtaskuuid' and subtask_type='$subtasktype' 
-                and status='decision' and parent_uuid in ( select uuid from task where projectid='$projectid' )";
+        $sql = "update openc3_job_subtask set status='$control' where parent_uuid='$taskuuid' and uuid='$subtaskuuid' and subtask_type='$subtasktype' 
+                and status='decision' and parent_uuid in ( select uuid from openc3_job_task where projectid='$projectid' )";
     }
 
-    my $r = eval{ $api::mysql->execute(  $sql) };
+    my $r = eval{ $api::mysql->execute( $sql ) };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $x = $@ ? $@ : $r > 0 ? undef : "no update anything:$r" ;
 
     if( $param->{control} eq 'fail' )
     {
-        eval{ $api::mysql->execute( "update task set reason='stop by $user' where uuid='$taskuuid' and reason is null" ) };
+        eval{ $api::mysql->execute( "update openc3_job_task set reason='stop by $user' where uuid='$taskuuid' and reason is null" ) };
     }
 
     return $x ?  +{ stat => $JSON::false, info => $x } : +{ stat => $JSON::true, data => $r };

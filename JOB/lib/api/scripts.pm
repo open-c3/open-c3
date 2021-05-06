@@ -59,7 +59,7 @@ get '/scripts/:projectid' => sub {
         }
     }
 
-    my $j = eval{ $api::mysql->query( "select name,uuids from jobs where projectid='$projectid' and status='permanent'" ); };
+    my $j = eval{ $api::mysql->query( "select name,uuids from openc3_job_jobs where projectid='$projectid' and status='permanent'" ); };
     my %uuids;
     for ( @$j )
     {
@@ -67,7 +67,7 @@ get '/scripts/:projectid' => sub {
         map{ $uuids{$_} = $name }grep{ $_ =~ s/^cmd_// }split /,/,$uuids;
     }
 
-    my $x = eval{ $api::mysql->query( sprintf "select scripts_cont,uuid from plugin_cmd where uuid in ( %s ) and scripts_type='cite'", join ',',map{"'$_'"}keys %uuids ) };
+    my $x = eval{ $api::mysql->query( sprintf "select scripts_cont,uuid from openc3_job_plugin_cmd where uuid in ( %s ) and scripts_type='cite'", join ',',map{"'$_'"}keys %uuids ) };
     my %x;
     map{ $x{$_->[0]}{$uuids{$_->[1]}} = 1 }@$x;
 
@@ -76,7 +76,7 @@ get '/scripts/:projectid' => sub {
     my @col = qw( id projectid name type create_user create_time edit_user edit_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from scripts
+            sprintf( "select %s from openc3_job_scripts
                 where projectid in ( '$projectid', 0 ) and status='available' %s", join( ',', @col), @where ? ' and '.join( ' and ', @where ): '' ), \@col )};
 
     return +{ stat => $JSON::false, info => $@ } if $@;
@@ -106,7 +106,7 @@ get '/scripts/:projectid/:scriptsid' => sub {
     my @col = qw( id name type cont create_user create_time edit_user edit_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from scripts 
+            sprintf( "select %s from openc3_job_scripts 
                 where id='$param->{scriptsid}' and projectid in ( '$param->{projectid}', 0 ) and status='available'", join ',', @col ), \@col )};
     my %x = %{$r->[0]};
     $x{cont} = decode_base64( $x{cont} );
@@ -141,7 +141,7 @@ post '/scripts/:projectid' => sub {
 
     my $r = eval{ 
         $api::mysql->execute( 
-            "insert into scripts (`projectid`,`name`,`type`,`cont`,`create_user`,`create_time`,`edit_user`,`edit_time`,`status`)
+            "insert into openc3_job_scripts (`projectid`,`name`,`type`,`cont`,`create_user`,`create_time`,`edit_user`,`edit_time`,`status`)
                 values( $projectid, '$param->{name}','$param->{type}', '$param->{cont}', '$user','$time', '$user', '$time','available' )")};
 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
@@ -169,13 +169,13 @@ post '/scripts/:projectid/:scriptsid' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
 
-    my $scriptsname = eval{ $api::mysql->query( "select name from scripts where id='$param->{scriptsid}'")};
+    my $scriptsname = eval{ $api::mysql->query( "select name from openc3_job_scripts where id='$param->{scriptsid}'")};
     eval{ $api::auditlog->run( user => $user, title => 'EDIT SCRIPTS', content => "TREEID:$param->{projectid} NAME:$scriptsname->[0][0]" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
         $api::mysql->execute( 
-            "update scripts set name='$param->{name}',type='$param->{type}',cont='$param->{cont}',edit_user='$user',edit_time='$time'
+            "update openc3_job_scripts set name='$param->{name}',type='$param->{type}',cont='$param->{cont}',edit_user='$user',edit_time='$time'
                 where id='$param->{scriptsid}' and projectid='$param->{projectid}' and status='available'")};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
@@ -196,13 +196,13 @@ del '/scripts/:projectid/:scriptsid' => sub {
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     my $t    = POSIX::strftime( "%Y%m%d%H%M%S", localtime );
 
-    my $scriptsname = eval{ $api::mysql->query( "select name from scripts where id='$param->{scriptsid}'")};
+    my $scriptsname = eval{ $api::mysql->query( "select name from openc3_job_scripts where id='$param->{scriptsid}'")};
     eval{ $api::auditlog->run( user => $user, title => 'DELETE SCRIPTS', content => "TREEID:$param->{projectid} NAME:$scriptsname->[0][0]" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
         $api::mysql->execute(
-            "update scripts set status='deleted',name=concat(name,'_$t'),edit_user='$user',edit_time='$time' 
+            "update openc3_job_scripts set status='deleted',name=concat(name,'_$t'),edit_user='$user',edit_time='$time' 
                 where id='$param->{scriptsid}' and projectid='$param->{projectid}' and status='available'")};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };

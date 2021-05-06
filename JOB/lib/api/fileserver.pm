@@ -25,7 +25,7 @@ get '/fileserver/:projectid' => sub {
     my @col = qw( id name size md5 create_user create_time edit_user edit_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from fileserver
+            sprintf( "select %s from openc3_job_fileserver
                 where projectid='$param->{projectid}' and status='available'", join ',', @col ), \@col )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
@@ -70,7 +70,7 @@ post '/fileserver/:projectid' => sub {
 
         my $r = eval{ 
             $api::mysql->execute( 
-                "replace into fileserver (`projectid`,`name`,`size`,`md5`,`create_user`,`create_time`,`edit_user`,`edit_time`,`status`)
+                "replace into openc3_job_fileserver (`projectid`,`name`,`size`,`md5`,`create_user`,`create_time`,`edit_user`,`edit_time`,`status`)
                     values( '$param->{projectid}', '$filename','$size', '$md5', '$user','$time', '$user', '$time','available' )")};
     
         return +{ stat => $JSON::false, info => $@ } if $@;
@@ -89,7 +89,7 @@ get '/fileserver/:projectid/download' => sub {
     my @col = qw( id name size md5 create_user create_time edit_user edit_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from fileserver
+            sprintf( "select %s from openc3_job_fileserver
                 where projectid='$param->{projectid}' and status='available' and name='$param->{name}'", join ',', @col ), \@col )};
 
     return +{ stat => $JSON::false, info => $@ } if $@;
@@ -112,7 +112,7 @@ post '/fileserver/:projectid/upload' => sub {
 
     my $r = eval{ 
         $api::mysql->query( 
-            "select count(*) from token
+            "select count(*) from openc3_job_token
                 where token='$token' and projectid in ( '$param->{projectid}', 0 ) and status='available'" )};
     return +{ stat => $JSON::false, info => $@ } if $@;
     return +{ stat => $JSON::false, info => 'not authorized' } unless $r && $r->[0][0] > 0;
@@ -150,14 +150,14 @@ post '/fileserver/:projectid/upload' => sub {
 
         my $r = eval{ 
             $api::mysql->execute( 
-                "replace into fileserver (`projectid`,`name`,`size`,`md5`,`create_user`,`create_time`,`edit_user`,`edit_time`,`status`)
+                "replace into openc3_job_fileserver (`projectid`,`name`,`size`,`md5`,`create_user`,`create_time`,`edit_user`,`edit_time`,`status`)
                     values( '$param->{projectid}', '$filename','$size', '$md5', '$user','$time', '$user', '$time','available' )")};
     
         return +{ stat => $JSON::false, info => $@ } if $@;
     }
 
     $r = eval{
-        $api::mysql->query("select isjob,jobname from token where token='$token' and projectid=$param->{projectid} and status='available'" ) };
+        $api::mysql->query("select isjob,jobname from openc3_job_token where token='$token' and projectid=$param->{projectid} and status='available'" ) };
 
     return +{ stat => $JSON::false, info => "upload file success, query job fail $@" } if $@;
     return +{ stat => $JSON::false, info => "upload file success, query job fail, get data error from db" } unless defined $r && ref $r eq 'ARRAY';
@@ -207,13 +207,13 @@ del '/fileserver/:projectid/:fileserverid' => sub {
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     my $t    = Util::deleteSuffix();
 
-    my $filename = eval{ $api::mysql->query( "select name from fileserver where id='$param->{fileserverid}'")};
+    my $filename = eval{ $api::mysql->query( "select name from openc3_job_fileserver where id='$param->{fileserverid}'")};
     eval{ $api::auditlog->run( user => $user, title => 'DELETE FILE', content => "TREEID:$param->{projectid} FILENAME:$filename->[0][0]" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
         $api::mysql->execute(
-            "update fileserver set status='deleted',name=concat(name,'_$t'),edit_user='$user',edit_time='$time' 
+            "update openc3_job_fileserver set status='deleted',name=concat(name,'_$t'),edit_user='$user',edit_time='$time' 
                 where id='$param->{fileserverid}' and projectid='$param->{projectid}' and status='available'")};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };

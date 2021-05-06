@@ -40,7 +40,7 @@ return sub
     $logs = Logs->new( 'code.notify' ) unless $logs;
 
     $logs->die( "projectid no a number" ) unless defined $param{projectid} && $param{projectid} =~ /^\d+$/;
-    my $x = eval{ $db->query( "select `user` from notify where projectid='$param{projectid}'");};
+    my $x = eval{ $db->query( "select `user` from openc3_job_notify where projectid='$param{projectid}'");};
     $logs->die( "get user list from mysql fail:$@" ) if $@;
     $logs->die( "get user list from mysql fail" )  unless defined $x && ref $x eq 'ARRAY';
 

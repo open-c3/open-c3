@@ -36,7 +36,7 @@ get '/vv/:projectid' => sub {
     my @col = qw( id node name value update_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from vv
+            sprintf( "select %s from openc3_job_vv
                 where projectid='$projectid' %s", join( ',', @col ), @where ? ' and '.join( ' and ', @where ):'' ), \@col )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
@@ -71,7 +71,7 @@ get '/vv/:projectid/table' => sub {
     my @col = qw( id node name value update_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from vv
+            sprintf( "select %s from openc3_job_vv
                 where projectid='$projectid' %s", join( ',', @col ), @where ? ' and '.join( ' and ', @where ):'' ), \@col )};
 
     my ( %table, %title, @title );
@@ -104,11 +104,11 @@ get '/vv/:projectid/list' => sub {
         $appname = "APP_".$appname."_VERSION";
         $r = eval {
             $api::mysql->query(
-                sprintf( "select distinct value from vv where projectid=$projectid and name='$appname' order by update_time desc") )};
+                sprintf( "select distinct value from openc3_job_vv where projectid=$projectid and name='$appname' order by update_time desc") )};
     } else {
         $r = eval {
             $api::mysql->query(
-                sprintf( "select distinct value from vv where projectid=$projectid order by update_time desc") )};
+                sprintf( "select distinct value from openc3_job_vv where projectid=$projectid order by update_time desc") )};
     }
 
     return  +{ stat => $JSON::false, info => "query data error : $@" } if $@;
@@ -142,7 +142,7 @@ del '/vv/:projectid/:node' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     eval{
-        $api::mysql->execute("delete from vv where projectid=$param->{projectid} and node='$param->{node}';");
+        $api::mysql->execute("delete from openc3_job_vv where projectid=$param->{projectid} and node='$param->{node}';");
      };
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => "delete success" };
@@ -163,7 +163,7 @@ get '/vv/:projectid/analysis/version' => sub {
 
     my $time = POSIX::strftime( "%Y-%m-%d 00:00:00", localtime( time - 31536000 ) );
     my $r = eval{ 
-        $api::mysql->query( "select `name`,`value` from vv where projectid='$projectid' and ( name='VERSION' or name like 'APP_%_VERSION' ) and update_time>'$time'" )};
+        $api::mysql->query( "select `name`,`value` from openc3_job_vv where projectid='$projectid' and ( name='VERSION' or name like 'APP_%_VERSION' ) and update_time>'$time'" )};
 
     return  +{ stat => $JSON::false, info => $@ } if $@;
     my ( %version, @data ); 

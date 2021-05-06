@@ -32,41 +32,41 @@ return sub
     $logs = Logs->new( 'code.expand' ) unless $logs;
 
     my $newname = $rename ? "'$rename'" : 'name';
-    $db->execute( "insert into task (projectid,uuid,name,user,slave,status,starttimems,finishtimems,starttime,finishtime,calltype,jobtype,jobuuid,pid,runtime,mutex,notify,variable,reason )  select projectid,'$touuid',$newname,user,slave,status,starttimems,finishtimems,starttime,finishtime,calltype,jobtype,jobuuid,pid,runtime,mutex,notify,variable,reason from task where uuid='$fromuuid'");
+    $db->execute( "insert into openc3_job_task (projectid,uuid,name,user,slave,status,starttimems,finishtimems,starttime,finishtime,calltype,jobtype,jobuuid,pid,runtime,mutex,notify,variable,reason )  select projectid,'$touuid',$newname,user,slave,status,starttimems,finishtimems,starttime,finishtime,calltype,jobtype,jobuuid,pid,runtime,mutex,notify,variable,reason from openc3_job_task where uuid='$fromuuid'");
 
-    $db->execute( "insert into subtask( parent_uuid, subtask_type, uuid, nodecount,starttime,finishtime,runtime,status,pause ) select '$touuid',subtask_type, uuid, nodecount,starttime,finishtime,runtime,status,pause  from subtask where parent_uuid='$fromuuid' order by id" );
+    $db->execute( "insert into openc3_job_subtask( parent_uuid, subtask_type, uuid, nodecount,starttime,finishtime,runtime,status,pause ) select '$touuid',subtask_type, uuid, nodecount,starttime,finishtime,runtime,status,pause  from openc3_job_subtask where parent_uuid='$fromuuid' order by id" );
 
-    my $variable = $db->query( "select variable from task where uuid='$touuid'" );
+    my $variable = $db->query( "select variable from openc3_job_task where uuid='$touuid'" );
     my $v = YAML::XS::Load decode_base64( $variable->[0][0] );
     $v->{_appname_} = $rename if defined $v->{_appname_} && $rename;
     $v->{version} = $deploy if defined $v->{version} && $deploy;
     $v->{_rollbackVersion_} = $rollback if defined $v->{_rollbackVersion_} && $rollback;
 
     my $newvariable = encode_base64( encode('UTF-8', YAML::XS::Dump $v) );
-    $db->execute( "update task set variable='$newvariable' where uuid='$touuid'" );
+    $db->execute( "update openc3_job_task set variable='$newvariable' where uuid='$touuid'" );
 
     if( $starttime )
     {
         my $starttimestr = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( $starttime ) );
-        my $rt = $db->query( "select runtime from task  where uuid='$touuid'" );
+        my $rt = $db->query( "select runtime from openc3_job_task  where uuid='$touuid'" );
         my $finishtime = $starttime + $rt->[0][0];
         my $finishtimestr = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( $finishtime ) );
 
-        $db->execute( "update task set starttimems='$starttime',starttime='$starttimestr',finishtimems='$finishtime',finishtime='$finishtimestr' where uuid='$touuid'" );
+        $db->execute( "update openc3_job_task set starttimems='$starttime',starttime='$starttimestr',finishtimems='$finishtime',finishtime='$finishtimestr' where uuid='$touuid'" );
     }
 
-    my $uuids = $db->query( "select uuids from jobs  where uuid in ( select jobuuid from task where uuid='$touuid' )" );
+    my $uuids = $db->query( "select uuids from openc3_job_jobs  where uuid in ( select jobuuid from openc3_job_task where uuid='$touuid' )" );
 
     my $rtime = 0;
     for ( split /,/, $uuids->[0][0] )
     {
         my ( $type, $uuid ) = split /_/, $_;
         my $starttimestr = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( $starttime + $rtime ) );
-        my $rt = $db->query( "select runtime from subtask where parent_uuid='$touuid' and uuid='$uuid'" );
+        my $rt = $db->query( "select runtime from openc3_job_subtask where parent_uuid='$touuid' and uuid='$uuid'" );
         $rtime = $rtime + ( $rt->[0][0] || 0 )+ 3;
         my $finishtimestr = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( $starttime + $rtime ) );
 
-        $db->execute( "update subtask set starttime='$starttimestr',finishtime='$finishtimestr' where parent_uuid='$touuid' and uuid='$uuid'" );
+        $db->execute( "update openc3_job_subtask set starttime='$starttimestr',finishtime='$finishtimestr' where parent_uuid='$touuid' and uuid='$uuid'" );
 
         symlink "$fromuuid$uuid$type", "$RealBin/../logs/task/$touuid$uuid$type";
     }

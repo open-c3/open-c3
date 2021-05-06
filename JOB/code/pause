@@ -29,12 +29,12 @@ return sub
 
     print "wait to unlock, taskuuid='$taskuuid', subtaskuuid='$subtaskuuid', subtasktype='$subtasktype'\n";
 
-    eval{ $db->execute( "update `task` set status='waiting',notify='0' where uuid='$taskuuid'") };
+    eval{ $db->execute( "update `openc3_job_task` set status='waiting',notify='0' where uuid='$taskuuid'") };
     $logs->die( "set task status to waiting fail: taskuuid=$taskuuid" ) if $@;
     while(1)
     {
         sleep 3;
-        my $x = eval{ $db->query( "select uuid from subtask where parent_uuid='$taskuuid' 
+        my $x = eval{ $db->query( "select uuid from openc3_job_subtask where parent_uuid='$taskuuid' 
                     and uuid='$subtaskuuid' and subtask_type='$subtasktype' and pause=''" );};
 
         $logs->die( "check task's pause status fail:$@" ) if $@;
@@ -45,6 +45,6 @@ return sub
             last;
         }
     }
-    eval{ $db->execute( "update `task` set status='running',notify='0' where uuid='$taskuuid'") };
+    eval{ $db->execute( "update `openc3_job_task` set status='running',notify='0' where uuid='$taskuuid'") };
     $logs->die( "set task status to running fail: taskuuid=$taskuuid" ) if $@;
 }

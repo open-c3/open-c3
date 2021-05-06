@@ -19,7 +19,7 @@ get '/notify/:projectid' => sub {
     my @col = qw( id user create_user create_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from notify
+            sprintf( "select %s from openc3_job_notify
                 where projectid='$param->{projectid}' and status='available'", 
                     join ',', @col  ), \@col )};
 
@@ -45,7 +45,7 @@ post '/notify/:projectid' => sub {
 
     my $r = eval{ 
         $api::mysql->execute( 
-            "insert into notify (`projectid`,`user`,`create_user`,`create_time`,`edit_user`,`edit_time`,`status`)
+            "insert into openc3_job_notify (`projectid`,`user`,`create_user`,`create_time`,`edit_user`,`edit_time`,`status`)
                 values( '$param->{projectid}', '$param->{user}', '$user','$time', '$user', '$time','available' )")};
 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
@@ -65,13 +65,13 @@ del '/notify/:projectid/:id' => sub {
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     my $t    = Util::deleteSuffix();
 
-    my $notifyuser = eval{ $api::mysql->query( "select user from notify where id='$param->{id}'")};
+    my $notifyuser = eval{ $api::mysql->query( "select user from openc3_job_notify where id='$param->{id}'")};
     eval{ $api::auditlog->run( user => $user, title => 'DEL NOTIFY', content => "TREEID:$param->{projectid} USER:$notifyuser->[0][0]" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
         $api::mysql->execute(
-            "update notify set status='deleted',user=concat(user,'_$t'),edit_user='$user',edit_time='$time' 
+            "update openc3_job_notify set status='deleted',user=concat(user,'_$t'),edit_user='$user',edit_time='$time' 
                 where id='$param->{id}' and projectid='$param->{projectid}' and status='available'")};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };

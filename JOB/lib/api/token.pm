@@ -48,7 +48,7 @@ post '/token/:projectid/info' => sub {
     my @col = qw( id token describe create_user create_time isjob jobname);
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from token
+            sprintf( "select %s from openc3_job_token
                 where projectid='$param->{projectid}' and status='available' %s",
                     join( ',', map{"`$_`"}@col), @where ? ' and '.join( ' and ',@where ):'' ), \@col )};
 
@@ -76,7 +76,7 @@ post '/token/:projectid' => sub {
 
     my $r = eval{ 
         $api::mysql->execute( 
-            "insert into token (`projectid`,`token`,`describe`,`isjob`,`jobname`,`create_user`,`create_time`,`edit_user`,`edit_time`,`status`)
+            "insert into openc3_job_token (`projectid`,`token`,`describe`,`isjob`,`jobname`,`create_user`,`create_time`,`edit_user`,`edit_time`,`status`)
                 values( '$param->{projectid}', '$param->{token}', '$param->{describe}', '$param->{isjob}', '$param->{jobname}', '$user','$time', '$user', '$time','available' )")};
 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
@@ -96,13 +96,13 @@ del '/token/:projectid/:id' => sub {
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     my $t    = Util::deleteSuffix();
 
-    my $tokenname = eval{ $api::mysql->query( "select `describe` from token where id='$param->{id}'")};
+    my $tokenname = eval{ $api::mysql->query( "select `describe` from openc3_job_token where id='$param->{id}'")};
     eval{ $api::auditlog->run( user => $user, title => 'DEL FILESERVER TOKEN', content => "TREEID:$param->{projectid} NAME:$tokenname->[0][0]" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
         $api::mysql->execute(
-            "update token set status='deleted',token=concat(token,'_$t'),edit_user='$user',edit_time='$time' 
+            "update openc3_job_token set status='deleted',token=concat(token,'_$t'),edit_user='$user',edit_time='$time' 
                 where id='$param->{id}' and projectid='$param->{projectid}' and status='available'")};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };

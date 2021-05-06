@@ -33,7 +33,7 @@ return sub
     {
         warn "do ...\n";
 
-        my $x = eval{ $db->query( "select `key`,`value` from environment" ) };
+        my $x = eval{ $db->query( "select `key`,`value` from openc3_job_environment" ) };
         $logs->die( "mysql query environment fail: $@" ) if $@;
         $logs->die( "get environment info from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
 
@@ -56,7 +56,7 @@ return sub
         my @col = qw( id projectid uuid name user calltype status starttime finishtime );
         $x = eval{ 
             $db->query( 
-                sprintf( "select %s from task where notify=0 and status 
+                sprintf( "select %s from openc3_job_task where notify=0 and status 
                     in ( 'success', 'fail', 'waiting' )", join ',', @col ), \@col );};
 
         $logs->die( "mysql query notify info fail: $@" ) if $@;
@@ -70,7 +70,7 @@ return sub
                 next;
             }
 
-            my $c = eval{ $db->execute( "update task set notify=1 where id=$row->{id} and notify=0" ) };
+            my $c = eval{ $db->execute( "update openc3_job_task set notify=1 where id=$row->{id} and notify=0" ) };
             $logs->err( "update task.notify status fail:$@" ) if $@;
             next unless $c &&  $c eq '1';
 
@@ -84,21 +84,21 @@ return sub
                 $status = 4;
             }
 
-            eval{ $db->execute( "update task set notify=$status where id=$row->{id} and notify=1" ); };
+            eval{ $db->execute( "update openc3_job_task set notify=$status where id=$row->{id} and notify=1" ); };
             $logs->err( "update task.notify status fail:$@" ) if $@;
         }
 
         @col = qw( id submitter cont user uuid );
         $x = eval{ 
             $db->query( 
-                sprintf( "select %s from approval where notifystatus='null'", join ',', @col ), \@col );};
+                sprintf( "select %s from openc3_job_approval where notifystatus='null'", join ',', @col ), \@col );};
 
         $logs->die( "mysql query approval info fail: $@" ) if $@;
         $logs->die( "get approval info from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
 
         for my $row ( @$x )
         {
-            my $c = eval{ $db->execute( "update approval set notifystatus='sending' where id=$row->{id} and notifystatus='null'" ) };
+            my $c = eval{ $db->execute( "update openc3_job_approval set notifystatus='sending' where id=$row->{id} and notifystatus='null'" ) };
             $logs->err( "update approval.notifystatus status fail:$@" ) if $@;
             next unless $c &&  $c eq '1';
 
@@ -110,7 +110,7 @@ return sub
                 $status = 'fail';
             }
 
-            eval{ $db->execute( "update approval set notifystatus='$status' where id=$row->{id} and notifystatus='sending'" ) };
+            eval{ $db->execute( "update openc3_job_approval set notifystatus='$status' where id=$row->{id} and notifystatus='sending'" ) };
             $logs->err( "update approval.notifystatus status fail:$@" ) if $@;
         }
 

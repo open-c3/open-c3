@@ -26,7 +26,7 @@ return sub
     for my $month ( 1 .. 12 )
     {
         $month = "0$month" if $month =~ /^\d$/;
-        my ( $x, %variable  ) = $db->query( "select projectid,variable from task where starttime like \"$year-$month-%\"" );
+        my ( $x, %variable  ) = $db->query( "select projectid,variable from openc3_job_task where starttime like \"$year-$month-%\"" );
         $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
 
         for my $r ( @$x )

@@ -27,8 +27,8 @@ return sub
     $logs->die( "get slave error: $@" ) if $@;
     $logs->die( "nofind any slave" ) unless defined $slave;
 
-	my $x = eval{ $db->query( "select jobs.name,jobs.projectid,crontab.jobuuid,crontab.mutex,crontab.edit_user 
-        from crontab,jobs where jobs.uuid=crontab.jobuuid and crontab.id='$id'" ); };
+	my $x = eval{ $db->query( "select openc3_job_jobs.name,openc3_job_jobs.projectid,openc3_job_crontab.jobuuid,openc3_job_crontab.mutex,openc3_job_crontab.edit_user 
+        from openc3_job_crontab,openc3_job_jobs where openc3_job_jobs.uuid=openc3_job_crontab.jobuuid and openc3_job_crontab.id='$id'" ); };
     $logs->die( "get jobs info from mysql fail: $@" ) if $@;
     $logs->die( "get jobs info from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
 	$logs->die( "crontab id is illegal, mismatch: $id" ) unless @$x;
@@ -39,7 +39,7 @@ return sub
     my $uuid = uuid->new()->create_str;
 
     my $timeid = int( ( time + 5 ) / 60 );
-    eval{ $db->execute( "insert into crontablock (`crontabid`,`timeid` )values( '$id', '$timeid' )" );};
+    eval{ $db->execute( "insert into openc3_job_crontablock (`crontabid`,`timeid` )values( '$id', '$timeid' )" );};
     if( $@ )
     {
         my $tmperror = $@;
@@ -55,7 +55,7 @@ return sub
     }
 
     eval{ $db->execute( 
-        "insert into task (`projectid`,`uuid`,`name`,`user`,`slave`,`status`,`calltype`,`jobtype`,`jobuuid`,`mutex`) 
+        "insert into openc3_job_task (`projectid`,`uuid`,`name`,`user`,`slave`,`status`,`calltype`,`jobtype`,`jobuuid`,`mutex`) 
             values('$projectid','$uuid','$name','$edit_user','$slave', 'init','crontab','jobs','$jobuuid','$mutex')" 
     );};
 

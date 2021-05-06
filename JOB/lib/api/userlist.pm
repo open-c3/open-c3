@@ -48,7 +48,7 @@ get '/userlist/:projectid' => sub {
     my @col = qw( id username create_user create_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from userlist
+            sprintf( "select %s from openc3_job_userlist
                 where projectid='$param->{projectid}' and status='available' %s",
                     join( ',', @col), @where ? ' and '.join( ' and ',@where ):'' ), \@col )};
 
@@ -73,7 +73,7 @@ post '/userlist/:projectid' => sub {
 
     my $r = eval{ 
         $api::mysql->execute( 
-            "insert into userlist (`projectid`,`username`,`create_user`,`create_time`,`edit_user`,`edit_time`,`status`)
+            "insert into openc3_job_userlist (`projectid`,`username`,`create_user`,`create_time`,`edit_user`,`edit_time`,`status`)
                 values( '$param->{projectid}', '$param->{username}', '$user','$time', '$user', '$time','available' )")};
 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
@@ -93,13 +93,13 @@ del '/userlist/:projectid/:id' => sub {
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     my $t    = Util::deleteSuffix();
 
-    my $userlistname = eval{ $api::mysql->query( "select username from userlist where id='$param->{id}'")};
+    my $userlistname = eval{ $api::mysql->query( "select username from openc3_job_userlist where id='$param->{id}'")};
     eval{ $api::auditlog->run( user => $user, title => 'DEL USERLIST', content => "TREEID:$param->{projectid} USERNAME:$userlistname->[0][0]" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
         $api::mysql->execute(
-            "update userlist set status='deleted',username=concat(username,'_$t'),edit_user='$user',edit_time='$time' 
+            "update openc3_job_userlist set status='deleted',username=concat(username,'_$t'),edit_user='$user',edit_time='$time' 
                 where id='$param->{id}' and projectid='$param->{projectid}' and status='available'")};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
