@@ -1,7 +1,7 @@
 create database connector;
 use connector;
 
-create table `group`(
+create table `openc3_connector_group`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 `projectid` int(16) unsigned comment '项目id',
 
@@ -15,7 +15,7 @@ create table `group`(
 UNIQUE KEY `uniq_pn` (`projectid`,`name`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='group';
 
-create table `group_type_list`(
+create table `openc3_connector_group_type_list`(
 `id` int(32) unsigned not null primary key auto_increment comment 'id',
 `uuid` VARCHAR(20) comment '唯一编号',
 
@@ -24,7 +24,7 @@ create table `group_type_list`(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='列表分组';
 
 
-create table `group_type_percent`(
+create table `openc3_connector_group_type_percent`(
 `id` int(32) unsigned not null primary key auto_increment comment 'id',
 `uuid` VARCHAR(20) comment '唯一编号',
 
@@ -33,7 +33,7 @@ create table `group_type_percent`(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='百分比分组';
 
 
-create table `task`(
+create table `openc3_connector_task`(
 `id` int(16) unsigned not null primary key auto_increment comment 'id',
 `projectid` int(16) unsigned comment '项目id',
 
@@ -56,7 +56,7 @@ UNIQUE KEY `uniq_taskid` (`uuid`),
 INDEX index_name(`status`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='任务列表';
 
-create table `subtask`(
+create table `openc3_connector_subtask`(
 `id` int(16) unsigned not null primary key auto_increment comment 'id',
 
 `parent_uuid` VARCHAR(20) comment '父任务uuid',
@@ -75,14 +75,14 @@ INDEX index_name(`parent_uuid`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='子任务列表';
 
 
-create table `keepalive`(
+create table `openc3_connector_keepalive`(
 `id` int(16) unsigned not null primary key auto_increment comment 'id',
 `slave` VARCHAR(40) comment 'slave',
 `time` int(16) unsigned comment 'time',
 UNIQUE KEY `uniq_slave` (`slave`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='slave心跳';
 
-create table `log`(
+create table `openc3_connector_log`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 
 `projectid` int(16) unsigned comment '项目id',
@@ -95,7 +95,7 @@ create table `log`(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='log';
 
 
-create table `userinfo`(
+create table `openc3_connector_userinfo`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 `name` VARCHAR(100) comment 'name',
 `pass` VARCHAR(200) comment 'pass',
@@ -104,7 +104,7 @@ create table `userinfo`(
 UNIQUE KEY `uniq_name` (`name`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='userinfo';
 
-create table `userauth`(
+create table `openc3_connector_userauth`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 `name` VARCHAR(100) comment 'name',
 `level` VARCHAR(200) comment 'level',
@@ -112,7 +112,7 @@ UNIQUE KEY `uniq_name` (`name`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='userauth';
 
 
-create table `usermesg`(
+create table `openc3_connector_usermesg`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 `user` VARCHAR(100) comment 'name',
 `time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment 'time',
@@ -120,7 +120,7 @@ create table `usermesg`(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='usermesg';
 
 
-create table `usermail`(
+create table `openc3_connector_usermail`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 `user` VARCHAR(100) comment 'name',
 `time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment 'time',
@@ -128,7 +128,7 @@ create table `usermail`(
 `content` VARCHAR(2000) comment 'mesg'
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='usermail';
 
-create table `tree` (
+create table `openc3_connector_tree` (
 `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
 `name` varchar(50) NOT NULL UNIQUE COMMENT '节点名',
 `len` int(1) NOT NULL COMMENT '节点的长度',
@@ -138,7 +138,7 @@ KEY `index_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='系统信息表' AUTO_INCREMENT=1 ;
 
 
-create table `nodelist`(
+create table `openc3_connector_nodelist`(
 `id` int(16) unsigned not null primary key auto_increment comment 'id',
 `projectid` int(16) unsigned comment 'projectid',
 `name` VARCHAR(100) comment '机器名',
@@ -155,7 +155,7 @@ create table `nodelist`(
 UNIQUE KEY `uniq_projectname` (`projectid`,`name`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='机器列表';
 
-create table `auditlog`(
+create table `openc3_connector_auditlog`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 `time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment 'time',
 `user` VARCHAR(100) comment 'name',

@@ -51,7 +51,7 @@ get '/default/node/:projectid' => sub {
     my @col = qw( id name inip exip type create_user create_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from nodelist
+            sprintf( "select %s from openc3_connector_nodelist
                 where projectid='$param->{projectid}' and status='available' %s",
                     join( ',', @col), @where ? ' and '.join( ' and ',@where ):'' ), \@col )};
 
@@ -83,7 +83,7 @@ post '/default/node/:projectid' => sub {
 
     my $r = eval{ 
         $api::mysql->execute( 
-            "insert into nodelist (`projectid`,`name`,`inip`,`exip`,`type`,`create_user`,`create_time`,`edit_user`,`edit_time`,`status`)
+            "insert into openc3_connector_nodelist (`projectid`,`name`,`inip`,`exip`,`type`,`create_user`,`create_time`,`edit_user`,`edit_time`,`status`)
                 values( '$param->{projectid}', '$param->{name}', '$inip','$exip','idc','$ssouser','$time', '$ssouser', '$time','available' )")};
 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
@@ -105,7 +105,7 @@ del '/default/node/:projectid/:id' => sub {
 
     my $r = eval{ 
         $api::mysql->execute(
-            "update nodelist set status='deleted',name=concat(name,'_$t'),edit_user='$ssouser',edit_time='$time' 
+            "update openc3_connector_nodelist set status='deleted',name=concat(name,'_$t'),edit_user='$ssouser',edit_time='$time' 
                 where id='$param->{id}' and projectid='$param->{projectid}' and status='available'")};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
@@ -124,7 +124,7 @@ get '/default/node/api/:projectid' => sub {
     my @col = qw( id name inip exip type );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from nodelist
+            sprintf( "select %s from openc3_connector_nodelist
                 where projectid='$param->{projectid}' and status='available' %s", join( ',', @col)), \@col )};
 
     my $id = 0;

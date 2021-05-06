@@ -220,7 +220,7 @@ post '/connectorx/auditlog' => sub {
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    eval{ $api::mysql->execute( "insert into auditlog (`user`,`title`,`content`) values('$param->{user}','$param->{title}','$param->{content}')" ); };
+    eval{ $api::mysql->execute( "insert into openc3_connector_auditlog (`user`,`title`,`content`) values('$param->{user}','$param->{title}','$param->{content}')" ); };
 
     return $@ ? +{ stat => $JSON::false, info => "run auditlog fail:$@"  } : +{ stat => $JSON::true, info => 'ok' };
 };
@@ -245,7 +245,7 @@ get '/connectorx/auditlog' => sub {
 
     my $where = @where ? sprintf( "where %s", join ' and ', @where ) : '';
 
-    my $mesg = eval{ $api::mysql->query( "select time,user,title,content from `auditlog` $where order by id desc limit 1000", [ 'time', 'user', 'title', 'content' ] ) };
+    my $mesg = eval{ $api::mysql->query( "select time,user,title,content from `openc3_connector_auditlog` $where order by id desc limit 1000", [ 'time', 'user', 'title', 'content' ] ) };
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $mesg };
 };

@@ -11,7 +11,7 @@ use Format;
 get '/default/mail' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
 
-    my $mesg = eval{ $api::mysql->query( "select time,title,content from `usermail` where user = '$ssouser' order by id desc limit 100", [ 'time', 'title', 'content' ] ) };
+    my $mesg = eval{ $api::mysql->query( "select time,title,content from `openc3_connector_usermail` where user = '$ssouser' order by id desc limit 100", [ 'time', 'title', 'content' ] ) };
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $mesg };
 };
@@ -29,7 +29,7 @@ post '/default/mail' => sub {
 
     map{ $param->{$_} =~ s/'/"/g }qw( title content );
 
-    eval{ $api::mysql->execute( "insert into usermail (`user`,`title`,`content`) values('$param->{user}','$param->{title}','$param->{content}')" ); };
+    eval{ $api::mysql->execute( "insert into openc3_connector_usermail (`user`,`title`,`content`) values('$param->{user}','$param->{title}','$param->{content}')" ); };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, info => 'ok' };
 };
 

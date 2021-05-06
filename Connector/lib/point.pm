@@ -47,7 +47,7 @@ sub point
 
     return ( '', 1 )if $l{0};
 
-    my $u = eval{ $db->query( "select level from `userauth` where name='$user'" ) };
+    my $u = eval{ $db->query( "select level from `openc3_connector_userauth` where name='$user'" ) };
     return ( $@ ) if $@;
 
     my $userlevel = ( $u && @$u > 0 ) ? $u->[0][0] : 0;

@@ -41,7 +41,7 @@ post '/config' => sub {
 
     my $time = POSIX::strftime( "%Y%m%d%H%M%S", localtime );
 
-    eval{ $api::mysql->execute( "insert into auditlog (`user`,`title`,`content`) values('$ssouser','EDIT CONNECTOR CONFIG','_')" ); };
+    eval{ $api::mysql->execute( "insert into openc3_connector_auditlog (`user`,`title`,`content`) values('$ssouser','EDIT CONNECTOR CONFIG','_')" ); };
     return  +{ stat => $JSON::false, info => $@ } if $@; 
 
     eval{

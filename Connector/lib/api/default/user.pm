@@ -15,7 +15,7 @@ any '/default/user/userlist' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
     my $pmscheck = api::pmscheck( 'openc3_connector_root' ); return $pmscheck if $pmscheck;
 
-    my $user = eval{ $api::mysql->query( "select name,pass from `userinfo`", [ 'name', 'pass' ] ) };
+    my $user = eval{ $api::mysql->query( "select name,pass from `openc3_connector_userinfo`", [ 'name', 'pass' ] ) };
     return +{ stat => $JSON::false, info => $@ } if $@;
     map{ $_->{pass} = $_->{pass} eq '4cb9c8a8048fd02294477fcb1a41191a' ? 1 : 0;}@$user;
 
@@ -33,7 +33,7 @@ post '/default/user/adduser' => sub {
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    eval{ $api::mysql->execute( "replace into userinfo (`name`,`pass`,`sid`,`expire`) values( '$param->{user}', '4cb9c8a8048fd02294477fcb1a41191a', '', 0 )" ); };
+    eval{ $api::mysql->execute( "replace into openc3_connector_userinfo (`name`,`pass`,`sid`,`expire`) values( '$param->{user}', '4cb9c8a8048fd02294477fcb1a41191a', '', 0 )" ); };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
 
@@ -47,7 +47,7 @@ del '/default/user/deluser' => sub {
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    eval{ $api::mysql->execute( "delete from userinfo where name='$param->{user}'" ); };
+    eval{ $api::mysql->execute( "delete from openc3_connector_userinfo where name='$param->{user}'" ); };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
 
@@ -67,7 +67,7 @@ post '/default/user/chpasswd' => sub {
     my $newmd5 = Digest::MD5->new->add($param->{new1})->hexdigest;
     my $oldmd5 = Digest::MD5->new->add($param->{old})->hexdigest;
 
-    my $x = eval{ $api::mysql->execute( "update userinfo set pass='$newmd5' where sid='$cookie' and pass='$oldmd5'" ); };
+    my $x = eval{ $api::mysql->execute( "update openc3_connector_userinfo set pass='$newmd5' where sid='$cookie' and pass='$oldmd5'" ); };
 
     return +{ stat => $JSON::false, info => $@ } if $@;
 
@@ -78,14 +78,14 @@ get '/internal/user/username' => sub {
     my $sid = params()->{cookie};
     return +{ stat => JSON::false, info => 'sid format err' } unless $sid && $sid =~ /^[a-zA-Z0-9]{64}$/;
 
-    my $info = eval{ $api::mysql->query( sprintf "select name from `userinfo` where sid='$sid'" ) };
+    my $info = eval{ $api::mysql->query( sprintf "select name from `openc3_connector_userinfo` where sid='$sid'" ) };
     
     return +{ stat => $JSON::false, info => $@ } if $@;
     return +{ stat => JSON::false, info => 'Not logged in yet' } unless @$info;
 
     my $user = $info->[0][0];
 
-    my $level = eval{ $api::mysql->query( "select level from userauth where name='$user'" ) };
+    my $level = eval{ $api::mysql->query( "select level from openc3_connector_userauth where name='$user'" ) };
     my $userlevel = @$level ? $level->[0][0] : 0;
 
     return +{ stat => JSON::true, data => +{ user => $user, company => $user =~ /(@.+)$/ ? $1 : 'default', admin => $userlevel >= 3 ? 1 : 0, showconnector => 1 }};
@@ -98,7 +98,7 @@ any '/default/user/logout' => sub {
 
     return +{ stat => $JSON::true, info => 'ok' } unless $sid;
     return +{ stat => $JSON::false, info => 'sid format err' } unless $sid =~ /^[a-zA-Z0-9]{64}$/;
-    eval{ $api::mysql->execute( "update userinfo set expire=0,sid='' where sid='$sid'" ); };
+    eval{ $api::mysql->execute( "update openc3_connector_userinfo set expire=0,sid='' where sid='$sid'" ); };
     
     return +{ stat => $JSON::false, info => $@ } if $@;
     return +{ stat => $JSON::true, info => 'ok' };
@@ -112,14 +112,14 @@ any '/default/user/login' => sub {
     return +{ stat => $JSON::false, info => 'user or pass undef' }
         unless defined $user & defined $pass;
 
-    my $info = eval{ $api::mysql->query( sprintf "select name from userinfo where name='$user' and pass='%s'",  Digest::MD5->new->add($pass)->hexdigest ) };
+    my $info = eval{ $api::mysql->query( sprintf "select name from openc3_connector_userinfo where name='$user' and pass='%s'",  Digest::MD5->new->add($pass)->hexdigest ) };
 
     return +{ stat => $JSON::false, info => $@ } if $@;
     if( @$info )
     {
         my @chars = ( "A" .. "Z", "a" .. "z", 0 .. 9 );
         my $keys = join("", @chars[ map { rand @chars } ( 1 .. 64 ) ]);
-        eval{ $api::mysql->execute( sprintf "update userinfo set expire=%d,sid='%s' where name='%s'", time + 8 * 3600, $keys, $user ); };
+        eval{ $api::mysql->execute( sprintf "update openc3_connector_userinfo set expire=%d,sid='%s' where name='%s'", time + 8 * 3600, $keys, $user ); };
         return +{ stat => $JSON::false, info => $@ } if $@;
 
         set_cookie( sid => $keys, http_only => 0, expires => time + 8 * 3600 );

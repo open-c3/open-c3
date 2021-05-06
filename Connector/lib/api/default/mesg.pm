@@ -11,7 +11,7 @@ use Format;
 get '/default/mesg' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
 
-    my $mesg = eval{ $api::mysql->query( "select time,mesg from `usermesg` where user = '$ssouser' order by id desc limit 100", [ 'time', 'mesg' ] ) };
+    my $mesg = eval{ $api::mysql->query( "select time,mesg from `openc3_connector_usermesg` where user = '$ssouser' order by id desc limit 100", [ 'time', 'mesg' ] ) };
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $mesg };
 };
@@ -28,7 +28,7 @@ post '/default/mesg' => sub {
 
     $param->{mesg} =~ s/'/"/g;
 
-    eval{ $api::mysql->execute( "insert into usermesg (`user`,`mesg`) values('$param->{user}','$param->{mesg}')" ); };
+    eval{ $api::mysql->execute( "insert into openc3_connector_usermesg (`user`,`mesg`) values('$param->{user}','$param->{mesg}')" ); };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, info => 'ok' };
 };
 

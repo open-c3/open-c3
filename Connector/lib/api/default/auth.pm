@@ -16,7 +16,7 @@ any '/default/auth/userauth' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
     my $pmscheck = api::pmscheck( 'openc3_connector_root' ); return $pmscheck if $pmscheck;
 
-    my $user = eval{ $api::mysql->query( "select name,level from `userauth`", [ 'name', 'level' ] ) };
+    my $user = eval{ $api::mysql->query( "select name,level from `openc3_connector_userauth`", [ 'name', 'level' ] ) };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $user };
 };
 
@@ -30,7 +30,7 @@ del '/default/auth/delauth' => sub {
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    eval{ $api::mysql->execute( "delete from userauth where name='$param->{user}'" ); };
+    eval{ $api::mysql->execute( "delete from openc3_connector_userauth where name='$param->{user}'" ); };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
 
@@ -45,7 +45,7 @@ post '/default/auth/addauth' => sub {
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    eval{ $api::mysql->execute( "replace into userauth (`name`,`level`) values( '$param->{user}', '$param->{level}')" ); };
+    eval{ $api::mysql->execute( "replace into openc3_connector_userauth (`name`,`level`) values( '$param->{user}', '$param->{level}')" ); };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
 
