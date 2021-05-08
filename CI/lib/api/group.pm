@@ -35,7 +35,7 @@ get '/group/:groupid' => sub {
         my @c = qw( id projectid uuid name user slave status starttimems finishtimems 
             starttime  finishtime calltype pid runtime reason create_time 
         );
-        my $v = eval{  $api::mysql->query( sprintf( "select %s from version where projectid in (%s)", join( ',',@c), join( ',', map{$_->{id}}@$r )), \@c); };
+        my $v = eval{  $api::mysql->query( sprintf( "select %s from version where projectid in (%s) order by create_time", join( ',',@c), join( ',', map{$_->{id}}@$r )), \@c); };
         return +{ stat => $JSON::false, info => $@ } if $@;
         map{ $v{$_->{projectid}} = $_ }@$v;
     }
@@ -98,7 +98,7 @@ get '/group/favorites/:groupid' => sub {
         my @c = qw( id projectid uuid name user slave status starttimems finishtimems 
             starttime  finishtime calltype pid runtime reason create_time 
         );
-        my $v = eval{  $api::mysql->query( sprintf( "select %s from version where projectid in (%s)", join( ',',@c), join( ',', map{$_->{id}}@$r )), \@c); };
+        my $v = eval{  $api::mysql->query( sprintf( "select %s from version where projectid in (%s) order by create_time", join( ',',@c), join( ',', map{$_->{id}}@$r )), \@c); };
         return +{ stat => $JSON::false, info => $@ } if $@;
         map{ $v{$_->{projectid}} = $_ }@$v;
     }
