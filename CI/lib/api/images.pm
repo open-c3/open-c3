@@ -244,18 +244,10 @@ post '/images/:imagesid/upload' => sub {
 
         my ( $filename, $tempname, $size ) = @$info{qw( filename tempname size )};
 
-        open(OUTFILE, ">>$file");
-        return +{ stat => $JSON::false, info => $@ } if $@;
-        open(INFILE, "$tempname");
-        return +{ stat => $JSON::false, info => $@ } if $@;
-        while ( my $line = <INFILE>){
-            print OUTFILE  "$line";
-        }
-        close INFILE;
-        close OUTFILE;
+        return  +{ stat => $JSON::false, info => 'cat fail' } if system "cat $tempname >> $file";
         if ($param->{seq} + 1 == $param->{len}){
-            my @file_args = stat($file);
-            if (@file_args[7] != $param->{filesize}){
+            my $size = (stat$file)[7];
+            if ($size != $param->{filesize}){
                 return  +{ stat => $JSON::false, info => 'rm fail' } if system "rm '$file'";
                 return  +{ stat => $JSON::false, info => 'rm fail' } if system "rm  '$tempname'";
                 return  +{ stat => $JSON::false, info => 'check chunk fail' };
