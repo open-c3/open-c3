@@ -17,4 +17,10 @@ get '/version/log' => sub {
     return +{ stat => $JSON::true, data => [ map{ my @x = split / \+0800 - /, $_; +{ time => $x[0], mesg => $x[1] } }@temp ] };
 };
 
+get '/version/name' => sub {
+    my $version = `cat '$RealBin/../.versionname'`;
+    chomp $version;
+    return +{ stat => $JSON::true, data => $version || 'unkown' };
+};
+
 true;

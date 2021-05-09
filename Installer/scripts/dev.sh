@@ -101,6 +101,7 @@ function start() {
         cd $BASE_PATH/c3-front/dist && git clone https://github.com/open-c3/open-c3.github.io book
 
         git log --pretty=format:'%ai - %s' |grep -v 'Merge branch' > $BASE_PATH/Connector/.versionlog
+        git branch |grep ^*|awk '{print $2}' > $BASE_PATH/Connector/.versionname
 
         exit
     fi

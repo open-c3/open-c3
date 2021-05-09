@@ -9,6 +9,7 @@
     function VersionLogController( $state, $http, $scope, ngTableParams ) {
 
         var vm = this;
+        vm.versionname = 'null'
         vm.reload = function () {
             vm.loadover = false;
             $http.get('/api/connector/version/log').success(function(data){
@@ -16,7 +17,14 @@
                     vm.versionlogTable = new ngTableParams({count:100}, {counts:[],data:data.data});
                     vm.loadover = true;
                 }else {
-                    swal({ title:'获取监控数据失败', text: data.info, type:'error' });
+                    swal({ title:'获取数据失败', text: data.info, type:'error' });
+                }
+            });
+            $http.get('/api/connector/version/name').success(function(data){
+                if (data.stat){
+                    vm.versionname = data.data
+                }else {
+                    swal({ title:'获取数据失败', text: data.info, type:'error' });
                 }
             });
         };
