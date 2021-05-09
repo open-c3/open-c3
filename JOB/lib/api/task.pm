@@ -653,9 +653,15 @@ get '/task/:projectid/analysis/date' => sub {
     my $success = eval{ $api::mysql->query( "select DATE_FORMAT(starttime, '%Y-%m-%d') as x,count(*)  from openc3_job_task
             where $w status='success' and starttime>'$time' group by x order by x" )};
 
+    my ( %all, @all ) =  map{ $_->[0] => $_->[1] }@$all;
+    map{
+        my $t = POSIX::strftime( "%Y-%m-%d", localtime( time - 86400 * ( 30 - $_ ) ) );
+        push @all, [ $t, $all{$t} || 0 ];
+    } 1 .. 30;
+
     my %success = map{ @$_ }@$success;
     my @data;
-    map{  push @data, [ @$_, $success{$_->[0]}||0 ];}@$all;
+    map{  push @data, [ @$_, $success{$_->[0]}||0 ];}@all;
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@data };
 };
 

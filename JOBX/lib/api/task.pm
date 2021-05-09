@@ -50,11 +50,18 @@ get '/task/:projectid' => sub {
 
     push( @where, "slave!='_null_'" ) unless $param->{allowslavenull};
 
+    my $order = '';
+    if( $param->{name} eq '_ci_' )
+    {
+        push( @where, sprintf "starttime>='%s'", POSIX::strftime( "%Y-%m-%d 00:00:00", localtime( time - 86400 * 30 ) ) );
+        $order = 'order by starttime'
+    }
+
     my @col = qw( id projectid uuid name user slave status starttime finishtime calltype runtime reason variable );
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_jobx_task
-                where projectid in ( $projectid ) %s", join( ',', @col ), @where ? ' and '.join( ' and ', @where ):'' ), \@col )};
+                where projectid in ( $projectid ) %s $order", join( ',', @col ), @where ? ' and '.join( ' and ', @where ):'' ), \@col )};
 
     map{
         eval{ $_->{variable} = decode_base64( $_->{variable} ) } if defined $_->{variable};

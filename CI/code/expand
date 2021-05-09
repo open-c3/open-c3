@@ -87,7 +87,7 @@ return sub
         for ( 1 .. $weekprobability->{docount} )
         {
             my $rand = int rand 100;
-            if( $rand > $weekprobability->{probability} )
+            if( $rand <= $weekprobability->{probability} )
             {
                 my $hindex = int rand @probabilityrand;
                 push @createversion, $probabilityrand[$hindex] * 3600 + int( rand 3600 );
