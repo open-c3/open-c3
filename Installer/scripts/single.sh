@@ -80,9 +80,19 @@ function install() {
     docker ps 1>/dev/null 2>&1 || service docker start
     docker ps 1>/dev/null 2>&1
     if [ $? = 0 ]; then
-        echo "[SUCC] docker is started."
+        echo "[SUCC]docker is started."
     else
         echo "[FAIL]start docker fail."
+        exit 1
+    fi
+
+    echo =================================================================
+    echo "[INFO]enable docker.service ..."
+    systemctl enable docker.service
+    if [ $? = 0 ]; then
+        echo "[SUCC]enable docker.service success."
+    else
+        echo "[FAIL]enable docker.service fail."
         exit 1
     fi
 
