@@ -186,6 +186,8 @@ post '/group/:groupid' => sub {
             my $x = join ',', map{"`$_`"}qw( autobuild excuteflow calljobx calljob webhook webhook_password webhook_release rely buildimage buildscripts 
                   follow_up follow_up_ticketid callback addr notify  edit_time  slave last_findtags last_findtags_success ticketid tag_regex autofindtags callonlineenv calltestenv findtags_at_once );
             $api::mysql->execute( "insert into openc3_ci_project (`edit_user`,`name`, `groupid`, `status`,$x ) select '$user','$param->{name}','$groupid',$status, $x from openc3_ci_project where id=$param->{sourceid}");
+            my $id = $api::mysql->query( "select id from openc3_ci_project where groupid='$groupid' and name='$param->{name}'" );
+            $api::mysql->execute( "insert into openc3_ci_rely (`projectid`,`path`,`addr`,`ticketid`,`tags`,`edit_user`) select '$id->[0][0]',path,addr,ticketid,tags,'$user' from openc3_ci_rely where projectid='$param->{sourceid}'" );
         }
         else
         {
