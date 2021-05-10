@@ -123,6 +123,7 @@ del '/project/:groupid/:projectid' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
+        $api::mysql->execute( "delete from openc3_ci_rely where projectid='$projectid'" );
         $api::mysql->execute( "delete from openc3_ci_project where groupid='$groupid' and id='$projectid'" );
     };
 
