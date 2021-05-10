@@ -231,9 +231,8 @@ post '/images/:imagesid/upload' => sub {
 
     my $path = "/data/glusterfs/dockerimage";
     mkdir $path unless -d $path;
-
-    my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
-
+    my $file = "$path"."/"."$param->{imagesid}";
+    my %result;
     for my $info ( values %$upload )
     {
         $error = Format->new( 
@@ -245,11 +244,21 @@ post '/images/:imagesid/upload' => sub {
 
         my ( $filename, $tempname, $size ) = @$info{qw( filename tempname size )};
 
-        return  +{ stat => $JSON::false, info => 'rename fail' } if system "mv '$tempname' '$path/$param->{imagesid}'";
-
+        return  +{ stat => $JSON::false, info => 'cat fail' } if system "cat $tempname >> $file";
+        if ($param->{seq} + 1 == $param->{len}){
+            my $size = (stat$file)[7];
+            if ($size != $param->{filesize}){
+                return  +{ stat => $JSON::false, info => 'rm fail' } if system "rm '$file'";
+                return  +{ stat => $JSON::false, info => 'rm fail' } if system "rm  '$tempname'";
+                return  +{ stat => $JSON::false, info => 'check chunk fail' };
+            }
+            %result = ( done=>$JSON::true,seq=>$param->{seq});
+        }else{
+            %result = (seq=>$param->{seq});
+        }
+        return  +{ stat => $JSON::false, info => 'rm fail' } if system "rm  '$tempname'";
     }
-
-    return  +{ stat => $JSON::true, data => scalar keys %$upload };
+    return  +{ stat => $JSON::true, data => \%result};
 };
 
 true;
