@@ -13,6 +13,7 @@
         vm.cancel = function(){ $uibModalInstance.dismiss()};
 
         vm.postdata = { timeout: '86400', approver: '', cont: '', name: '', deployenv: 'always',action: 'always', batches: 'always', everyone: 'on', plugin_type: 'approval' };
+        if (!editData){vm.postdata.name = "审批"};
 
         if( editData )
         {

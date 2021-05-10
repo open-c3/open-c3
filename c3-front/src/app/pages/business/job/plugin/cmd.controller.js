@@ -16,6 +16,7 @@
         $scope.s_timeout = '60';
         $scope.scriptType = "shell";
         $scope.scriptUnclick = false;
+        if (!editData){$scope.s_name = "执行脚本"};
 
         vm.postdata = { deployenv: 'always', action: 'always', batches: 'always' };
 
