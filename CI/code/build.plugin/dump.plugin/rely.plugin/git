@@ -37,9 +37,7 @@ return sub
         $ssh_key = $x->[0][0] if @$x;
     }
 
-    #TODO
-    #my $ctrl = $ssh_key ? "$RealBin/../../dan/tools/git -i " . Temp->new( chmod => 0600 )->dump( decode_base64( $ssh_key ) ) : 'git';
-    my $ctrl = $ssh_key ? "$RealBin/../../dan/tools/git -i " . Temp->new( chmod => 0600 )->dump( $ssh_key ) : 'git';
+    my $ctrl = $ssh_key ? "$RealBin/../bin/git -i " . Temp->new( chmod => 0600 )->dump( $ssh_key ) : 'git';
 
     my $temppath = "$RealBin/../logs/$temp/$uuid/rely/$index";
     if( -d $temppath )
