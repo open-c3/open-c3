@@ -228,11 +228,12 @@ post '/images/:imagesid/upload' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
     return +{ stat => $JSON::false, info => 'nofind id' } unless $r && @$r > 0;
 
-
     my $path = "/data/glusterfs/dockerimage";
     mkdir $path unless -d $path;
-    my $file = "$path"."/"."$param->{imagesid}";
+
+    my $file = "$path/$param->{imagesid}";
     my %result;
+
     for my $info ( values %$upload )
     {
         $error = Format->new( 
@@ -245,18 +246,20 @@ post '/images/:imagesid/upload' => sub {
         my ( $filename, $tempname, $size ) = @$info{qw( filename tempname size )};
 
         return  +{ stat => $JSON::false, info => 'cat fail' } if system "cat $tempname >> $file";
+
         if ($param->{seq} + 1 == $param->{len}){
-            my $size = (stat$file)[7];
-            if ($size != $param->{filesize}){
-                return  +{ stat => $JSON::false, info => 'rm fail' } if system "rm '$file'";
-                return  +{ stat => $JSON::false, info => 'rm fail' } if system "rm  '$tempname'";
-                return  +{ stat => $JSON::false, info => 'check chunk fail' };
+            my $size = ( stat $file )[7];
+            if( $size != $param->{filesize} ){
+                return +{ stat => $JSON::false, info => 'rm fail' } if system "rm '$file'";
+                return +{ stat => $JSON::false, info => 'rm fail' } if system "rm '$tempname'";
+                return +{ stat => $JSON::false, info => 'check chunk fail' };
             }
-            %result = ( done=>$JSON::true,seq=>$param->{seq});
+            %result = ( done => $JSON::true, seq => $param->{seq} );
         }else{
-            %result = (seq=>$param->{seq});
+            %result = ( seq => $param->{seq} );
         }
-        return  +{ stat => $JSON::false, info => 'rm fail' } if system "rm  '$tempname'";
+
+        return  +{ stat => $JSON::false, info => 'rm fail' } if system "rm '$tempname'";
     }
     return  +{ stat => $JSON::true, data => \%result};
 };
