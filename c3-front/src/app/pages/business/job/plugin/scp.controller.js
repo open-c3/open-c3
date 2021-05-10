@@ -48,6 +48,7 @@
             'timeout':'60',
             'pause':'',
         };
+        if (!editData){$scope.dstDate.name = "文件分发"};
         $scope.copySrcdata = angular.copy($scope.srcDate);
         vm.cancel = function(){ $uibModalInstance.dismiss()};
 
