@@ -14,7 +14,7 @@ function backup() {
     echo =================================================================
     version=$(date +%Y%m%d.%H%M%S)
     echo "[INFO]backup to $version ..."
-    docker exec -it  openc3-mysql mysqldump -h127.0.0.1 -uroot -popenc3123456^! --databases jobs jobx ci agent connector > openc3.${version}.sql
+    docker exec -i openc3-mysql mysqldump -h127.0.0.1 -uroot -popenc3123456^! --databases jobs jobx ci agent connector > openc3.${version}.sql
     echo "[SUCC]backup done."
 }
 
@@ -22,7 +22,7 @@ function recovery() {
     version=$1
     echo =================================================================
     echo "[INFO]recovery to $version ..."
-    docker exec -i  openc3-mysql mysql -h127.0.0.1 -uroot -popenc3123456^! < openc3.${version}.sql
+    docker exec -i openc3-mysql mysql -h127.0.0.1 -uroot -popenc3123456^! < openc3.${version}.sql
     echo "[SUCC]recovery done."
 }
 
