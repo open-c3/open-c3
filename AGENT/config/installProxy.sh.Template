@@ -23,6 +23,11 @@ if [[ -d $MYDanPATH/etc/agent/auth/ && ! -f $MYDanPATH/etc/agent/auth/c3_[[:envn
     wget http://$OPEN_C3_ADDR/api/scripts/c3_[[:envname:]].pub -O $MYDanPATH/etc/agent/auth/c3_[[:envname:]].pub
 fi
 
+extendenvname=[[:extendenvname:]]
+if [[ -d $MYDanPATH/etc/agent/auth/ && ! -f $MYDanPATH/etc/agent/auth/c3_${extendenvname}.pub ]]; then
+    wget http://$OPEN_C3_ADDR/api/scripts/c3_${extendenvname}.pub -O $MYDanPATH/etc/agent/auth/c3_${extendenvname}.pub
+fi
+
 if [[ -d $MYDanPATH/etc && ! -f $MYDanPATH/etc/iamproxy ]];then
     touch $MYDanPATH/etc/iamproxy
 fi
@@ -38,6 +43,10 @@ if [ -f /opt/mydan/dan/.success ]; then
 
     if [[ -d $MYDanPATH/etc/agent/auth/ && ! -f $MYDanPATH/etc/agent/auth/c3_[[:envname:]].pub ]]; then
         wget http://$OPEN_C3_ADDR/api/scripts/c3_[[:envname:]].pub -O $MYDanPATH/etc/agent/auth/c3_[[:envname:]].pub
+    fi
+
+    if [[ -d $MYDanPATH/etc/agent/auth/ && ! -f $MYDanPATH/etc/agent/auth/c3_${extendenvname}.pub ]]; then
+        wget http://$OPEN_C3_ADDR/api/scripts/c3_${extendenvname}.pub -O $MYDanPATH/etc/agent/auth/c3_${extendenvname}.pub
     fi
 
     echo "UPDATE OPEN-C3 PROXY: SUCCESS!!!"
@@ -61,6 +70,10 @@ else
 fi
 
 wget http://$OPEN_C3_ADDR/api/scripts/c3_[[:envname:]].pub -O $MYDanPATH/etc/agent/auth/c3_[[:envname:]].pub
+if [[ "X$extendenvname" != "X[[:envname:]]" ]];then
+    wget http://$OPEN_C3_ADDR/api/scripts/c3_${extendenvname}.pub -O $MYDanPATH/etc/agent/auth/c3_${extendenvname}.pub
+fi
+
 touch $MYDanPATH/etc/iamproxy
 
 echo "INSTALL OPEN-C3 PROXY: SUCCESS!!!"

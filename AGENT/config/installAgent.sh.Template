@@ -26,6 +26,11 @@ if [[ -d $MYDanPATH/etc/agent/auth/ && ! -f $MYDanPATH/etc/agent/auth/c3_[[:envn
     wget http://$OPEN_C3_ADDR/api/scripts/c3_[[:envname:]].pub -O $MYDanPATH/etc/agent/auth/c3_[[:envname:]].pub
 fi
 
+extendenvname=[[:extendenvname:]]
+if [[ -d $MYDanPATH/etc/agent/auth/ && ! -f $MYDanPATH/etc/agent/auth/c3_${extendenvname}.pub ]]; then
+    wget http://$OPEN_C3_ADDR/api/scripts/c3_${extendenvname}.pub -O $MYDanPATH/etc/agent/auth/c3_${extendenvname}.pub
+fi
+
 curl -s http://$OPEN_C3_ADDR/api/scripts/MYDan_mydan_update.sh|bash
 
 curl --connect-timeout 5 -m 5 myip.ipip.net 2>/dev/null|awk '{print $2}'|awk -F： '{print $2}' >  $MYDanPATH/etc/ips
@@ -39,6 +44,10 @@ if [ -f /opt/mydan/dan/.success ]; then
 
     if [[ -d $MYDanPATH/etc/agent/auth/ && ! -f $MYDanPATH/etc/agent/auth/c3_[[:envname:]].pub ]]; then
         wget http://$OPEN_C3_ADDR/api/scripts/c3_[[:envname:]].pub -O $MYDanPATH/etc/agent/auth/c3_[[:envname:]].pub
+    fi
+
+    if [[ -d $MYDanPATH/etc/agent/auth/ && ! -f $MYDanPATH/etc/agent/auth/c3_${extendenvname}.pub ]]; then
+        wget http://$OPEN_C3_ADDR/api/scripts/c3_${extendenvname}.pub -O $MYDanPATH/etc/agent/auth/c3_${extendenvname}.pub
     fi
 
     echo "UPDATE OPEN-C3 AGENT: SUCCESS!!!"
@@ -62,6 +71,9 @@ else
 fi
 
 wget http://$OPEN_C3_ADDR/api/scripts/c3_[[:envname:]].pub -O $MYDanPATH/etc/agent/auth/c3_[[:envname:]].pub
+if [[ "X$extendenvname" != "X[[:envname:]]" ]];then
+    wget http://$OPEN_C3_ADDR/api/scripts/c3_${extendenvname}.pub -O $MYDanPATH/etc/agent/auth/c3_${extendenvname}.pub
+fi
 
 if [[ -d $MYDanPATH/var/run/filecache ]]; then
     rm -rf $MYDanPATH/var/run/filecache
