@@ -48,7 +48,7 @@ get '/proxy/:projectid' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my @id = ( $projectid );
-    push( @id, map{$_->[0]}@$inherit ) if $inherit && ref $inherit eq 'ARRAY' && @$inherit > 0;
+    push( @id, split /,/, $inherit->[0][0] ) if $inherit && ref $inherit eq 'ARRAY' && @$inherit > 0;
     push @id, 0 if $projectid;
 
     map{ push @data, getnet( $_ ) }@id;

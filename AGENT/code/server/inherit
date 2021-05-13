@@ -5,6 +5,8 @@ use FindBin qw( $RealBin );
 use Util;
 use Logs;
 use POSIX ":sys_wait_h";
+use LWP::UserAgent;
+use JSON;
 
 $| ++;
 
@@ -18,13 +20,49 @@ return sub
 {
     my %param = @_;
 
-    my ( $db, $interval, $logs, $myname ) = ( $param{db}, 10, Logs->new( 'inherit' ), Util::myname() );
+    my ( $db, $interval, $logs, $myname ) = ( $param{db}, 60, Logs->new( 'inherit' ), Util::myname() );
+
+    my %env = Util::envinfo( qw( appname appkey ) );
+    my $ua = LWP::UserAgent->new;
+    $ua->default_header( %env );
 
     while( 1 )
     {
+        sleep $interval;
         warn "do ...\n";
 
+        my $res = $ua->get( "http://api.connector.open-c3.org/connectorx/treemap");
 
-        sleep $interval;
+        unless( $res->is_success )
+        {
+            $logs->err( "call treemap fail" );
+            next;
+        }
+
+        my $data = eval{JSON::from_json $res->content};
+        unless ( $data->{stat} )
+        {
+            $logs->err( "call treemap result". $data->{info} || '' );
+            next;
+        }
+        my ( @data, %name2id ) = @{$data->{data}};
+        map{ $name2id{$_->{name}} = $_->{id} }@data;
+
+        for( @data )
+        {
+             my ( $name, $id, @ids ) = @$_{ qw( name id ) };
+             my @name = split /\./, $name;
+             next unless @name > 1;
+
+             for my $index ( 0 .. $#name -1 )
+             {
+                 my $subname = join '.', map{ $name[$_] } 0 .. $index;
+                 push @ids, $name2id{$subname} if defined $name2id{$subname};
+             }
+             
+             eval{ $db->execute( sprintf "replace into openc3_agent_inherit (`projectid`,`inheritid`) values( '$id','%s')", join( ',', reverse @ids ) ); };
+             $logs->err( "insert inherit fail: $@" ) if $@;
+
+        }
     }
 }
