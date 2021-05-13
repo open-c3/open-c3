@@ -66,9 +66,11 @@ get '/connectorx/usertree/treemap' => sub {
 };
 
 
-#获取权利服务树map
+#获取全量服务树map
 get '/connectorx/treemap' => sub {
-    my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
+    my ( $user )= eval{ $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) ) };
+    return( +{ stat => $JSON::false, info => "sso code error:$@" } ) if $@;
+    return( +{ stat => $JSON::false, code => 10000 } ) unless $user;
 
     my $tree = eval{ $treemap->run( cookie => cookie( $api::cookiekey ) ) };
     return $@ ? +{ stat => $JSON::false, info => $@ } :  +{ stat => $JSON::true, data => $tree };
