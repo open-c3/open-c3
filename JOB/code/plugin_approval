@@ -86,6 +86,33 @@ return sub
     $logs->die( "plugin_approval uuid mismatch uuid=$uuid" ) unless @$x;
 
     my ( $jobuuid, $name, $cont, $approver, $deployenv, $action, $batches, $everyone, $timeout, $pause ) = @{$x->[0]};
+
+## todo 增加节点信息，tag详细信息
+    my %var_map;
+    my $jobname_res = eval{ $db->query( "select name from openc3_job_jobs where uuid='$fromjob'" );};
+    system "echo 'get data error from db' >> '/var/log/mail'" unless defined $jobname_res && ref $jobname_res eq 'ARRAY';
+    system "echo 'install uuid null: $uuid' >> '/var/log/mail'"  unless @$jobname_res;
+    my $jobname = @{$jobname_res->[0]}[0];
+    my $flow_id;
+    if ($jobname =~ /_ci_(\d+)_/){
+        $flow_id = $1;
+    }
+    my $ci_db = MYDB->new( "$RealBin/../../CI/conf/conn" );
+    my $flowname_res = eval{ $ci_db->query( "select name from openc3_ci_project where id='$flow_id'" );};
+    system "echo 'get data error from db: $@' >> '/var/log/mail'" if $@;
+
+    $var_map{"job"}=$jobname;
+    $var_map{"flow"}=@{$flowname_res->[0]}[0];
+    while((my $k, my $v) = each(%{$variable})){
+        if ($v){
+            $var_map{$k}=$v;
+        }
+    }
+    while((my $k, my $v) = each(%var_map)){
+        if ($v){
+            $cont =~ s/\$\{\Q$k\E\}/\Q$v\E/g;
+        }
+    }
  
     print "=" x 35, "\n";
     print "check ...\n";
