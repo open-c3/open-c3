@@ -319,6 +319,18 @@
                     swal({ title:"检测变量失败", type:'error', text:response.message });
                 });
         };
+
+        vm.up = function (idx){
+            if (idx>0){
+                [vm.allNewJob[idx-1], vm.allNewJob[idx]] = [vm.allNewJob[idx], vm.allNewJob[idx-1]]
+            }
+        };
+
+        vm.down = function (idx){
+            if (idx<vm.allNewJob.length-1){
+                [vm.allNewJob[idx+1], vm.allNewJob[idx]] = [vm.allNewJob[idx], vm.allNewJob[idx+1]]
+            }
+        };
     }
 
 })();

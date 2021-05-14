@@ -62,7 +62,7 @@
                                 <th style="text-align: center;">执行账户</th>
                                 <th style="text-align: center;">服务器类型</th>
                                 <th style="text-align: center;">脚本参数</th>
-                                <th style="text-align: center;">操作</th>
+                                <th style="text-align: center;width: 25%;">操作</th>
                             </tr>
                         </thead>
                         <tr>
@@ -70,9 +70,11 @@
                             <td>{{item.user}}</td>
                             <td>{{item.node_type}}</td>
                             <td>{{item.scripts_argv}}</td>
-                            <td>
+                            <td style="width: 25%;">
                                 <button class="btn btn-warning btn-sm" ng-hide="saveHide" ng-click="editjob2ci.editScript($index)">编辑</button>
                                 <button class="btn btn-danger btn-sm" ng-hide="saveHide" ng-click="editjob2ci.deljobdata($index)">删除</button>
+                                <button class="btn btn-danger btn-sm" ng-hide="saveHide" ng-click="editjob2ci.up($index)"><i class="fa fa-arrow-up"></i></button>
+                                <button class="btn btn-danger btn-sm" ng-hide="saveHide" ng-click="editjob2ci.down($index)"><i class="fa fa-arrow-down"></i></button>
                             </td>
                         </tr>
                     </table>
@@ -98,7 +100,7 @@
                                 <th style="text-align: center;">执行账户</th>
                                 <th style="text-align: center;max-width:600px;">目标服务器</th>
                                 <th style="text-align: center;">目标路径</th>
-                                <th style="text-align: center;">操作</th>
+                                <th style="text-align: center;width: 25%;">操作</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -107,9 +109,11 @@
                                 <td >{{item.user}}</td>
                                 <td style="max-width:600px;">{{item.dst}}</td>
                                 <td >{{item.dp}}</td>
-                                <td >
+                                <td style="width: 25%;">
                                     <button class="btn btn-warning btn-sm" ng-hide="saveHide" ng-click="editjob2ci.editScp($index)">编辑</button>
                                     <button class="btn btn-danger btn-sm" ng-hide="saveHide" ng-click="editjob2ci.deljobdata($index)">删除</button>
+                                    <button class="btn btn-danger btn-sm" ng-hide="saveHide" ng-click="editjob2ci.up($index)"><i class="fa fa-arrow-up"></i></button>
+                                    <button class="btn btn-danger btn-sm" ng-hide="saveHide" ng-click="editjob2ci.down($index)"><i class="fa fa-arrow-down"></i></button>
                                 </td>
                             </tr>
                         </tbody>
@@ -136,7 +140,7 @@
                                 <th style="text-align: center;">作业名称</th>
                                 <th style="text-align: center;">审批人</th>
                                 <th style="text-align: center;max-width:600px;">审批内容</th>
-                                <th style="text-align: center;">操作</th>
+                                <th style="text-align: center;width: 25%;">操作</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -144,9 +148,11 @@
                                 <td >{{item.name}}</td>
                                 <td >{{item.approver}}</td>
                                 <td style="max-width:600px;">{{item.cont}}</td>
-                                <td >
+                                <td style="width: 25%;">
                                     <button class="btn btn-warning btn-sm" ng-hide="saveHide" ng-click="editjob2ci.editApproval($index)">编辑</button>
                                     <button class="btn btn-danger btn-sm" ng-hide="saveHide" ng-click="editjob2ci.deljobdata($index)">删除</button>
+                                    <button class="btn btn-danger btn-sm" ng-hide="saveHide" ng-click="editjob2ci.up($index)"><i class="fa fa-arrow-up"></i></button>
+                                    <button class="btn btn-danger btn-sm" ng-hide="saveHide" ng-click="editjob2ci.down($index)"><i class="fa fa-arrow-down"></i></button>
                                 </td>
                             </tr>
                         </tbody>
