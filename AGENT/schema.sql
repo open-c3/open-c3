@@ -133,6 +133,7 @@ create table `openc3_agent_inherit`(
 
 `projectid` int(16) unsigned comment '项目id',
 `inheritid` VARCHAR(100) comment '继承id',
+`fullname` VARCHAR(300) comment '节点全名',
 
 `create_time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
 
