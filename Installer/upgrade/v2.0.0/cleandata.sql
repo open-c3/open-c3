@@ -1,0 +1,75 @@
+use ci;
+drop table favorites;
+drop table images;
+drop table keepalive;
+drop table project;
+drop table rely;
+drop table repository;
+drop table ticket;
+drop table version;
+
+use jobs;
+drop table `approval`;
+drop table `cmdlog`;
+drop table `crontab`;
+drop table `crontablock`;
+drop table `environment`;
+drop table `fileserver`;
+drop table `jobs`;
+drop table `keepalive`;
+drop table `nodegroup`;
+drop table `nodelist`;
+drop table `notify`;
+drop table `pause`;
+drop table `plugin_approval`;
+drop table `plugin_cmd`;
+drop table `plugin_scp`;
+drop table `project`;
+drop table `scripts`;
+drop table `smallapplication`;
+drop table `subtask`;
+drop table `task`;
+drop table `token`;
+drop table `userlist`;
+drop table `variable`;
+drop table `vv`;
+
+use jobx;
+drop table `flowline_version`;
+drop table `group`;
+drop table `group_type_list`;
+drop table `group_type_percent`;
+drop table `keepalive`;
+drop table `monitor`;
+drop table `subtask`;
+drop table `task`;
+
+
+use agent;
+drop table `agent`;
+drop table `check`;
+drop table `inherit`;
+drop table `install`;
+drop table `install_detail`;
+drop table `keepalive`;
+drop table `monitor`;
+drop table `project_region_relation`;
+drop table `proxy`;
+drop table `region`;
+
+use connector;
+drop table `auditlog`;
+drop table `group`;
+drop table `group_type_list`;
+drop table `group_type_percent`;
+drop table `keepalive`;
+drop table `log`;
+drop table `nodelist`;
+drop table `subtask`;
+drop table `task`;
+drop table `tree`;
+drop table `userauth`;
+drop table `userinfo`;
+drop table `usermail`;
+drop table `usermesg`;
+
