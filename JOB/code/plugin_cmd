@@ -252,7 +252,7 @@ return sub
         if( $_exit_ && ( $_exit_ eq '1' || $_exit_ eq 'cmd' || $_exit_ eq 'true' ) )
         {
             $tmpstatus = 'fail';
-            eval{ $db->execute( "update task set reason='stop by sys._exit_' where uuid='$taskuuid' and reason is null" ) };
+            eval{ $db->execute( "update openc3_job_task set reason='stop by sys._exit_' where uuid='$taskuuid' and reason is null" ) };
             $logs->die( "update reason fail" ) if $@;
 
         }
