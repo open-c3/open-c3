@@ -24,9 +24,20 @@ sub success
     exit;
 }
 
-die "config null\n" unless $ENV{CONFIGPATH} && -f $ENV{CONFIGPATH};
+my $config_str;
+my $tasktemppath = "/tmp/buildin.kubestar.$ENV{TASKUUID}.config";
 
-my $config_str = `cat '$ENV{CONFIGPATH}'`;
+if( $ENV{CONFIGPATH} && -f $ENV{CONFIGPATH} )
+{
+    $config_str = `cat '$ENV{CONFIGPATH}'`;
+    die "cp config fail: $!" if system "cp '$ENV{CONFIGPATH}' '$tasktemppath'";
+}
+else
+{
+    $config_str = `cat '$tasktemppath'`;
+}
+
+die "config null\n" if $config_str =~ /^[ \n]*$/;
 
 for( 1 .. @ARGV -1 )
 {
@@ -59,8 +70,6 @@ for my $container ( @containers )
     die "name format error" unless $container->{name} && $container->{name} =~ /^[\w:_\-\.\/]+$/;
     die "image format error" unless $container->{image} && $container->{image} =~ /^[\w:_\-\.\/]+$/;
 }
-
-
 
 my @argv = qw( vendor region cluster-name resource-type kubestar-addr access-key secret-key org namespace resource-name );
 

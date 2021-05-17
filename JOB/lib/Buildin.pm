@@ -88,7 +88,7 @@ sub run
     }
 
     my $nodes = join ',', sort @node;
-    my $cmd = "NODE='$nodes' TIMEOUT=$timeout TICKETFILE=$ticketfile $JOBUUID $CONFIGPATH $path $argv";
+    my $cmd = "NODE='$nodes' TIMEOUT=$timeout TICKETFILE=$ticketfile TASKUUID=$run{taskuuid} $JOBUUID $CONFIGPATH $path $argv";
 
     print "cmd:$cmd\n";
     unless( $cmd =~ /^[a-zA-Z0-9\.\-_ '=,\/:"]+$/ )
