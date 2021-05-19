@@ -1,5 +1,9 @@
 #!/bin/bash
 
+if [ "X$OpenC3_Backup_ContainersName" == "X" ]; then
+    OpenC3_Backup_ContainersName=openc3-mysql
+fi
+
 BASE_PATH=/data/open-c3-data/backup/mysql
 mkdir -p $BASE_PATH
 cd $BASE_PATH || exit 1
@@ -14,7 +18,7 @@ function backup() {
     echo =================================================================
     version=$(date +%Y%m%d.%H%M%S)
     echo "[INFO]backup to $version ..."
-    docker exec -i openc3-mysql mysqldump -h127.0.0.1 -uroot -popenc3123456^! --databases jobs jobx ci agent connector > openc3.${version}.sql
+    docker exec -i $OpenC3_Backup_ContainersName mysqldump -h127.0.0.1 -uroot -popenc3123456^! --databases jobs jobx ci agent connector > openc3.${version}.sql
     echo "[SUCC]backup done."
 }
 
@@ -22,7 +26,7 @@ function recovery() {
     version=$1
     echo =================================================================
     echo "[INFO]recovery to $version ..."
-    docker exec -i openc3-mysql mysql -h127.0.0.1 -uroot -popenc3123456^! < openc3.${version}.sql
+    docker exec -i $OpenC3_Backup_ContainersName mysql -h127.0.0.1 -uroot -popenc3123456^! < openc3.${version}.sql
     echo "[SUCC]recovery done."
 }
 
