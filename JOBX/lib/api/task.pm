@@ -22,7 +22,7 @@ use FindBin qw( $RealBin );
 get '/task/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
-        projectid => qr/^\d[\d,]+$/, 1,
+        projectid => qr/^\d[\d,]*$/, 1,
         allowslavenull => qr/^\d$/, 0,
         name => [ 'mismatch', qr/'/ ], 0,
         user => [ 'mismatch', qr/'/ ], 0,
