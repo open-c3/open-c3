@@ -20,7 +20,7 @@ $base =~ s#/[^/]+$##;
 
 $base = $ARGV[0] if $ARGV[0];
 
-my $path = join ' ', map{ "'$base/$_'" }qw(bin server debugtools code private/code);
+my $path = join ' ', map{ "'$base/$_'" }qw(bin server debugtools code );
 for my $file ( `find $path` )
 {
     chomp $file;
