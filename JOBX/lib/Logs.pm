@@ -58,7 +58,7 @@ sub die
         $reason =~ s/'//g;
         $reason ||= 'die, unkown';
         $reason = substr $reason, 0, 100 if length $reason > 100;
-        eval{ $this->{db}->execute( "update task set reason='$reason' where uuid='$this->{uuid}' and reason is null" );};
+        eval{ $this->{db}->execute( "update openc3_jobx_task set reason='$reason' where uuid='$this->{uuid}' and reason is null" );};
 #        error( "jobxsys update task $this->{uuid} reason fail:$@" ) if $@;
         $this->_write( "FAIL jobxsys update task $this->{uuid} reason fail:$@" );
     }
