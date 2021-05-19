@@ -5,7 +5,7 @@
         .module('openc3')
         .controller('scpJobController', scpJobController);
 
-    function scpJobController($scope,$filter, $state, $http,$uibModalInstance,$window,$uibModal, $timeout,treeService,resoureceService, scriptId, editData) {
+    function scpJobController($scope,$filter, $state, $http,$uibModalInstance,$window,$uibModal, $timeout,treeService,resoureceService, scriptId, editData, seq) {
 
         var vm = this;
         $scope.dataready = true;
@@ -48,6 +48,7 @@
             'timeout':'60',
             'pause':'',
         };
+        if (!editData){$scope.dstDate.name = "文件分发_"+seq};
         $scope.copySrcdata = angular.copy($scope.srcDate);
         vm.cancel = function(){ $uibModalInstance.dismiss()};
 

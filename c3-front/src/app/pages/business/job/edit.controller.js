@@ -144,7 +144,20 @@
             );
 
         };
+
+        vm.count = function(pluginType){
+            var count = 0;
+            for(var i = 0; i < vm.allNewJob.length; i++) {
+                if (vm.allNewJob[i].plugin_type == pluginType){
+                    count = count + 1;
+                }
+            }
+            return count;
+        };
+
         vm.createScriptJob = function (idx) {
+            var count = vm.count("cmd");
+            var seq = count + 1;
             var openChoice = $uibModal.open({
                 templateUrl: 'app/pages/business/job/plugin/cmd.html',
                 controller: 'scriptJobController',
@@ -155,7 +168,8 @@
                 bindToController: true,
                 resolve: {
                     treeId: function () { return vm.treeid},
-                    editData : function () {return ""}
+                    editData : function () {return ""},
+                    seq : function () {return seq}
                 }
             });
 
@@ -174,6 +188,8 @@
         };
 
         vm.createScpJob = function (idx) {
+            var count = vm.count("scp");
+            var seq = count + 1;
             var openChoice = $uibModal.open({
                 templateUrl: 'app/pages/business/job/plugin/scp.html',
                 controller: 'scpJobController',
@@ -184,7 +200,8 @@
                 bindToController: true,
                 resolve: {
                     treeId: function () { return vm.treeid},
-                    editData : function () {return ""}
+                    editData : function () {return ""},
+                    seq : function () {return seq}
                 }
             });
 
@@ -204,6 +221,8 @@
 
 
         vm.createApprovalJob = function (idx) {
+            var count = vm.count("approval");
+            var seq = count + 1;
             var openChoice = $uibModal.open({
                 templateUrl: 'app/pages/business/job/plugin/approval.html',
                 controller: 'approvalJobController',
@@ -214,7 +233,8 @@
                 bindToController: true,
                 resolve: {
                     treeId: function () { return vm.treeid},
-                    editData : function () {return ""}
+                    editData : function () {return ""},
+                    seq : function () {return seq}
                 }
             }); 
 
@@ -246,7 +266,8 @@
                 bindToController: true,
                 resolve: {
                     treeId: function () { return vm.treeid},
-                    editData : function () {return editData}
+                    editData : function () {return editData},
+                    seq : function () {return 0}
                 }
             }); 
 
@@ -273,7 +294,8 @@
                 bindToController: true,
                 resolve: {
                     treeId: function () { return vm.treeid},
-                    editData : function () {return editData}
+                    editData : function () {return editData},
+                    seq : function () {return 0}
                 }
             }); 
 
@@ -299,7 +321,8 @@
                 bindToController: true,
                 resolve: {
                     treeId: function () {return vm.treeid},
-                    editData : function () {return editData}
+                    editData : function () {return editData},
+                    seq : function () {return 0}
                 }
             });
 
