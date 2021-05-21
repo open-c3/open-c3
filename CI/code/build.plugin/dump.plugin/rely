@@ -37,7 +37,7 @@ return sub
     for( @$x )
     {
         $index ++;
-        my $type = ( $_->{addr} =~ /git@/ || $_->{addr} =~ /\.git/  ) ? 'git' : $_->{addr} eq 'openc3://*' ? 'openc3fileserver' :'svn';
+        my $type = ( $_->{addr} =~ /git@/ || $_->{addr} =~ /\.git/ || $_->{addr} =~ /http:\/\/git/ || $_->{addr} =~ /https:\/\/git/  ) ? 'git' : $_->{addr} eq 'openc3://*' ? 'openc3fileserver' :'svn';
   	    eval{ Code->new( "build.plugin/dump.plugin/rely.plugin/$type" )->run( 
                 db => $db, 
                 index => $index,
