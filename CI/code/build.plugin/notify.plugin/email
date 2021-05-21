@@ -21,7 +21,7 @@ $| ++;
 return sub
 {
     my %param = @_;
-    print Dumper 'sendemail',\%param;
+    printf "sendemail to: %s", join ',', @{$param{to}};
 
     return 1 unless @{$param{to}};
 
