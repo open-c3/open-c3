@@ -3,6 +3,7 @@ use strict;
 use warnings;
 $| ++;
 
+use utf8;
 use Logs;
 use Code;
 use Util;
@@ -45,7 +46,6 @@ return sub
     $logs->die( "version uuid is illegal, mismatch: $uuid" ) unless @$x;
 
     my %x = %{$x->[0]};
-    use Data::Dumper;
 
     my %env = Util::envinfo( qw( appname appkey ) );
     my $ua = LWP::UserAgent->new;
@@ -73,7 +73,7 @@ return sub
     my %template = 
     (
         ciTemplateEmailTitle => 'build: project: ${projectname} version=${version}',
-        ciTemplateEmailContent => 'status: ${status} \n projectname: ${projectname} \n addr: ${addr} \n version: ${version} \n calltestenv: ${calltestenv} \n callonlineenv: ${callonlineenv} \n errormsg: ${errormsg} buildlog: ${buildlog}',
+        ciTemplateEmailContent => "status: \${status}\n projectname: \${projectname}\n addr: \${addr}\n version: \${version}\n calltestenv: \${calltestenv}\n callonlineenv: \${callonlineenv}\n errormsg: \${errormsg}\n buildlog:\n\${buildlog}",
         ciTemplateSmsContent => 'build: project: ${projectname} version=${version}: status:${status}',
     );
  
@@ -102,18 +102,18 @@ return sub
     $replace{addr} = $x{'openc3_ci_project.addr'};
     $replace{calltestenv} = $x{'openc3_ci_project.calltestenv'} ? 'Yes' : 'No';
     $replace{callonlineenv} = $x{'openc3_ci_project.callonlineenv'} ? 'Yes' : 'No';
-    $replace{errormsg} = $errormsg;
+    $replace{errormsg} = $errormsg || 'Null';
 
     for my $key ( keys %senddata )
     {
 
-        if( Encode::is_utf8($senddata{$key}) )
-        {
-            $senddata{$key} = 'build: project: ${projectname} version=${version}: status:${status}';
-        }
+#       if( Encode::is_utf8($senddata{$key}) )
+#        {
+#            $senddata{$key} = 'build: project: ${projectname} version=${version}: status:${status}';
+#        }
         for ( keys %replace )
         {
-            next if Encode::is_utf8($replace{$_});
+            utf8::encode($replace{$_}) if Encode::is_utf8($replace{$_});
             $senddata{$key} =~ s/\$\{$_\}/$replace{$_}/g;
         }
     }

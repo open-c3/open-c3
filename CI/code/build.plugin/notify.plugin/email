@@ -45,14 +45,12 @@ return sub
 
     unless( $res->is_success )
     {
-#TODO 确认上层调用是否捕获这个die
-        die "call notify fail";
+        die "call notify fail.".YAML::XS::Dump $res->content;
     }
 
     my $data = eval{JSON::from_json $res->content};
     unless ( $data->{stat} ) {
-#TODO 确认上层调用是否捕获这个die
-        die "call notify result". $data->{info} || '';
+        die "call notify fail.".YAML::XS::Dump $res->content;
     }
  
     return 1;
