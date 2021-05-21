@@ -20,6 +20,7 @@
             'variable':{},
             'uuid':null,
         };
+        vm.rollbacknoneeded = false
 
 
         vm.jobinfo;
@@ -91,6 +92,10 @@
         };
 
         vm.runTask = function(){
+            if ( vm.rollbacknoneeded )
+            {
+                delete $scope.taskData.variable._rollbackVersion_;
+            }
             resoureceService.task.createtask(vm.treeid, $scope.taskData, null)
                 .then(function (repo) {
                     if (repo.stat){
@@ -164,6 +169,12 @@
                 });
             });
 
+        };
+
+        vm.cleanRollbackVersion = function () {
+            if (vm.rollbacknoneeded){
+                $scope.taskData.variable._rollbackVersion_ = "";
+            }
         };
 
     }
