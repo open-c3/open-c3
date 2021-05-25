@@ -43,6 +43,7 @@
                                         if( value.id == vm.jobid )
                                         {
                                             $scope.allJobs = [ value ];
+                                            $scope.choiceJob = value
                                         }
                                     });
                                 }
