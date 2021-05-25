@@ -154,6 +154,18 @@ return sub
     $logs->die( "write tagger info fail:$!" )if system "echo '$tagger' > '$temppath/info/tagger'";
     $logs->die( "write tag_info info fail:$!" )if system "echo '$tag_info' > '$temppath/info/taginfo'";
 
+    my $versions_res = eval{ $db->query( "select name from openc3_ci_version where id <= (select id from openc3_ci_version where uuid='$uuid') and projectid='$projectid' order by create_time desc,id desc limit 2" )};
+    $logs->die( "get version list from openc3_ci_version fail:$@" ) if $@;
+    $logs->die( "get version list from openc3_ci_version fail" ) unless defined $versions_res && ref $versions_res eq 'ARRAY';
+    my $tagdetail;
+    if (@{$versions_res} == 2){
+        $tagdetail = `cd '$temppath/info' && git log --pretty=format:'%h %s  %an' '$versions_res->[1][0]'...'$versions_res->[0][0]'`;
+    }elsif (@{$versions_res} == 1){
+        $tagdetail = `cd '$temppath/info' && git log --pretty=format:'%h %s  %an' '$versions_res->[0][0]'`;
+    };
+    my $x = eval{$db->execute( "update openc3_ci_version set tagdetail='$tagdetail' where projectid='$projectid' and name='$name'" )};
+    $logs->die( "update version fail:$@" ) if $@;
+
 }
 
 

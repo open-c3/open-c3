@@ -58,7 +58,7 @@ get '/versiondetail/:projectid/:version' => sub {
     my $pmscheck = api::pmscheck( 'openc3_ci_read', $param->{groupid}  ); return $pmscheck if $pmscheck;
 
     my @col = qw( id projectid uuid name user slave status starttimems finishtimems 
-            starttime  finishtime calltype pid runtime reason create_time 
+            starttime  finishtime calltype pid runtime reason create_time tagdetail
     );
     my $r = eval{ 
         $api::mysql->query( 

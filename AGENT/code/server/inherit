@@ -60,7 +60,7 @@ return sub
                  push @ids, $name2id{$subname} if defined $name2id{$subname};
              }
              
-             eval{ $db->execute( sprintf "replace into openc3_agent_inherit (`projectid`,`inheritid`) values( '$id','%s')", join( ',', reverse @ids ) ); };
+             eval{ $db->execute( sprintf "replace into openc3_agent_inherit (`projectid`,`inheritid`,`fullname`) values( '$id','%s','$name')", join( ',', reverse @ids ) ); };
              $logs->err( "insert inherit fail: $@" ) if $@;
 
         }
