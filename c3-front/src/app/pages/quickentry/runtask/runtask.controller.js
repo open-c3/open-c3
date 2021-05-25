@@ -8,6 +8,8 @@
 
         var vm = this;
         vm.treeid = $state.params.treeid;
+        vm.jobid = $state.params.jobid;
+
         var toastr = toastr || $injector.get('toastr');
 
         $scope.allJobs = [];        // 保存所有项目下的作业
@@ -35,7 +37,19 @@
                     $http.get('/api/job/jobs/' + vm.treeid).then(
                         function successCallback(response) {
                             if (response.data.stat){
-                                $scope.allJobs = response.data.data
+                                if( vm.jobid )
+                                {
+                                    angular.forEach(response.data.data, function (value, key) {
+                                        if( value.id == vm.jobid )
+                                        {
+                                            $scope.allJobs = [ value ];
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    $scope.allJobs = response.data.data
+                                }
                                 angular.forEach($scope.allJobs, function (value, key) {
                                     if(vm.ciinfo[value.name])
                                     {
