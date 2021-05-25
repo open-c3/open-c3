@@ -23,27 +23,43 @@ sub success
     exit;
 }
 
-if( $ARGV[0] eq 'apply' )
+my $ctrl = shift @ARGV;
+if( $ctrl eq 'apply' )
 {
+    die "check param error" unless @ARGV >= 1;
     if( $ARGV[1] )
     {
         die "rewrite DEPLOYVERSION fail!" if system "sed -i 's/DEPLOYVERSION/$ARGV[1]/g' $ENV{CONFIGPATH} 1>&1";
     }
 
     die "config null\n" unless $ENV{CONFIGPATH} && -f $ENV{CONFIGPATH};
-    my $cmd  = "KUBECONFIG=$ENV{TICKETFILE} kubectl apply -f $ENV{CONFIGPATH}";
+    my $cmd  = "KUBECONFIG=$ENV{TICKETFILE} kubectl apply -f $ENV{CONFIGPATH} --namespace=\"$ARGV[0]\"";
     warn "$cmd\n";
     die "apply fail:$!" if system "$cmd 1>&2";
     success();
 }
 
-if( $ARGV[0] eq 'check' )
+if( $ctrl eq 'setimage' )
+{
+    die "check param error" unless @ARGV >= 3;
+
+    #KUBECONFIG=xx kubectl set image deployment/nginx c3test-nginx=nginx:latest -n c3test
+    my $cmd  = "KUBECONFIG=$ENV{TICKETFILE} kubectl set image -n " . join ' ', @ARGV;
+    warn "$cmd\n";
+    die "setimage fail:$!" if system "$cmd 1>&2";
+    success();
+}
+
+if( $ctrl eq 'check' )
 {
     die "check param error" unless @ARGV >= 3;
 
     my $timeout = $ENV{TIMEOUT} && $ENV{TIMEOUT} =~ /^\d+$/ ? time + $ENV{TIMEOUT} : time  +  60; 
 
-    my $cmd = sprintf "KUBECONFIG=$ENV{TICKETFILE} $RealBin/kubectl.code/deploymentcheck %s", join ' ', @ARGV[1,2,3];
+    die "no support.\n" unless $ARGV[1] =~ s/^deployment\///;
+    die "no support.\n" unless $ARGV[2] =~ s/^.+=//;
+
+    my $cmd = sprintf "KUBECONFIG=$ENV{TICKETFILE} $RealBin/kubectl.code/deploymentcheck %s", join ' ', @ARGV;
 
     warn  "$cmd\n";
     for( 1 .. 360 )
