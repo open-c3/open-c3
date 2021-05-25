@@ -144,6 +144,12 @@
                 controller: 'ImagesController',
                 controllerAs: 'images'
             })
+            .state('home.global.userphone', {
+                url: 'userphone/:treeid',
+                templateUrl: 'app/pages/global/userphone/userphone.html',
+                controller: 'UserphoneController',
+                controllerAs: 'userphone'
+            })
             .state('home.config', {
                 url: 'config/:treeid',
                 templateUrl: 'app/pages/config/config.html',
