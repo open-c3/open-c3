@@ -114,7 +114,6 @@ create table `openc3_ci_version`(
 `runtime` VARCHAR(100) comment '任务总耗时',
 `tagger` VARCHAR(100) comment 'tagger',
 `taginfo` VARCHAR(200) comment 'taginfo',
-`tagdetail` VARCHAR(500) comment 'tagdetail',
 
 `reason` VARCHAR(100) comment '成功或者失败的理由',
 

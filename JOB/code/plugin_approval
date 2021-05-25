@@ -89,35 +89,39 @@ return sub
     my ( $jobuuid, $name, $cont, $approver, $deployenv, $action, $batches, $everyone, $timeout, $pause ) = @{$x->[0]};
 
     my %var_map;
-    my $jobname_res = eval{ $db->query( "select name from openc3_job_jobs where uuid='$fromjob'" );};
-    $logs->die( "get openc3_job_jobs info from mysql fail openc3_job_jobs uuid=$fromjob" ) if $@;
-    my $jobname = $jobname_res->[0][0];
-    $var_map{"job"} = $jobname;
-    if ( $jobname =~ /_ci_(\d+)_/ ) {
+    if( $fromjob && $variable->{version} )
+    {
+        my $jobname_res = eval{ $db->query( "select name from openc3_job_jobs where uuid='$fromjob'" );};
+        $logs->die( "get openc3_job_jobs info from mysql fail openc3_job_jobs uuid=$fromjob" ) if $@;
+        $var_map{"jobname"} = $jobname_res->[0][0];
+    }
+
+    if ( $var_map{"jobname"} && $var_map{"jobname"} =~ /^_ci_(\d+)_$/ ) {
         my $flow_id = $1;
 
         my $flow_res = $ua->get( "http://api.ci.open-c3.org/project/$projectid/$flow_id" );
         $logs->die( "get project from ci fail" ) unless $flow_res->is_success;
-        my $flow = eval{JSON::from_json $flow_res->content};
+        my $flow = eval{ JSON::from_json $flow_res->content };
+
         $logs->die( "get project from ci fail:". $flow->{info} || '' ) unless $flow->{stat};
-        $var_map{"flow"} = $flow->{data}{name};
+        $var_map{"flowname"} = $flow->{data}{name};
 
         my $version_res = $ua->get( "http://api.ci.open-c3.org/versiondetail/$flow_id/$variable->{version}" );
         $logs->die( "get version from ci fail" ) unless $version_res->is_success;
-        my $version = eval{JSON::from_json $version_res->content};
+        my $version = eval{ JSON::from_json $version_res->content };
         $logs->die( "get version from ci fail:". $version->{info} || '' ) unless $version->{stat};
-        $var_map{"tagdetail"} = $version->{data}{tagdetail};
+
+        $var_map{"taginfo"} = $version->{data}{taginfo};
     }
 
     my $project_res = $ua->get( "http://api.agent.open-c3.org/inherit/$projectid" );
-    $logs->die( "get node from agent fail" ) unless $project_res->is_success;
-    my $project = eval{JSON::from_json $project_res->content};
+    $logs->die( "get treename from agent fail" ) unless $project_res->is_success;
+    my $project = eval{ JSON::from_json $project_res->content };
     $logs->die( "get node from agent fail:". $project->{info} || '' ) unless $project->{stat};
-    $var_map{"node"} = $project->{data}{fullname};
 
-    if ($variable){
-        %var_map = ( %var_map, %{$variable} );
-    }
+    $var_map{"treename"} = $project->{data}{fullname};
+
+    %var_map = ( %var_map, %$variable ) if $variable;
     map{ $cont =~ s/\$\{\Q$_\E\}/$var_map{$_}/g; }keys %var_map;
 
     print "=" x 35, "\n";
