@@ -76,6 +76,7 @@ return sub
     $data->{data}{action} ||= 'nofind';
     $data->{data}{deployenv} ||= 'nofind';
     $data->{data}{batches} ||= 0;
+    $data->{data}{groups} ||= 0;
     $data->{data}{submitter} ||= 'nofind';
 
     print "=" x 35, "\n";
@@ -88,8 +89,9 @@ return sub
     return 'success' if $action eq 'deploy' && $data->{data}{action} ne 'deploy';
     return 'success' if $action eq 'rollback' && $data->{data}{action} ne 'rollback';
       
-    print "expect batches: $batches real batches: $data->{data}{batches}\n";
+    print "expect batches: $batches; real batches: $data->{data}{batches}\n";
     return 'success' if $batches eq 'firsttime' && $data->{data}{batches} ne 1;
+    return 'success' if $batches eq 'thelasttime' && $data->{data}{batches} ne $data->{data}{groups};
 
     $logs->die( "user format error" ) unless defined $user && $user =~ /^[a-zA-Z0-9_\-]+$/;
 

@@ -37,7 +37,7 @@ create table `openc3_job_plugin_approval`(
 `approver` VARCHAR(300) comment '审批人,多个用逗号分割',
 `deployenv` VARCHAR(20) comment '什么时候生效,部署维度',  ###只允许 online, test, always
 `action` VARCHAR(20) comment '什么时候生效,动作维度',  ###只允许 deploy, rollback, always
-`batches` VARCHAR(20) comment '什么时候生效,分批维度',  ###只允许 firsttime, always
+`batches` VARCHAR(20) comment '什么时候生效,分批维度',  ###只允许 firsttime, thelasttime, always
 `everyone` VARCHAR(20) comment '是否每个人都需要审批',  ###只允许 on, off
 `timeout` VARCHAR(30) comment '超时时间',
 `pause` VARCHAR(100) comment '需要暂停',
@@ -62,7 +62,7 @@ create table `openc3_job_plugin_cmd`(
 `pause` VARCHAR(100) comment '需要暂停',
 `deployenv` VARCHAR(20) comment '什么时候生效,部署维度',  ###只允许 online, test, always
 `action` VARCHAR(20) comment '什么时候生效,动作维度',  ###只允许 deploy, rollback, always
-`batches` VARCHAR(20) comment '什么时候生效,分批维度',  ###只允许 firsttime, always
+`batches` VARCHAR(20) comment '什么时候生效,分批维度',  ###只允许 firsttime, thelasttime, always
 `create_time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
 #UNIQUE KEY `uniq_jobuuidname` (`jobuuid`,`name`),###因为api在保存作业的时候，是重写写入新的，如果加了这个约束，会使得正在运行的作业找不到插件数据
 UNIQUE KEY `uniq_uuid` (`uuid`) 
@@ -105,7 +105,7 @@ create table `openc3_job_plugin_scp`(
 `pause` VARCHAR(100) comment '需要暂停',
 `deployenv` VARCHAR(20) comment '什么时候生效,部署维度',  ###只允许 online, test, always
 `action` VARCHAR(20) comment '什么时候生效,动作维度',  ###只允许 deploy, rollback, always
-`batches` VARCHAR(20) comment '什么时候生效,分批维度',  ###只允许 firsttime, always
+`batches` VARCHAR(20) comment '什么时候生效,分批维度',  ###只允许 firsttime, thelasttime, always
 `create_time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
 #UNIQUE KEY `uniq_jobuuidname` (`jobuuid`,`name`),###因为api在保存作业的时候，是重写写入新的，如果加了这个约束，会使得正在运行的作业找不到插件数据
 UNIQUE KEY `uniq_uuid` (`uuid`)

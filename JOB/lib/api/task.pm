@@ -574,7 +574,7 @@ post '/task/:projectid/plugin_approval' => sub {
         approver => qr/^[a-zA-Z0-9,\@_\-\.]+$/, 1,
         deployenv => [ 'in', 'test', 'online', 'always' ], 1,
         action => [ 'in', 'deploy', 'rollback', 'always' ], 1,
-        batches => [ 'in', 'firsttime', 'always' ], 1,
+        batches => [ 'in', 'firsttime', 'thelasttime', 'always' ], 1,
         everyone => [ 'in', 'on', 'off' ], 1,
         timeout => qr/^\d+$/, 0,
     )->check( %$param );

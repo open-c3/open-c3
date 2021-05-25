@@ -44,8 +44,8 @@ get '/subtask/:projectid/:subtaskuuid/mystatus' => sub {
                     join ',',@col ), \@col )};
     return +{ stat => $JSON::false, info => $@ } if $@;
 
-    my %data = ( action => 'nofind', batches => 0, deployenv => 'nofind', submitter => 'nofind' );
-    
+    my %data = ( action => 'nofind', batches => 0, deployenv => 'nofind', submitter => 'nofind', groups => scalar @$r );
+
     if( @$r > 0 )
     {
         $data{action} = $r->[0]{parent_uuid} =~ /[a-z]$/ ? 'deploy' : 'rollback';

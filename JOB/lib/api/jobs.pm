@@ -450,7 +450,7 @@ post '/jobs/:projectid' => sub {
                 approver => qr/^[a-zA-Z0-9,\@_\-\.]+$/, 1,
                 deployenv => [ 'in', 'test', 'online', 'always' ], 1,
                 action => [ 'in', 'deploy', 'rollback', 'always' ], 1,
-                batches => [ 'in', 'firsttime', 'always' ], 1,
+                batches => [ 'in', 'firsttime', 'thelasttime', 'always' ], 1,
                 everyone => [ 'in', 'on', 'off' ], 1,
             )->check( %$data );
             return  +{ stat => $JSON::false, info => "$info: check format fail $error" } if $error;
@@ -729,7 +729,7 @@ post '/jobs/:projectid/:jobuuid' => sub {
                 approver => qr/^[a-zA-Z0-9,\@_\-\.]+$/, 1,
                 deployenv => [ 'in', 'test', 'online', 'always' ], 1,
                 action => [ 'in', 'deploy', 'rollback', 'always' ], 1,
-                batches => [ 'in', 'firsttime', 'always' ], 1,
+                batches => [ 'in', 'firsttime', 'thelasttime', 'always' ], 1,
                 everyone => [ 'in', 'on', 'off' ], 1,
             )->check( %$data );
             return  +{ stat => $JSON::false, info => "$info: check format fail $error" } if $error;

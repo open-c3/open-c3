@@ -74,6 +74,7 @@ return sub
     $data->{data}{action} ||= 'nofind';
     $data->{data}{deployenv} ||= 'nofind';
     $data->{data}{batches} ||= 0;
+    $data->{data}{groups} ||= 0;
     $data->{data}{submitter} ||= 'nofind';
 
     $submitter = $data->{data}{submitter} if $submitter eq 'jobx@app' && $data->{data}{submitter} ne 'nofind';
@@ -98,8 +99,9 @@ return sub
     return 'success' if $action eq 'deploy' && $data->{data}{action} ne 'deploy';
     return 'success' if $action eq 'rollback' && $data->{data}{action} ne 'rollback';
       
-    print "expect batches: $batches real batches: $data->{data}{batches}\n";
+    print "expect batches: $batches; real batches: $data->{data}{batches}\n";
     return 'success' if $batches eq 'firsttime' && $data->{data}{batches} ne 1;
+    return 'success' if $batches eq 'thelasttime' && $data->{data}{batches} ne $data->{data}{groups};
 
     $timeout ||= 86400;
 
