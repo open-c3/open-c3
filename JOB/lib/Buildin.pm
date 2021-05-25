@@ -91,7 +91,7 @@ sub run
     my $cmd = "NODE='$nodes' TIMEOUT=$timeout TICKETFILE=$ticketfile TASKUUID=$run{taskuuid} $JOBUUID $CONFIGPATH $path $argv";
 
     print "cmd:$cmd\n";
-    unless( $cmd =~ /^[a-zA-Z0-9\.\-_ '=,\/:"]+$/ )
+    unless( $cmd =~ /^[a-zA-Z0-9\.\-_ '=,\/:"\@]+$/ )
     {
         print "cmd format error\n";
         return %result;
