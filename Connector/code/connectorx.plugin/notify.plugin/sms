@@ -10,6 +10,7 @@ $| ++;
 
 =head1 SYNOPSIS
 
+    db => $db,
     to => [ 'foo@open-c3.org', '123@open-c3.org' ],
     content => '',
 
@@ -29,7 +30,16 @@ return sub
     my $ua = LWP::UserAgent->new;
     $ua->default_header( %env ) if %env;
 
-    for my $to ( @{$param{to}} )
+    my @to = grep{ $_ =~ /^[0-9a-zA-Z_\-\.\@]+$/ }@{$param{to}};
+    return unless @to;
+
+    my %to = map{ $_ => $_ }@to;
+
+    my $x = $param{db}->query( sprintf "select `user`,`phone` from openc3_connector_userphone where user in ( %s )", join ',', map{"'$_'"}@to );
+    die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
+    map{ $to{$_->[0]} = $_->[1] }@$x;
+
+    for my $to ( values %to )
     {
         my $cont = JSON::to_json( +{ user => $to, mesg => $param{mesg} } );
         utf8::encode($cont);

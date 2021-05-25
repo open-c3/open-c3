@@ -175,7 +175,7 @@ any '/connectorx/notify' => sub {
             next;
         }
 
-        eval{ $notify{$d->{type}}->run( %$d ) };
+        eval{ $notify{$d->{type}}->run( %$d, db => $api::mysql ) };
         push( @error, "run plugin fail: $@ [idx:$idx]" ) if $@
 
     }
