@@ -40,7 +40,8 @@ return sub
     die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
     map{ $to{$_->[0]} = $_->[1] }@$x;
 
-    for my $to ( values %to )
+    my %t = map{ $_ => 1 } values %to;
+    for my $to ( keys %t )
     {
         my $cont = JSON::to_json( +{ user => $to, title => $param{title}, content => $param{content} } );
         utf8::encode($cont);
