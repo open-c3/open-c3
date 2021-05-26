@@ -60,18 +60,25 @@
 
         };
 
+        vm.emailSet = function () {
+            vm.environment.notifyTemplateEmailTitle = "服务树编号: ${projectid} 状态 ${status}";
+            vm.environment.notifyTemplateEmailContent = "任务编号 ${uuid}\n任务状态:${status}\n";
+        };
+
         vm.emailSave = function () {
             var emailDetail = {};
             emailDetail['notifyTemplateEmailTitle'] = vm.environment.notifyTemplateEmailTitle;
             emailDetail['notifyTemplateEmailContent'] = vm.environment.notifyTemplateEmailContent;
             vm.save( emailDetail )
         };
+        vm.smsSet = function () {
+            vm.environment.notifyTemplateSmsContent = "项目编号:${projectid} 任务编号:${uuid} 状态:${status}";
+        };
         vm.smsSave = function () {
             var msmDetail = {};
             msmDetail['notifyTemplateSmsContent'] = vm.environment.notifyTemplateSmsContent;
             vm.save( msmDetail )
         };
-
 
         vm.emailCiSet = function () {
             vm.environment.ciTemplateEmailTitle = "Open-C3 构建消息 项目: ${projectname} 版本:${version}";
