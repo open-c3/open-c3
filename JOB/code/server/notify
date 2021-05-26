@@ -73,6 +73,7 @@ return sub
             next unless $c &&  $c eq '1';
 
             eval{ $projectname{$row->{projectid}} = $projectname->run( id => $row->{projectid} ) unless $projectname{$row->{projectid}}; };
+            warn "get projectname fail: $@" if $@;
 
             my $status = eval{ $notify->run( %$row, environment => \%environment, db => $db, projectname => $projectname{$row->{projectid}} ) ? 2 : 3 };
             if( $@ )

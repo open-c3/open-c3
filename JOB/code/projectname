@@ -4,6 +4,9 @@ use warnings;
 
 use FindBin qw( $RealBin );
 use YAML::XS;
+use Util;
+use LWP::UserAgent;
+use JSON;
 
 
 $| ++;
@@ -20,13 +23,16 @@ return sub
     my $id = $param{id};
     die "id not a number" unless $id =~ /^\d+$/;
 
-    #my $r = CALL::ua("http://api/openapi/pmsapi/api/v1/node/$id");
+    my %env = Util::envinfo( qw( appname appkey ) );
+    my $ua = LWP::UserAgent->new;
+    $ua->default_header( %env );
+ 
+    my $res = $ua->get( "http://api.agent.open-c3.org/inherit/$id" );
 
-    #die "api.pms fail" unless $r && ref $r eq 'HASH';
-    #die "get project name fail" unless $r->{code} eq '200' && $r->{msg} eq 'Success';
-    #my $name = $r->{data}{name};
-
-    #return $name;
-    
-    return "project_$id";
+    if( $res->is_success )
+    {
+        my $data = eval{JSON::from_json $res->content};
+        return $data->{data}{fullname} if $data && $data->{stat};
+    }
+    die "get fullname from api.agent.open-c3.org/inherit/$id fail";
 }
