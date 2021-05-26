@@ -2,9 +2,9 @@
     'use strict';
     angular
         .module('openc3')
-        .controller('UserphoneCreateController', UserphoneCreateController);
+        .controller('UseraddrCreateController', UseraddrCreateController);
 
-    function UserphoneCreateController( $state, $http, ngTableParams, $uibModalInstance, $scope, resoureceService, $injector, treeid, reload ) {
+    function UseraddrCreateController( $state, $http, ngTableParams, $uibModalInstance, $scope, resoureceService, $injector, treeid, reload ) {
 
         var vm = this;
 
@@ -15,7 +15,7 @@
         vm.cancel = function(){ $uibModalInstance.dismiss()};
 
         vm.add = function(){
-            $http.post('/api/connector/userphone', vm.postdata ).success(function(data){
+            $http.post('/api/connector/useraddr', vm.postdata ).success(function(data){
                     if(data.stat == true) {
                         vm.cancel();
                         reload();

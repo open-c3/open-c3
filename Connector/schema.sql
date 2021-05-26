@@ -163,12 +163,13 @@ create table `openc3_connector_auditlog`(
 `content` VARCHAR(1000) comment 'mesg'
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='auditlog';
 
-create table `openc3_connector_userphone`(
+create table `openc3_connector_useraddr`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 `user` VARCHAR(100) comment 'user',
-`phone` VARCHAR(200) comment 'phone',
+`email` VARCHAR(100) comment 'email',
+`phone` VARCHAR(100) comment 'phone',
 `edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment 'time',
 `edit_user` VARCHAR(100) comment 'edit_user',
 UNIQUE KEY `uniq_user` (`user`)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='userphone';
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='useraddr';
 

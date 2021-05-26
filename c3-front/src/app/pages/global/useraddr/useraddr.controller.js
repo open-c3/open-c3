@@ -3,17 +3,17 @@
 
     angular
         .module('openc3')
-        .controller('UserphoneController', UserphoneController);
+        .controller('UseraddrController', UseraddrController);
 
     /** @ngInject */
-    function UserphoneController( $state, $http, $scope, $uibModal, ngTableParams ) {
+    function UseraddrController( $state, $http, $scope, $uibModal, ngTableParams ) {
 
         var vm = this;
         vm.treeid = $state.params.treeid;
 
         vm.reload = function () {
             vm.loadover = false
-            $http.get('/api/connector/userphone').then(
+            $http.get('/api/connector/useraddr').then(
                 function successCallback(response) {
                     if (response.data.stat){
                         vm.dataTable = new ngTableParams({count:100}, {counts:[],data:response.data.data});
@@ -29,11 +29,11 @@
 
         vm.reload()
 
-        vm.createUserphone = function () {
+        vm.createUseraddr = function () {
             $uibModal.open({
-                templateUrl: 'app/pages/global/userphone/create.html',
-                controller: 'UserphoneCreateController',
-                controllerAs: 'userphonecreate',
+                templateUrl: 'app/pages/global/useraddr/create.html',
+                controller: 'UseraddrCreateController',
+                controllerAs: 'useraddrcreate',
                 backdrop: 'static',
                 size: 'lg',
                 keyboard: false,
@@ -45,7 +45,7 @@
             });
         };
 
-       vm.deleteUserphone = function(id) {
+       vm.deleteUseraddr = function(id) {
           swal({
             title: "删除用户手机号",
             text: "删除",
@@ -56,7 +56,7 @@
             confirmButtonText: "确定",
             closeOnConfirm: true
           }, function(){
-            $http.delete('/api/connector/userphone/' + id ).success(function(data){
+            $http.delete('/api/connector/useraddr/' + id ).success(function(data){
                 if(data.stat == true) {
                     swal({ title: "删除成功!", type:'success' });
                     vm.reload();

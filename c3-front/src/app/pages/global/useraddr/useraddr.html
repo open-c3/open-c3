@@ -1,11 +1,11 @@
 <div class="row block">
-    <h2>手机号管理</h2>
+    <h2>用户地址簿管理</h2>
     <hr class="mv20 clear">
 
     <div>
         <div style="float: right;">
             <form class="form-inline" name="myForm" novalidate>
-                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="userphone.createUserphone()"><i class="fa fa-plusecircle fa-lg" aria-hidden="true"></i> 添加手机号</button>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="useraddr.createUseraddr()"><i class="fa fa-plusecircle fa-lg" aria-hidden="true"></i> 添加通信地址</button>
             </form>
         </div>
         <div style="clear: both;">&nbsp;</div>
@@ -14,22 +14,23 @@
     <div class="panel panel-primary">
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="userphone.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!userphone.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="useraddr.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!useraddr.loadover}" ></i></button>
             </span>
             <h5>手机号</h5>
         </div>
 
         <div class="panel-body">
             <div class="pt20" style="overflow: auto;">
-                <table ng-table="userphone.dataTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
+                <table ng-table="useraddr.dataTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
                         <td width="60" class="textcenter" data-title="'ID'" filter="{ id: 'text'}" sortable="'id'"> {{m.id}} </td>
                         <td data-title="'用户'" width="80" filter="{ user: 'text'}" sortable="'user'">{{m.user}}</td>
+                        <td data-title="'邮箱地址'" width="80" filter="{ email: 'text'}" sortable="'email'">{{m.email}}</td>
                         <td data-title="'手机号'" width="80" filter="{ phone: 'text'}" sortable="'phone'">{{m.phone}}</td>
                         <td data-title="'最后编辑人'" width="80" filter="{ edit_user: 'text'}" sortable="'edit_user'">{{m.edit_user}}</td>
                         <td data-title="'更新时间'" width="80" filter="{ edit_time: 'text'}" sortable="'edit_time'">{{m.edit_time}}</td>
                         <td data-title="'操作'" width="80" >
-                            <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="userphone.deleteUserphone(m.id)" uib-tooltip="删除" style="cursor:pointer;color: red;" ></i>
+                            <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="useraddr.deleteUseraddr(m.id)" uib-tooltip="删除" style="cursor:pointer;color: red;" ></i>
                         </td>
                     </tr>
                 </table>

@@ -144,11 +144,11 @@
                 controller: 'ImagesController',
                 controllerAs: 'images'
             })
-            .state('home.global.userphone', {
-                url: 'userphone/:treeid',
-                templateUrl: 'app/pages/global/userphone/userphone.html',
-                controller: 'UserphoneController',
-                controllerAs: 'userphone'
+            .state('home.global.useraddr', {
+                url: 'useraddr/:treeid',
+                templateUrl: 'app/pages/global/useraddr/useraddr.html',
+                controller: 'UseraddrController',
+                controllerAs: 'useraddr'
             })
             .state('home.config', {
                 url: 'config/:treeid',
