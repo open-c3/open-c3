@@ -73,23 +73,41 @@
         };
 
 
+        vm.emailCiSet = function () {
+            vm.environment.ciTemplateEmailTitle = "Open-C3 构建消息 项目: ${projectname} 版本:${version}";
+            vm.environment.ciTemplateEmailContent = "状态: ${status}\n项目名称: ${projectname}\n代码仓库地址: ${addr}\n版本: ${version}\n触发测试环境发布: ${calltestenv}\n触发线上环境发布: ${callonlineenv}\n错误信息: ${errormsg}\n构建日志:\n${buildlog}";
+        };
+ 
         vm.emailCiSave = function () {
             var emailDetail = {};
             emailDetail['ciTemplateEmailTitle'] = vm.environment.ciTemplateEmailTitle;
             emailDetail['ciTemplateEmailContent'] = vm.environment.ciTemplateEmailContent;
             vm.save( emailDetail )
         };
+
+        vm.smsCiSet = function () {
+            vm.environment.ciTemplateSmsContent = "Open-C3 构建消息 项目: ${projectname} 版本:${version} 状态: ${status}";
+        };
+ 
         vm.smsCiSave = function () {
             var msmDetail = {};
             msmDetail['ciTemplateSmsContent'] = vm.environment.ciTemplateSmsContent;
             vm.save( msmDetail )
         };
  
+        vm.emailApprovalSet = function () {
+            vm.environment.approvalTemplateEmailTitle = "发布审批: ${cont}";
+            vm.environment.approvalTemplateEmailContent = "审批内容: ${cont} " + window.location.protocol + '//' + window.location.host + "/#/quickapproval/${uuid}";
+        };
+
         vm.emailApprovalSave = function () {
             var emailDetail = {};
             emailDetail['approvalTemplateEmailTitle'] = vm.environment.approvalTemplateEmailTitle;
             emailDetail['approvalTemplateEmailContent'] = vm.environment.approvalTemplateEmailContent;
             vm.save( emailDetail )
+        };
+        vm.smsApprovalSet = function () {
+            vm.environment.approvalTemplateSmsContent = "审批内容: ${cont} " + window.location.protocol + '//' + window.location.host + "/#/quickapproval/${uuid}";
         };
         vm.smsApprovalSave = function () {
             var msmDetail = {};
