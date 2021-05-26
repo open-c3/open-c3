@@ -122,7 +122,7 @@ return sub
     $var_map{"treename"} = $project->{data}{fullname};
 
     %var_map = ( %var_map, %$variable ) if $variable;
-    map{ $cont =~ s/\$\{\Q$_\E\}/$var_map{$_}/g; }keys %var_map;
+    map{ $cont =~ s/\$\{\Q$_\E\}/$var_map{$_}/g if defined $var_map{$_}; }keys %var_map;
 
     print "=" x 35, "\n";
     print "check ...\n";
