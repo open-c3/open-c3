@@ -44,7 +44,7 @@ return sub
 
     while( my ( $k, $v ) = each %param )
     {
-        map{ $data{$_} =~ s/\$\{$k\}/$v/g }keys %data;
+        map{ $data{$_} =~ s/\$\{$k\}/$v/g }keys %data if defined $v;
     }
 
     my %env = Util::envinfo( qw( appname appkey ) );
