@@ -61,8 +61,8 @@
         };
 
         vm.emailSet = function () {
-            vm.environment.notifyTemplateEmailTitle = "服务树编号: ${projectid} 状态 ${status}";
-            vm.environment.notifyTemplateEmailContent = "任务编号 ${uuid}\n任务状态:${status}\n";
+            vm.environment.notifyTemplateEmailTitle = "作业:${name} 状态:${status}";
+            vm.environment.notifyTemplateEmailContent = "服务树:${projectname}\n作业名称:${name}\n任务编号:${uuid}\n任务状态:${status}\n\n详情：" + window.location.protocol + '//' + window.location.host + "/#/history/jobdetail/${projectid}/${uuid}";
         };
 
         vm.emailSave = function () {
@@ -72,7 +72,7 @@
             vm.save( emailDetail )
         };
         vm.smsSet = function () {
-            vm.environment.notifyTemplateSmsContent = "项目编号:${projectid} 任务编号:${uuid} 状态:${status}";
+            vm.environment.notifyTemplateSmsContent = "服务树:${projectname}\n作业名称:${name}\n任务编号:${uuid}\n任务状态:${status}\n\n详情：" + window.location.protocol + '//' + window.location.host + "/#/history/jobdetail/${projectid}/${uuid}";
         };
         vm.smsSave = function () {
             var msmDetail = {};
