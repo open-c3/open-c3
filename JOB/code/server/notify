@@ -49,9 +49,7 @@ return sub
             approvalTemplateEmailContent => '${cont}',
             approvalTemplateSmsContent => 'openc3 approval',
         );
-        map{
-            $environment{$_} = defined $environment{$_} ? $environment{$_}: $template{$_};
-        }keys %template;
+        map{ $environment{$_} ||= $template{$_}; }keys %template;
 
         my @col = qw( id projectid uuid name user calltype status starttime finishtime );
         $x = eval{ 
