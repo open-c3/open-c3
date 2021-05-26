@@ -97,6 +97,8 @@ return sub
     my %replace;
     $replace{buildlog} = `head -n 200 $RealBin/../logs/build/$uuid`;
     $replace{projectname} = $x{'openc3_ci_project.name'};
+    $replace{projectid} = $x{'openc3_ci_version.projectid'};
+    $replace{treeid} = $x{'openc3_ci_project.groupid'};
     $replace{version} = $x{'openc3_ci_version.name'};
     $replace{status} = $status;
     $replace{addr} = $x{'openc3_ci_project.addr'};
