@@ -117,6 +117,13 @@ get '/connectorx/sso/userinfo' => sub {
     return( +{ stat => $JSON::false, code => 10000 } ) unless $user;
     my $name = $user;
     $name =~ s/@.*//;
+
+    my $privatename = $user;
+    $privatename =~ s/\./_/g;
+
+    my $match = eval{ $api::mysql->query( "select id from openc3_connector_private where user='$privatename'" )};
+    eval{ $api::mysql->execute( "insert into openc3_connector_private (`user`,`edit_user`) values('$privatename','$privatename')" ); } if $match && @$match == 0;
+
     return +{ name => uc( $name ), email => $user, company => $company, admin => $admin, showconnector => $showconnector };
 };
 #前端跳转登录
