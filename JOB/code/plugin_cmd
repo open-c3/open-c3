@@ -197,16 +197,28 @@ return sub
 
     my $subtaskstatus = 'success'; #runnigs,fail,success,decision,ignore
 
+    my ( $flowid, $version, $buildininfoget ) = ( 0, 0, 1 );
     while(1)
     {
-
         delete $query{auth};
         my %result;
         if( $scripts_type && $scripts_type eq 'buildin' )
         {
+            if( $fromjob && $buildininfoget )
+            {
+                $buildininfoget = 0;
+                $x = $db->query( "select name from openc3_job_jobs where uuid='$fromjob'" );
+                $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
+                $logs->die( "job name null: jobuuid='$fromjob'" ) unless @$x;
+                $flowid = $1 if $x->[0][0] =~ /^_ci_(\d+)_$/;
+
+                eval { $version = variable->new( variable => $variable, db => $db, jobuuid => $fromjob )->get( 'version' ) };
+                $logs->die( "get variable version fail:$@" ) if $@;
+                $version = 0 unless $version =~ /^[a-zA-Z0-9\.\-_]+$/;
+            }
             %result = Buildin->new(
                 @node
-            )->run( %o, query => \%query, jobuuid => $fromjob, taskuuid => $taskuuid, db => $db );
+            )->run( %o, query => \%query, jobuuid => $fromjob, taskuuid => $taskuuid, db => $db, treeid => $projectid, flowid => $flowid, version => $version );
         }
         else
         {
