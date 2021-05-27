@@ -47,7 +47,7 @@
 
        vm.deleteUseraddr = function(id) {
           swal({
-            title: "删除用户手机号",
+            title: "删除用户地址簿",
             text: "删除",
             type: "warning",
             showCancelButton: true,
