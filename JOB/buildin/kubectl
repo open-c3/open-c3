@@ -1,8 +1,9 @@
-#!/data/Software/mydan/perl/bin/perl
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib
 use strict;
 use warnings;
 use MYDan::Util::OptConf;
 use FindBin qw( $RealBin );
+use uuid;
 
 =head1 SYNOPSIS
 
@@ -23,43 +24,16 @@ sub success
     exit;
 }
 
-my $ctrl = shift @ARGV;
-if( $ctrl eq 'apply' )
+if( $ARGV[0] && $ARGV[0] eq 'check' )
 {
-    die "check param error" unless @ARGV >= 1;
-    if( $ARGV[1] )
-    {
-        die "rewrite DEPLOYVERSION fail!" if system "sed -i 's/DEPLOYVERSION/$ARGV[1]/g' $ENV{CONFIGPATH} 1>&1";
-    }
 
-    die "config null\n" unless $ENV{CONFIGPATH} && -f $ENV{CONFIGPATH};
-    my $cmd  = "KUBECONFIG=$ENV{TICKETFILE} kubectl apply -f $ENV{CONFIGPATH} --namespace=\"$ARGV[0]\"";
-    warn "$cmd\n";
-    die "apply fail:$!" if system "$cmd 1>&2";
-    success();
-}
-
-if( $ctrl eq 'setimage' )
-{
-    die "check param error" unless @ARGV >= 3;
-
-    #KUBECONFIG=xx kubectl set image deployment/nginx c3test-nginx=nginx:latest -n c3test
-    my $cmd  = "KUBECONFIG=$ENV{TICKETFILE} kubectl set image -n " . join ' ', @ARGV;
-    warn "$cmd\n";
-    die "setimage fail:$!" if system "$cmd 1>&2";
-    success();
-}
-
-if( $ctrl eq 'check' )
-{
-    die "check param error" unless @ARGV >= 3;
-
+    die "check param error" unless @ARGV >= 4;
     my $timeout = $ENV{TIMEOUT} && $ENV{TIMEOUT} =~ /^\d+$/ ? time + $ENV{TIMEOUT} : time  +  60; 
 
-    die "no support.\n" unless $ARGV[1] =~ s/^deployment\///;
-    die "no support.\n" unless $ARGV[2] =~ s/^.+=//;
+    die "no support.\n" unless $ARGV[2] =~ s/^deployment\///;
+    die "no support.\n" unless $ARGV[3] =~ s/^.+=//;
 
-    my $cmd = sprintf "KUBECONFIG=$ENV{TICKETFILE} $RealBin/kubectl.code/deploymentcheck %s", join ' ', @ARGV;
+    my $cmd = sprintf "KUBECONFIG=$ENV{TICKETFILE} $RealBin/kubectl.code/deploymentcheck %s", join ' ', @ARGV[1..3];
 
     warn  "$cmd\n";
     for( 1 .. 360 )
@@ -69,4 +43,39 @@ if( $ctrl eq 'check' )
         die "check timeout.\n" if time > $timeout;
     }
     success();
+
 }
+
+my ( $treeid, $flowid, $version ) = @ENV{qw( TREEID FLOWID VERSION )};
+
+my $path = sprintf "/data/.job_buildin/kubeci/%s", uuid->new()->create_str;
+system "mkdir -p $path" unless -d $path;
+
+if( $treeid && $flowid && $version )
+{
+    my $file = "/data/glusterfs/ci_repo/$flowid/$version";
+    die "notind ci file" unless -f $file;
+    die "untar fail." if system "cd /tmp && tar -zxvf '$file' -C '$path'";
+}
+
+my $argv = join ' ', @ARGV;
+
+if( $argv =~ /CONFIGFILE/ )
+{
+    die "config null\n" unless $ENV{CONFIGPATH} && -f $ENV{CONFIGPATH};   
+    die "copy config file: $!" if system "cp '$ENV{CONFIGPATH}' '$path/CONFIGFILE'";
+    if( $version )
+    {
+        die "rewrite DEPLOYVERSION fail!" if system "sed -i 's/\$\{VERSION\}/$ARGV[1]/g' $ENV{CONFIGPATH} 1>&1";
+    }
+}
+
+chdir $path or die "chdir fail:$!";
+
+my $cmd  = "KUBECONFIG=$ENV{TICKETFILE} kubectl " . join ' ', @ARGV;
+warn "$cmd\n";
+die "run kubectl fail:$!" if system "$cmd 1>&2";
+
+system "rm -rf '$path'";
+
+success();
