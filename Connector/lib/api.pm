@@ -76,6 +76,19 @@ sub pmscheck
         return 0;
     }
 
+    if( $treeid >= 100000000 )
+    {
+        my $user = eval{ $sso->run( cookie => $cookie, map{ $_ => request->headers->{$_} }qw( appkey appname ) ) };
+        return +{ stat => $JSON::false, info => "sso code error:$@" } if $@;
+        return +{ stat => $JSON::false, code => 10000 } unless $user;
+
+        return 0 if $user =~ /\@app$/;
+
+        $user =~ s/\./_/g;
+        my $match = eval{ $mysql->query( "select id from openc3_connector_private where id='$treeid' and user='$user'" )};
+        return $match && @$match > 0 ? 0 : +{ stat => $JSON::false, info =>  'Unauthorized' };
+    }
+
     my $p = eval{ $pms->run( cookie => $cookie, point => $point, treeid => $treeid,
         map{ $_ => request->headers->{$_} }qw( appkey appname ) ) };
     return +{ stat => $JSON::false, info => "pms code error:$@" } if $@;

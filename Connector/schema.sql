@@ -173,3 +173,11 @@ create table `openc3_connector_useraddr`(
 UNIQUE KEY `uniq_user` (`user`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='useraddr';
 
+create table `openc3_connector_private`(
+`id`            int(16) unsigned not null primary key auto_increment comment 'id',
+`user` VARCHAR(100) comment 'user',
+`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment 'time',
+`edit_user` VARCHAR(100) comment 'edit_user',
+UNIQUE KEY `uniq_user` (`user`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='private';
+
