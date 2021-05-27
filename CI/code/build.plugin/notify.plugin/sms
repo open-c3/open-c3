@@ -1,7 +1,6 @@
 #!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
 use strict;
 use warnings;
-use Data::Dumper;
 use LWP::UserAgent;
 use Util;
 use JSON;
@@ -22,7 +21,6 @@ $| ++;
 return sub
 {
     my %param = @_;
-    print Dumper 'sendsms',\%param;
 
     return 1 unless  @{$param{to}};
 
