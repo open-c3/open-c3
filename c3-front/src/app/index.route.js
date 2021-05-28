@@ -150,6 +150,12 @@
                 controller: 'UseraddrController',
                 controllerAs: 'useraddr'
             })
+            .state('home.global.private', {
+                url: 'private/:treeid',
+                templateUrl: 'app/pages/global/private/private.html',
+                controller: 'PrivateController',
+                controllerAs: 'private'
+            })
             .state('home.config', {
                 url: 'config/:treeid',
                 templateUrl: 'app/pages/config/config.html',
