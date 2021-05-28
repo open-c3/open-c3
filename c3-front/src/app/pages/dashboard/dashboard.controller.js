@@ -14,39 +14,40 @@
 
         if( vm.treeid < 0 )
         {
-            var defaulttreeid = 0
-            var demotreeid = 0
+            //var defaulttreeid = 0
+            //var demotreeid = 0
             $http.get( '/api/connector/connectorx/treemap' ).then(
                 function successCallback(response) {
                     if (response.data.stat){
-                        angular.forEach(response.data.data, function (d, index) {
+                        //angular.forEach(response.data.data, function (d, index) {
+                        //
+                        //    var re=/_demo$/;
+                        //    if(re.test(d.name))
+                        //    {
+                        //        if( d.id > demotreeid )
+                        //        {
+                        //            demotreeid = d.id
+                        //        }
+                        //    }
+                        //    if( d.id > defaulttreeid )
+                        //    {
+                        //        defaulttreeid = d.id
+                        //    }
+                        //});
 
-                            var re=/_demo$/;
-                            if(re.test(d.name))
-                            {
-                                if( d.id > demotreeid )
-                                {
-                                    demotreeid = d.id
-                                }
-                            }
-                            if( d.id > defaulttreeid )
-                            {
-                                defaulttreeid = d.id
-                            }
-                        });
-
-                        if( demotreeid )
-                        {
-                            defaulttreeid = demotreeid
-                        }
-                        if( defaulttreeid )
-                        {
-                            $state.go('home.dashboard', {treeid: defaulttreeid});
-                        }
-                        else
-                        {
-                            toastr.error( "没找到默认的服务树节点" )
-                        }
+                        //if( demotreeid )
+                        //{
+                        //    defaulttreeid = demotreeid
+                        //}
+                        //if( defaulttreeid )
+                        //{
+                        //    $state.go('home.dashboard', {treeid: defaulttreeid});
+                        //}
+                        //else
+                        //{
+                        //    toastr.error( "没找到默认的服务树节点" )
+                        //}
+                        $state.go('home.dashboard', {treeid: 4000000000});
                     }else {
                         toastr.error( "获取服务树失败:" + response.data.info )
                     }
