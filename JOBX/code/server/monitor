@@ -267,7 +267,7 @@ return sub
         my $usetime = int( time - $t );
         $db->execute( sprintf $ins, $time, $t, $usetime > 60 ? 'err' : 'ok'  , $myname, 'monitor',"openc3_monitor_usetime", $usetime );
 
-        my $due = time + 60 - $t;
+        my $due = $t + 60 - time;
         sleep $due if $due > 0;
     }
 }
