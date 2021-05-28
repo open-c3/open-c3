@@ -76,6 +76,7 @@ sub pmscheck
         return 0;
     }
 
+    return 0 if $treeid == 100000000;
     if( $treeid >= 100000000 )
     {
         my $user = eval{ $sso->run( cookie => $cookie, map{ $_ => request->headers->{$_} }qw( appkey appname ) ) };
