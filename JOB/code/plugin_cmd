@@ -216,6 +216,9 @@ return sub
                 $logs->die( "get variable version fail:$@" ) if $@;
                 $version = 0 unless $version =~ /^[a-zA-Z0-9\.\-_]+$/;
             }
+
+            print "\n############################## START ##############################\n\n";
+
             %result = Buildin->new(
                 @node
             )->run( %o, query => \%query, jobuuid => $fromjob, taskuuid => $taskuuid, db => $db, treeid => $projectid, flowid => $flowid, version => $version );
