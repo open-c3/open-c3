@@ -30,7 +30,16 @@ get '/nodelist/:projectid' => sub {
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    my $pmscheck = api::pmscheck( 'openc3_job_read', 0 ); return $pmscheck if $pmscheck;
+    my $pmscheck = api::pmscheck( 'openc3_job_read', $param->{projectid} );
+
+    if( $pmscheck && $param->{projectid} > 4000000000 )
+    {
+        $pmscheck = api::pmscheck( 'openc3_job_root' ); return $pmscheck if $pmscheck;
+    }
+    else
+    {
+         return $pmscheck if $pmscheck;
+    }
 
     my @where;
     map{ push @where, "$_ like '%$param->{$_}%'" if defined $param->{$_}; }qw( name inip exip );
