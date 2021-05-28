@@ -91,7 +91,7 @@ get '/connectorx/point' => sub {
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
 
-    my $stat = eval{ $point->run( %$param ) };
+    my $stat = eval{ $point->run( %$param, db => $api::mysql ) };
     return $@ ? +{ stat => $JSON::false, info => $@ } :  +{ stat => $JSON::true, data => $stat };
 };
 

@@ -17,22 +17,45 @@ $| ++;
 
 =cut
 
-my ( $pmspoint, %env );
+my ( $pmspoint, %env, $ssousername, %ssousernameenv );
 BEGIN{
     use Configini;
     $pmspoint = Configini::get( 'pmspoint' );
     %env = Configini::env( 'pmspointenv' );
+
+    $ssousername = Configini::get( 'ssousername' );
+    %ssousernameenv = Configini::env( 'ssousernameenv' );
+    die "ssousername undef on config.ini" unless $ssousername;
+
 };
 
 return sub
 {
     my ( %param )= @_;
-    my ( $cookie, $point, $treeid, $logs ) = @param{qw(cookie point treeid logs )};
+    my ( $cookie, $point, $treeid, $logs, $db ) = @param{qw(cookie point treeid logs db )};
 
     $treeid ||= 0;
     $logs = Logs->new( 'code.point' ) unless $logs;
 #    $logs->die( "id not a number" ) unless $id =~ /^\d+$/;
 
+    return 1 if $treeid && $treeid == 100000000;
+    if( $treeid && $treeid >= 100000000 )
+    {
+        my $ua = LWP::UserAgent->new;
+        $ua->default_header( %ssousernameenv ) if %ssousernameenv;
+        my $res = $ua->get( "$ssousername$param{cookie}" );
+        if($res->is_success)
+        {
+            my $v = eval{decode_json $res->decoded_content};
+            return undef unless $v->{stat};
+            my $user = $v->{data}{user};
+            $user =~ s/\./_/;
+            my $match = eval{ $db->query( "select id from openc3_connector_private where id='$treeid' and user='$user'" )};
+            return $match && @$match > 0 ? 1 : 0;
+        }
+        return 0;
+
+    }
     my $ua = LWP::UserAgent->new;
     $ua->default_header( %env ) if %env;
 
