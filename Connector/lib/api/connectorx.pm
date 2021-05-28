@@ -39,7 +39,8 @@ get '/connectorx/usertree' => sub {
 
     my $tree = eval{ $usertree->run( cookie => cookie( $api::cookiekey ) ) };
 
-    my $private = eval{ $api::mysql->query( "select id,user from `openc3_connector_private` where id>= 4000000000 order by id", [ qw( id name ) ] ) };
+    $ssouser =~ s/\./_/g;
+    my $private = eval{ $api::mysql->query( "select id,user from `openc3_connector_private` where user='$ssouser'", [ qw( id name ) ] ) };
     my $privatetree = +{ id => 4000000000, name => "private", children => $private };
     push @$tree, $privatetree;
 
