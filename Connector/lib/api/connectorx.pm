@@ -29,7 +29,7 @@ get '/connectorx/nodeinfo/:projectid' => sub {
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    my @node = $param->{projectid} >= 100000000 ? () : eval{ $nodeinfo->run( db => $api::mysql, id => $param->{projectid} ) };
+    my @node = $param->{projectid} >= 4000000000 ? () : eval{ $nodeinfo->run( db => $api::mysql, id => $param->{projectid} ) };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@node };
 };
 
@@ -39,8 +39,8 @@ get '/connectorx/usertree' => sub {
 
     my $tree = eval{ $usertree->run( cookie => cookie( $api::cookiekey ) ) };
 
-    my $private = eval{ $api::mysql->query( "select id,user from `openc3_connector_private` where id>= 100000000 order by id", [ qw( id name ) ] ) };
-    my $privatetree = +{ id => 100000000, name => "private", children => $private };
+    my $private = eval{ $api::mysql->query( "select id,user from `openc3_connector_private` where id>= 4000000000 order by id", [ qw( id name ) ] ) };
+    my $privatetree = +{ id => 4000000000, name => "private", children => $private };
     push @$tree, $privatetree;
 
     return $@ ? +{ stat => $JSON::false, info => $@ } :  +{ stat => $JSON::true, data => $tree };
