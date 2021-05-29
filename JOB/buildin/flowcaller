@@ -1,0 +1,102 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib
+use strict;
+use warnings;
+use MYDan::Util::OptConf;
+use FindBin qw( $RealBin );
+use YAML::XS;
+use Util;
+use LWP::UserAgent;
+use JSON;
+use utf8;
+
+
+=head1 SYNOPSIS
+
+ $0 apply
+ $0 check
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+$option->assert() unless @ARGV && @ARGV >=3;
+
+die "nonode" unless $ENV{NODE};
+die "no treeid" unless my $treeid = $ENV{TREEID};
+
+sub success
+{
+    map{ print "$_:ok\n"; } split /,/, $ENV{NODE};
+    exit;
+}
+
+my ( $ctrl, $deployversion, $rollbackversion, @env ) = @ARGV;
+
+die "ctrl format error" unless $ctrl eq 'deploy' || $ctrl eq 'rollback';
+
+my %env;
+map{
+    die "env format error: $_.\n" unless $_ =~ /^([a-zA-Z0-9_\.\-]+)=([a-zA-Z0-9_\.\-]+)$/;
+    $env{$1} = $2;
+}@env;
+
+my $config_str = `cat '$ENV{CONFIGPATH}'`;
+map{ $config_str =~ s/\$\{$_\}/$env{$_}/g; }keys %env;
+
+my $config = eval{ YAML::XS::Load $config_str };
+die "load config fail: $@" if $@;
+
+die "envname error" unless $config->{envname} && ( $config->{envname} eq 'test' || $config->{envname} eq 'online' );
+die "flowid error" unless $config->{flowid} && $config->{flowid} =~ /^\d+$/;
+
+my %callenv = Util::envinfo( qw( appname appkey ) );
+my $ua = LWP::UserAgent->new;
+$ua->default_header( %callenv );
+
+my %post = (
+    group => "_ci_$config->{envname}_$config->{flowid}_",
+    jobname => "_ci_$config->{flowid}_",
+    variable => +{
+        version => $ctrl eq 'deploy' ? $deployversion : $rollbackversion,
+        _appname_ => "_ci_$config->{flowid}_",
+        _jobtype_ => $config->{envname},
+        _skipSameVersion_ => 0,
+    }
+);
+
+%{$post{variable}} = ( %{$post{variable}}, %{$config->{env}} ) if $config->{env} && ref $config->{env} eq 'HASH';
+my $cont = JSON::to_json( \%post );
+
+warn YAML::XS::Dump \%post;
+
+my $res = $ua->post( "http://api.jobx.open-c3.org/task/$treeid/job/byname",
+    Content => $cont, 'Content-Type' => 'application/json'
+);
+
+die "start task fail:" . $res->content unless $res->is_success;
+
+
+my $data = eval{ JSON::from_json $res->content };
+die "start task fail:" . $res->content unless $data && $data->{stat};
+
+die "uuid null" unless my $uuid = $data->{uuid};
+
+warn "The task has been called at: http://open-c3.com/#/history/jobxdetail/$treeid/$uuid\n";
+
+while(1)
+{
+    my $rest = $ua->get( "http://api.jobx.open-c3.org/task/$treeid/$uuid" );
+    my $contt = $rest->content;
+    die( "calljobx fail: $contt" ) unless $rest->is_success;
+
+    my $datat = eval{JSON::from_json $contt};
+    die( "get status from jobx fail: $contt : no json $@" ) if $@;
+    die( "get status from jobx fail: $cont : stat fail" )  unless $datat->{stat};
+
+    success() if $datat->{data}{status} eq 'success';
+    die( "jobx status fail" ) if $datat->{data}{status} eq 'fail';
+
+    print STDERR "status: $datat->{data}{status}\n";
+    sleep 6;
+}
+
+print STDERR "\n";
