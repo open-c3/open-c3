@@ -61,7 +61,7 @@
 
         vm.getVersionByV = function (text) {
             var w = '';
-            var re=/version:.*/;
+            var re=/\bversion:.*/;
             if (re.test(text)){
                 var reStr = re.exec(text)[0];
                 w = reStr.split(":")[1]
@@ -72,7 +72,7 @@
  
         vm.getRollbackByV = function (text) {
             var w = '';
-            var re=/_rollbackVersion_:.*/;
+            var re=/\b_rollbackVersion_:.*/;
             if (re.test(text)){
                 var reStr = re.exec(text)[0];
                 w = reStr.split(":")[1]

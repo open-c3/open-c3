@@ -99,6 +99,7 @@
         };
 
         vm._rollbackVersion_ = '';
+        vm.deployversion = '';
 
         vm.iamtask4jobx = 0;
         vm.showjobxgroup = 0;
@@ -111,6 +112,10 @@
             if( vm._rollbackVersion_ != "" )
             {
                 varDict._rollbackVersion_ = vm._rollbackVersion_;
+            }
+            if( vm.deployversion != "" )
+            {
+                varDict.version = vm.deployversion
             }
             $scope.taskData.variable = varDict;
 
@@ -139,6 +144,7 @@
             if($scope.choiceJob){
                 $scope.taskData.jobname = $scope.choiceJob.name;
                 vm._rollbackVersion_ = ''
+                vm.deployversion = ''
                 vm.iamtask4jobx = 0;
                 vm.showjobxgroup = 0;
                 $scope.taskData.group = null
@@ -192,6 +198,10 @@
                                     if( value.name == "_rollbackVersion_" )
                                     {
                                         vm._rollbackVersion_ = value.value
+                                    }
+                                    if( value.name == "version" )
+                                    {
+                                        vm.deployversion = value.value
                                     }
                                 }
 
