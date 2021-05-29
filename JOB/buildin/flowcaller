@@ -68,6 +68,12 @@ my $cont = JSON::to_json( \%post );
 
 warn YAML::XS::Dump \%post;
 
+if( $post{variable}{version} eq '0' )
+{
+    warn "version skip.\n";
+    success();
+}
+
 my $res = $ua->post( "http://api.jobx.open-c3.org/task/$treeid/job/byname",
     Content => $cont, 'Content-Type' => 'application/json'
 );
