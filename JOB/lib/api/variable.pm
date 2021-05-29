@@ -31,7 +31,7 @@ get '/variable/:projectid/:jobuuid' => sub {
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_job_variable
-                where jobuuid in ( select uuid from openc3_job_jobs where projectid='$param->{projectid}' and uuid='$param->{jobuuid}') $w $exclude", 
+                where jobuuid in ( select uuid from openc3_job_jobs where projectid='$param->{projectid}' and uuid='$param->{jobuuid}') $w $exclude order by `describe`", 
                     join ',',map{"`$_`"} @col ), \@col )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
