@@ -100,6 +100,9 @@
 
         vm._rollbackVersion_ = '';
 
+        vm.iamtask4jobx = 0;
+        vm.showjobxgroup = 0;
+
         vm.runTask = function(){
             var varDict = {};
             angular.forEach($scope.jobVar, function (data, index) {
@@ -111,7 +114,7 @@
             }
             $scope.taskData.variable = varDict;
 
-            if(  $scope.taskData.variable.hasOwnProperty('ip') )
+            if( vm.iamtask4jobx )
             {
                 resoureceService.task.createtask(vm.treeid, $scope.taskData, null)
                     .then(function (repo) {
@@ -136,20 +139,62 @@
             if($scope.choiceJob){
                 $scope.taskData.jobname = $scope.choiceJob.name;
                 vm._rollbackVersion_ = ''
+                vm.iamtask4jobx = 0;
+                vm.showjobxgroup = 0;
+                $scope.taskData.group = null
+
                 $http.get('/api/job/variable/' + vm.treeid + '/' + $scope.choiceJob.uuid + "?empty=0").then(
                     function successCallback(response) {
 
                         if (response.data.stat){
                             vm.vartemp = [];
                             angular.forEach(response.data.data, function (value, key) {
+
                                 if( value.value == "" )
                                 {
-                                    vm.vartemp.push( value )
+                                    if( value.name == "ip" )
+                                    {
+                                        if( value.describe != "" )
+                                        {
+                                            vm.groupstr = value.describe.split(":");
+                                            
+                                            if( vm.groupstr[0] == 'group' )
+                                            {
+                                                if( value.describe == 'group' )
+                                                {
+                                                    vm.iamtask4jobx = 1;
+                                                    vm.showjobxgroup = 1;
+                                                }
+                                                else
+                                                {
+                                                    $scope.taskData.group = vm.groupstr[1];
+                                                    vm.iamtask4jobx = 1;
+                                                    vm.showjobxgroup = 0;
+                                                }
+                                            }
+                                            else
+                                            {
+                                                vm.vartemp.push( value )
+                                            }
+                                        }
+                                        else
+                                        {
+                                            vm.vartemp.push( value )
+                                        }
+                                    }
+                                    else
+                                    {
+                                        vm.vartemp.push( value )
+                                    }
                                 }
-                                if( value.name == "_rollbackVersion_" && value.value != "" )
+                                else
                                 {
-                                    vm._rollbackVersion_ = value.value
+                                    if( value.name == "_rollbackVersion_" )
+                                    {
+                                        vm._rollbackVersion_ = value.value
+                                    }
                                 }
+
                             });
 
                             if (vm.vartemp.length == 0){
