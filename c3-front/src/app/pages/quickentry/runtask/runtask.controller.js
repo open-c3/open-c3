@@ -98,11 +98,17 @@
 
         };
 
+        vm._rollbackVersion_ = '';
+
         vm.runTask = function(){
             var varDict = {};
             angular.forEach($scope.jobVar, function (data, index) {
                 varDict[data.name] = data.value;
             });
+            if( vm._rollbackVersion_ != "" )
+            {
+                varDict._rollbackVersion_ = vm._rollbackVersion_;
+            }
             $scope.taskData.variable = varDict;
 
             if(  $scope.taskData.variable.hasOwnProperty('ip') )
@@ -125,17 +131,32 @@
                      }, function (repo) { });
             }
         };
+
         $scope.$watch('choiceJob', function () {
             if($scope.choiceJob){
                 $scope.taskData.jobname = $scope.choiceJob.name;
-                $http.get('/api/job/variable/' + vm.treeid + '/' + $scope.choiceJob.uuid + "?empty=1").then(
+                vm._rollbackVersion_ = ''
+                $http.get('/api/job/variable/' + vm.treeid + '/' + $scope.choiceJob.uuid + "?empty=0").then(
                     function successCallback(response) {
+
                         if (response.data.stat){
-                            if (response.data.data.length == 0){
+                            vm.vartemp = [];
+                            angular.forEach(response.data.data, function (value, key) {
+                                if( value.value == "" )
+                                {
+                                    vm.vartemp.push( value )
+                                }
+                                if( value.name == "_rollbackVersion_" && value.value != "" )
+                                {
+                                    vm._rollbackVersion_ = value.value
+                                }
+                            });
+
+                            if (vm.vartemp.length == 0){
                                 $scope.jobVar = [];
                                 $scope.taskData.variable = {};
                             }else {
-                                $scope.jobVar = response.data.data;
+                                $scope.jobVar = vm.vartemp;
 
                             }
                         }else {
