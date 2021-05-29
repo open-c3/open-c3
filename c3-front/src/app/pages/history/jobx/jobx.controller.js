@@ -7,7 +7,7 @@
         .filter('showversion', function () {
             return function (text) {
                 var w = '';
-                var re=/version:.*/;
+                var re=/\bversion:.*/;
                 if (re.test(text)){
                     var reStr = re.exec(text)[0];
                     w = reStr.split(":")[1]

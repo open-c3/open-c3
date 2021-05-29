@@ -309,7 +309,7 @@
 
         vm.cversion = function(text) {
             var w = '';
-            var re=/version:.*/;
+            var re=/\bversion:.*/;
             if (re.test(text)){
                 var reStr = re.exec(text)[0];
                 w = reStr.split(" ")[1]
@@ -324,7 +324,7 @@
 
         vm.cjobtype = function(text) {
             var w = '';
-            var re=/_jobtype_:.*/;
+            var re=/\b_jobtype_:.*/;
             if (re.test(text)){
                 var reStr = re.exec(text)[0];
                 w = reStr.split(" ")[1]
