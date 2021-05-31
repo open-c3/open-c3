@@ -401,14 +401,11 @@
             resoureceService.task.stoptask([vm.treeid,taskuuid],null, null).finally(function(){});
         };
         vm.killTaskByJs = function () {
-            console.log('here kill');
             var promise =  $http.delete('/api/jobx/task/' + vm.treeid + '/' + vm.taskuuid)
             return promise.then(function (data) {
-                console.log('here is response');
                 var response = data.data;
                 return response.data
-            }
-                );
+            });
         };
         vm.runConfirm = function (subuuid) {
             resoureceService.task.confirmtask([vm.treeid,subuuid],null, null)
