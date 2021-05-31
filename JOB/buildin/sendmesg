@@ -1,0 +1,66 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use MYDan::Util::OptConf;
+use FindBin qw( $RealBin );
+use YAML::XS;
+use Util;
+use LWP::UserAgent;
+use JSON;
+use utf8;
+
+=head1 SYNOPSIS
+
+ $0 foo@openc3.com,bar@openc3.com
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+$option->assert() unless @ARGV;
+
+die "nonode" unless $ENV{NODE};
+
+sub success
+{
+    map{ print "$_:ok\n"; } split /,/, $ENV{NODE};
+    exit;
+}
+
+die "content null" unless $ENV{CONFIGPATH} && -f $ENV{CONFIGPATH};
+my $content = `cat '$ENV{CONFIGPATH}'`;
+
+utf8::decode($content);
+
+my @to; map{ push @to, split /,/, $_  }@ARGV;
+
+my %env = Util::envinfo( qw( appname appkey ) );
+my $ua = LWP::UserAgent->new;
+$ua->default_header( %env );
+my %form = (
+    data => [
+        +{
+            type => 'sms',
+            mesg => $content,
+            to => \@to,
+        }
+    ]
+);
+
+my $cont = JSON::to_json( \%form );
+utf8::encode($cont);
+
+my $res = $ua->post( "http://api.connector.open-c3.org/connectorx/notify", 
+    Content => $cont, 'Content-Type' => 'application/json'
+);
+
+unless( $res->is_success )
+{
+    die "call notify fail";
+}
+
+my $data = eval{JSON::from_json $res->content};
+unless ( $data->{stat} ) {
+    die "call notify result". $data->{info} || '';
+}
+ 
+success();
