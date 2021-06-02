@@ -41,10 +41,10 @@
 
 
         $scope.choiceName = vm.selecteduser;
-        $scope.$watch('choiceJob', function () {
-            if( vm.selecteduser != $scope.choiceJob )
+        $scope.$watch('choiceName', function () {
+            if( vm.selecteduser != $scope.choiceName )
             {
-                vm.filteruser( $scope.choiceJob )
+                vm.filteruser( $scope.choiceName )
             }
         });
 
