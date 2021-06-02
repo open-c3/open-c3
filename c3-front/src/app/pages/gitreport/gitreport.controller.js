@@ -23,6 +23,7 @@
         vm.taskall = [];
         vm.treeid = $state.params.treeid;
         vm.state = $state;
+        vm.updatetime;
 
         treeService.sync.then(function(){
             vm.nodeStr = treeService.selectname();
@@ -65,6 +66,8 @@
                         vm.taskdatetime = [];
                         vm.tasksuccess = [];
                         vm.tasksuccess = [];
+
+                        vm.updatetime = response.data.data.updatetime;
 
                         angular.forEach(response.data.data.change, function (oneday, index) {
                             vm.taskdatetime.push(oneday[0]);

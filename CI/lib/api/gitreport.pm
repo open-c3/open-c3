@@ -29,6 +29,12 @@ get '/gitreport/:groupid/report' => sub {
     my @data = `cat $path/$groupid`;
     chomp @data;
 
+    my $updatetime = '';
+    if( -f "$path/$groupid" )
+    {
+        $updatetime = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( (stat "$path/$groupid")[9] ) );
+    }
+
     my $record = @data ? 0 : 1;
     my ( $usercount, $addcount, $delcount, $commitcount, %data, %user, %userchange, %userchange2 ) = ( 0, 0, 0, 0 );
 
@@ -92,7 +98,8 @@ get '/gitreport/:groupid/report' => sub {
         pingtu => \@pie,
         pingtu2 => \@pie2,
         detailtable => \@detailtable,
-        userlist => [ sort{ $user{$b} <=> $user{$a} }keys %user ]
+        userlist => [ sort{ $user{$b} <=> $user{$a} }keys %user ],
+        updatetime => $updatetime,
     );
 
     return +{ stat => $JSON::true, data => \%re };
