@@ -12,6 +12,12 @@ use Format;
 get '/gitreport/:groupid/report' => sub {
     my $param = params();
     my $error = Format->new( groupid => qr/^\d+$/, 1 )->check( %$param );
+
+    my $error = Format->new( 
+        groupid => qr/^\d+$/, 1,
+        user => qr/^\w*$/, 0,
+    )->check( %$param );
+
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
     my $pmscheck = api::pmscheck( 'openc3_ci_read', $param->{groupid} ); return $pmscheck if $pmscheck;
 
@@ -31,6 +37,8 @@ get '/gitreport/:groupid/report' => sub {
     {
         my ( $time, $uuid, $effective, $name, $add, $del, $url ) = split /:/, $data, 7;
         my ( $date ) = split /\./, $time;
+
+        next if $param->{user} && $param->{user} ne $name;
 
         push @detailtable, +{ time => $time, uuid => $uuid, effective => $effective, user => $name, add => $add, del => $del, url => $url };
         next if $effective eq 'No';
@@ -83,7 +91,8 @@ get '/gitreport/:groupid/report' => sub {
         commitcount => $commitcount,
         pingtu => \@pie,
         pingtu2 => \@pie2,
-        detailtable => \@detailtable
+        detailtable => \@detailtable,
+        userlist => [ sort{ $user{$b} <=> $user{$a} }keys %user ]
     );
 
     return +{ stat => $JSON::true, data => \%re };

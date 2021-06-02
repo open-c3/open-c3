@@ -12,6 +12,7 @@
 
         var toastr = toastr || $injector.get('toastr');
 
+        vm.userlist = [];
         vm.taskdatetime = [];
         vm.tasksuccess = [];
         vm.taskall = [];
@@ -22,24 +23,35 @@
             vm.nodeStr = treeService.selectname();
         });
 
+        vm.selecteduser = '';
+        vm.filteruser = function (username) {
+            vm.selecteduser = username;
+            vm.get30Task();
+        }
         vm.get30Task = function () {
-            $http.get('/api/ci/gitreport/' + vm.treeid + "/report" ).then(
+            $http.get('/api/ci/gitreport/' + vm.treeid + "/report?user=" + vm.selecteduser ).then(
                 function successCallback(response) {
                     if (response.data.stat){
                         $scope.userCount = response.data.data.usercount;
                         $scope.codeAddCount = response.data.data.addcount;
                         $scope.codeDelCount = response.data.data.delcount;
                         $scope.commitCount = response.data.data.commitcount;
+                        vm.userlist = response.data.data.userlist; 
 
                         vm.showRuntime2(response.data.data.pingtu);
                         vm.showRuntime3(response.data.data.pingtu2);
-                        vm.all30task = response.data.data.change;
                         vm.data_Table = new ngTableParams({count:1000}, {counts:[],data:response.data.data.detailtable.reverse()});
-                        angular.forEach(vm.all30task, function (oneday, index) {
+
+                        vm.taskdatetime = [];
+                        vm.tasksuccess = [];
+                        vm.tasksuccess = [];
+
+                        angular.forEach(response.data.data.change, function (oneday, index) {
                             vm.taskdatetime.push(oneday[0]);
                             vm.taskall.push(oneday[1]);
                             vm.tasksuccess.push(oneday[2]);
                         });
+
                         vm.show30Task(vm.taskdatetime, vm.tasksuccess,vm.taskall)
                     }else {
                         toastr.error( "获取作业信息失败："+response.data.info );
@@ -53,7 +65,8 @@
         vm.get30Task();
 
         vm.show30Task = function (datetimes, okcounts, allcounts) {
-            Highcharts.chart('container', {
+            
+            var opt =  {
                 chart: {
                     type: 'spline'
                 },
@@ -102,8 +115,8 @@
                     },
                     data: allcounts
                 }]
-            });
-
+            };
+            Highcharts.chart('container', opt );
         };
 
 

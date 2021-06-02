@@ -49,6 +49,26 @@
         </div>
     </div>
 
+
+    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0">
+
+        <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
+
+            <div class="panel-heading">
+                <h4 ng-if="gitreport.selecteduser" style="font-weight: bold;color: #337ab7">已选择标签:{{gitreport.selecteduser}}</h4>
+                <h4 ng-if="!gitreport.selecteduser" style="font-weight: bold;color: #337ab7">过滤标签</h4>
+            </div>
+
+            <div class="panel-body" style="margin-top: 20px">
+                <a ng-if="gitreport.selecteduser" ng-click="gitreport.filteruser('')">显示全部</a>
+                <div ng-if="!gitreport.selecteduser" ng-repeat="user in gitreport.userlist">
+                    <a ng-click="gitreport.filteruser(user)">{{user}}</a>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0">
 
         <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
