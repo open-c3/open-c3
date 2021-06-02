@@ -29,10 +29,11 @@ get '/gitreport/:groupid/report' => sub {
     my @detailtable;
     for my $data ( @data )
     {
-        my ( $time, $uuid, $name, $add, $del, $url ) = split /:/, $data, 6;
+        my ( $time, $uuid, $effective, $name, $add, $del, $url ) = split /:/, $data, 7;
         my ( $date ) = split /\./, $time;
 
-        push @detailtable, +{ time => $time, uuid => $uuid, user => $name, add => $add, del => $del, url => $url };
+        push @detailtable, +{ time => $time, uuid => $uuid, effective => $effective, user => $name, add => $add, del => $del, url => $url };
+        next if $effective eq 'No';
 
         $user{$name} ++;
         $addcount += $add;
