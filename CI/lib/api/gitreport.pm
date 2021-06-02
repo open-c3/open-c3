@@ -23,6 +23,7 @@ get '/gitreport/:groupid/report' => sub {
     my @data = `cat $path/$groupid`;
     chomp @data;
 
+    my $record = @data ? 0 : 1;
     my ( $usercount, $addcount, $delcount, $commitcount, %data, %user, %userchange, %userchange2 ) = ( 0, 0, 0, 0 );
 
     my @detailtable;
@@ -62,7 +63,15 @@ get '/gitreport/:groupid/report' => sub {
 
     map{
         my $t = POSIX::strftime( "%Y-%m-%d", localtime( time - 86400 * ( 90 - $_ ) ) );
-        push @change, [ $t, $data{$t}{add} || 0, $data{$t}{del} || 0 ];
+        if( ( ! $data{$t}{add} ) && ! ( $data{$t}{add} ) )
+        {
+            push @change, [ $t, 0, 0 ] if $record;
+        }
+        else
+        {
+            push @change, [ $t, $data{$t}{add} || 0, $data{$t}{del} || 0 ];
+            $record = 1;
+        }
     } 1 .. 90;
 
     my %re = (
