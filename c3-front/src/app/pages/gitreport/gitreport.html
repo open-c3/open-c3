@@ -60,11 +60,10 @@
             </div>
 
             <div class="panel-body" style="margin-top: 20px">
-                <a ng-if="gitreport.selecteduser" ng-click="gitreport.filteruser('')">显示全部</a>
-                <div ng-if="!gitreport.selecteduser" ng-repeat="user in gitreport.userlist">
-                    <a ng-click="gitreport.filteruser(user)">{{user}}</a>
-                </div>
-
+                <select id="selectednaemval" class="form-control"  ng-model="choiceJob">
+                    <option value="">全部</option>
+                     <option ng-repeat="x in gitreport.userlist" value="{{x}}">{{x}}</option>
+                </select>
             </div>
         </div>
     </div>

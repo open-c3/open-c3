@@ -9,6 +9,11 @@
 
         var vm = this;
         vm.treeid = $state.params.treeid;
+        vm.selecteduser = $state.params.user;
+        if( vm.selecteduser == undefined )
+        {
+            vm.selecteduser = ''
+        }
 
         var toastr = toastr || $injector.get('toastr');
 
@@ -23,11 +28,26 @@
             vm.nodeStr = treeService.selectname();
         });
 
-        vm.selecteduser = '';
         vm.filteruser = function (username) {
-            vm.selecteduser = username;
-            vm.get30Task();
+            if( username )
+            {
+                $state.go('home.gitreportfilteruser', {treeid:vm.treeid, user: username});
+            }
+            else
+            {
+                $state.go('home.gitreport', {treeid:vm.treeid});
+            }
         }
+
+
+        $scope.choiceName = vm.selecteduser;
+        $scope.$watch('choiceJob', function () {
+            if( vm.selecteduser != $scope.choiceJob )
+            {
+                vm.filteruser( $scope.choiceJob )
+            }
+        });
+
         vm.get30Task = function () {
             $http.get('/api/ci/gitreport/' + vm.treeid + "/report?user=" + vm.selecteduser ).then(
                 function successCallback(response) {

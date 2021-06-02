@@ -38,12 +38,12 @@ get '/gitreport/:groupid/report' => sub {
         my ( $time, $uuid, $effective, $name, $add, $del, $url ) = split /:/, $data, 7;
         my ( $date ) = split /\./, $time;
 
+        $user{$name} ++;
         next if $param->{user} && $param->{user} ne $name;
 
         push @detailtable, +{ time => $time, uuid => $uuid, effective => $effective, user => $name, add => $add, del => $del, url => $url };
         next if $effective eq 'No';
 
-        $user{$name} ++;
         $addcount += $add;
         $delcount += $del;
         $commitcount ++;
