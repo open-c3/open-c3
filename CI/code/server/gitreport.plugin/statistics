@@ -1,0 +1,72 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use Logs;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    'groupid' => '10',
+    'path' => '/data/.gitreport.temp/10',
+    'ticketid' => '',
+    'id' => 7,
+    'addr' => 'https://github.com/open-c3/test.git',
+    'uuid' => 'e462f55943a0cd9afa7c71bc82cbc19b'
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $groupid, $path, $id, $addr, $uuid, $logs )
+        = ( @param{qw( groupid path id addr uuid )}, Logs->new( 'gitreport.gitpull' ) );
+
+    my $dir = "$path/data/$uuid";
+
+    my @branch = `cd $dir && git branch`;
+    chomp @branch;
+    map{ $_ =~ s/^\**\s*// }@branch;
+
+    if( $addr =~ /^git\@/ )
+    {
+        $addr =~ s/:/\//;
+        $addr =~ s/^git\@/https:\/\//;
+    }
+    $addr =~ s/\.git$//;
+    my $url = "$addr/commit";
+
+    my %data;
+    for my $branch ( @branch )
+    {
+        my @x = `cd $dir && git checkout $branch && git log --pretty=format:"hash:%h user:%an time:%ad" --date=format:"%Y-%m-%d.%H%M%S" --since=1.weeks --shortstat`;
+        chomp @x;
+
+        my $lastuser = '';
+        for my $info ( @x )
+        {
+            if( $info =~ /\d+\s+file[s]{0,1}\s+changed,/ )
+            {
+                my $uuid;
+                if( $lastuser =~ /^hash:/ )
+                {
+                    $lastuser =~ /hash:(.+) user:(.+) time:(.+)/;
+                    $uuid = $1;
+                    $data{$uuid} = { user => $2, time => $3 };
+                }
+
+                $info =~ /\b(\d+)\s+insertion/;
+                $data{$uuid}{add} = $info =~ /\b(\d+)\s+insertion/ ? $1 : 0;
+
+                $data{$uuid}{del} = $info =~ /\b(\d+)\s+deletion/ ? $1 : 0;
+                $data{$uuid}{path}{"$addr/$uuid"} = 1;
+            }
+            else
+            {
+                $lastuser = $info;
+            }
+        }
+    }
+    return \%data;
+}

@@ -1,0 +1,74 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use Logs;
+use Code;
+use Data::Dumper;
+use Digest::MD5;
+use YAML::XS;
+use File::Temp;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $logs ) = ( $param{db}, Logs->new( 'gitreport' ) );
+
+    my $x = eval{ $db->query( "select id,ticket from openc3_ci_ticket where type='SSHKey'" ) };
+    $logs->die( "mysql query fail: $@" ) if $@;
+    my %ticket; map{ $ticket{$_->[0]} = $_->[1] }@$x;
+
+    my @col = qw( groupid id addr ticketid );
+    $x = eval{ $db->query( sprintf( "select %s from openc3_ci_project where status=1", join ',', map{"`$_`"}@col ), \@col ) };
+    $logs->die( "mysql query fail: $@" ) if $@;
+
+    my %report;
+    map{
+        $report{$_->{groupid}}{$_->{id}} = +{ %$_, uuid => Digest::MD5->new()->add( YAML::XS::Dump $_ )->hexdigest() }
+            if $_->{addr} =~ /git@/ || $_->{addr} =~ /\.git/ || $_->{addr} =~ /http:\/\/git/ || $_->{addr} =~ /https:\/\/git/;
+    }@$x;
+
+    my $basepath = "/data/.gitreport.temp";
+    system "mkdir -p '$basepath'" unless -d $basepath;
+
+    my $gitpull = eval{ Code->new( 'server/gitreport.plugin/gitpull' ) };
+    die "load gitpull code fail: $@" if $@;
+    my $statistics = eval{ Code->new( 'server/gitreport.plugin/statistics' ) };
+    die "load gitpull code fail: $@" if $@;
+
+    my %invalidcommit;
+
+    for my $groupid ( keys %report )
+    {
+        my $grouppath = "$basepath/$groupid";
+        system "mkdir -p '$grouppath'" unless -d $grouppath;
+
+        my %data;
+        for my $projectid ( keys %{$report{$groupid}} )
+        {
+            $gitpull->run( path => "$grouppath", %{$report{$groupid}{$projectid}} );
+            my $data = $statistics->run( path => "$grouppath", %{$report{$groupid}{$projectid}} );
+
+            %data = ( %data, %$data );
+        }
+
+        my ( $TEMP, $tempfile ) = File::Temp::tempfile();
+
+        for my $uuid ( sort{ $data{$a}{time} cmp $data{$b}{time} }keys %data )
+        {
+            my $v = $data{$uuid};
+            print $TEMP sprintf "$v->{time}:$uuid:%s:$v->{user}:$v->{add}:$v->{del}:%s\n", ( $invalidcommit{$uuid} ? 'No': 'Yes' ),  join ',', sort keys %{$v->{path}};
+        }
+
+        close $TEMP;
+        system "mv '$tempfile' '/data/glusterfs/gitreport/$groupid'";
+    }
+}
