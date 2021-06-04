@@ -15,7 +15,7 @@ get '/gitreport/:groupid/report' => sub {
 
     my $error = Format->new( 
         groupid => qr/^\d+$/, 1,
-        user => qr/^\w*$/, 0,
+        user => qr/^[\w@\.]*$/, 0,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
