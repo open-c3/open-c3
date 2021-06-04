@@ -32,7 +32,7 @@ return sub
 
     my %report;
     map{
-        $report{$_->{groupid}}{$_->{id}} = +{ %$_, uuid => Digest::MD5->new()->add( YAML::XS::Dump $_ )->hexdigest() }
+        $report{$_->{groupid}}{$_->{id}} = +{ %$_, uuid => Digest::MD5->new()->add( YAML::XS::Dump $_ )->hexdigest(), ticket => ( $_->{ticketid} && $ticket{$_->{ticketid}} ) ? $ticket{$_->{ticketid}} : undef  }
             if $_->{addr} =~ /git@/ || $_->{addr} =~ /\.git/ || $_->{addr} =~ /http:\/\/git/ || $_->{addr} =~ /https:\/\/git/;
     }@$x;
 

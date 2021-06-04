@@ -1,7 +1,9 @@
 #!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
 use strict;
 use warnings;
+use FindBin qw( $RealBin );
 use Logs;
+use Temp;
 
 $| ++;
 
@@ -9,7 +11,7 @@ $| ++;
 
     'groupid' => '10',
     'path' => '/data/.gitreport.temp/10',
-    'ticketid' => '',
+    'ticket' => '',
     'id' => 7,
     'addr' => 'https://github.com/open-c3/test.git',
     'uuid' => 'e462f55943a0cd9afa7c71bc82cbc19b'
@@ -20,13 +22,13 @@ return sub
 {
     my %param = @_;
 
-    my ( $groupid, $path, $id, $addr, $uuid, $logs )
-        = ( @param{qw( groupid path id addr uuid )}, Logs->new( 'gitreport.gitpull' ) );
+    my ( $groupid, $path, $id, $addr, $uuid, $ticket, $logs )
+        = ( @param{qw( groupid path id addr uuid ticket )}, Logs->new( 'gitreport.gitpull' ) );
 
     my $datapath = "$path/data";
     system "mkdir -p '$datapath'" unless -f $datapath;
 
-    my $git = "git";
+    my $git = $ticket ? "$RealBin/../bin/git -i " . Temp->new( chmod => 0600 )->dump( $ticket ) : 'git';
 
     unless( -d "$datapath/$uuid" )
     {
