@@ -74,6 +74,7 @@
                                 || sName == 'home.connector.node'
                                 || sName == 'home.connector.mail'
                                 || sName == 'home.connector.mesg'
+                                || sName == 'home.gitreport'
                              ){
                                 $state.go(sName, {treeid:treeNode.id});
                             }else{
@@ -83,6 +84,11 @@
                             if( sName == 'home.quickentry.flowlinedetail' )
                             {
                                 $state.go('home.quickentry.flowline', {treeid:treeNode.id});
+                            }
+
+                            if( sName == 'home.gitreportfilteruser' )
+                            {
+                                $state.go('home.gitreport', {treeid:treeNode.id});
                             }
 
                         } else {
