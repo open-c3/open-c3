@@ -15,6 +15,13 @@
             vm.selecteduser = ''
         }
 
+        vm.selecteddata = $state.params.data;
+        if( vm.selecteddata == undefined )
+        {
+            vm.selecteddata = 'current'
+        }
+
+
         var toastr = toastr || $injector.get('toastr');
 
         vm.userlist = [];
@@ -29,28 +36,37 @@
             vm.nodeStr = treeService.selectname();
         });
 
-        vm.filteruser = function (username) {
-            if( username )
-            {
-                $state.go('home.gitreportfilteruser', {treeid:vm.treeid, user: username});
-            }
-            else
-            {
-                $state.go('home.gitreport', {treeid:vm.treeid});
-            }
+        vm.filteruser = function (username, datalist ) {
+            $state.go('home.gitreportfilterdata', {treeid:vm.treeid, user: username, data: datalist});
         }
 
 
         $scope.choiceName = vm.selecteduser;
+        $scope.choiceData = vm.selecteddata;
         $scope.$watch('choiceName', function () {
-            if( vm.selecteduser != $scope.choiceName )
-            {
-                vm.filteruser( $scope.choiceName )
-            }
+                vm.filteruser( $scope.choiceName, $scope.choiceData )
         });
 
-        vm.get30Task = function () {
-            $http.get('/api/ci/gitreport/' + vm.treeid + "/report?user=" + vm.selecteduser ).then(
+
+        $scope.$watch('choiceData', function () {
+                vm.filteruser( $scope.choiceName, $scope.choiceData )
+        });
+
+ 
+        vm.reload = function () {
+            $http.get('/api/ci/gitreport/' + vm.treeid + "/datalist?" ).then(
+                function successCallback(response) {
+                    if (response.data.stat){
+                        vm.datalist = response.data.data; 
+                    }else {
+                        toastr.error( "获取数据失败："+response.data.info );
+                    }
+                },
+                function errorCallback (response){
+                    toastr.error( "获取数据失败: " + response.status )
+                });
+
+            $http.get('/api/ci/gitreport/' + vm.treeid + "/report?user=" + vm.selecteduser + "&data=" + vm.selecteddata ).then(
                 function successCallback(response) {
                     if (response.data.stat){
                         $scope.userCount = response.data.data.usercount;
@@ -77,15 +93,15 @@
 
                         vm.show30Task(vm.taskdatetime, vm.tasksuccess,vm.taskall)
                     }else {
-                        toastr.error( "获取作业信息失败："+response.data.info );
+                        toastr.error( "获取数据失败："+response.data.info );
                     }
                 },
                 function errorCallback (response){
-                    toastr.error( "获取作业信息失败: " + response.status )
+                    toastr.error( "获取数据失败: " + response.status )
                 });
         };
 
-        vm.get30Task();
+        vm.reload();
 
         vm.show30Task = function (datetimes, okcounts, allcounts) {
             

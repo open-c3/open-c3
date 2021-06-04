@@ -55,18 +55,25 @@
         <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
 
             <div class="panel-heading">
-                <h4 ng-if="gitreport.selecteduser" style="font-weight: bold;color: #337ab7">已选择标签:{{gitreport.selecteduser}}</h4>
-                <h4 ng-if="!gitreport.selecteduser" style="font-weight: bold;color: #337ab7">过滤标签</h4>
+                <h4 style="font-weight: bold;color: #337ab7">标签</h4>
             </div>
 
             <div class="panel-body" style="margin-top: 20px">
 
-                <a ng-if="gitreport.updatetime" >数据更新时间:{{gitreport.updatetime}}</a>
+                <a ng-if="gitreport.updatetime" >数据最近更新时间:{{gitreport.updatetime}}</a>
 
-                <select id="selectednaemval" class="form-control"  ng-model="choiceName">
-                    <option value="">全部</option>
-                     <option ng-repeat="x in gitreport.userlist" value="{{x}}">{{x}}</option>
-                </select>
+                <div class="row">
+                    <label class="col-md-1 control-label fwbold">数据:</label>
+                    <select id="selecteddataval" class="form-control"  ng-model="choiceData" style="width: 20%" >
+                         <option ng-repeat="x in gitreport.datalist" value="{{x}}">{{x}}</option>
+                    </select>
+                    <label class="col-md-1 control-label fwbold">用户:</label>
+                    <select id="selectednameval" class="form-control"  ng-model="choiceName" style="width: 20%" >
+                         <option value="">全部</option>
+                         <option ng-repeat="x in gitreport.userlist" value="{{x}}">{{x}}</option>
+                    </select>
+                </div>
+
             </div>
         </div>
     </div>

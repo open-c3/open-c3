@@ -86,7 +86,7 @@
                                 $state.go('home.quickentry.flowline', {treeid:treeNode.id});
                             }
 
-                            if( sName == 'home.gitreportfilteruser' )
+                            if( sName == 'home.gitreportfilterdata' )
                             {
                                 $state.go('home.gitreport', {treeid:treeNode.id});
                             }

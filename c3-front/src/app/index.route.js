@@ -43,8 +43,8 @@
                 controllerAs: 'gitreport'
             })
 
-            .state('home.gitreportfilteruser', {
-                url: 'gitreportfilteruser/:treeid/:user',
+            .state('home.gitreportfilterdata', {
+                url: 'gitreportfilterdata/:treeid/:data/:user',
                 templateUrl: 'app/pages/gitreport/gitreport.html',
                 controller: 'GitreportController',
                 controllerAs: 'gitreport'

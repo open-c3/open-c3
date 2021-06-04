@@ -8,14 +8,14 @@ use POSIX;
 use MIME::Base64;
 use api;
 use Format;
+use File::Basename;
 
 get '/gitreport/:groupid/report' => sub {
     my $param = params();
-    my $error = Format->new( groupid => qr/^\d+$/, 1 )->check( %$param );
-
     my $error = Format->new( 
         groupid => qr/^\d+$/, 1,
         user => qr/^[\w@\.]*$/, 0,
+        data => qr/^[a-zA-Z0-9_\.\-]+$/, 1,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -26,13 +26,13 @@ get '/gitreport/:groupid/report' => sub {
     my $path = "/data/glusterfs/gitreport";
     system "mkdir -p $path" unless -d $path;
 
-    my @data = `cat $path/$groupid`;
+    my @data = `cat $path/$groupid/$param->{data}`;
     chomp @data;
 
     my $updatetime = '';
-    if( -f "$path/$groupid" )
+    if( -f "$path/$groupid/current" )
     {
-        $updatetime = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( (stat "$path/$groupid")[9] ) );
+        $updatetime = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( (stat "$path/$groupid/current")[9] ) );
     }
 
     my $record = @data ? 0 : 1;
@@ -103,6 +103,19 @@ get '/gitreport/:groupid/report' => sub {
     );
 
     return +{ stat => $JSON::true, data => \%re };
+};
+
+get '/gitreport/:groupid/datalist' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        groupid => qr/^\d+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+    my $pmscheck = api::pmscheck( 'openc3_ci_read', $param->{groupid} ); return $pmscheck if $pmscheck;
+
+    my @data = sort{ $b cmp $a }map{ basename $_ }glob "/data/glusterfs/gitreport/$param->{groupid}/*";
+    return +{ stat => $JSON::true, data => \@data };
 };
 
 true;
