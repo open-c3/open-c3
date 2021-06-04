@@ -126,17 +126,19 @@
                     }
                 },
                 series: [{
-                    name: '删除(行)',
-                    marker: {
-                        symbol: 'square'
-                    },
-                    data: okcounts
-                }, {
                     name: '添加(行)',
                     marker: {
                         symbol: 'diamond'
                     },
+                    color: 'green',
                     data: allcounts
+                }, {
+                    name: '删除(行)',
+                    marker: {
+                        symbol: 'square'
+                    },
+                    color: 'red',
+                    data: okcounts
                 }]
             };
             Highcharts.chart('container', opt );
