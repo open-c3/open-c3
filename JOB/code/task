@@ -67,7 +67,7 @@ return sub
         {
             $x = $db->query( "select count(*) from openc3_job_task where status in ('waiting', 'running') and jobuuid in
                 ( select jobuuid from openc3_job_task where uuid='$uuid' ) and jobtype='jobs'" );
-            $logs->die( "Too many waiting or running tasks" ) if $x->[0][0] >= 10;
+            $logs->die( "Too many waiting or running tasks" ) if $x->[0][0] >= 100;
         }
  
         if( $mutex && $mutex =~ /^[a-zA-Z0-9]+$/ )
