@@ -75,19 +75,12 @@ get '/gitreport/:groupid/report' => sub {
     {
         push @pie2, [ $u, 0 + sprintf( "%0.2f", 100 * $userchange2{$u} / $allchange) ];
     }
+    
 
-    map{
-        my $t = POSIX::strftime( "%Y-%m-%d", localtime( time - 86400 * ( 90 - $_ ) ) );
-        if( ( ! $data{$t}{add} ) && ! ( $data{$t}{add} ) )
-        {
-            push @change, [ $t, 0, 0 ] if $record;
-        }
-        else
-        {
-            push @change, [ $t, $data{$t}{add} || 0, $data{$t}{del} || 0 ];
-            $record = 1;
-        }
-    } 1 .. 90;
+    for my $t ( keys %data )
+    {
+        push @change, [ $t, $data{$t}{add} || 0, $data{$t}{del} || 0 ];
+    }
 
     my %re = (
         change => \@change,

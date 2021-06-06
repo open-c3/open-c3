@@ -1,7 +1,9 @@
 #!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
 use strict;
 use warnings;
+use POSIX;
 use Logs;
+use Time::Local;
 
 $| ++;
 
@@ -12,7 +14,8 @@ $| ++;
     'ticketid' => '',
     'id' => 7,
     'addr' => 'https://github.com/open-c3/test.git',
-    'uuid' => 'e462f55943a0cd9afa7c71bc82cbc19b'
+    'uuid' => 'e462f55943a0cd9afa7c71bc82cbc19b',
+     date => '2021-04-04'
 
 =cut
 
@@ -37,10 +40,22 @@ return sub
     $addr =~ s/\.git$//;
     my $url = "$addr/commit";
 
+    my ( $year, $month, $day ) = split /\-/, $param{date};
+    
+    my $time = timelocal(0,0,0,$day, $month-1, $year);
+    my $since =  POSIX::strftime( "%Y-%m-%d", localtime($time - ( 86400 * 8 )) ) ;
+    my $until =  POSIX::strftime( "%Y-%m-%d", localtime($time + ( 86400 * 2 )) ) ;
+
+    my %date;
+    map{
+        my $t =  POSIX::strftime( "%Y-%m-%d", localtime($time - ( 86400 * $_ )) ) ;
+        $date{$t} = 1;
+    } 0 .. 6;
+
     my %data;
     for my $branch ( @branch )
     {
-        my @x = `cd $dir && git checkout $branch && git log --pretty=format:"hash:%h user:%an time:%ad" --date=format:"%Y-%m-%d.%H%M%S" --since=2.weeks --shortstat`;
+        my @x = `cd $dir && git checkout $branch && git log --pretty=format:"hash:%h user:%an time:%ad" --date=format:"%Y-%m-%d.%H%M%S" --since="$since" --until="$until" --shortstat`;
         chomp @x;
 
         my $lastuser = '';
@@ -51,9 +66,11 @@ return sub
                 my $uuid;
                 if( $lastuser =~ /^hash:/ )
                 {
-                    $lastuser =~ /hash:(.+) user:(.+) time:(.+)/;
-                    $uuid = $1;
-                    $data{$uuid} = { user => $2, time => $3 };
+                    my @m = $lastuser =~ /hash:(.+) user:(.+) time:(.+)/;
+                    my @d = split /\./, $m[2];
+                    next unless $date{$d[0]};
+                    $uuid = $m[0];
+                    $data{$uuid} = { user => $m[1], time => $m[2] };
                 }
 
                 $info =~ /\b(\d+)\s+insertion/;
