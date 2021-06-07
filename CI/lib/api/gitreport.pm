@@ -9,6 +9,7 @@ use MIME::Base64;
 use api;
 use Format;
 use File::Basename;
+use Time::Local;
 
 get '/gitreport/:groupid/report' => sub {
     my $param = params();
@@ -76,8 +77,17 @@ get '/gitreport/:groupid/report' => sub {
         push @pie2, [ $u, 0 + sprintf( "%0.2f", 100 * $userchange2{$u} / $allchange) ];
     }
     
+    my $datadate = ( $param->{data} =~ /^(.+)\.week$/ ) ? $1 : POSIX::strftime( "%Y-%m-%d", localtime(time -  86400) );
+    my ( $year, $month, $day ) = split /\-/, $datadate;
 
-    for my $t ( keys %data )
+    my $temptime = timelocal(0,0,0,$day, $month-1, $year);
+
+    my @datacol;
+    map{
+        push @datacol, POSIX::strftime( "%Y-%m-%d", localtime($temptime - ( 86400 * $_ )) ) ;
+    } 0 .. 6;
+
+    for my $t ( reverse @datacol )
     {
         push @change, [ $t, $data{$t}{add} || 0, $data{$t}{del} || 0 ];
     }
