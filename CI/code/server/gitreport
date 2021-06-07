@@ -46,7 +46,7 @@ return sub
     die "load gitpull code fail: $@" if $@;
 
     my %invalidcommit;
-    my $date = POSIX::strftime( "%Y-%m-%d", localtime($time - 86400 ) ) ;
+    my $date = POSIX::strftime( "%Y-%m-%d", localtime( time - 86400 ) ) ;
 
     for my $groupid ( keys %report )
     {
