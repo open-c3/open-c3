@@ -75,6 +75,7 @@
                                 || sName == 'home.connector.mail'
                                 || sName == 'home.connector.mesg'
                                 || sName == 'home.gitreport'
+                                || sName == 'home.flowreport'
                              ){
                                 $state.go(sName, {treeid:treeNode.id});
                             }else{
@@ -89,6 +90,10 @@
                             if( sName == 'home.gitreportfilterdata' )
                             {
                                 $state.go('home.gitreport', {treeid:treeNode.id});
+                            }
+                            if( sName == 'home.flowreportfilterdata' )
+                            {
+                                $state.go('home.flowreport', {treeid:treeNode.id});
                             }
 
                         } else {

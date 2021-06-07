@@ -29,8 +29,17 @@
     </ul>
 
     <ul class="nav navbar-nav navbar-left">
-        <li>
-            <a ui-sref="home.gitreport({treeid: nav.state.params.treeid})" > <span>GIT报告</span> </a>
+        <li class="dropdown" uib-dropdown>
+            <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple " uib-dropdown-toggle>
+                <span>报告</span>
+                <span class="caret caret-tp hidden-xs"></span>
+            </a>
+            <ul class="dropdown-menu list-group dropdown-persist w250" uib-dropdown-menu>
+                <li class="list-group-item">
+                    <a ui-sref="home.gitreport({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span>GIT报告</span> </a>
+                    <a ui-sref="home.flowreport({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span>流水线报告</span> </a>
+                </li>
+            </ul>
         </li>
     </ul>
 

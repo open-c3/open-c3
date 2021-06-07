@@ -1,0 +1,146 @@
+<div class="row block">
+    <div class="col-lg-3 col-xs-12 ml0 pl0" style="padding-left: 0">
+        <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
+            <div class="panel-heading">
+                <h4 class="kb_title">用户数</h4>
+            </div>
+            <div class="panel-body">
+                <div style="font-size: 45px;font-weight: bold;text-align: center;height: 115px;">
+                    <span>{{userCount}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-xs-12 ml0 pl0" style="padding-left: 0">
+        <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
+            <div class="panel-heading">
+                <h4 style="font-weight: bold;color: #337ab7">添加行数</h4>
+            </div>
+            <div class="panel-body">
+                <div style="font-size: 45px;font-weight: bold;text-align: center;height: 115px;">
+                    <span>{{codeAddCount}}</span>
+                </div>
+
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-xs-12 ml0 pl0" style="padding-left: 0">
+        <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
+            <div class="panel-heading">
+                <h4 style="font-weight: bold;color: #337ab7">删除行数</h4>
+            </div>
+            <div class="panel-body" >
+                <div style="font-size: 45px;font-weight: bold;text-align: center;height: 115px;">
+                    <span>{{codeDelCount}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-xs-12 ml0 pl0" style="padding-left: 0">
+        <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
+            <div class="panel-heading">
+                <h4 style="font-weight: bold;color: #337ab7">提交次数</h4>
+            </div>
+            <div class="panel-body">
+                <div style="font-size: 45px;font-weight: bold;text-align: center;height: 115px;">
+                    <span>{{commitCount}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0">
+
+        <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
+
+            <div class="panel-heading">
+                <h4 style="font-weight: bold;color: #337ab7">标签</h4>
+            </div>
+
+            <div class="panel-body" style="margin-top: 20px">
+
+                <a ng-if="flowreport.updatetime" >数据最近更新时间:{{flowreport.updatetime}}</a>
+
+                <div class="row">
+                    <label class="col-md-1 control-label fwbold">数据:</label>
+                    <select id="selecteddataval" class="form-control"  ng-model="choiceData" style="width: 20%" >
+                         <option ng-repeat="x in flowreport.datalist" value="{{x}}">{{x}}</option>
+                    </select>
+                    <label class="col-md-1 control-label fwbold">用户:</label>
+                    <select id="selectednameval" class="form-control"  ng-model="choiceName" style="width: 20%" >
+                         <option value="">全部</option>
+                         <option ng-repeat="x in flowreport.userlist" value="{{x}}">{{x}}</option>
+                    </select>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0">
+
+        <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
+
+            <div class="panel-heading">
+                <h4 style="font-weight: bold;color: #337ab7">近期代码行数变化情况</h4>
+            </div>
+
+            <div class="panel-body" style="margin-top: 20px">
+                <div id="container" style=""></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6 col-xs-12 ml0 pl0" style="padding-left: 0">
+        <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
+
+            <div class="panel-heading">
+                <h4 style="font-weight: bold;color: #337ab7">提交次数统计</h4>
+            </div>
+
+            <div class="panel-body">
+                <div id="container2" style="min-width:400px;height:400px"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6 col-xs-12 ml0 pl0" style="padding-left: 0">
+        <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
+
+            <div class="panel-heading">
+                <h4 style="font-weight: bold;color: #337ab7">提交行数统计</h4>
+            </div>
+
+            <div class="panel-body">
+                <div id="container3" style="min-width:400px;height:400px"></div>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0">
+        <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
+
+            <div class="panel-heading">
+                <h4 style="font-weight: bold;color: #337ab7">详情</h4>
+            </div>
+
+            <div class="panel-body">
+                <div class="panel-tabs">
+                    <table ng-table="flowreport.data_Table" class="table table-hover text-center table-condensed">
+                        <tr ng-repeat="ss in $data" style="height: 35px;">
+                            <td data-title="'提交时间'">{{ss.time}}</td>
+                            <td data-title="'提交编号'">{{ss.uuid}}</td>
+                            <td data-title="'有效提交'">{{ss.effective}}</td>
+                            <td data-title="'提交人'">{{ss.user}}</td>
+                            <td data-title="'添加行数'">{{ss.add}}</td>
+                            <td data-title="'删除行数'">{{ss.del}}</td>
+                            <td data-title="'提交地址'"><a target='_blank' ng-href="{{ss.url}}">{{ss.url}}</a></td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
