@@ -73,6 +73,8 @@ return sub
         close $TEMP;
         my $dstpath = "/data/glusterfs/gitreport/$groupid";
         system "mkdir -p '$dstpath'" unless -d $dstpath;
+
+        system( "cp '$tempfile' '$dstpath/$date.week'" ) if 1 == POSIX::strftime( "%u", localtime );
         system "mv '$tempfile' '$dstpath/current'";
     }
 }
