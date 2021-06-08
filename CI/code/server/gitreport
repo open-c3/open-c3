@@ -63,10 +63,13 @@ return sub
         my %data;
         for my $projectid ( keys %{$report{$groupid}} )
         {
-            $gitpull->run( path => "$grouppath", %{$report{$groupid}{$projectid}} );
-            my $data = $statistics->run( path => "$grouppath", %{$report{$groupid}{$projectid}}, date => $date );
+            eval{ $gitpull->run( path => "$grouppath", %{$report{$groupid}{$projectid}} ); };
+            warn "gitpull fail:$@" if $@;
 
-            %data = ( %data, %$data );
+            my $data = eval{ $statistics->run( path => "$grouppath", %{$report{$groupid}{$projectid}}, date => $date ); };
+            warn "statistics fail:$@" if $@;
+
+            %data = ( %data, %$data ) if $data && ref $data eq 'HASH';
         }
 
         my ( $TEMP, $tempfile ) = File::Temp::tempfile();
