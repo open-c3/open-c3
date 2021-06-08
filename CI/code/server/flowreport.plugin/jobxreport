@@ -34,12 +34,13 @@ return sub
 
     for my $d ( @$x )
     {
-        next unless $d->{group} =~ /^_ci_online_/;
+        next unless $d->{group} =~ /^_ci_online_/ || $d->{group} =~ /^_ci_test_/;
         next unless $d->{name} =~ /^_ci_(\d+)_$/;
+
         my $projectid = $1;
         my $variable = eval{ YAML::XS::Load decode_base64( $d->{variable} ) };
         next unless $variable && ref $variable eq 'HASH' && $variable->{version};
-        push @data, +{ projectid => $projectid, groupid => $d->{projectid}, uuid => $d->{uuid}, status => $d->{status}, version => $variable->{version}, time => $d->{starttime}, type => $d->{uuid} =~ /[A-Z]$/ ? 'rollback' : 'deploy' };
+        push @data, +{ projectid => $projectid, groupid => $d->{projectid}, uuid => $d->{uuid}, status => $d->{status}, version => $variable->{version}, time => $d->{starttime}, type => ( $d->{group} =~ /^_ci_test_/ ) ? 'test' :  $d->{uuid} =~ /[A-Z]$/ ? 'rollback' : 'deploy' };
     }
 
     return @data;

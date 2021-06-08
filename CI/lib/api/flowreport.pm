@@ -37,7 +37,7 @@ get '/flowreport/:groupid/report' => sub {
     }
 
     my $record = @data ? 0 : 1;
-    my ( $cicount, $deploycount, $rollbackcount, %data, %user, %userchange, %userchange2 ) = ( 0, 0, 0 );
+    my ( $cicount, $testcount, $deploycount, $rollbackcount, %data, %user, %userchange, %userchange2 ) = ( 0, 0, 0, 0 );
 
     my @detailtable;
     for my $data ( @data )
@@ -48,6 +48,12 @@ get '/flowreport/:groupid/report' => sub {
         if( $type eq "ci" )
         {
             $cicount ++;
+            $data{$date}{ci} ++;
+        }
+        if( $type eq "test" )
+        {
+            $testcount ++;
+            $data{$date}{test} ++;
         }
         if( $type eq "deploy" )
         {
@@ -78,13 +84,14 @@ get '/flowreport/:groupid/report' => sub {
 
     for my $t ( reverse @datacol )
     {
-        push @change, [ $t, $data{$t}{deploy} || 0, $data{$t}{rollback} || 0 ];
+        push @change, [ $t, $data{$t}{ci}||0, $data{$t}{test} || 0, $data{$t}{deploy} || 0, $data{$t}{rollback} || 0 ];
     }
 
     my %re = (
         change => \@change,
         cicount => $cicount,
         deploycount => $deploycount,
+        testcount => $testcount,
         rollbackcount => $rollbackcount,
         detailtable => \@detailtable,
         userlist => [],

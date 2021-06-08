@@ -28,7 +28,7 @@ return sub
     my $date = POSIX::strftime( "%Y-%m-%d", localtime( time - 86400 ) ) ;
     my ( $year, $month, $day ) = split /\-/, $date;
     my $time = timelocal(0,0,0,$day, $month-1, $year);
-    my $since =  POSIX::strftime( "%Y-%m-%d 00:00:00", localtime($time - ( 86400 * 10 )) );
+    my $since =  POSIX::strftime( "%Y-%m-%d 00:00:00", localtime($time - ( 86400 * 6 )) );
     my $until =  POSIX::strftime( "%Y-%m-%d 23:59:59", localtime($time + ( 86400 * 0 )) );
 
     my $cireport = eval{ Code->new( 'server/flowreport.plugin/cireport' ) };

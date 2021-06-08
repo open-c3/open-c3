@@ -28,8 +28,10 @@
 
         vm.userlist = [];
         vm.taskdatetime = [];
-        vm.tasksuccess = [];
-        vm.taskall = [];
+        vm.rollbackcount = [];
+        vm.deploycount = [];
+        vm.cicount = [];
+        vm.testcount = [];
         vm.treeid = $state.params.treeid;
         vm.state = $state;
         vm.updatetime;
@@ -71,6 +73,7 @@
                 function successCallback(response) {
                     if (response.data.stat){
                         $scope.ciCount = response.data.data.cicount;
+                        $scope.testCount = response.data.data.testcount;
                         $scope.deployCount = response.data.data.deploycount;
                         $scope.rollbackCount = response.data.data.rollbackcount;
                         $scope.commitCount = response.data.data.commitcount;
@@ -79,18 +82,22 @@
                         vm.data_Table = new ngTableParams({count:1000}, {counts:[],data:response.data.data.detailtable.reverse()});
 
                         vm.taskdatetime = [];
-                        vm.tasksuccess = [];
-                        vm.tasksuccess = [];
+                        vm.cicount = [];
+                        vm.testcount = [];
+                        vm.deploycount = [];
+                        vm.rollbackcount = [];
 
                         vm.updatetime = response.data.data.updatetime;
 
                         angular.forEach(response.data.data.change, function (oneday, index) {
                             vm.taskdatetime.push(oneday[0]);
-                            vm.taskall.push(oneday[1]);
-                            vm.tasksuccess.push(oneday[2]);
+                            vm.cicount.push(oneday[1]);
+                            vm.testcount.push(oneday[2]);
+                            vm.deploycount.push(oneday[3]);
+                            vm.rollbackcount.push(oneday[4]);
                         });
 
-                        vm.show30Task(vm.taskdatetime, vm.tasksuccess,vm.taskall)
+                        vm.show30Task(vm.taskdatetime, vm.cicount, vm.testcount, vm.rollbackcount, vm.deploycount )
                     }else {
                         toastr.error( "获取数据失败："+response.data.info );
                     }
@@ -102,7 +109,7 @@
 
         vm.reload();
 
-        vm.show30Task = function (datetimes, okcounts, allcounts) {
+        vm.show30Task = function (datetimes, cicounts, testcounts, rollbackcounts, deploycounts) {
             
             var opt =  {
                 chart: {
@@ -140,20 +147,34 @@
                         }
                     }
                 },
-                series: [{
+                series: [ {
+                    name: '构建',
+                    marker: {
+                        symbol: 'diamond'
+                    },
+                    color: 'blue',
+                    data: cicounts
+                }, {
+                    name: '测试',
+                    marker: {
+                        symbol: 'diamond'
+                    },
+                    color: 'gray',
+                    data: testcounts
+                }, {
                     name: '发布',
                     marker: {
                         symbol: 'diamond'
                     },
                     color: 'green',
-                    data: allcounts
+                    data: deploycounts
                 }, {
                     name: '回滚',
                     marker: {
                         symbol: 'square'
                     },
                     color: 'red',
-                    data: okcounts
+                    data: rollbackcounts
                 }]
             };
             Highcharts.chart('container', opt );

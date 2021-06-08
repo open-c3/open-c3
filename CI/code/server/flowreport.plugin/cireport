@@ -34,6 +34,6 @@ return sub
     $x = eval{ $db->query( sprintf( "select %s from openc3_ci_version where create_time>='$since' and create_time<='$until'", join ',', map{"`$_`"}@col), \@col ) };
     $logs->die( "mysql query fail: $@" ) if $@;
 
-    return map{ +{ uuid => $_->{uuid}, groupid => $groupid{$_->{projectid}}, status => $_->{status}, time => $_->{create_time}, projectid => $_->{projectid}, version => $_->{name}, type => 'ci' } }@$x;
+    return map{ +{ uuid => $_->{uuid}, groupid => $groupid{$_->{projectid}}, status => $_->{status}, time => $_->{create_time}, projectid => $_->{projectid}, version => $_->{name}, type => 'ci' } }grep{$_->{groupid}}@$x;
 
 }
