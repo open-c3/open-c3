@@ -47,11 +47,19 @@ return sub
         push @{$data{$data->{groupid}}}, $data;
     }
     
+    my $basepath = "/data/glusterfs/flowreport";
+    my ( $watch, $WATCHTEMP, $watchtempfile );
+    if( -f "$basepath/4000000000.watch" )
+    {
+        ( $WATCHTEMP, $watchtempfile ) = File::Temp::tempfile();
+        $watch = 1;
+    }
+    
     for my $groupid ( keys %data )
     {
         my $data = $data{$groupid};
 
-        my $dstpath = "/data/glusterfs/flowreport/$groupid";
+        my $dstpath = "$basepath/$groupid";
         system "mkdir -p '$dstpath'" unless -d $dstpath;
 
         my ( $TEMP, $tempfile ) = File::Temp::tempfile();
@@ -59,9 +67,18 @@ return sub
             $_->{time} =~ s/\s+/./;
             $_->{time} =~ s/://g;
             print $TEMP "$_->{time}:$_->{type}:$_->{uuid}:$_->{groupid}:$_->{projectid}:$_->{status}:$_->{version}\n";
+            print $WATCHTEMP "$_->{time}:$_->{type}:$_->{uuid}:$_->{groupid}:$_->{projectid}:$_->{status}:$_->{version}\n" if $watch;
         }sort{$a->{time} cmp $b->{time }}@$data;
         close $TEMP;
         system( "cp '$tempfile' '$dstpath/$date.week'" ) if 1 == POSIX::strftime( "%u", localtime );
         system "mv '$tempfile' '$dstpath/current'";
+    }
+
+    if( $watch )
+    {
+        system "mkdir -p '$basepath/4000000000'" unless -d "$basepath/4000000000";
+        close $WATCHTEMP;
+        system( "cp '$watchtempfile' '$basepath/4000000000/$date.week'" ) if 1 == POSIX::strftime( "%u", localtime );
+        system "mv '$watchtempfile' '$basepath/4000000000/current'";
     }
 }
