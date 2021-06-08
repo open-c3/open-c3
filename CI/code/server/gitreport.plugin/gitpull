@@ -30,22 +30,31 @@ return sub
 
     my $git = $ticket ? "$RealBin/../bin/git -i " . Temp->new( chmod => 0600 )->dump( $ticket ) : 'git';
 
-    unless( -d "$datapath/$uuid" )
+    my $error;
+    for( 1 .. 2 )
     {
-        die "download fail: $!" if system "cd '$datapath' && $git clone $addr $uuid";
+        eval{
+            unless( -d "$datapath/$uuid" )
+            {
+            die "download fail: $!" if system "cd '$datapath' && $git clone $addr $uuid";
+            }
+
+            my $dir = "$datapath/$uuid";
+
+            system "cd $dir && ". $git . ' branch -r | grep -v "\->" | while read remote; do ' . $git . ' branch --track "${remote#origin/}" "$remote"; done';
+
+            my @branch = `cd $dir && git branch`;
+            chomp @branch;
+            map{ $_ =~ s/^\**\s*// }@branch;
+
+            for my $branch ( @branch )
+            {
+                die "pull fail:$!" if system "cd $dir && git checkout '$branch' && $git fetch --all && $git pull --all";
+            }
+        };
+        $error = $@;
+        last unless $error;
+        system "rm -rf '$datapath/$uuid'";
     }
-
-    my $dir = "$datapath/$uuid";
-
-    system "cd $dir && ". $git . ' branch -r | grep -v "\->" | while read remote; do ' . $git . ' branch --track "${remote#origin/}" "$remote"; done';
-
-    my @branch = `cd $dir && git branch`;
-    chomp @branch;
-    map{ $_ =~ s/^\**\s*// }@branch;
-
-    for my $branch ( @branch )
-    {
-        die "pull fail:$!" if system "cd $dir && git checkout '$branch' && $git fetch --all && $git pull --all";
-    }
-
+    die "gitpull error: $error" if $error;
 }
