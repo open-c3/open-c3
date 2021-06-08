@@ -37,7 +37,7 @@ get '/gitreport/:groupid/report' => sub {
     }
 
     my $record = @data ? 0 : 1;
-    my ( $usercount, $addcount, $delcount, $commitcount, %data, %user, %userchange, %userchange2 ) = ( 0, 0, 0, 0 );
+    my ( $usercount, $addcount, $delcount, $commitcount, %data, %data2, %user, %userchange, %userchange2 ) = ( 0, 0, 0, 0 );
 
     my @detailtable;
     for my $data ( @data )
@@ -60,9 +60,14 @@ get '/gitreport/:groupid/report' => sub {
 
         $data{$date}{add} += $add;
         $data{$date}{del} += $del;
+
+        $time =~ /^\d+\-\d+\-\d+\.(\d{2})/;
+        my $hour = $1;
+        $data2{$hour}{add} += $add;
+        $data2{$hour}{del} += $del;
     }
     
-    my @change;
+    my ( @change, @change2 );
     my $allchange = $addcount + $delcount;
 
     my @pie;
@@ -92,8 +97,15 @@ get '/gitreport/:groupid/report' => sub {
         push @change, [ $t, $data{$t}{add} || 0, $data{$t}{del} || 0 ];
     }
 
+    for my $t ( 0 .. 23 )
+    {
+        $t = "0$t" if $t < 10;
+        push @change2, [ $t, $data2{$t}{add} || 0, $data2{$t}{del} || 0 ];
+    }
+
     my %re = (
         change => \@change,
+        change2 => \@change2,
         usercount => scalar( keys %user ),
         addcount => $addcount,
         delcount => $delcount,

@@ -80,8 +80,13 @@
                         vm.data_Table = new ngTableParams({count:1000}, {counts:[],data:response.data.data.detailtable.reverse()});
 
                         vm.taskdatetime = [];
+                        vm.taskall = [];
                         vm.tasksuccess = [];
-                        vm.tasksuccess = [];
+
+                        vm.taskdatetime2 = [];
+                        vm.taskall2 = [];
+                        vm.tasksuccess2 = [];
+
 
                         vm.updatetime = response.data.data.updatetime;
 
@@ -91,7 +96,14 @@
                             vm.tasksuccess.push(oneday[2]);
                         });
 
+                        angular.forEach(response.data.data.change2, function (oneday, index) {
+                            vm.taskdatetime2.push(oneday[0]);
+                            vm.taskall2.push(oneday[1]);
+                            vm.tasksuccess2.push(oneday[2]);
+                        });
+
                         vm.show30Task(vm.taskdatetime, vm.tasksuccess,vm.taskall)
+                        vm.show30Task2(vm.taskdatetime2, vm.tasksuccess2,vm.taskall2)
                     }else {
                         toastr.error( "获取数据失败："+response.data.info );
                     }
@@ -110,7 +122,7 @@
                     type: 'spline'
                 },
                 title: {
-                    text: ''
+                    text: '日期分布'
                 },
                 subtitle: {
                     text: ''
@@ -158,6 +170,63 @@
                 }]
             };
             Highcharts.chart('container', opt );
+        };
+
+        vm.show30Task2 = function (datetimes, okcounts, allcounts) {
+            
+            var opt =  {
+                chart: {
+                    type: 'spline'
+                },
+                title: {
+                    text: '时间点分布'
+                },
+                subtitle: {
+                    text: ''
+                },
+                xAxis: {
+                    categories: datetimes
+                },
+                yAxis: {
+                    title: {
+                        text: ''
+                    },
+                    labels: {
+                        formatter: function () {
+                            return this.value ;
+                        }
+                    }
+                },
+                tooltip: {
+                    crosshairs: true,
+                    shared: true
+                },
+                plotOptions: {
+                    spline: {
+                        marker: {
+                            radius: 4,
+                            lineColor: '#666666',
+                            lineWidth: 1
+                        }
+                    }
+                },
+                series: [{
+                    name: '添加(行)',
+                    marker: {
+                        symbol: 'diamond'
+                    },
+                    color: 'green',
+                    data: allcounts
+                }, {
+                    name: '删除(行)',
+                    marker: {
+                        symbol: 'square'
+                    },
+                    color: 'red',
+                    data: okcounts
+                }]
+            };
+            Highcharts.chart('container2', opt );
         };
 
 
