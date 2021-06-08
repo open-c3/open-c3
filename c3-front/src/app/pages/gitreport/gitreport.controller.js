@@ -226,7 +226,7 @@
                     data: okcounts
                 }]
             };
-            Highcharts.chart('container2', opt );
+            Highcharts.chart('container4', opt );
         };
 
 
