@@ -1,0 +1,39 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use Logs;
+use Temp;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    'since' => '2021-06-01 00:00:00',
+    'until' => '2021-06-07 23:59:59'
+
+    'db' => $db
+
+=cut
+
+
+
+return sub
+{
+    my %param = @_;
+
+    my ( $since, $until, $db, $logs )
+        = ( @param{qw( since until db )}, Logs->new( 'flowreport.cireport' ) );
+
+    my %groupid;
+    my $x = eval{ $db->query( "select id,groupid from openc3_ci_project" ) };
+    $logs->die( "mysql query fail: $@" ) if $@;
+    map{ $groupid{$_->[0]} = $_->[1] }@$x;
+
+    my @col = qw( projectid uuid name tagger create_time status );
+    $x = eval{ $db->query( sprintf( "select %s from openc3_ci_version where create_time>='$since' and create_time<='$until'", join ',', map{"`$_`"}@col), \@col ) };
+    $logs->die( "mysql query fail: $@" ) if $@;
+
+    return map{ +{ uuid => $_->{uuid}, groupid => $groupid{$_->{projectid}}, status => $_->{status}, time => $_->{create_time}, projectid => $_->{projectid}, version => $_->{name}, type => 'ci' } }@$x;
+
+}

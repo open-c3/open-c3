@@ -1,0 +1,67 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use Logs;
+use Code;
+use Data::Dumper;
+use Digest::MD5;
+use YAML::XS;
+use File::Temp;
+use POSIX;
+use Time::Local;
+use File::Temp;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $logs ) = ( $param{db}, Logs->new( 'flowreport' ) );
+
+    my $date = POSIX::strftime( "%Y-%m-%d", localtime( time - 86400 ) ) ;
+    my ( $year, $month, $day ) = split /\-/, $date;
+    my $time = timelocal(0,0,0,$day, $month-1, $year);
+    my $since =  POSIX::strftime( "%Y-%m-%d 00:00:00", localtime($time - ( 86400 * 10 )) );
+    my $until =  POSIX::strftime( "%Y-%m-%d 23:59:59", localtime($time + ( 86400 * 0 )) );
+
+    my $cireport = eval{ Code->new( 'server/flowreport.plugin/cireport' ) };
+    die "load cireport code fail: $@" if $@;
+
+    my $jobxreport = eval{ Code->new( 'server/flowreport.plugin/jobxreport' ) };
+    die "load jobxreport code fail: $@" if $@;
+
+
+    my @cidata = $cireport->run( since => $since, until => $until, db => $db );
+    my @jobxdata = $jobxreport->run( since => $since, until => $until, db => $db );
+
+    my ( @data, %data ) = ( @cidata, @jobxdata );
+    for my $data ( @data )
+    {
+        push @{$data{$data->{groupid}}}, $data;
+    }
+    
+    for my $groupid ( keys %data )
+    {
+        my $data = $data{$groupid};
+
+        my $dstpath = "/data/glusterfs/flowreport/$groupid";
+        system "mkdir -p '$dstpath'" unless -d $dstpath;
+
+        my ( $TEMP, $tempfile ) = File::Temp::tempfile();
+        map{
+            $_->{time} =~ s/\s+/./;
+            $_->{time} =~ s/://g;
+            print $TEMP "$_->{time}:$_->{type}:$_->{uuid}:$_->{groupid}:$_->{projectid}:$_->{status}:$_->{version}\n";
+        }sort{$a->{time} cmp $b->{time }}@$data;
+        close $TEMP;
+        system( "cp '$tempfile' '$dstpath/$date.week'" ) if 1 == POSIX::strftime( "%u", localtime );
+        system "mv '$tempfile' '$dstpath/current'";
+    }
+}

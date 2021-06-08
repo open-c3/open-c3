@@ -1,0 +1,46 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use Logs;
+use Temp;
+use MIME::Base64;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    'since' => '2021-06-01 00:00:00',
+    'until' => '2021-06-07 23:59:59'
+
+    'db' => $db
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $since, $until, $db, $logs )
+        = ( @param{qw( since until db )}, Logs->new( 'flowreport.cireport' ) );
+
+    $db = MYDB->new( "$RealBin/../../JOBX/conf/conn" );
+
+    my @col = qw( projectid uuid name group variable status starttime );
+    my $x = eval{ $db->query( sprintf( "select %s from openc3_jobx_task where starttime>='$since' and starttime<='$until'", join ',', map{"`$_`"}@col), \@col ) };
+    $logs->die( "mysql query fail: $@" ) if $@;
+
+    my @data;
+
+    for my $d ( @$x )
+    {
+        next unless $d->{group} =~ /^_ci_online_/;
+        next unless $d->{name} =~ /^_ci_(\d+)_$/;
+        my $projectid = $1;
+        my $variable = eval{ YAML::XS::Load decode_base64( $d->{variable} ) };
+        next unless $variable && ref $variable eq 'HASH' && $variable->{version};
+        push @data, +{ projectid => $projectid, groupid => $d->{projectid}, uuid => $d->{uuid}, status => $d->{status}, version => $variable->{version}, time => $d->{starttime}, type => $d->{uuid} =~ /[A-Z]$/ ? 'rollback' : 'deploy' };
+    }
+
+    return @data;
+}

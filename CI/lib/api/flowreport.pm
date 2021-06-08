@@ -37,46 +37,35 @@ get '/flowreport/:groupid/report' => sub {
     }
 
     my $record = @data ? 0 : 1;
-    my ( $usercount, $addcount, $delcount, $commitcount, %data, %user, %userchange, %userchange2 ) = ( 0, 0, 0, 0 );
+    my ( $cicount, $deploycount, $rollbackcount, %data, %user, %userchange, %userchange2 ) = ( 0, 0, 0 );
 
     my @detailtable;
     for my $data ( @data )
     {
-        my ( $time, $uuid, $effective, $name, $add, $del, $url ) = split /:/, $data, 7;
+        my ( $time, $type, $uuid, $groupid, $projectid, $status, $version ) = split /:/, $data;
         my ( $date ) = split /\./, $time;
 
-        $user{$name} ++;
-        next if $param->{user} && $param->{user} ne $name;
+        if( $type eq "ci" )
+        {
+            $cicount ++;
+        }
+        if( $type eq "deploy" )
+        {
+            $deploycount ++;
+            $data{$date}{deploy} ++;
+        }
 
-        push @detailtable, +{ time => $time, uuid => $uuid, effective => $effective, user => $name, add => $add, del => $del, url => $url };
-        next if $effective eq 'No';
+        if( $type eq "rollback" )
+        {
+            $rollbackcount ++;
+            $data{$date}{rollback} ++;
+        }
 
-        $addcount += $add;
-        $delcount += $del;
-        $commitcount ++;
-        $userchange{$name} ++;
-        $userchange2{$name} += $add;
-        $userchange2{$name} += $del;
-
-        $data{$date}{add} += $add;
-        $data{$date}{del} += $del;
+        push @detailtable, +{ time => $time, type => $type, uuid => $uuid, groupid => $groupid, projectid => $projectid, status => $status, version => $version };
     }
     
     my @change;
-    my $allchange = $addcount + $delcount;
-
-    my @pie;
-    for my $u ( keys %userchange)
-    {
-        push @pie, [ $u, 0 + sprintf( "%0.2f", 100 * $userchange{$u} / $commitcount) ];
-    }
-
-    my @pie2;
-    for my $u ( keys %userchange2 )
-    {
-        push @pie2, [ $u, 0 + sprintf( "%0.2f", 100 * $userchange2{$u} / $allchange) ];
-    }
-    
+   
     my $datadate = ( $param->{data} =~ /^(.+)\.week$/ ) ? $1 : POSIX::strftime( "%Y-%m-%d", localtime(time -  86400) );
     my ( $year, $month, $day ) = split /\-/, $datadate;
 
@@ -89,19 +78,16 @@ get '/flowreport/:groupid/report' => sub {
 
     for my $t ( reverse @datacol )
     {
-        push @change, [ $t, $data{$t}{add} || 0, $data{$t}{del} || 0 ];
+        push @change, [ $t, $data{$t}{deploy} || 0, $data{$t}{rollback} || 0 ];
     }
 
     my %re = (
         change => \@change,
-        usercount => scalar( keys %user ),
-        addcount => $addcount,
-        delcount => $delcount,
-        commitcount => $commitcount,
-        pingtu => \@pie,
-        pingtu2 => \@pie2,
+        cicount => $cicount,
+        deploycount => $deploycount,
+        rollbackcount => $rollbackcount,
         detailtable => \@detailtable,
-        userlist => [ sort{ $user{$b} <=> $user{$a} }keys %user ],
+        userlist => [],
         updatetime => $updatetime,
     );
 

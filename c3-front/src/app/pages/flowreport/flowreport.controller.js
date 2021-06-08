@@ -22,6 +22,8 @@
         }
 
 
+        vm.siteaddr = window.location.host;
+
         var toastr = toastr || $injector.get('toastr');
 
         vm.userlist = [];
@@ -39,7 +41,6 @@
         vm.filteruser = function (username, datalist ) {
             $state.go('home.flowreportfilterdata', {treeid:vm.treeid, user: username, data: datalist});
         }
-
 
         $scope.choiceName = vm.selecteduser;
         $scope.choiceData = vm.selecteddata;
@@ -69,14 +70,12 @@
             $http.get('/api/ci/flowreport/' + vm.treeid + "/report?user=" + vm.selecteduser + "&data=" + vm.selecteddata ).then(
                 function successCallback(response) {
                     if (response.data.stat){
-                        $scope.userCount = response.data.data.usercount;
-                        $scope.codeAddCount = response.data.data.addcount;
-                        $scope.codeDelCount = response.data.data.delcount;
+                        $scope.ciCount = response.data.data.cicount;
+                        $scope.deployCount = response.data.data.deploycount;
+                        $scope.rollbackCount = response.data.data.rollbackcount;
                         $scope.commitCount = response.data.data.commitcount;
                         vm.userlist = response.data.data.userlist; 
 
-                        vm.showRuntime2(response.data.data.pingtu);
-                        vm.showRuntime3(response.data.data.pingtu2);
                         vm.data_Table = new ngTableParams({count:1000}, {counts:[],data:response.data.data.detailtable.reverse()});
 
                         vm.taskdatetime = [];
@@ -142,14 +141,14 @@
                     }
                 },
                 series: [{
-                    name: '添加(行)',
+                    name: '发布',
                     marker: {
                         symbol: 'diamond'
                     },
                     color: 'green',
                     data: allcounts
                 }, {
-                    name: '删除(行)',
+                    name: '回滚',
                     marker: {
                         symbol: 'square'
                     },
@@ -160,76 +159,6 @@
             Highcharts.chart('container', opt );
         };
 
-
-        vm.showRuntime2 = function (times) {
-            $('#container2').highcharts({
-                chart: {
-                    plotBackgroundColor: null,
-                    plotBorderWidth: null,
-                    plotShadow: false
-                },
-                title: {
-                    text: ''
-                },
-                tooltip: {
-                    headerFormat: '{series.name}<br>',
-                    pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b>'
-                },
-                plotOptions: {
-                    pie: {
-                        allowPointSelect: true,
-                        cursor: 'pointer',
-                        dataLabels: {
-                            enabled: true,
-                            format: '<b>{point.name}</b>: {point.percentage:.1f} %',
-                            style: {
-                                color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-                            }
-                        }
-                    }
-                },
-                series: [{
-                    type: 'pie',
-                    name: '',
-                    data: times
-                }]
-            });
-        };
-
-        vm.showRuntime3 = function (times) {
-            $('#container3').highcharts({
-                chart: {
-                    plotBackgroundColor: null,
-                    plotBorderWidth: null,
-                    plotShadow: false
-                },
-                title: {
-                    text: ''
-                },
-                tooltip: {
-                    headerFormat: '{series.name}<br>',
-                    pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b>'
-                },
-                plotOptions: {
-                    pie: {
-                        allowPointSelect: true,
-                        cursor: 'pointer',
-                        dataLabels: {
-                            enabled: true,
-                            format: '<b>{point.name}</b>: {point.percentage:.1f} %',
-                            style: {
-                                color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
-                            }
-                        }
-                    }
-                },
-                series: [{
-                    type: 'pie',
-                    name: '',
-                    data: times
-                }]
-            });
-        };
 
     }
 
