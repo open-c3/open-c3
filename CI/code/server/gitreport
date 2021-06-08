@@ -48,6 +48,13 @@ return sub
     my %invalidcommit;
     my $date = POSIX::strftime( "%Y-%m-%d", localtime( time - 86400 ) ) ;
 
+    my ( $watch, $WATCHTEMP, $watchtempfile );
+    if( -f "/data/glusterfs/gitreport/4000000000.watch" )
+    {
+        ( $WATCHTEMP, $watchtempfile ) = File::Temp::tempfile();
+        $watch = 1;
+    }
+ 
     for my $groupid ( keys %report )
     {
         my $grouppath = "$basepath/$groupid";
@@ -68,6 +75,7 @@ return sub
         {
             my $v = $data{$uuid};
             print $TEMP sprintf "$v->{time}:$uuid:%s:$v->{user}:$v->{add}:$v->{del}:%s\n", ( $invalidcommit{$uuid} ? 'No': 'Yes' ),  join ',', sort keys %{$v->{path}};
+            print( $WATCHTEMP sprintf "$v->{time}:$uuid:%s:$v->{user}:$v->{add}:$v->{del}:%s\n", ( $invalidcommit{$uuid} ? 'No': 'Yes' ),  join ',', sort keys %{$v->{path}} ) if $watch;
         }
 
         close $TEMP;
@@ -77,4 +85,14 @@ return sub
         system( "cp '$tempfile' '$dstpath/$date.week'" ) if 1 == POSIX::strftime( "%u", localtime );
         system "mv '$tempfile' '$dstpath/current'";
     }
+
+    if( $watch )
+    {
+        my $dstpath = "/data/glusterfs/gitreport/4000000000";
+        system "mkdir -p '$dstpath'" unless -d $dstpath;
+        close $WATCHTEMP;
+        system( "cp '$watchtempfile' '$dstpath/$date.week'" ) if 1 == POSIX::strftime( "%u", localtime );
+        system "mv '$watchtempfile' '$dstpath/current'";
+    }
+
 }
