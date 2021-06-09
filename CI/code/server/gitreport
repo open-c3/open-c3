@@ -87,6 +87,13 @@ return sub
 
         system( "cp '$tempfile' '$dstpath/$date.week'" ) if 1 == POSIX::strftime( "%u", localtime );
         system "mv '$tempfile' '$dstpath/current'";
+
+        if( 15 == POSIX::strftime( "%d", localtime ) )
+        {
+            my $year = POSIX::strftime( "%Y", localtime( time - ( 30 * 86400 )) );
+            my $month = POSIX::strftime( "%Y-%m", localtime( time - ( 30 * 86400 )) );
+            system "cat $dstpath/$year-*.week|grep ^$month > $dstpath/$month.month";
+        }
     }
 
     if( $watch )
@@ -96,6 +103,12 @@ return sub
         close $WATCHTEMP;
         system( "cp '$watchtempfile' '$dstpath/$date.week'" ) if 1 == POSIX::strftime( "%u", localtime );
         system "mv '$watchtempfile' '$dstpath/current'";
-    }
 
+        if( 15 == POSIX::strftime( "%d", localtime ) )
+        {
+            my $year = POSIX::strftime( "%Y", localtime( time - ( 30 * 86400 )) );
+            my $month = POSIX::strftime( "%Y-%m", localtime( time - ( 30 * 86400 )) );
+            system "cat $dstpath/$year-*.week|grep ^$month > $dstpath/$month.month";
+        }
+    }
 }
