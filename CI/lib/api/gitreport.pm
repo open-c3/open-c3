@@ -82,17 +82,31 @@ get '/gitreport/:groupid/report' => sub {
         push @pie2, [ $u, 0 + sprintf( "%0.2f", 100 * $userchange2{$u} / $allchange) ];
     }
     
-    my $datadate = ( $param->{data} =~ /^(.+)\.week$/ ) ? $1 : POSIX::strftime( "%Y-%m-%d", localtime(time -  86400) );
-    my ( $year, $month, $day ) = split /\-/, $datadate;
-
-    my $temptime = timelocal(0,0,0,$day, $month-1, $year);
-
     my @datacol;
-    map{
-        push @datacol, POSIX::strftime( "%Y-%m-%d", localtime($temptime - ( 86400 * $_ )) ) ;
-    } 0 .. 6;
+    if( $param->{data} =~ /^(.+)\.month$/ )
+    {
+        my $m = $1;
+        my ( $year, $month, $day ) = split /\-/, $m;
+        my $temptime = timelocal(0,0,0,1, $month-1, $year);
+        map{
+            my $d = POSIX::strftime( "%Y-%m-%d", localtime($temptime + ( 86400 * $_ )) );
+            push @datacol, $d if $d =~ /^$m/, 
+        } 0 .. 31
+    }
+    else
+    {
+        my $datadate = ( $param->{data} =~ /^(.+)\.week$/ ) ? $1 : POSIX::strftime( "%Y-%m-%d", localtime(time -  86400) );
+        my ( $year, $month, $day ) = split /\-/, $datadate;
 
-    for my $t ( reverse @datacol )
+        my $temptime = timelocal(0,0,0,$day, $month-1, $year);
+
+        map{
+            push @datacol, POSIX::strftime( "%Y-%m-%d", localtime($temptime - ( 86400 * $_ )) ) ;
+        } 0 .. 6;
+        @datacol = reverse @datacol;
+    }
+
+    for my $t ( @datacol )
     {
         push @change, [ $t, $data{$t}{add} || 0, $data{$t}{del} || 0 ];
     }
