@@ -15,7 +15,7 @@ get '/gitreport/:groupid/report' => sub {
     my $param = params();
     my $error = Format->new( 
         groupid => qr/^\d+$/, 1,
-        user => qr/^[\w@\.]*$/, 0,
+        user => qr/^[\w@\.\-]*$/, 0,
         data => qr/^[a-zA-Z0-9_\.\-]+$/, 1,
     )->check( %$param );
 
@@ -37,7 +37,7 @@ get '/gitreport/:groupid/report' => sub {
     }
 
     my $record = @data ? 0 : 1;
-    my ( $usercount, $addcount, $delcount, $commitcount, %data, %data2, %data3, %user, %userchange, %userchange2 ) = ( 0, 0, 0, 0 );
+    my ( $usercount, $addcount, $delcount, $commitcount, %data, %data2, %data3, %user, %userchange, %userchange2, %projectchange, %projectchange2 ) = ( 0, 0, 0, 0 );
 
     my @detailtable;
     for my $data ( @data )
@@ -54,9 +54,15 @@ get '/gitreport/:groupid/report' => sub {
         $addcount += $add;
         $delcount += $del;
         $commitcount ++;
+
         $userchange{$name} ++;
         $userchange2{$name} += $add;
         $userchange2{$name} += $del;
+
+        my $projectname = $url =~ /\/([a-zA-Z0-9\-\._]+)\/commit\// ? $1 : 'unkown';
+        $projectchange{$projectname} ++;
+        $projectchange2{$projectname} += $add;
+        $projectchange2{$projectname} += $del;
 
         $data{$date}{add} += $add;
         $data{$date}{del} += $del;
@@ -88,6 +94,18 @@ get '/gitreport/:groupid/report' => sub {
         push @pie2, [ $u, 0 + sprintf( "%0.2f", 100 * $userchange2{$u} / $allchange) ];
     }
     
+    my @pie3;
+    for my $u ( keys %projectchange)
+    {
+        push @pie3, [ $u, 0 + sprintf( "%0.2f", 100 * $projectchange{$u} / $commitcount) ];
+    }
+
+    my @pie4;
+    for my $u ( keys %projectchange2 )
+    {
+        push @pie4, [ $u, 0 + sprintf( "%0.2f", 100 * $projectchange2{$u} / $allchange) ];
+    }
+ 
     my @datacol;
     if( $param->{data} =~ /^(.+)\.year$/ )
     {
@@ -149,6 +167,8 @@ get '/gitreport/:groupid/report' => sub {
         commitcount => $commitcount,
         pingtu => \@pie,
         pingtu2 => \@pie2,
+        pingtu3 => \@pie3,
+        pingtu4 => \@pie4,
         detailtable => \@detailtable,
         userlist => [ sort{ $user{$b} <=> $user{$a} }keys %user ],
         updatetime => $updatetime,

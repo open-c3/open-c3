@@ -77,6 +77,8 @@
 
                         vm.showRuntime2(response.data.data.pingtu);
                         vm.showRuntime3(response.data.data.pingtu2);
+                        vm.showRuntime6(response.data.data.pingtu3);
+                        vm.showRuntime7(response.data.data.pingtu4);
                         vm.data_Table = new ngTableParams({count:1000}, {counts:[],data:response.data.data.detailtable.reverse()});
 
                         vm.taskdatetime = [];
@@ -368,6 +370,77 @@
                 }]
             });
         };
+
+        vm.showRuntime6 = function (times) {
+            $('#container6').highcharts({
+                chart: {
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false
+                },
+                title: {
+                    text: ''
+                },
+                tooltip: {
+                    headerFormat: '{series.name}<br>',
+                    pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b>'
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                            style: {
+                                color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                            }
+                        }
+                    }
+                },
+                series: [{
+                    type: 'pie',
+                    name: '',
+                    data: times
+                }]
+            });
+        };
+        vm.showRuntime7 = function (times) {
+            $('#container7').highcharts({
+                chart: {
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false
+                },
+                title: {
+                    text: ''
+                },
+                tooltip: {
+                    headerFormat: '{series.name}<br>',
+                    pointFormat: '{point.name}: <b>{point.percentage:.1f}%</b>'
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            format: '<b>{point.name}</b>: {point.percentage:.1f} %',
+                            style: {
+                                color: (Highcharts.theme && Highcharts.theme.contrastTextColor) || 'black'
+                            }
+                        }
+                    }
+                },
+                series: [{
+                    type: 'pie',
+                    name: '',
+                    data: times
+                }]
+            });
+        };
+
+
 
     }
 
