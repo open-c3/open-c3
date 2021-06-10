@@ -83,7 +83,18 @@ get '/gitreport/:groupid/report' => sub {
     }
     
     my @datacol;
-    if( $param->{data} =~ /^(.+)\.month$/ )
+    if( $param->{data} =~ /^(.+)\.year$/ )
+    {
+        my $year = $1;
+        my $temptime = timelocal(0,0,0,1, 0, $year);
+        my $time = time;
+        map{
+            my $t = $temptime + ( 86400 * $_ );
+            my $d = POSIX::strftime( "%Y-%m-%d", localtime($t) );
+            push @datacol, $d if $d =~ /^$year/ && $t <= $time, 
+        } 0 .. 366
+    }
+    elsif( $param->{data} =~ /^(.+)\.month$/ )
     {
         my $m = $1;
         my ( $year, $month, $day ) = split /\-/, $m;
