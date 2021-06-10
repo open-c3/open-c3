@@ -37,7 +37,7 @@ get '/gitreport/:groupid/report' => sub {
     }
 
     my $record = @data ? 0 : 1;
-    my ( $usercount, $addcount, $delcount, $commitcount, %data, %data2, %user, %userchange, %userchange2 ) = ( 0, 0, 0, 0 );
+    my ( $usercount, $addcount, $delcount, $commitcount, %data, %data2, %data3, %user, %userchange, %userchange2 ) = ( 0, 0, 0, 0 );
 
     my @detailtable;
     for my $data ( @data )
@@ -65,9 +65,15 @@ get '/gitreport/:groupid/report' => sub {
         my $hour = $1;
         $data2{$hour}{add} += $add;
         $data2{$hour}{del} += $del;
+
+        my ( $year, $month, $day ) = split /\-/, $date;
+        my $temptime = timelocal(0,0,0,$day, $month-1, $year);
+        my $u = POSIX::strftime( "%u", localtime( $temptime ) );
+        $data3{$u}{add} += $add;
+        $data3{$u}{del} += $del;
     }
     
-    my ( @change, @change2 );
+    my ( @change, @change2, @change3 );
     my $allchange = $addcount + $delcount;
 
     my @pie;
@@ -128,9 +134,15 @@ get '/gitreport/:groupid/report' => sub {
         push @change2, [ $t, $data2{$t}{add} || 0, $data2{$t}{del} || 0 ];
     }
 
+    for my $t ( 1 .. 7 )
+    {
+        push @change3, [ $t, $data3{$t}{add} || 0, $data3{$t}{del} || 0 ];
+    }
+
     my %re = (
         change => \@change,
         change2 => \@change2,
+        change3 => \@change3,
         usercount => scalar( keys %user ),
         addcount => $addcount,
         delcount => $delcount,
