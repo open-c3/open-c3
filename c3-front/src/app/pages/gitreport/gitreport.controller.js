@@ -15,6 +15,12 @@
             vm.selecteduser = ''
         }
 
+        vm.selectedproject = $state.params.project;
+        if( vm.selectedproject == undefined )
+        {
+            vm.selectedproject = ''
+        }
+
         vm.selecteddata = $state.params.data;
         if( vm.selecteddata == undefined )
         {
@@ -36,20 +42,24 @@
             vm.nodeStr = treeService.selectname();
         });
 
-        vm.filteruser = function (username, datalist ) {
-            $state.go('home.gitreportfilterdata', {treeid:vm.treeid, user: username, data: datalist});
+        vm.filteruser = function (username, datalist, project ) {
+            $state.go('home.gitreportfilterdata', {treeid:vm.treeid, user: username, project: project, data: datalist});
         }
 
 
         $scope.choiceName = vm.selecteduser;
+        $scope.choiceProject = vm.selectedproject;
         $scope.choiceData = vm.selecteddata;
         $scope.$watch('choiceName', function () {
-                vm.filteruser( $scope.choiceName, $scope.choiceData )
+                vm.filteruser( $scope.choiceName, $scope.choiceData, $scope.choiceProject )
         });
 
+        $scope.$watch('choiceProject', function () {
+                vm.filteruser( $scope.choiceName, $scope.choiceData, $scope.choiceProject )
+        });
 
         $scope.$watch('choiceData', function () {
-                vm.filteruser( $scope.choiceName, $scope.choiceData )
+                vm.filteruser( $scope.choiceName, $scope.choiceData, $scope.choiceProject )
         });
 
  
@@ -66,7 +76,7 @@
                     toastr.error( "获取数据失败: " + response.status )
                 });
 
-            $http.get('/api/ci/gitreport/' + vm.treeid + "/report?user=" + vm.selecteduser + "&data=" + vm.selecteddata ).then(
+            $http.get('/api/ci/gitreport/' + vm.treeid + "/report?user=" + vm.selecteduser + "&data=" + vm.selecteddata + "&project=" + vm.selectedproject ).then(
                 function successCallback(response) {
                     if (response.data.stat){
                         $scope.userCount = response.data.data.usercount;
@@ -74,6 +84,7 @@
                         $scope.codeDelCount = response.data.data.delcount;
                         $scope.commitCount = response.data.data.commitcount;
                         vm.userlist = response.data.data.userlist; 
+                        vm.projectlist = response.data.data.projectlist; 
 
                         vm.showRuntime2(response.data.data.pingtu);
                         vm.showRuntime3(response.data.data.pingtu2);

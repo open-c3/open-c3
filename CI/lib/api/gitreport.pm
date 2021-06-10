@@ -16,6 +16,7 @@ get '/gitreport/:groupid/report' => sub {
     my $error = Format->new( 
         groupid => qr/^\d+$/, 1,
         user => qr/^[\w@\.\-]*$/, 0,
+        project => qr/^[\w@\.\-]*$/, 0,
         data => qr/^[a-zA-Z0-9_\.\-]+$/, 1,
     )->check( %$param );
 
@@ -37,7 +38,7 @@ get '/gitreport/:groupid/report' => sub {
     }
 
     my $record = @data ? 0 : 1;
-    my ( $usercount, $addcount, $delcount, $commitcount, %data, %data2, %data3, %user, %userchange, %userchange2, %projectchange, %projectchange2 ) = ( 0, 0, 0, 0 );
+    my ( $usercount, $addcount, $delcount, $commitcount, %data, %data2, %data3, %user, %userchange, %userchange2, %projectchange, %projectchange2, %project ) = ( 0, 0, 0, 0 );
 
     my @detailtable;
     for my $data ( @data )
@@ -46,7 +47,11 @@ get '/gitreport/:groupid/report' => sub {
         my ( $date ) = split /\./, $time;
 
         $user{$name} ++;
+
+        my $projectname = $url =~ /\/([a-zA-Z0-9\-\._]+)\/commit\// ? $1 : 'unkown';
+        $project{$projectname} ++;
         next if $param->{user} && $param->{user} ne $name;
+        next if $param->{project} && $param->{project} ne $projectname;
 
         push @detailtable, +{ time => $time, uuid => $uuid, effective => $effective, user => $name, add => $add, del => $del, url => $url };
         next if $effective eq 'No';
@@ -59,7 +64,6 @@ get '/gitreport/:groupid/report' => sub {
         $userchange2{$name} += $add;
         $userchange2{$name} += $del;
 
-        my $projectname = $url =~ /\/([a-zA-Z0-9\-\._]+)\/commit\// ? $1 : 'unkown';
         $projectchange{$projectname} ++;
         $projectchange2{$projectname} += $add;
         $projectchange2{$projectname} += $del;
@@ -171,6 +175,7 @@ get '/gitreport/:groupid/report' => sub {
         pingtu4 => \@pie4,
         detailtable => \@detailtable,
         userlist => [ sort{ $user{$b} <=> $user{$a} }keys %user ],
+        projectlist => [ sort{ $project{$b} <=> $project{$a} }keys %project ],
         updatetime => $updatetime,
     );
 
