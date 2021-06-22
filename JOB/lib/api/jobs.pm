@@ -300,7 +300,7 @@ post '/jobs/:projectid' => sub {
             map{ push @variable, $data->{$_} }qw( node_cont scripts_argv );
 
             $error = Format->new( 
-                user => qr/^[a-zA-Z0-9]+$/, 1,
+                user => qr/^[a-zA-Z0-9\-_]+$/, 1,
                 node_type => [qw( in builtin group variable )], 1,
                 scripts_type => [qw( in cite shell perl python php buildin auto )], 1,
             )->check( %$data );
@@ -370,12 +370,12 @@ post '/jobs/:projectid' => sub {
             map{ push @variable, $data->{$_} }qw( src sp dst dp );
 
             $error = Format->new( 
-                user => qr/^[a-zA-Z0-9]+$/, 1,
+                user => qr/^[a-zA-Z0-9\-_]+$/, 1,
                 src_type => [ qw( in builtin group fileserver variable ci )], 1,
                 dst_type => [ qw( in builtin group variable )], 1,
                 sp => [ 'mismatch', qr/'/ ], 0,
                 dp => [ 'mismatch', qr/'/ ], 0,
-                chown => qr/^[a-zA-Z0-9\-]+$/, 0,
+                chown => qr/^[a-zA-Z0-9\-_]+$/, 0,
                 chmod => qr/^\d+$/, 0,
             )->check( %$data );
             return  +{ stat => $JSON::false, info => "$info: check format fail $error" } if $error;
@@ -579,7 +579,7 @@ post '/jobs/:projectid/:jobuuid' => sub {
             map{ push @variable, $data->{$_} }qw( node_cont scripts_argv );
 
             $error = Format->new( 
-                user => qr/^[a-zA-Z0-9]+$/, 1,
+                user => qr/^[a-zA-Z0-9\-_]+$/, 1,
                 node_type => [qw( in builtin group variable )], 1,
                 scripts_type => [qw( in cite shell perl python php buildin auto )], 1,
             )->check( %$data );
@@ -649,12 +649,12 @@ post '/jobs/:projectid/:jobuuid' => sub {
             map{ push @variable, $data->{$_} }qw( src sp dst dp );
 
             $error = Format->new( 
-                user => qr/^[a-zA-Z0-9]+$/, 1,
+                user => qr/^[a-zA-Z0-9\-_]+$/, 1,
                 src_type => [ qw( in builtin group fileserver variable ci )], 1,
                 dst_type => [ qw( in builtin group variable )], 1,
                 sp => [ 'mismatch', qr/'/ ], 0,
                 dp => [ 'mismatch', qr/'/ ], 0,
-                chown => qr/^[a-zA-Z0-9\-]+$/, 0,
+                chown => qr/^[a-zA-Z0-9\-_]+$/, 0,
                 chmod => qr/^\d+$/, 0,
             )->check( %$data );
             return  +{ stat => $JSON::false, info => "$info: check format fail $error" } if $error;
