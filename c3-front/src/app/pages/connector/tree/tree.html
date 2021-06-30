@@ -25,26 +25,23 @@
                                     <strong>{{ connectortree.menuTags }}</strong>
                                 </li>
                                 <li class="divider"></li>
-                                <li ng-show="connectortree.canAddNode">
+                                <li ng-show="connectortree.canAddNode && connectortree.canEditNode">
                                     <a href="javascript:void(0)" ng-click="connectortree.addNode()">
                                         <i class="fa fa-plus pull-right"></i>
                                         添加节点
                                     </a>
                                </li>
-                               <li ng-show="connectortree.canDelNode">
+                               <li ng-show="connectortree.canDelNode && connectortree.canEditNode">
                                    <a href="javascript:void(0)" ng-click="connectortree.delNode()">
                                        <i class="fa fa-trash pull-right"></i>
                                        删除节点
                                    </a>
                                </li>
-<!--
-                               <li ng-show="connectortree.canEditNode">
-                                   <a href="javascript:void(0)" ng-click="connectortree.renameNode()">
-                                       <i class="fa fa-pencil-square-o pull-right"></i>
-                                       重命名
+                               <li ng-show="!connectortree.canEditNode">
+                                   <a href="javascript:void(0)">
+                                       私有节点不能在服务树中编辑
                                    </a>
                               </li>
--->
                            </ul>
                      </div>
                      <!-- end: right click menu -->

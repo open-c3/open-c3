@@ -69,7 +69,7 @@
                             if (!vm.currentNode.isParent){
                                 vm.canDelNode = true;
                             }
-                            if (vm.currentNode.level > 0){
+                            if (vm.nodeId < 4000000000 ){
                                 vm.canEditNode = true;
                             }
  
