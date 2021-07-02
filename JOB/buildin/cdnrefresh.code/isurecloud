@@ -1,0 +1,88 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import requests
+import json
+import argparse
+import sys
+import os
+
+def IsurecloudPush():
+    push_states = {}
+    parser = argparse.ArgumentParser()
+    parser.add_argument("file", help="文件名")
+    parser.add_argument("domain", help="域名")
+    parser.add_argument('-f', '--file', help="文件", action="store_true")
+    parser.add_argument('-d', '--domain', help="域名", action="store_true")
+    args = parser.parse_args()
+
+    with open(args.file) as f:
+        for i in f:
+            push_data = i.strip().split(':')
+            if push_data[0] in push_states:
+                url = 'http://' + args.domain + '/' + push_data[1]
+                push_states[push_data[0]].append(url)
+            else:
+                push_states[push_data[0]] = []
+                url = 'http://' + args.domain + '/' + push_data[1]
+                push_states[push_data[0]].append(url)
+
+    for k, v in push_states.items():
+        a = isurecloud(k, v)
+        if a != 0:
+            return 1
+    return 0
+
+
+def isurecloud(push_type, push_uri):
+    limit = 100;
+    url = [];
+    for u in push_uri:
+        url.append(u);
+        if limit == len(url):
+            a = _cdn(push_type, url)
+            if a != 0:
+                return 1
+            url = [];
+    if len(url):
+        a = _cdn(push_type, url)
+        if a != 0:
+            return 1
+    return 0;
+
+
+def _cdn(push_type, push_uri):
+    '''云端智度cdn'''
+    try:
+        token_data = {'grant_type': 'client_credentials',
+                      'appid': os.getenv('openc3_cdnrefresh_isurecloud_appid'), 'appsecret': os.getenv('openc3_cdnrefresh_isurecloud_appsecret')}
+        res = requests.post(
+            'https://webapi.isurecloud.com/oauth/access_token', data=json.dumps(token_data))
+        data = json.loads(res.text)
+        token = data.get('result')['access_token']
+        refresh_data = {"access_token": token}
+        if push_type == 'f':
+            refresh_data['files'] = push_uri
+            print 'files', json.dumps(push_uri)
+        if push_type == 'd':
+            refresh_data['dirs'] = push_uri
+            print 'dirs', json.dumps(push_uri)
+
+        refresh_url = requests.post(
+            'https://webapi.isurecloud.com/content/add_purge', data=json.dumps(refresh_data))
+        a = json.loads(refresh_url.text)
+        print 'isurecloud', a
+        if a.get('status') == 0:
+            return 0
+    except Exception as e:
+        return 1
+
+
+if __name__ == '__main__':
+    try:
+        if IsurecloudPush() == 0:
+            sys.exit(0)
+        else:
+            sys.exit(1)
+    except Exception as e:
+        sys.exit(1)

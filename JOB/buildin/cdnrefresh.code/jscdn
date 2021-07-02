@@ -1,0 +1,147 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import argparse
+import sys
+import datetime
+import hashlib
+import requests
+import random
+import string
+import json
+import hmac
+import os
+from urllib import quote
+reload(sys)
+sys.setdefaultencoding('utf-8')
+
+
+def JsPush():
+    push_states = {}
+    parser = argparse.ArgumentParser()
+    parser.add_argument("file", help="文件名")
+    parser.add_argument("domain", help="域名")
+    parser.add_argument('-f', '--file', help="文件", action="store_true")
+    parser.add_argument('-d', '--domain', help="域名", action="store_true")
+    args = parser.parse_args()
+
+    with open(args.file) as f:
+        for i in f:
+            push_data = i.strip().split(':')
+            if push_data[0] in push_states:
+                url = 'http://' + args.domain + push_data[1]
+                push_states[push_data[0]].append(url)
+            else:
+                push_states[push_data[0]] = []
+                url = 'http://' + args.domain + push_data[1]
+                push_states[push_data[0]].append(url)
+
+    for k, v in push_states.items():
+        a = jscdn(k, v)
+        if a != 0:
+            return 1
+    return 0
+
+
+def sign(key, msg):
+    return hmac.new(key, msg.encode("utf-8"), hashlib.sha256).digest()
+
+
+def getSignatureKey(key, date_stamp, regionName, serviceName):
+    kDate = sign(('AWS4' + key).encode('utf-8'), date_stamp)
+    kRegion = sign(kDate, regionName)
+    kService = sign(kRegion, serviceName)
+    kSigning = sign(kService, 'aws4_request')
+    return kSigning
+
+
+def jscdn(push_type, push_uri):
+    try:
+
+        method = 'POST'
+
+        service = 'cdn'
+        region = 'cn-shanghai-1'
+
+        host = 'cdn.api.ksyun.com'
+        endpoint = 'http://cdn.api.ksyun.com'
+
+        a = ''.join(random.sample(string.ascii_letters, 5))
+
+        # ak/sk 请从 http://iam.console.ksyun.com/#!/account  获取
+        access_key = os.getenv('openc3_cdnrefresh_jscdn_access_key')
+        secret_key = os.getenv('openc3_cdnrefresh_jscdn_secret_key')
+
+        content_type = 'application/json'
+
+        data = {"callerReference": 5}
+        if push_type == 'f':
+            data['files'] = push_uri
+        if push_type == 'd':
+            data['dirs'] = push_uri
+
+        request_parameters = str(json.dumps(data))
+
+        t = datetime.datetime.utcnow()
+
+        amz_date = t.strftime('%Y%m%dT%H%M%SZ')
+
+        date_stamp = t.strftime('%Y%m%d')
+
+        canonical_uri = '/2016-07-11/distribution/invalidation'
+        temp_canonical_uri = quote(quote(canonical_uri))
+
+        canonical_querystring = ''
+
+        canonical_headers = 'content-type:' + content_type + '\n' + \
+            'host:' + host + '\n' + 'x-amz-date:' + amz_date + '\n'
+
+        signed_headers = 'content-type;host;x-amz-date'
+
+        payload_hash = hashlib.sha256(request_parameters).hexdigest()
+
+        canonical_request = method + '\n' + temp_canonical_uri + '\n' + canonical_querystring + \
+            '\n' + canonical_headers + '\n' + signed_headers + '\n' + payload_hash
+
+        algorithm = 'AWS4-HMAC-SHA256'
+        credential_scope = date_stamp + '/' + region + \
+            '/' + service + '/' + 'aws4_request'
+        string_to_sign = algorithm + '\n' + amz_date + '\n' + credential_scope + \
+            '\n' + hashlib.sha256(canonical_request).hexdigest()
+
+        signing_key = getSignatureKey(secret_key, date_stamp, region, service)
+
+        signature = hmac.new(signing_key, (string_to_sign).encode(
+            'utf-8'), hashlib.sha256).hexdigest()
+
+        authorization_header = algorithm + ' ' + 'Credential=' + access_key + '/' + \
+            credential_scope + ', ' + 'SignedHeaders=' + \
+            signed_headers + ', ' + 'Signature=' + signature
+
+        headers = {'content-type': content_type,
+                   'x-amz-date': amz_date,
+                   'authorization': authorization_header,
+                   'x-action': 'CreateInvalidation',
+                   'Connection': 'close',
+                   'x-version': '2016-07-11'}
+
+        r = requests.post(endpoint + canonical_uri,
+                          data=request_parameters, headers=headers)
+
+        if r.status_code == 200:
+            print r.status_code,r.text
+            return 0
+        else:
+            return 1
+
+    except Exception as e:
+        return 'false'
+
+if __name__ == '__main__':
+    try:
+        if JsPush() == 0:
+            sys.exit(0)
+        else:
+            sys.exit(1)
+    except Exception as e:
+        sys.exit(1)

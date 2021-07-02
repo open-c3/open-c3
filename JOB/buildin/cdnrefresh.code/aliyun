@@ -1,0 +1,108 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import argparse
+import urllib
+import urllib2
+import datetime
+import sys
+import os
+
+# /usr/bin/pip27   install aliyun-python-sdk-cdn
+from aliyunsdkcore import client
+from aliyunsdkcdn.request.v20141111 import RefreshObjectCachesRequest
+
+def AliyumPush():
+    push_states = {}
+    parser = argparse.ArgumentParser()
+    parser.add_argument("file", help="文件名")
+    parser.add_argument("domain", help="域名")
+    parser.add_argument('-f', '--file', help="文件", action="store_true")
+    parser.add_argument('-d', '--domain', help="域名", action="store_true")
+    args = parser.parse_args()
+
+    with open(args.file) as f:
+        for i in f:
+            push_data = i.strip().split(':')
+            if push_data[0] in push_states:
+                url = 'http://' + args.domain + '/' + push_data[1]
+                push_states[push_data[0]].append(url)
+            else:
+                push_states[push_data[0]] = []
+                url = 'http://' + args.domain + '/' + push_data[1]
+                push_states[push_data[0]].append(url)
+    print push_data
+    for k, v in push_states.items():
+        a = aliyun(k, v)
+        if a != 0:
+            return 1
+    return 0
+
+def aliyun(push_type, push_uri):
+    limit = 100;
+    url = [];
+    for u in push_uri:
+        url.append(u);
+        if limit == len(url):
+            a = _cdn(push_type, url)
+            if a != 0:
+                return 1
+            url = [];
+    if len(url):
+        a = _cdn(push_type, url)
+        if a != 0:
+            return 1
+    return 0;
+def _cdn(push_type, push_uri):
+    if push_type == 'f':
+        a = __cdn( push_uri, [] )
+        return a;
+    if push_type == 'd':
+        a = __cdn( [], push_uri )
+        return a;
+    return 1;
+
+
+def __cdn(url, dir):
+    '''阿里'''
+    print 'aliyun'
+    try:
+        Client=client.AcsClient(os.getenv('openc3_cdnrefresh_aliyun_accessKey'),os.getenv('openc3_cdnrefresh_aliyun_accessSecret'),os.getenv('openc3_cdnrefresh_aliyun_regionId'))
+        if len(url):
+            request = RefreshObjectCachesRequest.RefreshObjectCachesRequest()
+            request.set_accept_format('json')
+            request.set_ObjectPath('\n'.join(url))
+            request.set_ObjectType('File')
+            result=Client.do_action_with_exception(request)
+            print result
+            if eval(result)['RefreshTaskId'] > 0:
+                print 'ok'
+            else:
+                return 1
+
+        if len(dir):
+            request = RefreshObjectCachesRequest.RefreshObjectCachesRequest()
+            request.set_accept_format('json')
+            request.set_ObjectPath('\n'.join(dir))
+            request.set_ObjectType('Directory')
+            result=Client.do_action_with_exception(request)
+            print result
+            if eval(result)['RefreshTaskId'] > 0:
+                print 'ok'
+            else:
+                return 1
+
+    except Exception, e:
+        print 'exception:', e
+        return 1;
+
+    return 0;
+    
+if __name__ == '__main__':
+    try:
+        if AliyumPush() == 0:
+            sys.exit(0)
+        else:
+            sys.exit(1)
+    except Exception as e:
+        sys.exit(1)

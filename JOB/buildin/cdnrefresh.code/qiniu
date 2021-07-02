@@ -1,0 +1,125 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import argparse
+import urllib
+import urllib2
+import datetime
+import sys
+import os
+
+import qiniu
+import logging
+import json
+
+def QiniuPush():
+    push_states = {}
+    parser = argparse.ArgumentParser()
+    parser.add_argument("file", help="文件名")
+    parser.add_argument("domain", help="域名")
+    parser.add_argument('-f', '--file', help="文件", action="store_true")
+    parser.add_argument('-d', '--domain', help="域名", action="store_true")
+    args = parser.parse_args()
+
+    with open(args.file) as f:
+        for i in f:
+            push_data = i.strip().split(':')
+            if push_data[0] in push_states:
+                url = 'http://' + args.domain + '/' + push_data[1]
+                push_states[push_data[0]].append(url)
+            else:
+                push_states[push_data[0]] = []
+                url = 'http://' + args.domain + '/' + push_data[1]
+                push_states[push_data[0]].append(url)
+    for k, v in push_states.items():
+        a = _qiniu(k, v)
+        if a != 0:
+            return 1
+    return 0
+
+def _qiniu(push_type, push_uri):
+    limit = 100;
+    url = [];
+    for u in push_uri:
+        url.append(u);
+        if limit == len(url):
+            a = _cdn(push_type, url)
+            if a != 0:
+                return 1
+            url = [];
+    if len(url):
+        a = _cdn(push_type, url)
+        if a != 0:
+            return 1
+    return 0;
+
+def _cdn(push_type, push_uri):
+    if push_type == 'f':
+        a = __cdn( push_uri, [] )
+	return a;
+    if push_type == 'd':
+        a = __cdn( [], push_uri )
+	return a;
+    return 1;
+
+def __cdn(url, dir):
+    '''七牛'''
+    print 'qiniu';
+
+
+    ak = os.getenv('openc3_cdnrefresh_qiniu_ak')
+    sk = os.getenv('openc3_cdnrefresh_qiniu_sk')
+    try:
+        auth = qiniu.Auth(access_key=ak, secret_key=sk)
+        cdn_manager = qiniu.CdnManager(auth)
+    except Exception, e:
+        print 'exception:', e
+        return 1
+
+    if len(url):
+        try:
+            none,resp = cdn_manager.refresh_urls(url)
+            if resp.status_code != 200:
+                print "七牛CDN url刷新失败:", json.dumps(resp.text_body)
+                return 1
+            else:
+                a = json.loads(resp.text_body)
+                print a;
+                if a['code'] == 200:
+                    return 0
+                else:
+                    return 1
+ 
+        except Exception, e:
+            print 'exception:', e
+            return 1
+    if len(dir):
+        try:
+            none,resp = cdn_manager.refresh_dirs(dir)
+            if resp.status_code != 200:
+                print "七牛CDN dir刷新失败:", json.dumps(resp.text_body)
+                return 1
+            else:
+                a = json.loads(resp.text_body)
+                print a;
+                if a['code'] == 200:
+                    return 0
+                else:
+                    return 1
+ 
+        except Exception, e:
+            print 'exception:', e
+            return 1
+
+
+    return 0
+
+    
+if __name__ == '__main__':
+    try:
+        if QiniuPush() == 0:
+            sys.exit(0)
+        else:
+            sys.exit(1)
+    except Exception as e:
+        sys.exit(1)

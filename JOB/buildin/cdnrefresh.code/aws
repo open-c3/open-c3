@@ -1,0 +1,76 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import argparse
+import commands
+import sys
+import yaml
+
+def AwsPush():
+    push_states = {}
+    parser = argparse.ArgumentParser()
+    parser.add_argument("file", help="文件名")
+    parser.add_argument("domain", help="域名")
+    parser.add_argument('-f', '--file', help="文件", action="store_true")
+    parser.add_argument('-d', '--domain', help="域名", action="store_true")
+    args = parser.parse_args()
+
+    with open(args.file) as f:
+        for i in f:
+            push_data = i.strip().split(':')
+            if push_data[0] in push_states:
+                url = 'http://' + args.domain + push_data[1]
+                push_states[push_data[0]].append(url)
+            else:
+                push_states[push_data[0]] = []
+                url = 'http://' + args.domain + push_data[1]
+                push_states[push_data[0]].append(url)
+
+    for k, v in push_states.items():
+        a = aws(args.domain, v)
+        if a != 0:
+            return 1
+    return 0
+
+
+def aws(domain, push_uri):
+    '''AWS'''
+    push = {}
+    ID = ''
+    try:
+        aws_key = yaml.load(commands.getoutput(
+            'aws cloudfront list-distributions'))
+        for i in aws_key['DistributionList']['Items']:
+            for j in i['Aliases']:
+                if j == 'Items':
+                    push[i['Id']] = i['Aliases']['Items']
+        dirs = str(' '.join(push_uri))
+        if re.findall('\*', dirs):
+            dirs = dirs.replace('*', '\*')
+        for k, v in push.items():
+            for i in v:
+                if i == domain:
+                    ID = k
+        if not ID.strip():
+            return 1
+        else:
+            comm = commands.getstatusoutput(
+                "aws cloudfront create-invalidation --distribution-id %s --paths %s" % (ID, dirs))
+            print comm
+            if comm[0] == 0:
+                return 0
+            else:
+                return 1
+    except Exception as e:
+        print e
+        return 1
+
+
+if __name__ == '__main__':
+    try:
+        if AwsPush() == 0:
+            sys.exit(0)
+        else:
+            sys.exit(1)
+    except Exception as e:
+        sys.exit(1)

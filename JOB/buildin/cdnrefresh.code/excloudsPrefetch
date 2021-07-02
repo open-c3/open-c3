@@ -1,0 +1,128 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import argparse
+import urllib
+import urllib2
+import datetime
+import sys
+import os
+
+def ExcloudsPush():
+    push_states = {}
+    parser = argparse.ArgumentParser()
+    parser.add_argument("file", help="文件名")
+    parser.add_argument("domain", help="域名")
+    parser.add_argument('-f', '--file', help="文件", action="store_true")
+    parser.add_argument('-d', '--domain', help="域名", action="store_true")
+    args = parser.parse_args()
+
+    with open(args.file) as f:
+        for i in f:
+            push_data = i.strip().split(':')
+            if push_data[0] in push_states:
+                url = 'http://' + args.domain + '/' + push_data[1]
+                push_states[push_data[0]].append(url)
+            else:
+                push_states[push_data[0]] = []
+                url = 'http://' + args.domain + '/' + push_data[1]
+                push_states[push_data[0]].append(url)
+
+    for k, v in push_states.items():
+        a = exclouds(k, v)
+        if a != 0:
+            return 1
+        b = prefetch(k, v)
+        if b != 0:
+            return 1
+    return 0
+
+
+def exclouds(push_type, push_uri):
+    limit = 100;
+    url = [];
+    for u in push_uri:
+        url.append(u);
+        if limit == len(url):
+            a = _cdn(push_type, url)
+            if a != 0:
+                return 1
+            url = [];
+    if len(url):
+        a = _cdn(push_type, url)
+        if a != 0:
+            return 1
+    return 0;
+
+def _cdn(push_type, push_uri):
+    '''逸云cdn'''
+    try:
+        date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        uu = "http://openapi.exclouds.com/contentService/AddRefresh"
+        if push_type == 'f':
+            url = ';'.join(push_uri)
+            post_data = {"url": url, "type": 1}
+        if push_type == 'd':
+            dir = ';'.join(push_uri)
+            post_data = {"url": dir, "type": 0}
+        print uu, post_data;
+        data = urllib.urlencode(post_data)
+        req = urllib2.Request(uu, data)
+        req.add_header("Authorization", os.getenv('openc3_cdnrefresh_exclouds_Authorization'))
+        req.add_header("Date", date)
+        response = urllib2.urlopen(req)
+        the_page = response.read()
+        print 'code:', eval(the_page)['code']
+        if eval(the_page)['code'] == 200:
+            return 0
+        else:
+            return 1
+    except Exception as e:
+        print e
+        return 1
+
+def prefetch(push_type, push_uri):
+    limit = 100;
+    url = [];
+    for u in push_uri:
+        url.append(u);
+        if limit == len(url):
+            a = _p(push_type, url)
+            if a != 0:
+                return 1
+            url = [];
+    if len(url):
+        a = _p(push_type, url)
+        if a != 0:
+            return 1
+    return 0;
+
+def _p(push_type, push_uri):
+    '''逸云cdn'''
+    try:
+        date = datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        uu = "http://openapi.exclouds.com/publishService/AddDelivery"
+        if push_type == 'f':
+            url = ';'.join(push_uri)
+            post_data = {"url": url}
+        if push_type == 'd':
+            return 0;
+        print uu, post_data;
+        data = urllib.urlencode(post_data)
+        req = urllib2.Request(uu, data)
+        req.add_header("Authorization", os.getenv('openc3_cdnrefresh_exclouds_Authorization'))
+        req.add_header("Date", date)
+        response = urllib2.urlopen(req)
+        the_page = response.read()
+        print 'code:', eval(the_page)['code']
+        if eval(the_page)['code'] == 200:
+            return 0
+        else:
+            return 1
+    except Exception as e:
+        print e
+        return 1
+
+
+if __name__ == '__main__':
+    sys.exit(0)

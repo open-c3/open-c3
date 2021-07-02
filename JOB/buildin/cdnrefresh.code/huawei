@@ -1,0 +1,143 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import argparse
+import urllib
+import urllib2
+import datetime
+import sys
+import os
+
+from src.huaweiApi.apig_sdk import signer
+import requests
+import logging
+import json
+
+def HuaweiPush():
+    push_states = {}
+    parser = argparse.ArgumentParser()
+    parser.add_argument("file", help="文件名")
+    parser.add_argument("domain", help="域名")
+    parser.add_argument('-f', '--file', help="文件", action="store_true")
+    parser.add_argument('-d', '--domain', help="域名", action="store_true")
+    args = parser.parse_args()
+
+    with open(args.file) as f:
+        for i in f:
+            push_data = i.strip().split(':')
+            if push_data[0] in push_states:
+                url = 'http://' + args.domain + '/' + push_data[1]
+                push_states[push_data[0]].append(url)
+            else:
+                push_states[push_data[0]] = []
+                url = 'http://' + args.domain + '/' + push_data[1]
+                push_states[push_data[0]].append(url)
+    for k, v in push_states.items():
+        a = huawei(k, v)
+        if a != 0:
+            return 1
+    return 0
+
+def huawei(push_type, push_uri):
+    limit = 100;
+    url = [];
+    for u in push_uri:
+        url.append(u);
+        if limit == len(url):
+            a = _cdn(push_type, url)
+            if a != 0:
+                return 1
+            url = [];
+    if len(url):
+        a = _cdn(push_type, url)
+        if a != 0:
+            return 1
+    return 0;
+
+def _cdn(push_type, push_uri):
+    if push_type == 'f':
+        a = __cdn( push_uri, [] )
+	return a;
+    if push_type == 'd':
+        a = __cdn( [], push_uri )
+	return a;
+    return 1;
+
+def __cdn(url, dir):
+    '''华为'''
+    print 'huawei';
+
+    ak = os.getenv('openc3_cdnrefresh_huawei_ak')
+    sk = os.getenv('openc3_cdnrefresh_huawei_sk')
+    api = "https://cdn.myhuaweicloud.com/v1.0/cdn/refreshtasks"
+    if len(url):
+        sig = signer.Signer()
+        # Set the AK/SK to sign and authenticate the request.
+        sig.Key = ak
+        sig.Secret = sk
+        r = signer.HttpRequest("POST", api)
+        body = {
+            "refreshTask":{
+                "type":"file",
+                "urls":url
+            }
+        }
+        r.body = json.dumps(body)
+        try:
+            sig.Sign(r)
+            resp = requests.request(r.method, r.scheme + "://" + r.host + r.uri, headers=r.headers, data=r.body)
+            if resp.status_code != 200:
+                logging.error("华为CDN url刷新失败：%s", resp.content)
+                return 1
+            else:
+                a = json.loads(resp.content)
+                print a;
+                if a['refreshTask']:
+                    return 0
+                else:
+                    return 1
+ 
+        except Exception, e:
+            print "exception:", e
+            return 1
+    if len(dir):
+        sig = signer.Signer()
+        # Set the AK/SK to sign and authenticate the request.
+        sig.Key = ak
+        sig.Secret = sk
+        r = signer.HttpRequest("POST", api)
+        body = {
+            "refreshTask":{
+                "type":"directory",
+                "urls":dir
+            }
+        }
+        r.body = json.dumps(body)
+        try:
+            sig.Sign(r)
+            resp = requests.request(r.method, r.scheme + "://" + r.host + r.uri, headers=r.headers, data=r.body)
+            if resp.status_code != 200:
+                logging.error("华为CDN dir刷新失败：%s", resp.content)
+                return 1
+            else:
+                a = json.loads(resp.content)
+                print a;
+                if a['refreshTask']:
+                    return 0
+                else:
+                    return 1
+ 
+        except Exception, e:
+            print "exception:", e
+            return 1
+
+    return 0
+
+if __name__ == '__main__':
+    try:
+        if HuaweiPush() == 0:
+            sys.exit(0)
+        else:
+            sys.exit(1)
+    except Exception as e:
+        sys.exit(1)

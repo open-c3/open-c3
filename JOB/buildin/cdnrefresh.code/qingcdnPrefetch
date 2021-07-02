@@ -1,0 +1,129 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import argparse
+import requests
+import json
+import sys
+import os
+
+def QingPush():
+    push_states = {}
+    parser = argparse.ArgumentParser()
+    parser.add_argument("file", help="文件名")
+    parser.add_argument("domain", help="域名")
+    parser.add_argument('-f', '--file', help="文件", action="store_true")
+    parser.add_argument('-d', '--domain', help="域名", action="store_true")
+    args = parser.parse_args()
+
+    with open(args.file) as f:
+        for i in f:
+            push_data = i.strip().split(':')
+            if push_data[0] in push_states:
+                url = 'http://' + args.domain + '/' + push_data[1]
+                push_states[push_data[0]].append(url)
+            else:
+                push_states[push_data[0]] = []
+                url = 'http://' + args.domain + '/' + push_data[1]
+                push_states[push_data[0]].append(url)
+
+    for k, v in push_states.items():
+        a = qingcdn(k, v)
+        if a != 0:
+            return 1
+
+        b = prefetch(k, v)
+        if b != 0:
+            return 1
+    return 0
+
+def qingcdn(push_type, push_uri):
+    limit = 100;
+    url = [];
+    for u in push_uri:
+        url.append(u);
+        if limit == len(url):
+            a = _cdn(push_type, url)
+            if a != 0:
+                return 1
+            url = [];
+    if len(url):
+        a = _cdn(push_type, url)
+        if a != 0:
+            return 1
+    return 0;
+
+def _cdn(push_type, push_uri):
+    '''白山云'''
+
+    payload = {'token': os.getenv('openc3_cdnrefresh_qingcdn_token'), }
+               'method': 'purge.add', 'params': {}}
+    if push_type == 'f':
+        payload['params']['urls'] = push_uri
+        payload['params']['type'] = 'url'
+    if push_type == 'd':
+        payload['params']['urls'] = push_uri
+        payload['params']['type'] = 'dir'
+    try:
+        print 'http://cdn.api.baishan.com/apix',json.dumps(payload['params']) ;
+        res = requests.post('http://cdn.api.baishan.com/apix',
+                            data=json.dumps(payload))
+        a = json.loads(res.text)
+        print a;
+        if a['errno'] == 0:
+            return 0
+        else:
+            return 1
+    except Exception, e:
+        print e
+        return 1
+
+def prefetch(push_type, push_uri):
+    limit = 100;
+    url = [];
+    for u in push_uri:
+        url.append(u);
+        if limit == len(url):
+            a = _p(push_type, url)
+            if a != 0:
+                return 1
+            url = [];
+    if len(url):
+        a = _p(push_type, url)
+        if a != 0:
+            return 1
+    return 0;
+def _p(push_type, push_uri):
+    '''白山云'''
+
+    payload = {'token': os.getenv('openc3_cdnrefresh_qingcdn_token'), }
+               'method': 'prefetch.add', 'params': {}}
+    if push_type == 'f':
+        payload['params']['urls'] = push_uri
+    if push_type == 'd':
+        return 0
+    try:
+        print 'http://cdn.api.baishan.com/apix',json.dumps(payload['params']);
+        res = requests.post('http://cdn.api.baishan.com/apix',
+                            data=json.dumps(payload))
+        a = json.loads(res.text)
+        print a;
+        if a['errno'] == 0:
+            return 0
+        else:
+            return 1
+    except Exception, e:
+        print e
+        return 1
+
+
+
+if __name__ == '__main__':
+    try:
+        if QingPush() == 0:
+            sys.exit(0)
+        else:
+            sys.exit(1)
+    except Exception as e:
+        print e
+        sys.exit(1)

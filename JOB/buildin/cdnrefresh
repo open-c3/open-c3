@@ -1,0 +1,46 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use MYDan::Util::OptConf;
+use YAML::XS;
+use JSON;
+use FindBin qw( $RealBin );
+
+=head1 SYNOPSIS
+
+ $0 cdnname domain
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+$option->assert() unless @ARGV;
+
+die "nonode" unless $ENV{NODE};
+
+sub success
+{
+    map{ print "$_:ok\n"; } split /,/, $ENV{NODE};
+    exit;
+}
+
+my $ticket = $ENV{TICKETFILE} ? ". $ENV{TICKETFILE} &&" : '';
+if( $ENV{TICKETFILE} )
+{
+    my @ticketstr = `cat $ENV{TICKETFILE}`;
+    die "ticket null" unless @ticketstr;
+    map{
+        chomp $_;
+        die "ticket content format error.\n" unless $_ =~ /^export\s+[A-Za-z0-9_]+="[A-Za-z0-9\/]+"\s*$/;
+    }@ticketstr;
+}
+
+die "config null\n" unless $ENV{CONFIGPATH} && -f $ENV{CONFIGPATH};
+
+die "argv error" unless @ARGV == 2;
+my ( $cdn, $domain ) = @ARGV;
+
+die "cnd format error" unless $cdn =~ /^[a-zA-Z0-9]+$/; 
+die "cnd format error" unless $domain =~ /^[a-zA-Z0-9\.\-_]+$/; 
+
+die "refresh fail: $!" if system "$ticket $RealBin/cdnrefresh.code/$cdn -f $ENV{CONFIGPATH} -d $domain 1>&2";
+success();
