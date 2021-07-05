@@ -40,7 +40,12 @@ get '/task/:projectid' => sub {
     my $projectid = $param->{projectid};
 
     my @where;
-    push @where, "name like '%$param->{name}%'" if defined $param->{name};
+    if( defined $param->{name} )
+    {
+        my $tempname = $param->{name};
+        $tempname =~ s/_/\\_/g;
+        push @where, "name like '%$tempname%'" if defined $param->{name};
+    }
 
     $param->{uuid} = $param->{taskuuid};
     map{ push @where, "$_='$param->{$_}'" if defined $param->{$_}; }qw( user status uuid );
