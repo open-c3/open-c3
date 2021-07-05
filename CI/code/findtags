@@ -41,7 +41,11 @@ return sub
     $logs->die( "project id is illegal, mismatch: $id" ) unless @$x;
     my ( $addr, $ticketid, $autobuild, $tag_regex, $groupid ) = @{$x->[0]};
 
-	my $type = ( $addr =~ /git@/ || $addr =~ /\.git/ || $addr =~ /http:\/\/git/ || $addr =~ /https:\/\/git/  )? 'git': $addr eq 'openc3://*' ? 'openc3fileserver' : 'svn';
+        my $type = 'svn';
+        $type = 'git' if $addr =~ /git@/ || $addr =~ /\.git/ || $addr =~ /http:\/\/git/ || $addr =~ /https:\/\/git/;
+        $type = 'openc3fileserver' if $addr eq 'openc3://*';
+        $type = 'harbor' if $addr =~ /\/tags$/;
+
   	my @tags = eval{ Code->new( "findtags.plugin/$type" )->run( 
             db => $db, 
             id => $id,

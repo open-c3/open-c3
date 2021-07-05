@@ -45,8 +45,25 @@ my @addr = split /\//, $o{repository};
 die "login fail" if system "docker login -u '$ENV{TUSERNAME}' '$addr[0]' -p '$ENV{TPASSWORD}'";
 print "[INFO]docker login success.\n";
 
-die "docker build fail:$!" if system "docker build -t '$o{repository}:$ENV{VERSION}' -f '$o{dockerfile}' .";
-print "[INFO]docker build done.\n";
+my $dockerfilestr = `cat '$o{dockerfile}'`;
+if( $dockerfilestr =~ /^FROMOPENC3/ )
+{
+
+    chomp $dockerfilestr;
+    die "get FROMOPENC3 image name fail" unless $dockerfilestr =~ /^FROMOPENC3: ([a-zA-Z0-9\/\-:\._]+)$/;
+    my $fromopenc3 = $1;
+    die "docker tag fail:$!" if system "docker tag '$fromopenc3' '$o{repository}:$ENV{VERSION}'";
+    print "[INFO]docker tag done.\n";
+
+
+    die "docker rmi fail: $!" if system "docker rmi '$fromopenc3'";
+    print "[INFO]docker rmi imagecache done.\n";
+}
+else
+{
+    die "docker build fail:$!" if system "docker build -t '$o{repository}:$ENV{VERSION}' -f '$o{dockerfile}' .";
+    print "[INFO]docker build done.\n";
+}
 
 print "docker push $o{repository}:$ENV{VERSION}\n";
 die "docker push fail: $!" if system "docker push $o{repository}:$ENV{VERSION}";

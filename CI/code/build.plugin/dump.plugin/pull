@@ -18,11 +18,14 @@ return sub
 {
     my %param = @_;
 
-    my ( $db, $logs  ) = @param{qw( db logs )};
+    my ( $db, $addr, $logs  ) = @param{qw( db addr logs )};
 
     $logs = Logs->new( 'code.build.dump.pull' ) unless $logs;
 
-    my $type = ( $param{addr} =~ /git@/ || $param{addr} =~ /\.git/ || $param{addr} =~ /http:\/\/git/ || $param{addr} =~ /https:\/\/git/  )? 'git' : $param{addr} eq 'openc3://*' ? 'openc3fileserver' : 'svn';
+    my $type = 'svn';
+    $type = 'git' if $addr =~ /git@/ || $addr =~ /\.git/ || $addr =~ /http:\/\/git/ || $addr =~ /https:\/\/git/;
+    $type = 'openc3fileserver' if $addr eq 'openc3://*';
+    $type = 'harbor' if $addr =~ /\/tags$/;
 
     eval{ Code->new( "build.plugin/dump.plugin/pull.plugin/$type" )->run( %param ); };
 
