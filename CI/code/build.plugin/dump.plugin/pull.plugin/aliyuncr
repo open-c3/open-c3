@@ -1,0 +1,85 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+
+use Logs;
+use FindBin qw( $RealBin );
+use MIME::Base64;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    logs => 日志对象
+
+    # projectid addr ticketid rely name(版本信息可能为空) temp(logs目录下的临时目录名) uuid
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $logs, $projectid, $addr, $ticketid, $rely, $name, $temp, $uuid )
+        = @param{qw(db logs projectid addr ticketid rely name temp uuid )};
+
+    $logs = Logs->new( 'code.build.dump.pull.harbor' ) unless $logs;
+
+    my ( $username, $pass );
+
+    if( $ticketid )
+    {
+        my $x = eval{ $db->query( "select ticket from openc3_ci_ticket where id='$ticketid' and type='UsernamePassword'" )};  
+        $logs->die( "get data from ticket fail:$@" ) if $@;
+        ( $username, $pass ) = split /_:separator:_/, $x->[0][0] if @$x;
+
+        $logs->die( "username format error" ) unless $username =~ /^[a-zA-Z0-9\.;=\-_@]+$/;
+        $logs->die( "password format error" ) unless $pass =~ /^[a-zA-Z0-9\.;=\-_\+\/,@]+$/;
+    }
+
+    my ( $myaddr, $myname );
+    if( $addr =~ /^aliyuncr:\/\/([a-zA-Z0-9\.;=\-_\+\/,:]+)$/ )
+    {
+        ( $myaddr, $myname ) = split /\//, $1, 2;
+    }
+    else
+    {
+        $logs->die( "addr format error, nofind myaddr and myname" );
+    }
+
+    if( $pass )
+    {
+        die "login fail" if system "docker login -u '$username' '$myaddr' -p '$pass'";
+        print "[INFO]docker login success.\n";
+    }
+
+    $logs->die( "name format error" ) if $name && $name !~ /^[a-zA-Z0-9\.\-_]+$/;
+    my $version = $name || 'latest';
+
+    my $pulladdr = $myaddr =~ /hub.docker.com/ ? $myname :"$myaddr/$myname";
+
+    print "docker pull $pulladdr:$version\n";
+    die "docker pull fail: $!" if system "docker pull $pulladdr:$version";
+    print "[INFO]docker pull done.\n";
+
+    if( $pass )
+    {
+        die "logout fail" if system "docker logout";
+        print "[INFO]docker logout success.\n";
+    }
+
+    my $temppath = "$RealBin/../logs/$temp/$uuid";
+    if( -d $temppath )
+    {
+        my $user = `id -un`;chop $user;
+        my $sudo = $user eq 'root' ? '' : 'sudo ';
+        $logs->die( "clean old temppath fail:$!" ) if system "${sudo}rm -rf '$temppath'";
+    }
+
+    map{ $logs->die( "mkdir temppath fail:$!" ) if system "mkdir -p '$temppath/$_'"; }qw( data info );
+
+    $logs->die( "write Dockerfile fail:$!" ) if system "echo 'FROMOPENC3: $pulladdr:$version' > '$temppath/data/Dockerfile'";
+    $logs->die( "write version info fail:$!" ) if system "echo '$version' > '$temppath/info/version'";
+    $logs->die( "write tagger info fail:$!" ) if system "echo 'system' > '$temppath/info/tagger'";
+}

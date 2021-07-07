@@ -45,6 +45,7 @@ return sub
         $type = 'git' if $addr =~ /git@/ || $addr =~ /\.git/ || $addr =~ /http:\/\/git/ || $addr =~ /https:\/\/git/;
         $type = 'openc3fileserver' if $addr eq 'openc3://*';
         $type = 'harbor' if $addr =~ /\/tags$/;
+        $type = 'aliyuncr' if $addr =~ /^aliyuncr:\/\//;
 
   	my @tags = eval{ Code->new( "findtags.plugin/$type" )->run( 
             db => $db, 
