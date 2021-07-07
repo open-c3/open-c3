@@ -57,7 +57,6 @@ return sub
     };
     $logs->die( "run findtags.plugin/$type fail:$@" ) if $@;
 
-    @tags = grep{ $_ =~ /^release/ }@tags;
     @tags = grep{ $_ =~ /$tag_regex/ }@tags if defined $tag_regex && $tag_regex =~ /[a-zA-Z0-9]/;
     my $v = eval{ $db->query( "select `name` from openc3_ci_version where projectid='$id'" ); };
     
