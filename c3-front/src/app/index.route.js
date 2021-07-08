@@ -505,7 +505,7 @@
             });
 
 
-        $urlRouterProvider.otherwise('/dashboard/-1');
+        $urlRouterProvider.otherwise('/dashboard/4000000000');
     }
 
 })();
