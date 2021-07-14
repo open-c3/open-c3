@@ -96,6 +96,10 @@ function start() {
             sed -i 's/openc3_style_ctrl=\\"[a-zA-Z0-9]*\\"/openc3_style_ctrl=\\"juyun\\"/g' $BASE_PATH/c3-front/dist/scripts/*
             sed -i 's/#f63/#24293e/g' $BASE_PATH/c3-front/dist/styles/*
             sed -i 's/#e52/#293fbb/g' $BASE_PATH/c3-front/dist/styles/*
+        else
+            sed -i 's/openc3_style_ctrl=\\"[a-zA-Z0-9]*\\"/openc3_style_ctrl=\\"openc3\\"/g' $BASE_PATH/c3-front/dist/scripts/*
+            sed -i 's/#24293e/#f63/g' $BASE_PATH/c3-front/dist/styles/*
+            sed -i 's/#293fbb/#e52/g' $BASE_PATH/c3-front/dist/styles/*
         fi
 
         cd $BASE_PATH/c3-front/dist && git clone https://github.com/open-c3/open-c3.github.io book
