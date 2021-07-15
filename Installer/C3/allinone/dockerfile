@@ -1,0 +1,51 @@
+#Author: lijinfeng2011@gmail.com
+
+FROM openc3/job-base:latest
+MAINTAINER lijinfeng2011
+
+#RUN sed -i 's/www.cpan.org/mirrors.163.com\/cpan/' /root/.cpan/CPAN/MyConfig.pm
+#RUN curl -L http://installbj.mydan.org | MYDanInstallLatestVersion=1 bash
+
+RUN mkdir -p /data/logs/JOB
+RUN mkdir -p /data/glusterfs/fileserver
+
+RUN mkdir -p /data/logs/JOBX
+
+RUN mkdir -p /data/logs/AGENT
+
+RUN mkdir -p /etc/cron.d.root
+
+RUN mkdir -p /data/logs/CI
+RUN mkdir -p /data/pkgrsync
+RUN mkdir -p /data/glusterfs/ci_repo
+
+#### STA
+
+ENV OPEN_C3_NAME=test
+
+RUN wget -i -c http://dev.mysql.com/get/mysql57-community-release-el7-10.noarch.rpm
+RUN yum -y install mysql57-community-release-el7-10.noarch.rpm
+RUN yum -y install mysql-community-server
+
+RUN mysqld --initialize --user=mysql --datadir=/var/lib/mysql
+
+ADD ./temp/my.cnf /etc/my.cnf
+
+RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+RUN echo 'Asia/Shanghai' >/etc/timezone
+
+ADD ./temp/Connector /data/Software/mydan/Connector
+ADD ./temp/MYDan     /data/Software/mydan/MYDan
+ADD ./temp/JOBX      /data/Software/mydan/JOBX
+ADD ./temp/JOB       /data/Software/mydan/JOB
+ADD ./temp/AGENT       /data/Software/mydan/AGENT
+ADD ./temp/CI       /data/Software/mydan/CI
+ADD ./temp/c3-front       /data/Software/mydan/c3-front
+ADD ./temp/web-shell       /data/Software/mydan/web-shell
+
+ADD ./temp/init.sql /tmp/init.sql
+
+#### END
+
+ADD entrypoint.sh /
+ENTRYPOINT [ "/entrypoint.sh" ]
