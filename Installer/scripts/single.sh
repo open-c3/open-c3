@@ -2,12 +2,17 @@
 
 BASE_PATH=/data/open-c3
 
+GITADDR=http://github.com
+if [ "X$OPENC3_ZONE" == "XCN"  ]; then
+    GITADDR=http://gitee.com
+fi
+
 function install() {
 
     echo =================================================================
     echo "[INFO]get open-c3 ..."
     if [ ! -d $BASE_PATH ]; then
-        cd /data && git clone https://github.com/open-c3/open-c3
+        cd /data && git clone $GITADDR/open-c3/open-c3
     fi
 
     if [ -d "$BASE_PATH" ]; then
@@ -100,7 +105,7 @@ function install() {
     echo "[INFO]get open-c3-install-cache ..."
 
     if [ ! -d "$BASE_PATH/Installer/install-cache" ]; then
-        cd $BASE_PATH/Installer && git clone https://github.com/open-c3/open-c3-install-cache install-cache
+        cd $BASE_PATH/Installer && git clone $GITADDR/open-c3/open-c3-install-cache install-cache
         cd $BASE_PATH
     fi
 
@@ -132,7 +137,7 @@ function install() {
     echo "[INFO]create c3-front/dist/book ..."
 
     rm -rf $BASE_PATH/c3-front/dist/book
-    cd $BASE_PATH/c3-front/dist && git clone https://github.com/open-c3/open-c3.github.io book
+    cd $BASE_PATH/c3-front/dist && git clone $GITADDR/open-c3/open-c3.github.io book
 
     if [ -d "$BASE_PATH/c3-front/dist/book" ]; then
         echo "[SUCC]create c3-front/dist/book success."
@@ -179,27 +184,42 @@ function install() {
     mkdir -p $BASE_PATH/MYDan
     rm -rf $BASE_PATH/MYDan/repo
 
-    cd $BASE_PATH/MYDan && git clone https://github.com/MYDan/repo
-    cd $BASE_PATH
-
-    if [ -d "$BASE_PATH/MYDan/repo" ]; then
-        echo "[SUCC]get MYDan success."
+    if [ -d "$BASE_PATH/Installer/install-cache/MYDan" ]; then
+        rsync -av $BASE_PATH/Installer/install-cache/MYDan/ $BASE_PATH/MYDan/
+        if [ $? = 0 ]; then
+            echo "[SUCC]rsync MYDan from install-cache success."
+        else
+            echo "[FAIL]rsync MYDan from install-cache fail."
+            exit 1
+        fi
     else
-        echo "[FAIL]get MYDan fail."
-        exit 1
+        cd $BASE_PATH/MYDan && git clone https://github.com/MYDan/repo
+        cd $BASE_PATH
+
+        if [ -d "$BASE_PATH/MYDan/repo" ]; then
+            echo "[SUCC]get MYDan success."
+        else
+            echo "[FAIL]get MYDan fail."
+            exit 1
+        fi
+
     fi
 
     echo =================================================================
     echo "[INFO]sync MYDan/repo ..."
 
-    cd $BASE_PATH/MYDan/repo/scripts && SYNC_MYDan_VERSION=20201213220001:10108f7303adc9992db663bfd99ddf1b ./sync.sh
-    cd $BASE_PATH
-
-    if [ $? = 0 ]; then
-        echo "[SUCC]sync MYDan/repo success."
+    if [ -d "$BASE_PATH/Installer/install-cache/MYDan" ]; then
+        echo "[INFO]rsync MYDan from install-cache done. skip"
     else
-        echo "[FAIL]sync MYDan/repo fail."
-        exit 1
+        cd $BASE_PATH/MYDan/repo/scripts && SYNC_MYDan_VERSION=20201213220001:10108f7303adc9992db663bfd99ddf1b ./sync.sh
+        cd $BASE_PATH
+
+        if [ $? = 0 ]; then
+            echo "[SUCC]sync MYDan/repo success."
+        else
+            echo "[FAIL]sync MYDan/repo fail."
+            exit 1
+        fi
     fi
 
     echo "[SUCC]openc-c3 installed successfully."
