@@ -132,7 +132,7 @@ create table `openc3_connector_tree` (
 `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT '主键',
 `name` varchar(50) NOT NULL UNIQUE COMMENT '节点名',
 `len` int(1) NOT NULL COMMENT '节点的长度',
-`update_time` DATETIME NOT NULL COMMENT '更新时间',
+`update_time` DATETIME ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
 PRIMARY KEY (`id`),
 KEY `index_name` (`name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci COMMENT='系统信息表' AUTO_INCREMENT=1 ;

@@ -81,7 +81,7 @@ create table `openc3_ci_ticket`(
 `edit_user` VARCHAR(50) comment '最后编辑用户',
 `create_user` VARCHAR(50) comment '创建用户',
 `edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '最后编辑时间',
-`create_time` TIMESTAMP comment '创建时间',
+`create_time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
 UNIQUE KEY `uniq_name` (`name`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='票据';
 
@@ -93,7 +93,7 @@ create table `openc3_ci_images`(
 `edit_user` VARCHAR(50) comment '最后编辑用户',
 `create_user` VARCHAR(50) comment '创建用户',
 `edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '最后编辑时间',
-`create_time` TIMESTAMP comment '创建时间'
+`create_time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间'
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='容器镜像';
 
 create table `openc3_ci_version`(
