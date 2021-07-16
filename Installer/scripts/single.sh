@@ -12,6 +12,9 @@ function install() {
     echo =================================================================
     echo "[INFO]get open-c3 ..."
     if [ ! -d $BASE_PATH ]; then
+        if [ ! -d /data ];then
+            mkdir /data
+        fi
         cd /data && git clone $GITADDR/open-c3/open-c3
     fi
 
