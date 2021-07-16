@@ -116,7 +116,7 @@
 
         $scope.openOneTab = function (name) {
             var terminalAddr = "http://"+window.location.host+"/api/job/cmd/";
-            var s = vm.treeid+"?node=" + name + '&bash=1' +'&sudo=' + $scope.selectedUser;
+            var s = vm.treeid+"?node=" + name + '&bash=1' +'&sudo=' + $scope.selectedUser + '&siteaddr=' + window.location.host;
             window.open(terminalAddr+s, '_blank')
         };
 

@@ -16,7 +16,7 @@ BEGIN{
 
 any '/cmd/:projectid' => sub {
     my $param = params();
-    my ( $projectid, $node ) = @$param{qw( projectid node )};
+    my ( $projectid, $node, $siteaddr ) = @$param{qw( projectid node siteaddr )};
 
     return "params undef" unless defined $projectid && defined $node;
     return "no cookie" unless my $u = cookie( $api::cookiekey );
@@ -27,7 +27,7 @@ any '/cmd/:projectid' => sub {
     my $tail = $param->{tail} ? "&tail=1" : '';
 
     my $id = 1 + int rand $cmdcount;
-    redirect "http://$exip:81?u=$u&projectid=$projectid&node=$node$sudo$bash$tail";
+    redirect "http://$siteaddr/webshell/index.html?u=$u&projectid=$projectid&node=$node$sudo$bash$tail";
     #redirect "http://cmd$id.$env{envname}.job.$env{domainname}?u=$u&projectid=$projectid&node=$node$sudo$bash$tail";
 };
 
