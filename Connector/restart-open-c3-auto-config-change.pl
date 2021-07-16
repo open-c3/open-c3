@@ -28,7 +28,7 @@ sub check
     }
 }
 
-system "$RealBin/restart-open-c3.sh";
+system "$RealBin/restart-open-c3.sh start";
 
 while(1)
 {
