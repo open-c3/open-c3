@@ -10,7 +10,6 @@
         var vm = this;
         vm.treeid = $state.params.treeid;
         vm.siteaddr = window.location.host;
-        vm.siteaddr = vm.siteaddr.replace(/:\d*/, "");
         vm.projectid = projectid
         vm.groupid = {}
         vm.name = name

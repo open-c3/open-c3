@@ -10,4 +10,4 @@ if [ ! -f /etc/job.inip ];then
     exit 1
 fi
 
-docker run -itd -e C3_WEB_SHELL_CLUSTER_WEB_TYPE=1 -v /data:/data -v /bin/docker:/bin/docker -v /var/run/docker.sock:/var/run/docker.sock -v /etc/job.exip:/etc/job.exip -v  /etc/job.inip:/etc/job.inip  -p 81:3388 -p 3388:3388 --name open-c3-web-shell  docker.io/openc3/job-base  /data/Software/mydan/web-shell/tools/run
+docker run -itd -e C3_WEB_SHELL_CLUSTER_WEB_TYPE=1 -v /data:/data -v /bin/docker:/bin/docker -v /var/run/docker.sock:/var/run/docker.sock -v /etc/job.exip:/etc/job.exip -v  /etc/job.inip:/etc/job.inip -p 3388:3388 --name open-c3-web-shell  docker.io/openc3/job-base  /data/Software/mydan/web-shell/tools/run

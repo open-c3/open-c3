@@ -17,8 +17,11 @@ cp -r /data/open-c3/web-shell temp/
 cp -r /data/open-c3-data/mysql-data temp/mysql-data
 
 VERSION=$1
+if [ "X$VERSION" == "X" ];then
+    VERSION=$(date +%Y%m%d)
+fi
 echo VERSION:$VERSION
 docker build . -t openc3/allinone:$VERSION
 rm -rf temp
 
-docker run --env OPEN_C3_EXIP=10.60.77.50 --env OPEN_C3_NAME=test -p 8080:88 -p 8081:3388 -h openc3-srv-docker  -it openc3/allinone:$VERSION
+docker run --env OPEN_C3_EXIP=10.60.77.50 -p 8080:88 -it openc3/allinone:$VERSION

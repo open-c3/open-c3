@@ -13,6 +13,8 @@
         vm.seftime = genericService.seftime
         var toastr = toastr || $injector.get('toastr');
 
+        vm.siteaddr = window.location.host;
+
         treeService.sync.then(function(){
             vm.nodeStr = treeService.selectname();
         });
