@@ -130,7 +130,7 @@
             else {
                 var terminalAddr = "http://"+window.location.host+"/api/job/cmd/";
                 var node_str = $scope.selectedData.join(",");
-                var s = vm.treeid+"?node=" + node_str +'&sudo=' + $scope.selectedUser;
+                var s = vm.treeid+"?node=" + node_str +'&sudo=' + $scope.selectedUser + '&siteaddr=' + window.location.host;
                 window.open(terminalAddr+s, '_blank')
             }
 
