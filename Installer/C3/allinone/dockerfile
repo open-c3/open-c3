@@ -19,10 +19,6 @@ RUN mkdir -p /data/logs/CI
 RUN mkdir -p /data/pkgrsync
 RUN mkdir -p /data/glusterfs/ci_repo
 
-#### STA
-
-ENV OPEN_C3_NAME=test
-
 RUN wget -i -c http://dev.mysql.com/get/mysql57-community-release-el7-10.noarch.rpm
 RUN yum -y install mysql57-community-release-el7-10.noarch.rpm
 RUN yum -y install mysql-community-server
@@ -46,8 +42,6 @@ ADD ./temp/c3-front       /data/Software/mydan/c3-front
 ADD ./temp/web-shell       /data/Software/mydan/web-shell
 
 ADD ./temp/init.sql /tmp/init.sql
-
-#### END
 
 ADD entrypoint.sh /
 ENTRYPOINT [ "/entrypoint.sh" ]

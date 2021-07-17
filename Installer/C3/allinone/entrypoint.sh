@@ -16,13 +16,11 @@ EOF
 
 
 if [ "X$OPEN_C3_EXIP" == "X" ];then
-    echo "env OPEN_C3_EXIP undef"
-    exit 1;
+    OPEN_C3_EXIP=127.0.0.1
 fi
 
 if [ "X$OPEN_C3_NAME" == "X" ];then
     OPEN_C3_NAME=test
-    exit 1;
 fi
 
 if [ "X$JUYUN_APPKEY" == "X" ];then
