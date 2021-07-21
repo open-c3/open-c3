@@ -253,6 +253,8 @@ post '/jobs/:projectid' => sub {
         mon_status => [ 'mismatch', qr/'/ ], 0,
     )->check( %$param );
 
+    $param->{mon_status} = 0 unless $param->{mon_status};
+
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
     my $pmscheck = api::pmscheck( 'openc3_job_write', $param->{projectid} ); return $pmscheck if $pmscheck;
