@@ -10,7 +10,7 @@ use YAML::XS;
 
 =cut
 
-print "reload job\n";
+print "reload connector\n";
 
 my $Config = eval{ YAML::XS::LoadFile "$RealBin/../config/Config";};
 die "load Config fail: $!" unless $Config;
@@ -53,3 +53,9 @@ for my $type ( qw( api ) )
         die "same pid.\n" if $oldpid && $newpid && $oldpid eq $newpid;
     }
 }
+
+my $mymarkfile = '/etc/connector.mark';
+my $user = `id -un`;chop $user;
+my $sudo = $user eq 'root' ? '' : 'sudo ';
+
+die "set connector.mark fail:$!" if system( "${sudo}sh -c 'date > $mymarkfile'" );

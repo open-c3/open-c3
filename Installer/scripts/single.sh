@@ -241,7 +241,7 @@ function start() {
     echo =================================================================
     echo "[INFO]start ..."
 
-    cd $BASE_PATH/Installer/C3/ && ../docker-compose up -d
+    cd $BASE_PATH/Installer/C3/ && ../docker-compose up -d --build
 
     echo "[SUCC]started."
 }
@@ -259,9 +259,18 @@ function restart() {
     echo =================================================================
     echo "[INFO]restart ..."
     Date=$(date "+%F %H:%M:%S")
-    echo "#$Date" >> $BASE_PATH/Connector/config.ini/current 
+    echo "#$Date restart" >> $BASE_PATH/Connector/config.ini/current 
 
     echo "[SUCC]The operation is complete and the service will restart in a few seconds."
+}
+
+function reload() {
+    echo =================================================================
+    echo "[INFO]reload ..."
+    Date=$(date "+%F %H:%M:%S")
+    echo "#$Date reload" >> $BASE_PATH/Connector/config.ini/current 
+
+    echo "[SUCC]The operation is complete and the service will reload in a few seconds."
 }
 
 function check() {
@@ -299,8 +308,11 @@ status)
 restart)
     restart
     ;;
+reload)
+    reload
+    ;;
 *)
-    echo "Usage: $0 {start|stop|status|restart|install}"
+    echo "Usage: $0 {start|stop|status|restart|reload|install}"
     echo "$0 install 10.10.10.10(Your Internet IP)"
     exit 2
 esac

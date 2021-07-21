@@ -7,6 +7,8 @@ if [ "X$1" == "Xreload" ];then
     /data/Software/mydan/AGENT/tools/reload
     /data/Software/mydan/JOB/tools/reload
     /data/Software/mydan/JOBX/tools/reload
+
+    echo open-c3 reload done.
     exit;
 fi
 

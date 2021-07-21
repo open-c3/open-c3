@@ -34,7 +34,7 @@ function upgradeSelf() {
     echo =================================================================
     echo "[INFO]c3-front build ..."
 
-    ./Installer/scripts/dev.sh  build
+    ./Installer/scripts/dev.sh build
 
     if [ $? = 0 ]; then
         echo "[SUCC]c3-front build success."
@@ -44,10 +44,9 @@ function upgradeSelf() {
     fi
 
     echo =================================================================
-    echo "[INFO]restart open-c3 service ..."
+    echo "[INFO]reload open-c3 service ..."
 
-    ./Installer/scripts/single.sh  restart
-
+    ./Installer/scripts/single.sh reload
 }
 
 function upgradeCluster() {

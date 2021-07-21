@@ -24,7 +24,8 @@ sub check
     if( $configtime && $laststarttime && $configtime > $laststarttime)
     {
         print "start\n";
-        system "$RealBin/restart-open-c3.sh";
+        my $reload = `tail -n 1 $RealBin/config.ini/current` =~ /reload/ ? 'reload' : '';
+        system "$RealBin/restart-open-c3.sh $reload";
     }
 }
 

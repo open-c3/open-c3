@@ -39,4 +39,4 @@ my $mymarkfile = '/etc/connector.mark';
 my $user = `id -un`;chop $user;
 my $sudo = $user eq 'root' ? '' : 'sudo ';
 
-die "set connector.myip fail:$!" if system( "${sudo}sh -c 'date > $mymarkfile'" );
+die "set connector.mark fail:$!" if system( "${sudo}sh -c 'date > $mymarkfile'" );
