@@ -195,6 +195,29 @@
             );
         };
 
+        vm.copyScp = function (id) {
+            var d = vm.allNewJob[id]
+            var tempdata = {
+                'chmod': d.chmod,
+                'chown': d.chown,
+                'dp': d.dp,
+                'dst': d.dst,
+                'dst_type': d.dst_type,
+                'scp_delete': d.scp_delete,
+                'sp': d.sp,
+                'src': d.src,
+                'src_type':d.src_type,
+                'plugin_type':'scp',
+                'name': d.name + '_copy',
+                'user': d.user,
+                'timeout': d.timeout,
+                'pause': d.pause,
+                'deployenv' : d.deployenv,
+                'action' : d.action,
+                'batches' : d.batches
+            }
+            vm.allNewJob.splice(id + 1, 0, tempdata);
+        };
 
         vm.editScp = function (id) {
             var editData = vm.allNewJob[id];
@@ -222,6 +245,22 @@
             ); 
         };
 
+         vm.copyApproval = function (id) {
+            var d = vm.allNewJob[id]
+            var tempdata = {
+                'plugin_type':'approval',
+                'name': d.name + '_copy',
+                'approver': d.approver,
+                'cont': d.cont,
+                'everyone': d.everyone,
+                'timeout': d.timeout,
+                'deployenv' : d.deployenv,
+                'action' : d.action,
+                'batches' : d.batches
+            }
+            vm.allNewJob.splice(id + 1, 0, tempdata);
+        };
+
         vm.editApproval = function (id) {
             var editData = vm.allNewJob[id];
             var openEdit= $uibModal.open({
@@ -246,6 +285,26 @@
                     console.log("editScp error reason", reason)
                 }
             );
+        };
+
+        vm.copyScript = function (id) {
+            var d = vm.allNewJob[id]
+            var tempdata = {
+                'plugin_type':'cmd',
+                'name': d.name + '_copy',
+                'user': d.user,
+                'node_type':d.node_type,
+                'node_cont':d.node_cont,
+                'scripts_type':d.scripts_type,
+                'scripts_cont': d.scripts_cont,
+                'scripts_argv': d.scripts_argv,
+                'timeout': d.timeout,
+                'pause': d.pause,
+                'deployenv' : d.deployenv,
+                'action' : d.action,
+                'batches' : d.batches
+            }
+            vm.allNewJob.splice(id + 1, 0, tempdata);
         };
 
         vm.editScript = function (id) {
