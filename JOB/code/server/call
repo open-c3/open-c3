@@ -21,13 +21,13 @@ return sub
     my ( $db, $interval, $logs, $myname ) = ( $param{db}, 10, Logs->new( 'call' ), Util::myname() );
     my ( $count, %count ) = int time / $interval;
     $SIG{'CHLD'} = sub {
-		while((my $pid = waitpid(-1, WNOHANG)) >0)
-		{
-			my $code = ( $? == -1 || $? & 127 ) ? 110 : $? >> 8;
-			print "chld: $pid exit $code.\n";;
-		}
-	};
- 
+        while((my $pid = waitpid(-1, WNOHANG)) >0)
+        {
+            my $code = ( $? == -1 || $? & 127 ) ? 110 : $? >> 8;
+            print "chld: $pid exit $code.\n";;
+        }
+    };
+
     while( 1 )
     {
         warn "do ...\n";

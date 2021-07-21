@@ -10,12 +10,11 @@ use Code;
 
 =head1 SYNOPSIS
 
- $0 [--id id] 
+ $0
 
 =cut
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->get( qw( id=i ) )->dump();
-#$option->assert( 'id' );
+my %o = $option->get()->dump();
 
 my $db = MYDB->new( "$RealBin/../conf/conn" );
 
