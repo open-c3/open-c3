@@ -53,8 +53,13 @@ function upgradeCluster() {
 
     Cluster=$1
     Version=$(date +%Y%m%d%H%M)
+
+    if [ "X$2" == "XS" ];then
+        Version="S$Version"
+    fi
+
     echo =================================================================
-    echo "[INFO]upgrade Cluster $Cluster ..."
+    echo "[INFO]upgrade Cluster $Cluster Version $Version..."
 
     ./Installer/scripts/cluster.sh deploy -e $Cluster -v $Version
 }
@@ -62,5 +67,5 @@ function upgradeCluster() {
 if [ "X$1" == "X" ]; then
     upgradeSelf
 else
-    upgradeCluster $1
+    upgradeCluster $1 $2
 fi

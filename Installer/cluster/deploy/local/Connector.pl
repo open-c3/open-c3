@@ -18,6 +18,13 @@ $option->assert( qw( envname version  ) );
 
 die "rsync fail: $!" if system "rsync -av $MYDan::PATH/PKG/Connector-$o{version}/ $MYDan::PATH/Connector/ --exclude conf/ --delete";
 
-die "SetENV fail: $!" if system "$MYDan::PATH/Connector/tools/SetEnv -e '$o{envname}'";
-die "restart fail: $!" if system "$MYDan::PATH/Connector/tools/restart";
-die "Check fail: $!"   if system "$MYDan::PATH/Connector/tools/Check";
+if( $o{version} =~ /^S/ )
+{
+    die "reload fail: $!" if system "$MYDan::PATH/Connector/tools/reload";
+}
+else
+{
+    die "SetENV fail: $!"  if system "$MYDan::PATH/Connector/tools/SetEnv -e '$o{envname}'";
+    die "restart fail: $!" if system "$MYDan::PATH/Connector/tools/restart";
+    die "Check fail: $!"   if system "$MYDan::PATH/Connector/tools/Check";
+}

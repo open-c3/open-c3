@@ -18,4 +18,12 @@ my %o = $option->get( qw( envname=s version=s ) )->dump();
 $option->assert( qw( envname  version  ) );
 
 die "rsync fail: $!" if system "rsync -av $MYDan::PATH/PKG/web-shell-$o{version}/ $MYDan::PATH/web-shell/ --delete";
-die "restart fail: $!" if system "$MYDan::PATH/web-shell/tools/cluster/restart";
+
+if( $o{version} =~ /^S/ )
+{
+    print "skip.\n";
+}
+else
+{
+    die "restart fail: $!" if system "$MYDan::PATH/web-shell/tools/cluster/restart";
+}
