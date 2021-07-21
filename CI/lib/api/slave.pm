@@ -236,4 +236,9 @@ any '/mon' => sub {
      return $@ ? "ERR:$@" : "ok";
 };
 
+any '/reload' => sub {
+    return 'err' unless request->headers->{token} && $ENV{OPEN_C3_RANDOM} && request->headers->{token} eq $ENV{OPEN_C3_RANDOM};
+    exit;
+};
+
 true;

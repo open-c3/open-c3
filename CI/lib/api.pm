@@ -32,7 +32,7 @@ hook 'before' => sub {
     return if $ENV{MYDan_DEBUG};
 
     my $uri = request->path_info;
-    return if $uri =~ m{^/mon} || $uri =~ m{^/release} || $uri =~ m{^/webhooks} || $uri =~ m{^/images/\d+/sshkey\.pub};
+    return if $uri =~ m{^/mon} || $uri =~ m{^/release} || $uri =~ m{^/webhooks} || $uri =~ m{^/images/\d+/sshkey\.pub} || $uri =~ m{^/reload};
 
     halt( +{ stat => $JSON::false, code => 10000 } ) 
         unless (  cookie( $cookiekey ) || ( request->headers->{appkey} && request->headers->{appname} ) );
@@ -62,6 +62,11 @@ hook before_error_render => sub {
 any '/mon' => sub {
     eval{ $mysql->query( "select count(*) from openc3_ci_keepalive" )};
     return $@ ? "ERR:$@" : "ok";
+};
+
+any '/reload' => sub {
+    return 'err' unless request->headers->{token} && $ENV{OPEN_C3_RANDOM} && request->headers->{token} eq $ENV{OPEN_C3_RANDOM};
+    exit;
 };
 
 sub pmscheck

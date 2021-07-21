@@ -1,5 +1,15 @@
 #!/bin/bash
 
+if [ "X$1" == "Xreload" ];then
+    set -e
+    /data/Software/mydan/Connector/tools/reload
+    /data/Software/mydan/CI/tools/reload
+    /data/Software/mydan/AGENT/tools/reload
+    /data/Software/mydan/JOB/tools/reload
+    /data/Software/mydan/JOBX/tools/reload
+    exit;
+fi
+
 CTRL=restart
 
 if [ "X$1" == "Xstart" ];then

@@ -42,7 +42,7 @@ for my $type ( qw( api api.slave ) )
             if( $newpid )
             {
                 chomp $newpid;
-                last if ! $oldpid || ( $oldpid ne $newpid );
+                last;
             }
             else
             {
@@ -52,6 +52,7 @@ for my $type ( qw( api api.slave ) )
         }
 
         print "reload $type port: $port old pid: $oldpid new pid: $newpid\n";
+        die "same pid.\n" if $oldpid && $newpid && $oldpid eq $newpid;
     }
 }
 
@@ -71,7 +72,7 @@ for my $server ( qw( call bury crontab keepalive notify approval clean ) )
         if( $newpid )
         {
             chomp $newpid;
-            last if ! $oldpid || ( $oldpid ne $newpid );
+            last;
         }
         else
         {
@@ -82,4 +83,5 @@ for my $server ( qw( call bury crontab keepalive notify approval clean ) )
     }
 
     print "restart server job_server_$server old pid: $oldpid new pid: $newpid\n";
+    die "same pid.\n" if $oldpid && $newpid && $oldpid eq $newpid;
 }

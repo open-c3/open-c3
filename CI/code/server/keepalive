@@ -22,11 +22,15 @@ return sub
 
     eval{ $db->execute( sprintf "replace into openc3_ci_keepalive (`slave`,`time`) values( '$myname','%d')", time ); };
     $logs->die( "update keepalive fail: $@" ) if $@;
+
+    sleep 3;
+
     while( 1 )
     {
         warn "do ...\n";
-        sleep 45;
         $db->execute( sprintf "update openc3_ci_keepalive set time='%d' where slave='$myname'", time );
         $logs->die( "update keepalive fail: $@" ) if $@;
+
+        sleep 45;
     }
 }

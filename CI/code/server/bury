@@ -38,22 +38,10 @@ return sub
 
             next if kill( 0, $pid );
 
-            my $mtime = ( stat  "$RealBin/../logs/build/$uuid" )[9];
+            my $time = time;
 
-            my ( $runtime, $finishtime, $finishtimems );
-
-            if( $mtime )
-            {
-                $mtime ++ if $mtime < $starttimems;
-                $mtime = $starttimems if $mtime < $starttimems;
-                $runtime = sprintf "%0.3f", $mtime - $starttimems;
-                $finishtime = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( int $mtime ) );
-                $finishtimems = $mtime;
-            }
-            else
-            {
-                ( $runtime, $finishtime, $finishtimems ) = ( 0, $starttime, $starttimems );
-            }
+            $time = $starttimems + 1 if $time < $starttimems;
+            my ( $runtime, $finishtime, $finishtimems ) = ( sprintf( "%0.3f", $time - $starttimems ), POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( int $time ) ), $time );
 
             eval{ $db->execute( "update openc3_ci_version set status='fail',runtime='$runtime',
                 finishtime='$finishtime',finishtimems='$finishtimems' where id=$id" );};

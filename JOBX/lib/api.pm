@@ -31,7 +31,7 @@ hook 'before' => sub {
     return if $ENV{MYDan_DEBUG};
 
     my ( $uri, $method ) = ( request->path_info, request->method );
-    return if $uri =~ m{^/mon} || $uri =~ m{^/sso};
+    return if $uri =~ m{^/mon} || $uri =~ m{^/sso} || $uri =~ m{^/reload};
 
     halt( +{ stat => $JSON::false, code => 10000 } ) 
         unless (  cookie( $cookiekey ) || ( request->headers->{appkey} && request->headers->{appname} ) );
@@ -69,6 +69,11 @@ hook before_error_render => sub {
 any '/mon' => sub {
     eval{ $mysql->query( "select count(*) from openc3_jobx_keepalive" )};
     return $@ ? "ERR:$@" : "ok";
+};
+
+any '/reload' => sub {
+    return 'err' unless request->headers->{token} && $ENV{OPEN_C3_RANDOM} && request->headers->{token} eq $ENV{OPEN_C3_RANDOM};
+    exit;
 };
 
 sub pmscheck

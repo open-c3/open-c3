@@ -29,7 +29,7 @@ BEGIN{
 
 hook 'before' => sub {
     my ( $uri, $method ) = ( request->path_info, request->method );
-    return if $uri =~ m{^/mon} || $uri =~ m{^/sso} || $uri =~ m{^/pms} || $uri =~ m{^/default/sso} || $uri =~ m{^/internal/sso} || $uri =~ m{^/default/tree} || $uri =~ m{^/sso/userauth/point/};
+    return if $uri =~ m{^/mon} || $uri =~ m{^/sso} || $uri =~ m{^/pms} || $uri =~ m{^/default/sso} || $uri =~ m{^/internal/sso} || $uri =~ m{^/default/tree} || $uri =~ m{^/sso/userauth/point/} || $uri =~ m{^/reload};
 
 };
 
@@ -44,6 +44,11 @@ hook before_error_render => sub {
 any '/mon' => sub {
     eval{ $mysql->query( "select count(*) from openc3_connector_keepalive" )};
     return $@ ? "ERR:$@" : "ok";
+};
+
+any '/reload' => sub {
+    return 'err' unless request->headers->{token} && $ENV{OPEN_C3_RANDOM} && request->headers->{token} eq $ENV{OPEN_C3_RANDOM};
+    exit;
 };
 
 sub ssocheck

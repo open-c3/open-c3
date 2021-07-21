@@ -101,26 +101,15 @@ return sub
                 next unless( $js->{status} eq 'success' || $js->{status} eq 'fail' || $js->{status} eq 'norun' );
             }
 
-            #my $mtime = ( stat  "$RealBin/../logs/task/$uuid" )[9];
-            my $mtime = time;
+            my $time = time;
 
-            my ( $runtime, $finishtime, $finishtimems );
+            $time = $starttimems + 1 if $time < $starttimems;
+            my ( $runtime, $finishtime, $finishtimems ) = ( sprintf( "%0.3f", $time - $starttimems ), POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( int $time ) ), $time );
 
-            if( $mtime )
-            {
-                $mtime ++ if $mtime < $starttimems;
-                $mtime = $starttimems if $mtime < $starttimems;
-                $runtime = sprintf "%0.3f", $mtime - $starttimems;
-                $finishtime = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( int $mtime ) );
-                $finishtimems = $mtime;
-            }
-            else
-            {
-                ( $runtime, $finishtime, $finishtimems ) = ( 0, $starttime, $starttimems );
-            }
-
-            eval{ $db->execute( "update openc3_jobx_task set status='fail',runtime='$runtime',
-                finishtime='$finishtime',finishtimems='$finishtimems' where id=$id" );};
+            eval{
+                $db->execute( "update openc3_jobx_task set reason='unkown error exit' where id=$id and reason is null" );
+                $db->execute( "update openc3_jobx_task set status='fail',runtime='$runtime', finishtime='$finishtime',finishtimems='$finishtimems' where id=$id" );
+            };
             $logs->err( "update task status fail: id=$id :$@" ) if $@;
         }
         sleep 3;
