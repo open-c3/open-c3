@@ -17,16 +17,21 @@ $| ++;
 
 =cut
 
-my ( $usermail, %env );
+my ( $usermail, %env, $debug );
 BEGIN{
     use Configini;
     $usermail = Configini::get( 'usermail' );
     %env = Configini::env( 'usermailenv' );
+
+    $debug = Configini::get( 'debug' );
 };
 
 return sub
 {
     my %param = @_;
+
+    my $logs = $param{logs};
+    $logs = Logs->new( 'code.notify.email' ) unless $logs;
 
     my $ua = LWP::UserAgent->new;
     $ua->default_header( %env ) if %env;
@@ -51,6 +56,8 @@ return sub
             Content => $cont,
             'Content-Type' => 'application/json' 
         );
+
+        $logs->say( YAML::XS::Dump $res ) if $debug;
 
         if($res->is_success)
         {

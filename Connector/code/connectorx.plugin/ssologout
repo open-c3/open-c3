@@ -3,13 +3,16 @@ use strict;
 use warnings;
 use JSON;
 use LWP::UserAgent;
+use Logs;
 
-my ( $ssologoutapi, $ssologoutaddr );
+my ( $ssologoutapi, $ssologoutaddr, $debug );
 BEGIN{
     use Configini;
     $ssologoutapi = Configini::get( 'ssologoutapi' );
     $ssologoutaddr = Configini::get( 'ssologoutaddr' );
     die "ssologoutapi or ssologoutaddr undef on config.ini" unless $ssologoutapi || $ssologoutaddr;
+
+    $debug = Configini::get( 'debug' );
 };
 
 $| ++;
@@ -23,10 +26,17 @@ $| ++;
 return sub
 {
     my %param = @_;
+
+    my $logs = $param{logs};
+    $logs = Logs->new( 'code.ssologout' ) unless $logs;
+
     return $ssologoutaddr if $ssologoutaddr;
 
     my $ua = LWP::UserAgent->new;
     my $res = $ua->get( "$ssologoutapi$param{cookie}" );
+
+    $logs->say( YAML::XS::Dump $res ) if $debug;
+
     return if $res->is_success;
     die "logout fail";
 }

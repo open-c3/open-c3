@@ -17,7 +17,7 @@ $| ++;
 
 =cut
 
-my ( $pmspoint, %env, $ssousername, %ssousernameenv );
+my ( $pmspoint, %env, $ssousername, %ssousernameenv, $debug );
 BEGIN{
     use Configini;
     $pmspoint = Configini::get( 'pmspoint' );
@@ -27,6 +27,7 @@ BEGIN{
     %ssousernameenv = Configini::env( 'ssousernameenv' );
     die "ssousername undef on config.ini" unless $ssousername;
 
+    $debug = Configini::get( 'debug' );
 };
 
 return sub
@@ -44,6 +45,9 @@ return sub
         my $ua = LWP::UserAgent->new;
         $ua->default_header( %ssousernameenv ) if %ssousernameenv;
         my $res = $ua->get( "$ssousername$param{cookie}" );
+
+        $logs->say( YAML::XS::Dump $res ) if $debug;
+
         if($res->is_success)
         {
             my $v = eval{decode_json $res->decoded_content};
@@ -80,6 +84,9 @@ return sub
     }
 
     my $res = $ua->get( "$pmspoint?point=$point$treestr&cookie=$cookie" );
+
+    $logs->say( YAML::XS::Dump $res ) if $debug;
+
     if($res->is_success)
     {
         my $v = eval{decode_json $res->decoded_content};

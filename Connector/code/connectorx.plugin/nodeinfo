@@ -12,13 +12,14 @@ $| ++;
 
 =cut
 
-my ( $nodeinfo, %env );
+my ( $nodeinfo, %env, $debug );
 BEGIN{
     use Configini;
     $nodeinfo = Configini::get( 'nodeinfo' );
     %env = Configini::env( 'nodeinfoenv' );
-};
 
+    $debug = Configini::get( 'debug' );
+};
 
 return sub
 {
@@ -32,6 +33,9 @@ return sub
     my $ua = LWP::UserAgent->new;
     $ua->default_header( %env ) if %env;
     my $res = $ua->get( "$nodeinfo$id" );
+
+    $logs->say( YAML::XS::Dump $res ) if $debug;
+
     if($res->is_success)
     {
         my $v = eval{decode_json $res->decoded_content};

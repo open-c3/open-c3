@@ -14,16 +14,21 @@ $| ++;
 
 =cut
 
-my ( $approver, %env );
+my ( $approver, %env, $debug );
 BEGIN{
     use Configini;
     $approver = Configini::get( 'approver' );
     %env = Configini::env( 'approverenv' );
+
+    $debug = Configini::get( 'debug' );
 };
 
 return sub
 {
     my %param = @_;
+
+    my $logs = $param{logs};
+    $logs = Logs->new( 'code.approval.query' ) unless $logs;
 
     if( $approver )
     {
@@ -31,6 +36,8 @@ return sub
         $ua->default_header( %env ) if %env;
 
         my $res = $ua->get( "$approver?uuid=$param{uuid}");
+
+        $logs->say( YAML::XS::Dump $res ) if $debug;
 
         if($res->is_success)
         {

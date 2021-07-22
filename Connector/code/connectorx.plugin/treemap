@@ -13,11 +13,13 @@ $| ++;
 
 =cut
 
-my ( $treemap, %env );
+my ( $treemap, %env, $debug );
 BEGIN{
     use Configini;
     $treemap = Configini::get( 'treemap' );
     %env = Configini::env( 'treemapenv' );
+
+    $debug = Configini::get( 'debug' );
 };
 
 return sub
@@ -31,6 +33,9 @@ return sub
     my $ua = LWP::UserAgent->new;
     $ua->default_header( %env ) if %env;
     my $res = $ua->get( $treemap );
+
+    $logs->say( YAML::XS::Dump $res ) if $debug;
+
     if($res->is_success)
     {
         my $v = eval{decode_json $res->decoded_content};

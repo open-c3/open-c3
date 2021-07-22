@@ -4,8 +4,9 @@ use warnings;
 use JSON;
 use YAML::XS;
 use LWP::UserAgent;
+use Logs;
 my %app;
-my ( $ssousername, %env );
+my ( $ssousername, %env, $debug );
 BEGIN{
     for my $file ( glob "/data/Software/mydan/*/conf/appname" )
     {
@@ -20,6 +21,8 @@ BEGIN{
     $ssousername = Configini::get( 'ssousername' );
     %env = Configini::env( 'ssousernameenv' );
     die "ssousername undef on config.ini" unless $ssousername;
+
+    $debug = Configini::get( 'debug' );
 };
 
 $| ++;
@@ -38,6 +41,11 @@ $| ++;
 return sub
 {
     my %param = @_;
+
+    my $logs = $param{logs};
+
+    $logs = Logs->new( 'code.sso' ) unless $logs;
+
     return 'debug@api' if $ENV{MYDan_DEBUG};
     if( $param{appkey} && $param{appname} )
     {
@@ -49,6 +57,9 @@ return sub
         my $ua = LWP::UserAgent->new;
         $ua->default_header( %env ) if %env;
         my $res = $ua->get( "$ssousername$param{cookie}" );
+
+        $logs->say( YAML::XS::Dump $res ) if $debug;
+
         if($res->is_success)
         {
             my $v = eval{decode_json $res->decoded_content};

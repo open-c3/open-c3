@@ -13,11 +13,13 @@ $| ++;
 
 =cut
 
-my ( $usertree, %env );
+my ( $usertree, %env, $debug );
 BEGIN{
     use Configini;
     $usertree = Configini::get( 'usertree' );
     %env = Configini::env( 'usertreeenv' );
+
+    $debug = Configini::get( 'debug' );
 };
 
 return sub
@@ -30,6 +32,9 @@ return sub
     my $ua = LWP::UserAgent->new;
     $ua->default_header( %env ) if %env;
     my $res = $ua->get( "$usertree?cookie=$cookie" );
+
+    $logs->say( YAML::XS::Dump $res ) if $debug;
+
     if($res->is_success)
     {
         my $v = eval{decode_json $res->decoded_content};
