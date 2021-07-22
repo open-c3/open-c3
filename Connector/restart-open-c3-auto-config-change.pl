@@ -32,6 +32,15 @@ sub check
 
 system "$RealBin/restart-open-c3.sh start";
 
+my $first = "/var/open-c3.first.mark";
+if( ! -f $first )
+{
+    sleep 5;
+
+    system "$RealBin/restart-open-c3.sh restart";
+    system "touch $first";
+}
+
 while(1)
 {
     check();
