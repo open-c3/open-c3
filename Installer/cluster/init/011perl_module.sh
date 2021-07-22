@@ -18,5 +18,7 @@ yum install mysql-devel -y
 
 /data/Software/mydan/perl/bin/cpan install Dancer2::Plugin::WebSocket
 
+/data/Software/mydan/perl/bin/cpan install LWP::Protocol::https
+
 /data/Software/mydan/perl/bin/cpan install Mail::Sender
 sed -i 's/warnings::warnif(/#warnings::warnif(/' /data/Software/mydan/perl/lib/site_perl/5.24.0/Mail/Sender.pm
