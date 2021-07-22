@@ -296,6 +296,9 @@ case "$1" in
 install)
     install $2
     ;;
+rebuild)
+    stop && start
+    ;;
 start)
     start
     ;;
@@ -312,7 +315,7 @@ reload)
     reload
     ;;
 *)
-    echo "Usage: $0 {start|stop|status|restart|reload|install}"
+    echo "Usage: $0 {start|stop|status|restart|reload|install|rebuild}"
     echo "$0 install 10.10.10.10(Your Internet IP)"
     exit 2
 esac
