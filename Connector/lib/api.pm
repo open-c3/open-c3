@@ -47,7 +47,8 @@ any '/mon' => sub {
 };
 
 any '/reload' => sub {
-    return 'err' unless request->headers->{token} && $ENV{OPEN_C3_RANDOM} && request->headers->{token} eq $ENV{OPEN_C3_RANDOM};
+    my $token = `cat /etc/openc3.reload.token 2>/dev/null`; chomp $token;
+    return 'err' unless request->headers->{token} && $token && request->headers->{token} eq $token;
     exit;
 };
 
