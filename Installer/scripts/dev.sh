@@ -87,7 +87,7 @@ function start() {
     if [ "X$IP" = "X0.0.0.0" ];then
         echo =================================================================
         echo "[INFO]build ..."
-        rm -rf $BASE_PATH/c3-front/dist
+
         docker run -it -v /data/open-c3/c3-front/:/code openc3/gulp bower install --allow-root
         docker run -it -v /data/open-c3/c3-front/:/code openc3/gulp gulp build
         
@@ -102,8 +102,29 @@ function start() {
             sed -i 's/#293fbb/#e52/g' $BASE_PATH/c3-front/dist/styles/*
         fi
 
-        cd $BASE_PATH/c3-front/dist && git clone https://github.com/open-c3/open-c3.github.io book
+        
+        NEWBOOK=0
+        if [ ! -d $BASE_PATH/c3-front/dist/book ];then
+            NEWBOOK=1
+        else
+            REMOTEUUID=$(curl https://raw.githubusercontent.com/open-c3/open-c3.github.io/main/index.html 2>/dev/null |md5sum |awk '{print $1}')
+            LOCALUUID=$(md5sum $BASE_PATH/c3-front/dist/book/index.html 2>/dev/null |awk '{print $1}')
+            if [ "X$REMOTEUUID" != "X$LOCALUUID" ];then
+                NEWBOOK=1
+            fi
+        fi
 
+        if [ "X$NEWBOOK" == "X1" ];then
+
+            rm -rf $BASE_PATH/c3-front/dist/book.new
+            rm -rf $BASE_PATH/c3-front/dist/book.old
+
+            cd $BASE_PATH/c3-front/dist && git clone https://github.com/open-c3/open-c3.github.io book.new || exit 1
+
+            mv book book.old
+            mv book.new book
+        fi
+        
         git log --pretty=format:'%ai - %s' |grep -v 'Merge branch' > $BASE_PATH/Connector/.versionlog
         git branch |grep ^*|awk '{print $2}' > $BASE_PATH/Connector/.versionname
 
