@@ -50,6 +50,20 @@ post '/config' => sub {
     };
     return +{ stat => $JSON::false, info => "dump config fail:$@" } if $@;
 
+    my $BASE_PATH = "$RealBin/../../c3-front/dist";
+    if( $config->{frontendstyle} && $config->{frontendstyle} eq 'juyun' )
+    {
+        system "sed -i 's#openc3_style_ctrl=\\\\\"[a-zA-Z0-9]*\\\\\"#openc3_style_ctrl=\\\\\"juyun\\\\\"#g' $BASE_PATH/scripts/*";
+        system "sed -i 's/#f63/#24293e/g' $BASE_PATH/styles/*";
+        system "sed -i 's/#e52/#293fbb/g' $BASE_PATH/styles/*";
+    }
+    else
+    {
+        system "sed -i 's#openc3_style_ctrl=\\\\\"[a-zA-Z0-9]*\\\\\"#openc3_style_ctrl=\\\\\"openc3\\\\\"#g' $BASE_PATH/scripts/*";
+        system "sed -i 's/#24293e/#f63/g' $BASE_PATH/styles/*";
+        system "sed -i 's/#293fbb/#e52/g' $BASE_PATH/styles/*";
+    }
+
     return +{ stat => $JSON::true, info => 'ok' };
 };
 
