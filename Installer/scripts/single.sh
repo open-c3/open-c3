@@ -299,6 +299,15 @@ install)
 rebuild)
     stop && start
     ;;
+reborn)
+    $BASE_PATH/Installer/scripts/databasectrl.sh backup
+    $BASE_PATH/Installer/scripts/upgrade.sh
+    stop && start
+    $BASE_PATH/Installer/scripts/upgrade.sh
+    ;;
+upgrade)
+    $BASE_PATH/Installer/scripts/upgrade.sh $2 $3
+    ;;
 start)
     start
     ;;
@@ -315,7 +324,7 @@ reload)
     reload
     ;;
 *)
-    echo "Usage: $0 {start|stop|status|restart|reload|install|rebuild}"
+    echo "Usage: $0 {start|stop|status|restart|reload|install|rebuild|reborn|upgrade}"
     echo "$0 install 10.10.10.10(Your Internet IP)"
     exit 2
 esac
