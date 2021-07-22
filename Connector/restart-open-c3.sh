@@ -1,5 +1,7 @@
 #!/bin/bash
 
+cp -f /data/Software/mydan/Connector/openc3.crontab /etc/cron.d/
+
 if [ "X$1" == "Xreload" ];then
     set -e
     /data/Software/mydan/Connector/tools/reload
