@@ -17,6 +17,9 @@ function list() {
 function backup() {
     echo =================================================================
     version=$(date +%Y%m%d.%H%M%S)
+    if [ "X$1" != "X" ];then
+        version=$1
+    fi
     echo "[INFO]backup to $version ..."
     docker exec -i $OpenC3_Backup_ContainersName mysqldump -h127.0.0.1 -uroot -popenc3123456^! --databases jobs jobx ci agent connector > openc3.${version}.sql
     echo "[SUCC]backup done."
@@ -35,7 +38,7 @@ list)
     list
     ;;
 backup)
-    backup
+    backup $2
     ;;
 recovery)
     recovery $2
