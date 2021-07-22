@@ -25,5 +25,5 @@ my %o = $option->set()
 $option->assert( qw( envname ) );
 
 map{
-    system "$RealBin/deploy/$_.pl $argv";
+    die "deploy $_ fail." if system "$RealBin/deploy/$_.pl $argv";
 }qw( Connector AGENT CI JOB JOBX c3-front web-shell MYDan );

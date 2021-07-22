@@ -46,7 +46,11 @@ function upgradeSelf() {
     echo =================================================================
     echo "[INFO]reload open-c3 service ..."
 
-    ./Installer/scripts/single.sh reload
+    CTRL=restart
+    if [ "X$1" == "XS" ];then
+        CTRL=reload
+    fi
+    ./Installer/scripts/single.sh $CTRL
 }
 
 function upgradeCluster() {
@@ -64,8 +68,8 @@ function upgradeCluster() {
     ./Installer/scripts/cluster.sh deploy -e $Cluster -v $Version
 }
 
-if [ "X$1" == "X" ]; then
-    upgradeSelf
+if [[ "X$1" == "X" || "X$1" == "XS" ]]; then
+    upgradeSelf $1
 else
     upgradeCluster $1 $2
 fi
