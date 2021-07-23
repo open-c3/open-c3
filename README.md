@@ -1,6 +1,10 @@
 # OPEN-C3
 
-![OPEN-C3](./c3-front/src/assets/images/open-c3-logo.jpeg )
+<div align="center">
+  <img width="100" style="max-width:100%" src="./c3-front/src/assets/images/open-c3-logo.jpeg" title="open-c3">
+  <br><br>
+  <p><b>OPEN-C3</b>为解决CI/CD/CO而生。</p>	
+</div>
 
 # Documentations
 
