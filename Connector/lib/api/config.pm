@@ -44,6 +44,22 @@ post '/config' => sub {
     eval{ $api::mysql->execute( "insert into openc3_connector_auditlog (`user`,`title`,`content`) values('$ssouser','EDIT CONNECTOR CONFIG','_')" ); };
     return  +{ stat => $JSON::false, info => $@ } if $@; 
 
+    if( $config->{juyunappkey} )
+    {
+        $config->{juyunappname} ||= 'openc3';
+
+        my $name = delete $config->{juyunappname};
+        my $key = delete $config->{juyunappkey};
+
+        return  +{ stat => $JSON::false, info => "juyun appname format error" } unless $name =~ /^[a-zA-Z0-9\-]+$/;
+        return  +{ stat => $JSON::false, info => "juyun appkey format error" } unless $key =~ /^[a-zA-Z0-9\-]+$/;
+
+        $config = YAML::XS::Dump YAML::XS::LoadFile "$RealBin/../config.ini/juyun";
+        $config =~ s/appkey: xxxxxx/appkey: $key/g;
+        $config =~ s/appname: openc3/appname: $name/g;
+        $config = YAML::XS::Load $config;
+    }
+
     eval{
         YAML::XS::DumpFile "$RealBin/../config.ini/current", $config;
         die "copy config fail: $!" if system "cp $RealBin/../config.ini/current $RealBin/../config.ini/$time";
