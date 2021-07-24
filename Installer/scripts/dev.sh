@@ -2,13 +2,18 @@
 
 BASE_PATH=/data/open-c3
 
+GITADDR=http://github.com
+if [ "X$OPENC3_ZONE" == "XCN"  ]; then
+    GITADDR=http://gitee.com
+fi
+
 function start() {
 
     IP=$1
     echo =================================================================
     echo "[INFO]get open-c3 ..."
     if [ ! -d $BASE_PATH ]; then
-        cd /data && git clone https://github.com/open-c3/open-c3
+        cd /data && git clone $GITADDR/open-c3/open-c3
     fi
 
     if [ -d "$BASE_PATH" ]; then
@@ -61,7 +66,7 @@ function start() {
     echo "[INFO]get open-c3-dev-cache ..."
 
     if [ ! -d "$BASE_PATH/Installer/dev-cache" ]; then
-        cd $BASE_PATH/Installer && git clone https://github.com/open-c3/open-c3-dev-cache dev-cache
+        cd $BASE_PATH/Installer && git clone $GITADDR/open-c3/open-c3-dev-cache dev-cache
         cd $BASE_PATH
     fi
 
@@ -107,7 +112,13 @@ function start() {
         if [ ! -d $BASE_PATH/c3-front/dist/book ];then
             NEWBOOK=1
         else
-            REMOTEUUID=$(curl https://raw.githubusercontent.com/open-c3/open-c3.github.io/main/index.html 2>/dev/null |md5sum |awk '{print $1}')
+
+            GITBOOKINDEX=https://raw.githubusercontent.com/open-c3/open-c3.github.io/main/index.html
+            if [ "X$OPENC3_ZONE" == "XCN"  ]; then
+                GITBOOKINDEX=https://gitee.com/open-c3/open-c3.github.io/raw/main/index.html
+            fi
+
+            REMOTEUUID=$(curl $GITBOOKINDEX 2>/dev/null |md5sum |awk '{print $1}')
             LOCALUUID=$(md5sum $BASE_PATH/c3-front/dist/book/index.html 2>/dev/null |awk '{print $1}')
             if [ "X$REMOTEUUID" != "X$LOCALUUID" ];then
                 NEWBOOK=1
@@ -119,7 +130,7 @@ function start() {
             rm -rf $BASE_PATH/c3-front/dist/book.new
             rm -rf $BASE_PATH/c3-front/dist/book.old
 
-            cd $BASE_PATH/c3-front/dist && git clone https://github.com/open-c3/open-c3.github.io book.new || exit 1
+            cd $BASE_PATH/c3-front/dist && git clone $GITADDR/open-c3/open-c3.github.io book.new || exit 1
 
             mv book book.old
             mv book.new book
