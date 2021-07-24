@@ -60,12 +60,6 @@ post '/config' => sub {
         $config = YAML::XS::Load $config;
     }
 
-    eval{
-        YAML::XS::DumpFile "$RealBin/../config.ini/current", $config;
-        die "copy config fail: $!" if system "cp $RealBin/../config.ini/current $RealBin/../config.ini/$time";
-    };
-    return +{ stat => $JSON::false, info => "dump config fail:$@" } if $@;
-
     my $BASE_PATH = "$RealBin/../../c3-front/dist";
     if( $config->{frontendstyle} && $config->{frontendstyle} eq 'juyun' )
     {
@@ -79,6 +73,31 @@ post '/config' => sub {
         system "sed -i 's/#24293e/#f63/g' $BASE_PATH/styles/*";
         system "sed -i 's/#293fbb/#e52/g' $BASE_PATH/styles/*";
     }
+
+    if( $config->{gitreport2company} )
+    {
+        system "mkdir -p /data/glusterfs/gitreport/ && touch /data/glusterfs/gitreport/4000000000.watch";
+    }
+    else
+    {
+        system "rm /data/glusterfs/gitreport/4000000000.watch";
+    }
+
+    if( $config->{flowreport2company} )
+    {
+        system "mkdir -p /data/glusterfs/flowreport/ && touch /data/glusterfs/flowreport/4000000000.watch";
+    }
+    else
+    {
+        system "rm /data/glusterfs/flowreport/4000000000.watch";
+    }
+
+
+    eval{
+        YAML::XS::DumpFile "$RealBin/../config.ini/current", $config;
+        die "copy config fail: $!" if system "cp $RealBin/../config.ini/current $RealBin/../config.ini/$time";
+    };
+    return +{ stat => $JSON::false, info => "dump config fail:$@" } if $@;
 
     return +{ stat => $JSON::true, info => 'ok' };
 };
