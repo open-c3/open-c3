@@ -8,6 +8,7 @@ use File::Basename;
 use LWP::UserAgent;
 use Encode;
 use Util;
+use MYDB;
 
 $| ++;
 
@@ -33,6 +34,14 @@ return sub
 
     $logs = Logs->new( 'code.findtags.openc3fileserver' ) unless $logs;
     $logs->die( "id format error" ) unless $id =~ /^\d+$/;
+
+    my $dbext = MYDB->new( "$RealBin/../../JOB/conf/conn" );
+
+    my $tag = eval{ $dbext->query( "select name from openc3_job_fileserver where projectid='$treeid' and status='available'" ) };
+    return map{@$_}@$tag;
+
+    #TODO
+
 
     my $ua = LWP::UserAgent->new();
     $ua->agent('Mozilla/9 [en] (Centos; Linux)');
