@@ -5,3 +5,7 @@ RUN /data/Software/mydan/perl/bin/cpan install LWP::Protocol::https
 
 RUN wget http://opensource.wandisco.com/centos/7/git/x86_64/wandisco-git-release-7-1.noarch.rpm && rpm -ivh wandisco-git-release-7-1.noarch.rpm
 RUN yum install git -y
+
+RUN yum install -y unzip && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+RUN unzip awscliv2.zip
+RUN ./aws/install
