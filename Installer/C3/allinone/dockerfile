@@ -1,6 +1,6 @@
 #Author: lijinfeng2011@gmail.com
 
-FROM openc3/job-base:latest
+FROM openc3/job-full:20210731
 MAINTAINER lijinfeng2011
 
 #RUN sed -i 's/www.cpan.org/mirrors.163.com\/cpan/' /root/.cpan/CPAN/MyConfig.pm
@@ -22,8 +22,6 @@ RUN mkdir -p /data/glusterfs/ci_repo
 RUN wget -i -c http://dev.mysql.com/get/mysql57-community-release-el7-10.noarch.rpm
 RUN yum -y install mysql57-community-release-el7-10.noarch.rpm
 RUN yum -y install mysql-community-server
-
-RUN /data/Software/mydan/perl/bin/cpan install LWP::Protocol::https
 
 RUN mysqld --initialize --user=mysql --datadir=/var/lib/mysql
 

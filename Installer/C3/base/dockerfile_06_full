@@ -1,0 +1,7 @@
+FROM openc3/job-base:latest
+MAINTAINER lijinfeng2011
+
+RUN /data/Software/mydan/perl/bin/cpan install LWP::Protocol::https
+
+RUN wget http://opensource.wandisco.com/centos/7/git/x86_64/wandisco-git-release-7-1.noarch.rpm && rpm -ivh wandisco-git-release-7-1.noarch.rpm
+RUN yum install git -y
