@@ -32,10 +32,16 @@ return sub
 
     $logs->die( "id not a number" ) unless $id =~ /^\d+$/;
 
+    my $ua = LWP::UserAgent->new;
+    $ua->default_header( %env ) if %env;
+    $ua->timeout( 10 );
+
     my $file;
     if( $apicache )
     {
         $file = "/tmp/openc3-cache-api-nodeinfo-$id";
+
+        $ua->timeout( 3 );
 
         if( -f $file )
         {
@@ -52,8 +58,6 @@ return sub
          }
     }
 
-    my $ua = LWP::UserAgent->new;
-    $ua->default_header( %env ) if %env;
     my $t = time;
     my $res = $ua->get( "$nodeinfo$id" );
 
@@ -70,6 +74,22 @@ return sub
             eval{ YAML::XS::DumpFile $file, $v->{data} } if $apicache;
             return @{$v->{data}};
         }
+    }
+    elsif( $apicache )
+    {
+        if( -f $file )
+        {
+            my $mtime = ( stat $file )[9];
+            if( $mtime  && ( $mtime + 86400 > time ) )
+            {
+                my $filecont = eval{ YAML::XS::LoadFile $file };
+                if( $filecont && ref $filecont eq 'ARRAY' )
+                {
+                    $logs->err( "nodeinfo api usetime: cache" );
+                    return @$filecont;
+                }
+            }
+         }
     }
     #TODO die
     die "die";

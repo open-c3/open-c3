@@ -32,11 +32,16 @@ return sub
 
     $logs = Logs->new( 'code.usertree' ) unless $logs;
 
+    my $ua = LWP::UserAgent->new;
+    $ua->default_header( %env ) if %env;
+    $ua->timeout( 10 );
+
     my $file;
     if( $apicache )
     {
         my $md5 = Digest::MD5->new->add( "$usertree?cookie=$cookie" )->hexdigest;
         $file = "/tmp/openc3-cache-api-usertree-$md5";
+        $ua->timeout( 3 );
 
         if( -f $file )
         {
@@ -54,8 +59,7 @@ return sub
     }
 
 
-    my $ua = LWP::UserAgent->new;
-    $ua->default_header( %env ) if %env;
+
     my $t = time;
     my $res = $ua->get( "$usertree?cookie=$cookie" );
 
@@ -68,6 +72,22 @@ return sub
         my $v = eval{decode_json $res->decoded_content};
         eval{ YAML::XS::DumpFile $file, $v->{data} } if $apicache && $v->{stat};
         return $v->{data} if $v->{stat};
+    }
+    elsif( $apicache )
+    {
+        if( -f $file )
+        {
+            my $mtime = ( stat $file )[9];
+            if( $mtime  && ( $mtime + 86400 > time ) )
+            {
+                my $filecont = eval{ YAML::XS::LoadFile $file };
+                if( $filecont && ! $@ )
+                {
+                    $logs->err( "usertree api usetime: cache" );
+                    return $filecont;
+                }
+            }
+         }
     }
     die $res->content;
 }

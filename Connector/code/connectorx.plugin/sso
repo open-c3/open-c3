@@ -60,12 +60,15 @@ return sub
         my $ua = LWP::UserAgent->new;
         $ua->default_header( %env ) if %env;
 
+        $ua->timeout( 10 );
+
         my $file;
         if( $apicache )
         {
             my $md5 = Digest::MD5->new->add( "$ssousername$param{cookie}" )->hexdigest;
             $file = "/tmp/openc3-cache-api-sso-$md5";
 
+            $ua->timeout( 3 );
             if( -f $file )
             {
                 my $mtime = ( stat $file )[9];
@@ -98,6 +101,22 @@ return sub
             eval{ YAML::XS::DumpFile $file, \@return } if $apicache;
 
             return wantarray ? @return : $return[0];
+        }
+        elsif( $apicache )
+        {
+            if( -f $file )
+            {
+                my $mtime = ( stat $file )[9];
+                if( $mtime  && ( $mtime + 86400 > time ) )
+                {
+                    my $filecont = eval{ YAML::XS::LoadFile $file };
+                    if( $filecont && ref $filecont eq 'ARRAY' )
+                    {
+                        $logs->err( "sso api usetime: cache" );
+                        return wantarray ? @$filecont : $filecont->[0];           
+                    }
+                }
+             }
         }
         return undef;
     }
