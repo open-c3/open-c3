@@ -35,9 +35,9 @@ return sub
     $logs = Logs->new( 'code.findtags.openc3fileserver' ) unless $logs;
     $logs->die( "id format error" ) unless $id =~ /^\d+$/;
 
-    my $dbext = MYDB->new( "$RealBin/../../JOB/conf/conn" );
+    my $dbJobExt = MYDB->new( "$RealBin/../../JOB/conf/conn" );
 
-    my $tag = eval{ $dbext->query( "select name from openc3_job_fileserver where projectid='$treeid' and status='available'" ) };
+    my $tag = eval{ $dbJobExt->query( "select name from openc3_job_fileserver where projectid='$treeid' and status='available'" ) };
     return map{@$_}@$tag;
 
     #TODO

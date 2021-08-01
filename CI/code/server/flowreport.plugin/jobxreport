@@ -24,10 +24,10 @@ return sub
     my ( $since, $until, $db, $logs )
         = ( @param{qw( since until db )}, Logs->new( 'flowreport.cireport' ) );
 
-    $db = MYDB->new( "$RealBin/../../JOBX/conf/conn" );
+    my $dbJobxExt = MYDB->new( "$RealBin/../../JOBX/conf/conn" );
 
     my @col = qw( projectid uuid name group variable status starttime );
-    my $x = eval{ $db->query( sprintf( "select %s from openc3_jobx_task where starttime>='$since' and starttime<='$until'", join ',', map{"`$_`"}@col), \@col ) };
+    my $x = eval{ $dbJobxExt->query( sprintf( "select %s from openc3_jobx_task where starttime>='$since' and starttime<='$until'", join ',', map{"`$_`"}@col), \@col ) };
     $logs->die( "mysql query fail: $@" ) if $@;
 
     my @data;
