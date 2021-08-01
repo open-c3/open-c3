@@ -4,6 +4,7 @@ use warnings;
 use Logs;
 use YAML::XS;
 use LWP::UserAgent;
+use Digest::MD5;
 
 $| ++;
 
@@ -17,7 +18,7 @@ $| ++;
 
 =cut
 
-my ( $pmspoint, %env, $ssousername, %ssousernameenv, $debug );
+my ( $pmspoint, %env, $ssousername, %ssousernameenv, $debug, $apicache );
 BEGIN{
     use Configini;
     $pmspoint = Configini::get( 'pmspoint' );
@@ -28,6 +29,8 @@ BEGIN{
     die "ssousername undef on config.ini" unless $ssousername;
 
     $debug = Configini::get( 'debug' );
+    $apicache = Configini::get( 'apicache' );
+    $apicache = 0 unless $apicache && $apicache =~ /^\d+$/;
 };
 
 return sub
@@ -83,13 +86,39 @@ return sub
         }
     }
 
+    my $file;
+    if( $apicache )
+    {
+        my $md5 = Digest::MD5->new->add( "$pmspoint?point=$point$treestr&cookie=$cookie" )->hexdigest;
+        $file = "/tmp/openc3-cache-api-point-$md5";
+
+        if( -f $file )
+        {
+            my $mtime = ( stat $file )[9];
+            if( $mtime  && ( $mtime + $apicache > time ) )
+            {
+                my $filecont = eval{ YAML::XS::LoadFile $file };
+                if( $filecont && ! $@ )
+                {
+                    $logs->say( "point api usetime: cache" );
+                    return $filecont;
+                }
+            }
+        }
+    }
+
+
+    my $t = time;
     my $res = $ua->get( "$pmspoint?point=$point$treestr&cookie=$cookie" );
 
     $logs->say( YAML::XS::Dump $res ) if $debug;
+    my $utime = time - $t;
+    $logs->say( "point api usetime: $utime" );# if $debug;
 
     if($res->is_success)
     {
         my $v = eval{decode_json $res->decoded_content};
+        eval{ YAML::XS::DumpFile $file, $v->{data} } if $apicache && $v->{stat};
         return $v->{data} if $v->{stat};
     }
     die $res->content;

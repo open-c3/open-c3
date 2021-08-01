@@ -12,13 +12,15 @@ $| ++;
 
 =cut
 
-my ( $nodeinfo, %env, $debug );
+my ( $nodeinfo, %env, $debug, $apicache );
 BEGIN{
     use Configini;
     $nodeinfo = Configini::get( 'nodeinfo' );
     %env = Configini::env( 'nodeinfoenv' );
 
     $debug = Configini::get( 'debug' );
+    $apicache = Configini::get( 'apicache' );
+    $apicache = 0 unless $apicache && $apicache =~ /^\d+$/;
 };
 
 return sub
@@ -30,11 +32,34 @@ return sub
 
     $logs->die( "id not a number" ) unless $id =~ /^\d+$/;
 
+    my $file;
+    if( $apicache )
+    {
+        $file = "/tmp/openc3-cache-api-nodeinfo-$id";
+
+        if( -f $file )
+        {
+            my $mtime = ( stat $file )[9];
+            if( $mtime  && ( $mtime + $apicache > time ) )
+            {
+                my $filecont = eval{ YAML::XS::LoadFile $file };
+                if( $filecont && ref $filecont eq 'ARRAY' )
+                {
+                    $logs->say( "nodeinfo api usetime: cache" );
+                    return @$filecont;
+                }
+            }
+         }
+    }
+
     my $ua = LWP::UserAgent->new;
     $ua->default_header( %env ) if %env;
+    my $t = time;
     my $res = $ua->get( "$nodeinfo$id" );
 
     $logs->say( YAML::XS::Dump $res ) if $debug;
+    my $utime = time - $t;
+    $logs->say( "nodeinfo api usetime: $utime" );
 
     if($res->is_success)
     {
@@ -42,6 +67,7 @@ return sub
         if( $v->{stat} && ref $v->{data} eq 'ARRAY' )
         {
             map{ $_->{name} = "unkown" if $_->{name} !~ /^[a-zA-Z0-9\.\-_]$/ }@{$v->{data}};
+            eval{ YAML::XS::DumpFile $file, $v->{data} } if $apicache;
             return @{$v->{data}};
         }
     }

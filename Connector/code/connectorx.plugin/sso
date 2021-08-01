@@ -5,8 +5,9 @@ use JSON;
 use YAML::XS;
 use LWP::UserAgent;
 use Logs;
+use Digest::MD5;
 my %app;
-my ( $ssousername, %env, $debug );
+my ( $ssousername, %env, $debug, $apicache );
 BEGIN{
     for my $file ( glob "/data/Software/mydan/*/conf/appname" )
     {
@@ -23,6 +24,8 @@ BEGIN{
     die "ssousername undef on config.ini" unless $ssousername;
 
     $debug = Configini::get( 'debug' );
+    $apicache = Configini::get( 'apicache' );
+    $apicache = 0 unless $apicache && $apicache =~ /^\d+$/;
 };
 
 $| ++;
@@ -56,9 +59,33 @@ return sub
     {
         my $ua = LWP::UserAgent->new;
         $ua->default_header( %env ) if %env;
-        my $res = $ua->get( "$ssousername$param{cookie}" );
 
+        my $file;
+        if( $apicache )
+        {
+            my $md5 = Digest::MD5->new->add( "$ssousername$param{cookie}" )->hexdigest;
+            $file = "/tmp/openc3-cache-api-sso-$md5";
+
+            if( -f $file )
+            {
+                my $mtime = ( stat $file )[9];
+                if( $mtime  && ( $mtime + $apicache > time ) )
+                {
+                    my $filecont = eval{ YAML::XS::LoadFile $file };
+                    if( $filecont && ref $filecont eq 'ARRAY' )
+                    {
+                        $logs->say( "sso api usetime: cache" );
+                        return wantarray ? @$filecont : $filecont->[0];           
+                    }
+                }
+             }
+        }
+
+        my $t = time;
+        my $res = $ua->get( "$ssousername$param{cookie}" );
         $logs->say( YAML::XS::Dump $res ) if $debug;
+        my $utime = time - $t;
+        $logs->say( "sso api usetime: $utime" );
 
         if($res->is_success)
         {
@@ -67,6 +94,8 @@ return sub
             my @return = ( ref $v->{data} eq 'HASH' && $v->{data}{user} && $v->{data}{company} )
                 ? ( $v->{data}{user}, $v->{data}{company}, $v->{data}{admin}, $v->{data}{showconnector} )
                 : ref $v->{data} eq 'HASH' ? () : ( $v->{data}, $v->{data} =~ /(@.+)$/ ? $1 : 'default' );
+
+            eval{ YAML::XS::DumpFile $file, \@return } if $apicache;
 
             return wantarray ? @return : $return[0];
         }

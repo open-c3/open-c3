@@ -13,13 +13,15 @@ $| ++;
 
 =cut
 
-my ( $treemap, %env, $debug );
+my ( $treemap, %env, $debug, $apicache );
 BEGIN{
     use Configini;
     $treemap = Configini::get( 'treemap' );
     %env = Configini::env( 'treemapenv' );
 
     $debug = Configini::get( 'debug' );
+    $apicache = Configini::get( 'apicache' );
+    $apicache = 0 unless $apicache && $apicache =~ /^\d+$/;
 };
 
 return sub
@@ -30,15 +32,40 @@ return sub
     $logs = Logs->new( 'code.treemap' ) unless $logs;
 #    $logs->die( "id not a number" ) unless $id =~ /^\d+$/;
 
+    my $file;
+    if( $apicache )
+    {
+        $file = "/tmp/openc3-cache-api-treemap";
+
+        if( -f $file )
+        {
+            my $mtime = ( stat $file )[9];
+            if( $mtime  && ( $mtime + $apicache > time ) )
+            {
+                my $filecont = eval{ YAML::XS::LoadFile $file };
+                if( $filecont && ! $@ )
+                {
+                    $logs->say( "treemap api usetime: cache" );
+                    return $filecont;
+                }
+            }
+        }
+    }
+
+
     my $ua = LWP::UserAgent->new;
     $ua->default_header( %env ) if %env;
+    my $t = time;
     my $res = $ua->get( $treemap );
 
     $logs->say( YAML::XS::Dump $res ) if $debug;
+    my $utime = time - $t;
+    $logs->say( "treemap api usetime: $utime" );
 
     if($res->is_success)
     {
         my $v = eval{decode_json $res->decoded_content};
+        eval{ YAML::XS::DumpFile $file, $v->{data} } if $apicache && $v->{stat};
         return $v->{data} if $v->{stat};
     }
     #TODO die
