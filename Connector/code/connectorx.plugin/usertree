@@ -45,8 +45,10 @@ return sub
 
         if( -f $file )
         {
+            my $apicachetimeout = -f '/var/openc3_connector_api_fail' ? 86400 : $apicache;
+
             my $mtime = ( stat $file )[9];
-            if( $mtime  && ( $mtime + $apicache > time ) )
+            if( $mtime  && ( $mtime + $apicachetimeout > time ) )
             {
                 my $filecont = eval{ YAML::XS::LoadFile $file };
                 if( $filecont && ! $@ )

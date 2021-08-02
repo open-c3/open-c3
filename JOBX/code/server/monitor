@@ -59,6 +59,13 @@ my %c = (
   'job_webshell' => 1,
 );
 
+my $connector_check_api; 
+BEGIN{
+    my $connectorConfig = eval{ YAML::XS::LoadFile "/data/Software/mydan/Connector/config.inix" };
+    die "load config.inix fail: $@" if $@;
+    die "nofind ssousername" unless $connector_check_api = $connectorConfig->{ssousername};
+    $connector_check_api = undef if $connectorConfig->{ssousername} =~ /api.connector.open-c3.org/;
+};
 
 return sub
 {
@@ -267,7 +274,32 @@ return sub
         my $usetime = int( time - $t );
         $db->execute( sprintf $ins, $time, $t, $usetime > 60 ? 'err' : 'ok'  , $myname, 'monitor',"openc3_monitor_usetime", $usetime );
 
+        my $connector_api_fail = get_connector_api_fail();
+        $db->execute( sprintf $ins, $time, $t, $connector_api_fail ? 'err' : 'ok'  , $myname, 'system',"openc3_connector_api_fail", $connector_api_fail );
+
+        my $connector_api_fail_file = "/var/openc3_connector_api_fail";
+        if( $connector_api_fail )
+        {
+            system( "touch $connector_api_fail_file" ) unless -f $connector_api_fail_file;
+        }
+        else
+        {
+            unlink( $connector_api_fail_file ) if -f $connector_api_fail_file;
+        }
+
         my $due = $t + 60 - time;
         sleep $due if $due > 0;
     }
+};
+
+sub get_connector_api_fail
+{
+    return 0 unless $connector_check_api;
+
+    my $ua = LWP::UserAgent->new;
+    $ua->timeout( 10 );
+    my $res = $ua->get( $connector_check_api );
+    my $code = $res->code();
+
+    return $code == 200 ? 0 : $code;
 }
