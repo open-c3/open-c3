@@ -107,7 +107,13 @@ function start() {
             sed -i 's/#293fbb/#e52/g' $BASE_PATH/c3-front/dist/styles/*
         fi
 
-        
+        openc3_job_system_only=$(grep "^openc3_job_system_only: '1'" $BASE_PATH/Connector/config.inix | wc -l)
+        if [ "X$openc3_job_system_only" == "X1" ];then
+            sed -i 's/openc3_job_system_only=0/openc3_job_system_only=1/g' $BASE_PATH/c3-front/dist/scripts/*
+        else
+            sed -i 's/openc3_job_system_only=1/openc3_job_system_only=0/g' $BASE_PATH/c3-front/dist/scripts/*
+        fi
+
         NEWBOOK=0
         if [ ! -d $BASE_PATH/c3-front/dist/book ];then
             NEWBOOK=1
