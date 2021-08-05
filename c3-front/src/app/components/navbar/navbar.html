@@ -1,4 +1,5 @@
-<header ng-init='openc3_style_ctrl="openc3"' class="navbar navbar-fixed-top bg-danger">
+<header ng-init='openc3_style_ctrl="openc3";openc3_job_system_only=0' class="navbar navbar-fixed-top bg-danger">
+<div ng-show="!openc3_job_system_only" >
     <div ng-if="openc3_style_ctrl == 'openc3'" class="navbar-branding">
         <a class="navbar-brand" ui-sref="home.dashboard({treeid: 4000000000})">
             <img src="/assets/images/open-c3-logo.jpeg"/>
@@ -222,4 +223,174 @@
             </ul>
         </li>
     </ul>
+</div>
+
+
+<div ng-show="openc3_job_system_only" >
+    <div ng-if="openc3_style_ctrl == 'openc3'" class="navbar-branding">
+        <a class="navbar-brand" ui-sref="home.dashboard({treeid: 4000000000})">
+            <img src="/assets/images/open-c3-logo.jpeg"/>
+            <span>OPEN-C3 作业平台</span>
+        </a>
+    </div>
+    <div ng-if="openc3_style_ctrl == 'juyun'" class="navbar-branding">
+        <a class="navbar-brand" ui-sref="home.dashboard({treeid: 4000000000})">
+            <img style="width: 120px" src="/assets/images/juyun-logo.jpeg"/>
+            <span style="font-size: 10px;" >OPEN-C3</span>
+        </a>
+    </div>
+
+    <ul class="nav navbar-nav navbar-left">
+      <li>
+        <form class="navbar-form navbar-left navbar-search">
+          <div style="width: 100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;word-wrap: break-word" >
+            <input type="text" class="form-control" ng-model="selected" placeholder="Search tree node name" typeahead-on-select="nav.searchNode($item, $model, $label, $event)" ng-click="nav.search_init()" typeahead="name for name in nav.names.sort()|filter:$viewValue| limitTo:8">
+          </div>
+        </form>
+      </li>
+    </ul>
+
+    <ul class="nav navbar-nav navbar-left">
+        <li>
+            <a ui-sref="home.dashboard({treeid: nav.state.params.treeid})" > <span>仪表盘</span> </a>
+        </li>
+    </ul>
+
+    <ul class="nav navbar-nav navbar-left">
+        <li class="dropdown" uib-dropdown>
+            <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple " uib-dropdown-toggle>
+                <span>快速执行</span>
+                <span class="caret caret-tp hidden-xs"></span>
+            </a>
+            <ul class="dropdown-menu list-group dropdown-persist w250" uib-dropdown-menu>
+                <li class="list-group-item">
+                    <a ui-sref="home.quickentry.runtask({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span>启动任务</span> </a>
+                    <a ui-sref="home.quickentry.cmd({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span>脚本执行</span> </a>
+                    <a ui-sref="home.quickentry.scp({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span>分发文件</span> </a>
+                    <a ui-sref="home.quickentry.sendfile({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>文件发送</span> </a>
+                </li>
+            </ul>
+        </li>
+    </ul>
+    <ul class="nav navbar-nav navbar-left">
+        <li class="dropdown" uib-dropdown>
+        <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple" uib-dropdown-toggle>
+            <span>业务管理</span>
+            <span class="caret caret-tp hidden-xs"></span>
+        </a>
+        <ul class="dropdown-menu list-group dropdown-persist w250" uib-dropdown-menu>
+            <li class="list-group-item">
+                <a ui-sref="home.business.job({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span>作业管理</span> </a>
+                <a ui-sref="home.business.user({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>账户管理</span> </a>
+                <a ui-sref="home.business.file({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>文件管理</span> </a>
+                <a ui-sref="home.business.scripts({treeid: nav.state.params.treeid})"  class="animated animated-short fadeInUp" > <span>脚本管理</span> </a>
+                <a ui-sref="home.business.nodegroup({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>机器分组</span> </a>
+                <a ui-sref="home.business.machine({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>机器管理</span> </a>
+                <a ui-sref="home.business.notify({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>报警通知</span> </a>
+                <a ui-sref="home.business.crontab({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span>定时作业</span> </a>
+                <a ui-sref="home.business.agent({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span>代理设置(AGENT安装)</span> </a> 
+            </li>
+            </ul>
+        </li>
+    </ul>
+
+    <ul class="nav navbar-nav navbar-left">
+        <li>
+            <a ui-sref="home.history.job({treeid: nav.state.params.treeid})" > <span>执行历史</span> </a>
+        </li>
+    </ul>
+
+    <ul class="nav navbar-nav navbar-right">
+        <!--<li class="menu-divider hidden-xs">-->
+            <!--<i class="fa fa-circle"></i>-->
+        <!--</li>-->
+
+        <li ng-if="openc3_style_ctrl == 'juyun'" class="dropdown" uib-dropdown>
+            <a href="https://console.polymericcloud.com" class="dropdown-toggle fw600 p15 lh30 ripple">
+                <span>返回聚云立方</span>
+            </a>
+        </li>
+
+        <li ng-if="nav.user.admin==1" class="dropdown" uib-dropdown>
+            <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple" uib-dropdown-toggle>
+                <span>管理员</span>
+                <span class="caret caret-tp hidden-xs"></span>
+            </a>
+            <ul class="dropdown-menu list-group dropdown-persist w250" uib-dropdown-menu>
+                <li class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">全局信息</div> </li>
+                <li class="list-group-item">
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.notify({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>通知管理</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.template({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>模板管理</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.monitor({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>监控信息</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.auditlog({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>审计日志</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.useraddr({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>地址簿管理</span> </a>
+                </li>
+            </ul>
+
+        </li>
+
+        <li ng-if="nav.user.showconnector==1 || nav.user.admin==1" class="dropdown" uib-dropdown>
+            <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple" uib-dropdown-toggle>
+                <span>连接器</span>
+                <span class="caret caret-tp hidden-xs"></span>
+            </a>
+            <ul class="dropdown-menu list-group dropdown-persist w250" uib-dropdown-menu>
+                <li ng-if="nav.user.admin==1" class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">设置连接器</div> </li>
+                <li ng-if="nav.user.admin==1" class="list-group-item">
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.config({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>设置连接器</span> </a>
+                </li>
+ 
+                <li ng-if="nav.user.admin==1" class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">登录管理(内置)</div> </li>
+                <li ng-if="nav.user.admin==1" class="list-group-item">
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.userinfo({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>用户管理</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.userauth({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>权限管理</span> </a>
+                </li>
+                <li class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">服务树(内置)</div> </li>
+                <li class="list-group-item">
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.tree({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>编辑服务树节点</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.node({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>编辑服务树资源</span> </a>
+                </li>
+                <li class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">消息出口(内置)</div> </li>
+                <li class="list-group-item">
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.mail({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>给我的邮件</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.mesg({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>给我的短信</span> </a>
+                </li>
+ 
+            </ul>
+
+        </li>
+ 
+        <li class="dropdown" uib-dropdown>
+            <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple" uib-dropdown-toggle>
+                <span>{{ nav.user.name }}</span>
+                <span class="caret caret-tp hidden-xs"></span>
+            </a>
+            <ul class="dropdown-menu list-group dropdown-persist w250" uib-dropdown-menu>
+                <li class="dropdown-header clearfix">
+                    <div class="pull-left ml10">用户:{{ nav.user.email }}</div>
+                    <div class="pull-left ml10">组织:{{ nav.user.company }}</div>
+                </li>
+                <li class="list-group-item">
+                    <a href="/book/index.html" target="_blank" class="animated animated-short fadeInUp">
+                        <span class="fa fa-book"></span><span>使用手册</span>
+                    </a>
+                </li>
+                <li class="list-group-item">
+                    <a href="javascript:void(0)" class="animated animated-short fadeInUp" ui-sref="home.global.versionlog({treeid: nav.state.params.treeid})">
+                        <span class="fa fa-diamond"></span><span>版本信息</span>
+                    </a>
+                </li>
+                <li class="list-group-item">
+                    <a href="javascript:void(0)" class="animated animated-short fadeInUp" ng-click="nav.chpasswd()">
+                        <span class="fa fa-key"></span><span>修改密码</span>
+                    </a>
+                    <a href="javascript:void(0)" class="animated animated-short fadeInUp" ng-click="nav.logout()">
+                        <span class="fa fa-power-off"></span><span>登出</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>
+
 </header>
