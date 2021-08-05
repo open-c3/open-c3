@@ -15,6 +15,7 @@ cp -r /data/open-c3/AGENT temp/
 cp -r /data/open-c3/CI temp/
 cp -r /data/open-c3/c3-front/dist temp/c3-front/dist
 cp -r /data/open-c3/c3-front/nginxconf temp/c3-front/nginxconf
+cp /data/open-c3/c3-front/nginx.conf temp/c3-front/nginx.conf
 cp -r /data/open-c3/web-shell temp/
 
 VERSION=$1
