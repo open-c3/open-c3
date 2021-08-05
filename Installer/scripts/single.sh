@@ -3,8 +3,10 @@
 BASE_PATH=/data/open-c3
 
 GITADDR=http://github.com
+DOCKERINSTALL=https://get.docker.com
 if [ "X$OPENC3_ZONE" == "XCN"  ]; then
     GITADDR=http://gitee.com
+    DOCKERINSTALL=https://get.daocloud.io/docker
 fi
 
 function install() {
@@ -74,7 +76,7 @@ function install() {
     echo =================================================================
     echo "[INFO]install docker ..."
 
-    docker --help 1>/dev/null 2>&1 || curl -fsSL https://get.docker.com | bash
+    docker --help 1>/dev/null 2>&1 || curl -fsSL $DOCKERINSTALL | bash
     docker --help 1>/dev/null 2>&1
     if [ $? = 0 ]; then
         echo "[SUCC]docker installed."
