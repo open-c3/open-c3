@@ -142,6 +142,7 @@ return sub
             }
         }
         $tagger = $m[0];
+        eval{ $db->execute( "update openc3_ci_version set tagger='$tagger' where projectid='$projectid' and name='$name'" ) };
     }
 
     unless( defined $tagger && $tagger =~ /^[a-zA-Z0-9\.\@\-_]+$/ )

@@ -37,7 +37,7 @@ get '/version/:groupid/:projectid' => sub {
     my $projectid = $param->{projectid};
 
     my @col = qw( id projectid uuid name user slave status starttimems finishtimems 
-            starttime  finishtime calltype pid runtime reason create_time 
+            starttime  finishtime calltype pid runtime reason create_time tagger
     );
     my $r = eval{ 
         $api::mysql->query( 
