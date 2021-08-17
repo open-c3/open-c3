@@ -70,7 +70,7 @@ post '/nodelist/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
         projectid => qr/^\d+$/, 1,
-        name => qr/^\d+\.\d+\.\d+\.\d+$/, 1,
+        name => qr/^\d+\.\d+\.\d+\.\d+|[a-zA-Z0-9\.\-_]+::\d+\.\d+\.\d+\.\d+::\d+\.\d+\.\d+\.\d+$/, 1,
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
@@ -89,13 +89,23 @@ post '/nodelist/:projectid' => sub {
     eval{ $api::auditlog->run( user => $user, title => 'ADD NODELIST', content => "TREEID:$param->{projectid} NAME:$param->{name}" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
-    my $inip = ( $param->{name} =~ /^(172|10)\.\d+\.\d+\.\d+$/ ) ? $param->{name} : '';
-    my $exip = ( $param->{name} =~ /^\d+\.\d+\.\d+\.\d+$/ &&  $param->{name} !~ /^(172|10)\.\d+\.\d+\.\d+$/  ) ? $param->{name} : '';
+    my ( $name, $inip, $exip );
+    
+    if( $param->{name} =~ /::/ )
+    {
+        ( $name, $inip, $exip ) = split /::/, $param->{name};
+    }
+    else
+    {
+        $name = $param->{name};
+        $inip = ( $param->{name} =~ /^(172|10)\.\d+\.\d+\.\d+$/ ) ? $param->{name} : '';
+        $exip = ( $param->{name} =~ /^\d+\.\d+\.\d+\.\d+$/ &&  $param->{name} !~ /^(172|10)\.\d+\.\d+\.\d+$/  ) ? $param->{name} : '';
+    }
 
     my $r = eval{ 
         $api::mysql->execute( 
             "insert into openc3_job_nodelist (`projectid`,`name`,`inip`,`exip`,`create_user`,`create_time`,`edit_user`,`edit_time`,`status`)
-                values( '$param->{projectid}', '$param->{name}', '$inip','$exip','$user','$time', '$user', '$time','available' )")};
+                values( '$param->{projectid}', '$name', '$inip','$exip','$user','$time', '$user', '$time','available' )")};
 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
 };
