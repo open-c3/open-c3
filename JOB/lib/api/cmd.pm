@@ -21,7 +21,7 @@ any '/cmd/:projectid' => sub {
     return "params undef" unless defined $projectid && defined $node;
     return "no cookie" unless my $u = cookie( $api::cookiekey );
 
-    return "sudo name format error" if $param->{sudo} && $param->{sudo} !~ /^[a-zA-Z_-]+$/;
+    return "sudo name format error" if $param->{sudo} && $param->{sudo} !~ /^[a-zA-Z][0-9a-zA-Z_-]+$/;
     my $sudo = $param->{sudo} ? "&sudo=$param->{sudo}" : '';
     my $bash = $param->{bash} ? "&bash=1" : '';
     my $tail = $param->{tail} ? "&tail=1" : '';
