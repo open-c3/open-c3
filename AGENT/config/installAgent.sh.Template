@@ -2,6 +2,14 @@
 
 set -e 
 
+if [ "X$OPEN_C3_AGENT_FORCE_INSTALL" != "X" ];then
+    rm -rf /opt/mydan /data/mydan
+fi
+
+if [ "X$OPEN_C3_AGENT_USER" != "X" ]; then
+    id $OPEN_C3_AGENT_USER || exit 1
+fi
+
 if [ "X$OPEN_C3_ADDR" == "X" ]; then
     echo 'OPEN_C3_ADDR nofind'
     exit 1
@@ -54,20 +62,23 @@ if [ -f /opt/mydan/dan/.success ]; then
     exit
 fi
 
-$MYDanPATH/dan/bootstrap/bin/bootstrap --install
+$MYDanPATH/dan/bootstrap/bin/bootstrap --install $OPEN_C3_AGENT_USER
 
-killall -V >/dev/null 2>&1 ||yum install psmisc -y || apt-get install psmisc || echo "PLEASE INSTALL psmisc!!!"
+killall -V >/dev/null 2>/dev/null ||yum install psmisc -y 2>/dev/null || apt-get install psmisc 2>/dev/null|| echo "PLEASE INSTALL psmisc!!!"
 
 killall -q 021029e.mydan.bootstrap.master || echo "NO /opt/mydan PROCESS"
 rm -f /etc/cron.d/mydan_bootstrap_cron_021029e || echo "NO mydan_bootstrap_cron_021029e"
 
-setsid -V >/dev/null 2>&1 || echo "NO setsid"
+if [ "X$OPEN_C3_AGENT_USER" != "X" ];then
+    chown $OPEN_C3_AGENT_USER.$OPEN_C3_AGENT_USER /opt/mydan /data/mydan -R
+fi
 
+setsid -V >/dev/null 2>&1 || echo "NO setsid"
 if [ $? -eq 0 ]
 then
-    setsid $MYDanPATH/dan/bootstrap/bin/bootstrap --restart
+    setsid $MYDanPATH/dan/bootstrap/bin/bootstrap --restart $OPEN_C3_AGENT_USER
 else
-    $MYDanPATH/dan/bootstrap/bin/bootstrap --restart
+    $MYDanPATH/dan/bootstrap/bin/bootstrap --restart $OPEN_C3_AGENT_USER
 fi
 
 wget http://$OPEN_C3_ADDR/api/scripts/c3_[[:envname:]].pub -O $MYDanPATH/etc/agent/auth/c3_[[:envname:]].pub

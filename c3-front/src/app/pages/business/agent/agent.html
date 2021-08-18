@@ -32,6 +32,19 @@
                 <span style="font-size: 14px;font-weight: bold; color: #626262">安装AGENT:</span>
                 <span style="color: red">curl -L http://{{agent.siteaddr}}/api/scripts/installAgent.sh |sudo OPEN_C3_ADDR={{agent.siteaddr}} bash</span>
             </div>
+            <div style="padding: 10px">
+                <span style="font-size: 14px;font-weight: bold; color: #626262">指定AGENT启动用户:</span>
+                <span>OPEN_C3_AGENT_USER=worker</span>
+            </div>
+
+            <div style="padding: 10px">
+                <span style="font-size: 14px;font-weight: bold; color: #626262">强制重装:</span>
+                <span>OPEN_C3_AGENT_FORCE_INSTALL=1</span>
+            </div>
+            <div style="padding: 10px">
+                <span style="font-size: 14px;font-weight: bold; color: #626262">卸载命令【目录删除后AGENT会自动退出】:</span>
+                <span>rm -rf /opt/mydan /data/mydan /etc/cron.d/mydan_bootstrap_cron_7d29f42</span>
+            </div>
             <div style="padding-left: 93%">
                 <a style="font-size: 14px;font-weight: bold" class="btn btn-primary" href="http://{{agent.siteaddr}}/api/agent/proxy/{{agent.treeid}}" target="_blank">代理接口</a>
             </div>
