@@ -72,7 +72,6 @@ return sub
         my $v = eval{decode_json $res->decoded_content};
         if( $v->{stat} && ref $v->{data} eq 'ARRAY' )
         {
-            map{ $_->{name} = "unkown" if $_->{name} !~ /^[a-zA-Z0-9\.\-_]$/ }@{$v->{data}};
             eval{ YAML::XS::DumpFile $file, $v->{data} } if $apicache;
             return @{$v->{data}};
         }

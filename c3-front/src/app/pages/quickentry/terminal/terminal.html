@@ -34,8 +34,9 @@
                 <table ng-table="templatecmd.machine_Table" class="table table-hover text-center table-condensed" show-filter="true" style="border: 1px solid #ddd;">
                     
                         <tr ng-repeat="ss in $data" style="text-align: left">
-                            <td style="width: 15%" data-title="'机器名称'" filter="{ name: 'text'}"><input id="{{ss.name}}" type="checkbox" name="selected"  ng-checked="isSelected(ss.name)" ng-click="nameUpdateSelection($event, ss.id, ss.name)" style="zoom: 125%"/>
-                                <a style="cursor: pointer;" title="打开终端" ng-click="openOneTab(ss.name)">{{ss.name}}</a></td>
+                            <!-- <td style="width: 15%" data-title="'机器名称'" filter="{ name: 'text'}"><input id="{{ss.name}}" type="checkbox" name="selected"  ng-checked="isSelected(ss.name)" ng-click="nameUpdateSelection($event, ss.id, ss.name)" style="zoom: 125%"/>
+                                <a style="cursor: pointer;" title="打开终端" ng-click="openOneTab(ss.name)">{{ss.name}}</a></td> -->
+                            <td style="width: 15%" data-title="'机器名称'"> {{ss.name}} </td> 
                             <td style="width: 5%" data-title="'类型'" filter="{ type: 'text'}">{{ss.type}}</td>
                             <td style="width: 15%" data-title="'内网IP'" filter="{ inip: 'text'}"><input id="{{ss.inip}}" ng-if="ss.inip" type="checkbox" name="selected"  ng-checked="isSelected(ss.inip)" ng-click="inipUpdateSelection($event, ss.id, ss.inip)" style="zoom: 125%"/>
                                 <a style="cursor: pointer;" title="打开终端" ng-click="openOneTab(ss.inip)">{{ss.inip}}</a>
