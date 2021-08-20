@@ -243,7 +243,12 @@ function start() {
     echo =================================================================
     echo "[INFO]start ..."
 
-    cd $BASE_PATH/Installer/C3/ && ../docker-compose up -d --build
+    DCF=docker-compose.yml
+    if [ -f "Connector/mysql.config-test" ]; then
+        DCF=docker-compose-nomysql.yml
+    fi
+
+    cd $BASE_PATH/Installer/C3/ && ../docker-compose -f $DCF up -d --build
 
     echo "[SUCC]started."
 }
