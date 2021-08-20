@@ -43,7 +43,7 @@ cd /data/Software/mydan/JOBX/tools && ./$CTRL
 /data/Software/mydan/web-shell/tools/start
 
 cp /data/Software/mydan/c3-front/nginx.conf /etc/nginx/nginx.conf 
-cp /data/Software/mydan/c3-front/nginxconf/open-c3.org.conf /etc/nginx/conf.d/
+cp /data/Software/mydan/c3-front/nginxconf/* /etc/nginx/conf.d/
 nginx -s reload
 
 echo open-c3 $CTRL done.
