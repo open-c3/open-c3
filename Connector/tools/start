@@ -28,7 +28,7 @@ die "envname $envname undef in Config" unless $Config = $Config->{$envname};
 
 die "port undef" unless my $port = $Config->{port};
 
-my $supervisor = "$MYDan::PATH/dan/tools/supervisor --name connector_supervisor";
+my $supervisor = "$RealBin/../../JOB/bin/supervisor --name connector_supervisor";
 
 map{
     die "start api fail: $!" if  system "$supervisor --cmd '$base/bin/api -p $_' --log '$base/logs/server/api.$_' --http http://127.0.0.1:$_/mon --check ok";
