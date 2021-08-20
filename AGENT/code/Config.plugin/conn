@@ -19,7 +19,15 @@ return sub
 
     die "mysql config undef" unless $Config->{mysql};
 
-    my %macro = ( %{$Config->{mysql}}, envname => $envname );
+    my ( $exMysqlConfig, %ex ) = "$RealBin/../../Connector/mysql.config-$envname";
+    if( -f $exMysqlConfig )
+    {
+        my $ex = eval{ YAML::XS::LoadFile $exMysqlConfig };
+        die "load mysql.config fail: $@" if $@;
+        %ex = %$ex;
+    }
+
+    my %macro = ( %{$Config->{mysql}}, %ex, envname => $envname );
 
     die "config/conn.Template null" unless my $conn = `cat $RealBin/../config/conn.Template`;
 
