@@ -10,6 +10,17 @@ if [ "X$OPENC3_ZONE" == "XCN"  ]; then
 fi
 
 function install() {
+    echo =================================================================
+    echo "[INFO]install git ..."
+
+    git --help 1>/dev/null 2>&1 || yum install git -y
+    git --help 1>/dev/null 2>&1
+    if [ $? = 0 ]; then
+        echo "[SUCC]git installed."
+    else
+        echo "[FAIL]install git fail."
+        exit 1
+    fi
 
     echo =================================================================
     echo "[INFO]get open-c3 ..."
