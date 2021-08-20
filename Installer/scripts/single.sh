@@ -310,6 +310,11 @@ function status() {
     check ci
 }
 
+OPENC3_ZONE_CHECK=$(cat /data/open-c3/.git/config |grep gitee.com/open-c3/open-c3|wc -l)
+if [ "X$OPENC3_ZONE_CHECK" == "X1" ];then
+    export OPENC3_ZONE=CN
+fi
+
 case "$1" in
 install)
     install $2
