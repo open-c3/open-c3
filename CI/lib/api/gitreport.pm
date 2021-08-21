@@ -10,6 +10,7 @@ use api;
 use Format;
 use File::Basename;
 use Time::Local;
+use Tie::File;
 
 get '/gitreport/:groupid/report' => sub {
     my $param = params();
@@ -28,8 +29,7 @@ get '/gitreport/:groupid/report' => sub {
     my $path = "/data/glusterfs/gitreport";
     system "mkdir -p $path" unless -d $path;
 
-    my @data = `cat $path/$groupid/$param->{data}`;
-    chomp @data;
+    tie my @data, 'Tie::File', "$path/$groupid/$param->{data}", mode => O_RDONLY, discipline => ':encoding(utf8)';
 
     my $updatetime = '';
     if( -f "$path/$groupid/current" )
