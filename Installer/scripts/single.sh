@@ -259,6 +259,10 @@ function start() {
         DCF=docker-compose-nomysql.yml
     fi
 
+    if [ -f "Installer/C3/docker-compose-private.yml" ]; then
+        DCF=docker-compose-private.yml
+    fi
+
     cd $BASE_PATH/Installer/C3/ && ../docker-compose -f $DCF up -d --build
 
     echo "[SUCC]started."
