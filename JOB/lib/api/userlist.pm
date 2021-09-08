@@ -45,11 +45,11 @@ get '/userlist/:projectid' => sub {
         }
     }
 
-    my @col = qw( id username create_user create_time );
+    my @col = qw( id projectid username create_user create_time );
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_job_userlist
-                where projectid='$param->{projectid}' and status='available' %s",
+                where ( projectid='$param->{projectid}' or projectid='0' ) and status='available' %s",
                     join( ',', @col), @where ? ' and '.join( ' and ',@where ):'' ), \@col )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r || []};

@@ -94,7 +94,7 @@
                     <td data-title="'创建人'">{{ss.create_user}}</td>
                     <td data-title="'创建时间'">{{ss.create_time}}</td>
                     <td data-title="'操作'">
-                        <button class="btn btn-primary btn-sm" ng-click="user.delete(ss.id)">删除</button>
+                        <button class="btn btn-primary btn-sm" ng-disabled="ss.projectid == 0 && user.treeid != 0" ng-click="user.delete(ss.id)">删除</button>
                     </td>
                 </tr>
             </table>
