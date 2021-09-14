@@ -7,7 +7,7 @@ fi
 
 OS=$(uname)
 ARCH=$(uname -m)
-PERLURL="http://$OPEN_C3_ADDR/api/scripts/MYDan/repo/data/perl"
+PERLURL="$OPEN_C3_ADDR/api/scripts/MYDan/repo/data/perl"
 INSTALLERDIR='/opt/mydan'
 
 checktool() {

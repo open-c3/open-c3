@@ -62,8 +62,8 @@ else
         exit 1
     fi
 
-    curl -L http://$OPEN_C3_ADDR/api/scripts/MYDan_perl_update.sh|bash || exit 1
-    curl -L http://$OPEN_C3_ADDR/api/scripts/MYDan_mayi_update.sh|bash || exit 1
+    curl -L $OPEN_C3_ADDR/api/scripts/MYDan_perl_update.sh|bash || exit 1
+    curl -L $OPEN_C3_ADDR/api/scripts/MYDan_mayi_update.sh|bash || exit 1
 
 fi
 

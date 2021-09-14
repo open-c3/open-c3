@@ -13,7 +13,7 @@
         treeService.sync.then(function(){
             vm.nodeStr = treeService.selectname();
         });
-        vm.siteaddr = window.location.host;
+        vm.siteaddr = window.location.protocol + '//' + window.location.host;
         vm.checkoldstatus=false;
         vm.checknewstatus=false;
         vm.reloadcheck = function(){

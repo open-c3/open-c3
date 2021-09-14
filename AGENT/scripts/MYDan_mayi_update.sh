@@ -6,8 +6,8 @@ if [ "X$OPEN_C3_ADDR" == "X" ] ;then
 fi
 
 #MAYIURL='https://github.com/MYDan/mayi/archive'
-MAYIURL="http://$OPEN_C3_ADDR/api/scripts/MYDan/repo/data/mayi/data"
-VERSIONURL="http://$OPEN_C3_ADDR/api/scripts/MYDan/repo/data/mayi/data/version"
+MAYIURL="$OPEN_C3_ADDR/api/scripts/MYDan/repo/data/mayi/data"
+VERSIONURL="$OPEN_C3_ADDR/api/scripts/MYDan/repo/data/mayi/data/version"
 INSTALLERDIR='/opt/mydan'
 
 if [ -f $INSTALLERDIR/dan/.lock ]; then
