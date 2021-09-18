@@ -34,16 +34,16 @@
                     
                         <tr ng-repeat="ss in $data" style="text-align: left">
                             <td style="width: 15%" data-title="'机器名称'" filter="{ name: 'text'}"><a id="{{ss.name}}" type="checkbox" name="selected"  ng-checked="isSelected(ss.name)" ng-click="nameUpdateSelection($event, ss.id, ss.name)" style="zoom: 125%"/>
-                                <a style="cursor: pointer;" title="打开终端" ng-click="sendfile.openOne(ss.name)">{{ss.name}}</a></td>
+                                <a style="cursor: pointer;" title="打开" ng-click="sendfile.openOne(ss.name)">{{ss.name}}</a></td>
                             <td style="width: 5%" data-title="'类型'" filter="{ type: 'text'}">{{ss.type}}</td>
                             <td style="width: 15%" data-title="'内网IP'" filter="{ inip: 'text'}"><a id="{{ss.inip}}" ng-if="ss.inip" type="checkbox" name="selected"  ng-checked="isSelected(ss.inip)" ng-click="inipUpdateSelection($event, ss.id, ss.inip)" style="zoom: 125%"/>
-                                <a style="cursor: pointer;" title="打开终端" ng-click="sendfile.openOne(ss.inip)">{{ss.inip}}</a>
+                                <a style="cursor: pointer;" title="打开" ng-click="sendfile.openOne(ss.inip)">{{ss.inip}}</a>
                                     <i ng-if="ss.inip && ! ss.inips.status" class="fa fa-exclamation-circle" aria-hidden="true"></i>
                                     <i ng-if="ss.inip && ss.inips.status=='fail'" class="fa fa-circle" style="color: red;" aria-hidden="true"></i>
                                     <i ng-if="ss.inip && ss.inips.status=='success'" class="fa fa-circle" style="color: green;" aria-hidden="true"></i>
                             </td>
                             <td style="width: 15%" data-title="'外网ip'" filter="{ exip: 'text'}"><a ng-if="ss.exip" id="{{ss.exip}}" type="checkbox" name="selected"  ng-checked="isSelected(ss.exip)" ng-click="exipUpdateSelection($event, ss.id, ss.exip)" style="zoom: 125%"/>
-                                <a style="cursor: pointer;" title="打开终端" ng-click="sendfile.openOne(ss.exip)">{{ss.exip}}</a>
+                                <a style="cursor: pointer;" title="打开" ng-click="sendfile.openOne(ss.exip)">{{ss.exip}}</a>
                                     <i ng-if="ss.exip && ! ss.exips.status" class="fa fa-exclamation-circle" aria-hidden="true"></i>
                                     <i ng-if="ss.exip && ss.exips.status=='fail'" class="fa fa-circle" style="color: red;" aria-hidden="true"></i>
                                     <i ng-if="ss.exip && ss.exips.status=='success'" class="fa fa-circle" style="color: green;" aria-hidden="true"></i>
@@ -77,7 +77,7 @@
             <h5>文件管理</h5>
         </div>
 
-        <form class="form-horizontal" name="cForm" role="form">
+        <form class="form-horizontal" name="cForm" role="form" ng-init='openc3_job_system_only=0'>
             <div class="row">
                 <div class="col-sm-8 form-group">
                     <label class="col-sm-1 control-label">地址</label>
@@ -89,7 +89,7 @@
                 <div class="col-sm-4 form-group">
                     <button class="btn btn-primary" ng-click="sendfile.reload()">手动输入查询</button>
                     <button class="btn btn-primary" ng-click="sendfile.reset()">重置</button>
-                    <button class="btn btn-primary" ng-click="sendfile.openOneTab()">打开主机终端</button>
+                    <button class="btn btn-primary" ng-if="openc3_job_system_only==0" ng-click="sendfile.openOneTab()">打开主机终端</button>
                 </div>
             </div>
         </form>

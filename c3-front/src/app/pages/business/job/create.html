@@ -63,17 +63,17 @@
             </div>
         </div>
     </div>
-    <div style="margin-bottom: 15px;"  ng-hide="saveHide">
+    <div style="margin-bottom: 15px;"  ng-hide="saveHide" ng-init='openc3_job_system_only=0'>
         <button class="btn btn-success " ng-click="businessjobcreate.createScriptJob()">
             <i class="glyphicon glyphicon-copy"></i> 添加脚本步骤</button>
         <button class="btn btn-primary" ng-click="businessjobcreate.createScpJob()">
             <i class="glyphicon glyphicon-file"></i> 添加分发文件步骤</button>
 
-        <button class="btn btn-primary" ng-click="businessjobcreate.createApprovalJob()">
+        <button class="btn btn-primary" ng-if="openc3_job_system_only==0" ng-click="businessjobcreate.createApprovalJob()">
             <i class="fa fa-id-card"></i> 添加审批步骤</button>
     </div>
 
-    <div ng-repeat="item in businessjobcreate.allNewJob">
+    <div ng-repeat="item in businessjobcreate.allNewJob" ng-init='openc3_job_system_only=0'>
 
 
         <div ng-if="item.plugin_type == 'cmd'" class="panel panel-success">
@@ -81,7 +81,7 @@
                 <strong style="font-size: 15px">步骤.{{$index+1}}</strong>
                 <button class="btn btn-success btn-xs" ng-click="businessjobcreate.createScriptJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>脚本</button>
                 <button class="btn btn-primary btn-xs" ng-click="businessjobcreate.createScpJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>文件</button>
-                <button class="btn btn-primary btn-xs" ng-click="businessjobcreate.createApprovalJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>审批</button>
+                <button class="btn btn-primary btn-xs" ng-if="openc3_job_system_only==0" ng-click="businessjobcreate.createApprovalJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>审批</button>
             </div>
             <div class="panel-heading">
                 <h5>脚本作业</h5>
