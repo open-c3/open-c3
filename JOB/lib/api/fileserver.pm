@@ -81,7 +81,7 @@ post '/fileserver/:projectid' => sub {
 
 get '/fileserver/:projectid/download' => sub {
     my $param = params();
-    my $error = Format->new( projectid => qr/^\d+$/, 1, name => qr/^[a-zA-Z0-9\@\._\-]+$/, 1 )->check( %$param );
+    my $error = Format->new( projectid => qr/^\d+$/, 1, name => [ 'mismatch', qr/'/ ], 1 )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
     my $pmscheck = api::pmscheck( 'openc3_job_write', $param->{projectid} ); return $pmscheck if $pmscheck;
@@ -96,7 +96,18 @@ get '/fileserver/:projectid/download' => sub {
     return +{ stat => $JSON::false, info => "notfind the file" } unless @$r;
 
     my $path = "$RealBin/../fileserver/$param->{projectid}";
-    my $name = $param->{name}. '.' . time;
+    my $name;
+
+    if( $param->{name} =~ /^([a-zA-Z0-9:\@_\-\.]+)(\.[a-zA-Z0-9]+)$/ )
+    {
+        $name = sprintf "$1.%s$2", uuid->new()->create_str;
+    }
+    else
+    {
+        my $suffix = '';
+        $suffix = $1 if $param->{name} =~ /(\.[a-zA-z0-9]+)$/;
+        $name = sprintf "Download.%s.%s$suffix", POSIX::strftime( "%Y%m%d.%H%M%S", localtime ), uuid->new()->create_str;
+    }
 
     return +{ stat => $JSON::false, info => "link fail: $!" } if system "ln -fsn '$path/$r->[0]{md5}' '$RealBin/../downloadpath/$name'";
     return +{ stat => $JSON::true, data => $name };
