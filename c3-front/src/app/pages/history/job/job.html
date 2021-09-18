@@ -82,19 +82,19 @@
             <h5>执行历史</h5>
         </div>
 
-        <div class="panel-body">
+        <div class="panel-body" ng-init='openc3_job_system_only=0'>
             <div class="panel-tabs" ng-init='calltype = { "page":"页面", "api":"API", "crontab":"计划任务" }'>
                 <table ng-table="historyjob.data_Table" class="table table-hover text-center table-condensed">
                     <tr ng-repeat="ss in $data">
                         <td data-title="'任务名称'">{{ss.name}}</td>
-                        <td data-title="'关联流水线'">{{historyjob.ciinfo[ss.name]}}</td>
+                        <td ng-if="openc3_job_system_only==0" data-title="'关联流水线'">{{historyjob.ciinfo[ss.name]}}</td>
                         <td data-title="'启动人'">{{ss.user}}</td>
                         <td data-title="'任务状态'">{{historyjob.statuszh[ss.status]}}</td>
                         <td data-title="'开始时间'">{{ss.starttime}}</td>
                         <td data-title="'结束时间'">{{ss.finishtime}}</td>
                         <td data-title="'启动方式'">{{calltype[ss.calltype]}}</td>
                         <td data-title="'耗时'">{{historyjob.seftime(ss.starttime,ss.finishtime)}}</td>
-                        <td data-title="'version'">{{ss.variable| showversion}}</td>
+                        <td ng-if="openc3_job_system_only==0" data-title="'version'">{{ss.variable| showversion}}</td>
                         <td data-title="'操作'">
                             <button ng-if="ss.jobtype =='jobs'" class="btn btn-warning btn-sm" ng-click="historyjob.taskDetail(ss.uuid)">执行详情</button>
                             <button ng-if="ss.jobtype =='plugin_scp' || ss.jobtype =='plugin_cmd' || ss.jobtype =='plugin_approval'" class="btn btn-warning btn-sm" ng-click="historyjob.quickTaskDetail(ss.jobuuid,ss.uuid, ss.jobtype)">执行详情</button>
