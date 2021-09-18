@@ -22,7 +22,6 @@
         vm.postdata = { deployenv: 'always', action: 'always', batches: 'always' };
 
         $scope.userShow = false;
-        $scope.chownShow = false;
         $scope.dstServerShow = false;
         $scope.srcServerShow = false;
         $scope.scp_dir = true;
@@ -294,13 +293,6 @@
                 $scope.userShow = false;
             }else {
                 $scope.userShow = true;
-            }
-
-            if ($scope.fileChown){
-                $scope.dstDate.chown = $scope.fileChown.username;
-                $scope.chownShow = false;
-            }else {
-                $scope.chownShow = true;
             }
 
             if($scope.dstDate.dst){

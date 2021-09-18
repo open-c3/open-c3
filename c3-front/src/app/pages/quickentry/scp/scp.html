@@ -195,7 +195,7 @@
                             <div class="col-sm-7">
                                 <select  class="form-control " style="font-size: 18px;padding: 0 12px;"  ng-model="fileChown" ng-options="s.username for s in allProUsers" required>
                                 </select>
-                                <span style="color: red" ng-show="chownShow">必选文件所有者</span>
+                                <span>做chown操作，为空的情况下文件最后的归属着和Agent的启动用户有关。</span>
 
                             </div>
                             <button class="btn btn-primary col-sm-1" uib-tooltip="添加" ng-click="distribute.addProUser()"><i class="fa fa-plus"></i></button>
@@ -208,6 +208,7 @@
                             <label class="col-sm-3 control-label">文件权限 &nbsp;</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" ng-model="dstDate.chmod" name="dstchmod" required />
+                                <span>做chmod操作，为空的情况下文件权限和系统设置有关。</span>
                             </div>
                         </div>
                     </div>
