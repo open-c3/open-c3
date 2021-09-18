@@ -66,7 +66,7 @@ post '/fileserver/:projectid' => sub {
         my $md5 = Digest::MD5->new()->addfile( $fh )->hexdigest;
         close $fh;
 
-        return  +{ stat => $JSON::false, info => 'rename fail' } if system "mv '$tempname' '$path/$md5'";
+        return  +{ stat => $JSON::false, info => 'rename fail' } if system "mv '$tempname' '$path/$md5' && chmod a+r '$path/$md5'";
 
         my $r = eval{ 
             $api::mysql->execute( 
@@ -146,7 +146,7 @@ post '/fileserver/:projectid/upload' => sub {
         my $md5 = Digest::MD5->new()->addfile( $fh )->hexdigest;
         close $fh;
 
-        return  +{ stat => $JSON::false, info => 'rename fail' } if system "mv '$tempname' '$path/$md5'";
+        return  +{ stat => $JSON::false, info => 'rename fail' } if system "mv '$tempname' '$path/$md5' && chmod a+r '$path/$md5'";
 
         my $r = eval{ 
             $api::mysql->execute( 
