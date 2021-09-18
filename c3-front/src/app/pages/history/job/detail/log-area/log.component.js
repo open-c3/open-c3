@@ -14,7 +14,12 @@
         vm.height = vm.height || '200';
         var toastr = toastr || $injector.get('toastr');
 
-        var urlMySocket = "ws://" + window.location.host + "/api/job/slave/"+vm.jobaddr+"/ws?uuid="+vm.taskuuid;
+        var wsH = "ws://"
+        if ( window.location.protocol == 'https:' )
+        {
+            wsH = "wss://"
+        }
+        var urlMySocket = wsH + window.location.host + "/api/job/slave/"+vm.jobaddr+"/ws?uuid="+vm.taskuuid;
 
         vm.ws = $websocket(urlMySocket);
         vm.ws.onOpen(function (){

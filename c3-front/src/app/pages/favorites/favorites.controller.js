@@ -24,7 +24,12 @@
             var hosturl = window.location.host;
             vm.siteaddr = window.location.host;
 
-            var urlMySocket = "ws://" + vm.siteaddr + "/api/ci/slave/"+ vm.project.slave +"/ws?uuid="+ vm.treeid;
+            var wsH = "ws://"
+            if ( window.location.protocol == 'https:' )
+            {
+                wsH = "wss://"
+            }
+            var urlMySocket = wsH + vm.siteaddr + "/api/ci/slave/"+ vm.project.slave +"/ws?uuid="+ vm.treeid;
             vm.ws = $websocket(urlMySocket);
 
             vm.logDetail = '';

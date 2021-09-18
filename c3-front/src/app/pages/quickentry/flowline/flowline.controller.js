@@ -18,36 +18,6 @@
 
         $scope.panelcolor = { "success": "green", "fail": "red", "refuse": "orange",  "running": "#98b2bc", "decision": "#aaa", "ignore": "#aaa" }
 
-        vm.openws = function()
-        {
-            var hosturl = window.location.host;
-            vm.siteaddr = window.location.host;
-
-            var urlMySocket = "ws://" + vm.siteaddr + "/api/ci/slave/"+ vm.project.slave +"/ws?uuid="+ vm.treeid;
-            vm.ws = $websocket(urlMySocket);
-
-            vm.logDetail = '';
-            vm.ws.onOpen(function (){
-               console.log("opening ws");
-            });
-
-             vm.ws.onMessage(function (message) {
-                 if(  message.data == 'wsresetws' )
-                 {
-                     vm.logDetail = '';
-                 }
-                 else
-                 {
-                     vm.logDetail = vm.logDetail + message.data
-                 }
-
-             });
-
-             vm.ws.onError(function (message) {
-                 toastr.error('打开日志失败')
-             });
-        }
-
         vm.versiondetail = function (id) {
             $state.go('home.quickentry.flowlinedetail', {treeid:vm.treeid, projectid: id});
         };
