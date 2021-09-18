@@ -210,12 +210,12 @@ del '/killtask/:uuid' => sub {
 
 any '/mon' => sub {
      eval{ $mysql->query( "select count(*) from openc3_job_keepalive" )};
-     return $@ ? "ERR:$@" : "ok";
+     return $@ ? +{ status => "ERR:$@" } : { status => "ok" };
 };
 
 any '/reload' => sub {
     my $token = `cat /etc/openc3.reload.token 2>/dev/null`; chomp $token;
-    return 'err' unless request->headers->{token} && $token && request->headers->{token} eq $token;
+    return +{ 'err' => 'token null' } unless request->headers->{token} && $token && request->headers->{token} eq $token;
     exit;
 };
 

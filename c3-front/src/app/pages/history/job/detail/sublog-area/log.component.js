@@ -9,7 +9,7 @@
             bindings: { jobuuid: '=', jobaddr: '=', loguuid:'='}
         });
 
-    function LogController($websocket, $location, $injector) {
+    function LogController($websocket, $location, $injector, $scope, $interval) {
         var vm = this;
         vm.height = vm.height || '200';
         var toastr = toastr || $injector.get('toastr');
@@ -18,7 +18,7 @@
 
         vm.ws = $websocket(urlMySocket);
         vm.ws.onOpen(function (){
-            console.log("opening ws");
+            console.log("open ws");
         });
         vm.ws.onMessage(function (message) {
             setMessageInnerHTML(message.data)
@@ -27,9 +27,19 @@
             toastr.error('打开日志失败')
         });
         vm.ws.onClose(function (message) {
+            console.log("close ws");
         });
         function setMessageInnerHTML(innerHTML) {
             document.getElementById('messagejobsubtask').innerHTML += innerHTML + '<br/>';
         }
+
+        var reRun = $interval(function () {
+            if (vm.taskuuid){ vm.reload(); }
+            vm.ws.send("H")
+        }, 5000);
+
+        $scope.$on('$destroy', function(){
+            $interval.cancel(reRun);
+        });
     }
 })();
