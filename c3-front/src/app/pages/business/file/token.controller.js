@@ -10,7 +10,8 @@
             var vm = this;
             vm.allToken = [];
             vm.cancel = function(){ $uibModalInstance.dismiss()};
-            vm.hosturl = window.location.host;
+
+            vm.hosturl = window.location.protocol + '//' + window.location.host;
             vm.treeid = $state.params.treeid;
             vm.newToken = "";
             vm.tokenDis = "";
