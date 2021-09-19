@@ -22,7 +22,7 @@
         }
 
 
-        vm.siteaddr = window.location.host;
+        vm.siteaddr = window.location.protocol + '//' + window.location.host;
 
         var toastr = toastr || $injector.get('toastr');
 

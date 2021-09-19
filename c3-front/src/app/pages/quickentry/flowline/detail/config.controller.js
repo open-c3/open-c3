@@ -9,7 +9,7 @@
 
         var vm = this;
         vm.treeid = $state.params.treeid;
-        vm.siteaddr = window.location.host;
+        vm.siteaddr = window.location.protocol + '//' + window.location.host;
         vm.projectid = projectid
         vm.groupid = {}
         vm.name = name

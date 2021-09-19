@@ -22,7 +22,7 @@ any '/dockershell' => sub {
 
     $tag = defined $tag ? "&tag=$tag" : '';
     my $id = 1 + int rand $dockershellcount;
-    redirect "http://$siteaddr/webshell/index.html?u=$u&image=$image&projectid=$projectid$tag";
+    redirect "$siteaddr/webshell/index.html?u=$u&image=$image&projectid=$projectid$tag";
     #redirect "http://dockershell$id.$env{envname}.ci.$env{domainname}?u=$u&image=$image&tree=$tree$tag";
 };
 

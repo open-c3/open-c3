@@ -21,7 +21,6 @@
 
         vm.openws = function()
         {
-            var hosturl = window.location.host;
             vm.siteaddr = window.location.host;
 
             var wsH = "ws://"

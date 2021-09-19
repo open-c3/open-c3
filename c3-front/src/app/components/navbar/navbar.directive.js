@@ -52,7 +52,7 @@
             $scope.mulUrls = { };
             $scope.ciUrls = { };
             vm.logout = function(){
-                var siteaddr = window.location.host;
+                var siteaddr = window.location.protocol + '//' + window.location.host;
                 $http.get('/api/connector/connectorx/ssologout?siteaddr=' + siteaddr ).success(function(data){
                     if(data.data)
                     {
@@ -66,7 +66,7 @@
             };
 
             vm.chpasswd = function(){
-                var siteaddr = window.location.host;
+                var siteaddr = window.location.protocol + '//' + window.location.host;
                 $window.location.href=ssoService.chpasswd + '?siteaddr=' + siteaddr ;
             };
 

@@ -20,7 +20,7 @@
                           if(res.data.code == 10000){
                               $log.debug('data   ', res.data);
                               var currentUrl = $window.location.href;
-                              var siteaddr = window.location.host;
+                              var siteaddr = window.location.protocol + '//' + window.location.host;
                               $window.location.href=ssoService.login + '?siteaddr=' + siteaddr + '&callback=' + currentUrl;
                               return null;
                           }

@@ -133,7 +133,7 @@ any '/connectorx/sso/loginredirect' => sub {
     my $ssocallback = $api::ssoconfig->{ssocallback};
     if( $ssocallback =~ /^\// && $param->{siteaddr} )
     {
-        $ssocallback = "http://$param->{siteaddr}$ssocallback";
+        $ssocallback = "$param->{siteaddr}$ssocallback";
     }
 
     $ssocallback =~ s/\$\{siteaddr\}/$param->{siteaddr}/g if $param->{siteaddr};
@@ -147,7 +147,7 @@ any '/connectorx/sso/chpasswdredirect' => sub {
     my $ssochpasswd = $api::ssoconfig->{ssochpasswd};
     if( $ssochpasswd =~ /^\// && $param->{siteaddr} )
     {
-        $ssochpasswd = "http://$param->{siteaddr}$ssochpasswd";
+        $ssochpasswd = "$param->{siteaddr}$ssochpasswd";
     }
     redirect $ssochpasswd;
 };

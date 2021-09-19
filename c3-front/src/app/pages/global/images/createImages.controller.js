@@ -16,7 +16,7 @@
 
         var toastr = toastr || $injector.get('toastr');
 
-        vm.siteaddr = window.location.host;
+        vm.siteaddr = window.location.protocol + '//' + window.location.host;
 
         vm.bytesToSize = function(bytes) {
             if (bytes === 0) return '0 B';

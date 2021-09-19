@@ -14,7 +14,6 @@
         vm.reloadhome = reloadhome
         vm.cancel = function(){ $uibModalInstance.dismiss(); vm.reloadhome();};
 
-        vm.siteaddr = window.location.host;
         vm.treeid = $state.params.treeid;
 
         vm.reload = function(){

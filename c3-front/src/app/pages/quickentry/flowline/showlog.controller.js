@@ -18,7 +18,6 @@
         vm.openws = function()
         {
             var ansi_up = new AnsiUp;
-            var hosturl = window.location.host;
             vm.siteaddr = window.location.host;
 
             var wsH = "ws://"
