@@ -49,6 +49,7 @@
                                 || sName == 'home.quickentry.scp'
                                 || sName == 'home.quickentry.approval'
                                 || sName == 'home.quickentry.terminal'
+                                || sName == 'home.quickentry.sendfile'
                                 || sName == 'home.business.job'
                                 || sName == 'home.business.user'
                                 || sName == 'home.business.file'
