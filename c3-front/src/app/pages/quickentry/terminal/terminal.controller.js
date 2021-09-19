@@ -115,8 +115,8 @@
         };
 
         $scope.openOneTab = function (name) {
-            var terminalAddr = "http://"+window.location.host+"/api/job/cmd/";
-            var s = vm.treeid+"?node=" + name + '&bash=1' +'&sudo=' + $scope.selectedUser + '&siteaddr=' + window.location.host;
+            var terminalAddr = window.location.protocol + "//" + window.location.host+"/api/job/cmd/";
+            var s = vm.treeid+"?node=" + name + '&bash=1' +'&sudo=' + $scope.selectedUser + '&siteaddr=' + window.location.protocol + "//" + window.location.host;
             window.open(terminalAddr+s, '_blank')
         };
 
@@ -128,9 +128,9 @@
                 });
             }
             else {
-                var terminalAddr = "http://"+window.location.host+"/api/job/cmd/";
+                var terminalAddr = window.location.protocol + "//" + window.location.host+"/api/job/cmd/";
                 var node_str = $scope.selectedData.join(",");
-                var s = vm.treeid+"?node=" + node_str +'&sudo=' + $scope.selectedUser + '&siteaddr=' + window.location.host;
+                var s = vm.treeid+"?node=" + node_str +'&sudo=' + $scope.selectedUser + '&siteaddr=' + window.location.protocol + "//" + window.location.host;
                 window.open(terminalAddr+s, '_blank')
             }
 
@@ -144,7 +144,7 @@
                 });
             }
             else {
-                var terminalAddr = "http://"+window.location.host+"/api/job/cmd/";
+                var terminalAddr = window.location.protocol + "//"+window.location.host+"/api/job/cmd/";
                 var node_str = $scope.selectedData.join(",");
                 var s = vm.treeid + "?node=" + node_str +'&sudo=' + $scope.selectedUser + '&tail=1';
                 window.open(terminalAddr + s, '_blank');

@@ -27,7 +27,7 @@ any '/cmd/:projectid' => sub {
     my $tail = $param->{tail} ? "&tail=1" : '';
 
     my $id = 1 + int rand $cmdcount;
-    redirect "http://$siteaddr/webshell/index.html?u=$u&projectid=$projectid&node=$node$sudo$bash$tail";
+    redirect "$siteaddr/webshell/index.html?u=$u&projectid=$projectid&node=$node$sudo$bash$tail";
     #redirect "http://cmd$id.$env{envname}.job.$env{domainname}?u=$u&projectid=$projectid&node=$node$sudo$bash$tail";
 };
 

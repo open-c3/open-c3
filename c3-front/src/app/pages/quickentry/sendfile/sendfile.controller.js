@@ -162,7 +162,7 @@
             $http.get('/api/job/fileserver/' + vm.treeid + '/download?name=' + name).then(
                 function successCallback(response) {
                     if (response.data.stat){
-                        var downloadAddr = "http://"+window.location.host+"/api/job/download/";
+                        var downloadAddr = window.location.protocol + "//"+window.location.host+"/api/job/download/";
                          window.open(downloadAddr+response.data.data, '_blank')
                     }else {
                         toastr.error( "获取下载地址失败："+response.data.info)
@@ -242,8 +242,8 @@
         vm.openOneTab = function () {
             var temppath = vm.filepath.split("/");
             var name = temppath.shift();
-            var terminalAddr = "http://"+window.location.host+"/api/job/cmd/";
-            var s = vm.treeid+"?node=" + name + '&bash=1' +'&sudo=' + $scope.selectedUser + '&siteaddr=' + window.location.host;
+            var terminalAddr = window.location.protocol + "//" + window.location.host + "/api/job/cmd/";
+            var s = vm.treeid+"?node=" + name + '&bash=1' +'&sudo=' + $scope.selectedUser + '&siteaddr=' + window.location.protocol + "//" + window.location.host;
             window.open(terminalAddr+s, '_blank')
         };
     }
