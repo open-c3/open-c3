@@ -4,12 +4,13 @@ use warnings;
 use strict;
 use Carp;
 
+use YAML::XS;
 use AnyEvent;
 use AnyEvent::Impl::Perl;
 use AnyEvent::Socket;
 use AnyEvent::Handle;
 
-my ( $tindex, %index, %server, %type ) = ( 0 );
+my ( $tindex, $i, %index, %server, %type, %accepts ) = ( 0, 0 );
 
 sub new
 {
@@ -83,6 +84,7 @@ sub allocate
         next unless my $server = $this->getServer( $type );
 
         printf "DEBUG: index: $idx, type: $type, datatype: %s $server HEAD:%s\n", $index{$idx}{handle_c_data_type},  $index{$idx}{handle_c_data};;
+        $accepts{$type} ++;
         $this->_allocate( $idx, $server, $type );
     }
 }
@@ -197,12 +199,52 @@ sub getType
     return 'AGENT' if $data =~ /Host: api\.agent\.open-c3\.org:80/;
 }
 
+sub getStatus
+{
+    my $this = shift;
+
+    my ( %t, %a, %c, @c ); map{ $t{$_} = 0; $a{$_} = 0; $c{$_} = 0; }values %type;
+    for my $type ( keys %t )
+    {
+        $t{$type} = grep{ !$server{$_} }grep{ $type{$_} eq $type  }keys %server;
+        $a{$type} = grep{ $type{$_} eq $type  }keys %server;
+    }
+    map{ push @c, "process_free_$_ $t{$_}" }sort keys %t;
+    map{ push @c, "process_total_$_ $a{$_}" }sort keys %t;
+
+    my $active = 0;
+    for my $index  ( keys %index )
+    {
+        my $t = $this->getType( $index ) || 'unkown';
+        $c{$t} ++;
+        $active ++;
+    }
+
+    push @c, "active_connections $active";
+    map{ push @c, "active_connections_$_ $c{$_}" }sort ( 'unkown', keys %t );
+    
+    push @c, "accepts $i";
+    map{ push @c, "accepts_$_ ". $accepts{$_} ||0 } sort keys %t;
+
+    my $c = join "\n", @c;
+    $c =~ s/\./_/g;
+
+    my $length = length $c;
+    my @h = (
+        "HTTP/1.0 200 OK",
+        "Content-Length: $length",
+        "Content-Type: text/plain",
+    );
+
+    return join "\n",@h, "", $c;
+}
+
 sub run
 {
     my $this = shift;
     my $port = $this->{port};
 
-    my ( $i, $cv ) = ( 0,  AnyEvent->condvar );
+    my $cv = AnyEvent->condvar;
 
     tcp_server undef, $port, sub {
        my ( $fh, $tip, $tport ) = @_ or die "tcp_server: $!";
@@ -227,7 +269,25 @@ sub run
                    chunk => $len,
                    sub { 
                        $index{$index}{handle_c_data} .= $_[1];
-                       
+                       if( $index{$index}{handle_c_data} =~ m#^GET /openc3-gateway/status# )
+                       {
+
+                           $handle->push_write($this->getStatus());
+                           $handle->push_shutdown();
+                           $handle->destroy();
+                           return;
+                       }
+                       if( $index{$index}{handle_c_data} =~ m#^GET /openc3-gateway/dump# )
+                       {
+
+                           $handle->push_write($this->getStatus());
+                           eval{ YAML::XS::DumpFile "/tmp/openc3-gateway-status", +{ index => \%index }; };
+                           print "DEBUG: dump status fail:$@" if $@;
+                           $handle->push_shutdown();
+                           $handle->destroy();
+                           return;
+                       }
+ 
                        $index{$index}{handle_c_data_type} = $this->getType( $index );
                      
                        $this->showUrl( $index );
