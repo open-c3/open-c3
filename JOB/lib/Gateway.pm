@@ -209,8 +209,8 @@ sub getStatus
         $t{$type} = grep{ !$server{$_} }grep{ $type{$_} eq $type  }keys %server;
         $a{$type} = grep{ $type{$_} eq $type  }keys %server;
     }
-    map{ push @c, "process_free_$_ $t{$_}" }sort keys %t;
-    map{ push @c, "process_total_$_ $a{$_}" }sort keys %t;
+    map{ push @c, "proc_free_$_ $t{$_}" }sort keys %t;
+    map{ push @c, "proc_total_$_ $a{$_}" }sort keys %t;
 
     my $active = 0;
     for my $index  ( keys %index )
@@ -220,8 +220,8 @@ sub getStatus
         $active ++;
     }
 
-    push @c, "active_connections $active";
-    map{ push @c, "active_connections_$_ $c{$_}" }sort ( 'unkown', keys %t );
+    push @c, "active_conn $active";
+    map{ push @c, "active_conn_$_ $c{$_}" }sort ( 'unkown', keys %t );
     
     push @c, "accepts $i";
     map{ push @c, "accepts_$_ ". $accepts{$_} ||0 } sort keys %t;

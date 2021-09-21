@@ -136,6 +136,25 @@ return sub
             }
         };
 
+        my $getGatewayStatus = sub{
+
+            my $ua = LWP::UserAgent->new;
+
+            $ua->timeout( 3 );
+
+            my @re;
+            my $res = $ua->get( "http://localhost:9999/openc3-gateway/status" );
+            if( $res->is_success && $res->content )
+            {
+                for( split /\n/, $res->content )
+                {
+                    push @re, [ $1, $2 ] if $_ =~ /^([a-zA-Z0-9_]+) (\d+)$/;
+                }
+            }
+            return @re;
+        };
+
+
         my @nginxcheck = (
             +{
                 url => 'http://127.0.0.1:88/status/',
@@ -175,6 +194,8 @@ return sub
             $db->execute( sprintf $ins, $time, $t, $stat, $myname, 'nginx',"openc3_$nginx->{name}_status", $stat eq 'ok' ? 1 : 0 );
             map{ $db->execute( sprintf $ins, $time, $t, $stat, $myname, 'nginx',"openc3_$nginx->{name}_$_", $data->{$_} ); }keys %$data;
         }
+
+        map{ $db->execute( sprintf $ins, $time, $t, 'ok', $myname, 'gateway',"openc3_$_->[0]", $_->[1] ); }&$getGatewayStatus();
 
         my $getMetrics = sub{
 
