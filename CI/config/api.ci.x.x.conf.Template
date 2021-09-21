@@ -1,3 +1,7 @@
+upstream ci_api_gateway{
+  server 127.0.0.1:9999;
+}
+
 #upstream ci_api{
 #  server 127.0.0.1:9011;
 #  server 127.0.0.1:9012;
@@ -34,7 +38,7 @@ server {
     }
 
     location / {
-        proxy_pass http://ci_api;
+        proxy_pass http://ci_api_gateway;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header Host $host:$server_port;

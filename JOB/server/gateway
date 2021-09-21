@@ -16,33 +16,23 @@ $| ++;
 my $option = MYDan::Util::OptConf->load();
 my %o = $option->set( port => 9999 )->get( qw( port=i ) )->dump();
 
-my %server = (
-    "localhost:8031" => 1,
-    "localhost:8032" => 1,
-    "localhost:8033" => 1,
-    "localhost:8034" => 1,
+my %server; 
 
-    "localhost:8035" => 0,
-    "localhost:8036" => 0,
-    "localhost:8037" => 0,
-    "localhost:8038" => 0,
-    "localhost:8039" => 0,
-    "localhost:8040" => 0,
-    "localhost:8041" => 0,
-    "localhost:8042" => 0,
-    "localhost:8043" => 0,
-    "localhost:8044" => 0,
-    "localhost:8045" => 0,
+for my $t ( qw( Connector JOB JOBX CI AGENT ) )
+{
+    my $c = YAML::XS::LoadFile "/data/Software/mydan/$t/config/Config";
+    my $api = $c->{test}{port}{api};
+    map{ $server{"localhost:$_"} = $t }$api->{from} .. $api->{to};
 
-
-    "localhost:8011" => 2,
-    "localhost:8012" => 2,
-    "localhost:8013" => 2,
-    "localhost:8014" => 2,
-    "localhost:8015" => 2,
-    "localhost:8016" => 2,
-    "localhost:8017" => 2,
-    "localhost:8018" => 2,
-);
+    if( $t eq 'Connector' )
+    {
+        my $i = 0;
+        for ( sort $api->{from} .. $api->{to} )
+        {
+            last if $i ++ >= 4;
+            $server{"localhost:$_"} = "$t.internal"
+        }
+    }
+}
 
 Gateway->new( %o, server => \%server )->run();

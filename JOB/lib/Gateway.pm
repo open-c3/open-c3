@@ -62,7 +62,7 @@ sub getServer
         $tindex ++;
         $k = $k % @server;
         my $server = $server[$k];
-        return $server if $type{$server} == $type && $server{$server} == 0;
+        return $server if $type{$server} eq $type && $server{$server} == 0;
     }
 
     return;
@@ -78,7 +78,7 @@ sub allocate
     for my $type ( keys %t )
     {
         my ( $idx ) = sort{ $a <=> $b }
-             grep{ defined $index{$_}{handle_c_data_type} && $index{$_}{handle_c_data_type} == $type && ! $index{$_}{m} && $index{$_}{handle_c_data} }keys %index;
+             grep{ defined $index{$_}{handle_c_data_type} && $index{$_}{handle_c_data_type} eq $type && ! $index{$_}{m} && $index{$_}{handle_c_data} }keys %index;
         next unless $idx;
         next unless my $server = $this->getServer( $type );
 
@@ -107,7 +107,7 @@ sub showPool
     my %t; map{ $t{$_} = 0 }values %type;
     for my $type ( keys %t )
     {
-        $t{$type} = grep{ !$server{$_} }grep{ $type{$_} == $type  }keys %server;
+        $t{$type} = grep{ !$server{$_} }grep{ $type{$_} eq $type  }keys %server;
     }
     printf "GatewayPool:%s\n", join " ", map{ "T:$_=$t{$_}" }sort keys %t;
 }
@@ -187,11 +187,14 @@ sub getType
 
     if( $data =~ /Host: api\.connector\.open-c3\.org:80/ )
     {
-        return 1 if $data =~ m#^\w+\s+/internal/#;
-        return 0;
+        return 'Connector.internal' if $data =~ m#^\w+\s+/internal/#;
+        return 'Connector';
     }
 
-    return 2 if $data =~ /Host: api\.job\.open-c3\.org:80/;
+    return 'JOB' if $data =~ /Host: api\.job\.open-c3\.org:80/;
+    return 'JOBX' if $data =~ /Host: api\.jobx\.open-c3\.org:80/;
+    return 'CI' if $data =~ /Host: api\.ci\.open-c3\.org:80/;
+    return 'AGENT' if $data =~ /Host: api\.agent\.open-c3\.org:80/;
 }
 
 sub run

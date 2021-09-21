@@ -1,0 +1,23 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use YAML::XS;
+use MYDan;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $base = $RealBin;
+$base =~ s#/[^/]+$##;
+
+print "start gateway\n";
+
+my $supervisor = "$RealBin/../bin/supervisor --name job_supervisor";
+
+map{
+    die "start $_ fail: $!" if system "$supervisor --cmd '$base/server/$_' --log '$base/logs/server/$_'";
+}qw( gateway );
