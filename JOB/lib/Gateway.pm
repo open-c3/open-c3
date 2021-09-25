@@ -229,14 +229,20 @@ sub getStatus
     my $c = join "\n", @c;
     $c =~ s/\./_/g;
 
-    my $length = length $c;
+    return getHtml( $c );
+}
+
+sub getHtml
+{
+    my $content = shift;
+    my $length = length $content;
     my @h = (
         "HTTP/1.0 200 OK",
         "Content-Length: $length",
         "Content-Type: text/plain",
     );
 
-    return join "\n",@h, "", $c;
+    return join "\n",@h, "", $content;
 }
 
 sub run
@@ -269,6 +275,17 @@ sub run
                    chunk => $len,
                    sub { 
                        $index{$index}{handle_c_data} .= $_[1];
+
+
+                       if( $index{$index}{handle_c_data} =~ m#^GET /openc3-gateway/test# )
+                       {
+
+                           $handle->push_write(getHtml("ok"));
+                           $handle->push_shutdown();
+                           $handle->destroy();
+                           return;
+                       }
+
                        if( $index{$index}{handle_c_data} =~ m#^GET /openc3-gateway/status# )
                        {
 
@@ -280,9 +297,9 @@ sub run
                        if( $index{$index}{handle_c_data} =~ m#^GET /openc3-gateway/dump# )
                        {
 
-                           $handle->push_write($this->getStatus());
-                           eval{ YAML::XS::DumpFile "/tmp/openc3-gateway-status", +{ index => \%index }; };
-                           print "DEBUG: dump status fail:$@" if $@;
+                           $handle->push_write(getHtml("done"));
+                           eval{ YAML::XS::DumpFile "/tmp/openc3-gateway-dump", +{ index => \%index, server => \%server, type => \%type }; };
+                           print "Error: dump status fail:$@" if $@;
                            $handle->push_shutdown();
                            $handle->destroy();
                            return;
