@@ -18,6 +18,10 @@ print "start gateway\n";
 
 my $supervisor = "$RealBin/../bin/supervisor --name job_openc3_gateway_supervisor";
 
+my $pid = `ps -ef|grep [j]ob_openc3_gateway_supervisor|head -n 1|awk '{print \$2}'`;
+
+exit if $pid =~ /\d+/;
+
 map{
     die "start $_ fail: $!" if system "$supervisor --cmd '$base/server/$_' --log '$base/logs/server/$_'";
 }qw( gateway );

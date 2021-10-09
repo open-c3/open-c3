@@ -42,3 +42,5 @@ map{
 map{
     die "start $_ fail: $!" if system "$supervisor --cmd '$base/server/$_' --log '$base/logs/server/$_'";
 }qw( call bury crontab keepalive notify approval clean );
+
+system "$base/tools/gateway";
