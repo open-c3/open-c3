@@ -6,7 +6,6 @@ use Carp;
 
 use YAML::XS;
 use AnyEvent;
-use AnyEvent::Impl::Perl;
 use AnyEvent::Socket;
 use AnyEvent::Handle;
 
