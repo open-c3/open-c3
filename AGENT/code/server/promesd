@@ -1,0 +1,126 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib -I/data/Software/mydan/AGENT/private/lib
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use Util;
+use Logs;
+use POSIX ":sys_wait_h";
+use LWP::UserAgent;
+use JSON;
+use FindBin( qw( $RealBin ) );
+
+$| ++;
+
+=head1 SYNOPSIS
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $interval, $logs, $myname ) = ( 1800, Logs->new( 'promesd' ), Util::myname() );
+
+    my $serveraddr = $param{serveraddr} || '127.0.0.1:65112';
+
+    my %env = Util::envinfo( qw( appname appkey ) );
+    my $ua = LWP::UserAgent->new;
+    $ua->default_header( %env );
+
+    my $cnt = 0;
+    while( 1 )
+    {
+        sleep $interval if $cnt;
+        warn "do ...\n";
+
+        $cnt ++;
+
+        my $res = $ua->get( "http://api.connector.open-c3.org/connectorx/treemap");
+
+        unless( $res->is_success )
+        {
+            $logs->err( "call treemap fail" );
+            next;
+        }
+
+        my $data = eval{JSON::from_json $res->content};
+        unless ( $data->{stat} )
+        {
+            $logs->err( "call treemap result". $data->{info} || '' );
+            next;
+        }
+        my ( @data, %name2id ) = @{$data->{data}};
+        map{ $name2id{$_->{name}} = $_->{id} }@data;
+
+        my ( $i, $len, %promesd ) = ( 0, scalar @data );
+        for( @data )
+        {
+             $i++;
+             my ( $name, $id, @ids ) = @$_{ qw( name id ) };
+             my @name = split /\./, $name;
+             next unless @name > 1;
+
+             print "($i/$len/$cnt)$name\n";
+             my %tree = ( $name => 1 );
+             for my $index ( 0 .. $#name -1 )
+             {
+                 my $subname = join '.', map{ $name[$_] } 0 .. $index;
+                 $tree{$subname} = 1;
+                 push @ids, $name2id{$subname} if defined $name2id{$subname};
+             }
+             
+
+            my $res = $ua->get( "http://api.agent.open-c3.org/nodeinfo/$id" );
+
+            unless( $res->is_success )
+            {
+                $logs->err( "call treemap fail" );
+                next;
+            }
+
+            my $data = eval{JSON::from_json $res->content};
+            unless ( $data->{stat} )
+            {
+                $logs->err( "call treemap result". $data->{info} || '' );
+                next;
+            }
+
+            my @ip; map{ push @ip, $_->{inip} if $_->{inip} }@{$data->{data}};
+
+            for my $ip ( @ip )
+            {
+                $promesd{$ip} = +{} unless $promesd{$ip};
+                $promesd{$ip} = +{ ( %{$promesd{$ip}}, %tree) };
+            }
+
+        }
+#[
+#  {
+#    "targets": [ "10.60.77.73:65112"],
+#    "labels": {
+#      "instance": "10.60.79.120",
+#      "__metrics_path__": "/query_10.60.79.120_query"
+#    }
+#  },
+#  {
+#    "targets": [ "10.60.77.73:65112"],
+#    "labels": {
+#      "instance": "10.60.79.121",
+#      "__metrics_path__": "/query_10.60.79.121_query"
+#    }
+#  }
+#]
+
+        my @target;
+        for my $ip ( keys %promesd )
+        {
+            my %lables = ( instance => $ip, "__metrics_path__" =>  "/query_${ip}_query", map{ $_ =~ s/\./_/g; $_ =~ s/-//g; "tree_$_" => 1  } keys %{$promesd{$ip}} );
+            push @target, +{ targets => [ $serveraddr ], labels => \%lables };
+        }
+
+        eval{ YAML::XS::DumpFile "$RealBin/../../prometheus/config/openc3_node_sd.yml", \@target };
+        $logs->err( "write openc3_node_sd.yml fail: $@" ) if $@;
+
+        print "done.\n";
+    }
+}
