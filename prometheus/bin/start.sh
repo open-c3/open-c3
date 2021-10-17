@@ -9,8 +9,8 @@ if [ ! -f /data/open-c3/prometheus/config/prometheus.yml ];then
     cp /data/open-c3/prometheus/config/prometheus.example.yml /data/open-c3/prometheus/config/prometheus.yml
 fi
 
-if [ ! -f /data/open-c3/prometheus/config/openc3_node_sd.json ];then
-    cp /data/open-c3/prometheus/config/openc3_node_sd.example.json /data/open-c3/prometheus/config/openc3_node_sd.json
+if [ ! -f /data/open-c3/prometheus/config/openc3_node_sd.yml ];then
+    cp /data/open-c3/prometheus/config/openc3_node_sd.example.yml /data/open-c3/prometheus/config/openc3_node_sd.yml
 fi
 
 if [ "X1" == "X$X"  ]; then
