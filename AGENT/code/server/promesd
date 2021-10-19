@@ -56,17 +56,17 @@ return sub
         for( @data )
         {
              $i++;
-             my ( $name, $id, @ids ) = @$_{ qw( name id ) };
+             my ( $name, $id ) = @$_{ qw( name id ) };
              my @name = split /\./, $name;
              next unless @name > 1;
 
              print "($i/$len/$cnt)$name\n";
-             my %tree = ( $name => 1 );
+             my %tree = ( "tree_$name" => 1, "treeid_$id" => 1 );
              for my $index ( 0 .. $#name -1 )
              {
                  my $subname = join '.', map{ $name[$_] } 0 .. $index;
-                 $tree{$subname} = 1;
-                 push @ids, $name2id{$subname} if defined $name2id{$subname};
+                 $tree{"tree_$subname"} = 1;
+                 $tree{"treeid_$name2id{$subname}"} = 1;
              }
              
 
@@ -114,7 +114,7 @@ return sub
         my @target;
         for my $ip ( keys %promesd )
         {
-            my %lables = ( instance => $ip, "__metrics_path__" =>  "/query_${ip}_query", map{ $_ =~ s/\./_/g; $_ =~ s/-//g; "tree_$_" => 1  } keys %{$promesd{$ip}} );
+            my %lables = ( instance => $ip, "__metrics_path__" =>  "/query_${ip}_query", map{ $_ =~ s/\./_/g; $_ =~ s/[^a-zA-Z0-9_]//g; $_ => 1  } keys %{$promesd{$ip}} );
             push @target, +{ targets => [ $serveraddr ], labels => \%lables };
         }
 
