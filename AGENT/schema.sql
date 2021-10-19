@@ -151,3 +151,14 @@ create table `openc3_agent_monitor`(
 `edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
 UNIQUE KEY `uniq_projectid_ip` (`projectid`,`ip`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='monitor';
+
+create table `openc3_monitor_config_collector`(
+`id`            int(16) unsigned not null primary key auto_increment comment 'id',
+`projectid` int(16) unsigned comment '项目id',
+`type` VARCHAR(100) comment '类型',
+`subtype` VARCHAR(100) comment '子类型',
+`content1` VARCHAR(300) comment '内容',
+`content2` VARCHAR(300) comment '内容',
+`edit_user` VARCHAR(100) comment '编辑者',
+`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间'
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='monitorconfigcollector';
