@@ -1,0 +1,74 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib -I/data/Software/mydan/AGENT/private/lib
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use Logs;
+use POSIX ":sys_wait_h";
+use JSON;
+use FindBin( qw( $RealBin ) );
+use YAML::XS;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $interval, $logs ) = ( $param{db}, 6, Logs->new( 'rule' ) );
+
+    my $cnt = 0;
+    while( 1 )
+    {
+        sleep $interval if $cnt;
+        warn "do ...\n";
+
+        $cnt ++;
+
+        my %rule;
+        my $x = eval{ $db->query( "select projectid,`alert`,`expr`,`for`,`summary`,`description`,`value` from `openc3_monitor_config_rule`", [qw( projectid alert expr for summary description value )] ) };
+
+        for my $row ( @$x )
+        {
+             $rule{$row->{projectid}} = [] unless $rule{$row->{projectid}};
+             push @{$rule{$row->{projectid}}}, $row;
+        }
+
+        my @groups;
+        for my $treeid ( keys %rule )
+        {
+            next unless $rule{$treeid};
+            my @rules;
+            for my $rule ( @{$rule{$treeid}} )
+            {
+                push @rules, +{
+                    alert => $rule->{alert},
+                    expr => $rule->{expr},
+                    for => $rule->{for} || '1s',
+                    labels => +{
+                        severity => $rule->{severity},
+                        fromtreeid => $treeid,
+                    },
+                    annotations => +{
+                        summary => $rule->{summary}||'-',
+                        description => $rule->{description}||'-',
+                        value => $rule->{value}||'-',
+                    },
+                };
+            }
+
+            push @groups, +{ name => "treeid_$treeid", rules => \@rules };
+        }
+
+        eval{ YAML::XS::DumpFile "$RealBin/../../prometheus/config/openc3_rule.yml", +{ groups => \@groups } };
+        $logs->err( "write openc3_rule.yml fail: $@" ) if $@;
+
+        system "curl -XPOST http://$param{exip}:9090/-/reload" if $param{exip};
+        print "done.\n";
+    }
+}
