@@ -1,0 +1,101 @@
+<div class="modal-header">
+    <h4 class="modal-title">{{createMonitorConfigRule.title}}监控策略</h4>
+</div>
+<div class="modal-body">
+
+    <form class="form-horizontal" name="myForm" role="form">
+
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">监控名称<a style="color: red;">*</a></label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" placeholder="监控的名称" ng-model="createMonitorConfigRule.postData.alert" required>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">表达式<a style="color: red;">*</a></label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" placeholder="普罗米修斯表达式" ng-model="createMonitorConfigRule.postData.expr" required>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">严重程度式<a style="color: red;">*</a></label>
+                <div class="col-sm-9">
+                    <div class="admin-form">
+                        <div class="option-group field" >
+                            <label class="option option-primary">
+                                <input type="radio" ng-model="createMonitorConfigRule.postData.severity" value="warning" >
+                                <span class="radio" style="padding-top: 0;min-height: 0"></span>warning(邮件通知)
+                            </label>
+                            <label class="option option-primary">
+                                 <input type="radio" ng-model="createMonitorConfigRule.postData.severity" value="critical" >
+                                 <span class="radio" style="padding-top: 0;min-height: 0"></span>critical(邮件，短信通知)
+                            </label>
+                            <label class="option option-primary">
+                                 <input type="radio" ng-model="createMonitorConfigRule.postData.severity" value="emergency" >
+                                 <span class="radio" style="padding-top: 0;min-height: 0"></span>emergency(邮件，短信，电话 通知)
+                            </label>
+ 
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">持续时间</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" placeholder="持续时间，如 30s ，5m" ng-model="createMonitorConfigRule.postData.for">
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">概要</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" placeholder="例：load1 :\{\{$labels.alertname}}" ng-model="createMonitorConfigRule.postData.summary">
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">描述</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" placeholder="业务500报警: \{\{ $value }}" ng-model="createMonitorConfigRule.postData.description">
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">值</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" placeholder="告警显示的值：如 \{\{ $value }} " ng-model="createMonitorConfigRule.postData.value">
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-sm-5 form-group pull-right">
+                <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="createMonitorConfigRule.add()">确认</button>
+                <button class="btn btn-warning" ng-click="createMonitorConfigRule.cancel()">取消</button>
+            </div>
+        </div>
+    </form>
+
+</div>
