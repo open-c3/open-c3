@@ -67,6 +67,21 @@
 
         vm.reloadAlert();
 
+        vm.reloadUser = function(){
+            vm.loadoverUser = false;
+            $http.get('/api/agent/monitor/config/user/' + vm.treeid ).success(function(data){
+                if(data.stat == true) 
+                { 
+                    vm.activeUserTable = new ngTableParams({count:20}, {counts:[],data:data.data.reverse()});
+                    vm.loadoverUser = true;
+                } else { 
+                    toastr.error( "加载报警接收人失败:" + data.info )
+                }
+            });
+        };
+
+        vm.reloadUser();
+
         vm.createCollector = function (postData, title) {
             $uibModal.open({
                 templateUrl: 'app/pages/quickentry/monitorconfig/create/collector.html',
@@ -105,6 +120,26 @@
         };
 
 
+        vm.createUser = function () {
+            vm.newuser = $scope.newUser;
+            if (vm.newuser.length > 0){
+                $http.post('/api/agent/monitor/config/user/' + vm.treeid, {'user': vm.newuser}).then(
+                    function successCallback(response) {
+                        if (response.data.stat){
+                            vm.reloadUser();
+                            $scope.newUser = '';
+                        }else {
+                            toastr.error( "添加失败：" + response.data.info );
+                        }
+                    },
+                    function errorCallback (response ){
+                        toastr.error( "添加失败：" + response.status );
+                    }
+                );
+            }
+        };
+
+ 
         vm.deleteCollector = function(id) {
           swal({
             title: "是否要删除该指标采集",
@@ -141,6 +176,25 @@
             });
           });
         }
+
+        vm.deleteUser = function(id) {
+          swal({
+            title: "是否要删除该用户",
+            text: "删除",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            cancelButtonText: "取消",
+            confirmButtonText: "确定",
+            closeOnConfirm: true
+          }, function(){
+            $http.delete('/api/agent/monitor/config/user/' + vm.treeid + '/' + id ).success(function(data){
+                if( ! data.stat ){ toastr.error("删除报警接收人失败:" + date.info)}
+                vm.reloadUser();
+            });
+          });
+        }
+
 
     }
 })();

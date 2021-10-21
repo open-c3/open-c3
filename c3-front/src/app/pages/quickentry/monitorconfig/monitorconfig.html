@@ -135,4 +135,44 @@
     </div>
 
 
+<hr>
+
+    <div>
+        <div style="float: right;">
+            <form class="form-inline" name="myForm" novalidate>
+                <div class="form-group" ng-init="newUser=''">
+                    <input type="text" class="form-control" ng-model="newUser"  placeholder="添加报警人" required>
+                </div>
+                <button type="submit" ng-disabled="myForm.$invalid" class="btn btn-primary" ng-click="monitorconfig.createUser()"><i class="fa fa-user fa-lg" aria-hidden="true"></i>添加报警人</button>
+            </form>
+        </div>
+        <div style="clear: both;">&nbsp;</div>
+    </div>
+
+    <div class="panel panel-dark">
+
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-dark" uib-tooltip="刷新" ng-click="monitorconfig.reloadUser()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!monitorconfig.loadoverUser}" ></i></button>
+            </span>
+            <h5>通知用户</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="panel-tabs">
+
+            <table ng-table="monitorconfig.activeUserTable" class="table table-hover text-center table-condensed">
+                <tr ng-repeat="ss in $data">
+                    <td data-title="'账户名'" >{{ss.user}}</td>
+                    <td data-title="'创建人'">{{ss.edit_user}}</td>
+                    <td data-title="'创建时间'">{{ss.edit_time}}</td>
+                    <td data-title="'操作'">
+                        <button class="btn btn-primary btn-sm" ng-click="monitorconfig.deleteUser(ss.id)">删除</button>
+                    </td>
+                </tr>
+            </table>
+            </div>
+        </div>
+    </div>
+
 </div>

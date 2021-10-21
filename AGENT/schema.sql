@@ -176,3 +176,11 @@ create table `openc3_monitor_config_rule`(
 `edit_user` VARCHAR(100) comment '编辑者',
 `edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间'
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='monitorconfigrule';
+
+create table `openc3_monitor_config_user`(
+`id`            int(16) unsigned not null primary key auto_increment comment 'id',
+`projectid` int(16) unsigned comment '项目id',
+`user` VARCHAR(100) comment 'user',
+`edit_user` VARCHAR(100) comment '编辑者',
+`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间'
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='monitorconfiguser';
