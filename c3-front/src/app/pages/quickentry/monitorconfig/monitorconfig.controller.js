@@ -46,6 +46,21 @@
 
         vm.reloadRule();
 
+        vm.reloadAlert = function(){
+            vm.loadoverAlert = false;
+            $http.get('/api/agent/monitor/alert/' + vm.treeid ).success(function(data){
+                if(data.stat == true) 
+                { 
+                    vm.activeAlertTable = new ngTableParams({count:20}, {counts:[],data:data.data.reverse()});
+                    vm.loadoverAlert = true;
+                } else { 
+                    toastr.error( "加载当前告警失败:" + data.info )
+                }
+            });
+        };
+
+        vm.reloadAlert();
+
         vm.createCollector = function (postData, title) {
             $uibModal.open({
                 templateUrl: 'app/pages/quickentry/monitorconfig/create/collector.html',

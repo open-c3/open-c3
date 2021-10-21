@@ -2,6 +2,37 @@
     <nodestr></nodestr>
     <hr class="mv20 clear">
 
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="monitorconfig.reloadAlert()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!monitorconfig.loadoverAlert}" ></i></button>
+            </span>
+            <h5>当前告警</h5>
+        </div>
+
+        <div class="panel-body flowline">
+            <div class="pt20" style="overflow: auto;">
+                <table ng-table="monitorconfig.activeAlertTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
+                    <tr ng-repeat="m in $data">
+                        <td data-title="'开始时间'" sortable="'startsAt'">{{m.startsAt}}</td>
+                        <td data-title="'名称'" sortable="'labels.alertname'">{{m.labels.alertname}}</td>
+                        <td data-title="'监控对象'" sortable="'labels.instance'">{{m.labels.instance}}</td>
+                        <td data-title="'状态'" sortable="'status.state'">{{m.status.state}}</td>
+                        <td data-title="'概要'" sortable="'annotations.summary'">{{m.annotations.summary}}</td>
+                        <td data-title="'值'" sortable="'annotations.value'">{{m.annotations.value}}</td>
+                        <td class="textcenter"  data-title="'操作'">
+                            <nobr>
+                                <a style="font-size: 10px;font-weight: bold" class="btn btn-primary" href="{{m.generatorURL}}" target="_blank">查看图表</a>
+                            </nobr>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <hr class="mv20 clear">
+
     <div>
         <div style="float: right;">
             <form class="form-inline" name="myForm" novalidate>
