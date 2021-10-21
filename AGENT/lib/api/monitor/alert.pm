@@ -39,7 +39,7 @@ get '/monitor/alert/:projectid' => sub {
         return +{ stat => $JSON::false, info => "get alert from altermanager error: $url" };
     }
 
-    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => [ grep{ $_->{labels} && $_->{labels}{"treeid_$projectid"} }@$data ] };
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => [ grep{ $_->{labels} && $_->{labels}{"fromtreeid"} && $_->{labels}{"fromtreeid"} eq $projectid }@$data ] };
 };
 
 true;
