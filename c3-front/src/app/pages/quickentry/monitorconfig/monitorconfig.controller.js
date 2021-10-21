@@ -5,7 +5,7 @@
         .module('openc3')
         .controller('MonitorConfigController', MonitorConfigController);
 
-    function MonitorConfigController($location, $anchorScroll, $state, $http, $uibModal, treeService, ngTableParams, resoureceService, $websocket, genericService, $scope, $injector) {
+    function MonitorConfigController($location, $anchorScroll, $state, $http, $uibModal, treeService, ngTableParams, resoureceService, $websocket, genericService, $scope, $injector, $sce ) {
 
         var vm = this;
         vm.treeid = $state.params.treeid;
@@ -15,6 +15,12 @@
         treeService.sync.then(function(){
             vm.nodeStr = treeService.selectname();
         });
+
+        vm.url = 'http://10.60.77.73:8080/d/dUrNraOnz/openc3-dashboard?orgId=1&var-origin_prometheus=&var-job=openc3&var-hostname=All&var-device=All&var-interval=2m&var-maxmount=&var-show_hostname=&var-total=1&var-treeid=treeid_' + vm.treeid + '&kiosk'
+        vm.trustSrc = function()
+        {
+            return $sce.trustAsResourceUrl( vm.url );
+        }
 
         vm.reload = function(){
             vm.loadover = false;

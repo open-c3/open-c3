@@ -4,6 +4,20 @@
 
     <div class="panel panel-primary">
         <div class="panel-heading">
+            <h5>监控看板</h5>
+        </div>
+
+        <div class="panel-body flowline">
+            <div class="pt20" style="overflow: auto;">
+                <a>{{monitorconfig.url}}</a>
+                <iframe ng-src="{{monitorconfig.trustSrc()}}" width="100%" height="800" frameborder="0" name="grafana" scrolling="auto"></iframe> 
+            </div>
+        </div>
+
+    </div>
+<hr>
+    <div class="panel panel-primary">
+        <div class="panel-heading">
             <span class="panel-controls">
                 <button class="btn btn-primary" uib-tooltip="刷新" ng-click="monitorconfig.reloadAlert()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!monitorconfig.loadoverAlert}" ></i></button>
             </span>
