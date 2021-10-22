@@ -22,6 +22,6 @@ fi
 if [ "X1" == "X$X"  ]; then
     docker start openc3-prometheus
 else
-    docker run -d -p 9090:9090 -v /data/prometheus-data:/data/prometheus-data -v /data/open-c3/prometheus:/data/prometheus-root --name openc3-prometheus prom/prometheus --config.file /data/prometheus-root/config/prometheus.yml --storage.tsdb.path=/data/prometheus-data $Externalur
+    docker run -d -p 9090:9090 -v /data/prometheus-data:/data/prometheus-data -v /data/open-c3/prometheus:/data/prometheus-root --name openc3-prometheus prom/prometheus --config.file /data/prometheus-root/config/prometheus.yml --storage.tsdb.path=/data/prometheus-data $Externalur --web.enable-lifecycle
 fi
 
