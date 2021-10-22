@@ -1,0 +1,107 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib -I/data/Software/mydan/AGENT/private/lib
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use Logs;
+use POSIX ":sys_wait_h";
+use JSON;
+use FindBin( qw( $RealBin ) );
+use YAML::XS;
+use LWP::UserAgent;
+use Util;
+use utf8;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $interval, $logs ) = ( $param{db}, 6, Logs->new( 'sender' ) );
+
+    my $cnt = 0;
+    while( 1 )
+    {
+        sleep $interval if $cnt;
+        warn "do ...\n";
+
+        $cnt ++;
+
+        for my $file ( glob "/data/Software/mydan/AGENT/sender/sender.*.wait" )
+        {
+            print "file: $file\n";
+            my $conf = eval{ YAML::XS::LoadFile $file };
+
+
+            my ( $commonLabels, $status, $alerts ) = @$conf{qw( commonLabels status alerts )};
+
+            my %node;
+            for my $alert ( @$alerts )
+            {
+                $node{$alert->{labels}{instance}} = 1;
+            }
+            my $nodes = join ',', sort keys %node;
+            my $treeid = $commonLabels->{fromtreeid};
+
+            my $cont = sprintf "status: $status\nseverity:$commonLabels->{severity}\nnodes:$nodes\ntreeid:$commonLabels->{fromtreeid}";
+
+
+            my $usr = eval{ $db->query( "select `user` from `openc3_monitor_config_user` where projectid ='$treeid'") };
+            my @user = map{$_->[0]}@$usr;
+
+            unless( @user )
+            {
+                my $newfile = $file; $newfile =~ s/wait$/nouser/;
+                rename $file, $newfile;
+                next;
+            }
+
+            my %env = Util::envinfo( qw( appname appkey ) );
+            my $ua = LWP::UserAgent->new;
+            $ua->default_header( %env );
+            my %form = (
+                data => [
+                    +{
+                        type => 'sms',
+                        mesg => $cont,
+                        to => \@user,
+                    }
+                ]
+            );
+
+            $cont = JSON::to_json( \%form );
+            utf8::encode($cont);
+
+            my $res = $ua->post( "http://api.connector.open-c3.org/connectorx/notify", 
+                Content => $cont, 'Content-Type' => 'application/json'
+            );
+
+            unless( $res->is_success )
+            {
+                my $newfile = $file; $newfile =~ s/wait$/fail/;
+                rename $file, $newfile;
+                eval{ YAML::XS::DumpFile "$newfile.res", $res };
+                next;
+            }
+
+            my $data = eval{JSON::from_json $res->content};
+            unless ( $data->{stat} ) {
+                my $newfile = $file; $newfile =~ s/wait$/fail/;
+                rename $file, $newfile;
+                eval{ YAML::XS::DumpFile "$newfile.res", $res };
+                next;
+            }
+ 
+            my $newfile = $file; $newfile =~ s/wait$/ok/;
+            rename $file, $newfile;
+        }
+
+        print "done.\n";
+    }
+}
