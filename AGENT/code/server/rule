@@ -31,7 +31,7 @@ return sub
         $cnt ++;
 
         my %rule;
-        my $x = eval{ $db->query( "select projectid,`alert`,`expr`,`for`,`summary`,`description`,`value` from `openc3_monitor_config_rule`", [qw( projectid alert expr for summary description value )] ) };
+        my $x = eval{ $db->query( "select projectid,`alert`,`expr`,`for`,`severity`,`summary`,`description`,`value` from `openc3_monitor_config_rule`", [qw( projectid alert expr for severity summary description value )] ) };
 
         for my $row ( @$x )
         {
