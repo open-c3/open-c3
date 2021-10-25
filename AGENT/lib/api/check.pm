@@ -42,7 +42,7 @@ post '/check/:projectid' => sub {
     my $pmscheck = api::pmscheck( 'openc3_agent_write', $param->{projectid} ); return $pmscheck if $pmscheck;
 
     my ( $projectid, $status ) = @$param{qw( projectid status )};
-    $status = 'off' if$status ne 'on';
+    $status = 'off' if $status ne 'on';
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
     eval{ $api::auditlog->run( user => $user, title => 'AGENT CHECK', content => "TREEID:$projectid STATUS:$status" ); };

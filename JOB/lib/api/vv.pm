@@ -91,6 +91,7 @@ get '/vv/:projectid/list' => sub {
     my $param = params();
     my $error = Format->new(
         projectid => qr/^\d+$/, 1,
+        appname => [ 'mismatch', qr/'/ ], 0,
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
@@ -104,11 +105,11 @@ get '/vv/:projectid/list' => sub {
         $appname = "APP_".$appname."_VERSION";
         $r = eval {
             $api::mysql->query(
-                sprintf( "select distinct value from openc3_job_vv where projectid=$projectid and name='$appname' order by update_time desc") )};
+                sprintf( "select distinct value from openc3_job_vv where projectid=$projectid and name='$appname'") )};
     } else {
         $r = eval {
             $api::mysql->query(
-                sprintf( "select distinct value from openc3_job_vv where projectid=$projectid order by update_time desc") )};
+                sprintf( "select distinct value from openc3_job_vv where projectid=$projectid") )};
     }
 
     return  +{ stat => $JSON::false, info => "query data error : $@" } if $@;

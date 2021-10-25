@@ -28,7 +28,7 @@ get '/scripts/:projectid' => sub {
         create_time_start => qr/^\d{4}\-\d{2}\-\d{2}$/, 0,
         create_time_end => qr/^\d{4}\-\d{2}\-\d{2}$/, 0,
         edit_time_start => qr/^\d{4}\-\d{2}\-\d{2}$/, 0,
-        create_time_end => qr/^\d{4}\-\d{2}\-\d{2}$/, 0,
+        edit_time_end => qr/^\d{4}\-\d{2}\-\d{2}$/, 0,
 
     )->check( %$param );
 
