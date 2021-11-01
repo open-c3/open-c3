@@ -12,7 +12,7 @@ use Format;
 get '/ticket' => sub {
     my $param = params();
     my $error = Format->new( 
-        type => [ 'in', 'SSHKey', 'UsernamePassword', 'JobBuildin' ], 0,
+        type => [ 'in', 'SSHKey', 'UsernamePassword', 'JobBuildin', 'KubeConfig' ], 0,
         projectid => qr/^\d+$/, 0,
         ticketid => qr/^\d+$/, 0,
     )->check( %$param );
@@ -42,7 +42,7 @@ get '/ticket' => sub {
             $d->{ticket} = +{ Username => $n, Password => '********' }
         }
 
-        if( $d->{type} eq 'JobBuildin' || $d->{type} eq 'SSHKey' )
+        if( $d->{type} eq 'JobBuildin' || $d->{type} eq 'SSHKey' || $d->{type} eq 'KubeConfig' )
         {
             $d->{ticket} = +{ $d->{type} => '********' }
         }
@@ -81,7 +81,7 @@ get '/ticket/:ticketid' => sub {
             $d->{ticket} = +{ Username => $n, Password => $p }
         }
 
-        if( $d->{type} eq 'JobBuildin' || $d->{type} eq 'SSHKey' )
+        if( $d->{type} eq 'JobBuildin' || $d->{type} eq 'SSHKey' || $d->{type} eq 'KubeConfig' )
         {
             $t = '********' unless $show;
             $d->{ticket} = +{ $d->{type} => $t }
@@ -97,7 +97,7 @@ post '/ticket' => sub {
     my $param = params();
     my $error = Format->new( 
         name => [ 'mismatch', qr/'/ ], 1,
-        type => [ 'in', 'SSHKey', 'UsernamePassword', 'JobBuildin' ], 1,
+        type => [ 'in', 'SSHKey', 'UsernamePassword', 'JobBuildin', 'KubeConfig' ], 1,
         describe => [ 'mismatch', qr/'/ ], 1,
     )->check( %$param );
 
@@ -129,7 +129,12 @@ post '/ticket' => sub {
         return  +{ stat => $JSON::false, info => "check format fail ticket" }
             unless $token = $param->{ticket}{JobBuildin};
     }
-    
+    if( $param->{type} eq 'KubeConfig' )
+    {
+        return  +{ stat => $JSON::false, info => "check format fail ticket" }
+            unless $token = $param->{ticket}{KubeConfig};
+    }
+ 
     return  +{ stat => $JSON::false, info => "abnormal ticket format" } if $token =~ /\*{8}/;
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
 
@@ -145,7 +150,7 @@ post '/ticket/:ticketid' => sub {
     my $error = Format->new( 
         ticketid => qr/^\d+$/, 1,
         name => [ 'mismatch', qr/'/ ], 1,
-        type => [ 'in', 'SSHKey', 'UsernamePassword', 'JobBuildin' ], 1,
+        type => [ 'in', 'SSHKey', 'UsernamePassword', 'JobBuildin', 'KubeConfig' ], 1,
         describe => [ 'mismatch', qr/'/ ], 1,
     )->check( %$param );
 
@@ -178,7 +183,12 @@ post '/ticket/:ticketid' => sub {
         return  +{ stat => $JSON::false, info => "check format fail ticket" }
             unless $token = $param->{ticket}{JobBuildin};
     }
-   
+    if( $param->{type} eq 'KubeConfig' )
+    {
+        return  +{ stat => $JSON::false, info => "check format fail ticket" }
+            unless $token = $param->{ticket}{KubeConfig};
+    }
+ 
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     return  +{ stat => $JSON::false, info => "abnormal ticket format" } if $token =~ /\*{8}/;
 
