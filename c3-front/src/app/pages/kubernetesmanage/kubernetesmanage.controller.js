@@ -62,12 +62,16 @@
         vm.podCount = 0;
         vm.replicasetCount = 0;
  
+        vm.loadoverA = false;
+        vm.loadoverB = false;
+
         vm.reload = function () {
             $http.get('/api/ci/ticket?type=KubeConfig' ).then(
                 function successCallback(response) {
                     if (response.data.stat){
                         vm.clusterlist = response.data.data; 
                         $scope.clusterCount = vm.clusterlist.length;
+                        vm.loadoverA = true;
                     }else {
                         toastr.error( "获取集群列表失败："+response.data.info );
                     }
@@ -78,6 +82,7 @@
 
             if( vm.selecteClusterId <= 0 )
             {
+                vm.loadoverB = true;
                 return;
             }
 
@@ -107,6 +112,7 @@
                         vm.replicasetReady = response.data.replicasetready;
                         vm.replicasetCount = response.data.data.replicaset.length;
 
+                        vm.loadoverB = true;
                     }else {
                         toastr.error( "获取集群中应用数据失败："+response.data.info );
                     }

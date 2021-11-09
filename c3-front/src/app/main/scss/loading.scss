@@ -4,7 +4,7 @@ Loader
 
 .loading-container {
     position: relative;
-    height:60px;
+    height:0px;
     background-color:#fff;
 }
 
@@ -12,17 +12,18 @@ Loader
     width: 40px;
     height: 40px;
     position: absolute;
-    top: 0;
+    top: 300px;
     left: 0;
     bottom:0;
     right:0;
     margin:auto;
     transform: rotate(45deg);  
+    z-index: 1000;
 }
 
 .loading-container .loading div {
-    width: 16px;
-    height: 16px;
+    width: 64px;
+    height: 64px;
     position: absolute;
 }
 
@@ -37,9 +38,9 @@ Loader
 .loading-container .loading .l4 div{ background-color:#f1c30f;}
 
 .loading-container .loading .l1 { transform: translate(0,0); }
-.loading-container .loading .l2 { transform: translate(0,16px); }
-.loading-container .loading .l3 { transform: translate(16px,0px); }
-.loading-container .loading .l4 { transform: translate(16px,16px); }
+.loading-container .loading .l2 { transform: translate(0,64px); }
+.loading-container .loading .l3 { transform: translate(64px,0px); }
+.loading-container .loading .l4 { transform: translate(64px,64px); }
 
 @keyframes rot1 {
     0%{ transform: rotate(0deg); }
@@ -72,24 +73,24 @@ Loader
 }
 
 @keyframes l2-rise {
-    0%{ transform: translate(0,16px); }
-    30%{ transform: translate(-4px, 20px); }
-    70%{ transform: translate(-4px, 20px); }
-    100%{ transform: translate(0,16px); }
+    0%{ transform: translate(0,64px); }
+    30%{ transform: translate(-4px, 68px); }
+    70%{ transform: translate(-4px, 68px); }
+    100%{ transform: translate(0,64px); }
 }
 
 @keyframes l3-rise {
-    0%{ transform: translate(16px, 0px); }
-    30%{ transform: translate(20px, -4px); }
-    70%{ transform: translate(20px, -4px); }
-    100%{ transform: translate(16px, 0px); }
+    0%{ transform: translate(64px, 0px); }
+    30%{ transform: translate(68px, -4px); }
+    70%{ transform: translate(68px, -4px); }
+    100%{ transform: translate(64px, 0px); }
 }
 
 @keyframes l4-rise {
-    0%{ transform: translate(16px,16px); }
-    30%{ transform: translate(20px, 20px); }
-    70%{ transform: translate(20px, 20px); }
-    100%{ transform: translate(16px,16px); }
+    0%{ transform: translate(64px,64px); }
+    30%{ transform: translate(68px, 68px); }
+    70%{ transform: translate(68px, 68px); }
+    100%{ transform: translate(64px,64px); }
 }
 
 
