@@ -1,0 +1,29 @@
+<div class="row block">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="kubernetesdescribe.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetesdescribe.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="关闭" ng-click="kubernetesdescribe.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
+            </span>
+            <h5>describe信息</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="pt20">
+                <div>
+                    <div class="row" class="form-group">
+                        <div class="col-md-12">
+                            <pre style="min-height: 100px;" ng-dblclick="dataEdit=true" class="text-left"  ng-bind-html="kubernetesdescribe.describe"></pre>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<style>.modal-dialog {width: 60%;} </style>

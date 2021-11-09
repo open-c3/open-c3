@@ -1,0 +1,30 @@
+<div class="row block">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="kubernetesrollback.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetesrollback.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="关闭" ng-click="kubernetesrollback.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
+            </span>
+            <h5>回滚</h5>
+        </div>
+
+        <div class="panel-body" style="margin-top: 2px">
+            <div class="pt20" style="overflow: auto;">
+                <table ng-table="kubernetesrollback.versionTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
+                    <tr ng-repeat="m in $data">
+                        <td data-title="'版本'" width="80" filter="{ REVISION: 'text'}" sortable="'REVISION'">{{m.REVISION}}</td>
+                        <td data-title="'镜像'" width="80" filter="{ IMAGE: 'text'}" sortable="'IMAGE'">{{m.IMAGE}}</td>
+                        <td data-title="'CHANGE_CAUSE'" width="80" filter="{ CHANGE_CAUSE: 'text'}" sortable="'CHANGE_CAUSE'">{{m.CHANGE_CAUSE}}</td>
+                        <td data-title="'操作'" width="80" >
+                              <button class="btn btn-primary" ng-click="kubernetesrollback.rollback(m.REVISION)">回滚</button>
+                        </td> 
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<style>.modal-dialog {width: 60%;} </style>

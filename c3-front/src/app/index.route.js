@@ -64,6 +64,13 @@
                 controllerAs: 'flowreport'
             })
 
+            .state('home.kubernetesmanage', {
+                url: 'kubernetesmanage/:treeid/:clusterid/:namespace/:stat',
+                templateUrl: 'app/pages/kubernetesmanage/kubernetesmanage.html',
+                controller: 'KubernetesmanageController',
+                controllerAs: 'kubernetesmanage'
+            })
+
             .state('home.favorites', {
                 url: 'favorites/:treeid',
                 templateUrl: 'app/pages/favorites/favorites.html',
