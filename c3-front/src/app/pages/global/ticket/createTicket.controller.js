@@ -12,6 +12,7 @@
         vm.type = type
         vm.cancel = function(){ $uibModalInstance.dismiss()};
         vm.postData = { type: 'SSHKey', share: 'false' };
+        vm.kubectlVersion = [ "v1.18.0" ];
 
         if( ticketid )
         {
@@ -47,6 +48,28 @@
                     }else {
                         swal({ title:'保存票据失败', text: response.data.info, type:'error' });
                     }
+                }
+            );
+        };
+
+        vm.connectiontest = function(){
+            var d = {
+                kubectlVersion: vm.postData.ticket.kubectlVersion,
+                kubeconfig: vm.postData.ticket.KubeConfig,
+            };
+            vm.loading = true
+            $http.post('/api/ci/kubernetes/cluster/connectiontest', d, { timeout: 120000 } ).then(
+                function successCallback(response) {
+                    vm.loading = false
+                    if (response.data.stat){
+                        swal({ title:'连接成功', text: response.data.info, type:'success' });
+                    }else {
+                        swal({ title:'连接失败', text: response.data.info, type:'error' });
+                    }
+                },
+
+                function errorCallback (response){
+                    vm.loading = false
                 }
             );
         };

@@ -81,11 +81,19 @@ get '/ticket/:ticketid' => sub {
             $d->{ticket} = +{ Username => $n, Password => $p }
         }
 
-        if( $d->{type} eq 'JobBuildin' || $d->{type} eq 'SSHKey' || $d->{type} eq 'KubeConfig' )
+        if( $d->{type} eq 'JobBuildin' || $d->{type} eq 'SSHKey' )
         {
             $t = '********' unless $show;
             $d->{ticket} = +{ $d->{type} => $t }
         }
+
+        if( $d->{type} eq 'KubeConfig' )
+        {
+            my ( $v, $c ) = split /_:separator:_/, $t, 2;
+            $c = '********' unless $show;
+            $d->{ticket} = +{ $d->{type} => $c, kubectlVersion => $v }
+        }
+
         $d->{share} = $d->{share} ? 'true' : 'false';
     }
 
@@ -132,7 +140,8 @@ post '/ticket' => sub {
     if( $param->{type} eq 'KubeConfig' )
     {
         return  +{ stat => $JSON::false, info => "check format fail ticket" }
-            unless $token = $param->{ticket}{KubeConfig};
+            unless $param->{ticket}{KubeConfig} && $param->{ticket}{kubectlVersion} && $param->{ticket}{kubectlVersion} =~ /^v\d+\.\d+\.\d+$/;
+        $token = "$param->{ticket}{kubectlVersion}_:separator:_$param->{ticket}{KubeConfig}";
     }
  
     return  +{ stat => $JSON::false, info => "abnormal ticket format" } if $token =~ /\*{8}/;
@@ -186,7 +195,8 @@ post '/ticket/:ticketid' => sub {
     if( $param->{type} eq 'KubeConfig' )
     {
         return  +{ stat => $JSON::false, info => "check format fail ticket" }
-            unless $token = $param->{ticket}{KubeConfig};
+            unless $param->{ticket}{KubeConfig} && $param->{ticket}{kubectlVersion} && $param->{ticket}{kubectlVersion} =~ /^v\d+\.\d+\.\d+$/;
+        $token = "$param->{ticket}{kubectlVersion}_:separator:_$param->{ticket}{KubeConfig}";
     }
  
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );

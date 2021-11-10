@@ -10,6 +10,28 @@ use Format;
 use Time::Local;
 use File::Temp;
 
+sub getKubectlCmd
+{
+    my $ticketid = shift;
+    my $r = eval{ $api::mysql->query( "select ticket from openc3_ci_ticket where id='$ticketid'" ); };
+    die "ticket nofind by id $ticketid" unless $r && @$r;
+    my ( $version, $ticket ) = split /_:separator:_/, $r->[0][0], 2;
+
+    die "version format error in ticket" unless $version =~ /^v\d+\.\d+\.\d+$/;
+    my $kubectl = $version eq 'v0.0.0' ? "kubectl" : "kubectl_$version";
+
+    my $md5 = Digest::MD5->new->add( $ticket )->hexdigest;
+    my $kubeconfig = "/data/Software/mydan/tmp/kubeconfig_${ticketid}_$md5";
+    return "KUBECONFIG=$kubeconfig $kubectl" if -f $kubeconfig;
+
+    my $fh = File::Temp->new( UNLINK => 0, SUFFIX => '.config', TEMPLATE => "/data/Software/mydan/tmp/kubeconfig_${ticketid}_XXXXXXXX" );
+    print $fh $ticket;
+    close $fh;
+
+    die "rename fail: $!" if system "mv '$fh' '$kubeconfig'";
+    return "KUBECONFIG=$kubeconfig $kubectl";
+}
+
 get '/kubernetes/app' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -21,9 +43,10 @@ get '/kubernetes/app' => sub {
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
     my $pmscheck = api::pmscheck( 'openc3_ci_read', 0 ); return $pmscheck if $pmscheck;
 
-    my $kubeconfig = "/root/.kube/config_$param->{ticketid}";
+    my $kubectl = eval{ getKubectlCmd( $param->{ticketid} ) };
+    return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
-    my @x = `KUBECONFIG=$kubeconfig kubectl get all --all-namespaces -o wide`;
+    my @x = `$kubectl get all --all-namespaces -o wide`;
     chomp @x;
 
     my ( $deploymentready, $podready, $podrunning, $daemonsetready, $replicasetready ) = ( 0, 0, 0, 0, 0 );
@@ -133,9 +156,10 @@ get '/kubernetes/app/describe' => sub {
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
     my $pmscheck = api::pmscheck( 'openc3_ci_read', 0 ); return $pmscheck if $pmscheck;
 
-    my $kubeconfig = "/root/.kube/config_$param->{ticketid}";
+    my $kubectl = eval{ getKubectlCmd( $param->{ticketid} ) };
+    return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
-    my $x = `KUBECONFIG=$kubeconfig kubectl describe '$param->{type}' '$param->{name}' -n '$param->{namespace}'`;
+    my $x = `$kubectl describe '$param->{type}' '$param->{name}' -n '$param->{namespace}'`;
     return +{ stat => $JSON::true, data => $x, };
 };
 
@@ -151,9 +175,10 @@ get '/kubernetes/app/yaml' => sub {
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
     my $pmscheck = api::pmscheck( 'openc3_ci_read', 0 ); return $pmscheck if $pmscheck;
 
-    my $kubeconfig = "/root/.kube/config_$param->{ticketid}";
+    my $kubectl = eval{ getKubectlCmd( $param->{ticketid} ) };
+    return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
-    my $x = `KUBECONFIG=$kubeconfig kubectl rollout history '$param->{type}' '$param->{name}' -n '$param->{namespace}' -o yaml`;
+    my $x = `$kubectl rollout history '$param->{type}' '$param->{name}' -n '$param->{namespace}' -o yaml`;
     return +{ stat => $JSON::true, data => $x };
 };
 
@@ -172,7 +197,8 @@ post '/kubernetes/app/apply' => sub {
 
     #TODO 用户ticket权限验证
     
-    my $kubeconfig = "/root/.kube/config_$param->{ticketid}";
+    my $kubectl = eval{ getKubectlCmd( $param->{ticketid} ) };
+    return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
     #check yaml 格式
     #dump成文件后继续检查格式，危险
@@ -182,7 +208,7 @@ post '/kubernetes/app/apply' => sub {
     close $fh;
 
     my $filename = $fh->filename;
-    my $x = `KUBECONFIG=$kubeconfig kubectl apply -f '$filename' 2>&1`;
+    my $x = `$kubectl apply -f '$filename' 2>&1`;
 
     return +{ stat => $JSON::true, data => $x, };
 };
@@ -203,9 +229,10 @@ post '/kubernetes/app/setimage' => sub {
 
     #TODO 用户ticket权限验证
     
-    my $kubeconfig = "/root/.kube/config_$param->{ticketid}";
+    my $kubectl = eval{ getKubectlCmd( $param->{ticketid} ) };
+    return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
-    my $x = `KUBECONFIG=$kubeconfig kubectl set image '$param->{type}/$param->{name}' '$param->{container}=$param->{image}' -n '$param->{namespace}' 2>&1`;
+    my $x = `$kubectl set image '$param->{type}/$param->{name}' '$param->{container}=$param->{image}' -n '$param->{namespace}' 2>&1`;
 
     return +{ stat => $JSON::true, data => $x };
 };
@@ -225,9 +252,9 @@ post '/kubernetes/app/rollback' => sub {
 
     #TODO 用户ticket权限验证
     
-    my $kubeconfig = "/root/.kube/config_$param->{ticketid}";
-
-    my $x = `KUBECONFIG=$kubeconfig kubectl rollout undo $param->{type}/$param->{name} -n '$param->{namespace}' --to-revision=$param->{version}`;
+    my $kubectl = eval{ getKubectlCmd( $param->{ticketid} ) };
+    return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
+    my $x = `$kubectl rollout undo $param->{type}/$param->{name} -n '$param->{namespace}' --to-revision=$param->{version}`;
 
     return +{ stat => $JSON::true, data => $x };
 };
@@ -244,9 +271,10 @@ get '/kubernetes/app/rollback' => sub {
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
     my $pmscheck = api::pmscheck( 'openc3_ci_read', 0 ); return $pmscheck if $pmscheck;
 
-    my $kubeconfig = "/root/.kube/config_$param->{ticketid}";
+    my $kubectl = eval{ getKubectlCmd( $param->{ticketid} ) };
+    return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
-    my @x = `KUBECONFIG=$kubeconfig kubectl rollout history $param->{type} $param->{name} -n '$param->{namespace}'`;
+    my @x = `$kubectl rollout history $param->{type} $param->{name} -n '$param->{namespace}'`;
     chomp @x;
 
     my @r;
@@ -261,7 +289,7 @@ get '/kubernetes/app/rollback' => sub {
             last if $count > 10;
             if( $count <= 10 )
             {
-                my @image = `KUBECONFIG=$kubeconfig kubectl rollout history $param->{type} $param->{name} -n '$param->{namespace}'  --revision '$v' |grep Image`;
+                my @image = `$kubectl rollout history $param->{type} $param->{name} -n '$param->{namespace}'  --revision '$v' |grep Image`;
                 chomp @image;
                 map{ $_ =~ s/\s+//g; $_ =~ s/^Image://g; }@image;
                 $image = join ',', @image;
@@ -287,8 +315,9 @@ post '/kubernetes/app/setreplicas' => sub {
 
     #TODO 用户ticket权限验证
 
-    my $kubeconfig = "/root/.kube/config_$param->{ticketid}";
-    my $x = `KUBECONFIG=$kubeconfig kubectl scale '$param->{type}' '$param->{name}' -n '$param->{namespace}' --replicas=$param->{replicas} 2>&1`;
+    my $kubectl = eval{ getKubectlCmd( $param->{ticketid} ) };
+    return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
+    my $x = `$kubectl scale '$param->{type}' '$param->{name}' -n '$param->{namespace}' --replicas=$param->{replicas} 2>&1`;
 
     return +{ stat => $JSON::true, data => $x };
 };
