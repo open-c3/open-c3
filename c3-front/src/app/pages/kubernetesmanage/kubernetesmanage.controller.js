@@ -12,6 +12,7 @@
         vm.treeid = $state.params.treeid;
 
         vm.selecteClusterId = $state.params.clusterid;
+        vm.selecteCluster = {};
         if( vm.selecteClusterId == undefined )
         {
             vm.selecteClusterId = '0'
@@ -71,6 +72,16 @@
                     if (response.data.stat){
                         vm.clusterlist = response.data.data; 
                         $scope.clusterCount = vm.clusterlist.length;
+
+                        if( vm.selecteClusterId > 0 ){
+                            angular.forEach(vm.clusterlist, function (value, key) {
+                                if( value.id ==  vm.selecteClusterId )
+                                {
+                                    vm.selecteCluster = value;
+                                }
+                            });
+                        }
+
                         vm.loadoverA = true;
                     }else {
                         toastr.error( "获取集群列表失败："+response.data.info );
@@ -218,6 +229,7 @@
                     replicas: function () {return replicas},
                     namespace: function () {return namespace},
                     ticketid: function () {return vm.selecteClusterId},
+                    clusterinfo: function () {return vm.selecteCluster},
                 }
             });
         };

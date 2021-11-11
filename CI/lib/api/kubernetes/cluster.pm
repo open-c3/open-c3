@@ -10,7 +10,7 @@ use Format;
 use Time::Local;
 use File::Temp;
 
-any '/kubernetes/cluster/connectiontest' => sub {
+post '/kubernetes/cluster/connectiontest' => sub {
     my $param = params();
     my $error = Format->new( 
         kubectlVersion => qr/^v\d+\.\d+\.\d+$/, 1,

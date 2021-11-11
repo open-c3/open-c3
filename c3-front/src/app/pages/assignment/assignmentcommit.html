@@ -1,0 +1,38 @@
+<div class="row block">
+    <div class="modal-header">
+        <h4 class="modal-title">操作协助</h4>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal" name="myForm" role="form">
+            <div class="row">
+                <div class="col-sm-10 form-group">
+                    <label class="col-sm-3 control-label">协助人</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="handler" placeholder="协助人" ng-model="assignmentcommit.postData.handler" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-10 form-group">
+                    <label class="col-sm-3 control-label">申请操作理由</label>
+                    <div class="col-sm-9">
+                        <textarea type="text" class="form-control" name="reason" placeholder="操作理由" rows="3" cols="100" ng-model="assignmentcommit.postData.submit_reason" required></textarea>
+
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-sm-5 form-group pull-right">
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="assignmentcommit.commit()">提交</button>
+                    <button class="btn btn-warning" ng-click="assignmentcommit.cancel()">取消</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<style>.modal-dialog {width: 40%;} </style>

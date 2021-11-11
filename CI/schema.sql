@@ -138,3 +138,20 @@ create table `openc3_ci_favorites`(
 `user` VARCHAR(100) comment '用户',
 UNIQUE KEY `uniq_ciid_user` (`ciid`,`user`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='收藏夹';
+
+create table `openc3_ci_assignment`(
+`id` int(32) unsigned not null primary key auto_increment comment 'id',
+`type` VARCHAR(200) comment '类型',
+`name` VARCHAR(200) comment '任务名称',
+`submitter` VARCHAR(100) comment '提交人',
+`handler` VARCHAR(100) comment '处理人',
+`url` VARCHAR(100) comment 'URL',
+`method` VARCHAR(100) comment '方法',
+`data` VARCHAR(5000) comment '数据',
+`submit_reason` VARCHAR(100) comment '提交理由',
+`handle_reason` VARCHAR(100) comment '处理结果',
+`status` VARCHAR(20) comment '通知状态',
+`remarks` VARCHAR(2000) comment '审批标注内容',
+`create_time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
+`finish_time` VARCHAR(20) comment '结束时间'
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='assignment';

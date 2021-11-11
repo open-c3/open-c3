@@ -317,6 +317,12 @@
                 controller: 'ApprovalController',
                 controllerAs: 'approval'
             })
+            .state('home.assignment', {
+                url: 'assignment/:treeid',
+                templateUrl: 'app/pages/assignment/assignment.html',
+                controller: 'AssignmentController',
+                controllerAs: 'assignment'
+            })
             .state('home.business.machine', {
                 url: 'machine/:treeid',
                 templateUrl: 'app/pages/business/machine/machine.html',

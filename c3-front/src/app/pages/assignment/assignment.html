@@ -1,0 +1,68 @@
+<div class="row block" ng-init="assignmentns = { 'todo': '代办', 'fail': '操作失败', 'success':'已完成', 'refuse': '已拒绝', 'cancel': '已取消', 'close': '关闭'}" >
+
+<div>
+    <div class="panel panel-info">
+
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-info" uib-tooltip="刷新" ng-click="assignment.reloadA()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!assignment.loadoverA}" ></i></button>
+            </span>
+            <h5>我请求的协助</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="panel-tabs">
+                <table ng-table="assignment.bymeTable" class="table table-hover text-center table-condensed" show-filter="true">
+                    <tr ng-repeat="d in $data">
+                        <td style="width: 10%" data-title="'创建时间'" filter="{ create_time: 'text'}" sortable="'create_time'">{{d.create_time}}</td>
+                        <td style="width: 10%" data-title="'结束时间'" filter="{ finish_time: 'text'}" sortable="'finish_time'">{{d.finish_time}}</td>
+                        <td style="width: 10%" data-title="'耗时'">{{ assignment.seftime(d.create_time,d.finish_time)}}</td>
+                        <td style="width: 10%" data-title="'处理人'" filter="{ handler: 'text'}" sortable="'handler'">{{d.handler}}</td>
+                        <td style="width: 20%" data-title="'审批名称'" filter="{ name: 'text'}" sortable="'name'">{{d.name}}</td>
+                        <td style="width: 10%" data-title="'状态'" >{{assignmentns[d.status]}}</td>
+                        <td style="width: 10%" data-title="'操作'">
+                            <button ng-disabled="d.status!=='todo'" class="btn btn-primary btn-sm" ng-click="assignment.updateStatus(d.id, 'cancel')">取消</button>
+                            <button class="btn btn-info btn-sm" ng-click="assignment.edit(d.id,0)">详情</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <div class="panel panel-primary">
+
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="assignment.reloadB()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!assignment.loadoverB}" ></i></button>
+            </span>
+            <h5>需要我协助</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="panel-tabs">
+                <table ng-table="assignment.tomeTable" class="table table-hover text-center table-condensed" show-filter="true">
+                    <tr ng-repeat="d in $data">
+                        <td style="width: 10%" data-title="'创建时间'" filter="{ create_time: 'text'}" sortable="'create_time'">{{d.create_time}}</td>
+                        <td style="width: 10%" data-title="'结束时间'" filter="{ finish_time: 'text'}" sortable="'finish_time'">{{d.finish_time}}</td>
+                        <td style="width: 10%" data-title="'耗时'">{{ assignment.seftime(d.create_time,d.finish_time)}}</td>
+                        <td style="width: 10%" data-title="'提交人'" filter="{ submitter: 'text'}" sortable="'submitter'">{{d.submitter}}</td>
+                        <td style="width: 20%" data-title="'审批名称'" filter="{ name: 'text'}" sortable="'name'">{{d.name}}</td>
+                        <td style="width: 10%" data-title="'状态'" >{{assignmentns[d.status]}}</td>
+                        <td style="width: 10%" data-title="'操作'">
+                            <button ng-disabled="d.status!=='todo'" class="btn btn-primary btn-sm" ng-click="assignment.commit(d, 'todo')">提交</button>
+                            <button ng-disabled="d.status!=='todo'" class="btn btn-primary btn-sm" ng-click="assignment.updateStatus(d.id, 'refuse')">拒绝</button>
+                            <button ng-disabled="d.status!=='fail'" class="btn btn-primary btn-sm" ng-click="assignment.commit(d, 'fail')">重试</button>
+                            <button ng-disabled="d.status!=='fail'" class="btn btn-primary btn-sm" ng-click="assignment.updateStatus(d.id, 'close')">关闭</button>
+                            <button class="btn btn-info btn-sm" ng-click="assignment.edit(d.id, 1)">详情</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
