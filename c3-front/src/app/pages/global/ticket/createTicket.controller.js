@@ -5,7 +5,7 @@
         .module('openc3')
         .controller('CreateTicketController', CreateTicketController);
 
-    function CreateTicketController($uibModalInstance, $state, $http, $scope, homereload, ticketid, title, type ) {
+    function CreateTicketController($uibModalInstance, $state, $http, $scope, homereload, ticketid, title, type, point ) {
 
         var vm = this;
         vm.title = title
@@ -13,6 +13,12 @@
         vm.cancel = function(){ $uibModalInstance.dismiss()};
         vm.postData = { type: 'SSHKey', share: 'false' };
         vm.kubectlVersion = [ "v1.18.0" ];
+        vm.point = point;
+
+        if( point !== '' )
+        {
+            vm.postData.type = point;
+        }
 
         if( ticketid )
         {

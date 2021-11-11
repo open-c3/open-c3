@@ -22,6 +22,7 @@
                     homereload: function () { return vm.reload },
                     type: function () { return 'create' },
                     title: function () { return '新建票据' },
+                    point: function () { return '' },
                 }
             });
 
@@ -63,6 +64,7 @@
                     homereload: function () { return vm.reload },
                     type: function () { return 'show' },
                     title: function () { return '查看票据' },
+                    point: function () { return '' },
                 }
             });
         };
@@ -81,6 +83,7 @@
                     homereload: function () { return vm.reload },
                     type: function () { return 'edit' },
                     title: function () { return '编辑票据' },
+                    point: function () { return '' },
                 }
             });
         };

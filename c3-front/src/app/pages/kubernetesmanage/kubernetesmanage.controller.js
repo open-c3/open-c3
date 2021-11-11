@@ -255,6 +255,26 @@
             });
         };
 
+        vm.addCluster = function () {
+            $uibModal.open({
+                templateUrl: 'app/pages/global/ticket/createTicket.html',
+                controller: 'CreateTicketController',
+                controllerAs: 'createticket',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    ticketid: function () {},
+                    homereload: function () { return vm.reload },
+                    type: function () { return 'create' },
+                    title: function () { return '添加kubernetes集群' },
+                    point: function () { return 'KubeConfig' },
+                }
+            });
+
+        };
+
     }
 
 })();
