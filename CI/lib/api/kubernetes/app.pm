@@ -185,9 +185,6 @@ get '/kubernetes/app/yaml' => sub {
 post '/kubernetes/app/apply' => sub {
     my $param = params();
     my $error = Format->new( 
-        type => qr/^[\w@\.\-]*$/, 1,
-        name => qr/^[\w@\.\-]*$/, 1,
-        namespace => qr/^[\w@\.\-]*$/, 1,
         yaml => qr/.*/, 1,
         ticketid => qr/^\d+$/, 1,
     )->check( %$param );
@@ -210,7 +207,8 @@ post '/kubernetes/app/apply' => sub {
     my $filename = $fh->filename;
     my $x = `$kubectl apply -f '$filename' 2>&1`;
 
-    return +{ stat => $JSON::true, data => $x, };
+    my $stat = ( $x =~ / unchanged\n$/ || $x =~ / created\n$/ ) ? $JSON::true : $JSON::false;
+    return +{ stat => $stat, info => $x, };
 };
 
 post '/kubernetes/app/setimage' => sub {

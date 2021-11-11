@@ -155,6 +155,24 @@
             });
         };
 
+        vm.apply = function () {
+            $uibModal.open({
+                templateUrl: 'app/pages/kubernetesmanage/apply.html',
+                controller: 'KubernetesApplyController',
+                controllerAs: 'kubernetesapply',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () {return vm.treeid},
+                    ticketid: function () {return vm.selecteClusterId},
+                    clusterinfo: function () {return vm.selecteCluster},
+                }
+            });
+        };
+
+
         vm.describe = function (type,name,namespace) {
             $uibModal.open({
                 templateUrl: 'app/pages/kubernetesmanage/describe.html',

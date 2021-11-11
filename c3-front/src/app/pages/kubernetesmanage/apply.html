@@ -1,0 +1,44 @@
+<div class="row block">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="关闭" ng-click="kubernetesapply.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
+            </span>
+            <h5>apply</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="row">
+                <div class="col-sm-5 form-group pull-left">
+                    <button class="btn btn-warning" ng-click="kubernetesapply.demo('deploy_serverside')">Deployment例子</button>
+                    <button class="btn btn-warning" ng-click="kubernetesapply.demo('cm')">ConfigMap例子</button>
+                </div>
+            </div>
+
+
+            <div class="pt20">
+                <div>
+                    <div class="row" class="form-group">
+                        <div class="col-md-12">
+                            <textarea style="min-height: 100px;" class="form-control" rows="30" cols="100" ng-model="kubernetesapply.yaml" > </textarea>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-sm-5 form-group pull-right">
+                    <button class="btn btn-info" ng-disabled="myForm.$invalid" ng-click="kubernetesapply.assignment()">操作协助</button>
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetesapply.apply()">提交变更</button>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<style>.modal-dialog {width: 60%;} </style>
