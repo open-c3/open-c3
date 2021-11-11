@@ -147,11 +147,11 @@ create table `openc3_ci_assignment`(
 `handler` VARCHAR(100) comment '处理人',
 `url` VARCHAR(100) comment 'URL',
 `method` VARCHAR(100) comment '方法',
-`data` VARCHAR(5000) comment '数据',
+`data` BLOB comment '数据',
 `submit_reason` VARCHAR(100) comment '提交理由',
 `handle_reason` VARCHAR(100) comment '处理结果',
 `status` VARCHAR(20) comment '通知状态',
-`remarks` VARCHAR(2000) comment '审批标注内容',
+`remarks` BLOB comment '审批标注内容',
 `create_time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
 `finish_time` VARCHAR(20) comment '结束时间'
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='assignment';

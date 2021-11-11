@@ -150,6 +150,7 @@
                     name: function () {return name},
                     namespace: function () {return namespace},
                     ticketid: function () {return vm.selecteClusterId},
+                    clusterinfo: function () {return vm.selecteCluster},
                 }
             });
         };
@@ -190,6 +191,7 @@
                     container: function () {return container},
                     namespace: function () {return namespace},
                     ticketid: function () {return vm.selecteClusterId},
+                    clusterinfo: function () {return vm.selecteCluster},
                 }
             });
         };
@@ -209,6 +211,7 @@
                     name: function () {return name},
                     namespace: function () {return namespace},
                     ticketid: function () {return vm.selecteClusterId},
+                    clusterinfo: function () {return vm.selecteCluster},
                 }
             });
         };

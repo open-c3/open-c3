@@ -16,6 +16,7 @@
                         <td data-title="'镜像'" width="80" filter="{ IMAGE: 'text'}" sortable="'IMAGE'">{{m.IMAGE}}</td>
                         <td data-title="'CHANGE_CAUSE'" width="80" filter="{ CHANGE_CAUSE: 'text'}" sortable="'CHANGE_CAUSE'">{{m.CHANGE_CAUSE}}</td>
                         <td data-title="'操作'" width="80" >
+                              <button class="btn btn-info" ng-click="kubernetesrollback.assignment(m.REVISION,m.IMAGE)">操作协助</button>
                               <button class="btn btn-primary" ng-click="kubernetesrollback.rollback(m.REVISION)">回滚</button>
                         </td> 
                     </tr>

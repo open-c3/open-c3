@@ -17,7 +17,7 @@ get '/assignment/byme' => sub {
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_ci_assignment
-                where submitter='$user' order by id desc limit 100", join( ',', @col ) ), \@col )};
+                where submitter='$user' order by id desc limit 100", join( ',', map{ ( $_ eq 'remarks' || $_ eq 'data' )? "CONVERT($_ USING utf8) as $_" : $_ }@col ) ), \@col )};
 
     return +{ stat => $JSON::false, info => $@ } if $@;
 
@@ -32,7 +32,7 @@ get '/assignment/tome' => sub {
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_ci_assignment
-                where handler='$user' order by id desc limit 100", join( ',', @col ) ), \@col )};
+                where handler='$user' order by id desc limit 100", join( ',', map{ ( $_ eq 'remarks' || $_ eq 'data' )? "CONVERT($_ USING utf8) as $_" : $_ }@col ) ), \@col )};
 
     return +{ stat => $JSON::false, info => $@ } if $@;
     map{ $_->{data} = eval{ YAML::XS::Load decode_base64( $_->{data} ) } }@$r;
@@ -52,7 +52,8 @@ get '/assignment/:id' => sub {
     my @col = qw( id type name submitter handler url method data submit_reason handle_reason status remarks create_time finish_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from openc3_ci_assignment where id='$param->{id}' and ( submitter='$user' or handler='$user' )", join ',', @col), \@col )};
+            sprintf( "select %s from openc3_ci_assignment where id='$param->{id}' and ( submitter='$user' or handler='$user' )", join ',', map{ ( $_ eq 'remarks' || $_ eq 'data' )? "CONVERT($_ USING utf8) as $_" : $_ }@col), \@col )};
+
 
     return +{ stat => $JSON::false, info => $@ } if $@;
 
