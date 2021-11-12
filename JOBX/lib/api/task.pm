@@ -58,7 +58,7 @@ get '/task/:projectid' => sub {
     my $order = '';
     if( $param->{name} eq '_ci_' )
     {
-        push( @where, sprintf "starttime>='%s'", POSIX::strftime( "%Y-%m-%d 00:00:00", localtime( time - 86400 * 30 ) ) );
+        push( @where, sprintf "starttime>='%s'", POSIX::strftime( "%Y-%m-%d 00:00:00", localtime( time - 86400 * 365  ) ) );
         $order = 'order by starttime'
     }
 

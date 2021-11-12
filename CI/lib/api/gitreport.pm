@@ -46,6 +46,8 @@ get '/gitreport/:groupid/report' => sub {
         my ( $time, $uuid, $effective, $name, $add, $del, $url ) = split /:/, $data, 7;
         my ( $date ) = split /\./, $time;
 
+        $name =~ s/[^a-zA-Z0-9\.\-_]//g;
+
         $user{$name} ++;
 
         my $projectname = $url =~ /\/([a-zA-Z0-9\-\._]+)\/commit\// ? $1 : 'unkown';

@@ -31,7 +31,7 @@ return sub
 
     return undef unless $v && ref $v eq 'HASH' && $v->{stat};
 
-    my @return = ( ref $v->{data} eq 'HASH' && $v->{data}{user} && $v->{data}{company} )
+    my @return = ( ref $v->{data} eq 'HASH' && exists $v->{data}{user} && exists $v->{data}{company} )
         ? ( $v->{data}{user}, $v->{data}{company} )
         : ( $v->{data}, $v->{data} =~ /(@.+)$/ ? $1 : 'default' );
 
