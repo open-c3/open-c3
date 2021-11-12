@@ -275,6 +275,23 @@
 
         };
 
+        vm.node = function () {
+            $uibModal.open({
+                templateUrl: 'app/pages/kubernetesmanage/node.html',
+                controller: 'KubernetesNodeController',
+                controllerAs: 'kubernetesnode',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () {return vm.treeid},
+                    ticketid: function () {return vm.selecteClusterId},
+                    clusterinfo: function () {return vm.selecteCluster},
+                }
+            });
+        };
+
     }
 
 })();
