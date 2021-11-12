@@ -20,7 +20,7 @@ get '/kubernetes/node' => sub {
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
     my $pmscheck = api::pmscheck( 'openc3_ci_read', 0 ); return $pmscheck if $pmscheck;
 
-    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $param->{ticketid} ) };
+    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid} ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
     my @x = `$kubectl get node -o wide`;
@@ -53,7 +53,7 @@ post '/kubernetes/node/cordon' => sub {
     my $pmscheck = api::pmscheck( 'openc3_ci_read', 0 ); return $pmscheck if $pmscheck;
 
     
-    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $param->{ticketid} ) };
+    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid} ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
     my $x = `$kubectl  '$param->{cordon}' '$param->{node}' 2>&1`;

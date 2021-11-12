@@ -3,17 +3,16 @@ use Dancer ':syntax';
 use Dancer qw(cookie);
 use Encode qw(encode);
 use FindBin qw( $RealBin );
-use JSON;
 use POSIX;
-use api;
 use Format;
 use Time::Local;
 use File::Temp;
+use Digest::MD5;
 
 sub getKubectlCmd
 {
-    my $ticketid = shift;
-    my $r = eval{ $api::mysql->query( "select ticket from openc3_ci_ticket where id='$ticketid'" ); };
+    my ( $db, $ticketid ) = @_;
+    my $r = eval{ $db->query( "select ticket from openc3_ci_ticket where id='$ticketid'" ); };
     die "ticket nofind by id $ticketid" unless $r && @$r;
     my ( $version, $ticket ) = split /_:separator:_/, $r->[0][0], 2;
 

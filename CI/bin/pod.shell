@@ -1,0 +1,29 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use MYDB;
+use api::kubernetes;
+
+exit unless my $argv = shift;
+
+my ( $u, $clusterid, $namespace, $name, $type );
+
+eval{
+    if( $argv =~ /^\?u=(.+)&clusterid=(.+)&namespace=(.+)&name=(.+)&type=(sh|bash|log)$/ )
+    {
+        ( $u, $clusterid, $namespace, $name, $type ) = ( $1, $2, $3, $4, $5 );
+    }
+    else { die "param error\n"; }
+    
+    my $db = MYDB->new( "$RealBin/../conf/conn" );
+
+    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $db, $clusterid ) };
+    die "get kubectl fail: $@" if $@;
+
+    system $type =~ /sh/ ? "$kubectl -n '$namespace' exec -it '$name' -- sh" : "$kubectl -n '$namespace' logs -f '$name'";
+};
+
+print $@ if $@;
+
+sleep 1000;

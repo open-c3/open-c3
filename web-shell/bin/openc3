@@ -4,11 +4,7 @@ use warnings;
 
 exit unless my $argv = shift;
 
-if( $argv =~ /&image=/ )
-{
-    exec "/data/Software/mydan/CI/bin/docker.shell '$argv'";
-}
-else
-{
-    exec "/data/Software/mydan/JOB/bin/cmd '$argv'";
-}
+$argv =~ /&image=/ and exec "/data/Software/mydan/CI/bin/docker.shell '$argv'";
+$argv =~ /&clusterid=/ and exec "/data/Software/mydan/CI/bin/pod.shell '$argv'";
+
+exec "/data/Software/mydan/JOB/bin/cmd '$argv'";
