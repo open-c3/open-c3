@@ -43,6 +43,7 @@ sub err
 {
     my $this = shift;
     map{ $this->_write( "ERROR jobxsys $this->{type} $_" ) }@_;
+    $H->autoflush(1);
 #    map{ error( "jobxsys $this->{type} $_") }@_;
 }
 
@@ -51,6 +52,7 @@ sub die
     my $this = shift;
 #    map{ error( "jobxsys $this->{type} $_") }@_;
     map{ $this->_write( "FAIL jobxsys $this->{type} $_" ) }@_;
+    $H->autoflush(1);
 
     if( defined $this->{uuid} )
     {
