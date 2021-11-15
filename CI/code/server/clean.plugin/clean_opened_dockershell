@@ -20,8 +20,7 @@ return sub
 
     my ( $myname, $db, $logs ) = ( Util::myname(), $param{db}, $param{logs} );
 
-    my $logs = Logs->new( 'clean.clean_opened_dockershell' ) unless $logs;
+    $logs = Logs->new( 'clean.clean_opened_dockershell' ) unless $logs;
 
     $logs->die( "clean fail: $!" ) if system 'docker ps|grep dockershell_ci_ |grep -P "Up \d+ days"|awk ' ."'".'{print $1}'."'" .'|xargs -i{} docker stop {}';
-
 }

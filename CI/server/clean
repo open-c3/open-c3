@@ -1,7 +1,7 @@
 #!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
 use strict;
 use warnings;
-use MYDB;
+#use MYDB;
 use FindBin qw( $RealBin );
 use Data::Dumper;
 
@@ -14,7 +14,7 @@ use Code;
 
 =cut
 
-my $db = MYDB->new( "$RealBin/../conf/conn" );
+my $db;# = MYDB->new( "$RealBin/../conf/conn" );
 
 $0 = 'ci_server_clean';
 Code->new( 'server/clean' )->run( db => $db );
