@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use FindBin qw( $RealBin );
 use MYDB;
+use Code;
 use api::kubernetes;
 
 exit unless my $argv = shift;
@@ -17,8 +18,11 @@ eval{
     else { die "param error\n"; }
     
     my $db = MYDB->new( "$RealBin/../conf/conn" );
+    my $sso = Code->new( 'auth/sso' );
+    my ( $user, $company ) = $sso->run( cookie => $u );
+    print "user:$user, company:$company\n";
 
-    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $db, $clusterid ) };
+    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $db, $clusterid, $user, $company, $type =~ /sh/ ? 1 : 0 ) };
     die "get kubectl fail: $@" if $@;
 
     system $type =~ /sh/ ? "$kubectl -n '$namespace' exec -it '$name' -- sh" : "$kubectl -n '$namespace' logs -f '$name'";
