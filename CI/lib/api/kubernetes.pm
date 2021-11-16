@@ -9,12 +9,14 @@ use Time::Local;
 use File::Temp;
 use Digest::MD5;
 
-sub getKubectlCmd
+sub getKubectlCmd($$$$$)
 {
-    my ( $db, $ticketid ) = @_;
-    my $r = eval{ $db->query( "select ticket from openc3_ci_ticket where id='$ticketid'" ); };
+    my ( $db, $ticketid, $user, $company, $checkauth ) = @_;
+    my $r = eval{ $db->query( "select ticket,create_user,share  from openc3_ci_ticket where id='$ticketid'" ); };
     die "ticket nofind by id $ticketid" unless $r && @$r;
     my ( $version, $ticket ) = split /_:separator:_/, $r->[0][0], 2;
+
+    die "no auth\n" if $checkauth && ! ( $r->[0][1] eq $user || $r->[0][2] eq $company ); 
 
     die "version format error in ticket" unless $version =~ /^v\d+\.\d+\.\d+$/;
     my $kubectl = $version eq 'v0.0.0' ? "kubectl" : "kubectl_$version";

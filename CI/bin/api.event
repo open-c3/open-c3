@@ -98,16 +98,17 @@ $httpd->reg_routes(
         {
             $req->respond([
                  200, 'ok', { 'Content-Type' => 'application/json'},
-                 JSON::to_json( +{ stat => JSON::false, info => "res:$res->content" } ) 
+                 JSON::to_json( +{ stat => JSON::false, info => $res->content } ) 
             ]);
             return;
         }
 
         my $data = eval{JSON::from_json $res->content};
         unless ( $data->{stat} ) {
+            my $res = exists $data->{stat} ? $data : +{ stat => JSON::false, info => "get info from api.v1 err:". $res->content };
             $req->respond([
                  200, 'ok', { 'Content-Type' => 'application/json'},
-                 JSON::to_json( +{ stat => JSON::false, info => "get info from api.v1 err:$res->content" } ) 
+                 JSON::to_json( $res ) 
             ]);
             return;
         }

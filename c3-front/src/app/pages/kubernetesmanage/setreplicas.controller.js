@@ -34,7 +34,7 @@
                    vm.loadover = true;
                    vm.cancel();
                 } else { 
-                    toastr.error("操作失败:" + data.info)
+                   swal({ title:'操作失败', text: data.info, type:'error' });
                 }
             });
         };
