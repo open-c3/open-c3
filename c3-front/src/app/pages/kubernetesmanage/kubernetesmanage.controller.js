@@ -67,7 +67,7 @@
         vm.loadoverB = false;
 
         vm.reload = function () {
-            $http.get('/api/ci/ticket?type=KubeConfig' ).then(
+            $http.get('/api/ci/ticket/KubeConfig' ).then(
                 function successCallback(response) {
                     if (response.data.stat){
                         vm.clusterlist = response.data.data; 

@@ -51,6 +51,43 @@ get '/ticket' => sub {
     return +{ stat => $JSON::true, data => $r };
 };
 
+get '/ticket/KubeConfig' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        projectid => qr/^\d+$/, 0,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
+        map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    my @col = qw( id name type share ticket describe edit_user create_user edit_time create_time );
+    my $r = eval{ 
+        $api::mysql->query( 
+            sprintf( "select %s from openc3_ci_ticket where type = 'KubeConfig'", join( ',', map{"`$_`"}@col)), \@col )};
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
+    for my $d ( @$r )
+    {
+        my $t = $d->{ticket};
+        $d->{self} = $d->{create_user} eq $user ? 1 : 0; 
+
+        if( $d->{type} eq 'UsernamePassword' )
+        {
+            my ( $n ) = split /_:separator:_/, $t;
+            $d->{ticket} = +{ Username => $n, Password => '********' }
+        }
+
+        if( $d->{type} eq 'JobBuildin' || $d->{type} eq 'SSHKey' || $d->{type} eq 'KubeConfig' )
+        {
+            $d->{ticket} = +{ $d->{type} => '********' }
+        }
+        $d->{share} = $d->{share} ? 'true' : 'false';
+        $d->{auth} = ( $d->{self} || $d->{share} eq $company ) ? 'X' : 'R';
+    }
+    return +{ stat => $JSON::true, data => $r };
+};
+
 get '/ticket/:ticketid' => sub {
     my $param = params();
     my $error = Format->new( 
