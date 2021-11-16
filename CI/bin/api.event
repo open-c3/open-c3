@@ -11,6 +11,7 @@ use IPC::Open3;
 use Symbol 'gensym';
 use LWP::UserAgent;
 use HTTP::Cookies;
+use AnyEvent;
 use AnyEvent::HTTPD::Router;
 use AnyEvent::HTTPD::CookiePatch qw(inject);
 
@@ -132,6 +133,7 @@ $httpd->reg_routes(
         $index{$idx}{pid} = $pid;
         $index{$idx}{rdr} = $rdr;
         $index{$idx}{dat} = '';
+        $index{$idx}{timeout} = time + 120;
 
         $index{$idx}{rdr} = AnyEvent->io(
             fh => $rdr, poll => "r",
@@ -154,6 +156,7 @@ $httpd->reg_routes(
                     $res .= $input;
                 }
 
+                delete $index{$idx};
                 $req->respond([
                      200, 'ok', { 'Content-Type' => 'application/json'},
                      JSON::to_json( $handle{$handle}( $res, $status, $filter ) )
@@ -161,6 +164,12 @@ $httpd->reg_routes(
             },
         ); 
     },
+);
+
+my $tt = AnyEvent->timer(
+    after => 6,
+    interval => 6,
+    cb => sub { map { kill( 9, $_->{pid} ) if $_->{timeout} < time }values %index; }
 );
 
 $httpd->run();
