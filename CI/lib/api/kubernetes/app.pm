@@ -30,7 +30,7 @@ get '/kubernetes/app' => sub {
     my $filter = +{ namespace => $param->{namespace}, status => $param->{status} };
 
     my ( $cmd, $handle ) = ( "$kubectl get all --all-namespaces -o wide", 'getall' );
-    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle, filter => $filter }} if request->headers->{"openc3event"};
     my $x = `$cmd`;
     return &{$handle{$handle}}( $x, $filter );
  };
