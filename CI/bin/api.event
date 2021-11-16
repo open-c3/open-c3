@@ -130,12 +130,23 @@ $httpd->reg_routes(
 
         $index{$idx}{pid} = $pid;
         $index{$idx}{rdr} = $rdr;
+        $index{$idx}{dat} = '';
+
+        $index{$idx}{rdr} = AnyEvent->io(
+            fh => $rdr, poll => "r",
+            cb => sub {
+                    my $input;my $n = sysread $rdr, $input, 102400;
+                    $index{$idx}{dat} .= $input if $n;
+                }
+        );
+
         $index{$idx}{child} = AnyEvent->child(
             pid => $pid,
             cb => sub{
-                my $res = "";
+                my ($pid, $status) = @_;
+                my $res = $index{$idx}{dat};
                 my $input;
-                for ( 1 )
+                while ( 1 )
                 {
                     my $n = sysread $rdr, $input, 102400;
                     last unless $n;
@@ -144,7 +155,7 @@ $httpd->reg_routes(
 
                 $req->respond([
                      200, 'ok', { 'Content-Type' => 'application/json'},
-                     JSON::to_json( $handle{$handle}( $res, $filter ) )
+                     JSON::to_json( $handle{$handle}( $res, $status, $filter ) )
                 ]);
             },
         ); 

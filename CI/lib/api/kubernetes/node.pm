@@ -32,13 +32,16 @@ get '/kubernetes/node' => sub {
     my ( $cmd, $handle ) = ( "$kubectl get node -o wide", 'getnode' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
 
-    my @x = `$cmd`;
-    return &{$handle{$handle}}( @x );
+    my $x = `$cmd`;
+    my $status = ( $? >> 8 );
+    return &{$handle{$handle}}( $x, $status );
 };
 
 $handle{getnode} = sub
 {
-    my @x = split /\n/, shift;
+    my ( $x, $status ) = @_;
+    return +{ stat => $JSON::false, data => $x } if $status;
+    my @x = split /\n/, $x;
 
     my ( @title, @r ) = map{ s/-/_/g; split /\s+/, $_ } shift @x;
     splice @title,7, 0, splice @title, -2;
@@ -78,14 +81,14 @@ post '/kubernetes/node/cordon' => sub {
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
 
     my $x = `$cmd`;
-    return &{$handle{$handle}}( $x ); 
+    my $status = ( $? >> 8 );
+    return &{$handle{$handle}}( $x, $status ); 
 };
 
 $handle{setnodecordon} = sub
 {
-    my $x = shift;
-    my $stat = ( $x =~ / uncordoned\n$/ || $x =~ / cordoned\n$/ ) ? $JSON::true : $JSON::false;  
-    return +{ stat => $stat, info => $x, };
+    my ( $x, $status ) = @_;
+    return +{ stat => $status ? $JSON::false : $JSON::true, info => $x, };
 };
 
 true;

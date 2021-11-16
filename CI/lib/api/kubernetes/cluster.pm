@@ -32,15 +32,15 @@ post '/kubernetes/cluster/connectiontest' => sub {
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
 
     my $x = `$cmd`;
-    return &{$handle{$handle}}( $x ); 
+    my $status = ( $? >> 8 );
+    return &{$handle{$handle}}( $x, $status ); 
 
 };
 
 $handle{connectiontest} = sub
 {
-    my $x = shift;
-    my $stat = $x =~ /Server\s*Version:\s*v\d+\.\d+\.\d+/ ? $JSON::true : $JSON::false;
-    return +{ stat => $stat, info => $x };
+    my ( $x, $status ) = @_;
+    return +{ stat => $status ? $JSON::false : $JSON::true, info => $x, };
 };
 
 true;

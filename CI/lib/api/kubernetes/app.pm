@@ -32,13 +32,15 @@ get '/kubernetes/app' => sub {
     my ( $cmd, $handle ) = ( "$kubectl get all --all-namespaces -o wide", 'getall' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle, filter => $filter }} if request->headers->{"openc3event"};
     my $x = `$cmd`;
-    return &{$handle{$handle}}( $x, $filter );
+    my $status = ( $? >> 8 );
+    return &{$handle{$handle}}( $x, $status, $filter );
  };
 
 $handle{getall} = sub
 {
-    my @x = split /\n/, shift;
-    my $filter = shift;
+    my ( $x, $status, $filter ) = @_;
+    return +{ stat => $JSON::false, data => $x } if $status;
+    my @x = split /\n/, $x;
 
     my ( $deploymentready, $podready, $podrunning, $daemonsetready, $replicasetready ) = ( 0, 0, 0, 0, 0 );
     my $failonly = ( $filter->{status} && $filter->{status} eq 'fail' ) ? 1 : 0;
@@ -155,13 +157,14 @@ get '/kubernetes/app/describe' => sub {
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
 
     my $x = `$cmd`;
-    return &{$handle{$handle}}( $x ); 
+    my $status = ( $? >> 8 );
+    return &{$handle{$handle}}( $x, $status ); 
 };
 
 $handle{getdescribe} = sub
 {
-    my $x = shift;
-    return +{ stat => $JSON::true, data => $x, };
+    my ( $x, $status ) = @_;
+    return +{ stat => $status ? $JSON::false : $JSON::true, data => $x, };
 };
 
 get '/kubernetes/app/yaml' => sub {
@@ -186,15 +189,15 @@ get '/kubernetes/app/yaml' => sub {
     my ( $cmd, $handle ) = ( "$kubectl rollout history '$param->{type}' '$param->{name}' -n '$param->{namespace}' -o yaml", 'getyaml' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
     my $x = `$cmd`;
-    return &{$handle{$handle}}( $x ); 
+    my $status = ( $? >> 8 );
+    return &{$handle{$handle}}( $x, $status ); 
 };
 
 $handle{getyaml} = sub
 {
-    my $x = shift;
-    return +{ stat => $JSON::true, data => $x, };
+    my ( $x, $status ) = @_;
+    return +{ stat => $status ? $JSON::false : $JSON::true, data => $x, };
 };
-
 
 post '/kubernetes/app/apply' => sub {
     my $param = params();
@@ -224,15 +227,14 @@ post '/kubernetes/app/apply' => sub {
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
 
     my $x = `$cmd`;
-
-    return &{$handle{$handle}}( $x ); 
+    my $status = ( $? >> 8 );
+    return &{$handle{$handle}}( $x, $status ); 
 };
 
 $handle{appapply} = sub
 {
-    my $x = shift;
-    my $stat = ( $x =~ / unchanged\n$/ || $x =~ / created\n$/ || $x =~ /configured\n$/ ) ? $JSON::true : $JSON::false;
-    return +{ stat => $stat, info => $x, };
+    my ( $x, $status ) = @_;
+    return +{ stat => $status ? $JSON::false : $JSON::true, info => $x, };
 };
 
 post '/kubernetes/app/setimage' => sub {
@@ -258,13 +260,14 @@ post '/kubernetes/app/setimage' => sub {
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
 
     my $x = `$cmd`;
-    return &{$handle{$handle}}( $x ); 
+    my $status = ( $? >> 8 );
+    return &{$handle{$handle}}( $x, $status ); 
 };
 
 $handle{setimage} = sub
 {
-    my $x = shift;
-    return +{ stat => $JSON::true, data => $x };
+    my ( $x, $status ) = @_;
+    return +{ stat => $status ? $JSON::false : $JSON::true, info => $x, };
 };
 
 post '/kubernetes/app/rollback' => sub {
@@ -289,14 +292,15 @@ post '/kubernetes/app/rollback' => sub {
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
 
     my $x = `$cmd`;
-    return &{$handle{$handle}}( $x ); 
+    my $status = ( $? >> 8 );
+    return &{$handle{$handle}}( $x, $status ); 
 
 };
 
 $handle{setrollback} = sub
 {
-    my $x = shift;
-    return +{ stat => $JSON::true, data => $x };
+    my ( $x, $status ) = @_;
+    return +{ stat => $status ? $JSON::false : $JSON::true, info => $x, };
 };
 
 get '/kubernetes/app/rollback' => sub {
@@ -318,13 +322,16 @@ get '/kubernetes/app/rollback' => sub {
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
 
     my $x = `$cmd`;
-    return &{$handle{$handle}}( $x ); 
+    my $status = ( $? >> 8 );
+    return &{$handle{$handle}}( $x, $status ); 
 
 };
 
 $handle{gethistory} = sub
 {
-    my @x = split /\n/, shift;
+    my ( $x, $status ) = @_;
+    return +{ stat => $JSON::false, data => $x } if $status;
+    my @x = split /\n/, $x;
     my @r;
     for( @x )
     {
@@ -357,14 +364,15 @@ post '/kubernetes/app/setreplicas' => sub {
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
 
     my $x = `$cmd`;
-    return &{$handle{$handle}}( $x ); 
+    my $status = ( $? >> 8 );
+    return &{$handle{$handle}}( $x, $status ); 
 
 };
 
 $handle{setreplicas} = sub
 {
-    my $x = shift;
-    return +{ stat => $JSON::true, data => $x };
+    my ( $x, $status ) = @_;
+    return +{ stat => $status ? $JSON::false : $JSON::true, info => $x, };
 };
 
 true;
