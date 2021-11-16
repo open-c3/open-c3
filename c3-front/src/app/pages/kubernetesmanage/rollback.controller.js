@@ -29,7 +29,7 @@
                 "namespace": namespace,
                 "version": version,
             };
-            $http.post("/api/ci/kubernetes/app/rollback", d  ).success(function(data){
+            $http.post("/api/ci/v2/kubernetes/app/rollback", d  ).success(function(data){
                 if(data.stat == true) 
                 {
                     vm.loadover = true;
@@ -42,7 +42,7 @@
 
         vm.reload = function(){
             vm.loadover = false;
-            $http.get("/api/ci/kubernetes/app/rollback?type=" + type + '&namespace=' + namespace + '&name=' + name +'&ticketid=' + ticketid ).success(function(data){
+            $http.get("/api/ci/v2/kubernetes/app/rollback?type=" + type + '&namespace=' + namespace + '&name=' + name +'&ticketid=' + ticketid ).success(function(data){
                 if(data.stat == true) 
                 { 
                    vm.loadover = true;
@@ -59,7 +59,7 @@
                 "type": "kubernetes",
                 "name": "修改Deployment镜像",
                 "handler": "",
-                "url": "/api/ci/kubernetes/app/rollback",
+                "url": "/api/ci/v2/kubernetes/app/rollback",
                 "method": "POST",
                 "submit_reason": "",
                 "remarks": "\n集群ID:" + ticketid + ";\n集群名称:" + clusterinfo.name + ";\n命名空间:"+ namespace + ";\n类型:" + type + ";\n名称:" + name +";\n镜像地址:" + image + ";\n版本编号:" + version,

@@ -10,6 +10,8 @@ use Format;
 use Time::Local;
 use File::Temp;
 
+our %handle;
+
 post '/kubernetes/cluster/connectiontest' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -25,10 +27,20 @@ post '/kubernetes/cluster/connectiontest' => sub {
     close $fh;
 
     my $kubeconfig = $fh->filename;
-    my $x = `KUBECONFIG=$kubeconfig kubectl version --short=true 2>&1`;
 
+    my ( $cmd, $handle ) = ( "KUBECONFIG=$kubeconfig kubectl version --short=true 2>&1", 'connectiontest' );
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
+
+    my $x = `$cmd`;
+    return &{$handle{$handle}}( $x ); 
+
+};
+
+$handle{connectiontest} = sub
+{
+    my $x = shift;
     my $stat = $x =~ /Server\s*Version:\s*v\d+\.\d+\.\d+/ ? $JSON::true : $JSON::false;
-    return +{ stat => $stat, info => $x, kubeconfig => $fh->filename };
+    return +{ stat => $stat, info => $x };
 };
 
 true;

@@ -19,7 +19,7 @@
 
         vm.reload = function(){
             vm.loadover = false;
-            $http.get("/api/ci/kubernetes/app/yaml?ticketid=" + ticketid + '&type=' + type + '&name=' + name + '&namespace=' + namespace  ).success(function(data){
+            $http.get("/api/ci/v2/kubernetes/app/yaml?ticketid=" + ticketid + '&type=' + type + '&name=' + name + '&namespace=' + namespace  ).success(function(data){
                 if(data.stat == true) 
                 { 
                     vm.yaml = data.data;
@@ -42,7 +42,7 @@
                 "namespace": namespace,
                 "yaml": vm.yaml,
             };
-            $http.post("/api/ci/kubernetes/app/apply", d  ).success(function(data){
+            $http.post("/api/ci/v2/kubernetes/app/apply", d  ).success(function(data){
                 if(data.stat == true) 
                 { 
                    vm.loadover = true;
@@ -58,7 +58,7 @@
                 "type": "kubernetes",
                 "name": "修改Deployment配置",
                 "handler": "",
-                "url": "/api/ci/kubernetes/app/apply",
+                "url": "/api/ci/v2/kubernetes/app/apply",
                 "method": "POST",
                 "submit_reason": "",
                 "remarks": "\n集群ID:" + ticketid + ";\n集群名称:" + clusterinfo.name + ";\n命名空间:"+ namespace + ";\n类型:" + type + ";\n名称:" + name +";\n新配置:\n" + vm.yaml,

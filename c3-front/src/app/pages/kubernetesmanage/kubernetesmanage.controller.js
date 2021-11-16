@@ -97,7 +97,7 @@
                 return;
             }
 
-            $http.get("/api/ci/kubernetes/app?ticketid=" + vm.selecteClusterId + "&namespace=" + vm.selectednamespace + "&status=" + vm.selectedStat ).then(
+            $http.get("/api/ci/v2/kubernetes/app?ticketid=" + vm.selecteClusterId + "&namespace=" + vm.selectednamespace + "&status=" + vm.selectedStat ).then(
                 function successCallback(response) {
                     if (response.data.stat){
 

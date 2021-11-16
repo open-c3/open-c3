@@ -11,6 +11,8 @@ use Time::Local;
 use File::Temp;
 use api::kubernetes;
 
+our %handle;
+
 get '/kubernetes/node' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -23,8 +25,20 @@ get '/kubernetes/node' => sub {
     my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid} ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
-    my @x = `$kubectl get node -o wide`;
-    chomp @x;
+    return +{ stat => $JSON::true, data => +{ kubecmd => "$kubectl get node -o wide", handle => 'getnode' }}
+         if request->headers->{"openc3event"};
+
+
+    my ( $cmd, $handle ) = ( "$kubectl get node -o wide", 'getnode' );
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
+
+    my @x = `$cmd`;
+    return &{$handle{$handle}}( @x );
+};
+
+$handle{getnode} = sub
+{
+    my @x = split /\n/, shift;
 
     my ( @title, @r ) = map{ s/-/_/g; split /\s+/, $_ } shift @x;
     splice @title,7, 0, splice @title, -2;
@@ -56,9 +70,21 @@ post '/kubernetes/node/cordon' => sub {
     my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid} ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
-    my $x = `$kubectl  '$param->{cordon}' '$param->{node}' 2>&1`;
+    return +{ stat => $JSON::true, data => +{ kubecmd => "$kubectl  '$param->{cordon}' '$param->{node}' 2>&1;sleep 10", handle => 'setnodecordon' }}
+         if request->headers->{"openc3event"};
 
-    my $stat = ( $x =~ / uncordoned\n$/ || $x =~ / cordoned\n$/ ) ? $JSON::true : $JSON::false;
+
+    my ( $cmd, $handle ) = ( "$kubectl '$param->{cordon}' '$param->{node}' 2>&1", 'setnodecordon' );
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
+
+    my $x = `$cmd`;
+    return &{$handle{$handle}}( $x ); 
+};
+
+$handle{setnodecordon} = sub
+{
+    my $x = shift;
+    my $stat = ( $x =~ / uncordoned\n$/ || $x =~ / cordoned\n$/ ) ? $JSON::true : $JSON::false;  
     return +{ stat => $stat, info => $x, };
 };
 

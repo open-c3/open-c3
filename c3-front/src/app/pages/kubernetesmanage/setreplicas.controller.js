@@ -28,7 +28,7 @@
                 "namespace": namespace,
                 "replicas": vm.replicas,
             };
-            $http.post("/api/ci/kubernetes/app/setreplicas", d  ).success(function(data){
+            $http.post("/api/ci/v2/kubernetes/app/setreplicas", d  ).success(function(data){
                 if(data.stat == true) 
                 { 
                    vm.loadover = true;
@@ -44,7 +44,7 @@
                 "type": "kubernetes",
                 "name": "修改Deployment副本数",
                 "handler": "",
-                "url": "/api/ci/kubernetes/app/setreplicas",
+                "url": "/api/ci/v2/kubernetes/app/setreplicas",
                 "method": "POST",
                 "submit_reason": "",
                 "remarks": "\n集群ID:" + ticketid + ";\n集群名称:" + clusterinfo.name + ";\n命名空间:"+ namespace + ";\n类型:" + type + ";\n名称:" + name +";\n原副本数:" + replicas + "=> 新副本数:" + vm.replicas,

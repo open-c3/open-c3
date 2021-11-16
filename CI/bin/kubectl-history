@@ -1,0 +1,33 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+
+my $cmd = join ' ',  @ARGV;
+my @x = `$cmd`;
+chomp @x;
+
+my @r;
+my $count = 0;
+
+for( reverse ( 2 .. @x -1 ))
+{
+    next unless $x[$_];
+    my ( $v, $m ) = split /\s+/, $x[$_], 2;
+    if( $v =~ /^\d+$/ )
+    {
+        my $image = 'Unkown';
+        $count ++;
+        last if $count > 10;
+        if( $count <= 10 )
+        {
+            my @image = `$cmd  --revision '$v' |grep Image`;
+            chomp @image;
+            map{ $_ =~ s/\s+//g; $_ =~ s/^Image://g; }@image;
+            $image = join ',', @image;
+        }
+        push @r, +{ REVISION => $v, CHANGE_CAUSE => $m, IMAGE => $image };
+    }
+}
+
+print "REVISION IMAGE CHANGE_CAUSE\n";
+map{ print "$_->{REVISION} $_->{IMAGE} $_->{CHANGE_CAUSE}\n" }@r;

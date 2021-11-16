@@ -24,7 +24,7 @@
                 "cordon": cordon,
                 "node": node,
             };
-            $http.post("/api/ci/kubernetes/node/cordon", d  ).success(function(data){
+            $http.post("/api/ci/v2/kubernetes/node/cordon", d  ).success(function(data){
                 if(data.stat == true) 
                 {
                     vm.loadover = true;
@@ -37,7 +37,7 @@
 
         vm.reload = function(){
             vm.loadover = false;
-            $http.get("/api/ci/kubernetes/node?ticketid=" + ticketid ).success(function(data){
+            $http.get("/api/ci/v2/kubernetes/node?ticketid=" + ticketid ).success(function(data){
                 if(data.stat == true) 
                 { 
                    vm.loadover = true;

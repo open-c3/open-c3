@@ -26,7 +26,7 @@ die "port undef" unless my $port = $Config->{port};
 
 system "killall ci_supervisor 2>/dev/null";
 
-for my $type ( qw( api api.slave ) )
+for my $type ( qw( api api.slave api.event ) )
 {
     map{
         if ($^O eq "darwin") {

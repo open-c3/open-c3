@@ -1,0 +1,154 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+$0="ci_api_event";
+
+use strict;
+use warnings;
+use 5.24.0;
+
+use JSON;
+use YAML::XS;
+use IPC::Open3;
+use Symbol 'gensym';
+use LWP::UserAgent;
+use HTTP::Cookies;
+use AnyEvent::HTTPD::Router;
+use AnyEvent::HTTPD::CookiePatch qw(inject);
+
+use api::kubernetes::node;
+use api::kubernetes::app;
+use api::kubernetes::cluster;
+ 
+my $cookiekey;
+BEGIN{
+    use FindBin qw( $RealBin );
+    $cookiekey = `cat $RealBin/../conf/cookiekey`;
+    chomp $cookiekey;
+    die "get cookiekey fail" unless $cookiekey =~ /^[a-zA-Z0-9]+$/
+};
+
+my ( %handle, %index, $index ) = ( %api::kubernetes::node::handle, %api::kubernetes::app::handle, %api::kubernetes::cluster::handle );
+
+my $port = $ENV{CI_API_EVENT_PORT} // '8080';
+my $httpd = AnyEvent::HTTPD::Router->new( port => $port, request_class => 'AnyEvent::HTTPD::CookiePatch' );
+
+$httpd->reg_routes(
+    GET => '/404' => sub {
+        my ( $httpd, $req, $param ) = @_;
+        $httpd->stop_request;
+        $req->respond([ 404, 'ok', { 'Content-Type' => 'application/json'}, "404" ]);
+    },
+
+    GET => '/mon' => sub {
+        my ( $httpd, $req, $param ) = @_;
+        $httpd->stop_request;
+        $req->respond([ 200, 'ok', { 'Content-Type' => 'application/json'}, "ok" ]);
+    },
+
+    GET => '/reload' => sub {
+        my ( $httpd, $req, $param ) = @_;
+        $httpd->stop_request;
+        my $token = `cat /etc/openc3.reload.token 2>/dev/null`; chomp $token;
+        exit if $req->{hdr}{token} && $token && $req->{hdr}{token} eq $token;
+
+        $req->respond([ 200, 'ok', { 'Content-Type' => 'application/json'}, "err" ]);
+    },
+
+    [ qw( GET POST ) ] => '/kubernetes/*' => sub {
+        my ( $httpd, $req, $param ) = @_;
+        $httpd->stop_request;
+
+
+        my $method = $req->{method};
+
+        unless( $method eq 'GET' || $method eq 'POST' )
+        {
+            $req->respond([
+                 200, 'ok', { 'Content-Type' => 'application/json'},
+                 JSON::to_json( +{ stat => JSON::false, info => "method $method undef" } ) 
+            ]);
+            return;
+        }
+
+        my $ua = LWP::UserAgent->new;
+        my %header = ( openc3event => 1 );
+        map{ $header{$_} = $req->{hdr}{$_} if $req->{hdr}{$_} }qw( appname appkey );
+        $ua->default_header( %header );
+
+        if ( $req->cookie('sid') )
+        {
+            my $cookie = HTTP::Cookies->new();
+            $cookie->set_cookie(
+                1   => $cookiekey,
+                $req->cookie($cookiekey),
+                '/' => 'api.ci.open-c3.org'
+            );
+            $ua->cookie_jar($cookie);
+         }
+
+        my $url = "http://api.ci.open-c3.org" . $req->{url}->as_string;
+        my $res;
+
+        if( $method eq 'POST' )
+        {
+            $res = $ua->post( $url, Content => $req->{content}, 'Content-Type' => 'application/json' );
+        }
+        else { $res = $ua->get( $url ); }
+
+        unless( $res->is_success )
+        {
+            $req->respond([
+                 200, 'ok', { 'Content-Type' => 'application/json'},
+                 JSON::to_json( +{ stat => JSON::false, info => "res:$res->content" } ) 
+            ]);
+            return;
+        }
+
+        my $data = eval{JSON::from_json $res->content};
+        unless ( $data->{stat} ) {
+            $req->respond([
+                 200, 'ok', { 'Content-Type' => 'application/json'},
+                 JSON::to_json( +{ stat => JSON::false, info => "get info from api.v1 err:$res->content" } ) 
+            ]);
+            return;
+        }
+ 
+        my $cmd = $data->{data}{kubecmd};
+        my $handle = $data->{data}{handle};
+
+        unless ( $cmd && $handle ) {
+            $req->respond([
+                 200, 'ok', { 'Content-Type' => 'application/json'},
+                 JSON::to_json( +{ stat => JSON::false, info => "nofind kubecmd or handle on api.v1:". $res->content } )
+            ]);
+            return;
+        }
+
+        my $idx = $index ++;
+        my ( $err, $wtr, $rdr ) = gensym;
+        my $pid = IPC::Open3::open3( undef, $rdr, $err, $cmd );
+        my $filter = $data->{data}{filter} // +{};
+
+        $index{$idx}{pid} = $pid;
+        $index{$idx}{rdr} = $rdr;
+        $index{$idx}{child} = AnyEvent->child(
+            pid => $pid,
+            cb => sub{
+                my $res = "";
+                my $input;
+                for ( 1 )
+                {
+                    my $n = sysread $rdr, $input, 102400;
+                    last unless $n;
+                    $res .= $input;
+                }
+
+                $req->respond([
+                     200, 'ok', { 'Content-Type' => 'application/json'},
+                     JSON::to_json( $handle{$handle}( $res, $filter ) )
+                ]);
+            },
+        ); 
+    },
+);
+
+$httpd->run();

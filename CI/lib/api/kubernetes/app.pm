@@ -11,6 +11,8 @@ use Time::Local;
 use File::Temp;
 use api::kubernetes;
 
+our %handle;
+
 get '/kubernetes/app' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -25,11 +27,21 @@ get '/kubernetes/app' => sub {
     my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid} ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
-    my @x = `$kubectl get all --all-namespaces -o wide`;
-    chomp @x;
+    my $filter = +{ namespace => $param->{namespace}, status => $param->{status} };
+
+    my ( $cmd, $handle ) = ( "$kubectl get all --all-namespaces -o wide", 'getall' );
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
+    my $x = `$cmd`;
+    return &{$handle{$handle}}( $x, $filter );
+ };
+
+$handle{getall} = sub
+{
+    my @x = split /\n/, shift;
+    my $filter = shift;
 
     my ( $deploymentready, $podready, $podrunning, $daemonsetready, $replicasetready ) = ( 0, 0, 0, 0, 0 );
-    my $failonly = ( $param->{status} && $param->{status} eq 'fail' ) ? 1 : 0;
+    my $failonly = ( $filter->{status} && $filter->{status} eq 'fail' ) ? 1 : 0;
     my ( @r, @title, %r, %namespace );
 
     for my $line ( @x )
@@ -54,7 +66,7 @@ get '/kubernetes/app' => sub {
             $r{$type} = [] unless $r{$type};
             $namespace{$r->{NAMESPACE}} ++;
 
-            next unless ( ! $param->{namespace} )|| ( $param->{namespace} eq $r->{NAMESPACE});
+            next unless ( ! $filter->{namespace} )|| ( $filter->{namespace} eq $r->{NAMESPACE});
 
             if( $type eq 'deployment' )
             {
@@ -121,6 +133,7 @@ get '/kubernetes/app' => sub {
         daemonsetready => $daemonsetready,
         replicasetready => $replicasetready,
     };
+
 };
 
 get '/kubernetes/app/describe' => sub {
@@ -138,7 +151,16 @@ get '/kubernetes/app/describe' => sub {
     my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid} ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
-    my $x = `$kubectl describe '$param->{type}' '$param->{name}' -n '$param->{namespace}'`;
+    my ( $cmd, $handle ) = ( "$kubectl describe '$param->{type}' '$param->{name}' -n '$param->{namespace}'", 'getdescribe' );
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
+
+    my $x = `$cmd`;
+    return &{$handle{$handle}}( $x ); 
+};
+
+$handle{getdescribe} = sub
+{
+    my $x = shift;
     return +{ stat => $JSON::true, data => $x, };
 };
 
@@ -157,9 +179,22 @@ get '/kubernetes/app/yaml' => sub {
     my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid} ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
-    my $x = `$kubectl rollout history '$param->{type}' '$param->{name}' -n '$param->{namespace}' -o yaml`;
-    return +{ stat => $JSON::true, data => $x };
+    return +{ stat => $JSON::true, data => +{ kubecmd => "$kubectl rollout history '$param->{type}' '$param->{name}' -n '$param->{namespace}' -o yaml", handle => 'getyaml' }}
+         if request->headers->{"openc3event"};
+
+
+    my ( $cmd, $handle ) = ( "$kubectl rollout history '$param->{type}' '$param->{name}' -n '$param->{namespace}' -o yaml", 'getyaml' );
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
+    my $x = `$cmd`;
+    return &{$handle{$handle}}( $x ); 
 };
+
+$handle{getyaml} = sub
+{
+    my $x = shift;
+    return +{ stat => $JSON::true, data => $x, };
+};
+
 
 post '/kubernetes/app/apply' => sub {
     my $param = params();
@@ -184,9 +219,19 @@ post '/kubernetes/app/apply' => sub {
     close $fh;
 
     my $filename = $fh->filename;
-    my $x = `$kubectl apply -f '$filename' 2>&1`;
 
-    my $stat = ( $x =~ / unchanged\n$/ || $x =~ / created\n$/ ) ? $JSON::true : $JSON::false;
+    my ( $cmd, $handle ) = ( "$kubectl apply -f '$filename' 2>&1", 'appapply' );
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
+
+    my $x = `$cmd`;
+
+    return &{$handle{$handle}}( $x ); 
+};
+
+$handle{appapply} = sub
+{
+    my $x = shift;
+    my $stat = ( $x =~ / unchanged\n$/ || $x =~ / created\n$/ || $x =~ /configured\n$/ ) ? $JSON::true : $JSON::false;
     return +{ stat => $stat, info => $x, };
 };
 
@@ -209,8 +254,16 @@ post '/kubernetes/app/setimage' => sub {
     my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid} ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
-    my $x = `$kubectl set image '$param->{type}/$param->{name}' '$param->{container}=$param->{image}' -n '$param->{namespace}' 2>&1`;
+    my ( $cmd, $handle ) = ( "$kubectl set image '$param->{type}/$param->{name}' '$param->{container}=$param->{image}' -n '$param->{namespace}' 2>&1", 'setimage' );
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
 
+    my $x = `$cmd`;
+    return &{$handle{$handle}}( $x ); 
+};
+
+$handle{setimage} = sub
+{
+    my $x = shift;
     return +{ stat => $JSON::true, data => $x };
 };
 
@@ -231,8 +284,18 @@ post '/kubernetes/app/rollback' => sub {
     
     my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid} ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
-    my $x = `$kubectl rollout undo $param->{type}/$param->{name} -n '$param->{namespace}' --to-revision=$param->{version}`;
 
+    my ( $cmd, $handle ) = ( "$kubectl rollout undo $param->{type}/$param->{name} -n '$param->{namespace}' --to-revision=$param->{version}", 'setrollback' );
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
+
+    my $x = `$cmd`;
+    return &{$handle{$handle}}( $x ); 
+
+};
+
+$handle{setrollback} = sub
+{
+    my $x = shift;
     return +{ stat => $JSON::true, data => $x };
 };
 
@@ -251,28 +314,23 @@ get '/kubernetes/app/rollback' => sub {
     my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid} ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
-    my @x = `$kubectl rollout history $param->{type} $param->{name} -n '$param->{namespace}'`;
-    chomp @x;
+    my ( $cmd, $handle ) = ( "/data/Software/mydan/CI/bin/kubectl-history $kubectl rollout history $param->{type} $param->{name} -n '$param->{namespace}'", 'gethistory' );
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
 
+    my $x = `$cmd`;
+    return &{$handle{$handle}}( $x ); 
+
+};
+
+$handle{gethistory} = sub
+{
+    my @x = split /\n/, shift;
     my @r;
-    my $count = 0;
-    for( reverse ( 2 .. @x -1 ))
+    for( @x )
     {
-        my ( $v, $m ) = split /\s+/, $x[$_], 2;
-        if( $v =~ /^\d+$/ )
-        {
-            my $image = 'Unkown';
-            $count ++;
-            last if $count > 10;
-            if( $count <= 10 )
-            {
-                my @image = `$kubectl rollout history $param->{type} $param->{name} -n '$param->{namespace}'  --revision '$v' |grep Image`;
-                chomp @image;
-                map{ $_ =~ s/\s+//g; $_ =~ s/^Image://g; }@image;
-                $image = join ',', @image;
-            }
-            push @r, +{ REVISION => $v, CHANGE_CAUSE => $m, IMAGE => $image };
-        }
+        my @t = split /\s+/, $_, 3;
+        next unless $t[0] =~ /^\d+$/;
+        push @r, +{ REVISION => $t[0], IMAGE => $t[1], CHANGE_CAUSE  => $t[2], }
     }
     return +{ stat => $JSON::true, data => \@r };
 };
@@ -294,8 +352,18 @@ post '/kubernetes/app/setreplicas' => sub {
 
     my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid} ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
-    my $x = `$kubectl scale '$param->{type}' '$param->{name}' -n '$param->{namespace}' --replicas=$param->{replicas} 2>&1`;
 
+    my ( $cmd, $handle ) = ( "$kubectl scale '$param->{type}' '$param->{name}' -n '$param->{namespace}' --replicas=$param->{replicas} 2>&1", 'setreplicas' );
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
+
+    my $x = `$cmd`;
+    return &{$handle{$handle}}( $x ); 
+
+};
+
+$handle{setreplicas} = sub
+{
+    my $x = shift;
     return +{ stat => $JSON::true, data => $x };
 };
 

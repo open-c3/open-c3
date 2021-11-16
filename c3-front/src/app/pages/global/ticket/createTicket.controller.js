@@ -64,7 +64,7 @@
                 kubeconfig: vm.postData.ticket.KubeConfig,
             };
             vm.loading = true
-            $http.post('/api/ci/kubernetes/cluster/connectiontest', d, { timeout: 120000 } ).then(
+            $http.post('/api/ci/v2/kubernetes/cluster/connectiontest', d, { timeout: 120000 } ).then(
                 function successCallback(response) {
                     vm.loading = false
                     if (response.data.stat){
