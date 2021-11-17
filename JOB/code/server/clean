@@ -1,9 +1,9 @@
 #!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
 use strict;
 use warnings;
-use FindBin qw( $RealBin );
+#use FindBin qw( $RealBin );
 use POSIX;
-use Util;
+#use Util;
 use Logs;
 
 $| ++;
@@ -18,11 +18,25 @@ return sub
 {
     my %param = @_;
 
-    my ( $myname, $db, $logs ) = ( Util::myname(), $param{db}, Logs->new( 'clean' ) );
+#    my ( $myname, $db, $logs ) = ( Util::myname(), $param{db}, Logs->new( 'clean' ) );
 
+#    my $xx = `cat /proc/1/cgroup 2>/dev/null`;
+#    my $indocker = $xx =~ /\b1:.+(docker|lxc|kubepods)/ ? 1 : 0;
+
+    my $logs = Logs->new( 'clean' );
+    my @log = qw( /var/log/open-c3.log /var/log/nginx/access.log /var/log/nginx/error.log );
     while(1)
     {
         warn "do ...\n";
+
+        for my $log ( @log )
+        {
+            my $size = ( stat $log )[7];
+            next unless $size > 100 * 1024 * 1024;
+            $logs->err( "copy $log fail: $!" ) if system "cp $log $log.1";
+            $logs->err( "clean $log fail: $!" ) if system "echo > $log";
+
+        }
 
         sleep 60;
     }

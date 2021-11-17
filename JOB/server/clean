@@ -14,7 +14,7 @@ use Code;
 
 =cut
 
-my $db = MYDB->new( "$RealBin/../conf/conn" );
+my $db;# = MYDB->new( "$RealBin/../conf/conn" );
 
 $0 = 'job_server_clean';
 Code->new( 'server/clean' )->run( db => $db );

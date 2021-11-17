@@ -27,6 +27,7 @@ return sub
         for my $c ( qw( clean_opened_dockershell clean_logs_build_temp_projectid clean_logs_build_temp_uuid ) )
         {
             eval{ Code->new( "server/clean.plugin/$c" )->run( %param ); };
+            $logs->err( "run clean code $c error:$@" ) if $@;
 
         }
         sleep 3600;

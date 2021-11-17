@@ -43,6 +43,7 @@ sub err
 {
     my $this = shift;
     map{ $this->_write( "ERROR agentsys $this->{type} $_" ) }@_;
+    $H->autoflush(1);
 #    map{ error( "agentsys $this->{type} $_") }@_;
 }
 
@@ -51,6 +52,7 @@ sub die
     my $this = shift;
 #    map{ error( "agentsys $this->{type} $_") }@_;
     map{ $this->_write( "FAIL agentsys $this->{type} $_" ) }@_;
+    $H->autoflush(1);
     die join ',', @_;
 }
 

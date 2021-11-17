@@ -21,7 +21,7 @@ return sub
 
     my ( $myname, $db, $logs ) = ( Util::myname(), $param{db}, $param{logs} );
 
-    my $logs = Logs->new( 'clean.clean_logs_build_temp_projectid' ) unless $logs;
+    $logs = Logs->new( 'clean.clean_logs_build_temp_projectid' ) unless $logs;
 
     my $expire = time - 86400;
     for my $path ( glob "$RealBin/../logs/build_temp_projectid/*" )
@@ -32,9 +32,5 @@ return sub
         next unless $mtime && $mtime < $expire;
         $logs->say( "clean $uuid" );
         system "rm -rf '$path'";
-
-
     }
-
-
 }

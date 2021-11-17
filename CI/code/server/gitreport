@@ -110,7 +110,7 @@ return sub
             my $year = POSIX::strftime( "%Y", localtime( time - ( 30 * 86400 )) );
             my $month = POSIX::strftime( "%Y-%m", localtime( time - ( 30 * 86400 )) );
             system "cat $dstpath/$year-*.week|grep ^$month > $dstpath/$month.month";
-            system "cat $dstpath/$year-*.month > $year/$year.year";
+            system "cat $dstpath/$year-*.month > $dstpath/$year.year";
         }
     }
 }
