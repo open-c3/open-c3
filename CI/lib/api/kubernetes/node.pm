@@ -12,6 +12,7 @@ use File::Temp;
 use api::kubernetes;
 
 our %handle;
+$handle{showinfo} = sub { return +{ info => shift, stat => shift ? $JSON::false : $JSON::true }; };
 
 get '/kubernetes/node' => sub {
     my $param = params();
@@ -28,16 +29,9 @@ get '/kubernetes/node' => sub {
     my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 0 ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
-    return +{ stat => $JSON::true, data => +{ kubecmd => "$kubectl get node -o wide", handle => 'getnode' }}
-         if request->headers->{"openc3event"};
-
-
     my ( $cmd, $handle ) = ( "$kubectl get node -o wide", 'getnode' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
-
-    my $x = `$cmd`;
-    my $status = ( $? >> 8 );
-    return &{$handle{$handle}}( $x, $status );
+    return &{$handle{$handle}}( `$cmd`//'', $? );
 };
 
 $handle{getnode} = sub
@@ -71,7 +65,6 @@ post '/kubernetes/node/cordon' => sub {
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
     my $pmscheck = api::pmscheck( 'openc3_ci_read', 0 ); return $pmscheck if $pmscheck;
-
     
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
@@ -79,22 +72,9 @@ post '/kubernetes/node/cordon' => sub {
     my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 1 ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
-    return +{ stat => $JSON::true, data => +{ kubecmd => "$kubectl  '$param->{cordon}' '$param->{node}' 2>&1;sleep 10", handle => 'setnodecordon' }}
-         if request->headers->{"openc3event"};
-
-
-    my ( $cmd, $handle ) = ( "$kubectl '$param->{cordon}' '$param->{node}' 2>&1", 'setnodecordon' );
+    my ( $cmd, $handle ) = ( "$kubectl '$param->{cordon}' '$param->{node}' 2>&1", 'showinfo' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
-
-    my $x = `$cmd`;
-    my $status = ( $? >> 8 );
-    return &{$handle{$handle}}( $x, $status ); 
-};
-
-$handle{setnodecordon} = sub
-{
-    my ( $x, $status ) = @_;
-    return +{ stat => $status ? $JSON::false : $JSON::true, info => $x, };
+    return &{$handle{$handle}}( `$cmd`//'', $? ); 
 };
 
 true;

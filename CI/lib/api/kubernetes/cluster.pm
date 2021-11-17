@@ -11,6 +11,7 @@ use Time::Local;
 use File::Temp;
 
 our %handle;
+$handle{showinfo} = sub { return +{ info => shift, stat => shift ? $JSON::false : $JSON::true }; };
 
 post '/kubernetes/cluster/connectiontest' => sub {
     my $param = params();
@@ -28,19 +29,9 @@ post '/kubernetes/cluster/connectiontest' => sub {
 
     my $kubeconfig = $fh->filename;
 
-    my ( $cmd, $handle ) = ( "KUBECONFIG=$kubeconfig kubectl version --short=true 2>&1", 'connectiontest' );
+    my ( $cmd, $handle ) = ( "KUBECONFIG=$kubeconfig kubectl version --short=true 2>&1", 'showinfo' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
-
-    my $x = `$cmd`;
-    my $status = ( $? >> 8 );
-    return &{$handle{$handle}}( $x, $status ); 
-
-};
-
-$handle{connectiontest} = sub
-{
-    my ( $x, $status ) = @_;
-    return +{ stat => $status ? $JSON::false : $JSON::true, info => $x, };
+    return &{$handle{$handle}}( `$cmd`//'', $? ); 
 };
 
 true;
