@@ -1,0 +1,48 @@
+---
+  metadata: 
+    labels: {}
+    name: ""
+    namespace: ""
+    annotations: {}
+  spec: 
+    type: "Deployment"
+    configMaps: []
+    secretMaps: []
+    persistentVolumeClaims: []
+    volumes: []
+    deployment: 
+      spec: 
+        replicas: 1
+        strategy: 
+          rollingUpdate: 
+            maxUnavailable: 0
+            maxSurge: 3
+          type: "RollingUpdate"
+        template: 
+          spec: 
+            affinity: 
+              nodeAffinity: 
+                requiredDuringSchedulingIgnoredDuringExecution: 
+                  nodeSelectorTerms: 
+                    - 
+                      matchExpressions: []
+              podAffinity: 
+                requiredDuringSchedulingIgnoredDuringExecution: 
+                  - 
+                    labelSelector: 
+                      matchExpressions: []
+                    namespaces: []
+                    topologyKey: ""
+              podAntiAffinity: 
+                requiredDuringSchedulingIgnoredDuringExecution: 
+                  - 
+                    labelSelector: 
+                      matchExpressions: []
+                    namespaces: []
+                    topologyKey: ""
+            tolerations: []
+            containers: []
+            hostAliases: []
+            terminationGracePeriodSeconds: 30
+            imagePullSecrets: []
+    services: []
