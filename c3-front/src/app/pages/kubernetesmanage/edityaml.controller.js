@@ -57,7 +57,7 @@
             var postData = {
                 "type": "kubernetes",
                 "name": "修改Deployment配置",
-                "handler": "",
+                "handler": clusterinfo.create_user,
                 "url": "/api/ci/v2/kubernetes/app/apply",
                 "method": "POST",
                 "submit_reason": "",

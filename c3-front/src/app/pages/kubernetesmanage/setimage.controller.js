@@ -44,7 +44,7 @@
             var postData = {
                 "type": "kubernetes",
                 "name": "修改Deployment镜像",
-                "handler": "",
+                "handler": clusterinfo.create_user,
                 "url": "/api/ci/v2/kubernetes/app/setimage",
                 "method": "POST",
                 "submit_reason": "",

@@ -43,7 +43,7 @@
             var postData = {
                 "type": "kubernetes",
                 "name": "修改Deployment副本数",
-                "handler": "",
+                "handler": clusterinfo.create_user,
                 "url": "/api/ci/v2/kubernetes/app/setreplicas",
                 "method": "POST",
                 "submit_reason": "",
