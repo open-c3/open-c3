@@ -123,7 +123,30 @@
 <hr>
 Host别名设置(待完善)
 <hr>
-拉去私有镜像设置(待完善)
+拉取私有镜像设置
+            <div class="row">
+                <div class="col-sm-10 form-group">
+                    <label class="col-sm-3 control-label">添加票据访问凭证</label>
+                    <label class="col-sm-3 control-label" ng-click="kubernetescreatedeployment.addSecret()">+添加</label>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-sm-10 form-group">
+                    <label class="col-sm-3 control-label"></label>
+                    <div class="col-sm-6">
+                        <table  border="0" style="width: 800px">
+                            <tr ng-repeat="(id, x) in secrets">
+                                <td><input type="text" class="form-control"  ng-model="x.name"></td>
+                                <td style="width: 50px"><a ng-click="kubernetescreatedeployment.delSecret(id)">删除</a></td>
+                            </tr>
+                       </table>
+                    </div>
+                </div>
+            </div>
+
+
 <hr>
             <div class="row">
                 <div class="col-sm-10 form-group">
@@ -254,6 +277,8 @@ Host别名设置(待完善)
                     </div>
                 </div>
             </div>
+
+<hr>
 
 <hr>
             <div class="row">
