@@ -60,7 +60,10 @@
                         <td data-title="'UP-TO-DATE'" width="80" filter="{ UP_TO_DATE: 'text'}" sortable="'UP_TO_DATE'">{{m.UP_TO_DATE}}</td>
                         <td data-title="'AVAILABLE'" width="80" filter="{ AVAILABLE: 'text'}" sortable="'AVAILABLE'">{{m.AVAILABLE}}</td>
                         <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
-                        <td data-title="'HPA'" width="80" filter="{ HPA: 'text'}" sortable="'HPA'">{{kubernetesmanage.hpa[m.NAMESPACE][m.NAME]['describe']}}</td>
+                        <td data-title="'HPA'" width="80" class="text-center">
+                            <a ng-if="kubernetesmanage.hpa[m.NAMESPACE][m.NAME]" >{{kubernetesmanage.hpa[m.NAMESPACE][m.NAME]['describe']}}</a>
+                            <i ng-if="!kubernetesmanage.hpa[m.NAMESPACE][m.NAME]" class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetesmanage.createHpa('deployment',m.INAME,m.NAMESPACE)" uib-tooltip="添加HPA" style="cursor:pointer;color: #339094;" ></i>
+                        </td>
                         <td data-title="'CONTAINERS'" width="80" filter="{ CONTAINERS: 'text'}" sortable="'CONTAINERS'">{{m.CONTAINERS}}</td>
                         <td data-title="'IMAGES'" width="80" filter="{ IMAGES: 'text'}" sortable="'IMAGES'">{{m.IMAGES}}</td>
                         <td data-title="'SELECTOR'" width="80" filter="{ SELECTOR: 'text'}" sortable="'SELECTOR'">{{m.SELECTOR}}</td>

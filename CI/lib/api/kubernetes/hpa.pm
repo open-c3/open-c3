@@ -57,4 +57,32 @@ $handle{gethpa} = sub
     };
 };
 
+post '/kubernetes/hpa/create' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        ticketid => qr/^\d+$/, 1,
+        namespace => qr/^[\w@\.\-]*$/, 1,
+        type => qr/^[\w@\.\-]*$/, 1,
+        name => qr/^[\w@\.\-]*$/, 1,
+
+        min => qr/^\d+$/, 1,
+        max => qr/^\d+$/, 1,
+
+        cpu => qr/^\d+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+    my $pmscheck = api::pmscheck( 'openc3_ci_read', 0 ); return $pmscheck if $pmscheck;
+
+    my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
+        map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 1 ) };
+    return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
+
+    my ( $cmd, $handle ) = ( "$kubectl autoscale '$param->{type}' '$param->{name}' --min $param->{min} --max $param->{max} --cpu-percent=$param->{cpu} -n '$param->{namespace}' 2>&1", 'showinfo' );
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
+    return &{$handle{$handle}}( `$cmd`//'', $? ); 
+};
+
 true;

@@ -311,6 +311,27 @@
             });
         };
 
+        vm.createHpa = function (type,name,namespace) {
+            $uibModal.open({
+                templateUrl: 'app/pages/kubernetesmanage/createhpa.html',
+                controller: 'KubernetesCreateHpaController',
+                controllerAs: 'kubernetescreatehpa',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () {return vm.treeid},
+                    type: function () {return type},
+                    name: function () {return name},
+                    namespace: function () {return namespace},
+                    ticketid: function () {return vm.selecteClusterId},
+                    clusterinfo: function () {return vm.selecteCluster},
+                }
+            });
+        };
+
+
 
 
         vm.addCluster = function () {
