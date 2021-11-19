@@ -65,11 +65,13 @@
  
         vm.loadoverA = false;
         vm.loadoverB = false;
+        vm.loadoverC = false;
 
         vm.reload = function () {
 
             vm.loadoverA = false;
             vm.loadoverB = false;
+            vm.loadoverC = false;
             $http.get('/api/ci/ticket/KubeConfig' ).then(
                 function successCallback(response) {
                     if (response.data.stat){
@@ -97,9 +99,24 @@
             if( vm.selecteClusterId <= 0 )
             {
                 vm.loadoverB = true;
+                vm.loadoverC = true;
                 return;
             }
 
+            $http.get("/api/ci/v2/kubernetes/hpa?ticketid=" + vm.selecteClusterId ).then(
+                function successCallback(response) {
+                    if (response.data.stat){
+
+                        vm.hpa = response.data.data; 
+                        vm.loadoverC = true;
+                    }else {
+                        toastr.error( "获取集群HPA数据失败："+response.data.info );
+                    }
+                },
+                function errorCallback (response){
+                    toastr.error( "获取集群HPA数据失败: " + response.status )
+                });
+ 
             $http.get("/api/ci/v2/kubernetes/app?ticketid=" + vm.selecteClusterId + "&namespace=" + vm.selectednamespace + "&status=" + vm.selectedStat ).then(
                 function successCallback(response) {
                     if (response.data.stat){

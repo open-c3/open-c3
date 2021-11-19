@@ -17,6 +17,7 @@ use AnyEvent::HTTPD::CookiePatch qw(inject);
 
 use api::kubernetes::node;
 use api::kubernetes::app;
+use api::kubernetes::hpa;
 use api::kubernetes::cluster;
  
 my $cookiekey;
@@ -27,7 +28,7 @@ BEGIN{
     die "get cookiekey fail" unless $cookiekey =~ /^[a-zA-Z0-9]+$/
 };
 
-my ( %handle, %index, $index ) = ( %api::kubernetes::node::handle, %api::kubernetes::app::handle, %api::kubernetes::cluster::handle );
+my ( %handle, %index, $index ) = ( %api::kubernetes::node::handle, %api::kubernetes::app::handle, %api::kubernetes::hpa::handle, %api::kubernetes::cluster::handle );
 
 my $port = $ENV{CI_API_EVENT_PORT} // '8080';
 my $httpd = AnyEvent::HTTPD::Router->new( port => $port, request_class => 'AnyEvent::HTTPD::CookiePatch' );
