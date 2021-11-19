@@ -240,4 +240,44 @@
     </div>
 
 
+
+
+
+
+    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0">
+        <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
+
+            <div class="panel-heading">
+                <h4 style="font-weight: bold;color: #337ab7">HPA({{kubernetesmanage.hpaCount||0}})
+                </h4>
+
+            </div>
+            <div class="panel-body" style="margin-top: 2px">
+              <div class="pt20" style="overflow: auto;">
+                <table ng-table="kubernetesmanage.hpaTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
+                    <tr ng-repeat="m in $data">
+                        <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'名称'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">{{m.NAME}}</td>
+                        <td data-title="'REFERENCE'" width="80" filter="{ REFERENCE: 'text'}" sortable="'REFERENCE'">{{m.REFERENCE}}</td>
+                        <td data-title="'TARGETS'" width="80" filter="{ TARGETS: 'text'}" sortable="'TARGETS'">{{m.TARGETS}}</td>
+                        <td data-title="'MINPODS'" width="80" filter="{ MINPODS: 'text'}" sortable="'MINPODS'">{{m.MINPODS}}</td>
+                        <td data-title="'MAXPODS'" width="80" filter="{ MAXPODS: 'text'}" sortable="'MAXPODS'">{{m.MAXPODS}}</td>
+                        <td data-title="'REPLICAS'" width="80" filter="{ REPLICAS: 'text'}" sortable="'REPLICAS'">{{m.REPLICAS}}</td>
+                        <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
+                        <td data-title="'操作'" width="80" >
+                            <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describe('hpa',m.INAME,m.NAMESPACE)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
+                        </td> 
+                    </tr>
+                </table>
+              </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+
+
+
 </div>

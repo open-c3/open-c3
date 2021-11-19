@@ -139,6 +139,10 @@
                         vm.podRunning = response.data.podrunning;
                         vm.podCount = response.data.data.pod.length;
 
+
+                        vm.hpaTable = new ngTableParams({count:10}, {counts:[],data:response.data.data.hpa});
+                        vm.hpaCount = response.data.data.hpa.length;
+
                         vm.replicasetTable = new ngTableParams({count:10}, {counts:[],data:response.data.data.replicaset});
                         vm.replicasetReady = response.data.replicasetready;
                         vm.replicasetCount = response.data.data.replicaset.length;

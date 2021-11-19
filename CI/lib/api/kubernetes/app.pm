@@ -67,6 +67,7 @@ $handle{getall} = sub
             my $r = +{ map{ $title[$_] => $col[$_] } 0 ..  @title -1 };
             my ( $type ) = split /\//, $r->{NAME};
             $type =~ s/\.apps$//;
+            $type = 'hpa' if $type eq 'horizontalpodautoscaler.autoscaling';
             $r->{type} = $type;
             $r{$type} = [] unless $r{$type};
             $namespace{$r->{NAMESPACE}} ++;
