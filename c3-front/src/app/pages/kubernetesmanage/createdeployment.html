@@ -2,20 +2,273 @@
     <div class="panel panel-primary">
         <div class="panel-heading">
             <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="kubernetescreatedeployment.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetescreatedeployment.loadover}" ></i></button>
                 <button class="btn btn-primary" uib-tooltip="关闭" ng-click="kubernetescreatedeployment.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
             </span>
             <h5>apply</h5>
         </div>
 
         <div class="panel-body">
+
+
             <div class="row">
-                <div class="col-sm-5 form-group pull-left">
-                    <button class="btn btn-warning" ng-click="kubernetescreatedeployment.demo('deploy_serverside')">Deployment例子</button>
-                    <button class="btn btn-warning" ng-click="kubernetescreatedeployment.demo('cm')">ConfigMap例子</button>
+                <div class="col-sm-10 form-group">
+                    <label class="col-sm-3 control-label">名称</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="adduser" placeholder="名称" ng-model="kubernetescreatedeployment.editData.metadata.name" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-10 form-group">
+                    <label class="col-sm-3 control-label">描述</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="adduser" placeholder="描述" ng-model="kubernetescreatedeployment.editData.metadata.annotations.describe" required>
+                    </div>
                 </div>
             </div>
 
 
+            <div class="row">
+                <div class="col-sm-10 form-group">
+                    <label class="col-sm-3 control-label">标签</label>
+                    <label class="col-sm-3 control-label" ng-click="kubernetescreatedeployment.addLable()">+添加</label>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-sm-10 form-group">
+                    <label class="col-sm-3 control-label"></label>
+                    <div class="col-sm-6">
+                        <table  border="0" style="width: 800px">
+                            <tr ng-repeat="(id, x) in labels">
+                                <td><input type="text" class="form-control"  ng-model="x.K"></td>
+                                <td style="width: 20px">=</td>
+                                <td><input type="text" class="form-control"  ng-model="x.V"></td>
+                                <td style="width: 50px"><a ng-click="kubernetescreatedeployment.delLable(id)">删除</a></td>
+                            </tr>
+                       </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-10 form-group">
+                    <label class="col-sm-3 control-label">命名空间</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="adduser" placeholder="命名空间" ng-model="kubernetescreatedeployment.editData.metadata.namespace" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-10 form-group">
+                    <label class="col-sm-3 control-label">停止等待时间</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="adduser" placeholder="停止等待时间" ng-model="kubernetescreatedeployment.editData.spec.template.spec.terminationGracePeriodSeconds" required>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+数据卷(选填)
+
+            <div class="row">
+                <div class="col-sm-10 form-group">
+                    <label class="col-sm-3 control-label">副本数量</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="adduser" placeholder="副本数量" ng-model="kubernetescreatedeployment.editData.spec.replicas" required>
+                    </div>
+                </div>
+            </div>
+
+
+
+<hr>
+滚动升级策略
+            <div class="row">
+                <div class="col-sm-5 form-group pull-left">
+                    <button class="btn btn-primary" ng-disabled="kubernetescreatedeployment.editData.spec.strategy.type == 'RollingUpdate'" ng-click="kubernetescreatedeployment.switchStrategy('RollingUpdate')">RollingUpdate</button>
+                    <button class="btn btn-primary" ng-disabled="kubernetescreatedeployment.editData.spec.strategy.type == 'Recreate'" ng-click="kubernetescreatedeployment.switchStrategy('Recreate')">Recreate</button>
+                </div>
+            </div>
+
+            <div class="row" ng-if="kubernetescreatedeployment.editData.spec.strategy.type == 'RollingUpdate'" >
+                <div class="col-sm-10 form-group">
+                    <label class="col-sm-3 control-label">MaxUnavailable</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="adduser" placeholder="MaxUnavailable" ng-model="kubernetescreatedeployment.editData.spec.strategy.rollingUpdate.maxUnavailable" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" ng-if="kubernetescreatedeployment.editData.spec.strategy.type == 'RollingUpdate'">
+                <div class="col-sm-10 form-group">
+                    <label class="col-sm-3 control-label">MaxSurge</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="adduser" placeholder="MaxUnavailable" ng-model="kubernetescreatedeployment.editData.spec.strategy.rollingUpdate.maxSurge" required>
+                    </div>
+                </div>
+            </div>
+
+
+
+ 
+<hr>
+信合性和容忍度设置(待完善)
+<hr>
+Host别名设置(待完善)
+<hr>
+拉去私有镜像设置(待完善)
+<hr>
+            <div class="row">
+                <div class="col-sm-10 form-group">
+                    <label class="col-sm-3 control-label">容器</label>
+                    <label class="col-sm-3 control-label" ng-click="kubernetescreatedeployment.addContainer()">+添加</label>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-sm-10 form-group">
+                    <label class="col-sm-3 control-label"></label>
+                    <div class="col-sm-9">
+                        <table  border="0" style="width: 800px">
+                            <tr ng-repeat="(id, x) in kubernetescreatedeployment.editData.spec.template.spec.containers">
+                                <td style="width: 20px">{{x}}
+
+
+
+
+
+
+
+
+
+                                    <div class="row">
+                                        <div class="col-sm-10 form-group">
+                                            <label class="col-sm-3 control-label">容器名称</label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control" name="adduser" placeholder="容器名称" ng-model="x.name" required>
+                                           </div>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="row">
+                                        <div class="col-sm-10 form-group">
+                                            <label class="col-sm-3 control-label">镜像</label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control" name="adduser" placeholder="镜像" ng-model="x.image" required>
+                                           </div>
+                                        </div>
+                                    </div>
+
+
+
+                                    <div class="row">
+                                        <div class="col-sm-10 form-group">
+                                            <label class="col-sm-3 control-label">镜像拉取策略</label>
+                                            <div class="col-sm-9">
+                                                <button class="btn btn-primary" ng-disabled="x.imagePullPolicy == 'Always'" ng-click="kubernetescreatedeployment.switchImagePullPolicy(x, 'Always')">Always</button>
+                                                <button class="btn btn-primary" ng-disabled="x.imagePullPolicy == 'IfNotPresent'" ng-click="kubernetescreatedeployment.switchImagePullPolicy(x, 'IfNotPresent')">IfNotPresent</button>
+                                                <button class="btn btn-primary" ng-disabled="x.imagePullPolicy == 'Never'" ng-click="kubernetescreatedeployment.switchImagePullPolicy(x, 'Never')">Never</button>
+                                                <button class="btn btn-primary" ng-disabled="!x.imagePullPolicy" ng-click="kubernetescreatedeployment.switchImagePullPolicy(x, '')">清空</button>
+                                           </div>
+                                        </div>
+                                    </div>
+
+
+
+                                    <div class="row">
+                                        <div class="col-sm-10 form-group">
+                                            <label class="col-sm-3 control-label"></label>
+                                            <div class="col-sm-9">
+                                                若不设置镜像拉取策略，当镜像版本为空或:latest时，使用Always策略，否则使用IfNotPresent策略
+                                           </div>
+                                        </div>
+                                    </div>
+
+
+
+ 
+
+                                    <div class="row">
+                                        <div class="col-sm-10 form-group">
+                                            <label class="col-sm-2 control-label">CPU限制</label>
+                                            <label class="col-sm-2 control-label">request</label>
+                                            <div class="col-sm-2">
+                                                <input type="text" class="form-control" placeholder="" ng-model="x.resources.requests.cpu" required>
+                                           </div>
+
+                                            <label class="col-sm-2 control-label">limit</label>
+                                            <div class="col-sm-2">
+                                                <input type="text" class="form-control" placeholder="" ng-model="x.resources.limits.cpu" required>
+                                           </div>
+                                            <label class="col-sm-1 control-label">核</label>
+                                        </div>
+                                    </div>
+
+
+
+
+                                    <div class="row">
+                                        <div class="col-sm-10 form-group">
+                                            <label class="col-sm-2 control-label">内存限制</label>
+                                            <label class="col-sm-2 control-label">request</label>
+                                            <div class="col-sm-2">
+                                                <input type="text" class="form-control" placeholder="" ng-model="x.resources.requests.memory" required>
+                                           </div>
+
+                                            <label class="col-sm-2 control-label">limit</label>
+                                            <div class="col-sm-2">
+                                                <input type="text" class="form-control" placeholder="" ng-model="x.resources.limits.memory" required>
+                                           </div>
+                                            <label class="col-sm-1 control-label"></label>
+                                        </div>
+                                    </div>
+
+
+
+                                    <div class="row">
+                                        <div class="col-sm-10 form-group">
+                                            <label class="col-sm-3 control-label"></label>
+                                            <div class="col-sm-9">
+                                                Request用于预分配资源，当集群中的节点没有request所要求的资源数量时，容器会创建失败。Limit用于设置容器使用的最大上限，避免异常情况下节点资源消耗过多。
+                                           </div>
+                                        </div>
+                                    </div>
+
+
+
+
+
+                                 </td>
+                                <td style="width: 50px"><a ng-click="kubernetescreatedeployment.delContainer(id)">删除</a></td>
+                            </tr>
+                       </table>
+                    </div>
+                </div>
+            </div>
+
+<hr>
+            <div class="row">
+                <div class="col-sm-10 form-group">
+                    <label class="col-sm-3 control-label">副本数量</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="adduser" placeholder="副本数量" ng-model="kubernetescreatedeployment.editData.spec.replicas" required>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+  
             <div class="pt20">
                 <div>
                     <div class="row" class="form-group">
@@ -31,6 +284,7 @@
             <div class="row">
                 <div class="col-sm-5 form-group pull-right">
                     <button class="btn btn-info" ng-disabled="myForm.$invalid" ng-click="kubernetescreatedeployment.assignment()">操作协助</button>
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreatedeployment.toyaml()">生成YAML</button>
                     <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreatedeployment.apply()">提交变更</button>
                 </div>
             </div>

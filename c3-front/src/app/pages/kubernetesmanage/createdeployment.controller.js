@@ -92,6 +92,108 @@ status:
             vm.yaml = demo[name];
         };
 
+
+        vm.reload = function(){
+            vm.loadover = false;
+            $http.get("/api/ci/kubernetes/data/template/deployment" ).success(function(data){
+                if(data.stat == true) 
+                { 
+                   vm.loadover = true;
+                   vm.editData = data.data;
+                } else { 
+                    toastr.error("加载模版信息失败:" + data.info)
+                }
+            });
+            $http.get("/api/ci/kubernetes/data/template/container" ).success(function(data){
+                if(data.stat == true) 
+                { 
+                   vm.containerData = data.data;
+                } else { 
+                    toastr.error("加载container模版信息失败:" + data.info)
+                }
+            });
+        };
+        vm.reload();
+
+        vm.toyaml = function(){
+            var labels = {};
+            angular.forEach($scope.labels, function (v, k) {
+                var key = v["K"]
+                labels[key] = v["V"];
+            });
+
+            vm.editData.metadata.labels = labels;
+
+            vm.editData.spec.selector.matchLabels.app = vm.editData.metadata.name;
+            vm.editData.spec.template.metadata.labels.app = vm.editData.metadata.name;
+            var d = {
+                "data": vm.editData,
+            };
+            $http.post("/api/ci/kubernetes/data/json2yaml", d  ).success(function(data){
+                if(data.stat == true) 
+                { 
+                   vm.yaml = data.data
+                } else { 
+                   swal({ title:'提交失败', text: data.info, type:'error' });
+                }
+            });
+        };
+
+
+        $scope.labels = [];
+
+        vm.addLable = function()
+        {
+            $scope.labels.push({ "K": "", "V": ""});
+        }
+        vm.delLable = function(id)
+        {
+            $scope.labels.splice(id, 1);
+        }
+
+
+
+        vm.addContainer = function()
+        {
+            var b = angular.copy(vm.containerData);
+            vm.editData.spec.template.spec.containers.push(angular.copy(vm.containerData));
+            //vm.editData.spec.template.spec.containers.push(vm.containerData)
+        }
+ 
+        vm.delContainer = function(id)
+        {
+            vm.editData.spec.template.spec.containers.splice(id, 1);
+        }
+
+
+        vm.switchStrategy = function( type ){
+            vm.editData.spec.strategy.type = type;
+            if( type === 'RollingUpdate' )
+            {
+                vm.editData.spec.strategy.rollingUpdate = { "maxUnavailable": 0, "maxSurge": 3};
+            }
+            else
+            {
+                delete vm.editData.spec.strategy.rollingUpdate;
+            }
+        };
+
+
+        vm.switchImagePullPolicy = function( container, type ){
+            if( type ==='')
+            {
+                delete container['imagePullPolicy'];
+            }
+            else
+            {
+                container['imagePullPolicy'] = type;
+            }
+        };
+
+
+
+
+
         vm.apply = function(){
             vm.loadover = false;
             var d = {

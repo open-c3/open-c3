@@ -67,6 +67,9 @@
         vm.loadoverB = false;
 
         vm.reload = function () {
+
+            vm.loadoverA = false;
+            vm.loadoverB = false;
             $http.get('/api/ci/ticket/KubeConfig' ).then(
                 function successCallback(response) {
                     if (response.data.stat){
@@ -270,6 +273,28 @@
                 }
             });
         };
+
+        vm.deleteApp = function (type,name,namespace) {
+            $uibModal.open({
+                templateUrl: 'app/pages/kubernetesmanage/deleteapp.html',
+                controller: 'KubernetesDeleteAppController',
+                controllerAs: 'kubernetesdeleteapp',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () {return vm.treeid},
+                    type: function () {return type},
+                    name: function () {return name},
+                    namespace: function () {return namespace},
+                    ticketid: function () {return vm.selecteClusterId},
+                    clusterinfo: function () {return vm.selecteCluster},
+                }
+            });
+        };
+
+
 
         vm.addCluster = function () {
             $uibModal.open({

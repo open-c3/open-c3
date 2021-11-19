@@ -1,0 +1,28 @@
+<div class="row block">
+    <div class="modal-header">
+        <h4 class="modal-title">删除: {{kubernetesdeleteapp.type}}/{{kubernetesdeleteapp.name}}</h4>
+    </div>
+    <div class="modal-body">
+        <form class="form-horizontal" name="myForm" role="form">
+            <div class="row">
+                <div class="col-sm-10 form-group">
+                    <label class="col-sm-3 control-label">名称确认</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" placeholder="输入删除的名称:{{kubernetesdeleteapp.name}}" ng-model="kubernetesdeleteapp.deletename" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-5 form-group pull-right">
+                    <button class="btn btn-info" ng-disabled="myForm.$invalid" ng-click="kubernetesdeleteapp.assignment()">操作协助</button>
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetesdeleteapp.deleteapp()">确认删除</button>
+                    <button class="btn btn-warning" ng-click="kubernetesdeleteapp.cancel()">取消</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div>
+
+<style>.modal-dialog {width: 30%;} </style>
