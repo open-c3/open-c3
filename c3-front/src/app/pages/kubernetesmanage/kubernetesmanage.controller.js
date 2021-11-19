@@ -331,6 +331,28 @@
             });
         };
 
+        vm.createSecret = function (type,name,namespace) {
+            $uibModal.open({
+                templateUrl: 'app/pages/kubernetesmanage/createsecret.html',
+                controller: 'KubernetesCreateSecretController',
+                controllerAs: 'kubernetescreatesecret',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () {return vm.treeid},
+                    type: function () {return type},
+                    name: function () {return name},
+                    namespace: function () {return namespace},
+                    ticketid: function () {return vm.selecteClusterId},
+                    clusterinfo: function () {return vm.selecteCluster},
+                }
+            });
+        };
+
+
+
 
 
 
@@ -359,6 +381,24 @@
                 templateUrl: 'app/pages/kubernetesmanage/node.html',
                 controller: 'KubernetesNodeController',
                 controllerAs: 'kubernetesnode',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () {return vm.treeid},
+                    ticketid: function () {return vm.selecteClusterId},
+                    clusterinfo: function () {return vm.selecteCluster},
+                }
+            });
+        };
+
+ 
+        vm.secret = function () {
+            $uibModal.open({
+                templateUrl: 'app/pages/kubernetesmanage/secret.html',
+                controller: 'KubernetesSecretController',
+                controllerAs: 'kubernetessecret',
                 backdrop: 'static',
                 size: 'lg',
                 keyboard: false,
