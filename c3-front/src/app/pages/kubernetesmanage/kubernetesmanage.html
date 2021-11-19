@@ -37,7 +37,6 @@
                     <button class="btn btn-info" uib-tooltip="管理集群节点" ng-click="kubernetesmanage.node()"><i class="fa fa-cubes" aria-hidden="true">集群节点管理</i></button>
                     <button class="btn btn-info" uib-tooltip="管理集群secret" ng-click="kubernetesmanage.secret()"><i class="fa fa-cubes" aria-hidden="true">集群secret管理</i></button>
                     <button class="btn btn-info" uib-tooltip="创建secret" ng-click="kubernetesmanage.createSecret()"><i class="fa fa-cubes" aria-hidden="true">创建secret</i></button>
-                    <button class="btn btn-info" uib-tooltip="创建无状态应用" ng-click="kubernetesmanage.createDeployment()"><i class="fa fa-cube" aria-hidden="true">创建无状态应用</i></button>
                 </div>
             </div>
         </div>
@@ -47,6 +46,12 @@
         <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
 
             <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC)}" ></i>刷新</button>
+                <button class="btn btn-info" uib-tooltip="创建无状态应用" ng-click="kubernetesmanage.createDeployment()"><i class="fa fa-plus" aria-hidden="true">创建无状态应用</i></button>
+            </span>
+
+
                 <h4 style="font-weight: bold;color: #337ab7">Deployment({{kubernetesmanage.deploymentCount||0}})<a>:READY({{ kubernetesmanage.deploymentReady||0}}) </a></h4>
             </div>
             <div class="panel-body" style="margin-top: 2px">
