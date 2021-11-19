@@ -63,6 +63,10 @@
                         <td data-title="'HPA'" width="80" class="text-center">
                             <a ng-if="kubernetesmanage.hpa[m.NAMESPACE][m.NAME]" >{{kubernetesmanage.hpa[m.NAMESPACE][m.NAME]['describe']}}</a>
                             <i ng-if="!kubernetesmanage.hpa[m.NAMESPACE][m.NAME]" class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetesmanage.createHpa('deployment',m.INAME,m.NAMESPACE)" uib-tooltip="添加HPA" style="cursor:pointer;color: #339094;" ></i>
+
+                            <i ng-if="kubernetesmanage.hpa[m.NAMESPACE][m.NAME]" class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describe('hpa',m.INAME,m.NAMESPACE)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
+
+                            <i ng-if="kubernetesmanage.hpa[m.NAMESPACE][m.NAME]" class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesmanage.deleteApp('hpa',m.INAME,m.NAMESPACE)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
                         </td>
                         <td data-title="'CONTAINERS'" width="80" filter="{ CONTAINERS: 'text'}" sortable="'CONTAINERS'">{{m.CONTAINERS}}</td>
                         <td data-title="'IMAGES'" width="80" filter="{ IMAGES: 'text'}" sortable="'IMAGES'">{{m.IMAGES}}</td>
