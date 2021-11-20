@@ -5,7 +5,7 @@
         .module('openc3')
         .controller('KubernetesCreateDeploymentController', KubernetesCreateDeploymentController);
 
-    function KubernetesCreateDeploymentController( $uibModalInstance, $location, $anchorScroll, $state, $http, $uibModal, treeService, ngTableParams, resoureceService, $scope, $injector, ticketid, clusterinfo ) {
+    function KubernetesCreateDeploymentController( $uibModalInstance, $location, $anchorScroll, $state, $http, $uibModal, treeService, ngTableParams, resoureceService, $scope, $injector, ticketid, clusterinfo, namespace, name ) {
 
         var vm = this;
         vm.treeid = $state.params.treeid;
@@ -95,7 +95,15 @@ status:
 
         vm.reload = function(){
             vm.loadover = false;
-            $http.get("/api/ci/kubernetes/data/template/deployment" ).success(function(data){
+
+            var url = "/api/ci/kubernetes/data/template/deployment";
+
+            if( namespace && name )
+            {
+                url = "/api/ci/v2/kubernetes/app/json?ticketid=" + ticketid + "&type=deployment&name=" + name + "&namespace=" + namespace;
+            }
+
+            $http.get(url).success(function(data){
                 if(data.stat == true) 
                 { 
                    vm.loadover = true;
@@ -202,6 +210,10 @@ status:
 
 
 
+            if( ! vm.editData.spec.template.spec.volumes )
+            {
+                vm.editData.spec.template.spec.volumes = [];
+            }
 
             vm.editData.spec.template.spec.volumes.push(data);
         }

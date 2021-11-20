@@ -196,7 +196,7 @@
             });
         };
 
-        vm.createDeployment = function () {
+        vm.createDeployment = function (namespace,name) {
             $uibModal.open({
                 templateUrl: 'app/pages/kubernetesmanage/createdeployment.html',
                 controller: 'KubernetesCreateDeploymentController',
@@ -209,6 +209,8 @@
                     treeid: function () {return vm.treeid},
                     ticketid: function () {return vm.selecteClusterId},
                     clusterinfo: function () {return vm.selecteCluster},
+                    namespace: function () {return namespace},
+                    name: function () {return name},
                 }
             });
         };

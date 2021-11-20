@@ -189,6 +189,39 @@ get '/kubernetes/app/yaml' => sub {
     return &{$handle{$handle}}( `$cmd`//'', $? ); 
 };
 
+get '/kubernetes/app/json' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        type => qr/^[\w@\.\-]*$/, 1,
+        name => qr/^[\w@\.\-]*$/, 1,
+        namespace => qr/^[\w@\.\-]*$/, 1,
+        ticketid => qr/^\d+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+    my $pmscheck = api::pmscheck( 'openc3_ci_read', 0 ); return $pmscheck if $pmscheck;
+
+    my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
+        map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 0 ) };
+    return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
+
+    my ( $cmd, $handle ) = ( "$kubectl get '$param->{type}' '$param->{name}' -n '$param->{namespace}' -o yaml", 'getappjson' );
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
+    return &{$handle{$handle}}( `$cmd`//'', $? ); 
+};
+
+$handle{getappjson} = sub
+{
+    my ( $x, $status, $filter ) = @_;
+    return +{ stat => $JSON::false, data => $x } if $status;
+    my $yaml = eval{ YAML::XS::Load $x };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    return +{ stat => $JSON::true, data => $yaml };
+
+};
+
 post '/kubernetes/app/apply' => sub {
     my $param = params();
     my $error = Format->new( 

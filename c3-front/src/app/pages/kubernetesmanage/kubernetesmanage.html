@@ -48,7 +48,7 @@
             <div class="panel-heading">
             <span class="panel-controls">
                 <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC)}" ></i>刷新</button>
-                <button class="btn btn-info" uib-tooltip="创建无状态应用" ng-click="kubernetesmanage.createDeployment()"><i class="fa fa-plus" aria-hidden="true">创建无状态应用</i></button>
+                <button class="btn btn-info" uib-tooltip="创建无状态应用" ng-click="kubernetesmanage.createDeployment('','')"><i class="fa fa-plus" aria-hidden="true">创建无状态应用</i></button>
             </span>
 
 
@@ -84,6 +84,8 @@
                             <i class="fa fa-location-arrow fa-2x" aria-hidden="true" ng-click="kubernetesmanage.setimage('deployment',m.INAME,m.NAMESPACE,m.IMAGES,m.CONTAINERS)" uib-tooltip="升级" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-life-ring fa-2x" aria-hidden="true" ng-click="kubernetesmanage.rollback('deployment',m.INAME,m.NAMESPACE,m.IMAGES,m.CONTAINERS)" uib-tooltip="回滚" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-sort-numeric-asc fa-2x" aria-hidden="true" ng-click="kubernetesmanage.setreplicas('deployment',m.INAME,m.NAMESPACE,m.AVAILABLE)" uib-tooltip="扩缩容" style="cursor:pointer;color: #339094;" ></i>
+
+                            <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="kubernetesmanage.createDeployment(m.NAMESPACE,m.INAME)" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('deployment',m.INAME,m.NAMESPACE)" uib-tooltip="编辑yaml" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describe('deployment',m.INAME,m.NAMESPACE)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesmanage.deleteApp('deployment',m.INAME,m.NAMESPACE)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
