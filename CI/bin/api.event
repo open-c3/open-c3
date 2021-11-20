@@ -19,6 +19,7 @@ use api::kubernetes::node;
 use api::kubernetes::app;
 use api::kubernetes::hpa;
 use api::kubernetes::secret;
+use api::kubernetes::configmap;
 use api::kubernetes::cluster;
  
 my $cookiekey;
@@ -34,6 +35,7 @@ my ( %handle, %index, $index ) = (
     %api::kubernetes::app::handle,
     %api::kubernetes::hpa::handle,
     %api::kubernetes::secret::handle,
+    %api::kubernetes::configmap::handle,
     %api::kubernetes::cluster::handle,
 );
 
