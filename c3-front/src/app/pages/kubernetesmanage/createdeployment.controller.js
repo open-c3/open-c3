@@ -164,6 +164,48 @@ status:
             $scope.secrets.splice(id, 1);
         }
 
+        vm.addVolume = function( type )
+        {
+            var data = {}
+
+            if( type === 'emptyDir' )
+            {
+                data = { "name": "", "emptyDir": {} }
+            }
+
+            if( type === 'hostPath' )
+            {
+                data = { "name": "", "hostPath": { "path": "" } }
+            }
+
+            if( type === 'nfs' )
+            {
+                data = { "name": "", "nfs": { "server":"", "path": "" } }
+            }
+            if( type === 'secret' )
+            {
+                data = { "name": "", "secret": { "secretName":"" } }
+            }
+            if( type === 'persistentVolumeClaim' )
+            {
+                data = { "name": "", "persistentVolumeClaim": { "claimName":"" } }
+            }
+            if( type === 'configMap' )
+            {
+                data = { "name": "", "configMap": { "name":"", "items": [ { "key": "", "path": "" } ] } }
+            }
+
+
+
+
+            vm.editData.spec.template.spec.volumes.push(data);
+        }
+         vm.delVolume = function(id)
+        {
+            vm.editData.spec.template.spec.volumes.splice(id, 1);
+        }
+
+
 
         vm.addContainer = function()
         {
