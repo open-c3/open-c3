@@ -122,6 +122,11 @@ status:
                 labels[key] = v["V"];
             });
 
+            angular.forEach(vm.editData.spec.template.spec.containers, function (v, k) {
+              delete v.tempcommandstring;
+              delete v.tempargsstring;
+            });
+
             vm.editData.metadata.labels = labels;
             vm.editData.spec.template.spec.imagePullSecrets = $scope.secrets;
 
@@ -204,6 +209,41 @@ status:
         {
             vm.editData.spec.template.spec.volumes.splice(id, 1);
         }
+
+        vm.addCommand = function(x, cmd)
+        {
+            if( ! x.command )
+            {
+                x.command = []
+            }
+            x.command.push(cmd)
+            x.tempcommandstring = "";
+        }
+
+        vm.delCommand = function(x)
+        {
+            delete x.command;
+            x.tempcommandstring = "";
+        }
+
+
+        vm.addArgs = function(x, args)
+        {
+            if( ! x.args )
+            {
+                x.args = []
+            }
+            x.args.push(args)
+            x.tempargsstring = ""
+        }
+
+        vm.delArgs = function(x)
+        {
+            delete x.args;
+            x.tempargsstring = ""
+        }
+
+
 
 
 

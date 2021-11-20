@@ -324,6 +324,34 @@ Host别名设置(待完善)
                                     </div>
 
 
+                                    <div class="row">
+                                        <div class="col-sm-10 form-group">
+                                            <label class="col-sm-3 control-label">启动命令</label>
+                                            <div class="col-sm-6">
+                                                {{x.command}}
+                                                <input type="text" class="form-control" name="adduser" placeholder="启动命令" ng-model="x.tempcommandstring"  >
+                                           </div>
+                                            <label class="col-sm-3 control-label" ng-click="kubernetescreatedeployment.addCommand(x, x.tempcommandstring)" >+追加</label>
+                                            <label class="col-sm-3 control-label" ng-click="kubernetescreatedeployment.delCommand(x)" >清空</label>
+                                        </div>
+                                    </div>
+
+
+
+                                    <div class="row">
+                                        <div class="col-sm-10 form-group">
+                                            <label class="col-sm-3 control-label">命令参数</label>
+                                            <div class="col-sm-6">
+                                                {{x.args}}
+                                                <input type="text" class="form-control" name="adduser" placeholder="启动命令" ng-model="x.tempargsstring"  >
+                                           </div>
+                                            <label class="col-sm-3 control-label" ng-click="kubernetescreatedeployment.addArgs(x, x.tempargsstring)" >+追加</label>
+                                            <label class="col-sm-3 control-label" ng-click="kubernetescreatedeployment.delArgs(x)" >清空</label>
+                                        </div>
+                                    </div>
+
+
+
 
 
 
