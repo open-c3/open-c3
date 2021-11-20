@@ -41,7 +41,7 @@
                 if(data.stat == true) 
                 { 
                    vm.loadover = true;
-                   vm.nodeTable = new ngTableParams({count:10}, {counts:[],data:data.data});
+                   vm.nodeTable = new ngTableParams({count:25}, {counts:[],data:data.data});
                 } else { 
                     toastr.error("加载secret信息失败:" + data.info)
                 }
@@ -69,6 +69,45 @@
             });
         };
 
+
+        vm.describe = function (type,name,namespace) {
+            $uibModal.open({
+                templateUrl: 'app/pages/kubernetesmanage/describe.html',
+                controller: 'KubernetesDescribeController',
+                controllerAs: 'kubernetesdescribe',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () {return vm.treeid},
+                    type: function () {return type},
+                    name: function () {return name},
+                    namespace: function () {return namespace},
+                    ticketid: function () {return clusterinfo.id},
+                }
+            });
+        };
+
+         vm.edityaml = function (type,name,namespace) {
+            $uibModal.open({
+                templateUrl: 'app/pages/kubernetesmanage/edityaml.html',
+                controller: 'KubernetesEditYamlController',
+                controllerAs: 'kubernetesedityaml',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () {return vm.treeid},
+                    type: function () {return type},
+                    name: function () {return name},
+                    namespace: function () {return namespace},
+                    ticketid: function () {return clusterinfo.id},
+                    clusterinfo: function () {return clusterinfo},
+                }
+            });
+        };
 
 
 
