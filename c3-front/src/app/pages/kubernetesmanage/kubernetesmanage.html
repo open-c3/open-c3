@@ -8,7 +8,7 @@
             <span class="panel-controls">
 
                 <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC)}" ></i>刷新</button>
-                <button class="btn btn-info" uib-tooltip="添加集群" ng-click="kubernetesmanage.addCluster()"><i class="fa fa-plus" aria-hidden="true">添加集群</i></button>
+                <button class="btn btn-info" uib-tooltip="添加集群" ng-click="kubernetesmanage.addCluster()"><i class="fa fa-plus" aria-hidden="true">添加</i></button>
             </span>
 
                 <h4 style="font-weight: bold;color: #337ab7">集群({{clusterCount||0}})</h4>
@@ -48,7 +48,7 @@
             <div class="panel-heading">
             <span class="panel-controls">
                 <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC)}" ></i>刷新</button>
-                <button class="btn btn-info" uib-tooltip="创建无状态应用" ng-click="kubernetesmanage.createDeployment('','')"><i class="fa fa-plus" aria-hidden="true">创建无状态应用</i></button>
+                <button class="btn btn-info" uib-tooltip="创建无状态应用" ng-click="kubernetesmanage.createDeployment('','')"><i class="fa fa-plus" aria-hidden="true">创建</i></button>
             </span>
 
 
@@ -59,7 +59,14 @@
                 <table ng-table="kubernetesmanage.deploymentTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
                         <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'名称'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">{{m.NAME}}</td>
+                        <td data-title="'名称'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">
+
+                            <i class="fa fa-location-arrow fa-2x" aria-hidden="true" ng-click="kubernetesmanage.setimage('deployment',m.INAME,m.NAMESPACE,m.IMAGES,m.CONTAINERS)" uib-tooltip="升级" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-life-ring fa-2x" aria-hidden="true" ng-click="kubernetesmanage.rollback('deployment',m.INAME,m.NAMESPACE,m.IMAGES,m.CONTAINERS)" uib-tooltip="回滚" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-sort-numeric-asc fa-2x" aria-hidden="true" ng-click="kubernetesmanage.setreplicas('deployment',m.INAME,m.NAMESPACE,m.AVAILABLE)" uib-tooltip="扩缩容" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="kubernetesmanage.createDeployment(m.NAMESPACE,m.INAME)" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
+                            {{m.NAME}}
+                        </td>
                         <td data-title="'READY'" width="80" filter="{ READY: 'text'}" sortable="'READY'">
                             <a ng-if="m.IREADY" >{{m.READY}}<a>
                             <a ng-if="!m.IREADY" style="color: red;" >{{m.READY}}<a>
@@ -81,11 +88,6 @@
                         <td data-title="'IMAGES'" width="80" filter="{ IMAGES: 'text'}" sortable="'IMAGES'">{{m.IMAGES}}</td>
                         <td data-title="'SELECTOR'" width="80" filter="{ SELECTOR: 'text'}" sortable="'SELECTOR'">{{m.SELECTOR}}</td>
                         <td data-title="'操作'" width="80" >
-                            <i class="fa fa-location-arrow fa-2x" aria-hidden="true" ng-click="kubernetesmanage.setimage('deployment',m.INAME,m.NAMESPACE,m.IMAGES,m.CONTAINERS)" uib-tooltip="升级" style="cursor:pointer;color: #339094;" ></i>
-                            <i class="fa fa-life-ring fa-2x" aria-hidden="true" ng-click="kubernetesmanage.rollback('deployment',m.INAME,m.NAMESPACE,m.IMAGES,m.CONTAINERS)" uib-tooltip="回滚" style="cursor:pointer;color: #339094;" ></i>
-                            <i class="fa fa-sort-numeric-asc fa-2x" aria-hidden="true" ng-click="kubernetesmanage.setreplicas('deployment',m.INAME,m.NAMESPACE,m.AVAILABLE)" uib-tooltip="扩缩容" style="cursor:pointer;color: #339094;" ></i>
-
-                            <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="kubernetesmanage.createDeployment(m.NAMESPACE,m.INAME)" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('deployment',m.INAME,m.NAMESPACE)" uib-tooltip="编辑yaml" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describe('deployment',m.INAME,m.NAMESPACE)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesmanage.deleteApp('deployment',m.INAME,m.NAMESPACE)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
@@ -118,7 +120,11 @@
                 <table ng-table="kubernetesmanage.podTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
                         <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'名称'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">{{m.NAME}}</td>
+                        <td data-title="'名称'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">
+                            <i class="fa fa-television fa-2x" aria-hidden="true" ng-click="kubernetesmanage.openOneTab(m,'sh')" uib-tooltip="进入POD虚拟终端" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-file-text-o fa-2x" aria-hidden="true" ng-click="kubernetesmanage.openOneTab(m,'log')" uib-tooltip="查看POD日志" style="cursor:pointer;color: #339094;" ></i>
+                            {{m.NAME}}
+                        </td>
                         <td data-title="'READY'" width="80" filter="{ READY: 'text'}" sortable="'READY'">
                             <a ng-if="m.IREADY" >{{m.READY}}<a>
                             <a ng-if="!m.IREADY" style="color: red;" >{{m.READY}}<a>
@@ -135,8 +141,6 @@
                         <td data-title="'READINESS GATES'" width="80" filter="{ READINESS_GATES: 'text'}" sortable="'READINESS_GATES'">{{m.READINESS_GATES}}</td>
                         <td data-title="'操作'" width="80" >
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describe('pod',m.INAME,m.NAMESPACE)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
-                            <i class="fa fa-television fa-2x" aria-hidden="true" ng-click="kubernetesmanage.openOneTab(m,'sh')" uib-tooltip="进入POD虚拟终端" style="cursor:pointer;color: #339094;" ></i>
-                            <i class="fa fa-file-text-o fa-2x" aria-hidden="true" ng-click="kubernetesmanage.openOneTab(m,'log')" uib-tooltip="查看POD日志" style="cursor:pointer;color: #339094;" ></i>
 
                             <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('pod',m.INAME,m.NAMESPACE)" uib-tooltip="编辑yaml" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesmanage.deleteApp('pod',m.INAME,m.NAMESPACE)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
