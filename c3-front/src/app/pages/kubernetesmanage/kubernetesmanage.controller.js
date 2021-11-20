@@ -215,6 +215,26 @@
             });
         };
 
+        vm.createConfigMap = function (namespace,name) {
+            $uibModal.open({
+                templateUrl: 'app/pages/kubernetesmanage/createconfigmap.html',
+                controller: 'KubernetesCreateConfigMapController',
+                controllerAs: 'kubernetescreateconfigmap',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () {return vm.treeid},
+                    ticketid: function () {return vm.selecteClusterId},
+                    clusterinfo: function () {return vm.selecteCluster},
+                    namespace: function () {return namespace},
+                    name: function () {return name},
+                }
+            });
+        };
+
+ 
         vm.createDaemonSet = function (namespace,name) {
             $uibModal.open({
                 templateUrl: 'app/pages/kubernetesmanage/createdaemonset.html',

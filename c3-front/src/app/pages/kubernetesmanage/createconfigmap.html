@@ -1,0 +1,123 @@
+<div class="row block">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="kubernetescreateconfigmap.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetescreateconfigmap.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="关闭" ng-click="kubernetescreateconfigmap.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
+            </span>
+            <h5>无状态应用</h5>
+        </div>
+
+        <div class="panel-body">
+
+
+            <div class="row">
+                <div class="col-sm-10 form-group">
+                    <label class="col-sm-3 control-label">名称</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="adduser" placeholder="名称" ng-model="kubernetescreateconfigmap.editData.metadata.name" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-10 form-group">
+                    <label class="col-sm-3 control-label">描述</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="adduser" placeholder="描述" ng-model="kubernetescreateconfigmap.editData.metadata.annotations.describe" required>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-sm-10 form-group">
+                    <label class="col-sm-3 control-label">标签</label>
+                    <label class="col-sm-3 control-label" ng-click="kubernetescreateconfigmap.addLable()">+添加</label>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-sm-10 form-group">
+                    <label class="col-sm-3 control-label"></label>
+                    <div class="col-sm-6">
+                        <table  border="0" style="width: 800px">
+                            <tr ng-repeat="(id, x) in labels">
+                                <td><input type="text" class="form-control"  ng-model="x.K"></td>
+                                <td style="width: 20px">=</td>
+                                <td><input type="text" class="form-control"  ng-model="x.V"></td>
+                                <td style="width: 50px"><a ng-click="kubernetescreateconfigmap.delLable(id)">删除</a></td>
+                            </tr>
+                       </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-10 form-group">
+                    <label class="col-sm-3 control-label">命名空间</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="adduser" placeholder="命名空间" ng-model="kubernetescreateconfigmap.editData.metadata.namespace" required>
+                    </div>
+                </div>
+            </div>
+
+
+<hr>
+            <div class="row">
+                <div class="col-sm-10 form-group">
+                    <label class="col-sm-3 control-label">配置项</label>
+                    <label class="col-sm-3 control-label" ng-click="kubernetescreateconfigmap.addData()">+添加</label>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-sm-10 form-group">
+                    <label class="col-sm-3 control-label"></label>
+                    <div class="col-sm-6">
+                        <table  border="0" style="width: 800px">
+                            <tr ng-repeat="(id, x) in kubernetescreateconfigmap.configMapData">
+                                <td>
+                                    名称:<input type="text" class="form-control"  ng-model="x.key">
+                                    内容:<textarea style="min-height: 100px;" class="form-control" rows="30" cols="10" ng-model="x.val" > </textarea>
+                                </td>
+                                <td style="width: 50px"><a ng-click="kubernetescreateconfigmap.delData(id)">删除</a></td>
+                            </tr>
+                       </table>
+                    </div>
+                </div>
+            </div>
+
+
+<hr>
+
+  
+            <div class="pt20">
+                <div>
+                    <div class="row" class="form-group">
+                        <div class="col-md-12">
+                            <textarea style="min-height: 100px;" class="form-control" rows="30" cols="100" ng-model="kubernetescreateconfigmap.yaml" > </textarea>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-sm-5 form-group pull-right">
+                    <button class="btn btn-info" ng-disabled="myForm.$invalid" ng-click="kubernetescreateconfigmap.assignment()">操作协助</button>
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateconfigmap.toyaml()">生成YAML</button>
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateconfigmap.apply()">提交变更</button>
+                </div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<style>.modal-dialog {width: 60%;} </style>

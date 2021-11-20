@@ -5,17 +5,20 @@
                 <button class="btn btn-primary" uib-tooltip="刷新" ng-click="kubernetesconfigmap.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetesconfigmap.loadover}" ></i></button>
                 <button class="btn btn-primary" uib-tooltip="关闭" ng-click="kubernetesconfigmap.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
             </span>
-            <h5>集群Secret管理</h5>
+            <h5>集群ConfigMap管理</h5>
         </div>
 
 
         <div class="panel-body" style="margin-top: 2px">
-                    <button class="btn btn-info" uib-tooltip="创建ConfigMap" ng-click="kubernetesconfigmap.createSecret()"><i class="fa fa-cubes" aria-hidden="true">创建ConfigMap</i></button>
+                    <button class="btn btn-info" uib-tooltip="创建ConfigMap" ng-click="kubernetesconfigmap.createConfigMap('','')"><i class="fa fa-cubes" aria-hidden="true">创建ConfigMap</i></button>
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesconfigmap.nodeTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
                         <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'名称'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">{{m.NAME}}</td>
+                        <td data-title="'名称'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">
+                            <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="kubernetesconfigmap.createConfigMap(m.NAMESPACE,m.NAME)" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
+                            {{m.NAME}}
+                        </td>
                         <td data-title="'数据'" width="80" filter="{ DATA: 'text'}" sortable="'DATA'">{{m.DATA}}</td>
                         <td data-title="'时间'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
                         <td data-title="'操作'" width="80" >
