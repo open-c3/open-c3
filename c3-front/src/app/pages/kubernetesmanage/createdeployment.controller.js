@@ -244,6 +244,19 @@ status:
         }
 
 
+        vm.addContainerVolume = function(x)
+        {
+            if( ! x.volumeMounts )
+            {
+                x.volumeMounts = []
+            }
+            x.volumeMounts.push({"name":"","mountPath":""})
+        }
+ 
+         vm.delContainerVolume = function(x,id)
+        {
+            x.volumeMounts.splice(id, 1);
+        }
 
 
 
