@@ -1,0 +1,35 @@
+---
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  annotations:
+    describe: test001
+  name: feng-test-20121119-002
+  namespace: fengtest
+  labels:
+    app: feng-test-20121119-002
+spec:
+  selector:
+    matchLabels:
+      app: feng-test-20121119-002
+  template:
+    metadata:
+      labels:
+        app: feng-test-20121119-002
+
+    spec:
+      imagePullSecrets: []
+      containers:
+      - env: []
+        image: nginx:latest
+        imagePullPolicy: Always
+        name: fengtest001
+        resources:
+          limits:
+            cpu: '2'
+            memory: 2048M
+          requests:
+            cpu: '1'
+            memory: 1024M
+      terminationGracePeriodSeconds: 30
+      volumes: []
