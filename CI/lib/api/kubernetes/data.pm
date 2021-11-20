@@ -26,7 +26,14 @@ any '/kubernetes/data/json2yaml' => sub {
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
     my $data = eval{ YAML::XS::Dump $param->{data}; };
-    $data =~ s/'(\d+)'\n/$1\n/g;
+    $data =~ s/: '(\d+)'\n/: $1\n/g;
+    $data =~ s/status: (False|True)\n/status: "$1"\n/g;
+    $data =~ s/Timestamp: (\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z)\n/Timestamp: "$1"\n/g;
+    $data =~ s/Timestamp: ~\n/Timestamp: null\n/g;
+    $data =~ s/Time: (\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z)\n/Time: "$1"\n/g;
+    $data =~ s/Time: ~\n/Time: null\n/g;
+    $data =~ s/resourceVersion: (\d+)\n/resourceVersion: "$1"\n/g;
+    $data =~ s#deployment.kubernetes.io/revision: (\d+)\n#deployment.kubernetes.io/revision: "$1"\n#g;
     return $@ ? +{ stat => JSON::false, info => $@ } : +{ stat => JSON::true, data => $data};
 };
 
