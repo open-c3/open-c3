@@ -24,7 +24,11 @@
                                         {{m.NAME}}
                                     </td>
                                     <td data-title="'READY'" width="80" filter="{ READY: 'text'}" sortable="'READY'">{{m.READY}}</td>
-                                    <td data-title="'STATUS'" width="80" filter="{ STATUS: 'text'}" sortable="'STATUS'">{{m.STATUS}}</td>
+                                    <td data-title="'STATUS'" width="80" filter="{ STATUS: 'text'}" sortable="'STATUS'">
+                                        <a ng-if="m.STATUS==='Running'" style="color: green;">{{m.STATUS}}</a>
+                                        <a ng-if="m.STATUS!=='Running'" style="color: red;" >{{m.STATUS}}</a>
+                                    </td>
+
                                     <td data-title="'RESTARTS'" width="80" filter="{ RESTARTS: 'text'}" sortable="'RESTARTS'">{{m.RESTARTS}}</td>
                                     <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
                                     <td data-title="'操作'" width="80" >
@@ -46,7 +50,10 @@
                                         {{m.NAME}}
                                     </td>
                                     <td data-title="'READY'" width="80" filter="{ READY: 'text'}" sortable="'READY'">{{m.READY}}</td>
-                                    <td data-title="'STATUS'" width="80" filter="{ STATUS: 'text'}" sortable="'STATUS'">{{m.STATUS}}</td>
+                                    <td data-title="'STATUS'" width="80" filter="{ STATUS: 'text'}" sortable="'STATUS'">
+                                        <a ng-if="m.STATUS==='Running'" style="color: green;">{{m.STATUS}}</a>
+                                        <a ng-if="m.STATUS!=='Running'" style="color: red;" >{{m.STATUS}}</a>
+                                    </td>
                                     <td data-title="'RESTARTS'" width="80" filter="{ RESTARTS: 'text'}" sortable="'RESTARTS'">{{m.RESTARTS}}</td>
                                     <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
                                     <td data-title="'操作'" width="80" >
