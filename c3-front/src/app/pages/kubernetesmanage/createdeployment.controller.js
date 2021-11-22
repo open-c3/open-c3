@@ -179,10 +179,10 @@ status:
                 { 
                    vm.newyaml = data.data
 
-                   if( vm.editData.metadata.namespace && vm.editData.metadata.name )
+                   if( vm.editData.metadata.namespace && vm.editData.metadata.name && vm.editData.kind )
                    {
 
-                       $http.get("/api/ci/v2/kubernetes/app/yaml/always?ticketid=" + ticketid + "&type=deployment&name=" + vm.editData.metadata.name + "&namespace=" + vm.editData.metadata.namespace ).success(function(data){
+                       $http.get("/api/ci/v2/kubernetes/app/yaml/always?ticketid=" + ticketid + "&type=" + vm.editData.kind + "&name=" + vm.editData.metadata.name + "&namespace=" + vm.editData.metadata.namespace ).success(function(data){
                             if(data.stat == true) 
                             { 
                                vm.oldyaml = data.data;

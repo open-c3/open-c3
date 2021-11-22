@@ -8,7 +8,50 @@
             <h5>守护进程集</h5>
         </div>
 
-        <div class="panel-body">
+
+
+
+
+        <div class="panel-body" ng-if="editstep===0">
+  
+            <div class="pt20">
+                <table class="textdiff">
+                    <tr>
+                        <td>
+                            <textarea style="width: 100%;overflow: auto;word-break: break-all;height: 1200px;" ng-model="kubernetescreatedaemonset.newyaml"> </textarea>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-5 form-group pull-right">
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreatedaemonset.gotostep1()">下一步</button>
+                </div>
+            </div>
+
+
+
+
+
+        </div>
+
+
+
+
+
+
+
+
+
+        <div class="panel-body" ng-if="editstep===1">
+
+
+            <div class="row">
+                <div class="col-sm-5 form-group pull-right">
+                    <button class="btn btn-info" ng-disabled="myForm.$invalid" ng-click="kubernetescreatedaemonset.gotostep0()">导入YAML</button>
+                </div>
+            </div>
 
 
             <div class="row">
@@ -337,30 +380,48 @@
                 </div>
             </div>
 
-<hr>
+            <div class="row">
+                <div class="col-sm-5 form-group pull-right">
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreatedaemonset.toyaml()">下一步</button>
+                </div>
+            </div>
 
+
+
+        </div>
+
+
+        <div class="panel-body" ng-if="editstep===2">
+            <div class="row">
+                <div class="col-sm-5 form-group pull-right">
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreatedaemonset.gotostep1()">返回上一步</button>
+                </div>
+            </div>
 
 
   
             <div class="pt20">
-                <div>
-                    <div class="row" class="form-group">
-                        <div class="col-md-12">
-                            <textarea style="min-height: 100px;" class="form-control" rows="30" cols="100" ng-model="kubernetescreatedaemonset.yaml" > </textarea>
-                        </div>
-                    </div>
-
-                </div>
-
+                <table class="textdiff">
+                    <tr>
+                        <td>
+                            <textarea style="width: 100%;overflow: auto;word-break: break-all;height: 1200px;" ng-model="kubernetescreatedaemonset.newyaml" ng-change="kubernetescreatedaemonset.diff()"> </textarea>
+                        </td>
+                        <td><pre style="height: 1200px;"  id="diffresultstring" ></pre></td>
+                    </tr>
+                </table>
             </div>
+
+
+
 
             <div class="row">
                 <div class="col-sm-5 form-group pull-right">
                     <button class="btn btn-info" ng-disabled="myForm.$invalid" ng-click="kubernetescreatedaemonset.assignment()">操作协助</button>
-                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreatedaemonset.toyaml()">生成YAML</button>
                     <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreatedaemonset.apply()">提交变更</button>
                 </div>
             </div>
+
+
 
         </div>
 
@@ -368,4 +429,6 @@
 
 </div>
 
-<style>.modal-dialog {width: 60%;} </style>
+<style>.modal-dialog {width: 90%;} </style>
+<script src="assets/js/diff.js"></script>
+<link rel="stylesheet" href="assets/css/style.css"/>
