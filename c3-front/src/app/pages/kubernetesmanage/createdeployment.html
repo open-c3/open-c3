@@ -376,15 +376,17 @@
 
   
             <div class="pt20">
-                <div>
-                    <div class="row" class="form-group">
-                        <div class="col-md-12">
-                            <textarea style="min-height: 100px;" class="form-control" rows="30" cols="100" ng-model="kubernetescreatedeployment.yaml" > </textarea>
-                        </div>
-                    </div>
-
-                </div>
-
+                <table class="textdiff">
+                    <tr>
+                   <!--     <td>
+                            <textarea readonly="readonly" style="min-height: 100px;" class="form-control" rows="30" cols="100" ng-model="kubernetescreatedeployment.oldyaml" ng-change="kubernetescreatedeployment.diff()"></textarea> -->
+                        </td>
+                        <td>
+                            <textarea style="width: 100%;overflow: auto;word-break: break-all;height: 1200px;" ng-model="kubernetescreatedeployment.newyaml" ng-change="kubernetescreatedeployment.diff()"> </textarea>
+                        </td>
+                        <td><pre style="height: 1200px;"  id="diffresultstring" ></pre></td>
+                    </tr>
+                </table>
             </div>
 
             <div class="row">
@@ -398,7 +400,8 @@
         </div>
 
     </div>
-
 </div>
 
-<style>.modal-dialog {width: 60%;} </style>
+<style>.modal-dialog {width: 90%;} </style>
+<script src="assets/js/diff.js"></script>
+<link rel="stylesheet" href="assets/css/style.css"/>

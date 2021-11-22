@@ -89,7 +89,7 @@ status:
 
       
         vm.demo = function( name ){
-            vm.yaml = demo[name];
+            vm.newyaml = demo[name];
         };
 
 
@@ -140,17 +140,35 @@ status:
 
             vm.editData.spec.selector.matchLabels.app = vm.editData.metadata.name;
             vm.editData.spec.template.metadata.labels.app = vm.editData.metadata.name;
+            $http.get("/api/ci/v2/kubernetes/app/yaml?ticketid=" + ticketid + "&type=deployment&name=" + name + "&namespace=" + namespace ).success(function(data){
+                if(data.stat == true) 
+                { 
+                   vm.oldyaml = data.data;
+
+
+
             var d = {
                 "data": vm.editData,
             };
             $http.post("/api/ci/kubernetes/data/json2yaml", d  ).success(function(data){
                 if(data.stat == true) 
                 { 
-                   vm.yaml = data.data
+                   vm.newyaml = data.data
+                   vm.diff();
                 } else { 
                    swal({ title:'提交失败', text: data.info, type:'error' });
                 }
             });
+
+
+
+
+                } else { 
+                    toastr.error("获取最新的配置信息失败:" + data.info)
+                }
+            });
+ 
+
         };
 
 
@@ -317,7 +335,7 @@ status:
             vm.loadover = false;
             var d = {
                 "ticketid": ticketid,
-                "yaml": vm.yaml,
+                "yaml": vm.newyaml,
             };
             $http.post("/api/ci/v2/kubernetes/app/apply", d  ).success(function(data){
                 if(data.stat == true) 
@@ -339,10 +357,10 @@ status:
                 "url": "/api/ci/v2/kubernetes/app/apply",
                 "method": "POST",
                 "submit_reason": "",
-                "remarks": "\n集群ID:" + ticketid + ";\n集群名称:" + clusterinfo.name +";\n配置:\n" + vm.yaml,
+                "remarks": "\n集群ID:" + ticketid + ";\n集群名称:" + clusterinfo.name +";\n配置:\n" + vm.newyaml,
                 "data": {
                     "ticketid": ticketid,
-                    "yaml": vm.yaml,
+                    "yaml": vm.newyaml,
                 },
             };
 
@@ -361,6 +379,49 @@ status:
                 }
             });
         };
+
+        vm.oldyaml = "";
+        vm.newyaml = "";
+
+        vm.diffresultstring = "";
+
+
+        vm.diff = function()
+        {
+            var diffresultstring = document.getElementById('diffresultstring');
+            //三种diff类型，字符、单词、行 ，分别对应下面参数：diffChars  diffWords diffLines
+            var diff = JsDiff["diffLines"](vm.oldyaml, vm.newyaml);
+
+            var fragment = document.createDocumentFragment();
+            for (var i=0; i < diff.length; i++) {
+
+                if (diff[i].added && diff[i + 1] && diff[i + 1].removed) {
+                    var swap = diff[i];
+                    diff[i] = diff[i + 1];
+                    diff[i + 1] = swap;
+                }
+
+                var node;
+                if (diff[i].removed) {
+                    node = document.createElement('del');
+                    node.appendChild(document.createTextNode(diff[i].value));
+                } else if (diff[i].added) {
+                    node = document.createElement('ins');
+                    node.appendChild(document.createTextNode(diff[i].value));
+                } else {
+                    node = document.createTextNode(diff[i].value);
+                }
+                fragment.appendChild(node);
+            }
+
+            diffresultstring.textContent = '';
+            diffresultstring.appendChild(fragment);
+        };
+
+
+
+
+
 
 
     }
