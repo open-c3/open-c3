@@ -116,6 +116,8 @@ function start() {
             sed -i 's/openc3_job_system_only=1/openc3_job_system_only=0/g' $BASE_PATH/c3-front/dist/scripts/*
         fi
 
+        rsync -av $BASE_PATH/c3-front/src/assets/ $BASE_PATH/c3-front/dist/assets/
+
         NEWBOOK=0
         if [ ! -d $BASE_PATH/c3-front/dist/book ];then
             NEWBOOK=1
