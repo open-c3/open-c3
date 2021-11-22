@@ -10,18 +10,18 @@
 
         <div class="panel-body">
             <div class="pt20">
-                <div>
-                    <div class="row" class="form-group">
-                        <div class="col-md-12">
-
-                            <pre style="min-height: 100px;" ng-dblclick="dataEdit=true" ng-show="!dataEdit" class="text-left"  ng-bind-html="kubernetesedityaml.yaml| highlight"></pre>
-                            <textarea style="min-height: 100px;" ng-blur="dataEdit=false" ng-show="dataEdit" class="form-control" rows="100" cols="100" ng-model="kubernetesedityaml.yaml" > </textarea>
-                        </div>
-                    </div>
-
-                </div>
-
+                <table class="textdiff">
+                    <tr>
+                        <td>
+                            <textarea style="width: 100%;overflow: auto;word-break: break-all;height: 1200px;" ng-model="kubernetesedityaml.newyaml" ng-change="kubernetesedityaml.diff()"> </textarea>
+                        </td>
+                        <td><pre style="height: 1200px;"  id="diffresultstring" ></pre></td>
+                    </tr>
+                </table>
             </div>
+
+ 
+
 
             <div class="row">
                 <div class="col-sm-5 form-group pull-right">
@@ -37,4 +37,6 @@
 
 </div>
 
-<style>.modal-dialog {width: 60%;} </style>
+<style>.modal-dialog {width: 90%;} </style>
+<script src="assets/js/diff.js"></script>
+<link rel="stylesheet" href="assets/css/style.css"/>
