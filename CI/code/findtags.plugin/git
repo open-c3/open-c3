@@ -45,7 +45,7 @@ return sub
     map{ chomp $_ }@list;
 
     my @tags;
-    map{ push @tags, $1 if $_ =~ /\w+\s+refs\/tags\/(release.*)/ }@list;
+    map{ push @tags, $1 if $_ =~ /\w+\s+refs\/tags\/(.+)/ }@list;
     @tags = grep{ $_ !~ /\^\{\}$/ } @tags;
 
     return @tags;
