@@ -12,11 +12,8 @@ $re{describe} = `$cmd`;
 $re{oldpod} = [];
 $re{newpod} = [];
 
-
-if( $re{describe} =~ /(New|Old)ReplicaSets{0,1}:\s+([a-zA-Z0-9\-]+)\s+\(/ )
-{
-    $re{"$1ReplicaSet"} = $2;
-}
+$re{describe} =~ /OldReplicaSets{0,1}:\s+([a-zA-Z0-9\-]+)\s+\(/ and $re{"OldReplicaSet"} = $1;
+$re{describe} =~ /NewReplicaSets{0,1}:\s+([a-zA-Z0-9\-]+)\s+\(/ and $re{"NewReplicaSet"} = $1;
 
 my @pod = `$kubectl get pod -n '$namespace'`;
 chomp @pod;
