@@ -8,7 +8,42 @@
             <h5>无状态应用</h5>
         </div>
 
-        <div class="panel-body">
+        <div class="panel-body" ng-if="editstep===0">
+  
+            <div class="pt20">
+                <table class="textdiff">
+                    <tr>
+                        <td>
+                            <textarea style="width: 100%;overflow: auto;word-break: break-all;height: 1200px;" ng-model="kubernetescreatedeployment.newyaml"> </textarea>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-5 form-group pull-right">
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreatedeployment.gotostep1()">下一步</button>
+                </div>
+            </div>
+
+
+
+
+
+        </div>
+
+
+
+
+        <div class="panel-body" ng-if="editstep===1" >
+
+
+            <div class="row">
+                <div class="col-sm-5 form-group pull-right">
+                    <button class="btn btn-info" ng-disabled="myForm.$invalid" ng-click="kubernetescreatedeployment.gotostep0()">导入YAML</button>
+                </div>
+            </div>
+
 
 
             <div class="row">
@@ -369,18 +404,27 @@
                     </div>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-sm-5 form-group pull-right">
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreatedeployment.toyaml()">下一步</button>
+                </div>
+            </div>
 
-<hr>
 
+
+        </div>
+        <div class="panel-body" ng-if="editstep===2">
+            <div class="row">
+                <div class="col-sm-5 form-group pull-right">
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreatedeployment.gotostep1()">返回上一步</button>
+                </div>
+            </div>
 
 
   
             <div class="pt20">
                 <table class="textdiff">
                     <tr>
-                   <!--     <td>
-                            <textarea readonly="readonly" style="min-height: 100px;" class="form-control" rows="30" cols="100" ng-model="kubernetescreatedeployment.oldyaml" ng-change="kubernetescreatedeployment.diff()"></textarea> -->
-                        </td>
                         <td>
                             <textarea style="width: 100%;overflow: auto;word-break: break-all;height: 1200px;" ng-model="kubernetescreatedeployment.newyaml" ng-change="kubernetescreatedeployment.diff()"> </textarea>
                         </td>
@@ -392,10 +436,12 @@
             <div class="row">
                 <div class="col-sm-5 form-group pull-right">
                     <button class="btn btn-info" ng-disabled="myForm.$invalid" ng-click="kubernetescreatedeployment.assignment()">操作协助</button>
-                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreatedeployment.toyaml()">生成YAML</button>
                     <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreatedeployment.apply()">提交变更</button>
                 </div>
             </div>
+
+
+
 
         </div>
 

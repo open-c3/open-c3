@@ -17,6 +17,7 @@
             vm.nodeStr = treeService.selectname();
         });
 
+        $scope.editstep = 1;
 var demo = {
 "cm": `
 apiVersion: v1
@@ -123,7 +124,34 @@ status:
         };
         vm.reload();
 
+        vm.gotostep0 = function(){
+            $scope.editstep = 0; 
+        };
+
+
+
+        vm.gotostep1 = function(){
+            vm.loadover = false;
+
+            var d = {
+                "data": vm.newyaml,
+            };
+            $http.post("/api/ci/kubernetes/data/yaml2json", d  ).success(function(data){
+                if(data.stat == true) 
+                { 
+                   vm.editData = data.data
+                   vm.loadover = true;
+                    $scope.editstep = 1; 
+                } else { 
+                   swal({ title:'提交失败', text: data.info, type:'error' });
+                }
+            });
+
+        };
+
+
         vm.toyaml = function(){
+            $scope.editstep = 2; 
             var labels = {};
             angular.forEach($scope.labels, function (v, k) {
                 var key = v["K"]
@@ -140,10 +168,6 @@ status:
 
             vm.editData.spec.selector.matchLabels.app = vm.editData.metadata.name;
             vm.editData.spec.template.metadata.labels.app = vm.editData.metadata.name;
-            $http.get("/api/ci/v2/kubernetes/app/yaml?ticketid=" + ticketid + "&type=deployment&name=" + name + "&namespace=" + namespace ).success(function(data){
-                if(data.stat == true) 
-                { 
-                   vm.oldyaml = data.data;
 
 
 
@@ -154,20 +178,32 @@ status:
                 if(data.stat == true) 
                 { 
                    vm.newyaml = data.data
-                   vm.diff();
+
+                   if( vm.editData.metadata.namespace && vm.editData.metadata.name )
+                   {
+
+                       $http.get("/api/ci/v2/kubernetes/app/yaml/always?ticketid=" + ticketid + "&type=deployment&name=" + vm.editData.metadata.name + "&namespace=" + vm.editData.metadata.namespace ).success(function(data){
+                            if(data.stat == true) 
+                            { 
+                               vm.oldyaml = data.data;
+                               vm.diff();
+                            } else { 
+                                toastr.error("获取最新的配置信息失败:" + data.info)
+                            }
+                        });
+ 
+                  }
+                  else
+                  {
+                       swal({ title:'错误', text: "Namespace和Name不齐全", type:'error' });
+                  }
+
                 } else { 
                    swal({ title:'提交失败', text: data.info, type:'error' });
                 }
             });
 
 
-
-
-                } else { 
-                    toastr.error("获取最新的配置信息失败:" + data.info)
-                }
-            });
- 
 
         };
 
