@@ -24,7 +24,9 @@ get '/project/:groupid/:projectid' => sub {
         webhook webhook_password webhook_release rely buildimage buildscripts
         follow_up follow_up_ticketid callback groupid addr notify
         edit_user edit_time  slave last_findtags last_findtags_success 
-        ticketid tag_regex autofindtags callonlineenv calltestenv findtags_at_once );
+        ticketid tag_regex autofindtags callonlineenv calltestenv findtags_at_once
+        ci_type ci_type_ticketid ci_type_kind ci_type_namespace ci_type_name ci_type_container ci_type_dockerfile ci_type_repository
+        );
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_ci_project where id='$projectid'", join( ',', @col)), \@col )};
@@ -70,6 +72,15 @@ post '/project/:groupid/:projectid' => sub {
         calltestenv => qr/^\d+$/, 1,
         ticketid => qr/^\d*$/, 0,
         follow_up_ticketid => qr/^\d*$/, 0,
+
+        ci_type => [ 'mismatch', qr/'/ ], 1,
+        ci_type_ticketid => [ 'mismatch', qr/'/ ], 1,
+        ci_type_kind => [ 'mismatch', qr/'/ ], 1,
+        ci_type_namespace => [ 'mismatch', qr/'/ ], 1,
+        ci_type_name => [ 'mismatch', qr/'/ ], 1,
+        ci_type_container => [ 'mismatch', qr/'/ ], 1,
+        ci_type_dockerfile => [ 'mismatch', qr/'/ ], 1,
+        ci_type_repository => [ 'mismatch', qr/'/ ], 1,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -92,6 +103,7 @@ post '/project/:groupid/:projectid' => sub {
         webhook webhook_password webhook_release rely buildimage buildscripts
         follow_up follow_up_ticketid callback groupid addr
         notify ticketid tag_regex autofindtags callonlineenv calltestenv
+        ci_type ci_type_ticketid ci_type_kind ci_type_namespace ci_type_name ci_type_container ci_type_dockerfile ci_type_repository
     );
     eval{ 
         $api::mysql->execute(

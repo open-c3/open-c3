@@ -43,7 +43,17 @@ create table `openc3_ci_project`(
 `last_findtags_success` TIMESTAMP NOT NULL DEFAULT '1971-01-01 00:00:00' comment '最后检测成功时间',
 
 `edit_user` VARCHAR(100) comment '最后编辑用户',
-`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '最后编辑时间'
+`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '最后编辑时间',
+
+`ci_type` VARCHAR(100) comment 'ci类型类型', #用于区分是否是k8s发布,是什么类型的发布，缺省情况下是default，如是k8s的deployment发布，则显示kubernetes
+`ci_type_ticketid` VARCHAR(20) comment 'k8s集群票据编号',
+`ci_type_kind` VARCHAR(200) comment 'k8s.kind',
+`ci_type_namespace` VARCHAR(200) comment 'k8snamespace',
+`ci_type_name` VARCHAR(200) comment '应用名称',
+`ci_type_container` VARCHAR(200) comment 'container',
+`ci_type_dockerfile` VARCHAR(200) comment 'dockerfile',
+`ci_type_repository` VARCHAR(200) comment 'repository'
+
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='项目';
 
 create table `openc3_ci_rely`(
