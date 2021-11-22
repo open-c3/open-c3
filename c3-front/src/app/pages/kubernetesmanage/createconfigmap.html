@@ -5,10 +5,48 @@
                 <button class="btn btn-primary" uib-tooltip="刷新" ng-click="kubernetescreateconfigmap.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetescreateconfigmap.loadover}" ></i></button>
                 <button class="btn btn-primary" uib-tooltip="关闭" ng-click="kubernetescreateconfigmap.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
             </span>
-            <h5>无状态应用</h5>
+            <h5>ConfigMap</h5>
         </div>
 
-        <div class="panel-body">
+
+
+
+
+        <div class="panel-body" ng-if="editstep===0">
+  
+            <div class="pt20">
+                <table class="textdiff">
+                    <tr>
+                        <td>
+                            <textarea style="width: 100%;overflow: auto;word-break: break-all;height: 1200px;" ng-model="kubernetescreateconfigmap.newyaml"> </textarea>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-5 form-group pull-right">
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateconfigmap.gotostep1()">下一步</button>
+                </div>
+            </div>
+
+
+
+
+
+        </div>
+
+
+
+        <div class="panel-body" ng-if="editstep===1" >
+
+            <div class="row">
+                <div class="col-sm-5 form-group pull-right">
+                    <button class="btn btn-info" ng-disabled="myForm.$invalid" ng-click="kubernetescreateconfigmap.gotostep0()">导入YAML</button>
+                </div>
+            </div>
+
+
 
 
             <div class="row">
@@ -89,27 +127,41 @@
                     </div>
                 </div>
             </div>
+            <div class="row">
+                <div class="col-sm-5 form-group pull-right">
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateconfigmap.toyaml()">下一步</button>
+                </div>
+            </div>
 
 
-<hr>
+
+
+        </div>
+        <div class="panel-body" ng-if="editstep===2">
+  
+            <div class="row">
+                <div class="col-sm-5 form-group pull-right">
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateconfigmap.gotostep1()">返回上一步</button>
+                </div>
+            </div>
+
 
   
             <div class="pt20">
-                <div>
-                    <div class="row" class="form-group">
-                        <div class="col-md-12">
-                            <textarea style="min-height: 100px;" class="form-control" rows="30" cols="100" ng-model="kubernetescreateconfigmap.yaml" > </textarea>
-                        </div>
-                    </div>
-
-                </div>
-
+                <table class="textdiff">
+                    <tr>
+                        <td>
+                            <textarea style="width: 100%;overflow: auto;word-break: break-all;height: 1200px;" ng-model="kubernetescreateconfigmap.newyaml" ng-change="kubernetescreateconfigmap.diff()"> </textarea>
+                        </td>
+                        <td><pre style="height: 1200px;"  id="diffresultstring" ></pre></td>
+                    </tr>
+                </table>
             </div>
+
 
             <div class="row">
                 <div class="col-sm-5 form-group pull-right">
                     <button class="btn btn-info" ng-disabled="myForm.$invalid" ng-click="kubernetescreateconfigmap.assignment()">操作协助</button>
-                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateconfigmap.toyaml()">生成YAML</button>
                     <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateconfigmap.apply()">提交变更</button>
                 </div>
             </div>
@@ -121,3 +173,5 @@
 </div>
 
 <style>.modal-dialog {width: 60%;} </style>
+<script src="assets/js/diff.js"></script>
+<link rel="stylesheet" href="assets/css/style.css"/>
