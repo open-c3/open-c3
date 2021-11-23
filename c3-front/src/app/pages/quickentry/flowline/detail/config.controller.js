@@ -78,6 +78,16 @@
             });
         };
 
+
+        vm.setcitype = function(type) {
+            vm.project.ci_type = type;
+            if( type = 'kubernetes' )
+            {
+                 vm.project.ci_type_kind = "deployment";
+                 vm.project.follow_up = "harbor_push_image.pl";
+                 vm.project.ci_type_dockerfile = "dockerfile";
+            }
+        }
         vm.reloadticket();
 
         vm.show_help = function () {
