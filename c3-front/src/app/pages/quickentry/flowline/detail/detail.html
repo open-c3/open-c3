@@ -20,7 +20,13 @@
             </div>
         </div>
 
-        <h3 ng-if="ci.lastversion.version" > 最后一次发布成功的版本为:{{ci.lastversion.version}} </h3>
+        <div class="row">
+            <label class="col-md-6 control-label fwbold"><h3 ng-if="ci.lastversion.version" >最后一次发布成功的版本为:{{ci.lastversion.version}} </h3></label>
+            <div class="col-md-6 text-right"> 
+                <i ng-if="ci.project.ci_type === 'kubernetes'" class="fa fa-search fa-2x" aria-hidden="true" ng-click="ci.describedeployment()" uib-tooltip="查看" style="cursor:pointer;color: #339094;" >查看应用状态</i>
+
+           </div>
+        </div>
 
         <div class="panel-body">
             <div class="pt20">

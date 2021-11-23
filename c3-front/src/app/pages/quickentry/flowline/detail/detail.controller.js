@@ -454,6 +454,25 @@
                 }
         };
 
+        vm.describedeployment = function () {
+            $uibModal.open({
+                templateUrl: 'app/pages/kubernetesmanage/describedeployment.html',
+                controller: 'KubernetesDescribeDeploymentController',
+                controllerAs: 'kubernetesdescribedeployment',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () {return vm.treeid},
+                    type: function () {return vm.project.ci_type_kind},
+                    name: function () {return vm.project.ci_type_name},
+                    namespace: function () {return vm.project.ci_type_namespace},
+                    ticketid: function () {return vm.project.ci_type_ticketid},
+                }
+            });
+        };
+
 
         vm.getVersion();
 
