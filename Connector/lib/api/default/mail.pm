@@ -29,7 +29,7 @@ post '/default/mail' => sub {
 
     map{ $param->{$_} =~ s/'/"/g }qw( title content );
 
-    eval{ $api::mysql->execute( "insert into openc3_connector_usermail (`user`,`title`,`content`) values('$param->{user}','$param->{title}','$param->{content}')" ); };
+    eval{ $api::mysql->execute( sprintf "insert into openc3_connector_usermail (`user`,`title`,`content`) values('$param->{user}','$param->{title}','%s')", substr $param->{content}, 0, 1998 ); };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, info => 'ok' };
 };
 
