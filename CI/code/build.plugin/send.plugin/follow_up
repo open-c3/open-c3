@@ -53,9 +53,26 @@ return sub
     $logs = Logs->new( 'code.build.send.follow_up' ) unless $logs;
     $logs->die( "format error" ) unless $follow_up =~ /^[a-zA-Z0-9][a-zA-Z0-9\._,\;\- \/\:=]*$/ &&  $follow_up !~ /\.\./;
 
+    my $argv = '';
+    if( $param{ci_type} && $param{ci_type} eq 'kubernetes' )
+    {
+        #--repository reg.harbordemo.com/c3test/app1 --dockerfile  foo/Dockerfile
+        if( $param{ci_type_repository} )
+        {
+            die "ci_type_repository format error" unless $param{ci_type_repository} =~ /^[a-zA-Z0-9][a-zA-Z0-9\._,\;\- \/\:=]*$/;
+            $argv .= " --repository '$param{ci_type_repository}'";
+        }
+
+        if( $param{ci_type_dockerfile} )
+        {
+            die "ci_type_dockerfile format error" unless $param{ci_type_dockerfile} =~ /^[a-zA-Z0-9][a-zA-Z0-9\._,\;\- \/\:=]*$/;
+            $argv .= " --dockerfile '$param{ci_type_dockerfile}'";
+        }
+    }
+
     map{
         $_ =~ s/^ +//;
-        $logs->die( "run build.send.follow_up fail:$!" ) if system "VERSION=$version PROJECTID=$projectid $TICKET /data/Software/mydan/CI/follow_up/$_";
+        $logs->die( "run build.send.follow_up fail:$!" ) if system "VERSION=$version PROJECTID=$projectid $TICKET /data/Software/mydan/CI/follow_up/$_$argv";
     }split /;/, $follow_up;
 
 }
