@@ -1,4 +1,4 @@
-<cmloading ng-if="(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC)"></cmloading>
+<cmloading ng-if="(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD)"></cmloading>
 <div class="row block">
     <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0">
 
@@ -47,7 +47,7 @@
 
             <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC)}" ></i>刷新</button>
+                <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD)}" ></i>刷新</button>
                 <button class="btn btn-info" uib-tooltip="创建无状态应用" ng-click="kubernetesmanage.createDeployment('','')"><i class="fa fa-plus" aria-hidden="true">创建</i></button>
             </span>
 
@@ -56,6 +56,7 @@
             </div>
             <div class="panel-body" style="margin-top: 2px">
               <div class="pt20" style="overflow: auto;">
+
                 <table ng-table="kubernetesmanage.deploymentTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
                         <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
@@ -84,6 +85,9 @@
 
                             <i ng-if="kubernetesmanage.hpa[m.NAMESPACE][m.NAME]" class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesmanage.deleteApp('hpa',m.INAME,m.NAMESPACE)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
                         </td>
+                        <td data-title="'发布流水线'" width="80">
+                            <a ng-repeat="xx in kubernetesmanage.flowlineinfo['deployment'][m.NAMESPACE][m.INAME]" ng-click="kubernetesmanage.gotoflowline(xx.groupid, xx.id)" style="cursor:pointer;color: #339094;" >{{xx.name}}</a>
+                        </td>
                         <td data-title="'CONTAINERS'" width="80" filter="{ CONTAINERS: 'text'}" sortable="'CONTAINERS'">{{m.CONTAINERS}}</td>
                         <td data-title="'IMAGES'" width="80" filter="{ IMAGES: 'text'}" sortable="'IMAGES'">{{m.IMAGES}}</td>
                         <td data-title="'SELECTOR'" width="80" filter="{ SELECTOR: 'text'}" sortable="'SELECTOR'">{{m.SELECTOR}}</td>
@@ -105,7 +109,7 @@
 
             <div class="panel-heading">
                 <span class="panel-controls">
-                    <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC)}" ></i>刷新</button>
+                    <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD) }" ></i>刷新</button>
                     <button class="btn btn-info" uib-tooltip="创建守护进程集" ng-click="kubernetesmanage.createDaemonSet('','')"><i class="fa fa-plus" aria-hidden="true">创建</i></button>
                 </span>
 

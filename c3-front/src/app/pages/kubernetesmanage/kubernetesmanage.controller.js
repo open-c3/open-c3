@@ -62,16 +62,19 @@
         vm.serviceCount = 0;
         vm.podCount = 0;
         vm.replicasetCount = 0;
+        vm.flowlineinfo = {};
  
         vm.loadoverA = false;
         vm.loadoverB = false;
         vm.loadoverC = false;
+        vm.loadoverD = false;
 
         vm.reload = function () {
 
             vm.loadoverA = false;
             vm.loadoverB = false;
             vm.loadoverC = false;
+            vm.loadoverD = false;
             $http.get('/api/ci/ticket/KubeConfig' ).then(
                 function successCallback(response) {
                     if (response.data.stat){
@@ -100,6 +103,7 @@
             {
                 vm.loadoverB = true;
                 vm.loadoverC = true;
+                vm.loadoverD = true;
                 return;
             }
 
@@ -116,6 +120,21 @@
                 function errorCallback (response){
                     toastr.error( "获取集群HPA数据失败: " + response.status )
                 });
+ 
+            $http.get("/api/ci/project/kubernetes/" + vm.selecteClusterId ).then(
+                function successCallback(response) {
+                    if (response.data.stat){
+
+                        vm.flowlineinfo = response.data.data; 
+                        vm.loadoverD = true;
+                    }else {
+                        toastr.error( "获取流水线数据失败："+response.data.info );
+                    }
+                },
+                function errorCallback (response){
+                    toastr.error( "获取流水线数据失败: " + response.status )
+                });
+ 
  
             $http.get("/api/ci/v2/kubernetes/app?ticketid=" + vm.selecteClusterId + "&namespace=" + vm.selectednamespace + "&status=" + vm.selectedStat ).then(
                 function successCallback(response) {
@@ -499,6 +518,10 @@
             var terminalAddr = window.location.protocol + "//" + window.location.host+"/api/ci/kubernetes/pod/shell";
             var s = "?namespace=" + pod.NAMESPACE + '&name=' + pod.NAME + '&clusterid=' + vm.selecteClusterId + '&type=' + type + '&siteaddr=' + window.location.protocol + "//" + window.location.host;
             window.open(terminalAddr+s, '_blank')
+        };
+
+        vm.gotoflowline = function (treeid, projectid) {
+            $state.go('home.quickentry.flowlinedetail', {treeid:vm.treeid, projectid: projectid});
         };
 
     }

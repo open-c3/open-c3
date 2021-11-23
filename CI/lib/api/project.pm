@@ -9,6 +9,31 @@ use MIME::Base64;
 use api;
 use Format;
 
+get '/project/kubernetes/:ticketid' => sub {
+    my $param = params();
+    my $error = Format->new( ticketid => qr/^\d+$/, 1 )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $pmscheck = api::pmscheck( 'openc3_ci_read', 0 ); return $pmscheck if $pmscheck;
+
+    my @col = qw( id groupid name ci_type_kind ci_type_namespace ci_type_name );
+    my $r = eval{ 
+        $api::mysql->query( 
+            sprintf( "select %s from openc3_ci_project where ci_type='kubernetes' and  ci_type_ticketid='$param->{ticketid}'", join( ',', @col)), \@col )};
+
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
+    my %r;
+    for my $row ( @$r )
+    {
+        $r{$row->{ci_type_kind}}{$row->{ci_type_namespace}}{$row->{ci_type_name}} ||= [] ;
+        push @{$r{$row->{ci_type_kind}}{$row->{ci_type_namespace}}{$row->{ci_type_name}}}, $row;
+    }
+
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \%r };
+};
+
 get '/project/:groupid/:projectid' => sub {
     my $param = params();
     my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
