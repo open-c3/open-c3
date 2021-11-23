@@ -120,6 +120,7 @@
         }
         vm.jobReloadStatus = {}
 
+        vm.projectinfo = {};
         vm.reload = function(){
             vm.loadover = false
             $http.get('/api/jobx/task/'+ vm.treeid +"/" + vm.taskuuid).then(
@@ -136,7 +137,8 @@
                             $http.get('/api/ci/project/'+ vm.treeid + "/" + vm.backid ).then(
                                 function successCallback(response) {
                                    if (response.data.stat){
-                                       vm.backname  =response.data.data.name
+                                       vm.backname  = response.data.data.name;
+                                       vm.projectinfo  = response.data.data;
                                    } else{ toastr.error("获取流水线信息失败" + response.data.info);}
                                 }, function errorCallback (response){ 
                                 toastr.error("获取流水线信息失败" + response.status);
@@ -523,6 +525,27 @@
                 }
             });
         };
+
+        vm.describedeployment = function (type,name,namespace) {
+            $uibModal.open({
+                templateUrl: 'app/pages/kubernetesmanage/describedeployment.html',
+                controller: 'KubernetesDescribeDeploymentController',
+                controllerAs: 'kubernetesdescribedeployment',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () {return vm.treeid},
+                    type: function () {return vm.projectinfo.ci_type_kind},
+                    name: function () {return vm.projectinfo.ci_type_name},
+                    namespace: function () {return vm.projectinfo.ci_type_namespace},
+                    ticketid: function () {return vm.projectinfo.ci_type_ticketid}, 
+                }
+            });
+        };
+
+
 
         vm.showNode = function (nods) {
             $uibModal.open({

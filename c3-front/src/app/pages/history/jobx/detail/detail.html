@@ -9,6 +9,9 @@
 
     <a aria-hidden="true" ng-if="historyjobxdetail.backid" ng-click="historyjobxdetail.versiondetail(historyjobxdetail.backid)" uib-tooltip="回到流水线页面" style="cursor:pointer;color: #339094;" >点击返回流水线:{{historyjobxdetail.backname}}</a> 
     ({{taskDetail.name}})
+
+    <i ng-if="historyjobxdetail.projectinfo.ci_type === 'kubernetes'" class="fa fa-search fa-2x" aria-hidden="true" ng-click="historyjobxdetail.describedeployment('deployment',m.INAME,m.NAMESPACE)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" >查看应用状态</i>  
+
     <div class="panel">
 
         <div class="panel-heading">
