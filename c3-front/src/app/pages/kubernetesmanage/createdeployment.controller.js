@@ -164,7 +164,6 @@ status:
             });
 
             vm.editData.metadata.labels = labels;
-            vm.editData.spec.template.spec.imagePullSecrets = $scope.secrets;
 
             vm.editData.spec.selector.matchLabels.app = vm.editData.metadata.name;
             vm.editData.spec.template.metadata.labels.app = vm.editData.metadata.name;
@@ -220,15 +219,17 @@ status:
         }
 
 
-        $scope.secrets = [];
-
         vm.addSecret = function()
         {
-            $scope.secrets.push({ "name": "" });
+            if( ! vm.editData.spec.template.spec.imagePullSecrets )
+            {
+                vm.editData.spec.template.spec.imagePullSecrets = [];
+            }
+            vm.editData.spec.template.spec.imagePullSecrets.push({ "name": "" });
         }
         vm.delSecret = function(id)
         {
-            $scope.secrets.splice(id, 1);
+            vm.editData.spec.template.spec.imagePullSecrets.splice(id, 1);
         }
 
         vm.addVolume = function( type )
