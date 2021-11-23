@@ -4,6 +4,9 @@ use warnings;
 use Code;
 use Logs;
 use Temp;
+use Encode qw(encode);
+use MIME::Base64;
+use File::Temp;
 
 $| ++;
 
@@ -65,9 +68,21 @@ return sub
 
         if( $param{ci_type_dockerfile} )
         {
-            die "ci_type_dockerfile format error" unless $param{ci_type_dockerfile} =~ /^[a-zA-Z0-9][a-zA-Z0-9\._,\;\- \/\:=]*$/;
-            $argv .= " --dockerfile '$param{ci_type_dockerfile}'";
+            if( $param{ci_type_dockerfile} eq '_buildin_' )
+            {
+                my $cont  = Encode::decode("utf8", decode_base64( $param{ci_type_dockerfile_content} ));
+                my $fh = File::Temp->new( UNLINK => 0, SUFFIX => '.temp', TEMPLATE => "/tmp/follow_up_dockerfile_XXXXXXXX" );
+                print $fh $cont;
+                close $fh;
+                $argv .= " --dockerfile '$fh'";
+            }
+            else
+            {
+                die "ci_type_dockerfile format error" unless $param{ci_type_dockerfile} =~ /^[a-zA-Z0-9_][a-zA-Z0-9\._,\;\- \/\:=]*$/;
+                $argv .= " --dockerfile '$param{ci_type_dockerfile}'";
+            }
         }
+        print "argv: $argv\n";
     }
 
     map{

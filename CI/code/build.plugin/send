@@ -29,9 +29,9 @@ return sub
 
     my $x = eval{ $db->query( "select openc3_ci_project.id,openc3_ci_project.name,excuteflow,openc3_ci_project.calljobx,openc3_ci_project.calljob,openc3_ci_project.follow_up,openc3_ci_project.follow_up_ticketid,openc3_ci_project.callback,openc3_ci_project.groupid,openc3_ci_version.name,
             openc3_ci_version.tagger, openc3_ci_version.taginfo, openc3_ci_version.uuid, openc3_ci_project.callonlineenv, openc3_ci_project.calltestenv,
-            openc3_ci_project.ci_type,openc3_ci_project.ci_type_ticketid,openc3_ci_project.ci_type_kind,openc3_ci_project.ci_type_namespace,openc3_ci_project.ci_type_name,openc3_ci_project.ci_type_container,openc3_ci_project.ci_type_dockerfile,openc3_ci_project.ci_type_repository
+            openc3_ci_project.ci_type,openc3_ci_project.ci_type_ticketid,openc3_ci_project.ci_type_kind,openc3_ci_project.ci_type_namespace,openc3_ci_project.ci_type_name,openc3_ci_project.ci_type_container,openc3_ci_project.ci_type_repository,openc3_ci_project.ci_type_dockerfile,openc3_ci_project.ci_type_dockerfile_content
              from openc3_ci_version,openc3_ci_project where openc3_ci_project.id=openc3_ci_version.projectid and uuid='$uuid'",
-            [qw( projectid name excuteflow calljobx calljob follow_up follow_up_ticketid callback groupid version tagger taginfo uuid callonlineenv calltestenv ci_type ci_type_ticketid ci_type_kind ci_type_namespace ci_type_name ci_type_container ci_type_dockerfile ci_type_repository )] );
+            [qw( projectid name excuteflow calljobx calljob follow_up follow_up_ticketid callback groupid version tagger taginfo uuid callonlineenv calltestenv ci_type ci_type_ticketid ci_type_kind ci_type_namespace ci_type_name ci_type_container ci_type_repository ci_type_dockerfile ci_type_dockerfile_content )] );
     };
 
     $logs->die( "get info fail:$@" ) if $@;

@@ -51,8 +51,9 @@ create table `openc3_ci_project`(
 `ci_type_namespace` VARCHAR(200) comment 'k8snamespace',
 `ci_type_name` VARCHAR(200) comment '应用名称',
 `ci_type_container` VARCHAR(200) comment 'container',
+`ci_type_repository` VARCHAR(200) comment 'repository',
 `ci_type_dockerfile` VARCHAR(200) comment 'dockerfile',
-`ci_type_repository` VARCHAR(200) comment 'repository'
+`ci_type_dockerfile_content` VARCHAR(3000) comment 'dockerfile_content'
 
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='项目';
 

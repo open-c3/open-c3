@@ -156,10 +156,23 @@
                     </div>
 
 
-                    <div class="row">
-                        <label class="col-md-2 control-label fwbold">dockerfile</label>
+                    <div class="row" ng-show="config.project.ci_type_dockerfile!=='_buildin_'" >
+                        <label class="col-md-2 control-label fwbold">dockerfile路径</label>
                         <div class="col-md-8"> <input class="form-control" ng-model="config.project.ci_type_dockerfile" placeholder="dockerfile路径"/> </div>
+
+                        <a class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="切换，运维配置dockerfile" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.ci_type_dockerfile='_buildin_'"></a>
                     </div>
+
+                    <div class="row" ng-show="config.project.ci_type_dockerfile==='_buildin_'" >
+                        <label class="col-md-2 control-label fwbold">dockerfile内容</label>
+                        <div class="col-md-8">
+
+                            <textarea style="min-height: 100px;" ng-blur="dataEdit=false" ng-show="config.project.ci_type_dockerfile==='_buildin_'" class="form-control" rows="5" cols="20" ng-model="config.project.ci_type_dockerfile_content" > </textarea>
+                        </div>
+
+                        <a class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="切换，使用代码仓库中的dockerfile" aria-hidden="true" style="padding-top: 11px;font-size: larger;" ng-click="config.project.ci_type_dockerfile='dockerfile'"></a>
+                    </div>
+
 
                     <div class="row">
                         <label class="col-md-2 control-label fwbold">镜像地址</label>

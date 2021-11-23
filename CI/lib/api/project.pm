@@ -50,7 +50,7 @@ get '/project/:groupid/:projectid' => sub {
         follow_up follow_up_ticketid callback groupid addr notify
         edit_user edit_time  slave last_findtags last_findtags_success 
         ticketid tag_regex autofindtags callonlineenv calltestenv findtags_at_once
-        ci_type ci_type_ticketid ci_type_kind ci_type_namespace ci_type_name ci_type_container ci_type_dockerfile ci_type_repository
+        ci_type ci_type_ticketid ci_type_kind ci_type_namespace ci_type_name ci_type_container ci_type_repository ci_type_dockerfile ci_type_dockerfile_content
         );
     my $r = eval{ 
         $api::mysql->query( 
@@ -60,11 +60,11 @@ get '/project/:groupid/:projectid' => sub {
 
     map{ 
         $data->{$_}  = decode_base64( $data->{$_}  ) if defined $data->{$_}
-    }qw( buildscripts webhook_password password );
+    }qw( buildscripts webhook_password password ci_type_dockerfile_content );
 
     map{
         $data->{$_}  = Encode::decode("utf8", $data->{$_}) if defined $data->{$_}
-    }qw( buildscripts );
+    }qw( buildscripts ci_type_dockerfile_content );
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $data  };
 };
@@ -104,8 +104,9 @@ post '/project/:groupid/:projectid' => sub {
         ci_type_namespace => [ 'mismatch', qr/'/ ], 1,
         ci_type_name => [ 'mismatch', qr/'/ ], 1,
         ci_type_container => [ 'mismatch', qr/'/ ], 1,
-        ci_type_dockerfile => [ 'mismatch', qr/'/ ], 1,
         ci_type_repository => [ 'mismatch', qr/'/ ], 1,
+        ci_type_dockerfile => [ 'mismatch', qr/'/ ], 1,
+        ci_type_dockerfile_content => [ 'mismatch', qr/'/ ], 0,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -114,7 +115,7 @@ post '/project/:groupid/:projectid' => sub {
 
     map{ 
         $param->{$_}  = encode_base64( encode('UTF-8',  $param->{$_}) );
-    }qw( buildscripts webhook_password password );
+    }qw( buildscripts webhook_password password ci_type_dockerfile_content );
 
     my $projectid = $param->{projectid};
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), 
@@ -128,7 +129,7 @@ post '/project/:groupid/:projectid' => sub {
         webhook webhook_password webhook_release rely buildimage buildscripts
         follow_up follow_up_ticketid callback groupid addr
         notify ticketid tag_regex autofindtags callonlineenv calltestenv
-        ci_type ci_type_ticketid ci_type_kind ci_type_namespace ci_type_name ci_type_container ci_type_dockerfile ci_type_repository
+        ci_type ci_type_ticketid ci_type_kind ci_type_namespace ci_type_name ci_type_container ci_type_repository ci_type_dockerfile ci_type_dockerfile_content
     );
     eval{ 
         $api::mysql->execute(
