@@ -316,6 +316,24 @@
             }
         };
 
+        vm.describedeployment = function (ticketid,type,name,namespace) {
+            $uibModal.open({
+                templateUrl: 'app/pages/kubernetesmanage/describedeployment.html',
+                controller: 'KubernetesDescribeDeploymentController',
+                controllerAs: 'kubernetesdescribedeployment',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () {return vm.treeid},
+                    type: function () {return type},
+                    name: function () {return name},
+                    namespace: function () {return namespace},
+                    ticketid: function () {return ticketid},
+                }
+            });
+        };
 
     }
 })();
