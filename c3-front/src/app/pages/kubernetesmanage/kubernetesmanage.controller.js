@@ -529,7 +529,7 @@
                 resolve: {
                     treeid: function () { return vm.treeid},
                     sourcename: function () { return sourcename},
-                    reload : function () { return vm.skip},
+                    reload : function () { return vm.reload},
                     cancel : function () { return vm.skip},
                     clusterinfo: function () {return vm.selecteCluster},
                     type: function () { return type},
