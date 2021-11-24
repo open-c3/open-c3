@@ -21,6 +21,7 @@ use api::kubernetes::hpa;
 use api::kubernetes::secret;
 use api::kubernetes::configmap;
 use api::kubernetes::cluster;
+use api::kubernetes::endpoint;
  
 my $cookiekey;
 BEGIN{
@@ -37,6 +38,7 @@ my ( %handle, %index, $index ) = (
     %api::kubernetes::secret::handle,
     %api::kubernetes::configmap::handle,
     %api::kubernetes::cluster::handle,
+    %api::kubernetes::endpoint::handle,
 );
 
 my $port = $ENV{CI_API_EVENT_PORT} // '8080';

@@ -136,6 +136,9 @@
                 });
  
  
+
+
+
             $http.get("/api/ci/v2/kubernetes/app?ticketid=" + vm.selecteClusterId + "&namespace=" + vm.selectednamespace + "&status=" + vm.selectedStat ).then(
                 function successCallback(response) {
                     if (response.data.stat){
@@ -174,6 +177,30 @@
                 function errorCallback (response){
                     toastr.error( "获取集群中应用数据失败: " + response.status )
                 });
+
+            $http.get("/api/ci/v2/kubernetes/endpoint?ticketid=" + vm.selecteClusterId + "&namespace=" + vm.selectednamespace + "&status=" + vm.selectedStat ).then(
+                function successCallback(response) {
+                    if (response.data.stat){
+
+
+                        vm.endpointTable = new ngTableParams({count:10}, {counts:[],data:response.data.data});
+                        vm.endpointCount = response.data.data.length;
+//TODO  添加新的loadoverX
+                        vm.loadoverB = true;
+                    }else {
+                        toastr.error( "获取集群endpoint失败："+response.data.info );
+                    }
+                },
+                function errorCallback (response){
+                    toastr.error( "获取集群endpoint失败: " + response.status )
+                });
+
+
+
+
+
+
+
         };
 
         vm.reload();
