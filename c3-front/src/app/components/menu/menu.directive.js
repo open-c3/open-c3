@@ -77,6 +77,7 @@
                                 || sName == 'home.connector.mesg'
                                 || sName == 'home.gitreport'
                                 || sName == 'home.flowreport'
+                                || sName == 'home.kubernetesmanage'
                              ){
                                 $state.go(sName, {treeid:treeNode.id});
                             }else{
