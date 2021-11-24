@@ -165,6 +165,15 @@ post '/group/:groupid' => sub {
         sourceid => qr/^\d+$/, 0,
         status => qr/^\d+$/, 0,
         name => [ 'mismatch', qr/'/ ], 1,
+        ci_type => [ 'mismatch', qr/'/ ], 0,
+        ci_type_ticketid => [ 'mismatch', qr/'/ ], 0,
+        ci_type_kind => [ 'mismatch', qr/'/ ], 0,
+        ci_type_namespace => [ 'mismatch', qr/'/ ], 0,
+        ci_type_name => [ 'mismatch', qr/'/ ], 0,
+        ci_type_container => [ 'mismatch', qr/'/ ], 0,
+        ci_type_repository => [ 'mismatch', qr/'/ ], 0,
+        ci_type_dockerfile => [ 'mismatch', qr/'/ ], 0,
+        ci_type_dockerfile_content => [ 'mismatch', qr/'/ ], 0,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -185,9 +194,20 @@ post '/group/:groupid' => sub {
         if( defined $param->{sourceid} )
         {
             my $status = $param->{status} ? 1 : 0;
-            my $x = join ',', map{"`$_`"}qw( autobuild excuteflow calljobx calljob webhook webhook_password webhook_release rely buildimage buildscripts 
-                  follow_up follow_up_ticketid callback addr notify  edit_time  slave last_findtags last_findtags_success ticketid tag_regex autofindtags callonlineenv calltestenv findtags_at_once );
-            $api::mysql->execute( "insert into openc3_ci_project (`edit_user`,`name`, `groupid`, `status`,$x ) select '$user','$param->{name}','$groupid',$status, $x from openc3_ci_project where id=$param->{sourceid}");
+            my @t1 = qw( autobuild excuteflow calljobx calljob webhook webhook_password webhook_release rely buildimage buildscripts 
+                  follow_up follow_up_ticketid callback addr notify  edit_time  slave last_findtags last_findtags_success ticketid tag_regex autofindtags callonlineenv calltestenv findtags_at_once);
+
+            my @t2 = qw( ci_type ci_type_ticketid ci_type_kind ci_type_namespace ci_type_name ci_type_container ci_type_repository ci_type_dockerfile ci_type_dockerfile_content );
+
+            my ( $x1, $x2 )= join ',', map{"`$_`"}@t1, @t2;
+
+            if( $param->{ci_type} )
+            {
+                $x2 = join ',', (map{"`$_`"}@t1),( map{ "'$_'" }map{ $param->{$_}//'' }@t2);
+            }
+            else { $x2 = $x1; }
+
+            $api::mysql->execute( "insert into openc3_ci_project (`edit_user`,`name`, `groupid`, `status`,$x1 ) select '$user','$param->{name}','$groupid',$status, $x2 from openc3_ci_project where id=$param->{sourceid}");
             my $id = $api::mysql->query( "select id from openc3_ci_project where groupid='$groupid' and name='$param->{name}'" );
             $api::mysql->execute( "insert into openc3_ci_rely (`projectid`,`path`,`addr`,`ticketid`,`tags`,`edit_user`) select '$id->[0][0]',path,addr,ticketid,tags,'$user' from openc3_ci_rely where projectid='$param->{sourceid}'" );
         }

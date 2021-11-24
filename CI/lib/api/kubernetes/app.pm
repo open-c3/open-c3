@@ -323,7 +323,8 @@ $handle{getflowlineinfo} = sub
     my @r;
     for my $c ( @{$yaml->{spec}{template}{spec}{containers}} )
     {
-        push @r, +{ image => $c->{image}, container => $c->{name}, %$filter };
+        push @r, +{ image => $c->{image}, repository => $c->{image},  container => $c->{name}, %$filter };
+        $r[-1]{repository} =~ s#:[^:/]+$##;
 #        $r[-1]{base64} = eval{ encode_base64( encode('UTF-8', YAML::XS::Dump $r[-1] )); };
     }
     return +{ stat => $JSON::true, data => \@r };

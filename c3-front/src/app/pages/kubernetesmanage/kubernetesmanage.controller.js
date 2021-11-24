@@ -514,11 +514,13 @@
         };
 
  
+//TODO 清理vm.skip
+//TODO 处理CopyProjectByTemplateXXController，和CopyProjectByTemplateController同名引起流水线中通过模版创建报错
         vm.skip = function() {};
         vm.copyProjectByTemplate = function (sourcename, type, name, namespace ) {
             $uibModal.open({
                 templateUrl: 'app/pages/kubernetesmanage/copyProjectByTemplate.html',
-                controller: 'CopyProjectByTemplateController',
+                controller: 'CopyProjectByTemplateXXController',
                 controllerAs: 'copyProjectByTemplate',
                 backdrop: 'static',
                 size: 'lg',

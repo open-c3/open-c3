@@ -2,9 +2,9 @@
     'use strict';
     angular
         .module('openc3')
-        .controller('CopyProjectByTemplateController', CopyProjectByTemplateController);
+        .controller('CopyProjectByTemplateXXController', CopyProjectByTemplateXXController);
 
-    function CopyProjectByTemplateController($http, $uibModalInstance, $scope, resoureceService, treeid, reload, sourcename, cancel, $injector, clusterinfo, type, name, namespace ) {
+    function CopyProjectByTemplateXXController($http, $uibModalInstance, $scope, resoureceService, treeid, reload, sourcename, cancel, $injector, clusterinfo, type, name, namespace ) {
 
         var vm = this;
         vm.status = 0
@@ -49,13 +49,40 @@
 
         vm.cancel = function(){ $uibModalInstance.dismiss(); };
         vm.add = function(){
+
+            var container = {};
+            angular.forEach(vm.containerlist, function (value, key) {
+                if( value.id ==  vm.containerid )
+                {
+                    container = value;
+                }
+            });
+ 
             var sourceid = vm.templateid;
+
+//TODO 检查container 和sourceid。数据不全要报错
             var s = 0
             if ( vm.status )
             {
                 s = 1
             }
-            $http.post('/api/ci/group/' + treeid , { name: $scope.projectname, sourceid: sourceid, status: s } ).success(function(data){
+
+            var postData = {
+                "name": $scope.projectname,
+                "sourceid": sourceid,
+                "status": s,
+
+                "ci_type": "kubernetes",
+                "ci_type_ticketid": clusterinfo.id,
+                "ci_type_kind": type,
+                "ci_type_namespace": namespace,
+                "ci_type_name": name,
+                "ci_type_container": container.container,
+                "ci_type_repository": container.repository,
+                "ci_type_dockerfile": "dockerfile",
+                "ci_type_dockerfile_content": "",
+            };
+            $http.post('/api/ci/group/' + treeid , postData ).success(function(data){
                 vm.install = { username: 'root' };
                     if(data.stat == true) {
                         var toid = data.id
