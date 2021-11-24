@@ -560,6 +560,34 @@
         };
 
 
+        vm.deleteProject = function(treeid,id) {
+          swal({
+            title: "是否要删除该流水线",
+            text: "删除后不能恢复",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            cancelButtonText: "取消",
+            confirmButtonText: "确定",
+            closeOnConfirm: true
+          }, function(){
+            $http.delete('/api/job/jobs/' + treeid + '/_ci_' + id +'_/byname' ).success(function(data){
+                if( ! data.stat ){ toastr.error("删除作业配置失败:" + date.info)}
+                $http.delete( '/api/ci/project/' + treeid+'/'+ id ).success(function(data){
+                    if( ! data.stat ){ toastr.error("删除持续构建配置失败:" + date.info)}
+                    $http.delete( '/api/jobx/group/' + treeid + '/_ci_test_' + id +'_/byname'  ).success(function(data){
+                        if( ! data.stat ){ toastr.error("删除测试分批组失败:" + date.info)}
+                        $http.delete( '/api/jobx/group/' + treeid + '/_ci_online_' + id +'_/byname'  ).success(function(data){
+                            if( ! data.stat ){ toastr.error("删除线上分批组失败:" + date.info)}
+                            vm.reload();
+                        });
+                    });
+                });
+            });
+          });
+        }
+
+
         vm.openOneTab = function (pod, type) {
             var terminalAddr = window.location.protocol + "//" + window.location.host+"/api/ci/kubernetes/pod/shell";
             var s = "?namespace=" + pod.NAMESPACE + '&name=' + pod.NAME + '&clusterid=' + vm.selecteClusterId + '&type=' + type + '&siteaddr=' + window.location.protocol + "//" + window.location.host;
