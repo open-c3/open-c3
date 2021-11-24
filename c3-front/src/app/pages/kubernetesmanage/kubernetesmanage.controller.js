@@ -595,7 +595,7 @@
         };
 
         vm.gotoflowline = function (treeid, projectid) {
-            $state.go('home.quickentry.flowlinedetail', {treeid:vm.treeid, projectid: projectid});
+            $state.go('home.quickentry.flowlinedetail', {treeid:treeid, projectid: projectid});
         };
 
     }
