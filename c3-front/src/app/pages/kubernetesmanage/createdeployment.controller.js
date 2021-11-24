@@ -301,11 +301,12 @@ status:
 
             vm.editData.spec.template.spec.volumes.push(data);
         }
-         vm.delVolume = function(id)
+        vm.delVolume = function(id)
         {
             vm.editData.spec.template.spec.volumes.splice(id, 1);
         }
 
+//Command
         vm.addCommand = function(x, cmd)
         {
             if( ! x.command )
