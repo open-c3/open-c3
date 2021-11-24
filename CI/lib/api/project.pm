@@ -98,14 +98,14 @@ post '/project/:groupid/:projectid' => sub {
         ticketid => qr/^\d*$/, 0,
         follow_up_ticketid => qr/^\d*$/, 0,
 
-        ci_type => [ 'mismatch', qr/'/ ], 1,
-        ci_type_ticketid => [ 'mismatch', qr/'/ ], 1,
-        ci_type_kind => [ 'mismatch', qr/'/ ], 1,
-        ci_type_namespace => [ 'mismatch', qr/'/ ], 1,
-        ci_type_name => [ 'mismatch', qr/'/ ], 1,
-        ci_type_container => [ 'mismatch', qr/'/ ], 1,
-        ci_type_repository => [ 'mismatch', qr/'/ ], 1,
-        ci_type_dockerfile => [ 'mismatch', qr/'/ ], 1,
+        ci_type => [ 'in', 'default', 'kubernetes' ], 1,
+        ci_type_ticketid => [ 'mismatch', qr/'/ ], 0,
+        ci_type_kind => [ 'mismatch', qr/'/ ], 0,
+        ci_type_namespace => [ 'mismatch', qr/'/ ], 0,
+        ci_type_name => [ 'mismatch', qr/'/ ], 0,
+        ci_type_container => [ 'mismatch', qr/'/ ], 0,
+        ci_type_repository => [ 'mismatch', qr/'/ ], 0,
+        ci_type_dockerfile => [ 'mismatch', qr/'/ ], 0,
         ci_type_dockerfile_content => [ 'mismatch', qr/'/ ], 0,
     )->check( %$param );
 
