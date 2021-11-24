@@ -259,9 +259,9 @@
                 <div class="col-sm-10 form-group">
                     <label class="col-sm-3 control-label"></label>
                     <div class="col-sm-9">
-                        <table  border="0" style="width: 800px">
+                        <table  border="0" style="width: 100%">
                             <tr ng-repeat="(id, x) in kubernetescreatedeployment.editData.spec.template.spec.containers">
-                                <td style="width: 20px">
+                                <td >
 
 
                                     <div class="row">
@@ -415,23 +415,26 @@
                                     <div class="row">
                                         <div class="col-sm-10 form-group">
                                             <label class="col-sm-3 control-label">数据卷</label>
-                                            <label class="col-sm-3 control-label" ng-click="kubernetescreatedeployment.addContainerVolume(x)" >+添加</label>
+                                            <div class="col-sm-1">
+                                                <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.addContainerVolume(x)" uib-tooltip="添加数据卷" style="cursor:pointer;color: #339094;" ></i>
+                                            </div>
                                         </div>
                                     </div>
-
 
 
                                    <div class="row">
                                        <div class="col-sm-10 form-group">
                                            <label class="col-sm-3 control-label"></label>
                                            <div class="col-sm-6">
-                                               <table  border="0" style="width: 800px">
+                                               <table  border="0" >
                                                    <tr ng-repeat="(id, xx) in x.volumeMounts">
                                                        <td>
                                                            name:<input type="text" class="form-control"  ng-model="xx.name">
                                                            mountPath:<input type="text" class="form-control"  ng-model="xx.mountPath">
                                                        </td>
-                                                       <td style="width: 50px"><a ng-click="kubernetescreatedeployment.delContainerVolume(x,id)">删除</a></td>
+                                                       <td style="width: 50px">
+                                                           <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.delContainerVolume(x,id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                                       </td>
                                                    </tr>
                                               </table>
                                            </div>
@@ -439,10 +442,7 @@
                                    </div>
 
 
-
-
-
-                                 </td>
+                                </td>
                                 <td style="width: 50px">
                                     <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.delContainer(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
                                 </td>
