@@ -219,7 +219,29 @@ status:
             $scope.labels.splice(id, 1);
         }
 
+//Secret
+        vm.autoGetSecret = function()
+        {
+            $http.get("/api/ci/v2/kubernetes/secret?ticketid=" + ticketid + "&namespace=" + namespace ).success(function(data){
+                if(data.stat == true) 
+                { 
+                    if( data.data.length > 0 && ! vm.editData.spec.template.spec.imagePullSecrets )
+                    {
+                        vm.editData.spec.template.spec.imagePullSecrets = [];
+                    }
+ 
+                    angular.forEach(data.data, function (v, k) {
+                        if( v.TYPE === "kubernetes.io/dockerconfigjson" )
+                        {
+                            vm.editData.spec.template.spec.imagePullSecrets.push({ "name": v.NAME });
+                        }
+                    });
 
+                } else { 
+                    toastr.error("加载secret信息失败:" + data.info)
+                }
+            });
+        }
         vm.addSecret = function()
         {
             if( ! vm.editData.spec.template.spec.imagePullSecrets )
@@ -232,6 +254,12 @@ status:
         {
             vm.editData.spec.template.spec.imagePullSecrets.splice(id, 1);
         }
+        vm.cleanSecret = function()
+        {
+            delete vm.editData.spec.template.spec.imagePullSecrets;
+        }
+
+
 
         vm.addVolume = function( type )
         {

@@ -202,11 +202,14 @@
 
 
 <hr>
-拉取私有镜像设置
             <div class="row">
                 <div class="col-sm-10 form-group">
-                    <label class="col-sm-3 control-label">添加票据访问凭证</label>
-                    <label class="col-sm-3 control-label" ng-click="kubernetescreatedeployment.addSecret()">+添加</label>
+                    <label class="col-sm-3 control-label">拉取私有镜像管理</label>
+                    <div class="col-sm-6">
+                            <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.addSecret()" uib-tooltip="添加凭证" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-arrow-circle-down fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.autoGetSecret()" uib-tooltip="自动获取Namepspace下所有凭证" style="cursor:pointer;color: #4541f4;" ></i>
+                            <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.cleanSecret()" uib-tooltip="清空" style="cursor:pointer;color: #f63;" ></i>
+                    </div>
                 </div>
 
             </div>
@@ -215,10 +218,12 @@
                 <div class="col-sm-10 form-group">
                     <label class="col-sm-3 control-label"></label>
                     <div class="col-sm-6">
-                        <table  border="0" style="width: 800px">
+                        <table  border="0" style="width: 350px">
                             <tr ng-repeat="(id, x) in kubernetescreatedeployment.editData.spec.template.spec.imagePullSecrets">
                                 <td><input type="text" class="form-control"  ng-model="x.name"></td>
-                                <td style="width: 50px"><a ng-click="kubernetescreatedeployment.delSecret(id)">删除</a></td>
+                                <td style="width: 50px">
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.delSecret(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                </td>
                             </tr>
                        </table>
                     </div>
