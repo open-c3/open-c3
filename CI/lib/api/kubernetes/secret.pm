@@ -18,6 +18,7 @@ get '/kubernetes/secret' => sub {
     my $param = params();
     my $error = Format->new( 
         ticketid => qr/^\d+$/, 1,
+        namespace => qr/^[\w@\.\-]*$/, 0,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -29,7 +30,8 @@ get '/kubernetes/secret' => sub {
     my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 0 ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
-    my ( $cmd, $handle ) = ( "$kubectl get secrets -A ", 'getsecret' );
+    my $argv = $param->{namespace} ? "-n '$param->{namespace}'" : "-A";
+    my ( $cmd, $handle ) = ( "$kubectl get secrets $argv ", 'getsecret' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( `$cmd`//'', $? );
  };
