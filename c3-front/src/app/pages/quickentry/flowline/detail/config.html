@@ -6,7 +6,7 @@
                 <button class="btn btn-primary" uib-tooltip="保存" ng-click="config.save()"><i class="fa fa-floppy-o" aria-hidden="true"></i></button>
                 <button class="btn btn-primary" uib-tooltip="关闭" ng-click="config.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
             </span>
-            <h5>{{ config.nodeStr }} => {{ config.name }}</h5>
+            <h5>{{ config.name }}</h5>
         </div>
 
         <div class="panel-body">
@@ -107,11 +107,14 @@
                     <hr style="margin: 5px" >
                     <div class="row">
                         <label class="col-md-2 control-label fwbold">发布类型配置:</label>
-                        <button class="btn btn-primary" ng-disabled="config.project.ci_type !== 'kubernetes'" uib-tooltip="自定义" ng-click="config.setcitype('default')" style="float: right" ><i class="fa fa-cogs fa-1x" >  通用发布</i></button>
-                        <button class="btn btn-primary" ng-disabled="config.project.ci_type === 'kubernetes'" uib-tooltip="发布kubernetes服务" ng-click="config.setcitype('kubernetes')" style="float: right" ><i class="fa fa-cogs fa-1x" >  Kubernetes</i></button>
+                        <a ng-if="config.advancedconfig" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="隐藏高级配置" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.advancedconfig=0"></a>
+                        <a ng-if="!config.advancedconfig" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="显示高级配置" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.advancedconfig=1"></a>
+
+                        <button ng-if="config.advancedconfig" class="btn btn-primary" ng-disabled="config.project.ci_type !== 'kubernetes'" uib-tooltip="自定义" ng-click="config.setcitype('default')" style="float: right" ><i class="fa fa-cogs fa-1x" >  通用发布</i></button>
+                        <button ng-if="config.advancedconfig" class="btn btn-primary" ng-disabled="config.project.ci_type === 'kubernetes'" uib-tooltip="发布kubernetes服务" ng-click="config.setcitype('kubernetes')" style="float: right" ><i class="fa fa-cogs fa-1x" >  Kubernetes</i></button>
                     </div>
  
-<div ng-if="config.project.ci_type !== 'kubernetes'">
+<div ng-if="config.advancedconfig && config.project.ci_type !== 'kubernetes'">
                     <div class="row">
                         <label class="col-md-2 control-label fwbold">触发脚本:</label>
                         <div class="col-md-8"> <input class="form-control" ng-model="config.project.follow_up" placeholder="构建完成后触发脚本"/> </div>
@@ -128,7 +131,7 @@
                     </div>
 
 </div>
-<div ng-if="config.project.ci_type === 'kubernetes'">
+<div ng-if="config.advancedconfig && config.project.ci_type === 'kubernetes'">
 
                     <div class="row">
                         <label class="col-md-2 control-label fwbold">票据ID</label>
