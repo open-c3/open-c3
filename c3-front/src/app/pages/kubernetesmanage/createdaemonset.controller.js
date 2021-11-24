@@ -166,10 +166,13 @@ status:
               delete v.tempargsstring;
             });
 
-            vm.editData.metadata.labels = labels;
+            if( !vm.editData.status )
+            {
+                vm.editData.metadata.labels = labels;
+                vm.editData.spec.selector.matchLabels.app = vm.editData.metadata.name;
+                vm.editData.spec.template.metadata.labels.app = vm.editData.metadata.name;
+            }
 
-            vm.editData.spec.selector.matchLabels.app = vm.editData.metadata.name;
-            vm.editData.spec.template.metadata.labels.app = vm.editData.metadata.name;
             var d = {
                 "data": vm.editData,
             };
