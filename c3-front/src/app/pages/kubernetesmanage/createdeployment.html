@@ -145,18 +145,18 @@
 
  
 <hr>
-添加数据卷
             <div class="row">
                 <div class="col-sm-10 form-group">
                     <label class="col-sm-3 control-label">添加数据卷</label>
-                    <label class="col-sm-1 control-label" ng-click="kubernetescreatedeployment.addVolume('emptyDir')">+emptyDir</label>
-                    <label class="col-sm-2 control-label" ng-click="kubernetescreatedeployment.addVolume('hostPath')">+hostPath</label>
-                    <label class="col-sm-1 control-label" ng-click="kubernetescreatedeployment.addVolume('nfs')">+nfs</label>
-                    <label class="col-sm-1 control-label" ng-click="kubernetescreatedeployment.addVolume('secret')">+secret</label>
-                    <label class="col-sm-1 control-label" ng-click="kubernetescreatedeployment.addVolume('configMap')">+configMap</label>
-                    <label class="col-sm-1 control-label" ng-click="kubernetescreatedeployment.addVolume('persistentVolumeClaim')">+persistentVolumeClaim</label>
+                    <div class="col-sm-9">
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.addVolume('emptyDir')" uib-tooltip="添加emptyDir" style="cursor:pointer;color: #339094;" >empty</i>
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.addVolume('hostPath')" uib-tooltip="添加hostPath" style="cursor:pointer;color: #339094;" >hostpath</i>
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.addVolume('nfs')" uib-tooltip="添加nfs" style="cursor:pointer;color: #339094;" >nfs</i>
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.addVolume('secret')" uib-tooltip="添加secret" style="cursor:pointer;color: #339094;" >secret</i>
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.addVolume('configMap')" uib-tooltip="添加configMap" style="cursor:pointer;color: #339094;" >configMap</i>
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.addVolume('persistentVolumeClaim')" uib-tooltip="添加persistentVolumeClaim" style="cursor:pointer;color: #339094;" >persistentVolumeClaim</i>
+                    </div>
                 </div>
-
             </div>
 
             <div class="row">
@@ -166,34 +166,47 @@
                         <table  border="0" style="width: 800px">
                             <tr ng-repeat="(id, x) in kubernetescreatedeployment.editData.spec.template.spec.volumes">
                                 <td ng-if="x.emptyDir" >
-                                    名称<input type="text" class="form-control"  ng-model="x.name">
+                                    类型: emptyDir<br>
+                                    名称<input type="text" class="form-control"  ng-model="x.name"/>
                                 </td>
                                 <td ng-if="x.hostPath" >
+                                    类型: hostPath<br>
                                     名称<input type="text" class="form-control"  ng-model="x.name">
                                     path<input type="text" class="form-control"  ng-model="x.hostPath.path">
                                 </td>
-                                 <td ng-if="x.nfs" >
+                                <td ng-if="x.nfs" >
+                                    类型: nfs<br>
                                     名称<input type="text" class="form-control"  ng-model="x.name">
                                     server<input type="text" class="form-control"  ng-model="x.nfs.server">
                                     path<input type="text" class="form-control"  ng-model="x.nfs.path">
                                 </td>
-                                 <td ng-if="x.secret" >
+                                <td ng-if="x.secret" >
+                                    类型: secret<br>
                                     名称<input type="text" class="form-control"  ng-model="x.name">
                                     secretName<input type="text" class="form-control"  ng-model="x.secret.secretName">
                                 </td>
-                                  <td ng-if="x.persistentVolumeClaim" >
+                                <td ng-if="x.persistentVolumeClaim" >
+                                    类型: persistentVolumeClaim<br>
                                     名称<input type="text" class="form-control"  ng-model="x.name">
                                     claimName<input type="text" class="form-control"  ng-model="x.persistentVolumeClaim.claimName">
                                 </td>
  
-                                  <td ng-if="x.configMap" >
+                                <td ng-if="x.configMap" >
+                                    类型: configMap<br>
                                     名称<input type="text" class="form-control"  ng-model="x.name">
                                     configMap Name<input type="text" class="form-control"  ng-model="x.configMap.name">
                                     key<input type="text" class="form-control"  ng-model="x.configMap.items[0].key">
                                     path<input type="text" class="form-control"  ng-model="x.configMap.items[0].path">
                                 </td>
  
-                                <td style="width: 50px"><a ng-click="kubernetescreatedeployment.delVolume(id)">删除</a></td>
+                                <td ng-if="(!x.emptyDir) && (!x.hostPath) && (!x.nfs) && ( ! x.secret) && ( !x.persistentVolumeClaim ) &&(!x.configMap)" >
+                                    类型: 未知<br>
+                                    信息: {{x}}
+                                </td>
+ 
+                                <td style="width: 50px">
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.delVolume(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                </td>
                             </tr>
                        </table>
                     </div>
@@ -211,7 +224,6 @@
                             <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.cleanSecret()" uib-tooltip="清空" style="cursor:pointer;color: #f63;" ></i>
                     </div>
                 </div>
-
             </div>
 
             <div class="row">
