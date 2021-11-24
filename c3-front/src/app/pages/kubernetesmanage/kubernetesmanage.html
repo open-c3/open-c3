@@ -85,9 +85,14 @@
 
                             <i ng-if="kubernetesmanage.hpa[m.NAMESPACE][m.NAME]" class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesmanage.deleteApp('hpa',m.INAME,m.NAMESPACE)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
                         </td>
-                        <td data-title="'发布流水线'" width="80">
+                        <td data-title="'发布流水线'" width="80" class="text-center">
+                            <div ng-repeat="xx in kubernetesmanage.flowlineinfo['deployment'][m.NAMESPACE][m.INAME]">
+                                {{xx.name}}
+                                <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.gotoflowline(xx.groupid, xx.id)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
+                                <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.editconfig(xx.groupid,xx.id,xx.name)" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
+                                <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesmanage.deleteApp('hpa',m.INAME,m.NAMESPACE)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                            </div>
                             <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetesmanage.copyProjectByTemplate(m.INAME, 'deployment',m.INAME,m.NAMESPACE )" uib-tooltip="创建流水线" style="cursor:pointer;color: #339094;" ></i>
-                            <a ng-repeat="xx in kubernetesmanage.flowlineinfo['deployment'][m.NAMESPACE][m.INAME]" ng-click="kubernetesmanage.gotoflowline(xx.groupid, xx.id)" style="cursor:pointer;color: #339094;" >{{xx.name}}</a>
                         </td>
                         <td data-title="'CONTAINERS'" width="80" filter="{ CONTAINERS: 'text'}" sortable="'CONTAINERS'">{{m.CONTAINERS}}</td>
                         <td data-title="'IMAGES'" width="80" filter="{ IMAGES: 'text'}" sortable="'IMAGES'">{{m.IMAGES}}</td>

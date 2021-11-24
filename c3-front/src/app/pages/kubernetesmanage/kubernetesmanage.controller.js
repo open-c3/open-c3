@@ -537,6 +537,27 @@
             });
         };
 
+
+        vm.editconfig = function (treeid, id, name) {
+            $uibModal.open({
+                templateUrl: 'app/pages/quickentry/flowline/detail/config.html',
+                controller: 'ConfigController',
+                controllerAs: 'config',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    getGroup: function () {return vm.getGroupInfo},
+                    projectid: function () {return id},
+                    treeid: function () {return treeid},
+                    name: function () {return name},
+                    groupid: function () {},
+                }
+            });
+        };
+
+
         vm.openOneTab = function (pod, type) {
             var terminalAddr = window.location.protocol + "//" + window.location.host+"/api/ci/kubernetes/pod/shell";
             var s = "?namespace=" + pod.NAMESPACE + '&name=' + pod.NAME + '&clusterid=' + vm.selecteClusterId + '&type=' + type + '&siteaddr=' + window.location.protocol + "//" + window.location.host;
