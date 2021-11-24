@@ -514,6 +514,29 @@
         };
 
  
+        vm.skip = function() {};
+        vm.copyProjectByTemplate = function (sourcename, type, name, namespace ) {
+            $uibModal.open({
+                templateUrl: 'app/pages/kubernetesmanage/copyProjectByTemplate.html',
+                controller: 'CopyProjectByTemplateController',
+                controllerAs: 'copyProjectByTemplate',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () { return vm.treeid},
+                    sourcename: function () { return sourcename},
+                    reload : function () { return vm.skip},
+                    cancel : function () { return vm.skip},
+                    clusterinfo: function () {return vm.selecteCluster},
+                    type: function () { return type},
+                    name: function () { return name},
+                    namespace: function () { return namespace},
+                }
+            });
+        };
+
         vm.openOneTab = function (pod, type) {
             var terminalAddr = window.location.protocol + "//" + window.location.host+"/api/ci/kubernetes/pod/shell";
             var s = "?namespace=" + pod.NAMESPACE + '&name=' + pod.NAME + '&clusterid=' + vm.selecteClusterId + '&type=' + type + '&siteaddr=' + window.location.protocol + "//" + window.location.host;

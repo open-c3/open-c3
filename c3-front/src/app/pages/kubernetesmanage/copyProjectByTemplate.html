@@ -1,0 +1,63 @@
+<div class="modal-header">
+    <h4  class="modal-title">创建流水线</h4>
+</div>
+<div class="modal-body">
+    <form class="form-horizontal" name="addForm" role="form">
+
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">模版</label>
+                <div class="col-sm-9">
+                    <select id="selecteddataval" class="form-control"  ng-model="copyProjectByTemplate.templateid" >
+                         <option ng-repeat="x in copyProjectByTemplate.templatelist" value="{{x.id}}">{{x.name}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+
+
+ 
+
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">容器</label>
+                <div class="col-sm-9">
+                    <select id="selecteddataval" class="form-control"  ng-model="copyProjectByTemplate.containerid" >
+                         <option ng-repeat="x in copyProjectByTemplate.containerlist" value="{{x.id}}">名称:{{x.name}} 镜像:{{x.image}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+
+
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">流水线名称</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" name="adduser" placeholder="流水线名" ng-model="projectname" required>
+                </div>
+            </div>
+        </div>
+
+<!--        <div class="form-group admin-form">
+            <label class="col-md-2 control-label fwbold" >开关:</label>
+            <div class="col-md-2">
+                <label class="switch switch-system mt5">
+                    <input type="checkbox" id="check_status" ng-model="copyProjectByTemplate.status">
+                    <label for="check_status" data-on="ON" data-off="OFF"></label>
+                </label>
+            </div>
+        </div>
+-->
+        <div class="row">
+            <div class="col-sm-5 form-group pull-right">
+                <button class="btn btn-primary" ng-disabled="addForm.$invalid" ng-click="copyProjectByTemplate.add()">确认</button>
+                <button class="btn btn-warning" ng-click="copyProjectByTemplate.cancel()">取消</button>
+            </div>
+        </div>
+    </form>
+
+</div>
+
