@@ -397,6 +397,47 @@ status:
             delete x.ports;
         }
 
+//容器应用存活探针
+
+        vm.addContainerlivenessProbeCmd = function(x)
+        {
+            x.livenessProbe = { "initialDelaySeconds": 30, "periodSeconds": 10, "timeoutSeconds": 5, "exec": { "command": [] }}
+        }
+        vm.addContainerlivenessProbeHttp = function(x)
+        {
+            x.livenessProbe = { "initialDelaySeconds": 30, "periodSeconds": 10, "timeoutSeconds": 5, "httpGet": { "path": "", "port": "8080", "scheme": "HTTP" }}
+        }
+         vm.addContainerlivenessProbePort = function(x)
+        {
+            x.livenessProbe = { "initialDelaySeconds": 30, "periodSeconds": 10, "timeoutSeconds": 5, "tcpSocket": { "port": "8080" }}
+        }
+ 
+        vm.cleanContainerlivenessProbe = function(x)
+        {
+            delete x.livenessProbe;
+        }
+
+
+//容器应用就绪探针
+
+        vm.addContainerreadinessProbeCmd = function(x)
+        {
+            x.readinessProbe = { "initialDelaySeconds": 30, "periodSeconds": 10, "timeoutSeconds": 5, "exec": { "command": [] }}
+        }
+        vm.addContainerreadinessProbeHttp = function(x)
+        {
+            x.readinessProbe = { "initialDelaySeconds": 30, "periodSeconds": 10, "timeoutSeconds": 5, "httpGet": { "path": "", "port": "8080", "scheme": "HTTP" }}
+        }
+         vm.addContainerreadinessProbePort = function(x)
+        {
+            x.readinessProbe = { "initialDelaySeconds": 30, "periodSeconds": 10, "timeoutSeconds": 5, "tcpSocket": { "port": "8080" }}
+        }
+ 
+        vm.cleanContainerreadinessProbe = function(x)
+        {
+            delete x.readinessProbe;
+        }
+
 
 
 //容器数据卷

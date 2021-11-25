@@ -588,6 +588,133 @@
                                    </div>
 
 
+                                    <div class="row">
+                                        <div class="col-sm-12 form-group">
+                                            <label class="col-sm-3 control-label">应用存活探针</label>
+                                            <div class="col-sm-9">
+                                                <button class="btn btn-primary" ng-disabled="x.livenessProbe.exec" ng-click="kubernetescreatedeployment.addContainerlivenessProbeCmd(x)">命令行方式</button>
+                                                <button class="btn btn-primary" ng-disabled="x.livenessProbe.httpGet" ng-click="kubernetescreatedeployment.addContainerlivenessProbeHttp(x)">HTTP请求方式</button>
+                                                <button class="btn btn-primary" ng-disabled="x.livenessProbe.tcpSocket" ng-click="kubernetescreatedeployment.addContainerlivenessProbePort(x)">TCP请求方式</button>
+                                                <button class="btn btn-primary" ng-disabled="!x.livenessProbe" ng-click="kubernetescreatedeployment.cleanContainerlivenessProbe(x)">清空</button>
+                                           </div>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="row" ng-if="x.livenessProbe">
+                                        <div class="col-sm-12 form-group">
+                                            <label class="col-sm-2 control-label"></label>
+                                            <label class="col-sm-2 control-label">首次探测时间/秒</label>
+                                            <div class="col-sm-1"> <input type="text" class="form-control" placeholder="" ng-model="x.livenessProbe.initialDelaySeconds" required> </div>
+
+                                            <label class="col-sm-2 control-label">探测间隔时间/秒</label>
+                                            <div class="col-sm-1"> <input type="text" class="form-control" placeholder="" ng-model="x.livenessProbe.periodSeconds" required> </div>
+
+                                            <label class="col-sm-2 control-label">探测超时时间/秒</label>
+                                            <div class="col-sm-1"> <input type="text" class="form-control" placeholder="" ng-model="x.livenessProbe.timeoutSeconds" required> </div>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="row" ng-if="x.livenessProbe.exec">
+                                        <div class="col-sm-12 form-group">
+                                            <label class="col-sm-2 control-label"></label>
+                                            <label class="col-sm-2 control-label">命令行</label>
+                                            <label class="col-sm-8 control-label">{{x.livenessProbe.exec.command}}</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="row" ng-if="x.livenessProbe.httpGet">
+                                        <div class="col-sm-12 form-group">
+                                            <label class="col-sm-2 control-label"></label>
+                                            <label class="col-sm-2 control-label">端口</label>
+                                            <div class="col-sm-2"> <input type="text" class="form-control" placeholder="" ng-model="x.livenessProbe.httpGet.port" required> </div>
+                                            <label class="col-sm-2 control-label">路径</label>
+                                            <div class="col-sm-4"> <input type="text" class="form-control" placeholder="" ng-model="x.livenessProbe.httpGet.path" required> </div>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="row" ng-if="x.livenessProbe.tcpSocket">
+                                        <div class="col-sm-12 form-group">
+                                            <label class="col-sm-2 control-label"></label>
+                                            <label class="col-sm-2 control-label">端口</label>
+                                            <div class="col-sm-2"> <input type="text" class="form-control" placeholder="" ng-model="x.livenessProbe.tcpSocket.port" required> </div>
+                                        </div>
+                                    </div>
+
+
+
+
+
+
+                                    <div class="row">
+                                        <div class="col-sm-12 form-group">
+                                            <label class="col-sm-3 control-label">应用就绪探针</label>
+                                            <div class="col-sm-9">
+                                                <button class="btn btn-primary" ng-disabled="x.readinessProbe.exec" ng-click="kubernetescreatedeployment.addContainerreadinessProbeCmd(x)">命令行方式</button>
+                                                <button class="btn btn-primary" ng-disabled="x.readinessProbe.httpGet" ng-click="kubernetescreatedeployment.addContainerreadinessProbeHttp(x)">HTTP请求方式</button>
+                                                <button class="btn btn-primary" ng-disabled="x.readinessProbe.tcpSocket" ng-click="kubernetescreatedeployment.addContainerreadinessProbePort(x)">TCP请求方式</button>
+                                                <button class="btn btn-primary" ng-disabled="!x.readinessProbe" ng-click="kubernetescreatedeployment.cleanContainerreadinessProbe(x)">清空</button>
+                                           </div>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="row" ng-if="x.readinessProbe">
+                                        <div class="col-sm-12 form-group">
+                                            <label class="col-sm-2 control-label"></label>
+                                            <label class="col-sm-2 control-label">首次探测时间/秒</label>
+                                            <div class="col-sm-1"> <input type="text" class="form-control" placeholder="" ng-model="x.readinessProbe.initialDelaySeconds" required> </div>
+
+                                            <label class="col-sm-2 control-label">探测间隔时间/秒</label>
+                                            <div class="col-sm-1"> <input type="text" class="form-control" placeholder="" ng-model="x.readinessProbe.periodSeconds" required> </div>
+
+                                            <label class="col-sm-2 control-label">探测超时时间/秒</label>
+                                            <div class="col-sm-1"> <input type="text" class="form-control" placeholder="" ng-model="x.readinessProbe.timeoutSeconds" required> </div>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="row" ng-if="x.readinessProbe.exec">
+                                        <div class="col-sm-12 form-group">
+                                            <label class="col-sm-2 control-label"></label>
+                                            <label class="col-sm-2 control-label">命令行</label>
+                                            <label class="col-sm-8 control-label">{{x.readinessProbe.exec.command}}</label>
+                                        </div>
+                                    </div>
+
+                                    <div class="row" ng-if="x.readinessProbe.httpGet">
+                                        <div class="col-sm-12 form-group">
+                                            <label class="col-sm-2 control-label"></label>
+                                            <label class="col-sm-2 control-label">端口</label>
+                                            <div class="col-sm-2"> <input type="text" class="form-control" placeholder="" ng-model="x.readinessProbe.httpGet.port" required> </div>
+                                            <label class="col-sm-2 control-label">路径</label>
+                                            <div class="col-sm-4"> <input type="text" class="form-control" placeholder="" ng-model="x.readinessProbe.httpGet.path" required> </div>
+                                        </div>
+                                    </div>
+
+
+                                    <div class="row" ng-if="x.readinessProbe.tcpSocket">
+                                        <div class="col-sm-12 form-group">
+                                            <label class="col-sm-2 control-label"></label>
+                                            <label class="col-sm-2 control-label">端口</label>
+                                            <div class="col-sm-2"> <input type="text" class="form-control" placeholder="" ng-model="x.readinessProbe.tcpSocket.port" required> </div>
+                                        </div>
+                                    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
                                 </td>
