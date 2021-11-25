@@ -392,7 +392,7 @@ status:
         {
             x.ports.splice(id, 1);
         }
-        vm.cleanContainerEnv = function(x)
+        vm.cleanContainerPorts = function(x)
         {
             delete x.ports;
         }
@@ -450,12 +450,19 @@ status:
             x.volumeMounts.push({"name":"","mountPath":""})
         }
  
-         vm.delContainerVolume = function(x,id)
+        vm.delContainerVolume = function(x,id)
         {
             x.volumeMounts.splice(id, 1);
         }
 
+        vm.cleanContainerVolume = function(x)
+        {
+            delete x.volumeMounts;
+        }
 
+
+
+//
 
         vm.addContainer = function()
         {
@@ -470,6 +477,7 @@ status:
         }
 
 
+//
         vm.switchStrategy = function( type ){
             vm.editData.spec.strategy.type = type;
             if( type === 'RollingUpdate' )
