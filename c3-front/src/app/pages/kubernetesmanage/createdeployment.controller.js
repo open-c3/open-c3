@@ -289,7 +289,8 @@ status:
             }
             if( type === 'configMap' )
             {
-                data = { "name": "", "configMap": { "name":"", "items": [ { "key": "", "path": "" } ] } }
+                data = { "name": "", "configMap": { "name":"" } }
+                //data = { "name": "", "configMap": { "name":"", "items": [ { "key": "", "path": "" } ] } }
             }
 
 
@@ -305,6 +306,11 @@ status:
         {
             vm.editData.spec.template.spec.volumes.splice(id, 1);
         }
+        vm.cleanVolume = function()
+        {
+            delete vm.editData.spec.template.spec.volumes;
+        }
+
 
 //Command
         vm.addCommand = function(x, cmd)

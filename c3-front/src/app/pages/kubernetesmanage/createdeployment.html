@@ -155,6 +155,7 @@
                         <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.addVolume('secret')" uib-tooltip="添加secret" style="cursor:pointer;color: #339094;" >secret</i>
                         <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.addVolume('configMap')" uib-tooltip="添加configMap" style="cursor:pointer;color: #339094;" >configMap</i>
                         <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.addVolume('persistentVolumeClaim')" uib-tooltip="添加persistentVolumeClaim" style="cursor:pointer;color: #339094;" >persistentVolumeClaim</i>
+                        <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.cleanVolume()" uib-tooltip="清空" style="cursor:pointer;color: #f63;" >清空</i>
                     </div>
                 </div>
             </div>
@@ -163,47 +164,79 @@
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-3 control-label"></label>
                     <div class="col-sm-6">
-                        <table  border="0" style="width: 800px">
+                        <table  border="0" style="width: 100%">
                             <tr ng-repeat="(id, x) in kubernetescreatedeployment.editData.spec.template.spec.volumes">
-                                <td ng-if="x.emptyDir" >
-                                    类型: emptyDir<br>
-                                    名称<input type="text" class="form-control"  ng-model="x.name"/>
+                                <td>
+
+                                    <div class="row" ng-if="x.emptyDir">
+                                        <div class="col-sm-12 form-group">
+                                             <label class="col-sm-2 control-label">类型: emptyDir</label>
+                                             <label class="col-sm-1 control-label">名称</label>
+                                             <div class="col-sm-9"> <input type="text" class="form-control" placeholder="" ng-model="x.name" required> </div>
+                                         </div>
+                                    </div>
+
+                                    <div class="row" ng-if="x.hostPath">
+                                        <div class="col-sm-12 form-group">
+                                             <label class="col-sm-2 control-label">类型: hostPath</label>
+                                             <label class="col-sm-1 control-label">名称</label>
+                                             <div class="col-sm-4"> <input type="text" class="form-control" placeholder="" ng-model="x.name" required> </div>
+                                             <label class="col-sm-1 control-label">path</label>
+                                             <div class="col-sm-4"> <input type="text" class="form-control" placeholder="" ng-model="x.hostPath.path" required> </div>
+                                         </div>
+                                    </div>
+
+                                    <div class="row" ng-if="x.nfs">
+                                        <div class="col-sm-12 form-group">
+                                             <label class="col-sm-2 control-label">类型: nfs</label>
+                                             <label class="col-sm-1 control-label">名称</label>
+                                             <div class="col-sm-2"> <input type="text" class="form-control" placeholder="" ng-model="x.name" required> </div>
+                                             <label class="col-sm-1 control-label">server</label>
+                                             <div class="col-sm-3"> <input type="text" class="form-control" placeholder="" ng-model="x.nfs.server" required> </div>
+                                             <label class="col-sm-1 control-label">path</label>
+                                             <div class="col-sm-2"> <input type="text" class="form-control" placeholder="" ng-model="x.nfs.path" required> </div>
+                                         </div>
+                                    </div>
+
+                                    <div class="row" ng-if="x.secret">
+                                        <div class="col-sm-12 form-group">
+                                             <label class="col-sm-2 control-label">类型: secret</label>
+                                             <label class="col-sm-1 control-label">名称</label>
+                                             <div class="col-sm-4"> <input type="text" class="form-control" placeholder="" ng-model="x.name" required> </div>
+                                             <label class="col-sm-1 control-label">secretName</label>
+                                             <div class="col-sm-4"> <input type="text" class="form-control" placeholder="" ng-model="x.secret.secretName" required> </div>
+                                         </div>
+                                    </div>
+
+                                    <div class="row" ng-if="x.persistentVolumeClaim">
+                                        <div class="col-sm-12 form-group">
+                                             <label class="col-sm-4 control-label">类型: persistentVolumeClaim</label>
+                                             <label class="col-sm-1 control-label">名称</label>
+                                             <div class="col-sm-3"> <input type="text" class="form-control" placeholder="" ng-model="x.name" required> </div>
+                                             <label class="col-sm-1 control-label">claimName</label>
+                                             <div class="col-sm-3"> <input type="text" class="form-control" placeholder="" ng-model="x.persistentVolumeClaim.claimName" required> </div>
+                                         </div>
+                                    </div>
+
+                                    <div class="row" ng-if="x.configMap">
+                                        <div class="col-sm-12 form-group">
+                                             <label class="col-sm-2 control-label">类型: configMap</label>
+                                             <label class="col-sm-1 control-label">名称</label>
+                                             <div class="col-sm-4"> <input type="text" class="form-control" placeholder="" ng-model="x.name" required> </div>
+                                             <label class="col-sm-1 control-label">configMap</label>
+                                             <div class="col-sm-4"> <input type="text" class="form-control" placeholder="" ng-model="x.configMap.name" required> </div>
+                                         </div>
+                                    </div>
+
+                                    <div class="row" ng-if="(!x.emptyDir) && (!x.hostPath) && (!x.nfs) && ( ! x.secret) && ( !x.persistentVolumeClaim ) &&(!x.configMap)">
+                                        <div class="col-sm-12 form-group">
+                                             <label class="col-sm-3 control-label">类型: 未知</label>
+                                             <label class="col-sm-9 control-label">信息: {{x}}</label>
+                                         </div>
+                                    </div>
+
                                 </td>
-                                <td ng-if="x.hostPath" >
-                                    类型: hostPath<br>
-                                    名称<input type="text" class="form-control"  ng-model="x.name">
-                                    path<input type="text" class="form-control"  ng-model="x.hostPath.path">
-                                </td>
-                                <td ng-if="x.nfs" >
-                                    类型: nfs<br>
-                                    名称<input type="text" class="form-control"  ng-model="x.name">
-                                    server<input type="text" class="form-control"  ng-model="x.nfs.server">
-                                    path<input type="text" class="form-control"  ng-model="x.nfs.path">
-                                </td>
-                                <td ng-if="x.secret" >
-                                    类型: secret<br>
-                                    名称<input type="text" class="form-control"  ng-model="x.name">
-                                    secretName<input type="text" class="form-control"  ng-model="x.secret.secretName">
-                                </td>
-                                <td ng-if="x.persistentVolumeClaim" >
-                                    类型: persistentVolumeClaim<br>
-                                    名称<input type="text" class="form-control"  ng-model="x.name">
-                                    claimName<input type="text" class="form-control"  ng-model="x.persistentVolumeClaim.claimName">
-                                </td>
- 
-                                <td ng-if="x.configMap" >
-                                    类型: configMap<br>
-                                    名称<input type="text" class="form-control"  ng-model="x.name">
-                                    configMap Name<input type="text" class="form-control"  ng-model="x.configMap.name">
-                                    key<input type="text" class="form-control"  ng-model="x.configMap.items[0].key">
-                                    path<input type="text" class="form-control"  ng-model="x.configMap.items[0].path">
-                                </td>
- 
-                                <td ng-if="(!x.emptyDir) && (!x.hostPath) && (!x.nfs) && ( ! x.secret) && ( !x.persistentVolumeClaim ) &&(!x.configMap)" >
-                                    类型: 未知<br>
-                                    信息: {{x}}
-                                </td>
- 
+
                                 <td style="width: 50px">
                                     <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.delVolume(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
                                 </td>
