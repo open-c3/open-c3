@@ -610,7 +610,11 @@
                                                            <div class="row">
                                                                <div class="col-sm-12 form-group">
                                                                    <label class="col-sm-1 control-label">name</label>
-                                                                   <div class="col-sm-2"> <input type="text" class="form-control" placeholder="" ng-model="xx.name" required> </div>
+                                                                   <div class="col-sm-2">
+                                                                       <select id="selecteddataval" class="form-control"  ng-model="xx.name" >
+                                                                           <option ng-repeat="x in kubernetescreatedeployment.editData.spec.template.spec.volumes" value="{{x.name}}">{{x.name}}</option>
+                                                                       </select>
+                                                                   </div>
                                                                    <label class="col-sm-1 control-label">mountPath</label>
                                                                    <div class="col-sm-3"> <input type="text" class="form-control" placeholder="挂载文件时写文件路径" ng-model="xx.mountPath" required> </div>
 
