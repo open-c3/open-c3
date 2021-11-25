@@ -340,7 +340,47 @@ status:
             x.tempargsstring = ""
         }
 
+//容器环境变量
 
+        vm.addContainerEnv = function(x)
+        {
+            if( ! x.env )
+            {
+                x.env = []
+            }
+            x.env.push({"name":"","value":""})
+        }
+ 
+        vm.addContainerEnvConfigMap = function(x)
+        {
+            if( ! x.env )
+            {
+                x.env = []
+            }
+            x.env.push({"name": "", "valueFrom": { "configMapKeyRef": { "name": "", "key": "" } }})
+        }
+         vm.addContainerEnvSecret = function(x)
+        {
+            if( ! x.env )
+            {
+                x.env = []
+            }
+            x.env.push({"name": "", "valueFrom": { "secretKeyRef": { "name": "", "key": "" } }})
+        }
+ 
+ 
+        vm.delContainerEnv = function(x,id)
+        {
+            x.env.splice(id, 1);
+        }
+        vm.cleanContainerEnv = function(x)
+        {
+            delete x.env;
+        }
+
+
+
+//容器数据卷
         vm.addContainerVolume = function(x)
         {
             if( ! x.volumeMounts )

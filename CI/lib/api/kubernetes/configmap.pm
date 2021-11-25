@@ -51,6 +51,7 @@ $handle{getconfigmap} = sub
     return +{ stat => $JSON::true, data => \@r, };
 };
 
+##TODO 未启用，目前用的apply接口
 post '/kubernetes/configmap/create' => sub {
     my $param = params();
     my $error = Format->new( 

@@ -34,6 +34,9 @@ any '/kubernetes/data/json2yaml' => sub {
     $data =~ s/: (\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\+0\d:00)\n/: "$1"\n/g;
     $data =~ s/resourceVersion: (\d+)\n/resourceVersion: "$1"\n/g;
     $data =~ s/\bcpu: (\d+)\n/cpu: "$1"\n/g;
+
+## 容器环境变量的值用的是value字段
+    $data =~ s/\bvalue: (\d+)\n/value: "$1"\n/g;
     $data =~ s/daemonset.template.generation: (\d+)\n/daemonset.template.generation: "$1"\n/g;
     $data =~ s#deployment.kubernetes.io/revision: (\d+)\n#deployment.kubernetes.io/revision: "$1"\n#g;
 

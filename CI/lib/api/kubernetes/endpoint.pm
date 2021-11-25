@@ -33,7 +33,8 @@ get '/kubernetes/endpoint' => sub {
 
     my $filter = +{ namespace => $param->{namespace}, status => $param->{status} };
     my $argv = $param->{namespace} ? "-n $param->{namespace}" : "-A";
-    my ( $cmd, $handle ) = ( "$kubectl get endpoints -o wide $argv", 'getendpoints' );
+#TODO 不添加2>/dev/null 时,如果命名空间不存在endpoint时，api.event 的接口会报错
+    my ( $cmd, $handle ) = ( "$kubectl get endpoints -o wide $argv 2>/dev/null", 'getendpoints' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle, filter => $filter }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( `$cmd`//'', $?, $filter );
 };
