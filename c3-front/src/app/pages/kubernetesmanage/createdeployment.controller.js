@@ -450,6 +450,15 @@ status:
             x.volumeMounts.push({"name":"","mountPath":""})
         }
  
+        vm.addContainerVolumeFile = function(x)
+        {
+            if( ! x.volumeMounts )
+            {
+                x.volumeMounts = []
+            }
+            x.volumeMounts.push({"name":"","mountPath":"", "subPath": ""})
+        }
+ 
         vm.delContainerVolume = function(x,id)
         {
             x.volumeMounts.splice(id, 1);

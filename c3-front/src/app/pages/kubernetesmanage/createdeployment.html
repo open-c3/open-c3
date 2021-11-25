@@ -559,7 +559,7 @@
                                             <label class="col-sm-3 control-label">卷挂载点</label>
                                             <div class="col-sm-9">
                                                 <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.addContainerVolume(x)" uib-tooltip="添加挂载点" style="cursor:pointer;color: #339094;" >目录</i>
-                                                <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.addContainerVolume(x)" uib-tooltip="添加挂载点" style="cursor:pointer;color: #339094;" >单个文件</i>
+                                                <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.addContainerVolumeFile(x)" uib-tooltip="添加挂载点" style="cursor:pointer;color: #339094;" >单个文件</i>
                                                 <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.cleanContainerVolume(x)" uib-tooltip="清空" style="cursor:pointer;color: #f63;" >清空</i>
                                             </div>
                                         </div>
@@ -577,9 +577,12 @@
                                                            <div class="row">
                                                                <div class="col-sm-12 form-group">
                                                                    <label class="col-sm-1 control-label">name</label>
-                                                                   <div class="col-sm-4"> <input type="text" class="form-control" placeholder="" ng-model="xx.name" required> </div>
+                                                                   <div class="col-sm-2"> <input type="text" class="form-control" placeholder="" ng-model="xx.name" required> </div>
                                                                    <label class="col-sm-1 control-label">mountPath</label>
-                                                                   <div class="col-sm-5"> <input type="text" class="form-control" placeholder="" ng-model="xx.mountPath" required> </div>
+                                                                   <div class="col-sm-3"> <input type="text" class="form-control" placeholder="挂载文件时写文件路径" ng-model="xx.mountPath" required> </div>
+
+                                                                   <label ng-if="!(xx.subPath === undefined)" class="col-sm-1 control-label">subPath</label>
+                                                                   <div ng-if="!(xx.subPath === undefined)" class="col-sm-3"> <input type="text" class="form-control" placeholder="" ng-model="xx.subPath" required> </div>
                                                                </div>
                                                            </div>
 
