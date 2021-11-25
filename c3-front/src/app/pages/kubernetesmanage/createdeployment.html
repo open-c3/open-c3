@@ -498,6 +498,66 @@
 
 
 
+
+
+
+                                    <div class="row">
+                                        <div class="col-sm-12 form-group">
+                                            <label class="col-sm-3 control-label">端口设置</label>
+                                            <div class="col-sm-9">
+                                                <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.addContainerPorts(x,'TCP')" uib-tooltip="添加TCP端口" style="cursor:pointer;color: #339094;" >TCP</i>
+                                                <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.addContainerPorts(x,'UDP')" uib-tooltip="添加Secret环境变量" style="cursor:pointer;color: #339094;" >UDP</i>
+                                                <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.cleanContainerPorts(x)" uib-tooltip="清空环境变量" style="cursor:pointer;color: #f63;" >清空</i>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                   <div class="row">
+                                       <div class="col-sm-12 form-group">
+                                           <label class="col-sm-1 control-label"></label>
+                                           <div class="col-sm-11">
+                                               <table  border="0" style="width: 100%" >
+                                                   <tr ng-repeat="(id, xx) in x.ports">
+                                                     <td>
+                                                           <div ng-if="!( xx.protocol ==='TCP' || xx.protocol ==='UDP' )">
+                                                               未知类型:{{xx}}
+                                                           </div>
+ 
+
+                                                           <div class="row" ng-if="xx.protocol ==='TCP' || xx.protocol ==='UDP' ">
+                                                               <div class="col-sm-12 form-group">
+                                                                   <label class="col-sm-1 control-label">{{xx.protocol}}</label>
+                                                                   <label class="col-sm-1 control-label">name</label>
+                                                                   <div class="col-sm-4"> <input type="text" class="form-control" placeholder="" ng-model="xx.name" required> </div>
+                                                                   <label class="col-sm-1 control-label">端口</label>
+                                                                   <div class="col-sm-5"> <input type="text" class="form-control" placeholder="" ng-model="xx.containerPort" required> </div>
+                                                               </div>
+                                                           </div>
+
+
+
+                                                      </td>
+                                                       <td style="width: 50px">
+                                                           <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.delContainerEnv(x,id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                                       </td>
+                                                   </tr>
+                                              </table>
+                                           </div>
+                                       </div>
+                                   </div>
+
+
+
+
+
+
+
+
+
+
+
+
                                     <div class="row">
                                         <div class="col-sm-12 form-group">
                                             <label class="col-sm-3 control-label">数据卷</label>

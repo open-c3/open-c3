@@ -378,6 +378,25 @@ status:
             delete x.env;
         }
 
+//容器端口
+
+        vm.addContainerPorts = function(x,protocol)
+        {
+            if( ! x.ports )
+            {
+                x.ports = []
+            }
+            x.ports.push({"name":"","protocol": protocol, "containerPort":""})
+        }
+        vm.delContainerPorts = function(x,id)
+        {
+            x.ports.splice(id, 1);
+        }
+        vm.cleanContainerEnv = function(x)
+        {
+            delete x.ports;
+        }
+
 
 
 //容器数据卷
