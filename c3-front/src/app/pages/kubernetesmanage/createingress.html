@@ -89,6 +89,33 @@
                 </div>
             </div>
 
+
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-3 control-label">annotations</label>
+                    <label class="col-sm-3 control-label" ng-click="kubernetescreateingress.addAnnotations()">+添加</label>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-3 control-label"></label>
+                    <div class="col-sm-6">
+                        <table  border="0" style="width: 800px">
+                            <tr ng-repeat="(id, x) in annotations">
+                                <td><input type="text" class="form-control"  ng-model="x.K"></td>
+                                <td style="width: 20px">=</td>
+                                <td><input type="text" class="form-control"  ng-model="x.V"></td>
+                                <td style="width: 50px"><a ng-click="kubernetescreateingress.delAnnotations(id)">删除</a></td>
+                            </tr>
+                       </table>
+                    </div>
+                </div>
+            </div>
+
+
+
             <div class="row">
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-3 control-label">命名空间</label>

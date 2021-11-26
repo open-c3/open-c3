@@ -118,6 +118,17 @@ status:
                        });
                    }
 
+
+                   $scope.annotations = [];
+                   if( vm.editData.metadata.annotations )
+                   {
+                       angular.forEach(vm.editData.metadata.annotations, function (v, k) {
+                           $scope.annotations.push( { "K": k, "V": v })
+                       });
+                   }
+
+
+
                    var tlshash = {};
                    if( vm.editData.spec.tls && vm.editData.spec.tls.length > 0 )
                    {
@@ -176,6 +187,17 @@ status:
                    }
 
 
+                   $scope.annotations = [];
+                   if( vm.editData.metadata.annotations )
+                   {
+                       angular.forEach(vm.editData.metadata.annotations, function (v, k) {
+                           $scope.annotations.push( { "K": k, "V": v })
+                       });
+                   }
+
+
+
+
                    vm.loadover = true;
                     $scope.editstep = 1; 
                 } else { 
@@ -195,6 +217,17 @@ status:
             });
 
             vm.editData.metadata.labels = labels;
+
+
+            var annotations = {};
+            angular.forEach($scope.annotations, function (v, k) {
+                var key = v["K"]
+                annotations[key] = v["V"];
+            });
+
+            vm.editData.metadata.annotations = annotations;
+
+
 
             var tls = [];
             angular.forEach(vm.editData.spec.rules, function (rule, k) {
@@ -254,6 +287,21 @@ status:
         {
             $scope.labels.splice(id, 1);
         }
+
+
+        $scope.annotations = [];
+
+        vm.addAnnotations = function()
+        {
+            $scope.annotations.push({ "K": "", "V": ""});
+        }
+        vm.delAnnotations = function(id)
+        {
+            $scope.annotations.splice(id, 1);
+        }
+
+
+
 
 //Secret
         vm.autoGetSecret = function()
