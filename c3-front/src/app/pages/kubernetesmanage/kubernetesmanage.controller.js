@@ -169,6 +169,14 @@
                         vm.replicasetReady = response.data.replicasetready;
                         vm.replicasetCount = response.data.data.replicaset.length;
 
+
+                        vm.jobbatchTable = new ngTableParams({count:10}, {counts:[],data:response.data.data['job.batch']});
+                        vm.jobbatchCount = response.data.data['job.batch'].length;
+
+
+                        vm.statefulsetTable = new ngTableParams({count:10}, {counts:[],data:response.data.data.statefulset});
+                        vm.statefulsetCount = response.data.data.statefulset.length;
+
                         vm.loadoverB = true;
                     }else {
                         toastr.error( "获取集群中应用数据失败："+response.data.info );
