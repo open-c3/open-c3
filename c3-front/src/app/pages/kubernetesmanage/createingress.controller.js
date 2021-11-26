@@ -104,18 +104,33 @@ status:
                 url = "/api/ci/v2/kubernetes/app/json?ticketid=" + ticketid + "&type=ingress&name=" + name + "&namespace=" + namespace;
             }
 
-console.log("URL", url)
-console.log("NAMESPACE", namespace)
-console.log("NAME", name)
             $http.get(url).success(function(data){
                 if(data.stat == true) 
                 { 
                    vm.loadover = true;
                    vm.editData = data.data;
+
+                   var tlshash = {};
+                   if( vm.editData.spec.tls && vm.editData.spec.tls.length > 0 )
+                   {
+                        angular.forEach(vm.editData.spec.tls, function (tmp, k) {
+                            tlshash[tmp.hosts[0]] = tmp.secretName
+                        });
+                   }
+
+                    angular.forEach(vm.editData.spec.rules, function (rule, k) {
+                      if( tlshash[rule.host] )
+                      {
+                         rule.https_tls_temp = tlshash[rule.host]
+                     }
+                    });
+
+ 
                 } else { 
                     toastr.error("加载模版信息失败:" + data.info)
                 }
             });
+//TODO 删除
             $http.get("/api/ci/kubernetes/data/template/container" ).success(function(data){
                 if(data.stat == true) 
                 { 
@@ -161,6 +176,16 @@ console.log("NAME", name)
                 labels[key] = v["V"];
             });
 
+            var tls = [];
+            angular.forEach(vm.editData.spec.rules, function (rule, k) {
+              if( rule.https_tls_temp )
+              {
+                  tls.push( { "hosts": [  rule.host ], "secretName": rule.https_tls_temp } )
+              }
+              delete rule.https_tls_temp;
+            });
+
+            vm.editData.spec.tls = tls;
            
             var d = {
                 "data": vm.editData,
