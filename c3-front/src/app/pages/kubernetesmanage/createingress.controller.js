@@ -150,12 +150,12 @@ status:
                 }
             });
 //TODO 删除
-            $http.get("/api/ci/kubernetes/data/template/container" ).success(function(data){
+            $http.get("/api/ci/kubernetes/data/template/ingress_lb_annotations" ).success(function(data){
                 if(data.stat == true) 
                 { 
-                   vm.containerData = data.data;
+                   vm.ingress_lb_annotations = data.data;
                 } else { 
-                    toastr.error("加载container模版信息失败:" + data.info)
+                    toastr.error("加载ingress_lb_annotations模版信息失败:" + data.info)
                 }
             });
         };
@@ -486,6 +486,36 @@ status:
         {
             delete x.volumeMounts;
         }
+
+//
+        vm.addAnnotationsByType = function(type)
+        {
+            var all_ingress_lb_annotations_key = {};
+            angular.forEach(vm.ingress_lb_annotations, function (v, k) {
+
+                angular.forEach(v, function (v, k) {
+                    all_ingress_lb_annotations_key[k] = 1
+                });
+ 
+            });
+ 
+
+            var annotations_temp = [];
+            angular.forEach($scope.annotations, function (v, k) {
+                if( ! all_ingress_lb_annotations_key[v.K] )
+                {
+                    annotations_temp.push(v)
+                }
+            });
+ 
+            $scope.annotations = annotations_temp;
+ 
+            angular.forEach(vm.ingress_lb_annotations[type], function (v, k) {
+                $scope.annotations.push({"K": k,"V":v})
+            });
+        }
+
+
 
 //
         vm.switchApiVersion = function( versionName ){

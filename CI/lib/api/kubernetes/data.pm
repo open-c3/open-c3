@@ -7,7 +7,7 @@ use JSON;
 get '/kubernetes/data/template/:name' => sub {
     my $param = params();
     my $error = Format->new( 
-        name => qr/^[a-z]+$/, 1,
+        name => qr/^[a-zA-Z0-9_]+$/, 1,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;

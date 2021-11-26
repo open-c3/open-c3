@@ -90,10 +90,15 @@
             </div>
 
 
+
+
             <div class="row">
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-3 control-label">annotations</label>
                     <label class="col-sm-3 control-label" ng-click="kubernetescreateingress.addAnnotations()">+添加</label>
+                    <div class="col-sm-1" ng-repeat="(id, x) in kubernetescreateingress.ingress_lb_annotations">
+                        <a class="btn btn-primary" ng-click="kubernetescreateingress.addAnnotationsByType(id)">{{id}}</a>
+                    </div>
                 </div>
 
             </div>
@@ -124,6 +129,8 @@
                     </div>
                 </div>
             </div>
+
+
 
 <hr>
 apiVersion
