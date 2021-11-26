@@ -109,6 +109,15 @@ status:
                 { 
                    vm.loadover = true;
                    vm.editData = data.data;
+
+                   $scope.labels = [];
+                   if( vm.editData.metadata.labels )
+                   {
+                       angular.forEach(vm.editData.metadata.labels, function (v, k) {
+                           $scope.labels.push( { "K": k, "V": v })
+                       });
+                   }
+
                 } else { 
                     toastr.error("加载模版信息失败:" + data.info)
                 }
@@ -141,6 +150,18 @@ status:
                 if(data.stat == true) 
                 { 
                    vm.editData = data.data
+
+
+                   $scope.labels = [];
+                   if( vm.editData.metadata.labels )
+                   {
+                       angular.forEach(vm.editData.metadata.labels, function (v, k) {
+                           $scope.labels.push( { "K": k, "V": v })
+                       });
+                   }
+
+
+
                    vm.loadover = true;
                     $scope.editstep = 1; 
                 } else { 
@@ -166,9 +187,9 @@ status:
               delete v.tempargsstring;
             });
 
+            vm.editData.metadata.labels = labels;
             if( !vm.editData.status )
             {
-                vm.editData.metadata.labels = labels;
                 vm.editData.spec.selector.matchLabels.app = vm.editData.metadata.name;
                 vm.editData.spec.template.metadata.labels.app = vm.editData.metadata.name;
             }

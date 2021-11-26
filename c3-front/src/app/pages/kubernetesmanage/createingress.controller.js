@@ -110,6 +110,14 @@ status:
                    vm.loadover = true;
                    vm.editData = data.data;
 
+                   $scope.labels = [];
+                   if( vm.editData.metadata.labels )
+                   {
+                       angular.forEach(vm.editData.metadata.labels, function (v, k) {
+                           $scope.labels.push( { "K": k, "V": v })
+                       });
+                   }
+
                    var tlshash = {};
                    if( vm.editData.spec.tls && vm.editData.spec.tls.length > 0 )
                    {
@@ -158,6 +166,16 @@ status:
                 if(data.stat == true) 
                 { 
                    vm.editData = data.data
+
+                   $scope.labels = [];
+                   if( vm.editData.metadata.labels )
+                   {
+                       angular.forEach(vm.editData.metadata.labels, function (v, k) {
+                           $scope.labels.push( { "K": k, "V": v })
+                       });
+                   }
+
+
                    vm.loadover = true;
                     $scope.editstep = 1; 
                 } else { 
@@ -175,6 +193,8 @@ status:
                 var key = v["K"]
                 labels[key] = v["V"];
             });
+
+            vm.editData.metadata.labels = labels;
 
             var tls = [];
             angular.forEach(vm.editData.spec.rules, function (rule, k) {

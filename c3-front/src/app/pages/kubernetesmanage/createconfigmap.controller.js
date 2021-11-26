@@ -109,6 +109,15 @@ status:
                 { 
                    vm.loadover = true;
                    vm.editData = data.data;
+
+                   $scope.labels = [];
+                   if( vm.editData.metadata.labels )
+                   {
+                       angular.forEach(vm.editData.metadata.labels, function (v, k) {
+                           $scope.labels.push( { "K": k, "V": v })
+                       });
+                   }
+
                    vm.configMapData = [];
 
                    angular.forEach(vm.editData.data, function (v, k) {
@@ -147,6 +156,17 @@ status:
                 if(data.stat == true) 
                 { 
                    vm.editData = data.data
+
+                   $scope.labels = [];
+                   if( vm.editData.metadata.labels )
+                   {
+                       angular.forEach(vm.editData.metadata.labels, function (v, k) {
+                           $scope.labels.push( { "K": k, "V": v })
+                       });
+                   }
+
+
+
                    vm.loadover = true;
                     $scope.editstep = 1; 
                 } else { 
