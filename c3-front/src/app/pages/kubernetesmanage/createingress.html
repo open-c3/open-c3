@@ -1,0 +1,285 @@
+<div class="row block">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="kubernetescreateingress.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetescreateingress.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="关闭" ng-click="kubernetescreateingress.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
+            </span>
+            <h5>Ingress</h5>
+        </div>
+
+        <div class="panel-body" ng-if="editstep===0">
+  
+            <div class="pt20">
+                <table class="textdiff">
+                    <tr>
+                        <td>
+                            <textarea style="width: 100%;overflow: auto;word-break: break-all;height: 1200px;" ng-model="kubernetescreateingress.newyaml"> </textarea>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-5 form-group pull-right">
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateingress.gotostep1()">下一步</button>
+                </div>
+            </div>
+
+
+
+
+
+        </div>
+
+
+
+
+        <div class="panel-body" ng-if="editstep===1" >
+
+
+            <div class="row">
+                <div class="col-sm-5 form-group pull-right">
+                    <button class="btn btn-info" ng-disabled="myForm.$invalid" ng-click="kubernetescreateingress.gotostep0()">导入YAML</button>
+                </div>
+            </div>
+
+
+
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-3 control-label">名称</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="adduser" placeholder="名称" ng-model="kubernetescreateingress.editData.metadata.name" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-3 control-label">描述</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="adduser" placeholder="描述" ng-model="kubernetescreateingress.editData.metadata.annotations.describe" required>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-3 control-label">标签</label>
+                    <label class="col-sm-3 control-label" ng-click="kubernetescreateingress.addLable()">+添加</label>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-3 control-label"></label>
+                    <div class="col-sm-6">
+                        <table  border="0" style="width: 800px">
+                            <tr ng-repeat="(id, x) in labels">
+                                <td><input type="text" class="form-control"  ng-model="x.K"></td>
+                                <td style="width: 20px">=</td>
+                                <td><input type="text" class="form-control"  ng-model="x.V"></td>
+                                <td style="width: 50px"><a ng-click="kubernetescreateingress.delLable(id)">删除</a></td>
+                            </tr>
+                       </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-3 control-label">命名空间</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" name="adduser" placeholder="命名空间" ng-model="kubernetescreateingress.editData.metadata.namespace" required>
+                    </div>
+                </div>
+            </div>
+
+<hr>
+apiVersion
+            <div class="row">
+                <div class="col-sm-5 form-group pull-left">
+                    <button class="btn btn-primary" ng-disabled="kubernetescreateingress.editData.apiVersion == 'extensions/v1beta1'" ng-click="kubernetescreateingress.switchApiVersion('extensions/v1beta1')">extensions/v1beta1旧版</button>
+                    <button class="btn btn-primary" ng-disabled="kubernetescreateingress.editData.apiVersion == 'networking.k8s.io/v1'" ng-click="kubernetescreateingress.switchApiVersion('networking.k8s.io/v1')">networking.k8s.io/v1新版本</button>
+                </div>
+            </div>
+
+            <div class="row" ng-if="kubernetescreateingress.editData.spec.strategy.type == 'RollingUpdate'" >
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-1 control-label">MaxUnavailable</label>
+                    <div class="col-sm-3">
+                        <input type="text" class="form-control" name="adduser" placeholder="MaxUnavailable" ng-model="kubernetescreateingress.editData.spec.strategy.rollingUpdate.maxUnavailable" required>
+                    </div>
+                    <label class="col-sm-1 control-label">MaxSurge</label>
+                    <div class="col-sm-3">
+                        <input type="text" class="form-control" name="adduser" placeholder="MaxUnavailable" ng-model="kubernetescreateingress.editData.spec.strategy.rollingUpdate.maxSurge" required>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+<hr>
+
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-3 control-label">rules|规则</label>
+                    <div class="col-sm-6">
+                            <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.addRules()" uib-tooltip="添加规则" style="cursor:pointer;color: #339094;" ></i>
+                    </div>
+                </div>
+            </div>
+
+{{kubernetescreateingress.editData.spec.rules}}
+ 
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-3 control-label"></label>
+                    <div class="col-sm-9">
+                        <table  border="0" style="width: 100%">
+                            <tr ng-repeat="(id, x) in kubernetescreateingress.editData.spec.rules">
+                                <td >
+
+
+                                    <div class="row">
+                                        <div class="col-sm-12 form-group">
+                                            <label class="col-sm-3 control-label">域名</label>
+                                            <div class="col-sm-9">
+                                                <input type="text" class="form-control" placeholder="域名" ng-model="x.host" required>
+                                           </div>
+                                        </div>
+                                    </div>
+
+
+
+                                    <div class="row">
+                                        <div class="col-sm-12 form-group">
+                                            <label class="col-sm-3 control-label">Path</label>
+                                            <div class="col-sm-9">
+                                                <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.addPaths(x)" uib-tooltip="添加Path" style="cursor:pointer;color: #339094;" ></i>
+                                            </div>
+                                        </div>
+                                    </div>
+
+
+                                   <div class="row">
+                                       <div class="col-sm-12 form-group">
+                                           <label class="col-sm-1 control-label"></label>
+                                           <div class="col-sm-11">
+                                               <table  border="0" style="width: 100%" >
+                                                   <tr ng-repeat="(id, xx) in x.http.paths">
+                                                     <td>
+
+<!--
+                                                           <div class="row" ng-if="( xx.value === undefined ) && (!xx.valueFrom.configMapKeyRef) && ( ! xx.valueFrom.secretKeyRef)">
+                                                               <div class="col-sm-12 form-group">
+                                                                   <label class="col-sm-12 control-label">未知变量类型：{{xx}}</label>
+                                                               </div>
+                                                           </div>
+-->
+
+                                                           <div class="row" ng-if="kubernetescreateingress.editData.apiVersion === 'extensions/v1beta1'">
+                                                               <div class="col-sm-12 form-group">
+                                                                   <label class="col-sm-1 control-label">路径</label>
+                                                                   <div class="col-sm-3"> <input type="text" class="form-control" placeholder="" ng-model="xx.path" required> </div>
+                                                                   <label class="col-sm-1 control-label">serviceName</label>
+                                                                   <div class="col-sm-3"> <input type="text" class="form-control" placeholder="" ng-model="xx.backend.serviceName" required> </div>
+                                                                   <label class="col-sm-1 control-label">servicePort</label>
+                                                                   <div class="col-sm-3"> <input type="text" class="form-control" placeholder="" ng-model="xx.backend.servicePort" required> </div>
+                                                               </div>
+                                                           </div>
+
+
+                                                           <div class="row" ng-if="kubernetescreateingress.editData.apiVersion === 'networking.k8s.io/v1'">
+                                                               <div class="col-sm-12 form-group">
+                                                                   <label class="col-sm-1 control-label">路径</label>
+                                                                   <div class="col-sm-3"> <input type="text" class="form-control" placeholder="" ng-model="xx.path" required> </div>
+                                                                   <label class="col-sm-1 control-label">serviceName</label>
+                                                                   <div class="col-sm-3"> <input type="text" class="form-control" placeholder="" ng-model="xx.backend.service.name" required> </div>
+                                                                   <label class="col-sm-1 control-label">servicePort</label>
+                                                                   <div class="col-sm-3"> <input type="text" class="form-control" placeholder="" ng-model="xx.backend.service.port.number" required> </div>
+                                                               </div>
+                                                           </div>
+
+
+
+
+                                                      </td>
+                                                       <td style="width: 50px">
+                                                           <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.delPaths(x,id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                                       </td>
+                                                   </tr>
+                                              </table>
+                                           </div>
+                                       </div>
+                                   </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+                                </td>
+                                <td style="width: 50px">
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.delRules(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                </td>
+                            </tr>
+                       </table>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-5 form-group pull-right">
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateingress.toyaml()">下一步</button>
+                </div>
+            </div>
+
+
+
+        </div>
+
+
+
+        <div class="panel-body" ng-if="editstep===2">
+            <div class="row">
+                <div class="col-sm-5 form-group pull-right">
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateingress.gotostep1()">返回上一步</button>
+                </div>
+            </div>
+            <div class="pt20">
+                <table class="textdiff">
+                    <tr>
+                        <td>
+                            <textarea style="width: 100%;overflow: auto;word-break: break-all;height: 1200px;" ng-model="kubernetescreateingress.newyaml" ng-change="kubernetescreateingress.diff()"> </textarea>
+                        </td>
+                        <td><pre style="height: 1200px;"  id="diffresultstring" ></pre></td>
+                    </tr>
+                </table>
+            </div>
+            <div class="row">
+                <div class="col-sm-5 form-group pull-right">
+                    <button class="btn btn-info" ng-disabled="myForm.$invalid" ng-click="kubernetescreateingress.assignment()">操作协助</button>
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateingress.apply()">提交变更</button>
+                </div>
+            </div>
+        </div>
+
+
+
+    </div>
+</div>
+
+<style>.modal-dialog {width: 90%;} </style>
+<script src="assets/js/diff.js"></script>
+<link rel="stylesheet" href="assets/css/style.css"/>

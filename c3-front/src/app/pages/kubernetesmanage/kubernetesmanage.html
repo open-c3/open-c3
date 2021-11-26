@@ -59,6 +59,7 @@
             <div class="panel-heading">
                 <span class="panel-controls">
                     <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD) }" ></i>刷新</button>
+                <button class="btn btn-info" uib-tooltip="创建Ingress" ng-click="kubernetesmanage.createIngress('','')"><i class="fa fa-plus" aria-hidden="true">创建</i></button>
                 </span>
                 <h4 style="font-weight: bold;color: #337ab7">Ingress({{kubernetesmanage.ingressCount||0}})
                 </h4>
@@ -69,7 +70,10 @@
                 <table ng-table="kubernetesmanage.ingressTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
                         <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'名称'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">{{m.NAME}}</td>
+                        <td data-title="'名称'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">
+                            <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="kubernetesmanage.createIngress(m.NAMESPACE,m.NAME)" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
+                            {{m.NAME}}
+                        </td>
                         <td data-title="'CLASS'" width="80" filter="{ CLASS: 'text'}" sortable="'CLASS'">{{m.CLASS}}</td>
                         <td data-title="'HOSTS'" width="80" filter="{ HOSTS: 'text'}" sortable="'HOSTS'">{{m.HOSTS}}</td>
                         <td data-title="'ADDRESS'" width="80" filter="{ ADDRESS: 'text'}" sortable="'ADDRESS'">
