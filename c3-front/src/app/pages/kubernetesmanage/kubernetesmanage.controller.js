@@ -196,6 +196,24 @@
                 });
 
 
+            $http.get("/api/ci/v2/kubernetes/ingress?ticketid=" + vm.selecteClusterId + "&namespace=" + vm.selectednamespace + "&status=" + vm.selectedStat ).then(
+                function successCallback(response) {
+                    if (response.data.stat){
+
+
+                        vm.ingressTable = new ngTableParams({count:10}, {counts:[],data:response.data.data});
+                        vm.ingressCount = response.data.data.length;
+//TODO  添加新的loadoverX
+                        vm.loadoverB = true;
+                    }else {
+                        toastr.error( "获取集群ingress失败："+response.data.info );
+                    }
+                },
+                function errorCallback (response){
+                    toastr.error( "获取集群ingress失败: " + response.status )
+                });
+
+
 
 
 
