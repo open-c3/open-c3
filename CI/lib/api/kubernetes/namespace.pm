@@ -1,0 +1,54 @@
+package api::kubernetes::namespace;
+use Dancer ':syntax';
+use Dancer qw(cookie);
+use Encode qw(encode);
+use FindBin qw( $RealBin );
+use JSON;
+use POSIX;
+use api;
+use Format;
+use Time::Local;
+use File::Temp;
+use api::kubernetes;
+
+our %handle;
+$handle{showinfo} = sub { return +{ info => shift, stat => shift ? $JSON::false : $JSON::true }; };
+
+get '/kubernetes/namespace' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        ticketid => qr/^\d+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+    my $pmscheck = api::pmscheck( 'openc3_ci_read', 0 ); return $pmscheck if $pmscheck;
+
+    my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
+        map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 0 ) };
+    return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
+
+#TODO 不添加2>/dev/null 时,如果命名空间不存在namespace时，api.event 的接口会报错
+    my ( $cmd, $handle ) = ( "$kubectl get namespace -o wide 2>/dev/null", 'getnamespace' );
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
+    return &{$handle{$handle}}( `$cmd`//'', $? );
+};
+
+$handle{getnamespace} = sub
+{
+    my ( $x, $status ) = @_;
+    return +{ stat => $JSON::false, data => $x } if $status;
+    my @x = split /\n/, $x;
+
+    my ( @title, @r )= split /\s+/, shift @x;
+    map
+    {
+         my @col = split /\s+/, $_;
+         push @r, +{ map{ $title[$_] => $col[$_] }0..$#title};
+    }@x;
+
+    return +{ stat => $JSON::true, data => \@r, };
+};
+
+true;

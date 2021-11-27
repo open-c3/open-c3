@@ -107,6 +107,22 @@
                 return;
             }
 
+            $http.get("/api/ci/v2/kubernetes/namespace?ticketid=" + vm.selecteClusterId ).then(
+                function successCallback(response) {
+                    if (response.data.stat){
+
+                        vm.namespace = response.data.data; 
+//TODO 需要更换loadoverC
+                        vm.loadoverC = true;
+                    }else {
+                        toastr.error( "获取集群NAMESPACE数据失败："+response.data.info );
+                    }
+                },
+                function errorCallback (response){
+                    toastr.error( "获取集群NAMESPACE数据失败: " + response.status )
+                });
+ 
+
             $http.get("/api/ci/v2/kubernetes/hpa?ticketid=" + vm.selecteClusterId ).then(
                 function successCallback(response) {
                     if (response.data.stat){
@@ -143,7 +159,7 @@
                 function successCallback(response) {
                     if (response.data.stat){
 
-                        vm.namespace = response.data.namespace; 
+                      //  vm.namespace = response.data.namespace; 
 
                         vm.deploymentTable = new ngTableParams({count:10}, {counts:[],data:response.data.data.deployment});
                         vm.deploymentCount = response.data.data.deployment.length;
