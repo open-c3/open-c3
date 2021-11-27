@@ -96,7 +96,7 @@
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-3 control-label">annotations</label>
                     <label class="col-sm-3 control-label" ng-click="kubernetescreateservice.addAnnotations()">+添加</label>
-                    <div class="col-sm-1" ng-repeat="(id, x) in kubernetescreateservice.ingress_lb_annotations">
+                    <div class="col-sm-1" ng-repeat="(id, x) in kubernetescreateservice.service_lb_annotations">
                         <a class="btn btn-primary" ng-click="kubernetescreateservice.addAnnotationsByType(id)">{{id}}</a>
                     </div>
                 </div>
@@ -133,31 +133,6 @@
 
 
 <hr>
-apiVersion
-            <div class="row">
-                <div class="col-sm-5 form-group pull-left">
-                    <button class="btn btn-primary" ng-disabled="kubernetescreateservice.editData.apiVersion == 'extensions/v1beta1'" ng-click="kubernetescreateservice.switchApiVersion('extensions/v1beta1')">extensions/v1beta1旧版</button>
-                    <button class="btn btn-primary" ng-disabled="kubernetescreateservice.editData.apiVersion == 'networking.k8s.io/v1'" ng-click="kubernetescreateservice.switchApiVersion('networking.k8s.io/v1')">networking.k8s.io/v1新版本</button>
-                </div>
-            </div>
-
-            <div class="row" ng-if="kubernetescreateservice.editData.spec.strategy.type == 'RollingUpdate'" >
-                <div class="col-sm-12 form-group">
-                    <label class="col-sm-1 control-label">MaxUnavailable</label>
-                    <div class="col-sm-3">
-                        <input type="text" class="form-control" name="adduser" placeholder="MaxUnavailable" ng-model="kubernetescreateservice.editData.spec.strategy.rollingUpdate.maxUnavailable" required>
-                    </div>
-                    <label class="col-sm-1 control-label">MaxSurge</label>
-                    <div class="col-sm-3">
-                        <input type="text" class="form-control" name="adduser" placeholder="MaxUnavailable" ng-model="kubernetescreateservice.editData.spec.strategy.rollingUpdate.maxSurge" required>
-                    </div>
-                </div>
-            </div>
-
-
-
-
-<hr>
 
             <div class="row">
                 <div class="col-sm-12 form-group">
@@ -168,8 +143,6 @@ apiVersion
                 </div>
             </div>
 
-{{kubernetescreateservice.editData.spec.ports}}
- 
             <div class="row">
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-3 control-label"></label>
