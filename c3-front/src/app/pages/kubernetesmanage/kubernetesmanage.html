@@ -8,7 +8,6 @@
             <span class="panel-controls">
 
                 <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC)}" ></i>刷新</button>
-                <button class="btn btn-info" uib-tooltip="添加集群" ng-click="kubernetesmanage.addCluster()"><i class="fa fa-plus" aria-hidden="true">添加</i></button>
             </span>
 
                 <h4 style="font-weight: bold;color: #337ab7">集群({{clusterCount||0}})</h4>
@@ -16,21 +15,50 @@
 
             <div class="panel-body" style="margin-top: 20px">
                 <div class="row">
-                    <label class="col-md-1 control-label fwbold">集群:</label>
-                    <select id="selecteddataval" class="form-control"  ng-model="choiceClusterId" style="width: 40%" >
-                         <option ng-repeat="x in kubernetesmanage.clusterlist" value="{{x.id}}">{{x.name}} 详情: {{x.describe}} 操作权限: {{x.auth}}</option>
-                    </select>
-                    <label class="col-md-1 control-label fwbold">命名空间:</label>
-                    <select id="selectednameval" class="form-control"  ng-model="choiceNamespace" style="width: 40%" >
-                         <option value="">全部</option>
-                         <option ng-repeat="x in kubernetesmanage.namespace" value="{{x.NAME}}">{{x.NAME}} 状态: {{x.STATUS}} 年龄: {{x.AGE}}</option>
-                    </select>
-                    <label class="col-md-1 control-label fwbold">状态:</label>
-                    <select id="selectedprojectval" class="form-control"  ng-model="choiceStat" style="width: 40%" >
-                         <option value="">全部</option>
-                         <option value="fail">异常</option>
-                    </select>
+                    <div class="col-sm-12 form-group">
+                        <label class="col-sm-1 control-label">集群</label>
+                        <div class="col-sm-4">
+                            <select id="selecteddataval" class="form-control"  ng-model="choiceClusterId" >
+                                 <option ng-repeat="x in kubernetesmanage.clusterlist" value="{{x.id}}">{{x.name}} 详情: {{x.describe}} 操作权限: {{x.auth}}</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-1">
+                            <button class="btn btn-info" uib-tooltip="添加集群" ng-click="kubernetesmanage.addCluster()"><i class="fa fa-plus" aria-hidden="true">添加</i></button>
+                        </div>
+ 
+                    </div>
                 </div>
+
+
+                <div class="row">
+                    <div class="col-sm-12 form-group">
+                        <label class="col-sm-1 control-label">命名空间</label>
+                        <div class="col-sm-4">
+                            <select id="selectednameval" class="form-control"  ng-model="choiceNamespace" >
+                                 <option value="">全部</option>
+                                 <option ng-repeat="x in kubernetesmanage.namespace" value="{{x.NAME}}">{{x.NAME}} 状态: {{x.STATUS}} 年龄: {{x.AGE}}</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-1">
+                            <button class="btn btn-info" uib-tooltip="添加集群" ng-click="kubernetesmanage.addCluster()"><i class="fa fa-plus" aria-hidden="true">添加</i></button>
+                        </div>
+ 
+                    </div>
+                </div>
+
+
+                <div class="row">
+                    <div class="col-sm-12 form-group">
+                        <label class="col-sm-1 control-label">状态</label>
+                        <div class="col-sm-2">
+                            <select id="selectedprojectval" class="form-control"  ng-model="choiceStat" style="width: 40%" >
+                                 <option value="">全部</option>
+                                 <option value="fail">异常</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
 
                 <div ng-if="choiceClusterId" class="row">
                     <button style="float: right;margin-right: 4px;" class="btn btn-info" uib-tooltip="新建应用" ng-click="kubernetesmanage.apply()"><i class="fa fa-rocket" aria-hidden="true">创建应用</i></button>
