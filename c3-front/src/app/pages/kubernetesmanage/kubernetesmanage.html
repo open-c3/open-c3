@@ -103,6 +103,7 @@
             <div class="panel-heading">
                 <span class="panel-controls">
                     <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD) }" ></i>刷新</button>
+                <button class="btn btn-info" uib-tooltip="创建Service" ng-click="kubernetesmanage.createService('','')"><i class="fa fa-plus" aria-hidden="true">创建</i></button>
                 </span>
                 <h4 style="font-weight: bold;color: #337ab7">Service({{kubernetesmanage.serviceCount||0}})</h4>
             </div>
@@ -111,7 +112,10 @@
                 <table ng-table="kubernetesmanage.serviceTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
                         <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'名称'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">{{m.NAME}}</td>
+                        <td data-title="'名称'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">
+                            <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="kubernetesmanage.createService(m.NAMESPACE,m.INAME)" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
+                            {{m.NAME}}
+                        </td>
                         <td data-title="'TYPE'" width="80" filter="{ TYPE: 'text'}" sortable="'TYPE'">{{m.TYPE}}</td>
                         <td data-title="'CLUSTER-IP'" width="80" filter="{ CLUSTER_IP: 'text'}" sortable="'CLUSTER_IP'">{{m.CLUSTER_IP}}</td>
                         <td data-title="'EXTERNAL-IP'" width="80" filter="{ EXTERNAL_IP: 'text'}" sortable="'EXTERNAL_IP'">{{m.EXTERNAL_IP}}</td>

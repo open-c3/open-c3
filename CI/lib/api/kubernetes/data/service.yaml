@@ -1,0 +1,26 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations: {}
+  labels: {}
+  name: fengtest-service-clusterip
+  namespace: fengtest
+spec:
+  clusterIP: ""
+  ports:
+  - name: port1
+    port: 8080
+    protocol: TCP
+    targetPort: 2222
+  - name: port2
+    port: 8081
+    protocol: TCP
+    targetPort: 8081
+  - name: port3
+    port: 8082
+    protocol: TCP
+    targetPort: 8082
+  selector:
+    aaa: 123
+  type: ClusterIP
