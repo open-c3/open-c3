@@ -698,6 +698,22 @@
           });
         }
 
+        vm.addNamespace = function () {
+            $uibModal.open({
+                templateUrl: 'app/pages/kubernetesmanage/createnamespace.html',
+                controller: 'KubernetesCreateNamespaceController',
+                controllerAs: 'kubernetescreatenamespace',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () {return vm.treeid},
+                    ticketid: function () {return vm.selecteClusterId},
+                    clusterinfo: function () {return vm.selecteCluster},
+                }
+            });
+        };
 
         vm.openOneTab = function (pod, type) {
             var terminalAddr = window.location.protocol + "//" + window.location.host+"/api/ci/kubernetes/pod/shell";
