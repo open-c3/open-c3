@@ -1,0 +1,99 @@
+<div class="row block">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="kubernetesdescribeservice.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetesdescribeservice.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="关闭" ng-click="kubernetesdescribeservice.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
+            </span>
+            <h5>service describe信息</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="pt20">
+                <div>
+
+
+
+
+                    <div class="panel-body" style="margin-top: 2px">
+                        <div class="pt20" style="overflow: auto;">
+                            <table ng-table="kubernetesdescribeservice.deploymentTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
+                                <tr ng-repeat="m in $data">
+                                    <td data-title="'Deployment'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">{{m.NAME}}</td>
+                                    <td data-title="'READY'" width="80" filter="{ READY: 'text'}" sortable="'READY'">{{m.READY}}</td>
+                                    <td data-title="'UP-TO-DATE'" width="80" filter="{ UP_TO_DATE: 'text'}" sortable="'UP_TO_DATE'">{{m.UP_TO_DATE}}</td>
+                                    <td data-title="'AVAILABLE'" width="80" filter="{ AVAILABLE: 'text'}" sortable="'AVAILABLE'">{{m.AVAILABLE}}</td>
+                                    <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
+                                    <td data-title="'CONTAINERS'" width="80" filter="{ CONTAINERS: 'text'}" sortable="'CONTAINERS'">{{m.CONTAINERS}}</td>
+                                    <td data-title="'IMAGES'" width="80" filter="{ IMAGES: 'text'}" sortable="'IMAGES'">{{m.IMAGES}}</td>
+                                    <td data-title="'SELECTOR'" width="80" filter="{ SELECTOR: 'text'}" sortable="'SELECTOR'">{{m.SELECTOR}}</td>
+                                    <td data-title="'操作'" width="80" >
+                                        <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesdescribeservice.describexx('deployment',m.INAME)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
+                                    </td> 
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+
+
+                    <div class="panel-body" style="margin-top: 2px">
+                        <div class="pt20" style="overflow: auto;">
+                            <table ng-table="kubernetesdescribeservice.replicasetTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
+                                <tr ng-repeat="m in $data">
+                                    <td data-title="'Replicaset'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">{{m.NAME}}</td>
+                                    <td data-title="'DESIRED'" width="80" filter="{ DESIRED: 'text'}" sortable="'DESIRED'">{{m.DESIRED}}</td>
+                                    <td data-title="'CURRENT'" width="80" filter="{ CURRENT: 'text'}" sortable="'CURRENT'">{{m.CURRENT}}</td>
+                                    <td data-title="'READY'" width="80" filter="{ READY: 'text'}" sortable="'READY'">{{m.READY}}</td>
+                                    <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
+                                    <td data-title="'CONTAINERS'" width="80" filter="{ CONTAINERS: 'text'}" sortable="'CONTAINERS'">{{m.CONTAINERS}}</td>
+                                    <td data-title="'IMAGES'" width="80" filter="{ IMAGES: 'text'}" sortable="'IMAGES'">{{m.IMAGES}}</td>
+                                    <td data-title="'SELECTOR'" width="80" filter="{ SELECTOR: 'text'}" sortable="'SELECTOR'">{{m.SELECTOR}}</td>
+                                    <td data-title="'操作'" width="80" >
+                                        <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesdescribeservice.describexx('replicaset',m.INAME)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
+                                    </td> 
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+
+
+
+                    <div class="panel-body" style="margin-top: 2px">
+                        <div class="pt20" style="overflow: auto;">
+                            <table ng-table="kubernetesdescribeservice.podTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
+                                <tr ng-repeat="m in $data">
+                                    <td data-title="'Pod'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">{{m.NAME}}</td>
+                                    <td data-title="'READY'" width="80" filter="{ READY: 'text'}" sortable="'READY'">{{m.READY}}</td>
+                                    <td data-title="'STATUS'" width="80" filter="{ STATUS: 'text'}" sortable="'STATUS'">{{m.STATUS}}</td>
+                                    <td data-title="'RESTARTS'" width="80" filter="{ RESTARTS: 'text'}" sortable="'RESTARTS'">{{m.RESTARTS}}</td>
+                                    <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
+                                    <td data-title="'IP'" width="80" filter="{ IP: 'text'}" sortable="'IP'">{{m.IP}}</td>
+                                    <td data-title="'NODE'" width="80" filter="{ NODE: 'text'}" sortable="'NODE'">{{m.NODE}}</td>
+                                    <td data-title="'操作'" width="80" >
+                                        <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesdescribeservice.describexx('pod',m.INAME)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
+                                    </td> 
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+
+
+                    <div class="row" class="form-group">
+                        <div class="col-md-12">
+                            <pre style="min-height: 100px;" ng-dblclick="dataEdit=true" class="text-left"  ng-bind-html="kubernetesdescribeservice.describe"></pre>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
+<style>.modal-dialog {width: 60%;} </style>

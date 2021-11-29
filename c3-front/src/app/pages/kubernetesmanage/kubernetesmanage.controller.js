@@ -423,6 +423,45 @@
             });
         };
 
+        vm.describeingress = function (type,name,namespace) {
+            $uibModal.open({
+                templateUrl: 'app/pages/kubernetesmanage/describeingress.html',
+                controller: 'KubernetesDescribeIngressController',
+                controllerAs: 'kubernetesdescribeingress',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () {return vm.treeid},
+                    type: function () {return type},
+                    name: function () {return name},
+                    namespace: function () {return namespace},
+                    ticketid: function () {return vm.selecteClusterId},
+                }
+            });
+        };
+
+        vm.describeservice = function (type,name,namespace) {
+            $uibModal.open({
+                templateUrl: 'app/pages/kubernetesmanage/describeservice.html',
+                controller: 'KubernetesDescribeServiceController',
+                controllerAs: 'kubernetesdescribeservice',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () {return vm.treeid},
+                    type: function () {return type},
+                    name: function () {return name},
+                    namespace: function () {return namespace},
+                    ticketid: function () {return vm.selecteClusterId},
+                }
+            });
+        };
+
+
 
         vm.setimage = function (type,name,namespace,image,container) {
             $uibModal.open({

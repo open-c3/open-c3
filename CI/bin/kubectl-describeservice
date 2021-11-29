@@ -1,0 +1,60 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+
+use YAML::XS;
+
+my ( $kubectl, $namespace, $name ) = @ARGV;
+my $cmd = "$kubectl describe service '$name' -n '$namespace'";
+
+my %re;
+$re{describe} = `$cmd`;
+
+
+
+$re{describe} =~ /\nSelector:\s+([^\n]+)\n/ and $re{"Selector"} = $1;
+
+
+my @x = `$kubectl  get all -o wide -n '$namespace' -l '$re{"Selector"}'`;
+chomp @x;
+
+
+my ( %r, @title ) = ( deployment => [], pod => [], replicaset => [] );
+
+
+for my $line ( @x )
+{
+    $line =~ s/NODE SELECTOR/NODE_SELECTOR/;
+    $line =~ s/NOMINATED NODE/NOMINATED_NODE/;
+    $line =~ s/READINESS GATES/READINESS_GATES/;
+    $line =~ s/PORT\(S\)/PORT_S_/;
+
+    next unless my @col = split /\s+/, $line;
+
+    if( $col[0] eq 'NAME' )
+    {
+        @title = map{ $_ =~ s/\-/_/g; $_ }@col;
+    }
+    else
+    {
+        my $r = +{ map{ $title[$_] => $col[$_] } 0 ..  @title -1 };
+        my ( $type ) = split /\//, $r->{NAME};
+        $type =~ s/\.apps$//;
+        $type = 'hpa' if $type eq 'horizontalpodautoscaler.autoscaling';
+        $r->{type} = $type;
+        $r{$type} = [] unless $r{$type};
+
+        $r->{INAME} = ( split /\//, $r->{NAME}, 2 )[1];
+        if( $r->{type} eq 'replicaset' )
+        {
+            push @{$r{$type}}, $r if $r->{DESIRED};
+        }
+        else
+        {
+            push @{$r{$type}}, $r;
+        }
+    }
+}
+
+$re{table} = \%r;
+print YAML::XS::Dump \%re;

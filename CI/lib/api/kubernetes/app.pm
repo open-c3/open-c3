@@ -201,6 +201,78 @@ $handle{getdescribedeployment} = sub
     return +{ stat => $JSON::true, data => $data };
 };
 
+get '/kubernetes/app/describeingress' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        type => qr/^[\w@\.\-]*$/, 1,
+        name => qr/^[\w@\.\-]*$/, 1,
+        namespace => qr/^[\w@\.\-]*$/, 1,
+        ticketid => qr/^\d+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+    my $pmscheck = api::pmscheck( 'openc3_ci_read', 0 ); return $pmscheck if $pmscheck;
+
+    my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
+        map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 0 ) };
+    return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
+
+    my ( $cmd, $handle ) = ( "/data/Software/mydan/CI/bin/kubectl-describeingress '$kubectl' '$param->{namespace}' '$param->{name}'", 'getdescribeingress' );
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
+
+    return &{$handle{$handle}}( `$cmd`//'', $? ); 
+};
+
+$handle{getdescribeingress} = sub
+{
+    my ( $x, $status ) = @_;
+    return +{ stat => $JSON::false, data => $x } if $status;
+
+    my $data = eval{ YAML::XS::Load $x };
+    return +{ stat => $JSON::false, info => $@, xx => $x } if $@;
+
+    return +{ stat => $JSON::true, data => $data };
+};
+
+get '/kubernetes/app/describeservice' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        type => qr/^[\w@\.\-]*$/, 1,
+        name => qr/^[\w@\.\-]*$/, 1,
+        namespace => qr/^[\w@\.\-]*$/, 1,
+        ticketid => qr/^\d+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+    my $pmscheck = api::pmscheck( 'openc3_ci_read', 0 ); return $pmscheck if $pmscheck;
+
+    my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
+        map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 0 ) };
+    return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
+
+    my ( $cmd, $handle ) = ( "/data/Software/mydan/CI/bin/kubectl-describeservice '$kubectl' '$param->{namespace}' '$param->{name}'", 'getdescribeservice' );
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
+
+    return &{$handle{$handle}}( `$cmd`//'', $? ); 
+};
+
+$handle{getdescribeservice} = sub
+{
+    my ( $x, $status ) = @_;
+    return +{ stat => $JSON::false, data => $x } if $status;
+
+    my $data = eval{ YAML::XS::Load $x };
+    return +{ stat => $JSON::false, info => $@, xx => $x } if $@;
+
+    return +{ stat => $JSON::true, data => $data };
+};
+
+
+
 get '/kubernetes/app/yaml' => sub {
     my $param = params();
     my $error = Format->new( 
