@@ -131,6 +131,26 @@
 
 
 
+        vm.createSecretOpaque = function (namespace,name,type) {
+            $uibModal.open({
+                templateUrl: 'app/pages/kubernetesmanage/createsecretopaque.html',
+                controller: 'KubernetesCreateSecretOpaqueController',
+                controllerAs: 'kubernetescreatesecretopaque',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () {return vm.treeid},
+                    ticketid: function () {return clusterinfo.id},
+                    clusterinfo: function () {return clusterinfo},
+                    namespace: function () {return namespace},
+                    name: function () {return name},
+                    type: function () {return type},
+                }
+            });
+        };
+
 
 
     }

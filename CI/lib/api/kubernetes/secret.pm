@@ -53,7 +53,7 @@ $handle{getsecret} = sub
     return +{ stat => $JSON::true, data => \@r, };
 };
 
-post '/kubernetes/secret/create' => sub {
+post '/kubernetes/secret/dockerconfigjson' => sub {
     my $param = params();
     my $error = Format->new( 
         ticketid => qr/^\d+$/, 1,

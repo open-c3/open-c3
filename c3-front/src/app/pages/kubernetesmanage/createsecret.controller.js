@@ -36,7 +36,7 @@
                 "email": vm.email,
             };
 
-            $http.post("/api/ci/v2/kubernetes/secret/create", d  ).success(function(data){
+            $http.post("/api/ci/v2/kubernetes/secret/dockerconfigjson", d  ).success(function(data){
                 if(data.stat == true) 
                 { 
                    vm.loadover = true;
@@ -52,7 +52,7 @@
                 "type": "kubernetes",
                 "name": "创建SECRET",
                 "handler": clusterinfo.create_user,
-                "url": "/api/ci/v2/kubernetes/secret/create",
+                "url": "/api/ci/v2/kubernetes/secret/dockerconfigjson",
                 "method": "POST",
                 "submit_reason": "",
                 "remarks": "\n集群ID:" + ticketid + ";\n集群名称:" + clusterinfo.name + ";\n命名空间:" + vm.namespace + ";\nsecret名称:"+ vm.name,

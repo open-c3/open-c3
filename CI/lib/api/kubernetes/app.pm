@@ -360,6 +360,36 @@ post '/kubernetes/app/apply' => sub {
     return &{$handle{$handle}}( `$cmd`//'', $? ); 
 };
 
+post '/kubernetes/app/create' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        yaml => qr/.*/, 1,
+        ticketid => qr/^\d+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+    my $pmscheck = api::pmscheck( 'openc3_ci_read', 0 ); return $pmscheck if $pmscheck;
+
+    my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
+        map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 1 ) };
+    return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
+
+    #check yaml 格式
+    #dump成文件后继续检查格式，危险
+
+    my $fh = File::Temp->new( UNLINK => 0, SUFFIX => '.yaml' );
+    print $fh $param->{yaml};
+    close $fh;
+
+    my $filename = $fh->filename;
+
+    my ( $cmd, $handle ) = ( "$kubectl create -f '$filename' 2>&1", 'showinfo' );
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
+    return &{$handle{$handle}}( `$cmd`//'', $? ); 
+};
+
 post '/kubernetes/app/setimage' => sub {
     my $param = params();
     my $error = Format->new( 
