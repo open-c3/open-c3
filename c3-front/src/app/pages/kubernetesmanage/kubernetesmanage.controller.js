@@ -572,6 +572,25 @@
 
         };
 
+        vm.connectiontest = function(){
+//TODO 处理loading
+            vm.loading = true
+            $http.post('/api/ci/v2/kubernetes/cluster/connectiontest/' + vm.selecteClusterId , {}, { timeout: 120000 } ).then(
+                function successCallback(response) {
+                    vm.loading = false
+                    if (response.data.stat){
+                        swal({ title:'连接成功', text: response.data.info, type:'success' });
+                    }else {
+                        swal({ title:'连接失败', text: response.data.info, type:'error' });
+                    }
+                },
+
+                function errorCallback (response){
+                    vm.loading = false
+                }
+            );
+        };
+
         vm.node = function () {
             $uibModal.open({
                 templateUrl: 'app/pages/kubernetesmanage/node.html',
