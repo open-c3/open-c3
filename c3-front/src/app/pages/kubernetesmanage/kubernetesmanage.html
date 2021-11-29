@@ -39,7 +39,7 @@
                                  <option ng-repeat="x in kubernetesmanage.namespace" value="{{x.NAME}}">{{x.NAME}} 状态: {{x.STATUS}} 年龄: {{x.AGE}}</option>
                             </select>
                         </div>
-                        <div class="col-sm-1">
+                        <div class="col-sm-1" ng-if="choiceClusterId">
                             <button class="btn btn-info" uib-tooltip="添加命名空间" ng-click="kubernetesmanage.addNamespace()"><i class="fa fa-plus" aria-hidden="true">添加</i></button>
                         </div>
  
