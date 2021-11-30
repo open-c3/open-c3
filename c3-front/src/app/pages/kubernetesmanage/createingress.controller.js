@@ -25,6 +25,18 @@
             vm.tasktype = 'apply';
         }
 
+        vm.loadsecrets = function( ns )
+        {
+            $http.get("/api/ci/v2/kubernetes/secret?ticketid=" + ticketid + "&namespace=" + ns ).success(function(data){
+                if(data.stat == true) 
+                { 
+                    vm.secrets = data.data
+                } else { 
+                    toastr.error("加载secret信息失败:" + data.info)
+                }
+            });
+        };
+
         vm.reload = function(){
             vm.loadover = false;
 
@@ -102,6 +114,7 @@
                     toastr.error( "获取集群NAMESPACE数据失败: " + response.status )
                 });
             }
+            vm.loadsecrets( namespace );
         };
         vm.reload();
 
