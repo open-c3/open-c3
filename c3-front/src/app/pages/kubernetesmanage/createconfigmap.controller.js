@@ -63,6 +63,7 @@
             });
 
             if( vm.tasktype == 'create' )
+            {
             $http.get("/api/ci/v2/kubernetes/namespace?ticketid=" + ticketid ).then(
                 function successCallback(response) {
                     if (response.data.stat){
@@ -74,7 +75,6 @@
                 function errorCallback (response){
                     toastr.error( "获取集群NAMESPACE数据失败: " + response.status )
                 });
-
             }
         };
         vm.reload();
