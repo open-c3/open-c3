@@ -37,6 +37,24 @@
             });
         };
 
+        vm.loadservices = function( ns )
+        {
+            $http.get("/api/ci/v2/kubernetes/service?ticketid=" + ticketid + "&namespace=" + ns ).success(function(data){
+                if(data.stat == true) 
+                { 
+                    vm.services = data.data
+                } else { 
+                    toastr.error("加载service信息失败:" + data.info)
+                }
+            });
+        };
+
+        vm.namespacechange = function(ns)
+        {
+            vm.loadsecrets(ns);
+            vm.loadservices(ns);
+        }
+
         vm.reload = function(){
             vm.loadover = false;
 
@@ -115,6 +133,7 @@
                 });
             }
             vm.loadsecrets( namespace );
+            vm.loadservices( namespace );
         };
         vm.reload();
 
