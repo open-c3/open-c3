@@ -18,88 +18,19 @@
         });
 
         $scope.editstep = 1;
-var demo = {
-"cm": `
-apiVersion: v1
-items:
-- kind: ConfigMap
-  apiVersion: v1
-  metadata:
-    name: test0
-  data:
-    key1: apple
-- kind: ConfigMap
-  apiVersion: v1
-  metadata:
-    name: test1
-  data:
-    key2: apple
-kind: ConfigMapList
-metadata: {}
-`,
-
-"deploy_serverside": `
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  annotations:
-    deployment.kubernetes.io/revision: "1"
-    kubectl.kubernetes.io/last-applied-configuration: '{"kind":"Deployment","apiVersion":"apps/v1","metadata":{"name":"nginx-deployment","creationTimestamp":null,"labels":{"name":"nginx"}},"spec":{"selector":{"matchLabels":{"name":"nginx"}},"template":{"metadata":{"creationTimestamp":null,"labels":{"name":"nginx"}},"spec":{"containers":[{"name":"nginx","image":"nginx","resources":{}}]}},"strategy":{}},"status":{}}'
-  creationTimestamp: "2016-10-24T22:15:06Z"
-  generation: 6
-  labels:
-    name: nginx
-  name: nginx-deployment
-  namespace: test
-  resourceVersion: "355959"
-  selfLink: /apis/extensions/v1beta1/namespaces/test/deployments/nginx-deployment
-  uid: 51ac266e-9a37-11e6-8738-0800270c4edc
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      name: nginx
-  strategy:
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 1
-    type: RollingUpdate
-  template:
-    metadata:
-      creationTimestamp: null
-      labels:
-        name: nginx
-    spec:
-      containers:
-      - image: nginx
-        imagePullPolicy: Always
-        name: nginx
-        resources: {}
-        terminationMessagePath: /dev/termination-log
-      dnsPolicy: ClusterFirst
-      restartPolicy: Always
-      securityContext: {}
-      terminationGracePeriodSeconds: 30
-status:
-  availableReplicas: 1
-  observedGeneration: 6
-  replicas: 1
-  updatedReplicas: 1
-`,
-};
-
       
-        vm.demo = function( name ){
-            vm.newyaml = demo[name];
-        };
-
+        vm.tasktype = 'create';
+        if( namespace && name )
+        {
+            vm.tasktype = 'apply';
+        }
 
         vm.reload = function(){
             vm.loadover = false;
 
             var url = "/api/ci/kubernetes/data/template/daemonset";
 
-            if( namespace && name )
+            if( vm.tasktype == 'apply' )
             {
                 url = "/api/ci/v2/kubernetes/app/json?ticketid=" + ticketid + "&type=daemonset&name=" + name + "&namespace=" + namespace;
             }
@@ -130,15 +61,26 @@ status:
                     toastr.error("加载container模版信息失败:" + data.info)
                 }
             });
+            if( vm.tasktype == 'create' )
+            {
+            $http.get("/api/ci/v2/kubernetes/namespace?ticketid=" + ticketid ).then(
+                function successCallback(response) {
+                    if (response.data.stat){
+                        vm.namespaces = response.data.data; 
+                    }else {
+                        toastr.error( "获取集群NAMESPACE数据失败："+response.data.info );
+                    }
+                },
+                function errorCallback (response){
+                    toastr.error( "获取集群NAMESPACE数据失败: " + response.status )
+                });
+            }
         };
         vm.reload();
-
 
         vm.gotostep0 = function(){
             $scope.editstep = 0; 
         };
-
-
 
         vm.gotostep1 = function(){
             vm.loadover = false;
@@ -160,19 +102,13 @@ status:
                        });
                    }
 
-
-
                    vm.loadover = true;
-                    $scope.editstep = 1; 
+                   $scope.editstep = 1; 
                 } else { 
                    swal({ title:'提交失败', text: data.info, type:'error' });
                 }
             });
-
         };
-
-
-
 
         vm.toyaml = function(){
             $scope.editstep = 2; 
@@ -220,15 +156,11 @@ status:
                   {
                        swal({ title:'错误', text: "Namespace和Name不齐全", type:'error' });
                   }
-
-
-
                 } else { 
                    swal({ title:'提交失败', text: data.info, type:'error' });
                 }
             });
         };
-
 
         $scope.labels = [];
 
@@ -240,8 +172,30 @@ status:
         {
             $scope.labels.splice(id, 1);
         }
+//Secret
+        vm.autoGetSecret = function()
+        {
+            $http.get("/api/ci/v2/kubernetes/secret?ticketid=" + ticketid + "&namespace=" + vm.editData.metadata.namespace ).success(function(data){
+                if(data.stat == true) 
+                { 
+                    if( data.data.length > 0 && ! vm.editData.spec.template.spec.imagePullSecrets )
+                    {
+                        vm.editData.spec.template.spec.imagePullSecrets = [];
+                    }
+ 
+                    angular.forEach(data.data, function (v, k) {
+                        if( v.TYPE === "kubernetes.io/dockerconfigjson" )
+                        {
+                            vm.editData.spec.template.spec.imagePullSecrets.push({ "name": v.NAME });
+                        }
+                    });
 
-
+                } else { 
+                    toastr.error("加载secret信息失败:" + data.info)
+                }
+            });
+        }
+ 
         vm.addSecret = function()
         {
             if( ! vm.editData.spec.template.spec.imagePullSecrets )
@@ -253,6 +207,10 @@ status:
         vm.delSecret = function(id)
         {
             vm.editData.spec.template.spec.imagePullSecrets.splice(id, 1);
+        }
+        vm.cleanSecret = function()
+        {
+            delete vm.editData.spec.template.spec.imagePullSecrets;
         }
 
         vm.addVolume = function( type )
@@ -286,8 +244,6 @@ status:
                 data = { "name": "", "configMap": { "name":"", "items": [ { "key": "", "path": "" } ] } }
             }
 
-
-
             if( ! vm.editData.spec.template.spec.volumes )
             {
                 vm.editData.spec.template.spec.volumes = [];
@@ -295,11 +251,16 @@ status:
 
             vm.editData.spec.template.spec.volumes.push(data);
         }
-         vm.delVolume = function(id)
+        vm.delVolume = function(id)
         {
             vm.editData.spec.template.spec.volumes.splice(id, 1);
         }
+        vm.cleanVolume = function()
+        {
+            delete vm.editData.spec.template.spec.volumes;
+        }
 
+//Command
         vm.addCommand = function(x, cmd)
         {
             if( ! x.command )
@@ -315,7 +276,6 @@ status:
             delete x.command;
             x.tempcommandstring = "";
         }
-
 
         vm.addArgs = function(x, args)
         {
@@ -334,6 +294,99 @@ status:
         }
 
 
+//容器环境变量
+        vm.addContainerEnv = function(x)
+        {
+            if( ! x.env )
+            {
+                x.env = []
+            }
+            x.env.push({"name":"","value":""})
+        }
+ 
+        vm.addContainerEnvConfigMap = function(x)
+        {
+            if( ! x.env )
+            {
+                x.env = []
+            }
+            x.env.push({"name": "", "valueFrom": { "configMapKeyRef": { "name": "", "key": "" } }})
+        }
+         vm.addContainerEnvSecret = function(x)
+        {
+            if( ! x.env )
+            {
+                x.env = []
+            }
+            x.env.push({"name": "", "valueFrom": { "secretKeyRef": { "name": "", "key": "" } }})
+        }
+ 
+        vm.delContainerEnv = function(x,id)
+        {
+            x.env.splice(id, 1);
+        }
+        vm.cleanContainerEnv = function(x)
+        {
+            delete x.env;
+        }
+
+//容器端口
+        vm.addContainerPorts = function(x,protocol)
+        {
+            if( ! x.ports )
+            {
+                x.ports = []
+            }
+            x.ports.push({"name":"","protocol": protocol, "containerPort":""})
+        }
+        vm.delContainerPorts = function(x,id)
+        {
+            x.ports.splice(id, 1);
+        }
+        vm.cleanContainerPorts = function(x)
+        {
+            delete x.ports;
+        }
+
+//容器应用存活探针
+        vm.addContainerlivenessProbeCmd = function(x)
+        {
+            x.livenessProbe = { "initialDelaySeconds": 30, "periodSeconds": 10, "timeoutSeconds": 5, "exec": { "command": [] }}
+        }
+        vm.addContainerlivenessProbeHttp = function(x)
+        {
+            x.livenessProbe = { "initialDelaySeconds": 30, "periodSeconds": 10, "timeoutSeconds": 5, "httpGet": { "path": "", "port": "8080", "scheme": "HTTP" }}
+        }
+         vm.addContainerlivenessProbePort = function(x)
+        {
+            x.livenessProbe = { "initialDelaySeconds": 30, "periodSeconds": 10, "timeoutSeconds": 5, "tcpSocket": { "port": "8080" }}
+        }
+ 
+        vm.cleanContainerlivenessProbe = function(x)
+        {
+            delete x.livenessProbe;
+        }
+
+//容器应用就绪探针
+        vm.addContainerreadinessProbeCmd = function(x)
+        {
+            x.readinessProbe = { "initialDelaySeconds": 30, "periodSeconds": 10, "timeoutSeconds": 5, "exec": { "command": [] }}
+        }
+        vm.addContainerreadinessProbeHttp = function(x)
+        {
+            x.readinessProbe = { "initialDelaySeconds": 30, "periodSeconds": 10, "timeoutSeconds": 5, "httpGet": { "path": "", "port": "8080", "scheme": "HTTP" }}
+        }
+         vm.addContainerreadinessProbePort = function(x)
+        {
+            x.readinessProbe = { "initialDelaySeconds": 30, "periodSeconds": 10, "timeoutSeconds": 5, "tcpSocket": { "port": "8080" }}
+        }
+ 
+        vm.cleanContainerreadinessProbe = function(x)
+        {
+            delete x.readinessProbe;
+        }
+
+//容器数据卷
         vm.addContainerVolume = function(x)
         {
             if( ! x.volumeMounts )
@@ -342,27 +395,33 @@ status:
             }
             x.volumeMounts.push({"name":"","mountPath":""})
         }
- 
-         vm.delContainerVolume = function(x,id)
+        vm.addContainerVolumeFile = function(x)
+        {
+            if( ! x.volumeMounts )
+            {
+                x.volumeMounts = []
+            }
+            x.volumeMounts.push({"name":"","mountPath":"", "subPath": ""})
+        }
+        vm.delContainerVolume = function(x,id)
         {
             x.volumeMounts.splice(id, 1);
         }
-
-
-
+        vm.cleanContainerVolume = function(x)
+        {
+            delete x.volumeMounts;
+        }
+//
         vm.addContainer = function()
         {
             var b = angular.copy(vm.containerData);
             vm.editData.spec.template.spec.containers.push(angular.copy(vm.containerData));
-            //vm.editData.spec.template.spec.containers.push(vm.containerData)
         }
  
         vm.delContainer = function(id)
         {
             vm.editData.spec.template.spec.containers.splice(id, 1);
         }
-
-
 
         vm.switchImagePullPolicy = function( container, type ){
             if( type ==='')
@@ -375,17 +434,13 @@ status:
             }
         };
 
-
-
-
-
         vm.apply = function(){
             vm.loadover = false;
             var d = {
                 "ticketid": ticketid,
                 "yaml": vm.newyaml,
             };
-            $http.post("/api/ci/v2/kubernetes/app/apply", d  ).success(function(data){
+            $http.post("/api/ci/v2/kubernetes/app/" + vm.tasktype, d  ).success(function(data){
                 if(data.stat == true) 
                 { 
                    vm.loadover = true;
@@ -402,7 +457,7 @@ status:
                 "type": "kubernetes",
                 "name": "kubernetes创建应用",
                 "handler": clusterinfo.create_user,
-                "url": "/api/ci/v2/kubernetes/app/apply",
+                "url": "/api/ci/v2/kubernetes/app/" + vm.tasktype,
                 "method": "POST",
                 "submit_reason": "",
                 "remarks": "\n集群ID:" + ticketid + ";\n集群名称:" + clusterinfo.name +";\n配置:\n" + vm.newyaml,
@@ -428,13 +483,10 @@ status:
             });
         };
 
-
         vm.oldyaml = "";
         vm.newyaml = "";
 
         vm.diffresultstring = "";
-
-
         vm.diff = function()
         {
             var diffresultstring = document.getElementById('diffresultstring');
@@ -466,14 +518,5 @@ status:
             diffresultstring.textContent = '';
             diffresultstring.appendChild(fragment);
         };
-
-
-
-
-
-
-
-
-
     }
 })();
