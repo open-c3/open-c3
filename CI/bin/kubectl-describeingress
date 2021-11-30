@@ -1,14 +1,10 @@
 #!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
 use strict;
 use warnings;
-
 use YAML::XS;
 
 my ( $kubectl, $namespace, $name ) = @ARGV;
-my $cmd = "$kubectl describe ingress '$name' -n '$namespace'";
-
-my %re;
-$re{describe} = `$cmd`;
+my %re; $re{describe} = `$kubectl describe ingress '$name' -n '$namespace'`;
 
 my $get = `$kubectl get ingress '$name' -n '$namespace' -o yaml`;
 my $getyaml = YAML::XS::Load $get;

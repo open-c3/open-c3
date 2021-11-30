@@ -1,17 +1,12 @@
 #!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
 use strict;
 use warnings;
-
 use YAML::XS;
 
 my ( $kubectl, $namespace, $name ) = @ARGV;
-my $cmd = "$kubectl describe deployment '$name' -n '$namespace'";
 
-my %re;
-$re{describe} = `$cmd`;
-$re{oldpod} = [];
-$re{newpod} = [];
-
+my %re = ( oldpod => [], newpod => [] );
+$re{describe} = `$kubectl describe deployment '$name' -n '$namespace'`;
 $re{describe} =~ /OldReplicaSets{0,1}:\s+([a-zA-Z0-9\-]+)\s+\(/ and $re{"OldReplicaSet"} = $1;
 $re{describe} =~ /NewReplicaSets{0,1}:\s+([a-zA-Z0-9\-]+)\s+\(/ and $re{"NewReplicaSet"} = $1;
 

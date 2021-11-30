@@ -1,26 +1,17 @@
 #!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
 use strict;
 use warnings;
-
 use YAML::XS;
 
 my ( $kubectl, $namespace, $name ) = @ARGV;
-my $cmd = "$kubectl describe service '$name' -n '$namespace'";
-
-my %re;
-$re{describe} = `$cmd`;
-
-
+my %re; $re{describe} = `$kubectl describe service '$name' -n '$namespace'`;
 
 $re{describe} =~ /\nSelector:\s+([^\n]+)\n/ and $re{"Selector"} = $1;
-
 
 my @x = `$kubectl  get all -o wide -n '$namespace' -l '$re{"Selector"}'`;
 chomp @x;
 
-
 my ( %r, @title ) = ( deployment => [], pod => [], replicaset => [] );
-
 
 for my $line ( @x )
 {

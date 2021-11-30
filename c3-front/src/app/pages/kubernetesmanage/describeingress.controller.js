@@ -70,14 +70,10 @@
             });
         };
 
-
         vm.openOneTab = function (pod, type) {
             var terminalAddr = window.location.protocol + "//" + window.location.host+"/api/ci/kubernetes/pod/shell";
             var s = "?namespace=" + namespace + '&name=' + pod.NAME + '&clusterid=' + ticketid + '&type=' + type + '&siteaddr=' + window.location.protocol + "//" + window.location.host;
             window.open(terminalAddr+s, '_blank')
         };
-
-
-     
     }
 })();
