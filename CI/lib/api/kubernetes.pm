@@ -33,4 +33,21 @@ sub getKubectlCmd($$$$$)
     return "KUBECONFIG=$kubeconfig $kubectl";
 }
 
+our %handle;
+$handle{showinfo} = sub { return +{ info => shift, stat => shift ? $JSON::false : $JSON::true }; };
+$handle{showtable} = sub
+{
+    my ( $x, $status, $filter ) = @_;
+    return +{ stat => $JSON::false, data => $x } if $status;
+    my ( @x, @r ) = split /\n/, $x;
+    my @title = split /\s+/, shift @x;
+    for( @x )
+    {
+        my @col = split /\s+/;
+        my %tmp = map { $title[$_] => $col[$_] } 0 .. $#title;
+        push @r, \%tmp;
+    }
+    return +{ stat => $JSON::true, data => \@r, };
+};
+
 true;

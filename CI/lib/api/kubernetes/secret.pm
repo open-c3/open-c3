@@ -11,8 +11,7 @@ use Time::Local;
 use File::Temp;
 use api::kubernetes;
 
-our %handle;
-$handle{showinfo} = sub { return +{ info => shift, stat => shift ? $JSON::false : $JSON::true }; };
+our %handle = %api::kubernetes::handle;
 
 get '/kubernetes/secret' => sub {
     my $param = params();
@@ -31,27 +30,10 @@ get '/kubernetes/secret' => sub {
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
     my $argv = $param->{namespace} ? "-n '$param->{namespace}'" : "-A";
-    my ( $cmd, $handle ) = ( "$kubectl get secrets $argv ", 'getsecret' );
+    my ( $cmd, $handle ) = ( "$kubectl get secrets $argv ", 'showtable' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( `$cmd`//'', $? );
  };
-
-$handle{getsecret} = sub
-{
-    my ( $x, $status, $filter ) = @_;
-    return +{ stat => $JSON::false, data => $x } if $status;
-    my @x = split /\n/, $x;
-
-    my @r;
-    my @title = split /\s+/, shift @x;
-    for( @x )
-    {
-        my @col = split /\s+/;
-        my %tmp = map { $title[$_] => $col[$_] }0.. $#title;
-        push @r, \%tmp;
-    }
-    return +{ stat => $JSON::true, data => \@r, };
-};
 
 post '/kubernetes/secret/dockerconfigjson' => sub {
     my $param = params();

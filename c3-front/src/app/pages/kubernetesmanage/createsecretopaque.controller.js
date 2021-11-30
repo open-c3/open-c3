@@ -19,13 +19,7 @@
         });
 
         $scope.editstep = 1;
-        var demo = { };
-
-      
-        vm.demo = function( name ){
-            vm.newyaml = demo[name];
-        };
-
+       
 
         vm.reload = function(){
             vm.loadover = false;
@@ -80,21 +74,33 @@
                        });
                    }
 
-
-
  
                 } else { 
-                    toastr.error("加载模版信息失败:" + data.info)
+                    swal({ title:'加载模版信息失败', text: data.info, type:'error' });
+                    vm.cancel();
+
                 }
             });
+
+            $http.get("/api/ci/v2/kubernetes/namespace?ticketid=" + ticketid ).then(
+                function successCallback(response) {
+                    if (response.data.stat){
+                        vm.namespaces = response.data.data; 
+                    }else {
+                        toastr.error( "获取集群NAMESPACE数据失败："+response.data.info );
+                    }
+                },
+                function errorCallback (response){
+                    toastr.error( "获取集群NAMESPACE数据失败: " + response.status )
+                });
+ 
+
         };
         vm.reload();
 
         vm.gotostep0 = function(){
             $scope.editstep = 0; 
         };
-
-
 
         vm.gotostep1 = function(){
             vm.loadover = false;
@@ -134,9 +140,7 @@
                    }
 
 
- 
-
-                   vm.loadover = true;
+                    vm.loadover = true;
                     $scope.editstep = 1; 
                 } else { 
                    swal({ title:'提交失败', text: data.info, type:'error' });
@@ -247,240 +251,6 @@
             $scope.database64.splice(id, 1);
         }
 
-
-//Secret
-        vm.autoGetSecret = function()
-        {
-            $http.get("/api/ci/v2/kubernetes/secret?ticketid=" + ticketid + "&namespace=" + namespace ).success(function(data){
-                if(data.stat == true) 
-                { 
-                    if( data.data.length > 0 && ! vm.editData.spec.template.spec.imagePullSecrets )
-                    {
-                        vm.editData.spec.template.spec.imagePullSecrets = [];
-                    }
- 
-                    angular.forEach(data.data, function (v, k) {
-                        if( v.TYPE === "kubernetes.io/dockerconfigjson" )
-                        {
-                            vm.editData.spec.template.spec.imagePullSecrets.push({ "name": v.NAME });
-                        }
-                    });
-
-                } else { 
-                    toastr.error("加载secret信息失败:" + data.info)
-                }
-            });
-        }
-        vm.addSecret = function()
-        {
-            if( ! vm.editData.spec.template.spec.imagePullSecrets )
-            {
-                vm.editData.spec.template.spec.imagePullSecrets = [];
-            }
-            vm.editData.spec.template.spec.imagePullSecrets.push({ "name": "" });
-        }
-        vm.delSecret = function(id)
-        {
-            vm.editData.spec.template.spec.imagePullSecrets.splice(id, 1);
-        }
-        vm.cleanSecret = function()
-        {
-            delete vm.editData.spec.template.spec.imagePullSecrets;
-        }
-
-
-
-
-//Command
-        vm.addCommand = function(x, cmd)
-        {
-            if( ! x.command )
-            {
-                x.command = []
-            }
-            x.command.push(cmd)
-            x.tempcommandstring = "";
-        }
-
-        vm.delCommand = function(x)
-        {
-            delete x.command;
-            x.tempcommandstring = "";
-        }
-
-
-        vm.addArgs = function(x, args)
-        {
-            if( ! x.args )
-            {
-                x.args = []
-            }
-            x.args.push(args)
-            x.tempargsstring = ""
-        }
-
-        vm.delArgs = function(x)
-        {
-            delete x.args;
-            x.tempargsstring = ""
-        }
-
-//添加Rule的路径
-
-        vm.addPaths = function(x)
-        {
-            if( ! x.http.paths )
-            {
-                x.http.paths = []
-            }
-            x.http.paths.push(angular.copy( {"pathType":"ImplementationSpecific","path":"", "backend": { "serviceName":"","servicePort":""}}));
-        }
- 
-        vm.delPaths = function(x,id)
-        {
-            x.http.paths.splice(id, 1);
-        }
-
-//容器端口
-
-        vm.addContainerPorts = function(x,protocol)
-        {
-            if( ! x.ports )
-            {
-                x.ports = []
-            }
-            x.ports.push({"name":"","protocol": protocol, "containerPort":""})
-        }
-        vm.delContainerPorts = function(x,id)
-        {
-            x.ports.splice(id, 1);
-        }
-        vm.cleanContainerPorts = function(x)
-        {
-            delete x.ports;
-        }
-
-//容器应用存活探针
-
-        vm.addContainerlivenessProbeCmd = function(x)
-        {
-            x.livenessProbe = { "initialDelaySeconds": 30, "periodSeconds": 10, "timeoutSeconds": 5, "exec": { "command": [] }}
-        }
-        vm.addContainerlivenessProbeHttp = function(x)
-        {
-            x.livenessProbe = { "initialDelaySeconds": 30, "periodSeconds": 10, "timeoutSeconds": 5, "httpGet": { "path": "", "port": "8080", "scheme": "HTTP" }}
-        }
-         vm.addContainerlivenessProbePort = function(x)
-        {
-            x.livenessProbe = { "initialDelaySeconds": 30, "periodSeconds": 10, "timeoutSeconds": 5, "tcpSocket": { "port": "8080" }}
-        }
- 
-        vm.cleanContainerlivenessProbe = function(x)
-        {
-            delete x.livenessProbe;
-        }
-
-
-//容器应用就绪探针
-
-        vm.addContainerreadinessProbeCmd = function(x)
-        {
-            x.readinessProbe = { "initialDelaySeconds": 30, "periodSeconds": 10, "timeoutSeconds": 5, "exec": { "command": [] }}
-        }
-        vm.addContainerreadinessProbeHttp = function(x)
-        {
-            x.readinessProbe = { "initialDelaySeconds": 30, "periodSeconds": 10, "timeoutSeconds": 5, "httpGet": { "path": "", "port": "8080", "scheme": "HTTP" }}
-        }
-         vm.addContainerreadinessProbePort = function(x)
-        {
-            x.readinessProbe = { "initialDelaySeconds": 30, "periodSeconds": 10, "timeoutSeconds": 5, "tcpSocket": { "port": "8080" }}
-        }
- 
-        vm.cleanContainerreadinessProbe = function(x)
-        {
-            delete x.readinessProbe;
-        }
-
-
-
-//容器数据卷
-        vm.addContainerVolume = function(x)
-        {
-            if( ! x.volumeMounts )
-            {
-                x.volumeMounts = []
-            }
-            x.volumeMounts.push({"name":"","mountPath":""})
-        }
- 
-        vm.addContainerVolumeFile = function(x)
-        {
-            if( ! x.volumeMounts )
-            {
-                x.volumeMounts = []
-            }
-            x.volumeMounts.push({"name":"","mountPath":"", "subPath": ""})
-        }
- 
-        vm.delContainerVolume = function(x,id)
-        {
-            x.volumeMounts.splice(id, 1);
-        }
-
-        vm.cleanContainerVolume = function(x)
-        {
-            delete x.volumeMounts;
-        }
-
-//
-        vm.addAnnotationsByType = function(type)
-        {
-            var all_ingress_lb_annotations_key = {};
-            angular.forEach(vm.ingress_lb_annotations, function (v, k) {
-
-                angular.forEach(v, function (v, k) {
-                    all_ingress_lb_annotations_key[k] = 1
-                });
- 
-            });
- 
-
-            var annotations_temp = [];
-            angular.forEach($scope.annotations, function (v, k) {
-                if( ! all_ingress_lb_annotations_key[v.K] )
-                {
-                    annotations_temp.push(v)
-                }
-            });
- 
-            $scope.annotations = annotations_temp;
- 
-            angular.forEach(vm.ingress_lb_annotations[type], function (v, k) {
-                $scope.annotations.push({"K": k,"V":v})
-            });
-        }
-
-
-
-//
-
-        vm.addRules = function()
-        {
-           // var b = angular.copy(vm.containerData);
-            vm.editData.spec.rules.push( angular.copy({"host": "", "http": { "paths": [] }}));
-            //vm.editData.spec.template.spec.containers.push(angular.copy(vm.containerData));
-            //vm.editData.spec.template.spec.containers.push(vm.containerData)
-        }
- 
-        vm.delRules = function(id)
-        {
-            vm.editData.spec.rules.splice(id, 1);
-        }
-
-
-
-
-
         vm.apply = function(){
             vm.loadover = false;
             var d = {
@@ -567,12 +337,6 @@
             diffresultstring.textContent = '';
             diffresultstring.appendChild(fragment);
         };
-
-
-
-
-
-
 
     }
 })();

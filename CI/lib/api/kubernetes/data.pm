@@ -52,6 +52,7 @@ any '/kubernetes/data/yaml2json' => sub {
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
+    return  +{ stat => JSON::false, info => "data is null" } unless $param->{data};
     my $data = eval{ YAML::XS::Load $param->{data}; };
     return $@ ? +{ stat => JSON::false, info => $@ } : +{ stat => JSON::true, data => $data};
 };

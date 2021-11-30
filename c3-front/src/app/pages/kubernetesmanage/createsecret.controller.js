@@ -47,6 +47,21 @@
             });
         };
 
+        vm.reload = function() {
+            $http.get("/api/ci/v2/kubernetes/namespace?ticketid=" + ticketid ).then(
+                function successCallback(response) {
+                    if (response.data.stat){
+                        vm.namespaces = response.data.data; 
+                    }else {
+                        toastr.error( "获取集群NAMESPACE数据失败："+response.data.info );
+                    }
+                },
+                function errorCallback (response){
+                    toastr.error( "获取集群NAMESPACE数据失败: " + response.status )
+                });
+        };
+        vm.reload();
+
         vm.assignment = function () {
             var postData = {
                 "type": "kubernetes",

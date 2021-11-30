@@ -17,24 +17,6 @@
             vm.nodeStr = treeService.selectname();
         });
 
-        vm.cordon = function(node,cordon){
-            vm.loadover = false;
-            var d = {
-                "ticketid": ticketid,
-                "cordon": cordon,
-                "node": node,
-            };
-            $http.post("/api/ci/v2/kubernetes/node/cordon", d  ).success(function(data){
-                if(data.stat == true) 
-                {
-                    vm.loadover = true;
-                    vm.reload();
-                } else {
-                    toastr.error("操作失败:" + data.info)
-                }
-            });
-        };
-
         vm.reload = function(){
             vm.loadover = false;
             $http.get("/api/ci/v2/kubernetes/secret?ticketid=" + ticketid ).success(function(data){
@@ -43,7 +25,7 @@
                    vm.loadover = true;
                    vm.nodeTable = new ngTableParams({count:25}, {counts:[],data:data.data});
                 } else { 
-                    toastr.error("加载secret信息失败:" + data.info)
+                    toastr.error("加载secret失败:" + data.info)
                 }
             });
         };
@@ -129,8 +111,6 @@
             });
         };
 
-
-
         vm.createSecretOpaque = function (namespace,name,type) {
             $uibModal.open({
                 templateUrl: 'app/pages/kubernetesmanage/createsecretopaque.html',
@@ -150,8 +130,6 @@
                 }
             });
         };
-
-
 
     }
 })();
