@@ -78,7 +78,6 @@
                 } else { 
                     swal({ title:'加载模版信息失败', text: data.info, type:'error' });
                     vm.cancel();
-
                 }
             });
 

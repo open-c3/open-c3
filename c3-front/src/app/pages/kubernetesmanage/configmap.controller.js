@@ -17,24 +17,6 @@
             vm.nodeStr = treeService.selectname();
         });
 
-        vm.cordon = function(node,cordon){
-            vm.loadover = false;
-            var d = {
-                "ticketid": ticketid,
-                "cordon": cordon,
-                "node": node,
-            };
-            $http.post("/api/ci/v2/kubernetes/node/cordon", d  ).success(function(data){
-                if(data.stat == true) 
-                {
-                    vm.loadover = true;
-                    vm.reload();
-                } else {
-                    toastr.error("操作失败:" + data.info)
-                }
-            });
-        };
-
         vm.reload = function(){
             vm.loadover = false;
             $http.get("/api/ci/v2/kubernetes/configmap?ticketid=" + ticketid ).success(function(data){
@@ -46,6 +28,7 @@
                     toastr.error("加载secret信息失败:" + data.info)
                 }
             });
+
         };
         vm.reload();
  
@@ -69,7 +52,6 @@
             });
         };
 
-
         vm.describe = function (type,name,namespace) {
             $uibModal.open({
                 templateUrl: 'app/pages/kubernetesmanage/describe.html',
@@ -89,7 +71,7 @@
             });
         };
 
-         vm.edityaml = function (type,name,namespace) {
+        vm.edityaml = function (type,name,namespace) {
             $uibModal.open({
                 templateUrl: 'app/pages/kubernetesmanage/edityaml.html',
                 controller: 'KubernetesEditYamlController',
@@ -109,27 +91,6 @@
             });
         };
 
-        vm.createSecret = function (type,name,namespace) {
-            $uibModal.open({
-                templateUrl: 'app/pages/kubernetesmanage/createsecret.html',
-                controller: 'KubernetesCreateSecretController',
-                controllerAs: 'kubernetescreatesecret',
-                backdrop: 'static',
-                size: 'lg',
-                keyboard: false,
-                bindToController: true,
-                resolve: {
-                    treeid: function () {return vm.treeid},
-                    type: function () {return type},
-                    name: function () {return name},
-                    namespace: function () {return namespace},
-                    ticketid: function () {return clusterinfo.id},
-                    clusterinfo: function () {return clusterinfo},
-                }
-            });
-        };
-
-
         vm.createConfigMap = function (namespace,name) {
             $uibModal.open({
                 templateUrl: 'app/pages/kubernetesmanage/createconfigmap.html',
@@ -148,8 +109,6 @@
                 }
             });
         };
-
- 
 
 
     }
