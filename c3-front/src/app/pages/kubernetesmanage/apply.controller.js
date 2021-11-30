@@ -98,7 +98,7 @@ status:
                 "ticketid": ticketid,
                 "yaml": vm.yaml,
             };
-            $http.post("/api/ci/v2/kubernetes/app/apply", d  ).success(function(data){
+            $http.post("/api/ci/v2/kubernetes/app/create", d  ).success(function(data){
                 if(data.stat == true) 
                 { 
                    vm.loadover = true;
@@ -115,7 +115,7 @@ status:
                 "type": "kubernetes",
                 "name": "kubernetes创建应用",
                 "handler": clusterinfo.create_user,
-                "url": "/api/ci/v2/kubernetes/app/apply",
+                "url": "/api/ci/v2/kubernetes/app/create",
                 "method": "POST",
                 "submit_reason": "",
                 "remarks": "\n集群ID:" + ticketid + ";\n集群名称:" + clusterinfo.name +";\n配置:\n" + vm.yaml,
