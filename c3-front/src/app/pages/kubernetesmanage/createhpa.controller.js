@@ -24,7 +24,7 @@
             vm.nodeStr = treeService.selectname();
         });
 
-        vm.deleteapp = function(){
+        vm.add = function(){
             vm.loadover = false;
             var d = {
                 "ticketid": ticketid,
@@ -82,6 +82,5 @@
                 }
             });
         };
-
     }
 })();
