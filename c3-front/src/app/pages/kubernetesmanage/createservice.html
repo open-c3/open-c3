@@ -83,7 +83,6 @@
                 </div>
             </div>
 
-
             <div class="row">
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">annotations</label>
@@ -115,7 +114,7 @@
 
             <div class="row">
                 <div class="col-sm-12 form-group">
-                    <label class="col-sm-3 control-label">开放端口</label>
+                    <label class="col-sm-1 control-label">开放端口</label>
                     <div class="col-sm-6">
                             <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addPorts()" uib-tooltip="添加规则" style="cursor:pointer;color: #339094;" ></i>
                     </div>
@@ -162,6 +161,30 @@
                     </div>
                 </div>
             </div>
+<hr>
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-1 control-label">selector</label>
+                    <label class="col-sm-3 control-label" ng-click="kubernetescreateservice.addSelector()">+添加</label>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-1 control-label"></label>
+                    <div class="col-sm-7">
+                        <table  border="0" style="width: 100%">
+                            <tr ng-repeat="(id, x) in selector">
+                                <td><input type="text" class="form-control"  ng-model="x.K"></td>
+                                <td style="width: 20px">=</td>
+                                <td><input type="text" class="form-control"  ng-model="x.V"></td>
+                                <td style="width: 50px"><a ng-click="kubernetescreateservice.delSelector(id)">删除</a></td>
+                            </tr>
+                       </table>
+                    </div>
+                </div>
+            </div>
+
             <div class="row">
                 <div class="col-sm-1 form-group pull-right">
                     <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateservice.toyaml()">下一步</button>
@@ -169,7 +192,6 @@
             </div>
 
         </div>
-
 
         <div class="panel-body" ng-if="editstep===2">
             <div class="row">
