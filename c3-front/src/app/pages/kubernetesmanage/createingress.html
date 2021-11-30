@@ -177,12 +177,21 @@ apiVersion
 
                                                            <div class="row" ng-if="kubernetescreateingress.editData.apiVersion === 'extensions/v1beta1'">
                                                                <div class="col-sm-12 form-group">
+ 
                                                                    <label class="col-sm-1 control-label">路径</label>
-                                                                   <div class="col-sm-3"> <input type="text" class="form-control" placeholder="" ng-model="xx.path" required> </div>
+                                                                   <div class="col-sm-2"> <input type="text" class="form-control" placeholder="" ng-model="xx.path" required> </div>
+                                                                   <label class="col-sm-1 control-label">路径类型</label>
+                                                                   <div class="col-sm-2"> 
+                                                                       <select id="selectednameval" class="form-control" ng-model="xx.pathType" required>
+                                                                           <option value="ImplementationSpecific">ImplementationSpecific</option>
+                                                                           <option value="Exact">Exact</option>
+                                                                           <option value="Prefix">Prefix</option>
+                                                                       </select>
+                                                                   </div>
                                                                    <label class="col-sm-1 control-label">serviceName</label>
-                                                                   <div class="col-sm-3"> <input type="text" class="form-control" placeholder="" ng-model="xx.backend.serviceName" required> </div>
+                                                                   <div class="col-sm-2"> <input type="text" class="form-control" placeholder="" ng-model="xx.backend.serviceName" required> </div>
                                                                    <label class="col-sm-1 control-label">servicePort</label>
-                                                                   <div class="col-sm-3"> <input type="text" class="form-control" placeholder="" ng-model="xx.backend.servicePort" required> </div>
+                                                                   <div class="col-sm-1"> <input type="text" class="form-control" placeholder="" ng-model="xx.backend.servicePort" required> </div>
                                                                </div>
                                                            </div>
 
@@ -190,11 +199,19 @@ apiVersion
                                                            <div class="row" ng-if="kubernetescreateingress.editData.apiVersion === 'networking.k8s.io/v1'">
                                                                <div class="col-sm-12 form-group">
                                                                    <label class="col-sm-1 control-label">路径</label>
-                                                                   <div class="col-sm-3"> <input type="text" class="form-control" placeholder="" ng-model="xx.path" required> </div>
+                                                                   <div class="col-sm-2"> <input type="text" class="form-control" placeholder="" ng-model="xx.path" required> </div>
+                                                                   <label class="col-sm-1 control-label">路径类型</label>
+                                                                   <div class="col-sm-2"> 
+                                                                       <select id="selectednameval" class="form-control" ng-model="xx.pathType" required>
+                                                                           <option value="ImplementationSpecific">ImplementationSpecific</option>
+                                                                           <option value="Exact">Exact</option>
+                                                                           <option value="Prefix">Prefix</option>
+                                                                       </select>
+                                                                   </div>
                                                                    <label class="col-sm-1 control-label">serviceName</label>
-                                                                   <div class="col-sm-3"> <input type="text" class="form-control" placeholder="" ng-model="xx.backend.service.name" required> </div>
+                                                                   <div class="col-sm-2"> <input type="text" class="form-control" placeholder="" ng-model="xx.backend.service.name" required> </div>
                                                                    <label class="col-sm-1 control-label">servicePort</label>
-                                                                   <div class="col-sm-3"> <input type="text" class="form-control" placeholder="" ng-model="xx.backend.service.port.number" required> </div>
+                                                                   <div class="col-sm-2"> <input type="text" class="form-control" placeholder="" ng-model="xx.backend.service.port.number" required> </div>
                                                                </div>
                                                            </div>
 
