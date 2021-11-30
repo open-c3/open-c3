@@ -17,14 +17,14 @@
                         <div class="pt20" style="overflow: auto;">
                             <table ng-table="kubernetesdescribeingress.serviceTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                                 <tr ng-repeat="m in $data">
-                                    <td data-title="'域名'" width="80" filter="{ host: 'text'}" sortable="'host'">{{m.host}}</td>
-                                    <td data-title="'路径'" width="80" filter="{ path: 'text'}" sortable="'path'">{{m.path}}</td>
-                                    <td data-title="'路径类型'" width="80" filter="{ pathType: 'text'}" sortable="'pathType'">{{m.pathType}}</td>
-                                    <td data-title="'service'" width="80" filter="{ servicename: 'text'}" sortable="'servicename'">
+                                    <td data-title="'域名'" width="80">{{m.host}}</td>
+                                    <td data-title="'路径'" width="80">{{m.path}}</td>
+                                    <td data-title="'路径类型'" width="80">{{m.pathType}}</td>
+                                    <td data-title="'service'" width="80">
                                         <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesdescribeingress.describexxservice('service',m.servicename)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
                                         {{m.servicename}}
                                     </td>
-                                    <td data-title="'端口'" width="80" filter="{ port: 'text'}" sortable="'port'">{{m.port}}</td>
+                                    <td data-title="'端口'" width="80">{{m.port}}</td>
                                 </tr>
                             </table>
                         </div>

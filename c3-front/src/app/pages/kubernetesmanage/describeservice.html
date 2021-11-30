@@ -17,16 +17,16 @@
 
                     <div class="panel-body" style="margin-top: 2px">
                         <div class="pt20" style="overflow: auto;">
-                            <table ng-table="kubernetesdescribeservice.deploymentTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
+                            <table ng-table="kubernetesdescribeservice.deploymentTable" class="table table-scroll table-hover text-left table-condensed" style="white-space: unset;" show-filter="true">
                                 <tr ng-repeat="m in $data">
-                                    <td data-title="'Deployment'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">{{m.NAME}}</td>
-                                    <td data-title="'READY'" width="80" filter="{ READY: 'text'}" sortable="'READY'">{{m.READY}}</td>
-                                    <td data-title="'UP-TO-DATE'" width="80" filter="{ UP_TO_DATE: 'text'}" sortable="'UP_TO_DATE'">{{m.UP_TO_DATE}}</td>
-                                    <td data-title="'AVAILABLE'" width="80" filter="{ AVAILABLE: 'text'}" sortable="'AVAILABLE'">{{m.AVAILABLE}}</td>
-                                    <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
-                                    <td data-title="'CONTAINERS'" width="80" filter="{ CONTAINERS: 'text'}" sortable="'CONTAINERS'">{{m.CONTAINERS}}</td>
-                                    <td data-title="'IMAGES'" width="80" filter="{ IMAGES: 'text'}" sortable="'IMAGES'">{{m.IMAGES}}</td>
-                                    <td data-title="'SELECTOR'" width="80" filter="{ SELECTOR: 'text'}" sortable="'SELECTOR'">{{m.SELECTOR}}</td>
+                                    <td data-title="'Deployment'" width="80">{{m.NAME}}</td>
+                                    <td data-title="'READY'" width="80">{{m.READY}}</td>
+                                    <td data-title="'UP-TO-DATE'" width="80">{{m.UP_TO_DATE}}</td>
+                                    <td data-title="'AVAILABLE'" width="80">{{m.AVAILABLE}}</td>
+                                    <td data-title="'AGE'" width="80">{{m.AGE}}</td>
+                                    <td data-title="'CONTAINERS'" width="80">{{m.CONTAINERS}}</td>
+                                    <td data-title="'IMAGES'" width="80">{{m.IMAGES}}</td>
+                                    <td data-title="'SELECTOR'" width="80">{{m.SELECTOR}}</td>
                                     <td data-title="'操作'" width="80" >
                                         <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesdescribeservice.describexxdeployment('deployment',m.INAME)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
                                     </td> 
@@ -39,16 +39,16 @@
 
                     <div class="panel-body" style="margin-top: 2px">
                         <div class="pt20" style="overflow: auto;">
-                            <table ng-table="kubernetesdescribeservice.replicasetTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
+                            <table ng-table="kubernetesdescribeservice.replicasetTable" class="table table-scroll table-hover text-left table-condensed" style="white-space: unset;" show-filter="true">
                                 <tr ng-repeat="m in $data">
-                                    <td data-title="'Replicaset'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">{{m.NAME}}</td>
-                                    <td data-title="'DESIRED'" width="80" filter="{ DESIRED: 'text'}" sortable="'DESIRED'">{{m.DESIRED}}</td>
-                                    <td data-title="'CURRENT'" width="80" filter="{ CURRENT: 'text'}" sortable="'CURRENT'">{{m.CURRENT}}</td>
-                                    <td data-title="'READY'" width="80" filter="{ READY: 'text'}" sortable="'READY'">{{m.READY}}</td>
-                                    <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
-                                    <td data-title="'CONTAINERS'" width="80" filter="{ CONTAINERS: 'text'}" sortable="'CONTAINERS'">{{m.CONTAINERS}}</td>
-                                    <td data-title="'IMAGES'" width="80" filter="{ IMAGES: 'text'}" sortable="'IMAGES'">{{m.IMAGES}}</td>
-                                    <td data-title="'SELECTOR'" width="80" filter="{ SELECTOR: 'text'}" sortable="'SELECTOR'">{{m.SELECTOR}}</td>
+                                    <td data-title="'Replicaset'" width="80">{{m.NAME}}</td>
+                                    <td data-title="'DESIRED'" width="80">{{m.DESIRED}}</td>
+                                    <td data-title="'CURRENT'" width="80">{{m.CURRENT}}</td>
+                                    <td data-title="'READY'" width="80">{{m.READY}}</td>
+                                    <td data-title="'AGE'" width="80">{{m.AGE}}</td>
+                                    <td data-title="'CONTAINERS'" width="80">{{m.CONTAINERS}}</td>
+                                    <td data-title="'IMAGES'" width="80">{{m.IMAGES}}</td>
+                                    <td data-title="'SELECTOR'" width="80">{{m.SELECTOR}}</td>
                                     <td data-title="'操作'" width="80" >
                                         <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesdescribeservice.describexx('replicaset',m.INAME)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
                                     </td> 
@@ -62,24 +62,24 @@
 
                     <div class="panel-body" style="margin-top: 2px">
                         <div class="pt20" style="overflow: auto;">
-                            <table ng-table="kubernetesdescribeservice.podTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
+                            <table ng-table="kubernetesdescribeservice.podTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true" style="white-space: unset;" >
                                 <tr ng-repeat="m in $data">
-                                    <td data-title="'Pod'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">
+                                    <td data-title="'Pod'" width="80">
 
                                         <i class="fa fa-television fa-2x" aria-hidden="true" ng-click="kubernetesdescribeservice.openOneTab(m,'sh')" uib-tooltip="进入POD虚拟终端" style="cursor:pointer;color: #339094;" ></i>
                                         <i class="fa fa-file-text-o fa-2x" aria-hidden="true" ng-click="kubernetesdescribeservice.openOneTab(m,'log')" uib-tooltip="查看POD日志" style="cursor:pointer;color: #339094;" ></i>
                                         {{m.NAME}}
                                     </td>
-                                    <td data-title="'READY'" width="80" filter="{ READY: 'text'}" sortable="'READY'">{{m.READY}}</td>
-                                    <td data-title="'STATUS'" width="80" filter="{ STATUS: 'text'}" sortable="'STATUS'">
+                                    <td data-title="'READY'" width="80">{{m.READY}}</td>
+                                    <td data-title="'STATUS'" width="80">
                                         <a ng-if="m.STATUS==='Running'" style="color: green;">{{m.STATUS}}</a>
                                         <a ng-if="m.STATUS!=='Running'" style="color: red;" >{{m.STATUS}}</a>
                                    
                                     </td>
-                                    <td data-title="'RESTARTS'" width="80" filter="{ RESTARTS: 'text'}" sortable="'RESTARTS'">{{m.RESTARTS}}</td>
-                                    <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
-                                    <td data-title="'IP'" width="80" filter="{ IP: 'text'}" sortable="'IP'">{{m.IP}}</td>
-                                    <td data-title="'NODE'" width="80" filter="{ NODE: 'text'}" sortable="'NODE'">{{m.NODE}}</td>
+                                    <td data-title="'RESTARTS'" width="80">{{m.RESTARTS}}</td>
+                                    <td data-title="'AGE'" width="80">{{m.AGE}}</td>
+                                    <td data-title="'IP'" width="80">{{m.IP}}</td>
+                                    <td data-title="'NODE'" width="80">{{m.NODE}}</td>
                                     <td data-title="'操作'" width="80" >
                                         <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesdescribeservice.describexx('pod',m.INAME)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
                                     </td> 
