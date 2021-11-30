@@ -5,14 +5,12 @@
                 <button class="btn btn-primary" uib-tooltip="刷新" ng-click="kubernetesdescribeingress.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetesdescribeingress.loadover}" ></i></button>
                 <button class="btn btn-primary" uib-tooltip="关闭" ng-click="kubernetesdescribeingress.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
             </span>
-            <h5>deployment describe信息</h5>
+            <h5>ingress describe信息</h5>
         </div>
 
         <div class="panel-body">
             <div class="pt20">
                 <div>
-
-
 
 
                     <div class="panel-body" style="margin-top: 2px">
@@ -22,11 +20,11 @@
                                     <td data-title="'域名'" width="80" filter="{ host: 'text'}" sortable="'host'">{{m.host}}</td>
                                     <td data-title="'路径'" width="80" filter="{ path: 'text'}" sortable="'path'">{{m.path}}</td>
                                     <td data-title="'路径类型'" width="80" filter="{ pathType: 'text'}" sortable="'pathType'">{{m.pathType}}</td>
-                                    <td data-title="'servicename'" width="80" filter="{ servicename: 'text'}" sortable="'servicename'">{{m.servicename}}</td>
+                                    <td data-title="'service'" width="80" filter="{ servicename: 'text'}" sortable="'servicename'">
+                                        <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesdescribeingress.describexxservice('service',m.servicename)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
+                                        {{m.servicename}}
+                                    </td>
                                     <td data-title="'端口'" width="80" filter="{ port: 'text'}" sortable="'port'">{{m.port}}</td>
-                                    <td data-title="'操作'" width="80" >
-                                        <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesdescribeingress.describexx('service',m.servicename)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
-                                    </td> 
                                 </tr>
                             </table>
                         </div>

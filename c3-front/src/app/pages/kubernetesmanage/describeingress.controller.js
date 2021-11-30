@@ -51,6 +51,26 @@
             });
         };
 
+        vm.describexxservice = function (type,name) {
+            $uibModal.open({
+                templateUrl: 'app/pages/kubernetesmanage/describeservice.html',
+                controller: 'KubernetesDescribeServiceController',
+                controllerAs: 'kubernetesdescribeservice',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () {return vm.treeid},
+                    type: function () {return type},
+                    name: function () {return name},
+                    namespace: function () {return namespace},
+                    ticketid: function () {return ticketid},
+                }
+            });
+        };
+
+
         vm.openOneTab = function (pod, type) {
             var terminalAddr = window.location.protocol + "//" + window.location.host+"/api/ci/kubernetes/pod/shell";
             var s = "?namespace=" + namespace + '&name=' + pod.NAME + '&clusterid=' + ticketid + '&type=' + type + '&siteaddr=' + window.location.protocol + "//" + window.location.host;
