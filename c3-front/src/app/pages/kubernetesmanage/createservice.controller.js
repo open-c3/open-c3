@@ -18,88 +18,19 @@
         });
 
         $scope.editstep = 1;
-var demo = {
-"cm": `
-apiVersion: v1
-items:
-- kind: ConfigMap
-  apiVersion: v1
-  metadata:
-    name: test0
-  data:
-    key1: apple
-- kind: ConfigMap
-  apiVersion: v1
-  metadata:
-    name: test1
-  data:
-    key2: apple
-kind: ConfigMapList
-metadata: {}
-`,
 
-"deploy_serverside": `
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  annotations:
-    deployment.kubernetes.io/revision: "1"
-    kubectl.kubernetes.io/last-applied-configuration: '{"kind":"Deployment","apiVersion":"apps/v1","metadata":{"name":"nginx-deployment","creationTimestamp":null,"labels":{"name":"nginx"}},"spec":{"selector":{"matchLabels":{"name":"nginx"}},"template":{"metadata":{"creationTimestamp":null,"labels":{"name":"nginx"}},"spec":{"containers":[{"name":"nginx","image":"nginx","resources":{}}]}},"strategy":{}},"status":{}}'
-  creationTimestamp: "2016-10-24T22:15:06Z"
-  generation: 6
-  labels:
-    name: nginx
-  name: nginx-deployment
-  namespace: test
-  resourceVersion: "355959"
-  selfLink: /apis/extensions/v1beta1/namespaces/test/deployments/nginx-deployment
-  uid: 51ac266e-9a37-11e6-8738-0800270c4edc
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      name: nginx
-  strategy:
-    rollingUpdate:
-      maxSurge: 1
-      maxUnavailable: 1
-    type: RollingUpdate
-  template:
-    metadata:
-      creationTimestamp: null
-      labels:
-        name: nginx
-    spec:
-      containers:
-      - image: nginx
-        imagePullPolicy: Always
-        name: nginx
-        resources: {}
-        terminationMessagePath: /dev/termination-log
-      dnsPolicy: ClusterFirst
-      restartPolicy: Always
-      securityContext: {}
-      terminationGracePeriodSeconds: 30
-status:
-  availableReplicas: 1
-  observedGeneration: 6
-  replicas: 1
-  updatedReplicas: 1
-`,
-};
-
-      
-        vm.demo = function( name ){
-            vm.newyaml = demo[name];
-        };
-
+        vm.tasktype = 'create';
+        if( namespace && name )
+        {
+            vm.tasktype = 'apply';
+        }
 
         vm.reload = function(){
             vm.loadover = false;
 
             var url = "/api/ci/kubernetes/data/template/service";
 
-            if( namespace && name )
+            if( vm.tasktype == 'apply' )
             {
                 url = "/api/ci/v2/kubernetes/app/json?ticketid=" + ticketid + "&type=service&name=" + name + "&namespace=" + namespace;
             }
@@ -133,7 +64,7 @@ status:
                     toastr.error("加载模版信息失败:" + data.info)
                 }
             });
-//TODO 删除
+
             $http.get("/api/ci/kubernetes/data/template/ingress_lb_annotations" ).success(function(data){
                 if(data.stat == true) 
                 { 
@@ -142,6 +73,22 @@ status:
                     toastr.error("加载service_lb_annotations模版信息失败:" + data.info)
                 }
             });
+
+            if( vm.tasktype == 'create' )
+            {
+            $http.get("/api/ci/v2/kubernetes/namespace?ticketid=" + ticketid ).then(
+                function successCallback(response) {
+                    if (response.data.stat){
+                        vm.namespaces = response.data.data; 
+                    }else {
+                        toastr.error( "获取集群NAMESPACE数据失败："+response.data.info );
+                    }
+                },
+                function errorCallback (response){
+                    toastr.error( "获取集群NAMESPACE数据失败: " + response.status )
+                });
+            }
+ 
         };
         vm.reload();
 
@@ -568,7 +515,7 @@ status:
                 "ticketid": ticketid,
                 "yaml": vm.newyaml,
             };
-            $http.post("/api/ci/v2/kubernetes/app/apply", d  ).success(function(data){
+            $http.post("/api/ci/v2/kubernetes/app/" + vm.tasktype, d  ).success(function(data){
                 if(data.stat == true) 
                 { 
                    vm.loadover = true;
@@ -585,7 +532,7 @@ status:
                 "type": "kubernetes",
                 "name": "kubernetes创建应用",
                 "handler": clusterinfo.create_user,
-                "url": "/api/ci/v2/kubernetes/app/apply",
+                "url": "/api/ci/v2/kubernetes/app/" + vm.tasktype,
                 "method": "POST",
                 "submit_reason": "",
                 "remarks": "\n集群ID:" + ticketid + ";\n集群名称:" + clusterinfo.name +";\n配置:\n" + vm.newyaml,
