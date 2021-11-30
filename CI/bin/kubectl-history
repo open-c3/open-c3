@@ -2,12 +2,11 @@
 use strict;
 use warnings;
 
-my $cmd = join ' ',  @ARGV;
+my $cmd = join ' ', @ARGV;
 my @x = `$cmd`;
 chomp @x;
 
-my @r;
-my $count = 0;
+my ( $count, @r )= 0;
 
 for( reverse ( 2 .. @x -1 ))
 {
