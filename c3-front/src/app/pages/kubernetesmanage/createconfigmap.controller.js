@@ -18,13 +18,19 @@
         });
 
         $scope.editstep = 1;
-      
+
+        vm.tasktype = 'create';
+        if( namespace && name )
+        {
+            vm.tasktype = 'apply';
+        }
+
         vm.reload = function(){
             vm.loadover = false;
 
             var url = "/api/ci/kubernetes/data/template/configmap";
 
-            if( namespace && name )
+            if( vm.tasktype == 'apply' )
             {
                 url = "/api/ci/v2/kubernetes/app/json?ticketid=" + ticketid + "&type=configmap&name=" + name + "&namespace=" + namespace;
             }
@@ -56,6 +62,7 @@
                 }
             });
 
+            if( vm.tasktype == 'create' )
             $http.get("/api/ci/v2/kubernetes/namespace?ticketid=" + ticketid ).then(
                 function successCallback(response) {
                     if (response.data.stat){
@@ -68,6 +75,7 @@
                     toastr.error( "获取集群NAMESPACE数据失败: " + response.status )
                 });
 
+            }
         };
         vm.reload();
 
@@ -189,7 +197,7 @@
                 "ticketid": ticketid,
                 "yaml": vm.newyaml,
             };
-            $http.post("/api/ci/v2/kubernetes/app/apply", d  ).success(function(data){
+            $http.post("/api/ci/v2/kubernetes/app/" + vm.tasktype, d  ).success(function(data){
                 if(data.stat == true) 
                 { 
                    vm.loadover = true;
@@ -206,7 +214,7 @@
                 "type": "kubernetes",
                 "name": "kubernetes ConfigMap 创建",
                 "handler": clusterinfo.create_user,
-                "url": "/api/ci/v2/kubernetes/app/apply",
+                "url": "/api/ci/v2/kubernetes/app/" + vm.tasktype,
                 "method": "POST",
                 "submit_reason": "",
                 "remarks": "\n集群ID:" + ticketid + ";\n集群名称:" + clusterinfo.name +";\n配置:\n" + vm.newyaml,

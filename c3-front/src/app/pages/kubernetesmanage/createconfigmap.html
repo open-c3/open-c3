@@ -41,11 +41,12 @@
                 <div class="col-sm-10 form-group">
                     <label class="col-sm-1 control-label">名称</label>
                     <div class="col-sm-3">
-                        <input type="text" class="form-control" name="adduser" placeholder="名称" ng-model="kubernetescreateconfigmap.editData.metadata.name" required>
+                        <input type="text" class="form-control" name="adduser" placeholder="名称" ng-disabled="kubernetescreateconfigmap.tasktype==='apply'" ng-model="kubernetescreateconfigmap.editData.metadata.name" required>
                     </div>
                     <label class="col-sm-1 control-label">命名空间</label>
                     <div class="col-sm-3">
-                        <select id="selectednameval" class="form-control"  ng-model="kubernetescreateconfigmap.editData.metadata.namespace" required>
+                        <input ng-if="kubernetescreateconfigmap.tasktype==='apply'"  ng-disabled="1" type="text" class="form-control" name="adduser" placeholder="名称" ng-disabled="kubernetescreateconfigmap.tasktype==='apply'" ng-model="kubernetescreateconfigmap.editData.metadata.namespace" required>
+                        <select id="selectednameval" class="form-control" ng-if="kubernetescreateconfigmap.tasktype!=='apply'"  ng-model="kubernetescreateconfigmap.editData.metadata.namespace" required>
                              <option ng-repeat="x in kubernetescreateconfigmap.namespaces" value="{{x.NAME}}">{{x.NAME}} 状态: {{x.STATUS}} 年龄: {{x.AGE}}</option>
                         </select>
                     </div>
