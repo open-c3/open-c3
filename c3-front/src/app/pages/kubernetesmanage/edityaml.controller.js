@@ -89,13 +89,10 @@
             });
         };
 
-
         vm.oldyaml = "";
         vm.newyaml = "";
 
         vm.diffresultstring = "";
-
-
         vm.diff = function()
         {
             var diffresultstring = document.getElementById('diffresultstring');
@@ -127,11 +124,5 @@
             diffresultstring.textContent = '';
             diffresultstring.appendChild(fragment);
         };
-
-
-
-
-
-
     }
 })();
