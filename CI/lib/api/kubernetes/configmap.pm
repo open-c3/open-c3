@@ -28,7 +28,7 @@ get '/kubernetes/configmap' => sub {
     my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 0 ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
-    my ( $cmd, $handle ) = ( "$kubectl get configmap -A ", 'showtable' );
+    my ( $cmd, $handle ) = ( "$kubectl get configmap -A 2>/dev/null", 'showtable' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( `$cmd`//'', $? );
 };

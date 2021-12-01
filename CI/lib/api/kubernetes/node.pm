@@ -28,7 +28,7 @@ get '/kubernetes/node' => sub {
     my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 0 ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
-    my ( $cmd, $handle ) = ( "$kubectl get node -o wide", 'getnode' );
+    my ( $cmd, $handle ) = ( "$kubectl get node -o wide 2>/dev/null", 'getnode' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( `$cmd`//'', $? );
 };

@@ -30,7 +30,7 @@ get '/kubernetes/secret' => sub {
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
     my $argv = $param->{namespace} ? "-n '$param->{namespace}'" : "-A";
-    my ( $cmd, $handle ) = ( "$kubectl get secrets $argv ", 'showtable' );
+    my ( $cmd, $handle ) = ( "$kubectl get secrets $argv 2>/dev/null", 'showtable' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( `$cmd`//'', $? );
  };
