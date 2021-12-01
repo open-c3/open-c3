@@ -3,22 +3,22 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   annotations:
-    ft-kkkk-k1: vvv1
+    bar: abc
   labels:
-    aaa: 123
-  name: fengtest-ingress-test-foo
-  namespace: fengtest
+    foo: ABC
+  name: ingress-demo-001
+  namespace: default
 spec:
   rules:
   - host: open-c3.abc.mydan.org
     http:
       paths:
       - backend:
-          serviceName: aaaa
-          servicePort: www
-        path: /job/11
+          serviceName: abc
+          servicePort: 80
+        path: /api/test
         pathType: ImplementationSpecific
-  tls:
-  - hosts:
-    - open-c3.abc.mydan.org
-    secretName: fengtest111111
+#  tls:
+#  - hosts:
+#    - open-c3.abc.mydan.org
+#    secretName: test111111

@@ -4,18 +4,18 @@ kind: DaemonSet
 metadata:
   annotations:
     describe: test001
-  name: feng-test-20121119-002
-  namespace: fengtest
+  name: daemonset-demo-001
+  namespace: default
   labels:
-    app: feng-test-20121119-002
+    app: daemonset-demo-001
 spec:
   selector:
     matchLabels:
-      app: feng-test-20121119-002
+      app: daemonset-demo-001
   template:
     metadata:
       labels:
-        app: feng-test-20121119-002
+        app: daemonset-demo-001
 
     spec:
       imagePullSecrets: []
@@ -23,7 +23,7 @@ spec:
       - env: []
         image: nginx:latest
         imagePullPolicy: Always
-        name: fengtest001
+        name: demo001
         resources:
           limits:
             cpu: '2'

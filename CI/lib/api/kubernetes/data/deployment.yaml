@@ -3,16 +3,16 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   annotations:
-    describe: test001
-  name: feng-test-20121119-002
-  namespace: fengtest
+    describe: demo
+  name: deployment-demo-001
+  namespace: default
   labels:
-    app: feng-test-20121119-002
+    app: deployment-demo-001
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: feng-test-20121119-002
+      app: deployment-demo-001
   strategy:
     rollingUpdate:
       maxSurge: 3
@@ -21,7 +21,7 @@ spec:
   template:
     metadata:
       labels:
-        app: feng-test-20121119-002
+        app: deployment-demo-001
 
     spec:
       imagePullSecrets: []
@@ -29,7 +29,7 @@ spec:
       - env: []
         image: nginx:latest
         imagePullPolicy: IfNotPresent
-        name: fengtest001
+        name: abc
         resources:
           limits:
             cpu: '2'

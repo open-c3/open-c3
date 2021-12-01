@@ -12,8 +12,8 @@ get '/kubernetes/data/template/:name' => sub {
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-##TODO 换成golang方式，来出来数据类型问题
-    my $data =eval{ YAML::XS::LoadFile "/data/Software/mydan/CI/lib/api/kubernetes/data/$param->{name}.yaml" };
+    my $jsonstring = `yaml2json "/data/Software/mydan/CI/lib/api/kubernetes/data/$param->{name}.yaml"`;
+    my $data = eval{decode_json $jsonstring};
     return $@ ? +{ stat => JSON::false, info => $@ } : +{ stat => JSON::true, data => $data };
 };
 
