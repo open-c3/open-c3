@@ -350,7 +350,7 @@ get '/kubernetes/app/json' => sub {
     my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, $auth ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
-    my ( $cmd, $handle ) = ( "$kubectl get '$param->{type}' '$param->{name}' -n '$param->{namespace}' -o yaml", 'getappjson' );
+    my ( $cmd, $handle ) = ( "$kubectl get '$param->{type}' '$param->{name}' -n '$param->{namespace}' -o json", 'getappjson' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( `$cmd`//'', $? ); 
 };
@@ -359,10 +359,8 @@ $handle{getappjson} = sub
 {
     my ( $x, $status, $filter ) = @_;
     return +{ stat => $JSON::false, data => $x } if $status;
-    my $yaml = eval{ YAML::XS::Load $x };
-    return +{ stat => $JSON::false, info => $@ } if $@;
-    return +{ stat => $JSON::true, data => $yaml };
-
+    my $data = eval{ decode_json $x };
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $data };
 };
 
 get '/kubernetes/app/flowlineinfo' => sub {

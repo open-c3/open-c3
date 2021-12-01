@@ -276,7 +276,7 @@
 
         vm.addPorts = function()
         {
-            vm.editData.spec.ports.push( angular.copy({"name": "", "port": "", "targetPort":"", "protocol":"TCP"}));
+            vm.editData.spec.ports.push( angular.copy({"name": "", "port": 80, "targetPort":80, "protocol":"TCP"}));
         }
  
         vm.delPorts = function(id)
