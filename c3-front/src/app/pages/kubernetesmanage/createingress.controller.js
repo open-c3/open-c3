@@ -272,7 +272,7 @@
             {
                 x.http.paths = []
             }
-            x.http.paths.push(angular.copy( {"pathType":"ImplementationSpecific","path":"", "backend": { "serviceName":"","servicePort":""}}));
+            x.http.paths.push(angular.copy( {"pathType":"ImplementationSpecific","path":"", "backend": { "serviceName":"","servicePort": 80}}));
         }
  
         vm.delPaths = function(x,id)
@@ -350,7 +350,7 @@
                                 }
                                 else
                                 {
-                                    path.backend = { "serviceName": "", "servicePort": "" };
+                                    path.backend = { "serviceName": "", "servicePort": 80 };
                                 }
                             });
                         }

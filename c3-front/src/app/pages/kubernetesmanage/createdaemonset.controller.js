@@ -337,7 +337,7 @@
             {
                 x.ports = []
             }
-            x.ports.push({"name":"","protocol": protocol, "containerPort":""})
+            x.ports.push({"name":"","protocol": protocol, "containerPort":80})
         }
         vm.delContainerPorts = function(x,id)
         {
@@ -355,11 +355,11 @@
         }
         vm.addContainerlivenessProbeHttp = function(x)
         {
-            x.livenessProbe = { "initialDelaySeconds": 30, "periodSeconds": 10, "timeoutSeconds": 5, "httpGet": { "path": "", "port": "8080", "scheme": "HTTP" }}
+            x.livenessProbe = { "initialDelaySeconds": 30, "periodSeconds": 10, "timeoutSeconds": 5, "httpGet": { "path": "", "port": 8080, "scheme": "HTTP" }}
         }
          vm.addContainerlivenessProbePort = function(x)
         {
-            x.livenessProbe = { "initialDelaySeconds": 30, "periodSeconds": 10, "timeoutSeconds": 5, "tcpSocket": { "port": "8080" }}
+            x.livenessProbe = { "initialDelaySeconds": 30, "periodSeconds": 10, "timeoutSeconds": 5, "tcpSocket": { "port": 8080 }}
         }
  
         vm.cleanContainerlivenessProbe = function(x)
@@ -374,11 +374,11 @@
         }
         vm.addContainerreadinessProbeHttp = function(x)
         {
-            x.readinessProbe = { "initialDelaySeconds": 30, "periodSeconds": 10, "timeoutSeconds": 5, "httpGet": { "path": "", "port": "8080", "scheme": "HTTP" }}
+            x.readinessProbe = { "initialDelaySeconds": 30, "periodSeconds": 10, "timeoutSeconds": 5, "httpGet": { "path": "", "port": 8080, "scheme": "HTTP" }}
         }
          vm.addContainerreadinessProbePort = function(x)
         {
-            x.readinessProbe = { "initialDelaySeconds": 30, "periodSeconds": 10, "timeoutSeconds": 5, "tcpSocket": { "port": "8080" }}
+            x.readinessProbe = { "initialDelaySeconds": 30, "periodSeconds": 10, "timeoutSeconds": 5, "tcpSocket": { "port": 8080 }}
         }
  
         vm.cleanContainerreadinessProbe = function(x)

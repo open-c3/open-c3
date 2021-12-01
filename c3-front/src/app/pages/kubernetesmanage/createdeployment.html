@@ -88,7 +88,7 @@
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">停止等待时间</label>
                     <div class="col-sm-3">
-                        <input type="text" class="form-control" name="adduser" placeholder="停止等待时间" ng-model="kubernetescreatedeployment.editData.spec.template.spec.terminationGracePeriodSeconds" required>
+                        <input type="number" class="form-control" name="adduser" placeholder="停止等待时间" ng-model="kubernetescreatedeployment.editData.spec.template.spec.terminationGracePeriodSeconds" required>
                     </div>
                 </div>
             </div>
@@ -97,7 +97,7 @@
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">副本数量</label>
                     <div class="col-sm-3">
-                        <input type="text" class="form-control" name="adduser" placeholder="副本数量" ng-model="kubernetescreatedeployment.editData.spec.replicas" required>
+                        <input type="number" class="form-control" name="adduser" placeholder="副本数量" ng-model="kubernetescreatedeployment.editData.spec.replicas" required>
                     </div>
                 </div>
             </div>
@@ -511,7 +511,7 @@
                                                                    <label class="col-sm-1 control-label">name</label>
                                                                    <div class="col-sm-4"> <input type="text" class="form-control" placeholder="" ng-model="xx.name" required> </div>
                                                                    <label class="col-sm-1 control-label">端口</label>
-                                                                   <div class="col-sm-5"> <input type="text" class="form-control" placeholder="" ng-model="xx.containerPort" required> </div>
+                                                                   <div class="col-sm-5"> <input type="number" class="form-control" placeholder="" ng-model="xx.containerPort" required> </div>
                                                                </div>
                                                            </div>
 
@@ -589,13 +589,13 @@
                                         <div class="col-sm-12 form-group">
                                             <label class="col-sm-1 control-label"></label>
                                             <label class="col-sm-1 control-label">首次探测时间/秒</label>
-                                            <div class="col-sm-2"> <input type="text" class="form-control" placeholder="" ng-model="x.livenessProbe.initialDelaySeconds" required> </div>
+                                            <div class="col-sm-2"> <input type="number" class="form-control" placeholder="" ng-model="x.livenessProbe.initialDelaySeconds" required> </div>
 
                                             <label class="col-sm-1 control-label">探测间隔时间/秒</label>
-                                            <div class="col-sm-2"> <input type="text" class="form-control" placeholder="" ng-model="x.livenessProbe.periodSeconds" required> </div>
+                                            <div class="col-sm-2"> <input type="number" class="form-control" placeholder="" ng-model="x.livenessProbe.periodSeconds" required> </div>
 
                                             <label class="col-sm-1 control-label">探测超时时间/秒</label>
-                                            <div class="col-sm-2"> <input type="text" class="form-control" placeholder="" ng-model="x.livenessProbe.timeoutSeconds" required> </div>
+                                            <div class="col-sm-2"> <input type="number" class="form-control" placeholder="" ng-model="x.livenessProbe.timeoutSeconds" required> </div>
                                         </div>
                                     </div>
 
@@ -611,7 +611,7 @@
                                         <div class="col-sm-12 form-group">
                                             <label class="col-sm-1 control-label"></label>
                                             <label class="col-sm-1 control-label">端口</label>
-                                            <div class="col-sm-2"> <input type="text" class="form-control" placeholder="" ng-model="x.livenessProbe.httpGet.port" required> </div>
+                                            <div class="col-sm-2"> <input type="number" class="form-control" placeholder="" ng-model="x.livenessProbe.httpGet.port" required> </div>
                                             <label class="col-sm-1 control-label">路径</label>
                                             <div class="col-sm-5"> <input type="text" class="form-control" placeholder="" ng-model="x.livenessProbe.httpGet.path" required> </div>
                                         </div>
@@ -621,7 +621,7 @@
                                         <div class="col-sm-12 form-group">
                                             <label class="col-sm-1 control-label"></label>
                                             <label class="col-sm-1 control-label">端口</label>
-                                            <div class="col-sm-2"> <input type="text" class="form-control" placeholder="" ng-model="x.livenessProbe.tcpSocket.port" required> </div>
+                                            <div class="col-sm-2"> <input type="number" class="form-control" placeholder="" ng-model="x.livenessProbe.tcpSocket.port" required> </div>
                                         </div>
                                     </div>
 
@@ -641,13 +641,13 @@
                                         <div class="col-sm-12 form-group">
                                             <label class="col-sm-1 control-label"></label>
                                             <label class="col-sm-1 control-label">首次探测时间/秒</label>
-                                            <div class="col-sm-2"> <input type="text" class="form-control" placeholder="" ng-model="x.readinessProbe.initialDelaySeconds" required> </div>
+                                            <div class="col-sm-2"> <input type="number" class="form-control" placeholder="" ng-model="x.readinessProbe.initialDelaySeconds" required> </div>
 
                                             <label class="col-sm-1 control-label">探测间隔时间/秒</label>
-                                            <div class="col-sm-2"> <input type="text" class="form-control" placeholder="" ng-model="x.readinessProbe.periodSeconds" required> </div>
+                                            <div class="col-sm-2"> <input type="number" class="form-control" placeholder="" ng-model="x.readinessProbe.periodSeconds" required> </div>
 
                                             <label class="col-sm-1 control-label">探测超时时间/秒</label>
-                                            <div class="col-sm-2"> <input type="text" class="form-control" placeholder="" ng-model="x.readinessProbe.timeoutSeconds" required> </div>
+                                            <div class="col-sm-2"> <input type="number" class="form-control" placeholder="" ng-model="x.readinessProbe.timeoutSeconds" required> </div>
                                         </div>
                                     </div>
 
@@ -663,7 +663,7 @@
                                         <div class="col-sm-12 form-group">
                                             <label class="col-sm-1 control-label"></label>
                                             <label class="col-sm-1 control-label">端口</label>
-                                            <div class="col-sm-2"> <input type="text" class="form-control" placeholder="" ng-model="x.readinessProbe.httpGet.port" required> </div>
+                                            <div class="col-sm-2"> <input type="number" class="form-control" placeholder="" ng-model="x.readinessProbe.httpGet.port" required> </div>
                                             <label class="col-sm-1 control-label">路径</label>
                                             <div class="col-sm-5"> <input type="text" class="form-control" placeholder="" ng-model="x.readinessProbe.httpGet.path" required> </div>
                                         </div>
@@ -673,7 +673,7 @@
                                         <div class="col-sm-12 form-group">
                                             <label class="col-sm-1 control-label"></label>
                                             <label class="col-sm-1 control-label">端口</label>
-                                            <div class="col-sm-2"> <input type="text" class="form-control" placeholder="" ng-model="x.readinessProbe.tcpSocket.port" required> </div>
+                                            <div class="col-sm-2"> <input type="number" class="form-control" placeholder="" ng-model="x.readinessProbe.tcpSocket.port" required> </div>
                                         </div>
                                     </div>
 
