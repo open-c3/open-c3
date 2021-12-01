@@ -241,7 +241,8 @@
             }
             if( type === 'configMap' )
             {
-                data = { "name": "", "configMap": { "name":"", "items": [ { "key": "", "path": "" } ] } }
+                data = { "name": "", "configMap": { "name":"" } }
+                //data = { "name": "", "configMap": { "name":"", "items": [ { "key": "", "path": "" } ] } }
             }
 
             if( ! vm.editData.spec.template.spec.volumes )

@@ -12,7 +12,7 @@ get '/kubernetes/data/template/:name' => sub {
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    my $jsonstring = `yaml2json "/data/Software/mydan/CI/lib/api/kubernetes/data/$param->{name}.yaml"`;
+    my $jsonstring = `yaml2json "$RealBin/../lib/api/kubernetes/data/$param->{name}.yaml"`;
     my $data = eval{decode_json $jsonstring};
     return $@ ? +{ stat => JSON::false, info => $@ } : +{ stat => JSON::true, data => $data };
 };
@@ -73,7 +73,6 @@ any '/kubernetes/data/yaml2json' => sub {
     my $fh = File::Temp->new( UNLINK => 0, SUFFIX => '.config', TEMPLATE => "/data/Software/mydan/tmp/temp_XXXXXXXX" );
     print $fh $param->{data};
     close $fh;
-
 
     my $file = $fh->filename;
     my $jsonstring = `yaml2json $file`;

@@ -12,10 +12,6 @@
         var toastr = toastr || $injector.get('toastr');
 
         vm.namespace;
-        vm.server;
-        vm.username;
-        vm.password;
-        vm.email;
 
         vm.cancel = function(){ $uibModalInstance.dismiss(); };
 

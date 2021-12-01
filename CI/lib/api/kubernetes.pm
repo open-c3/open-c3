@@ -35,6 +35,7 @@ sub getKubectlCmd($$$$$)
 
 our %handle;
 $handle{showinfo} = sub { return +{ info => shift, stat => shift ? $JSON::false : $JSON::true }; };
+$handle{showdata} = sub { return +{ data => shift, stat => shift ? $JSON::false : $JSON::true }; };
 $handle{showtable} = sub
 {
     my ( $x, $status, $filter ) = @_;

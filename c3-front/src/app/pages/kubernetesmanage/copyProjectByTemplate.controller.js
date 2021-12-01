@@ -45,8 +45,6 @@
         };
         vm.reload();
 
- 
-
         vm.cancel = function(){ $uibModalInstance.dismiss(); };
         vm.add = function(){
 

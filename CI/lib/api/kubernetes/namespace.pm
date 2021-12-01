@@ -11,8 +11,7 @@ use Time::Local;
 use File::Temp;
 use api::kubernetes;
 
-our %handle;
-$handle{showinfo} = sub { return +{ info => shift, stat => shift ? $JSON::false : $JSON::true }; };
+our %handle = %api::kubernetes::handle;
 
 get '/kubernetes/namespace' => sub {
     my $param = params();
@@ -30,25 +29,9 @@ get '/kubernetes/namespace' => sub {
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
 #TODO 不添加2>/dev/null 时,如果命名空间不存在namespace时，api.event 的接口会报错
-    my ( $cmd, $handle ) = ( "$kubectl get namespace -o wide 2>/dev/null", 'getnamespace' );
+    my ( $cmd, $handle ) = ( "$kubectl get namespace -o wide 2>/dev/null", 'showtable' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( `$cmd`//'', $? );
-};
-
-$handle{getnamespace} = sub
-{
-    my ( $x, $status ) = @_;
-    return +{ stat => $JSON::false, data => $x } if $status;
-    my @x = split /\n/, $x;
-
-    my ( @title, @r )= split /\s+/, shift @x;
-    map
-    {
-         my @col = split /\s+/, $_;
-         push @r, +{ map{ $title[$_] => $col[$_] }0..$#title};
-    }@x;
-
-    return +{ stat => $JSON::true, data => \@r, };
 };
 
 post '/kubernetes/namespace' => sub {

@@ -153,8 +153,6 @@
  
  
 
-
-
             $http.get("/api/ci/v2/kubernetes/app?ticketid=" + vm.selecteClusterId + "&namespace=" + vm.selectednamespace + "&status=" + vm.selectedStat ).then(
                 function successCallback(response) {
                     if (response.data.stat){
@@ -187,11 +185,16 @@
 
 
                         vm.jobbatchTable = new ngTableParams({count:10}, {counts:[],data:response.data.data['job.batch']});
-                        vm.jobbatchCount = response.data.data['job.batch'].length;
-
+                        if( response.data.data['job.batch'] )
+                        {
+                            vm.jobbatchCount = response.data.data['job.batch'].length;
+                        }
 
                         vm.statefulsetTable = new ngTableParams({count:10}, {counts:[],data:response.data.data.statefulset});
-                        vm.statefulsetCount = response.data.data.statefulset.length;
+                        if( response.data.data.statefulset )
+                        {
+                            vm.statefulsetCount = response.data.data.statefulset.length;
+                        }
 
                         vm.loadoverB = true;
                     }else {
@@ -236,11 +239,6 @@
                 function errorCallback (response){
                     toastr.error( "获取集群ingress失败: " + response.status )
                 });
-
-
-
-
-
 
 
         };
@@ -340,10 +338,6 @@
                 }
             });
         };
-
-
-
-
 
         vm.createConfigMap = function (namespace,name) {
             $uibModal.open({
@@ -460,8 +454,6 @@
                 }
             });
         };
-
-
 
         vm.setimage = function (type,name,namespace,image,container) {
             $uibModal.open({
@@ -586,11 +578,6 @@
             });
         };
 
-
-
-
-
-
         vm.addCluster = function () {
             $uibModal.open({
                 templateUrl: 'app/pages/global/ticket/createTicket.html',
@@ -707,7 +694,6 @@
                 }
             });
         };
-
 
         vm.editconfig = function (treeid, id, name) {
             $uibModal.open({

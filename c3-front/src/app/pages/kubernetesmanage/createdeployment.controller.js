@@ -424,7 +424,6 @@
         {
             var b = angular.copy(vm.containerData);
             vm.editData.spec.template.spec.containers.push(angular.copy(vm.containerData));
-            //vm.editData.spec.template.spec.containers.push(vm.containerData)
         }
  
         vm.delContainer = function(id)

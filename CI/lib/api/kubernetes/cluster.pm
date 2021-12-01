@@ -10,8 +10,7 @@ use Format;
 use Time::Local;
 use File::Temp;
 
-our %handle;
-$handle{showinfo} = sub { return +{ info => shift, stat => shift ? $JSON::false : $JSON::true }; };
+our %handle = %api::kubernetes::handle;
 
 post '/kubernetes/cluster/connectiontest' => sub {
     my $param = params();

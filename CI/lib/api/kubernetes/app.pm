@@ -12,9 +12,7 @@ use Time::Local;
 use File::Temp;
 use api::kubernetes;
 
-our %handle;
-$handle{showinfo} = sub { return +{ info => shift, stat => shift ? $JSON::false : $JSON::true }; };
-$handle{showdata} = sub { return +{ data => shift, stat => shift ? $JSON::false : $JSON::true }; };
+our %handle = %api::kubernetes::handle;
 
 get '/kubernetes/app' => sub {
     my $param = params();
