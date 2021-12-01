@@ -45,7 +45,7 @@ create table `openc3_ci_project`(
 `edit_user` VARCHAR(100) comment '最后编辑用户',
 `edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '最后编辑时间',
 
-`ci_type` VARCHAR(100) comment 'ci类型类型', #用于区分是否是k8s发布,是什么类型的发布，缺省情况下是default，如是k8s的deployment发布，则显示kubernetes
+`ci_type` VARCHAR(100) DEFAULT 'default' comment 'ci类型类型', #用于区分是否是k8s发布,是什么类型的发布，缺省情况下是default，如是k8s的deployment发布，则显示kubernetes
 `ci_type_ticketid` VARCHAR(20) comment 'k8s集群票据编号',
 `ci_type_kind` VARCHAR(200) comment 'k8s.kind',
 `ci_type_namespace` VARCHAR(200) comment 'k8snamespace',
