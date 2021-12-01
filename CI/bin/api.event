@@ -93,11 +93,11 @@ $httpd->reg_routes(
         map{ $header{$_} = $req->{hdr}{$_} if $req->{hdr}{$_} }qw( appname appkey );
         $ua->default_header( %header );
 
-        if ( $req->cookie('sid') )
+        if ( $req->cookie($cookiekey) )
         {
             my $cookie = HTTP::Cookies->new();
             $cookie->set_cookie(
-                1   => $cookiekey,
+                0   => $cookiekey,
                 $req->cookie($cookiekey),
                 '/' => 'api.ci.open-c3.org'
             );
