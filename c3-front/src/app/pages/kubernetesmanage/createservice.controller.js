@@ -336,7 +336,7 @@
         vm.assignment = function () {
             var postData = {
                 "type": "kubernetes",
-                "name": "kubernetes创建应用",
+                "name": "kubernetes service " + vm.tasktype,
                 "handler": clusterinfo.create_user,
                 "url": "/api/ci/v2/kubernetes/app/" + vm.tasktype,
                 "method": "POST",
