@@ -63,17 +63,17 @@
             });
             if( vm.tasktype == 'create' )
             {
-            $http.get("/api/ci/v2/kubernetes/namespace?ticketid=" + ticketid ).then(
-                function successCallback(response) {
-                    if (response.data.stat){
-                        vm.namespaces = response.data.data; 
-                    }else {
-                        toastr.error( "获取集群NAMESPACE数据失败："+response.data.info );
-                    }
-                },
-                function errorCallback (response){
-                    toastr.error( "获取集群NAMESPACE数据失败: " + response.status )
-                });
+                $http.get("/api/ci/v2/kubernetes/namespace?ticketid=" + ticketid ).then(
+                    function successCallback(response) {
+                        if (response.data.stat){
+                            vm.namespaces = response.data.data; 
+                        }else {
+                            toastr.error( "获取集群NAMESPACE数据失败："+response.data.info );
+                        }
+                    },
+                    function errorCallback (response){
+                        toastr.error( "获取集群NAMESPACE数据失败: " + response.status )
+                    });
             }
         };
         vm.reload();
@@ -110,25 +110,49 @@
             });
         };
 
-        vm.toyaml = function(){
-            $scope.editstep = 2; 
+        vm.gotostep2 = function(){
+//labels
             var labels = {};
             angular.forEach($scope.labels, function (v, k) {
                 var key = v["K"]
                 labels[key] = v["V"];
             });
 
+            if( Object.keys(labels).length > 0 )
+            {
+                vm.editData.metadata.labels = labels;
+            }
+            else
+            {
+                delete vm.editData.metadata.labels;
+            }
+
             angular.forEach(vm.editData.spec.template.spec.containers, function (v, k) {
-              delete v.tempcommandstring;
-              delete v.tempargsstring;
+                delete v.tempcommandstring;
+                delete v.tempargsstring;
             });
 
-            vm.editData.metadata.labels = labels;
-            if( !vm.editData.status )
+            if( vm.tasktype == 'create' )
             {
                 vm.editData.spec.selector.matchLabels.app = vm.editData.metadata.name;
                 vm.editData.spec.template.metadata.labels.app = vm.editData.metadata.name;
             }
+
+            if( !( vm.editData.metadata.namespace && vm.editData.metadata.name ) )
+            {
+                swal({ title:'错误', text: "Namespace和Name不齐全", type:'error' });
+                return;
+            }
+
+            if( vm.editData.kind !== 'DaemonSet' )
+            {
+                swal({ title:'错误', text: "kind不正确，必须为DaemonSet", type:'error' });
+                return;
+            }
+
+
+            vm.loadover = false;
+            $scope.editstep = 2; 
 
             var d = {
                 "data": vm.editData,
@@ -137,25 +161,17 @@
                 if(data.stat == true) 
                 { 
                    vm.newyaml = data.data
-
-                   if( vm.editData.metadata.namespace && vm.editData.metadata.name && vm.editData.kind )
-                   {
-
-                       $http.get("/api/ci/v2/kubernetes/app/yaml/always?ticketid=" + ticketid + "&type=" + vm.editData.kind + "&name=" + vm.editData.metadata.name + "&namespace=" + vm.editData.metadata.namespace ).success(function(data){
-                            if(data.stat == true) 
-                            { 
-                               vm.oldyaml = data.data;
-                               vm.diff();
-                            } else { 
-                                toastr.error("获取最新的配置信息失败:" + data.info)
-                            }
-                        });
+                   $http.get("/api/ci/v2/kubernetes/app/yaml/always?ticketid=" + ticketid + "&type=" + vm.editData.kind + "&name=" + vm.editData.metadata.name + "&namespace=" + vm.editData.metadata.namespace ).success(function(data){
+                        if(data.stat == true) 
+                        { 
+                            vm.oldyaml = data.data;
+                            vm.diff();
+                            vm.loadover = true;
+                        } else { 
+                            toastr.error("获取最新的配置信息失败:" + data.info)
+                        }
+                    });
  
-                  }
-                  else
-                  {
-                       swal({ title:'错误', text: "Namespace和Name不齐全", type:'error' });
-                  }
                 } else { 
                    swal({ title:'提交失败', text: data.info, type:'error' });
                 }
@@ -164,11 +180,11 @@
 
         $scope.labels = [];
 
-        vm.addLable = function()
+        vm.addLabel = function()
         {
             $scope.labels.push({ "K": "", "V": ""});
         }
-        vm.delLable = function(id)
+        vm.delLabel = function(id)
         {
             $scope.labels.splice(id, 1);
         }
@@ -213,6 +229,7 @@
             delete vm.editData.spec.template.spec.imagePullSecrets;
         }
 
+//Volume
         vm.addVolume = function( type )
         {
             var data = {}
@@ -244,7 +261,6 @@
                 data = { "name": "", "configMap": { "name":"" } }
                 //data = { "name": "", "configMap": { "name":"", "items": [ { "key": "", "path": "" } ] } }
             }
-
             if( ! vm.editData.spec.template.spec.volumes )
             {
                 vm.editData.spec.template.spec.volumes = [];
@@ -278,6 +294,7 @@
             x.tempcommandstring = "";
         }
 
+//Args
         vm.addArgs = function(x, args)
         {
             if( ! x.args )
@@ -456,7 +473,7 @@
         vm.assignment = function () {
             var postData = {
                 "type": "kubernetes",
-                "name": "kubernetes创建应用",
+                "name": "kubernetes daemonset " + vm.tasktype,
                 "handler": clusterinfo.create_user,
                 "url": "/api/ci/v2/kubernetes/app/" + vm.tasktype,
                 "method": "POST",
