@@ -15,7 +15,7 @@
                         <td data-title="'集群名称'" width="80" filter="{ clustername: 'text'}" sortable="'clustername'">{{m.clustername}}</td>
                         <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
                         <td data-title="'名称'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">
-                            <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetessearchingress.describeingress(m.clusterid,'ingress',m.NAME,m.NAMESPACE)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
+                            <i ng-if="m.NAME" class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetessearchingress.describeingress(m.clusterid,'ingress',m.NAME,m.NAMESPACE)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
                              {{m.NAME}}
                         </td>
                         <td data-title="'CLASS'" width="80" filter="{ CLASS: 'text'}" sortable="'CLASS'">{{m.CLASS}}</td>

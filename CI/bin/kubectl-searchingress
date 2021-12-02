@@ -16,7 +16,7 @@ sub getingress
     my ( $db, $id, %ext ) = @_;
     my $kubectl = eval{ api::kubernetes::getKubectlCmd( $db, $id, 'user', 'company',  0 ) };
     my @x = `/data/Software/mydan/dan/tools/alarm 3 $kubectl get ingress -A 2>/dev/null`;
-    return ( +{ %ext, error => "get ingress fail" } ) unless @x;
+    return ( +{ %ext, error => "error" } ) unless @x;
     my @title = split /\s+/, shift @x;
     splice @title,4, 0, splice @title, -2;
 
