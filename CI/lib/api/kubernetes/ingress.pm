@@ -61,7 +61,7 @@ $handle{getingress} = sub
          $r{AGE} = pop @tempcol;
          $r{PORTS} = pop @tempcol if @tempcol && $tempcol[-1] =~ /^[\d\,]+$/;
          ( $r{HOSTS}, $r{ADDRESS} ) = split /\s+/, join( ' ', @tempcol ), 2;
-         if( $r{ADDRESS} =~ s/^(\+ \d+ more\.\.\.)// )
+         if( $r{ADDRESS} && $r{ADDRESS} =~ s/^(\+ \d+ more\.\.\.)// )
          {
              $r{HOSTS} .= $1;
          }
@@ -70,6 +70,29 @@ $handle{getingress} = sub
     }@x;
 
     return +{ stat => $JSON::true, data => \@r, };
+};
+
+get '/kubernetes/app/ingress/dump' => sub {
+    my $pmscheck = api::pmscheck( 'openc3_ci_read', 0 ); return $pmscheck if $pmscheck;
+
+#    my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
+#        map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    my ( $cmd, $handle ) = ( "/data/Software/mydan/CI/bin/kubectl-searchingress 2>/dev/null", 'getsearchingress' );
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
+
+    return &{$handle{$handle}}( `$cmd`//'', $? ); 
+};
+
+$handle{getsearchingress} = sub
+{
+    my ( $x, $status ) = @_;
+    return +{ stat => $JSON::false, data => $x } if $status;
+
+    my $data = eval{ YAML::XS::Load $x };
+    return +{ stat => $JSON::false, info => $@, xx => $x } if $@;
+
+    return +{ stat => $JSON::true, data => $data };
 };
 
 true;
