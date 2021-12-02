@@ -113,6 +113,19 @@
 
         };
 
+        vm.switchtointmaby =  function( str )
+        {
+            var isnum = /^\d+$/.test(str)
+            if( isnum )
+            {
+                return Number(str);
+            }
+            else
+            {
+                return str;
+            }
+        }
+
         vm.toyaml = function(){
             $scope.editstep = 2; 
             var labels = {};
@@ -134,6 +147,12 @@
                 vm.editData.spec.template.metadata.labels.app = vm.editData.metadata.name;
             }
             
+            if( vm.editData.spec.strategy.type === 'RollingUpdate' )
+            {
+                vm.editData.spec.strategy.rollingUpdate.maxUnavailable = vm.switchtointmaby( vm.editData.spec.strategy.rollingUpdate.maxUnavailable );
+                vm.editData.spec.strategy.rollingUpdate.maxSurge = vm.switchtointmaby( vm.editData.spec.strategy.rollingUpdate.maxSurge );
+            }
+
             var d = {
                 "data": vm.editData,
             };
