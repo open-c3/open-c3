@@ -35,7 +35,7 @@ any '/kubernetes/data/json2yaml' => sub {
     my $file = $fh->filename;
     my $data = `json2yaml $file`;
 
-    return $@ ? +{ stat => JSON::false, info => $@ } : +{ stat => JSON::true, data => $data};
+    return $? ? +{ stat => JSON::false, info => "json2yaml fail" } : +{ stat => JSON::true, data => $data };
 };
 
 any '/kubernetes/data/json2yaml/perl' => sub {
@@ -76,9 +76,11 @@ any '/kubernetes/data/yaml2json' => sub {
 
     my $file = $fh->filename;
     my $jsonstring = `yaml2json $file`;
+    return +{ stat => JSON::false, info => "yaml2json fail" } if $?;
     my $data = eval{decode_json $jsonstring};
+    return +{ stat => JSON::false, info => $@ } if $@;
 
-    return $@ ? +{ stat => JSON::false, info => $@ } : +{ stat => JSON::true, data => $data};
+    return ( ref $data ne 'HASH' ) ? +{ stat => JSON::false, info => "data no hash" } : +{ stat => JSON::true, data => $data };
 };
 
 any '/kubernetes/data/yaml2json/perl' => sub {
