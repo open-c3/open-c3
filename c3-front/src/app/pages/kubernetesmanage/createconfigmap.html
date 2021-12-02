@@ -44,7 +44,7 @@
                         <input type="text" class="form-control" name="adduser" placeholder="名称" ng-disabled="kubernetescreateconfigmap.tasktype==='apply'" ng-model="kubernetescreateconfigmap.editData.metadata.name" required>
                     </div>
                     <label class="col-sm-1 control-label">命名空间</label>
-                    <div class="col-sm-3">
+                    <div class="col-sm-4">
                         <input ng-if="kubernetescreateconfigmap.tasktype==='apply'"  ng-disabled="1" type="text" class="form-control" name="adduser" placeholder="名称" ng-disabled="kubernetescreateconfigmap.tasktype==='apply'" ng-model="kubernetescreateconfigmap.editData.metadata.namespace" required>
                         <select id="selectednameval" class="form-control" ng-if="kubernetescreateconfigmap.tasktype!=='apply'"  ng-model="kubernetescreateconfigmap.editData.metadata.namespace" required>
                              <option ng-repeat="x in kubernetescreateconfigmap.namespaces" value="{{x.NAME}}">{{x.NAME}} 状态: {{x.STATUS}} 年龄: {{x.AGE}}</option>
@@ -57,7 +57,7 @@
             <div class="row">
                 <div class="col-sm-10 form-group">
                     <label class="col-sm-1 control-label">描述</label>
-                    <div class="col-sm-9">
+                    <div class="col-sm-8">
                         <input type="text" class="form-control" name="adduser" placeholder="描述" ng-model="kubernetescreateconfigmap.editData.metadata.annotations.describe" required>
                     </div>
                 </div>
@@ -67,7 +67,9 @@
             <div class="row">
                 <div class="col-sm-10 form-group">
                     <label class="col-sm-1 control-label">标签</label>
-                    <label class="col-sm-1 control-label" ng-click="kubernetescreateconfigmap.addLable()">+添加</label>
+                    <div class="col-sm-1">
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateconfigmap.addLabel()" uib-tooltip="添加" style="cursor:pointer;color: #339094;" ></i>
+                    </div>
                 </div>
 
             </div>
@@ -81,7 +83,9 @@
                                 <td><input type="text" class="form-control"  ng-model="x.K"></td>
                                 <td style="width: 20px">=</td>
                                 <td><input type="text" class="form-control"  ng-model="x.V"></td>
-                                <td style="width: 50px"><a ng-click="kubernetescreateconfigmap.delLable(id)">删除</a></td>
+                                <td style="width: 50px">
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateconfigmap.delLabel(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                </td>
                             </tr>
                        </table>
                     </div>
@@ -93,7 +97,9 @@
             <div class="row">
                 <div class="col-sm-10 form-group">
                     <label class="col-sm-1 control-label">配置项</label>
-                    <label class="col-sm-3 control-label" ng-click="kubernetescreateconfigmap.addData()">+添加</label>
+                    <div class="col-sm-1">
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateconfigmap.addData()" uib-tooltip="添加" style="cursor:pointer;color: #339094;" ></i>
+                    </div>
                 </div>
 
             </div>
@@ -138,7 +144,7 @@
 
             <div class="row">
                 <div class="col-sm-1 form-group pull-right">
-                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateconfigmap.toyaml()">下一步</button>
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateconfigmap.gotostep2()">下一步</button>
                 </div>
             </div>
 

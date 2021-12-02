@@ -93,35 +93,50 @@
             $http.post("/api/ci/kubernetes/data/yaml2json", d  ).success(function(data){
                 if(data.stat == true) 
                 { 
-                   vm.editData = data.data
+                    vm.editData = data.data
 
-                   $scope.labels = [];
-                   if( vm.editData.metadata.labels )
-                   {
-                       angular.forEach(vm.editData.metadata.labels, function (v, k) {
-                           $scope.labels.push( { "K": k, "V": v })
-                       });
-                   }
+                    $scope.labels = [];
+                    if( vm.editData.metadata.labels )
+                    {
+                        angular.forEach(vm.editData.metadata.labels, function (v, k) {
+                            $scope.labels.push( { "K": k, "V": v })
+                        });
+                    }
+
+                    vm.configMapData = [];
+
+                    angular.forEach(vm.editData.data, function (v, k) {
+                        vm.configMapData.push({"key": k, "val": v});
+                    });
 
                     vm.loadover = true;
                     $scope.editstep = 1; 
                 } else { 
-                   swal({ title:'提交失败', text: data.info, type:'error' });
+                   swal({ title:'YAML格式转换失败', text: data.info, type:'error' });
                 }
             });
 
         };
 
-        vm.toyaml = function(){
-            $scope.editstep = 2; 
+        vm.gotostep2 = function(){
+//labels
             var labels = {};
             angular.forEach($scope.labels, function (v, k) {
                 var key = v["K"]
                 labels[key] = v["V"];
             });
 
-            vm.editData.metadata.labels = labels;
 
+            if( Object.keys(labels).length > 0 )
+            {
+                vm.editData.metadata.labels = labels;
+            }
+            else
+            {
+                delete vm.editData.metadata.labels;
+            }
+
+//datas
             var datas = {};
 
             angular.forEach(vm.configMapData, function (v, k) {
@@ -129,8 +144,30 @@
                 datas[key] = v["val"];
             });
 
-            vm.editData.data = datas;
+            if( Object.keys(datas).length > 0 )
+            {
+                vm.editData.data = datas;
+            }
+            else
+            {
+                delete vm.editData.data;
+            }
 
+            if( !( vm.editData.metadata.namespace && vm.editData.metadata.name ) )
+            {
+                swal({ title:'错误', text: "Namespace和Name不齐全", type:'error' });
+                return;
+            }
+
+            if( vm.editData.kind !== 'ConfigMap' )
+            {
+                swal({ title:'错误', text: "kind不正确，必须为ConfigMap", type:'error' });
+                return;
+            }
+
+ 
+            $scope.editstep = 2; 
+            vm.loadover = false;
 
             var d = {
                 "data": vm.editData,
@@ -140,25 +177,16 @@
                 { 
                    vm.newyaml = data.data
 
-                   if( vm.editData.metadata.namespace && vm.editData.metadata.name && vm.editData.kind )
-                   {
-
-                       $http.get("/api/ci/v2/kubernetes/app/yaml/always?ticketid=" + ticketid + "&type=" + vm.editData.kind + "&name=" + vm.editData.metadata.name + "&namespace=" + vm.editData.metadata.namespace ).success(function(data){
-                            if(data.stat == true) 
-                            { 
-                               vm.oldyaml = data.data;
-                               vm.diff();
-                            } else { 
-                                toastr.error("获取最新的配置信息失败:" + data.info)
-                            }
-                        });
- 
-                  }
-                  else
-                  {
-                       swal({ title:'错误', text: "Namespace和Name不齐全", type:'error' });
-                  }
-
+                   $http.get("/api/ci/v2/kubernetes/app/yaml/always?ticketid=" + ticketid + "&type=" + vm.editData.kind + "&name=" + vm.editData.metadata.name + "&namespace=" + vm.editData.metadata.namespace ).success(function(data){
+                        if(data.stat == true) 
+                        { 
+                            vm.oldyaml = data.data;
+                            vm.diff();
+                            vm.loadover = true;
+                        } else { 
+                            toastr.error("获取最新的配置信息失败:" + data.info)
+                        }
+                    });
 
                 } else { 
                    swal({ title:'提交失败', text: data.info, type:'error' });
@@ -167,18 +195,19 @@
         };
 
 
+//labels
         $scope.labels = [];
 
-        vm.addLable = function()
+        vm.addLabel = function()
         {
             $scope.labels.push({ "K": "", "V": ""});
         }
-        vm.delLable = function(id)
+        vm.delLabel = function(id)
         {
             $scope.labels.splice(id, 1);
         }
 
-
+//configMapData
         vm.configMapData = [];
         vm.addData = function()
         {
@@ -212,7 +241,7 @@
         vm.assignment = function () {
             var postData = {
                 "type": "kubernetes",
-                "name": "kubernetes ConfigMap 创建",
+                "name": "kubernetes ConfigMap " + vm.tasktype,
                 "handler": clusterinfo.create_user,
                 "url": "/api/ci/v2/kubernetes/app/" + vm.tasktype,
                 "method": "POST",
@@ -245,7 +274,6 @@
         vm.newyaml = "";
 
         vm.diffresultstring = "";
-
         vm.diff = function()
         {
             var diffresultstring = document.getElementById('diffresultstring');
