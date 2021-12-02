@@ -63,7 +63,9 @@
             <div class="row">
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">标签</label>
-                    <label class="col-sm-3 control-label" ng-click="kubernetescreateservice.addLable()">+添加</label>
+                    <div class="col-sm-1">
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addLabel()" uib-tooltip="添加" style="cursor:pointer;color: #339094;" ></i>
+                    </div>
                 </div>
             </div>
 
@@ -76,7 +78,9 @@
                                 <td><input type="text" class="form-control"  ng-model="x.K"></td>
                                 <td style="width: 20px">=</td>
                                 <td><input type="text" class="form-control"  ng-model="x.V"></td>
-                                <td style="width: 50px"><a ng-click="kubernetescreateservice.delLable(id)">删除</a></td>
+                                <td style="width: 50px">
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.delLabel(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                               </td>
                             </tr>
                        </table>
                     </div>
@@ -86,9 +90,11 @@
             <div class="row">
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">annotations</label>
-                    <label class="col-sm-3 control-label" ng-click="kubernetescreateservice.addAnnotations()">+添加</label>
+                    <div class="col-sm-1">
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addAnnotations()" uib-tooltip="添加" style="cursor:pointer;color: #339094;" ></i>
+                    </div>
                     <div class="col-sm-1" ng-repeat="(id, x) in kubernetescreateservice.service_lb_annotations">
-                        <a class="btn btn-primary" ng-click="kubernetescreateservice.addAnnotationsByType(id)">{{id}}</a>
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addAnnotationsByType(id)" uib-tooltip="添加" style="cursor:pointer;color: #339094;" >{{id}}</i>
                     </div>
                 </div>
 
@@ -103,7 +109,9 @@
                                 <td><input type="text" class="form-control"  ng-model="x.K"></td>
                                 <td style="width: 20px">=</td>
                                 <td><input type="text" class="form-control"  ng-model="x.V"></td>
-                                <td style="width: 50px"><a ng-click="kubernetescreateservice.delAnnotations(id)">删除</a></td>
+                                <td style="width: 50px">
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.delAnnotations(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                               </td>
                             </tr>
                        </table>
                     </div>
@@ -116,7 +124,7 @@
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">开放端口</label>
                     <div class="col-sm-6">
-                            <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addPorts()" uib-tooltip="添加规则" style="cursor:pointer;color: #339094;" ></i>
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addPorts()" uib-tooltip="添加规则" style="cursor:pointer;color: #339094;" ></i>
                     </div>
                 </div>
             </div>
@@ -168,7 +176,9 @@
             <div class="row">
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">selector</label>
-                    <label class="col-sm-3 control-label" ng-click="kubernetescreateservice.addSelector()">+添加</label>
+                    <div class="col-sm-6">
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addSelector()" uib-tooltip="添加" style="cursor:pointer;color: #339094;" ></i>
+                    </div>
                 </div>
             </div>
 
@@ -181,7 +191,9 @@
                                 <td><input type="text" class="form-control"  ng-model="x.K"></td>
                                 <td style="width: 20px">=</td>
                                 <td><input type="text" class="form-control"  ng-model="x.V"></td>
-                                <td style="width: 50px"><a ng-click="kubernetescreateservice.delSelector(id)">删除</a></td>
+                                <td style="width: 50px">
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.delSelector(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                </td>
                             </tr>
                        </table>
                     </div>
@@ -190,7 +202,7 @@
 
             <div class="row">
                 <div class="col-sm-1 form-group pull-right">
-                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateservice.toyaml()">下一步</button>
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateservice.gotostep2()">下一步</button>
                 </div>
             </div>
 
