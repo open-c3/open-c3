@@ -41,5 +41,5 @@ sub getingress
     return @table;
 }
 
-print YAML::XS::Dump [ map{ getingress( $db, $_->{id}, clustername => $_->{name} ); }@$cluster ];
+print YAML::XS::Dump [ map{ getingress( $db, $_->{id}, clustername => $_->{name}, clusterid => $_->{id} ); }@$cluster ];
 

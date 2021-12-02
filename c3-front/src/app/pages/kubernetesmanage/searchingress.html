@@ -1,0 +1,34 @@
+<div class="row block">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="kubernetessearchingress.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetessearchingress.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="关闭" ng-click="kubernetessearchingress.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
+            </span>
+            <h5>所有集群的Ingress汇总</h5>
+        </div>
+
+        <div class="panel-body" style="margin-top: 2px">
+            <div class="pt20" style="overflow: auto;">
+                <table ng-table="kubernetessearchingress.nodeTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
+                    <tr ng-repeat="m in $data">
+                        <td data-title="'集群名称'" width="80" filter="{ clustername: 'text'}" sortable="'clustername'">{{m.clustername}}</td>
+                        <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'名称'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">
+                            <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetessearchingress.describeingress(m.clusterid,'ingress',m.NAME,m.NAMESPACE)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
+                             {{m.NAME}}
+                        </td>
+                        <td data-title="'CLASS'" width="80" filter="{ CLASS: 'text'}" sortable="'CLASS'">{{m.CLASS}}</td>
+                        <td data-title="'HOSTS'" width="80" filter="{ HOSTS: 'text'}" sortable="'HOSTS'">{{m.HOSTS}}</td>
+                        <td data-title="'ADDRESS'" width="80" filter="{ ADDRESS: 'text'}" sortable="'ADDRESS'">{{m.ADDRESS}}</td>
+                        <td data-title="'PORTS'" width="80" filter="{ PORTS: 'text'}" sortable="'PORTS'">{{m.PORTS}}</td>
+                        <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
+                        <td data-title="'错误'" width="80" filter="{ error: 'text'}" sortable="'error'"><a style="color: red;" >{{m.error}}</a></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+<style>.modal-dialog {width: 90%;} </style>

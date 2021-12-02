@@ -650,6 +650,24 @@
             });
         };
 
+        vm.searchingress = function () {
+            $uibModal.open({
+                templateUrl: 'app/pages/kubernetesmanage/searchingress.html',
+                controller: 'KubernetesSearchIngressController',
+                controllerAs: 'kubernetessearchingress',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () {return vm.treeid},
+                    ticketid: function () {return vm.selecteClusterId},
+                    clusterinfo: function () {return vm.selecteCluster},
+                }
+            });
+        };
+
+ 
         vm.configMap = function () {
             $uibModal.open({
                 templateUrl: 'app/pages/kubernetesmanage/configmap.html',
