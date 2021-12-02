@@ -19,7 +19,7 @@
 
         vm.reload = function(){
             vm.loadover = false;
-            $http.get("/api/ci/v2/kubernetes/app/describedeployment?ticketid=" + ticketid + '&type=' + type + '&name=' + name + '&namespace=' + namespace  ).success(function(data){
+            $http.get("/api/ci/v2/kubernetes/app/describe/deployment?ticketid=" + ticketid + '&type=' + type + '&name=' + name + '&namespace=' + namespace  ).success(function(data){
                 if(data.stat == true) 
                 { 
                     vm.describe = data.data.describe;

@@ -29,7 +29,7 @@
                 "image": vm.image,
                 "container": container,
             };
-            $http.post("/api/ci/v2/kubernetes/app/setimage", d  ).success(function(data){
+            $http.post("/api/ci/v2/kubernetes/app/set/image", d  ).success(function(data){
                 if(data.stat == true) 
                 { 
                    vm.loadover = true;
@@ -45,7 +45,7 @@
                 "type": "kubernetes",
                 "name": "修改Deployment镜像",
                 "handler": clusterinfo.create_user,
-                "url": "/api/ci/v2/kubernetes/app/setimage",
+                "url": "/api/ci/v2/kubernetes/app/set/image",
                 "method": "POST",
                 "submit_reason": "",
                 "remarks": "\n集群ID:" + ticketid + ";\n集群名称:" + clusterinfo.name + ";\n命名空间:"+ namespace + ";\n类型:" + type + ";\n名称:" + name +";\n原镜像地址:" + image + ";\n新镜像地址:" + vm.image,

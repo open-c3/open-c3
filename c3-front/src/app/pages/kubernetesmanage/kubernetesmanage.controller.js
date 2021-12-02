@@ -157,8 +157,6 @@
                 function successCallback(response) {
                     if (response.data.stat){
 
-                      //  vm.namespace = response.data.namespace; 
-
                         vm.deploymentTable = new ngTableParams({count:10}, {counts:[],data:response.data.data.deployment});
                         vm.deploymentCount = response.data.data.deployment.length;
                         vm.deploymentReady = response.data.deploymentready;

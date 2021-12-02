@@ -17,6 +17,8 @@ use AnyEvent::HTTPD::CookiePatch qw(inject);
 
 use api::kubernetes::node;
 use api::kubernetes::app;
+use api::kubernetes::app::describe;
+use api::kubernetes::app::set;
 use api::kubernetes::hpa;
 use api::kubernetes::secret;
 use api::kubernetes::configmap;
@@ -37,6 +39,8 @@ BEGIN{
 my ( %handle, %index, $index ) = ( 
     %api::kubernetes::node::handle,
     %api::kubernetes::app::handle,
+    %api::kubernetes::app::describe::handle,
+    %api::kubernetes::app::set::handle,
     %api::kubernetes::hpa::handle,
     %api::kubernetes::secret::handle,
     %api::kubernetes::configmap::handle,
