@@ -105,7 +105,7 @@
                     vm.loadover = true;
                     $scope.editstep = 1; 
                 } else { 
-                   swal({ title:'提交失败', text: data.info, type:'error' });
+                   swal({ title:'YAML格式转换失败', text: data.info, type:'error' });
                 }
             });
 

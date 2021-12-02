@@ -78,7 +78,6 @@
                            $scope.database64.push( { "K": k, "V": window.atob(v) })
                        });
                    }
-
  
                 } else { 
                     swal({ title:'加载模版信息失败', text: data.info, type:'error' });
@@ -88,19 +87,19 @@
 
             if( vm.tasktype == 'create' )
             {
-            $http.get("/api/ci/v2/kubernetes/namespace?ticketid=" + ticketid ).then(
-                function successCallback(response) {
-                    if (response.data.stat){
-                        vm.namespaces = response.data.data; 
-                    }else {
-                        toastr.error( "获取集群NAMESPACE数据失败："+response.data.info );
-                    }
-                },
-                function errorCallback (response){
-                    toastr.error( "获取集群NAMESPACE数据失败: " + response.status )
-                });
+                $http.get("/api/ci/v2/kubernetes/namespace?ticketid=" + ticketid ).then(
+                    function successCallback(response) {
+                        if (response.data.stat){
+                            vm.namespaces = response.data.data; 
+                        }else {
+                            toastr.error( "获取集群NAMESPACE数据失败："+response.data.info );
+                        }
+                    },
+                    function errorCallback (response){
+                        toastr.error( "获取集群NAMESPACE数据失败: " + response.status )
+                    });
  
-           }
+            }
         };
         vm.reload();
 
@@ -117,74 +116,106 @@
             $http.post("/api/ci/kubernetes/data/yaml2json", d  ).success(function(data){
                 if(data.stat == true) 
                 { 
-                   vm.editData = data.data
+                    vm.editData = data.data
 
-                   $scope.labels = [];
-                   if( vm.editData.metadata.labels )
-                   {
-                       angular.forEach(vm.editData.metadata.labels, function (v, k) {
-                           $scope.labels.push( { "K": k, "V": v })
-                       });
-                   }
+                    $scope.labels = [];
+                    if( vm.editData.metadata.labels )
+                    {
+                        angular.forEach(vm.editData.metadata.labels, function (v, k) {
+                            $scope.labels.push( { "K": k, "V": v })
+                        });
+                    }
 
+                    $scope.annotations = [];
+                    if( vm.editData.metadata.annotations )
+                    {
+                        angular.forEach(vm.editData.metadata.annotations, function (v, k) {
+                            $scope.annotations.push( { "K": k, "V": v })
+                        });
+                    }
 
-                   $scope.annotations = [];
-                   if( vm.editData.metadata.annotations )
-                   {
-                       angular.forEach(vm.editData.metadata.annotations, function (v, k) {
-                           $scope.annotations.push( { "K": k, "V": v })
-                       });
-                   }
-
-
-                   $scope.database64 = [];
-                   if( vm.editData.data )
-                   {
-                       angular.forEach(vm.editData.data, function (v, k) {
-                           $scope.database64.push( { "K": k, "V": window.atob(v) })
-                       });
-                   }
-
+                    $scope.database64 = [];
+                    if( vm.editData.data )
+                    {
+                        angular.forEach(vm.editData.data, function (v, k) {
+                            $scope.database64.push( { "K": k, "V": window.atob(v) })
+                        });
+                    }
 
                     vm.loadover = true;
                     $scope.editstep = 1; 
                 } else { 
-                   swal({ title:'提交失败', text: data.info, type:'error' });
+                   swal({ title:'YAML格式转换失败', text: data.info, type:'error' });
                 }
             });
-
         };
 
-
-        vm.toyaml = function(){
-            $scope.editstep = 2; 
+        vm.gotostep2 = function(){
+//labels
             var labels = {};
             angular.forEach($scope.labels, function (v, k) {
                 var key = v["K"]
                 labels[key] = v["V"];
             });
 
-            vm.editData.metadata.labels = labels;
+            if( Object.keys(labels).length > 0 )
+            {
+                vm.editData.metadata.labels = labels;
+            }
+            else
+            {
+                delete vm.editData.metadata.labels;
+            }
 
-
+//annotations
             var annotations = {};
             angular.forEach($scope.annotations, function (v, k) {
                 var key = v["K"]
                 annotations[key] = v["V"];
             });
 
-            vm.editData.metadata.annotations = annotations;
+            if( Object.keys(annotations).length > 0 )
+            {
+                vm.editData.metadata.annotations = annotations;
+            }
+            else
+            {
+                delete vm.editData.metadata.annotations;
+            }
 
-
+//database64
             var database64 = {};
             angular.forEach($scope.database64, function (v, k) {
                 var key = v["K"]
                 database64[key] = window.btoa(v["V"]);
             });
 
-            vm.editData.data = database64;
+            if( Object.keys(database64).length > 0 )
+            {
+                vm.editData.data = database64;
+            }
+            else
+            {
+                delete vm.editData.data;
+            }
 
+            if( !( vm.editData.metadata.namespace && vm.editData.metadata.name ) )
+            {
+                swal({ title:'错误', text: "Namespace和Name不齐全", type:'error' });
+                return;
+            }
+
+            if( vm.editData.kind !== 'Secret' )
+            {
+                swal({ title:'错误', text: "kind不正确，必须为Secret", type:'error' });
+                return;
+            }
+
+ 
           
+            $scope.editstep = 2; 
+            vm.loadover = false;
+
             var d = {
                 "data": vm.editData,
             };
@@ -193,47 +224,37 @@
                 { 
                    vm.newyaml = data.data
 
-                   if( vm.editData.metadata.namespace && vm.editData.metadata.name && vm.editData.kind )
-                   {
-
-                       $http.get("/api/ci/v2/kubernetes/app/yaml/always?ticketid=" + ticketid + "&type=" + vm.editData.kind + "&name=" + vm.editData.metadata.name + "&namespace=" + vm.editData.metadata.namespace ).success(function(data){
-                            if(data.stat == true) 
-                            { 
-                               vm.oldyaml = data.data;
-                               vm.diff();
-                            } else { 
-                                toastr.error("获取最新的配置信息失败:" + data.info)
-                            }
-                        });
- 
-                  }
-                  else
-                  {
-                       swal({ title:'错误', text: "Namespace和Name不齐全", type:'error' });
-                  }
+                   $http.get("/api/ci/v2/kubernetes/app/yaml/always?ticketid=" + ticketid + "&type=" + vm.editData.kind + "&name=" + vm.editData.metadata.name + "&namespace=" + vm.editData.metadata.namespace ).success(function(data){
+                        if(data.stat == true) 
+                        { 
+                            vm.oldyaml = data.data;
+                            vm.diff();
+                            vm.loadover = true;
+                        } else { 
+                            toastr.error("获取最新的配置信息失败:" + data.info)
+                        }
+                    });
 
                 } else { 
                    swal({ title:'提交失败', text: data.info, type:'error' });
                 }
             });
-
-
-
         };
 
 
+//labels
         $scope.labels = [];
 
-        vm.addLable = function()
+        vm.addLabel = function()
         {
             $scope.labels.push({ "K": "", "V": ""});
         }
-        vm.delLable = function(id)
+        vm.delLabel = function(id)
         {
             $scope.labels.splice(id, 1);
         }
 
-
+//annotations
         $scope.annotations = [];
 
         vm.addAnnotations = function()
@@ -245,7 +266,7 @@
             $scope.annotations.splice(id, 1);
         }
 
-
+//database64
         $scope.database64 = [];
 
         vm.addDatabase64 = function()
@@ -278,7 +299,7 @@
         vm.assignment = function () {
             var postData = {
                 "type": "kubernetes",
-                "name": "kubernetes创建应用",
+                "name": "kubernetes secret " + vm.tasktype,
                 "handler": clusterinfo.create_user,
                 "url": "/api/ci/v2/kubernetes/app/" + vm.tasktype,
                 "method": "POST",
@@ -310,8 +331,6 @@
         vm.newyaml = "";
 
         vm.diffresultstring = "";
-
-
         vm.diff = function()
         {
             var diffresultstring = document.getElementById('diffresultstring');

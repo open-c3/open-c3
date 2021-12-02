@@ -65,7 +65,7 @@
         vm.assignment = function () {
             var postData = {
                 "type": "kubernetes",
-                "name": "创建SECRET",
+                "name": "kubernetes secret create",
                 "handler": clusterinfo.create_user,
                 "url": "/api/ci/v2/kubernetes/secret/dockerconfigjson",
                 "method": "POST",
@@ -79,7 +79,6 @@
                     "username": vm.username,
                     "password": vm.password,
                     "email": vm.email,
- 
                 },
             };
 
