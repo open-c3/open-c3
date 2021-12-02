@@ -196,7 +196,7 @@
                 return;
             }
 
-            if( !( vm.editData.metadata.namespace && vm.editData.metadata.name && vm.editData.kind ) )
+            if( !( vm.editData.metadata.namespace && vm.editData.metadata.name ) )
             {
 
                 swal({ title:'错误', text: "Namespace和Name不齐全", type:'error' });
