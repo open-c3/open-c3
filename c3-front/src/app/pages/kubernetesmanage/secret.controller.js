@@ -11,6 +11,8 @@
         vm.treeid = $state.params.treeid;
         var toastr = toastr || $injector.get('toastr');
 
+        vm.clusterinfo = clusterinfo;
+
         vm.cancel = function(){ $uibModalInstance.dismiss(); };
 
         treeService.sync.then(function(){
