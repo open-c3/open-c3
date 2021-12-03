@@ -38,7 +38,48 @@
 
         <div class="row">
             <div class="col-sm-5 form-group pull-right">
-                <button class="btn btn-primary" ng-disabled="addForm.$invalid" ng-click="copyProjectByTemplate.add()">确认</button>
+                <button class="btn btn-primary" ng-disabled="addForm.$invalid" ng-click="copyProjectByTemplate.add()">创建</button>
+                <button class="btn btn-warning" ng-click="copyProjectByTemplate.cancel()">取消</button>
+            </div>
+        </div>
+    </form>
+
+</div>
+
+<hr>
+
+<div class="modal-header">
+    <h4  class="modal-title">关联已有流水线</h4>
+</div>
+<div class="modal-body">
+    <form class="form-horizontal" name="addForm" role="form">
+
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">流水线名称</label>
+                <div class="col-sm-9">
+                    <select id="selecteddataval" class="form-control"  ng-model="copyProjectByTemplate.flowlineid" >
+                         <option ng-repeat="x in copyProjectByTemplate.flowlinelist" value="{{x.id}}">{{x.name}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">容器</label>
+                <div class="col-sm-9">
+                    <select id="selecteddataval" class="form-control"  ng-model="copyProjectByTemplate.containerid" >
+                         <option ng-repeat="x in copyProjectByTemplate.containerlist" value="{{x.id}}">名称:{{x.name}} 镜像:{{x.image}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-sm-5 form-group pull-right">
+                <button class="btn btn-primary" ng-disabled="addForm.$invalid" ng-click="copyProjectByTemplate.connect()">关联</button>
                 <button class="btn btn-warning" ng-click="copyProjectByTemplate.cancel()">取消</button>
             </div>
         </div>

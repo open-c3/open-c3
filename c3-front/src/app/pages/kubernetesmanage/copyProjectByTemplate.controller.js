@@ -13,6 +13,7 @@
 
         vm.containerlist = [];
         vm.templatelist = [];
+        vm.flowlinelist = [];
         vm.reload = function(){
             vm.loadover = false;
             $http.get("/api/ci/v2/kubernetes/app/flowlineinfo?ticketid=" + clusterinfo.id + "&type=" + type + "&name=" + name + "&namespace=" + namespace  ).success(function(data){
@@ -38,7 +39,17 @@
                    });
  
                 } else { 
-                    toastr.error("加载容器列表失败:" + data.info)
+                    toastr.error("加载模版列表失败:" + data.info)
+                }
+            });
+ 
+            $http.get("/api/ci/group/" + treeid ).success(function(data){
+                if(data.stat == true) 
+                { 
+                   vm.loadover = true;
+                   vm.flowlinelist = data.data;
+                } else { 
+                    toastr.error("加载流水线列表失败:" + data.info)
                 }
             });
  
@@ -106,6 +117,36 @@
                     } else { toastr.error("提交失败:" + data.info ); }
             });
         };
+
+
+        vm.connect = function(){
+
+            var container = {};
+            angular.forEach(vm.containerlist, function (value, key) {
+                if( value.id ==  vm.containerid )
+                {
+                    container = value;
+                }
+            });
+ 
+            var postData = {
+                "ci_type": "kubernetes",
+                "ci_type_ticketid": clusterinfo.id,
+                "ci_type_kind": type,
+                "ci_type_namespace": namespace,
+                "ci_type_name": name,
+                "ci_type_container": container.container,
+                "ci_type_repository": container.repository,
+                "ci_type_dockerfile": "dockerfile",
+                "ci_type_dockerfile_content": "",
+            };
+            $http.post('/api/ci/group/connectk8s/' + treeid + '/' + vm.flowlineid, postData ).success(function(data){
+                if(data.stat == true) {
+                    vm.cancel(); cancel(); reload();
+                } else { toastr.error("关联失败:" + data.info ); }
+            });
+        };
+
     }
 })();
 

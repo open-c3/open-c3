@@ -226,4 +226,32 @@ post '/group/:groupid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, id => $flowid->[0][0] };
 };
 
+post '/group/connectk8s/:groupid/:flowid' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        groupid => qr/^\d+$/, 1,
+        flowid => qr/^\d+$/, 0,
+        ci_type => [ 'mismatch', qr/'/ ], 0,
+        ci_type_ticketid => [ 'mismatch', qr/'/ ], 0,
+        ci_type_kind => [ 'mismatch', qr/'/ ], 0,
+        ci_type_namespace => [ 'mismatch', qr/'/ ], 0,
+        ci_type_name => [ 'mismatch', qr/'/ ], 0,
+        ci_type_container => [ 'mismatch', qr/'/ ], 0,
+        ci_type_repository => [ 'mismatch', qr/'/ ], 0,
+        ci_type_dockerfile => [ 'mismatch', qr/'/ ], 0,
+        ci_type_dockerfile_content => [ 'mismatch', qr/'/ ], 0,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+    my $pmscheck = api::pmscheck( 'openc3_ci_write', $param->{groupid} ); return $pmscheck if $pmscheck;
+
+    eval{ 
+        my @col = qw( ci_type ci_type_ticketid ci_type_kind ci_type_namespace ci_type_name ci_type_container ci_type_repository ci_type_dockerfile ci_type_dockerfile_content );
+        $api::mysql->execute( sprintf "update openc3_ci_project set %s where id='$param->{flowid}' and groupid='$param->{groupid}'", join ',', map{ "$_='$param->{$_}'" }@col);
+    };
+
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
+};
+
+
 true;
