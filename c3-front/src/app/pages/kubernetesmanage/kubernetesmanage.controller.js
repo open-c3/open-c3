@@ -646,6 +646,7 @@
                     treeid: function () {return vm.treeid},
                     ticketid: function () {return vm.selecteClusterId},
                     clusterinfo: function () {return vm.selecteCluster},
+                    namespace: function () { return vm.selectednamespace},
                 }
             });
         };
@@ -681,6 +682,7 @@
                     treeid: function () {return vm.treeid},
                     ticketid: function () {return vm.selecteClusterId},
                     clusterinfo: function () {return vm.selecteCluster},
+                    namespace: function () { return vm.selectednamespace},
                 }
             });
         };

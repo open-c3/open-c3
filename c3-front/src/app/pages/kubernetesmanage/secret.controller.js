@@ -5,12 +5,13 @@
         .module('openc3')
         .controller('KubernetesSecretController', KubernetesSecretController);
 
-    function KubernetesSecretController( $uibModalInstance, $location, $anchorScroll, $state, $http, $uibModal, treeService, ngTableParams, resoureceService, $scope, $injector, ticketid, clusterinfo ) {
+    function KubernetesSecretController( $uibModalInstance, $location, $anchorScroll, $state, $http, $uibModal, treeService, ngTableParams, resoureceService, $scope, $injector, ticketid, clusterinfo, namespace ) {
 
         var vm = this;
         vm.treeid = $state.params.treeid;
         var toastr = toastr || $injector.get('toastr');
 
+        vm.namespace = namespace;
         vm.clusterinfo = clusterinfo;
 
         vm.cancel = function(){ $uibModalInstance.dismiss(); };
@@ -21,7 +22,7 @@
 
         vm.reload = function(){
             vm.loadover = false;
-            $http.get("/api/ci/v2/kubernetes/secret?ticketid=" + ticketid ).success(function(data){
+            $http.get("/api/ci/v2/kubernetes/secret?ticketid=" + ticketid + "&namespace=" + namespace ).success(function(data){
                 if(data.stat == true) 
                 { 
                    vm.loadover = true;
