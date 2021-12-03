@@ -46,7 +46,7 @@
                     <div class="col-sm-3">
                         <input ng-if="kubernetescreateingress.tasktype==='apply'"  ng-disabled="1" type="text" class="form-control" name="adduser" placeholder="名称" ng-disabled="kubernetescreateingress.tasktype==='apply'" ng-model="kubernetescreateingress.editData.metadata.namespace" required>
                         <select ng-change="kubernetescreateingress.namespacechange( kubernetescreateingress.editData.metadata.namespace )" id="selectednameval" class="form-control" ng-if="kubernetescreateingress.tasktype!=='apply'"  ng-model="kubernetescreateingress.editData.metadata.namespace" required>
-                             <option ng-repeat="x in kubernetescreateingress.namespaces" value="{{x.NAME}}">{{x.NAME}} 状态: {{x.STATUS}} 年龄: {{x.AGE}}</option>
+                             <option ng-repeat="x in kubernetescreateingress.namespaces" value="{{x.NAME}}">{{x.NAME}} | STATUS:{{x.STATUS}} AGE:{{x.AGE}}</option>
                         </select>
                     </div>
  
@@ -159,7 +159,7 @@ apiVersion
                                             <label class="col-sm-1 control-label">HTTPS证书</label>
                                             <div class="col-sm-5">
                                                <select id="selectednameval" class="form-control" ng-model="x.https_tls_temp" required>
-                                                   <option ng-repeat="x in kubernetescreateingress.secrets" value="{{x.NAME}}">{{x.NAME}} 类型: {{x.TYPE}} 年龄: {{x.AGE}}</option>
+                                                   <option ng-repeat="x in kubernetescreateingress.secrets" value="{{x.NAME}}">{{x.NAME}} | TYPE:{{x.TYPE}} AGE:{{x.AGE}}</option>
                                                </select>
                                            </div>
                                         </div>
@@ -200,7 +200,7 @@ apiVersion
                                                                    <label class="col-sm-1 control-label">serviceName</label>
                                                                    <div class="col-sm-2"> 
                                                                        <select id="selectednameval" class="form-control" ng-model="xx.backend.serviceName" required>
-                                                                           <option ng-repeat="x in kubernetescreateingress.services" value="{{x.NAME}}">{{x.NAME}} 类型: {{x.TYPE}} 年龄: {{x.AGE}}</option>
+                                                                           <option ng-repeat="x in kubernetescreateingress.services" value="{{x.NAME}}">{{x.NAME}} | TYPE:{{x.TYPE}} AGE:{{x.AGE}}</option>
                                                                        </select>
                                                                    </div>
                                                                    <label class="col-sm-1 control-label">端口</label>
@@ -224,7 +224,7 @@ apiVersion
                                                                    <label class="col-sm-1 control-label">serviceName</label>
                                                                    <div class="col-sm-2"> 
                                                                        <select id="selectednameval" class="form-control" ng-model="xx.backend.service.name" required>
-                                                                           <option ng-repeat="x in kubernetescreateingress.services" value="{{x.NAME}}">{{x.NAME}} 类型: {{x.TYPE}} 年龄: {{x.AGE}}</option>
+                                                                           <option ng-repeat="x in kubernetescreateingress.services" value="{{x.NAME}}">{{x.NAME}} TYPE:{{x.TYPE}} AGE:{{x.AGE}}</option>
                                                                        </select>
                                                                    </div>
                                                                    <label class="col-sm-1 control-label">端口</label>

@@ -47,7 +47,7 @@
                     <div class="col-sm-4">
                         <input ng-if="kubernetescreateconfigmap.tasktype==='apply'"  ng-disabled="1" type="text" class="form-control" name="adduser" placeholder="名称" ng-disabled="kubernetescreateconfigmap.tasktype==='apply'" ng-model="kubernetescreateconfigmap.editData.metadata.namespace" required>
                         <select id="selectednameval" class="form-control" ng-if="kubernetescreateconfigmap.tasktype!=='apply'"  ng-model="kubernetescreateconfigmap.editData.metadata.namespace" required>
-                             <option ng-repeat="x in kubernetescreateconfigmap.namespaces" value="{{x.NAME}}">{{x.NAME}} 状态: {{x.STATUS}} 年龄: {{x.AGE}}</option>
+                             <option ng-repeat="x in kubernetescreateconfigmap.namespaces" value="{{x.NAME}}">{{x.NAME}} | STATUS:{{x.STATUS}} AGE:{{x.AGE}}</option>
                         </select>
                     </div>
  
