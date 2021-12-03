@@ -45,6 +45,8 @@ $handle{getingress} = sub
     return +{ stat => $JSON::false, data => $x } if $status;
     my @x = split /\n/, $x;
 
+    return +{ stat => $JSON::true, data => [] } unless @x;
+
     my $failonly = ( $filter->{status} && $filter->{status} eq 'fail' ) ? 1 : 0;
 
     my ( @title, @r ) = split /\s+/, shift @x;
