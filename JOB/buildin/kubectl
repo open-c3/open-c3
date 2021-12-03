@@ -72,7 +72,7 @@ if( $argv =~ /CONFIGFILE/ )
 
 chdir $path or die "chdir fail:$!";
 
-my $cmd  = "KUBECONFIG=$ENV{TICKETFILE} kubectl " . join ' ', @ARGV;
+my $cmd  = "KUBECONFIG=$ENV{TICKETFILE} kubectl_v1.15.5 " . join ' ', @ARGV;
 warn "$cmd\n";
 die "run kubectl fail:$!" if system "$cmd 1>&2";
 

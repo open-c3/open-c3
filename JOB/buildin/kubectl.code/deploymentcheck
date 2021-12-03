@@ -11,22 +11,22 @@ fi
 echo deployment: $deployment
 echo namespace: $namespace
 
-labels=$(kubectl get deployment $deployment -n $namespace -o jsonpath='{.spec.selector.matchLabels}')
+labels=$(kubectl_v1.15.5 get deployment $deployment -n $namespace -o jsonpath='{.spec.selector.matchLabels}')
 echo labels: $labels
 
 pairs=$(echo $labels | cut -d"[" -f2 | cut -d"]" -f1 | sed 's/:/=/g' | sed 's/ /,/g')
 echo pairs: $pairs
 
-desiredNum=$(kubectl get deployment $deployment -n $namespace -o jsonpath='{.spec.replicas}')
+desiredNum=$(kubectl_v1.15.5 get deployment $deployment -n $namespace -o jsonpath='{.spec.replicas}')
 echo desiredReplicas: $desiredNum 
 
 if [ "X$desiredImage" == "X" ]; then
-    desiredImage=$(kubectl get deployment $deployment -n $namespace -o jsonpath='{.spec.template.spec.containers[0].image}')
+    desiredImage=$(kubectl_v1.15.5 get deployment $deployment -n $namespace -o jsonpath='{.spec.template.spec.containers[0].image}')
 fi
 echo desiredImage: $desiredImage
 
 count=0
-for img in $(kubectl get pods -n $namespace  -l $pairs -o=jsonpath="{range .items[*]}{.metadata.name}{\"\t\"}{.spec.containers[0].image}{\"\t\"}{.status.phase}{\"\n\"}{end}" | grep Running | awk '{print $2}')
+for img in $(kubectl_v1.15.5 get pods -n $namespace  -l $pairs -o=jsonpath="{range .items[*]}{.metadata.name}{\"\t\"}{.spec.containers[0].image}{\"\t\"}{.status.phase}{\"\n\"}{end}" | grep Running | awk '{print $2}')
 do
     if [ $img == $desiredImage ]
     then
