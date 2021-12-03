@@ -5,6 +5,8 @@ use FindBin qw( $RealBin );
 use MYDB;
 use Code;
 use YAML::XS;
+use Encode;
+use MIME::Base64;
 use api::kubernetes;
 
 my $db = MYDB->new( "$RealBin/../conf/conn" );
@@ -41,5 +43,4 @@ sub getingress
     return @table;
 }
 
-print YAML::XS::Dump [ map{ getingress( $db, $_->{id}, clustername => $_->{name}, clusterid => $_->{id} ); }@$cluster ];
-
+print YAML::XS::Dump [ map{ getingress( $db, $_->{id}, clustername => encode_base64( encode('UTF-8', $_->{name})), clusterid => $_->{id} ); }@$cluster ];

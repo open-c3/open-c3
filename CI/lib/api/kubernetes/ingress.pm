@@ -7,6 +7,7 @@ use JSON;
 use POSIX;
 use api;
 use Format;
+use MIME::Base64;
 use Time::Local;
 use File::Temp;
 use api::kubernetes;
@@ -90,8 +91,9 @@ $handle{getsearchingress} = sub
     return +{ stat => $JSON::false, data => $x } if $status;
 
     my $data = eval{ YAML::XS::Load $x };
-    return +{ stat => $JSON::false, info => $@, xx => $x } if $@;
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
+    map{ $_->{clustername} = decode_base64( $_->{clustername} ) }@$data;
     return +{ stat => $JSON::true, data => $data };
 };
 
