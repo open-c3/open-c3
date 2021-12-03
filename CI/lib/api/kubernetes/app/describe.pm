@@ -29,7 +29,10 @@ get '/kubernetes/app/describe' => sub {
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
-    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 0 ) };
+    my %available = map{ $_ => 1 }qw( ingress service deployment daemonset pod replicaset hpa endpoints job statefulset );
+    my $auth = $available{$param->{type}} ? 0 : 1;
+
+    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, $auth ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
     my ( $cmd, $handle ) = ( "$kubectl describe '$param->{type}' '$param->{name}' -n '$param->{namespace}' 2>/dev/null", 'showdata' );
