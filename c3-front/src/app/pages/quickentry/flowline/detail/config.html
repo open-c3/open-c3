@@ -173,12 +173,15 @@
 
                     <div class="row">
                         <label class="col-md-2 control-label fwbold">应用名称</label>
-                        <div class="col-md-6"> <input class="form-control" ng-model="config.project.ci_type_name" placeholder="name"/> </div>
-                        <div class="col-md-2">
-                            <button class="btn btn-primary" uib-tooltip="选择应用名称" ng-click="config.foo('default')"><i class="fa fa-cogs fa-1x" >选择</i></button>
+                        <div class="col-md-6">
+                            <select class="form-control"  ng-model="config.project.ci_type_name" > 
+                                 <option ng-repeat="x in config.deploymentlist" value="{{x.NAME}}">{{x.NAME}}</option>
+                            </select>
                         </div>
+ 
+                        <div class="col-md-2"> </div>
                         <div class="col-md-2">
-                            <button class="btn btn-primary" uib-tooltip="创建应用" ng-click="config.foo('default')"><i class="fa fa-plus fa-1x" >创建</i></button>
+                            <button class="btn btn-primary" uib-tooltip="创建应用" ng-click="config.createDeployment()"><i class="fa fa-plus fa-1x" >创建</i></button>
                         </div>
                     </div>
 

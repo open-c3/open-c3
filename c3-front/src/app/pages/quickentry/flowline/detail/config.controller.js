@@ -495,9 +495,59 @@
     };
 
 
+//deployment
+    vm.getDeploymentList = function(){
+        if( vm.project.ci_type_ticketid === "" )
+        {
+            return;
+        }
+        $http.get("/api/ci/v2/kubernetes/deployment?ticketid=" +vm.project.ci_type_ticketid + "&namespace=" + vm.project.ci_type_namespace ).then(
+            function successCallback(response) {
+                if (response.data.stat){
+
+                    vm.deploymentlist = response.data.data;
+                }else {
+                    toastr.error( "获取deployment数据失败："+response.data.info );
+                }
+            },
+            function errorCallback (response){
+                toastr.error( "获取deployment数据失败: " + response.status )
+            });
+
+    };
+
+    vm.createDeployment = function () {
+        var selecteCluster = {};
+         angular.forEach(vm.clusterlist, function (value, key) {
+             if(value.id == vm.project.ci_type_ticketid )
+             {
+                 selecteCluster = value;
+             }
+        });
+ 
+        $uibModal.open({
+            templateUrl: 'app/pages/kubernetesmanage/createdeployment.html',
+            controller: 'KubernetesCreateDeploymentController',
+            controllerAs: 'kubernetescreatedeployment',
+            backdrop: 'static',
+            size: 'lg',
+            keyboard: false,
+            bindToController: true,
+            resolve: {
+                treeid: function () {return vm.treeid},
+                ticketid: function () {return vm.project.ci_type_ticketid},
+                clusterinfo: function () {return selecteCluster},
+                namespace: function () {return ''},
+               // namespace: function () {return vm.project.ci_type_namespace},
+                name: function () {return ''},
+            }
+        });
+    };
+
     vm.loadks8info = function(){
         vm.getClusterList();
         vm.getNamespaceList();
+        vm.getDeploymentList();
     };
 
 
