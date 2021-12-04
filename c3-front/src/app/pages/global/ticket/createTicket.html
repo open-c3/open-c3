@@ -70,6 +70,10 @@
                                                         <input type="radio" ng-model="createticket.postData.type" value="KubeConfig" >
                                                         <span class="radio" style="padding-top: 0;min-height: 0"></span>KubeConfig
                                                     </label>
+                                                    <label class="option option-primary">
+                                                        <input type="radio" ng-model="createticket.postData.type" value="Harbor" >
+                                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>Harbor镜像仓库
+                                                    </label>
                                                 </div>
                                             </div>
                                         </div>
@@ -126,6 +130,22 @@
                                                 <textarea ng-model="createticket.postData.ticket.KubeConfig" style="width: 100%; height: 110px"></textarea>
                                                 <span>~/.kube/config文件内容</span>
                                             </div>
+                                        </div>
+                                    </div>
+
+                                    <div ng-if="createticket.postData.type=='Harbor'">
+                                        <div class="col-sm-10 form-group">
+                                            <label class="col-sm-3 control-label">服务地址</label>
+                                            <div class="col-sm-9"> <input  style="width: 100%;" ng-model="createticket.postData.ticket.Server"></input> </div>
+                                        </div>
+                                         <div class="col-sm-10 form-group">
+                                            <label class="col-sm-3 control-label">用户名</label>
+                                            <div class="col-sm-3"> <input ng-model="createticket.postData.ticket.Username"></input> </div>
+                                        </div>
+ 
+                                        <div class="col-sm-10 form-group">
+                                            <label class="col-sm-3 control-label">密码</label>
+                                            <div class="col-sm-3"> <input ng-model="createticket.postData.ticket.Password"></input> </div>
                                         </div>
                                     </div>
 

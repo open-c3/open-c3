@@ -12,7 +12,7 @@ use Format;
 get '/ticket' => sub {
     my $param = params();
     my $error = Format->new( 
-        type => [ 'in', 'SSHKey', 'UsernamePassword', 'JobBuildin', 'KubeConfig' ], 0,
+        type => [ 'in', 'SSHKey', 'UsernamePassword', 'JobBuildin', 'KubeConfig', 'Harbor' ], 0,
         projectid => qr/^\d+$/, 0,
         ticketid => qr/^\d+$/, 0,
     )->check( %$param );
@@ -40,6 +40,12 @@ get '/ticket' => sub {
         {
             my ( $n ) = split /_:separator:_/, $t;
             $d->{ticket} = +{ Username => $n, Password => '********' }
+        }
+
+        if( $d->{type} eq 'Harbor' )
+        {
+            my ( $s, $n ) = split /_:separator:_/, $t;
+            $d->{ticket} = +{ Server => $s, Username => $n, Password => '********' }
         }
 
         if( $d->{type} eq 'JobBuildin' || $d->{type} eq 'SSHKey' || $d->{type} eq 'KubeConfig' )
@@ -118,6 +124,13 @@ get '/ticket/:ticketid' => sub {
             $d->{ticket} = +{ Username => $n, Password => $p }
         }
 
+        if( $d->{type} eq 'Harbor' )
+        {
+            my ( $s, $n, $p ) = split /_:separator:_/, $t;
+            $p = '********' unless $show;
+            $d->{ticket} = +{ Server => $s, Username => $n, Password => $p }
+        }
+
         if( $d->{type} eq 'JobBuildin' || $d->{type} eq 'SSHKey' )
         {
             $t = '********' unless $show;
@@ -142,7 +155,7 @@ post '/ticket' => sub {
     my $param = params();
     my $error = Format->new( 
         name => [ 'mismatch', qr/'/ ], 1,
-        type => [ 'in', 'SSHKey', 'UsernamePassword', 'JobBuildin', 'KubeConfig' ], 1,
+        type => [ 'in', 'SSHKey', 'UsernamePassword', 'JobBuildin', 'KubeConfig', 'Harbor' ], 1,
         describe => [ 'mismatch', qr/'/ ], 1,
     )->check( %$param );
 
@@ -169,6 +182,13 @@ post '/ticket' => sub {
             unless $param->{ticket}{Username} && $param->{ticket}{Password};
         $token = "$param->{ticket}{Username}_:separator:_$param->{ticket}{Password}";
     }
+    if( $param->{type} eq 'Harbor' )
+    {
+        return  +{ stat => $JSON::false, info => "check format fail ticket" }
+            unless $param->{ticket}{Server} &&  $param->{ticket}{Username} && $param->{ticket}{Password};
+        $token = "$param->{ticket}{Server}_:separator:_$param->{ticket}{Username}_:separator:_$param->{ticket}{Password}";
+    }
+ 
     if( $param->{type} eq 'JobBuildin' )
     {
         return  +{ stat => $JSON::false, info => "check format fail ticket" }
@@ -196,7 +216,7 @@ post '/ticket/:ticketid' => sub {
     my $error = Format->new( 
         ticketid => qr/^\d+$/, 1,
         name => [ 'mismatch', qr/'/ ], 1,
-        type => [ 'in', 'SSHKey', 'UsernamePassword', 'JobBuildin', 'KubeConfig' ], 1,
+        type => [ 'in', 'SSHKey', 'UsernamePassword', 'JobBuildin', 'KubeConfig', 'Harbor' ], 1,
         describe => [ 'mismatch', qr/'/ ], 1,
     )->check( %$param );
 
@@ -223,6 +243,12 @@ post '/ticket/:ticketid' => sub {
         return  +{ stat => $JSON::false, info => "check format fail ticket" }
             unless $param->{ticket}{Username} && $param->{ticket}{Password};
         $token = "$param->{ticket}{Username}_:separator:_$param->{ticket}{Password}";
+    }
+    if( $param->{type} eq 'Harbor' )
+    {
+        return  +{ stat => $JSON::false, info => "check format fail ticket" }
+            unless $param->{ticket}{Server} && $param->{ticket}{Username} && $param->{ticket}{Password};
+        $token = "$param->{ticket}{Server}_:separator:_$param->{ticket}{Username}_:separator:_$param->{ticket}{Password}";
     }
     if( $param->{type} eq 'JobBuildin' )
     {
