@@ -544,10 +544,32 @@
         });
     };
 
+//Container
+    vm.getContainerList = function(){
+        if( vm.project.ci_type_ticketid === "" )
+        {
+            return;
+        }
+        $http.get("/api/ci/v2/kubernetes/app/flowlineinfo?ticketid=" +vm.project.ci_type_ticketid + "&type=deployment&namespace=" + vm.project.ci_type_namespace + "&name=" + vm.project.ci_type_name ).then(
+            function successCallback(response) {
+                if (response.data.stat){
+
+                    vm.containerlist = response.data.data;
+                }else {
+                    toastr.error( "获取deployment数据失败："+response.data.info );
+                }
+            },
+            function errorCallback (response){
+                toastr.error( "获取deployment数据失败: " + response.status )
+            });
+
+    };
+
     vm.loadks8info = function(){
         vm.getClusterList();
         vm.getNamespaceList();
         vm.getDeploymentList();
+        vm.getContainerList();
     };
 
 

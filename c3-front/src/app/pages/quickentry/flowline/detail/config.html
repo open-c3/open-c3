@@ -187,9 +187,12 @@
 
                     <div class="row">
                         <label class="col-md-2 control-label fwbold">Container</label>
-                        <div class="col-md-6"> <input class="form-control" ng-model="config.project.ci_type_container" placeholder="container"/> </div>
+                        <div class="col-md-6">
+                            <select class="form-control"  ng-model="config.project.ci_type_container" > 
+                                 <option ng-repeat="x in config.containerlist" value="{{x.name}}">{{x.name}}</option>
+                            </select>
+                        </div>
                         <div class="col-md-2">
-                            <button class="btn btn-primary" uib-tooltip="选择容器" ng-click="config.foo('default')"><i class="fa fa-cogs fa-1x" >选择</i></button>
                         </div>
                     </div>
 
