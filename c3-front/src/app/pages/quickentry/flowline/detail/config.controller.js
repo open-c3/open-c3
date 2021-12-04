@@ -590,6 +590,15 @@
     };
 
 
+    vm.addImageAddr = function() {
+        angular.forEach(vm.containerlist, function (value, key) {
+            if( value.name === vm.project.ci_type_container )
+            {
+                vm.project.ci_type_repository = value.repository;
+            }
+        });
+ 
+    };
 
     }
 })();
