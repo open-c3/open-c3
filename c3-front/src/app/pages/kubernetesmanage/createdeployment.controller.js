@@ -234,14 +234,15 @@
                 }
             });
         }
-        vm.addSecret = function()
+        vm.addSecret = function(name)
         {
             if( ! vm.editData.spec.template.spec.imagePullSecrets )
             {
                 vm.editData.spec.template.spec.imagePullSecrets = [];
             }
-            vm.editData.spec.template.spec.imagePullSecrets.push({ "name": "" });
+            vm.editData.spec.template.spec.imagePullSecrets.push({ "name": name });
         }
+
         vm.delSecret = function(id)
         {
             vm.editData.spec.template.spec.imagePullSecrets.splice(id, 1);
@@ -251,6 +252,26 @@
             delete vm.editData.spec.template.spec.imagePullSecrets;
         }
 
+        vm.createSecret = function (type,name,namespace) {
+            $uibModal.open({
+                templateUrl: 'app/pages/kubernetesmanage/createsecret.html',
+                controller: 'KubernetesCreateSecretController',
+                controllerAs: 'kubernetescreatesecret',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () {return vm.treeid},
+                    type: function () {return type},
+                    name: function () {return name},
+                    namespace: function () {return vm.editData.metadata.namespace},
+                    ticketid: function () {return clusterinfo.id},
+                    clusterinfo: function () {return clusterinfo},
+                    reload: function () {return vm.addSecret },
+                }
+            });
+        };
 
 //Volume
         vm.addVolume = function( type )

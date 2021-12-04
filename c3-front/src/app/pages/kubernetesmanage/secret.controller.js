@@ -110,6 +110,7 @@
                     namespace: function () {return namespace},
                     ticketid: function () {return clusterinfo.id},
                     clusterinfo: function () {return clusterinfo},
+                    reload: function () {return vm.reload},
                 }
             });
         };

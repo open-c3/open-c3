@@ -5,13 +5,14 @@
         .module('openc3')
         .controller('KubernetesCreateSecretController', KubernetesCreateSecretController);
 
-    function KubernetesCreateSecretController( $uibModalInstance, $location, $anchorScroll, $state, $http, $uibModal, treeService, ngTableParams, resoureceService, $scope, $injector, ticketid, type, name, namespace, clusterinfo ) {
+    function KubernetesCreateSecretController( $uibModalInstance, $location, $anchorScroll, $state, $http, $uibModal, treeService, ngTableParams, resoureceService, $scope, $injector, ticketid, type, name, namespace, clusterinfo, reload ) {
 
         var vm = this;
         vm.treeid = $state.params.treeid;
         var toastr = toastr || $injector.get('toastr');
 
-        vm.namespace;
+        vm.namespacetemp = namespace;
+        vm.namespace = namespace;
         vm.name;
         vm.server;
         vm.username;
@@ -40,6 +41,7 @@
                 if(data.stat == true) 
                 { 
                    vm.loadover = true;
+                   reload( vm.name );
                    vm.cancel();
                 } else { 
                    swal({ title:'操作失败', text: data.info, type:'error' });
