@@ -600,5 +600,27 @@
  
     };
 
+    vm.addHarbor = function () {
+        $uibModal.open({
+            templateUrl: 'app/pages/global/ticket/createTicket.html',
+            controller: 'CreateTicketController',
+            controllerAs: 'createticket',
+            backdrop: 'static',
+            size: 'lg',
+            keyboard: false,
+            bindToController: true,
+            resolve: {
+                ticketid: function () {},
+                homereload: function () { return vm.reloadticket },
+                type: function () { return 'create' },
+                title: function () { return '创建Harbor镜像仓库票据' },
+                point: function () { return 'Harbor' },
+            }
+        });
+
+    };
+
+
+
     }
 })();
