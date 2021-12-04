@@ -5,7 +5,7 @@
         .module('openc3')
         .controller('KubernetesCreateNamespaceController', KubernetesCreateNamespaceController);
 
-    function KubernetesCreateNamespaceController( $uibModalInstance, $location, $anchorScroll, $state, $http, $uibModal, treeService, ngTableParams, resoureceService, $scope, $injector, ticketid, clusterinfo ) {
+    function KubernetesCreateNamespaceController( $uibModalInstance, $location, $anchorScroll, $state, $http, $uibModal, treeService, ngTableParams, resoureceService, $scope, $injector, ticketid, clusterinfo, homereload ) {
 
         var vm = this;
         vm.treeid = $state.params.treeid;
@@ -31,6 +31,7 @@
                 { 
                    vm.loadover = true;
                    vm.cancel();
+                   homereload();
                 } else { 
                    swal({ title:'操作失败', text: data.info, type:'error' });
                 }

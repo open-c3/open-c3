@@ -773,6 +773,7 @@
                     treeid: function () {return vm.treeid},
                     ticketid: function () {return vm.selecteClusterId},
                     clusterinfo: function () {return vm.selecteCluster},
+                    homereload: function () {return vm.reload},
                 }
             });
         };

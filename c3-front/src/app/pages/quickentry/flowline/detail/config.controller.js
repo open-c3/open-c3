@@ -32,6 +32,8 @@
                 { 
                     vm.project = data.data;
 
+                    vm.loadks8info();
+
                     if ( vm.project.rely == 1 ) { vm.rely = true; } else { vm.rely = false; }
                     if ( vm.project.autobuild == 1 ) { vm.autobuild = true; } else { vm.autobuild = false; }
                     if ( vm.project.webhook == 1 ) { vm.webhook = true; } else { vm.webhook = false; }
@@ -406,6 +408,7 @@
  
 
 //k8s 相关
+    //集群
     vm.clusterlist = [];
     vm.getClusterList = function()
     {
@@ -422,7 +425,6 @@
        });
     }
 
-    vm.getClusterList();
     vm.addCluster = function () {
         $uibModal.open({
             templateUrl: 'app/pages/global/ticket/createTicket.html',
@@ -441,6 +443,61 @@
             }
         });
 
+    };
+
+    //命名空间
+
+    vm.getNamespaceList = function(){
+        if( vm.project.ci_type_ticketid === "" )
+        {
+            return;
+        }
+        $http.get("/api/ci/v2/kubernetes/namespace?ticketid=" +vm.project.ci_type_ticketid ).then(
+            function successCallback(response) {
+                if (response.data.stat){
+
+                    vm.namespacelist = response.data.data;
+                    vm.loadoverC = true;
+                }else {
+                    toastr.error( "获取集群NAMESPACE数据失败："+response.data.info );
+                }
+            },
+            function errorCallback (response){
+                toastr.error( "获取集群NAMESPACE数据失败: " + response.status )
+            });
+
+    };
+
+    vm.addNamespace = function () {
+        var selecteCluster = {};
+         angular.forEach(vm.clusterlist, function (value, key) {
+             if(value.id == vm.project.ci_type_ticketid )
+             {
+                 selecteCluster = value;
+             }
+        });
+ 
+        $uibModal.open({
+            templateUrl: 'app/pages/kubernetesmanage/createnamespace.html',
+            controller: 'KubernetesCreateNamespaceController',
+            controllerAs: 'kubernetescreatenamespace',
+            backdrop: 'static',
+            size: 'lg',
+            keyboard: false,
+            bindToController: true,
+            resolve: {
+                treeid: function () {return vm.treeid},
+                ticketid: function () {return vm.project.ci_type_ticketid},
+                clusterinfo: function () {return selecteCluster},
+                homereload: function () { return vm.getNamespaceList },
+            }
+        });
+    };
+
+
+    vm.loadks8info = function(){
+        vm.getClusterList();
+        vm.getNamespaceList();
     };
 
 
