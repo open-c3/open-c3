@@ -33,6 +33,7 @@
                     vm.project = data.data;
 
                     vm.loadks8info();
+                    vm.reloadticket();
 
                     if ( vm.project.rely == 1 ) { vm.rely = true; } else { vm.rely = false; }
                     if ( vm.project.autobuild == 1 ) { vm.autobuild = true; } else { vm.autobuild = false; }
@@ -70,7 +71,12 @@
         vm.reloadimage();
 
         vm.reloadticket = function(){
-            $http.get('/api/ci/ticket?projectid=' + vm.projectid).success(function(data){
+            var typestr = "";
+            if( vm.project.ci_type === 'kubernetes'  )
+            {
+                typestr = "&type=Harbor";
+            }
+            $http.get('/api/ci/ticket?projectid=' + vm.projectid + typestr ).success(function(data){
                 if( data.stat)
                 {
                     vm.ticketinfo = data.data;
@@ -92,8 +98,8 @@
                  vm.project.follow_up = "harbor_push_image.pl";
                  vm.project.ci_type_dockerfile = "dockerfile";
             }
+            vm.reloadticket();
         }
-        vm.reloadticket();
 
         vm.show_help = function () {
             $uibModal.open({
@@ -619,7 +625,6 @@
         });
 
     };
-
 
 
     }
