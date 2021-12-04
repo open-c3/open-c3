@@ -295,6 +295,7 @@
                     clusterinfo: function () {return vm.selecteCluster},
                     namespace: function () {return namespace},
                     name: function () {return name},
+                    homereload: function () {return vm.reload},
                 }
             });
         };

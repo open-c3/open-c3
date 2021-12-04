@@ -5,7 +5,7 @@
         .module('openc3')
         .controller('KubernetesCreateDeploymentController', KubernetesCreateDeploymentController);
 
-    function KubernetesCreateDeploymentController( $uibModalInstance, $location, $anchorScroll, $state, $http, $uibModal, treeService, ngTableParams, resoureceService, $scope, $injector, ticketid, clusterinfo, namespace, name ) {
+    function KubernetesCreateDeploymentController( $uibModalInstance, $location, $anchorScroll, $state, $http, $uibModal, treeService, ngTableParams, resoureceService, $scope, $injector, ticketid, clusterinfo, namespace, name, homereload ) {
 
         var vm = this;
         vm.treeid = $state.params.treeid;
@@ -17,6 +17,7 @@
             vm.nodeStr = treeService.selectname();
         });
 
+        vm.namespace = namespace;
         $scope.editstep = 1;
       
         vm.tasktype = 'create';
@@ -41,6 +42,10 @@
                    vm.loadover = true;
                    vm.editData = data.data;
 
+                   if( namespace )
+                   {
+                      vm.editData.metadata.namespace = namespace;
+                   }
 
                    $scope.labels = [];
                    if( vm.editData.metadata.labels )
@@ -61,7 +66,7 @@
                     toastr.error("加载container模版信息失败:" + data.info)
                 }
             });
-            if( vm.tasktype == 'create' )
+            if( vm.namespace === "" )
             {
                 $http.get("/api/ci/v2/kubernetes/namespace?ticketid=" + ticketid ).then(
                     function successCallback(response) {
@@ -522,6 +527,7 @@
                 { 
                    vm.loadover = true;
                    vm.cancel();
+                   homereload();
                    swal({ title:'提交成功', text: data.info, type:'success' });
                 } else { 
                    swal({ title:'提交失败', text: data.info, type:'error' });

@@ -536,9 +536,9 @@
                 treeid: function () {return vm.treeid},
                 ticketid: function () {return vm.project.ci_type_ticketid},
                 clusterinfo: function () {return selecteCluster},
-                namespace: function () {return ''},
-               // namespace: function () {return vm.project.ci_type_namespace},
+                namespace: function () {return vm.project.ci_type_namespace},
                 name: function () {return ''},
+                homereload: function () {return vm.getDeploymentList},
             }
         });
     };
