@@ -404,5 +404,46 @@
 
     vm.loadJobInfo();
  
+
+//k8s 相关
+    vm.clusterlist = [];
+    vm.getClusterList = function()
+    {
+        $http.get('/api/ci/ticket/KubeConfig' ).then(
+            function successCallback(response) {
+                if (response.data.stat){
+                    vm.clusterlist = response.data.data;
+                }else {
+                    toastr.error( "获取作业信息失败" + response.data.info );
+                }
+           },
+           function errorCallback (response ){
+                toastr.error( "获取作业信息失败" + response.status );
+       });
+    }
+
+    vm.getClusterList();
+    vm.addCluster = function () {
+        $uibModal.open({
+            templateUrl: 'app/pages/global/ticket/createTicket.html',
+            controller: 'CreateTicketController',
+            controllerAs: 'createticket',
+            backdrop: 'static',
+            size: 'lg',
+            keyboard: false,
+            bindToController: true,
+            resolve: {
+                ticketid: function () {},
+                homereload: function () { return vm.getClusterList },
+                type: function () { return 'create' },
+                title: function () { return '添加kubernetes集群' },
+                point: function () { return 'KubeConfig' },
+            }
+        });
+
+    };
+
+
+
     }
 })();

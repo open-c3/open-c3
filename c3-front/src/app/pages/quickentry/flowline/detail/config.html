@@ -135,13 +135,16 @@
 
 <br>
                     <div class="row">
-                        <label class="col-md-2 control-label fwbold">集群ID</label>
-                        <div class="col-md-6"> <input class="form-control" ng-model="config.project.ci_type_ticketid" placeholder="kubeconfig 票据的编号，如：15"/> </div>
-                        <div class="col-md-2">
-                            <button class="btn btn-primary" uib-tooltip="选择集群" ng-click="config.foo('default')"><i class="fa fa-cogs fa-1x" >选择</i></button>
+                        <label class="col-md-2 control-label fwbold">k8s集群</label>
+                        <div class="col-md-6">
+                            <select class="form-control"  ng-model="config.project.ci_type_ticketid" > 
+                                 <option ng-repeat="x in config.clusterlist" value="{{x.id}}">{{x.name}}</option>
+                            </select>
                         </div>
                         <div class="col-md-2">
-                            <button class="btn btn-primary" uib-tooltip="导入集群" ng-click="config.foo('default')"><i class="fa fa-plus fa-1x" >添加</i></button>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-primary" uib-tooltip="导入集群" ng-click="config.addCluster()"><i class="fa fa-plus fa-1x" >添加</i></button>
                         </div>
                     </div>
 
