@@ -457,13 +457,12 @@
                 if (response.data.stat){
 
                     vm.namespacelist = response.data.data;
-                    vm.loadoverC = true;
                 }else {
-                    toastr.error( "获取集群NAMESPACE数据失败："+response.data.info );
+                    vm.namespacelist = [];
                 }
             },
             function errorCallback (response){
-                toastr.error( "获取集群NAMESPACE数据失败: " + response.status )
+                vm.namespacelist = [];
             });
 
     };
@@ -507,11 +506,11 @@
 
                     vm.deploymentlist = response.data.data;
                 }else {
-                    toastr.error( "获取deployment数据失败："+response.data.info );
+                    vm.deploymentlist = [];
                 }
             },
             function errorCallback (response){
-                toastr.error( "获取deployment数据失败: " + response.status )
+                vm.deploymentlist = [];
             });
 
     };
@@ -556,11 +555,11 @@
 
                     vm.containerlist = response.data.data;
                 }else {
-                    toastr.error( "获取deployment数据失败："+response.data.info );
+                    vm.containerlist = [];
                 }
             },
             function errorCallback (response){
-                toastr.error( "获取deployment数据失败: " + response.status )
+                vm.containerlist = [];
             });
 
     };
@@ -569,6 +568,24 @@
         vm.getClusterList();
         vm.getNamespaceList();
         vm.getDeploymentList();
+        vm.getContainerList();
+    };
+
+
+    vm.changeCluster = function() {
+        vm.project.ci_type_namespace = "";
+        vm.project.ci_type_name = "";
+        vm.project.ci_type_container = "";
+        vm.getNamespaceList();
+    };
+
+    vm.changeNamespace = function() {
+        vm.project.ci_type_name = "";
+        vm.project.ci_type_container = "";
+        vm.getDeploymentList();
+    };
+    vm.changeDeployment = function() {
+        vm.project.ci_type_container = "";
         vm.getContainerList();
     };
 
