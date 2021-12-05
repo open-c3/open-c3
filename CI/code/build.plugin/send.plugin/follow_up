@@ -46,6 +46,15 @@ return sub
                 $TICKET = "TUSERNAME='$user' TPASSWORD='$pass'";
             }
         }
+        elsif( $x->[0][1] eq 'Harbor' )
+        {
+            my ( undef, $user, $pass ) = split /_:separator:_/, $x->[0][0] if @$x;
+            if( $user )
+            {
+                $logs->die( "ticket format error" ) if $user =~ /'/ || $pass=~ /'/;
+                $TICKET = "TUSERNAME='$user' TPASSWORD='$pass'";
+            }
+        }
         else
         {
             my $ticketfile = Temp->new( chmod => 0600 )->dump( $x->[0][0] );
