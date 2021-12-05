@@ -287,6 +287,44 @@
             );
         };
 
+//
+        vm.createKubernetes = function (id) {
+            var tempdata1 = {
+                'plugin_type':'cmd',
+                'name': "kubernetes发布",
+                'user': "0",
+                'node_type': "builtin",
+                'node_cont': "openc3skipnode",
+                'scripts_type': "buildin",
+                'scripts_cont': "#!kubernetes",
+                'scripts_argv': "deploy $version",
+                'timeout': "60",
+                'pause': "",
+                'deployenv' : "always",
+                'action' : "always",
+                'batches' : "always",
+            }
+            var tempdata2 = {
+                'plugin_type':'cmd',
+                'name': "kubernetes等待更新完成",
+                'user': "0",
+                'node_type': "builtin",
+                'node_cont': "openc3skipnode",
+                'scripts_type': "buildin",
+                'scripts_cont': "#!kubernetes",
+                'scripts_argv': "check $version",
+                'timeout': "60",
+                'pause': "",
+                'deployenv' : "always",
+                'action' : "always",
+                'batches' : "always",
+            }
+
+            vm.allNewJob.push(tempdata1)
+            vm.allNewJob.push(tempdata2)
+        };
+//
+ 
         vm.copyScript = function (id) {
             var d = vm.allNewJob[id]
             var tempdata = {
