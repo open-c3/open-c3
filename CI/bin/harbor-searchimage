@@ -1,0 +1,38 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use MYDB;
+use Code;
+use JSON;
+use YAML::XS;
+use Encode;
+use MIME::Base64;
+use api::kubernetes;
+
+my $ticketid = shift @ARGV;
+die "ticketid error" unless $ticketid && $ticketid =~ /^\d+$/;
+my $db = MYDB->new( "$RealBin/../conf/conn" );
+my @col = qw( id name type share ticket describe edit_user create_user edit_time create_time  );
+my $cluster = $db->query( sprintf( "select %s from openc3_ci_ticket where id='$ticketid'", join ',',map{"`$_`"} @col ), \@col );
+
+my $t = $cluster->[0];
+
+die "type no  Harbor" unless $t->{type} eq 'Harbor';
+
+die "ticket format error" unless $t->{ticket} && $t->{ticket} !~ /'/;
+my ( $s, $n, $p ) = split /_:separator:_/, $t->{ticket};
+
+my $x = `curl -u '$n:$p' -X GET -H "Content-Type: application/json" '$s' 2>/dev/null`;
+
+my $serveraddr = ( split /\//, $s )[2];
+my $data = eval{JSON::from_json $x};
+
+my @res;
+for my $repo ( @{$data->{repository}} )
+{
+    my %r = ( repo => "$serveraddr/$repo->{repository_name}" );
+    push @res, \%r;
+}
+
+print YAML::XS::Dump \@res;
