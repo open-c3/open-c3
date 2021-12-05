@@ -64,6 +64,41 @@
         };
         vm.reload();
 
+        vm.tickets = [];
+        vm.loadTicketData = function() {
+            vm.ticketData = 1;
+            $http.get("/api/ci/ticket?type=Harbor" ).then(
+                function successCallback(response) {
+                    if (response.data.stat){
+                        vm.tickets = response.data.data; 
+                    }else {
+                        toastr.error( "获取TICKET数据失败："+response.data.info );
+                    }
+                },
+                function errorCallback (response){
+                    toastr.error( "获取TICKET数据失败: " + response.status )
+                });
+        };
+
+         vm.setData = function(ticketid) {
+            $http.get("/api/ci/ticket/" + ticketid+ "?detail=1" ).then(
+                function successCallback(response) {
+                    if (response.data.stat){
+                        vm.name = response.data.data.name;
+                        vm.username = response.data.data.ticket.Username;
+                        vm.password = response.data.data.ticket.Password;
+                        vm.server = response.data.data.ticket.Server.split("/")[2];
+
+                    }else {
+                        toastr.error( "获取TICKET数据失败："+response.data.info );
+                    }
+                },
+                function errorCallback (response){
+                    toastr.error( "获取TICKET数据失败: " + response.status )
+                });
+        };
+
+ 
         vm.assignment = function () {
             var postData = {
                 "type": "kubernetes",
