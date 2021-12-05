@@ -597,13 +597,24 @@
 
 
     vm.addImageAddr = function() {
+        var matched = false; 
         angular.forEach(vm.containerlist, function (value, key) {
             if( value.name === vm.project.ci_type_container )
             {
                 vm.project.ci_type_repository = value.repository;
+                matched = true;
             }
         });
  
+        if( matched )
+        {
+            swal({title: "提取成功", text: vm.project.ci_type_repository, type: 'success'});
+        }
+        else
+        {
+            swal({title: "提取失败", text: "没有找到镜像仓库信息", type: 'error'});
+        }
+
     };
 
     vm.addImageAddrByTicket_set = function(repo) {
