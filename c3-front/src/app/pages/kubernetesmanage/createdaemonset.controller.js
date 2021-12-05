@@ -473,6 +473,28 @@
             }
         };
 
+//
+        vm.addImageAddrByTicket = function (container) {
+            vm.addImageAddrByTicket_set = function(repo) {
+                container.name = repo
+            }
+
+            $uibModal.open({
+                templateUrl: 'app/pages/kubernetesmanage/harborimage.html',
+                controller: 'KubernetesHarborImageController',
+                controllerAs: 'kubernetesharborimage',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () {return vm.treeid},
+                    ticketid: function () {return ''},
+                    homereload: function () {return vm.addImageAddrByTicket_set},
+                }
+            });
+        };
+
         vm.apply = function(){
             vm.loadover = false;
             var d = {
