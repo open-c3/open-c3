@@ -606,6 +606,27 @@
  
     };
 
+    vm.addImageAddrByTicket_set = function(repo) {
+        vm.project.ci_type_repository = repo
+    }
+    vm.addImageAddrByTicket = function () {
+
+        $uibModal.open({
+            templateUrl: 'app/pages/kubernetesmanage/harborimage.html',
+            controller: 'KubernetesHarborImageController',
+            controllerAs: 'kubernetesharborimage',
+            backdrop: 'static',
+            size: 'lg',
+            keyboard: false,
+            bindToController: true,
+            resolve: {
+                treeid: function () {return vm.treeid},
+                ticketid: function () {return vm.project.follow_up_ticketid},
+                homereload: function () {return vm.addImageAddrByTicket_set},
+            }
+        });
+    };
+
     vm.addHarbor = function () {
         $uibModal.open({
             templateUrl: 'app/pages/global/ticket/createTicket.html',
