@@ -597,6 +597,32 @@
 
         };
 
+        vm.editCluster = function () {
+            if( vm.selecteCluster.auth !== 'X' )
+            {
+                swal({ title:'没有权限', text: "您没有权限编辑该集群配置", type:'error' });
+                return;
+            }
+            $uibModal.open({
+                templateUrl: 'app/pages/global/ticket/createTicket.html',
+                controller: 'CreateTicketController',
+                controllerAs: 'createticket',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    ticketid: function () { return vm.selecteClusterId },
+                    homereload: function () { return vm.reload },
+                    type: function () { return 'edit' },
+                    title: function () { return '编辑kubernetes集群' },
+                    point: function () { return 'KubeConfig' },
+                }
+            });
+
+        };
+
+
         vm.connectiontest = function(){
 //TODO 处理loading
             vm.loading = true
