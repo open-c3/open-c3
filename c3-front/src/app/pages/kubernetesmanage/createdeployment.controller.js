@@ -66,8 +66,9 @@
                     toastr.error("加载container模版信息失败:" + data.info)
                 }
             });
-            if( vm.namespace === "" )
-            {
+//亲和性用到namespace,不管什么情况下都先加载这个列表
+//            if( vm.namespace === "" )
+//            {
                 $http.get("/api/ci/v2/kubernetes/namespace?ticketid=" + ticketid ).then(
                     function successCallback(response) {
                         if (response.data.stat){
@@ -79,7 +80,7 @@
                     function errorCallback (response){
                         toastr.error( "获取集群NAMESPACE数据失败: " + response.status )
                     });
-            }
+//            }
 
             $http.get("/api/ci/v2/kubernetes/util/labels/node?ticketid=" + ticketid ).success(function(data){
                 if(data.stat == true) 
@@ -298,7 +299,7 @@
         };
 
 //NodeAffinity
-        vm.addNodeAffinity = function(name)
+        vm.addNodeAffinity = function()
         {
             if( vm.editData.spec.template.spec.affinity === undefined || Object.keys(vm.editData.spec.template.spec.affinity).length == 0 )
             {
@@ -329,6 +330,34 @@
         {
             vm.editData.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions.splice(id, 1);
         }
+
+//PodAffinity
+        vm.addPodAffinity = function()
+        {
+            if( vm.editData.spec.template.spec.affinity === undefined || Object.keys(vm.editData.spec.template.spec.affinity).length == 0 )
+            {
+                vm.editData.spec.template.spec.affinity = {};
+            }
+            if( vm.editData.spec.template.spec.affinity.podAffinity === undefined || Object.keys(vm.editData.spec.template.spec.affinity.podAffinity).length == 0 )
+            {
+                vm.editData.spec.template.spec.affinity.podAffinity = {};
+            }
+
+            if( vm.editData.spec.template.spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution === undefined || vm.editData.spec.template.spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution.length == 0 )
+            {
+                vm.editData.spec.template.spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution = [ { "labelSelector": { "matchExpressions": [ { "key": "", "operator": "In", "values": [] } ] }, "namespaces": [], "topologyKey": ""} ];
+            }
+            else
+            {
+                vm.editData.spec.template.spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions.push( { "key": "", "operator": "In", "values": [] } );
+            }
+
+        }
+        vm.delPodAffinity = function(id)
+        {
+            vm.editData.spec.template.spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions.splice(id, 1);
+        }
+
 
 //Volume
         vm.addVolume = function( type )
