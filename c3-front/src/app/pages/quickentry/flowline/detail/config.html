@@ -274,12 +274,13 @@
                         </div>
                     </div>
 
-                    <hr style="margin: 5px">
+<!--  TODO OPENC3 这里判断太多次-->
+                    <hr style="margin: 5px" ng-if="config.project.ci_type !== 'kubernetes'">
 
-                    <div class="row">
+                    <div class="row" ng-if="config.project.ci_type !== 'kubernetes'" >
                         <button class="btn btn-primary" uib-tooltip="编辑测试分组" ng-click="config.editgroup('test')" style="float: right" ><i class="fa fa-cogs fa-1x" >  测试分组</i></button>
                     </div>
-                    <div class="row" ng-repeat="group in showIPstr.test">
+                    <div class="row" ng-repeat="group in showIPstr.test" ng-if="config.project.ci_type !== 'kubernetes'" >
                         <div class="col-sm-12 form-group">
                             <label class="col-sm-2 control-label">分组{{$index+1}}: ({{group.num}}台机器)
                             </label>
@@ -289,12 +290,12 @@
                        </div>
                    </div>
 
-                   <hr style="margin: 5px">
+                   <hr style="margin: 5px" ng-if="config.project.ci_type !== 'kubernetes'">
 
-                   <div class="row">
+                   <div class="row" ng-if="config.project.ci_type !== 'kubernetes'">
                        <button class="btn btn-primary" uib-tooltip="编辑线上分组" ng-click="config.editgroup('online')" style="float: right" ><i class="fa fa-cogs fa-1x" >  线上分组</i></button>
                    </div>
-                   <div class="row" ng-repeat="group in showIPstr.online">
+                   <div class="row" ng-repeat="group in showIPstr.online" ng-if="config.project.ci_type !== 'kubernetes'">
                        <div class="col-sm-12 form-group" style="margin: 0px">
                            <label class="col-sm-2 control-label">分组{{$index+1}}: ({{group.num}}台机器)
                           </label>

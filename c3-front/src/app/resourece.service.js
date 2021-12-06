@@ -223,7 +223,17 @@
           },
 
           // ============================ jobx group job ===========================
+
+//TODO OPENC3 这里临时创建了两个函数xx
           {
+              namespace: 'group.creategroupxx', method: 'post',
+              url:       function(treeid){return '/api/jobx/group/' + treeid},
+              actName:   '创建分组', confirm: false, failAlert: true, sucAlert: false,
+          },{
+              namespace: 'group.updategroupxx', method: 'post',
+              url:       function(params){return '/api/jobx/group/' + params[0] + "/"+ params[1]},
+              actName:   '更新分组', confirm: false, failAlert: true, sucAlert: false,
+          }, {
               namespace: 'group.creategroup', method: 'post',
               url:       function(treeid){return '/api/jobx/group/' + treeid},
               actName:   '创建分组', confirm: true, failAlert: true, sucAlert: true,

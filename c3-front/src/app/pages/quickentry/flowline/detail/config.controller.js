@@ -171,6 +171,12 @@
                      toastr.error( "保存失败:" + data.info )
                  }
              });
+//
+             if(  vm.project.ci_type === "kubernetes" )
+             {
+                 vm.KubernetesSaveGroup();
+             }
+
           });
         }
 
@@ -207,6 +213,38 @@
                 }
             });
         };
+
+//KubernetesSaveGroup
+        vm.KubernetesSaveGroup = function(){
+            vm.KubernetesSaveGroupByEnv('test');
+            vm.KubernetesSaveGroupByEnv('online');
+        };
+        vm.KubernetesSaveGroupByEnv = function(env){
+            var postData = {};
+            postData['group_type'] = 'list';
+            postData['name'] = '_ci_' + env + '_' + projectid + '_';
+            postData['node'] = env + '.env';
+            postData['note'] = 'ci';
+            var groupid = vm.groupid[env];
+
+            // 编辑分组
+            if(groupid){
+                resoureceService.group.updategroupxx([vm.treeid, groupid],postData, null).then(function () {
+                }).finally(function(){
+
+                });
+            }
+            // 创建分组
+            else {
+                resoureceService.group.creategroupxx(vm.treeid,postData, null).then(function () {
+                }).finally(function(){
+
+                });
+            }
+
+        };
+
+//
 
         vm.editreload = function(t)
         {
