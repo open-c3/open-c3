@@ -80,6 +80,25 @@
                         toastr.error( "获取集群NAMESPACE数据失败: " + response.status )
                     });
             }
+
+            $http.get("/api/ci/v2/kubernetes/util/labels/node?ticketid=" + ticketid ).success(function(data){
+                if(data.stat == true) 
+                { 
+                   vm.nodelabel = data.data;
+                } else { 
+                    toastr.error("加载node的label失败:" + data.info)
+                }
+            });
+ 
+            $http.get("/api/ci/v2/kubernetes/util/labels/node_pod?ticketid=" + ticketid ).success(function(data){
+                if(data.stat == true) 
+                { 
+                   vm.nodepodlabel = data.data;
+                } else { 
+                    toastr.error("加载node和pod的label失败:" + data.info)
+                }
+            });
+ 
  
         };
         vm.reload();
@@ -277,6 +296,39 @@
                 }
             });
         };
+
+//NodeAffinity
+        vm.addNodeAffinity = function(name)
+        {
+            if( vm.editData.spec.template.spec.affinity === undefined || Object.keys(vm.editData.spec.template.spec.affinity).length == 0 )
+            {
+                vm.editData.spec.template.spec.affinity = {};
+            }
+            if( vm.editData.spec.template.spec.affinity.nodeAffinity === undefined || Object.keys(vm.editData.spec.template.spec.affinity.nodeAffinity).length == 0 )
+            {
+                vm.editData.spec.template.spec.affinity.nodeAffinity = {};
+            }
+
+            if( vm.editData.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution === undefined || Object.keys(vm.editData.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution).length == 0 )
+            {
+                vm.editData.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution = {};
+            }
+
+            if( vm.editData.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms === undefined || vm.editData.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms.length == 0 )
+            {
+                vm.editData.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms = [ { "matchExpressions": [ { "key": "", "operator": "In", "values": []}]} ];
+            }
+            else
+            {
+                vm.editData.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions.push( { "key": "", "operator": "In", "values": [] } );
+            }
+
+        }
+
+        vm.delNodeAffinity = function(id)
+        {
+            vm.editData.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions.splice(id, 1);
+        }
 
 //Volume
         vm.addVolume = function( type )

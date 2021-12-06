@@ -258,6 +258,66 @@
                 </div>
             </div>
 <hr>
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-1 control-label">节点亲和性调度</label>
+                    <div class="col-sm-6">
+                            <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.addNodeAffinity()" uib-tooltip="添加目标节点标签" style="cursor:pointer;color: #339094;" ></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-1 control-label"></label>
+                    <div class="col-sm-9">
+                        <table  border="0" style="width: 100%">
+                            <tr ng-repeat="(id, x) in kubernetescreatedeployment.editData.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions">
+                                <td>
+
+                                    <div class="row">
+                                        <div class="col-sm-12 form-group">
+                                            <label class="col-sm-1 control-label">key</label>
+                                            <div class="col-sm-3">
+                                                 <select id="selecteddataval" class="form-control"  ng-model="x.key" >
+                                                      <option ng-repeat="x in kubernetescreatedeployment.nodelabel.key" value="{{x}}">{{x}}</option>
+                                                 </select>
+                                            </div>
+
+                                            <label class="col-sm-1 control-label">operator</label>
+                                            <div class="col-sm-3">
+                                                  <select id="selecteddataval" class="form-control"  ng-model="x.operator" >
+                                                      <option value="In">In</option>
+                                                      <option value="NotIn">NotIn</option>
+                                                      <option value="Exists">Exists</option>
+                                                      <option value="DoesNotExist">DoesNotExist</option>
+                                                      <option value="Gt">Gt</option>
+                                                      <option value="Lt">Lt</option>
+                                                  </select>
+                                             </div>
+ 
+                                             <label class="col-sm-1 control-label">values</label>
+                                             <div class="col-sm-3">
+                                                  {{x.values}}
+                                                  <select id="selecteddataval" class="form-control"  ng-model="x.values" multiple="multiple">
+                                                         <option ng-repeat="x in kubernetescreatedeployment.nodelabel.value[x.key]" value="{{x}}">{{x}}</option>
+                                                  </select>
+                                             </div>
+ 
+                                        </div>
+                                    </div>
+
+                                </td>
+                                <td style="width: 50px">
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.delNodeAffinity(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                </td>
+                            </tr>
+                       </table>
+                    </div>
+                </div>
+            </div>
+
+<hr>
 
             <div class="row">
                 <div class="col-sm-12 form-group">
