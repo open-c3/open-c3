@@ -21,7 +21,7 @@
                     ticketid: function () {},
                     homereload: function () { return vm.reload },
                     type: function () { return 'create' },
-                    title: function () { return '新建票据' },
+                    title: function () { return '新建凭据' },
                     point: function () { return '' },
                 }
             });
@@ -30,7 +30,7 @@
 
         vm.deleteTicket = function(id){
           swal({
-            title: "删除票据",
+            title: "删除凭据",
             type: "warning",
             showCancelButton: true,
             confirmButtonColor: "#DD6B55",
@@ -43,7 +43,7 @@
                 if (data.stat){
                     vm.reload();
                 }else {
-                    swal({ title:'删除票据列表失败', text: data.info, type:'error' });
+                    swal({ title:'删除凭据列表失败', text: data.info, type:'error' });
                 }
             });
 
@@ -63,7 +63,7 @@
                     ticketid: function () { return id},
                     homereload: function () { return vm.reload },
                     type: function () { return 'show' },
-                    title: function () { return '查看票据' },
+                    title: function () { return '查看凭据' },
                     point: function () { return '' },
                 }
             });
@@ -82,7 +82,7 @@
                     ticketid: function () { return id},
                     homereload: function () { return vm.reload },
                     type: function () { return 'edit' },
-                    title: function () { return '编辑票据' },
+                    title: function () { return '编辑凭据' },
                     point: function () { return '' },
                 }
             });
@@ -95,7 +95,7 @@
                     vm.group_Table = new ngTableParams({count:25}, {counts:[],data:data.data.reverse()});
                     vm.loadover = true;
                 }else {
-                    swal({ title:'获取票据列表失败', text: data.info, type:'error' });
+                    swal({ title:'获取凭据列表失败', text: data.info, type:'error' });
                 }
             });
         };

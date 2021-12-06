@@ -2,7 +2,7 @@
     <div>
         <div style="float: right;">
             <form class="form-inline" name="myForm" novalidate>
-                <button type="submit" ng-disabled="myForm.$invalid" class="btn btn-primary" ng-click="ticket.createTicket()"><i class="fa fa-key fa-lg" aria-hidden="true"></i>新建票据</button>
+                <button type="submit" ng-disabled="myForm.$invalid" class="btn btn-primary" ng-click="ticket.createTicket()"><i class="fa fa-key fa-lg" aria-hidden="true"></i>新建凭据</button>
             </form>
         </div>
         <div style="clear: both;">&nbsp;</div>
@@ -13,14 +13,14 @@
             <span class="panel-controls">
                 <button class="btn btn-primary" uib-tooltip="刷新" ng-click="ticket.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!ticket.loadover}" ></i></button>
             </span>
-            <h5>票据</h5>
+            <h5>凭据</h5>
         </div>
 
         <div class="panel-body">
             <div class="panel-tabs">
                 <table ng-table="ticket.group_Table" class="table table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="d in $data">
-                        <td style="width: 10%" data-title="'票据名称'" filter="{ name: 'text'}" sortable="'name'">{{d.name}}</td>
+                        <td style="width: 10%" data-title="'凭据名称'" filter="{ name: 'text'}" sortable="'name'">{{d.name}}</td>
                         <td style="width: 10%" data-title="'创建时间'" filter="{ edit_time: 'text'}" sortable="'edit_time'">{{d.edit_time}}</td>
                         <td style="width: 10%" data-title="'类型'" filter="{ type: 'text'}" sortable="'type'">{{d.type}}</td>
                         <td style="width: 10%" data-title="'最后编辑人'" filter="{ edit_user: 'text'}" sortable="'edit_user'">{{d.edit_user}}</td>

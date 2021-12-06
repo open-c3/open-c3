@@ -30,7 +30,7 @@
                     vm.ticketinfo = data.data;
                 }
                 else{
-                    toastr.error( "获取票据失败:" + data.info )
+                    toastr.error( "获取凭据失败:" + data.info )
                 }
             });
         };

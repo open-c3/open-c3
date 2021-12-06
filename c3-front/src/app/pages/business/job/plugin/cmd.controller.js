@@ -542,7 +542,7 @@
                 }
                 else
                 {
-                    toastr.error( "加载票据列表失败:" + data.info )
+                    toastr.error( "加载凭据列表失败:" + data.info )
                 }
             });
         };

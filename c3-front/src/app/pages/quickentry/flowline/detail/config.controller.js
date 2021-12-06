@@ -84,7 +84,7 @@
                 }
                 else
                 {
-                    toastr.error( "加载票据列表失败:" + data.info )
+                    toastr.error( "加载凭据列表失败:" + data.info )
                 }
             });
         };
@@ -689,7 +689,7 @@
                 ticketid: function () {},
                 homereload: function () { return vm.reloadticket },
                 type: function () { return 'create' },
-                title: function () { return '创建Harbor镜像仓库票据' },
+                title: function () { return '创建Harbor镜像仓库凭据' },
                 point: function () { return 'Harbor' },
             }
         });

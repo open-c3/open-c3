@@ -32,11 +32,11 @@
                     if (response.data.stat){
                         vm.postData = response.data.data
                     }else {
-                        swal({ title:'获取票据详情失败', text: response.data.info, type:'error' });
+                        swal({ title:'获取凭据详情失败', text: response.data.info, type:'error' });
                     }
                 },
                 function errorCallback (response){
-                    swal({ title:'获取票据详情失败', text: response.status, type:'error' });
+                    swal({ title:'获取凭据详情失败', text: response.status, type:'error' });
                 });
         }
 
@@ -52,7 +52,7 @@
                         homereload();
                         vm.cancel();
                     }else {
-                        swal({ title:'保存票据失败', text: response.data.info, type:'error' });
+                        swal({ title:'保存凭据失败', text: response.data.info, type:'error' });
                     }
                 }
             );
