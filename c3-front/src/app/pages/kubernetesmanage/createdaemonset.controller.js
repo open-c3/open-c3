@@ -61,8 +61,9 @@
                     toastr.error("加载container模版信息失败:" + data.info)
                 }
             });
-            if( vm.tasktype == 'create' )
-            {
+//亲和性用到namespace,不管什么情况下都先加载这个列表
+//            if( vm.namespace === "" )
+//            {
                 $http.get("/api/ci/v2/kubernetes/namespace?ticketid=" + ticketid ).then(
                     function successCallback(response) {
                         if (response.data.stat){
@@ -74,7 +75,26 @@
                     function errorCallback (response){
                         toastr.error( "获取集群NAMESPACE数据失败: " + response.status )
                     });
-            }
+//            }
+            $http.get("/api/ci/v2/kubernetes/util/labels/node?ticketid=" + ticketid ).success(function(data){
+                if(data.stat == true) 
+                { 
+                   vm.nodelabel = data.data;
+                } else { 
+                    toastr.error("加载node的label失败:" + data.info)
+                }
+            });
+ 
+            $http.get("/api/ci/v2/kubernetes/util/labels/node_pod?ticketid=" + ticketid ).success(function(data){
+                if(data.stat == true) 
+                { 
+                   vm.nodepodlabel = data.data;
+                } else { 
+                    toastr.error("加载node和pod的label失败:" + data.info)
+                }
+            });
+ 
+ 
         };
         vm.reload();
 
@@ -249,6 +269,109 @@
                 }
             });
         };
+
+//NodeAffinity 节点亲和性调度
+        vm.addNodeAffinity = function()
+        {
+            if( vm.editData.spec.template.spec.affinity === undefined || Object.keys(vm.editData.spec.template.spec.affinity).length == 0 )
+            {
+                vm.editData.spec.template.spec.affinity = {};
+            }
+            if( vm.editData.spec.template.spec.affinity.nodeAffinity === undefined || Object.keys(vm.editData.spec.template.spec.affinity.nodeAffinity).length == 0 )
+            {
+                vm.editData.spec.template.spec.affinity.nodeAffinity = {};
+            }
+
+            if( vm.editData.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution === undefined || Object.keys(vm.editData.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution).length == 0 )
+            {
+                vm.editData.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution = {};
+            }
+
+            if( vm.editData.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms === undefined || vm.editData.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms.length == 0 )
+            {
+                vm.editData.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms = [ { "matchExpressions": [ { "key": "", "operator": "In", "values": []}]} ];
+            }
+            else
+            {
+                vm.editData.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions.push( { "key": "", "operator": "In", "values": [] } );
+            }
+
+        }
+
+        vm.delNodeAffinity = function(id)
+        {
+            vm.editData.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions.splice(id, 1);
+        }
+
+//PodAffinity。POD亲和性调度
+        vm.addPodAffinity = function()
+        {
+            if( vm.editData.spec.template.spec.affinity === undefined || Object.keys(vm.editData.spec.template.spec.affinity).length == 0 )
+            {
+                vm.editData.spec.template.spec.affinity = {};
+            }
+            if( vm.editData.spec.template.spec.affinity.podAffinity === undefined || Object.keys(vm.editData.spec.template.spec.affinity.podAffinity).length == 0 )
+            {
+                vm.editData.spec.template.spec.affinity.podAffinity = {};
+            }
+
+            if( vm.editData.spec.template.spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution === undefined || vm.editData.spec.template.spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution.length == 0 )
+            {
+                vm.editData.spec.template.spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution = [ { "labelSelector": { "matchExpressions": [ { "key": "", "operator": "In", "values": [] } ] }, "namespaces": [], "topologyKey": ""} ];
+            }
+            else
+            {
+                vm.editData.spec.template.spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions.push( { "key": "", "operator": "In", "values": [] } );
+            }
+
+        }
+        vm.delPodAffinity = function(id)
+        {
+            vm.editData.spec.template.spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions.splice(id, 1);
+        }
+
+//PodAntiAffinity  POD 反亲和性调度
+        vm.addPodAntiAffinity = function()
+        {
+            if( vm.editData.spec.template.spec.affinity === undefined || Object.keys(vm.editData.spec.template.spec.affinity).length == 0 )
+            {
+                vm.editData.spec.template.spec.affinity = {};
+            }
+            if( vm.editData.spec.template.spec.affinity.podAntiAffinity === undefined || Object.keys(vm.editData.spec.template.spec.affinity.podAntiAffinity).length == 0 )
+            {
+                vm.editData.spec.template.spec.affinity.podAntiAffinity = {};
+            }
+
+            if( vm.editData.spec.template.spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution === undefined || vm.editData.spec.template.spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution.length == 0 )
+            {
+                vm.editData.spec.template.spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution = [ { "labelSelector": { "matchExpressions": [ { "key": "", "operator": "In", "values": [] } ] }, "namespaces": [], "topologyKey": ""} ];
+            }
+            else
+            {
+                vm.editData.spec.template.spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions.push( { "key": "", "operator": "In", "values": [] } );
+            }
+
+        }
+        vm.delPodAntiAffinity = function(id)
+        {
+            vm.editData.spec.template.spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions.splice(id, 1);
+        }
+
+//tolerations 容忍/调度
+        vm.addTolerations = function()
+        {
+
+            if( vm.editData.spec.template.spec.tolerations === undefined || vm.editData.spec.template.spec.tolerations.length == 0 )
+            {
+                vm.editData.spec.template.spec.tolerations = [];
+            }
+            vm.editData.spec.template.spec.tolerations.push( { "key": "", "operator": "Equal", "value": "", "effect": "NoSchedule" } );
+
+        }
+        vm.delTolerations = function(id)
+        {
+            vm.editData.spec.template.spec.tolerations.splice(id, 1);
+        }
 
 //Volume
         vm.addVolume = function( type )

@@ -225,6 +225,314 @@
                     </div>
                 </div>
             </div>
+
+<hr>
+调度
+<br>
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-1 control-label">节点亲和性调度</label>
+                    <div class="col-sm-6">
+                            <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addNodeAffinity()" uib-tooltip="添加目标节点标签" style="cursor:pointer;color: #339094;" ></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-1 control-label"></label>
+                    <div class="col-sm-9">
+                        <table  border="0" style="width: 100%">
+                            <tr ng-repeat="(id, x) in kubernetescreatedaemonset.editData.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions">
+                                <td>
+
+                                    <div class="row">
+                                        <div class="col-sm-12 form-group">
+                                            <label class="col-sm-1 control-label">key</label>
+                                            <div class="col-sm-3">
+                                                 <select id="selecteddataval" class="form-control"  ng-model="x.key" >
+                                                      <option ng-repeat="x in kubernetescreatedaemonset.nodelabel.key" value="{{x}}">{{x}}</option>
+                                                 </select>
+                                            </div>
+
+                                            <label class="col-sm-1 control-label">operator</label>
+                                            <div class="col-sm-3">
+                                                  <select id="selecteddataval" class="form-control"  ng-model="x.operator" >
+                                                      <option value="In">In</option>
+                                                      <option value="NotIn">NotIn</option>
+                                                      <option value="Exists">Exists</option>
+                                                      <option value="DoesNotExist">DoesNotExist</option>
+                                                      <option value="Gt">Gt</option>
+                                                      <option value="Lt">Lt</option>
+                                                  </select>
+                                             </div>
+ 
+                                             <label class="col-sm-1 control-label">values</label>
+                                             <div class="col-sm-3">
+                                                  {{x.values}}
+                                                  <select id="selecteddataval" class="form-control"  ng-model="x.values" multiple="multiple">
+                                                         <option ng-repeat="x in kubernetescreatedaemonset.nodelabel.value[x.key]" value="{{x}}">{{x}}</option>
+                                                  </select>
+                                             </div>
+ 
+                                        </div>
+                                    </div>
+
+                                </td>
+                                <td style="width: 50px">
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.delNodeAffinity(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                </td>
+                            </tr>
+                       </table>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-1 control-label">POD亲和性调度</label>
+                    <div class="col-sm-6">
+                            <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addPodAffinity()" uib-tooltip="添加亲和POD信息" style="cursor:pointer;color: #339094;" ></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-1 control-label"></label>
+                    <div class="col-sm-9">
+                        <table  border="0" style="width: 100%">
+                            <tr ng-repeat="(id, x) in kubernetescreatedaemonset.editData.spec.template.spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions">
+                                <td>
+
+                                    <div class="row">
+                                        <div class="col-sm-12 form-group">
+                                            <label class="col-sm-1 control-label">key</label>
+                                            <div class="col-sm-3">
+                                                 <select id="selecteddataval" class="form-control"  ng-model="x.key" >
+                                                      <option ng-repeat="x in kubernetescreatedaemonset.nodepodlabel.key" value="{{x}}">{{x}}</option>
+                                                 </select>
+                                            </div>
+
+                                            <label class="col-sm-1 control-label">operator</label>
+                                            <div class="col-sm-3">
+                                                  <select id="selecteddataval" class="form-control"  ng-model="x.operator" >
+                                                      <option value="In">In</option>
+                                                      <option value="NotIn">NotIn</option>
+                                                      <option value="Exists">Exists</option>
+                                                      <option value="DoesNotExist">DoesNotExist</option>
+                                                      <option value="Gt">Gt</option>
+                                                      <option value="Lt">Lt</option>
+                                                  </select>
+                                             </div>
+ 
+                                             <label class="col-sm-1 control-label">values</label>
+                                             <div class="col-sm-3">
+                                                  {{x.values}}
+                                                  <select id="selecteddataval" class="form-control"  ng-model="x.values" multiple="multiple">
+                                                         <option ng-repeat="x in kubernetescreatedaemonset.nodepodlabel.value[x.key]" value="{{x}}">{{x}}</option>
+                                                  </select>
+                                             </div>
+ 
+                                        </div>
+                                    </div>
+
+                                </td>
+                                <td style="width: 50px">
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.delPodAffinity(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                </td>
+                            </tr>
+                       </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" ng-if="kubernetescreatedaemonset.editData.spec.template.spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution[0]" >
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-1 control-label"></label>
+                    <label class="col-sm-1 control-label">namespace</label>
+                    <div class="col-sm-4">
+                        {{ kubernetescreatedaemonset.editData.spec.template.spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].namespaces }}
+                        <select id="selecteddataval" class="form-control"  ng-model="kubernetescreatedaemonset.editData.spec.template.spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].namespaces" multiple="multiple">
+                            <option ng-repeat="x in kubernetescreatedaemonset.namespaces" value="{{x.NAME}}">{{x.NAME}}</option>
+                        </select>
+                    </div>
+
+
+                    <label class="col-sm-1 control-label">topologyKey</label>
+                    <div class="col-sm-3">
+                        <input type="text" class="form-control" placeholder="节点标签Key" ng-model="kubernetescreatedaemonset.editData.spec.template.spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].topologyKey">
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-1 control-label">POD反亲和性调度</label>
+                    <div class="col-sm-6">
+                            <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addPodAntiAffinity()" uib-tooltip="添加反亲和POD信息" style="cursor:pointer;color: #339094;" ></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-1 control-label"></label>
+                    <div class="col-sm-9">
+                        <table  border="0" style="width: 100%">
+                            <tr ng-repeat="(id, x) in kubernetescreatedaemonset.editData.spec.template.spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions">
+                                <td>
+
+                                    <div class="row">
+                                        <div class="col-sm-12 form-group">
+                                            <label class="col-sm-1 control-label">key</label>
+                                            <div class="col-sm-3">
+                                                 <select id="selecteddataval" class="form-control"  ng-model="x.key" >
+                                                      <option ng-repeat="x in kubernetescreatedaemonset.nodepodlabel.key" value="{{x}}">{{x}}</option>
+                                                 </select>
+                                            </div>
+
+                                            <label class="col-sm-1 control-label">operator</label>
+                                            <div class="col-sm-3">
+                                                  <select id="selecteddataval" class="form-control"  ng-model="x.operator" >
+                                                      <option value="In">In</option>
+                                                      <option value="NotIn">NotIn</option>
+                                                      <option value="Exists">Exists</option>
+                                                      <option value="DoesNotExist">DoesNotExist</option>
+                                                      <option value="Gt">Gt</option>
+                                                      <option value="Lt">Lt</option>
+                                                  </select>
+                                             </div>
+ 
+                                             <label class="col-sm-1 control-label">values</label>
+                                             <div class="col-sm-3">
+                                                  {{x.values}}
+                                                  <select id="selecteddataval" class="form-control"  ng-model="x.values" multiple="multiple">
+                                                         <option ng-repeat="x in kubernetescreatedaemonset.nodepodlabel.value[x.key]" value="{{x}}">{{x}}</option>
+                                                  </select>
+                                             </div>
+ 
+                                        </div>
+                                    </div>
+
+                                </td>
+                                <td style="width: 50px">
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.delPodAntiAffinity(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                </td>
+                            </tr>
+                       </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row" ng-if="kubernetescreatedaemonset.editData.spec.template.spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0]" >
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-1 control-label"></label>
+                    <label class="col-sm-1 control-label">namespace</label>
+                    <div class="col-sm-4">
+                        {{ kubernetescreatedaemonset.editData.spec.template.spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].namespaces }}
+                        <select id="selecteddataval" class="form-control"  ng-model="kubernetescreatedaemonset.editData.spec.template.spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].namespaces" multiple="multiple">
+                            <option ng-repeat="x in kubernetescreatedaemonset.namespaces" value="{{x.NAME}}">{{x.NAME}}</option>
+                        </select>
+                    </div>
+
+
+                    <label class="col-sm-1 control-label">topologyKey</label>
+                    <div class="col-sm-3">
+                        <input type="text" class="form-control" placeholder="节点标签Key" ng-model="kubernetescreatedaemonset.editData.spec.template.spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].topologyKey">
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+
+
+
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-1 control-label">容忍</label>
+                    <div class="col-sm-6">
+                            <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addTolerations()" uib-tooltip="添加容忍规则" style="cursor:pointer;color: #339094;" ></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-1 control-label"></label>
+                    <div class="col-sm-9">
+                        <table  border="0" style="width: 100%">
+                            <tr ng-repeat="(id, x) in kubernetescreatedaemonset.editData.spec.template.spec.tolerations">
+                                <td>
+
+                                    <div class="row">
+                                        <div class="col-sm-12 form-group">
+                                            <label class="col-sm-1 control-label">key</label>
+                                            <div class="col-sm-2">
+                                                 <select id="selecteddataval" class="form-control"  ng-model="x.key" >
+                                                      <option ng-repeat="x in kubernetescreatedaemonset.nodepodlabel.key" value="{{x}}">{{x}}</option>
+                                                 </select>
+                                            </div>
+
+                                            <label class="col-sm-1 control-label">operator</label>
+                                            <div class="col-sm-1">
+                                                  <select id="selecteddataval" class="form-control"  ng-model="x.operator" >
+                                                      <option value="Equal">Equal</option>
+                                                      <option value="Exists">Exists</option>
+                                                  </select>
+                                             </div>
+ 
+                                             <label class="col-sm-1 control-label">value</label>
+                                             <div class="col-sm-2">
+                                                  <select id="selecteddataval" class="form-control"  ng-model="x.value">
+                                                         <option ng-repeat="x in kubernetescreatedaemonset.nodepodlabel.value[x.key]" value="{{x}}">{{x}}</option>
+                                                  </select>
+                                             </div>
+                                            <label class="col-sm-1 control-label">effect</label>
+                                            <div class="col-sm-3">
+                                                  <select id="selecteddataval" class="form-control"  ng-model="x.effect" >
+                                                      <option value="NoSchedule">NoExecute(不允许调度，已经调度的资源不受影响)</option>
+                                                      <option value="PreferNoSchedule">PreferNoSchedule(尽量不调度)</option>
+                                                      <option value="NoExecute">NoExecute（不允许调度）</option>
+                                                  </select>
+                                             </div>
+ 
+                                        </div>
+                                    </div>
+
+                                </td>
+                                <td style="width: 50px">
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.delTolerations(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                </td>
+                            </tr>
+                       </table>
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+
+
+
 <hr>
             <div class="row">
                 <div class="col-sm-12 form-group">
