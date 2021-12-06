@@ -213,7 +213,7 @@ post '/group/:groupid' => sub {
         }
         else
         {
-            $api::mysql->execute( "insert into openc3_ci_project (`edit_user`,`name`, `groupid` ) values( '$user', '$param->{name}', $groupid )");
+            $api::mysql->execute( "insert into openc3_ci_project (`edit_user`,`name`, `groupid`, `ci_type` ) values( '$user', '$param->{name}', $groupid, 'default' )");
         }
     };
 
