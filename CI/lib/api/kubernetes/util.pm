@@ -1,4 +1,4 @@
-package api::kubernetes::node;
+package api::kubernetes::util;
 use Dancer ':syntax';
 use Dancer qw(cookie);
 use Encode qw(encode);
