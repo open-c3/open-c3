@@ -358,6 +358,33 @@
             vm.editData.spec.template.spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions.splice(id, 1);
         }
 
+//PodAntiAffinity
+        vm.addPodAntiAffinity = function()
+        {
+            if( vm.editData.spec.template.spec.affinity === undefined || Object.keys(vm.editData.spec.template.spec.affinity).length == 0 )
+            {
+                vm.editData.spec.template.spec.affinity = {};
+            }
+            if( vm.editData.spec.template.spec.affinity.podAntiAffinity === undefined || Object.keys(vm.editData.spec.template.spec.affinity.podAntiAffinity).length == 0 )
+            {
+                vm.editData.spec.template.spec.affinity.podAntiAffinity = {};
+            }
+
+            if( vm.editData.spec.template.spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution === undefined || vm.editData.spec.template.spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution.length == 0 )
+            {
+                vm.editData.spec.template.spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution = [ { "labelSelector": { "matchExpressions": [ { "key": "", "operator": "In", "values": [] } ] }, "namespaces": [], "topologyKey": ""} ];
+            }
+            else
+            {
+                vm.editData.spec.template.spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions.push( { "key": "", "operator": "In", "values": [] } );
+            }
+
+        }
+        vm.delPodAntiAffinity = function(id)
+        {
+            vm.editData.spec.template.spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions.splice(id, 1);
+        }
+
 
 //Volume
         vm.addVolume = function( type )
