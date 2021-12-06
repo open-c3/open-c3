@@ -258,6 +258,8 @@
                 </div>
             </div>
 <hr>
+调度
+<br>
             <div class="row">
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">节点亲和性调度</label>
@@ -406,13 +408,11 @@
 
 
 
-
-
             <div class="row">
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">POD反亲和性调度</label>
                     <div class="col-sm-6">
-                            <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.addPodAntiAffinity()" uib-tooltip="添加亲和POD信息" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.addPodAntiAffinity()" uib-tooltip="添加反亲和POD信息" style="cursor:pointer;color: #339094;" ></i>
                     </div>
                 </div>
             </div>
@@ -482,6 +482,76 @@
                     <label class="col-sm-1 control-label">topologyKey</label>
                     <div class="col-sm-3">
                         <input type="text" class="form-control" placeholder="节点标签Key" ng-model="kubernetescreatedeployment.editData.spec.template.spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].topologyKey">
+                    </div>
+                </div>
+            </div>
+
+
+
+
+
+
+
+
+
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-1 control-label">容忍</label>
+                    <div class="col-sm-6">
+                            <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.addTolerations()" uib-tooltip="添加容忍规则" style="cursor:pointer;color: #339094;" ></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-1 control-label"></label>
+                    <div class="col-sm-9">
+                        <table  border="0" style="width: 100%">
+                            <tr ng-repeat="(id, x) in kubernetescreatedeployment.editData.spec.template.spec.tolerations">
+                                <td>
+
+                                    <div class="row">
+                                        <div class="col-sm-12 form-group">
+                                            <label class="col-sm-1 control-label">key</label>
+                                            <div class="col-sm-2">
+                                                 <select id="selecteddataval" class="form-control"  ng-model="x.key" >
+                                                      <option ng-repeat="x in kubernetescreatedeployment.nodepodlabel.key" value="{{x}}">{{x}}</option>
+                                                 </select>
+                                            </div>
+
+                                            <label class="col-sm-1 control-label">operator</label>
+                                            <div class="col-sm-1">
+                                                  <select id="selecteddataval" class="form-control"  ng-model="x.operator" >
+                                                      <option value="Equal">Equal</option>
+                                                      <option value="Exists">Exists</option>
+                                                  </select>
+                                             </div>
+ 
+                                             <label class="col-sm-1 control-label">value</label>
+                                             <div class="col-sm-2">
+                                                  <select id="selecteddataval" class="form-control"  ng-model="x.value">
+                                                         <option ng-repeat="x in kubernetescreatedeployment.nodepodlabel.value[x.key]" value="{{x}}">{{x}}</option>
+                                                  </select>
+                                             </div>
+                                            <label class="col-sm-1 control-label">effect</label>
+                                            <div class="col-sm-3">
+                                                  <select id="selecteddataval" class="form-control"  ng-model="x.effect" >
+                                                      <option value="NoSchedule">NoExecute(不允许调度，已经调度的资源不受影响)</option>
+                                                      <option value="PreferNoSchedule">PreferNoSchedule(尽量不调度)</option>
+                                                      <option value="NoExecute">NoExecute（不允许调度）</option>
+                                                  </select>
+                                             </div>
+ 
+                                        </div>
+                                    </div>
+
+                                </td>
+                                <td style="width: 50px">
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.delTolerations(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                </td>
+                            </tr>
+                       </table>
                     </div>
                 </div>
             </div>

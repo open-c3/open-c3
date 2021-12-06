@@ -298,7 +298,7 @@
             });
         };
 
-//NodeAffinity
+//NodeAffinity 节点亲和性调度
         vm.addNodeAffinity = function()
         {
             if( vm.editData.spec.template.spec.affinity === undefined || Object.keys(vm.editData.spec.template.spec.affinity).length == 0 )
@@ -331,7 +331,7 @@
             vm.editData.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions.splice(id, 1);
         }
 
-//PodAffinity
+//PodAffinity。POD亲和性调度
         vm.addPodAffinity = function()
         {
             if( vm.editData.spec.template.spec.affinity === undefined || Object.keys(vm.editData.spec.template.spec.affinity).length == 0 )
@@ -358,7 +358,7 @@
             vm.editData.spec.template.spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions.splice(id, 1);
         }
 
-//PodAntiAffinity
+//PodAntiAffinity  POD 反亲和性调度
         vm.addPodAntiAffinity = function()
         {
             if( vm.editData.spec.template.spec.affinity === undefined || Object.keys(vm.editData.spec.template.spec.affinity).length == 0 )
@@ -385,6 +385,21 @@
             vm.editData.spec.template.spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions.splice(id, 1);
         }
 
+//tolerations 容忍/调度
+        vm.addTolerations = function()
+        {
+
+            if( vm.editData.spec.template.spec.tolerations === undefined || vm.editData.spec.template.spec.tolerations.length == 0 )
+            {
+                vm.editData.spec.template.spec.tolerations = [];
+            }
+            vm.editData.spec.template.spec.tolerations.push( { "key": "", "operator": "Equal", "value": "", "effect": "NoSchedule" } );
+
+        }
+        vm.delTolerations = function(id)
+        {
+            vm.editData.spec.template.spec.tolerations.splice(id, 1);
+        }
 
 //Volume
         vm.addVolume = function( type )
