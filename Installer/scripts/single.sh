@@ -2,6 +2,10 @@
 
 BASE_PATH=/data/open-c3
 
+if [ "X$OPENC3VERSION" == "X" ]; then
+    OPENC3VERSION=v2.2.0
+fi
+
 GITADDR=http://github.com
 DOCKERINSTALL=https://get.docker.com
 if [ "X$OPENC3_ZONE" == "XCN"  ]; then
@@ -28,7 +32,7 @@ function install() {
         if [ ! -d /data ];then
             mkdir /data
         fi
-        cd /data && git clone $GITADDR/open-c3/open-c3
+        cd /data && git clone -b "$OPENC3VERSION" $GITADDR/open-c3/open-c3
     fi
 
     if [ -d "$BASE_PATH" ]; then
@@ -137,7 +141,7 @@ function install() {
 
     if [ -d "$BASE_PATH/Installer/install-cache/c3-front/dist" ]; then
         rm -rf $BASE_PATH/c3-front/dist
-        cp -r $BASE_PATH/Installer/install-cache/c3-front/dist $BASE_PATH/c3-front/dist
+        cp -r "$BASE_PATH/Installer/install-cache/c3-front/dist-$OPENC3VERSION" $BASE_PATH/c3-front/dist
     else
         echo "[FAIL]nofind c3-front/dist in open-c3-install-cache."
     fi
