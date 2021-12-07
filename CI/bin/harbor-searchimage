@@ -32,11 +32,5 @@ die if $?;
 my $serveraddr = ( split /\//, $s )[2];
 my $data = JSON::from_json $x;
 
-my @res;
-for my $repo ( @{$data->{repository}} )
-{
-    my %r = ( repo => "$serveraddr/$repo->{repository_name}" );
-    push @res, \%r;
-}
-
-print YAML::XS::Dump \@res;
+map{ $_->{repo} = "$serveraddr/$_->{repository_name}" }  @{$data->{repository}};
+print YAML::XS::Dump $data->{repository};
