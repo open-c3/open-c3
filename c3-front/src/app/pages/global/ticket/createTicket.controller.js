@@ -11,7 +11,7 @@
         vm.title = title
         vm.type = type
         vm.cancel = function(){ $uibModalInstance.dismiss()};
-        vm.postData = { type: 'SSHKey', share: 'false' };
+        vm.postData = { type: 'SSHKey', share: 'P' };
         vm.kubectlVersion = [];
         vm.point = point;
 

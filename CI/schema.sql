@@ -86,7 +86,7 @@ create table `openc3_ci_ticket`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 `name` VARCHAR(100) comment '名称',
 `type` VARCHAR(100) comment '票据类型',
-`share` VARCHAR(100) comment '共享',
+`share` VARCHAR(5000) comment '共享',
 `ticket` VARCHAR(8000) comment '票据',
 `describe` VARCHAR(2000) comment '描述',
 `edit_user` VARCHAR(50) comment '最后编辑用户',

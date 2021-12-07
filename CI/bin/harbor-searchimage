@@ -10,11 +10,14 @@ use Encode;
 use MIME::Base64;
 use api::kubernetes;
 
-my $ticketid = shift @ARGV;
+my ( $ticketid, $user, $company ) = @ARGV;
 die "ticketid error" unless $ticketid && $ticketid =~ /^\d+$/;
+die unless $user && $user !~ /'/;
+die unless $company && $company !~ /'/;
+
 my $db = MYDB->new( "$RealBin/../conf/conn" );
 my @col = qw( id name type share ticket describe edit_user create_user edit_time create_time  );
-my $cluster = $db->query( sprintf( "select %s from openc3_ci_ticket where id='$ticketid'", join ',',map{"`$_`"} @col ), \@col );
+my $cluster = $db->query( sprintf( "select %s from openc3_ci_ticket where id='$ticketid' and ( create_user ='$user' or share = '$company' or share like '%%_T_${company}_T_%%' or share like '%%_P_${user}_P_%%' or share like '%%_TR_${company}_TR_%%' or share like '%%_PR_${user}_PR_%%' ) ", join ',',map{"`$_`"} @col ), \@col );
 
 my $t = $cluster->[0];
 

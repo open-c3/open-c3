@@ -28,7 +28,7 @@ get '/ticket' => sub {
     my @col = qw( id name type share ticket describe edit_user create_user edit_time create_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from openc3_ci_ticket where ( create_user='$user' or share='$company' $or ) $where", join( ',', map{"`$_`"}@col)), \@col )};
+            sprintf( "select %s from openc3_ci_ticket where ( create_user='$user' or share='$company' $or or share like '%%_T_${company}_T_%%' or share like '%%_P_${user}_P_%%' or share like '%%_TR_${company}_TR_%%' or share like '%%_PR_${user}_PR_%%' ) $where", join( ',', map{"`$_`"}@col)), \@col )};
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     for my $d ( @$r )
@@ -52,7 +52,7 @@ get '/ticket' => sub {
         {
             $d->{ticket} = +{ $d->{type} => '********' }
         }
-        $d->{share} = $d->{share} ? 'true' : 'false';
+        $d->{share} = $d->{share} ? $d->{share} =~ /:oo:/ ? 'O' : 'T' : 'P';
     }
     return +{ stat => $JSON::true, data => $r };
 };
@@ -70,7 +70,7 @@ get '/ticket/KubeConfig' => sub {
     my @col = qw( id name type share ticket describe edit_user create_user edit_time create_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from openc3_ci_ticket where type = 'KubeConfig'", join( ',', map{"`$_`"}@col)), \@col )};
+            sprintf( "select %s from openc3_ci_ticket where type = 'KubeConfig' and ( create_user ='$user' or share = '$company' or share like '%%_T_${company}_T_%%' or share like '%%_P_${user}_P_%%' or share like '%%_TR_${company}_TR_%%' or share like '%%_PR_${user}_PR_%%' )", join( ',', map{"`$_`"}@col)), \@col )};
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     for my $d ( @$r )
@@ -88,8 +88,8 @@ get '/ticket/KubeConfig' => sub {
         {
             $d->{ticket} = +{ $d->{type} => '********' }
         }
-        $d->{share} = $d->{share} ? 'true' : 'false';
-        $d->{auth} = ( $d->{self} || $d->{share} eq $company ) ? 'X' : 'R';
+        $d->{auth} = ( $d->{self} || $d->{share} eq $company || $d->{share} =~ /_T_${company}_T_/ || $d->{share} =~ /_P_${user}_P_/ ) ? 'X' : 'R';
+        $d->{share} = $d->{share} ? $d->{share} =~ /:oo:/ ? 'O' : 'T' : 'P';
     }
     return +{ stat => $JSON::true, data => $r };
 };
@@ -107,8 +107,9 @@ get '/ticket/:ticketid' => sub {
 
     my @col = qw( id name type share ticket describe edit_user create_user edit_time create_time );
     my $r = eval{ 
+## @app 为通过appkey、appname调用方式
         $api::mysql->query( 
-            sprintf( "select %s from openc3_ci_ticket where id='$param->{ticketid}' and ( create_user='$user' or share='$company' or '$company'='\@app' )", join( ',', map{"`$_`"}@col)), \@col )};
+            sprintf( "select %s from openc3_ci_ticket where id='$param->{ticketid}' and ( create_user='$user' or share='$company' or '$company'='\@app' or share like '%%_T_${company}_T_%%' or share like '%%_P_${user}_P_%%' or share like '%%_TR_${company}_TR_%%' or share like '%%_PR_${user}_PR_%%' )", join( ',', map{"`$_`"}@col)), \@col )};
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     for my $d ( @$r )
@@ -144,7 +145,17 @@ get '/ticket/:ticketid' => sub {
             $d->{ticket} = +{ $d->{type} => $c, kubectlVersion => $v }
         }
 
-        $d->{share} = $d->{share} ? 'true' : 'false';
+        if( $d->{share} =~ /:oo:/ )
+        {
+            my @share = split /:oo:/, $d->{share};
+            for my $type ( qw( T P TR PR ) )
+            {
+                my @s = grep{ /^_${type}_[a-zA-Z0-9@\-_\.]+_${type}_$/ }@share;
+                map{ $_ =~ s/^_${type}_//; $_ =~ s/_${type}_$//; }@s;
+                $d->{"share_$type"} = join "\n", @s;
+            }
+        }
+        $d->{share} = $d->{share} ? $d->{share} =~ /:oo:/ ? 'O' : 'T' : 'P';
     }
 
     return +{ stat => $JSON::true, data => $r->[0] || +{} };
@@ -167,7 +178,29 @@ post '/ticket' => sub {
     eval{ $api::auditlog->run( user => $user, title => 'CREATE TICKET', content => "NAME:$param->{name}" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
-    my $share = $param->{share} && $param->{share} eq 'true' ? $company : '';
+    my $share;
+    if( $param->{share} eq 'P' )
+    {
+        $share = '';
+    }
+    elsif( $param->{share} eq 'T' )
+    {
+        $share = $company;
+    }
+    elsif( $param->{share} eq 'O' )
+    {
+        my @share;
+        for my $type ( qw( T P TR PR ) )
+        {
+            push @share, ( map{ "_${type}_${_}_${type}_" }grep{ /^[a-zA-Z0-9@\-_\.]+$/ }split /\n/, $param->{"share_$type"} ) if defined $param->{"share_$type"};
+        }
+        $share = join ':oo:', "", @share, "";
+
+    }
+    else {
+        return  +{ stat => $JSON::false, info => "share error" };
+    }
+
     return  +{ stat => $JSON::false, info => "check format fail ticket" } unless $param->{ticket} && ref $param->{ticket} eq 'HASH';
 
     my $token = '';
@@ -228,7 +261,28 @@ post '/ticket/:ticketid' => sub {
     eval{ $api::auditlog->run( user => $user, title => 'EDIT TICKET', content => "TICKETID:$param->{ticketid} NAME:$param->{name}" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
-    my $share = $param->{share} && $param->{share} eq 'true' ? $company : '';
+    my $share;
+    if( $param->{share} eq 'P' )
+    {
+        $share = '';
+    }
+    elsif( $param->{share} eq 'T' )
+    {
+        $share = $company;
+    }
+    elsif( $param->{share} eq 'O' )
+    {
+        my @share;
+        for my $type ( qw( T P TR PR ) )
+        {
+            push @share, ( map{ "_${type}_${_}_${type}_" }grep{ /^[a-zA-Z0-9@\-_\.]+$/ }split /\n/, $param->{"share_$type"} ) if defined $param->{"share_$type"};
+        }
+        $share = join ':oo:', "", @share, "";
+    }
+    else
+    {
+        return  +{ stat => $JSON::false, info => "share error" };
+    }
 
     return  +{ stat => $JSON::false, info => "check format fail ticket" } unless $param->{ticket} && ref $param->{ticket} eq 'HASH';
 

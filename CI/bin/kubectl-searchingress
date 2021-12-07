@@ -9,14 +9,18 @@ use Encode;
 use MIME::Base64;
 use api::kubernetes;
 
+my ( $user, $company ) = @ARGV;
+die unless $user && $user !~ /'/;
+die unless $company && $company !~ /'/;
+
 my $db = MYDB->new( "$RealBin/../conf/conn" );
 my @col = qw( id name describe type  );
-my $cluster = $db->query( sprintf( "select %s from openc3_ci_ticket where type ='KubeConfig'", join ',',map{"`$_`"} @col ), \@col );
+my $cluster = $db->query( sprintf( "select %s from openc3_ci_ticket where type ='KubeConfig' and ( create_user ='$user' or share = '$company' or share like '%%_T_${company}_T_%%' or share like '%%_P_${user}_P_%%' or share like '%%_TR_${company}_TR_%%' or share like '%%_PR_${user}_PR_%%' )", join ',',map{"`$_`"} @col ), \@col );
 
 sub getingress
 {
     my ( $db, $id, %ext ) = @_;
-    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $db, $id, 'user', 'company',  0 ) };
+    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $db, $id, $user, $company, 0 ) };
     my @x = `/data/Software/mydan/dan/tools/alarm 3 $kubectl get ingress -A 2>/dev/null`;
     return ( +{ %ext, error => $? == 28160 ? "Timeout" : "ErrorCode:$?" } ) if $?;
     return ( +{ %ext, error => "Null" } ) unless @x;

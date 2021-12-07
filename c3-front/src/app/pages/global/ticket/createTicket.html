@@ -35,12 +35,16 @@
                                             <div class="admin-form">
                                                 <div class="option-group field" >
                                                     <label class="option option-primary">
-                                                        <input type="radio" ng-model="createticket.postData.share" value="false" >
-                                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>私人
+                                                        <input type="radio" ng-model="createticket.postData.share" value="P" >
+                                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>仅个人可见
                                                     </label>
                                                     <label class="option option-primary">
-                                                        <input type="radio" ng-model="createticket.postData.share" value="true" >
-                                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>共享给我的组织
+                                                        <input type="radio" ng-model="createticket.postData.share" value="T" >
+                                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>读写共享给组内人员
+                                                    </label>
+                                                    <label class="option option-primary">
+                                                        <input type="radio" ng-model="createticket.postData.share" value="O" >
+                                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>高级共享配置
                                                     </label>
                                                 </div>
                                             </div>
@@ -48,6 +52,40 @@
 
                                     </div>
                                 </div>
+                                <div class="row" ng-if="createticket.postData.share==='O'">
+                                    <div>
+                                        <div class="col-sm-10 form-group">
+                                            <label class="col-sm-3 control-label">共享组</label>
+                                            <div class="col-sm-4">
+                                                <textarea ng-model="createticket.postData.share_T" style="width: 100%; height: 110px"></textarea>
+                                                <span>读写权限</span>
+                                            </div>
+                                            <label class="col-sm-1 control-label"></label>
+                                            <div class="col-sm-4">
+                                                <textarea ng-model="createticket.postData.share_TR" style="width: 100%; height: 110px"></textarea>
+                                                <span>只读权限</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row" ng-if="createticket.postData.share==='O'">
+                                    <div>
+                                        <div class="col-sm-10 form-group">
+                                            <label class="col-sm-3 control-label">用户共享</label>
+                                            <div class="col-sm-4">
+                                                <textarea ng-model="createticket.postData.share_P" style="width: 100%; height: 110px"></textarea>
+                                                <span>读写权限</span>
+                                            </div>
+                                            <label class="col-sm-1 control-label"></label>
+                                            <div class="col-sm-4">
+                                                <textarea ng-model="createticket.postData.share_PR" style="width: 100%; height: 110px"></textarea>
+                                                <span>只读权限</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
                                 <div ng-if="!createticket.point" class="row">
                                     <div class="col-sm-10 form-group">
                                         <label class="col-sm-3 control-label">类型</label>

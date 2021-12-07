@@ -78,10 +78,10 @@ $handle{getingress} = sub
 get '/kubernetes/app/ingress/dump' => sub {
     my $pmscheck = api::pmscheck( 'openc3_ci_read', 0 ); return $pmscheck if $pmscheck;
 
-#    my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
-#        map{ $_ => request->headers->{$_} }qw( appkey appname ));
+    my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
+        map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
-    my ( $cmd, $handle ) = ( "/data/Software/mydan/CI/bin/kubectl-searchingress 2>/dev/null", 'getsearchingress' );
+    my ( $cmd, $handle ) = ( "/data/Software/mydan/CI/bin/kubectl-searchingress '$user' '$company' 2>/dev/null", 'getsearchingress' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
 
     return &{$handle{$handle}}( `$cmd`//'', $? ); 

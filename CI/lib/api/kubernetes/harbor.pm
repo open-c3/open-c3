@@ -23,7 +23,10 @@ get '/kubernetes/harbor/repository' => sub {
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
     my $pmscheck = api::pmscheck( 'openc3_ci_read', 0 ); return $pmscheck if $pmscheck;
 
-    my ( $cmd, $handle ) = ( "/data/Software/mydan/CI/bin/harbor-searchimage $param->{ticketid} 2>/dev/null", 'getsearchharborimage' );
+    my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ),
+        map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    my ( $cmd, $handle ) = ( "/data/Software/mydan/CI/bin/harbor-searchimage $param->{ticketid} '$user' '$company' 2>/dev/null", 'getsearchharborimage' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
 
     return &{$handle{$handle}}( `$cmd`//'', $? ); 
