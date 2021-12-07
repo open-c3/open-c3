@@ -242,6 +242,17 @@ function install() {
         fi
     fi
 
+    echo "[SUCC]openc-c3 installed successfully."
+
+    echo =================================================================
+    echo "Web page: http://$1"
+    echo "User: open-c3"
+    echo "Password: changeme"
+
+    echo "[INFO]Run command to start service: /data/open-c3/open-c3.sh start"
+
+    /data/open-c3/open-c3.sh start
+
     echo =================================================================
     echo "[INFO]run script ..."
 
@@ -254,17 +265,6 @@ function install() {
             exit 1
         fi
     fi
-
-    echo "[SUCC]openc-c3 installed successfully."
-
-    echo =================================================================
-    echo "Web page: http://$1"
-    echo "User: open-c3"
-    echo "Password: changeme"
-
-    echo "[INFO]Run command to start service: /data/open-c3/open-c3.sh start"
-
-    /data/open-c3/open-c3.sh start
 }
 
 function start() {
