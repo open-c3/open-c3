@@ -27,9 +27,10 @@ die "ticket format error" unless $t->{ticket} && $t->{ticket} !~ /'/;
 my ( $s, $n, $p ) = split /_:separator:_/, $t->{ticket};
 
 my $x = `curl -u '$n:$p' -X GET -H "Content-Type: application/json" '$s' 2>/dev/null`;
+die if $?;
 
 my $serveraddr = ( split /\//, $s )[2];
-my $data = eval{JSON::from_json $x};
+my $data = JSON::from_json $x;
 
 my @res;
 for my $repo ( @{$data->{repository}} )
