@@ -41,6 +41,11 @@
                 templatetype = 'secretopaque';
             }
 
+            if( type == 'IngressTLS' )
+            {
+                templatetype = 'secretingresstls';
+            }
+
             var url = "/api/ci/kubernetes/data/template/" + templatetype;
 
             if( vm.tasktype == 'apply' )
