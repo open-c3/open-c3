@@ -17,6 +17,7 @@ cp -r /data/open-c3/c3-front/dist temp/c3-front/dist
 cp -r /data/open-c3/c3-front/nginxconf temp/c3-front/nginxconf
 cp /data/open-c3/c3-front/nginx.conf temp/c3-front/nginx.conf
 cp -r /data/open-c3/web-shell temp/
+cp -r /data/open-c3/Installer/install-cache/bin temp/install-cache-bin
 
 VERSION=$1
 if [ "X$VERSION" == "X" ];then

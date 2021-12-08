@@ -40,6 +40,11 @@ ADD ./temp/c3-front       /data/Software/mydan/c3-front
 ADD ./temp/web-shell       /data/Software/mydan/web-shell
 
 ADD ./temp/init.sql /tmp/init.sql
+#v2.2.1
+RUN /data/Software/mydan/perl/bin/cpan install AnyEvent::HTTPD::Router AnyEvent::HTTPD::CookiePatch
+ADD ./temp/install-cache-bin/kubectl  /usr/bin/kubectl
+ADD ./temp/install-cache-bin/json2yaml  /usr/bin/json2yaml
+ADD ./temp/install-cache-bin/yaml2json  /usr/bin/yaml2json
 
 ADD entrypoint.sh /
 ENTRYPOINT [ "/entrypoint.sh" ]
