@@ -32,13 +32,11 @@ sub check
 
 system "$RealBin/restart-open-c3.sh start";
 
-my $first = "/var/open-c3.first.mark";
-if( ! -f $first )
+while(1)
 {
-    sleep 5;
-
+    sleep 3;
+    last if -f "/etc/ci.exip" && -f "/etc/job.exip";
     system "$RealBin/restart-open-c3.sh restart";
-    system "touch $first";
 }
 
 while(1)

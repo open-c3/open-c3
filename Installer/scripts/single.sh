@@ -252,6 +252,19 @@ function install() {
     echo "[INFO]Run command to start service: /data/open-c3/open-c3.sh start"
 
     /data/open-c3/open-c3.sh start
+
+    echo =================================================================
+    echo "[INFO]run script ..."
+
+    if [ -x "$BASE_PATH/Installer/scripts/single/$OPENC3VERSION.sh" ]; then
+        $BASE_PATH/Installer/scripts/single/$OPENC3VERSION.sh
+        if [ $? = 0 ]; then
+            echo "[SUCC]run script success."
+        else
+            echo "[FAIL]run script fail."
+            exit 1
+        fi
+    fi
 }
 
 function start() {
