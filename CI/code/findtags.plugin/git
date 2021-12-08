@@ -41,7 +41,7 @@ return sub
 
     my $ctrl = $ssh_key ? "$RealBin/../bin/git -i " . Temp->new( chmod => 0600 )->dump( $ssh_key ) : 'git';
 
-    my @list; eval{ alarm 10; @list = `$ctrl ls-remote --tags $addr`; alarm 0; };
+    my @list; eval{ alarm 20; @list = `$ctrl ls-remote --tags $addr`; alarm 0; };
     map{ chomp $_ }@list;
 
     my @tags;
