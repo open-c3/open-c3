@@ -32,5 +32,6 @@ die if $?;
 my $serveraddr = ( split /\//, $s )[2];
 my $data = JSON::from_json $x;
 
-map{ $_->{repo} = "$serveraddr/$_->{repository_name}" }  @{$data->{repository}};
+map{ $_->{repo} = "$serveraddr/$_->{repository_name}"; $_->{type} = 'repository'; }  @{$data->{repository}};
+map{ unshift @{$data->{repository}}, +{ name => $_->{name}, repo => "$serveraddr/$_->{name}/", type => 'project' } }@{$data->{project}};
 print YAML::XS::Dump $data->{repository};

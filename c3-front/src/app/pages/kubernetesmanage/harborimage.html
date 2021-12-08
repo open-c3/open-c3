@@ -25,12 +25,9 @@
                 <table ng-table="kubernetesharborimage.nodeTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
                         <td data-title="'名称'" width="80" filter="{ repo: 'text'}" sortable="'repo'"> {{m.repo}} </td>
+                        <td data-title="'类型'" width="80" filter="{ type: 'text'}" sortable="'type'"> {{m.type}} </td>
                         <td data-title="'artifact_count'" width="80" filter="{ artifact_count: 'text'}" sortable="'artifact_count'"> {{m.artifact_count}} </td>
                         <td data-title="'pull_count'" width="80" filter="{ pull_count: 'text'}" sortable="'pull_count'"> {{m.pull_count}} </td>
-                        <td data-title="'公开仓库'" width="80" sortable="'project_public'">
-                            <a ng-if="m.project_public==='0' || m.project_public===false" >否</a>
-                            <a ng-if="!(m.project_public==='0' || m.project_public===false)" >是</a>
-                        </td>
                         <td data-title="'操作'" width="80" >
                             <i class="fa fa-check-circle fa-2x" aria-hidden="true" ng-click="kubernetesharborimage.selectRepo(m.repo)" uib-tooltip="选择该仓库" style="cursor:pointer;color: #339094;" ></i>
                         </td> 
