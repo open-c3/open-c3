@@ -599,7 +599,7 @@
 //
         vm.addImageAddrByTicket = function (container) {
             vm.addImageAddrByTicket_set = function(repo) {
-                container.name = repo
+                container.image = repo
             }
 
             $uibModal.open({
