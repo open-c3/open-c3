@@ -1,6 +1,25 @@
 #!/bin/bash
 set -x
 
+function movedata() {
+    SRC=$1
+    DST=$2
+    if [ -d $SRC ];then
+        if [ ! -d $DST ];then
+            cp -r $SRC $DST
+        fi
+        rm -rf $SRC
+        ln -fsn $DST $SRC
+    fi
+}
+
+movedata /data/Software/mydan/etc/agent/auth /data/open-c3-data/auth
+movedata /data/logs /data/open-c3-data/logs
+movedata /data/glusterfs /data/open-c3-data/glusterfs
+
+movedata /var/lib/mysql /data/open-c3-data/mysql-data
+chown mysql.mysql /data/open-c3-data/mysql-data -R
+
 # nginx 依赖 hosts的解析，需要放在nginx之前，否则可能会导致nginx启动失败。
 cat >> /etc/hosts <<EOF
 

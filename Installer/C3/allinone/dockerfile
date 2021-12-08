@@ -46,5 +46,8 @@ ADD ./temp/install-cache-bin/kubectl  /usr/bin/kubectl
 ADD ./temp/install-cache-bin/json2yaml  /usr/bin/json2yaml
 ADD ./temp/install-cache-bin/yaml2json  /usr/bin/yaml2json
 
+#data
+RUN mkdir -p /data/open-c3-data
+
 ADD entrypoint.sh /
 ENTRYPOINT [ "/entrypoint.sh" ]
