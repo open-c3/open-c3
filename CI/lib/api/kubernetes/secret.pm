@@ -43,7 +43,7 @@ post '/kubernetes/secret/dockerconfigjson' => sub {
         name => qr/^[\w@\.\-]*$/, 1,
         server => qr/^[\w@\.\-]*$/, 1,
         username => qr/^[\w@\.\-]*$/, 1,
-        password => qr/^[\w@\.\-]*$/, 1,
+        password => [ 'mismatch', qr/'/ ], 1,
         email => qr/^[\w@\.\-]*$/, 0,
     )->check( %$param );
 
