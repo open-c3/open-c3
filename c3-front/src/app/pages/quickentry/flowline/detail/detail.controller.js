@@ -269,7 +269,7 @@
             $state.go('home.history.jobxdetail', {treeid:vm.treeid, taskuuid:uuid, accesspage:true});
         };
 
-        vm.runJob = function(version, jobtype ) {
+        vm.runJob = function(version, jobtype, noshowrollback ) {
             $uibModal.open({
                 templateUrl: 'app/pages/quickentry/flowline/runTask2Ci.html',
                 controller: 'RunTask2CiController',
@@ -288,6 +288,7 @@
                     jobStep: function () { return vm.jobStep },
                     projectname: function () { return vm.project.name },
                     projectid: function () { return vm.projectid },
+                    noshowrollback: function () { return noshowrollback },
                 }
             });
         }

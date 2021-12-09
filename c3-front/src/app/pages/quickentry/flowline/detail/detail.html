@@ -31,7 +31,7 @@
         <div class="panel-body">
             <div class="pt20">
                 <table ng-table="ci.activeRegionTable" class="table table-hover text-center table-condensed" show-filter="true">
-                    <tr ng-repeat="m in $data">
+                    <tr ng-repeat="( id, m ) in $data">
                         <td style="width: 4%" data-title="'ID'" filter="{ id: 'text'}" sortable="'id'">{{m.id}}</td>
                         <td style="width: 10%" data-title="'tag发现时间'" filter="{ create_time: 'text'}" sortable="'create_time'">{{m.create_time}}</td>
                         <td style="width: 9%" data-title="'版本'" filter="{ name: 'text'}" sortable="'name'">{{m.name}}</td>
@@ -60,7 +60,7 @@
                                     #{{$index+1}} | 耗时{{ci.seftime(deploy.starttime, deploy.finishtime)}}<br>{{deploy.starttime}}
                                 </div>
                              </div>
-                                <i class="fa fa-play-circle-o fa-2x" ng-if="m.status =='success' && ci.jobStepLen && showIPstrLen.test" aria-hidden="true" ng-click="ci.runJob(m.name, 'test')" uib-tooltip="测试" style="cursor:pointer;color: green;" ></i>
+                                <i class="fa fa-play-circle-o fa-2x" ng-if="m.status =='success' && ci.jobStepLen && showIPstrLen.test" aria-hidden="true" ng-click="ci.runJob(m.name, 'test', id )" uib-tooltip="测试" style="cursor:pointer;color: green;" ></i>
                                 <i class="fa fa-play-circle-o fa-2x" ng-if="m.status !='success' && ci.jobStepLen && showIPstrLen.test" aria-hidden="true" uib-tooltip="请先进行构建" style="color: orange;" ></i>
                                 <i class="fa fa-play-circle-o fa-2x" ng-if="!ci.jobStepLen || ! showIPstrLen.test" aria-hidden="true" uib-tooltip="没有配置" style="color: dimgray;" ></i>
                         </td>
@@ -95,7 +95,8 @@
                                 </div>
  
                              </div>
-                                <i class="fa fa-play-circle-o fa-2x" ng-if="m.status =='success' && ci.jobStepLen && showIPstrLen.online" aria-hidden="true" ng-click="ci.runJob(m.name, 'online')" uib-tooltip="发布" style="cursor:pointer;color: green;" ></i>
+                                <i class="fa fa-play-circle-o fa-2x" ng-if="id === 0 && m.status =='success' && ci.jobStepLen && showIPstrLen.online" aria-hidden="true" ng-click="ci.runJob(m.name, 'online', id )" uib-tooltip="发布" style="cursor:pointer;color: green;" >发布</i>
+                                <i class="fa fa-play-circle-o fa-2x" ng-if="id > 0   && m.status =='success' && ci.jobStepLen && showIPstrLen.online" aria-hidden="true" ng-click="ci.runJob(m.name, 'online', id )" uib-tooltip="发布" style="cursor:pointer;color: #003f80;" >回滚</i>
                                 <i class="fa fa-play-circle-o fa-2x" ng-if="m.status != 'success' && ci.jobStepLen && showIPstrLen.online" aria-hidden="true" uib-tooltip="请先进行构建" style="color: orange;" ></i>
                                 <i class="fa fa-play-circle-o fa-2x" ng-if="!ci.jobStepLen || ! showIPstrLen.online" aria-hidden="true" uib-tooltip="没有配置" style="color: dimgray;" ></i>
                         </td>

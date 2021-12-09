@@ -33,9 +33,15 @@
 
                    <hr style="margin: 5px">
 
-                    <h3>当前发布版本:{{runtask2ci.version}}</h3>
+                    <h3 ng-if="runtask2ci.noshowrollback === 0" >发布版本:
+                        <a style="color: green;" >{{runtask2ci.version}}</a>
+                    </h3>
 
-                    <div class="row" ng-if="runtask2ci.jobtype=='online'">
+                    <h3 ng-if="runtask2ci.noshowrollback > 0" >回滚版本:
+                        <a style="color: red;" >{{runtask2ci.version}}</a>
+                    </h3>
+
+                    <div class="row" ng-if="runtask2ci.jobtype=='online' && runtask2ci.noshowrollback === 0 ">
                         <div ng-if="runtask2ci.lastversion.version" >
                              <label class="col-sm-9 control-label" style="padding: 1px" >最后一次成功发布的版本:{{runtask2ci.lastversion.version}} 时间: {{runtask2ci.lastversion.create_time}} 发布的任务 {{runtask2ci.lastversion.jobxuuid}} </label>
                              <div class="col-sm-3">
