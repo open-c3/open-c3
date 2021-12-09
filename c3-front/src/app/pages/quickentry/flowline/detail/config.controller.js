@@ -70,17 +70,33 @@
 
         vm.reloadimage();
 
+        vm.ticketinfoall = [];
+        vm.ticketinfogit = [];
+        vm.ticketinfok8s = [];
+
         vm.reloadticket = function(){
-            var typestr = "";
-            if( vm.project.ci_type === 'kubernetes'  )
-            {
-                typestr = "&type=Harbor";
-            }
-            $http.get('/api/ci/ticket?projectid=' + vm.projectid + typestr ).success(function(data){
+            vm.ticketinfoall = [];
+            vm.ticketinfogit = [];
+            vm.ticketinfok8s = [];
+            $http.get('/api/ci/ticket?projectid=' + vm.projectid  ).success(function(data){
                 if( data.stat)
                 {
-                    vm.ticketinfo = data.data;
-                    vm.ticketinfo.unshift({ id: '', name: '' })
+                    vm.ticketinfoall = data.data;
+                    angular.forEach(data.data, function (data, index) {
+                        if( data.type === 'Harbor'  )
+                        {
+                            vm.ticketinfok8s.push(data)
+                        }
+                        if( data.type === 'SSHKey' ||  data.type === 'UsernamePassword' )
+                        {
+                            vm.ticketinfogit.push(data)
+                        }
+                    });
+
+                    vm.ticketinfoall.unshift({ id: '', name: '' })
+                    vm.ticketinfogit.unshift({ id: '', name: '' })
+                    vm.ticketinfok8s.unshift({ id: '', name: '' })
+ 
                 }
                 else
                 {
