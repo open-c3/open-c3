@@ -4,10 +4,10 @@ kind: Deployment
 metadata:
   annotations:
     describe: demo
-  name: deployment-demo-001
+  name: demo
   namespace: default
   labels:
-    app: deployment-demo-001
+    app: demo
 spec:
   replicas: 1
   selector:
@@ -21,7 +21,7 @@ spec:
   template:
     metadata:
       labels:
-        app: deployment-demo-001
+        app: demo
 
     spec:
       imagePullSecrets: []
@@ -29,7 +29,7 @@ spec:
       - env: []
         image: nginx:latest
         imagePullPolicy: IfNotPresent
-        name: abc
+        name: demo
         resources:
           limits:
             cpu: 0

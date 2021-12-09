@@ -3,10 +3,10 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   annotations:
-    bar: abc
+    foo: abc
   labels:
-    foo: ABC
-  name: ingress-demo-001
+    bar: efg
+  name: demo
   namespace: default
 spec:
   rules:
@@ -14,9 +14,9 @@ spec:
     http:
       paths:
       - backend:
-          serviceName: abc
+          serviceName: demo
           servicePort: 80
-        path: /api/test
+        path: /api/demo
         pathType: ImplementationSpecific
 #  tls:
 #  - hosts:

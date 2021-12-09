@@ -4,7 +4,7 @@ kind: Service
 metadata:
   annotations: {}
   labels: {}
-  name: service-demo-001
+  name: demo
   namespace: default
 spec:
   clusterIP: ""
@@ -12,15 +12,7 @@ spec:
   - name: port1
     port: 8080
     protocol: TCP
-    targetPort: 2222
-  - name: port2
-    port: 8081
-    protocol: TCP
-    targetPort: 8081
-  - name: port3
-    port: 8082
-    protocol: TCP
-    targetPort: 8082
+    targetPort: 80
   selector:
     foo: abc
   type: ClusterIP
