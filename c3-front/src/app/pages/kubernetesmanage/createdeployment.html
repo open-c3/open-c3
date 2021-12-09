@@ -259,7 +259,11 @@
             </div>
 <hr>
 调度
+<a ng-if="kubernetescreatedeployment.advancedconfig" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="隐藏高级配置" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="kubernetescreatedeployment.advancedconfig=0"></a>
+<a ng-if="!kubernetescreatedeployment.advancedconfig" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="显示高级配置" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="kubernetescreatedeployment.advancedconfig=1"></a>
+
 <br>
+<div ng-if="kubernetescreatedeployment.advancedconfig===1">
             <div class="row">
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">节点亲和性调度</label>
@@ -558,7 +562,7 @@
 
 
 
-
+</div>
 
 
 
