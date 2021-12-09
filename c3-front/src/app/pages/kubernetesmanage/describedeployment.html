@@ -16,8 +16,6 @@
                             <table ng-table="kubernetesdescribedeployment.newpodTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                                 <tr ng-repeat="m in $data">
                                     <td data-title="'新容器'" width="80">
-                                        <i class="fa fa-television fa-2x" aria-hidden="true" ng-click="kubernetesdescribedeployment.openOneTab(m,'sh')" uib-tooltip="进入POD虚拟终端" style="cursor:pointer;color: #339094;" ></i>
-                                        <i class="fa fa-file-text-o fa-2x" aria-hidden="true" ng-click="kubernetesdescribedeployment.openOneTab(m,'log')" uib-tooltip="查看POD日志" style="cursor:pointer;color: #339094;" ></i>
                                         {{m.NAME}}
                                     </td>
                                     <td data-title="'READY'" width="80">{{m.READY}}</td>
@@ -30,6 +28,8 @@
                                     <td data-title="'AGE'" width="80">{{m.AGE}}</td>
                                     <td data-title="'操作'" width="80" >
                                         <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesdescribedeployment.describexx('pod',m.NAME)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
+                                        <i class="fa fa-television fa-2x" aria-hidden="true" ng-click="kubernetesdescribedeployment.openOneTab(m,'sh')" uib-tooltip="进入POD虚拟终端" style="cursor:pointer;color: #339094;" ></i>
+                                        <i class="fa fa-file-text-o fa-2x" aria-hidden="true" ng-click="kubernetesdescribedeployment.openOneTab(m,'log')" uib-tooltip="查看POD日志" style="cursor:pointer;color: #339094;" ></i>
                                     </td> 
                                 </tr>
                             </table>
@@ -41,8 +41,6 @@
                             <table ng-table="kubernetesdescribedeployment.oldpodTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                                 <tr ng-repeat="m in $data">
                                     <td data-title="'旧容器'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">
-                                        <i class="fa fa-television fa-2x" aria-hidden="true" ng-click="kubernetesdescribedeployment.openOneTab(m,'sh')" uib-tooltip="进入POD虚拟终端" style="cursor:pointer;color: #339094;" ></i>
-                                        <i class="fa fa-file-text-o fa-2x" aria-hidden="true" ng-click="kubernetesdescribedeployment.openOneTab(m,'log')" uib-tooltip="查看POD日志" style="cursor:pointer;color: #339094;" ></i>
                                         {{m.NAME}}
                                     </td>
                                     <td data-title="'READY'" width="80" filter="{ READY: 'text'}" sortable="'READY'">{{m.READY}}</td>
@@ -54,6 +52,8 @@
                                     <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
                                     <td data-title="'操作'" width="80" >
                                         <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesdescribedeployment.describexx('pod',m.NAME)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
+                                        <i class="fa fa-television fa-2x" aria-hidden="true" ng-click="kubernetesdescribedeployment.openOneTab(m,'sh')" uib-tooltip="进入POD虚拟终端" style="cursor:pointer;color: #339094;" ></i>
+                                        <i class="fa fa-file-text-o fa-2x" aria-hidden="true" ng-click="kubernetesdescribedeployment.openOneTab(m,'log')" uib-tooltip="查看POD日志" style="cursor:pointer;color: #339094;" ></i>
                                     </td> 
                                 </tr>
                             </table>
