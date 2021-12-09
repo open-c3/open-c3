@@ -37,7 +37,7 @@ get '/kubernetes/namespace' => sub {
 post '/kubernetes/namespace' => sub {
     my $param = params();
     my $error = Format->new( 
-        namespace => qr/^[a-zA-Z0-9][a-zA-Z0-9_\.]+$/, 1,
+        namespace => qr/^[a-zA-Z0-9][a-zA-Z0-9_\-\.]+$/, 1,
         ticketid => qr/^\d+$/, 1,
     )->check( %$param );
 
