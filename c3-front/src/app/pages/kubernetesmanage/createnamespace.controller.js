@@ -32,8 +32,9 @@
                    vm.loadover = true;
                    vm.cancel();
                    homereload();
+                   swal({ title:'创建成功', text: "命名空间:" + vm.namespace, type:'success' });
                 } else { 
-                   swal({ title:'操作失败', text: data.info, type:'error' });
+                   swal({ title:'创建失败', text: data.info, type:'error' });
                 }
             });
         };
