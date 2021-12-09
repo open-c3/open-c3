@@ -26,7 +26,7 @@
                     vm.newyaml = data.data;
                     vm.diff();
 
-                   vm.loadover = true;
+                    vm.loadover = true;
                 } else { 
                     toastr.error("加载配置失败:" + data.info)
                 }
@@ -49,8 +49,9 @@
                 { 
                    vm.loadover = true;
                    vm.cancel();
+                    swal({ title:'提交成功', text:  data.info, type:'success' });
                 } else { 
-                    toastr.error("更新配置失败:" + data.info)
+                    swal({ title:'提交失败', text: "错误:" + data.info, type:'error' });
                 }
             });
         };
