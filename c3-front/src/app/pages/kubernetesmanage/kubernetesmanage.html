@@ -130,9 +130,9 @@
                 <table ng-table="kubernetesmanage.serviceTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
                         <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'名称'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">
+                        <td data-title="'名称'" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">
                             <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="kubernetesmanage.createService(m.NAMESPACE,m.INAME)" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
-                            {{m.NAME}}
+                            {{m.INAME}}
                         </td>
                         <td data-title="'TYPE'" width="80" filter="{ TYPE: 'text'}" sortable="'TYPE'">{{m.TYPE}}</td>
                         <td data-title="'CLUSTER-IP'" width="80" filter="{ CLUSTER_IP: 'text'}" sortable="'CLUSTER_IP'">{{m.CLUSTER_IP}}</td>
@@ -171,13 +171,13 @@
                 <table ng-table="kubernetesmanage.deploymentTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
                         <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'名称'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">
+                        <td data-title="'名称'" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">
 
                             <i class="fa fa-location-arrow fa-2x" aria-hidden="true" ng-click="kubernetesmanage.setimage('deployment',m.INAME,m.NAMESPACE,m.IMAGES,m.CONTAINERS)" uib-tooltip="升级" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-life-ring fa-2x" aria-hidden="true" ng-click="kubernetesmanage.rollback('deployment',m.INAME,m.NAMESPACE,m.IMAGES,m.CONTAINERS)" uib-tooltip="回滚" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-sort-numeric-asc fa-2x" aria-hidden="true" ng-click="kubernetesmanage.setreplicas('deployment',m.INAME,m.NAMESPACE,m.AVAILABLE)" uib-tooltip="扩缩容" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="kubernetesmanage.createDeployment(m.NAMESPACE,m.INAME)" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
-                            {{m.NAME}}
+                            {{m.INAME}}
                         </td>
                         <td data-title="'READY'" width="80" filter="{ READY: 'text'}" sortable="'READY'">
                             <a ng-if="m.IREADY" >{{m.READY}}<a>
@@ -244,10 +244,10 @@
                 <table ng-table="kubernetesmanage.daemonsetTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
                         <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'名称'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">
+                        <td data-title="'名称'" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">
 
                             <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="kubernetesmanage.createDaemonSet(m.NAMESPACE,m.INAME)" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
-                            {{m.NAME}}
+                            {{m.INAME}}
                         </td>
                         <td data-title="'DESIRED'" width="80" filter="{ DESIRED: 'text'}" sortable="'DESIRED'">{{m.DESIRED}}</td>
                         <td data-title="'CURRENT'" width="80" filter="{ CURRENT: 'text'}" sortable="'CURRENT'">{{m.CURRENT}}</td>
@@ -295,10 +295,10 @@
                 <table ng-table="kubernetesmanage.podTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
                         <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'名称'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">
+                        <td data-title="'名称'" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">
                             <i class="fa fa-television fa-2x" aria-hidden="true" ng-click="kubernetesmanage.openOneTab(m,'sh')" uib-tooltip="进入POD虚拟终端" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-file-text-o fa-2x" aria-hidden="true" ng-click="kubernetesmanage.openOneTab(m,'log')" uib-tooltip="查看POD日志" style="cursor:pointer;color: #339094;" ></i>
-                            {{m.NAME}}
+                            {{m.INAME}}
                         </td>
                         <td data-title="'READY'" width="80" filter="{ READY: 'text'}" sortable="'READY'">
                             <a ng-if="m.IREADY" >{{m.READY}}<a>
@@ -349,7 +349,7 @@
                 <table ng-table="kubernetesmanage.replicasetTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
                         <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'名称'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">{{m.NAME}}</td>
+                        <td data-title="'名称'" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">{{m.INAME}}</td>
                         <td data-title="'DESIRED'" width="80" filter="{ DESIRED: 'text'}" sortable="'DESIRED'">{{m.DESIRED}}</td>
                         <td data-title="'CURRENT'" width="80" filter="{ CURRENT: 'text'}" sortable="'CURRENT'">{{m.CURRENT}}</td>
                         <td data-title="'READY'" width="80" filter="{ READY: 'text'}" sortable="'READY'">{{m.READY}}</td>
@@ -386,7 +386,7 @@
                 <table ng-table="kubernetesmanage.hpaTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
                         <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'名称'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">{{m.NAME}}</td>
+                        <td data-title="'名称'" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">{{m.INAME}}</td>
                         <td data-title="'REFERENCE'" width="80" filter="{ REFERENCE: 'text'}" sortable="'REFERENCE'">{{m.REFERENCE}}</td>
                         <td data-title="'TARGETS'" width="80" filter="{ TARGETS: 'text'}" sortable="'TARGETS'">{{m.TARGETS}}</td>
                         <td data-title="'MINPODS'" width="80" filter="{ MINPODS: 'text'}" sortable="'MINPODS'">{{m.MINPODS}}</td>
