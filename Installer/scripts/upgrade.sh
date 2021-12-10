@@ -5,6 +5,19 @@ cd $BASE_PATH || exit 1
 
 function upgradeSelf() {
 
+    if [ "X$1" == "XSS" ];then
+        echo =================================================================
+        echo "[INFO]check version ..."
+        BRANCH=$(git branch|grep ^*|awk '{print $2}'|grep "^v[0-9]*\.[0-9]*\.[0-9]*$")
+        echo "VERSION: $BRANCH"
+
+        CHECK=$(LANG=en git remote show origin |grep "^ *$BRANCH *pushes *to *$BRANCH"|grep '(local out of date)'|grep -v grep|wc -l)
+        if [ "X0" == "X$CHECK" ]; then
+            echo "No update required"
+            exit;
+        fi
+    fi
+
     echo =================================================================
     echo "[INFO]git pull ..."
 
@@ -47,7 +60,7 @@ function upgradeSelf() {
     echo "[INFO]reload open-c3 service ..."
 
     CTRL=restart
-    if [ "X$1" == "XS" ];then
+    if [ "X$1" == "XS" || "X$1" == "XSS" ];then
         CTRL=reload
     fi
     ./Installer/scripts/single.sh $CTRL
@@ -68,7 +81,7 @@ function upgradeCluster() {
     ./Installer/scripts/cluster.sh deploy -e $Cluster -v $Version
 }
 
-if [[ "X$1" == "X" || "X$1" == "XS" ]]; then
+if [[ "X$1" == "X" || "X$1" == "XS" || "X$1" == "XSS" ]]; then
     upgradeSelf $1
 else
     upgradeCluster $1 $2
