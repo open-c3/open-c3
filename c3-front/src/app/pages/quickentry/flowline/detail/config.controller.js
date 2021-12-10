@@ -112,7 +112,7 @@
             {
                  vm.project.ci_type_kind = "deployment";
                  vm.project.follow_up = "harbor_push_image.pl";
-                 vm.project.ci_type_dockerfile = "dockerfile";
+                 vm.project.ci_type_dockerfile = "Dockerfile";
             }
             vm.reloadticket();
         }
