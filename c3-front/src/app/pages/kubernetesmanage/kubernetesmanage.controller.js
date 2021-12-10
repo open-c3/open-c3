@@ -3,7 +3,17 @@
 
     angular
         .module('openc3')
-        .controller('KubernetesmanageController', KubernetesmanageController);
+        .controller('KubernetesmanageController', KubernetesmanageController)
+        .filter('cut', function () {
+            return function (text) {
+                if( text.length > 43 )
+                {
+                    return "..." + text.substr(text.length - 40)
+                }
+                return text;
+
+            }
+        });
 
     function KubernetesmanageController($scope, $state, $http, treeService, ngTableParams, $injector, $timeout, genericService, $uibModal ) {
 
