@@ -306,7 +306,7 @@
             }
             var tempdata2 = {
                 'plugin_type':'cmd',
-                'name': "kubernetes等待更新完成",
+                'name': "检查kubernetes发布状态",
                 'user': "0",
                 'node_type': "builtin",
                 'node_cont': "openc3skipnode",
