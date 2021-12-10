@@ -60,7 +60,7 @@ function upgradeSelf() {
     echo "[INFO]reload open-c3 service ..."
 
     CTRL=restart
-    if [ "X$1" == "XS" || "X$1" == "XSS" ];then
+    if [[ "X$1" == "XS" || "X$1" == "XSS" ]];then
         CTRL=reload
     fi
     ./Installer/scripts/single.sh $CTRL
