@@ -95,8 +95,8 @@ function start() {
         echo =================================================================
         echo "[INFO]build ..."
 
-        docker run -it -v /data/open-c3/c3-front/:/code openc3/gulp bower install --allow-root
-        docker run -it -v /data/open-c3/c3-front/:/code openc3/gulp gulp build
+        docker run --rm -it -v /data/open-c3/c3-front/:/code openc3/gulp bower install --allow-root
+        docker run --rm -it -v /data/open-c3/c3-front/:/code openc3/gulp gulp build
         
         frontendstyleisjuyun=$(grep '^frontendstyle: juyun' $BASE_PATH/Connector/config.inix | wc -l)
         if [ "X$frontendstyleisjuyun" == "X1" ];then
