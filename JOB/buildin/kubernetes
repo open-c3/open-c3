@@ -44,11 +44,14 @@ die "get ci config fail:" . $res->content unless $data && $data->{stat};
 
 my %data = %{$data->{data}};
 
+map{ warn "$_: $data{$_}\n" ; }sort grep{ /ci_type/ && $_ !~ /dockerfile/ }keys %data;
+warn "\n";
+
 die "ci_type no kubernetes" unless $data{ci_type} && $data{ci_type} eq 'kubernetes';
 die "ci_type_ticketid format error" unless $data{ci_type_ticketid} && $data{ci_type_ticketid} =~ /^\d+$/;
 die "ci_type_kind format error" unless $data{ci_type_kind} && $data{ci_type_kind} =~ /^[a-zA-Z0-9]+$/;
 die "ci_type_namespace format error" unless $data{ci_type_namespace} && $data{ci_type_namespace} =~ /^[a-zA-Z0-9]+$/;
-die "ci_type_name format error" unless $data{ci_type_name} && $data{ci_type_name} =~ /^[a-zA-Z][a-zA-Z0-9_\-]+$/;
+die "ci_type_name format error" unless $data{ci_type_name} && $data{ci_type_name} =~ /^[a-zA-Z][a-zA-Z0-9_\-,]+$/;
 die "ci_type_container format error" unless $data{ci_type_container} && $data{ci_type_container} =~ /^[a-zA-Z][a-zA-Z0-9_\-]+$/;
 die "ci_type_dockerfile format error" unless $data{ci_type_dockerfile} && $data{ci_type_dockerfile} =~ /^[_a-zA-Z0-9]+$/;
 die "ci_type_repository format error" unless $data{ci_type_repository} && $data{ci_type_repository} =~ /^[a-zA-Z][a-zA-Z0-9_\-\/\.]+$/;
@@ -61,7 +64,11 @@ undef $db;
 
 if( $ARGV[0] && $ARGV[0] eq 'deploy' )
 {
-    die "update fail: $!" if system "$kubectl set image '$data{ci_type_kind}' '$data{ci_type_name}' '$data{ci_type_container}=$data{ci_type_repository}:$version' -n '$data{ci_type_namespace}'";
+    map{
+        warn "update: $_\n";
+        die "update fail: $!" if system "$kubectl set image '$data{ci_type_kind}' '$_' '$data{ci_type_container}=$data{ci_type_repository}:$version' -n '$data{ci_type_namespace}'";
+        warn "update done.\n"
+    }split /,/, $data{ci_type_name};
 
 }
 elsif( $ARGV[0] && $ARGV[0] eq 'check' )
@@ -69,7 +76,8 @@ elsif( $ARGV[0] && $ARGV[0] eq 'check' )
     my $timeout = $ENV{TIMEOUT} && $ENV{TIMEOUT} =~ /^\d+$/ ? time + $ENV{TIMEOUT} : time  +  60; 
 
     my $check = sub{
-        my $stat = `$kubectl get '$data{ci_type_kind}' '$data{ci_type_name}' -n '$data{ci_type_namespace}' -o yaml`;
+        my $name = shift @_;
+        my $stat = `$kubectl get '$data{ci_type_kind}' '$name' -n '$data{ci_type_namespace}' -o yaml`;
         my $conf = eval{ YAML::XS::Load $stat };
         my ( $containers, $status ) = ( $conf->{spec}{template}{spec}{containers}, $conf->{status} );
         my ( $container ) = grep{ $_->{name} eq $data{ci_type_container} }@$containers;
@@ -96,11 +104,16 @@ elsif( $ARGV[0] && $ARGV[0] eq 'check' )
         else { return 1; }
     };
 
-    for( 1 .. 360 )
+    for my $name ( split /,/, $data{ci_type_name} )
     {
-        last if &$check();
-        sleep 10;
-        die "check timeout.\n" if time > $timeout;
+        warn "check: $name\n";
+        for( 1 .. 360 )
+        {
+            last if &$check( $name );
+            sleep 10;
+            die "check timeout.\n" if time > $timeout;
+        }
+        warn "check done.\n";
     }
 }
 else { die "argv unkown"; }
