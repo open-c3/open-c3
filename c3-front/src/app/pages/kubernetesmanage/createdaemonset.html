@@ -37,7 +37,7 @@
                 <div class="col-sm-10 form-group">
                     <label class="col-sm-1 control-label">名称</label>
                     <div class="col-sm-3">
-                        <input type="text" class="form-control" name="adduser" placeholder="名称" ng-disabled="kubernetescreatedaemonset.tasktype==='apply'" ng-model="kubernetescreatedaemonset.editData.metadata.name" required>
+                        <input type="text" class="form-control" name="adduser" placeholder="名称" ng-disabled="kubernetescreatedaemonset.tasktype==='apply'" ng-model="kubernetescreatedaemonset.editData.metadata.name" ng-mouseenter="kubernetescreatedaemonset.namedemoin()" ng-mouseleave="kubernetescreatedaemonset.namedemoout()" required>
                     </div>
                     <label class="col-sm-1 control-label">命名空间</label>
                     <div class="col-sm-3">
@@ -54,7 +54,8 @@
                 <div class="col-sm-10 form-group">
                     <label class="col-sm-1 control-label">描述</label>
                     <div class="col-sm-7">
-                        <input type="text" class="form-control" name="adduser" placeholder="描述" ng-model="kubernetescreatedaemonset.editData.metadata.annotations.describe" required>
+
+                        <input type="text" class="form-control" name="adduser" placeholder="描述" ng-model="kubernetescreatedaemonset.editData.metadata.annotations.describe" ng-mouseenter="kubernetescreatedaemonset.describedemoin()" ng-mouseleave="kubernetescreatedaemonset.describedemoout()"required>
                     </div>
                 </div>
             </div>

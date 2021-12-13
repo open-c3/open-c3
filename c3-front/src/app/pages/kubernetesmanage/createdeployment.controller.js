@@ -711,6 +711,38 @@
             });
         };
 
+//
+        vm.namedemoin = function()
+        {
+            if( vm.tasktype === 'create' && vm.editData.metadata.name === "demo" )
+            {
+                vm.editData.metadata.name = "";
+            }
+        };
+        vm.namedemoout = function()
+        {
+            if( vm.tasktype === 'create' && (vm.editData.metadata.name == undefined || vm.editData.metadata.name == "") )
+            {
+                vm.editData.metadata.name = "demo";
+            }
+        };
+        vm.describedemoin = function()
+        {
+            if( vm.tasktype === 'create' && vm.editData.metadata.annotations.describe === "demo" )
+            {
+                vm.editData.metadata.annotations.describe = "";
+            }
+        };
+        vm.describedemoout = function()
+        {
+            if( vm.tasktype === 'create' && (vm.editData.metadata.annotations.describe == undefined || vm.editData.metadata.annotations.describe == "") )
+            {
+                vm.editData.metadata.annotations.describe = "demo";
+            }
+        };
+
+//
+
         vm.oldyaml = "";
         vm.newyaml = "";
 
