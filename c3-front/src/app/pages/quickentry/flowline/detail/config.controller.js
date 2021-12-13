@@ -32,7 +32,6 @@
                 { 
                     vm.project = data.data;
 
-                    vm.loadks8info();
                     vm.reloadticket();
 
                     if ( vm.project.rely == 1 ) { vm.rely = true; } else { vm.rely = false; }
@@ -42,6 +41,14 @@
                     if ( vm.project.autofindtags == 1 ) { vm.autofindtags = true; } else { vm.autofindtags = false; }
                     if ( vm.project.callonlineenv == 1 ) { vm.callonlineenv = true; } else { vm.callonlineenv = false; }
                     if ( vm.project.calltestenv == 1 ) { vm.calltestenv = true; } else { vm.calltestenv = false; }
+
+                    var ci_type_name = vm.project.ci_type_name.split(",")
+                    if( ci_type_name.length > 1 )
+                    {
+                        vm.project.ci_type_name = ci_type_name;
+                    }
+
+                    vm.loadks8info();
 
                     vm.loadover = true;
                 } else { 
@@ -177,6 +184,10 @@
                 vm.project.calltestenv = 1;
              }
  
+             if( vm.isArray(vm.project.ci_type_name) )
+             {
+                 vm.project.ci_type_name = vm.project.ci_type_name.join(',')
+             }
  
              $http.post('/api/ci/project/' + vm.treeid + '/' + projectid , vm.project ).success(function(data){
                  if(data.stat == true) 
@@ -609,7 +620,25 @@
         {
             return;
         }
-        $http.get("/api/ci/v2/kubernetes/app/flowlineinfo?ticketid=" +vm.project.ci_type_ticketid + "&type=deployment&namespace=" + vm.project.ci_type_namespace + "&name=" + vm.project.ci_type_name ).then(
+
+        var ci_type_name;
+        if( vm.project.ci_type_name.constructor === Array )
+        {
+            if( vm.project.ci_type_name.length > 0 )
+            {
+                ci_type_name = vm.project.ci_type_name[0];
+            }
+            else
+            {
+                vm.containerlist = [];
+                return;
+            }
+        }
+        else
+        {
+            ci_type_name = vm.project.ci_type_name;
+        }
+        $http.get("/api/ci/v2/kubernetes/app/flowlineinfo?ticketid=" +vm.project.ci_type_ticketid + "&type=deployment&namespace=" + vm.project.ci_type_namespace + "&name=" + ci_type_name ).then(
             function successCallback(response) {
                 if (response.data.stat){
 
@@ -649,7 +678,38 @@
         vm.getContainerList();
     };
 
+//
+    vm.switchMultiple = function(bool) {
+        if(bool === true)
+        {
+            vm.project.ci_type_name = [ vm.project.ci_type_name ];
+        }
+        else
+        {
+            if( vm.project.ci_type_name.length > 0 )
+            {
+                vm.project.ci_type_name = vm.project.ci_type_name[0];
+            }
+            else
+            {
+                vm.project.ci_type_name = "";
+            }
+        }
+    };
 
+    vm.isArray = function(d)
+    {
+        if( d.constructor === Array )
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
+    };
+
+//
     vm.addImageAddr = function() {
         var matched = false; 
         angular.forEach(vm.containerlist, function (value, key) {

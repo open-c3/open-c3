@@ -171,19 +171,44 @@
                         </div>
                     </div>
 
-                    <div class="row">
+                    <div class="row" ng-if="!config.isArray(config.project.ci_type_name)">
                         <label class="col-md-2 control-label fwbold">应用名称</label>
                         <div class="col-md-6">
+                             {{config.project.ci_type_name}}
                             <select class="form-control"  ng-model="config.project.ci_type_name" ng-change="config.changeDeployment()"> 
                                  <option ng-repeat="x in config.deploymentlist" value="{{x.NAME}}">{{x.NAME}}</option>
                             </select>
                         </div>
  
-                        <div class="col-md-2"> </div>
+                        <div class="col-md-2">
+                            <a ng-if="config.isArray(config.project.ci_type_name)" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="发布单个应用" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.switchMultiple(false)"></a>
+                            <a ng-if="!config.isArray(config.project.ci_type_name)" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="发布多个应用" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.switchMultiple(true)"></a>
+                        </div>
+ 
                         <div class="col-md-2">
                             <button class="btn btn-primary" uib-tooltip="创建应用" ng-click="config.createDeployment()"><i class="fa fa-plus fa-1x" >创建</i></button>
                         </div>
                     </div>
+
+                    <div class="row" ng-if="config.isArray(config.project.ci_type_name)" >
+                        <label class="col-md-2 control-label fwbold">多应用</label>
+                        <div class="col-md-6">
+                             {{config.project.ci_type_name}}
+                            <select class="form-control"  ng-model="config.project.ci_type_name" ng-change="config.changeDeployment()" multiple="multiple"> 
+                                 <option ng-repeat="x in config.deploymentlist" value="{{x.NAME}}">{{x.NAME}}</option>
+                            </select>
+                        </div>
+ 
+                        <div class="col-md-2">
+                            <a ng-if="config.isArray(config.project.ci_type_name)" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="发布单个应用" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.switchMultiple(false)"></a>
+                            <a ng-if="!config.isArray(config.project.ci_type_name)" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="发布多个应用" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.switchMultiple(true)"></a>
+                        </div>
+                        <div class="col-md-2">
+                            <button class="btn btn-primary" uib-tooltip="创建应用" ng-click="config.createDeployment()"><i class="fa fa-plus fa-1x" >创建</i></button>
+                        </div>
+                    </div>
+
+
 
                     <div class="row">
                         <label class="col-md-2 control-label fwbold">Container</label>
