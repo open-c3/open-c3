@@ -41,6 +41,11 @@
                    vm.loadover = true;
                    vm.editData = data.data;
 
+                   if( namespace )
+                   {
+                      vm.editData.metadata.namespace = namespace;
+                   }
+
                    $scope.labels = [];
                    if( vm.editData.metadata.labels )
                    {
