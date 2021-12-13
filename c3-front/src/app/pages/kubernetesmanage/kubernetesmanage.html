@@ -75,7 +75,7 @@
 
                 <div class="row">
                   <div ng-repeat="name in ['Ingress','Service', 'Deployment','DaemonSet','Pod','Replicaset','HPA','Endpoint','Job.Batch','StatefulSet']" style="float: left;margin-right: 4px;">
-                    <button class="btn btn-info" ng-click="kubernetesmanage.showApp(name)">
+                    <button ng-if="kubernetesmanage.showByAuth(name)"  class="btn btn-info" ng-click="kubernetesmanage.showApp(name)">
                         <i ng-if="kubernetesmanage.showapp===name || kubernetesmanage.showapp==='all'" class="fa fa-envelope-open" aria-hidden="true"></i>
                         <i ng-if="!(kubernetesmanage.showapp===name || kubernetesmanage.showapp==='all')" class="fa fa-envelope" aria-hidden="true"></i>
                         {{name}}(<a style="color: black;font-size: larger;" >{{kubernetesmanage.showAppCount[name]}}</a>)

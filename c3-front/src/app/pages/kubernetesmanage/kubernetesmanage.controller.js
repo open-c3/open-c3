@@ -840,6 +840,27 @@
         {
             vm.showapp = name;
         }
+
+        vm.showByAuth = function(name)
+        {
+            if( vm.selecteCluster.auth == "R" )
+            {
+                if( name == 'Ingress' ||  name == 'Service' ||  name == 'Deployment' )
+                {
+                    return true;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return true;
+            }
+        }
+
+
     }
 
 })();
