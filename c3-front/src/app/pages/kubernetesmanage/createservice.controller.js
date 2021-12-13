@@ -364,6 +364,22 @@
             });
         };
 
+
+//
+        vm.inputTodo = function(str)
+        {
+            var re = /XXXXX/;
+            if( re.test(str) )
+            {
+                return 'red';
+            }
+            else
+            {
+                return 'black';
+            }
+        };
+//
+
         vm.oldyaml = "";
         vm.newyaml = "";
 
