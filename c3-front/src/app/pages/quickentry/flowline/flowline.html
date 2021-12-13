@@ -34,7 +34,10 @@
                         <td data-title="'别名'" width="80" filter="{ alias: 'text'}" sortable="'alias'">{{m.alias}}</td>
                         <td data-title="'应用'" width="80" filter="{ ci_type: 'text'}" sortable="'ci_type'">
                              {{m.ci_type}}.{{m.ci_type_kind}}
-                             <i ng-if="m.ci_type === 'kubernetes'" class="fa fa-search fa-2x" aria-hidden="true" ng-click="cigroup.describedeployment(m.ci_type_ticketid,m.ci_type,m.ci_type_name,m.ci_type_namespace)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
+                              <div ng-repeat="name in m.ci_type_name.split(',')" >
+                                 {{name}}
+                                 <i ng-if="m.ci_type === 'kubernetes'" class="fa fa-search fa-2x" aria-hidden="true" ng-click="cigroup.describedeployment(m.ci_type_ticketid,m.ci_type,name,m.ci_type_namespace)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
+                              </div>
                         </td>
                         <td data-title="'构建状态'">
                                 <div class="panel panel-info" ng-if="m.lastbuild.status" style="cursor:pointer;margin: 0 0 0 " ng-click="cigroup.showlog(m.lastbuild.uuid, m.lastbuild.slave)">

@@ -79,10 +79,15 @@
         vm.reload();
 
         vm.reloadprojectinfo = function(){
+            vm.k8sname = [];
             $http.get('/api/ci/project/' + vm.treeid + '/' + vm.projectid ).success(function(data){
                 if(data.stat == true) 
                 { 
                     vm.project = data.data;
+                    if( vm.project.ci_type == 'kubernetes' )
+                    {
+                        vm.k8sname = vm.project.ci_type_name.split(",");
+                    }
                 } else {
                     toastr.error( "加载项目信息失败:" + data.info )
                 }
@@ -455,7 +460,7 @@
                 }
         };
 
-        vm.describedeployment = function () {
+        vm.describedeployment = function (name) {
             $uibModal.open({
                 templateUrl: 'app/pages/kubernetesmanage/describedeployment.html',
                 controller: 'KubernetesDescribeDeploymentController',
@@ -467,7 +472,7 @@
                 resolve: {
                     treeid: function () {return vm.treeid},
                     type: function () {return vm.project.ci_type_kind},
-                    name: function () {return vm.project.ci_type_name},
+                    name: function () {return name},
                     namespace: function () {return vm.project.ci_type_namespace},
                     ticketid: function () {return vm.project.ci_type_ticketid},
                 }
