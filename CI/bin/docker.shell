@@ -39,7 +39,7 @@ eval{
         my ( $user, $company ) = $sso->run( cookie => $u );
         print "user:$user, company:$company\n";
 
-        my $checkauth = $db->query( "select name from openc3_ci_images where id='$image' and ( create_user='$user' or share='$company' )" );
+        my $checkauth = $db->query( "select name from openc3_ci_images where id='$image' and ( create_user='$user' or share='$company' or share='_public_' )" );
         die "no permission\n" unless @$checkauth;
 
         my $imagename = $checkauth->[0][0];

@@ -18,13 +18,13 @@ get '/images' => sub {
     my @col = qw( id name share describe edit_user create_user edit_time create_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from openc3_ci_images where ( create_user='$user' or share='$company' )", join( ',', map{"`$_`"}@col)), \@col )};
+            sprintf( "select %s from openc3_ci_images where ( create_user='$user' or share='$company' or share='_public_' )", join( ',', map{"`$_`"}@col)), \@col )};
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     for my $d ( @$r )
     {
         $d->{self} = $d->{create_user} eq $user ? 1 : 0; 
-        $d->{share} = $d->{share} ? 'true' : 'false';
+        $d->{share} = $d->{share} ? $d->{share} eq '_public_' ? 'public' : 'team' : 'private';
     }
     return +{ stat => $JSON::true, data => $r };
 };
@@ -43,12 +43,12 @@ get '/images/:imagesid' => sub {
     my @col = qw( id name share describe edit_user create_user edit_time create_time );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from openc3_ci_images where id='$param->{imagesid}' and ( create_user='$user' or share='$company' or '$company'='\@app' )", join( ',', map{"`$_`"}@col)), \@col )};
+            sprintf( "select %s from openc3_ci_images where id='$param->{imagesid}' and ( create_user='$user' or share='$company' or share='_public_'  or '$company'='\@app' )", join( ',', map{"`$_`"}@col)), \@col )};
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     for my $d ( @$r )
     {
-        $d->{share} = $d->{share} ? 'true' : 'false';
+        $d->{share} = $d->{share} ? $d->{share} eq '_public_' ? 'public' : 'team' : 'private';
     }
 
     return +{ stat => $JSON::true, data => $r->[0] || +{} };
@@ -84,7 +84,7 @@ post '/images' => sub {
     eval{ $api::auditlog->run( user => $user, title => 'CREATE IMAGE', content => "NAME:$param->{name}" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
-    my $share = $param->{share} && $param->{share} eq 'true' ? $company : '';
+    my $share = $param->{share} ? $param->{share} eq 'public' ? '_public_' : $param->{share} eq 'private' ? '' : $company : '';
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
 
     eval{ 
@@ -129,7 +129,7 @@ post '/images/:imagesid' => sub {
     eval{ $api::auditlog->run( user => $user, title => 'EDIT IMAGE', content => "IMAGEID:$param->{imagesid} NAME:$param->{name}" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
-    my $share = $param->{share} && $param->{share} eq 'true' ? $company : '';
+    my $share = $param->{share} ? $param->{share} eq 'public' ? '_public_' : $param->{share} eq 'private' ? '' : $company : '';
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
 
     if( $param->{name} =~ /^\d+\.\d+\.\d+\.\d+$/ )
