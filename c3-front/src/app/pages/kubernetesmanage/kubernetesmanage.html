@@ -73,7 +73,26 @@
     </div>
 
 
-    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0">
+                <div class="row">
+                  <div ng-repeat="name in ['Ingress','Service', 'Deployment','DaemonSet','Pod','Replicaset','HPA','Endpoint','Job.Batch','StatefulSet']" style="float: left;margin-right: 4px;">
+                    <button class="btn btn-info" ng-click="kubernetesmanage.showApp(name)">
+                        <i ng-if="kubernetesmanage.showapp===name || kubernetesmanage.showapp==='all'" class="fa fa-envelope-open" aria-hidden="true"></i>
+                        <i ng-if="!(kubernetesmanage.showapp===name || kubernetesmanage.showapp==='all')" class="fa fa-envelope" aria-hidden="true"></i>
+                        {{name}}(<a style="color: black;font-size: larger;" >{{kubernetesmanage.showAppCount[name]}}</a>)
+                    </button>
+                  </div>
+                  <div style="float: left;margin-right: 4px;">
+                     <button class="btn btn-info" ng-click="kubernetesmanage.showApp('all')">
+                        <i ng-if="kubernetesmanage.showapp==='all'" class="fa fa-envelope-open" aria-hidden="true"></i>
+                        <i ng-if="!(kubernetesmanage.showapp==='all')" class="fa fa-envelope" aria-hidden="true"></i>
+                        显示全部<a style="color: black;font-size: larger;" >{{kubernetesmanage.showAppCount['all']}}</a>
+                    </button>
+                  </div>
+                </div>
+
+
+
+    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0" ng-if="kubernetesmanage.showapp==='Ingress'||kubernetesmanage.showapp==='all'">
         <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
 
             <div class="panel-heading">
@@ -115,7 +134,7 @@
     </div>
 
 
-    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0">
+    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0" ng-if="kubernetesmanage.showapp==='Service'||kubernetesmanage.showapp==='all'">
         <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
 
             <div class="panel-heading">
@@ -153,7 +172,7 @@
     </div>
 
 
-    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0">
+    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0" ng-if="kubernetesmanage.showapp==='Deployment'||kubernetesmanage.showapp==='all'">
         <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
 
             <div class="panel-heading">
@@ -221,7 +240,7 @@
     </div>
 
 
-    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0">
+    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0" ng-if="kubernetesmanage.showapp==='DaemonSet'||kubernetesmanage.showapp==='all'">
         <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
 
             <div class="panel-heading">
@@ -271,7 +290,7 @@
     </div>
 
 
-    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0">
+    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0" ng-if="kubernetesmanage.showapp==='Pod'||kubernetesmanage.showapp==='all'">
         <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
 
             <div class="panel-heading">
@@ -329,7 +348,7 @@
 
 
 
-    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0">
+    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0" ng-if="kubernetesmanage.showapp==='Replicaset'||kubernetesmanage.showapp==='all'">
         <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
 
             <div class="panel-heading">
@@ -370,7 +389,7 @@
     </div>
 
 
-    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0">
+    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0" ng-if="kubernetesmanage.showapp==='HPA'||kubernetesmanage.showapp==='all'">
         <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
 
             <div class="panel-heading">
@@ -406,7 +425,7 @@
     </div>
 
 
-    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0">
+    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0" ng-if="kubernetesmanage.showapp==='Endpoint'||kubernetesmanage.showapp==='all'">
         <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
 
             <div class="panel-heading">
@@ -441,7 +460,7 @@
     </div>
 
 
-    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0">
+    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0" ng-if="kubernetesmanage.showapp==='Job.Batch'||kubernetesmanage.showapp==='all'">
         <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
 
             <div class="panel-heading">
@@ -477,7 +496,7 @@
     </div>
 
 
-    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0">
+    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0" ng-if="kubernetesmanage.showapp==='StatefulSet'||kubernetesmanage.showapp==='all'">
         <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
 
             <div class="panel-heading">

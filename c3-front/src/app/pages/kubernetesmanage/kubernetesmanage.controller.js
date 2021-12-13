@@ -163,6 +163,7 @@
  
  
 
+            vm.showAppCount = {};
             $http.get("/api/ci/v2/kubernetes/app?ticketid=" + vm.selecteClusterId + "&namespace=" + vm.selectednamespace + "&status=" + vm.selectedStat ).then(
                 function successCallback(response) {
                     if (response.data.stat){
@@ -170,38 +171,45 @@
                         vm.deploymentTable = new ngTableParams({count:10}, {counts:[],data:response.data.data.deployment});
                         vm.deploymentCount = response.data.data.deployment.length;
                         vm.deploymentReady = response.data.deploymentready;
+                        vm.showAppCount.Deployment = vm.deploymentCount;
 
                         vm.daemonsetTable = new ngTableParams({count:10}, {counts:[],data:response.data.data.daemonset});
                         vm.daemonsetReady = response.data.daemonsetready;
                         vm.daemonsetCount = response.data.data.daemonset.length;
+                        vm.showAppCount.DaemonSet = vm.daemonsetCount;
 
                         vm.serviceTable = new ngTableParams({count:10}, {counts:[],data:response.data.data.service});
                         vm.serviceCount = response.data.data.service.length; 
+                        vm.showAppCount.Service = vm.serviceCount;
 
                         vm.podTable = new ngTableParams({count:10}, {counts:[],data:response.data.data.pod});
                         vm.podReady = response.data.podready;
                         vm.podRunning = response.data.podrunning;
                         vm.podCount = response.data.data.pod.length;
-
+                        vm.showAppCount.Pod = vm.podCount;
 
                         vm.hpaTable = new ngTableParams({count:10}, {counts:[],data:response.data.data.hpa});
                         vm.hpaCount = response.data.data.hpa.length;
+                        vm.showAppCount.HPA = vm.hpaCount;
 
                         vm.replicasetTable = new ngTableParams({count:10}, {counts:[],data:response.data.data.replicaset});
                         vm.replicasetReady = response.data.replicasetready;
                         vm.replicasetCount = response.data.data.replicaset.length;
+                        vm.showAppCount.Replicaset = vm.replicasetCount;
 
 
                         vm.jobbatchTable = new ngTableParams({count:10}, {counts:[],data:response.data.data['job.batch']});
                         if( response.data.data['job.batch'] )
                         {
                             vm.jobbatchCount = response.data.data['job.batch'].length;
+                            vm.showAppCount['Job.Batch'] = vm.jobbatchCount;
                         }
 
                         vm.statefulsetTable = new ngTableParams({count:10}, {counts:[],data:response.data.data.statefulset});
                         if( response.data.data.statefulset )
                         {
                             vm.statefulsetCount = response.data.data.statefulset.length;
+                            vm.showAppCount.StatefulSet = vm.statefulsetCount;
                         }
 
                         vm.loadoverB = true;
@@ -220,6 +228,7 @@
 
                         vm.endpointTable = new ngTableParams({count:10}, {counts:[],data:response.data.data});
                         vm.endpointCount = response.data.data.length;
+                        vm.showAppCount.Endpoint = vm.endpointCount;
 //TODO  添加新的loadoverX
                         vm.loadoverB = true;
                     }else {
@@ -238,6 +247,7 @@
 
                         vm.ingressTable = new ngTableParams({count:10}, {counts:[],data:response.data.data});
                         vm.ingressCount = response.data.data.length;
+                        vm.showAppCount.Ingress = vm.ingressCount;
 //TODO  添加新的loadoverX
                         vm.loadoverB = true;
                     }else {
@@ -825,6 +835,11 @@
             $state.go('home.quickentry.flowlinedetail', {treeid:treeid, projectid: projectid});
         };
 
+        vm.showapp = 'Deployment';
+        vm.showApp = function(name)
+        {
+            vm.showapp = name;
+        }
     }
 
 })();
