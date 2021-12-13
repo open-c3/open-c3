@@ -24,7 +24,9 @@
             <label class="col-md-6 control-label fwbold"><h3 ng-if="ci.lastversion.version" >最后一次发布成功的版本为:{{ci.lastversion.version}} </h3></label>
             <div class="col-md-6 text-right"> 
                 <div ng-repeat="name in ci.k8sname" class="col-lg-12 col-xs-12 ml0 pl0">
-                    <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="ci.describedeployment(name)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" >{{name}}</i>
+                    {{name}}
+                    <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="ci.describedeployment(name)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" >查看</i>
+                    <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="ci.createdeployment(name)" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" >编辑</i>
                 </div>
            </div>
         </div>
