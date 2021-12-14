@@ -94,7 +94,7 @@
                     <div class="col-sm-1">
                         <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addAnnotations()" uib-tooltip="添加" style="cursor:pointer;color: #339094;" ></i>
                     </div>
-                    <div class="col-sm-1" ng-repeat="(id, x) in kubernetescreateservice.service_lb_annotations">
+                    <div ng-repeat="id in ['QCloud_lb','QCloud_ipv4','QCloud_ipv6','AWS_nlb']" style="float: left;margin-right: 4px;">
                         <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addAnnotationsByType(id)" uib-tooltip="添加" style="cursor:pointer;color: #339094;" >{{id}}</i>
                     </div>
                 </div>

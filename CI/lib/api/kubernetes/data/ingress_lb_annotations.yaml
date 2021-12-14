@@ -27,14 +27,14 @@ AWS_nlb:
   service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "arn:aws:acm:us-east-XXXXX"
   service.beta.kubernetes.io/aws-load-balancer-additional-resource-tags: "OpsOwner=XXXXX"
 
-Qcloud_ipv4:
+QCloud_ipv4:
   kubernetes.io/ingress.class: qcloud
   kubernetes.io/ingress.extensiveParameters: '{"AddressIPVersion":"IPV4"}'
   kubernetes.io/ingress.http-rules: '[{"host":"XXXXX","path":"XXXXX","backend":{"serviceName":"XXXXX","servicePort":"XXXXX"}}]'
   kubernetes.io/ingress.https-rules: '[{"host":"XXXXX,"path":"XXXXX","backend":{"serviceName":"XXXXX","servicePort":XXXXX}}]'
   kubernetes.io/ingress.rule-mix: "true"
 
-Qcloud_ipv6:
+QCloud_ipv6:
   kubernetes.io/ingress.class: qcloud
   kubernetes.io/ingress.extensiveParameters: '{"AddressIPVersion":"IPV6"}'
   kubernetes.io/ingress.http-rules: '[{"host":"XXXXX","path":"XXXXX","backend":{"serviceName":"XXXXX","servicePort":"XXXXX"}}]'
