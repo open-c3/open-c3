@@ -141,6 +141,10 @@
             angular.forEach($scope.labels, function (v, k) {
                 var key = v["K"]
                 labels[key] = v["V"];
+                if( key === "app" )
+                {
+                    labels[key] = vm.editData.metadata.name;
+                }
             });
 
             if( Object.keys(labels).length > 0 )
