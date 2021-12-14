@@ -51,6 +51,7 @@ get '/project/:groupid/:projectid' => sub {
         edit_user edit_time  slave last_findtags last_findtags_success 
         ticketid tag_regex autofindtags callonlineenv calltestenv findtags_at_once
         ci_type ci_type_ticketid ci_type_kind ci_type_namespace ci_type_name ci_type_container ci_type_repository ci_type_dockerfile ci_type_dockerfile_content
+        ci_type_open ci_type_concurrent ci_type_approver1 ci_type_approver2
         );
     my $r = eval{ 
         $api::mysql->query( 
@@ -107,6 +108,10 @@ post '/project/:groupid/:projectid' => sub {
         ci_type_repository => [ 'mismatch', qr/'/ ], 0,
         ci_type_dockerfile => [ 'mismatch', qr/'/ ], 0,
         ci_type_dockerfile_content => [ 'mismatch', qr/'/ ], 0,
+        ci_type_open => [ 'mismatch', qr/'/ ], 0,
+        ci_type_concurrent => [ 'mismatch', qr/'/ ], 0,
+        ci_type_approver1 => [ 'mismatch', qr/'/ ], 0,
+        ci_type_approver2 => [ 'mismatch', qr/'/ ], 0,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -130,6 +135,7 @@ post '/project/:groupid/:projectid' => sub {
         follow_up follow_up_ticketid callback groupid addr
         notify ticketid tag_regex autofindtags callonlineenv calltestenv
         ci_type ci_type_ticketid ci_type_kind ci_type_namespace ci_type_name ci_type_container ci_type_repository ci_type_dockerfile ci_type_dockerfile_content
+        ci_type_open ci_type_concurrent ci_type_approver1 ci_type_approver2
     );
     eval{ 
         $api::mysql->execute(
