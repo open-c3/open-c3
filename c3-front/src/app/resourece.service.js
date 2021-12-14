@@ -112,6 +112,11 @@
               actName:   '创建作业', confirm: true, failAlert: true, sucAlert: true,
           },
           {
+              namespace: 'job.createJobxx', method: 'post',
+              url:       function(treeid){return '/api/job/jobs/' + treeid},
+              actName:   '创建作业', confirm: false, failAlert: true, sucAlert: false,
+          },
+          {
               namespace: 'job.delJob', method: 'delete',
               url:       function(param){return '/api/job/jobs/' + param[0] +"/"+ param[1]},
               actName:   '删除作业', confirm: true, failAlert: true, sucAlert: true,
@@ -120,6 +125,11 @@
               namespace: 'job.updateJob', method: 'post',
               url:       function(param){return '/api/job/jobs/'  + param[0] +"/"+ param[1]},
               actName:   '修改作业', confirm: true, failAlert: true, sucAlert: true,
+          },
+          {
+              namespace: 'job.updateJobxx', method: 'post',
+              url:       function(param){return '/api/job/jobs/'  + param[0] +"/"+ param[1]},
+              actName:   '修改作业', confirm: false, failAlert: true, sucAlert: false,
           },
           // ======================== user ============================
           {

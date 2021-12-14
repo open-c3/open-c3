@@ -33,6 +33,9 @@
                     vm.project = data.data;
 
                     vm.reloadticket();
+                    vm.getJobInfo(vm.treeid);
+                    vm.getGroupInfo(vm.treeid);
+                    vm.loadJobInfo();
 
                     if ( vm.project.rely == 1 ) { vm.rely = true; } else { vm.rely = false; }
                     if ( vm.project.autobuild == 1 ) { vm.autobuild = true; } else { vm.autobuild = false; }
@@ -42,10 +45,13 @@
                     if ( vm.project.callonlineenv == 1 ) { vm.callonlineenv = true; } else { vm.callonlineenv = false; }
                     if ( vm.project.calltestenv == 1 ) { vm.calltestenv = true; } else { vm.calltestenv = false; }
 
-                    var ci_type_name = vm.project.ci_type_name.split(",")
-                    if( ci_type_name.length > 1 )
+                    if( /,/.test(vm.project.ci_type_name ))
                     {
-                        vm.project.ci_type_name = ci_type_name;
+                        var ci_type_name = vm.project.ci_type_name.split(",")
+                        if( ci_type_name.length > 1 )
+                        {
+                            vm.project.ci_type_name = ci_type_name;
+                        }
                     }
 
                     vm.loadks8info();
@@ -202,6 +208,7 @@
              if(  vm.project.ci_type === "kubernetes" )
              {
                  vm.KubernetesSaveGroup();
+                 vm.KubernetesSaveJob();
              }
 
           });
@@ -271,6 +278,89 @@
 
         };
 
+//KubernetesSaveJob
+        vm.KubernetesSaveJob = function(){
+            console.log("Save Job", vm.jobuuid)
+            var data = [];
+            if( vm.project.ci_type_approver2 != undefined && vm.project.ci_type_approver2 !== "" )
+            {
+                var tempdata0 = {
+                    'plugin_type':'approval',
+                    'name': "发布审批",
+                    'approver': vm.project.ci_type_approver2,
+                    'cont': "kubernetes发布",
+                    'everyone': "on",
+                    'timeout': "86400",
+                    'deployenv' : "always",
+                    'action' : "deploy",
+                    'batches' : "always",
+                 }
+                data.push(tempdata0)
+            }
+
+            var tempdata1 = {
+                'plugin_type':'cmd',
+                'name': "kubernetes发布",
+                'user': "0",
+                'node_type': "builtin",
+                'node_cont': "openc3skipnode",
+                'scripts_type': "buildin",
+                'scripts_cont': "#!kubernetes",
+                'scripts_argv': "deploy $version",
+                'timeout': "60",
+                'pause': "",
+                'deployenv' : "always",
+                'action' : "always",
+                'batches' : "always",
+            }
+            var tempdata2 = {
+                'plugin_type':'cmd',
+                'name': "检查kubernetes发布状态",
+                'user': "0",
+                'node_type': "builtin",
+                'node_cont': "openc3skipnode",
+                'scripts_type': "buildin",
+                'scripts_cont': "#!kubernetes",
+                'scripts_argv': "check $version",
+                'timeout': "60",
+                'pause': "",
+                'deployenv' : "always",
+                'action' : "always",
+                'batches' : "always",
+            }
+
+            data.push(tempdata1)
+            data.push(tempdata2)
+
+
+           var post_data = {
+                "name": "_ci_" + vm.projectid + "_",
+                "mon_ids": 0,
+                "mon_status":false,
+                "data":data,
+                "permanent":"permanent",
+            };
+
+            if( vm.jobuuid )
+            {
+                resoureceService.job.updateJobxx([vm.treeid,vm.jobuuid], post_data, null)
+                    .then(function (repo) {
+
+                    }, function (repo) {
+                       console.log("update job error:", repo);
+                    })
+            }
+            else
+            {
+                resoureceService.job.createJobxx(vm.treeid, post_data, null)
+                    .then(function (repo) {
+
+                    }, function (repo) {
+                       console.log("post error result", repo);
+                    })
+
+            }
+        };
 //
 
         vm.editreload = function(t)
@@ -301,7 +391,7 @@
                     toastr.error("获取分组信息失败:"+response.status)
                 });
         };
-        vm.getGroupInfo(vm.treeid);
+//        vm.getGroupInfo(vm.treeid);
 
 
         vm.setjobuuid = function( uuid ){  vm.jobuuid = uuid};
@@ -403,7 +493,7 @@
                     toastr.error("获取分组信息失败："+response.status)
                 });
         };
-        vm.getJobInfo(vm.treeid);
+//        vm.getJobInfo(vm.treeid);
 
 
     $scope.showIPstr = { 'test': [], 'online': [] };
@@ -455,9 +545,9 @@
     vm.jobStep = []
     vm.loadJobInfo = function()
     {
-        vm.jobStep = []
         $http.get('/api/job/jobs/' + vm.treeid+"/byname?name="+'_ci_' + projectid + '_' ).then(
             function successCallback(response) {
+                vm.jobStep = []
                 if (response.data.stat){
                     vm.jobData = response.data.data;
                     if( vm.jobData.data )
@@ -475,7 +565,7 @@
        });
     }
 
-    vm.loadJobInfo();
+//    vm.loadJobInfo();
  
 
 //k8s 相关
@@ -621,6 +711,11 @@
             return;
         }
 
+        if( vm.project.ci_type_name === "" || vm.project.ci_type_name === undefined || vm.project.ci_type_name === null )
+        {
+            return;
+        }
+
         var ci_type_name;
         if( vm.project.ci_type_name.constructor === Array )
         {
@@ -699,6 +794,10 @@
 
     vm.isArray = function(d)
     {
+        if( d === undefined || d === null )
+        {
+            return false;
+        }
         if( d.constructor === Array )
         {
             return true;
