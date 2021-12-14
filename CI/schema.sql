@@ -53,7 +53,11 @@ create table `openc3_ci_project`(
 `ci_type_container` VARCHAR(200) comment 'container',
 `ci_type_repository` VARCHAR(200) comment 'repository',
 `ci_type_dockerfile` VARCHAR(200) comment 'dockerfile',
-`ci_type_dockerfile_content` VARCHAR(3000) comment 'dockerfile_content'
+`ci_type_dockerfile_content` VARCHAR(3000) comment 'dockerfile_content',
+`ci_type_open` VARCHAR(20) comment '发布类型配置的按钮是否打开',
+`ci_type_concurrent` VARCHAR(20) comment '多应用的并发数',
+`ci_type_approver1` VARCHAR(200) comment 'kubernetes发布类型的审批人,测试审批人',
+`ci_type_approver2` VARCHAR(200) comment 'kubernetes发布类型的审批人,领导审批'
 
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='项目';
 
