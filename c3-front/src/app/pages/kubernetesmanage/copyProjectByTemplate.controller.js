@@ -88,7 +88,7 @@
                 "ci_type_name": name,
                 "ci_type_container": container.container,
                 "ci_type_repository": container.repository,
-                "ci_type_dockerfile": "dockerfile",
+                "ci_type_dockerfile": "Dockerfile",
                 "ci_type_dockerfile_content": "",
             };
             $http.post('/api/ci/group/' + treeid , postData ).success(function(data){
@@ -137,7 +137,7 @@
                 "ci_type_name": name,
                 "ci_type_container": container.container,
                 "ci_type_repository": container.repository,
-                "ci_type_dockerfile": "dockerfile",
+                "ci_type_dockerfile": "Dockerfile",
                 "ci_type_dockerfile_content": "",
             };
             $http.post('/api/ci/group/connectk8s/' + treeid + '/' + vm.flowlineid, postData ).success(function(data){
