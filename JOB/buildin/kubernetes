@@ -62,47 +62,83 @@ my $kubectl = eval{ kubernetes::getKubectlCmd( $db, $data{ci_type_ticketid}, 'us
 die "get kubectl fail: $@" if $@;
 undef $db;
 
+my $check = sub{
+    my $name = shift @_;
+    my $stat = `$kubectl get '$data{ci_type_kind}' '$name' -n '$data{ci_type_namespace}' -o yaml`;
+    my $conf = eval{ YAML::XS::Load $stat };
+    my ( $containers, $status ) = ( $conf->{spec}{template}{spec}{containers}, $conf->{status} );
+    my ( $container ) = grep{ $_->{name} eq $data{ci_type_container} }@$containers;
+    unless( $container )
+    {
+        warn "no container name: $data{ci_type_container}\n";
+        return;
+    }
+    if( $container->{"image"} eq "$data{ci_type_repository}:$version" )
+    {
+        warn "image ok: $container->{image}\n";
+    }
+    else
+    {
+        warn "current: $container->{image} desired: $data{ci_type_repository}:$version\n";
+        return;
+    }
+
+    if( $status->{unavailableReplicas} )
+    {
+        warn "status unavailableReplicas: $status->{unavailableReplicas}\n";
+        return;
+    }
+    else { return 1; }
+};
+
+my $deploy = sub {
+    my $name = shift @_;
+    warn "update: $name\n";
+    die "update fail: $!" if system "$kubectl set image '$data{ci_type_kind}' '$name' '$data{ci_type_container}=$data{ci_type_repository}:$version' -n '$data{ci_type_namespace}'";
+    warn "setimage done.\n"
+};
+
+my $concurrent = $data{ci_type_concurrent};
+
+$concurrent = 1 if $concurrent && $concurrent !~ /^\d+$/ && $concurrent > 0;
+warn "concurrent:$concurrent\n";
+
 if( $ARGV[0] && $ARGV[0] eq 'deploy' )
 {
-    map{
-        warn "update: $_\n";
-        die "update fail: $!" if system "$kubectl set image '$data{ci_type_kind}' '$_' '$data{ci_type_container}=$data{ci_type_repository}:$version' -n '$data{ci_type_namespace}'";
-        warn "update done.\n"
-    }split /,/, $data{ci_type_name};
+    my %name = map{ $_ => 1 }split /,/, $data{ci_type_name};
+    if( 1 == keys %name )
+    {
+       map{  &$deploy( $_ ); }keys %name;
+    }
+    else
+    {
+        my $timeout = $ENV{TIMEOUT} && $ENV{TIMEOUT} =~ /^\d+$/ ? time + $ENV{TIMEOUT} : time  +  60; 
+        for( 1 .. 360 )
+        {
+            for my $name ( grep{ $name{$_} == 1 } keys %name )
+            {
+                last if $concurrent <= grep{ $name{$_} == 2 } keys %name;
+                &$deploy( $name );
+                $name{$name} = 2;
+            }
+
+            sleep 5;
+
+            for my $name ( grep{ $name{$_} == 2 } keys %name )
+            {
+                delete $name{$name} if &$check( $name );
+            }
+
+            last unless keys %name;
+            sleep 5;
+            die "check timeout.\n" if time > $timeout;
+        }
+    }
 
 }
 elsif( $ARGV[0] && $ARGV[0] eq 'check' )
 {
     my $timeout = $ENV{TIMEOUT} && $ENV{TIMEOUT} =~ /^\d+$/ ? time + $ENV{TIMEOUT} : time  +  60; 
-
-    my $check = sub{
-        my $name = shift @_;
-        my $stat = `$kubectl get '$data{ci_type_kind}' '$name' -n '$data{ci_type_namespace}' -o yaml`;
-        my $conf = eval{ YAML::XS::Load $stat };
-        my ( $containers, $status ) = ( $conf->{spec}{template}{spec}{containers}, $conf->{status} );
-        my ( $container ) = grep{ $_->{name} eq $data{ci_type_container} }@$containers;
-        unless( $container )
-        {
-            warn "no container name: $data{ci_type_container}\n";
-            return;
-        }
-        if( $container->{"image"} eq "$data{ci_type_repository}:$version" )
-        {
-            warn "image ok: $container->{image}\n";
-        }
-        else
-        {
-            warn "current: $container->{image} desired: $data{ci_type_repository}:$version\n";
-            return;
-        }
-
-        if( $status->{unavailableReplicas} )
-        {
-            warn "status unavailableReplicas: $status->{unavailableReplicas}\n";
-            return;
-        }
-        else { return 1; }
-    };
 
     for my $name ( split /,/, $data{ci_type_name} )
     {
