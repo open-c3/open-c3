@@ -16,6 +16,7 @@ post '/kubernetes/cluster/connectiontest' => sub {
     my $param = params();
     my $error = Format->new( 
         kubectlVersion => qr/^v\d+\.\d+\.\d+$/, 1,
+        proxyAddr => qr/^[a-zA-Z0-9:\.@]+$/, 0,
         kubeconfig => qr/.+/, 1,
     )->check( %$param );
 
@@ -27,8 +28,9 @@ post '/kubernetes/cluster/connectiontest' => sub {
     close $fh;
 
     my $kubeconfig = $fh->filename;
+    my $proxyenv = $param->{proxyAddr} ? "HTTPS_PROXY='socks5://$param->{proxyAddr}'" : "";
 
-    my ( $cmd, $handle ) = ( "KUBECONFIG=$kubeconfig kubectl version --short=true 2>&1", 'showinfo' );
+    my ( $cmd, $handle ) = ( "KUBECONFIG=$kubeconfig $proxyenv kubectl version --short=true 2>&1", 'showinfo' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( `$cmd`//'', $? ); 
 };

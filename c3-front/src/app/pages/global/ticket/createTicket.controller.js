@@ -62,6 +62,7 @@
             var d = {
                 kubectlVersion: vm.postData.ticket.kubectlVersion,
                 kubeconfig: vm.postData.ticket.KubeConfig,
+                proxyAddr: vm.postData.ticket.proxyAddr,
             };
             vm.loading = true
             $http.post('/api/ci/v2/kubernetes/cluster/connectiontest', d, { timeout: 120000 } ).then(

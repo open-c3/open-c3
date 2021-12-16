@@ -140,9 +140,9 @@ get '/ticket/:ticketid' => sub {
 
         if( $d->{type} eq 'KubeConfig' )
         {
-            my ( $v, $c ) = split /_:separator:_/, $t, 2;
+            my ( $v, $c, $p ) = split /_:separator:_/, $t, 3;
             $c = '********' unless $show;
-            $d->{ticket} = +{ $d->{type} => $c, kubectlVersion => $v }
+            $d->{ticket} = +{ $d->{type} => $c, kubectlVersion => $v, proxyAddr => $p }
         }
 
         if( $d->{share} =~ /:oo:/ )
@@ -231,7 +231,12 @@ post '/ticket' => sub {
     {
         return  +{ stat => $JSON::false, info => "check format fail ticket" }
             unless $param->{ticket}{KubeConfig} && $param->{ticket}{kubectlVersion} && $param->{ticket}{kubectlVersion} =~ /^v\d+\.\d+\.\d+$/;
+
         $token = "$param->{ticket}{kubectlVersion}_:separator:_$param->{ticket}{KubeConfig}";
+        if( $param->{ticket}{proxyAddr} && $param->{ticket}{proxyAddr} =~ /^[a-zA-Z0-9:\.@]+$/ )
+        {
+            $token .= "_:separator:_$param->{ticket}{proxyAddr}";
+        }
     }
  
     return  +{ stat => $JSON::false, info => "abnormal ticket format" } if $token =~ /\*{8}/;
@@ -314,6 +319,10 @@ post '/ticket/:ticketid' => sub {
         return  +{ stat => $JSON::false, info => "check format fail ticket" }
             unless $param->{ticket}{KubeConfig} && $param->{ticket}{kubectlVersion} && $param->{ticket}{kubectlVersion} =~ /^v\d+\.\d+\.\d+$/;
         $token = "$param->{ticket}{kubectlVersion}_:separator:_$param->{ticket}{KubeConfig}";
+        if( $param->{ticket}{proxyAddr} && $param->{ticket}{proxyAddr} =~ /^[a-zA-Z0-9:\.@]+$/ )
+        {
+            $token .= "_:separator:_$param->{ticket}{proxyAddr}";
+        }
     }
  
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
