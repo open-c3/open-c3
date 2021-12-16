@@ -20,6 +20,7 @@ get '/kubernetes/util/labels/:name' => sub {
     my $param = params();
     my $error = Format->new( 
         ticketid => qr/^\d+$/, 1,
+        namespace => qr/^[\w@\.\-]*$/, 0,
         name => qr/^[a-z][a-z_]+$/, 1,
     )->check( %$param );
 
@@ -32,7 +33,8 @@ get '/kubernetes/util/labels/:name' => sub {
     my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 0 ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
-    my $cmd = join ' && ', map{ "$kubectl get $_ -A --show-labels 2>/dev/null" }split /_/, $param->{name};
+    my $argv = $param->{namespace} ? "-n '$param->{namespace}'" : "-A";
+    my $cmd = join ' && ', map{ "$kubectl get $_ $argv --show-labels 2>/dev/null" }split /_/, $param->{name};
     my $handle = 'getlabels';
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( `$cmd`//'', $? );

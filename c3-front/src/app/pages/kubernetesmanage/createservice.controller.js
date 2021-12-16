@@ -19,6 +19,23 @@
 
         $scope.editstep = 1;
 
+        vm.loadLabels = function(ns)
+        {
+            $http.get("/api/ci/v2/kubernetes/util/labels/deployment?ticketid=" + ticketid + "&namespace=" + ns ).success(function(data){
+                if(data.stat == true) 
+                { 
+                   vm.deploymentlabel = data.data;
+                } else { 
+                    toastr.error("加载deployment的label失败:" + data.info)
+                }
+            });
+ 
+        };
+        vm.namespacechange = function(ns)
+        {
+            vm.loadLabels(ns);
+        };
+
         vm.tasktype = 'create';
         if( namespace && name )
         {
@@ -98,7 +115,7 @@
                         toastr.error( "获取集群NAMESPACE数据失败: " + response.status )
                     });
             }
- 
+            vm.namespacechange( namespace );
         };
         vm.reload();
 
