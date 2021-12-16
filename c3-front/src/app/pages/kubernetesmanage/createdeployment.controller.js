@@ -155,7 +155,7 @@
             angular.forEach($scope.labels, function (v, k) {
                 var key = v["K"]
                 labels[key] = v["V"];
-                if( key === "app" )
+                if( key === "app" && vm.tasktype === "create" )
                 {
                     labels[key] = vm.editData.metadata.name;
                 }

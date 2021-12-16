@@ -79,8 +79,8 @@
                                 <td><input type="text" class="form-control"  ng-model="x.K"></td>
                                 <td style="width: 20px">=</td>
                                 <td>
-                                    <input ng-if="x.K==='app'" type="text" class="form-control"  ng-model="kubernetescreatedaemonset.editData.metadata.name" ng-disabled="kubernetescreatedaemonset.tasktype==='apply'" >
-                                    <input ng-if="!(x.K==='app')" type="text" class="form-control"  ng-model="x.V">
+                                    <input ng-if="x.K==='app' && kubernetescreatedaemonset.tasktype==='create'" type="text" class="form-control"  ng-model="kubernetescreatedaemonset.editData.metadata.name" >
+                                    <input ng-if="!(x.K==='app' && kubernetescreatedaemonset.tasktype==='create')" type="text" class="form-control"  ng-model="x.V">
                                 </td>
                                 <td style="width: 50px">
                                     <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.delLabel(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
