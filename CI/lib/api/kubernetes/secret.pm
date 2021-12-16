@@ -18,6 +18,7 @@ get '/kubernetes/secret' => sub {
     my $error = Format->new( 
         ticketid => qr/^\d+$/, 1,
         namespace => qr/^[\w@\.\-]*$/, 0,
+        skip => qr/^[\w@\.\-\/,]*$/, 0,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -30,10 +31,28 @@ get '/kubernetes/secret' => sub {
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
     my $argv = $param->{namespace} ? "-n '$param->{namespace}'" : "-A";
-    my ( $cmd, $handle ) = ( "$kubectl get secrets $argv 2>/dev/null", 'showtable' );
-    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
-    return &{$handle{$handle}}( `$cmd`//'', $? );
+    my $filter = +{ skip => $param->{skip} };
+    my ( $cmd, $handle ) = ( "$kubectl get secrets $argv 2>/dev/null", 'getsecret' );
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle, filter => $filter }} if request->headers->{"openc3event"};
+    return &{$handle{$handle}}( `$cmd`//'', $?, $filter );
  };
+
+$handle{getsecret} = sub
+{
+    my ( $x, $status, $filter ) = @_;
+    return +{ stat => $JSON::false, data => $x } if $status;
+
+    my %skip; map{ $skip{$_} = 1 } split( /,/, $filter->{skip}) if $filter->{skip};
+    my ( @x, @r ) = split /\n/, $x;
+    my @title = split /\s+/, shift @x;
+    for( @x )
+    {
+        my @col = split /\s+/;
+        my %tmp = map { $title[$_] => $col[$_] } 0 .. $#title;
+        push @r, \%tmp unless $skip{$tmp{TYPE}};
+    }
+    return +{ stat => $JSON::true, data => \@r, };
+};
 
 post '/kubernetes/secret/dockerconfigjson' => sub {
     my $param = params();

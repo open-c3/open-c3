@@ -27,7 +27,7 @@
 
         vm.loadsecrets = function( ns )
         {
-            $http.get("/api/ci/v2/kubernetes/secret?ticketid=" + ticketid + "&namespace=" + ns ).success(function(data){
+            $http.get("/api/ci/v2/kubernetes/secret?skip=kubernetes.io/service-account-token,kubernetes.io/dockerconfigjson&ticketid=" + ticketid + "&namespace=" + ns ).success(function(data){
                 if(data.stat == true) 
                 { 
                     vm.secrets = data.data
