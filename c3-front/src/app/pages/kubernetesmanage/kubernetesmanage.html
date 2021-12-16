@@ -73,7 +73,7 @@
     </div>
 
 
-    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0">
+    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0" ng-if="choiceClusterId">
         <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
             <div class="panel-body" style="margin-top: 2px">
                 <div class="row" >
@@ -81,14 +81,17 @@
                     <button ng-if="kubernetesmanage.showByAuth(name)"  class="btn btn-info" ng-click="kubernetesmanage.showApp(name)">
                         <i ng-if="kubernetesmanage.showapp===name || kubernetesmanage.showapp==='all'" class="fa fa-envelope-open" aria-hidden="true"></i>
                         <i ng-if="!(kubernetesmanage.showapp===name || kubernetesmanage.showapp==='all')" class="fa fa-envelope-o" aria-hidden="true"></i>
-                        {{name}}(<a style="color: #FFF;font-size: larger;" >{{kubernetesmanage.showAppCount[name]||0}}</a>)
+                        {{name}}(
+                          <a ng-if="kubernetesmanage.showAppCount[name] !== undefined" style="color: #FFF;;" >{{kubernetesmanage.showAppCount[name]}}</a>
+                          <i ng-if="kubernetesmanage.showAppCount[name] === undefined" style="color: #FFF;" class="fa fa-refresh fa-fw" ng-class="{'fa-spin':1}" ></i>
+                        )
                     </button>
                   </div>
                   <div style="float: left;margin-right: 4px;">
                      <button class="btn btn-info" ng-click="kubernetesmanage.showApp('all')">
                         <i ng-if="kubernetesmanage.showapp==='all'" class="fa fa-envelope-open" aria-hidden="true"></i>
                         <i ng-if="!(kubernetesmanage.showapp==='all')" class="fa fa-envelope-o" aria-hidden="true"></i>
-                        显示全部<a style="color: #FFF;font-size: larger;" >{{kubernetesmanage.showAppCount['all']}}</a>
+                        显示全部<a style="color: #FFF;" >{{kubernetesmanage.showAppCount['all']}}</a>
                     </button>
                   </div>
                 </div>

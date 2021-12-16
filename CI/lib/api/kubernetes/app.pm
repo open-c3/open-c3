@@ -46,8 +46,8 @@ $handle{getall} = sub
 
     my ( $deploymentready, $podready, $podrunning, $daemonsetready, $replicasetready ) = ( 0, 0, 0, 0, 0 );
     my $failonly = ( $filter->{status} && $filter->{status} eq 'fail' ) ? 1 : 0;
-    my ( @r, @title, %r );
-
+    my ( %r, @r, @title ) = map{ $_ => [] }qw( service deployment daemonset pod replicaset statefulset hpa job.batch );
+    
     for my $line ( @x )
     {
         $line =~ s/NODE SELECTOR/NODE_SELECTOR/;
