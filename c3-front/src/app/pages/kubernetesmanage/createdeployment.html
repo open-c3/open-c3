@@ -1006,6 +1006,123 @@
                     </div>
                 </div>
             </div>
+
+
+
+<hr>
+
+<div ng-if="kubernetescreatedeployment.tasktype==='create'">
+创建service
+<a ng-if="kubernetescreatedeployment.addservice" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="不创建service" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="kubernetescreatedeployment.addservice=0">当前为需要创建</a>
+<a ng-if="!kubernetescreatedeployment.addservice" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="创建service" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="kubernetescreatedeployment.addservice=1">当前为不创建</a>
+
+<br>
+<div ng-if="kubernetescreatedeployment.addservice===1">
+
+
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-1 control-label">annotations</label>
+                    <div class="col-sm-1">
+                        <i ng-if="kubernetescreatedeployment.serviceannotations.length == 0" class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.serviceAddAnnotations()" uib-tooltip="添加" style="cursor:pointer;color: #339094;" ></i>
+                    </div>
+                    <div ng-repeat="id in ['QCloud_lb','QCloud_ipv4','QCloud_ipv6','AWS_nlb']" style="float: left;margin-right: 4px;">
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.serviceAddAnnotationsByType(id)" uib-tooltip="添加" style="cursor:pointer;color: #339094;" >{{id}}</i>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-1 control-label"></label>
+                    <div class="col-sm-7">
+                        <table  border="0" style="width: 100%">
+                            <tr ng-repeat="(id, x) in kubernetescreatedeployment.serviceannotations">
+                                <td><input type="text" class="form-control"  ng-model="x.K"></td>
+                                <td style="width: 20px">=</td>
+                                <td> <input type="text" class="form-control" style="color: {{kubernetescreatedeployment.inputTodo(x.V)}}" ng-model="x.V"> </td>
+                                <td style="width: 50px">
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.serviceDelAnnotations(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                               </td>
+                            </tr>
+                       </table>
+                    </div>
+                </div>
+            </div>
+            <div class="row" ng-if="kubernetescreatedeployment.serviceannotations.length > 0">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-4 control-label"></label>
+                    <div class="col-sm-1">
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.serviceAddAnnotations()" uib-tooltip="添加" style="cursor:pointer;color: #339094;" ></i>
+                    </div>
+                </div>
+
+            </div>
+
+
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-1 control-label">开放端口</label>
+                    <div class="col-sm-6">
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.serviceAddPorts()" uib-tooltip="添加端口" style="cursor:pointer;color: #339094;" ></i>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-1 control-label"></label>
+                    <div class="col-sm-9">
+                        <table  border="0" style="width: 100%">
+                            <tr ng-repeat="(id, x) in kubernetescreatedeployment.serviceEditData.spec.ports">
+                                <td >
+
+
+                                    <div class="row">
+                                        <div class="col-sm-12 form-group">
+                                            <label class="col-sm-1 control-label">名称</label>
+                                            <div class="col-sm-2">
+                                                <input type="text" class="form-control" placeholder="名称" ng-model="x.name" required>
+                                           </div>
+                                            <label class="col-sm-1 control-label">端口</label>
+                                            <div class="col-sm-2">
+                                                <input type="number" class="form-control" placeholder="端口" ng-model="x.port" required>
+                                           </div>
+                                            <label class="col-sm-1 control-label">容器端口</label>
+                                            <div class="col-sm-2">
+                                                <input type="number" class="form-control" placeholder="端口" ng-model="x.targetPort" required>
+                                           </div>
+                                           <label class="col-sm-1 control-label">协议</label>
+                                            <div class="col-sm-2">
+                                                <select id="selectednameval" class="form-control" ng-model="x.protocol" required>
+                                                    <option value="TCP">TCP</option>
+                                                    <option value="UDP">UDP</option>
+                                                </select>
+                                           </div>
+                                        </div>
+                                    </div>
+
+
+                                </td>
+                                <td style="width: 50px">
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.serviceDelPorts(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                </td>
+                            </tr>
+                       </table>
+                    </div>
+                </div>
+            </div>
+
+
+</div>
+
+<hr>
+
+</div>
+
+
+
             <div class="row">
                 <div class="col-sm-2 form-group pull-right">
                     <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreatedeployment.gotostep2()">下一步</button>
@@ -1023,13 +1140,26 @@
             <div class="pt20">
                 <table class="textdiff">
                     <tr>
-                        <td>
+                        <td ng-if="kubernetescreatedeployment.addservice!==1">
                             <textarea style="width: 100%;overflow: auto;word-break: break-all;height: 1000px;" ng-model="kubernetescreatedeployment.newyaml" ng-change="kubernetescreatedeployment.diff()"> </textarea>
                         </td>
-                        <td><pre style="height: 1000px;"  id="diffresultstring" ></pre></td>
+ 
+                        <td ng-if="kubernetescreatedeployment.addservice===1">
+                            <textarea style="width: 100%;overflow: auto;word-break: break-all;height: 500px;" ng-model="kubernetescreatedeployment.newyaml" ng-change="kubernetescreatedeployment.diff()"> </textarea>
+                            <textarea style="width: 100%;overflow: auto;word-break: break-all;height: 500px;" ng-model="kubernetescreatedeployment.servicenewyaml" ng-change="kubernetescreatedeployment.servicediff()"> </textarea>
+                        </td>
+                        <td ng-if="kubernetescreatedeployment.addservice!==1">
+                            <pre style="height: 1000px;"  id="diffresultstring" ></pre>
+                        </td>
+                        <td ng-if="kubernetescreatedeployment.addservice===1">
+                            <pre style="height: 500px;"  id="diffresultstring" ></pre>
+                            <pre style="height: 500px;"  id="servicediffresultstring" ></pre>
+                        </td>
+ 
                     </tr>
                 </table>
             </div>
+
             <div class="row">
                 <div class="col-sm-2 form-group pull-right">
                     <button class="btn btn-info" ng-disabled="myForm.$invalid" ng-click="kubernetescreatedeployment.assignment()">操作协助</button>

@@ -17,6 +17,87 @@
             vm.nodeStr = treeService.selectname();
         });
 
+//service
+        vm.addservice = 0;
+        vm.serviceannotations = [];
+
+        vm.serviceEditData = {
+            "apiVersion": "v1",
+            "kind": "Service",
+            "metadata": {
+                "name": "",
+                "namespace": "",
+                "labels": {},
+                "annotations": {},
+                 
+            },
+            "spec": {
+                "clusterIP": "",
+                "ports": [],
+                "selector": { "app": ""},
+                "type": "ClusterIP",
+            }
+        };
+
+        vm.serviceAddPorts = function()
+        {
+            vm.serviceEditData.spec.ports.push( angular.copy({"name": "", "port": 80, "targetPort":80, "protocol":"TCP"}));
+        }
+
+        vm.serviceDelPorts = function(id)
+        {
+            vm.serviceEditData.spec.ports.splice(id, 1);
+        }
+
+        vm.serviceAddAnnotations = function()
+        {
+            vm.serviceannotations.push({ "K": "", "V": ""});
+        }
+        vm.serviceDelAnnotations = function(id)
+        {
+            vm.serviceannotations.splice(id, 1);
+        }
+
+        vm.inputTodo = function(str)
+        {
+            var re = /XXXXX/;
+            if( re.test(str) )
+            {
+                return 'red';
+            }
+            else
+            {
+                return 'black';
+            }
+        };
+
+        vm.serviceAddAnnotationsByType = function(type)
+        {
+            var all_service_lb_annotations_key = {};
+            angular.forEach(vm.service_lb_annotations, function (v, k) {
+
+                angular.forEach(v, function (v, k) {
+                    all_service_lb_annotations_key[k] = 1
+                });
+
+            });
+
+            var annotations_temp = [];
+            angular.forEach(vm.serviceannotations, function (v, k) {
+                if( ! all_service_lb_annotations_key[v.K] )
+                {
+                    annotations_temp.push(v)
+                }
+            });
+
+            vm.serviceannotations = annotations_temp;
+
+            angular.forEach(vm.service_lb_annotations[type], function (v, k) {
+                vm.serviceannotations.push({"K": k,"V":v})
+            });
+        };
+
+//
         vm.namespace = namespace;
         $scope.editstep = 1;
       
@@ -100,7 +181,17 @@
                 }
             });
  
- 
+            if( vm.tasktype === 'create' )
+            {
+            $http.get("/api/ci/kubernetes/data/template/service_lb_annotations" ).success(function(data){
+                if(data.stat == true)
+                {
+                     vm.service_lb_annotations = data.data;
+                } else {
+                    toastr.error("加载service_lb_annotations模版信息失败:" + data.info)
+                }
+            });
+            }
         };
         vm.reload();
 
@@ -111,10 +202,7 @@
         vm.gotostep1 = function(){
             vm.loadover = false;
 
-            var d = {
-                "data": vm.newyaml,
-            };
-            $http.post("/api/ci/kubernetes/data/yaml2json", d  ).success(function(data){
+            $http.post("/api/ci/kubernetes/data/yaml2json", { "data": vm.newyaml }  ).success(function(data){
                 if(data.stat == true) 
                 { 
                     vm.editData = data.data
@@ -130,10 +218,32 @@
                     vm.loadover = true;
                     $scope.editstep = 1; 
                 } else { 
-                   swal({ title:'YAML格式转换失败', text: data.info, type:'error' });
+                   swal({ title:'deployment YAML格式转换失败', text: data.info, type:'error' });
                 }
             });
 
+            if( vm.addservice === 1 )
+            {
+            $http.post("/api/ci/kubernetes/data/yaml2json", { "data": vm.servicenewyaml }  ).success(function(data){
+                if(data.stat == true) 
+                {
+                    vm.serviceEditData = data.data
+                    vm.serviceannotations = [];
+                    if( vm.serviceEditData.metadata.annotations )
+                    {
+                        angular.forEach(vm.serviceEditData.metadata.annotations, function (v, k) {
+                            vm.serviceannotations.push( { "K": k, "V": v })
+                        });
+                    }
+ 
+                    vm.loadover = true;
+                    $scope.editstep = 1; 
+                } else { 
+                   swal({ title:'service YAML格式转换失败', text: data.info, type:'error' });
+                }
+            });
+            }
+ 
         };
 
         vm.switchtointmaby =  function( str )
@@ -201,13 +311,28 @@
                 return;
             }
 
+//service
+
+if( vm.addservice === 1 )
+{
+            var pushserviceannotations = {};
+            angular.forEach(vm.serviceannotations, function (v, k) {
+                 pushserviceannotations[v.K] = v.V;
+
+            });
+
+            vm.serviceEditData.metadata.name = vm.editData.metadata.name;
+            vm.serviceEditData.metadata.namespace = vm.editData.metadata.namespace;
+            vm.serviceEditData.metadata.labels = angular.copy(vm.editData.metadata.labels);
+            vm.serviceEditData.metadata.annotations = pushserviceannotations;
+
+            vm.serviceEditData.spec.selector.app = vm.editData.metadata.labels.app;
+}
+//service end
             vm.loadover = false;
             $scope.editstep = 2; 
 
-            var d = {
-                "data": vm.editData,
-            };
-            $http.post("/api/ci/kubernetes/data/json2yaml", d  ).success(function(data){
+            $http.post("/api/ci/kubernetes/data/json2yaml", { "data": vm.editData }  ).success(function(data){
                 if(data.stat == true) 
                 { 
                    vm.newyaml = data.data
@@ -228,6 +353,33 @@
                     swal({ title:'提交失败', text: data.info, type:'error' });
                 }
             });
+
+            if( vm.addservice === 1 )
+            {
+            $http.post("/api/ci/kubernetes/data/json2yaml", { "data": vm.serviceEditData }  ).success(function(data){
+                if(data.stat == true) 
+                { 
+                   vm.servicenewyaml = data.data
+
+                   $http.get("/api/ci/v2/kubernetes/app/yaml/always?ticketid=" + ticketid + "&type=" + vm.serviceEditData.kind + "&name=" + vm.serviceEditData.metadata.name + "&namespace=" + vm.serviceEditData.metadata.namespace ).success(function(data){
+                        if(data.stat == true) 
+                        { 
+                           vm.serviceoldyaml = data.data;
+                           vm.servicediff();
+//                           vm.loadover = true;
+                        } else { 
+                            toastr.error("获取最新的配置信息失败:" + data.info)
+                        }
+                    });
+ 
+
+                } else { 
+                    swal({ title:'提交失败', text: data.info, type:'error' });
+                }
+            });
+
+            }
+
         };
 
         $scope.labels = [];
@@ -667,9 +819,15 @@
 
         vm.apply = function(){
             vm.loadover = false;
+            vm.postyaml = vm.newyaml;
+
+            if( vm.addservice === 1 )
+            {
+                vm.postyaml = vm.newyaml + "\n---\n" + vm.servicenewyaml;
+            }
             var d = {
                 "ticketid": ticketid,
-                "yaml": vm.newyaml,
+                "yaml": vm.postyaml,
             };
             $http.post("/api/ci/v2/kubernetes/app/" + vm.tasktype, d  ).success(function(data){
                 if(data.stat == true) 
@@ -685,6 +843,13 @@
         };
 
         vm.assignment = function () {
+            vm.postyaml = vm.newyaml;
+
+            if( vm.addservice === 1 )
+            {
+                vm.postyaml = vm.newyaml + "\n---\n" + vm.servicenewyaml;
+            }
+ 
             var postData = {
                 "type": "kubernetes",
                 "name": "kubernetes deployment " + vm.tasktype,
@@ -695,7 +860,7 @@
                 "remarks": "\n集群ID:" + ticketid + ";\n集群名称:" + clusterinfo.name +";\n配置:\n" + vm.newyaml,
                 "data": {
                     "ticketid": ticketid,
-                    "yaml": vm.newyaml,
+                    "yaml": vm.postyaml,
                 },
             };
 
@@ -782,5 +947,42 @@
             diffresultstring.textContent = '';
             diffresultstring.appendChild(fragment);
         };
+
+//service
+        vm.serviceoldyaml = "";
+        vm.servicenewyaml = "";
+        vm.servicediffresultstring = "";
+        vm.servicediff = function()
+        {
+            var servicediffresultstring = document.getElementById('servicediffresultstring');
+            //三种diff类型，字符、单词、行 ，分别对应下面参数：diffChars  diffWords diffLines
+            var diff = JsDiff["diffLines"](vm.serviceoldyaml, vm.servicenewyaml);
+
+            var fragment = document.createDocumentFragment();
+            for (var i=0; i < diff.length; i++) {
+
+                if (diff[i].added && diff[i + 1] && diff[i + 1].removed) {
+                    var swap = diff[i];
+                    diff[i] = diff[i + 1];
+                    diff[i + 1] = swap;
+                }
+
+                var node;
+                if (diff[i].removed) {
+                    node = document.createElement('del');
+                    node.appendChild(document.createTextNode(diff[i].value));
+                } else if (diff[i].added) {
+                    node = document.createElement('ins');
+                    node.appendChild(document.createTextNode(diff[i].value));
+                } else {
+                    node = document.createTextNode(diff[i].value);
+                }
+                fragment.appendChild(node);
+            }
+
+            servicediffresultstring.textContent = '';
+            servicediffresultstring.appendChild(fragment);
+        };
+
     }
 })();
