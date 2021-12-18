@@ -507,7 +507,7 @@
                 resolve: {
                     treeid: function () {return vm.treeid},
                     ticketid: function () {return vm.project.ci_type_ticketid},
-                    clusterinfo: function () {return vm.selecteCluster},
+                    clusterinfo: function () {return selecteCluster},
                     namespace: function () {return vm.project.ci_type_namespace},
                     name: function () {return name},
                     homereload: function () {return function(){}},
