@@ -46,7 +46,7 @@
 
                         <div class="row">
                             <label class="col-md-2 control-label fwbold">代码地址:</label>
-                            <div class="col-md-8"> <input class="form-control" ng-model="config.project.addr" ng-change="config.changeaddr()" placeholder="git或者svn地址,如:git@git.liebaopay.com:ops/test.git ; 如果使用文件上传方式，请写openc3://*"/> </div>
+                            <div class="col-md-8"> <input class="form-control" ng-model="config.project.addr" ng-change="config.changeaddr()" placeholder="git地址、svn地址、openc3文件" ng-mouseenter="config.addrdemoin()" ng-mouseleave="config.addrdemoout()"/> </div>
                             <a class="glyphicon glyphicon-question-sign" data-toggle="tooltip" data-placement="right" target='_blank' ng-href="/book/流水线多种代码来源/" uib-tooltip="查看代码地址帮助" aria-hidden="true" style="padding-top: 11px;font-size: larger;"></a>
                         </div>
 
@@ -207,7 +207,7 @@
                             <button class="btn btn-primary" uib-tooltip="创建应用" ng-click="config.createDeployment()"><i class="fa fa-plus fa-1x" >创建</i></button>
                         </div>
                         <div class="col-md-2">
-                            <input class="form-control" ng-model="config.project.ci_type_concurrent" placeholder="ci_type_concurrent">并发数</input>
+                            <input class="form-control" ng-model="config.project.ci_type_concurrent" placeholder="concurrent">并发数</input>
                         </div>
                     </div>
 

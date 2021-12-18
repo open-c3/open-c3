@@ -25,12 +25,32 @@
         });
 
 
+//
+        var addrdemo = "https://github.com/open-c3/ci-demo.git";
+        vm.addrdemoin = function()
+        {
+            if( vm.project.addr === addrdemo )
+            {
+                vm.project.addr = "";
+            }
+        };
+        vm.addrdemoout = function()
+        {
+            if( vm.project.addr == undefined || vm.project.addr == "") 
+            {
+                vm.project.addr = addrdemo;
+            }
+        };
+//
+
         vm.reload = function(){
             vm.loadover = false;
             $http.get('/api/ci/project/' + vm.treeid + '/' + projectid ).success(function(data){
                 if(data.stat == true) 
                 { 
                     vm.project = data.data;
+
+                    vm.addrdemoout();
 
                     vm.reloadticket();
                     vm.getJobInfo(vm.treeid);
