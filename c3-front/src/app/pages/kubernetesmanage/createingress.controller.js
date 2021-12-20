@@ -8,6 +8,17 @@
     function KubernetesCreateIngressController( $uibModalInstance, $location, $anchorScroll, $state, $http, $uibModal, treeService, ngTableParams, resoureceService, $scope, $injector, ticketid, clusterinfo, namespace, name ) {
 
         var vm = this;
+
+        vm.annotationTypeList = [];
+        if( clusterinfo.subtype === 'QCloud' )
+        {
+            vm.annotationTypeList = ['QCloud_ipv4','QCloud_ipv6'];
+        }
+        if( clusterinfo.subtype === 'AWS' )
+        {
+            vm.annotationTypeList = ['AWS_nlb','AWS_alb'];
+        }
+
         vm.treeid = $state.params.treeid;
         var toastr = toastr || $injector.get('toastr');
 

@@ -98,7 +98,7 @@
                     <div class="col-sm-1">
                         <i ng-if="annotations.length == 0" class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.addAnnotations()" uib-tooltip="添加" style="cursor:pointer;color: #339094;" ></i>
                      </div>
-                    <div ng-repeat="id in ['QCloud_ipv4','QCloud_ipv6','AWS_nlb','AWS_alb']" style="float: left;margin-right: 4px;" ng-if="kubernetescreateingress.tasktype==='create'" >
+                    <div ng-repeat="id in kubernetescreateingress.annotationTypeList" style="float: left;margin-right: 4px;" ng-if="kubernetescreateingress.tasktype==='create'" >
                         <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.addAnnotationsByType(id)" uib-tooltip="添加" style="cursor:pointer;color: #339094;" >{{id}}</i>
                     </div>
                 </div>
