@@ -13,7 +13,13 @@
 
         vm.name = name;
         vm.type = type;
+        vm.namespace = namespace;
 
+        vm.full = 0;
+        if( vm.name && vm.type && vm.namespace )
+        {
+            vm.full = 1;
+        }
         vm.min = 1;
         vm.max = 3;
         vm.cpu = 60;
@@ -28,9 +34,9 @@
             vm.loadover = false;
             var d = {
                 "ticketid": ticketid,
-                "type": type,
-                "name": name,
-                "namespace": namespace,
+                "type": vm.type,
+                "name": vm.name,
+                "namespace": vm.namespace,
                 "cpu": vm.cpu,
                 "min": vm.min,
                 "max": vm.max,
@@ -55,12 +61,12 @@
                 "url": "/api/ci/v2/kubernetes/hpa/create",
                 "method": "POST",
                 "submit_reason": "",
-                "remarks": "\n集群ID:" + ticketid + ";\n集群名称:" + clusterinfo.name + ";\n命名空间:"+ namespace + ";\n类型:" + type + ";\n名称:" + name + ";\ncpu百分比:" + vm.cpu + ";\n最小副本数:" + vm.min + ";\n最大副本数:" + vm.max,
+                "remarks": "\n集群ID:" + ticketid + ";\n集群名称:" + clusterinfo.name + ";\n命名空间:"+ vm.namespace + ";\n类型:" + vm.type + ";\n名称:" + vm.name + ";\ncpu百分比:" + vm.cpu + ";\n最小副本数:" + vm.min + ";\n最大副本数:" + vm.max,
                 "data": {
                     "ticketid": ticketid,
-                    "type": type,
-                    "name": name,
-                    "namespace": namespace,
+                    "type": vm.type,
+                    "name": vm.name,
+                    "namespace": vm.namespace,
                     "cpu": vm.cpu,
                     "min": vm.min,
                     "max": vm.max,

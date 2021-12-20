@@ -1,14 +1,44 @@
 <div class="row block">
     <div class="modal-header">
-        <h4 class="modal-title">添加HPA: {{kubernetescreatehpa.type}}/{{kubernetescreatehpa.name}}</h4>
+        <h4 ng-if="kubernetescreatehpa.full === 1" class="modal-title">添加HPA: {{kubernetescreatehpa.type}}/{{kubernetescreatehpa.namespace}}/{{kubernetescreatehpa.name}}</h4>
+        <h4 ng-if="kubernetescreatehpa.full !== 1" class="modal-title">添加HPA</h4>
     </div>
     <div class="modal-body">
         <form class="form-horizontal" name="myForm" role="form">
+<div ng-if="kubernetescreatehpa.full !== 1" >
+            <div class="row">
+                <div class="col-sm-10 form-group">
+                    <label class="col-sm-3 control-label">类型</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" placeholder="类型" ng-model="kubernetescreatehpa.type" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-10 form-group">
+                    <label class="col-sm-3 control-label">命名空间</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" placeholder="命名空间" ng-model="kubernetescreatehpa.namespace" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-10 form-group">
+                    <label class="col-sm-3 control-label">名称</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control" placeholder="名称" ng-model="kubernetescreatehpa.name" required>
+                    </div>
+                </div>
+            </div>
+</div>
+
             <div class="row">
                 <div class="col-sm-10 form-group">
                     <label class="col-sm-3 control-label">CPU阈值</label>
                     <div class="col-sm-9">
-                        <input type="text" class="form-control" placeholder="CPU百分比" ng-model="kubernetescreatehpa.cpu" required>
+                        <input type="number" class="form-control" placeholder="CPU百分比" ng-model="kubernetescreatehpa.cpu" required>
                     </div>
                 </div>
             </div>
@@ -17,11 +47,11 @@
                 <div class="col-sm-10 form-group">
                     <label class="col-sm-3 control-label">副本数</label>
                     <div class="col-sm-3">
-                        <input type="text" class="form-control" placeholder="CPU百分比" ng-model="kubernetescreatehpa.min" required>
+                        <input type="number" class="form-control" placeholder="CPU百分比" ng-model="kubernetescreatehpa.min" required>
                     </div>
                     <label class="col-sm-1 control-label">-</label>
                     <div class="col-sm-3">
-                        <input type="text" class="form-control" placeholder="CPU百分比" ng-model="kubernetescreatehpa.max" required>
+                        <input type="number" class="form-control" placeholder="CPU百分比" ng-model="kubernetescreatehpa.max" required>
                     </div>
  
                 </div>
