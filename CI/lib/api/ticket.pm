@@ -71,7 +71,7 @@ get '/ticket/KubeConfig' => sub {
     my $greptreeid = "";
     if( $param->{treeid} && $param->{treeid} ne '4000000000' )
     {
-        $greptreeid = " and id in ( select distinct ci_type_ticketid from openc3_ci_project where ci_type='kubernetes' and groupid='$param->{treeid}') ";
+        $greptreeid = " and ( id in ( select distinct ci_type_ticketid from openc3_ci_project where ci_type='kubernetes' and groupid='$param->{treeid}') or id in ( select k8sid from openc3_ci_k8stree where treeid='$param->{treeid}' ) ) ";
     }
     my $r = eval{ 
         $api::mysql->query( 

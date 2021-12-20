@@ -698,6 +698,26 @@
             });
         };
 
+        vm.k8sTree = function () {
+            $uibModal.open({
+                templateUrl: 'app/pages/kubernetesmanage/k8stree.html',
+                controller: 'KubernetesK8sTreeController',
+                controllerAs: 'kubernetesk8stree',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () {return vm.treeid},
+                    ticketid: function () {return vm.selecteClusterId},
+                    clusterinfo: function () {return vm.selecteCluster},
+                    namespace: function () { return vm.selectednamespace},
+                    homereload: function () { return vm.reload},
+                }
+            });
+        };
+
+
         vm.searchingress = function () {
             $uibModal.open({
                 templateUrl: 'app/pages/kubernetesmanage/searchingress.html',

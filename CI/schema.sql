@@ -170,3 +170,11 @@ create table `openc3_ci_assignment`(
 `create_time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
 `finish_time` VARCHAR(20) comment '结束时间'
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='assignment';
+
+create table `openc3_ci_k8stree`(
+`id` int(16) unsigned not null primary key auto_increment comment 'id',
+`treeid` int(16) unsigned comment 'treeid',
+`k8sid` int(16) unsigned comment 'k8sid',
+UNIQUE KEY `uniq_treeid_k8sid` (`treeid`,`k8sid`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='k8s和服务树进行关联';
+
