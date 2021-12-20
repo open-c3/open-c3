@@ -97,6 +97,7 @@ create table `openc3_ci_ticket`(
 `create_user` VARCHAR(50) comment '创建用户',
 `edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '最后编辑时间',
 `create_time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
+`subtype` VARCHAR(100) comment '票据子类型',
 UNIQUE KEY `uniq_name` (`name`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='票据';
 
