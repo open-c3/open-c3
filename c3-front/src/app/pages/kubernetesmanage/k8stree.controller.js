@@ -11,8 +11,12 @@
         vm.treeid = $state.params.treeid;
         var toastr = toastr || $injector.get('toastr');
 
+        vm.change = 0;
         vm.cancel = function(){ 
-            homereload();
+            if( vm.change === 1 )
+            {
+                homereload();
+            }
             $uibModalInstance.dismiss();
         };
 
@@ -50,6 +54,7 @@
             $http.post("/api/ci/k8stree/"+ vm.treeid + "/" + k8sid ).success(function(data){
                 if(data.stat == true) 
                 { 
+                    vm.change = 1;
                     vm.reload();
                 } else { 
                     toastr.error("添加关联失败:" + data.info)
@@ -61,6 +66,7 @@
             $http.delete("/api/ci/k8stree/"+ vm.treeid + "/" + k8sid ).success(function(data){
                 if(data.stat == true) 
                 { 
+                    vm.change = 1;
                     vm.reload();
                 } else { 
                     toastr.error("删除关联失败:" + data.info)
