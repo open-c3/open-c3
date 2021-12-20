@@ -416,7 +416,10 @@
                 <table ng-table="kubernetesmanage.hpaTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
                         <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'名称'" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">{{m.INAME}}</td>
+                        <td data-title="'名称'" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">
+                            <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="kubernetesmanage.editHpa(m.NAMESPACE,m.INAME)" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
+                            {{m.INAME}}
+                        </td>
                         <td data-title="'REFERENCE'" width="80" filter="{ REFERENCE: 'text'}" sortable="'REFERENCE'">{{m.REFERENCE}}</td>
                         <td data-title="'TARGETS'" width="80" filter="{ TARGETS: 'text'}" sortable="'TARGETS'">{{m.TARGETS}}</td>
                         <td data-title="'MINPODS'" width="80" filter="{ MINPODS: 'text'}" sortable="'MINPODS'">{{m.MINPODS}}</td>
