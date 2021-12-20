@@ -42,7 +42,6 @@
         });
 
         vm.change = function(){
-            console.log("change", vm.type, vm.namespace )
             vm.name = "";
             vm.names = [];
             if( !( vm.type && vm.namespace ))
