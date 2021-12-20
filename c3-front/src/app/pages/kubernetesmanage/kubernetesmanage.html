@@ -16,7 +16,11 @@
             <div class="panel-body" style="margin-top: 20px">
                 <div class="row">
                     <div class="col-sm-12 form-group">
-                        <label class="col-sm-1 control-label">集群</label>
+                        <label class="col-sm-1 control-label">集群
+                            <img ng-if="kubernetesmanage.selecteCluster.subtype==='AWS'" src="/assets/images/AWS.jpeg" style="width: 52px;"/>
+                            <img ng-if="kubernetesmanage.selecteCluster.subtype==='QCloud'" src="/assets/images/QCloud.jpeg" style="width: 52px;"/>
+                            <img ng-if="!( kubernetesmanage.selecteCluster.subtype==='AWS' || kubernetesmanage.selecteCluster.subtype==='QCloud')" src="/assets/images/kubernetes.jpeg" style="width: 31px;"/>
+                        </label>
                         <div class="col-sm-4">
                             <select id="selecteddataval" class="form-control"  ng-model="choiceClusterId" >
                                  <option ng-repeat="x in kubernetesmanage.clusterlist" value="{{x.id}}">{{x.name}} 详情: {{x.describe}} 操作权限: {{x.auth}}</option>
