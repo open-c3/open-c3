@@ -43,7 +43,7 @@
                     homecancel();
                     swal({ title:'提交操作协助申请成功', text: '请到个人协助操作页面查看历史', type:'success' });
                 } else {
-                    swal({ title:'提交失败', text: data.info, type:'success' });
+                    swal({ title:'提交失败', text: data.info, type:'error' });
                 }
             });
         };
