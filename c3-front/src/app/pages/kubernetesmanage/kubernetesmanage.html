@@ -221,7 +221,8 @@
 
                             <i ng-if="kubernetesmanage.hpa[m.NAMESPACE][m.NAME]" class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describe('hpa',m.INAME,m.NAMESPACE)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
 
-                            <i ng-if="kubernetesmanage.hpa[m.NAMESPACE][m.NAME]" class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('hpa',m.INAME,m.NAMESPACE)" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
+                            <i ng-if="kubernetesmanage.hpa[m.NAMESPACE][m.NAME]" class="fa fa-cog fa-2x" aria-hidden="true" ng-click="kubernetesmanage.editHpa(m.NAMESPACE,m.INAME)" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
+                            <i ng-if="kubernetesmanage.hpa[m.NAMESPACE][m.NAME]" class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('hpa',m.INAME,m.NAMESPACE)" uib-tooltip="编辑YAML" style="cursor:pointer;color: #339094;" ></i>
 
                             <i ng-if="kubernetesmanage.hpa[m.NAMESPACE][m.NAME]" class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesmanage.deleteApp('hpa',m.INAME,m.NAMESPACE)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
                         </td>

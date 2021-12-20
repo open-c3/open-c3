@@ -320,6 +320,27 @@
             });
         };
 
+        vm.editHpa = function (namespace,name) {
+            $uibModal.open({
+                templateUrl: 'app/pages/kubernetesmanage/edithpa.html',
+                controller: 'KubernetesEditHpaController',
+                controllerAs: 'kubernetesedithpa',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () {return vm.treeid},
+                    ticketid: function () {return vm.selecteClusterId},
+                    clusterinfo: function () {return vm.selecteCluster},
+                    namespace: function () {return namespace},
+                    name: function () {return name},
+                    homereload: function () {return vm.reload},
+                }
+            });
+        };
+
+ 
         vm.createIngress = function (namespace,name) {
             $uibModal.open({
                 templateUrl: 'app/pages/kubernetesmanage/createingress.html',
