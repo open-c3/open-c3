@@ -77,7 +77,7 @@ return sub
                 if( $res->is_success )
                 {
                     my $data = eval{JSON::from_json $res->content};
-                    if( $data && $data->{stat} && $data->{stat} =~ /^[a-zA-Z0-9\._\-]+$/ )
+                    if( $data && $data->{stat} && $data->{data} =~ /^[a-zA-Z0-9\._\-]+$/ )
                     {
                         eval{ $db->execute( "update openc3_job_approval set oauuid='$data->{data}' where id=$id and oauuid='1'" ) };
                         $logs->err( "update approval.oauuid status fail:$@" ) if $@;
