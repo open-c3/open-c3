@@ -117,11 +117,16 @@
                 return;
             }
 
+vm.namespaces = [];
+vm.deployments = [];
+vm.daemonsets = [];
+vm.replicasets = [];
             $http.get("/api/ci/v2/kubernetes/namespace?ticketid=" + vm.selecteClusterId ).then(
                 function successCallback(response) {
                     if (response.data.stat){
 
                         vm.namespace = response.data.data; 
+                        vm.namespaces = response.data.data; 
 //TODO 需要更换loadoverC
                         vm.loadoverC = true;
                     }else {
@@ -168,6 +173,12 @@
                 function successCallback(response) {
                     if (response.data.stat){
 
+//to hpa
+                        vm.deployments = response.data.data.deployment;
+                        vm.daemonsets = response.data.data.daemonset;
+                        vm.replicasets = response.data.data.replicaset;
+
+//
                         vm.deploymentTable = new ngTableParams({count:10}, {counts:[],data:response.data.data.deployment});
                         vm.deploymentCount = response.data.data.deployment.length;
                         vm.deploymentReady = response.data.deploymentready;
@@ -594,6 +605,10 @@
                     namespace: function () {return namespace},
                     ticketid: function () {return vm.selecteClusterId},
                     clusterinfo: function () {return vm.selecteCluster},
+                    namespaces: function () {return vm.namespaces},
+                    deployments: function () {return vm.deployments},
+                    daemonsets: function () {return vm.daemonsets},
+                    replicasets: function () {return vm.replicasets},
                 }
             });
         };

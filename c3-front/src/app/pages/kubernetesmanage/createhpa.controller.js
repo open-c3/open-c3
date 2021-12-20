@@ -5,7 +5,7 @@
         .module('openc3')
         .controller('KubernetesCreateHpaController', KubernetesCreateHpaController);
 
-    function KubernetesCreateHpaController( $uibModalInstance, $location, $anchorScroll, $state, $http, $uibModal, treeService, ngTableParams, resoureceService, $scope, $injector, ticketid, type, name, namespace, clusterinfo ) {
+    function KubernetesCreateHpaController( $uibModalInstance, $location, $anchorScroll, $state, $http, $uibModal, treeService, ngTableParams, resoureceService, $scope, $injector, ticketid, type, name, namespace, clusterinfo, namespaces, deployments, daemonsets, replicasets ) {
 
         var vm = this;
         vm.treeid = $state.params.treeid;
@@ -15,10 +15,21 @@
         vm.type = type;
         vm.namespace = namespace;
 
+        vm.selectnamespace = 1;
+        if( vm.namespace )
+        {
+            vm.selectnamespace = 0;
+        }
+        vm.namespaces = namespaces;
+
         vm.full = 0;
         if( vm.name && vm.type && vm.namespace )
         {
             vm.full = 1;
+        }
+        if( !vm.type )
+        {
+            vm.type = "deployment";
         }
         vm.min = 1;
         vm.max = 3;
@@ -30,6 +41,52 @@
             vm.nodeStr = treeService.selectname();
         });
 
+        vm.change = function(){
+            console.log("change", vm.type, vm.namespace )
+            vm.name = "";
+            vm.names = [];
+            if( !( vm.type && vm.namespace ))
+            {
+                vm.names = [];
+                return;
+            }
+
+            if( vm.type === "deployment" )
+            {
+                angular.forEach(deployments, function (v, k) {
+                    if( vm.namespace === v.NAMESPACE )
+                    {
+                        vm.names.push( v.INAME )
+                    }
+                });
+            }
+
+            if( vm.type === "daemonset" )
+            {
+                angular.forEach(daemonsets, function (v, k) {
+                    if( vm.namespace === v.NAMESPACE )
+                    {
+                        vm.names.push( v.INAME )
+                    }
+                });
+            }
+
+            if( vm.type === "replicaset" )
+            {
+                angular.forEach(replicasets, function (v, k) {
+                    if( vm.namespace === v.NAMESPACE )
+                    {
+                        vm.names.push( v.INAME )
+                    }
+                });
+            }
+
+        }
+        if(vm.full !== 1 )
+        {
+            vm.change();
+        }
+//
         vm.add = function(){
             vm.loadover = false;
             var d = {
