@@ -136,7 +136,7 @@
                        });
                    }
                 } else { 
-                    toastr.error("加载模版信息失败:" + data.info)
+                    toastr.error("加载YAML信息失败:" + data.info)
                 }
             });
             $http.get("/api/ci/kubernetes/data/template/container" ).success(function(data){
@@ -857,7 +857,7 @@ if( vm.addservice === 1 )
                 "url": "/api/ci/v2/kubernetes/app/" + vm.tasktype,
                 "method": "POST",
                 "submit_reason": "",
-                "remarks": "\n集群ID:" + ticketid + ";\n集群名称:" + clusterinfo.name +";\n配置:\n" + vm.newyaml,
+                "remarks": "\n集群ID:" + ticketid + ";\n集群名称:" + clusterinfo.name +";\n配置:\n" + vm.postyaml,
                 "data": {
                     "ticketid": ticketid,
                     "yaml": vm.postyaml,
