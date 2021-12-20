@@ -85,7 +85,7 @@
             vm.loadoverB = false;
             vm.loadoverC = false;
             vm.loadoverD = false;
-            $http.get('/api/ci/ticket/KubeConfig' ).then(
+            $http.get('/api/ci/ticket/KubeConfig?treeid=' + vm.treeid ).then(
                 function successCallback(response) {
                     if (response.data.stat){
                         vm.clusterlist = response.data.data; 

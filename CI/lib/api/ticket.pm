@@ -60,7 +60,7 @@ get '/ticket' => sub {
 get '/ticket/KubeConfig' => sub {
     my $param = params();
     my $error = Format->new( 
-        projectid => qr/^\d+$/, 0,
+        treeid => qr/^\d+$/, 0,
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
@@ -68,9 +68,14 @@ get '/ticket/KubeConfig' => sub {
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
     my @col = qw( id name type share ticket describe edit_user create_user edit_time create_time );
+    my $greptreeid = "";
+    if( $param->{treeid} && $param->{treeid} ne '4000000000' )
+    {
+        $greptreeid = " and id in ( select distinct ci_type_ticketid from openc3_ci_project where ci_type='kubernetes' and groupid='$param->{treeid}') ";
+    }
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from openc3_ci_ticket where type = 'KubeConfig' and ( create_user ='$user' or share = '$company' or share like '%%_T_${company}_T_%%' or share like '%%_P_${user}_P_%%' or share like '%%_TR_${company}_TR_%%' or share like '%%_PR_${user}_PR_%%' )", join( ',', map{"`$_`"}@col)), \@col )};
+            sprintf( "select %s from openc3_ci_ticket where type = 'KubeConfig' $greptreeid and ( create_user ='$user' or share = '$company' or share like '%%_T_${company}_T_%%' or share like '%%_P_${user}_P_%%' or share like '%%_TR_${company}_TR_%%' or share like '%%_PR_${user}_PR_%%' )", join( ',', map{"`$_`"}@col)), \@col )};
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     for my $d ( @$r )

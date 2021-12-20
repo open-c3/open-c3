@@ -77,11 +77,15 @@
                                 || sName == 'home.connector.mesg'
                                 || sName == 'home.gitreport'
                                 || sName == 'home.flowreport'
-                                || sName == 'home.kubernetesmanage'
                              ){
                                 $state.go(sName, {treeid:treeNode.id});
                             }else{
                                 $state.go('home.dashboard', {treeid:treeNode.id});
+                            }
+
+                            if( sName == 'home.kubernetesmanage' )
+                            {
+                                $state.go('home.kubernetesmanage', {treeid:treeNode.id,clusterid: '',namespace:'',stat:''});
                             }
 
                             if( sName == 'home.quickentry.flowlinedetail' )
