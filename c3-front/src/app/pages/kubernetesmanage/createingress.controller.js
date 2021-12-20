@@ -222,6 +222,42 @@
                 annotations[key] = v["V"];
             });
 
+            if( annotations['kubernetes.io/ingress.class'] === 'qcloud'  )
+            {
+                var annotationrule = [];
+
+                if(vm.editData.apiVersion === "extensions/v1beta1" )
+                {
+                    angular.forEach(vm.editData.spec.rules, function (rule, k) {
+
+                        angular.forEach(rule.http.paths, function (path, k) {
+                            annotationrule.push({ "host": rule.host, "path": path.path, "backend": { "serviceName": path.backend.serviceName, "servicePort": path.backend.servicePort } });
+                        });
+                    });
+                }
+
+                if(vm.editData.apiVersion === "networking.k8s.io/v1" )
+                {
+                    angular.forEach(vm.editData.spec.rules, function (rule, k) {
+
+                        angular.forEach(rule.http.paths, function (path, k) {
+                            annotationrule.push({ "host": rule.host, "path": path.path, "backend": { "serviceName": path.backend.service.name, "servicePort": path.backend.service.port.number } });
+                        });
+                    });
+                }
+ 
+                var annotationrulestring = angular.toJson(annotationrule);
+
+                if( annotations['kubernetes.io/ingress.http-rules'] )
+                {
+                    annotations['kubernetes.io/ingress.http-rules'] = annotationrulestring;
+                }
+                if( annotations['kubernetes.io/ingress.https-rules'] )
+                {
+                    annotations['kubernetes.io/ingress.https-rules'] = annotationrulestring;
+                }
+            }
+
             if( Object.keys(annotations).length > 0 )
             {
                 vm.editData.metadata.annotations = annotations;
