@@ -8,6 +8,18 @@
     function KubernetesCreateDeploymentController( $uibModalInstance, $location, $anchorScroll, $state, $http, $uibModal, treeService, ngTableParams, resoureceService, $scope, $injector, ticketid, clusterinfo, namespace, name, homereload ) {
 
         var vm = this;
+
+        vm.annotationTypeList = [];
+        if( clusterinfo.subtype === 'QCloud' )
+        {
+            vm.annotationTypeList = ['QCloud_lb','QCloud_ipv4','QCloud_ipv6'];
+        }
+        if( clusterinfo.subtype === 'AWS' )
+        {
+            vm.annotationTypeList = ['AWS_nlb'];
+        }
+
+
         vm.treeid = $state.params.treeid;
         var toastr = toastr || $injector.get('toastr');
 

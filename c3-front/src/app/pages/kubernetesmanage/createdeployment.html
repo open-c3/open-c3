@@ -1026,7 +1026,7 @@
                     <div class="col-sm-1">
                         <i ng-if="kubernetescreatedeployment.serviceannotations.length == 0" class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.serviceAddAnnotations()" uib-tooltip="添加" style="cursor:pointer;color: #339094;" ></i>
                     </div>
-                    <div ng-repeat="id in ['QCloud_lb','QCloud_ipv4','QCloud_ipv6','AWS_nlb']" style="float: left;margin-right: 4px;">
+                    <div ng-repeat="id in kubernetescreatedeployment.annotationTypeList" style="float: left;margin-right: 4px;">
                         <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.serviceAddAnnotationsByType(id)" uib-tooltip="添加" style="cursor:pointer;color: #339094;" >{{id}}</i>
                     </div>
                 </div>
