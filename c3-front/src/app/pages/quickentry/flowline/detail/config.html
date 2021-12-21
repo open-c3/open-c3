@@ -262,12 +262,23 @@
                     </div>
 
                     <div class="row">
+                        <label class="col-md-2 control-label fwbold">镜像类型</label>
+                        <div class="col-md-6">
+                            <select class="form-control"  ng-model="config.project.follow_up" > 
+                                 <option value="harbor_push_image.pl">Harbor</option>
+                                 <option value="awsecr_push_image.pl">ECR</option>
+                            </select>
+                        </div>
+                    </div>
+
+
+                    <div class="row">
                         <label class="col-md-2 control-label fwbold">镜像地址</label>
                         <div class="col-md-6"> <input class="form-control" ng-model="config.project.ci_type_repository" placeholder="ci_type_repository"/> </div>
                         <div class="col-md-2">
                             <button class="btn btn-primary" ng-disabled="!config.project.ci_type_container" uib-tooltip="从容器中提取镜像信息" ng-click="config.addImageAddr()"><i class="fa fa-cogs fa-1x" >提取</i></button>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-2" ng-if="config.project.follow_up === 'harbor_push_image.pl'" >
                             <button class="btn btn-primary" ng-disabled="!config.project.follow_up_ticketid" uib-tooltip="从凭据中提取镜像信息" ng-click="config.addImageAddrByTicket()"><i class="fa fa-cogs fa-1x" >提取</i></button>
                         </div>
  

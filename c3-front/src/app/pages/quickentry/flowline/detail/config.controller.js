@@ -116,7 +116,7 @@
                 {
                     vm.ticketinfoall = data.data;
                     angular.forEach(data.data, function (data, index) {
-                        if( data.type === 'Harbor'  )
+                        if( data.type === 'Harbor' || data.type === 'JobBuildin' )
                         {
                             vm.ticketinfok8s.push(data)
                         }
