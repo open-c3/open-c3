@@ -194,6 +194,11 @@ $httpd->reg_routes(
     },
 );
 
+$httpd->reg_cb('' => sub {
+    my ( $httpd, $req ) = @_;
+    $req->respond( [ 404, 'not found', {}, '' ] );
+});
+
 my $tt = AnyEvent->timer(
     after => 6,
     interval => 6,
