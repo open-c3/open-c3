@@ -50,11 +50,11 @@ warn "\n";
 die "ci_type no kubernetes" unless $data{ci_type} && $data{ci_type} eq 'kubernetes';
 die "ci_type_ticketid format error" unless $data{ci_type_ticketid} && $data{ci_type_ticketid} =~ /^\d+$/;
 die "ci_type_kind format error" unless $data{ci_type_kind} && $data{ci_type_kind} =~ /^[a-zA-Z0-9]+$/;
-die "ci_type_namespace format error" unless $data{ci_type_namespace} && $data{ci_type_namespace} =~ /^[a-zA-Z0-9]+$/;
+die "ci_type_namespace format error" unless $data{ci_type_namespace} && $data{ci_type_namespace} =~ /^[a-zA-Z0-9\-]+$/;
 die "ci_type_name format error" unless $data{ci_type_name} && $data{ci_type_name} =~ /^[a-zA-Z][a-zA-Z0-9_\-,]+$/;
 die "ci_type_container format error" unless $data{ci_type_container} && $data{ci_type_container} =~ /^[a-zA-Z][a-zA-Z0-9_\-]+$/;
 die "ci_type_dockerfile format error" unless $data{ci_type_dockerfile} && $data{ci_type_dockerfile} =~ /^[_a-zA-Z0-9]+$/;
-die "ci_type_repository format error" unless $data{ci_type_repository} && $data{ci_type_repository} =~ /^[a-zA-Z][a-zA-Z0-9_\-\/\.]+$/;
+die "ci_type_repository format error" unless $data{ci_type_repository} && $data{ci_type_repository} =~ /^[0-9a-zA-Z][a-zA-Z0-9_\-\/\.]+$/;
 
 
 my $db = MYDB->new( "$RealBin/../../CI/conf/conn" );
