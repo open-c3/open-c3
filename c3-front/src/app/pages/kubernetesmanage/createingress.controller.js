@@ -235,14 +235,19 @@
 
             if( annotations['kubernetes.io/ingress.class'] === 'qcloud'  )
             {
-                var annotationrule = [];
+                var annotationrulehttpx = [];
+                var annotationrulehttps = [];
 
                 if(vm.editData.apiVersion === "extensions/v1beta1" )
                 {
                     angular.forEach(vm.editData.spec.rules, function (rule, k) {
 
                         angular.forEach(rule.http.paths, function (path, k) {
-                            annotationrule.push({ "host": rule.host, "path": path.path, "backend": { "serviceName": path.backend.serviceName, "servicePort": path.backend.servicePort } });
+                            annotationrulehttpx.push({ "host": rule.host, "path": path.path, "backend": { "serviceName": path.backend.serviceName, "servicePort": path.backend.servicePort } });
+                            if( rule.https_tls_temp )
+                            {
+                                annotationrulehttps.push({ "host": rule.host, "path": path.path, "backend": { "serviceName": path.backend.serviceName, "servicePort": path.backend.servicePort } });
+                            }
                         });
                     });
                 }
@@ -252,20 +257,32 @@
                     angular.forEach(vm.editData.spec.rules, function (rule, k) {
 
                         angular.forEach(rule.http.paths, function (path, k) {
-                            annotationrule.push({ "host": rule.host, "path": path.path, "backend": { "serviceName": path.backend.service.name, "servicePort": path.backend.service.port.number } });
+                            annotationrulehttpx.push({ "host": rule.host, "path": path.path, "backend": { "serviceName": path.backend.service.name, "servicePort": path.backend.service.port.number } });
+                            if( rule.https_tls_temp )
+                            {
+                                annotationrulehttps.push({ "host": rule.host, "path": path.path, "backend": { "serviceName": path.backend.service.name, "servicePort": path.backend.service.port.number } });
+                            }
                         });
                     });
                 }
  
-                var annotationrulestring = angular.toJson(annotationrule);
 
-                if( annotations['kubernetes.io/ingress.http-rules'] )
+                if( annotationrulehttpx.length > 0 )
                 {
-                    annotations['kubernetes.io/ingress.http-rules'] = annotationrulestring;
+                    annotations['kubernetes.io/ingress.http-rules'] = angular.toJson(annotationrulehttpx);
                 }
-                if( annotations['kubernetes.io/ingress.https-rules'] )
+                else
                 {
-                    annotations['kubernetes.io/ingress.https-rules'] = annotationrulestring;
+                    delete annotations['kubernetes.io/ingress.http-rules'];
+                }
+
+                if( annotationrulehttps.length > 0 )
+                {
+                    annotations['kubernetes.io/ingress.https-rules'] = angular.toJson(annotationrulehttps);;
+                }
+                else
+                {
+                    delete annotations['kubernetes.io/ingress.https-rules'];
                 }
             }
 
