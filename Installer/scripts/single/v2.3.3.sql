@@ -10,7 +10,7 @@ UNIQUE KEY `uniq_treeid_k8sid` (`treeid`,`k8sid`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='openc3_ci_k8stree';
 
 
-ALTER TABLE openc3_ci_ticket ADD `subtype` VARCHAR(100) comment 'subtype';
+ALTER TABLE openc3_ci_ticket ADD `subtype` VARCHAR(100) default 'default' comment 'subtype';
 
 
 ### 数据库回滚
