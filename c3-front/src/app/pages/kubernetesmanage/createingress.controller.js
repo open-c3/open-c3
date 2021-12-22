@@ -390,7 +390,7 @@
             {
                 x.http.paths = []
             }
-            x.http.paths.push(angular.copy( {"pathType":"ImplementationSpecific","path":"", "backend": { "serviceName":"","servicePort": 80}}));
+            x.http.paths.push(angular.copy( {"pathType":"Prefix","path":"", "backend": { "serviceName":"","servicePort": 80}}));
         }
  
         vm.delPaths = function(x,id)
