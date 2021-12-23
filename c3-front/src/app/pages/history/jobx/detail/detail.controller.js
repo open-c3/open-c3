@@ -121,9 +121,9 @@
         vm.jobReloadStatus = {}
 
         vm.projectinfo = {};
+        vm.k8sname = [];
         vm.reload = function(){
             vm.loadover = false
-            vm.k8sname = [];
             $http.get('/api/jobx/task/'+ vm.treeid +"/" + vm.taskuuid).then(
                 function successCallback(response) {
                     if (response.data.stat){
