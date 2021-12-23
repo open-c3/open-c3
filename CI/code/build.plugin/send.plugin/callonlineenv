@@ -47,7 +47,7 @@ return sub
 
     $logs->die( "get last version info fail: $lastversioncont : stat fail" )  unless $lastversiondata->{stat};
 
-    my $variable = +{ version => $version, '_jobtype_' => 'online' };
+    my $variable = +{ version => $version, '_jobtype_' => 'online', _appname_ => "_ci_" . $projectid . "_" };
     $variable->{_rollbackVersion_} = $lastversiondata->{data}{version} if $lastversiondata->{data}{version};
 
     my $url = "http://api.jobx.open-c3.org/task/$groupid/job/byname";
