@@ -125,7 +125,11 @@ return sub
 
     %var_map = ( %var_map, %$variable ) if $variable;
 
-    map{ utf8::decode($var_map{$_}) }keys %var_map;
+    $var_map{"deploy_env"} = $var_map{"_jobtype_"};
+    $var_map{"rollback"} = defined $var_map{"_rollbackVersion_"} ? "如需回滚会回滚到版本: $var_map{_rollbackVersion_}" : "";
+    $var_map{"rollback_version"} = $var_map{"_rollbackVersion_"} // 'no rollback version';
+
+    map{ $var_map{$_} //= 'undefind'; utf8::decode($var_map{$_}) }keys %var_map;
 
     map{ $cont =~ s/\$\{\Q$_\E\}/$var_map{$_}/g if defined $var_map{$_}; }keys %var_map;
 
