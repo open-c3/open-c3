@@ -9,7 +9,7 @@
 
         var vm = this;
         vm.treeid = $state.params.treeid;
-        vm.postdata = { timeout: '86400', approver: '', cont: '审批一下吧', name: '', deployenv: 'always', action: 'always', batches: 'always', everyone: 'on'  };
+        vm.postdata = { timeout: '86400', approver: '', cont: '审批一下吧', name: '', deployenv: 'always', action: 'always', batches: 'always', everyone: 'on', relaxed: 'off'  };
         vm.postdata.name = "快速审批插件-" + $filter('date')(new Date, "yyyyMMddHHmmss") + $filter('date')(new Date, "sss");
         treeService.sync.then(function(){ 
             vm.nodeStr = treeService.selectname();

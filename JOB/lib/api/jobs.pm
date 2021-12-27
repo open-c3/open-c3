@@ -148,7 +148,7 @@ get '/jobs/:projectid/:jobuuid' => sub {
 
     if( $hash{approval} )
     {
-        my @colapproval = qw( uuid name cont approver deployenv action batches everyone );
+        my @colapproval = qw( uuid name cont approver deployenv action batches everyone relaxed );
         my $rapproval = eval{ 
             $api::mysql->query( 
                 sprintf( "select %s from openc3_job_plugin_approval
@@ -219,8 +219,8 @@ post '/jobs/:projectid/copy/byname' => sub {
         }
         elsif( $type eq 'approval' )
         {
-            my @plugin_col = qw( name cont approver deployenv action batches everyone timeout pause jobuuid );
-            eval{ $api::mysql->execute( sprintf "insert into openc3_job_plugin_approval (`uuid`,%s ) select '$plugin_uuid',name,cont,approver,deployenv,action,batches,everyone,timeout,pause,'$touuid' from openc3_job_plugin_approval where uuid='$uuid' and jobuuid='$fromuuid'", join(',',map{"`$_`"}@plugin_col ));};
+            my @plugin_col = qw( name cont approver deployenv action batches everyone relaxed timeout pause jobuuid );
+            eval{ $api::mysql->execute( sprintf "insert into openc3_job_plugin_approval (`uuid`,%s ) select '$plugin_uuid',name,cont,approver,deployenv,action,batches,everyone,relaxed,timeout,pause,'$touuid' from openc3_job_plugin_approval where uuid='$uuid' and jobuuid='$fromuuid'", join(',',map{"`$_`"}@plugin_col ));};
             return  +{ stat => $JSON::false, info => "insert into plugin_approval fail. $@" } if $@;
             push @step, "approval_$plugin_uuid";
         }
@@ -488,7 +488,7 @@ post '/jobs/:projectid' => sub {
         }
         elsif( $data->{plugin_type} eq 'approval' )
         {
-            my @plugin_col = qw( name cont approver deployenv action batches everyone timeout pause jobuuid );
+            my @plugin_col = qw( name cont approver deployenv action batches everyone relaxed timeout pause jobuuid );
             eval{ $api::mysql->execute( sprintf "insert into openc3_job_plugin_approval (`uuid`,%s ) values('$plugin_uuid',%s)",
                     join(',',map{"`$_`"}@plugin_col ), join(',',map{"'$data->{$_}'"}@plugin_col ));};
             return  +{ stat => $JSON::false, info => "$info: insert into plugin_approval fail. $@" } if $@;
@@ -768,7 +768,7 @@ post '/jobs/:projectid/:jobuuid' => sub {
         }
         elsif( $data->{plugin_type} eq 'approval' )
         {
-            my @plugin_col = qw( name cont approver deployenv action batches everyone timeout pause jobuuid );
+            my @plugin_col = qw( name cont approver deployenv action batches everyone relaxed timeout pause jobuuid );
             eval{ $api::mysql->execute( sprintf "insert into openc3_job_plugin_approval (`uuid`,%s ) values('$plugin_uuid',%s)",
                     join(',',map{"`$_`"}@plugin_col ), join(',',map{"'$data->{$_}'"}@plugin_col ));};
             return  +{ stat => $JSON::false, info => "$info: insert into plugin_approval fail. $@" } if $@;

@@ -12,7 +12,7 @@
         vm.treeid = $state.params.treeid;
         vm.cancel = function(){ $uibModalInstance.dismiss()};
 
-        vm.postdata = { timeout: '86400', approver: '', cont: '', name: '', deployenv: 'always',action: 'always', batches: 'always', everyone: 'on', plugin_type: 'approval' };
+        vm.postdata = { timeout: '86400', approver: '', cont: '', name: '', deployenv: 'always',action: 'always', batches: 'always', everyone: 'on', plugin_type: 'approval', relaxed: 'off' };
         if (!editData){vm.postdata.name = "审批_"+seq};
 
         if( editData )

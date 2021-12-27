@@ -253,6 +253,7 @@
                 'approver': d.approver,
                 'cont': d.cont,
                 'everyone': d.everyone,
+                'relaxed': d.relaxed,
                 'timeout': d.timeout,
                 'deployenv' : d.deployenv,
                 'action' : d.action,

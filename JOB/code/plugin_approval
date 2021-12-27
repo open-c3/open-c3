@@ -81,12 +81,12 @@ return sub
 
     print "submitter: $submitter\n";
 
-    my $x = eval{ $db->query( "select jobuuid,name,cont,approver,deployenv,action,batches,everyone,timeout,pause from openc3_job_plugin_approval where uuid='$uuid'" );};
+    my $x = eval{ $db->query( "select jobuuid,name,cont,approver,deployenv,action,batches,everyone,relaxed,timeout,pause from openc3_job_plugin_approval where uuid='$uuid'" );};
     $logs->die( "get plugin_approval info from mysql fail plugin_approval uuid=$uuid: $@" ) if $@;
     $logs->die( "get plugin_approval info from mysql fail plugin_approval uuid=$uuid" ) unless defined $x && ref $x eq 'ARRAY';
     $logs->die( "plugin_approval uuid mismatch uuid=$uuid" ) unless @$x;
 
-    my ( $jobuuid, $name, $cont, $approver, $deployenv, $action, $batches, $everyone, $timeout, $pause ) = @{$x->[0]};
+    my ( $jobuuid, $name, $cont, $approver, $deployenv, $action, $batches, $everyone, $relaxed, $timeout, $pause ) = @{$x->[0]};
 
     my %var_map;
     if( $fromjob && $variable->{version} )
@@ -142,6 +142,7 @@ return sub
     $timeout ||= 86400;
 
     $everyone = ( $everyone && $everyone eq 'on' ) ? 1 : 0;
+    $relaxed = ( $relaxed && $relaxed eq 'on' ) ? 1 : 0;
 
     my ( $subtasktimems, $subtaskstarttime ) 
         = ( time, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ) );
@@ -164,9 +165,19 @@ return sub
         my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
         my $muuid = uuid->new()->create_str;
         print "Send mesg to $user, wait for his confirmation\n";
-        eval{ $db->execute( 
-            "insert into openc3_job_approval (`taskuuid`,`uuid`,`user`,`submitter`,`cont`,`opinion`,`remarks`,`create_time`,`notifystatus`,`oauuid`,`name`)values('$puuid','$muuid','$user','$submitter','$cont','unconfirmed', '','$time', 'null', '0','$name' )"
-        ) };
+        if( $relaxed && $user eq $submitter )
+        {
+            eval{ $db->execute( 
+                "insert into openc3_job_approval (`taskuuid`,`uuid`,`user`,`submitter`,`cont`,`opinion`,`remarks`,`create_time`,`finishtime`,`notifystatus`,`oauuid`,`name`)values('$puuid','$muuid','$user','$submitter','$cont','agree', 'sys.handle.auto','$time','$time', 'skip', '0','$name' )"
+            ) };
+        }
+        else
+        {
+            eval{ $db->execute( 
+                "insert into openc3_job_approval (`taskuuid`,`uuid`,`user`,`submitter`,`cont`,`opinion`,`remarks`,`create_time`,`notifystatus`,`oauuid`,`name`)values('$puuid','$muuid','$user','$submitter','$cont','unconfirmed', '','$time', 'null', '0','$name' )"
+            ) };
+ 
+        }
         $logs->die("insert to mysql fail: $@") if $@;
     }
 

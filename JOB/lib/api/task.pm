@@ -586,7 +586,7 @@ post '/task/:projectid/plugin_approval' => sub {
     $param->{timeout} ||= 60;
 
     my $plugin_uuid = uuid->new()->create_str;
-    my @plugin_col = qw( name cont approver deployenv action batches everyone timeout );
+    my @plugin_col = qw( name cont approver deployenv action batches everyone relaxed timeout );
     eval{ $api::mysql->execute( sprintf "insert into openc3_job_plugin_approval (`uuid`,%s ) values('$plugin_uuid',%s)", join(',',map{"`$_`"}@plugin_col ), join(',',map{"'$param->{$_}'"}@plugin_col ));};
     return  +{ stat => $JSON::false, info => "insert into plugin_approval fail" } if $@;
 
