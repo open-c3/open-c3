@@ -17,6 +17,7 @@ use Buildin;
 use uuid;
 use Util;
 use LWP::UserAgent;
+use utf8;
 
 
 $| ++;
@@ -122,6 +123,8 @@ return sub
     $var_map{"treename"} = $project->{data}{fullname};
 
     %var_map = ( %var_map, %$variable ) if $variable;
+    map{ utf8::decode($var_map{$_}) }keys %var_map;
+
     map{ $cont =~ s/\$\{\Q$_\E\}/$var_map{$_}/g if defined $var_map{$_}; }keys %var_map;
 
     print "=" x 35, "\n";
