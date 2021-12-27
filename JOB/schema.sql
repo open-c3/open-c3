@@ -42,6 +42,7 @@ create table `openc3_job_plugin_approval`(
 `timeout` VARCHAR(30) comment '超时时间',
 `pause` VARCHAR(100) comment '需要暂停',
 `create_time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
+`relaxed` VARCHAR(20) comment '宽松的审批，提交人和审批人一样的时候跳过',  ###只允许 on, off
 #UNIQUE KEY `uniq_jobuuidname` (`jobuuid`,`name`),###因为api在保存作业的时候，是重写写入新的，如果加了这个约束，会使得正在运行的作业找不到插件数据
 UNIQUE KEY `uniq_uuid` (`uuid`) 
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='approval插件';
