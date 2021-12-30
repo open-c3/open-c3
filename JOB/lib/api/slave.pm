@@ -153,13 +153,13 @@ END
 del '/killtask/:uuid' => sub {
   my $uuid = params()->{uuid};
   
-  return JSON::to_json( +{ stat => $JSON::false, info => 'uuid format error' } )
+  return +{ stat => $JSON::false, info => 'uuid format error' }
       unless $uuid =~ /^[a-zA-Z0-9]+$/;
 
   my $user;
   unless( $ENV{MYDan_DEBUG} )
   {
-      return JSON::to_json( +{ stat => $JSON::false, code => 10000 } )
+      return +{ stat => $JSON::false, code => 10000 }
           unless (  cookie( $cookiekey ) || ( request->headers->{appkey} && request->headers->{appname} ) );
 
       $user = eval{ $sso->run( cookie => cookie( $cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) ) };
@@ -170,17 +170,17 @@ del '/killtask/:uuid' => sub {
 
   my @col = qw( pid projectid slave status name );
   my $r = eval{ $mysql->query( sprintf( "select %s from openc3_job_task where uuid='$uuid'", join ',', @col ), \@col )};
-  return JSON::to_json( +{ stat => $JSON::false, info => "Non-existent uuid:$uuid" } ) unless $r && @$r;
+  return +{ stat => $JSON::false, info => "Non-existent uuid:$uuid" } unless $r && @$r;
 
   my $data = $r->[0];
 
-  return JSON::to_json( +{ stat => $JSON::false, info => "task $uuid in slave $data->{slave}" } )
+  return +{ stat => $JSON::false, info => "task $uuid in slave $data->{slave}" }
       unless $data->{slave} && $data->{slave} eq $myname;
-  return JSON::to_json( +{ stat => $JSON::true, info => "task $uuid has been closed, status is $data->{status}" } )
+  return +{ stat => $JSON::true, info => "task $uuid has been closed, status is $data->{status}" }
       if $data->{status} && ( $data->{status} eq 'success' || $data->{status} eq 'fail' );
 
   map{ 
-      return JSON::to_json( +{ stat => $JSON::false, info => "$_ format error" } )
+      return +{ stat => $JSON::false, info => "$_ format error" }
           unless defined $data->{$_} && $data->{$_} =~ /^\d+$/
   }qw( pid projectid );
 
@@ -189,11 +189,11 @@ del '/killtask/:uuid' => sub {
       my $p = eval{ $pms->run( cookie => cookie( $cookiekey ), 
           treeid => $data->{projectid}, point => 'openc3_job_write',
           map{ $_ => request->headers->{$_} }qw( appkey appname ) ) };
-      return JSON::to_json( +{ stat => $JSON::false, info => "get data from pms error:$@" } ) if $@;
-      return JSON::to_json( +{ stat => $JSON::false, info =>  'Unauthorized' } ) unless $p;
+      return +{ stat => $JSON::false, info => "get data from pms error:$@" } if $@;
+      return +{ stat => $JSON::false, info =>  'Unauthorized' } unless $p;
   }
 
-  return JSON::to_json( +{ stat => $JSON::true, info => "task $uuid has been exit,nofind pid $data->{pid}" } )
+  return +{ stat => $JSON::true, info => "task $uuid has been exit,nofind pid $data->{pid}" }
       unless kill( 0, $data->{pid} );
 
   eval{ $auditlog->run( user => $user, title => 'KILL JOB TASK', content => "TREEID:$data->{projectid} TASKUUID:$uuid NAME:$data->{name}" ); };
@@ -204,8 +204,8 @@ del '/killtask/:uuid' => sub {
   eval{ $mysql->execute( "update openc3_job_task set reason='$killinfo' where uuid='$uuid' and reason is null" ); };
 
   return kill( 0, $data->{pid} )
-      ? JSON::to_json( +{ stat => $JSON::false, info => "kill task fail" } )
-      : JSON::to_json( +{ stat => $JSON::true, info => "kill task succcess" } );
+      ? +{ stat => $JSON::false, info => "kill task fail" }
+      : +{ stat => $JSON::true, info => "kill task succcess" };
 };
 
 any '/mon' => sub {

@@ -404,11 +404,58 @@
                 function errorCallback(response) {
                 });
         };
-        vm.killTask = function (taskuuid) {
-            resoureceService.task.stoptask([vm.treeid,taskuuid],null, null).finally(function(){});
+
+//killTask
+
+//        vm.killTask = function (taskuuid) {
+//            resoureceService.task.stoptask([vm.treeid,taskuuid],null, null).finally(function(){});
+//        };
+
+        vm.killTaskDeploy = function (taskuuid) {
+            if ( $scope.taskDetail.status == "running") {
+                swal({
+                    title: '终止发布任务...',
+                    showConfirmButton: false
+                });
+                var Kill = $interval(function () {
+                    if ($scope.taskDetail.status != "running"){
+                        $interval.cancel(Kill);
+                        swal({
+                            title: '任务终止完成',
+                            showConfirmButton: true
+                        });
+                    }
+                    vm.killTaskByJs( taskuuid );
+                    vm.reload();
+                }, 3000);
+            }
+
         };
-        vm.killTaskByJs = function () {
-            var promise =  $http.delete('/api/jobx/task/' + vm.treeid + '/' + vm.taskuuid)
+
+        vm.killTaskRollback = function (taskuuid) {
+            if ( $scope.taskDetaiXl.status == "running") {
+                swal({
+                    title: '终止回滚任务...',
+                    showConfirmButton: false
+                });
+                var Kill = $interval(function () {
+                    if ($scope.taskDetaiXl.status != "running"){
+                        $interval.cancel(Kill);
+                        swal({
+                            title: '任务终止完成',
+                            showConfirmButton: true
+                        });
+                    }
+                    vm.killTaskByJs( taskuuid );
+                    vm.reload();
+                }, 3000);
+            }
+
+        };
+
+//
+        vm.killTaskByJs = function ( taskuuid ) {
+            var promise =  $http.delete('/api/jobx/task/' + vm.treeid + '/' + taskuuid)
             return promise.then(function (data) {
                 var response = data.data;
                 return response.data
@@ -438,7 +485,7 @@
                         vm.rollback(rollbackType);
                         $interval.cancel(Kill);
                     }
-                    vm.killTaskByJs();
+                    vm.killTaskByJs(vm.taskuuid);
                     vm.reload();
                 }, 3000);
             }else {
