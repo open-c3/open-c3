@@ -447,8 +447,8 @@
         };
 
 //
-        vm.killTaskByJs = function () {
-            var promise =  $http.delete('/api/jobx/task/' + vm.treeid + '/' + vm.taskuuid)
+        vm.killTaskByJs = function ( taskuuid ) {
+            var promise =  $http.delete('/api/jobx/task/' + vm.treeid + '/' + taskuuid)
             return promise.then(function (data) {
                 var response = data.data;
                 return response.data
@@ -478,7 +478,7 @@
                         vm.rollback(rollbackType);
                         $interval.cancel(Kill);
                     }
-                    vm.killTaskByJs();
+                    vm.killTaskByJs(vm.taskuuid);
                     vm.reload();
                 }, 3000);
             }else {
