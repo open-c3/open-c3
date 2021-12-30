@@ -397,9 +397,56 @@
                 function errorCallback(response) {
                 });
         };
-        vm.killTask = function (taskuuid) {
-            resoureceService.task.stoptask([vm.treeid,taskuuid],null, null).finally(function(){});
+
+//killTask
+
+//        vm.killTask = function (taskuuid) {
+//            resoureceService.task.stoptask([vm.treeid,taskuuid],null, null).finally(function(){});
+//        };
+
+        vm.killTaskDeploy = function (taskuuid) {
+            if ( $scope.taskDetail.status == "running") {
+                swal({
+                    title: '终止发布任务...',
+                    showConfirmButton: false
+                });
+                var Kill = $interval(function () {
+                    if ($scope.taskDetail.status != "running"){
+                        $interval.cancel(Kill);
+                        swal({
+                            title: '任务终止完成',
+                            showConfirmButton: true
+                        });
+                    }
+                    vm.killTaskByJs( taskuuid );
+                    vm.reload();
+                }, 3000);
+            }
+
         };
+
+        vm.killTaskRollback = function (taskuuid) {
+            if ( $scope.taskDetaiXl.status == "running") {
+                swal({
+                    title: '终止回滚任务...',
+                    showConfirmButton: false
+                });
+                var Kill = $interval(function () {
+                    if ($scope.taskDetaiXl.status != "running"){
+                        $interval.cancel(Kill);
+                        swal({
+                            title: '任务终止完成',
+                            showConfirmButton: true
+                        });
+                    }
+                    vm.killTaskByJs( taskuuid );
+                    vm.reload();
+                }, 3000);
+            }
+
+        };
+
+//
         vm.killTaskByJs = function () {
             var promise =  $http.delete('/api/jobx/task/' + vm.treeid + '/' + vm.taskuuid)
             return promise.then(function (data) {

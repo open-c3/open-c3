@@ -325,7 +325,7 @@ any ['put', 'delete'] => '/task/:projectid/:uuid' => sub {
 
         $res = $ua->delete( "http://api.job.open-c3.org/slave/$data->{data}{slave}/killtask/$subtask_uuid" );
         return +{ stat => $JSON::false, info => "stop task fail" } unless $res->is_success;
-        $data = eval{JSON::from_json $cont};
+        $data = eval{JSON::from_json $res->content};
         return +{ stat => $JSON::false, info => "stop subtask status no json" }  if $@;
 
         return +{ stat => $JSON::false, info => "stop subtask status, stat no true" } unless $data->{stat};
