@@ -113,6 +113,8 @@ return sub
         $logs->die( "get version from ci fail:". $version->{info} || '' ) unless $version->{stat};
 
         $var_map{"taginfo"} = $version->{data}{taginfo};
+        $var_map{"tagtime"} = $version->{data}{create_time};
+        $var_map{"tagger"} = $version->{data}{tagger};
     }
 
     my $project_res = $ua->get( "http://api.agent.open-c3.org/inherit/$projectid" );
