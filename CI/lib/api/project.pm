@@ -52,6 +52,7 @@ get '/project/:groupid/:projectid' => sub {
         ticketid tag_regex autofindtags callonlineenv calltestenv findtags_at_once
         ci_type ci_type_ticketid ci_type_kind ci_type_namespace ci_type_name ci_type_container ci_type_repository ci_type_dockerfile ci_type_dockerfile_content
         ci_type_open ci_type_concurrent ci_type_approver1 ci_type_approver2
+        audit_level
         );
     my $r = eval{ 
         $api::mysql->query( 
@@ -75,6 +76,7 @@ post '/project/:groupid/:projectid' => sub {
     my $error = Format->new( 
         projectid => qr/^\d+$/, 1,
         status => qr/^\d+$/, 1,
+        audit_level => qr/^\d+$/, 1,
         autobuild => qr/^\d+$/, 1,
         name => [ 'mismatch', qr/'/ ], 0,
         excuteflow => [ 'mismatch', qr/'/ ], 0,
@@ -136,6 +138,7 @@ post '/project/:groupid/:projectid' => sub {
         notify ticketid tag_regex autofindtags callonlineenv calltestenv
         ci_type ci_type_ticketid ci_type_kind ci_type_namespace ci_type_name ci_type_container ci_type_repository ci_type_dockerfile ci_type_dockerfile_content
         ci_type_open ci_type_concurrent ci_type_approver1 ci_type_approver2
+        audit_level
     );
     eval{ 
         $api::mysql->execute(

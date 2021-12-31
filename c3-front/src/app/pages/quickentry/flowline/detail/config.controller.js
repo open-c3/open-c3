@@ -61,6 +61,7 @@
                     if ( vm.project.autobuild == 1 ) { vm.autobuild = true; } else { vm.autobuild = false; }
                     if ( vm.project.webhook == 1 ) { vm.webhook = true; } else { vm.webhook = false; }
                     if ( vm.project.status == 1 ) { vm.status = true; } else { vm.status = false; }
+                    if ( vm.project.audit_level == 1 ) { vm.audit_level = true; } else { vm.audit_level = false; }
                     if ( vm.project.autofindtags == 1 ) { vm.autofindtags = true; } else { vm.autofindtags = false; }
                     if ( vm.project.callonlineenv == 1 ) { vm.callonlineenv = true; } else { vm.callonlineenv = false; }
                     if ( vm.project.calltestenv == 1 ) { vm.calltestenv = true; } else { vm.calltestenv = false; }
@@ -194,6 +195,12 @@
              {
                 vm.project.status = 1;
              }
+             vm.project.audit_level = 0;
+             if( vm.audit_level )
+             {
+                vm.project.audit_level = 1;
+             }
+ 
              vm.project.autofindtags = 0;
              if( vm.autofindtags )
              {

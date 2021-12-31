@@ -31,6 +31,10 @@
                             <i class="fa fa-star fa-1x" aria-hidden="true"  ng-if="m.favorites" ng-click="cigroup.delToFavorites(m.id,m.name)" uib-tooltip="取消收藏" style="cursor:pointer;color: #339094;font-size: 18px;" ></i>
                             {{m.name}}
                         </td>
+                        <td data-title="'审计'" width="80" filter="{ audit_level: 'text'}" sortable="'audit_level'">
+                            <a ng-if="m.audit_level==1" style="color: green;" >是<a>
+                            <a ng-if="m.audit_level!=1" >否<a>
+                        </td>
                         <td data-title="'别名'" width="80" filter="{ alias: 'text'}" sortable="'alias'">{{m.alias}}</td>
                         <td data-title="'应用'" width="80" filter="{ ci_type: 'text'}" sortable="'ci_type'">
                              {{m.ci_type}}.{{m.ci_type_kind}}

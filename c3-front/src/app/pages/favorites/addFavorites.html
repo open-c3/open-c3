@@ -19,6 +19,10 @@
                             {{m.id}}
                         </td>
                         <td style="width: 15%" data-title="'名称'" filter="{ name: 'text'}" sortable="'name'">{{m.name}}</td>
+                        <td style="width: 20px" data-title="'审计'" sortable="'audit_level'">
+                            <a ng-if="m.audit_level==1" style="color: green;" >是<a>
+                            <a ng-if="m.audit_level!=1" >否<a>
+                         </td>
                         <td style="width: 15%" data-title="'别名'" filter="{ alias: 'text'}" sortable="'alias'">{{m.alias}}</td>
                         <td style="width: 25%" data-title="'服务树名'" filter="{ treename: 'text'}" sortable="'treename'">{{m.treename}}</td>
                         <td style="width: 30%" data-title="'代码仓库地址'" filter="{ addr: 'text'}" sortable="'addr'">{{m.addr}}</td>
