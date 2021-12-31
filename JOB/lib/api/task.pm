@@ -295,12 +295,13 @@ post '/task/:projectid/job/byname' => sub {
         projectid => qr/^\d+$/, 1,
         jobname => [ 'mismatch', qr/'/ ], 1,
         uuid => qr/^[a-zA-Z0-9]{12}$/, 0,
+        slave => qr/^[a-zA-Z0-9\-\.]+$/, 0,
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
     my $pmscheck = api::pmscheck( 'openc3_job_write', $param->{projectid} ); return $pmscheck if $pmscheck;
 
-    my $slave = eval{ keepalive->new( $api::mysql )->slave() };
+    my $slave = eval{ $param->{slave} || keepalive->new( $api::mysql )->slave() };
     return  +{ stat => $JSON::false, info => "get slave fail: $@" } if $@;
 
     return +{ stat => $JSON::false, info => "system error: no slave" } unless defined $slave;
