@@ -309,6 +309,7 @@
                         <div class="col-md-8"> <input class="form-control" ng-model="config.project.notify" placeholder="构建情况通知人，多个人用逗号分隔"/> </div>
                     </div>
 
+<div ng-if="config.project.ci_type === 'kubernetes'">
                     <hr style="margin: 5px" >
                     <div class="row">
                         <label class="col-md-12 control-label fwbold">发布配置:</label>
@@ -330,12 +331,19 @@
                             </label>
                         </div>
                     </div>
-
+</div>
 <!--  TODO OPENC3 这里判断太多次-->
                     <hr style="margin: 5px" ng-if="config.project.ci_type !== 'kubernetes'">
 
-                    <div class="row" ng-if="config.project.ci_type !== 'kubernetes'" >
+                    <div class="form-group admin-form row" ng-if="config.project.ci_type !== 'kubernetes'" >
                         <button class="btn btn-primary" uib-tooltip="编辑测试分组" ng-click="config.editgroup('test')" style="float: right" ><i class="fa fa-cogs fa-1x" >  测试分组</i></button>
+                        <div class="col-md-2" style="float: right" >
+                            <label class="switch switch-system mt5">
+                                <input type="checkbox" id="check_test" ng-model="config.calltestenv">
+                                <label for="check_test" data-on="ON" data-off="OFF"></label>
+                            </label>
+                        </div>
+                        <label class="col-md-3 control-label fwbold" style="float: right" >构建后自动触发发布:</label>
                     </div>
                     <div class="row" ng-repeat="group in showIPstr.test" ng-if="config.project.ci_type !== 'kubernetes'" >
                         <div class="col-sm-12 form-group">
@@ -349,8 +357,15 @@
 
                    <hr style="margin: 5px" ng-if="config.project.ci_type !== 'kubernetes'">
 
-                   <div class="row" ng-if="config.project.ci_type !== 'kubernetes'">
+                   <div class="form-group admin-form row" ng-if="config.project.ci_type !== 'kubernetes'">
                        <button class="btn btn-primary" uib-tooltip="编辑线上分组" ng-click="config.editgroup('online')" style="float: right" ><i class="fa fa-cogs fa-1x" >  线上分组</i></button>
+                        <div class="col-md-2" style="float: right" >
+                            <label class="switch switch-system mt5">
+                                <input type="checkbox" id="check_online" ng-model="config.callonlineenv">
+                                <label for="check_online" data-on="ON" data-off="OFF"></label>
+                            </label>
+                        </div>
+                        <label class="col-md-3 control-label fwbold" style="float: right" >构建后自动触发发布:</label>
                    </div>
                    <div class="row" ng-repeat="group in showIPstr.online" ng-if="config.project.ci_type !== 'kubernetes'">
                        <div class="col-sm-12 form-group" style="margin: 0px">
