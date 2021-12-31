@@ -4,7 +4,7 @@
         .module('openc3')
         .controller('CreateProjectController', CreateProjectController);
 
-    function CreateProjectController( $state, $http, ngTableParams, $uibModalInstance, $scope, resoureceService, treeid, reload) {
+    function CreateProjectController( $state, $http, ngTableParams, $uibModalInstance, $scope, resoureceService, treeid, reload, editconfig ) {
 
         var vm = this;
 
@@ -15,6 +15,7 @@
                     if(data.stat == true) {
                         vm.cancel();
                         reload();
+                        editconfig( data.id, $scope.projectname );
                     } else { swal({ title: "创建失败!", text: data.info, type:'error' }); }
 
             });

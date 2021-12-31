@@ -172,7 +172,8 @@
                 bindToController: true,
                 resolve: {
                     treeid: function () { return vm.treeid},
-                    reload : function () { return vm.reload}
+                    editconfig : function () { return vm.editconfig},
+                    reload : function () { return vm.reload},
                 }
             });
         };
