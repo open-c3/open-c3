@@ -57,7 +57,8 @@ create table `openc3_ci_project`(
 `ci_type_open` VARCHAR(20) comment '发布类型配置的按钮是否打开',
 `ci_type_concurrent` VARCHAR(20) comment '多应用的并发数',
 `ci_type_approver1` VARCHAR(200) comment 'kubernetes发布类型的审批人,测试审批人',
-`ci_type_approver2` VARCHAR(200) comment 'kubernetes发布类型的审批人,领导审批'
+`ci_type_approver2` VARCHAR(200) comment 'kubernetes发布类型的审批人,领导审批',
+`audit_level` VARCHAR(2) DEFAULT '0' comment '审计级别' #目前只有0,1
 
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='项目';
 
