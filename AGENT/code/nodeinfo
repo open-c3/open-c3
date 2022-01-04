@@ -36,7 +36,7 @@ return sub
         die "call nodeinfo fail";
     }
 
-    my $data = eval{JSON::from_json $res->content};
+    my $data = eval{ JSON::from_json $res->content, { utf8 => 1 } };
     unless ( $data->{stat} ) {
 #TODO 确认上层调用是否捕获这个die
         die "call nodeinfo result". $data->{info} || '';
