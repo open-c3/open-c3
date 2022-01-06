@@ -95,7 +95,7 @@ return sub
     $notify{$tagger} ++;
 
     my %replace;
-    $replace{buildlog} = `cat $RealBin/../logs/build/$uuid|grep -v 'remote: Counting objects:'|grep -v 'remote: Compressing objects:'|head -n 200`;
+    $replace{buildlog} = `cat $RealBin/../logs/build/$uuid 2>/dev/null|grep -v 'remote: Counting objects:' 2>/dev/null|grep -v 'remote: Compressing objects:' 2>/dev/null|head -n 200`;
     $replace{projectname} = $x{'openc3_ci_project.name'};
     $replace{projectid} = $x{'openc3_ci_version.projectid'};
     $replace{treeid} = $x{'openc3_ci_project.groupid'};
