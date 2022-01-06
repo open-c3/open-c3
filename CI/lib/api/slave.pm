@@ -122,7 +122,16 @@ websocket_on_open sub {
         return;
     }
 
-    while( <$h> ) { $conn->send(replace($_)); }
+    my $msg = '';
+    while( <$h> ) {
+        $msg .=replace($_);
+        if( length $msg > 10000 )
+        {
+            $conn->send($msg);
+            $msg = '';
+        }
+    }
+    $conn->send($msg) if $msg;
 
     $conn{$conn} = EV::stat $file, 10, sub {
         unless( ( $_[0]->stat)[7] )
@@ -130,7 +139,17 @@ websocket_on_open sub {
             seek $h, 0, 0;
             $conn->send('wsresetws');
         }
-        while( <$h> ) { $conn->send(replace($_)); }
+        my $msg = '';
+        while( <$h> ) {
+            $msg .=replace($_);
+            if( length $msg > 10000 )
+            {
+                $conn->send($msg);
+                $msg = '';
+            }
+        }
+        $conn->send($msg) if $msg;
+
     };
   
 };
