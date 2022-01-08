@@ -25,7 +25,7 @@ if( -f $md5 )
 }
 
 #timeout
-system "/data/tsunami-udp/client/tsunami connect $serverip get x.$md5 quit";
+system "/data/tsunami-udp/client/tsunami connect $serverip get x.$md5 quit|tail -n 40";
 
 open my $fh, "<x.$md5" or die "open file fail: $!";
 my $tempmd5 = Digest::MD5->new()->addfile( $fh )->hexdigest;
