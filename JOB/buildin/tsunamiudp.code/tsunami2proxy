@@ -12,7 +12,7 @@ local $/ = "\n";
 my ( $md5, $serverip ) = @{$param{argv}};
 my $idie = sub{ print shift;exit 1; };
 
-my $datapath = "/data/mydan/var/filecache";
+my $datapath = "/data/mydan/var/run/filecache";
 
 &$idie( "no data path: $datapath" ) unless -d $datapath;
 
