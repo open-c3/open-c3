@@ -1,0 +1,59 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib
+use strict;
+use warnings;
+use MYDan::Util::OptConf;
+use FindBin qw( $RealBin );
+use uuid;
+use Digest::MD5;
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ $0 ip1,ip2...
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+$option->assert() unless @ARGV;
+
+die "nonode" unless $ENV{NODE};
+
+my @ip = grep{ /^\d+\.\d+\.\d+\.\d+$/ } split /,/, shift @ARGV;
+die "no ip" unless @ip;
+
+my $conf = eval{ YAML::XS::LoadFile "/data/Software/mydan/Connector/config.inix" };
+die "load config fail: $@" if $@;
+die "config no hash" unless $conf && ref $conf eq 'HASH';
+
+my $myconf = $conf->{tsunamiudp};
+map{ die "$_ undef in config" unless $myconf->{$_}  }qw( serverip );
+
+sub success
+{
+    map{ print "$_:ok\n"; } split /,/, $ENV{NODE};
+    exit;
+}
+
+my ( $treeid, $flowid, $version ) = @ENV{qw( TREEID FLOWID VERSION )};
+
+my $file = "/data/glusterfs/ci_repo/$flowid/$version";
+
+open my $fh, "<$file" or die "open file fail: $!";
+my $md5 = Digest::MD5->new()->addfile( $fh )->hexdigest;
+close $fh;
+
+my $dist = "/data/glusterfs/tsunamiudp";
+mkdir $dist unless -d $dist;
+$dist = "$dist/x.$md5";
+die "copy file fail: $!" if system "cp '$file' '$dist'";
+
+my $err;
+for my $ip ( @ip )
+{
+    warn "sync $ip\n";
+    my $x = `/data/Software/mydan/dan/tools/rcall -r $ip tsunami2proxy $md5 $myconf->{serverip}`;
+    warn "$x\n";
+    $err ++ unless $x =~ /tsunamiudp cached/;
+}
+
+success() unless $err;
