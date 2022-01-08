@@ -34,7 +34,7 @@ sub success
     exit;
 }
 
-my ( $treeid, $flowid, $version ) = @ENV{qw( TREEID FLOWID VERSION )};
+my ( $treeid, $flowid, $version, $timeout ) = @ENV{qw( TREEID FLOWID VERSION TIMEOUT )};
 
 my $file = "/data/glusterfs/ci_repo/$flowid/$version";
 
@@ -51,7 +51,7 @@ my $err;
 for my $ip ( @ip )
 {
     warn "sync $ip\n";
-    my $x = `/data/Software/mydan/dan/tools/rcall -r $ip tsunami2proxy $md5 $myconf->{serverip}`;
+    my $x = `/data/Software/mydan/dan/tools/rcall --timeout $timeout -r $ip tsunami2proxy $md5 $myconf->{serverip}`;
     warn "$x\n";
     $err ++ unless $x =~ /tsunamiudp cached/;
 }
