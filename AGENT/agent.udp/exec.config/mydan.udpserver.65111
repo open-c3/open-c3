@@ -1,0 +1,22 @@
+#!/bin/bash
+
+export PATH=$PATH:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:$MYDanPATH/bin
+
+os=$(uname)
+_exit () { echo $1; sleep 60; exit 1; }
+
+if [ "x$os" = "x" ];then
+     _exit "uname fail"
+fi
+
+echo "os: $os";
+
+if [ "x$os" == "xLinux" ] ;then
+    ulimit -n 655350 || _exit "ulimit -n fail";
+    ulimit -u 102400 || _exit "ulimit -u fail";
+    ulimit -s 10240  || _exit "ulimit -s fail";
+fi
+
+cd /data/mydan/var/run/filecache || _exit "chdir fail";
+exec /opt/mydan/dan/agent.udp/bin/udpfileserver --server --ip 0.0.0.0 --port 65111 2>&1
+

@@ -22,3 +22,7 @@ wget $OPEN_C3_ADDR/api/scripts/agent.udp.tar.gz -O $MYDanPATH/dan/agent.udp.tar.
 
 tar -zxvf agent.udp.tar.gz
 
+cp /opt/mydan/dan/agent.udp/exec.config/mydan.udpserver.65111 /opt/mydan/dan/bootstrap/exec/
+chmod +x /opt/mydan/dan/bootstrap/exec/mydan.udpserver.65111
+
+killall mydan.udpserver.65111

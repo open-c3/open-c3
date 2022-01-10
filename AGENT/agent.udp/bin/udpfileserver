@@ -60,6 +60,7 @@ my %o = $option->set( ip => '0.0.0.0', port => 65111 )->get(
 
 if( delete $o{server} )
 {
+    $0 = "mydan.udpserver.$o{port}";
     OPENC3::MYDan::UDPFileServer::Server->new( map{ $_ => delete $o{$_} }qw( ip port ) )->run( %o );
 }
 elsif( delete $o{client} )
