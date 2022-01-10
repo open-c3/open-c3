@@ -1,0 +1,74 @@
+#!/data/mydan/perl/bin/perl -I/opt/mydan/dan/agent.udp/lib
+use strict;
+use warnings;
+
+use MYDan::Util::OptConf;
+use OPENC3::MYDan::UDPFileServer::Server;
+use OPENC3::MYDan::UDPFileServer::Client;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    #server
+ $0 --server --ip 0.0.0.0 --port 65111 
+
+     --MTU 1400
+     --WriteFileWidth 100
+     --ACKInterval 0.001
+     --WriteFileInterval 0.001
+     --RTT 0.003
+     --MaxRTO 0.2
+     --SendSec 2000
+     --ReadFileCache 400000
+     --TransmitRatio 1.5
+     --Buffers 1000
+     --SendTimeoutAddTime 0.003
+     --SendOne 1000
+     --ReadFileOneTime 800
+     --Timeout 6
+
+    #client
+ $0 --client --ip 127.0.0.1 --port 65111 --get file
+ $0 --client --ip 127.0.0.1 --port 65111 --put /path/file
+
+     --MTU 1400
+     --WriteFileWidth 100
+     --ACKInterval 0.001
+     --WriteFileInterval 0.001
+     --RTT 0.003
+     --MaxRTO 0.2
+     --SendSec 2000
+     --ReadFileCache 400000
+     --TransmitRatio 1.5
+     --Buffers 1000
+     --SendTimeoutAddTime 0.003
+     --SendOne 1000
+     --ReadFileOneTime 800
+     --RTimeout 6
+ 
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->set( ip => '0.0.0.0', port => 65111 )->get( 
+    qw( ip=s port=i MTU=i WriteFileWidth=i ACKInterval=f WriteFileInterval=f 
+        RTT=f MaxRTO=f SendSec=i ReadFileCache=i TransmitRatio=f Buffers=i 
+        SendTimeoutAddTime=f SendOne=i ReadFileOneTime=i Timeout=i 
+        RTimeout=i server client put=s get=s ) 
+)->dump();
+
+if( delete $o{server} )
+{
+    OPENC3::MYDan::UDPFileServer::Server->new( map{ $_ => delete $o{$_} }qw( ip port ) )->run( %o );
+}
+elsif( delete $o{client} )
+{
+    $option->assert() unless $o{put} || $o{get};
+    my $client = OPENC3::MYDan::UDPFileServer::Client->new( map{ $_ => delete $o{$_} }qw( ip port ) ); 
+    $o{put} ? $client->put( file => delete $o{put}, %o ) : $client->get( file => delete $o{get}, %o );
+}
+else
+{
+    $option->assert();
+}
