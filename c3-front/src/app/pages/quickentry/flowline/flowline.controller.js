@@ -161,6 +161,24 @@
             });
         };
 
+        vm.flowlineRename = function (id, name) {
+            $uibModal.open({
+                templateUrl: 'app/pages/quickentry/flowline/flowlineRename.html',
+                controller: 'FlowlineRenameController',
+                controllerAs: 'flowlineRename',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () { return vm.treeid},
+                    sourceid: function () { return id},
+                    sourcename: function () { return name},
+                    reload : function () { return vm.reload}
+                }
+            });
+        };
+
         vm.createProject = function () {
             $uibModal.open({
                 templateUrl: 'app/pages/quickentry/flowline/create/blank.html',

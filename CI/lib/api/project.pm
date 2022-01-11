@@ -177,6 +177,33 @@ del '/project/:groupid/:projectid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
 };
 
+post '/project/:groupid/:projectid/rename' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        groupid => qr/^\d+$/, 1,
+        projectid => qr/^\d+$/, 1,
+        name => [ 'mismatch', qr/'/ ], 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $pmscheck = api::pmscheck( 'openc3_ci_write', $param->{groupid} ); return $pmscheck if $pmscheck;
+
+
+    my $projectid = $param->{projectid};
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), 
+        map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    eval{ $api::auditlog->run( user => $user, title => 'RENAME FLOWLINE CI', content => "TREEID:$param->{groupid} FLOWLINEID:$projectid NAME:$param->{name}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
+    eval{ 
+        $api::mysql->execute( "update openc3_ci_project set name='$param->{name}' where id=$projectid and groupid=$param->{groupid}");
+    };
+
+    return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
+};
+
 put '/project/:groupid/:projectid/findtags_at_once' => sub {
     my $param = params();
     my $error = Format->new( 
