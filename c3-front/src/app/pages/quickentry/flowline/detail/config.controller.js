@@ -898,6 +898,25 @@
 
     };
 
+    vm.nodecheck = function(type,ip)
+    {
+        swal({
+             title: '正在检查NODE状态...',
+             showConfirmButton: false
+        });
+
+        $http.get('/api/ci/v2/kubernetes/nodecheck?type=' + type + '&treeid=' + vm.treeid + '&node=' + ip ).then(
+            function successCallback(response) {
+                if (response.data.stat){
+                    swal({title: "节点正常", text: response.data.info, type: 'success'});
+                }else {
+                    swal({title: "节点异常", text: response.data.info, type: 'error'});
+                }
+           },
+           function errorCallback (response ){
+                toastr.error( "获取NODE信息失败" + response.status );
+       });
+    }
 
     }
 })();

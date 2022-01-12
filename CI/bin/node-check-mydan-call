@@ -1,0 +1,21 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use Util;
+
+my ( $treeid, $node ) = @ARGV;
+die "treeid format error" unless defined $treeid && $treeid =~ /^\d+$/;
+
+$node = join ',', grep{ /^\d+\.\d+\.\d+\.\d+$/ }split /,/, $node;
+
+my %env = Util::envinfo( qw( envname domainname appname appkey ) );
+$ENV{MYDan_Agent_Proxy_Addr} = "http://api.agent.open-c3.org/proxy/$treeid";
+$ENV{MYDan_Agent_Proxy_Header} = "appname:$env{appname},appkey:$env{appkey}";
+
+my @x = `/data/Software/mydan/dan/tools/rcall --verbose --timeout 30 -r '$node' exec 'echo ok' 2>&1`;
+chomp @x;
+
+my @r = grep{ $_ !~ /^\d+\.\d+\.\d+\.\d+:ok$/ }@x;
+
+print join "\n", @r ? @r : @x;
+exit 1 if @r;
