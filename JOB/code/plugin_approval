@@ -153,6 +153,12 @@ return sub
     $timeout ||= 86400;
 
     $everyone = ( $everyone && $everyone eq 'on' ) ? 1 : 0;
+
+    if( $relaxed && $relaxed eq 'nervous' )
+    {
+        $relaxed = 'off';
+        $submitter = 'sys@app';
+    }
     $relaxed = ( $relaxed && $relaxed eq 'on' ) ? 1 : 0;
 
     my ( $subtasktimems, $subtaskstarttime ) 

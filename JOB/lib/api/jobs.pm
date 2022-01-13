@@ -454,6 +454,7 @@ post '/jobs/:projectid' => sub {
                 action => [ 'in', 'deploy', 'rollback', 'always' ], 1,
                 batches => [ 'in', 'firsttime', 'thelasttime', 'always' ], 1,
                 everyone => [ 'in', 'on', 'off' ], 1,
+                relaxed => [ 'in', 'on', 'off', 'nervous' ], 1,
             )->check( %$data );
             return  +{ stat => $JSON::false, info => "$info: check format fail $error" } if $error;
         }
@@ -733,6 +734,7 @@ post '/jobs/:projectid/:jobuuid' => sub {
                 action => [ 'in', 'deploy', 'rollback', 'always' ], 1,
                 batches => [ 'in', 'firsttime', 'thelasttime', 'always' ], 1,
                 everyone => [ 'in', 'on', 'off' ], 1,
+                relaxed => [ 'in', 'on', 'off', 'nervous' ], 1,
             )->check( %$data );
             return  +{ stat => $JSON::false, info => "$info: check format fail $error" } if $error;
         }
