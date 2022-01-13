@@ -89,6 +89,12 @@ return sub
 
     my ( $jobuuid, $name, $cont, $approver, $deployenv, $action, $batches, $everyone, $relaxed, $timeout, $pause ) = @{$x->[0]};
 
+    if( $fromjob && $approver =~ /\$/ )
+    {
+        eval { $approver = variable->new( variable => $variable, db => $db, jobuuid => $fromjob )->relpace( $approver ); };
+        $logs->die( "relpace variable approver fail:$@" ) if $@;
+    }
+
     my %var_map;
     if( $fromjob && $variable->{version} )
     {

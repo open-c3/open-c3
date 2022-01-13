@@ -446,10 +446,12 @@ post '/jobs/:projectid' => sub {
         }
         elsif( $data->{plugin_type} eq 'approval' )
         {
+            map{ push @variable, $data->{$_} }qw( approver );
+
             $error = Format->new( 
                 name => [ 'mismatch', qr/'/ ], 1, 
                 cont => [ 'mismatch', qr/'/ ], 1, 
-                approver => qr/^[a-zA-Z0-9,\@_\-\.]+$/, 1,
+                approver => qr/^[\$a-zA-Z0-9,\@_\-\.]+$/, 1,
                 deployenv => [ 'in', 'test', 'online', 'always' ], 1,
                 action => [ 'in', 'deploy', 'rollback', 'always' ], 1,
                 batches => [ 'in', 'firsttime', 'thelasttime', 'always' ], 1,
@@ -726,10 +728,12 @@ post '/jobs/:projectid/:jobuuid' => sub {
         }
         elsif( $data->{plugin_type} eq 'approval' )
         {
+            map{ push @variable, $data->{$_} }qw( approver );
+
             $error = Format->new( 
                 name => [ 'mismatch', qr/'/ ], 1, 
                 cont => [ 'mismatch', qr/'/ ], 1, 
-                approver => qr/^[a-zA-Z0-9,\@_\-\.]+$/, 1,
+                approver => qr/^[\$a-zA-Z0-9,\@_\-\.]+$/, 1,
                 deployenv => [ 'in', 'test', 'online', 'always' ], 1,
                 action => [ 'in', 'deploy', 'rollback', 'always' ], 1,
                 batches => [ 'in', 'firsttime', 'thelasttime', 'always' ], 1,
