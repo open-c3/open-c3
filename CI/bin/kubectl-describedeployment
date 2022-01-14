@@ -10,6 +10,11 @@ $re{describe} = `$kubectl describe deployment '$name' -n '$namespace'`;
 $re{describe} =~ /OldReplicaSets{0,1}:\s+([a-zA-Z0-9\-]+)\s+\(/ and $re{"OldReplicaSet"} = $1;
 $re{describe} =~ /NewReplicaSets{0,1}:\s+([a-zA-Z0-9\-]+)\s+\(/ and $re{"NewReplicaSet"} = $1;
 
+#可能因为k8s服务的版本太低
+#没有NewReplicaSets字段，用Status中的下面字符串匹配pod
+#Message:               ReplicaSet "wallpaper-web-6cd8b48769" has successfully progressed.
+$re{describe} =~ /ReplicaSet "([a-zA-Z0-9\-]+)"/ and $re{"NewReplicaSet"} = $1;
+
 my @pod = `$kubectl get pod -n '$namespace'`;
 chomp @pod;
 my @title = split /\s+/, shift @pod;
