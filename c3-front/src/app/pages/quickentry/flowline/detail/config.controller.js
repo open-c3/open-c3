@@ -321,6 +321,7 @@
                     'deployenv' : "always",
                     'action' : "deploy",
                     'batches' : "always",
+                    'relaxed': 'off',
                  }
                 data.push(tempdata0)
             }
