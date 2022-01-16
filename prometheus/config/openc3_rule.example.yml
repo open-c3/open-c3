@@ -1,0 +1,36 @@
+groups:
+- name: cpu-idle
+  rules:
+  - alert: "内存报警"
+    expr: node_cpu_idle_percent_summary > 4
+    for: 1s
+    labels:
+      severity: test
+      fromtreeid: 10
+    annotations:
+      summary: "服务名:{{$labels.alertname}}"
+      description: "业务500报警: {{ $value }}"
+      value: "{{ $value }}"
+
+- name: test-load
+  rules:
+  - alert: "loadmonitor"
+    expr: node_load_ldavg_1 > 0.5
+    for: 1s
+    labels:
+      severity: warning
+    annotations:
+      summary: "load1 :{{$labels.alertname}}"
+      description: "load dayu 0.5: {{ $value }}"
+      value: "{{ $value }}"
+- name: vm-down
+  rules:
+  - alert: "vm down"
+    expr: up == 0
+    for: 120s
+    labels:
+      severity: warning
+    annotations:
+      summary: "vm down :{{$labels.alertname}}"
+      description: "vm down: {{ $value }}"
+      value: "{{ $value }}"

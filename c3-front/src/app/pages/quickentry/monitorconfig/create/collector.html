@@ -1,0 +1,178 @@
+<div class="modal-header">
+    <h4 class="modal-title">{{createMonitorConfig.title}}监控指标采集</h4>
+</div>
+<div class="modal-body">
+
+<form class="form-horizontal" >
+    <div class="row">
+        <div class="col-sm-10 form-group">
+            <label class="col-sm-3 control-label">类型</label>
+            <div class="col-sm-9">
+                <div class="admin-form">
+                    <div class="option-group field" >
+                        <label class="option option-primary">
+                            <input type="radio" ng-model="createMonitorConfig.postData.type" ng-change="createMonitorConfig.changeType('tcp')" value="port" >
+                            <span class="radio" style="padding-top: 0;min-height: 0"></span>端口
+                        </label>
+                        <label class="option option-primary">
+                             <input type="radio" ng-model="createMonitorConfig.postData.type" ng-change="createMonitorConfig.changeType('cmdline')" value="process" >
+                             <span class="radio" style="padding-top: 0;min-height: 0"></span>进程
+                        </label>
+                        <label class="option option-primary">
+                             <input type="radio" ng-model="createMonitorConfig.postData.type" ng-change="createMonitorConfig.changeType('GET')" value="http" >
+                             <span class="radio" style="padding-top: 0;min-height: 0"></span>HTTP
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</form>
+
+<div ng-if="createMonitorConfig.postData.type=='port'">
+    <form class="form-horizontal" name="myForm" role="form">
+
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">协议</label>
+                <div class="col-sm-9">
+                    <div class="admin-form">
+                        <div class="option-group field" >
+                            <label class="option option-primary">
+                                <input type="radio" ng-model="createMonitorConfig.postData.subtype" value="tcp" >
+                                <span class="radio" style="padding-top: 0;min-height: 0"></span>TCP
+                            </label>
+                            <label class="option option-primary">
+                                 <input type="radio" ng-model="createMonitorConfig.postData.subtype" value="udp" >
+                                 <span class="radio" style="padding-top: 0;min-height: 0"></span>UDP
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">端口</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" placeholder="要采集的端口，多个用英文逗号分隔" ng-model="createMonitorConfig.postData.content1" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-5 form-group pull-right">
+                <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="createMonitorConfig.add()">确认</button>
+                <button class="btn btn-warning" ng-click="createMonitorConfig.cancel()">取消</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div ng-if="createMonitorConfig.postData.type=='process'">
+    <form class="form-horizontal" name="myForm" role="form">
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">方式</label>
+                <div class="col-sm-9">
+                    <div class="admin-form">
+                        <div class="option-group field" >
+                            <label class="option option-primary">
+                                <input type="radio" ng-model="createMonitorConfig.postData.subtype" value="name" >
+                                <span class="radio" style="padding-top: 0;min-height: 0"></span>name
+                            </label>
+                            <label class="option option-primary">
+                                 <input type="radio" ng-model="createMonitorConfig.postData.subtype" value="exe" >
+                                 <span class="radio" style="padding-top: 0;min-height: 0"></span>exe
+                            </label>
+
+                            <label class="option option-primary">
+                                 <input type="radio" ng-model="createMonitorConfig.postData.subtype" value="cmdline" >
+                                 <span class="radio" style="padding-top: 0;min-height: 0"></span>cmdline
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">进程</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" placeholder="进程" ng-model="createMonitorConfig.postData.content1" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-5 form-group pull-right">
+                <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="createMonitorConfig.add()">确认</button>
+                <button class="btn btn-warning" ng-click="createMonitorConfig.cancel()">取消</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div ng-if="createMonitorConfig.postData.type=='http'">
+    <form class="form-horizontal" name="myForm" role="form">
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">协议</label>
+                <div class="col-sm-9">
+                    <div class="admin-form">
+                        <div class="option-group field" >
+                            <label class="option option-primary">
+                                <input type="radio" ng-model="createMonitorConfig.postData.subtype" value="GET" >
+                                <span class="radio" style="padding-top: 0;min-height: 0"></span>GET
+                            </label>
+                            <label class="option option-primary">
+                                 <input type="radio" ng-model="createMonitorConfig.postData.subtype" value="POST" >
+                                 <span class="radio" style="padding-top: 0;min-height: 0"></span>POST
+                            </label>
+
+                            <label class="option option-primary">
+                                 <input type="radio" ng-model="createMonitorConfig.postData.subtype" value="HEAD" >
+                                 <span class="radio" style="padding-top: 0;min-height: 0"></span>HEAD
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">URL</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" placeholder="内容" ng-model="createMonitorConfig.postData.content1" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">匹配</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" placeholder="匹配" ng-model="createMonitorConfig.postData.content2">
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-5 form-group pull-right">
+                <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="createMonitorConfig.add()">确认</button>
+                <button class="btn btn-warning" ng-click="createMonitorConfig.cancel()">取消</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+</div>

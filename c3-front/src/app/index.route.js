@@ -161,6 +161,13 @@
                 controllerAs: 'cigroup'
             })
  
+            .state('home.quickentry.monitorconfig', {
+                url: 'monitorconfig/:treeid',
+                templateUrl: 'app/pages/quickentry/monitorconfig/monitorconfig.html',
+                controller: 'MonitorConfigController',
+                controllerAs: 'monitorconfig'
+            })
+ 
             .state('home.quickentry.flowlinedetail', {
                 url: 'flowlinedetail/:treeid/:projectid',
                 templateUrl: 'app/pages/quickentry/flowline/detail/detail.html',

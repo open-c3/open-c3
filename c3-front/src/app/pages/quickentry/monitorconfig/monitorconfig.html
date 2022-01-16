@@ -1,0 +1,178 @@
+<div class="row block">
+    <nodestr></nodestr>
+    <hr class="mv20 clear">
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h5>监控看板</h5>
+        </div>
+
+        <div class="panel-body flowline">
+            <div class="pt20" style="overflow: auto;">
+                <a>{{monitorconfig.url}}</a>
+                <iframe ng-src="{{monitorconfig.trustSrc()}}" width="100%" height="800" frameborder="0" name="grafana" scrolling="auto"></iframe> 
+            </div>
+        </div>
+
+    </div>
+<hr>
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="monitorconfig.reloadAlert()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!monitorconfig.loadoverAlert}" ></i></button>
+            </span>
+            <h5>当前告警</h5>
+        </div>
+
+        <div class="panel-body flowline">
+            <div class="pt20" style="overflow: auto;">
+                <table ng-table="monitorconfig.activeAlertTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
+                    <tr ng-repeat="m in $data">
+                        <td data-title="'开始时间'" sortable="'startsAt'">{{m.startsAt}}</td>
+                        <td data-title="'名称'" sortable="'labels.alertname'">{{m.labels.alertname}}</td>
+                        <td data-title="'监控对象'" sortable="'labels.instance'">{{m.labels.instance}}</td>
+                        <td data-title="'状态'" sortable="'status.state'">{{m.status.state}}</td>
+                        <td data-title="'概要'" sortable="'annotations.summary'">{{m.annotations.summary}}</td>
+                        <td data-title="'值'" sortable="'annotations.value'">{{m.annotations.value}}</td>
+                        <td class="textcenter"  data-title="'操作'">
+                            <nobr>
+                                <a style="font-size: 10px;font-weight: bold" class="btn btn-primary" href="{{m.generatorURL}}" target="_blank">查看图表</a>
+                            </nobr>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <hr class="mv20 clear">
+
+    <div>
+        <div style="float: right;">
+            <form class="form-inline" name="myForm" novalidate>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="monitorconfig.createCollector({},'添加')"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i> 添加监控指标采集</button>
+            </form>
+        </div>
+        <div style="clear: both;">&nbsp;</div>
+    </div>
+
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="monitorconfig.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!monitorconfig.loadover}" ></i></button>
+            </span>
+            <h5>监控指标采集【进程、端口、HTTP】</h5>
+        </div>
+
+        <div class="panel-body flowline">
+            <div class="pt20" style="overflow: auto;">
+                <table ng-table="monitorconfig.activeRegionTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
+                    <tr ng-repeat="m in $data">
+                        <td data-title="'编号'" sortable="'edit_user'">{{m.id}}</td>
+                        <td data-title="'类型'" sortable="'type'">{{monitorconfig.alias[m.type] || m.type}}</td>
+                        <td data-title="'分类'" sortable="'subtype'">{{monitorconfig.alias[m.subtype] || m.subtype }}</td>
+                        <td data-title="'内容'" sortable="'content1'">
+                            <div ng-if="m.content2" >{{m.content1}}【匹配:{{m.content2}}】</div>
+                            <div ng-if="!m.content2" >{{m.content1}}</div>
+                        </td>
+                        <td data-title="'编辑者'" sortable="'edit_user'">{{m.edit_user}}</td>
+                        <td data-title="'编辑时间'" sortable="'edit_time'">{{m.edit_time}}</td>
+                        <td class="textcenter"  data-title="'操作'">
+                            <nobr>
+                                <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="monitorconfig.createCollector(m,'编辑')" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
+                                <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="monitorconfig.deleteCollector(m.id)" uib-tooltip="删除" style="cursor:pointer;color: red;" ></i>
+                            </nobr>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+<hr>
+
+    <div>
+        <div style="float: right;">
+            <form class="form-inline" name="myForm" novalidate>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="monitorconfig.createRule({},'添加')"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i> 添加监控策略</button>
+            </form>
+        </div>
+        <div style="clear: both;">&nbsp;</div>
+    </div>
+
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="monitorconfig.reloadRule()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!monitorconfig.loadoverRule}" ></i></button>
+            </span>
+            <h5>监控策略</h5>
+        </div>
+
+        <div class="panel-body flowline">
+            <div class="pt20" style="overflow: auto;">
+                <table ng-table="monitorconfig.activeRuleTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
+                    <tr ng-repeat="m in $data">
+                        <td data-title="'编号'" sortable="'edit_user'">{{m.id}}</td>
+                        <td data-title="'名称'" sortable="'alert'">{{m.alert}}</td>
+                        <td data-title="'表达式'" sortable="'expr'">{{m.expr}}</td>
+                        <td data-title="'严重程度'" sortable="'severity'">{{m.severity}}</td>
+                        <td data-title="'概要'" sortable="'summary'">{{m.summary}}</td>
+                        <td data-title="'编辑者'" sortable="'edit_user'">{{m.edit_user}}</td>
+                        <td data-title="'编辑时间'" sortable="'edit_time'">{{m.edit_time}}</td>
+                        <td class="textcenter"  data-title="'操作'">
+                            <nobr>
+                                <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="monitorconfig.createRule(m,'编辑')" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
+                                <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="monitorconfig.deleteRule(m.id)" uib-tooltip="删除" style="cursor:pointer;color: red;" ></i>
+                            </nobr>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+
+<hr>
+
+    <div>
+        <div style="float: right;">
+            <form class="form-inline" name="myForm" novalidate>
+                <div class="form-group" ng-init="newUser=''">
+                    <input type="text" class="form-control" ng-model="newUser"  placeholder="添加报警人" required>
+                </div>
+                <button type="submit" ng-disabled="myForm.$invalid" class="btn btn-primary" ng-click="monitorconfig.createUser()"><i class="fa fa-user fa-lg" aria-hidden="true"></i>添加报警人</button>
+            </form>
+        </div>
+        <div style="clear: both;">&nbsp;</div>
+    </div>
+
+    <div class="panel panel-dark">
+
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-dark" uib-tooltip="刷新" ng-click="monitorconfig.reloadUser()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!monitorconfig.loadoverUser}" ></i></button>
+            </span>
+            <h5>通知用户</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="panel-tabs">
+
+            <table ng-table="monitorconfig.activeUserTable" class="table table-hover text-center table-condensed">
+                <tr ng-repeat="ss in $data">
+                    <td data-title="'账户名'" >{{ss.user}}</td>
+                    <td data-title="'创建人'">{{ss.edit_user}}</td>
+                    <td data-title="'创建时间'">{{ss.edit_time}}</td>
+                    <td data-title="'操作'">
+                        <button class="btn btn-primary btn-sm" ng-click="monitorconfig.deleteUser(ss.id)">删除</button>
+                    </td>
+                </tr>
+            </table>
+            </div>
+        </div>
+    </div>
+
+</div>

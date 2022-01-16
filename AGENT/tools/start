@@ -41,4 +41,4 @@ map{
 }$port->{'api.slave'}{from} .. $port->{'api.slave'}{to};
 map{
     die "start $_ fail: $!" if system "$supervisor --cmd '$base/server/$_' --log '$base/logs/server/$_'";
-}qw( call bury keepalive check inherit );
+}qw( call bury keepalive check inherit promesd carry rule sender );
