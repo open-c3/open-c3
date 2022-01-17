@@ -100,7 +100,7 @@ my $deploy = sub {
 
 my $concurrent = $data{ci_type_concurrent};
 
-$concurrent = 1 if $concurrent && $concurrent !~ /^\d+$/ && $concurrent > 0;
+$concurrent = 1 unless $concurrent && $concurrent =~ /^\d+$/;
 warn "concurrent:$concurrent\n";
 
 if( $ARGV[0] && $ARGV[0] eq 'deploy' )
