@@ -66,6 +66,8 @@
                     if ( vm.project.callonlineenv == 1 ) { vm.callonlineenv = true; } else { vm.callonlineenv = false; }
                     if ( vm.project.calltestenv == 1 ) { vm.calltestenv = true; } else { vm.calltestenv = false; }
 
+                    vm.project.ci_type_concurrent = vm.project.ci_type_concurrent * 1;
+
                     if( /,/.test(vm.project.ci_type_name ))
                     {
                         var ci_type_name = vm.project.ci_type_name.split(",")
@@ -806,6 +808,10 @@
         if(bool === true)
         {
             vm.project.ci_type_name = [ vm.project.ci_type_name ];
+            if( vm.project.ci_type_concurrent === 0 )
+            {
+                vm.project.ci_type_concurrent = 1;
+            }
         }
         else
         {
