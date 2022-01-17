@@ -52,7 +52,7 @@ die "ci_type_ticketid format error" unless $data{ci_type_ticketid} && $data{ci_t
 die "ci_type_kind format error" unless $data{ci_type_kind} && $data{ci_type_kind} =~ /^[a-zA-Z0-9]+$/;
 die "ci_type_namespace format error" unless $data{ci_type_namespace} && $data{ci_type_namespace} =~ /^[a-zA-Z0-9\-]+$/;
 die "ci_type_name format error" unless $data{ci_type_name} && $data{ci_type_name} =~ /^[a-zA-Z][a-zA-Z0-9_\-,]+$/;
-die "ci_type_container format error" unless $data{ci_type_container} && $data{ci_type_container} =~ /^[a-zA-Z][a-zA-Z0-9_\-]+$/;
+die "ci_type_container format error" unless $data{ci_type_container} && $data{ci_type_container} =~ /^[a-zA-Z][a-zA-Z0-9_\-]+$/ || $data{ci_type_container} eq '__app_name__';
 die "ci_type_dockerfile format error" unless $data{ci_type_dockerfile} && $data{ci_type_dockerfile} =~ /^[_a-zA-Z0-9]+$/;
 die "ci_type_repository format error" unless $data{ci_type_repository} && $data{ci_type_repository} =~ /^[0-9a-zA-Z][a-zA-Z0-9_\-\/\.]+$/;
 
@@ -67,10 +67,13 @@ my $check = sub{
     my $stat = `$kubectl get '$data{ci_type_kind}' '$name' -n '$data{ci_type_namespace}' -o yaml`;
     my $conf = eval{ YAML::XS::Load $stat };
     my ( $containers, $status ) = ( $conf->{spec}{template}{spec}{containers}, $conf->{status} );
-    my ( $container ) = grep{ $_->{name} eq $data{ci_type_container} }@$containers;
+    
+    my $containername = $data{ci_type_container} eq '__app_name__' ? $name : $data{ci_type_container};
+
+    my ( $container ) = grep{ $_->{name} eq $containername }@$containers;
     unless( $container )
     {
-        warn "no container name: $data{ci_type_container}\n";
+        warn "no container name: $containername\n";
         return;
     }
     if( $container->{"image"} eq "$data{ci_type_repository}:$version" )
@@ -94,13 +97,17 @@ my $check = sub{
 my $deploy = sub {
     my $name = shift @_;
     warn "update: $name\n";
-    die "update fail: $!" if system "$kubectl set image '$data{ci_type_kind}' '$name' '$data{ci_type_container}=$data{ci_type_repository}:$version' -n '$data{ci_type_namespace}'";
+
+    my $containername = $data{ci_type_container} eq '__app_name__' ? $name : $data{ci_type_container};
+    warn "containername: $containername\n";
+
+    die "update fail: $!" if system "$kubectl set image '$data{ci_type_kind}' '$name' '$containername=$data{ci_type_repository}:$version' -n '$data{ci_type_namespace}'";
     warn "setimage done.\n"
 };
 
 my $concurrent = $data{ci_type_concurrent};
 
-$concurrent = 1 if $concurrent && $concurrent !~ /^\d+$/ && $concurrent > 0;
+$concurrent = 1 unless $concurrent && $concurrent =~ /^\d+$/;
 warn "concurrent:$concurrent\n";
 
 if( $ARGV[0] && $ARGV[0] eq 'deploy' )
