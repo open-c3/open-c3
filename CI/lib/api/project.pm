@@ -27,8 +27,12 @@ get '/project/kubernetes/:ticketid' => sub {
     my %r;
     for my $row ( @$r )
     {
-        $r{$row->{ci_type_kind}}{$row->{ci_type_namespace}}{$row->{ci_type_name}} ||= [] ;
-        push @{$r{$row->{ci_type_kind}}{$row->{ci_type_namespace}}{$row->{ci_type_name}}}, $row;
+        my @name = split /,/, $row->{ci_type_name};
+        for my $name ( @name )
+        {
+            $r{$row->{ci_type_kind}}{$row->{ci_type_namespace}}{$name} ||= [] ;
+            push @{$r{$row->{ci_type_kind}}{$row->{ci_type_namespace}}{$name}}, +{ %$row, name => @name > 1 ? "$row->{name}(Multiple)" : $row->{name} };
+        }
     }
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \%r };
