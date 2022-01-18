@@ -45,6 +45,18 @@ function upgradeSelf() {
     cd $BASE_PATH || exit 1
 
     echo =================================================================
+    echo "[INFO]copy node_exporter to Agent.Mon ..."
+
+    rsync -av Installer/install-cache/node_exporter/ AGENT/agent.mon/data/node_exporter/
+
+    if [ $? = 0 ]; then
+        echo "[SUCC]copy node_exporter to Agent.Mon success."
+    else
+        echo "[FAIL]copy node_exporter to Agent.Mon fail."
+        exit 1
+    fi
+
+    echo =================================================================
     echo "[INFO]c3-front build ..."
 
     ./Installer/scripts/dev.sh build
