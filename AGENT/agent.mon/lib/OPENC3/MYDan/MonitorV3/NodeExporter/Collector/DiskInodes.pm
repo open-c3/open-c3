@@ -27,7 +27,10 @@ sub co
         {
             my ( $filesystem, $type, $total, $use, $free, $use_percent, $mountpoint ) = split /\s+/, $_, 7;
             next if $mountpoint =~ m#^/var/lib/docker/#;
-            $use_percent =~ s/%//;
+
+            #当挂载的是一个iso文件时,这个百分比是一个 “-” ,如果返回会破坏node exporter的格式要求
+            next unless $use_percent =~ s/%//;
+
             my $lable = +{ mountpoint => $mountpoint, fstype => $type, filesystem => $filesystem };
 
             push @stat, +{
