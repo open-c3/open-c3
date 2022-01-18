@@ -26,3 +26,14 @@ cp /opt/mydan/dan/agent.mon/exec.config/mydan.node_exporter.65110 /opt/mydan/dan
 chmod +x /opt/mydan/dan/bootstrap/exec/mydan.node_exporter.65110
 
 killall mydan.node_exporter.65110
+
+OS=$(uname)
+ARCH=$(uname -m)
+
+if [ ! -x /opt/mydan/dan/agent.mon/data/node_exporter/$OS-$ARCH/node_exporter ]; then
+    echo "prometheus node_exporter nofind";
+    exit
+fi
+
+cp /opt/mydan/dan/agent.mon/exec.config/prometheus.node_exporter.9100 /opt/mydan/dan/bootstrap/exec/
+chmod +x /opt/mydan/dan/agent.mon/exec.config/prometheus.node_exporter.9100
