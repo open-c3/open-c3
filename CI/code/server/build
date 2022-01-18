@@ -68,7 +68,7 @@ return sub
                 open STDOUT, '>', "$RealBin/../logs/build/$uuid" or $logs->die( "Can't open 'logs/build/$uuid': $!" );
                 open (STDERR, ">&STDOUT") or $logs->die( "open STDERR failed: $uuid" );
                 my $tsocks = -e "/usr/bin/tsocks" ? "/usr/bin/tsocks " : '';
-                exec "$tsocks$RealBin/../bin/build -uuid $uuid";
+                exec "$tsocks$RealBin/../bin/build -uuid $uuid 2>&1|$RealBin/../bin/addtime";
             }
             warn "start build $uuid\n";
         }
