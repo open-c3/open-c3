@@ -16,7 +16,7 @@ fi
 
 cd "$MYDanPATH/dan" || exit 1
 
-#/opt/mydan/perl/bin/cpan install AnyEvent::Handle::UDP
+/opt/mydan/perl/bin/cpan install AnyEvent::HTTP
 
 wget $OPEN_C3_ADDR/api/scripts/agent.mon.tar.gz -O $MYDanPATH/dan/agent.mon.tar.gz
 
