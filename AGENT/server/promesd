@@ -17,4 +17,5 @@ $0 = 'agent_server_promesd';
 
 my $exip = `cat /etc/job.exip`;
 chomp $exip;
-Code->new( 'server/promesd' )->run( serveraddr => "$exip:65112" );
+
+Code->new( 'server/promesd' )->run( serveraddr => $exip );
