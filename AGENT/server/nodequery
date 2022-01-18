@@ -1,0 +1,21 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib -I/data/Software/mydan/AGENT/private/lib -I/data/Software/mydan/AGENT/agent.mon/lib
+
+=head1 SYNOPSIS
+
+ $0 [--port num] [--proxy /path/file] [--carry /path/carry]
+
+=cut
+use strict;
+use warnings;
+
+use OPENC3::MYDan::MonitorV3::NodeQuery;
+use MYDan::Util::OptConf;
+
+$| ++;
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->set( port => 65112 )->get( qw( port=i proxy=s carry=s ) )->dump();
+
+$0 = 'agent_server_nodequery';
+
+OPENC3::MYDan::MonitorV3::NodeQuery->new( %o )->run();
