@@ -390,7 +390,13 @@
                     </div>
                    <div class="row" ng-repeat="step in config.jobStep">
                        <div class="col-sm-12 form-group" style="margin: 0px">
-                           <label class="col-sm-12 control-label">第{{$index+1}}步:({{step}})
+                           <label class="col-sm-12 control-label">第{{$index+1}}步:({{step.name}})
+                               <span ng-if="step.batches==='firsttime'" style="color: gray" >[仅第一组]</span>
+                               <span ng-if="step.batches==='thelasttime'" style="color: gray" >[仅最后一组]</span>
+                               <span ng-if="step.deployenv==='test'" style="color: gray" >[仅测试]</span>
+                               <span ng-if="step.deployenv==='online'" style="color: gray" >[仅线上]</span>
+                               <span ng-if="step.action==='deploy'" style="color: gray" >[仅发布]</span>
+                               <span ng-if="step.action==='rollback'" style="color: gray">[仅回滚]</span>
                           </label>
                       </div>
                    </div>

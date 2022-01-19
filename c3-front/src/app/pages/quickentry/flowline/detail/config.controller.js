@@ -583,7 +583,7 @@
                     if( vm.jobData.data )
                     {
                         angular.forEach(vm.jobData.data, function (d) {
-                                vm.jobStep.push(d.name);
+                                vm.jobStep.push(d);
                         });
                     }
                 }else {
