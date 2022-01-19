@@ -351,7 +351,9 @@
                             <label class="col-sm-2 control-label">分组{{$index+1}}: ({{group.num}}台机器)
                             </label>
                             <div class="col-sm-9" style="padding-top: 10px">
-                                <p ng-repeat="ip in group.infos">{{ip}}</p>
+                                <p ng-repeat="ip in group.infos">{{ip}}
+                                    <a ng-click="config.nodecheck('call',ip)" style="cursor:pointer;background-color: #98b266;margin-bottom: 5px" >检查机器状态</a>
+                                </p>
                            </div>
                        </div>
                    </div>
