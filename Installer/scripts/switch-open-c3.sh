@@ -63,3 +63,5 @@ Script="/data/open-c3/Installer/scripts/single/$V.sh"
 if [ -x $Script ]; then
     $Script
 fi
+
+/data/open-c3/Installer/scripts/dev.sh  restart
