@@ -32,8 +32,8 @@ get '/subtask/:projectid/:taskuuid' => sub {
 
     my %e;
     my %col = (
-        cmd => [ qw( id uuid name user timeout pause node_type node_cont scripts_type scripts_cont ) ],
-        scp => [ qw( id uuid name user timeout pause src_type src sp dst_type dst dp chown chmod ) ],
+        cmd => [ qw( id uuid name user timeout pause node_type node_cont scripts_type scripts_cont deployenv action batches ) ],
+        scp => [ qw( id uuid name user timeout pause src_type src sp dst_type dst dp chown chmod deployenv action batches ) ],
         approval => [ qw( id uuid name cont approver deployenv action batches everyone ) ],
     );
     for my $type ( qw( cmd scp approval ) )

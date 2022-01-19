@@ -1,0 +1,81 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib
+use strict;
+use warnings;
+use Util;
+use LWP::UserAgent;
+use JSON;
+use utf8;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+die "nonode" unless $ENV{NODE};
+sub success
+{
+    map{ print "$_:ok\n"; } split /,/, $ENV{NODE};
+    print STDERR "\n";
+    exit;
+}
+
+my ( $projectid, $groupid, $version, $deployenv ) = @ENV{qw( FLOWID TREEID VERSION DEPLOYENV )};
+
+warn '=' x 75, "\n";
+warn "calltestenv...\n";
+
+unless( $deployenv && $deployenv eq 'online' )
+{
+    warn "deployenv no online, skip.\n";
+    success();
+}
+
+my $ua = LWP::UserAgent->new();
+$ua->agent('Mozilla/9 [en] (Centos; Linux)');
+
+my ( $jobname, $jobgroup ) = ( '_ci_' . $projectid . '_', '_ci_test_' . $projectid . '_');
+
+my %env = eval{ Util::envinfo( qw( appkey appname ) )};
+die "fromat error $@" if $@;
+
+$ua->default_header( map{ $_ => $env{$_} }qw( appname appkey ) );
+ 
+$ua->timeout( 10 );
+$ua->default_header ( 'Cache-control' => 'no-cache', 'Pragma' => 'no-cache' );
+
+my $url = "http://api.jobx.open-c3.org/task/$groupid/job/byname";
+my $res = $ua->post( $url, 
+    Content => JSON::to_json( +{ jobname => $jobname, group => $jobgroup, variable => +{ version => $version, '_jobtype_' => 'test' } } ), 
+    'Content-Type' => 'application/json' 
+);
+
+my $cont = $res->content;
+die "calljobx fail: $cont" unless $res->is_success;
+
+my $data = eval{JSON::from_json $cont};
+die "calljobx fail: $cont : no json $@" if $@;
+
+die "calljobx fail: $cont : stat fail"  unless $data->{stat};
+
+warn sprintf "call jobx ok: jobxuuid:%s\n", $data->{uuid};
+
+warn "wait test env finish...\n";
+
+while(1)
+{
+    my $rest = $ua->get( "http://api.jobx.open-c3.org/task/$groupid/$data->{uuid}" );
+    my $contt = $rest->content;
+    die "calljobx fail: $contt" unless $rest->is_success;
+
+    my $datat = eval{JSON::from_json $contt};
+    die "get status from jobx fail: $contt : no json $@" if $@;
+    die "get status from jobx fail: $cont : stat fail" unless $datat->{stat};
+
+    success() if $datat->{data}{status} eq 'success';
+    die "jobx status fail" if $datat->{data}{status} eq 'fail';
+
+    print STDERR "#";
+    sleep 6;
+}
+

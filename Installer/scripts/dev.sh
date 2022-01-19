@@ -178,6 +178,12 @@ function stop() {
     echo "[SUCC]stoped."
 }
 
+function startlocal() {
+    IP=$(ifconfig |grep inet|grep netmask|grep -v 'inet 127'|grep -v 'inet 172'|awk '{print $2}'|head -n 1)
+    echo "IP: $IP"
+    start $IP
+}
+
 case "$1" in
 start)
     start $2
@@ -188,8 +194,15 @@ stop)
 build)
     start 0.0.0.0
     ;;
+startlocal)
+    startlocal
+    ;;
+restart)
+    stop
+    startlocal
+    ;;
 *)
-    echo "Usage: $0 {start|stop|build}"
+    echo "Usage: $0 {start|stop|build|startlocal|restart}"
     echo "$0 start 10.10.10.10(open-c3 api IP)"
     exit 2
 esac
