@@ -88,9 +88,9 @@ sub run
     }
 
     my $nodes = join ',', sort @node;
-    my $cmd = "TREEID='$run{treeid}' FLOWID='$run{flowid}' VERSION='$run{version}' NODE='$nodes' TIMEOUT=$timeout TICKETFILE=$ticketfile TASKUUID=$run{taskuuid} $JOBUUID $CONFIGPATH $path $argv";
+    my $cmd = "TREEID='$run{treeid}' FLOWID='$run{flowid}' VERSION='$run{version}' NODE='$nodes' TIMEOUT=$timeout TICKETFILE=$ticketfile TASKUUID=$run{taskuuid} DEPLOYENV=$run{deployenv} $JOBUUID $CONFIGPATH $path $argv";
 
-    print "env:\nTREEID='$run{treeid}'\nFLOWID='$run{flowid}'\nVERSION='$run{version}'\nNODE='$nodes'\nTIMEOUT=$timeout\nTICKETFILE=$ticketfile TASKUUID=$run{taskuuid}\n$JOBUUID\n$CONFIGPATH\n";
+    print "env:\nTREEID='$run{treeid}'\nFLOWID='$run{flowid}'\nVERSION='$run{version}'\nNODE='$nodes'\nTIMEOUT=$timeout\nTICKETFILE=$ticketfile\nTASKUUID=$run{taskuuid}\nDEPLOYENV=$run{deployenv}\n$JOBUUID\n$CONFIGPATH\n";
     print "cmd:\n$path $argv\n";
 
     print "\n############################## START ##############################\n\n";
