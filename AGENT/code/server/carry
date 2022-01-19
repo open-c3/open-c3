@@ -96,7 +96,7 @@ return sub
             $res{$instance} = $res;
         }
 
-        eval{ YAML::XS::DumpFile "$RealBin/../../prometheus/config/openc3_carry.yml", \%res };
+        eval{ YAML::XS::DumpFile "$RealBin/../conf/openc3_carry.yml", \%res };
         $logs->err( "write openc3_carry.yml fail: $@" ) if $@;
 
         print "done.\n";
