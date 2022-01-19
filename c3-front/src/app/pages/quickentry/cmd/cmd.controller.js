@@ -280,6 +280,10 @@
                 {
                     vm.showmachinelist = 0;
                 }
+                if( cont.search(/^#!calltestenv\b/) == 0 )
+                {
+                    vm.showmachinelist = 0;
+                }
  
             }
         }
