@@ -7,7 +7,7 @@ if [ "X$OPEN_C3_ADDR" == "X" ]; then
     exit 1
 fi
 
-MYDanPATH=/data/mydan
+MYDanPATH=/opt/mydan
 
 if [ ! -d "$MYDanPATH/dan" ]; then
     echo "nofind mydan path: $MYDanPATH/dan"
@@ -25,7 +25,6 @@ tar -zxvf agent.mon.tar.gz
 cp /opt/mydan/dan/agent.mon/exec.config/mydan.node_exporter.65110 /opt/mydan/dan/bootstrap/exec/
 chmod +x /opt/mydan/dan/bootstrap/exec/mydan.node_exporter.65110
 
-killall mydan.node_exporter.65110
 
 OS=$(uname)
 ARCH=$(uname -m)
@@ -36,4 +35,6 @@ if [ ! -x /opt/mydan/dan/agent.mon/data/node_exporter/$OS-$ARCH/node_exporter ];
 fi
 
 cp /opt/mydan/dan/agent.mon/exec.config/prometheus.node_exporter.9100 /opt/mydan/dan/bootstrap/exec/
-chmod +x /opt/mydan/dan/agent.mon/exec.config/prometheus.node_exporter.9100
+chmod +x /opt/mydan/dan/bootstrap/exec/prometheus.node_exporter.9100
+
+killall mydan.node_exporter.65110 2>/dev/null
