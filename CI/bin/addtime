@@ -5,5 +5,5 @@ use POSIX;
 
 while(<>)
 {
-    map{printf "%s %s\n", POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ), $_ }split /\r|\n/, $_;
+    map{warn sprintf "%s %s\n", POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ), $_ }split /\r|\n/, $_;
 }
