@@ -1,0 +1,35 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib -I/data/Software/mydan/AGENT/private/lib
+use strict;
+use warnings;
+use JSON;
+use YAML::XS;
+use MYDan::Agent::Proxy;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    ip => [ '10.10.10.1', '10.10.10.2' ],
+    logs => $logs
+
+=cut
+
+return sub
+{
+    my %param = @_;
+    my ( $ip, $logs ) = @param{qw( ip logs )};
+
+    $logs->die( "ip error" ) unless $ip && ref $ip eq 'ARRAY';
+
+    my %env = Util::envinfo( qw( appname appkey ) );
+    $ENV{MYDan_Agent_Proxy_Addr} = "http://api.agent.open-c3.org/proxy/0";
+    $ENV{MYDan_Agent_Proxy_Header} = "appname:$env{appname},appkey:$env{appkey}";
+
+    my $proxy = MYDan::Agent::Proxy->new();
+    my %proxy = $proxy->search( @$ip );
+
+    eval{ YAML::XS::DumpFile "$RealBin/../conf/openc3_proxy.yml", \%proxy };
+    $logs->err( "write openc3_proxy.yml fail: $@" ) if $@;
+
+    return 1;
+}

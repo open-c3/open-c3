@@ -21,7 +21,7 @@ return sub
 
     my ( $interval, $logs, $myname ) = ( 60, Logs->new( 'promesd' ), Util::myname() );
 
-    my $serveraddr = $param{serveraddr} || die "serveraddr undef";
+    my $serveraddr = $param{serveraddr} || $logs->die( "serveraddr undef" );
 
     my %env = Util::envinfo( qw( appname appkey ) );
     my $ua = LWP::UserAgent->new;
@@ -120,6 +120,8 @@ return sub
 
         eval{ YAML::XS::DumpFile "$RealBin/../../prometheus/config/openc3_node_sd.yml", \@target };
         $logs->err( "write openc3_node_sd.yml fail: $@" ) if $@;
+
+        Code->new( 'server/promesd.plugin/proxy' )->run( ip => [ keys %promesd ], logs => $logs );
 
         print "done.\n";
     }
