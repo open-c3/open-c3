@@ -1,9 +1,12 @@
 #!/bin/bash
 
-X=$(docker inspect  openc3-prometheus 2>&1|grep Created|wc -l)
+#该脚本只适用于集群版，单机版的已经通过docker-compose管理，
+#在Installer/scripts/single.sh的start脚本中已做了以下初始化的部分工作
 
-mkdir -p /data/prometheus-data
-chmod 777 /data/prometheus-data
+X=$(docker inspect openc3-prometheus 2>&1|grep Created|wc -l)
+
+mkdir -p /data/open-c3-data/prometheus-data
+chmod 777 /data/open-c3-data/prometheus-data
 
 if [ ! -f /data/open-c3/prometheus/config/prometheus.yml ];then
     cp /data/open-c3/prometheus/config/prometheus.example.yml /data/open-c3/prometheus/config/prometheus.yml
@@ -22,6 +25,6 @@ fi
 if [ "X1" == "X$X"  ]; then
     docker start openc3-prometheus
 else
-    docker run -d -p 9090:9090 -v /data/prometheus-data:/data/prometheus-data -v /data/open-c3/prometheus:/data/prometheus-root --name openc3-prometheus prom/prometheus --config.file /data/prometheus-root/config/prometheus.yml --storage.tsdb.path=/data/prometheus-data $Externalur --web.enable-lifecycle
+    docker run -d -p 9090:9090 -v /data/open-c3-data/prometheus-data:/data/prometheus-data -v /data/open-c3/prometheus:/data/prometheus-root --name openc3-prometheus prom/prometheus --config.file /data/prometheus-root/config/prometheus.yml --storage.tsdb.path=/data/prometheus-data $Externalur --web.enable-lifecycle
 fi
 

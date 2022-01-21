@@ -280,6 +280,20 @@ function start() {
         DCF=docker-compose-private.yml
     fi
 
+
+#prometheus
+    mkdir -p /data/open-c3-data/prometheus-data
+    chmod 777 /data/open-c3-data/prometheus-data
+
+    if [ ! -f /data/open-c3/prometheus/config/prometheus.yml ];then
+        cp /data/open-c3/prometheus/config/prometheus.example.yml /data/open-c3/prometheus/config/prometheus.yml
+    fi
+
+    if [ ! -f /data/open-c3/prometheus/config/openc3_node_sd.yml ];then
+        cp /data/open-c3/prometheus/config/openc3_node_sd.example.yml /data/open-c3/prometheus/config/openc3_node_sd.yml
+    fi
+#
+
     cd $BASE_PATH/Installer/C3/ && ../docker-compose -f $DCF up -d --build
 
     echo "[SUCC]started."

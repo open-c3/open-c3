@@ -88,13 +88,11 @@ services:
     ports:
       - "9090:9090"
     volumes:
-      - "/data/prometheus-data:/data/prometheus-data"
+      - "/data/open-c3-data/prometheus-data:/data/prometheus-data"
       - "/data/open-c3/prometheus:/data/prometheus-root"
     command:
       - '--config.file=/data/prometheus-root/config/prometheus.yml'
       - '--storage.tsdb.path=/data/prometheus-data'
-#TODO
-      - '--web.external-url=http://10.60.77.73:9090'
       - '--web.enable-lifecycle'
     networks:
       JobNet:
