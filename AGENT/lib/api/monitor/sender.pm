@@ -11,7 +11,8 @@ use LWP::UserAgent;
 
 any '/monitor/sender' => sub {
     return 'no params' unless my $params = params();
-    my $temp = sprintf "/data/Software/mydan/AGENT/sender/sender.%s.%s.wait", time, int rand 10000000;
+    my $uuid = sprintf "%s.%06d", POSIX::strftime( "%Y%m%d-%H%M%S", localtime ), rand 1000000;
+    my $temp = "/data/open-c3-data/monitor-sender/sender.$uuid.wait";
     eval{ YAML::XS::DumpFile $temp, $params };
     return $@ || 'ok';
 };
