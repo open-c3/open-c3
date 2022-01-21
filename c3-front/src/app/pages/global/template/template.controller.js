@@ -102,6 +102,7 @@
             vm.save( msmDetail )
         };
  
+//Approval
         vm.emailApprovalSet = function () {
             vm.environment.approvalTemplateEmailTitle = "发布审批: ${cont}";
             vm.environment.approvalTemplateEmailContent = "审批内容: ${cont}\n\n详情:" + window.location.protocol + '//' + window.location.host + "/#/quickapproval/${uuid}";
@@ -121,6 +122,28 @@
             msmDetail['approvalTemplateSmsContent'] = vm.environment.approvalTemplateSmsContent;
             vm.save( msmDetail )
         };
+//Monitor
+        vm.emailMonitorSet = function () {
+            vm.environment.monitorTemplateEmailTitle = "报警通知: ${cont}";
+            vm.environment.monitorTemplateEmailContent = "报警通知: ${cont}\n\n详情:" + window.location.protocol + '//' + window.location.host + "/#/monitor/${case_id}";
+        };
+
+        vm.emailMonitorSave = function () {
+            var emailDetail = {};
+            emailDetail['monitorTemplateEmailTitle'] = vm.environment.monitorTemplateEmailTitle;
+            emailDetail['monitorTemplateEmailContent'] = vm.environment.monitorTemplateEmailContent;
+            vm.save( emailDetail )
+        };
+        vm.smsMonitorSet = function () {
+            vm.environment.monitorTemplateSmsContent = "告警通知: ${cont}\n\n详情:" + window.location.protocol + '//' + window.location.host + "/#/monitor/${case_id}";
+        };
+        vm.smsMonitorSave = function () {
+            var msmDetail = {};
+            msmDetail['monitorTemplateSmsContent'] = vm.environment.monitorTemplateSmsContent;
+            vm.save( msmDetail )
+        };
+//
+
         vm.save = function (data) {
             $http.post('/api/job/environment',data).success(function(data){
                 if (data.stat){
