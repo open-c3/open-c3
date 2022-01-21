@@ -19,7 +19,15 @@ if [ "X" == "X$UUID" ]; then
 fi
 
 docker stop openc3-mysql
+docker stop openc3-server
+
+#兼容旧版本
 docker stop c3_openc3-server_1
+
+#v2.5.1以及以上版本存在的服务
+docker stop openc3-prometheus
+docker stop openc3-alertmanager
+docker stop openc3-grafana
 
 if [ -d /data/open-c3 ];then
     OPENC3APPUUID=$(cat /data/open-c3/.uuid)
