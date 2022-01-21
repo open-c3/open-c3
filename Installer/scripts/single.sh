@@ -139,11 +139,18 @@ function install() {
     echo =================================================================
     echo "[INFO]create c3-front/dist ..."
 
-    if [ -d "$BASE_PATH/Installer/install-cache/c3-front/dist" ]; then
+    if [ -d "$BASE_PATH/Installer/install-cache/c3-front/dist-$OPENC3VERSION" ]; then
         rm -rf $BASE_PATH/c3-front/dist
         cp -r "$BASE_PATH/Installer/install-cache/c3-front/dist-$OPENC3VERSION" $BASE_PATH/c3-front/dist
     else
-        echo "[FAIL]nofind c3-front/dist in open-c3-install-cache."
+        echo "[Warn]nofind c3-front/dist-$OPENC3VERSION in open-c3-install-cache."
+
+        if [ -d "$BASE_PATH/Installer/install-cache/c3-front/dist" ]; then
+            rm -rf $BASE_PATH/c3-front/dist
+            cp -r "$BASE_PATH/Installer/install-cache/c3-front/dist" $BASE_PATH/c3-front/dist
+        else
+            echo "[FAIL]nofind c3-front/dist in open-c3-install-cache."
+        fi
     fi
 
     if [ -d "$BASE_PATH/c3-front/dist" ]; then
