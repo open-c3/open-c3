@@ -68,7 +68,7 @@ return sub
         eval{ YAML::XS::DumpFile "$RealBin/../../prometheus/config/openc3_rule.yml", +{ groups => \@groups } };
         $logs->err( "write openc3_rule.yml fail: $@" ) if $@;
 
-        system "curl -XPOST http://$param{exip}:9090/-/reload" if $param{exip};
+        system "curl -XPOST http://OPENC3_PROMETHEUS_IP:9090/-/reload";
         print "done.\n";
     }
 }
