@@ -20,6 +20,7 @@ services:
           - OPENC3_DB_IP
 
   openc3-server:
+    container_name: openc3-server
     build:
       context: JOB/
     hostname: openc3-srv-docker
@@ -61,6 +62,59 @@ services:
       JobNet:
         aliases:
           - OPENC3_SERVER_IP
+
+  openc3-grafana:
+    container_name: openc3-grafana
+    environment:
+      TZ: 'Asia/Shanghai'
+    image: "grafana/grafana:7.3.6"
+    restart: always
+    user: root
+    ports:
+      - "8080:3000"
+    volumes:
+      - "/data/grafana-data:/var/lib/grafana"
+    networks:
+      JobNet:
+        aliases:
+          - OPENC3_GRAFANA_IP
+
+  openc3-prometheus:
+    container_name: openc3-prometheus
+    environment:
+      TZ: 'Asia/Shanghai'
+    image: "prom/prometheus"
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - "/data/prometheus-data:/data/prometheus-data"
+      - "/data/open-c3/prometheus:/data/prometheus-root"
+    command:
+      - '--config.file=/data/prometheus-root/config/prometheus.yml'
+      - '--storage.tsdb.path=/data/prometheus-data'
+#TODO
+      - '--web.external-url=http://10.60.77.73:9090'
+      - '--web.enable-lifecycle'
+    networks:
+      JobNet:
+        aliases:
+          - OPENC3_PROMETHEUS_IP
+
+  openc3-alertmanager:
+    container_name: openc3-alertmanager
+    environment:
+      TZ: 'Asia/Shanghai'
+    image: "prom/alertmanager:latest"
+    restart: always
+    ports:
+      - "9093:9093"
+    volumes:
+      - "/data/open-c3/alertmanager/config:/etc/alertmanager"
+    networks:
+      JobNet:
+        aliases:
+          - OPENC3_ALERTMANAGER_IP
 
 networks:
   JobNet:
