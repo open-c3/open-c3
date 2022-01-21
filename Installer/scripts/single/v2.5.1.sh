@@ -1,10 +1,10 @@
 #!/bin/bash
 
-docker exec -i c3_openc3-server_1 /data/Software/mydan/perl/bin/cpan install AnyEvent::HTTPD::Router AnyEvent::HTTPD::CookiePatch
+docker exec -i openc3-server /data/Software/mydan/perl/bin/cpan install AnyEvent::HTTPD::Router AnyEvent::HTTPD::CookiePatch AnyEvent::HTTP
 
-docker cp /data/open-c3/Installer/install-cache/bin/kubectl  c3_openc3-server_1:/usr/bin/
-docker cp /data/open-c3/Installer/install-cache/bin/yaml2json  c3_openc3-server_1:/usr/bin/
-docker cp /data/open-c3/Installer/install-cache/bin/json2yaml  c3_openc3-server_1:/usr/bin/
+docker cp /data/open-c3/Installer/install-cache/bin/kubectl  openc3-server:/usr/bin/
+docker cp /data/open-c3/Installer/install-cache/bin/yaml2json  openc3-server:/usr/bin/
+docker cp /data/open-c3/Installer/install-cache/bin/json2yaml  openc3-server:/usr/bin/
 
 #TODO 集群发布后，webshell容器需要拷贝kubectl命令到容器中，否则影响webshell进入pod。
 #手动创建一个流水线，作为kubernetes管理的流水线默认模版。
