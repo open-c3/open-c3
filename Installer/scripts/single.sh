@@ -282,6 +282,7 @@ function start() {
 
 
 #prometheus
+
     mkdir -p /data/open-c3-data/prometheus-data
     chmod 777 /data/open-c3-data/prometheus-data
 
@@ -294,6 +295,13 @@ function start() {
     fi
 #
 
+#alertmanager
+
+    if [ ! -f /data/open-c3/alertmanager/config/alertmanager.yml ];then
+        cp /data/open-c3/alertmanager/config/alertmanager.example.yml /data/open-c3/alertmanager/config/alertmanager.yml
+    fi
+
+#
     cd $BASE_PATH/Installer/C3/ && ../docker-compose -f $DCF up -d --build
 
     echo "[SUCC]started."

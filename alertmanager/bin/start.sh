@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#该脚本只适用于集群版，单机版的已经通过docker-compose管理，
+#在Installer/scripts/single.sh的start脚本中已做了以下初始化的部分工作
+
 if [ ! -f /data/open-c3/alertmanager/config/alertmanager.yml ];then
     cp /data/open-c3/alertmanager/config/alertmanager.example.yml /data/open-c3/alertmanager/config/alertmanager.yml
 fi
