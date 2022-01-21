@@ -16,7 +16,8 @@
             vm.nodeStr = treeService.selectname();
         });
 
-        vm.url = 'http://10.60.77.73:8080/d/dUrNraOnz/openc3-dashboard?orgId=1&var-origin_prometheus=&var-job=openc3&var-hostname=All&var-device=All&var-interval=2m&var-maxmount=&var-show_hostname=&var-total=1&var-treeid=treeid_' + vm.treeid + '&kiosk'
+        vm.siteaddr = window.location.protocol + '//' + window.location.host;
+        vm.url = vm.siteaddr + '/third-party/monitor/grafana/d/dUrNraOnz/openc3-dashboard?orgId=1&var-origin_prometheus=&var-job=openc3&var-hostname=All&var-device=All&var-interval=2m&var-maxmount=&var-show_hostname=&var-total=1&var-treeid=treeid_' + vm.treeid + '&kiosk'
         vm.trustSrc = function()
         {
             return $sce.trustAsResourceUrl( vm.url );
