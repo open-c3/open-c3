@@ -57,6 +57,18 @@ function upgradeSelf() {
     fi
 
     echo =================================================================
+    echo "[INFO]agent build ..."
+
+    docker exec openc3-server /data/Software/mydan/AGENT/tools/Build
+
+    if [ $? = 0 ]; then
+        echo "[SUCC]agent build success."
+    else
+        echo "[FAIL]agent build fail."
+        exit 1
+    fi
+
+    echo =================================================================
     echo "[INFO]c3-front build ..."
 
     ./Installer/scripts/dev.sh build
