@@ -74,7 +74,7 @@ services:
     ports:
       - "8080:3000"
     volumes:
-      - "/data/grafana-data:/var/lib/grafana"
+      - "/data/open-c3-data/grafana-data:/var/lib/grafana"
     networks:
       JobNet:
         aliases:
@@ -114,6 +114,24 @@ services:
       JobNet:
         aliases:
           - OPENC3_ALERTMANAGER_IP
+
+  openc3-lua:
+    container_name: openc3-lua
+    environment:
+      TZ: 'Asia/Shanghai'
+    image: "openresty/openresty:1.9.15.1-trusty"
+    restart: always
+    volumes:
+      - "/data/open-c3/lua/config/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf"
+      - "/data/open-c3/lua/config/lua:/usr/local/openresty/nginx/conf/lua"
+      - "/data/open-c3-data/logs/lua:/usr/local/openresty/nginx/logs"
+      - "/data/open-c3/lua/lualib/resty/http.lua:/usr/local/openresty/lualib/resty/http.lua"
+      - "/data/open-c3/lua/lualib/resty/http_connect.lua:/usr/local/openresty/lualib/resty/http_connect.lua"
+      - "/data/open-c3/lua/lualib/resty/http_headers.lua:/usr/local/openresty/lualib/resty/http_headers.lua"
+    networks:
+      JobNet:
+        aliases:
+          - OPENC3_LUA_IP
 
 networks:
   JobNet:
