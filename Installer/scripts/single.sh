@@ -311,6 +311,13 @@ function start() {
 #
     cd $BASE_PATH/Installer/C3/ && ../docker-compose -f $DCF up -d --build
 
+#grafana
+
+    docker cp /data/open-c3/grafana/config/grafana.ini openc3-grafana:/etc/grafana/grafana.ini
+    docker restart openc3-grafana
+
+#
+
     echo "[SUCC]started."
 }
 
