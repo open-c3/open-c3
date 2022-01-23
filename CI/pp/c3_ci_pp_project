@@ -35,6 +35,7 @@ sub getProject
     my $x = eval{ $db->query(
         sprintf( "select %s from openc3_ci_project where id=$id", join( ',', @col ) ), \@col
     ); };
+    die "query fail: $@" if $@;
 
     print Encode::decode('utf8', YAML::XS::Dump $x->[0] );
 }

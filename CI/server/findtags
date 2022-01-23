@@ -3,10 +3,6 @@ use strict;
 use warnings;
 use MYDB;
 use FindBin qw( $RealBin );
-use Data::Dumper;
-
-use MYDan::Util::OptConf;
-use Code;
 
 =head1 SYNOPSIS
 
@@ -14,7 +10,47 @@ use Code;
 
 =cut
 
-my $db = MYDB->new( "$RealBin/../conf/conn" );
-
 $0 = 'ci_server_findtags';
-Code->new( 'server/findtags' )->run( db => $db );
+
+$ENV{PATH} = "$ENV{PATH}:/data/Software/mydan/CI/pp";
+
+chdir "$RealBin/.." or die "chdir err";
+
+sub runauto
+{
+    my $cmd = join '|', (
+        "c3_ci_pp_projects id --filter 'status=1 and autofindtags=1'",
+        "sort",
+        "c3_ci_pp_grepitask",
+        'xargs -P 10 -i{} bash -c "./bin/findtags -id {} > logs/findtags/{}"'
+    );
+    while(1)
+    {
+        my $time = time;
+        warn "[DEBUG]run auto: $cmd\n" if $ENV{DEBUG};
+        system $cmd;
+        my $due = $time + 60 - time;
+        sleep $due if $due > 0;
+    }
+}
+
+sub runonce
+{
+    my $cmd = join '|', (
+        "c3_ci_pp_projects id --filter 'status=1 and findtags_at_once=1'",
+        "sort",
+        "c3_ci_pp_grepitask",
+        "c3_ci_pp_setproject --set 'findtags_at_once=0'",
+        'xargs -P 10 -i{} bash -c "./bin/findtags -id {} > logs/findtags/{}"'
+    );
+    while(1)
+    {
+        my $time = time;
+        warn "[DEBUG]run once: $cmd\n" if $ENV{DEBUG};
+        system $cmd;
+        my $due = $time + 3 - time;
+        sleep $due if $due > 0;
+    }
+}
+
+fork ? runonce() : runauto();
