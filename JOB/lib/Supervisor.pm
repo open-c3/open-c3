@@ -55,9 +55,13 @@ sub run
 
     my ( $i, $cv ) = ( 0, AnyEvent->condvar );
 
-    our ( $logf, $logH ) = ( "$log/current" );
+    our ( $logf, $logH, $errH ) = ( "$log/current" );
     
     confess "open log: $!" unless open $logH, ">>$logf"; 
+    if( $this->{err} )
+    {
+        confess "open log: $!" unless open $errH, ">>$this->{err}"; 
+    }
     $logH->autoflush;
 
 
@@ -94,6 +98,10 @@ sub run
                 chomp $input;
 
                 syswrite( $logH, unixtai64n(time). " [STDERR] $input\n" ); 
+                if( $this->{err} )
+                {
+                    syswrite( $errH, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ). " $input\n" ); 
+                }
             }
         );
     };
