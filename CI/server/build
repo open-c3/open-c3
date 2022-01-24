@@ -20,7 +20,7 @@ my $cmd = join '|', (
     "c3_ci_pp_versions projectid uuid --filter \"status='init' and pid is null order by id\"",
     "c3_ci_pp_grepitask",
     "awk -F';' '{print \$2}'",
-    "xargs -i{} bash -c \"$RealBin/../bin/build --uuid {} > logs/build/{} 2>&1\"",
+    "xargs -i{} bash -c \"$RealBin/../bin/build --uuid {} 2>&1|c3_ci_pp_addtime > logs/build/{} 2>&1\"",
 );
 while(1)
 {
