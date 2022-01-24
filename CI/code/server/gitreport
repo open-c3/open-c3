@@ -3,11 +3,11 @@ use strict;
 use warnings;
 use Logs;
 use Code;
-use Data::Dumper;
 use Digest::MD5;
 use YAML::XS;
 use File::Temp;
 use POSIX;
+use Carp;
 
 $| ++;
 
@@ -21,15 +21,15 @@ return sub
 {
     my %param = @_;
 
-    my ( $db, $logs ) = ( $param{db}, Logs->new( 'gitreport' ) );
+    my ( $db ) = ( $param{db} );
 
     my $x = eval{ $db->query( "select id,ticket from openc3_ci_ticket where type='SSHKey'" ) };
-    $logs->die( "mysql query fail: $@" ) if $@;
+    confess( "mysql query fail: $@" ) if $@;
     my %ticket; map{ $ticket{$_->[0]} = $_->[1] }@$x;
 
     my @col = qw( groupid id addr ticketid );
     $x = eval{ $db->query( sprintf( "select %s from openc3_ci_project where status=1", join ',', map{"`$_`"}@col ), \@col ) };
-    $logs->die( "mysql query fail: $@" ) if $@;
+    confess( "mysql query fail: $@" ) if $@;
 
     my %report;
     map{

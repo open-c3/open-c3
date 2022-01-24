@@ -23,8 +23,8 @@ return sub
 {
     my %param = @_;
 
-    my ( $groupid, $path, $id, $addr, $uuid, $logs )
-        = ( @param{qw( groupid path id addr uuid )}, Logs->new( 'gitreport.gitpull' ) );
+    my ( $groupid, $path, $id, $addr, $uuid )
+        = @param{qw( groupid path id addr uuid )};
 
     my $dir = "$path/data/$uuid";
 

@@ -22,8 +22,8 @@ return sub
 {
     my %param = @_;
 
-    my ( $groupid, $path, $id, $addr, $uuid, $ticket, $logs )
-        = ( @param{qw( groupid path id addr uuid ticket )}, Logs->new( 'gitreport.gitpull' ) );
+    my ( $groupid, $path, $id, $addr, $uuid, $ticket )
+        = @param{qw( groupid path id addr uuid ticket )};
 
     my $datapath = "$path/data";
     system "mkdir -p '$datapath'" unless -f $datapath;
