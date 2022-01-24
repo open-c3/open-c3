@@ -26,11 +26,12 @@ my $jobhash = JobHash->new( $db );
 
 sub grepitask
 {
-    my $id = shift;
+    my $str = shift;
+    my $id = split /;|\s+/, $str;
     die "id err" unless $id =~ /^\d+$/;
 
     return unless $jobhash->hash( $id );
-    print "$id\n";
+    print "$str\n";
 }
 
 if( @ARGV )

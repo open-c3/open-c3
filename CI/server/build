@@ -3,10 +3,6 @@ use strict;
 use warnings;
 use MYDB;
 use FindBin qw( $RealBin );
-use Data::Dumper;
-
-use MYDan::Util::OptConf;
-use Code;
 
 =head1 SYNOPSIS
 
@@ -14,7 +10,25 @@ use Code;
 
 =cut
 
-my $db = MYDB->new( "$RealBin/../conf/conn" );
-
 $0 = 'ci_server_build';
-Code->new( 'server/build' )->run( db => $db );
+
+$ENV{PATH} = "$ENV{PATH}:/data/Software/mydan/CI/pp";
+
+chdir "$RealBin/.." or die "chdir err";
+
+my $cmd = join '|', (
+    "c3_ci_pp_versions projectid uuid --filter \"status='init' and pid is null order by id\"",
+    "c3_ci_pp_grepitask",
+    "awk -F';' '{print \$2}'",
+    "xargs -i{} bash -c \"$RealBin/../bin/build --uuid {} > logs/build/{} 2>&1\"",
+);
+while(1)
+{
+    my $time = time;
+    warn "[DEBUG]run build server: $cmd\n" if $ENV{DEBUG};
+    system $cmd;
+    my $due = $time + 3 - time;
+
+    warn "[WARN] build server timeout $due sec" if $due < 0;
+    sleep $due if $due > 0;
+}
