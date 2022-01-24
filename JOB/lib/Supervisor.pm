@@ -100,7 +100,7 @@ sub run
                 syswrite( $logH, unixtai64n(time). " [STDERR] $input\n" ); 
                 if( $this->{err} )
                 {
-                    syswrite( $errH, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ). " $input\n" ); 
+                    map{ syswrite( $errH, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ). " $_\n" );  }split /\r|\n/, $input;
                 }
             }
         );

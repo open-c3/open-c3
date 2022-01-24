@@ -4,9 +4,7 @@ use warnings;
 use MYDB;
 use FindBin qw( $RealBin );
 use Data::Dumper;
-
-use MYDan::Util::OptConf;
-use Code;
+use Carp;
 
 =head1 SYNOPSIS
 
@@ -14,7 +12,45 @@ use Code;
 
 =cut
 
-my $db = MYDB->new( "$RealBin/../conf/conn" );
-
 $0 = 'ci_server_bury';
-Code->new( 'server/bury' )->run( db => $db );
+
+$ENV{PATH} = "$ENV{PATH}:/data/Software/mydan/CI/pp";
+
+sub bury
+{
+    my %param = @_;
+
+    my ( $myname, $db ) = ( `c3_ci_pp_who`, $param{db} );
+
+    while(1)
+    {
+        print "do ...\n";
+
+        my $x = eval{ $db->query( "selaect id,pid,uuid,starttime,starttimems from openc3_ci_version
+            where slave='$myname' and pid is not null and status<>'success' and status<>'fail'" );};
+        confess "mysql query fail: $@" if $@;
+        confess "get list fail from mysql" unless defined $x && ref $x eq 'ARRAY';
+
+        for my $r ( @$x )
+        {
+            my ( $id, $pid, $uuid, $starttime, $starttimems ) = @$r;
+            next unless $pid =~ /^\d+$/;
+            next unless $starttimems =~ /^[\.\d]+$/;
+            next unless $uuid =~ /^[a-zA-Z0-9]+$/;
+
+            next if kill( 0, $pid );
+
+            my $time = time;
+
+            $time = $starttimems + 1 if $time < $starttimems;
+            my ( $runtime, $finishtime, $finishtimems ) = ( sprintf( "%0.3f", $time - $starttimems ), POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( int $time ) ), $time );
+
+            eval{ $db->execute( "update openc3_ci_version set status='fail',runtime='$runtime',
+                finishtime='$finishtime',finishtimems='$finishtimems' where id=$id" );};
+            warn "update task status fail: id=$id :$@" if $@;
+        }
+        sleep 3;
+    }
+}
+
+bury( db => MYDB->new( "$RealBin/../conf/conn" ) );

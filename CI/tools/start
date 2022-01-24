@@ -41,8 +41,8 @@ map{
 }$port->{'api.slave'}{from} .. $port->{'api.slave'}{to};
 map{
     die "start $_ fail: $!" if system "$supervisor --cmd '$base/server/$_' --log '$base/logs/server/$_'";
-}qw( keepalive bury clean );
+}qw( keepalive clean );
 
 map{
     die "start $_ fail: $!" if system "$supervisor --cmd '$base/server/$_' --err /var/log/open-c3.error.log --log '$base/logs/server/$_'";
-}qw( findtags build );
+}qw( findtags build bury );
