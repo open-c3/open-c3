@@ -1,0 +1,38 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use uuid;
+use POSIX;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDB;
+use FindBin qw( $RealBin );
+
+=head1 SYNOPSIS
+
+ $0 user title content
+
+=cut
+
+my $db = MYDB->new( "$RealBin/../conf/conn" );
+
+sub save
+{
+    eval{ $db->execute( sprintf "insert into openc3_connector_auditlog (`user`,`title`,`content`) values('%s','%s','%s')", @_ ); };
+    die "add auditlog fail: $@" if $@;
+    print "success\n";
+}
+
+if( @ARGV )
+{
+    save( @ARGV );
+}
+else
+{
+    while(<STDIN>){ chomp; save(split /;/,$_, 3); }
+}
