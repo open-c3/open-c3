@@ -6,7 +6,8 @@ use FindBin qw( $RealBin );
 use Data::Dumper;
 
 use MYDan::Util::OptConf;
-use Code;
+use File::Basename;
+use Carp;
 
 =head1 SYNOPSIS
 
@@ -14,7 +15,39 @@ use Code;
 
 =cut
 
-my $db;# = MYDB->new( "$RealBin/../conf/conn" );
 
-$0 = 'ci_server_clean';
-Code->new( 'server/clean' )->run( db => $db );
+sub clean
+{
+
+#docker shell
+    confess "clean fail: $!" if system 'docker ps|grep dockershell_ci_ |grep -P "Up \d+ days"|awk ' ."'".'{print $1}'."'" .'|xargs -i{} docker stop {}';
+
+    my $expire = time - 86400;
+#temp projectid
+    for my $path ( glob "$RealBin/../logs/build_temp_projectid/*" )
+    {
+        my $uuid = basename $path;
+        next unless $uuid =~ /^[a-zA-Z0-9]{12}$/;
+        my $mtime = ( stat $path )[9];
+        next unless $mtime && $mtime < $expire;
+        print "clean $uuid\n";
+        system "rm -rf '$path'";
+    }
+#temp uuid
+    for my $path ( glob "$RealBin/../logs/build_temp_uuid/*" )
+    {
+        my $uuid = basename $path;
+        next unless $uuid =~ /^[a-zA-Z0-9]{12}$/;
+        my $mtime = ( stat $path )[9];
+        next unless $mtime && $mtime < $expire;
+        print "clean $uuid\n";
+        system "rm -rf '$path'";
+    }
+}
+
+while(1)
+{
+    print "do ...\n";
+    clean();
+    sleep 3600;
+}
