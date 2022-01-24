@@ -1,0 +1,11 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use POSIX;
+
+$|++;
+
+while(<>)
+{
+    map{printf "%s %s\n", POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ), $_ }split /\r|\n/, $_;
+}
