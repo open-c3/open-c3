@@ -41,7 +41,7 @@ return sub
 
             my $dir = "$datapath/$uuid";
 
-            system "cd $dir && ". $git . ' branch -r | grep -v "\->" | while read remote; do ' . $git . ' branch --track "${remote#origin/}" "$remote"; done';
+            system "cd $dir && ". $git . ' branch -r | grep -v "\->" | while read remote; do ' . $git . ' branch --track "${remote#origin/}" "$remote" 2>&1 ; done';
 
             my @branch = `cd $dir && git branch`;
             chomp @branch;
@@ -49,7 +49,7 @@ return sub
 
             for my $branch ( @branch )
             {
-                die "pull fail:$!" if system "cd $dir && git checkout '$branch' && $git fetch --all && $git pull --all";
+                die "pull fail:$!" if system "cd $dir && git checkout '$branch' 2>&1 && $git fetch --all && $git pull --all";
             }
         };
         $error = $@;

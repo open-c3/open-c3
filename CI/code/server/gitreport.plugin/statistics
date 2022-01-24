@@ -54,7 +54,7 @@ return sub
     my %data;
     for my $branch ( @branch )
     {
-        my @x = `cd $dir && git checkout $branch && git log --pretty=format:"hash:%h user:%an time:%ad" --date=format:"%Y-%m-%d.%H%M%S" --since="$since" --until="$until" --shortstat`;
+        my @x = `cd $dir && git checkout $branch 2>&1 && git log --pretty=format:"hash:%h user:%an time:%ad" --date=format:"%Y-%m-%d.%H%M%S" --since="$since" --until="$until" --shortstat`;
         chomp @x;
 
         my $lastuser = '';
