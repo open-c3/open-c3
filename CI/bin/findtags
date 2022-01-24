@@ -22,4 +22,11 @@ sub findtag
     system "c3_ci_pp_project $id 2>> logs/findtags/$id  |c3_ci_pp_gittags 2>>logs/findtags/$id |c3_ci_pp_saveversion >> logs/findtags/$id 2>&1 \n";
 }
 
-map{ chomp; findtag($_) }@ARGV ? @ARGV : <STDIN>;
+if( @ARGV )
+{
+    map{ findtag($_) }@ARGV;
+}
+else
+{
+    while(<STDIN>){ chomp; findtag($_); }
+}

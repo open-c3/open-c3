@@ -33,4 +33,11 @@ sub grepitask
     print "$id\n";
 }
 
-map{ chomp; grepitask($_) }@ARGV ? @ARGV : <STDIN>;
+if( @ARGV )
+{
+    map{ grepitask($_) }@ARGV;
+}
+else
+{
+    while(<STDIN>){ chomp; grepitask($_); }
+}

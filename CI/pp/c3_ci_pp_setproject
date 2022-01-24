@@ -25,7 +25,7 @@ my $option = MYDan::Util::OptConf->load();
 my %o = $option->get( qw( set=s ) )->dump();
 $option->assert('set');
 
-sub getProject
+sub setProject
 {
     my $id = shift;
     die "id err" unless $id =~ /^\d+$/;
@@ -35,4 +35,11 @@ sub getProject
     print "$id\n";
 }
 
-map{ chomp; getProject($_) }@ARGV ? @ARGV : <STDIN>;
+if( @ARGV )
+{
+    map{ setProject($_) }@ARGV;
+}
+else
+{
+    while(<STDIN>){ chomp; setProject($_); }
+}

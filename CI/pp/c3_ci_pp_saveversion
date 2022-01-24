@@ -49,4 +49,11 @@ sub save
     die "update project info fail:$@"  if $@;
 }
 
-map{ chomp; save($_) }@ARGV ? "$ARGV[0] $ARGV[1]" : <STDIN>;
+if( @ARGV )
+{
+    save( "$ARGV[0] $ARGV[1]" );
+}
+else
+{
+    while(<STDIN>){ chomp; save($_); }
+}

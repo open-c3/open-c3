@@ -40,4 +40,11 @@ sub getProject
     print Encode::decode('utf8', YAML::XS::Dump $x->[0] );
 }
 
-map{ chomp; getProject($_) }@ARGV ? @ARGV : <STDIN>;
+if( @ARGV )
+{
+    map{ getProject($_) }@ARGV;
+}
+else
+{
+    while(<STDIN>){ chomp; getProject($_); }
+}
