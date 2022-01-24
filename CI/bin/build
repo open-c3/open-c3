@@ -22,4 +22,6 @@ $0 = "ci_worker_build_$o{uuid}";
 
 my $db = MYDB->new( "$RealBin/../conf/conn" );
 
+$ENV{PATH} = "$ENV{PATH}:/data/Software/mydan/AGENT/pp";
+
 Code->new( 'build' )->run( db => $db, %o );

@@ -1,0 +1,44 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDB;
+use FindBin qw( $RealBin );
+use MYDan::Util::OptConf;
+use YAML::XS;
+use Encode;
+
+=head1 SYNOPSIS
+
+ $0 id1 id2 ... idn
+
+=cut
+
+my $db = MYDB->new( "$RealBin/../conf/conn" );
+
+sub getProjectName
+{
+    my $id = shift;
+    die "id err" unless $id =~ /^\d+$/;
+
+    my $x = eval{ $db->query( "select fullname from openc3_agent_inherit where projectid='$id'"); };
+    die "query fail: $@" if $@;
+
+    print @$x ? Encode::decode('utf8', $x->[0][0] ) : "null";
+    print "\n";
+}
+
+if( @ARGV )
+{
+    map{ getProjectName($_) }@ARGV;
+}
+else
+{
+    while(<STDIN>){ chomp; getProjectName($_); }
+}

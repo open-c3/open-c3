@@ -29,8 +29,9 @@ return sub
 
     $logs = Logs->new( 'code.build.send.callback' ) unless $logs;
 
-    my $name = eval{ Code->new( "projectname" )->run( id => $projectid ); };
-    $logs->die( "get projectname fail:$@" ) if $@;
+    my $name = `c3_agent_pp_projectname $projectid`;
+    chomp $name;
+
     print "projectname: $name\n";
     $logs->die( "projectname format error" ) unless $name && $name =~ /^[a-zA-Z0-9][a-zA-Z0-9\._\-]+$/;
 

@@ -106,10 +106,8 @@ return sub
     $replace{callonlineenv} = $x{'openc3_ci_project.callonlineenv'} ? 'Yes' : 'No';
     $replace{errormsg} = $errormsg || 'Null';
 
-    my $projectname = eval{ Code->new( 'projectname' ) };
-    $logs->die( "load projectname fail:$@" ) if $@;
-
-    $replace{treename} = $projectname->run( id => $replace{treeid} );
+    $replace{treename} = `c3_agent_pp_projectname $replace{treeid}`;
+    chomp $replace{treename};
 
     for my $key ( keys %senddata )
     {
