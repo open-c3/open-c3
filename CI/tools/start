@@ -39,10 +39,7 @@ map{
     die "start api.slave fail: $!" if system "$supervisor --cmd '$MYDan::PATH/perl/bin/twiggy $base/bin/api.slave --port $_' --log '$base/logs/server/api.slave.$_' --http http://127.0.0.1:$_/mon --check ok";
     print "start api.slave port: $_\n"
 }$port->{'api.slave'}{from} .. $port->{'api.slave'}{to};
-map{
-    die "start $_ fail: $!" if system "$supervisor --cmd '$base/server/$_' --log '$base/logs/server/$_'";
-}qw( keepalive );
 
 map{
     die "start $_ fail: $!" if system "$supervisor --cmd '$base/server/$_' --err /var/log/open-c3.error.log --log '$base/logs/server/$_'";
-}qw( findtags build bury clean );
+}qw( findtags build bury clean keepalive );

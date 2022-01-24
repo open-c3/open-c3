@@ -3,20 +3,38 @@ use strict;
 use warnings;
 use MYDB;
 use FindBin qw( $RealBin );
-use Data::Dumper;
-
-use MYDan::Util::OptConf;
-use Code;
+use Carp;
 
 =head1 SYNOPSIS
 
  $0
 
 =cut
-my $option = MYDan::Util::OptConf->load();
-my %o = $option->get( )->dump();
-
-my $db = MYDB->new( "$RealBin/../conf/conn" );
 
 $0 = 'ci_server_keepalive';
-Code->new( 'server/keepalive' )->run( db => $db, %o );
+
+$ENV{PATH} = "$ENV{PATH}:/data/Software/mydan/CI/pp";
+
+sub keepalive
+{
+    my %param = @_;
+
+    my ( $myname, $db ) = ( `c3_ci_pp_who`, $param{db} );
+
+    eval{ $db->execute( sprintf "replace into openc3_ci_keepalive (`slave`,`time`) values( '$myname','%d')", time ); };
+    confess( "update keepalive fail: $@" ) if $@;
+
+    sleep 3;
+
+    while( 1 )
+    {
+        print "do ...\n";
+        eval{ $db->execute( sprintf "update openc3_ci_keepalive set time='%d' where slave='$myname'", time );};
+        confess( "update keepalive fail: $@" ) if $@;
+
+        sleep 45;
+    }
+}
+
+my $db = MYDB->new( "$RealBin/../conf/conn" );
+keepalive( db => $db );
