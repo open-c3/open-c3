@@ -41,33 +41,16 @@ return sub
     }
     $logs->die( "mkdir temppath fail:$!" ) if system "mkdir -p '$temppath'";
 
-    my $ua = LWP::UserAgent->new();
-    $ua->agent('Mozilla/9 [en] (Centos; Linux)');
-    $ua->default_header( Util::envinfo( qw( appkey appname ) ) );
-    $ua->timeout( 10 );
-    my $res = $ua->get( "http://api.job.open-c3.org/fileserver/$treeid" );
-    my $cont = $res->content;
-    $logs->die( "calljob fail: $cont" ) unless $res->is_success;
+    die "tags undef" unless $tags;
+    die "tags format error" unless $tags =~ /^[a-zA-Z0-9\.\-_]+$/;
+    my @x = `c3_job_pp_fileserver md5 create_user  --filter 'projectid=$treeid and name="$tags"'`;
+    die "nofind version data" unless @x;
+    chomp @x;
 
-    my $data = eval{JSON::from_json $cont};
-    $logs->die( "calljob fail: $cont : no json $@" ) if $@;
+    my ( $filemd5, $create_user ) = split /;/, $x[0];
 
-    $logs->die( "calljob fail: $cont : stat fail" ) unless $data->{stat};
-
-    my $tagdata;
-    if( $tags )
-    {
-        map{ $tagdata = $_ if $_->{name} eq $tags }@{$data->{data}};
-    }
-    else
-    {
-        $data = pop @{$data->{data}};
-    }
-
-    $logs->die( "nofind version" ) unless $tagdata;
-
-    my $version = $tagdata->{name};
-    my $filepath = "/data/glusterfs/fileserver/$treeid/$tagdata->{md5}";
+    my $version = $tags;
+    my $filepath = "/data/glusterfs/fileserver/$treeid/$filemd5";
 
     $logs->die( "clone error:$!" ) if system "cd '$temppath' && rm -rf data info && mkdir data && mkdir info && tar -zxvf '$filepath' -C data && echo '$version' > info/version";
 
