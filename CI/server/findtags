@@ -31,6 +31,8 @@ sub runauto
         warn "[DEBUG]run auto: $cmd\n" if $ENV{DEBUG};
         system $cmd;
         my $due = $time + 60 - time;
+
+        warn "[WARN] findtag runauto timeout $due sec" if $due < 0;
         sleep $due if $due > 0;
     }
 }
@@ -50,6 +52,8 @@ sub runonce
         warn "[DEBUG]run once: $cmd\n" if $ENV{DEBUG};
         system $cmd;
         my $due = $time + 3 - time;
+        my $timeout = $time + 10 - time;
+        warn "[WARN] findtag runone timeout $timeout sec" if $timeout < 0;
         sleep $due if $due > 0;
     }
 }
