@@ -19,7 +19,7 @@ sub findtag
     die "id err" unless $id =~ /^\d+$/;
 
     system "date > logs/findtags/$id";
-    system "c3_ci_pp_project $id 2>> logs/findtags/$id  |c3_ci_pp_gittags 2>>logs/findtags/$id |c3_ci_pp_saveversion >> logs/findtags/$id 2>&1 \n";
+    system "c3_ci_pp_project $id 2>> logs/findtags/$id  |c3_ci_pp_autotags 2>>logs/findtags/$id |c3_ci_pp_saveversion >> logs/findtags/$id 2>&1 \n";
 }
 
 if( @ARGV )
