@@ -22,7 +22,7 @@ sub runauto
         "c3_ci_pp_projects id --filter 'status=1 and autofindtags=1'",
         "sort",
         "c3_ci_pp_grepitask",
-        "c3_ci_pp_setproject --set \"slave='openc3-srv-docker'\"",
+        "c3_ci_pp_setproject --set \"slave='`c3_ci_pp_who`'\"",
         "xargs -P 10 $RealBin/../bin/findtags",
     );
     while(1)
@@ -41,7 +41,7 @@ sub runonce
         "c3_ci_pp_projects id --filter 'status=1 and findtags_at_once=1'",
         "sort",
         "c3_ci_pp_grepitask",
-        "c3_ci_pp_setproject --set \"findtags_at_once=0,slave='openc3-srv-docker'\"",
+        "c3_ci_pp_setproject --set \"findtags_at_once=0,slave='`c3_ci_pp_who`'\"",
         "xargs -P 10 $RealBin/../bin/findtags",
     );
     while(1)

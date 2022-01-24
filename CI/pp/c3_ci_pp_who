@@ -1,0 +1,12 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use POSIX;
+
+$|++;
+
+my $myname = `cat /etc/ci.myip`;
+chomp $myname if $myname;
+ 
+die "get slave name fail" unless $myname && $myname =~ /^[a-zA-Z0-9\.\-]+$/;
+print $myname;
