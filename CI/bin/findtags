@@ -1,25 +1,25 @@
 #!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
 use strict;
 use warnings;
-use MYDB;
+
 use FindBin qw( $RealBin );
-
-use Code;
-use MYDan::Util::OptConf;
-
 =head1 SYNOPSIS
 
- $0 [--id id] 
+ $0 id1 id2 ... idn
 
 =cut
 
-my $option = MYDan::Util::OptConf->load();
-my %o = $option->get( qw( id=i ) )->dump();
-$option->assert( 'id' );
+$ENV{PATH} = "$ENV{PATH}:/data/Software/mydan/CI/pp";
+chdir "$RealBin/.." or die "$0 chdir fail: $!";
 
-system "killall ci_findtags_$o{id} 2>/dev/null";
-$0 = "ci_findtags_$o{id}";
+sub findtag
+{
+    my $id = shift;
 
-my $db = MYDB->new( "$RealBin/../conf/conn" );
+    die "id err" unless $id =~ /^\d+$/;
 
-Code->new( 'findtags' )->run( db => $db, %o );
+    system "date > logs/findtags/$id";
+    system "c3_ci_pp_project $id 2>> logs/findtags/$id  |c3_ci_pp_gittags 2>>logs/findtags/$id |c3_ci_pp_saveversion >> logs/findtags/$id 2>&1 \n";
+}
+
+map{ chomp; findtag($_) }@ARGV ? @ARGV : <STDIN>;
