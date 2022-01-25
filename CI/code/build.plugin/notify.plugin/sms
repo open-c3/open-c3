@@ -38,7 +38,7 @@ return sub
     );
 
     my $res = $ua->post( "http://api.connector.open-c3.org/connectorx/notify", 
-        Content => JSON::to_json(\%form), 'Content-Type' => 'application/json'
+        Content => JSON::encode_json(\%form ), 'Content-Type' => 'application/json'
     );
 
     unless( $res->is_success )

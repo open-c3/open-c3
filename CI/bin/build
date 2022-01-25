@@ -13,6 +13,10 @@ use MYDan::Util::OptConf;
 
 =cut
 
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
 my $option = MYDan::Util::OptConf->load();
 my %o = $option->get( qw( uuid=s ) )->dump();
 $option->assert( 'uuid' );

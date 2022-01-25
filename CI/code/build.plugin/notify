@@ -52,22 +52,16 @@ return sub
  
 
     $ua->default_header( %env );
-    my $res = $ua->get( "http://api.job.open-c3.org/environment" );
-
-    $logs->die( "call job get environment table fail" ) unless $res->is_success;
-    my $data = eval{JSON::from_json $res->content};
-    $logs->die( "call job get environment stat fail" ) unless $data->{stat};
-
-    my $environment = $data->{data};
 
 
-    my $notify = $ua->get( "http://api.job.open-c3.org/notify/$x{'openc3_ci_project.groupid'}" );
+    my $envstr = `c3_job_pp_environment`;
+    my $environment = YAML::XS::Load $envstr;
 
-    $logs->die( "call job get notify table fail" ) unless $notify->is_success;
-    my $datanotify = eval{JSON::from_json $notify->content};
-    $logs->die( "call job get environment stat fail" ) unless $datanotify->{stat};
+    my @notify = `c3_job_pp_notifys user --filter "status='available' and projectid=$x{'openc3_ci_project.groupid'}"`;
+    chomp @notify;
 
-    my %notify = map{ $_->{user} => 1 }@{$datanotify->{data}};
+    my %notify = map{ $_ => 1 }@notify;
+
     map{ $notify{$_} = 1 } split /,/, $x{'openc3_ci_project.notify'} if $x{'openc3_ci_project.notify'};
 
     my %template = 
@@ -112,13 +106,8 @@ return sub
     for my $key ( keys %senddata )
     {
 
-#       if( Encode::is_utf8($senddata{$key}) )
-#        {
-#            $senddata{$key} = 'build: project: ${projectname} version=${version}: status:${status}';
-#        }
         for ( keys %replace )
         {
-            utf8::encode($replace{$_}) if Encode::is_utf8($replace{$_});
             $senddata{$key} =~ s/\$\{$_\}/$replace{$_}/g;
         }
     }
