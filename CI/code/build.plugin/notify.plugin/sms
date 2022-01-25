@@ -4,6 +4,8 @@ use warnings;
 use LWP::UserAgent;
 use Util;
 use JSON;
+use Encode;
+use IPC::Open3;
 
 $| ++;
 
@@ -11,8 +13,6 @@ $| ++;
 
     to => [ 'foo@job.com', '123@job.com' ],
 
-    title => 'projectid: ${projectid} job ${status}',
-    content => 'task ${uuid} :${status}',
     mesg => 'projectid=${projectid} taskuuid=${uuid}: ${status}',
 
 
@@ -24,34 +24,15 @@ return sub
 
     return 1 unless  @{$param{to}};
 
-    my %env = Util::envinfo( qw( appname appkey ) );
-    my $ua = LWP::UserAgent->new;
-    $ua->default_header( %env );
-    my %form = (
-        data => [
-            +{
-                type => 'sms',
-                mesg => $param{mesg},
-                to => $param{to},
-            }
-        ]
-    );
+    my $pipe = sprintf "c3_connector_pp_sendmesg %s", join ' ', @{$param{to}};
 
-    my $res = $ua->post( "http://api.connector.open-c3.org/connectorx/notify", 
-        Content => JSON::encode_json(\%form ), 'Content-Type' => 'application/json'
-    );
+    my $chld_in;
+    my $pid = IPC::Open3::open3( $chld_in, '>&STDOUT', '>&STDERR', $pipe);
 
-    unless( $res->is_success )
-    {
-#TODO 确认上层调用是否捕获这个die
-        die "call notify fail";
-    }
-
-    my $data = eval{JSON::from_json $res->content};
-    unless ( $data->{stat} ) {
-#TODO 确认上层调用是否捕获这个die
-        die "call notify result". $data->{info} || '';
-    }
- 
-    return 1;
+    my $content = $param{mesg};
+    Encode::_utf8_off($content);
+    print $chld_in $content;
+    $chld_in = undef;
+    waitpid( $pid, 0 );
+    return $? ? 0 : 1;
 }

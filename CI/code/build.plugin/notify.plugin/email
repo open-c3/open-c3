@@ -4,6 +4,8 @@ use warnings;
 use LWP::UserAgent;
 use Util;
 use JSON;
+use Encode;
+use IPC::Open3;
 
 $| ++;
 
@@ -24,33 +26,15 @@ return sub
 
     return 1 unless @{$param{to}};
 
-    my %env = Util::envinfo( qw( appname appkey ) );
-    my $ua = LWP::UserAgent->new;
-    $ua->default_header( %env );
-    my %form = (
-        data => [
-            +{
-                type => 'email',
-                title => $param{title},
-                content => $param{content},
-                to => $param{to},
-            }
-        ]
-    );
+    my $pipe = sprintf "c3_connector_pp_sendmail %s --subject '%s'", join( ' ', @{$param{to}} ), $param{title};
 
-    my $res = $ua->post( "http://api.connector.open-c3.org/connectorx/notify", 
-        Content => JSON::encode_json(\%form), 'Content-Type' => 'application/json'
-    );
+    my $chld_in;
+    my $pid = IPC::Open3::open3( $chld_in, '>&STDOUT', '>&STDERR', $pipe);
 
-    unless( $res->is_success )
-    {
-        die "call notify fail.".YAML::XS::Dump $res->content;
-    }
-
-    my $data = eval{JSON::from_json $res->content};
-    unless ( $data->{stat} ) {
-        die "call notify fail.".YAML::XS::Dump $res->content;
-    }
- 
-    return 1;
+    my $content = $param{content};
+    Encode::_utf8_off($content);
+    print $chld_in $content;
+    $chld_in = undef;
+    waitpid( $pid, 0 );
+    return $? ? 0 : 1;
 }
