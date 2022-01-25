@@ -39,9 +39,6 @@ return sub
     my %data = %{$x->[0]};
     $data{uuid} = $uuid;
 
-    eval{ Code->new( "build.plugin/send.plugin/torepo" )->run( db => $db, %data ); };
-    $logs->die( "run build.send.torepo fail:$@" ) if $@;
-
     for(qw( follow_up calltestenv callonlineenv ))
     {
         next unless $data{$_};
