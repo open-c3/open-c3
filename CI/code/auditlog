@@ -21,6 +21,11 @@ return sub
 
     map{ die "$_ undef" unless $param{$_} }qw( user title content );
 
-    return undef if system "c3_connector_pp_addauditlog '$param{user}' '$param{title}' '$param{content}' 2>&1 >/dev/null|c3_ci_pp_addtime >> /var/log/open-c3.error.log";
+    if( system "c3_connector_pp_addauditlog '$param{user}' '$param{title}' '$param{content}'" )
+    {
+        warn "auditlog err: $!";
+        return undef;
+    }
+
     return 1;
 }
