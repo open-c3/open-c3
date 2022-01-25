@@ -42,7 +42,7 @@ return sub
     eval{ Code->new( "build.plugin/send.plugin/torepo" )->run( db => $db, %data ); };
     $logs->die( "run build.send.torepo fail:$@" ) if $@;
 
-    for(qw( follow_up callback calljobx calljob excuteflow calltestenv callonlineenv ))
+    for(qw( follow_up calltestenv callonlineenv ))
     {
         next unless $data{$_};
         eval{ Code->new( "build.plugin/send.plugin/$_" )->run( db => $db, %data ); };
