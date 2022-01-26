@@ -19,4 +19,13 @@ use keepalive;
 
 =cut
 
-keepalive->new( MYDB->new( "$RealBin/../conf/conn" ) )->role( $ARGV[0] );
+my $k = keepalive->new( MYDB->new( "$RealBin/../conf/conn" ) );
+
+if( @ARGV )
+{
+    map{ $k->role($_) }@ARGV;
+}
+else
+{
+    while(<STDIN>){ chomp; $k->role($_); }
+}
