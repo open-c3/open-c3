@@ -17,4 +17,7 @@ use Code;
 my $db = MYDB->new( "$RealBin/../conf/conn" );
 
 $0 = 'job_server_approval';
+
+$ENV{PATH} = "$ENV{PATH}:/data/Software/mydan/JOB/pp";
+
 Code->new( 'server/approval' )->run( db => $db );

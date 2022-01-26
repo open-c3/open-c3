@@ -25,7 +25,19 @@ return sub
 
     while(1)
     {
-        warn "do ...\n";
+
+        my $role = `c3_job_pp_role \$(c3_job_pp_who)`;
+
+        chomp $role;
+        unless( $role && $role eq 'master' )
+        {
+            print "not master, skip.\n";
+            sleep 300;
+            next;
+        }
+
+
+        print "do ...\n";
 
         my $x = eval{ $db->query( "select id,user,cont,submitter,oauuid from openc3_job_approval where opinion='unconfirmed' and oauuid != '1'" ) };
         $logs->die( "mysql query fail: $@" ) if $@;

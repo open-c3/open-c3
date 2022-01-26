@@ -121,7 +121,7 @@ return sub
         for ( keys %replace )
         {
             utf8::encode($replace{$_}) if Encode::is_utf8($replace{$_});
-            $senddata{$key} =~ s/\$\{$_\}/$replace{$_}/g;
+            $senddata{$key} =~ s/\$\{$_\}/$replace{$_}/g if defined $replace{$_};
         }
     }
 
