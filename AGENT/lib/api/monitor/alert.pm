@@ -34,6 +34,7 @@ get '/monitor/alert/:projectid' => sub {
         return +{ stat => $JSON::false, info => "get alert from altermanager error: $url" };
     }
 
+    map{ $_->{generatorURL} =~ s#http://[a-z0-9]+:9090/#$param->{siteaddr}/third-party/monitor/prometheus/# }@$data if $param->{siteaddr};
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => [ grep{ $_->{labels} && $_->{labels}{"fromtreeid"} && $_->{labels}{"fromtreeid"} eq $projectid }@$data ] };
 };
 

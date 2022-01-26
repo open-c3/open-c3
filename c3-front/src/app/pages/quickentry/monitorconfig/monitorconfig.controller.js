@@ -64,7 +64,7 @@
 
         vm.reloadAlert = function(){
             vm.loadoverAlert = false;
-            $http.get('/api/agent/monitor/alert/' + vm.treeid ).success(function(data){
+            $http.get('/api/agent/monitor/alert/' + vm.treeid + "?siteaddr=" + vm.siteaddr ).success(function(data){
                 if(data.stat == true) 
                 { 
                     vm.activeAlertTable = new ngTableParams({count:20}, {counts:[],data:data.data.reverse()});
