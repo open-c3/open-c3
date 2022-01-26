@@ -32,9 +32,9 @@ return sub
         for my $r ( @$x )
         {
             my ( $id, $pid, $uuid, $starttime, $starttimems ) = @$r;
-            next unless $pid =~ /^\d+$/;
-            next unless $starttimems =~ /^[\.\d]+$/;
-            next unless $uuid =~ /^[a-zA-Z0-9]+$/;
+            next unless $pid && $pid =~ /^\d+$/;
+            next unless $starttimems && $starttimems =~ /^[\.\d]+$/;
+            next unless $uuid && $uuid =~ /^[a-zA-Z0-9]+$/;
 
             next if kill( 0, $pid );
 
