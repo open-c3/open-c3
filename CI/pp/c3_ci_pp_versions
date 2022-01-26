@@ -1,0 +1,36 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDB;
+use FindBin qw( $RealBin );
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 col1 col2 ... coln
+ $0 col1 col2 ... coln [--filter status=1]
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( filter=s ) )->dump();
+$option->assert() unless @ARGV;
+
+my $db = MYDB->new( "$RealBin/../conf/conn" );
+
+my $x = eval{ $db->query(
+    sprintf "select %s from openc3_ci_version%s",
+        join( ',', @ARGV ),
+        $o{filter} ? " where $o{filter} " : ''
+); };
+
+die "$0 get data fail: $@" if $@;
+
+map { printf "%s\n", join ';', @$_; }@$x;

@@ -1,0 +1,30 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDB;
+use Encode;
+use YAML::XS;
+use FindBin qw( $RealBin );
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $db = MYDB->new( "$RealBin/../conf/conn" );
+
+my $x = eval{ $db->query( "select `key`,`value` from openc3_job_environment"); };
+
+die "$0 get data fail: $@" if $@;
+
+my %x; map{ $x{$_->[0]} = $_->[1]}@$x;
+
+print Encode::decode('utf8', YAML::XS::Dump \%x );

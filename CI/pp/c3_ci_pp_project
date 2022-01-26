@@ -1,0 +1,50 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDB;
+use FindBin qw( $RealBin );
+use MYDan::Util::OptConf;
+use YAML::XS;
+use Encode;
+
+=head1 SYNOPSIS
+
+ $0 id1 id2 ... idn
+
+=cut
+
+my $db = MYDB->new( "$RealBin/../conf/conn" );
+
+sub getProject
+{
+    my $id = shift;
+    die "id err" unless $id =~ /^\d+$/;
+
+    my @col = qw( id status autofindtags callonlineenv calltestenv findtags_at_once
+        autobuild name excuteflow calljobx calljob webhook webhook_password webhook_release rely buildimage buildscripts 
+        follow_up follow_up_ticketid callback groupid tag_regex addr
+        ticketid notify slave last_findtags last_findtags_success edit_user edit_time
+ );
+    my $x = eval{ $db->query(
+        sprintf( "select %s from openc3_ci_project where id=$id", join( ',', @col ) ), \@col
+    ); };
+    die "query fail: $@" if $@;
+
+    print Encode::decode('utf8', YAML::XS::Dump $x->[0] );
+}
+
+if( @ARGV )
+{
+    map{ getProject($_) }@ARGV;
+}
+else
+{
+    while(<STDIN>){ chomp; getProject($_); }
+}
