@@ -24,8 +24,15 @@ sub new
 
 sub getResponseProxy
 {
-    my ( $this, $content ) = @_;
-    $content = "#HELP DEBUG By Proxy\n". $content;
+    my ( $this, $content, $ip, $proxy  ) = @_;
+    my $carry = $carry{$ip} ? MIME::Base64::decode_base64( $carry{$ip} ) : 'Null';
+    $carry = join "\n", map{ "#$_" }split /\n/, $carry;
+
+    $content = "#CARRY:\n$carry\n". $content;
+    $proxy ||= 'Null';
+    $content = "#PROXY: $proxy\n". $content;
+    $content = "#IP: $ip\n". $content;
+    $content = "#Debug info from NodeQuery\n". $content;
     my $length = length $content;
     my @h = (
         "HTTP/1.0 200 OK",
@@ -42,9 +49,9 @@ sub getResponseRoot
     my $content = 
 '
 <html>
-    <head><title>MYDan Node Query</title></head>
+    <head><title>OPEN-C3 Node Query</title></head>
     <body>
-        <h1>MYDan Node Query</h1>
+        <h1>OPEN-C3 Node Query</h1>
     </body>
 </html>
 ';
@@ -79,9 +86,9 @@ $AnyEvent::HTTP::MAX_PER_HOST = 512;
            wbuf_max => 1024000,
            autocork => 1,
            on_eof => sub{
-printf "close $idx: timeoiut %s\n", time - $index{$idx}{time};
-                                   $handle->destroy();
-                                   delete $index{$idx};
+               printf "close $idx: timeoiut %s\n", time - $index{$idx}{time};
+               $handle->destroy();
+               delete $index{$idx};
            },
            on_read => sub {
                my $self = shift;
@@ -109,7 +116,7 @@ printf "close $idx: timeoiut %s\n", time - $index{$idx}{time};
                                $index{$idx}{http_get} = http_get "http://$proxy{$ip}:65110/proxy_${ip}_proxy$carry", sub { 
                                    my $c = $_[0] || $_[1]->{URL}. " -> ".$_[1]->{Reason};
                                    return if $handle && $handle->destroyed;
-                                   $handle->push_write($this->getResponseProxy($c)) if $c;
+                                   $handle->push_write($this->getResponseProxy($c, $ip, $proxy{$ip} )) if $c;
                                    $handle->push_shutdown();
                                    $handle->destroy();
                                    delete $index{$idx};
@@ -121,7 +128,7 @@ printf "close $idx: timeoiut %s\n", time - $index{$idx}{time};
                                $index{$idx}{http_get} = http_get "http://$ip:65110/metrics$carry", sub { 
                                    my $c = $_[0] || $_[1]->{URL}. " -> ".$_[1]->{Reason};
                                    return if $handle && $handle->destroyed;
-                                   $handle->push_write($this->getResponseProxy($c)) if $c;
+                                   $handle->push_write($this->getResponseProxy($c, $ip )) if $c;
                                    $handle->push_shutdown();
                                    $handle->destroy();
                                    delete $index{$idx};
@@ -188,7 +195,6 @@ printf "close $idx: timeoiut %s\n", time - $index{$idx}{time};
             printf "index: $index cache: %d\n", scalar  keys %index;
         }
     );
-
 
     $cv->recv;
 }
