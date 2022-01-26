@@ -1,23 +1,22 @@
 #!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
 use strict;
 use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
 use MYDB;
 use FindBin qw( $RealBin );
-use Data::Dumper;
-
 use MYDan::Util::OptConf;
-use Code;
+use keepalive;
 
 =head1 SYNOPSIS
 
- $0
+ $0 name
 
 =cut
 
-my $db = MYDB->new( "$RealBin/../conf/conn" );
-
-$0 = 'job_server_approval';
-
-$ENV{PATH} = "$ENV{PATH}:/data/Software/mydan/JOB/pp";
-
-Code->new( 'server/approval' )->run( db => $db );
+keepalive->new( MYDB->new( "$RealBin/../conf/conn" ) )->role( $ARGV[0] );

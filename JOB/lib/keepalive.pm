@@ -13,7 +13,7 @@ sub new
     bless +{ map{ $_->[0] => $_->[1] }@$x }, ref $class || $class;
 }
 
-sub slave
+sub _slave
 {
     my $this = shift;
 
@@ -21,9 +21,32 @@ sub slave
     $time = time - 300 unless grep{ $_ ge $time } values %$this;
 
     map{ delete $this->{$_} if $this->{$_} lt $time  }keys %$this;
+    return keys %$this;
+}
 
-    return undef unless my @slave = keys %$this;
+sub slave
+{
+    my $this = shift;
+    my @slave = $this->_slave();
+    return undef unless @slave;
     return $slave[int rand scalar @slave];
+}
+
+sub role
+{
+    my ( $this, $name )  = @_;
+    return unless $name;
+    my @slave = $this->_slave();
+
+    my $i = 0;
+    for( sort @slave  )
+    {
+        if( $_ eq $name )
+        {
+            print $i ? "slave\n" : "master\n";
+        }
+        $i ++;
+    }
 }
 
 1;
