@@ -9,11 +9,6 @@ use api;
 use Format;
 use LWP::UserAgent;
 
-my $exip;
-BEGIN{
-    $exip = `cat cat /etc/job.exip`;
-    chomp $exip;
-};
 get '/monitor/alert/:projectid' => sub {
     my $param = params();
     my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
@@ -27,7 +22,7 @@ get '/monitor/alert/:projectid' => sub {
     my $ua = LWP::UserAgent->new;
     $ua->timeout( 3 );
 
-    my $url = "http://$exip:9093/api/v2/alerts";
+    my $url = "http://OPENC3_ALERTMANAGER_IP:9093/api/v2/alerts";
     my $res = $ua->get( $url );
     unless( $res->is_success )
     {
