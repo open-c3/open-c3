@@ -55,12 +55,13 @@ sub run
 
     my ( $i, $cv ) = ( 0, AnyEvent->condvar );
 
-    our ( $logf, $logH, $errH ) = ( "$log/current" );
+    our ( $logf, $logH, $errH, $errname ) = ( "$log/current" );
     
     confess "open log: $!" unless open $logH, ">>$logf"; 
     if( $this->{err} )
     {
         confess "open log: $!" unless open $errH, ">>$this->{err}"; 
+        $errname = $this->{errname} ? " [$this->{errname}] " : ' ';
     }
     $logH->autoflush;
 
@@ -100,7 +101,7 @@ sub run
                 syswrite( $logH, unixtai64n(time). " [STDERR] $input\n" ); 
                 if( $this->{err} )
                 {
-                    map{ syswrite( $errH, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ). " $_\n" );  }split /\r|\n/, $input;
+                    map{ syswrite( $errH, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ). "$errname$_\n" );  }split /\r|\n/, $input;
                 }
             }
         );
