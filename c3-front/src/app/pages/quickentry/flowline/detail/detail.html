@@ -49,10 +49,10 @@
                                      耗时{{ci.seftime(m.starttime, m.finishtime)}}<br>{{m.starttime}}
                                 </div>
  
-                            <i class="fa fa-play-circle-o fa-2x" ng-if="m.status!='running'" aria-hidden="true" ng-click="ci.build(m.uuid)" uib-tooltip="构建" style="cursor:pointer;color: green;" ></i>
-                            <i class="fa fa-stop-circle-o fa-2x" ng-if="m.status=='running'" aria-hidden="true" ng-click="ci.killbuild(m.uuid, m.slave)" uib-tooltip="停止" style="cursor:pointer;color: red;" ></i>
-                            <a ng-if="ci.project.buildimage" aria-hidden="true" target='_blank' ng-href="/api/ci/dockershell?image={{ci.project.buildimage}}&projectid={{ci.projectid}}&tag={{m.name}}&siteaddr={{ci.siteaddr}}" uib-tooltip="调试" style="cursor:pointer;color: green;"><i class="fa fa-arrow-circle-right fa-2x" ></i></a>
-                            <a ng-if="!ci.project.buildimage" aria-hidden="true" uib-tooltip="未配置" ><i class="fa fa-arrow-circle-right fa-2x"></i></a>
+                            <i class="fa fa-play-circle-o fa-2x" ng-if="m.status!='running'" aria-hidden="true" ng-click="ci.build(m.uuid)" uib-tooltip="构建" style="cursor:pointer;color: green;" >构建</i>
+                            <i class="fa fa-stop-circle-o fa-2x" ng-if="m.status=='running'" aria-hidden="true" ng-click="ci.killbuild(m.uuid, m.slave)" uib-tooltip="停止" style="cursor:pointer;color: red;" >停止</i>
+                            <a ng-if="ci.project.buildimage" aria-hidden="true" target='_blank' ng-href="/api/ci/dockershell?image={{ci.project.buildimage}}&projectid={{ci.projectid}}&tag={{m.name}}&siteaddr={{ci.siteaddr}}" uib-tooltip="调试" style="cursor:pointer;color: green;"><i class="fa fa-arrow-circle-right fa-2x" >调试</i></a>
+                            <a ng-if="!ci.project.buildimage" aria-hidden="true" uib-tooltip="未配置" ><i class="fa fa-arrow-circle-right fa-2x">调试</i></a>
                         </td>
                         <td style="width: 10%" data-title="'发布测试环境'" >
                             <div ng-repeat="deploy in ci.taskInfoTest[m.name]">

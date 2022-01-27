@@ -39,7 +39,8 @@ return sub
 
         print "do ...\n";
 
-        my $x = eval{ $db->query( "select id,user,cont,submitter,oauuid from openc3_job_approval where opinion='unconfirmed' and oauuid != '1'" ) };
+        my $timeout = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( time - 86400 * 15 ));
+        my $x = eval{ $db->query( "select id,user,cont,submitter,oauuid from openc3_job_approval where opinion='unconfirmed' and oauuid != '1' and create_time>'$timeout'" ) };
         $logs->die( "mysql query fail: $@" ) if $@;
         $logs->die( "get approval info from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
 

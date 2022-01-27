@@ -24,7 +24,7 @@ $| ++;
 my $option = MYDan::Util::OptConf->load();
 
 my %o = $option->set( count1 => 1, count2 => 3, count3 => 6, intime1 => 3, intime2 => 60, intime3 => 180 )
-    ->get( qw( cmd=s log=s http=s check=s size=i keep=i name=s count1=i intime1=i count2=i intime2=i count3=i intime3=i ) )->dump();
+    ->get( qw( cmd=s log=s http=s check=s size=i keep=i name=s count1=i intime1=i count2=i intime2=i count3=i intime3=i err=s errname=s ) )->dump();
 
 $option->assert( 'cmd', 'log' );
 

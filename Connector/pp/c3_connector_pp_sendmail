@@ -1,0 +1,72 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
+use strict;
+use warnings;
+use uuid;
+use POSIX;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDB;
+use FindBin qw( $RealBin );
+use MYDan::Util::OptConf;
+use YAML::XS;
+use Encode;
+use MIME::Base64;
+use LWP::UserAgent;
+use JSON;
+use Configini;
+
+=head1 SYNOPSIS
+
+ $0 user1 user2 ... user3 --subject test
+
+=cut
+
+my $db = MYDB->new( "$RealBin/../conf/conn" );
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( subject=s ) )->dump();
+$option->assert('subject');
+$option->assert() unless @ARGV;
+
+local $/ = undef;
+my $content = Encode::encode('utf8', <STDIN> );
+local $/ = "\n";
+
+my ( $usermail, %env );
+$usermail = Configini::get( 'usermail' );
+%env = Configini::env( 'usermailenv' );
+
+my $ua = LWP::UserAgent->new;
+$ua->default_header( %env ) if %env;
+
+sub sendmail
+{
+    my ( $user, $title, $content ) = @_;
+
+    my $x = $db->query( sprintf "select `email` from openc3_connector_useraddr where user='$user'" );
+    $user = $x->[0][0] if @$x;
+
+    if( $usermail =~ /api.connector.open-c3.org/ )
+    {
+        $title =~ s/'/"/g;
+        $content =~ s/'/"/g;
+
+        eval{ $db->execute( "insert into openc3_connector_usermail (`user`,`title`,`content`) values('$user','$title','$content')" )};
+        die "send mail info to db fail:$@"  if $@;
+        return;
+    }
+
+    my $cont = JSON::encode_json( +{ user => $user, title => $title, content => $content } );
+    my $res = $ua->post( $usermail, Content => $cont, 'Content-Type' => 'application/json');
+
+    die "call mail api fail:$res->decoded_content" unless $res->is_success;
+
+    my $v = eval{JSON::decode_json $res->decoded_content};
+    die "call mail api: $v->{info}" unless $v->{stat};
+}
+
+map{ sendmail( $_, $o{subject}, $content ) }@ARGV;
