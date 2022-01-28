@@ -1,7 +1,7 @@
 package api::private;
 use Dancer ':syntax';
 use Dancer qw(cookie);
-use JSON;
+use JSON qw();
 use POSIX;
 use api;
 use uuid;

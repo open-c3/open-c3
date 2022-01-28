@@ -1,7 +1,7 @@
 package api::vv;
 use Dancer ':syntax';
 use Dancer qw(cookie);
-use JSON;
+use JSON qw();
 use POSIX;
 use api;
 use Encode qw(encode);

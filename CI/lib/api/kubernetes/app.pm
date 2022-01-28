@@ -4,7 +4,7 @@ use Dancer qw(cookie);
 use Encode qw(encode);
 use MIME::Base64;
 use FindBin qw( $RealBin );
-use JSON;
+use JSON qw();
 use POSIX;
 use api;
 use Format;
