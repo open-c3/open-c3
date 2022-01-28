@@ -27,7 +27,7 @@ return sub
 
     while( 1 )
     {
-        warn "do ...\n";
+        print "do ...\n";
         $db->execute( sprintf "update openc3_ci_keepalive set time='%d' where slave='$myname'", time );
         $logs->die( "update keepalive fail: $@" ) if $@;
 

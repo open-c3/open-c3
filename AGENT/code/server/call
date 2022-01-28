@@ -31,7 +31,7 @@ return sub
 
     while( 1 )
     {
-        warn "do ...\n";
+        print "do ...\n";
         my $counttmp = int time / $interval;
         ( $count, %count ) = ( $counttmp ) if $count ne $counttmp;
 
@@ -52,7 +52,7 @@ return sub
                 exec "$RealBin/../bin/install -uuid $uuid";
             }
             $count{$uuid} = 1;
-            warn "start install $uuid\n";
+            print "start install $uuid\n";
         }
         sleep 1;
     }

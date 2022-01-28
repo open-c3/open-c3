@@ -32,7 +32,7 @@ return sub
 
     while( 1 )
     {
-        warn "do ...\n";
+        print "do ...\n";
         my $time = time;
         my $counttmp = int time / $interval;
         ( $count, %count ) = ( $counttmp ) if $count ne $counttmp;
@@ -55,7 +55,7 @@ return sub
                 open (STDERR, ">&STDOUT") or $logs->die( "open STDERR failed: $id" );
                 exec "$RealBin/../bin/check -id $id";
             }
-            warn "start check $id\n";
+            print "start check $id\n";
         }
 
         while( 1 )

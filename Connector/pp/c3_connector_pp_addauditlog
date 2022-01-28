@@ -1,8 +1,6 @@
 #!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
 use strict;
 use warnings;
-use uuid;
-use POSIX;
 
 binmode STDIN, ':utf8';
 binmode STDOUT, ':utf8';
@@ -23,9 +21,12 @@ my $db = MYDB->new( "$RealBin/../conf/conn" );
 
 sub save
 {
-    eval{ $db->execute( sprintf "insert into openc3_connector_auditlog (`user`,`title`,`content`) values('%s','%s','%s')", @_ ); };
-    die "add auditlog fail: $@" if $@;
-    print "success\n";
+    my ( $user, $title, $content ) = @_;
+    die "date err" unless $user && $title;
+    $title =~ s/'/"/g;
+    $content =~ s/'/"/g;
+    eval{ $db->execute( "insert into openc3_connector_auditlog (`user`,`title`,`content`) values('$user','$title','$content')" ); };
+    die if $@;
 }
 
 if( @ARGV )

@@ -22,7 +22,7 @@ return sub
 
     while(1)
     {
-        warn "do ...\n";
+        print "do ...\n";
 
         my $x = eval{ $db->query( "select id,pid,uuid,starttime,starttimems from openc3_agent_install 
             where slave='$myname' and pid is not null and status<>'success' and status<>'fail'" );};
