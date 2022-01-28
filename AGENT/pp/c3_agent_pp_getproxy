@@ -1,0 +1,40 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib -I/data/Software/mydan/AGENT/private/lib
+use strict;
+use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use YAML::XS;
+use Encode;
+use MYDan::Agent::Proxy;
+use Util;
+
+=head1 SYNOPSIS
+
+ $0 id1 id2 ... idn
+
+=cut
+
+my %env = Util::envinfo( qw( appname appkey ) );
+$ENV{MYDan_Agent_Proxy_Addr} = "http://api.agent.open-c3.org/proxy/0";
+$ENV{MYDan_Agent_Proxy_Header} = "appname:$env{appname},appkey:$env{appkey}";
+
+my $proxy = MYDan::Agent::Proxy->new();
+
+my @ip;
+
+if( @ARGV )
+{
+    @ip = @ARGV;
+}
+else
+{
+    while(<STDIN>){ chomp; push @ip, $_; }
+}
+
+my %proxy = $proxy->search( @ip );
+print YAML::XS::Dump \%proxy;

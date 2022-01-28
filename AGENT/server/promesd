@@ -15,7 +15,26 @@ use Code;
 
 $0 = 'agent_server_promesd';
 
-my $exip = `cat /etc/job.exip`;
-chomp $exip;
+$ENV{PATH} = "$ENV{PATH}:/data/Software/mydan/AGENT/pp:/data/Software/mydan/Connector/pp:/data/Software/mydan/JOB/pp";
 
-Code->new( 'server/promesd' )->run( serveraddr => $exip );
+while(1)
+{
+    my ( $nodetemp, $nodedstemp, $nodeds, $proxytemp, $proxy ) = (
+        "$RealBin/../conf/promesd.temp",
+        "$RealBin/../../prometheus/config/openc3_node_sd.tmp",
+        "$RealBin/../../prometheus/config/openc3_node_sd.yml",
+        "$RealBin/../conf/openc3_proxy.tmp",
+        "$RealBin/../conf/openc3_proxy.yml",
+    );
+
+    die if system "c3_connector_pp_treemap |awk -F';' '{print \$1}'|c3_job_pp_nodeinfo -c projectid,inip > $nodetemp";
+    die if system "cat $nodetemp | c3_agent_pp_sdformat > $nodedstemp";
+
+    rename $nodedstemp, $nodeds or die "rename fail: $!";
+
+    die if system "cat $nodetemp|awk -F';' '{print \$2}'|c3_agent_pp_getproxy > $proxytemp";
+
+    rename $proxytemp, $proxy or die "rename fail: $!";
+
+    sleep 60;
+}

@@ -1,0 +1,62 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib -I/data/Software/mydan/AGENT/private/lib
+use strict;
+use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+$ENV{PATH} = "$ENV{PATH}:/data/Software/mydan/Connector/pp";
+
+# ip map: 10.10.10.10 => +{ treeid1 => 1, treeid2 => 10 }
+my %ip;
+
+while(<STDIN>)
+{
+   chomp;
+   my ( $treeid, $ip ) = split /;/, $_;
+   $ip{$ip}{$treeid}++;
+}
+
+# treemap: treeid => treename
+my @treemap = `c3_connector_pp_treemap`;
+die if $?;
+chomp @treemap;
+
+my %treemap;
+for( @treemap )
+{
+    my ( $treeid, $treename ) = split /;/, $_;
+    $treename =~ s/\./_/g;
+    $treename =~ s/[^a-zA-Z0-9_]//g;;
+    $treemap{$treeid} = $treename;
+}
+
+my $serveraddr = `cat /etc/job.exip`;
+chomp $serveraddr;
+
+# target
+my @target;
+for my $ip ( keys %ip )
+{
+    my %lables = ( instance => $ip, "__metrics_path__" => "/api/agent/v3/node/metrics/$ip" );
+
+    map{
+        $lables{"treeid_$_"} = 1;
+        $lables{"tree_$treemap{$_}"} = 1 if $treemap{$_}; 
+    }keys %{$ip{$ip}};
+
+    push @target, +{ targets => [ $serveraddr ], labels => \%lables };
+}
+
+print YAML::XS::Dump \@target;

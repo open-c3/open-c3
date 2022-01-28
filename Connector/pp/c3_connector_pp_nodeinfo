@@ -20,7 +20,7 @@ use Configini;
 
 =head1 SYNOPSIS
 
- $0 col1 col2 .. col2 [ --col name,inip [id|name|type|inip|exip] ]
+ $0 col1 col2 .. col2 [ --col name,inip [id|name|type|inip|exip|projectid] ]
 
 =cut
 
@@ -62,6 +62,7 @@ sub nodeinfo
 
     for my $t ( @{$v->{data}} )
     {
+        $t->{projectid} = $id;
         printf "%s\n", join ';', map{ $t->{$_} || '' }@col;
     }
 }
