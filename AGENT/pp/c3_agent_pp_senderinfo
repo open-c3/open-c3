@@ -1,0 +1,52 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib -I/data/Software/mydan/AGENT/private/lib
+use strict;
+use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDB;
+use FindBin qw( $RealBin );
+use MYDan::Util::OptConf;
+use YAML::XS;
+use Encode;
+use IPC::Open3;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+
+local $/ = undef;
+my $input = Encode::encode('utf8', <> );
+my $info = YAML::XS::Load( $input );
+local $/ = "\n";
+
+my @alerts;
+for my $a ( @{$info->{alerts}} )
+{
+
+    #数据扁平化 labels = +{ a => 1 } 变成 labels.a = 1
+    for my $t ( qw( labels annotations ))
+    {
+        my $data = delete $a->{$t};
+        map{ $a->{"$t.$_"} = $data->{$_} } keys %$data if $data && ref $data eq 'HASH';
+    }
+
+    unless( $a->{"labels.fromtreeid"} && $a->{"labels.fromtreeid"} =~ /^\d+$/ )
+    {
+        warn "not labels.fromtreeid";
+    }
+    else
+    {
+        push @alerts, $a;
+    }
+}
+
+print YAML::XS::Dump @alerts;
+
