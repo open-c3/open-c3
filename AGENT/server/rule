@@ -21,4 +21,55 @@ $0 = 'agent_server_rule';
 my $exip = `cat /etc/job.exip`;
 chomp $exip;
 
-Code->new( 'server/rule' )->run( db => $db, exip => $exip =~ /^\d+\.\d+\.\d+\.\d+$/ ? $exip : undef );
+my $interval = 6;
+
+my $cnt = 0;
+while( 1 )
+{
+    sleep $interval if $cnt;
+    print "do ...\n";
+
+    $cnt ++;
+
+    my %rule;
+    my @col = qw( projectid alert expr for severity summary description value );
+    my $x = eval{ $db->query( sprintf ( "select %s from `openc3_monitor_config_rule`", join ',', map{"`$_`"}@col ), \@col ) };
+
+    for my $row ( @$x )
+    {
+         $rule{$row->{projectid}} = [] unless $rule{$row->{projectid}};
+         push @{$rule{$row->{projectid}}}, $row;
+    }
+
+    my @groups;
+    for my $treeid ( keys %rule )
+    {
+        next unless $rule{$treeid};
+        my @rules;
+        for my $rule ( @{$rule{$treeid}} )
+        {
+            push @rules, +{
+                alert => $rule->{alert},
+                expr => $rule->{expr},
+                for => $rule->{for} || '1s',
+                labels => +{
+                    severity => $rule->{severity},
+                    fromtreeid => $treeid,
+                },
+                annotations => +{
+                    summary => $rule->{summary}||'-',
+                    description => $rule->{description}||'-',
+                    value => $rule->{value}||'-',
+                },
+            };
+        }
+
+        push @groups, +{ name => "treeid_$treeid", rules => \@rules };
+    }
+
+    eval{ YAML::XS::DumpFile "$RealBin/../../prometheus/config/openc3_rule.yml", +{ groups => \@groups } };
+    die( "write openc3_rule.yml fail: $@" ) if $@;
+
+    warn "reload rule fail: $!" if system "curl -XPOST http://OPENC3_PROMETHEUS_IP:9090/-/reload 2>/dev/null";
+    print "done.\n";
+}
