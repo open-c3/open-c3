@@ -62,7 +62,7 @@ sub nodeinfo
 
     for my $t ( @{$v->{data}} )
     {
-        printf "%s\n", join ';', map{ $t->{$_} }@col;
+        printf "%s\n", join ';', map{ $t->{$_} || '' }@col;
     }
 }
 
