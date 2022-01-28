@@ -32,7 +32,7 @@ return sub
 
     while( 1 )
     {
-        warn "do ...\n";
+        print "do ...\n";
         my $time = time;
         my $counttmp = int time / $interval;
         ( $count, %count ) = ( $counttmp ) if $count ne $counttmp;
@@ -70,7 +70,7 @@ return sub
                 my $tsocks = -e "/usr/bin/tsocks" ? "/usr/bin/tsocks " : '';
                 exec "$tsocks$RealBin/../bin/build -uuid $uuid 2>&1|$RealBin/../bin/addtime";
             }
-            warn "start build $uuid\n";
+            print "start build $uuid\n";
         }
 
         sleep 3;
