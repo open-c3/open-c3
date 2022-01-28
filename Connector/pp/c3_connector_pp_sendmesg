@@ -1,8 +1,6 @@
 #!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
 use strict;
 use warnings;
-use uuid;
-use POSIX;
 
 binmode STDIN, ':utf8';
 binmode STDOUT, ':utf8';
@@ -26,7 +24,6 @@ use Configini;
 
 =cut
 
-my $db = MYDB->new( "$RealBin/../conf/conn" );
 my $option = MYDan::Util::OptConf->load();
 my %o = $option->get()->dump();
 $option->assert() unless @ARGV;
@@ -42,6 +39,8 @@ $usermesg = Configini::get( 'usermesg' );
 my $ua = LWP::UserAgent->new;
 $ua->default_header( %env ) if %env;
 
+my $db = MYDB->new( "$RealBin/../conf/conn" );
+
 sub sendmesg
 {
     my ( $user, $mesg ) = @_;
@@ -53,17 +52,19 @@ sub sendmesg
     {
         $mesg =~ s/'/"/g;
         eval{ $db->execute( "insert into openc3_connector_usermesg (`user`,`mesg`) values('$user','$mesg')" )};
-        die "send mesg info to db fail:$@"  if $@;
+        die $@ if $@;
         return;
     }
 
     my $cont = JSON::encode_json( +{ user => $user, mesg => $mesg } );
     my $res = $ua->post( $usermesg, Content => $cont, 'Content-Type' => 'application/json');
 
-    die "call mesg api fail:$res->decoded_content" unless $res->is_success;
+    my $err = "send mesg fail: $usermesg";
+    die sprintf( "$err: code %s", $res->code ) unless $res->is_success;
 
     my $v = eval{JSON::decode_json $res->decoded_content};
-    die "call mesg api: $v->{info}" unless $v->{stat};
+    die "$err: data no JSON: $@" if $@;
+    die sprintf( "$err: info: %s", $v->{info}|'' ) unless $v->{stat};
 }
 
 map{ sendmesg( $_, $mesg ) }@ARGV;

@@ -1,8 +1,6 @@
 #!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
 use strict;
 use warnings;
-use uuid;
-use POSIX;
 
 binmode STDIN, ':utf8';
 binmode STDOUT, ':utf8';
@@ -15,7 +13,6 @@ use FindBin qw( $RealBin );
 use MYDan::Util::OptConf;
 use YAML::XS;
 use Encode;
-use MIME::Base64;
 use LWP::UserAgent;
 use JSON;
 use Configini;
@@ -29,12 +26,18 @@ use Configini;
 my $db = MYDB->new( "$RealBin/../conf/conn" );
 my $option = MYDan::Util::OptConf->load();
 my %o = $option->get( qw( subject=s ) )->dump();
-$option->assert('subject');
 $option->assert() unless @ARGV;
 
 local $/ = undef;
 my $content = Encode::encode('utf8', <STDIN> );
 local $/ = "\n";
+
+unless( $o{subject} )
+{
+    my @content = split /\n/, $content;
+    $o{subject} = @content > 1 ? ( shift @content ) : ( $content[0] );
+    $content = join "\n", @content;
+}
 
 my ( $usermail, %env );
 $usermail = Configini::get( 'usermail' );
@@ -56,17 +59,20 @@ sub sendmail
         $content =~ s/'/"/g;
 
         eval{ $db->execute( "insert into openc3_connector_usermail (`user`,`title`,`content`) values('$user','$title','$content')" )};
-        die "send mail info to db fail:$@"  if $@;
+        die $@ if $@;
         return;
     }
 
     my $cont = JSON::encode_json( +{ user => $user, title => $title, content => $content } );
     my $res = $ua->post( $usermail, Content => $cont, 'Content-Type' => 'application/json');
 
-    die "call mail api fail:$res->decoded_content" unless $res->is_success;
+    my $err = "send mail fail: $usermail";
+
+    die sprintf( "$err: code %s", $res->code ) unless $res->is_success;
 
     my $v = eval{JSON::decode_json $res->decoded_content};
-    die "call mail api: $v->{info}" unless $v->{stat};
+    die "$err: data no JSON: $@" if $@;
+    die sprintf( "$err: info: %s", $v->{info}|'' ) unless $v->{stat};
 }
 
 map{ sendmail( $_, $o{subject}, $content ) }@ARGV;
