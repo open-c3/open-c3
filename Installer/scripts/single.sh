@@ -327,6 +327,9 @@ function start() {
     sed -i "s/OPENC3_SERVER_IP/$REIP/" /data/open-c3/lua/config/lua/sso.lua
     sed -i "s/ngx.var.cookie_sid/ngx.var.cookie_$COOKIEKEY/g" /data/open-c3/lua/config/lua/sso.lua
 
+    mkdir -p /data/open-c3/lua/lualib
+    rsync -av /data/open-c3/Installer/install-cache/lualib/ /data/open-c3/lua/lualib/
+
 #
     echo "[SUCC]started."
 }
