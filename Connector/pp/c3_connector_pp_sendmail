@@ -63,7 +63,7 @@ sub sendmail
         return;
     }
 
-    my $cont = JSON::encode_json( +{ user => $user, title => $title, content => $content } );
+    my $cont = $usermail =~ /encode/ ? JSON::to_json( +{ user => $user, title => $title, content => $content } ) : JSON::encode_json( +{ user => $user, title => $title, content => $content } );
     my $res = $ua->post( $usermail, Content => $cont, 'Content-Type' => 'application/json');
 
     my $err = "send mail fail: $usermail";

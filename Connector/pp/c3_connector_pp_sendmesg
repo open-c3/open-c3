@@ -56,7 +56,7 @@ sub sendmesg
         return;
     }
 
-    my $cont = JSON::encode_json( +{ user => $user, mesg => $mesg } );
+    my $cont = $usermesg =~ /encode/ ? JSON::to_json( +{ user => $user, mesg => $mesg } ) : JSON::encode_json( +{ user => $user, mesg => $mesg } );
     my $res = $ua->post( $usermesg, Content => $cont, 'Content-Type' => 'application/json');
 
     my $err = "send mesg fail: $usermesg";
