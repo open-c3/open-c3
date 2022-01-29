@@ -16,8 +16,8 @@ use OPENC3::PP::Server;
 OPENC3::PP::Server->new(
     name => 'agent_server_carry',
     interval => 60,
-    timeout => 12,
+    timeout => 120,
 )->run(
-
-    "cat $RealBin/../conf/promesd.temp | c3_agent_pp_carry --output $RealBin/../conf/openc3_carry.yml"
+    "cat $RealBin/../conf/promesd.temp | c3_agent_pp_carry --output $RealBin/../conf/openc3_carry.yml",
+    "cat $RealBin/../conf/promesd.temp | awk -F';' '{print \$2}'|c3_agent_pp_getproxy --output $RealBin/../conf/openc3_proxy.yml",
 );

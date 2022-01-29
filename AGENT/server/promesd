@@ -18,10 +18,9 @@ my $tempfile = "$nodetemp.$$";
 
 OPENC3::PP::Server->new(
     name => 'agent_server_promesd',
-    interval => 60,
-    timeout => 12,
+    interval => 1800,
+    timeout => 3600,
 )->run(
    "c3_connector_pp_treemap | awk -F';' '{print \$1}'| c3_job_pp_nodeinfo -c projectid,inip | tee $tempfile | c3_agent_pp_sdformat --output $RealBin/../../prometheus/config/openc3_node_sd.yml",
     "mv $tempfile $nodetemp",
-    "cat $nodetemp|awk -F';' '{print \$2}'|c3_agent_pp_getproxy --output $RealBin/../conf/openc3_proxy.yml",
 );

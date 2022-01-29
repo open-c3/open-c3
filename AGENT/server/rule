@@ -16,7 +16,7 @@ use OPENC3::PP::Server;
 OPENC3::PP::Server->new(
     name => 'agent_server_rule',
     interval => 60,
-    timeout => 12,
+    timeout => 120,
 )->run(
     "c3_agent_pp_rule --output $RealBin/../../prometheus/config/openc3_rule.yml",
     "curl -XPOST http://OPENC3_PROMETHEUS_IP:9090/-/reload 2>/dev/null",
