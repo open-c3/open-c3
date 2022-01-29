@@ -1,0 +1,112 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib -I/data/Software/mydan/AGENT/private/lib
+use strict;
+use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDB;
+use FindBin qw( $RealBin );
+use MYDan::Util::OptConf;
+use YAML::XS;
+use Encode;
+
+=head1 SYNOPSIS
+
+ $0
+ $0 --output /path/foo,yaml
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( output=s ) )->dump();
+
+#iptree : ip1 => { treeid1 => 1, treeid2 => 1 }
+my %iptree;
+while(<STDIN>){
+    chomp;
+    my ( $treeid, $ip ) = split /;/, $_;
+    if( $treeid =~ /^\d+$/ && $ip =~ /^\d+\.\d+\.\d+\.\d+$/ )
+    {
+        $iptree{$ip}{$treeid} = 1;
+    }
+    else { warn; }
+}
+
+#rawcarry: projectid => +{ uuid => \%data }
+my $db = MYDB->new( "$RealBin/../conf/conn" );
+
+my @col = qw( projectid type subtype content1 content2 );
+my $x = eval{ $db->query( sprintf("select %s from `openc3_monitor_config_collector`", join ',',@col), \@col ) };
+
+my %rawcarry;
+for my $tmp ( @$x )
+{
+
+    my $k = "$tmp->{type}:$tmp->{subtype}:$tmp->{content2}";
+    if( $tmp->{type} eq 'port' )
+    {
+        map{ $rawcarry{$tmp->{projectid}}{"$k:$_"} = +{ %$tmp, content1 => $_ } if $_ =~ /^\d+$/ }split /,/, $tmp->{content1};
+    }
+    else
+    {
+        $rawcarry{$tmp->{projectid}}{"$k:$tmp->{content2}"} = $tmp;
+    }
+}
+
+$db = undef;
+
+sub zipdata
+{
+    my %temp = @_;
+    my $res = +{};
+    for my $v( values %temp )
+    {
+        if( $v->{type} eq 'port' )
+        {
+            $res->{port} = +{} unless $res->{port};
+            my $subtype = $v->{subtype};
+            next unless $subtype eq 'tcp' || $subtype eq 'udp';
+            $res->{port}{$subtype} = [] unless $res->{port}{$subtype};
+            push @{$res->{port}{$subtype}}, $v->{content1};
+        }
+        elsif( $v->{type} eq 'process' )
+        {
+            $res->{process} = +{} unless $res->{process};
+            my $subtype = $v->{subtype};
+            next unless $subtype eq 'name' || $subtype eq 'exe' || $subtype eq 'cmdline';
+            $res->{process}{$subtype} = [] unless $res->{process}{$subtype};
+            push @{$res->{process}{$subtype}}, $v->{content1};
+        }
+        elsif( $v->{type} eq 'http' )
+        {
+            $res->{http} = [] unless $res->{http};
+            push @{$res->{http}}, "$v->{subtype}|$v->{content1}|$v->{content2}";
+        }
+    }
+    return $res;
+}
+
+my %result;
+for my $ip ( keys %iptree )
+{
+    my @projectid = keys %{$iptree{$ip}};
+    my %carry;
+    for my $projectid ( @projectid )
+    {
+       %carry = ( %carry, %{$rawcarry{$projectid}} ) if $rawcarry{$projectid};
+    }
+    $result{$ip} = zipdata( %carry ) if %carry;
+}
+
+if( $o{output} )
+{
+    YAML::XS::DumpFile "$o{output}.tmp", \%result;
+    rename "$o{output}.tmp", $o{output} or die "rename fail: $!";
+    exit;
+}
+
+print YAML::XS::Dump \%result;

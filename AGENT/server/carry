@@ -1,7 +1,6 @@
 #!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib -I/data/Software/mydan/AGENT/private/lib
 use strict;
 use warnings;
-use MYDB;
 use FindBin qw( $RealBin );
 use Data::Dumper;
 
@@ -14,7 +13,15 @@ use Code;
 
 =cut
 
-my $db = MYDB->new( "$RealBin/../conf/conn" );
-
 $0 = 'agent_server_carry';
-Code->new( 'server/carry' )->run( db => $db );
+
+$ENV{PATH} = "$ENV{PATH}:/data/Software/mydan/AGENT/pp:/data/Software/mydan/Connector/pp:/data/Software/mydan/JOB/pp";
+
+while(1)
+{
+    my $nodetemp = "$RealBin/../conf/promesd.temp";
+
+    die if system "cat $nodetemp| c3_agent_pp_carry --output $RealBin/../conf/openc3_carry.yml";
+
+    sleep 60;
+}
