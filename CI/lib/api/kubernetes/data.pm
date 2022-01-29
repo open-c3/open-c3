@@ -2,7 +2,7 @@ package api::kubernetes::data;
 use Dancer ':syntax';
 use FindBin qw( $RealBin );
 use Util;
-use JSON;
+use JSON qw();
 
 get '/kubernetes/data/template/:name' => sub {
     my $param = params();

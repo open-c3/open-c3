@@ -2,7 +2,7 @@ package api::default::tree;
 use Dancer ':syntax';
 use Dancer qw(cookie);
 use Encode qw(encode);
-use JSON;
+use JSON qw();
 use POSIX;
 use MIME::Base64;
 use api;

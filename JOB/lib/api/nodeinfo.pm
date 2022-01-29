@@ -3,7 +3,7 @@ use Dancer ':syntax';
 use Dancer qw(cookie);
 use Encode qw(encode);
 use FindBin qw( $RealBin );
-use JSON;
+use JSON qw();
 use POSIX;
 use MIME::Base64;
 use api;

@@ -1,6 +1,6 @@
 package api;
 use Dancer ':syntax';
-use JSON;
+use JSON qw();
 use FindBin qw( $RealBin );
 use MYDB;
 use Code;

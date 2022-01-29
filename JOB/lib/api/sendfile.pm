@@ -1,6 +1,6 @@
 package api::sendfile;
 use Dancer ':syntax';
-use JSON;
+use JSON qw();
 use api;
 use Format;
 use Util;

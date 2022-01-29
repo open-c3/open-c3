@@ -1,7 +1,7 @@
 package api::third;
 use Dancer ':syntax';
 use Dancer qw(cookie);
-use JSON;
+use JSON qw();
 use POSIX;
 use MIME::Base64;
 use api;
