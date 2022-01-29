@@ -19,22 +19,11 @@ $ENV{PATH} = "$ENV{PATH}:/data/Software/mydan/AGENT/pp:/data/Software/mydan/Conn
 
 while(1)
 {
-    my ( $nodetemp, $nodedstemp, $nodeds, $proxytemp, $proxy ) = (
-        "$RealBin/../conf/promesd.temp",
-        "$RealBin/../../prometheus/config/openc3_node_sd.tmp",
-        "$RealBin/../../prometheus/config/openc3_node_sd.yml",
-        "$RealBin/../conf/openc3_proxy.tmp",
-        "$RealBin/../conf/openc3_proxy.yml",
-    );
+    my $nodetemp = "$RealBin/../conf/promesd.temp";
 
-    die if system "c3_connector_pp_treemap |awk -F';' '{print \$1}'|c3_job_pp_nodeinfo -c projectid,inip > $nodetemp";
-    die if system "cat $nodetemp | c3_agent_pp_sdformat > $nodedstemp";
+    die if system "c3_connector_pp_treemap | awk -F';' '{print \$1}'| c3_job_pp_nodeinfo -c projectid,inip | tee $nodetemp | c3_agent_pp_sdformat --output $RealBin/../../prometheus/config/openc3_node_sd.yml";
 
-    rename $nodedstemp, $nodeds or die "rename fail: $!";
-
-    die if system "cat $nodetemp|awk -F';' '{print \$2}'|c3_agent_pp_getproxy > $proxytemp";
-
-    rename $proxytemp, $proxy or die "rename fail: $!";
+    die if system "cat $nodetemp|awk -F';' '{print \$2}'|c3_agent_pp_getproxy --output $RealBin/../conf/openc3_proxy.yml";
 
     sleep 60;
 }

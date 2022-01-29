@@ -8,16 +8,21 @@ binmode STDERR, ':utf8';
 
 $|++;
 
-use YAML::XS;
 use Encode;
+use YAML::XS;
+use MYDan::Util::OptConf;
 use MYDan::Agent::Proxy;
 use Util;
 
 =head1 SYNOPSIS
 
- $0 id1 id2 ... idn
+ $0 ip1 ip2 ... ipn
+ $0 ip1 ip2 ... ipn --output /path/foo.yaml
 
 =cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( output=s ) )->dump();
 
 my %env = Util::envinfo( qw( appname appkey ) );
 $ENV{MYDan_Agent_Proxy_Addr} = "http://api.agent.open-c3.org/proxy/0";
@@ -37,4 +42,12 @@ else
 }
 
 my %proxy = $proxy->search( @ip );
+
+if( $o{output} )
+{
+    YAML::XS::DumpFile "$o{output}.tmp", \%proxy;
+    rename "$o{output}.tmp", $o{output} or die "rename fail: $!";
+    exit;
+}
+
 print YAML::XS::Dump \%proxy;
