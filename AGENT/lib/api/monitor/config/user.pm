@@ -3,7 +3,7 @@ use Dancer ':syntax';
 use Dancer qw(cookie);
 use Encode qw(encode);
 
-use JSON;
+use JSON qw();
 use POSIX;
 use api;
 use Format;
