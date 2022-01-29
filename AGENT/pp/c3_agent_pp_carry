@@ -104,8 +104,9 @@ for my $ip ( keys %iptree )
 
 if( $o{output} )
 {
-    YAML::XS::DumpFile "$o{output}.tmp", \%result;
-    rename "$o{output}.tmp", $o{output} or die "rename fail: $!";
+    my $temp = "$o{output}.temp.$$";
+    YAML::XS::DumpFile $temp, \%result;
+    rename $temp, $o{output} or die "rename fail: $!";
     exit;
 }
 

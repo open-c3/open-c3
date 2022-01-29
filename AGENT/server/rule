@@ -5,7 +5,7 @@ use FindBin qw( $RealBin );
 use Data::Dumper;
 
 use MYDan::Util::OptConf;
-use Code;
+use OPENC3::PP::Server;
 
 =head1 SYNOPSIS
 
@@ -13,17 +13,11 @@ use Code;
 
 =cut
 
-$0 = 'agent_server_rule';
-
-$ENV{PATH} = "$ENV{PATH}:/data/Software/mydan/AGENT/pp";
-
-warn ">> start\n";
-
-while(1)
-{
-    die if system "c3_agent_pp_rule --output $RealBin/../../prometheus/config/openc3_rule.yml";
-
-    warn "reload rule fail: $!" if system "curl -XPOST http://OPENC3_PROMETHEUS_IP:9090/-/reload 2>/dev/null";
-
-    sleep 6;
-}
+OPENC3::PP::Server->new(
+    name => 'agent_server_rule',
+    interval => 60,
+    timeout => 12,
+)->run(
+    "c3_agent_pp_rule --output $RealBin/../../prometheus/config/openc3_rule.yml",
+    "curl -XPOST http://OPENC3_PROMETHEUS_IP:9090/-/reload 2>/dev/null",
+);

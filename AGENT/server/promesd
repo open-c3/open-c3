@@ -5,7 +5,7 @@ use FindBin qw( $RealBin );
 use Data::Dumper;
 
 use MYDan::Util::OptConf;
-use Code;
+use OPENC3::PP::Server;
 
 =head1 SYNOPSIS
 
@@ -13,18 +13,15 @@ use Code;
 
 =cut
 
-$0 = 'agent_server_promesd';
+my $nodetemp = "$RealBin/../conf/promesd.temp";
+my $tempfile = "$nodetemp.$$";
 
-$ENV{PATH} = "$ENV{PATH}:/data/Software/mydan/AGENT/pp:/data/Software/mydan/Connector/pp:/data/Software/mydan/JOB/pp";
-
-warn ">> start\n";
-while(1)
-{
-    my $nodetemp = "$RealBin/../conf/promesd.temp";
-
-    die if system "c3_connector_pp_treemap | awk -F';' '{print \$1}'| c3_job_pp_nodeinfo -c projectid,inip | tee $nodetemp | c3_agent_pp_sdformat --output $RealBin/../../prometheus/config/openc3_node_sd.yml";
-
-    die if system "cat $nodetemp|awk -F';' '{print \$2}'|c3_agent_pp_getproxy --output $RealBin/../conf/openc3_proxy.yml";
-
-    sleep 60;
-}
+OPENC3::PP::Server->new(
+    name => 'agent_server_promesd',
+    interval => 60,
+    timeout => 12,
+)->run(
+   "c3_connector_pp_treemap | awk -F';' '{print \$1}'| c3_job_pp_nodeinfo -c projectid,inip | tee $tempfile | c3_agent_pp_sdformat --output $RealBin/../../prometheus/config/openc3_node_sd.yml",
+    "mv $tempfile $nodetemp",
+    "cat $nodetemp|awk -F';' '{print \$2}'|c3_agent_pp_getproxy --output $RealBin/../conf/openc3_proxy.yml",
+);

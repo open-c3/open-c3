@@ -5,7 +5,7 @@ use FindBin qw( $RealBin );
 use Data::Dumper;
 
 use MYDan::Util::OptConf;
-use Code;
+use OPENC3::PP::Server;
 
 =head1 SYNOPSIS
 
@@ -13,15 +13,11 @@ use Code;
 
 =cut
 
-$0 = 'agent_server_carry';
+OPENC3::PP::Server->new(
+    name => 'agent_server_carry',
+    interval => 60,
+    timeout => 12,
+)->run(
 
-$ENV{PATH} = "$ENV{PATH}:/data/Software/mydan/AGENT/pp:/data/Software/mydan/Connector/pp";
-
-warn ">> start\n";
-
-while(1)
-{
-    die if system "cat $RealBin/../conf/promesd.temp | c3_agent_pp_carry --output $RealBin/../conf/openc3_carry.yml";
-
-    sleep 60;
-}
+    "cat $RealBin/../conf/promesd.temp | c3_agent_pp_carry --output $RealBin/../conf/openc3_carry.yml"
+);

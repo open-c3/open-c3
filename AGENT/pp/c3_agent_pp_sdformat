@@ -66,8 +66,9 @@ for my $ip ( keys %ip )
 
 if( $o{output} )
 {
-    YAML::XS::DumpFile "$o{output}.tmp", \@target;
-    rename "$o{output}.tmp", $o{output} or die "rename fail: $!";
+    my $temp = "$o{output}.temp.$$";
+    YAML::XS::DumpFile $temp, \@target;
+    rename $temp, $o{output} or die "rename fail: $!";
     exit;
 }
 
