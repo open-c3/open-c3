@@ -41,4 +41,8 @@ map{
 }$port->{'api.slave'}{from} .. $port->{'api.slave'}{to};
 map{
     die "start $_ fail: $!" if system "$supervisor --errname 'agent.server.$_' --cmd '$base/server/$_' --log '$base/logs/server/$_'";
-}qw( call bury keepalive check inherit promesd carry rule sender nodequery );
+}qw( call bury keepalive check inherit nodequery );
+
+map{
+    die "start $_ fail: $!" if system "$supervisor --errname 'agent.server.$_' --cmd '$base/server/pp $_' --log '$base/logs/server/$_'";
+}qw( promesd carry rule sender );

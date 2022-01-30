@@ -20,7 +20,6 @@ sub run
 
     warn "[warn]nofind pkill" if system "pkill --help 1>/dev/null";
 
-    my $time = time;
     eval{
         my $pid;
         local $SIG{ALRM} = sub{
