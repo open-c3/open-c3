@@ -71,8 +71,8 @@ sub run
 {
     my $this = shift;
 
-#$AnyEvent::HTTP::TIMEOUT = 10;
-$AnyEvent::HTTP::MAX_PER_HOST = 512;
+    #$AnyEvent::HTTP::TIMEOUT = 10;
+    $AnyEvent::HTTP::MAX_PER_HOST = 512;
     my $cv = AnyEvent->condvar;
     tcp_server undef, $this->{port}, sub {
        my ( $fh ) = @_ or die "tcp_server: $!";
@@ -102,7 +102,6 @@ $AnyEvent::HTTP::MAX_PER_HOST = 512;
                        {
                            my $ip = $1;
 
-#                           $ip = "10.60.77.73";##DEBUG
                            if( $carry{$ip} && ref $carry{$ip} )
                            {
                                $carry{$ip} = encode_base64( YAML::XS::Dump $carry{$ip} );
@@ -140,7 +139,7 @@ $AnyEvent::HTTP::MAX_PER_HOST = 512;
                            $handle->push_write($this->getResponseRoot());
                            $handle->push_shutdown();
                            $handle->destroy();
-                                   delete $index{$idx};
+                           delete $index{$idx};
                        }
                     }
                );

@@ -66,14 +66,19 @@ sub addcont
         }
     }
 
-    if( $environment->{isMonitorSuccessEmail} && $environment->{isMonitorSuccessEmail} eq 'true' )
+    if(
+        ( $environment->{isMonitorSuccessEmail} && $environment->{isMonitorSuccessEmail} eq 'true' ) &&
+        ( $data->{'labels.severity'} && ( $data->{'labels.severity'} eq 'level1' || $data->{'labels.severity'} eq 'level2' || $data->{'labels.severity'} eq 'level3' ) )
+    )
     {
         $data->{title} = $senddata{title};
         $data->{content} = $senddata{content};
     }
 
-
-    if( $environment->{isMonitorSuccessSms} && $environment->{isMonitorSuccessSms} eq 'true' )
+    if(
+        ( $environment->{isMonitorSuccessSms} && $environment->{isMonitorSuccessSms} eq 'true' ) &&
+        ( $data->{'labels.severity'} && ( $data->{'labels.severity'} eq 'level1' || $data->{'labels.severity'} eq 'level2' ) ) 
+    )
     {
 
         $data->{mesg} = $senddata{mesg};
