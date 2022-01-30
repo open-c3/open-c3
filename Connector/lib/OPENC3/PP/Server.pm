@@ -50,6 +50,7 @@ sub run
                 unless( $pid = fork )
                 {
                     exec $cmd;
+                    exit 1;
                 }
                 else
                 {

@@ -6,7 +6,7 @@ use FindBin qw( $RealBin );
 use Data::Dumper;
 
 use MYDan::Util::OptConf;
-use Code;
+use OPENC3::PP::Exec;
 
 =head1 SYNOPSIS
 
@@ -18,21 +18,23 @@ $0 = 'agent_server_sender';
 
 $ENV{PATH} = "$ENV{PATH}:/data/Software/mydan/AGENT/pp:/data/Software/mydan/Connector/pp";
 
+chdir "/data/open-c3-data/monitor-sender" or die "chdir fail: $!";
+map{ die if system "mkdir -p  $_"; }qw( zsucc zfail );
+
+$|++;
+
 while(1)
 {
-    for my $file ( glob "/data/open-c3-data/monitor-sender/sender.*.wait" )
+    my $time = time;
+    for my $file ( glob "sender.*.wait" )
     {
-        my $stat = 'succ';
-        if ( system "c3_agent_pp_senderinfo $file|c3_agent_pp_senderadduser |c3_agent_pp_senderaddcont | c3_connector_pp_send" )
-        {
-            warn "monitor sender fail: $!";
-            $stat = 'fail';
-        }
+         my $stat = OPENC3::PP::Exec->new( timeout => 15 )->run( "c3_agent_pp_senderinfo $file | c3_agent_pp_senderadduser | c3_agent_pp_senderaddcont | c3_connector_pp_send" ) ? 'succ' : 'fail';
 
          my $newfile = $file; $newfile =~ s/wait$/$stat/;
-         rename $file, $newfile or die "rename fail: $!";
+         die if system "mv $file z$stat/$newfile";
     }
 
-    sleep 6;
-
+    my $usetime = time - $time;
+    warn "timeout $usetime" if $usetime > 60;
+    sleep 6 if $usetime < 6;
 }
