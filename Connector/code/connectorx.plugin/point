@@ -5,6 +5,7 @@ use Logs;
 use YAML::XS;
 use LWP::UserAgent;
 use Digest::MD5;
+use JSON qw();
 
 $| ++;
 
@@ -53,7 +54,7 @@ return sub
 
         if($res->is_success)
         {
-            my $v = eval{decode_json $res->decoded_content};
+            my $v = eval{JSON::decode_json $res->decoded_content};
             return undef unless $v->{stat};
             my $user = $v->{data}{user};
             $user =~ s/\./_/;
@@ -121,7 +122,7 @@ return sub
 
     if($res->is_success)
     {
-        my $v = eval{decode_json $res->decoded_content};
+        my $v = eval{JSON::decode_json $res->decoded_content};
         eval{ YAML::XS::DumpFile $file, $v->{data} } if $apicache && $v->{stat};
         return $v->{data} if $v->{stat};
     }

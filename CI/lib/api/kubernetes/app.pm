@@ -223,7 +223,7 @@ $handle{getappjson} = sub
 {
     my ( $x, $status, $filter ) = @_;
     return +{ stat => $JSON::false, data => $x } if $status;
-    my $data = eval{ decode_json $x };
+    my $data = eval{ JSON::decode_json $x };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $data };
 };
 

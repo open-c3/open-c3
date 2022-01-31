@@ -91,7 +91,7 @@ get '/group/favorites/:groupid' => sub {
     my $res = $ua->get( "http://api.connector.open-c3.org/connectorx/usertree/treemap?cookie=". cookie( $api::cookiekey )  );
     return +{ stat => $JSON::false, info => 'get treemap from connector.pms fail' } unless $res->is_success;
 
-    my $v = eval{decode_json $res->decoded_content};
+    my $v = eval{JSON::decode_json $res->decoded_content};
     return +{ stat => $JSON::false, info => 'get treemap from connector.pms fail' } unless $v && ref $v eq 'HASH' && $v->{stat};
     my $treename = $v->{data} || +{};
 
@@ -148,7 +148,7 @@ get '/group/all/:groupid' => sub {
     my $res = $ua->get( "http://api.connector.open-c3.org/connectorx/usertree/treemap?cookie=". cookie( $api::cookiekey )  );
     return +{ stat => $JSON::false, info => 'get treemap from connector.pms fail' } unless $res->is_success;
 
-    my $v = eval{decode_json $res->decoded_content};
+    my $v = eval{JSON::decode_json $res->decoded_content};
     return +{ stat => $JSON::false, info => 'get treemap from connector.pms fail' } unless $v && ref $v eq 'HASH' && $v->{stat};
     my $treename = $v->{data} || +{};
 

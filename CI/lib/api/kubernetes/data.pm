@@ -13,7 +13,7 @@ get '/kubernetes/data/template/:name' => sub {
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
     my $jsonstring = `yaml2json "$RealBin/../lib/api/kubernetes/data/$param->{name}.yaml"`;
-    my $data = eval{decode_json $jsonstring};
+    my $data = eval{JSON::decode_json $jsonstring};
     return $@ ? +{ stat => JSON::false, info => $@ } : +{ stat => JSON::true, data => $data };
 };
 
@@ -26,7 +26,7 @@ any '/kubernetes/data/json2yaml' => sub {
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
     return  +{ stat => JSON::false, info => "data is null" } unless $param->{data};
 
-    my $json = eval{encode_json $param->{data}};
+    my $json = eval{JSON::encode_json $param->{data}};
     return +{ stat => JSON::false, info => $@ } if $@;
     my $fh = File::Temp->new( UNLINK => 0, SUFFIX => '.config', TEMPLATE => "/data/Software/mydan/tmp/temp_XXXXXXXX" );
     print $fh $json;
@@ -77,7 +77,7 @@ any '/kubernetes/data/yaml2json' => sub {
     my $file = $fh->filename;
     my $jsonstring = `yaml2json $file`;
     return +{ stat => JSON::false, info => "yaml2json fail" } if $?;
-    my $data = eval{decode_json $jsonstring};
+    my $data = eval{JSON::decode_json $jsonstring};
     return +{ stat => JSON::false, info => $@ } if $@;
 
     return ( ref $data ne 'HASH' ) ? +{ stat => JSON::false, info => "data no hash" } : +{ stat => JSON::true, data => $data };

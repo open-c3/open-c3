@@ -56,7 +56,7 @@ return sub
 
         if($res->is_success)
         {
-            my $v = eval{decode_json $res->decoded_content};
+            my $v = eval{JSON::decode_json $res->decoded_content};
             return $v->{data} if $v->{stat};
         }
         #TODO
