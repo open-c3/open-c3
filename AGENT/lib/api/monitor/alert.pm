@@ -28,7 +28,7 @@ get '/monitor/alert/:projectid' => sub {
     {
         return +{ stat => $JSON::false, info => "get alert from altermanager error: $url" };
     }
-    my $data = eval{JSON::from_json $res->content};
+    my $data = eval{JSON::decode_json $res->content};
     unless( !$@ && defined $data && ref $data eq 'ARRAY' )
     {
         return +{ stat => $JSON::false, info => "get alert from altermanager error: $url" };

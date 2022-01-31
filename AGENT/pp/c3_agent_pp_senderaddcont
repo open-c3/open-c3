@@ -1,24 +1,10 @@
 #!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib -I/data/Software/mydan/AGENT/private/lib
 use strict;
 use warnings;
-use uuid;
-use POSIX;
-
-binmode STDIN, ':utf8';
-binmode STDOUT, ':utf8';
-binmode STDERR, ':utf8';
 
 $|++;
 
-use MYDB;
-use FindBin qw( $RealBin );
-use MYDan::Util::OptConf;
 use YAML::XS;
-use Encode;
-use MIME::Base64;
-use LWP::UserAgent;
-use JSON;
-use IPC::Open3;
 use Carp;
 
 =head1 SYNOPSIS
@@ -28,7 +14,7 @@ use Carp;
 =cut
 
 local $/ = undef;
-my @data = YAML::XS::Load( Encode::encode('utf8', <STDIN> ) );
+my @data = YAML::XS::Load( <STDIN> );
 local $/ = "\n";
 
 $ENV{PATH} = "$ENV{PATH}:/data/Software/mydan/AGENT/pp:/data/Software/mydan/Connector/pp:/data/Software/mydan/JOB/pp";
@@ -89,4 +75,4 @@ sub addcont
 
 map{ addcont($_ ) }@data;
 
-print Encode::decode('utf8', YAML::XS::Dump @out  );
+print YAML::XS::Dump @out;

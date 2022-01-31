@@ -2,18 +2,9 @@
 use strict;
 use warnings;
 
-binmode STDIN, ':utf8';
-binmode STDOUT, ':utf8';
-binmode STDERR, ':utf8';
-
 $|++;
 
-use MYDB;
-use FindBin qw( $RealBin );
-use MYDan::Util::OptConf;
 use YAML::XS;
-use Encode;
-use IPC::Open3;
 
 =head1 SYNOPSIS
 
@@ -21,9 +12,8 @@ use IPC::Open3;
 
 =cut
 
-
 local $/ = undef;
-my $input = Encode::encode('utf8', <> );
+my $input = <>;
 my $info = YAML::XS::Load( $input );
 local $/ = "\n";
 
