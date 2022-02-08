@@ -26,13 +26,17 @@ sub getResponseProxy
 {
     my ( $this, $content, $ip, $proxy  ) = @_;
     my $carry = $carry{$ip} ? MIME::Base64::decode_base64( $carry{$ip} ) : 'Null';
-    $carry = join "\n", map{ "#$_" }split /\n/, $carry;
-
-    $content = "#CARRY:\n$carry\n". $content;
+    $carry = join "\n", map{ "# $_" }split /\n/, $carry;
     $proxy ||= 'Null';
-    $content = "#PROXY: $proxy\n". $content;
-    $content = "#IP: $ip\n". $content;
-    $content = "#Debug info from NodeQuery\n". $content;
+
+    $content = join "\n",
+        "# OPEN-C3 NodeQuery",
+        "# IP: $ip",
+        "# PROXY: $proxy",
+        "# CARRY:",
+        $carry,
+        $content;
+
     my $length = length $content;
     my @h = (
         "HTTP/1.0 200 OK",
