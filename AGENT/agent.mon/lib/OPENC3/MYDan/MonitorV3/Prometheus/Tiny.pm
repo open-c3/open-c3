@@ -18,6 +18,8 @@ sub new {
   return bless {
     metrics => {},
     meta => {},
+    time => {},
+    lasttime => 0,
   }, $class;
 }
 
@@ -35,6 +37,39 @@ sub set {
   my ($self, $name, $value, $labels, $timestamp) = @_;
   my $f_label = $self->_format_labels($labels);
   $self->{metrics}{$name}{$f_label} = [ $value, $timestamp ];
+
+  #用于清理过期的数据
+  $self->_cleartimeout( $self->{time}{$name}{$f_label} = time );
+
+  return;
+}
+
+sub _cleartimeout {
+  my ($self, $time ) = @_;
+
+  return if $self->{lasttime} + 5 > $time;
+
+  $self->{lasttime} = $time;
+
+  for my $name ( keys %{$self->{time}} )
+  {
+      for my $label ( keys %{$self->{time}{$name}} )
+      {
+          my $t = $self->{time}{$name}{$label};
+          if( $t + 60 < $time )
+          {
+              delete $self->{time}{$name}{$label};
+              delete $self->{metrics}{$name}{$label};
+          }
+      }
+
+      unless( keys %{$self->{time}{$name}} )
+      {
+          delete $self->{time}{$name};
+          delete $self->{metrics}{$name};
+      }
+  }
+
   return;
 }
 
