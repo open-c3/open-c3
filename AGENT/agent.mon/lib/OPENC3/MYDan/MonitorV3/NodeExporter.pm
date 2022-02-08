@@ -13,6 +13,7 @@ use OPENC3::MYDan::MonitorV3::NodeExporter::Collector;
 use MIME::Base64;
 
 our $extendedMonitor = +{};
+our $carryerror = 0;
 
 sub new
 {
@@ -26,7 +27,7 @@ sub new
 sub getResponseProxy
 {
     my ( $this, $content ) = @_;
-    $content = "#HELP DEBUG By Proxy\n". $content;
+    $content = "# HELP DEBUG By Proxy\n". $content;
     my $length = length $content;
     my @h = (
         "HTTP/1.0 200 OK",
@@ -41,7 +42,10 @@ sub getResponse
 {
     my $this = shift;
     $this->{collector}->refresh();
-    my $content = "#HELP DEBUG port:$this->{port}\n". $this->{collector}->format;
+    my $content = join "\n",
+        "# HELP OPEN-C3 Node Exporter",
+        $this->{collector}->format;
+
     my $length = length $content;
     my @h = (
         "HTTP/1.0 200 OK",
@@ -58,9 +62,9 @@ sub getResponseRoot
     my $content = 
 '
 <html>
-    <head><title>MYDan Node Exporter</title></head>
+    <head><title>OPEN-C3 Node Exporter</title></head>
     <body>
-        <h1>MYDan Node Exporter</h1>
+        <h1>OPEN-C3 Node Exporter</h1>
         <p><a href="/metrics">Metrics</a></p>
     </body>
 </html>
@@ -155,19 +159,20 @@ sub runInCv
     my %timer;
     $timer{carryUpdate} = AnyEvent->timer(
         after => 1, 
-        interval => 1,
+        interval => 10,
         cb => sub { 
             return unless my $carry = $this->{carry};
-            my $exmonitor = eval{ YAML::XS::Load decode_base64($carry) };
-            $extendedMonitor = $exmonitor if $exmonitor && ref $exmonitor eq 'HASH';
-        }
-    );
-
-    $timer{debug} = AnyEvent->timer(
-        after => 1, 
-        interval => 1,
-        cb => sub { 
-            printf "index: $index cache: %d\n", scalar  keys %index;
+            my $exmonitor = eval{ YAML::XS::Load decode_base64( $carry ) };
+            warn "node exporter carry data err: $@" if $@;
+            if( $exmonitor && ref $exmonitor eq 'HASH' )
+            {
+                $extendedMonitor = $exmonitor;
+                $carryerror = 0;
+            }
+            else
+            {
+                $carryerror = 1;
+            }
         }
     );
 
