@@ -78,7 +78,6 @@ sub getResponseRoot
 sub run
 {
     my $this = shift;
-
     my $cv = AnyEvent->condvar;
     my $ct = $this->runInCv();
     $cv->recv;
@@ -96,7 +95,7 @@ sub runInCv
        my ( $fh ) = @_ or die "tcp_server: $!";
 
        my $idx = $index ++;
-                       $index{$idx} ++;
+       $index{$idx} ++;
 
        my $handle; $handle = new AnyEvent::Handle( 
            fh => $fh,
@@ -126,8 +125,7 @@ sub runInCv
                                $handle->push_write($this->getResponseProxy($c)) if $c;
                                $handle->push_shutdown();
                                $handle->destroy();
-                                   delete $index{$idx};
-
+                               delete $index{$idx};
                            };
                        }
                        elsif( $data =~ m#/metrics# )
@@ -139,14 +137,14 @@ sub runInCv
                            $handle->push_write($this->getResponse());
                            $handle->push_shutdown();
                            $handle->destroy();
-                                   delete $index{$idx};
+                           delete $index{$idx};
                        }
                        else
                        {
                            $handle->push_write($this->getResponseRoot());
                            $handle->push_shutdown();
                            $handle->destroy();
-                                   delete $index{$idx};
+                           delete $index{$idx};
                        }
                     }
                );
@@ -172,8 +170,6 @@ sub runInCv
             printf "index: $index cache: %d\n", scalar  keys %index;
         }
     );
-
-
 
     return \%timer;
 }

@@ -88,17 +88,15 @@ sub run
 sub refresh
 {
     my $this = shift;
-    $this->{prom}->set('node_system_time', time);
+    $this->{prom}->set( 'node_system_time', time );
     return $this;
 }
 
 sub format
 {
     my $this = shift;
-use Data::Dumper;
-print Dumper $promNodeExporterMetrics;
     my $ext = $promNodeExporterMetrics ? "\n$promNodeExporterMetrics" : '';
-    return $this->{prom}->format. $ext;
+    return $this->{prom}->format . $ext;
 }
 
 1;
