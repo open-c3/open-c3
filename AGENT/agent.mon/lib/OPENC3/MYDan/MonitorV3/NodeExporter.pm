@@ -14,6 +14,7 @@ use MIME::Base64;
 
 our $extendedMonitor = +{};
 our $carryerror = 0;
+our $promeerror = 0;
 
 sub new
 {

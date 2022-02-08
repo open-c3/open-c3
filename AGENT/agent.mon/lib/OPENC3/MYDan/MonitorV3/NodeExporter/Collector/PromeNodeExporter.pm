@@ -18,20 +18,15 @@ sub co
     timeout => 10,
     sub {
         my ($body, $hdr) = @_;
-            my $code = $hdr->{Status} ||0;
-            my $metrics = "";
-            if( $code eq '200' )
-            {
-                $metrics = $body;
-                $metrics .= "\nnode_collector_error{collector=\"prome_node_exporter\"} 0";
-            }
-            else
-            {
-                $metrics = "";
-                $metrics .= "\nnode_collector_error{collector=\"prome_node_exporter\"} 1";
-            }
+        my ( $metrics, $promeerror ) = ( "", 1 );
+        if( $hdr->{Status} && $hdr->{Status} eq '200' )
+        {
+            $metrics = $body;
+            $promeerror = 0;
+        }
 
-            $OPENC3::MYDan::MonitorV3::NodeExporter::Collector::promNodeExporterMetrics = $metrics;
+        $OPENC3::MYDan::MonitorV3::NodeExporter::Collector::promNodeExporterMetrics = $metrics;
+        $OPENC3::MYDan::MonitorV3::NodeExporter::promeerror = $promeerror;
     };
 
     return ();
