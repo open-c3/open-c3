@@ -8,7 +8,7 @@
 
         var vm = this;
         vm.title = title
-        vm.postData = { 'severity': 'warning' }
+        vm.postData = { 'severity': 'level2', 'model': 'simple' }
         if( postData.id )
         {
             vm.postData.id = postData.id
@@ -19,6 +19,10 @@
             vm.postData.summary = postData.summary
             vm.postData.description = postData.description
             vm.postData.value = postData.value
+            vm.postData.model = postData.model
+            vm.postData.metrics = postData.metrics
+            vm.postData.method = postData.method
+            vm.postData.threshold = postData.threshold
         }
 
         vm.cancel = function(){ $uibModalInstance.dismiss()};
