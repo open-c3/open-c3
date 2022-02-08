@@ -97,7 +97,7 @@ sub refresh
 sub format
 {
     my $this = shift;
-    my $ext = $promNodeExporterMetrics ? "\n$promNodeExporterMetrics" : '';
+    my $ext = $promNodeExporterMetrics ? "\n# HELP Prometheus Node Exporter\n$promNodeExporterMetrics" : '';
     return $this->{prom}->format . $ext;
 }
 
