@@ -41,10 +41,19 @@ sub getResponseProxy
 
 sub getResponse
 {
-    my $this = shift;
+    my ( $this, $debug ) = @_;
     $this->{collector}->refresh();
+
+    my @debug;
+    if( $debug )
+    {
+        @debug = map{"# $_"}split /\n/, YAML::XS::Dump $extendedMonitor;
+        unshift @debug, "# DEBUG";
+    }
+
     my $content = join "\n",
-        "# HELP OPEN-C3 Node Exporter",
+        "# HELP OPEN-C3 Node Exporter debug[$debug]",
+        @debug,
         $this->{collector}->format;
 
     my $length = length $content;
@@ -139,7 +148,7 @@ sub runInCv
                            {
                                $this->{carry} = $1;
                            }
-                           $handle->push_write($this->getResponse());
+                           $handle->push_write($this->getResponse( $data =~ /debug=1/ ? 1 : 0 ));
                            $handle->push_shutdown();
                            $handle->destroy();
                            delete $index{$idx};
