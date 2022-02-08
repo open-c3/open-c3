@@ -27,7 +27,7 @@ return sub
     my $res = $ua->get( "http://api.connector.open-c3.org/connectorx/username?$p"  );
     return unless $res->is_success;
 
-    my $v = eval{decode_json $res->decoded_content};
+    my $v = eval{JSON::decode_json $res->decoded_content};
 
     return undef unless $v && ref $v eq 'HASH' && $v->{stat};
 

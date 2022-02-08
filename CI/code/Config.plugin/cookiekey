@@ -17,7 +17,7 @@ return sub
     my $res = $ua->get( "http://api.connector.open-c3.org/connectorx/cookiekey" );
     die "get cookiekey from api.connector fail" unless $res->is_success;
 
-    my $v = eval{decode_json $res->decoded_content};
+    my $v = eval{JSON::decode_json $res->decoded_content};
     die "get cookiekey fail" unless $v && ref $v eq 'HASH' && $v->{stat};
  
     my $cookiekey = $v->{data};

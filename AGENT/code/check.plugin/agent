@@ -52,7 +52,7 @@ use Data::Dumper;
     my $res = $ua->get( "http://api.job.open-c3.org/nodeinfo/$id" );
     if($res->is_success)
     { 
-        my $v = eval{decode_json $res->decoded_content};
+        my $v = eval{JSON::decode_json $res->decoded_content};
         die "die" unless $v->{stat} && ref $v->{data} eq 'ARRAY';
         @nn = @{$v->{data}};
     }
