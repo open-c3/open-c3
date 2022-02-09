@@ -56,7 +56,7 @@ sub _cleartimeout {
       for my $label ( keys %{$self->{time}{$name}} )
       {
           my $t = $self->{time}{$name}{$label};
-          if( $t + 60 < $time )
+          if( $t + 75 < $time )
           {
               if( $name eq 'node_collector_error' )
               {
