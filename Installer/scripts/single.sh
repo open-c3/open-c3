@@ -272,6 +272,9 @@ function install() {
             exit 1
         fi
     fi
+
+    mkdir -p /data/open-c3-data/grafana-data
+    rsync -av /data/open-c3/Installer/install-cache/grafana-data/ /data/open-c3-data/grafana-data/
 }
 
 function start() {
