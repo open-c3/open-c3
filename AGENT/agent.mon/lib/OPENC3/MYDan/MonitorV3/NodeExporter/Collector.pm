@@ -21,7 +21,7 @@ sub new
 {
     my ( $class, %this ) = @_;
     $prom = $this{prom} = OPENC3::MYDan::MonitorV3::Prometheus::Tiny->new;
-    my @task = qw( DiskBlocks DiskInodes Uptime Dmesg PortTcp PortUdp Process Http PromeNodeExporter Sar );
+    my @task = qw( DiskBlocks DiskInodes Uptime PortTcp PortUdp Process Http PromeNodeExporter Sar );
 
     my $i = 0;
     for my $type ( @task )
