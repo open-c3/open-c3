@@ -167,7 +167,7 @@ sub runInCv
                                      && ( ( ! $val->{endpoint} ) || ( $val->{endpoint} && $val->{endpoint} =~ /^[a-zA-Z0-9\.\-_=,]+$/ ) )
                                    )
                                    {
-                                       my %tags;
+                                       my %tags = ( source => 'apipush' );
                                        $tags{endpoint} = $val->{endpoint} if $val->{endpoint};
                                        map{ my @x = split /=/, $_, 2; $tags{$x[0]} = $x[1]; }
                                            split( /,/, $val->{tags} )
