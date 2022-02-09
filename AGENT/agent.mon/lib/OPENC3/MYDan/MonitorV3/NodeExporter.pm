@@ -48,7 +48,6 @@ sub getResponseProxy
 sub getResponse
 {
     my ( $this, $debug ) = @_;
-    $this->{collector}->refresh();
 
     my @debug;
     if( $debug )
@@ -60,7 +59,7 @@ sub getResponse
     my $content = join "\n",
         "# HELP OPEN-C3 Node Exporter debug[$debug]",
         @debug,
-        $this->{collector}->format;
+        $this->{collector}->get;
 
     return $this->_html( $content );
 }

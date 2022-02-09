@@ -90,16 +90,12 @@ sub new
     bless \%this, ref $class || $class;
 }
 
-sub refresh
+sub get
 {
     my $this = shift;
-    $this->{prom}->set( 'node_system_time', time );
-    return $this;
-}
 
-sub format
-{
-    my $this = shift;
+    $this->{prom}->set( 'node_system_time', time );
+
     my $ext = $promNodeExporterMetrics ? "\n# HELP Prometheus Node Exporter\n$promNodeExporterMetrics" : '';
     return $this->{prom}->format . $ext;
 }
