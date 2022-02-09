@@ -309,6 +309,12 @@ function start() {
     fi
 
 #
+
+#lua.1
+    mkdir -p /data/open-c3/lua/lualib
+    rsync -av /data/open-c3/Installer/install-cache/lualib/ /data/open-c3/lua/lualib/
+#
+
     cd $BASE_PATH/Installer/C3/ && ../docker-compose -f $DCF up -d --build
 
 #grafana
@@ -326,9 +332,6 @@ function start() {
     COOKIEKEY=$(cat /data/open-c3/Connector/config.inix|grep cookiekey:|awk '{print $2}'|grep ^[a-zA-Z0-9]*$)
     sed -i "s/OPENC3_SERVER_IP/$REIP/" /data/open-c3/lua/config/lua/sso.lua
     sed -i "s/ngx.var.cookie_sid/ngx.var.cookie_$COOKIEKEY/g" /data/open-c3/lua/config/lua/sso.lua
-
-    mkdir -p /data/open-c3/lua/lualib
-    rsync -av /data/open-c3/Installer/install-cache/lualib/ /data/open-c3/lua/lualib/
 
 #
     echo "[SUCC]started."
