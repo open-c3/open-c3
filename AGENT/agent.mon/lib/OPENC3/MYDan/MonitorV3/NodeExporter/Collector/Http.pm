@@ -5,11 +5,13 @@ use warnings;
 use Carp;
 use POSIX;
 use AnyEvent::HTTP;
+use Time::HiRes;
 use OPENC3::MYDan::MonitorV3::NodeExporter::Collector;
 use OPENC3::MYDan::MonitorV3::NodeExporter;
 
 our %declare = (
     node_http_code => 'http code',
+    node_http_time => 'http use time, millisecond',
     node_http_content_check => 'http content check',
 );
 
@@ -26,16 +28,20 @@ sub co
         my @check = split /\|/, $http;
         if ( @check < 2 ) { $error = 1; next; }
 
+        my $time = Time::HiRes::time;
         http_request
         $check[0] => $check[1],
         headers => { "user-agent" => "MYDan Monitor" },
         timeout => 10,
         sub {
             my ($body, $hdr) = @_;
-                my $code = $hdr->{Status} ||0;
+                my $code = $hdr->{Status} || 0;
                 $OPENC3::MYDan::MonitorV3::NodeExporter::Collector::prom->
                     set( 'node_http_code', $code, +{ method => $check[0], url => $check[1] } );
                  
+                $OPENC3::MYDan::MonitorV3::NodeExporter::Collector::prom->
+                    set( 'node_http_time', int( 1000 * ( Time::HiRes::time - $time) ), +{ method => $check[0], url => $check[1] } );
+ 
                 $OPENC3::MYDan::MonitorV3::NodeExporter::Collector::prom->
                     set( 'node_http_content_check', $body =~ /$check[2]/ ? 1 : 0, +{ method => $check[0], url => $check[1], check => $check[2] } )
                         if defined $check[2];
