@@ -23,7 +23,7 @@ sub co
     {
         @port = grep{ /^\d+$/ }@{$extport->{tcp}};
     }
-    return () unless @port;
+    return ( +{ name => 'node_collector_error', value => 0, lable => +{ collector => $collectorname } } ) unless @port;
     my ( $error, @stat ) = ( 0 );
     eval{
         my $title = shift @ss;
@@ -50,7 +50,7 @@ sub co
     if( $@ )
     {
         warn "collector node_port_tcp err:$@";
-        $error ++;
+        $error = 1;
     }
 
     push @stat, +{ name => 'node_collector_error', value => $error, lable => +{ collector => $collectorname } };
