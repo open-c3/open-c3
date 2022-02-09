@@ -4,7 +4,6 @@ use warnings;
 use strict;
 use Carp;
 
-#use AnyEvent::Impl::Perl;
 use YAML::XS;
 use AnyEvent;
 use AnyEvent::Socket;
@@ -22,6 +21,20 @@ sub new
     bless \%this, ref $class || $class;
 }
 
+sub _html
+{
+    my ( $this, $content, $type ) = @_;
+    $type ||= 'text/plain';
+    my $length = length $content;
+    my @h = (
+        "HTTP/1.0 200 OK",
+        "Content-Length: $length",
+        "Content-Type: $type",
+    );
+
+    return join "\n",@h, "", $content;
+}
+
 sub getResponseProxy
 {
     my ( $this, $content, $ip, $proxy  ) = @_;
@@ -37,14 +50,7 @@ sub getResponseProxy
         $carry,
         $content;
 
-    my $length = length $content;
-    my @h = (
-        "HTTP/1.0 200 OK",
-        "Content-Length: $length",
-        "Content-Type: text/plain",
-    );
-
-    return join "\n",@h, "", $content;
+    return $this->_html( $content );
 }
 
 sub getResponseRoot
@@ -59,14 +65,8 @@ sub getResponseRoot
     </body>
 </html>
 ';
-    my $length = length $content;
-    my @h = (
-        "HTTP/1.0 200 OK",
-        "Content-Length: $length",
-        "Content-Type: text/html",
-    );
 
-    return join "\n",@h, "", $content;
+    return $this->_html( $content, 'text/html' );
 }
 
 my ( $index, %index ) = ( 0 );
@@ -111,32 +111,20 @@ sub run
                                $carry{$ip} = encode_base64( YAML::XS::Dump $carry{$ip} );
                                $carry{$ip} =~ s/\n//g;
                            }
-                           my $carry = $carry{$ip} ? "/carry_$carry{$ip}_carry" : "";
 
-                           if( $proxy{$ip} )
-                           {
-                               return if $index{$idx}{http_get};
-                               $index{$idx}{http_get} = http_get "http://$proxy{$ip}:65110/proxy_${ip}_proxy$carry", sub { 
-                                   my $c = $_[0] || $_[1]->{URL}. " -> ".$_[1]->{Reason};
-                                   return if $handle && $handle->destroyed;
-                                   $handle->push_write($this->getResponseProxy($c, $ip, $proxy{$ip} )) if $c;
-                                   $handle->push_shutdown();
-                                   $handle->destroy();
-                                   delete $index{$idx};
-                               };
-                           }
-                           else
-                           {
-                               return if $index{$idx}{http_get};
-                               $index{$idx}{http_get} = http_get "http://$ip:65110/metrics$carry", sub { 
-                                   my $c = $_[0] || $_[1]->{URL}. " -> ".$_[1]->{Reason};
-                                   return if $handle && $handle->destroyed;
-                                   $handle->push_write($this->getResponseProxy($c, $ip )) if $c;
-                                   $handle->push_shutdown();
-                                   $handle->destroy();
-                                   delete $index{$idx};
-                               };
-                           }
+                           my $call = $proxy{$ip} || $ip;
+                           my $uri = $proxy{$ip} ? "proxy_${ip}_proxy" : "metrics";
+                           my $carry = $carry{$ip} ? "carry_$carry{$ip}_carry" : "";
+
+                           return if $index{$idx}{http_get};
+                           $index{$idx}{http_get} = http_get "http://$call:65110/$uri/$carry", sub { 
+                               my $c = $_[0] || $_[1]->{URL}. " -> ".$_[1]->{Reason};
+                               return if $handle && $handle->destroyed;
+                               $handle->push_write($this->getResponseProxy($c, $ip, $proxy{$ip} )) if $c;
+                               $handle->push_shutdown();
+                               $handle->destroy();
+                               delete $index{$idx};
+                           };
                        }
                        else
                        {
@@ -156,17 +144,10 @@ sub run
         interval => 6,
         cb => sub { 
             my $proxy = eval{ YAML::XS::LoadFile $this->{proxy} };
-            if ( $@ )
-            {
-                warn "load proxy file fail: $@";
-                return;
-            }
 
-            unless( $proxy && ref $proxy eq 'HASH' )
-            {
-                warn "load proxy file no HASH\n";
-                return;
-            }
+            if ( $@ ) { warn "load proxy file fail: $@"; return; }
+            unless( $proxy && ref $proxy eq 'HASH' ) { warn "load proxy file no HASH"; return; }
+
             %proxy = %$proxy;
         }
     ) if $this->{proxy}; 
@@ -176,28 +157,13 @@ sub run
         interval => 6,
         cb => sub { 
             my $carry = eval{ YAML::XS::LoadFile $this->{carry} };
-            if ( $@ )
-            {
-                warn "load carry file fail: $@";
-                return;
-            }
 
-            unless( $carry && ref $carry eq 'HASH' )
-            {
-                warn "load carry file no HASH\n";
-                return;
-            }
+            if ( $@ ) { warn "load carry file fail: $@"; return; }
+            unless( $carry && ref $carry eq 'HASH' ) { warn "load carry file no HASH"; return; }
+
             %carry = %$carry;
         }
     ) if $this->{carry}; 
-
-    my $debug = AnyEvent->timer(
-        after => 1, 
-        interval => 1,
-        cb => sub { 
-            printf "index: $index cache: %d\n", scalar  keys %index;
-        }
-    );
 
     $cv->recv;
 }
