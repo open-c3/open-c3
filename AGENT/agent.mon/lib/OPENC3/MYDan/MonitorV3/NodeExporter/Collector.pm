@@ -106,4 +106,11 @@ sub format
     return $this->{prom}->format . $ext;
 }
 
+sub set
+{
+    my ( $this, @v )= @_;
+    $this->{prom}->set( @v );
+    return $this;
+}
+
 1;

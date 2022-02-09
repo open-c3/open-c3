@@ -3,6 +3,7 @@ package OPENC3::MYDan::MonitorV3::NodeExporter;
 use warnings;
 use strict;
 use Carp;
+use JSON;
 
 use YAML::XS;
 use AnyEvent;
@@ -141,6 +142,44 @@ sub runInCv
                                $this->{carry} = $1;
                            }
                            $handle->push_write($this->getResponse( $data =~ /debug=1/ ? 1 : 0 ));
+                           $handle->push_shutdown();
+                           $handle->destroy();
+                           delete $index{$idx};
+                       }
+                       elsif( $data =~ m#POST /v1/push HTTP/# )
+                       {
+                           my $mesg = "success";
+
+                           my $d = ( split /\n/, $data)[-1];
+                           my $v = eval{JSON::decode_json $d};
+                           if($@)
+                           {
+                               warn "error: $@" if $@;
+                               $mesg = "error: $@\n";
+                           }
+                           else
+                           {
+                               for my $val ( @$v )
+                               {
+                                   if ( $val->{metric} && $val->{metric} =~ /^[a-zA-Z0-9\.\-_]+$/ 
+                                     && defined $val->{value} && ( $val->{value} =~ /^[-+]?\d+$/ || $val->{value} =~ /^[-+]?\d+\.\d+$/ )
+                                     && ( ( ! $val->{tags} ) || ( $val->{tags} && $val->{tags} =~ /^[a-zA-Z0-9\.\-_=,]+$/ ) )
+                                     && ( ( ! $val->{endpoint} ) || ( $val->{endpoint} && $val->{endpoint} =~ /^[a-zA-Z0-9\.\-_=,]+$/ ) )
+                                   )
+                                   {
+                                       my %tags;
+                                       $tags{endpoint} = $val->{endpoint} if $val->{endpoint};
+                                       map{ my @x = split /=/, $_, 2; $tags{$x[0]} = $x[1]; }
+                                           split( /,/, $val->{tags} )
+                                               if $val->{tags};
+
+                                       $this->{collector}->set( $val->{metric}, $val->{value} , \%tags );
+                                   }
+                                   else { $mesg = "error"; }
+                               }
+                           }
+
+                           $handle->push_write($this->_html( $mesg ));
                            $handle->push_shutdown();
                            $handle->destroy();
                            delete $index{$idx};
