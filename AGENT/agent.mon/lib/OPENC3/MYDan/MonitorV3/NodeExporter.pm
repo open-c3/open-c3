@@ -25,18 +25,24 @@ sub new
     bless \%this, ref $class || $class;
 }
 
-sub getResponseProxy
+sub _html
 {
-    my ( $this, $content ) = @_;
-    $content = "# HELP DEBUG By Proxy\n". $content;
+    my ( $this, $content, $type ) = @_;
+    $type ||= 'text/plain';
     my $length = length $content;
     my @h = (
         "HTTP/1.0 200 OK",
         "Content-Length: $length",
-        "Content-Type: text/plain",
+        "Content-Type: $type",
     );
 
     return join "\n",@h, "", $content;
+}
+
+sub getResponseProxy
+{
+    my ( $this, $content ) = @_;
+    return $this->_html( "# HELP DEBUG By Proxy\n". $content );
 }
 
 sub getResponse
@@ -56,14 +62,7 @@ sub getResponse
         @debug,
         $this->{collector}->format;
 
-    my $length = length $content;
-    my @h = (
-        "HTTP/1.0 200 OK",
-        "Content-Length: $length",
-        "Content-Type: text/plain",
-    );
-
-    return join "\n",@h, "", $content;
+    return $this->_html( $content );
 }
 
 sub getResponseRoot
@@ -79,14 +78,7 @@ sub getResponseRoot
     </body>
 </html>
 ';
-    my $length = length $content;
-    my @h = (
-        "HTTP/1.0 200 OK",
-        "Content-Length: $length",
-        "Content-Type: text/html",
-    );
-
-    return join "\n",@h, "", $content;
+    return $this->_html( $content, 'text/html' );
 }
 
 sub run
@@ -102,8 +94,8 @@ sub runInCv
 {
     my $this = shift;
 
-#$AnyEvent::HTTP::TIMEOUT = 10;
-#$AnyEvent::HTTP::MAX_PER_HOST = 10000;
+    #$AnyEvent::HTTP::TIMEOUT = 10;
+    #$AnyEvent::HTTP::MAX_PER_HOST = 10000;
 
     tcp_server undef, $this->{port}, sub {
        my ( $fh ) = @_ or die "tcp_server: $!";
@@ -134,7 +126,7 @@ sub runInCv
                                $carry = $1;
                            }
 
-                           http_get "http://$ip:$this->{port}/metrics$carry", sub { 
+                           http_get "http://$ip:$this->{port}/metrics/$carry", sub { 
                                my $c = $_[0] || $_[1]->{URL}. " -> ".$_[1]->{Reason};
                                $handle->push_write($this->getResponseProxy($c)) if $c;
                                $handle->push_shutdown();
