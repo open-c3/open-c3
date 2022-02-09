@@ -15,7 +15,7 @@ my %declare = (
 
 my %proc;
 our $prom;
-our $promNodeExporterMetrics;
+our $promelocal;
 our $promeerror = 0;
 
 sub new
@@ -107,8 +107,7 @@ sub get
 
     $this->{prom}->set( 'node_system_time', time );
 
-    my $ext = $promNodeExporterMetrics ? "\n# HELP Prometheus Node Exporter\n$promNodeExporterMetrics" : '';
-    return $this->{prom}->format . $ext;
+    return $this->{prom}->format . ( $promelocal ? "\n# HELP Prometheus Node Exporter\n$promelocal" : '' );
 }
 
 sub set

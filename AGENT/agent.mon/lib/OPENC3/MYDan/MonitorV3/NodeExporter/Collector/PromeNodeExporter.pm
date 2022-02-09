@@ -26,7 +26,7 @@ sub co
             $promeerror = 0;
         }
 
-        $OPENC3::MYDan::MonitorV3::NodeExporter::Collector::promNodeExporterMetrics = $metrics;
+        $OPENC3::MYDan::MonitorV3::NodeExporter::Collector::promelocal = $metrics;
         $OPENC3::MYDan::MonitorV3::NodeExporter::Collector::promeerror = $promeerror;
     };
 
