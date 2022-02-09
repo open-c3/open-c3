@@ -102,7 +102,7 @@ our $cmd = 'LANG=en sar -A 6 1';
 sub co
 {
     my $data = shift;
-    my ( $error, @res ) = (0);
+    my ( $error, @res ) = ( 0 );
     my @data = OPENC3::MYDan::MonitorV3::NodeExporter::Collector::Sar::Table::co( $data );
 
     my %data;
@@ -127,6 +127,9 @@ sub co
     }
 
     my %ignore = ( INTR => 1, ICMP6 => 1, ICMP => 1, IP6 => 1, IP => 1, NFS => 1, TTY => 1 );
+
+    my %check = %declare;
+
     for my $data ( @data )
     {
         my $title = shift @$data;
@@ -145,9 +148,18 @@ sub co
                     my $target = lc( $row->[0] );
                     my %lable = $target eq 'value' || $target eq 'all' ? () : ( lable => +{ name => $target } );
                     $name = "${name}_summary" if $target eq 'all';
+
+                    delete $check{$name};
+
                     push @res, +{ name => $name, value => $row->[$col], %lable };
             }
         }
+    }
+
+    if( keys %check )
+    {
+        $error = 1;
+        warn sprintf "sar error nofind:%s\n", join ',', keys %check;
     }
 
     push @res, +{ name => 'node_collector_error', value => $error, lable => +{ collector => $collectorname } };
