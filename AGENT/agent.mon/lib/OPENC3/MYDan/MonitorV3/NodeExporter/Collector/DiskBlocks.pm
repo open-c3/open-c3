@@ -11,6 +11,7 @@ our %declare = (
     node_disk_blocks_free => 'Available size of disk',
 );
 
+our $collectorname = 'node_disk_blocks';
 our $cmd = 'LANG=en df -l -T';
 
 #Filesystem              Type     1K-blocks     Used Available Use% Mounted on
@@ -55,7 +56,7 @@ sub co
         $error ++;
     }
 
-    push @stat, +{ name => 'node_collector_error', value => $error, lable => +{ collector => 'node_disk_blocks' } };
+    push @stat, +{ name => 'node_collector_error', value => $error, lable => +{ collector => $collectorname } };
     return @stat;
 }
 

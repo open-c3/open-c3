@@ -11,6 +11,8 @@ our %declare = (
     node_system_uptime => 'system uptime',
 );
 
+our $collectorname = 'node_system_uptime';
+
 sub co
 {
     my ( $error, @stat ) = ( 0 );
@@ -22,7 +24,7 @@ sub co
     }
     else { $error ++; }
 
-    push @stat, +{ name => 'node_collector_error', value => $error, lable => +{ collector => 'node_system_uptime' } };
+    push @stat, +{ name => 'node_collector_error', value => $error, lable => +{ collector => $collectorname } };
     return @stat;
 }
 

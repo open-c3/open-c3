@@ -10,6 +10,7 @@ our %declare = (
     node_port => 'port monitor.',
 );
 
+our $collectorname = 'node_port_tcp';
 our $cmd = 'LANG=en ss -t -l -n';
 
 sub co
@@ -52,7 +53,7 @@ sub co
         $error ++;
     }
 
-    push @stat, +{ name => 'node_collector_error', value => $error, lable => +{ collector => 'node_port_tcp' } };
+    push @stat, +{ name => 'node_collector_error', value => $error, lable => +{ collector => $collectorname } };
     return @stat;
 }
 

@@ -31,6 +31,13 @@ sub new
         warn "err: $@" if $@;
         eval "%declare = ( %declare, %OPENC3::MYDan::MonitorV3::NodeExporter::Collector::${type}::declare );";
         warn "err: $@" if $@;
+
+        my $collectorname;
+        eval "\$collectorname = \$OPENC3::MYDan::MonitorV3::NodeExporter::Collector::${type}::collectorname;";
+        warn "load collectorname fail: $@" if $@;
+ 
+        $this{prom}->set( 'node_collector_error', -1, +{ collector => $collectorname } ) if $collectorname;
+
         my $cmd;
         eval "\$cmd = \$OPENC3::MYDan::MonitorV3::NodeExporter::Collector::${type}::cmd;";
         warn "load cmd fail: $@" if $@;
@@ -75,6 +82,8 @@ sub new
     }
 
     map{ $this{prom}->declare( $_, help => $declare{$_}, type => 'gauge' ); }keys %declare;
+
+    map{ $this{prom}->set( 'node_collector_error', -1, +{ collector => $_ } ); } qw( node_carry );
 
     bless \%this, ref $class || $class;
 }

@@ -13,6 +13,8 @@ our %declare = (
     node_http_content_check => 'http content check',
 );
 
+our $collectorname = '';
+
 sub co
 {
     my $exthttp = $OPENC3::MYDan::MonitorV3::NodeExporter::extendedMonitor->{http};

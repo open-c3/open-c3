@@ -96,6 +96,7 @@ our %declare = (
     node_swap_swpused_percent => 'Percentage of used swap space.',
 );
 
+our $collectorname = 'node_sar';
 our $cmd = 'LANG=en sar -A 6 1';
 
 sub co
@@ -149,7 +150,7 @@ sub co
         }
     }
 
-    push @res, +{ name => 'node_collector_error', value => $error, lable => +{ collector => 'node_sar' } };
+    push @res, +{ name => 'node_collector_error', value => $error, lable => +{ collector => $collectorname } };
     return @res;
 }
 

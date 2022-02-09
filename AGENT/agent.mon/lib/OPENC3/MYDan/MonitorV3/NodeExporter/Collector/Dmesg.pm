@@ -27,6 +27,7 @@ my %REGEX =
     'pblaze_pcie_interrupt' => 'flash',
 );
 
+our $collectorname = 'node_dmesg';
 our $cmd;
 BEGIN{
     my $grep = join '|', keys %REGEX;
@@ -50,7 +51,7 @@ sub co
         push @res, +{ name => 'node_dmesg', value => $data{$name}, lable => +{ type => $name} };
     }
 
-    push @res, +{ name => 'node_collector_error', value => $error, lable => +{ collector => 'node_dmesg' } };
+    push @res, +{ name => 'node_collector_error', value => $error, lable => +{ collector => $collectorname } };
     return @res;
 }
 

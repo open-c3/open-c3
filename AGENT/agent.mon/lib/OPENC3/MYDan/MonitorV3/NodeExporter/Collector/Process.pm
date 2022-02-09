@@ -13,6 +13,8 @@ our %declare = (
     node_process_time => 'process start time.',
 );
 
+our $collectorname = '';
+
 sub co
 {
     my $extprocess = $OPENC3::MYDan::MonitorV3::NodeExporter::extendedMonitor->{process};

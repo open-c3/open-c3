@@ -10,6 +10,7 @@ our %declare = (
     node_coredump => 'linux coredump'
 );
 
+our $collectorname = '';
 our $cmd = 'sysctl -n kernel.core_pattern';
 
 sub co

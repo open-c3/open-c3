@@ -58,10 +58,19 @@ sub _cleartimeout {
           my $t = $self->{time}{$name}{$label};
           if( $t + 60 < $time )
           {
-              delete $self->{time}{$name}{$label};
-              delete $self->{metrics}{$name}{$label};
+              if( $name eq 'node_collector_error' )
+              {
+                  $self->{metrics}{$name}{$label}[0] = 2;
+              }
+              else
+              {
+                  delete $self->{time}{$name}{$label};
+                  delete $self->{metrics}{$name}{$label};
+              }
           }
       }
+
+      next if $name eq 'node_collector_error';
 
       unless( keys %{$self->{time}{$name}} )
       {

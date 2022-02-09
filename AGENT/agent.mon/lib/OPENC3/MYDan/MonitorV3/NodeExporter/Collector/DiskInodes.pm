@@ -11,6 +11,7 @@ our %declare = (
     node_disk_inodes_free => 'Free size of inode',
 );
 
+our $collectorname = 'node_disk_inodes';
 our $cmd = 'LANG=en df -i -T';
 
 #Filesystem              Type      Inodes  IUsed   IFree IUse% Mounted on
@@ -56,7 +57,7 @@ sub co
         $error ++;
     }
 
-    push @stat, +{ name => 'node_collector_error', value => $error, lable => +{ collector => 'node_disk_inodes' } };
+    push @stat, +{ name => 'node_collector_error', value => $error, lable => +{ collector => $collectorname } };
     return @stat;
 }
 

@@ -10,6 +10,8 @@ use OPENC3::MYDan::MonitorV3::NodeExporter;
 
 our %declare = ();
 
+our $collectorname = 'node_exporter_prome'; #TODO
+
 sub co
 {
     http_request
