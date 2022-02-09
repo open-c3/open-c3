@@ -94,8 +94,6 @@ sub refresh
 {
     my $this = shift;
     $this->{prom}->set( 'node_system_time', time );
-    $this->{prom}->set( 'node_collector_error', $OPENC3::MYDan::MonitorV3::NodeExporter::carryerror, +{ collector => 'node_carry' } );
-    $this->{prom}->set( 'node_collector_error', $OPENC3::MYDan::MonitorV3::NodeExporter::promeerror, +{ collector => 'node_exporter_prome' } );
     return $this;
 }
 

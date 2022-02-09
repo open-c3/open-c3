@@ -14,7 +14,6 @@ use OPENC3::MYDan::MonitorV3::NodeExporter::Collector;
 use MIME::Base64;
 
 our $extendedMonitor = +{};
-our $carryerror = 0;
 our $promeerror = 0;
 
 sub new
@@ -205,15 +204,22 @@ sub runInCv
             return unless my $carry = $this->{carry};
             my $exmonitor = eval{ YAML::XS::Load decode_base64( $carry ) };
             warn "node exporter carry data err: $@" if $@;
+            my $error = 1;
             if( $exmonitor && ref $exmonitor eq 'HASH' )
             {
                 $extendedMonitor = $exmonitor;
-                $carryerror = 0;
+                $error = 0;
             }
-            else
-            {
-                $carryerror = 1;
-            }
+            $this->{collector}->set( 'node_collector_error', $error, +{ collector => 'node_carry' } );
+        }
+    );
+
+    $timer{refresh} = AnyEvent->timer(
+        after => 1, 
+        interval => 15,
+        cb => sub { 
+            $this->{collector}->set( 'node_exporter_version', 1 );
+            $this->{collector}->set( 'node_collector_error', $promeerror, +{ collector => 'node_exporter_prome' } );
         }
     );
 
