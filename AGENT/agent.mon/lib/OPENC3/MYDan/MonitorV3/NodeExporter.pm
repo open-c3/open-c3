@@ -219,7 +219,8 @@ sub runInCv
         interval => 15,
         cb => sub { 
             $this->{collector}->set( 'node_exporter_version', 1 );
-            $this->{collector}->set( 'node_collector_error', $promeerror, +{ collector => 'node_exporter_prome' } );
+            $this->{collector}->set( 'node_collector_error', $promeerror, +{ collector => 'node_exporter_prome' } ) if defined $promeerror;
+            $promeerror = undef;           
         }
     );
 
