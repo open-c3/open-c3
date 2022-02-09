@@ -6,7 +6,6 @@ use Carp;
 use POSIX;
 use AnyEvent::HTTP;
 use OPENC3::MYDan::MonitorV3::NodeExporter::Collector;
-use OPENC3::MYDan::MonitorV3::NodeExporter;
 
 our %declare = ();
 
@@ -28,7 +27,7 @@ sub co
         }
 
         $OPENC3::MYDan::MonitorV3::NodeExporter::Collector::promNodeExporterMetrics = $metrics;
-        $OPENC3::MYDan::MonitorV3::NodeExporter::promeerror = $promeerror;
+        $OPENC3::MYDan::MonitorV3::NodeExporter::Collector::promeerror = $promeerror;
     };
 
     return ();

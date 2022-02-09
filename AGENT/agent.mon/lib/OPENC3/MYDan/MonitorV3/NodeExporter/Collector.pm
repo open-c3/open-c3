@@ -16,6 +16,7 @@ my %declare = (
 my %proc;
 our $prom;
 our $promNodeExporterMetrics;
+our $promeerror = 0;
 
 sub new
 {
@@ -86,6 +87,16 @@ sub new
     #强制定义，避免模块异常，漏掉 
     map{ $this{prom}->set( 'node_collector_error', -1, +{ collector => $_ } ); }
         qw( node_carry node_disk_blocks node_disk_inodes node_exporter_prome node_http node_port_tcp node_port_udp node_sar node_system_uptime );
+
+    $this{timer}{refresh} = AnyEvent->timer(
+        after => 1, 
+        interval => 15,
+        cb => sub { 
+            $this{prom}->set( 'node_exporter_version', 1 );
+            $this{prom}->set( 'node_collector_error', $promeerror, +{ collector => 'node_exporter_prome' } ) if defined $promeerror;
+            $promeerror = undef;           
+        }
+    );
 
     bless \%this, ref $class || $class;
 }

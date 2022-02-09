@@ -14,7 +14,6 @@ use OPENC3::MYDan::MonitorV3::NodeExporter::Collector;
 use MIME::Base64;
 
 our $extendedMonitor = +{};
-our $promeerror = 0;
 
 sub new
 {
@@ -210,16 +209,6 @@ sub runInCv
                 $error = 0;
             }
             $this->{collector}->set( 'node_collector_error', $error, +{ collector => 'node_carry' } );
-        }
-    );
-
-    $timer{refresh} = AnyEvent->timer(
-        after => 1, 
-        interval => 15,
-        cb => sub { 
-            $this->{collector}->set( 'node_exporter_version', 1 );
-            $this->{collector}->set( 'node_collector_error', $promeerror, +{ collector => 'node_exporter_prome' } ) if defined $promeerror;
-            $promeerror = undef;           
         }
     );
 
