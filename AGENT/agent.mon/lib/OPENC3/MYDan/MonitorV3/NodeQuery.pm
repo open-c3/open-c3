@@ -37,17 +37,28 @@ sub _html
 
 sub getResponseProxy
 {
-    my ( $this, $content, $ip, $proxy  ) = @_;
-    my $carry = $carry{$ip} ? MIME::Base64::decode_base64( $carry{$ip} ) : 'Null';
-    $carry = join "\n", map{ "# $_" }split /\n/, $carry;
-    $proxy ||= 'Null';
+    my ( $this, $content, $ip, $proxy, $debug  ) = @_;
+    my @debug;
+
+    if( $debug )
+    {
+        my $carry = $carry{$ip} ? MIME::Base64::decode_base64( $carry{$ip} ) : 'Null';
+        $carry = join "\n", map{ "# $_" }split /\n/, $carry;
+        $proxy ||= 'Null';
+
+
+        @debug = (
+            "# DEBUG",
+            "# IP: $ip",
+            "# PROXY: $proxy",
+            "# CARRY:",
+            $carry,
+        );
+    }
 
     $content = join "\n",
-        "# OPEN-C3 NodeQuery",
-        "# IP: $ip",
-        "# PROXY: $proxy",
-        "# CARRY:",
-        $carry,
+        "# HELP OPEN-C3 NodeQuery debug[$debug]",
+        @debug,
         $content;
 
     return $this->_html( $content );
@@ -115,12 +126,13 @@ sub run
                            my $call = $proxy{$ip} || $ip;
                            my $uri = $proxy{$ip} ? "proxy_${ip}_proxy" : "metrics";
                            my $carry = $carry{$ip} ? "carry_$carry{$ip}_carry" : "";
+                           my $debug = $data =~ /debug=1/ ? "debug=1" : "";
 
                            return if $index{$idx}{http_get};
-                           $index{$idx}{http_get} = http_get "http://$call:65110/$uri/$carry", sub { 
+                           $index{$idx}{http_get} = http_get "http://$call:65110/$uri/$carry/$debug", sub { 
                                my $c = $_[0] || $_[1]->{URL}. " -> ".$_[1]->{Reason};
                                return if $handle && $handle->destroyed;
-                               $handle->push_write($this->getResponseProxy($c, $ip, $proxy{$ip} )) if $c;
+                               $handle->push_write($this->getResponseProxy($c, $ip, $proxy{$ip}, $data =~ /debug=1/ ? 1 : 0 )) if $c;
                                $handle->push_shutdown();
                                $handle->destroy();
                                delete $index{$idx};

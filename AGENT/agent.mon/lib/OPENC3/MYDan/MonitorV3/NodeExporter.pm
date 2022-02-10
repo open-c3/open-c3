@@ -11,6 +11,8 @@ use AnyEvent::Socket;
 use AnyEvent::Handle;
 use AnyEvent::HTTP;
 
+use Sys::Hostname;
+
 use OPENC3::MYDan::MonitorV3::NodeExporter::Collector;
 
 sub new
@@ -18,6 +20,7 @@ sub new
     my ( $class, %this ) = @_;
     die "port undef" unless $this{port};
 
+    $this{hostname} = Sys::Hostname::hostname;
     $this{collector} = OPENC3::MYDan::MonitorV3::NodeExporter::Collector->new();
 
     bless \%this, ref $class || $class;
@@ -71,11 +74,21 @@ sub run
                            my $ip = $1;
                            
                            my $carry = $data =~ m#(carry_[a-zA-Z0-9+/=]+_carry)# ? $1 : "";
+                           my $debug = $data =~ /debug=1/ ? "debug=1" : "";
 
-                           http_get "http://$ip:$this->{port}/metrics/$carry", sub { 
+                           http_get "http://$ip:$this->{port}/metrics/$carry/$debug", sub { 
                                my $c = $_[0] || $_[1]->{URL}. " -> ".$_[1]->{Reason};
 
-                               $handle->push_write( $this->_html( "# HELP DEBUG By Proxy\n". $c ) ) if $c;
+                               my $debug = $data =~ /debug=1/ ? 1 : 0;
+                               my @debug;
+                               if( $debug )
+                               {
+                                   @debug = (
+                                       "# DEBUG",
+                                       "# Proxy HOSTNAME: $this->{hostname}"
+                                   );
+                               }
+                               $handle->push_write( $this->_html( join "\n", "# HELP OPEN-C3 Proxy debug[$debug]", @debug, $c ) ) if $c;
                                $handle->push_shutdown();
                                $handle->destroy();
                                delete $index{$idx};
