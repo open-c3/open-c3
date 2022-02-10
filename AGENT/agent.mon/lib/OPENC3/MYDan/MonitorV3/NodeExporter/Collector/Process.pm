@@ -39,6 +39,7 @@ sub co
         name => sub{
             my $pid = shift;
             return unless tie my @temp, 'Tie::File', "/proc/$pid/status", mode => O_RDONLY, recsep => "\n";
+            return if grep{/^State:\s+Z/}@temp;
             return unless @temp && $temp[0] =~ /^Name:\s*(.+)$/;
             return $1;
         },
