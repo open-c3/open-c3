@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Carp;
 use POSIX;
-use OPENC3::MYDan::MonitorV3::NodeExporter;
+use OPENC3::MYDan::MonitorV3::NodeExporter::Collector;
 use Fcntl 'O_RDONLY';
 use Tie::File;
 
@@ -24,7 +24,7 @@ sub getProcessTime
 
 sub co
 {
-    my $extprocess = $OPENC3::MYDan::MonitorV3::NodeExporter::extendedMonitor->{process};
+    my $extprocess = $OPENC3::MYDan::MonitorV3::NodeExporter::Collector::extendedMonitor->{process};
 
     return ( +{ name => 'node_collector_error', value => 0, lable => +{ collector => $collectorname } } ) unless $extprocess;
 

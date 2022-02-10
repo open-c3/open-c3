@@ -6,6 +6,7 @@ use Carp;
 use IPC::Open3;
 use Symbol 'gensym';
 use AnyEvent;
+use MIME::Base64;
 
 use OPENC3::MYDan::MonitorV3::Prometheus::Tiny;
 
@@ -17,6 +18,8 @@ my %proc;
 our $prom;
 our $promelocal;
 our $promeerror = 0;
+
+our $extendedMonitor = +{};
 
 sub new
 {
@@ -103,11 +106,23 @@ sub new
 
 sub get
 {
-    my $this = shift;
+    my ( $this, $debug ) = @_;
 
     $this->{prom}->set( 'node_system_time', time );
 
-    return $this->{prom}->format . ( $promelocal ? "\n# HELP Prometheus Node Exporter\n$promelocal" : '' );
+    my $content = $this->{prom}->format . ( $promelocal ? "\n# HELP Prometheus Node Exporter\n$promelocal" : '' );
+
+    my @debug;
+    if( $debug )
+    {
+        @debug = map{"# $_"}split /\n/, YAML::XS::Dump $extendedMonitor;
+        unshift @debug, "# DEBUG";
+    }
+
+    return join "\n",
+        "# HELP OPEN-C3 Node Exporter debug[$debug]",
+        @debug,
+        $content;
 }
 
 sub set
@@ -117,4 +132,20 @@ sub set
     return $this;
 }
 
+sub setExt
+{
+    my ( $this, $carry )= @_;
+    return unless $carry;
+
+    my $exmonitor = eval{ YAML::XS::Load decode_base64( $carry ) };
+    warn "node exporter carry data err: $@" if $@;
+
+    my $error = 1;
+    if( $exmonitor && ref $exmonitor eq 'HASH' )
+    {
+        $extendedMonitor = $exmonitor;
+        $error = 0;
+    }
+    $this->{prom}->set( 'node_collector_error', $error, +{ collector => 'node_carry' } );
+}
 1;

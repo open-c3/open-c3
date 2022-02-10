@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use Carp;
 use POSIX;
-use OPENC3::MYDan::MonitorV3::NodeExporter;
+use OPENC3::MYDan::MonitorV3::NodeExporter::Collector;
 
 our %declare = (
     node_port => 'port monitor.',
@@ -16,7 +16,7 @@ our $cmd = 'LANG=en ss -t -l -n';
 sub co
 {
     my @ss = split /\n/, shift;
-    my $extport = $OPENC3::MYDan::MonitorV3::NodeExporter::extendedMonitor->{port};
+    my $extport = $OPENC3::MYDan::MonitorV3::NodeExporter::Collector::extendedMonitor->{port};
 
     my @port;
     if( $extport && $extport->{tcp} && ref $extport->{tcp} eq 'ARRAY' )

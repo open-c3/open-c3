@@ -7,7 +7,6 @@ use POSIX;
 use AnyEvent::HTTP;
 use Time::HiRes;
 use OPENC3::MYDan::MonitorV3::NodeExporter::Collector;
-use OPENC3::MYDan::MonitorV3::NodeExporter;
 
 our %declare = (
     node_http_code => 'http code',
@@ -19,7 +18,7 @@ our $collectorname = 'node_http';
 
 sub co
 {
-    my $exthttp = $OPENC3::MYDan::MonitorV3::NodeExporter::extendedMonitor->{http};
+    my $exthttp = $OPENC3::MYDan::MonitorV3::NodeExporter::Collector::extendedMonitor->{http};
     my ( $error, @http, @stat ) = ( 0 );
     @http = @$exthttp if $exthttp && ref $exthttp eq 'ARRAY';
 
