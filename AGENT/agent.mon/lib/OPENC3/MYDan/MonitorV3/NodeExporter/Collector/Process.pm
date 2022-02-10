@@ -13,151 +13,74 @@ our %declare = (
     node_process_time => 'process start time.',
 );
 
-our $collectorname = '';
+our $collectorname = 'node_process';
+
+sub getProcessTime
+{
+    my $pid = shift;
+    return unless my $proctime = (stat "/proc/$pid")[10];
+    return time - $proctime;
+}
 
 sub co
 {
     my $extprocess = $OPENC3::MYDan::MonitorV3::NodeExporter::extendedMonitor->{process};
 
-    return () unless $extprocess;
+    return ( +{ name => 'node_collector_error', value => 0, lable => +{ collector => $collectorname } } ) unless $extprocess;
 
-    my ( @proc, @stat );
+    my ( $error, @proc, @stat ) = ( 0 );
     for ( glob "/proc/*" )
     {
         next unless $_ =~ m/^\/proc\/(\d+)$/;
         push @proc, $1;
     }
 
-    if( $extprocess->{name} && ref $extprocess->{name} eq 'ARRAY' )
+    my %getProcessInfo = (
+        name => sub{
+            my $pid = shift;
+            return unless tie my @temp, 'Tie::File', "/proc/$pid/status", mode => O_RDONLY, recsep => "\n";
+            return unless @temp && $temp[0] =~ /^Name:\s*(.+)$/;
+            return $1;
+        },
+        cmdline => sub{
+            my $pid = shift;
+            return unless tie my @temp, 'Tie::File', "/proc/$pid/cmdline", mode => O_RDONLY, recsep => "\n";
+            return unless @temp;
+            return $temp[0];
+        },
+        exe => sub{
+            my $pid = shift;
+            return readlink "/proc/$pid/exe";
+        }
+    );
+
+
+    for my $type ( qw( name cmdline exe ) )
     {
-        my @name = @{$extprocess->{name}};
-        my %name = map{ $_ => 0 }@name;
-        my %time = map{ $_ => 0 }@name;
+        next unless $extprocess->{$type} && ref $extprocess->{$type} eq 'ARRAY' ;
+
+        my @check = @{$extprocess->{$type}};
+        my %count = map{ $_ => 0 }@check;
 
         for my $pid ( @proc )
         {
-            next unless tie my @temp, 'Tie::File', "/proc/$pid/status", mode => O_RDONLY, recsep => "\n";
-            next unless @temp && $temp[0] =~ /^Name:\s*(.+)$/;
-            my $temp = $1;
-            map{
-                my $t = $_;
-                if( $t eq $temp )
-                {
-                    $name{$t} ++;
-                    my $proctime = (stat "/proc/$pid")[10];
-                    if( $proctime )
-                    {
-                       my $startTime = time - $proctime;
-                       $time{$t} = $startTime if $startTime < $time{$t} || !$time{$t};
-                    }
+            next unless my $temp = &{$getProcessInfo{$type}}( $pid );
 
-                }
+            for my $check ( @check )
+            {
+                next unless $temp =~ /$check/;
+                $count{$check} ++;
 
-            }@name;
+                my $t = getProcessTime( $pid );
+                push @stat, +{ name => 'node_process_time', value => $t, lable => +{ $type => $check, pid => $pid } } if defined $t;
+            }
         }
-        for my $name ( keys %name )
-        {
-            push @stat, +{
-                name => 'node_process_count',
-                value => $name{$name},
-                lable => +{ name => $name },
-            };
-        }
-        for my $time ( keys %time )
-        {
-            push @stat, +{
-                name => 'node_process_time',
-                value => $time{$time},
-                lable => +{ name => $time },
-            };
-        }
+
+        map{ push @stat, +{ name => 'node_process_count', value => $count{$_}, lable => +{ $type => $_ } } }@check;
 
     }
 
-    if( $extprocess->{cmdline} && ref $extprocess->{cmdline} eq 'ARRAY' )
-    {
-        my @cmdline = @{$extprocess->{cmdline}};
-        my %cmdline = map{ $_ => 0 }@cmdline;
-        my %time = map{ $_ => 0 }@cmdline;
-
-        for my $pid ( @proc )
-        {
-            next unless tie my @temp, 'Tie::File', "/proc/$pid/cmdline", mode => O_RDONLY, recsep => "\n";
-            next unless @temp;
-            my $temp = $temp[0];
-            map{
-                my $t = $_;
-                if( $temp =~ /$t/ )
-                {
-                    $cmdline{$t} ++;
-                    my $proctime = (stat "/proc/$pid")[10];
-                    if( $proctime )
-                    {
-                       my $startTime = time - $proctime;
-                       $time{$t} = $startTime if $startTime < $time{$t} || !$time{$t};
-                    }
-
-                }
-            }@cmdline;
-        }
-        for my $cmdline ( keys %cmdline )
-        {
-            push @stat, +{
-                name => 'node_process_count',
-                value => $cmdline{$cmdline},
-                lable => +{ cmdline => $cmdline },
-            };
-        }
-        for my $time ( keys %time )
-        {
-            push @stat, +{
-                name => 'node_process_time',
-                value => $time{$time},
-                lable => +{ cmdline => $time },
-            };
-        }
-    }
-
-    if( $extprocess->{exe} && ref $extprocess->{exe} eq 'ARRAY' )
-    {
-        my @exe = @{$extprocess->{exe}};
-        my %exe = map{ $_ => 0 }@exe;
-        my %time = map{ $_ => 0 }@exe;
-
-        for my $pid ( @proc )
-        {
-            next unless my $link = readlink "/proc/$pid/exe";
-            map{
-                my $t = $_;
-                if( $link =~ /$t/ )
-                {
-                    $exe{$t} ++;
-                    my $proctime = (stat "/proc/$pid")[10];
-                    if( $proctime )
-                    {
-                       my $startTime = time - $proctime;
-                       $time{$t} = $startTime if $startTime < $time{$t} || !$time{$t};
-                    }
-                }
-            }@exe;
-        }
-        for my $exe ( keys %exe )
-        {
-            push @stat, +{
-                name => 'node_process_count',
-                value => $exe{$exe},
-                lable => +{ exe => $exe },
-            };
-        }
-        for my $time ( keys %time )
-        {
-            push @stat, +{
-                name => 'node_process_time',
-                value => $time{$time},
-                lable => +{ exe => $time },
-            };
-        }
-    }
+    push @stat, +{ name => 'node_collector_error', value => $error, lable => +{ collector => $collectorname } };
 
     return @stat;
 }

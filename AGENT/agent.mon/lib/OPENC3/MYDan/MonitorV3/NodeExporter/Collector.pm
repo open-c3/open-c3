@@ -86,7 +86,7 @@ sub new
 
     #强制定义，避免模块异常，漏掉 
     map{ $this{prom}->set( 'node_collector_error', -1, +{ collector => $_ } ); }
-        qw( node_carry node_disk_blocks node_disk_inodes node_exporter_prome node_http node_port_tcp node_port_udp node_sar node_system_uptime );
+        qw( node_carry node_disk_blocks node_disk_inodes node_exporter_prome node_http node_port_tcp node_port_udp node_sar node_system_uptime node_process );
 
     $this{timer}{refresh} = AnyEvent->timer(
         after => 1, 
