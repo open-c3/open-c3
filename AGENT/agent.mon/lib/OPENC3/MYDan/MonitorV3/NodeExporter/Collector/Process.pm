@@ -5,8 +5,6 @@ use warnings;
 use Carp;
 use POSIX;
 use OPENC3::MYDan::MonitorV3::NodeExporter::Collector;
-use Fcntl 'O_RDONLY';
-use Tie::File;
 
 our %declare = (
     node_process_count => 'process count.',
@@ -14,6 +12,7 @@ our %declare = (
 );
 
 our $collectorname = 'node_process';
+our $cmd = 'LANG=en ps -eo pid,stat,comm,cmd';
 
 sub getProcessTime
 {
@@ -24,61 +23,56 @@ sub getProcessTime
 
 sub co
 {
-    my $extprocess = $OPENC3::MYDan::MonitorV3::NodeExporter::Collector::extendedMonitor->{process};
+    my @ps = split /\n/, shift;
 
+    my $extprocess = $OPENC3::MYDan::MonitorV3::NodeExporter::Collector::extendedMonitor->{process};
     return ( +{ name => 'node_collector_error', value => 0, lable => +{ collector => $collectorname } } ) unless $extprocess;
 
-    my ( $error, @proc, @stat ) = ( 0 );
-    for ( glob "/proc/*" )
-    {
-        next unless $_ =~ m/^\/proc\/(\d+)$/;
-        push @proc, $1;
-    }
-
-    my %getProcessInfo = (
-        name => sub{
-            my $pid = shift;
-            return unless tie my @temp, 'Tie::File', "/proc/$pid/status", mode => O_RDONLY, recsep => "\n";
-            return if grep{/^State:\s+Z/}@temp;
-            return unless @temp && $temp[0] =~ /^Name:\s*(.+)$/;
-            return $1;
-        },
-        cmdline => sub{
-            my $pid = shift;
-            return unless tie my @temp, 'Tie::File', "/proc/$pid/cmdline", mode => O_RDONLY, recsep => "\n";
-            return unless @temp;
-            return $temp[0];
-        },
-        exe => sub{
-            my $pid = shift;
-            return readlink "/proc/$pid/exe";
-        }
-    );
-
+    my ( $error, @stat, %check, %count ) = ( 0 );
 
     for my $type ( qw( name cmdline exe ) )
     {
-        next unless $extprocess->{$type} && ref $extprocess->{$type} eq 'ARRAY' ;
+        next unless $extprocess->{$type} && ref $extprocess->{$type} eq 'ARRAY';
+        $check{$type} = $extprocess->{$type};
+    }
 
-        my @check = @{$extprocess->{$type}};
-        my %count = map{ $_ => 0 }@check;
-
-        for my $pid ( @proc )
+    eval{
+        my $title = shift @ps;
+        die "$cmd format unkown" unless $title =~ /^\s*PID\s+STAT\s+COMMAND\s+CMD\s*$/;
+        for ( @ps )
         {
-            next unless my $temp = &{$getProcessInfo{$type}}( $pid );
+            s/^\s*//g;
+            my ( $pid, $stat, $name, $cmd ) = split /\s+/, $_, 4;
+            next if $stat =~ /^Z/;
 
-            for my $check ( @check )
+            unless( $pid =~ /^\d+$/ ) { warn; $error = 1; next; }
+
+            for my $type ( keys %check )
             {
-                next unless $temp =~ /$check/;
-                $count{$check} ++;
+                next unless $check{$type};
 
-                my $t = getProcessTime( $pid );
-                push @stat, +{ name => 'node_process_time', value => $t, lable => +{ $type => $check, pid => $pid } } if defined $t;
+                my $data = $type eq 'name' ? $name : $cmd;
+                for my $check ( @{$check{$type}} )
+                {
+                    next unless $data =~ /$check/;
+                    next unless my $t = getProcessTime( $pid );
+
+                    $count{"$type:$check"} ++;
+                    push @stat, +{ name => 'node_process_time', value => $t, lable => +{ $type => $check, pid => $pid } };
+                }
             }
         }
+    };
+    if( $@ )
+    {
+        warn "collector node_process_* err:$@";
+        $error = 1;
+    }
 
-        map{ push @stat, +{ name => 'node_process_count', value => $count{$_}, lable => +{ $type => $_ } } }@check;
 
+    for my $type ( keys %check )
+    {
+        map{ push @stat, +{ name => 'node_process_count', value => $count{"$type:$_"} || 0 , lable => +{ $type => $_ } }; }@{$check{$type}};
     }
 
     push @stat, +{ name => 'node_collector_error', value => $error, lable => +{ collector => $collectorname } };

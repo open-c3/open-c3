@@ -3,6 +3,7 @@ package OPENC3::MYDan::MonitorV3::NodeExporter::Collector;
 use warnings;
 use strict;
 use Carp;
+use YAML::XS;
 use IPC::Open3;
 use Symbol 'gensym';
 use AnyEvent;
@@ -95,7 +96,7 @@ sub new
         after => 1, 
         interval => 15,
         cb => sub { 
-            $this{prom}->set( 'node_exporter_version', 1 );
+            $this{prom}->set( 'node_exporter_version', 2 );
             $this{prom}->set( 'node_collector_error', $promeerror, +{ collector => 'node_exporter_prome' } ) if defined $promeerror;
             $promeerror = undef;           
         }
