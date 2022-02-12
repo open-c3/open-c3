@@ -70,6 +70,43 @@
                 <button class="btn btn-warning" ng-click="createMonitorConfig.cancel()">取消</button>
             </div>
         </div>
+
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">帮助</label>
+                <div class="col-sm-9">
+
+                    <textarea style="height: 550px" class="fluid-width" readonly>
+用途：监控端口死活, 监控端口是否对外开放。
+指标：
+
+node_port: 端口状态，有如下三种状态：
+
+   0: 端口没在监听状态
+   1: 有端口活动，可能监听的是127.0.0.1
+   2: 端口监听在0.0.0.0上，对外开放
+
+例子：
+
+udp:
+node_port{port="53",protocol="udp"} 0
+
+tcp:
+node_port{port="22",protocol="tcp"} 2
+node_port{port="80",protocol="tcp"} 1
+node_port{port="8080",protocol="tcp"} 0
+
+说明：
+
+可以用ss -t -l -n查看tcp端口，ss -u -l -n 为udp。
+采集过程中把如 *:80 、:::8080 的状态设置为2。
+
+                    </textarea>
+                </div>
+            </div>
+        </div>
+ 
+
     </form>
 </div>
 

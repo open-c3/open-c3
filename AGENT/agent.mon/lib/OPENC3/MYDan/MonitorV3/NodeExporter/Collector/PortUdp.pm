@@ -33,8 +33,10 @@ sub co
         for ( @ss )
         {
             my @s = split /\s+/, $_;
-            next unless $s[3] && $s[3] =~ /\*:(\d+)/;
-            $port{$1} ++;
+            next unless $s[3] && $s[3] =~ /:(\d+)$/;
+            my $port = $1;
+            $port{$port} ||= 1;
+            $port{$port} = 2 if $s[3] eq "*:$port" || $s[3] eq ":::$port";
         }
         for my $port ( @port )
         {
