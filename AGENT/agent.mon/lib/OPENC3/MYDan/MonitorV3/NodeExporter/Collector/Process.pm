@@ -30,7 +30,7 @@ sub co
 
     my ( $error, @stat, %check, %count ) = ( 0 );
 
-    for my $type ( qw( name cmdline exe ) )
+    for my $type ( qw( name cmdline ) )
     {
         next unless $extprocess->{$type} && ref $extprocess->{$type} eq 'ARRAY';
         $check{$type} = $extprocess->{$type};
@@ -54,7 +54,7 @@ sub co
                 my $data = $type eq 'name' ? $name : $cmd;
                 for my $check ( @{$check{$type}} )
                 {
-                    next unless $data =~ /$check/;
+                    next if index( $data, $check ) < 0;
                     next unless my $t = getProcessTime( $pid );
 
                     $count{"$type:$check"} ++;
