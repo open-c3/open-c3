@@ -22,6 +22,8 @@ our $promeerror = 0;
 
 our $extendedMonitor = +{};
 
+my %sw;
+
 sub new
 {
     my ( $class, %this ) = @_;
@@ -41,6 +43,8 @@ sub new
         eval "\$collectorname = \$OPENC3::MYDan::MonitorV3::NodeExporter::Collector::${type}::collectorname;";
         warn "load collectorname fail: $@" if $@;
  
+        $sw{$type} = 1;
+
         $this{prom}->set( 'node_collector_error', -1, +{ collector => $collectorname } ) if $collectorname;
 
         my $cmd;
@@ -54,6 +58,13 @@ sub new
                 interval => 15,
                 cb => sub {
                     return if $proc{$type}{pid};
+
+                    unless( $sw{$type} )
+                    {
+                        $this{prom}->set( 'node_collector_error', -2, +{ collector => $collectorname } );
+                        return;
+                    }
+
                     my ( $err, $wtr, $rdr ) = gensym;
                     my $pid = IPC::Open3::open3( undef, $rdr, undef, $cmd );
                     $proc{$type}{pid} = $pid;
@@ -96,7 +107,7 @@ sub new
         after => 1, 
         interval => 15,
         cb => sub { 
-            $this{prom}->set( 'node_exporter_version', 2 );
+            $this{prom}->set( 'node_exporter_version', 4 );
             $this{prom}->set( 'node_collector_error', $promeerror, +{ collector => 'node_exporter_prome' } ) if defined $promeerror;
             $promeerror = undef;           
         }
@@ -146,6 +157,10 @@ sub setExt
     {
         $extendedMonitor = $exmonitor;
         $error = 0;
+
+        $sw{Process} = $extendedMonitor->{process} ? 1 : 0;
+        $sw{PortTcp} = ( $extendedMonitor->{port} && ref $extendedMonitor->{port} eq 'HASH' && $extendedMonitor->{port}{tcp} ) ? 1 : 0;
+        $sw{PortUdp} = ( $extendedMonitor->{port} && ref $extendedMonitor->{port} eq 'HASH' && $extendedMonitor->{port}{udp} ) ? 1 : 0;
     }
     $this->{prom}->set( 'node_collector_error', $error, +{ collector => 'node_carry' } );
 }
