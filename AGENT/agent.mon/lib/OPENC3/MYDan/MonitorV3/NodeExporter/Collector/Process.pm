@@ -12,13 +12,19 @@ our %declare = (
 );
 
 our $collectorname = 'node_process';
-our $cmd = 'LANG=en ps -eo pid,stat,comm,cmd';
+our $cmd = 'LANG=en ps -eo pid,stat,etime,comm,cmd';
 
 sub getProcessTime
 {
-    my $pid = shift;
-    return unless my $proctime = (stat "/proc/$pid")[10];
-    return time - $proctime;
+    my ( $time, $day ) = reverse split /-/, shift;
+    my $t = $day ? $day * 86400 : 0;
+    my ( $s, $m, $h ) = reverse split /:/, $time;
+    {
+        $t += $s if $s;
+        $t += ( $m * 60 ) if $m;
+        $t += ( $h * 3600 ) if $h;
+    }
+    return $t;
 }
 
 sub co
@@ -38,11 +44,11 @@ sub co
 
     eval{
         my $title = shift @ps;
-        die "$cmd format unkown" unless $title =~ /^\s*PID\s+STAT\s+COMMAND\s+CMD\s*$/;
+        die "$cmd format unkown" unless $title =~ /^\s*PID\s+STAT\s+ELAPSED\s+COMMAND\s+CMD\s*$/;
         for ( @ps )
         {
             s/^\s*//g;
-            my ( $pid, $stat, $name, $cmd ) = split /\s+/, $_, 4;
+            my ( $pid, $stat, $etime, $name, $cmd ) = split /\s+/, $_, 5;
             next if $stat =~ /^Z/;
 
             unless( $pid =~ /^\d+$/ ) { warn; $error = 1; next; }
@@ -55,10 +61,9 @@ sub co
                 for my $check ( @{$check{$type}} )
                 {
                     next if index( $data, $check ) < 0;
-                    next unless my $t = getProcessTime( $pid );
 
                     $count{"$type:$check"} ++;
-                    push @stat, +{ name => 'node_process_time', value => $t, lable => +{ $type => $check, pid => $pid } };
+                    push @stat, +{ name => 'node_process_time', value => getProcessTime( $etime ), lable => +{ $type => $check, pid => $pid } };
                 }
             }
         }
