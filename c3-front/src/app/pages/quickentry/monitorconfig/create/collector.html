@@ -22,6 +22,10 @@
                              <input type="radio" ng-model="createMonitorConfig.postData.type" ng-change="createMonitorConfig.changeType('GET')" value="http" >
                              <span class="radio" style="padding-top: 0;min-height: 0"></span>HTTP
                         </label>
+                        <label class="option option-primary">
+                             <input type="radio" ng-model="createMonitorConfig.postData.type" ng-change="createMonitorConfig.changeType('push')" value="push" >
+                             <span class="radio" style="padding-top: 0;min-height: 0"></span>PUSH
+                        </label>
                     </div>
                 </div>
             </div>
@@ -237,6 +241,50 @@ cmdline为启动命令行，可以通过ps -p $pid -o cmd查看。
                 <button class="btn btn-warning" ng-click="createMonitorConfig.cancel()">取消</button>
             </div>
         </div>
+    </form>
+</div>
+
+<div ng-if="createMonitorConfig.postData.type=='push'">
+    <form class="form-horizontal" name="myForm" role="form">
+
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">帮助</label>
+                <div class="col-sm-9">
+
+                    <textarea style="height: 700px" class="fluid-width" readonly>
+用途：收集用户自己上报的指标。
+
+用法：
+
+监控的AGENT安装后，会在本地监听65110端口。
+把要上报的数据上报到本地该端口，系统会定时收集。
+
+上报方式如下：
+
+curl -X POST -d "[{\"metric\": \"test-metric\", \"endpoint\": \"test-endpoint\",\"value\": 1,\"tags\": \"idc=lg,project=xx\"}]" http://127.0.0.1:65110/v1/push
+
+
+上报后的数据如下：
+test-metric{endpoint="test-endpoint",idc="lg",project="xx",source="apipush"} 1
+
+endpoint被当作一个普通的标签。
+source标签是系统默认添加的，用于区分是通过api push而来的数据。
+tags中的标签会变成一个或者多个标签。
+
+字段:
+metric和value是必要的，endpoint和tags非必要。
+
+兼容falcon:
+ts=`date +%s`;
+curl -X POST -d "[{\"metric\": \"test-metric\", \"endpoint\": \"test-endpoint\", \"timestamp\": $ts,\"step\": 60,\"value\": 1,\"counterType\": \"GAUGE\",\"tags\": \"idc=lg,project=xx\"}]" http://127.0.0.1:65110/v1/push
+
+注：push 方式60秒为周期，如果60秒内没有上报新的数据，本地AGENT会把该指标删除。
+                    </textarea>
+                </div>
+            </div>
+        </div>
+ 
     </form>
 </div>
 
