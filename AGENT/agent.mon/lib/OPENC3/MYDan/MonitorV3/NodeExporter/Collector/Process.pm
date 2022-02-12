@@ -8,7 +8,7 @@ use OPENC3::MYDan::MonitorV3::NodeExporter::Collector;
 
 our %declare = (
     node_process_count => 'process count.',
-    node_process_time => 'process start time.',
+    node_process_etime => 'process elapsed time.',
 );
 
 our $collectorname = 'node_process';
@@ -63,7 +63,7 @@ sub co
                     next if index( $data, $check ) < 0;
 
                     $count{"$type:$check"} ++;
-                    push @stat, +{ name => 'node_process_time', value => getProcessTime( $etime ), lable => +{ $type => $check, pid => $pid } };
+                    push @stat, +{ name => 'node_process_etime', value => getProcessTime( $etime ), lable => +{ $type => $check, pid => $pid } };
                 }
             }
         }
