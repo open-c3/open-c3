@@ -39,7 +39,21 @@ sub co
     for my $type ( qw( name cmdline ) )
     {
         next unless $extprocess->{$type} && ref $extprocess->{$type} eq 'ARRAY';
-        $check{$type} = $extprocess->{$type};
+        my @c;
+        for my $c ( @{$extprocess->{$type}} )
+        {
+            if( $c =~ /^[a-zA-Z0-9 \.\-_@]+$/ )
+            {
+                push @c, $c;
+            }
+            else
+            {
+                warn "monitor process $c skip";
+                $error = 1;
+            }
+        }
+
+        $check{$type} = \@c if @c;
     }
 
     eval{

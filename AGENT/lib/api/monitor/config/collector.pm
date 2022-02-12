@@ -61,6 +61,8 @@ post '/monitor/config/collector/:projectid' => sub {
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
+    return  +{ stat => $JSON::false, info => "process need in: ^[a-zA-Z0-9 \.\-_@]+\$" } if $param->{type} eq "process" && $param->{content1} !~ /^[a-zA-Z0-9 \.\-_@]+$/;
+
     my $pmscheck = api::pmscheck( 'openc3_agent_write', $param->{projectid} ); return $pmscheck if $pmscheck;
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
