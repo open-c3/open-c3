@@ -97,7 +97,6 @@
             </div>
         </div>
 
-
         <div class="row">
             <div class="col-sm-10 form-group">
                 <label class="col-sm-3 control-label">进程</label>
@@ -113,6 +112,38 @@
                 <button class="btn btn-warning" ng-click="createMonitorConfig.cancel()">取消</button>
             </div>
         </div>
+
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">帮助</label>
+                <div class="col-sm-9">
+
+                    <textarea style="height: 450px" class="fluid-width" readonly>
+用途：进程死活监控，进程重启监控。
+指标：
+
+node_process_count: 匹配到的进程的数量
+node_process_etime: 进程已经运行的时间，单位秒。
+
+例子：
+name[进程名]监控方式：
+node_process_count{name="c3_api"} 2
+node_process_etime{name="c3_api",pid="17706"} 52210
+node_process_etime{name="c3_api",pid="17705"} 52210
+
+cmdline[启动命令行]监控方式:
+node_process_count{cmdline="openc3.node_query.65110"} 1
+node_process_etime{cmdline="openc3.node_query.65110",pid="24137"} 2294903
+
+不同方式区别：
+name为进程名，可以通过 ps -p $pid -o comm查看。
+cmdline为启动命令行，可以通过ps -p $pid -o cmd查看。
+
+                    </textarea>
+                </div>
+            </div>
+        </div>
+ 
     </form>
 </div>
 
