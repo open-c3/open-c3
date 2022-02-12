@@ -27,6 +27,27 @@ sub co
         my @check = split /\|/, $http;
         if ( @check < 2 ) { $error = 1; next; }
 
+        unless( $check[0] && ( $check[0] eq 'GET' || $check[0] eq 'POST' || $check[0] eq 'HEAD' ) )
+        {
+            warn "monitor http $check[0]";
+            $error = 1;
+            next;
+        }
+
+        unless( $check[1] && $check[1] =~ /^[a-zA-Z0-9 \.\-_@\:\/\?&=]+$/ )
+        {
+            warn "monitor http $check[1]";
+            $error = 1;
+            next;
+        }
+
+        if( @check >= 3 && $check[2] !~ /^[a-zA-Z0-9 \.\-_@]+$/ )
+        {
+            warn "monitor http $check[2]";
+            $error = 1;
+            next;
+        }
+
         my $time = Time::HiRes::time;
         http_request
         $check[0] => $check[1],
@@ -42,7 +63,7 @@ sub co
                     set( 'node_http_time', int( 1000 * ( Time::HiRes::time - $time) ), +{ method => $check[0], url => $check[1] } );
  
                 $OPENC3::MYDan::MonitorV3::NodeExporter::Collector::prom->
-                    set( 'node_http_content_check', $body =~ /$check[2]/ ? 1 : 0, +{ method => $check[0], url => $check[1], check => $check[2] } )
+                    set( 'node_http_content_check', index( $body, $check[2] ) < 0 ? 0 : 1 , +{ method => $check[0], url => $check[1], check => $check[2] } )
                         if defined $check[2];
         };
     }

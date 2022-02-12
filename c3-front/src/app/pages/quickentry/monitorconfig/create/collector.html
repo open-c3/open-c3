@@ -241,6 +241,36 @@ cmdline为启动命令行，可以通过ps -p $pid -o cmd查看。
                 <button class="btn btn-warning" ng-click="createMonitorConfig.cancel()">取消</button>
             </div>
         </div>
+
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">帮助</label>
+                <div class="col-sm-9">
+
+                    <textarea style="height: 450px" class="fluid-width" readonly>
+用途：监控HTTP服务。
+指标：
+
+node_http_code: http返回码
+node_http_time: 请求耗时，单位为毫秒
+node_http_content_check: 返回的内容和配置的是否匹配
+
+
+例子：
+
+node_http_code{method="GET",url="http://127.0.0.1"} 200
+node_http_code{method="GET",url="https://www.baidu.com"} 200
+
+node_http_time{method="GET",url="http://127.0.0.1"} 2
+node_http_time{method="GET",url="https://www.baidu.com"} 52
+
+node_http_content_check{check="baidu",method="GET",url="https://www.baidu.com"} 1
+                    </textarea>
+                </div>
+            </div>
+        </div>
+ 
+
     </form>
 </div>
 
