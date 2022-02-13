@@ -39,7 +39,20 @@ while(<STDIN>)
 
 }
 
-my @target = ( +{ targets =>  [ map{ "$_:9104" }keys %name ] } );
+#my @target = ( +{ targets =>  [ map{ "$_:9104" }keys %name ] } );
+my @target;
+
+for my $name ( keys %name )
+{
+    my $t = $name;
+    $t =~ s/^openc3-mysqld-exporter-//;
+    $t =~ s/-/:/;
+    my $hostname = $t;
+    $hostname =~ s/:\d+$//;
+    my %lables = ( instance => $t, hostname => $hostname );
+    push @target, +{ targets => [ "$name:9104" ], labels => \%lables };
+}
+
 if( $o{output} )
 {
     my $temp = "$o{output}.temp.$$";

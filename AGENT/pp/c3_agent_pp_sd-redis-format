@@ -39,7 +39,18 @@ while(<STDIN>)
 
 }
 
-my @target = ( +{ targets =>  [ map{ "$_:9121" }keys %name ] } );
+my @target;
+for my $name ( keys %name )
+{
+    my $t = $name;
+    $t =~ s/^openc3-redis-exporter-//;
+    $t =~ s/-/:/;
+    my $hostname = $t;
+    $hostname =~ s/:\d+$//;
+    my %lables = ( instance => $t, hostname => $hostname );
+    push @target, +{ targets => [ "$name:9121" ], labels => \%lables };
+}
+
 if( $o{output} )
 {
     my $temp = "$o{output}.temp.$$";
