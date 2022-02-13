@@ -95,6 +95,7 @@ if( $name eq 'extend-exporter' )
         next unless -f $file;
 
         push @cmd, "cat $file | c3_agent_pp_$type-exporter-make";
+        push @cmd, "cat $file | c3_agent_pp_$type-exporter-clean";
         push @cmd, "cat $file | c3_agent_pp_sd-$type-format --output $RealBin/../../prometheus/config/openc3_${type}_sd.yml";
     }
 
