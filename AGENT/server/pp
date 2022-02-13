@@ -99,7 +99,7 @@ if( $name eq 'extend-exporter' )
         push @cmd, "cat $file | c3_agent_pp_sd-$type-format --output $RealBin/../../prometheus/config/openc3_${type}_sd.yml";
     }
 
-    unless( @cmd ) { sleep 10000000000; exit; } 
+    unless( @cmd ) { $0 = "agent_server_$name"; sleep 224190000; exit; } 
 
     OPENC3::PP::Server->new(
         name => "agent_server_$name",
