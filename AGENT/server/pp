@@ -82,3 +82,28 @@ if( $name eq 'sender' )
         sleep 6 if $usetime < 6;
     }
 }
+
+if( $name eq 'extend-exporter' )
+{
+    $ENV{PATH} = "$ENV{PATH}:/data/Software/mydan/AGENT/pp";
+
+    my @cmd;
+
+    for my $type ( qw( mysql redis ) )
+    {
+        my $file = "$RealBin/../config/$type-exporter.conf";
+        next unless -f $file;
+
+        push @cmd, "cat $file | c3_agent_pp_$type-exporter-make";
+        push @cmd, "cat $file | c3_agent_pp_sd-$type-format --output $RealBin/../../prometheus/config/openc3_${type}_sd.yml";
+    }
+
+    unless( @cmd ) { sleep 10000000000; exit; } 
+
+    OPENC3::PP::Server->new(
+        name => "agent_server_$name",
+        interval => 300,
+        timeout => 120,
+    )->run( @cmd );
+
+}

@@ -1,0 +1,51 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib -I/data/Software/mydan/AGENT/private/lib
+use strict;
+use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use YAML::XS;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0
+ $0 --output /path/foo.yaml
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( output=s ) )->dump();
+
+$ENV{PATH} = "$ENV{PATH}:/data/Software/mydan/Connector/pp";
+
+my %name;
+while(<STDIN>)
+{
+    chomp;
+    if( $_ && $_ =~ /(\d+\.\d+\.\d+\.\d+:\d+)/ )
+    {
+        my $name = $1;
+        $name =~ s/:/-/;
+        $name = "openc3-redis-exporter-$name";
+        $name{$name} = 1;
+ 
+    }
+    else { warn "conf: $_"; }
+
+}
+
+my @target = ( +{ targets =>  [ map{ "$_:9121" }keys %name ] } );
+if( $o{output} )
+{
+    my $temp = "$o{output}.temp.$$";
+    YAML::XS::DumpFile $temp, \@target;
+    rename $temp, $o{output} or die "rename fail: $!";
+    exit;
+}
+
+print YAML::XS::Dump \@target;

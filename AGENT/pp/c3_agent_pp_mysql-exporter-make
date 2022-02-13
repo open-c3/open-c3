@@ -1,0 +1,63 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib -I/data/Software/mydan/AGENT/private/lib
+use strict;
+use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDB;
+use FindBin qw( $RealBin );
+use MYDan::Util::OptConf;
+use YAML::XS;
+use Encode;
+
+=head1 SYNOPSIS
+
+ $0
+ $0 --output /path/foo,yaml
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( output=s ) )->dump();
+
+my %conf;
+while(<STDIN>){
+    chomp;
+    my $c = $_;
+    if( $c && $c !~ /'/ )
+    {
+        $conf{$c} = 1;
+    }
+    else { warn "conf: $c"; }
+}
+
+sub get
+{
+    my %has;
+    my @ps = `docker ps`;
+    chomp @ps;
+    my @name = map{ my ( $x )= reverse split /\s+/, $_;$x }@ps;
+    map{ $has{$_} = 1 if /^openc3-mysqld-exporter-(\d+\.\d+\.\d+\.\d+-\d+)$/; }@name;
+    return %has;
+}
+
+my %has = get();
+
+sub run
+{
+    my ( $conf, $has ) = @_;
+
+    die "format err" unless $conf && $conf =~ /\((\d+\.\d+\.\d+\.\d+:\d+)\)/;
+    my $name = $1;
+    $name =~ s/:/-/;
+    $name = "openc3-mysqld-exporter-$name";
+
+    return if $has->{$name};
+    system "docker run -d -e DATA_SOURCE_NAME='$_' --network c3_JobNet --name $name prom/mysqld-exporter";
+}
+
+map{ run( $_, \%has ); }keys %conf;
