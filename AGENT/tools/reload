@@ -69,7 +69,7 @@ for my $type ( qw( api api.slave ) )
 # TODO
 #reload 服务不处理nodequery服务,需要优雅退出处理后才可以加到reload中
 
-for my $server ( qw( call bury keepalive check inherit promesd carry rule sender ) )
+for my $server ( qw( call bury keepalive check inherit promesd carry rule sender extend-exporter ) )
 {
     my $oldpid = `ps -ef|grep [a]gent_server_$server|head -n 1|awk '{print \$2}'`;
     chomp $oldpid;
