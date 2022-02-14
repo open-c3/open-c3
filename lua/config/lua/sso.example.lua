@@ -3,6 +3,11 @@ local json    = require("cjson")
 
 local httpc = http.new()
 
+local isapi = string.match( ngx.var.request_uri, '/api' )
+if not isapi then
+    return
+end
+
 if ngx.var.cookie_sid then
     if ngx.var.request_method == "GET" then
 
