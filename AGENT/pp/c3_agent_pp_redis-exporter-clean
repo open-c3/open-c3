@@ -32,7 +32,7 @@ sub get
     my @ps = `docker ps`;
     chomp @ps;
     my @name = map{ my ( $x )= reverse split /\s+/, $_;$x }@ps;
-    map{ $has{$_} = 1 if /^openc3-redis-exporter-(\d+\.\d+\.\d+\.\d+-\d+)$/; }@name;
+    map{ $has{$_} = 1 if /^openc3-redis-exporter-([a-z0-9\.]+-\d+)$/; }@name;
     return %has;
 }
 
@@ -42,7 +42,7 @@ sub run
 {
     my ( $conf, $has ) = @_;
 
-    die "format err" unless $conf && $conf =~ /(\d+\.\d+\.\d+\.\d+:\d+)/;
+    die "format err" unless $conf && $conf =~ /redis:\/\/([a-z0-9\.]+:\d+)/;
     my $name = $1;
     $name =~ s/:/-/;
     $name = "openc3-redis-exporter-$name";

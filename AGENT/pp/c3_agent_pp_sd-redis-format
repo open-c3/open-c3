@@ -27,7 +27,7 @@ my %name;
 while(<STDIN>)
 {
     chomp;
-    if( $_ && $_ =~ /(\d+\.\d+\.\d+\.\d+:\d+)/ )
+    if( $_ && $_ =~ /redis:\/\/(\d+\.\d+\.\d+\.\d+:\d+)/ )
     {
         my $name = $1;
 
@@ -37,6 +37,7 @@ while(<STDIN>)
         my ( $alias, $conf ) = split /;/, $_;
         warn "format error" unless $conf; 
  
+        die "alias format error: $alias" if $alias && $alias !~ /^[a-z0-9\.\-:]+$/;
         $name{$name} = $alias if $conf;
     }
     else { warn "conf: $_"; }
