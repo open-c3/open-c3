@@ -30,7 +30,9 @@ while(<STDIN>){
     my $c = $_;
     if( $c && $c !~ /'/ )
     {
-        $conf{$c} = 1;
+        my ( $name, $conf ) = split /;/, $c;
+        warn "format error" unless $conf; 
+        $conf{$conf} = $name if $conf;
     }
     else { warn "conf: $c"; }
 }

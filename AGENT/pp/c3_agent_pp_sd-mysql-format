@@ -30,10 +30,14 @@ while(<STDIN>)
     if( $_ && $_ =~ /\((\d+\.\d+\.\d+\.\d+:\d+)\)/ )
     {
         my $name = $1;
+
         $name =~ s/:/-/;
         $name = "openc3-mysqld-exporter-$name";
-        $name{$name} = 1;
+
+        my ( $alias, $conf ) = split /;/, $_;
+        warn "format error" unless $conf; 
  
+        $name{$name} = $alias if $conf;
     }
     else { warn "conf: $_"; }
 
@@ -47,9 +51,7 @@ for my $name ( keys %name )
     my $t = $name;
     $t =~ s/^openc3-mysqld-exporter-//;
     $t =~ s/-/:/;
-    my $hostname = $t;
-    $hostname =~ s/:\d+$//;
-    my %lables = ( instance => $t, hostname => $hostname );
+    my %lables = ( instance => $name{$name} || $t, addr => $t );
     push @target, +{ targets => [ "$name:9104" ], labels => \%lables };
 }
 
