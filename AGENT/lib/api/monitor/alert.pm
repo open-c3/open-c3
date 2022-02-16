@@ -35,6 +35,12 @@ get '/monitor/alert/:projectid' => sub {
     }
 
     map{ $_->{generatorURL} =~ s#http://[a-z0-9]+:9090/#$param->{siteaddr}/third-party/monitor/prometheus/# }@$data if $param->{siteaddr};
+
+    map{
+        $_->{annotations}{summary} =~ s#(\d+\.\d)\d+%#$1%#;
+        $_->{annotations}{description} =~ s#(\d+\.\d)\d+%#$1%#;
+    }@$data;
+
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => [ grep{ $_->{labels} && $_->{labels}{"fromtreeid"} && $_->{labels}{"fromtreeid"} eq $projectid }@$data ] };
 };
 
