@@ -66,7 +66,7 @@ return sub
         "ln -fsn '$temppathx' '$dpath'",
         $dinfo =~ /$dname/ 
             ? "docker start -i '$dname'"
-            : "docker run -v $dpathx:/build  --name '$dname' --workdir=/build/data '$buildimage' /bin/bash -c 'source /root/.bashrc && /build/run'"
+            : "docker run -v $dpathx:/build -v /data/open-c3-data/ci-docker-share:/cishare  --name '$dname' --workdir=/build/data '$buildimage' /bin/bash -c 'source /root/.bashrc && /build/run'"
     );
 
     $logs->die( "run build.merge.makedist.docker fail:The dist is not a directory" ) unless -d "$temppath/dist";
