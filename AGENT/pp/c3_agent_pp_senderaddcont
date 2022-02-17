@@ -70,6 +70,12 @@ sub addcont
         $data->{mesg} = $senddata{mesg};
     }
 
+    for my $t ( qw( title content mesg ) )
+    {
+        next unless $data->{$t};
+        $data->{$t} =~ s#(\d+\.\d)\d+%#$1%#;
+    }
+
     push @out, $data;
 }
 
