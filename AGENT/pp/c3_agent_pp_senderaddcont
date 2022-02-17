@@ -6,6 +6,7 @@ $|++;
 
 use YAML::XS;
 use Carp;
+use Encode;
 
 =head1 SYNOPSIS
 
@@ -42,6 +43,9 @@ sub addcont
     $senddata{title} = $environment->{monitorTemplateEmailTitle} || $template{monitorTemplateEmailTitle};
     $senddata{content} = $environment->{monitorTemplateEmailContent} || $template{monitorTemplateEmailContent};
     $senddata{mesg} = $environment->{monitorTemplateSmsContent} || $template{monitorTemplateSmsContent};
+
+    $data->{statusZH} = Encode::decode('utf8', '告警发生中' ) if $data->{status} && $data->{status} eq 'firing';
+    $data->{statusZH} = Encode::decode('utf8', '告警已恢复' ) if $data->{status} && $data->{status} eq 'resolved';
 
     my %replace = %$data;
     for my $key ( keys %senddata )
