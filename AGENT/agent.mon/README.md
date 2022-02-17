@@ -10,7 +10,9 @@
     进程监控指标node_process_time改成node_process_etime。
     端口监控状态区分端口是否是开放的。
 版本4:
-    没有监控项时跳过进程和端口监控
+    没有监控项时跳过进程和端口监控。
+版本5:
+    没有安装sar或者ss命令时，返回采集状态3。
 ```
 
 node_collector_error 错误码
@@ -21,4 +23,5 @@ node_collector_error 错误码
 0: 正常
 1: 错误
 2: 超时
+3: 依赖工具缺失
 ```

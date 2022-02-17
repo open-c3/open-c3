@@ -23,10 +23,19 @@ our $promeerror = 0;
 our $extendedMonitor = +{};
 
 my %sw;
+my %hiatus;
 
 sub new
 {
     my ( $class, %this ) = @_;
+
+    my %h = ( 'sar' => [ 'Sar' ] , 'ss --help' => [ 'PortTcp', 'PortUdp' ] );
+    for my $h ( keys %h )
+    {
+        next unless system "$h >/dev/null 2>&1";
+        map{ $hiatus{$_} = 1 }@{$h{$h}}
+    }
+
     $prom = $this{prom} = OPENC3::MYDan::MonitorV3::Prometheus::Tiny->new;
     my @task = qw( DiskBlocks DiskInodes Uptime PortTcp PortUdp Process Http PromeNodeExporter Sar );
 
@@ -58,6 +67,12 @@ sub new
                 interval => 15,
                 cb => sub {
                     return if $proc{$type}{pid};
+
+                    if( $hiatus{$type} )
+                    {
+                        $this{prom}->set( 'node_collector_error', 3, +{ collector => $collectorname } );
+                        return;
+                    }
 
                     unless( $sw{$type} )
                     {
@@ -107,7 +122,7 @@ sub new
         after => 1, 
         interval => 15,
         cb => sub { 
-            $this{prom}->set( 'node_exporter_version', 4 );
+            $this{prom}->set( 'node_exporter_version', 5 );
             $this{prom}->set( 'node_collector_error', $promeerror, +{ collector => 'node_exporter_prome' } ) if defined $promeerror;
             $promeerror = undef;           
         }
