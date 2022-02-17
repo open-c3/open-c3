@@ -49,7 +49,7 @@ for my $tmp ( @$x )
     my $k = "$tmp->{type}:$tmp->{subtype}:$tmp->{content2}";
     if( $tmp->{type} eq 'port' )
     {
-        map{ $rawcarry{$tmp->{projectid}}{"$k:$_"} = +{ %$tmp, content1 => $_ } if $_ =~ /^\d+$/ }split /,/, $tmp->{content1};
+        map{ $rawcarry{$tmp->{projectid}}{"$k:$_"} = +{ %$tmp, content1 => $_ } if $_ =~ /^\d+$/ || $_ =~ /^\d+;[a-zA-Z0-9\.]+$/ }split /,/, $tmp->{content1};
     }
     else
     {

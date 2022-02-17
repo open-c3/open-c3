@@ -42,7 +42,7 @@ sub co
         my @c;
         for my $c ( @{$extprocess->{$type}} )
         {
-            if( $c =~ /^[a-zA-Z0-9 \.\-_@]+$/ )
+            if( $c =~ /^[a-zA-Z0-9 \.\-_@]+$/ || $c =~ /^[a-zA-Z0-9 \.\-_@]+;[a-zA-Z0-9\.]+$/ )
             {
                 push @c, $c;
             }
@@ -74,10 +74,11 @@ sub co
                 my $data = $type eq 'name' ? $name : $cmd;
                 for my $check ( @{$check{$type}} )
                 {
-                    next if index( $data, $check ) < 0;
+                    my @check = split /;/, $check;
+                    next if index( $data, $check[0] ) < 0;
 
                     $count{"$type:$check"} ++;
-                    push @stat, +{ name => 'node_process_etime', value => getProcessTime( $etime ), lable => +{ $type => $check, pid => $pid } };
+                    push @stat, +{ name => 'node_process_etime', value => getProcessTime( $etime ), lable => +{ $type => $check[0], app => $check[-1], pid => $pid } };
                 }
             }
         }
@@ -91,7 +92,10 @@ sub co
 
     for my $type ( keys %check )
     {
-        map{ push @stat, +{ name => 'node_process_count', value => $count{"$type:$_"} || 0 , lable => +{ $type => $_ } }; }@{$check{$type}};
+        map{
+            my @check = split /;/, $_;
+            push @stat, +{ name => 'node_process_count', value => $count{"$type:$_"} || 0 , lable => +{ $type => $check[0], app => $check[-1] } };
+        }@{$check{$type}};
     }
 
     push @stat, +{ name => 'node_collector_error', value => $error, lable => +{ collector => $collectorname } };

@@ -21,7 +21,7 @@ sub co
     my @port;
     if( $extport && $extport->{udp} && ref $extport->{udp} eq 'ARRAY' )
     {
-        @port = grep{ /^\d+$/ }@{$extport->{udp}};
+        @port = grep{ /^\d+$/ || /^\d+;[a-zA-Z0-9\.]+$/ }@{$extport->{udp}};
     }
     return ( +{ name => 'node_collector_error', value => 0, lable => +{ collector => $collectorname } } ) unless @port;
     my ( $error, @stat ) = ( 0 );
@@ -40,11 +40,12 @@ sub co
         }
         for my $port ( @port )
         {
-            my $lable = +{ port => $port, protocol => 'udp' };
+            my @check = split /;/, $port;
+            my $lable = +{ port => $check[0], protocol => 'udp', app => $check[-1] };
 
             push @stat, +{
                 name => 'node_port',
-                value => $port{$port} || 0,
+                value => $port{$check[0]} || 0,
                 lable => $lable,
             };
         }
