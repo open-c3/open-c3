@@ -6,7 +6,9 @@ $|++;
 
 use YAML::XS;
 use Carp;
+use POSIX;
 use Encode;
+use Time::Local;
 
 =head1 SYNOPSIS
 
@@ -32,6 +34,14 @@ my %template =
     monitorTemplateSmsContent => 'monitor: host:${labels.instance} alter: ${labels.alertname} status:${status}',
 );
 
+sub gettime
+{
+    my $t = shift;
+    return $t unless $t =~ /^(\d+)-(\d+)-(\d+)T(\d+):(\d+):(\d+)\.\d+Z$/;
+    my $x = timelocal($6,$5,$4,$3,$2-1,$1);
+    return POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( $x + 8 * 3600) );
+}
+
 my @out;
 sub addcont
 {
@@ -46,6 +56,9 @@ sub addcont
 
     $data->{statusZH} = Encode::decode('utf8', '告警发生中' ) if $data->{status} && $data->{status} eq 'firing';
     $data->{statusZH} = Encode::decode('utf8', '告警已恢复' ) if $data->{status} && $data->{status} eq 'resolved';
+
+    $data->{startsAtZH} = gettime( $data->{startsAt} ) if $data->{startsAt};
+    $data->{endsAtZH} = gettime( $data->{endsAt} ) if $data->{endsAt};
 
     my %replace = %$data;
     for my $key ( keys %senddata )

@@ -9,6 +9,17 @@ use api;
 use Format;
 use LWP::UserAgent;
 
+use POSIX;
+use Time::Local;
+
+sub gettime
+{
+    my $t = shift;
+    return $t unless $t =~ /^(\d+)-(\d+)-(\d+)T(\d+):(\d+):(\d+)\.\d+Z$/;
+    my $x = timelocal($6,$5,$4,$3,$2-1,$1);
+    return POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( $x + 8 * 3600) );
+}
+
 get '/monitor/alert/:projectid' => sub {
     my $param = params();
     my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
@@ -40,6 +51,7 @@ get '/monitor/alert/:projectid' => sub {
         $_->{annotations}{summary} =~ s#(\d+\.\d)\d+%#$1%#;
         $_->{annotations}{description} =~ s#(\d+\.\d)\d+%#$1%#;
         $_->{annotations}{value} =~ s#(\d+\.\d)\d+%#$1%#;
+        $_->{startsAt} = gettime( $_->{startsAt} );
     }@$data;
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => [ grep{ $_->{labels} && $_->{labels}{"fromtreeid"} && $_->{labels}{"fromtreeid"} eq $projectid }@$data ] };
