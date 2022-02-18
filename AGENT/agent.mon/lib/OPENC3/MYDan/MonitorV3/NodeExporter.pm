@@ -54,7 +54,7 @@ sub run
        my ( $fh ) = @_ or die "tcp_server: $!";
 
        my $idx = $index ++;
-       $index{$idx} ++;
+       $index{$idx} = '';
 
        my $handle; $handle = new AnyEvent::Handle( 
            fh => $fh,
@@ -62,13 +62,30 @@ sub run
            rbuf_max => 1024000,
            wbuf_max => 1024000,
            autocork => 1,
+
+           on_eof => sub{
+               warn "on_eof";
+               $handle->push_shutdown();
+               $handle->destroy();
+               delete $index{$idx};
+           },
+           on_timeout => sub{
+               warn "timeout";
+               $handle->push_shutdown();
+               $handle->destroy();
+               delete $index{$idx};
+           },
+           timeout => 5,
            on_read => sub {
                my $self = shift;
                my $len = length $self->{rbuf};
                $self->push_read (
                    chunk => $len,
                    sub { 
-                       my $data = $_[1];
+                       $index{$idx} .= $_[1];
+                       return unless $index{$idx} =~ /\r\n\r\n/;
+
+                       my $data = $index{$idx};
                        if( $data =~ m#/proxy_([\d+\.\d+\.\d+\.\d+]+)_proxy# )
                        {
                            my $ip = $1;
