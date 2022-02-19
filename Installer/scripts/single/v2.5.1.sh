@@ -11,3 +11,7 @@ docker cp /data/open-c3/Installer/install-cache/bin/json2yaml  openc3-server:/us
 #升级的时候可能会报错，确认CI模块的配置里面的端口是否被正确能让api.event生效。
 
 docker cp /data/open-c3/CI/bin/aws_c3 openc3-server:/usr/local/bin/
+
+docker cp /data/open-c3/lua/lualib/resty/http.lua openc3-lua:/usr/local/openresty/lualib/resty/http.lua
+docker cp /data/open-c3/lua/lualib/resty/http_connect.lua openc3-lua:/usr/local/openresty/lualib/resty/http_connect.lua
+docker cp /data/open-c3/lua/lualib/resty/http_headers.lua openc3-lua:/usr/local/openresty/lualib/resty/http_headers.lua
