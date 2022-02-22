@@ -28,6 +28,8 @@ return sub
     $logs = Logs->new( 'code.nodeinfo_check' ) unless $logs;
     $logs->die( "id not a number" ) unless $id =~ /^\d+$/;
 
+    return unless $id;
+
     $logs->die( "node undef" ) unless defined $node;
 
     $node = [ split /,/, $node ] unless ref $node;
