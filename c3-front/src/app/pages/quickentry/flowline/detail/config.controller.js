@@ -785,6 +785,11 @@
         vm.getContainerList();
     };
 
+    vm.setcid = function(id)
+    {
+        vm.project.ci_type_ticketid = '' + id;
+        vm.changeCluster();
+    }
 
     vm.changeCluster = function() {
         vm.project.ci_type_namespace = "";
