@@ -13,7 +13,8 @@
                 <h4 style="font-weight: bold;color: #337ab7">集群({{clusterCount||0}})</h4>
             </div>
 
-            <div class="panel-body" style="margin-top: 20px">
+
+            <div class="panel-body" style="margin-top: 20px" ng-init="searchcluster=0">
                 <div class="row">
                     <div class="col-sm-12 form-group">
                         <label class="col-sm-1 control-label">集群
@@ -21,19 +22,30 @@
                             <img ng-if="kubernetesmanage.selecteCluster.subtype==='QCloud'" src="/assets/images/QCloud.jpeg" style="width: 52px;"/>
                             <img ng-if="!( kubernetesmanage.selecteCluster.subtype==='AWS' || kubernetesmanage.selecteCluster.subtype==='QCloud')" src="/assets/images/kubernetes.jpeg" style="width: 31px;"/>
                         </label>
-                        <div class="col-sm-4">
+                        <div class="col-sm-4" ng-show="searchcluster===0">
                             <select id="selecteddataval" class="form-control"  ng-model="choiceClusterId" >
                                  <option ng-repeat="x in kubernetesmanage.clusterlist" value="{{x.id}}">{{x.name}} 详情: {{x.describe}} 操作权限: {{x.auth}}</option>
                             </select>
                         </div>
+
+                        <div class="col-sm-4" ng-show="searchcluster===1">
+                            <input type="text" class="form-control" ng-model="ffff" placeholder="集群关键字" >
+                            <ul>
+                                <li ng-repeat="x in kubernetesmanage.clusterlist | filter:ffff">
+                                    <a style="cursor: pointer;" ng-click="kubernetesmanage.setcid(x.id)">{{x.name}}</a>
+                                </li>
+                            </ul>
+                        </div>
+
                         <div class="col-sm-3">
+                            <button ng-show="searchcluster===0" class="btn btn-info" uib-tooltip="搜索集群" ng-click="searchcluster=1"><i class="fa fa-search" aria-hidden="true">搜索</i></button>
+                            <button ng-show="searchcluster===1" class="btn btn-info" uib-tooltip="取消搜索" ng-click="searchcluster=0"><i class="fa fa-close" aria-hidden="true">不搜索</i></button>
                             <button class="btn btn-info" uib-tooltip="添加集群" ng-click="kubernetesmanage.addCluster()"><i class="fa fa-plus" aria-hidden="true">添加</i></button>
                             <button class="btn btn-info" uib-tooltip="关联集群" ng-click="kubernetesmanage.k8sTree()"><i class="fa fa-plus" aria-hidden="true">关联服务树</i></button>
                         </div>
  
                     </div>
                 </div>
-
 
                 <div class="row">
                     <div class="col-sm-12 form-group">
@@ -50,7 +62,6 @@
  
                     </div>
                 </div>
-
 
                 <div class="row">
                     <div class="col-sm-12 form-group">

@@ -54,6 +54,11 @@
         $scope.choiceStat = vm.selectedStat;
         $scope.choiceClusterId = vm.selecteClusterId;
 
+        vm.setcid = function(id)
+        {
+            $scope.choiceClusterId = id;
+        }
+
         $scope.$watch('choiceNamespace', function () {
                 vm.refreshPage( $scope.choiceNamespace, $scope.choiceClusterId, $scope.choiceStat )
         });
