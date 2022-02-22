@@ -168,6 +168,13 @@
                 controllerAs: 'monitorconfig'
             })
  
+            .state('home.quickentry.selfhealingconfig', {
+                url: 'selfhealingconfig/:treeid',
+                templateUrl: 'app/pages/quickentry/selfhealingconfig/selfhealingconfig.html',
+                controller: 'SelfHealingConfigController',
+                controllerAs: 'selfhealingconfig'
+            })
+ 
             .state('home.quickentry.flowlinedetail', {
                 url: 'flowlinedetail/:treeid/:projectid',
                 templateUrl: 'app/pages/quickentry/flowline/detail/detail.html',

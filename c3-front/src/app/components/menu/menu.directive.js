@@ -51,6 +51,7 @@
                                 || sName == 'home.quickentry.terminal'
                                 || sName == 'home.quickentry.sendfile'
                                 || sName == 'home.quickentry.monitorconfig'
+                                || sName == 'home.quickentry.selfhealingconfig'
                                 || sName == 'home.business.job'
                                 || sName == 'home.business.user'
                                 || sName == 'home.business.file'
