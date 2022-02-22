@@ -29,11 +29,15 @@
         <div class="row">
             <div class="col-sm-10 form-group">
                 <label class="col-sm-3 control-label">作业名称<a style="color: red;">*</a></label>
-                <div class="col-sm-9">
+                <div class="col-sm-6">
                     <select class="form-control"  ng-model="createSelfHealingConfig.postData.jobname" >
                          <option ng-repeat="x in createSelfHealingConfig.Jobs" value="{{x.name}}">{{x.name}}</option>
                     </select>
                 </div>
+                <div class="col-sm-3">
+                    <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="createSelfHealingConfig.openJOBList( )" ><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i> 自愈作业</button>
+                </div>
+ 
             </div>
         </div>
 

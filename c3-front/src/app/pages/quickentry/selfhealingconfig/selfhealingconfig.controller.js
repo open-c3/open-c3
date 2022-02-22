@@ -24,12 +24,6 @@
             window.open( url, '_blank')
         }
 
-        vm.openJOBList = function(  )
-        {
-            var url = vm.siteaddr + '/#/business/job/0' ;
-            window.open( url, '_blank')
-        }
-
         vm.reloadConfig = function(){
             vm.loadoverConfig = false;
             $http.get('/api/agent/selfhealing/config' ).success(function(data){

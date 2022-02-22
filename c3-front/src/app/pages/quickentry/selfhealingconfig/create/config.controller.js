@@ -17,6 +17,13 @@
             vm.postData.jobname = postData.jobname
         }
 
+        vm.siteaddr = window.location.protocol + '//' + window.location.host;
+        vm.openJOBList = function(  )
+        {
+            var url = vm.siteaddr + '/#/business/job/0' ;
+            window.open( url, '_blank')
+        }
+
         vm.cancel = function(){ $uibModalInstance.dismiss()};
 
         vm.reloadJobs = function(){
