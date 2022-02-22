@@ -21,7 +21,6 @@ my @altername;
 if( @ARGV )
 {
     @altername = @ARGV;
-    @altername = () if @ARGV == 1 && $ARGV[0] eq '_';
 }
 else
 {
@@ -47,7 +46,7 @@ for my $d ( @$data )
 {
     for my $alter ( @{$d->{alerts}} )
     {
-        next if @altername && ! $altername{$alter->{labels}{alertname}};
+        next unless $altername{$alter->{labels}{alertname}} || $altername{_};
         my $jobname = $altername{$alter->{labels}{alertname}} || 'UNKOWN';
         printf "%s\n", join ';',
             $alter->{labels}{instance},
