@@ -1,0 +1,58 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib -I/data/Software/mydan/AGENT/private/lib
+use strict;
+use warnings;
+
+$|++;
+
+use JSON;
+use LWP::UserAgent;
+
+=head1 SYNOPSIS
+
+ $0
+ $0 _ #ALL
+ $0 altername1 altername2 .. alternamen
+ $0 'altername1;foo1' 'altername2;foo2' .. alternamen
+
+=cut
+
+my @altername;
+
+if( @ARGV )
+{
+    @altername = @ARGV;
+    @altername = () if @ARGV == 1 && $ARGV[0] eq '_';
+}
+else
+{
+    while(<STDIN>){ chomp; push @altername, $_; }
+}
+
+my %altername;
+map{
+    my @x = split /;/, $_, 2;
+    push @x, 'UNKOWN';
+    $altername{$x[0]} = $x[1];
+}@altername;
+
+my $ua = LWP::UserAgent->new;
+my $res = $ua->get( "http://OPENC3_ALERTMANAGER_IP:9093/api/v2/alerts/groups?silenced=false&inhibited=false&active=true");
+
+die unless $res->is_success;
+
+my $data = eval{JSON::from_json $res->content};
+die if $@;
+
+for my $d ( @$data )
+{
+    for my $alter ( @{$d->{alerts}} )
+    {
+        next if @altername && ! $altername{$alter->{labels}{alertname}};
+        my $jobname = $altername{$alter->{labels}{alertname}} || 'UNKOWN';
+        printf "%s\n", join ';',
+            $alter->{labels}{instance},
+            $alter->{fingerprint},
+            $alter->{startsAt},
+            $alter->{labels}{alertname}, $jobname;
+    }
+}

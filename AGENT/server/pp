@@ -108,3 +108,18 @@ if( $name eq 'extend-exporter' )
     )->run( @cmd );
 
 }
+
+if( $name eq 'self-healing' )
+{
+    OPENC3::PP::Server->new(
+        name => "agent_server_$name",
+        interval => 60,
+        timeout => 120,
+    )->run(
+       "c3_agent_pp_self-healing-config altername,jobname | c3_agent_pp_current-alerts | c3_agent_pp_self-healing-make",
+       "c3_agent_pp_self-healing-task id instance jobname --filter 'taskuuid is null' | c3_agent_pp_self-healing-runtask",
+       "c3_agent_pp_self-healing-task id taskuuid --filter 'taskstat<>\"success\" and taskstat<>\"fail\"' | c3_agent_pp_self-healing-updatetask",
+       'c3_agent_pp_self-healing-task id instance fingerprint startsAt  alertname  --filter "taskstat=\"success\" and healingstat is null and healingchecktime> $(date +%s)" | c3_agent_pp_self-healing-updatehealing',
+       'c3_agent_pp_self-healing-task id instance fingerprint startsAt  alertname  --filter "taskstat=\"success\" and healingstat is null and healingchecktime< $(date +%s)" | c3_agent_pp_self-healing-updatehealing --close',
+    );
+}
