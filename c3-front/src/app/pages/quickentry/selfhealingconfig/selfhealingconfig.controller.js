@@ -16,6 +16,7 @@
         });
 
         vm.siteaddr = window.location.protocol + '//' + window.location.host;
+        vm.time = 0;
 
         vm.openJOBHistory = function( uuid )
         {
@@ -50,6 +51,7 @@
                 if(data.stat == true) 
                 { 
                     vm.activeTaskTable = new ngTableParams({count:15}, {counts:[],data:data.data.reverse()});
+                    vm.time = data.time;
                     vm.loadoverTask = true;
                 } else { 
                     toastr.error( "加载当前告警失败:" + data.info )

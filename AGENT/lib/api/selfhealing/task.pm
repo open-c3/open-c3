@@ -27,8 +27,11 @@ get '/selfhealing/task' => sub {
         $api::mysql->query( 
             sprintf( "select %s from openc3_monitor_self_healing_task", join( ',', map{ "`$_`" }@col)), \@col )};
 
-    map{ $_->{time} = gettime($_->{startsAt}) }@$r;
-    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
+    my $time = 0;
+    map{ $_->{time} = gettime($_->{startsAt}); $time ++ if $_->{healingstat} && $_->{healingstat} eq 'success' }@$r;
+    $time = sprintf "%.2f", ( $time * 10 ) / 60;
+
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r, time => $time };
 };
 
 true;
