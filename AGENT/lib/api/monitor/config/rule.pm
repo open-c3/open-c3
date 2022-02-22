@@ -18,11 +18,12 @@ get '/monitor/config/rule/:projectid' => sub {
 
     my $projectid = $param->{projectid};
 
+    my $where = $projectid ? " where projectid='$projectid'" : "";
     my @col = qw( id alert expr for severity summary description value model metrics method threshold edit_user edit_time );
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_monitor_config_rule
-                where projectid='$projectid'", join( ',', map{ "`$_`" }@col)), \@col )};
+                $where", join( ',', map{ "`$_`" }@col)), \@col )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };

@@ -19,6 +19,26 @@
 
         vm.cancel = function(){ $uibModalInstance.dismiss()};
 
+        vm.reloadJobs = function(){
+            $http.get('/api/job/jobs/0' ).success(function(data){
+                if(data.stat == true) {
+                    vm.Jobs = data.data
+                } else { swal({ title: "加载作业列表失败!", text: data.info, type:'error' }); }
+            });
+        };
+
+        vm.reloadJobs();
+
+        vm.reloadAlerts = function(){
+            $http.get('/api/agent/monitor/config/rule/0' ).success(function(data){
+                if(data.stat == true) {
+                    vm.Alerts = data.data
+                } else { swal({ title: "加载告警列表失败!", text: data.info, type:'error' }); }
+            });
+        };
+
+        vm.reloadAlerts();
+
         vm.add = function(){
             $http.post('/api/agent/selfhealing/config', vm.postData ).success(function(data){
                 if(data.stat == true) {

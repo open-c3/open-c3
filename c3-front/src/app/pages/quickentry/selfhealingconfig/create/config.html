@@ -18,7 +18,10 @@
             <div class="col-sm-10 form-group">
                 <label class="col-sm-3 control-label">告警名称<a style="color: red;">*</a></label>
                 <div class="col-sm-9">
-                    <input type="text" class="form-control" placeholder="告警名称" ng-model="createSelfHealingConfig.postData.altername" required>
+                    <select class="form-control"  ng-model="createSelfHealingConfig.postData.altername" >
+                         <option ng-repeat="x in createSelfHealingConfig.Alerts" value="{{x.alert}}">{{x.alert}}</option>
+                    </select>
+ 
                 </div>
             </div>
         </div>
@@ -27,7 +30,9 @@
             <div class="col-sm-10 form-group">
                 <label class="col-sm-3 control-label">作业名称<a style="color: red;">*</a></label>
                 <div class="col-sm-9">
-                    <input type="text" class="form-control" placeholder="作业名称" ng-model="createSelfHealingConfig.postData.jobname" required>
+                    <select class="form-control"  ng-model="createSelfHealingConfig.postData.jobname" >
+                         <option ng-repeat="x in createSelfHealingConfig.Jobs" value="{{x.name}}">{{x.name}}</option>
+                    </select>
                 </div>
             </div>
         </div>
