@@ -13,6 +13,8 @@ use uuid;
 
 print "reload connector\n";
 
+die if system "cp $RealBin/../pp/c3mc-* /usr/bin";
+
 my $Config = eval{ YAML::XS::LoadFile "$RealBin/../config/Config";};
 die "load Config fail: $!" unless $Config;
 

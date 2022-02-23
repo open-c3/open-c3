@@ -1,0 +1,24 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
+use strict;
+use warnings;
+
+$|++;
+
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ $0 datakey
+
+=cut
+
+exit unless my $k = shift @ARGV;
+
+my $conf = eval{ YAML::XS::LoadFile "/data/Software/mydan/Connector/config.inix"; };
+die "load config.inix fail: $@" if $@;
+
+die unless $conf && ref $conf eq 'HASH';
+
+die "config.inix nofind $k" unless defined $conf->{$k};
+
+print $conf->{$k};

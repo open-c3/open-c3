@@ -1,0 +1,57 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
+use strict;
+use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDB;
+use FindBin qw( $RealBin );
+use MYDan::Util::OptConf;
+use YAML::XS;
+use Encode;
+
+=head1 SYNOPSIS
+
+ $0 id1 id2 ... idn --table foo --set 'foo=123'
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( set=s table=s ) )->dump();
+$option->assert('set', 'table');
+
+my $module = ( split /_/, $o{table} )[1];
+my %table = (
+    ci => 'CI',
+    job => 'JOB',
+    jobx => 'JOBX',
+    agent => 'AGENT',
+    connector => 'Connector',
+    monitor => 'AGENT',
+);
+
+die "table $o{table} undef" unless $module && $table{$module};
+my $db = MYDB->new( "/data/Software/mydan/$table{$module}/conf/conn" );
+
+sub setProject
+{
+    my $id = shift;
+    die "id err" unless $id =~ /^\d+$/;
+
+    eval{ $db->execute( "update $o{table} set $o{set} where id=$id" );};
+    die "update database fail: $@" if $@;
+    print "$id\n";
+}
+
+if( @ARGV )
+{
+    map{ setProject($_) }@ARGV;
+}
+else
+{
+    while(<STDIN>){ chomp; setProject($_); }
+}
