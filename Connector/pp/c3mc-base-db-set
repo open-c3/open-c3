@@ -16,12 +16,12 @@ use Encode;
 
 =head1 SYNOPSIS
 
- $0 id1 id2 ... idn --table foo --set 'foo=123'
+ $0 dat1 dat2 ... datn --table foo --set 'foo=123'
 
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->get( qw( set=s table=s ) )->dump();
+my %o = $option->set( col => 'id' )->get( qw( set=s col=s table=s ) )->dump();
 $option->assert('set', 'table');
 
 my $module = ( split /_/, $o{table} )[1];
@@ -37,21 +37,21 @@ my %table = (
 die "table $o{table} undef" unless $module && $table{$module};
 my $db = MYDB->new( "/data/Software/mydan/$table{$module}/conf/conn" );
 
-sub setProject
+sub set
 {
-    my $id = shift;
-    die "id err" unless $id =~ /^\d+$/;
+    my $dat = shift;
+    die "dat err" if $dat =~ /'/;
 
-    eval{ $db->execute( "update $o{table} set $o{set} where id=$id" );};
+    eval{ $db->execute( "update $o{table} set $o{set} where `$o{col}`='$dat'" );};
     die "update database fail: $@" if $@;
-    print "$id\n";
+    print "$dat\n";
 }
 
 if( @ARGV )
 {
-    map{ setProject($_) }@ARGV;
+    map{ set($_) }@ARGV;
 }
 else
 {
-    while(<STDIN>){ chomp; setProject($_); }
+    while(<STDIN>){ chomp; set($_); }
 }
