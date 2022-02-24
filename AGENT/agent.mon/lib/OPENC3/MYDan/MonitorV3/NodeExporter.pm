@@ -93,7 +93,12 @@ sub run
                            my $carry = $data =~ m#(carry_[a-zA-Z0-9+/=]+_carry)# ? $1 : "";
                            my $debug = $data =~ /debug=1/ ? "debug=1" : "";
 
-                           http_get "http://$ip:$this->{port}/metrics/$carry/$debug", sub { 
+                           my $url = "http://$ip:$this->{port}/metrics/$carry/$debug";
+
+                           my $monagent9100 = $data =~ /conf_monagent9100_conf/ ? 1 : 0;
+                           $url = "http://$ip:9100/metrics" if $monagent9100;
+
+                           http_get $url, sub { 
                                my $c = $_[0] || $_[1]->{URL}. " -> ".$_[1]->{Reason};
 
                                my $debug = $data =~ /debug=1/ ? 1 : 0;
@@ -102,6 +107,7 @@ sub run
                                {
                                    @debug = (
                                        "# DEBUG",
+                                       "# monagent9100: $monagent9100",
                                        "# Proxy HOSTNAME: $this->{hostname}"
                                    );
                                }

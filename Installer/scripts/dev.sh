@@ -116,6 +116,13 @@ function start() {
             sed -i 's/openc3_job_system_only=1/openc3_job_system_only=0/g' $BASE_PATH/c3-front/dist/scripts/*
         fi
 
+        openc3_monitor_monagent9100=$(grep "^monagent9100: '1'" $BASE_PATH/Connector/config.inix | wc -l)
+        if [ "X$openc3_monitor_monagent9100" == "X1" ];then
+            sed -i 's/openc3_monitor_monagent9100=0/openc3_monitor_monagent9100=1/g' $BASE_PATH/c3-front/dist/scripts/*
+        else
+            sed -i 's/openc3_monitor_monagent9100=1/openc3_monitor_monagent9100=0/g' $BASE_PATH/c3-front/dist/scripts/*
+        fi
+
         rsync -av $BASE_PATH/c3-front/src/assets/ $BASE_PATH/c3-front/dist/assets/
 
         NEWBOOK=0

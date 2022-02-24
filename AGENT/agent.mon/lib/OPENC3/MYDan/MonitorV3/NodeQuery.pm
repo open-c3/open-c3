@@ -11,6 +11,8 @@ use AnyEvent::Handle;
 use AnyEvent::HTTP;
 use MIME::Base64;
 
+my $monagent9100; BEGIN{ $monagent9100 = `c3mc-base-configx monagent9100` ? 1 : 0; };
+
 my ( %proxy, %carry );
 
 sub new
@@ -42,17 +44,22 @@ sub getResponseProxy
 
     if( $debug )
     {
-        my $carry = $carry{$ip} ? MIME::Base64::decode_base64( $carry{$ip} ) : 'Null';
-        $carry = join "\n", map{ "# $_" }split /\n/, $carry;
-        $proxy ||= 'Null';
+        my @carry;
+        unless( $monagent9100 )
+        {
+            my $carry = $carry{$ip} ? MIME::Base64::decode_base64( $carry{$ip} ) : 'Null';
+            $carry = join "\n", map{ "# $_" }split /\n/, $carry;
+            $proxy ||= 'Null';
+            @carry = ( "# CARRY:", $carry );
+        }
 
 
         @debug = (
             "# DEBUG",
+            "# monagent9100: $monagent9100",
             "# IP: $ip",
             "# PROXY: $proxy",
-            "# CARRY:",
-            $carry,
+            @carry,
         );
     }
 
@@ -128,8 +135,21 @@ sub run
                            my $carry = $carry{$ip} ? "carry_$carry{$ip}_carry" : "";
                            my $debug = $data =~ /debug=1/ ? "debug=1" : "";
 
+                           my $url = "http://$call:65110/$uri/$carry/$debug";
+                           if( $monagent9100 )
+                           {
+                               if( $proxy{$ip} )
+                               {
+                                   $url = "http://$proxy{$ip}:65110/proxy_${ip}_proxy/conf_monagent9100_conf/$debug";
+                               }
+                               else
+                               {
+                                   $url = "http://$ip:9100/metrics";
+                               }
+                           }
+
                            return if $index{$idx}{http_get};
-                           $index{$idx}{http_get} = http_get "http://$call:65110/$uri/$carry/$debug", sub { 
+                           $index{$idx}{http_get} = http_get $url, sub { 
                                my $c = $_[0] || $_[1]->{URL}. " -> ".$_[1]->{Reason};
                                return if $handle && $handle->destroyed;
                                $handle->push_write($this->getResponseProxy($c, $ip, $proxy{$ip}, $data =~ /debug=1/ ? 1 : 0 )) if $c;

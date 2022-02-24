@@ -83,6 +83,15 @@ post '/config' => sub {
         system "sed -i 's#openc3_job_system_only=1#openc3_job_system_only=0#g' $BASE_PATH/scripts/*";
     }
 
+    if( $config->{openc3_monitor_monagent9100} )
+    {
+        system "sed -i 's#openc3_monitor_monagent9100=0#openc3_monitor_monagent9100=1#g' $BASE_PATH/scripts/*";
+    }
+    else
+    {
+        system "sed -i 's#openc3_monitor_monagent9100=1#openc3_monitor_monagent9100=0#g' $BASE_PATH/scripts/*";
+    }
+
     if( $config->{gitreport2company} )
     {
         system "mkdir -p /data/glusterfs/gitreport/ && touch /data/glusterfs/gitreport/4000000000.watch";
