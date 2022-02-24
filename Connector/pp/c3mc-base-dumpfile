@@ -1,0 +1,25 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
+use strict;
+use warnings;
+
+use File::Temp qw/ tempfile /;
+use MYDan::Util::OptConf;
+$|++;
+
+=head1 SYNOPSIS
+
+ $0 --file /path/foo
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( file=s ) )->dump();
+$option->assert('file');
+my ( $fh, $filename ) = tempfile();
+
+while( <> )
+{
+   print $fh $_;
+}
+
+rename $filename, $o{file} or die;
