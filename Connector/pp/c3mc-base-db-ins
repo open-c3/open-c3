@@ -1,0 +1,44 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
+use strict;
+use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDB;
+use MYDan::Util::OptConf;
+use YAML::XS;
+use Encode;
+
+=head1 SYNOPSIS
+
+ $0 --table foo k1 v1 k2 v2 .. kn vn
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( table=s ) )->dump();
+$option->assert('table');
+$option->assert() unless @ARGV;
+
+my %col = @ARGV;
+my @col = sort keys %col;
+
+my $module = ( split /_/, $o{table} )[1];
+my %table = (
+    ci => 'CI',
+    job => 'JOB',
+    jobx => 'JOBX',
+    agent => 'AGENT',
+    connector => 'Connector',
+    monitor => 'AGENT',
+);
+
+die "table $o{table} undef" unless $module && $table{$module};
+my $db = MYDB->new( "/data/Software/mydan/$table{$module}/conf/conn" );
+
+eval{ $db->execute( sprintf "replace into $o{table} ( %s ) values( %s )", join( ',', map{"`$_`"}@col), join( ',', map{"'$col{$_}'"}@col ) );};
+die "replace database fail: $@" if $@;
