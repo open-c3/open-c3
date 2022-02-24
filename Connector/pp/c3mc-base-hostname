@@ -1,0 +1,37 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
+use strict;
+use warnings;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0
+ $0 newhostname
+
+=cut
+
+my @file = qw(
+    /data/open-c3-data/.open-c3.hostname
+    /data/Software/mydan/.open-c3.hostname
+    /etc/job.myip
+);
+
+if( my $hostname = shift @ARGV )
+{
+    die unless $hostname =~ /^[a-zA-Z][a-zA-Z0-9\.\-_]+$/;
+    exec "echo $hostname > $file[0]";
+}
+
+for my $file ( @file )
+{
+    next unless -f $file;
+
+    my $hostname = `cat $file`;
+    chomp $hostname;
+    die unless $hostname =~ /^[a-zA-Z][a-zA-Z0-9\.\-_]+$/;
+    print "$hostname\n";
+    exit;
+}
+
+die "nofind";
