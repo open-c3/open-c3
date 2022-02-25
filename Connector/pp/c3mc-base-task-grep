@@ -1,0 +1,81 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
+use strict;
+use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDB;
+use FindBin qw( $RealBin );
+use MYDan::Util::OptConf;
+use YAML::XS;
+use Encode;
+
+=head1 SYNOPSIS
+
+ $0 id1 id2 ... idn --module [ci|job|jobx]
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( module=s ) )->dump();
+$option->assert('module');
+
+my $hostname = `c3mc-base-hostname`; chomp $hostname;
+my @x = `c3mc-base-db-get -table openc3_$o{module}_keepalive slave time`; chomp @x;
+
+my %active;
+map{
+    my ( $slave, $time ) = split /;/, $_;
+    $active{$slave} = ( time - 120 < $time && $time < time + 120 ) ? 1 : 0;
+}@x;
+
+my ( $count, $index, %sort, %idx ) = ( 0);
+
+for my $slave ( sort keys %active )
+{
+    if( $slave eq $hostname )
+    {
+        $index = $count;
+        $idx{$count} = 1;
+    }
+
+    $sort{$count} = $active{$slave};
+
+    $count ++;
+}
+
+my @ifront = ( reverse 0 .. $index -1 );
+push @ifront, ( reverse $index + 1 .. $count - 1 );
+
+for my $id ( @ifront  )
+{
+    last if $sort{$id};
+    $idx{$id} = 1;
+}
+
+sub taskgrep
+{
+    my $id = shift @_;
+    unless( $id =~ /^\d+$/ )
+    {
+        warn "id err";
+        return;
+    }
+    
+    my $i = $id % $count;
+    print "$id\n" if $idx{$i};
+}
+
+if( @ARGV )
+{
+    map{ taskgrep($_) }@ARGV;
+}
+else
+{
+    while(<STDIN>){ chomp; taskgrep($_); }
+}
+
