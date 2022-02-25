@@ -18,11 +18,12 @@ use Encode;
 
  $0 dat1 dat2 ... datn --table foo --set 'foo=123'
  $0 dat1 dat2 ... datn --table foo --set 'foo=123' [--col colname]
+ $0 dat1 dat2 ... datn --table foo --set 'foo=123' [--col colname] [--filter]
 
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->set( col => 'id' )->get( qw( set=s col=s table=s ) )->dump();
+my %o = $option->set( col => 'id' )->get( qw( set=s col=s table=s filter=s ) )->dump();
 $option->assert('set', 'table');
 
 my $module = ( split /_/, $o{table} )[1];
@@ -38,12 +39,13 @@ my %table = (
 die "table $o{table} undef" unless $module && $table{$module};
 my $db = MYDB->new( "/data/Software/mydan/$table{$module}/conf/conn" );
 
+my $where = $o{filter} ? " and( $o{filter} )" : '';
 sub set
 {
     my $dat = shift;
     die "dat err" if $dat =~ /'/;
 
-    eval{ $db->execute( "update $o{table} set $o{set} where `$o{col}`='$dat'" );};
+    eval{ $db->execute( "update $o{table} set $o{set} where `$o{col}`='$dat'$where" );};
     die "update database fail: $@" if $@;
     print "$dat\n";
 }

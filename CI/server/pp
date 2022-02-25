@@ -22,10 +22,21 @@ if( $name eq 'keepalive' )
     die if system 'c3mc-base-db-ins -t openc3_ci_keepalive slave `c3mc-base-hostname` time `date +%s` >/dev/null';
     OPENC3::PP::Server->new(
         name => "ci_server_$name",
+        interval => 3,
+        timeout => 120,
+    )->run(
+        'c3mc-base-db-set -t openc3_ci_keepalive --col slave `c3mc-base-hostname` --set time="`date +%s`" --filter="time<>0" >/dev/null'
+    );
+}
+
+if( $name eq 'findtags' )
+{
+    OPENC3::PP::Server->new(
+        name => "ci_server_$name",
         interval => 60,
         timeout => 120,
     )->run(
-        'c3mc-base-db-set -t openc3_ci_keepalive --col slave `c3mc-base-hostname` --set time="`date +%s`" >/dev/null'
+        'c3mc-base-db-get id -t openc3_ci_project -f "status=1 and autofindtags=1" | c3mc-base-task-grep -m ci | c3mc-base-db-set  -t openc3_ci_project --set "slave=\"`c3mc-base-hostname`\"" | xargs -i{} -P 1 /data/Software/mydan/CI/bin/findtags --id {}'
     );
 }
 
