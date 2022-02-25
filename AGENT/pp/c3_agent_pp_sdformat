@@ -54,7 +54,7 @@ chomp $serveraddr;
 my @target;
 for my $ip ( keys %ip )
 {
-    my %lables = ( instance => $ip, "__metrics_path__" => "/api/agent/v3/node/metrics/$ip" );
+    my %lables = ( instance => $ip, "__metrics_path__" => "/api/agent/v3/node/metrics/$ip", treeid => 1 );
 
     map{
         $lables{"treeid_$_"} = 1;
