@@ -11,13 +11,34 @@
         vm.treeid = $state.params.treeid;
         var toastr = toastr || $injector.get('toastr');
 
+        vm.dashboarnuuid1 = 'dUrNraOn1';
+        vm.dashboarnuuid2 = 'dUrNraOnz';
+
         vm.alias = { 'port': '端口', 'process': '进程', 'http': 'HTTP', 'tcp': 'TCP','udp': 'UDP' }
         treeService.sync.then(function(){
             vm.nodeStr = treeService.selectname();
+            var xx = vm.nodeStr.split(".").length;
+            if( xx <= 2 )
+            {
+
+                vm.seturl( vm.dashboarnuuid1 );
+            }
+            else
+            {
+                vm.seturl( vm.dashboarnuuid2 );
+            }
+            document.getElementById('frame_id').contentWindow.location.reload();
+
         });
 
         vm.siteaddr = window.location.protocol + '//' + window.location.host;
-        vm.url = vm.siteaddr + '/third-party/monitor/grafana/d/dUrNraOnz/openc3-dashboard?orgId=1&var-origin_prometheus=&var-job=openc3&var-hostname=All&var-device=All&var-interval=2m&var-maxmount=&var-show_hostname=&var-total=1&var-treeid=treeid_' + vm.treeid + '&kiosk';
+
+        vm.seturl = function( uuid )
+        {
+            vm.url = vm.siteaddr + '/third-party/monitor/grafana/d/' + uuid + '/openc3-dashboard?orgId=1&var-origin_prometheus=&var-job=openc3&var-hostname=All&var-device=All&var-interval=2m&var-maxmount=&var-show_hostname=&var-total=1&var-treeid=treeid_' + vm.treeid + '&kiosk';
+        }
+
+        vm.seturl( vm.dashboarnuuid1 );
         vm.prometheusurl = vm.siteaddr + '/third-party/monitor/prometheus/alerts';
         vm.alertmanagerurl = vm.siteaddr + '/third-party/monitor/alertmanager/#/alerts?silenced=false&inhibited=false&active=true&filter=%7Bfromtreeid%3D"' + vm.treeid + '"%7D';
         vm.grafanaurl = vm.siteaddr + '/third-party/monitor/grafana/';
@@ -29,6 +50,10 @@
 
         vm.trustSrc = function()
         {
+            if( vm.nodeStr === undefined )
+            {
+                return;
+            }
             return $sce.trustAsResourceUrl( vm.url );
         }
 
