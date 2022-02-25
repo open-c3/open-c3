@@ -1,0 +1,30 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
+use strict;
+use warnings;
+
+$|++;
+
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 --module [ci|job|jobx]
+ $0 --module [ci|job|jobx] [--set online|offline]
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( module=s set=s ) )->dump();
+$option->assert('module');
+
+my $hostname = `c3mc-base-hostname`; chomp $hostname;
+unless( $o{set} )
+{
+    my $x = `c3mc-base-db-get time -t openc3_$o{module}_keepalive -f 'slave="$hostname"'`;
+    chomp $x;
+    printf "%s\n", ( defined $x && $x =~ /^\d+$/ && $x - 120 < time && time < $x + 120 ) ? 'online': 'offline';
+    exit;
+}
+
+my $t = $o{set} eq 'online' ? time : $o{set} eq 'offline' ? 0 : die;
+exec "c3mc-base-db-set -t openc3_$o{module}_keepalive -c slave $hostname --set 'time=$t'";
