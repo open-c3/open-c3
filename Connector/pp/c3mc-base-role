@@ -1,0 +1,21 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
+use strict;
+use warnings;
+
+$|++;
+
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 --module [ci|job|jobx]
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( module=s ) )->dump();
+$option->assert('module');
+
+my $x = `c3mc-base-task-grep 0 -m $o{module}`;
+chomp $x;
+printf "%s\n", defined $x && $x eq '0' ? 'master' : 'slave';
