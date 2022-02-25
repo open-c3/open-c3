@@ -11,16 +11,19 @@ $|++;
 use MYDB;
 use FindBin qw( $RealBin );
 use MYDan::Util::OptConf;
+use YAML::XS;
+use Encode;
 
 =head1 SYNOPSIS
 
  $0 col1 col2 ... coln --table foo
  $0 col1 col2 ... coln --table foo [--filter status=1]
+ $0 col1 col2 ... coln --table foo [--yaml]
 
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->get( qw( table=s filter=s ) )->dump();
+my %o = $option->get( qw( table=s filter=s yaml ) )->dump();
 $option->assert('table');
 $option->assert() unless @ARGV;
 
@@ -38,8 +41,14 @@ die "table $o{table} undef" unless $module && $table{$module};
 
 my $db = MYDB->new( "/data/Software/mydan/$table{$module}/conf/conn" );
 
-my $x = eval{ $db->query( sprintf "select %s from $o{table}%s", join( ',', @ARGV ), $o{filter} ? " where $o{filter} " : ''); };
-
+my $yaml = $o{yaml} ? \@ARGV : undef;
+my $x = eval{ $db->query( sprintf( "select %s from $o{table}%s", join( ',', @ARGV ), $o{filter} ? " where $o{filter} " : '' ), $yaml ); };
 die "$0 get data fail: $@" if $@;
+
+if( $o{yaml} )
+{
+    map { print Encode::decode('utf8', YAML::XS::Dump $_ ) }@$x;
+    exit;
+}
 
 map { printf "%s\n", join ';', @$_; }@$x;
