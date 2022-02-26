@@ -57,6 +57,16 @@ sub gettreename
     return $treename || 'unkown';
 }
 
+sub gethostname
+{
+    my $ip = shift @_;
+    return 'unkown' unless $ip && $ip =~ /^\d+\.\d+\.\d+\.\d+$/;
+    my $hostname = `c3mc-mon-nodename-get $ip`;
+    chomp $hostname;
+    
+    return $hostname || 'unkown';
+}
+
 my @out;
 sub addcont
 {
@@ -76,6 +86,7 @@ sub addcont
     $data->{endsAtZH} = gettime( $data->{endsAt} ) if $data->{endsAt};
 
     $data->{treename} = gettreename( $data );
+    $data->{hostname} = gethostname( $data->{'labels.instance'} );
 
     my %replace = %$data;
     for my $key ( keys %senddata )

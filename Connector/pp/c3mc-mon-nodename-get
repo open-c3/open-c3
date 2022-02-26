@@ -1,0 +1,24 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+use LWP::UserAgent;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0 ip
+
+=cut
+
+
+die unless my $ip = shift @ARGV;
+die "ip err" unless $ip =~ /^\d+\.\d+\.\d+\.\d+$/;
+
+my $ua = LWP::UserAgent->new;
+$ua->timeout( 4 );
+
+my $res = $ua->get( "http://OPENC3_PROMETHEUS_IP:9090//api/v1/query?query=node_uname_info%7Binstance%3D%22${ip}%22%7D" );
+
+print "$1\n" if $res->decoded_content && $res->decoded_content =~ /"nodename":"([a-zA-Z0-9\-\._]+)"/;
