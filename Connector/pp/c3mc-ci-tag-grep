@@ -1,0 +1,34 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0 id;tagname id2;tagname2 .. idn;tagnamen
+
+=cut
+
+my %regex;
+
+sub getregex
+{
+    my $id = shift @_;
+    return $regex{$id} if defined $regex{$id};
+    my $regex = `c3mc-base-db-get -t openc3_ci_project tag_regex -f 'id=$id'`;
+    chomp $regex;
+
+    return $regex{$id} = $regex;
+}
+
+sub igrep
+{
+    my $str = shift @_;
+    my ( $id, $tag ) = split /;/, $str, 2;
+    die "id err" unless $id =~ /^\d+$/;
+    return unless my $regex = getregex( $id );
+    print "$str\n" if $tag =~ /$regex/;
+}
+
+if( @ARGV ) { map{ igrep($_) }@ARGV; } else { while(<STDIN>){ chomp; igrep($_); } }
