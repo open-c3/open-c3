@@ -42,6 +42,21 @@ sub gettime
     return POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( $x + 8 * 3600) );
 }
 
+sub gettreename
+{
+    my $labels = shift @_;
+    return 'unkown' unless $labels && ref $labels eq 'HASH';
+
+    my $treename = '';
+    for my $k ( keys %$labels )
+    {
+        next unless $k =~ /^labels\.treeid_/;
+        $treename = $labels->{$k} if length( $labels->{$k} ) > length( $treename );
+    }
+    
+    return $treename || 'unkown';
+}
+
 my @out;
 sub addcont
 {
@@ -59,6 +74,8 @@ sub addcont
 
     $data->{startsAtZH} = gettime( $data->{startsAt} ) if $data->{startsAt};
     $data->{endsAtZH} = gettime( $data->{endsAt} ) if $data->{endsAt};
+
+    $data->{treename} = gettreename( $data );
 
     my %replace = %$data;
     for my $key ( keys %senddata )
