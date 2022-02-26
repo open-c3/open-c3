@@ -19,6 +19,8 @@ die unless my $name = shift @ARGV;
 
 if( $name eq 'promesd' )
 {
+    if( -f "/data/open-c3-data/promesd.off" ) { $0 = "agent_server_$name"; sleep 224190000; exit; } 
+
     my $nodetemp = "$RealBin/../conf/promesd.temp";
     my $tempfile = "$nodetemp.$$";
 
