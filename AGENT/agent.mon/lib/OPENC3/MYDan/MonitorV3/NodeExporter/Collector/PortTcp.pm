@@ -21,7 +21,7 @@ sub co
     my @port;
     if( $extport && $extport->{tcp} && ref $extport->{tcp} eq 'ARRAY' )
     {
-        @port = grep{ /^\d+$/ || /^\d+;[a-zA-Z0-9\.]+$/ }@{$extport->{tcp}};
+        @port = grep{ /^\d+$/ || /^\d+;[a-zA-Z0-9][a-zA-Z0-9\.\-_]+$/ }@{$extport->{tcp}};
     }
     return ( +{ name => 'node_collector_error', value => 0, lable => +{ collector => $collectorname } } ) unless @port;
     my ( $error, @stat ) = ( 0 );

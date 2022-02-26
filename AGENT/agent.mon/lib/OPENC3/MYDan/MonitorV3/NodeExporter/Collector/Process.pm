@@ -42,7 +42,7 @@ sub co
         my @c;
         for my $c ( @{$extprocess->{$type}} )
         {
-            if( $c =~ /^[a-zA-Z0-9 \.\-_@]+$/ || $c =~ /^[a-zA-Z0-9 \.\-_@]+;[a-zA-Z0-9\.]+$/ )
+            if( $c =~ /^[a-zA-Z0-9 \.\-_@]+$/ || $c =~ /^[a-zA-Z0-9 \.\-_@]+;[a-zA-Z0-9][a-zA-Z0-9\.\-_]+$/ )
             {
                 push @c, $c;
             }
