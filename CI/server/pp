@@ -29,7 +29,7 @@ if( $name eq 'keepalive' )
     );
 }
 
-if( $name eq 'findtags' )
+if( $name eq 'findtagsauto' )
 {
     OPENC3::PP::Server->new(
         name => "ci_server_$name",
@@ -37,6 +37,17 @@ if( $name eq 'findtags' )
         timeout => 120,
     )->run(
         'c3mc-base-db-get id -t openc3_ci_project -f "status=1 and autofindtags=1" | c3mc-base-task-grep -m ci | c3mc-base-db-set -t openc3_ci_project --set "slave=\"`c3mc-base-hostname`\"" | xargs -P 10 c3mc-app-findtags'
+    );
+}
+
+if( $name eq 'findtagsonce' )
+{
+    OPENC3::PP::Server->new(
+        name => "ci_server_$name",
+        interval => 3,
+        timeout => 30,
+    )->run(
+        'c3mc-base-db-get id -t openc3_ci_project -f "status=1 and findtags_at_once=1" | c3mc-base-task-grep -m ci | c3mc-base-db-set -t openc3_ci_project --set "findtags_at_once=0,slave=\"`c3mc-base-hostname`\"" | xargs -P 10 c3mc-app-findtags'
     );
 }
 
