@@ -1,0 +1,27 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use FindBin qw( $RealBin );
+
+=head1 SYNOPSIS
+
+ $0 id1 id2 .. idn
+
+=cut
+
+chdir "/data/Software/mydan/CI" or die "$0 chdir fail: $!";
+
+sub findtag
+{
+    my $id = shift;
+
+    die "id err" unless $id =~ /^\d+$/;
+
+    system "date > logs/findtags/$id";
+    system "c3mc-ci-project-show $id 2>> logs/findtags/$id |c3mc-ci-tag-ls 2>>logs/findtags/$id |c3mc-ci-tag-save >> logs/findtags/$id 2>&1";
+}
+
+if( @ARGV ) { map{ findtag($_) }@ARGV; } else { while(<STDIN>){ chomp; findtag($_); } }

@@ -1,0 +1,41 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use YAML::XS;
+use Encode;
+
+=head1 SYNOPSIS
+
+ echo 'project yaml' | $0
+
+=cut
+
+local $/ = undef;
+my %project = %{ YAML::XS::Load( Encode::encode('utf8', <STDIN> ) ) };
+local $/ = "\n";
+
+my ( $username, $pass );
+
+my ( $id, $ticketid, $addr ) = @project{qw( id ticketid addr )};
+if( $ticketid )
+{
+    my $x = `c3mc-base-db-get -t openc3_ci_ticket ticket --filter "id='$ticketid' and type='UsernamePassword'"`;
+    chomp $x;
+    ( $username, $pass ) = split /_:separator:_/, $x if $x;
+}
+
+my $ctrl = $pass ? "svn --username '$username'  --password '" . $pass . "'" : 'svn';
+
+my @list; eval{ alarm 10; @list = `$ctrl list $addr/tags/`; alarm 0; };
+chomp @list;
+
+my @tags;
+map{ $_ =~ s/\/$//; push @tags, $_ if $_ =~ /^release/ }@list;
+map{ print "$id;$_\n" }grep{ $_ !~ /\^\{\}$/ }@tags;

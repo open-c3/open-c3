@@ -1,0 +1,30 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
+use strict;
+use warnings;
+use FindBin qw( $RealBin $RealScript );
+my $info = "Usage:
+  git -i ssh-key-file git-command
+  git -u foo git-command
+";
+die $info unless @ARGV;
+if( $ENV{USE_4_SSH_GIT_NICES_128} )
+{
+    my $pkey = $ENV{PKEY} ? "-i $ENV{PKEY}" : '';
+    exec "ssh -o StrictHostKeyChecking=no $pkey @ARGV";
+}
+if( $ARGV[0] eq '-u' && @ARGV >= 2 )
+{
+    my ( undef, $user ) = splice @ARGV, 0, 2;
+    exec "$0 -i '/home/$user/.ssh/id_rsa' @ARGV"
+}
+if( $ARGV[0] eq '-i' && @ARGV >= 2 )
+{
+    my ( undef, $pkey ) = splice @ARGV, 0, 2;
+    $ENV{PKEY} = $pkey;
+    $ENV{USE_4_SSH_GIT_NICES_128} = 1;
+    $ENV{GIT_SSH} = "$RealBin/$RealScript";
+}
+
+die "err: endless loop.\n" if $ENV{MYDAN_GIT_TOOL};
+$ENV{MYDAN_GIT_TOOL} = 1;
+exec "git @ARGV";

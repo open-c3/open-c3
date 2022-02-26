@@ -36,7 +36,7 @@ if( $name eq 'findtags' )
         interval => 60,
         timeout => 120,
     )->run(
-        'c3mc-base-db-get id -t openc3_ci_project -f "status=1 and autofindtags=1" | c3mc-base-task-grep -m ci | c3mc-base-db-set  -t openc3_ci_project --set "slave=\"`c3mc-base-hostname`\"" | xargs -i{} -P 1 /data/Software/mydan/CI/bin/findtags --id {}'
+        'c3mc-base-db-get id -t openc3_ci_project -f "status=1 and autofindtags=1" | c3mc-base-task-grep -m ci | c3mc-base-db-set -t openc3_ci_project --set "slave=\"`c3mc-base-hostname`\"" | xargs -P 10 c3mc-app-findtags'
     );
 }
 
