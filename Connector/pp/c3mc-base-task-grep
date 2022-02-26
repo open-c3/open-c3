@@ -59,7 +59,8 @@ for my $id ( @ifront  )
 
 sub taskgrep
 {
-    my $id = shift @_;
+    my $str = shift @_;
+    my $id = $str =~ /^(\d+);/ ? $1 : $str;
     unless( $id =~ /^\d+$/ )
     {
         warn "id err";
@@ -67,7 +68,7 @@ sub taskgrep
     }
     
     my $i = $id % $count;
-    print "$id\n" if $idx{$i};
+    print "$str\n" if $idx{$i};
 }
 
 if( @ARGV )
