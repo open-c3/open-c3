@@ -40,7 +40,7 @@ for my $slave ( sort keys %active )
     if( $slave eq $hostname )
     {
         $index = $count;
-        $idx{$count} = 1;
+        $idx{$count} = $active{$slave};
     }
 
     $sort{$count} = $active{$slave};
@@ -50,6 +50,8 @@ for my $slave ( sort keys %active )
 
 my @ifront = ( reverse 0 .. $index -1 );
 push @ifront, ( reverse $index + 1 .. $count - 1 );
+
+@ifront = () unless $idx{$index};
 
 for my $id ( @ifront  )
 {
