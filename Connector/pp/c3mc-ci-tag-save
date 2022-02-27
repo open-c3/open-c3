@@ -47,7 +47,11 @@ sub save
     system "echo $id '$version' >> /tmp/findtags.debug.log";
     return;
 
-    my ( $status, $reason ) =  ( 'init', '' );
+    my $autobuild = eval{ $db->query( "select autobuild from openc3_ci_project where projectid='$id'" ); };
+    die "get autobuild from database fail: $@" if $@;
+    my $auto = ( $autobuild && $autobuild->[0][0] eq '1' ) ? 1 : 0;
+
+    my ( $status, $reason ) = $auto ? ( 'init', '' ) : ( 'done', 'auto build off' );
     my $uuid = uuid->new()->create_str;
     eval{ $db->execute( "insert into openc3_ci_version (`projectid`,`name`,`status`,`calltype`,`user`,`uuid`,`slave`,`reason`) 
             values('$id','$version','$status','findtags','crontab','$uuid','','$reason')" ); };       
