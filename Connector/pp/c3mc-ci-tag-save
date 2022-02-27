@@ -44,10 +44,7 @@ sub save
   
     print "new $version\n";
 
-    system "echo $id '$version' >> /tmp/findtags.debug.log";
-    return;
-
-    my $autobuild = eval{ $db->query( "select autobuild from openc3_ci_project where projectid='$id'" ); };
+    my $autobuild = eval{ $db->query( "select autobuild from openc3_ci_project where id='$id'" ); };
     die "get autobuild from database fail: $@" if $@;
     my $auto = ( $autobuild && $autobuild->[0][0] eq '1' ) ? 1 : 0;
 
