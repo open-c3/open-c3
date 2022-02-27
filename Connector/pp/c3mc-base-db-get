@@ -39,7 +39,7 @@ my %table = (
 my $module = ( split /_/, $o{table} )[1];
 die "table $o{table} undef" unless $module && $table{$module};
 
-my $db = MYDB->new( "/data/Software/mydan/$table{$module}/conf/conn" );
+my $db = MYDB->new( "/data/Software/mydan/$table{$module}/conf/conn", delayedconnection => 1 );
 
 my $yaml = $o{yaml} ? \@ARGV : undef;
 my $x = eval{ $db->query( sprintf( "select %s from $o{table}%s", join( ',', @ARGV ), $o{filter} ? " where $o{filter} " : '' ), $yaml ); };

@@ -37,7 +37,7 @@ my %table = (
 );
 
 die "table $o{table} undef" unless $module && $table{$module};
-my $db = MYDB->new( "/data/Software/mydan/$table{$module}/conf/conn" );
+my $db = MYDB->new( "/data/Software/mydan/$table{$module}/conf/conn", delayedconnection => 1 );
 
 my $where = $o{filter} ? " and( $o{filter} )" : '';
 sub set
