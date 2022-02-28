@@ -130,7 +130,7 @@
                 { 
                     vm.reload();
                 } else { 
-                    toastr.error( "提交失败:" + data.info )
+                    swal({ title: "提交失败!", text: data.info, type:'error' }); 
                 }
             })
 

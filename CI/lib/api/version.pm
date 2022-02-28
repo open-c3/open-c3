@@ -130,6 +130,10 @@ put '/version/:groupid/:projectid/:uuid/build' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ),
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
+    my $running = eval{ $api::mysql->query( "select name from openc3_ci_version where projectid='$param->{projectid}' and status in ( 'init', 'running' )")};
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    return +{ stat => $JSON::false, info => "There are already tasks[$running->[0][0]] running. Please try again later." } if @$running > 0;
+
     my $tagname = eval{ $api::mysql->query( "select name from openc3_ci_version where uuid='$param->{uuid}'")};
     eval{ $api::auditlog->run( user => $user, title => 'START BUILD', content => "TREEID:$param->{groupid} FLOWLINEID:$param->{projectid} TAG:$tagname->[0][0]" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
