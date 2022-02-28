@@ -1,0 +1,59 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDB;
+use MYDan::Util::OptConf;
+use LWP::UserAgent;
+use JSON;
+use Configini;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my ( $treemap, %env );
+$treemap = Configini::get( 'treemap' );
+%env = Configini::env( 'treemapenv' );
+
+if( $treemap =~ /api.connector.open-c3.org/ )
+{
+    my $db = MYDB->new( "/data/Software/mydan/Connector/conf/conn" );
+    my $x = eval{ $db->query( sprintf "select id,name from openc3_connector_tree" ); };
+    die if $@;
+    map{ print "$_->[0];$_->[1]\n" }@$x;
+    exit;
+}
+
+my $ua = LWP::UserAgent->new;
+$ua->default_header( %env ) if %env;
+
+my $res = $ua->get( $treemap );
+
+my $err = "get treemap fail: $treemap";
+
+die sprintf( "$err: code %s", $res->code ) unless $res->is_success;
+
+my $v = eval{JSON::decode_json $res->decoded_content};
+die "$err: data no JSON: $@" if $@;
+die sprintf( "$err: info: %s", $v->{info}|'' ) unless $v->{stat};
+die "$err: data no ARRAY" unless $v->{data} && ref $v->{data} eq 'ARRAY';
+
+map{
+    if( defined $_->{id} && defined $_->{name} && $_->{id} =~ /^\d+$/ )
+    {
+        print "$_->{id};$_->{name}\n";
+    }
+    else
+    {
+        warn "[warn] treemap fromat no good";
+    }
+}@{$v->{data}}
