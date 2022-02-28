@@ -70,3 +70,12 @@ if( $name eq 'clean' )
         timeout => 7200,
     )->run( 'c3mc-ci-clean' );
 }
+
+if( $name eq 'bury' )
+{
+    OPENC3::PP::Server->new(
+        name => "ci_server_$name",
+        interval => 3,
+        timeout => 10,
+    )->run( 'c3mc-ci-bury' );
+}
