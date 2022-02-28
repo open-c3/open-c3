@@ -45,10 +45,10 @@ map{
     print "start api.event port: $_\n"
 }$port->{'api.event'}{from} .. $port->{'api.event'}{to};
 
-map{
-    die "start $_ fail: $!" if system "$supervisor --errname 'ci.server.$_' --cmd '$base/server/$_' --log '$base/logs/server/$_'";
-}qw( bury );
+#map{
+#    die "start $_ fail: $!" if system "$supervisor --errname 'ci.server.$_' --cmd '$base/server/$_' --log '$base/logs/server/$_'";
+#}qw( bury );
 
 map{
     die "start $_ fail: $!" if system "$supervisor --errname 'ci.server.$_' --cmd '$base/server/pp $_' --log '$base/logs/server/$_'";
-}qw( keepalive findtags findtagsonce build clean );
+}qw( keepalive findtags findtagsonce build clean bury );

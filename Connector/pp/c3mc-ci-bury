@@ -1,0 +1,45 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use MYDB;
+use Carp;
+use POSIX;
+
+=head1 SYNOPSIS
+
+ $0 
+
+=cut
+
+sub bury
+{
+    my %param = @_;
+
+    my ( $myname, $db ) = ( `c3mc-base-hostname`, $param{db} );
+    chomp $myname;
+
+    my $x = eval{ $db->query( "select id,pid,uuid,starttime,starttimems from openc3_ci_version
+        where slave='$myname' and pid is not null and status<>'success' and status<>'fail'" );};
+    confess "mysql query fail: $@" if $@;
+    confess "get list fail from mysql" unless defined $x && ref $x eq 'ARRAY';
+
+    for my $r ( @$x )
+    {
+        my ( $id, $pid, $uuid, $starttime, $starttimems ) = @$r;
+        next unless $pid =~ /^\d+$/;
+        next unless $starttimems =~ /^[\.\d]+$/;
+        next unless $uuid =~ /^[a-zA-Z0-9]+$/;
+
+        next if kill( 0, $pid );
+
+        my $time = time;
+
+        $time = $starttimems + 1 if $time < $starttimems;
+        my ( $runtime, $finishtime, $finishtimems ) = ( sprintf( "%0.3f", $time - $starttimems ), POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( int $time ) ), $time );
+
+        eval{ $db->execute( "update openc3_ci_version set status='fail',runtime='$runtime',
+            finishtime='$finishtime',finishtimems='$finishtimems' where id=$id" );};
+        warn "update task status fail: id=$id :$@" if $@;
+    }
+}
+bury( db => MYDB->new( "/data/Software/mydan/CI/conf/conn" ) );
