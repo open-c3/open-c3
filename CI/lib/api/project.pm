@@ -72,6 +72,8 @@ get '/project/:groupid/:projectid' => sub {
         $data->{$_}  = Encode::decode("utf8", $data->{$_}) if defined $data->{$_}
     }qw( buildscripts ci_type_dockerfile_content );
 
+    $data->{tag_regex} = '' if $data->{tag_regex} eq '_NULL_';
+
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $data  };
 };
 
@@ -123,6 +125,8 @@ post '/project/:groupid/:projectid' => sub {
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
     my $pmscheck = api::pmscheck( 'openc3_ci_write', $param->{groupid} ); return $pmscheck if $pmscheck;
+
+    $param->{tag_regex} = '_NULL_' if ( ! defined $param->{tag_regex} ) || ( $param->{tag_regex} eq "" );
 
     map{ 
         $param->{$_}  = encode_base64( encode('UTF-8',  $param->{$_}) );

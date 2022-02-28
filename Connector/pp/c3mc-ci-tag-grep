@@ -28,7 +28,7 @@ sub igrep
     my ( $id, $tag ) = split /;/, $str, 2;
     die "id err" unless $id =~ /^\d+$/;
     return unless my $regex = getregex( $id );
-    print "$str\n" if $tag =~ /$regex/;
+    print "$str\n" if $regex eq '_NULL_' || $tag =~ /$regex/;
 }
 
 if( @ARGV ) { map{ igrep($_) }@ARGV; } else { while(<STDIN>){ chomp; igrep($_); } }
