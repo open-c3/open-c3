@@ -42,6 +42,7 @@ $usermail = Configini::get( 'usermail' );
 %env = Configini::env( 'usermailenv' );
 
 my $ua = LWP::UserAgent->new;
+$ua->timeout( 10 );
 $ua->default_header( %env ) if %env;
 
 sub sendmail
