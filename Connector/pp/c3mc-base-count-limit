@@ -1,0 +1,34 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 id1 id2 ... idn --limit 1
+ $0 id1;abc id2;foo ... idn;bar --limit number
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->set( limit => 1 )->get( qw( limit=i ) )->dump();
+
+my %check;
+
+sub check
+{
+    my $str = shift @_;
+    my $id = ( split /;/, $str )[0];
+    $check{$id} ++;
+    return if $check{$id} > $o{limit};
+    print "$str\n";
+}
+
+if( @ARGV ) { map{ check($_) }@ARGV; } else { while(<STDIN>){ chomp; check($_); } }

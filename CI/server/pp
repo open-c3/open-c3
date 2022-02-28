@@ -58,7 +58,7 @@ if( $name eq 'build' )
         interval => 3,
         timeout => 30,
     )->run(
-        'c3mc-base-db-get -t openc3_ci_version projectid uuid --filter "status=\"init\"" | c3mc-base-task-grep -m ci| awk -F";" \'{print $2}\' | c3mc-base-db-set -t openc3_ci_version --col uuid --set "slave=\"`c3mc-base-hostname`\"" |xargs -i{} bash -c "/data/Software/mydan/CI/bin/build --uuid {} 2>&1| c3mc-base-log-addtime  > /data/Software/mydan/CI/logs/build/{} 2>&1"'
+        'c3mc-base-db-get -t openc3_ci_version projectid status uuid --filter "status=\"init\" or status=\"running\"" | c3mc-base-task-grep -m ci | c3mc-base-count-limit | grep ";init" | awk -F";" \'{print $3}\' | c3mc-base-db-set -t openc3_ci_version --col uuid --set "slave=\"`c3mc-base-hostname`\"" |xargs -i{} bash -c "/data/Software/mydan/CI/bin/build --uuid {} 2>&1| c3mc-base-log-addtime  > /data/Software/mydan/CI/logs/build/{} 2>&1"'
     );
 }
 
