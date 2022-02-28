@@ -1,0 +1,31 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDB;
+
+=head1 SYNOPSIS
+
+ $0 'user1;title1;content1' 'user2;title2;content2' ... 'usern;titlen;contentn'
+
+=cut
+
+my $db = MYDB->new( "/data/Software/mydan/Connector/conf/conn", delayedconnection => 1 );
+
+sub save
+{
+    my ( $user, $title, $content ) = @_;
+    die "date err" unless $user && $title && $content;
+    $title =~ s/'/"/g;
+    $content =~ s/'/"/g;
+    eval{ $db->execute( "insert into openc3_connector_auditlog (`user`,`title`,`content`) values('$user','$title','$content')" ); };
+    die if $@;
+}
+
+if( @ARGV ) { save( @ARGV ); } else { while(<STDIN>){ chomp; save(split /;/,$_, 3); } }
