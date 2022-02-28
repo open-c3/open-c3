@@ -1,0 +1,76 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDB;
+use MYDan::Util::OptConf;
+use Encode;
+use LWP::UserAgent;
+use JSON;
+use Configini;
+
+=head1 SYNOPSIS
+
+ $0 user1 user2 ... user3 --subject test
+
+=cut
+
+my $db = MYDB->new( "/data/Software/mydan/Connector/conf/conn", delayedconnection => 1 );
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( subject=s ) )->dump();
+$option->assert() unless @ARGV;
+
+local $/ = undef;
+my $content = Encode::encode('utf8', <STDIN> );
+local $/ = "\n";
+
+unless( $o{subject} )
+{
+    my @content = split /\n/, $content;
+    $o{subject} = @content > 1 ? ( shift @content ) : ( $content[0] );
+    $content = join "\n", @content;
+}
+
+my ( $usermail, %env );
+$usermail = Configini::get( 'usermail' );
+%env = Configini::env( 'usermailenv' );
+
+my $ua = LWP::UserAgent->new;
+$ua->default_header( %env ) if %env;
+
+sub sendmail
+{
+    my ( $user, $title, $content ) = @_;
+
+    my $x = $db->query( sprintf "select `email` from openc3_connector_useraddr where user='$user'" );
+    $user = $x->[0][0] if @$x;
+
+    if( $usermail =~ /api.connector.open-c3.org/ )
+    {
+        $title =~ s/'/"/g;
+        $content =~ s/'/"/g;
+
+        eval{ $db->execute( "insert into openc3_connector_usermail (`user`,`title`,`content`) values('$user','$title','$content')" )};
+        die $@ if $@;
+        return;
+    }
+
+    my $cont = $usermail =~ /encode/ ? JSON::to_json( +{ user => $user, title => $title, content => $content } ) : JSON::encode_json( +{ user => $user, title => $title, content => $content } );
+    my $res = $ua->post( $usermail, Content => $cont, 'Content-Type' => 'application/json');
+
+    my $err = "send mail fail: $usermail";
+
+    die sprintf( "$err: code %s", $res->code ) unless $res->is_success;
+
+    my $v = eval{JSON::decode_json $res->decoded_content};
+    die "$err: data no JSON: $@" if $@;
+    die sprintf( "$err: info: %s", $v->{info}|'' ) unless $v->{stat};
+}
+
+map{ sendmail( $_, $o{subject}, $content ) }@ARGV;
