@@ -1,0 +1,43 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+use File::Basename;
+use Carp;
+
+=head1 SYNOPSIS
+
+ $0 
+
+=cut
+
+
+sub clean
+{
+    #docker shell
+    confess "clean fail: $!" if system 'docker ps|grep dockershell_ci_ |grep -P "Up \d+ days"|awk ' ."'".'{print $1}'."'" .'|xargs -i{} docker stop {}';
+
+    my $expire = time - 86400;
+
+    #temp projectid
+    for my $path ( glob "/data/Software/mydan/CI/logs/build_temp_projectid/*" )
+    {
+        my $uuid = basename $path;
+        next unless $uuid =~ /^[a-zA-Z0-9]{12}$/;
+        my $mtime = ( stat $path )[9];
+        next unless $mtime && $mtime < $expire;
+        system "rm -rf '$path'";
+    }
+
+    #temp uuid
+    for my $path ( glob "/data/Software/mydan/CI/logs/build_temp_uuid/*" )
+    {
+        my $uuid = basename $path;
+        next unless $uuid =~ /^[a-zA-Z0-9]{12}$/;
+        my $mtime = ( stat $path )[9];
+        next unless $mtime && $mtime < $expire;
+        system "rm -rf '$path'";
+    }
+}
+
+clean();

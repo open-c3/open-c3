@@ -62,3 +62,11 @@ if( $name eq 'build' )
     );
 }
 
+if( $name eq 'clean' )
+{
+    OPENC3::PP::Server->new(
+        name => "ci_server_$name",
+        interval => 3600,
+        timeout => 7200,
+    )->run( 'c3mc-ci-clean' );
+}
