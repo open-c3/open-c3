@@ -31,6 +31,7 @@ while(<STDIN>){
     if( $c && $c !~ /'/ )
     {
         my ( $name, $conf ) = split /;/, $c;
+        ( undef, undef, $name, $conf ) = split( /;/, $c ) if $c =~ /^v2;/;
         warn "format error" unless $conf; 
         $conf{$conf} = $name if $conf;
     }
