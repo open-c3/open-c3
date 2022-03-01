@@ -229,7 +229,7 @@ put '/killbuild/:uuid' => sub {
       return JSON::to_json( +{ stat => $JSON::false, info =>  'nofind groupid' } ) unless $x && @$x > 0;
 
       my $p = eval{ $pms->run( cookie => cookie( $cookiekey ), 
-          treeid => $x->[0][0], point => 'openc3_ci_write' ) };
+          treeid => $x->[0][0], point => 'openc3_ci_control' ) };
       return JSON::to_json( +{ stat => $JSON::false, info => "get data from pms error:$@" } ) if $@;
       return JSON::to_json( +{ stat => $JSON::false, info =>  'Unauthorized' } ) unless $p;
   }
