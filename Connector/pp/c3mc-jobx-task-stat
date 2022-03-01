@@ -1,0 +1,24 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0 uuid1 uuid2 ... uuidn
+
+=cut
+
+sub status
+{
+    my $uuid = shift @_;
+    die unless $uuid =~ /^[a-zA-Z0-9]+$/;
+    system "c3mc-base-db-get -t openc3_jobx_task status -f \"uuid='$uuid'\"";
+}
+
+if( @ARGV ) { map{ status( $_ ) }@ARGV; } else { while(<STDIN>){ chomp; status($_); } }
