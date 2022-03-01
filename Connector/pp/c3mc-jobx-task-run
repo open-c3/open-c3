@@ -1,0 +1,72 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOBX/lib
+use strict;
+use warnings;
+use uuid;
+use POSIX;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDB;
+use MYDan::Util::OptConf;
+use YAML::XS;
+use Encode;
+use MIME::Base64;
+
+=head1 SYNOPSIS
+
+ $0 projectid name group
+ $0 projectid name group --user user --slave slave1 --calltype calltype --variable variablebase64
+ $0 projectid name group --user user --slave slave1 --calltype calltype --variablekv 'foo=123,bar=567'
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->set( user => 'c3@sys', slave => `c3mc-base-hostname`, calltype => 'api', variable => '' )
+    ->get( qw( user=s slave=s calltype=s variable=s variablekv=s ) )->dump();
+$option->assert() unless @ARGV;
+
+chomp $o{slave};
+
+my $db = MYDB->new( "/data/Software/mydan/JOBX/conf/conn" );
+
+if( $o{variablekv} )
+{
+    my %v;
+    map{
+        my @x = split /=/, $_, 2;
+        $v{$x[0]} = $x[1] if @x == 2;
+    }split /,/, $o{variablekv};
+
+    $o{variable} = encode_base64( encode('UTF-8', YAML::XS::Dump \%v) );
+
+}
+
+sub save
+{
+    my ( $projectid, $name, $group ) = @_;
+    die "projectid err" unless defined $projectid && $projectid =~ /^\d+$/;
+    die "name undef" unless $name;
+    die "group undef" unless $group;
+
+    my $uuid = uuid->new()->create_str;
+    my $r = eval{
+        $db->execute( "insert into openc3_jobx_task (`projectid`,`uuid`,`name`,`group`,`user`,`slave`,`status`,`calltype`,`variable`) 
+            values('$projectid','$uuid','$name','$group','$o{user}','$o{slave}', 'init','$o{calltype}','$o{variable}')" )};
+
+
+    die "update project info fail:$@"  if $@;
+    print "$uuid\n";
+}
+
+if( @ARGV )
+{
+    save( @ARGV );
+}
+else
+{
+    while(<STDIN>){ chomp; save( split /\s+/, $_ , 3); }
+}
