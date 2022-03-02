@@ -44,7 +44,7 @@ sub gettime
 
 sub gettreename
 {
-    my $labels = shift @_;
+    my ( $ip, $labels ) = @_;
     return 'unkown' unless $labels && ref $labels eq 'HASH';
 
     my $treename = '';
@@ -54,6 +54,12 @@ sub gettreename
         $treename = $labels->{$k} if length( $labels->{$k} ) > length( $treename );
     }
     
+    if( ! $treename && $ip && $ip =~ /^\d+\.\d+\.\d+\.\d+$/ )
+    {
+        $treename = `c3mc-mon-nodetree-get $ip`;
+        chomp $treename;
+    }
+
     return $treename || 'unkown';
 }
 
@@ -92,7 +98,7 @@ sub addcont
     $data->{startsAtZH} = gettime( $data->{startsAt} ) if $data->{startsAt};
     $data->{endsAtZH} = gettime( $data->{endsAt} ) if $data->{endsAt};
 
-    $data->{treename} = gettreename( $data );
+    $data->{treename} = gettreename( $data->{'labels.instance'}, $data );
     $data->{hostname} = gethostname( $data->{'labels.instance'}, $data );
 
     my %replace = %$data;
