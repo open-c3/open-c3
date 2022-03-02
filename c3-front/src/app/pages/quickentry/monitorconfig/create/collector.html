@@ -23,6 +23,10 @@
                              <span class="radio" style="padding-top: 0;min-height: 0"></span>HTTP
                         </label>
                         <label class="option option-primary">
+                             <input type="radio" ng-model="createMonitorConfig.postData.type" ng-change="createMonitorConfig.changeType('file')" value="path" >
+                             <span class="radio" style="padding-top: 0;min-height: 0"></span>路径
+                        </label>
+                        <label class="option option-primary">
                              <input type="radio" ng-model="createMonitorConfig.postData.type" ng-change="createMonitorConfig.changeType('push')" value="push" >
                              <span class="radio" style="padding-top: 0;min-height: 0"></span>PUSH
                         </label>
@@ -265,6 +269,89 @@ node_http_time{method="GET",url="http://127.0.0.1"} 2
 node_http_time{method="GET",url="https://www.baidu.com"} 52
 
 node_http_content_check{check="baidu",method="GET",url="https://www.baidu.com"} 1
+                    </textarea>
+                </div>
+            </div>
+        </div>
+ 
+
+    </form>
+</div>
+
+<div ng-if="createMonitorConfig.postData.type=='path'">
+    <form class="form-horizontal" name="myForm" role="form">
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">路径类型</label>
+                <div class="col-sm-9">
+                    <div class="admin-form">
+                        <div class="option-group field" >
+                            <label class="option option-primary">
+                                <input type="radio" ng-model="createMonitorConfig.postData.subtype" value="file" >
+                                <span class="radio" style="padding-top: 0;min-height: 0"></span>文件
+                            </label>
+                            <label class="option option-primary">
+                                 <input type="radio" ng-model="createMonitorConfig.postData.subtype" value="dir" >
+                                 <span class="radio" style="padding-top: 0;min-height: 0"></span>目录
+                            </label>
+                            <label class="option option-primary">
+                                <input type="radio" ng-model="createMonitorConfig.postData.subtype" value="link" >
+                                <span class="radio" style="padding-top: 0;min-height: 0"></span>软链接
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">路径</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" placeholder="内容" ng-model="createMonitorConfig.postData.content1" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="row" ng-if="createMonitorConfig.postData.subtype=='link'">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">匹配</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" placeholder="匹配" ng-model="createMonitorConfig.postData.content2">
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
+            <div class="col-sm-5 form-group pull-right">
+                <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="createMonitorConfig.add()">确认</button>
+                <button class="btn btn-warning" ng-click="createMonitorConfig.cancel()">取消</button>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">帮助</label>
+                <div class="col-sm-9">
+
+                    <textarea style="height: 450px" class="fluid-width" readonly>
+用途：判断文件或者目录是否存在。判断软链接是否存在，判断软链接的内容是否匹配。
+指标：
+
+node_path: 路径是否存在
+node_path_check: 是否匹配
+
+
+例子：
+
+node_path{type="file",path="/tmp/foo.txt"} 1
+node_path{type="link",path="/tmp/bar.txt"} 0
+node_path{type="dir",path="/tmp/bar.txt"} 0
+
+node_path_check{check="v2.2.3",type="link",path="/tmp/bar.txt"} 1
+
                     </textarea>
                 </div>
             </div>

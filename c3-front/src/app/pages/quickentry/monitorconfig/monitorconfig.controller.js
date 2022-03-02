@@ -14,7 +14,7 @@
         vm.dashboarnuuid1 = 'dUrNraOn1';
         vm.dashboarnuuid2 = 'dUrNraOnz';
 
-        vm.alias = { 'port': '端口', 'process': '进程', 'http': 'HTTP', 'tcp': 'TCP','udp': 'UDP' }
+        vm.alias = { 'port': '端口', 'process': '进程', 'http': 'HTTP', 'tcp': 'TCP','udp': 'UDP', 'path': '路径' }
         treeService.sync.then(function(){
             vm.nodeStr = treeService.selectname();
             var xx = vm.nodeStr.split(".").length;
