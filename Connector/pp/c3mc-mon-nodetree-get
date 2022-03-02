@@ -1,0 +1,44 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+use YAML::XS;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0 ip
+
+=cut
+
+
+die unless my $ip = shift @ARGV;
+die "ip err" unless $ip =~ /^\d+\.\d+\.\d+\.\d+$/;
+
+my $conf = eval{ YAML::XS::LoadFile "/data/Software/mydan/prometheus/config/openc3_node_sd.yml" };
+
+sub gettreename
+{
+    my $labels = shift @_;
+    return 'unkown' unless $labels && ref $labels eq 'HASH';
+
+    my $treename = '';
+    for my $k ( keys %$labels )
+    {
+        next unless $k =~ /^treeid_/;
+        $treename = $labels->{$k} if length( $labels->{$k} ) > length( $treename );
+    }
+
+    return $treename || 'unkown';
+}
+
+for my $c ( @$conf )
+{
+    next unless $c->{labels}{instance} eq $ip;
+    my $n = gettreename( $c->{labels} );
+    printf "%s\n", $n || 'null';
+    exit 0;
+}
+
+exit 1;
