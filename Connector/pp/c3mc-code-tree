@@ -1,0 +1,64 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+chdir "/data/Software/mydan/Connector/pp" or die;
+
+my ( $name, $deep ) = @ARGV;
+$deep = 0 unless $deep && $deep =~ /^\d+$/;
+
+sub getmatch
+{
+    my $str = join "\n", @_;
+    return () unless $str;
+    my %res = map{ $_ => 1 }glob "c3mc-*";
+
+    for my $appname ( keys %res )
+    {
+        $res{$appname} ++ if $str =~ /\b$appname\b/ && $str !~ /\b$appname-/ &&  $str !~ /\b$appname[a-zA-Z0-9]/ ;
+    }
+
+    $res{'MYDB::query'} = 2 if $str =~ /\$db->query\b/;
+    $res{'MYDB::execute'} = 2 if $str =~ /\$db->execute\b/;
+
+    $res{'UA::get'} = 2 if $str =~ /\$ua->get\b/;
+    $res{'UA::post'} = 2 if $str =~ /\$ua->post\b/;
+
+    return grep{ $res{$_} > 1  }keys %res;
+}
+
+
+if( $name )
+{
+    exit if $name =~ /::/;
+    my @match = getmatch( `cat $name` );
+    map{
+        print " " x ( $deep * 2 );
+        print "- $_\n";
+        system( sprintf "$0 $_ %d", $deep + 1 ) if $deep <= 10;
+    }@match;
+}
+else
+{
+    my @list = glob "c3mc-*";
+
+    map{
+        my @x = `grep c3mc- /data/Software/mydan/$_/{server,code,lib,bin}/ -R 2>/dev/null|awk -F: '{print \$1}'|sort|uniq`;
+        chomp @x;
+        push @list, @x;
+    }qw( Connector CI AGENT JOB JOBX );
+
+    map{
+        print "---\n";
+        print "$_:\n";
+        system "$0 $_ 1";
+    }@list;
+}
