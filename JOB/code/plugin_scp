@@ -105,7 +105,7 @@ return sub
     my ( @srccheck, @dstcheck );
     if( $src_type eq 'fileserver' )
     {
-        $logs->die( "projectid not a number" ) unless $projectid && $projectid =~ /^\d+$/;
+        $logs->die( "projectid not a number" ) unless defined $projectid && $projectid =~ /^\d+$/;
 
         eval { $sp = variable->new( variable => $variable, db => $db, jobuuid => $fromjob )->relpace( $sp ) if $sp =~ /\$/; };
         $logs->die( "relpace variable sp fail:$@" ) if $@;
@@ -123,7 +123,7 @@ return sub
     }
     elsif( $src_type eq 'ci' )
     {
-        $logs->die( "projectid not a number" ) unless $projectid && $projectid =~ /^\d+$/;
+        $logs->die( "projectid not a number" ) unless defined $projectid && $projectid =~ /^\d+$/;
 
         if( $src eq 'default' && $fromjob )
         {
