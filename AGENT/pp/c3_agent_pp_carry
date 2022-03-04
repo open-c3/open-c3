@@ -86,6 +86,11 @@ sub zipdata
             $res->{http} = [] unless $res->{http};
             push @{$res->{http}}, "$v->{subtype}|$v->{content1}|$v->{content2}";
         }
+        elsif( $v->{type} eq 'path' )
+        {
+            $res->{path} = [] unless $res->{path};
+            push @{$res->{path}}, "$v->{subtype}|$v->{content1}|$v->{content2}";
+        }
     }
     return $res;
 }
