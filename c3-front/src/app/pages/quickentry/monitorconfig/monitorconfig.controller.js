@@ -214,7 +214,23 @@
             }
         };
 
- 
+         vm.testsend = function ( user ) {
+            $http.post('/api/agent/monitor/config/usertest', { projectid: vm.treeid, 'user': user}).then(
+                function successCallback(response) {
+                    if (response.data.stat){
+                        swal({title: "消息发送已经提交！", text: "确认是否收到消息", type: 'success'});
+                    }else {
+                        toastr.error( "发送消息失败：" + response.data.info );
+                    }
+                },
+                function errorCallback (response ){
+                    toastr.error( "发送消息添加失败：" + response.status );
+                }
+            );
+        };
+
+
+
         vm.deleteCollector = function(id) {
           swal({
             title: "是否要删除该指标采集",

@@ -102,4 +102,28 @@ del '/monitor/config/user/:projectid/:id' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
 
+post '/monitor/config/usertest' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        user => [ 'mismatch', qr/'/ ], 1,
+        projectid => qr/^\d+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $pmscheck = api::pmscheck( 'openc3_agent_write', $param->{projectid} ); return $pmscheck if $pmscheck;
+
+    my $user = $param->{user};
+
+    return +{ stat => $JSON::false, info => "user format error" } unless $user && $user =~ /^[a-zA-Z0-9@\.\-_]+$/;
+
+    my $uuid = time . rand 1000000;
+    eval{
+        die "cp fail:$!" if system "cp /data/Software/mydan/AGENT/config/mesgsendtest.txt /tmp/mesgsendtest.txt.$uuid";
+        die "echo fail: $!" if system "echo \"to: '$user'\" >> /tmp/mesgsendtest.txt.$uuid";
+        die "send fail: $!" if system "cat /tmp/mesgsendtest.txt.$uuid|c3mc-base-send";
+    };
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
+};
+
 true;
