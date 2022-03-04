@@ -39,7 +39,7 @@
             }
             else
             {
-                vm.url = vm.siteaddr + '/third-party/monitor/grafana/d/' + name;
+                vm.url = vm.siteaddr + '/third-party/monitor/grafana/d/7h8Ok7wGz/k8sji-qun-jian-kong-kan-ban-hui-zong?orgId=1&var-datasource=thanos&var-cluster=' + name + '&var-namespace=All&var-pod=alertmanager-server-679c879455-x7vww&var-interval=$__auto_interval_interval&var-container=alertmanager&var-node=All&var-k8s_version=v1.19.6-eks-49a6c0';
             }
         }
 
