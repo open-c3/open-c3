@@ -27,8 +27,11 @@
                         <div class="col-sm-4">
                             <select id="selecteddataval" class="form-control"  ng-model="monitorconfig.choiceKanban" ng-change="monitorconfig.changeKanban()">
                                  <option value="_host_">主机监控</option>
-                                 <option ng-repeat="x in monitorconfig.clusterlist" value="{{x.name}}">k8s 集群: {{x.name}} 详情: {{x.describe}} 操作权限: {{x.auth}}</option>
+                                 <option ng-repeat="x in monitorconfig.clusterlist" value="{{x.url}}">{{x.name}}</option>
                             </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <button class="btn btn-info" uib-tooltip="看版管理" ng-click="monitorconfig.kanbanConfig()"><i class="fa fa-plus" aria-hidden="true">看版管理</i></button>
                         </div>
                     </div>
                 </div>

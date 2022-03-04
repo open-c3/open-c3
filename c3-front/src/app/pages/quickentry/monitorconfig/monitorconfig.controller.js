@@ -79,12 +79,10 @@
             }
             else
             {
-                vm.seturl( vm.dashboarnuuid2, vm.choiceKanban );
+                vm.url = vm.choiceKanban;
             }
 
             document.getElementById('frame_id').contentWindow.location.reload();
-
-
         }
 
         vm.reload = function(){
@@ -99,16 +97,16 @@
                 }
             });
 
-            $http.get('/api/ci/ticket/KubeConfig?treeid=' + vm.treeid ).then(
+            $http.get('/api/agent/monitor/config/kanban/' + vm.treeid ).then(
                 function successCallback(response) {
                     if (response.data.stat){
                         vm.clusterlist = response.data.data;
                     }else {
-                        toastr.error( "获取集群列表失败："+response.data.info );
+                        toastr.error( "获取看版列表失败："+response.data.info );
                     }
                 },
                 function errorCallback (response){
-                    toastr.error( "获取集群列表失败: " + response.status )
+                    toastr.error( "获取看版列表失败: " + response.status )
                 });
         };
 
@@ -272,6 +270,21 @@
           });
         }
 
+        vm.kanbanConfig = function () {
+            $uibModal.open({
+                templateUrl: 'app/pages/quickentry/monitorconfig/kanbanconfig.html',
+                controller: 'KanbanConfigController',
+                controllerAs: 'kanbanconfig',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () {return vm.treeid},
+                    homereload: function () { return vm.reload},
+                }
+            });
+        };
 
     }
 })();
