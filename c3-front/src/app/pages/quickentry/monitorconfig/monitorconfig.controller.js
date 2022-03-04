@@ -20,25 +20,30 @@
             var xx = vm.nodeStr.split(".").length;
             if( xx <= 2 )
             {
-
-                vm.seturl( vm.dashboarnuuid1 );
+                vm.seturl( vm.dashboarnuuid1, '_host_' );
             }
             else
             {
-                vm.seturl( vm.dashboarnuuid2 );
+                vm.seturl( vm.dashboarnuuid2, '_host_' );
             }
             document.getElementById('frame_id').contentWindow.location.reload();
-
         });
 
         vm.siteaddr = window.location.protocol + '//' + window.location.host;
 
-        vm.seturl = function( uuid )
+        vm.seturl = function( uuid, name )
         {
-            vm.url = vm.siteaddr + '/third-party/monitor/grafana/d/' + uuid + '/openc3-dashboard?orgId=1&var-origin_prometheus=&var-job=openc3&var-hostname=All&var-device=All&var-interval=2m&var-maxmount=&var-show_hostname=&var-total=1&var-treeid=treeid_' + vm.treeid + '&kiosk';
+            if( name == '_host_' )
+            {
+                vm.url = vm.siteaddr + '/third-party/monitor/grafana/d/' + uuid + '/openc3-dashboard?orgId=1&var-origin_prometheus=&var-job=openc3&var-hostname=All&var-device=All&var-interval=2m&var-maxmount=&var-show_hostname=&var-total=1&var-treeid=treeid_' + vm.treeid + '&kiosk';
+            }
+            else
+            {
+                vm.url = vm.siteaddr + '/third-party/monitor/grafana/d/' + name;
+            }
         }
 
-        vm.seturl( vm.dashboarnuuid1 );
+        vm.seturl( vm.dashboarnuuid1, '_host_' );
         vm.prometheusurl = vm.siteaddr + '/third-party/monitor/prometheus/alerts';
         vm.alertmanagerurl = vm.siteaddr + '/third-party/monitor/alertmanager/#/alerts?silenced=false&inhibited=false&active=true&filter=%7Bfromtreeid%3D"' + vm.treeid + '"%7D';
         vm.grafanaurl = vm.siteaddr + '/third-party/monitor/grafana/';
@@ -57,6 +62,31 @@
             return $sce.trustAsResourceUrl( vm.url );
         }
 
+        vm.choiceKanban = '_host_';
+        vm.changeKanban = function()
+        {
+            if( vm.choiceKanban == '_host_' )
+            {
+                var xx = vm.nodeStr.split(".").length;
+                if( xx <= 2 )
+                {
+                    vm.seturl( vm.dashboarnuuid1, '_host_' );
+                }
+                else
+                {
+                    vm.seturl( vm.dashboarnuuid2, '_host_' );
+                }
+            }
+            else
+            {
+                vm.seturl( vm.dashboarnuuid2, vm.choiceKanban );
+            }
+
+            document.getElementById('frame_id').contentWindow.location.reload();
+
+
+        }
+
         vm.reload = function(){
             vm.loadover = false;
             $http.get('/api/agent/monitor/config/collector/' + vm.treeid ).success(function(data){
@@ -68,6 +98,18 @@
                     toastr.error( "加载采集列表失败:" + data.info )
                 }
             });
+
+            $http.get('/api/ci/ticket/KubeConfig?treeid=' + vm.treeid ).then(
+                function successCallback(response) {
+                    if (response.data.stat){
+                        vm.clusterlist = response.data.data;
+                    }else {
+                        toastr.error( "获取集群列表失败："+response.data.info );
+                    }
+                },
+                function errorCallback (response){
+                    toastr.error( "获取集群列表失败: " + response.status )
+                });
         };
 
         vm.reload();

@@ -20,6 +20,19 @@
 
         <div class="panel-body flowline">
             <div class="pt20" style="overflow: auto;">
+
+                <div class="row">
+                    <div class="col-sm-12 form-group">
+                        <label class="col-sm-1 control-label">选择看板</label>
+                        <div class="col-sm-4">
+                            <select id="selecteddataval" class="form-control"  ng-model="monitorconfig.choiceKanban" ng-change="monitorconfig.changeKanban()">
+                                 <option value="_host_">主机监控</option>
+                                 <option ng-repeat="x in monitorconfig.clusterlist" value="{{x.name}}">k8s 集群: {{x.name}} 详情: {{x.describe}} 操作权限: {{x.auth}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
                 <a class="glyphicon glyphicon-share" data-toggle="tooltip" data-placement="right" target='_blank' ng-href="{{monitorconfig.url}}" uib-tooltip="在新页面打开grafana" aria-hidden="true" style="padding-top: 11px;font-size: larger;">{{monitorconfig.url}}</a>
                 <iframe id="frame_id" ng-src="{{monitorconfig.trustSrc()}}" width="100%" height="800" frameborder="0" name="grafana" scrolling="auto"></iframe> 
             </div>
