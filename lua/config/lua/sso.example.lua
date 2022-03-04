@@ -44,7 +44,7 @@ if ngx.var.cookie_sid then
 
         local ret = json.decode(res.body)
         if ret then
-            if ret.data and ret.stat == true and ret.data == 1 then
+            if ret.data and ret.stat == true and ( ret.data == 1 or ret.data == true ) then
                  ngx.log(ngx.ERR, "PMS Connect Faild!.cookie:", ngx.var.cookie_sid, "], user:[",ret.data ,"]")
                 return
             end
