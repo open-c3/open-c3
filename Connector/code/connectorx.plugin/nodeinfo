@@ -13,28 +13,37 @@ $| ++;
 
 =cut
 
-my ( $nodeinfo, %env, $debug, $apicache );
+my ( @group, $debug, $apicache );
 BEGIN{
     use Configini;
-    $nodeinfo = Configini::get( 'nodeinfo' );
-    %env = Configini::env( 'nodeinfoenv' );
+    map{
+        my $id = $_;
+        my %g;
+        $g{nodeinfo} = Configini::get( "nodeinfo$id" );
+        my %env = Configini::env( "nodeinfoenv$id" );
+        $g{env} = %env ? \%env : +{};
 
+        $g{nodeinfoeid} = Configini::get( "nodeinfoeid$id" );
+        $g{nodeinfoeid} = undef unless $g{nodeinfoeid} && ref $g{nodeinfoeid} eq 'ARRAY' && @{$g{nodeinfoeid}} == 2;
+
+        push @group, \%g if $g{nodeinfo};
+    }( '', 1 .. 9 );
     $debug = Configini::get( 'debug' );
     $apicache = Configini::get( 'apicache' );
     $apicache = 0 unless $apicache && $apicache =~ /^\d+$/;
 };
 
-return sub
+sub getnodeinfo
 {
     my ( %param )= @_;
-    my ( $id, $logs ) = @param{qw(id logs)};
+    my ( $id, $logs, $nodeinfo, $env ) = @param{qw(id logs nodeinfo env )};
 
     $logs = Logs->new( 'code.nodeinfo' ) unless $logs;
 
     $logs->die( "id not a number" ) unless $id =~ /^\d+$/;
 
     my $ua = LWP::UserAgent->new;
-    $ua->default_header( %env ) if %env;
+    $ua->default_header( %$env ) if $env;
     $ua->timeout( 10 );
 
     my $file;
@@ -95,4 +104,21 @@ return sub
     }
     #TODO die
     die "die";
+}
+
+sub getconfig
+{
+    my $id = shift @_;
+    for my $g ( @group )
+    {
+        return $g if $g->{nodeinfoeid} && $g->{nodeinfoeid}[0] <= $id && $id <= $g->{nodeinfoeid}[1];
+    }
+    return $group[0];
+}
+
+return sub
+{
+    my ( %param ) = @_;
+    my $config = getconfig( $param{id} );
+    return getnodeinfo( %param, %$config );
 }
