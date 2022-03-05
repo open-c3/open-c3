@@ -6,6 +6,7 @@ use LWP::UserAgent;
 use Digest::MD5;
 use JSON qw();
 use Code;
+use TreeMap;
 
 $| ++;
 
@@ -29,51 +30,6 @@ BEGIN{
     $treemapcode = Code->new( "connectorx.plugin/treemap" );
 };
 
-sub formatusertree
-{
-    my %map = @_;
-    return [] unless %map;
-    my ( @res, @currid, %submap );
-    for my $id ( keys %map )
-    {
-        my @names = split /\./, $map{$id};
-        if( @names == 1 )
-        {
-            push @currid, $id;
-        }
-        else
-        {
-            my ( $head, @name ) = @names;
-            $submap{$head}{$id} = join '.', @name;
-        }
-    }
-
-    for my $id ( sort{ $map{$a} <=> $map{$b} }@currid )
-    {
-        my $name = $map{$id};
-        if( $submap{$name} )
-        {
-            push @res, +{ id => $id, name => $name, children => formatusertree( %{$submap{$name}}) };
-        }
-        else
-        {
-            push @res, +{ id => $id, name => $name };
-        }
-    }
-
-    return \@res;
-};
-
-
-sub map2tree
-{
-    my $map = shift @_;
-    my %map;
-    map{ $map{$_->{id}} = $_->{name} }@$map;
-    return formatusertree( %map );
-
-};
-
 return sub
 {
     my ( %param )= @_;
@@ -82,7 +38,7 @@ return sub
     unless( $usertree )
     {
         my $treemap = eval{ $treemapcode->run( cookie => $cookie ) };
-        return map2tree( $treemap );
+        return TreeMap::map2tree( $treemap );
     }
     $logs = Logs->new( 'code.usertree' ) unless $logs;
 
