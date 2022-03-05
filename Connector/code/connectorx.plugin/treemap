@@ -26,6 +26,10 @@ BEGIN{
 
         $g{treemapgrep} = Configini::get( "treemapgrep$id" );
         $g{treemapgrep} = undef unless $g{treemapgrep} && ref $g{treemapgrep} eq 'ARRAY';
+
+        $g{treemapeid} = Configini::get( "treemapeid$id" );
+        $g{treemapeid} = undef unless $g{treemapeid} && ref $g{treemapeid} eq 'ARRAY' && @{$g{treemapeid}} == 2;
+
         push @group, \%g if $g{treemap};
     }( '', 1 .. 9 );
     $debug = Configini::get( 'debug' );
@@ -36,7 +40,7 @@ BEGIN{
 sub gettreemap
 {
     my ( %param )= @_;
-    my ( $cookie, $logs, $id, $treemap, $env, $treemapgrep ) = @param{qw(cookie logs id treemap env treemapgrep )};
+    my ( $cookie, $logs, $id, $treemap, $env, $treemapgrep, $treemapeid ) = @param{qw(cookie logs id treemap env treemapgrep treemapeid )};
 
     $logs = Logs->new( 'code.treemap' ) unless $logs;
 #    $logs->die( "id not a number" ) unless $id =~ /^\d+$/;
@@ -62,7 +66,8 @@ sub gettreemap
                 if( $filecont && ! $@ )
                 {
                     $logs->say( "treemap api usetime: cache" );
-                    return $treemapgrep ? TreeMap::mapgrep( $filecont, @$treemapgrep ) : $filecont;
+                    my $t = $treemapgrep ? TreeMap::mapgrep( $filecont, @$treemapgrep ) : $filecont;
+                    return $treemapeid ?  TreeMap::mapgrepeid( $t, $treemapeid ) : $t;
                 }
             }
         }
@@ -83,7 +88,8 @@ sub gettreemap
         eval{ YAML::XS::DumpFile $file, $v->{data} } if $apicache && $v->{stat};
         if( $v->{stat} )
         {
-            return $treemapgrep ? TreeMap::mapgrep( $v->{data}, @$treemapgrep ) : $v->{data};
+            my $t = $treemapgrep ? TreeMap::mapgrep( $v->{data}, @$treemapgrep ) : $v->{data};
+            return $treemapeid ?  TreeMap::mapgrepeid( $t, $treemapeid ) : $t;
         }
     }
     elsif( $apicache )
@@ -97,7 +103,8 @@ sub gettreemap
                 if( $filecont && ! $@ )
                 {
                     $logs->err( "treemap api usetime: cache" );
-                    return $treemapgrep ? TreeMap::mapgrep( $filecont, @$treemapgrep ) : $filecont;
+                    my $t = $treemapgrep ? TreeMap::mapgrep( $filecont, @$treemapgrep ) : $filecont;
+                    return $treemapeid ?  TreeMap::mapgrepeid( $t, $treemapeid ) : $t;
                 }
             }
         }

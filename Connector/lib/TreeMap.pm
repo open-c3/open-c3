@@ -3,7 +3,7 @@ package TreeMap;
 use warnings;
 use strict;
 
-#map2tree tree2map mapgrep treegrep
+#map2tree tree2map mapgrep treegrep mapgrepeid
 
 sub _formatusertree
 {
@@ -76,6 +76,12 @@ sub mapgrep
 {
     my ( $map, @id ) = @_;
     return tree2map( treegrep( map2tree( $map ), @id ) );
+}
+
+sub mapgrepeid
+{
+    my ( $map, $eid ) = @_;
+    return [ grep{ $eid->[0] <= $_->{id} && $_->{id} <= $eid->[1] }@$map ];
 }
 
 sub treegrep
