@@ -14,36 +14,41 @@ $| ++;
 
 =cut
 
-my ( $treemap, $treemapgrep, %env, $debug, $apicache );
+my ( @group, $debug, $apicache );
 BEGIN{
     use Configini;
-    $treemap = Configini::get( 'treemap' );
-    %env = Configini::env( 'treemapenv' );
+    map{
+        my $id = $_;
+        my %g = ( id => $id );
+        $g{treemap} = Configini::get( "treemap$id" );
+        my %env = Configini::env( "treemapenv$id" );
+        $g{env} = %env ? \%env : +{};
 
-    $treemapgrep = Configini::get( 'treemapgrep' );
-    $treemapgrep = undef unless $treemapgrep && ref $treemapgrep eq 'ARRAY';
-
+        $g{treemapgrep} = Configini::get( "treemapgrep$id" );
+        $g{treemapgrep} = undef unless $g{treemapgrep} && ref $g{treemapgrep} eq 'ARRAY';
+        push @group, \%g if $g{treemap};
+    }( '', 1 .. 9 );
     $debug = Configini::get( 'debug' );
     $apicache = Configini::get( 'apicache' );
     $apicache = 0 unless $apicache && $apicache =~ /^\d+$/;
 };
 
-return sub
+sub gettreemap
 {
     my ( %param )= @_;
-    my ( $cookie, $logs ) = @param{qw(cookie logs)};
+    my ( $cookie, $logs, $id, $treemap, $env, $treemapgrep ) = @param{qw(cookie logs id treemap env treemapgrep )};
 
     $logs = Logs->new( 'code.treemap' ) unless $logs;
 #    $logs->die( "id not a number" ) unless $id =~ /^\d+$/;
 
     my $ua = LWP::UserAgent->new;
-    $ua->default_header( %env ) if %env;
+    $ua->default_header( %$env ) if $env;
     $ua->timeout( 10 );
 
     my $file;
     if( $apicache )
     {
-        $file = "/tmp/openc3-cache-api-treemap";
+        $file = "/tmp/openc3-cache-api-treemap$id";
         $ua->timeout( 3 );
 
         if( -f $file )
@@ -100,4 +105,11 @@ return sub
     #TODO die
 
     die "die";
+}
+
+return sub
+{
+    my ( %param, @res ) = @_;
+    map{ push @res, @{ gettreemap( %param, %$_ ) }; }@group;
+    return \@res;
 }
