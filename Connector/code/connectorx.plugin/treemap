@@ -14,11 +14,14 @@ $| ++;
 
 =cut
 
-my ( $treemap, %env, $debug, $apicache );
+my ( $treemap, $treemapgrep, %env, $debug, $apicache );
 BEGIN{
     use Configini;
     $treemap = Configini::get( 'treemap' );
     %env = Configini::env( 'treemapenv' );
+
+    $treemapgrep = Configini::get( 'treemapgrep' );
+    $treemapgrep = undef unless $treemapgrep && ref $treemapgrep eq 'ARRAY';
 
     $debug = Configini::get( 'debug' );
     $apicache = Configini::get( 'apicache' );
@@ -54,7 +57,7 @@ return sub
                 if( $filecont && ! $@ )
                 {
                     $logs->say( "treemap api usetime: cache" );
-                    return $filecont;
+                    return $treemapgrep ? TreeMap::mapgrep( $filecont, @$treemapgrep ) : $filecont;
                 }
             }
         }
@@ -73,7 +76,10 @@ return sub
     {
         my $v = eval{JSON::decode_json $res->decoded_content};
         eval{ YAML::XS::DumpFile $file, $v->{data} } if $apicache && $v->{stat};
-        return $v->{data} if $v->{stat};
+        if( $v->{stat} )
+        {
+            return $treemapgrep ? TreeMap::mapgrep( $v->{data}, @$treemapgrep ) : $v->{data};
+        }
     }
     elsif( $apicache )
     {
@@ -86,7 +92,7 @@ return sub
                 if( $filecont && ! $@ )
                 {
                     $logs->err( "treemap api usetime: cache" );
-                    return $filecont;
+                    return $treemapgrep ? TreeMap::mapgrep( $filecont, @$treemapgrep ) : $filecont;
                 }
             }
         }

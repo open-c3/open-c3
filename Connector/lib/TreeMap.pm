@@ -75,8 +75,7 @@ sub _tree2map
 sub mapgrep
 {
     my ( $map, @id ) = @_;
-    my $tree = map2tree( $map );
-    return treegrep( $tree, @id )
+    return tree2map( treegrep( map2tree( $map ), @id ) );
 }
 
 sub treegrep
