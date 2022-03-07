@@ -1,0 +1,44 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDB;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 col1 col2 .. col2 [ --col name,inip [id|name|type|inip|exip|projectid] ]
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->set( col => 'name,inip' )->get( qw( col=s ) )->dump();
+
+my $db = MYDB->new( "/data/Software/mydan/JOB/conf/conn", delayedconnection => 1 );
+
+sub nodeinfo
+{
+    my $id = shift @_;
+    die unless $id =~ /^\d+$/;
+
+    die if system "c3mc-base-nodeinfo $id --col $o{col}";
+    my $x = eval{ $db->query( "select $o{col} from openc3_job_nodelist where projectid in ( '$id', '0' ) and status='available'" ); };
+    die $@ if $@;
+    map{ printf "%s\n", join ';', @$_ }@$x;
+    return;
+}
+
+if( @ARGV )
+{
+    map{ nodeinfo( $_ ) }@ARGV;
+}
+else
+{
+    while(<STDIN>){ chomp; nodeinfo($_); }
+}
