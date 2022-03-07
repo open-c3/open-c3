@@ -27,11 +27,10 @@ sub adduser
     my @user = `c3_agent_pp_monitorusers user --filter 'projectid=$data->{"labels.fromtreeid"}'`;
     chomp @user;
 
-    next unless @user;
+    return unless @user;
 
     $data->{to} = \@user;
     push @out, $data;
-
 }
 
 map{ adduser($_ ) }@data;
