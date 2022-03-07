@@ -39,6 +39,8 @@ map{
     push @group, \%g if $g{nodeinfo};
 }( '', 1 .. 9 );
  
+my $db = MYDB->new( "/data/Software/mydan/Connector/conf/conn", delayedconnection => 1 );
+
 sub getnodeinfo
 {
     my ( %param )= @_;
@@ -47,7 +49,6 @@ sub getnodeinfo
 
     if( $nodeinfo =~ /api.connector.open-c3.org/ )
     {
-        my $db = MYDB->new( "/data/Software/mydan/Connector/conf/conn" );
         my $x = eval{ $db->query( sprintf "select $o{col} from openc3_connector_nodelist where projectid=$id and status='available'" ); };
         die $@ if $@;
         map{ printf "%s\n", join ';', @$_ }@$x;
