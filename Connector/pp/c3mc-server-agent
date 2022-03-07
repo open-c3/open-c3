@@ -1,0 +1,47 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+use OPENC3::PP::Exec;
+use OPENC3::PP::Server;
+
+=head1 SYNOPSIS
+
+ $0 servername
+
+=cut
+
+$|++;
+my $name = shift @ARGV;
+my %help = (
+    promesd => 'make openc3_node_sd.yml to prometheus',
+);
+
+unless( $name )
+{
+    map{ print "\$0 $_ # $help{$_}\n" }keys %help;
+    exit;
+}
+
+if( $name eq 'promesd' )
+{
+    if( -f "/data/open-c3-data/promesd.off" ) {
+        $0 = "agent_server_$name";
+        warn ">> skip by /data/open-c3-data/promesd.off\n";
+        sleep 10*365*86400;
+        exit;
+    }
+
+    my $nodetemp = "/data/Software/mydan/AGENT/conf/promesd.temp";
+    my $tempfile = "$nodetemp.$$";
+
+    OPENC3::PP::Server->new(
+        name => "agent_server_$name",
+        interval => 1800,
+        timeout => 3600,
+    )->run(
+       "c3mc-base-treemap | awk -F';' '{print \$1}'| c3mc-base-fullnodeinfo -c projectid,inip | tee $tempfile | c3mc-mon-nodesd-format --output /data/Software/mydan/prometheus/config/openc3_node_sd.yml",
+       "mv $tempfile $nodetemp",
+    );
+}
+
