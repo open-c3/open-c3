@@ -101,6 +101,10 @@ sub addcont
     $data->{treename} = gettreename( $data->{'labels.instance'}, $data );
     $data->{hostname} = gethostname( $data->{'labels.instance'}, $data );
 
+    my $skip = `c3mc-base-configx monitor.sender.skip_resolved_mesg`;
+    chomp $skip;
+    return if $skip && $skip eq '1' && $data->{status} && $data->{status} eq 'resolved';
+
     my %replace = %$data;
     for my $key ( keys %senddata )
     {
