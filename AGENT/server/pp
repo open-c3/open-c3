@@ -29,7 +29,7 @@ if( $name eq 'promesd' )
         interval => 1800,
         timeout => 3600,
     )->run(
-       "c3_connector_pp_treemap | awk -F';' '{print \$1}'| c3_job_pp_nodeinfo -c projectid,inip | tee $tempfile | c3_agent_pp_sdformat --output $RealBin/../../prometheus/config/openc3_node_sd.yml",
+       "c3mc-base-treemap | awk -F';' '{print \$1}'| c3mc-base-fullnodeinfo -c projectid,inip | tee $tempfile | c3_agent_pp_sdformat --output $RealBin/../../prometheus/config/openc3_node_sd.yml",
        "mv $tempfile $nodetemp",
     );
 }
