@@ -25,13 +25,24 @@ my %o = $option->set( col => 'name,inip' )->get( qw( col=s ) )->dump();
 
 my @col = split /,/, $o{col};
 
-my ( $nodeinfo, %env );
-$nodeinfo = Configini::get( 'nodeinfo' );
-%env = Configini::env( 'nodeinfoenv' );
+my @group;
+map{
+    my $id = $_;
+    my %g;
+    $g{nodeinfo} = Configini::get( "nodeinfo$id" );
+    my %env = Configini::env( "nodeinfoenv$id" );
+    $g{env} = %env ? \%env : +{};
 
-sub nodeinfo
+    $g{nodeinfoeid} = Configini::get( "nodeinfoeid$id" );
+    $g{nodeinfoeid} = undef unless $g{nodeinfoeid} && ref $g{nodeinfoeid} eq 'ARRAY' && @{$g{nodeinfoeid}} == 2;
+
+    push @group, \%g if $g{nodeinfo};
+}( '', 1 .. 9 );
+ 
+sub getnodeinfo
 {
-    my $id = shift @_;
+    my ( %param )= @_;
+    my ( $id, $nodeinfo, $env ) = @param{qw(id nodeinfo env )};
     die unless $id =~ /^\d+$/;
 
     if( $nodeinfo =~ /api.connector.open-c3.org/ )
@@ -45,7 +56,7 @@ sub nodeinfo
 
     my $ua = LWP::UserAgent->new;
     $ua->timeout( 5 );
-    $ua->default_header( %env ) if %env;
+    $ua->default_header( %$env ) if $env;
 
     my $res = $ua->get( "${nodeinfo}$id" );
 
@@ -62,6 +73,24 @@ sub nodeinfo
         $t->{projectid} = $id;
         printf "%s\n", join ';', map{ $t->{$_} || '' }@col;
     }
+}
+
+sub getconfig
+{
+    my $id = shift @_;
+    for my $g ( @group )
+    {
+        return $g if $g->{nodeinfoeid} && $g->{nodeinfoeid}[0] <= $id && $id <= $g->{nodeinfoeid}[1];
+    }
+    return $group[0];
+}
+
+sub nodeinfo
+{
+    my $id = shift @_;
+    die unless $id =~ /^\d+$/;
+    my $config = getconfig( $id );
+    getnodeinfo( id => $id, %$config );
 }
 
 if( @ARGV ) { map{ nodeinfo( $_ ) }@ARGV; } else { while(<STDIN>){ chomp; nodeinfo($_); } }
