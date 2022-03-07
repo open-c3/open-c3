@@ -32,6 +32,7 @@ my %template =
     monitorTemplateEmailTitle => 'monitor: host:${labels.instance} alter: ${labels.alertname} status:${status}',
     monitorTemplateEmailContent => 'monitor: host:${labels.instance} alter: ${labels.alertname} status:${status}',
     monitorTemplateSmsContent => 'monitor: host:${labels.instance} alter: ${labels.alertname} status:${status}',
+    monitorTemplateCallContent => 'monitor: host:${labels.instance} alter: ${labels.alertname} status:${status}',
 );
 
 sub gettime
@@ -91,6 +92,7 @@ sub addcont
     $senddata{title} = $environment->{monitorTemplateEmailTitle} || $template{monitorTemplateEmailTitle};
     $senddata{content} = $environment->{monitorTemplateEmailContent} || $template{monitorTemplateEmailContent};
     $senddata{mesg} = $environment->{monitorTemplateSmsContent} || $template{monitorTemplateSmsContent};
+    $senddata{call} = $environment->{monitorTemplateCallContent} || $template{monitorTemplateCallContent};
 
     $data->{statusZH} = Encode::decode('utf8', '告警发生中' ) if $data->{status} && $data->{status} eq 'firing';
     $data->{statusZH} = Encode::decode('utf8', '告警已恢复' ) if $data->{status} && $data->{status} eq 'resolved';
@@ -132,7 +134,16 @@ sub addcont
         $data->{mesg} = $senddata{mesg};
     }
 
-    for my $t ( qw( title content mesg ) )
+    if(
+        ( $environment->{isMonitorSuccessCall} && $environment->{isMonitorSuccessCall} eq 'true' ) &&
+        ( $data->{'labels.severity'} && ( $data->{'labels.severity'} eq 'level1' ) ) 
+    )
+    {
+
+        $data->{call} = $senddata{call};
+    }
+
+    for my $t ( qw( title content mesg call ) )
     {
         next unless $data->{$t};
         $data->{$t} =~ s#(\d+\.\d)\d+%#$1%#;

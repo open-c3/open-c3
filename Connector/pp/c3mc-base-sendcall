@@ -1,0 +1,62 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDB;
+use MYDan::Util::OptConf;
+use Encode;
+use LWP::UserAgent;
+use JSON;
+use Configini;
+
+=head1 SYNOPSIS
+
+ $0 user1 user2 ... user3
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get()->dump();
+$option->assert() unless @ARGV;
+
+local $/ = undef;
+my $mesg = Encode::encode('utf8', <STDIN> );
+local $/ = "\n";
+
+my ( $usercall, %env );
+$usercall = Configini::get( 'usercall' );
+%env = Configini::env( 'usercallenv' );
+
+exit unless $usercall;
+
+my $ua = LWP::UserAgent->new;
+$ua->timeout( 10 );
+$ua->default_header( %env ) if %env;
+
+my $db = MYDB->new( "/data/Software/mydan/Connector/conf/conn", delayedconnection => 1 );
+
+sub sendmesg
+{
+    my ( $user, $mesg ) = @_;
+
+    my $x = $db->query( sprintf "select `phone` from openc3_connector_useraddr where user='$user'" );
+    $user = $x->[0][0] if @$x;
+
+    my $cont = $usercall =~ /encode/ ? JSON::to_json( +{ user => $user, mesg => $mesg } ) : JSON::encode_json( +{ user => $user, mesg => $mesg } );
+    my $res = $ua->post( $usercall, Content => $cont, 'Content-Type' => 'application/json');
+
+    my $err = "send call fail: $usercall";
+    die sprintf( "$err: code %s", $res->code ) unless $res->is_success;
+
+    my $v = eval{JSON::decode_json $res->decoded_content};
+    die "$err: data no JSON: $@" if $@;
+    die sprintf( "$err: info: %s", $v->{info}|'' ) unless $v->{stat};
+}
+
+map{ sendmesg( $_, $mesg ) }@ARGV;

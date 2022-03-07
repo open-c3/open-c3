@@ -21,6 +21,7 @@
                                 <th colspan="2" class="right-bor" style="text-align: center;">分类</th>
                                 <th class="right-bor" style="text-align: center;"><label for="email" class="notice-top allmes" >邮件<input type="checkbox" ng-model="emailall" id="email" ng-click="notify.checkAllEmail()"></label></th>
                                 <th class="right-bor" style="text-align: center;"><label for="sms" class="notice-top allout" style="text-align: center;">短信<input type="checkbox" ng-model="smsall" id="sms" ng-click="notify.checkAllSms()"></label></th>
+                                <th class="right-bor" style="text-align: center;"><label for="call" class="notice-top allout" style="text-align: center;">语音</label></th>
                             </tr>
                             </thead>
                             <tbody>
@@ -29,16 +30,19 @@
                                     <td class="right-bor">执行成功</td>
                                     <td class="right-bor"><input type="checkbox" check-class="email"  ng-model = "isPageSuccessEmail" name="isPageSuccessEmail" ></td>
                                     <td class="right-bor"><input type="checkbox" check-class="sms"   ng-model="isPageSuccessSms"  name="isPageSuccessSms" ></td>
+                                    <td class="right-bor"></td>
                                 </tr>
                                 <tr>
                                     <td class="right-bor">执行失败</td>
                                     <td class="right-bor"><label class="notice-top"><input type="checkbox" check-class="email"  ng-model="isPageFailEmail" name="isPageFailEmail" ></label></td>
                                     <td class="right-bor"><label class="notice-top"><input type="checkbox" check-class="sms"   ng-model="isPageFailSms" name="isPageFailSms" ></label></td>
+                                    <td class="right-bor"></td>
                                 </tr>
                                 <tr>
                                     <td class="right-bor">等待用户</td>
                                     <td class="right-bor"><label class="notice-top"><input type="checkbox" check-class="email" ng-model="isPageWaitingEmail" name="isPageWaitingEmail" ></label></td>
                                     <td class="right-bor"><label class="notice-top"><input type="checkbox" check-class="sms" ng-model="isPageWaitingSms" name="isPageWaitingSms" ></label></td>
+                                    <td class="right-bor"></td>
                                 </tr>
 
                                 <tr>
@@ -46,16 +50,19 @@
                                     <td class="right-bor">执行成功</td>
                                     <td class="right-bor"><label class="notice-top"><input type="checkbox" check-class="email" ng-model="isApiSuccessEmail" name="isApiSuccessEmail" ></label></td>
                                     <td class="right-bor"><label class="notice-top"><input type="checkbox" check-class="sms" ng-model="isApiSuccessSms"  name="isApiSuccessSms" ></label></td>
+                                    <td class="right-bor"></td>
                                 </tr>
                                 <tr>
                                     <td class="right-bor">执行失败</td>
                                     <td class="right-bor"><label class="notice-top"><input type="checkbox" check-class="email" ng-model="isApiFailEmail" name="isApiFailEmail" ></label></td>
                                     <td class="right-bor"><label class="notice-top"><input type="checkbox" check-class="sms" ng-model="isApiFailSms" name="isApiFailSms" ></label></td>
+                                    <td class="right-bor"></td>
                                 </tr>
                                 <tr>
                                     <td class="right-bor">等待用户</td>
                                     <td class="right-bor"><label class="notice-top"><input type="checkbox" check-class="email" ng-model="isApiWaitingEmail" name="isApiWaitingEmail" ></label></td>
                                     <td class="right-bor"><label class="notice-top"><input type="checkbox" check-class="sms" ng-model="isApiWaitingSms" name="isApiWaitingSms" ></label></td>
+                                    <td class="right-bor"></td>
                                 </tr>
 
                                 <tr>
@@ -63,39 +70,46 @@
                                     <td class="right-bor">执行成功</td>
                                     <td class="right-bor"><label class="notice-top"><input type="checkbox" check-class="email" ng-model="isCrontabSuccessEmail" name="isCrontabSuccessEmail" ></label></td>
                                     <td class="right-bor"><label class="notice-top"><input type="checkbox" check-class="sms"  ng-model="isCrontabSuccessSms" name="isCrontabSuccessSms" ></label></td>
+                                    <td class="right-bor"></td>
                                 </tr>
                                 <tr>
                                     <td class="right-bor">执行失败</td>
                                     <td class="right-bor"><label class="notice-top"><input type="checkbox" check-class="email" ng-model="isCrontabFailEmail" name="isCrontabFailEmail" ></label></td>
                                     <td class="right-bor"><label class="notice-top"><input type="checkbox" check-class="sms"  ng-model="isCrontabFailSms"  name="isCrontabFailSms" ></label></td>
+                                    <td class="right-bor"></td>
                                 </tr>
                                 <tr>
                                     <td class="right-bor">等待用户</td>
                                     <td class="right-bor"><label class="notice-top"><input type="checkbox" check-class="email" ng-model="isCrontabWaitingEmail" name="isCrontabWaitingEmail" ></label></td>
                                     <td class="right-bor"><label class="notice-top"><input type="checkbox" check-class="sms"   ng-model="isCrontabWaitingSms" name="isCrontabWaitingSms" ></label></td>
+                                    <td class="right-bor"></td>
                                 </tr>
                                 <tr>
                                     <td rowspan="2" class="right-bor line">构建任务</td>
                                     <td class="right-bor">执行成功</td>
                                     <td class="right-bor"><label class="notice-top"><input type="checkbox" check-class="email" ng-model="isCiSuccessEmail" name="isCiSuccessEmail" ></label></td>
                                     <td class="right-bor"><label class="notice-top"><input type="checkbox" check-class="sms"  ng-model="isCiSuccessSms" name="isCiSuccessSms" ></label></td>
+                                    <td class="right-bor"></td>
                                 </tr>
                                 <tr>
                                     <td class="right-bor">执行失败</td>
                                     <td class="right-bor"><label class="notice-top"><input type="checkbox" check-class="email" ng-model="isCiFailEmail" name="isCiFailEmail" ></label></td>
                                     <td class="right-bor"><label class="notice-top"><input type="checkbox" check-class="sms"  ng-model="isCiFailSms"  name="isCiFailSms" ></label></td>
+                                    <td class="right-bor"></td>
                                 </tr>
                                 <tr>
                                     <td rowspan="1" class="right-bor line">审批</td>
                                     <td class="right-bor">审批事件</td>
                                     <td class="right-bor"><label class="notice-top"><input type="checkbox" check-class="email" ng-model="isApprovalSuccessEmail" name="isApprovalSuccessEmail" ></label></td>
                                     <td class="right-bor"><label class="notice-top"><input type="checkbox" check-class="sms"  ng-model="isApprovalSuccessSms" name="isApprovalSuccessSms" ></label></td>
+                                    <td class="right-bor"></td>
                                 </tr>
                                 <tr>
                                     <td rowspan="1" class="right-bor line">监控系统</td>
                                     <td class="right-bor">告警通知</td>
                                     <td class="right-bor"><label class="notice-top"><input type="checkbox" check-class="email" ng-model="isMonitorSuccessEmail" name="isMonitorSuccessEmail" ></label></td>
                                     <td class="right-bor"><label class="notice-top"><input type="checkbox" check-class="sms"  ng-model="isMonitorSuccessSms" name="isMonitorSuccessSms" ></label></td>
+                                    <td class="right-bor"><label class="notice-top"><input type="checkbox" check-class="call"  ng-model="isMonitorSuccessCall" name="isMonitorSuccessCall" ></label></td>
                                 </tr>
                             </tbody>
 

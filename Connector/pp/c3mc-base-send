@@ -69,6 +69,17 @@ sub sendinfo
         waitpid( $pid, 0 );
         ( $stat = 1 && warn "send mesg fail." ) if $?;
     }
+
+    if( $data->{call} )
+    {
+        my $pipe = "c3mc-base-sendcall @user";
+        my $pid = IPC::Open3::open3( my $chld_in, '>&STDOUT', '>&STDERR', $pipe);
+        Encode::_utf8_off($data->{call});
+        print $chld_in $data->{call}; 
+        $chld_in = undef;
+        waitpid( $pid, 0 );
+        ( $stat = 1 && warn "send call fail." ) if $?;
+    }
 }
 
 map{ sendinfo($_ ) }@data;

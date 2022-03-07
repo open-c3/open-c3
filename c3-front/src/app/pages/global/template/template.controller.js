@@ -142,6 +142,16 @@
             msmDetail['monitorTemplateSmsContent'] = vm.environment.monitorTemplateSmsContent;
             vm.save( msmDetail )
         };
+
+        vm.callMonitorSet = function () {
+            vm.environment.monitorTemplateCallContent = "语音告警，监控对象: ${labels.instance} ${annotations.description}";
+        };
+        vm.callMonitorSave = function () {
+            var callDetail = {};
+            callDetail['monitorTemplateCallContent'] = vm.environment.monitorTemplateCallContent;
+            vm.save( callDetail )
+        };
+
 //
 
         vm.save = function (data) {
