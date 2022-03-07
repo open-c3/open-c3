@@ -1,0 +1,29 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my @file = qw(
+    /etc/job.exip
+    /etc/ci.exip
+);
+
+for my $file ( @file )
+{
+    next unless -f $file;
+
+    my $ip = `cat $file`;
+    chomp $ip;
+    die unless $ip =~ /^\d+\.\d+\.\d+\.\d+$/;
+    print "$ip\n";
+    exit;
+}
+
+die "nofind";
