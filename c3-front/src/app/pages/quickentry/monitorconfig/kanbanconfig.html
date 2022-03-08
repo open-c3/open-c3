@@ -31,6 +31,13 @@
  
                         <td data-title="'创建人'" width="80" filter="{ edit_user: 'text'}" sortable="'edit_user'"> {{m.edit_user}} </td>
                         <td data-title="'创建时间'" width="80" filter="{ edit_time: 'text'}" sortable="'edit_time'"> {{m.edit_time}} </td>
+
+                        <td data-title="'默认打开'" width="80" >
+                            <i ng-if="m.default !== 1" class="fa fa-toggle-off fa-2x" aria-hidden="true" ng-click="kanbanconfig.setDefaultKanban(m.id, 1 )" uib-tooltip="设置成默认打开" style="cursor:pointer;color: #f63;" ></i>
+                            <i ng-if="m.default === 1" class="fa fa-toggle-on fa-2x" aria-hidden="true" ng-click="kanbanconfig.setDefaultKanban(m.id, 0 )" uib-tooltip="去掉默认打开" style="cursor:pointer;color: green;" ></i>
+                        </td>
+
+
                         <td data-title="'删除'" width="80" >
                             <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kanbanconfig.delKanban(m.id)" uib-tooltip="删除看版" style="cursor:pointer;color: red;" ></i>
                         </td> 

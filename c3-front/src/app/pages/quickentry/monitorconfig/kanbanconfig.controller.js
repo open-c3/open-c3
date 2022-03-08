@@ -54,5 +54,17 @@
                 }
             });
         };
+
+        vm.setDefaultKanban = function( kanbanid, stat ){
+            $http.post("/api/agent/monitor/config/kanban/setdefault/"+ vm.treeid + "/" + kanbanid, { stat: stat }  ).success(function(data){
+                if(data.stat == true) 
+                { 
+                    vm.reload();
+                } else { 
+                    toastr.error("设置默认看版失败:" + data.info)
+                }
+            });
+        };
+
     }
 })();

@@ -15,8 +15,15 @@
         vm.dashboarnuuid2 = 'dUrNraOnz';
 
         vm.alias = { 'port': '端口', 'process': '进程', 'http': 'HTTP', 'tcp': 'TCP','udp': 'UDP', 'path': '路径' }
+        vm.locked = 0;
         treeService.sync.then(function(){
             vm.nodeStr = treeService.selectname();
+
+            if( vm.locked == 1 )
+            {
+                return;
+            }
+
             var xx = vm.nodeStr.split(".").length;
             if( xx <= 2 )
             {
@@ -101,6 +108,15 @@
                 function successCallback(response) {
                     if (response.data.stat){
                         vm.clusterlist = response.data.data;
+                        angular.forEach(response.data.data, function (value, key) {
+                            if( value.default == 1 )
+                            {
+                                vm.locked = 1;
+                                vm.choiceKanban = value.url;
+                                vm.changeKanban();
+                            }
+                        });
+
                     }else {
                         toastr.error( "获取看版列表失败："+response.data.info );
                     }

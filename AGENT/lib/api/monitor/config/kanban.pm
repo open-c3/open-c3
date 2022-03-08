@@ -19,7 +19,7 @@ get '/monitor/config/kanban/:projectid' => sub {
     my $projectid = $param->{projectid};
 
     my $where = $projectid ? " where projectid='$projectid'" : "";
-    my @col = qw( id projectid name url edit_user edit_time );
+    my @col = qw( id projectid name url edit_user edit_time default );
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_monitor_config_kanban
@@ -41,7 +41,7 @@ get '/monitor/config/kanban/:projectid/:id' => sub {
 
     my $projectid = $param->{projectid};
 
-    my @col = qw( id projectid name url edit_user edit_time );
+    my @col = qw( id projectid name url edit_user edit_time default );
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_monitor_config_kanban where projectid='$projectid' and id='$param->{id}'", join( ',', @col)), \@col )};
@@ -69,6 +69,33 @@ post '/monitor/config/kanban/:projectid' => sub {
         $api::auditlog->run( user => $user, title => "ADD MONITOR CONFIG KANBAN", content => "TREEID:$projectid NAME:$name URL:$url" );
         $api::mysql->execute( "insert into openc3_monitor_config_kanban (`projectid`,`name`,`url`,`edit_user`)
             values('$projectid','$name','$url','$user')" );
+    };
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
+};
+
+post '/monitor/config/kanban/setdefault/:projectid/:kanbanid' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        projectid => qr/^\d+$/, 1,
+        kanbanid => qr/^\d+$/, 1,
+        stat => qr/^\d+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $pmscheck = api::pmscheck( 'openc3_agent_write', $param->{projectid} ); return $pmscheck if $pmscheck;
+
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+
+    my ( $projectid, $kanbanid, $stat ) = @$param{qw( projectid kanbanid stat )};
+
+    $stat = $stat ? 1 : 0;
+    my $title = $stat ? 'SET' : 'UNSET';
+
+    eval{
+        $api::auditlog->run( user => $user, title => "$title MONITOR DEFAULT KANBAN", content => "TREEID:$projectid KANBANID:$kanbanid" );
+        $api::mysql->execute( "update openc3_monitor_config_kanban set `default`=0 where projectid=$projectid" );
+        $api::mysql->execute( "update openc3_monitor_config_kanban set `default`=$stat where projectid=$projectid and id=$kanbanid" );
     };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
