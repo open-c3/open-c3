@@ -1,0 +1,32 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+local $/ = undef;
+my @data = YAML::XS::Load( <STDIN> );
+local $/ = "\n";
+
+my %group;
+for my $data ( @data )
+{
+    my $groupkey = join ':',map{ $data->{$_}||'_' }qw( labels.fromtreeid labels.alertname labels.instance status labels.severity );
+    push @{$group{$groupkey}}, $data;
+}
+
+for ( values %group )
+{
+    my $data = $_;
+    my $out = $data->[0];
+    $out->{'annotations.descriptions'} = join "\n", map{ $_->{'annotations.description'}}@$data;
+    print YAML::XS::Dump $out;
+}

@@ -1,0 +1,19 @@
+#!/bin/bash
+
+file=$1
+
+test -f $file || exit
+
+filename=$(basename $file)
+
+mv $file /data/open-c3-data/monitor-sender/run/
+
+cd /data/open-c3-data/monitor-sender || exit
+
+c3mc-mon-mesg-format run/$filename | c3mc-mon-mesg-merge | c3mc-mon-mesg-adduser | c3mc-mon-mesg-addcont | c3mc-base-send
+
+if [ "X$?" == "X0" ]; then
+    mv run/$filename zsucc/
+else
+    mv run/$filename zfail/
+fi

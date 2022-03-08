@@ -15,6 +15,7 @@ $|++;
 my $name = shift @ARGV;
 my %help = (
     promesd => 'make openc3_node_sd.yml to prometheus',
+    sender => 'sender mesg from alertmanager',
 );
 
 unless( $name )
@@ -45,3 +46,14 @@ if( $name eq 'promesd' )
     );
 }
 
+if( $name eq 'sender' )
+{
+    chdir "/data/open-c3-data/monitor-sender" or die "chdir fail: $!";
+    map{ die if system "mkdir -p  $_"; }qw( zsucc zfail run );
+
+    OPENC3::PP::Server->new(
+        name => "agent_server_$name",
+        interval => 6,
+        timeout => 60,
+    )->run( "ls *.wait 2>/dev/null| xargs -P 5 -i{} bash -c \"c3mc-mon-sender {}\"" );
+}
