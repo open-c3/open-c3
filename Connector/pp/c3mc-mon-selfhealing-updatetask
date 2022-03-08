@@ -1,0 +1,54 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib
+use strict;
+use warnings;
+
+$|++;
+
+use JSON;
+use LWP::UserAgent;
+use Util;
+
+=head1 SYNOPSIS
+
+ $0
+ $0 id;taskuuid
+
+=cut
+
+my @task;
+
+if( @ARGV )
+{
+    @task = @ARGV;
+}
+else
+{
+    while(<STDIN>){ chomp; push @task, $_; }
+}
+
+sub updatetask
+{
+    my (  $id, $taskuuid ) = split /;/, shift @_;
+    return unless $id && $taskuuid;
+
+    my $ua = LWP::UserAgent->new();
+    $ua->agent('Mozilla/9 [en] (Centos; Linux)');
+
+    my %env = eval{ Util::envinfo( qw( appkey appname ) )};
+    die if $@;
+
+    $ua->default_header( map{ $_ => $env{$_} }qw( appname appkey ) );
+
+    $ua->timeout( 10 );
+    $ua->default_header ( 'Cache-control' => 'no-cache', 'Pragma' => 'no-cache' );
+
+    my $res = $ua->get( "http://api.job.open-c3.org/task/0/$taskuuid" );
+    my $data = eval{JSON::from_json $res->content };
+
+    my $stat = $data && ref $data eq 'HASH' && $data->{data} && ref $data->{data} eq 'HASH' && $data->{data}{status} && $data->{data}{status} =~ /^[a-zA-Z]+$/ ? $data->{data}{status} : undef;
+
+    my $time = time + 600;
+    system "c3mc-base-db-set -t openc3_monitor_self_healing_task $id --set \"healingchecktime='$time',taskstat='$stat'\"" if $stat;
+}
+
+map{ updatetask( $_ )}@task;

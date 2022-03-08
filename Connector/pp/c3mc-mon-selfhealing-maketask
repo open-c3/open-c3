@@ -1,0 +1,39 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use MYDB;
+
+=head1 SYNOPSIS
+
+ $0
+ echo 10.100.1.1;c125e5438273d8b0;2022-02-20T15:27:12.589Z;根盘/使用百分比大于85%;清理跟路径 |./$0
+
+=cut
+
+my $db = MYDB->new( "/data/Software/mydan/AGENT/conf/conn" );
+
+while(<STDIN>)
+{
+    chomp;
+    
+    my ( $instance, $fingerprint, $startsAt, $alertname, $jobname ) = split /;/, $_;
+    if( $_ !~ /'/ && $instance && $fingerprint && $startsAt && $alertname && $jobname )
+    {
+        save( $db, $instance, $fingerprint, $startsAt, $alertname, $jobname );
+    }
+    else { warn "conf: $_"; }
+}
+
+sub save{
+    my ( $db, $instance, $fingerprint, $startsAt, $alertname, $jobname ) = @_;
+    my $r = eval{ $db->query( "select id from openc3_monitor_self_healing_task where jobname='$jobname' and taskstat!='success' and taskstat!='fail'" ); };   
+    return unless $r && ref $r eq 'ARRAY' && @$r == 0;
+
+    my $x = eval{ $db->query( "select id from openc3_monitor_self_healing_task where instance='$instance' and fingerprint='$fingerprint' and startsAt ='$startsAt'" ); };   
+
+    return unless $x && ref $x eq 'ARRAY' && @$x == 0;
+    $db->execute( "insert into openc3_monitor_self_healing_task (`instance`,`fingerprint`,`startsAt`,`alertname`,`jobname`) values('$instance','$fingerprint','$startsAt','$alertname','$jobname')" );
+}

@@ -1,0 +1,49 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib
+use strict;
+use warnings;
+
+$|++;
+
+use JSON;
+use LWP::UserAgent;
+
+=head1 SYNOPSIS
+
+ $0
+ $0 --close
+ $0 id;taskuuid
+
+id instance fingerprint startsAt  alertname 
+
+=cut
+use MYDan::Util::OptConf;
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( close ) )->dump();
+
+my @task;
+
+if( @ARGV )
+{
+    @task = @ARGV;
+}
+else
+{
+    while(<STDIN>){ chomp; push @task, $_; }
+}
+
+sub updatehealing
+{
+    my ( $id, $instance, $fingerprint, $startsAt, $altername ) = split /;/, shift @_;
+    return unless $id && $instance && $fingerprint && $startsAt && $altername;
+
+    my @alters = `c3mc-mon-selfhealing-curralter _`;
+    chomp @alters;
+    my %alters = map{ $_ => 1 }@alters;
+
+    my $x = join ";", $instance, $fingerprint, $startsAt, $altername, 'UNKOWN';
+    my $status = $alters{$x} ? 'fail' : 'success';
+    return if ! $o{close} && $status ne 'success';
+    system "c3mc-base-db-set -t openc3_monitor_self_healing_task $id --set \"healingstat='$status'\"";
+}
+
+map{ updatehealing( $_ )}@task;
