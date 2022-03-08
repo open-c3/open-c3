@@ -221,6 +221,6 @@ create table `openc3_monitor_config_kanban`(
 `url` VARCHAR(3000) comment 'url',
 `edit_user` VARCHAR(100) comment '编辑者',
 `edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
-`default` int(4) unsigned default 0 comment '默认模版',
+`default` int(4) unsigned default 0 comment '默认模版'
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='monitorconfigkanban';
 
