@@ -59,8 +59,6 @@ sub gettreemap
     die sprintf( "$err: info: %s", $v->{info}|'' ) unless $v->{stat};
     die "$err: data no ARRAY" unless $v->{data} && ref $v->{data} eq 'ARRAY';
 
-    return $v->{data};
-
     my $t = $treemapgrep ? TreeMap::mapgrep( $v->{data}, @$treemapgrep ) : $v->{data};
     return $treemapeid ? TreeMap::mapgrepeid( $t, $treemapeid ) : $t;
 }
