@@ -16,6 +16,8 @@ my $name = shift @ARGV;
 my %help = (
     promesd => 'make openc3_node_sd.yml to prometheus',
     sender => 'sender mesg from alertmanager',
+    rule => 'get monitor rule',
+    carry => 'get monitor carry info'
 );
 
 unless( $name )
@@ -57,6 +59,19 @@ if( $name eq 'rule' )
         "curl -XPOST http://OPENC3_PROMETHEUS_IP:9090/-/reload 2>/dev/null",
     );
 }
+
+if( $name eq 'carry' )
+{
+    OPENC3::PP::Server->new(
+        name => "agent_server_$name",
+        interval => 60,
+        timeout => 120,
+    )->run(
+        "cat /data/Software/mydan/AGENT/conf/promesd.temp | c3mc-mon-carry --output /data/Software/mydan/AGENT/conf/openc3_carry.yml",
+        "cat /data/Software/mydan/AGENT/conf/promesd.temp | awk -F';' '{print \$2}'| c3mc-mon-proxy --output /data/Software/mydan/AGENT/conf/openc3_proxy.yml",
+    );
+}
+
 
 if( $name eq 'sender' )
 {

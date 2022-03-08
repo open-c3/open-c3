@@ -45,8 +45,8 @@ map{
 
 map{
     die "start $_ fail: $!" if system "$supervisor --errname 'agent.server.$_' --cmd '$base/server/pp $_' --log '$base/logs/server/$_'";
-}qw( carry extend-exporter self-healing );
+}qw( extend-exporter self-healing );
 
 map{
     die "start $_ fail: $!" if system "$supervisor --errname 'agent.server.$_' --cmd 'c3mc-server-agent $_' --log '$base/logs/server/$_'";
-}qw( promesd rule sender );
+}qw( promesd rule carry sender );
