@@ -1,0 +1,69 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use MYDB;
+use MYDan::Util::OptConf;
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ $0
+ $0 --output /path/foo,yaml
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( output=s ) )->dump();
+
+my $db = MYDB->new( "/data/Software/mydan/AGENT/conf/conn" );
+
+my %rule;
+my @col = qw( projectid alert expr for severity summary description value );
+my $x = eval{ $db->query( sprintf ( "select %s from `openc3_monitor_config_rule`", join ',', map{"`$_`"}@col ), \@col ) };
+
+for my $row ( @$x )
+{
+     $rule{$row->{projectid}} = [] unless $rule{$row->{projectid}};
+     push @{$rule{$row->{projectid}}}, $row;
+}
+
+my @groups;
+for my $treeid ( keys %rule )
+{
+    next unless $rule{$treeid};
+    my @rules;
+    for my $rule ( @{$rule{$treeid}} )
+    {
+        push @rules, +{
+            alert => $rule->{alert},
+            expr => $rule->{expr},
+            for => $rule->{for} || '1s',
+            labels => +{
+                severity => $rule->{severity},
+                fromtreeid => $treeid,
+            },
+            annotations => +{
+                summary => $rule->{summary}||'-',
+                description => $rule->{description}||'-',
+                value => $rule->{value}||'-',
+            },
+        };
+    }
+
+    push @groups, +{ name => "treeid_$treeid", rules => \@rules };
+}
+
+my $r = +{ groups => \@groups };
+
+if( $o{output} )
+{
+    my $temp = "$o{output}.temp.$$";
+    YAML::XS::DumpFile $temp, $r;
+    rename $temp, $o{output} or die "rename fail: $!";
+    exit;
+}
+
+print YAML::XS::Dump $r;

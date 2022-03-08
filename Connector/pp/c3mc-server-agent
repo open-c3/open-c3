@@ -46,6 +46,18 @@ if( $name eq 'promesd' )
     );
 }
 
+if( $name eq 'rule' )
+{
+    OPENC3::PP::Server->new(
+        name => "agent_server_$name",
+        interval => 60,
+        timeout => 120,
+    )->run(
+        "c3mc-mon-rule --output /data/Software/mydan/prometheus/config/openc3_rule.yml",
+        "curl -XPOST http://OPENC3_PROMETHEUS_IP:9090/-/reload 2>/dev/null",
+    );
+}
+
 if( $name eq 'sender' )
 {
     chdir "/data/open-c3-data/monitor-sender" or die "chdir fail: $!";
