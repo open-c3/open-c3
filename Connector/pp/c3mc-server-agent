@@ -84,3 +84,30 @@ if( $name eq 'sender' )
         timeout => 60,
     )->run( "ls *.wait 2>/dev/null| xargs -P 5 -i{} bash -c \"c3mc-mon-sender {}\"" );
 }
+
+if( $name eq 'extend-exporter' )
+{
+    my @cmd;
+
+    for my $type ( qw( mysql redis ) )
+    {
+        my $file = "/data/Software/mydan/AGENT/config/$type-exporter.conf";
+        next unless -f $file;
+
+        push @cmd, "cat $file | c3mc-mon-$type-exportermaker";
+        push @cmd, "cat $file | c3mc-mon-$type-exporterclean";
+        push @cmd, "cat $file | c3mc-mon-$type-sdformat --output /data/Software/mydan/prometheus/config/openc3_${type}_sd.yml";
+    }
+
+    unless( @cmd ) { $0 = "agent_server_$name"; sleep 10*365*86400; exit; } 
+
+    OPENC3::PP::Server->new(
+        name => "agent_server_$name",
+        interval => 300,
+        timeout => 120,
+    )->run( @cmd );
+
+}
+
+
+

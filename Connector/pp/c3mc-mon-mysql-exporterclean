@@ -1,0 +1,55 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my %conf;
+while(<STDIN>){
+    chomp;
+    my $c = $_;
+    if( $c && $c !~ /'/ )
+    {
+        my ( $name, $conf ) = split /;/, $c;
+        ( undef, undef, $name, $conf ) = split( /;/, $c ) if $c =~ /^v2;/;
+        warn "format error" unless $conf; 
+        $conf{$conf} = $name if $conf;
+    }
+    else { warn "conf: $c"; }
+}
+
+sub get
+{
+    my %has;
+    my @ps = `docker ps`;
+    chomp @ps;
+    my @name = map{ my ( $x )= reverse split /\s+/, $_;$x }@ps;
+    map{ $has{$_} = 1 if /^openc3-mysqld-exporter-([a-z0-9\.\-]+-\d+)$/; }@name;
+    return %has;
+}
+
+my %has = get();
+
+sub run
+{
+    my ( $conf, $has ) = @_;
+
+    die "format err" unless $conf && $conf =~ /@\(([a-z0-9\.\-]+:\d+)\)/;
+    my $name = $1;
+    $name =~ s/:/-/;
+    $name = "openc3-mysqld-exporter-$name";
+    delete $has->{$name};
+}
+
+map{ run( $_, \%has ); }keys %conf;
+
+map{
+    system "docker stop $_ >/dev/null";
+    system "docker rm $_ >/dev/null";
+}keys %has;

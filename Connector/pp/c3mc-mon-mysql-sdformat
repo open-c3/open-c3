@@ -1,0 +1,75 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use YAML::XS;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0
+ $0 --output /path/foo.yaml
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( output=s ) )->dump();
+
+my ( %name, %label );
+while(<STDIN>)
+{
+    my $c = $_;
+    chomp $c;
+
+    my %l;
+    if( $c =~ /^v2;/ )
+    {
+        my ( $version, $label, $data ) = split /;/, $c, 3;
+        map{
+            my ( $k, $v ) = split /=/, $_;
+            $l{$k} = $v if defined $k && defined $v && $k =~ /^[a-zA-Z][a-zA-Z0-9_\-]*$/ && $v =~ /^[a-zA-Z][a-zA-Z0-9_\.\-]*$/;
+        }split /,/, $label;
+        $c = $data;
+    }
+ 
+    if( $c && $c =~ /@\(([a-z0-9\.\-]+:\d+)\)/ )
+    {
+        my $name = $1;
+
+        $name =~ s/:/-/;
+        $name = "openc3-mysqld-exporter-$name";
+
+        my ( $alias, $conf ) = split /;/, $c;
+        warn "format error" unless $conf; 
+ 
+        die "alias format error: $alias" if $alias && $alias !~ /^[a-z0-9\.\-:]+$/;
+        $name{$name} = $alias if $conf;
+        $label{$name} = \%l;
+    }
+    else { warn "conf: $c"; }
+
+}
+
+#my @target = ( +{ targets =>  [ map{ "$_:9104" }keys %name ] } );
+my @target;
+
+for my $name ( keys %name )
+{
+    my $t = $name;
+    $t =~ s/^openc3-mysqld-exporter-//;
+    $t =~ s/-/:/;
+    my %lables = ( %{$label{$name}}, instance => $name{$name} || $t, addr => $t );
+    push @target, +{ targets => [ "$name:9104" ], labels => \%lables };
+}
+
+if( $o{output} )
+{
+    my $temp = "$o{output}.temp.$$";
+    YAML::XS::DumpFile $temp, \@target;
+    rename $temp, $o{output} or die "rename fail: $!";
+    exit;
+}
+
+print YAML::XS::Dump \@target;
