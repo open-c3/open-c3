@@ -25,7 +25,7 @@ sub envinfo
 {
     my %env;
     map{
-        $env{$_} = `cat '$RealBin/../conf/$_'`;
+        $env{$_} = `cat '/data/Software/mydan/AGENT/conf/$_'`;
         chomp $env{$_};
         die "load envinfo $_ fail" unless defined $env{$_} && $env{$_} =~ /^[a-zA-Z0-9\.]+$/;
     }@_;
