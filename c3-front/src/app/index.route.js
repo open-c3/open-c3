@@ -206,6 +206,12 @@
                 controller: 'UseraddrController',
                 controllerAs: 'useraddr'
             })
+            .state('home.global.userdepartment', {
+                url: 'userdepartment/:treeid',
+                templateUrl: 'app/pages/global/userdepartment/userdepartment.html',
+                controller: 'UserdepartmentController',
+                controllerAs: 'userdepartment'
+            })
             .state('home.global.private', {
                 url: 'private/:treeid',
                 templateUrl: 'app/pages/global/private/private.html',

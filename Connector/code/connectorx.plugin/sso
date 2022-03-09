@@ -100,6 +100,13 @@ return sub
                 ? ( $v->{data}{user}, $v->{data}{company}, $v->{data}{admin}, $v->{data}{showconnector} )
                 : ref $v->{data} eq 'HASH' ? () : ( $v->{data}, $v->{data} =~ /(@.+)$/ ? $1 : 'default' );
 
+            if( @return >= 2 && $return[0] && $return[0] =~ /^[a-zA-Z0-9\@\-\.-]+$/ )
+            {
+                my $userdepartment = `c3mc-base-db-get -t openc3_connector_userdepartment department -f "user='$return[0]'"`;
+                chomp $userdepartment;
+                $return[1] = $userdepartment if $userdepartment =~ /^[a-zA-Z0-9\@\-\.-]+$/;
+            }
+
             eval{ YAML::XS::DumpFile $file, \@return } if $apicache;
 
             return wantarray ? @return : $return[0];
