@@ -175,6 +175,13 @@
                 controllerAs: 'monitorconfig'
             })
  
+            .state('home.quickentry.monitorgroup', {
+                url: 'monitorgroup/:treeid',
+                templateUrl: 'app/pages/quickentry/monitorgroup/monitorgroup.html',
+                controller: 'MonitorGroupController',
+                controllerAs: 'monitorgroup'
+            })
+ 
             .state('home.quickentry.selfhealingconfig', {
                 url: 'selfhealingconfig/:treeid',
                 templateUrl: 'app/pages/quickentry/selfhealingconfig/selfhealingconfig.html',
