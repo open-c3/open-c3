@@ -104,26 +104,6 @@
                 }
             });
 
-            $http.get('/api/agent/monitor/config/kanban/' + vm.treeid ).then(
-                function successCallback(response) {
-                    if (response.data.stat){
-                        vm.clusterlist = response.data.data;
-                        angular.forEach(response.data.data, function (value, key) {
-                            if( value.default == 1 )
-                            {
-                                vm.locked = 1;
-                                vm.choiceKanban = value.url;
-                                vm.changeKanban();
-                            }
-                        });
-
-                    }else {
-                        toastr.error( "获取看版列表失败："+response.data.info );
-                    }
-                },
-                function errorCallback (response){
-                    toastr.error( "获取看版列表失败: " + response.status )
-                });
         };
 
         vm.reload();

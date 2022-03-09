@@ -30,8 +30,17 @@
     </ul>
 
     <ul class="nav navbar-nav navbar-left">
-        <li>
-            <a ui-sref="home.quickentry.monitorconfig({treeid: nav.state.params.treeid})" > <span>监控</span> </a>
+        <li class="dropdown" uib-dropdown>
+            <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple " uib-dropdown-toggle>
+                <span>监控</span>
+                <span class="caret caret-tp hidden-xs"></span>
+            </a>
+            <ul class="dropdown-menu list-group dropdown-persist w250" uib-dropdown-menu>
+                <li class="list-group-item">
+                    <a ui-sref="home.quickentry.monitorkanban({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span>监控看版</span> </a>
+                    <a ui-sref="home.quickentry.monitorconfig({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span>监控配置</span> </a>
+                </li>
+            </ul>
         </li>
     </ul>
 

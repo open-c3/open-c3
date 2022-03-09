@@ -50,6 +50,7 @@
                                 || sName == 'home.quickentry.approval'
                                 || sName == 'home.quickentry.terminal'
                                 || sName == 'home.quickentry.sendfile'
+                                || sName == 'home.quickentry.monitorkanban'
                                 || sName == 'home.quickentry.monitorconfig'
                                 || sName == 'home.quickentry.selfhealingconfig'
                                 || sName == 'home.business.job'

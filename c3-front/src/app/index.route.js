@@ -161,6 +161,13 @@
                 controllerAs: 'cigroup'
             })
  
+            .state('home.quickentry.monitorkanban', {
+                url: 'monitorkanban/:treeid',
+                templateUrl: 'app/pages/quickentry/monitorkanban/monitorkanban.html',
+                controller: 'MonitorKanbanController',
+                controllerAs: 'monitorkanban'
+            })
+
             .state('home.quickentry.monitorconfig', {
                 url: 'monitorconfig/:treeid',
                 templateUrl: 'app/pages/quickentry/monitorconfig/monitorconfig.html',

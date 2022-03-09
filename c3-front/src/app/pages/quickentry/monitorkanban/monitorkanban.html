@@ -1,0 +1,45 @@
+<div class="row block">
+    <nodestr></nodestr>
+    <hr class="mv20 clear">
+
+    <div>
+        <div style="float: right;">
+            <form class="form-inline" name="myForm" novalidate>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="monitorkanban.openNewWindow( monitorkanban.grafanaurl )">Grafana</button>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="monitorkanban.openNewWindow( monitorkanban.prometheusurl )">Prometheus</button>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="monitorkanban.openNewWindow( monitorkanban.alertmanagerurl )">Alertmanager</button>
+            </form>
+        </div>
+        <div style="clear: both;">&nbsp;</div>
+    </div>
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h5>监控看板</h5>
+        </div>
+
+        <div class="panel-body flowline">
+            <div class="pt20" style="overflow: auto;">
+
+                <div class="row">
+                    <div class="col-sm-12 form-group">
+                        <label class="col-sm-1 control-label">选择看板</label>
+                        <div class="col-sm-4">
+                            <select id="selecteddataval" class="form-control"  ng-model="monitorkanban.choiceKanban" ng-change="monitorkanban.changeKanban()">
+                                 <option value="_host_">主机监控</option>
+                                 <option ng-repeat="x in monitorkanban.clusterlist" value="{{x.url}}">{{x.name}}</option>
+                            </select>
+                        </div>
+                        <div class="col-sm-3">
+                            <button class="btn btn-info" uib-tooltip="看版管理" ng-click="monitorkanban.kanbanConfig()"><i class="fa fa-plus" aria-hidden="true">看版管理</i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <a class="glyphicon glyphicon-share" data-toggle="tooltip" data-placement="right" target='_blank' ng-href="{{monitorkanban.url}}" uib-tooltip="在新页面打开grafana" aria-hidden="true" style="padding-top: 11px;font-size: larger;">{{monitorkanban.url}}</a>
+                <iframe id="frame_id" ng-src="{{monitorkanban.trustSrc()}}" width="100%" height="800" frameborder="0" name="grafana" scrolling="auto"></iframe> 
+            </div>
+        </div>
+
+    </div>
+</div>
