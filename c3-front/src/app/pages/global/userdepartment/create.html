@@ -1,0 +1,30 @@
+<div class="modal-header">
+    <h4  class="modal-title">绑定用户部门关联关系</h4>
+</div>
+<div class="modal-body">
+    <form class="form-horizontal" name="myForm" role="form">
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">用户</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" name="adduser" placeholder="用户,如果用户名已经存在会进行覆盖" ng-model="userdepartmentcreate.postdata.user" required>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">部门</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" name="adduser" placeholder="部门英文名称,仅支持【英文+数字+“.@_-”】" ng-model="userdepartmentcreate.postdata.department" required>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-5 form-group pull-right">
+                <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="userdepartmentcreate.add()">确认</button>
+                <button class="btn btn-warning" ng-click="userdepartmentcreate.cancel()">取消</button>
+            </div>
+        </div>
+    </form>
+</div>
+
