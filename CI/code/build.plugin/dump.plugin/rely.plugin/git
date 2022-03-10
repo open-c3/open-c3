@@ -56,7 +56,7 @@ return sub
 
 
     $logs->die( "clone error:$!" )
-        if system "cd '$temppath' && rm -rf data data.tmp info && $ctrl clone --progress $dumptags --recursive $addr data.tmp && mkdir -p info && mv data.tmp/.git info/ && mv data.tmp data && echo '$version' > info/version";
+        if system "cd '$temppath' && rm -rf data data.tmp info && $ctrl clone --depth 1 --progress $dumptags --recursive $addr data.tmp && mkdir -p info && mv data.tmp/.git info/ && mv data.tmp data && echo '$version' > info/version";
     
     if( $path )
     {

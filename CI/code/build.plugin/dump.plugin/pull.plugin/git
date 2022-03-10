@@ -92,7 +92,7 @@ return sub
         else
         {
             $logs->die( "clone error:$!" )
-                if system "cd '$temppath' && rm -rf data data.tmp info && $ctrl clone --progress -b $branch --recursive $addr data.tmp && mkdir -p info && cd data.tmp && git reset --hard $commitid && cd .. && mv data.tmp/.git info/ && mv data.tmp data && echo '$version' > info/version && echo '$branch' > info/branch && echo '$event_name' > info/event_name";
+                if system "cd '$temppath' && rm -rf data data.tmp info && $ctrl clone --depth 1 --progress -b $branch --recursive $addr data.tmp && mkdir -p info && cd data.tmp && git reset --hard $commitid && cd .. && mv data.tmp/.git info/ && mv data.tmp data && echo '$version' > info/version && echo '$branch' > info/branch && echo '$event_name' > info/event_name";
         }
 
         my $t = eval{ $db->query( "select `tagger` from openc3_ci_version where projectid='$projectid' and name='$name'" )};  
@@ -115,7 +115,7 @@ return sub
         {
 
             $logs->die( "clone error:$!" )
-                if system "cd '$temppath' && rm -rf data data.tmp info && $ctrl clone --progress $dumptags --recursive $addr data.tmp && mkdir -p info && mv data.tmp/.git info/ && mv data.tmp data && echo '$version' > info/version";
+                if system "cd '$temppath' && rm -rf data data.tmp info && $ctrl clone --depth 1 --progress $dumptags --recursive $addr data.tmp && mkdir -p info && mv data.tmp/.git info/ && mv data.tmp data && echo '$version' > info/version";
 
         }
 
