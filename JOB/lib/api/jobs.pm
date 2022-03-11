@@ -230,7 +230,7 @@ post '/jobs/:projectid/copy/byname' => sub {
         }
     }
 
-    eval{ $api::mysql->execute( "insert into openc3_job_variable (`jobuuid`,`name`,`value`,`describe`,`create_user`) select '$touuid',name,value,`describe`,'$user' from openc3_job_variable where jobuuid='$fromuuid'" ); };
+    eval{ $api::mysql->execute( "insert into openc3_job_variable (`jobuuid`,`name`,`value`,`describe`,`option`,`create_user`) select '$touuid',name,value,`describe`,`option`,'$user' from openc3_job_variable where jobuuid='$fromuuid'" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $step = join ',', @step;
@@ -517,7 +517,7 @@ post '/jobs/:projectid' => sub {
     map{ $variable{$_} = 1 } $variable =~ /\$\{([a-zA-Z][a-zA-Z0-9_]+)\}/g;
 
     eval{
-        map{ $api::mysql->execute( "insert into openc3_job_variable (`jobuuid`,`name`,`value`,`describe`,`create_user`) values('$jobuuid','$_','','','$user')" ); }keys %variable;
+        map{ $api::mysql->execute( "insert into openc3_job_variable (`jobuuid`,`name`,`value`,`describe`,`option`,`create_user`) values('$jobuuid','$_','','','','$user')" ); }keys %variable;
     };
     return +{ stat => $JSON::false, info => $@ }  if $@;
 
@@ -810,7 +810,7 @@ post '/jobs/:projectid/:jobuuid' => sub {
                 delete $variable{$_};
             }
         }(keys %variable),(keys %v);
-        map{ $api::mysql->execute( "insert into openc3_job_variable (`jobuuid`,`name`,`value`,`describe`,`create_user`) values('$jobuuid','$_','','','$user')" ); }keys %variable;
+        map{ $api::mysql->execute( "insert into openc3_job_variable (`jobuuid`,`name`,`value`,`describe`,`option`,`create_user`) values('$jobuuid','$_','','','','$user')" ); }keys %variable;
         $api::mysql->execute( sprintf "delete from openc3_job_variable where jobuuid='$jobuuid' and name in ( %s )", join ',',map{"'$_'"}keys %v ) if keys %v;
     };
 

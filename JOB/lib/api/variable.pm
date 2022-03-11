@@ -27,7 +27,7 @@ get '/variable/:projectid/:jobuuid' => sub {
     }
 
     my $w = $param->{empty} ? "and value=''" : '';
-    my @col = qw( id name value describe create_user create_time );
+    my @col = qw( id name value describe option create_user create_time );
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_job_variable
@@ -49,6 +49,7 @@ post '/variable/:projectid' => sub {
         name => qr/^[a-zA-Z0-9_]+$/, 1,
         value => qr/^[a-zA-Z0-9_\.\/]+$/, 0,
         describe => [ 'mismatch', qr/'/ ], 1,
+        option => qr/^[a-zA-Z0-9_\.\/,]+$/, 0,
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
@@ -58,8 +59,8 @@ post '/variable/:projectid' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     my $r = eval{ 
        $api::mysql->execute( 
-         "replace into openc3_job_variable (`jobuuid`,`name`,`value`,`describe`,`create_user`)
-             select uuid,'$param->{name}','$param->{value}', '$param->{describe}', '$user'
+         "replace into openc3_job_variable (`jobuuid`,`name`,`value`,`describe`,`option`,`create_user`)
+             select uuid,'$param->{name}','$param->{value}', '$param->{describe}','$param->{option}', '$user'
                  from openc3_job_jobs where projectid='$param->{projectid}' and uuid='$param->{jobuuid}'")
     };
 
@@ -68,7 +69,7 @@ post '/variable/:projectid' => sub {
 };
 
 #jobuuid
-#data [ +{ name => '', value => '', describe => '' } ]
+#data [ +{ name => '', value => '', describe => '', option => '' } ]
 post '/variable/:projectid/update' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -92,6 +93,7 @@ post '/variable/:projectid/update' => sub {
             name => qr/^[a-zA-Z0-9_]+$/, 1,
             value => qr/^[a-zA-Z0-9_\.\/\-]*$/, 0,
             describe => [ 'mismatch', qr/'/ ], 1,
+            option => qr/^[a-zA-Z0-9_\.\/\-,]*$/, 0,
         )->check( %$d );
         return  +{ stat => $JSON::false, info => "check data format fail $error" } if $error;
         $d->{value} = '' unless defined $d->{value};
@@ -99,15 +101,15 @@ post '/variable/:projectid/update' => sub {
         if( grep{ $d->{name} eq $_ || $d->{name} =~ /^wk_/  }qw( _exit_ _appname_ _skipSameVersion_ _rollbackVersion_ _authorization_ ) )
         {
             eval{
-                $api::mysql->execute( "replace into openc3_job_variable ( `jobuuid`,`name`,`value`,`describe`,`create_user` ) 
-                    values('$param->{jobuuid}','$d->{name}','$d->{value}','$d->{describe}','$user')");
+                $api::mysql->execute( "replace into openc3_job_variable ( `jobuuid`,`name`,`value`,`describe`,`option`,`create_user` ) 
+                    values('$param->{jobuuid}','$d->{name}','$d->{value}','$d->{describe}','$d->{option}','$user')");
             };
 
         }
         else
         {
             eval{
-                $api::mysql->execute( "update openc3_job_variable set value='$d->{value}',`describe`='$d->{describe}',create_user='$user' 
+                $api::mysql->execute( "update openc3_job_variable set value='$d->{value}',`describe`='$d->{describe}',`option`='$d->{option}',create_user='$user' 
                     where jobuuid='$param->{jobuuid}' and name='$d->{name}'");
             };
         }

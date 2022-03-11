@@ -27,7 +27,8 @@
             "jobuuid":"",
             "name":"",
             "value":"",
-            "describe":" "
+            "describe":"",
+            "option":""
         };
         if (!vm.editJobData){
             $state.go('home.business.job', {

@@ -26,7 +26,7 @@
                     </div>
  
                     <div class="row" ng-repeat="ss in jobVar">
-                        <div class="col-sm-10 form-group">
+                        <div ng-show="!runtask.varsvalue[ss.name]" class="col-sm-10 form-group">
                             <div>
                                 <label class="col-sm-3 control-label">{{ss.name}}: &nbsp;</label>
                                 <div class="col-sm-6"> <input type="text" class="form-control" ng-model="ss.value" placeholder="填写任务变量" required> </div>
@@ -34,6 +34,17 @@
                             </div>
 
                         </div>
+                        <div ng-show="runtask.varsvalue[ss.name]" class="col-sm-10 form-group">
+                            <div>
+                                <label class="col-sm-3 control-label">{{ss.name}}: &nbsp;</label>
+                                <div class="col-sm-6">
+                                    <select  class="form-control " style="font-size: 15px;height: 42px"  ng-model="ss.value" ng-options="n for n in  runtask.varsvalue[ss.name]" required>
+                                    </select>
+                                </div>
+                                <label class="col-sm-3" style="color: gray" >{{ss.describe}}</label>
+                            </div>
+                        </div>
+ 
                     </div>
                     <div class="row">
                         <div class="col-sm-3 form-group" style="margin-left: 40%;">

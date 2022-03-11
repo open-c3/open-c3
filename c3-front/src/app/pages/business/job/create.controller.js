@@ -20,7 +20,8 @@
             "jobuuid":"",
             "name":"",
             "value":"",
-            "describe":" "
+            "describe":"",
+            "option":""
         };
         vm.treeid = $state.params.treeid;
 

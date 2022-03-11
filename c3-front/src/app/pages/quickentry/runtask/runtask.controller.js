@@ -103,6 +103,7 @@
 
         vm.iamtask4jobx = 0;
         vm.showjobxgroup = 0;
+        vm.varsvalue = {};
 
         vm.runTask = function(){
             var varDict = {};
@@ -191,6 +192,13 @@
                                     else
                                     {
                                         vm.vartemp.push( value )
+
+                                        var vars = value.option.split(",");
+                                        if( value.option.length > 0 &&  vars.length > 0 )
+                                        {
+                                            vm.varsvalue[ value.name ] = vars;
+                                        }
+                                        
                                     }
                                 }
                                 else
