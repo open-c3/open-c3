@@ -33,11 +33,13 @@ my $null = { item => '' };
 my %list = map { %$_ }
 my @list = map { { $policy->list( $_ ) } } 1 .. ( $o{level} || 3 );
 
+my $priv = '';
 for my $time ( sort { $a <=> $b } keys %list )
 {
     my $dt = DateTime->from_epoch( epoch => $time, time_zone => $o{zone} );
-    printf " %s %02d:%02d\n%s", map { $dt->$_ } qw( day_abbr hour minute ymd );
-    map { printf " %15s", $_->{item} } map { $_->{$time} || $null } @list;
+    my $ft = sprintf "%s %s", map { $dt->$_ } qw( day_abbr ymd );
+    printf " %15s %02d:%02d\n", ( $ft eq $priv ? '' : ( $priv = $ft ) ), map { $dt->$_ } qw( hour minute );
+    print " " x 20; map { printf " %15s", $_->{item} } map { $_->{$time} || $null } @list;
     print "\n";
 }
 exit 0;
