@@ -1,0 +1,48 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+
+use strict;
+use warnings;
+
+use DateTime;
+use YAML::XS;
+
+$| ++;
+
+use OPENC3::Oncall;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 [--time] [--link] [date time zone]
+
+=cut
+my %o = MYDan::Util::OptConf
+    ->load( conf => "/data/Software/mydan/Connector/config/oncall.config" )
+    ->get( qw( link time ) )->dump();
+
+my $dt = DateTime->from_epoch( epoch => @ARGV ? OPENC3::Oncall->epoch( @ARGV ) : time );
+my ( %zone, %time ) = DateTime::TimeZone->links();
+
+goto DONE if $o{link};
+
+my %code = map { $_ => scalar DateTime::TimeZone->names_in_country( $_ ) }
+    DateTime::TimeZone->countries();
+my @name = map { @$_ } values %code;
+
+map { $time{$_} = join ' ', $dt->ymd(), $dt->hms() if ! $time{$_}
+    && eval { $dt->set_time_zone( $_ ) } } DateTime::TimeZone->all_names(),
+    @name, %zone, map { DateTime::TimeZone->names_in_category( $_ ) }
+    DateTime::TimeZone->categories();
+
+%zone = (); map { zone( $_ => $code{$_} ) } sort keys %code;
+delete @time{@name}; zone( '' => [ sort keys %time ] );
+
+DONE: YAML::XS::DumpFile \*STDOUT, \%zone;
+exit 0;
+
+sub zone ## closure on %o, %zone, %time
+{
+    my ( $code, $list ) = splice @_;
+    if ( $o{time} ) { map { push @{ $zone{ $time{$_} }{$code} }, $_ } @$list }
+    else { map { push @{ $zone{$code}{ $time{$_} } }, $_ } @$list }
+}

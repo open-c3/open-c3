@@ -1,0 +1,29 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+
+use strict;
+use warnings;
+
+$| ++;
+
+use MYDan::Util::OptConf;
+use OPENC3::Oncall::Policy;
+
+$MYDan::Util::OptConf::THIS = 'oncall';
+$MYDan::Util::OptConf::ARGC = 1;
+
+=head1 SYNOPSIS
+
+ $0 name --level number
+
+=cut
+my %o = MYDan::Util::OptConf
+    ->load( conf => "/data/Software/mydan/Connector/config/oncall.config" )
+    ->get( 'level=i' )->dump();
+
+my $time = time;
+my $who = OPENC3::Oncall::Policy->new( "$o{data}/$ARGV[0]" )
+   ->set( $time - OPENC3::Oncall::HOUR, $time + OPENC3::Oncall::HOUR )
+   ->get( $time, $o{level} || 1 );
+
+print $who->{item}, "\n";
+exit 0;

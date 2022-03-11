@@ -1,0 +1,65 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+
+use strict;
+use warnings;
+
+$| ++;
+
+use MYDan::Util::OptConf;
+use OPENC3::Oncall::Policy;
+use OPENC3::Oncall::Calendar;
+
+$MYDan::Util::OptConf::THIS = 'oncall';
+
+my @MON = map { qr/$_/i } qw( jan feb mar apr may jun jul aug sep oct nov dec );
+
+=head1 SYNOPSIS
+
+ $0 name [--zone timezone] [--level number] \
+ [--year year] [--month month] [--grep regex]
+
+=cut
+my %o = MYDan::Util::OptConf
+    ->load( conf => "/data/Software/mydan/Connector/config/oncall.config" )
+    ->get( qw( year=i month=s zone=s level=i grep=s ) )->dump;
+
+my $dt = DateTime->now()->set_time_zone( $o{zone} ||= $OPENC3::Oncall::LTZ )
+    ->set( day => 1, map { $_ => 0 } qw( hour minute second ) );
+
+my ( $year, $month, $grep, %busy ) = @o{ qw( year month grep ) };
+
+if ( $year ) { $dt->set( year => $year < 1000 ? $year += 2000 : $year ) }
+else { $year = $dt->year }
+
+if ( $month )
+{
+    if ( $month !~ /^\d+$/ )
+    {
+        for ( 0 .. $#MON )
+        {
+            last if $month = $o{month} =~ $MON[$_] ? $_ + 1 : 0;
+        }
+    }
+    elsif ( $month > 12 ) { $month = 0 }
+    $dt->set( month => $month ) if $month;
+}
+
+if ( @ARGV && $month && defined $grep && ( $grep = qr/$grep/x ) )
+{
+    my $policy = OPENC3::Oncall::Policy->new( "$o{data}/$ARGV[0]" );
+    my @level = 1 .. ( $o{level} || 3 );
+    my $end = $dt->clone->add( months => 1 )->epoch;
+
+    for ( my ( $now, $then ) = $dt->epoch; $now < $end; $now = $then )
+    {
+        my ( $month, $day ) = map { $dt->$_ } qw( month day );
+
+        $then = $dt->add( days => 1 )->epoch;
+        $policy->set( $now, $then );
+        $busy{$month}{$day} = 1 if grep { $_->{item} =~ $grep }
+            map { values %{ $policy->list( $_ ) } } @level;
+    }
+}
+
+OPENC3::Oncall::Calendar->new( $year, %busy )->print( $month );
+exit 0;

@@ -1,0 +1,43 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+
+use strict;
+use warnings;
+
+$| ++;
+
+use MYDan::Util::OptConf;
+use OPENC3::Oncall::Policy;
+
+$MYDan::Util::OptConf::THIS = 'oncall';
+$MYDan::Util::OptConf::ARGC = 1;
+
+$YAML::XS::LoadBlessed = 1;
+
+=head1 SYNOPSIS
+
+ $0 name [--begin date] [--days number] [--zone timezone] [--level number]
+
+=cut
+my %o = MYDan::Util::OptConf
+    ->load( conf => "/data/Software/mydan/Connector/config/oncall.config" )
+    ->get( qw( begin=s zone=s level=i days=s ) )->dump;
+
+$o{begin} ||= DateTime->now()->ymd();
+$o{zone} ||= $OPENC3::Oncall::LTZ;
+
+my $begin = OPENC3::Oncall->epoch( @o{ qw( begin zone ) } ) - OPENC3::Oncall::DAY;
+my $end = OPENC3::Oncall::DAY * ( 1 + ( $o{days} || 7 ) ) + $begin;
+my $policy = OPENC3::Oncall::Policy->new( "$o{data}/$ARGV[0]" )->set( $begin, $end );
+
+my $null = { item => '' };
+my %list = map { %$_ }
+my @list = map { { $policy->list( $_ ) } } 1 .. ( $o{level} || 3 );
+
+for my $time ( sort { $a <=> $b } keys %list )
+{
+    my $dt = DateTime->from_epoch( epoch => $time, time_zone => $o{zone} );
+    printf " %s %02d:%02d\n%s", map { $dt->$_ } qw( day_abbr hour minute ymd );
+    map { printf " %15s", $_->{item} } map { $_->{$time} || $null } @list;
+    print "\n";
+}
+exit 0;
