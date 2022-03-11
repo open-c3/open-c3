@@ -44,20 +44,23 @@ if ( $month )
     $dt->set( month => $month ) if $month;
 }
 
-if ( @ARGV && $month && defined $grep && ( $grep = qr/$grep/x ) )
+if ( @ARGV && defined $grep && ( $grep = qr/$grep/x ) )
 {
-    my $policy = OPENC3::Oncall::Policy->new( "$o{data}/$ARGV[0]" );
-    my @level = 1 .. ( $o{level} || 3 );
-    my $end = $dt->clone->add( months => 1 )->epoch;
-
-    for ( my ( $now, $then ) = $dt->epoch; $now < $end; $now = $then )
+    for my $month ( $month ? ( $month ) : ( 1 .. 12 ) )
     {
-        my ( $month, $day ) = map { $dt->$_ } qw( month day );
+        my $policy = OPENC3::Oncall::Policy->new( "$o{data}/$ARGV[0]" );
+        my @level = 1 .. ( $o{level} || 3 );
+        my $end = $dt->clone->add( months => 1 )->epoch;
 
-        $then = $dt->add( days => 1 )->epoch;
-        $policy->set( $now, $then );
-        $busy{$month}{$day} = 1 if grep { $_->{item} =~ $grep }
-            map { values %{ $policy->list( $_ ) } } @level;
+        for ( my ( $now, $then ) = $dt->epoch; $now < $end; $now = $then )
+        {
+            my ( $month, $day ) = map { $dt->$_ } qw( month day );
+
+            $then = $dt->add( days => 1 )->epoch;
+            $policy->set( $now, $then );
+            $busy{$month}{$day} = 1 if grep { $_->{item} =~ $grep }
+                map { values %{ $policy->list( $_ ) } } @level;
+        }
     }
 }
 
