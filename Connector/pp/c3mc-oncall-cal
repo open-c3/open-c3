@@ -16,17 +16,17 @@ my @MON = map { qr/$_/i } qw( jan feb mar apr may jun jul aug sep oct nov dec );
 =head1 SYNOPSIS
 
  $0 name [--zone timezone] [--level number] \
- [--year year] [--month month] [--grep regex]
+ [--year year] [--month month] [--grep regex] [--user name]
 
 =cut
 my %o = MYDan::Util::OptConf
     ->load( conf => "/data/Software/mydan/Connector/config/oncall.config" )
-    ->get( qw( year=i month=s zone=s level=i grep=s ) )->dump;
+    ->get( qw( year=i month=s zone=s level=i grep=s user=s ) )->dump;
 
 my $dt = DateTime->now()->set_time_zone( $o{zone} ||= $OPENC3::Oncall::LTZ )
     ->set( day => 1, map { $_ => 0 } qw( hour minute second ) );
 
-my ( $year, $month, $grep, %busy ) = @o{ qw( year month grep ) };
+my ( $year, $month, $grep, $user,  %busy ) = @o{ qw( year month grep user ) };
 
 if ( $year ) { $dt->set( year => $year < 1000 ? $year += 2000 : $year ) }
 else { $year = $dt->year }
@@ -44,11 +44,12 @@ if ( $month )
     $dt->set( month => $month ) if $month;
 }
 
-if ( @ARGV && defined $grep && ( $grep = qr/$grep/x ) )
+if ( @ARGV && ( (defined $grep && ( $grep = qr/$grep/x ) ) || $user  ) )
 {
+    my $policy = OPENC3::Oncall::Policy->new( "$o{data}/$ARGV[0]" );
     for my $month ( $month ? ( $month ) : ( 1 .. 12 ) )
     {
-        my $policy = OPENC3::Oncall::Policy->new( "$o{data}/$ARGV[0]" );
+        $dt->set( month => $month );
         my @level = 1 .. ( $o{level} || 3 );
         my $end = $dt->clone->add( months => 1 )->epoch;
 
@@ -58,7 +59,7 @@ if ( @ARGV && defined $grep && ( $grep = qr/$grep/x ) )
 
             $then = $dt->add( days => 1 )->epoch;
             $policy->set( $now, $then );
-            $busy{$month}{$day} = 1 if grep { $_->{item} =~ $grep }
+            $busy{$month}{$day} = 1 if grep { $grep ? $_->{item} =~ $grep : $_->{item} eq $user  }
                 map { values %{ $policy->list( $_ ) } } @level;
         }
     }
