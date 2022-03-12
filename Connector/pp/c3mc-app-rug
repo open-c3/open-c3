@@ -1,0 +1,35 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+#Resolve user groups
+use strict;
+use warnings;
+
+use MYDB;
+
+$| ++;
+
+exit unless my @user = @ARGV;
+
+my $db = MYDB->new( "/data/Software/mydan/AGENT/conf/conn", delayedconnection => 1 );
+
+sub resolve
+{
+    my ( $user ) = @_;
+    return unless $user && $user =~ /^[a-zA-Z0-9\.\-_@%:]+$/;
+    if( $user =~ s/^@// )
+    {
+        my $x = eval{ $db->query( "select user from openc3_monitor_config_groupuser where groupid in (select id from openc3_monitor_config_group where name='$user')" ); };
+        die "$0 get data fail: $@" if $@;
+        return map{@$_}@$x;
+    }
+    if( $user =~ s/^%// )
+    {
+        my $level = $user =~ s/:(\d+)$// ? $1 : 1;
+        my @x = `c3mc-oncall-now '$user' -l $level`;
+        chomp @x;
+        return @x;
+    }
+    return $user;   
+}
+
+my %user = map{ $_ => 1 } grep { /^[a-zA-Z0-9][a-zA-Z0-9\.\-_@]*$/ } map{ resolve($_) } map{ resolve($_) }  map{ resolve($_) }@user;
+map{ print $_, "\n"; }sort keys %user;
