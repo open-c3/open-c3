@@ -62,7 +62,7 @@ sub dump
         next unless $day{ $i % $period };
 
         my $dt = $begin->clone->add( days => $i - 1 );
-        $event{ $now = $dt->epoch } = 1; ## rotation point
+        $now = $dt->epoch; ## rotation point
         my $today = $dt->set( map { $_ => 0 } qw( hour minute second ) )->epoch;
 
         for my $duration ( @duration )
