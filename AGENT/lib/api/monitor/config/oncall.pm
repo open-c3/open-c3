@@ -8,7 +8,7 @@ use POSIX;
 use api;
 use Format;
 
-my $path = "/data/open-c3-data/glusterfs/oncall/conf";
+my $path = "/data/open-c3-data/glusterfs/oncall";
 
 get '/monitor/config/oncall' => sub {
     my $pmscheck = api::pmscheck( 'openc3_agent_read', 0 ); return $pmscheck if $pmscheck;
@@ -40,7 +40,7 @@ get '/monitor/config/oncall/:id' => sub {
 
     eval{
         my %user;
-        my $file = "$path/$r->[0]{name}";
+        my $file = "$path/conf/$r->[0]{name}";
         my @c = YAML::XS::LoadFile $file;
         $r->[0]{config} =  `cat '$file'`;
         for my $c ( @c )
@@ -100,6 +100,8 @@ post '/monitor/config/oncall' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
     my ( $id, $name, $description, $config ) = @$param{qw( id name description config )};
+    eval{ YAML::XS::Load $config; };
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
     eval{
         my $title = $id ? "UPDATE" : "ADD";
@@ -117,12 +119,10 @@ post '/monitor/config/oncall' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     eval{
-        YAML::XS::Load $config;
-
         my $tmp = File::Temp->new( SUFFIX => ".oncall", UNLINK => 0 );
         print $tmp $config;
         close $tmp;
-        system sprintf "mv '%s' '$path/$name'",$tmp->filename;
+        system sprintf "mv '%s' '$path/conf/$name'",$tmp->filename;
 
         die "make $name fail" if system "c3mc-oncall-make $name";
     };
@@ -144,6 +144,14 @@ del '/monitor/config/oncall/:id' => sub {
     my $c = $cont->[0];
     eval{ $api::auditlog->run( user => $user, title => 'DEL MONITOR CONFIG ONCALL', content => "NAME:$c->[0] DESCRIPTION:$c->[1]" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
+
+    map{
+        my $file = "$path/$_/$c->[0]";
+        if( -f $file )
+        {
+            unlink $file or return +{ stat => $JSON::false, info => "unlink file: $!" };
+        }
+    }qw( conf data );
 
     my $r = eval{ 
         $api::mysql->execute(
