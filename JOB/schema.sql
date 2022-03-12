@@ -272,6 +272,8 @@ create table `openc3_job_variable`(
 `create_user` VARCHAR(100) comment '创建用户',
 `create_time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
 
+`option` VARCHAR(1000) comment '选项列表',
+
 UNIQUE KEY `uniq_jobuuid_name` (`jobuuid`,`name`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='作业变量';
 
