@@ -51,7 +51,7 @@ post '/monitor/config/group' => sub {
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
-    my ( $id, , $name, $description ) = @$param{qw( id name description )};
+    my ( $id, $name, $description ) = @$param{qw( id name description )};
 
     eval{
         my $title = $id ? "UPDATE" : "ADD";

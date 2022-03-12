@@ -181,6 +181,13 @@
                 controller: 'MonitorGroupController',
                 controllerAs: 'monitorgroup'
             })
+
+             .state('home.quickentry.monitoroncall', {
+                url: 'monitoroncall/:treeid',
+                templateUrl: 'app/pages/quickentry/monitoroncall/monitoroncall.html',
+                controller: 'MonitorOncallController',
+                controllerAs: 'monitoroncall'
+            })
  
             .state('home.quickentry.selfhealingconfig', {
                 url: 'selfhealingconfig/:treeid',
