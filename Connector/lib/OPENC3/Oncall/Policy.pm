@@ -188,11 +188,13 @@ sub get
         next if %{ $conf->{level} } && ! $conf->{level}{$level}
             || ! defined $range->index( $time );
 
+        next unless $time > $conf->{pivot};
+
         my $i = int( ( $time - $conf->{pivot} )
             / ( OPENC3::Oncall::DAY * $conf->{period} ) );
 
-        if ( $conf->{reverse} ) { $i += $level }
-        else { $i -= $level; $i += @$queue while $i < 0 }
+        if ( $conf->{reverse} ) { $i += ( $level - 1 )} else { $i -= ( $level - 1 ) }
+        $i += @$queue while $i < 0;
 
         return { site => $conf->{site}, item => $queue->[ $i % @$queue ] };
     }
