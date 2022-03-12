@@ -25,7 +25,6 @@
             if (re){
                 sheditor.setReadOnly(true)
             }
-            vm.leaveeditor();
         };
 
         vm.reload = function( )
@@ -33,7 +32,6 @@
             $http.get('/api/agent/monitor/config/oncall/' + vm.postData.id ).success(function(data){
                 if(data.stat == true) 
                 { 
-                    vm.loadover = true;
                     vm.users = data.data.user
                 } else { 
                     toastr.error( "加载值班组信息失败:" + data.info )
@@ -50,6 +48,7 @@
 
          vm.loadCal = function( user )
          {
+              vm.loadover = false;
               $http.get('/api/agent/monitor/config/oncall/cal/' + postData.name + '?user=' + user  ).success(function(data){
                 if(data.stat == true) 
                 { 

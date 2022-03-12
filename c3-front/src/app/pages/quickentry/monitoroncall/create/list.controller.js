@@ -25,11 +25,11 @@
             if (re){
                 sheditor.setReadOnly(true)
             }
-            vm.leaveeditor();
         };
 
-        vm.loadList = function( )
+        vm.reload = function( )
         {
+            vm.loadover = false;
             $http.get('/api/agent/monitor/config/oncall/list/' + postData.name ).success(function(data){
                 if(data.stat == true) 
                 { 
@@ -42,7 +42,7 @@
  
        };
 
-       vm.loadList();
+       vm.reload();
 
        vm.cancel = function(){ $uibModalInstance.dismiss()};
     }
