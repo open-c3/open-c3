@@ -59,8 +59,12 @@ if ( @ARGV && ( (defined $grep && ( $grep = qr/$grep/x ) ) || $user  ) )
 
             $then = $dt->add( days => 1 )->epoch;
             $policy->set( $now, $then );
-            $busy{$month}{$day} = 1 if grep { $grep ? $_->{item} =~ $grep : $_->{item} eq $user  }
-                map { values %{ $policy->list( $_ ) } } @level;
+            for my $level ( @level )
+            {
+                next if $busy{$month}{$day} && $busy{$month}{$day} > $level;
+                next unless grep { $grep ? $_->{item} =~ $grep : $_->{item} eq $user  } values %{ $policy->list( $level ) };
+                $busy{$month}{$day} = $level unless $busy{$month}{$day} && $busy{$month}{$day} > $level;
+            }
         }
     }
 }

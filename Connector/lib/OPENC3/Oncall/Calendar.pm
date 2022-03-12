@@ -93,7 +93,7 @@ sub dump
             if ( my $week = $month{$m}->week( $w ) )
             {
                 my $block = $block{$m} || {};
-                map { printf '%5s', $block->{$_} ? "[$_]" : " $_ " } @$week;
+                map { printf '%5s', $block->{$_} ? ( $block->{$_} eq 1 ? "{$_}" : (  $block->{$_} eq 2 ? "[$_]" : "($_)" ) ) : " $_ " } @$week;
                 print ' ';
             }
             else
