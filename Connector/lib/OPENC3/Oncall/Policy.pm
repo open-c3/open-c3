@@ -46,6 +46,7 @@ I<optional>:
  day: days of coverage, default all
  level: levels of coverage, default all
  reverse: default 0, reverse escalation order if 1
+ expire: a date expression, for expire
 
 Coverage is processed in sequential order until met or defaulted to the
 I<last> site ( or in reverse order, and default to the I<first> site if
@@ -65,6 +66,7 @@ I<example>:
  ---
  site: us
  pivot: 2017.06.11 20:00
+ expire: 2017.09.11 20:00
  timezone: America/Los_Angeles
  duration: '19:10 ~ 7:20'
  period: 7
@@ -123,7 +125,9 @@ sub load
         $conf->{site} ||= NULL;
         $conf->{level} = { map { $_ => 1 } @{ $conf->{level} || [] } };
         $conf->{cycle} = ( $conf->{period} ||= PERIOD ) * @{ $conf->{queue} };
-        $conf->{duration} = OPENC3::Oncall::Period->new( $conf->{duration} || DURATION )
+        $conf->{duration} = OPENC3::Oncall::Period->new( $conf->{duration} || DURATION );
+
+        $conf->{expire} = $conf->{expire} ? OPENC3::Oncall->epoch( @$conf{ qw( expire time_zone ) } ) : 0;
     }
     bless \@conf, $class;
 }
@@ -189,6 +193,7 @@ sub get
             || ! defined $range->index( $time );
 
         next unless $time > $conf->{pivot};
+        next if $conf->{expire} && $time > $conf->{expire};
 
         my $i = int( ( $time - $conf->{pivot} )
             / ( OPENC3::Oncall::DAY * $conf->{period} ) );
