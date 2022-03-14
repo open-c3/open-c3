@@ -133,15 +133,49 @@
 
 <hr>
 
-    <div>
-        <div style="float: right;">
-            <form class="form-inline" name="myForm" novalidate>
-                <div class="form-group" ng-init="newUser=''">
+    <div ng-init="newUser=''">
+        <div style="float: right;" ng-show="monitorconfig.usersign===''">
+            <form class="form-inline" name="myFormUser" novalidate>
+                <div class="form-group">
                     <input type="text" class="form-control" ng-model="newUser"  placeholder="添加报警人" required>
                 </div>
-                <button type="submit" ng-disabled="myForm.$invalid" class="btn btn-primary" ng-click="monitorconfig.createUser()"><i class="fa fa-user fa-lg" aria-hidden="true"></i>添加报警人</button>
+                <button type="submit" ng-disabled="myFormUser.$invalid" class="btn btn-primary" ng-click="monitorconfig.createUser()"><i class="fa fa-user fa-lg" aria-hidden="true"></i>添加报警人</button>
             </form>
         </div>
+        <div style="float: right;" ng-show="monitorconfig.usersign==='@'">
+           <form class="form-inline" name="myFormGroup" novalidate>
+                <div class="form-group">
+                    <input type="text" class="form-control" ng-model="newUser"  placeholder="添加报警组" required>
+                </div>
+                <button type="submit" ng-disabled="myFormGroup.$invalid" class="btn btn-primary" ng-click="monitorconfig.createUser()"><i class="fa fa-user fa-lg" aria-hidden="true"></i>添加报警组</button>
+            </form>
+        </div>
+        <div style="float: right;" ng-show="monitorconfig.usersign==='%'">
+           <form class="form-inline" name="myFormOncall" novalidate>
+                <div class="form-group">
+                    <input type="text" class="form-control" ng-model="newUser"  placeholder="添加轮班组" required>
+                </div>
+                <button type="submit" ng-disabled="myFormOncall.$invalid" class="btn btn-primary" ng-click="monitorconfig.createUser()"><i class="fa fa-user fa-lg" aria-hidden="true"></i>添加轮班组</button>
+            </form>
+       </div>
+
+        <div style="float: right;" ng-show="monitorconfig.usersign===':'">
+            <form class="form-inline" name="myFormDepartment" novalidate>
+                <div class="form-group">
+                    <input type="text" class="form-control" ng-model="newUser"  placeholder="添加部门组" required>
+                </div>
+                <button type="submit" ng-disabled="myFormDepartment.$invalid" class="btn btn-primary" ng-click="monitorconfig.createUser()"><i class="fa fa-user fa-lg" aria-hidden="true"></i>添加部门组</button>
+            </form>
+ 
+        </div>
+        <div style="float: right;" ng-init="role= [ { sign: '', name: '普通用户'} , { sign: '@', name: '报警组'} , { sign: '%', name: '轮班组'}, { sign: ':', name: '部门组' } ]">
+            <form class="form-inline" name="myForm" novalidate>
+                <div class="form-group">
+                    <select class="form-control"  ng-model="monitorconfig.usersign"  ng-options="o.sign as o.name for o in role"  > </select>
+                </div>
+            </form>
+        </div>
+
         <div style="clear: both;">&nbsp;</div>
     </div>
 
@@ -151,7 +185,7 @@
             <span class="panel-controls">
                 <button class="btn btn-dark" uib-tooltip="刷新" ng-click="monitorconfig.reloadUser()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!monitorconfig.loadoverUser}" ></i></button>
             </span>
-            <h5>通知用户</h5>
+            <h5>通知列表</h5>
         </div>
 
         <div class="panel-body">

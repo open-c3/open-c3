@@ -11,6 +11,8 @@
         vm.treeid = $state.params.treeid;
         var toastr = toastr || $injector.get('toastr');
 
+        vm.usersign = '';
+
         vm.dashboarnuuid1 = 'dUrNraOn1';
         vm.dashboarnuuid2 = 'dUrNraOnz';
 
@@ -193,8 +195,8 @@
 
         vm.createUser = function () {
             vm.newuser = $scope.newUser;
-            if (vm.newuser.length > 0){
-                $http.post('/api/agent/monitor/config/user/' + vm.treeid, {'user': vm.newuser}).then(
+            if ( vm.newuser != undefined && vm.newuser.length > 0){
+                $http.post('/api/agent/monitor/config/user/' + vm.treeid, {'user': vm.usersign + vm.newuser }).then(
                     function successCallback(response) {
                         if (response.data.stat){
                             vm.reloadUser();
