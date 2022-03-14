@@ -17,4 +17,5 @@ docker cp /data/open-c3/lua/lualib/resty/http_connect.lua openc3-lua:/usr/local/
 docker cp /data/open-c3/lua/lualib/resty/http_headers.lua openc3-lua:/usr/local/openresty/lualib/resty/http_headers.lua
 
 #oncall 需要的插件
-/data/Software/mydan/perl/bin/cpan install DateTime
+docker exec -i openc3-server /data/Software/mydan/perl/bin/cpan install DateTime
+mkdir -p /data/open-c3-data/glusterfs/oncall/{conf,data}
