@@ -19,11 +19,14 @@ $| ++;
 
 =cut
 
-my ( $pmspoint, %env, $ssousername, %ssousernameenv, $debug, $apicache );
+my ( $pmspoint, @eid, %env, $ssousername, %ssousernameenv, $debug, $apicache );
 BEGIN{
     use Configini;
     $pmspoint = Configini::get( 'pmspoint' );
     %env = Configini::env( 'pmspointenv' );
+
+    my $eid = Configini::get( 'pmspointeid' );
+    @eid = @$eid if $eid && ref $eid eq 'ARRAY' && @$eid == 3;
 
     $ssousername = Configini::get( 'ssousername' );
     %ssousernameenv = Configini::env( 'ssousernameenv' );
@@ -73,6 +76,12 @@ return sub
     {
         if( $treeid )
         {
+
+            if( @eid )
+            {
+                $treeid = $eid[2] unless $eid[0] <= $treeid && $treeid <= $eid[1];
+            }
+
             $treestr = "&treeid=$treeid";
         }
         else
