@@ -24,7 +24,9 @@ $| ++;
 =cut
 
 
-exit unless my @user = @ARGV;
+my @user;
+if( @ARGV ) { @user = @ARGV; } else { while(<STDIN>){ chomp; push @user, $_; } }
+exit unless @user;
 
 my ( $dba, $dbc ) = map{ MYDB->new( "/data/Software/mydan/$_/conf/conn", delayedconnection => 1 ) }qw( AGENT Connector );
 
