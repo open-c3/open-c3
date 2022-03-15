@@ -117,11 +117,8 @@ post '/monitor/config/usertest' => sub {
 
     return +{ stat => $JSON::false, info => "user format error" } unless $user && $user =~ /^[a-zA-Z0-9@\.\-_]+$/;
 
-    my $uuid = time . rand 1000000;
     eval{
-        die "cp fail:$!" if system "cp /data/Software/mydan/AGENT/config/mesgsendtest.txt /tmp/mesgsendtest.txt.$uuid";
-        die "echo fail: $!" if system "echo \"to: '$user'\" >> /tmp/mesgsendtest.txt.$uuid";
-        die "send fail: $!" if system "cat /tmp/mesgsendtest.txt.$uuid|c3mc-base-send";
+        die "send mesg fail: $!" if system "c3mc-app-usrext '$user' | xargs -i{} bash -c \"cat /data/Software/mydan/AGENT/config/mesgsendtest.txt |sed 's/XXX/{}/' | c3mc-base-send \"";
     };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
