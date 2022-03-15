@@ -46,6 +46,7 @@
         };
 
          vm.testsend = function ( user ) {
+            user = user.replace(/_/g, ".")
             $http.post('/api/agent/monitor/config/usertest', { projectid: vm.treeid, 'user': user}).then(
                 function successCallback(response) {
                     if (response.data.stat){
