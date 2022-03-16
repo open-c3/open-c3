@@ -55,7 +55,7 @@ sub run
                 else
                 {
                     wait;
-                    die if $?;
+                    die "cmd: $cmd : $?" if $?;
                 }
 
             }
