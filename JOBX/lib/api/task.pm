@@ -267,7 +267,7 @@ any ['put', 'delete'] => '/task/:projectid/:uuid' => sub {
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    my $pmscheck = api::pmscheck( 'openc3_jobx_write', $param->{projectid} ); return $pmscheck if $pmscheck;
+    my $pmscheck = api::pmscheck( 'openc3_jobx_control', $param->{projectid} ); return $pmscheck if $pmscheck;
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 

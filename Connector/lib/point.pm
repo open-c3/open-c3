@@ -21,7 +21,7 @@ sub point
             openc3_jobx_read => [ 0, 1, 2, 3 ],
             openc3_jobx_write => [ 2, 3 ],
             openc3_jobx_delete => [ 2, 3 ],
-            openc3_jobx_control => [ 2, 3 ],
+            openc3_jobx_control => [ 1, 2, 3 ],
             openc3_jobx_root => [ 3 ],
 
             openc3_ci_read => [ 0, 1, 2, 3 ],
