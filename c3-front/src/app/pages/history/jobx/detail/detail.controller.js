@@ -417,6 +417,7 @@
                     title: '终止发布任务...',
                     showConfirmButton: false
                 });
+                vm.killTaskByJs( taskuuid );
                 var Kill = $interval(function () {
                     if ($scope.taskDetail.status != "running"){
                         $interval.cancel(Kill);
@@ -438,6 +439,7 @@
                     title: '终止回滚任务...',
                     showConfirmButton: false
                 });
+                vm.killTaskByJs( taskuuid );
                 var Kill = $interval(function () {
                     if ($scope.taskDetaiXl.status != "running"){
                         $interval.cancel(Kill);
@@ -457,6 +459,11 @@
         vm.killTaskByJs = function ( taskuuid ) {
             var promise =  $http.delete('/api/jobx/task/' + vm.treeid + '/' + taskuuid)
             return promise.then(function (data) {
+                if( ! data.data.stat )
+                {
+                    toastr.error("操作失败" + data.data.info);
+                }
+
                 var response = data.data;
                 return response.data
             });
@@ -480,6 +487,7 @@
                     title: '操作中...',
                     showConfirmButton: false
                 });
+                vm.killTaskByJs(vm.taskuuid);
                 var Kill = $interval(function () {
                     if ($scope.taskDetail.status != "running"){
                         vm.rollback(rollbackType);
