@@ -493,7 +493,23 @@ if( vm.addservice === 1 )
             }
 
         }
+        vm.cleanNodeAffinity = function()
+        {
+            if( vm.editData.spec.template.spec.affinity.nodeAffinity !== undefined )
+            {
+                delete vm.editData.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution;
+            }
+ 
+            if( vm.editData.spec.template.spec.affinity.nodeAffinity !== undefined || Object.keys(vm.editData.spec.template.spec.affinity.nodeAffinity).length == 0 )
+            {
+                delete vm.editData.spec.template.spec.affinity.nodeAffinity;
+            }
 
+            if( vm.editData.spec.template.spec.affinity !== undefined || Object.keys(vm.editData.spec.template.spec.affinity).length == 0 )
+            {
+                delete vm.editData.spec.template.spec.affinity;
+            }
+        }
         vm.delNodeAffinity = function(id)
         {
             vm.editData.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions.splice(id, 1);
@@ -520,6 +536,23 @@ if( vm.addservice === 1 )
                 vm.editData.spec.template.spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions.push( { "key": "", "operator": "In", "values": [] } );
             }
 
+        }
+        vm.cleanPodAffinity = function()
+        {
+            if( vm.editData.spec.template.spec.affinity.podAffinity !== undefined )
+            {
+                delete vm.editData.spec.template.spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution;
+            }
+ 
+            if( vm.editData.spec.template.spec.affinity.podAffinity !== undefined || Object.keys(vm.editData.spec.template.spec.affinity.podAffinity).length == 0 )
+            {
+                delete vm.editData.spec.template.spec.affinity.podAffinity;
+            }
+
+            if( vm.editData.spec.template.spec.affinity !== undefined || Object.keys(vm.editData.spec.template.spec.affinity).length == 0 )
+            {
+                delete vm.editData.spec.template.spec.affinity;
+            }
         }
         vm.delPodAffinity = function(id)
         {
@@ -548,6 +581,23 @@ if( vm.addservice === 1 )
             }
 
         }
+        vm.cleanPodAntiAffinity = function()
+        {
+            if( vm.editData.spec.template.spec.affinity.podAntiAffinity !== undefined )
+            {
+                delete vm.editData.spec.template.spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution;
+            }
+ 
+            if( vm.editData.spec.template.spec.affinity.podAntiAffinity !== undefined || Object.keys(vm.editData.spec.template.spec.affinity.podAntiAffinity).length == 0 )
+            {
+                delete vm.editData.spec.template.spec.affinity.podAntiAffinity;
+            }
+
+            if( vm.editData.spec.template.spec.affinity !== undefined || Object.keys(vm.editData.spec.template.spec.affinity).length == 0 )
+            {
+                delete vm.editData.spec.template.spec.affinity;
+            }
+        }
         vm.delPodAntiAffinity = function(id)
         {
             vm.editData.spec.template.spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions.splice(id, 1);
@@ -563,6 +613,10 @@ if( vm.addservice === 1 )
             }
             vm.editData.spec.template.spec.tolerations.push( { "key": "", "operator": "Equal", "value": "", "effect": "NoSchedule" } );
 
+        }
+        vm.cleanTolerations = function()
+        {
+            delete vm.editData.spec.template.spec.tolerations;
         }
         vm.delTolerations = function(id)
         {
