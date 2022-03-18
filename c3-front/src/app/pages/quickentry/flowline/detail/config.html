@@ -141,14 +141,29 @@
 <div ng-if="config.project.ci_type_open === '1' && config.project.ci_type === 'kubernetes'">
 
 <br>
-                    <div class="row">
+
+                    <div class="row" ng-init="searchcluster=0">
                         <label class="col-md-2 control-label fwbold">k8s集群</label>
-                        <div class="col-md-6">
+                        <div class="col-md-6" ng-show="searchcluster===0">
                             <select class="form-control"  ng-model="config.project.ci_type_ticketid" ng-change="config.changeCluster()" > 
                                  <option ng-repeat="x in config.clusterlist" value="{{x.id}}">{{x.name}}</option>
                             </select>
                         </div>
+
+                        <div class="col-md-6" ng-show="searchcluster===1">
+                            <input type="text" class="form-control" ng-model="ffff" placeholder="集群关键字" >
+                            <ul>
+                                <li ng-repeat="x in config.clusterlist | filter:ffff">
+                                    <a ng-show="x.id==config.project.ci_type_ticketid" style="cursor: pointer;color: green;" ng-click="config.setcid(x.id)">{{x.name}}</a>
+                                    <a ng-show="x.id!=config.project.ci_type_ticketid" style="cursor: pointer;" ng-click="config.setcid(x.id)">{{x.name}}</a>
+                                </li>
+                            </ul>
+
+                        </div>
+
                         <div class="col-md-2">
+                            <button ng-show="searchcluster===0" class="btn btn-primary" uib-tooltip="搜索集群" ng-click="searchcluster=1"><i class="fa fa-search fa-1x" >搜索</i></button>
+                            <button ng-show="searchcluster===1" class="btn btn-primary" uib-tooltip="取消搜索" ng-click="searchcluster=0"><i class="fa fa-close fa-1x" >不搜索</i></button>
                         </div>
                         <div class="col-md-2">
                             <button class="btn btn-primary" uib-tooltip="导入集群" ng-click="config.addCluster()"><i class="fa fa-plus fa-1x" >添加</i></button>
