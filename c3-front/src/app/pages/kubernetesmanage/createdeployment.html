@@ -267,12 +267,16 @@
 
 <br>
 <div ng-if="kubernetescreatedeployment.advancedconfig===1">
-            <div class="row">
+
+<div ng-repeat="typename in ['requiredDuringSchedulingIgnoredDuringExecution','requiredDuringSchedulingRequiredDuringExecution','preferredDuringSchedulingIgnoredDuringExecution','preferredDuringSchedulingRequiredDuringExecution']" >
+            <div class="row" ng-init="zhelp = {'requiredDuringSchedulingIgnoredDuringExecution':'不满足条件就一直重试', 'requiredDuringSchedulingRequiredDuringExecution': '不满足条件就一直重试，如果节点变化重新调度','preferredDuringSchedulingIgnoredDuringExecution': '尽量满足', 'preferredDuringSchedulingRequiredDuringExecution': '尽量满足，如果节点变化重新调度'}">
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">节点亲和性调度</label>
-                    <div class="col-sm-6">
-                            <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.addNodeAffinity()" uib-tooltip="添加目标节点标签" style="cursor:pointer;color: #339094;" ></i>
+                    <div class="col-sm-3">
+                            <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.addNodeAffinity(typename)" uib-tooltip="添加" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.cleanNodeAffinity(typename)" uib-tooltip="清空" style="cursor:pointer;color: #f63;" >清空</i>
                     </div>
+                    <label class="col-sm-6 control-label">({{typename}})[{{zhelp[typename]}}]</label>
                 </div>
             </div>
 
@@ -281,7 +285,7 @@
                     <label class="col-sm-1 control-label"></label>
                     <div class="col-sm-9">
                         <table  border="0" style="width: 100%">
-                            <tr ng-repeat="(id, x) in kubernetescreatedeployment.editData.spec.template.spec.affinity.nodeAffinity.requiredDuringSchedulingIgnoredDuringExecution.nodeSelectorTerms[0].matchExpressions">
+                            <tr ng-repeat="(id, x) in kubernetescreatedeployment.editData.spec.template.spec.affinity.nodeAffinity[typename].nodeSelectorTerms[0].matchExpressions">
                                 <td>
 
                                     <div class="row">
@@ -318,7 +322,7 @@
 
                                 </td>
                                 <td style="width: 50px">
-                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.delNodeAffinity(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.delNodeAffinity(id, typename)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
                                 </td>
                             </tr>
                        </table>
@@ -330,12 +334,12 @@
 
 
 
-
             <div class="row">
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">POD亲和性调度</label>
                     <div class="col-sm-6">
-                            <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.addPodAffinity()" uib-tooltip="添加亲和POD信息" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.addPodAffinity(typename)" uib-tooltip="添加亲和POD信息" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.cleanPodAffinity(typename)" uib-tooltip="清空" style="cursor:pointer;color: #f63;" >清空</i>
                     </div>
                 </div>
             </div>
@@ -345,7 +349,7 @@
                     <label class="col-sm-1 control-label"></label>
                     <div class="col-sm-9">
                         <table  border="0" style="width: 100%">
-                            <tr ng-repeat="(id, x) in kubernetescreatedeployment.editData.spec.template.spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions">
+                            <tr ng-repeat="(id, x) in kubernetescreatedeployment.editData.spec.template.spec.affinity.podAffinity[typename][0].labelSelector.matchExpressions">
                                 <td>
 
                                     <div class="row">
@@ -382,7 +386,7 @@
 
                                 </td>
                                 <td style="width: 50px">
-                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.delPodAffinity(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.delPodAffinity(id,typename)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
                                 </td>
                             </tr>
                        </table>
@@ -390,13 +394,13 @@
                 </div>
             </div>
 
-            <div class="row" ng-if="kubernetescreatedeployment.editData.spec.template.spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution[0]" >
+            <div class="row" ng-if="kubernetescreatedeployment.editData.spec.template.spec.affinity.podAffinity[typename][0]" >
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label"></label>
                     <label class="col-sm-1 control-label">namespace</label>
                     <div class="col-sm-4">
-                        {{ kubernetescreatedeployment.editData.spec.template.spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].namespaces }}
-                        <select id="selecteddataval" class="form-control"  ng-model="kubernetescreatedeployment.editData.spec.template.spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].namespaces" multiple="multiple">
+                        {{ kubernetescreatedeployment.editData.spec.template.spec.affinity.podAffinity[typename][0].namespaces }}
+                        <select id="selecteddataval" class="form-control"  ng-model="kubernetescreatedeployment.editData.spec.template.spec.affinity.podAffinity[typename][0].namespaces" multiple="multiple">
                             <option ng-repeat="x in kubernetescreatedeployment.namespaces" value="{{x.NAME}}">{{x.NAME}}</option>
                         </select>
                     </div>
@@ -404,7 +408,7 @@
 
                     <label class="col-sm-1 control-label">topologyKey</label>
                     <div class="col-sm-3">
-                        <input type="text" class="form-control" placeholder="节点标签Key" ng-model="kubernetescreatedeployment.editData.spec.template.spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].topologyKey">
+                        <input type="text" class="form-control" placeholder="节点标签Key" ng-model="kubernetescreatedeployment.editData.spec.template.spec.affinity.podAffinity[typename][0].topologyKey">
                     </div>
                 </div>
             </div>
@@ -419,7 +423,8 @@
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">POD反亲和性调度</label>
                     <div class="col-sm-6">
-                            <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.addPodAntiAffinity()" uib-tooltip="添加反亲和POD信息" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.addPodAntiAffinity(typename)" uib-tooltip="添加反亲和POD信息" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.cleanPodAntiAffinity(typename)" uib-tooltip="清空" style="cursor:pointer;color: #f63;" >清空</i>
                     </div>
                 </div>
             </div>
@@ -429,7 +434,7 @@
                     <label class="col-sm-1 control-label"></label>
                     <div class="col-sm-9">
                         <table  border="0" style="width: 100%">
-                            <tr ng-repeat="(id, x) in kubernetescreatedeployment.editData.spec.template.spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].labelSelector.matchExpressions">
+                            <tr ng-repeat="(id, x) in kubernetescreatedeployment.editData.spec.template.spec.affinity.podAntiAffinity[typename][0].labelSelector.matchExpressions">
                                 <td>
 
                                     <div class="row">
@@ -466,7 +471,7 @@
 
                                 </td>
                                 <td style="width: 50px">
-                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.delPodAntiAffinity(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.delPodAntiAffinity(id,typename)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
                                 </td>
                             </tr>
                        </table>
@@ -474,13 +479,13 @@
                 </div>
             </div>
 
-            <div class="row" ng-if="kubernetescreatedeployment.editData.spec.template.spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0]" >
+            <div class="row" ng-if="kubernetescreatedeployment.editData.spec.template.spec.affinity.podAntiAffinity[typename][0]" >
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label"></label>
                     <label class="col-sm-1 control-label">namespace</label>
                     <div class="col-sm-4">
-                        {{ kubernetescreatedeployment.editData.spec.template.spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].namespaces }}
-                        <select id="selecteddataval" class="form-control"  ng-model="kubernetescreatedeployment.editData.spec.template.spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].namespaces" multiple="multiple">
+                        {{ kubernetescreatedeployment.editData.spec.template.spec.affinity.podAntiAffinity[typename][0].namespaces }}
+                        <select id="selecteddataval" class="form-control"  ng-model="kubernetescreatedeployment.editData.spec.template.spec.affinity.podAntiAffinity[typename][0].namespaces" multiple="multiple">
                             <option ng-repeat="x in kubernetescreatedeployment.namespaces" value="{{x.NAME}}">{{x.NAME}}</option>
                         </select>
                     </div>
@@ -488,7 +493,7 @@
 
                     <label class="col-sm-1 control-label">topologyKey</label>
                     <div class="col-sm-3">
-                        <input type="text" class="form-control" placeholder="节点标签Key" ng-model="kubernetescreatedeployment.editData.spec.template.spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].topologyKey">
+                        <input type="text" class="form-control" placeholder="节点标签Key" ng-model="kubernetescreatedeployment.editData.spec.template.spec.affinity.podAntiAffinity[typename][0].topologyKey">
                     </div>
                 </div>
             </div>
@@ -498,7 +503,9 @@
 
 
 
+<hr>
 
+</div>
 
 
             <div class="row">
@@ -506,6 +513,7 @@
                     <label class="col-sm-1 control-label">容忍</label>
                     <div class="col-sm-6">
                             <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.addTolerations()" uib-tooltip="添加容忍规则" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.cleanTolerations()" uib-tooltip="清空" style="cursor:pointer;color: #f63;" >清空</i>
                     </div>
                 </div>
             </div>
@@ -1137,6 +1145,20 @@
                     <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreatedeployment.gotostep1()">返回上一步</button>
                 </div>
             </div>
+
+            <div class="row">
+                <div class="col-sm-3 form-group pull-left">
+                    <input type="text" class="form-control" name="src" placeholder="源字符串" ng-model="kubernetescreatedeployment.replace1">
+                </div>
+                <div class="col-sm-3 form-group pull-left">
+                    <input type="text" class="form-control" name="dst" placeholder="目标字符串" ng-model="kubernetescreatedeployment.replace2">
+                </div>
+                 <div class="col-sm-1 form-group pull-left">
+                    <button class="btn btn-primary" ng-disabled="!(kubernetescreatedeployment.replace1 && kubernetescreatedeployment.replace2)" ng-click="kubernetescreatedeployment.replaceyaml()">文本替换</button>
+                </div>
+ 
+            </div>
+
             <div class="pt20">
                 <table class="textdiff">
                     <tr>
