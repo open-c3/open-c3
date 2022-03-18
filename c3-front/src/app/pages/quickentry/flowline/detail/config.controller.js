@@ -804,8 +804,15 @@
         vm.getDeploymentList();
     };
     vm.changeDeployment = function() {
-        vm.project.ci_type_container = "";
-        vm.getContainerList();
+        if( vm.isArray( vm.project.ci_type_name ) && vm.project.ci_type_container == '__app_name__' )
+        {
+            vm.getContainerList();
+        }
+        else
+        {
+            vm.project.ci_type_container = "";
+            vm.getContainerList();
+        }
     };
 
 //
