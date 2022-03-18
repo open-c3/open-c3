@@ -1145,6 +1145,20 @@
                     <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreatedeployment.gotostep1()">返回上一步</button>
                 </div>
             </div>
+
+            <div class="row">
+                <div class="col-sm-3 form-group pull-left">
+                    <input type="text" class="form-control" name="src" placeholder="源字符串" ng-model="kubernetescreatedeployment.replace1">
+                </div>
+                <div class="col-sm-3 form-group pull-left">
+                    <input type="text" class="form-control" name="dst" placeholder="目标字符串" ng-model="kubernetescreatedeployment.replace2">
+                </div>
+                 <div class="col-sm-1 form-group pull-left">
+                    <button class="btn btn-primary" ng-disabled="!(kubernetescreatedeployment.replace1 && kubernetescreatedeployment.replace2)" ng-click="kubernetescreatedeployment.replaceyaml()">文本替换</button>
+                </div>
+ 
+            </div>
+
             <div class="pt20">
                 <table class="textdiff">
                     <tr>

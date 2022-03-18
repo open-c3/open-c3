@@ -1025,6 +1025,12 @@ if( vm.addservice === 1 )
             diffresultstring.appendChild(fragment);
         };
 
+//repace
+       vm.replaceyaml = function()
+       {
+           vm.newyaml = vm.newyaml.replace( new RegExp(vm.replace1,"gm"), vm.replace2);
+           vm.diff();
+       }
 //service
         vm.serviceoldyaml = "";
         vm.servicenewyaml = "";
