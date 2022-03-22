@@ -1,0 +1,42 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use YAML::XS;
+use MYDB;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $db = MYDB->new( "/data/Software/mydan/AGENT/conf/conn", delayedconnection => 1 );
+
+sub geteips
+{
+    my $name = shift @_;
+    $name =~ s/'//g;
+    my $x = eval{ $db->query( "select eips from openc3_monitor_self_healing_config where name='$name'" ); };
+    return $x->[0][0];
+}
+
+sub egrep
+{
+    my $data = shift @_;
+
+    my @data = split /;/, $data;
+    my ( $ip, $name ) = ( $data[0], $data[-1]);
+
+    my $eip = geteips( $name );
+    if( $eip )
+    {
+        my %eip = map{ $_ => 1 } split /,/, $eip;
+        return unless $eip{$ip};
+    }
+    print $data, "\n";
+}
+
+if( @ARGV ) { map{ egrep( $_ ) }@ARGV; } else { while(<STDIN>){ chomp; egrep($_); } }

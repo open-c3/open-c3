@@ -118,7 +118,7 @@ if( $name eq 'self-healing' )
         interval => 60,
         timeout => 120,
     )->run(
-       "c3mc-base-db-get -t openc3_monitor_self_healing_config altername jobname | c3mc-mon-selfhealing-curralter | c3mc-mon-selfhealing-maketask",
+       "c3mc-base-db-get -t openc3_monitor_self_healing_config altername jobname name | c3mc-mon-selfhealing-curralter | c3mc-mon-selfhealing-grepeips | c3mc-mon-selfhealing-maketask",
        "c3mc-base-db-get -t openc3_monitor_self_healing_task id instance jobname --filter 'taskuuid is null' | c3mc-mon-selfhealing-runtask",
        "c3mc-base-db-get -t openc3_monitor_self_healing_task id taskuuid --filter 'taskstat<>\"success\" and taskstat<>\"fail\"' | c3mc-mon-selfhealing-updatetask",
        'c3mc-base-db-get -t openc3_monitor_self_healing_task id instance fingerprint startsAt  alertname --filter "taskstat=\"success\" and healingstat is null and healingchecktime> $(date +%s)" | c3mc-mon-selfhealing-update',

@@ -15,6 +15,7 @@
             vm.postData.name = postData.name
             vm.postData.altername = postData.altername
             vm.postData.jobname = postData.jobname
+            vm.postData.eips = postData.eips
         }
 
         vm.siteaddr = window.location.protocol + '//' + window.location.host;

@@ -13,7 +13,7 @@ get '/selfhealing/config' => sub {
 
     my $pmscheck = api::pmscheck( 'openc3_agent_read', 0 ); return $pmscheck if $pmscheck;
 
-    my @col = qw( id name altername jobname edit_user edit_time );
+    my @col = qw( id name altername jobname edit_user edit_time eips );
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_monitor_self_healing_config", join( ',', map{ "`$_`" }@col)), \@col )};
@@ -33,7 +33,7 @@ get '/selfhealing/config/:id' => sub {
 
     my $projectid = $param->{projectid};
 
-    my @col = qw( id name altername jobname edit_user edit_time );
+    my @col = qw( id name altername jobname edit_user edit_time eips );
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_monitor_self_healing_config where id='$param->{id}'", join( ',', @col)), \@col )};
@@ -48,24 +48,26 @@ post '/selfhealing/config' => sub {
         name => [ 'mismatch', qr/'/ ], 1,
         altername => [ 'mismatch', qr/'/ ], 1,
         jobname => [ 'mismatch', qr/'/ ], 1,
+        eips => [ 'mismatch', qr/'/ ], 0,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
-     my ( $id, $name, $altername, $jobname ) = @$param{qw( id name altername jobname )};
+    my ( $id, $name, $altername, $jobname, $eips ) = @$param{qw( id name altername jobname eips )};
+    $eips ||= '';
 
     eval{
         my $title = $id ? "UPDATE" : "ADD";
         $api::auditlog->run( user => $user, title => "$title SELFHEALING CONFIG", content => "NAME:$name ALTERNAME:$altername JOBNAME:$jobname" );
         if( $id )
         {
-            $api::mysql->execute( "update openc3_monitor_self_healing_config set `name`='$name',`altername`='$altername',`jobname`='$jobname' where id='$id'" );
+            $api::mysql->execute( "update openc3_monitor_self_healing_config set `name`='$name',`altername`='$altername',`jobname`='$jobname',`eips`='$eips' where id='$id'" );
         }
         else
         {
-            $api::mysql->execute( "insert into openc3_monitor_self_healing_config (`name`,`altername`,`jobname`) values('$name','$altername','$jobname')" );
+            $api::mysql->execute( "insert into openc3_monitor_self_healing_config (`name`,`altername`,`jobname`,`eips`) values('$name','$altername','$jobname','$eips')" );
         }
     };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
