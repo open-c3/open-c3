@@ -153,6 +153,38 @@
         };
 
 //
+//Mailmon
+        vm.emailMailmonSet = function () {
+            vm.environment.mailmonTemplateEmailTitle = "报警通知: ${cont}";
+            vm.environment.mailmonTemplateEmailContent = "报警通知: ${cont}\n\n详情:" + window.location.protocol + '//' + window.location.host + "/#/mailmon/${case_id}";
+        };
+
+        vm.emailMailmonSave = function () {
+            var emailDetail = {};
+            emailDetail['mailmonTemplateEmailTitle'] = vm.environment.mailmonTemplateEmailTitle;
+            emailDetail['mailmonTemplateEmailContent'] = vm.environment.mailmonTemplateEmailContent;
+            vm.save( emailDetail )
+        };
+        vm.smsMailmonSet = function () {
+            vm.environment.mailmonTemplateSmsContent = "告警通知: ${cont}\n\n详情:" + window.location.protocol + '//' + window.location.host + "/#/mailmon/${case_id}";
+        };
+        vm.smsMailmonSave = function () {
+            var msmDetail = {};
+            msmDetail['mailmonTemplateSmsContent'] = vm.environment.mailmonTemplateSmsContent;
+            vm.save( msmDetail )
+        };
+
+        vm.callMailmonSet = function () {
+            vm.environment.mailmonTemplateCallContent = "语音告警，监控对象: ${labels.instance} ${annotations.description}";
+        };
+        vm.callMailmonSave = function () {
+            var callDetail = {};
+            callDetail['mailmonTemplateCallContent'] = vm.environment.mailmonTemplateCallContent;
+            vm.save( callDetail )
+        };
+
+//
+
 
         vm.save = function (data) {
             $http.post('/api/job/environment',data).success(function(data){
