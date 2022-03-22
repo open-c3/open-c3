@@ -24,7 +24,7 @@ get '/monitor/config/mailmon' => sub {
 get '/monitor/config/mailmon/history' => sub {
     my $pmscheck = api::pmscheck( 'openc3_agent_read', 0 ); return $pmscheck if $pmscheck;
 
-    my @col = qw( id account severity subject content  edit_user edit_time );
+    my @col = qw( id account severity subject content date from create_time );
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_monitor_history_mailmon", join( ',', map{ "`$_`" }@col)), \@col )};
