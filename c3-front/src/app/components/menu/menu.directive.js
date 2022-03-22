@@ -54,6 +54,7 @@
                                 || sName == 'home.quickentry.monitorconfig'
                                 || sName == 'home.quickentry.monitorgroup'
                                 || sName == 'home.quickentry.monitoroncall'
+                                || sName == 'home.quickentry.monitormailmon'
                                 || sName == 'home.quickentry.selfhealingconfig'
                                 || sName == 'home.business.job'
                                 || sName == 'home.business.user'

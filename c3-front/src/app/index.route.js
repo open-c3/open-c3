@@ -189,6 +189,13 @@
                 controllerAs: 'monitoroncall'
             })
  
+             .state('home.quickentry.monitormailmon', {
+                url: 'monitormailmon/:treeid',
+                templateUrl: 'app/pages/quickentry/monitormailmon/monitormailmon.html',
+                controller: 'MonitorMailmonController',
+                controllerAs: 'monitormailmon'
+            })
+ 
             .state('home.quickentry.selfhealingconfig', {
                 url: 'selfhealingconfig/:treeid',
                 templateUrl: 'app/pages/quickentry/selfhealingconfig/selfhealingconfig.html',
