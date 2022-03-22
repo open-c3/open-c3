@@ -19,6 +19,7 @@ my %help = (
     rule => 'get monitor rule',
     carry => 'get monitor carry info',
     'extend-exporter' => 'extend-exporter control: mysql,redis',
+    mailmon => 'mail monitor',
 );
 
 unless( $name )
@@ -122,5 +123,20 @@ if( $name eq 'self-healing' )
        "c3mc-base-db-get -t openc3_monitor_self_healing_task id taskuuid --filter 'taskstat<>\"success\" and taskstat<>\"fail\"' | c3mc-mon-selfhealing-updatetask",
        'c3mc-base-db-get -t openc3_monitor_self_healing_task id instance fingerprint startsAt  alertname --filter "taskstat=\"success\" and healingstat is null and healingchecktime> $(date +%s)" | c3mc-mon-selfhealing-update',
        'c3mc-base-db-get -t openc3_monitor_self_healing_task id instance fingerprint startsAt  alertname --filter "taskstat=\"success\" and healingstat is null and healingchecktime< $(date +%s)" | c3mc-mon-selfhealing-update --close',
+    );
+}
+
+if( $name eq 'mailmon' )
+{
+    chdir "/data/glusterfs/mailmon/data" or die "chdir fail: $!";
+    map{ die if system "mkdir -p  $_"; }qw( zsucc zfail run );
+
+    OPENC3::PP::Server->new(
+        name => "agent_server_$name",
+        interval => 30,
+        timeout => 60,
+    )->run(
+        "cd ../conf && ls |xargs -i{} c3mc-mon-mailmon-syncer {}",
+        "ls *.wait 2>/dev/null| xargs -P 5 -i{} bash -c \"c3mc-mon-mailmon-sender {}\"",
     );
 }

@@ -1,0 +1,51 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+use YAML::XS;
+use POSIX;
+use File::Temp;
+use Mail::POP3Client;
+
+=head1 SYNOPSIS
+
+ $0 name
+
+=cut
+
+my $name = shift @ARGV;
+die "name error" unless $name && $name =~ /^[a-zA-Z0-9][a-zA-Z0-9\.\-_]*$/;
+
+my ( $confpath, $datapath ) = map{ "/data/glusterfs/mailmon/$_" }qw( conf data );
+
+my $conf = eval{ YAML::XS::LoadFile "$confpath/$name" };
+die "load conf/$name fail: $@" if $@;
+
+die "conf/$name nofind POP3" unless my $config = $conf->{POP3};
+
+map{ die "nofind POP3.$_ in conf/$name" unless $config->{$_} }qw( USER PASSWORD HOST );
+
+my $pop = new Mail::POP3Client( %$config );
+
+my $num = $pop->Count();
+
+die "$name: connect pop3 fail" if $num < 0;
+
+for my $i ( 1 .. $num )
+{
+    my @x;
+    foreach( $pop->HeadAndBody( $i ) ) {
+        push @x, $_;
+    }
+
+    my $tmp = File::Temp->new( SUFFIX => ".c3_mailmon", UNLINK => 0 );
+    print $tmp join "\n", @x;
+    close $tmp;
+    my $uuid = sprintf "%s.%06d", POSIX::strftime( "%Y%m%d%H%M%S", localtime ), rand 999999;
+    die "rename fail: $!" if system sprintf "mv '%s' '$datapath/$name.$uuid.wait'",$tmp->filename;
+
+    $pop->Delete($i);
+}
+
+$pop->Close();

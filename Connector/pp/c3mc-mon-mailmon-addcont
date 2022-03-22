@@ -1,0 +1,99 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use YAML::XS;
+use Carp;
+use POSIX;
+use Encode;
+use Time::Local;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+local $/ = undef;
+my @data = YAML::XS::Load( <STDIN> );
+local $/ = "\n";
+
+$ENV{PATH} = "$ENV{PATH}:/data/Software/mydan/AGENT/pp:/data/Software/mydan/Connector/pp:/data/Software/mydan/JOB/pp";
+
+
+my $envstr = `c3_job_pp_environment`;
+my $environment = eval{YAML::XS::Load $envstr};
+confess "load fail: $@" if $@;
+
+my %template =
+(
+    mailmonTemplateEmailTitle => 'mailmon: host:${labels.instance} alter: ${labels.alertname} status:${status}',
+    mailmonTemplateEmailContent => 'mailmon: host:${labels.instance} alter: ${labels.alertname} status:${status}',
+    mailmonTemplateSmsContent => 'mailmon: host:${labels.instance} alter: ${labels.alertname} status:${status}',
+    mailmonTemplateCallContent => 'mailmon: host:${labels.instance} alter: ${labels.alertname} status:${status}',
+);
+
+my @out;
+sub addcont
+{
+    my $data = shift @_;
+
+    return unless $data && ref $data eq 'HASH';
+
+    my %senddata;
+    $senddata{title} = $environment->{mailmonTemplateEmailTitle} || $template{mailmonTemplateEmailTitle};
+    $senddata{content} = $environment->{mailmonTemplateEmailContent} || $template{mailmonTemplateEmailContent};
+    $senddata{mesg} = $environment->{mailmonTemplateSmsContent} || $template{mailmonTemplateSmsContent};
+    $senddata{call} = $environment->{mailmonTemplateCallContent} || $template{mailmonTemplateCallContent};
+
+
+    my %replace = %$data;
+    for my $key ( keys %senddata )
+    {
+        for ( keys %replace )
+        {
+            $senddata{$key} =~ s/\$\{$_\}/$replace{$_}/g;
+        }
+    }
+
+    if(
+        ( $environment->{isMailmonSuccessEmail} && $environment->{isMailmonSuccessEmail} eq 'true' ) &&
+        ( $data->{'labels.severity'} && ( $data->{'labels.severity'} eq 'level1' || $data->{'labels.severity'} eq 'level2' || $data->{'labels.severity'} eq 'level3' ) )
+    )
+    {
+        $data->{title} = $senddata{title};
+        $data->{content} = $senddata{content};
+    }
+
+    if(
+        ( $environment->{isMailmonSuccessSms} && $environment->{isMailmonSuccessSms} eq 'true' ) &&
+        ( $data->{'labels.severity'} && ( $data->{'labels.severity'} eq 'level1' || $data->{'labels.severity'} eq 'level2' ) ) 
+    )
+    {
+
+        $data->{mesg} = $senddata{mesg};
+    }
+
+    if(
+        ( $environment->{isMailmonSuccessCall} && $environment->{isMailmonSuccessCall} eq 'true' ) &&
+        ( $data->{'labels.severity'} && ( $data->{'labels.severity'} eq 'level1' ) ) 
+    )
+    {
+
+        $data->{call} = $senddata{call};
+    }
+
+    for my $t ( qw( title content mesg call ) )
+    {
+        next unless $data->{$t};
+        $data->{$t} =~ s#(\d+\.\d)\d+%#$1%#;
+    }
+
+    push @out, $data;
+}
+
+map{ addcont($_ ) }@data;
+
+print YAML::XS::Dump @out;

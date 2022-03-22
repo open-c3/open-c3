@@ -1,0 +1,19 @@
+#!/bin/bash
+
+file=$1
+
+test -f $file || exit
+
+filename=$(basename $file)
+
+mv $file  /data/glusterfs/mailmon/data/run/
+
+cd  /data/glusterfs/mailmon/data || exit
+
+c3mc-mon-mailmon-format run/$filename | c3mc-mon-mailmon-adduser | c3mc-mon-mailmon-addcont | c3mc-base-send
+
+if [ "X$?" == "X0" ]; then
+    mv run/$filename zsucc/
+else
+    mv run/$filename zfail/
+fi

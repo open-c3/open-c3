@@ -1,0 +1,40 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+local $/ = undef;
+my @data = YAML::XS::Load( <STDIN> );
+local $/ = "\n";
+
+my @out;
+sub adduser
+{
+    my $data = shift @_;
+    die "account error" unless $data && ref $data eq 'HASH' && $data->{'labels.account'} && $data->{'labels.account'} =~ /^[a-zA-Z0-9][a-zA-Z0-9\.\-_]*$/;
+    my $config = eval{ YAML::XS::LoadFile "/data/glusterfs/mailmon/conf/$data->{'labels.account'}"; };
+    die "load config conf/$data->{'labels.account'} fail: $@" if $@;
+
+    die "to error" unless $config->{to} && $config->{to} =~ /^[a-zA-Z0-9\.\-_@]+$/;
+    my @user = `c3mc-app-usrext '$config->{to}'`;
+    chomp @user;
+
+    return unless @user;
+
+    $data->{to} = \@user;
+
+    push @out, $data;
+}
+
+map{ adduser($_ ) }@data;
+
+print YAML::XS::Dump @out;

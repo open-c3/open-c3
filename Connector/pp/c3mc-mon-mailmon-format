@@ -1,0 +1,38 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use YAML::XS;
+use File::Basename;
+use Email::MIME;
+use Email::MIME::RFC2047::Decoder;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $filename = shift @ARGV;
+die "no file" unless $filename && -f $filename;
+
+my @x = `cat '$filename'`;
+my $email = Email::MIME->new( join "", @x );
+
+my %re = ( 'labels.account' => basename( $filename ) =~ /^([a-zA-Z0-9][a-zA-Z0-9\.\-_]*)\.\d{14}\.\d+\.wait$/ ? $1 : 'unkown' );
+
+for my $part ( $email->parts )
+{
+    $re{'labels.content'} ||= $part->body_str;
+    $re{'labels.content'}  = $part->body_str if $part->content_type =~ m[text/plain]i;
+}
+
+my $decoder = Email::MIME::RFC2047::Decoder->new();
+
+my %d = ( Subject => 'labels.subject', Date => 'labels.date', 'Message-Id' => 'labels.uuid', From => 'labels.from' );
+map{ $re{$d{$_}} = $decoder->decode_text($email->header($_)); }keys %d;
+
+$re{'labels.severity'} = 'level1';
+print YAML::XS::Dump \%re;
