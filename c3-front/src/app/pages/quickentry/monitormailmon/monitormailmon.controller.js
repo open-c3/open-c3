@@ -33,6 +33,21 @@
 
         vm.reload();
 
+        vm.reloadx = function(){
+            vm.loadxover = false;
+            $http.get('/api/agent/monitor/config/mailmon/history' ).success(function(data){
+                if(data.stat == true) 
+                { 
+                    vm.mailmonHistoryTable = new ngTableParams({count:20}, {counts:[],data:data.data.reverse()});
+                    vm.loadxover = true;
+                } else { 
+                    toastr.error( "加载邮件列表失败:" + data.info )
+                }
+            });
+        };
+
+        vm.reloadx();
+
         vm.createMailmon = function (postData, title) {
             $uibModal.open({
                 templateUrl: 'app/pages/quickentry/monitormailmon/create/mailmon.html',

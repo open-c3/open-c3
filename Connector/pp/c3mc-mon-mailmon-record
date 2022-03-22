@@ -1,0 +1,32 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use YAML::XS;
+use MYDB;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+local $/ = undef;
+my @data = YAML::XS::Load( <STDIN> );
+local $/ = "\n";
+
+my $db = MYDB->new( "/data/Software/mydan/AGENT/conf/conn", delayedconnection => 1 );
+
+sub record
+{
+    my $data = shift @_;
+
+    eval{ $db->execute( sprintf "insert into `openc3_monitor_history_mailmon` (`account`,`severity`,`subject`,`content`) values('%s','%s','%s','%s')", map{$_ ||= 'null'; $_ =~ s/'//g; $_ }@$data{qw( labels.account labels.severity labels.subject labels.content )} ); };
+    warn "record mailmon fail:$@" if $@;
+}
+
+map{ record($_ ) }@data;
+
+print YAML::XS::Dump @data;

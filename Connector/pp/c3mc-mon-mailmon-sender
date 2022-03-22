@@ -10,7 +10,7 @@ mv $file  /data/glusterfs/mailmon/data/run/
 
 cd  /data/glusterfs/mailmon/data || exit
 
-c3mc-mon-mailmon-format run/$filename | c3mc-mon-mailmon-adduser | c3mc-mon-mailmon-addcont | c3mc-base-send
+c3mc-mon-mailmon-format run/$filename | c3mc-mon-mailmon-record | c3mc-mon-mailmon-adduser | c3mc-mon-mailmon-addcont | c3mc-base-send
 
 if [ "X$?" == "X0" ]; then
     mv run/$filename zsucc/
