@@ -196,6 +196,7 @@ create table `openc3_monitor_self_healing_config`(
 `jobname` VARCHAR(100) comment '作业名称',
 `edit_user` VARCHAR(100) comment '编辑者',
 `edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
+`eips` VARCHAR(500) comment '生效的ip列表',
 UNIQUE KEY `uniq_altername` (`altername`) 
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='monitor_self_healing_config';
 
