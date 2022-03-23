@@ -132,6 +132,26 @@
                     vm.focusCurrent();
                 });
             };
+
+            vm.select_map = {};
+            vm.search_init = function () {
+                vm.names = [];
+                $http.get('/api/connector/connectorx/treemap').success(function (data) {
+                  vm.name = data.data;
+                  angular.forEach(vm.name, function (value) {
+                    vm.names.push(value.name);
+                    vm.select_map[value.name] = value.id;
+                  });
+                });
+            };
+      
+            vm.searchNode = function (item, model, label, event){
+              var node = vm.zTree.getNodeByParam("id", vm.select_map[item]);
+              vm.zTree.selectNode(node);
+              vm.zTree.expandNode(node);
+              vm.search_init(event)
+            };
+
         }
     }
 
