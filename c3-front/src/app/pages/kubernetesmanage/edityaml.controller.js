@@ -89,7 +89,13 @@
                 }
             });
         };
-
+//repace
+       vm.replaceyaml = function()
+       {
+           vm.newyaml = vm.newyaml.replace( new RegExp(vm.replace1,"gm"), vm.replace2);
+           vm.diff();
+       }
+//
         vm.oldyaml = "";
         vm.newyaml = "";
 
