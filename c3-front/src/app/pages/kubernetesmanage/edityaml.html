@@ -9,6 +9,20 @@
         </div>
 
         <div class="panel-body">
+
+            <div class="row">
+                <div class="col-sm-3 form-group pull-left">
+                    <input type="text" class="form-control" name="src" placeholder="源字符串" ng-model="kubernetesedityaml.replace1">
+                </div>
+                <div class="col-sm-3 form-group pull-left">
+                    <input type="text" class="form-control" name="dst" placeholder="目标字符串" ng-model="kubernetesedityaml.replace2">
+                </div>
+                 <div class="col-sm-1 form-group pull-left">
+                    <button class="btn btn-primary" ng-disabled="!(kubernetesedityaml.replace1 && kubernetesedityaml.replace2)" ng-click="kubernetesedityaml.replaceyaml()">文本替换</button>
+                </div>
+ 
+            </div>
+
             <div class="pt20">
                 <table class="textdiff">
                     <tr>
