@@ -24,6 +24,18 @@ use Encode;
 
 my $db = MYDB->new( "/data/Software/mydan/CI/conf/conn", delayedconnection => 1 );
 
+my %vcount;
+sub vcount
+{
+    my $projectid = shift @_;
+    return $vcount{$projectid} if defined $vcount{$projectid};
+
+    my $x = eval{ $db->query( "select count(id) from openc3_ci_version where projectid='$projectid'" ); };
+    die "get verions list from database fail: $@" if $@;
+
+    return $vcount{$projectid} = $x->[0][0];
+}
+
 sub save
 {
     my ( $id, $version ) = split /;/, shift , 2;
@@ -48,7 +60,8 @@ sub save
     die "get autobuild from database fail: $@" if $@;
     my $auto = ( $autobuild && $autobuild->[0][0] eq '1' ) ? 1 : 0;
 
-    my ( $status, $reason ) = $auto ? ( 'init', '' ) : ( 'done', 'auto build off' );
+    my ( $status, $reason ) = $auto ? vcount( $id ) ? ( 'init', '' ) : ( 'done', 'first load, build skip' ) : ( 'done', 'auto build off' );
+
     my $uuid = uuid->new()->create_str;
     eval{ $db->execute( "insert into openc3_ci_version (`projectid`,`name`,`status`,`calltype`,`user`,`uuid`,`slave`,`reason`) 
             values('$id','$version','$status','findtags','crontab','$uuid','','$reason')" ); };       
