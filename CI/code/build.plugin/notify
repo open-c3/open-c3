@@ -106,10 +106,11 @@ return sub
     $replace{callonlineenv} = $x{'openc3_ci_project.callonlineenv'} ? 'Yes' : 'No';
     $replace{errormsg} = $errormsg || 'Null';
 
-    my $projectname = eval{ Code->new( 'projectname' ) };
-    $logs->die( "load projectname fail:$@" ) if $@;
-
-    $replace{treename} = $projectname->run( id => $replace{treeid} );
+    if( $replace{treeid} && $replace{treeid} =~ /^\d+$/ && grep{ m#\$\{treename\}# }values %senddata )
+    {
+        $replace{treename} = `c3mc-base-db-get -t openc3_agent_inherit fullname -f 'projectid=$replace{treeid}'`;
+        chomp $replace{treename};
+    }
 
     for my $key ( keys %senddata )
     {
