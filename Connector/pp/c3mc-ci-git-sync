@@ -1,0 +1,79 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib
+
+use strict;
+use warnings;
+
+$| ++;
+
+use Digest::MD5;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 flowid flowid2 .. flowidn
+ $0 flowid .. [--zone /path/foo ]
+
+=cut
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->set( path => '/tmp' )->get( qw( path=s ) )->dump();
+
+sub sync
+{
+    my $id = shift @_;
+    die "error id" unless $id && $id =~ /^\d+$/;
+    print "id: $id\n";
+    my $x = `c3mc-base-db-get -t openc3_ci_project groupid ticketid addr -f 'id=$id'`;
+    chomp $x;
+
+    my ( $treeid, $ticketid, $addr ) = split /;/, $x;
+    my $uuid = Digest::MD5->new()->add( YAML::XS::Dump +{ treeid => $treeid, addr => $addr } )->hexdigest();
+
+    my $ticket;
+    if( $ticketid && $ticketid =~ /^\d+$/ )
+    {
+        $ticket = `c3mc-base-db-get -t openc3_ci_ticket ticket -f "type='SSHKey' and id='$ticketid'"`;
+        chomp $ticket;
+    }
+    my $git = $ticket ? "/data/Software/mydan/CI/bin/git -i " . Temp->new( chmod => 0600 )->dump( $ticket ) : 'git';
+
+    my $datapath = "$o{path}/$treeid";
+    system "mkdir -p $datapath" unless -d $datapath;
+
+    print YAML::XS::Dump +{ treeid => $treeid, id => $id, addr => $addr, uuid => $uuid };
+
+    my $error;
+    my $dir = "$datapath/$uuid";
+
+    for( 1..2 )
+    {
+        eval{
+            unless( -d "$dir" )
+            {
+                die "download fail: $!" if system "cd '$datapath' && $git clone $addr $uuid 2>&1";
+            }
+
+            die "get branch fail" if system "cd $dir && ". $git . ' branch -r | grep -v "\->" | while read remote; do ' . $git . ' branch --track "${remote#origin/}" "$remote" 2>&1; done';
+
+            my @branch = `cd $dir && git branch`;
+            chomp @branch;
+            map{ $_ =~ s/^\**\s*// }@branch;
+
+            for my $branch ( @branch )
+            {
+                unless( $branch =~ /^[a-zA-Z0-9\.\-_]+$/ )
+                {
+                    die "branch error: $branch";
+                    next;
+                }
+                die "pull fail:$!" if system "cd $dir && git checkout '$branch' 2>&1 && $git fetch --all 2>&1 && $git pull --all 2>&1";
+            }
+        };
+
+        $error = $@;
+        last unless $error;
+        system "rm -rf '$dir'";
+    }
+    warn "gitpull error: $error" if $error;
+}
+
+if( @ARGV ) { map{ sync( $_ ) }@ARGV; } else { while(<STDIN>){ chomp; sync($_); } }
