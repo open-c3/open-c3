@@ -5,7 +5,6 @@ use JSON;
 use Logs;
 use FindBin qw( $RealBin );
 use File::Basename;
-use LWP::UserAgent;
 use Encode;
 use Util;
 use MYDB;
@@ -39,21 +38,4 @@ return sub
 
     my $tag = eval{ $dbJobExt->query( "select name from openc3_job_fileserver where projectid='$treeid' and status='available'" ) };
     return map{@$_}@$tag;
-
-    #TODO
-
-
-    my $ua = LWP::UserAgent->new();
-    $ua->agent('Mozilla/9 [en] (Centos; Linux)');
-    $ua->default_header( Util::envinfo( qw( appkey appname ) ) );
-    $ua->timeout( 10 );
-    my $res = $ua->get( "http://api.job.open-c3.org/fileserver/$treeid" );
-    my $cont = $res->content;
-    $logs->die( "calljob fail: $cont" ) unless $res->is_success;
-
-    my $data = eval{JSON::from_json $cont};
-    $logs->die( "calljob fail: $cont : no json $@" ) if $@;
-
-    $logs->die( "calljob fail: $cont : stat fail" ) unless $data->{stat};
-    return map{ $_->{name} }@{$data->{data}}
 }
