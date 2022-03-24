@@ -10,7 +10,6 @@ use Util;
 use JSON;
 use Encode;
 use FindBin qw( $RealBin );
-use LWP::UserAgent;
 
 =head1 SYNOPSIS
 
@@ -47,27 +46,18 @@ return sub
 
     my %x = %{$x->[0]};
 
-    my %env = Util::envinfo( qw( appname appkey ) );
-    my $ua = LWP::UserAgent->new;
- 
+    my $envstr = `c3_job_pp_environment`;
+    my $environment = eval{YAML::XS::Load $envstr};
+    die "load fail: $@" if $@;
 
-    $ua->default_header( %env );
-    my $res = $ua->get( "http://api.job.open-c3.org/environment" );
+    my %notify;
+    if( $x{'openc3_ci_project.groupid'} && $x{'openc3_ci_project.groupid'} =~ /^\d+$/ )
+    {
+        my @u = `c3mc-base-db-get -t openc3_job_notify user -f "status='available' and projectid=$x{'openc3_ci_project.groupid'}"`;
+        chomp @u;
+        map{ $notify{$_} = 1 }@u;
+    }
 
-    $logs->die( "call job get environment table fail" ) unless $res->is_success;
-    my $data = eval{JSON::from_json $res->content};
-    $logs->die( "call job get environment stat fail" ) unless $data->{stat};
-
-    my $environment = $data->{data};
-
-
-    my $notify = $ua->get( "http://api.job.open-c3.org/notify/$x{'openc3_ci_project.groupid'}" );
-
-    $logs->die( "call job get notify table fail" ) unless $notify->is_success;
-    my $datanotify = eval{JSON::from_json $notify->content};
-    $logs->die( "call job get environment stat fail" ) unless $datanotify->{stat};
-
-    my %notify = map{ $_->{user} => 1 }@{$datanotify->{data}};
     map{ $notify{$_} = 1 } split /,/, $x{'openc3_ci_project.notify'} if $x{'openc3_ci_project.notify'};
 
     my %template = 
