@@ -8,7 +8,6 @@ use Temp;
 use MIME::Base64;
 use File::Basename;
 use Code;
-use LWP::UserAgent;
 use Encode;
 use Util;
 use JSON;
@@ -43,39 +42,25 @@ return sub
 
     $logs->die( "mkdir temppath fail:$!" ) if system "mkdir -p '$temppath'";
 
-    my $ua = LWP::UserAgent->new();
-    $ua->agent('Mozilla/9 [en] (Centos; Linux)');
-    $ua->default_header( Util::envinfo( qw( appkey appname ) ) );
-    $ua->timeout( 10 );
-    my $res = $ua->get( "http://api.job.open-c3.org/fileserver/$treeid" );
-    my $cont = $res->content;
-    $logs->die( "calljob fail: $cont" ) unless $res->is_success;
+    $logs->die( "nofind name" ) unless $name;
 
-    my $data = eval{JSON::from_json $cont};
-    $logs->die( "calljob fail: $cont : no json $@" ) if $@;
-
-    $logs->die( "calljob fail: $cont : stat fail" ) unless $data->{stat};
-
-    my $tagdata;
-    if( $name )
+    my ( $md5, $tagger );
+    if( defined $treeid && $treeid =~ /^\d+$/ && defined $name && $name =~ /^[a-zA-Z0-9\.\-_\@]+$/ )
     {
-        map{ $tagdata = $_ if $_->{name} eq $name }@{$data->{data}};
-    }
-    else
-    {
-        $data = pop @{$data->{data}};
+        my $x = `c3mc-base-db-get -t openc3_job_fileserver md5 create_user -f 'projectid=$treeid and status="available" and name="$name"'`;
+        chomp $x;
+        ( $md5, $tagger ) = split /;/, $x;
     }
 
-    $logs->die( "nofind version" ) unless $tagdata;
+    $logs->die( "nofind md5" ) unless $md5;
 
-    my $filepath = "/data/glusterfs/fileserver/$treeid/$tagdata->{md5}";
-    $name = $tagdata->{name};
+    my $filepath = "/data/glusterfs/fileserver/$treeid/$md5";
+
     print "version: $name\n";
 
     $logs->die( "name format error" ) unless $name =~ /^[a-zA-Z0-9\.\-_]+$/;
     $logs->die( "clone error:$!" ) if system "cd '$temppath' && rm -rf data info && mkdir data && mkdir info && tar -zxvf '$filepath' -C data && echo '$name' > info/version";
 
-    my $tagger = $tagdata->{create_user};
     unless( defined $tagger && $tagger =~ /^[a-zA-Z0-9\.\@\-_]+$/ )
     {
         print "get tagger fail,Switch to default: open-c3\@org\n";

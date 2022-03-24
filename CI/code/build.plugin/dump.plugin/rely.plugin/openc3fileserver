@@ -7,7 +7,6 @@ use FindBin qw( $RealBin );
 use Temp;
 use MIME::Base64;
 use File::Basename;
-use LWP::UserAgent;
 use Encode;
 use Util;
 use JSON;
@@ -41,33 +40,17 @@ return sub
     }
     $logs->die( "mkdir temppath fail:$!" ) if system "mkdir -p '$temppath'";
 
-    my $ua = LWP::UserAgent->new();
-    $ua->agent('Mozilla/9 [en] (Centos; Linux)');
-    $ua->default_header( Util::envinfo( qw( appkey appname ) ) );
-    $ua->timeout( 10 );
-    my $res = $ua->get( "http://api.job.open-c3.org/fileserver/$treeid" );
-    my $cont = $res->content;
-    $logs->die( "calljob fail: $cont" ) unless $res->is_success;
-
-    my $data = eval{JSON::from_json $cont};
-    $logs->die( "calljob fail: $cont : no json $@" ) if $@;
-
-    $logs->die( "calljob fail: $cont : stat fail" ) unless $data->{stat};
-
-    my $tagdata;
-    if( $tags )
+    my $md5;
+    if( defined $treeid && $treeid =~ /^\d+$/ && defined $tags && $tags =~ /^[a-zA-Z0-9\.\-_\@]+$/ )
     {
-        map{ $tagdata = $_ if $_->{name} eq $tags }@{$data->{data}};
-    }
-    else
-    {
-        $data = pop @{$data->{data}};
+        $md5 = `c3mc-base-db-get -t openc3_job_fileserver md5 -f 'projectid=$treeid and status="available" and name="$tags"'`;
+         chomp $md5;
     }
 
-    $logs->die( "nofind version" ) unless $tagdata;
+    $logs->die( "nofind md5" ) unless $md5;
 
-    my $version = $tagdata->{name};
-    my $filepath = "/data/glusterfs/fileserver/$treeid/$tagdata->{md5}";
+    my $version = $tags;
+    my $filepath = "/data/glusterfs/fileserver/$treeid/$md5";
 
     $logs->die( "clone error:$!" ) if system "cd '$temppath' && rm -rf data info && mkdir data && mkdir info && tar -zxvf '$filepath' -C data && echo '$version' > info/version";
 
