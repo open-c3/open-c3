@@ -30,6 +30,28 @@ return sub
     #HTTP::Message content must be bytes at
     my ( $jobname, $jobgroup ) = ( '_ci_' . $projectid . '_', '_ci_test_' . $projectid . '_');
 
+    my $uuid = `c3mc-jobx-task-run $groupid $jobname $jobgroup --user ci\@app --variablekv version=$version,_jobtype_=test`;
+    chomp $uuid;
+
+    printf "call jobx ok: jobxuuid:%s\n", $uuid;
+
+    print "wait test env finish...\n";
+
+    while(1)
+    {
+
+        my $status = `c3mc-jobx-task-stat $uuid`;
+        chomp $status;
+        return if $status eq 'success';
+
+        $logs->die( "jobx status fail" ) if $status eq 'fail';
+
+        sleep 3;
+    }
+    print "\n";
+    
+    return;
+
     my %env = eval{ Util::envinfo( qw( appkey appname ) )};
     $logs->die( "fromat error $@" ) if $@;
 
