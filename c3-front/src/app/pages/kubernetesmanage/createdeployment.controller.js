@@ -329,7 +329,7 @@
                 delete vm.editData.spec.selector.matchLabels;
             }
 
-
+            vm.editData.spec.template.metadata.labels = vm.editData.spec.selector.matchLabels;
 
 //clean temp data
             angular.forEach(vm.editData.spec.template.spec.containers, function (v, k) {
