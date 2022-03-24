@@ -147,6 +147,15 @@
                            $scope.labels.push( { "K": k, "V": v })
                        });
                    }
+
+                   $scope.selectorlabels = [];
+                   if( vm.editData.spec.selector && vm.editData.spec.selector.matchLabels )
+                   {
+                       angular.forEach(vm.editData.spec.selector.matchLabels, function (v, k) {
+                           $scope.selectorlabels.push( { "K": k, "V": v })
+                       });
+                   }
+ 
                 } else { 
                     toastr.error("加载YAML信息失败:" + data.info)
                 }
@@ -227,6 +236,14 @@
                         });
                     }
  
+                    $scope.selectorlabels = [];
+                    if( vm.editData.spec.selector && vm.editData.spec.selector.matchLabels )
+                    {
+                        angular.forEach(vm.editData.spec.selector.matchLabels, function (v, k) {
+                            $scope.selectorlabels.push( { "K": k, "V": v })
+                        });
+                    }
+
                     vm.loadover = true;
                     $scope.editstep = 1; 
                 } else { 
@@ -291,6 +308,28 @@
             {
                 delete vm.editData.metadata.labels;
             }
+
+//selectorlabels
+            var selectorlabels = {};
+            angular.forEach($scope.selectorlabels, function (v, k) {
+                var key = v["K"]
+                selectorlabels[key] = v["V"];
+                if( key === "app" && vm.tasktype === "create" )
+                {
+                    selectorlabels[key] = vm.editData.metadata.name;
+                }
+            });
+
+            if( Object.keys(selectorlabels).length > 0 )
+            {
+                vm.editData.spec.selector.matchLabels = selectorlabels;
+            }
+            else
+            {
+                delete vm.editData.spec.selector.matchLabels;
+            }
+
+
 
 //clean temp data
             angular.forEach(vm.editData.spec.template.spec.containers, function (v, k) {
@@ -402,6 +441,16 @@ if( vm.addservice === 1 )
         vm.delLabel = function(id)
         {
             $scope.labels.splice(id, 1);
+        }
+//selector matchLabels
+        $scope.selectorlabels = [];
+        vm.addSelectorLabel = function()
+        {
+            $scope.selectorlabels.push({ "K": "", "V": ""});
+        }
+        vm.delSelectorLabel = function(id)
+        {
+            $scope.selectorlabels.splice(id, 1);
         }
 
 //Secret
