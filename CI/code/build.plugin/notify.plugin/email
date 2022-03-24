@@ -4,6 +4,7 @@ use warnings;
 use LWP::UserAgent;
 use Util;
 use JSON;
+use IPC::Open3;
 
 $| ++;
 
@@ -23,6 +24,15 @@ return sub
     printf "sendemail to: %s", join ',', @{$param{to}};
 
     return 1 unless @{$param{to}};
+
+    my $pipe = "c3mc-base-send";
+    my $pid = IPC::Open3::open3( my $chld_in, '>&STDOUT', '>&STDERR', $pipe);
+    print $chld_in YAML::XS::Dump +{ title => $param{title}, content => $param{content}, to => $param{to} };
+    $chld_in = undef;
+    waitpid( $pid, 0 );
+    warn "send mail fail."  if $?;
+
+    return 1;
 
     my %env = Util::envinfo( qw( appname appkey ) );
     my $ua = LWP::UserAgent->new;
