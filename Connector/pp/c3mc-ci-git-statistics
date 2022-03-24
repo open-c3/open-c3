@@ -1,0 +1,86 @@
+#!/data/Software/mydan/perl/bin/perl
+
+use strict;
+use warnings;
+
+$| ++;
+
+use POSIX;
+use Time::Local;
+
+use Digest::MD5;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 [--date 2022-03-24] [--path /path/foo ]
+
+=cut
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->set( date => `date +%F`, path => '/tmp' )->get( qw( date=s path=s ) )->dump();
+chomp $o{date};
+
+my $dir = $o{path};
+
+my @branch = `cd $dir && git branch`;
+chomp @branch;
+map{ $_ =~ s/^\**\s*// }@branch;
+
+my ( $year, $month, $day ) = split /\-/, $o{date};
+
+my $time = timelocal(0,0,0,$day, $month-1, $year);
+my $since =  POSIX::strftime( "%Y-%m-%d", localtime($time - ( 86400 * 8 )) );
+my $until =  POSIX::strftime( "%Y-%m-%d", localtime($time + ( 86400 * 2 )) );
+
+my %date;
+map{
+    my $t =  POSIX::strftime( "%Y-%m-%d", localtime($time - ( 86400 * $_ )) );
+    $date{$t} = 1;
+} 0 .. 6;
+
+my $addr = `cat $dir/.git/config |grep "url ="|awk -F= '{print \$2}'`;
+chomp $addr;
+$addr =~ s/\s//g;
+
+if( $addr =~ /^git\@/ )
+{
+    $addr =~ s/:/\//;
+    $addr =~ s/^git\@/https:\/\//;
+}
+$addr =~ s/\.git$//;
+
+my %data;
+for my $branch ( @branch )
+{
+    my @x = `cd $dir && git checkout $branch >/dev/null 2>&1 && git log --pretty=format:"hash:%h user:%an time:%ad" --date=format:"%Y-%m-%d.%H%M%S" --since="$since" --until="$until" --shortstat`;
+    chomp @x;
+
+    my $lastuser = '';
+    for my $info ( @x )
+    {
+        if( $info =~ /\d+\s+file[s]{0,1}\s+changed,/ )
+        {
+            my $uuid;
+            if( $lastuser =~ /^hash:/ )
+            {
+                my @m = $lastuser =~ /hash:(.+) user:(.+) time:(.+)/;
+                my @d = split /\./, $m[2];
+                next unless $date{$d[0]};
+                $uuid = $m[0];
+                $data{$uuid} = { user => $m[1], time => $m[2] };
+            }
+
+            $info =~ /\b(\d+)\s+insertion/;
+            $data{$uuid}{add} = $info =~ /\b(\d+)\s+insertion/ ? $1 : 0;
+
+            $data{$uuid}{del} = $info =~ /\b(\d+)\s+deletion/ ? $1 : 0;
+            $data{$uuid}{path}{"$addr/commit/$uuid"} = 1;
+        }
+        else
+        {
+            $lastuser = $info;
+        }
+    }
+}
+
+print YAML::XS::Dump \%data;
