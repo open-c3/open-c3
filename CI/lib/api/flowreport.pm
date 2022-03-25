@@ -29,6 +29,7 @@ get '/flowreport/:groupid/report' => sub {
 
     my @data = `cat $path/$groupid/$param->{data}`;
     chomp @data;
+    map{ Encode::_utf8_on( $_ )}@data;
 
     my $updatetime = '';
     if( -f "$path/$groupid/current" )
@@ -78,11 +79,42 @@ get '/flowreport/:groupid/report' => sub {
     my $temptime = timelocal(0,0,0,$day, $month-1, $year);
 
     my @datacol;
-    map{
-        push @datacol, POSIX::strftime( "%Y-%m-%d", localtime($temptime - ( 86400 * $_ )) ) ;
-    } 0 .. 6;
+    if( $param->{data} =~ /^(.+)\.year$/ )
+    {
+        my $year = $1;
+        my $temptime = timelocal(0,0,0,1, 0, $year);
+        my $time = time;
+        map{
+            my $t = $temptime + ( 86400 * $_ );
+            my $d = POSIX::strftime( "%Y-%m-%d", localtime($t) );
+            push @datacol, $d if $d =~ /^$year/ && $t <= $time, 
+        } 0 .. 366
+    }
+    elsif( $param->{data} =~ /^(.+)\.month$/ )
+    {
+        my $m = $1;
+        my ( $year, $month, $day ) = split /\-/, $m;
+        my $temptime = timelocal(0,0,0,1, $month-1, $year);
+        map{
+            my $d = POSIX::strftime( "%Y-%m-%d", localtime($temptime + ( 86400 * $_ )) );
+            push @datacol, $d if $d =~ /^$m/, 
+        } 0 .. 31
+    }
+    else
+    {
+        my $datadate = ( $param->{data} =~ /^(.+)\.week$/ ) ? $1 : POSIX::strftime( "%Y-%m-%d", localtime(time -  86400) );
+        my ( $year, $month, $day ) = split /\-/, $datadate;
 
-    for my $t ( reverse @datacol )
+        my $temptime = timelocal(0,0,0,$day, $month-1, $year);
+
+        map{
+            push @datacol, POSIX::strftime( "%Y-%m-%d", localtime($temptime - ( 86400 * $_ )) ) ;
+        } 0 .. 6;
+        @datacol = reverse @datacol;
+    }
+
+
+    for my $t ( @datacol )
     {
         push @change, [ $t, $data{$t}{ci}||0, $data{$t}{test} || 0, $data{$t}{deploy} || 0, $data{$t}{rollback} || 0 ];
     }

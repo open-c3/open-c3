@@ -48,6 +48,7 @@ for my $groupid ( keys %data )
     system "mkdir -p '$dstpath'" unless -d $dstpath;
 
     my ( $TEMP, $tempfile ) = File::Temp::tempfile();
+    binmode $TEMP, ':utf8';
     map{
         $_->{time} =~ s/\s+/./;
         $_->{time} =~ s/://g;
