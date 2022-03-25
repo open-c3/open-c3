@@ -7,6 +7,7 @@ $| ++;
 
 use Digest::MD5;
 use MYDan::Util::OptConf;
+use Temp;
 
 =head1 SYNOPSIS
 
@@ -15,17 +16,22 @@ use MYDan::Util::OptConf;
 
 =cut
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->set( path => '/tmp' )->get( qw( path=s ) )->dump();
+my %o = $option->set( path => '/data/open-c3-data/gitreport.cache' )->get( qw( path=s ) )->dump();
 
 sub sync
 {
     my $id = shift @_;
-    die "error id" unless $id && $id =~ /^\d+$/;
-    print "id: $id\n";
+    die "error id: $id" unless $id && $id =~ /^\d+$/;
     my $x = `c3mc-base-db-get -t openc3_ci_project groupid ticketid addr -f 'id=$id'`;
     chomp $x;
 
     my ( $treeid, $ticketid, $addr ) = split /;/, $x;
+
+    my $errstr = "flowid: $id";
+
+    die "$errstr treeid error: $treeid" unless defined $treeid && $treeid =~ /^\d+$/;
+    die "$errstr gitaddr error: $addr " unless defined $addr && $addr =~ /^[a-z][a-zA-Z0-9\.\-_:\/\@]+$/ && $addr =~ /git/;
+
     my $uuid = Digest::MD5->new()->add( YAML::XS::Dump +{ treeid => $treeid, addr => $addr } )->hexdigest();
 
     my $ticket;
@@ -52,28 +58,36 @@ sub sync
                 die "download fail: $!" if system "cd '$datapath' && $git clone $addr $uuid 2>&1";
             }
 
-            die "get branch fail" if system "cd $dir && ". $git . ' branch -r | grep -v "\->" | while read remote; do ' . $git . ' branch --track "${remote#origin/}" "$remote" 2>&1; done';
+            my @rbranch = `cd $dir &&  $git branch -r|grep -v '\\->'`;
+            chomp @rbranch;
+            map{ $_ =~ s/^\s*origin\/// }@rbranch;
+            @rbranch = grep{ /^[a-zA-z0-9][a-zA-Z0-9\.\-\@_]*$/ }@rbranch;
+
+            my @lbranch = `cd $dir && git branch`;
+            chomp @lbranch;
+            map{ $_ =~ s/^\**\s*// }@lbranch;
+            my %lbranch = map{ $_ => 1 } grep{ /^[a-zA-z0-9][a-zA-Z0-9\.\-\@_]*$/ } @lbranch;
+
+            for my $branch ( @rbranch )
+            {
+                next if $lbranch{$branch};
+                die "track branch fail" if system "cd $dir && $git branch --track '$branch' 'origin/$branch'";
+            }
 
             my @branch = `cd $dir && git branch`;
             chomp @branch;
             map{ $_ =~ s/^\**\s*// }@branch;
 
-            for my $branch ( @branch )
-            {
-                unless( $branch =~ /^[a-zA-Z0-9\.\-_]+$/ )
-                {
-                    die "branch error: $branch";
-                    next;
-                }
-                die "pull fail:$!" if system "cd $dir && git checkout '$branch' 2>&1 && $git fetch --all 2>&1 && $git pull --all 2>&1";
-            }
+            map{ die "pull fail:$!" if system "cd $dir && git checkout '$_' 2>&1 && $git fetch --all 2>&1 && $git pull --all 2>&1"; }
+              grep{ /^[a-zA-z0-9][a-zA-Z0-9\.\-\@_]*$/ }
+                @branch;
         };
 
         $error = $@;
         last unless $error;
         system "rm -rf '$dir'";
     }
-    warn "gitpull error: $error" if $error;
+    warn "gitreport-sync error: $errstr $error" if $error;
 }
 
 if( @ARGV ) { map{ sync( $_ ) }@ARGV; } else { while(<STDIN>){ chomp; sync($_); } }

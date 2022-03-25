@@ -1,0 +1,31 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use YAML::XS;
+use POSIX;
+
+$| ++;
+
+my $dpath = "/data/glusterfs/gitreport";
+my $idcmd = "c3mc-base-db-get -t openc3_ci_project groupid -f 'status=1 and addr like \"%git%\"' |sort|uniq";
+
+die if system "$idcmd | xargs -i{} bash -c \"c3mc-ci-gitreport-once {} > $dpath/{}/current\"";
+
+my $dstpath = "$dpath/4000000000";
+system "mkdir -p '$dstpath'" unless -d $dstpath;
+system "cat $dpath/*/current |sort|uniq > $dstpath/current";
+
+if( 1 == POSIX::strftime( "%u", localtime ) )
+{
+    my $date = POSIX::strftime( "%Y-%m-%d", localtime( time - 86400 ) ) ;
+    system "$idcmd | xargs -i{} bash -c \"cp $dpath/{}/current $dpath/{}/$date.week\"";
+}
+
+if( 10 == POSIX::strftime( "%d", localtime ) )
+{
+    my $year = POSIX::strftime( "%Y", localtime( time - ( 30 * 86400 )) );
+    my $month = POSIX::strftime( "%Y-%m", localtime( time - ( 30 * 86400 )) );
+
+    system "$idcmd | xargs -i{} bash -c \"cat $dpath/{}/$year-*.week|grep ^$month > $dpath/{}/$month.month\"";
+    system "$idcmd | xargs -i{} bash -c \"cat $dpath/{}/$year-*.month > $dpath/{}/$year.year\"";
+}

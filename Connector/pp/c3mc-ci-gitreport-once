@@ -1,0 +1,24 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use YAML::XS;
+
+$| ++;
+
+my $treeid = shift @ARGV;
+die "no treeid" unless defined $treeid && $treeid =~ /^\d+$/;
+
+my $temp = "/data/open-c3-data/gitreport.cache";
+
+die if system "c3mc-base-db-get -t openc3_ci_project id -f 'status=1 and addr like \"%git%\" and groupid=$treeid' | c3mc-ci-gitreport-sync --path $temp >/dev/null";
+
+my $str = `cd $temp/$treeid && ls | grep -E [a-z0-9]{32} | xargs -i{} c3mc-ci-gitreport-statistics -p {}`;
+my @dat = eval{ YAML::XS::Load $str };   
+die "gitreport-once data error:treeid $treeid : $@" if $@;
+my %data = map{ %$_ }@dat;
+
+for my $uuid ( sort{ $data{$a}{time} cmp $data{$b}{time} }keys %data )
+{
+    my $v = $data{$uuid};
+    printf "$v->{time}:$uuid:%s:$v->{user}:$v->{add}:$v->{del}:%s\n", 'Yes',  join ',', sort keys %{$v->{path}};
+}

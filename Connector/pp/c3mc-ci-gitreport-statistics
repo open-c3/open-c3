@@ -13,11 +13,13 @@ use MYDan::Util::OptConf;
 
 =head1 SYNOPSIS
 
+ $0 [--path /path/foo ]
  $0 [--date 2022-03-24] [--path /path/foo ]
 
 =cut
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->set( date => `date +%F`, path => '/tmp' )->get( qw( date=s path=s ) )->dump();
+my %o = $option->set( date => `date +%F` )->get( qw( date=s path=s ) )->dump();
+$option->assert('path');
 chomp $o{date};
 
 my $dir = $o{path};
@@ -25,6 +27,7 @@ my $dir = $o{path};
 my @branch = `cd $dir && git branch`;
 chomp @branch;
 map{ $_ =~ s/^\**\s*// }@branch;
+@branch = grep{ /^[a-zA-z0-9][a-zA-Z0-9\.\-\@_]*$/ }@branch;
 
 my ( $year, $month, $day ) = split /\-/, $o{date};
 
