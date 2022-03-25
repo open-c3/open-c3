@@ -1,0 +1,48 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$| ++;
+
+use MYDB;
+use YAML::XS;
+use MIME::Base64;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 [--since '2022-03-24 00:00:00'] [--until '2022-03-24 23:59:59' ]
+
+=cut
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->set( since => `date '+%F 00:00:00'`, until => `date '+%F 23:59:59'` )->get( qw( since=s until=s ) )->dump();
+chomp $o{since};
+chomp $o{until};
+
+my $db = MYDB->new( "/data/Software/mydan/JOBX/conf/conn", delayedconnection => 1 );
+
+my @col = qw( projectid uuid name group variable status starttime );
+my $x = eval{ $db->query( sprintf( "select %s from openc3_jobx_task where starttime>='$o{since}' and starttime<='$o{until}'", join ',', map{"`$_`"}@col), \@col ) };
+die( "mysql query fail: $@" ) if $@;
+
+my @data;
+for my $d ( @$x )
+{
+    next unless $d->{group} =~ /^_ci_online_/ || $d->{group} =~ /^_ci_test_/;
+    next unless $d->{name} =~ /^_ci_(\d+)_$/;
+
+    my $projectid = $1;
+    my $variable = eval{ YAML::XS::Load decode_base64( $d->{variable} ) };
+    next unless $variable && ref $variable eq 'HASH' && $variable->{version};
+    push @data, +{
+        projectid => $projectid,
+        groupid => $d->{projectid},
+        uuid => $d->{uuid},
+        status => $d->{status},
+        version => $variable->{version},
+        time => $d->{starttime},
+        type => ( $d->{group} =~ /^_ci_test_/ ) ? 'test' :  $d->{uuid} =~ /[A-Z]$/ ? 'rollback' : 'deploy'
+    };
+}
+
+print YAML::XS::Dump \@data;

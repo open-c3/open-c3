@@ -1,0 +1,74 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$| ++;
+
+use File::Temp;
+use Time::Local;
+use MYDB;
+use POSIX;
+use YAML::XS;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $date = POSIX::strftime( "%Y-%m-%d", localtime( time - 86400 ) ) ;
+my ( $year, $month, $day ) = split /\-/, $date;
+my $time = timelocal(0,0,0,$day, $month-1, $year);
+my $since =  POSIX::strftime( "%Y-%m-%d 00:00:00", localtime($time - ( 86400 * 6 )) );
+my $until =  POSIX::strftime( "%Y-%m-%d 23:59:59", localtime($time + ( 86400 * 0 )) );
+
+my $x = `c3mc-ci-flowreport-cireport --since '$since' --until '$until' && c3mc-ci-flowreport-jobxreport --since '$since' --until '$until'`;
+my @x = eval { YAML::XS::Load $x };
+die "load data fail: $@" if $@;
+
+my $dpath = "/data/glusterfs/flowreport";
+
+my %data;
+for my $data ( map{ @$_ }@x )
+{
+    next unless $data->{groupid};
+    push @{$data{$data->{groupid}}}, $data;
+}
+
+for my $groupid ( keys %data )
+{
+    my $data = $data{$groupid};
+
+    my $dstpath = "$dpath/$groupid";
+    system "mkdir -p '$dstpath'" unless -d $dstpath;
+
+    my ( $TEMP, $tempfile ) = File::Temp::tempfile();
+    map{
+        $_->{time} =~ s/\s+/./;
+        $_->{time} =~ s/://g;
+        print $TEMP "$_->{time}:$_->{type}:$_->{uuid}:$_->{groupid}:$_->{projectid}:$_->{status}:$_->{version}\n";
+    } sort{$a->{time} cmp $b->{time }}@$data;
+
+    close $TEMP;
+    system "mv '$tempfile' '$dstpath/current'";
+}
+
+my $dstpath = "$dpath/4000000000";
+system "mkdir -p '$dstpath'" unless -d $dstpath;
+system "cat $dpath/*/current |sort|uniq > $dstpath/current";
+
+if( 1 == POSIX::strftime( "%u", localtime ) )
+{
+    my $date = POSIX::strftime( "%Y-%m-%d", localtime( time - 86400 ) ) ;
+    system "cd $dpath && ls |grep -E '^[0-9]+\$' | xargs -i{} bash -c \"cp $dpath/{}/current $dpath/{}/$date.week\"";
+}
+
+if( 10 == POSIX::strftime( "%d", localtime ) )
+{
+    my $year = POSIX::strftime( "%Y", localtime( time - ( 30 * 86400 )) );
+    my $month = POSIX::strftime( "%Y-%m", localtime( time - ( 30 * 86400 )) );
+
+    system "cd $dpath && ls |grep -E '^[0-9]+\$' | xargs -i{} bash -c \"cat $dpath/{}/$year-*.week|grep ^$month > $dpath/{}/$month.month\"";
+    system "cd $dpath && ls |grep -E '^[0-9]+\$' | xargs -i{} bash -c \"cat $dpath/{}/$year-*.month > $dpath/{}/$year.year\"";
+}
