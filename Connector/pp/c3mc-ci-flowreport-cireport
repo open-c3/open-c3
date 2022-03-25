@@ -26,7 +26,7 @@ die( "mysql query fail: $@" ) if $@;
 map{ $groupid{$_->[0]} = $_->[1] }@$x;
 
 my @col = qw( projectid uuid name tagger create_time status );
-$x = eval{ $db->query( sprintf( "select %s from openc3_ci_version where create_time>='$o{since}' and create_time<='$o{until}'", join ',', map{"`$_`"}@col), \@col ) };
+$x = eval{ $db->query( sprintf( "select %s from openc3_ci_version where create_time>='$o{since}' and create_time<='$o{until}' and pid is not null", join ',', map{"`$_`"}@col), \@col ) };
 die( "mysql query fail: $@" ) if $@;
 
 print YAML::XS::Dump [  map{ +{ 
