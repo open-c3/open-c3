@@ -1,0 +1,52 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$| ++;
+
+use YAML::XS;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 [--path '/path/foo']
+
+=cut
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( path=s ) )->dump();
+$option->assert('path');
+
+my @tree = `c3mc-base-treemap`;
+chomp @tree;
+
+my %treeid;
+for(@tree)
+{
+    unless( $_ =~ /^\d+;[a-zA-Z0-9][a-zA-Z0-9\.\-_\@]*$/ )
+    {
+        warn "err tree: $_";
+        next;
+    }
+    my ( $id, $name ) = split /;/, $_;
+    $treeid{$name} = $id;
+}
+
+my %tree;
+for my $name ( keys %treeid )
+{
+    my @subtree = split /\./, $name;
+    my $len = @subtree;
+    pop @subtree;
+    my $parentname = join '.', @subtree;
+    $tree{$treeid{$name}} = +{ len => $len, parentid => $treeid{$parentname} };
+}
+
+for my $id ( sort{ $tree{$b}{len} <=> $tree{$a}{len} }keys %tree)
+{
+    my $d = $tree{$id};
+    next unless my $paid = $d->{parentid};
+
+    next unless -f "$o{path}/$id/current";
+    system "mkdir '$o{path}/$paid'" unless -d "$o{path}/$paid";
+    system "cat $o{path}/$id/current $o{path}/$paid/current | sort | uniq >> $o{path}/$paid/current.temp && mv '$o{path}/$paid/current.temp' '$o{path}/$paid/current'";
+}
