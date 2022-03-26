@@ -9,7 +9,7 @@ $| ++;
 my $dpath = "/data/glusterfs/gitreport";
 my $idcmd = "c3mc-base-db-get -t openc3_ci_project groupid -f 'status=1 and addr like \"%git%\"' |sort|uniq";
 
-die if system "$idcmd | xargs -i{} bash -c \"c3mc-ci-gitreport-once {} > $dpath/{}/current\"";
+die if system "$idcmd | xargs -i{} bash -c \"mkdir -p $dpath/{}; c3mc-ci-gitreport-once {} > $dpath/{}/current\"";
 
 system "c3mc-app-merge-report -p $dpath";
 #my $dstpath = "$dpath/4000000000";
