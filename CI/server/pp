@@ -79,3 +79,12 @@ if( $name eq 'bury' )
         timeout => 10,
     )->run( 'c3mc-ci-bury' );
 }
+
+if( $name eq 'flowreport' )
+{
+    OPENC3::PP::Server->new(
+        name => "ci_server_$name",
+        interval => 600,
+        timeout => 1200,
+    )->run( 'c3mc-ci-flowreport' );
+}
