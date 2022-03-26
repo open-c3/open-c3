@@ -21,7 +21,7 @@ use MYDan::Util::OptConf;
 my $ndayago = @ARGV && $ARGV[0] =~ /^\d+$/ ? $ARGV[0] : 0;
 $ndayago *= 86400;
 
-my $date = POSIX::strftime( "%Y-%m-%d", localtime( time - ( 7200 + $ndayago ) ) ) ;
+my $date = POSIX::strftime( "%Y-%m-%d", localtime( time - ( 1200 + $ndayago ) ) ) ;
 my ( $year, $month, $day ) = split /\-/, $date;
 my $time = timelocal(0,0,0,$day, $month-1, $year);
 my $since =  POSIX::strftime( "%Y-%m-%d 00:00:00", localtime($time - ( 86400 * 6 ) ) );
@@ -59,9 +59,11 @@ for my $groupid ( keys %data )
     system "mv '$tempfile' '$dstpath/current'";
 }
 
-my $dstpath = "$dpath/4000000000";
-system "mkdir -p '$dstpath'" unless -d $dstpath;
-system "cat $dpath/*/current |sort|uniq > $dstpath/current";
+system "c3mc-app-merge-report -p $dpath";
+
+#my $dstpath = "$dpath/4000000000";
+#system "mkdir -p '$dstpath'" unless -d $dstpath;
+#system "cat $dpath/*/current |sort|uniq > $dstpath/current";
 
 if( 1 == POSIX::strftime( "%u", localtime( $time ) ) )
 {

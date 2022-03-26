@@ -11,9 +11,10 @@ my $idcmd = "c3mc-base-db-get -t openc3_ci_project groupid -f 'status=1 and addr
 
 die if system "$idcmd | xargs -i{} bash -c \"c3mc-ci-gitreport-once {} > $dpath/{}/current\"";
 
-my $dstpath = "$dpath/4000000000";
-system "mkdir -p '$dstpath'" unless -d $dstpath;
-system "cat $dpath/*/current |sort|uniq > $dstpath/current";
+system "c3mc-app-merge-report -p $dpath";
+#my $dstpath = "$dpath/4000000000";
+#system "mkdir -p '$dstpath'" unless -d $dstpath;
+#system "cat $dpath/*/current |sort|uniq > $dstpath/current";
 
 if( 1 == POSIX::strftime( "%u", localtime ) )
 {

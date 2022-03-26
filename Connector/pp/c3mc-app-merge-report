@@ -48,5 +48,12 @@ for my $id ( sort{ $tree{$b}{len} <=> $tree{$a}{len} }keys %tree)
 
     next unless -f "$o{path}/$id/current";
     system "mkdir '$o{path}/$paid'" unless -d "$o{path}/$paid";
-    system "cat $o{path}/$id/current $o{path}/$paid/current | sort | uniq >> $o{path}/$paid/current.temp && mv '$o{path}/$paid/current.temp' '$o{path}/$paid/current'";
+    if( -f "$o{path}/$paid/current" )
+    {
+        system "cat $o{path}/$id/current $o{path}/$paid/current | sort | uniq >> $o{path}/$paid/current.temp && mv '$o{path}/$paid/current.temp' '$o{path}/$paid/current'";
+    }
+    else
+    {
+        system "cat $o{path}/$id/current >> $o{path}/$paid/current";
+    }
 }
