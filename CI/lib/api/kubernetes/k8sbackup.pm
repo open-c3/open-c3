@@ -13,6 +13,7 @@ use uuid;
 use api::kubernetes;
 
 our %handle = %api::kubernetes::handle;
+our $datapath = "/data/glusterfs/kerbunetes_backup";
 
 get '/kubernetes/k8sbackup' => sub {
     my $param = params();
@@ -26,7 +27,9 @@ get '/kubernetes/k8sbackup' => sub {
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
-    my ( $cmd, $handle ) = ( "cd /data/glusterfs/kerbunetes_backup/$param->{ticketid} && ls 2>/dev/null", 'showk8sbackup' );
+    system "mkdir -p $datapath/$param->{ticketid}" unless -d "$datapath/$param->{ticketid}";
+
+    my ( $cmd, $handle ) = ( "cd $datapath/$param->{ticketid} && ls 2>/dev/null", 'showk8sbackup' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( `$cmd`//'', $? );
 };
@@ -53,7 +56,7 @@ get '/kubernetes/k8sbackup/download' => sub {
     my $r = eval{ $api::mysql->query( "select create_user from openc3_ci_ticket where id='$param->{ticketid}' and create_user='$user'" ); };
     return +{ stat => $JSON::false, info => "Only allow owner to download" } unless $r && @$r;
 
-    my $path = "/data/glusterfs/kerbunetes_backup/$param->{ticketid}/$param->{name}";
+    my $path = "$datapath/$param->{ticketid}/$param->{name}";
     my $name = sprintf "K8S.%s%s.$param->{name}", uuid->new()->create_str, uuid->new()->create_str;
 
     return +{ stat => $JSON::false, info => "link fail: $!" } if system "ln -fsn '$path' '/data/Software/mydan/JOB/downloadpath/$name'";
