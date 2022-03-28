@@ -102,7 +102,7 @@ get '/flowreport/:groupid/report' => sub {
     }
     else
     {
-        my $datadate = ( $param->{data} =~ /^(.+)\.week$/ ) ? $1 : POSIX::strftime( "%Y-%m-%d", localtime(time -  86400) );
+        my $datadate = ( $param->{data} =~ /^(.+)\.week$/ ) ? $1 : POSIX::strftime( "%Y-%m-%d", localtime(time -  1200 ) );
         my ( $year, $month, $day ) = split /\-/, $datadate;
 
         my $temptime = timelocal(0,0,0,$day, $month-1, $year);
