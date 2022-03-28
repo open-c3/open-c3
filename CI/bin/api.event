@@ -94,7 +94,7 @@ $httpd->reg_routes(
         {
             $req->respond([
                  200, 'ok', { 'Content-Type' => 'application/json'},
-                 JSON::to_json( +{ stat => JSON::false, info => "method $method undef" } ) 
+                 JSON::encode_json( +{ stat => JSON::false, info => "method $method undef" } ) 
             ]);
             return;
         }
@@ -128,17 +128,17 @@ $httpd->reg_routes(
         {
             $req->respond([
                  200, 'ok', { 'Content-Type' => 'application/json'},
-                 JSON::to_json( +{ stat => JSON::false, info => $res->content } ) 
+                 JSON::encode_json( +{ stat => JSON::false, info => $res->content } ) 
             ]);
             return;
         }
 
-        my $data = eval{JSON::from_json $res->content};
+        my $data = eval{JSON::decode_json $res->content};
         unless ( $data->{stat} ) {
             my $res = exists $data->{stat} ? $data : +{ stat => JSON::false, info => "get info from api.v1 err:". $res->content };
             $req->respond([
                  200, 'ok', { 'Content-Type' => 'application/json'},
-                 JSON::to_json( $res ) 
+                 JSON::encode_json( $res ) 
             ]);
             return;
         }
@@ -149,7 +149,7 @@ $httpd->reg_routes(
         unless ( $cmd && $handle ) {
             $req->respond([
                  200, 'ok', { 'Content-Type' => 'application/json'},
-                 JSON::to_json( +{ stat => JSON::false, info => "nofind kubecmd or handle on api.v1:". $res->content } )
+                 JSON::encode_json( +{ stat => JSON::false, info => "nofind kubecmd or handle on api.v1:". $res->content } )
             ]);
             return;
         }
@@ -185,10 +185,12 @@ $httpd->reg_routes(
                     $res .= $input;
                 }
 
+                Encode::_utf8_on( $res );
+
                 delete $index{$idx};
                 $req->respond([
                      200, 'ok', { 'Content-Type' => 'application/json'},
-                     JSON::to_json( $handle{$handle}( $res, $status, $filter ) )
+                     JSON::encode_json( $handle{$handle}( $res, $status, $filter ) )
                 ]);
             },
         ); 

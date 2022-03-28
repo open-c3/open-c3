@@ -35,8 +35,8 @@ get '/kubernetes/app' => sub {
 
     my ( $cmd, $handle ) = ( "$kubectl get all --all-namespaces -o wide 2>/dev/null", 'getall' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle, filter => $filter }} if request->headers->{"openc3event"};
-    return &{$handle{$handle}}( `$cmd`//'', $?, $filter );
- };
+    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $?, $filter );
+};
 
 $handle{getall} = sub
 {
@@ -161,7 +161,7 @@ get '/kubernetes/app/yaml' => sub {
 
     my ( $cmd, $handle ) = ( "$kubectl get '$param->{type}' '$param->{name}' -n '$param->{namespace}' -o yaml 2>/dev/null", 'showdata' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
-    return &{$handle{$handle}}( `$cmd`//'', $? ); 
+    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
 };
 
 get '/kubernetes/app/yaml/always' => sub {
@@ -184,7 +184,7 @@ get '/kubernetes/app/yaml/always' => sub {
 
     my ( $cmd, $handle ) = ( "$kubectl get '$param->{type}' '$param->{name}' -n '$param->{namespace}' -o yaml 2>&1", 'getappyamlalways' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
-    return &{$handle{$handle}}( `$cmd`//'', $? ); 
+    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
 };
 
 $handle{getappyamlalways} = sub
@@ -216,14 +216,14 @@ get '/kubernetes/app/json' => sub {
 
     my ( $cmd, $handle ) = ( "$kubectl get '$param->{type}' '$param->{name}' -n '$param->{namespace}' -o json 2>/dev/null", 'getappjson' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
-    return &{$handle{$handle}}( `$cmd`//'', $? ); 
+    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
 };
 
 $handle{getappjson} = sub
 {
     my ( $x, $status, $filter ) = @_;
     return +{ stat => $JSON::false, data => $x } if $status;
-    my $data = eval{ JSON::decode_json $x };
+    my $data = eval{ JSON::from_json $x };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $data };
 };
 
@@ -249,7 +249,7 @@ get '/kubernetes/app/flowlineinfo' => sub {
 
     my ( $cmd, $handle ) = ( "$kubectl get '$param->{type}' '$param->{name}' -n '$param->{namespace}' -o yaml 2>/dev/null", 'getflowlineinfo' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle, filter => $filter }} if request->headers->{"openc3event"};
-    return &{$handle{$handle}}( `$cmd`//'', $?, $filter ); 
+    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $?, $filter ); 
 };
 
 $handle{getflowlineinfo} = sub
@@ -295,7 +295,7 @@ post '/kubernetes/app/apply' => sub {
 
     my ( $cmd, $handle ) = ( "$kubectl apply -f '$filename' 2>&1", 'showinfo' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
-    return &{$handle{$handle}}( `$cmd`//'', $? ); 
+    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
 };
 
 post '/kubernetes/app/create' => sub {
@@ -325,7 +325,7 @@ post '/kubernetes/app/create' => sub {
 
     my ( $cmd, $handle ) = ( "$kubectl create -f '$filename' 2>&1", 'showinfo' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
-    return &{$handle{$handle}}( `$cmd`//'', $? ); 
+    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
 };
 
 post '/kubernetes/app/rollback' => sub {
@@ -349,7 +349,7 @@ post '/kubernetes/app/rollback' => sub {
 
     my ( $cmd, $handle ) = ( "$kubectl rollout undo $param->{type}/$param->{name} -n '$param->{namespace}' --to-revision=$param->{version} 2>/dev/null", 'showinfo' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
-    return &{$handle{$handle}}( `$cmd`//'', $? ); 
+    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
 };
 
 get '/kubernetes/app/rollback' => sub {
@@ -372,7 +372,7 @@ get '/kubernetes/app/rollback' => sub {
 
     my ( $cmd, $handle ) = ( "/data/Software/mydan/CI/bin/kubectl-history $kubectl rollout history $param->{type} $param->{name} -n '$param->{namespace}' 2>/dev/null", 'gethistory' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
-    return &{$handle{$handle}}( `$cmd`//'', $? ); 
+    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
 };
 
 $handle{gethistory} = sub
@@ -410,7 +410,7 @@ post '/kubernetes/app/delete' => sub {
 
     my ( $cmd, $handle ) = ( "$kubectl delete '$param->{type}' '$param->{name}' -n '$param->{namespace}' 2>&1", 'showinfo' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
-    return &{$handle{$handle}}( `$cmd`//'', $? ); 
+    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
 };
 
 true;
