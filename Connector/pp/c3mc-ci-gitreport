@@ -19,7 +19,7 @@ system "c3mc-app-merge-report -p $dpath";
 if( 1 == POSIX::strftime( "%u", localtime ) )
 {
     my $date = POSIX::strftime( "%Y-%m-%d", localtime( time - 86400 ) ) ;
-    system "$idcmd | xargs -i{} bash -c \"cp $dpath/{}/current $dpath/{}/$date.week\"";
+    system "cd $dpath && ls |grep -E '^[0-9]+\$' | xargs -i{} bash -c \"cp $dpath/{}/current $dpath/{}/$date.week\"";
 }
 
 if( 10 == POSIX::strftime( "%d", localtime ) )
@@ -27,6 +27,6 @@ if( 10 == POSIX::strftime( "%d", localtime ) )
     my $year = POSIX::strftime( "%Y", localtime( time - ( 30 * 86400 )) );
     my $month = POSIX::strftime( "%Y-%m", localtime( time - ( 30 * 86400 )) );
 
-    system "$idcmd | xargs -i{} bash -c \"cat $dpath/{}/$year-*.week|grep ^$month > $dpath/{}/$month.month\"";
-    system "$idcmd | xargs -i{} bash -c \"cat $dpath/{}/$year-*.month > $dpath/{}/$year.year\"";
+    system "cd $dpath && ls |grep -E '^[0-9]+\$' | xargs -i{} bash -c \"cat $dpath/{}/$year-*.week|grep ^$month > $dpath/{}/$month.month\"";
+    system "cd $dpath && ls |grep -E '^[0-9]+\$' | xargs -i{} bash -c \"cat $dpath/{}/$year-*.month > $dpath/{}/$year.year\"";
 }
