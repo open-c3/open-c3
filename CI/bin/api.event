@@ -31,6 +31,7 @@ use api::kubernetes::namespace;
 use api::kubernetes::harbor;
 use api::kubernetes::util;
 use api::kubernetes::nodecheck;
+use api::kubernetes::k8sbackup;
 
 my $cookiekey;
 BEGIN{
@@ -56,6 +57,7 @@ my ( %handle, %index, $index ) = (
     %api::kubernetes::namespace::handle,
     %api::kubernetes::harbor::handle,
     %api::kubernetes::util::handle,
+    %api::kubernetes::k8sbackup::handle,
 );
 
 my $port = $ENV{CI_API_EVENT_PORT} // '8080';

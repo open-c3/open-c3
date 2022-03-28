@@ -1,0 +1,57 @@
+#!/bin/bash
+PATH=/usr/local/bin:/bin:/usr/bin:/usr/local/sbin:/usr/sbin
+
+TICKETID=$1
+
+X=$(echo $TICKETID|grep -E "^[0-9]+$"| wc -l )
+if [ "X$X" == "X0" ];then
+    echo arg error
+    exit
+fi
+
+TASKUUID=$(date +%F_%H%M%S)
+TEMPPATH=/data/open-c3-data/backup/kerbunetes
+DISTPATH=$TEMPPATH/$TICKETID/$TASKUUID
+
+mkdir -p $DISTPATH
+
+kubectl=$(c3mc-k8s-kubectl-get -i $TICKETID)
+X=$(echo $kubectl|grep kubectl |wc -l )
+if [ "X$X" == "X0" ];then
+    echo nofind tickiet config
+    exit
+fi
+
+NS_NAME=(`bash -c "$kubectl get ns  -o custom-columns='NAME:metadata.name' --no-headers"`)
+
+for ns in "${NS_NAME[@]}";do
+    mkdir -p $DISTPATH/$ns
+    DEPLOY_NAME=(`bash -c "$kubectl -n $ns get deploy  -o custom-columns='NAME:metadata.name' --no-headers"`)
+    SVC_NAME=(`bash -c "$kubectl -n $ns get svc  -o custom-columns='NAME:metadata.name' --no-headers"`)
+    CM_NAME=(`bash -c "$kubectl -n $ns get cm  -o custom-columns='NAME:metadata.name' --no-headers"`)
+    SECRET_NAME=(`bash -c "$kubectl -n $ns get secret -o custom-columns='NAME:metadata.name' --no-headers"`)
+    DAEMONSET_NAME=(`bash -c "$kubectl -n $ns get daemonset -o custom-columns='NAME:metadata.name' --no-headers"`)
+    STATEFULSET_NAME=(`bash -c "$kubectl -n $ns get statefulset -o custom-columns='NAME:metadata.name' --no-headers"`)
+    for dep in ${DEPLOY_NAME[@]};do
+         bash -c "$kubectl -n $ns get deploy $dep -o yaml > $DISTPATH/$ns/deployment-$dep.yaml"
+    done
+    for svc in ${SVC_NAME[@]};do
+        bash -c "$kubectl -n $ns get svc $svc -o yaml > $DISTPATH/$ns/service-$svc.yaml"
+    done
+    for cm in ${CM_NAME[@]};do
+        bash -c "$kubectl -n $ns get configmap $cm -o yaml > $DISTPATH/$ns/configmap-$cm.yaml"
+    done
+    for sec in ${SECRET_NAME[@]};do
+        bash -c "$kubectl -n $ns get secret $sec -o yaml > $DISTPATH/$ns/secret-$sec.yaml"
+    done
+    for daem in ${DAEMONSET_NAME[@]};do
+        bash -c "$kubectl -n $ns get daemonset $daem -o yaml > $DISTPATH/$ns/daemonset-$daem.yaml"
+    done
+    for sts in ${STATEFULSET_NAME[@]};do
+        bash -c "$kubectl -n $ns get statefulset $sts -o yaml > $DISTPATH/$ns/statefulset-$sts.yaml"
+    done
+done
+
+archive=/data/glusterfs/kerbunetes_backup/$TICKETID
+mkdir -p $archive
+cd $TEMPPATH && tar -zcvf $archive/$TASKUUID.tar.gz $TICKETID/$TASKUUID

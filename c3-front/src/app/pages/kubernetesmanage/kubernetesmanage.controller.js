@@ -795,7 +795,24 @@ vm.replicasets = [];
             });
         };
 
- 
+        vm.k8sbackup = function () {
+            $uibModal.open({
+                templateUrl: 'app/pages/kubernetesmanage/k8sbackup.html',
+                controller: 'KubernetesK8sbackupController',
+                controllerAs: 'kubernetesk8sbackup',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () {return vm.treeid},
+                    ticketid: function () {return vm.selecteClusterId},
+                    clusterinfo: function () {return vm.selecteCluster},
+                    namespace: function () { return vm.selectednamespace},
+                }
+            });
+        };
+
 //TODO 清理vm.skip
 //TODO 处理CopyProjectByTemplateXXController，和CopyProjectByTemplateController同名引起流水线中通过模版创建报错
         vm.skip = function() {};
