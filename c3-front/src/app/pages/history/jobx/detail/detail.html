@@ -67,6 +67,11 @@
                                                {{$index +1}}({{historyjobxdetail.statuszh[item.status]}}) {{item.extended.name}}
                                            </span>
                                            <span class="panel-controls">
+                                                  <i class="fa fa-refresh fa-fw" ng-if="item.status == 'running' && taskDetail.status == 'running' && jobx.status == 'running'" ng-class="{'fa-spin':item.status=='running'}" ></i>
+                                                  <button class="btn btn-warning btn-sm" style="padding: 0px;" ng-if="item.pause && ( item.status=='fail' || item.status == 'success' || item.status=='ignore')" uib-tooltip="执行确认" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.runJobConfirm(item,jobx.uuid)" style="cursor:pointer">执行确认</button>
+                                                  <button class="btn btn-success btn-sm" style="padding: 0px;" ng-if="item.status=='decision'" uib-tooltip="重试任务" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.Runnigs(item, jobx.uuid)" style="cursor:pointer">重试</button>
+                                                  <button class="btn btn-danger btn-sm" style="padding: 0px;" ng-if="item.status=='decision'" uib-tooltip="忽略错误" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.runIgnore(item, jobx.uuid)" style="cursor:pointer">忽略</button>
+                                                  <button class="btn btn-danger btn-sm" style="padding: 0px;" ng-if="item.status=='decision'" uib-tooltip="终止任务" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.runShutTask(item, jobx.uuid)" style="cursor:pointer">终止</button>
                                                  <span ng-if="item.extended.batches==='firsttime'" style="color: gray" >[仅第一组]</span>
                                                  <span ng-if="item.extended.batches==='thelasttime'" style="color: gray" >[仅最后一组]</span>
                                                  <span ng-if="item.extended.deployenv==='test'" style="color: gray" >[仅测试]</span>
@@ -74,11 +79,6 @@
                                                  <span ng-if="item.extended.action==='deploy'" style="color: gray" >[仅发布]</span>
                                                  <span ng-if="item.extended.action==='rollback'" style="color: gray">[仅回滚]</span>
 
-                                                  <i class="fa fa-refresh fa-fw" ng-if="item.status == 'running' && taskDetail.status == 'running' && jobx.status == 'running'" ng-class="{'fa-spin':item.status=='running'}" ></i>
-                                                  <button class="btn btn-warning btn-sm" style="padding: 0px;" ng-if="item.pause && ( item.status=='fail' || item.status == 'success' || item.status=='ignore')" uib-tooltip="执行确认" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.runJobConfirm(item,jobx.uuid)" style="cursor:pointer">执行确认</button>
-                                                  <button class="btn btn-success btn-sm" style="padding: 0px;" ng-if="item.status=='decision'" uib-tooltip="重试任务" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.Runnigs(item, jobx.uuid)" style="cursor:pointer">重试</button>
-                                                  <button class="btn btn-danger btn-sm" style="padding: 0px;" ng-if="item.status=='decision'" uib-tooltip="忽略错误" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.runIgnore(item, jobx.uuid)" style="cursor:pointer">忽略</button>
-                                                  <button class="btn btn-danger btn-sm" style="padding: 0px;" ng-if="item.status=='decision'" uib-tooltip="终止任务" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.runShutTask(item, jobx.uuid)" style="cursor:pointer">终止</button>
 
                                             </span>
  
@@ -161,6 +161,12 @@
                                                {{$index +1}}({{historyjobxdetail.statuszh[item.status]}}) {{item.extended.name}}
                                            </span>
                                            <span class="panel-controls">
+
+                                                  <i class="fa fa-refresh fa-fw" ng-if="item.status == 'running' && taskDetaiXl.status == 'running' && jobx.status =='running'" ng-class="{'fa-spin':item.status=='running'}" ></i>
+                                                  <button class="btn btn-warning btn-sm" style="padding: 0px;" ng-if="item.pause && ( item.status=='fail' || item.status == 'success' || item.status=='ignore')" uib-tooltip="执行确认" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.runJobConfirm(item,jobx.uuid)" style="cursor:pointer">执行确认</button>
+                                                  <button class="btn btn-success btn-sm" style="padding: 0px;" ng-if="item.status=='decision'" uib-tooltip="重试任务" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.Runnigs(item, jobx.uuid)" style="cursor:pointer">重试</button>
+                                                  <button class="btn btn-danger btn-sm" style="padding: 0px;" ng-if="item.status=='decision'" uib-tooltip="忽略错误" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.runIgnore(item, jobx.uuid)" style="cursor:pointer">忽略</button>
+                                                  <button class="btn btn-danger btn-sm" style="padding: 0px;" ng-if="item.status=='decision'" uib-tooltip="终止任务" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.runShutTask(item, jobx.uuid)" style="cursor:pointer">终止</button>
                                                   <span ng-if="item.extended.batches==='firsttime'" style="color: gray" >[仅第一组]</span>
                                                   <span ng-if="item.extended.batches==='thelasttime'" style="color: gray" >[仅最后一组]</span>
                                                   <span ng-if="item.extended.deployenv==='test'" style="color: gray" >[仅测试]</span>
@@ -168,12 +174,6 @@
                                                   <span ng-if="item.extended.action==='deploy'" style="color: gray" >[仅发布]</span>
                                                   <span ng-if="item.extended.action==='rollback'" style="color: gray">[仅回滚]</span>
 
-
-                                                  <i class="fa fa-refresh fa-fw" ng-if="item.status == 'running' && taskDetaiXl.status == 'running' && jobx.status =='running'" ng-class="{'fa-spin':item.status=='running'}" ></i>
-                                                  <button class="btn btn-warning btn-sm" style="padding: 0px;" ng-if="item.pause && ( item.status=='fail' || item.status == 'success' || item.status=='ignore')" uib-tooltip="执行确认" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.runJobConfirm(item,jobx.uuid)" style="cursor:pointer">执行确认</button>
-                                                  <button class="btn btn-success btn-sm" style="padding: 0px;" ng-if="item.status=='decision'" uib-tooltip="重试任务" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.Runnigs(item, jobx.uuid)" style="cursor:pointer">重试</button>
-                                                  <button class="btn btn-danger btn-sm" style="padding: 0px;" ng-if="item.status=='decision'" uib-tooltip="忽略错误" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.runIgnore(item, jobx.uuid)" style="cursor:pointer">忽略</button>
-                                                  <button class="btn btn-danger btn-sm" style="padding: 0px;" ng-if="item.status=='decision'" uib-tooltip="终止任务" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.runShutTask(item, jobx.uuid)" style="cursor:pointer">终止</button>
 
                                             </span>
  
