@@ -3,6 +3,7 @@ use Dancer ':syntax';
 use FindBin qw( $RealBin );
 use Util;
 use JSON qw();
+use Encode;
 
 get '/kubernetes/data/template/:name' => sub {
     my $param = params();
@@ -34,6 +35,7 @@ any '/kubernetes/data/json2yaml' => sub {
 
     my $file = $fh->filename;
     my $data = `json2yaml $file`;
+    Encode::_utf8_on( $data );
 
     return $? ? +{ stat => JSON::false, info => "json2yaml fail" } : +{ stat => JSON::true, data => $data };
 };
