@@ -1,11 +1,13 @@
-#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
+#!/data/Software/mydan/perl/bin/perl
 use strict;
 use warnings;
 use POSIX;
 
 $|++;
 
+my $name = $ENV{C3APPNAME} ? "[$ENV{C3APPNAME}] " : "";
+
 while(<>)
 {
-    map{printf "%s %s\n", POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ), $_ }split /\r|\n/, $_;
+    map{printf "%s $name%s\n", POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ), $_ }split /\r|\n/, $_;
 }
