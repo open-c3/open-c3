@@ -256,7 +256,8 @@ $handle{getflowlineinfo} = sub
 {
     my ( $x, $status, $filter ) = @_;
     return +{ stat => $JSON::false, data => $x } if $status;
-    my $yaml = eval{ YAML::XS::Load $x };
+    my $yaml = eval{ YAML::XS::Load Encode::encode('utf8', $x ) };
+
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my @r;

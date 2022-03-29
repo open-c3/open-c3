@@ -34,7 +34,7 @@ get '/kubernetes/secret' => sub {
     my $filter = +{ skip => $param->{skip} };
     my ( $cmd, $handle ) = ( "$kubectl get secrets $argv 2>/dev/null", 'getsecret' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle, filter => $filter }} if request->headers->{"openc3event"};
-    return &{$handle{$handle}}( `$cmd`//'', $?, $filter );
+    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $?, $filter ); 
  };
 
 $handle{getsecret} = sub
@@ -78,7 +78,7 @@ post '/kubernetes/secret/dockerconfigjson' => sub {
     my $email = $param->{email} ? "--docker-email='$param->{email}'" : "";
     my ( $cmd, $handle ) = ( "$kubectl create secret docker-registry '$param->{name}' --docker-server='$param->{server}' --docker-username='$param->{username}' --docker-password='$param->{password}' $email -n '$param->{namespace}' 2>&1", 'showinfo' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
-    return &{$handle{$handle}}( `$cmd`//'', $? ); 
+    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $?); 
 };
 
 true;

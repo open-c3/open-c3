@@ -30,7 +30,7 @@ get '/kubernetes/hpa' => sub {
 
     my ( $cmd, $handle ) = ( "$kubectl get  hpa -A 2>/dev/null", 'gethpa' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
-    return &{$handle{$handle}}( `$cmd`//'', $? );
+    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
  };
 
 $handle{gethpa} = sub
@@ -81,7 +81,7 @@ post '/kubernetes/hpa/create' => sub {
 
     my ( $cmd, $handle ) = ( "$kubectl autoscale '$param->{type}' '$param->{name}' --min $param->{min} --max $param->{max} --cpu-percent=$param->{cpu} -n '$param->{namespace}' 2>&1", 'showinfo' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
-    return &{$handle{$handle}}( `$cmd`//'', $? ); 
+    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
 };
 
 true;

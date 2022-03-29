@@ -32,7 +32,7 @@ post '/kubernetes/cluster/connectiontest' => sub {
 
     my ( $cmd, $handle ) = ( "KUBECONFIG=$kubeconfig $proxyenv kubectl version --short=true 2>&1", 'showinfo' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
-    return &{$handle{$handle}}( `$cmd`//'', $? ); 
+    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
 };
 
 post '/kubernetes/cluster/connectiontest/:ticketid' => sub {
@@ -52,7 +52,7 @@ post '/kubernetes/cluster/connectiontest/:ticketid' => sub {
 
     my ( $cmd, $handle ) = ( "$kubectl version --short=true 2>&1", 'showinfo' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
-    return &{$handle{$handle}}( `$cmd`//'', $? ); 
+    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
 };
 
 true;

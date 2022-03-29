@@ -29,7 +29,7 @@ get '/kubernetes/harbor/repository' => sub {
     my ( $cmd, $handle ) = ( "/data/Software/mydan/CI/bin/harbor-searchimage $param->{ticketid} '$user' '$company' 2>/dev/null", 'getsearchharborimage' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
 
-    return &{$handle{$handle}}( `$cmd`//'', $? ); 
+    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
 };
 
 $handle{getsearchharborimage} = sub
@@ -37,7 +37,8 @@ $handle{getsearchharborimage} = sub
     my ( $x, $status ) = @_;
     return +{ stat => $JSON::false, data => $x } if $status;
 
-    my $data = eval{ YAML::XS::Load $x };
+    my $data = eval{ YAML::XS::Load Encode::encode('utf8', $x ) };
+
     return +{ stat => $JSON::false, info => $@ } if $@;
     return +{ stat => $JSON::true, data => $data };
 };

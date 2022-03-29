@@ -70,7 +70,7 @@ $handle{getdescribedeployment} = sub
     my ( $x, $status ) = @_;
     return +{ stat => $JSON::false, data => $x } if $status;
 
-    my $data = eval{ YAML::XS::Load $x };
+    my $data = eval{ YAML::XS::Load Encode::encode('utf8', $x ) };
     return +{ stat => $JSON::false, info => $@, xx => $x } if $@;
 
     return +{ stat => $JSON::true, data => $data };
@@ -105,7 +105,7 @@ $handle{getdescribeingress} = sub
     my ( $x, $status ) = @_;
     return +{ stat => $JSON::false, data => $x } if $status;
 
-    my $data = eval{ YAML::XS::Load $x };
+    my $data = eval{ YAML::XS::Load Encode::encode('utf8', $x ) };
     return +{ stat => $JSON::false, info => $@, xx => $x } if $@;
 
     return +{ stat => $JSON::true, data => $data };
@@ -140,7 +140,7 @@ $handle{getdescribeservice} = sub
     my ( $x, $status ) = @_;
     return +{ stat => $JSON::false, data => $x } if $status;
 
-    my $data = eval{ YAML::XS::Load $x };
+    my $data = eval{ YAML::XS::Load Encode::encode('utf8', $x ) };
     return +{ stat => $JSON::false, info => $@, xx => $x } if $@;
 
     return +{ stat => $JSON::true, data => $data };
