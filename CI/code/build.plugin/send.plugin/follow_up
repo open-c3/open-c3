@@ -63,7 +63,7 @@ return sub
     }
 
     $logs = Logs->new( 'code.build.send.follow_up' ) unless $logs;
-    $logs->die( "format error" ) unless $follow_up =~ /^[a-zA-Z0-9][a-zA-Z0-9\._,\;\- \/\:=]*$/ &&  $follow_up !~ /\.\./;
+    $logs->die( "format error" ) unless $follow_up =~ /^[a-zA-Z0-9][a-zA-Z0-9\._,\;\- \/\:="]*$/ &&  $follow_up !~ /\.\./;
 
     my $argv = '';
     if( $param{ci_type} && $param{ci_type} eq 'kubernetes' )
