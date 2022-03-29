@@ -10,11 +10,12 @@ use uuid;
  $0 [--repository 726939051292.dkr.ecr.us-east-1.amazonaws.com/xxx]
  $0 [--repository 726939051292.dkr.ecr.us-east-1.amazonaws.com/xxx] [--dockerfile Dockerfile_web (default(Dockerfile))]
  $0 [--repository 726939051292.dkr.ecr.us-east-1.amazonaws.com/xxx] [--dockerfile Dockerfile_web (default(Dockerfile))] [--registry 726939051292,726939051293]
+ $0 [--build '--build-arg http_proxy=http://10.10.1.2:8118']
 
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->set(  dockerfile => 'Dockerfile' )->get( qw( repository=s dockerfile=s registry=s ) )->dump();
+my %o = $option->set(  dockerfile => 'Dockerfile' )->get( qw( repository=s dockerfile=s registry=s build=s ) )->dump();
 $option->assert( 'repository' );
 
 map{ die "$_ format error.\n" unless $o{$_} =~ /^[a-zA-Z0-9_\.\/\-:]+$/; }qw( repository dockerfile );
@@ -69,7 +70,9 @@ if( $dockerfilestr =~ /^FROMOPENC3/ )
 }
 else
 {
-    die "docker build fail:$!" if system "docker build -t '$o{repository}:$ENV{VERSION}' -f '$o{dockerfile}' .";
+    my $buildarg = $o{build} || '';
+    print "docker build -t '$o{repository}:$ENV{VERSION}' -f '$o{dockerfile}' $buildarg .\n";
+    die "docker build fail:$!" if system "docker build -t '$o{repository}:$ENV{VERSION}' -f '$o{dockerfile}' $buildarg .";
     print "[INFO]docker build done.\n";
 }
 
