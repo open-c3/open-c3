@@ -873,7 +873,7 @@
             matchname = vm.project.ci_type_name;
         }
         angular.forEach(vm.containerlist, function (value, key) {
-            if( value.name === matchname )
+            if( value.container === matchname )
             {
                 vm.project.ci_type_repository = value.repository;
                 matched = true;
