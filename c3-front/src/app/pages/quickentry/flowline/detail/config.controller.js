@@ -857,8 +857,14 @@
 //
     vm.addImageAddr = function() {
         var matched = false; 
+
+        var matchname = vm.project.ci_type_container;
+        if ( matchname == "__app_name__" )
+        {
+            matchname = vm.project.ci_type_name;
+        }
         angular.forEach(vm.containerlist, function (value, key) {
-            if( value.name === vm.project.ci_type_container )
+            if( value.name === matchname )
             {
                 vm.project.ci_type_repository = value.repository;
                 matched = true;
