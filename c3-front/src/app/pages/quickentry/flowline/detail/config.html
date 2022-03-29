@@ -284,13 +284,30 @@
                         </div>
                     </div>
 
-                    <div class="row">
+                    <div ng-if="!config.followupopen == 1" class="row">
                         <label class="col-md-2 control-label fwbold">镜像类型</label>
                         <div class="col-md-6">
                             <select class="form-control"  ng-model="config.project.follow_up" > 
                                  <option value="harbor_push_image.pl">Harbor</option>
                                  <option value="awsecr_push_image.pl">ECR</option>
                             </select>
+                        </div>
+
+                        <div class="col-md-2">
+                            <a ng-if="config.followupopen == 1" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="重定义触发脚本" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.followupopen=0">自定义</a>
+                            <a ng-if="!config.followupopen == 1" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="重定义触发脚本" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.followupopen=1">自定义</a>
+                        </div>
+ 
+                    </div>
+
+                    <div ng-if="config.followupopen == 1"  class="row">
+                        <label class="col-md-2 control-label fwbold">触发脚本:</label>
+                        <div class="col-md-6"> <input class="form-control" ng-model="config.project.follow_up" placeholder="构建完成后触发脚本"/> </div>
+                        <a class="glyphicon glyphicon-question-sign" data-toggle="tooltip" data-placement="right" target='_blank' ng-href="/book/构建触发脚本/" uib-tooltip="查看脚本帮助" aria-hidden="true" style="padding-top: 11px;font-size: larger;"></a>
+
+                        <div class="col-md-2">
+                            <a ng-if="config.followupopen == 1" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="重定义触发脚本" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.followupopen=0">自定义</a>
+                            <a ng-if="!config.followupopen == 1" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="重定义触发脚本" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.followupopen=1">自定义</a>
                         </div>
                     </div>
 
@@ -316,7 +333,6 @@
                         </div>
  
                     </div>
-
 
 </div>
                     <hr style="margin: 5px" >

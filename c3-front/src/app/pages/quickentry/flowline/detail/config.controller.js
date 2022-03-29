@@ -68,6 +68,15 @@
 
                     vm.project.ci_type_concurrent = vm.project.ci_type_concurrent * 1;
 
+                    if( vm.project.follow_up == "harbor_push_image.pl" || vm.project.follow_up == "awsecr_push_image.pl" )
+                    {
+                        vm.followupopen = 0;
+                    }
+                    else
+                    {
+                        vm.followupopen = 1;
+                    }
+
                     if( /,/.test(vm.project.ci_type_name ))
                     {
                         var ci_type_name = vm.project.ci_type_name.split(",")
