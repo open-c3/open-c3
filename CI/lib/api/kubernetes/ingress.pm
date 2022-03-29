@@ -36,7 +36,7 @@ get '/kubernetes/ingress' => sub {
 #TODO 不添加2>/dev/null 时,如果命名空间不存在ingress时，api.event 的接口会报错
     my ( $cmd, $handle ) = ( "$kubectl get ingress -o wide $argv 2>/dev/null", 'getingress' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle, filter => $filter }} if request->headers->{"openc3event"};
-    return &{$handle{$handle}}( `$cmd`//'', $?, $filter );
+    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $?, $filter ); 
 };
 
 $handle{getingress} = sub
@@ -84,7 +84,7 @@ get '/kubernetes/app/ingress/dump' => sub {
     my ( $cmd, $handle ) = ( "/data/Software/mydan/CI/bin/kubectl-searchingress '$user' '$company' 2>/dev/null", 'getsearchingress' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
 
-    return &{$handle{$handle}}( `$cmd`//'', $? ); 
+    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
 };
 
 $handle{getsearchingress} = sub
@@ -92,7 +92,8 @@ $handle{getsearchingress} = sub
     my ( $x, $status ) = @_;
     return +{ stat => $JSON::false, data => $x } if $status;
 
-    my $data = eval{ YAML::XS::Load $x };
+    my $data = eval{ YAML::XS::Load Encode::encode('utf8', $x ) };
+
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     map{ $_->{clustername} = decode_base64( $_->{clustername} ) }@$data;

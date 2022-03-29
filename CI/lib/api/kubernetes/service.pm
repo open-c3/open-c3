@@ -35,7 +35,7 @@ get '/kubernetes/service' => sub {
 #TODO 不添加2>/dev/null 时,如果命名空间不存在service时，api.event 的接口会报错
     my ( $cmd, $handle ) = ( "$kubectl get service -o wide $argv 2>/dev/null", 'getservice' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle, filter => $filter }} if request->headers->{"openc3event"};
-    return &{$handle{$handle}}( `$cmd`//'', $?, $filter );
+    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $?, $filter ); 
 };
 
 $handle{getservice} = sub

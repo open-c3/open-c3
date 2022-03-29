@@ -37,7 +37,7 @@ get '/kubernetes/util/labels/:name' => sub {
     my $cmd = join ' && ', map{ "$kubectl get $_ $argv --show-labels 2>/dev/null" }split /_/, $param->{name};
     my $handle = 'getlabels';
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
-    return &{$handle{$handle}}( `$cmd`//'', $? );
+    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
 };
 
 $handle{getlabels} = sub

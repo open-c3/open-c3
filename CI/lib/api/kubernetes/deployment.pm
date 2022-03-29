@@ -34,7 +34,7 @@ get '/kubernetes/deployment' => sub {
     my $argv = $param->{namespace} ? "-n $param->{namespace}" : "-A";
     my ( $cmd, $handle ) = ( "$kubectl get deployment $argv 2>/dev/null", 'showtable' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle, filter => $filter }} if request->headers->{"openc3event"};
-    return &{$handle{$handle}}( `$cmd`//'', $?, $filter );
+    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $?, $filter );
 };
 
 true;
