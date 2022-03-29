@@ -1,0 +1,6 @@
+#!/bin/bash
+
+export CRON_TZ=Asia/Shanghai
+export TZ=Asia/Shanghai
+
+c3mc-ci-gitreport 2>&1 1>/tmp/c3mc-ci-gitreport.log  | C3APPNAME=c3mc-ci-gitreport c3mc-base-log-addtime  >> /var/log/open-c3.error.log 
