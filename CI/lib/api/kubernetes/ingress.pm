@@ -96,7 +96,7 @@ $handle{getsearchingress} = sub
 
     return +{ stat => $JSON::false, info => $@ } if $@;
 
-    map{ $_->{clustername} = decode_base64( $_->{clustername} ) }@$data;
+    map{ $_->{clustername} = Encode::decode('utf8', decode_base64( $_->{clustername} )) }@$data;
     return +{ stat => $JSON::true, data => $data };
 };
 
