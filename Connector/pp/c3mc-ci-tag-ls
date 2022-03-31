@@ -28,10 +28,9 @@ my $addr = $project{addr};
 
 my $pipe = 'c3mc-ci-tag-ls-svn';
 $pipe = 'c3mc-ci-tag-ls-git' if $addr =~ /git@/ || $addr =~ /\.git/ || $addr =~ /http:\/\/git/ || $addr =~ /https:\/\/git/;
-$pipe = "fileserver" if $addr eq 'openc3://*';
- 
+$pipe = "c3mc-ci-tag-ls-harbor" if $addr =~ /^harbor:/;
 
-if( $pipe eq 'fileserver' )
+if( $addr eq 'openc3://*' )
 {
     my @version = `c3mc-base-db-get -t openc3_job_fileserver name --filter "projectid='$project{groupid}' and status='available'"`;
     chomp @version;

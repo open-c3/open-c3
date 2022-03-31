@@ -1,0 +1,59 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use POSIX;
+use Logs;
+use FindBin qw( $RealBin );
+use Temp;
+use MIME::Base64;
+use Code;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    logs => 日志对象
+
+    # projectid addr ticketid rely name(版本信息可能为空) temp(logs目录下的临时目录名) uuid
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $logs, $projectid, $addr, $ticketid, $rely, $name, $temp, $uuid )
+        = @param{qw(db logs projectid addr ticketid rely name temp uuid )};
+
+    $logs = Logs->new( 'code.build.dump.pull.harborv2' ) unless $logs;
+
+    my $temppath = "$RealBin/../logs/$temp/$uuid";
+    if( -d $temppath )
+    {
+        my $user = `id -un`;chop $user;
+        my $sudo = $user eq 'root' ? '' : 'sudo ';
+        $logs->die( "clean old temppath fail:$!" ) if system "${sudo}rm -rf '$temppath'";
+    }
+
+    $logs->die( "mkdir temppath fail:$!" ) if system "mkdir -p '$temppath'";
+
+    $logs->die( "name format error" ) unless $name =~ /^[a-zA-Z0-9\.\-_]+$/;
+    my $version  = $name;
+
+    my ( $tagger, $tag_info ) = qw( sys@app openc3.cron );
+    $tag_info =~ s/'//g;
+        
+    unless( defined $tagger && $tagger =~ /^[a-zA-Z0-9\.\@\-_]+$/ )
+    {
+        print "get tagger fail,Switch to default: lijinfeng2011\@gmail.com\n";
+        $tagger = 'lijinfeng2011@gmail.com';
+    }
+
+    $logs->die( "get data error:$!" ) if system "cd '$temppath' && rm -rf data info && mkdir -p info data && date > data/touch && echo '$version' > info/version";
+    $logs->die( "write tagger info fail:$!" )if system "echo '$tagger' > '$temppath/info/tagger'";
+    $logs->die( "write tag_info info fail:$!" )if system "echo '$tag_info' > '$temppath/info/taginfo'";
+
+    eval{ $db->execute( "update openc3_ci_version set tagger='$tagger',taginfo='$tag_info' where projectid='$projectid' and name='$name'" ) };
+    print "WARN: error recording tagger $@\n" if $@;
+}
