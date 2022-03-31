@@ -29,9 +29,17 @@ $addr =~ s/^harbor://;
 
 if( $ticketid )
 {
-    my $x = `c3mc-base-db-get -t openc3_ci_ticket ticket --filter "id='$ticketid' and type='UsernamePassword'"`;
+    my $x = `c3mc-base-db-get -t openc3_ci_ticket type ticket --filter "id='$ticketid' and ( type='UsernamePassword' or type='Harbor' )"`;
     chomp $x;
-    ( $username, $pass ) = split /_:separator:_/, $x if $x;
+    my ( $type, $data ) = split /;/, $x, 2;
+    if( $type && $type eq 'Harbor' )
+    {
+        ( undef, $username, $pass ) = split /_:separator:_/, $data if $data;
+    }
+    else
+    {
+        ( $username, $pass ) = split /_:separator:_/, $data if $data;
+    }
 }
 
 my $ctrl = $pass ? "curl -u '$username:$pass'" : 'curl';

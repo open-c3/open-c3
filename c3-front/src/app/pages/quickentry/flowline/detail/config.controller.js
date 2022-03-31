@@ -132,7 +132,7 @@
                         {
                             vm.ticketinfok8s.push(data)
                         }
-                        if( data.type === 'SSHKey' ||  data.type === 'UsernamePassword' )
+                        if( data.type === 'SSHKey' ||  data.type === 'UsernamePassword' || data.type === 'Harbor' )
                         {
                             vm.ticketinfogit.push(data)
                         }
