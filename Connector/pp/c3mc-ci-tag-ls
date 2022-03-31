@@ -39,6 +39,14 @@ if( $pipe eq 'fileserver' )
     exit;
 }
 
+if( $addr =~ /^ci:(\d+)$/ )
+{
+    my @version = `c3mc-base-db-get -t openc3_ci_version name --filter "projectid='$1' and status='success'"`;
+    chomp @version;
+    map{ printf "$project{id};%s\n", Encode::decode('utf8', $_ ); }@version;
+    exit;
+}
+
 my $chld_in;
 my $pid = IPC::Open3::open3( $chld_in, '>&STDOUT', '>&STDERR', $pipe);
  
