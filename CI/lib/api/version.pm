@@ -139,7 +139,7 @@ put '/version/:groupid/:projectid/:uuid/build' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     eval{ 
-        $api::mysql->execute( "update openc3_ci_version set status='init',user='$user',reason='call by page',pid=null 
+        $api::mysql->execute( "update openc3_ci_version set status='init',user='$user',reason='call by page',pid=null,finishtime=null,finishtimems=null
             where uuid='$param->{uuid}' and ( status='fail' || status='success' || status='done')");
     };
 

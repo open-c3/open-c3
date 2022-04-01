@@ -27,4 +27,4 @@ echo VERSION:$VERSION
 docker build . -t openc3/allinone:$VERSION
 rm -rf temp
 
-docker run -p 8080:88 -it openc3/allinone:$VERSION
+docker run -p 8080:88 -d openc3/allinone:$VERSION
