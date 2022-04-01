@@ -18,6 +18,7 @@ RUN mkdir -p /etc/cron.d.root
 RUN mkdir -p /data/logs/CI
 RUN mkdir -p /data/glusterfs/ci_repo
 
+RUN rpm --import https://repo.mysql.com/RPM-GPG-KEY-mysql-2022
 RUN wget -i -c http://dev.mysql.com/get/mysql57-community-release-el7-10.noarch.rpm
 RUN yum -y install mysql57-community-release-el7-10.noarch.rpm
 RUN yum -y install mysql-community-server
