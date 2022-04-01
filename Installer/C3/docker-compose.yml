@@ -71,8 +71,8 @@ services:
     image: "grafana/grafana:7.3.6"
     restart: always
     user: root
-    ports:
-      - "8080:3000"
+#    ports:
+#      - "8080:3000"
     volumes:
       - "/data/open-c3-data/grafana-data:/var/lib/grafana"
     networks:
@@ -106,8 +106,8 @@ services:
       TZ: 'Asia/Shanghai'
     image: "prom/alertmanager:latest"
     restart: always
-    ports:
-      - "9093:9093"
+#    ports:
+#      - "9093:9093"
     volumes:
       - "/data/open-c3/alertmanager/config:/etc/alertmanager"
     networks:
