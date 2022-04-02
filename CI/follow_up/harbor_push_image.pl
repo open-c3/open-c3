@@ -20,7 +20,7 @@ $option->assert( 'repository' );
 map{ die "$_ format error.\n" unless $o{$_} =~ /^[a-zA-Z0-9_\.\/\-:]+$/; }qw( repository dockerfile );
 
 die "TUSERNAME error" unless defined $ENV{TUSERNAME} && $ENV{TUSERNAME} =~ /^[a-zA-Z0-9:\.\-_]+$/;
-die "TPASSWORD error" unless defined $ENV{TPASSWORD} && $ENV{TPASSWORD} =~ /^[a-zA-Z0-9,:\.\-_;\/=\+]+$/;
+die "TPASSWORD error" unless defined $ENV{TPASSWORD} && $ENV{TPASSWORD} !~ /'/;
 die "PROJECTID error" unless defined $ENV{PROJECTID} && $ENV{PROJECTID} =~ /^\d+$/;
 die "VERSION error" unless $ENV{VERSION} && $ENV{VERSION} =~ /^[a-zA-Z0-9:\.\-_]+$/;
 
