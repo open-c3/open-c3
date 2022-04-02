@@ -97,4 +97,10 @@ EOF
 
 fi
 
+#单机版初始化对应
+mkdir -p /data/open-c3-data/glusterfs/oncall/{conf,data};
+mkdir -p /data/open-c3-data/glusterfs/mailmon/{conf,data,run};
+mkdir -p /data/open-c3-data/monitor-sender
+#=end
+
 /data/Software/mydan/Connector/restart-open-c3-auto-config-change.pl

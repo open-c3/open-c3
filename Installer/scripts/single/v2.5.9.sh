@@ -23,3 +23,5 @@ mkdir -p /data/open-c3-data/glusterfs/oncall/{conf,data}
 #mail mon
 docker exec -i openc3-server /data/Software/mydan/perl/bin/cpan install Mail::POP3Client Email::MIME Email::MIME::RFC2047::Decoder
 mkdir -p /data/open-c3-data/glusterfs/mailmon/{conf,data,run}
+
+mkdir -p /data/open-c3-data/monitor-sender
