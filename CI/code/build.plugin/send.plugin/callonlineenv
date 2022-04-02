@@ -3,7 +3,6 @@ use strict;
 use warnings;
 use JSON;
 use Logs;
-use LWP::UserAgent;
 use Encode;
 use Util;
 
@@ -24,9 +23,6 @@ return sub
 
     $logs = Logs->new( 'code.build.send.callonlineenv' ) unless $logs;
 
-    my $ua = LWP::UserAgent->new();
-    $ua->agent('Mozilla/9 [en] (Centos; Linux)');
-
     #HTTP::Message content must be bytes at
     my ( $jobname, $jobgroup ) = ( '_ci_' . $projectid . '_', '_ci_online_' . $projectid . '_');
 
@@ -42,40 +38,4 @@ return sub
     printf "call jobx ok: jobxuuid:%s\n", $uuid;
 
     return;
-
-    my %env = eval{ Util::envinfo( qw( appkey appname ) )};
-    $logs->die( "fromat error $@" ) if $@;
-
-    $ua->default_header( map{ $_ => $env{$_} }qw( appname appkey ) );
- 
-    $ua->timeout( 10 );
-    $ua->default_header ( 'Cache-control' => 'no-cache', 'Pragma' => 'no-cache' );
-
-    my $lastversionres = $ua->get( "http://api.jobx.open-c3.org/flowline_version/$projectid" );
-    my $lastversioncont = $lastversionres->content;
-    $logs->die( "get last version info fail: $lastversioncont" ) unless $lastversionres->is_success;
-
-    my $lastversiondata = eval{JSON::from_json $lastversioncont};
-    $logs->die( "get last version info fail: $lastversioncont : no json $@" ) if $@;
-
-    $logs->die( "get last version info fail: $lastversioncont : stat fail" )  unless $lastversiondata->{stat};
-
-    my $variable = +{ version => $version, '_jobtype_' => 'online', _appname_ => "_ci_" . $projectid . "_" };
-    $variable->{_rollbackVersion_} = $lastversiondata->{data}{version} if $lastversiondata->{data}{version};
-
-    my $url = "http://api.jobx.open-c3.org/task/$groupid/job/byname";
-    my $res = $ua->post( $url, 
-        Content => JSON::to_json( +{ jobname => $jobname, group => $jobgroup, variable => $variable } ), 
-        'Content-Type' => 'application/json' 
-    );
-
-    my $cont = $res->content;
-    $logs->die( "calljobx fail: $cont" ) unless $res->is_success;
-
-    my $data = eval{JSON::from_json $cont};
-    $logs->die( "calljobx fail: $cont : no json $@" ) if $@;
-
-    $logs->die( "calljobx fail: $cont : stat fail" )  unless $data->{stat};
-
-    printf "call jobx ok: jobxuuid:%s\n", $data->{uuid};
 }
