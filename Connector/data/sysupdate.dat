@@ -1,0 +1,156 @@
+# v2.5.1 sql openc3_monitor_config_collector create
+create table `openc3_monitor_config_collector`(
+`id`            int(16) unsigned not null primary key auto_increment comment 'id',
+`projectid` int(16) unsigned comment '项目id',
+`type` VARCHAR(100) comment '类型',
+`subtype` VARCHAR(100) comment '子类型',
+`content1` VARCHAR(300) comment '内容',
+`content2` VARCHAR(300) comment '内容',
+`edit_user` VARCHAR(100) comment '编辑者',
+`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间'
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='monitorconfigcollector';
+
+# v2.5.1 sql openc3_monitor_config_rule create
+create table `openc3_monitor_config_rule`(
+`id`            int(16) unsigned not null primary key auto_increment comment 'id',
+`projectid` int(16) unsigned comment '项目id',
+`alert` VARCHAR(100) comment 'alert',
+`expr` VARCHAR(3000) comment 'expr',
+`for` VARCHAR(100) comment 'for',
+`severity` VARCHAR(100) comment 'severity',
+`summary` VARCHAR(1000) comment 'summary',
+`description` VARCHAR(1000) comment 'description',
+`value` VARCHAR(100) comment 'value',
+`model` VARCHAR(100) comment 'model',#simple,custom
+`metrics` VARCHAR(100) comment 'metrics',
+`method` VARCHAR(20) comment 'method',#> < >= <=
+`threshold` VARCHAR(100) comment 'threshold',
+`edit_user` VARCHAR(100) comment '编辑者',
+`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间'
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='monitorconfigrule';
+
+# v2.5.1 sql openc3_monitor_config_user create
+create table `openc3_monitor_config_user`(
+`id`            int(16) unsigned not null primary key auto_increment comment 'id',
+`projectid` int(16) unsigned comment '项目id',
+`user` VARCHAR(100) comment 'user',
+`edit_user` VARCHAR(100) comment '编辑者',
+`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间'
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='monitorconfiguser';
+
+# v2.5.2 sql openc3_monitor_self_healing_config create
+create table `openc3_monitor_self_healing_config`(
+`id`            int(16) unsigned not null primary key auto_increment comment 'id',
+`name` VARCHAR(100) comment '自愈套餐名称',
+`altername` VARCHAR(100) comment '报警名称',
+`jobname` VARCHAR(100) comment '作业名称',
+`edit_user` VARCHAR(100) comment '编辑者',
+`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
+UNIQUE KEY `uniq_altername` (`altername`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='monitor_self_healing_config';
+
+# v2.5.2 sql openc3_monitor_self_healing_task create
+create table `openc3_monitor_self_healing_task`(
+`id`            int(16) unsigned not null primary key auto_increment comment 'id',
+`instance` VARCHAR(100) comment '目标',
+`fingerprint` VARCHAR(100) comment 'fingerprint',
+`startsAt` VARCHAR(100) comment 'startsAt',
+`alertname` VARCHAR(300) comment 'alertname',
+`jobname` VARCHAR(100) comment '作业名称',
+`taskuuid` VARCHAR(100) comment '作业任务编号',
+`taskstat` VARCHAR(100) comment '作业任务状态',
+`healingchecktime` VARCHAR(100) comment '自愈状态检查的时间, 大于这个时间',
+`healingstat` VARCHAR(100) comment '自愈状态',
+`create_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
+UNIQUE KEY `uniq_instance_fingerprint_startsAt_alertname` (`instance`,`fingerprint`,`startsAt`,`alertname`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='monitor_self_healing_task';
+
+# v2.5.3 sql openc3_monitor_config_kanban create
+create table `openc3_monitor_config_kanban`(
+`id`            int(16) unsigned not null primary key auto_increment comment 'id',
+`projectid` int(16) unsigned comment '项目id',
+`name` VARCHAR(100) comment '名称',
+`url` VARCHAR(3000) comment 'url',
+`edit_user` VARCHAR(100) comment '编辑者',
+`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间'
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='monitorconfigkanban';
+
+# v2.5.4 sql openc3_monitor_config_kanban add default
+ALTER TABLE openc3_monitor_config_kanban ADD `default` int(4) unsigned default 0 comment '默认模版';
+
+# v2.5.5 sql openc3_connector_userdepartment create
+create table `openc3_connector_userdepartment`(
+`id`            int(16) unsigned not null primary key auto_increment comment 'id',
+`user` VARCHAR(100) comment 'user',
+`department` VARCHAR(100) comment 'department',
+`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment 'time',
+`edit_user` VARCHAR(100) comment 'edit_user',
+UNIQUE KEY `uniq_user` (`user`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='userdepartment';
+
+# v2.5.6 sql openc3_monitor_config_group create
+create table `openc3_monitor_config_group`(
+`id`            int(16) unsigned not null primary key auto_increment comment 'id',
+`name` VARCHAR(300) comment '名称',
+`description` VARCHAR(1000) comment '描述',
+`edit_user` VARCHAR(100) comment '编辑者',
+`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
+UNIQUE KEY `name` (`name`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='监控报警接收组';
+
+# v2.5.6 sql openc3_monitor_config_groupuser create
+create table `openc3_monitor_config_groupuser`(
+`id`            int(16) unsigned not null primary key auto_increment comment 'id',
+`groupid` int(16) unsigned comment '监控报警接收组id',
+`user` VARCHAR(300) comment '用户',
+`edit_user` VARCHAR(100) comment '编辑者',
+`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
+UNIQUE KEY `groupid_user` (`groupid`, `user`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='监控报警接收组成员';
+
+# v2.5.7 sql openc3_job_variable add option
+ALTER TABLE openc3_job_variable ADD `option` VARCHAR(1000) comment '选项列表';
+
+# v2.5.8 sql openc3_monitor_config_oncall create
+create table `openc3_monitor_config_oncall`(
+`id`            int(16) unsigned not null primary key auto_increment comment 'id',
+`name` VARCHAR(300) comment '名称',
+`description` VARCHAR(1000) comment '描述',
+`edit_user` VARCHAR(100) comment '编辑者',
+`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
+UNIQUE KEY `name` (`name`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='监控报警值班组';
+
+# v2.5.9 sql openc3_monitor_config_mailmon create
+create table `openc3_monitor_config_mailmon`(
+`id`            int(16) unsigned not null primary key auto_increment comment 'id',
+`name` VARCHAR(300) comment '名称',
+`description` VARCHAR(1000) comment '描述',
+`edit_user` VARCHAR(100) comment '编辑者',
+`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
+UNIQUE KEY `name` (`name`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='邮件监控';
+
+# v2.5.9 sql openc3_monitor_history_mailmon create
+create table `openc3_monitor_history_mailmon`(
+`id`            int(16) unsigned not null primary key auto_increment comment 'id',
+`account` VARCHAR(300) comment '账号',
+`severity` VARCHAR(300) comment '级别',
+`subject` VARCHAR(500) comment '标题',
+`content` VARCHAR(1000) comment '内容',
+`date` VARCHAR(300) comment '日期',
+`from` VARCHAR(300) comment '来源',
+`create_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间'
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='邮件监控历史';
+
+# v2.5.10 sql openc3_monitor_self_healing_config add eips
+ALTER TABLE openc3_monitor_self_healing_config ADD `eips` VARCHAR(500) comment '生效的ip列表';
+
+# v2.5.11 sql openc3_connector_sysupdate add eips
+create table `openc3_connector_sysupdate`(
+`id`            int(16) unsigned not null primary key auto_increment comment 'id',
+`uuid` VARCHAR(100) comment 'uuid',
+`stat` VARCHAR(100) comment 'stat',
+`time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment 'time',
+UNIQUE KEY `uniq_uuid` (`uuid`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='sysupdate';

@@ -8,9 +8,18 @@ use IPC::Open3;
 
 =head1 SYNOPSIS
 
- $0
+ $0 version #default v2.5.12
 
 =cut
+
+sub versioni
+{
+    my $version = shift;
+    die "version err" unless $version =~ /^v(\d+)\.(\d+)\.(\d+)$/;
+    return $1 * 1000 * 1000 + $2 * 1000  + $3;
+}
+
+my $gversion = versioni( @ARGV ? $ARGV[0] : 'v2.5.11' );
 
 my @x = `cat /data/Software/mydan/Connector/data/sysupdate.dat`;
 chomp @x;
@@ -49,6 +58,7 @@ sub update
     $title =~ s/^\s+//g;
     
     my ( $version, $type, $target, $mesg ) = split /\s+/, $title, 4;
+    return unless $gversion < versioni( $version );
     die "undef" unless $job{$type};
     my $uuid = $title;
     my $status = `c3mc-base-db-get stat -t openc3_connector_sysupdate -f 'uuid="$uuid"'`;
