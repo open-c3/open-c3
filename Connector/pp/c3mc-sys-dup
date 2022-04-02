@@ -1,0 +1,69 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use IPC::Open3;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my @x = `cat /data/Software/mydan/Connector/data/sysupdate.dat`;
+chomp @x;
+
+my ( $idx, @dat ) = ( -1 );
+for my $x ( @x )
+{
+    $idx ++ if $x =~ /^\s*#\s*v\d+\.\d+\.\d+/;
+    push @{$dat[$idx]}, $x;
+}
+
+my %job =
+(
+    sql => sub{
+        my $x = shift;
+        my  ( $table, $sql ) = @$x{qw( target dat )};
+        return unless $sql && @$sql;
+
+        my $pid = IPC::Open3::open3( my $chld_in, '>&STDOUT', '>&STDERR', "c3mc-base-db-exe -t '$table'");
+        map{ print $chld_in $_ }@$sql; 
+        $chld_in = undef;
+        waitpid( $pid, 0 );
+        die "db exe err: $?" if $?;
+        return 1;
+    },
+);
+
+sub update
+{
+    my $dat = shift;
+    my $title = shift @$dat;
+    $title =~ s/\s+/ /g;
+    $title =~ s/^\s+//g;
+    $title =~ s/\s+$//g;
+    $title =~ s/^#+//g;
+    $title =~ s/^\s+//g;
+    
+    my ( $version, $type, $target, $mesg ) = split /\s+/, $title, 4;
+    die "undef" unless $job{$type};
+    my $uuid = $title;
+    my $status = `c3mc-base-db-get stat -t openc3_connector_sysupdate -f 'uuid="$uuid"'`;
+    chomp $status;
+    return if $status && $status eq 'success';
+
+    my $stat = &{$job{$type}}( +{ version => $version, type => $type, target => $target, mesg => $mesg, dat => $dat, uuid => $title } ) ? 'success' : 'fail';
+    $status
+        ? `c3mc-base-db-set -t openc3_connector_sysupdate --set 'stat="$stat"' --col uuid '$uuid'`
+        : `c3mc-base-db-ins -t openc3_connector_sysupdate stat '$stat' uuid '$uuid'`;
+    exit 1 if $stat eq 'fail';
+}
+
+for my $dat ( @dat )
+{
+    update($dat);
+}
+
