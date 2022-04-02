@@ -190,3 +190,11 @@ create table `openc3_connector_userdepartment`(
 UNIQUE KEY `uniq_user` (`user`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='userdepartment';
 
+create table `openc3_connector_sysupdate`(
+`id`            int(16) unsigned not null primary key auto_increment comment 'id',
+`uuid` VARCHAR(100) comment 'uuid',
+`stat` VARCHAR(100) comment 'stat',
+`time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment 'time',
+UNIQUE KEY `uniq_uuid` (`uuid`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='sysupdate';
+
