@@ -57,6 +57,8 @@ sub sendmail
         $title =~ s/'/"/g;
         $content =~ s/'/"/g;
 
+        $content = substr $content, 0, 2000 if length $content > 2000;
+
         eval{ $db->execute( "insert into openc3_connector_usermail (`user`,`title`,`content`) values('$user','$title','$content')" )};
         die $@ if $@;
         return;
