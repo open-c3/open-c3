@@ -1,3 +1,12 @@
+# v0.0.0 sql openc3_connector_sysupdate add eips from v2.5.11
+create table if not exists `openc3_connector_sysupdate`(
+`id`            int(16) unsigned not null primary key auto_increment comment 'id',
+`uuid` VARCHAR(100) comment 'uuid',
+`stat` VARCHAR(100) comment 'stat',
+`time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment 'time',
+UNIQUE KEY `uniq_uuid` (`uuid`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='sysupdate';
+
 # v2.5.1 sql openc3_monitor_config_collector create
 create table `openc3_monitor_config_collector`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
@@ -146,11 +155,11 @@ create table `openc3_monitor_history_mailmon`(
 # v2.5.10 sql openc3_monitor_self_healing_config add eips
 ALTER TABLE openc3_monitor_self_healing_config ADD `eips` VARCHAR(500) comment '生效的ip列表';
 
-# v2.5.11 sql openc3_connector_sysupdate add eips
-create table `openc3_connector_sysupdate`(
-`id`            int(16) unsigned not null primary key auto_increment comment 'id',
-`uuid` VARCHAR(100) comment 'uuid',
-`stat` VARCHAR(100) comment 'stat',
-`time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment 'time',
-UNIQUE KEY `uniq_uuid` (`uuid`)
-)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='sysupdate';
+# skip v2.5.11 sql openc3_connector_sysupdate add eips
+#create table `openc3_connector_sysupdate`(
+#`id`            int(16) unsigned not null primary key auto_increment comment 'id',
+#`uuid` VARCHAR(100) comment 'uuid',
+#`stat` VARCHAR(100) comment 'stat',
+#`time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment 'time',
+#UNIQUE KEY `uniq_uuid` (`uuid`)
+#)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='sysupdate';

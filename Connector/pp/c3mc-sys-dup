@@ -58,12 +58,13 @@ sub update
     $title =~ s/^\s+//g;
     
     my ( $version, $type, $target, $mesg ) = split /\s+/, $title, 4;
-    return unless $gversion < versioni( $version );
+    return unless $gversion < versioni( $version ) || $version =~ /^v0\./;
     die "undef" unless $job{$type};
     my $uuid = $title;
-    my $status = `c3mc-base-db-get stat -t openc3_connector_sysupdate -f 'uuid="$uuid"'`;
+    my $status = `c3mc-base-db-get stat -t openc3_connector_sysupdate -f 'uuid="$uuid"'` if $version ne 'v0.0.0';
+    $status ||= '';
     chomp $status;
-    return if $status && $status eq 'success';
+    return if $status eq 'success';
 
     my $stat = &{$job{$type}}( +{ version => $version, type => $type, target => $target, mesg => $mesg, dat => $dat, uuid => $title } ) ? 'success' : 'fail';
     $status
