@@ -237,8 +237,8 @@ function Window(socket) {
 
   this.cols = Terminal.geometry[0];
   this.rows = Terminal.geometry[1];
-  this.cols = root.clientWidth;//mydan
-  this.rows = root.clientHeight;//mydan
+//  this.cols = root.clientWidth;//mydan
+//  this.rows = root.clientHeight;//mydan
 
   el.appendChild(grip);
   el.appendChild(bar);
@@ -284,7 +284,7 @@ Window.prototype.bind = function() {
   });
 
   on(el, 'mousedown', function(ev) {
-    return;//mydan
+//    return;//mydan
     if (ev.target !== el && ev.target !== bar) return;
 
     self.focus();
@@ -928,16 +928,26 @@ tty.Terminal = Terminal;
 
 this.tty = tty;
 
-setTimeout(function() {
-    if(document.all) {
-        document.getElementById("open").click();
+var trycount = 0;
+var autoOpen = setInterval(function() {
+    trycount = trycount + 1;
+    if( trycount > 50 )
+    {
+        clearInterval(autoOpen);
     }
-    else {
-        var e = document.createEvent("MouseEvents");
-        e.initEvent("click", true, true);
-        document.getElementById("open").dispatchEvent(e);
+
+    if( tty.windows.length == 0 )
+    {
+        if(document.all) {
+            document.getElementById("open").click();
+        }
+        else {
+            var e = document.createEvent("MouseEvents");
+            e.initEvent("click", true, true);
+            document.getElementById("open").dispatchEvent(e);
+        }
     }
-}, 500);
+}, 300);
 
 }).call(function() {
   return this || (typeof window !== 'undefined' ? window : global);

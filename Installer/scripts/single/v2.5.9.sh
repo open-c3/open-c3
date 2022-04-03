@@ -25,3 +25,6 @@ docker exec -i openc3-server /data/Software/mydan/perl/bin/cpan install Mail::PO
 mkdir -p /data/open-c3-data/glusterfs/mailmon/{conf,data,run}
 
 mkdir -p /data/open-c3-data/monitor-sender
+
+#update webshell
+cp /data/open-c3/web-shell/private/tty.js/static/tty.js /data/open-c3/web-shell/node_modules/tty.js/static/tty.js
