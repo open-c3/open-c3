@@ -1,0 +1,37 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use MYDan::Util::OptConf;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0 -id ticketid --node nodename
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( id=i node=s ) )->dump();
+$option->assert( qw( id node ) );
+
+my @x = `c3mc-k8s-kubectl-get -i $o{id} describe nodes $o{node}`;
+chomp @x;
+
+my ( @str, $match );
+
+for my $x ( @x )
+{
+    $match = 1 if $x =~ /^Taints:/;
+    last if $match && $x =~ /^\S/ && $x !~ /^Taints:/;
+    push @str, $x if $match;
+}
+
+for my $x ( @str )
+{
+    $x =~ s/^Taints://;
+    $x =~ s/\s*//;
+    next if $x eq '<none>';
+    die "$x err" unless $x =~ /^([a-zA-Z0-9\-\._]+)=([a-zA-Z0-9\-\._]+):([a-zA-Z0-9]+)$/;
+    print "$1 $2 $3\n";
+}

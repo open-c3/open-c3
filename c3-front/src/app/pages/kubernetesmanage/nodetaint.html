@@ -1,0 +1,65 @@
+<div class="row block">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="kubernetesnodetaint.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetesnodetaint.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="关闭" ng-click="kubernetesnodetaint.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
+            </span>
+            <h5>节点污点(Taint)管理</h5>
+        </div>
+
+        <div class="panel-body">
+
+<form name="myForm" novalidate>
+            <div class="row">
+                <div class="col-sm-2 form-group pull-right">
+                    <button class="btn btn-info" ng-disabled="myForm.$invalid" uib-tooltip="设置污点" ng-click="kubernetesnodetaint.createTaint()"><i class="fa fa-cubes" aria-hidden="true">设置污点</i></button>
+                </div>
+ 
+                <div class="col-sm-3 form-group pull-right">
+                        <select class="form-control" ng-model="kubernetesnodetaint.neweffect" required>
+                             <option value="NoSchedule">NoSchedule</option>
+                             <option value="PreferNoSchedule">PreferNoSchedule</option>
+                             <option value="NoExecute">NoExecute</option>
+                        </select>
+                </div>
+
+                <div class="col-sm-3 form-group pull-right">
+<input type="text" class="form-control" placeholder="value" ng-model="kubernetesnodetaint.newvalue" required>
+                </div>
+                <div class="col-sm-3 form-group pull-right">
+<input type="text" class="form-control" placeholder="key" ng-model="kubernetesnodetaint.newkey" required>
+                </div>
+           </div>
+           </div>
+
+
+            <div class="pt20">
+                <div>
+                    <div class="panel-body" style="margin-top: 2px">
+                        <div class="pt20" style="overflow: auto;">
+                            <table ng-table="kubernetesnodetaint.dataTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
+                                <tr ng-repeat="m in $data">
+                                    <td data-title="'key'" width="80"> {{m.key}} </td>
+                                    <td data-title="'value'" width="80">{{m.value}}</td>
+                                    <td data-title="'effect'" width="80">{{m.effect}}</td>
+                                    <td data-title="'操作'" width="80" >
+                                       <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesnodetaint.deleteTaint(m.key,m.effect)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+
+                                    </td> 
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+
+
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+<style>.modal-dialog {width: 60%;} </style>

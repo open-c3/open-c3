@@ -26,7 +26,11 @@
                               <button class="btn btn-danger" ng-disabled="m.stat.SchedulingDisabled" ng-click="kubernetesnode.cordon(m.NAME,'cordon')">设置成不可调度</button>
                               <button class="btn btn-primary" ng-disabled="!m.stat.SchedulingDisabled" ng-click="kubernetesnode.cordon(m.NAME,'uncordon')">设置成可调度</button>
                         </td> 
-                        <td data-title="'操作'" width="80" >
+                        <td data-title="'污点'" width="80" >
+                            <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesnode.nodetaint('nodes',m.NAME,'x')" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
+                        </td> 
+ 
+                        <td data-title="'describe'" width="80" >
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesnode.describe('nodes',m.NAME,'x')" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
                         </td> 
                     </tr>

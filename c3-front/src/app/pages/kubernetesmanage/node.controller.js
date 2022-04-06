@@ -54,6 +54,26 @@
             });
         };
 
+
+        vm.nodetaint = function (type,name,namespace) {
+            $uibModal.open({
+                templateUrl: 'app/pages/kubernetesmanage/nodetaint.html',
+                controller: 'KubernetesNodeTaintController',
+                controllerAs: 'kubernetesnodetaint',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () {return vm.treeid},
+                    type: function () {return type},
+                    name: function () {return name},
+                    namespace: function () {return namespace},
+                    ticketid: function () {return ticketid},
+                }
+            });
+        };
+
         vm.reload = function(){
             vm.loadover = false;
             $http.get("/api/ci/v2/kubernetes/node?ticketid=" + ticketid ).success(function(data){

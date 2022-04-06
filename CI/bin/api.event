@@ -85,14 +85,14 @@ $httpd->reg_routes(
         $req->respond([ 200, 'ok', { 'Content-Type' => 'application/json'}, "err" ]);
     },
 
-    [ qw( GET POST ) ] => '/kubernetes/*' => sub {
+    [ qw( GET POST DELETE ) ] => '/kubernetes/*' => sub {
         my ( $httpd, $req, $param ) = @_;
         $httpd->stop_request;
 
 
         my $method = $req->{method};
 
-        unless( $method eq 'GET' || $method eq 'POST' )
+        unless( $method eq 'GET' || $method eq 'POST' || $method eq 'DELETE' )
         {
             $req->respond([
                  200, 'ok', { 'Content-Type' => 'application/json'},
@@ -124,6 +124,7 @@ $httpd->reg_routes(
         {
             $res = $ua->post( $url, Content => $req->{content}, 'Content-Type' => 'application/json' );
         }
+        elsif( $method eq 'DELETE' ){ $res = $ua->delete( $url );}
         else { $res = $ua->get( $url ); }
 
         unless( $res->is_success )

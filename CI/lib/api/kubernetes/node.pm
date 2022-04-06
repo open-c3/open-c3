@@ -76,4 +76,87 @@ post '/kubernetes/node/cordon' => sub {
     return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
 };
 
+get '/kubernetes/node/taint' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        ticketid => qr/^\d+$/, 1,
+        nodename => qr/^[a-zA-Z0-9\-\._]+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+    my $pmscheck = api::pmscheck( 'openc3_ci_read', 0 ); return $pmscheck if $pmscheck;
+
+    my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
+        map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 0 ) };
+    return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
+
+    my ( $cmd, $handle ) = ( "c3mc-k8s-node-taint -i $param->{ticketid} -n $param->{nodename} 2>/dev/null", 'getnodetaint' );
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
+    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
+};
+
+$handle{getnodetaint} = sub
+{
+    my ( $x, $status ) = @_;
+    return +{ stat => $JSON::false, data => $x } if $status;
+    my ( @x, @r )= split /\n/, $x;
+    for my $x ( @x )
+    {
+        my @s = split /\s+/, $x;
+        push @r, +{ key => $s[0], value => $s[1], effect => $s[2] };
+
+    }
+
+    return +{ stat => $JSON::true, data => \@r, };
+};
+
+post '/kubernetes/node/taint' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        ticketid => qr/^\d+$/, 1,
+        nodename => qr/^[a-zA-Z0-9\-\._]+$/, 1,
+        key => qr/^[a-zA-Z0-9\-\._]+$/, 1,
+        value => qr/^[a-zA-Z0-9\-\._]+$/, 1,
+        effect => qr/^[a-zA-Z0-9\-\._]+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+    my $pmscheck = api::pmscheck( 'openc3_ci_read', 0 ); return $pmscheck if $pmscheck;
+
+    my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
+        map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 0 ) };
+    return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
+
+    my ( $cmd, $handle ) = ( "$kubectl taint nodes $param->{nodename} '$param->{key}=$param->{value}:$param->{effect}' 2>/dev/null", 'showinfo' );
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
+    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
+};
+
+del '/kubernetes/node/taint' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        ticketid => qr/^\d+$/, 1,
+        nodename => qr/^[a-zA-Z0-9\-\._]+$/, 1,
+        key => qr/^[a-zA-Z0-9\-\._]+$/, 1,
+        effect => qr/^[a-zA-Z0-9\-\._]+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+    my $pmscheck = api::pmscheck( 'openc3_ci_read', 0 ); return $pmscheck if $pmscheck;
+
+    my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
+        map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 0 ) };
+    return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
+
+    my ( $cmd, $handle ) = ( "$kubectl taint nodes $param->{nodename} '$param->{key}:$param->{effect}-' 2>/dev/null", 'showinfo' );
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
+    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
+};
+
 true;
