@@ -6,29 +6,8 @@ MAINTAINER lijinfeng2011
 #RUN sed -i 's/www.cpan.org/mirrors.163.com\/cpan/' /root/.cpan/CPAN/MyConfig.pm
 #RUN curl -L http://installbj.mydan.org | MYDanInstallLatestVersion=1 bash
 
-RUN mkdir -p /data/logs/JOB
-RUN mkdir -p /data/glusterfs/fileserver
-
-RUN mkdir -p /data/logs/JOBX
-
-RUN mkdir -p /data/logs/AGENT
-
-RUN mkdir -p /etc/cron.d.root
-
-RUN mkdir -p /data/logs/CI
-RUN mkdir -p /data/glusterfs/ci_repo
-
-RUN rpm --import https://repo.mysql.com/RPM-GPG-KEY-mysql-2022
-RUN wget -i -c http://dev.mysql.com/get/mysql57-community-release-el7-10.noarch.rpm
-RUN yum -y install mysql57-community-release-el7-10.noarch.rpm
-RUN yum -y install mysql-community-server
-
-RUN mysqld --initialize --user=mysql --datadir=/var/lib/mysql
-
-ADD ./temp/my.cnf /etc/my.cnf
-
-RUN ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
-RUN echo 'Asia/Shanghai' >/etc/timezone
+ADD make.sh /make.sh
+ADD ./temp/my.cnf /my.cnf
 
 ADD ./temp/Connector /data/Software/mydan/Connector
 ADD ./temp/MYDan     /data/Software/mydan/MYDan
@@ -41,26 +20,13 @@ ADD ./temp/web-shell       /data/Software/mydan/web-shell
 
 ADD ./temp/init.sql /tmp/init.sql
 
-#和单机版初始化对应
-RUN /data/Software/mydan/perl/bin/cpan install AnyEvent::HTTPD::Router AnyEvent::HTTPD::CookiePatch AnyEvent::HTTP
 ADD ./temp/install-cache-bin/kubectl  /usr/bin/kubectl
 ADD ./temp/install-cache-bin/json2yaml  /usr/bin/json2yaml
 ADD ./temp/install-cache-bin/yaml2json  /usr/bin/yaml2json
 
 ADD ./temp/CI/bin/aws_c3 /usr/local/bin/aws_c3
 
-#oncall 需要安装插件
-RUN /data/Software/mydan/perl/bin/cpan install DateTime
-#RUN mkdir -p /data/open-c3-data/glusterfs/oncall/{conf,data}  #在启动脚本中执行
-
-#mail mon
-RUN /data/Software/mydan/perl/bin/cpan install Mail::POP3Client Email::MIME Email::MIME::RFC2047::Decoder
-#RUN mkdir -p /data/open-c3-data/glusterfs/mailmon/{conf,data,run} #在启动脚本中执行
-
-#=end
-
-#data
-RUN mkdir -p /data/open-c3-data
+RUN /make.sh
 
 ADD entrypoint.sh /
 ENTRYPOINT [ "/entrypoint.sh" ]

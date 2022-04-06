@@ -9,6 +9,12 @@ cat /data/open-c3/*/schema.sql  /data/open-c3/Installer/C3/mysql/init.sql > temp
 cp ../mysql/conf/my.cnf temp/
 cp -r /data/open-c3/Connector temp/
 cp -r /data/open-c3/MYDan temp/
+rm -rf temp/MYDan/repo/data/perl/data/CYGWIN_NT-10.0
+rm -rf temp/MYDan/repo/data/perl/data/CYGWIN_NT-6.1
+rm -rf temp/MYDan/repo/data/perl/data/FreeBSD
+rm -rf temp/MYDan/repo/data/perl/data/Linux/x86_64/perl.20171215122230.tar.gz
+rm -rf temp/MYDan/repo/data/perl/data/Linux/x86_64/perl.20190328144900.tar.gz
+
 cp -r /data/open-c3/JOBX temp/
 cp -r /data/open-c3/JOB temp/
 cp -r /data/open-c3/AGENT temp/
