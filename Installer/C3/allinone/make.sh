@@ -23,15 +23,17 @@ cp /my.cnf /etc/my.cnf
 ln -sf /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
 echo 'Asia/Shanghai' >/etc/timezone
 
-/data/Software/mydan/perl/bin/cpan install AnyEvent::HTTPD::Router AnyEvent::HTTPD::CookiePatch AnyEvent::HTTP
-/data/Software/mydan/perl/bin/cpan install DateTime
-/data/Software/mydan/perl/bin/cpan install Mail::POP3Client Email::MIME Email::MIME::RFC2047::Decoder
+#/data/Software/mydan/perl/bin/cpan install AnyEvent::HTTPD::Router AnyEvent::HTTPD::CookiePatch AnyEvent::HTTP
+#/data/Software/mydan/perl/bin/cpan install DateTime
+#/data/Software/mydan/perl/bin/cpan install Mail::POP3Client Email::MIME Email::MIME::RFC2047::Decoder
+#rm -rf /data/Software/mydan/perl/man
+#rm -rf /root/.cpan
 
 mkdir -p /data/open-c3-data
 
 #clean
 yum clean all
-rm -rf /data/Software/mydan/perl/man
-rm -rf /root/.cpan
+
+date >> /etc/openc3.allinon
 
 rm /usr/sbin/mysqld-debug

@@ -44,6 +44,11 @@ cd /data/Software/mydan/JOBX/tools && ./$CTRL
 
 cp /data/Software/mydan/c3-front/nginx.conf /etc/nginx/nginx.conf 
 cp /data/Software/mydan/c3-front/nginxconf/* /etc/nginx/conf.d/
-nginx -s reload
 
+if [ -f /etc/openc3.allinon ];then
+    c3mc-sys-dup 2>&1 1>/tmp/c3mc-sys-dup.log | C3APPNAME=c3mc-sys-dup c3mc-base-log-addtime >> /var/log/open-c3.error.log
+    sed -i 's/#githubbook//' /etc/nginx/conf.d/open-c3.org.conf 
+fi
+
+nginx -s reload
 echo open-c3 $CTRL done.
