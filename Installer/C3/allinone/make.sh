@@ -33,3 +33,5 @@ mkdir -p /data/open-c3-data
 yum clean all
 rm -rf /data/Software/mydan/perl/man
 rm -rf /root/.cpan
+
+rm /usr/sbin/mysqld-debug
