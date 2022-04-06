@@ -46,6 +46,9 @@ yum -y install perl-DBD-MySQL.x86_64 mysql-devel
 /data/Software/mydan/perl/bin/cpan install Term::Completion
 /data/Software/mydan/perl/bin/cpan install DBD::SQLite
 /data/Software/mydan/perl/bin/cpan install LWP::Protocol::https
+/data/Software/mydan/perl/bin/cpan install AnyEvent::HTTPD::Router AnyEvent::HTTPD::CookiePatch AnyEvent::HTTP
+/data/Software/mydan/perl/bin/cpan install DateTime
+/data/Software/mydan/perl/bin/cpan install Mail::POP3Client Email::MIME Email::MIME::RFC2047::Decoder
 
 rm -rf /data/Software/mydan/perl/man
 rm -rf /root/.cpan
