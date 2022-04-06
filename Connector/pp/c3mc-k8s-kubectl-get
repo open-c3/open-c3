@@ -34,15 +34,26 @@ my $proxyenv = $proxy && $proxy =~ /^[a-zA-Z0-9:\.@]+$/ ? "HTTPS_PROXY='socks5:/
 
 my $md5 = Digest::MD5->new->add( $ticket )->hexdigest;
 my $kubeconfig = "/data/Software/mydan/tmp/kubeconfig_${ticketid}_$md5";
-if( -f $kubeconfig )
+
+sub out
 {
-    print "KUBECONFIG=$kubeconfig $proxyenv $kubectl\n";
+    my ( $kubeconfig, $proxyenv, $kubectl ) = @_;
+    if( @ARGV )
+    {
+        die if system "KUBECONFIG=$kubeconfig $proxyenv $kubectl ". join ' ', @ARGV;
+    }
+    else
+    {
+        print "KUBECONFIG=$kubeconfig $proxyenv $kubectl\n";
+    }
     exit;
-}
+};
+
+out( $kubeconfig, $proxyenv, $kubectl ) if -f $kubeconfig;
 
 my $fh = File::Temp->new( UNLINK => 0, SUFFIX => '.config', TEMPLATE => "/data/Software/mydan/tmp/kubeconfig_${ticketid}_XXXXXXXX" );
 print $fh $ticket;
 close $fh;
 
 die "rename fail: $!" if system "mv '$fh' '$kubeconfig'";
-print "KUBECONFIG=$kubeconfig $proxyenv $kubectl\n";
+out( $kubeconfig, $proxyenv, $kubectl );
