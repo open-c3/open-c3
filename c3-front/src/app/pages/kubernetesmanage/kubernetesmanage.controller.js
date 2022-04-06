@@ -221,6 +221,14 @@ vm.replicasets = [];
                             vm.showAppCount['Job.Batch'] = vm.jobbatchCount;
                         }
 
+
+                        vm.cronjobbatchTable = new ngTableParams({count:10}, {counts:[],data:response.data.data['cronjob.batch']});
+                        if( response.data.data['cronjob.batch'] )
+                        {
+                            vm.cronjobbatchCount = response.data.data['cronjob.batch'].length;
+                            vm.showAppCount['CronJob.Batch'] = vm.cronjobbatchCount;
+                        }
+
                         vm.statefulsetTable = new ngTableParams({count:10}, {counts:[],data:response.data.data.statefulset});
                         if( response.data.data.statefulset )
                         {

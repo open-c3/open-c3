@@ -94,7 +94,7 @@
         <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
             <div class="panel-body" style="margin-top: 2px">
                 <div class="row" >
-                  <div ng-repeat="name in ['Ingress','Service', 'Deployment','DaemonSet','Pod','Replicaset','HPA','Endpoint','Job.Batch','StatefulSet']" style="float: left;margin-right: 4px;">
+                  <div ng-repeat="name in ['Ingress','Service', 'Deployment','DaemonSet','Pod','Replicaset','HPA','Endpoint','Job.Batch','CronJob.Batch','StatefulSet']" style="float: left;margin-right: 4px;">
                     <button ng-if="kubernetesmanage.showByAuth(name)"  class="btn btn-info" ng-click="kubernetesmanage.showApp(name)">
                         <i ng-if="kubernetesmanage.showapp===name || kubernetesmanage.showapp==='all'" class="fa fa-envelope-open" aria-hidden="true"></i>
                         <i ng-if="!(kubernetesmanage.showapp===name || kubernetesmanage.showapp==='all')" class="fa fa-envelope-o" aria-hidden="true"></i>
@@ -490,7 +490,6 @@
         </div>
     </div>
 
-
     <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0" ng-if="kubernetesmanage.showapp==='Job.Batch'||kubernetesmanage.showapp==='all'">
         <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
 
@@ -518,6 +517,46 @@
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describe('job',m.INAME,m.NAMESPACE)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('job',m.INAME,m.NAMESPACE)" uib-tooltip="编辑yaml" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesmanage.deleteApp('job',m.INAME,m.NAMESPACE)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                        </td> 
+                    </tr>
+                </table>
+              </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0" ng-if="kubernetesmanage.showapp==='CronJob.Batch'||kubernetesmanage.showapp==='all'">
+        <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
+
+            <div class="panel-heading">
+                <span class="panel-controls">
+                    <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD) }" ></i>刷新</button>
+                </span>
+                <h4 style="font-weight: bold;color: #337ab7">CronJob.Batch({{kubernetesmanage.cronjobbatchCount||0}})
+                </h4>
+
+            </div>
+            <div class="panel-body" style="margin-top: 2px">
+              <div class="pt20" style="overflow: auto;">
+                <table ng-table="kubernetesmanage.cronjobbatchTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
+                    <tr ng-repeat="m in $data">
+                        <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'名称'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">{{m.NAME}}</td>
+                        <td data-title="'SCHEDULE'" width="80">{{m.SCHEDULE1}} {{m.SCHEDULE2}} {{m.SCHEDULE3}} {{m.SCHEDULE4}} {{m.SCHEDULE5}}</td>
+                        <td data-title="'SUSPEND'" width="80" filter="{ SUSPEND: 'text'}" sortable="'SUSPEND'">{{m.SUSPEND}}</td>
+                        <td data-title="'ACTIVE'" width="80" filter="{ ACTIVE: 'text'}" sortable="'ACTIVE'">{{m.ACTIVE}}</td>
+                        <td data-title="'LAST_SCHEDULE'" width="80" filter="{ LAST_SCHEDULE: 'text'}" sortable="'LAST_SCHEDULE'">{{m.LAST_SCHEDULE}}</td>
+                        <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
+                        <td data-title="'CONTAINERS'" width="80" filter="{ CONTAINERS: 'text'}" sortable="'CONTAINERS'">{{m.CONTAINERS}}</td>
+                        <td data-title="'IMAGES'" width="80" filter="{ IMAGES: 'text'}" sortable="'IMAGES'"><a uib-tooltip="{{m.IMAGES}}" >{{m.IMAGES|cut}}</a></td>
+                        <td data-title="'SELECTOR'" width="80" filter="{ SELECTOR: 'text'}" sortable="'SELECTOR'">{{m.SELECTOR}}</td>
+                        <td data-title="'操作'" width="80" >
+                            <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describe('cronjob',m.INAME,m.NAMESPACE)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('cronjob',m.INAME,m.NAMESPACE)" uib-tooltip="编辑yaml" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesmanage.deleteApp('cronjob',m.INAME,m.NAMESPACE)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
                         </td> 
                     </tr>
                 </table>

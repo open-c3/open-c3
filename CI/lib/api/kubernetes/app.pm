@@ -46,7 +46,7 @@ $handle{getall} = sub
 
     my ( $deploymentready, $podready, $podrunning, $daemonsetready, $replicasetready ) = ( 0, 0, 0, 0, 0 );
     my $failonly = ( $filter->{status} && $filter->{status} eq 'fail' ) ? 1 : 0;
-    my ( %r, @r, @title ) = map{ $_ => [] }qw( service deployment daemonset pod replicaset statefulset hpa job.batch );
+    my ( %r, @r, @title ) = map{ $_ => [] }qw( service deployment daemonset pod replicaset statefulset hpa job.batch cronjob.batch );
     
     for my $line ( @x )
     {
@@ -54,6 +54,8 @@ $handle{getall} = sub
         $line =~ s/NOMINATED NODE/NOMINATED_NODE/;
         $line =~ s/READINESS GATES/READINESS_GATES/;
         $line =~ s/PORT\(S\)/PORT_S_/;
+        $line =~ s/SCHEDULE/SCHEDULE1 SCHEDULE2 SCHEDULE3 SCHEDULE4 SCHEDULE5/;
+        $line =~ s/LAST SCHEDULE/LAST_SCHEDULE/;
 
         next unless my @col = split /\s+/, $line;
 
