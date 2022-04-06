@@ -147,7 +147,11 @@ function start() {
             rm -rf $BASE_PATH/c3-front/dist/book.new
             rm -rf $BASE_PATH/c3-front/dist/book.old
 
-            cd $BASE_PATH/c3-front/dist && git clone $GITADDR/open-c3/open-c3.github.io book.new || exit 1
+            if [ -d /data/open-c3-book ]; then
+                cp -r /data/open-c3-book $BASE_PATH/c3-front/dist/book.new
+            else
+                cd $BASE_PATH/c3-front/dist && git clone $GITADDR/open-c3/open-c3.github.io book.new || exit 1
+            fi
 
             mv book book.old
             mv book.new book

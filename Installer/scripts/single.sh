@@ -164,7 +164,11 @@ function install() {
     echo "[INFO]create c3-front/dist/book ..."
 
     rm -rf $BASE_PATH/c3-front/dist/book
-    cd $BASE_PATH/c3-front/dist && git clone $GITADDR/open-c3/open-c3.github.io book
+    if [ -d /data/open-c3-book ]; then
+        cp -r /data/open-c3-book $BASE_PATH/c3-front/dist/book
+    else
+        cd $BASE_PATH/c3-front/dist && git clone $GITADDR/open-c3/open-c3.github.io book
+    fi
 
     if [ -d "$BASE_PATH/c3-front/dist/book" ]; then
         echo "[SUCC]create c3-front/dist/book success."
