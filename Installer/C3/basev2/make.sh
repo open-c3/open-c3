@@ -79,5 +79,13 @@ unzip awscliv2.zip
 /aws/install
 rm -rf /aws /awscliv2.zip
 
+#mysql
+rpm --import https://repo.mysql.com/RPM-GPG-KEY-mysql-2022
+wget -i -c http://dev.mysql.com/get/mysql57-community-release-el7-10.noarch.rpm
+yum -y install mysql57-community-release-el7-10.noarch.rpm
+yum -y install mysql-community-server
+
+rm mysql57-community-release-el7-10.noarch.rpm
+rm /usr/sbin/mysqld-debug
 #clean
 yum clean all
