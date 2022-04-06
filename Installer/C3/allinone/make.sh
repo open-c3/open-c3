@@ -10,11 +10,11 @@ mkdir -p /etc/cron.d.root
 mkdir -p /data/logs/CI
 mkdir -p /data/glusterfs/ci_repo
 
-cd /tmp
-rpm --import https://repo.mysql.com/RPM-GPG-KEY-mysql-2022
-wget -i -c http://dev.mysql.com/get/mysql57-community-release-el7-10.noarch.rpm
-yum -y install mysql57-community-release-el7-10.noarch.rpm
-yum -y install mysql-community-server
+#cd /tmp
+#rpm --import https://repo.mysql.com/RPM-GPG-KEY-mysql-2022
+#wget -i -c http://dev.mysql.com/get/mysql57-community-release-el7-10.noarch.rpm
+#yum -y install mysql57-community-release-el7-10.noarch.rpm
+#yum -y install mysql-community-server
 
 mysqld --initialize --user=mysql --datadir=/var/lib/mysql
 
@@ -32,7 +32,7 @@ echo 'Asia/Shanghai' >/etc/timezone
 mkdir -p /data/open-c3-data
 
 #clean
-yum clean all
+#yum clean all
 
 date >> /etc/openc3.allinon
 
