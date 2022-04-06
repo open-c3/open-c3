@@ -128,7 +128,7 @@ post '/kubernetes/node/taint' => sub {
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
-    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 0 ) };
+    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 1 ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
     my ( $cmd, $handle ) = ( "$kubectl taint nodes $param->{nodename} '$param->{key}=$param->{value}:$param->{effect}' 2>/dev/null", 'showinfo' );
@@ -151,7 +151,7 @@ del '/kubernetes/node/taint' => sub {
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
-    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 0 ) };
+    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 1 ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
     my ( $cmd, $handle ) = ( "$kubectl taint nodes $param->{nodename} '$param->{key}:$param->{effect}-' 2>/dev/null", 'showinfo' );
