@@ -105,4 +105,7 @@ mkdir -p /data/open-c3-data/monitor-sender
 
 c3mc-sys-dup 2>&1 1>/tmp/c3mc-sys-dup.log | C3APPNAME=c3mc-sys-dup c3mc-base-log-addtime >> /var/log/open-c3.error.log
 
+sed -i 's/#githubbook//' /etc/nginx/conf.d/open-c3.org.conf 
+nginx -s reload
+
 /data/Software/mydan/Connector/restart-open-c3-auto-config-change.pl
