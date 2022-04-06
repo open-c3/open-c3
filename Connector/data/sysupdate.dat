@@ -8,7 +8,7 @@ UNIQUE KEY `uniq_uuid` (`uuid`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='sysupdate';
 
 # v2.5.1 sql openc3_monitor_config_collector create
-create table `openc3_monitor_config_collector`(
+create table if not exists `openc3_monitor_config_collector`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 `projectid` int(16) unsigned comment '项目id',
 `type` VARCHAR(100) comment '类型',
@@ -20,7 +20,7 @@ create table `openc3_monitor_config_collector`(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='monitorconfigcollector';
 
 # v2.5.1 sql openc3_monitor_config_rule create
-create table `openc3_monitor_config_rule`(
+create table if not exists `openc3_monitor_config_rule`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 `projectid` int(16) unsigned comment '项目id',
 `alert` VARCHAR(100) comment 'alert',
@@ -39,7 +39,7 @@ create table `openc3_monitor_config_rule`(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='monitorconfigrule';
 
 # v2.5.1 sql openc3_monitor_config_user create
-create table `openc3_monitor_config_user`(
+create table if not exists `openc3_monitor_config_user`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 `projectid` int(16) unsigned comment '项目id',
 `user` VARCHAR(100) comment 'user',
@@ -48,7 +48,7 @@ create table `openc3_monitor_config_user`(
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='monitorconfiguser';
 
 # v2.5.2 sql openc3_monitor_self_healing_config create
-create table `openc3_monitor_self_healing_config`(
+create table if not exists `openc3_monitor_self_healing_config`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 `name` VARCHAR(100) comment '自愈套餐名称',
 `altername` VARCHAR(100) comment '报警名称',
@@ -59,7 +59,7 @@ UNIQUE KEY `uniq_altername` (`altername`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='monitor_self_healing_config';
 
 # v2.5.2 sql openc3_monitor_self_healing_task create
-create table `openc3_monitor_self_healing_task`(
+create table if not exists `openc3_monitor_self_healing_task`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 `instance` VARCHAR(100) comment '目标',
 `fingerprint` VARCHAR(100) comment 'fingerprint',
@@ -75,7 +75,7 @@ UNIQUE KEY `uniq_instance_fingerprint_startsAt_alertname` (`instance`,`fingerpri
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='monitor_self_healing_task';
 
 # v2.5.3 sql openc3_monitor_config_kanban create
-create table `openc3_monitor_config_kanban`(
+create table if not exists `openc3_monitor_config_kanban`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 `projectid` int(16) unsigned comment '项目id',
 `name` VARCHAR(100) comment '名称',
@@ -88,7 +88,7 @@ create table `openc3_monitor_config_kanban`(
 ALTER TABLE openc3_monitor_config_kanban ADD `default` int(4) unsigned default 0 comment '默认模版';
 
 # v2.5.5 sql openc3_connector_userdepartment create
-create table `openc3_connector_userdepartment`(
+create table if not exists `openc3_connector_userdepartment`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 `user` VARCHAR(100) comment 'user',
 `department` VARCHAR(100) comment 'department',
@@ -98,7 +98,7 @@ UNIQUE KEY `uniq_user` (`user`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='userdepartment';
 
 # v2.5.6 sql openc3_monitor_config_group create
-create table `openc3_monitor_config_group`(
+create table if not exists `openc3_monitor_config_group`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 `name` VARCHAR(300) comment '名称',
 `description` VARCHAR(1000) comment '描述',
@@ -108,7 +108,7 @@ UNIQUE KEY `name` (`name`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='监控报警接收组';
 
 # v2.5.6 sql openc3_monitor_config_groupuser create
-create table `openc3_monitor_config_groupuser`(
+create table if not exists `openc3_monitor_config_groupuser`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 `groupid` int(16) unsigned comment '监控报警接收组id',
 `user` VARCHAR(300) comment '用户',
@@ -121,7 +121,7 @@ UNIQUE KEY `groupid_user` (`groupid`, `user`)
 ALTER TABLE openc3_job_variable ADD `option` VARCHAR(1000) comment '选项列表';
 
 # v2.5.8 sql openc3_monitor_config_oncall create
-create table `openc3_monitor_config_oncall`(
+create table if not exists `openc3_monitor_config_oncall`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 `name` VARCHAR(300) comment '名称',
 `description` VARCHAR(1000) comment '描述',
@@ -131,7 +131,7 @@ UNIQUE KEY `name` (`name`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='监控报警值班组';
 
 # v2.5.9 sql openc3_monitor_config_mailmon create
-create table `openc3_monitor_config_mailmon`(
+create table if not exists `openc3_monitor_config_mailmon`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 `name` VARCHAR(300) comment '名称',
 `description` VARCHAR(1000) comment '描述',
@@ -141,7 +141,7 @@ UNIQUE KEY `name` (`name`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='邮件监控';
 
 # v2.5.9 sql openc3_monitor_history_mailmon create
-create table `openc3_monitor_history_mailmon`(
+create table if not exists `openc3_monitor_history_mailmon`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
 `account` VARCHAR(300) comment '账号',
 `severity` VARCHAR(300) comment '级别',

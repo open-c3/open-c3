@@ -4,6 +4,7 @@ use warnings;
 
 $|++;
 
+use Symbol 'gensym';
 use IPC::Open3;
 
 =head1 SYNOPSIS
@@ -19,7 +20,7 @@ sub versioni
     return $1 * 1000 * 1000 + $2 * 1000  + $3;
 }
 
-my $gversion = versioni( @ARGV ? $ARGV[0] : 'v2.5.11' );
+my $gversion = versioni( @ARGV ? $ARGV[0] : 'v2.0.0' );
 
 my @x = `cat /data/Software/mydan/Connector/data/sysupdate.dat`;
 chomp @x;
@@ -38,11 +39,19 @@ my %job =
         my  ( $table, $sql ) = @$x{qw( target dat )};
         return unless $sql && @$sql;
 
-        my $pid = IPC::Open3::open3( my $chld_in, '>&STDOUT', '>&STDERR', "c3mc-base-db-exe -t '$table'");
+        my $stderr = gensym;
+        my $pid = IPC::Open3::open3( my $chld_in, '>&STDOUT', $stderr, "c3mc-base-db-exe -t '$table'");
         map{ print $chld_in $_ }@$sql; 
         $chld_in = undef;
         waitpid( $pid, 0 );
-        die "db exe err: $?" if $?;
+
+        my $errstr; sysread $stderr, $errstr, 102400;
+
+        if( $? )
+        {
+            return 1 if $errstr && $errstr =~ /execute failed: Duplicate column name/;
+            die "db exe err: $errstr";
+        }
         return 1;
     },
 );
