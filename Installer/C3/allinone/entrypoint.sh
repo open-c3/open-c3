@@ -103,4 +103,6 @@ mkdir -p /data/open-c3-data/glusterfs/mailmon/{conf,data,run};
 mkdir -p /data/open-c3-data/monitor-sender
 #=end
 
+c3mc-sys-dup 2>&1 1>/tmp/c3mc-sys-dup.log | C3APPNAME=c3mc-sys-dup c3mc-base-log-addtime >> /var/log/open-c3.error.log
+
 /data/Software/mydan/Connector/restart-open-c3-auto-config-change.pl
