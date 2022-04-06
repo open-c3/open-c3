@@ -47,6 +47,9 @@ yum -y install perl-DBD-MySQL.x86_64 mysql-devel
 /data/Software/mydan/perl/bin/cpan install DBD::SQLite
 /data/Software/mydan/perl/bin/cpan install LWP::Protocol::https
 
+rm -rf /data/Software/mydan/perl/man
+rm -rf /root/.cpan
+
 #mydan
 cd /data/Software/mydan 
 git clone https://github.com/mydan/mayi.git 
@@ -70,4 +73,8 @@ rm /node-v4.2.6-linux-x64.tar.gz
 # awscli
 yum install -y unzip && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 unzip awscliv2.zip
-./aws/install
+/aws/install
+rm -rf /aws /awscliv2.zip
+
+#clean
+yum clean all
