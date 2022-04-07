@@ -87,5 +87,12 @@ yum -y install mysql-community-server
 
 rm mysql57-community-release-el7-10.noarch.rpm
 rm /usr/sbin/mysqld-debug
+rm /usr/bin/mysqlbinlog
+rm /usr/bin/mysql_upgrade
+rm /usr/bin/mysql_config_editor
+
+rm -rf /usr/lib64/mysql/mecab
+rm -rf /usr/lib64/mysql/plugin/debug
+
 #clean
 yum clean all
