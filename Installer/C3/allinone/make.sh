@@ -35,5 +35,3 @@ mkdir -p /data/open-c3-data
 #yum clean all
 
 date >> /etc/openc3.allinon
-
-rm /usr/sbin/mysqld-debug
