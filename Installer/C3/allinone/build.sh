@@ -24,6 +24,7 @@ rm -rf temp/c3-front/dist/book*
 cp -r /data/open-c3/c3-front/nginxconf temp/c3-front/nginxconf
 cp /data/open-c3/c3-front/nginx.conf temp/c3-front/nginx.conf
 cp -r /data/open-c3/web-shell temp/
+rm temp/web-shell/node_modules/zeparser/benchmark.html
 cp -r /data/open-c3/Installer/install-cache/bin temp/install-cache-bin
 
 sed -i 's/openc3_demo_version_only=0/openc3_demo_version_only=1/g' temp/c3-front/dist/scripts/*
