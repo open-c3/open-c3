@@ -411,6 +411,14 @@ reborn)
 upgrade)
     $BASE_PATH/Installer/scripts/upgrade.sh $2 $3
     ;;
+switchversion)
+    if [ "X$2" = "X" ];then
+        echo "$0 switchversion vx.x.x";
+        exit 1;
+    fi
+    $BASE_PATH/Installer/scripts/versionctrl.sh list
+    $BASE_PATH/Installer/scripts/versionctrl.sh switch $2
+    ;;
 start)
     start
     ;;
@@ -427,7 +435,7 @@ reload)
     reload
     ;;
 *)
-    echo "Usage: $0 {start|stop|status|restart|reload|install|rebuild|reborn|upgrade}"
+    echo "Usage: $0 {start|stop|status|restart|reload|install|rebuild|reborn|upgrade|switchversion}"
     echo "$0 install 10.10.10.10(Your Internet IP)"
     exit 2
 esac
