@@ -86,6 +86,22 @@
                         </div>
                     </div>
 
+                    <div class="form-group admin-form row">
+                        <label class="col-md-2 control-label fwbold" >webhook:</label>
+                        <div class="col-md-2">
+                            <label class="switch switch-system mt5">
+                                <input type="checkbox" id="check_webhook" ng-model="config.webhook">
+                                <label for="check_webhook" data-on="ON" data-off="OFF"></label>
+                            </label>
+                        </div>
+                        <div ng-show="config.webhook" class="col-md-4">
+                            <input type="text" class="form-control" ng-model="config.project.webhook_password" placeholder="webhook密码">密码</input>
+                        </div>
+                        <div ng-show="config.webhook" class="col-md-4">
+                            <input type="text" class="form-control" ng-model="config.project.webhook_release" placeholder="多个分支用逗号分开">匹配分支</input>
+                        </div>
+ 
+                    </div>
 
                    <div class="row" >
 
