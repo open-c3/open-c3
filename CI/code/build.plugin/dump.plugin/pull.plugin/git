@@ -98,6 +98,7 @@ return sub
         my $t = eval{ $db->query( "select `tagger` from openc3_ci_version where projectid='$projectid' and name='$name'" )};  
         $logs->die( "get tagger from version  fail:$@" ) if $@;
         $tagger = $t->[0][0] if $t && ref $t && ref $t->[0];
+        $tag_info = `cd '$temppath/info' && $ctrl show -s --format="%s"`;
     }
     else
     {
