@@ -40,8 +40,6 @@ return sub
 
     while(1)
     {
-        warn "do ...\n";
-
         my $x = eval{ $db->query( "select id,cron from openc3_job_crontab where status='available' 
                 and jobuuid in ( select uuid from openc3_job_jobs where projectid not in
                     ( select id from openc3_job_project where status='inactive') )" ); };

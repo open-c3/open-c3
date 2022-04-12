@@ -30,7 +30,6 @@ return sub
 
     while( 1 )
     {
-        warn "do ...\n";
         my $counttmp = int time / $interval;
         ( $count, %count ) = ( $counttmp ) if $count ne $counttmp;
 
@@ -51,7 +50,6 @@ return sub
                 exec "$tsocks$RealBin/../bin/task -uuid $uuid";
             }
             $count{$uuid} = 1;
-            warn "start task $uuid\n";
         }
         sleep 1;
     }

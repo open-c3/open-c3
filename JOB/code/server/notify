@@ -31,8 +31,6 @@ return sub
 
     while(1)
     {
-        warn "do ...\n";
-
         my $x = eval{ $db->query( "select `key`,`value` from openc3_job_environment" ) };
         $logs->die( "mysql query environment fail: $@" ) if $@;
         $logs->die( "get environment info from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';

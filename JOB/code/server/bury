@@ -22,8 +22,6 @@ return sub
 
     while(1)
     {
-        warn "do ...\n";
-
         my $x = eval{ $db->query( "select id,pid,uuid,starttime,starttimems from openc3_job_task 
             where slave='$myname' and pid is not null and status<>'success' and status<>'fail' and status<>'refuse'" );};
         $logs->die( "mysql query fail: $@" ) if $@;
