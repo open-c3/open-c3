@@ -34,4 +34,5 @@ mkdir -p /data/open-c3-data
 #clean
 #yum clean all
 
+date >> /etc/openc3.supervisormin.on
 date >> /etc/openc3.allinon
