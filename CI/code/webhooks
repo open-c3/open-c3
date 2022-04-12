@@ -34,7 +34,16 @@ return sub
     my $conf = eval{ YAML::XS::LoadFile "$RealBin/../logs/webhooks_data/$uuid" };
     $logs->die( "load data uuid: $uuid fail : $@" ) if $@; 
 
+    unless( $conf->{user_email} )
+    {
+        if( $conf->{commits} && ref $conf->{commits} eq 'ARRAY' && @{$conf->{commits}} )
+        {
+            my $tmp = $conf->{commits}[0];
+            $conf->{user_email} = $tmp->{author}{email} if $tmp->{author} && $tmp->{author}{email};
+        }
+    }
     map { $logs->die( "$_ undef" ) unless $conf->{$_}; }qw( ref event_name TOKEN project user_email );
+    $logs->die( "user_email format error:$conf->{user_email}" ) unless $conf->{user_email} =~ /^[a-zA-Z0-9\.\-_@]+$/;
 
     $logs->die(  "nofind addr" )  unless my @addr =  grep{ $_ }map{ $conf->{project}{$_} }qw( git_http_url git_ssh_url );
 
