@@ -20,6 +20,7 @@ my %help = (
     carry => 'get monitor carry info',
     'extend-exporter' => 'extend-exporter control: mysql,redis',
     mailmon => 'mail monitor',
+    portcheckok => 'check port',
 );
 
 unless( $name )
@@ -138,5 +139,23 @@ if( $name eq 'mailmon' )
     )->run(
         "cd ../conf && ls |xargs -i{} c3mc-mon-mailmon-syncer {}",
         "ls *.wait 2>/dev/null| xargs -P 5 -i{} bash -c \"c3mc-mon-mailmon-sender {}\"",
+    );
+}
+
+if( $name eq 'portcheckok' )
+{
+    if( ! -f "/etc/openc3.supervisormin.on" ) {
+        $0 = "agent_server_$name";
+        warn ">> skip by /etc/openc3.supervisormin.on\n";
+        sleep 10*365*86400;
+        exit;
+    }
+
+    OPENC3::PP::Server->new(
+        name => "agent_server_$name",
+        interval => 30,
+        timeout => 60,
+    )->run(
+       "c3mc-app-port-checkok"
     );
 }
