@@ -28,6 +28,12 @@ my %o = $option->set( count1 => 1, count2 => 3, count3 => 6, intime1 => 3, intim
 
 $option->assert( 'cmd', 'log' );
 
+if( -f "/etc/openc3.supervisormin.on" ){
+    $o{name} ||= 'openc3-supervisormin';
+    $o{errname} ||= "supervisormin.$o{cmd}";
+    exec "c3mc-app-supervisormin '$o{name}' '$o{errname}' '$o{cmd}'";
+}
+
 $0 = $o{name} if $o{name};
 
 open(STDOUT, '>/dev/null') || die "STDOUT ERROR $!";

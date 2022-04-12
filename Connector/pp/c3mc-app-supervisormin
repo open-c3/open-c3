@@ -1,0 +1,21 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$| ++;
+
+my ( $super, $name, $cmd ) = @ARGV;
+die "$0 super name cmd\n" unless $super && $name && $cmd;
+
+$0=$super;
+
+#open(STDOUT, '>/dev/null') || die "STDOUT ERROR $!";
+#open(STDERR, '>>/var/log/open-c3.error.log') || die "STDERR ERROR $!";
+
+exit if fork;
+
+while( 1 )
+{
+    system "$cmd 2>&1 >/dev/null| C3APPNAME='$name' c3mc-base-log-addtimemin >>/var/log/open-c3.error.log";
+    sleep 3;
+}

@@ -1,0 +1,8 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+my $name = $ENV{C3APPNAME} ? "[$ENV{C3APPNAME}] " : "";
+while(<>) { map{printf "%s $name%s\n", time, $_ }split /\r|\n/, $_; }
