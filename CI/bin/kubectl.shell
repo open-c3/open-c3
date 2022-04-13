@@ -31,6 +31,8 @@ eval{
         my $in = <STDIN>;
         chomp $in;
         next unless $in;
+
+        $in =~ s/^\s*kubectl\s+//;
         unless( $in =~ /^[a-zA-Z0-9\s_\-\.'"\/]+$/ )
         {
             print "error: Only the characters a-zA-Z0-9\\s_\-\.'\"/ are allowed\n";
