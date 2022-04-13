@@ -1,0 +1,23 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+=head1 SYNOPSIS
+
+ $0 dockerfile imageid
+
+=cut
+
+my ( $dockerfile, $imageid ) = @ARGV;
+
+die "dockerfile err" unless $dockerfile && -f $dockerfile;
+die "imageid err" unless $imageid && $imageid =~ /^\d+$/;
+
+my $uuid = time;
+my $temp = "/tmp/c3mc-docker-buildandsave-$uuid";
+mkdir $temp;
+
+die if system "cp '$dockerfile' $temp/Dockerfile";
+die if system "cd $temp && docker build . -t openc3-buildandsave:$uuid";
+die if system "cd /data/open-c3-data/glusterfs/dockerimage && docker save openc3-buildandsave:$uuid -o $imageid";
+die if system "docker rmi openc3-buildandsave:$uuid";

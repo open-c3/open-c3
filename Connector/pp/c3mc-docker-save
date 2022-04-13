@@ -1,0 +1,18 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+
+=head1 SYNOPSIS
+
+ $0 image imageid
+
+=cut
+
+my ( $image, $imageid ) = @ARGV;
+die "image err" unless $image && $image =~ /^[a-zA-Z0-9:\-\.-]+$/;
+die "imageid err" unless $imageid && $imageid =~ /^\d+$/;
+die if system "docker pull $image";
+die if system "cd /data/open-c3-data/glusterfs/dockerimage && docker save $image -o $imageid";
