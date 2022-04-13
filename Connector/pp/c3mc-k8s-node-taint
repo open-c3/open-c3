@@ -32,6 +32,11 @@ for my $x ( @str )
     $x =~ s/^Taints://;
     $x =~ s/\s*//;
     next if $x eq '<none>';
+    if( $x =~ /^([a-zA-Z0-9\-\._]+\/[a-zA-Z0-9\-\._]+):([a-zA-Z0-9]+)$/ )
+    {
+        print "$1 _ $2\n";
+        next;
+    }
     die "$x err" unless $x =~ /^([a-zA-Z0-9\-\._]+)=([a-zA-Z0-9\-\._]+):([a-zA-Z0-9]+)$/;
     print "$1 $2 $3\n";
 }
