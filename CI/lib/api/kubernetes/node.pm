@@ -57,7 +57,7 @@ $handle{getnode} = sub
 post '/kubernetes/node/cordon' => sub {
     my $param = params();
     my $error = Format->new( 
-        node => qr/^[a-zA-Z0-9][a-zA-Z0-9_\.]+$/, 1,
+        node => qr/^[a-zA-Z0-9][a-zA-Z0-9_\.\-]+$/, 1,
         cordon => [ 'in', 'cordon', 'uncordon' ], 1,
         ticketid => qr/^\d+$/, 1,
     )->check( %$param );
@@ -80,7 +80,7 @@ get '/kubernetes/node/taint' => sub {
     my $param = params();
     my $error = Format->new( 
         ticketid => qr/^\d+$/, 1,
-        nodename => qr/^[a-zA-Z0-9\-\._]+$/, 1,
+        nodename => qr/^[a-zA-Z0-9\-\._\-]+$/, 1,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -116,8 +116,8 @@ post '/kubernetes/node/taint' => sub {
     my $param = params();
     my $error = Format->new( 
         ticketid => qr/^\d+$/, 1,
-        nodename => qr/^[a-zA-Z0-9\-\._]+$/, 1,
-        key => qr/^[a-zA-Z0-9\-\._]+$/, 1,
+        nodename => qr/^[a-zA-Z0-9\-\._\-]+$/, 1,
+        key => qr/^[a-zA-Z0-9\-\._\/]+$/, 1,
         value => qr/^[a-zA-Z0-9\-\._]+$/, 1,
         effect => qr/^[a-zA-Z0-9\-\._]+$/, 1,
     )->check( %$param );
@@ -140,8 +140,8 @@ del '/kubernetes/node/taint' => sub {
     my $param = params();
     my $error = Format->new( 
         ticketid => qr/^\d+$/, 1,
-        nodename => qr/^[a-zA-Z0-9\-\._]+$/, 1,
-        key => qr/^[a-zA-Z0-9\-\._]+$/, 1,
+        nodename => qr/^[a-zA-Z0-9\-\._\-]+$/, 1,
+        key => qr/^[a-zA-Z0-9\-\._\/]+$/, 1,
         effect => qr/^[a-zA-Z0-9\-\._]+$/, 1,
     )->check( %$param );
 
