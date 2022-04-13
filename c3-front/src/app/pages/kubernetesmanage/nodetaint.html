@@ -44,7 +44,8 @@
                                     <td data-title="'value'" width="80">{{m.value}}</td>
                                     <td data-title="'effect'" width="80">{{m.effect}}</td>
                                     <td data-title="'操作'" width="80" >
-                                       <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesnodetaint.deleteTaint(m.key,m.effect)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                       <i ng-show="m.value!=='_'" class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesnodetaint.deleteTaint(m.key,m.effect)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                       <i ng-show="m.value=='_'" class="fa fa-minus-circle fa-2x" aria-hidden="true" uib-tooltip="请通过其他方式删除" style="cursor:pointer;color: #666;" ></i>
 
                                     </td> 
                                 </tr>
