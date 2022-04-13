@@ -76,6 +76,27 @@ post '/kubernetes/node/cordon' => sub {
     return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
 };
 
+post '/kubernetes/node/drain' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        node => qr/^[a-zA-Z0-9][a-zA-Z0-9_\.\-]+$/, 1,
+        ticketid => qr/^\d+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+    my $pmscheck = api::pmscheck( 'openc3_ci_read', 0 ); return $pmscheck if $pmscheck;
+    
+    my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
+        map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 1 ) };
+    return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
+
+    my ( $cmd, $handle ) = ( "$kubectl drain '$param->{node}' --ignore-daemonsets 2>&1", 'showinfo' );
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
+    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
+};
+
 get '/kubernetes/node/taint' => sub {
     my $param = params();
     my $error = Format->new( 

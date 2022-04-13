@@ -35,6 +35,24 @@
             });
         };
 
+        vm.drain = function(node){
+            vm.loadover = false;
+            var d = {
+                "ticketid": ticketid,
+                "node": node,
+            };
+            $http.post("/api/ci/v2/kubernetes/node/drain", d  ).success(function(data){
+                if(data.stat == true) 
+                {
+                    vm.loadover = true;
+                    toastr.success("操作成功:" + data.info)
+                    vm.reload();
+                } else {
+                    toastr.error("操作失败:" + data.info)
+                }
+            });
+        };
+
         vm.describe = function (type,name,namespace) {
             $uibModal.open({
                 templateUrl: 'app/pages/kubernetesmanage/describe.html',
