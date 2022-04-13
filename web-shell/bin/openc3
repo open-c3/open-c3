@@ -5,6 +5,7 @@ use warnings;
 exit unless my $argv = shift;
 
 $argv =~ /&image=/ and exec "/data/Software/mydan/CI/bin/docker.shell '$argv'";
+$argv =~ /&kubectl=1/ and exec "/data/Software/mydan/CI/bin/kubectl.shell '$argv'";
 $argv =~ /&clusterid=/ and exec "/data/Software/mydan/CI/bin/pod.shell '$argv'";
 
 exec "/data/Software/mydan/JOB/bin/cmd '$argv'";

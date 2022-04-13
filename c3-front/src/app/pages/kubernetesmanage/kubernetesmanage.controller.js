@@ -917,6 +917,12 @@ vm.replicasets = [];
             window.open(terminalAddr+s, '_blank')
         };
 
+        vm.openKubectl = function () {
+            var terminalAddr = window.location.protocol + "//" + window.location.host+"/api/ci/kubernetes/kubectl/shell";
+            var s = "?clusterid=" + vm.selecteClusterId + '&siteaddr=' + window.location.protocol + "//" + window.location.host;
+            window.open(terminalAddr+s, '_blank')
+        };
+
         vm.gotoflowline = function (treeid, projectid) {
             $state.go('home.quickentry.flowlinedetail', {treeid:treeid, projectid: projectid});
         };

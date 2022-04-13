@@ -1,0 +1,45 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use MYDB;
+use Code;
+use api::kubernetes;
+
+exit unless my $argv = shift;
+
+my ( $u, $clusterid );
+
+eval{
+    if( $argv =~ /^\?u=(.+)&clusterid=(.+)&kubectl=1$/ )
+    {
+        ( $u, $clusterid ) = ( $1, $2 );
+    }
+    else { die "param error\n"; }
+    
+    my $db = MYDB->new( "$RealBin/../conf/conn" );
+    my $sso = Code->new( 'auth/sso' );
+    my ( $user, $company ) = $sso->run( cookie => $u );
+    print "user:$user, company:$company\n";
+
+    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $db, $clusterid, $user, $company, 1 ) };
+    die "get kubectl fail: $@" if $@;
+
+    while(1)
+    {
+        print "\nkubectl >>";
+        my $in = <STDIN>;
+        chomp $in;
+        next unless $in;
+        unless( $in =~ /^[a-zA-Z0-9\s_\-\.'"\/]+$/ )
+        {
+            print "error: Only the characters a-zA-Z0-9\\s_\-\.'\"/ are allowed\n";
+            next;
+        }
+        system "$kubectl $in";
+    }
+};
+
+print $@ if $@;
+
+sleep 1000;

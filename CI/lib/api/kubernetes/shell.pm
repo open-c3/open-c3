@@ -13,4 +13,14 @@ any '/kubernetes/pod/shell' => sub {
     redirect "$siteaddr/webshell/index.html?u=$u&clusterid=$clusterid&namespace=$namespace&name=$name&type=$type";
 };
 
+any '/kubernetes/kubectl/shell' => sub {
+    my $param = params();
+    my ( $clusterid, $siteaddr ) = @$param{qw( clusterid siteaddr )};
+
+    return "params undef" unless $clusterid ;
+    return "no cookie" unless my $u = cookie( $api::cookiekey );
+
+    redirect "$siteaddr/webshell/index.html?u=$u&clusterid=$clusterid&kubectl=1";
+};
+
 true;
