@@ -1,7 +1,5 @@
 #!/bin/bash
 
-cd /data/open-c3/Installer/C3/kubectl || exit 1
-
 VERSION=$1
 if [ "X$VERSION" == "X" ];then
     VERSION=$(date +%Y%m%d)
