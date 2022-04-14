@@ -154,9 +154,9 @@ return sub
         $ua->timeout( 10 );
         my $url = "http://api.ci.open-c3.org/versiondetail/$src/$tv";
         my $res = $ua->get( $url );
-        $logs->die( "get ciinfo fail" ) unless $res->is_success;
+        $logs->die( "get ciinfo fail: call api/ci/versiondetail/$src/$tv fail" ) unless $res->is_success;
         my $data = eval{JSON::from_json $res->content};
-        $logs->die( "get ciinfo fail" ) unless $data->{stat};
+        $logs->die( "get ciinfo fail: call api/ci/versiondetail/$src/$tv stat err" ) unless $data->{stat};
         $logs->die( "get nofind the version on ci" ) unless $data->{data}{slave};
         $logs->die( "the version no success on ci" ) unless $data->{data}{status} eq 'success' || $data->{data}{status} eq 'running';
 
