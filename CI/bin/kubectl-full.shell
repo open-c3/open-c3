@@ -1,0 +1,43 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use MYDB;
+use Code;
+use api::kubernetes;
+
+exit unless my $argv = shift;
+
+my ( $u, $clusterid );
+
+eval{
+    if( $argv =~ /^\?u=(.+)&clusterid=(.+)&kubectl=1$/ )
+    {
+        ( $u, $clusterid ) = ( $1, $2 );
+    }
+    else { die "param error\n"; }
+    
+    my $db = MYDB->new( "$RealBin/../conf/conn" );
+    my $sso = Code->new( 'auth/sso' );
+    my ( $user, $company ) = $sso->run( cookie => $u );
+    print "user:$user, company:$company\n";
+
+    my $homename = $user;
+    $homename =~ s/[^a-z0-9@\-\._]/_/g;
+    print "home: /home/$homename\n";
+    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $db, $clusterid, $user, $company, 1 ) };
+    die "get kubectl fail: $@" if $@;
+
+    die "nofind kubeconfig" unless $kubectl =~ /KUBECONFIG=([\/a-zA-Z0-9_]+)\s+/;
+    my $config = $1;
+    my $uuid = time.rand 10000;
+    my $path = "/data/open-c3-data/kubectl-webshell";
+    system "mkdir -p $path/uuid" unless -d "$path/uuid";
+    die if system "cp $config $path/uuid/$uuid";
+
+    system "docker run -it --rm -v $path/home/$homename:/home/$homename -v $path/uuid/$uuid:/root/.kube/config:ro openc3/kubectl:k2204142"
+};
+
+print $@ if $@;
+
+sleep 1000;
