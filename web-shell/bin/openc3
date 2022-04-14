@@ -7,8 +7,10 @@ exit unless my $argv = shift;
 $argv =~ /&image=/ and exec "/data/Software/mydan/CI/bin/docker.shell '$argv'";
 if( $argv =~ /&kubectl=1/ )
 {
-    exec "/data/Software/mydan/CI/bin/kubectl.shell '$argv'" if -f '/etc/openc3.allinon';
-    exec "/data/Software/mydan/CI/bin/kubectl-full.shell '$argv'";
+    exec "/data/Software/mydan/CI/bin/kubectl.shell '$argv'";#TODO
+
+#    exec "/data/Software/mydan/CI/bin/kubectl.shell '$argv'" if -f '/etc/openc3.allinon';
+#    exec "/data/Software/mydan/CI/bin/kubectl-full.shell '$argv'";
 }
 
 $argv =~ /&clusterid=/ and exec "/data/Software/mydan/CI/bin/pod.shell '$argv'";
