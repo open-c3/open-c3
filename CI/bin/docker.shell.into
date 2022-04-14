@@ -39,7 +39,7 @@ if( $x->[0][0] )
     die "write run file fail:$!" if system "mv '$run' '$RealBin/../logs/build_temp_projectid/$uuid/run'";
 }
 
-my $entrypoint = $o{image} =~ /^ci\// ? '/welcome.sh' : '/bin/bash';
+my $entrypoint = $o{image} =~ /^ci\// ? '/welcome.sh' : '/bin/sh';
 
 my $user = `id -un`;chop $user;
 my $sudo = $user eq 'root' ? '' : 'sudo ';
