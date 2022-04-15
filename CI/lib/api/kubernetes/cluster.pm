@@ -16,7 +16,7 @@ post '/kubernetes/cluster/connectiontest' => sub {
     my $param = params();
     my $error = Format->new( 
         kubectlVersion => qr/^v\d+\.\d+\.\d+$/, 1,
-        proxyAddr => qr/^[a-zA-Z0-9:\.@]+$/, 0,
+        proxyAddr => qr/^[a-zA-Z0-9:\.@]*$/, 0,
         kubeconfig => qr/.+/, 1,
     )->check( %$param );
 
