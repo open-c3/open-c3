@@ -5,6 +5,7 @@ use FindBin qw( $RealBin );
 use MYDB;
 use Code;
 use api::kubernetes;
+use Term::Completion;
 
 exit unless my $argv = shift;
 
@@ -25,10 +26,26 @@ eval{
     my $kubectl = eval{ api::kubernetes::getKubectlCmd( $db, $clusterid, $user, $company, 1 ) };
     die "get kubectl fail: $@" if $@;
 
+    my @choices = qw(
+        annotate       completion     drain          logs           scale
+        api-resources  config         edit           options        set
+        api-versions   cordon         exec           patch          taint
+        apply          cp             explain        plugin         top
+        attach         create         expose         port-forward   uncordon
+        auth           debug          get            proxy          version
+        autoscale      delete         help           replace        wait
+        certificate    describe       kustomize      rollout
+        cluster-info   diff           label          run
+    );
+
     while(1)
     {
-        print "\nkubectl >>";
-        my $in = <STDIN>;
+        my $tc = Term::Completion->new(
+            prompt  => "kubectk >> ",
+            choices => \@choices
+        );
+        my $in = $tc->complete();
+
         chomp $in;
         next unless $in;
 
