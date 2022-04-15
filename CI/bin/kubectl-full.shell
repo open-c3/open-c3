@@ -30,12 +30,18 @@ eval{
 
     die "nofind kubeconfig" unless $kubectl =~ /KUBECONFIG=([\/a-zA-Z0-9_]+)\s+/;
     my $config = $1;
+
+    my $HTTPS_PROXY = '';
+    if( $kubectl =~ /HTTPS_PROXY='([a-zA-Z0-9:\/\-\.@]+)'/ )
+    {
+        $HTTPS_PROXY = "-e HTTPS_PROXY=\"$1\"";
+    }
     my $uuid = time + ( rand 10000 ) / 10000;
     my $path = "/data/open-c3-data/kubectl-webshell";
     system "mkdir -p $path/uuid" unless -d "$path/uuid";
     die if system "cp $config $path/uuid/$uuid";
 
-    system "docker run -it --rm -v $path/home/$homename:/home/$homename -v $path/home/$homename/.kube:/root/.kube -v $path/uuid/$uuid:/kubeconfig_$uuid:ro -e KUBECONFIG=\"/kubeconfig_$uuid\" --name dockershell_kubectl_$uuid openc3/kubectl:k2204142"
+    system "docker run -it --rm -v $path/home/$homename:/home/$homename -v $path/home/$homename/.kube:/root/.kube -v $path/uuid/$uuid:/kubeconfig_$uuid:ro -e KUBECONFIG=\"/kubeconfig_$uuid\" $HTTPS_PROXY --name dockershell_kubectl_$uuid openc3/kubectl:k2204142"
 };
 
 print $@ if $@;
