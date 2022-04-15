@@ -15,12 +15,13 @@ any '/kubernetes/pod/shell' => sub {
 
 any '/kubernetes/kubectl/shell' => sub {
     my $param = params();
-    my ( $clusterid, $siteaddr ) = @$param{qw( clusterid siteaddr )};
+    my ( $clusterid, $siteaddr, $type ) = @$param{qw( clusterid siteaddr type )};
 
     return "params undef" unless $clusterid ;
     return "no cookie" unless my $u = cookie( $api::cookiekey );
 
-    redirect "$siteaddr/webshell/index.html?u=$u&clusterid=$clusterid&kubectl=1";
+    $type = 1 unless $type && $type eq 'full';
+    redirect "$siteaddr/webshell/index.html?u=$u&clusterid=$clusterid&kubectl=$type";
 };
 
 true;

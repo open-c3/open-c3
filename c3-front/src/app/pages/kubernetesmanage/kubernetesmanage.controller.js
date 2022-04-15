@@ -917,9 +917,9 @@ vm.replicasets = [];
             window.open(terminalAddr+s, '_blank')
         };
 
-        vm.openKubectl = function () {
+        vm.openKubectl = function (type) {
             var terminalAddr = window.location.protocol + "//" + window.location.host+"/api/ci/kubernetes/kubectl/shell";
-            var s = "?clusterid=" + vm.selecteClusterId + '&siteaddr=' + window.location.protocol + "//" + window.location.host;
+            var s = "?clusterid=" + vm.selecteClusterId + '&type=' + type + '&siteaddr=' + window.location.protocol + "//" + window.location.host;
             window.open(terminalAddr+s, '_blank')
         };
 
