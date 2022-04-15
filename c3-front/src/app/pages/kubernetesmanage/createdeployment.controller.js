@@ -344,7 +344,7 @@
                 vm.editData.spec.template.metadata.labels.app = vm.editData.metadata.name;
             }
             
-            if( vm.editData.spec.strategy.type === 'RollingUpdate' )
+            if( vm.editData.spec && vm.editData.spec.strategy && vm.editData.spec.strategy.type === 'RollingUpdate' )
             {
                 vm.editData.spec.strategy.rollingUpdate.maxUnavailable = vm.switchtointmaby( vm.editData.spec.strategy.rollingUpdate.maxUnavailable );
                 vm.editData.spec.strategy.rollingUpdate.maxSurge = vm.switchtointmaby( vm.editData.spec.strategy.rollingUpdate.maxSurge );
@@ -899,6 +899,10 @@ if( vm.addservice === 1 )
 
 //
         vm.switchStrategy = function( type ){
+            if( ! vm.editData.spec.strategy )
+            {
+                vm.editData.spec.strategy = {};
+            }
             vm.editData.spec.strategy.type = type;
             if( type === 'RollingUpdate' )
             {
