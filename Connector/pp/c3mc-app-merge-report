@@ -46,14 +46,14 @@ for my $id ( sort{ $tree{$b}{len} <=> $tree{$a}{len} }keys %tree)
     my $d = $tree{$id};
     next unless my $paid = $d->{parentid};
 
-    next unless -f "$o{path}/$id/current";
+    next unless -f "$o{path}/$id/current_";
     system "mkdir '$o{path}/$paid'" unless -d "$o{path}/$paid";
-    if( -f "$o{path}/$paid/current" )
+    if( -f "$o{path}/$paid/current_" )
     {
-        system "cat $o{path}/$id/current $o{path}/$paid/current | sort | uniq >> $o{path}/$paid/current.temp && mv '$o{path}/$paid/current.temp' '$o{path}/$paid/current'";
+        system "cat $o{path}/$id/current_ $o{path}/$paid/current_ | sort | uniq >> $o{path}/$paid/current.temp && mv '$o{path}/$paid/current.temp' '$o{path}/$paid/current_'";
     }
     else
     {
-        system "cat $o{path}/$id/current >> $o{path}/$paid/current";
+        system "cat $o{path}/$id/current_ >> $o{path}/$paid/current_";
     }
 }

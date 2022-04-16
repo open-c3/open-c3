@@ -32,6 +32,7 @@ my @x = eval { YAML::XS::Load $x };
 die "load data fail: $@" if $@;
 
 my $dpath = "/data/glusterfs/flowreport";
+system "rm $dpath/*/current_ 2>/dev/null";
 
 my %data;
 for my $data ( map{ @$_ }@x )
@@ -56,10 +57,16 @@ for my $groupid ( keys %data )
     } sort{$a->{time} cmp $b->{time }}@$data;
 
     close $TEMP;
-    system "mv '$tempfile' '$dstpath/current'";
+    system "mv '$tempfile' '$dstpath/current_'";
 }
 
 system "c3mc-app-merge-report -p $dpath";
+
+for my $p ( glob "$dpath/*" )
+{
+    next unless $p =~ /\/\d+$/;
+    system -f "$p/current_" ? "mv '$p/current_' '$p/current'" : "echo > $p/current";
+}
 
 #my $dstpath = "$dpath/4000000000";
 #system "mkdir -p '$dstpath'" unless -d $dstpath;

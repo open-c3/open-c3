@@ -7,11 +7,19 @@ use POSIX;
 $| ++;
 
 my $dpath = "/data/glusterfs/gitreport";
+system "rm $dpath/*/current_ 2>/dev/null";
 my $idcmd = "c3mc-base-db-get -t openc3_ci_project groupid -f 'status=1 and addr like \"%git%\"' |sort|uniq";
 
-die if system "$idcmd | xargs -i{} bash -c \"mkdir -p $dpath/{}; c3mc-ci-gitreport-once {} > $dpath/{}/current\"";
+die if system "$idcmd | xargs -i{} bash -c \"mkdir -p $dpath/{}; c3mc-ci-gitreport-once {} > $dpath/{}/current_\"";
 
 system "c3mc-app-merge-report -p $dpath";
+
+for my $p ( glob "$dpath/*" )
+{
+    next unless $p =~ /\/\d+$/;
+    system -f "$p/current_" ? "mv '$p/current_' '$p/current'" : "echo > $p/current";
+}
+
 #my $dstpath = "$dpath/4000000000";
 #system "mkdir -p '$dstpath'" unless -d $dstpath;
 #system "cat $dpath/*/current |sort|uniq > $dstpath/current";
