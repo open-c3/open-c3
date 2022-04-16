@@ -20,9 +20,9 @@ for my $p ( glob "$dpath/*" )
     system -f "$p/current_" ? "mv '$p/current_' '$p/current'" : "echo > $p/current";
 }
 
-#my $dstpath = "$dpath/4000000000";
-#system "mkdir -p '$dstpath'" unless -d $dstpath;
-#system "cat $dpath/*/current |sort|uniq > $dstpath/current";
+my $dstpath = "$dpath/4000000000";
+system "mkdir -p '$dstpath'" unless -d $dstpath;
+system "cat $dpath/*/current |sort|uniq > $dstpath/current_ && mv $dstpath/current_ $dstpath/current";
 
 if( 1 == POSIX::strftime( "%u", localtime ) )
 {
