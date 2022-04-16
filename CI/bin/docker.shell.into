@@ -33,13 +33,15 @@ die( "get buildscripts info fail:$@" ) if $@;
 die( "get buildscripts from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';
 die( "projectid is illegal, mismatch: $o{projectid}" ) unless @$x;
 
+my $entrypoint = $o{image} =~ /^ci\// ? '/welcome.sh' : '/bin/bash';
 if( $x->[0][0] )
 {
     my $run = Temp->new( chmod => 0755 )->dump( decode_base64( $x->[0][0] ) );
+    my $enter = `head -n 1 $run 2>/dev/null`;
+    chomp $enter;
+    $entrypoint = '/bin/sh' if $enter && $enter =~ /^#!.*\/sh$/;
     die "write run file fail:$!" if system "mv '$run' '$RealBin/../logs/build_temp_projectid/$uuid/run'";
 }
-
-my $entrypoint = $o{image} =~ /^ci\// ? '/welcome.sh' : '/bin/sh';
 
 my $user = `id -un`;chop $user;
 my $sudo = $user eq 'root' ? '' : 'sudo ';
