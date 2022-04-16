@@ -40,14 +40,15 @@ if( $name eq 'promesd' )
 
     my $nodetemp = "/data/Software/mydan/AGENT/conf/promesd.temp";
     my $tempfile = "$nodetemp.$$";
+    my $openc3_node_sd = '/data/Software/mydan/prometheus/config/openc3_node_sd.yml';
 
     OPENC3::PP::Server->new(
         name => "agent_server_$name",
         interval => 1800,
         timeout => 3600,
     )->run(
-       "c3mc-base-treemap | awk -F';' '{print \$1}'| c3mc-base-fullnodeinfo -c projectid,inip | tee $tempfile | c3mc-mon-nodesd-format --output /data/Software/mydan/prometheus/config/openc3_node_sd.yml",
-       "mv $tempfile $nodetemp",
+       "c3mc-base-treemap | awk -F';' '{print \$1}'| c3mc-base-fullnodeinfo -c projectid,inip | tee $tempfile | c3mc-mon-nodesd-format --output $openc3_node_sd.temp",
+       "mv $tempfile $nodetemp && mv $openc3_node_sd.temp $openc3_node_sd",
     );
 }
 
