@@ -18,7 +18,7 @@ sub run
 {
     my ( $this, @cmd ) = @_;
     die unless @cmd;
-    my ( $interval, $timeout ) = @$this{qw( interval timeout )};
+    my ( $interval, $timeout, $pipefail ) = @$this{qw( interval timeout pipefail )};
 
     $ENV{PATH} .= sprintf ":%s", join ":", map{ "/data/Software/mydan/$_/pp" }qw( Connector JOB JOBX AGENT CI );
 
@@ -49,7 +49,7 @@ sub run
             {
                 unless( $pid = fork )
                 {
-                    exec( bash => ( -o => "pipefail", -c => $cmd ) );
+                    $pipefail ? exec( bash => ( -o => "pipefail", -c => $cmd ) ) : exec( $cmd );
                     exit 1;
                 }
                 else
