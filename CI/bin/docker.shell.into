@@ -72,5 +72,5 @@ else
         exit 1;
     };
 
-    system "${sudo}/usr/bin/docker run -it --rm -v $logpath/build_temp_projectid/$uuid:/build -v /data/open-c3-data/ci-docker-share:/cishare --workdir=/build/data --name dockershell_ci_$uuid $o{image} $entrypoint";
+    system "${sudo}/usr/bin/docker run -it --rm -v $logpath/build_temp_projectid/$uuid:/build -v /data/open-c3-data/ci-docker-share:/cishare -v /data/open-c3-data/ci-docker-share-id/$o{projectid}:/ishare --workdir=/build/data --name dockershell_ci_$uuid $o{image} $entrypoint";
 }
