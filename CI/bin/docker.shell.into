@@ -68,6 +68,7 @@ else
     $SIG{HUP} = sub
     {
         system "docker kill 'dockershell_ci_$uuid'";
+        system "rm -rf '$logpath/build_temp_projectid/$uuid'";
         exit 1;
     };
 
