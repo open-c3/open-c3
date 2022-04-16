@@ -44,6 +44,7 @@ get '/gitreport/:groupid/report' => sub {
     for my $data ( @data )
     {
         my ( $time, $uuid, $effective, $name, $add, $del, $url ) = split /:/, $data, 7;
+        next unless $uuid;
         my ( $date ) = split /\./, $time;
 
         $name =~ s/[^a-zA-Z0-9\.\-_@]//g;

@@ -44,6 +44,7 @@ get '/flowreport/:groupid/report' => sub {
     for my $data ( @data )
     {
         my ( $time, $type, $uuid, $groupid, $projectid, $status, $version ) = split /:/, $data;
+        next unless $uuid;
         my ( $date ) = split /\./, $time;
 
         if( $type eq "ci" )
