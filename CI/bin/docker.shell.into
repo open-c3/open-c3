@@ -65,5 +65,11 @@ if( $o{image} =~ /^\d+\.\d+\.\d+\.\d+$/ )
 }
 else
 {
-    exec "${sudo}/usr/bin/docker run -it --rm -v $logpath/build_temp_projectid/$uuid:/build -v /data/open-c3-data/ci-docker-share:/cishare --workdir=/build/data --name dockershell_ci_$uuid $o{image} $entrypoint";
+    $SIG{HUP} = sub
+    {
+        system "docker kill 'dockershell_ci_$uuid'";
+        exit 1;
+    };
+
+    system "${sudo}/usr/bin/docker run -it --rm -v $logpath/build_temp_projectid/$uuid:/build -v /data/open-c3-data/ci-docker-share:/cishare --workdir=/build/data --name dockershell_ci_$uuid $o{image} $entrypoint";
 }
