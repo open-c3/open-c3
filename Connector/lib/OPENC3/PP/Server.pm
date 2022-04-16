@@ -49,7 +49,7 @@ sub run
             {
                 unless( $pid = fork )
                 {
-                    exec $cmd;
+                    exec( bash => ( -o => "pipefail", -c => $cmd ) );
                     exit 1;
                 }
                 else
