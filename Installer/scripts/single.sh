@@ -390,6 +390,14 @@ function status() {
     check ci
 }
 
+function inx() {
+    docker exec -it openc3-server  bash
+}
+
+function sql() {
+    docker exec -it openc3-mysql env LANG=C.UTF-8 mysql -uroot -popenc3123456^!
+}
+
 OPENC3_ZONE_CHECK=$(cat /data/open-c3/.git/config |grep gitee.com/open-c3/open-c3|wc -l)
 if [ "X$OPENC3_ZONE_CHECK" == "X1" ];then
     export OPENC3_ZONE=CN
@@ -434,8 +442,15 @@ restart)
 reload)
     reload
     ;;
+inx)
+    inx
+    ;;
+sql)
+    sql
+    ;;
+
 *)
-    echo "Usage: $0 {start|stop|status|restart|reload|install|rebuild|reborn|upgrade|switchversion}"
+    echo "Usage: $0 {start|stop|status|restart|reload|install|rebuild|reborn|upgrade|switchversion|inx|sql}"
     echo "$0 install 10.10.10.10(Your Internet IP)"
     exit 2
 esac
