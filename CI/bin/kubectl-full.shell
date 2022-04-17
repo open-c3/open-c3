@@ -41,6 +41,12 @@ eval{
     system "mkdir -p $path/uuid" unless -d "$path/uuid";
     die if system "cp $config $path/uuid/$uuid";
 
+    $SIG{HUP} = sub
+    {
+        system "docker kill 'dockershell_kubectl_$uuid'";
+        exit 1;
+    };
+
     system "docker run -it --rm -v $path/home/$homename:/home/$homename -v $path/home/$homename/.kube:/root/.kube -v $path/uuid/$uuid:/kubeconfig_$uuid:ro -e KUBECONFIG=\"/kubeconfig_$uuid\" $HTTPS_PROXY --name dockershell_kubectl_$uuid openc3/kubectl:k2204142"
 };
 
