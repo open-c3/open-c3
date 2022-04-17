@@ -1,0 +1,24 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use YAML::XS;
+use OPENC3::SysCtl;
+
+=head1 SYNOPSIS
+
+ $0 # dump
+ $0 datakey
+
+=cut
+
+my $conf = OPENC3::SysCtl->new()->dump();
+
+if( my $k = shift @ARGV )
+{
+    print $conf->{$k}, "\n";
+    exit;
+}
+map{ print "$_: $conf->{$_}\n"; }keys %$conf;
