@@ -36,7 +36,7 @@ if( $name eq 'findtags' )
         interval => 60,
         timeout => 120,
     )->run(
-        'c3mc-base-db-get id -t openc3_ci_project -f "status=1 and autofindtags=1" | c3mc-base-task-grep -m ci | c3mc-base-db-set -t openc3_ci_project --set "slave=\"`c3mc-base-hostname`\"" | xargs -P 4 c3mc-app-findtags'
+        'c3mc-base-db-get id -t openc3_ci_project -f "status=1 and autofindtags=1" | c3mc-base-task-grep -m ci | c3mc-base-db-set -t openc3_ci_project --set "slave=\"`c3mc-base-hostname`\"" | xargs -P 4 -i{} c3mc-app-findtags {}'
     );
 }
 
@@ -47,7 +47,7 @@ if( $name eq 'findtagsonce' )
         interval => 3,
         timeout => 30,
     )->run(
-        'c3mc-base-db-get id -t openc3_ci_project -f "status=1 and findtags_at_once=1" | c3mc-base-task-grep -m ci | c3mc-base-db-set -t openc3_ci_project --set "findtags_at_once=0,slave=\"`c3mc-base-hostname`\"" | xargs -P 2 c3mc-app-findtags'
+        'c3mc-base-db-get id -t openc3_ci_project -f "status=1 and findtags_at_once=1" | c3mc-base-task-grep -m ci | c3mc-base-db-set -t openc3_ci_project --set "findtags_at_once=0,slave=\"`c3mc-base-hostname`\"" | xargs -P 2 -i{} c3mc-app-findtags {}'
     );
 }
 
