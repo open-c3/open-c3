@@ -119,7 +119,6 @@ get '/task/:projectid/:uuid' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
     return +{ stat => $JSON::true, data => +{ status => 'norun' } } unless $r && @$r > 0;
     my %x = %{$r->[0]};
-    $x{cont} = decode_base64( $x{cont} );
 
     eval{
         my $variable = YAML::XS::Dump YAML::XS::Load decode("UTF-8", decode_base64( $x{variable} ) );
