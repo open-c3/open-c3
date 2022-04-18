@@ -17,7 +17,7 @@ use Time::Local;
 =cut
 
 local $/ = undef;
-my @data = YAML::XS::Load( <STDIN> );
+my @data = YAML::XS::Load( my $x = <STDIN> );
 local $/ = "\n";
 
 $ENV{PATH} = "$ENV{PATH}:/data/Software/mydan/AGENT/pp:/data/Software/mydan/Connector/pp:/data/Software/mydan/JOB/pp";
