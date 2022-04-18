@@ -34,14 +34,14 @@ get '/monitor/metrics/app' => sub {
     my %re;
 
     my $p = eval{ $api::mysql->query( "select status,count(*) from openc3_agent_proxy group by status" )};
-    my %p = map{ $_->[0] => $_->[1] }@$p;
+    my %p = map{ $_->[0] => $_->[1] }grep{ $_->[0] }@$p;
     map{ $p{$_} ||= 0 }qw( fail success );
 
     $re{proxy_total} = 0;
     map{ $re{proxy_total} += $re{"proxy_$_"} = $p{$_} }qw( fail success );
 
     my $a = eval{ $api::mysql->query( "select status,count(*) from openc3_agent_proxy group by status" )};
-    my %a = map{ $_->[0] => $_->[1] }@$a;
+    my %a = map{ $_->[0] => $_->[1] }grep{ $_->[0] }@$a;
     map{ $a{$_} ||= 0 }qw( fail success );
 
     $re{agent_total} = 0;

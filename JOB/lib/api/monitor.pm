@@ -34,7 +34,7 @@ get '/monitor/metrics/app' => sub {
     my %re;
 
     my $t = eval{ $api::mysql->query( "select status,count(*) from openc3_job_task group by status" )};
-    my %t = map{ $_->[0] => $_->[1] }@$t;
+    my %t = map{ $_->[0] => $_->[1] }grep{ $_->[0] }@$t;
     map{ $t{$_} ||= 0 }qw( fail running success );
 
     $re{task_total} = 0;

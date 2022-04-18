@@ -72,7 +72,7 @@ get '/monitor/metrics/app' => sub {
     my %re;
 
     my $t = eval{ $api::mysql->query( "select status,count(*) from openc3_jobx_task group by status" )};
-    my %t = map{ $_->[0] => $_->[1] }@$t;
+    my %t = map{ $_->[0] => $_->[1] }grep{ $_->[0] }@$t;
     map{ $t{$_} ||= 0 }qw( fail running success );
 
     $re{task_total} = 0;
@@ -80,7 +80,7 @@ get '/monitor/metrics/app' => sub {
 
 
     my $s = eval{ $api::mysql->query( "select status,count(*) from openc3_jobx_subtask group by status" )};
-    my %s = map{ $_->[0] => $_->[1] }@$s;
+    my %s = map{ $_->[0] => $_->[1] }grep{ $_->[0] }@$s;
     map{ $s{$_} ||= 0 }qw( runnigs fail success decision ignore next );
 
     $re{subtask_total} = 0;
