@@ -125,7 +125,7 @@ get '/default/node/api/:projectid' => sub {
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_connector_nodelist
-                where projectid='$param->{projectid}' and status='available' %s", join( ',', @col)), \@col )};
+                where projectid='$param->{projectid}' and status='available'", join( ',', @col)), \@col )};
 
     my $id = 0;
     my @data = map{ +{ %$_, id => $id++ } }@$r;

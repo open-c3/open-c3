@@ -1,5 +1,50 @@
 #!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOBX/lib -I/data/Software/mydan/JOBX/private/lib
+
 $0="jobx_api";
+
+use HTTP::Server::Simple::PSGI;
+
+*HTTP::Server::Simple::PSGI::_handle_response = sub
+{
+
+    my ($self, $res) = @_;
+
+    my $message = $StatusCode{$res->[0]};
+
+    my $response = "HTTP/1.0 $res->[0] $message\015\012";
+    my $headers = $res->[1];
+    while (my ($k, $v) = splice(@$headers, 0, 2)) {
+        $response .= "$k: $v\015\012";
+    }
+    $response .= "\015\012";
+
+    print STDOUT $response;
+
+    my $body = $res->[2];
+    my $cb = sub {
+        use Encode;
+        Encode::_utf8_off( $_[0] );
+        print STDOUT $_[0]
+    };
+
+    if (defined $body) {
+        if (ref $body eq 'ARRAY') {
+            for my $line (@$body) {
+                $cb->($line) if length $line;
+            }
+        } else {
+            local $/ = \65536 unless ref $/;
+            while (defined(my $line = $body->getline)) {
+                $cb->($line) if length $line;
+            }
+            $body->close;
+        }
+    } else {
+        return HTTP::Server::Simple::PSGI::Writer->new($cb);
+    }
+
+};
+
 use Dancer;
 use api::group;
 use api::task;
