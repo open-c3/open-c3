@@ -193,12 +193,14 @@
                                     {
                                         vm.vartemp.push( value )
 
-                                        var vars = value.option.split(",");
-                                        if( value.option.length > 0 &&  vars.length > 0 )
+                                        if( value.option )
                                         {
-                                            vm.varsvalue[ value.name ] = vars;
-                                        }
-                                        
+                                            var vars = value.option.split(",");
+                                            if( value.option.length > 0 &&  vars.length > 0 )
+                                            {
+                                                vm.varsvalue[ value.name ] = vars;
+                                            }
+                                        }                                       
                                     }
                                 }
                                 else
