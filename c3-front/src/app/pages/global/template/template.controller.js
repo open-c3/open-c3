@@ -105,7 +105,7 @@
 //Approval
         vm.emailApprovalSet = function () {
             vm.environment.approvalTemplateEmailTitle = "发布审批: ${cont}";
-            vm.environment.approvalTemplateEmailContent = "审批内容: ${cont}\n\n详情:" + window.location.protocol + '//' + window.location.host + "/#/quickapproval/${uuid}";
+            vm.environment.approvalTemplateEmailContent = "审批内容: ${cont}\n\n审批链接:" + window.location.protocol + '//' + window.location.host + "/#/quickapproval/${uuid}\n极速审批:" +  window.location.protocol + '//' + window.location.host + "/api/job/approval/fast/${uuid}\n";
         };
 
         vm.emailApprovalSave = function () {
@@ -115,7 +115,7 @@
             vm.save( emailDetail )
         };
         vm.smsApprovalSet = function () {
-            vm.environment.approvalTemplateSmsContent = "审批内容: ${cont}\n\n详情:" + window.location.protocol + '//' + window.location.host + "/#/quickapproval/${uuid}";
+            vm.environment.approvalTemplateSmsContent = "审批内容: ${cont}\n\n审批链接:" + window.location.protocol + '//' + window.location.host + "/#/quickapproval/${uuid}\n极速审批:" +  window.location.protocol + '//' + window.location.host + "/api/job/approval/fast/${uuid}\n";
         };
         vm.smsApprovalSave = function () {
             var msmDetail = {};
