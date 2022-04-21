@@ -93,9 +93,16 @@ if( $ARGV[0] eq 'apply' )
     my @deploymentconfiguration;
     if( defined $config->{maximumPercent} )
     {
-        die "maximumPercent not a number" unless $config->{maximumPercent} =~ /^\d+$/;
-        warn "maximumPercent=$config->{maximumPercent}\n";
-        push @deploymentconfiguration, "maximumPercent=$config->{maximumPercent}";
+        if( $config->{maximumPercent} eq 'x' )
+        {
+            warn "maximumPercent unset\n";
+        }
+        else
+        {
+            die "maximumPercent not a number" unless $config->{maximumPercent} =~ /^\d+$/;
+            warn "maximumPercent=$config->{maximumPercent}\n";
+            push @deploymentconfiguration, "maximumPercent=$config->{maximumPercent}";
+        }
     }
     else
     {
@@ -104,9 +111,16 @@ if( $ARGV[0] eq 'apply' )
 
     if( defined $config->{minimumHealthyPercent} )
     {
-        die "minimumHealthyPercent not a number" unless $config->{minimumHealthyPercent} =~ /^\d+$/;
-        warn "minimumHealthyPercent=$config->{minimumHealthyPercent}\n";
-        push @deploymentconfiguration, "minimumHealthyPercent=$config->{minimumHealthyPercent}";
+        if( $config->{minimumHealthyPercent} eq 'x' )
+        {
+            warn "minimumHealthyPercent\n";
+        }
+        else
+        {
+            die "minimumHealthyPercent not a number" unless $config->{minimumHealthyPercent} =~ /^\d+$/;
+            warn "minimumHealthyPercent=$config->{minimumHealthyPercent}\n";
+            push @deploymentconfiguration, "minimumHealthyPercent=$config->{minimumHealthyPercent}";
+        }
     }
     else
     {
