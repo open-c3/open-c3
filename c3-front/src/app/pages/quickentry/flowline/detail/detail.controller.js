@@ -366,10 +366,12 @@
     vm.loadNodeInfo('online');
 
     vm.jobStep = []
+    vm.ecsname = [];
     vm.jobStepLen = 0
     vm.loadJobInfo = function()
     {
         vm.jobStep = []
+        vm.ecsname = [];
         vm.jobStepLen = 0
         $http.get('/api/job/jobs/' + vm.treeid+"/byname?name="+'_ci_' + vm.projectid + '_' ).then(
             function successCallback(response) {
@@ -379,6 +381,18 @@
                     {
                         angular.forEach(vm.jobData.data, function (d) {
                                 vm.jobStep.push(d.name);
+                                if( d.scripts_type == 'buildin' )
+                                {
+                                    var isecs = /^#!awsecs/;
+                                    var isapply = /apply/;
+                                    var hastaskdef = /task-definition:/;
+                                    if( d.scripts_cont && d.scripts_argv &&  isecs.test( d.scripts_cont) && hastaskdef.test( d.scripts_cont)  && isapply.test( d.scripts_argv ) )
+                                    {
+                                        var reg = /task-definition:(.*)\b/;
+                                        var ecsname = reg.exec(d.scripts_cont )[1].trim()
+                                        vm.ecsname.push( { "name": ecsname, "cmd": d.scripts_cont, "ticketid": d.user } )
+                                    }
+                                }
                         });
                         vm.jobStepLen = vm.jobStep.length
                     }
@@ -479,7 +493,25 @@
             });
         };
 
-
+        vm.describeecs = function (name,data) {
+            $uibModal.open({
+                templateUrl: 'app/pages/kubernetesmanage/describeecs.html',
+                controller: 'KubernetesDescribeEcsController',
+                controllerAs: 'kubernetesdescribeecs',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () {return vm.treeid},
+                    type: function () {return vm.project.ci_type_kind},
+                    name: function () {return name},
+                    data: function () {return data},
+                    namespace: function () {return vm.project.ci_type_namespace},
+                    ticketid: function () {return vm.project.ci_type_ticketid},
+                }
+            });
+        };
 //
         vm.createdeployment = function (name) {
             $http.get('/api/ci/ticket/' + vm.project.ci_type_ticketid ).then(

@@ -146,4 +146,35 @@ $handle{getdescribeservice} = sub
     return +{ stat => $JSON::true, data => $data };
 };
 
+post '/kubernetes/app/describe/ecs' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        ticketid => qr/^\d+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+    return  +{ stat => $JSON::false, info => "no param cmd" } unless $param->{cmd};
+    my $cmdconf = eval{ YAML::XS::Load $param->{cmd} };
+    return +{ stat => $JSON::false, info => "param cmd toyaml fail:$@" } if $@;
+    map{
+        return  +{ stat => $JSON::false, info => "param cmd err: $_ = $cmdconf->{$_}" }
+            unless $cmdconf->{$_} && $cmdconf->{$_} =~ /^[a-zA-Z][a-zA-Z0-9\.\-_@]+$/;
+    } qw( region service cluster );
+
+    my $pmscheck = api::pmscheck( 'openc3_ci_read', 0 ); return $pmscheck if $pmscheck;
+
+    my ( $cmd, $handle ) = ( "c3mc-aws-ecs-describe -i '$param->{ticketid}' --region '$cmdconf->{region}' --services '$cmdconf->{service}' --cluster  '$cmdconf->{cluster}'  2>/dev/null", 'getdescribeecs' );
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
+    return &{$handle{$handle}}( `$cmd`//'', $? ); 
+};
+
+$handle{getdescribeecs} = sub
+{
+    my ( $x, $status ) = @_;
+    return +{ stat => $JSON::false, data => $x } if $status;
+    my $data = eval{ YAML::XS::Load Encode::encode('utf8', $x ) };
+    return +{ stat => $JSON::false, info => $@, xx => $x } if $@;
+    return +{ stat => $JSON::true, data => $data };
+};
+
 true;

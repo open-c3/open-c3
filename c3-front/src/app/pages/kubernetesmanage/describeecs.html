@@ -1,0 +1,44 @@
+<div class="row block">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="kubernetesdescribeecs.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetesdescribeecs.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="关闭" ng-click="kubernetesdescribeecs.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
+            </span>
+            <h5>AWS ECS</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="pt20">
+                <div>
+                    <div class="panel-body" style="margin-top: 2px">
+                        <div class="pt20" style="overflow: auto;">
+                            <table ng-table="kubernetesdescribeecs.dataTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
+                                <tr ng-repeat="m in $data">
+                                    <td data-title="'ID'" width="80"> {{m.id}} </td>
+                                    <td data-title="'Status'" width="80"> {{m.status}} </td>
+                                    <td data-title="'DesiredCount'" width="80"> {{m.desiredCount}} </td>
+                                    <td data-title="'PendingCount'" width="80"> {{m.pendingCount}} </td>
+                                    <td data-title="'RunningCount'" width="80"> {{m.runningCount}} </td>
+                                    <td data-title="'CreatedAt'" width="80">{{m.createdAt}} </td>
+                                    <td data-title="'UpdatedAt'" width="80">{{m.updatedAt}}</td>
+                                    <td data-title="'TaskDefinition'" width="80">{{m.taskDefinition}}</td>
+                                </tr>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="row" class="form-group">
+                        <div class="col-md-12">
+                            <pre style="min-height: 100px;" ng-dblclick="dataEdit=true" class="text-left"  ng-bind-html="kubernetesdescribeecs.describe"></pre>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>
+<style>.modal-dialog {width: 60%;} </style>
