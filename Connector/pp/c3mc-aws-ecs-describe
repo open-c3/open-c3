@@ -20,7 +20,16 @@ my $option = MYDan::Util::OptConf->load();
 my %o = $option->get( qw( id=i region=s cluster=s services=s ) )->dump();
 $option->assert( qw( id region cluster services ) );
 
-my $x = `c3mc-app-awscli-get -i $o{id} 'ecs describe-services --region $o{region} --cluster $o{cluster} --services $o{services}'`;
+my $x; 
+if( $o{id} )
+{
+    $x = `c3mc-app-awscli-get -i $o{id} 'ecs describe-services --region $o{region} --cluster $o{cluster} --services $o{services}'`;
+}
+else
+{
+    $x = `aws ecs describe-services --region $o{region} --cluster $o{cluster} --services $o{services}`;
+}
+
 my $c = YAML::XS::Load $x;
 my @deployments = map{ @{$_->{deployments}} }@{$c->{services}};
 print YAML::XS::Dump +{ deployments => \@deployments, describe => $x };
