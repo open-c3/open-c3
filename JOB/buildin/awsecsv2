@@ -1,0 +1,186 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use MYDan::Util::OptConf;
+use YAML::XS;
+use JSON;
+use Temp;
+use Digest::MD5;
+
+=head1 SYNOPSIS
+
+ $0 apply
+ $0 check
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+$option->assert() unless @ARGV;
+
+die "nonode" unless $ENV{NODE};
+
+my $path = "/data/.job_buildin/awsecs/$ENV{JOBUUID}";
+warn "data: $path\n";
+
+unless( -d $path )
+{
+    die "mkdir path fail:$!" if system "mkdir -p $path";
+}
+
+sub success
+{
+    map{ print "$_:ok\n"; } split /,/, $ENV{NODE};
+    exit;
+}
+
+if( $ARGV[0] eq 'apply' )
+{
+    my $version = $ARGV[1];
+    warn "version: $version\n";
+    die "version format error" unless $version && $version =~ /^[a-zA-Z0-9\._\-]+$/;
+
+    die "config null\n" unless $ENV{CONFIGPATH} && -f $ENV{CONFIGPATH};
+
+    my $config = eval{ YAML::XS::LoadFile $ENV{CONFIGPATH} };
+    die "load config fail: $@" if $@;
+    die "load yaml config fail" unless $config && ref $config eq 'HASH';
+
+    map{
+        die "key '$_' undef in config" unless $config->{$_};
+        die "key '$_' format error" unless $config->{$_} =~ /^[\w:_\-\.\/]+$/;
+    }qw( region task-definition cluster service );
+ 
+    my $ticket = $ENV{TICKETFILE} && -f $ENV{TICKETFILE} ? "AWS_CONFIG_FILE=$ENV{TICKETFILE}" : '';
+
+    my $describe_task_definition_str = `$ticket aws ecs describe-task-definition --region '$config->{region}' --task-definition '$config->{'task-definition'}'`;
+    my $describe_task_definition_yml = eval{ JSON::from_json $describe_task_definition_str };
+    die "load task-definition fail: $@" if $@;
+
+    die "nofind taskDefinition on yaml" unless $describe_task_definition_yml->{taskDefinition} && ref $describe_task_definition_yml->{taskDefinition} eq 'HASH';
+    my %TaskDefinition = %{$describe_task_definition_yml->{taskDefinition}};
+
+    map{ delete $TaskDefinition{$_} }qw( taskDefinitionArn revision requiresAttributes status compatibilities registeredAt registeredBy );
+
+    map{ die "nofind $_ on taskDefinition.\n" unless $TaskDefinition{$_} }qw( containerDefinitions family placementConstraints volumes ); #networkMode
+
+    map{
+        die "nofind version on Image: $_->{image}\n" unless $_->{image} =~ s/:[^:]+$/:$version/;
+        #delete $_->{resourceRequirements};
+        #delete $_->{systemControls};
+        #delete $_->{secrets};
+    }@{$TaskDefinition{containerDefinitions}};
+
+    my $taskfile = Temp->new( chmod => 0600 )->dump( JSON::to_json \%TaskDefinition  );
+
+    my $newtaskdefinition_str = `$ticket aws ecs register-task-definition --region '$config->{region}' --cli-input-json 'file://$taskfile'`;
+    my $newtaskdefinition_yml = eval{ JSON::from_json $newtaskdefinition_str };
+    die "register-task-definition result not a json: $@" if $@;
+
+    die "nofind taskDefinition.taskDefinitionArn" unless $newtaskdefinition_yml && $newtaskdefinition_yml->{taskDefinition} && $newtaskdefinition_yml->{taskDefinition}{taskDefinitionArn};
+
+    $newtaskdefinition_yml->{taskDefinition}{taskDefinitionArn} =~ /\/([^\/]+)$/;
+    my $taskdefinition = $1;
+
+    warn "taskdefinition: $taskdefinition\n";
+    die "taskdefinition format error" unless $taskdefinition && $taskdefinition =~ /^[\w:_\-\.\/]+$/;
+
+    my $dm5raw = join "::", map{ $config->{$_} }( 'task-definition', 'cluster', 'service' );
+    $dm5raw =~ s/\s*//g;
+    my $md5 = Digest::MD5->new()->add( $dm5raw )->hexdigest();
+
+    system "echo $taskdefinition > '$path/taskdefinition_$md5'";
+
+    my @deploymentconfiguration;
+    if( defined $config->{maximumPercent} )
+    {
+        die "maximumPercent not a number" unless $config->{maximumPercent} =~ /^\d+$/;
+        warn "maximumPercent=$config->{maximumPercent}\n";
+        push @deploymentconfiguration, "maximumPercent=$config->{maximumPercent}";
+    }
+    else
+    {
+        die "maximumPercent undef\n";
+    }
+
+    if( defined $config->{minimumHealthyPercent} )
+    {
+        die "minimumHealthyPercent not a number" unless $config->{minimumHealthyPercent} =~ /^\d+$/;
+        warn "minimumHealthyPercent=$config->{minimumHealthyPercent}\n";
+        push @deploymentconfiguration, "minimumHealthyPercent=$config->{minimumHealthyPercent}";
+    }
+    else
+    {
+        die "minimumHealthyPercent undef\n";
+    }
+    my $deploymentconfiguration = "";
+    if( @deploymentconfiguration )
+    {
+        $deploymentconfiguration = sprintf "--deployment-configuration '%s'", join ',', @deploymentconfiguration;
+    }
+
+    my $updateServer = `$ticket aws ecs update-service  --region '$config->{region}' --cluster '$config->{cluster}' --service '$config->{service}'  --force-new-deployment --query 'service.deployments' --task-definition $taskdefinition $deploymentconfiguration`;
+
+    warn $updateServer;
+    die "apply fail. nofind desiredCount\n" unless $updateServer =~ /desiredCount/;
+
+    success();
+}
+
+if( $ARGV[0] eq 'check' )
+{
+
+    die "config null\n" unless $ENV{CONFIGPATH} && -f $ENV{CONFIGPATH};
+
+    my $config = eval{ YAML::XS::LoadFile $ENV{CONFIGPATH} };
+    die "load config fail: $@" if $@;
+    die "load yaml config fail" unless $config && ref $config eq 'HASH';
+
+    map{
+        die "key '$_' undef in config" unless $config->{$_};
+        die "key '$_' format error" unless $config->{$_} =~ /^[\w:_\-\.\/]+$/;
+    }qw( region task-definition cluster service );
+ 
+    my $dm5raw = join "::", map{ $config->{$_} }( 'task-definition', 'cluster', 'service' );
+    $dm5raw =~ s/\s*//g;
+    my $md5 = Digest::MD5->new()->add( $dm5raw )->hexdigest();
+
+    my $taskdefinition = `cat '$path/taskdefinition_$md5'`;
+    chomp $taskdefinition;
+
+    warn "taskdefinition: $taskdefinition\n";
+    die "taskdefinition format error" unless $taskdefinition && $taskdefinition =~ /^[\w:_\-\.\/]+$/;
+
+    my $ticket = $ENV{TICKETFILE} && -f $ENV{TICKETFILE} ? "AWS_CONFIG_FILE=$ENV{TICKETFILE}" : '';
+
+    my $timeout = $ENV{TIMEOUT} && $ENV{TIMEOUT} =~ /^\d+$/ ? time + $ENV{TIMEOUT} : time  +  60; 
+
+    for( 1 .. 360 )
+    {
+        my $describe_services_str = `$ticket aws ecs describe-services --cluster '$config->{cluster}' --service '$config->{service}' --region '$config->{region}'`;
+        my $describe_services_yml = eval{ JSON::from_json $describe_services_str };
+        die "load describe-services fail: $@" if $@;
+
+        if( $describe_services_yml->{services} && $describe_services_yml->{services}[0]{deployments} )
+        {
+            my $deployments;
+            map{ $deployments = $_ if index ($_->{taskDefinition}, $taskdefinition) > 0 }@{$describe_services_yml->{services}[0]{deployments}};
+            if( $deployments )
+            {
+                warn YAML::XS::Dump $deployments;
+                last if $deployments->{pendingCount} == 0 && $deployments->{desiredCount} == $deployments->{runningCount} && $deployments->{runningCount} > 0;
+            }
+            else
+            {
+                warn "nofind PRIMARY\n";
+            }
+        }
+        else
+        {
+            warn "nofind services.deployments.\n";
+        }
+
+        sleep 10;
+        die "check timeout.\n" if time > $timeout;
+    }
+    success();
+}
