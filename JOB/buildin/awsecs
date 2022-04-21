@@ -48,6 +48,7 @@ if( $ARGV[0] eq 'apply' )
         die "key '$_' undef in config" unless $config->{$_};
         die "key '$_' format error" unless $config->{$_} =~ /^[\w:_\-\.\/]+$/;
     }qw( region task-definition cluster service );
+    map{ die "key $_ is not supported\n" if defined $config->{$_} }qw(maximumPercent minimumHealthyPercent );
  
     my $ticket = $ENV{TICKETFILE} && -f $ENV{TICKETFILE} ? "AWS_CONFIG_FILE=$ENV{TICKETFILE}" : '';
 
@@ -112,6 +113,7 @@ if( $ARGV[0] eq 'check' )
         die "key '$_' undef in config" unless $config->{$_};
         die "key '$_' format error" unless $config->{$_} =~ /^[\w:_\-\.\/]+$/;
     }qw( region task-definition cluster service );
+    map{ die "key $_ is not supported\n" if defined $config->{$_} }qw(maximumPercent minimumHealthyPercent );
  
     my $ticket = $ENV{TICKETFILE} && -f $ENV{TICKETFILE} ? "AWS_CONFIG_FILE=$ENV{TICKETFILE}" : '';
 
@@ -126,7 +128,7 @@ if( $ARGV[0] eq 'check' )
         if( $describe_services_yml->{services} && $describe_services_yml->{services}[0]{deployments} )
         {
             my $deployments;
-            map{ $deployments = $_ if $_->{status} eq 'PRIMARY' }@{$describe_services_yml->{services}[0]{deployments}};
+            map{ $deployments = $_ if index ($_->{taskDefinition}, $taskdefinition) > 0 }@{$describe_services_yml->{services}[0]{deployments}};
             if( $deployments )
             {
                 warn YAML::XS::Dump $deployments;
