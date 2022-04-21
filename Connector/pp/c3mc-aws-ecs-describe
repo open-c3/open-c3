@@ -1,0 +1,27 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use MYDB;
+use MYDan::Util::OptConf;
+use YAML::XS;
+use File::Temp;
+use Digest::MD5;
+
+=head1 SYNOPSIS
+
+ $0 -id ticketid --region xxx --cluster xxx --services xxx
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( id=i region=s cluster=s services=s ) )->dump();
+$option->assert( qw( id region cluster services ) );
+
+my $x = `c3mc-app-awscli-get -i $o{id} 'ecs describe-services --region $o{region} --cluster $o{cluster} --services $o{services}'`;
+my $c = YAML::XS::Load $x;
+my @deployments = map{ @{$_->{deployments}} }@{$c->{services}};
+print YAML::XS::Dump +{ deployments => \@deployments, describe => $x };
+

@@ -1,0 +1,56 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use MYDB;
+use MYDan::Util::OptConf;
+use YAML::XS;
+use File::Temp;
+use Digest::MD5;
+
+=head1 SYNOPSIS
+
+ $0 -id ticketid
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( id=i ) )->dump();
+$option->assert( 'id' );
+
+my $ticketid = $o{id};
+
+my $db = MYDB->new( "/data/Software/mydan/CI/conf/conn" );
+my $r = eval{ $db->query( "select ticket from openc3_ci_ticket where id='$ticketid'" ); };
+die "get ticket err: $@" if $@;
+die "ticket not found: $ticketid" unless @$r;
+my $ticket = $r->[0][0];
+
+my $md5 = Digest::MD5->new->add( $ticket )->hexdigest;
+my $awsconfig = "/data/Software/mydan/tmp/awsconfig_${ticketid}_$md5";
+
+sub out
+{
+    my $awsconfig = shift @_;
+    if( @ARGV )
+    {
+        die if system "AWS_CONFIG_FILE=$awsconfig aws ". join ' ', @ARGV;
+    }
+    else
+    {
+        print "AWS_CONFIG_FILE=$awsconfig aws\n";
+    }
+    exit;
+};
+
+out( $awsconfig ) if -f $awsconfig;
+
+my $fh = File::Temp->new( UNLINK => 0, SUFFIX => '.config', TEMPLATE => "/data/Software/mydan/tmp/awsconfig_${ticketid}_XXXXXXXX" );
+print $fh $ticket;
+close $fh;
+
+die "rename fail: $!" if system "mv '$fh' '$awsconfig'";
+out( $awsconfig );
+
