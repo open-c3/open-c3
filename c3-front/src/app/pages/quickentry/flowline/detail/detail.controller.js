@@ -389,8 +389,30 @@
                                     if( d.scripts_cont && d.scripts_argv &&  isecs.test( d.scripts_cont) && hastaskdef.test( d.scripts_cont)  && isapply.test( d.scripts_argv ) )
                                     {
                                         var reg = /task-definition:(.*)\b/;
-                                        var ecsname = reg.exec(d.scripts_cont )[1].trim()
-                                        vm.ecsname.push( { "name": ecsname, "cmd": d.scripts_cont, "ticketid": d.user } )
+                                        var cnt = reg.exec(d.scripts_cont )
+                                        var ecsname = 'unkown';
+                                        if( cnt && cnt.length > 1 )
+                                        {
+                                            ecsname = cnt[1].trim()
+                                        }
+
+                                        var reg1 = /minimumHealthyPercent:(.*)\b/;
+                                        var cnt1 = reg1.exec(d.scripts_cont )
+                                        var min = 'min';
+                                        if( cnt1 && cnt1.length > 1 )
+                                        {
+                                            min = cnt1[1].trim()
+                                        }
+
+                                        var reg2 = /maximumPercent:(.*)\b/;
+                                        var cnt2 = reg2.exec(d.scripts_cont )
+                                        var max = 'max';
+                                        if( cnt2 && cnt2.length > 1 )
+                                        {
+                                            max = cnt2[1].trim()
+                                        }
+
+                                        vm.ecsname.push( { "name": ecsname, "cmd": d.scripts_cont, "ticketid": d.user, "min": min, "max": max } )
                                     }
                                 }
                         });
