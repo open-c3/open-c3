@@ -13,6 +13,9 @@
     <div ng-repeat="name in historyjobxdetail.k8sname">
         <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="historyjobxdetail.describedeployment('deployment',name)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" >{{name}}</i>  
     </div>
+    <div ng-repeat="data in historyjobxdetail.ecsname">
+        <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="historyjobxdetail.describeecs(data.name,data)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" >{{data.name}}[{{data.min}}/{{data.max}}]</i>  
+    </div>
     <div class="panel">
 
         <div class="panel-heading">

@@ -120,6 +120,7 @@
         }
         vm.jobReloadStatus = {}
 
+        vm.ecsname = []
         vm.projectinfo = {};
         vm.k8sname = [];
         vm.reload = function(){
@@ -184,6 +185,7 @@
                                }
 
                                if( jobinfo.status != 'init' && ! vm.jobReloadStatus[jobinfo.uuid] ) {
+                                   vm.ecsname = []
                                    vm.loadover = false
                                    $http.get('/api/job/subtask/'+ vm.treeid + "/" + jobinfo.uuid).then(
                                        function successCallback(response) {
@@ -195,6 +197,46 @@
 
                                                     angular.forEach( response.data.data, function (data, index) {
                                                        xxxx.push({ "status": null, "extended": { "name":  data.extended.name} })
+
+
+                                                       var d = data.extended;
+
+                                                       if( d.scripts_type == 'buildin' )
+                                                       {
+                                                           var isecs = /^#!awsecs/;
+                                                           var isapply = /apply/;
+                                                           var hastaskdef = /task-definition:/;
+                                                           if( d.scripts_cont && d.scripts_argv &&  isecs.test( d.scripts_cont) && hastaskdef.test( d.scripts_cont)  && isapply.test( d.scripts_argv ) )
+                                                           {
+                                                               var reg = /task-definition:(.*)\b/;
+                                                               var cnt = reg.exec(d.scripts_cont )
+                                                               var ecsname = 'unkown';
+                                                               if( cnt && cnt.length > 1 )
+                                                               {
+                                                                   ecsname = cnt[1].trim()
+                                                               }
+
+                                                               var reg1 = /minimumHealthyPercent:(.*)\b/;
+                                                               var cnt1 = reg1.exec(d.scripts_cont )
+                                                               var min = 'min';
+                                                               if( cnt1 && cnt1.length > 1 )
+                                                               {
+                                                                   min = cnt1[1].trim()
+                                                               }
+
+                                                               var reg2 = /maximumPercent:(.*)\b/;
+                                                               var cnt2 = reg2.exec(d.scripts_cont )
+                                                               var max = 'max';
+                                                               if( cnt2 && cnt2.length > 1 )
+                                                               {
+                                                                   max = cnt2[1].trim()
+                                                               }
+
+                                                               vm.ecsname.push( { "name": ecsname, "cmd": d.scripts_cont, "ticketid": d.user, "min": min, "max": max } )
+                                                           }
+                                                       }
+
+
                                                     });
                                     
                                                vm.jobinfobyuuid.default = xxxx
@@ -605,7 +647,25 @@
             });
         };
 
-
+        vm.describeecs = function (name,data) {
+            $uibModal.open({
+                templateUrl: 'app/pages/kubernetesmanage/describeecs.html',
+                controller: 'KubernetesDescribeEcsController',
+                controllerAs: 'kubernetesdescribeecs',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () {return vm.treeid},
+                    type: function () {return 'vm.project.ci_type_kind'},
+                    name: function () {return name},
+                    data: function () {return data},
+                    namespace: function () {return 'vm.project.ci_type_namespace'},
+                    ticketid: function () {return data.ticketid},
+                }
+            });
+        };
 
         vm.showNode = function (nods) {
             $uibModal.open({

@@ -32,7 +32,7 @@ get '/subtask/:projectid/:taskuuid' => sub {
 
     my %e;
     my %col = (
-        cmd => [ qw( id uuid name user timeout pause node_type node_cont scripts_type scripts_cont deployenv action batches ) ],
+        cmd => [ qw( id uuid name user timeout pause node_type node_cont scripts_type scripts_cont scripts_argv deployenv action batches ) ],
         scp => [ qw( id uuid name user timeout pause src_type src sp dst_type dst dp chown chmod deployenv action batches ) ],
         approval => [ qw( id uuid name cont approver deployenv action batches everyone ) ],
     );
@@ -44,6 +44,7 @@ get '/subtask/:projectid/:taskuuid' => sub {
                     join( ',',@$col ), join( ',', map{"'$_'"}@{$extended{$type}}) ), $col) };
         return +{ stat => $JSON::false, info => $@ } if $@;
         map{ $_->{scripts_cont} =  Encode::decode("utf8",  decode_base64( $_->{scripts_cont} )) if $_->{scripts_cont} !~ /^\d+$/; }@$t if $type eq 'cmd';
+        map{ $_->{scripts_argv} =  Encode::decode("utf8",  decode_base64( $_->{scripts_argv} )) if $_->{scripts_argv}; }@$t if $type eq 'cmd';
         map{ $e{$type}{$_->{uuid}}=$_ }@$t;
     }
     return +{ stat => $JSON::true, data => [ map{ +{ %$_, extended => $e{$_->{subtask_type}} ? $e{$_->{subtask_type}}{$_->{uuid}} : +{}}}@$r ]};
