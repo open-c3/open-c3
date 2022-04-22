@@ -36,7 +36,7 @@ return sub
         my @p = split /\n+/, $percent;
         for my $p ( @p )
         {
-            $logs->die( "fromat error $p" ) unless $p =~ /^([a-zA-Z0-9\,\._]*);([0-9,~]+);([0-9:%]+)$/;
+            $logs->die( "fromat error $p" ) unless $p =~ /^([0-9\,]*);([0-9,~]+);([0-9:%]+)$/;
 
             my ( $subname, $range, $percent ) = ( $1, $2, $3 );
             my @percent = split /:/, $percent;
