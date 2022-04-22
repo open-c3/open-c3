@@ -123,7 +123,7 @@ return sub
         my $info = `cd '$temppath/info' && $ctrl show  -s --format="%ce" $name`;
         $tag_info = `cd '$temppath/info' && $ctrl show -s --format="%s" $name`;
 
-        Encode::_utf8_on($info);
+        Encode::_utf8_off($info);
         print "git info: $info\n";
 
         my @m;
