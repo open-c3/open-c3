@@ -44,6 +44,30 @@
         vm.hideMonVar = function () {
             $scope.monVar = !$scope.monVar;
         };
+
+        vm.vartoken = '';
+        vm.getVarToken = function (varname, o) {
+            $http.get('/api/job/variable/' + vm.treeid + "/" +vm.editjobuuid + "/token?name=" + varname ).then(
+                function successCallback (response) {
+                    if (response.data.stat){
+                        var option = 'demo1,demo2,demo3';
+                        if( o )
+                        {
+                            option = o
+                        }
+                        vm.vartoken = window.location.protocol + '//' + window.location.host + '/api/job/variable/update/' + vm.treeid + '/' + vm.editjobuuid + '/' + response.data.data  + '/' + varname  + '/' + option;
+
+                    }else {
+                        swal({ title:"获取变量TOKEN失败", type:'error', text:response.data.message });
+                    }
+                },
+                function errorCallback (response) {
+                    swal({ title:"获取变量TOKEN失败", type:'error', text:response.message });
+                }
+            );
+ 
+        };
+
         vm.delVar = function (idx, item) {
             vm.allVar.splice(idx,1)
         };

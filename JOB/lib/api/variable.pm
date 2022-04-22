@@ -7,6 +7,57 @@ use POSIX;
 use MIME::Base64;
 use api;
 use Format;
+use Digest::MD5;
+
+get '/variable/:projectid/:jobuuid/token' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        projectid => qr/^\d+$/, 1,
+        jobuuid => qr/^[a-zA-Z0-9]+$/, 1, 
+        name => qr/^[a-zA-Z0-9,_]+$/, 0,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $pmscheck = api::pmscheck( 'openc3_job_root' ); return $pmscheck if $pmscheck;
+
+    my $file = "/data/open-c3-data/job.variable.token";
+    unless( -f $file )
+    {
+        system "seq 1 5|xargs -i{} date +%N|xargs -n 10|sed 's/ //g' > $file";
+    }
+    my $x = `cat $file`;
+    chomp $x;
+    my $md5 = Digest::MD5->new->add( join "::", $x, @$param{qw( projectid jobuuid name )} )->hexdigest;
+
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $md5 };
+};
+
+any '/variable/update/:projectid/:jobuuid/:token/:name/:option' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        projectid => qr/^\d+$/, 1,
+        jobuuid => qr/^[a-zA-Z0-9]+$/, 1, 
+        token => qr/^[a-zA-Z0-9]+$/, 1, 
+        name => qr/^[a-zA-Z0-9,_]+$/, 1,
+        option => qr/^[a-zA-Z0-9,_\.\-@]+$/, 1,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $file = "/data/open-c3-data/job.variable.token";
+    return +{ stat => $JSON::false, info => "token error" } unless -f $file;
+    my $x = `cat $file`;
+    chomp $x;
+    my $md5 = Digest::MD5->new->add( join "::", $x, @$param{qw( projectid jobuuid name )}  )->hexdigest;
+
+    return +{ stat => $JSON::false, info => "token error" } if $md5 ne $param->{token};
+
+    eval{
+        $api::mysql->execute( "update openc3_job_variable set `option`='$param->{option}'
+            where jobuuid='$param->{jobuuid}' and name='$param->{name}'");
+    };
+ 
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
+};
 
 get '/variable/:projectid/:jobuuid' => sub {
     my $param = params();
