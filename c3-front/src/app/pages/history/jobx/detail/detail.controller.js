@@ -120,7 +120,8 @@
         }
         vm.jobReloadStatus = {}
 
-        vm.ecsname = []
+        vm.ecsname = [];
+        vm.ecsnamehash = {};
         vm.projectinfo = {};
         vm.k8sname = [];
         vm.reload = function(){
@@ -185,7 +186,6 @@
                                }
 
                                if( jobinfo.status != 'init' && ! vm.jobReloadStatus[jobinfo.uuid] ) {
-                                   vm.ecsname = []
                                    vm.loadover = false
                                    $http.get('/api/job/subtask/'+ vm.treeid + "/" + jobinfo.uuid).then(
                                        function successCallback(response) {
@@ -232,7 +232,11 @@
                                                                    max = cnt2[1].trim()
                                                                }
 
-                                                               vm.ecsname.push( { "name": ecsname, "cmd": d.scripts_cont, "ticketid": d.user, "min": min, "max": max } )
+                                                               if( ! vm.ecsnamehash[data.extended.name] )
+                                                               {
+                                                                   vm.ecsname.push( { "name": ecsname, "cmd": d.scripts_cont, "ticketid": d.user, "min": min, "max": max } )
+                                                                   vm.ecsnamehash[data.extended.name] = { "name": ecsname, "cmd": d.scripts_cont, "ticketid": d.user, "min": min, "max": max };
+                                                               }
                                                            }
                                                        }
 
