@@ -1,0 +1,35 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+use File::Basename;
+
+=head1 SYNOPSIS
+
+ $0 ...
+
+=cut
+
+die "nonode" unless $ENV{NODE};
+my $argv = join ' ', @ARGV;
+die "argv format error" unless $argv =~ /^[a-zA-Z0-9_\-\.@\s]*$/;
+
+sub success
+{
+    map{ print "$_:ok\n"; } split /,/, $ENV{NODE};
+    exit;
+}
+
+my $file = $ENV{CONFIGPATH};
+die "content null" unless $file && -f $file;
+
+my $path = '/data/open-c3-data/localbash';
+mkdir $path unless -d $path;
+
+my $basename = File::Basename::basename $file;
+die "copy file fail: $!" if system "cp '$file' '$path/'";
+
+die "copy file to docker fail: $!" if system "docker cp '$path/$basename' openc3-localbash:/tmp/$basename";
+die "bash exit not 0\n" if system "docker exec -e NODE='$ENV{NODE}' openc3-localbash bash /tmp/$basename @ARGV >&2";
+
+success();

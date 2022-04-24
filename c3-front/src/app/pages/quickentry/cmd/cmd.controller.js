@@ -288,7 +288,10 @@
                 {
                     vm.showmachinelist = 0;
                 }
- 
+                if( cont.search(/^#!localbash\b/) == 0 )
+                {
+                    vm.showmachinelist = 0;
+                }
             }
         }
 
