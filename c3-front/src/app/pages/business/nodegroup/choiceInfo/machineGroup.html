@@ -1,5 +1,5 @@
 <div class="modal-header">
-    <h4  class="modal-title">选择服务器</h4>
+    <h4  class="modal-title">选择服务器aaa</h4>
 </div>
 <div class="modal-body">
     <div ng-hide="dataready"><span style="font-weight: bold;color: red">{{dataerror}}</span></div>
@@ -72,6 +72,20 @@
             </div>
 
         </div>
+
+        高级选项
+        <a ng-if="groupInfo.advancedconfig" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="隐藏高级配置" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="groupInfo.advancedconfig=0"></a>
+        <a ng-if="!groupInfo.advancedconfig" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="显示高级配置" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="groupInfo.advancedconfig=1"></a>
+
+        <div class="row" ng-show="groupInfo.advancedconfig===1" >
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-2 control-label">手写ip</label>
+                <div class="col-sm-10">
+                    <input type="text" class="form-control" name="addGroup" placeholder="ip，多个用逗号分隔" ng-minlength="2" ng-model="groupInfo.advancedips" required>
+                </div>
+            </div>
+        </div>
+
         <div class="row">
             <div class="col-sm-5 form-group pull-right">
                 <button class="btn btn-primary" ng-disabled="addForm.$invalid" ng-click="groupInfo.ok()">确认</button>

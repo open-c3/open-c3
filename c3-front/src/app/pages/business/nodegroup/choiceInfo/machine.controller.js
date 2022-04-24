@@ -21,6 +21,7 @@
         $scope.selectedDataExip = [];
         $scope.selectType = [];
         $scope.unClick = "true";
+        vm.advancedconfig = 0;
         var toastr = toastr || $injector.get('toastr');
 
         vm.showMachine = function () {
@@ -63,6 +64,18 @@
         vm.ok = function(){
             var ips = [];
             var re_ips = ips.concat($scope.selectedDataName, $scope.selectedDataInip, $scope.selectedDataExip);
+
+            if( vm.advancedips )
+            {
+                var ipsg = vm.advancedips.split(",");
+                if( ipsg.length > 0 )
+                {
+                    $uibModalInstance.close(
+                        ipsg
+                    );
+                    return;
+                }
+            }
 
             if (selectedType == "machineName"){
                 $uibModalInstance.close(
