@@ -52,11 +52,13 @@
             });
         };
 
+        vm.versionlist = [];
         vm.reload = function(){
             vm.loadover = false;
             $http.get('/api/ci/version/' + vm.treeid + '/' + vm.projectid ).success(function(data){
                 if(data.stat == true) 
                 { 
+                    vm.versionlist = data.data;
                     vm.activeRegionTable = new ngTableParams({count:20}, {counts:[],data:data.data});
                     vm.loadover = true;
                 } else { 
@@ -294,6 +296,7 @@
                     projectname: function () { return vm.project.name },
                     projectid: function () { return vm.projectid },
                     noshowrollback: function () { return noshowrollback },
+                    versionlist: function () { return vm.versionlist },
                 }
             });
         }

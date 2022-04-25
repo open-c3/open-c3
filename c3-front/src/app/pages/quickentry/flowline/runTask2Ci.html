@@ -51,9 +51,28 @@
                         <div ng-if="!runtask2ci.lastversion.version" >
                              <label class="col-sm-9 control-label" style="padding: 1px" >没有发现可回滚版本，请手动填写回滚版本</label>
                         </div>
-                        <div class="col-sm-10 form-group">
+
+                        <div class="col-sm-10 form-group" ng-show="runtask2ci.advancedconfig==0">
                                 <label class="col-sm-3 control-label">回滚版本: &nbsp;</label>
-                                <div class="col-sm-9"> <input type="text" class="form-control" ng-disabled="runtask2ci.rollbacknoneeded" ng-model="taskData.variable._rollbackVersion_" placeholder="回滚版本" required> </div>
+                                <div class="col-sm-8"> 
+                                    <select class="form-control" ng-disabled="runtask2ci.rollbacknoneeded" ng-model="taskData.variable._rollbackVersion_" >
+                                         <option ng-repeat="x in runtask2ci.versionlist" value="{{x.name}}">{{x.name}} {{x.create_time}} = {{x.status}} </option>
+                                    </select>
+                                </div>
+                                <div class="col-sm-1"> 
+                                    <a ng-if="runtask2ci.advancedconfig" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="选择版本" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="runtask2ci.advancedconfig=0"></a>
+                                    <a ng-if="!runtask2ci.advancedconfig" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="手写版本" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="runtask2ci.advancedconfig=1"></a>
+                                </div>
+                        </div>
+ 
+                        <div class="col-sm-10 form-group" ng-show="runtask2ci.advancedconfig==1">
+                                <label class="col-sm-3 control-label">回滚版本: &nbsp;</label>
+                                <div class="col-sm-8"> <input type="text" class="form-control" ng-disabled="runtask2ci.rollbacknoneeded" ng-model="taskData.variable._rollbackVersion_" placeholder="回滚版本" required> </div>
+                                <div class="col-sm-1"> 
+                                    <a ng-if="runtask2ci.advancedconfig" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="选择版本" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="runtask2ci.advancedconfig=0"></a>
+                                    <a ng-if="!runtask2ci.advancedconfig" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="手写版本" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="runtask2ci.advancedconfig=1"></a>
+                                </div>
+ 
                         </div>
                         <div class="col-sm-10 form-group admin-form">
                             <label class="col-sm-3 control-label fwbold" >无需回滚: &nbsp;</label>

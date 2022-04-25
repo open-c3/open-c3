@@ -4,11 +4,14 @@
         .module('openc3')
         .controller('RunTask2CiController', RunTask2CiController);
 
-    function RunTask2CiController($state, $uibModalInstance, $uibModal,$http, $scope, ngTableParams,resoureceService, name, version, groupname, jobtype, showIPstr, jobStep, projectname, $timeout, projectid, noshowrollback ) {
+    function RunTask2CiController($state, $uibModalInstance, $uibModal,$http, $scope, ngTableParams,resoureceService, name, version, groupname, jobtype, showIPstr, jobStep, projectname, $timeout, projectid, noshowrollback, versionlist ) {
 
         var vm = this;
         vm.treeid = $state.params.treeid;
         vm.version = version
+
+        vm.advancedconfig = 0;
+        vm.versionlist = versionlist;
 
         vm.projectname = projectname
         vm.showIPstr = showIPstr
