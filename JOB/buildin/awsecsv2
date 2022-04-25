@@ -5,6 +5,7 @@ use MYDan::Util::OptConf;
 use YAML::XS;
 use JSON;
 use Temp;
+use POSIX;
 use Digest::MD5;
 
 =head1 SYNOPSIS
@@ -142,34 +143,34 @@ if( $ARGV[0] eq 'apply' )
 
 if( $ARGV[0] eq 'check' )
 {
-
     die "config null\n" unless $ENV{CONFIGPATH} && -f $ENV{CONFIGPATH};
 
-    my $config = eval{ YAML::XS::LoadFile $ENV{CONFIGPATH} };
+    my @config = eval{ YAML::XS::LoadFile $ENV{CONFIGPATH} };
     die "load config fail: $@" if $@;
-    die "load yaml config fail" unless $config && ref $config eq 'HASH';
-
-    map{
-        die "key '$_' undef in config" unless $config->{$_};
-        die "key '$_' format error" unless $config->{$_} =~ /^[\w:_\-\.\/]+$/;
-    }qw( region task-definition cluster service );
- 
-    my $dm5raw = join "::", map{ $config->{$_} }( 'task-definition', 'cluster', 'service' );
-    $dm5raw =~ s/\s*//g;
-    my $md5 = Digest::MD5->new()->add( $dm5raw )->hexdigest();
-
-    my $taskdefinition = `cat '$path/taskdefinition_$md5'`;
-    chomp $taskdefinition;
-
-    warn "taskdefinition: $taskdefinition\n";
-    die "taskdefinition format error" unless $taskdefinition && $taskdefinition =~ /^[\w:_\-\.\/]+$/;
+    die "load yaml config fail" unless @config && @config;
 
     my $ticket = $ENV{TICKETFILE} && -f $ENV{TICKETFILE} ? "AWS_CONFIG_FILE=$ENV{TICKETFILE}" : '';
-
     my $timeout = $ENV{TIMEOUT} && $ENV{TIMEOUT} =~ /^\d+$/ ? time + $ENV{TIMEOUT} : time  +  60; 
 
-    for( 1 .. 360 )
+    my $check = sub
     {
+        my $config = shift @_;
+
+        map{
+            die "key '$_' undef in config" unless $config->{$_};
+            die "key '$_' format error" unless $config->{$_} =~ /^[\w:_\-\.\/]+$/;
+        }qw( region task-definition cluster service );
+ 
+        my $dm5raw = join "::", map{ $config->{$_} }( 'task-definition', 'cluster', 'service' );
+        $dm5raw =~ s/\s*//g;
+        my $md5 = Digest::MD5->new()->add( $dm5raw )->hexdigest();
+
+        my $taskdefinition = `cat '$path/taskdefinition_$md5'`;
+        chomp $taskdefinition;
+
+        die "taskdefinition format error" unless $taskdefinition && $taskdefinition =~ /^[\w:_\-\.\/]+$/;
+
+
         my $describe_services_str = `$ticket aws ecs describe-services --cluster '$config->{cluster}' --service '$config->{service}' --region '$config->{region}'`;
         my $describe_services_yml = eval{ JSON::from_json $describe_services_str };
         die "load describe-services fail: $@" if $@;
@@ -180,8 +181,8 @@ if( $ARGV[0] eq 'check' )
             map{ $deployments = $_ if index ($_->{taskDefinition}, $taskdefinition) > 0 }@{$describe_services_yml->{services}[0]{deployments}};
             if( $deployments )
             {
-                warn YAML::XS::Dump $deployments;
-                last if $deployments->{pendingCount} == 0 && $deployments->{desiredCount} == $deployments->{runningCount} && $deployments->{runningCount} > 0;
+                warn "$config->{'task-definition'} => desiredCount:$deployments->{desiredCount} runningCount:$deployments->{runningCount}\n";
+                return 1 if $deployments->{pendingCount} == 0 && $deployments->{desiredCount} == $deployments->{runningCount} && $deployments->{runningCount} > 0;
             }
             else
             {
@@ -193,8 +194,29 @@ if( $ARGV[0] eq 'check' )
             warn "nofind services.deployments.\n";
         }
 
-        sleep 10;
-        die "check timeout.\n" if time > $timeout;
+        return 0;
+    };
+
+    my ( %config, $i );
+    for my $c ( @config )
+    {
+        $config{++$i} = $c;
     }
+
+    while( %config )
+    {
+        warn sprintf "check ... %s\n", POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
+        for my $key ( keys %config )
+        {
+            delete $config{$key} if &$check( $config{$key} );
+        }
+        if( %config )
+        {
+            die "check timeout.\n" if time > $timeout;
+            sleep 10;
+        }
+    }
+
     success();
 }
+
