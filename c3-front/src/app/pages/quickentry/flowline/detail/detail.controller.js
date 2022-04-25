@@ -62,7 +62,10 @@
                     angular.forEach(data.data, function (d) {
                         if( d['status'] == 'success'  )
                         {
-                            vm.versionlist.push(d);
+                            if( vm.versionlist.length < 30 )
+                            {
+                                vm.versionlist.push(d);
+                            }
                         }
                     });
  
