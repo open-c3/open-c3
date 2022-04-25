@@ -148,6 +148,14 @@
                        });
                    }
 
+                   $scope.annotations = [];
+                   if( vm.editData.metadata.annotations )
+                   {
+                       angular.forEach(vm.editData.metadata.annotations, function (v, k) {
+                           $scope.annotations.push( { "K": k, "V": v })
+                       });
+                   }
+
                    $scope.selectorlabels = [];
                    if( vm.editData.spec.selector && vm.editData.spec.selector.matchLabels )
                    {
@@ -236,6 +244,14 @@
                         });
                     }
  
+                    $scope.annotations = [];
+                    if( vm.editData.metadata.annotations )
+                    {
+                        angular.forEach(vm.editData.metadata.annotations, function (v, k) {
+                            $scope.annotations.push( { "K": k, "V": v })
+                        });
+                    }
+ 
                     $scope.selectorlabels = [];
                     if( vm.editData.spec.selector && vm.editData.spec.selector.matchLabels )
                     {
@@ -308,6 +324,27 @@
             {
                 delete vm.editData.metadata.labels;
             }
+
+//annotations
+            var annotations = {};
+            angular.forEach($scope.annotations, function (v, k) {
+                var key = v["K"]
+                annotations[key] = v["V"];
+                if( key === "app" && vm.tasktype === "create" )
+                {
+                    annotations[key] = vm.editData.metadata.name;
+                }
+            });
+
+            if( Object.keys(annotations).length > 0 )
+            {
+                vm.editData.metadata.annotations = annotations;
+            }
+            else
+            {
+                delete vm.editData.metadata.annotations;
+            }
+
 
 //selectorlabels
             var selectorlabels = {};
@@ -433,6 +470,7 @@ if( vm.addservice === 1 )
 
         };
 
+//labels
         $scope.labels = [];
         vm.addLabel = function()
         {
@@ -442,6 +480,17 @@ if( vm.addservice === 1 )
         {
             $scope.labels.splice(id, 1);
         }
+//annotations
+        $scope.annotations = [];
+        vm.addAnnotations = function()
+        {
+            $scope.annotations.push({ "K": "", "V": ""});
+        }
+        vm.delAnnotations = function(id)
+        {
+            $scope.annotations.splice(id, 1);
+        }
+
 //selector matchLabels
         $scope.selectorlabels = [];
         vm.addSelectorLabel = function()
