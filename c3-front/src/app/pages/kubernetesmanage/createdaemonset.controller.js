@@ -54,6 +54,14 @@
                        });
                    }
 
+                   $scope.annotations = [];
+                   if( vm.editData.metadata.annotations )
+                   {
+                       angular.forEach(vm.editData.metadata.annotations, function (v, k) {
+                           $scope.annotations.push( { "K": k, "V": v })
+                       });
+                   }
+
                 } else { 
                     toastr.error("加载模版信息失败:" + data.info)
                 }
@@ -127,6 +135,14 @@
                        });
                    }
 
+                    $scope.annotations = [];
+                    if( vm.editData.metadata.annotations )
+                    {
+                        angular.forEach(vm.editData.metadata.annotations, function (v, k) {
+                            $scope.annotations.push( { "K": k, "V": v })
+                        });
+                    }
+ 
                    vm.loadover = true;
                    $scope.editstep = 1; 
                 } else { 
@@ -155,6 +171,27 @@
             {
                 delete vm.editData.metadata.labels;
             }
+
+//annotations
+            var annotations = {};
+            angular.forEach($scope.annotations, function (v, k) {
+                var key = v["K"]
+                annotations[key] = v["V"];
+                if( key === "app" && vm.tasktype === "create" )
+                {
+                    annotations[key] = vm.editData.metadata.name;
+                }
+            });
+
+            if( Object.keys(annotations).length > 0 )
+            {
+                vm.editData.metadata.annotations = annotations;
+            }
+            else
+            {
+                delete vm.editData.metadata.annotations;
+            }
+
 
             angular.forEach(vm.editData.spec.template.spec.containers, function (v, k) {
                 delete v.tempcommandstring;
@@ -207,6 +244,7 @@
             });
         };
 
+//labels 
         $scope.labels = [];
 
         vm.addLabel = function()
@@ -217,6 +255,18 @@
         {
             $scope.labels.splice(id, 1);
         }
+//annotations
+        $scope.annotations = [];
+        vm.addAnnotations = function()
+        {
+            $scope.annotations.push({ "K": "", "V": ""});
+        }
+        vm.delAnnotations = function(id)
+        {
+            $scope.annotations.splice(id, 1);
+        }
+
+
 //Secret
         vm.autoGetSecret = function()
         {
@@ -746,21 +796,6 @@
                 vm.editData.metadata.name = "demo";
             }
         };
-        vm.describedemoin = function()
-        {
-            if( vm.tasktype === 'create' && vm.editData.metadata.annotations.describe === "demo" )
-            {
-                vm.editData.metadata.annotations.describe = "";
-            }
-        };
-        vm.describedemoout = function()
-        {
-            if( vm.tasktype === 'create' && (vm.editData.metadata.annotations.describe == undefined || vm.editData.metadata.annotations.describe == "") )
-            {
-                vm.editData.metadata.annotations.describe = "demo";
-            }
-        };
-
 //
 
 

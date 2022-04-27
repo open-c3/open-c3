@@ -52,16 +52,6 @@
  
             <div class="row">
                 <div class="col-sm-10 form-group">
-                    <label class="col-sm-1 control-label">描述</label>
-                    <div class="col-sm-7">
-
-                        <input type="text" class="form-control" name="adduser" placeholder="描述" ng-model="kubernetescreatedaemonset.editData.metadata.annotations.describe" ng-mouseenter="kubernetescreatedaemonset.describedemoin()" ng-mouseleave="kubernetescreatedaemonset.describedemoout()"required>
-                    </div>
-                </div>
-            </div>
-
-            <div class="row">
-                <div class="col-sm-10 form-group">
                     <label class="col-sm-1 control-label">标签</label>
                     <div class="col-sm-7">
                         <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addLabel()" uib-tooltip="添加标签" style="cursor:pointer;color: #339094;" ></i>
@@ -84,6 +74,34 @@
                                 </td>
                                 <td style="width: 50px">
                                     <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.delLabel(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                </td>
+                            </tr>
+                       </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-1 control-label">注解</label>
+                    <div class="col-sm-1">
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addAnnotations()" uib-tooltip="添加注解" style="cursor:pointer;color: #339094;" ></i>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-1 control-label"></label>
+                    <div class="col-sm-7">
+                        <table  border="0" style="width: 100%">
+                            <tr ng-repeat="(id, x) in annotations">
+                                <td><input type="text" class="form-control"  ng-model="x.K"></td>
+                                <td style="width: 20px">=</td>
+                                <td><input type="text" class="form-control"  ng-model="x.V"></td>
+                                <td style="width: 50px">
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.delAnnotations(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
                                 </td>
                             </tr>
                        </table>
