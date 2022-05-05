@@ -62,6 +62,8 @@ sub save
 
     my ( $status, $reason ) = $auto ? vcount( $id ) ? ( 'init', '' ) : ( 'done', 'first load, build skip' ) : ( 'done', 'auto build off' );
 
+    ( $status, $reason ) = ( 'done', 'sys@app up ci' ) if $ENV{OPENC3_C3MC_CI_STATUS_UP};
+
     my $uuid = uuid->new()->create_str;
     eval{ $db->execute( "insert into openc3_ci_version (`projectid`,`name`,`status`,`calltype`,`user`,`uuid`,`slave`,`reason`) 
             values('$id','$version','$status','findtags','crontab','$uuid','','$reason')" ); };       

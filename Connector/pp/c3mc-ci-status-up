@@ -1,0 +1,41 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib
+use strict;
+use warnings;
+use uuid;
+use POSIX;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDB;
+
+=head1 SYNOPSIS
+
+ $0 projectid version
+
+=cut
+
+my $db = MYDB->new( "/data/Software/mydan/CI/conf/conn", delayedconnection => 1 );
+
+sub up
+{
+    my $id = shift @_;
+    unless( $id  =~ /^\d+$/ ) { warn "error $id"; return; }
+
+    die "findtag fail:$!" if system "OPENC3_C3MC_CI_STATUS_UP=1 c3mc-app-findtags $id";
+
+    eval{ $db->execute( "update `openc3_ci_project` set status='1' where id='$id'" ); };
+    die "update project info fail:$@"  if $@;
+}
+
+if( @ARGV )
+{
+    up( $ARGV[0] );
+}
+else
+{
+    while(<STDIN>){ chomp; up($_); }
+}
