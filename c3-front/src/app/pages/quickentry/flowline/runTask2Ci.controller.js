@@ -25,6 +25,8 @@
         };
         vm.rollbacknoneeded = false
 
+        vm.varsvalue = {};
+
         vm.jobinfo;
         vm.getAllJob = function () {
             $http.get('/api/job/jobs/' + vm.treeid).then(
@@ -58,6 +60,16 @@
                                            {
                                                $scope.taskData.variable = {version: version, '_jobtype_': jobtype, '_appname_': $scope.taskData.jobname, '_skipSameVersion_': 0 };
                                            }
+                                           angular.forEach(response.data.data, function (value, key) {
+                                                if( value.option )
+                                                {
+                                                   var vars = value.option.split(",");
+                                                   if( value.option.length > 0 &&  vars.length > 0 )
+                                                   {
+                                                       vm.varsvalue[ value.name ] = vars;
+                                                   }
+                                                }
+                                           });
                                //        }
                                   }else {
                                       alert("获取作业变量失败："+response.data.info)
