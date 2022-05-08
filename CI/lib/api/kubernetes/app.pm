@@ -267,6 +267,7 @@ $handle{getflowlineinfo} = sub
     {
         push @r, +{ image => $c->{image}, repository => $c->{image},  container => $c->{name}, %$filter };
         $r[-1]{repository} =~ s#:[^:/]+$##;
+        $r[-1]{repository} =~ s#@.*$##;
     }
     return +{ stat => $JSON::true, data => \@r };
 };
