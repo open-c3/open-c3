@@ -1,0 +1,10 @@
+#!/usr/bin/bash
+
+> /var/log/open-c3.log
+> /var/log/open-c3.error.log
+
+find /data/open-c3-data/logs -name log.* -type f -exec rm {} \;
+find /data/open-c3-data/logs -name current|xargs -i{} bash -c "> {}"
+
+docker system prune -f
+
