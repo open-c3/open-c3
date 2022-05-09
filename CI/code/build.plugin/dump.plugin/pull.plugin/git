@@ -133,7 +133,7 @@ return sub
         }
         else
         {
-            @m = grep{ $_ ne 'lijinfeng2011@gmail.com' } $info =~ /[\w\.\@]+\.com/g;
+            @m = $info =~ /[\w\.\@]+\.com/g;
             unless( @m )
             {
                 my @info = grep{ $_ =~ /^[\w\.\@]+$/ }split /\n/, $info;
@@ -147,8 +147,10 @@ return sub
 
     unless( defined $tagger && $tagger =~ /^[a-zA-Z0-9\.\@\-_]+$/ )
     {
-        print "get tagger fail,Switch to default: lijinfeng2011\@gmail.com\n";
-        $tagger = 'lijinfeng2011@gmail.com';
+        my $cidefaulttagger = `c3mc-sys-ctl cidefaulttagger`;
+        chomp $cidefaulttagger;
+        print "get tagger fail,Switch to default: $cidefaulttagger\n";
+        $tagger = $cidefaulttagger;
     }
 
     $tag_info =~ s/'//g;
