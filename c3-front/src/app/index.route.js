@@ -482,6 +482,12 @@
                 controller: 'TemplateController',
                 controllerAs: 'template',
             })
+            .state('home.global.sysctl', {
+                url: 'sysctl/:treeid',
+                templateUrl: 'app/pages/global/sysctl/sysctl.html',
+                controller: 'SysctlController',
+                controllerAs: 'sysctl',
+            })
            .state('home.connector.config', {
                 url: 'config/:treeid',
                 templateUrl: 'app/pages/connector/config/config.html',

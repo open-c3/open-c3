@@ -11,15 +11,16 @@ my $pconf = '/data/open-c3-data/sysctl.conf';
 sub _load
 {
     my $x = shift @_;
-    my $conf = eval{ YAML::XS::LoadFile $x };
+    my $conf = eval { YAML::XS::LoadFile $x };
     die "load conf $x fail: $@" if $@;
     die unless $conf && ref $conf eq 'HASH';
-    return $conf;
+    return %$conf;
 }
+
 sub new
 {
     my ( $class, %this ) = @_;
-    $this{data} = -f $pconf ? +{ _load( $dconf ), _load( $pconf )} : _load( $dconf );
+    $this{data} = -f $pconf ? +{ _load($dconf), _load($pconf) } : +{ _load($dconf) };
     bless \%this, ref $class || $class;
 }
 

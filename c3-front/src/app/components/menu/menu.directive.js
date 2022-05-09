@@ -74,6 +74,7 @@
                                 || sName == 'home.approval'
                                 || sName == 'home.global.notify'
                                 || sName == 'home.global.template'
+                                || sName == 'home.global.sysctl'
                                 || sName == 'home.global.ticket'
                                 || sName == 'home.connector.config'
                                 || sName == 'home.connector.userinfo'
