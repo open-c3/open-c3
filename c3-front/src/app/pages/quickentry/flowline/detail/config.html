@@ -349,12 +349,11 @@
 
                     <div class="row">
                         <label class="col-md-2 control-label fwbold">发布审批人</label>
-                        <div class="col-md-6"> <input class="form-control" ng-model="config.project.ci_type_approver2" placeholder="foo@openc3.com"/> </div>
-                        <div class="col-md-2">
+                        <div class="col-md-6"> <input class="form-control" ng-model="config.project.ci_type_approver2" ng-disabled="config.project.ci_type_approver1" placeholder="foo@openc3.com"/> </div>
+                        <div class="col-md-4">
+                            <a ng-if="config.project.ci_type_approver1" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="自定义步骤" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.ci_type_approver1=''">自定义发布过程</a>
+                            <a ng-if="!config.project.ci_type_approver1" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="自定义步骤" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.ci_type_approver1=1">自定义发布过程</a>
                         </div>
-                        <div class="col-md-2">
-                        </div>
- 
                     </div>
 
 </div>
@@ -439,7 +438,7 @@
 
                    <hr style="margin: 5px">
 
-                    <div class="row" ng-if="config.project.ci_type !== 'kubernetes'" >
+                    <div class="row" ng-if="!(config.project.ci_type === 'kubernetes' && !(config.project.ci_type_approver1) )" >
                         <button class="btn btn-primary" uib-tooltip="编辑作业" ng-click="config.editjob()" style="float: right" ><i class="fa fa-cogs fa-1x" >  作业步骤</i></button>
                     </div>
                    <div class="row" ng-repeat="step in config.jobStep">

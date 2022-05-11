@@ -246,7 +246,10 @@
              if(  vm.project.ci_type === "kubernetes" )
              {
                  vm.KubernetesSaveGroup();
-                 vm.KubernetesSaveJob();
+                 if(!vm.project.ci_type_approver1)
+                 {
+                     vm.KubernetesSaveJob();
+                 }
              }
 
           });

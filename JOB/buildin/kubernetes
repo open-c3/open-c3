@@ -44,6 +44,21 @@ die "get ci config fail:" . $res->content unless $data && $data->{stat};
 
 my %data = %{$data->{data}};
 
+if( $ENV{CONFIGPATH} && -f $ENV{CONFIGPATH} )
+{
+    my $config = eval{ YAML::XS::LoadFile $ENV{CONFIGPATH} };
+    die "load config fail: $@" if $@;
+    die "load yaml config fail" unless $config && ref $config eq 'HASH';
+
+    map{ die "$_ nofind" unless $config->{$_}; }qw( name container );
+    my %key = map{ $_ => 1 }qw( namespace name container );
+    for my $key ( keys %$config )
+    {
+        die "unkown key in config" unless $key{$key};
+        $data{"ci_type_$key"} = $config->{$key};
+    }
+}
+
 map{ warn "$_: $data{$_}\n" ; }sort grep{ /ci_type/ && $_ !~ /dockerfile/ }keys %data;
 warn "\n";
 
