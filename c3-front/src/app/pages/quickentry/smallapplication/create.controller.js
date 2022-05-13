@@ -12,20 +12,37 @@
 
         vm.postdata = { "parameter" : ""};
 
-        vm.cancel = function(){ $uibModalInstance.dismiss()};
+        vm.cancel = function(){ $uibModalInstance.dismiss(); reload(); };
 
         vm.add = function(){
-            vm.postdata.jobid = $scope.choiceJob.id
-            $http.post('/api/job/smallapplication', vm.postdata ).success(function(data){
-                    if(data.stat == true) {
-                        vm.cancel();
-                        reload();
-                    } else { swal({ title: "创建失败!", text: data.info, type:'error' }); }
+            if( vm.selectall )
+            {
+                angular.forEach($scope.allJobs, function (value, key) {
+ 
+                    $http.post('/api/job/smallapplication', { "describe": vm.postdata.describe, "jobid": value.id, "parameter": "", "title":value.alias , "type": vm.postdata.type } ).success(function(data){
+                            if(data.stat == true) {
+                                toastr.success( "添加成功:" + value.alias )
+                            } else {
+                                toastr.error( "添加失败:" + data.info )
+                            }
 
-            });
+                    });
+                });
+            }
+            else
+            {
+                vm.postdata.jobid = $scope.choiceJob.id
+                $http.post('/api/job/smallapplication', vm.postdata ).success(function(data){
+                        if(data.stat == true) {
+                            vm.cancel();
+                        } else { swal({ title: "创建失败!", text: data.info, type:'error' }); }
+
+                });
+            }
         };
 
 
+        vm.selectall = 0;
         $scope.allJobs = [];        // 保存所有项目下的作业
 
         vm.getAllJob = function () {
