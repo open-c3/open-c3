@@ -45,3 +45,5 @@ fi
 
 mkdir -p /data/open-c3-data/logs/CI/webhooks_data
 mkdir -p /data/open-c3-data/logs/CI/webhooks_logs
+
+docker exec -i openc3-server /data/Software/mydan/perl/bin/cpan install Paws
