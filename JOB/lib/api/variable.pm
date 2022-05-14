@@ -191,4 +191,22 @@ del '/variable/:projectid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
 };
 
+del '/variable/byid/:jobid' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        jobid => qr/^\d+$/, 1,
+        name => qr/^[a-zA-Z0-9_]+$/, 1,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $pmscheck = api::pmscheck( 'openc3_job_root' ); return $pmscheck if $pmscheck;
+
+    my $r = eval{ 
+        $api::mysql->execute(
+            "delete from openc3_job_variable where name='$param->{name}' and jobuuid in
+                ( select uuid from openc3_job_jobs where id='$param->{jobid}' )")};
+
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
+};
+
 true;

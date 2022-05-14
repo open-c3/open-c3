@@ -45,7 +45,7 @@
             });
         };
 
-       vm.deleteSmallApplication = function(id) {
+       vm.deleteSmallApplication = function(id,jobid) {
           swal({
             title: "删除轻应用",
             text: "删除",
@@ -56,10 +56,16 @@
             confirmButtonText: "确定",
             closeOnConfirm: true
           }, function(){
-            $http.delete('/api/job/smallapplication/' + id ).success(function(data){
+            $http.delete('/api/job/variable/byid/' + jobid + '?name=_authorization_' ).success(function(data){
                 if(data.stat == true) {
-                    swal({ title: "删除成功!", type:'success' });
-                    vm.reload();
+                    $http.delete('/api/job/smallapplication/' + id ).success(function(data){
+                        if(data.stat == true) {
+                            swal({ title: "删除成功!", type:'success' });
+                            vm.reload();
+                        } else {
+                            swal({ title: "删除失败!", text: data.info, type:'error' });
+                        }
+                    });
                 } else {
                     swal({ title: "删除失败!", text: data.info, type:'error' });
                 }

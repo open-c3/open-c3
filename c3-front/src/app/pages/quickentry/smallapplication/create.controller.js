@@ -18,13 +18,16 @@
             if( vm.selectall )
             {
                 angular.forEach($scope.allJobs, function (value, key) {
- 
-                    $http.post('/api/job/smallapplication', { "describe": vm.postdata.describe, "jobid": value.id, "parameter": "", "title":value.alias , "type": vm.postdata.type } ).success(function(data){
-                            if(data.stat == true) {
-                                toastr.success( "添加成功:" + value.alias )
-                            } else {
-                                toastr.error( "添加失败:" + data.info )
-                            }
+                    $http.post('/api/job/variable/' + treeid + '/update', { "jobuuid": value.uuid, "data": [ { "name": "_authorization_", "value": "true", "describe": "smallapplication" } ]} ).success(function(data){
+                        if(data.stat == true) {
+                            $http.post('/api/job/smallapplication', { "describe": vm.postdata.describe, "jobid": value.id, "parameter": "", "title":value.alias , "type": vm.postdata.type } ).success(function(data){
+                                if(data.stat == true) {
+                                    toastr.success( "添加成功:" + value.alias )
+                                } else {
+                                    toastr.error( "添加失败:" + data.info )
+                               }
+                            });
+                        } else { swal({ title: "创建失败!", text: data.info, type:'error' }); }
 
                     });
                 });
@@ -32,11 +35,14 @@
             else
             {
                 vm.postdata.jobid = $scope.choiceJob.id
-                $http.post('/api/job/smallapplication', vm.postdata ).success(function(data){
-                        if(data.stat == true) {
-                            vm.cancel();
-                        } else { swal({ title: "创建失败!", text: data.info, type:'error' }); }
-
+                $http.post('/api/job/variable/' + treeid + '/update', { "jobuuid": $scope.choiceJob.uuid, "data": [ { "name": "_authorization_", "value": "true", "describe": "smallapplication" } ]} ).success(function(data){
+                    if(data.stat == true) {
+                        $http.post('/api/job/smallapplication', vm.postdata ).success(function(data){
+                            if(data.stat == true) {
+                                vm.cancel();
+                            } else { swal({ title: "创建失败!", text: data.info, type:'error' }); }
+                        });
+                    } else { swal({ title: "创建失败!", text: data.info, type:'error' }); }
                 });
             }
         };
