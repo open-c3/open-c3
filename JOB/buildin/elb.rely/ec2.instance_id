@@ -1,0 +1,55 @@
+#!/data/Software/mydan/perl/bin/perl
+use 5.010;
+use strict;
+use warnings;
+use Paws;
+use YAML::XS;
+use MYDan::Util::OptConf;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0 [--region us-west-2 ] 10.10.10.10 10.10.10.11
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( region=s ) )->dump();
+$option->assert( qw( region ) );
+$option->assert() unless @ARGV;
+
+my $aws = Paws->new;
+
+my $ec2 = $aws->service( 'EC2', region => $o{region} );
+
+my ( %re, @priip, @pubip );
+@priip = grep{ $_ =~ /^10\./ }@ARGV;
+@pubip = grep{ $_ !~ /^10\./ }@ARGV;
+
+%re = ( %re, priip( $ec2, @priip ) ) if @priip;
+%re = ( %re, pubip( $ec2, @pubip ) ) if @pubip;
+
+sub priip
+{
+    my ( $ec2, @ip, %re ) = @_;
+    my $result = $ec2->DescribeInstances(Filters => [ { Name => 'private-ip-address', Values => \@ip } ]);
+    for my $reservations ( @{$result->{Reservations}} )
+    {
+        map{ $re{$_->{PrivateIpAddress}} = $_->{InstanceId}; }@{$reservations->{Instances}};
+    }
+    return %re;
+}
+
+sub pubip
+{
+    my ( $ec2, @ip, %re ) = @_;
+    my $result = $ec2->DescribeInstances(Filters => [ { Name => 'ip-address', Values => \@ip } ]);
+    for my $reservations ( @{$result->{Reservations}} )
+    {
+        map{ $re{$_->{PublicIpAddress}} = $_->{InstanceId}; }@{$reservations->{Instances}};
+    }
+    return %re;
+}
+
+print YAML::XS::Dump \%re;
