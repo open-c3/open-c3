@@ -151,6 +151,13 @@ post '/task/:projectid/job/byname' => sub {
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
+    if( $param->{variable} && $param->{variable}{_nodebatch_} )
+    {
+        return  +{ stat => $JSON::false, info => "_nodebatch_ format error_" } if $param->{variable}{_nodebatch_} =~ /'/;
+        $param->{group} = $param->{variable}{_nodebatch_};
+        $param->{group} = "val=".$param->{variable}{_nodebatch_} if $param->{variable}{_nodebatch_} =~ /^\d+\.\d+\.\d+\.\d+$/;
+    }
+
     my $point = 'openc3_jobx_write';
     if( $param->{jobname} =~ /^_ci_(\d+)_$/ )
     {
