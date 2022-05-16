@@ -85,7 +85,20 @@ get '/variable/:projectid/:jobuuid' => sub {
                 where jobuuid in ( select uuid from openc3_job_jobs where projectid='$param->{projectid}' and uuid='$param->{jobuuid}') $w $exclude order by `describe`", 
                     join ',',map{"`$_`"} @col ), \@col )};
 
-    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
+    return  +{ stat => $JSON::false, info => $@ } if $@;
+
+    my %defaultdescribe = (
+        tester   =>  Encode::decode("utf8", '1.测试审批人'),
+        approver =>  Encode::decode("utf8", '2.OA审批人 或 领导审批人'),
+        checker  =>  Encode::decode("utf8", '3.发布前确认人'),
+    );
+    for( @$r )
+    {
+        next if $_->{describe};
+        $_->{describe} = $defaultdescribe{$_->{name}} if $defaultdescribe{$_->{name}};
+    }
+
+    return +{ stat => $JSON::true, data => [ sort{ $a->{describe} <=> $b->{describe} }@$r ] };
 };
 
 #jobuuid
