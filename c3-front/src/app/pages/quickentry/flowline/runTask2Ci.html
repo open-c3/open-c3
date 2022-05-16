@@ -96,10 +96,19 @@
                         <div ng-show="runtask2ci.varsvalue[ss.name]" class="col-sm-10 form-group">
                             <div ng-if="ss.name != 'ip' && ss.name != 'version'" >
                                 <label class="col-sm-3 control-label">{{ss.name}}: &nbsp;</label>
-                                <div class="col-sm-9">
+                                <div ng-show="!runtask2ci.handwritten[ss.name]" class="col-sm-8">
                                     <select  class="form-control " style="font-size: 15px;height: 42px"  ng-model="taskData.variable[ss.name]" ng-options="n for n in runtask2ci.varsvalue[ss.name]" required>
                                     </select>
                                 </div>
+                                <div ng-show="runtask2ci.handwritten[ss.name]" class="col-sm-8">
+                                    <input type="text" class="form-control" ng-model="taskData.variable[ss.name]" placeholder="{{ss.describe}}" required>
+                                </div>
+ 
+                                <div class="col-sm-1"> 
+                                    <a ng-if="runtask2ci.handwritten[ss.name]" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="选择" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="runtask2ci.handwritten[ss.name]=0"></a>
+                                    <a ng-if="!runtask2ci.handwritten[ss.name]" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="手写" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="runtask2ci.handwritten[ss.name]=1"></a>
+ 
+                               </div>
                             </div>
 
                         </div>

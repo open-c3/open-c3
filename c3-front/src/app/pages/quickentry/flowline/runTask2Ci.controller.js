@@ -26,6 +26,7 @@
         vm.rollbacknoneeded = false
 
         vm.varsvalue = {};
+        vm.handwritten = {};
 
         vm.jobinfo;
         vm.getAllJob = function () {
@@ -63,7 +64,12 @@
                                            angular.forEach(response.data.data, function (value, key) {
                                                 if( value.option )
                                                 {
-                                                   var vars = value.option.split(",");
+                                                   var splitstr = ",";
+                                                   if( value.option.search(/;/) >= 0 )
+                                                   {
+                                                       splitstr = ";"
+                                                   }
+                                                   var vars = value.option.split(splitstr);
                                                    if( value.option.length > 0 &&  vars.length > 0 )
                                                    {
                                                        vm.varsvalue[ value.name ] = vars;

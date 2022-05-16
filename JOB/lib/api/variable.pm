@@ -157,7 +157,7 @@ post '/variable/:projectid/update' => sub {
             name => qr/^[a-zA-Z0-9_]+$/, 1,
             value => qr/^[a-zA-Z0-9_\.\/\-,]*$/, 0,
             describe => [ 'mismatch', qr/'/ ], 1,
-            option => qr/^[a-zA-Z0-9_\.\/\-,@]*$/, 0,
+            option => qr/^[a-zA-Z0-9_\.\/\-,@;]*$/, 0,
         )->check( %$d );
         return  +{ stat => $JSON::false, info => "check data format fail $error" } if $error;
         $d->{value} = '' unless defined $d->{value};
