@@ -40,7 +40,11 @@ return sub
         chomp $status;
         return if $status eq 'success';
 
-        $logs->die( "jobx status fail" ) if $status eq 'fail';
+        if( $status eq 'fail' )
+        {
+            printf "%s\n", Encode::decode("utf8", '测试环境的发布任务失败');
+            $logs->die( "jobx status fail" );
+        }
 
         sleep 3;
     }
