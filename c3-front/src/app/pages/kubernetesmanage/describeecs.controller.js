@@ -23,6 +23,7 @@
                 if(data.stat == true) 
                 { 
                     vm.describe = data.data.describe;
+                    vm.taskdefinition = data.data.taskdefinition;
                     vm.dataTable = new ngTableParams({count:10}, {counts:[],data:data.data.deployments});
                     vm.loadover = true;
                 } else { 

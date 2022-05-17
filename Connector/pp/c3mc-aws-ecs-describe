@@ -17,20 +17,22 @@ use Digest::MD5;
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->get( qw( id=i region=s cluster=s services=s ) )->dump();
-$option->assert( qw( id region cluster services ) );
+my %o = $option->get( qw( id=i region=s cluster=s services=s taskdefinition=s ) )->dump();
+$option->assert( qw( id region cluster services taskdefinition ) );
 
-my $x; 
+my ( $x, $o ); 
 if( $o{id} )
 {
     $x = `c3mc-app-awscli-get -i $o{id} 'ecs describe-services --region $o{region} --cluster $o{cluster} --services $o{services}'`;
+    $o = `c3mc-app-awscli-get -i $o{id} 'ecs describe-task-definition --region $o{region} --task-definition $o{taskdefinition}'|egrep -i "taskDefinitionArn|image"|sed 's/^[[:space:]]*\t*//g'`;
 }
 else
 {
     $x = `aws ecs describe-services --region $o{region} --cluster $o{cluster} --services $o{services}`;
+    $o = `aws ecs describe-task-definition --region $o{region} --task-definition $o{taskdefinition}|egrep -i "taskDefinitionArn|image"|sed 's/^[[:space:]]*\t*//g'`;
 }
 
 my $c = YAML::XS::Load $x;
 my @deployments = map{ @{$_->{deployments}} }@{$c->{services}};
-print YAML::XS::Dump +{ deployments => \@deployments, describe => $x };
+print YAML::XS::Dump +{ deployments => \@deployments, describe => $x, taskdefinition => $o };
 

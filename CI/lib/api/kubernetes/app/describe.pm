@@ -163,7 +163,8 @@ post '/kubernetes/app/describe/ecs' => sub {
 
     my $pmscheck = api::pmscheck( 'openc3_ci_read', 0 ); return $pmscheck if $pmscheck;
 
-    my ( $cmd, $handle ) = ( "c3mc-aws-ecs-describe -i '$param->{ticketid}' --region '$cmdconf->{region}' --services '$cmdconf->{service}' --cluster  '$cmdconf->{cluster}'  2>/dev/null", 'getdescribeecs' );
+    my $taskdefinition = $cmdconf->{'task-definition'};
+    my ( $cmd, $handle ) = ( "c3mc-aws-ecs-describe -i '$param->{ticketid}' --region '$cmdconf->{region}' --services '$cmdconf->{service}' --cluster  '$cmdconf->{cluster}' --taskdefinition '$taskdefinition' 2>/dev/null", 'getdescribeecs' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( `$cmd`//'', $? ); 
 };
