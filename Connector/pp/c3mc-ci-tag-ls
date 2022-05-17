@@ -46,6 +46,14 @@ if( $addr =~ /^ci:(\d+)$/ )
     exit;
 }
 
+if( $addr =~ /^rsync:(\d+)$/ )
+{
+    my @version = `ls /data/open-c3-data/pkgrsync/repo|grep ^$1@|awk -F@ '{print \$2}'`;
+    chomp @version;
+    map{ printf "$project{id};%s\n", Encode::decode('utf8', $_ ); }@version;
+    exit;
+}
+
 my $chld_in;
 my $pid = IPC::Open3::open3( $chld_in, '>&STDOUT', '>&STDERR', $pipe);
  

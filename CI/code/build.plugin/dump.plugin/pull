@@ -28,6 +28,7 @@ return sub
     $type = 'harbor' if $addr =~ /\/tags$/;
     $type = 'aliyuncr' if $addr =~ /^aliyuncr:\/\//;
     $type = 'ci' if $addr =~ /^ci:\d+$/;
+    $type = 'rsync' if $addr =~ /^rsync:\d+$/;
     $type = 'harborv2' if $addr =~ /^harbor:/;
 
     eval{ Code->new( "build.plugin/dump.plugin/pull.plugin/$type" )->run( %param ); };
