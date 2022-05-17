@@ -26,7 +26,7 @@ return sub
     #HTTP::Message content must be bytes at
     my ( $jobname, $jobgroup ) = ( '_ci_' . $projectid . '_', '_ci_test_' . $projectid . '_');
 
-    my $uuid = `c3mc-jobx-task-run $groupid $jobname $jobgroup --user ci\@app --variablekv version=$version,_jobtype_=test`;
+    my $uuid = `c3mc-jobx-task-run $groupid $jobname $jobgroup --user ci\@app --variablekv version=$version,_jobtype_=test,_exit_=1`;
     chomp $uuid;
 
     printf "call jobx ok: jobxuuid:%s\n", $uuid;

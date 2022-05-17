@@ -49,6 +49,7 @@ return sub
     my ( $name, $projectid, $variable, $nodelist, $status ) = @{$x->[0]};
 
     return $status if grep{ $status eq $_ }qw( cancel success fail refuse );
+    my $_exit_;
 
     if( $variable )
     {
@@ -58,6 +59,8 @@ return sub
 
     $variable = +{} unless $variable;
     $variable->{ip} = $nodelist;
+
+    $_exit_ = 1 if $variable->{_exit_} && ( $variable->{_exit_} eq 'true' || $variable->{_exit_} eq '1' );
 
     my $ua = LWP::UserAgent->new();
     $ua->agent('Mozilla/9 [en] (Centos; Linux)');
@@ -169,6 +172,8 @@ return sub
 
     if( $d->{status} eq 'fail' )
     {
+        $logs->die( "exit by _exit_:$@" ) if $_exit_ ;
+
         while(1)
         {
             sleep 5;
