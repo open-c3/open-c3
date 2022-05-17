@@ -7,6 +7,7 @@ use Data::Dumper;
 use MYDan::Util::OptConf;
 use OPENC3::PP::Server;
 use OPENC3::PP::Exec;
+use OPENC3::SysCtl;
 
 =head1 SYNOPSIS
 
@@ -31,12 +32,22 @@ if( $name eq 'keepalive' )
 
 if( $name eq 'findtags' )
 {
+    my $x        = OPENC3::SysCtl->new()->getint( 'ci.findtags.concurrency', 1, 100,  4  );
+    my $interval = OPENC3::SysCtl->new()->getint( 'ci.findtags.interval',    0, 3600, 60 );
+
+    unless( $interval )
+    {
+        $0 = "ci_server_$name";
+        sleep 86400;
+        exit;
+    }
+
     OPENC3::PP::Server->new(
         name => "ci_server_$name",
-        interval => 60,
-        timeout => 120,
+        interval => $interval,
+        timeout => $interval * 2,
     )->run(
-        'c3mc-base-db-get id -t openc3_ci_project -f "status=1 and autofindtags=1" | c3mc-base-task-grep -m ci | c3mc-base-db-set -t openc3_ci_project --set "slave=\"`c3mc-base-hostname`\"" | xargs -P 4 -i{} c3mc-app-findtags {}'
+        'c3mc-base-db-get id -t openc3_ci_project -f "status=1 and autofindtags=1" | c3mc-base-task-grep -m ci | c3mc-base-db-set -t openc3_ci_project --set "slave=\"`c3mc-base-hostname`\"" | xargs -P ' . $x . ' -i{} c3mc-app-findtags {}'
     );
 }
 

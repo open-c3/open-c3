@@ -35,4 +35,11 @@ sub dump
     return shift->{data};
 }
 
+sub getint
+{
+    my ( $this, $key, $min, $max, $default ) = @_;
+    my $x = $this->{data}{$key};
+    return ( defined $x && $x =~ /^\d+$/ && $x >= $min && $x <= $max ) ? $x : $default;
+}
+
 1;

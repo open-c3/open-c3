@@ -21,6 +21,25 @@
                                 <input type="text" class="form-control" ng-model="sysctl.sysctl.cidefaulttagger" required />
                             </div>
                         </div>
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">findtags并发数</label>
+                            <div class="col-sm-9" ng-init="cifindtagsconcurrencylist = [1,2,3,4,5,6,7,8,9,10,15,20,30,40,50,60,70,80,90,100]" >
+                                <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['ci.findtags.concurrency']" style="width: 20%" >
+                                    <option ng-repeat="x in cifindtagsconcurrencylist" value="{{x}}">{{x}}</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">findtags间隔（秒）</label>
+                            <div class="col-sm-2" ng-init="cifindtagsintervallist = [0,30, 60, 90,120, 180, 300]" >
+                                <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['ci.findtags.interval']" >
+                                    <option ng-repeat="x in cifindtagsintervallist" value="{{x}}">{{x}}</option>
+                                </select>
+                            </div>
+                            <label class="col-sm-2 control-label">当时间间隔为0时表示不开启该服务</label>
+                        </div>
+
+
                     </div>
                 </div>
              </div>
