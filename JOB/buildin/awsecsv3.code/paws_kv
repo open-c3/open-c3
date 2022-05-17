@@ -1,0 +1,164 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/PAWS/lib -I/data/Software/mydan/PAWS/private/lib
+
+use lib 'auto-lib', 'lib';
+
+use 5.010;
+use strict;
+use warnings;
+
+use Data::Dumper;
+use Paws;
+use Moose::Util;
+use ARGV::Struct;
+use Term::ANSIColor 2.00 qw();
+use Hash::Flatten qw//;
+use List::Util qw(reduce);
+use Module::Find;
+
+use Getopt::Long qw/GetOptionsFromArray/;
+
+my @args = @ARGV;
+
+my $aws = Paws->new;
+
+my $service_name = shift @args;
+if (not defined $service_name) {
+  say "A list of the services you have available";
+  say $_ for (sort $aws->available_services);
+  exit 1;  
+}
+
+my $service = $aws->class_for_service($service_name);
+
+my $opts = {};
+my @opts = (
+  'caller=s',
+  'region=s',
+  'endpoint=s',
+  'debug',
+  'help'
+);
+#if ($service->meta->find_attribute_by_name('region')) {
+
+GetOptionsFromArray(\@args, $opts, @opts);
+
+my $method_name = shift @args;
+
+if (exists $opts->{caller}) {
+  Paws->load_class($opts->{ caller });
+  $opts->{ caller } = $opts->{ caller }->new;
+}
+
+$service = $aws->service($service_name, %$opts);
+
+my ( $call, $args );
+
+if( $service_name && $service_name eq 'ECS' && $method_name && $method_name eq 'UpdateTaskDefinition' )
+{
+    $call = $service->meta->find_method_by_name('DescribeTaskDefinition');
+    die "invalid method" if ($call->package_name !~ m/^Paws\:\:/);
+    my %args = %{ ARGV::Struct->new(argv => [ '{', @args, '}' ])->parse };
+    die "version undef" unless my $version = delete $args{version};
+    my $res = eval {$call->execute($service, %args) };
+    die "DescribeTaskDefinition fail: $@" if $@;
+
+    my $h = $service->to_hash($res);
+    die "res to hash fail" unless $h && ref $h eq 'HASH';
+    die "nofind TaskDefinition" unless $h->{TaskDefinition} && ref $h->{TaskDefinition} eq 'HASH';
+
+    my %TaskDefinition = %{$h->{TaskDefinition}};
+    map{ delete $TaskDefinition{$_} }qw(TaskDefinitionArn Revision RequiresAttributes Status );
+
+    map{ 
+        die "nofind $_ on TaskDefinition.\n" unless $h->{TaskDefinition}{$_};
+    }qw( ContainerDefinitions Family NetworkMode PlacementConstraints Volumes );
+
+    map{ 
+         die "nofind version on Image: $_->{Image}\n" unless $_->{Image} =~ s/:[^:]+$/:/;
+         $_->{Image} .= $version;
+    }@{$TaskDefinition{ContainerDefinitions}};
+
+    ( $method_name, $args )= ( 'RegisterTaskDefinition', \%TaskDefinition );
+}
+
+if( $service_name && $service_name eq 'ECS' && $method_name && $method_name eq "GetImages" )
+{
+    $call = $service->meta->find_method_by_name('DescribeTaskDefinition');
+    die "invalid method" if ($call->package_name !~ m/^Paws\:\:/);
+    my %args = %{ ARGV::Struct->new(argv => [ '{', @args, '}' ])->parse };
+    my $res = eval {$call->execute($service, %args) };
+    die "DescribeTaskDefinition fail: $@" if $@;
+
+    my $h = $service->to_hash($res);
+    die "res to hash fail" unless $h && ref $h eq 'HASH';
+    die "nofind TaskDefinition" unless $h->{TaskDefinition} && ref $h->{TaskDefinition} eq 'HASH';
+
+    my %TaskDefinition = %{$h->{TaskDefinition}};
+    my $releases = $TaskDefinition{ContainerDefinitions}[0]{Image};
+    my @re_list = split(/\//, $releases);
+    my @result = split(/:/, $re_list[-1]);
+    print "last is : $result[0]";
+
+    my %ImageParams = ("RepositoryName" => $result[0]);
+    ( $method_name, $service_name, $args )= ('DescribeImages', 'ECR', \%ImageParams );
+    $service = $aws->service($service_name, %$opts);
+}
+
+
+if (not defined $method_name or not $call = $service->meta->find_method_by_name($method_name)){
+  if (defined $method_name) {
+    print "Don't know method $method_name on $service_name\n\n";
+  } else {
+    print "Please specify a method for $service_name\n\n"
+  }
+  
+  print "Maybe you ment:\n";
+
+  say $_ for ($service->operations);
+  
+  exit 1;
+}
+
+die "invalid method" if ($call->package_name !~ m/^Paws\:\:/);
+
+my $help_with_method_call = grep { $_ =~ m/^help$/i } @args;
+
+die "HELP!!!" if ($help_with_method_call);
+
+my %args = $args ? %$args : %{ ARGV::Struct->new(argv => [ '{', @args, '}' ])->parse };
+
+if ($opts->{ debug }) {
+  print "Arguments to the call:\n";
+  print Dumper(\%args);
+} 
+
+# $call is a Meta Method Object. It can be called via execute
+my $result = eval {$call->execute($service, %args) };
+if ($@) {
+  print $@ if ($opts->{debug});
+  if (ref($@)){
+    if ($@->isa('Moose::Exception::AttributeIsRequired')) {
+      print "Call to $method_name requires argument " . $@->attribute_name . "\n";
+      my $call_class = Moose::Util::find_meta($@->class_name);
+      my @atts = sort map { $_->name } $call_class->get_all_attributes;
+      foreach my $att_name (@atts) {
+        my $attribute = $call_class->find_attribute_by_name($att_name);
+        say sprintf "%s: %s %s", $attribute->name, $attribute->type_constraint->name, ($attribute->is_required ? 'REQUIRED' : '');
+      }
+    } elsif ($@->isa('Paws::Exception')) {
+      say "The API retured an error: " . $@->message . "(" . $@->code . ")";
+      exit 1;
+    } else {
+      die $@
+    }
+  } else {
+    die $@;
+  }
+}
+
+use YAML::XS;
+if (ref($result)) {
+  my $h = $service->to_hash($result);
+  $h = Hash::Flatten::flatten($h, { HashDelimiter => '.', ArrayDelimiter => '.' });
+  print YAML::XS::Dump $h;
+}

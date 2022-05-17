@@ -262,6 +262,10 @@
                 {
                     vm.showmachinelist = 0;
                 }
+                if( cont.search(/^#!awsecsv3\b/) == 0 )
+                {
+                    vm.showmachinelist = 0;
+                }
                 if( cont.search(/^#!sendemail\b/) == 0 )
                 {
                     vm.showmachinelist = 0;

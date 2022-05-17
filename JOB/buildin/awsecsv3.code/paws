@@ -1,0 +1,182 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/PAWS/lib -I/data/Software/mydan/PAWS/private/lib
+
+use lib 'auto-lib', 'lib';
+
+use 5.010;
+use strict;
+use warnings;
+
+use Data::Dumper;
+use Paws;
+use Moose::Util;
+use ARGV::Struct;
+use Term::ANSIColor 2.00 qw();
+use Hash::Flatten qw//;
+use List::Util qw(reduce);
+use Module::Find;
+
+use Getopt::Long qw/GetOptionsFromArray/;
+
+my @args = @ARGV;
+
+my $aws = Paws->new;
+
+my $service_name = shift @args;
+if (not defined $service_name) {
+  say "A list of the services you have available";
+  say $_ for (sort $aws->available_services);
+  exit 1;  
+}
+
+my $service = $aws->class_for_service($service_name);
+
+my $opts = {};
+my @opts = (
+  'caller=s',
+  'region=s',
+  'endpoint=s',
+  'debug',
+  'help'
+);
+#if ($service->meta->find_attribute_by_name('region')) {
+
+GetOptionsFromArray(\@args, $opts, @opts);
+
+my $method_name = shift @args;
+
+if (exists $opts->{caller}) {
+  Paws->load_class($opts->{ caller });
+  $opts->{ caller } = $opts->{ caller }->new;
+}
+
+$service = $aws->service($service_name, %$opts);
+
+my ( $call, $args );
+
+if( $service_name && $service_name eq 'ECS' && $method_name && $method_name eq 'UpdateTaskDefinition' )
+{
+    $call = $service->meta->find_method_by_name('DescribeTaskDefinition');
+    die "invalid method" if ($call->package_name !~ m/^Paws\:\:/);
+    my %args = %{ ARGV::Struct->new(argv => [ '{', @args, '}' ])->parse };
+    die "version undef" unless my $version = delete $args{version};
+    my $res = eval {$call->execute($service, %args) };
+    die "DescribeTaskDefinition fail: $@" if $@;
+
+    my $h = $service->to_hash($res);
+    die "res to hash fail" unless $h && ref $h eq 'HASH';
+    die "nofind TaskDefinition" unless $h->{TaskDefinition} && ref $h->{TaskDefinition} eq 'HASH';
+
+    my %TaskDefinition = %{$h->{TaskDefinition}};
+    map{ delete $TaskDefinition{$_} }qw(TaskDefinitionArn Revision RequiresAttributes Status Compatibilities);
+
+    map{ 
+        die "nofind $_ on TaskDefinition.\n" unless $h->{TaskDefinition}{$_};
+    }qw( ContainerDefinitions Family NetworkMode PlacementConstraints Volumes );
+
+    map{ 
+         die "nofind version on Image: $_->{Image}\n" unless $_->{Image} =~ s/:[^:]+$/:/;
+         $_->{Image} .= $version;
+         #delete $_->{ResourceRequirements};
+         delete $_->{SystemControls};
+         delete $_->{Secrets};
+    }@{$TaskDefinition{ContainerDefinitions}};
+
+    ( $method_name, $args )= ( 'RegisterTaskDefinition', \%TaskDefinition );
+}
+
+
+if( $service_name && $service_name eq 'CloudWatchEvents' && $method_name && $method_name eq 'UpdateTargets' )
+{
+    $service = $aws->service($service_name, %$opts);
+    $call = $service->meta->find_method_by_name('ListTargetsByRule');
+    die "invalid method" if ($call->package_name !~ m/^Paws\:\:/);
+    my %args = %{ ARGV::Struct->new(argv => [ '{', @args, '}' ])->parse };
+    die "taskDefinition undef" unless my $taskDefinition = delete $args{TaskDefinition};
+    die "targetID undef" unless my $targetID = delete $args{TargetID};
+    die "Rule undef" unless my $Rule = $args{Rule};
+    my $res = eval {$call->execute($service, %args) };
+    die "ListTargetsByRule fail: $@" if $@;
+
+    my $h = $service->to_hash($res);
+    die "res to hash fail" unless $h && ref $h eq 'HASH';
+
+    die "nofind Targets" unless $h->{Targets} && ref $h->{Targets} eq 'ARRAY';
+    my $Targets = $h->{Targets};
+
+    my @Targets_list = ();
+    map{
+      if ($_->{Id} eq $targetID) {
+        die "nofind EcsParameters" unless $_->{EcsParameters} && ref $_->{EcsParameters} eq 'HASH';
+        die "nofind TaskDefinitionArn" unless $_->{EcsParameters}->{TaskDefinitionArn};
+        my $TaskDefinitionArn = $_->{EcsParameters}->{TaskDefinitionArn};
+        my @TaskDefinitionArnInfos = split(/\//, $TaskDefinitionArn);
+        $TaskDefinitionArnInfos[-1] = $taskDefinition;
+        $_->{EcsParameters}->{TaskDefinitionArn} = join('/', @TaskDefinitionArnInfos);
+      }
+      push(@Targets_list, $_);
+    }@$Targets;
+    my %TargetsParams = ("Rule" => $Rule, "Targets" => \@Targets_list );
+    ( $method_name, $args )= ( 'PutTargets', \%TargetsParams );
+}
+
+if (not defined $method_name or not $call = $service->meta->find_method_by_name($method_name)){
+  if (defined $method_name) {
+    print "Don't know method $method_name on $service_name\n\n";
+  } else {
+    print "Please specify a method for $service_name\n\n"
+  }
+  
+  print "Maybe you ment:\n";
+
+  say $_ for ($service->operations);
+  
+  exit 1;
+}
+
+die "invalid method" if ($call->package_name !~ m/^Paws\:\:/);
+
+my $help_with_method_call = grep { $_ =~ m/^help$/i } @args;
+
+die "HELP!!!" if ($help_with_method_call);
+
+my %args = $args ? %$args : %{ ARGV::Struct->new(argv => [ '{', @args, '}' ])->parse };
+
+if ($opts->{ debug }) {
+  print "Arguments to the call:\n";
+  print Dumper(\%args);
+} 
+
+# $call is a Meta Method Object. It can be called via execute
+my $result = eval {$call->execute($service, %args) };
+if ($@) {
+  print $@ if ($opts->{debug});
+  if (ref($@)){
+    if ($@->isa('Moose::Exception::AttributeIsRequired')) {
+      print "Call to $method_name requires argument " . $@->attribute_name . "\n";
+      my $call_class = Moose::Util::find_meta($@->class_name);
+      my @atts = sort map { $_->name } $call_class->get_all_attributes;
+      foreach my $att_name (@atts) {
+        my $attribute = $call_class->find_attribute_by_name($att_name);
+        say sprintf "%s: %s %s", $attribute->name, $attribute->type_constraint->name, ($attribute->is_required ? 'REQUIRED' : '');
+      }
+    } elsif ($@->isa('Paws::Exception')) {
+      say "The API retured an error: " . $@->message . "(" . $@->code . ")";
+      exit 1;
+    } else {
+      die $@
+    }
+  } else {
+    die $@;
+  }
+}
+
+if (ref($result)) {
+  my $h = $service->to_hash($result);
+  $h = Hash::Flatten::flatten($h, { HashDelimiter => '.', ArrayDelimiter => '.' });
+
+  my $max_chars = reduce { length($a) > length($b) ? $a : $b } keys %$h;
+  $max_chars = length($max_chars);
+  #TODO: colorize
+  say "$_: " . (' ' x ($max_chars - length($_))) .  $h->{ $_ } for (sort keys %$h);
+}
+print "__SUCCESS__\n";

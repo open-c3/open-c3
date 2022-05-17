@@ -1,0 +1,48 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use MYDan::Util::OptConf;
+use YAML::XS;
+use JSON;
+use Temp;
+use POSIX;
+use Digest::MD5;
+
+=head1 SYNOPSIS
+
+ $0 updateScheduledTask # region task-definition rulename targetid
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+$option->assert() unless @ARGV;
+
+die "nonode" unless $ENV{NODE};
+
+sub success
+{
+    map{ print "$_:ok\n"; } split /,/, $ENV{NODE};
+    exit;
+}
+
+if( $ARGV[0] eq 'updateScheduledTask' )
+{
+    die "config null\n" unless $ENV{CONFIGPATH} && -f $ENV{CONFIGPATH};
+
+    my $config = eval{ YAML::XS::LoadFile $ENV{CONFIGPATH} };
+    die "load config fail: $@" if $@;
+    die "load yaml config fail" unless $config && ref $config eq 'HASH';
+
+    map{
+        die "key '$_' undef in config" unless $config->{$_};
+        die "key '$_' format error" unless $config->{$_} =~ /^[\w:_\-\.\/]+$/;
+    }qw( region task-definition rulename targetid );
+ 
+    my $ticket = $ENV{TICKETFILE} && -f $ENV{TICKETFILE} ? "AWS_CONFIG_FILE=$ENV{TICKETFILE}" : '';
+
+    my $taskdefinition = $config->{"task-definition"};
+    die if system "$ticket /data/Software/mydan/JOB/buildin/awsecsv3.code/paws CloudWatchEvents --region '$config->{region}' UpdateTargets  TaskDefinition '$taskdefinition' Rule '$config->{rulename}' TargetID '$config->{targetid}' 1>&2";
+
+    success();
+}
+
