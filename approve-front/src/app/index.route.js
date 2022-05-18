@@ -360,7 +360,7 @@
                 controllerAs: 'group'
             })
             .state('home.approval', {
-                url: 'approval/:treeid',
+                url: 'approval',
                 templateUrl: 'app/pages/approval/approval.html',
                 controller: 'ApprovalController',
                 controllerAs: 'approval'
@@ -572,7 +572,7 @@
             });
 
 
-        $urlRouterProvider.otherwise('/approval/4000000000');
+        $urlRouterProvider.otherwise('/approval');
     }
 
 })();

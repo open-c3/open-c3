@@ -17,7 +17,7 @@
             $http.post('/api/connector/default/user/login', vm.post ).then(
                 function successCallback(response) {
                     if (response.data.stat){
-                        $state.go('home.approval', {treeid:1});
+                        $state.go('home.approval');
                     }else {
                         toastr.error('登录失败!');
                     }
