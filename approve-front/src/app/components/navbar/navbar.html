@@ -1,0 +1,39 @@
+<header class="navbar navbar-fixed-top bg-danger">
+<div>
+    <div class="navbar-branding">
+        <a class="navbar-brand" ui-sref="home.approval({treeid: nav.state.params.treeid})">
+            <img src="/assets/images/open-c3-logo.jpeg"/>
+            <span>OPEN-C3</span>
+        </a>
+    </div>
+
+    <ul class="nav navbar-nav navbar-left">
+        <li>
+            <a ui-sref="home.approval({treeid: nav.state.params.treeid})" > <span>我的审批</span> </a>
+        </li>
+    </ul>
+
+    <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown" uib-dropdown>
+            <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple" uib-dropdown-toggle>
+                <span>{{ nav.user.name }}</span>
+                <span class="caret caret-tp hidden-xs"></span>
+            </a>
+            <ul class="dropdown-menu list-group dropdown-persist w250" uib-dropdown-menu>
+                <li class="dropdown-header clearfix">
+                    <div class="pull-left ml10">用户:{{ nav.user.email }}</div>
+                </li>
+                <li class="list-group-item">
+                    <a href="javascript:void(0)" class="animated animated-short fadeInUp" ng-click="nav.chpasswd()">
+                        <span class="fa fa-key"></span><span>修改密码</span>
+                    </a>
+                    <a href="javascript:void(0)" class="animated animated-short fadeInUp" ng-click="nav.logout()">
+                        <span class="fa fa-power-off"></span><span>登出</span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+    </ul>
+</div>
+
+</header>

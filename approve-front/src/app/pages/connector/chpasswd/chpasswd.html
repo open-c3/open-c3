@@ -1,0 +1,59 @@
+<div>
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h5>修改个人密码</h5>
+        </div>
+    </div>
+
+
+    <div>
+      <form name="myForm" novalidate>
+        <div class="row">
+            <div class="col-sm-12 form-group">
+                <label class="col-sm-1 control-label">原密码</label>
+                <div class="col-sm-3">
+                    <input type="password" class="form-control"  ng-model="connectorchpasswd.chpasswd.old" required>
+                </div>
+            </div>
+        </div>
+
+
+       <div class="row">
+            <div class="col-sm-12 form-group">
+                <label class="col-sm-1 control-label">新密码</label>
+                <div class="col-sm-3">
+                    <input type="password" class="form-control"  ng-model="connectorchpasswd.chpasswd.new1" ng-change="connectorchpasswd.change()" required>
+                </div>
+            </div>
+        </div>
+
+       <div class="row">
+            <div class="col-sm-12 form-group">
+                <label class="col-sm-1 control-label">重复新密码</label>
+                <div class="col-sm-3">
+                    <input type="password" class="form-control"  ng-model="connectorchpasswd.chpasswd.new2" ng-change="connectorchpasswd.change()" required>
+                </div>
+                <label class="col-sm-1 control-label" ng-if="connectorchpasswd.new2err" style="color: red;" >两个新密码不一致</label>
+            </div>
+        </div>
+
+密码必须至少8位数，同时必须包含数字，大写字母，小写字母
+       <div class="row">
+            <div class="col-sm-12 form-group">
+                <div class="col-sm-3">
+                    <button type="submit" ng-disabled="myForm.$invalid || connectorchpasswd.new2err" class="btn btn-primary" style="padding: 10px 25px" ng-click="connectorchpasswd.changepasswd()"><i class="fa fa-key fa-lg" aria-hidden="true"></i>修改密码</button>
+                </div>
+            </div>
+        </div>
+
+
+        <div id="createerr" style="padding: 10px;color: red;font-weight: bold" class="form-inline">
+            {{errmsg}}
+        </div>
+        <div id="createok" style="padding: 10px;color: green;font-weight: bold" class="form-inline">
+            {{okmsg}}
+        </div>
+        <div style="clear: both;">&nbsp;</div>
+       </form>
+    </div>
+</div>

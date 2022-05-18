@@ -1,0 +1,38 @@
+<div class="row block" id="changewidth">
+
+    <div class="panel panel-primary">
+
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" ng-click="approvaledit.cancel()" uib-tooltip="关闭">
+                    <i class="fa fa-times fa-fw"></i>
+                </button>
+            </span>
+            <h5>{{approvaledit.data.name}}</h5>
+        </div>
+
+        <div class="table-responsive" style="width: 100%">
+            <table class="table table-bordered" style="font-weight: bold;border: 0px;">
+                <tbody>
+                    <tr>
+                        <td>创建时间</td>
+                        <td>{{approvaledit.data.create_time}}</td>
+                    </tr>
+                    <tr>
+                        <td>提交人</td>
+                        <td>{{approvaledit.data.submitter}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <a><pre>审批内容: {{approvaledit.data.cont}}</pre></a>
+
+        <div class="panel-footer text-right">
+            <button class="btn btn-success" ng-disabled="!approvaledit.show" ng-click="approvaledit.edit('agree')">同意</button>
+            <button class="btn btn-danger" ng-disabled="!approvaledit.show" ng-click="approvaledit.edit('refuse')">拒绝</button>
+        </div>
+
+    </div>
+
+</div>

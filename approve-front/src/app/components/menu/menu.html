@@ -1,0 +1,35 @@
+<div id="sidebar_left" class="affix" style="background-color: #FFF;z-index: 0;">
+    <form>
+      <div style="width: 100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;word-wrap: break-word" >
+        <input type="text" class="form-control" ng-model="selected" placeholder="搜索服务节点" typeahead-on-select="tree.searchNode($item, $model, $label, $event)" ng-click="tree.search_init()" typeahead="name for name in tree.names.sort()|filter:$viewValue| limitTo:8">
+      </div>
+    </form>
+
+    <div class="sidebar-left-content has-scrollbar">
+
+        <div id="sidebar-scroll nav sidebar-menu">
+            <div class="sidebar-content">
+
+                <div class="panel">
+                    <div class="panel-heading">
+                        <span class="panel-title">TREE</span>
+                        <span class="panel-controls">
+                            <a href="javascript:void(0)" ng-click="tree.focusCurrent()"><i class="fa fa-map-marker"></i></a>
+                            <a href="javascript:void(0)" ng-click="tree.expandAll(true)"><i class="fa fa-plus"></i></a>
+                            <a href="javascript:void(0)" ng-click="tree.expandAll(false)"><i class="fa fa-minus"></i></a>
+                            <a href="javascript:void(0)" ng-click="tree.refresh()"><i class="treeFresh fa fa-refresh"></i></a>
+                        </span>
+                    </div>
+                    <div class="panel-body prn">
+                        <perfect-scrollbar class="scroller" style="margin:-15px 0 -20px -20px">
+                            <ul class="ztree" id="openc3tree"></ul>
+                        </perfect-scrollbar>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+</div>

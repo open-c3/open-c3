@@ -1,0 +1,42 @@
+<div class="login" style="background: #f86632;margin:0;padding:0;height:100%;width:100%;position:absolute;">
+
+    <h1 class="h2 text-light text-center push-top-bottom animation-slideDown">
+        <img src="/assets/images/open-c3-logo.jpeg" width="150"/>
+    </h1>
+
+    <div>
+        <div id="login">
+
+            <div class="logo">
+                
+            </div>
+
+            <form onsubmit="return false;">
+
+                <div class="wrapper-login">
+
+                    <span class="input-icon">
+                        <i class="glyphicon glyphicon-user"></i>
+                        <span class="glyphicon glyphicon-alert text-danger hide"></span>
+                        <input type="text" class="user" placeholder="username" cmlang="login_username" ng-model="login.post.user" name="username"/>
+                    </span>
+
+                    <span class="input-icon">
+                        <i class="glyphicon glyphicon-lock"></i>
+                        <input type="password" placeholder="password" cmlang="login_password" ng-model="login.post.pass" name="password" />
+                    </span>
+
+                </div>
+
+                <button type="submit" class="login-button" ng-click="login.login()"  cmlang="login_login">登录</button>
+                <p style="text-align:center;padding-top:5px;color:#fff;" ng-if="login.logining" id="logining">
+                    <span>登录中...</span>
+                </p>
+
+            </form>
+            <span> 
+                <a href="https://oa.openc3.com/" cmlang="login_find_pwd"></a>
+            </span>
+        </div>
+    </div>
+</div>
