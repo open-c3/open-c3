@@ -127,6 +127,35 @@ get '/connectorx/sso/userinfo' => sub {
 
     return +{ name => uc( $name ), email => $user, company => $company, admin => $admin, showconnector => $showconnector };
 };
+
+#给审批插件用
+get '/connectorx/approve/sso/userinfo' => sub {
+    my ( $user, $company, $admin, $showconnector )= eval{ $api::approvesso->run( cookie => cookie( 'sid' ) ) };
+    return( +{ stat => $JSON::false, info => "sso code error:$@" } ) if $@;
+    return( +{ stat => $JSON::false, code => 10000 } ) unless $user;
+    my $name = $user;
+    $name =~ s/@.*//;
+
+    return +{ name => uc( $name ), email => $user, company => $company, admin => $admin, showconnector => $showconnector };
+};
+#  给审批插件用 内部连接器查询用户名称
+get '/connectorx/approve/username' => sub {
+    #cookie appname appkey
+    my $param = params();
+    my ( $user, $company ) = eval{ $api::approvesso->run( %$param ) };
+
+    return( +{ stat => $JSON::false, info => "sso code error:$@" } ) if $@;
+    return( +{ stat => $JSON::true, data => +{ user  => $user, company => $company } } );
+};
+
+any '/connectorx/approve/ssologout' => sub {
+    my $param = params();
+    my $redirect = eval{ $api::approvessologout->run( cookie => cookie( 'sid' ) ) };
+    set_cookie( 'sid' => '', http_only => 0, expires => -1 );
+    return +{ stat => $JSON::false, info => "sso code error:$@" } if $@;
+    return +{ stat => $JSON::true, info => 'ok', data => '/#/login' };
+};
+
 #前端跳转登录
 any '/connectorx/sso/loginredirect' => sub {
     my $param = params();

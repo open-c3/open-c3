@@ -11,7 +11,7 @@ set serializer => 'JSON';
 set show_errors => 1;
 
 our $VERSION = '0.1';
-our ( $mysql, $myname, $sso, $ssologout, $ssoconfig, $pms, $cookiekey, $pmslocal );
+our ( $mysql, $myname, $sso, $ssologout, $ssoconfig, $pms, $cookiekey, $pmslocal, $approvesso, $approvessologout );
 
 BEGIN{
     $myname = Util::myname();
@@ -19,6 +19,7 @@ BEGIN{
 
     my $ssoc;
     ( $ssologout, $sso ) = map{ Code->new( "connectorx.plugin/$_" ) }qw( ssologout sso );
+    ( $approvessologout, $approvesso ) = map{ Code->new( "connectorx.plugin/approve/$_" ) }qw( ssologout sso );
     ( $ssoc, $pms ) = map{ Code->new( "auth/$_" ) }qw( ssoconfig pms );
 
     $ssoconfig = $ssoc->run();

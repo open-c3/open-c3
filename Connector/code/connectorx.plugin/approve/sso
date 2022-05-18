@@ -1,0 +1,130 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
+use strict;
+use warnings;
+use JSON;
+use YAML::XS;
+use LWP::UserAgent;
+use Logs;
+use Digest::MD5;
+my %app;
+my ( $ssousername, %env, $debug, $apicache );
+BEGIN{
+    for my $file ( glob "/data/Software/mydan/*/conf/appname" )
+    {
+        my $name = `cat $file`;
+        chomp $name;
+        $file =~ s/appname/appkey/;
+        my $key = `cat $file`;
+        chomp $key;
+        $app{$name} = $key eq 'c3random' && $ENV{OPEN_C3_RANDOM} ? $ENV{OPEN_C3_RANDOM} : $key;
+    }
+    use Configini;
+    $ssousername = 'http://api.connector.open-c3.org/internal/user/username?cookie=';
+
+    $debug = Configini::get( 'debug' );
+    $apicache = Configini::get( 'apicache' );
+    $apicache = 0 unless $apicache && $apicache =~ /^\d+$/;
+};
+
+$| ++;
+
+=head1 SYNOPSIS
+
+#第一种
+    cookie => 'MTUxNTAzMzg1NnxEdi1CQkFFQ180SUFBUXdCRUFBQU5mLUNBQUVGZEc5clpXNEdjM1J5YVc1bkRDSUFJREk0T1Rsa1l6aG1ZMk5tWWpRMk16TmtaV1kzTlRSbE1XWmtNVFpsTW1JeHyVJcLDk8iEGWlwsv8le0WzgNxhZ6JIYRFMOYzE8fKecA==',
+
+#第二种
+    appkey =>
+    appname => 
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my $logs = $param{logs};
+
+    $logs = Logs->new( 'code.sso' ) unless $logs;
+
+    return 'debug@api' if $ENV{MYDan_DEBUG};
+    if( $param{appkey} && $param{appname} )
+    {
+         return undef unless $app{$param{appname}} && $app{$param{appname}} eq $param{appkey};
+         return wantarray ? ( "$param{appname}\@app", '@app' ) : "$param{appname}\@app";
+    }
+    else
+    {
+        my $ua = LWP::UserAgent->new;
+        $ua->default_header( %env ) if %env;
+
+        $ua->timeout( 10 );
+
+        my $file;
+        if( $apicache )
+        {
+            my $md5 = Digest::MD5->new->add( "$ssousername$param{cookie}" )->hexdigest;
+            $file = "/tmp/openc3-cache-api-sso-$md5";
+
+            $ua->timeout( 3 );
+            if( -f $file )
+            {
+                my $apicachetimeout = -f '/var/openc3_connector_api_fail' ? 86400 : $apicache;
+
+                my $mtime = ( stat $file )[9];
+                if( $mtime  && ( $mtime + $apicachetimeout > time ) )
+                {
+                    my $filecont = eval{ YAML::XS::LoadFile $file };
+                    if( $filecont && ref $filecont eq 'ARRAY' )
+                    {
+                        $logs->say( "sso api usetime: cache" );
+                        return wantarray ? @$filecont : $filecont->[0];           
+                    }
+                }
+             }
+        }
+
+        my $t = time;
+        my $res = $ua->get( "$ssousername$param{cookie}" );
+        $logs->say( YAML::XS::Dump $res ) if $debug;
+        my $utime = time - $t;
+        $logs->say( "sso api usetime: $utime" );
+
+        if($res->is_success)
+        {
+            my $v = eval{JSON::decode_json $res->decoded_content};
+            return undef unless $v->{stat};
+            my @return = ( ref $v->{data} eq 'HASH' && $v->{data}{user} && $v->{data}{company} )
+                ? ( $v->{data}{user}, $v->{data}{company}, $v->{data}{admin}, $v->{data}{showconnector} )
+                : ref $v->{data} eq 'HASH' ? () : ( $v->{data}, $v->{data} =~ /(@.+)$/ ? $1 : 'default' );
+
+            if( @return >= 2 && $return[0] && $return[0] =~ /^[a-zA-Z0-9\@\-\.-]+$/ )
+            {
+                my $userdepartment = `c3mc-base-db-get -t openc3_connector_userdepartment department -f "user='$return[0]'"`;
+                chomp $userdepartment;
+                $return[1] = $userdepartment if $userdepartment =~ /^[a-zA-Z0-9\@\-\.-]+$/;
+            }
+
+            eval{ YAML::XS::DumpFile $file, \@return } if $apicache;
+
+            return wantarray ? @return : $return[0];
+        }
+        elsif( $apicache )
+        {
+            if( -f $file )
+            {
+                my $mtime = ( stat $file )[9];
+                if( $mtime  && ( $mtime + 86400 > time ) )
+                {
+                    my $filecont = eval{ YAML::XS::LoadFile $file };
+                    if( $filecont && ref $filecont eq 'ARRAY' )
+                    {
+                        $logs->err( "sso api usetime: cache" );
+                        return wantarray ? @$filecont : $filecont->[0];           
+                    }
+                }
+             }
+        }
+        return undef;
+    }
+}

@@ -74,6 +74,31 @@ post '/default/user/chpasswd' => sub {
     return $x eq 1 ? +{ stat => $JSON::true, info => $x } : +{ stat => $JSON::false, info => 'Password error' };
 };
 
+post '/default/approve/user/chpasswd' => sub {
+    my $param = params();
+    my $error = Format->new(
+        old => qr/^.+$/, 1,
+        new1 => qr/^.+$/, 1,
+        new2 => qr/^.+$/, 1,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    return  +{ stat => $JSON::false, info => "The two new passwords don't match" } unless $param->{new1} eq $param->{new2};
+    return  +{ stat => $JSON::false, info => "The password is too simple" }
+        unless length $param->{new1} >= 8 && $param->{new1} =~ /[a-z]/  && $param->{new1} =~ /[A-Z]/  && $param->{new1} =~ /[0-9]/;
+
+    my $cookie = cookie( 'sid' );
+    
+    my $newmd5 = Digest::MD5->new->add($param->{new1})->hexdigest;
+    my $oldmd5 = Digest::MD5->new->add($param->{old})->hexdigest;
+
+    my $x = eval{ $api::mysql->execute( "update openc3_connector_userinfo set pass='$newmd5' where sid='$cookie' and pass='$oldmd5'" ); };
+
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
+    return $x eq 1 ? +{ stat => $JSON::true, info => $x } : +{ stat => $JSON::false, info => 'Password error' };
+};
+
 get '/internal/user/username' => sub {
     my $sid = params()->{cookie};
     return +{ stat => JSON::false, info => 'sid format err' } unless $sid && $sid =~ /^[a-zA-Z0-9]{64}$/;

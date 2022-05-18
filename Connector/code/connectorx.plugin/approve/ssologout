@@ -1,0 +1,38 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
+use strict;
+use warnings;
+use JSON;
+use LWP::UserAgent;
+use Logs;
+
+my ( $ssologoutapi, $ssologoutaddr, $debug );
+BEGIN{
+    use Configini;
+    $ssologoutapi = 'http://api.connector.open-c3.org/default/user/logout?sid=';
+    $debug = Configini::get( 'debug' );
+};
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    cookie => 'MTUxNTAzMzg1NnxEdi1CQkFFQ180SUFBUXdCRUFBQU5mLUNBQUVGZEc5clpXNEdjM1J5YVc1bkRDSUFJREk0T1Rsa1l6aG1ZMk5tWWpRMk16TmtaV1kzTlRSbE1XWmtNVFpsTW1JeHyVJcLDk8iEGWlwsv8le0WzgNxhZ6JIYRFMOYzE8fKecA==',
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my $logs = $param{logs};
+    $logs = Logs->new( 'code.ssologout' ) unless $logs;
+
+    my $ua = LWP::UserAgent->new;
+    my $res = $ua->get( "$ssologoutapi$param{cookie}" );
+
+    $logs->say( YAML::XS::Dump $res ) if $debug;
+
+    return if $res->is_success;
+    die "logout fail";
+}
+
