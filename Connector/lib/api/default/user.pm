@@ -144,7 +144,7 @@ any '/default/user/login' => sub {
     {
         my @chars = ( "A" .. "Z", "a" .. "z", 0 .. 9 );
         my $keys = join("", @chars[ map { rand @chars } ( 1 .. 64 ) ]);
-        eval{ $api::mysql->execute( sprintf "update openc3_connector_userinfo set expire=%d,sid='%s' where name='%s'", time + 8 * 3600, $keys, $user ); };
+        eval{ $api::mysql->execute( sprintf "update openc3_connector_userinfo set expire=%d,sid='%s' where name='%s'", time + 7 * 86400, $keys, $user ); };
         return +{ stat => $JSON::false, info => $@ } if $@;
 
         set_cookie( sid => $keys, http_only => 0, expires => time + 8 * 3600 );
