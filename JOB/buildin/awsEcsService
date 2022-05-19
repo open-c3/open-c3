@@ -1,0 +1,237 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use MYDan::Util::OptConf;
+use YAML::XS;
+use JSON;
+use Temp;
+use POSIX;
+use Digest::MD5;
+use LWP::UserAgent;
+
+=head1 SYNOPSIS
+
+ $0 apply
+ $0 check
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+$option->assert() unless @ARGV;
+
+die "nonode" unless $ENV{NODE};
+
+sub success
+{
+    map{ print "$_:ok\n"; } split /,/, $ENV{NODE};
+    exit;
+}
+
+my $timeout = $ENV{TIMEOUT} && $ENV{TIMEOUT} =~ /^\d+$/ ? time + $ENV{TIMEOUT} : time  +  300; 
+
+if( $ARGV[0] eq 'savelist' )
+{
+    my   $region = $ARGV[1];
+    warn "region: $region\n";
+    die  "region format error"  unless $region  =~ /^[a-zA-Z][a-zA-Z0-9\-]+$/;
+
+    my   $cluster = $ARGV[2];
+    warn "cluster: $cluster\n";
+    die  "cluster format error" unless $cluster =~ /^[a-zA-Z][a-zA-Z0-9\-]+$/;
+
+
+    die   "config null\n" unless $ENV{CONFIGPATH} && -f $ENV{CONFIGPATH};
+    my    @conf = `cat '$ENV{CONFIGPATH}'`;
+    chomp @conf;
+
+    map{ $_ =~ s/^\s+//; $_=~ s/\s+$//; }@conf;
+    my   @url = grep{ /^http[s]*:\/\//  }@conf;
+
+    die "save url nofind" unless @url;
+    
+
+    my $ticket = $ENV{TICKETFILE} && -f $ENV{TICKETFILE} ? "AWS_CONFIG_FILE=$ENV{TICKETFILE}" : '';
+    my $str = `$ticket aws ecs --region  '$region' list-services --cluster '$cluster'`;
+
+    my  $res = eval{ JSON::decode_json( $str ) };
+    die "$str decode_json error: $@" if $@;
+
+    my  $serviceArns = $res->{serviceArns} if $res->{serviceArns} && ref $res->{serviceArns} eq 'ARRAY';
+    die "$str nofind serviceArns" unless $serviceArns;
+
+    my @service;
+    for ( @$serviceArns )
+    {
+        my $t = ( split /\//, $_ )[-1];
+        unless( $t && $t =~ /^[a-zA-Z][a-zA-Z0-9\-]+$/ )
+        {
+            warn "[WARN] service name $t format error, skip.\n";
+            next;
+        }
+        push @service , $t;
+    }
+
+    my $servicestr = @service ? join( ',', @service ): 'null';
+    my $ua = LWP::UserAgent->new;
+    $ua->timeout( 10 );
+
+    for ( @url )
+    {
+        my $url = "$_$servicestr";
+        my $res = $ua->get( $url );
+
+        die "call $url fail" unless $res->is_success;
+
+        my $data = eval{JSON::decode_json $res->content};
+        unless ( $data->{stat} ) {
+            die "call $url result". $data->{info} || '';
+        }
+    }
+ 
+    success();
+}
+
+sub show
+{
+    my ( $region, $cluster, $service ) = @_;
+
+    my $ticket = $ENV{TICKETFILE} && -f $ENV{TICKETFILE} ? "AWS_CONFIG_FILE=$ENV{TICKETFILE}" : '';
+    my $str = `$ticket aws ecs  --region  '$region'  describe-services --cluster '$cluster' --service '$service'`;
+
+    my  $res = eval{ JSON::decode_json( $str ) };
+    die "$str decode_json error: $@" if $@;
+
+    my  $serviceinfo = $res->{services}[0] if $res->{services} && ref $res->{services} eq 'ARRAY' && @{$res->{services}};
+    die "nofind service\n" unless $serviceinfo;
+    die "services > 1 are not supported" if @{$res->{services}} > 1;
+
+    my  $deploymentsinfo = $serviceinfo->{deployments}[0] if $serviceinfo->{deployments} && ref $serviceinfo->{deployments} eq 'ARRAY' && @{$serviceinfo->{deployments}};
+    die "nofind deployment\n" unless $deploymentsinfo;
+    die "deployment > 1 sre not supported" if @{$serviceinfo->{deployments}} > 1;
+
+    my %res;
+    for( qw( desiredCount runningCount ) )
+    {
+        die "get service $_ error"    unless defined $serviceinfo->{$_}     && $serviceinfo->{$_}     =~ /^\d+$/;
+        die "get deployment $_ error" unless defined $deploymentsinfo->{$_} && $deploymentsinfo->{$_} =~ /^\d+$/;
+
+        $res{service   }{$_} = $serviceinfo->{    $_};
+        $res{deployment}{$_} = $deploymentsinfo->{$_};
+    }
+
+    return \%res;
+}
+
+sub setcount
+{
+    my ( $region, $cluster, $service, $count ) = @_;
+    my $ticket = $ENV{TICKETFILE} && -f $ENV{TICKETFILE} ? "AWS_CONFIG_FILE=$ENV{TICKETFILE}" : '';
+    die "set count fail" if  system "$ticket aws ecs --region  '$region'  update-service --cluster '$cluster' --service '$service' --desired-count $count >/dev/null";
+}
+
+sub start
+{
+    my ( $region, $cluster, $service ) = @_;
+    warn '=' x 60, "\n";
+    my $stat = show( $region, $cluster, $service );
+    if ( $stat->{service}{desiredCount} > 0 )
+    {
+        warn sprintf "%s\n", YAML::XS::Dump $stat;
+        warn "[$region, $cluster, $service ] desiredCount > 0, start skip\n";
+    }
+
+    else
+    {
+        warn "starting ... \n";
+        setcount( $region, $cluster, $service, 1 );
+    }
+
+    for( 1 .. 1000 )
+    {
+        my $x = show( $region, $cluster, $service );
+        warn "service.desiredCount: $x->{service}{desiredCount} deployment.runningCount: $x->{deployment}{runningCount}\n";
+
+        if( $x->{deployment}{runningCount} >= 1 )
+        {
+            warn sprintf "%s\n", YAML::XS::Dump $x;
+            last;
+        }
+        die "check timeout.\n" if time > $timeout;
+        sleep 3;
+    }
+}
+
+sub stop
+{
+    my ( $region, $cluster, $service ) = @_;
+    warn '=' x 60, "\n";
+    my $stat = show( $region, $cluster, $service );
+    if ( $stat->{service}{desiredCount} == 0 )
+    {
+        warn sprintf "%s\n", YAML::XS::Dump $stat;
+        warn "[$region, $cluster, $service ] desiredCount == 0, stop skip\n";
+    }
+
+    else
+    {
+        warn "stoping ... \n";
+        setcount( $region, $cluster, $service, 0 );
+    }
+
+    for( 1 .. 1000 )
+    {
+        my $x = show( $region, $cluster, $service );
+        warn "service.desiredCount: $x->{service}{desiredCount} deployment.runningCount: $x->{deployment}{runningCount}\n";
+
+        if( $x->{deployment}{runningCount} == 0 )
+        {
+            warn sprintf "%s\n", YAML::XS::Dump $x;
+            last;
+        }
+        die "check timeout.\n" if time > $timeout;
+        sleep 3;
+    }
+}
+
+if( $ARGV[0] eq 'start' || $ARGV[0] eq 'stop' || $ARGV[0] eq 'restart' )
+{
+    die "argv error" unless @ARGV == 4;
+    my ( undef, $region, $cluster, $service ) = @ARGV;;
+
+    die "region format error"  unless $region  && $region  =~ /^[a-zA-Z0-9\._\-]+$/;
+    die "cluster format error" unless $cluster && $cluster =~ /^[a-zA-Z0-9\._\-]+$/;
+    die "service format error" unless $service && $service =~ /^[a-zA-Z0-9\._\-]+$/;
+
+    stop ( $region, $cluster, $service ) if $ARGV[0] eq 'stop'  || $ARGV[0] eq 'restart';
+    start( $region, $cluster, $service ) if $ARGV[0] eq 'start' || $ARGV[0] eq 'restart';
+
+    success();
+}
+
+if( $ARGV[0] eq 'setcount' )
+{
+    die "argv error" unless @ARGV == 5;
+    my ( undef, $region, $cluster, $service, $count ) = @ARGV;;
+
+    die "region format error"  unless defined $region  && $region  =~ /^[a-zA-Z0-9\._\-]+$/;
+    die "cluster format error" unless defined $cluster && $cluster =~ /^[a-zA-Z0-9\._\-]+$/;
+    die "service format error" unless defined $service && $service =~ /^[a-zA-Z0-9\._\-]+$/;
+    die "count format error"   unless defined $count   && $count   =~ /^\d+$/;
+
+    setcount( $region, $cluster, $service, $count );
+    success();
+}
+
+if( $ARGV[0] eq 'show' || $ARGV[0] eq 'status' )
+{
+    die "argv error" unless @ARGV == 4;
+    my ( undef, $region, $cluster, $service ) = @ARGV;;
+
+    die "region format error"  unless $region  && $region  =~ /^[a-zA-Z0-9\._\-]+$/;
+    die "cluster format error" unless $cluster && $cluster =~ /^[a-zA-Z0-9\._\-]+$/;
+    die "service format error" unless $service && $service =~ /^[a-zA-Z0-9\._\-]+$/;
+
+    my $res = show( $region, $cluster, $service );
+    warn sprintf "%s\n", YAML::XS::Dump $res;
+    success();
+}
