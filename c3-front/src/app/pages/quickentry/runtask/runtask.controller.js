@@ -22,6 +22,8 @@
             'uuid':null,
         };
 
+        vm.handwritten = {};
+
         vm.getAllJob = function () {
             vm.ciinfo = {}
 
