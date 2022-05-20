@@ -21,7 +21,22 @@ make install
 rm -rf /data/Software/mydan/perl-5.24.0**
 
 #nginx
-yum -y install nginx
+#yum -y install nginx
+yum -y install gcc gcc-c++ autoconf automake gd gd-devel zlib zlib-devel openssl openssl-devel pcre-devel
+mkdir /root/nginx.install
+cd /root/nginx.install
+wget http://nginx.org/download/nginx-1.17.7.tar.gz
+git clone https://github.com/hongzhidao/nginx-upload-module.git
+git clone https://github.com/masterzen/nginx-upload-progress-module.git
+tar -xzvf nginx-1.17.7.tar.gz 
+cd nginx-1.17.7/
+
+./configure  --with-debug --prefix=/etc/nginx --sbin-path=/usr/sbin/nginx --conf-path=/etc/nginx/nginx.conf --error-log-path=/var/log/nginx/error.log --http-log-path=/var/log/nginx/access.log --pid-path=/var/run/nginx.pid --lock-path=/var/run/nginx.lock --http-client-body-temp-path=/var/cache/nginx/client_temp --http-proxy-temp-path=/var/cache/nginx/proxy_temp --http-fastcgi-temp-path=/var/cache/nginx/fastcgi_temp --http-uwsgi-temp-path=/var/cache/nginx/uwsgi_temp --http-scgi-temp-path=/var/cache/nginx/scgi_temp --user=nginx --group=nginx --add-module=/root/nginx.install/nginx-upload-module --add-module=/root/nginx.install/nginx-upload-progress-module --with-stream --with-http_image_filter_module --with-http_ssl_module --with-http_realip_module --with-http_addition_module --with-http_sub_module --with-http_dav_module --with-http_flv_module --with-http_mp4_module --with-http_gunzip_module --with-http_gzip_static_module --with-http_random_index_module --with-http_secure_link_module --with-http_stub_status_module --with-http_auth_request_module --with-file-aio --with-cc-opt='-Wno-format-security -Wno-unused-but-set-variable -Wno-unused-result -D NGX_HAVE_OPENSSL_MD5_H=1 -D NGX_OPENSSL_MD5=1 -D NGX_HAVE_OPENSSL_SHA1_H=1 -O2 -g -pipe -Wp,-D_FORTIFY_SOURCE=2  -fexceptions -fstack-protector --param=ssp-buffer-size=4 -m64 -mtune=generic'
+
+make && make install
+
+cd /
+rm -rf /root/nginx.install
 
 #perl module
 yum -y install perl-DBD-MySQL.x86_64 mysql-devel 
