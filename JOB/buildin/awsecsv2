@@ -138,6 +138,9 @@ if( $ARGV[0] eq 'apply' )
     warn $updateServer;
     die "apply fail. nofind desiredCount\n" unless $updateServer =~ /desiredCount/;
 
+    my $ticketid = ( $ENV{TICKETID} && $ENV{TICKETID} =~ /^\d+$/ ) ? $ENV{TICKETID} : 0 ;
+    system "c3mc-base-db-ins -t openc3_ci_awsecs  ticketid '$ticketid' region '$config->{region}' cluster '$config->{cluster}' service '$config->{service}' taskdef '$config->{'task-definition'}' >/dev/null 2>/dev/null";
+
     success();
 }
 
