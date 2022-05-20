@@ -66,6 +66,7 @@ get '/variable/:projectid/:jobuuid' => sub {
         jobuuid => qr/^[a-zA-Z0-9]+$/, 1, 
         empty => qr/^\d+$/, 0, 
         exclude => qr/^[a-zA-Z0-9,_]+$/, 0,
+        env => [ 'in', 'test', 'online' ], 0,
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
@@ -78,11 +79,18 @@ get '/variable/:projectid/:jobuuid' => sub {
     }
 
     my $w = $param->{empty} ? "and value=''" : '';
+
+    my $envwhere = '';
+    if( $param->{env} )
+    {
+        $envwhere = sprintf "and `env`!='%s'", $param->{env} eq 'test' ? 'online' : 'test';
+    }
+
     my @col = qw( id name value describe option create_user create_time );
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_job_variable
-                where jobuuid in ( select uuid from openc3_job_jobs where projectid='$param->{projectid}' and uuid='$param->{jobuuid}') $w $exclude order by `describe`", 
+                where jobuuid in ( select uuid from openc3_job_jobs where projectid='$param->{projectid}' and uuid='$param->{jobuuid}') $w $envwhere $exclude order by `describe`", 
                     join ',',map{"`$_`"} @col ), \@col )};
 
     return  +{ stat => $JSON::false, info => $@ } if $@;

@@ -230,7 +230,7 @@ post '/jobs/:projectid/copy/byname' => sub {
         }
     }
 
-    eval{ $api::mysql->execute( "insert into openc3_job_variable (`jobuuid`,`name`,`value`,`describe`,`option`,`create_user`) select '$touuid',name,value,`describe`,`option`,'$user' from openc3_job_variable where jobuuid='$fromuuid'" ); };
+    eval{ $api::mysql->execute( "insert into openc3_job_variable (`jobuuid`,`name`,`value`,`describe`,`option`,`create_user`,`env`) select '$touuid',name,value,`describe`,`option`,'$user',`env` from openc3_job_variable where jobuuid='$fromuuid'" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $step = join ',', @step;
@@ -267,7 +267,7 @@ post '/jobs/:projectid' => sub {
     eval{ $api::auditlog->run( user => $user, title => 'CREATE JOB', content => "TREEID:$param->{projectid} NAME:$param->{name}" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
-    my @variable;
+    my %variable = ( test => [], online => [], default => [] );
     my $index = 0;
     for my $data ( @{$param->{data}} )
     {
@@ -299,7 +299,8 @@ post '/jobs/:projectid' => sub {
             ##timeout
             ##pause
 
-            map{ push @variable, $data->{$_} }qw( node_cont scripts_argv );
+            my $envname = $data->{deployenv} && ( $data->{deployenv} eq 'test' || $data->{deployenv} eq 'online' ) ? $data->{deployenv} : 'default';
+            map{ push @{$variable{$envname}}, $data->{$_} }qw( node_cont scripts_argv );
 
             $error = Format->new( 
                 user => qr/^[a-zA-Z0-9\-_]+$/, 1,
@@ -369,7 +370,8 @@ post '/jobs/:projectid' => sub {
             ##timeout
             ##pause
 
-            map{ push @variable, $data->{$_} }qw( src sp dst dp );
+            my $envname = $data->{deployenv} && ( $data->{deployenv} eq 'test' || $data->{deployenv} eq 'online' ) ? $data->{deployenv} : 'default';
+            map{ push @{$variable{$envname}}, $data->{$_} }qw( src sp dst dp );
 
             $error = Format->new( 
                 user => qr/^[a-zA-Z0-9\-_]+$/, 1,
@@ -446,7 +448,8 @@ post '/jobs/:projectid' => sub {
         }
         elsif( $data->{plugin_type} eq 'approval' )
         {
-            map{ push @variable, $data->{$_} }qw( approver );
+            my $envname = $data->{deployenv} && ( $data->{deployenv} eq 'test' || $data->{deployenv} eq 'online' ) ? $data->{deployenv} : 'default';
+            map{ push @{$variable{$envname}}, $data->{$_} }qw( approver );
 
             $error = Format->new( 
                 name => [ 'mismatch', qr/'/ ], 1, 
@@ -511,13 +514,31 @@ post '/jobs/:projectid' => sub {
 
     return +{ stat => $JSON::false, info => $@ }  if $@;
 
-    my $variable = join " ", grep{ $_ }@variable;
-    my %variable;
-    map{ $variable{$_} = 1 } $variable =~ /\$([a-zA-Z][a-zA-Z0-9_]+)/g;
-    map{ $variable{$_} = 1 } $variable =~ /\$\{([a-zA-Z][a-zA-Z0-9_]+)\}/g;
+
+    my %var;
+    for my  $envname ( qw( test online default ) )
+    {
+        my $var = join " ", grep{ $_ } @{ $variable{ $envname } };
+        map{ $var{$envname}{$_} = 1 } $var =~ /\$([a-zA-Z][a-zA-Z0-9_]+)/g;
+        map{ $var{$envname}{$_} = 1 } $var =~ /\$\{([a-zA-Z][a-zA-Z0-9_]+)\}/g;
+    }
+
+    $var{all} = +{ map{ %$_ } values %var };
+
+    for ( keys %{$var{all}} )
+    {
+        $var{default}{$_} = 1 if $var{test}{$_} && $var{online}{$_};
+    }
+    for my $envname ( qw( test online ))
+    {
+        map{ delete $var{$envname}{$_} if $var{default}{$_}; }keys %{$var{$envname}};
+    }
 
     eval{
-        map{ $api::mysql->execute( "insert into openc3_job_variable (`jobuuid`,`name`,`value`,`describe`,`option`,`create_user`) values('$jobuuid','$_','','','','$user')" ); }keys %variable;
+        map{
+            my $envname = $var{test}{$_} ? 'test' : $var{online}{$_} ? 'online' : '';
+            $api::mysql->execute( "insert into openc3_job_variable (`jobuuid`,`name`,`value`,`describe`,`option`,`create_user`,`env`) values('$jobuuid','$_','','','','$user','$envname')" );
+        }keys %{$var{all}};
     };
     return +{ stat => $JSON::false, info => $@ }  if $@;
 
@@ -549,7 +570,7 @@ post '/jobs/:projectid/:jobuuid' => sub {
     eval{ $api::auditlog->run( user => $user, title => 'EDIT JOB', content => "TREEID:$param->{projectid} NAME:$param->{name}" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
-    my @variable;
+    my %variable = ( test => [], online => [], default => [] );
     my $index = 0;
     for my $data ( @{$param->{data}} )
     {
@@ -581,7 +602,8 @@ post '/jobs/:projectid/:jobuuid' => sub {
             ##timeout
             ##pause
 
-            map{ push @variable, $data->{$_} }qw( node_cont scripts_argv );
+            my $envname = $data->{deployenv} && ( $data->{deployenv} eq 'test' || $data->{deployenv} eq 'online' ) ? $data->{deployenv} : 'default';
+            map{ push @{$variable{$envname}}, $data->{$_} }qw( node_cont scripts_argv );
 
             $error = Format->new( 
                 user => qr/^[a-zA-Z0-9\-_]+$/, 1,
@@ -651,7 +673,8 @@ post '/jobs/:projectid/:jobuuid' => sub {
             ##timeout
             ##pause
 
-            map{ push @variable, $data->{$_} }qw( src sp dst dp );
+            my $envname = $data->{deployenv} && ( $data->{deployenv} eq 'test' || $data->{deployenv} eq 'online' ) ? $data->{deployenv} : 'default';
+            map{ push @{$variable{$envname}}, $data->{$_} }qw( src sp dst dp );
 
             $error = Format->new( 
                 user => qr/^[a-zA-Z0-9\-_]+$/, 1,
@@ -728,7 +751,8 @@ post '/jobs/:projectid/:jobuuid' => sub {
         }
         elsif( $data->{plugin_type} eq 'approval' )
         {
-            map{ push @variable, $data->{$_} }qw( approver );
+            my $envname = $data->{deployenv} && ( $data->{deployenv} eq 'test' || $data->{deployenv} eq 'online' ) ? $data->{deployenv} : 'default';
+            map{ push @{$variable{$envname}}, $data->{$_} }qw( approver );
 
             $error = Format->new( 
                 name => [ 'mismatch', qr/'/ ], 1, 
@@ -795,23 +819,44 @@ post '/jobs/:projectid/:jobuuid' => sub {
 
     return +{ stat => $JSON::false, info => $@ }  if $@;
 
-    my $variable = join " ", grep{ $_ }@variable;
-    my %variable;
-    map{ $variable{$_} = 1 } $variable =~ /\$([a-zA-Z][a-zA-Z0-9_]+)/g;
-    map{ $variable{$_} = 1 } $variable =~ /\$\{([a-zA-Z][a-zA-Z0-9_]+)\}/g;
+    my %var;
+    for my  $envname ( qw( test online default ) )
+    {
+        my $var = join " ", grep{ $_ } @{ $variable{ $envname } };
+        map{ $var{$envname}{$_} = 1 } $var =~ /\$([a-zA-Z][a-zA-Z0-9_]+)/g;
+        map{ $var{$envname}{$_} = 1 } $var =~ /\$\{([a-zA-Z][a-zA-Z0-9_]+)\}/g;
+    }
+
+    $var{all} = +{ map{ %$_ } values %var };
+
+    for ( keys %{$var{all}} )
+    {
+        $var{default}{$_} = 1 if $var{test}{$_} && $var{online}{$_};
+    }
+    for my $envname ( qw( test online ))
+    {
+        map{ delete $var{$envname}{$_} if $var{default}{$_}; }keys %{$var{$envname}};
+    }
 
     eval{
         my $v = $api::mysql->query( "select name from openc3_job_variable where jobuuid='$jobuuid'" );
         my %v = map{ $_->[0] => 1  }@$v;
         map{ 
-            if( $v{$_} &&  $variable{$_} )
+            if( $v{$_} &&  $var{all}{$_} )
             {
                 delete $v{$_};
-                delete $variable{$_};
+                delete $var{all}{$_};
             }
-        }(keys %variable),(keys %v);
-        map{ $api::mysql->execute( "insert into openc3_job_variable (`jobuuid`,`name`,`value`,`describe`,`option`,`create_user`) values('$jobuuid','$_','','','','$user')" ); }keys %variable;
+        }(keys %{$var{all}}),(keys %v);
+        #add and clear
+        map{ $api::mysql->execute( "insert into openc3_job_variable (`jobuuid`,`name`,`value`,`describe`,`option`,`create_user`) values('$jobuuid','$_','','','','$user')" ); }keys %{$var{all}};
         $api::mysql->execute( sprintf "delete from openc3_job_variable where jobuuid='$jobuuid' and name in ( %s )", join ',',map{"'$_'"}keys %v ) if keys %v;
+
+        #set evnname
+        $api::mysql->execute( "update openc3_job_variable set `env`='' where jobuuid='$jobuuid'" );
+        $api::mysql->execute( sprintf( "update openc3_job_variable set `env`='test'   where jobuuid='$jobuuid' and name in ( %s ) ", join ',', map{"'$_'"}keys %{$var{test  }}) ) if $var{test  } && keys %{$var{test  }};
+        $api::mysql->execute( sprintf( "update openc3_job_variable set `env`='online' where jobuuid='$jobuuid' and name in ( %s ) ", join ',', map{"'$_'"}keys %{$var{online}}) ) if $var{online} && keys %{$var{online}};
+
     };
 
     return +{ stat => $JSON::false, info => $@ }  if $@;

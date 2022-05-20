@@ -89,12 +89,6 @@ return sub
 
     my ( $jobuuid, $name, $cont, $approver, $deployenv, $action, $batches, $everyone, $relaxed, $timeout, $pause ) = @{$x->[0]};
 
-    if( $fromjob && $approver =~ /\$/ )
-    {
-        eval { $approver = variable->new( variable => $variable, db => $db, jobuuid => $fromjob )->relpace( $approver ); };
-        $logs->die( "relpace variable approver fail:$@" ) if $@;
-    }
-
     my %var_map;
     if( $fromjob && $variable->{version} )
     {
@@ -155,6 +149,12 @@ return sub
     print "expect batches: $batches; real batches: $data->{data}{batches}\n";
     return 'success' if $batches eq 'firsttime' && $data->{data}{batches} ne 1;
     return 'success' if $batches eq 'thelasttime' && $data->{data}{batches} ne $data->{data}{groups};
+
+    if( $fromjob && $approver =~ /\$/ )
+    {
+        eval { $approver = variable->new( variable => $variable, db => $db, jobuuid => $fromjob )->relpace( $approver ); };
+        $logs->die( "relpace variable approver fail:$@" ) if $@;
+    }
 
     $timeout ||= 86400;
 

@@ -175,3 +175,6 @@ create table if not exists `openc3_ci_awsecs`(
 `create_time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
 UNIQUE KEY `uniq_awsecs` (`region`,`cluster`,`service`,`taskdef`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='awsecs';
+
+# v2.6.0 sql openc3_job_variable add env
+ALTER TABLE openc3_job_variable ADD `env` VARCHAR(10) DEFAULT '' comment '作用在哪个环境中';
