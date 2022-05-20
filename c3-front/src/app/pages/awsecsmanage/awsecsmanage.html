@@ -1,0 +1,30 @@
+<div class="row block">
+
+   <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0">
+        <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
+
+            <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-info" uib-tooltip="刷新" ng-click="awsecsmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!awsecsmanage.loadover}" ></i>刷新</button>
+            </span>
+                <h4 style="font-weight: bold;color: #337ab7">AWS ECS 服务</h4>
+            </div>
+            <div class="panel-body" style="margin-top: 2px">
+              <div class="pt20" style="overflow: auto;">
+
+                <table ng-table="awsecsmanage.dataTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
+                    <tr ng-repeat="m in $data">
+                        <td data-title="'region'" width="80" filter="{ region: 'text'}" sortable="'region'">{{m.region}}</td>
+                        <td data-title="'cluster'" width="80" filter="{ cluster: 'text'}" sortable="'cluster'">{{m.cluster}}</td>
+                        <td data-title="'service'" width="80" filter="{ service: 'text'}" sortable="'cluster'">{{m.service}}</td>
+                        <td data-title="'task-definition'" width="80" filter="{ taskdef: 'text'}" sortable="'taskdef'">{{m.taskdef}}</td>
+                        <td data-title="'操作'" width="80" >
+                            <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="awsecsmanage.describeec(m.ticketid,m.region,m.cluster,m.service,m.taskdef)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
+                        </td> 
+                    </tr>
+                </table>
+              </div>
+            </div>
+        </div>
+    </div>
+</div>

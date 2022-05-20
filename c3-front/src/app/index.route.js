@@ -71,6 +71,13 @@
                 controllerAs: 'kubernetesmanage'
             })
 
+            .state('home.awsecsmanage', {
+                url: 'awsecsmanage/:treeid',
+                templateUrl: 'app/pages/awsecsmanage/awsecsmanage.html',
+                controller: 'AwsecsmanageController',
+                controllerAs: 'awsecsmanage'
+            })
+
             .state('home.favorites', {
                 url: 'favorites/:treeid',
                 templateUrl: 'app/pages/favorites/favorites.html',
