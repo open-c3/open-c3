@@ -163,3 +163,15 @@ ALTER TABLE openc3_monitor_self_healing_config ADD `eips` VARCHAR(500) comment '
 #`time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment 'time',
 #UNIQUE KEY `uniq_uuid` (`uuid`)
 #)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='sysupdate';
+
+# v2.6.0 sql openc3_ci_awsecs create
+create table if not exists `openc3_ci_awsecs`(
+`id` int(32) unsigned not null primary key auto_increment comment 'id',
+`ticketid` VARCHAR(200) comment '凭据ID',
+`region` VARCHAR(200) comment 'region',
+`cluster` VARCHAR(100) comment 'cluster',
+`service` VARCHAR(100) comment 'service',
+`taskdef` VARCHAR(100) comment 'taskdef',
+`create_time` TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
+UNIQUE KEY `uniq_awsecs` (`region`,`cluster`,`service`,`taskdef`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='awsecs';
