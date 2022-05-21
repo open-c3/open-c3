@@ -211,8 +211,23 @@ post '/images/:imagesid/upload' => sub {
     my $error = Format->new( imagesid => qr/^\d+$/, 1 )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    my $upload = request->uploads;
-    return  +{ stat => $JSON::false, info => 'upload undef' } unless $upload && ref $upload eq 'HASH';
+    my $upload;
+    if( $param->{'file.name'} && $param->{'file.path'}  && defined $param->{'file.size'} )
+    {
+        $upload = +{
+            $param->{'file.name'} => +{
+                filename => $param->{'file.name'},
+                tempname => $param->{'file.path'},
+                size     => $param->{'file.size'},
+            }
+        };
+    }
+    else
+    {
+        $upload = request->uploads;
+        return  +{ stat => $JSON::false, info => 'upload undef' } unless $upload && ref $upload eq 'HASH';
+        return  +{ stat => $JSON::false, info => 'No longer supported, please use uploadv2' };
+    }
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
