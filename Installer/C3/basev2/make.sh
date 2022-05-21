@@ -38,6 +38,9 @@ make && make install
 cd /
 rm -rf /root/nginx.install
 
+mkdir -p /etc/nginx/conf.d
+mkdir -p /var/cache/nginx/client_temp
+
 #perl module
 yum -y install perl-DBD-MySQL.x86_64 mysql-devel 
 /data/Software/mydan/perl/bin/cpan install Dancer 
