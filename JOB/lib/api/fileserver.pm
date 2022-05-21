@@ -47,6 +47,7 @@ post '/fileserver/:projectid' => sub {
                 filename => $param->{'file.name'},
                 tempname => $param->{'file.path'},
                 size     => $param->{'file.size'},
+                md5      => $param->{'file.md5' },
             }
         };
     }
@@ -72,14 +73,17 @@ post '/fileserver/:projectid' => sub {
         )->check( %$info );
         return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-        my ( $filename, $tempname, $size ) = @$info{qw( filename tempname size )};
+        my ( $filename, $tempname, $size, $md5 ) = @$info{qw( filename tempname size md5 )};
 
         eval{ $api::auditlog->run( user => $user, title => 'USER UPLOAD FILE', content => "TREEID:$param->{projectid} FILENAME:$filename" ); };
         return +{ stat => $JSON::false, info => $@ } if $@;
 
-        open my $fh, "<$tempname" or return +{ stat => $JSON::false, info => 'open file fail' };
-        my $md5 = Digest::MD5->new()->addfile( $fh )->hexdigest;
-        close $fh;
+        unless( $md5 && $md5 =~ /^[a-zA-Z0-9]{32}$/ )
+        {
+            open my $fh, "<$tempname" or return +{ stat => $JSON::false, info => 'open file fail' };
+            $md5 = Digest::MD5->new()->addfile( $fh )->hexdigest;
+            close $fh;
+        }
 
         return  +{ stat => $JSON::false, info => 'rename fail' } if system "mv '$tempname' '$path/$md5' && chmod a+r '$path/$md5'";
 
@@ -152,6 +156,7 @@ post '/fileserver/:projectid/upload' => sub {
                 filename => $param->{'file.name'},
                 tempname => $param->{'file.path'},
                 size     => $param->{'file.size'},
+                md5      => $param->{'file.md5' },
             }
         };
     }
@@ -177,15 +182,18 @@ post '/fileserver/:projectid/upload' => sub {
         )->check( %$info );
         return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-        my ( $filename, $tempname, $size ) = @$info{qw( filename tempname size )};
+        my ( $filename, $tempname, $size, $md5 ) = @$info{qw( filename tempname size md5 )};
         $upfilename = $filename;
 
         eval{ $api::auditlog->run( user => 'token', title => 'TOKEN UPLOAD FILE', content => "TREEID:$param->{projectid} FILENAME:$filename" ); };
         return +{ stat => $JSON::false, info => $@ } if $@;
 
-        open my $fh, "<$tempname" or return +{ stat => $JSON::false, info => 'open file fail' };
-        my $md5 = Digest::MD5->new()->addfile( $fh )->hexdigest;
-        close $fh;
+        unless( $md5 && $md5 =~ /^[a-zA-Z0-9]{32}$/ )
+        {
+            open my $fh, "<$tempname" or return +{ stat => $JSON::false, info => 'open file fail' };
+            $md5 = Digest::MD5->new()->addfile( $fh )->hexdigest;
+            close $fh;
+        }
 
         return  +{ stat => $JSON::false, info => 'rename fail' } if system "mv '$tempname' '$path/$md5' && chmod a+r '$path/$md5'";
 
