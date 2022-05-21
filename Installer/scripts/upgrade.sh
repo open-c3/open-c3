@@ -31,6 +31,18 @@ function upgradeSelf() {
     fi
 
     echo =================================================================
+    echo "[INFO]docker pull ..."
+
+    docker pull $(cat $BASE_PATH/Installer/C3/JOB/dockerfile |grep ^FROM|awk '{print $2}')
+
+    if [ $? = 0 ]; then
+        echo "[SUCC]docker pull success."
+    else
+        echo "[FAIL]docker pull fail."
+        exit 1
+    fi
+
+    echo =================================================================
     echo "[INFO]install-cache pull ..."
 
     cd Installer/install-cache && git pull

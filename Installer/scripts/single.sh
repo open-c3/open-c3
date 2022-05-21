@@ -413,7 +413,6 @@ rebuild)
     ;;
 reborn)
     $BASE_PATH/Installer/scripts/databasectrl.sh backup
-    docker pull $(cat $BASE_PATH/Installer/C3/JOB/dockerfile |grep ^FROM|awk '{print $2}')
     $BASE_PATH/Installer/scripts/upgrade.sh
     stop && start
     $BASE_PATH/Installer/scripts/upgrade.sh
