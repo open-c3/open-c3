@@ -135,7 +135,10 @@ get '/fileserver/:projectid/download' => sub {
 post '/fileserver/:projectid/upload' => sub {
     my $param = params();
 
-    my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
+    my $error = Format->new(
+        projectid => qr/^\d+$/, 1,
+        checkmd5  => qr/^[a-zA-Z0-9]{32}$/, 0,
+     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
     return  +{ stat => $JSON::false, info => "no token" } unless my $token = request->headers->{'token'};
     return  +{ stat => $JSON::false, info => "token format error" } unless $token =~ /^[a-zA-Z0-9]{32}$/;
@@ -194,6 +197,8 @@ post '/fileserver/:projectid/upload' => sub {
             $md5 = Digest::MD5->new()->addfile( $fh )->hexdigest;
             close $fh;
         }
+
+        return  +{ stat => $JSON::false, info => 'md5 not match' } if $param->{checkmd5} && $param->{checkmd5} ne $md5;
 
         return  +{ stat => $JSON::false, info => 'rename fail' } if system "mv '$tempname' '$path/$md5' && chmod a+r '$path/$md5'";
 

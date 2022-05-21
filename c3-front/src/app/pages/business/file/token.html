@@ -74,6 +74,10 @@
         <div style="margin: 2%">
             <span><span style="color: red;font-weight: bold">通过token上传:</span> curl -X POST <span>{{token.hosturl}}</span>/api/job/uploadv2/fileserver/<span>{{token.treeid}}</span>/upload -F "file=@/tmp/xxx.txt" -H 'token: <span>{{token.newToken}}</span>'</span>
         </div>
+        <div style="margin: 2%">
+            <span><span style="color: red;font-weight: bold">严格上传:</span> curl -X POST <span>{{token.hosturl}}</span>/api/job/uploadv2/fileserver/<span>{{token.treeid}}</span>/upload?checkmd5=de3285f3e7077e6ba8a43a21bb8a3adf -F "file=@/tmp/xxx.txt" -H 'token: <span>{{token.newToken}}</span>'</span>
+        </div>
+
         <div class="row">
             <div class="col-sm-3 form-group" style="margin-left: 40%;">
                 <button class="btn btn-warning btn-sm" ng-click="token.cancel()">取消</button>
