@@ -1,7 +1,5 @@
 #!/bin/bash
 
-docker exec -i openc3-server /data/Software/mydan/perl/bin/cpan install AnyEvent::HTTPD::Router AnyEvent::HTTPD::CookiePatch AnyEvent::HTTP
-
 docker cp /data/open-c3/Installer/install-cache/bin/kubectl  openc3-server:/usr/bin/
 docker cp /data/open-c3/Installer/install-cache/bin/yaml2json  openc3-server:/usr/bin/
 docker cp /data/open-c3/Installer/install-cache/bin/json2yaml  openc3-server:/usr/bin/
@@ -17,11 +15,9 @@ docker cp /data/open-c3/lua/lualib/resty/http_connect.lua openc3-lua:/usr/local/
 docker cp /data/open-c3/lua/lualib/resty/http_headers.lua openc3-lua:/usr/local/openresty/lualib/resty/http_headers.lua
 
 #oncall 需要的插件
-docker exec -i openc3-server /data/Software/mydan/perl/bin/cpan install DateTime
 mkdir -p /data/open-c3-data/glusterfs/oncall/{conf,data}
 
 #mail mon
-docker exec -i openc3-server /data/Software/mydan/perl/bin/cpan install Mail::POP3Client Email::MIME Email::MIME::RFC2047::Decoder
 mkdir -p /data/open-c3-data/glusterfs/mailmon/{conf,data,run}
 
 mkdir -p /data/open-c3-data/monitor-sender
@@ -45,5 +41,3 @@ fi
 
 mkdir -p /data/open-c3-data/logs/CI/webhooks_data
 mkdir -p /data/open-c3-data/logs/CI/webhooks_logs
-
-docker exec -i openc3-server /data/Software/mydan/perl/bin/cpan install Paws Hash::Flatten
