@@ -39,8 +39,23 @@ post '/fileserver/:projectid' => sub {
 
     my $pmscheck = api::pmscheck( 'openc3_job_write', $param->{projectid} ); return $pmscheck if $pmscheck;
 
-    my $upload = request->uploads;
-    return  +{ stat => $JSON::false, info => 'upload undef' } unless $upload && ref $upload eq 'HASH';
+    my $upload;
+    if( $param->{'file.name'} && $param->{'file.path'}  && defined $param->{'file.size'} )
+    {
+        $upload = +{
+            $param->{'file.name'} => +{
+                filename => $param->{'file.name'},
+                tempname => $param->{'file.path'},
+                size     => $param->{'file.size'},
+            }
+        };
+    }
+    else
+    {
+        $upload = request->uploads;
+        return  +{ stat => $JSON::false, info => 'upload undef' } unless $upload && ref $upload eq 'HASH';
+        return  +{ stat => $JSON::false, info => 'No longer supported, please use uploadv2' };
+    }
 
     my $path = "$RealBin/../fileserver/$param->{projectid}";
     mkdir $path unless -d $path;
@@ -128,8 +143,23 @@ post '/fileserver/:projectid/upload' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
     return +{ stat => $JSON::false, info => 'not authorized' } unless $r && $r->[0][0] > 0;
 
-    my $upload = request->uploads;
-    return  +{ stat => $JSON::false, info => 'upload undef' } unless $upload && ref $upload eq 'HASH';
+
+    my $upload;
+    if( $param->{'file.name'} && $param->{'file.path'}  && defined $param->{'file.size'} )
+    {
+        $upload = +{
+            $param->{'file.name'} => +{
+                filename => $param->{'file.name'},
+                tempname => $param->{'file.path'},
+                size     => $param->{'file.size'},
+            }
+        };
+    }
+    else
+    {
+        $upload = request->uploads;
+        return  +{ stat => $JSON::false, info => 'upload undef' } unless $upload && ref $upload eq 'HASH';
+    }
 
     my $path = "$RealBin/../fileserver/$param->{projectid}";
     mkdir $path unless -d $path;
