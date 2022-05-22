@@ -13,7 +13,6 @@
             <div class="form-horizontal">
                 <div class="container-fluid">
                   <h4>CI(持续构建)</h4>
-
                     <div class="row">
                         <div class="col-sm-10 form-group">
                             <label class="col-sm-2 control-label">默认tagger</label>
@@ -36,12 +35,31 @@
                                     <option ng-repeat="x in cifindtagsintervallist" value="{{x}}">{{x}}</option>
                                 </select>
                             </div>
-                            <label class="col-sm-2 control-label">当时间间隔为0时表示不开启该服务</label>
+                            <label class="col-sm-4 control-label">当时间间隔为0时表示不开启该服务</label>
                         </div>
-
-
                     </div>
                 </div>
+
+
+                <div class="container-fluid">
+                  <h4>系统备份</h4>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">上传地址url</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" ng-model="sysctl.sysctl['sys.backup.url']" required />
+                            </div>
+                        </div>
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">上传地址token</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" ng-model="sysctl.sysctl['sys.backup.token']" required />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
              </div>
         </div>
     </div>

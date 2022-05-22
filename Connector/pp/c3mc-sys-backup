@@ -1,0 +1,21 @@
+#!/bin/bash
+
+set -e
+
+BackupUrl=$(c3mc-sys-ctl sys.backup.url|grep -E "^http[s]*://[a-zA-Z0-9\.\/\-]+$")
+BackupToken=$(c3mc-sys-ctl sys.backup.token | grep -E "^[a-zA-Z0-9]{32}$")
+
+if [[ -z "$BackupUrl" || -z "$BackupToken" ]]; then
+    exit
+fi
+
+cd /data/open-c3-data/backup/mysql
+
+FILE=$(ls|grep  -E "^openc3\.[0-9]+\.[0-9]+\.sql$" |tail -n 1 )
+
+if [ -z "$FILE" ];then
+    exit
+fi
+MD5=$(md5sum $FILE|awk '{print $1}')
+
+curl -X POST $BackupUrl?checkmd5=$MD5 -F "file=@$FILE" -H "token: $BackupToken"
