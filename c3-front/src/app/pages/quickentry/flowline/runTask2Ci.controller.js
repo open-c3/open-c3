@@ -4,7 +4,7 @@
         .module('openc3')
         .controller('RunTask2CiController', RunTask2CiController);
 
-    function RunTask2CiController($state, $uibModalInstance, $uibModal,$http, $scope, ngTableParams,resoureceService, name, version, groupname, jobtype, showIPstr, jobStep, projectname, $timeout, projectid, noshowrollback, versionlist ) {
+    function RunTask2CiController($state, $uibModalInstance, $uibModal,$http, $scope, ngTableParams,resoureceService, name, version, groupname, jobtype, showIPstr, jobStep, projectname, $timeout, projectid, noshowrollback, versionlist, $injector ) {
 
         var vm = this;
         vm.treeid = $state.params.treeid;
@@ -12,6 +12,8 @@
 
         vm.advancedconfig = 0;
         vm.versionlist = versionlist;
+
+        var toastr = toastr || $injector.get('toastr');
 
         vm.projectname = projectname
         vm.showIPstr = showIPstr
@@ -116,6 +118,30 @@
             {
                 delete $scope.taskData.variable._rollbackVersion_;
             }
+
+            if( $scope.taskData.variable.version == '' )
+            {
+                if( ! vm.describeversioncurrent )
+                {
+                    vm.describeversioncurrent = "deplpy:" + vm.deployversioncurrent;
+                }
+                $http.post('/api/ci/version/' + vm.treeid + '/' + projectid + '/record', { version: vm.deployversioncurrent, describe: vm.describeversioncurrent } ).success(function(data){
+                    if(data.stat == true) {
+
+                        $scope.taskData.variable.version = vm.deployversioncurrent;
+                        resoureceService.task.createtask(vm.treeid, $scope.taskData, null)
+                            .then(function (repo) {
+                                if (repo.stat){
+                                    $state.go('home.history.jobxdetail', {treeid:vm.treeid, taskuuid:repo.uuid, accesspage:true});
+                                    vm.cancel()
+                                }
+                        }).finally(function(){ });
+
+                    } else { toastr.error( "创建新版本失败:" + data.info ); }
+                });
+                return;
+            }
+
             resoureceService.task.createtask(vm.treeid, $scope.taskData, null)
                 .then(function (repo) {
                     if (repo.stat){

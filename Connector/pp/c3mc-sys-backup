@@ -2,43 +2,42 @@
 
 set -e
 
-BackupUrl=$(c3mc-sys-ctl sys.backup.url|grep -E "^http[s]*://[a-zA-Z0-9\.\/\-]+$")
-BackupToken=$(c3mc-sys-ctl sys.backup.token | grep -E "^[a-zA-Z0-9]{32}$")
-
-if [[ -z "$BackupUrl" || -z "$BackupToken" ]]; then
+name=$(c3mc-sys-ctl sys.backup.name|grep -E "^[a-zA-Z0-9]+$")
+if [ -z "$name" ]; then
     exit
 fi
 
-function backupdb()
-{
-    cd /data/open-c3-data/backup/mysql
+c3version=$(cat /data/Software/mydan/Connector/.versionname|grep -E "^v[0-9]+\.[0-9]+\.[0-9]+$")
 
-    file=$(ls|grep  -E "^openc3\.[0-9]+\.[0-9]+\.sql$" |tail -n 1 )
+uuid=$(date +%y%m%d.%H%M%S)
 
-    if [ -z "$file" ];then
-        exit
-    fi
-    md5=$(md5sum $file|awk '{print $1}')
+dbfile=/data/open-c3-data/backup/mysql/openc3.${uuid}.sql
 
-    curl -X POST $BackupUrl?checkmd5=$md5 -F "file=@$file" -H "token: $BackupToken"
-}
+set +e
+docker inspect openc3-mysql >/dev/null 2>&1
+nodocker=$?
+set -e
 
-function backupother()
-{
-    
-    path=/data/open-c3-data/backup/other
-    mkdir -p $path
-    uuid=$(date +%F.%H%M%S)
-    file="$path/c3.$uuid.tar.gz"
-    tar -zcvf $file \
+if [ $nodocker -eq 0 ];then
+    docker exec -i openc3-mysql mysqldump -h127.0.0.1 -uroot -popenc3123456^! --databases jobs jobx ci agent connector > $dbfile
+else
+    mysqldump -hOPENC3_DB_IP -uroot -popenc3123456^! --databases jobs jobx ci agent connector > $dbfile
+fi
+
+path=/data/open-c3-data/backup/c3sys
+mkdir -p $path
+file="$path/c3-$name-$c3version-$uuid.tar.gz"
+
+tar -zcvf $file $dbfile \
     /data/Software/mydan/Connector/config.ini/current \
     /data/open-c3-data/sysctl.conf \
-    /data/Software/mydan/etc/agent/auth
+    /data/Software/mydan/etc/agent/auth 
 
-    md5=$(md5sum $file|awk '{print $1}')
+url=$(c3mc-sys-ctl sys.backup.url|grep -E "^http[s]*://[a-zA-Z0-9\.\/\-]+$")
+token=$(c3mc-sys-ctl sys.backup.token | grep -E "^[a-zA-Z0-9]{32}$")
 
-    curl -X POST $BackupUrl?checkmd5=$md5 -F "file=@$file" -H "token: $BackupToken"
-}
+if [[ -z "$url" || -z "$token" ]]; then
+    exit
+fi
 
-backupdb
-backupother
+curl -X POST $url?checkmd5=$(md5sum $file|awk '{print $1}') -F "file=@$file" -H "token: $token"
