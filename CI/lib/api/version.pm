@@ -8,6 +8,7 @@ use POSIX;
 use MIME::Base64;
 use api;
 use Format;
+use uuid;
 
 get '/v/:groupid/:projectid' => sub {
     my $param = params();
@@ -277,6 +278,41 @@ get '/version/:groupid/:projectid/analysis/last' => sub {
             )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
+};
+
+post '/version/:groupid/:projectid/record' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        groupid   => qr/^\d+$/, 1,
+        projectid => qr/^\d+$/, 1,
+        version   => qr/[a-zA-Z][a-zA-Z0-9\.\-_@]*/, 1,
+        describe  => [ 'mismatch', qr/'/ ], 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+    my $pmscheck = api::pmscheck( 'openc3_ci_control', $param->{groupid} ); return $pmscheck if $pmscheck;
+
+    my $projectid = $param->{projectid};
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), 
+        map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    eval{ $api::auditlog->run( user => $user, title => 'RECORD FLOWLINE CI', content => "TREEID:$param->{groupid} FLOWLINEID:$projectid NAME:$param->{name}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
+    my $starts = time;
+    my $start  = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime($starts) );
+    my $ends   = $starts + 1;
+    my $end    = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime($ends) );
+    my $uuid   = uuid->new()->create_str;
+
+    eval{ 
+        $api::mysql->execute(
+            "insert into openc3_ci_version 
+               ( `projectid` ,`uuid` ,`name`             ,`user` ,`slave`            ,`status` ,`starttimems`,`finishtimems`,`starttime`,`finishtime`,`calltype`,`pid`,`runtime`,`tagger`,`taginfo`           ,`reason`      ,`create_time`)
+         values( '$projectid','$uuid','$param->{version}','$user','openc3-srv-docker','success','$starts'    ,'$ends'       ,'$start'   ,'$end'      ,'record'  ,NULL ,'1'      ,'$user' ,'$param->{describe}','call by page','$start'     )");
+    };
+
+    return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
 
 true;

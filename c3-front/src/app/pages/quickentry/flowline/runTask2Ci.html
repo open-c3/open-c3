@@ -33,9 +33,24 @@
 
                    <hr style="margin: 5px">
 
-                    <h3 ng-if="runtask2ci.noshowrollback === 0" >发布版本:
+                    <h3 ng-if="runtask2ci.noshowrollback === 0 && runtask2ci.version" >发布版本:
                         <a style="color: green;" >{{runtask2ci.version}}</a>
                     </h3>
+
+                    <div class="col-sm-10 form-group" ng-if="!runtask2ci.version">
+                            <label class="col-sm-3 control-label">发布版本: &nbsp;</label>
+                            <div class="col-sm-8"> <input type="text" class="form-control"  ng-model="runtask2ci.deployversioncurrent" placeholder="发布版本" required> </div>
+                            <div class="col-sm-1"> 
+                            </div>
+                    </div>
+
+                    <div class="col-sm-10 form-group" ng-if="!runtask2ci.version">
+                            <label class="col-sm-3 control-label">版本描述: &nbsp;</label>
+                            <div class="col-sm-8"> <input type="text" class="form-control"  ng-model="runtask2ci.describeversioncurrent" placeholder="描述信息，可以写中文"> </div>
+                            <div class="col-sm-1"> 
+                            </div>
+                    </div>
+
 
                     <h3 ng-if="runtask2ci.noshowrollback > 0" >回滚版本:
                         <a style="color: red;" >{{runtask2ci.version}}</a>
