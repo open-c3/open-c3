@@ -1,0 +1,44 @@
+#!/bin/bash
+
+set -e
+
+BackupUrl=$(c3mc-sys-ctl sys.backup.url|grep -E "^http[s]*://[a-zA-Z0-9\.\/\-]+$")
+BackupToken=$(c3mc-sys-ctl sys.backup.token | grep -E "^[a-zA-Z0-9]{32}$")
+
+if [[ -z "$BackupUrl" || -z "$BackupToken" ]]; then
+    exit
+fi
+
+function backupdb()
+{
+    cd /data/open-c3-data/backup/mysql
+
+    file=$(ls|grep  -E "^openc3\.[0-9]+\.[0-9]+\.sql$" |tail -n 1 )
+
+    if [ -z "$file" ];then
+        exit
+    fi
+    md5=$(md5sum $file|awk '{print $1}')
+
+    curl -X POST $BackupUrl?checkmd5=$md5 -F "file=@$file" -H "token: $BackupToken"
+}
+
+function backupother()
+{
+    
+    path=/data/open-c3-data/backup/other
+    mkdir -p $path
+    uuid=$(date +%F.%H%M%S)
+    file="$path/c3.$uuid.tar.gz"
+    tar -zcvf $file \
+    /data/Software/mydan/Connector/config.ini/current \
+    /data/open-c3-data/sysctl.conf \
+    /data/Software/mydan/etc/agent/auth
+
+    md5=$(md5sum $file|awk '{print $1}')
+
+    curl -X POST $BackupUrl?checkmd5=$md5 -F "file=@$file" -H "token: $BackupToken"
+}
+
+backupdb
+backupother
