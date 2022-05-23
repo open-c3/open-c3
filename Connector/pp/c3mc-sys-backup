@@ -12,7 +12,17 @@ c3version=$(cat /data/Software/mydan/Connector/.versionname|grep -E "^v[0-9]+\.[
 uuid=$(date +%y%m%d.%H%M%S)
 
 dbfile=/data/open-c3-data/backup/mysql/openc3.${uuid}.sql
-docker exec -i openc3-mysql mysqldump -h127.0.0.1 -uroot -popenc3123456^! --databases jobs jobx ci agent connector > $dbfile
+
+set +e
+docker inspect openc3-mysql >/dev/null 2>&1
+nodocker=$?
+set -e
+
+if [ $nodocker -eq 0 ];then
+    docker exec -i openc3-mysql mysqldump -h127.0.0.1 -uroot -popenc3123456^! --databases jobs jobx ci agent connector > $dbfile
+else
+    mysqldump -hOPENC3_DB_IP -uroot -popenc3123456^! --databases jobs jobx ci agent connector > $dbfile
+fi
 
 path=/data/open-c3-data/backup/c3sys
 mkdir -p $path
