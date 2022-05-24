@@ -1,0 +1,67 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use MYDan::Util::OptConf;
+use YAML::XS;
+use JSON;
+use FindBin qw( $RealBin );
+use MIME::Base64;
+use Temp;
+
+=head1 SYNOPSIS
+
+ $0 cdnname domain
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+$option->assert() unless @ARGV;
+
+die "nonode" unless $ENV{NODE};
+
+sub success
+{
+    map{ print "$_:ok\n"; } split /,/, $ENV{NODE};
+    exit;
+}
+
+die "argv error" unless @ARGV == 3;
+my ( $cdn, $domain, $uuid ) = @ARGV;
+
+die "cnd format error"     unless $cdn    =~ /^[a-zA-Z0-9]+$/; 
+die "domain format error"  unless $domain =~ /^[a-zA-Z0-9\.\-_]+$/; 
+die "uuid format error"    unless $uuid   =~ /^[a-zA-Z0-9]+$/;
+
+
+my $ticket = $ENV{TICKETFILE} ? ". $ENV{TICKETFILE} &&" : '';
+
+if( $ENV{TICKETFILE} )
+{
+    if( $cdn eq 'aws' )
+    {
+        $ticket = "AWS_CONFIG_FILE=$ENV{TICKETFILE}";
+    }
+    else
+    {
+        my @ticketstr = `cat $ENV{TICKETFILE}`;
+        die "ticket null" unless @ticketstr;
+        map{
+            chomp $_;
+            die "ticket content format error.\n" unless $_ =~ /^export\s+[A-Za-z0-9_]+="[A-Za-z0-9\/]+"\s*$/;
+        }@ticketstr;
+    }
+}
+
+#die "config null\n" unless $ENV{CONFIGPATH} && -f $ENV{CONFIGPATH};
+
+my $content = `c3mc-base-db-get value -t openc3_job_variable_text -f "uuid='$uuid'"`;
+my $cont    = Encode::decode("utf8", decode_base64( $content ));
+my $conf    = Temp->new( chmod => 0600 )->dump( $cont . "\n" );
+
+warn "cdn name: $cdn\n";
+warn "domain: $domain\n";
+warn "content:\n";
+system "cat $conf 1>&2";
+
+die "refresh fail: $!" if system "$ticket $RealBin/cdnrefresh.code/$cdn -f $conf -d $domain 1>&2";
+success();
