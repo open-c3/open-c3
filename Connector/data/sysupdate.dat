@@ -180,7 +180,7 @@ UNIQUE KEY `uniq_awsecs` (`region`,`cluster`,`service`,`taskdef`)
 ALTER TABLE openc3_job_variable ADD `env` VARCHAR(10) DEFAULT '' comment '作用在哪个环境中';
 
 # v2.6.0 sql openc3_job_variable_text create
-create table `openc3_job_variable_text`(
+create table if not exists `openc3_job_variable_text`(
 `id` int(16) unsigned not null primary key auto_increment comment 'id',
 `uuid` VARCHAR(30) comment 'uuid',
 `value` VARCHAR(5000) comment '变量值',
