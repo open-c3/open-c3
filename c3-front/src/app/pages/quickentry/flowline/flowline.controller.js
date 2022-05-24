@@ -354,5 +354,21 @@
             });
         };
 
+        vm.addFavorites = function () {
+            $uibModal.open({
+                templateUrl: 'app/pages/favorites/addFavorites.html',
+                controller: 'AddFavoritesController',
+                controllerAs: 'addfavorites',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () { return vm.treeid},
+                    homereload : function () { return vm.reload}
+                }
+            });
+        };
+
     }
 })();
