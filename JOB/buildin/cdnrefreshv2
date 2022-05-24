@@ -56,7 +56,23 @@ if( $ENV{TICKETFILE} )
 
 my $content = `c3mc-base-db-get value -t openc3_job_variable_text -f "uuid='$uuid'"`;
 my $cont    = Encode::decode("utf8", decode_base64( $content ));
-my $conf    = Temp->new( chmod => 0600 )->dump( $cont . "\n" );
+
+my @cont;
+for my $x ( split /\n/, $cont )
+{
+    $x =~ s/^\s+//g; $x =~ s/\s+$//g;
+    next unless length $x;
+    if( $x =~ /^[fd]:.+/ )
+    {
+        push @cont, $x;
+    }
+    else
+    {
+        push @cont, $x =~ /\/$/ ? "d:$x" : "f:$x";
+    }
+}
+
+my $conf    = Temp->new( chmod => 0600 )->dump( join "\n", @cont, "" );
 
 warn "cdn name: $cdn\n";
 warn "domain: $domain\n";
