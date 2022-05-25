@@ -186,3 +186,10 @@ create table if not exists `openc3_job_variable_text`(
 `value` VARCHAR(5000) comment '变量值',
 UNIQUE KEY `uniq_variable_text_uuid` (`uuid`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='作业变量文本扩展';
+
+# v2.6.0 sql openc3_ci_project add cpulimit
+ALTER TABLE openc3_ci_project ADD `cpulimit` VARCHAR(10) DEFAULT '' comment 'ci的cpu资源限制';
+
+# v2.6.0 sql openc3_ci_project add memlimit
+ALTER TABLE openc3_ci_project ADD `memlimit` VARCHAR(20) DEFAULT '' comment 'ci的mem资源限制';
+

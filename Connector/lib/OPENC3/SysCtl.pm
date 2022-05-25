@@ -42,4 +42,11 @@ sub getint
     return ( defined $x && $x =~ /^\d+$/ && $x >= $min && $x <= $max ) ? $x : $default;
 }
 
+sub getintx
+{
+    my ( $this, $key, $min, $max, $default ) = @_;
+    my $x = $this->{data}{$key};
+    return ( defined $x && ( $x =~ /^\d+$/ || $x =~ /^\d+\.\d+$/ ) && $x >= $min && $x <= $max ) ? $x : $default;
+}
+
 1;

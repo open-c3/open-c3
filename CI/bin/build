@@ -6,6 +6,7 @@ use FindBin qw( $RealBin );
 
 use Code;
 use MYDan::Util::OptConf;
+use POSIX qw( setpgid );
 
 =head1 SYNOPSIS
 
@@ -19,6 +20,8 @@ $option->assert( 'uuid' );
 
 system "killall ci_worker_build_$o{uuid} 2>/dev/null";
 $0 = "ci_worker_build_$o{uuid}";
+
+setpgid($$,$$);
 
 my $db = MYDB->new( "$RealBin/../conf/conn" );
 

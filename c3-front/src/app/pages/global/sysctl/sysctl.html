@@ -37,9 +37,27 @@
                             </div>
                             <label class="col-sm-4 control-label">当时间间隔为0时表示不开启该服务</label>
                         </div>
+
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">单个构建默认CPU限制(核)</label>
+                            <div class="col-sm-2">
+                                <input type="text" class="form-control" ng-model="sysctl.sysctl['ci.default.cpulimit']" required />
+                            </div>
+                            <label class="col-sm-4 control-label">最多使用的cpu核数，可以是小数，如 1.5 </label>
+                        </div>
+ 
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">单个构建默认内存限制(m)</label>
+                            <div class="col-sm-2">
+                                <input type="text" class="form-control" ng-model="sysctl.sysctl['ci.default.memlimit']" required />
+                            </div>
+                            <label class="col-sm-4 control-label">单个构建中最多使用的内存,单位是兆</label>
+                        </div>
+
                     </div>
                 </div>
 
+<hr>
 
                 <div class="container-fluid">
                   <h4>系统备份</h4>

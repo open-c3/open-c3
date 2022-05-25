@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use FindBin qw( $RealBin );
 use MYDan::Util::OptConf;
+use OPENC3::SysCtl;
 use uuid;
 
 =head1 SYNOPSIS
@@ -70,9 +71,19 @@ if( $dockerfilestr =~ /^FROMOPENC3/ )
 }
 else
 {
+    my $xx = `c3mc-base-db-get cpulimit memlimit -t openc3_ci_project --filter 'id=$ENV{PROJECTID}'`;
+    chomp $xx;
+    my ( $cpulimit, $memlimit ) = split /;/, $xx;
+
+    $cpulimit = OPENC3::SysCtl->new()->getintx( 'ci.default.cpulimit', 0.01, 32,     2    ) unless $cpulimit && ( $cpulimit =~ /^\d+$/ || $cpulimit =~ /^\d+\.\d+$/ );
+    $memlimit = OPENC3::SysCtl->new()->getint ( 'ci.default.memlimit', 4,    32768,  2048 ) unless $memlimit && $memlimit =~ /^\d+$/;
+
+    my $cpuquota = int( $cpulimit * 100000 );
+    my $dockerlimit = "--memory-swap ${memlimit}m --memory ${memlimit}m --cpu-period 100000 --cpu-quota $cpuquota";
+
     my $buildarg = $o{build} || '';
-    print "docker build -t '$o{repository}:$ENV{VERSION}' -f '$o{dockerfile}' $buildarg .\n";
-    die "docker build fail:$!" if system "docker build -t '$o{repository}:$ENV{VERSION}' -f '$o{dockerfile}' $buildarg .";
+    print "docker build $dockerlimit -t '$o{repository}:$ENV{VERSION}' -f '$o{dockerfile}' $buildarg .\n";
+    die "docker build fail:$!" if system "docker build $dockerlimit -t '$o{repository}:$ENV{VERSION}' -f '$o{dockerfile}' $buildarg .";
     print "[INFO]docker build done.\n";
 }
 
