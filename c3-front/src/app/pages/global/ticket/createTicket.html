@@ -154,6 +154,24 @@
 
                                     <div ng-if="createticket.postData.type=='KubeConfig'">
                                         <div class="col-sm-10 form-group">
+                                            <label class="col-sm-3 control-label">pod shell</label>
+                                            <div class="col-sm-9">
+                                                <div class="admin-form">
+                                                    <div class="option-group field" >
+                                                        <label class="option option-primary">
+                                                            <input type="radio" ng-model="createticket.postData.pod_shell_relaxed" value="0" >
+                                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>有写权限才能进入
+                                                        </label>
+                                                        <label class="option option-primary">
+                                                            <input type="radio" ng-model="createticket.postData.pod_shell_relaxed" value="1" >
+                                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>宽松的,有读权限即可进入
+                                                        </label>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div class="col-sm-10 form-group">
                                             <label class="col-sm-3 control-label">kubectl版本</label>
                                             <div class="col-sm-9">
                                                 <select id="selectednameval" class="form-control" ng-model="createticket.postData.ticket.kubectlVersion">

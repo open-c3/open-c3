@@ -22,7 +22,13 @@ eval{
     my ( $user, $company ) = $sso->run( cookie => $u );
     print "user:$user, company:$company\n";
 
-    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $db, $clusterid, $user, $company, $type =~ /sh/ ? 1 : 0 ) };
+    my $x = eval{ $db->query( "select pod_shell_relaxed from openc3_ci_ticket where id='$clusterid'" ) };
+    die "get pod_shell_relaxed from db fail: $@" if $@;
+    
+    my $authtype = $type =~ /sh/ ? 1 : 0;
+    $authtype = 0 if $x && @$x && $x->[0][0];
+
+    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $db, $clusterid, $user, $company, $authtype ) };
     die "get kubectl fail: $@" if $@;
 
     system $type =~ /sh/ ? "$kubectl -n '$namespace' exec -it '$name' -- sh" : "$kubectl -n '$namespace' logs -f '$name' --tail=3000";
