@@ -25,7 +25,7 @@ get '/ticket' => sub {
     my $or = $param->{projectid} ? "or id in ( select ticketid from openc3_ci_project where id='$param->{projectid}') or id in ( select follow_up_ticketid from openc3_ci_project where id='$param->{projectid}')" : "";
     $or .= $param->{ticketid} ? " or id='$param->{ticketid}' " : "";
 
-    my @col = qw( id name type subtype share ticket describe edit_user create_user edit_time create_time pod_shell_relaxed );
+    my @col = qw( id name type subtype share ticket describe edit_user create_user edit_time create_time pod_shell_relaxed edit_share );
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_ci_ticket where ( create_user='$user' or share='$company' $or or share like '%%_T_${company}_T_%%' or share like '%%_P_${user}_P_%%' or share like '%%_TR_${company}_TR_%%' or share like '%%_PR_${user}_PR_%%' ) $where", join( ',', map{"`$_`"}@col)), \@col )};
@@ -67,7 +67,7 @@ get '/ticket/KubeConfig' => sub {
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
-    my @col = qw( id name type subtype share ticket describe edit_user create_user edit_time create_time pod_shell_relaxed );
+    my @col = qw( id name type subtype share ticket describe edit_user create_user edit_time create_time pod_shell_relaxed edit_share );
     my $greptreeid = "";
     if( $param->{treeid} && $param->{treeid} ne '4000000000' )
     {
@@ -110,7 +110,7 @@ get '/ticket/:ticketid' => sub {
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
-    my @col = qw( id name type subtype share ticket describe edit_user create_user edit_time create_time pod_shell_relaxed );
+    my @col = qw( id name type subtype share ticket describe edit_user create_user edit_time create_time pod_shell_relaxed edit_share );
     my $r = eval{ 
 ## @app 为通过appkey、appname调用方式
         $api::mysql->query( 
@@ -175,6 +175,7 @@ post '/ticket' => sub {
         subtype => [ 'mismatch', qr/'/ ], 0,
         describe => [ 'mismatch', qr/'/ ], 1,
         pod_shell_relaxed => qr/^\d+$/, 0,
+        edit_share => [ 'mismatch', qr/'/ ], 0,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -191,6 +192,7 @@ post '/ticket' => sub {
 
     my $subtype = $param->{subtype} // 'default';
     my $pod_shell_relaxed = $param->{pod_shell_relaxed} // '0';
+    my $edit_share = $param->{edit_share} // '';
     my $share;
     if( $param->{share} eq 'P' )
     {
@@ -256,7 +258,7 @@ post '/ticket' => sub {
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
 
     eval{ 
-        $api::mysql->execute( "insert into openc3_ci_ticket (`name`,`type`, `subtype`,`share`, `ticket`,`describe`,`edit_user`,`create_user`,`edit_time`,`create_time`, `pod_shell_relaxed` ) values( '$param->{name}', '$param->{type}', '$subtype', '$share', '$token', '$param->{describe}', '$user', '$user', '$time', '$time', '$pod_shell_relaxed' )");
+        $api::mysql->execute( "insert into openc3_ci_ticket (`name`,`type`, `subtype`,`share`, `ticket`,`describe`,`edit_user`,`create_user`,`edit_time`,`create_time`, `pod_shell_relaxed`, `edit_share` ) values( '$param->{name}', '$param->{type}', '$subtype', '$share', '$token', '$param->{describe}', '$user', '$user', '$time', '$time', '$pod_shell_relaxed', '$edit_share' )");
     };
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
@@ -271,6 +273,7 @@ post '/ticket/:ticketid' => sub {
         subtype => [ 'mismatch', qr/'/ ], 0,
         describe => [ 'mismatch', qr/'/ ], 1,
         pod_shell_relaxed => qr/^\d+$/, 0,
+        edit_share => [ 'mismatch', qr/'/ ], 0,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -283,6 +286,7 @@ post '/ticket/:ticketid' => sub {
 
     my $subtype = $param->{subtype} // 'default';
     my $pod_shell_relaxed = $param->{pod_shell_relaxed} // '0';
+    my $edit_share = $param->{edit_share} // '';
 
     my $share;
     if( $param->{share} eq 'P' )
@@ -347,7 +351,7 @@ post '/ticket/:ticketid' => sub {
     return  +{ stat => $JSON::false, info => "abnormal ticket format" } if $token =~ /\*{8}/;
 
     my $update = eval{ 
-        $api::mysql->execute( "update openc3_ci_ticket set name='$param->{name}',type='$param->{type}',subtype='$subtype',share='$share',ticket='$token',`describe`='$param->{describe}',edit_user='$user',edit_time='$time',pod_shell_relaxed='$pod_shell_relaxed' where id=$param->{ticketid} and create_user='$user'" );
+        $api::mysql->execute( "update openc3_ci_ticket set name='$param->{name}',type='$param->{type}',subtype='$subtype',share='$share',ticket='$token',`describe`='$param->{describe}',edit_user='$user',edit_time='$time',pod_shell_relaxed='$pod_shell_relaxed',edit_share='$edit_share' where id=$param->{ticketid} and create_user='$user'" );
     };
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : $update ? +{ stat => $JSON::true } : +{ stat => $JSON::false, info => 'not update' } ;
