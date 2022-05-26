@@ -57,8 +57,8 @@
                                      耗时{{ci.seftime(m.starttime, m.finishtime)}}<br>{{m.starttime}}
                                 </div>
  
-                            <i class="fa fa-play-circle-o fa-2x" ng-if="m.status!='running'" aria-hidden="true" ng-click="ci.build(m.uuid)" uib-tooltip="构建" style="cursor:pointer;color: green;" >构建</i>
-                            <i class="fa fa-stop-circle-o fa-2x" ng-if="m.status=='running'" aria-hidden="true" ng-click="ci.killbuild(m.uuid, m.slave)" uib-tooltip="停止" style="cursor:pointer;color: red;" >停止</i>
+                            <i class="fa fa-play-circle-o fa-2x" ng-if="!( m.status=='running' || m.status=='ready')" aria-hidden="true" ng-click="ci.build(m.uuid)" uib-tooltip="构建" style="cursor:pointer;color: green;" >构建</i>
+                            <i class="fa fa-stop-circle-o fa-2x" ng-if="m.status=='running' || m.status=='ready'" aria-hidden="true" ng-click="ci.killbuild(m.uuid, m.slave)" uib-tooltip="停止" style="cursor:pointer;color: red;" >停止</i>
                             <a ng-if="ci.project.buildimage" aria-hidden="true" target='_blank' ng-href="/api/ci/dockershell?image={{ci.project.buildimage}}&projectid={{ci.projectid}}&tag={{m.name}}&siteaddr={{ci.siteaddr}}" uib-tooltip="调试" style="cursor:pointer;color: green;"><i class="fa fa-arrow-circle-right fa-2x" >调试</i></a>
                             <a ng-if="!ci.project.buildimage" aria-hidden="true" target='_blank' ng-href="/api/ci/dockershell?image=centos:7&projectid={{ci.projectid}}&tag={{m.name}}&siteaddr={{ci.siteaddr}}" uib-tooltip="调试" style="cursor:pointer;color: #BB3D00;"><i class="fa fa-arrow-circle-right fa-2x" >调试</i></a>
                         </td>

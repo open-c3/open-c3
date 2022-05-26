@@ -216,7 +216,7 @@ put '/killbuild/:uuid' => sub {
   return JSON::to_json( +{ stat => $JSON::false, info => "build $uuid in slave $data->{slave}" } )
       unless $data->{slave} && $data->{slave} eq $myname;
   return JSON::to_json( +{ stat => $JSON::true, info => "build $uuid has been closed, status is $data->{status}" } )
-      unless $data->{status} && $data->{status} eq 'running';
+      unless $data->{status} && ( $data->{status} eq 'running' || $data->{status} eq 'ready' );
 
   map{ 
       return JSON::to_json( +{ stat => $JSON::false, info => "$_ format error" } )
