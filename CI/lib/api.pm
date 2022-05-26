@@ -32,7 +32,12 @@ hook 'before' => sub {
     return if $ENV{MYDan_DEBUG};
 
     my $uri = request->path_info;
-    return if $uri =~ m{^/mon} || $uri =~ m{^/release} || $uri =~ m{^/webhooks} || $uri =~ m{^/images/\d+/sshkey\.pub} || $uri =~ m{^/reload};
+    return if $uri =~ m{^/mon}
+           || $uri =~ m{^/release}
+           || $uri =~ m{^/webhooks}
+           || $uri =~ m{^/images/\d+/sshkey\.pub}
+           || $uri =~ m{^/reload}
+           || $uri =~ m{^/demo/};
 
     halt( +{ stat => $JSON::false, code => 10000 } ) 
         unless (  cookie( $cookiekey ) || ( request->headers->{appkey} && request->headers->{appname} ) );

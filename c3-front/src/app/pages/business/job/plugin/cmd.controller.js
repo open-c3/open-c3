@@ -306,6 +306,10 @@
                 {
                     vm.showmachinelist = 0;
                 }
+                if( cont.search(/^#!qaCallback\b/) == 0 )
+                {
+                    vm.showmachinelist = 0;
+                }
             }
         }
 

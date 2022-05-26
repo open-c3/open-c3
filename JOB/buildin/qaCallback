@@ -1,0 +1,64 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use YAML::XS;
+use Util;
+use LWP::UserAgent;
+use JSON;
+use utf8;
+
+use OPENC3::SysCtl;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+die "nonode" unless $ENV{NODE};
+
+sub success
+{
+    map{ print "$_:ok\n"; } split /,/, $ENV{NODE};
+    exit;
+}
+
+die "content null" unless $ENV{CONFIGPATH} && -f $ENV{CONFIGPATH};
+my @content = `cat '$ENV{CONFIGPATH}'`;
+
+chomp @content;
+map{ $_ =~ s/^\s*//; $_ =~ s/\s*$//; }@content;
+
+my ( $srv, $env ) = grep{ $_ }@content;
+die "srv undef" unless $srv;
+die "env undef" unless $env;
+
+utf8::decode($srv);
+utf8::decode($env);
+
+my $ua = LWP::UserAgent->new;
+$ua->timeout(15);
+my %form = (
+    data => [
+        +{
+            server      => $srv,
+            environment => $env,
+        }
+    ]
+);
+
+my $cont = JSON::to_json( \%form );
+utf8::encode($cont);
+
+my $url = OPENC3::SysCtl->new()->get( 'external.qa.sys.callback' );
+die "url undef on openc3.sysctl" unless $url;
+
+my $res = $ua->post( $url, 
+    Content => $cont, 'Content-Type' => 'application/json'
+);
+
+die( sprintf "call $url fail, %s\n", YAML::XS::Dump $res ) unless $res->is_success;
+die( sprintf "call $url response %s, not 'ok'\n" ) unless $res->content eq 'ok';
+
+success();
