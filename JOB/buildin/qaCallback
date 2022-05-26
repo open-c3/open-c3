@@ -51,14 +51,16 @@ my %form = (
 my $cont = JSON::to_json( \%form );
 utf8::encode($cont);
 
-my $url = OPENC3::SysCtl->new()->get( 'external.qa.sys.callback' );
-die "url undef on openc3.sysctl" unless $url;
+my $url   = OPENC3::SysCtl->new()->get( 'external.qa.sys.callback.url' );
+my $match = OPENC3::SysCtl->new()->get( 'external.qa.sys.callback.match' );
+die "url   undef on openc3.sysctl" unless $url;
+die "match undef on openc3.sysctl" unless $match;
 
 my $res = $ua->post( $url, 
     Content => $cont, 'Content-Type' => 'application/json'
 );
 
 die( sprintf "call $url fail, %s\n", YAML::XS::Dump $res ) unless $res->is_success;
-die( sprintf "call $url response %s, not 'ok'\n" ) unless $res->content eq 'ok';
+die( sprintf "call $url response %s, not match '$match'\n", $res->content ) if index( $res->content, $match ) < 0;
 
 success();
