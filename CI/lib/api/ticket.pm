@@ -28,13 +28,15 @@ get '/ticket' => sub {
     my @col = qw( id name type subtype share ticket describe edit_user create_user edit_time create_time pod_shell_relaxed edit_share );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from openc3_ci_ticket where ( create_user='$user' or share='$company' $or or share like '%%_T_${company}_T_%%' or share like '%%_P_${user}_P_%%' or share like '%%_TR_${company}_TR_%%' or share like '%%_PR_${user}_PR_%%' ) $where", join( ',', map{"`$_`"}@col)), \@col )};
+            sprintf( "select %s from openc3_ci_ticket where ( create_user='$user' or share='$company' or edit_share='$user' or edit_share like '%%,$user,%%' or edit_share like '$user,%%' or edit_share like '%%,$user'  $or or share like '%%_T_${company}_T_%%' or share like '%%_P_${user}_P_%%' or share like '%%_TR_${company}_TR_%%' or share like '%%_PR_${user}_PR_%%' ) $where", join( ',', map{"`$_`"}@col)), \@col )};
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     for my $d ( @$r )
     {
         my $t = $d->{ticket};
         $d->{self} = $d->{create_user} eq $user ? 1 : 0; 
+
+        $d->{self} = 2 if $d->{edit_share} eq $user || $d->{edit_share} =~ /,$user,/ || $d->{edit_share} =~ /^$user,/ || $d->{edit_share} =~ /,$user$/;
 
         if( $d->{type} eq 'UsernamePassword' )
         {
@@ -114,14 +116,20 @@ get '/ticket/:ticketid' => sub {
     my $r = eval{ 
 ## @app 为通过appkey、appname调用方式
         $api::mysql->query( 
-            sprintf( "select %s from openc3_ci_ticket where id='$param->{ticketid}' and ( create_user='$user' or share='$company' or '$company'='\@app' or share like '%%_T_${company}_T_%%' or share like '%%_P_${user}_P_%%' or share like '%%_TR_${company}_TR_%%' or share like '%%_PR_${user}_PR_%%' )", join( ',', map{"`$_`"}@col)), \@col )};
+            sprintf( "select %s from openc3_ci_ticket where id='$param->{ticketid}' and ( create_user='$user' or share='$company' or '$company'='\@app' or edit_share='$user' or edit_share like '%%,$user,%%' or edit_share like '$user,%%' or edit_share like '%%,$user' or share like '%%_T_${company}_T_%%' or share like '%%_P_${user}_P_%%' or share like '%%_TR_${company}_TR_%%' or share like '%%_PR_${user}_PR_%%' )", join( ',', map{"`$_`"}@col)), \@col )};
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     for my $d ( @$r )
     {
         my $t = $d->{ticket};
 
-        my $show = ( ( $d->{create_user} eq $user || $company eq '@app' ) && $param->{detail} ) ? 1 : 0;
+        my $show = (
+               ( 
+                      $d->{create_user} eq $user || $company eq '@app'
+                   || $d->{edit_share}  eq $user || $d->{edit_share} =~ /,$user,/ || $d->{edit_share} =~ /^$user,/ || $d->{edit_share} =~ /,$user$/
+               )
+               && $param->{detail}
+           ) ? 1 : 0;
 
         if( $d->{type} eq 'UsernamePassword' )
         {
@@ -351,7 +359,7 @@ post '/ticket/:ticketid' => sub {
     return  +{ stat => $JSON::false, info => "abnormal ticket format" } if $token =~ /\*{8}/;
 
     my $update = eval{ 
-        $api::mysql->execute( "update openc3_ci_ticket set name='$param->{name}',type='$param->{type}',subtype='$subtype',share='$share',ticket='$token',`describe`='$param->{describe}',edit_user='$user',edit_time='$time',pod_shell_relaxed='$pod_shell_relaxed',edit_share='$edit_share' where id=$param->{ticketid} and create_user='$user'" );
+        $api::mysql->execute( "update openc3_ci_ticket set name='$param->{name}',type='$param->{type}',subtype='$subtype',share='$share',ticket='$token',`describe`='$param->{describe}',edit_user='$user',edit_time='$time',pod_shell_relaxed='$pod_shell_relaxed',edit_share='$edit_share' where id=$param->{ticketid} and ( create_user='$user' or edit_share='$user' or edit_share like '%%,$user,%%' or edit_share like '$user,%%' or edit_share like '%%,$user' )" );
     };
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : $update ? +{ stat => $JSON::true } : +{ stat => $JSON::false, info => 'not update' } ;

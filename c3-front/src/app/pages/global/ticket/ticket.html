@@ -28,8 +28,8 @@
                         <td style="width: 10%" data-title="'操作'">
 
                             <button class="btn btn-info btn-sm" ng-click="ticket.showTicket(d.id)">查看</button>
-                            <button class="btn btn-primary btn-sm" ng-disabled="d.self==0" ng-click="ticket.editTicket(d.id)">编辑</button>
-                            <button class="btn btn-danger btn-sm" ng-disabled="d.self==0" ng-click="ticket.deleteTicket(d.id)">删除</button>
+                            <button class="btn btn-primary btn-sm" ng-disabled="!d.self" ng-click="ticket.editTicket(d.id)">编辑</button>
+                            <button class="btn btn-danger btn-sm" ng-disabled="!(d.self==1)" ng-click="ticket.deleteTicket(d.id)">删除</button>
                         </td>
                     </tr>
                 </table>
