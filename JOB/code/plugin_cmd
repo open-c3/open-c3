@@ -217,7 +217,7 @@ return sub
 
                 eval { $version = variable->new( variable => $variable, db => $db, jobuuid => $fromjob )->get( 'version' ) };
                 $logs->die( "get variable version fail:$@" ) if $@;
-                $version = 0 unless $version =~ /^[a-zA-Z0-9\.\-_]+$/;
+                $version = 0 unless $version && $version =~ /^[a-zA-Z0-9\.\-_]+$/;
             }
 
             print "\n############################## INIT ##############################\n\n";
