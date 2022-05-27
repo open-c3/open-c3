@@ -26,7 +26,7 @@ get '/fileserver/:projectid' => sub {
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_job_fileserver
-                where projectid='$param->{projectid}' and status='available'", join ',', @col ), \@col )};
+                where projectid='$param->{projectid}' and status='available' order by id", join ',', @col ), \@col )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
