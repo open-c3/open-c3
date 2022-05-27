@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use Logs;
 use MIME::Base64;
+use OPENC3::SysCtl;
 use Temp;
 
 $| ++;
@@ -59,15 +60,35 @@ return sub
     my $temppathx = "$logpath/$temp/$uuid";
     my $dpathx = "$logpath/build_merge_project_link/$projectid";
 
-    map{
-        $logs->die( "run build.merge.makedist.docker fail:$!" ) if system $_;       
-    }(
+    $SIG{TERM} = sub
+    {
+        system "docker kill '$dname'";
+        exit 1;
+    };
+
+    my @cmd = (
         "mv '$run' '$temppath/run'",
         "ln -fsn '$temppathx' '$dpath'",
-        $dinfo =~ /$dname/ 
-            ? "docker start -i '$dname'"
-            : "docker run -v $dpathx:/build -v /data/open-c3-data/ci-docker-share:/cishare -v /data/open-c3-data/ci-docker-share-id/$projectid:/ishare --name '$dname' --workdir=/build/data '$buildimage' /bin/bash -c 'source /root/.bashrc ; /build/run'"
     );
+
+    my $xx = eval{ $db->query( "select cpulimit,memlimit from openc3_ci_project where id=$projectid" )};  
+    my ( $cpulimit, $memlimit ) = @{$xx->[0]};
+    $cpulimit = OPENC3::SysCtl->new()->getintx( 'ci.default.cpulimit', 0.01, 32,     2    ) unless $cpulimit && ( $cpulimit =~ /^\d+$/ || $cpulimit =~ /^\d+\.\d+$/ );
+    $memlimit = OPENC3::SysCtl->new()->getint ( 'ci.default.memlimit', 4,    32768,  2048 ) unless $memlimit && $memlimit =~ /^\d+$/;
+
+    my $dockerlimit = "--memory-swap ${memlimit}m --memory ${memlimit}m --cpus=$cpulimit";
+
+    if( $dinfo =~ /$dname/ )
+    {
+        push @cmd, "docker update $dockerlimit '$dname'";
+        push @cmd, "docker start -i '$dname'";
+    }
+    else
+    {
+        push @cmd, "docker run $dockerlimit -v $dpathx:/build -v /data/open-c3-data/ci-docker-share:/cishare -v /data/open-c3-data/ci-docker-share-id/$projectid:/ishare --name '$dname' --workdir=/build/data '$buildimage' /bin/bash -c 'source /root/.bashrc ; /build/run'";
+    }
+
+    map{ $logs->die( "run build.merge.makedist.docker fail:$!" ) if system $_; }@cmd;
 
     $logs->die( "run build.merge.makedist.docker fail:The dist is not a directory" ) unless -d "$temppath/dist";
     $logs->die( "run build.merge.makedist.docker fail:The dist is a soft link" ) if -l "$temppath/dist";

@@ -57,7 +57,7 @@ $handle{getnode} = sub
 post '/kubernetes/node/cordon' => sub {
     my $param = params();
     my $error = Format->new( 
-        node => qr/^[a-zA-Z0-9][a-zA-Z0-9_\.\-]+$/, 1,
+        node => qr/^[a-zA-Z0-9][a-zA-Z0-9_\.\-@]+$/, 1,
         cordon => [ 'in', 'cordon', 'uncordon' ], 1,
         ticketid => qr/^\d+$/, 1,
     )->check( %$param );

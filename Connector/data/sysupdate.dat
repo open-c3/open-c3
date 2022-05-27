@@ -178,3 +178,27 @@ UNIQUE KEY `uniq_awsecs` (`region`,`cluster`,`service`,`taskdef`)
 
 # v2.6.0 sql openc3_job_variable add env
 ALTER TABLE openc3_job_variable ADD `env` VARCHAR(10) DEFAULT '' comment '作用在哪个环境中';
+
+# v2.6.0 sql openc3_job_variable_text create
+create table if not exists `openc3_job_variable_text`(
+`id` int(16) unsigned not null primary key auto_increment comment 'id',
+`uuid` VARCHAR(30) comment 'uuid',
+`value` VARCHAR(5000) comment '变量值',
+UNIQUE KEY `uniq_variable_text_uuid` (`uuid`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='作业变量文本扩展';
+
+# v2.6.0 sql openc3_ci_project add cpulimit
+ALTER TABLE openc3_ci_project ADD `cpulimit` VARCHAR(10) DEFAULT '' comment 'ci的cpu资源限制';
+
+# v2.6.0 sql openc3_ci_project add memlimit
+ALTER TABLE openc3_ci_project ADD `memlimit` VARCHAR(20) DEFAULT '' comment 'ci的mem资源限制';
+
+# v2.6.0 sql openc3_ci_version add queueid
+ALTER TABLE openc3_ci_version ADD `queueid` VARCHAR(20) DEFAULT '' comment '队列ID';
+
+# v2.6.0 sql openc3_ci_ticket add pod_shell_relaxed
+ALTER TABLE openc3_ci_ticket ADD `pod_shell_relaxed` VARCHAR(2) DEFAULT '0' comment 'pod shell 宽松的';
+
+# v2.6.0 sql openc3_ci_ticket add edit_share
+ALTER TABLE openc3_ci_ticket ADD `edit_share` VARCHAR(300) DEFAULT '' comment '凭据自身的编辑权共享';
+

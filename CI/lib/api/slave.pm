@@ -216,7 +216,7 @@ put '/killbuild/:uuid' => sub {
   return JSON::to_json( +{ stat => $JSON::false, info => "build $uuid in slave $data->{slave}" } )
       unless $data->{slave} && $data->{slave} eq $myname;
   return JSON::to_json( +{ stat => $JSON::true, info => "build $uuid has been closed, status is $data->{status}" } )
-      unless $data->{status} && $data->{status} eq 'running';
+      unless $data->{status} && ( $data->{status} eq 'running' || $data->{status} eq 'ready' );
 
   map{ 
       return JSON::to_json( +{ stat => $JSON::false, info => "$_ format error" } )
@@ -234,8 +234,8 @@ put '/killbuild/:uuid' => sub {
       return JSON::to_json( +{ stat => $JSON::false, info =>  'Unauthorized' } ) unless $p;
   }
 
-  return JSON::to_json( +{ stat => $JSON::true, info => "install $uuid has been exit,nofind pid $data->{pid}" } )
-      unless kill( 0, $data->{pid} );
+  return JSON::to_json( +{ stat => $JSON::true, info => "ci.build $uuid has been exit,nofind pid $data->{pid}" } )
+      if system "kill -0 -$data->{pid} 1>/dev/null 2>&1";
 #
 #  my $environ = `cat /proc/$data->{pid}/environ`;
 #
@@ -244,10 +244,11 @@ put '/killbuild/:uuid' => sub {
 #
 #  kill 'KILL', $data->{pid};
 
-  system "killall -9 'ci_worker_build_$uuid' >/dev/null 2>&1";
-  return kill( 0, $data->{pid} )
-      ? JSON::to_json( +{ stat => $JSON::false, info => "kill build fail" } )
-      : JSON::to_json( +{ stat => $JSON::true, info => "kill build succcess" } );
+  system "kill -TERM -$data->{pid} 1>/dev/null 2>&1";
+  sleep 1;
+  return (system "kill -0 -$data->{pid} 1>/dev/null 2>&1" )
+      ? JSON::to_json( +{ stat => $JSON::true,  info => "kill build succcess" } )
+      : JSON::to_json( +{ stat => $JSON::false, info => "kill build fail"     } );
 };
 
 any '/mon' => sub {

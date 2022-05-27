@@ -5,6 +5,8 @@ import argparse
 import commands
 import sys
 import yaml
+import re
+
 
 def AwsPush():
     push_states = {}
@@ -19,11 +21,13 @@ def AwsPush():
         for i in f:
             push_data = i.strip().split(':')
             if push_data[0] in push_states:
-                url = 'http://' + args.domain + push_data[1]
+                url = push_data[1]
+                #url = 'http://' + args.domain + push_data[1]
                 push_states[push_data[0]].append(url)
             else:
                 push_states[push_data[0]] = []
-                url = 'http://' + args.domain + push_data[1]
+                #url = 'http://' + args.domain + push_data[1]
+                url = push_data[1]
                 push_states[push_data[0]].append(url)
 
     for k, v in push_states.items():
@@ -39,7 +43,7 @@ def aws(domain, push_uri):
     ID = ''
     try:
         aws_key = yaml.load(commands.getoutput(
-            'aws cloudfront list-distributions'))
+            'LANG=en_US.UTF-8 aws cloudfront list-distributions'),Loader=yaml.FullLoader)
         for i in aws_key['DistributionList']['Items']:
             for j in i['Aliases']:
                 if j == 'Items':

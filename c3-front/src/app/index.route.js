@@ -234,6 +234,12 @@
                 controller: 'UseraddrController',
                 controllerAs: 'useraddr'
             })
+            .state('home.global.ciwatcher', {
+                url: 'ciwatcher/:treeid',
+                templateUrl: 'app/pages/global/ciwatcher/ciwatcher.html',
+                controller: 'CiWatcherController',
+                controllerAs: 'ciwatcher'
+            })
             .state('home.global.userdepartment', {
                 url: 'userdepartment/:treeid',
                 templateUrl: 'app/pages/global/userdepartment/userdepartment.html',

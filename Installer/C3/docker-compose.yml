@@ -95,6 +95,7 @@ services:
       - '--config.file=/data/prometheus-root/config/prometheus.yml'
       - '--storage.tsdb.path=/data/prometheus-data'
       - '--web.enable-lifecycle'
+      - '--storage.tsdb.retention=365d'
     networks:
       JobNet:
         aliases:

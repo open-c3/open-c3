@@ -7,6 +7,8 @@ if [ -z "$name" ]; then
     exit
 fi
 
+mkdir -p /data/open-c3-data/private
+
 c3version=$(cat /data/Software/mydan/Connector/.versionname|grep -E "^v[0-9]+\.[0-9]+\.[0-9]+$")
 
 uuid=$(date +%y%m%d.%H%M%S)
@@ -31,7 +33,8 @@ file="$path/c3-$name-$c3version-$uuid.tar.gz"
 tar -zcvf $file $dbfile \
     /data/Software/mydan/Connector/config.ini/current \
     /data/open-c3-data/sysctl.conf \
-    /data/Software/mydan/etc/agent/auth 
+    /data/Software/mydan/etc/agent/auth \
+    /data/open-c3-data/private
 
 url=$(c3mc-sys-ctl sys.backup.url|grep -E "^http[s]*://[a-zA-Z0-9\.\/\-]+$")
 token=$(c3mc-sys-ctl sys.backup.token | grep -E "^[a-zA-Z0-9]{32}$")

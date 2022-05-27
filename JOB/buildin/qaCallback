@@ -1,0 +1,70 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use YAML::XS;
+use Util;
+use LWP::UserAgent;
+use JSON;
+use utf8;
+
+use OPENC3::SysCtl;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+die "nonode" unless $ENV{NODE};
+
+sub success
+{
+    map{ print "$_:ok\n"; } split /,/, $ENV{NODE};
+    exit;
+}
+
+die "content null" unless $ENV{CONFIGPATH} && -f $ENV{CONFIGPATH};
+my @content = `cat '$ENV{CONFIGPATH}'`;
+
+chomp @content;
+map{ $_ =~ s/^\s*//; $_ =~ s/\s*$//; }@content;
+
+my ( $srv, $env ) = grep{ $_ }@content;
+die "srv undef" unless $srv;
+die "env undef" unless $env;
+
+utf8::decode($srv);
+utf8::decode($env);
+
+my $ua = LWP::UserAgent->new;
+$ua->timeout(15);
+my $url   = OPENC3::SysCtl->new()->get( 'external.qa.sys.callback.url' );
+my $match = OPENC3::SysCtl->new()->get( 'external.qa.sys.callback.match' );
+die "url   undef on openc3.sysctl" unless $url;
+die "match undef on openc3.sysctl" unless $match;
+
+my %form = (
+    server      => $srv,
+    environment => $env,
+);
+
+if( $url =~ /\?(.+)/ )
+{
+    map{
+        my ( $k, $v ) = split /=/, $_, 2;
+        $form{$k} = $v;
+    }split /&/, $1;
+}
+
+my $cont = JSON::to_json( \%form );
+utf8::encode($cont);
+
+my $res = $ua->post( $url, 
+    Content => $cont, 'Content-Type' => 'application/json'
+);
+
+die( sprintf "call $url fail, %s\n", YAML::XS::Dump $res ) unless $res->is_success;
+die( sprintf "call $url response %s, not match '$match'\n", $res->content ) if index( $res->content, $match ) < 0;
+
+success();

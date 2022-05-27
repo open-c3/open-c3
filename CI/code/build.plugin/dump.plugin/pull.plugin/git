@@ -131,6 +131,10 @@ return sub
         {
             @m = ( $1 );
         }
+        elsif( $info =~ /<([\w\.]+\@[a-zA-Z0-9]+\.[a-z]+)>/ )
+        {
+            @m = ( $1 );
+        }
         else
         {
             @m = $info =~ /[\w\.\@]+\.com/g;

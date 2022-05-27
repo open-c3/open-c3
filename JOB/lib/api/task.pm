@@ -211,6 +211,17 @@ post '/task/:projectid/job' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     my $calltype = $user =~ /\@app$/ ? 'api' : 'page';
 
+    if( $param->{variable} && $param->{variable}{C3TEXT} )
+    {
+        my $textuuid = uuid->new()->create_str;
+        my $textcont = encode_base64( encode('UTF-8', $param->{variable}{C3TEXT} ) );
+
+        eval{ $api::mysql->execute( "insert into openc3_job_variable_text (`uuid`,`value`) values('$textuuid','$textcont')" )};
+        return +{ stat => $JSON::false, info => "storage variable C3TEXT error:$@" } if $@;
+
+        $param->{variable}{C3TEXT} = $textuuid;
+    }
+
     my $variable = $param->{variable} ? encode_base64( encode('UTF-8', YAML::XS::Dump $param->{variable}) ) : '';
 
     eval{ $api::auditlog->run( user => $user, title => 'START JOB TASK', content => "TREEID:$param->{projectid} JOBUUID:$param->{jobuuid}" ); };

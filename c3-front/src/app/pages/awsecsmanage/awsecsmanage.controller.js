@@ -30,7 +30,7 @@
             $http.get('/api/ci/awsecs/' + vm.treeid ).then(
                 function successCallback(response) {
                     if (response.data.stat){
-                        vm.dataTable = new ngTableParams({count:10}, {counts:[],data:response.data.data});
+                        vm.dataTable = new ngTableParams({count:20}, {counts:[],data:response.data.data});
                         vm.loadover = true;
                     }else {
                         toastr.error( "获取列表失败："+response.data.info );

@@ -57,6 +57,7 @@ get '/project/:groupid/:projectid' => sub {
         ci_type ci_type_ticketid ci_type_kind ci_type_namespace ci_type_name ci_type_container ci_type_repository ci_type_dockerfile ci_type_dockerfile_content
         ci_type_open ci_type_concurrent ci_type_approver1 ci_type_approver2
         audit_level
+        cpulimit memlimit
         );
     my $r = eval{ 
         $api::mysql->query( 
@@ -107,6 +108,9 @@ post '/project/:groupid/:projectid' => sub {
         ticketid => qr/^\d*$/, 0,
         follow_up_ticketid => qr/^\d*$/, 0,
 
+        cpulimit => qr/^\d*\.?\d*$/, 1,
+        memlimit => qr/^\d*$/, 1,
+
         ci_type => [ 'in', 'default', 'kubernetes' ], 1,
         ci_type_ticketid => [ 'mismatch', qr/'/ ], 0,
         ci_type_kind => [ 'mismatch', qr/'/ ], 0,
@@ -147,6 +151,7 @@ post '/project/:groupid/:projectid' => sub {
         ci_type ci_type_ticketid ci_type_kind ci_type_namespace ci_type_name ci_type_container ci_type_repository ci_type_dockerfile ci_type_dockerfile_content
         ci_type_open ci_type_concurrent ci_type_approver1 ci_type_approver2
         audit_level
+        cpulimit memlimit
     );
     eval{ 
         $api::mysql->execute(

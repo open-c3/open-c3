@@ -1,0 +1,66 @@
+<div class="row block">
+    <h2>CI任务监视器 内存使用({{ciwatcher.mem.used}}/{{ciwatcher.mem.total}}) 剩余{{ciwatcher.mem.free}}M</h2>
+    <hr class="mv20 clear">
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="ciwatcher.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!ciwatcher.loadover}" ></i></button>
+            </span>
+            <h5>CI队列</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="pt20" style="overflow: auto;">
+                <table ng-table="ciwatcher.readyTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
+                    <tr ng-repeat="m in $data">
+                        <td width="60" class="textcenter" data-title="'流水线ID'" filter="{ project_id: 'text'}" sortable="'project_id'"> {{m.project_id}} </td>
+                        <td width="60" class="textcenter" data-title="'服务树ID'" filter="{ project_groupid: 'text'}" sortable="'project_groupid'"> {{m.project_groupid}} </td>
+                        <td data-title="'流水线名称'" width="80" filter="{ project_name: 'text'}" sortable="'project_name'">{{m.project_name}}</td>
+                        <td data-title="'TAG版本'" width="80" filter="{ version_name: 'text'}" sortable="'version_name'">{{m.version_name}}</td>
+                        <td data-title="'运行节点'" width="80" filter="{ version_slave: 'text'}" sortable="'version_slave'">{{m.version_slave}}</td>
+                        <td data-title="'CPU限制(核)'" width="80" filter="{ project_cpulimit: 'text'}" sortable="'project_cpulimit'">{{m.project_cpulimit}}</td>
+                        <td data-title="'内存限制(兆)'" width="80" filter="{ project_memlimit: 'text'}" sortable="'project_memlimit'">{{m.project_memlimit}}</td>
+                        <td data-title="'当前状态'" width="80" filter="{ version_status: 'text'}" sortable="'version_status'">{{m.version_status}}</td>
+                        <td data-title="'队列序号'" width="80" filter="{ version_queueid: 'text'}" sortable="'version_queueid'">{{m.version_queueid}}</td>
+                        <td data-title="'操作'" width="80" >
+                            <i class="fa fa-chevron-circle-right fa-2x" aria-hidden="true" ng-click="ciwatcher.versiondetail(m.project_groupid, m.project_id)" uib-tooltip="进入" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-chevron-circle-up fa-2x" aria-hidden="true" ng-click="ciwatcher.jump(m.version_uuid)" uib-tooltip="插队" style="cursor:pointer;color: red;" ></i>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="ciwatcher.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!ciwatcher.loadover}" ></i></button>
+            </span>
+            <h5>正在运行</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="pt20" style="overflow: auto;">
+                <table ng-table="ciwatcher.runningTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
+                    <tr ng-repeat="m in $data">
+                        <td width="60" class="textcenter" data-title="'流水线ID'" filter="{ project_id: 'text'}" sortable="'project_id'"> {{m.project_id}} </td>
+                        <td width="60" class="textcenter" data-title="'服务树ID'" filter="{ project_groupid: 'text'}" sortable="'project_groupid'"> {{m.project_groupid}} </td>
+                        <td data-title="'流水线名称'" width="80" filter="{ project_name: 'text'}" sortable="'project_name'">{{m.project_name}}</td>
+                        <td data-title="'TAG版本'" width="80" filter="{ version_name: 'text'}" sortable="'version_name'">{{m.version_name}}</td>
+                        <td data-title="'运行节点'" width="80" filter="{ version_slave: 'text'}" sortable="'version_slave'">{{m.version_slave}}</td>
+                        <td data-title="'CPU限制(核)'" width="80" filter="{ project_cpulimit: 'text'}" sortable="'project_cpulimit'">{{m.project_cpulimit}}</td>
+                        <td data-title="'内存限制(兆)'" width="80" filter="{ project_memlimit: 'text'}" sortable="'project_memlimit'">{{m.project_memlimit}}</td>
+                        <td data-title="'当前状态'" width="80" filter="{ version_status: 'text'}" sortable="'version_status'">{{m.version_status}}</td>
+                        <td data-title="'队列序号'" width="80" filter="{ version_queueid: 'text'}" sortable="'version_queueid'">{{m.version_queueid}}</td>
+                        <td data-title="'操作'" width="80" >
+                            <i class="fa fa-chevron-circle-right fa-2x" aria-hidden="true" ng-click="ciwatcher.versiondetail(m.project_groupid, m.project_id)" uib-tooltip="进入" style="cursor:pointer;color: #339094;" ></i>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>

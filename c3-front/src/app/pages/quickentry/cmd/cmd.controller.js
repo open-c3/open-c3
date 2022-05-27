@@ -284,6 +284,10 @@
                 {
                     vm.showmachinelist = 0;
                 }
+                if( cont.search(/^#!cdnrefreshv2\b/) == 0 )
+                {
+                    vm.showmachinelist = 0;
+                }
                 if( cont.search(/^#!kubernetes\b/) == 0 )
                 {
                     vm.showmachinelist = 0;
@@ -297,6 +301,10 @@
                     vm.showmachinelist = 0;
                 }
                 if( cont.search(/^#!localbash\b/) == 0 )
+                {
+                    vm.showmachinelist = 0;
+                }
+                if( cont.search(/^#!qaCallback\b/) == 0 )
                 {
                     vm.showmachinelist = 0;
                 }

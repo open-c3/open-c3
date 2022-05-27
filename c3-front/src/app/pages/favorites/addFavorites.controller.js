@@ -72,5 +72,10 @@
           });
         }
 
+        vm.versiondetail = function (treeid,flowid) {
+            $state.go('home.quickentry.flowlinedetail', {treeid:treeid, projectid: flowid});
+            vm.cancel();
+        };
+
     }
 })();
