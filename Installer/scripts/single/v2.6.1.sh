@@ -41,3 +41,5 @@ fi
 
 mkdir -p /data/open-c3-data/logs/CI/webhooks_data
 mkdir -p /data/open-c3-data/logs/CI/webhooks_logs
+
+docker exec -i openc3-server touch /etc/openc3.supervisormin.on
