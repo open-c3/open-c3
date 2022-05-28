@@ -41,7 +41,7 @@ map{
 }$port->{'api.slave'}{from} .. $port->{'api.slave'}{to};
 map{
     die "start $_ fail: $!" if system "$supervisor --errname 'agent.server.$_' --cmd '$base/server/$_' --log '$base/logs/server/$_'";
-}qw( call bury keepalive check inherit nodequery );
+}qw( call bury keepalive check nodequery );
 
 #map{
 #    die "start $_ fail: $!" if system "$supervisor --errname 'agent.server.$_' --cmd '$base/server/pp $_' --log '$base/logs/server/$_'";
@@ -49,4 +49,4 @@ map{
 
 map{
     die "start $_ fail: $!" if system "$supervisor --errname 'agent.server.$_' --cmd 'c3mc-server-agent $_' --log '$base/logs/server/$_'";
-}qw( promesd rule carry sender extend-exporter self-healing mailmon portcheckok );
+}qw( promesd rule carry sender extend-exporter self-healing mailmon portcheckok inherit );

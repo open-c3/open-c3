@@ -14,13 +14,14 @@ use OPENC3::PP::Server;
 $|++;
 my $name = shift @ARGV;
 my %help = (
-    promesd => 'make openc3_node_sd.yml to prometheus',
-    sender => 'sender mesg from alertmanager',
-    rule => 'get monitor rule',
-    carry => 'get monitor carry info',
+    promesd           => 'make openc3_node_sd.yml to prometheus',
+    sender            => 'sender mesg from alertmanager',
+    rule              => 'get monitor rule',
+    carry             => 'get monitor carry info',
     'extend-exporter' => 'extend-exporter control: mysql,redis',
-    mailmon => 'mail monitor',
-    portcheckok => 'check port',
+    mailmon           => 'mail monitor',
+    portcheckok       => 'check port',
+    inherit           => 'inherit',
 );
 
 unless( $name )
@@ -160,4 +161,13 @@ if( $name eq 'portcheckok' )
     )->run(
        "c3mc-app-port-checkok"
     );
+}
+
+if( $name eq 'inherit' )
+{
+    OPENC3::PP::Server->new(
+        name => "agent_server_$name",
+        interval => 300,
+        timeout => 600,
+    )->run( "c3mc-agent-inherit");
 }
