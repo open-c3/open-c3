@@ -1,44 +1,28 @@
 #!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOBX/lib -I/data/Software/mydan/JOBX/private/lib
 use strict;
 use warnings;
-use Logs;
-use Util;
-use JSON;
-use LWP::UserAgent;
 
 $| ++;
 
 =head1 SYNOPSIS
 
     id => 1,
-    logs => 日志对象
 
 =cut
 
 return sub
 {
     my ( %param, @list )= @_;
-    my ( $db, $id, $logs ) = @param{qw( db id logs)};
 
-    $logs = Logs->new( 'code.nodeinfo' ) unless $logs;
+    die "id not a number" unless $param{id} =~ /^\d+$/;
 
-    $logs->die( "id not a number" ) unless $id =~ /^\d+$/;
-
-
-    my %env = Util::envinfo( qw( appname appkey ) );
-    my $ua = LWP::UserAgent->new;
-    $ua->default_header( %env );
-    my $res = $ua->get( "http://api.job.open-c3.org/nodeinfo/$id" );
-
-    die "call nodeinfo fail" unless $res->is_success;
-
-    my $data = eval{ JSON::from_json $res->content };
-    unless ( $data->{stat} ) {
-        die "call nodeinfo result". $data->{info} || '';
+    my @x = `c3mc-base-fullnodeinfo --col id,name,type,inip,exip $param{id}`;
+    chomp @x;
+    for( @x )
+    {
+        my @t = split /;/, $_;
+        push @list, +{ id => $t[0], name => $t[1], type => $t[2], inip => $t[3], exip => $t[4] };
     }
- 
-    push @list, @{$data->{data}};
-    my $i = @list;
 
     return @list;
 }
