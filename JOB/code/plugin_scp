@@ -141,21 +141,9 @@ return sub
         my $tv; eval { $tv = variable->new( variable => $variable, db => $db, jobuuid => $fromjob )->get( 'version' ); };
         $logs->die( "get version from variable fail:$@" ) if $@;
 
-        my $ua = LWP::UserAgent->new();
-        $ua->agent('Mozilla/9 [en] (Centos; Linux)');
-
-        my %env = eval{ Util::envinfo( qw( appkey appname ) ) };
-        $logs->die( "get appkey appnane fail:$@" ) if $@;
-
-        $ua->default_header( map{ $_ => $env{$_} }qw( appname appkey) );
-        $ua->timeout( 10 );
-        my $url = "http://api.ci.open-c3.org/versiondetail/$src/$tv";
-        my $res = $ua->get( $url );
-        $logs->die( "get ciinfo fail: call api/ci/versiondetail/$src/$tv fail" ) unless $res->is_success;
-        my $data = eval{JSON::from_json $res->content};
-        $logs->die( "get ciinfo fail: call api/ci/versiondetail/$src/$tv stat err" ) unless $data->{stat};
-        $logs->die( "get nofind the version on ci" ) unless $data->{data}{slave};
-        $logs->die( "the version no success on ci" ) unless $data->{data}{status} eq 'success' || $data->{data}{status} eq 'running';
+        my $x = `c3mc-base-db-get status --table openc3_ci_version --filter "projectid=$src and name='$tv'"`;
+        chomp $x;
+        $logs->die( "the version no success on ci" ) unless $x && ( $x eq 'success' || $x eq 'running' );
 
         #my $slave = $data->{data}{slave};
         #my $hostname = Sys::Hostname::hostname;
