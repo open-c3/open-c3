@@ -130,12 +130,9 @@ return sub
         $var_map{"tagger"} = $version->{data}{tagger};
     }
 
-    my $project_res = $ua->get( "http://api.agent.open-c3.org/inherit/$projectid" );
-    $logs->die( "get treename from agent fail" ) unless $project_res->is_success;
-    my $project = eval{ JSON::from_json $project_res->content };
-    $logs->die( "get node from agent fail:". $project->{info} || '' ) unless $project->{stat};
-
-    $var_map{"treename"} = $project->{data}{fullname};
+    my $treename = `c3mc-base-db-get fullname --table openc3_agent_inherit --filter 'projectid=$projectid'`;
+    chomp $treename;
+    $var_map{"treename"} = $treename // 'unkowm';
     $var_map{"submitter"} = $submitter;
 
     %var_map = ( %var_map, %$variable ) if $variable;
