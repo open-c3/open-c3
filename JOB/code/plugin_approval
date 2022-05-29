@@ -16,7 +16,6 @@ use variable;
 use Buildin;
 use uuid;
 use Util;
-use LWP::UserAgent;
 use utf8;
 
 
@@ -98,10 +97,6 @@ return sub
     $submitter = $xxcc->{submitter} if $submitter eq 'jobx@app' && $xxcc->{submitter} ne 'nofind';
     print "submitter: $submitter\n";
 
-    my %env = Util::envinfo( qw( appname appkey ) );
-    my $ua = LWP::UserAgent->new;
-    $ua->default_header( %env );
-
     my %var_map;
     if( $fromjob && $variable->{version} )
     {
@@ -117,14 +112,13 @@ return sub
         chomp $flowname;
         $var_map{"flowname"} = $flowname // 'unkown';
 
-        my $version_res = $ua->get( "http://api.ci.open-c3.org/versiondetail/$flow_id/$variable->{version}" );
-        $logs->die( "get version from ci fail" ) unless $version_res->is_success;
-        my $version = eval{ JSON::from_json $version_res->content };
-        $logs->die( "get version from ci fail:". $version->{info} || '' ) unless $version->{stat};
+        my $x = `c3mc-base-db-get create_time tagger taginfo --table openc3_ci_version --filter "projectid='$flow_id' and name='$variable->{version}'"`;
+        chomp $x;
+        my @x = split /;/, $x, 3; $x;
 
-        $var_map{"taginfo"} = $version->{data}{taginfo};
-        $var_map{"tagtime"} = $version->{data}{create_time};
-        $var_map{"tagger"} = $version->{data}{tagger};
+        $var_map{"tagtime"} = $x[0];
+        $var_map{"tagger" } = $x[1];
+        $var_map{"taginfo"} = $x[2];
     }
 
     my $treename = `c3mc-base-db-get fullname --table openc3_agent_inherit --filter 'projectid=$projectid'`;
