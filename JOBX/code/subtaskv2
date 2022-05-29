@@ -1,0 +1,106 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOBX/lib -I/data/Software/mydan/JOBX/private/lib
+use strict;
+use warnings;
+
+use MIME::Base64;
+use Data::Dumper;
+
+use Digest::MD5;
+use FindBin qw( $RealBin );
+use Time::HiRes qw/time/;
+use POSIX;
+use Code;
+use YAML::XS;
+use Logs;
+
+use JSON;
+use Logs;
+use Encode;
+use Util;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+    db => $mysql,
+    uuid => uuid,
+
+    logs => 日志对象
+
+=cut
+
+return sub
+{
+    my %param = @_;
+
+    my ( $db, $uuid, $logs ) = @param{qw( db uuid logs )};
+
+    $logs = Logs->new( 'code.subtask' ) unless $logs;
+
+    $logs->die( "uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
+
+    my ( $stimems, $stime ) = ( time, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ) );
+
+    $db->execute( "update openc3_jobx_subtask set status='running' where uuid='$uuid' and status='init'" );
+    my $x = $db->query(
+        "select openc3_jobx_task.name,projectid,variable,nodelist,openc3_jobx_subtask.status  from openc3_jobx_task,openc3_jobx_subtask "
+      . "where openc3_jobx_task.uuid=openc3_jobx_subtask.parent_uuid and openc3_jobx_subtask.uuid='$uuid'"
+     );
+    $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
+    $logs->die( "subtask uuid null: $uuid" ) unless @$x;
+    my ( $name, $projectid, $variable, $nodelist, $status ) = @{$x->[0]};
+
+    return $status if grep{ $status eq $_ }qw( cancel success fail refuse );
+    my $_exit_;
+
+    if( $variable )
+    {
+        $variable  = eval{ YAML::XS::Load decode_base64( $variable ) };
+        $logs->die( "task variable decode load error:$@" ) if $@;
+    }
+
+    $variable = +{} unless $variable;
+    $variable->{ip} = $nodelist;
+
+    $_exit_ = 1 if $variable->{_exit_} && ( $variable->{_exit_} eq 'true' || $variable->{_exit_} eq '1' );
+
+    $name = encode_utf8($name);
+
+    my $tv = encode_base64( encode('UTF-8', YAML::XS::Dump $variable) );
+    die "c3mc-job-task-run fail" if system "c3mc-job-task-run $projectid '$name' --user jobx\@app --uuid $uuid --variable '$tv'";
+
+    my $d;
+    while( 1 )
+    {
+        sleep 5;
+
+        my $x = `c3mc-base-db-get -t openc3_job_task status,starttime,finishtime,runtime -f "uuid='$uuid'"`;
+        chomp $x;
+        my @x = split /;/, $x;
+
+        $d = +{ status => $x[0], starttime => $x[1], finishtime => $x[2], runtime => $x[3] };
+
+        last if $d->{status} && ( $d->{status} eq 'success' || $d->{status} eq 'fail' || $d->{status} eq 'refuse' );
+    }
+
+    my $confirm = $d->{status} eq 'fail' ? 'WaitConfirm' : '';
+    eval{
+        $db->execute(
+            "update openc3_jobx_subtask set starttime='$d->{starttime}',finishtime='$d->{finishtime}',runtime='$d->{runtime}',status='$d->{status}',confirm='$confirm' where uuid='$uuid'"
+        );
+    };
+    $logs->die( "update subtask status fail:$@" ) if $@;
+
+    if( $d->{status} eq 'fail' )
+    {
+        $logs->die( "exit by _exit_:$@" ) if $_exit_ ;
+
+        while(1)
+        {
+            sleep 5;
+            my $c = $db->query( "select confirm from openc3_jobx_subtask where uuid='$uuid'" );
+            last if $c && $c->[0][0] ne 'WaitConfirm';
+        }
+    }
+    return $d->{status};
+}
