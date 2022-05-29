@@ -51,4 +51,4 @@ if( $o{yaml} )
     exit;
 }
 
-map { printf "%s\n", join ';', @$_; }@$x;
+map { printf "%s\n", join ';', map{$_//''}@$_; }@$x;
