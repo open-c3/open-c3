@@ -113,12 +113,9 @@ return sub
     if ( $var_map{"jobname"} && $var_map{"jobname"} =~ /^_ci_(\d+)_$/ ) {
         my $flow_id = $1;
 
-        my $flow_res = $ua->get( "http://api.ci.open-c3.org/project/$projectid/$flow_id" );
-        $logs->die( "get project from ci fail" ) unless $flow_res->is_success;
-        my $flow = eval{ JSON::from_json $flow_res->content };
-
-        $logs->die( "get project from ci fail:". $flow->{info} || '' ) unless $flow->{stat};
-        $var_map{"flowname"} = $flow->{data}{name};
+        my $flowname = `c3mc-base-db-get name --table openc3_ci_project --filter 'id=$flow_id'`;
+        chomp $flowname;
+        $var_map{"flowname"} = $flowname // 'unkown';
 
         my $version_res = $ua->get( "http://api.ci.open-c3.org/versiondetail/$flow_id/$variable->{version}" );
         $logs->die( "get version from ci fail" ) unless $version_res->is_success;
