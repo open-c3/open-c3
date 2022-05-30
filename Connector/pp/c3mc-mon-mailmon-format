@@ -4,6 +4,7 @@ use warnings;
 
 $|++;
 
+use Encode;
 use YAML::XS;
 use File::Basename;
 use Email::MIME;
@@ -33,6 +34,8 @@ for my $part ( $email->parts )
 
 $re{'labels.content100'} = $re{'labels.content'};
 $re{'labels.content100'} = substr( $re{'labels.content100'}, 0, 100 ) if length $re{'labels.content100'} > 100;
+
+$re{'labels.content100'} = decode('UTF-8', 'html内容，请到邮件中查看全文' ) if $re{'labels.content100'} && $re{'labels.content100'} =~ /^<html>/;
 
 my $decoder = Email::MIME::RFC2047::Decoder->new();
 
