@@ -70,9 +70,10 @@
                         </div>
  
                     </div>
-                    <div class="row">
+                    <div ng-if="choiceJob" class="row">
                         <div class="col-sm-3 form-group" style="margin-left: 40%;">
-                            <button class="btn btn-primary" ng-disabled="runtaskForm.$invalid" ng-click="runtask.runTask()">确认</button>
+                            <button ng-if="!runtask.loadover" class="btn btn-primary" ng-disabled="1" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!runtask.loadover}" ></i>加载中...</button>
+                            <button ng-if="runtask.loadover"  class="btn btn-primary" ng-disabled="runtaskForm.$invalid" ng-click="runtask.runTask()">确认</button>
                         </div>
                     </div>
                 </form>

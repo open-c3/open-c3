@@ -1,0 +1,66 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOBX/lib
+use strict;
+use warnings;
+use uuid;
+use POSIX;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDB;
+use MYDan::Util::OptConf;
+use YAML::XS;
+use Encode;
+use MIME::Base64;
+use uuid;
+
+=head1 SYNOPSIS
+
+ $0 projectid name
+ $0 projectid name --uuid
+ $0 projectid name --user user --slave slave1 --calltype calltype --variable variablebase64
+ $0 projectid name --user user --slave slave1 --calltype calltype --variablekv 'foo=123,bar=567'
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->set( user => 'c3@sys', slave => `c3mc-base-hostname`, calltype => 'api', variable => '' )
+    ->get( qw( user=s slave=s calltype=s variable=s variablekv=s uuid=s ) )->dump();
+$option->assert() unless @ARGV;
+
+my ( $projectid, $name ) = @ARGV;
+die "projectid err" unless defined $projectid && $projectid =~ /^\d+$/;
+die "name undef" unless $name;
+
+my $uuid = $o{uuid} // uuid->new()->create_str;
+
+my $db = MYDB->new( "/data/Software/mydan/JOB/conf/conn" );
+my $x = eval{ $db->query( "select uuid from openc3_job_jobs where name='$name' and projectid=$projectid" ) };
+die "get data error from db: $@" if $@;
+die "get data error from db" unless defined $x && ref $x eq 'ARRAY';
+die "projectid, jobname nomatch" unless @$x;
+
+my $jobuuid = $x->[0][0];
+
+chomp $o{slave};
+
+if( $o{variablekv} )
+{
+    my %v;
+    map{
+        my @x = split /=/, $_, 2;
+        $v{$x[0]} = $x[1] if @x == 2;
+    }split /,/, $o{variablekv};
+
+    $o{variable} = encode_base64( encode('UTF-8', YAML::XS::Dump \%v) );
+}
+
+my $r = eval{
+    $db->execute( "insert into openc3_job_task (`projectid`,`uuid`,`name`,`user`,`slave`,`status`,`calltype`,`jobtype`,`jobuuid`,`mutex`,`variable`) 
+        values('$projectid','$uuid','$name','$o{user}','$o{slave}', 'init','$o{calltype}','jobs','$jobuuid','','$o{variable}')" )};
+
+die "update project info fail:$@"  if $@;
+print "$uuid\n";

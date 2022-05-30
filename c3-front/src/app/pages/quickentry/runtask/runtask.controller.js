@@ -143,6 +143,7 @@
             }
         };
 
+        vm.loadover = false;
         $scope.$watch('choiceJob', function () {
             if($scope.choiceJob){
                 $scope.taskData.jobname = $scope.choiceJob.name;
@@ -152,6 +153,7 @@
                 vm.showjobxgroup = 0;
                 $scope.taskData.group = null
 
+                vm.loadover = false;
                 $http.get('/api/job/variable/' + vm.treeid + '/' + $scope.choiceJob.uuid + "?empty=0").then(
                     function successCallback(response) {
 
@@ -232,6 +234,7 @@
                                 $scope.jobVar = vm.vartemp;
 
                             }
+                            vm.loadover = true;
                         }else {
                             toastr.error( "获取变量信息失败："+response.data.info )
                         }

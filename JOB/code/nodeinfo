@@ -24,20 +24,13 @@ return sub
 
     $logs->die( "id not a number" ) unless $id =~ /^\d+$/;
 
-
-    my %env = Util::envinfo( qw( appname appkey ) );
-    my $ua = LWP::UserAgent->new;
-    $ua->default_header( %env );
-    my $res = $ua->get( "http://api.connector.open-c3.org/connectorx/nodeinfo/$id" );
-
-    die "call nodeinfo fail" unless $res->is_success;
-
-    my $data = eval{JSON::from_json $res->content};
-    unless ( $data->{stat} ) {
-        die "call nodeinfo result". $data->{info} || '';
+    my @x = `c3mc-base-nodeinfo --col id,name,type,inip,exip $id`;
+    chomp @x;
+    for( @x )
+    {
+        my @t = split /;/, $_;
+        push @list, +{ id => $t[0], name => $t[1], type => $t[2], inip => $t[3], exip => $t[4] };
     }
- 
-    push @list, @{$data->{data}};
     my $i = @list;
 
     my $x = $db->query( "select name,inip,exip from openc3_job_nodelist where projectid in ( '$id', '0' ) and status='available'" );

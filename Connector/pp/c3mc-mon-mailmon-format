@@ -26,8 +26,13 @@ my %re = ( 'labels.account' => basename( $filename ) =~ /^([a-zA-Z0-9][a-zA-Z0-9
 for my $part ( $email->parts )
 {
     $re{'labels.content'} ||= $part->body_str;
-    $re{'labels.content'}  = $part->body_str if $part->content_type =~ m[text/plain]i;
+    #当邮件是转发过来的时候 text/plain 里面的内容是 'Reference only'
+    $re{'labels.content'}  = $part->body_str if $part->content_type =~ m[text/plain]i && $part->body_str ne 'Reference only';
+    $re{'labels.content'}  = $part->body_str if $re{'labels.content'} eq 'Reference only' && $part->body_str ne 'Reference only';
 }
+
+$re{'labels.content100'} = $re{'labels.content'};
+$re{'labels.content100'} = substr( $re{'labels.content100'}, 0, 100 ) if length $re{'labels.content100'} > 100;
 
 my $decoder = Email::MIME::RFC2047::Decoder->new();
 

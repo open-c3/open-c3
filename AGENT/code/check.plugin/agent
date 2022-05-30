@@ -42,24 +42,14 @@ use Data::Dumper;
     my %failcount;
     map{ $failcount{$_->[0]} = $_->[1] }@$failcount;
 
-
-    my @nn;
-
-    my %env = Util::envinfo( qw( appname appkey ) );
-    use JSON;
-    my $ua = LWP::UserAgent->new;
-    $ua->default_header( %env ) if %env;
-    my $res = $ua->get( "http://api.job.open-c3.org/nodeinfo/$id" );
-    if($res->is_success)
-    { 
-        my $v = eval{JSON::decode_json $res->decoded_content};
-        die "die" unless $v->{stat} && ref $v->{data} eq 'ARRAY';
-        @nn = @{$v->{data}};
-    }
-
-    my %ip; map{ $ip{$_->{inip}} = 1; $ip{$_->{exip}} = 1; }@nn;
+    my %ip;
+    my @x = `c3mc-base-fullnodeinfo --col inip,exip $id`;
+    chomp @x;
+    map { map{ $ip{$_} = 1}split /;/, $_, 2; }@x;
 
     my @ip = grep{ /^\d+\.\d+\.\d+\.\d+$/ }keys %ip;
+
+    my %env = Util::envinfo( qw( appname appkey ) );
     $ENV{MYDan_Agent_Proxy_Addr} = "http://api.agent.open-c3.org/proxy/$id";
     $ENV{MYDan_Agent_Proxy_Header} = "appname:$env{appname},appkey:$env{appkey}";
 

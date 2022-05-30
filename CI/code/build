@@ -159,6 +159,7 @@ return sub
     my ( $ftimems, $ftime ) = ( time, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ) );
     my $runtime = sprintf "%0.3f", $ftimems - $stimems;
 
+    print "\nstatus: $status\n";
     eval{ $db->execute( "update openc3_ci_version set finishtime='$ftime',finishtimems='$ftimems',
         status='$status',runtime='$runtime' where uuid='$uuid'" ); };
     $logs->die( "update build status fail:$@" ) if $@;

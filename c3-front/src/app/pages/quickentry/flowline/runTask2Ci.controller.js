@@ -31,6 +31,7 @@
         vm.handwritten = {};
 
         vm.jobinfo;
+        vm.loadover = false;
         vm.getAllJob = function () {
             $http.get('/api/job/jobs/' + vm.treeid).then(
                 function successCallback(response) {
@@ -78,6 +79,8 @@
                                                    }
                                                 }
                                            });
+
+                                           vm.loadover = true;
                                //        }
                                   }else {
                                       alert("获取作业变量失败："+response.data.info)

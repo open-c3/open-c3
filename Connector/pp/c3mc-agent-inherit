@@ -1,0 +1,37 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+use MYDB;
+
+$| ++;
+
+my $db = MYDB->new( "/data/Software/mydan/AGENT/conf/conn" );
+
+my @x = `c3mc-base-treemap`;
+chomp @x;
+
+my ( @data, %name2id );
+for( @x )
+{
+    my ( $id, $name ) = split /;/, $_, 2;
+    push @data, +{ id => $id, name => $name };
+    $name2id{$name} = $id;
+}
+
+for( @data )
+{
+    my ( $name, $id, @ids ) = @$_{ qw( name id ) };
+    my @name = split /\./, $name;
+    next unless @name;
+
+    for my $index ( 0 .. $#name -1 )
+    {
+        my $subname = join '.', map{ $name[$_] } 0 .. $index;
+        push @ids, $name2id{$subname} if defined $name2id{$subname};
+    }
+             
+    $db->execute(
+        sprintf "replace into openc3_agent_inherit (`projectid`,`inheritid`,`fullname`) values( '$id','%s','$name')",
+           join( ',', reverse @ids )
+     );
+}

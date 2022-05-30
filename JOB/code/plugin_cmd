@@ -63,35 +63,32 @@ return sub
 
     my ( $user, $node_type, $node_cont, $scripts_type, $scripts_cont, $scripts_argv, $timeout, $pause, $deployenv, $action, $batches ) = @{$x->[0]};
 
-    my %env = Util::envinfo( qw( appname appkey ) );
-    my $ua = LWP::UserAgent->new;
-    $ua->default_header( %env );
-    my $res = $ua->get( "http://api.jobx.open-c3.org/subtask/$projectid/$taskuuid/mystatus" );
-    $logs->die( "get task status from jobx fail" ) unless $res->is_success;
-    my $data = eval{JSON::from_json $res->content};
-    $logs->die( "get task status from jobx fail:". $data->{info} || '' ) unless $data->{stat};
+    my $xx = `c3mc-jobx-task-info-bysubuuid '$taskuuid'`;
+    my $xxcc = eval { YAML::XS::Load $xx };
+    $logs->die( "get yaml fail from c3mc-jobx-task-substat '$taskuuid': $@" ) if $@;
+    $logs->die( "get yaml fail from c3mc-jobx-task-substat '$taskuuid': no HASH" ) unless $xxcc && ref $xxcc eq 'HASH';
+    
+    print YAML::XS::Dump $xxcc;
 
-    print YAML::XS::Dump $data->{data};
-
-    $data->{data}{action} ||= 'nofind';
-    $data->{data}{deployenv} ||= 'nofind';
-    $data->{data}{batches} ||= 0;
-    $data->{data}{groups} ||= 0;
-    $data->{data}{submitter} ||= 'nofind';
+    $xxcc->{action}    ||= 'nofind';
+    $xxcc->{deployenv} ||= 'nofind';
+    $xxcc->{batches}   ||= 0;
+    $xxcc->{groups}    ||= 0;
+    $xxcc->{submitter} ||= 'nofind';
 
     print "=" x 35, "\n";
     print "check ...\n";
-    print "expect deployenv: $deployenv; real deployenv:$data->{data}{deployenv}\n";
-    return 'success' if $deployenv eq 'test' && $data->{data}{deployenv} ne 'test';
-    return 'success' if $deployenv eq 'online' && $data->{data}{deployenv} ne 'online';
+    print "expect deployenv: $deployenv; real deployenv:$xxcc->{deployenv}\n";
+    return 'success' if $deployenv eq 'test'   && $xxcc->{deployenv} ne 'test';
+    return 'success' if $deployenv eq 'online' && $xxcc->{deployenv} ne 'online';
       
-    print "expect action: $action; real action:$data->{data}{action}\n";
-    return 'success' if $action eq 'deploy' && $data->{data}{action} ne 'deploy';
-    return 'success' if $action eq 'rollback' && $data->{data}{action} ne 'rollback';
+    print "expect action: $action; real action:$xxcc->{action}\n";
+    return 'success' if $action eq 'deploy'   && $xxcc->{action} ne 'deploy';
+    return 'success' if $action eq 'rollback' && $xxcc->{action} ne 'rollback';
       
-    print "expect batches: $batches; real batches: $data->{data}{batches}\n";
-    return 'success' if $batches eq 'firsttime' && $data->{data}{batches} ne 1;
-    return 'success' if $batches eq 'thelasttime' && $data->{data}{batches} ne $data->{data}{groups};
+    print "expect batches: $batches; real batches: $xxcc->{batches}\n";
+    return 'success' if $batches eq 'firsttime'   && $xxcc->{batches} ne 1;
+    return 'success' if $batches eq 'thelasttime' && $xxcc->{batches} ne $xxcc->{groups};
 
     $logs->die( "user format error" ) unless defined $user && $user =~ /^[a-zA-Z0-9_\-]+$/;
 
@@ -217,14 +214,14 @@ return sub
 
                 eval { $version = variable->new( variable => $variable, db => $db, jobuuid => $fromjob )->get( 'version' ) };
                 $logs->die( "get variable version fail:$@" ) if $@;
-                $version = 0 unless $version =~ /^[a-zA-Z0-9\.\-_]+$/;
+                $version = 0 unless $version && $version =~ /^[a-zA-Z0-9\.\-_]+$/;
             }
 
             print "\n############################## INIT ##############################\n\n";
 
             %result = Buildin->new(
                 @node
-            )->run( %o, query => \%query, jobuuid => $fromjob, taskuuid => $taskuuid, db => $db, treeid => $projectid, flowid => $flowid, version => $version, deployenv => $data->{data}{deployenv} );
+            )->run( %o, query => \%query, jobuuid => $fromjob, taskuuid => $taskuuid, db => $db, treeid => $projectid, flowid => $flowid, version => $version, deployenv => $xxcc->{deployenv} );
         }
         else
         {

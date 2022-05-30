@@ -1,10 +1,9 @@
 #!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
 use strict;
 use warnings;
-use Data::Dumper;
-use LWP::UserAgent;
 use Util;
 use JSON;
+use IPC::Open3;
 
 $| ++;
 
@@ -35,7 +34,6 @@ $| ++;
 return sub
 {
     my %param = @_;
-    print Dumper 'sendemail',\%param;
 
     return 1 unless @{$param{to}};
 
@@ -46,38 +44,16 @@ return sub
         map{ $data{$_} =~ s/\$\{$k\}/$v/g }keys %data if defined $v;
     }
 
-    my %env = Util::envinfo( qw( appname appkey ) );
-    my $ua = LWP::UserAgent->new;
-    $ua->default_header( %env );
-    my %form = (
-        data => [
-            +{
-                type => 'email',
-                title => $data{"$param{notifytype}TemplateEmailTitle"},
-                content => $data{"$param{notifytype}TemplateEmailContent"},
-                to => $param{to},
-            }
-        ]
-    );
+    my $pipe = "c3mc-base-send";
+    my $pid = IPC::Open3::open3( my $chld_in, '>&STDOUT', '>&STDERR', $pipe);
+    print $chld_in YAML::XS::Dump +{
+        title   => $data{"$param{notifytype}TemplateEmailTitle"},
+        content => $data{"$param{notifytype}TemplateEmailContent"},
+        to      => $param{to}
+    };
+    $chld_in = undef;
+    waitpid( $pid, 0 );
+    warn "send mail fail."  if $?;
 
-    my $cont = JSON::to_json( \%form );
-    utf8::encode($cont);
-
-    my $res = $ua->post( "http://api.connector.open-c3.org/connectorx/notify", 
-        Content => $cont, 'Content-Type' => 'application/json'
-    );
-
-    unless( $res->is_success )
-    {
-#TODO 确认上层调用是否捕获这个die
-        die "call notify fail";
-    }
-
-    my $data = eval{JSON::from_json $res->content};
-    unless ( $data->{stat} ) {
-#TODO 确认上层调用是否捕获这个die
-        die "call notify result". $data->{info} || '';
-    }
- 
     return 1;
 }

@@ -2,13 +2,6 @@
 use strict;
 use warnings;
 
-use FindBin qw( $RealBin );
-use YAML::XS;
-use Util;
-use LWP::UserAgent;
-use JSON;
-
-
 $| ++;
 
 =head1 SYNOPSIS
@@ -23,16 +16,7 @@ return sub
     my $id = $param{id};
     die "id not a number" unless $id =~ /^\d+$/;
 
-    my %env = Util::envinfo( qw( appname appkey ) );
-    my $ua = LWP::UserAgent->new;
-    $ua->default_header( %env );
- 
-    my $res = $ua->get( "http://api.agent.open-c3.org/inherit/$id" );
-
-    if( $res->is_success )
-    {
-        my $data = eval{JSON::from_json $res->content};
-        return $data->{data}{fullname} if $data && $data->{stat};
-    }
-    die "get fullname from api.agent.open-c3.org/inherit/$id fail";
+    my $x = `c3mc-base-db-get fullname --table openc3_agent_inherit --filter projectid=$id`;
+    chomp $x;
+    return $x // 'unkown';
 }

@@ -1,0 +1,51 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOBX/lib
+use strict;
+use warnings;
+use POSIX;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDB;
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ $0 uuid
+
+=cut
+
+my $uuid = shift @ARGV;
+die "uuid err" unless $uuid && $uuid =~ /^[a-zA-Z0-9]+$/;
+my $db = MYDB->new( "/data/Software/mydan/JOBX/conf/conn" );
+
+my @col = qw( id parent_uuid uuid );
+my $r = eval{
+    $db->query(
+        sprintf( "select %s from openc3_jobx_subtask where binary parent_uuid in ( select parent_uuid from openc3_jobx_subtask where uuid='$uuid' ) order by id",
+                join ',',@col ), \@col )};
+
+die "get info from db:$@" if $@;
+
+my %data = ( action => 'nofind', batches => 0, deployenv => 'nofind', submitter => 'nofind', groups => scalar @$r );
+
+if( @$r > 0 )
+{
+    $data{action} = $r->[0]{parent_uuid} =~ /[a-z]$/ ? 'deploy' : 'rollback';
+
+    my $g = eval{ $db->query( "select `group`,user from openc3_jobx_task where uuid='$r->[0]{parent_uuid}'" )};
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    return +{ stat => $JSON::false, info => 'nofind groupname' } unless @$g > 0;
+    $data{deployenv} = $g->[0][0] =~ /^_ci_online_\d+_$/ ? 'online' : $g->[0][0] =~ /^_ci_test_\d+_$/ ? 'test' : 'nofind';
+    $data{submitter} = $g->[0][1];
+}
+
+for my $idx ( 0 .. @$r -1 )
+{
+    $data{batches} = $idx + 1 if $r->[$idx]{uuid} eq $uuid;
+}
+
+print YAML::XS::Dump \%data;
