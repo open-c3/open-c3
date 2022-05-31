@@ -13,14 +13,16 @@
 
         <div class="panel-body" ng-init="ns = { 'null': '未发送', 'sending': '发送中', 'done':'完成', 'skip': '忽略', 'fail': '失败'}">
             <div class="panel-tabs">
-                <table ng-table="adminapproval.dataTable" class="table table-hover text-center table-condensed" show-filter="true">
+                <table ng-table="adminapproval.dataTable" class="table table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="d in $data">
+                        <td style="width: 15px" data-title="'ID'" filter="{ id: 'text'}" sortable="'id'">{{d.id}}</td>
                         <td style="width: 10%" data-title="'创建时间'" filter="{ create_time: 'text'}" sortable="'create_time'">{{d.create_time}}</td>
                         <td style="width: 10%" data-title="'提交人'" filter="{ submitter: 'text'}" sortable="'submitter'">{{d.submitter}}</td>
                         <td style="width: 10%" data-title="'审批人'" filter="{ user: 'text'}" sortable="'user'">{{d.user}}</td>
                         <td style="width: 10%" data-title="'协助操作人'" filter="{ assist: 'text'}" sortable="'assist'">{{d.assist}}</td>
                         <td style="width: 20%" data-title="'审批名称'" filter="{ name: 'text'}" sortable="'name'">{{d.name}}</td>
                         <td style="width: 10%" data-title="'OA单号'" filter="{ oauuid: 'text'}" sortable="'oauuid'">
+                            <button class="btn btn-primary btn-sm" ng-click="adminapproval.oalog(d.id,1)">日志</button>
                             <a ng-if="d.oauuid==0"> 尚未发送</a>
                             <a ng-if="d.oauuid==1"> 创建中</a>
                             <a ng-if="d.oauuid!=0 && d.oauuid!=1">{{d.oauuid}}</a>

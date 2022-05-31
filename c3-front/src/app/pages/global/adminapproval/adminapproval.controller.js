@@ -25,6 +25,24 @@
             });
         };
 
+        vm.oalog = function(id,show){
+            $uibModal.open({
+                templateUrl: 'app/pages/global/adminapproval/edit/oalog.html',
+                controller: 'AdminApprovalOalogController',
+                controllerAs: 'adminapprovaloalog',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    id : function () { return id},
+                    show : function () { return show},
+                    homereload : function () { return vm.reload},
+                }
+            });
+        };
+
+
         vm.reload = function () {
             vm.loadover = false;
             $http.get('/api/job/adminapproval').success(function(data){

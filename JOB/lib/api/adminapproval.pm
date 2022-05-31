@@ -65,4 +65,24 @@ get '/adminapproval/:id' => sub {
     return +{ stat => $JSON::true, data => $r };
 };
 
+get '/adminapproval/oalog/:id' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        id => qr/^\d+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+    my $pmscheck = api::pmscheck( 'openc3_job_root' ); return $pmscheck if $pmscheck;
+
+    my $path = "/data/open-c3-data/glusterfs/approval_log";
+
+    return +{
+        stat => $JSON::true,
+        data => +{
+            create => `cat $path/create.$param->{id} 2>&1`,
+            query  => `cat $path/query.$param->{id}  2>&1`,
+        }
+    };
+};
+
 true;
