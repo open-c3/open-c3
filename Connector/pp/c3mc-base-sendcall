@@ -45,8 +45,11 @@ sub sendmesg
 {
     my ( $user, $mesg ) = @_;
 
-    my $x = $db->query( sprintf "select `phone` from openc3_connector_useraddr where user='$user'" );
-    $user = $x->[0][0] if @$x;
+    my $x = $db->query( sprintf "select `phone`,`voicemail` from openc3_connector_useraddr where user='$user'" );
+    if( @$x )
+    {
+        $user = $x->[0][1] ? $x->[0][1] : $x->[0][0];
+    }
 
     my $cont = $usercall =~ /encode/ ? JSON::to_json( +{ user => $user, mesg => $mesg } ) : JSON::encode_json( +{ user => $user, mesg => $mesg } );
     my $res = $ua->post( $usercall, Content => $cont, 'Content-Type' => 'application/json');
