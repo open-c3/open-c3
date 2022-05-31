@@ -50,6 +50,20 @@
                 controllerAs: 'gitreport'
             })
 
+            .state('home.monreport', {
+                url: 'monreport/:treeid',
+                templateUrl: 'app/pages/monreport/monreport.html',
+                controller: 'MonreportController',
+                controllerAs: 'monreport'
+            })
+
+            .state('home.monreportfilterdata', {
+                url: 'monreportfilterdata/:treeid/:data',
+                templateUrl: 'app/pages/monreport/monreport.html',
+                controller: 'MonreportController',
+                controllerAs: 'monreport'
+            })
+
             .state('home.flowreport', {
                 url: 'flowreport/:treeid',
                 templateUrl: 'app/pages/flowreport/flowreport.html',
@@ -239,6 +253,12 @@
                 templateUrl: 'app/pages/global/ciwatcher/ciwatcher.html',
                 controller: 'CiWatcherController',
                 controllerAs: 'ciwatcher'
+            })
+            .state('home.global.adminapproval', {
+                url: 'adminapproval/:treeid',
+                templateUrl: 'app/pages/global/adminapproval/adminapproval.html',
+                controller: 'AdminApprovalController',
+                controllerAs: 'adminapproval'
             })
             .state('home.global.userdepartment', {
                 url: 'userdepartment/:treeid',

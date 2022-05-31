@@ -1,0 +1,36 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use YAML::XS;
+use POSIX;
+use Encode;
+
+$| ++;
+
+my @zsucc = glob "/data/open-c3-data/monitor-sender/zsucc/sender.20*-*.wait";
+my @zfail = glob "/data/open-c3-data/monitor-sender/zsucc/sender.20*-*.wait";
+
+my @col = qw( severity alertname instance fromtreeid );
+for my $f ( @zsucc, @zfail )
+{
+    my $time;
+    if( $f =~ /sender\.(20\d{2})(\d{2})(\d{2})\-(\d{2})(\d{2})(\d{2})\.\d{6}\.wait$/ )
+    {
+        $time = "$1-$2-$3 $4:$5:$6";
+    }
+    else
+    {
+        next;
+    }
+    my $cont = eval{ YAML::XS::LoadFile $f };
+    die "load fail: $@" if $@
+    next unless $cont->{status} eq 'firing';
+    my $data = $cont->{groupLabels};
+    $data->{severity  } ||= 'unkown';
+    $data->{alertname } ||= 'unkown';
+    $data->{instance  } ||= 'unkown';
+    $data->{fromtreeid} ||= 'unkown';
+    $data->{time} = $time;;
+    print Encode::encode('utf8', "$data->{time};$data->{fromtreeid};$data->{severity  };$data->{instance  };$data->{alertname }" ), "\n";
+}
+
