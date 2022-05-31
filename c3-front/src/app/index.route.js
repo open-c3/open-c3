@@ -240,6 +240,12 @@
                 controller: 'CiWatcherController',
                 controllerAs: 'ciwatcher'
             })
+            .state('home.global.adminapproval', {
+                url: 'adminapproval/:treeid',
+                templateUrl: 'app/pages/global/adminapproval/adminapproval.html',
+                controller: 'AdminApprovalController',
+                controllerAs: 'adminapproval'
+            })
             .state('home.global.userdepartment', {
                 url: 'userdepartment/:treeid',
                 templateUrl: 'app/pages/global/userdepartment/userdepartment.html',
