@@ -23,14 +23,14 @@ for my $f ( @zsucc, @zfail )
         next;
     }
     my $cont = eval{ YAML::XS::LoadFile $f };
-    die "load fail: $@" if $@
+    die "load fail: $@" if $@;
     next unless $cont->{status} eq 'firing';
     my $data = $cont->{groupLabels};
     $data->{severity  } ||= 'unkown';
     $data->{alertname } ||= 'unkown';
     $data->{instance  } ||= 'unkown';
     $data->{fromtreeid} ||= 'unkown';
-    $data->{time} = $time;;
+    $data->{time      }   = $time;
     print Encode::encode('utf8', "$data->{time};$data->{fromtreeid};$data->{severity  };$data->{instance  };$data->{alertname }" ), "\n";
 }
 
