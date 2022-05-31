@@ -26,6 +26,13 @@ for my $f ( @zsucc, @zfail )
     die "load fail: $@" if $@;
     next unless $cont->{status} eq 'firing';
     my $data = $cont->{groupLabels};
+
+    for ( qw( severity alertname instance fromtreeid ))
+    {
+        $data->{$_} = $cont->{commonLabels}{$_}
+            if (! $data->{$_}) && $cont->{commonLabels} && $cont->{commonLabels}{$_};
+    }
+
     $data->{severity  } ||= 'unkown';
     $data->{alertname } ||= 'unkown';
     $data->{instance  } ||= 'unkown';
