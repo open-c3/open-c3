@@ -76,12 +76,18 @@ get '/adminapproval/oalog/:id' => sub {
 
     my $path = "/data/open-c3-data/glusterfs/approval_log";
 
+    my %data;
+    for my $x ( qw( create query ) )
+    {
+        $data{$x} = +{ log => 'NULL', time => 'NULL' };
+        my $f = "$path/query.$param->{id}";
+        next unless -f $f;
+        $data{$x}{time} = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( ( stat $f )[9] ) );
+        $data{$x}{log } = `cat '$f' 2>&1`;
+    }
     return +{
         stat => $JSON::true,
-        data => +{
-            create => `cat $path/create.$param->{id} 2>&1`,
-            query  => `cat $path/query.$param->{id}  2>&1`,
-        }
+        data => \%data,
     };
 };
 
