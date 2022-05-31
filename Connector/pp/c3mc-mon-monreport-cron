@@ -1,0 +1,6 @@
+#!/bin/bash
+
+export CRON_TZ=Asia/Shanghai
+export TZ=Asia/Shanghai
+
+c3mc-mon-monreport 2>&1 1>/tmp/c3mc-mon-monreport.log  | C3APPNAME=c3mc-mon-monreport c3mc-base-log-addtime  >> /var/log/open-c3.error.log 

@@ -1,0 +1,39 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use YAML::XS;
+use POSIX;
+use Encode;
+
+$| ++;
+
+my $dpath = "/data/glusterfs/monreport";
+system "mkdir -p $dpath" unless -d $dpath;
+die if system "c3mc-mon-monreport-make > '$dpath/current.temp' && mv '$dpath/current.temp' $dpath/current";
+
+my @month = `cat $dpath/current|awk -F'-' '{print \$1"-"\$2}'|sort|uniq`;
+chomp @month;
+
+use Data::Dumper;
+print Dumper \@month;
+
+for my $month ( @month )
+{
+    next unless $month =~ /^\d+\-\d+$/;
+    print "month: $month\n";
+    system "cat $dpath/current|grep ^$month- > $dpath/${month}.temp";
+
+    unless( -f "$dpath/$month")
+    {
+        system "mv '$dpath/${month}.temp' '$dpath/$month'";
+        next;
+    }
+    my $oldsize = (stat "$dpath/$month"      )[7];
+    my $newsize = (stat "$dpath/$month.temp" )[7];
+
+    next unless $newsize > $oldsize;
+
+    system "mv '$dpath/${month}.temp' '$dpath/$month'";
+}
+
+system "rm $dpath/*.temp";

@@ -85,6 +85,7 @@
                                 || sName == 'home.connector.mesg'
                                 || sName == 'home.gitreport'
                                 || sName == 'home.flowreport'
+                                || sName == 'home.monreport'
                              ){
                                 $state.go(sName, {treeid:treeNode.id});
                             }else{
@@ -109,7 +110,10 @@
                             {
                                 $state.go('home.flowreport', {treeid:treeNode.id});
                             }
-
+                            if( sName == 'home.monreportfilterdata' )
+                            {
+                                $state.go('home.monreport', {treeid:treeNode.id});
+                            }
                         } else {
                             toastr.error("没有节点权限");
                         }

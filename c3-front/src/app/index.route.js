@@ -50,6 +50,20 @@
                 controllerAs: 'gitreport'
             })
 
+            .state('home.monreport', {
+                url: 'monreport/:treeid',
+                templateUrl: 'app/pages/monreport/monreport.html',
+                controller: 'MonreportController',
+                controllerAs: 'monreport'
+            })
+
+            .state('home.monreportfilterdata', {
+                url: 'monreportfilterdata/:treeid/:data',
+                templateUrl: 'app/pages/monreport/monreport.html',
+                controller: 'MonreportController',
+                controllerAs: 'monreport'
+            })
+
             .state('home.flowreport', {
                 url: 'flowreport/:treeid',
                 templateUrl: 'app/pages/flowreport/flowreport.html',
