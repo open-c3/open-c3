@@ -68,6 +68,13 @@ if( $name eq 'rule' )
 
 if( $name eq 'carry' )
 {
+    if( -f "/data/open-c3-data/promesd.off" ) {
+        $0 = "agent_server_$name";
+        warn ">> skip by /data/open-c3-data/promesd.off\n";
+        sleep 10*365*86400;
+        exit;
+    }
+
     OPENC3::PP::Server->new(
         name => "agent_server_$name",
         interval => 60,
