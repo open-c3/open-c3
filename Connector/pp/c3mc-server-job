@@ -24,7 +24,17 @@ unless( $name )
 
 if( $name eq 'approval' )
 {
+    #TODO
+    my $role = `c3mc-base-role -m job`;
+    chomp $role;
+    unless( $role && $role eq 'master' )
+    {
+        sleep 86400 * 360;
+        exit;
+    }
+
     my $path = "/data/open-c3-data/glusterfs/approval_log";
+    system "mkdir -p $path" unless -d $path;
     OPENC3::PP::Server->new(
         name => "job_server_$name",
         interval => 60,
