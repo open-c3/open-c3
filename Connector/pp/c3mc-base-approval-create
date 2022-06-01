@@ -1,0 +1,59 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/JOB/lib
+use strict;
+use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDan::Util::OptConf;
+use Encode;
+use LWP::UserAgent;
+use JSON;
+use Configini;
+use uuid;
+
+=head1 SYNOPSIS
+
+ $0 --submitter user1 --approver user2
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->set( submitter => 'sys@app' )->get( qw( submitter=s approver=s ) )->dump();
+$option->assert(qw( submitter approver));
+
+local $/ = undef;
+my $content = Encode::encode('utf8', <STDIN> );
+local $/ = "\n";
+
+my $approver = Configini::get( 'approver'    );
+my %env      = Configini::env( 'approverenv' );
+
+unless( $approver )
+{
+    print uuid->new()->create_str;
+    exit;
+}
+
+my $ua = LWP::UserAgent->new;
+$ua->timeout( 10 );
+$ua->default_header( %env ) if %env;
+
+my $cont = $approver =~ /encode=1/
+    ? JSON::to_json(     +{ submitter => $o{submitter}, approver => $o{approver}, content => $content } )
+    : JSON::encode_json( +{ submitter => $o{submitter}, approver => $o{approver}, content => $content } );
+my $res = $ua->post( $approver, Content => $cont, 'Content-Type' => 'application/json' );
+
+my $err = sprintf "call approver fail: $approver\n%s\n", YAML::XS::Dump $res;
+
+die sprintf( "$err: code %s", $res->code ) unless $res->is_success;
+
+my $v = eval{JSON::decode_json $res->decoded_content};
+die sprintf( "$err: data no JSON: $@" )if $@;
+
+die sprintf( "$err: info: %s", $v->{info} || '' ) unless $v->{stat};
+
+print "$v->{data}\n";

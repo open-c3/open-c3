@@ -1,0 +1,36 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+use OPENC3::PP::Server;
+
+=head1 SYNOPSIS
+
+ $0 servername
+
+=cut
+
+$|++;
+my $name = shift @ARGV;
+my %help = (
+    approval => 'approval oa',
+);
+
+unless( $name )
+{
+    map{ print "\$0 $_ # $help{$_}\n" }keys %help;
+    exit;
+}
+
+if( $name eq 'approval' )
+{
+    my $path = "/data/open-c3-data/glusterfs/approval_log";
+    OPENC3::PP::Server->new(
+        name => "job_server_$name",
+        interval => 60,
+        timeout => 120,
+    )->run(
+      qq( c3mc-base-db-get -t openc3_job_approval id --filter "oauuid='0'                                  and opinion='unconfirmed' and create_time>'`date +%F -d \"15 days ago\"`'" | xargs -i{} bash -c "c3mc-job-approval-create -i {} >$path/create.{} 2>&1 ; exit 0" ),
+      qq( c3mc-base-db-get -t openc3_job_approval id --filter "oauuid !='' and oauuid!='0' and oauuid!='1' and opinion='unconfirmed' and create_time>'`date +%F -d \"15 days ago\"`'" | xargs -i{} bash -c "c3mc-job-approval-query  -i {} >$path/query.{}  2>&1 ; exit 0" ),
+    );
+}

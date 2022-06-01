@@ -1,0 +1,55 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDan::Util::OptConf;
+use Encode;
+use LWP::UserAgent;
+use JSON;
+use Configini;
+use uuid;
+
+=head1 SYNOPSIS
+
+ $0 --uuid uuid
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( uuid=s ) )->dump();
+$option->assert(qw( uuid ));
+
+my $approver = Configini::get( 'approver'    );
+my %env      = Configini::env( 'approverenv' );
+
+unless( $approver )
+{
+    my $x = `cat '/tmp/$o{uuid}' 2>/dev/null`;
+    chomp $x;
+    my $status = $x eq 'agree' ? 'agree' : $x eq 'refuse' ? 'refuse': 'unconfirmed';
+    print "$status\n";
+    exit;
+}
+
+my $ua = LWP::UserAgent->new;
+$ua->timeout( 10 );
+$ua->default_header( %env ) if %env;
+
+my $res = $ua->get( $approver =~ /encode=1/ ? "$approver&uuid=$o{uuid}" : "$approver?uuid=$o{uuid}" );
+
+my $err = sprintf "call approver fail: $approver\n%s\n", YAML::XS::Dump $res;
+
+die sprintf( "$err: code %s", $res->code ) unless $res->is_success;
+
+my $v = eval{JSON::decode_json $res->decoded_content};
+die "$err: data no JSON: $@" if $@;
+
+die sprintf( "$err: info: %s", $v->{info} || '' ) unless $v->{stat};
+
+print "$v->{data}{status};$v->{data}{reason}\n";

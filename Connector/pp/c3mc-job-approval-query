@@ -1,0 +1,38 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib
+use strict;
+use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDB;
+use MYDan::Util::OptConf;
+use Encode;
+use uuid;
+use IPC::Open3;
+
+=head1 SYNOPSIS
+
+ $0 --id id
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( id=i ) )->dump();
+$option->assert(qw( id ));
+
+my $id = $o{id};
+my $db = MYDB->new( "/data/Software/mydan/JOB/conf/conn", delayedconnection => 1 );
+
+my $x = eval{ $db->query( "select oauuid from openc3_job_approval where id='$id' and `opinion`!='agree' and `opinion`!='refuse' and oauuid!='' and oauuid!='0' and oauuid!='1'" ) };
+die "id $id nofind in db" unless $x && @$x;
+
+my $xx = `c3mc-base-approval-query --uuid '$x->[0][0]'`;
+chomp $xx;
+my ( $status, $reason ) = split /;/, $xx;
+
+exit unless $status && ( $status eq 'agree' || $status eq 'refuse' );
+$db->execute( "update openc3_job_approval set `opinion`='$status' where id='$id' and  `opinion`!='agree' and `opinion`!='refuse'" );
