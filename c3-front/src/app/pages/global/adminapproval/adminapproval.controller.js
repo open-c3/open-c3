@@ -65,6 +65,29 @@
             });
         };
 
+        vm.notifyredo = function(id){
+            swal({
+                title: "重新发起审批消息",
+                text: '重新发起',
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                cancelButtonText: "取消",
+                confirmButtonText: "确定",
+                closeOnConfirm: false,
+                showLoaderOnConfirm: true
+            }, function(){
+                $http.post('/api/job/adminapproval/notifyredo/'+ id ).success(function(data){
+                    if (data.stat){
+                        swal("操作成功!", '成功:' + data.data , "success");
+                        vm.reload();
+                    }else {
+                        swal('操作失败', data.info, 'error');
+                    }
+                });
+            });
+        };
+
         vm.reload = function () {
             vm.loadover = false;
             $http.get('/api/job/adminapproval').success(function(data){

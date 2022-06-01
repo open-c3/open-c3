@@ -28,7 +28,10 @@
                             <a ng-if="d.oauuid==1"> 创建中</a>
                             <a ng-if="d.oauuid!=0 && d.oauuid!=1">{{d.oauuid}}</a>
                         </td>
-                        <td style="width: 10%" data-title="'通知状态'" >{{ns[d.notifystatus]}}</td>
+                        <td style="width: 10%" data-title="'通知状态'" >
+                            <button class="btn btn-primary btn-sm" ng-disabled="d.opinion != 'unconfirmed'" ng-click="adminapproval.notifyredo(d.id)">重做</button>
+                            {{ns[d.notifystatus]}}
+                        </td>
                         <td style="width: 10%" data-title="'审批状态'" sortable="'opinion'">
                             <a ng-if="d.opinion == 'agree'" style="color: green"> 同意 </a>
                             <a ng-if="d.opinion == 'unconfirmed'"> 未审批 </a>
