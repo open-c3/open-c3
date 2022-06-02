@@ -77,7 +77,15 @@ get '/ticket/KubeConfig' => sub {
     }
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from openc3_ci_ticket where type = 'KubeConfig' $greptreeid and ( create_user ='$user' or share = '$company' or share like '%%_T_${company}_T_%%' or share like '%%_P_${user}_P_%%' or share like '%%_TR_${company}_TR_%%' or share like '%%_PR_${user}_PR_%%' )", join( ',', map{"`$_`"}@col)), \@col )};
+            sprintf(
+                 "select %s from openc3_ci_ticket where type = 'KubeConfig' $greptreeid and ( " . 
+                     "( create_user ='$user' or share = '$company' or share like '%%_T_${company}_T_%%' or share like '%%_P_${user}_P_%%' or share like '%%_TR_${company}_TR_%%' or share like '%%_PR_${user}_PR_%%' ) ".
+                     " or ( id in ( select ticketid from openc3_ci_k8s_namespace_auth where user='$user')) " .
+                  " )",
+                  join( ',', map{"`$_`"}@col)),
+             \@col
+        )
+    };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     for my $d ( @$r )
@@ -95,7 +103,9 @@ get '/ticket/KubeConfig' => sub {
         {
             $d->{ticket} = +{ $d->{type} => '********' }
         }
-        $d->{auth} = ( $d->{self} || $d->{share} eq $company || $d->{share} =~ /_T_${company}_T_/ || $d->{share} =~ /_P_${user}_P_/ ) ? 'X' : 'R';
+        $d->{auth} =
+            ( $d->{self} || $d->{share} eq $company || $d->{share} =~ /_T_${company}_T_/ || $d->{share} =~ /_P_${user}_P_/ )
+             ? 'X' : ( $d->{share} =~ /_TR_${company}_TR_/ || $d->{share} =~ /_PR_${user}_PR_/  ) ? 'R' : 'ns';
         $d->{share} = $d->{share} ? $d->{share} =~ /:oo:/ ? 'O' : 'T' : 'P';
     }
     return +{ stat => $JSON::true, data => $r };
