@@ -220,5 +220,5 @@ create table if not exists `openc3_ci_k8s_namespace_auth`(
 `auth`       VARCHAR(100) comment '权限',
 `edit_user`  VARCHAR(100) comment '编辑者',
 `edit_time`  TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
-UNIQUE KEY `openc3_ci_k8s_namespace_auth` (`user`,`auth`)
+UNIQUE KEY `openc3_ci_k8s_namespace_auth` (`ticketid`,`namespace`,`user`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='k8s命名空间授权';
