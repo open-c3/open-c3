@@ -192,7 +192,7 @@
                     });
 //            }
 
-            $http.get("/api/ci/v2/kubernetes/util/labels/node?ticketid=" + ticketid ).success(function(data){
+            $http.get("/api/ci/v2/kubernetes/util/labels/node?ticketid=" + ticketid + "&namespace=" + vm.namespace  ).success(function(data){
                 if(data.stat == true) 
                 { 
                    vm.nodelabel = data.data;
@@ -201,7 +201,7 @@
                 }
             });
  
-            $http.get("/api/ci/v2/kubernetes/util/labels/node_pod?ticketid=" + ticketid ).success(function(data){
+            $http.get("/api/ci/v2/kubernetes/util/labels/node_pod?ticketid=" + ticketid + "&namespace=" + vm.namespace ).success(function(data){
                 if(data.stat == true) 
                 { 
                    vm.nodepodlabel = data.data;

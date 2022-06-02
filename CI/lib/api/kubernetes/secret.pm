@@ -27,11 +27,15 @@ get '/kubernetes/secret' => sub {
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
-    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 0 ) };
+    my ( $kubectl, @ns ) = eval{ api::kubernetes::getKubectlAuth( $api::mysql, $param->{ticketid}, $user, $company, 0 ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
     my $argv = $param->{namespace} ? "-n '$param->{namespace}'" : "-A";
-    my $filter = +{ skip => $param->{skip} };
+    my $filter = +{
+        skip => $param->{skip},
+        rowfilter => +{ key => \@ns, col => [ 'NAMESPACE' ] } ,
+        namespace => $param->{namespace},
+    };
     my ( $cmd, $handle ) = ( "$kubectl get secrets $argv 2>/dev/null", 'getsecret' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle, filter => $filter }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $?, $filter ); 
@@ -51,6 +55,11 @@ $handle{getsecret} = sub
         my %tmp = map { $title[$_] => $col[$_] } 0 .. $#title;
         push @r, \%tmp unless $skip{$tmp{TYPE}};
     }
+
+    map{ $_->{NAMESPACE} //= $filter->{namespace} }@r;
+
+    @r = api::kubernetes::rowfilter( $filter, @r );
+
     return +{ stat => $JSON::true, data => \@r, };
 };
 
@@ -72,8 +81,10 @@ post '/kubernetes/secret/dockerconfigjson' => sub {
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
-    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 1 ) };
+    my ( $kubectl, @ns ) = eval{ api::kubernetes::getKubectlAuth( $api::mysql, $param->{ticketid}, $user, $company, 1 ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
+
+    return +{ stat => $JSON::false, info => "no auth" } if @ns && ! grep{ $_ eq $param->{namespace} }@ns;
 
     my $email = $param->{email} ? "--docker-email='$param->{email}'" : "";
     my ( $cmd, $handle ) = ( "$kubectl create secret docker-registry '$param->{name}' --docker-server='$param->{server}' --docker-username='$param->{username}' --docker-password='$param->{password}' $email -n '$param->{namespace}' 2>&1", 'showinfo' );

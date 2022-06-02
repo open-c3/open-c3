@@ -30,8 +30,11 @@ get '/kubernetes/util/labels/:name' => sub {
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
-    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 0 ) };
+    my ( $kubectl, @ns ) = eval{ api::kubernetes::getKubectlAuth( $api::mysql, $param->{ticketid}, $user, $company, 0 ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
+
+#TODO
+#    return +{ stat => $JSON::false, info => "no auth" } if @ns && ! grep{ $_ eq $param->{namespace} }@ns;
 
     my $argv = $param->{namespace} ? "-n '$param->{namespace}'" : "-A";
     my $cmd = join ' && ', map{ "$kubectl get $_ $argv --show-labels 2>/dev/null" }split /_/, $param->{name};

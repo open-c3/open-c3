@@ -953,6 +953,8 @@ vm.replicasets = [];
 
         vm.showByAuth = function(name)
         {
+            return true;
+            //TODO
             if( vm.selecteCluster.auth == "R" )
             {
                 if( name == 'Ingress' ||  name == 'Service' ||  name == 'Deployment' )

@@ -25,13 +25,14 @@ get '/kubernetes/namespace' => sub {
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
-    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 0 ) };
+    my ( $kubectl, @ns )= eval{ api::kubernetes::getKubectlAuth( $api::mysql, $param->{ticketid}, $user, $company, 0 ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
+    my $filter = +{ rowfilter => +{ key => \@ns, col => [ 'NAME' ] } };
 #TODO 不添加2>/dev/null 时,如果命名空间不存在namespace时，api.event 的接口会报错
     my ( $cmd, $handle ) = ( "$kubectl get namespace -o wide 2>/dev/null", 'showtable' );
-    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
-    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle, filter => $filter }} if request->headers->{"openc3event"};
+    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $?, $filter ); 
 };
 
 post '/kubernetes/namespace' => sub {
@@ -47,8 +48,10 @@ post '/kubernetes/namespace' => sub {
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
-    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 1 ) };
+    my ( $kubectl, @ns ) = eval{ api::kubernetes::getKubectlAuth( $api::mysql, $param->{ticketid}, $user, $company, 1 ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
+
+    return +{ stat => $JSON::false, info => "no auth" } if @ns && ! grep{ $_ eq $param->{namespace} }@ns;
 
     my ( $cmd, $handle ) = ( "$kubectl create namespace '$param->{namespace}' 2>&1", 'showinfo' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
