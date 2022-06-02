@@ -28,6 +28,12 @@
                    vm.loadover = true;
                    vm.nodeTable = new ngTableParams({count:25}, {counts:[],data:data.data});
                 } else { 
+                    if( data.info.indexOf("no auth") >= 0  )
+                    {
+                        swal({ title:'没有权限', text: "您没有该操作权限", type:'error' });
+                        vm.cancel();
+                        return;
+                    }
                     toastr.error("加载权限表格失败:" + data.info)
                 }
             });
