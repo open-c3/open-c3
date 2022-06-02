@@ -210,3 +210,15 @@ ALTER TABLE openc3_connector_useraddr ADD `voicemail` varchar(100) DEFAULT NULL 
 
 # v2.6.0 sql openc3_job_approval add assist
 ALTER TABLE openc3_job_approval ADD `assist` varchar(100) DEFAULT NULL COMMENT '协助操作人';
+
+# v2.6.0 sql openc3_ci_k8s_namespace_auth create
+create table if not exists `openc3_ci_k8s_namespace_auth`(
+`id` int(16) unsigned not null primary key auto_increment comment 'id',
+`ticketid`   VARCHAR(200) comment '凭据ID',
+`namespace`  VARCHAR(200) comment '命名空间',
+`user`       VARCHAR(100) comment '用户',
+`auth`       VARCHAR(100) comment '权限',
+`edit_user`  VARCHAR(100) comment '编辑者',
+`edit_time`  TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
+UNIQUE KEY `openc3_ci_k8s_namespace_auth` (`user`,`auth`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='k8s命名空间授权';
