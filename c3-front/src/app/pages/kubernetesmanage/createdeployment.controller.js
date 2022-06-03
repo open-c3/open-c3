@@ -832,13 +832,22 @@ if( vm.addservice === 1 )
             }
             x.env.push({"name": "", "valueFrom": { "configMapKeyRef": { "name": "", "key": "" } }})
         }
-         vm.addContainerEnvSecret = function(x)
+        vm.addContainerEnvSecret = function(x)
         {
             if( ! x.env )
             {
                 x.env = []
             }
             x.env.push({"name": "", "valueFrom": { "secretKeyRef": { "name": "", "key": "" } }})
+        }
+ 
+        vm.addContainerEnvField = function(x)
+        {
+            if( ! x.env )
+            {
+                x.env = []
+            }
+            x.env.push({"name": "", "valueFrom": { "fieldRef": { "fieldPath": "" } }})
         }
  
         vm.delContainerEnv = function(x,id)
