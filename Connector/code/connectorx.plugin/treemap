@@ -94,6 +94,9 @@ sub gettreemap
     }
     elsif( $apicache )
     {
+
+        warn sprintf "treemap err: %s\n", YAML::XS::Dump $res;
+
         if( -f $file )
         {
             my $mtime = ( stat $file )[9];
@@ -111,7 +114,7 @@ sub gettreemap
     }
     #TODO die
 
-    die "die";
+    die sprintf "treemap err: %s\n", YAML::XS::Dump $res;
 }
 
 return sub

@@ -87,6 +87,8 @@ return sub
     }
     elsif( $apicache )
     {
+        warn sprintf "usertree err: %s\n", YAML::XS::Dump $res;
+
         if( -f $file )
         {
             my $mtime = ( stat $file )[9];
@@ -101,5 +103,8 @@ return sub
             }
          }
     }
+
+    warn sprintf "usertree err: %s\n", YAML::XS::Dump $res;
+
     die $res->content;
 }

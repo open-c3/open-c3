@@ -51,7 +51,7 @@ sub gettreemap
     my $res = $ua->get( $treemap );
 
     my $err = sprintf "get treemap fail: $treemap: %s", YAML::XS::Dump $res;
-    $err =~ s/appkey:\s+[a-zA-Z0-9]{32}\b/appkey: ******/g;
+    $err =~ s/appkey:\s+['"]?[a-zA-Z0-9]{32}['"]?\b/appkey: ******/g;
 
     die sprintf( "$err: code %s", $res->code ) unless $res->is_success;
 

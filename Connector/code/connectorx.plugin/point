@@ -138,6 +138,9 @@ return sub
     }
     elsif( $apicache )
     {
+
+        warn sprintf "pms err: %s\n", YAML::XS::Dump $res;
+
         if( -f $file )
         {
             my $mtime = ( stat $file )[9];
@@ -152,6 +155,9 @@ return sub
             }
         }
     }
+
+    warn sprintf "pms err: %s\n", YAML::XS::Dump $res;
+
     die $res->content;
 };
 1

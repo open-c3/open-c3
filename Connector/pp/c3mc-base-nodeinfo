@@ -61,7 +61,9 @@ sub getnodeinfo
 
     my $res = $ua->get( "${nodeinfo}$id" );
 
-    my $err = "get nodeinfo fail: ${nodeinfo}$id";
+    my $err = sprintf "get nodeinfo fail: ${nodeinfo}$id: %s", YAML::XS::Dump $res;
+    $err =~ s/appkey:\s+['"]?[a-zA-Z0-9]{32}['"]?\b/appkey: ******/g;
+
     die sprintf( "$err: code %s", $res->code ) unless $res->is_success;
 
     my $v = eval{JSON::decode_json $res->decoded_content};

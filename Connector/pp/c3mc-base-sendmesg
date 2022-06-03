@@ -57,7 +57,9 @@ sub sendmesg
     my $cont = $usermesg =~ /encode/ ? JSON::to_json( +{ user => $user, mesg => $mesg } ) : JSON::encode_json( +{ user => $user, mesg => $mesg } );
     my $res = $ua->post( $usermesg, Content => $cont, 'Content-Type' => 'application/json');
 
-    my $err = "send mesg fail: $usermesg";
+    my $err = sprintf "send mesg fail: $usermesg: %s", YAML::XS::Dump $res;
+    $err =~ s/appkey:\s+['"]?[a-zA-Z0-9]{32}['"]?\b/appkey: ******/g;
+
     die sprintf( "$err: code %s", $res->code ) unless $res->is_success;
 
     my $v = eval{JSON::decode_json $res->decoded_content};
