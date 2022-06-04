@@ -163,6 +163,15 @@
                            $scope.selectorlabels.push( { "K": k, "V": v })
                        });
                    }
+
+                   $scope.nodeSelector = [];
+                   if( vm.editData.spec.template.spec && vm.editData.spec.template.spec.nodeSelector )
+                   {
+                       angular.forEach(vm.editData.spec.template.spec.nodeSelector, function (v, k) {
+                           $scope.nodeSelector.push( { "K": k, "V": v })
+                       });
+                   }
+ 
  
                 } else { 
                     toastr.error("加载YAML信息失败:" + data.info)
@@ -260,6 +269,15 @@
                         });
                     }
 
+
+                   $scope.nodeSelector = [];
+                   if( vm.editData.spec.template.spec && vm.editData.spec.template.spec.nodeSelector )
+                   {
+                       angular.forEach(vm.editData.spec.template.spec.nodeSelector, function (v, k) {
+                           $scope.nodeSelector.push( { "K": k, "V": v })
+                       });
+                   }
+ 
                     vm.loadover = true;
                     $scope.editstep = 1; 
                 } else { 
@@ -367,6 +385,23 @@
             }
 
             vm.editData.spec.template.metadata.labels = vm.editData.spec.selector.matchLabels;
+
+//nodeSelector
+            var nodeSelectorHash = {};
+            angular.forEach($scope.nodeSelector, function (v, k) {
+                var key = v["K"]
+                nodeSelectorHash[key] = v["V"];
+            });
+
+            if( Object.keys(nodeSelectorHash).length > 0 )
+            {
+                vm.editData.spec.template.spec.nodeSelector = nodeSelectorHash;
+            }
+            else
+            {
+                delete vm.editData.spec.template.spec.nodeSelector;
+            }
+
 
 //clean temp data
             angular.forEach(vm.editData.spec.template.spec.containers, function (v, k) {
@@ -501,6 +536,17 @@ if( vm.addservice === 1 )
         {
             $scope.selectorlabels.splice(id, 1);
         }
+//nodeSelector
+        $scope.nodeSelector = [];
+        vm.addNodeSelector = function()
+        {
+            $scope.nodeSelector.push({ "K": "", "V": ""});
+        }
+        vm.delNodeSelector = function(id)
+        {
+            $scope.nodeSelector.splice(id, 1);
+        }
+
 
 //Secret
         vm.autoGetSecret = function()

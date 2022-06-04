@@ -313,7 +313,47 @@
                 </div>
             </div>
 <hr>
-调度
+
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-1 control-label">调度</label>
+                </div>
+
+            </div>
+
+
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-1 control-label">nodeSelector</label>
+                    <div class="col-sm-1">
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.addNodeSelector()" uib-tooltip="添加" style="cursor:pointer;color: #339094;" ></i>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-1 control-label"></label>
+                    <div class="col-sm-7">
+                        <table  border="0" style="width: 100%">
+                            <tr ng-repeat="(id, x) in nodeSelector">
+                                <td><input type="text" class="form-control"  ng-model="x.K"></td>
+                                <td style="width: 20px">=</td>
+                                <td>
+                                    <input type="text" class="form-control"  ng-model="x.V">
+                                </td>
+                                <td style="width: 50px">
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.delNodeSelector(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                </td>
+                            </tr>
+                       </table>
+                    </div>
+                </div>
+            </div>
+
+
+高级调度设置
 <a ng-if="kubernetescreatedeployment.advancedconfig" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="隐藏高级配置" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="kubernetescreatedeployment.advancedconfig=0"></a>
 <a ng-if="!kubernetescreatedeployment.advancedconfig" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="显示高级配置" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="kubernetescreatedeployment.advancedconfig=1"></a>
 
