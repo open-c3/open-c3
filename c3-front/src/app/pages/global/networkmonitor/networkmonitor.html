@@ -1,0 +1,34 @@
+<div class="row block">
+    <h2>网络监视器</h2>
+    <hr class="mv20 clear">
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="networkmonitor.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!networkmonitor.loadover}" ></i></button>
+            </span>
+            <h5>代理网络</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="pt20" style="overflow: auto;">
+                <table ng-table="networkmonitor.dataTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
+                    <tr ng-repeat="m in $data">
+                        <td width="60" class="textcenter" data-title="'ID'" filter="{ id: 'text'}" sortable="'id'"> {{m.id}} </td>
+                        <td data-title="'regionid'" width="80" filter="{ regionid: 'text'}" sortable="'regionid'">{{m.regionid}}</td>
+                        <td data-title="'projectid'" width="80" filter="{ projectid: 'text'}" sortable="'projectid'">{{m.projectid}}</td>
+                        <td data-title="'check_time'" width="80" filter="{ check_time: 'text'}" sortable="'check_time'">{{m.check_time}}</td>
+                        <td width="60" class="textcenter" data-title="'名称'" filter="{ name: 'text'}" sortable="'name'"> {{m.name}} </td>
+                        <td data-title="'Node'" width="80" filter="{ node: 'text'}" sortable="'node'">{{m.node}}</td>
+                        <td data-title="'tcp_speed'" width="80" filter="{ tcp_speed: 'text'}" sortable="'tcp_speed'">{{m.tcp_speed}}</td>
+                        <td data-title="'tcp_error'" width="80" filter="{ tcp_error: 'text'}" sortable="'tcp_error'">{{m.tcp_error}}</td>
+                        <td data-title="'udp_speed'" width="80" filter="{ udp_speed: 'text'}" sortable="'udp_speed'">{{m.udp_speed}}</td>
+                        <td data-title="'udp_error'" width="80" filter="{ udp_error: 'text'}" sortable="'udp_error'">{{m.udp_error}}</td>
+                        <td data-title="'subnet'" width="80" filter="{ subnet: 'text'}" sortable="'subnet'">{{m.subnet}}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>

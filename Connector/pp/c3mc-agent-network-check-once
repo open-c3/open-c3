@@ -1,0 +1,71 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
+use strict;
+use warnings;
+
+$|++;
+
+use MYDB;
+use Time::HiRes qw( time );
+
+my $ip = shift @ARGV;
+die "ip err" unless $ip && $ip =~ /^\d+\.\d+\.\d+\.\d+$/;
+
+sub call
+{
+    my $cmd = shift @_;
+    my %re = ( error => '', usetime => 0 );
+
+    my $time = time;
+    my $x = `$cmd`;
+    chomp $x;
+    $re{usetime} = time - $time;
+
+    $re{error} = "err:$x" unless $x &&  $x =~ /ok$/;
+    $re{error} =~ s/'/"/g;
+
+    return \%re;
+}
+
+sub run
+{
+    my %re = (
+        tcp_error      => '',
+        tcp_speed_push => '0',
+        tcp_speed_pull => '0',
+        udp_error      => '',
+        udp_speed      => '0',
+    );
+
+    my $x = call( "/data/Software/mydan/dan/tools/rcall --verbose --timeout 15 -r '$ip' exec 'echo ok' 2>&1" );
+    return \%re if $re{tcp_error} = $x->{error};
+
+    my $tempfile = "/tmp/openc3-network-check-temp";
+    return \%re if system "dd if=/dev/urandom of=$tempfile bs=1024 count=1024 2>/dev/null";
+
+    $x = call( "/data/Software/mydan/dan/tools/rcall --verbose --timeout 15 -r '$ip' dump $tempfile" );
+    $re{tcp_speed_push} = $x->{usetime} ? int (( 1 / $x->{usetime} ) * 1024 ) : 0;
+
+    $x = call("/data/Software/mydan/dan/tools/rcall --verbose --timeout 15 -r '$ip' exec 'dd if=/dev/urandom of=$tempfile bs=1024 count=1024 2>/dev/null && echo ok' 2>&1");
+
+    $x =  call( "/data/Software/mydan/dan/tools/load --verbose  --timeout 15 --host $ip --sp $tempfile && echo ok" );
+    $re{tcp_speed_pull} = $x->{usetime} ? int (( 1 / $x->{usetime} ) * 1024 ) : 0;
+
+    return \%re if system "dd if=/dev/urandom of=/data/glusterfs/ci_repo/0/v001 bs=1024 count=1024 2>/dev/null";
+    $x = call( "TIMEOUT=60 NODE=test.env FLOWID=0  VERSION=v001 /data/Software/mydan/JOB/buildin/tsunamiudp $ip 2>/dev/null" );
+    return \%re if $re{udp_error} = $x->{error};
+    $re{udp_speed} = $x->{usetime} ? int (( 1 / $x->{usetime} ) * 1024 ) : 0;
+
+    return \%re;
+}
+
+my $x = run();
+
+my $db = MYDB->new( "/data/Software/mydan/AGENT/conf/conn", delayedconnection => 1 );
+eval{
+    $db->execute(
+        "replace into `openc3_agent_node_network_check` (`node`,`tcp_error`,`tcp_speed`,`udp_error`,`udp_speed`) " .
+        "values('$ip','$x->{tcp_error}','$x->{tcp_speed_push}k/s / $x->{tcp_speed_pull}k/s','$x->{udp_error}','$x->{udp_speed}k/s')"
+    );
+};
+die "err: $@" if $@;
+

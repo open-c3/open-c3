@@ -254,6 +254,12 @@
                 controller: 'CiWatcherController',
                 controllerAs: 'ciwatcher'
             })
+            .state('home.global.networkmonitor', {
+                url: 'networkmonitor/:treeid',
+                templateUrl: 'app/pages/global/networkmonitor/networkmonitor.html',
+                controller: 'NetworkMonitorController',
+                controllerAs: 'networkmonitor'
+            })
             .state('home.global.adminapproval', {
                 url: 'adminapproval/:treeid',
                 templateUrl: 'app/pages/global/adminapproval/adminapproval.html',

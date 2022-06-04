@@ -222,3 +222,15 @@ create table if not exists `openc3_ci_k8s_namespace_auth`(
 `edit_time`  TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
 UNIQUE KEY `openc3_ci_k8s_namespace_auth` (`ticketid`,`namespace`,`user`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='k8s命名空间授权';
+
+# v2.6.0 sql openc3_agent_node_network_check create
+create table if not exists `openc3_agent_node_network_check`(
+`id` int(16) unsigned not null primary key auto_increment comment 'id',
+`node`   VARCHAR(100) comment 'node节点，一般为ip',
+`tcp_speed`  VARCHAR(100) comment 'tcp测速',
+`tcp_error`  VARCHAR(100) comment 'tcp错误',
+`udp_speed`  VARCHAR(100) comment 'udp测速',
+`udp_error`  VARCHAR(100) comment 'udp错误',
+`check_time`  TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '检测时间',
+UNIQUE KEY `openc3_agent_node_network_check` (`node`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='网络质量监控';
