@@ -106,7 +106,7 @@ get '/variable/:projectid/:jobuuid' => sub {
         $_->{describe} = $defaultdescribe{$_->{name}} if $defaultdescribe{$_->{name}};
     }
 
-    return +{ stat => $JSON::true, data => [ sort{ $a->{describe} <=> $b->{describe} }@$r ] };
+    return +{ stat => $JSON::true, data => [ sort{ $a->{describe} cmp $b->{describe} }@$r ] };
 };
 
 #jobuuid
