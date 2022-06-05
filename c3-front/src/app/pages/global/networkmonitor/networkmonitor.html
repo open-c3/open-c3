@@ -31,4 +31,30 @@
         </div>
     </div>
 
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="networkmonitor.reloadflow()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!networkmonitor.flowloadover}" ></i></button>
+            </span>
+            <h5>流水线网络</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="pt20" style="overflow: auto;">
+                <table ng-table="networkmonitor.flowTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
+                    <tr ng-repeat="m in $data">
+                        <td width="60" class="textcenter" data-title="'流水线ID'" filter="{ id: 'text'}" sortable="'id'"> {{m.flowid}} </td>
+                        <td data-title="'服务树ID'" width="80" filter="{ treeid: 'text'}" sortable="'treeid'">{{m.treeid}}</td>
+                        <td data-title="'流水线名称'" width="80" filter="{ name: 'text'}" sortable="'name'">{{m.name}}</td>
+                        <td data-title="'检测时间'" width="80" filter="{ check_time: 'text'}" sortable="'check_time'">{{m.check_time}}</td>
+                        <td data-title="'测试环境节点'" width="80" filter="{ test_nodes: 'text'}" sortable="'test_nodes'">{{m.test_nodes}}</td>
+                        <td data-title="'测试环境节点错误'" width="80" filter="{ test_error: 'text'}" sortable="'test_error'">{{m.test_error}}</td>
+                        <td data-title="'线上环境节点'" width="80" filter="{ online_nodes: 'text'}" sortable="'online_nodes'">{{m.online_nodes}}</td>
+                        <td data-title="'线上环境节点错误'" width="80" filter="{ online_error: 'text'}" sortable="'online_error'">{{m.online_error}}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
 </div>

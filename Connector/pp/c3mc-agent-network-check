@@ -12,6 +12,9 @@ $|++;
 
 my @ip = `c3mc-base-db-get ip -t openc3_agent_proxy`;
 chomp @ip;
-
 @ip = grep{/^\d+\.\d+\.\d+\.\d+$/}@ip;
 map{ system "c3mc-agent-network-check-once $_" }@ip;
+
+my @flowid = `c3mc-base-db-get id -t openc3_ci_project -f status=1`;
+chomp @flowid;
+map{ system "c3mc-agent-network-check-flow $_" }@flowid;

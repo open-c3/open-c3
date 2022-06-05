@@ -234,3 +234,15 @@ create table if not exists `openc3_agent_node_network_check`(
 `check_time`  TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '检测时间',
 UNIQUE KEY `openc3_agent_node_network_check` (`node`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='网络质量监控';
+
+# v2.6.0 sql openc3_ci_flow_network_check create
+create table if not exists `openc3_ci_flow_network_check`(
+`id` int(16) unsigned not null primary key auto_increment comment 'id',
+`flowid`   VARCHAR(100) comment '流水线ID',
+`test_nodes`  VARCHAR(2000) comment '测试套餐节点',
+`test_error`  VARCHAR(2000) comment '测试套餐错误',
+`online_nodes`  VARCHAR(2000) comment '线上套餐节点',
+`online_error`  VARCHAR(2000) comment '线上套餐错误',
+`check_time`  TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '检测时间',
+UNIQUE KEY `openc3_ci_flow_network_check` (`flowid`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='流水线网络质量监控';
