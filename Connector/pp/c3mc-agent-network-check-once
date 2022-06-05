@@ -50,7 +50,10 @@ sub run
     $x =  call( "/data/Software/mydan/dan/tools/load --verbose  --timeout 15 --host $ip --sp $tempfile && echo ok" );
     $re{tcp_speed_pull} = $x->{usetime} ? int (( 1 / $x->{usetime} ) * 1024 ) : 0;
 
-    return \%re if system "dd if=/dev/urandom of=/data/glusterfs/ci_repo/0/v001 bs=1024 count=1024 2>/dev/null";
+    my $temppath = "/data/glusterfs/ci_repo/0";
+    system "mkdir -p '$temppath'" unless -d $temppath;
+
+    return \%re if system "dd if=/dev/urandom of=$temppath/v001 bs=1024 count=1024 2>/dev/null";
     $x = call( "TIMEOUT=60 NODE=test.env FLOWID=0  VERSION=v001 /data/Software/mydan/JOB/buildin/tsunamiudp $ip 2>/dev/null" );
     return \%re if $re{udp_error} = $x->{error};
     $re{udp_speed} = $x->{usetime} ? int (( 1 / $x->{usetime} ) * 1024 ) : 0;
