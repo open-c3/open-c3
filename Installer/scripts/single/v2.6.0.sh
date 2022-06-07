@@ -49,3 +49,9 @@ mkdir -p /data/open-c3-data/logs/CI/webhooks_logs
 docker exec -i openc3-server /data/Software/mydan/perl/bin/cpan install Paws Hash::Flatten
 
 docker exec -i openc3-server touch /etc/openc3.supervisormin.on
+
+mkdir -p /data/open-c3-data/cloudmon
+if [ ! -f /data/open-c3-data/cloudmon/docker-compose ]; then
+    cp /data/open-c3/Installer/docker-compose /data/open-c3-data/cloudmon/docker-compose 
+    chmod +x /data/open-c3-data/cloudmon/docker-compose
+fi

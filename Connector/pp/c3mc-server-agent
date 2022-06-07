@@ -22,6 +22,7 @@ my %help = (
     mailmon           => 'mail monitor',
     portcheckok       => 'check port',
     inherit           => 'inherit',
+    cloudmon          => 'cloudmon',
 );
 
 unless( $name )
@@ -177,4 +178,13 @@ if( $name eq 'inherit' )
         interval => 300,
         timeout => 600,
     )->run( "c3mc-agent-inherit");
+}
+
+if( $name eq 'cloudmon' )
+{
+    OPENC3::PP::Server->new(
+        name => "agent_server_$name",
+        interval => 300,
+        timeout => 600,
+    )->run( "c3mc-cloudmon-make-task && c3mc-cloudmon-make-promesd");
 }
