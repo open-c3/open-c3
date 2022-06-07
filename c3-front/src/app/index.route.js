@@ -260,6 +260,12 @@
                 controller: 'NetworkMonitorController',
                 controllerAs: 'networkmonitor'
             })
+            .state('home.global.cloudmon', {
+                url: 'cloudmon/:treeid',
+                templateUrl: 'app/pages/global/cloudmon/cloudmon.html',
+                controller: 'CloudMonController',
+                controllerAs: 'cloudmon'
+            })
             .state('home.global.adminapproval', {
                 url: 'adminapproval/:treeid',
                 templateUrl: 'app/pages/global/adminapproval/adminapproval.html',
