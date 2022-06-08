@@ -64,7 +64,7 @@ sub sendmesg
 
     my $v = eval{JSON::decode_json $res->decoded_content};
     die "$err: data no JSON: $@" if $@;
-    die sprintf( "$err: info: %s", $v->{info}|'' ) unless $v->{stat};
+    die $err unless $v->{stat};
 }
 
 map{ sendmesg( $_, $mesg ) }@ARGV;

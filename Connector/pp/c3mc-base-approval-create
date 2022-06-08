@@ -48,12 +48,13 @@ my $cont = $approver =~ /encode=1/
 my $res = $ua->post( $approver, Content => $cont, 'Content-Type' => 'application/json' );
 
 my $err = sprintf "call approver fail: $approver\n%s\n", YAML::XS::Dump $res;
+$err =~ s/appkey:\s+['"]?[a-zA-Z0-9]{32}['"]?\b/appkey: ******/g;
 
 die sprintf( "$err: code %s", $res->code ) unless $res->is_success;
 
 my $v = eval{JSON::decode_json $res->decoded_content};
 die sprintf( "$err: data no JSON: $@" )if $@;
 
-die sprintf( "$err: info: %s", $v->{info} || '' ) unless $v->{stat};
+die $err unless $v->{stat};
 
 print "$v->{data}\n";
