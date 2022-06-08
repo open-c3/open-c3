@@ -1,0 +1,71 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+use File::Temp;
+use MIME::Base64;
+use Encode qw(decode encode);
+use MYDB;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $db = MYDB->new( "/data/Software/mydan/AGENT/conf/conn" );
+
+my @col = qw( id name type config edit_time );
+my $r = eval{ $db->query( sprintf("select %s from openc3_monitor_cloudmon order by id", join ',', @col ), \@col ); };   
+
+sub dumpfile
+{
+    my ( $dist, $data ) = @_;
+    my $tmp = File::Temp->new( SUFFIX => ".cloudmon_tmp", UNLINK => 0 );
+    print $tmp $data;
+    close $tmp;
+    system "rm -rf '$dist'" if -d $dist;
+    system sprintf "mv '%s' '$dist'",$tmp->filename;
+    system "chmod a+r '$dist'";
+}
+
+my $cloudmondir = '/data/Software/mydan/AGENT/cloudmon';
+sub srv
+{
+    my $x = shift @_;
+    my $pluginDir = "$cloudmondir/exporter/$x->{type}";
+
+    unless( -d $pluginDir )
+    {
+        warn "unkown cloudmon plugin in id: $x->{id}";
+        return;
+    }
+
+    my $taskid = "$x->{id}_$x->{edit_time}";
+    $taskid =~ s/\s+|:|\-//g;
+
+    my $tpl = `cat $pluginDir/docker-compose.service.tpl.yml`;
+    $tpl =~ s/\$\{cloudmonid\}/$x->{id}/g;
+    $tpl =~ s/\$\{taskid\}/$taskid/g;
+    die "no image in tpl" unless $tpl =~ /image:/;
+
+    my $taskdir = "/data/open-c3-data/cloudmon/task/$taskid";
+    system "mkdir -p $taskdir" unless -d $taskdir;
+
+    my $config = decode("UTF-8", decode_base64( $x->{config} ) );
+
+    dumpfile( "$taskdir/config.dat", $config );
+
+    return $tpl;
+}
+
+my @srv = grep{ $_ }map { srv( $_ ); }@$r;
+
+my $head = `cat $cloudmondir/c3cloudmon/docker-compose.head.yml`;
+my $tail = `cat $cloudmondir/c3cloudmon/docker-compose.tail.yml`;
+
+my $c3cloudmondir = '/data/open-c3-data/cloudmon/c3cloudmon';
+system "mkdir -p $c3cloudmondir" unless -d $c3cloudmondir;
+dumpfile( "$c3cloudmondir/docker-compose.yml", join "\n", $head, @srv, $tail );
+system "cd $c3cloudmondir && ../docker-compose  up -d --remove-orphans";

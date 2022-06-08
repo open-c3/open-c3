@@ -32,8 +32,10 @@ get '/kubernetes/app/describe' => sub {
     my %available = map{ $_ => 1 }qw( ingress service deployment daemonset pod replicaset hpa endpoints job statefulset );
     my $auth = $available{$param->{type}} ? 0 : 1;
 
-    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, $auth ) };
+    my ( $kubectl, @ns ) = eval{ api::kubernetes::getKubectlAuth( $api::mysql, $param->{ticketid}, $user, $company, $auth ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
+
+    return +{ stat => $JSON::false, info => "no auth" } if @ns && ! grep{ $_ eq $param->{namespace} }@ns;
 
     my ( $cmd, $handle ) = ( "$kubectl describe '$param->{type}' '$param->{name}' -n '$param->{namespace}' 2>/dev/null", 'showdata' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
@@ -56,8 +58,10 @@ get '/kubernetes/app/describe/deployment' => sub {
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
-    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 0 ) };
+    my ( $kubectl, @ns )= eval{ api::kubernetes::getKubectlAuth( $api::mysql, $param->{ticketid}, $user, $company, 0 ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
+
+    return +{ stat => $JSON::false, info => "no auth" } if @ns && ! grep{ $_ eq $param->{namespace} }@ns;
 
     my ( $cmd, $handle ) = ( "/data/Software/mydan/CI/bin/kubectl-describedeployment '$kubectl' '$param->{namespace}' '$param->{name}' 2>/dev/null", 'getdescribedeployment' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
@@ -91,8 +95,10 @@ get '/kubernetes/app/describe/ingress' => sub {
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
-    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 0 ) };
+    my ( $kubectl, @ns ) = eval{ api::kubernetes::getKubectlAuth( $api::mysql, $param->{ticketid}, $user, $company, 0 ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
+
+    return +{ stat => $JSON::false, info => "no auth" } if @ns && ! grep{ $_ eq $param->{namespace} }@ns;
 
     my ( $cmd, $handle ) = ( "/data/Software/mydan/CI/bin/kubectl-describeingress '$kubectl' '$param->{namespace}' '$param->{name}' 2>/dev/null", 'getdescribeingress' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
@@ -126,8 +132,10 @@ get '/kubernetes/app/describe/service' => sub {
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
-    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 0 ) };
+    my ( $kubectl, @ns ) = eval{ api::kubernetes::getKubectlAuth( $api::mysql, $param->{ticketid}, $user, $company, 0 ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
+
+    return +{ stat => $JSON::false, info => "no auth" } if @ns && ! grep{ $_ eq $param->{namespace} }@ns;
 
     my ( $cmd, $handle ) = ( "/data/Software/mydan/CI/bin/kubectl-describeservice '$kubectl' '$param->{namespace}' '$param->{name}' 2>/dev/null", 'getdescribeservice' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};

@@ -1,0 +1,11 @@
+  openc3-cloudmon-${cloudmonid}:
+    container_name: openc3-cloudmon-${cloudmonid}
+    environment:
+      TZ: 'Asia/Shanghai'
+    image: "finodigital/cloudeye-exporter"
+    working_dir: /
+    restart: always
+    volumes:
+      - "/data/open-c3-data/cloudmon/task/${taskid}/config.dat:/clouds.yml"
+    networks:
+      - alise_net

@@ -90,7 +90,13 @@
                    }
  
                 } else { 
-                    swal({ title:'加载模版信息失败', text: data.info, type:'error' });
+                    if( data.info.indexOf("no auth") >= 0  )
+                    {
+                        swal({ title:'没有权限', text: "您没有该操作权限", type:'error' });
+                        vm.cancel();
+                        return;
+                    }
+                    swal({ title:'加载信息失败', text: data.info, type:'error' });
                     vm.cancel();
                 }
             });

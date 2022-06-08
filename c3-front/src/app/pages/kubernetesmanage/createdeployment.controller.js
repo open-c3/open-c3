@@ -163,6 +163,15 @@
                            $scope.selectorlabels.push( { "K": k, "V": v })
                        });
                    }
+
+                   $scope.nodeSelector = [];
+                   if( vm.editData.spec.template.spec && vm.editData.spec.template.spec.nodeSelector )
+                   {
+                       angular.forEach(vm.editData.spec.template.spec.nodeSelector, function (v, k) {
+                           $scope.nodeSelector.push( { "K": k, "V": v })
+                       });
+                   }
+ 
  
                 } else { 
                     toastr.error("加载YAML信息失败:" + data.info)
@@ -192,7 +201,7 @@
                     });
 //            }
 
-            $http.get("/api/ci/v2/kubernetes/util/labels/node?ticketid=" + ticketid ).success(function(data){
+            $http.get("/api/ci/v2/kubernetes/util/labels/node?ticketid=" + ticketid + "&namespace=" + vm.namespace  ).success(function(data){
                 if(data.stat == true) 
                 { 
                    vm.nodelabel = data.data;
@@ -201,7 +210,7 @@
                 }
             });
  
-            $http.get("/api/ci/v2/kubernetes/util/labels/node_pod?ticketid=" + ticketid ).success(function(data){
+            $http.get("/api/ci/v2/kubernetes/util/labels/node_pod?ticketid=" + ticketid + "&namespace=" + vm.namespace ).success(function(data){
                 if(data.stat == true) 
                 { 
                    vm.nodepodlabel = data.data;
@@ -260,6 +269,15 @@
                         });
                     }
 
+
+                   $scope.nodeSelector = [];
+                   if( vm.editData.spec.template.spec && vm.editData.spec.template.spec.nodeSelector )
+                   {
+                       angular.forEach(vm.editData.spec.template.spec.nodeSelector, function (v, k) {
+                           $scope.nodeSelector.push( { "K": k, "V": v })
+                       });
+                   }
+ 
                     vm.loadover = true;
                     $scope.editstep = 1; 
                 } else { 
@@ -367,6 +385,23 @@
             }
 
             vm.editData.spec.template.metadata.labels = vm.editData.spec.selector.matchLabels;
+
+//nodeSelector
+            var nodeSelectorHash = {};
+            angular.forEach($scope.nodeSelector, function (v, k) {
+                var key = v["K"]
+                nodeSelectorHash[key] = v["V"];
+            });
+
+            if( Object.keys(nodeSelectorHash).length > 0 )
+            {
+                vm.editData.spec.template.spec.nodeSelector = nodeSelectorHash;
+            }
+            else
+            {
+                delete vm.editData.spec.template.spec.nodeSelector;
+            }
+
 
 //clean temp data
             angular.forEach(vm.editData.spec.template.spec.containers, function (v, k) {
@@ -501,6 +536,17 @@ if( vm.addservice === 1 )
         {
             $scope.selectorlabels.splice(id, 1);
         }
+//nodeSelector
+        $scope.nodeSelector = [];
+        vm.addNodeSelector = function()
+        {
+            $scope.nodeSelector.push({ "K": "", "V": ""});
+        }
+        vm.delNodeSelector = function(id)
+        {
+            $scope.nodeSelector.splice(id, 1);
+        }
+
 
 //Secret
         vm.autoGetSecret = function()
@@ -602,12 +648,12 @@ if( vm.addservice === 1 )
                 delete vm.editData.spec.template.spec.affinity.nodeAffinity[type];
             }
  
-            if( vm.editData.spec.template.spec.affinity.nodeAffinity !== undefined || Object.keys(vm.editData.spec.template.spec.affinity.nodeAffinity).length == 0 )
+            if( vm.editData.spec.template.spec.affinity.nodeAffinity !== undefined && Object.keys(vm.editData.spec.template.spec.affinity.nodeAffinity).length == 0 )
             {
                 delete vm.editData.spec.template.spec.affinity.nodeAffinity;
             }
 
-            if( vm.editData.spec.template.spec.affinity !== undefined || Object.keys(vm.editData.spec.template.spec.affinity).length == 0 )
+            if( vm.editData.spec.template.spec.affinity !== undefined && Object.keys(vm.editData.spec.template.spec.affinity).length == 0 )
             {
                 delete vm.editData.spec.template.spec.affinity;
             }
@@ -618,6 +664,63 @@ if( vm.addservice === 1 )
  
             vm.editData.spec.template.spec.affinity.nodeAffinity[type].nodeSelectorTerms[0].matchExpressions.splice(id, 1);
         }
+
+//
+//NodeAffinity 节点亲和性调度
+        vm.addNodeAffinityX = function(type)
+        {
+            if( type == undefined ) { type = 'requiredDuringSchedulingIgnoredDuringExecution'; }
+
+            if( vm.editData.spec.template.spec.affinity === undefined || Object.keys(vm.editData.spec.template.spec.affinity).length == 0 )
+            {
+                vm.editData.spec.template.spec.affinity = {};
+            }
+            if( vm.editData.spec.template.spec.affinity.nodeAffinity === undefined || Object.keys(vm.editData.spec.template.spec.affinity.nodeAffinity).length == 0 )
+            {
+                vm.editData.spec.template.spec.affinity.nodeAffinity = {};
+            }
+
+            if( vm.editData.spec.template.spec.affinity.nodeAffinity[type] === undefined || Object.keys(vm.editData.spec.template.spec.affinity.nodeAffinity[type]).length == 0 )
+            {
+                vm.editData.spec.template.spec.affinity.nodeAffinity[type] = [ { "weight": 100, "preference": {} }];
+            }
+
+            if( vm.editData.spec.template.spec.affinity.nodeAffinity[type][0].preference === undefined || Object.keys(vm.editData.spec.template.spec.affinity.nodeAffinity[type][0].preference).length == 0 )
+            {
+                vm.editData.spec.template.spec.affinity.nodeAffinity[type][0].preference = { "matchExpressions": [ { "key": "", "operator": "In", "values": []}]};
+            }
+            else
+            {
+                vm.editData.spec.template.spec.affinity.nodeAffinity[type][0].preference.matchExpressions.push( { "key": "", "operator": "In", "values": [] } );
+            }
+
+        }
+        vm.cleanNodeAffinityX = function(type)
+        {
+            if( type == undefined ) { type = 'requiredDuringSchedulingIgnoredDuringExecution'; }
+ 
+            if( vm.editData.spec.template.spec.affinity.nodeAffinity !== undefined )
+            {
+                delete vm.editData.spec.template.spec.affinity.nodeAffinity[type];
+            }
+ 
+            if( vm.editData.spec.template.spec.affinity.nodeAffinity !== undefined && Object.keys(vm.editData.spec.template.spec.affinity.nodeAffinity).length == 0 )
+            {
+                delete vm.editData.spec.template.spec.affinity.nodeAffinity;
+            }
+
+            if( vm.editData.spec.template.spec.affinity !== undefined && Object.keys(vm.editData.spec.template.spec.affinity).length == 0 )
+            {
+                delete vm.editData.spec.template.spec.affinity;
+            }
+        }
+        vm.delNodeAffinityX = function(id,type)
+        {
+            if( type == undefined ) { type = 'requiredDuringSchedulingIgnoredDuringExecution'; }
+ 
+            vm.editData.spec.template.spec.affinity.nodeAffinity[type][0].preference.matchExpressions.splice(id, 1);
+        }
+
 
 //PodAffinity。POD亲和性调度
         vm.addPodAffinity = function(type)
@@ -651,12 +754,12 @@ if( vm.addservice === 1 )
                 delete vm.editData.spec.template.spec.affinity.podAffinity[type];
             }
  
-            if( vm.editData.spec.template.spec.affinity.podAffinity !== undefined || Object.keys(vm.editData.spec.template.spec.affinity.podAffinity).length == 0 )
+            if( vm.editData.spec.template.spec.affinity.podAffinity !== undefined && Object.keys(vm.editData.spec.template.spec.affinity.podAffinity).length == 0 )
             {
                 delete vm.editData.spec.template.spec.affinity.podAffinity;
             }
 
-            if( vm.editData.spec.template.spec.affinity !== undefined || Object.keys(vm.editData.spec.template.spec.affinity).length == 0 )
+            if( vm.editData.spec.template.spec.affinity !== undefined && Object.keys(vm.editData.spec.template.spec.affinity).length == 0 )
             {
                 delete vm.editData.spec.template.spec.affinity;
             }
@@ -666,6 +769,75 @@ if( vm.addservice === 1 )
             if( type == undefined ) { type = 'requiredDuringSchedulingIgnoredDuringExecution'; }
             vm.editData.spec.template.spec.affinity.podAffinity[type][0].labelSelector.matchExpressions.splice(id, 1);
         }
+
+//PodAffinityX。POD亲和性调度
+        vm.addPodAffinityX = function(type)
+        {
+
+            var tempspec = vm.editData.spec.template.spec;
+            if( tempspec.affinity === undefined || Object.keys(tempspec.affinity).length == 0 )
+            {
+                tempspec.affinity = {};
+            }
+            if( tempspec.affinity.podAffinity === undefined )
+            {
+                tempspec.affinity.podAffinity = {};
+            }
+
+            if( tempspec.affinity.podAffinity[type] === undefined )
+            {
+                tempspec.affinity.podAffinity[type] = [];
+            }
+
+            if( tempspec.affinity.podAffinity[type].length == 0 )
+            {
+                tempspec.affinity.podAffinity[type] = [ { "weight": 100, "podAffinityTerm":  {} }];
+            }
+
+            if( tempspec.affinity.podAffinity[type][0].podAffinityTerm.labelSelector === undefined )
+            {
+                tempspec.affinity.podAffinity[type][0].podAffinityTerm.labelSelector = {};
+            }
+            if( tempspec.affinity.podAffinity[type][0].podAffinityTerm.namespaces === undefined )
+            {
+                tempspec.affinity.podAffinity[type][0].podAffinityTerm.namespaces = [];
+            }
+
+            if( tempspec.affinity.podAffinity[type][0].podAffinityTerm.topologyKey === undefined )
+            {
+                tempspec.affinity.podAffinity[type][0].podAffinityTerm.topologyKey = "";
+            }
+
+            if( tempspec.affinity.podAffinity[type][0].podAffinityTerm.labelSelector.matchExpressions === undefined )
+            {
+                tempspec.affinity.podAffinity[type][0].podAffinityTerm.labelSelector.matchExpressions = [];
+            }
+
+            tempspec.affinity.podAffinity[type][0].podAffinityTerm.labelSelector.matchExpressions.push( { "key": "", "operator": "In", "values": [] } );
+
+        }
+        vm.cleanPodAffinityX = function(type)
+        {
+            if( vm.editData.spec.template.spec.affinity.podAffinity !== undefined )
+            {
+                delete vm.editData.spec.template.spec.affinity.podAffinity[type];
+            }
+ 
+            if( vm.editData.spec.template.spec.affinity.podAffinity !== undefined && Object.keys(vm.editData.spec.template.spec.affinity.podAffinity).length == 0 )
+            {
+                delete vm.editData.spec.template.spec.affinity.podAffinity;
+            }
+
+            if( vm.editData.spec.template.spec.affinity !== undefined && Object.keys(vm.editData.spec.template.spec.affinity).length == 0 )
+            {
+                delete vm.editData.spec.template.spec.affinity;
+            }
+        }
+        vm.delPodAffinityX = function(id,type)
+        {
+            vm.editData.spec.template.spec.affinity.podAffinity[type][0].podAffinityTerm.labelSelector.matchExpressions.splice(id, 1);
+        }
+
 
 //PodAntiAffinity  POD 反亲和性调度
         vm.addPodAntiAffinity = function(type)
@@ -698,12 +870,12 @@ if( vm.addservice === 1 )
                 delete vm.editData.spec.template.spec.affinity.podAntiAffinity[type];
             }
  
-            if( vm.editData.spec.template.spec.affinity.podAntiAffinity !== undefined || Object.keys(vm.editData.spec.template.spec.affinity.podAntiAffinity).length == 0 )
+            if( vm.editData.spec.template.spec.affinity.podAntiAffinity !== undefined && Object.keys(vm.editData.spec.template.spec.affinity.podAntiAffinity).length == 0 )
             {
                 delete vm.editData.spec.template.spec.affinity.podAntiAffinity;
             }
 
-            if( vm.editData.spec.template.spec.affinity !== undefined || Object.keys(vm.editData.spec.template.spec.affinity).length == 0 )
+            if( vm.editData.spec.template.spec.affinity !== undefined && Object.keys(vm.editData.spec.template.spec.affinity).length == 0 )
             {
                 delete vm.editData.spec.template.spec.affinity;
             }
@@ -711,6 +883,74 @@ if( vm.addservice === 1 )
         vm.delPodAntiAffinity = function(id,type)
         {
             if( type == undefined ) { type = 'requiredDuringSchedulingIgnoredDuringExecution'; }
+            vm.editData.spec.template.spec.affinity.podAntiAffinity[type][0].labelSelector.matchExpressions.splice(id, 1);
+        }
+
+//PodAntiAffinity  POD 反亲和性调度
+        vm.addPodAntiAffinityX = function(type)
+        {
+            var tempspec = vm.editData.spec.template.spec;
+            if( tempspec.affinity === undefined || Object.keys(tempspec.affinity).length == 0 )
+            {
+                tempspec.affinity = {};
+            }
+            if( tempspec.affinity.podAntiAffinity === undefined )
+            {
+                tempspec.affinity.podAntiAffinity = {};
+            }
+
+            if( tempspec.affinity.podAntiAffinity[type] === undefined )
+            {
+                tempspec.affinity.podAntiAffinity[type] = [];
+            }
+
+            if( tempspec.affinity.podAntiAffinity[type].length == 0 )
+            {
+                tempspec.affinity.podAntiAffinity[type] = [ { "weight": 100, "podAffinityTerm":  {} }];
+            }
+
+            if( tempspec.affinity.podAntiAffinity[type][0].podAffinityTerm.labelSelector === undefined )
+            {
+                tempspec.affinity.podAntiAffinity[type][0].podAffinityTerm.labelSelector = {};
+            }
+            if( tempspec.affinity.podAntiAffinity[type][0].podAffinityTerm.namespaces === undefined )
+            {
+                tempspec.affinity.podAntiAffinity[type][0].podAffinityTerm.namespaces = [];
+            }
+
+            if( tempspec.affinity.podAntiAffinity[type][0].podAffinityTerm.topologyKey === undefined )
+            {
+                tempspec.affinity.podAntiAffinity[type][0].podAffinityTerm.topologyKey = "";
+            }
+
+            if( tempspec.affinity.podAntiAffinity[type][0].podAffinityTerm.labelSelector.matchExpressions === undefined )
+            {
+                tempspec.affinity.podAntiAffinity[type][0].podAffinityTerm.labelSelector.matchExpressions = [];
+            }
+
+            tempspec.affinity.podAntiAffinity[type][0].podAffinityTerm.labelSelector.matchExpressions.push( { "key": "", "operator": "In", "values": [] } );
+
+        }
+        vm.cleanPodAntiAffinityX = function(type)
+        {
+            if( vm.editData.spec.template.spec.affinity.podAntiAffinity !== undefined )
+            {
+                delete vm.editData.spec.template.spec.affinity.podAntiAffinity[type];
+            }
+ 
+            if( vm.editData.spec.template.spec.affinity.podAntiAffinity !== undefined && Object.keys(vm.editData.spec.template.spec.affinity.podAntiAffinity).length == 0 )
+            {
+                delete vm.editData.spec.template.spec.affinity.podAntiAffinity;
+            }
+
+            if( vm.editData.spec.template.spec.affinity !== undefined && Object.keys(vm.editData.spec.template.spec.affinity).length == 0 )
+            {
+                delete vm.editData.spec.template.spec.affinity;
+            }
+ 
+        }
+        vm.delPodAntiAffinityX = function(id,type)
+        {
             vm.editData.spec.template.spec.affinity.podAntiAffinity[type][0].labelSelector.matchExpressions.splice(id, 1);
         }
 
@@ -832,13 +1072,22 @@ if( vm.addservice === 1 )
             }
             x.env.push({"name": "", "valueFrom": { "configMapKeyRef": { "name": "", "key": "" } }})
         }
-         vm.addContainerEnvSecret = function(x)
+        vm.addContainerEnvSecret = function(x)
         {
             if( ! x.env )
             {
                 x.env = []
             }
             x.env.push({"name": "", "valueFrom": { "secretKeyRef": { "name": "", "key": "" } }})
+        }
+ 
+        vm.addContainerEnvField = function(x)
+        {
+            if( ! x.env )
+            {
+                x.env = []
+            }
+            x.env.push({"name": "", "valueFrom": { "fieldRef": { "fieldPath": "" } }})
         }
  
         vm.delContainerEnv = function(x,id)

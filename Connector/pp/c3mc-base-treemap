@@ -50,13 +50,14 @@ sub gettreemap
 
     my $res = $ua->get( $treemap );
 
-    my $err = "get treemap fail: $treemap";
+    my $err = sprintf "get treemap fail: $treemap: %s", YAML::XS::Dump $res;
+    $err =~ s/appkey:\s+['"]?[a-zA-Z0-9]{32}['"]?\b/appkey: ******/g;
 
     die sprintf( "$err: code %s", $res->code ) unless $res->is_success;
 
     my $v = eval{JSON::decode_json $res->decoded_content};
     die "$err: data no JSON: $@" if $@;
-    die sprintf( "$err: info: %s", $v->{info}|'' ) unless $v->{stat};
+    die $err unless $v->{stat};
     die "$err: data no ARRAY" unless $v->{data} && ref $v->{data} eq 'ARRAY';
 
     my $t = $treemapgrep ? TreeMap::mapgrep( $v->{data}, @$treemapgrep ) : $v->{data};

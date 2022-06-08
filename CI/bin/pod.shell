@@ -28,8 +28,9 @@ eval{
     my $authtype = $type =~ /sh/ ? 1 : 0;
     $authtype = 0 if $x && @$x && $x->[0][0];
 
-    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $db, $clusterid, $user, $company, $authtype ) };
+    my ( $kubectl, @ns ) = eval{ api::kubernetes::getKubectlAuth( $db, $clusterid, $user, $company, $authtype ) };
     die "get kubectl fail: $@" if $@;
+    die "no auth\n" if @ns && ! grep{ $_ eq $namespace }@ns;
 
     system $type =~ /sh/ ? "$kubectl -n '$namespace' exec -it '$name' -- sh" : "$kubectl -n '$namespace' logs -f '$name' --tail=3000";
 };

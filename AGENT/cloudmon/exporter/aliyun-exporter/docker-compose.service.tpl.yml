@@ -1,0 +1,13 @@
+  openc3-cloudmon-${cloudmonid}:
+    container_name: openc3-cloudmon-${cloudmonid}
+    environment:
+      TZ: 'Asia/Shanghai'
+    image: "aylei/aliyun-exporter:0.3.1"
+    working_dir: /
+    restart: always
+    volumes:
+      - "/data/open-c3-data/cloudmon/task/${taskid}/config.dat:/aliyun-exporter.yml"
+#    command:
+#      - '-c /aliyun-exporter.yml'
+    networks:
+      - alise_net

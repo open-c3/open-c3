@@ -113,6 +113,8 @@ return sub
         }
         elsif( $apicache )
         {
+            warn sprintf "sso err: %s\n", YAML::XS::Dump $res;
+
             if( -f $file )
             {
                 my $mtime = ( stat $file )[9];

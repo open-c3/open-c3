@@ -20,7 +20,7 @@ get '/project/kubernetes/:ticketid' => sub {
     my @col = qw( id groupid name ci_type_kind ci_type_namespace ci_type_name );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from openc3_ci_project where ci_type='kubernetes' and  ci_type_ticketid='$param->{ticketid}'", join( ',', @col)), \@col )};
+            sprintf( "select %s from openc3_ci_project where ci_type='kubernetes' and  ci_type_ticketid='$param->{ticketid}' and groupid<>'0'", join( ',', @col)), \@col )};
 
     return +{ stat => $JSON::false, info => $@ } if $@;
 

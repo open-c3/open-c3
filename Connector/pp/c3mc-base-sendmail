@@ -67,13 +67,14 @@ sub sendmail
     my $cont = $usermail =~ /encode/ ? JSON::to_json( +{ user => $user, title => $title, content => $content } ) : JSON::encode_json( +{ user => $user, title => $title, content => $content } );
     my $res = $ua->post( $usermail, Content => $cont, 'Content-Type' => 'application/json');
 
-    my $err = "send mail fail: $usermail";
+    my $err = sprintf "send mail fail: $usermail: %s", YAML::XS::Dump $res;
+    $err =~ s/appkey:\s+['"]?[a-zA-Z0-9]{32}['"]?\b/appkey: ******/g;
 
     die sprintf( "$err: code %s", $res->code ) unless $res->is_success;
 
     my $v = eval{JSON::decode_json $res->decoded_content};
     die "$err: data no JSON: $@" if $@;
-    die sprintf( "$err: info: %s", $v->{info}|'' ) unless $v->{stat};
+    die $err unless $v->{stat};
 }
 
 map{ sendmail( $_, $o{subject}, $content ) }@ARGV;

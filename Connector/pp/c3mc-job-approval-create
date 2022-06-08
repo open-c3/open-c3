@@ -1,0 +1,48 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib
+use strict;
+use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDB;
+use MYDan::Util::OptConf;
+use Encode;
+use uuid;
+use IPC::Open3;
+
+=head1 SYNOPSIS
+
+ $0 --id id
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( id=i ) )->dump();
+$option->assert(qw( id ));
+
+my $id = $o{id};
+my $db = MYDB->new( "/data/Software/mydan/JOB/conf/conn", delayedconnection => 1 );
+
+my $x = eval{ $db->execute( "update openc3_job_approval set oauuid='1' where id='$id' and oauuid='0'" ) };
+
+die "Already sent" unless $x eq '1';
+$x = $db->query( sprintf "select `submitter`,`user`,`cont` from openc3_job_approval where id='$id'" );
+
+my ( $submitter, $approver, $cont ) = @{$x->[0]};
+
+my $pipe = "c3mc-base-approval-create --submitter '$submitter' --approver '$approver'";
+my $pid = IPC::Open3::open3( my $chld_in, my $chld_out, '>&STDERR', $pipe);
+$cont = Encode::encode('utf8', $cont );
+print $chld_in $cont;
+$chld_in = undef;
+waitpid( $pid, 0 );
+die "call c3mc-base-approval-creat fail." if $?;
+
+my $output;my $n = sysread $chld_out, $output, 102400;
+
+die "oauuid format error" unless $output && $output =~ /^[a-zA-Z0-9_\.\-@]+$/;
+$db->execute( "update openc3_job_approval set oauuid='$output' where id='$id' and oauuid='1'" );

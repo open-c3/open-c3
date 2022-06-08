@@ -46,7 +46,7 @@ return sub
     {
          return ( $app{$param{appname}} && $app{$param{appname}} eq $param{appkey} ) ? 1 : 0;
     }
-    else
+    elsif( $cookie )
     {
         my $treestr = '';
         if( defined $treeid )
@@ -83,6 +83,10 @@ return sub
         }
  
         return $data->{data};
+    }
+    else
+    {
+        return 0;
     }
 }
 

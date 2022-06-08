@@ -40,7 +40,7 @@ return sub
  
         return $data->{data} ? 1 : 0;
     }
-    else
+    elsif( $param{cookie} )
     {
         my $treestr = ( defined $param{treeid} ) ? "&treeid=$param{treeid}" : '';
         my $res = $ua->get( "http://api.connector.open-c3.org/connectorx/point?point=$param{point}$treestr&cookie=$param{cookie}" ); 
@@ -54,6 +54,10 @@ return sub
         }
  
         return $data->{data};
+    }
+    else
+    {
+        return 0;
     }
 }
 

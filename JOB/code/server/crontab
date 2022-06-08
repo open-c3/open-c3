@@ -79,7 +79,7 @@ return sub
             next if $id{$1};
             unlink $filename or $logs->err( "Could not unlink $filename: $!" );
         }
-        $logs->err( "wirte crontab fail: $!" ) if system "cat $path/*| crontab";
+        $logs->err( "wirte crontab fail: $!" ) if system "cat $path/* 2>/dev/null| crontab";
 
         sleep 45;
     }

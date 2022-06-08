@@ -740,6 +740,7 @@ Ki，Mi，Gi，Ti，Pi，Ei #通常是以1024为换算标准的。<br>
                                                 <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addContainerEnv(x)" uib-tooltip="添加普通环境变量" style="cursor:pointer;color: #339094;" >普通变量</i>
                                                 <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addContainerEnvConfigMap(x)" uib-tooltip="添加ConfigMap环境变量" style="cursor:pointer;color: #339094;" >ConfigMap变量</i>
                                                 <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addContainerEnvSecret(x)" uib-tooltip="添加Secret环境变量" style="cursor:pointer;color: #339094;" >Secret变量</i>
+                                                <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addContainerEnvField(x)" uib-tooltip="添加Field环境变量" style="cursor:pointer;color: #339094;" >Field变量</i>
                                                 <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.cleanContainerEnv(x)" uib-tooltip="清空环境变量" style="cursor:pointer;color: #f63;" >清空</i>
                                             </div>
                                         </div>
@@ -752,7 +753,7 @@ Ki，Mi，Gi，Ti，Pi，Ei #通常是以1024为换算标准的。<br>
                                                <table  border="0" style="width: 100%" >
                                                    <tr ng-repeat="(id, xx) in x.env">
                                                      <td>
-                                                           <div class="row" ng-if="( xx.value === undefined ) && (!xx.valueFrom.configMapKeyRef) && ( ! xx.valueFrom.secretKeyRef)">
+                                                           <div class="row" ng-if="( xx.value === undefined ) && (!xx.valueFrom.configMapKeyRef) && ( ! xx.valueFrom.secretKeyRef) && ( ! xx.valueFrom.fieldRef )">
                                                                <div class="col-sm-12 form-group">
                                                                    <label class="col-sm-12 control-label">未知变量类型：{{xx}}</label>
                                                                </div>
@@ -791,6 +792,17 @@ Ki，Mi，Gi，Ti，Pi，Ei #通常是以1024为换算标准的。<br>
                                                                    <div class="col-sm-3"> <input type="text" class="form-control" placeholder="" ng-model="xx.valueFrom.secretKeyRef.name" required> </div>
                                                                    <label class="col-sm-1 control-label">SecretKey</label>
                                                                    <div class="col-sm-3"> <input type="text" class="form-control" placeholder="" ng-model="xx.valueFrom.secretKeyRef.key" required> </div>
+                                                               </div>
+                                                           </div>
+
+
+                                                           <div class="row" ng-if="xx.valueFrom.fieldRef">
+                                                               <div class="col-sm-12 form-group">
+                                                                   <label class="col-sm-1 control-label">field变量</label>
+                                                                   <label class="col-sm-1 control-label">name</label>
+                                                                   <div class="col-sm-4"> <input type="text" class="form-control" placeholder="" ng-model="xx.name" required> </div>
+                                                                   <label class="col-sm-1 control-label">fieldPath</label>
+                                                                   <div class="col-sm-4"> <input type="text" class="form-control" placeholder="" ng-model="xx.valueFrom.fieldRef.fieldPath" required> </div>
                                                                </div>
                                                            </div>
 
