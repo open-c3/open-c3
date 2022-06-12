@@ -1,0 +1,23 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use MYDB;
+use Digest::MD5;
+use MIME::Base64;
+use OPENC3::SysCtl;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 --user user1 --pass password.base64
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( user=s pass=s ) )->dump();
+$option->assert(qw( user pass ));
+
+print "not support\n";

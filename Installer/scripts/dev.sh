@@ -101,10 +101,12 @@ function start() {
         frontendstyleisjuyun=$(grep '^frontendstyle: juyun' $BASE_PATH/Connector/config.inix | wc -l)
         if [ "X$frontendstyleisjuyun" == "X1" ];then
             sed -i 's/openc3_style_ctrl=\\"[a-zA-Z0-9]*\\"/openc3_style_ctrl=\\"juyun\\"/g' $BASE_PATH/c3-front/dist/scripts/*
+            sed -i 's/#f63/#3b3677/g' $BASE_PATH/c3-front/dist/scripts/*
             sed -i 's/#f63/#3b3677/g' $BASE_PATH/c3-front/dist/styles/*
             sed -i 's/#e52/#293fbb/g' $BASE_PATH/c3-front/dist/styles/*
         else
             sed -i 's/openc3_style_ctrl=\\"[a-zA-Z0-9]*\\"/openc3_style_ctrl=\\"openc3\\"/g' $BASE_PATH/c3-front/dist/scripts/*
+            sed -i 's/#3b3677/#f63/g' $BASE_PATH/c3-front/dist/scripts/*
             sed -i 's/#3b3677/#f63/g' $BASE_PATH/c3-front/dist/styles/*
             sed -i 's/#293fbb/#e52/g' $BASE_PATH/c3-front/dist/styles/*
         fi
