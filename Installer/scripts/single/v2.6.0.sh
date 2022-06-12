@@ -55,3 +55,5 @@ if [ ! -f /data/open-c3-data/cloudmon/docker-compose ]; then
     cp /data/open-c3/Installer/docker-compose /data/open-c3-data/cloudmon/docker-compose 
     chmod +x /data/open-c3-data/cloudmon/docker-compose
 fi
+
+docker exec -i openc3-server /data/Software/mydan/perl/bin/cpan install Net::LDAP
