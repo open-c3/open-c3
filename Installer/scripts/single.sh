@@ -392,7 +392,7 @@ function status() {
 }
 
 function inx() {
-    docker exec -it openc3-server  bash
+    docker exec -it openc3-server env LANG=C.UTF-8 LC_ALL=C bash
 }
 
 function sql() {
