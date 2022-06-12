@@ -132,6 +132,11 @@ any '/default/user/logout' => sub {
 
 any '/default/user/login' => sub {
     my $param = params();
+    my $error = Format->new(
+        user => qr/^[a-zA-Z0-9\@_\.\-]+$/, 1,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
     my ( $user, $pass, $err ) = @$param{qw( user pass )};
 
     return +{ stat => $JSON::false, info => 'user or pass undef' }
