@@ -1,0 +1,26 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use MYDB;
+use Digest::MD5;
+use MIME::Base64;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 --user user1 --pass password.base64
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( user=s pass=s ) )->dump();
+$option->assert(qw( user pass ));
+
+my $db = MYDB->new( "/data/Software/mydan/Connector/conf/conn" );
+my $x  = $db->query(
+    sprintf "select name from openc3_connector_userinfo where name='$o{user}' and pass='%s'",  Digest::MD5->new->add( decode_base64( $o{pass} ) )->hexdigest
+);
+print $x && @$x  ? "ok\n" : "Incorrect user password!!!\n";
