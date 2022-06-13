@@ -39,8 +39,24 @@ post '/fileserver/:projectid' => sub {
 
     my $pmscheck = api::pmscheck( 'openc3_job_write', $param->{projectid} ); return $pmscheck if $pmscheck;
 
-    my $upload = request->uploads;
-    return  +{ stat => $JSON::false, info => 'upload undef' } unless $upload && ref $upload eq 'HASH';
+    my $upload;
+    if( $param->{'file.name'} && $param->{'file.path'}  && defined $param->{'file.size'} )
+    {
+        $upload = +{
+            $param->{'file.name'} => +{
+                filename => $param->{'file.name'},
+                tempname => $param->{'file.path'},
+                size     => $param->{'file.size'},
+                md5      => $param->{'file.md5' },
+            }
+        };
+    }
+    else
+    {
+        $upload = request->uploads;
+        return  +{ stat => $JSON::false, info => 'upload undef' } unless $upload && ref $upload eq 'HASH';
+        return  +{ stat => $JSON::false, info => 'No longer supported, please use uploadv2' };
+    }
 
     my $path = "$RealBin/../fileserver/$param->{projectid}";
     mkdir $path unless -d $path;
@@ -57,14 +73,17 @@ post '/fileserver/:projectid' => sub {
         )->check( %$info );
         return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-        my ( $filename, $tempname, $size ) = @$info{qw( filename tempname size )};
+        my ( $filename, $tempname, $size, $md5 ) = @$info{qw( filename tempname size md5 )};
 
         eval{ $api::auditlog->run( user => $user, title => 'USER UPLOAD FILE', content => "TREEID:$param->{projectid} FILENAME:$filename" ); };
         return +{ stat => $JSON::false, info => $@ } if $@;
 
-        open my $fh, "<$tempname" or return +{ stat => $JSON::false, info => 'open file fail' };
-        my $md5 = Digest::MD5->new()->addfile( $fh )->hexdigest;
-        close $fh;
+        unless( $md5 && $md5 =~ /^[a-zA-Z0-9]{32}$/ )
+        {
+            open my $fh, "<$tempname" or return +{ stat => $JSON::false, info => 'open file fail' };
+            $md5 = Digest::MD5->new()->addfile( $fh )->hexdigest;
+            close $fh;
+        }
 
         return  +{ stat => $JSON::false, info => 'rename fail' } if system "mv '$tempname' '$path/$md5' && chmod a+r '$path/$md5'";
 
@@ -116,7 +135,10 @@ get '/fileserver/:projectid/download' => sub {
 post '/fileserver/:projectid/upload' => sub {
     my $param = params();
 
-    my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
+    my $error = Format->new(
+        projectid => qr/^\d+$/, 1,
+        checkmd5  => qr/^[a-zA-Z0-9]{32}$/, 0,
+     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
     return  +{ stat => $JSON::false, info => "no token" } unless my $token = request->headers->{'token'};
     return  +{ stat => $JSON::false, info => "token format error" } unless $token =~ /^[a-zA-Z0-9]{32}$/;
@@ -128,8 +150,24 @@ post '/fileserver/:projectid/upload' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
     return +{ stat => $JSON::false, info => 'not authorized' } unless $r && $r->[0][0] > 0;
 
-    my $upload = request->uploads;
-    return  +{ stat => $JSON::false, info => 'upload undef' } unless $upload && ref $upload eq 'HASH';
+
+    my $upload;
+    if( $param->{'file.name'} && $param->{'file.path'}  && defined $param->{'file.size'} )
+    {
+        $upload = +{
+            $param->{'file.name'} => +{
+                filename => $param->{'file.name'},
+                tempname => $param->{'file.path'},
+                size     => $param->{'file.size'},
+                md5      => $param->{'file.md5' },
+            }
+        };
+    }
+    else
+    {
+        $upload = request->uploads;
+        return  +{ stat => $JSON::false, info => 'upload undef' } unless $upload && ref $upload eq 'HASH';
+    }
 
     my $path = "$RealBin/../fileserver/$param->{projectid}";
     mkdir $path unless -d $path;
@@ -147,15 +185,20 @@ post '/fileserver/:projectid/upload' => sub {
         )->check( %$info );
         return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-        my ( $filename, $tempname, $size ) = @$info{qw( filename tempname size )};
+        my ( $filename, $tempname, $size, $md5 ) = @$info{qw( filename tempname size md5 )};
         $upfilename = $filename;
 
         eval{ $api::auditlog->run( user => 'token', title => 'TOKEN UPLOAD FILE', content => "TREEID:$param->{projectid} FILENAME:$filename" ); };
         return +{ stat => $JSON::false, info => $@ } if $@;
 
-        open my $fh, "<$tempname" or return +{ stat => $JSON::false, info => 'open file fail' };
-        my $md5 = Digest::MD5->new()->addfile( $fh )->hexdigest;
-        close $fh;
+        unless( $md5 && $md5 =~ /^[a-zA-Z0-9]{32}$/ )
+        {
+            open my $fh, "<$tempname" or return +{ stat => $JSON::false, info => 'open file fail' };
+            $md5 = Digest::MD5->new()->addfile( $fh )->hexdigest;
+            close $fh;
+        }
+
+        return  +{ stat => $JSON::false, info => 'md5 not match' } if $param->{checkmd5} && $param->{checkmd5} ne $md5;
 
         return  +{ stat => $JSON::false, info => 'rename fail' } if system "mv '$tempname' '$path/$md5' && chmod a+r '$path/$md5'";
 

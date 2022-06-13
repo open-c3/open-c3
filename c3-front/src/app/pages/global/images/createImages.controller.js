@@ -83,7 +83,7 @@
             var file = document.getElementById("choicefilesx").files[0];
             var name = document.getElementById("choicefilesx").files[0].name;
             $(".newFile").parents("div.col-sm-10").find("input[name='newFileMsg']").attr("data-name",name);
-            var url = '/api/ci/images/' + imagesid + '/upload';
+            var url = '/api/ci/uploadv2/images/' + imagesid + '/upload';
 
             var piece = 1024 * 1024 * 24;
             var len = Math.ceil(file.size/piece);

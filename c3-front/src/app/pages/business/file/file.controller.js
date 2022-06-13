@@ -131,7 +131,7 @@
             form.append('file', file);
             $http({
                 method: 'POST',
-                url: '/api/job/fileserver/'+ vm.treeid,
+                url: '/api/job/uploadv2/fileserver/'+ vm.treeid,
                 data: form,
                 headers: {'Content-Type': undefined},
                 transformRequest: angular.identity
