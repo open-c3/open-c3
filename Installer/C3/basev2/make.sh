@@ -50,6 +50,7 @@ yum -y install perl-DBD-MySQL.x86_64 mysql-devel
 /data/Software/mydan/perl/bin/cpan install DateTime
 /data/Software/mydan/perl/bin/cpan install Mail::POP3Client Email::MIME Email::MIME::RFC2047::Decoder
 /data/Software/mydan/perl/bin/cpan install Paws
+/data/Software/mydan/perl/bin/cpan install Net::LDAP
 
 rm -rf /data/Software/mydan/perl/man
 rm -rf /root/.cpan
