@@ -257,8 +257,12 @@ create table if not exists `openc3_monitor_cloudmon`(
 `edit_time`  TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '编辑时间'
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='华为云监控';
 
-# v2.6.0 sql openc3_job_smallapplication add treeid
+# v2.6.0 sql openc3_job_smallapplication add treeid step1
 ALTER TABLE openc3_job_smallapplication ADD `treeid` varchar(20) DEFAULT 0 COMMENT '放到该服务树ID下';
-ALTER TABLE openc3_job_smallapplication drop index uniq_jobid;
+
+# v2.6.0 sql openc3_job_smallapplication add treeid step2
+ALTER TABLE openc3_job_smallapplication drop index `uniq_jobid`;
+
+# v2.6.0 sql openc3_job_smallapplication add treeid step3
 ALTER TABLE openc3_job_smallapplication ADD UNIQUE KEY `uniq_jobid_treeid` (`jobid`,`treeid`);
 
