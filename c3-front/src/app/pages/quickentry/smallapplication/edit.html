@@ -5,7 +5,7 @@
     <div>
         <div style="float: right;">
             <form class="form-inline" name="myForm" novalidate>
-                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="smallapplicationedit.createSmallApplication()"><i class="fa fa-plusecircle fa-lg" aria-hidden="true"></i> 添加轻应用</button>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="smallapplicationedit.createSmallApplication( 0 )"><i class="fa fa-plusecircle fa-lg" aria-hidden="true"></i> 添加轻应用</button>
             </form>
         </div>
         <div style="clear: both;">&nbsp;</div>
@@ -24,14 +24,20 @@
                 <table ng-table="smallapplicationedit.dataTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
                         <td width="60" class="textcenter" data-title="'ID'" filter="{ id: 'text'}" sortable="'id'"> {{m.id}} </td>
+                        <td data-title="'服务树ID'" width="80" filter="{ projectid: 'text'}" sortable="'projectid'">{{m.projectid}}</td>
+                        <td data-title="'可见度'" width="80" sortable="'treeid'">
+                            <a ng-if="m.treeid!=0" >服务树</a><a ng-if="m.treeid==0">全局</a>
+                        </td>
                         <td data-title="'类型'" width="80" filter="{ type: 'text'}" sortable="'type'">{{m.type}}</td>
                         <td data-title="'名称'" width="80" filter="{ title: 'text'}" sortable="'title'">{{m.title}}</td>
+                        <td data-title="'作业名称'" width="80" filter="{ jobname: 'text'}" sortable="'jobname'">{{m.jobname}}</td>
                         <td data-title="'描述'" width="80" filter="{ describe: 'text'}" sortable="'describe'">{{m.describe}}</td>
                         <td data-title="'创建人'" width="80" filter="{ create_user: 'text'}" sortable="'create_user'">{{m.create_user}}</td>
                         <td data-title="'最后编辑人'" width="80" filter="{ edit_user: 'text'}" sortable="'edit_user'">{{m.edit_user}}</td>
                         <td data-title="'创建时间'" width="80" filter="{ create_time: 'text'}" sortable="'create_time'">{{m.create_time}}</td>
                         <td data-title="'最后更新时间'" width="80" filter="{ edit_time: 'text'}" sortable="'edit_time'">{{m.edit_time}}</td>
                         <td data-title="'操作'" width="80" >
+                            <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="smallapplicationedit.createSmallApplication(m.id)" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="smallapplicationedit.deleteSmallApplication(m.id,m.jobid)" uib-tooltip="删除" style="cursor:pointer;color: red;" ></i>
                         </td>
                     </tr>

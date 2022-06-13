@@ -3,7 +3,7 @@
 </div>
 <div class="modal-body">
     <form class="form-horizontal" name="myForm" role="form">
-        <div ng-show="!smallapplicationcreate.selectall" class="row">
+        <div ng-show="(!smallapplicationcreate.selectall) && smallapplicationcreate.id==0" class="row">
             <div class="col-sm-10 form-group">
                 <label class="col-sm-3 control-label">作业</label>
                 <div class="col-sm-9">
@@ -12,6 +12,15 @@
                 </div>
             </div>
         </div>
+        <div ng-show="( !smallapplicationcreate.selectall ) && smallapplicationcreate.id!=0" class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">作业</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" ng-disabled="1" name="adduser" placeholder="标题" ng-model="smallapplicationcreate.postdata.jobname">
+                </div>
+            </div>
+        </div>
+ 
         <div ng-show="!smallapplicationcreate.selectall" class="row">
             <div class="col-sm-10 form-group">
                 <label class="col-sm-3 control-label">标题</label>
@@ -37,6 +46,17 @@
             </div>
         </div>
         <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">存放位置</label>
+                <div class="col-sm-9">
+                    <a ng-if="smallapplicationcreate.postdata.treeid!=0" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="轻应用使用的位置" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="smallapplicationcreate.postdata.treeid=0">本服务树</a>
+                    <a ng-if="smallapplicationcreate.postdata.treeid==0" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="轻应用使用的位置" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="smallapplicationcreate.postdata.treeid=smallapplicationcreate.treeid">全局可见</a>
+ 
+                </div>
+            </div>
+        </div>
+ 
+        <div class="row" ng-if="smallapplicationcreate.id==0">
             <div class="col-sm-5 form-group pull-right">
                 <button class="btn btn-primary" ng-disabled="myForm.$invalid || ( (!smallapplicationcreate.selectall) && ( ! choiceJob || ! smallapplicationcreate.postdata.title  ))" ng-click="smallapplicationcreate.add()">确认</button>
                 <button class="btn btn-warning" ng-click="smallapplicationcreate.cancel()">取消</button>
@@ -46,6 +66,14 @@
                 <a ng-if="!smallapplicationcreate.selectall" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="导入本节点所有JOB" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="smallapplicationcreate.selectall=1">全部导入</a>
             </div>
         </div>
+
+        <div class="row" ng-if="smallapplicationcreate.id!=0">
+            <div class="col-sm-5 form-group pull-right">
+                <button class="btn btn-primary" ng-disabled="myForm.$invalid || ( ! smallapplicationcreate.postdata.title ) " ng-click="smallapplicationcreate.update()">确认</button>
+                <button class="btn btn-warning" ng-click="smallapplicationcreate.cancel()">取消</button>
+            </div>
+        </div>
+
     </form>
 </div>
 

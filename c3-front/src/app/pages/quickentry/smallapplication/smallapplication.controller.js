@@ -10,9 +10,11 @@
 
         var vm = this;
 
+        vm.treeid = $state.params.treeid;
+
         vm.reload = function () {
             vm.loadover = false
-            $http.get('/api/job/smallapplication').then(
+            $http.get('/api/job/smallapplication/bytreeid/' + vm.treeid ).then(
                 function successCallback(response) {
                     if (response.data.stat){
                         vm.dataTable = new ngTableParams({count:100}, {counts:[],data:response.data.data});
