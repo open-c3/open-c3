@@ -132,15 +132,20 @@ any '/default/user/logout' => sub {
 
 any '/default/user/login' => sub {
     my $param = params();
+    my $error = Format->new(
+        user => qr/^[a-zA-Z0-9\@_\.\-]+$/, 1,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
     my ( $user, $pass, $err ) = @$param{qw( user pass )};
 
     return +{ stat => $JSON::false, info => 'user or pass undef' }
         unless defined $user & defined $pass;
 
-    my $info = eval{ $api::mysql->query( sprintf "select name from openc3_connector_userinfo where name='$user' and pass='%s'",  Digest::MD5->new->add($pass)->hexdigest ) };
-
-    return +{ stat => $JSON::false, info => $@ } if $@;
-    if( @$info )
+    $pass = encode_base64( $pass );
+    my $x = `c3mc-login --user '$user' --pass '$pass'`;
+    chomp $x;
+    if( $x eq 'ok' )
     {
         my @chars = ( "A" .. "Z", "a" .. "z", 0 .. 9 );
         my $keys = join("", @chars[ map { rand @chars } ( 1 .. 64 ) ]);
@@ -152,7 +157,7 @@ any '/default/user/login' => sub {
     }
     else
     {
-        return +{ stat => $JSON::false, info => 'Incorrect user password!!!' };
+        return +{ stat => $JSON::false, info => "Error. " . $x };
     }
 
 };

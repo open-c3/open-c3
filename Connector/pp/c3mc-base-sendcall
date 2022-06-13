@@ -54,12 +54,14 @@ sub sendmesg
     my $cont = $usercall =~ /encode/ ? JSON::to_json( +{ user => $user, mesg => $mesg } ) : JSON::encode_json( +{ user => $user, mesg => $mesg } );
     my $res = $ua->post( $usercall, Content => $cont, 'Content-Type' => 'application/json');
 
-    my $err = "send call fail: $usercall";
+    my $err = sprintf "send call fail: $usercall: %s", YAML::XS::Dump $res;
+    $err =~ s/appkey:\s+['"]?[a-zA-Z0-9]{32}['"]?\b/appkey: ******/g;
+
     die sprintf( "$err: code %s", $res->code ) unless $res->is_success;
 
     my $v = eval{JSON::decode_json $res->decoded_content};
     die "$err: data no JSON: $@" if $@;
-    die sprintf( "$err: info: %s", $v->{info}|'' ) unless $v->{stat};
+    die $err unless $v->{stat};
 }
 
 map{ sendmesg( $_, $mesg ) }@ARGV;

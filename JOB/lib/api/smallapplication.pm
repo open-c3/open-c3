@@ -18,9 +18,15 @@ use Format;
 #edit_user
 #edit_time
 #
-get '/smallapplication' => sub {
-    my @col = qw( id jobid type title describe parameter edit_user create_user edit_time create_time projectid );
-    my $r = eval{ $api::mysql->query( "select openc3_job_smallapplication.*,openc3_job_jobs.projectid from openc3_job_smallapplication, openc3_job_jobs where openc3_job_jobs.id=openc3_job_smallapplication.jobid order by id", \@col )};
+get '/smallapplication/bytreeid/:treeid' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        treeid => qr/^\d+$/, 1,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my @col = qw( id jobid type title describe parameter edit_user create_user edit_time create_time treeid projectid jobname );
+    my $r = eval{ $api::mysql->query( "select openc3_job_smallapplication.*,openc3_job_jobs.projectid,openc3_job_jobs.name from openc3_job_smallapplication, openc3_job_jobs where openc3_job_jobs.id=openc3_job_smallapplication.jobid and openc3_job_smallapplication.treeid in( 0, $param->{treeid} ) order by id", \@col )};
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
 
@@ -29,8 +35,9 @@ get '/smallapplication/:id' => sub {
     my $error = Format->new( id => qr/^\d+$/, 1,)->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    my @col = qw( id jobid type title describe parameter create_user edit_user edit_time create_time );
-    my $r = eval{ $api::mysql->query( sprintf( "select %s from openc3_job_smallapplication where id=$param->{id}", join( ',', @col) ), \@col )};
+    my @col = qw( id jobid type title describe parameter edit_user create_user edit_time create_time treeid projectid jobname );
+    my $r = eval{ $api::mysql->query( "select openc3_job_smallapplication.*,openc3_job_jobs.projectid,openc3_job_jobs.name from openc3_job_smallapplication, openc3_job_jobs where openc3_job_jobs.id=openc3_job_smallapplication.jobid and openc3_job_smallapplication.id in(  $param->{id} ) order by id", \@col )};
+ 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r->[0] };
 };
 
@@ -38,6 +45,7 @@ post '/smallapplication' => sub {
     my $param = params();
     my $error = Format->new( 
         jobid => qr/^\d+$/, 1,
+        treeid => qr/^\d+$/, 1,
         type => [ 'mismatch', qr/'/ ], 1,
         title => [ 'mismatch', qr/'/ ], 1,
         describe => [ 'mismatch', qr/'/ ], 1,
@@ -55,8 +63,8 @@ post '/smallapplication' => sub {
 
     my $r = eval{ 
         $api::mysql->execute( 
-            "insert into openc3_job_smallapplication (`jobid`,`type`,`title`,`describe`,`parameter`,`create_user`,`edit_user`,`edit_time`)
-                 values('$param->{jobid}', '$param->{type}', '$param->{title}', '$param->{describe}', '$param->{parameter}', '$user', '$user', '$time')")};
+            "insert into openc3_job_smallapplication (`jobid`,`type`,`title`,`describe`,`parameter`,`create_user`,`edit_user`,`edit_time`,`treeid`)
+                 values('$param->{jobid}', '$param->{type}', '$param->{title}', '$param->{describe}', '$param->{parameter}', '$user', '$user', '$time','$param->{treeid}')")};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
@@ -66,6 +74,7 @@ post '/smallapplication/:id' => sub {
     my $error = Format->new( 
         id => qr/^\d+$/, 1,
         jobid => qr/^\d+$/, 1,
+        treeid => qr/^\d+$/, 1,
         type => [ 'mismatch', qr/'/ ], 1,
         title => [ 'mismatch', qr/'/ ], 1,
         describe => [ 'mismatch', qr/'/ ], 1,
@@ -84,7 +93,7 @@ post '/smallapplication/:id' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
-        $api::mysql->execute( "update openc3_job_smallapplication set `jobid`='$param->{jobid}',`type`='$param->{type}',`title`='$param->{title}',`describe`='$param->{describe}',`parameter`='$param->{parameter}',edit_user='$user',edit_time='$time' where id='$param->{id}'")};
+        $api::mysql->execute( "update openc3_job_smallapplication set `jobid`='$param->{jobid}',`type`='$param->{type}',`title`='$param->{title}',`describe`='$param->{describe}',`parameter`='$param->{parameter}',edit_user='$user',edit_time='$time',treeid='$param->{treeid}' where id='$param->{id}'")};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };

@@ -1,0 +1,50 @@
+<div class="modal-header">
+    <h4  class="modal-title">添加 云监控</h4>
+</div>
+<div class="modal-body">
+    <form class="form-horizontal" name="myForm" role="form">
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">名称</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" name="adduser" placeholder="用户" ng-model="cloudmoncreate.postdata.name" required/>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">类型</label>
+                <div class="col-sm-9">
+                    <select class="form-control" ng-model="cloudmoncreate.postdata.type" required>
+                         <option ng-repeat="x in ['cloudeye-exporter','aliyun-exporter']" value="{{x}}">{{x}}</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+ 
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">描述</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" name="adduser" placeholder="describe" ng-model="cloudmoncreate.postdata.describe" required/>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">配置</label>
+                <div class="col-sm-9">
+                    <textarea type="text" rows="30" cols="100" class="form-control" name="adduser" placeholder="config" ng-model="cloudmoncreate.postdata.config" required></textarea>
+                </div>
+            </div>
+        </div>
+ 
+        <div class="row">
+            <div class="col-sm-5 form-group pull-right">
+                <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="cloudmoncreate.add()">确认</button>
+                <button class="btn btn-warning" ng-click="cloudmoncreate.cancel()">取消</button>
+            </div>
+        </div>
+    </form>
+</div>
+

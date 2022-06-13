@@ -57,6 +57,7 @@
                                 || sName == 'home.quickentry.monitormailmon'
                                 || sName == 'home.quickentry.selfhealingconfig'
                                 || sName == 'home.quickentry.smallapplication'
+                                || sName == 'home.quickentry.smallapplicationedit'
                                 || sName == 'home.business.job'
                                 || sName == 'home.business.user'
                                 || sName == 'home.business.file'

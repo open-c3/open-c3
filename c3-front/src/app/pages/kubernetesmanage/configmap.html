@@ -16,18 +16,18 @@
                     <tr ng-repeat="m in $data">
                         <td ng-if="!kubernetesconfigmap.namespace" data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
                         <td data-title="'名称'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">
-                            <i class="fa fa-cog fa-2x" aria-hidden="true" ng-if="kubernetesconfigmap.clusterinfo.auth==='X'" ng-click="kubernetesconfigmap.createConfigMap(m.NAMESPACE||kubernetesconfigmap.namespace,m.NAME)" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
-                            <i class="fa fa-cog fa-2x" aria-hidden="true" ng-if="kubernetesconfigmap.clusterinfo.auth!=='X'" style="color: #685e5e;" uib-tooltip="无编辑权限" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-cog fa-2x" aria-hidden="true" ng-if="kubernetesconfigmap.clusterinfo.auth==='X' || kubernetesconfigmap.clusterinfo.auth==='ns'" ng-click="kubernetesconfigmap.createConfigMap(m.NAMESPACE||kubernetesconfigmap.namespace,m.NAME)" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-cog fa-2x" aria-hidden="true" ng-if="!( kubernetesconfigmap.clusterinfo.auth==='X' || kubernetesconfigmap.clusterinfo.auth==='ns' )" style="color: #685e5e;" uib-tooltip="无编辑权限" style="cursor:pointer;color: #339094;" ></i>
                             {{m.NAME}}
                         </td>
                         <td data-title="'数据'" width="80" filter="{ DATA: 'text'}" sortable="'DATA'">{{m.DATA}}</td>
                         <td data-title="'时间'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
                         <td data-title="'操作'" width="80" >
 
-                            <i class="fa fa-search fa-2x" aria-hidden="true" ng-if="kubernetesconfigmap.clusterinfo.auth==='X'" ng-click="kubernetesconfigmap.describe('configmap',m.NAME,m.NAMESPACE||kubernetesconfigmap.namespace)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
-                            <i class="fa fa-search fa-2x" aria-hidden="true" ng-if="kubernetesconfigmap.clusterinfo.auth!=='X'" style="color: #685e5e;" uib-tooltip="无查看权限" style="cursor:pointer;color: #339094;" ></i>
-                            <i class="fa fa-edit fa-2x" aria-hidden="true" ng-if="kubernetesconfigmap.clusterinfo.auth==='X'" ng-click="kubernetesconfigmap.edityaml('configmap',m.NAME,m.NAMESPACE||kubernetesconfigmap.namespace)" uib-tooltip="编辑yaml" style="cursor:pointer;color: #339094;" ></i>
-                            <i class="fa fa-edit fa-2x" aria-hidden="true" ng-if="kubernetesconfigmap.clusterinfo.auth!=='X'" style="color: #685e5e;" uib-tooltip="无编辑权限" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-search fa-2x" aria-hidden="true" ng-if="kubernetesconfigmap.clusterinfo.auth==='X' ||  kubernetesconfigmap.clusterinfo.auth==='ns'" ng-click="kubernetesconfigmap.describe('configmap',m.NAME,m.NAMESPACE||kubernetesconfigmap.namespace)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-search fa-2x" aria-hidden="true" ng-if="!( kubernetesconfigmap.clusterinfo.auth==='X' || kubernetesconfigmap.clusterinfo.auth==='ns' )" style="color: #685e5e;" uib-tooltip="无查看权限" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-edit fa-2x" aria-hidden="true" ng-if="kubernetesconfigmap.clusterinfo.auth==='X'||kubernetesconfigmap.clusterinfo.auth==='ns'" ng-click="kubernetesconfigmap.edityaml('configmap',m.NAME,m.NAMESPACE||kubernetesconfigmap.namespace)" uib-tooltip="编辑yaml" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-edit fa-2x" aria-hidden="true" ng-if="!( kubernetesconfigmap.clusterinfo.auth==='X' || kubernetesconfigmap.clusterinfo.auth==='ns' )" style="color: #685e5e;" uib-tooltip="无编辑权限" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesconfigmap.deleteApp('configmap',m.NAME,m.NAMESPACE)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
                         </td> 
                     </tr>

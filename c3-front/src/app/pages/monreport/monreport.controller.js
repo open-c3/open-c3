@@ -18,8 +18,6 @@
         var toastr = toastr || $injector.get('toastr');
 
         vm.taskdatetime = [];
-        vm.tasksuccess = [];
-        vm.taskall = [];
         vm.treeid = $state.params.treeid;
         vm.state = $state;
         vm.updatetime;
@@ -65,26 +63,22 @@
                         vm.data_Table = new ngTableParams({count:1000}, {counts:[],data:response.data.data.detailtable.reverse()});
 
                         vm.taskdatetime = [];
-                        vm.taskall = [];
-                        vm.tasksuccess = [];
-
-                        vm.taskdatetime2 = [];
-                        vm.taskall2 = [];
-                        vm.tasksuccess2 = [];
-
-                        vm.taskdatetime3 = [];
-                        vm.taskall3 = [];
-                        vm.tasksuccess3 = [];
 
                         vm.updatetime = response.data.data.updatetime;
 
+                        vm.changedata1 = [];
+                        vm.changedata2 = [];
+                        vm.changedata3 = [];
+                        vm.changedata4 = [];
                         angular.forEach(response.data.data.change, function (oneday, index) {
                             vm.taskdatetime.push(oneday[0]);
-                            vm.taskall.push(oneday[1]);
-                            vm.tasksuccess.push(oneday[2]);
+                            vm.changedata1.push(oneday[1]);
+                            vm.changedata2.push(oneday[2]);
+                            vm.changedata3.push(oneday[3]);
+                            vm.changedata4.push(oneday[4]);
                         });
 
-                        vm.show30Task(vm.taskdatetime, vm.tasksuccess,vm.taskall)
+                        vm.show30Task(vm.taskdatetime, vm.changedata1,vm.changedata2,vm.changedata3,vm.changedata4)
                     }else {
                         toastr.error( "获取数据失败："+response.data.info );
                     }

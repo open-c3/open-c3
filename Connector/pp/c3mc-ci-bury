@@ -38,7 +38,7 @@ sub bury
         my ( $runtime, $finishtime, $finishtimems ) = ( sprintf( "%0.3f", $time - $starttimems ), POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( int $time ) ), $time );
 
         eval{ $db->execute( "update openc3_ci_version set status='fail',runtime='$runtime',
-            finishtime='$finishtime',finishtimems='$finishtimems' where id=$id" );};
+            finishtime='$finishtime',finishtimems='$finishtimems' where id=$id and ( status<>'success' and status<>'fail' ) and pid='$pid'" );};
         warn "update task status fail: id=$id :$@" if $@;
     }
 }

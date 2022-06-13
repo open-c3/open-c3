@@ -747,6 +747,24 @@ vm.replicasets = [];
             });
         };
 
+        vm.namespaceauth = function () {
+            $uibModal.open({
+                templateUrl: 'app/pages/kubernetesmanage/namespaceauth.html',
+                controller: 'KubernetesNamespaceAuthController',
+                controllerAs: 'kubernetesnamespaceauth',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () {return vm.treeid},
+                    ticketid: function () {return vm.selecteClusterId},
+                    clusterinfo: function () {return vm.selecteCluster},
+                    namespace: function () { return vm.selectednamespace},
+                }
+            });
+        };
+
         vm.k8sTree = function () {
             $uibModal.open({
                 templateUrl: 'app/pages/kubernetesmanage/k8stree.html',
@@ -935,6 +953,8 @@ vm.replicasets = [];
 
         vm.showByAuth = function(name)
         {
+            return true;
+            //TODO
             if( vm.selecteCluster.auth == "R" )
             {
                 if( name == 'Ingress' ||  name == 'Service' ||  name == 'Deployment' )

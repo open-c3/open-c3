@@ -114,7 +114,7 @@ return sub
 
         my $x = `c3mc-base-db-get create_time tagger taginfo --table openc3_ci_version --filter "projectid='$flow_id' and name='$variable->{version}'"`;
         chomp $x;
-        my @x = split /;/, $x, 3; $x;
+        my @x = split /;/, $x, 3;
 
         $var_map{"tagtime"} = $x[0];
         $var_map{"tagger" } = $x[1];

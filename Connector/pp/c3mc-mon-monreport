@@ -17,7 +17,7 @@ chomp @month;
 for my $month ( @month )
 {
     next unless $month =~ /^\d+\-\d+$/;
-    system "cat $dpath/current|grep ^$month- > $dpath/${month}.temp";
+    system "cat $dpath/current|grep ^$month- |sort > $dpath/${month}.temp";
 
     unless( -f "$dpath/$month")
     {

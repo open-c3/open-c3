@@ -4,13 +4,15 @@
         .module('openc3')
         .controller('SmallApplicationCreateController', SmallApplicationCreateController);
 
-    function SmallApplicationCreateController( $state, $http, ngTableParams, $uibModalInstance, $scope, resoureceService, $injector, treeid, reload ) {
+    function SmallApplicationCreateController( $state, $http, ngTableParams, $uibModalInstance, $scope, resoureceService, $injector, treeid, reload, id ) {
 
         var vm = this;
 
         var toastr = toastr || $injector.get('toastr');
+        vm.id = id;
 
-        vm.postdata = { "parameter" : ""};
+        vm.treeid = $state.params.treeid;
+        vm.postdata = { "parameter" : "", treeid: vm.treeid };
 
         vm.cancel = function(){ $uibModalInstance.dismiss(); reload(); };
 
@@ -20,7 +22,7 @@
                 angular.forEach($scope.allJobs, function (value, key) {
                     $http.post('/api/job/variable/' + treeid + '/update', { "jobuuid": value.uuid, "data": [ { "name": "_authorization_", "value": "true", "describe": "smallapplication" } ]} ).success(function(data){
                         if(data.stat == true) {
-                            $http.post('/api/job/smallapplication', { "describe": vm.postdata.describe, "jobid": value.id, "parameter": "", "title":value.alias , "type": vm.postdata.type } ).success(function(data){
+                            $http.post('/api/job/smallapplication', { "describe": vm.postdata.describe, "jobid": value.id, "parameter": "", "title":value.alias , "type": vm.postdata.type, "treeid": vm.postdata.treeid } ).success(function(data){
                                 if(data.stat == true) {
                                     toastr.success( "添加成功:" + value.alias )
                                 } else {
@@ -47,6 +49,14 @@
             }
         };
 
+
+        vm.update = function(){
+            $http.post('/api/job/smallapplication/' + vm.id, vm.postdata ).success(function(data){
+                if(data.stat == true) {
+                    vm.cancel();
+                } else { swal({ title: "更新失败!", text: data.info, type:'error' }); }
+            });
+        };
 
         vm.selectall = 0;
         $scope.allJobs = [];        // 保存所有项目下的作业
@@ -89,8 +99,25 @@
                 }
             });
         };
-
-        vm.getAllJob();
+        if( vm.id > 0 )
+        {
+            $http.get('/api/job/smallapplication/' + vm.id ).then(
+                function successCallback(response) {
+                    if (response.data.stat){
+                        vm.postdata = response.data.data
+                    }else {
+                        swal('获取信息失败', response.data.info, 'error' );
+                    }
+                },
+                function errorCallback (response ){
+                    swal('获取信息失败', response.status, 'error' );
+                });
+ 
+        }
+        else
+        {
+            vm.getAllJob();
+        }
     }
 })();
 

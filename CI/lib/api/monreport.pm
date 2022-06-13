@@ -117,6 +117,7 @@ get '/monreport/:groupid/datalist' => sub {
 
     my @data = `cd /data/glusterfs/monreport && ls`;
     chomp @data;
+    @data = reverse @data;
     return +{ stat => $JSON::true, data => [grep{/^20\d{2}\-\d{2}$/}@data] };
 };
 

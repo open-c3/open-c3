@@ -27,10 +27,14 @@ get '/kubernetes/service' => sub {
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
-    my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 0 ) };
+    my ( $kubectl, @ns ) = eval{ api::kubernetes::getKubectlAuth( $api::mysql, $param->{ticketid}, $user, $company, 0 ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
-    my $filter = +{ namespace => $param->{namespace}, status => $param->{status} };
+    my $filter = +{
+         namespace => $param->{namespace},
+         status => $param->{status},
+         rowfilter => +{ key => \@ns, col => [ 'NAMESPACE' ] } ,
+     };
     my $argv = $param->{namespace} ? "-n $param->{namespace}" : "-A";
 #TODO 不添加2>/dev/null 时,如果命名空间不存在service时，api.event 的接口会报错
     my ( $cmd, $handle ) = ( "$kubectl get service -o wide $argv 2>/dev/null", 'getservice' );
@@ -59,6 +63,8 @@ $handle{getservice} = sub
          my %r = map{ $title[$_] => $col[$_] }0..$#title;
          push @r, \%r if ( ! $failonly) || ( $failonly && $r{ENDPOINTS} eq '<none>' );
     }@x;
+
+    @r = api::kubernetes::rowfilter( $filter, @r );
 
     return +{ stat => $JSON::true, data => \@r, };
 };

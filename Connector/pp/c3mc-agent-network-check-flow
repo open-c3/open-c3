@@ -1,0 +1,80 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
+use strict;
+use warnings;
+
+$|++;
+
+use MYDB;
+
+my $id = shift @ARGV;
+die "id err" unless $id && $id =~ /^\d+$/;
+
+my $testenv   = `c3mc-base-db-get id,projectid -t openc3_jobx_group -f "name='_ci_test_${id}_'"`;
+my $onlineenv = `c3mc-base-db-get id,projectid -t openc3_jobx_group -f "name='_ci_online_${id}_'"`;
+
+chomp $testenv;
+chomp $onlineenv;
+
+sub checknetwork
+{
+     my %re = (
+         nodes => '',
+         error => '',
+     );
+
+     my ( $groupid, $treeid ) = @_;
+     return \%re unless defined $groupid && $groupid =~ /^\d+$/;
+     return \%re unless defined $treeid  && $treeid  =~ /^\d+$/;
+
+     my @node = `/data/Software/mydan/JOBX/bin/group -i $groupid`;
+     chomp @node;
+     $re{nodes} = join ';', @node;
+
+     my @x;
+     for my $node ( @node )
+     {
+        my $ips = join ',',grep{ /^\d+\.\d+\.\d+\.\d+$/ }split /,/, $node;
+        next unless $ips;
+         my @xx = `/data/Software/mydan/CI/bin/node-check-mydan-call $treeid '$ips' 2>&1`;
+         chomp @xx;
+         @xx = grep{ $_ !~ /^\d+\.\d+\.\d+\.\d+:ok$/ }@xx;
+         push @x, @xx;
+     }
+     $re{error} = "err:". join( "", @x ) if @x;
+     $re{error} =~ s/'/"/g;
+     return \%re;
+}
+
+
+sub check
+{
+    my ( $testgid, $onlinegid ) = @_;
+    my %re =
+    (
+        test_nodes   => '',
+        test_error   => '',
+        online_nodes => '',
+        online_error => '',
+    );
+    my $x = checknetwork( split /;/, $testgid );
+    $re{test_nodes} = $x->{nodes};
+    $re{test_error} = $x->{error};
+
+    $x = checknetwork( split /;/, $onlinegid );
+    $re{online_nodes} = $x->{nodes};
+    $re{online_error} = $x->{error};
+
+    return \%re;
+}
+
+my $x = check( $testenv, $onlineenv );
+
+my $db = MYDB->new( "/data/Software/mydan/CI/conf/conn", delayedconnection => 1 );
+eval{
+    $db->execute(
+        "replace into `openc3_ci_flow_network_check` (`flowid`,`test_nodes`,`test_error`,`online_nodes`,`online_error`) " .
+        "values('$id','$x->{test_nodes}','$x->{test_error}','$x->{online_nodes}','$x->{online_error}')"
+    );
+};
+die "err: $@" if $@;
+

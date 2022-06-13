@@ -80,7 +80,7 @@ get '/adminapproval/oalog/:id' => sub {
     for my $x ( qw( create query ) )
     {
         $data{$x} = +{ log => 'NULL', time => 'NULL' };
-        my $f = "$path/query.$param->{id}";
+        my $f = "$path/$x.$param->{id}";
         next unless -f $f;
         $data{$x}{time} = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( ( stat $f )[9] ) );
         $data{$x}{log } = `cat '$f' 2>&1`;
@@ -89,6 +89,46 @@ get '/adminapproval/oalog/:id' => sub {
         stat => $JSON::true,
         data => \%data,
     };
+};
+
+post '/adminapproval/oaredo/:id' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        id => qr/^\d+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+    my $pmscheck = api::pmscheck( 'openc3_job_root' ); return $pmscheck if $pmscheck;
+
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+
+    eval{ $api::auditlog->run( user => $user, title => 'USR APPROVAL OA REDO', content => "ID:$param->{id}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
+    my $r = eval{ $api::mysql->execute( "update openc3_job_approval set oauuid='0' where id='$param->{id}' and opinion='unconfirmed'")};
+
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    return +{ stat => $JSON::true, data => $r };
+};
+
+post '/adminapproval/notifyredo/:id' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        id => qr/^\d+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+    my $pmscheck = api::pmscheck( 'openc3_job_root' ); return $pmscheck if $pmscheck;
+
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+
+    eval{ $api::auditlog->run( user => $user, title => 'USR APPROVAL NOTIFY REDO', content => "ID:$param->{id}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
+    my $r = eval{ $api::mysql->execute( "update openc3_job_approval set notifystatus='null' where id='$param->{id}' and opinion='unconfirmed'")};
+
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    return +{ stat => $JSON::true, data => $r };
 };
 
 true;

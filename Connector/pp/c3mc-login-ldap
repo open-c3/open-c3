@@ -1,0 +1,81 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use MYDB;
+use Digest::MD5;
+use MIME::Base64;
+use OPENC3::SysCtl;
+use MYDan::Util::OptConf;
+use Net::LDAP;
+
+=head1 SYNOPSIS
+
+ $0 --user user1 --pass password.base64
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( user=s pass=s ) )->dump();
+$option->assert(qw( user pass ));
+
+my $sysctl = OPENC3::SysCtl->new();
+
+my ( %ldap, %level );
+map{ $ldap{$_} = $sysctl->get( "sys.login.ldap.$_" ); }qw( host port admin.user admin.pass dn role.admin role.ops role.dev );
+map{ $level{$_} = 1 }split /,/, $ldap{'role.dev'  };
+map{ $level{$_} = 2 }split /,/, $ldap{'role.ops'  };
+map{ $level{$_} = 3 }split /,/, $ldap{'role.admin'};
+
+sub checkpass
+{
+    my $ldap = shift @_;
+    my $mesg = $ldap->bind("cn=$o{user},$ldap{dn}", password => decode_base64( $o{pass} ) );
+
+    unless ( $mesg and $mesg->code() == 0 ) {
+        print "Unsuccessful Authentication\n";
+	exit;
+    }
+}
+
+sub getuserinfo
+{
+    my $ldap = shift @_;
+    my %re = ( gid => '' );
+    my $mesg = $ldap->bind( $ldap{'admin.user'}, password => $ldap{'admin.pass'} );
+
+    unless ( $mesg and $mesg->code() == 0 ) {
+        warn "Unsuccessful Authentication";
+        die 'Received error '.$mesg->code().': '. $mesg->error();
+    }
+
+    my $result = $ldap->search(
+        base => $ldap{dn},
+        filter => "(cn=$o{user})"
+    );
+
+    my @entries = $result->entries;
+    return unless @entries;
+    my $entry = shift @entries;
+    my @gid = $entry->get_value( 'gidNumber' );
+
+    $re{gid} = $gid[0] if @gid;
+    return \%re;
+}
+
+sub update
+{
+    my ( $user, $info ) = @_;
+    my $db = MYDB->new( "/data/Software/mydan/Connector/conf/conn", delayedconnection => 1 );
+    my $x = $db->query( "select id from openc3_connector_userinfo where name='$user'" );
+    $db->execute( "insert into openc3_connector_userinfo(name) value('$user')" ) unless @$x;
+    $db->execute( sprintf "replace into openc3_connector_userauth(name,level) value('$user',%s)", $level{$info->{gid}} || 0 );
+}
+
+my $ldap = Net::LDAP->new( $ldap{host}, port=> $ldap{port}, timeout => 15 ) or die " Cannot connect to LDAP server ! ";
+checkpass( $ldap );
+update( $o{user}, getuserinfo( $ldap ) );
+
+print "ok\n";

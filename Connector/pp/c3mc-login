@@ -1,0 +1,22 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use MYDan::Util::OptConf;
+use OPENC3::SysCtl;
+
+=head1 SYNOPSIS
+
+ $0
+ $0 --user user1 --pass password.base64
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( user=s pass=s ) )->dump();
+$option->assert(qw( user pass ));
+
+my $type = OPENC3::SysCtl->new()->get( 'sys.login.type' ) // 'mysql';
+exec "c3mc-login-$type --user '$o{user}' --pass '$o{pass}'";

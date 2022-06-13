@@ -8,6 +8,7 @@
     function KubernetesCreateServiceController( $uibModalInstance, $location, $anchorScroll, $state, $http, $uibModal, treeService, ngTableParams, resoureceService, $scope, $injector, ticketid, clusterinfo, namespace, name ) {
 
         var vm = this;
+        vm.typelist = [ 'ClusterIP', 'NodePort', 'LoadBalancer', 'ExternalName' ];
 
         vm.annotationTypeList = [];
         if( clusterinfo.subtype === 'QCloud' )

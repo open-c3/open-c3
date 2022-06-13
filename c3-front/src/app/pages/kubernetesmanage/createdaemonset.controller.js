@@ -89,7 +89,7 @@
                         toastr.error( "获取集群NAMESPACE数据失败: " + response.status )
                     });
 //            }
-            $http.get("/api/ci/v2/kubernetes/util/labels/node?ticketid=" + ticketid ).success(function(data){
+            $http.get("/api/ci/v2/kubernetes/util/labels/node?ticketid=" + ticketid + "&namespace=" + vm.namespace ).success(function(data){
                 if(data.stat == true) 
                 { 
                    vm.nodelabel = data.data;
@@ -98,7 +98,7 @@
                 }
             });
  
-            $http.get("/api/ci/v2/kubernetes/util/labels/node_pod?ticketid=" + ticketid ).success(function(data){
+            $http.get("/api/ci/v2/kubernetes/util/labels/node_pod?ticketid=" + ticketid + "&namespace=" + vm.namespace ).success(function(data){
                 if(data.stat == true) 
                 { 
                    vm.nodepodlabel = data.data;
@@ -588,13 +588,22 @@
             }
             x.env.push({"name": "", "valueFrom": { "configMapKeyRef": { "name": "", "key": "" } }})
         }
-         vm.addContainerEnvSecret = function(x)
+        vm.addContainerEnvSecret = function(x)
         {
             if( ! x.env )
             {
                 x.env = []
             }
             x.env.push({"name": "", "valueFrom": { "secretKeyRef": { "name": "", "key": "" } }})
+        }
+
+        vm.addContainerEnvField = function(x)
+        {
+            if( ! x.env )
+            {
+                x.env = []
+            }
+            x.env.push({"name": "", "valueFrom": { "fieldRef": { "fieldPath": "" } }})
         }
  
         vm.delContainerEnv = function(x,id)

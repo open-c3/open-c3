@@ -13,7 +13,7 @@
 
         vm.reload = function () {
             vm.loadover = false
-            $http.get('/api/job/smallapplication').then(
+            $http.get('/api/job/smallapplication/bytreeid/' + vm.treeid ).then(
                 function successCallback(response) {
                     if (response.data.stat){
                         vm.dataTable = new ngTableParams({count:100}, {counts:[],data:response.data.data});
@@ -29,7 +29,7 @@
 
         vm.reload()
 
-        vm.createSmallApplication = function () {
+        vm.createSmallApplication = function(id) {
             $uibModal.open({
                 templateUrl: 'app/pages/quickentry/smallapplication/create.html',
                 controller: 'SmallApplicationCreateController',
@@ -40,7 +40,8 @@
                 bindToController: true,
                 resolve: {
                     treeid: function () { return vm.treeid},
-                    reload : function () { return vm.reload}
+                    reload : function () { return vm.reload},
+                    id : function () { return id}
                 }
             });
         };

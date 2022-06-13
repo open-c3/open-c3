@@ -219,6 +219,26 @@
                 </div>
             </div>
 
+<hr>
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-1 control-label">类型</label>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-1 control-label"></label>
+                    <div class="col-sm-7">
+                         <select id="selecteddataval" class="form-control"  ng-model="kubernetescreateservice.editData.spec.type" >
+                             <option value="{{kubernetescreateservice.editData.spec.type}}">{{kubernetescreateservice.editData.spec.type}}</option>
+                             <option ng-repeat="x in kubernetescreateservice.typelist" value="{{x}}">{{x}}</option>
+                         </select>
+                    </div>
+                </div>
+            </div>
+
+
             <div class="row">
                 <div class="col-sm-2 form-group pull-right">
                     <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateservice.gotostep2()">下一步</button>

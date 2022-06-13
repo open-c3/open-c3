@@ -210,3 +210,59 @@ ALTER TABLE openc3_connector_useraddr ADD `voicemail` varchar(100) DEFAULT NULL 
 
 # v2.6.0 sql openc3_job_approval add assist
 ALTER TABLE openc3_job_approval ADD `assist` varchar(100) DEFAULT NULL COMMENT '协助操作人';
+
+# v2.6.0 sql openc3_ci_k8s_namespace_auth create
+create table if not exists `openc3_ci_k8s_namespace_auth`(
+`id` int(16) unsigned not null primary key auto_increment comment 'id',
+`ticketid`   VARCHAR(200) comment '凭据ID',
+`namespace`  VARCHAR(200) comment '命名空间',
+`user`       VARCHAR(100) comment '用户',
+`auth`       VARCHAR(100) comment '权限',
+`edit_user`  VARCHAR(100) comment '编辑者',
+`edit_time`  TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
+UNIQUE KEY `openc3_ci_k8s_namespace_auth` (`ticketid`,`namespace`,`user`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='k8s命名空间授权';
+
+# v2.6.0 sql openc3_agent_node_network_check create
+create table if not exists `openc3_agent_node_network_check`(
+`id` int(16) unsigned not null primary key auto_increment comment 'id',
+`node`   VARCHAR(100) comment 'node节点，一般为ip',
+`tcp_speed`  VARCHAR(100) comment 'tcp测速',
+`tcp_error`  VARCHAR(100) comment 'tcp错误',
+`udp_speed`  VARCHAR(100) comment 'udp测速',
+`udp_error`  VARCHAR(100) comment 'udp错误',
+`check_time`  TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '检测时间',
+UNIQUE KEY `openc3_agent_node_network_check` (`node`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='网络质量监控';
+
+# v2.6.0 sql openc3_ci_flow_network_check create
+create table if not exists `openc3_ci_flow_network_check`(
+`id` int(16) unsigned not null primary key auto_increment comment 'id',
+`flowid`   VARCHAR(100) comment '流水线ID',
+`test_nodes`  VARCHAR(2000) comment '测试套餐节点',
+`test_error`  VARCHAR(2000) comment '测试套餐错误',
+`online_nodes`  VARCHAR(2000) comment '线上套餐节点',
+`online_error`  VARCHAR(2000) comment '线上套餐错误',
+`check_time`  TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '检测时间',
+UNIQUE KEY `openc3_ci_flow_network_check` (`flowid`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='流水线网络质量监控';
+
+# v2.6.0 sql openc3_monitor_cloudmon create
+create table if not exists `openc3_monitor_cloudmon`(
+`id` int(16) unsigned not null primary key auto_increment comment 'id',
+`name`       VARCHAR(200) comment '账号名称',
+`type`       VARCHAR(50) comment '类型',
+`describe`   VARCHAR(200) comment 'describe',
+`config`     VARCHAR(20000) comment 'config',
+`edit_time`  TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '编辑时间'
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='华为云监控';
+
+# v2.6.0 sql openc3_job_smallapplication add treeid step1
+ALTER TABLE openc3_job_smallapplication ADD `treeid` varchar(20) DEFAULT 0 COMMENT '放到该服务树ID下';
+
+# v2.6.0 sql openc3_job_smallapplication add treeid step2
+ALTER TABLE openc3_job_smallapplication drop index `uniq_jobid`;
+
+# v2.6.0 sql openc3_job_smallapplication add treeid step3
+ALTER TABLE openc3_job_smallapplication ADD UNIQUE KEY `uniq_jobid_treeid` (`jobid`,`treeid`);
+
