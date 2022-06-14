@@ -32,6 +32,25 @@ my $num = $pop->Count();
 
 die "$name: connect pop3 fail" if $num < 0;
 
+sub skip
+{
+    my $to = shift @_;
+
+    return 0 unless $to;
+
+    if( $conf->{include} && ref $conf->{include} eq 'ARRAY' )
+    {
+        return ( grep{ $to eq $_ } @{$conf->{include}} ) ? 0 : 1;
+    }
+
+    if( $conf->{exclude} && ref $conf->{exclude} eq 'ARRAY' )
+    {
+        return ( grep{ $to eq $_ } @{$conf->{exclude}} ) ? 1 : 0;
+    }
+
+    return 0;
+}
+
 for my $i ( 1 .. $num )
 {
     my @x;
@@ -43,7 +62,16 @@ for my $i ( 1 .. $num )
     print $tmp join "\n", @x;
     close $tmp;
     my $uuid = sprintf "%s.%06d", POSIX::strftime( "%Y%m%d%H%M%S", localtime ), rand 999999;
-    die "rename fail: $!" if system sprintf "mv '%s' '$datapath/$name.$uuid.wait'",$tmp->filename;
+    my $filename = $tmp->filename;
+
+    if( $conf->{include} || $conf->{exclude} )
+    {
+        my $to = `c3mc-mon-mailmon-format '$filename' | grep ^labels.to|awk '{print \$2}'`;
+        chomp $to;
+        next if skip( $to );
+    }
+
+    die "rename fail: $!" if system sprintf "mv '%s' '$datapath/$name.$uuid.wait'",$filename;
 
     $pop->Delete($i);
 }
