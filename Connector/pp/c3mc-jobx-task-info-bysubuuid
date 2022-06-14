@@ -30,11 +30,12 @@ my $r = eval{
 
 die "get info from db:$@" if $@;
 
-my %data = ( action => 'nofind', batches => 0, deployenv => 'nofind', submitter => 'nofind', groups => scalar @$r );
+my %data = ( action => 'nofind', batches => 0, deployenv => 'nofind', submitter => 'nofind', jobxuuid => 'nofind', groups => scalar @$r );
 
 if( @$r > 0 )
 {
     $data{action} = $r->[0]{parent_uuid} =~ /[a-z]$/ ? 'deploy' : 'rollback';
+    $data{jobxuuid} = $r->[0]{parent_uuid};
 
     my $g = eval{ $db->query( "select `group`,user from openc3_jobx_task where uuid='$r->[0]{parent_uuid}'" )};
     return +{ stat => $JSON::false, info => $@ } if $@;

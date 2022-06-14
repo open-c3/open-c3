@@ -266,3 +266,13 @@ ALTER TABLE openc3_job_smallapplication drop index `uniq_jobid`;
 # v2.6.0 sql openc3_job_smallapplication add treeid step3
 ALTER TABLE openc3_job_smallapplication ADD UNIQUE KEY `uniq_jobid_treeid` (`jobid`,`treeid`);
 
+# v2.6.0 sql openc3_job_plugin_approval_record create
+create table if not exists `openc3_job_plugin_approval_record`(
+`id` int(16) unsigned not null primary key auto_increment comment 'id',
+`jobxuuid`    VARCHAR(30) comment 'jobxuuid',
+`pluginuuid`  VARCHAR(30) comment 'pluginuuid',
+`action`      VARCHAR(30) comment 'action',
+`deployenv`   VARCHAR(30) comment 'deployenv',
+`batches`     VARCHAR(30) comment 'batches'
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='审批插件记录';
+
