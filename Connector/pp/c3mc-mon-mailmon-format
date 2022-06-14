@@ -39,8 +39,11 @@ $re{'labels.content100'} = decode('UTF-8', 'html内容，请到邮件中查看�
 
 my $decoder = Email::MIME::RFC2047::Decoder->new();
 
-my %d = ( Subject => 'labels.subject', Date => 'labels.date', 'Message-Id' => 'labels.uuid', From => 'labels.from' );
+my %d = ( Subject => 'labels.subject', Date => 'labels.date', 'Message-Id' => 'labels.uuid', From => 'labels.from', To => 'labels.to' );
 map{ $re{$d{$_}} = $decoder->decode_text($email->header($_)); }keys %d;
+
+$re{'labels.from'} = $1 if $re{'labels.from'} =~ /<([a-zA-Z].+\@.+)>/;
+$re{'labels.to'  } = $1 if $re{'labels.to'  } =~ /<([a-zA-Z].+\@.+)>/;
 
 $re{'labels.severity'} = 'level1';
 print YAML::XS::Dump \%re;
