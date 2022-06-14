@@ -24,8 +24,23 @@ sub adduser
     my $config = eval{ YAML::XS::LoadFile "/data/glusterfs/mailmon/conf/$data->{'labels.account'}"; };
     die "load config conf/$data->{'labels.account'} fail: $@" if $@;
 
-    die "to error" unless $config->{to} && $config->{to} =~ /^[a-zA-Z0-9\.\-_@]+$/;
-    my @user = `c3mc-app-usrext '$config->{to}'`;
+    my $to = $config->{to};
+    if( $config->{subscribe} && ref $config->{subscribe} eq 'ARRAY' )
+    {
+        for my $x ( @{$config->{subscribe}} )
+        {
+            next unless $x && ref $x eq 'HASH' && $x->{to} && $x->{sendto};
+            if( $x->{to} eq $data->{'labels.to'} )
+            {
+                $to = $x->{to};
+                last;
+            }
+        }
+    }
+
+    die "to error" unless $to && $to =~ /^[a-zA-Z0-9\.\-_@]+$/;
+
+    my @user = `c3mc-app-usrext '$to'`;
     chomp @user;
 
     return unless @user;

@@ -78,6 +78,10 @@ return sub
     $xxcc->{batches}   ||= 0;
     $xxcc->{groups}    ||= 0;
     $xxcc->{submitter} ||= 'nofind';
+    $xxcc->{jobxuuid } ||= 'nofind';
+
+    $xxcc->{deployjobxuuid} = $xxcc->{jobxuuid};
+    $xxcc->{deployjobxuuid} =~ s/\w$/\L$&/;
 
     print "=" x 35, "\n";
     print "check ...\n";
@@ -87,11 +91,62 @@ return sub
     return 'success' if $deployenv eq 'online' && $xxcc->{deployenv} ne 'online';
       
     print "expect action: $action; real action:$xxcc->{action}\n";
-    return 'success' if $action eq 'deploy'   && $xxcc->{action} ne 'deploy';
+    if( $action eq 'deploy' && $xxcc->{action} ne 'deploy' )
+    {
+        if(
+            length( $xxcc->{deployjobxuuid} ) == 12
+            && $xxcc->{action} eq 'rollback'
+            && (
+                   ( $batches eq 'always' )
+                || ( $batches eq 'firsttime'   && $xxcc->{batches} eq 1 )
+                || ( $batches eq 'thelasttime' && $xxcc->{batches} eq $xxcc->{groups} )
+             )
+         )
+        {
+            #发布流程中的审批可能选择的是“仅发布时执行”。
+            #紧急回滚时，发布任务会直接终止掉启动回滚任务。
+            #所以这里需要判断，回滚的情况下，确认发布时候确实已经进行了审批。
+
+            my $x = eval{ $db->query( "select id from openc3_job_plugin_approval_record where jobxuuid='$xxcc->{deployjobxuuid}' and pluginuuid='$uuid' and deployenv='$xxcc->{deployenv}'" );};
+            die "get info err: $@" if $@;
+            return 'success' if $x && @$x;
+            print "Additional approval action\n";
+        }
+        else
+        {
+            return 'success';
+        }
+    }
+
     return 'success' if $action eq 'rollback' && $xxcc->{action} ne 'rollback';
       
     print "expect batches: $batches; real batches: $xxcc->{batches}\n";
-    return 'success' if $batches eq 'firsttime'   && $xxcc->{batches} ne 1;
+    if( $batches eq 'firsttime' && $xxcc->{batches} ne 1 )
+    {
+        if(
+            length( $xxcc->{deployjobxuuid} ) == 12
+            && $xxcc->{batches} > 1
+            && (
+                   ( $action eq 'always' )
+                || ( $action eq 'deploy'   && $xxcc->{action} eq 'deploy'   )
+                || ( $action eq 'rollback' && $xxcc->{action} eq 'rollback' )
+            )
+        )
+        {
+            #在发布时，如果遇到前面的分批异常终止的情况下
+            #这里判断，是否需要进行追加审批
+
+            my $x = eval{ $db->query( "select id from openc3_job_plugin_approval_record where jobxuuid='$xxcc->{deployjobxuuid}' and pluginuuid='$uuid' and deployenv='$xxcc->{deployenv}'" );};
+            die "get info err: $@" if $@;
+            return 'success' if $x && @$x;
+            print "Additional approval batches\n";
+        }
+        else
+        {
+            return 'success';
+        }
+ 
+    }
     return 'success' if $batches eq 'thelasttime' && $xxcc->{batches} ne $xxcc->{groups};
 
     $submitter = $xxcc->{submitter} if $submitter eq 'jobx@app' && $xxcc->{submitter} ne 'nofind';
@@ -239,6 +294,16 @@ return sub
     }
  
     print "substatus = $subtaskstatus\n";
+
+    my $record = sub
+    {
+        my $jobxinfo = shift @_;
+        return unless length( $xxcc->{deployjobxuuid} ) == 12;
+
+        eval{ $db->execute( "insert into openc3_job_plugin_approval_record (`jobxuuid`,`pluginuuid`,`action`,`deployenv`,`batches`)values('$xxcc->{deployjobxuuid}','$uuid','$xxcc->{action}','$xxcc->{deployenv}','$xxcc->{batches}')" )};
+        die "record err: $@" if $@;
+    };
+    &$record( $xxcc ) if $subtaskstatus eq 'success';
 
     if( $taskuuid && $fromjob )
     {

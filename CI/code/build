@@ -100,11 +100,18 @@ return sub
         }
         my $memfree = $memtotal - $memused;
 
+        if( $mymem > $memtotal )
+        {
+            &$applyResourcesPrint( "mem out of resources， need ${mymem}m ，memtotal ${memfree}m" );
+            die "The system does not have enough resources.\n";
+        }
+ 
         if( $mymem > $memfree )
         {
             &$applyResourcesPrint( "mem out of resources， need ${mymem}m ，free ${memfree}m" );
             return;
         }
+
         return 1;
     };
 
