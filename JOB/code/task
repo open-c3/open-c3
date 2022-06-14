@@ -60,6 +60,10 @@ return sub
             $logs->die( "variable $_ value format error" ) if $variable->{$_} =~ /'/;
         }keys %$variable;
     }
+    else
+    {
+        $variable = +{};
+    }
 
     my $status;
     eval{
