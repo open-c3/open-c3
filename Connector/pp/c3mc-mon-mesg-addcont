@@ -103,6 +103,13 @@ sub addcont
     $data->{treename} = gettreename( $data->{'labels.instance'}, $data );
     $data->{hostname} = gethostname( $data->{'labels.instance'}, $data );
 
+    $data->{instancealias} = $data->{hostname};
+    
+    for my $x ( qw( cloudmonname ) )
+    {
+        $data->{instancealias} = $data->{"labels.$x"} if $data->{instancealias} eq 'unkown' && $data->{"labels.$x"};
+    }
+
     my $skip = `c3mc-base-configx monitor.sender.skip_resolved_mesg`;
     chomp $skip;
     return if $skip && $skip eq '1' && $data->{status} && $data->{status} eq 'resolved';
