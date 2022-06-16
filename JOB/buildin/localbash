@@ -29,7 +29,7 @@ mkdir $path unless -d $path;
 my $basename = File::Basename::basename $file;
 die "copy file fail: $!" if system "cp '$file' '$path/'";
 
-die "copy file to docker fail: $!" if system "docker cp '$path/$basename' openc3-localbash:/tmp/$basename";
-die "bash exit not 0\n" if system "docker exec -e NODE='$ENV{NODE}' openc3-localbash bash /tmp/$basename @ARGV >&2";
+die "copy file to docker fail: $!" if system "docker cp '$path/$basename' openc3-localbashv2:/tmp/$basename";
+die "bash exit not 0\n" if system "docker exec -e NODE='$ENV{NODE}' openc3-localbashv2 bash /tmp/$basename @ARGV >&2";
 
 success();

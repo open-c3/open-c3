@@ -29,19 +29,9 @@ mkdir -p /data/open-c3-data/monitor-sender
 #update webshell
 cp /data/open-c3/web-shell/private/tty.js/static/tty.js /data/open-c3/web-shell/node_modules/tty.js/static/tty.js
 
-#localbash
-
-localbash=$(docker ps|grep [o]penc3-localbash|wc -l)
-if [ "X$localbash" == "X0" ];then
-    localbash=$(docker ps -a|grep [o]penc3-localbash|wc -l)
-    if [ "X$localbash" == "X0" ];then
-        docker run -d --name  openc3-localbash centos:7 sleep 999999999
-    else
-        docker start openc3-localbash
-    fi
-else
-    echo localbash ok
-fi
+#localbash clean
+docker stop openc3-localbash
+docker rm   openc3-localbash
 
 mkdir -p /data/open-c3-data/logs/CI/webhooks_data
 mkdir -p /data/open-c3-data/logs/CI/webhooks_logs
