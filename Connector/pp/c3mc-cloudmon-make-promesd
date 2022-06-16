@@ -40,6 +40,8 @@ sub srv
 
     my $tpl = `cat $pluginDir/openc3_cloudmon_sd.tpl.yml`;
     $tpl =~ s/\$\{cloudmonid\}/$x->{id}/g;
+    my $name = $x->{name} =~ /^[a-zA-Z0-9][a-zA-Z0-9\.\-_]+$/ ? $x->{name} : 'unkown';
+    $tpl =~ s/\$\{cloudmonname\}/$name/g;
     return $tpl;
 }
 
