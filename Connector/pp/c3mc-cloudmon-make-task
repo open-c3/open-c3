@@ -57,6 +57,19 @@ sub srv
 
     dumpfile( "$taskdir/config.dat", $config );
 
+    if( $tpl =~ /\$\{c3var\.[a-zA-Z0-9]+\}/ )
+    {
+        my $c = eval{ YAML::XS::LoadFile "$taskdir/config.dat" };
+        warn "cloudmon load config error: $@" if $@;
+        if( $c && ref $c eq 'HASH' && %$c )
+        {
+            for my $k ( keys %$c )
+            {
+                $tpl =~ s/\$\{c3var\.$k\}/$c->{$k}/g;
+            }
+        }
+    }
+
     return $tpl;
 }
 

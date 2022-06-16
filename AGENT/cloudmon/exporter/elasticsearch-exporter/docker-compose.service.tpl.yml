@@ -1,0 +1,10 @@
+  openc3-cloudmon-${cloudmonid}:
+    container_name: openc3-cloudmon-${cloudmonid}
+    environment:
+      TZ: 'Asia/Shanghai'
+    image: "quay.io/prometheuscommunity/elasticsearch-exporter:latest"
+    restart: always
+    command:
+     - '--es.uri=${c3var.url}'
+    networks:
+      - alise_net

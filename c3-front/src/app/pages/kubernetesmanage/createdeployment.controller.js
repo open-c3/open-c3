@@ -9,6 +9,8 @@
 
         var vm = this;
 
+        vm.typelist = [ 'ClusterIP', 'NodePort', 'LoadBalancer', 'ExternalName' ];
+
         vm.annotationTypeList = [];
         if( clusterinfo.subtype === 'QCloud' )
         {
