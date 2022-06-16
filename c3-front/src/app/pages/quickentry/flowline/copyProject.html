@@ -12,7 +12,7 @@
             </div>
         </div>
 
-        <div class="form-group admin-form">
+        <div ng-if="!copyProject.toothertree" class="form-group admin-form">
             <label class="col-md-2 control-label fwbold" >开关:</label>
             <div class="col-md-2">
                 <label class="switch switch-system mt5">
@@ -21,6 +21,34 @@
                 </label>
             </div>
         </div>
+
+
+        克隆到其他服务树
+        <a ng-if="copyProject.toothertree" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="复制流水线到其他服务树下" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="copyProject.toothertree=0"></a>
+        <a ng-if="!copyProject.toothertree" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="复制流水线到其他服务树下" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="copyProject.toothertree=1"></a>
+
+
+            <div ng-show="copyProject.toothertree" id="sidebar-scroll nav sidebar-menu">
+                <div class="sidebar-content">
+                    <div class="panel" style="margin: 0;">
+                        <div class="panel-heading">
+                            <span class="panel-title">TREE : 克隆到 {{ copyProject.cloneNodeId }} : {{ copyProject.cloneNodeName }}</span>
+                            <span class="panel-controls">
+                                <a href="javascript:void(0)" ng-click="copyProject.focusCurrent()"><i class="fa fa-map-marker"></i></a>
+                                <a href="javascript:void(0)" ng-click="copyProject.expandAll(true)"><i class="fa fa-plus"></i></a>
+                                <a href="javascript:void(0)" ng-click="copyProject.expandAll(false)"><i class="fa fa-minus"></i></a>
+                                <a href="javascript:void(0)" ng-click="copyProject.refresh()"><i class="treeFresh fa fa-refresh"></i></a>
+                            </span>
+                        </div>
+                        <div class="panel-body prn" style=";padding: 0">
+                            <perfect-scrollbar class="scroller" >
+                                <ul class="ztree" id="openc3treeclone" ></ul>
+                            </perfect-scrollbar>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
 
         <div class="row">
             <div class="col-sm-5 form-group pull-right">
