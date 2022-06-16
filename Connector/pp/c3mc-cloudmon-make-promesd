@@ -47,5 +47,7 @@ sub srv
 
 my @srv = grep{ $_ }map { srv( $_ ); }@$r;
 
+@srv = `cat /data/Software/mydan/AGENT/cloudmon/temp.yml` unless @srv;
+
 dumpfile( "/data/Software/mydan/prometheus/config/openc3_cloudmon_sd.yml", join "\n", '---', @srv );
 system "curl -XPOST http://openc3-prometheus:9090/-/reload"

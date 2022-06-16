@@ -1,2 +1,14 @@
 version: '2.0'
 services:
+
+  openc3-localbash:
+    container_name: openc3-localbashv2
+    environment:
+      TZ: 'Asia/Shanghai'
+    image: "centos:7"
+    restart: always
+    command:
+      - '/usr/bin/sleep'
+      - '86400000'
+    networks:
+      - alise_net
