@@ -278,3 +278,11 @@ create table if not exists `openc3_job_plugin_approval_record`(
 
 # v2.6.0 sql openc3_monitor_history_mailmon add to
 ALTER TABLE openc3_monitor_history_mailmon ADD `to` varchar(300) DEFAULT NULL COMMENT 'To';
+
+# v2.6.0 sql openc3_monitor_keepalive create
+create table if not exists `openc3_monitor_keepalive`(
+`id` int(16) unsigned not null primary key auto_increment comment 'id',
+`slave` VARCHAR(40) comment 'slave',
+`time` int(16) unsigned comment 'time',
+UNIQUE KEY `uniq_slave` (`slave`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='slave心跳';
