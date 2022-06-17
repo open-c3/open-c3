@@ -171,4 +171,5 @@ return sub
     eval{ $db->execute( "update openc3_ci_version set finishtime='$ftime',finishtimems='$ftimems',
         status='$status',runtime='$runtime' where uuid='$uuid'" ); };
     $logs->die( "update build status fail:$@" ) if $@;
+    print "done.\n";
 }
