@@ -19,7 +19,7 @@ return sub
 {
     my %param = @_;
 
-    my ( $myname, $db, $logs ) = ( Util::myname(), $param{db}, $param{logs} );
+    my ( $db, $logs ) = ( $param{db}, $param{logs} );
 
     $logs = Logs->new( 'clean.clean_logs_build_temp_uuid' ) unless $logs;
 

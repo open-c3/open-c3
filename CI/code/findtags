@@ -31,7 +31,9 @@ return sub
     my $starttime = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     print "开始时间: $starttime\n";
 
-    my $myname = Util::myname();
+    my $myname = `c3mc-base-hostname`;
+    chomp $myname;
+
     eval{ $db->execute( "update `openc3_ci_project` set last_findtags='$starttime',slave='$myname' where id='$id'" ); };
     $logs->die( "update project info fail:$@" ) if $@;
 
