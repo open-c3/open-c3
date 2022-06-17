@@ -55,7 +55,7 @@ if( $name eq 'keepalive' )
     }
     OPENC3::PP::Server->new(
         name => "job_server_$name",
-        interval => 3,
+        interval => 15,
         timeout => 120,
     )->run(
         'c3mc-base-db-set -t openc3_job_keepalive --col slave `c3mc-base-hostname` --set time="`date +%s`" --filter="time<>0" >/dev/null'
