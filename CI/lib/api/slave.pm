@@ -16,7 +16,7 @@ our ( $mysql, $myname, $sso, $pms, $cookiekey, $logs, $auditlog );
 BEGIN{
     use lib "$RealBin/../private/lib";
 
-    my $myname = `c3mc-base-hostname`;
+    $myname = `c3mc-base-hostname`;
     chomp $myname;
 
     $mysql = MYDB->new( "$RealBin/../conf/conn" );
