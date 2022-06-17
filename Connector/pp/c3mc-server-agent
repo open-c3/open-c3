@@ -185,7 +185,7 @@ if( $name eq 'cloudmon' )
 {
     OPENC3::PP::Server->new(
         name => "agent_server_$name",
-        interval => 300,
+        interval => 60,
         timeout => 600,
     )->run( "c3mc-cloudmon-make-task && c3mc-cloudmon-make-promesd");
 }
