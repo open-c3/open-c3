@@ -1,0 +1,41 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+use OPENC3::PP::Server;
+
+=head1 SYNOPSIS
+
+ $0 servername
+
+=cut
+
+$|++;
+my $name = shift @ARGV;
+my %help = (
+    keepalive => 'server keepalive',
+);
+
+unless( $name )
+{
+    map{ print "\$0 $_ # $help{$_}\n" }keys %help;
+    exit;
+}
+
+if( $name eq 'keepalive' )
+{
+    my @x = qx(c3mc-base-db-get id -t openc3_jobx_keepalive -f "slave='`c3mc-base-hostname`'");
+    unless( @x )
+    {
+        die if system 'c3mc-base-db-ins -t openc3_jobx_keepalive slave `c3mc-base-hostname` time `date +%s` >/dev/null';
+    }
+    OPENC3::PP::Server->new(
+        name => "jobx_server_$name",
+        interval => 3,
+        timeout => 120,
+    )->run(
+        'c3mc-base-db-set -t openc3_jobx_keepalive --col slave `c3mc-base-hostname` --set time="`date +%s`" --filter="time<>0" >/dev/null'
+    );
+}
+
+
