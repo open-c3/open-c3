@@ -20,7 +20,7 @@ return sub
 {
     my %param = @_;
 
-    my ( $db, $myname, $logs ) = ( $param{db}, Util::myname(), Logs->new( 'crontab' ) );
+    my ( $db, $logs ) = ( $param{db}, Logs->new( 'crontab' ) );
 
     my $uuid = substr Digest::MD5->new->add( $RealBin )->hexdigest, 0, 7;
 

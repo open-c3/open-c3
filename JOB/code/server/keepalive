@@ -18,7 +18,10 @@ return sub
 {
     my %param = @_;
 
-    my ( $db, $myname, $logs ) = ( $param{db}, Util::myname(), Logs->new( 'keepalive' ) );
+    my ( $db, $logs ) = ( $param{db}, Logs->new( 'keepalive' ) );
+
+    my $myname = `c3mc-base-hostname`;
+    chomp $myname;
 
     eval{ $db->execute( sprintf "replace into openc3_job_keepalive (`slave`,`time`) values( '$myname','%d')", time ); };
     $logs->die( "update keepalive fail: $@" ) if $@;
