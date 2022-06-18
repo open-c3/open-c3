@@ -14,7 +14,9 @@ our $VERSION = '0.1';
 our ( $mysql, $myname, $sso, $pms, $cookiekey, $logs, $auditlog, $approvesso );
 
 BEGIN{
-    $myname = Util::myname();
+    $myname = `c3mc-base-hostname`;
+    chomp $myname;
+
     $mysql = MYDB->new( "$RealBin/../conf/conn" );
 
     ( $sso, $pms ) = map{ Code->new( "auth/$_" ) }qw( sso pms );

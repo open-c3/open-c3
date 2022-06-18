@@ -22,8 +22,8 @@ $| ++;
 return sub
 {
     my %param = @_;
-    my ( $db, $myname, $logs, $notify, $notifyapproval ) 
-        = ( $param{db}, Util::myname(), Logs->new( 'server.notify' ), Code->new( 'notify' ), Code->new( 'notifyapproval' ) );
+    my ( $db, $logs, $notify, $notifyapproval ) 
+        = ( $param{db}, Logs->new( 'server.notify' ), Code->new( 'notify' ), Code->new( 'notifyapproval' ) );
 
     my %projectname;
     my $projectname = eval{ Code->new( 'projectname' ) };

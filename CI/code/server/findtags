@@ -19,7 +19,7 @@ return sub
 {
     my %param = @_;
 
-    my ( $db, $interval, $logs, $myname ) = ( $param{db}, 60, Logs->new( 'findtags' ), Util::myname() );
+    my ( $db, $interval, $logs ) = ( $param{db}, 60, Logs->new( 'findtags' ) );
     my %time;
 
     $SIG{'CHLD'} = sub {

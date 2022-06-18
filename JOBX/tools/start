@@ -41,4 +41,8 @@ map{
 }$port->{'api.slave'}{from} .. $port->{'api.slave'}{to};
 map{
     die "start $_ fail: $!" if system "$supervisor --cmd '$base/server/$_' --log '$base/logs/server/$_'";
-}qw( call bury keepalive monitor );
+}qw( call bury monitor );
+
+map{
+    die "start $_ fail: $!" if system "$supervisor --errname 'jobx.server.$_' --cmd 'c3mc-server-jobx $_' --log '$base/logs/server/$_'";
+}qw( keepalive );

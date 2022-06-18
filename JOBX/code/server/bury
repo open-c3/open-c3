@@ -45,7 +45,10 @@ return sub
 {
     my %param = @_;
 
-    my ( $myname, $db, $logs ) = ( Util::myname(), $param{db}, Logs->new( 'bury' ) );
+    my ( $db, $logs ) = ( $param{db}, Logs->new( 'bury' ) );
+
+    my $myname = `c3mc-base-hostname`;
+    chomp $myname;
 
     while(1)
     {

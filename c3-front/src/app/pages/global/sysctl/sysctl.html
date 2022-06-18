@@ -15,8 +15,18 @@
                   <h4>CI(持续构建)</h4>
                     <div class="row">
                         <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">自动构建</label>
+                            <div class="col-sm-2" ng-init="autobuildlist = [0,1]" >
+                                <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['ci.autobuild']" >
+                                    <option ng-repeat="x in autobuildlist" value="{{x}}">{{x}}</option>
+                                </select>
+                            </div>
+                            <label class="col-sm-4 control-label">默认是1。如果是0时，发现的tag都不进行自动构建。</label>
+                        </div>
+
+                        <div class="col-sm-10 form-group">
                             <label class="col-sm-2 control-label">默认tagger</label>
-                            <div class="col-sm-9">
+                            <div class="col-sm-4">
                                 <input type="text" class="form-control" ng-model="sysctl.sysctl.cidefaulttagger" required />
                             </div>
                         </div>
@@ -105,6 +115,26 @@
                             <label class="col-sm-2 control-label">返回结果匹配内容</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" ng-model="sysctl.sysctl['external.qa.sys.callback.match']" required />
+                            </div>
+                        </div>
+ 
+                    </div>
+                </div>
+
+<hr>
+                <div class="container-fluid">
+                  <h4>集群设置</h4>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">域名</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" ng-model="sysctl.sysctl['sys.cluster.domain']"/>
+                            </div>
+                        </div>
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">slave列表</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" ng-model="sysctl.sysctl['sys.cluster.slave']"/>
                             </div>
                         </div>
  

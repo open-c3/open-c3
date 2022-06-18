@@ -76,11 +76,14 @@ return sub
     $ua->timeout( 10 );
     $ua->default_header ( 'Cache-control' => 'no-cache', 'Pragma' => 'no-cache' );
 
+    my $myname = `c3mc-base-hostname`;
+    chomp $myname;
+
     while( 1) 
     {
         my $res = $ua->post( 
             "http://api.job.open-c3.org/task/$projectid/job/byname", 
-	        Content => JSON::to_json( +{ jobname => $name, uuid => $uuid, slave => Util::myname(), variable => $variable } ), 
+	        Content => JSON::to_json( +{ jobname => $name, uuid => $uuid, slave => $myname, variable => $variable } ), 
 	        'Content-Type' => 'application/json' 
         );
 

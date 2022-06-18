@@ -14,10 +14,18 @@ $|++;
 
 =cut
 
-my $db = MYDB->new( "/data/Software/mydan/AGENT/conf/conn" );
 
-my @col = qw( id name type config edit_time );
-my $r = eval{ $db->query( sprintf("select %s from openc3_monitor_cloudmon order by id", join ',', @col ), \@col ); };   
+my @id = `c3mc-base-db-get id -t openc3_monitor_cloudmon | c3mc-base-task-grep -m monitor`;
+chomp @id;
+
+my $r = [];
+if( @id )
+{
+    my $db = MYDB->new( "/data/Software/mydan/AGENT/conf/conn" );
+    my @col = qw( id name type config edit_time );
+    $r = eval{ $db->query( sprintf("select %s from openc3_monitor_cloudmon where id in( %s )order by id", join( ',', @col ), join(',', @id ) ), \@col ); };   
+    die "query err: $@" if $@;
+}
 
 sub dumpfile
 {

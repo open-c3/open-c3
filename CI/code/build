@@ -31,7 +31,8 @@ return sub
     $logs->die( "uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
 
     my ( $stimems, $stime ) = ( time, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ) );
-    my $myname =Util::myname();
+    my $myname = `c3mc-base-hostname`;
+    chomp $myname;
 
     my $queueid = int( 1000 * time );
     my $x = $db->execute( "update openc3_ci_version set pid='$$',starttime='$stime',starttimems='$stimems',status='ready',slave='$myname',queueid='$queueid'
@@ -170,4 +171,5 @@ return sub
     eval{ $db->execute( "update openc3_ci_version set finishtime='$ftime',finishtimems='$ftimems',
         status='$status',runtime='$runtime' where uuid='$uuid'" ); };
     $logs->die( "update build status fail:$@" ) if $@;
+    print "done.\n";
 }

@@ -116,6 +116,8 @@ return sub
         }
     }
 
+    %notify = () if $notify{x};
+
     for my $type ( qw( email sms ) )
     {
         my $tmptype = $type; $tmptype =~ s/^[a-z]/\u$&/;

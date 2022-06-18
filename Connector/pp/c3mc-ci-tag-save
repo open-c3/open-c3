@@ -64,6 +64,11 @@ sub save
 
     ( $status, $reason ) = ( 'done', 'sys@app up ci' ) if $ENV{OPENC3_C3MC_CI_STATUS_UP};
 
+    my $autobuild = `c3mc-sys-ctl ci.autobuild`;
+    chomp $autobuild;
+
+    ( $status, $reason ) = ( 'done', 'sys@app sysctl.ci.autobuild off' ) unless $autobuild && $autobuild eq '1';
+
     my $uuid = uuid->new()->create_str;
     eval{ $db->execute( "insert into openc3_ci_version (`projectid`,`name`,`status`,`calltype`,`user`,`uuid`,`slave`,`reason`) 
             values('$id','$version','$status','findtags','crontab','$uuid','','$reason')" ); };       

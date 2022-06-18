@@ -23,6 +23,7 @@ my %help = (
     portcheckok       => 'check port',
     inherit           => 'inherit',
     cloudmon          => 'cloudmon',
+    keepalive         => 'server keepalive',
 );
 
 unless( $name )
@@ -184,7 +185,31 @@ if( $name eq 'cloudmon' )
 {
     OPENC3::PP::Server->new(
         name => "agent_server_$name",
-        interval => 300,
+        interval => 60,
         timeout => 600,
     )->run( "c3mc-cloudmon-make-task && c3mc-cloudmon-make-promesd");
 }
+
+if( $name eq 'keepalive' )
+{
+    my @x = qx(c3mc-base-db-get id -t openc3_agent_keepalive -f "slave='`c3mc-base-hostname`'");
+    unless( @x )
+    {
+        die if system 'c3mc-base-db-ins -t openc3_agent_keepalive slave `c3mc-base-hostname` time `date +%s` >/dev/null';
+    }
+    @x = qx(c3mc-base-db-get id -t openc3_monitor_keepalive -f "slave='`c3mc-base-hostname`'");
+    unless( @x )
+    {
+        die if system 'c3mc-base-db-ins -t openc3_monitor_keepalive slave `c3mc-base-hostname` time `date +%s` >/dev/null';
+    }
+ 
+    OPENC3::PP::Server->new(
+        name => "agent_server_$name",
+        interval => 15,
+        timeout => 120,
+    )->run(
+        'c3mc-base-db-set -t openc3_agent_keepalive   --col slave `c3mc-base-hostname` --set time="`date +%s`" --filter="time<>0" >/dev/null',
+        'c3mc-base-db-set -t openc3_monitor_keepalive --col slave `c3mc-base-hostname` --set time="`date +%s`" --filter="time<>0" >/dev/null',
+    );
+}
+

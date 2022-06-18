@@ -13,7 +13,8 @@ use OPENC3::PP::Server;
 $|++;
 my $name = shift @ARGV;
 my %help = (
-    approval => 'approval oa',
+    approval  => 'approval oa',
+    keepalive => 'server keepalive',
 );
 
 unless( $name )
@@ -44,3 +45,20 @@ if( $name eq 'approval' )
       qq( c3mc-base-db-get -t openc3_job_approval id --filter "oauuid !='' and oauuid!='0' and oauuid!='1' and opinion='unconfirmed' and create_time>'`date +%F -d \"15 days ago\"`'" | xargs -i{} bash -c "c3mc-job-approval-query  -i {} >$path/query.{}  2>&1 ; exit 0" ),
     );
 }
+
+if( $name eq 'keepalive' )
+{
+    my @x = qx(c3mc-base-db-get id -t openc3_job_keepalive -f "slave='`c3mc-base-hostname`'");
+    unless( @x )
+    {
+        die if system 'c3mc-base-db-ins -t openc3_job_keepalive slave `c3mc-base-hostname` time `date +%s` >/dev/null';
+    }
+    OPENC3::PP::Server->new(
+        name => "job_server_$name",
+        interval => 15,
+        timeout => 120,
+    )->run(
+        'c3mc-base-db-set -t openc3_job_keepalive --col slave `c3mc-base-hostname` --set time="`date +%s`" --filter="time<>0" >/dev/null'
+    );
+}
+

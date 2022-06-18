@@ -41,9 +41,9 @@ map{
 }$port->{'api.slave'}{from} .. $port->{'api.slave'}{to};
 map{
     die "start $_ fail: $!" if system "$supervisor --cmd '$base/server/$_' --log '$base/logs/server/$_'";
-}qw( call bury crontab keepalive notify clean );
+}qw( call bury crontab notify clean );
 
 
 map{
     die "start $_ fail: $!" if system "$supervisor --errname 'job.server.$_' --cmd 'c3mc-server-job $_' --log '$base/logs/server/$_'";
-}qw( approval );
+}qw( approval keepalive );

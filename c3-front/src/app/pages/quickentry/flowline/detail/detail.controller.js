@@ -18,7 +18,7 @@
         treeService.sync.then(function(){
             vm.nodeStr = treeService.selectname();
         });
-        $scope.panelcolor = { "success": "green", "fail": "red", "refuse": "orange", "running": "#98b2bc", "decision": "#aaa", "ignore": "#aaa" }
+        $scope.panelcolor = { "success": "green", "fail": "red", "refuse": "orange", "running": "#98b2bc", "decision": "#aaa", "ignore": "#aaa", "ready": "#aaa" }
 
         vm.showEditLog = function () {
             $uibModal.open({

@@ -20,10 +20,14 @@ die unless my $name = shift @ARGV;
 
 if( $name eq 'keepalive' )
 {
-    die if system 'c3mc-base-db-ins -t openc3_ci_keepalive slave `c3mc-base-hostname` time `date +%s` >/dev/null';
+    my @x = qx(c3mc-base-db-get id -t openc3_ci_keepalive -f "slave='`c3mc-base-hostname`'");
+    unless( @x )
+    {
+        die if system 'c3mc-base-db-ins -t openc3_ci_keepalive slave `c3mc-base-hostname` time `date +%s` >/dev/null';
+    }
     OPENC3::PP::Server->new(
         name => "ci_server_$name",
-        interval => 3,
+        interval => 15,
         timeout => 120,
     )->run(
         'c3mc-base-db-set -t openc3_ci_keepalive --col slave `c3mc-base-hostname` --set time="`date +%s`" --filter="time<>0" >/dev/null'

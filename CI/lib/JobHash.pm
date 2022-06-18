@@ -20,7 +20,8 @@ sub new
 
     my @node = sort keys %data;
 
-    my $myname = Util::myname();
+    my $myname = `c3mc-base-hostname`;
+    chomp $myname;
 
     my $i;
     for( 0 .. $#node )
