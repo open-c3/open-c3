@@ -22,7 +22,7 @@ return sub
 
     die "envnaem $envname undef in config/Config" unless $Config->{$envname};
     
-    for( qw( conn envinfo cmd.job.x.x.conf api.job.x.x.conf cookiekey ) )
+    for( qw( conn envinfo cmd.job.x.x.conf api.job.x.x.conf cookiekey cluster.open-c3.org.conf ) )
     {
         Code->new( "Config.plugin/$_" )->run( Config => $Config->{$envname}, envname => $envname );
 
