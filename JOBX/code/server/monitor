@@ -70,7 +70,11 @@ return sub
 {
     my %param = @_;
 
-    my ( $myname, $db, $logs ) = ( Util::myname(), $param{db}, Logs->new( 'monitor' ) );
+    my ( $db, $logs ) = ( $param{db}, Logs->new( 'monitor' ) );
+
+    my $myname = `c3mc-base-hostname`;
+    chomp $myname;
+
     my $slave = eval{ $db->query( sprintf "select slave from openc3_jobx_keepalive" ); };
     $logs->die( "get slave from keepalive fail: $@" ) if $@;
 
