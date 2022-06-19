@@ -20,8 +20,8 @@ return sub
 {
     my %param = @_;
 
-    my ( $db, $logs, $temp, $uuid, $buildimage, $buildscripts, $projectid ) 
-        = @param{qw(db logs temp uuid buildimage buildscripts projectid )};
+    my ( $db, $logs, $temp, $uuid, $buildimage, $buildscripts, $projectid, $buildcachepath ) 
+        = @param{qw(db logs temp uuid buildimage buildscripts projectid buildcachepath )};
 
     $logs = Logs->new( 'code.build.merge.makedist.docker' ) unless $logs;
 
@@ -78,6 +78,10 @@ return sub
 
     my $dockerlimit = "--memory-swap ${memlimit}m --memory ${memlimit}m --cpus=$cpulimit";
 
+    my $ishare = '/ishare';
+    $ishare = "/build/data/$buildcachepath" if $buildcachepath && $buildcachepath =~ /^[a-zA-Z0-9][a-zA-Z0-9_\-\.]*$/;
+    print "ishare: $ishare\n";
+
     if( $dinfo =~ /$dname/ )
     {
         push @cmd, "docker update $dockerlimit '$dname'";
@@ -85,7 +89,7 @@ return sub
     }
     else
     {
-        push @cmd, "docker run $dockerlimit -v $dpathx:/build -v /data/open-c3-data/ci-docker-share:/cishare -v /data/open-c3-data/ci-docker-share-id/$projectid:/ishare --name '$dname' --workdir=/build/data '$buildimage' /bin/bash -c 'source /root/.bashrc ; /build/run'";
+        push @cmd, "docker run $dockerlimit -v $dpathx:/build -v /data/open-c3-data/ci-docker-share:/cishare -v /data/open-c3-data/ci-docker-share-id/$projectid:$ishare --name '$dname' --workdir=/build/data '$buildimage' /bin/bash -c 'source /root/.bashrc ; /build/run'";
     }
 
     map{ $logs->die( "run build.merge.makedist.docker fail:$!" ) if system $_; }@cmd;

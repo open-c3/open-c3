@@ -50,7 +50,7 @@ get '/project/:groupid/:projectid' => sub {
 
     my $relation = $param->{relation} ? ", '0'" : '';
     my @col = qw( id status autobuild name excuteflow calljobx calljob
-        webhook webhook_password webhook_release rely buildimage buildscripts
+        webhook webhook_password webhook_release rely buildimage buildscripts buildcachepath
         follow_up follow_up_ticketid callback groupid addr notify
         edit_user edit_time  slave last_findtags last_findtags_success 
         ticketid tag_regex autofindtags callonlineenv calltestenv findtags_at_once
@@ -94,6 +94,7 @@ post '/project/:groupid/:projectid' => sub {
         webhook_release => [ 'mismatch', qr/'/ ], 0,
         rely => qr/^\d+$/, 1,
         buildimage => [ 'mismatch', qr/'/ ], 0,
+        buildcachepath => qr/^[a-zA-Z0-9][a-zA-Z0-9_\-\.]*$/, 0,
         follow_up => [ 'mismatch', qr/'/ ], 0,
         follow_ucallback => [ 'mismatch', qr/'/ ], 0,
         groupid => qr/^\d+$/, 1,
@@ -145,7 +146,7 @@ post '/project/:groupid/:projectid' => sub {
 
     my @col = qw( 
         status autobuild name excuteflow calljobx calljob
-        webhook webhook_password webhook_release rely buildimage buildscripts
+        webhook webhook_password webhook_release rely buildimage buildscripts buildcachepath
         follow_up follow_up_ticketid callback groupid addr
         notify ticketid tag_regex autofindtags callonlineenv calltestenv
         ci_type ci_type_ticketid ci_type_kind ci_type_namespace ci_type_name ci_type_container ci_type_repository ci_type_dockerfile ci_type_dockerfile_content

@@ -286,3 +286,6 @@ create table if not exists `openc3_monitor_keepalive`(
 `time` int(16) unsigned comment 'time',
 UNIQUE KEY `uniq_slave` (`slave`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='slave心跳';
+
+# v2.6.0 sql openc3_ci_project add buildcachepath
+ALTER TABLE openc3_ci_project ADD `buildcachepath` VARCHAR(80) DEFAULT '' comment '构建时的缓存目录';
