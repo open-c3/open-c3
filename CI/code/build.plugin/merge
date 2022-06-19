@@ -27,9 +27,9 @@ return sub
 
     $logs->die( "uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
 
-    my $x = eval{ $db->query( "select openc3_ci_project.id,openc3_ci_project.buildimage,openc3_ci_project.buildscripts,openc3_ci_images.name
+    my $x = eval{ $db->query( "select openc3_ci_project.id,openc3_ci_project.buildimage,openc3_ci_project.buildscripts,openc3_ci_images.name,openc3_ci_project.buildcachepath 
         from openc3_ci_version,openc3_ci_project left join openc3_ci_images on openc3_ci_project.buildimage=openc3_ci_images.id where openc3_ci_project.id=openc3_ci_version.projectid and uuid='$uuid'", 
-            [qw( projectid buildimage buildscripts imagename )]  );
+            [qw( projectid buildimage buildscripts imagename buildcachepath )]  );
     };
     $logs->die( "get info fail:$@" ) if $@;
     $logs->die( "get info from mysql fail" ) unless defined $x && ref $x eq 'ARRAY';

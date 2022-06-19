@@ -122,7 +122,14 @@
                             <a class="glyphicon glyphicon-question-sign" data-toggle="tooltip" data-placement="right" target='_blank' ng-href="/book/我的镜像/" uib-tooltip="查看镜像生成方式" aria-hidden="true" style="padding-top: 11px;font-size: larger;"></a>
                         </div>
                     </div>
-
+                    <div class="row" ng-if="config.project.buildimage" >
+                        <label class="col-md-2 control-label fwbold">缓存目录</label>
+                        <div class="col-md-10">
+                            <input class="form-control" ng-model="config.project.buildcachepath"/> 
+                            <span class="help-block">构建过程中需要缓存的目录,目录相对路径为/build/data</span>
+                            <span class="help-block">如nodejs项目构建时可以写“node_modules”,构建时容器中会映射目录/build/data/node_modules</span>
+                        </div>
+                    </div>
                     <div class="row" ng-if="config.project.buildimage" class="form-group">
                         <label class="col-md-2 control-label fwbold">构建脚本</label>
                         <div class="col-md-10">
