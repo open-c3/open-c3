@@ -1,0 +1,54 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib
+use strict;
+use warnings;
+use uuid;
+
+=head1 SYNOPSIS
+
+ $0
+ $0 subdir
+    
+=cut
+
+die "onnode" unless $ENV{NODE};
+die  "This plug-in can only be used in flow.\n" unless $ENV{FLOWID} && $ENV{VERSION};
+
+my $subdir = @ARGV ? $ARGV[0] : '';
+die "subdir error" if $subdir && $subdir !~ /^[a-zA-Z0-9][a-zA-Z0-9\.\-_]*$/;
+
+my $file = "/data/glusterfs/ci_repo/$ENV{FLOWID}/$ENV{VERSION}";
+my $temp = "/data/open-c3-data/glusterfs/terraformv2_data/temp/$ENV{FLOWID}/" . uuid->new()->create_str;
+my $data = "/data/open-c3-data/glusterfs/terraformv2_data/data/$ENV{FLOWID}";
+my $runf = "$temp.run.sh";
+
+die "mkdir temp fail:$!" if system "mkdir -p '$temp'";
+die "mkdir data fail:$!" if system "mkdir -p '$data'";
+
+die "nofind ci_repo" unless -f $file;
+die "untar fail: $!" if system "tar -zxf '$file' -C '$temp'";
+
+if( $ENV{TICKETFILE} )
+{
+    die "fail" if system "cat '$ENV{TICKETFILE}' > $runf";
+}
+die "fail" if system "echo '' >> '$runf'";
+die "fail" if system "echo 'set -x' >> '$runf'";
+die "fail" if system "cat '$ENV{CONFIGPATH}' >> '$runf'";
+die "fail" if system "rsync -av '$temp/$subdir/' '$data/' --exclude .terraform* --delete";
+
+die "fail" if system join " ",
+    "docker run",
+    "-v $runf:/tmp/run.sh",
+    "-v $data:/workspace",
+    "--workdir=/workspace",
+    "--entrypoint sh",
+    "docker.mirror.hashicorp.services/hashicorp/terraform:light",
+    "-e /tmp/run.sh 1>&2";
+
+sub success
+{
+    map{ print "$_:ok\n"; } split /,/, $ENV{NODE};
+    exit;
+}
+
+success();
