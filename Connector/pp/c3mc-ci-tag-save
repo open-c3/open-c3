@@ -64,7 +64,7 @@ sub save
 
     ( $status, $reason ) = ( 'done', 'sys@app up ci' ) if $ENV{OPENC3_C3MC_CI_STATUS_UP};
 
-    my $autobuild = `c3mc-sys-ctl ci.autobuild`;
+    $autobuild = `c3mc-sys-ctl ci.autobuild`;
     chomp $autobuild;
 
     ( $status, $reason ) = ( 'done', 'sys@app sysctl.ci.autobuild off' ) unless $autobuild && $autobuild eq '1';
