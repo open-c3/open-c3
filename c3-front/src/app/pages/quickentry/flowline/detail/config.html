@@ -380,6 +380,30 @@
                         <label class="col-md-1 control-label fwbold">(兆)</label>
                     </div>
 
+                    <hr style="margin: 5px" >
+                    <div class="row">
+                        <label class="col-md-2 control-label fwbold">高级设置:</label>
+                        <a ng-if="config.professional == '1'" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="隐藏配置" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.professional='0'"></a>
+                        <a ng-if="!(config.professional == '1' )" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="显示配置" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.professional='1'"></a>
+
+                    </div>
+ 
+                    <div class="row" ng-if="config.professional == '1'" >
+                        <label class="col-md-2 control-label fwbold">构建保存成目录:</label>
+                        <a ng-if="config.project.saveasdir == '1'" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="点击存成文件" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.saveasdir='0'">当前选择为保存成目录</a>
+                        <a ng-if="!(config.project.saveasdir == '1' )" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="点击存成目录" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.saveasdir='1'">保存成tar包【常规】</a>
+
+                    </div>
+ 
+                    <div class="row" ng-if="config.professional == '1'" >
+                        <label class="col-md-2 control-label fwbold">git使用缓存目录:</label>
+                        <a ng-if="config.project.gitclonebycache == '1'" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="点击不使用缓存目录" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.gitclonebycache='0'">当前选择为使用缓存目录</a>
+                        <a ng-if="!(config.project.gitclonebycache == '1' )" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="点击使用缓存目录" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.gitclonebycache='1'">当前选择为不使用缓存目录【常规】</a>
+
+                    </div>
+ 
+
+
 <div ng-if="config.project.ci_type === 'kubernetes'">
                     <hr style="margin: 5px" >
                     <div class="row">

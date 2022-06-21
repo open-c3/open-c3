@@ -18,8 +18,8 @@ return sub
 {
     my %param = @_;
 
-    my ( $db, $logs, $temp, $uuid, $buildimage, $buildscripts, $projectid ) 
-        = @param{qw(db logs temp uuid buildimage buildscripts projectid  )};
+    my ( $db, $logs, $temp, $uuid, $buildimage, $buildscripts, $projectid, $saveasdir ) 
+        = @param{qw(db logs temp uuid buildimage buildscripts projectid saveasdir )};
 
     $logs = Logs->new( 'code.build.merge.makepkgs' ) unless $logs;
 
@@ -29,9 +29,8 @@ return sub
     my @list = `cd '$temppath/dist' && ls -a|grep -v '^\\.\$'|grep -v '^\\.\\.\$'`;
     $logs->die( "build fail: dist is empty" ) unless @list;
 
-    my ( @saveasdir, @cmd ) = `cat /etc/ci.saveasdir 2>/dev/null`;
-    chomp @saveasdir;
-    if( grep{ $projectid eq $_ }@saveasdir )
+    my @cmd;
+    if( $saveasdir )
     {
         my $x = 'dist';
         if ( -l "$temppath/dist" ) {

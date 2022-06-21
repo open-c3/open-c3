@@ -12,6 +12,7 @@
 //        vm.treeid = $state.params.treeid;  // 不要通过params获取服务树ID，在k8s管理中，可能在A节点打开B节点的配置
         vm.treeid = treeid;
 
+        vm.professional = 0;
         vm.siteaddr = window.location.protocol + '//' + window.location.host;
         vm.projectid = projectid
         vm.groupid = {}

@@ -56,7 +56,6 @@ return sub
         my @tags = `cd $temppath && $ctrl show-ref --tags -d && echo SUCCESS`;
 
         chomp @tags;
-        print Dumper \@tags;
 
         die( "show-ref error:$!" ) if $tags[-1] ne "SUCCESS";
 
