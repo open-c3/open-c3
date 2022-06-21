@@ -1,0 +1,14 @@
+  openc3-cloudmon-${cloudmonid}:
+    container_name: openc3-cloudmon-${cloudmonid}
+    environment:
+      TZ: 'Asia/Shanghai'
+      GOOGLE_APPLICATION_CREDENTIALS: /service-account-file.json
+    image: "prometheuscommunity/stackdriver-exporter"
+    restart: always
+    volumes:
+      - "/data/open-c3-data/cloudmon/task/${taskid}/config.dat:/service-account-file.json"
+    command:
+     - '--monitoring.metrics-type-prefixes'
+     - 'compute.googleapis.com/instance/cpu,compute.googleapis.com/instance/disk'
+    networks:
+      - alise_net
