@@ -1,0 +1,25 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use MYDB;
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+sub show
+{
+    my $name = shift;
+    my $db = MYDB->new( "/data/Software/mydan/$name/conf/conn", delayedconnection => 1 );
+
+    my $x = eval{ $db->query( "show tables" ); };
+    die "fail: $@" if $@;
+    map{ print $_, "\n" }grep{ /^openc3_/ }map{ @$_ }@$x;
+
+}
+
+map{ show( $_ ) }qw( CI JOB JOBX AGENT Connector );
