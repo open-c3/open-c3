@@ -156,8 +156,7 @@ apiVersion
 
             <div class="row">
                 <div class="col-sm-12 form-group">
-                    <label class="col-sm-2 control-label"></label>
-                    <div class="col-sm-8">
+                    <div class="col-sm-12">
                         <table  border="0" style="width: 100%">
                             <tr ng-repeat="(id, x) in kubernetescreateingress.editData.spec.rules">
                                 <td >
@@ -202,7 +201,7 @@ apiVersion
  
                                                                    <label class="col-sm-1 control-label">路径</label>
                                                                    <div class="col-sm-2"> <input type="text" class="form-control" placeholder="" ng-model="xx.path" required> </div>
-                                                                   <label class="col-sm-1 control-label">路径类型</label>
+                                                                   <label class="col-sm-1 control-label">类型</label>
                                                                    <div class="col-sm-2"> 
                                                                        <select id="selectednameval" class="form-control" ng-model="xx.pathType" required>
                                                                            <option value="ImplementationSpecific">ImplementationSpecific</option>
@@ -210,14 +209,14 @@ apiVersion
                                                                            <option value="Prefix">Prefix</option>
                                                                        </select>
                                                                    </div>
-                                                                   <label class="col-sm-1 control-label">serviceName</label>
+                                                                   <label class="col-sm-1 control-label">service</label>
                                                                    <div class="col-sm-2"> 
                                                                        <select id="selectednameval" class="form-control" ng-model="xx.backend.serviceName" required>
                                                                            <option ng-repeat="x in kubernetescreateingress.services" value="{{x.NAME}}">{{x.NAME}}</option>
                                                                        </select>
                                                                    </div>
                                                                    <label class="col-sm-1 control-label">端口</label>
-                                                                   <div class="col-sm-1"> <input type="number" class="form-control" placeholder="" ng-model="xx.backend.servicePort" required> </div>
+                                                                   <div class="col-sm-2"> <input type="number" class="form-control" placeholder="" ng-model="xx.backend.servicePort" required> </div>
                                                                </div>
                                                            </div>
 
@@ -226,7 +225,7 @@ apiVersion
                                                                <div class="col-sm-12 form-group">
                                                                    <label class="col-sm-1 control-label">路径</label>
                                                                    <div class="col-sm-2"> <input type="text" class="form-control" placeholder="" ng-model="xx.path" required> </div>
-                                                                   <label class="col-sm-1 control-label">路径类型</label>
+                                                                   <label class="col-sm-1 control-label">类型</label>
                                                                    <div class="col-sm-2"> 
                                                                        <select id="selectednameval" class="form-control" ng-model="xx.pathType" required>
                                                                            <option value="ImplementationSpecific">ImplementationSpecific</option>
@@ -234,7 +233,7 @@ apiVersion
                                                                            <option value="Prefix">Prefix</option>
                                                                        </select>
                                                                    </div>
-                                                                   <label class="col-sm-1 control-label">serviceName</label>
+                                                                   <label class="col-sm-1 control-label">service</label>
                                                                    <div class="col-sm-2"> 
                                                                        <select id="selectednameval" class="form-control" ng-model="xx.backend.service.name" required>
                                                                            <option ng-repeat="x in kubernetescreateingress.services" value="{{x.NAME}}">{{x.NAME}}</option>
