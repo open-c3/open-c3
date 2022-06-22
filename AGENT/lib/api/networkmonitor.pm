@@ -13,11 +13,11 @@ get '/networkmonitor' => sub {
     my $pmscheck = api::pmscheck( 'openc3_agent_root' ); return $pmscheck if $pmscheck;
 
     my %col = (
-        'openc3_agent_node_network_check.id'         => 'id',
+        'openc3_agent_proxy.id'                      => 'id',
         'openc3_agent_region.name'                   => 'name',
         'openc3_agent_proxy.regionid'                => 'regionid',
         'openc3_agent_proxy.projectid'               => 'projectid',
-        'openc3_agent_node_network_check.node'       => 'node',
+        'openc3_agent_proxy.ip'                      => 'node',
         'openc3_agent_node_network_check.tcp_speed'  => 'tcp_speed',
         'openc3_agent_node_network_check.tcp_error'  => 'tcp_error',
         'openc3_agent_node_network_check.udp_speed'  => 'udp_speed',
