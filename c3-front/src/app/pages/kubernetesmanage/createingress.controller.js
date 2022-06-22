@@ -390,7 +390,16 @@
             {
                 x.http.paths = []
             }
-            x.http.paths.push(angular.copy( {"pathType":"Prefix","path":"", "backend": { "serviceName":"","servicePort": 80}}));
+
+            if(vm.editData.apiVersion === "extensions/v1beta1" )
+            {
+                x.http.paths.push(angular.copy( {"pathType":"Prefix","path":"", "backend": { "serviceName":"","servicePort": 80 }}));
+            }
+            if(vm.editData.apiVersion === "networking.k8s.io/v1" )
+            {
+                x.http.paths.push(angular.copy( {"pathType":"Prefix","path":"", "backend": { "service": { "name": "", "port": { "number": 80 } } }}));
+            }
+ 
         }
  
         vm.delPaths = function(x,id)
