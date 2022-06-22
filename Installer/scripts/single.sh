@@ -395,6 +395,10 @@ function inx() {
     docker exec -it openc3-server env LANG=C.UTF-8 LC_ALL=C bash
 }
 
+function app() {
+    docker exec -it openc3-server env LANG=C.UTF-8 LC_ALL=C /data/Software/mydan/Connector/pp/c3mc-app
+}
+
 function sql() {
     docker exec -it openc3-mysql env LANG=C.UTF-8 mysql -uroot -popenc3123456^!
 }
@@ -454,6 +458,9 @@ reload)
 inx)
     inx
     ;;
+app)
+    app
+    ;;
 sql)
     sql
     ;;
@@ -464,7 +471,7 @@ dup)
     dup
     ;;
 *)
-    echo "Usage: $0 {start|stop|status|restart|reload|install|rebuild|reborn|upgrade|switchversion|inx|sql|log|dup}"
+    echo "Usage: $0 {start|stop|status|restart|reload|install|rebuild|reborn|upgrade|switchversion|inx|app|sql|log|dup}"
     echo "$0 install 10.10.10.10(Your Internet IP)"
     exit 2
 esac
