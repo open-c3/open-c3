@@ -16,6 +16,8 @@ $base =~ s#/[^/]+$##;
 
 print "start\n";
 
+system "ln -fsn /data/open-c3-data/glusterfs /data/glusterfs" unless -e "/data/glusterfs";
+
 sub check
 {
     my $configtime = ( stat "$RealBin/config.ini/current" )[9];

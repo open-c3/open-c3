@@ -7,7 +7,7 @@ MAINTAINER lijinfeng2011
 #RUN curl -L http://installbj.mydan.org | MYDanInstallLatestVersion=1 bash
 
 RUN mkdir -p /data/logs/JOB
-RUN mkdir -p /data/glusterfs/fileserver
+RUN mkdir -p /data/open-c3-data/glusterfs/fileserver
 
 RUN mkdir -p /data/logs/JOBX
 
@@ -16,7 +16,7 @@ RUN mkdir -p /data/logs/AGENT
 RUN mkdir -p /etc/cron.d.root
 
 RUN mkdir -p /data/logs/CI
-RUN mkdir -p /data/glusterfs/ci_repo
+RUN mkdir -p /data/open-c3-data/glusterfs/ci_repo
 
 ADD entrypoint.sh /
 ENTRYPOINT [ "/entrypoint.sh" ]
