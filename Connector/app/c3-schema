@@ -1,0 +1,50 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDB;
+use YAML::XS;
+use Encode;
+
+=head1 SYNOPSIS
+
+ $0 table1 table2
+
+=cut
+
+my %table = (
+    ci => 'CI',
+    job => 'JOB',
+    jobx => 'JOBX',
+    agent => 'AGENT',
+    connector => 'Connector',
+    monitor => 'AGENT',
+);
+
+sub show
+{
+    my $name = shift;
+    my $module = ( split /_/, $name )[1];
+    die "table $name undef" unless $module && $table{$module};
+
+    my $db = MYDB->new( "/data/Software/mydan/$table{$module}/conf/conn", delayedconnection => 1 );
+
+    my $x = eval{ $db->query( "show create table $name" ); };
+    die "fail: $@" if $@;
+    print "$x->[0][1]\n\n";
+}
+
+if( @ARGV ) 
+{   
+    map{ show( $_ ) }@ARGV;
+}
+else
+{   
+    while(<STDIN>){ chomp; show($_); }
+} 

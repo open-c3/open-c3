@@ -23,8 +23,8 @@ return sub
 {
     my %param = @_;
 
-    my ( $db, $logs, $projectid, $addr, $ticketid, $rely, $name, $temp, $uuid )
-        = @param{qw(db logs projectid addr ticketid rely name temp uuid )};
+    my ( $db, $logs, $projectid, $addr, $ticketid, $rely, $name, $temp, $uuid, $gitclonebycache )
+        = @param{qw(db logs projectid addr ticketid rely name temp uuid gitclonebycache )};
 
     $logs = Logs->new( 'code.build.dump.pull.git' ) unless $logs;
 
@@ -103,9 +103,7 @@ return sub
     else
     {
         
-        my @cacheid = `cat /etc/ci.cache 2>/dev/null`;
-        chomp @cacheid;
-        if( grep{ $projectid eq $_ }@cacheid )
+        if( $gitclonebycache )
         {
             print "get git data from cache\n";
             eval{ Code->new( "build.plugin/dump.plugin/gitclonebycache" )->run( ctrl => $ctrl, addr => $addr, tag => $name, logs => $logs, topath => $temppath ); };

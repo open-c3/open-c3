@@ -33,15 +33,16 @@ die "mkdir temp fail:$!" if system "mkdir -p '$temp'";
 if (-f $path )
 {
     die "untar fail: $!" if system "tar -zxf '$path' -C '$temp'";
+    chdir $temp or die "chdir fail";
 }
 elsif( -d $path )
 {
-    die "rsync fail: $!" if system "rsync -aP --delete $path/ $temp/";
+#    die "rsync fail: $!" if system "rsync -aP --delete $path/ $temp/";
+    chdir $path or die "chdir fail";
 } else {
     die "nofind ci_repo"
 }
 
-chdir $temp or die "chdir fail";
 
 my @addr = split /\//, $o{repository};
 die "login fail" if system "docker login -u '$ENV{TUSERNAME}' '$addr[0]' -p '$ENV{TPASSWORD}'";

@@ -289,3 +289,9 @@ UNIQUE KEY `uniq_slave` (`slave`)
 
 # v2.6.0 sql openc3_ci_project add buildcachepath
 ALTER TABLE openc3_ci_project ADD `buildcachepath` VARCHAR(80) DEFAULT '' comment '构建时的缓存目录';
+
+# v2.6.0 sql openc3_ci_project add saveasdir
+ALTER TABLE openc3_ci_project ADD `saveasdir` VARCHAR(4) DEFAULT '0' comment '保存成目录';
+
+# v2.6.0 sql openc3_ci_project add gitclonebycache
+ALTER TABLE openc3_ci_project ADD `gitclonebycache` VARCHAR(4) DEFAULT '0' comment 'git clone的时候使用缓存目录';

@@ -1,0 +1,41 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my @help = (
+  'c3-help'  => 'show help',
+   '' => '',
+
+  'c3-table'  => 'table list',
+  'c3-schema' => 'table schema',
+  'c3-db-get' => 'db query',
+   '' => '',
+
+  'c3-treemap'  => 'treemap',
+  'c3-nodeinfo' => 'node info on tree',
+   '' => '',
+
+  'c3-online'  => 'online && offline',
+  'c3-restart' => 'restart c3',
+  'c3-reload'  => 'reload  c3',
+);
+
+my %help = @help;
+while( @help )
+{
+    printf "%s\t%s\n", splice @help, 0, 2;
+}
+
+my @x = `cd /data/Software/mydan/Connector/app  && ls`;
+chomp @x;
+
+print "\n";
+map{ printf "$_\n" } sort grep{ ! $help{$_} }@x;
