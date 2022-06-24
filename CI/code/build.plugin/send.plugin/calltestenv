@@ -28,6 +28,7 @@ return sub
 
     my $uuid = `c3mc-jobx-task-run $groupid $jobname $jobgroup --user ci\@app --variablekv version=$version,_jobtype_=test,_exit_=1`;
     chomp $uuid;
+    $logs->die( "deploy test env fail" ) unless $uuid && $uuid =~ /^[a-zA-Z0-9]{12}$/;
 
     printf "call jobx ok: jobxuuid:%s\n", $uuid;
 
