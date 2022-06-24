@@ -550,14 +550,14 @@
         vm.rollback = function (rollbackType) {
             $http.put('/api/jobx/task/' + vm.treeid + '/' + vm.taskuuid + '/' + rollbackType).then(
                 function successCallback(response) {
-                    // if (JSON.stringify(response.data)) {
-                    //     swal("执行成功");
-                    // } else {
-                    //     swal("执行失败");
-                    // }
-                    $window.location.reload();
+                    if (response.data.stat){
+                        $window.location.reload();
+                    }else {
+                        toastr.error("回滚操作失败" + response.data.info);
+                    }
                 },
                 function errorCallback(response) {
+                    toastr.error("回滚操作失败");
                 });
             return
         }
