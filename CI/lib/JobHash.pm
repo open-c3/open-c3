@@ -17,12 +17,7 @@ sub new
     chomp $myname;
 
     my $i;
-    for( 0 .. $#node )
-    {
-        next unless $node[$_] eq $myname;
-        $i = $_;
-        last;
-    }
+    map { $i = $_ if $node[$_] eq $myname } 0 .. $#node;
 
     bless +{ index => $i, count => scalar @node }, ref $class || $class;
 }
@@ -31,6 +26,6 @@ sub hash
 {
     my ( $this, $id ) = @_;
     my ( $index, $count ) = @$this{qw( index count)};
-    return ( ( $id % $count ) == $index) ? 1 : 0;
+    return ( defined $index && ( $id % $count ) == $index ) ? 1 : 0;
 }
 1;
