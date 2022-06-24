@@ -11,16 +11,10 @@ sub new
     die "get data error from db\n" unless defined $x && ref $x eq 'ARRAY';
     die "keepalive null" unless @$x;
 
-    my %data  = map{ $_->[0] => $_->[1] }@$x;
+    my @node = sort map{ $_->[0] }grep{ time - 120 < $_->[1] && $_->[1] < time + 120 }@$x;
 
-    my $time = time - 90;
-    $time = time - 300 unless grep{ $_ ge $time } values %data;
-
-    map{ delete $data{$_} if $data{$_} lt $time  }keys %data;
-
-    my @node = sort keys %data;
-
-    my $myname = Util::myname();
+    my $myname = `c3mc-base-hostname`;
+    chomp $myname;
 
     my $i;
     for( 0 .. $#node )

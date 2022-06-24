@@ -30,7 +30,9 @@ return sub
 
     my $starttime = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
 
-    my $myname =Util::myname();
+    my $myname = `c3mc-base-hostname`;
+    chomp $myname;
+
     eval{ $db->execute( "update `openc3_agent_check` set last_check='$starttime',slave='$myname' where projectid='$id'" ); };
     $logs->die( "update check info fail:$@" ) if $@;
 
