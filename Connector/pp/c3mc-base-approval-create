@@ -39,7 +39,7 @@ unless( $approver )
 }
 
 my $ua = LWP::UserAgent->new;
-$ua->timeout( 10 );
+$ua->timeout( 30 );
 $ua->default_header( %env ) if %env;
 
 my $cont = $approver =~ /encode=1/
