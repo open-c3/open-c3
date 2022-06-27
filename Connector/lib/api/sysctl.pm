@@ -22,6 +22,13 @@ get '/sysctl' => sub
     return +{ stat => $JSON::true, data => $config };
 };
 
+get '/sysctl/hostname' => sub
+{
+    my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
+    my $pmscheck = api::pmscheck('openc3_connector_root'); return $pmscheck if $pmscheck;
+    return +{ stat => $JSON::true, data => `c3mc-base-hostname` };
+};
+
 post '/sysctl' => sub
 {
     my $param  = params();
