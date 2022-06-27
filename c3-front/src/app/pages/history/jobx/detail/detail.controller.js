@@ -9,7 +9,7 @@
                 var node_str = '';
                 var ss = text.split(",");
                 if (ss.length >3){
-                    node_str = ss.slice(0, 3).join(",") + "..."
+                    node_str = ss.slice(0, 2).join(",") + "..."
                 }else {
                     node_str = text;
                 }
