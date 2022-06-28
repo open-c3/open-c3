@@ -47,6 +47,8 @@ sub run
 
             for my $cmd ( @cmd )
             {
+                $cmd = join '|', @$cmd if ref $cmd;
+
                 unless( $pid = fork )
                 {
                     $pipefail ? exec( bash => ( -o => "pipefail", -c => $cmd ) ) : exec( $cmd );
