@@ -29,7 +29,7 @@ return sub
 
     my ( $node, @group ) = $x->[0][0];
 
-    for ( split /;/, $node )
+    for ( split /;+|\n+/, $node )
     {
         my @n = split /,/, $_;
         push @group, \@n if @n;
