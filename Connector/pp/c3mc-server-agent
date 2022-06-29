@@ -107,10 +107,10 @@ if( $name eq 'promesd' )
                "c3mc-base-treemap",
                "awk -F';' '{print \$1}'",
                "c3mc-base-fullnodeinfo -c projectid,inip",
+               "tee $tempfile",
                "awk -F'.' '{print \$NF\";\"\$0}'",
                "c3mc-base-task-grep -m monitor",
                "awk -F';' '{print \$2\";\"\$3}'",
-               "tee $tempfile",
                "c3mc-mon-nodesd-format --output $openc3_node_sd.temp"
            ],
            "mv $tempfile $nodetemp && mv $openc3_node_sd.temp $openc3_node_sd",
@@ -126,6 +126,15 @@ if( $name eq 'promesd' )
 
 if( $name eq 'rule' )
 {
+    my $mode = OPENC3::SysCtl->new()->get( 'sys.monitor.mode' ) // 'single';
+
+    if( $mode eq 'off' || -f "/data/open-c3-data/promesd.off" ) {
+        $0 = "agent_server_$name";
+        warn ">> skip by sys.monitor.mode=off or /data/open-c3-data/promesd.off\n";
+        sleep 10*365*86400;
+        exit;
+    }
+
     OPENC3::PP::Server->new(
         name => "agent_server_$name",
         interval => 60,
@@ -138,9 +147,11 @@ if( $name eq 'rule' )
 
 if( $name eq 'carry' )
 {
-    if( -f "/data/open-c3-data/promesd.off" ) {
+    my $mode = OPENC3::SysCtl->new()->get( 'sys.monitor.mode' ) // 'single';
+
+    if( $mode eq 'off' || -f "/data/open-c3-data/promesd.off" ) {
         $0 = "agent_server_$name";
-        warn ">> skip by /data/open-c3-data/promesd.off\n";
+        warn ">> skip by sys.monitor.mode=off or /data/open-c3-data/promesd.off\n";
         sleep 10*365*86400;
         exit;
     }
@@ -155,9 +166,17 @@ if( $name eq 'carry' )
     );
 }
 
-
 if( $name eq 'sender' )
 {
+    my $mode = OPENC3::SysCtl->new()->get( 'sys.monitor.mode' ) // 'single';
+
+    if( $mode eq 'off' || -f "/data/open-c3-data/promesd.off" ) {
+        $0 = "agent_server_$name";
+        warn ">> skip by sys.monitor.mode=off or /data/open-c3-data/promesd.off\n";
+        sleep 10*365*86400;
+        exit;
+    }
+
     chdir "/data/open-c3-data/monitor-sender" or die "chdir fail: $!";
     map{ die if system "mkdir -p  $_"; }qw( zsucc zfail run );
 
