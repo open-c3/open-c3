@@ -126,6 +126,39 @@ if( $name eq 'promesd' )
     }
 }
 
+if( $name eq 'promesdx' )
+{
+    my $nodetemp       = "/data/Software/mydan/AGENT/conf/promesd.temp";
+    my $openc3_node_sd = '/data/Software/mydan/prometheus/config/openc3_node_sd.yml';
+
+    my $mode = OPENC3::SysCtl->new()->get( 'sys.monitor.mode' ) // 'single';
+
+    if( $mode eq 'thanos' )
+    {
+        OPENC3::PP::Server->new(
+            name     => "agent_server_$name",
+            interval => 60,
+            timeout  => 120,
+            pipefail => 1,
+        )->run(
+           [
+               "cat $nodetemp",
+               "awk -F'.' '{print \$NF\";\"\$0}'",
+               "c3mc-base-task-grep -m monitor",
+               "awk -F';' '{print \$2\";\"\$3}'",
+               "c3mc-mon-nodesd-format --output $openc3_node_sd.tempx"
+           ],
+           "mv $openc3_node_sd.tempx $openc3_node_sd",
+        );
+    }
+    else
+    {
+        $0 = "agent_server_$name";
+        sleep 10*365*86400;
+        exit;
+    }
+}
+
 if( $name eq 'rule' )
 {
     my $mode = OPENC3::SysCtl->new()->get( 'sys.monitor.mode' ) // 'single';
