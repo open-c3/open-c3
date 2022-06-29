@@ -1,0 +1,2 @@
+#!/bin/bash
+cat /data/Software/mydan/AGENT/conf/promesd.temp|awk -F';' '{printf "treeinfo{instance=\"%s\",tid=\"%d\"} 1\n",$2,$1}'

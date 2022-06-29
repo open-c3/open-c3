@@ -198,6 +198,7 @@ if( $name eq 'carry' )
     )->run(
         "cat /data/Software/mydan/AGENT/conf/promesd.temp | c3mc-mon-carry --output /data/Software/mydan/AGENT/conf/openc3_carry.yml",
         "cat /data/Software/mydan/AGENT/conf/promesd.temp | awk -F';' '{print \$2}'| c3mc-mon-proxy --output /data/Software/mydan/AGENT/conf/openc3_proxy.yml",
+        "c3mc-mon-treeinfo > /data/Software/mydan/c3-front/dist/treeinfo.txt.temp && mv /data/Software/mydan/c3-front/dist/treeinfo.txt.temp /data/Software/mydan/c3-front/dist/treeinfo.txt",
     );
 }
 
