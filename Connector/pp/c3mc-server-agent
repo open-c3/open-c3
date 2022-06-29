@@ -44,6 +44,7 @@ if( $name eq 'promesd' )
     if( $mode eq 'off' || -f "/data/open-c3-data/promesd.off" ) {
         $0 = "agent_server_$name";
         warn ">> skip by sys.monitor.mode=off or /data/open-c3-data/promesd.off\n";
+        system "> $openc3_node_sd";
         sleep 10*365*86400;
         exit;
     }
@@ -75,6 +76,7 @@ if( $name eq 'promesd' )
         unless( @x ) {
             $0 = "agent_server_$name";
             warn ">> skip by sys.monitor.prometheus.prometheus.replica\n";
+            system "> $openc3_node_sd";
             sleep 10*365*86400;
             exit;
         }
