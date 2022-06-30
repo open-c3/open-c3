@@ -228,13 +228,6 @@ return sub
 
 
 
-    if( defined $projectid )
-    {
-        my $checkerror = eval{ Code->new( 'nodeinfo_check' )->run( db => $db, id => $projectid, node => [ @srccheck, @dstcheck ] ) };
-        $logs->die( "nodeinfo_check code err:$@" ) if $@;
-        $logs->die( "the node not on tree: $checkerror" ) if $checkerror;
-    }
-
     my $_exit_;
     eval { $_exit_ = variable->new( variable => $variable, db => $db, jobuuid => $fromjob )->get( '_exit_' ) };
     $logs->die( "get variable _exit_ fail:$@" ) if $@;
@@ -290,11 +283,22 @@ return sub
             src => \@src, dst => \@dst,
             agent => +{ $option->dump( 'agent' ) }
         );
+
+        my $checkerror;
+
+        if( defined $projectid )
+        {
+            $checkerror = eval{ Code->new( 'nodeinfo_check' )->run( db => $db, id => $projectid, node => [ @srccheck, @dstcheck ] ) };
+            $logs->die( "nodeinfo_check code err:$@" ) if $@;
+            print "ERROR: the node not on tree: $checkerror\n" if $checkerror;
+        }
+
+
     
         #my $grsync = $o{4} ? MYDan::Agent::Grsync::V4->new( %sync ) :
         #             $o{3} ? MYDan::Agent::Grsync::V3->new( %sync ) :
         #                     MYDan::Agent::Grsync::V12->new( %sync );
-        my @failed = MYDan::Agent::GrsyncM->new( opt => \%o, sync => \%sync )->run();
+        my @failed = $checkerror ? @dst : MYDan::Agent::GrsyncM->new( opt => \%o, sync => \%sync )->run();
     #    exit 0 unless my @failed = $grsync->run( %o )->failed();
     #    die $range->load( \@failed )->dump . ": failed.\n\n";
     
