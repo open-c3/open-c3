@@ -47,7 +47,7 @@ sub run
 
             for my $cmd ( @cmd )
             {
-                $cmd = join '|', @$cmd if ref $cmd;
+                $cmd = join '|', grep{ defined $_ }@$cmd if ref $cmd;
 
                 unless( $pid = fork )
                 {

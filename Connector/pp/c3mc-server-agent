@@ -41,6 +41,9 @@ if( $name eq 'promesd' )
 
     my $mode = OPENC3::SysCtl->new()->get( 'sys.monitor.mode' ) // 'single';
 
+    my $greptree = OPENC3::SysCtl->new()->get( 'sys.monitor.grep.tree' );
+    my $grepnode = OPENC3::SysCtl->new()->get( 'sys.monitor.grep.node' );
+
     if( $mode eq 'off' || -f "/data/open-c3-data/promesd.off" ) {
         $0 = "agent_server_$name";
         warn ">> skip by sys.monitor.mode=off or /data/open-c3-data/promesd.off\n";
@@ -58,8 +61,11 @@ if( $name eq 'promesd' )
         )->run(
            [
                "c3mc-base-treemap",
+               #grep -E ';app.|;ops.'
+               $greptree ? sprintf( "grep -E '%s'", join '|', map{ ";$_" }split /,/, $greptree ) : undef,
                "awk -F';' '{print \$1}'",
                "c3mc-base-fullnodeinfo -c projectid,inip",
+               $grepnode ? sprintf( "grep -E '%s'", join '|', map{ ";$_" }split /,/, $grepnode ) : undef,
                "tee $tempfile",
                "c3mc-mon-nodesd-format --output $openc3_node_sd.temp",
            ],
@@ -89,8 +95,10 @@ if( $name eq 'promesd' )
         )->run(
            [
                "c3mc-base-treemap",
+               $greptree ? sprintf( "grep -E '%s'", join '|', map{ ";$_" }split /,/, $greptree ) : undef,
                "awk -F';' '{print \$1}'",
                "c3mc-base-fullnodeinfo -c projectid,inip",
+               $grepnode ? sprintf( "grep -E '%s'", join '|', map{ ";$_" }split /,/, $grepnode ) : undef,
                "tee $tempfile",
                "c3mc-mon-nodesd-format --output $openc3_node_sd.temp",
            ],
@@ -107,8 +115,10 @@ if( $name eq 'promesd' )
         )->run(
            [
                "c3mc-base-treemap",
+               $greptree ? sprintf( "grep -E '%s'", join '|', map{ ";$_" }split /,/, $greptree ) : undef,
                "awk -F';' '{print \$1}'",
                "c3mc-base-fullnodeinfo -c projectid,inip",
+               $grepnode ? sprintf( "grep -E '%s'", join '|', map{ ";$_" }split /,/, $grepnode ) : undef,
                "tee $tempfile",
                "awk -F'.' '{print \$NF\";\"\$0}'",
                "c3mc-base-task-grep -m monitor",

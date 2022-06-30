@@ -230,6 +230,24 @@
                             </div>
                         </div>
 
+                        <div ng-if="sysctl.sysctl['sys.monitor.mode'] !== 'off'" >
+
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">服务树过滤</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" ng-model="sysctl.sysctl['sys.monitor.grep.tree']" required />
+                            </div>
+                        </div>
+ 
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">主机ip过滤</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" ng-model="sysctl.sysctl['sys.monitor.grep.node']" required />
+                            </div>
+                        </div>
+ 
+                        </div>
+
                         <div ng-if="sysctl.sysctl['sys.monitor.mode'] == 'prometheus'" >
 
                         <div class="col-sm-10 form-group">
