@@ -97,7 +97,7 @@
         <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
             <div class="panel-body" style="margin-top: 2px">
                 <div class="row" >
-                  <div ng-repeat="name in ['Ingress','Service', 'Deployment','DaemonSet','Pod','Replicaset','HPA','Endpoint','Job.Batch','CronJob.Batch','StatefulSet']" style="float: left;margin-right: 4px;">
+                  <div ng-repeat="name in ['Ingress','Service', 'Deployment','DaemonSet','Pod','Replicaset','HPA','Endpoint','Job.Batch','CronJob.Batch','StatefulSet','Ingressroute','Ingressroutetcp']" style="float: left;margin-right: 4px;">
                     <button ng-if="kubernetesmanage.showByAuth(name)"  class="btn btn-info" ng-click="kubernetesmanage.showApp(name)">
                         <i ng-if="kubernetesmanage.showapp===name || kubernetesmanage.showapp==='all'" class="fa fa-envelope-open" aria-hidden="true"></i>
                         <i ng-if="!(kubernetesmanage.showapp===name || kubernetesmanage.showapp==='all')" class="fa fa-envelope-o" aria-hidden="true"></i>
@@ -593,6 +593,66 @@
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describe('statefulset',m.INAME,m.NAMESPACE)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('statefulset',m.INAME,m.NAMESPACE)" uib-tooltip="编辑yaml" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesmanage.deleteApp('statefulset',m.INAME,m.NAMESPACE)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                        </td> 
+                    </tr>
+                </table>
+              </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0" ng-if="kubernetesmanage.showapp==='Ingressroute'||kubernetesmanage.showapp==='all'">
+        <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
+
+            <div class="panel-heading">
+                <span class="panel-controls">
+                    <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD) }" ></i>刷新</button>
+                </span>
+                <h4 style="font-weight: bold;color: #337ab7">Ingressroute({{kubernetesmanage.ingressrouteCount||0}})
+                </h4>
+
+            </div>
+            <div class="panel-body" style="margin-top: 2px">
+              <div class="pt20" style="overflow: auto;">
+                <table ng-table="kubernetesmanage.ingressrouteTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
+                    <tr ng-repeat="m in $data">
+                        <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'名称'" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">{{m.INAME}}</td>
+                        <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
+                        <td data-title="'操作'" width="80" >
+                            <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describe('ingressroute',m.INAME,m.NAMESPACE)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('ingressroute',m.INAME,m.NAMESPACE)" uib-tooltip="编辑yaml" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesmanage.deleteApp('ingressroute',m.INAME,m.NAMESPACE)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                        </td> 
+                    </tr>
+                </table>
+              </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0" ng-if="kubernetesmanage.showapp==='Ingressroutetcp'||kubernetesmanage.showapp==='all'">
+        <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
+
+            <div class="panel-heading">
+                <span class="panel-controls">
+                    <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD) }" ></i>刷新</button>
+                </span>
+                <h4 style="font-weight: bold;color: #337ab7">Ingressroutetcp({{kubernetesmanage.ingressroutetcpCount||0}})
+                </h4>
+
+            </div>
+            <div class="panel-body" style="margin-top: 2px">
+              <div class="pt20" style="overflow: auto;">
+                <table ng-table="kubernetesmanage.ingressroutetcpTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
+                    <tr ng-repeat="m in $data">
+                        <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'名称'" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">{{m.INAME}}</td>
+                        <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
+                        <td data-title="'操作'" width="80" >
+                            <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describe('ingressroutetcp',m.INAME,m.NAMESPACE)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('ingressroutetcp',m.INAME,m.NAMESPACE)" uib-tooltip="编辑yaml" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesmanage.deleteApp('ingressroutetcp',m.INAME,m.NAMESPACE)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
                         </td> 
                     </tr>
                 </table>

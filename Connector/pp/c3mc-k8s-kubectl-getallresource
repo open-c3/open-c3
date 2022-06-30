@@ -1,0 +1,10 @@
+#!/bin/bash
+
+ClusterID=$1
+if [ "X" == "X$ClusterID" ];then
+    exit 1;
+fi
+
+c3mc-k8s-kubectl-get  -i $ClusterID 'get all --all-namespaces -o wide'
+c3mc-k8s-kubectl-get  -i $ClusterID 'get ingressroute --all-namespaces -o wide'|awk '{ if(NR==1){print $1,$2,$3}else{printf "%s ingressroute/%s %s\n", $1, $2, $3}}'
+c3mc-k8s-kubectl-get  -i $ClusterID 'get ingressroutetcp --all-namespaces -o wide'|awk '{ if(NR==1){print $1,$2,$3}else{printf "%s ingressroutetcp/%s %s\n", $1, $2, $3}}'
