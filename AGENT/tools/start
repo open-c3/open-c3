@@ -31,22 +31,54 @@ die "port undef" unless my $port = $Config->{port};
 my $supervisor = "$RealBin/../../JOB/bin/supervisor --name agent_supervisor --err /var/log/open-c3.error.log";
 
 map{
-    die "start api fail: $!" if  system "$supervisor --errname 'agent.api.$_' --cmd '$base/bin/api -p $_' --log '$base/logs/server/api.$_' --http http://127.0.0.1:$_/mon --check ok";
-    print "start api port: $_\n"
+    print "start api port: $_\n";
+
+    die "start api fail: $!"
+        if system join " ",
+            $supervisor,
+            "--errname 'agent.api.$_'",
+            "--cmd '$base/bin/api -p $_'",
+            "--log '$base/logs/server/api.$_'",
+            "--http http://127.0.0.1:$_/mon",
+            "--check ok";
 }$port->{api}{from} .. $port->{api}{to};
 
 map{
-    die "start api.slave fail: $!" if system "$supervisor --errname 'agent.api.slave.$_' --cmd '$MYDan::PATH/perl/bin/twiggy $base/bin/api.slave --port $_' --log '$base/logs/server/api.slave.$_' --http http://127.0.0.1:$_/mon --check ok";
-    print "start api.slave port: $_\n"
+    print "start api.slave port: $_\n";
+
+    die "start api.slave fail: $!"
+        if system join " ",
+            $supervisor,
+            "--errname 'agent.api.slave.$_'",
+            "--cmd '$MYDan::PATH/perl/bin/twiggy $base/bin/api.slave --port $_'",
+            "--log '$base/logs/server/api.slave.$_'",
+            "--http http://127.0.0.1:$_/mon",
+            "--check ok";
 }$port->{'api.slave'}{from} .. $port->{'api.slave'}{to};
-map{
-    die "start $_ fail: $!" if system "$supervisor --errname 'agent.server.$_' --cmd '$base/server/$_' --log '$base/logs/server/$_'";
-}qw( call bury check nodequery );
-
-#map{
-#    die "start $_ fail: $!" if system "$supervisor --errname 'agent.server.$_' --cmd '$base/server/pp $_' --log '$base/logs/server/$_'";
-#}qw( self-healing );
 
 map{
-    die "start $_ fail: $!" if system "$supervisor --errname 'agent.server.$_' --cmd 'c3mc-server-agent $_' --log '$base/logs/server/$_'";
-}qw( promesd rule carry sender extend-exporter self-healing mailmon portcheckok inherit cloudmon keepalive );
+    die "start $_ fail: $!"
+        if system "$supervisor --errname 'agent.server.$_' --cmd '$base/server/$_' --log '$base/logs/server/$_'";
+}qw(
+    bury
+    check
+    nodequery
+);
+
+map{
+    die "start $_ fail: $!"
+        if system "$supervisor --errname 'agent.server.$_' --cmd 'c3mc-server-agent $_' --log '$base/logs/server/$_'";
+}qw(
+    promesd
+    promesdx
+    rule
+    carry
+    sender
+    extend-exporter
+    self-healing
+    mailmon
+    portcheckok
+    inherit
+    cloudmon
+    keepalive
+);

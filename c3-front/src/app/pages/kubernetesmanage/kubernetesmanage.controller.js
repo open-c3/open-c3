@@ -236,6 +236,20 @@ vm.replicasets = [];
                             vm.showAppCount.StatefulSet = vm.statefulsetCount;
                         }
 
+                        vm.ingressrouteTable = new ngTableParams({count:10}, {counts:[],data:response.data.data.ingressroute});
+                        if( response.data.data.ingressroute )
+                        {
+                            vm.ingressrouteCount = response.data.data.ingressroute.length;
+                            vm.showAppCount.Ingressroute = vm.ingressrouteCount;
+                        }
+
+                        vm.ingressroutetcpTable = new ngTableParams({count:10}, {counts:[],data:response.data.data.ingressroutetcp});
+                        if( response.data.data.ingressroutetcp )
+                        {
+                            vm.ingressroutetcpCount = response.data.data.ingressroutetcp.length;
+                            vm.showAppCount.Ingressroutetcp = vm.ingressroutetcpCount;
+                        }
+
                         vm.loadoverB = true;
                     }else {
                         toastr.error( "获取集群中应用数据失败："+response.data.info );

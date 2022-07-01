@@ -14,7 +14,8 @@ our $VERSION = '0.1';
 our ( $mysql, $sso, $myname, $pms, $cookiekey, $logs, $auditlog );
 
 BEGIN{
-    $myname = Util::myname();
+    $myname = `c3mc-base-hostname`;
+    chomp $myname;
 
     $mysql = MYDB->new( "$RealBin/../conf/conn" );
 

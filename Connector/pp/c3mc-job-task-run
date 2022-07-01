@@ -27,7 +27,7 @@ use uuid;
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->set( user => 'c3@sys', slave => `c3mc-base-hostname`, calltype => 'api', variable => '' )
+my %o = $option->set( user => 'c3@sys', calltype => 'api', variable => '' )
     ->get( qw( user=s slave=s calltype=s variable=s variablekv=s uuid=s ) )->dump();
 $option->assert() unless @ARGV;
 
@@ -45,7 +45,11 @@ die "projectid, jobname nomatch" unless @$x;
 
 my $jobuuid = $x->[0][0];
 
-chomp $o{slave};
+unless( $o{slave} ){
+    $o{slave} = `c3mc-job-slave-random`;
+    chomp $o{slave};
+    die "no alive slave" unless $o{slave};
+}
 
 if( $o{variablekv} )
 {

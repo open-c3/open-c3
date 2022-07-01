@@ -43,3 +43,11 @@ scrape_configs:
     file_sd_configs:
       - files:
         - openc3_redis_sd.yml
+
+  - job_name: 'openc3-treeinfo'
+    scrape_interval: 60s
+    scrape_timeout: 60s
+    metrics_path: /treeinfo.txt
+    honor_labels: true
+    static_configs:
+    - targets: ['OPENC3_SERVER_IP:88']

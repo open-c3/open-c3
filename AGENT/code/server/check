@@ -19,7 +19,11 @@ return sub
 {
     my %param = @_;
 
-    my ( $db, $interval, $logs, $myname ) = ( $param{db}, 10, Logs->new( 'check' ), Util::myname() );
+    my ( $db, $interval, $logs ) = ( $param{db}, 10, Logs->new( 'check' ) );
+
+    my $myname = `c3mc-base-hostname`;
+    chomp $myname;
+
     my ( $count, %count ) = int time / $interval;
     $SIG{'CHLD'} = sub {
         while((my $pid = waitpid(-1, WNOHANG)) >0)

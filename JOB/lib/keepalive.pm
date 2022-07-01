@@ -16,12 +16,7 @@ sub new
 sub _slave
 {
     my $this = shift;
-
-    my $time = time - 90;
-    $time = time - 300 unless grep{ $_ ge $time } values %$this;
-
-    map{ delete $this->{$_} if $this->{$_} lt $time  }keys %$this;
-    return keys %$this;
+    return grep{ time - 120 < $this->{$_} && $this->{$_} < time + 120  }keys %$this;
 }
 
 sub slave

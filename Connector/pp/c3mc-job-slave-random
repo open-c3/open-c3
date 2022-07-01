@@ -1,0 +1,21 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use MYDB;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $db = MYDB->new( "/data/Software/mydan/JOB/conf/conn" );
+my $x = eval{ $db->query( "select slave,time from openc3_job_keepalive" ) };
+die "fail: $@" if $@;
+
+my @slave = map{ $_->[0] }grep{ time - 120 < $_->[1] && $_->[1] < time + 120 }@$x;
+
+print $slave[int rand @slave], "\n" if @slave;

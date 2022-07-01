@@ -9,7 +9,7 @@
                 var node_str = '';
                 var ss = text.split(",");
                 if (ss.length >3){
-                    node_str = ss.slice(0, 3).join(",") + "..."
+                    node_str = ss.slice(0, 2).join(",") + "..."
                 }else {
                     node_str = text;
                 }
@@ -550,14 +550,14 @@
         vm.rollback = function (rollbackType) {
             $http.put('/api/jobx/task/' + vm.treeid + '/' + vm.taskuuid + '/' + rollbackType).then(
                 function successCallback(response) {
-                    // if (JSON.stringify(response.data)) {
-                    //     swal("执行成功");
-                    // } else {
-                    //     swal("执行失败");
-                    // }
-                    $window.location.reload();
+                    if (response.data.stat){
+                        $window.location.reload();
+                    }else {
+                        toastr.error("回滚操作失败" + response.data.info);
+                    }
                 },
                 function errorCallback(response) {
+                    toastr.error("回滚操作失败");
                 });
             return
         }

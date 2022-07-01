@@ -8,23 +8,37 @@ use MYDan::Util::OptConf;
 
 =head1 SYNOPSIS
 
+ $0
+ $0 [--set online|offline] [--name slave-name-001]
  $0 --module [ci|job|jobx|agent|monitor]
  $0 --module [ci|job|jobx|agent|monitor] [--set online|offline]
 
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->get( qw( module=s set=s ) )->dump();
-$option->assert('module');
+my %o = $option->get( qw( module=s set=s name=s ) )->dump();
 
-my $hostname = `c3mc-base-hostname`; chomp $hostname;
+unless( $o{module} )
+{
+    my $set = $o{set} ? "--set $o{set}" : '';
+    my $name = $o{name} ? "--name $o{name}" : '';
+    map{ print "$_\t"; system "$0 $set $name -m $_" }qw( ci job jobx agent monitor );
+    exit;
+}
+
+unless($o{name})
+{
+    $o{name} = `c3mc-base-hostname`;
+    chomp $o{name};
+}
+
 unless( $o{set} )
 {
-    my $x = `c3mc-base-db-get time -t openc3_$o{module}_keepalive -f 'slave="$hostname"'`;
+    my $x = `c3mc-base-db-get time -t openc3_$o{module}_keepalive -f 'slave="$o{name}"'`;
     chomp $x;
     printf "%s\n", ( defined $x && $x =~ /^\d+$/ && $x - 120 < time && time < $x + 120 ) ? 'online': 'offline';
     exit;
 }
 
 my $t = $o{set} eq 'online' ? time : $o{set} eq 'offline' ? 0 : die;
-exec "c3mc-base-db-set -t openc3_$o{module}_keepalive -c slave $hostname --set 'time=$t'";
+exec "c3mc-base-db-set -t openc3_$o{module}_keepalive -c slave $o{name} --set 'time=$t'";

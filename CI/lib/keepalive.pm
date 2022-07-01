@@ -17,12 +17,9 @@ sub slave
 {
     my $this = shift;
 
-    my $time = time - 90;
-    $time = time - 300 unless grep{ $_ ge $time } values %$this;
+    my @slave = grep{ time - 120 < $this->{$_} && $this->{$_} < time + 120  }keys %$this;
+    return undef unless @slave;
 
-    map{ delete $this->{$_} if $this->{$_} lt $time  }keys %$this;
-
-    return undef unless my @slave = keys %$this;
     return $slave[int rand scalar @slave];
 }
 

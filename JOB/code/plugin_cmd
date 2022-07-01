@@ -186,15 +186,6 @@ return sub
      );
 
 
-    if( defined $projectid && ! $openc3skipnode )
-    {
-        my $nodeinfo_check = Code->new( 'nodeinfo_check' );
-
-        my $checkerror = eval{ $nodeinfo_check->run( db => $db, id => $projectid, node => \@node ) };
-        $logs->die( "nodeinfo_check code err:$@" ) if $@;
-        $logs->die( "check node fail: $checkerror" ) if $checkerror;
-    }
-
     my $subtaskstatus = 'success'; #runnigs,fail,success,decision,ignore
 
     my ( $flowid, $version, $buildininfoget ) = ( 0, 0, 1 );
@@ -202,6 +193,21 @@ return sub
     {
         delete $query{auth};
         my %result;
+
+        my $checkerror;
+
+        if( defined $projectid && ! $openc3skipnode )
+        {
+            my $nodeinfo_check = Code->new( 'nodeinfo_check' );
+
+            $checkerror = eval{ $nodeinfo_check->run( db => $db, id => $projectid, node => \@node ) };
+            $logs->die( "nodeinfo_check code err:$@" ) if $@;
+            print "ERROR: the node not on tree: $checkerror\n" if $checkerror;
+        }
+
+      unless( $checkerror )
+      {
+
         if( $scripts_type && $scripts_type eq 'buildin' )
         {
             if( $fromjob && $buildininfoget )
@@ -229,6 +235,9 @@ return sub
                 @node
             )->run( %o, query => \%query );
         }
+
+      }
+
         my @failed;
         map{ 
             my $exit = $result{$_} && $result{$_} =~ /--- (\d+)\r?\n$/ ? $1 : 1;

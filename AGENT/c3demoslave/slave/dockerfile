@@ -1,0 +1,14 @@
+FROM centos:7
+MAINTAINER lijinfeng2011
+
+RUN yum install make wget rsync -y
+RUN mkdir -p /etc/cron.d
+
+ARG OPEN_C3_ADDR
+ENV OPEN_C3_ADDR=${OPEN_C3_ADDR}
+
+RUN curl -L $OPEN_C3_ADDR/api/scripts/installAgent.sh    | bash
+RUN curl -L $OPEN_C3_ADDR/api/scripts/installAgentMon.sh | bash
+
+ADD entrypoint.sh /
+ENTRYPOINT [ "/entrypoint.sh" ]

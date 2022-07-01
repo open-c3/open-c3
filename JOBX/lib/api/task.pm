@@ -194,7 +194,7 @@ post '/task/:projectid/job/byname' => sub {
     my $slave = eval{ keepalive->new( $api::mysql )->slave() };
     return  +{ stat => $JSON::false, info => "get slave fail: $@" } if $@;
 
-    return +{ stat => $JSON::false, info => "system error: no slave" } unless defined $slave;
+    return +{ stat => $JSON::false, info => "system error: no alive slave" } unless defined $slave;
 
     my $uuid = uuid->new()->create_str;
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
@@ -255,7 +255,11 @@ put '/task/:projectid/:uuid/:control' => sub {
     eval{
         if( $param->{control} eq 'rollback' )
         {
-            $api::mysql->execute(  "insert into openc3_jobx_task (`projectid`,`uuid`,`name`,`group`,`user`,`slave`,`status`,`calltype`,`variable`) select `projectid`,'$ruuid',`name`,`group`,'$user',`slave`,'init','$calltype','$variable' from openc3_jobx_task where uuid='$param->{uuid}'" );
+            my $slave = eval{ keepalive->new( $api::mysql )->slave() };
+            die "get slave fail: $@" if $@;
+            die "no alive slave\n"  unless $slave;
+
+            $api::mysql->execute(  "insert into openc3_jobx_task (`projectid`,`uuid`,`name`,`group`,`user`,`slave`,`status`,`calltype`,`variable`) select `projectid`,'$ruuid',`name`,`group`,'$user','$slave','init','$calltype','$variable' from openc3_jobx_task where uuid='$param->{uuid}'" );
         }
         else
         {

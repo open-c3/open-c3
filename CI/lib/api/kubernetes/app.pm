@@ -37,7 +37,8 @@ get '/kubernetes/app' => sub {
         rowfilter => +{ key => \@ns, col => [ 'NAMESPACE' ] } ,
     };
 
-    my ( $cmd, $handle ) = ( "$kubectl get all --all-namespaces -o wide 2>/dev/null", 'getall' );
+    #my ( $cmd, $handle ) = ( "$kubectl get all --all-namespaces -o wide 2>/dev/null", 'getall' );
+    my ( $cmd, $handle ) = ( "c3mc-k8s-kubectl-getallresource $param->{ticketid} 2>/dev/null", 'getall' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle, filter => $filter }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $?, $filter );
 };
@@ -50,7 +51,7 @@ $handle{getall} = sub
 
     my ( $deploymentready, $podready, $podrunning, $daemonsetready, $replicasetready ) = ( 0, 0, 0, 0, 0 );
     my $failonly = ( $filter->{status} && $filter->{status} eq 'fail' ) ? 1 : 0;
-    my ( %r, @r, @title ) = map{ $_ => [] }qw( service deployment daemonset pod replicaset statefulset hpa job.batch cronjob.batch );
+    my ( %r, @r, @title ) = map{ $_ => [] }qw( service deployment daemonset pod replicaset statefulset hpa job.batch cronjob.batch ingressroute ingressroutetcp );
     
     for my $line ( @x )
     {
