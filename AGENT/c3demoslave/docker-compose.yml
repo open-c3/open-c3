@@ -1,0 +1,16 @@
+version: '2.0'
+services:
+  openc3-demo-slave:
+    environment:
+      TZ: 'Asia/Shanghai'
+    build:
+      context: slave/
+      args:
+        OPEN_C3_ADDR: ${OPEN_C3_ADDR}
+    restart: always
+    networks:
+      - alise_net
+networks:
+  alise_net:
+    external:
+      name: c3_JobNet
