@@ -2,6 +2,8 @@
 use strict;
 use warnings;
 use File::Temp;
+use MIME::Base64;
+use Encode qw(decode encode);
 use MYDB;
 
 $|++;
@@ -45,10 +47,28 @@ sub srv
         return;
     }
 
+    return unless -f "$pluginDir/openc3_cloudmon_sd.tpl.yml";
+
     my $tpl = `cat $pluginDir/openc3_cloudmon_sd.tpl.yml`;
     $tpl =~ s/\$\{cloudmonid\}/$x->{id}/g;
     my $name = $x->{name} =~ /^[a-zA-Z0-9][a-zA-Z0-9\.\-_]+$/ ? $x->{name} : 'unkown';
     $tpl =~ s/\$\{cloudmonname\}/$name/g;
+
+    if( $tpl =~ /\$\{c3var\.[a-zA-Z0-9]+\}/ )
+    {
+        my $config = decode("UTF-8", decode_base64( $x->{config} ) );
+        my $c = eval{ YAML::XS::Load $config };
+        warn "cloudmon load config error: $@" if $@;
+        if( $c && ref $c eq 'HASH' && %$c )
+        {
+            for my $k ( keys %$c )
+            {
+                $tpl =~ s/\$\{c3var\.$k\}/$c->{$k}/g;
+            }
+        }
+    }
+
+
     return $tpl;
 }
 

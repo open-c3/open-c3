@@ -53,6 +53,8 @@ sub srv
     my $taskid = "$x->{id}_$x->{edit_time}";
     $taskid =~ s/\s+|:|\-//g;
 
+    return unless -f "$pluginDir/docker-compose.service.tpl.yml";
+
     my $tpl = `cat $pluginDir/docker-compose.service.tpl.yml`;
     $tpl =~ s/\$\{cloudmonid\}/$x->{id}/g;
     $tpl =~ s/\$\{taskid\}/$taskid/g;
