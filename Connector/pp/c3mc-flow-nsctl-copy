@@ -89,7 +89,9 @@ sub saveci
 {
     my ( $newns, $row ) =  @_;
     delete $row->{id};
+    delete $row->{edit_time};
     $row->{ci_type_namespace} = $newns;
+    $row->{edit_user} = 'sys-job-plugin';
     my @c = keys %$row;
     $db->execute( sprintf "insert into openc3_ci_project (%s) values(%s)",join( ',', map{ "`$_`"}@c),join(',',map{ "'$row->{$_}'" }@c) );
 }

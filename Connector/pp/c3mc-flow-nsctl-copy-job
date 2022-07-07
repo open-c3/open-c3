@@ -4,6 +4,7 @@ use warnings;
 
 $|++;
 
+use POSIX;
 use MYDB;
 use MYDan::Util::OptConf;
 
@@ -49,6 +50,10 @@ sub save
 {
     my ( $row, $id ) = @_;
     delete $row->{id};
+
+    $row->{create_time} = $row->{edit_time} = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
+    $row->{create_user} = $row->{edit_user} = 'sys-job-plugin';
+
     $row->{name} = "_ci_${id}_";
     my @c = keys %$row;
     $db->execute( sprintf "insert into openc3_job_jobs (%s) values(%s)",join(',', map{ "`$_`"}@c),join(',',map{ "'$row->{$_}'" }@c) );
