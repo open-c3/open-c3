@@ -107,7 +107,6 @@ my %dmap; map{ $dmap{$_->{name}} = $_->{id} }@$dst;
 sub fill
 {
     my ( $treeid, $srcid, $dstid ) = @_;
-    print Dumper +{ treeid => $treeid, srcid => $srcid, dstid => $dstid };
     die "fill err" if system "c3mc-flow-nsctl-copy-jobx --treeid $treeid --srcid $srcid --dstid $dstid --env test  ";
     die "fill err" if system "c3mc-flow-nsctl-copy-jobx --treeid $treeid --srcid $srcid --dstid $dstid --env online";
     die "fill err" if system "c3mc-flow-nsctl-copy-job  --treeid $treeid --srcid $srcid --dstid $dstid";

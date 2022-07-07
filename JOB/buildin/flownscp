@@ -1,0 +1,29 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 srcNamespace dstNamespace
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+$option->assert() unless @ARGV;
+
+die "nonode" unless $ENV{NODE};
+
+sub success
+{
+    map{ print "$_:ok\n"; } split /,/, $ENV{NODE};
+    exit;
+}
+
+die "notreeid"                unless $ENV{TREEID}   && $ENV{TREEID} =~ /^\d+$/;
+die "srcNamespace format err" unless $ARGV[0]       && $ARGV[0]       =~ /^[a-zA-Z][a-zA-Z0-9_\-\.]*[a-zA-Z0-9]$/;
+die "dstNamespace format err" unless $ARGV[1]       && $ARGV[1]       =~ /^[a-zA-Z][a-zA-Z0-9_\-\.]*[a-zA-Z0-9]$/;
+
+die "copy fail" if system "c3mc-flow-nsctl-copy --treeid $ENV{TREEID} -s $ARGV[0] -d $ARGV[1] >&2";
+
+success();

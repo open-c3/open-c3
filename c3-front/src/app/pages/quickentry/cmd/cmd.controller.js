@@ -316,6 +316,10 @@
                 {
                     vm.showmachinelist = 0;
                 }
+                if( cont.search(/^#!flownscp\b/) == 0 )
+                {
+                    vm.showmachinelist = 0;
+                }
             }
         }
 
