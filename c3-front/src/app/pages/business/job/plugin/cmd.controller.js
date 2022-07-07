@@ -314,6 +314,10 @@
                 {
                     vm.showmachinelist = 0;
                 }
+                if( cont.search(/^#!k8snscp\b/) == 0 )
+                {
+                    vm.showmachinelist = 0;
+                }
             }
         }
 
@@ -570,10 +574,16 @@
         vm.getProUser();
 
         vm.reloadticket = function(ticketid){
-            $http.get('/api/ci/ticket?type=JobBuildin&ticketid=' + ticketid ).success(function(data){
+            $http.get('/api/ci/ticket?ticketid=' + ticketid ).success(function(data){
                 if( data.stat)
                 {
-                    vm.ticketinfo = data.data;
+                    vm.ticketinfo = [];
+                    angular.forEach(data.data, function (data, index) {
+                        if( data.type === 'KubeConfig' || data.type === 'JobBuildin' )
+                        {
+                            vm.ticketinfo.push(data)
+                        }
+                    });
                     vm.ticketinfo.unshift({ id: '0', name: 'null' })
                 }
                 else
