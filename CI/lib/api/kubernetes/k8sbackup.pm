@@ -63,4 +63,21 @@ get '/kubernetes/k8sbackup/download' => sub {
     return +{ stat => $JSON::true, data => $name };
 };
 
+post '/kubernetes/k8sbackup' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        ticketid => qr/^\d+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+    my $pmscheck = api::pmscheck( 'openc3_ci_read', 0 ); return $pmscheck if $pmscheck;
+
+    my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
+        map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    my ( $cmd, $handle ) = ( "nohup c3mc-k8s-backup-once $param->{ticketid} >/dev/null 2>/dev/null &", 'showinfo' );
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
+    return &{$handle{$handle}}( `$cmd`//'', $? );
+};
+
 true;

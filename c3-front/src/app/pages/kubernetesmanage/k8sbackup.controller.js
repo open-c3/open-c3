@@ -20,7 +20,7 @@
 
         vm.reload = function(){
             vm.loadover = false;
-            $http.get("/api/ci/v2/kubernetes/k8sbackup?ticketid=" + ticketid + "&namespace=" + namespace ).success(function(data){
+            $http.get("/api/ci/v2/kubernetes/k8sbackup?ticketid=" + ticketid ).success(function(data){
                 if(data.stat == true) 
                 { 
                    vm.loadover = true;
@@ -46,6 +46,18 @@
                 function errorCallback (response ){
                     toastr.error( "获取下载地址失败："+response.status)
                 });
+        };
+
+        vm.backup = function(){
+            $http.post("/api/ci/v2/kubernetes/k8sbackup?ticketid=" + ticketid ).success(function(data){
+                if(data.stat == true) 
+                { 
+                    swal({ title:'备份任务已提交', text: "备份可能需要几分钟，过一会在回来查看结果吧!!!", type:'success' });
+                } else { 
+                    swal({ title:'提交成功', text: data.info, type:'error' });
+                }
+            });
+
         };
 
     }
