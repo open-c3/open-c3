@@ -37,6 +37,16 @@ mkdir -p $DISTPATH
 cd $DISTPATH
 
 echo temp path: $DISTPATH
+
+if [ "XFORCEDELETE" == "X$SRC" ];then
+    c3mc-k8s-nsctl-dump $TICKETID $DST
+    NS=$( bash -c "$kubectl  get ns  -o custom-columns='NAME:metadata.name' --no-headers|grep \"^$DST$\"|wc -l")
+    if [ "X$NS" == "X1"  ];then
+        bash -c "$kubectl delete ns $DST"
+    fi
+    exit
+fi
+
 c3mc-k8s-nsctl-dump $TICKETID $SRC
 
 sed -i  "s/$SRC/$DST/g" *.yaml
