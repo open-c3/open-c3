@@ -1,0 +1,57 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use MYDB;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 --treeid id --srcid id --dstid id
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( treeid=i srcid=i dstid=i ) )->dump();
+$option->assert(qw( treeid srcid dstid ));
+
+my $db = MYDB->new( "/data/Software/mydan/JOB/conf/conn" );
+
+my @col = qw(
+         id
+  projectid
+       uuid
+       name
+      uuids
+     status
+    mon_ids
+ mon_status
+create_user
+create_time
+  edit_user
+  edit_time
+);
+
+sub getdat
+{
+    my ( $treeid, $id ) = @_;
+    my $r = eval{ $db->query( sprintf( "select %s from openc3_job_jobs where projectid='$treeid' and name='_ci_${id}_'", join( ",", map{"`$_`"}@col) ), \@col ); };   
+    die "get ci info fail" unless $r && ref $r eq 'ARRAY';
+    return $r->[0];
+}
+
+my $src = getdat( $o{treeid}, $o{srcid} );
+my $dst = getdat( $o{treeid}, $o{dstid} );
+
+sub save
+{
+    my ( $row, $id ) = @_;
+    delete $row->{id};
+    $row->{name} = "_ci_${id}_";
+    my @c = keys %$row;
+    $db->execute( sprintf "insert into openc3_job_jobs (%s) values(%s)",join(',', map{ "`$_`"}@c),join(',',map{ "'$row->{$_}'" }@c) );
+}
+
+save( $src, $o{dstid} ) if $src && ! $dst;
