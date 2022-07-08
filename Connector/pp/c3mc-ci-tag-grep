@@ -11,7 +11,6 @@ $|++;
 =cut
 
 my %regex;
-
 sub getregex
 {
     my $id = shift @_;
@@ -22,12 +21,28 @@ sub getregex
     return $regex{$id} = $regex;
 }
 
+my %follow;
+sub follow
+{
+    my $id = shift @_;
+    return $follow{$id} if defined $follow{$id};
+    my @f = `c3mc-base-db-get -t openc3_ci_version name -f 'projectid=$id and status="success"'`;
+    chomp @f;
+    return $follow{$id} = +{ map{ $_ => 1 }@f };
+}
+
 sub igrep
 {
     my $str = shift @_;
     my ( $id, $tag ) = split /;/, $str, 2;
     die "id err" unless $id =~ /^\d+$/;
     return unless my $regex = getregex( $id );
+    if( $regex && $regex =~ /^ci:(\d+)$/ )
+    {
+        my $f = follow( $1 );
+        print "$str\n" if $f->{$tag};
+        return;
+    }
     print "$str\n" if $regex eq '_NULL_' || $tag =~ /$regex/;
 }
 

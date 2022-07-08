@@ -48,12 +48,12 @@ sub run
         }
 
         my $data = eval{JSON::from_json $res->content};
-        unless ( $data->{stat} && $data->{data} && $data->{data}{ticket} && $data->{data}{ticket}{JobBuildin} ) {
+        unless ( $data->{stat} && $data->{data} && $data->{data}{ticket} && ( $data->{data}{ticket}{JobBuildin} || $data->{data}{ticket}{KubeConfig} ) ) {
             #TODO 确认上层调用是否捕获这个die
             die "call ticket result". $data->{info} || '';
         }
 
-        $ticketfile = Temp->new( chmod => 0600 )->dump( $data->{data}{ticket}{JobBuildin} );
+        $ticketfile = Temp->new( chmod => 0600 )->dump( $data->{data}{ticket}{JobBuildin} ) if $data->{data}{ticket}{JobBuildin};
     }
 
     my $build;

@@ -1,0 +1,117 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use MYDB;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 --treeid id --srcns srcNamespace --dstns dstNamespace
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( treeid=i srcns=s dstns=s ) )->dump();
+$option->assert(qw( treeid srcns dstns ));
+
+my $db = MYDB->new( "/data/Software/mydan/CI/conf/conn" );
+
+my @col = qw(
+                        id
+                    status
+              autofindtags
+             callonlineenv
+               calltestenv
+          findtags_at_once
+                 autobuild
+                      name
+                excuteflow
+                  calljobx
+                   calljob
+                   webhook
+          webhook_password
+           webhook_release
+                      rely
+                buildimage
+              buildscripts
+                 follow_up
+        follow_up_ticketid
+                  callback
+                   groupid
+                 tag_regex
+                      addr
+                  ticketid
+                    notify
+                     slave
+             last_findtags
+     last_findtags_success
+                 edit_user
+                 edit_time
+                   ci_type
+          ci_type_ticketid
+              ci_type_kind
+         ci_type_namespace
+              ci_type_name
+         ci_type_container
+        ci_type_repository
+        ci_type_dockerfile
+ci_type_dockerfile_content
+              ci_type_open
+        ci_type_concurrent
+         ci_type_approver1
+         ci_type_approver2
+               audit_level
+                  cpulimit 
+                  memlimit 
+            buildcachepath 
+                 saveasdir
+           gitclonebycache
+);
+
+sub getcis
+{
+    my ( $treeid, $ns ) = @_;
+    my $r = eval{ $db->query( sprintf( "select %s from openc3_ci_project where groupid='$treeid' and status='1' and ci_type_namespace='$ns'", join( ",", map{"`$_`"}@col) ), \@col ); };   
+    die "get ci info fail" unless $r && ref $r eq 'ARRAY';
+    return $r;
+}
+
+my $src = getcis( $o{treeid}, $o{srcns} );
+my $dst = getcis( $o{treeid}, $o{dstns} );
+
+my %dst; map{ $dst{$_->{name}} = 1 }@$dst;
+my @src = grep{ ! $dst{$_->{name}} }@$src;
+
+sub saveci
+{
+    my ( $newns, $row ) =  @_;
+    delete $row->{id};
+    delete $row->{edit_time};
+    $row->{ci_type_namespace} = $newns;
+    $row->{edit_user} = 'sys-job-plugin';
+    my @c = keys %$row;
+    $db->execute( sprintf "insert into openc3_ci_project (%s) values(%s)",join( ',', map{ "`$_`"}@c),join(',',map{ "'$row->{$_}'" }@c) );
+}
+
+map{ saveci( $o{dstns}, $_ ) }@src;
+
+#ci copy done.
+
+$src = getcis( $o{treeid}, $o{srcns} );
+$dst = getcis( $o{treeid}, $o{dstns} );
+
+my %smap; map{ $smap{$_->{name}} = $_->{id} }@$src;
+my %dmap; map{ $dmap{$_->{name}} = $_->{id} }@$dst;
+
+sub fill
+{
+    my ( $treeid, $srcid, $dstid ) = @_;
+    die "fill err" if system "c3mc-flow-nsctl-copy-jobx --treeid $treeid --srcid $srcid --dstid $dstid --env test  ";
+    die "fill err" if system "c3mc-flow-nsctl-copy-jobx --treeid $treeid --srcid $srcid --dstid $dstid --env online";
+    die "fill err" if system "c3mc-flow-nsctl-copy-job  --treeid $treeid --srcid $srcid --dstid $dstid";
+}
+
+map{ fill( $o{treeid}, $smap{$_}, $dmap{$_} )  }grep{ $smap{$_} }keys %dmap;

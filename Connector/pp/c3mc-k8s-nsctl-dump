@@ -1,0 +1,33 @@
+#!/bin/bash
+set -e
+
+TICKETID=$1
+NAMESPACE=$2
+
+X=$(echo $TICKETID|grep -E "^[0-9]+$"| wc -l )
+if [ "X$X" == "X0" ];then
+    echo arg error
+    exit 1
+fi
+
+if [ "X$NAMESPACE" == "X" ];then
+   echo NAMESPACE null
+   exit 1
+fi
+
+kubectl=$(c3mc-k8s-kubectl-get -i $TICKETID)
+X=$(echo $kubectl|grep kubectl |wc -l )
+if [ "X$X" == "X0" ];then
+    echo nofind tickiet config
+    exit 1
+fi
+
+KIND=( deploy )
+#KIND=( deploy pv pvc )
+for kind in ${KIND[@]};do
+    NAME=(`bash -c "$kubectl -n $NAMESPACE get $kind -o custom-columns='NAME:metadata.name' --no-headers"`)
+    for name in ${NAME[@]};do
+        echo dump  $kind-$name.yaml
+        bash -c "$kubectl -n $NAMESPACE get $kind $name -o yaml > $kind-$name.yaml"
+    done
+done

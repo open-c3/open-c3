@@ -1,0 +1,60 @@
+#!/bin/bash
+set -e
+
+TICKETID=$1
+SRC=$2
+DST=$3
+
+X=$(echo $TICKETID|grep -E "^[0-9]+$"| wc -l )
+if [ "X$X" == "X0" ];then
+    echo arg error
+    exit
+fi
+
+if [ "X$SRC" == "X" ];then
+   echo SRC null
+   exit
+fi
+
+if [ "X$DST" == "X" ];then
+   echo DST null
+   exit
+fi
+
+kubectl=$(c3mc-k8s-kubectl-get -i $TICKETID)
+X=$(echo $kubectl|grep kubectl |wc -l )
+if [ "X$X" == "X0" ];then
+    echo nofind tickiet config
+    exit 1
+fi
+
+TASKUUID=$(date +%F_%H%M%S_%N)
+TEMPPATH=/data/open-c3-data/k8snsctl
+DISTPATH=$TEMPPATH/$TICKETID/$TASKUUID
+
+mkdir -p $DISTPATH
+
+cd $DISTPATH
+
+echo temp path: $DISTPATH
+
+if [ "XFORCEDELETE" == "X$SRC" ];then
+    c3mc-k8s-nsctl-dump $TICKETID $DST
+    NS=$( bash -c "$kubectl  get ns  -o custom-columns='NAME:metadata.name' --no-headers|grep \"^$DST$\"|wc -l")
+    if [ "X$NS" == "X1"  ];then
+        bash -c "$kubectl delete ns $DST"
+    fi
+    exit
+fi
+
+c3mc-k8s-nsctl-dump $TICKETID $SRC
+
+sed -i  "s/$SRC/$DST/g" *.yaml
+NS=$( bash -c "$kubectl  get ns  -o custom-columns='NAME:metadata.name' --no-headers|grep \"^$DST$\"|wc -l")
+if [ "X$NS" == "X0"  ];then
+    bash -c "$kubectl create ns $DST"
+fi
+
+c3mc-k8s-nsctl-dump $TICKETID $DST
+
+bash -c "$kubectl apply -f ."

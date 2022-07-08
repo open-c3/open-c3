@@ -1,0 +1,128 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib
+use strict;
+use warnings;
+
+$|++;
+
+use uuid;
+use POSIX;
+use MYDB;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 --treeid id --srcid id --dstid id
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( treeid=i srcid=i dstid=i ) )->dump();
+$option->assert(qw( treeid srcid dstid ));
+
+my $db = MYDB->new( "/data/Software/mydan/JOB/conf/conn" );
+
+my @col = qw(
+         id
+  projectid
+       uuid
+       name
+      uuids
+     status
+    mon_ids
+ mon_status
+create_user
+create_time
+  edit_user
+  edit_time
+);
+
+sub getdat
+{
+    my ( $treeid, $id ) = @_;
+    my $r = eval{ $db->query( sprintf( "select %s from openc3_job_jobs where projectid='$treeid' and name='_ci_${id}_'", join( ",", map{"`$_`"}@col) ), \@col ); };   
+    die "get ci info fail" unless $r && ref $r eq 'ARRAY';
+    return $r->[0];
+}
+
+my $src = getdat( $o{treeid}, $o{srcid} );
+my $dst = getdat( $o{treeid}, $o{dstid} );
+
+sub deepcopy
+{
+    my ( $type, $oldjobuuid, $olduuid, $newjobuuid, $newuuid ) = @_;
+    my %col;
+
+    $col{cmd} = [ qw(
+        name         user          node_type     node_cont
+        scripts_type scripts_cont  scripts_argv  timeout
+        pause        deployenv     action        batches
+    ) ];
+
+    $col{scp} = [ qw(
+        name     user       src       src_type
+        sp       dst        dst_type  dp
+        chown    chmod      timeout   scp_delete
+        pause    deployenv  action    batches
+    ) ];
+
+    $col{approval} = [ qw(
+       name     cont          approver   deployenv
+       action   batches       everyone   timeout
+       pause    create_time   relaxed
+    ) ];
+
+    die "unkown plugin: $type" unless my $col = $col{$type};
+
+    #anchor: openc3_job_plugin_cmd
+    #anchor: openc3_job_plugin_scp
+    #anchor: openc3_job_plugin_approval
+    $db->execute(
+        sprintf "insert into openc3_job_plugin_$type(`jobuuid`,`uuid`,%s) select '%s','%s',%s from openc3_job_plugin_$type where jobuuid='%s' and uuid='%s'",
+        join(',', map{"`$_`"}@$col),
+        $newjobuuid,
+        $newuuid,
+        join(',', map{"`$_`"}@$col),
+        $oldjobuuid,
+        $olduuid,
+    );
+}
+
+sub save
+{
+    my ( $row, $id ) = @_;
+    delete $row->{id};
+
+    $row->{create_time} = $row->{edit_time} = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
+    $row->{create_user} = $row->{edit_user} = 'sys-job-plugin';
+
+    $row->{name} = "_ci_${id}_";
+
+    my $oldjobuuid = $row->{uuid};
+    $row->{uuid}   = uuid->new()->create_str;
+    my $newjobuuid = $row->{uuid};
+
+    my @olduuid = split  /,/, $row->{uuids};
+    my @newuuid;
+
+    for ( @olduuid )
+    {
+        next unless $_ =~ /^([a-z]+)_([a-zA-Z0-9]+)$/;
+        my ( $plugin, $olduuid ) = ( $1, $2 );
+        my $newuuid = uuid->new()->create_str;
+        deepcopy( $plugin, $oldjobuuid, $olduuid, $newjobuuid, $newuuid );
+        push @newuuid, "${plugin}_$newuuid";
+    }
+
+    $row->{uuids} = join ',', @newuuid;
+
+    $db->execute( join ' ',
+        "insert into openc3_job_variable(`jobuuid`,`name`,`value`,`describe`,`create_user`,`option`,`env`)",
+        "select '$newjobuuid',`name`,`value`,`describe`,'sys-job-plugin',`option`,`env` from openc3_job_variable",
+        "where jobuuid='$oldjobuuid'"
+    );
+
+    my @c = keys %$row;
+    $db->execute( sprintf "insert into openc3_job_jobs (%s) values(%s)",join(',', map{ "`$_`"}@c),join(',',map{ "'$row->{$_}'" }@c) );
+}
+
+save( $src, $o{dstid} ) if $src && ! $dst;

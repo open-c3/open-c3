@@ -35,6 +35,12 @@ get '/kubernetes/deployment' => sub {
         status    => $param->{status},
         rowfilter => +{ key => \@ns, col => [ 'NAMESPACE' ] } ,
     };
+
+    if( $param->{namespace} )
+    {
+        $filter->{rowfilter} = +{} if ( ! @ns ) || ( @ns && grep{ $_ eq $param->{namespace} }@ns );
+    }
+
     my $argv = $param->{namespace} ? "-n $param->{namespace}" : "-A";
     my ( $cmd, $handle ) = ( "$kubectl get deployment $argv 2>/dev/null", 'showtable' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle, filter => $filter }} if request->headers->{"openc3event"};
