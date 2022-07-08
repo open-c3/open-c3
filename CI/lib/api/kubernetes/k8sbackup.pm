@@ -53,8 +53,13 @@ get '/kubernetes/k8sbackup/download' => sub {
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
-    my $r = eval{ $api::mysql->query( "select create_user from openc3_ci_ticket where id='$param->{ticketid}' and create_user='$user'" ); };
-    return +{ stat => $JSON::false, info => "Only allow owner to download" } unless $r && @$r;
+    my $r = eval{
+         $api::mysql->query( join ' ',
+             "select create_user from openc3_ci_ticket where id='$param->{ticketid}'",
+             "and ( create_user='$user' or ( edit_share='$user' or edit_share like '%%,$user,%%' or edit_share like '$user,%%' or edit_share like '%%,$user' ) )"
+         );
+    };
+    return +{ stat => $JSON::false, info => "unauthorized" } unless $r && @$r;
 
     my $path = "$datapath/$param->{ticketid}/$param->{name}";
     my $name = sprintf "K8S.%s%s.$param->{name}", uuid->new()->create_str, uuid->new()->create_str;
