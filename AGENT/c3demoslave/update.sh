@@ -44,5 +44,11 @@ function http()
     | grep c3demoslave_openc3-demo-slave \
     | awk '{print $NF}' \
     | xargs -i{} docker cp /data/Software/mydan/AGENT/c3demoslave/python.http {}:/opt/mydan/dan/bootstrap/exec/python.http
+
+    #for selfhealing
+    docker ps \
+    | grep c3demoslave_openc3-demo-slave \
+    | awk '{print $NF}' \
+    | xargs -i{} docker cp /data/Software/mydan/AGENT/c3demoslave/python.http {}:/opt/mydan/dan/bootstrap/python.http
 }
 http
