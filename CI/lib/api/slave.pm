@@ -248,6 +248,9 @@ put '/killbuild/:uuid' => sub {
 
   system "kill -TERM -$data->{pid} 1>/dev/null 2>&1";
   sleep 1;
+
+  system sprintf "echo -e '%s\nkill by $user' | c3mc-base-log-addtime >> $RealBin/../logs/build/$uuid", join "\n", map{ ' ' x 80 } 1 .. 8;
+
   return (system "kill -0 -$data->{pid} 1>/dev/null 2>&1" )
       ? JSON::to_json( +{ stat => $JSON::true,  info => "kill build succcess" } )
       : JSON::to_json( +{ stat => $JSON::false, info => "kill build fail"     } );
