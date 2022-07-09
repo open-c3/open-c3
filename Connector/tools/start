@@ -16,7 +16,7 @@ $base =~ s#/[^/]+$##;
 
 print "start connector\n";
 
-die if system "cp $RealBin/../pp/c3mc-* /usr/bin";
+die if system "$RealBin/../pp/c3mc-install";
 
 my $Config = eval{ YAML::XS::LoadFile "$RealBin/../config/Config";};
 die "load Config fail: $!" unless $Config;
