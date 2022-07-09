@@ -5,7 +5,7 @@
         .module('openc3')
         .controller('FindTagController', FindTagController);
 
-    function FindTagController($uibModalInstance, $location, $anchorScroll, $state, $http, $uibModal, treeService, ngTableParams, resoureceService, $websocket, $injector ) {
+    function FindTagController($uibModalInstance, $location, $anchorScroll, $state, $http, $uibModal, treeService, ngTableParams, resoureceService, $websocket, $injector, $interval, $scope ) {
 
         var vm = this;
         vm.treeid = $state.params.treeid;
@@ -51,6 +51,20 @@
              });
 
         }
+
+        var rc = 0;
+        var reRun = $interval(function () {
+            rc = rc + 1;
+            if( rc < 300 )
+            {
+                vm.ws.send("H")
+            }
+        }, 6000);
+
+        $scope.$on('$destroy', function(){
+            $interval.cancel(reRun);
+            vm.ws.onClose();
+        });
 
         vm.reloadprojectinfo = function(){
             $http.get('/api/ci/project/' + vm.treeid + '/' + vm.projectid ).success(function(data){

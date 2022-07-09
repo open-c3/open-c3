@@ -9,7 +9,7 @@
             bindings: { taskuuid: '=', jobxaddr: '='}
         });
 
-    function taskLogController($websocket, $location, $injector) {
+    function taskLogController($websocket, $location, $injector, $interval, $scope) {
         var vm = this;
         vm.height = vm.height || '200';
         var toastr = toastr || $injector.get('toastr');
@@ -37,5 +37,21 @@
         function setMessageInnerHTML(innerHTML) {
             document.getElementById('messagejobxtask').innerHTML += innerHTML + '<br/>';
         }
+
+        var rc = 0;
+        var reRun = $interval(function () {
+            rc = rc + 1;
+            if( rc < 300 )
+            {
+                vm.ws.send("H")
+            }
+
+        }, 6000);
+
+        $scope.$on('$destroy', function(){
+            $interval.cancel(reRun);
+            vm.ws.onClose();
+        });
+
     }
 })();

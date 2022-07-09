@@ -19,41 +19,6 @@
             vm.nodeStr = treeService.selectname();
         });
 
-        vm.openws = function()
-        {
-            vm.siteaddr = window.location.host;
-
-            var wsH = "ws://"
-            if ( window.location.protocol == 'https:' )
-            {
-                wsH = "wss://"
-            }
-            var urlMySocket = wsH + vm.siteaddr + "/api/ci/slave/"+ vm.project.slave +"/ws?uuid="+ vm.treeid;
-            vm.ws = $websocket(urlMySocket);
-
-            vm.logDetail = '';
-            vm.ws.onOpen(function (){
-               console.log("opening ws");
-            });
-
-             vm.ws.onMessage(function (message) {
-                 if(  message.data == 'wsresetws' )
-                 {
-                     vm.logDetail = '';
-                 }
-                 else
-                 {
-                     vm.logDetail = vm.logDetail + message.data
-                 }
-
-             });
-
-             vm.ws.onError(function (message) {
-                 toastr.error('打开日志失败')
-             });
-
-        }
-
         vm.versiondetail = function (groupid,id) {
             $state.go('home.quickentry.flowlinedetail', {treeid:groupid, projectid: id});
         };
