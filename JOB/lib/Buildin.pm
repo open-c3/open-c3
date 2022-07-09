@@ -35,25 +35,29 @@ sub run
 
     if( $ticketid ) # != 0
     {
-        my %env = Util::envinfo( qw( appname appkey ) );
-        my $ua = LWP::UserAgent->new;
-        $ua->default_header( %env );
-
-        my $res = $ua->get( "http://api.ci.open-c3.org/ticket/$ticketid?detail=1" );
-
-        unless( $res->is_success )
-        {
-            #TODO 确认上层调用是否捕获这个die
-            die "get ticket fail";
-        }
-
-        my $data = eval{JSON::from_json $res->content};
-        unless ( $data->{stat} && $data->{data} && $data->{data}{ticket} && ( $data->{data}{ticket}{JobBuildin} || $data->{data}{ticket}{KubeConfig} ) ) {
-            #TODO 确认上层调用是否捕获这个die
-            die "call ticket result". $data->{info} || '';
-        }
-
-        $ticketfile = Temp->new( chmod => 0600 )->dump( $data->{data}{ticket}{JobBuildin} ) if $data->{data}{ticket}{JobBuildin};
+#        my %env = Util::envinfo( qw( appname appkey ) );
+#        my $ua = LWP::UserAgent->new;
+#        $ua->default_header( %env );
+#
+#        my $res = $ua->get( "http://api.ci.open-c3.org/ticket/$ticketid?detail=1" );
+#
+#        unless( $res->is_success )
+#        {
+#            #TODO 确认上层调用是否捕获这个die
+#            die "get ticket fail";
+#        }
+#
+#        my $data = eval{JSON::from_json $res->content};
+#        unless ( $data->{stat} && $data->{data} && $data->{data}{ticket} && ( $data->{data}{ticket}{JobBuildin} || $data->{data}{ticket}{KubeConfig} ) ) {
+#            #TODO 确认上层调用是否捕获这个die
+#            die "call ticket result". $data->{info} || '';
+#        }
+#
+#        $ticketfile = Temp->new( chmod => 0600 )->dump( $data->{data}{ticket}{JobBuildin} ) if $data->{data}{ticket}{JobBuildin};
+#
+        my $x = `c3mc-base-db-get -t openc3_ci_ticket ticket -f "type='JobBuildin' and id=$ticketid"`;
+        chomp $x;
+        $ticketfile = Temp->new( chmod => 0600 )->dump( $x ) if $x;
     }
 
     my $build;
