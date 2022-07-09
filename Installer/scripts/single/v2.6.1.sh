@@ -41,3 +41,5 @@ if [ ! -f /data/open-c3-data/cloudmon/docker-compose ]; then
 fi
 
 docker exec -i openc3-server /data/Software/mydan/perl/bin/cpan install Net::LDAP
+
+docker exec -i openc3-server bash -c "curl -L http://openc3-srv-docker/api/scripts/installAgent.sh |OPEN_C3_ADDR=http://openc3-srv-docker bash"
