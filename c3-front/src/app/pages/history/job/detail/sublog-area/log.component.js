@@ -38,13 +38,21 @@
             document.getElementById('messagejobsubtask').innerHTML += innerHTML + '<br/>';
         }
 
+
+        var rc = 0;
         var reRun = $interval(function () {
             if (vm.taskuuid){ vm.reload(); }
-            vm.ws.send("H")
-        }, 5000);
+            rc = rc + 1;
+            if( rc < 300 )
+            {
+                vm.ws.send("H")
+            }
+ 
+        }, 6000);
 
         $scope.$on('$destroy', function(){
             $interval.cancel(reRun);
+            vm.ws.onClose();
         });
     }
 })();

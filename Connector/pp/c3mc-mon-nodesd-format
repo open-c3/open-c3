@@ -44,9 +44,6 @@ for( @treemap )
     $treemap{$treeid} = $treename;
 }
 
-my $serveraddr = `c3mc-base-hostexip`;
-chomp $serveraddr;
-
 # target
 my @target;
 for my $ip ( keys %ip )
@@ -57,7 +54,7 @@ for my $ip ( keys %ip )
         $lables{"treeid_$_"} = $treemap{$_} || "1";
     }keys %{$ip{$ip}};
 
-    push @target, +{ targets => [ $serveraddr ], labels => \%lables };
+    push @target, +{ targets => [ 'openc3-srv-docker' ], labels => \%lables };
 }
 
 if( $o{output} )

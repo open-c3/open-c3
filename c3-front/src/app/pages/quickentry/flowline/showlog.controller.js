@@ -4,7 +4,7 @@
         .module('openc3')
         .controller('CiShowLogController', CiShowLogController);
 
-    function CiShowLogController($uibModalInstance, $http, $state, nodeStr, ngTableParams, reloadhome, versionuuid, slave, $websocket, $injector, $scope, $sce, $timeout ) {
+    function CiShowLogController($uibModalInstance, $http, $state, nodeStr, ngTableParams, reloadhome, versionuuid, slave, $websocket, $injector, $scope, $sce, $timeout, $interval ) {
 
         var vm = this;
         vm.nodeStr = nodeStr;
@@ -55,6 +55,20 @@
         }
 
         vm.openws();
+
+        var rc = 0;
+        var reRun = $interval(function () {
+            rc = rc + 1;
+            if( rc < 300 )
+            {
+                vm.ws.send("H")
+            }
+        }, 6000);
+
+        $scope.$on('$destroy', function(){
+            $interval.cancel(reRun);
+            vm.ws.onClose();
+        });
  
      }
 })();

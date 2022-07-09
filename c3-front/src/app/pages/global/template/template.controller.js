@@ -124,8 +124,8 @@
         };
 //Monitor
         vm.emailMonitorSet = function () {
-            vm.environment.monitorTemplateEmailTitle = "报警通知: ${cont}";
-            vm.environment.monitorTemplateEmailContent = "报警通知: ${cont}\n\n详情:" + window.location.protocol + '//' + window.location.host + "/#/monitor/${case_id}";
+            vm.environment.monitorTemplateEmailTitle   = "告警名称: ${labels.alertname} 状态：${statusZH}";
+            vm.environment.monitorTemplateEmailContent = "[openc3]\n状态：${statusZH}\n告警时间: ${startsAtZH}\n\n监控对象: ${labels.instance}\n对象别名: ${instancealias}\n\n服务树: ${treename}\n\n告警名称: ${labels.alertname}\n告警概要: ${annotations.summary}\n故障描述：\n${annotations.descriptions}";
         };
 
         vm.emailMonitorSave = function () {
@@ -135,7 +135,7 @@
             vm.save( emailDetail )
         };
         vm.smsMonitorSet = function () {
-            vm.environment.monitorTemplateSmsContent = "告警通知: ${cont}\n\n详情:" + window.location.protocol + '//' + window.location.host + "/#/monitor/${case_id}";
+            vm.environment.monitorTemplateSmsContent = "[openc3]\n状态：${statusZH}\n告警时间: ${startsAtZH}\n\n监控对象: ${labels.instance}\n对象别名: ${instancealias}\n\n服务树: ${treename}\n\n告警名称: ${labels.alertname}\n告警概要: ${annotations.summary}\n故障描述：\n${annotations.descriptions}";
         };
         vm.smsMonitorSave = function () {
             var msmDetail = {};
@@ -144,7 +144,7 @@
         };
 
         vm.callMonitorSet = function () {
-            vm.environment.monitorTemplateCallContent = "语音告警，监控对象: ${labels.instance} ${annotations.description}";
+            vm.environment.monitorTemplateCallContent = "语音告警，监控对象: ${labels.instance} ${annotations.descriptions}";
         };
         vm.callMonitorSave = function () {
             var callDetail = {};
@@ -155,8 +155,8 @@
 //
 //Mailmon
         vm.emailMailmonSet = function () {
-            vm.environment.mailmonTemplateEmailTitle = "报警通知: ${cont}";
-            vm.environment.mailmonTemplateEmailContent = "报警通知: ${cont}\n\n详情:" + window.location.protocol + '//' + window.location.host + "/#/mailmon/${case_id}";
+            vm.environment.mailmonTemplateEmailTitle   = "邮件监控: ${labels.subject}";
+            vm.environment.mailmonTemplateEmailContent = "账号： ${labels.account}\n内容：\n ${labels.content}\n";
         };
 
         vm.emailMailmonSave = function () {
@@ -166,7 +166,7 @@
             vm.save( emailDetail )
         };
         vm.smsMailmonSet = function () {
-            vm.environment.mailmonTemplateSmsContent = "告警通知: ${cont}\n\n详情:" + window.location.protocol + '//' + window.location.host + "/#/mailmon/${case_id}";
+            vm.environment.mailmonTemplateSmsContent = "账号：\n${labels.account}\n邮件标题：\n${labels.subject}\n邮件内容:\n${labels.content100}";
         };
         vm.smsMailmonSave = function () {
             var msmDetail = {};
@@ -175,7 +175,7 @@
         };
 
         vm.callMailmonSet = function () {
-            vm.environment.mailmonTemplateCallContent = "语音告警，监控对象: ${labels.instance} ${annotations.description}";
+            vm.environment.mailmonTemplateCallContent = "账号： ${labels.account}\n邮件标题：\n${labels.subject}";
         };
         vm.callMailmonSave = function () {
             var callDetail = {};

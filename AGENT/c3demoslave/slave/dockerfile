@@ -2,6 +2,8 @@ FROM centos:7
 MAINTAINER lijinfeng2011
 
 RUN yum install make wget rsync -y
+#monitor port command: ss
+RUN yum install iproute -y
 RUN mkdir -p /etc/cron.d
 
 ARG OPEN_C3_ADDR

@@ -25,6 +25,7 @@
 
         var toastr = toastr || $injector.get('toastr');
 
+        vm.getScpCmdTaskLoaded = false;
         vm.getScpCmdTask = function () {
             $http.get('/api/job/task/' + vm.treeid + "/" + vm.taskuuid  ).then(
                 function successCallback(response) {
@@ -267,7 +268,11 @@
                         if(vm.jobtype =='jobs') {
                             vm.getsubTaskDetails();
                         }else if (vm.jobtype){
-                            vm.getScpCmdTask();
+                            if( vm.getScpCmdTaskLoaded == false )
+                            {
+                                vm.getScpCmdTask();
+                            }
+                            vm.getScpCmdTaskLoaded = true;
                         }
 
                     }else {

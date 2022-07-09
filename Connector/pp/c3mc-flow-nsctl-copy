@@ -87,16 +87,20 @@ my @src = grep{ ! $dst{$_->{name}} }@$src;
 
 sub saveci
 {
-    my ( $newns, $row ) =  @_;
+    my ( $oldns, $newns, $row ) =  @_;
     delete $row->{id};
     delete $row->{edit_time};
     $row->{ci_type_namespace} = $newns;
     $row->{edit_user} = 'sys-job-plugin';
+
+    $row->{ ci_type_dockerfile } =~ s/$oldns/$newns/g;
+    $row->{ tag_regex          } =~ s/$oldns/$newns/g;
+
     my @c = keys %$row;
     $db->execute( sprintf "insert into openc3_ci_project (%s) values(%s)",join( ',', map{ "`$_`"}@c),join(',',map{ "'$row->{$_}'" }@c) );
 }
 
-map{ saveci( $o{dstns}, $_ ) }@src;
+map{ saveci( $o{srcns}, $o{dstns}, $_ ) }@src;
 
 #ci copy done.
 

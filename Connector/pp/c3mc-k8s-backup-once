@@ -26,29 +26,46 @@ NS_NAME=(`bash -c "$kubectl get ns  -o custom-columns='NAME:metadata.name' --no-
 
 for ns in "${NS_NAME[@]}";do
     mkdir -p $DISTPATH/$ns
-    DEPLOY_NAME=(`bash -c "$kubectl -n $ns get deploy  -o custom-columns='NAME:metadata.name' --no-headers"`)
-    SVC_NAME=(`bash -c "$kubectl -n $ns get svc  -o custom-columns='NAME:metadata.name' --no-headers"`)
-    CM_NAME=(`bash -c "$kubectl -n $ns get cm  -o custom-columns='NAME:metadata.name' --no-headers"`)
-    SECRET_NAME=(`bash -c "$kubectl -n $ns get secret -o custom-columns='NAME:metadata.name' --no-headers"`)
-    DAEMONSET_NAME=(`bash -c "$kubectl -n $ns get daemonset -o custom-columns='NAME:metadata.name' --no-headers"`)
-    STATEFULSET_NAME=(`bash -c "$kubectl -n $ns get statefulset -o custom-columns='NAME:metadata.name' --no-headers"`)
-    for dep in ${DEPLOY_NAME[@]};do
-         bash -c "$kubectl -n $ns get deploy $dep -o yaml > $DISTPATH/$ns/deployment-$dep.yaml"
+    DEPLOY_NAME=(          `bash -c "$kubectl -n $ns get deploy          -o custom-columns='NAME:metadata.name' --no-headers"`)
+    SVC_NAME=(             `bash -c "$kubectl -n $ns get svc             -o custom-columns='NAME:metadata.name' --no-headers"`)
+    CM_NAME=(              `bash -c "$kubectl -n $ns get cm              -o custom-columns='NAME:metadata.name' --no-headers"`)
+    SECRET_NAME=(          `bash -c "$kubectl -n $ns get secret          -o custom-columns='NAME:metadata.name' --no-headers"`)
+    DAEMONSET_NAME=(       `bash -c "$kubectl -n $ns get daemonset       -o custom-columns='NAME:metadata.name' --no-headers"`)
+    STATEFULSET_NAME=(     `bash -c "$kubectl -n $ns get statefulset     -o custom-columns='NAME:metadata.name' --no-headers"`)
+    INGRESS_NAME=(         `bash -c "$kubectl -n $ns get ingress         -o custom-columns='NAME:metadata.name' --no-headers"`)
+    INGRESSROUTE_NAME=(    `bash -c "$kubectl -n $ns get ingressroute    -o custom-columns='NAME:metadata.name' --no-headers" 2>/dev/null`)
+    INGRESSROUTETCP_NAME=( `bash -c "$kubectl -n $ns get ingressroutetcp -o custom-columns='NAME:metadata.name' --no-headers" 2>/dev/null`)
+    INGRESSCLASS_NAME=(    `bash -c "$kubectl -n $ns get ingressclass    -o custom-columns='NAME:metadata.name' --no-headers"`)
+
+    for n in ${DEPLOY_NAME[@]};do
+        bash -c "$kubectl -n $ns get deploy          $n -o yaml > $DISTPATH/$ns/deployment-$n.yaml"
     done
-    for svc in ${SVC_NAME[@]};do
-        bash -c "$kubectl -n $ns get svc $svc -o yaml > $DISTPATH/$ns/service-$svc.yaml"
+    for n in ${SVC_NAME[@]};do
+        bash -c "$kubectl -n $ns get svc             $n -o yaml > $DISTPATH/$ns/service-$n.yaml"
     done
-    for cm in ${CM_NAME[@]};do
-        bash -c "$kubectl -n $ns get configmap $cm -o yaml > $DISTPATH/$ns/configmap-$cm.yaml"
+    for n in ${CM_NAME[@]};do
+        bash -c "$kubectl -n $ns get configmap       $n -o yaml > $DISTPATH/$ns/configmap-$n.yaml"
     done
-    for sec in ${SECRET_NAME[@]};do
-        bash -c "$kubectl -n $ns get secret $sec -o yaml > $DISTPATH/$ns/secret-$sec.yaml"
+    for n in ${SECRET_NAME[@]};do
+        bash -c "$kubectl -n $ns get secret          $n -o yaml > $DISTPATH/$ns/secret-$n.yaml"
     done
-    for daem in ${DAEMONSET_NAME[@]};do
-        bash -c "$kubectl -n $ns get daemonset $daem -o yaml > $DISTPATH/$ns/daemonset-$daem.yaml"
+    for n in ${DAEMONSET_NAME[@]};do
+        bash -c "$kubectl -n $ns get daemonset       $n -o yaml > $DISTPATH/$ns/daemonset-$n.yaml"
     done
-    for sts in ${STATEFULSET_NAME[@]};do
-        bash -c "$kubectl -n $ns get statefulset $sts -o yaml > $DISTPATH/$ns/statefulset-$sts.yaml"
+    for n in ${STATEFULSET_NAME[@]};do
+        bash -c "$kubectl -n $ns get statefulset     $n -o yaml > $DISTPATH/$ns/statefulset-$n.yaml"
+    done
+    for n in ${INGRESS_NAME[@]};do
+        bash -c "$kubectl -n $ns get ingress         $n -o yaml > $DISTPATH/$ns/ingress-$n.yaml"
+    done
+    for n in ${INGRESSROUTE_NAME[@]};do
+        bash -c "$kubectl -n $ns get ingressroute    $n -o yaml > $DISTPATH/$ns/ingressroute-$n.yaml"
+    done
+    for n in ${INGRESSROUTETCP_NAME[@]};do
+        bash -c "$kubectl -n $ns get ingressroutetcp $n -o yaml > $DISTPATH/$ns/ingressroutetcp-$n.yaml"
+    done
+    for n in ${INGRESSCLASS_NAME[@]};do
+        bash -c "$kubectl -n $ns get ingressclass    $n -o yaml > $DISTPATH/$ns/ingressclass-$n.yaml"
     done
 done
 
