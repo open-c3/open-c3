@@ -295,3 +295,6 @@ ALTER TABLE openc3_ci_project ADD `saveasdir` VARCHAR(4) DEFAULT '0' comment '�
 
 # v2.6.0 sql openc3_ci_project add gitclonebycache
 ALTER TABLE openc3_ci_project ADD `gitclonebycache` VARCHAR(4) DEFAULT '0' comment 'git clone的时候使用缓存目录';
+
+# v2.6.0 sql openc3_job_plugin_cmd modify scripts_cont to 15000
+ALTER TABLE openc3_job_plugin_cmd modify `scripts_cont` varchar(15000) DEFAULT NULL COMMENT '脚本内容,或引用的编号';
