@@ -45,3 +45,4 @@ docker exec -i openc3-server /data/Software/mydan/perl/bin/cpan install Net::LDA
 docker exec -i openc3-server bash -c "curl -L http://openc3-srv-docker/api/scripts/installAgent.sh |OPEN_C3_ADDR=http://openc3-srv-docker bash"
 
 mkdir -p /data/open-c3-data/cache/nodeinfo
+mkdir -p /data/open-c3-data/cache/treemap
