@@ -59,6 +59,8 @@ sub getnodeinfo
     my $cache     = "/data/open-c3-data/cache/nodeinfo/nodeinfo-$id";
     my $cachetime =  OPENC3::SysCtl->new()->getint( 'sys.cache.nodeinfo.timeout', 0, 86400 * 365, 60 );
 
+    $cachetime = 604800 if -f '/var/openc3_connector_api_fail';
+
     if( $cachetime && -f $cache )
     {
         my $ctime = ( stat $cache )[9]; #mtime
