@@ -13,6 +13,7 @@ use MYDan::Util::OptConf;
 use LWP::UserAgent;
 use JSON;
 use Configini;
+use OPENC3::SysCtl;
 
 =head1 SYNOPSIS
 
@@ -55,7 +56,37 @@ sub getnodeinfo
         return;
     }
 
-    my $cache = "/data/open-c3-data/cache/nodeinfo/nodeinfo-$id";
+    my $cache     = "/data/open-c3-data/cache/nodeinfo/nodeinfo-$id";
+    my $cachetime =  OPENC3::SysCtl->new()->getint( 'sys.cache.nodeinfo.timeout', 0, 86400 * 365, 60 );
+
+    if( $cachetime && -f $cache )
+    {
+        my $ctime = ( stat $cache )[9]; #mtime
+        if( $ctime + $cachetime > time )
+        {
+            my $v;
+            eval{
+                $v = eval{ YAML::XS::LoadFile $cache };
+                die "get cache fail: $@" if $@;
+                die "stat no true"   unless $v->{stat};
+                die "data no ARRAY"  unless $v->{data} && ref $v->{data} eq 'ARRAY';
+            };
+
+            if( $@ )
+            {
+                warn "get cache fail: $@";
+            }
+            else
+            {
+                for my $t ( @{$v->{data}} )
+                {
+                    $t->{projectid} = $id;
+                    printf "%s\n", join ';', map{ $t->{$_} || '' }@col;
+                }
+                return;
+            }
+        }
+    }
 
     my $ua = LWP::UserAgent->new;
     $ua->timeout( 15 );
@@ -89,6 +120,7 @@ sub getnodeinfo
     if( $@ )
     {
         warn "$err $@";
+        #TODO if cache too old ?
         $v = eval{ YAML::XS::LoadFile $cache };
         die "get cache fail: $@" if $@;
         die "stat no true"   unless $v->{stat};
@@ -96,8 +128,14 @@ sub getnodeinfo
     }
     else
     {
-        eval{ YAML::XS::DumpFile $cache, $v };
-        warn "set cache fail: $@" if $@;
+        if( $cachetime )
+        {
+            eval{
+                YAML::XS::DumpFile "$cache.tmp.$$", $v;
+                die "rename fail" unless rename "$cache.tmp.$$", $cache;
+            };
+            warn "set cache fail: $@" if $@;
+        }
     }
 
     for my $t ( @{$v->{data}} )
