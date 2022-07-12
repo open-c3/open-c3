@@ -6,8 +6,9 @@ use YAML::XS;
 use LWP::UserAgent;
 use Logs;
 use Digest::MD5;
-my %app;
-my ( $ssousername, %env, $debug, $apicache );
+use OPENC3::SysCtl;
+
+my ( $ssousername, %env, %app );
 BEGIN{
     for my $file ( glob "/data/Software/mydan/*/conf/appname" )
     {
@@ -18,14 +19,12 @@ BEGIN{
         chomp $key;
         $app{$name} = $key eq 'c3random' && $ENV{OPEN_C3_RANDOM} ? $ENV{OPEN_C3_RANDOM} : $key;
     }
-    use Configini;
-    $ssousername = Configini::get( 'ssousername' );
-    %env = Configini::env( 'ssousernameenv' );
-    die "ssousername undef on config.ini" unless $ssousername;
 
-    $debug = Configini::get( 'debug' );
-    $apicache = Configini::get( 'apicache' );
-    $apicache = 0 unless $apicache && $apicache =~ /^\d+$/;
+    use Configini;
+    $ssousername = Configini::get( 'ssousername'    );
+    %env         = Configini::env( 'ssousernameenv' );
+
+    die "ssousername undef on config.ini" unless $ssousername;
 };
 
 $| ++;
@@ -45,90 +44,115 @@ return sub
 {
     my %param = @_;
 
-    my $logs = $param{logs};
-
-    $logs = Logs->new( 'code.sso' ) unless $logs;
-
     return 'debug@api' if $ENV{MYDan_DEBUG};
     if( $param{appkey} && $param{appname} )
     {
          return undef unless $app{$param{appname}} && $app{$param{appname}} eq $param{appkey};
          return wantarray ? ( "$param{appname}\@app", '@app' ) : "$param{appname}\@app";
     }
+
+    my $return = sub{
+        my $v = shift @_;
+        my @return = ( ref $v->{data} eq 'HASH' && $v->{data}{user} && $v->{data}{company} )
+            ?
+                (
+                    $v->{data}{ user          },
+                    $v->{data}{ company       },
+                    $v->{data}{ admin         },
+                    $v->{data}{ showconnector }
+                 )
+            : ref $v->{data} eq 'HASH'
+                ? () #Error
+                : ( $v->{data}, $v->{data} =~ /(@.+)$/ ? $1 : 'default' );
+
+        if( @return >= 2 && $return[0] && $return[0] =~ /^[a-zA-Z0-9\@\-\.-]+$/ )
+        {
+            my $x = `c3mc-base-db-get -t openc3_connector_userdepartment department -f "user='$return[0]'"`;
+            chomp $x;
+            $return[1] = $x if $x =~ /^[a-zA-Z0-9\@\-\.-]+$/;
+        }
+        return @return;
+    };
+
+    my $md5       = Digest::MD5->new->add( "$ssousername$param{cookie}" )->hexdigest;
+    my $cache     = "/data/open-c3-data/cache/userinfo/userinfo-$md5";
+    my $cachetime =  OPENC3::SysCtl->new()->getint( 'sys.cache.userinfo.timeout', 0, 86400 * 365, 60 );
+
+    $cachetime = 604800 if -f '/var/openc3_connector_api_fail';
+
+    if( $cachetime && -f $cache )
+    {
+        my $ctime = ( stat $cache )[9]; #mtime
+        if( $ctime + $cachetime > time )
+        {
+            my $v;
+            eval{
+                $v = eval{ YAML::XS::LoadFile $cache };
+                die "get cache fail: $@" if $@;
+                die "stat no true"   unless $v->{stat};
+                die "data no HASH"   unless $v->{data} && ref $v->{data} eq 'HASH';
+            };
+            if( $@ )
+            {
+                warn "get cache fail: $@";
+            }
+            else
+            {
+                my @return = &$return( $v );
+                return wantarray ? @return : $return[0];
+            }
+        }
+    }
+
+    my $ua = LWP::UserAgent->new;
+    $ua->timeout( 15 );
+    $ua->default_header( %env ) if %env;
+
+    my ( $res, $err );
+    for my $i ( reverse 1 .. 3 )
+    {
+        $res = $ua->get( "$ssousername$param{cookie}" );
+        $err = sprintf "get nodeinfo fail: $ssousername$param{cookie}: %s", YAML::XS::Dump $res;
+        $err =~ s/appkey:\s+['"]?[a-zA-Z0-9]{32}['"]?\b/appkey: ******/g;
+        last if $res->is_success;
+        if( $i > 1 )
+        {
+            warn sprintf( "$err code %s", $res->code );
+            sleep 3;
+        }
+    }
+
+    my $v;
+    eval{
+        die sprintf( "code %s", $res->code ) unless $res->is_success;
+        $v = eval{JSON::decode_json $res->decoded_content};
+
+        die "data no JSON: $@" if $@;
+        die "stat no true" unless $v->{stat};
+        die "data no HASH" unless $v->{data} && ref $v->{data} eq 'HASH';
+    };
+
+    if( $@ )
+    {
+        warn "$err $@";
+        #TODO if cache too old ?
+        $v = eval{ YAML::XS::LoadFile $cache };
+        die "get cache fail: $@" if $@;
+        die "stat no true"   unless $v->{stat};
+        die "data no HASH"   unless $v->{data} && ref $v->{data} eq 'HASH';
+    }
     else
     {
-        my $ua = LWP::UserAgent->new;
-        $ua->default_header( %env ) if %env;
-
-        $ua->timeout( 10 );
-
-        my $file;
-        if( $apicache )
+        if( $cachetime )
         {
-            my $md5 = Digest::MD5->new->add( "$ssousername$param{cookie}" )->hexdigest;
-            $file = "/tmp/openc3-cache-api-sso-$md5";
-
-            $ua->timeout( 3 );
-            if( -f $file )
-            {
-                my $apicachetimeout = -f '/var/openc3_connector_api_fail' ? 86400 : $apicache;
-
-                my $mtime = ( stat $file )[9];
-                if( $mtime  && ( $mtime + $apicachetimeout > time ) )
-                {
-                    my $filecont = eval{ YAML::XS::LoadFile $file };
-                    if( $filecont && ref $filecont eq 'ARRAY' )
-                    {
-                        $logs->say( "sso api usetime: cache" );
-                        return wantarray ? @$filecont : $filecont->[0];           
-                    }
-                }
-             }
+            eval{
+                YAML::XS::DumpFile "$cache.tmp.$$", $v;
+                die "rename fail" unless rename "$cache.tmp.$$", $cache;
+            };
+            warn "set cache fail: $@" if $@;
         }
-
-        my $t = time;
-        my $res = $ua->get( "$ssousername$param{cookie}" );
-        $logs->say( YAML::XS::Dump $res ) if $debug;
-        my $utime = time - $t;
-        $logs->say( "sso api usetime: $utime" );
-
-        if($res->is_success)
-        {
-            my $v = eval{JSON::decode_json $res->decoded_content};
-            return undef unless $v->{stat};
-            my @return = ( ref $v->{data} eq 'HASH' && $v->{data}{user} && $v->{data}{company} )
-                ? ( $v->{data}{user}, $v->{data}{company}, $v->{data}{admin}, $v->{data}{showconnector} )
-                : ref $v->{data} eq 'HASH' ? () : ( $v->{data}, $v->{data} =~ /(@.+)$/ ? $1 : 'default' );
-
-            if( @return >= 2 && $return[0] && $return[0] =~ /^[a-zA-Z0-9\@\-\.-]+$/ )
-            {
-                my $userdepartment = `c3mc-base-db-get -t openc3_connector_userdepartment department -f "user='$return[0]'"`;
-                chomp $userdepartment;
-                $return[1] = $userdepartment if $userdepartment =~ /^[a-zA-Z0-9\@\-\.-]+$/;
-            }
-
-            eval{ YAML::XS::DumpFile $file, \@return } if $apicache;
-
-            return wantarray ? @return : $return[0];
-        }
-        elsif( $apicache )
-        {
-            warn sprintf "sso err: %s\n", YAML::XS::Dump $res;
-
-            if( -f $file )
-            {
-                my $mtime = ( stat $file )[9];
-                if( $mtime  && ( $mtime + 86400 > time ) )
-                {
-                    my $filecont = eval{ YAML::XS::LoadFile $file };
-                    if( $filecont && ref $filecont eq 'ARRAY' )
-                    {
-                        $logs->err( "sso api usetime: cache" );
-                        return wantarray ? @$filecont : $filecont->[0];           
-                    }
-                }
-             }
-        }
-        return undef;
     }
+
+    my @return = &$return( $v );
+    return wantarray ? @return : $return[0];
 }
