@@ -55,6 +55,8 @@ sub getnodeinfo
         return;
     }
 
+    my $cache = "/data/open-c3-data/cache/nodeinfo/nodeinfo-$id";
+
     my $ua = LWP::UserAgent->new;
     $ua->timeout( 15 );
     $ua->default_header( %$env ) if $env;
@@ -66,15 +68,37 @@ sub getnodeinfo
         $err = sprintf "get nodeinfo fail: ${nodeinfo}$id: %s", YAML::XS::Dump $res;
         $err =~ s/appkey:\s+['"]?[a-zA-Z0-9]{32}['"]?\b/appkey: ******/g;
         last if $res->is_success;
-        sleep 3 if $i > 1;
+        if( $i > 1 )
+        {
+            warn sprintf( "$err code %s", $res->code );
+            sleep 3;
+        }
     }
 
-    die sprintf( "$err: code %s", $res->code ) unless $res->is_success;
+    my $v;
+    eval{
+        die sprintf( "code %s", $res->code ) unless $res->is_success;
 
-    my $v = eval{JSON::decode_json $res->decoded_content};
-    die "$err: data no JSON: $@" if $@;
-    die $err unless $v->{stat};
-    die "$err: data no ARRAY" unless $v->{data} && ref $v->{data} eq 'ARRAY';
+        $v = eval{JSON::decode_json $res->decoded_content};
+
+        die "data no JSON: $@"  if $@;
+        die "stat no true"  unless $v->{stat};
+        die "data no ARRAY" unless $v->{data} && ref $v->{data} eq 'ARRAY';
+    };
+
+    if( $@ )
+    {
+        warn "$err $@";
+        $v = eval{ YAML::XS::LoadFile $cache };
+        die "get cache fail: $@" if $@;
+        die "stat no true"   unless $v->{stat};
+        die "data no ARRAY"  unless $v->{data} && ref $v->{data} eq 'ARRAY';
+    }
+    else
+    {
+        eval{ YAML::XS::DumpFile $cache, $v };
+        warn "set cache fail: $@" if $@;
+    }
 
     for my $t ( @{$v->{data}} )
     {
