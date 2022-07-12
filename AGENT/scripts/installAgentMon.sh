@@ -16,7 +16,7 @@ fi
 
 cd "$MYDanPATH/dan" || exit 1
 
-/opt/mydan/perl/bin/cpan install AnyEvent::HTTP
+/opt/mydan/perl/bin/cpan install AnyEvent::HTTP </dev/null
 
 wget $OPEN_C3_ADDR/api/scripts/agent.mon.tar.gz -O $MYDanPATH/dan/agent.mon.tar.gz
 
@@ -40,5 +40,7 @@ if [ "X$NodeExport" == "X0"  ];then
     cp /opt/mydan/dan/agent.mon/exec.config/prometheus.node_exporter.9100 /opt/mydan/dan/bootstrap/exec/
     chmod +x /opt/mydan/dan/bootstrap/exec/prometheus.node_exporter.9100
 
-    killall mydan.node_exporter.65110 2>/dev/null
+#    killall mydan.node_exporter.65110 2>/dev/null
 fi
+
+echo "INSTALL OPEN-C3 MONITOR AGENT: SUCCESS!!!"
