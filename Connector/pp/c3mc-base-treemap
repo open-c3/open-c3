@@ -14,6 +14,7 @@ use LWP::UserAgent;
 use JSON;
 use Configini;
 use TreeMap;
+use OPENC3::SysCtl;
 
 =head1 SYNOPSIS
 
@@ -45,20 +46,88 @@ sub gettreemap
         return $treemapeid ? TreeMap::mapgrepeid( $t, $treemapeid ) : $t;
     }
 
+    my $cache     = "/data/open-c3-data/cache/treemap/treemap-$id";
+    my $cachetime =  OPENC3::SysCtl->new()->getint( 'sys.cache.treemap.timeout', 0, 86400 * 365, 60 );
+
+    $cachetime = 604800 if -f '/var/openc3_connector_api_fail';
+
+    if( $cachetime && -f $cache )
+    {
+        my $ctime = ( stat $cache )[9]; #mtime
+        if( $ctime + $cachetime > time )
+        {
+            my $v;
+            eval{
+                $v = eval{ YAML::XS::LoadFile $cache };
+                die "get cache fail: $@" if $@;
+                die "stat no true"   unless $v->{stat};
+                die "data no ARRAY"  unless $v->{data} && ref $v->{data} eq 'ARRAY';
+            };
+
+            if( $@ )
+            {
+                warn "get cache fail: $@";
+            }
+            else
+            {
+                 my $t = $treemapgrep ? TreeMap::mapgrep( $v->{data}, @$treemapgrep ) : $v->{data};
+                 return $treemapeid ? TreeMap::mapgrepeid( $t, $treemapeid ) : $t;
+            }
+        }
+    }
+
     my $ua = LWP::UserAgent->new;
+    $ua->timeout( 15 );
     $ua->default_header( %env ) if %env;
 
-    my $res = $ua->get( $treemap );
+    my ( $res, $err );
 
-    my $err = sprintf "get treemap fail: $treemap: %s", YAML::XS::Dump $res;
-    $err =~ s/appkey:\s+['"]?[a-zA-Z0-9]{32}['"]?\b/appkey: ******/g;
+    for my $i ( reverse 1 .. 3 )
+    {
+        $res = $ua->get( $treemap );
+        $err = sprintf "get treemap fail: $treemap: %s", YAML::XS::Dump $res;
+        $err =~ s/appkey:\s+['"]?[a-zA-Z0-9]{32}['"]?\b/appkey: ******/g;
 
-    die sprintf( "$err: code %s", $res->code ) unless $res->is_success;
+        last if $res->is_success;
+        if( $i > 1 )
+        {
+            warn sprintf( "$err code %s", $res->code );
+            sleep 3;
+        }
+    }
 
-    my $v = eval{JSON::decode_json $res->decoded_content};
-    die "$err: data no JSON: $@" if $@;
-    die $err unless $v->{stat};
-    die "$err: data no ARRAY" unless $v->{data} && ref $v->{data} eq 'ARRAY';
+    my $v;
+    eval{
+        die sprintf( "$err: code %s", $res->code ) unless $res->is_success;
+
+        $v = eval{JSON::decode_json $res->decoded_content};
+        die "data no JSON: $@"  if $@;
+        die "stat no true"  unless $v->{stat};
+        die "data no ARRAY" unless $v->{data} && ref $v->{data} eq 'ARRAY';
+    };
+
+    if( $@ )
+    {
+        warn "$err $@";
+        #TODO if cache too old ?
+        $v = eval{ YAML::XS::LoadFile $cache };
+        die "get cache fail: $@" if $@;
+        die "stat no true"   unless $v->{stat};
+        die "data no ARRAY"  unless $v->{data} && ref $v->{data} eq 'ARRAY';
+ 
+    }
+    else
+    {
+        if( $cachetime )
+        {
+            eval{
+                YAML::XS::DumpFile "$cache.tmp.$$", $v;
+                die "rename fail" unless rename "$cache.tmp.$$", $cache;
+            };
+            warn "set cache fail: $@" if $@;
+        }
+ 
+    }
 
     my $t = $treemapgrep ? TreeMap::mapgrep( $v->{data}, @$treemapgrep ) : $v->{data};
     return $treemapeid ? TreeMap::mapgrepeid( $t, $treemapeid ) : $t;
