@@ -53,3 +53,4 @@ docker exec -i openc3-server bash -c "curl -L http://openc3-srv-docker/api/scrip
 mkdir -p /data/open-c3-data/cache/nodeinfo
 mkdir -p /data/open-c3-data/cache/treemap
 mkdir -p /data/open-c3-data/cache/userinfo
+mkdir -p /data/open-c3-data/cache/point

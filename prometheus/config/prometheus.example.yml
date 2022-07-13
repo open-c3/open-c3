@@ -42,6 +42,9 @@ scrape_configs:
     params:
       'match[]':
         - '{job!="xx"}'
+    file_sd_configs:
+      - files:
+        - openc3_cloudmon_sd_prometheus-federate.yml
 
   - job_name: 'openc3-mysql'
     file_sd_configs:

@@ -6,6 +6,8 @@ use YAML::XS;
 use LWP::UserAgent;
 use Digest::MD5;
 use JSON qw();
+use OPENC3::SysCtl;
+use Code;
 
 $| ++;
 
@@ -15,68 +17,49 @@ $| ++;
     treeid =>
     point =>
 
-    logs => 日志对象
-
 =cut
 
-my ( $pmspoint, @eid, %env, $ssousername, %ssousernameenv, $debug, $apicache );
+my ( $pmspoint, @eid, %env, $ssocode );
 BEGIN{
     use Configini;
-    $pmspoint = Configini::get( 'pmspoint' );
-    %env = Configini::env( 'pmspointenv' );
+    $pmspoint = Configini::get( 'pmspoint'    );
+    %env      = Configini::env( 'pmspointenv' );
 
-    my $eid = Configini::get( 'pmspointeid' );
+    my $eid   = Configini::get( 'pmspointeid' );
     @eid = @$eid if $eid && ref $eid eq 'ARRAY' && @$eid == 3;
 
-    $ssousername = Configini::get( 'ssousername' );
-    %ssousernameenv = Configini::env( 'ssousernameenv' );
-    die "ssousername undef on config.ini" unless $ssousername;
-
-    $debug = Configini::get( 'debug' );
-    $apicache = Configini::get( 'apicache' );
-    $apicache = 0 unless $apicache && $apicache =~ /^\d+$/;
+    $ssocode = Code->new( "connectorx.plugin/sso" );
 };
 
 return sub
 {
     my ( %param )= @_;
-    my ( $cookie, $point, $treeid, $logs, $db ) = @param{qw(cookie point treeid logs db )};
+    my ( $cookie, $point, $treeid, $db ) = @param{qw( cookie point treeid db )};
 
     $treeid ||= 0;
-    $logs = Logs->new( 'code.point' ) unless $logs;
-#    $logs->die( "id not a number" ) unless $id =~ /^\d+$/;
 
     return 1 if $treeid && $treeid == 4000000000;
+
     if( $treeid && $treeid >= 4000000000 )
     {
-        my $ua = LWP::UserAgent->new;
-        $ua->default_header( %ssousernameenv ) if %ssousernameenv;
-        my $res = $ua->get( "$ssousername$param{cookie}" );
+        my $user = eval{ $ssocode->run( cookie => $param{cookie} ) };
+        die "get user from cookie fail: $@" if $@;
 
-        $logs->say( YAML::XS::Dump $res ) if $debug;
+        return 0 unless defined $user;
+        $user =~ s/\./_/;
+        my $match = eval{
+            $db->query( "select id from openc3_connector_private where id='$treeid' and user='$user'" )
+        };
+        die "get data from db fail: $@" if $@;
 
-        if($res->is_success)
-        {
-            my $v = eval{JSON::decode_json $res->decoded_content};
-            return undef unless $v->{stat};
-            my $user = $v->{data}{user};
-            $user =~ s/\./_/;
-            my $match = eval{ $db->query( "select id from openc3_connector_private where id='$treeid' and user='$user'" )};
-            return $match && @$match > 0 ? 1 : 0;
-        }
-        return 0;
-
+        return $match && @$match > 0 ? 1 : 0;
     }
-    my $ua = LWP::UserAgent->new;
-    $ua->default_header( %env ) if %env;
-    $ua->timeout( 10 );
 
     my $treestr = '';
     if( defined $treeid )
     {
         if( $treeid )
         {
-
             if( @eid )
             {
                 $treeid = $eid[2] unless $eid[0] <= $treeid && $treeid <= $eid[1];
@@ -98,66 +81,83 @@ return sub
         }
     }
 
-    my $file;
-    if( $apicache )
+    my $md5       = Digest::MD5->new->add( "$pmspoint?point=$point$treestr&cookie=$cookie" )->hexdigest;
+    my $cache     = "/data/open-c3-data/cache/point/point-$md5";
+    my $cachetime =  OPENC3::SysCtl->new()->getint( 'sys.cache.point.timeout', 0, 86400 * 365, 60 );
+
+    $cachetime = 604800 if -f '/var/openc3_connector_api_fail';
+
+    if( $cachetime && -f $cache )
     {
-        my $md5 = Digest::MD5->new->add( "$pmspoint?point=$point$treestr&cookie=$cookie" )->hexdigest;
-        $file = "/tmp/openc3-cache-api-point-$md5";
-        $ua->timeout( 3 );
-
-        if( -f $file )
+        my $ctime = ( stat $cache )[9]; #mtime
+        if( $ctime + $cachetime > time )
         {
-            my $apicachetimeout = -f '/var/openc3_connector_api_fail' ? 86400 : $apicache;
-
-            my $mtime = ( stat $file )[9];
-            if( $mtime  && ( $mtime + $apicachetimeout > time ) )
+            my $v;
+            eval{
+                $v = eval{ YAML::XS::LoadFile $cache };
+                die "get cache fail: $@" if $@;
+                die "stat no true"   unless $v->{stat};
+            };
+            if( $@ )
             {
-                my $filecont = eval{ YAML::XS::LoadFile $file };
-                if( $filecont && ! $@ )
-                {
-                    $logs->say( "point api usetime: cache" );
-                    return $filecont;
-                }
+                warn "get cache fail: $@";
+            }
+            else
+            {
+                return $v->{data};
             }
         }
     }
 
+    my $ua = LWP::UserAgent->new;
+    $ua->default_header( %env ) if %env;
+    $ua->timeout( 15 );
 
-    my $t = time;
-    my $res = $ua->get( "$pmspoint?point=$point$treestr&cookie=$cookie" );
-
-    $logs->say( YAML::XS::Dump $res ) if $debug;
-    my $utime = time - $t;
-    $logs->say( "point api usetime: $utime" );# if $debug;
-
-    if($res->is_success)
+    my ( $res, $err );
+    for my $i ( reverse 1 .. 3 )
     {
-        my $v = eval{JSON::decode_json $res->decoded_content};
-        eval{ YAML::XS::DumpFile $file, $v->{data} } if $apicache && $v->{stat};
-        return $v->{data} if $v->{stat};
-    }
-    elsif( $apicache )
-    {
+        $res = $ua->get( "$pmspoint?point=$point$treestr&cookie=$cookie" );
 
-        warn sprintf "pms err: %s\n", YAML::XS::Dump $res;
+        $err = sprintf "get point fail: $pmspoint?point=$point$treestr&cookie=$cookie: %s", YAML::XS::Dump $res;
+        $err =~ s/appkey:\s+['"]?[a-zA-Z0-9]{32}['"]?\b/appkey: ******/g;
 
-        if( -f $file )
+        last if $res->is_success;
+        if( $i > 1 )
         {
-            my $mtime = ( stat $file )[9];
-            if( $mtime  && ( $mtime + 86400 > time ) )
-            {
-                my $filecont = eval{ YAML::XS::LoadFile $file };
-                if( $filecont && ! $@ )
-                {
-                    $logs->err( "point api usetime: cache" );
-                    return $filecont;
-                }
-            }
+            warn sprintf( "$err code %s", $res->code );
+            sleep 3;
         }
     }
 
-    warn sprintf "pms err: %s\n", YAML::XS::Dump $res;
+    my $v;
+    eval{
+        die sprintf( "code %s", $res->code ) unless $res->is_success;
+        $v = eval{JSON::decode_json $res->decoded_content};
 
-    die $res->content;
+        die "data no JSON: $@" if $@;
+        die "stat no true" unless $v->{stat};
+    };
+
+     if( $@ )
+    {
+        warn "$err $@";
+        #TODO if cache too old ?
+        $v = eval{ YAML::XS::LoadFile $cache };
+        die "get cache fail: $@" if $@;
+        die "stat no true"   unless $v->{stat};
+    }
+    else
+    {
+        if( $cachetime )
+        {
+            eval{
+                YAML::XS::DumpFile "$cache.tmp.$$", $v;
+                die "rename fail" unless rename "$cache.tmp.$$", $cache;
+            };
+            warn "set cache fail: $@" if $@;
+        }
+    }
+
+    return $v->{data};
 };
 1
