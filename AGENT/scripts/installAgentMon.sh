@@ -34,7 +34,8 @@ if [ ! -x /opt/mydan/dan/agent.mon/data/node_exporter/$OS-$ARCH/node_exporter ];
     exit
 fi
 
-netstat  --help 2>/dev/null
+netstat -nlpt >/dev/null 2>&1
+
 NodeExport=$(netstat -tnlp | grep ":9100\b"|wc -l)
 if [ "X$NodeExport" == "X0"  ];then
     cp /opt/mydan/dan/agent.mon/exec.config/prometheus.node_exporter.9100 /opt/mydan/dan/bootstrap/exec/
