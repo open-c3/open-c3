@@ -329,6 +329,8 @@ function start() {
     docker cp /data/open-c3/grafana/config/grafana.ini openc3-grafana:/etc/grafana/grafana.ini
     docker restart openc3-grafana
 
+    docker cp /data/open-c3/grafana/config/grafana-fresh.ini openc3-grafana-fresh:/etc/grafana/grafana.ini
+    docker restart openc3-grafana-fresh
 #
 
 #lua
