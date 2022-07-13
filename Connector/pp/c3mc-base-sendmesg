@@ -22,7 +22,7 @@ use Configini;
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->get()->dump();
+my %o      = $option->get()->dump();
 $option->assert() unless @ARGV;
 
 local $/ = undef;
@@ -31,10 +31,10 @@ local $/ = "\n";
 
 my ( $usermesg, %env );
 $usermesg = Configini::get( 'usermesg' );
-%env = Configini::env( 'usermesgenv' );
+%env      = Configini::env( 'usermesgenv' );
 
 my $ua = LWP::UserAgent->new;
-$ua->timeout( 10 );
+$ua->timeout( 15 );
 $ua->default_header( %env ) if %env;
 
 my $db = MYDB->new( "/data/Software/mydan/Connector/conf/conn", delayedconnection => 1 );
@@ -54,11 +54,25 @@ sub sendmesg
         return;
     }
 
-    my $cont = $usermesg =~ /encode/ ? JSON::to_json( +{ user => $user, mesg => $mesg } ) : JSON::encode_json( +{ user => $user, mesg => $mesg } );
-    my $res = $ua->post( $usermesg, Content => $cont, 'Content-Type' => 'application/json');
+    my $cont = $usermesg =~ /encode/
+        ? JSON::to_json(     +{ user => $user, mesg => $mesg } )
+        : JSON::encode_json( +{ user => $user, mesg => $mesg } );
 
-    my $err = sprintf "send mesg fail: $usermesg: %s", YAML::XS::Dump $res;
-    $err =~ s/appkey:\s+['"]?[a-zA-Z0-9]{32}['"]?\b/appkey: ******/g;
+    my ( $res, $err );
+    for my $i ( reverse 1 .. 3 )
+    {
+        $res = $ua->post( $usermesg, Content => $cont, 'Content-Type' => 'application/json');
+
+        $err = sprintf "send mesg fail: $usermesg: %s", YAML::XS::Dump $res;
+        $err =~ s/appkey:\s+['"]?[a-zA-Z0-9]{32}['"]?\b/appkey: ******/g;
+
+        last if $res->is_success;
+        if( $i > 1 )
+        {
+            warn sprintf( "sendmesg code %s", $res->code );
+            sleep 3;
+        }
+    }
 
     die sprintf( "$err: code %s", $res->code ) unless $res->is_success;
 
