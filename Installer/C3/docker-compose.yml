@@ -81,6 +81,22 @@ services:
         aliases:
           - OPENC3_GRAFANA_IP
 
+  openc3-grafana-fresh:
+    container_name: openc3-grafana-fresh
+    environment:
+      TZ: 'Asia/Shanghai'
+    image: "grafana/grafana:9.0.1"
+    restart: always
+    user: root
+#    ports:
+#      - "13000:3000"
+    volumes:
+      - "/data/open-c3-data/grafana-data-fresh:/var/lib/grafana"
+    networks:
+      JobNet:
+        aliases:
+          - OPENC3_GRAFANA_IP_FRESH
+
   openc3-prometheus:
     container_name: openc3-prometheus
     environment:

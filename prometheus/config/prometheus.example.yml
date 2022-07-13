@@ -34,6 +34,15 @@ scrape_configs:
       - files:
         - openc3_cloudmon_sd.yml
 
+  - job_name: 'cloudmon-prometheus-federate'
+    scrape_interval: 15s
+    scrape_timeout: 15s
+    honor_labels: true
+    metrics_path: '/federate'
+    params:
+      'match[]':
+        - '{job!="xx"}'
+
   - job_name: 'openc3-mysql'
     file_sd_configs:
       - files:

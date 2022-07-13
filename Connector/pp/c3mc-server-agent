@@ -320,7 +320,7 @@ if( $name eq 'cloudmon' )
         name => "agent_server_$name",
         interval => 60,
         timeout => 600,
-    )->run( "c3mc-cloudmon-make-task && c3mc-cloudmon-make-promesd");
+    )->run( "c3mc-cloudmon-make-task && c3mc-cloudmon-make-promesd && c3mc-cloudmon-make-promesd prometheus-federate");
 }
 
 if( $name eq 'keepalive' )

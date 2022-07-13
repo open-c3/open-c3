@@ -14,7 +14,10 @@ $|++;
 
 =cut
 
-my @id = `c3mc-base-db-get id -t openc3_monitor_cloudmon | c3mc-base-task-grep -m monitor`;
+my ( $name, $filter ) = ( '',       "--filter 'type!=\"prometheus-federate\"'" );
+   ( $name, $filter ) = ( $ARGV[0], "--filter 'type=\"$name\"'"                ) if $ARGV[0];
+
+my @id = `c3mc-base-db-get id -t openc3_monitor_cloudmon $filter | c3mc-base-task-grep -m monitor`;
 chomp @id;
 
 my $r = [];
@@ -76,5 +79,6 @@ my @srv = grep{ $_ }map { srv( $_ ); }@$r;
 
 @srv = `cat /data/Software/mydan/AGENT/cloudmon/temp.yml` unless @srv;
 
-dumpfile( "/data/Software/mydan/prometheus/config/openc3_cloudmon_sd.yml", join "\n", '---', @srv );
+my $dist = sprintf "/data/Software/mydan/prometheus/config/openc3_cloudmon_sd%s.yml", $name ? "_$name" : "";
+dumpfile( $dist, join "\n", '---', @srv );
 system "curl -XPOST http://openc3-prometheus:9090/-/reload"
