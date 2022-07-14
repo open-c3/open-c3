@@ -36,7 +36,7 @@ $ENV{PATH} = "$ENV{PATH}:/data/Software/mydan/CI/pp:/data/Software/mydan/JOB/pp"
 
 if( $pipe eq 'fileserver' )
 {
-    my @version = `c3_job_pp_fileserver name --filter "projectid='$project{groupid}' and status='available'"`;
+    my @version = `c3mc-base-db-get -t openc3_job_fileserver name --filter "projectid='$project{groupid}' and status='available'"`;
     chomp @version;
     map{ printf "$project{id} %s\n", Encode::decode('utf8', $_ ); }@version;
     exit;
