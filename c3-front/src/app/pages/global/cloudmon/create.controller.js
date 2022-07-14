@@ -39,11 +39,28 @@
                     swal('获取信息失败', response.status, 'error' );
                 });
         };
-        if( id > 0)
+
+        if( id > 0 )
         {
             vm.reload();
         }
 
+        vm.exporter = [];
+        vm.reloadexporter = function () {
+            $http.get('/api/agent/cloudmon/exporter' ).then(
+                function successCallback(response) {
+                    if (response.data.stat){
+                        vm.exporter = response.data.data
+                    }else {
+                        swal('获取信息失败', response.data.info, 'error' );
+                    }
+                },
+                function errorCallback (response ){
+                    swal('获取信息失败', response.status, 'error' );
+                });
+        };
+
+        vm.reloadexporter();
     }
 })();
 
