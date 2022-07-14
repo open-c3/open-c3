@@ -16,7 +16,22 @@ use OPENC3::SysCtl;
 =cut
 
 $|++;
-die unless my $name = shift @ARGV;
+my $name = shift @ARGV;
+my %help = (
+    keepalive       => 'server keepalive',
+    findtags        => 'findtags',
+    findtagsonce    => 'findtags once',
+    build           => 'build',
+    clean           => 'clean',
+    bury            => 'bury',
+    flowreport      => 'flowreport',
+);
+
+unless( $name )
+{
+    map{ print "\$0 $_ # $help{$_}\n" }keys %help;
+    exit;
+}
 
 if( $name eq 'keepalive' )
 {
@@ -47,59 +62,78 @@ if( $name eq 'findtags' )
     }
 
     OPENC3::PP::Server->new(
-        name => "ci_server_$name",
+        name     => "ci_server_$name",
         interval => $interval,
-        timeout => $interval * 2,
+        timeout  => $interval * 2,
     )->run(
-        'c3mc-base-db-get id -t openc3_ci_project -f "status=1 and autofindtags=1" | c3mc-base-task-grep -m ci | c3mc-base-db-set -t openc3_ci_project --set "slave=\"`c3mc-base-hostname`\"" | xargs -P ' . $x . ' -i{} c3mc-app-findtags {}'
+      [
+        'c3mc-base-db-get id -t openc3_ci_project -f "status=1 and autofindtags=1"',
+        'c3mc-base-task-grep -m ci',
+        'c3mc-base-db-set -t openc3_ci_project --set "slave=\"`c3mc-base-hostname`\""',
+        'xargs -P ' . $x . ' -i{} c3mc-app-findtags {}',
+      ]
     );
 }
 
 if( $name eq 'findtagsonce' )
 {
     OPENC3::PP::Server->new(
-        name => "ci_server_$name",
+        name     => "ci_server_$name",
         interval => 3,
-        timeout => 30,
+        timeout  => 30,
     )->run(
-        'c3mc-base-db-get id -t openc3_ci_project -f "status=1 and findtags_at_once=1" | c3mc-base-task-grep -m ci | c3mc-base-db-set -t openc3_ci_project --set "findtags_at_once=0,slave=\"`c3mc-base-hostname`\"" | xargs -P 2 -i{} bash -c "c3mc-app-findtags {} &"'
+      [
+        'c3mc-base-db-get id -t openc3_ci_project -f "status=1 and findtags_at_once=1"',
+        'c3mc-base-task-grep -m ci',
+        'c3mc-base-db-set -t openc3_ci_project --set "findtags_at_once=0,slave=\"`c3mc-base-hostname`\""',
+        'xargs -P 2 -i{} bash -c "c3mc-app-findtags {} &"'
+      ]
     );
 }
 
 if( $name eq 'build' )
 {
     OPENC3::PP::Server->new(
-        name => "ci_server_$name",
+        name     => "ci_server_$name",
         interval => 3,
-        timeout => 30,
+        timeout  => 30,
     )->run(
-        'c3mc-base-db-get -t openc3_ci_version projectid status uuid --filter "status=\"init\" or status=\"running\"" | c3mc-base-task-grep -m ci | c3mc-base-count-limit | grep ";init" | awk -F";" \'{print $3}\' | c3mc-base-db-set -t openc3_ci_version --col uuid --set "slave=\"`c3mc-base-hostname`\"" |xargs -i{} bash -c "/data/Software/mydan/CI/bin/build --uuid {} 2>&1| c3mc-base-log-addtime  > /data/Software/mydan/CI/logs/build/{} 2>&1"'
+      [
+        'c3mc-base-db-get -t openc3_ci_version projectid status uuid --filter "status=\"init\" or status=\"running\""',
+        'c3mc-base-task-grep -m ci',
+        'c3mc-base-count-limit',
+        'grep ";init"',
+        'awk -F";" \'{print $3}\'',
+        'c3mc-base-db-set -t openc3_ci_version --col uuid --set "slave=\"`c3mc-base-hostname`\""',
+        'xargs -i{} bash -c "/data/Software/mydan/CI/bin/build --uuid {} 2>&1',
+        'c3mc-base-log-addtime > /data/Software/mydan/CI/logs/build/{} 2>&1"',
+      ]
     );
 }
 
 if( $name eq 'clean' )
 {
     OPENC3::PP::Server->new(
-        name => "ci_server_$name",
+        name     => "ci_server_$name",
         interval => 3600,
-        timeout => 7200,
+        timeout  => 7200,
     )->run( 'c3mc-ci-clean' );
 }
 
 if( $name eq 'bury' )
 {
     OPENC3::PP::Server->new(
-        name => "ci_server_$name",
+        name     => "ci_server_$name",
         interval => 3,
-        timeout => 10,
+        timeout  => 10,
     )->run( 'c3mc-ci-bury' );
 }
 
 if( $name eq 'flowreport' )
 {
     OPENC3::PP::Server->new(
-        name => "ci_server_$name",
+        name     => "ci_server_$name",
         interval => 600,
-        timeout => 1200,
+        timeout  => 1200,
     )->run( 'c3mc-ci-flowreport' );
 }
