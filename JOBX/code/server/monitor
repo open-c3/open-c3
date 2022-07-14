@@ -8,6 +8,7 @@ use JSON;
 use Util;
 use Logs;
 use LWP::UserAgent;
+use YAML::XS;
 use MYDan::Collector::Util;
 
 $| ++;
@@ -19,65 +20,62 @@ $| ++;
 =cut
 
 my %c = (
-  job_api => 8,
-  job_server_approval => 1,
-  job_server_bury => 1,
-  job_server_call => 1,
-  job_server_clean => 1,
-  job_server_crontab => 1,
-  job_server_keepalive => 1,
-  job_server_notify => 1,
-  job_supervisor => 17,
+  job_api                => 8,
+  job_server_approval    => 1,
+  job_server_bury        => 1,
+  job_server_call        => 1,
+  job_server_clean       => 1,
+  job_server_crontab     => 1,
+  job_server_keepalive   => 1,
+  job_server_notify      => 1,
+  job_supervisor         => 17,
 
-  jobx_api => 5,
-  jobx_server_bury => 1,
-  jobx_server_call => 1,
-  jobx_server_keepalive => 1,
-  jobx_server_monitor => 1,
-  jobx_supervisor => 14,
+  jobx_api               => 5,
+  jobx_server_bury       => 1,
+  jobx_server_call       => 1,
+  jobx_server_keepalive  => 1,
+  jobx_server_monitor    => 1,
+  jobx_supervisor        => 14,
 
-  agent_api => 5,
-  agent_server_bury => 1,
-  agent_server_check => 1,
-  agent_server_inherit => 1,
+  agent_api              => 5,
+  agent_server_bury      => 1,
+  agent_server_check     => 1,
+  agent_server_inherit   => 1,
   agent_server_keepalive => 1,
-  agent_supervisor => 24,
+  agent_supervisor       => 25,
 
-  ci_api => 5,
-  ci_server_build => 1,
-  ci_server_bury => 1,
-  ci_server_clean => 1,
-  ci_server_findtags => 1,
-  ci_server_keepalive => 1,
-  ci_supervisor => 17,
+  ci_api                 => 5,
+  ci_server_build        => 1,
+  ci_server_bury         => 1,
+  ci_server_clean        => 1,
+  ci_server_findtags     => 1,
+  ci_server_keepalive    => 1,
+  ci_supervisor          => 17,
 
-  connector_api => 10,
-  connector_supervisor => 10,
+  connector_api          => 10,
+  connector_supervisor   => 10,
 
-  'job_webshell' => 1,
+  job_webshell           => 1,
 );
 
-my $connector_check_api; 
+my $connector_alive_api; 
 BEGIN{
-    my $connectorConfig = eval{ YAML::XS::LoadFile "/data/Software/mydan/Connector/config.inix" };
+    my $x = eval{ YAML::XS::LoadFile "/data/Software/mydan/Connector/config.inix" };
     die "load config.inix fail: $@" if $@;
-    die "nofind ssousername" unless $connector_check_api = $connectorConfig->{ssousername};
-    $connector_check_api = undef if $connectorConfig->{ssousername} =~ /api.connector.open-c3.org/;
+    $connector_alive_api = $x->{alive};
 };
 
 return sub
 {
-    my %param = @_;
-
-    my ( $db, $logs ) = ( $param{db}, Logs->new( 'monitor' ) );
-
+    my %param  = @_;
+    my $db     = $param{db};
     my $myname = `c3mc-base-hostname`;
     chomp $myname;
 
     my $slave = eval{ $db->query( sprintf "select slave from openc3_jobx_keepalive" ); };
-    $logs->die( "get slave from keepalive fail: $@" ) if $@;
+    die "get slave from keepalive fail: $@" if $@;
 
-    my %slave = map{ $_->[0] => 1 }@$slave;;
+    my %slave     = map{ $_->[0] => 1 }@$slave;;
     my $slavepath = "/data/glusterfs/slavemonitor";
     system( "mkdir -p '$slavepath'" ) unless -d $slavepath;
     system "date > '$slavepath/$myname'";
@@ -107,64 +105,120 @@ return sub
 
         my $ins = "replace into openc3_jobx_monitor (`time`,`time_s`,`stat`,`host`,`type`,`key`,`val`)value('%s','%s','%s','%s','%s','%s','%s')";
         eval{
-            map{ $db->execute( sprintf $ins, $time, $t, $proc{$_} eq $c{$_} ? 'ok' : "err:$c{$_}", $myname, 'proc','openc3_'.$_, $proc{$_} ); }keys %proc;
-            map{ $db->execute( sprintf $ins, $time, $t, $task{$_} > 100 ? 'danger' : $task{$_} > 10 ? 'warning' : 'healthy' , $myname, 'task','openc3_'.$_, $task{$_} ); }keys %task;
+            map{
+                $db->execute(
+                    sprintf $ins,
+                        $time,
+                        $t,
+                        $proc{$_} eq $c{$_} ? 'ok' : "err:$c{$_}",
+                        $myname,
+                        'proc',
+                        'openc3_'.$_,
+                        $proc{$_}
+                 );
+            }keys %proc;
+            map{
+                $db->execute(
+                    sprintf $ins,
+                        $time,
+                        $t,
+                        $task{$_} > 100 ? 'danger' : $task{$_} > 10 ? 'warning' : 'healthy',
+                        $myname,
+                        'task',
+                        'openc3_'.$_,
+                        $task{$_}
+                 );
+             }keys %task;
         };
 
-
         my %slavefile = %slave;
-        map{ delete $slavefile{$_} if -f "$slavepath/$_"; }keys %slave;
+        map{
+            delete $slavefile{$_} if -f "$slavepath/$_";
+        }keys %slave;
 
-        $db->execute( sprintf $ins, $time, $t, %slavefile ? sprintf( "err:%s", scalar keys %slavefile ) : 'ok' , $myname, 'filesys', 'openc3_glusterfs', scalar keys %slave );
-
+        $db->execute(
+            sprintf $ins,
+                $time,
+                $t,
+                %slavefile ? sprintf( "err:%s", scalar keys %slavefile ) : 'ok',
+                $myname,
+                'filesys',
+                'openc3_glusterfs',
+                scalar keys %slave
+        );
 
         my $getNginxStatus = sub{
 
             my ( $url, $Host ) = @_;
+
             my $ua = LWP::UserAgent->new;
             $ua->default_header( Host => $Host ) if $Host;
-
             $ua->timeout( 3 );
 
             my $res = $ua->get( $url );
-            if( $res->is_success && $res->content =~ /Active connections:\s*(\d+)\s*\n\s*server accepts handled requests\n\s*(\d+)\s+(\d+)\s+(\d+)\s*\n\s*Reading:\s*(\d+)\s*Writing:\s*(\d+)\s*Waiting:\s*(\d+)/ )
+            if(
+                $res->is_success
+                && $res->content =~ /Active connections:\s*(\d+)\s*\n\s*server accepts handled requests\n\s*(\d+)\s+(\d+)\s+(\d+)\s*\n\s*Reading:\s*(\d+)\s*Writing:\s*(\d+)\s*Waiting:\s*(\d+)/
+            )
             {
-                return ( 'ok', +{ active => $1, server => $2, accepts => $3, handled => $4, reading => $5, writing => $6, waiting => $7 } );
+                return (
+                    'ok',
+                     +{
+                         active  => $1,
+                         server  => $2,
+                         accepts => $3,
+                         handled => $4,
+                         reading => $5,
+                         writing => $6,
+                         waiting => $7,
+                      }
+                 );
             }
             else
             {
-                return ( 'err', +{ active => 0, server => 0, accepts => 0, handled => 0, reading => 0, writing => 0, waiting => 0 } );
+                return (
+                    'err',
+                     +{
+                         active  => 0,
+                         server  => 0,
+                         accepts => 0,
+                         handled => 0,
+                         reading => 0,
+                         writing => 0,
+                         waiting => 0,
+                      }
+                 );
             }
         };
 
         my @nginxcheck = (
             +{
-                url => 'http://127.0.0.1:88/status/',
+                url  => 'http://127.0.0.1:88/status/',
                 Host => undef,
                 name => 'api'
             },
             +{
-                url => 'http://127.0.0.1/status/',
+                url  => 'http://127.0.0.1/status/',
                 Host => 'api.agent.open-c3.org',
                 name => 'agent'
             },
             +{
-                url => 'http://127.0.0.1/status/',
+                url  => 'http://127.0.0.1/status/',
                 Host => 'api.ci.open-c3.org',
                 name => 'ci'
             },
             +{
-                url => 'http://127.0.0.1/status/',
+                url  => 'http://127.0.0.1/status/',
                 Host => 'api.job.open-c3.org',
                 name => 'job'
             },
             +{
-                url => 'http://127.0.0.1/status/',
+                url  => 'http://127.0.0.1/status/',
                 Host => 'api.jobx.open-c3.org',
                 name => 'jobx'
             },
             +{
-                url => 'http://127.0.0.1/status/',
+                url  => 'http://127.0.0.1/status/',
                 Host => 'api.connector.open-c3.org',
                 name => 'connector'
             },
@@ -173,30 +227,44 @@ return sub
         for my $nginx ( @nginxcheck )
         {
             my ( $stat, $data ) = &$getNginxStatus($nginx->{url}, $nginx->{Host});
-            $db->execute( sprintf $ins, $time, $t, $stat, $myname, 'nginx',"openc3_$nginx->{name}_status", $stat eq 'ok' ? 1 : 0 );
-            map{ $db->execute( sprintf $ins, $time, $t, $stat, $myname, 'nginx',"openc3_$nginx->{name}_$_", $data->{$_} ); }keys %$data;
+            $db->execute(
+                sprintf $ins,
+                    $time,
+                    $t,
+                    $stat,
+                    $myname,
+                    'nginx',
+                    "openc3_$nginx->{name}_status",
+                    $stat eq 'ok' ? 1 : 0,
+             );
+            map{
+                $db->execute(
+                    sprintf $ins,
+                        $time,
+                        $t,
+                        $stat,
+                        $myname,
+                        'nginx',
+                        "openc3_$nginx->{name}_$_",
+                        $data->{$_},
+                  );
+            }keys %$data;
         }
 
         my $getMetrics = sub{
-
             my ( $url, $Host ) = @_;
+
             my $ua = LWP::UserAgent->new;
             $ua->default_header( Host => $Host ) if $Host;
-
             $ua->timeout( 3 );
 
             my $res = $ua->get( $url );
 
-            if( $res->is_success )
-            {
-                my $data = eval{ JSON::from_json $res->content };
-                return +{} if $@;
-                return $data->{data};
-            }
-            else
-            {
-                return +{};
-            }
+            return +{} unless $res->is_success;
+
+            my $data = eval{ JSON::from_json $res->content };
+            return +{} if $@;
+            return $data->{data};
         };
 
         my @mysqlcheck = (
@@ -224,27 +292,82 @@ return sub
 
         for my $mysql ( @mysqlcheck )
         {
-            my $data = &$getMetrics( 'http://127.0.0.1/monitor/metrics/mysql', $mysql->{Host});
-            map{ $db->execute( sprintf $ins, $time, $t, 'ok', 'openc3', 'mysql',"openc3_$mysql->{name}_mysql_$_", $data->{$_} ); }keys %$data;
+            my $data = &$getMetrics( 'http://127.0.0.1/monitor/metrics/mysql', $mysql->{Host} );
+            map{
+                $db->execute(
+                    sprintf $ins,
+                        $time,
+                        $t,
+                        'ok',
+                        'openc3',
+                        'mysql',
+                        "openc3_$mysql->{name}_mysql_$_",
+                        $data->{$_},
+                 );
+            }keys %$data;
         }
 
         my $cimetrics = &$getMetrics( 'http://127.0.0.1/monitor/metrics/app', 'api.ci.open-c3.org');
-        map{ $db->execute( sprintf $ins, $time, $t, 'ok', 'openc3', 'app',"openc3_ci_app_$_", $cimetrics->{$_} ); }keys %$cimetrics;
+        map{
+            $db->execute(
+                sprintf $ins,
+                    $time,
+                    $t,
+                    'ok',
+                    'openc3',
+                    'app',
+                    "openc3_ci_app_$_",
+                    $cimetrics->{$_},
+            );
+        }keys %$cimetrics;
 
 
         my $jobxmetrics = &$getMetrics( 'http://127.0.0.1/monitor/metrics/app', 'api.jobx.open-c3.org');
-        map{ $db->execute( sprintf $ins, $time, $t, 'ok', 'openc3', 'app',"openc3_jobx_app_$_", $jobxmetrics->{$_} ); }keys %$jobxmetrics;
+        map{
+            $db->execute(
+                sprintf $ins,
+                    $time,
+                    $t,
+                    'ok',
+                    'openc3',
+                    'app',
+                    "openc3_jobx_app_$_",
+                     $jobxmetrics->{$_},
+             );
+        }keys %$jobxmetrics;
 
 
         my $jobmetrics = &$getMetrics( 'http://127.0.0.1/monitor/metrics/app', 'api.job.open-c3.org');
-        map{ $db->execute( sprintf $ins, $time, $t, 'ok', 'openc3', 'app',"openc3_job_app_$_", $jobmetrics->{$_} ); }keys %$jobmetrics;
+        map{
+            $db->execute(
+                sprintf $ins,
+                    $time,
+                    $t,
+                    'ok',
+                    'openc3',
+                    'app',
+                    "openc3_job_app_$_",
+                     $jobmetrics->{$_},
+             );
+        }keys %$jobmetrics;
 
         my $agentmetrics = &$getMetrics( 'http://127.0.0.1/monitor/metrics/app', 'api.agent.open-c3.org');
-        map{ $db->execute( sprintf $ins, $time, $t, 'ok', 'openc3', 'app',"openc3_agent_app_$_", $agentmetrics->{$_} ); }keys %$agentmetrics;
+        map{
+            $db->execute(
+                sprintf $ins,
+                    $time,
+                    $t,
+                    'ok',
+                    'openc3',
+                    'app',
+                    "openc3_agent_app_$_",
+                     $agentmetrics->{$_},
+            );
+        }keys %$agentmetrics;
 
 
         my %diskalias = ( '/' => 'root', '/data' => 'data', '/data/glusterfs' => 'glusterfs' );
-        my %disk = ( '/' => 0, '/data' => 0, '/data/glusterfs' => 0 );
+        my %disk      = ( '/' => 0,      '/data' => 0,      '/data/glusterfs' => 0           );
         die "exec df fail.\n" unless my @df = MYDan::Collector::Util::qx( "LANG=en df -l 2>/dev/null" );
         for my $df ( map { [ ( split /\s+/, $_, 7 )[ 5, 4 ] ] } @df )
         {
@@ -253,7 +376,18 @@ return sub
             $disk{$df->[0]} = $df->[1];
         }
 
-        map{ $db->execute( sprintf $ins, $time, $t, $disk{$_} > 90 ? 'err' : 'ok'  , $myname, 'os',"openc3_os_disk_$diskalias{$_}", $disk{$_} ); }keys %disk;
+        map{
+            $db->execute(
+                sprintf $ins,
+                    $time,
+                    $t,
+                    $disk{$_} > 90 ? 'err' : 'ok',
+                    $myname,
+                    'os',
+                    "openc3_os_disk_$diskalias{$_}",
+                    $disk{$_},
+            );
+        }keys %disk;
 
 
         my $load = 0;
@@ -262,7 +396,16 @@ return sub
             $load = $1;
         }
         
-        $db->execute( sprintf $ins, $time, $t, $load > 20 ? 'err' : 'ok'  , $myname, 'os',"openc3_os_load", $load );
+        $db->execute(
+            sprintf $ins,
+                $time,
+                $t,
+                $load > 20 ? 'err' : 'ok',
+                $myname,
+                'os',
+                "openc3_os_load",
+                $load,
+        );
 
         my $gtime = POSIX::strftime( "%d_%H:%M", localtime( time - 60 ) );
 
@@ -270,13 +413,40 @@ return sub
         chomp $failcount;
         $failcount = 110 unless $failcount =~ /^\d+$/;
 
-        $db->execute( sprintf $ins, $time, $t, $failcount ? 'err' : 'ok'  , $myname, 'system',"openc3_system_fail", $failcount );
+        $db->execute(
+            sprintf $ins,
+                $time,
+                $t,
+                $failcount ? 'err' : 'ok',
+                $myname,
+                'system',
+                "openc3_system_fail",
+                $failcount,
+         );
 
         my $usetime = int( time - $t );
-        $db->execute( sprintf $ins, $time, $t, $usetime > 60 ? 'err' : 'ok'  , $myname, 'monitor',"openc3_monitor_usetime", $usetime );
+        $db->execute(
+            sprintf $ins,
+                $time,
+                $t,
+                $usetime > 60 ? 'err' : 'ok',
+                $myname,
+                'monitor',
+                "openc3_monitor_usetime",
+                 $usetime,
+         );
 
         my $connector_api_fail = get_connector_api_fail();
-        $db->execute( sprintf $ins, $time, $t, $connector_api_fail ? 'err' : 'ok'  , $myname, 'system',"openc3_connector_api_fail", $connector_api_fail );
+        $db->execute(
+            sprintf $ins,
+                $time,
+                $t,
+                $connector_api_fail ? 'err' : 'ok',
+                $myname,
+                'system',
+                "openc3_connector_api_fail",
+                $connector_api_fail,
+         );
 
         my $connector_api_fail_file = "/var/openc3_connector_api_fail";
         if( $connector_api_fail )
@@ -295,11 +465,11 @@ return sub
 
 sub get_connector_api_fail
 {
-    return 0 unless $connector_check_api;
+    return 0 unless $connector_alive_api;
 
     my $ua = LWP::UserAgent->new;
-    $ua->timeout( 10 );
-    my $res = $ua->get( $connector_check_api );
+    $ua->timeout( 15 );
+    my $res = $ua->get( $connector_alive_api );
     my $code = $res->code();
 
     return $code == 200 ? 0 : $code;
