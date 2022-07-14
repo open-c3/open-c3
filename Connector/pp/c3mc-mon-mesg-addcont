@@ -22,17 +22,16 @@ local $/ = "\n";
 
 $ENV{PATH} = "$ENV{PATH}:/data/Software/mydan/AGENT/pp:/data/Software/mydan/Connector/pp:/data/Software/mydan/JOB/pp";
 
-
-my $envstr = `c3_job_pp_environment`;
+my $envstr = `c3mc-job-environment`;
 my $environment = eval{YAML::XS::Load $envstr};
 confess "load fail: $@" if $@;
 
 my %template =
 (
-    monitorTemplateEmailTitle => 'monitor: host:${labels.instance} alter: ${labels.alertname} status:${status}',
+    monitorTemplateEmailTitle   => 'monitor: host:${labels.instance} alter: ${labels.alertname} status:${status}',
     monitorTemplateEmailContent => 'monitor: host:${labels.instance} alter: ${labels.alertname} status:${status}',
-    monitorTemplateSmsContent => 'monitor: host:${labels.instance} alter: ${labels.alertname} status:${status}',
-    monitorTemplateCallContent => 'monitor: host:${labels.instance} alter: ${labels.alertname} status:${status}',
+    monitorTemplateSmsContent   => 'monitor: host:${labels.instance} alter: ${labels.alertname} status:${status}',
+    monitorTemplateCallContent  => 'monitor: host:${labels.instance} alter: ${labels.alertname} status:${status}',
 );
 
 sub gettime
@@ -89,16 +88,16 @@ sub addcont
     return unless $data && ref $data eq 'HASH';
 
     my %senddata;
-    $senddata{title} = $environment->{monitorTemplateEmailTitle} || $template{monitorTemplateEmailTitle};
-    $senddata{content} = $environment->{monitorTemplateEmailContent} || $template{monitorTemplateEmailContent};
-    $senddata{mesg} = $environment->{monitorTemplateSmsContent} || $template{monitorTemplateSmsContent};
-    $senddata{call} = $environment->{monitorTemplateCallContent} || $template{monitorTemplateCallContent};
+    $senddata{ title  } = $environment->{ monitorTemplateEmailTitle   } || $template{ monitorTemplateEmailTitle   };
+    $senddata{ content} = $environment->{ monitorTemplateEmailContent } || $template{ monitorTemplateEmailContent };
+    $senddata{ mesg   } = $environment->{ monitorTemplateSmsContent   } || $template{ monitorTemplateSmsContent   };
+    $senddata{ call   } = $environment->{ monitorTemplateCallContent  } || $template{ monitorTemplateCallContent  };
 
-    $data->{statusZH} = Encode::decode('utf8', '告警发生中' ) if $data->{status} && $data->{status} eq 'firing';
-    $data->{statusZH} = Encode::decode('utf8', '告警已恢复' ) if $data->{status} && $data->{status} eq 'resolved';
+    $data->{ statusZH   } = Encode::decode( 'utf8', '告警发生中' ) if $data->{status} && $data->{status} eq 'firing';
+    $data->{ statusZH   } = Encode::decode( 'utf8', '告警已恢复' ) if $data->{status} && $data->{status} eq 'resolved';
 
-    $data->{startsAtZH} = gettime( $data->{startsAt} ) if $data->{startsAt};
-    $data->{endsAtZH} = gettime( $data->{endsAt} ) if $data->{endsAt};
+    $data->{ startsAtZH } = gettime( $data->{ startsAt } ) if $data->{ startsAt };
+    $data->{ endsAtZH   } = gettime( $data->{ endsAt   } ) if $data->{ endsAt   };
 
     $data->{treename} = gettreename( $data->{'labels.instance'}, $data );
     $data->{hostname} = gethostname( $data->{'labels.instance'}, $data );
@@ -128,8 +127,8 @@ sub addcont
         ( $data->{'labels.severity'} && ( $data->{'labels.severity'} eq 'level1' || $data->{'labels.severity'} eq 'level2' || $data->{'labels.severity'} eq 'level3' ) )
     )
     {
-        $data->{title} = $senddata{title};
-        $data->{content} = $senddata{content};
+        $data->{ title   } = $senddata{ title   };
+        $data->{ content } = $senddata{ content };
     }
 
     if(

@@ -23,16 +23,16 @@ local $/ = "\n";
 $ENV{PATH} = "$ENV{PATH}:/data/Software/mydan/AGENT/pp:/data/Software/mydan/Connector/pp:/data/Software/mydan/JOB/pp";
 
 
-my $envstr = `c3_job_pp_environment`;
+my $envstr = `c3mc-job-environment`;
 my $environment = eval{YAML::XS::Load $envstr};
 confess "load fail: $@" if $@;
 
 my %template =
 (
-    mailmonTemplateEmailTitle => 'mailmon: host:${labels.instance} alter: ${labels.alertname} status:${status}',
+    mailmonTemplateEmailTitle   => 'mailmon: host:${labels.instance} alter: ${labels.alertname} status:${status}',
     mailmonTemplateEmailContent => 'mailmon: host:${labels.instance} alter: ${labels.alertname} status:${status}',
-    mailmonTemplateSmsContent => 'mailmon: host:${labels.instance} alter: ${labels.alertname} status:${status}',
-    mailmonTemplateCallContent => 'mailmon: host:${labels.instance} alter: ${labels.alertname} status:${status}',
+    mailmonTemplateSmsContent   => 'mailmon: host:${labels.instance} alter: ${labels.alertname} status:${status}',
+    mailmonTemplateCallContent  => 'mailmon: host:${labels.instance} alter: ${labels.alertname} status:${status}',
 );
 
 my @out;
@@ -43,10 +43,10 @@ sub addcont
     return unless $data && ref $data eq 'HASH';
 
     my %senddata;
-    $senddata{title} = $environment->{mailmonTemplateEmailTitle} || $template{mailmonTemplateEmailTitle};
-    $senddata{content} = $environment->{mailmonTemplateEmailContent} || $template{mailmonTemplateEmailContent};
-    $senddata{mesg} = $environment->{mailmonTemplateSmsContent} || $template{mailmonTemplateSmsContent};
-    $senddata{call} = $environment->{mailmonTemplateCallContent} || $template{mailmonTemplateCallContent};
+    $senddata{ title   } = $environment->{ mailmonTemplateEmailTitle   } || $template{ mailmonTemplateEmailTitle   };
+    $senddata{ content } = $environment->{ mailmonTemplateEmailContent } || $template{ mailmonTemplateEmailContent };
+    $senddata{ mesg    } = $environment->{ mailmonTemplateSmsContent   } || $template{ mailmonTemplateSmsContent   };
+    $senddata{ call    } = $environment->{ mailmonTemplateCallContent  } || $template{ mailmonTemplateCallContent  };
 
 
     my %replace = %$data;
@@ -63,8 +63,8 @@ sub addcont
         ( $data->{'labels.severity'} && ( $data->{'labels.severity'} eq 'level1' || $data->{'labels.severity'} eq 'level2' || $data->{'labels.severity'} eq 'level3' ) )
     )
     {
-        $data->{title} = $senddata{title};
-        $data->{content} = $senddata{content};
+        $data->{ title   } = $senddata{ title   };
+        $data->{ content } = $senddata{ content };
     }
 
     if(
