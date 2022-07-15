@@ -6,6 +6,7 @@ use LWP::UserAgent;
 use Digest::MD5;
 use JSON qw();
 use Code;
+use OPENC3::SysCtl;
 use TreeMap;
 
 $| ++;
@@ -13,98 +14,106 @@ $| ++;
 =head1 SYNOPSIS
 
     cookie => 'cookiestring',
-    logs => 日志对象
 
 =cut
 
-my ( $usertree, %env, $debug, $apicache, $treemapcode );
+my ( $usertree, %env, $treemapcode );
 BEGIN{
     use Configini;
-    $usertree = Configini::get( 'usertree' );
-    %env = Configini::env( 'usertreeenv' );
-
-    $debug = Configini::get( 'debug' );
-    $apicache = Configini::get( 'apicache' );
-    $apicache = 0 unless $apicache && $apicache =~ /^\d+$/;
+    $usertree = Configini::get( 'usertree'    );
+    %env      = Configini::env( 'usertreeenv' );
 
     $treemapcode = Code->new( "connectorx.plugin/treemap" );
 };
 
 return sub
 {
-    my ( %param )= @_;
-    my ( $cookie, $logs ) = @param{qw(cookie logs)};
+    my ( %param  ) = @_;
+    my ( $cookie ) = @param{qw(cookie)};
 
     unless( $usertree )
     {
         my $treemap = eval{ $treemapcode->run( cookie => $cookie ) };
+        die "get treemap fail: $@" if $@;
         return TreeMap::map2tree( $treemap );
     }
-    $logs = Logs->new( 'code.usertree' ) unless $logs;
+
+    my $md5       = Digest::MD5->new->add( "$usertree?cookie=$cookie" )->hexdigest;
+    my $cache     = "/data/open-c3-data/cache/usertree/usertree-$md5";
+    my $cachetime =  OPENC3::SysCtl->new()->getint( 'sys.cache.usertree.timeout', 0, 86400 * 365, 60 );
+
+    $cachetime = 604800 if -f '/var/openc3_connector_api_fail';
+
+    if( $cachetime && -f $cache )
+    {
+        my $ctime = ( stat $cache )[9]; #mtime
+        if( $ctime + $cachetime > time )
+        {
+            my $v;
+            eval{
+                $v = eval{ YAML::XS::LoadFile $cache };
+                die "get cache fail: $@" if $@;
+                die "stat no true"   unless $v->{stat};
+            };
+            if( $@ )
+            {
+                warn "get cache fail: $@";
+            }
+            else
+            {
+                return $v->{data};
+            }
+        }
+    }
 
     my $ua = LWP::UserAgent->new;
     $ua->default_header( %env ) if %env;
-    $ua->timeout( 10 );
+    $ua->timeout( 15 );
 
-    my $file;
-    if( $apicache )
+    my ( $res, $err );
+    for my $i ( reverse 1 .. 3 )
     {
-        my $md5 = Digest::MD5->new->add( "$usertree?cookie=$cookie" )->hexdigest;
-        $file = "/tmp/openc3-cache-api-usertree-$md5";
-        $ua->timeout( 3 );
+       $res = $ua->get( "$usertree?cookie=$cookie" );
 
-        if( -f $file )
+        $err = sprintf "get usertree fail: $usertree?cookie=$cookie: %s", YAML::XS::Dump $res;
+        $err =~ s/appkey:\s+['"]?[a-zA-Z0-9]{32}['"]?\b/appkey: ******/g;
+
+        last if $res->is_success;
+        if( $i > 1 )
         {
-            my $apicachetimeout = -f '/var/openc3_connector_api_fail' ? 86400 : $apicache;
-
-            my $mtime = ( stat $file )[9];
-            if( $mtime  && ( $mtime + $apicachetimeout > time ) )
-            {
-                my $filecont = eval{ YAML::XS::LoadFile $file };
-                if( $filecont && ! $@ )
-                {
-                    $logs->say( "usertree api usetime: cache" );
-                    return $filecont;
-                }
-            }
-         }
+            warn sprintf( "$err code %s", $res->code );
+            sleep 3;
+        }
     }
 
+    my $v;
+    eval{
+        die sprintf( "code %s", $res->code ) unless $res->is_success;
+        $v = eval{JSON::decode_json $res->decoded_content};
 
+        die "data no JSON: $@" if $@;
+        die "stat no true" unless $v->{stat};
+    };
 
-    my $t = time;
-    my $res = $ua->get( "$usertree?cookie=$cookie" );
-
-    $logs->say( YAML::XS::Dump $res ) if $debug;
-    my $utime = time - $t;
-    $logs->say( "usertree api usetime: $utime" );# if $debug;
-
-    if($res->is_success)
+    if( $@ )
     {
-        my $v = eval{JSON::decode_json $res->decoded_content};
-        eval{ YAML::XS::DumpFile $file, $v->{data} } if $apicache && $v->{stat};
-        return $v->{data} if $v->{stat};
+        warn "$err $@";
+        #TODO if cache too old ?
+        $v = eval{ YAML::XS::LoadFile $cache };
+        die "get cache fail: $@" if $@;
+        die "stat no true"   unless $v->{stat};
     }
-    elsif( $apicache )
+    else
     {
-        warn sprintf "usertree err: %s\n", YAML::XS::Dump $res;
-
-        if( -f $file )
+        if( $cachetime )
         {
-            my $mtime = ( stat $file )[9];
-            if( $mtime  && ( $mtime + 86400 > time ) )
-            {
-                my $filecont = eval{ YAML::XS::LoadFile $file };
-                if( $filecont && ! $@ )
-                {
-                    $logs->err( "usertree api usetime: cache" );
-                    return $filecont;
-                }
-            }
-         }
+            eval{
+                YAML::XS::DumpFile "$cache.tmp.$$", $v;
+                die "rename fail" unless rename "$cache.tmp.$$", $cache;
+            };
+            warn "set cache fail: $@" if $@;
+        }
     }
 
-    warn sprintf "usertree err: %s\n", YAML::XS::Dump $res;
-
-    die $res->content;
+    return $v->{data};
 }

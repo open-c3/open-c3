@@ -1,0 +1,139 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use Data::Dumper;
+
+use MYDan::Util::OptConf;
+use OPENC3::PP::Server;
+use OPENC3::PP::Exec;
+use OPENC3::SysCtl;
+
+=head1 SYNOPSIS
+
+ $0 servername
+
+=cut
+
+$|++;
+my $name = shift @ARGV;
+my %help = (
+    keepalive       => 'server keepalive',
+    findtags        => 'findtags',
+    findtagsonce    => 'findtags once',
+    build           => 'build',
+    clean           => 'clean',
+    bury            => 'bury',
+    flowreport      => 'flowreport',
+);
+
+unless( $name )
+{
+    map{ print "\$0 $_ # $help{$_}\n" }keys %help;
+    exit;
+}
+
+if( $name eq 'keepalive' )
+{
+    my @x = qx(c3mc-base-db-get id -t openc3_ci_keepalive -f "slave='`c3mc-base-hostname`'");
+    unless( @x )
+    {
+        die if system 'c3mc-base-db-ins -t openc3_ci_keepalive slave `c3mc-base-hostname` time `date +%s` >/dev/null';
+    }
+    OPENC3::PP::Server->new(
+        name => "ci_server_$name",
+        interval => 15,
+        timeout => 120,
+    )->run(
+        'c3mc-base-db-set -t openc3_ci_keepalive --col slave `c3mc-base-hostname` --set time="`date +%s`" --filter="time<>0" >/dev/null'
+    );
+}
+
+if( $name eq 'findtags' )
+{
+    my $x        = OPENC3::SysCtl->new()->getint( 'ci.findtags.concurrency', 1, 100,  4  );
+    my $interval = OPENC3::SysCtl->new()->getint( 'ci.findtags.interval',    0, 3600, 60 );
+
+    unless( $interval )
+    {
+        $0 = "ci_server_$name";
+        sleep 86400;
+        exit;
+    }
+
+    OPENC3::PP::Server->new(
+        name     => "ci_server_$name",
+        interval => $interval,
+        timeout  => $interval * 2,
+    )->run(
+      [
+        'c3mc-base-db-get id -t openc3_ci_project -f "status=1 and autofindtags=1"',
+        'c3mc-base-task-grep -m ci',
+        'c3mc-base-db-set -t openc3_ci_project --set "slave=\"`c3mc-base-hostname`\""',
+        'xargs -P ' . $x . ' -i{} c3mc-app-findtags {}',
+      ]
+    );
+}
+
+if( $name eq 'findtagsonce' )
+{
+    OPENC3::PP::Server->new(
+        name     => "ci_server_$name",
+        interval => 3,
+        timeout  => 30,
+    )->run(
+      [
+        'c3mc-base-db-get id -t openc3_ci_project -f "status=1 and findtags_at_once=1"',
+        'c3mc-base-task-grep -m ci',
+        'c3mc-base-db-set -t openc3_ci_project --set "findtags_at_once=0,slave=\"`c3mc-base-hostname`\""',
+        'xargs -P 2 -i{} bash -c "c3mc-app-findtags {} &"'
+      ]
+    );
+}
+
+if( $name eq 'build' )
+{
+    OPENC3::PP::Server->new(
+        name     => "ci_server_$name",
+        interval => 3,
+        timeout  => 30,
+    )->run(
+      [
+        'c3mc-base-db-get -t openc3_ci_version projectid status uuid --filter "status=\"init\" or status=\"running\""',
+        'c3mc-base-task-grep -m ci',
+        'c3mc-base-count-limit',
+        'grep ";init"',
+        'awk -F";" \'{print $3}\'',
+        'c3mc-base-db-set -t openc3_ci_version --col uuid --set "slave=\"`c3mc-base-hostname`\""',
+        'xargs -i{} bash -c "/data/Software/mydan/CI/bin/build --uuid {} 2>&1',
+        'c3mc-base-log-addtime > /data/Software/mydan/CI/logs/build/{} 2>&1"',
+      ]
+    );
+}
+
+if( $name eq 'clean' )
+{
+    OPENC3::PP::Server->new(
+        name     => "ci_server_$name",
+        interval => 3600,
+        timeout  => 7200,
+    )->run( 'c3mc-ci-clean' );
+}
+
+if( $name eq 'bury' )
+{
+    OPENC3::PP::Server->new(
+        name     => "ci_server_$name",
+        interval => 3,
+        timeout  => 10,
+    )->run( 'c3mc-ci-bury' );
+}
+
+if( $name eq 'flowreport' )
+{
+    OPENC3::PP::Server->new(
+        name     => "ci_server_$name",
+        interval => 600,
+        timeout  => 1200,
+    )->run( 'c3mc-ci-flowreport' );
+}

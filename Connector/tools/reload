@@ -13,18 +13,17 @@ use uuid;
 
 print "reload connector\n";
 
-die if system "cp $RealBin/../pp/c3mc-* /usr/bin";
+die if system "$RealBin/../pp/c3mc-install";
 
 my $Config = eval{ YAML::XS::LoadFile "$RealBin/../config/Config";};
 die "load Config fail: $!" unless $Config;
 
 my $envname = `cat $RealBin/../conf/envname`;
 chomp $envname;
-die "envname undef" unless $envname;
 
+die "envname undef"                    unless $envname;
 die "envname $envname undef in Config" unless $Config = $Config->{$envname};
-
-die "port undef" unless my $port = $Config->{port};
+die "port undef"                       unless my $port = $Config->{port};
 
 my $tokenfile = "/etc/openc3.reload.token";
 unless( -f $tokenfile )

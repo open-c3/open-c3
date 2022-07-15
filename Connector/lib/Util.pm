@@ -7,9 +7,9 @@ use FindBin qw( $RealBin );
 
 sub myname
 {
-    my $myname = `cat /etc/connector.myip`;
+    my $myname = `c3mc-base-hostname`;
     chomp $myname if $myname;
-    confess "no a ip in /etc/connector.myip" unless $myname && $myname =~ /^[a-zA-Z0-9\.\-]+$/;
+    confess "get c3 hostname fail" unless $myname && $myname =~ /^[a-zA-Z0-9\.\-]+$/;
     return $myname;
 }
 

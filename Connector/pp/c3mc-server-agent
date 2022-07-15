@@ -181,9 +181,9 @@ if( $name eq 'rule' )
     }
 
     OPENC3::PP::Server->new(
-        name => "agent_server_$name",
+        name     => "agent_server_$name",
         interval => 60,
-        timeout => 120,
+        timeout  => 120,
     )->run(
         "c3mc-mon-rule --output /data/Software/mydan/prometheus/config/openc3_rule.yml",
         "curl -XPOST http://OPENC3_PROMETHEUS_IP:9090/-/reload 2>/dev/null",
@@ -202,9 +202,9 @@ if( $name eq 'carry' )
     }
 
     OPENC3::PP::Server->new(
-        name => "agent_server_$name",
+        name     => "agent_server_$name",
         interval => 60,
-        timeout => 120,
+        timeout  => 120,
     )->run(
         "cat /data/Software/mydan/AGENT/conf/promesd.temp | c3mc-mon-carry --output /data/Software/mydan/AGENT/conf/openc3_carry.yml",
         "cat /data/Software/mydan/AGENT/conf/promesd.temp | awk -F';' '{print \$2}'| c3mc-mon-proxy --output /data/Software/mydan/AGENT/conf/openc3_proxy.yml",
@@ -227,9 +227,9 @@ if( $name eq 'sender' )
     map{ die if system "mkdir -p  $_"; }qw( zsucc zfail run );
 
     OPENC3::PP::Server->new(
-        name => "agent_server_$name",
+        name     => "agent_server_$name",
         interval => 6,
-        timeout => 60,
+        timeout  => 60,
     )->run( "ls *.wait 2>/dev/null| xargs -P 5 -i{} bash -c \"c3mc-mon-sender {}\"" );
 }
 
@@ -250,9 +250,9 @@ if( $name eq 'extend-exporter' )
     unless( @cmd ) { $0 = "agent_server_$name"; sleep 10*365*86400; exit; } 
 
     OPENC3::PP::Server->new(
-        name => "agent_server_$name",
+        name     => "agent_server_$name",
         interval => 300,
-        timeout => 120,
+        timeout  => 120,
     )->run( @cmd );
 
 }
@@ -260,9 +260,9 @@ if( $name eq 'extend-exporter' )
 if( $name eq 'self-healing' )
 {
     OPENC3::PP::Server->new(
-        name => "agent_server_$name",
+        name     => "agent_server_$name",
         interval => 60,
-        timeout => 120,
+        timeout  => 120,
     )->run(
        "c3mc-base-db-get -t openc3_monitor_self_healing_config altername jobname name | c3mc-mon-selfhealing-curralter | c3mc-mon-selfhealing-grepeips | c3mc-mon-selfhealing-maketask",
        "c3mc-base-db-get -t openc3_monitor_self_healing_task id instance jobname --filter 'taskuuid is null' | c3mc-mon-selfhealing-runtask",
@@ -278,9 +278,9 @@ if( $name eq 'mailmon' )
     map{ die if system "mkdir -p  $_"; }qw( zsucc zfail run );
 
     OPENC3::PP::Server->new(
-        name => "agent_server_$name",
+        name     => "agent_server_$name",
         interval => 30,
-        timeout => 60,
+        timeout  => 60,
     )->run(
         "cd ../conf && ls |xargs -i{} c3mc-mon-mailmon-syncer {}",
         "ls *.wait 2>/dev/null| xargs -P 5 -i{} bash -c \"c3mc-mon-mailmon-sender {}\"",
@@ -297,9 +297,9 @@ if( $name eq 'portcheckok' )
     }
 
     OPENC3::PP::Server->new(
-        name => "agent_server_$name",
+        name     => "agent_server_$name",
         interval => 30,
-        timeout => 60,
+        timeout  => 60,
     )->run(
        "c3mc-app-port-checkok"
     );
@@ -308,18 +308,18 @@ if( $name eq 'portcheckok' )
 if( $name eq 'inherit' )
 {
     OPENC3::PP::Server->new(
-        name => "agent_server_$name",
+        name     => "agent_server_$name",
         interval => 300,
-        timeout => 600,
+        timeout  => 600,
     )->run( "c3mc-agent-inherit");
 }
 
 if( $name eq 'cloudmon' )
 {
     OPENC3::PP::Server->new(
-        name => "agent_server_$name",
+        name     => "agent_server_$name",
         interval => 60,
-        timeout => 600,
+        timeout  => 600,
     )->run( "c3mc-cloudmon-make-task && c3mc-cloudmon-make-promesd && c3mc-cloudmon-make-promesd prometheus-federate");
 }
 
@@ -337,9 +337,9 @@ if( $name eq 'keepalive' )
     }
  
     OPENC3::PP::Server->new(
-        name => "agent_server_$name",
+        name     => "agent_server_$name",
         interval => 15,
-        timeout => 120,
+        timeout  => 120,
     )->run(
         'c3mc-base-db-set -t openc3_agent_keepalive   --col slave `c3mc-base-hostname` --set time="`date +%s`" --filter="time<>0" >/dev/null',
         'c3mc-base-db-set -t openc3_monitor_keepalive --col slave `c3mc-base-hostname` --set time="`date +%s`" --filter="time<>0" >/dev/null',

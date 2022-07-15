@@ -46,7 +46,7 @@ return sub
 
     my %x = %{$x->[0]};
 
-    my $envstr = `c3_job_pp_environment`;
+    my $envstr = `c3mc-job-environment`;
     my $environment = eval{YAML::XS::Load $envstr};
     die "load fail: $@" if $@;
 
@@ -62,9 +62,9 @@ return sub
 
     my %template = 
     (
-        ciTemplateEmailTitle => 'build: project: ${projectname} version=${version}',
+        ciTemplateEmailTitle   => 'build: project: ${projectname} version=${version}',
         ciTemplateEmailContent => "status: \${status}\n projectname: \${projectname}\n addr: \${addr}\n version: \${version}\n calltestenv: \${calltestenv}\n callonlineenv: \${callonlineenv}\n errormsg: \${errormsg}\n buildlog:\n\${buildlog}",
-        ciTemplateSmsContent => 'build: project: ${projectname} version=${version}: status:${status}',
+        ciTemplateSmsContent   => 'build: project: ${projectname} version=${version}: status:${status}',
     );
  
 
@@ -73,9 +73,9 @@ return sub
     my $stat = 1;
 
     my %senddata;
-    $senddata{title} = $environment->{ciTemplateEmailTitle} || $template{ciTemplateEmailTitle};
-    $senddata{content} = $environment->{ciTemplateEmailContent} || $template{ciTemplateEmailContent};
-    $senddata{mesg} = $environment->{ciTemplateSmsContent} || $template{ciTemplateSmsContent};
+    $senddata{ title   } = $environment->{ ciTemplateEmailTitle   } || $template{ ciTemplateEmailTitle   };
+    $senddata{ content } = $environment->{ ciTemplateEmailContent } || $template{ ciTemplateEmailContent };
+    $senddata{ mesg    } = $environment->{ ciTemplateSmsContent   } || $template{ ciTemplateSmsContent   };
 
 
     my $tagger = `cat '$RealBin/../logs/build_temp_uuid/$uuid/info/tagger'`;
@@ -85,16 +85,16 @@ return sub
     $notify{$tagger} ++;
 
     my %replace;
-    $replace{buildlog} = `cat $RealBin/../logs/build/$uuid 2>/dev/null|grep -v 'remote: Counting objects:' 2>/dev/null|grep -v 'remote: Compressing objects:' 2>/dev/null|head -n 200`;
-    $replace{projectname} = $x{'openc3_ci_project.name'};
-    $replace{projectid} = $x{'openc3_ci_version.projectid'};
-    $replace{treeid} = $x{'openc3_ci_project.groupid'};
-    $replace{version} = $x{'openc3_ci_version.name'};
-    $replace{status} = $status;
-    $replace{addr} = $x{'openc3_ci_project.addr'};
-    $replace{calltestenv} = $x{'openc3_ci_project.calltestenv'} ? 'Yes' : 'No';
-    $replace{callonlineenv} = $x{'openc3_ci_project.callonlineenv'} ? 'Yes' : 'No';
-    $replace{errormsg} = $errormsg || 'Null';
+    $replace{ buildlog       } = `cat $RealBin/../logs/build/$uuid 2>/dev/null|grep -v 'remote: Counting objects:' 2>/dev/null|grep -v 'remote: Compressing objects:' 2>/dev/null|head -n 200`;
+    $replace{ projectname    } = $x{ 'openc3_ci_project.name'          };
+    $replace{ projectid      } = $x{ 'openc3_ci_version.projectid'     };
+    $replace{ treeid         } = $x{ 'openc3_ci_project.groupid'       };
+    $replace{ version        } = $x{ 'openc3_ci_version.name'          };
+    $replace{ status         } = $status;
+    $replace{ addr           } = $x{ 'openc3_ci_project.addr'          };
+    $replace{ calltestenv    } = $x{ 'openc3_ci_project.calltestenv'   } ? 'Yes' : 'No';
+    $replace{ callonlineenv  } = $x{ 'openc3_ci_project.callonlineenv' } ? 'Yes' : 'No';
+    $replace{ errormsg       } = $errormsg || 'Null';
 
     if( $replace{treeid} && $replace{treeid} =~ /^\d+$/ && grep{ m#\$\{treename\}# }values %senddata )
     {

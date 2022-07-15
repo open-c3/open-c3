@@ -10,6 +10,12 @@ use api;
 use Format;
 use Encode qw(decode encode);
 
+get '/cloudmon/exporter' => sub {
+    my @x = `cd /data/Software/mydan/AGENT/cloudmon/exporter && ls`;
+    chomp @x;
+    return +{ stat => $JSON::true, data => \@x };
+};
+
 get '/cloudmon' => sub {
     my $pmscheck = api::pmscheck( 'openc3_agent_root' ); return $pmscheck if $pmscheck;
 
