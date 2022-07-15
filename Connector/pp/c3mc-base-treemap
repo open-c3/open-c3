@@ -20,7 +20,11 @@ use OPENC3::SysCtl;
 
  $0
 
+ $0 cache
+
 =cut
+
+my $usecache = @ARGV && $ARGV[0] eq 'cache' ? 1 : 0;
 
 sub gettreemap
 {
@@ -50,6 +54,8 @@ sub gettreemap
     my $cachetime =  OPENC3::SysCtl->new()->getint( 'sys.cache.treemap.timeout', 0, 86400 * 365, 60 );
 
     $cachetime = 604800 if -f '/var/openc3_connector_api_fail';
+
+    $cachetime = 86400 * 365 if $usecache;
 
     if( $cachetime && -f $cache )
     {
