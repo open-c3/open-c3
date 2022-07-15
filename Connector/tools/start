@@ -23,16 +23,16 @@ die "load Config fail: $!" unless $Config;
 
 my $envname = `cat $RealBin/../conf/envname`;
 chomp $envname;
-die "envname undef" unless $envname;
 
+die "envname undef"                    unless $envname;
 die "envname $envname undef in Config" unless $Config = $Config->{$envname};
-
-die "port undef" unless my $port = $Config->{port};
+die "port undef"                       unless my $port = $Config->{port};
 
 my $supervisor = "$RealBin/../../JOB/bin/supervisor --name connector_supervisor";
 
 map{
-    die "start api fail: $!" if  system "$supervisor --cmd '$base/bin/api -p $_' --log '$base/logs/server/api.$_' --http http://127.0.0.1:$_/mon --check ok";
+    die "start api fail: $!"
+        if system "$supervisor --cmd '$base/bin/api -p $_' --log '$base/logs/server/api.$_' --http http://127.0.0.1:$_/mon --check ok";
     print "start api port: $_\n"
 }$port->{api}{from} .. $port->{api}{to};
 
@@ -40,4 +40,4 @@ my $mymarkfile = '/etc/connector.mark';
 my $user = `id -un`;chop $user;
 my $sudo = $user eq 'root' ? '' : 'sudo ';
 
-die "set connector.mark fail:$!" if system( "${sudo}sh -c 'date > $mymarkfile'" );
+die "set connector.mark fail:$!" if system "${sudo}sh -c 'date > $mymarkfile'";
