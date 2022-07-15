@@ -1,0 +1,44 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0 tree.prefix.foo treeid
+
+=cut
+
+my ( $prefix, $rawid ) = @ARGV;
+die "err argv" unless defined $rawid && $rawid =~ /^\d+$/;
+
+my @x = `c3mc-base-treemap cache`;
+chomp @x;
+
+my ( %id2name, %name2id );
+for( @x )
+{
+    my ( $id, $name ) = split /;/, $_, 2;
+    $id2name{ $id   } = $name;
+    $name2id{ $name } = $id;
+}
+
+die "nofind $prefix $rawid" unless my $rawname = $id2name{ $rawid };
+my @rawname = split /\./, $rawname;
+while( @rawname )
+{
+    my $tempname = join '.', $prefix, @rawname;
+    if( my $id = $name2id{ $tempname } )
+    {
+        print "$id\n";
+        exit;
+    }
+    pop @rawname;
+}
+
+die "nofind $prefix $rawid";

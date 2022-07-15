@@ -26,7 +26,7 @@ BEGIN{
     %env      = Configini::env( 'pmspointenv' );
 
     my $eid   = Configini::get( 'pmspointeid' );
-    @eid = @$eid if $eid && ref $eid eq 'ARRAY' && @$eid == 3;
+    @eid = @$eid if $eid && ref $eid eq 'ARRAY' && @$eid >= 3;
 
     $ssocode = Code->new( "connectorx.plugin/sso" );
 
@@ -84,7 +84,19 @@ return sub
         {
             if( @eid )
             {
-                $treeid = $eid[2] unless $eid[0] <= $treeid && $treeid <= $eid[1];
+                unless( $eid[0] <= $treeid && $treeid <= $eid[1] )
+                {
+                    if( @eid > 3 )
+                    {
+                        my $x = `$eid[3] $treeid`;
+                        chmod $x;
+                        $treeid = $x && $x =~ /^\d+$/ ? $x : $eid[2];
+                    }
+                    else
+                    {
+                        $treeid = $eid[2];
+                    }
+                }
             }
 
             $treestr = "&treeid=$treeid";
