@@ -19,7 +19,7 @@ $| ++;
 
 =cut
 
-my ( $pmspoint, @eid, %env, $ssocode );
+my ( $pmspoint, @eid, %env, $ssocode, %app );
 BEGIN{
     use Configini;
     $pmspoint = Configini::get( 'pmspoint'    );
@@ -29,6 +29,21 @@ BEGIN{
     @eid = @$eid if $eid && ref $eid eq 'ARRAY' && @$eid == 3;
 
     $ssocode = Code->new( "connectorx.plugin/sso" );
+
+    for my $file ( glob "/data/Software/mydan/*/conf/appname" )
+    {
+        my    $name = `cat $file`;
+        chomp $name;
+
+        $file =~ s/appname/appkey/;
+        my    $key = `cat $file`;
+        chomp $key;
+
+        $app{$name} = $key eq 'c3random' && $ENV{OPEN_C3_RANDOM}
+            ? $ENV{OPEN_C3_RANDOM}
+            : $key;
+    }
+
 };
 
 return sub
@@ -41,6 +56,11 @@ return sub
     return 1 if $pmspoint && $pmspoint eq 'x'; 
 
     return 1 if $treeid && $treeid == 4000000000;
+
+    if( $param{appname} && $param{appkey} )
+    {
+         return ( $app{$param{appname}} && $app{$param{appname}} eq $param{appkey} ) ? 1 : 0;
+    }
 
     if( $treeid && $treeid >= 4000000000 )
     {
