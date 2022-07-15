@@ -9,7 +9,6 @@ BEGIN{
     die "load config.ini/current fail: $@" if $@;
 };
 
-
 sub config
 {
     return $config;

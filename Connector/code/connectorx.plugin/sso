@@ -65,6 +65,8 @@ return sub
                 ? () #Error
                 : ( $v->{data}, $v->{data} =~ /(@.+)$/ ? $1 : 'default' );
 
+        map{ s/'/_/g }@return;
+
         if( @return >= 2 && $return[0] && $return[0] =~ /^[a-zA-Z0-9\@\-\.-]+$/ )
         {
             my $x = `c3mc-base-db-get -t openc3_connector_userdepartment department -f "user='$return[0]'"`;
