@@ -1,0 +1,37 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0 ip1 ip2 ... ipn
+
+=cut
+
+sub fill
+{
+    my $line = shift @_;
+    my @ip = $line =~ /\b(\d+\.\d+\.\d+\.\d+)\b/g;
+
+     my %ipfill;
+     for my $ip ( @ip )
+     {
+        my $x = `c3mc-app-ipsearch $ip`;
+        chomp $x;
+        $ipfill{$ip} = $x if $ip ne $x;
+     }
+
+     for( keys %ipfill)
+     {
+         $line =~ s/$_/[$ipfill{$_}]/g;
+     }
+     print "$line\n";
+}
+
+if( @ARGV ) { map{ fill( $_ ) }@ARGV; } else { while(<STDIN>){ chomp; fill($_); } }

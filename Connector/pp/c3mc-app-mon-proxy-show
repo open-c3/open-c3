@@ -1,0 +1,63 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my    @ip = `cat /data/Software/mydan/prometheus/config/openc3_node_sd.yml|grep instance|awk '{print \$2}'`;
+chomp @ip;
+@ip = grep{ /^\d+\.\d+\.\d+\.\d+$/ }@ip;
+
+my %re;
+for ( @ip )
+{
+    my $x = join '.', ( split /\./, $_ )[ 0, 1 ];
+    $re{ $x } ++;
+}
+
+my @errnode = `c3mc-mon-agent-install-errnode`;
+my %errnode;
+
+chomp @errnode;
+
+for ( @errnode )
+{
+    my $x = join '.', ( split /\./, $_ )[ 0, 1 ];
+    $errnode{ $x } ++;
+}
+
+sub netcheck
+{
+    my $proxyip = shift @_;
+    my $x = `curl --connect-timeout 5 http://$proxyip:65110 2>/dev/null`;
+    return $x =~ /OPEN-C3 Node Exporte/ ? 'ok' : 'ERROR';
+}
+
+sub getproxy
+{
+    my $subnet = shift @_;
+    
+    my $cmd = join '|', (
+        "           c3mc-base-db-get -t openc3_agent_agent                   relationid -f 'projectid=0 and ip=\"$subnet\"' ",
+        "xargs -i{} c3mc-base-db-get -t openc3_agent_project_region_relation regionid   -f \"id={}\"                        ",
+        "xargs -i{} c3mc-base-db-get -t openc3_agent_proxy                   ip         -f \"projectid=0 and regionid='{}'\"",
+    );
+    my @x = `$cmd`;
+    chomp @x;
+    return join "\t", map{ sprintf "$_\t%s", netcheck( $_ ) }grep{ $_ }@x;
+}
+
+for my $t ( sort{ $re{$b} <=> $re{$a} } keys %re )
+{
+    my $subnet = "$t.0.0/16";
+
+    printf "$subnet\t%s/$re{$t}\t%s\n", $errnode{$t} || 0, getproxy( $subnet );
+}
