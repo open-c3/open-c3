@@ -20,9 +20,11 @@ my %o = $option->get( qw( module=s set=s name=s ) )->dump();
 
 unless( $o{module} )
 {
-    my $set = $o{set} ? "--set $o{set}" : '';
-    my $name = $o{name} ? "--name $o{name}" : '';
+    my $set  = $o{ set  } ? "--set $o{set}"   : '';
+    my $name = $o{ name } ? "--name $o{name}" : '';
+
     map{ print "$_\t"; system "$0 $set $name -m $_" }qw( ci job jobx agent monitor );
+
     exit;
 }
 
@@ -36,6 +38,7 @@ unless( $o{set} )
 {
     my $x = `c3mc-base-db-get time -t openc3_$o{module}_keepalive -f 'slave="$o{name}"'`;
     chomp $x;
+
     printf "%s\n", ( defined $x && $x =~ /^\d+$/ && $x - 120 < time && time < $x + 120 ) ? 'online': 'offline';
     exit;
 }

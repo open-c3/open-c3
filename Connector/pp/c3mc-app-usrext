@@ -11,15 +11,15 @@ $| ++;
 
  $0 usr1 usr2 usr3 .. usrn
 
- $0 user             # username
+ $0 user               # username
 
- $0 @monitorgroup    # user from monitor group
+ $0 @monitorgroup      # user from monitor group
 
- $0 %oncallgroup     # oncall user level 1
- $0 %oncallgroup:1   # oncall user level 1
+ $0 %oncallgroup       # oncall user level 1
+ $0 %oncallgroup:1     # oncall user level 1
  $0 %oncallgroup:level # oncall user level $level
 
- $0 :departmentname  # user from department
+ $0 :departmentname    # user from department
 
 =cut
 
@@ -34,12 +34,14 @@ sub resolve
 {
     my ( $user ) = @_;
     return unless $user && $user =~ /^[a-zA-Z0-9\.\-_@%:]+$/;
+
     if( $user =~ s/^@// )
     {
         my $x = eval{ $dba->query( "select user from openc3_monitor_config_groupuser where groupid in (select id from openc3_monitor_config_group where name='$user')" ); };
         die "$0 get data fail: $@" if $@;
-        return map{@$_}@$x;
+        return map{ @$_ } @$x;
     }
+
     if( $user =~ s/^%// )
     {
         my $level = $user =~ s/:(\d+)$// ? $1 : 1;
@@ -52,11 +54,11 @@ sub resolve
     {
         my $x = eval{ $dbc->query( "select user from openc3_connector_userdepartment where department='$user'" ); };
         die "$0 get data fail: $@" if $@;
-        return map{@$_}@$x;
+        return map{ @$_ } @$x;
     }
 
     return $user;   
 }
 
-my %user = map{ $_ => 1 } grep { /^[a-zA-Z0-9][a-zA-Z0-9\.\-_@]*$/ } map{ resolve($_) } map{ resolve($_) }  map{ resolve($_) }@user;
+my %user = map{ $_ => 1 } grep { /^[a-zA-Z0-9][a-zA-Z0-9\.\-_@]*$/ } map{ resolve( $_ ) } map{ resolve( $_ ) } map{ resolve( $_ ) }@user;
 map{ print $_, "\n"; }sort keys %user;

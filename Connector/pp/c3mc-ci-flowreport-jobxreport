@@ -36,12 +36,12 @@ for my $d ( @$x )
     next unless $variable && ref $variable eq 'HASH' && $variable->{version};
     push @data, +{
         projectid => $projectid,
-        groupid => $d->{projectid},
-        uuid => $d->{uuid},
-        status => $d->{status},
-        version => $variable->{version},
-        time => $d->{starttime},
-        type => ( $d->{group} =~ /^_ci_test_/ ) ? 'test' :  $d->{uuid} =~ /[A-Z]$/ ? 'rollback' : 'deploy'
+        groupid   => $d->{ projectid    },
+        uuid      => $d->{ uuid         },
+        status    => $d->{ status       },
+        version   => $variable->{version},
+        time      => $d->{ starttime    },
+        type      => ( $d->{group} =~ /^_ci_test_/ ) ? 'test' :  $d->{uuid} =~ /[A-Z]$/ ? 'rollback' : 'deploy',
     };
 }
 

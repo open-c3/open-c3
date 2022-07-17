@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-binmode STDIN, ':utf8';
+binmode STDIN,  ':utf8';
 binmode STDOUT, ':utf8';
 binmode STDERR, ':utf8';
 
@@ -22,17 +22,17 @@ use Encode;
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->get( qw( table=s ) )->dump();
-$option->assert('table');
+my %o = $option->get(    qw( table=s ) )->dump();
+        $option->assert(    'table'    );
 
 my $module = ( split /_/, $o{table} )[1];
 my %table = (
-    ci => 'CI',
-    job => 'JOB',
-    jobx => 'JOBX',
-    agent => 'AGENT',
+    ci        => 'CI',
+    job       => 'JOB',
+    jobx      => 'JOBX',
+    agent     => 'AGENT',
     connector => 'Connector',
-    monitor => 'AGENT',
+    monitor   => 'AGENT',
 );
 
 die "table $o{table} undef" unless $module && $table{$module};

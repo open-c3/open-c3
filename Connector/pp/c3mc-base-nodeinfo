@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-binmode STDIN, ':utf8';
+binmode STDIN,  ':utf8';
 binmode STDOUT, ':utf8';
 binmode STDERR, ':utf8';
 
@@ -30,8 +30,8 @@ my @group;
 map{
     my $id = $_;
     my %g;
-    $g{nodeinfo} = Configini::get( "nodeinfo$id" );
-    my %env = Configini::env( "nodeinfoenv$id" );
+    $g{nodeinfo} = Configini::get( "nodeinfo$id"    );
+    my %env      = Configini::env( "nodeinfoenv$id" );
     $g{env} = %env ? \%env : +{};
 
     $g{nodeinfoeid} = Configini::get( "nodeinfoeid$id" );

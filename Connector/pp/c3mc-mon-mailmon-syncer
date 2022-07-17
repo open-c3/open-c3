@@ -58,15 +58,16 @@ for my $i ( 1 .. $num )
         push @x, $_;
     }
 
-    my $tmp = File::Temp->new( SUFFIX => ".c3_mailmon", UNLINK => 0 );
+    my    $tmp = File::Temp->new( SUFFIX => ".c3_mailmon", UNLINK => 0 );
     print $tmp join "\n", @x;
     close $tmp;
-    my $uuid = sprintf "%s.%06d", POSIX::strftime( "%Y%m%d%H%M%S", localtime ), rand 999999;
+
+    my $uuid     = sprintf "%s.%06d", POSIX::strftime( "%Y%m%d%H%M%S", localtime ), rand 999999;
     my $filename = $tmp->filename;
 
     if( $conf->{include} || $conf->{exclude} )
     {
-        my $to = `c3mc-mon-mailmon-format '$filename' | grep ^labels.to|awk '{print \$2}'`;
+        my    $to = `c3mc-mon-mailmon-format '$filename' | grep ^labels.to|awk '{print \$2}'`;
         chomp $to;
         next if skip( $to );
     }

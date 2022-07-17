@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-binmode STDIN, ':utf8';
+binmode STDIN,  ':utf8';
 binmode STDOUT, ':utf8';
 binmode STDERR, ':utf8';
 
@@ -23,7 +23,7 @@ use uuid;
 
 my $option = MYDan::Util::OptConf->load();
 my %o = $option->set( submitter => 'sys@app' )->get( qw( submitter=s approver=s ) )->dump();
-$option->assert(qw( submitter approver));
+        $option->assert(qw( submitter approver));
 
 local $/ = undef;
 my $content = Encode::encode('utf8', <STDIN> );

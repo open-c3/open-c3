@@ -1,4 +1,4 @@
-#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
+#!/data/Software/mydan/perl/bin/perl
 use strict;
 use warnings;
 
@@ -14,7 +14,7 @@ use MYDan::Util::OptConf;
 
 my $option = MYDan::Util::OptConf->load();
 my %o = $option->get( qw( module=s ) )->dump();
-$option->assert('module');
+        $option->assert( 'module'    );
 
 my $x = `c3mc-base-task-grep 0 -m $o{module}`;
 chomp $x;

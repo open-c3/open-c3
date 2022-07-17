@@ -47,7 +47,11 @@ sub out
 
 out( $awsconfig ) if -f $awsconfig;
 
-my $fh = File::Temp->new( UNLINK => 0, SUFFIX => '.config', TEMPLATE => "/data/Software/mydan/tmp/awsconfig_${ticketid}_XXXXXXXX" );
+my $fh = File::Temp->new(
+    UNLINK   => 0,
+    SUFFIX   => '.config',
+    TEMPLATE => "/data/Software/mydan/tmp/awsconfig_${ticketid}_XXXXXXXX",
+);
 print $fh $ticket;
 close $fh;
 

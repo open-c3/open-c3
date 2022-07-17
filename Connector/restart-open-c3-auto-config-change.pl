@@ -20,10 +20,10 @@ system "ln -fsn /data/open-c3-data/glusterfs /data/glusterfs" unless -e "/data/g
 
 sub check
 {
-    my $configtime = ( stat "$RealBin/config.ini/current" )[9];
-    my $laststarttime = ( stat "/etc/connector.mark" )[9];
+    my $configtime    = ( stat "$RealBin/config.ini/current" )[9];
+    my $laststarttime = ( stat "/etc/connector.mark"         )[9];
 
-    if( $configtime && $laststarttime && $configtime > $laststarttime)
+    if( $configtime && $laststarttime && $configtime > $laststarttime )
     {
         print "start\n";
         my $tail = `tail -n 1 $RealBin/config.ini/current`;
@@ -34,7 +34,7 @@ sub check
 
 system "$RealBin/restart-open-c3.sh start";
 
-while(1)
+while( 1 )
 {
     sleep 3;
     last if -f "/etc/ci.exip" && -f "/etc/job.exip";

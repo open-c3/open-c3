@@ -1,8 +1,8 @@
-#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
 use strict;
 use warnings;
 
-binmode STDIN, ':utf8';
+binmode STDIN,  ':utf8';
 binmode STDOUT, ':utf8';
 binmode STDERR, ':utf8';
 
@@ -49,35 +49,44 @@ sub sendinfo
 
     if ($data->{title} && $data->{content} )
     {
-        my $pipe = "c3mc-base-sendmail @user";
-        my $pid = IPC::Open3::open3( my $chld_in, '>&STDOUT', '>&STDERR', $pipe);
+        my $pipe    = "c3mc-base-sendmail @user";
+        my $pid     = IPC::Open3::open3( my $chld_in, '>&STDOUT', '>&STDERR', $pipe);
         my $content = "$data->{title}\n$data->{content}";
+
         Encode::_utf8_off($content);
+
         print $chld_in $content;
         $chld_in = undef;
         waitpid( $pid, 0 );
+
         ( $stat = 1 && warn "send mail fail." ) if $?;
     }
 
     if( $data->{mesg} )
     {
-        my $pipe = "c3mc-base-sendmesg @user";
-        my $pid = IPC::Open3::open3( my $chld_in, '>&STDOUT', '>&STDERR', $pipe);
+        my $pipe  = "c3mc-base-sendmesg @user";
+        my $pid   = IPC::Open3::open3( my $chld_in, '>&STDOUT', '>&STDERR', $pipe);
+
         Encode::_utf8_off($data->{mesg});
+
         print $chld_in $data->{mesg}; 
         $chld_in = undef;
         waitpid( $pid, 0 );
+
         ( $stat = 1 && warn "send mesg fail." ) if $?;
     }
 
     if( $data->{call} )
     {
-        my $pipe = "c3mc-base-sendcall @user";
-        my $pid = IPC::Open3::open3( my $chld_in, '>&STDOUT', '>&STDERR', $pipe);
+        my $pipe  = "c3mc-base-sendcall @user";
+        my $pid   = IPC::Open3::open3( my $chld_in, '>&STDOUT', '>&STDERR', $pipe);
+
         Encode::_utf8_off($data->{call});
+
         print $chld_in $data->{call}; 
         $chld_in = undef;
         waitpid( $pid, 0 );
+
         ( $stat = 1 && warn "send call fail." ) if $?;
     }
 }

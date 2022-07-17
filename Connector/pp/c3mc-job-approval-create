@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-binmode STDIN, ':utf8';
+binmode STDIN,  ':utf8';
 binmode STDOUT, ':utf8';
 binmode STDERR, ':utf8';
 
@@ -21,8 +21,8 @@ use IPC::Open3;
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->get( qw( id=i ) )->dump();
-$option->assert(qw( id ));
+my %o = $option->get( qw(   id=i ) )->dump();
+        $option->assert(qw( id ));
 
 my $id = $o{id};
 my $db = MYDB->new( "/data/Software/mydan/JOB/conf/conn", delayedconnection => 1 );

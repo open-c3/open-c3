@@ -15,7 +15,7 @@ use Carp;
 sub clean
 {
     #docker shell
-    confess "clean fail: $!" if system 'docker ps|grep dockershell_ci_ |grep hour|awk ' ."'".'{print $1}'."'" .'|xargs -i{} docker stop {}';
+    confess "clean fail: $!" if system 'docker ps|grep dockershell_ci_     |grep hour|awk ' ."'".'{print $1}'."'" .'|xargs -i{} docker stop {}';
     confess "clean fail: $!" if system 'docker ps|grep dockershell_kubectl |grep hour|awk ' ."'".'{print $1}'."'" .'|xargs -i{} docker stop {}';
 
     my $expire = time - 86400;

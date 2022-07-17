@@ -55,9 +55,9 @@ sub srv
 
     return unless -f "$pluginDir/docker-compose.service.tpl.yml";
 
-    my $tpl = `cat $pluginDir/docker-compose.service.tpl.yml`;
-    $tpl =~ s/\$\{cloudmonid\}/$x->{id}/g;
-    $tpl =~ s/\$\{taskid\}/$taskid/g;
+    my $tpl =  `cat $pluginDir/docker-compose.service.tpl.yml`;
+    $tpl    =~ s/\$\{cloudmonid\}/$x->{id}/g;
+    $tpl    =~ s/\$\{taskid\}/$taskid/g;
     die "no image in tpl" unless $tpl =~ /image:/;
 
     my $taskdir = "/data/open-c3-data/cloudmon/task/$taskid";

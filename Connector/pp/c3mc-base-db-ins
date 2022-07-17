@@ -1,8 +1,8 @@
-#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
 use strict;
 use warnings;
 
-binmode STDIN, ':utf8';
+binmode STDIN,  ':utf8';
 binmode STDOUT, ':utf8';
 binmode STDERR, ':utf8';
 
@@ -29,12 +29,12 @@ my @col = sort keys %col;
 
 my $module = ( split /_/, $o{table} )[1];
 my %table = (
-    ci => 'CI',
-    job => 'JOB',
-    jobx => 'JOBX',
-    agent => 'AGENT',
+    ci        => 'CI',
+    job       => 'JOB',
+    jobx      => 'JOBX',
+    agent     => 'AGENT',
     connector => 'Connector',
-    monitor => 'AGENT',
+    monitor   => 'AGENT',
 );
 
 die "table $o{table} undef" unless $module && $table{$module};

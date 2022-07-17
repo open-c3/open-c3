@@ -16,13 +16,13 @@ use YAML::XS;
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->get( qw( output=s ) )->dump();
+my %o      = $option->get( qw( output=s ) )->dump();
 
-my $db = MYDB->new( "/data/Software/mydan/AGENT/conf/conn" );
+my $db     = MYDB->new( "/data/Software/mydan/AGENT/conf/conn" );
 
 my %rule;
-my @col = qw( projectid alert expr for severity summary description value );
-my $x = eval{ $db->query( sprintf ( "select %s from `openc3_monitor_config_rule`", join ',', map{"`$_`"}@col ), \@col ) };
+my @col    = qw( projectid alert expr for severity summary description value );
+my $x      = eval{ $db->query( sprintf ( "select %s from `openc3_monitor_config_rule`", join ',', map{"`$_`"}@col ), \@col ) };
 
 for my $row ( @$x )
 {
@@ -38,17 +38,17 @@ for my $treeid ( keys %rule )
     for my $rule ( @{$rule{$treeid}} )
     {
         push @rules, +{
-            alert => $rule->{alert},
-            expr => $rule->{expr},
-            for => $rule->{for} || '1s',
+            alert => $rule->{ alert },
+            expr  => $rule->{ expr  },
+            for   => $rule->{ for   } || '1s',
             labels => +{
-                severity => $rule->{severity},
+                severity   => $rule->{severity},
                 fromtreeid => $treeid,
             },
             annotations => +{
-                summary => $rule->{summary}||'-',
-                description => $rule->{description}||'-',
-                value => $rule->{value}||'-',
+                summary     => $rule->{ summary     }||'-',
+                description => $rule->{ description }||'-',
+                value       => $rule->{ value       }||'-',
             },
         };
     }

@@ -1,4 +1,4 @@
-#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
 use strict;
 use warnings;
 
@@ -9,7 +9,7 @@ use MYDB;
 my $id = shift @ARGV;
 die "id err" unless $id && $id =~ /^\d+$/;
 
-my $testenv   = `c3mc-base-db-get id,projectid -t openc3_jobx_group -f "name='_ci_test_${id}_'"`;
+my $testenv   = `c3mc-base-db-get id,projectid -t openc3_jobx_group -f "name='_ci_test_${id}_'"  `;
 my $onlineenv = `c3mc-base-db-get id,projectid -t openc3_jobx_group -f "name='_ci_online_${id}_'"`;
 
 chomp $testenv;
@@ -26,25 +26,27 @@ sub checknetwork
      return \%re unless defined $groupid && $groupid =~ /^\d+$/;
      return \%re unless defined $treeid  && $treeid  =~ /^\d+$/;
 
-     my @node = `/data/Software/mydan/JOBX/bin/group -i $groupid`;
+     my    @node = `/data/Software/mydan/JOBX/bin/group -i $groupid`;
      chomp @node;
      $re{nodes} = join ';', @node;
 
      my @x;
      for my $node ( @node )
      {
-        my $ips = join ',',grep{ /^\d+\.\d+\.\d+\.\d+$/ }split /,/, $node;
-        next unless $ips;
+         my $ips = join ',',grep{ /^\d+\.\d+\.\d+\.\d+$/ }split /,/, $node;
+         next unless $ips;
+
          my @xx = `/data/Software/mydan/CI/bin/node-check-mydan-call $treeid '$ips' 2>&1`;
          chomp @xx;
          @xx = grep{ $_ !~ /^\d+\.\d+\.\d+\.\d+:ok$/ }@xx;
          push @x, @xx;
      }
+
      $re{error} = "err:". join( "", @x ) if @x;
      $re{error} =~ s/'/"/g;
+
      return \%re;
 }
-
 
 sub check
 {

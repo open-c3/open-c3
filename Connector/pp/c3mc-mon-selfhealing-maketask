@@ -19,7 +19,8 @@ while(<STDIN>)
 {
     chomp;
     
-    my ( $instance, $fingerprint, $startsAt, $alertname, $jobname ) = split /;/, $_;
+    my (            $instance,   $fingerprint,    $startsAt,   $alertname,   $jobname ) = split /;/, $_;
+
     if( $_ !~ /'/ && $instance && $fingerprint && $startsAt && $alertname && $jobname )
     {
         save( $db, $instance, $fingerprint, $startsAt, $alertname, $jobname );

@@ -22,27 +22,31 @@ sub chk
     die "port err" unless $port && $port =~ /^\d+$/;
     my $res = $ua->get( "http://127.0.0.1:$port/mon" );
     return if $res->is_success && $res->content =~ /ok/;
+
     warn "kill port $port";
+
     system '/usr/sbin/lsof -i:'.$port.'|tail -n 1|awk \'{print $2}\'|xargs -i{} kill {}';
 }
 
 sub checkok
 {
     my $name = shift @_;
-    my $Config = eval{ YAML::XS::LoadFile "/data/Software/mydan/$name/config/Config";};
+    my $Config = eval{ YAML::XS::LoadFile "/data/Software/mydan/$name/config/Config" };
+    die "load config fail: $@" if $@;
     die "load Config fail: $!" unless $Config;
 
-    my $envname = `cat /data/Software/mydan/$name/conf/envname`;
+    my    $envname = `cat /data/Software/mydan/$name/conf/envname`;
     chomp $envname;
-    die "envname undef" unless $envname;
 
+    die "envname undef"                    unless $envname;
     die "envname $envname undef in Config" unless $Config = $Config->{$envname};
 
     die "port undef" unless my $port = $Config->{port};
     for my $c ( values %$port )
     {
         next unless $c->{from} && $c->{to};
-        map{ chk($_)}$c->{from}.. $c->{to};
+
+        map{ chk( $_ ) } $c->{from} .. $c->{to};
     }
 }
 

@@ -17,8 +17,8 @@ use Digest::MD5;
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->get( qw( id=i region=s cluster=s services=s taskdefinition=s ) )->dump();
-$option->assert( qw( id region cluster services taskdefinition ) );
+my %o      = $option->get(    qw( id=i region=s cluster=s services=s taskdefinition=s ) )->dump();
+             $option->assert( qw( id   region   cluster   services   taskdefinition   ) );
 
 my ( $x, $o ); 
 if( $o{id} )

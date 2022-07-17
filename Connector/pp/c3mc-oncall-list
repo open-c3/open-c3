@@ -22,11 +22,11 @@ my %o = MYDan::Util::OptConf
     ->load( conf => "/data/Software/mydan/Connector/config/oncall.config" )
     ->get( qw( begin=s zone=s level=i days=s ) )->dump;
 
-$o{begin} ||= DateTime->now()->ymd();
-$o{zone} ||= $OPENC3::Oncall::LTZ;
+$o{ begin } ||= DateTime->now()->ymd();
+$o{ zone  } ||= $OPENC3::Oncall::LTZ;
 
-my $begin = OPENC3::Oncall->epoch( @o{ qw( begin zone ) } ) - OPENC3::Oncall::DAY;
-my $end = OPENC3::Oncall::DAY * ( 1 + ( $o{days} || 7 ) ) + $begin;
+my $begin  = OPENC3::Oncall->epoch( @o{ qw( begin zone ) } ) - OPENC3::Oncall::DAY;
+my $end    = OPENC3::Oncall::DAY * ( 1 + ( $o{days} || 7 ) ) + $begin;
 my $policy = OPENC3::Oncall::Policy->new( "$o{data}/$ARGV[0]" )->set( $begin, $end );
 
 my $null = { item => '' };
