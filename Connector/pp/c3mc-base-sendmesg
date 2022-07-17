@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-binmode STDIN, ':utf8';
+binmode STDIN,  ':utf8';
 binmode STDOUT, ':utf8';
 binmode STDERR, ':utf8';
 
@@ -30,7 +30,7 @@ my $mesg = Encode::encode('utf8', <STDIN> );
 local $/ = "\n";
 
 my ( $usermesg, %env );
-$usermesg = Configini::get( 'usermesg' );
+$usermesg = Configini::get( 'usermesg'    );
 %env      = Configini::env( 'usermesgenv' );
 
 my $ua = LWP::UserAgent->new;

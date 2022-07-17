@@ -90,8 +90,8 @@ sub saveci
     my ( $oldns, $newns, $row ) =  @_;
     delete $row->{id};
     delete $row->{edit_time};
-    $row->{ci_type_namespace} = $newns;
-    $row->{edit_user} = 'sys-job-plugin';
+    $row->{ ci_type_namespace  } = $newns;
+    $row->{ edit_user          } = 'sys-job-plugin';
 
     $row->{ ci_type_dockerfile } =~ s/$oldns/$newns/g;
     $row->{ tag_regex          } =~ s/$oldns/$newns/g;

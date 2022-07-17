@@ -1,8 +1,8 @@
-#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
 use strict;
 use warnings;
 
-binmode STDIN, ':utf8';
+binmode STDIN,  ':utf8';
 binmode STDOUT, ':utf8';
 binmode STDERR, ':utf8';
 
@@ -22,7 +22,7 @@ use Encode;
 
 my $option = MYDan::Util::OptConf->load();
 my %o = $option->get( qw( module=s ) )->dump();
-$option->assert('module');
+        $option->assert( 'module'    );
 
 my $hostname = `c3mc-base-hostname`; chomp $hostname;
 my @x = `c3mc-base-db-get -table openc3_$o{module}_keepalive slave time`; chomp @x;

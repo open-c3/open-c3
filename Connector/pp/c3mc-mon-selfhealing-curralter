@@ -29,9 +29,12 @@ else
 
 my %altername;
 map{
-    my @x = split /;/, $_, 2;
+
+    my   @x = split /;/, $_, 2;
     push @x, 'UNKOWN';
+
     $altername{$x[0]} = $x[1];
+
 }@altername;
 
 my $ua = LWP::UserAgent->new;
@@ -46,12 +49,12 @@ for my $d ( @$data )
 {
     for my $alter ( @{$d->{alerts}} )
     {
-        next unless $altername{$alter->{labels}{alertname}} || $altername{_};
-        my $jobname = $altername{$alter->{labels}{alertname}} || 'UNKOWN';
+        next unless   $altername{ $alter->{ labels }{ alertname } } || $altername{_};
+        my $jobname = $altername{ $alter->{ labels }{ alertname } } || 'UNKOWN';
         printf "%s\n", join ';',
-            $alter->{labels}{instance},
-            $alter->{fingerprint},
-            $alter->{startsAt},
-            $alter->{labels}{alertname}, $jobname;
+            $alter->{ labels      }{ instance  },
+            $alter->{ fingerprint },
+            $alter->{ startsAt    },
+            $alter->{ labels      }{ alertname }, $jobname;
     }
 }

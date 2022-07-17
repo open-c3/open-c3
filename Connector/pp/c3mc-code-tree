@@ -26,11 +26,11 @@ sub getmatch
         $res{$appname} ++ if $str =~ /\b$appname\b/ && $str !~ /\b$appname-/ &&  $str !~ /\b$appname[a-zA-Z0-9]/ ;
     }
 
-    $res{'MYDB::query'} = 2 if $str =~ /\$db->query\b/;
-    $res{'MYDB::execute'} = 2 if $str =~ /\$db->execute\b/;
+    $res{ 'MYDB::query'   } = 2 if $str =~ /\$db->query\b/;
+    $res{ 'MYDB::execute' } = 2 if $str =~ /\$db->execute\b/;
 
-    $res{'UA::get'} = 2 if $str =~ /\$ua->get\b/;
-    $res{'UA::post'} = 2 if $str =~ /\$ua->post\b/;
+    $res{ 'UA::get'       } = 2 if $str =~ /\$ua->get\b/;
+    $res{ 'UA::post'      } = 2 if $str =~ /\$ua->post\b/;
 
     return grep{ $res{$_} > 1  }keys %res;
 }

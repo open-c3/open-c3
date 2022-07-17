@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-binmode STDIN, ':utf8';
+binmode STDIN,  ':utf8';
 binmode STDOUT, ':utf8';
 binmode STDERR, ':utf8';
 
@@ -22,8 +22,8 @@ use uuid;
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->get( qw( uuid=s ) )->dump();
-$option->assert(qw( uuid ));
+my %o = $option->get(    qw( uuid=s ) )->dump();
+        $option->assert( qw( uuid )   );
 
 my $approver = Configini::get( 'approver'    );
 my %env      = Configini::env( 'approverenv' );

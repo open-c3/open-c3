@@ -1,0 +1,51 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ $0 ip
+
+=cut
+
+exit unless $ARGV[0] && $ARGV[0] =~ /^\d+\.\d+\.\d+\.\d+$/;
+
+my $ip = $ARGV[0];
+
+my @file = `grep $ip  /data/open-c3-data/cache/nodeinfo/nodeinfo-*|awk -F: '{print \$1}'|sort|uniq`;
+chomp @file;
+
+#TODO file sort by time
+
+sub search
+{
+    my ( $file, $ip  ) = @_;
+    return unless -f $file;
+
+    my $x = eval{ YAML::XS::LoadFile $file };
+
+    if( $@ )
+    {
+        warn "load $file fail: $@";
+        return;
+    }
+
+    return unless $x && $x->{stat} && $x->{data} && ref $x->{data} eq 'ARRAY';
+
+    for my $xx ( @{ $x->{data} })
+    {
+        if( ($xx->{inip} && $xx->{inip} eq $ip ) ||  ($xx->{exip} && $xx->{exip} eq $ip ) )
+        {
+            printf "%s\n", join ',', map{ $xx->{$_} || '' }qw( name inip exip );
+            exit;
+        }
+    }
+}
+
+map{ search( $_, $ip ) }@file;
+
+print "$ip\n";

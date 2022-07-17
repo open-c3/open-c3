@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-binmode STDIN, ':utf8';
+binmode STDIN,  ':utf8';
 binmode STDOUT, ':utf8';
 binmode STDERR, ':utf8';
 
@@ -19,7 +19,7 @@ use MYDan::Util::OptConf;
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->get( qw( output=s ) )->dump();
+my %o      = $option->get( qw( output=s ) )->dump();
 
 # ip map: 10.10.10.10 => +{ treeid1 => 1, treeid2 => 10 }
 my %ip;
@@ -28,11 +28,11 @@ while(<STDIN>)
 {
    chomp;
    my ( $treeid, $ip ) = split /;/, $_;
-   $ip{$ip}{$treeid}++;
+   $ip{ $ip }{ $treeid }++;
 }
 
 # treemap: treeid => treename
-my @treemap = `c3mc-base-treemap`;
+my    @treemap = `c3mc-base-treemap`;
 die if $?;
 chomp @treemap;
 
@@ -40,8 +40,8 @@ my %treemap;
 for( @treemap )
 {
     my ( $treeid, $treename ) = split /;/, $_;
-    $treename =~ s/[^a-zA-Z0-9_\.\-]//g;;
-    $treemap{$treeid} = $treename;
+    $treename           =~ s/[^a-zA-Z0-9_\.\-]//g;;
+    $treemap{ $treeid } =  $treename;
 }
 
 # target

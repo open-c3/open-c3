@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-binmode STDIN, ':utf8';
+binmode STDIN,  ':utf8';
 binmode STDOUT, ':utf8';
 binmode STDERR, ':utf8';
 
@@ -23,17 +23,17 @@ use Encode;
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->get( qw( table=s filter=s yaml ) )->dump();
-$option->assert('table');
+my %o = $option->get(   qw( table=s filter=s yaml ) )->dump();
+        $option->assert(   'table'                  );
 $option->assert() unless @ARGV;
 
 my %table = (
-    ci => 'CI',
-    job => 'JOB',
-    jobx => 'JOBX',
-    agent => 'AGENT',
+    ci        => 'CI',
+    job       => 'JOB',
+    jobx      => 'JOBX',
+    agent     => 'AGENT',
     connector => 'Connector',
-    monitor => 'AGENT',
+    monitor   => 'AGENT',
 );
 
 my $module = ( split /_/, $o{table} )[1];

@@ -11,7 +11,7 @@ use warnings;
 my ( $dockerfile, $imageid ) = @ARGV;
 
 die "dockerfile err" unless $dockerfile && -f $dockerfile;
-die "imageid err" unless $imageid && $imageid =~ /^\d+$/;
+die "imageid err"    unless $imageid    && $imageid =~ /^\d+$/;
 
 my $uuid = time;
 my $temp = "/tmp/c3mc-docker-buildandsave-$uuid";

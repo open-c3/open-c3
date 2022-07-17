@@ -26,17 +26,22 @@ die( "mysql query fail: $@" ) if $@;
 map{ $groupid{$_->[0]} = $_->[1] }@$x;
 
 my @col = qw( projectid uuid name tagger create_time status );
-$x = eval{ $db->query( sprintf( "select %s from openc3_ci_version where create_time>='$o{since}' and create_time<='$o{until}' and pid is not null", join ',', map{"`$_`"}@col), \@col ) };
+$x = eval{
+     $db->query(
+         sprintf( "select %s from openc3_ci_version where create_time>='$o{since}' and create_time<='$o{until}' and pid is not null", join ',', map{"`$_`"}@col),
+         \@col
+     )
+};
 die( "mysql query fail: $@" ) if $@;
 
 print YAML::XS::Dump [  map{ +{ 
-    uuid => $_->{uuid},
-    groupid => $groupid{$_->{projectid}},
-    status => $_->{status},
-    time => $_->{create_time},
-    projectid => $_->{projectid},
-    version => $_->{name},
-    type => 'ci'
+    groupid   => $groupid{$_->{projectid}},
+    uuid      => $_->{ uuid        },
+    status    => $_->{ status      },
+    time      => $_->{ create_time },
+    projectid => $_->{ projectid   },
+    version   => $_->{ name        },
+    type      => 'ci',
 }}@$x ];
 
 my @data;
@@ -44,13 +49,13 @@ for my $d ( @$x )
 {
     next unless $d->{projectid} && $groupid{$d->{projectid}};
     push @data, +{
-        uuid => $d->{uuid},
-        groupid => $groupid{$d->{projectid}},
-        status => $d->{status},
-        time => $d->{create_time},
-        projectid => $d->{projectid},
-        version => $d->{name},
-        type => 'ci'
+        groupid   => $groupid{$d->{projectid}},
+        uuid      => $d->{ uuid        },
+        status    => $d->{ status      },
+        time      => $d->{ create_time },
+        projectid => $d->{ projectid   },
+        version   => $d->{ name        },
+        type      => 'ci',
     };
 }
 

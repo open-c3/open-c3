@@ -36,8 +36,8 @@ tar -zcvf $file $dbfile \
     /data/Software/mydan/etc/agent/auth \
     /data/open-c3-data/private
 
-url=$(c3mc-sys-ctl sys.backup.url|grep -E "^http[s]*://[a-zA-Z0-9\.\/\-]+$")
-token=$(c3mc-sys-ctl sys.backup.token | grep -E "^[a-zA-Z0-9]{32}$")
+url=$(  c3mc-sys-ctl sys.backup.url   | grep -E "^http[s]*://[a-zA-Z0-9\.\/\-]+$")
+token=$(c3mc-sys-ctl sys.backup.token | grep -E "^[a-zA-Z0-9]{32}$"              )
 
 if [[ -z "$url" || -z "$token" ]]; then
     exit

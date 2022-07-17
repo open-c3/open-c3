@@ -33,12 +33,12 @@ else
 
 sub updatehealing
 {
-    my ( $id, $instance, $fingerprint, $startsAt, $altername ) = split /;/, shift @_;
+    my (          $id,   $instance,   $fingerprint,   $startsAt,   $altername ) = split /;/, shift @_;
     return unless $id && $instance && $fingerprint && $startsAt && $altername;
 
-    my @alters = `c3mc-mon-selfhealing-curralter _`;
+    my    @alters = `c3mc-mon-selfhealing-curralter _`;
     chomp @alters;
-    my %alters = map{ $_ => 1 }@alters;
+    my    %alters = map{ $_ => 1 }@alters;
 
     my $x = join ";", $instance, $fingerprint, $startsAt, $altername, 'UNKOWN';
     my $status = $alters{$x} ? 'fail' : 'success';

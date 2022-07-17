@@ -1,4 +1,4 @@
-#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib -I/data/Software/mydan/Connector/private/lib
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
 use strict;
 use warnings;
 
@@ -13,10 +13,10 @@ $|++;
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->get( qw( file=s ) )->dump();
-$option->assert('file');
-my ( $fh, $filename ) = tempfile();
+my %o = $option->get(    qw( file=s ) )->dump();
+        $option->assert(    'file'    );
 
+my ( $fh, $filename ) = tempfile();
 while( <> )
 {
    print $fh $_;

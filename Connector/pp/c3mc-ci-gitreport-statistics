@@ -24,16 +24,16 @@ chomp $o{date};
 
 my $dir = $o{path};
 
-my @branch = `cd $dir && git branch`;
+my    @branch = `cd $dir && git branch`;
 chomp @branch;
 map{ $_ =~ s/^\**\s*// }@branch;
 @branch = grep{ /^[a-zA-z0-9][a-zA-Z0-9\.\-\@_]*$/ }@branch;
 
 my ( $year, $month, $day ) = split /\-/, $o{date};
 
-my $time = timelocal(0,0,0,$day, $month-1, $year);
-my $since =  POSIX::strftime( "%Y-%m-%d", localtime($time - ( 86400 * 8 )) );
-my $until =  POSIX::strftime( "%Y-%m-%d", localtime($time + ( 86400 * 2 )) );
+my $time  = timelocal( 0, 0, 0, $day, $month-1, $year );
+my $since = POSIX::strftime( "%Y-%m-%d", localtime($time - ( 86400 * 8 )) );
+my $until = POSIX::strftime( "%Y-%m-%d", localtime($time + ( 86400 * 2 )) );
 
 my %date;
 map{
@@ -41,7 +41,7 @@ map{
     $date{$t} = 1;
 } 0 .. 6;
 
-my $addr = `cat $dir/.git/config |grep "url ="|awk -F= '{print \$2}'`;
+my    $addr = `cat $dir/.git/config |grep "url ="|awk -F= '{print \$2}'`;
 chomp $addr;
 $addr =~ s/\s//g;
 

@@ -44,7 +44,7 @@ sub runtask
 
     my $url = "http://api.job.open-c3.org/task/0/job/byname";
     my $res = $ua->post( $url,
-        Content => JSON::to_json( +{ jobname => $jobname, group => 'xxx', variable => +{ ip => $instance, _exit_ => 1 } } ),
+        Content        => JSON::to_json( +{ jobname => $jobname, group => 'xxx', variable => +{ ip => $instance, _exit_ => 1 } } ),
         'Content-Type' => 'application/json'
     );
 

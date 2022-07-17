@@ -15,8 +15,8 @@ use OPENC3::SysCtl;
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->get( qw( user=s pass=s ) )->dump();
-$option->assert(qw( user pass ));
+my %o = $option->get(   qw( user=s pass=s ) )->dump();
+        $option->assert(qw( user   pass   ) );
 
 my $type = OPENC3::SysCtl->new()->get( 'sys.login.type' ) // 'mysql';
 exec "c3mc-login-$type --user '$o{user}' --pass '$o{pass}'";

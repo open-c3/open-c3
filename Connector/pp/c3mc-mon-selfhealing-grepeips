@@ -17,8 +17,8 @@ my $db = MYDB->new( "/data/Software/mydan/AGENT/conf/conn", delayedconnection =>
 
 sub geteips
 {
-    my $name = shift @_;
-    $name =~ s/'//g;
+    my $name =  shift @_;
+    $name    =~ s/'//g;
     my $x = eval{ $db->query( "select eips from openc3_monitor_self_healing_config where name='$name'" ); };
     die "get eip fail: $@" if $@;
     return $x->[0][0];

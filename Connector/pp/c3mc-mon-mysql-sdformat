@@ -15,7 +15,7 @@ use MYDan::Util::OptConf;
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->get( qw( output=s ) )->dump();
+my %o      = $option->get( qw( output=s ) )->dump();
 
 my ( %name, %label );
 while(<STDIN>)
@@ -45,8 +45,8 @@ while(<STDIN>)
         warn "format error" unless $conf; 
  
         die "alias format error: $alias" if $alias && $alias !~ /^[a-z0-9\.\-:]+$/;
-        $name{$name} = $alias if $conf;
-        $label{$name} = \%l;
+        $name{  $name }  = $alias if $conf;
+        $label{ $name } = \%l;
     }
     else { warn "conf: $c"; }
 

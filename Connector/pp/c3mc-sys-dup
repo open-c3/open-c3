@@ -70,9 +70,11 @@ sub update
     return unless $gversion < versioni( $version ) || $version =~ /^v0\./;
     die "undef" unless $job{$type};
     my $uuid = $title;
-    my $status = `c3mc-base-db-get stat -t openc3_connector_sysupdate -f 'uuid="$uuid"'` if $version ne 'v0.0.0';
-    $status ||= '';
+
+    my    $status =  `c3mc-base-db-get stat -t openc3_connector_sysupdate -f 'uuid="$uuid"'` if $version ne 'v0.0.0';
+          $status ||= '';
     chomp $status;
+
     return if $status eq 'success';
 
     my $stat = &{$job{$type}}( +{ version => $version, type => $type, target => $target, mesg => $mesg, dat => $dat, uuid => $title } ) ? 'success' : 'fail';
