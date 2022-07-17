@@ -48,3 +48,4 @@ mkdir -p /data/open-c3-data/cache/nodeinfo
 mkdir -p /data/open-c3-data/cache/treemap
 mkdir -p /data/open-c3-data/cache/userinfo
 mkdir -p /data/open-c3-data/cache/point
+mkdir -p /data/open-c3-data/cache/usertree
