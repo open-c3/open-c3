@@ -12,6 +12,8 @@ use YAML::XS;
 
 =cut
 
+my $detail = $ARGV[0] && $ARGV[0] eq 'detail' ? 1 : 0;
+
 my    @ip = `cat /data/Software/mydan/prometheus/config/openc3_node_sd.yml|grep instance|awk '{print \$2}'`;
 chomp @ip;
 @ip = grep{ /^\d+\.\d+\.\d+\.\d+$/ }@ip;
@@ -28,10 +30,10 @@ my %errnode;
 
 chomp @errnode;
 
-for ( @errnode )
+for my $ip ( @errnode )
 {
-    my $x = join '.', ( split /\./, $_ )[ 0, 1 ];
-    $errnode{ $x } ++;
+    my $x = join '.', ( split /\./, $ip )[ 0, 1 ];
+    $errnode{ $x }{ $ip } ++;
 }
 
 sub netcheck
@@ -59,5 +61,11 @@ for my $t ( sort{ $re{$b} <=> $re{$a} } keys %re )
 {
     my $subnet = "$t.0.0/16";
 
-    printf "$subnet\t%s/$re{$t}\t%s\n", $errnode{$t} || 0, getproxy( $subnet );
+    my @errn = $errnode{$t} ? sort keys %{ $errnode{$t} } : ();
+
+    printf "$subnet\t%s/$re{$t}\t%s\n", scalar @errn, getproxy( $subnet );
+
+    next unless $detail;
+
+    map{ printf "%s$_\n", ' ' x 15 }@errn;
 }
