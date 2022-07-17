@@ -89,7 +89,7 @@ return sub
                     if( @eid > 3 )
                     {
                         my $x = `$eid[3] $treeid`;
-                        chmod $x;
+                        chomp $x;
                         $treeid = $x && $x =~ /^\d+$/ ? $x : $eid[2];
                     }
                     else
