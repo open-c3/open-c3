@@ -262,6 +262,8 @@ function install() {
 
     echo "[INFO]Run command to start service: /data/open-c3/open-c3.sh start"
 
+    /data/open-c3/Installer/scripts/dev.sh build
+    /data/open-c3/open-c3.sh dup
     /data/open-c3/open-c3.sh start
 
     echo =================================================================
