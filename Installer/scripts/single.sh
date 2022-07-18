@@ -32,7 +32,11 @@ function install() {
         if [ ! -d /data ];then
             mkdir /data
         fi
-        cd /data && git clone -b "$OPENC3VERSION" $GITADDR/open-c3/open-c3
+        if [ -d /data/open-c3-installer/open-c3 ];then
+            cd /data && cp -r /data/open-c3-installer/open-c3 .
+        else
+            cd /data && git clone -b "$OPENC3VERSION" $GITADDR/open-c3/open-c3
+        fi
     fi
 
     if [ -d "$BASE_PATH" ]; then
@@ -125,7 +129,11 @@ function install() {
     echo "[INFO]get open-c3-install-cache ..."
 
     if [ ! -d "$BASE_PATH/Installer/install-cache" ]; then
-        cd $BASE_PATH/Installer && git clone $GITADDR/open-c3/open-c3-install-cache install-cache
+        if [ -d /data/open-c3-installer/install-cache ];then
+            cd $BASE_PATH/Installer && cp -r /data/open-c3-installer/install-cache .
+        else
+            cd $BASE_PATH/Installer && git clone $GITADDR/open-c3/open-c3-install-cache install-cache
+        fi
         cd $BASE_PATH
     fi
 
@@ -164,8 +172,9 @@ function install() {
     echo "[INFO]create c3-front/dist/book ..."
 
     rm -rf $BASE_PATH/c3-front/dist/book
-    if [ -d /data/open-c3-book ]; then
-        cp -r /data/open-c3-book $BASE_PATH/c3-front/dist/book
+
+    if [ -d /data/open-c3-installer/book ]; then
+        cp -r /data/open-c3-installer/book $BASE_PATH/c3-front/dist/book
     else
         cd $BASE_PATH/c3-front/dist && git clone $GITADDR/open-c3/open-c3.github.io book
     fi
@@ -262,7 +271,11 @@ function install() {
 
     echo "[INFO]Run command to start service: /data/open-c3/open-c3.sh start"
 
+    if [ -d /data/open-c3-installer/dev-cache ];then
+        cp -r /data/open-c3-installer/dev-cache /data/open-c3/Installer/
+    fi
     /data/open-c3/Installer/scripts/dev.sh build
+
     /data/open-c3/open-c3.sh dup
     /data/open-c3/open-c3.sh start
 

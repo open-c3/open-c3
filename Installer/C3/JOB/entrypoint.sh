@@ -20,4 +20,6 @@ fi
 nginx
 crond
 
+mkdir -p /data/open-c3-data/glusterfs/fileserver
+
 /data/Software/mydan/Connector/restart-open-c3-auto-config-change.pl
