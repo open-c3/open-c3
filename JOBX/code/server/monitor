@@ -69,8 +69,12 @@ return sub
 {
     my %param  = @_;
     my $db     = $param{db};
-    my $myname = `c3mc-base-hostname`;
+
+    my    $myname = `c3mc-base-hostname`;
     chomp $myname;
+
+    sleep 15;
+    die "No valid c3hostname found" unless $myname && $myname =~ /^[a-zA-Z0-9][a-zA-Z0-9\.\-_]*$/;
 
     my $slave = eval{ $db->query( sprintf "select slave from openc3_jobx_keepalive" ); };
     die "get slave from keepalive fail: $@" if $@;
