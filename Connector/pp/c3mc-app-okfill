@@ -1,0 +1,40 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0 ip1 ip2 ... ipn
+
+=cut
+
+
+sub netcheck
+{
+    my $ip = shift @_;
+    my $x = `curl --connect-timeout 5 http://$ip:65110 2>/dev/null`;
+    return $x =~ /OPEN-C3 Node Exporte/ ? 'ok' : 'Error';
+}
+
+sub fill
+{
+     my $line = shift @_;
+     my @ip = $line =~ /\b(\d+\.\d+\.\d+\.\d+)\b/g;
+
+     my %ipfill;
+     for my $ip ( @ip )
+     {
+        next if $ip =~ /\.0\.0$/;
+        $ipfill{$ip} = sprintf "$ip->%s", netcheck( $ip );
+     }
+
+     for( keys %ipfill )
+     {
+         $line =~ s/$_/[$ipfill{$_}]/g;
+     }
+     print "$line\n";
+}
+
+if( @ARGV ) { map{ fill( $_ ) }@ARGV; } else { while(<STDIN>){ chomp; fill($_); } }

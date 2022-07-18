@@ -2,10 +2,6 @@
 use strict;
 use warnings;
 
-binmode STDIN, ':utf8';
-binmode STDOUT, ':utf8';
-binmode STDERR, ':utf8';
-
 $|++;
 
 =head1 SYNOPSIS
@@ -22,8 +18,9 @@ sub fill
      my %ipfill;
      for my $ip ( @ip )
      {
-        my $x = `c3mc-app-ipsearch $ip`;
+        my    $x = `c3mc-app-ipsearch $ip`;
         chomp $x;
+
         $ipfill{$ip} = $x if $ip ne $x;
      }
 
