@@ -1,0 +1,58 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use YAML::XS;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 ip1 ip2 ... ipn
+ $0 ip1 ip2 ... ipn --output /path/foo.yaml
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( output=s ) )->dump();
+
+
+my @ip;
+
+if( @ARGV )
+{
+    @ip = @ARGV;
+}
+else
+{
+    while(<STDIN>){ chomp; push @ip, $_; }
+}
+
+my %uexip;
+
+for my $ip ( @ip )
+{
+    next unless $ip =~ /^\d+\.\d+\.\d+\.\d+$/;
+
+    my    $x = `c3mc-app-ipsearch $ip`;
+    chomp $x;
+
+    my ( $name, $inip, $exip ) = split /,/, $x;
+
+    $uexip{$ip} = $exip if $exip && $exip =~ /^\d+\.\d+\.\d+\.\d+$/;
+}
+
+if( $o{output} )
+{
+    my $temp = "$o{output}.temp.$$";
+    YAML::XS::DumpFile $temp, \%uexip;
+    rename $temp, $o{output} or die "rename fail: $!";
+    exit;
+}
+
+print YAML::XS::Dump \%uexip;
