@@ -15,7 +15,7 @@ $|++;
 =cut
 
 my ( $name, $filter ) = ( '',       "--filter 'type!=\"prometheus-federate\"'" );
-   ( $name, $filter ) = ( $ARGV[0], "--filter 'type=\"$name\"'"                ) if $ARGV[0];
+   ( $name, $filter ) = ( $ARGV[0], "--filter 'type=\"$ARGV[0]\"'"             ) if $ARGV[0];
 
 my @id = `c3mc-base-db-get id -t openc3_monitor_cloudmon $filter | c3mc-base-task-grep -m monitor`;
 chomp @id;
