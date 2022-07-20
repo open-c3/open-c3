@@ -2,7 +2,7 @@ package api::subtask;
 use Dancer ':syntax';
 use Dancer qw(cookie);
 use Encode qw(encode);
-use JSON qw();
+use JSON   qw();
 use POSIX;
 use MIME::Base64;
 use api;
@@ -12,7 +12,7 @@ get '/subtask/:projectid/:taskuuid' => sub {
     my $param = params();
     my $error = Format->new( 
         projectid => qr/^\d+$/, 1,
-        taskuuid => qr/^[a-zA-Z0-9]+$/, 1,
+        taskuuid  => qr/^[a-zA-Z0-9]+$/, 1,
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
@@ -32,15 +32,15 @@ get '/subtask/:projectid/:taskuuid' => sub {
 
     my %e;
     my %col = (
-        cmd => [ qw( id uuid name user timeout pause node_type node_cont scripts_type scripts_cont scripts_argv deployenv action batches ) ],
-        scp => [ qw( id uuid name user timeout pause src_type src sp dst_type dst dp chown chmod deployenv action batches ) ],
+        cmd      => [ qw( id uuid name user timeout pause node_type node_cont scripts_type scripts_cont scripts_argv deployenv action batches ) ],
+        scp      => [ qw( id uuid name user timeout pause src_type src sp dst_type dst dp chown chmod deployenv action batches ) ],
         approval => [ qw( id uuid name cont approver deployenv action batches everyone ) ],
     );
     for my $type ( qw( cmd scp approval ) )
     {
         next unless $extended{$type};
         my $col = $col{$type};
-        my $t = eval{ $api::mysql->query( sprintf( "select %s from openc3_job_plugin_$type where uuid in( %s )", 
+        my $t   = eval{ $api::mysql->query( sprintf( "select %s from openc3_job_plugin_$type where uuid in( %s )", 
                     join( ',',@$col ), join( ',', map{"'$_'"}@{$extended{$type}}) ), $col) };
         return +{ stat => $JSON::false, info => $@ } if $@;
         map{ $_->{scripts_cont} =  Encode::decode("utf8",  decode_base64( $_->{scripts_cont} )) if $_->{scripts_cont} !~ /^\d+$/; }@$t if $type eq 'cmd';
@@ -54,8 +54,8 @@ get '/subtask/:projectid/:taskuuid' => sub {
 get '/subtask/:projectid/:taskuuid/:subtaskuuid' => sub {
     my $param = params();
     my $error = Format->new( 
-        projectid => qr/^\d+$/, 1,
-        taskuuid => qr/^[a-zA-Z0-9]+$/, 1,
+        projectid   => qr/^\d+$/, 1,
+        taskuuid    => qr/^[a-zA-Z0-9]+$/, 1,
         subtaskuuid => qr/^[a-zA-Z0-9]+$/, 1,
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -92,15 +92,21 @@ get '/subtask/:projectid/:taskuuid/:subtaskuuid' => sub {
 post '/subtask/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
-        projectid => qr/^\d+$/, 1,
-        taskuuid => qr/^[a-zA-Z0-9]+$/, 1,
+        projectid   => qr/^\d+$/, 1,
+        taskuuid    => qr/^[a-zA-Z0-9]+$/, 1,
         subtaskuuid => qr/^[a-zA-Z0-9]+$/, 1,
         subtasktype => qr/^[a-zA-Z0-9]+$/, 1,
-        control => [ 'in', 'next', 'fail', 'running', 'ignore' ], 1,
+        control     => [ 'in', 'next', 'fail', 'running', 'ignore' ], 1,
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    my $pmscheck = api::pmscheck( 'openc3_job_write', $param->{projectid} ); return $pmscheck if $pmscheck;
+    my $authorization = eval{ $api::mysql->query( "select id from openc3_job_variable where jobuuid in ( select jobuuid from openc3_job_task where uuid='$param->{taskuuid}' ) and name='_authorization_' and value='true'" ); };
+    return  +{ stat => $JSON::false, info => "get _authorization_ info fail: $@" } if $@;
+    return  +{ stat => $JSON::false, info => "get _authorization_ error from db" } unless defined $authorization && ref $authorization eq 'ARRAY';
+
+    my $point = @$authorization > 0 ? 'openc3_job_control' : 'openc3_job_write';
+
+    my $pmscheck = api::pmscheck( $point, $param->{projectid} ); return $pmscheck if $pmscheck;
 
     my ( $projectid, $taskuuid, $subtaskuuid, $subtasktype, $control ) 
         = @$param{qw( projectid taskuuid subtaskuuid subtasktype control )};
@@ -138,11 +144,11 @@ post '/subtask/:projectid' => sub {
 put '/subtask/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
-        projectid => qr/^\d+$/, 1,
-        taskuuid => qr/^[a-zA-Z0-9]+$/, 1,
+        projectid   => qr/^\d+$/, 1,
+        taskuuid    => qr/^[a-zA-Z0-9]+$/, 1,
         subtaskuuid => qr/^[a-zA-Z0-9]+$/, 1,
         subtasktype => qr/^[a-zA-Z0-9]+$/, 1,
-        control => [ 'in', 'next', 'running' ], 1,
+        control     => [ 'in', 'next', 'running' ], 1,
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
