@@ -201,13 +201,17 @@ if( $name eq 'carry' )
         exit;
     }
 
+    my $uexip = OPENC3::SysCtl->new()->get( 'sys.monitor.uexip' ) || '0.0.0.0';
+    die "uexip $uexip err" unless $uexip =~ /^[0-9][0-9\.,]*$/;
+
     OPENC3::PP::Server->new(
         name     => "agent_server_$name",
         interval => 60,
         timeout  => 120,
     )->run(
-        "cat /data/Software/mydan/AGENT/conf/promesd.temp | c3mc-mon-carry --output /data/Software/mydan/AGENT/conf/openc3_carry.yml",
+        "cat /data/Software/mydan/AGENT/conf/promesd.temp |                          c3mc-mon-carry --output /data/Software/mydan/AGENT/conf/openc3_carry.yml",
         "cat /data/Software/mydan/AGENT/conf/promesd.temp | awk -F';' '{print \$2}'| c3mc-mon-proxy --output /data/Software/mydan/AGENT/conf/openc3_proxy.yml",
+        "cat /data/Software/mydan/AGENT/conf/promesd.temp | awk -F';' '{print \$2}'| sort | uniq | c3mc-base-ipfilter -f '$uexip' | c3mc-base-uexip --output /data/Software/mydan/AGENT/conf/openc3_uexip.yml",
         "c3mc-mon-treeinfo > /data/Software/mydan/c3-front/dist/treeinfo.txt.temp && mv /data/Software/mydan/c3-front/dist/treeinfo.txt.temp /data/Software/mydan/c3-front/dist/treeinfo.txt",
     );
 }
