@@ -13,7 +13,7 @@ use MIME::Base64;
 
 my $monagent9100; BEGIN{ $monagent9100 = `c3mc-base-configx monagent9100` ? 1 : 0; };
 
-my ( %proxy, %carry );
+my ( %proxy, %carry, %uexip );
 
 sub new
 {
@@ -48,9 +48,10 @@ sub getResponseProxy
         unless( $monagent9100 )
         {
             my $carry = $carry{$ip} ? MIME::Base64::decode_base64( $carry{$ip} ) : 'Null';
-            $carry = join "\n", map{ "# $_" }split /\n/, $carry;
+
+            $carry =   join "\n", map{ "# $_" }split /\n/, $carry;
             $proxy ||= 'Null';
-            @carry = ( "# CARRY:", $carry );
+            @carry =   ( "# CARRY:", $carry );
         }
 
 
@@ -102,17 +103,17 @@ sub run
        my $idx = $index ++;
        $index{$idx} = +{ time => time };
        my $handle; $handle = new AnyEvent::Handle( 
-           fh => $fh,
+           fh        => $fh,
            keepalive => 1,
-           rbuf_max => 1024000,
-           wbuf_max => 1024000,
-           autocork => 1,
-           on_eof => sub{
+           rbuf_max  => 1024000,
+           wbuf_max  => 1024000,
+           autocork  => 1,
+           on_eof    => sub{
                printf "close $idx: timeoiut %s\n", time - $index{$idx}{time};
                $handle->destroy();
                delete $index{$idx};
            },
-           on_read => sub {
+           on_read   => sub {
                my $self = shift;
                my $len = length $self->{rbuf};
                $self->push_read (
@@ -123,6 +124,7 @@ sub run
                        if( $data =~ m#/query_([\d+\.\d+\.\d+\.\d+]+)_query# )
                        {
                            my $ip = $1;
+                           $ip = $uexip{$ip} if $uexip{$ip};
 
                            if( $carry{$ip} && ref $carry{$ip} )
                            {
@@ -172,9 +174,9 @@ sub run
     };
 
     my $proxyUpdate = AnyEvent->timer(
-        after => 3, 
+        after    => 3, 
         interval => 6,
-        cb => sub { 
+        cb       => sub { 
             my $proxy = eval{ YAML::XS::LoadFile $this->{proxy} };
 
             if ( $@ ) { warn "load proxy file fail: $@"; return; }
@@ -185,9 +187,9 @@ sub run
     ) if $this->{proxy}; 
 
     my $carryUpdate = AnyEvent->timer(
-        after => 6, 
+        after    => 5, 
         interval => 6,
-        cb => sub { 
+        cb       => sub { 
             my $carry = eval{ YAML::XS::LoadFile $this->{carry} };
 
             if ( $@ ) { warn "load carry file fail: $@"; return; }
@@ -196,6 +198,19 @@ sub run
             %carry = %$carry;
         }
     ) if $this->{carry}; 
+
+    my $uexipUpdate = AnyEvent->timer(
+        after    => 7, 
+        interval => 6,
+        cb       => sub { 
+            my $uexip = eval{ YAML::XS::LoadFile $this->{uexip} };
+
+            if ( $@ ) { warn "load uexip file fail: $@"; return; }
+            unless( $uexip && ref $uexip eq 'HASH' ) { warn "load uexip file no HASH"; return; }
+
+            %uexip = %$uexip;
+        }
+    ) if $this->{uexip}; 
 
     $cv->recv;
 }

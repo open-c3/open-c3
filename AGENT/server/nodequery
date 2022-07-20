@@ -18,10 +18,11 @@ $| ++;
 
 my $option = MYDan::Util::OptConf->load();
 my %o = $option->set(
-    port => 65112,
+    port  => 65112,
     carry => "$RealBin/../conf/openc3_carry.yml",
     proxy => "$RealBin/../conf/openc3_proxy.yml",
-)->get( qw( port=i proxy=s carry=s ) )->dump();
+    uexip => "$RealBin/../conf/openc3_uexip.yml",
+)->get( qw( port=i proxy=s carry=s uexip=s ) )->dump();
 
 $0 = 'agent_server_nodequery';
 
