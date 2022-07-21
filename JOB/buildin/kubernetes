@@ -28,6 +28,8 @@ sub success
     exit;
 }
 
+success() if $ARGV[2] && $ARGV[2] eq 'skip';
+
 my ( $treeid, $flowid, $version ) = @ENV{qw( TREEID FLOWID VERSION )};
 
 my %callenv = Util::envinfo( qw( appname appkey ) );

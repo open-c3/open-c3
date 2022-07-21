@@ -9,7 +9,7 @@ use Logs;
 use Util;
 
 set show_errors => 1;
-set serializer => 'JSON';
+set serializer  => 'JSON';
 
 our %conn;
 
@@ -23,12 +23,10 @@ BEGIN{
     $mysql = MYDB->new( "$RealBin/../conf/conn" );
     ( $sso, $pms ) = map{ Code->new( "auth/$_" ) }qw( sso pms );
 
-    my %env = Util::envinfo( qw( cookiekey ) );
+    my %env    = Util::envinfo( qw( cookiekey ) );
     $cookiekey = $env{cookiekey};
-
-    $logs = Logs->new( 'apislave' );
-
-    $auditlog = Code->new( 'auditlog' );
+    $logs      = Logs->new( 'apislave' );
+    $auditlog  = Code->new( 'auditlog' );
 };
 
 sub replace
@@ -47,10 +45,10 @@ websocket_on_open sub {
     my( $conn, $env ) = @_;
     my ( $HTTP_COOKIE, $QUERY_STRING ) = @$env{qw( HTTP_COOKIE QUERY_STRING )};
 
-    my %cookie = map{ split /=/, $_, 2 }split /;\s*/, $HTTP_COOKIE;
-    my %query = map{ split /=/, $_, 2 } split /&/, $QUERY_STRING;
+    my %cookie = map{ split /=/, $_, 2 } split /;\s*/, $HTTP_COOKIE;
+    my %query  = map{ split /=/, $_, 2 } split /&/,    $QUERY_STRING;
 
-    my $uuid = $query{uuid};
+    my $uuid  = $query{uuid};
     my $error = 'open log fail:';
     unless( defined $uuid && $uuid =~ /^[a-zA-Z0-9]+$/ )
     {
@@ -58,46 +56,43 @@ websocket_on_open sub {
         return;
     }
 
-    unless( $ENV{MYDan_DEBUG} )
+    my $taskuuid = substr $uuid, 0, 12;
+    unless( $cookie{$cookiekey} )
     {
-        my $taskuuid = substr $uuid, 0, 12;
-        unless( $cookie{$cookiekey} )
-        {
-            $conn->send("$error: nocookie");
-            return;
-        }
+        $conn->send("$error: nocookie");
+        return;
+    }
 
-        my $user = eval{ $sso->run( cookie =>  $cookie{$cookiekey} ) };
-        $logs->say( sprintf "user:$user uri:/ws?uuid=$uuid method:ws HTTP_X_FORWARDED_FOR:'' param:''", );
+    my $user = eval{ $sso->run( cookie =>  $cookie{$cookiekey} ) };
+    $logs->say( sprintf "user:$user uri:/ws?uuid=$uuid method:ws HTTP_X_FORWARDED_FOR:'' param:''", );
    
-        my @col = qw( projectid );
-        my $r = eval{ $mysql->query( sprintf( "select %s from openc3_job_task where uuid='$taskuuid'", join ',', @col ), \@col )};
+    my @col = qw( projectid );
+    my $r = eval{ $mysql->query( sprintf( "select %s from openc3_job_task where uuid='$taskuuid'", join ',', @col ), \@col )};
 
-         unless( $r && @$r )
-         {
-             $conn->send("$error: Non-existent uuid:$taskuuid");
-             return;
-         }
+    unless( $r && @$r )
+    {
+        $conn->send("$error: Non-existent uuid:$taskuuid");
+        return;
+    }
 
-         my $data = $r->[0];
-         unless( defined $data->{projectid} && $data->{projectid} =~ /^\d+$/ )
-         {
-             $conn->send("$error: projectid format error");
-             return;
-         }
+    my $data = $r->[0];
+    unless( defined $data->{projectid} && $data->{projectid} =~ /^\d+$/ )
+    {
+        $conn->send("$error: projectid format error");
+        return;
+    }
 
-         my $p = eval{ $pms->run( cookie => $cookie{$cookiekey},
-                 treeid => $data->{projectid}, point => 'openc3_job_read' ) };
-         if( $@ )
-         {
-              $conn->send("$error: pms code error:$@");
-              return;
-         }
-         unless( $p )
-         {
-              $conn->send("$error: Unauthorized");
-              return;
-         }
+    my $p = eval{ $pms->run( cookie => $cookie{$cookiekey},
+             treeid => $data->{projectid}, point => 'openc3_job_read' ) };
+    if( $@ )
+    {
+         $conn->send("$error: pms code error:$@");
+         return;
+    }
+    unless( $p )
+    {
+         $conn->send("$error: Unauthorized");
+         return;
     }
 
     my ( $file, $h ) = "$RealBin/../logs/task/$uuid";
@@ -153,61 +148,71 @@ END
 };
 
 del '/killtask/:uuid' => sub {
-  my $uuid = params()->{uuid};
+    my $uuid = params()->{uuid};
   
-  return +{ stat => $JSON::false, info => 'uuid format error' }
-      unless $uuid =~ /^[a-zA-Z0-9]+$/;
+    return +{ stat => $JSON::false, info => 'uuid format error' }
+        unless $uuid =~ /^[a-zA-Z0-9]+$/;
 
-  my $user;
-  unless( $ENV{MYDan_DEBUG} )
-  {
-      return +{ stat => $JSON::false, code => 10000 }
-          unless (  cookie( $cookiekey ) || ( request->headers->{appkey} && request->headers->{appname} ) );
+    return +{ stat => $JSON::false, code => 10000 }
+        unless ( cookie( $cookiekey ) || ( request->headers->{appkey} && request->headers->{appname} ) );
 
-      $user = eval{ $sso->run( cookie => cookie( $cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) ) };
-      my $uri = request->path_info;
-      $logs->say( sprintf "user:$user uri:$uri method:%s HTTP_X_FORWARDED_FOR:%s param:%s", 
-            request->method, request->env->{HTTP_X_FORWARDED_FOR}, YAML::XS::Dump YAML::XS::Dump request->params() );
-  }
+    my $user = eval{
+        $sso->run(
+            cookie  => cookie( $cookiekey ),
+            map{ $_ => request->headers->{$_} }qw( appkey appname )
+         )
+    };
 
-  my @col = qw( pid projectid slave status name );
-  my $r = eval{ $mysql->query( sprintf( "select %s from openc3_job_task where uuid='$uuid'", join ',', @col ), \@col )};
-  return +{ stat => $JSON::false, info => "Non-existent uuid:$uuid" } unless $r && @$r;
+    my @col = qw( pid projectid slave status name );
+    my $r   = eval{ $mysql->query( sprintf( "select %s from openc3_job_task where uuid='$uuid'", join ',', @col ), \@col )};
+    return +{ stat => $JSON::false, info => "Non-existent uuid:$uuid" } unless $r && @$r;
 
-  my $data = $r->[0];
+    my $data = $r->[0];
 
-  return +{ stat => $JSON::false, info => "task $uuid in slave $data->{slave}" }
-      unless $data->{slave} && $data->{slave} eq $myname;
-  return +{ stat => $JSON::true, info => "task $uuid has been closed, status is $data->{status}" }
-      if $data->{status} && ( $data->{status} eq 'success' || $data->{status} eq 'fail' );
+    return +{ stat => $JSON::false, info => "task $uuid in slave $data->{slave}" }
+        unless $data->{slave} && $data->{slave} eq $myname;
 
-  map{ 
-      return +{ stat => $JSON::false, info => "$_ format error" }
-          unless defined $data->{$_} && $data->{$_} =~ /^\d+$/
-  }qw( pid projectid );
+    return +{ stat => $JSON::true, info => "task $uuid has been closed, status is $data->{status}" }
+        if $data->{status} && ( $data->{status} eq 'success' || $data->{status} eq 'fail' );
 
-  unless( $ENV{MYDan_DEBUG} )
-  {
-      my $p = eval{ $pms->run( cookie => cookie( $cookiekey ), 
-          treeid => $data->{projectid}, point => 'openc3_job_write',
-          map{ $_ => request->headers->{$_} }qw( appkey appname ) ) };
-      return +{ stat => $JSON::false, info => "get data from pms error:$@" } if $@;
-      return +{ stat => $JSON::false, info =>  'Unauthorized' } unless $p;
-  }
+    map{ 
+        return +{ stat => $JSON::false, info => "$_ format error" }
+            unless defined $data->{$_} && $data->{$_} =~ /^\d+$/
+    }qw( pid projectid );
 
-  return +{ stat => $JSON::true, info => "task $uuid has been exit,nofind pid $data->{pid}" }
-      unless kill( 0, $data->{pid} );
+    my $authorization = eval{ $mysql->query( "select id from openc3_job_variable where jobuuid in ( select jobuuid from openc3_job_task where uuid='$uuid' ) and name='_authorization_' and value='true'" ); };
+    return  +{ stat => $JSON::false, info => "get _authorization_ info fail: $@" } if $@;
+    return  +{ stat => $JSON::false, info => "get _authorization_ error from db" } unless defined $authorization && ref $authorization eq 'ARRAY';
 
-  eval{ $auditlog->run( user => $user, title => 'KILL JOB TASK', content => "TREEID:$data->{projectid} TASKUUID:$uuid NAME:$data->{name}" ); };
-  return +{ stat => $JSON::false, info => $@ } if $@;
+    my $point = @$authorization > 0 ? 'openc3_job_control' : 'openc3_job_write';
 
-  my $killinfo = defined $user && $user =~ /^[a-zA-Z0-9\.\-\@_]+$/ ? "killed by $user" : 'killed';
-  system "echo '$killinfo' >> $RealBin/../logs/task/$uuid; killall -9 job_worker_task_$uuid 1>/dev/null 2>&1";
-  eval{ $mysql->execute( "update openc3_job_task set reason='$killinfo' where uuid='$uuid' and reason is null" ); };
+    my $p = eval{ $pms->run( cookie => cookie( $cookiekey ), 
+        treeid => $data->{projectid},
+        point  => $point,
+        map{ $_ => request->headers->{$_} }qw( appkey appname ) )
+    };
+    return +{ stat => $JSON::false, info => "get data from pms error:$@" }     if $@;
+    return +{ stat => $JSON::false, info => 'Unauthorized'               } unless $p;
 
-  return kill( 0, $data->{pid} )
-      ? +{ stat => $JSON::false, info => "kill task fail" }
-      : +{ stat => $JSON::true, info => "kill task succcess" };
+    return +{ stat => $JSON::true, info => "task $uuid has been exit,nofind pid $data->{pid}" }
+        unless kill( 0, $data->{pid} );
+
+    eval{
+        $auditlog->run(
+            user    => $user,
+            title   => 'KILL JOB TASK',
+            content => "TREEID:$data->{projectid} TASKUUID:$uuid NAME:$data->{name}"
+        );
+    };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
+    my $killinfo = defined $user && $user =~ /^[a-zA-Z0-9\.\-\@_]+$/ ? "killed by $user" : 'killed';
+    system "echo '$killinfo' >> $RealBin/../logs/task/$uuid; killall -9 job_worker_task_$uuid 1>/dev/null 2>&1";
+    eval{ $mysql->execute( "update openc3_job_task set reason='$killinfo' where uuid='$uuid' and reason is null" ); };
+
+    return kill( 0, $data->{pid} )
+        ? +{ stat => $JSON::false, info => "kill task fail" }
+        : +{ stat => $JSON::true, info => "kill task succcess" };
 };
 
 any '/mon' => sub {
