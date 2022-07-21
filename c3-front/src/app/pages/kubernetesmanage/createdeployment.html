@@ -218,9 +218,18 @@
                                         <div class="col-sm-12 form-group">
                                              <label class="col-sm-2 control-label">类型: hostPath</label>
                                              <label class="col-sm-1 control-label">名称</label>
-                                             <div class="col-sm-4"> <input type="text" class="form-control" placeholder="" ng-model="x.name" required> </div>
+                                             <div class="col-sm-2"> <input type="text" class="form-control" placeholder="" ng-model="x.name" required> </div>
                                              <label class="col-sm-1 control-label">path</label>
-                                             <div class="col-sm-4"> <input type="text" class="form-control" placeholder="" ng-model="x.hostPath.path" required> </div>
+                                             <div class="col-sm-3"> <input type="text" class="form-control" placeholder="" ng-model="x.hostPath.path" required> </div>
+
+                                             <label class="col-sm-1 control-label">type</label>
+                                             <div class="col-sm-2">
+                                                  <select id="selecteddataval" class="form-control"  ng-model="x.hostPath.type" >
+                                                      <option value="x.hostPath.type">{{x.hostPath.type}}</option>
+                                                      <option ng-repeat="x in [ 'DirectoryOrCreate', 'File', '' ]" value="{{x}}">{{x}}</option>
+                                                  </select>
+                                             </div>
+
                                          </div>
                                     </div>
 
