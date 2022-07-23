@@ -1,0 +1,18 @@
+#!/usr/bin/env perl
+
+die if system "git pull";
+
+my    @tag = `git tag`;
+chomp @tag;
+my    %tag = map{ $_ => 1 }@tag;
+
+my    $branch = `git branch|grep '^*'|awk '{print \$2}'`;
+chomp $branch;
+
+my    $date = `date +%y%m%d`;
+chomp $date;
+
+my (  $ntag  ) = grep{ ! $tag{$_} }map{ "$branch-$date$_" } 1 .. 9;
+
+system "git tag -a $ntag -m 'Release version $ntag'";
+system "git push origin --tags";
