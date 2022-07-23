@@ -6,6 +6,8 @@ if [ "X$OPENC3VERSION" == "X" ]; then
     OPENC3VERSION=v2.2.0
 fi
 
+MASTERVERSION=$(echo $OPENC3VERSION | awk -F- '{print $1}')
+
 GITADDR=http://github.com
 DOCKERINSTALL=https://get.docker.com
 if [ "X$OPENC3_ZONE" == "XCN"  ]; then
@@ -147,11 +149,11 @@ function install() {
     echo =================================================================
     echo "[INFO]create c3-front/dist ..."
 
-    if [ -d "$BASE_PATH/Installer/install-cache/c3-front/dist-$OPENC3VERSION" ]; then
+    if [ -d "$BASE_PATH/Installer/install-cache/c3-front/dist-$MASTERVERSION" ]; then
         rm -rf $BASE_PATH/c3-front/dist
-        cp -r "$BASE_PATH/Installer/install-cache/c3-front/dist-$OPENC3VERSION" $BASE_PATH/c3-front/dist
+        cp -r "$BASE_PATH/Installer/install-cache/c3-front/dist-$MASTERVERSION" $BASE_PATH/c3-front/dist
     else
-        echo "[Warn]nofind c3-front/dist-$OPENC3VERSION in open-c3-install-cache."
+        echo "[Warn]nofind c3-front/dist-$MASTERVERSION in open-c3-install-cache."
 
         if [ -d "$BASE_PATH/Installer/install-cache/c3-front/dist" ]; then
             rm -rf $BASE_PATH/c3-front/dist
@@ -282,8 +284,8 @@ function install() {
     echo =================================================================
     echo "[INFO]run script ..."
 
-    if [ -x "$BASE_PATH/Installer/scripts/single/$OPENC3VERSION.sh" ]; then
-        $BASE_PATH/Installer/scripts/single/$OPENC3VERSION.sh
+    if [ -x "$BASE_PATH/Installer/scripts/single/$MASTERVERSION.sh" ]; then
+        $BASE_PATH/Installer/scripts/single/$MASTERVERSION.sh
         if [ $? = 0 ]; then
             echo "[SUCC]run script success."
         else
