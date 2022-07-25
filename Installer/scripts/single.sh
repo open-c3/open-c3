@@ -354,12 +354,14 @@ function start() {
 
     cp /data/open-c3/lua/config/lua/sso.example.lua /data/open-c3/lua/config/lua/sso.temp.lua
     #OPENC3 TODO 这里ip替换域名是lua解析容器中的域名失败
-    REIP=$(docker exec -it openc3-lua ping -c 1 OPENC3_SERVER_IP|grep openc3-server.c3_JobNet|awk -F '[()]' '{print $2}'|grep ^[0-9\.]*$|tail -n 1 )
+#    REIP=$(docker exec -it openc3-lua ping -c 1 OPENC3_SERVER_IP|grep openc3-server.c3_JobNet|awk -F '[()]' '{print $2}'|grep ^[0-9\.]*$|tail -n 1 )
     COOKIEKEY=$(cat /data/open-c3/Connector/config.inix|grep cookiekey:|awk '{print $2}'|grep ^[a-zA-Z0-9]*$)
-    sed -i "s/OPENC3_SERVER_IP/$REIP/" /data/open-c3/lua/config/lua/sso.temp.lua
+#    sed -i "s/OPENC3_SERVER_IP/$REIP/" /data/open-c3/lua/config/lua/sso.temp.lua
     sed -i "s/ngx.var.cookie_sid/ngx.var.cookie_$COOKIEKEY/g" /data/open-c3/lua/config/lua/sso.temp.lua
 
     cp /data/open-c3/lua/config/lua/sso.temp.lua /data/open-c3/lua/config/lua/sso.lua
+
+    docker restart  openc3-lua
 #
     echo "[SUCC]started."
 }

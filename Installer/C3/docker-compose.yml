@@ -139,10 +139,13 @@ services:
       TZ: 'Asia/Shanghai'
     image: "openresty/openresty:1.9.15.1-trusty"
     restart: always
+    entrypoint: /entrypoint.sh
     volumes:
       - "/data/open-c3/lua/config/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf"
       - "/data/open-c3/lua/config/lua:/usr/local/openresty/nginx/conf/lua"
       - "/data/open-c3-data/logs/lua:/usr/local/openresty/nginx/logs"
+      - "/data/open-c3/lua/bin/entrypoint.sh:/entrypoint.sh"
+      - "/data/open-c3/lua/lualib:/lualib"
     networks:
       JobNet:
         aliases:
