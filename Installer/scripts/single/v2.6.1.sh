@@ -10,9 +10,9 @@ docker cp /data/open-c3/Installer/install-cache/bin/json2yaml  openc3-server:/us
 
 docker cp /data/open-c3/CI/bin/aws_c3 openc3-server:/usr/local/bin/
 
-docker cp /data/open-c3/lua/lualib/resty/http.lua openc3-lua:/usr/local/openresty/lualib/resty/http.lua
-docker cp /data/open-c3/lua/lualib/resty/http_connect.lua openc3-lua:/usr/local/openresty/lualib/resty/http_connect.lua
-docker cp /data/open-c3/lua/lualib/resty/http_headers.lua openc3-lua:/usr/local/openresty/lualib/resty/http_headers.lua
+#docker cp /data/open-c3/lua/lualib/resty/http.lua         openc3-lua:/usr/local/openresty/lualib/resty/http.lua
+#docker cp /data/open-c3/lua/lualib/resty/http_connect.lua openc3-lua:/usr/local/openresty/lualib/resty/http_connect.lua
+#docker cp /data/open-c3/lua/lualib/resty/http_headers.lua openc3-lua:/usr/local/openresty/lualib/resty/http_headers.lua
 
 #oncall 需要的插件
 mkdir -p /data/open-c3-data/glusterfs/oncall/{conf,data}
