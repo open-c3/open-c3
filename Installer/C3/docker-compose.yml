@@ -68,8 +68,9 @@ services:
     container_name: openc3-grafana
     environment:
       TZ: 'Asia/Shanghai'
-    image: "grafana/grafana:7.3.6"
+#    image: "grafana/grafana:7.3.6"
 #    image: "grafana/grafana:8.4.0"
+    image: "grafana/grafana:9.0.1"
     restart: always
     user: root
 #    ports:
@@ -141,7 +142,7 @@ services:
     restart: always
     entrypoint: /entrypoint.sh
     volumes:
-      - "/data/open-c3/lua/config/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf"
+      - "/data/open-c3/lua/config/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf.tpl"
       - "/data/open-c3/lua/config/lua:/usr/local/openresty/nginx/conf/lua"
       - "/data/open-c3-data/logs/lua:/usr/local/openresty/nginx/logs"
       - "/data/open-c3/lua/bin/entrypoint.sh:/entrypoint.sh"
