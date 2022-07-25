@@ -2,6 +2,8 @@
 set -x 
 nameserver=$(cat /etc/resolv.conf |grep nameserver | awk '{print $2}'|egrep "^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$"|head -n 1)
 
+cp /usr/local/openresty/nginx/conf/nginx.conf.tpl /usr/local/openresty/nginx/conf/nginx.conf
+
 if [ "X$nameserver" != "X" ];then
     #没有目录权限,直接sed -i会报错，这里使用临时文件的方式
     sed "s/resolver [0-9]*\.[0-9]*\.[0-9]*\.[0-9]*/resolver $nameserver/" /usr/local/openresty/nginx/conf/nginx.conf > /tmp/nginx.conf.temp.$$
