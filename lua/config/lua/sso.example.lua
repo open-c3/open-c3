@@ -3,21 +3,31 @@ local json = require("cjson")
 
 local httpc = http.new()
 
-local  isapi = string.match( ngx.var.request_uri, '/api' )
+local skip  = false
+local isapi = string.match( ngx.var.request_uri, '/api' )
 if not isapi then
+    skip = true
+end
+
+if ngx.var.request_uri == "/third-party/monitor/grafana/login" and ngx.var.request_method == "POST" then
+    skip = false
+end
+
+if skip then
     return
 end
 
 if ngx.var.cookie_sid then
     local readonly = false
 
-    if ngx.var.request_method == "GET" then
+    local isgrafana    = string.match( ngx.var.request_uri, '/third%-party/monitor/grafana/'    )
+    local isprometheus = string.match( ngx.var.request_uri, '/third%-party/monitor/prometheus/' )
+    if ngx.var.request_method == "GET" or isgrafana or isprometheus then
         readonly = true
     end
 
-    local  getseries = string.match( ngx.var.request_uri, 'resources/api/v1/series' )
-    if getseries then
-        readonly = true
+    if ngx.var.request_uri == "/third-party/monitor/grafana/login" and ngx.var.request_method == "POST" then
+        readonly = false
     end
 
     if readonly then
@@ -58,7 +68,7 @@ if ngx.var.cookie_sid then
 
         local ret = json.decode(res.body)
         if ret then
-            if ret.data and ret.stat == true and ( ret.data == 1 or ret.data == true ) then
+            if ret.data and ret.stat == true and ( ret.data == 1 or ret.data == true or ret.data == "1" ) then
                 return
             end
         else
