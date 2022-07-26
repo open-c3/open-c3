@@ -46,6 +46,11 @@ return sub
         $buildimage = "openc3ci:$buildimage";
     }
 
+    my @runcont = split /\n/, $runcont;
+    my $entrypoint = $runcont[0] && $runcont[0] =~ /^#!.*\/bash$/
+        ? "/bin/bash -c 'source /root/.bashrc ; /build/run'"
+        : "/build/run";
+
     my $run = Temp->new( chmod => 0755 )->dump( $runcont );
     my $dinfo = `docker ps -a`;
 
@@ -89,7 +94,7 @@ return sub
     }
     else
     {
-        push @cmd, "docker run $dockerlimit -v $dpathx:/build -v /data/open-c3-data/ci-docker-share:/cishare -v /data/open-c3-data/ci-docker-share-id/$projectid:$ishare --name '$dname' --workdir=/build/data '$buildimage' /bin/bash -c 'source /root/.bashrc ; /build/run'";
+        push @cmd, "docker run $dockerlimit -v $dpathx:/build -v /data/open-c3-data/ci-docker-share:/cishare -v /data/open-c3-data/ci-docker-share-id/$projectid:$ishare --name '$dname' --workdir=/build/data '$buildimage' $entrypoint";
     }
 
     map{ $logs->die( "run build.merge.makedist.docker fail:$!" ) if system $_; }@cmd;
