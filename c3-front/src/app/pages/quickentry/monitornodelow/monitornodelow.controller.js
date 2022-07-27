@@ -16,6 +16,11 @@
         });
 
 
+        $scope.count1 = 0;
+        $scope.count2 = 0;
+        $scope.count3 = 0;
+        $scope.count4 = 0;
+
         vm.openNewWindow = function( ip )
         {
             var url = '/third-party/monitor/grafana/d/rYdddlPWk/node-exporter-full?orgId=1&from=now-14d&to=now&var-DS_PROMETHEUS=default&var-job=openc3&var-node=' + ip + '&var-diskdevices=%5Ba-z%5D%2B%7Cnvme%5B0-9%5D%2Bn%5B0-9%5D%2B%7Cmmcblk%5B0-9%5D%2B';
@@ -24,10 +29,36 @@
 
         vm.reload = function(){
             vm.loadover = false;
+
+            $scope.count1 = 0;
+            $scope.count2 = 0;
+            $scope.count3 = 0;
+            $scope.count4 = 0;
+
             $http.get('/api/agent/nodelow/' + vm.treeid ).success(function(data){
                 if(data.stat == true) 
                 { 
                     vm.groupTable = new ngTableParams({count:20}, {counts:[],data:data.data.reverse()});
+
+                    angular.forEach(data.data, function (data, index) {
+                        if( data.status == 'low' )
+                        {
+                            $scope.count1 = $scope.count1 + 1
+                        }
+                        if( data.status == 'warn' )
+                        {
+                            $scope.count2 = $scope.count2 + 1
+                        }
+                        if( data.status == 'normal' )
+                        {
+                            $scope.count3 = $scope.count3 + 1
+                        }
+                        if( data.status == 'unkown' )
+                        {
+                            $scope.count4 = $scope.count4 + 1
+                        }
+                    });
+
                     vm.loadover = true;
                 } else { 
                     toastr.error( "加载数据失败:" + data.info )
