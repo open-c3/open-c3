@@ -18,9 +18,11 @@
                     <table ng-table="MonitorNodeLowDetail.dataTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                         <tr ng-repeat="m in $data">
                             <td data-title="'日期'" sortable="'id'">{{m.date}}</td>
-                            <td data-title="'状态'" sortable="'summary'" filter="{ status: 'text'}"  > 
-                                <a ng-if="m.status=='low'" style="color: red" >{{m.status}}<a>
-                                <a ng-if="m.status!='low'" >{{m.status}}<a>
+                            <td data-title="'状态'" sortable="'status'" filter="{ status: 'text'}" >
+                                <a ng-if="m.status=='low'"    style="color: red"     >{{m.status}}<a>
+                                <a ng-if="m.status=='warn'"   style="color: #f6bb42" >{{m.status}}<a>
+                                <a ng-if="m.status=='normal'" style="color: green"   >{{m.status}}<a>
+                                <a ng-if="m.status=='unkown'" >{{m.status}}<a>
                             </td>
                             <td data-title="'CPU(%)'"         sortable="'cpu'"   >{{m.cpu}}</td>
                             <td data-title="'内存(%)'"        sortable="'mem'"   >{{m.mem}}</td>

@@ -72,8 +72,10 @@
                         <td data-title="'外网IP'" sortable="'exip'" filter="{ exip: 'text'}" >{{m.exip}}</td>
                         <td data-title="'资源类型'" sortable="'type'">{{m.type}}</td>
                         <td data-title="'状态'" sortable="'status'" filter="{ status: 'text'}" >
-                            <a ng-if="m.status=='low'" style="color: red" >{{m.status}}<a>
-                            <a ng-if="m.status!='low'" >{{m.status}}<a>
+                            <a ng-if="m.status=='low'"    style="color: red"     >{{m.status}}<a>
+                            <a ng-if="m.status=='warn'"   style="color: #f6bb42" >{{m.status}}<a>
+                            <a ng-if="m.status=='normal'" style="color: green"   >{{m.status}}<a>
+                            <a ng-if="m.status=='unkown'" >{{m.status}}<a>
                         </td>
                         <td data-title="'低利用率天数/14天'" sortable="'lowcnt'">{{m.lowcnt}}</td>
                         <td data-title="'CPU(%)'"            sortable="'cpu'"   >{{m.cpu}}</td>
