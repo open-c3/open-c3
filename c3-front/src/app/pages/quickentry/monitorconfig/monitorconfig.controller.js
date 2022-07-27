@@ -108,25 +108,6 @@
                     toastr.error( "加载采集列表失败:" + data.info )
                 }
             });
-
-            $http.get('/api/agent/monitor/config/group' ).success(function(data){
-                if(data.stat == true) 
-                { 
-                    vm.monitorgroup = data.data
-                } else { 
-                    toastr.error( "加载监控组列表失败:" + data.info )
-                }
-            });
- 
-            $http.get('/api/agent/monitor/config/oncall' ).success(function(data){
-                if(data.stat == true) 
-                { 
-                    vm.monitoroncall = data.data;
-                } else { 
-                    toastr.error( "加载监控组列表失败:" + data.info )
-                }
-            });
- 
         };
 
         vm.reload();
@@ -176,6 +157,25 @@
                     toastr.error( "加载报警接收人失败:" + data.info )
                 }
             });
+
+            $http.get('/api/agent/monitor/config/group' ).success(function(data){
+                if(data.stat == true) 
+                { 
+                    vm.monitorgroup = data.data
+                } else { 
+                    toastr.error( "加载监控组列表失败:" + data.info )
+                }
+            });
+ 
+            $http.get('/api/agent/monitor/config/oncall' ).success(function(data){
+                if(data.stat == true) 
+                { 
+                    vm.monitoroncall = data.data;
+                } else { 
+                    toastr.error( "加载监控组列表失败:" + data.info )
+                }
+            });
+ 
         };
 
         vm.reloadUser();
