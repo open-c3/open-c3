@@ -27,6 +27,20 @@
             window.open( url, '_blank')
         }
 
+        vm.allData = [];
+
+        vm.dataGrep = function( stat ){
+            vm.tempdata = [];
+            angular.forEach(vm.allData, function (data, index) {
+               if( data.status == stat )
+               {
+                   vm.tempdata.push( data );
+               }
+           });
+
+           vm.dataTable = new ngTableParams({count:20}, {counts:[],data:vm.tempdata.reverse()});
+        }
+
         vm.reload = function(){
             vm.loadover = false;
 
@@ -38,7 +52,8 @@
             $http.get('/api/agent/nodelow/' + vm.treeid ).success(function(data){
                 if(data.stat == true) 
                 { 
-                    vm.groupTable = new ngTableParams({count:20}, {counts:[],data:data.data.reverse()});
+                    vm.dataTable = new ngTableParams({count:20}, {counts:[],data:data.data.reverse()});
+                    vm.allData = data.data;
 
                     angular.forEach(data.data, function (data, index) {
                         if( data.status == 'low' )

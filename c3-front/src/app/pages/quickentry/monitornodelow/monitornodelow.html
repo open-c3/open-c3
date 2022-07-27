@@ -6,8 +6,8 @@
                 <h4 class="kb_title">利用率低: low</h4>
             </div>
             <div class="panel-body">
-                <div style="font-size: 45px;font-weight: bold;text-align: center;height: 115px; color: red">
-                    <span>{{count1}}</span>
+                <div style="font-size: 45px;font-weight: bold;text-align: center;height: 115px;cursor:pointer; color: red">
+                    <span ng-click="monitornodelow.dataGrep('low')" >{{count1}}</span>
                 </div>
             </div>
         </div>
@@ -18,8 +18,8 @@
                 <h4 style="font-weight: bold;color: #337ab7">警告: warn</h4>
             </div>
             <div class="panel-body">
-                <div style="font-size: 45px;font-weight: bold;text-align: center;height: 115px;color: #f6bb42">
-                    <span>{{count2}}</span>
+                <div style="font-size: 45px;font-weight: bold;text-align: center;height: 115px;cursor:pointer;color: #f6bb42">
+                    <span ng-click="monitornodelow.dataGrep('warn')" >{{count2}}</span>
                 </div>
 
             </div>
@@ -31,8 +31,8 @@
                 <h4 style="font-weight: bold;color: #337ab7">正常: normal</h4>
             </div>
             <div class="panel-body" >
-                <div style="font-size: 45px;font-weight: bold;text-align: center;height: 115px;color: green">
-                    <span>{{count3}}</span>
+                <div style="font-size: 45px;font-weight: bold;text-align: center;height: 115px;cursor:pointer;color: green">
+                    <span ng-click="monitornodelow.dataGrep('normal')" >{{count3}}</span>
                 </div>
             </div>
         </div>
@@ -43,8 +43,8 @@
                 <h4 style="font-weight: bold;color: #337ab7">未知: unkown</h4>
             </div>
             <div class="panel-body">
-                <div style="font-size: 45px;font-weight: bold;text-align: center;height: 115px;">
-                    <span>{{count4}}</span>
+                <div style="font-size: 45px;font-weight: bold;text-align: center;height: 115px;cursor:pointer;">
+                    <span ng-click="monitornodelow.dataGrep('unkown')" >{{count4}}</span>
                 </div>
             </div>
         </div>
@@ -64,7 +64,7 @@
 
         <div class="panel-body flowline">
             <div class="pt20" style="overflow: auto;">
-                <table ng-table="monitornodelow.groupTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
+                <table ng-table="monitornodelow.dataTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
                         <td data-title="'编号'"   sortable="'id'"    >{{m.id}}</td>
                         <td data-title="'主机名'" sortable="'name'" filter="{ name: 'text'}" >{{m.name}}</td>
