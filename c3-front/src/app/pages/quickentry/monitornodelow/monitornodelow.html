@@ -13,8 +13,8 @@
                     <tr ng-repeat="m in $data">
                         <td data-title="'编号'"   sortable="'id'"    >{{m.id}}</td>
                         <td data-title="'主机名'" sortable="'name'" filter="{ name: 'text'}" >{{m.name}}</td>
-                        <td data-title="'内网IP'" sortable="'inip'"  >{{m.inip}}</td>
-                        <td data-title="'外网IP'" sortable="'exip'"  >{{m.exip}}</td>
+                        <td data-title="'内网IP'" sortable="'inip'" filter="{ inip: 'text'}" >{{m.inip}}</td>
+                        <td data-title="'外网IP'" sortable="'exip'" filter="{ exip: 'text'}" >{{m.exip}}</td>
                         <td data-title="'资源类型'" sortable="'type'">{{m.type}}</td>
                         <td data-title="'状态'" sortable="'status'" filter="{ status: 'text'}" >
                             <a ng-if="m.status=='low'" style="color: red" >{{m.status}}<a>
@@ -29,6 +29,7 @@
                         <td class="textcenter"  data-title="'操作'">
                             <nobr>
                                 <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="monitornodelow.showDetail(m.inip)" uib-tooltip="详情" style="cursor:pointer;color: #339094;" ></i>
+                                <i class="fa fa-tachometer fa-2x" aria-hidden="true" ng-click="monitornodelow.openNewWindow(m.inip)" uib-tooltip="图表" style="cursor:pointer;color: #339094;" ></i>
                             </nobr>
                         </td>
                     </tr>

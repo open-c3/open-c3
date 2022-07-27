@@ -15,6 +15,13 @@
             vm.nodeStr = treeService.selectname();
         });
 
+
+        vm.openNewWindow = function( ip )
+        {
+            var url = '/third-party/monitor/grafana/d/rYdddlPWk/node-exporter-full?orgId=1&from=now-14d&to=now&var-DS_PROMETHEUS=default&var-job=openc3&var-node=' + ip + '&var-diskdevices=%5Ba-z%5D%2B%7Cnvme%5B0-9%5D%2Bn%5B0-9%5D%2B%7Cmmcblk%5B0-9%5D%2B';
+            window.open( url, '_blank')
+        }
+
         vm.reload = function(){
             vm.loadover = false;
             $http.get('/api/agent/nodelow/' + vm.treeid ).success(function(data){
