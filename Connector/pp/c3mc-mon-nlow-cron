@@ -1,0 +1,8 @@
+#!/bin/bash
+
+cat /data/Software/mydan/AGENT/conf/promesd.temp \
+  | awk -F';' '{print $2}' \
+  | sort \
+  | uniq \
+  | grep -v ^$ \
+  | xargs -i{} bash -c "c3mc-mon-nlow-fill --node {}"

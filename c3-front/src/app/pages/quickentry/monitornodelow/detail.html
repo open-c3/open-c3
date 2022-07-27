@@ -1,0 +1,42 @@
+<div class="modal-header">
+    <h4 class="modal-title">负载详情</h4>
+</div>
+<div class="modal-body">
+
+    <form class="form-horizontal" name="myForm" role="form">
+
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <span class="panel-controls">
+                    <button class="btn btn-primary" uib-tooltip="刷新" ng-click="MonitorNodeLowDetail.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!MonitorNodeLowDetail.loadover}" ></i></button>
+                </span>
+                <h5>机器负载详情:{{MonitorNodeLowDetail.ip}}</h5>
+            </div>
+
+            <div class="panel-body flowline">
+                <div class="pt20" style="overflow: auto;">
+                    <table ng-table="MonitorNodeLowDetail.dataTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
+                        <tr ng-repeat="m in $data">
+                            <td data-title="'日期'" sortable="'id'">{{m.date}}</td>
+                            <td data-title="'状态'" sortable="'summary'" filter="{ status: 'text'}"  > 
+                                <a ng-if="m.status=='low'" style="color: red" >{{m.status}}<a>
+                                <a ng-if="m.status!='low'" >{{m.status}}<a>
+                            </td>
+                            <td data-title="'CPU(%)'"         sortable="'cpu'"   >{{m.cpu}}</td>
+                            <td data-title="'内存(%)'"        sortable="'mem'"   >{{m.mem}}</td>
+                            <td data-title="'下载带宽(kb/s)'" sortable="'netin'" >{{m.netin}}</td>
+                            <td data-title="'上传带宽(kb/s)'" sortable="'netout'">{{m.netout}}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-5 form-group pull-right">
+                <button class="btn btn-warning" ng-click="MonitorNodeLowDetail.cancel()">取消</button>
+            </div>
+        </div>
+    </form>
+
+</div>

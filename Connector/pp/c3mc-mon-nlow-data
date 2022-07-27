@@ -1,0 +1,34 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 --node 10.10.10.1 --date 2022-07-06
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o      = $option->get(    qw( node=s date=s ) )->dump();
+             $option->assert( qw( node   date   ) );
+
+my ( $cpu, $mem, $netin, $netout )
+    = map{
+        my    $x = `c3mc-mon-$_ --node $o{node} --date $o{date}`;
+        chomp $x;
+        ( $x && $x =~ /^[\d\.]+$/ ) ? $x : 'x';
+      } qw( avg-cpu avg-mem max-net-in max-net-out );
+
+my $net = $netin ne 'x' && $netout ne 'x' ? $netin + $netout : 'x';
+
+printf "%s\n", join ";",
+    $o{date},
+    ( ( $cpu ne 'x' && $cpu < 10 ) or ( $net ne 'x' && $net < 10  ) ) ? 'low' : 'normal',
+    $cpu,
+    $mem,
+    $netin,
+    $netout;

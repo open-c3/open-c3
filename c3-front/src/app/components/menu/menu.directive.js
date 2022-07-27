@@ -53,6 +53,7 @@
                                 || sName == 'home.quickentry.monitorkanban'
                                 || sName == 'home.quickentry.monitorconfig'
                                 || sName == 'home.quickentry.monitorgroup'
+                                || sName == 'home.quickentry.monitornodelow'
                                 || sName == 'home.quickentry.monitoroncall'
                                 || sName == 'home.quickentry.monitormailmon'
                                 || sName == 'home.quickentry.selfhealingconfig'
