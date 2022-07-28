@@ -45,12 +45,14 @@ my $start = POSIX::strftime( "%Y-%m-%d", localtime( time - $threshold{ daycnt } 
 my $end   = POSIX::strftime( "%Y-%m-%d", localtime( time - 1                    * 86400 ) );
 
 my %lowcnt;
-@x = `c3mc-base-db-get ip status -t openc3_monitor_node_low_detail -f 'cpu!="x" and mem!="x" and netin!="x" and netout!="x" and date>="$start" and date<="$end"'`;
+my %nodata;
+@x = `c3mc-base-db-get ip status -t openc3_monitor_node_low_detail -f 'date>="$start" and date<="$end"'`;
 chomp @x;
 for ( @x )
 {
     my ( $ip, $status ) = split /;/, $_;
     $lowcnt{$ip} ++ if $status eq 'low';
+    $nodata{$ip} ++ if $status eq 'nodata';
 }
 
 @x = `c3mc-base-db-get date ip status cpu mem netin netout lowcnt -t openc3_monitor_node_low -f 'cpu!="x" and mem!="x" and netin!="x" and netout!="x" and date="$end"'`;
@@ -61,7 +63,7 @@ for ( @x )
     my ( $date, $ip, $status, $cpu, $mem, $netin, $netout, $lowcnt ) = split /;/, $_;
 
     my $newlowcnt = $lowcnt{$ip} || 0;
-    my $newstatus = $newlowcnt >= $threshold{ lowcnt } ? 'low' : $newlowcnt > 0 ? 'warn': 'normal';
+    my $newstatus = $newlowcnt >= $threshold{ lowcnt } ? 'low' : $newlowcnt > 0 ? 'warn': $nodata{ $ip } ? 'unkown' : 'normal';
 
     next unless $status ne $newstatus || $lowcnt ne $newlowcnt;
 
