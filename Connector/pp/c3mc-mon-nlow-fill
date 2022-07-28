@@ -54,3 +54,5 @@ exit unless my $x = pop @x;
     $status = $lowcnt >= $threshold{ daycnt } ? 'low' : $lowcnt > 0 ? 'warn' : @nodata > 0 ? 'unkown' : 'normal';
     system "c3mc-base-db-ins -t openc3_monitor_node_low ip '$o{node}' date $date lowcnt $lowcnt status $status cpu $cpu mem $mem netin $netin netout $netout";
 }
+
+system qq( echo "delete from openc3_monitor_node_low_detail where ip='$o{node}' and date<'$start'" | c3mc-base-db-exe -t openc3_monitor_node_low_detail )
