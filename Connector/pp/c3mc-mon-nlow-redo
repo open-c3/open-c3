@@ -55,7 +55,7 @@ for ( @x )
     $nodata{$ip} ++ if $status eq 'nodata';
 }
 
-@x = `c3mc-base-db-get date ip status cpu mem netin netout lowcnt -t openc3_monitor_node_low -f 'cpu!="x" and mem!="x" and netin!="x" and netout!="x" and date="$end"'`;
+@x = `c3mc-base-db-get date ip status cpu mem netin netout lowcnt -t openc3_monitor_node_low -f 'date="$end"'`;
 chomp @x;
 
 for ( @x )
