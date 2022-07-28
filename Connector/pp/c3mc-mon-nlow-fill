@@ -17,13 +17,18 @@ my $option = MYDan::Util::OptConf->load();
 my %o      = $option->get(    qw( node=s ) )->dump();
              $option->assert( qw( node   ) );
 
+my %threshold = (
+    lowcnt => 4,
+    daycnt => 14,
+);
+
 my %date;
 my    @date = `c3mc-base-db-get date -t openc3_monitor_node_low_detail -f "ip='$o{node}'"`;
 chomp @date;
 map{ $date{ $_ } = 1; }@date;
 
 my ( $status, $cpu, $mem, $netin, $netout );
-for ( reverse 1 .. 14 )
+for ( reverse 1 .. $threshold{ daycnt } )
 {
     my $date = POSIX::strftime( "%Y-%m-%d", localtime( time - $_ * 86400 ) );
     next if $date{$date};
@@ -33,8 +38,8 @@ for ( reverse 1 .. 14 )
     system "c3mc-base-db-ins -t openc3_monitor_node_low_detail ip '$o{node}' date $date status $status cpu $cpu mem $mem netin $netin netout $netout";
 }
 
-my $start = POSIX::strftime( "%Y-%m-%d", localtime( time - 14 * 86400 ) );
-my $end   = POSIX::strftime( "%Y-%m-%d", localtime( time - 1  * 86400 ) );
+my $start = POSIX::strftime( "%Y-%m-%d", localtime( time - $threshold{ daycnt } * 86400 ) );
+my $end   = POSIX::strftime( "%Y-%m-%d", localtime( time - 1                    * 86400 ) );
 
 my @x = `c3mc-base-db-get -t openc3_monitor_node_low_detail date status cpu mem netin netout -f 'ip="$o{node}" and date>="$start" and date<="$end" order by date'`;
 chomp @x;
@@ -45,6 +50,6 @@ exit unless my $x = pop @x;
 {
     my ( $date, $status, $cpu, $mem, $netin, $netout ) = split /;/, $x;
     my $lowcnt = scalar @low;
-    $status = $lowcnt >= 14 ? 'low' : $lowcnt > 0 ? 'warn' : 'normal';
+    $status = $lowcnt >= $threshold{ daycnt } ? 'low' : $lowcnt > 0 ? 'warn' : 'normal';
     system "c3mc-base-db-ins -t openc3_monitor_node_low ip '$o{node}' date $date lowcnt $lowcnt status $status cpu $cpu mem $mem netin $netin netout $netout";
 }

@@ -13,11 +13,11 @@ use POSIX;
 =cut
 
 my %threshold = (
-    cpu    => 10,
-    mem    => 50,
-    net    => 10 * 1024,
-    netin  => 5  * 1024,
-    netout => 5  * 1024,
+    cpu    => 30,
+    mem    => 30,
+    net    => 10 * 1024 * 1024 * 1024 * 1024,
+    netin  => 5  * 1024 * 1024 * 1024 * 1024,
+    netout => 5  * 1024 * 1024 * 1024 * 1024,
     lowcnt => 4,
     daycnt => 14,
 );
@@ -65,5 +65,5 @@ for ( @x )
 
     next unless $status ne $newstatus || $lowcnt ne $newlowcnt;
 
-    system "c3mc-base-db-ins -t openc3_monitor_node_low ip '$ip' date $date status $newstatus cpu $cpu mem $mem netin $netin netout $netout lowcnt $lowcnt";
+    system "c3mc-base-db-ins -t openc3_monitor_node_low ip '$ip' date $date status $newstatus cpu $cpu mem $mem netin $netin netout $netout lowcnt $newlowcnt";
 }
