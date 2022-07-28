@@ -44,12 +44,13 @@ my $end   = POSIX::strftime( "%Y-%m-%d", localtime( time - 1                    
 my @x = `c3mc-base-db-get -t openc3_monitor_node_low_detail date status cpu mem netin netout -f 'ip="$o{node}" and date>="$start" and date<="$end" order by date'`;
 chomp @x;
 
-my @low = grep{ /;low;/ }@x;
+my @low    = grep{ /;low;/    }@x;
+my @nodata = grep{ /;nodata;/ }@x;
 exit unless my $x = pop @x;
 
 {
     my ( $date, $status, $cpu, $mem, $netin, $netout ) = split /;/, $x;
     my $lowcnt = scalar @low;
-    $status = $lowcnt >= $threshold{ daycnt } ? 'low' : $lowcnt > 0 ? 'warn' : 'normal';
+    $status = $lowcnt >= $threshold{ daycnt } ? 'low' : $lowcnt > 0 ? 'warn' : @nodata > 0 ? 'unkown' : 'normal';
     system "c3mc-base-db-ins -t openc3_monitor_node_low ip '$o{node}' date $date lowcnt $lowcnt status $status cpu $cpu mem $mem netin $netin netout $netout";
 }
