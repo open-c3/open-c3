@@ -44,6 +44,8 @@ if( $name eq 'promesd' )
     my $greptree = OPENC3::SysCtl->new()->get( 'sys.monitor.grep.tree' );
     my $grepnode = OPENC3::SysCtl->new()->get( 'sys.monitor.grep.node' );
 
+    my $ignore = '/data/open-c3-data/monitor.node.ignore';
+
     if( $mode eq 'off' || -f "/data/open-c3-data/promesd.off" ) {
         $0 = "agent_server_$name";
         warn ">> skip by sys.monitor.mode=off or /data/open-c3-data/promesd.off\n";
@@ -66,6 +68,7 @@ if( $name eq 'promesd' )
                "awk -F';' '{print \$1}'",
                "c3mc-base-fullnodeinfo -c projectid,inip",
                $grepnode ? sprintf( "grep -E '%s'", join '|', map{ ";$_" }split /,/, $grepnode ) : undef,
+               ( -f $ignore ) ? "c3mc-base-grepv -c 2 -f $ignore" : undef,
                "tee $tempfile",
                "c3mc-mon-nodesd-format --output $openc3_node_sd.temp",
            ],
@@ -99,6 +102,7 @@ if( $name eq 'promesd' )
                "awk -F';' '{print \$1}'",
                "c3mc-base-fullnodeinfo -c projectid,inip",
                $grepnode ? sprintf( "grep -E '%s'", join '|', map{ ";$_" }split /,/, $grepnode ) : undef,
+               ( -f $ignore ) ? "c3mc-base-grepv -c 2 -f $ignore" : undef,
                "tee $tempfile",
                "c3mc-mon-nodesd-format --output $openc3_node_sd.temp",
            ],
@@ -119,6 +123,7 @@ if( $name eq 'promesd' )
                "awk -F';' '{print \$1}'",
                "c3mc-base-fullnodeinfo -c projectid,inip",
                $grepnode ? sprintf( "grep -E '%s'", join '|', map{ ";$_" }split /,/, $grepnode ) : undef,
+               ( -f $ignore ) ? "c3mc-base-grepv -c 2 -f $ignore" : undef,
                "tee $tempfile",
                "awk -F'.' '{print \$NF\";\"\$0}'",
                "c3mc-base-task-grep -m monitor",
@@ -212,7 +217,7 @@ if( $name eq 'carry' )
         "cat /data/Software/mydan/AGENT/conf/promesd.temp |                          c3mc-mon-carry --output /data/Software/mydan/AGENT/conf/openc3_carry.yml",
         "cat /data/Software/mydan/AGENT/conf/promesd.temp | awk -F';' '{print \$2}'| c3mc-mon-proxy --output /data/Software/mydan/AGENT/conf/openc3_proxy.yml",
         "cat /data/Software/mydan/AGENT/conf/promesd.temp | awk -F';' '{print \$2}'| sort | uniq | c3mc-base-ipfilter -f '$uexip' | c3mc-base-uexip --output /data/Software/mydan/AGENT/conf/openc3_uexip.yml",
-        "c3mc-mon-treeinfo > /data/Software/mydan/c3-front/dist/treeinfo.txt.temp && mv /data/Software/mydan/c3-front/dist/treeinfo.txt.temp /data/Software/mydan/c3-front/dist/treeinfo.txt",
+        "c3mc-mon-treeinfo > /data/Software/mydan/Connector/local/treeinfo.txt.temp && mv /data/Software/mydan/Connector/local/treeinfo.txt.temp /data/Software/mydan/Connector/local/treeinfo.txt",
     );
 }
 

@@ -1,0 +1,40 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 --col 2 --file /path/name
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o      = $option->get( qw( col=i file=s ) )->dump();
+
+$option->assert( qw( col file ) );
+
+my    $col = $o{col} - 1;
+my    @ignore = `cat $o{file}`;
+chomp @ignore;
+my    %ignore = map{ $_ => 1 } @ignore;
+
+sub grepv
+{
+    my $row = shift @_;
+    my @col = split /;/, $row;
+    return if @col && $col[$col] && $ignore{ $col[$col] };
+    print "$row\n";
+}
+
+if( @ARGV )
+{
+    map{ grepv( $_ ); }@ARGV;
+}
+else
+{
+    while(<STDIN>){ chomp; grepv($_); }
+}

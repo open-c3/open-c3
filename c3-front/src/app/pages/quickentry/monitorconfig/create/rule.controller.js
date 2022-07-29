@@ -8,7 +8,7 @@
 
         var vm = this;
         vm.title = title
-        vm.postData = { 'severity': 'level2', 'model': 'simple' }
+        vm.postData = { 'severity': 'level2', 'model': 'bindtree' }
         if( postData.id )
         {
             vm.postData.id = postData.id
@@ -23,6 +23,7 @@
             vm.postData.metrics = postData.metrics
             vm.postData.method = postData.method
             vm.postData.threshold = postData.threshold
+            vm.postData.bindtreesql = postData.bindtreesql
         }
 
         vm.cancel = function(){ $uibModalInstance.dismiss()};

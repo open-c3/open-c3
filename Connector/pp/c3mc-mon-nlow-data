@@ -1,0 +1,58 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 --node 10.10.10.1 --date 2022-07-06
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o      = $option->get(    qw( node=s date=s ) )->dump();
+             $option->assert( qw( node   date   ) );
+
+my %threshold = (
+    cpu    => 30,
+    mem    => 30,
+    net    => 10 * 1024 * 1024 * 1024,
+    netin  => 5  * 1024 * 1024 * 1024,
+    netout => 5  * 1024 * 1024 * 1024,
+);
+
+my ( $cpu, $mem, $netin, $netout )
+    = map{
+        my    $x = `c3mc-mon-$_ --node $o{node} --date $o{date}`;
+        chomp $x;
+        ( $x && $x =~ /^[\d\.]+$/ ) ? $x : 'x';
+      } qw( avg-cpu avg-mem max-net-in max-net-out );
+
+my $status = 'nodata';
+
+if(
+     defined $cpu    && $cpu    ne 'x'
+  && defined $mem    && $mem    ne 'x'
+  && defined $netin  && $netin  ne 'x'
+  && defined $netout && $netout ne 'x'
+)
+{
+    $status = (
+         $cpu                  < $threshold{ cpu    }
+      && $mem                  < $threshold{ mem    }
+      && $netin                < $threshold{ netin  }
+      && $netout               < $threshold{ netout }
+      &&  ( $netin + $netout ) < $threshold{ net    }
+    ) ? 'low' : 'normal';
+}
+
+printf "%s\n", join ";",
+    $o{date},
+    $status,
+    $cpu,
+    $mem,
+    $netin,
+    $netout;

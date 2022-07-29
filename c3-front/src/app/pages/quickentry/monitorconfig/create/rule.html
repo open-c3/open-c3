@@ -25,6 +25,10 @@
                                 <span class="radio" style="padding-top: 0;min-height: 0"></span>简单
                             </label>
                             <label class="option option-primary">
+                                <input type="radio" ng-model="createMonitorConfigRule.postData.model" value="bindtree" >
+                                <span class="radio" style="padding-top: 0;min-height: 0"></span>绑定服务树
+                            </label>
+                            <label class="option option-primary">
                                 <input type="radio" ng-model="createMonitorConfigRule.postData.model" value="custom" >
                                 <span class="radio" style="padding-top: 0;min-height: 0"></span>自定义
                             </label>
@@ -49,7 +53,16 @@
             </div>
         </div>
 
-        <div class="row" ng-if="createMonitorConfigRule.postData.model!=='simple'">
+        <div class="row" ng-if="createMonitorConfigRule.postData.model==='bindtree'">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">表达式<a style="color: red;">*</a></label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" placeholder="普罗米修斯表达式" ng-model="createMonitorConfigRule.postData.bindtreesql">
+                </div>
+            </div>
+        </div>
+
+        <div class="row" ng-if="createMonitorConfigRule.postData.model==='custom'">
             <div class="col-sm-10 form-group">
                 <label class="col-sm-3 control-label">表达式<a style="color: red;">*</a></label>
                 <div class="col-sm-9">

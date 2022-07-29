@@ -1,0 +1,71 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use POSIX;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my %threshold = (
+    cpu    => 30,
+    mem    => 30,
+    net    => 10 * 1024 * 1024 * 1024 * 1024,
+    netin  => 5  * 1024 * 1024 * 1024 * 1024,
+    netout => 5  * 1024 * 1024 * 1024 * 1024,
+    lowcnt => 4,
+    daycnt => 14,
+);
+
+my    @x = `c3mc-base-db-get date ip status cpu mem netin netout -t openc3_monitor_node_low_detail -f 'cpu!="x" and mem!="x" and netin!="x" and netout!="x"'`;
+chomp @x;
+
+for( @x )
+{
+    my ( $date, $ip, $status, $cpu, $mem, $netin, $netout ) = split /;/, $_;
+    my $newstatus = (
+         $cpu                  < $threshold{ cpu    }
+      && $mem                  < $threshold{ mem    }
+      && $netin                < $threshold{ netin  }
+      && $netout               < $threshold{ netout }
+      &&  ( $netin + $netout ) < $threshold{ net    }
+    ) ? 'low' : 'normal';
+
+    next unless $status ne $newstatus;
+
+    system "c3mc-base-db-ins -t openc3_monitor_node_low_detail ip '$ip' date $date status $newstatus cpu $cpu mem $mem netin $netin netout $netout";
+}
+
+my $start = POSIX::strftime( "%Y-%m-%d", localtime( time - $threshold{ daycnt } * 86400 ) );
+my $end   = POSIX::strftime( "%Y-%m-%d", localtime( time - 1                    * 86400 ) );
+
+my %lowcnt;
+my %nodata;
+@x = `c3mc-base-db-get ip status -t openc3_monitor_node_low_detail -f 'date>="$start" and date<="$end"'`;
+chomp @x;
+for ( @x )
+{
+    my ( $ip, $status ) = split /;/, $_;
+    $lowcnt{$ip} ++ if $status eq 'low';
+    $nodata{$ip} ++ if $status eq 'nodata';
+}
+
+@x = `c3mc-base-db-get date ip status cpu mem netin netout lowcnt -t openc3_monitor_node_low -f 'date="$end"'`;
+chomp @x;
+
+for ( @x )
+{
+    my ( $date, $ip, $status, $cpu, $mem, $netin, $netout, $lowcnt ) = split /;/, $_;
+
+    my $newlowcnt = $lowcnt{$ip} || 0;
+    my $newstatus = $newlowcnt >= $threshold{ lowcnt } ? 'low' : $newlowcnt > 0 ? 'warn': $nodata{ $ip } ? 'unkown' : 'normal';
+
+    next unless $status ne $newstatus || $lowcnt ne $newlowcnt;
+
+    system "c3mc-base-db-ins -t openc3_monitor_node_low ip '$ip' date $date status $newstatus cpu $cpu mem $mem netin $netin netout $netout lowcnt $newlowcnt";
+}

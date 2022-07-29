@@ -105,7 +105,7 @@ del '/monitor/config/user/:projectid/:id' => sub {
 post '/monitor/config/usertest' => sub {
     my $param = params();
     my $error = Format->new( 
-        user => [ 'mismatch', qr/'/ ], 1,
+        user      => [ 'mismatch', qr/'/ ], 1,
         projectid => qr/^\d+$/, 1,
     )->check( %$param );
 
@@ -115,7 +115,7 @@ post '/monitor/config/usertest' => sub {
 
     my $user = $param->{user};
 
-    return +{ stat => $JSON::false, info => "user format error" } unless $user && $user =~ /^[a-zA-Z0-9@\.\-_]+$/;
+    return +{ stat => $JSON::false, info => "user format error" } unless $user && $user =~ /^[a-zA-Z0-9@\.\-_:%]+$/;
 
     eval{
         die "send mesg fail: $!" if system "c3mc-app-usrext '$user' | xargs -i{} bash -c \"cat /data/Software/mydan/AGENT/config/mesgsendtest.txt |sed 's/XXX/{}/' | c3mc-base-send \"";

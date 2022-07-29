@@ -298,3 +298,34 @@ ALTER TABLE openc3_ci_project ADD `gitclonebycache` VARCHAR(4) DEFAULT '0' comme
 
 # v2.6.0 sql openc3_job_plugin_cmd modify scripts_cont to 15000
 ALTER TABLE openc3_job_plugin_cmd modify `scripts_cont` varchar(15000) DEFAULT NULL COMMENT '脚本内容,或引用的编号';
+
+# v2.6.0 sql openc3_monitor_node_low create
+create table if not exists `openc3_monitor_node_low`(
+`id`         int(16) unsigned not null primary key auto_increment comment 'id',
+`date`       VARCHAR(40)  comment 'date',
+`ip`         VARCHAR(40)  comment 'ip',
+`lowcnt`     VARCHAR(40)  comment 'lowcnt',
+`status`     VARCHAR(20)  comment '状态',
+`mem`        VARCHAR(100) comment 'mem',
+`cpu`        VARCHAR(100) comment 'cpu',
+`netin`      VARCHAR(100) comment 'netin',
+`netout`     VARCHAR(100) comment 'netout',
+`edit_time`  TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
+UNIQUE KEY  `uniq_ip` (`ip`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='主机低利用率';
+
+# v2.6.0 sql openc3_monitor_node_low_detail create
+create table if not exists `openc3_monitor_node_low_detail`(
+`id`        int(16) unsigned not null primary key auto_increment comment 'id',
+`date`      VARCHAR(40)  comment 'date',
+`ip`        VARCHAR(40)  comment 'ip',
+`status`    VARCHAR(20)  comment '状态',
+`mem`       VARCHAR(100) comment 'mem',
+`cpu`       VARCHAR(100) comment 'cpu',
+`netin`     VARCHAR(100) comment 'netin',
+`netout`    VARCHAR(100) comment 'netout',
+UNIQUE KEY `uniq_ip_date` (`ip`, `date`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='主机低利用率-详情';
+
+# v2.6.0 sql openc3_monitor_config_rule add bindtreesql
+ALTER TABLE openc3_monitor_config_rule ADD `bindtreesql` VARCHAR(3000) DEFAULT '' comment '绑定服务树的表达式';

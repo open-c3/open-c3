@@ -203,6 +203,13 @@
                 controllerAs: 'monitorgroup'
             })
 
+            .state('home.quickentry.monitornodelow', {
+                url: 'monitornodelow/:treeid',
+                templateUrl: 'app/pages/quickentry/monitornodelow/monitornodelow.html',
+                controller: 'MonitorNodeLowController',
+                controllerAs: 'monitornodelow'
+            })
+
              .state('home.quickentry.monitoroncall', {
                 url: 'monitoroncall/:treeid',
                 templateUrl: 'app/pages/quickentry/monitoroncall/monitoroncall.html',

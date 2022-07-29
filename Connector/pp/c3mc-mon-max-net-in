@@ -1,0 +1,53 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use MYDan::Util::OptConf;
+use LWP::UserAgent;
+use JSON;
+
+=head1 SYNOPSIS
+
+ $0 --node 10.10.10.1 --date 2022-07-06
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o      = $option->get(    qw( node=s date=s ) )->dump();
+             $option->assert( qw( node   date   ) );
+
+my $ua = LWP::UserAgent->new;
+$ua->timeout( 15 );
+
+my    $start  = `date -d '$o{date} 00:00:00' +%s`;
+chomp $start;
+my    $end    = $start + 86400 -1;
+
+#max(rate(node_network_receive_bytes_total{instance="10.10.10.1"}[5m])*8) by (instance)
+
+my $url = 'http://openc3-prometheus:9090/api/v1/query_range?query=max%28rate%28node_network_receive_bytes_total%7Binstance%3D%22'
+          . $o{node}
+          . '%22%7D%5B5m%5D%29*8%29+by+%28instance%29&start='
+          . $start
+          . '&end='
+          . $end
+          . '&step=345';
+
+my $res = $ua->get( $url );
+
+die sprintf( "avg-net-in $o{node} http code %s", $res->code ) unless $res->is_success;
+
+my $v = eval{ JSON::decode_json $res->decoded_content };
+die "avg-net-in $o{node} data no JSON: $@"  if $@;
+die "avg-net-in $o{node} status no success" unless $v->{status} && $v->{status} eq 'success';
+die "avg-net-in $o{node} no values"         unless my $values = $v->{data}{result}[0]{values};
+
+my $max = 0;
+map
+{
+    $max = $_->[1] if $_->[1] > $max;
+}@$values;
+
+print sprintf "%0.1f\n", $max;

@@ -1,0 +1,56 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use MYDan::Util::OptConf;
+use LWP::UserAgent;
+use JSON;
+
+=head1 SYNOPSIS
+
+ $0 --node 10.10.10.1 --date 2022-07-06
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o      = $option->get(    qw( node=s date=s ) )->dump();
+             $option->assert( qw( node   date   ) );
+
+my $ua = LWP::UserAgent->new;
+$ua->timeout( 15 );
+
+my    $start  = `date -d '$o{date} 00:00:00' +%s`;
+chomp $start;
+my    $end    = $start + 86400 -1;
+
+#(1 - (node_memory_MemAvailable_bytes{instance="10.10.10.1"} / (node_memory_MemTotal_bytes{instance="10.10.10.1"})))* 100
+my $url = 'http://openc3-prometheus:9090/api/v1/query_range?query=%281+-+%28node_memory_MemAvailable_bytes%7Binstance%3D%22'
+          . $o{node}
+          . '%22%7D+%2F+%28node_memory_MemTotal_bytes%7Binstance%3D%22'
+          . $o{node}
+          . '%22%7D%29%29%29*+100&start='
+          . $start
+          . '&end='
+          . $end
+          . '&step=345';
+
+my $res = $ua->get( $url );
+
+die sprintf( "avg-mem $o{node} http code %s", $res->code ) unless $res->is_success;
+
+my $v = eval{ JSON::decode_json $res->decoded_content };
+die "avg-mem $o{node} data no JSON: $@"  if $@;
+die "avg-mem $o{node} status no success" unless $v->{status} && $v->{status} eq 'success';
+die "avg-mem $o{node} no values"         unless my $values = $v->{data}{result}[0]{values};
+
+my ( $cnt, $sum ) = ( 0, 0 );
+map
+{
+    $cnt ++;
+    $sum += $_->[1];
+}@$values;
+
+die "avg-mem $o{node} no value" unless $cnt;
+print sprintf "%0.1f\n", $sum / $cnt;

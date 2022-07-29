@@ -1,0 +1,58 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use POSIX;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 --node 10.10.10.1
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o      = $option->get(    qw( node=s ) )->dump();
+             $option->assert( qw( node   ) );
+
+my %threshold = (
+    lowcnt => 4,
+    daycnt => 14,
+);
+
+my %date;
+my    @date = `c3mc-base-db-get date -t openc3_monitor_node_low_detail -f "ip='$o{node}'"`;
+chomp @date;
+map{ $date{ $_ } = 1; }@date;
+
+my ( $status, $cpu, $mem, $netin, $netout );
+for ( reverse 1 .. $threshold{ daycnt } )
+{
+    my $date = POSIX::strftime( "%Y-%m-%d", localtime( time - $_ * 86400 ) );
+    next if $date{$date};
+    my $x = `c3mc-mon-nlow-data --node $o{node} --date $date`;
+    ( undef, $status, $cpu, $mem, $netin, $netout ) = split /;/, $x;
+
+    system "c3mc-base-db-ins -t openc3_monitor_node_low_detail ip '$o{node}' date $date status $status cpu $cpu mem $mem netin $netin netout $netout";
+}
+
+my $start = POSIX::strftime( "%Y-%m-%d", localtime( time - $threshold{ daycnt } * 86400 ) );
+my $end   = POSIX::strftime( "%Y-%m-%d", localtime( time - 1                    * 86400 ) );
+
+my @x = `c3mc-base-db-get -t openc3_monitor_node_low_detail date status cpu mem netin netout -f 'ip="$o{node}" and date>="$start" and date<="$end" order by date'`;
+chomp @x;
+
+my @low    = grep{ /;low;/    }@x;
+my @nodata = grep{ /;nodata;/ }@x;
+exit unless my $x = pop @x;
+
+{
+    my ( $date, $status, $cpu, $mem, $netin, $netout ) = split /;/, $x;
+    my $lowcnt = scalar @low;
+    $status = $lowcnt >= $threshold{ lowcnt } ? 'low' : $lowcnt > 0 ? 'warn' : @nodata > 0 ? 'unkown' : 'normal';
+    system "c3mc-base-db-ins -t openc3_monitor_node_low ip '$o{node}' date $date lowcnt $lowcnt status $status cpu $cpu mem $mem netin $netin netout $netout";
+}
+
+system qq( echo "delete from openc3_monitor_node_low_detail where ip='$o{node}' and date<'$start'" | c3mc-base-db-exe -t openc3_monitor_node_low_detail )

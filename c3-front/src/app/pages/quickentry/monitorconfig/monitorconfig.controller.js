@@ -3,7 +3,17 @@
 
     angular
         .module('openc3')
-        .controller('MonitorConfigController', MonitorConfigController);
+        .controller('MonitorConfigController', MonitorConfigController)
+        .filter('cut60', function () {
+            return function (text) {
+                if( text.length > 63 )
+                {
+                    return "..." + text.substr(text.length - 60)
+                }
+                return text;
+
+            }
+        });
 
     function MonitorConfigController($location, $anchorScroll, $state, $http, $uibModal, treeService, ngTableParams, resoureceService, $websocket, genericService, $scope, $injector, $sce ) {
 
@@ -108,25 +118,6 @@
                     toastr.error( "加载采集列表失败:" + data.info )
                 }
             });
-
-            $http.get('/api/agent/monitor/config/group' ).success(function(data){
-                if(data.stat == true) 
-                { 
-                    vm.monitorgroup = data.data
-                } else { 
-                    toastr.error( "加载监控组列表失败:" + data.info )
-                }
-            });
- 
-            $http.get('/api/agent/monitor/config/oncall' ).success(function(data){
-                if(data.stat == true) 
-                { 
-                    vm.monitoroncall = data.data;
-                } else { 
-                    toastr.error( "加载监控组列表失败:" + data.info )
-                }
-            });
- 
         };
 
         vm.reload();
@@ -176,6 +167,25 @@
                     toastr.error( "加载报警接收人失败:" + data.info )
                 }
             });
+
+            $http.get('/api/agent/monitor/config/group' ).success(function(data){
+                if(data.stat == true) 
+                { 
+                    vm.monitorgroup = data.data
+                } else { 
+                    toastr.error( "加载监控组列表失败:" + data.info )
+                }
+            });
+ 
+            $http.get('/api/agent/monitor/config/oncall' ).success(function(data){
+                if(data.stat == true) 
+                { 
+                    vm.monitoroncall = data.data;
+                } else { 
+                    toastr.error( "加载监控组列表失败:" + data.info )
+                }
+            });
+ 
         };
 
         vm.reloadUser();

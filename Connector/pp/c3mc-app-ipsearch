@@ -16,7 +16,7 @@ exit unless $ARGV[0] && $ARGV[0] =~ /^\d+\.\d+\.\d+\.\d+$/;
 
 my $ip = $ARGV[0];
 
-my @file = `grep $ip  /data/open-c3-data/cache/nodeinfo/nodeinfo-*|awk -F: '{print \$1}'|sort|uniq`;
+my @file = `grep -H $ip /data/open-c3-data/cache/nodeinfo/nodeinfo-*|awk -F: '{print \$1}'|sort|uniq`;
 chomp @file;
 
 #TODO file sort by time
