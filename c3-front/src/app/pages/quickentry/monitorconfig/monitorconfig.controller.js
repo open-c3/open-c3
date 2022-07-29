@@ -3,7 +3,17 @@
 
     angular
         .module('openc3')
-        .controller('MonitorConfigController', MonitorConfigController);
+        .controller('MonitorConfigController', MonitorConfigController)
+        .filter('cut60', function () {
+            return function (text) {
+                if( text.length > 63 )
+                {
+                    return "..." + text.substr(text.length - 60)
+                }
+                return text;
+
+            }
+        });
 
     function MonitorConfigController($location, $anchorScroll, $state, $http, $uibModal, treeService, ngTableParams, resoureceService, $websocket, genericService, $scope, $injector, $sce ) {
 
