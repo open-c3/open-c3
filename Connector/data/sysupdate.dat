@@ -327,3 +327,5 @@ create table if not exists `openc3_monitor_node_low_detail`(
 UNIQUE KEY `uniq_ip_date` (`ip`, `date`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='主机低利用率-详情';
 
+# v2.6.0 sql openc3_monitor_config_rule add bindtreesql
+ALTER TABLE openc3_monitor_config_rule ADD `bindtreesql` VARCHAR(3000) DEFAULT '' comment '绑定服务树的表达式';
