@@ -48,19 +48,23 @@ get '/device/data/:type/:subtype' => sub {
 
     utf8::decode($title);
     my @title = split /\t/, $title;
+
+    my @debug;
     for my $data ( @data )
     {
         utf8::decode($data);
 
         my @d = split /\t/, $data;
+
         my %d = map{ $title[ $_ ] => $d[ $_ ] } 0 .. @title - 1;
+        push @debug , \%d if $param->{debug};
         push @re, +{
             map{
                 $_ => join( ' | ', map{ $d{ $_ } || '' }@{ $outline->{ $_ } } )
             }qw( uuid baseinfo system contact )
         };
     }
-    return +{ stat => $JSON::true, data => \@re };
+    return +{ stat => $JSON::true, data => \@re, debug => \@debug };
 };
 
 true;
