@@ -29,10 +29,10 @@ get '/device/menu' => sub {
         for my $subtype ( @{ $re{$type} } )
         {
             my ( $name, $count ) = @{ $subtype };
-            my ( $g ) = split /-/, $name;
+            my ( $g, @alias ) = split /-/, $name;
             $subtypecount{$type}{$g} ++;
             $re2{$type}{$g} ||= [];
-            push @{ $re2{$type}{$g}}, [ $g, @$subtype ];
+            push @{ $re2{$type}{$g}}, [ $g, @$subtype, join "-", @alias ];
             $max{$type} = @{ $re2{$type}{$g}} - 1 if $max{$type} < @{ $re2{$type}{$g}} - 1;
         }
     }

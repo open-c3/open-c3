@@ -18,12 +18,16 @@
                 <table  class="table table-hover text-left table-condensed va-m" style="font-size: 20px" >
                     <tr ng-repeat="row in devicemenu.menu[type]" toggle-class="info">
                         <td data-title="'基本信息'" ng-repeat="m in row"  >
+                          <div ng-if="m[0]" >
                             <img ng-if="m[0]==='qcloud'" src="/assets/images/QCloud.jpeg" style="width: 42px;"/>
                             <img ng-if="m[0]==='aws'"    src="/assets/images/AWS.jpeg"    style="width: 42px;"/>
                             <img ng-if="m[0]==='aliyun'" src="/assets/images/AliYun.jpeg" style="width: 52px;"/>
                             <img ng-if="m[0]==='ksyun'"  src="/assets/images/KSYun.jpeg"  style="width: 52px;"/>
 
-                            <a ng-if="m[0]" ng-click="devicemenu.gotosubtype(type,m[1])" style="cursor:pointer;color: #339094;"  >{{m[1]}}({{m[2]}})</a>
+                            <a ng-if="   m[0] === 'qcloud' || m[0] === 'aws' || m[0] === 'aliyun' || m[0] === 'ksyun'  " ng-click="devicemenu.gotosubtype(type,m[1])" style="cursor:pointer;color: #339094;"> {{m[3]}}({{m[2]}}) </a>
+                            <a ng-if="!( m[0] === 'qcloud' || m[0] === 'aws' || m[0] === 'aliyun' || m[0] === 'ksyun' )" ng-click="devicemenu.gotosubtype(type,m[1])" style="cursor:pointer;color: #339094;"> {{m[1]}}({{m[2]}}) </a>
+
+                          </div>
                         </td>
                     </tr>
                 </table>
