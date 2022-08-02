@@ -21,7 +21,46 @@ get '/device/menu' => sub {
         push @{$re{$type}}, [ $subtype, $c - 1 ] if defined $re{$type};
     }
 
-    return +{ stat => $JSON::true, data => \%re };
+    my ( %re2, %subtypecount, %max );
+
+    for my $type (  keys %re )
+    {
+        $re2{$type} = +{};
+        for my $subtype ( @{ $re{$type} } )
+        {
+            my ( $name, $count ) = @{ $subtype };
+            my ( $g ) = split /-/, $name;
+            $subtypecount{$type}{$g} ++;
+            $re2{$type}{$g} ||= [];
+            push @{ $re2{$type}{$g}}, [ $g, @$subtype ];
+            $max{$type} = @{ $re2{$type}{$g}} - 1 if $max{$type} < @{ $re2{$type}{$g}} - 1;
+        }
+    }
+
+    for my $type (  keys %re )
+    {
+        for my $group ( keys %{ $re2{ $type  } } )
+        {
+            for ( 1.. 15 )
+            {
+                next unless @{ $re2{ $type  }{ $group }} <= $max{$type};
+                push @{ $re2{ $type  }{ $group }}, [];
+            }
+        }
+    }
+
+    my %re3;
+    for my $type ( keys %re2 )
+    {
+        $re3{ $type } = [];
+        for my $group ( sort{ $subtypecount{$type}{$b} <=> $subtypecount{$type}{$a} }keys %{ $re2{ $type } } )
+        {
+            my @x = @{ $re2{ $type }{ $group } };
+            map{ push @{ $re3{ $type }[ $_] }, $x[$_]  } 0 .. @x -1;
+        }
+    }
+
+    return +{ stat => $JSON::true, data => \%re3 };
 };
 
 
