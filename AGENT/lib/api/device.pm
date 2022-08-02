@@ -25,11 +25,12 @@ get '/device/menu' => sub {
 };
 
 
-get '/device/data/:type/:subtype' => sub {
+any '/device/data/:type/:subtype' => sub {
     my $param = params();
     my $error = Format->new(
         type       => qr/^[a-z\d\-_]+$/, 1,
         subtype    => qr/^[a-z\d\-_]+$/, 1,
+#       grepdata
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -46,10 +47,21 @@ get '/device/data/:type/:subtype' => sub {
     my $outline = eval{ YAML::XS::LoadFile "$datapath/$param->{type}/$param->{subtype}/outline.yml"; };
     return +{ stat => $JSON::false, info => "load outline fail: $@" } if $@;
 
+    my $filter = [];
+    my $filterdata = {};
+    my %filterdata;
+
+    $filter = eval{ YAML::XS::LoadFile "$datapath/$param->{type}/$param->{subtype}/filter.yml"; } if -f "$datapath/$param->{type}/$param->{subtype}/filter.yml";
+    return +{ stat => $JSON::false, info => "load filter fail: $@" } if $@;
+    my %filter; map{ $filter{$_->{name}} = 1; $filterdata->{$_->{name}} = [];  }@$filter;
+
     utf8::decode($title);
     my @title = split /\t/, $title;
 
     my @debug;
+
+    my $grepdata = $param->{grepdata} && ref $param->{grepdata} eq 'HASH' && %{ $param->{grepdata} } ?  $param->{grepdata} : undef;
+
     for my $data ( @data )
     {
         utf8::decode($data);
@@ -57,14 +69,38 @@ get '/device/data/:type/:subtype' => sub {
         my @d = split /\t/, $data;
 
         my %d = map{ $title[ $_ ] => $d[ $_ ] } 0 .. @title - 1;
+
+        for my $f ( keys %filter )
+        {
+            $filterdata{$f}{$d{$f}} ++;
+        }
+
         push @debug , \%d if $param->{debug};
+
+        my $match = 1;
+        if( $grepdata )
+        {
+            for my $grep ( keys %$grepdata )
+            {
+                $match = 0 if $grepdata->{$grep} ne $d{$grep};
+            }
+        }
         push @re, +{
             map{
                 $_ => join( ' | ', map{ $d{ $_ } || '' }@{ $outline->{ $_ } } )
             }qw( uuid baseinfo system contact )
-        };
+        } if $match;
     }
-    return +{ stat => $JSON::true, data => \@re, debug => \@debug };
+
+    for my $name ( keys %filterdata )
+    {
+        my %v = %{ $filterdata{$name} };
+        for my $k ( sort{ $v{$b} <=> $v{$a} } keys %v )
+        {
+            push @{$filterdata->{$name}}, +{ name => $k, count => $v{$k} };
+        }
+    }
+    return +{ stat => $JSON::true, data => \@re, debug => \@debug, filter => $filter, filterdata => $filterdata  };
 };
 
 true;

@@ -23,17 +23,18 @@
 
         <div class="panel-body">
 
-            <form class="form-inline">
-                <div class="form-group">
-                    <select class="form-control" ng-change="devicedata.changeFilter('site')" ng-model="devicedata.tableFilter.site">
-                        <option value=""></option>
-                        <option ng-repeat="(k,v) in devicedata.filterSet.sites" value="{{k}}">{{devicedata.filterSet.siteMap[k]}}</option>
+            <form class="form-inline"> 
+                <div class="form-group" ng-repeat="f in devicedata.filter"  style="padding-right: 10px;" >
+                    <select class="form-control" ng-change="devicedata.reload()"  ng-model="devicedata.grepdata[f.name]" >
+                        <option value="">{{f.alias}}</option>
+                        <option ng-repeat="v in devicedata.filterdata[f.name]" value="{{v.name}}"> {{v.name}}({{v.count}})</option>
                     </select>
                 </div>
 
+                <button class="btn btn-info" uib-tooltip="看版管理" ng-click="devicedata.reset()">重置</button>
 
-            </form>
-        </div>
+             </form> 
+       </div>
 
     </div>
 
