@@ -61,11 +61,17 @@ any '/device/data/:type/:subtype' => sub {
     my @debug;
 
     my $grepdata = $param->{grepdata} && ref $param->{grepdata} eq 'HASH' && %{ $param->{grepdata} } ?  $param->{grepdata} : undef;
+    my $search = $grepdata && $grepdata->{_search_} ? delete $grepdata->{_search_} : undef;
 
     for my $data ( @data )
     {
         utf8::decode($data);
 
+        my $searchmath = 1;
+        if( $search )
+        {
+            $searchmath = 0 if index( $data, $search ) < 0;
+        }
         my @d = split /\t/, $data;
 
         my %d = map{ $title[ $_ ] => $d[ $_ ] } 0 .. @title - 1;
@@ -89,7 +95,7 @@ any '/device/data/:type/:subtype' => sub {
             map{
                 $_ => join( ' | ', map{ $d{ $_ } || '' }@{ $outline->{ $_ } } )
             }qw( uuid baseinfo system contact )
-        } if $match;
+        } if $match && $searchmath;
     }
 
     for my $name ( keys %filterdata )
