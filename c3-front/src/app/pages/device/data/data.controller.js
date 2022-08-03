@@ -17,7 +17,7 @@
         vm.filterdata = {};
         vm.reload = function () {
             vm.loadover = false;
-            $http.post('/api/agent/device/data/' + vm.type + '/' + vm.subtype, { "grepdata": vm.grepdata } ).success(function(data){
+            $http.post('/api/agent/device/data/' + vm.type + '/' + vm.subtype + '/' + vm.treeid, { "grepdata": vm.grepdata } ).success(function(data){
                 if (data.stat){
                     vm.dataTable = new ngTableParams({count:25}, {counts:[],data:data.data});
                     vm.filter = data.filter;

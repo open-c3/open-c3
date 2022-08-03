@@ -64,15 +64,28 @@ get '/device/menu' => sub {
 };
 
 
-any '/device/data/:type/:subtype' => sub {
+sub gettreename
+{
+    my $treeid = shift @_;
+    my @x = `c3mc-base-treemap cache| grep "^$treeid;"|awk -F';'  '{print \$2}'`;
+    chomp @x;
+    return @x ? $x[0] : undef;
+    
+};
+
+any '/device/data/:type/:subtype/:treeid' => sub {
     my $param = params();
     my $error = Format->new(
         type       => qr/^[a-z\d\-_]+$/, 1,
         subtype    => qr/^[a-z\d\-_]+$/, 1,
+        treeid     => qr/^\d+$/, 1,
 #       grepdata
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $treename = gettreename( $param->{treeid} );
+    my $greptreename = $param->{treeid} == 4000000000 ? undef : $treename;
 
     my $pmscheck = api::pmscheck( 'openc3_agent_read', 0 ); return $pmscheck if $pmscheck;
     my    @data = `cat $datapath/$param->{type}/$param->{subtype}/data.tsv`;
@@ -85,6 +98,15 @@ any '/device/data/:type/:subtype' => sub {
 
     my $outline = eval{ YAML::XS::LoadFile "$datapath/$param->{type}/$param->{subtype}/outline.yml"; };
     return +{ stat => $JSON::false, info => "load outline fail: $@" } if $@;
+
+    my $colmap;
+    if( -f "$datapath/$param->{type}/$param->{subtype}/colmap.yml" )
+    {
+        $colmap = eval{ YAML::XS::LoadFile "$datapath/$param->{type}/$param->{subtype}/colmap.yml"; };
+        return +{ stat => $JSON::false, info => "load colmap fail: $@" } if $@;
+    }
+
+    my $treenamecol = ( $colmap && $colmap->{treename} ) ? $colmap->{treename} : undef;
 
     my $filter = [];
     my $filterdata = {};
@@ -105,7 +127,6 @@ any '/device/data/:type/:subtype' => sub {
     for my $data ( @data )
     {
         utf8::decode($data);
-
         my $searchmath = 1;
         if( $search )
         {
@@ -122,6 +143,19 @@ any '/device/data/:type/:subtype' => sub {
 
         push @debug , \%d if $param->{debug};
 
+        my $treenamematch = 1;
+        if( $greptreename )
+        {
+            if( $treenamecol )
+            {
+                 $treenamematch = 0 unless $d{ $treenamecol }  && ( $d{ $treenamecol } eq $greptreename || ( 0 == index( $d{ $treenamecol } , "$greptreename."  ) ) );
+            }
+            else
+            {
+                 $treenamematch = 0 unless $param->{greeid} == 4000000000;
+            }
+        }
+
         my $match = 1;
         if( $grepdata )
         {
@@ -134,7 +168,7 @@ any '/device/data/:type/:subtype' => sub {
             map{
                 $_ => join( ' | ', map{ $d{ $_ } || '' }@{ $outline->{ $_ } } )
             }qw( uuid baseinfo system contact )
-        } if $match && $searchmath;
+        } if $match && $searchmath && $treenamematch;
     }
 
     for my $name ( keys %filterdata )

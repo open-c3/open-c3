@@ -88,6 +88,8 @@
                                 || sName == 'home.gitreport'
                                 || sName == 'home.flowreport'
                                 || sName == 'home.monreport'
+                                || sName == 'home.device.menu'
+                                || sName == 'home.device.data'
                              ){
                                 $state.go(sName, {treeid:treeNode.id});
                             }else{
