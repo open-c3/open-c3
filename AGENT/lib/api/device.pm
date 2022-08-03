@@ -74,10 +74,13 @@ get '/device/menu/:treeid' => sub {
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
+    my $pmscheck = $param->{treeid} == 4000000000
+        ? api::pmscheck( 'openc3_job_root'                    )
+        : api::pmscheck( 'openc3_job_write', $param->{treeid} );
+    return $pmscheck if $pmscheck;
+
     my $treename = gettreename( $param->{treeid} );
     my $greptreename = $param->{treeid} == 4000000000 ? undef : $treename;
-
-    my $pmscheck = api::pmscheck( 'openc3_agent_read', 0 ); return $pmscheck if $pmscheck;
 
     my %re = map{ $_ => [] }qw( compute database domain networking others storage );
 
@@ -152,10 +155,14 @@ any '/device/data/:type/:subtype/:treeid' => sub {
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
+    my $pmscheck = $param->{treeid} == 4000000000
+        ? api::pmscheck( 'openc3_job_root'                    )
+        : api::pmscheck( 'openc3_job_write', $param->{treeid} );
+    return $pmscheck if $pmscheck;
+
     my $treename = gettreename( $param->{treeid} );
     my $greptreename = $param->{treeid} == 4000000000 ? undef : $treename;
 
-    my $pmscheck = api::pmscheck( 'openc3_agent_read', 0 ); return $pmscheck if $pmscheck;
     my    @data = `cat $datapath/$param->{type}/$param->{subtype}/data.tsv`;
     chomp @data;
 
@@ -250,17 +257,25 @@ any '/device/data/:type/:subtype/:treeid' => sub {
     return +{ stat => $JSON::true, data => \@re, debug => \@debug, filter => $filter, filterdata => $filterdata  };
 };
 
-any '/device/detail/:type/:subtype/:uuid' => sub {
+any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
     my $param = params();
     my $error = Format->new(
         type       => qr/^[a-z\d\-_]+$/, 1,
         subtype    => qr/^[a-z\d\-_]+$/, 1,
+        treeid     => qr/^\d+$/, 1,
         uuid       => qr/^[a-z\d\-_]+$/, 1,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    my $pmscheck = api::pmscheck( 'openc3_agent_read', 0 ); return $pmscheck if $pmscheck;
+    my $pmscheck = $param->{treeid} == 4000000000
+        ? api::pmscheck( 'openc3_job_root'                    )
+        : api::pmscheck( 'openc3_job_write', $param->{treeid} );
+    return $pmscheck if $pmscheck;
+
+    my $treename = gettreename( $param->{treeid} );
+    my $greptreename = $param->{treeid} == 4000000000 ? undef : $treename;
+
     my    @data = `cat $datapath/$param->{type}/$param->{subtype}/data.tsv`;
     chomp @data;
 
@@ -277,6 +292,7 @@ any '/device/detail/:type/:subtype/:uuid' => sub {
     }
 
     my $uuidcol = ( $colmap && $colmap->{uuid} ) ? $colmap->{uuid} : 'UUID';
+    my $treenamecol = ( $colmap && $colmap->{treename} ) ? $colmap->{treename} : undef;
 
     utf8::decode($title);
     my @title = split /\t/, $title;
@@ -286,6 +302,22 @@ any '/device/detail/:type/:subtype/:uuid' => sub {
         utf8::decode($data);
         my @d = split /\t/, $data;
         my %d = map{ $title[ $_ ] => $d[ $_ ] } 0 .. @title - 1;
+
+        my $treenamematch = 1;
+        if( $greptreename )
+        {
+            if( $treenamecol )
+            {
+                 $treenamematch = 0 unless $d{ $treenamecol }  && ( $d{ $treenamecol } eq $greptreename || ( 0 == index( $d{ $treenamecol } , "$greptreename."  ) ) );
+            }
+            else
+            {
+                 $treenamematch = 0 unless $param->{greeid} == 4000000000;
+            }
+        }
+
+        next unless $treenamematch;
+
         push @re , \%d if ( $d{ $uuidcol } && $d{ $uuidcol } eq $param->{uuid} );
 
     }

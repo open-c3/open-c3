@@ -21,7 +21,7 @@
         vm.data = [];
         vm.reload = function(){
             vm.loadover = false;
-            $http.get('/api/agent/device/detail/' + type + '/' + subtype +'/' + uuid ).success(function(data){
+            $http.get('/api/agent/device/detail/' + type + '/' + subtype +'/' + vm.treeid + '/' + uuid ).success(function(data){
                 if(data.stat == true) 
                 { 
                     vm.data = data.data;
