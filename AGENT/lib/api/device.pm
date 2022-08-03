@@ -85,6 +85,7 @@ get '/device/menu/:treeid' => sub {
     {
         my ( undef, $subtype, $type ) = reverse split /\//, $f;
         my $c = getdatacount( $f, $greptreename, $param->{treeid} );
+        next unless $c > 0;
         push @{$re{$type}}, [ $subtype, $c ] if defined $re{$type};
     }
 
