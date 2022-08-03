@@ -8,7 +8,75 @@ use api;
 
 my $datapath = '/data/open-c3-data/device/curr';
 
-get '/device/menu' => sub {
+sub getdatacount
+{
+    my ( $datafile, $greptreename, $treeid  ) = @_;
+    if( $greptreename )
+    {
+        my    @data = `cat $datafile`;
+        chomp @data;
+
+        my $title = shift @data;
+
+        utf8::decode($title);
+        my @title = split /\t/, $title;
+
+        my $colmap;
+        my $cmf = $datafile;
+        $cmf =~ s/data.tsv$/colmap.yml/;
+        if( -f $cmf )
+        {
+            $colmap = eval{ YAML::XS::LoadFile $cmf; };
+            die "load colmap fail: $@" if $@;
+        }
+
+        my $treenamecol = ( $colmap && $colmap->{treename} ) ? $colmap->{treename} : undef;
+
+        my $c = 0;
+        for my $data ( @data )
+        {
+             utf8::decode($data);
+             my @d = split /\t/, $data;
+
+             my %d = map{ $title[ $_ ] => $d[ $_ ] } 0 .. @title - 1;
+
+            my $treenamematch = 1;
+            if( $greptreename )
+            {
+                if( $treenamecol )
+                {
+                     $treenamematch = 0 unless $d{ $treenamecol }  && ( $d{ $treenamecol } eq $greptreename || ( 0 == index( $d{ $treenamecol } , "$greptreename."  ) ) );
+                }
+                else
+                {
+                     $treenamematch = 0 unless $treeid == 4000000000;
+                }
+            }
+
+             $c ++ if $treenamematch;
+
+        }
+        return $c;
+    }
+    else
+    {
+        my $c = `wc -l $datafile | awk '{print \$1}'`;
+        chomp $c;
+        return $c -1;
+    }
+};
+
+get '/device/menu/:treeid' => sub {
+    my $param = params();
+    my $error = Format->new(
+        treeid     => qr/^\d+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $treename = gettreename( $param->{treeid} );
+    my $greptreename = $param->{treeid} == 4000000000 ? undef : $treename;
+
     my $pmscheck = api::pmscheck( 'openc3_agent_read', 0 ); return $pmscheck if $pmscheck;
 
     my %re = map{ $_ => [] }qw( compute database domain networking others storage );
@@ -16,9 +84,8 @@ get '/device/menu' => sub {
     for my $f ( sort glob "$datapath/*/*/data.tsv" )
     {
         my ( undef, $subtype, $type ) = reverse split /\//, $f;
-        my    $c = `wc -l $f | awk '{print \$1}'`;
-        chomp $c;
-        push @{$re{$type}}, [ $subtype, $c - 1 ] if defined $re{$type};
+        my $c = getdatacount( $f, $greptreename, $param->{treeid} );
+        push @{$re{$type}}, [ $subtype, $c ] if defined $re{$type};
     }
 
     my ( %re2, %subtypecount, %max );

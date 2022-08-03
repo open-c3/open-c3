@@ -13,7 +13,7 @@
 
         vm.reload = function () {
             vm.loadover = false;
-            $http.get( '/api/agent/device/menu' ).success(function(data){
+            $http.get( '/api/agent/device/menu/' + vm.treeid ).success(function(data){
                 if (data.stat){
                     vm.menu = data.data;
                     vm.loadover = true;
