@@ -82,8 +82,8 @@ get '/device/menu/:treeid' => sub {
         : api::pmscheck( 'openc3_job_write', $param->{treeid} );
     return $pmscheck if $pmscheck;
 
-    my $treename = gettreename( $param->{treeid} );
-    my $greptreename = $param->{treeid} == 4000000000 ? undef : $treename;
+    my $greptreename = $param->{treeid} == 4000000000 ? undef : eval{ gettreename( $param->{treeid} ) };;
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
     for my $f ( sort glob "$datapath/*/*/data.tsv" )
     {
@@ -141,8 +141,8 @@ sub gettreename
     my $treeid = shift @_;
     my @x = `c3mc-base-treemap cache| grep "^$treeid;"|awk -F';'  '{print \$2}'`;
     chomp @x;
-    return @x ? $x[0] : undef;
-    
+    die "get treename by id: $treeid fail" unless @x;
+    return $x[0];
 };
 
 any '/device/data/:type/:subtype/:treeid' => sub {
@@ -163,8 +163,8 @@ any '/device/data/:type/:subtype/:treeid' => sub {
         : api::pmscheck( 'openc3_job_write', $param->{treeid} );
     return $pmscheck if $pmscheck;
 
-    my $treename = gettreename( $param->{treeid} );
-    my $greptreename = $param->{treeid} == 4000000000 ? undef : $treename;
+    my $greptreename = $param->{treeid} == 4000000000 ? undef : eval{ gettreename( $param->{treeid} ) };
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
     my    @data = `cat $datapath/$param->{type}/$param->{subtype}/data.tsv`;
     chomp @data;
@@ -277,8 +277,8 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
         : api::pmscheck( 'openc3_job_write', $param->{treeid} );
     return $pmscheck if $pmscheck;
 
-    my $treename = gettreename( $param->{treeid} );
-    my $greptreename = $param->{treeid} == 4000000000 ? undef : $treename;
+    my $greptreename = $param->{treeid} == 4000000000 ? undef : eval{ gettreename( $param->{treeid} ) };
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
     my    @data = `cat $datapath/$param->{type}/$param->{subtype}/data.tsv`;
     chomp @data;
@@ -329,6 +329,10 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
     my @re2;
     for my $r ( @re )
     {
+        map{
+            $r->{$_} =~ s/_sys_temp_newline_temp_sys_/\n/g;
+            $r->{$_} =~ s/_sys_temp_delimiter_temp_sys_/\t/g;
+        } @title;
         my @x = map{ [ $_ => $r->{$_} ] } @title;
         push @re2, \@x;
     }
