@@ -1,22 +1,22 @@
 <div id="topbar">
     <div class="topbar-left">
         <ol class="breadcrumb">
-            <li>资产</li>
+            <li>CMDB</li>
         </ol>
     </div>
 </div>
 
 <div class="page-content">
 
-    <div ng-repeat="type in [ 'compute', 'networking', 'storage', 'database','domain', 'others' ]">
+    <div ng-repeat="type in [ [ 'compute', '计算资源' ], [ 'networking', '网络' ], [ 'storage', '存储' ], [ 'database','数据库' ], [ 'domain', '域名' ], [ 'others', '其他'] ]">
         <div class="panel panel-border top">
             <div class="panel-heading">
-                <span class="panel-title">{{type}}</span>
+                <span class="panel-title">{{type[1]}}</span>
             </div>
             <div class="panel-body">
 
                 <table  class="table table-hover text-left table-condensed va-m" style="font-size: 20px" >
-                    <tr ng-repeat="row in devicemenu.menu[type]" toggle-class="info">
+                    <tr ng-repeat="row in devicemenu.menu[type[0]]" toggle-class="info">
                         <td data-title="'基本信息'" ng-repeat="m in row"  >
                           <div ng-if="m[0]" >
                             <img ng-if="m[0]==='qcloud'" src="/assets/images/QCloud.jpeg" style="width: 42px;"/>
@@ -24,8 +24,8 @@
                             <img ng-if="m[0]==='aliyun'" src="/assets/images/AliYun.jpeg" style="width: 52px;"/>
                             <img ng-if="m[0]==='ksyun'"  src="/assets/images/KSYun.jpeg"  style="width: 52px;"/>
 
-                            <a ng-if="   m[0] === 'qcloud' || m[0] === 'aws' || m[0] === 'aliyun' || m[0] === 'ksyun'  " ng-click="devicemenu.gotosubtype(type,m[1])" style="cursor:pointer;color: #339094;"> {{m[3]}}({{m[2]}}) </a>
-                            <a ng-if="!( m[0] === 'qcloud' || m[0] === 'aws' || m[0] === 'aliyun' || m[0] === 'ksyun' )" ng-click="devicemenu.gotosubtype(type,m[1])" style="cursor:pointer;color: #339094;"> {{m[1]}}({{m[2]}}) </a>
+                            <a ng-if="   m[0] === 'qcloud' || m[0] === 'aws' || m[0] === 'aliyun' || m[0] === 'ksyun'  " ng-click="devicemenu.gotosubtype(type[0],m[1])" style="cursor:pointer;color: #339094;"> {{m[3]}}({{m[2]}}) </a>
+                            <a ng-if="!( m[0] === 'qcloud' || m[0] === 'aws' || m[0] === 'aliyun' || m[0] === 'ksyun' )" ng-click="devicemenu.gotosubtype(type[0],m[1])" style="cursor:pointer;color: #339094;"> {{m[1]}}({{m[2]}}) </a>
 
                           </div>
                         </td>
