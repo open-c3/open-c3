@@ -5,7 +5,7 @@
         .module('openc3')
         .controller('DeviceDataController', DeviceDataController);
 
-    function DeviceDataController($state, $http, $scope, ngTableParams) {
+    function DeviceDataController($state, $http, $scope, ngTableParams, $uibModal) {
         var vm = this;
 
         vm.treeid  = $state.params.treeid;
@@ -33,6 +33,26 @@
         vm.reset = function () {
             vm.grepdata = {};
             vm.reload();
+        };
+
+        vm.showdetail = function (uuid) {
+            $uibModal.open({
+                templateUrl: 'app/pages/device/data/detail.html',
+                controller: 'DeviceDataDetailController',
+                controllerAs: 'devicedatadetail',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    getGroup: function () {return vm.getGroupInfo},
+                    uuid: function () {return uuid},
+                    type: function () {return vm.type},
+                    subtype: function () {return vm.subtype},
+                    treeid: function () {return vm.treeid},
+                    name: function () {return name},
+                }
+            });
         };
 
     }

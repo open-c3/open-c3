@@ -249,4 +249,53 @@ any '/device/data/:type/:subtype/:treeid' => sub {
     return +{ stat => $JSON::true, data => \@re, debug => \@debug, filter => $filter, filterdata => $filterdata  };
 };
 
+any '/device/detail/:type/:subtype/:uuid' => sub {
+    my $param = params();
+    my $error = Format->new(
+        type       => qr/^[a-z\d\-_]+$/, 1,
+        subtype    => qr/^[a-z\d\-_]+$/, 1,
+        uuid       => qr/^[a-z\d\-_]+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $pmscheck = api::pmscheck( 'openc3_agent_read', 0 ); return $pmscheck if $pmscheck;
+    my    @data = `cat $datapath/$param->{type}/$param->{subtype}/data.tsv`;
+    chomp @data;
+
+    my $title = shift @data;
+    return +{ stat => $JSON::true, data => [] } unless @data;
+
+    my @re;
+
+    my $colmap;
+    if( -f "$datapath/$param->{type}/$param->{subtype}/colmap.yml" )
+    {
+        $colmap = eval{ YAML::XS::LoadFile "$datapath/$param->{type}/$param->{subtype}/colmap.yml"; };
+        return +{ stat => $JSON::false, info => "load colmap fail: $@" } if $@;
+    }
+
+    my $uuidcol = ( $colmap && $colmap->{uuid} ) ? $colmap->{uuid} : 'UUID';
+
+    utf8::decode($title);
+    my @title = split /\t/, $title;
+
+    for my $data ( @data )
+    {
+        utf8::decode($data);
+        my @d = split /\t/, $data;
+        my %d = map{ $title[ $_ ] => $d[ $_ ] } 0 .. @title - 1;
+        push @re , \%d if ( $d{ $uuidcol } && $d{ $uuidcol } eq $param->{uuid} );
+
+    }
+
+    my @re2;
+    for my $r ( @re )
+    {
+        my @x = map{ [ $_ => $r->{$_} ] } @title;
+        push @re2, \@x;
+    }
+    return +{ stat => $JSON::true, data => \@re2 };
+};
+
 true;
