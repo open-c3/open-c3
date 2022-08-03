@@ -138,10 +138,17 @@ return sub
     {
         warn "$err $@";
         #TODO if cache too old ?
-        $v = eval{ YAML::XS::LoadFile $cache };
-        die "get cache fail: $@" if $@;
-        die "stat no true"   unless $v->{stat};
-        die "data no HASH"   unless $v->{data} && ref $v->{data} eq 'HASH';
+        if( -f $cache )
+        {
+            $v = eval{ YAML::XS::LoadFile $cache };
+            die "get cache fail: $@" if $@;
+            die "stat no true"   unless $v->{stat};
+            die "data no HASH"   unless $v->{data} && ref $v->{data} eq 'HASH';
+        }
+        else
+        {
+            $v = +{ stat => 1, data => +{} };
+        }
     }
     else
     {

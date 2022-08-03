@@ -455,6 +455,28 @@
                 controllerAs: 'history'
             })
  
+            // device
+            .state('home.device', {
+                url: 'device/',
+                templateUrl: 'app/pages/device/device.html',
+                controller: 'DeviceController',
+                controllerAs: 'device'
+            })
+ 
+             .state('home.device.menu', {
+                url: 'menu/:treeid',
+                templateUrl: 'app/pages/device/menu/menu.html',
+                controller: 'DeviceMenuController',
+                controllerAs: 'devicemenu'
+            })
+
+             .state('home.device.data', {
+                url: 'data/:type/:subtype/:treeid',
+                templateUrl: 'app/pages/device/data/data.html',
+                controller: 'DeviceDataController',
+                controllerAs: 'devicedata'
+            })
+
             // connector
             .state('home.connector', {
                 url: 'connector/',

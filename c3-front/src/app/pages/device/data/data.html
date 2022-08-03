@@ -1,0 +1,102 @@
+<div id="topbar">
+    <div class="topbar-left">
+        <ol class="breadcrumb">
+            <li>CMDB</li>
+            <li>{{devicedata.type}}</li>
+            <li>{{devicedata.subtype}}</li>
+        </ol>
+    </div>
+</div>
+
+<div class="page-content">
+
+    <div class="panel panel-dark">
+
+        <div class="panel-heading">
+            <span class="panel-icon">
+                <i class="fa fa-filter"></i>
+            </span>
+            <span class="panel-title">
+                <strong>Filter</strong>
+            </span>
+        </div>
+
+        <div class="panel-body">
+
+            <form class="form-inline"> 
+                <div class="form-group" ng-repeat="f in devicedata.filter"  style="padding-right: 10px;" >
+                    <select class="form-control" ng-change="devicedata.reload()"  ng-model="devicedata.grepdata[f.name]" >
+                        <option value="">{{f.alias}}</option>
+                        <option ng-repeat="v in devicedata.filterdata[f.name]" value="{{v.name}}"> {{v.name}}({{v.count}})</option>
+                    </select>
+                </div>
+
+                <button class="btn btn-info" uib-tooltip="重置查询条件" ng-click="devicedata.reset()">重置</button>
+
+                <div class="form-group"  style="padding-right: 10px;" >
+                    <input type="text" class="form-control" ng-model="devicedata.grepdata._search_"  placeholder="模糊搜索" required>
+                </div>
+
+                <button class="btn btn-info" uib-tooltip="进行模糊搜索" ng-click="devicedata.reload()">搜索</button>
+
+             </form> 
+       </div>
+
+    </div>
+
+
+    <div class="panel panel-border top">
+
+        <div class="panel-heading">
+
+            <span class="panel-title">Total: {{devicedata.dataTable.total()}}</span>
+
+            <span class="panel-controls">
+                <a ng-click="devicedata.reload()">
+                    <i class="fa fa-refresh" ng-class="{'fa-spin': !devicedata.loadover}"></i>
+                </a>
+            </span>
+        </div>
+
+        <div class="panel-body">
+
+            <div class="loading-container" ng-if="!devicedata.loadover">
+                <div class="loading">
+                    <div class="l1">
+                        <div></div>
+                    </div>
+                    <div class="l2">
+                        <div></div>
+                    </div>
+                    <div class="l3">
+                        <div></div>
+                    </div>
+                    <div class="l4">
+                        <div></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="table-scroll" ng-if="devicedata.loadover">
+                <table ng-table="devicedata.dataTable" class="table table-hover text-center table-condensed va-m">
+                    <tr ng-repeat="m in $data" toggle-class="info">
+                        <td data-title="'#'">
+                            <span>
+                                {{ (devicedata.dataTable.page() - 1)*devicedata.dataTable.count() + $index + 1 }}
+                            </span>
+                        </td>
+                        <td data-title="'ID信息'">
+                            <a ng-click="devicedata.showdetail( m.uuid )" style="cursor:pointer;color: #339094;" >{{devicedata.subtype}}</a>
+                        </td>
+                        <td data-title="'基本信息'">{{m.baseinfo}}</td>
+                        <td data-title="'系统信息'">{{m.system}}</td>
+                        <td data-title="'联系信息'">{{m.contact}}</td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
