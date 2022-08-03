@@ -74,6 +74,9 @@ get '/device/menu/:treeid' => sub {
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
+    my %re = map{ $_ => [] }qw( compute database domain networking others storage );
+    return +{ stat => $JSON::true, data => \%re  } if $param->{treeid} > 4000000000;
+
     my $pmscheck = $param->{treeid} == 4000000000
         ? api::pmscheck( 'openc3_job_root'                    )
         : api::pmscheck( 'openc3_job_write', $param->{treeid} );
@@ -81,8 +84,6 @@ get '/device/menu/:treeid' => sub {
 
     my $treename = gettreename( $param->{treeid} );
     my $greptreename = $param->{treeid} == 4000000000 ? undef : $treename;
-
-    my %re = map{ $_ => [] }qw( compute database domain networking others storage );
 
     for my $f ( sort glob "$datapath/*/*/data.tsv" )
     {
@@ -154,6 +155,8 @@ any '/device/data/:type/:subtype/:treeid' => sub {
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    return +{ stat => $JSON::true, data => []  } if $param->{treeid} > 4000000000;
 
     my $pmscheck = $param->{treeid} == 4000000000
         ? api::pmscheck( 'openc3_job_root'                    )
@@ -268,6 +271,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
+    return +{ stat => $JSON::true, data => []  } if $param->{treeid} > 4000000000;
     my $pmscheck = $param->{treeid} == 4000000000
         ? api::pmscheck( 'openc3_job_root'                    )
         : api::pmscheck( 'openc3_job_write', $param->{treeid} );
