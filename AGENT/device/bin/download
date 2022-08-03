@@ -7,6 +7,7 @@ use YAML::XS;
 =head1 SYNOPSIS
 
  $0
+ $0 refresh
 
 =cut
 
@@ -21,33 +22,38 @@ system "mkdir -p $runpath" unless -d $runpath;
 
 chdir $runpath or die "chdir fail";
 
-if( $conf->{cookie} && $conf->{cookie}{cmd} )
+my $refresh = @ARGV && $ARGV[0] eq 'refresh' ? 1 : 0;
+if( $conf->{cookie} && $conf->{cookie}{cmd} && ! $refresh )
 {
     system $conf->{cookie}{cmd};
 }
 
-system "rm -rf temp; mkdir temp";
+system "rm -rf temp; mkdir temp" unless $refresh;
 
 sub download
 {
-    my ( $type, $subtype, $url, $outline ) = @_;
+    my ( $type, $subtype, $url, $outline, $filter, $colmap ) = @_;
 
     my ( $temppath, $distpath ) = ( "temp/$type/$subtype", "/data/open-c3-data/device/curr/$type/$subtype" );
 
     system "mkdir -p $temppath" unless -d $temppath;
     system "mkdir -p $distpath" unless -d $distpath;
 
-    system "curl -b cookie '$url' -o            $temppath/data.xlsx";
+    system "curl -b cookie '$url' -o            $temppath/data.xlsx" unless $refresh;
     system "xlsx2csv   -o $temppath/temp.tsv $temppath/data.xlsx ";
     system "cat $temppath/temp.tsv | sed '1d' > $temppath/data.tsv ";
 
     eval{ YAML::XS::DumpFile "temp/$type/$subtype/outline.yml", $outline; };
+    eval{ YAML::XS::DumpFile "temp/$type/$subtype/filter.yml", $filter; };
+    eval{ YAML::XS::DumpFile "temp/$type/$subtype/colmap.yml", $colmap; };
 
     system "mv $temppath/data.tsv    $distpath/";
     system "mv $temppath/outline.yml $distpath/";
+    system "mv $temppath/filter.yml  $distpath/";
+    system "mv $temppath/colmap.yml  $distpath/";
 }
 
 map{
     my $c = $_;
-    download( map{ $c->{$_} }qw(type subtype url outline ));
+    download( map{ $c->{$_} }qw(type subtype url outline filter colmap ));
 }@{ $conf->{download} };
