@@ -329,3 +329,9 @@ UNIQUE KEY `uniq_ip_date` (`ip`, `date`)
 
 # v2.6.0 sql openc3_monitor_config_rule add bindtreesql
 ALTER TABLE openc3_monitor_config_rule ADD `bindtreesql` VARCHAR(3000) DEFAULT '' comment '绑定服务树的表达式';
+
+# v2.6.0 sql openc3_connector_tree update update_time 2020
+update openc3_connector_tree set update_time='2020-01-01 00:00:00' where update_time<'2020-01-01 00:00:00';
+
+# v2.6.0 sql openc3_connector_tree modify name to 200
+ALTER TABLE openc3_connector_tree modify `name` varchar(200) COLLATE utf8_unicode_ci NOT NULL COMMENT '节点名';
