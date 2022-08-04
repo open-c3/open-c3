@@ -16,12 +16,13 @@ return sub
 
     die "id not a number" unless $param{id} =~ /^\d+$/;
 
+    my $i = 1;
     my @x = `c3mc-base-fullnodeinfo --col id,name,type,inip,exip $param{id}`;
     chomp @x;
     for( @x )
     {
         my @t = split /;/, $_;
-        push @list, +{ id => $t[0], name => $t[1], type => $t[2], inip => $t[3], exip => $t[4] };
+        push @list, +{ id => $i++, name => $t[1], type => $t[2], inip => $t[3], exip => $t[4] };
     }
 
     return @list;

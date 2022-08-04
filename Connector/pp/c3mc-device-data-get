@@ -1,0 +1,42 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use utf8;
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ $0
+ $0 type subtype col1 ... coln
+
+=cut
+
+my ( $type, $subtype, @col ) = @ARGV;
+die "argv err" unless @col;
+my ( $file, $colmap ) = map{ "/data/open-c3-data/device/curr/$type/$subtype/$_" }qw( data.tsv colmap.yml );
+die "no data" unless -f $file;
+
+if( -f $colmap )
+{
+    my $x = eval{ YAML::XS::LoadFile $colmap };
+    die "load colmap fail: $@" if $@;
+    @col = map{ $x->{$_} || $_ }@col;
+}
+
+my    @data  = `cat $file`;
+chomp @data;
+
+exit unless @data;
+
+my $title = shift @data;
+
+utf8::decode( $title );
+my @title = split /\t/, $title;
+
+for my $data ( @data )
+{
+     utf8::decode( $data );
+     my @d = split /\t/, $data;
+     my %d = map{ $title[ $_ ] => $d[ $_ ] } 0 .. @title - 1;
+     printf "%s\n", join "\t",  @d{@col};
+}

@@ -1,0 +1,58 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+use uuid;
+use POSIX;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDB;
+
+=head1 SYNOPSIS
+
+ $0 treename1 treename2 ... treenamen
+
+=cut
+
+my $db = MYDB->new( "/data/Software/mydan/Connector/conf/conn", delayedconnection => 1 );
+
+my %tree;
+
+my $x = eval{ $db->query( "select name from openc3_connector_tree" ); };
+die "load treefail: $@" if $@;
+map{ $tree{$_->[0]} = 1 }@$x;
+
+sub save
+{
+    my $treename = shift @_;
+    unless( $treename =~ /^[a-zA-Z][a-zA-Z0-9\.\-_]*$/ && $treename !~ /\.\./ )
+    {
+        warn "[Warn] treename format error: $treename"
+    }
+    my @treename = split /\./, $treename;
+
+    my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
+    for my $c ( 0 .. @treename -1 )
+    {
+        my $name = join '.', map{ $treename[ $_ ]} 0 .. $c;
+        next if $tree{$name};
+        my $len = $c + 1;
+        eval{ $db->execute( "insert into openc3_connector_tree (`name`,`len`,`update_time`) value('$name','$len','$time')" ); };
+        die "update $name info fail:$@"  if $@;
+
+        $tree{$name} ++;
+    }
+}
+
+if( @ARGV )
+{
+    map{ save( $_ ); }@ARGV;
+}
+else
+{
+    while(<STDIN>){ chomp; save($_); }
+}
