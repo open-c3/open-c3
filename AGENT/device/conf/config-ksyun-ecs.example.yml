@@ -1,0 +1,39 @@
+download:
+  - 
+    url:     fileserver:0:aliyun-ecs.xlsx
+    type:    compute
+    subtype: ksyun-ecs
+    ingestion-node:
+      name: '名称'
+      inip: '内网IP'
+      exip: '公网IP'
+      tree: '服务树'
+      type: ksyun-ecs
+    colmap:
+      treename: '服务树'
+      uuid:     '实例ID' #没有这个可能导致单个资源详情打开无数据
+    filter:
+      -
+        name: 'Region名称'
+        alias: 区域
+      -
+        name: '所在可用区'
+        alias: 可用区
+      -
+        name: '付费类型'
+        alias: 付费类型
+      -
+        name: '实例规格'
+        alias: 实例规格
+    outline:
+      uuid:
+       - '实例ID'
+      baseinfo:
+       - 'Region名称'
+       - '所在可用区'
+      system:
+       - '名称'
+       - '内网IP'
+       - '公网IP'
+      contact:
+       - '服务树'
