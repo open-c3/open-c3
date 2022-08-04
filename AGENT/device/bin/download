@@ -39,7 +39,21 @@ sub download
     system "mkdir -p $temppath" unless -d $temppath;
     system "mkdir -p $distpath" unless -d $distpath;
 
-    system "curl -b cookie '$url' -o            $temppath/data.xlsx" unless $refresh;
+    if( $url =~ /^fileserver:(\d+):(.+)$/ )
+    {
+        my ( $treeid, $filename ) = ( $1, $2 );
+        my $md5 = `c3mc-base-db-get -t openc3_job_fileserver md5 -f 'projectid=$treeid and name="$filename" and status="available"'`;
+        chomp $md5;
+        die "md5 err" unless $md5 && $md5 =~ /^[a-z0-9]+$/;
+        my $file = "/data/open-c3-data/glusterfs/fileserver/$treeid/$md5";
+        die "nofile $file" unless -f $file;
+        system "cp '$file' $temppath/data.xlsx" unless $refresh;
+    }
+    else
+    {
+        system "curl -b cookie '$url' -o            $temppath/data.xlsx" unless $refresh;
+    }
+
     system "xlsx2csv   -o $temppath/temp.tsv $temppath/data.xlsx ";
     system "cat $temppath/temp.tsv | sed '1d' > $temppath/data.tsv ";
 
