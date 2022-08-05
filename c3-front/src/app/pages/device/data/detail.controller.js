@@ -60,5 +60,17 @@
         };
  
         vm.reload();
+
+        vm.names=[];
+        vm.search_init = function () {
+            $http.get('/api/connector/connectorx/treemap').success(function (data) {
+                vm.names = [];
+                angular.forEach(data.data, function (value) {
+                    vm.names.push(value.name);
+                });
+
+            });
+         };
+
     }
 })();
