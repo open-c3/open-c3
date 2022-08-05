@@ -14,10 +14,16 @@ any '/device/tree/bind/:type/:subtype/:uuid/:tree' => sub {
         type       => qr/^[a-z\d\-_]+$/, 1,
         subtype    => qr/^[a-z\d\-_]+$/, 1,
         uuid       => qr/^[a-z\d\-_]+$/, 1,
-        tree       => qr/^[a-zA-Z][a-z\d\-_\.\,]*$/, 1,
+        tree       => qr/^[a-zA-Z\d\-_\.\,]+$/, 1,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    for ( split /,/, $param->{tree} )
+    {
+         return  +{ stat => $JSON::false, info => "tree format errr" }
+             unless ( $_ =~ /^[a-zA-Z][a-zA-Z0-9\-_\.]*[a-zA-Z0-9]$/ || $_ eq 'x' ) && $_ !~ /\.\./;
+    }
 
     my $pmscheck = api::pmscheck( 'openc3_job_root' );
     return $pmscheck if $pmscheck;
