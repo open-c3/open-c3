@@ -1,0 +1,67 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use YAML::XS;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+
+=head1 SYNOPSIS
+
+ $0 type subtype
+
+=cut
+
+my ( $type, $subtype ) = @ARGV;
+die "argv err" unless $subtype;
+
+my $path = "/data/open-c3-data/device/curr/$type/$subtype";
+my $file = "$path/data.tsv";
+
+die "nofile $file" unless -f $file;
+my @data = `cat $file`;
+chomp @data;
+
+my @treeow = `cat $path/treeow.txt 2>/dev/null`;
+chomp @treeow;
+
+my %treeow;
+for( grep{ /^[a-zA-Z0-9]/ }@treeow )
+{
+    my ( $uuid, $tree ) = split /:/, $_, 2;
+    $treeow{ $uuid } = $tree;
+}
+
+my $colname = eval{ YAML::XS::LoadFile "$path/colmap.yml" };
+die "load colmap fail: $@" if $@;
+
+die "treename undef in colmap.yml" unless my $treenamecol = $colname->{ treename };
+die "uuid     unfef in colmap.yml" unless my $uuidcol     = $colname->{ uuid     };
+
+my $util = eval{ YAML::XS::LoadFile "$path/util.yml" };
+die "load util fail: $@" if $@;
+my $defaulttree = $util->{defaulttree};
+
+my $title = shift @data;
+utf8::decode($title);
+my @title = split /\t/, $title;
+
+my @ptitle = @title;
+push @ptitle, $treenamecol unless grep{ $_ eq $treenamecol }@title;
+
+printf "\%s\n", join "\t", @ptitle;
+for my $data ( @data )
+{
+    utf8::decode($data);
+    my @d = split /\t/, $data;
+
+    my %d = map{ $title[ $_ ] => $d[ $_ ] } 0 .. @title - 1;
+    $d{ $treenamecol } = $treeow { $d{ $uuidcol } } if exists $treeow { $d{ $uuidcol } };
+    if( $defaulttree && ! $d{ $treenamecol } )
+    {
+        $d{ $treenamecol } = $defaulttree;
+    }
+    printf "%s\n", join "\t", map{ $d{$_} // '' }@ptitle;
+}
