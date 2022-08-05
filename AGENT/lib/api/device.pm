@@ -336,7 +336,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
         my @x = map{ [ $_ => $r->{$_} ] } @title;
         push @re2, \@x;
     }
-    return +{ stat => $JSON::true, data => \@re2 };
+    return +{ stat => $JSON::true, data => \@re2, treenamecol => $treenamecol };
 };
 
 true;

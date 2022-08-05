@@ -13,8 +13,16 @@
                 <div>
                     <div class="form-group admin-form" ng-repeat="data in devicedatadetail.data" >
                         <div class="row" ng-repeat="d in data" >
-                            <label class="col-md-2  control-label fwbold" >{{d[0]}}</label>
-                            <label class="col-md-10 control-label fwbold" >{{d[1]}}</label>
+                            <div ng-if="devicedatadetail.treenamecol!=d[0]" >
+                                <label class="col-md-2  control-label fwbold" >{{d[0]}}</label>
+                                <label class="col-md-10 control-label fwbold" >{{d[1]}}</label>
+                            </div>
+                            <div ng-if="devicedatadetail.treenamecol==d[0]">
+                                <label class="col-md-2  control-label fwbold" >{{d[0]}}</label>
+                                <div class="col-md-6"> <input class="form-control" ng-model="d[1]" /> </div>
+                                <a class="btn btn-system" ng-click="devicedatadetail.bindtree( d[1])">绑定</a>
+                                <a class="btn btn-danger" ng-click="devicedatadetail.bindtree( 'x' )">归还</a>
+                            </div>
                         </div>
                     </div>
                 </div>

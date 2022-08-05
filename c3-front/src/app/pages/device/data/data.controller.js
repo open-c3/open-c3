@@ -51,6 +51,7 @@
                     subtype: function () {return vm.subtype},
                     treeid: function () {return vm.treeid},
                     name: function () {return name},
+                    homereload: function () {return vm.reload},
                 }
             });
         };
