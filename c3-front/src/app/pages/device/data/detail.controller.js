@@ -35,18 +35,28 @@
             });
         };
 
-        vm.bindtree = function( newtree ){
-            vm.loadover = false;
-            $http.get('/api/agent/device/tree/bind/' + type + '/' + subtype +'/' + vm.uuid + '/' + newtree ).success(function(data){
-                if(data.stat == true) 
-                { 
-                    toastr.success("操作完成");
-                    vm.cancel();
-                    homereload();
-                } else { 
-                    toastr.error("操作失败:" + data.info)
-                }
-            });
+        vm.bindtree = function( newtree, title ){
+            swal({
+                title: title,
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                cancelButtonText: "取消",
+                confirmButtonText: "确定",
+                closeOnConfirm: true
+            }, function(){
+                $http.get('/api/agent/device/tree/bind/' + type + '/' + subtype +'/' + vm.uuid + '/' + newtree ).success(function(data){
+                    if(data.stat == true) 
+                    { 
+                        toastr.success("操作完成");
+                        vm.cancel();
+                        homereload();
+                    } else { 
+                        toastr.error("操作失败:" + data.info)
+                    }
+                });
+              });
+
         };
  
         vm.reload();
