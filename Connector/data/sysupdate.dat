@@ -335,3 +335,13 @@ update openc3_connector_tree set update_time='2020-01-01 00:00:00' where update_
 
 # v2.6.0 sql openc3_connector_tree modify name to 200
 ALTER TABLE openc3_connector_tree modify `name` varchar(200) COLLATE utf8_unicode_ci NOT NULL COMMENT '节点名';
+
+# v2.6.0 sql openc3_device_bindtree create
+create table if not exists `openc3_device_bindtree`(
+`id`        int(16) unsigned not null primary key auto_increment comment 'id',
+`type`      VARCHAR(40)  comment 'type',
+`subtype`   VARCHAR(40)  comment 'subtype',
+`uuid`      VARCHAR(150) comment 'uuid',
+`tree`      VARCHAR(500) comment 'tree',
+UNIQUE KEY `uniq_type_subtype_uuit` (`type`, `subtype`,`uuid`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='资源绑定服务树';

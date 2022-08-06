@@ -24,13 +24,13 @@ die "nofile $file" unless -f $file;
 my @data = `cat $file`;
 chomp @data;
 
-my @treeow = `cat $path/treeow.txt 2>/dev/null`;
+my @treeow = `c3mc-base-db-get -t openc3_device_bindtree uuid tree -f 'type="$type" and subtype="$subtype"'`;
 chomp @treeow;
 
 my %treeow;
 for( grep{ /^[a-zA-Z0-9]/ }@treeow )
 {
-    my ( $uuid, $tree ) = split /:/, $_, 2;
+    my ( $uuid, $tree ) = split /;/, $_, 2;
     $treeow{ $uuid } = $tree;
 }
 

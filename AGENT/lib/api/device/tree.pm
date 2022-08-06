@@ -28,11 +28,14 @@ any '/device/tree/bind/:type/:subtype/:uuid/:tree' => sub {
     my $pmscheck = api::pmscheck( 'openc3_job_root' );
     return $pmscheck if $pmscheck;
 
-    my $file = "$datapath/$param->{type}/$param->{subtype}/treeow.txt";
+    eval{
+        $api::mysql->execute(
+            sprintf "replace into openc3_device_bindtree(`type`,`subtype`,`uuid`,`tree`) values( '$param->{type}', '$param->{subtype}', '$param->{uuid}', '%s' )",
+                $param->{tree} eq 'x' ? '' : $param->{tree}
+        )
+    };
 
-    my $tree = $param->{tree} eq 'x' ? '' : $param->{tree};
-    system "echo '$param->{uuid}:$tree' >> $file";
-    return +{ stat => $JSON::true };
+    return $@ ? +{ stat => $JSON::false, info => $@ } :  +{ stat => $JSON::true };
 };
 
 true;
