@@ -3,6 +3,9 @@ download:
     url:     fileserver:0:aliyun-ecs.xlsx
     type:    compute
     subtype: ksyun-ecs
+    check:
+      col: [ '实例ID', '名称', '内网IP','公网IP', 'Region名称', '所在可用区', '付费类型', '实例规格' ]
+      min: 1
     ingestion-node:
       name: '名称'
       inip: '内网IP'
