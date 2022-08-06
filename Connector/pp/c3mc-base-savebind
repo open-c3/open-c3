@@ -1,0 +1,42 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib
+use strict;
+use warnings;
+use uuid;
+use POSIX;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDB;
+
+=head1 SYNOPSIS
+
+ $0 data1 data2 ... datan
+
+=cut
+
+my $db = MYDB->new( "/data/Software/mydan/AGENT/conf/conn", delayedconnection => 1 );
+
+sub save
+{
+    my $row = shift @_;
+    my ( $type, $subtype, $uuid, $tree ) = split /;/, $row, 4;
+    next unless $tree;
+
+    die "no uuid" unless $uuid;
+    die "tree format error: $tree" unless $tree =~ /^[a-zA-Z][a-zA-Z0-9\.\-_]*$/ && $tree !~ /\.\./;
+    eval{ $db->execute( "replace into openc3_device_bindtree (`type`,`subtype`,`uuid`,`tree`) value('$type','$subtype','$uuid','$tree')" ); };
+    die "update fail:$@"  if $@;
+}
+
+if( @ARGV )
+{
+    map{ save( $_ ); }@ARGV;
+}
+else
+{
+    while(<STDIN>){ chomp; save($_); }
+}
