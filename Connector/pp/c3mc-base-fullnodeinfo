@@ -9,6 +9,7 @@ binmode STDERR, ':utf8';
 $|++;
 
 use MYDB;
+use OPENC3::SysCtl;
 use MYDan::Util::OptConf;
 
 =head1 SYNOPSIS
@@ -22,13 +23,15 @@ my %o = $option->set( col => 'name,inip' )->get( qw( col=s ) )->dump();
 
 my $db = MYDB->new( "/data/Software/mydan/JOB/conf/conn", delayedconnection => 1 );
 
+my $ingestion = OPENC3::SysCtl->new()->get( 'sys.device.ingestion.node' );
+
 sub nodeinfo
 {
     my $id = shift @_;
     die unless $id =~ /^\d+$/;
 
     die if system "c3mc-base-nodeinfo $id --col $o{col}";
-    if( -f '/data/open-c3-data/device/ingestion-node.mark' )
+    if( $ingestion )
     {
         die if system "c3mc-device-nodeinfo $id --col $o{col}"
     }
