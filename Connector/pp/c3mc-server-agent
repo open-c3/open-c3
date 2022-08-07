@@ -25,6 +25,7 @@ my %help = (
     inherit           => 'inherit',
     cloudmon          => 'cloudmon',
     keepalive         => 'server keepalive',
+    devicesync        => 'device sync',
 );
 
 unless( $name )
@@ -355,3 +356,22 @@ if( $name eq 'keepalive' )
     );
 }
 
+if( $name eq 'devicesync' )
+{
+    my $interval = OPENC3::SysCtl->new()->get( 'sys.device.sync.interval' );
+    unless( $interval && $interval =~ /^\d+$/ )
+    {
+        $0 = "agent_server_$name";
+        sleep 10*365*86400;
+        exit;
+    }
+    else
+    {
+
+        OPENC3::PP::Server->new(
+            name     => "agent_server_$name",
+            interval => $interval,
+            timeout  => $interval * 2,
+        )->run( 'c3mc-device-load' );
+    }
+}
