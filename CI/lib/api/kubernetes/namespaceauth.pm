@@ -42,7 +42,7 @@ post '/kubernetes/namespaceauth/:ticketid' => sub {
         ticketid  => qr/^\d+$/, 1,
         namespace => [ 'mismatch', qr/'/ ], 1,
         user      => [ 'mismatch', qr/'/ ], 1,
-        auth      => [ 'in', 'r', 'rw' ], 1,
+        auth      => [ 'in', 'r', 'rx', 'rw' ], 1,
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 

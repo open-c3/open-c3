@@ -17,7 +17,8 @@
                         <td data-title="'用户'" width="80" filter="{ user: 'text'}" sortable="'user'">{{m.user}}</td>
                         <td data-title="'权限'" width="80" filter="{ auth: 'text'}" sortable="'auth'">
                             <a ng-if="m.auth=='r'"  >读权限 </a>
-                            <a ng-if="m.auth=='rw'" >读写权限</a>
+                            <a ng-if="m.auth=='rx'"  >[读+执行]权限 </a>
+                            <a ng-if="m.auth=='rw'" >[读+写+执行]权限</a>
                         </td>
                         <td data-title="'操作'" width="80" >
                             <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesnamespaceauth.deleteAuth(m.id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
