@@ -403,6 +403,21 @@
                     </div>
  
 
+                    <div class="row" ng-if="config.professional == '1'" >
+                        <label class="col-md-2 control-label fwbold">构建不发邮件:</label>
+                        <a ng-if="config.project.nomail == '1'" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="点击不发送邮件" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.nomail='0'">当前选择为不发邮件</a>
+                        <a ng-if="!(config.project.nomail == '1' )" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="点击发起发送邮件" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.nomail='1'">当前选择为发送邮件【常规】</a>
+
+                    </div>
+ 
+
+                    <div class="row" ng-if="config.professional == '1'" >
+                        <label class="col-md-2 control-label fwbold">构建不发短信:</label>
+                        <a ng-if="config.project.nomesg == '1'" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="点击不发送短信" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.nomesg='0'">当前选择为不发短信</a>
+                        <a ng-if="!(config.project.nomesg == '1' )" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="点击发起发送短信" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.nomesg='1'">当前选择为发送短信【常规】</a>
+
+                    </div>
+ 
 
 <div ng-if="config.project.ci_type === 'kubernetes'">
                     <hr style="margin: 5px" >
