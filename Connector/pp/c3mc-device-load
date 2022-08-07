@@ -1,6 +1,13 @@
 #!/bin/bash
 
 /data/Software/mydan/AGENT/device/bin/download
-c3mc-device-save-tree
 
-c3mc-device-dump-bind | c3mc-base-savebind 
+SAVETREE=$(c3mc-sys-ctl sys.device.sync.tree)
+if [ "X$SAVETREE" == "X1" ];then
+    c3mc-device-save-tree
+fi
+
+BINDTREE=$(c3mc-sys-ctl sys.device.sync.bind)
+if [ "X$BINDTREE" == "X1" ];then
+    c3mc-device-dump-bind | c3mc-base-savebind 
+fi
