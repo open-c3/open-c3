@@ -10,10 +10,10 @@ my $datapath = '/data/open-c3-data/device/curr';
 
 sub getdatacount
 {
-    my ( $datafile, $greptreename, $treeid  ) = @_;
+    my ( $datafile, $greptreename, $treeid, $type, $subtype  ) = @_;
     if( $greptreename )
     {
-        my    @data = `cat $datafile`;
+        my    @data = `c3mc-device-cat $type $subtype`;
         chomp @data;
 
         my $title = shift @data;
@@ -75,7 +75,7 @@ get '/device/menu/:treeid' => sub {
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
     my %re = map{ $_ => [] }qw( compute database domain networking others storage );
-    return +{ stat => $JSON::true, data => \%re  } if $param->{treeid} > 4000000000;
+    return +{ stat => $JSON::true, data => \%re  } if ! $param->{treeid} || $param->{treeid} > 4000000000;
 
     my $pmscheck = $param->{treeid} == 4000000000
         ? api::pmscheck( 'openc3_job_root'                    )
@@ -88,7 +88,7 @@ get '/device/menu/:treeid' => sub {
     for my $f ( sort glob "$datapath/*/*/data.tsv" )
     {
         my ( undef, $subtype, $type ) = reverse split /\//, $f;
-        my $c = getdatacount( $f, $greptreename, $param->{treeid} );
+        my $c = getdatacount( $f, $greptreename, $param->{treeid}, $type, $subtype );
         next unless $c > 0;
         push @{$re{$type}}, [ $subtype, $c ] if defined $re{$type};
     }
@@ -156,7 +156,7 @@ any '/device/data/:type/:subtype/:treeid' => sub {
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    return +{ stat => $JSON::true, data => []  } if $param->{treeid} > 4000000000;
+    return +{ stat => $JSON::true, data => []  } if ! $param->{treeid} || $param->{treeid} > 4000000000;
 
     my $pmscheck = $param->{treeid} == 4000000000
         ? api::pmscheck( 'openc3_job_root'                    )
@@ -166,7 +166,7 @@ any '/device/data/:type/:subtype/:treeid' => sub {
     my $greptreename = $param->{treeid} == 4000000000 ? undef : eval{ gettreename( $param->{treeid} ) };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
-    my    @data = `cat $datapath/$param->{type}/$param->{subtype}/data.tsv`;
+    my    @data = `c3mc-device-cat $param->{type} $param->{subtype}`;
     chomp @data;
 
     my $title = shift @data;
@@ -280,7 +280,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
     my $greptreename = $param->{treeid} == 4000000000 ? undef : eval{ gettreename( $param->{treeid} ) };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
-    my    @data = `cat $datapath/$param->{type}/$param->{subtype}/data.tsv`;
+    my    @data = `c3mc-device-cat $param->{type} $param->{subtype}`;
     chomp @data;
 
     my $title = shift @data;
@@ -336,7 +336,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
         my @x = map{ [ $_ => $r->{$_} ] } @title;
         push @re2, \@x;
     }
-    return +{ stat => $JSON::true, data => \@re2 };
+    return +{ stat => $JSON::true, data => \@re2, treenamecol => $treenamecol };
 };
 
 true;

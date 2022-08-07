@@ -407,6 +407,63 @@
                     </div>
                 </div>
 
+<hr>
+
+                <div class="container-fluid">
+                  <h4>CMDB 同步</h4>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">同步间隔</label>
+                            <div class="col-sm-9">
+                                <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['sys.device.sync.interval']" style="width: 20%" >
+                                    <option ng-repeat="x in [0, 60, 120, 300, 600, 1800, 3600, 7200, 86400 ]" value="{{x}}">{{x}}</option>
+                                </select>
+ 
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">导入服务树结构</label>
+                            <div class="col-sm-9">
+                                <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['sys.device.sync.tree']" style="width: 20%" >
+                                    <option ng-repeat="x in [0, 1]" value="{{x}}">{{x}}</option>
+                                </select>
+ 
+                            </div>
+                        </div>
+                    </div>
+ 
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">导入服务树绑定关系</label>
+                            <div class="col-sm-9">
+                                <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['sys.device.sync.bind']" style="width: 20%" >
+                                    <option ng-repeat="x in [0, 1]" value="{{x}}">{{x}}</option>
+                                </select>
+ 
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+ 
+<hr>
+
+                <div class="container-fluid">
+                  <h4>CMDB 摄取</h4>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">主机摄取</label>
+                            <div class="col-sm-9">
+                                <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['sys.device.ingestion.node']" style="width: 20%" >
+                                    <option ng-repeat="x in [0, 1 ]" value="{{x}}">{{x}}</option>
+                                </select>
+ 
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
 
              </div>

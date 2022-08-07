@@ -84,18 +84,9 @@
 
             if (envir == 'dev' || envir == 'test'){
                 $scope.envir = 'test';
-            }else if(envir == "orionstar"){
-                $scope.envir = "orionstar";
-            }else if(envir == "htorionstar"){
-                $scope.envir = "htorionstar";
             }else{
                 $scope.envir = 'online';
             }
-
-
-            // if (hash.indexOf("ci") != -1 && hash.indexOf("liveme") != -1){
-            //     $scope.allUrls = [];
-            // }
 
             vm.openCI = function (idx, next_name) {
                 var ciurl = $scope.ciUrls[$scope.envir][idx].url + "/#/dashboard/" + vm.state.params.treeid;
@@ -124,60 +115,6 @@
             };
             vm.openUrl = function (idx, next_name) {
                 var nextUrl = '';
-                if ($scope.envir == "online"){
-                    if (hash.indexOf("txy") != -1 || hash.indexOf("liveme") != -1){
-                        var envir_name = hash.split(".")[1];
-                        if (hash.indexOf("txy") != -1){
-                            next_name = next_name +"txy"
-                        }
-                    }else {
-                        var envir_name = hash.split(".")[0];
-                    }
-                    if (envir_name != next_name){
-                        // var replaceUrl = hash.replace(envir_name, next_name);
-                        nextUrl = $scope.nextUrls[next_name] + vm.state.params.treeid;
-                    }else {
-                        return
-                    }
-                }else if ($scope.envir == "htorionstar") {
-                    if (hash.indexOf("htorionstar") != -1){
-                        var envir_name = hash.split(".")[1];
-                        if (hash.indexOf("htorionstar") != -1){
-                            next_name = next_name +"htorionstar"
-                        }
-                    }else {
-                        var envir_name = hash.split(".")[0];
-                    }
-                    if (envir_name != next_name){
-                        // var replaceUrl = hash.replace(envir_name, next_name);
-                        nextUrl = $scope.nextUrls[next_name] + vm.state.params.treeid;
-                    }else {
-                        return
-                    }
-                }else if ($scope.envir == "orionstar") {
-                    if (hash.indexOf("orionstar") != -1 ){
-                        var envir_name = hash.split(".")[1];
-                        if (hash.indexOf("orionstar") != -1){
-                            next_name = next_name +"orionstar"
-                        }
-                    }else {
-                        var envir_name = hash.split(".")[0];
-                    }
-                    if (envir_name != next_name){
-                        // var replaceUrl = hash.replace(envir_name, next_name);
-                        nextUrl = $scope.nextUrls[next_name] + vm.state.params.treeid;
-                    }else {
-                        return
-                    }
-                }else if ($scope.envir == "test"){
-                    var envir_name = hash.split(".")[1];
-                    if (envir_name != next_name){
-                        // var replaceUrl = hash.replace(envir_name, next_name);
-                        nextUrl = $scope.nextUrls[next_name + "test"] + vm.state.params.treeid;
-                    }else {
-                        return
-                    }
-                }
                 window.open(nextUrl, '_blank')
             }
         }

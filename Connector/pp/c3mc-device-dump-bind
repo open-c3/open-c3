@@ -1,0 +1,15 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+for ( glob "/data/open-c3-data/device/curr/*/*/data.tsv" )
+{
+    my ( undef, $subtype, $type ) = reverse split /\//, $_;
+    system "c3mc-device-data-get $type $subtype uuid treename|awk -v OFS=\";\" '{print \"$type\", \"$subtype\", \$0}'|sed 's/\t/;/g'";
+}

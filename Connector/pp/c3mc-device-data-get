@@ -23,7 +23,7 @@ if( -f $colmap )
     @col = map{ $x->{$_} || $_ }@col;
 }
 
-my    @data  = `cat $file`;
+my    @data  = `c3mc-device-cat $type $subtype`;
 chomp @data;
 
 exit unless @data;
