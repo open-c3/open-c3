@@ -34,7 +34,7 @@
 
         vm.loadLabels = function(ns)
         {
-            $http.get("/api/ci/v2/kubernetes/util/labels/deployment?ticketid=" + ticketid + "&namespace=" + ns ).success(function(data){
+            $http.get("/api/ci/v2/kubernetes/util/labels/deployment_statefulset?ticketid=" + ticketid + "&namespace=" + ns ).success(function(data){
                 if(data.stat == true) 
                 { 
                    vm.deploymentlabel = data.data;
