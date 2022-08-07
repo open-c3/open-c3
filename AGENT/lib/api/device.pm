@@ -75,7 +75,7 @@ get '/device/menu/:treeid' => sub {
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
     my %re = map{ $_ => [] }qw( compute database domain networking others storage );
-    return +{ stat => $JSON::true, data => \%re  } if $param->{treeid} > 4000000000;
+    return +{ stat => $JSON::true, data => \%re  } if ! $param->{treeid} || $param->{treeid} > 4000000000;
 
     my $pmscheck = $param->{treeid} == 4000000000
         ? api::pmscheck( 'openc3_job_root'                    )
@@ -156,7 +156,7 @@ any '/device/data/:type/:subtype/:treeid' => sub {
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    return +{ stat => $JSON::true, data => []  } if $param->{treeid} > 4000000000;
+    return +{ stat => $JSON::true, data => []  } if ! $param->{treeid} || $param->{treeid} > 4000000000;
 
     my $pmscheck = $param->{treeid} == 4000000000
         ? api::pmscheck( 'openc3_job_root'                    )
