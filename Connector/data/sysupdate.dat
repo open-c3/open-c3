@@ -345,3 +345,10 @@ create table if not exists `openc3_device_bindtree`(
 `tree`      VARCHAR(500) comment 'tree',
 UNIQUE KEY `uniq_type_subtype_uuit` (`type`, `subtype`,`uuid`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='资源绑定服务树';
+
+# v2.6.0 sql openc3_ci_project add nomail
+ALTER TABLE openc3_ci_project ADD `nomail` VARCHAR(4) DEFAULT '0' comment '不发送邮件';
+
+# v2.6.0 sql openc3_ci_project add nomesg
+ALTER TABLE openc3_ci_project ADD `nomesg` VARCHAR(4) DEFAULT '0' comment '不发送短信';
+

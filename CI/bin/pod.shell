@@ -25,7 +25,7 @@ eval{
     my $x = eval{ $db->query( "select pod_shell_relaxed from openc3_ci_ticket where id='$clusterid'" ) };
     die "get pod_shell_relaxed from db fail: $@" if $@;
     
-    my $authtype = $type =~ /sh/ ? 1 : 0;
+    my $authtype = $type =~ /sh/ ? 'x' : 0;
     $authtype = 0 if $x && @$x && $x->[0][0];
 
     my ( $kubectl, @ns ) = eval{ api::kubernetes::getKubectlAuth( $db, $clusterid, $user, $company, $authtype ) };

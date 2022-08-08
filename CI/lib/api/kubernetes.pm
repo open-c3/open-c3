@@ -49,10 +49,9 @@ sub getKubectlAuth($$$$$)
     my $r = eval{ $db->query( "select ticket,create_user,share  from openc3_ci_ticket where id='$ticketid' and ( $and ) " ); };
     unless( $r && @$r )
     {
-        my $sql = 
-           $checkauth 
-            ? "select namespace from openc3_ci_k8s_namespace_auth where ticketid='$ticketid' and user='$user' and auth='rw'"
-            : "select namespace from openc3_ci_k8s_namespace_auth where ticketid='$ticketid' and user='$user'";
+        my $sql = "select namespace from openc3_ci_k8s_namespace_auth where ticketid='$ticketid' and user='$user'";
+           $sql = "select namespace from openc3_ci_k8s_namespace_auth where ticketid='$ticketid' and user='$user' and   auth like '%w%'"                      if $checkauth;
+           $sql = "select namespace from openc3_ci_k8s_namespace_auth where ticketid='$ticketid' and user='$user' and ( auth like '%w%' or auth like '%x%' )" if $checkauth && $checkauth eq 'x';
 
         my $x = eval{ $db->query( $sql ); };
         die "get info err: $@" if $@;

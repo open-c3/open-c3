@@ -59,6 +59,7 @@ get '/project/:groupid/:projectid' => sub {
         audit_level
         cpulimit memlimit
         saveasdir gitclonebycache
+        nomail nomesg
         );
     my $r = eval{ 
         $api::mysql->query( 
@@ -116,6 +117,9 @@ post '/project/:groupid/:projectid' => sub {
         saveasdir => qr/^\d*$/, 0,
         gitclonebycache => qr/^\d*$/, 0,
 
+        nomail => qr/^\d*$/, 0,
+        nomesg => qr/^\d*$/, 0,
+
         ci_type => [ 'in', 'default', 'kubernetes' ], 1,
         ci_type_ticketid => [ 'mismatch', qr/'/ ], 0,
         ci_type_kind => [ 'mismatch', qr/'/ ], 0,
@@ -158,6 +162,7 @@ post '/project/:groupid/:projectid' => sub {
         audit_level
         cpulimit memlimit
         saveasdir gitclonebycache
+        nomail nomesg
     );
     eval{ 
         $api::mysql->execute(
