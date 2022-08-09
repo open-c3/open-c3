@@ -1,0 +1,43 @@
+download:
+  - 
+    url:     fileserver:0:qcloud-cvm.xlsx
+    type:    compute
+    subtype: qcloud-cvm
+    check:
+      col: [ 'ID', '实例名', '主IPv4内网IP','主IPv4公网IP', '地域', '可用区', '状态', '操作系统' ]
+      min: 1
+    ingestion-node:
+      name: '实例名'
+      inip: '主IPv4内网IP'
+      exip: '主IPv4公网IP'
+      tree: '服务树'
+      type: qcloud-cvm
+    util:
+      defaulttree: defaulttree.pool
+    colmap:
+      treename: '服务树'
+      uuid:     'ID' #没有这个可能导致单个资源详情打开无数据
+    filter:
+      -
+        name: '地域'
+        alias: 地域
+      -
+        name: '可用区'
+        alias: 可用区
+      -
+        name: '状态'
+        alias: 状态
+      -
+        name: '操作系统'
+        alias: 操作系统
+    outline:
+      uuid:
+       - 'ID'
+      baseinfo:
+       - '可用区'
+      system:
+       - '实例名'
+       - '主IPv4内网IP'
+       - '主IPv4公网IP'
+      contact:
+       - '服务树'
