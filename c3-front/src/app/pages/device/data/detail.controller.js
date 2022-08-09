@@ -3,7 +3,17 @@
 
     angular
         .module('openc3')
-        .controller('DeviceDataDetailController', DeviceDataDetailController);
+        .controller('DeviceDataDetailController', DeviceDataDetailController)
+        .filter('cut30', function () {
+            return function (text) {
+                if( text.length > 33 )
+                {
+                    return "..." + text.substr(text.length - 30)
+                }
+                return text;
+
+            }
+        });
 
     function DeviceDataDetailController( $uibModalInstance, $location, $anchorScroll, $state, $http, $uibModal, treeService, ngTableParams, resoureceService, uuid, $scope, $injector, treeid , type, subtype, homereload ) {
 
