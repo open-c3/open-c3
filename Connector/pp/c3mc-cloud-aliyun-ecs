@@ -1,0 +1,80 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import re
+import sys
+import json
+
+from aliyunsdkcore.client import AcsClient
+from aliyunsdkecs.request.v20140526 import DescribeInstancesRequest
+
+class Ecs():
+    def __init__(self, access_id, access_key, region):
+        self.access_id  = access_id
+        self.access_key = access_key
+        self.region = region
+        self.client = self.create_client()
+        self.page_number = 1
+        self.page_size   = 100
+
+    def create_client(self):
+        client = AcsClient( self.access_id, self.access_key, self.region )
+        return client
+
+    def set_request(self):
+        request = DescribeInstancesRequest.DescribeInstancesRequest()
+        request.set_PageNumber( self.page_number )
+        request.set_PageSize(   self.page_size   )
+        return request
+
+    def get_response(self):
+        response_data = {}
+        err = None
+        request = self.set_request()
+        try:
+            response = self.client.do_action_with_exception(request)
+            response_data = json.loads(response)
+        except Exception as e:
+            err = e
+        return response_data, err
+
+    def get_server_count(self):
+        response_data, err = self.get_response()
+        if err != None:
+            sys.stdout.write('error', err)
+            return False
+        count = response_data['TotalCount']
+        return count
+
+    def show(self):
+        response_data, err = self.get_response()
+        if err != None:
+            sys.stdout.write('error', err)
+            return False
+        try:
+            ret = response_data['Instances']['Instance']
+        except (KeyError, TypeError):
+            sys.stdout.write('error', 'nofind Instance')
+            return False
+        for i in ret:
+            print json.dumps(i)
+
+    def page(self):
+        count = self.get_server_count()
+        self.page_size = 100
+        mod = count % self.page_size
+        if mod:
+            total_page_number = int( count / self.page_size ) + 1
+        else:
+            total_page_number = int( count / self.page_size )
+
+        for cur_page_number in range(1, total_page_number + 1):
+            self.page_number = cur_page_number
+            self.show()
+
+def main( access_id, access_key, region ):
+    ecs = Ecs(access_id, access_key, region)
+    ecs.page()
+
+if __name__ == '__main__':
+    main( sys.argv[1], sys.argv[2], sys.argv[3] )

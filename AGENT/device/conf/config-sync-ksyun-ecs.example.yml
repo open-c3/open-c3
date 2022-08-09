@@ -1,0 +1,49 @@
+download:
+  - 
+    url: 'cmd:c3mc-cloud-aliyun-ecs ak sk cn-beijing | c3mc-base-json2tab  InstanceId 实例ID HostName 名称 VpcAttributes.PrivateIpAddress.IpAddress.0  内网IP  PublicIpAddress.IpAddress.0 公网IP RegionId Region名称 ZoneId 所在可用区  InstanceType 实例类型 Status 状态 OSName 操作系统'
+    datatype: tsv
+    type:    compute
+    subtype: ksyun-ecs
+    check:
+      col: [ '实例ID', '名称', '内网IP','公网IP', 'Region名称', '所在可用区', '实例类型', '状态', '操作系统' ]
+      min: 1
+    ingestion-node:
+      name: '名称'
+      inip: '内网IP'
+      exip: '公网IP'
+      tree: '服务树'
+      type: ksyun-ecs
+    util:
+      defaulttree: defaulttree.pool
+    colmap:
+      treename: '服务树'
+      uuid:     '实例ID' #没有这个可能导致单个资源详情打开无数据
+    filter:
+      -
+        name: 'Region名称'
+        alias: 区域
+      -
+        name: '所在可用区'
+        alias: 可用区
+      -
+        name: '实例类型'
+        alias: 实例类型
+      -
+        name: '状态'
+        alias: 状态
+      -
+        name: '操作系统'
+        alias: 操作系统
+ 
+    outline:
+      uuid:
+       - '实例ID'
+      baseinfo:
+       - 'Region名称'
+       - '所在可用区'
+      system:
+       - '名称'
+       - '内网IP'
+       - '公网IP'
+      contact:
+       - '服务树'
