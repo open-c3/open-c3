@@ -1,0 +1,51 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use utf8;
+use JSON;
+use DataStruct::Flat;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0 name1 alias1 name2 alias2 .. namen aliasn
+
+=cut
+
+map{utf8::decode( $_ );}@ARGV;
+my ( %alias, @data, %title ) = @ARGV;
+
+my $flattener = DataStruct::Flat->new;
+sub save
+{
+    my $str = shift @_;
+    my $dat = eval{ JSON::decode_json $str };
+    die "load json err:$str : $@" if $@;
+    my $data = $flattener->flatten($dat);
+    push @data, $data;
+    %title = ( %title, %$data );
+}
+
+while(<STDIN>){ chomp; save($_); }
+
+my %tsort = map{ $_ => 500 - length( $_ ) }keys %title;
+
+my $i = 1;
+for my $k ( reverse @ARGV )
+{
+    next unless $tsort{ $k };
+    $tsort{ $k } += 10000 * $i ++;
+}
+
+my @title = sort{ $tsort{$b} <=> $tsort{$a} } keys %title;
+
+unshift @data, +{ map{ $_ => $alias{$_} || $_ }@title };
+for my $d ( @data )
+{
+    printf "%s\n", join "\t", map{ $d->{$_} // '' }@title;
+}

@@ -33,7 +33,7 @@ system "rm -rf temp; mkdir temp" unless $refresh;
 
 sub download
 {
-    my ( $type, $subtype, $url, $outline, $filter, $colmap, $util, $ingestionnode, $check ) = @_;
+    my ( $type, $subtype, $url, $outline, $filter, $colmap, $util, $ingestionnode, $check, $datatype ) = @_;
 
     my ( $temppath, $distpath ) = ( "temp/$type/$subtype", "/data/open-c3-data/device/curr/$type/$subtype" );
 
@@ -50,13 +50,21 @@ sub download
         die "nofile $file" unless -f $file;
         system "cp '$file' $temppath/data.xlsx" unless $refresh;
     }
+    elsif( $url =~ /^cmd:(.+)$/ )
+    {
+        my $cmd = $1;
+        system "$cmd > $temppath/data.tsv"
+    }
     else
     {
         system "curl -b cookie '$url' -o            $temppath/data.xlsx" unless $refresh;
     }
 
-    system "xlsx2csv -o $temppath/temp.tsv $temppath/data.xlsx";
-    system "cat $temppath/temp.tsv | sed '1d' > $temppath/data.tsv";
+    unless( $datatype && $datatype eq 'tsv' )
+    {
+        system "xlsx2csv -o $temppath/temp.tsv $temppath/data.xlsx";
+        system "cat $temppath/temp.tsv | sed '1d' > $temppath/data.tsv";
+    }
 
 #check col
     if( $check && $check->{col} )
@@ -102,5 +110,5 @@ sub download
 
 map{
     my $c = $_;
-    download( map{ $c->{$_} }qw(type subtype url outline filter colmap util ingestion-node check ));
+    download( map{ $c->{$_} }qw(type subtype url outline filter colmap util ingestion-node check datatype ));
 }@{ $conf->{download} };
