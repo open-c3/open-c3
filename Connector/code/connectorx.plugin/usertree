@@ -98,6 +98,7 @@ return sub
     if( $@ )
     {
         warn "$err $@";
+        die  "$err $@" unless -f $cache;
         #TODO if cache too old ?
         $v = eval{ YAML::XS::LoadFile $cache };
         die "get cache fail: $@" if $@;
