@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use utf8;
 use JSON;
+use YAML::XS;
 use DataStruct::Flat;
 
 binmode STDIN,  ':utf8';
@@ -32,6 +33,8 @@ sub save
 }
 
 while(<STDIN>){ chomp; save($_); }
+
+warn YAML::XS::Dump \@data if $ENV{C3DEBUG};
 
 my %tsort = map{ $_ => 500 - length( $_ ) }keys %title;
 
