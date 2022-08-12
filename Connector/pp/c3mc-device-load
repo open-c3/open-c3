@@ -11,3 +11,5 @@ BINDTREE=$(c3mc-sys-ctl sys.device.sync.bind)
 if [ "X$BINDTREE" == "X1" ];then
     c3mc-device-dump-bind | c3mc-base-savebind 
 fi
+
+cd /data/Software/mydan/Connector/local && c3mc-device-dump-treeinfo > devicetreeinfo.txt.temp && mv devicetreeinfo.txt.temp devicetreeinfo.txt

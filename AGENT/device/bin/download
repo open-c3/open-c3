@@ -33,7 +33,7 @@ system "rm -rf temp; mkdir temp" unless $refresh;
 
 sub download
 {
-    my ( $type, $subtype, $url, $outline, $filter, $colmap, $util, $ingestionnode, $check, $datatype ) = @_;
+    my ( $type, $subtype, $url, $outline, $filter, $colmap, $util, $ingestionnode, $check, $datatype, $treeinfo ) = @_;
 
     my ( $temppath, $distpath ) = ( "temp/$type/$subtype", "/data/open-c3-data/device/curr/$type/$subtype" );
 
@@ -106,9 +106,20 @@ sub download
     {
         system "rm '$distpath/ingestion-node.yml'" if -f "$distpath/ingestion-node.yml";
     }
+
+    if( $treeinfo )
+    {
+        eval{ YAML::XS::DumpFile "temp/$type/$subtype/treeinfo.yml", $treeinfo; };
+        system "mv $temppath/treeinfo.yml  $distpath/";
+    }
+    else
+    {
+        system "rm '$distpath/treeinfo.yml'" if -f "$distpath/treeinfo.yml";
+    }
+
 }
 
 map{
     my $c = $_;
-    download( map{ $c->{$_} }qw(type subtype url outline filter colmap util ingestion-node check datatype ));
+    download( map{ $c->{$_} }qw(type subtype url outline filter colmap util ingestion-node check datatype treeinfo ));
 }@{ $conf->{download} };
