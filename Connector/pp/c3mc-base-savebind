@@ -25,25 +25,43 @@ chomp @x;
 my %x;
 map{ $x{$_} = 1 }@x;
 
+sub checktree
+{
+    for my $tree ( split /,/, shift @_ )
+    {
+        die "tree format error: [$tree]" unless $tree =~ /^[a-zA-Z][a-zA-Z0-9\.\-_]*[a-zA-Z0-9]$/ && $tree !~ /\.\./;
+    }
+}
+
 sub save
 {
     my $row = shift @_;
     return if $x{$row};
-    my ( $type, $subtype, $uuid, $tree ) = split /;/, $row, 4;
-    next unless $tree;
 
-    die "no uuid" unless $uuid;
-    die "tree format error: $tree" unless $tree =~ /^[a-zA-Z][a-zA-Z0-9\.\-_]*$/ && $tree !~ /\.\./;
+    my ( $type, $subtype, $uuid, $tree ) = split /;/, $row, 4;
+    return unless $tree;
+
+    die "uuid err[$uuid]" unless $uuid && $uuid =~ /^[a-zA-Z0-9][a-zA-Z0-9\.\-_]*[a-zA-Z0-9]$/;
+    checktree( $tree );
+
     eval{ $db->execute( "replace into openc3_device_bindtree (`type`,`subtype`,`uuid`,`tree`) value('$type','$subtype','$uuid','$tree')" ); };
     die "update fail:$@"  if $@;
+
     $x{$row} ++;
 }
 
 if( @ARGV )
 {
-    map{ save( $_ ); }@ARGV;
+    map{
+        eval{ save( $_ ); };
+        warn "err $@" if $@;
+    }@ARGV;
 }
 else
 {
-    while(<STDIN>){ chomp; save($_); }
+    while(<STDIN>){
+        chomp;
+        eval{ save($_); };
+        warn "err $@" if $@;
+    }
 }
