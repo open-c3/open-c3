@@ -72,8 +72,10 @@
             <div class="panel-tabs">
                 <table ng-table="connectoruserauth.utTable" class="table table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="user in $data">
+                        <td style="width: 10%" data-title="'ID'" filter="{ id: 'text'}" sortable="'id'">{{user.id}}</td>
                         <td style="width: 10%" data-title="'用户'" filter="{ name: 'text'}" sortable="'name'">{{user.name}}</td>
-                        <td style="width: 10%" data-title="'服务树'" filter="{ tree: 'text'}" sortable="'tree'">{{user.tree}}</td>
+                        <td style="width: 10%" data-title="'服务树ID'" filter="{ tree: 'text'}" sortable="'tree'">{{user.tree}}</td>
+                        <td style="width: 10%" data-title="'服务树名'" filter="{ treename: 'text'}" sortable="'treename'">{{user.treename}}</td>
                         <td style="width: 10%" data-title="'级别'" sortable="'level'">
                             <a ng-if="user.level==1" > 研发 </a>
                             <a ng-if="user.level==2" style="color: #e52" > 运维 </a>

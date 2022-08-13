@@ -16,8 +16,18 @@ any '/default/auth/tree/userauth' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
     my $pmscheck = api::pmscheck( 'openc3_connector_root' ); return $pmscheck if $pmscheck;
 
+    my    @treemap = `c3mc-base-treemap`;
+    chomp @treemap;
+    my    %treemap;
+    map{
+        my @x = split /;/, $_, 2;
+        $treemap{$x[0]} = $x[1] if @x == 2;
+    } @treemap;
+
     my $user = eval{ $api::mysql->query( "select id,name,tree,level from `openc3_connector_userauthtree`", [ 'id', 'name', 'tree', 'level' ] ) };
-    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $user };
+    return $@
+      ? +{ stat => $JSON::false, info => $@ }
+      : +{ stat => $JSON::true,  data => [ map{ +{ %$_, treename => $treemap{ $_->{tree} } } } @$user ] };
 };
 
 del '/default/auth/tree/delauth' => sub {
