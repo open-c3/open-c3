@@ -56,7 +56,62 @@ sub point
 
     my $userlevel = ( $u && @$u > 0 ) ? $u->[0][0] : 0;
 
+    return ( undef, 1 ) if $l{$userlevel};
+    return ( undef, 0 ) unless defined $treeid;
+    return _point( $db, $point ,$treeid, $user );
+};
+
+sub _point
+{
+    my ( $db, $point , $treeid, $user ) = @_;
+
+    my %level = %pointT;
+
+    return ( undef, 0 ) unless $level{$point};
+
+    my %l = map{ $_ => 1 }@{ $level{$point} };
+
+    my $u = eval{
+        $db->query(
+            sprintf "select max(level) from `openc3_connector_userauthtree` where name='$user' and tree in ( %s )",
+                join ',', $treeid, _gettreeids( $treeid )
+        )
+    };
+    return ( $@ ) if $@;
+
+    my $userlevel = ( $u && @$u > 0 ) ? $u->[0][0] : 0;
+
     return $l{$userlevel} ? ( undef, 1 ) : ( undef, 0 );
 };
+
+sub _gettreeids
+{
+    my $id = shift @_;
+
+    my    %tree;
+    my    $name;
+    my    @tree = `c3mc-base-treemap cache`;
+    chomp @tree;
+    map{
+        my @x = split /;/, $_, 2;
+        $tree{ $x[1] } = $x[0] if @x    == 2;
+        $name          = $x[1] if $x[0] eq $id;
+    } @tree;
+
+    return () unless $name;
+
+    my @x = split /\./, $name;
+
+    my @id;
+    pop @x;
+    while( @x )
+    {
+        my $x = $tree{ join '.', @x };
+        push @id, $x if $x;
+        pop @x;
+        
+    }
+    return @id;
+}
 
 1;
