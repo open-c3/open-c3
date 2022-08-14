@@ -227,6 +227,21 @@
         };
 
         vm.noshowrollback = noshowrollback;
+
+        vm.error = {};
+
+        vm.checkinput = function( str, key )
+        {
+            var regex = /[\u4E00-\u9FA5\uF900-\uFA2D]/;
+            if (regex.test(str)) {
+                vm.error[key]= '参数存在中文';
+            }
+            else
+            {
+                vm.error[key] = '';
+            }
+        }
+
     }
 })();
 
