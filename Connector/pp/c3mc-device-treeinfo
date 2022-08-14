@@ -1,0 +1,91 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ $0 type subtype
+
+=cut
+
+my ( $type, $subtype ) = @ARGV;
+die unless $subtype;
+
+my $conf = eval{ YAML::XS::LoadFile "/data/open-c3-data/device/curr/$type/$subtype/treeinfo.yml" };
+die "load conf fail: $@" if $@;
+die "config err" unless $conf && ref $conf eq 'HASH' && $conf->{treename} && $conf->{treeinfo} && ref $conf->{treeinfo} eq 'ARRAY';
+
+my    @treemap = `c3mc-base-treemap`;
+chomp @treemap;
+
+my %treemap;
+map{
+    my @x = split /;/, $_, 2;
+    $treemap{ $x[1] } = $x[0];
+}@treemap;
+
+sub _treename2tid
+{
+    my ( $treename, @id ) = shift @_;
+    return () unless  $treename;
+    my @subname = split /\./, $treename;
+    while( @subname )
+    {
+        my $tname = join '.', @subname;
+        push @id, $treemap{ $tname } if $treemap{ $tname };
+        pop @subname;
+    }
+    return @id;
+}
+
+sub treename2tid
+{
+    my ( $treename, %id ) = shift @_;
+    return () unless  $treename;
+
+    map{
+        map{ $id{ $_ } = 1 } _treename2tid( $_ )
+    }split /,/, $treename;
+
+    return keys %id;
+}
+
+my    @data  = `c3mc-device-cat $type $subtype`;
+chomp @data;
+
+my $title = shift @data;
+
+utf8::decode( $title );
+my @title = split /\t/, $title;
+
+for my $data ( @data )
+{
+    utf8::decode( $data );
+    my @d = split /\t/, $data;
+    my %d = map{ $title[ $_ ] => $d[ $_ ] } 0 .. @title - 1;
+
+    my %res;
+    for ( @{$conf->{treeinfo}} )
+    {
+        my ( $colname, $tagname ) = @$_;
+        $res{ $tagname } = $d{ $colname };
+    }
+
+    my $treename = $d{ $conf->{treename} };
+    my @tid = treename2tid( $treename );
+    for ( @tid )
+    {
+        my %x = ( %res, tid => $_, type => 'device' );
+        my $x = join ',', map{ "$_=\"$x{$_}\"" } keys %x;
+        printf "treeinfo{%s} 1\n", $x;
+    }
+}
+

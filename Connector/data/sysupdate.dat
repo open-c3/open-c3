@@ -352,3 +352,12 @@ ALTER TABLE openc3_ci_project ADD `nomail` VARCHAR(4) DEFAULT '0' comment '不�
 # v2.6.0 sql openc3_ci_project add nomesg
 ALTER TABLE openc3_ci_project ADD `nomesg` VARCHAR(4) DEFAULT '0' comment '不发送短信';
 
+# v2.6.0 sql openc3_connector_userauthtree create
+
+create table if not exists `openc3_connector_userauthtree`(
+`id`     int(16) unsigned not null primary key auto_increment comment 'id',
+`name`   VARCHAR(100) comment 'name',
+`tree`   VARCHAR(200) comment 'tree',
+`level`  VARCHAR(200) comment 'level',
+UNIQUE KEY `uniq_name_tree` (`name`,`tree`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='和服务树相关的权限';

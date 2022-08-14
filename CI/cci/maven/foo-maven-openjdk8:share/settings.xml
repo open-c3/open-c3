@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<settings xmlns="http://maven.apache.org/SETTINGS/1.0.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
+<localRepository>/cishare/localRepository</localRepository>  
+  <pluginGroups>
+  </pluginGroups>
+
+  <proxies>
+  </proxies>
+
+  <servers>
+    <server>
+      <id>foo-thirdlib</id>
+      <username>deploy</username>
+      <password>deploy123</password>
+    </server>
+    <server>
+        <id>foo-snapshot</id>
+        <username>deploy</username>
+        <password>deploy123</password>
+    </server>
+    <server>
+      <id>nexus-releases</id>
+      <username>admin</username>
+      <password>admin123</password>
+    </server>
+    <server>
+      <id>nexus-snapshots</id>
+      <username>admin</username>
+      <password>admin123</password>
+    </server>
+    <server>
+      <id>thirdparty</id>
+      <username>admin</username>
+      <password>admin123</password>
+    </server>
+  </servers>
+
+  <mirrors>
+     <mirror>
+      <id>nexus</id>
+      <mirrorOf>*</mirrorOf>
+      <url>http://10.10.10.10:8081/repository/public/</url>
+    </mirror>
+  </mirrors>
+
+  <profiles>
+
+    <profile>
+        <id>nexus</id>
+        <repositories>
+            <repository>  
+              <snapshots>  
+                 <enabled>false</enabled>  
+              </snapshots>  
+              <id>central</id>  
+              <name>Maven Repository Switchboard</name>  
+              <url>http://repo1.maven.org/maven2</url>  
+            </repository> 
+            <repository>
+                <id>dev-releases</id>
+                <name>dev-release</name>
+                <url>http://10.10.10.10:8081/repository/releases/</url>
+                <releases>
+                    <enabled>true</enabled>
+                </releases>
+                <snapshots>
+                    <enabled>false</enabled>
+                </snapshots>
+            </repository>
+            <repository>
+                <snapshots />
+                <id>dev-snapshots</id>
+                <name>dev-snapshots</name>
+                <url>http://10.10.10.10:8081/repository/snapshots/</url>
+            </repository>
+        </repositories>
+        <pluginRepositories>
+            <pluginRepository>
+                <id>dev-plugin</id>
+                <name>dev-plugin</name>
+                <url>http://10.10.10.10:8081/repository/public/</url>
+                <releases>
+                    <enabled>true</enabled>
+                </releases>
+                <snapshots>
+                    <enabled>true</enabled>
+                </snapshots>
+            </pluginRepository>
+            <pluginRepository>
+                <snapshots />
+                <id>dev-plugin-snapshots</id>
+                <name>libs-snapshot</name>
+                <url>http://10.10.10.10:8081/repository/snapshots/</url>
+          </pluginRepository>
+        </pluginRepositories>
+    </profile>
+    <profile>
+      <id>jdk</id>
+      <activation>
+        <jdk>1.8</jdk>
+      </activation>
+
+    <properties>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
+    </properties>
+    </profile>
+
+  </profiles>
+
+  <activeProfiles>
+      <activeProfile>dev</activeProfile>
+      <activeProfile>jdk</activeProfile>
+      <activeProfile>nexus</activeProfile>
+  </activeProfiles>
+</settings>

@@ -104,7 +104,7 @@
                         <div ng-show="!runtask2ci.varsvalue[ss.name]" class="col-sm-10 form-group">
                             <div ng-if="ss.name != 'ip' && ss.name != 'version'" >
                                 <label class="col-sm-3 control-label">{{ss.name}}: &nbsp;</label>
-                                <div class="col-sm-9"> <input type="text" class="form-control" ng-model="taskData.variable[ss.name]" placeholder="{{ss.describe}}" required> </div>
+                                <div class="col-sm-9"> <input type="text" class="form-control" ng-model="taskData.variable[ss.name]" placeholder="{{ss.describe}}" ng-change="runtask2ci.checkinput(taskData.variable[ss.name],ss.name)" required> </div>
                             </div>
 
                         </div>
@@ -116,7 +116,7 @@
                                     </select>
                                 </div>
                                 <div ng-show="runtask2ci.handwritten[ss.name]" class="col-sm-8">
-                                    <input type="text" class="form-control" ng-model="taskData.variable[ss.name]" placeholder="{{ss.describe}}" required>
+                                    <input type="text" class="form-control" ng-model="taskData.variable[ss.name]" placeholder="{{ss.describe}}" ng-change="runtask2ci.checkinput(taskData.variable[ss.name],ss.name)" required>
                                 </div>
  
                                 <div class="col-sm-1"> 
@@ -126,6 +126,15 @@
                                </div>
                             </div>
 
+                        </div>
+ 
+                        <div class="col-sm-10 form-group" ng-if=" runtask2ci.error[ss.name]">
+                            <div ng-if="ss.name != 'ip' && ss.name != 'version'" >
+                                <label class="col-sm-3 control-label"></label>
+                                <div class="col-sm-9">
+                                    <a style="color: red">警告:{{runtask2ci.error[ss.name]}}</a>
+                                </div>
+                            </div>
                         </div>
  
                         <div class="col-sm-10 form-group">
