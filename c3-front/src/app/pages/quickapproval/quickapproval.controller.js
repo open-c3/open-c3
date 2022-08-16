@@ -13,12 +13,17 @@
         vm.seftime = genericService.seftime
         vm.show = false
         vm.stat = {}
+        vm.loadoverA = false;
+        vm.loadoverB = false;
         vm.reload = function () {
+            vm.loadoverA = false;
+            vm.loadoverB = false;
             $http.get('/api/job/approval/control/' + uuid).then(
                 function successCallback(response){
                     if (response.data.stat){
                         vm.dataTable = new ngTableParams({count:25}, {counts:[],data:response.data.data});
                         vm.data = response.data.data[0]
+                        vm.loadoverA = true;
                     }else{
                         toastr.error("获取信息失败:"+response.data.info)
                     }
@@ -33,6 +38,7 @@
                 function successCallback(response){
                     if (response.data.stat){
                         vm.stat = response.data.data
+                        vm.loadoverB = true;
                     }else{
                         toastr.error("获取信息失败:"+response.data.info)
                     }
