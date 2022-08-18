@@ -16,4 +16,4 @@ my $option = MYDan::Util::OptConf->load();
 my %o = $option->get( qw( id=i ) )->dump();
 $option->assert(qw( id ));
 
-system "c3mc-flow-exctl-dump-ticket -i $o{id} | c3mc-flow-exctl-load-ticket";
+system "c3mc-base-exctl-dump-ticket -i $o{id} | c3mc-base-exctl-load-ticket";
