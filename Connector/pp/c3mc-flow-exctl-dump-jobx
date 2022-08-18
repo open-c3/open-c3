@@ -1,0 +1,54 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use JSON;
+use YAML::XS;
+use MYDan::Util::OptConf;
+use LWP::UserAgent;
+
+=head1 SYNOPSIS
+
+ $0 --treeid id --flowid id
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( treeid=i flowid=i ) )->dump();
+$option->assert(qw( treeid flowid ));
+
+my $ua = LWP::UserAgent->new();
+$ua->agent('Mozilla/9 [en] (Centos; Linux)');
+$ua->timeout( 15 );
+
+my $conf = YAML::XS::LoadFile "/data/open-c3-data/exctl.conf";
+my ( $env, $url ) = @$conf{qw( env url )};
+
+$ua->default_header( %$env );
+my $res = $ua->get( "$url/api/jobx/group/$o{treeid}" );
+
+my $err = sprintf "call fail:\n%s\n", YAML::XS::Dump $res;
+$err =~ s/appkey:\s+['"]?[a-zA-Z0-9]{32}['"]?\b/appkey: ******/g;
+
+die sprintf( "$err: code %s", $res->code ) unless $res->is_success;
+my $v = eval{JSON::decode_json $res->decoded_content};
+die sprintf( "$err: data no JSON: $@" )if $@;
+
+die $err unless $v->{stat};
+
+my ( $testid   ) = map{ $_->{id} }grep{ $_->{name} eq "_ci_test_$o{flowid}_"   } @{ $v->{data} };
+my ( $onlineid ) = map{ $_->{id} }grep{ $_->{name} eq "_ci_online_$o{flowid}_" } @{ $v->{data} };
+
+for my $x ( ( $testid, $onlineid ) )
+{
+    if( $x )
+    {
+        system "c3mc-flow-exctl-dump-jobx-grp -t $o{treeid} -g $x"
+    }
+    else
+    {
+        print "--- ~\n";
+    }
+}
