@@ -1,0 +1,40 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use JSON;
+use YAML::XS;
+use MYDan::Util::OptConf;
+use LWP::UserAgent;
+
+=head1 SYNOPSIS
+
+ $0 --id ticketid
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( id=i ) )->dump();
+$option->assert(qw( id ));
+
+my $ua = LWP::UserAgent->new();
+$ua->agent('Mozilla/9 [en] (Centos; Linux)');
+$ua->timeout( 15 );
+
+my $conf = YAML::XS::LoadFile "/data/open-c3-data/exctl.conf";
+my ( $env, $url ) = @$conf{qw( env url )};
+
+$ua->default_header( %$env );
+my $res = $ua->get( "$url/api/ci/images/$o{id}" );
+
+my $err = sprintf "call fail:\n%s\n", YAML::XS::Dump $res;
+$err =~ s/appkey:\s+['"]?[a-zA-Z0-9]{32}['"]?\b/appkey: ******/g;
+
+die sprintf( "$err: code %s", $res->code ) unless $res->is_success;
+my $v = eval{JSON::decode_json $res->decoded_content};
+die sprintf( "$err: data no JSON: $@" )if $@;
+
+die $err unless $v->{stat};
+print YAML::XS::Dump $v->{data};
