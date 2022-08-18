@@ -75,7 +75,7 @@
             $http.post( '/api/connector/default/auth/tree/addauth', {'user': $scope.usernameut, tree: vm.treeid, level: vm.roleut} ).success(function(data){
                 if (data.stat){
                     swal({ title: '添加权限成功', type:'success' });
-                    $scope.username = ''
+                    $scope.usernameut = ''
                     vm.reloadut();
                 }else {
                     swal({ title: '添加权限失败', text: data.info, type:'error' });

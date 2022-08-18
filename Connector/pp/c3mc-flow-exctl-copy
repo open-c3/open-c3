@@ -1,0 +1,19 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 --streeid id --sflowid id --dtreeid id
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( streeid=i sflowid=i dtreeid=i ) )->dump();
+$option->assert(qw( streeid sflowid dtreeid ));
+
+system "c3mc-flow-exctl-dump -t $o{streeid} -f $o{sflowid} | c3mc-flow-exctl-load --treeid $o{dtreeid}";

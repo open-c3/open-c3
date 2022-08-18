@@ -1,0 +1,112 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use JSON;
+use YAML::XS;
+use MYDan::Util::OptConf;
+use LWP::UserAgent;
+
+use Symbol 'gensym';
+use IPC::Open3;
+
+=head1 SYNOPSIS
+
+ $0 --treeid id
+ $0 --treeid id --flowid id # It can be used when CI already exists and CD does not exist
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( treeid=i flowid=i ) )->dump();
+$option->assert(qw( treeid ));
+
+unless( $o{ flowid } )
+{
+    my    $x = `c3mc-flow-exctl-load-ci-new -t $o{treeid}`;
+    chomp $x;
+    die "new ci fail" unless $x && $x =~ /^\d+$/;
+
+    $o{ flowid } = $x;
+}
+
+local $/ = undef;
+my @conf = YAML::XS::Load( <STDIN> );
+local $/ = "\n";
+
+my ( $ci, $job, $jobv, $tgrp, $ogrp ) = @conf;
+
+{
+    my $pid = IPC::Open3::open3( my $chld_in, '>&STDOUT', ">&STDERR", "c3mc-flow-exctl-load-ci -t '$o{treeid}' -f '$o{flowid}'");
+
+    $ci->{ id     }  = $o{ flowid };
+    $ci->{ groupid } = $o{ treeid };
+    $ci->{ status  } = 0;
+
+    print  $chld_in YAML::XS::Dump $ci;
+    $chld_in = undef;
+    waitpid( $pid, 0 );
+
+    die "load ci err" if $?;
+}
+
+my $jobuuid = '';
+{
+    my $stdout = gensym;
+    my $pid = IPC::Open3::open3( my $chld_in, $stdout, ">&STDERR", "c3mc-flow-exctl-load-job -t '$o{treeid}' -f '$o{flowid}'");
+
+    $job->{ name }  = "_ci_$o{ flowid }_";
+    $job->{ permanent }  = "permanent";
+    $job->{ mon_ids }  = 0;
+    $job->{ mon_status }  = JSON::false;
+
+    my @plugin_type;
+    for( split /,/, $job->{uuids} )
+    {
+        push @plugin_type, ( split /_/, $_ )[0];
+    }
+    my $i = 0;
+    for( @{ $job->{ data } } )
+    {
+        $_->{plugin_type} = $plugin_type[$i++];
+    }
+    print  $chld_in YAML::XS::Dump $job;
+    $chld_in = undef;
+    waitpid( $pid, 0 );
+
+    sysread $stdout, $jobuuid, 102400;
+
+    die "load err" if $?;
+}
+
+die "jobuuid err" unless $jobuuid && $jobuuid =~ /^[a-zA-Z0-9]{12}$/;
+
+{
+    my $pid = IPC::Open3::open3( my $chld_in, '>&STDOUT', ">&STDERR", "c3mc-flow-exctl-load-jobv -t '$o{treeid}' -f '$o{flowid}'");
+
+    print  $chld_in YAML::XS::Dump +{ data => $jobv, jobuuid => $jobuuid };;
+    $chld_in = undef;
+    waitpid( $pid, 0 );
+
+    die "load jobv err" if $?;
+}
+
+for my $grp ( ( $tgrp, $ogrp ) )
+{
+    next unless $grp;
+
+    $grp->{ name      } =~ s/_(\d+)_/_$o{flowid}_/;
+    $grp->{ projectid } = $o{treeid};
+
+    delete $grp->{ id };
+
+    my $pid = IPC::Open3::open3( my $chld_in, '>&STDOUT', ">&STDERR", "c3mc-flow-exctl-load-jobx -t '$o{treeid}'");
+
+    print  $chld_in YAML::XS::Dump $grp;
+    $chld_in = undef;
+    waitpid( $pid, 0 );
+
+    die "load err" if $?;
+}
