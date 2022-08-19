@@ -26,11 +26,27 @@ die "dstNamespace format err" unless $ARGV[1]       && $ARGV[1]       =~ /^[a-zA
 
 if( $ARGV[0] eq 'FORCEDELETE' )
 {
-    die "delete fail" if system "c3mc-flow-nsctl-delete --treeid $ENV{TREEID}             -d $ARGV[1] >&2";
+    my $treeid = $ENV{TREEID};
+
+    if( $ARGV[2] )
+    {
+        #TODO 只允许操作子树
+        die "dst treeid error:$ARGV[2]" unless $ARGV[2] =~ /^\d+$/;
+        $treeid = $ARGV[2];
+    }
+ 
+    die "delete fail" if system "c3mc-flow-nsctl-delete --treeid $treeid -d $ARGV[1] >&2";
 }
 else
 {
-    die "copy fail"   if system "c3mc-flow-nsctl-copy   --treeid $ENV{TREEID} -s $ARGV[0] -d $ARGV[1] >&2";
+    my $arg = '';
+    if( $ARGV[2] )
+    {
+        #TODO 只允许操作子树
+        die "dst treeid error:$ARGV[2]" unless $ARGV[2] =~ /^\d+$/;
+        $arg = "--dsttreeid $ARGV[2]";
+    }
+    die "copy fail"   if system "c3mc-flow-nsctl-copy   --treeid $ENV{TREEID} --srcns $ARGV[0] --dstns $ARGV[1] $arg >&2";
 }
 
 success();
