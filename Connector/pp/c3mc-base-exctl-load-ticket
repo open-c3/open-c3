@@ -1,0 +1,50 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use JSON;
+use YAML::XS;
+use LWP::UserAgent;
+
+=head1 SYNOPSIS
+
+ $0 --treeid id --flowid id
+
+=cut
+
+my $ua = LWP::UserAgent->new();
+$ua->agent('Mozilla/9 [en] (Centos; Linux)');
+$ua->timeout( 15 );
+
+my $conf = YAML::XS::LoadFile "/data/open-c3-data/ldctl.conf";
+my ( $env, $url ) = @$conf{qw( env url )};
+
+local $/ = undef;
+my @data = YAML::XS::Load( <STDIN> );
+local $/ = "\n";
+
+$ua->default_header( %$env );
+my $cont = JSON::encode_json( $data[0] );
+
+my $res = $ua->post( "$url/api/ci/ticket", Content => $cont, 'Content-Type' => 'application/json');
+
+my $err = sprintf "call fail:\n%s\n", YAML::XS::Dump $res;
+$err =~ s/appkey:\s+['"]?[a-zA-Z0-9]{32}['"]?\b/appkey: ******/g;
+
+die sprintf( "$err: code %s", $res->code ) unless $res->is_success;
+my $v = eval{JSON::decode_json $res->decoded_content};
+die sprintf( "$err: data no JSON: $@" )if $@;
+
+die $err unless $v->{stat};
+
+my ( $name, $create_user, $edit_user ) = map{ $data[0]->{$_} }qw( name create_user edit_user );
+
+die "name error" unless $name && $name !~ /'/;
+
+die "create_user format error: $create_user" unless $create_user && $create_user =~ /^[a-zA-Z0-9@\.\-_]+$/;
+system qq# c3mc-base-db-set --table openc3_ci_ticket --col name '$name' --set "create_user='$create_user'" >/dev/null#;
+
+die "edit_user format error: $edit_user"    unless $edit_user    && $edit_user   =~ /^[a-zA-Z0-9@\.\-_]+$/;
+system qq# c3mc-base-db-set --table openc3_ci_ticket --col name '$name' --set "edit_user='$edit_user'"    >/dev/null #;

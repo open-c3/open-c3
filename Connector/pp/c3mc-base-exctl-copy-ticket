@@ -1,0 +1,19 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 --id ticketid
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( id=i ) )->dump();
+$option->assert(qw( id ));
+
+system "c3mc-base-exctl-dump-ticket -i $o{id} | c3mc-base-exctl-load-ticket";
