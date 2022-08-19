@@ -1,0 +1,38 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0 treeid
+
+ $0 treeid cache
+
+=cut
+
+my ( $treeid, $cache ) = @ARGV;
+
+die "no treeid" unless defined $treeid;
+
+$cache = $cache && $cache eq 'cache' ? 'cache' : '';
+
+my @x = `c3mc-base-treemap $cache`;
+chomp @x;
+
+my $name;
+
+for( @x )
+{
+    my ( $id, $tree ) = split /;/, $_, 2;
+    $name = $tree if defined $id && $treeid eq $id;
+}
+
+exit unless $name;
+
+for my $x ( @x )
+{
+    my ( $id, $tree ) = split /;/, $x, 2;
+    print "$x\n" if 0 == index( $tree, "$name." ) || $name eq $tree;
+}

@@ -24,14 +24,27 @@ die "notreeid"                unless $ENV{TREEID}   && $ENV{TREEID} =~ /^\d+$/;
 die "srcNamespace format err" unless $ARGV[0]       && $ARGV[0]       =~ /^[a-zA-Z][a-zA-Z0-9_\-\.]*[a-zA-Z0-9]$/;
 die "dstNamespace format err" unless $ARGV[1]       && $ARGV[1]       =~ /^[a-zA-Z][a-zA-Z0-9_\-\.]*[a-zA-Z0-9]$/;
 
+sub checkauth
+{
+    my ( $tree, $subtree ) = @_;
+    my @x = `c3mc-base-subtreemap '$tree' cache`;
+    chomp @x;
+    for ( @x )
+    {
+        my ( $id ) = split /;/, $_;
+        return if $subtree eq $id;
+    }
+    die "tree auth error, only subtrees allowed\n";
+}
+
 if( $ARGV[0] eq 'FORCEDELETE' )
 {
     my $treeid = $ENV{TREEID};
 
     if( $ARGV[2] )
     {
-        #TODO 只允许操作子树
         die "dst treeid error:$ARGV[2]" unless $ARGV[2] =~ /^\d+$/;
+        checkauth( $ENV{TREEID}, $ARGV[2] );
         $treeid = $ARGV[2];
     }
  
@@ -42,8 +55,8 @@ else
     my $arg = '';
     if( $ARGV[2] )
     {
-        #TODO 只允许操作子树
         die "dst treeid error:$ARGV[2]" unless $ARGV[2] =~ /^\d+$/;
+        checkauth( $ENV{TREEID}, $ARGV[2] );
         $arg = "--dsttreeid $ARGV[2]";
     }
     die "copy fail"   if system "c3mc-flow-nsctl-copy   --treeid $ENV{TREEID} --srcns $ARGV[0] --dstns $ARGV[1] $arg >&2";
