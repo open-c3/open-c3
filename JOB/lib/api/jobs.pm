@@ -148,7 +148,7 @@ get '/jobs/:projectid/:jobuuid' => sub {
 
     if( $hash{approval} )
     {
-        my @colapproval = qw( uuid name cont approver deployenv action batches everyone relaxed );
+        my @colapproval = qw( uuid name cont approver deployenv action batches everyone timeout pause relaxed );
         my $rapproval = eval{ 
             $api::mysql->query( 
                 sprintf( "select %s from openc3_job_plugin_approval
