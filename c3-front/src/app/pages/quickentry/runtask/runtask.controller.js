@@ -51,9 +51,11 @@
         };
 
 
+        vm.jobsloadover = false;
         vm.getAllJob = function () {
             vm.ciinfo = {}
 
+            vm.jobsloadover = false;
             $http.get('/api/ci/group/' + vm.treeid).success(function(data){
                 if(data.stat)
                 {
@@ -66,6 +68,7 @@
                     $http.get('/api/job/jobs/' + vm.treeid).then(
                         function successCallback(response) {
                             if (response.data.stat){
+                                vm.jobsloadover = true;
                                 if( vm.jobid )
                                 {
                                     angular.forEach(response.data.data, function (value, key) {
