@@ -10,11 +10,12 @@ use MYDan::Util::OptConf;
 =head1 SYNOPSIS
 
  $0 --treeid id --srcns srcNamespace --dstns dstNamespace
+ $0 --treeid id --srcns srcNamespace --dstns dstNamespace --dsttreeid treeid
 
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->get( qw( treeid=i srcns=s dstns=s ) )->dump();
+my %o = $option->get( qw( treeid=i srcns=s dstns=s dsttreeid=i ) )->dump();
 $option->assert(qw( treeid srcns dstns ));
 
 my $db = MYDB->new( "/data/Software/mydan/CI/conf/conn" );
@@ -98,8 +99,10 @@ sub saveci
     $row->{ ci_type_dockerfile } =~ s/$oldns/$newns/g;
     $row->{ tag_regex          } =~ s/$oldns/$newns/g;
 
+    $row->{ groupid } = $o{dsttreeid} if $o{dsttreeid};
+
     my @c = keys %$row;
-    $db->execute( sprintf "insert into openc3_ci_project (%s) values(%s)",join( ',', map{ "`$_`"}@c),join(',',map{ "'$row->{$_}'" }@c) );
+    $db->execute( sprintf "insert into openc3_ci_project (%s) values(%s)",join( ',', map{ "`$_`"}@c),join(',',map{ defined $row->{$_} ? "'$row->{$_}'" : "''" }@c) );
 }
 
 map{ saveci( $o{srcns}, $o{dstns}, $_ ) }@src;
@@ -115,9 +118,11 @@ my %dmap; map{ $dmap{$_->{name}} = $_->{id} }@$dst;
 sub fill
 {
     my ( $treeid, $srcid, $dstid ) = @_;
-    die "fill err" if system "c3mc-flow-nsctl-copy-jobx --treeid $treeid --srcid $srcid --dstid $dstid --env test  ";
-    die "fill err" if system "c3mc-flow-nsctl-copy-jobx --treeid $treeid --srcid $srcid --dstid $dstid --env online";
-    die "fill err" if system "c3mc-flow-nsctl-copy-job  --treeid $treeid --srcid $srcid --dstid $dstid";
+
+    my $arg = $o{dsttreeid} ? "--dsttreeid $o{dsttreeid}" : "";
+    die "fill err" if system "c3mc-flow-nsctl-copy-jobx --treeid $treeid --srcid $srcid --dstid $dstid --env test   $arg";
+    die "fill err" if system "c3mc-flow-nsctl-copy-jobx --treeid $treeid --srcid $srcid --dstid $dstid --env online $arg";
+    die "fill err" if system "c3mc-flow-nsctl-copy-job  --treeid $treeid --srcid $srcid --dstid $dstid              $arg";
 }
 
 map{ fill( $o{treeid}, $smap{$_}, $dmap{$_} )  }grep{ $smap{$_} }keys %dmap;

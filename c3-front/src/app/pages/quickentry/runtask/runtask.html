@@ -11,7 +11,9 @@
                     </div>
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">作业: &nbsp;</label>
+                            <label class="col-sm-3 control-label">作业: &nbsp;
+                                <i ng-if="!runtask.jobsloadover" class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!runtask.jobsloadover}" ></i>
+                            </label>
                             <div class="col-sm-6">
                                 <select  class="form-control " style="font-size: 15px;height: 42px"  ng-model="choiceJob" ng-options="s.alias for s in allJobs" required>
                                 </select>
@@ -37,7 +39,21 @@
                             </div>
                         </div>
 
-                        <div ng-show="!runtask.varsvalue[ss.name] && ss.name!='C3TEXT'" class="col-sm-10 form-group">
+                        <div ng-show="!runtask.varsvalue[ss.name] && ss.name=='C3SUBTREE'" class="col-sm-10 form-group">
+                            <div>
+                                <label class="col-sm-3 control-label">{{ss.name}}: &nbsp;
+                                    <i ng-if="!runtask.c3subtreeloadover" class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!runtask.c3subtreeloadover}" ></i>
+                                </label>
+                                <div class="col-sm-6">
+                                    <select  class="form-control " style="font-size: 15px;height: 42px"  ng-model="ss.value" required>
+                                        <option ng-repeat="x in runtask.c3subtree" value="{{x.id}}">{{x.name}}</option>
+                                    </select>
+                                </div>
+                                <label class="col-sm-3" style="color: gray" >{{ss.describe}}</label>
+                            </div>
+                        </div>
+
+                        <div ng-show="!runtask.varsvalue[ss.name] && ss.name!='C3TEXT' && ss.name!='C3SUBTREE'" class="col-sm-10 form-group">
                             <div>
                                 <label class="col-sm-3 control-label">{{ss.name}}: &nbsp;</label>
                                 <div class="col-sm-6"> <input type="text" class="form-control" ng-model="ss.value" placeholder="填写任务变量" required> </div>

@@ -12,11 +12,12 @@ use MYDan::Util::OptConf;
 =head1 SYNOPSIS
 
  $0 --treeid id --srcid id --dstid id
+ $0 --treeid id --srcid id --dstid id --dsttreeid treeid
 
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->get( qw( treeid=i srcid=i dstid=i ) )->dump();
+my %o = $option->get( qw( treeid=i srcid=i dstid=i dsttreeid=i ) )->dump();
 $option->assert(qw( treeid srcid dstid ));
 
 my $db = MYDB->new( "/data/Software/mydan/JOB/conf/conn" );
@@ -96,6 +97,8 @@ sub save
     $row->{create_user} = $row->{edit_user} = 'sys-job-plugin';
 
     $row->{name} = "_ci_${id}_";
+
+    $row->{ projectid } = $o{dsttreeid} if $o{dsttreeid};
 
     my $oldjobuuid = $row->{uuid};
     $row->{uuid}   = uuid->new()->create_str;

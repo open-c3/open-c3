@@ -148,7 +148,7 @@ get '/jobs/:projectid/:jobuuid' => sub {
 
     if( $hash{approval} )
     {
-        my @colapproval = qw( uuid name cont approver deployenv action batches everyone relaxed );
+        my @colapproval = qw( uuid name cont approver deployenv action batches everyone timeout pause relaxed );
         my $rapproval = eval{ 
             $api::mysql->query( 
                 sprintf( "select %s from openc3_job_plugin_approval
@@ -283,6 +283,7 @@ post '/jobs/:projectid' => sub {
         )->check( %$data );
         return  +{ stat => $JSON::false, info => "$info: check format fail $error" } if $error;
 
+        $data->{timeout} ||= 86400 if $data->{plugin_type} eq 'approval';
         $data->{timeout} ||= 60;
         $data->{pause} ||= '';
 
@@ -586,8 +587,9 @@ post '/jobs/:projectid/:jobuuid' => sub {
         )->check( %$data );
         return  +{ stat => $JSON::false, info => "$info: check format fail $error" } if $error;
 
-        $param->{timeout} ||= 60;
-        $param->{pause} ||= '';
+        $data->{timeout} ||= 86400 if $data->{plugin_type} eq 'approval';
+        $data->{timeout} ||= 60;
+        $data->{pause} ||= '';
 
         if( $data->{plugin_type} eq 'cmd' )
         {

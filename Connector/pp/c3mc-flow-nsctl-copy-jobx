@@ -9,12 +9,13 @@ use MYDan::Util::OptConf;
 
 =head1 SYNOPSIS
 
- $0 --treeid id --srcid id --dstid id --env online | test
+ $0 --treeid id --srcid id --dstid id --env [online | test]
+ $0 --treeid id --srcid id --dstid id --env [online | test] --dsttreeid treeid
 
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->get( qw( treeid=i srcid=i dstid=i env=s ) )->dump();
+my %o = $option->get( qw( treeid=i srcid=i dstid=i env=s dsttreeid=i ) )->dump();
 $option->assert(qw( treeid srcid dstid env ));
 
 my $db = MYDB->new( "/data/Software/mydan/JOBX/conf/conn" );
@@ -46,6 +47,9 @@ sub save
     delete $row->{id};
     delete $row->{edit_time};
     $row->{name} = "_ci_${env}_${id}_";
+
+    $row->{ projectid } = $o{dsttreeid} if $o{dsttreeid};
+
     my @c = keys %$row;
     $db->execute( sprintf "insert into openc3_jobx_group (%s) values(%s)",join(',', map{ "`$_`"}@c),join(',',map{ "'$row->{$_}'" }@c) );
 }

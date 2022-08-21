@@ -24,9 +24,38 @@
 
         vm.handwritten = {};
 
+        vm.c3subtree = [];
+        vm.c3subtreeload     = false;
+        vm.c3subtreeloadover = false;
+        vm.loadsubtree = function()
+        {
+             if( vm.c3subtreeload )
+             {
+                 return;
+             }
+             vm.c3subtreeload = true;
+
+             $http.get('/api/ci/v2/c3mc/tree/subtreemap/' + vm.treeid).then(
+                 function successCallback(response) {
+                     if (response.data.stat){
+                         vm.c3subtree = response.data.data;
+                         vm.c3subtreeloadover = true;
+                     }else {
+                         toastr.error( "加载子服务树失败："+response.data.info )
+                     }
+                 },
+                 function errorCallback (response){
+                     toastr.error( "加载子服务树失败："+response.status )
+                });
+ 
+        };
+
+
+        vm.jobsloadover = false;
         vm.getAllJob = function () {
             vm.ciinfo = {}
 
+            vm.jobsloadover = false;
             $http.get('/api/ci/group/' + vm.treeid).success(function(data){
                 if(data.stat)
                 {
@@ -39,6 +68,7 @@
                     $http.get('/api/job/jobs/' + vm.treeid).then(
                         function successCallback(response) {
                             if (response.data.stat){
+                                vm.jobsloadover = true;
                                 if( vm.jobid )
                                 {
                                     angular.forEach(response.data.data, function (value, key) {
@@ -163,6 +193,11 @@
 
                                 if( value.value == "" )
                                 {
+                                    if( value.name == "C3SUBTREE" )
+                                    {
+                                        vm.loadsubtree();
+                                    }
+
                                     if( value.name == "ip" )
                                     {
                                         if( value.describe != "" )
