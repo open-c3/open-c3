@@ -56,7 +56,8 @@
 
         vm.openNewWindow = function( url )
         {
-            window.open( url, '_blank')
+            var newurl = url.replace(/&kiosk$/g,'');
+            window.open( newurl, '_blank')
         }
 
         vm.trustSrc = function()
