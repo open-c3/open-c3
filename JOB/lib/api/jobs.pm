@@ -276,7 +276,7 @@ post '/jobs/:projectid' => sub {
 
         $error = Format->new( 
             name => [ 'mismatch', qr/'/ ], 1,
-            timeout => qr/^\d+$/, 0,
+            timeout => qr/^\d*$/, 0,
             pause => [ 'mismatch', qr/'/ ], 0,
             plugin_type => [qw( in cmd scp approval  )], 1,
 
@@ -580,7 +580,7 @@ post '/jobs/:projectid/:jobuuid' => sub {
 
         $error = Format->new( 
             name => [ 'mismatch', qr/'/ ], 1,
-            timeout => qr/^\d+$/, 0,
+            timeout => qr/^\d*$/, 0,
             pause => [ 'mismatch', qr/'/ ], 0,
             plugin_type => [qw( in cmd scp approval  )], 1,
 
