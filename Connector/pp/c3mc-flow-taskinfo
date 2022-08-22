@@ -1,0 +1,78 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use MIME::Base64;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 --uuid taskuuid
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get(    qw( uuid=s ) )->dump();
+        $option->assert( qw( uuid   ) );
+
+my %var;
+sub jobx
+{
+    my $uuid = shift @_;
+    my @x = `c3mc-base-db-get -t openc3_jobx_task status projectid name starttime finishtime runtime variable  -f "uuid='$uuid'" --yaml`;
+    my $x = YAML::XS::Load join '', @x;
+    die "jobx no HASH" unless $x && ref $x eq 'HASH';
+
+    if( $x->{variable} )
+    {
+        my $var  = eval{ YAML::XS::Load decode_base64( delete $x->{variable} ) };
+        die "load variable error: $@" if $@;
+
+        $x->{'var.jobtype'} = $var->{ _jobtype_ };
+        $x->{'var.version'} = $var->{ version   };
+    }
+
+    map{ $x->{"jobx.$_"} = delete $x->{$_} } keys %$x;
+    return $x;
+}
+
+my $jobx = jobx( $o{uuid} );
+
+if( $jobx->{ 'jobx.name' } =~ /^_ci_(\d+)_$/ && $jobx->{ 'jobx.var.version' } )
+{
+    $jobx->{ 'jobx.flowid' } = $1;
+    $jobx->{ 'jobx.isflow' } = 1;
+}
+else
+{
+    print YAML::XS::Dump $jobx;
+    exit;
+}
+
+%var = ( %var, %$jobx );
+
+sub ci
+{
+    my $id = shift @_;
+    my @x = `c3mc-ci-project-show $id`;
+    my $x = YAML::XS::Load join '',@x;
+    die "ci info err" unless $x && ref $x eq 'HASH';
+    die "ci nofind groupid" unless $x->{ groupid };
+
+    map{ $x->{"ci.$_"} = delete $x->{$_} } keys %$x;
+    return $x;
+}
+
+my $ci = ci( $var{'jobx.flowid'} );
+
+%var = ( %var, %$ci );
+
+my    $tagger = qx( c3mc-base-db-get -t openc3_ci_version tagger -f "projectid=$var{ 'jobx.flowid' } and name='$var{ 'jobx.var.version' }'" );
+chomp $tagger;
+$var{ 'ci.tagger' } = $tagger;
+
+delete $var{ 'ci.buildscripts' };
+
+print YAML::XS::Dump \%var;

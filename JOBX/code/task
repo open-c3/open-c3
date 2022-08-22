@@ -167,5 +167,7 @@ return sub
         $logs->die( "update task status fail:$@" ) if $@;
     }
 
+    system "c3mc-flow-feedback -u '$uuid' | c3mc-base-send";
+
     return $status;
 }

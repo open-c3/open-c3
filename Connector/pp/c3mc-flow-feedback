@@ -1,0 +1,79 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 --uuid id
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get(    qw( uuid=s ) )->dump();
+        $option->assert( qw( uuid   ) );
+
+sub info
+{
+    my @x = `c3mc-flow-taskinfo -u $o{uuid}`;
+    my $x = YAML::XS::Load join '', @x;
+    die "taskinfo no HASH" unless $x && ref $x eq 'HASH';
+    return $x;
+}
+
+my $info = info();
+exit unless $info->{ 'jobx.isflow' };
+
+sub env
+{
+    my @x = `c3mc-job-environment`;
+    my $x = YAML::XS::Load join '', @x;
+    die "environment no HASH" unless $x && ref $x eq 'HASH';
+    return $x;
+}
+
+my $env  =  env();
+
+my %content;
+$content{ emailTitle   } = $env->{ flowTemplateEmailTitle   } || 'flow mesage';
+$content{ emailContent } = $env->{ flowTemplateEmailContent } || 'flow done, uuid: ${uuid}';
+$content{ smsContent   } = $env->{ flowTemplateSmsContent   } || 'flow done, uuid: ${uuid}';
+
+for my $key ( keys %content )
+{
+    for ( keys %$info )
+    {
+        $content{$key} =~ s/\$\{$_\}/$info->{$_}/g;
+    }
+}
+
+my %user;
+map{ $user{$_} = 1 }split /,/, $info->{ 'ci.notify' };
+$user{ $info->{ 'ci.tagger' } } = 1;
+
+exit unless %user;
+exit if $user{ x };
+
+my %res = ( to => [ keys %user ] );
+
+if(
+      ( $env->{ isFlowSuccessEmail } && $env->{ isFlowSuccessEmail } eq 'true' && $info->{ 'jobx.status' } eq 'success' )
+   || ( $env->{ isFlowFailEmail    } && $env->{ isFlowFailEmail    } eq 'true' && $info->{ 'jobx.status' } eq 'fail'    )
+)
+{
+    $res{ title   } = $content{ emailTitle   };
+    $res{ content } = $content{ emailContent };
+}
+
+if(
+      ( $env->{ isFlowSuccessSms } && $env->{ isFlowSuccessSms } eq 'true' && $info->{ 'jobx.status' } eq 'success' )
+   || ( $env->{ isFlowFailSms    } && $env->{ isFlowFailSms    } eq 'true' && $info->{ 'jobx.status' } eq 'fail'    )
+)
+{
+    $res{ mesg   } = $content{ smsContent   };
+}
+
+print YAML::XS::Dump \%res;
