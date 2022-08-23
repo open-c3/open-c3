@@ -83,6 +83,7 @@ else
     my $dockerlimit = "--memory-swap ${memlimit}m --memory ${memlimit}m --cpu-period 100000 --cpu-quota $cpuquota";
 
     my $buildarg = $o{build} || '';
+    $buildarg =~ s/\{c3version\}/$ENV{VERSION}/g;
     print "docker build $dockerlimit -t '$o{repository}:$ENV{VERSION}' -f '$o{dockerfile}' $buildarg .\n";
     die "docker build fail:$!" if system "docker build $dockerlimit -t '$o{repository}:$ENV{VERSION}' -f '$o{dockerfile}' $buildarg .";
     print "[INFO]docker build done.\n";
