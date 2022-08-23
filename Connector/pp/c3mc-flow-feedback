@@ -61,7 +61,7 @@ my %res = ( to => [ keys %user ] );
 
 if(
       ( $env->{ isFlowSuccessEmail } && $env->{ isFlowSuccessEmail } eq 'true' && $info->{ 'jobx.status' } eq 'success' )
-   || ( $env->{ isFlowFailEmail    } && $env->{ isFlowFailEmail    } eq 'true' && $info->{ 'jobx.status' } eq 'fail'    )
+   || ( $env->{ isFlowFailEmail    } && $env->{ isFlowFailEmail    } eq 'true' && $info->{ 'jobx.status' } ne 'success' )
 )
 {
     $res{ title   } = $content{ emailTitle   };
@@ -70,7 +70,7 @@ if(
 
 if(
       ( $env->{ isFlowSuccessSms } && $env->{ isFlowSuccessSms } eq 'true' && $info->{ 'jobx.status' } eq 'success' )
-   || ( $env->{ isFlowFailSms    } && $env->{ isFlowFailSms    } eq 'true' && $info->{ 'jobx.status' } eq 'fail'    )
+   || ( $env->{ isFlowFailSms    } && $env->{ isFlowFailSms    } eq 'true' && $info->{ 'jobx.status' } ne 'success' )
 )
 {
     $res{ mesg   } = $content{ smsContent   };
