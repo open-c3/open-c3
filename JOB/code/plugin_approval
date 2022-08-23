@@ -317,6 +317,6 @@ return sub
 
     return $subtaskstatus unless $taskuuid && $fromjob && $pause;
 
-    Code->new( 'pause' )->run( db => $db,  taskuuid => $taskuuid, subtaskuuid => $uuid, subtasktype => 'approval', logs => $logs );
+    Code->new( 'pause' )->run( db => $db,  taskuuid => $taskuuid, subtaskuuid => $uuid, subtasktype => 'approval', logs => $logs ) if $subtaskstatus eq 'success';
     return $subtaskstatus;
 }
