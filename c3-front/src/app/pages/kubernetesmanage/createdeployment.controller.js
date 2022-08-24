@@ -174,6 +174,12 @@
                        });
                    }
  
+                   $scope.hostAliases = [];
+                   if( vm.editData.spec.template.spec && vm.editData.spec.template.spec.hostAliases )
+                   {
+                       $scope.hostAliases = vm.editData.spec.template.spec.hostAliases;
+                   }
+ 
  
                 } else { 
                     toastr.error("加载YAML信息失败:" + data.info)
@@ -278,6 +284,12 @@
                        angular.forEach(vm.editData.spec.template.spec.nodeSelector, function (v, k) {
                            $scope.nodeSelector.push( { "K": k, "V": v })
                        });
+                   }
+ 
+                   $scope.hostAliases = [];
+                   if( vm.editData.spec.template.spec && vm.editData.spec.template.spec.hostAliases )
+                   {
+                       $scope.hostAliases = vm.editData.spec.template.spec.hostAliases;
                    }
  
                     vm.loadover = true;
@@ -404,6 +416,15 @@
                 delete vm.editData.spec.template.spec.nodeSelector;
             }
 
+//hostAliases
+            if( Object.keys($scope.hostAliases).length > 0 )
+            {
+                vm.editData.spec.template.spec.hostAliases = $scope.hostAliases;
+            }
+            else
+            {
+                delete vm.editData.spec.template.spec.hostAliases;
+            }
 
 //clean temp data
             angular.forEach(vm.editData.spec.template.spec.containers, function (v, k) {
@@ -549,6 +570,25 @@ if( vm.addservice === 1 )
             $scope.nodeSelector.splice(id, 1);
         }
 
+//hostAliases
+        $scope.hostAliases = [];
+        vm.addHostAliases = function()
+        {
+            $scope.hostAliases.push({ "ip": "", "hostnames": [ "" ] });
+        }
+        vm.delHostAliases = function(id)
+        {
+            $scope.hostAliases.splice(id, 1);
+        }
+
+        vm.addHostAliasesHostname = function(id)
+        {
+            $scope.hostAliases[id].hostnames.push("")
+        }
+        vm.delHostAliasesHostname = function(id,uuid)
+        {
+            $scope.hostAliases[id].hostnames.splice(uuid, 1);
+        }
 
 //Secret
         vm.autoGetSecret = function()
