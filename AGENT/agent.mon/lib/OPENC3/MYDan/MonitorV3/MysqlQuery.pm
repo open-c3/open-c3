@@ -11,6 +11,11 @@ use AnyEvent::Handle;
 use AnyEvent::HTTP;
 use MIME::Base64;
 
+BEGIN
+{
+    system "mkdir -p /data/open-c3-data/mysqld-exporter-v3/cache";
+};
+
 my ( %proxy, %carry );
 
 sub new
@@ -136,6 +141,11 @@ sub run
                            else
                            {
                                $url = "http://openc3-mysqld-exporter-v3-$ip-$port:9104/metrics";
+                               eval{
+                                   YAML::XS::DumpFile "/data/open-c3-data/mysqld-exporter-v3/cache/$addr",
+                                      +{ ip => $ip, port => $port, user => "", password => "" };
+                               };
+                               warn "ERROR dump fail: $@" if $@;
                            }
 
                            return if $index{$idx}{http_get};

@@ -274,6 +274,9 @@ if( $name eq 'extend-exporter' )
         push @cmd, "cat $file | c3mc-mon-$type-sdformat --output /data/Software/mydan/prometheus/config/openc3_${type}_sd.yml";
     }
 
+    push @cmd, "find /data/open-c3-data/mysqld-exporter-v3/cache/ -type f -mmin -60 | c3mc-mon-mysql-v3-exportermaker";
+    push @cmd, "find /data/open-c3-data/mysqld-exporter-v3/cache/ -type f -mmin -60 | c3mc-mon-mysql-v3-exporterclean";
+
     unless( @cmd ) { $0 = "agent_server_$name"; sleep 10*365*86400; exit; } 
 
     OPENC3::PP::Server->new(
