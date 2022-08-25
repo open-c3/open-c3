@@ -1,0 +1,61 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib
+use strict;
+use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use Encode;
+use YAML::XS;
+use MYDan::Util::OptConf;
+use MYDan::Agent::Proxy;
+use Util;
+
+=head1 SYNOPSIS
+
+ $0 ip1:port ip2:port ... ipn:port
+ $0 ip1:port ip2:port ... ipn:port --output /path/foo.yaml
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( output=s ) )->dump();
+
+my %env = Util::envinfo( qw( appname appkey ) );
+$ENV{ MYDan_Agent_Proxy_Addr   } = "http://api.agent.open-c3.org/proxy/0";
+$ENV{ MYDan_Agent_Proxy_Header } = "appname:$env{appname},appkey:$env{appkey}";
+
+my $proxy = MYDan::Agent::Proxy->new();
+
+my @addr;
+
+if( @ARGV )
+{
+    @addr = @ARGV;
+}
+else
+{
+    while(<STDIN>){ chomp; push @addr, $_; }
+}
+
+my @ip; map{ my @x = split /:/, $_; push @ip, $x[0]; }@addr;
+
+my ( %p, %proxy ) = $proxy->search( @ip );
+
+map{
+    my @x = split /:/, $_;
+    $proxy{ $_ } = $p{ $x[0] };
+}@addr;
+
+if( $o{output} )
+{
+    my $temp = "$o{output}.temp.$$";
+    YAML::XS::DumpFile $temp, \%proxy;
+    rename $temp, $o{output} or die "rename fail: $!";
+    exit;
+}
+
+print YAML::XS::Dump \%proxy;

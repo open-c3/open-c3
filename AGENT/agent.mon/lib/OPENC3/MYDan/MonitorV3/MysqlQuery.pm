@@ -136,7 +136,7 @@ sub run
                            {
                                my $carry = $carry{$addr}      ? "carry_$carry{$ip}_carry" : "";
                                my $debug = $data =~ /debug=1/ ? "debug=1"                 : "";
-                               $url = "http://$proxy{$addr}/mysql/metrics/addr_-${addr}_addr/$carry/$debug";
+                               $url = "http://$proxy{$addr}:65113/mysql/metrics/addr_-${addr}_addr/$carry/$debug";
                            }
                            else
                            {

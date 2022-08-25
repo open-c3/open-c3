@@ -236,6 +236,8 @@ if( $name eq 'carry' )
         "cat /data/Software/mydan/AGENT/conf/promesd.temp | awk -F';' '{print \$2}'| c3mc-mon-proxy --output /data/Software/mydan/AGENT/conf/openc3_proxy.yml",
         "cat /data/Software/mydan/AGENT/conf/promesd.temp | awk -F';' '{print \$2}'| sort | uniq | c3mc-base-ipfilter -f '$uexip' | c3mc-base-uexip --output /data/Software/mydan/AGENT/conf/openc3_uexip.yml",
         "c3mc-mon-treeinfo > /data/Software/mydan/Connector/local/treeinfo.txt.temp && mv /data/Software/mydan/Connector/local/treeinfo.txt.temp /data/Software/mydan/Connector/local/treeinfo.txt",
+#mysql
+        "cat /data/Software/mydan/AGENT/conf/promesdmysql.temp | awk -F';' '{print \$2}'| c3mc-mon-proxy-port --output /data/Software/mydan/AGENT/conf/openc3_mysql_proxy.yml",
     );
 }
 
