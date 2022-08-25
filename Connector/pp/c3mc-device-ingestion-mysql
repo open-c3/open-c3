@@ -28,8 +28,20 @@ for my $ingestion ( glob "/data/open-c3-data/device/curr/database/*/ingestion-my
     $datafile =~ s/ingestion-mysql\.yml$/data\.tsv/;
     my $colmap = eval{ YAML::XS::LoadFile $ingestion };
     die "load $ingestion fail: $@" if $@;
-    map{ die "err" unless $colmap->{$_} }qw( addr auth tree type );
+    map{ die "err" unless $colmap->{$_} }qw( addr tree type );
+    die "err" unless $colmap->{auth} || $colmap->{authfile};
 
+    my %auth;
+    if( $colmap->{authfile} )
+    {
+        my @auth = `cat '$colmap->{authfile}'`;
+        chomp @auth;
+        for( @auth )
+        {
+            my @x = split /;/, $_, 2;
+            $auth{ $x[0] } = $x[1] if @x == 2;
+        }
+    }
     my ( undef, $subtype, $type ) = reverse split /\//, $datafile;
     my    @data  = `c3mc-device-cat $type $subtype`;
     chomp @data;
@@ -50,9 +62,17 @@ for my $ingestion ( glob "/data/open-c3-data/device/curr/database/*/ingestion-my
              addr => ref $colmap->{addr} eq 'ARRAY'
                      ? join( ":", ( $d{ $colmap->{addr}[0] }, $colmap->{addr}[1] ? $d{ $colmap->{addr}[1] } : '3306' ) )
                      : $d{ $colmap->{addr} },
-             auth => ref $colmap->{auth} eq 'ARRAY' ?  join( ":", ( $d{ $colmap->{auth}[0] }, $d{ $colmap->{auth}[1] } )) : $d{ $colmap->{auth} },
              type =>     $colmap->{type},
          );
+
+         if( $colmap->{authfile} )
+         {
+             $tmp{auth} = $auth{$tmp{addr}} || '';
+         }
+         else
+         {
+             $tmp{auth} = ref $colmap->{auth} eq 'ARRAY' ?  join( ":", ( $d{ $colmap->{auth}[0] }, $d{ $colmap->{auth}[1] } )) : $d{ $colmap->{auth} };
+         }
          for my $tree ( split /,/, $treename )
          {
              $data{$tree} ||= [];
