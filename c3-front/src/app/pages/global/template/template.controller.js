@@ -80,6 +80,7 @@
             vm.save( msmDetail )
         };
 
+//CI
         vm.emailCiSet = function () {
             vm.environment.ciTemplateEmailTitle = "Open-C3构建消息 项目: ${projectname} 版本:${version}";
             vm.environment.ciTemplateEmailContent = "状态: ${status}\n服务树:${treename}\n项目名称: ${projectname}\n代码仓库地址: ${addr}\n版本: ${version}\n触发测试环境发布: ${calltestenv}\n触发线上环境发布: ${callonlineenv}\n错误信息: ${errormsg}\n构建日志:\n${buildlog}\n\n详情:" + window.location.protocol + '//' + window.location.host + "/#/quickentry/flowlinedetail/${treeid}/${projectid}";
@@ -99,6 +100,29 @@
         vm.smsCiSave = function () {
             var msmDetail = {};
             msmDetail['ciTemplateSmsContent'] = vm.environment.ciTemplateSmsContent;
+            vm.save( msmDetail )
+        };
+ 
+//Flow
+        vm.emailFlowSet = function () {
+            vm.environment.flowTemplateEmailTitle = "Open-C3发布消息 项目: ${ci.name} 版本:${jobx.var.version}";
+            vm.environment.flowTemplateEmailContent = "状态: ${jobx.status}\n项目名称: ${ci.name}\n代码仓库地址: ${ci.addr}\n版本: ${jobx.var.version}\n\n详情:" + window.location.protocol + '//' + window.location.host + "/#/quickentry/flowlinedetail/${ci.groupid}/${ci.id}";
+        };
+ 
+        vm.emailFlowSave = function () {
+            var emailDetail = {};
+            emailDetail['flowTemplateEmailTitle'] = vm.environment.flowTemplateEmailTitle;
+            emailDetail['flowTemplateEmailContent'] = vm.environment.flowTemplateEmailContent;
+            vm.save( emailDetail )
+        };
+
+        vm.smsFlowSet = function () {
+            vm.environment.flowTemplateSmsContent = "Open-C3发布消息\n状态: ${jobx.status}\n项目名称: ${ci.name}\n代码仓库地址: ${ci.addr}\n版本: ${jobx.var.version}\n\n详情:" + window.location.protocol + '//' + window.location.host + "/#/quickentry/flowlinedetail/${ci.groupid}/${ci.id}";
+        };
+ 
+        vm.smsFlowSave = function () {
+            var msmDetail = {};
+            msmDetail['flowTemplateSmsContent'] = vm.environment.flowTemplateSmsContent;
             vm.save( msmDetail )
         };
  

@@ -136,6 +136,74 @@
 
 
         </uib-tab>
+
+        <uib-tab>
+            <uib-tab-heading>发布通知模版</uib-tab-heading>
+
+
+
+                <br> <br>
+                <div class="panel panel-primary">
+
+                    <div class="panel-heading">
+                        <span class="panel-controls">
+                            <button class="btn btn-primary" uib-tooltip="复制模版" ng-click="template.emailFlowSet()"><i class="fa fa-clone" aria-hidden="true"></i></button>
+                            <button class="btn btn-primary" uib-tooltip="保存" ng-click="template.emailFlowSave()"><i class="fa fa-floppy-o" aria-hidden="true"></i></button>
+                            <button class="btn btn-primary" uib-tooltip="刷新" ng-click="template.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!template.loadover}" ></i></button>
+                        </span>
+                        <h5 style="font-weight: bold;">邮件模板</h5>
+                    </div>
+                    <div class="panel-body">
+                        <form class="form-horizontal" name="templateForm"  role="form" novalidate>
+                            <div class="row">
+                                <div class="col-sm-10 form-group">
+                                    <label class="col-sm-2 control-label">邮件标题： </label>
+                                    <div class="col-sm-9">
+                                        <input type="text" class="form-control" ng-model="template.environment.flowTemplateEmailTitle"/>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-sm-10 form-group">
+                                    <label class="col-sm-2 control-label">邮件内容： </label>
+                                    <div class="col-sm-9">
+                                        <textarea style="height: 250px" class="fluid-width" ng-model="template.environment.flowTemplateEmailContent" id="emailDetail" ></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+
+                </div>
+                <div class="panel panel-primary">
+
+                    <div class="panel-heading">
+                        <span class="panel-controls">
+                            <button class="btn btn-primary" uib-tooltip="复制模版" ng-click="template.smsFlowSet()"><i class="fa fa-clone" aria-hidden="true"></i></button>
+                            <button class="btn btn-primary" uib-tooltip="保存" ng-click="template.smsFlowSave()"><i class="fa fa-floppy-o" aria-hidden="true"></i></button>
+                            <button class="btn btn-primary" uib-tooltip="刷新" ng-click="template.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!template.loadover}" ></i></button>
+                        </span>
+                        <h5 style="font-weight: bold;">短信模板</h5>
+                    </div>
+                    <div class="panel-body">
+                        <form class="form-horizontal" name="templateForm"  role="form" novalidate>
+
+                            <div class="row">
+                                <div class="col-sm-10 form-group">
+                                    <label class="col-sm-2 control-label">短信内容： </label>
+                                    <div class="col-sm-9">
+                                        <textarea style="height: 150px" class="fluid-width"  ng-model="template.environment.flowTemplateSmsContent"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+
+                </div>
+
+        </uib-tab>
         <uib-tab>
             <uib-tab-heading>审批通知模版</uib-tab-heading>
 

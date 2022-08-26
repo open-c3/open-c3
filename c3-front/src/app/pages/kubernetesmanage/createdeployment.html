@@ -934,6 +934,41 @@
 
             <div class="row">
                 <div class="col-sm-12 form-group">
+                    <label class="col-sm-1 control-label">hostAliases</label>
+                    <div class="col-sm-1">
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.addHostAliases()" uib-tooltip="添加" style="cursor:pointer;color: #339094;" ></i>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="col-sm-12 form-group">
+                    <label class="col-sm-1 control-label"></label>
+                    <div class="col-sm-7">
+                        <table  border="0" style="width: 100%">
+                            <tr ng-repeat="(id, x) in hostAliases">
+                                <td><input type="text" class="form-control"  ng-model="x.ip" placeholder="IP地址" ></td>
+                                <td style="width: 20px">=</td>
+                                <td>
+                                    <div ng-repeat="(uuid, xx) in hostAliases[id].hostnames track by $index" >
+                                        <input type="text" class="form-control"  ng-model="hostAliases[id].hostnames[uuid]" placeholder="域名" >
+                                        <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.delHostAliasesHostname(id,uuid)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                    </div>
+                                </td>
+                                <td style="width: 50px">
+                                    <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.addHostAliasesHostname(id)" uib-tooltip="添加" style="cursor:pointer;color: #339094;" ></i>
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.delHostAliases(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                </td>
+                            </tr>
+                       </table>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="row">
+                <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">容器</label>
                     <div class="col-sm-6">
                             <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedeployment.addContainer()" uib-tooltip="添加容器" style="cursor:pointer;color: #339094;" ></i>

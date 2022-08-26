@@ -40,6 +40,10 @@ if( $name eq 'promesd' )
     my $tempfile       = "$nodetemp.$$";
     my $openc3_node_sd = '/data/Software/mydan/prometheus/config/openc3_node_sd.yml';
 
+    my $mysqltemp       = "/data/Software/mydan/AGENT/conf/promesdmysql.temp";
+    my $mysqltmp        = "$mysqltemp.$$";
+    my $openc3_mysql_sd = '/data/Software/mydan/prometheus/config/openc3_mysql_sd_v3.yml';
+
     my $mode = OPENC3::SysCtl->new()->get( 'sys.monitor.mode' ) // 'single';
 
     my $greptree = OPENC3::SysCtl->new()->get( 'sys.monitor.grep.tree' );
@@ -74,6 +78,19 @@ if( $name eq 'promesd' )
                "c3mc-mon-nodesd-format --output $openc3_node_sd.temp",
            ],
            "mv $tempfile $nodetemp && mv $openc3_node_sd.temp $openc3_node_sd",
+#mysql
+           [
+               "c3mc-base-treemap",
+               $greptree ? sprintf( "grep -E '%s'", join '|', map{ ";$_" }split /,/, $greptree ) : undef,
+               "awk -F';' '{print \$1}'",
+               "c3mc-device-ingestion-mysql -c projectid,addr,auth",
+               $grepnode ? sprintf( "grep -E '%s'", join '|', map{ ";$_" }split /,/, $grepnode ) : undef,
+               ( -f $ignore ) ? "c3mc-base-grepv -c 2 -f $ignore" : undef,
+               "tee $mysqltmp",
+               "c3mc-mon-mysqlsd-format --output $openc3_mysql_sd.temp",
+           ],
+           "mv $mysqltmp $mysqltemp && mv $openc3_mysql_sd.temp $openc3_mysql_sd",
+
         );
     }
     elsif( $mode eq 'prometheus' )
@@ -219,6 +236,9 @@ if( $name eq 'carry' )
         "cat /data/Software/mydan/AGENT/conf/promesd.temp | awk -F';' '{print \$2}'| c3mc-mon-proxy --output /data/Software/mydan/AGENT/conf/openc3_proxy.yml",
         "cat /data/Software/mydan/AGENT/conf/promesd.temp | awk -F';' '{print \$2}'| sort | uniq | c3mc-base-ipfilter -f '$uexip' | c3mc-base-uexip --output /data/Software/mydan/AGENT/conf/openc3_uexip.yml",
         "c3mc-mon-treeinfo > /data/Software/mydan/Connector/local/treeinfo.txt.temp && mv /data/Software/mydan/Connector/local/treeinfo.txt.temp /data/Software/mydan/Connector/local/treeinfo.txt",
+#mysql
+        "cat /data/Software/mydan/AGENT/conf/promesdmysql.temp | awk -F';' '{print \$2}'| c3mc-mon-proxy-port --output /data/Software/mydan/AGENT/conf/openc3_mysql_proxy.yml",
+        "cat /data/Software/mydan/AGENT/conf/promesdmysql.temp |                          c3mc-mon-carry-mysql --output /data/Software/mydan/AGENT/conf/openc3_mysql_carry.yml",
     );
 }
 
@@ -256,6 +276,9 @@ if( $name eq 'extend-exporter' )
         push @cmd, "cat $file | c3mc-mon-$type-exporterclean";
         push @cmd, "cat $file | c3mc-mon-$type-sdformat --output /data/Software/mydan/prometheus/config/openc3_${type}_sd.yml";
     }
+
+    push @cmd, "find /data/open-c3-data/mysqld-exporter-v3/cache/ -type f -mmin -60 | c3mc-mon-mysql-v3-exportermaker";
+    push @cmd, "find /data/open-c3-data/mysqld-exporter-v3/cache/ -type f -mmin -60 | c3mc-mon-mysql-v3-exporterclean";
 
     unless( @cmd ) { $0 = "agent_server_$name"; sleep 10*365*86400; exit; } 
 

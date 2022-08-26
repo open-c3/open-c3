@@ -112,6 +112,8 @@ return sub
                 $db->execute( "update openc3_jobx_task set status='fail',runtime='$runtime', finishtime='$finishtime',finishtimems='$finishtimems' where id=$id" );
             };
             $logs->err( "update task status fail: id=$id :$@" ) if $@;
+
+            system "c3mc-flow-feedback -u '$uuid' | c3mc-base-send";
         }
         sleep 3;
     }
