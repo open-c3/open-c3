@@ -12,4 +12,5 @@ docker run -d -p 65113:65113 \
   -v /bin/docker:/bin/docker \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -v /data/open-c3-data/mysqld-exporter-v3:/data/open-c3-data/mysqld-exporter-v3 \
+  -e C3_MysqlQuery_Container=1 \
   openc3/mysql-query:$VERSION
