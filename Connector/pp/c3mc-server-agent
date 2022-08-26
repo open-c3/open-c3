@@ -83,7 +83,7 @@ if( $name eq 'promesd' )
                "c3mc-base-treemap",
                $greptree ? sprintf( "grep -E '%s'", join '|', map{ ";$_" }split /,/, $greptree ) : undef,
                "awk -F';' '{print \$1}'",
-               "c3mc-device-ingestion-mysql -c projectid,addr",
+               "c3mc-device-ingestion-mysql -c projectid,addr,auth",
                $grepnode ? sprintf( "grep -E '%s'", join '|', map{ ";$_" }split /,/, $grepnode ) : undef,
                ( -f $ignore ) ? "c3mc-base-grepv -c 2 -f $ignore" : undef,
                "tee $mysqltmp",
@@ -238,6 +238,7 @@ if( $name eq 'carry' )
         "c3mc-mon-treeinfo > /data/Software/mydan/Connector/local/treeinfo.txt.temp && mv /data/Software/mydan/Connector/local/treeinfo.txt.temp /data/Software/mydan/Connector/local/treeinfo.txt",
 #mysql
         "cat /data/Software/mydan/AGENT/conf/promesdmysql.temp | awk -F';' '{print \$2}'| c3mc-mon-proxy-port --output /data/Software/mydan/AGENT/conf/openc3_mysql_proxy.yml",
+        "cat /data/Software/mydan/AGENT/conf/promesdmysql.temp |                          c3mc-mon-carry-mysql --output /data/Software/mydan/AGENT/conf/openc3_mysql_carry.yml",
     );
 }
 

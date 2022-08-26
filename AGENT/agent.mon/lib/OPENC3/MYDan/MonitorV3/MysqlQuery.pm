@@ -125,8 +125,12 @@ sub run
                            my ( $ip, $port ) = ( $1, $2 );
                            my $addr = "$ip:$port";
 
+                           my %exp = ( ip => $ip, port => $port, user => "", password => "" );
                            if( $carry{$addr} && ref $carry{$addr} )
                            {
+
+                               %exp = ( %exp, %{$carry{$addr} } );
+
                                $carry{$addr} = encode_base64( YAML::XS::Dump $carry{$addr} );
                                $carry{$addr} =~ s/\n//g;
                            }
@@ -134,7 +138,7 @@ sub run
                            my $url;
                            if( $proxy{$addr} )
                            {
-                               my $carry = $carry{$addr}      ? "carry_$carry{$ip}_carry" : "";
+                               my $carry = $carry{$addr}      ? "carry_$carry{$addr}_carry" : "";
                                my $debug = $data =~ /debug=1/ ? "debug=1"                 : "";
                                $url = "http://$proxy{$addr}:65113/mysql/metrics/addr_-${addr}_addr/$carry/$debug";
                            }
@@ -142,8 +146,7 @@ sub run
                            {
                                $url = "http://openc3-mysqld-exporter-v3-$ip-$port:9104/metrics";
                                eval{
-                                   YAML::XS::DumpFile "/data/open-c3-data/mysqld-exporter-v3/cache/$addr",
-                                      +{ ip => $ip, port => $port, user => "", password => "" };
+                                   YAML::XS::DumpFile "/data/open-c3-data/mysqld-exporter-v3/cache/$addr", \%exp;
                                };
                                warn "ERROR dump fail: $@" if $@;
                            }
