@@ -126,6 +126,15 @@ sub run
                            my $addr = "$ip:$port";
 
                            my %exp = ( ip => $ip, port => $port, user => "", password => "" );
+
+                           if( $data =~ m#(carry_[a-zA-Z0-9+/=]+_carry)#  )
+                           {
+                               my $carry = $1;
+                               my $exp = eval{ YAML::XS::Load decode_base64( $carry ) };
+                               warn "node exporter carry data err: $@" if $@;
+                               %exp = ( %exp, %$exp ) if $exp && ref $exp eq 'HASH';
+                           }
+
                            if( $carry{$addr} && ref $carry{$addr} )
                            {
 
@@ -140,7 +149,7 @@ sub run
                            {
                                my $carry = $carry{$addr}      ? "carry_$carry{$addr}_carry" : "";
                                my $debug = $data =~ /debug=1/ ? "debug=1"                 : "";
-                               $url = "http://$proxy{$addr}:65113/mysql/metrics/addr_-${addr}_addr/$carry/$debug";
+                               $url = "http://$proxy{$addr}:65113/mysql/metrics/query_${addr}_query/$carry/$debug";
                            }
                            else
                            {
