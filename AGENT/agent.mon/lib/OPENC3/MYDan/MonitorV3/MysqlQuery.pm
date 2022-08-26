@@ -11,9 +11,11 @@ use AnyEvent::Handle;
 use AnyEvent::HTTP;
 use MIME::Base64;
 
+my $cmc;
 BEGIN
 {
     system "mkdir -p /data/open-c3-data/mysqld-exporter-v3/cache";
+    $cmc = 1 if $ENV{C3_MysqlQuery_Container};
 };
 
 my ( %proxy, %carry );
@@ -120,6 +122,7 @@ sub run
                    sub { 
                        my $data = $_[1];
 
+                       print "$data\n" if $cmc;
                        if( $data =~ m#/query_([\d+\.\d+\.\d+\.\d+]+):(\d+)_query# )
                        {
                            my ( $ip, $port ) = ( $1, $2 );
@@ -127,11 +130,11 @@ sub run
 
                            my %exp = ( ip => $ip, port => $port, user => "", password => "" );
 
-                           if( $data =~ m#(carry_[a-zA-Z0-9+/=]+_carry)#  )
+                           if( $data =~ m#carry_([a-zA-Z0-9+/=]+)_carry#  )
                            {
                                my $carry = $1;
                                my $exp = eval{ YAML::XS::Load decode_base64( $carry ) };
-                               warn "node exporter carry data err: $@" if $@;
+                               warn "mysql query carry data err: $@" if $@;
                                %exp = ( %exp, %$exp ) if $exp && ref $exp eq 'HASH';
                            }
 
