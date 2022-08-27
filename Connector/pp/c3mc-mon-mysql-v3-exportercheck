@@ -1,0 +1,54 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my @x = `docker ps|grep openc3-mysqld-exporter-v3-`;
+chomp @x;
+
+my $envpath = "/data/open-c3-data/mysqld-exporter-v3/uuidenv";
+system "mkdir -p $envpath" unless -d $envpath;
+
+sub getds
+{
+    my $uuid = shift;
+    
+    system "docker exec -it $uuid env > $envpath/$uuid" unless -f "$envpath/$uuid";
+
+    my    $x = '';
+    my    @x = `cat $envpath/$uuid`;
+    chomp @x;
+    map{
+        my @xx = split /=/, $_;
+        $x     = $xx[1];
+    }
+    grep{
+      /DATA_SOURCE_NAME/
+    }@x;
+
+    $x=~ s/\r//;
+
+    return $x;
+}
+
+for my $x ( @x )
+{
+    next unless $x =~ /^([a-zA-Z0-9]{12}).+openc3-mysqld-exporter-v3-(\d+\.\d+\.\d+\.\d+)-(\d+)$/;
+    my ( $addr, $uuid ) = ( "$2:$3", $1 );
+    my $x = getds( $uuid );
+
+    my $conf = eval{ YAML::XS::LoadFile "/data/open-c3-data/mysqld-exporter-v3/cache/$addr"; };
+    warn "load cache $addr fail: $@" if $@;
+
+    next unless $conf && ref $conf eq 'HASH';
+
+    system "docker kill $uuid" if $x ne "$conf->{user}:$conf->{password}@($conf->{ip}:$conf->{port})/";
+}

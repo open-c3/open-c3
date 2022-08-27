@@ -277,6 +277,7 @@ if( $name eq 'extend-exporter' )
         push @cmd, "cat $file | c3mc-mon-$type-sdformat --output /data/Software/mydan/prometheus/config/openc3_${type}_sd.yml";
     }
 
+    push @cmd, "c3mc-mon-mysql-v3-exportercheck";
     push @cmd, "find /data/open-c3-data/mysqld-exporter-v3/cache/ -type f -mmin -60 | c3mc-mon-mysql-v3-exportermaker";
     push @cmd, "find /data/open-c3-data/mysqld-exporter-v3/cache/ -type f -mmin -60 | c3mc-mon-mysql-v3-exporterclean";
 
