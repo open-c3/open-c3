@@ -7,7 +7,7 @@ set -e
   --errname agent.server.extend-exporter \
   --name    agent_supervisor \
   --err     /var/log/open-c3.error.log \
-  --cmd     c3mc-server-agent extend-exporter  \
+  --cmd     'c3mc-server-agent extend-exporter'  \
   --log     /data/Software/mydan/AGENT/logs/server/extend-exporter
 
 /data/Software/mydan/AGENT/tools/../../JOB/bin/supervisor \
