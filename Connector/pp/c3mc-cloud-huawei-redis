@@ -1,0 +1,91 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+
+from huaweicloudsdkcore.auth.credentials import BasicCredentials
+from huaweicloudsdkdcs.v2.region.dcs_region import DcsRegion
+from huaweicloudsdkdcs.v2 import *
+
+
+class Redis:
+    def __init__(self, access_id, access_key, project_id, region):
+        self.access_id = access_id
+        self.access_key = access_key
+        if project_id == "None":
+            self.project_id = None
+        else:
+            self.project_id = project_id.strip()
+        self.region = region
+        self.offset = 0
+        self.page_number = 1
+        self.page_size = 25
+
+        self.client = self.create_client()
+
+    def create_client(self):
+        credentials = BasicCredentials(self.access_id, self.access_key, self.project_id)
+        client = DcsClient.new_builder() \
+            .with_credentials(credentials) \
+            .with_region(DcsRegion.value_of(self.region)) \
+            .build()
+        return client
+
+    def set_request(self):
+        request = ListInstancesRequest(offset=self.offset, limit=self.page_size)
+        return request
+
+    def get_response(self):
+        response_data = {}
+        err = None
+        request = self.set_request()
+        try:
+            response = self.client.list_instances(request)
+            response_data = json.loads(str(response))
+        except Exception as e:
+            err = e
+        return response_data, err
+
+    def get_server_count(self):
+        response_data, err = self.get_response()
+        if err is not None:
+            sys.stdout.write(str(err))
+            return False
+        count = response_data['instance_num']
+        return count
+
+    def show(self):
+        response_data, err = self.get_response()
+        if err is not None:
+            sys.stdout.write("get_response.err: {}".format(str(err)))
+            return False
+        try:
+            ret = response_data['instances']
+        except (KeyError, TypeError):
+            sys.stdout.write("extract data got err: {}".format(str(err)))
+            return False
+        for i in ret:
+            print(json.dumps(i))
+
+    def page(self):
+        count = self.get_server_count()
+        mod = count % self.page_size
+        if mod:
+            total_page_number = int(count / self.page_size) + 1
+        else:
+            total_page_number = int(count / self.page_size)
+
+        for cur_page_number in range(0, total_page_number + 1):
+            self.offset = cur_page_number * self.page_number
+            self.show()
+
+
+# project_id 可以命令行传 None
+def main(access_id, access_key, project_id, region):
+    ecs = Redis(access_id, access_key, project_id, region)
+    ecs.page()
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
