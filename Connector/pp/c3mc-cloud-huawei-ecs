@@ -37,49 +37,33 @@ class Ecs:
         return request
 
     def get_response(self):
-        response_data = {}
-        err = None
         request = self.set_request()
-        try:
-            response = self.client.list_servers_details(request)
-            response_data = json.loads(str(response))
-        except Exception as e:
-            err = e
-        return response_data, err
+        response = self.client.list_servers_details(request)
+        response_data = json.loads(str(response))
+        return response_data
 
     def get_server_count(self):
-        response_data, err = self.get_response()
-        if err is not None:
-            sys.stdout.write(str(err))
-            return False
-        count = response_data['count']
-        return count
+        response_data = self.get_response()
+        return response_data['count']
 
     def show(self):
-        response_data, err = self.get_response()
-        if err is not None:
-            sys.stdout.write("get_response.err: {}".format(str(err)))
-            return False
-        try:
-            ret = response_data['servers']
-        except (KeyError, TypeError):
-            sys.stdout.write("extract data got err: {}".format(str(err)))
-            return False
-        for i in ret:
+        response_data = self.get_response()
+        servers = response_data['servers']
+        for server in servers:
             private_ip = None
             public_ip = None
-            for attr, value in i['addresses'].items():
+            for attr, value in server['addresses'].items():
                 for item in value:
                     if ipaddress.ip_address(item['addr']).is_private:
                         private_ip = item['addr']
                     else:
                         public_ip = item['addr']
             if private_ip is not None:
-                i['private_ip'] = private_ip
+                server['private_ip'] = private_ip
             if public_ip is not None:
-                i['public_ip'] = public_ip
-            i['region_id'] = i['OS-EXT-AZ:availability_zone'][:-1]
-            print(json.dumps(i))
+                server['public_ip'] = public_ip
+            server['region_id'] = server['OS-EXT-AZ:availability_zone'][:-1]
+            print(json.dumps(server))
 
     def page(self):
         count = self.get_server_count()

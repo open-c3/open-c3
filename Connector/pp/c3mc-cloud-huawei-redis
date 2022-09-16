@@ -37,41 +37,25 @@ class Redis:
         return request
 
     def get_response(self):
-        response_data = {}
-        err = None
         request = self.set_request()
-        try:
-            response = self.client.list_instances(request)
-            response_data = json.loads(str(response))
-        except Exception as e:
-            err = e
-        return response_data, err
+        response = self.client.list_instances(request)
+        response_data = json.loads(str(response))
+        return response_data
 
     def get_server_count(self):
-        response_data, err = self.get_response()
-        if err is not None:
-            sys.stdout.write(str(err))
-            return False
-        count = response_data['instance_num']
-        return count
+        response_data = self.get_response()
+        return response_data["instance_num"]
 
     def show(self):
-        response_data, err = self.get_response()
-        if err is not None:
-            sys.stdout.write("get_response.err: {}".format(str(err)))
-            return False
-        try:
-            ret = response_data['instances']
-        except (KeyError, TypeError):
-            sys.stdout.write("extract data got err: {}".format(str(err)))
-            return False
-        for i in ret:
+        response_data = self.get_response()
+        instances = response_data["instances"]
+        for instance in instances:
             availability_zone = None
-            for item in i['az_codes']:
+            for item in instance['az_codes']:
                 availability_zone = item
             if availability_zone is not None:
-                i['availability_zone'] = availability_zone
-            print(json.dumps(i))
+                instance['availability_zone'] = availability_zone
+            print(json.dumps(instance))
 
     def page(self):
         count = self.get_server_count()
