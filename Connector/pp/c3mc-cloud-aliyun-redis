@@ -6,25 +6,21 @@ import json
 from aliyunsdkcore.client import AcsClient
 from aliyunsdkr_kvstore.request.v20150101.DescribeInstancesRequest import DescribeInstancesRequest
 
-class REDIS():
+
+class REDIS:
     def __init__(self, access_id, access_key, region):
-        self.region     = region
-        self.access_id  = access_id
+        self.region = region
+        self.access_id = access_id
         self.access_key = access_key
 
     def get_region_redis(self, page_number=1, page_size=50):
-        try:
-            clt = AcsClient(self.access_id, self.access_key, self.region)
-            request = DescribeInstancesRequest()
-            request.set_accept_format('json')
-            request.set_PageNumber(page_number)
-            request.set_PageSize(page_size)
-            response = clt.do_action_with_exception(request)
-            return json.loads(response)
-        except Exception as err:
-            print(err)
-
-        return {}
+        clt = AcsClient(self.access_id, self.access_key, self.region)
+        request = DescribeInstancesRequest()
+        request.set_accept_format('json')
+        request.set_PageNumber(page_number)
+        request.set_PageSize(page_size)
+        response = clt.do_action_with_exception(request)
+        return json.loads(response)
 
     def get_redis_all(self):
         page_num = 1
@@ -33,19 +29,23 @@ class REDIS():
             if not data and 'Instances' not in data: break
             page_num += 1
             row = data['Instances']['KVStoreInstance']
-            if not row: break
+            if not row:
+                break
             yield row
 
     def show(self):
         redis_info_list = self.get_redis_all()
-        if not redis_info_list: return False
+        if not redis_info_list:
+            return False
         for i in redis_info_list:
             for x in i:
-                print json.dumps(x)
+                print(json.dumps(x))
 
-def main( access_id, access_key, region ):
+
+def main(access_id, access_key, region):
     obj = REDIS(access_id, access_key, region)
     obj.show()
 
+
 if __name__ == '__main__':
-    main( sys.argv[1], sys.argv[2], sys.argv[3] )
+    main(sys.argv[1], sys.argv[2], sys.argv[3])
