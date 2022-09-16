@@ -1,0 +1,27 @@
+download:
+  - url: 'cmd:c3mc-cloud-aws-memcached ak sk us-east-1 | c3mc-base-json2tab CacheClusterId 实例ID PreferredAvailabilityZone ZoneId'
+    datatype: tsv
+    type: database
+    subtype: aws-memcached
+    mod: [ 'c3mc-cloud-aws.sh' ]
+    treeinfo:
+      treename: '服务树'
+      treeinfo:
+        - [ '实例ID', 'instance' ]
+    util:
+      defaulttree: defaulttree.pool
+    colmap:
+      treename: '服务树'
+      uuid: '实例ID' #没有这个可能导致单个资源详情打开无数据
+    filter:
+      - name: 'ZoneId'
+        alias: 区域
+    outline:
+      uuid:
+        - '实例ID'
+      baseinfo:
+        - 'ZoneId'
+      system:
+        - 'ConnectionDomain'
+      contact:
+        - '服务树'
