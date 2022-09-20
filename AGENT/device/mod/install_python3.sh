@@ -1,6 +1,24 @@
 #!/bin/bash
 
 
+function check_python_version() {
+    if [[ "$(python3 -V)" =~ "Python 3.$1" ]]
+    then
+        echo 0
+    fi
+}
+
+# 判断python3.7或以上版本是否安装
+for (( i=7; i <= 100; i++ ))
+do
+    check_python_version $i
+    if [[ $? == 0 ]]
+    then
+        exit 0 
+    fi
+done
+
+
 yum install gcc patch libffi-devel python-devel zlib-devel bzip2-devel openssl-devel \
     ncurses-devel sqlite-devel readline-devel tk-devel gdbm-devel db4-devel libpcap-devel xz-devel -y
 
