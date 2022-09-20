@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+
+from google.oauth2 import service_account
+from google.cloud import compute_v1
+from google.protobuf.json_format import MessageToJson
+
+
+class VM:
+    def __init__(self, cred_json_path):
+        self.cred_json_path = cred_json_path
+        self.credentials = self.create_credentials()
+        self.page_size = 500
+
+    def create_credentials(self):
+        return service_account.Credentials.from_service_account_file(self.cred_json_path)
+
+    def list_instance(self):
+        client = compute_v1.InstancesClient(credentials=self.credentials)
+        results = []
+        for _, instances in client.aggregated_list(request={"project": self.credentials.project_id, "max_results": self.page_size}):
+            for instance in instances.instances:
+                item = json.loads(MessageToJson(instance._pb))
+
+                item["zone"] = item["zone"].split("/")[-1]
+                item["regionId"] = item["zone"].split("/")[-1][:-2]
+                item["metadata"]["items"] = []
+
+                private_ip = None
+                public_ip = None
+                for netInterface in item["networkInterfaces"]:
+                    private_ip = netInterface["networkIP"]
+
+                    if "accessConfigs" in netInterface:
+                        for configItem in netInterface["accessConfigs"]:
+                            public_ip = configItem["natIP"]
+                if private_ip is not None:
+                    item["private_ip"] = private_ip
+                if public_ip is not None:
+                    item["public_ip"] = public_ip
+
+                results.append(item)
+        return results
+
+    def show(self):
+        instance_list = self.list_instance()
+        for instance in instance_list:
+            print(json.dumps(instance))
+
+
+def main(cred_json_path):
+    vm = VM(cred_json_path)
+    vm.show()
+
+
+if __name__ == '__main__':
+    main(sys.argv[1])

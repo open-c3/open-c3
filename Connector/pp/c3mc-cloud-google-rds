@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+
+from google.oauth2 import service_account
+from googleapiclient import discovery
+
+
+class Mysql:
+    def __init__(self, cred_json_path):
+        self.cred_json_path = cred_json_path
+        self.credentials = self.create_credentials()
+        self.page_size = 500
+
+    def create_credentials(self):
+        return service_account.Credentials.from_service_account_file(self.cred_json_path)
+
+    def list_instance(self):
+        results = []
+        service = discovery.build(
+            'sqladmin', 'v1beta4', credentials=self.credentials)
+
+        request = service.instances().list(project=self.credentials.project_id)
+        while request is not None:
+            response = request.execute()
+
+            for instance in response['items']:
+                instance.pop("serverCaCert", None)
+                results.append(instance)
+
+            request = service.instances().list_next(
+                previous_request=request, previous_response=response)
+        return results
+
+    def show(self):
+        instance_list = self.list_instance()
+        for instance in instance_list:
+            print(json.dumps(instance))
+
+
+def main(cred_json_path):
+    mysql = Mysql(cred_json_path)
+    mysql.show()
+
+
+if __name__ == '__main__':
+    main(sys.argv[1])
