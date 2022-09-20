@@ -1,0 +1,43 @@
+download:
+  - url: "cmd:c3mc-cloud-qcloud-cvm ak sk ap-beijing  | c3mc-base-json2tab  Uuid 实例ID InstanceName 名称 RegionId Region名称 PrivateIP  内网IP  PublicIP 公网IP Placement.Zone 所在可用区 InstanceState 状态 "
+    datatype: tsv # 固定值。表示url中命令最终输出的文件格式
+    type: compute # 资源类型。cmdb页面中的分类
+    subtype: qcloud-cvm # 上面资源类型的子类型。
+    init: ["c3mc-cloud-qcloud.sh"]
+    treeinfo:
+      treename: "服务树" # 指明哪一列对应服务树。这一列没有对应列，页面显示的值为空
+      treeinfo:
+        - ["实例ID", "instance"] # 和监控相关 。 指标是 treeinfo
+    ingestion-node: # 控制资源在发布时的可见行，但是cmdb里一直可以看见
+      name: "名称"
+      inip: "内网IP"
+      exip: "公网IP"
+      tree: "服务树"
+      type: qcloud-cvm
+    check:
+      col: ["实例ID"]
+      min: 0
+    util:
+      defaulttree: defaulttree.pool # 默认的服务树，资源归还后被放到这里
+    colmap:
+      treename: "服务树"
+      uuid: "实例ID" # 指明哪一列作为uuid列
+    filter:
+      - name: "Region名称"
+        alias: 区域
+      - name: "所在可用区"
+        alias: 可用区
+      - name: "状态"
+        alias: 状态
+    outline:
+      uuid:
+        - "实例ID"
+      baseinfo:
+        - "Region名称"
+        - "所在可用区"
+      system:
+        - "名称"
+        - "内网IP"
+        - "公网IP"
+      contact:
+        - "服务树"
