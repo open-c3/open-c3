@@ -1,0 +1,36 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use utf8;
+use FindBin qw( $RealBin );
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $config = "$RealBin/../conf/config.yml";
+exit unless -f $config;
+
+my $conf = eval{ YAML::XS::LoadFile $config };
+die "load confg fail: $@" if $@;
+
+my $runpath = "$RealBin/../run/download";
+system "mkdir -p $runpath" unless -d $runpath;
+
+chdir $runpath or die "chdir fail";
+
+my @init;
+map{
+    push @init, @{$_->{init}}if $_->{init} && ref $_->{init} eq 'ARRAY' && @{$_->{init}};
+}@{ $conf->{download} };
+
+my %init;
+for my $x ( @init )
+{
+    next if $init{$x};
+    system "../../init/$x";
+    $init{$x} = 1;
+}
