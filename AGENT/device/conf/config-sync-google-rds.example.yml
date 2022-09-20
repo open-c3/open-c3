@@ -1,0 +1,27 @@
+download:
+  - url: "cmd:c3mc-cloud-google-rds /absolute/path/to/credential.json | c3mc-base-json2tab etag 实例ID gceZone ZoneId"
+    datatype: tsv
+    type: database
+    subtype: google-rds
+    mod: ["c3mc-cloud-google.sh"]
+    treeinfo:
+      treename: "服务树"
+      treeinfo:
+        - ["实例ID", "instance"]
+    util:
+      defaulttree: defaulttree.pool
+    colmap:
+      treename: "服务树"
+      uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
+    filter:
+      - name: "ZoneId"
+        alias: 区域
+    outline:
+      uuid:
+        - "实例ID"
+      baseinfo:
+        - "ZoneId"
+      system:
+        - "ConnectionString"
+      contact:
+        - "服务树"
