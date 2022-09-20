@@ -8,3 +8,4 @@ pip3 install google-cloud
 pip3 install google-cloud-compute
 pip3 install google-cloud-redis
 pip3 install googleapis-common-protos
+

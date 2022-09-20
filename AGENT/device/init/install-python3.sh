@@ -1,23 +1,15 @@
 #!/bin/bash
 
+#需要python 3.7 或 以上版本
+python3 -V
+if [ $? == 0 ]; then
+    V1=$(python3 -V 2>&1|awk '{print $2}'|awk -F. '{print $1}')
+    V2=$(python3 -V 2>&1|awk '{print $2}'|awk -F. '{print $2}')
 
-function check_python_version() {
-    if [[ "$(python3 -V)" =~ "Python 3.$1" ]]
-    then
-        echo 0
+    if [[ $V1 -ge 3 && $V2 -ge 7 ]] ;then
+        exit
     fi
-}
-
-# 判断python3.7或以上版本是否安装
-for (( i=7; i <= 100; i++ ))
-do
-    check_python_version $i
-    if [[ $? == 0 ]]
-    then
-        exit 0 
-    fi
-done
-
+fi
 
 yum install gcc patch libffi-devel python-devel zlib-devel bzip2-devel openssl-devel \
     ncurses-devel sqlite-devel readline-devel tk-devel gdbm-devel db4-devel libpcap-devel xz-devel -y
