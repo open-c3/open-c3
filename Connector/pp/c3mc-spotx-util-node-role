@@ -49,12 +49,22 @@ for my $x ( @x )
     }
 
     my ( $mem, $cpu );
-    $mem = $1 if $data{ MemoryRequests } && $data{ MemoryRequests } =~ /^(\d+)M/;
-    $cpu = $1 if $data{ CPURequests    } && $data{ CPURequests    } =~ /^(\d+)m/;
+
+    $mem = $1 / 1048576 if defined $data{ MemoryRequests } && $data{ MemoryRequests } =~ /^(\d+)$/;
+    $mem = $1 / 1024    if defined $data{ MemoryRequests } && $data{ MemoryRequests } =~ /^(\d+)K/;
+    $mem = $1           if defined $data{ MemoryRequests } && $data{ MemoryRequests } =~ /^(\d+)M/;
+    $mem = $1 * 1024    if defined $data{ MemoryRequests } && $data{ MemoryRequests } =~ /^(\d+)G/;
+
+    $cpu = $1           if defined $data{ CPURequests    } && $data{ CPURequests    } =~ /^(\d+)m/;
+    $cpu = $1 * 1000    if defined $data{ CPURequests    } && $data{ CPURequests    } =~ /^([\d\.]+)$/;
 
     if( defined $mem && defined $cpu )
     {
         $role = $mem >= $conf->{maxmem} && $cpu >= $conf->{maxcpu} ? 'large' : 'small';
+    }
+    else
+    {
+        warn "Warn: unkown CPURequests $data{ CPURequests } Or MemoryRequests $data{ MemoryRequests }\n";
     }
 
     last if $role && $role eq 'large';
