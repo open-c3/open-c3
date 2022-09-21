@@ -30,6 +30,7 @@ sub addlabel
     chomp $role;
 
     return unless $role && ( $role eq 'large' || $role eq 'small' );
+    print "DEBUG:    label node '$node->{NAME}' c3.spotx.node.role/$role=1\n" if $ENV{C3DEBUG};
     system "$kubectl label node '$node->{NAME}' c3.spotx.node.role/$role=1";
 }
 

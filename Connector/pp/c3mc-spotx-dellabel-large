@@ -33,6 +33,7 @@ sub dellabel
 
     return if $role && $role eq 'large';
 
+    print "DEBUG:    label node $node->{NAME} c3.spotx.node.role/large-\n" if $ENV{C3DEBUG};
     system "$kubectl label node $node->{NAME} c3.spotx.node.role/large-";
 }
 

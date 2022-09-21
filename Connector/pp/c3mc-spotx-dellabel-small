@@ -53,4 +53,11 @@ exit unless $free && $free > $conf->{smallrelease};
 
 my ( $node ) = sort{ $free{ $b } <=> $free{ $a } }keys %free;
 
+if ( $ENV{C3DEBUG} )
+{
+    map{ print "DEBUG: $_:\t$free{$_}\n" }keys %free;
+    print "DEBUG: free $free > $conf->{smallrelease}\n";
+    print "DEBUG: c3mc-spotx-util-node-clear $id $node\n";
+}
+
 system "c3mc-spotx-util-node-clear $id $node";
