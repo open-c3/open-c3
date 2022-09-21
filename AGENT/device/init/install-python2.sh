@@ -34,4 +34,4 @@ cd /tmp
 wget https://bootstrap.pypa.io/pip/2.7/get-pip.py
 python ./get-pip.py
 
-rm -rf /tmp/Python-2.7.18* get-pip.py
+rm -rf /tmp/Python-2.7.18* /tmp/get-pip.py
