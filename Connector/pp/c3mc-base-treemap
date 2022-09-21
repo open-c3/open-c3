@@ -40,6 +40,9 @@ sub gettreemap
     my $treemapeid = Configini::get( "treemapeid$id" );
     $treemapeid = undef unless $treemapeid && ref $treemapeid eq 'ARRAY' && @$treemapeid == 2;
 
+    my $treemapexstr = Configini::get( "treemapexstr$id" );
+    $treemapexstr = undef unless $treemapexstr && ref $treemapexstr eq 'ARRAY';
+
     if( $treemap =~ /api.connector.open-c3.org/ )
     {
         my $db = MYDB->new( "/data/Software/mydan/Connector/conf/conn" );
@@ -47,6 +50,7 @@ sub gettreemap
         my $x = eval{ $db->query( sprintf( "select %s from openc3_connector_tree", join ',',@col ), \@col); };
         die if $@;
         my $t = $treemapgrep ? TreeMap::mapgrep( $x, @$treemapgrep ) : $x;
+        $t = TreeMap::mapgrepexstr( $t, $treemapexstr ) if $treemapexstr;
         return $treemapeid ? TreeMap::mapgrepeid( $t, $treemapeid ) : $t;
     }
 
@@ -77,6 +81,7 @@ sub gettreemap
             else
             {
                  my $t = $treemapgrep ? TreeMap::mapgrep( $v->{data}, @$treemapgrep ) : $v->{data};
+                 $t = TreeMap::mapgrepexstr( $t, $treemapexstr ) if $treemapexstr;
                  return $treemapeid ? TreeMap::mapgrepeid( $t, $treemapeid ) : $t;
             }
         }
@@ -136,6 +141,7 @@ sub gettreemap
     }
 
     my $t = $treemapgrep ? TreeMap::mapgrep( $v->{data}, @$treemapgrep ) : $v->{data};
+    $t = TreeMap::mapgrepexstr( $t, $treemapexstr ) if $treemapexstr;
     return $treemapeid ? TreeMap::mapgrepeid( $t, $treemapeid ) : $t;
 }
 

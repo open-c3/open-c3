@@ -84,6 +84,18 @@ sub mapgrepeid
     return [ grep{ $eid->[0] <= $_->{id} && $_->{id} <= $eid->[1] }@$map ];
 }
 
+sub mapgrepexstr
+{
+    my ( $map, $exstr ) = @_;
+    my @res;
+    for my $d ( @$map )
+    {
+        next if grep{ 0 <= index( $d->{name}, $_ ) }@$exstr;
+        push @res, $d;
+    }
+    return \@res;
+}
+
 sub treegrep
 {
     my ( $tree, @id ) = @_;
