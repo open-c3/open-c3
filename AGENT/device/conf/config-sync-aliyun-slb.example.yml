@@ -1,0 +1,30 @@
+download:
+  - url: "cmd:c3mc-cloud-aliyun-slb ak sk cn-shenzhen | c3mc-base-json2tab LoadBalancerId 实例ID MasterZoneId ZoneId"
+    datatype: tsv
+    type: networking
+    subtype: aliyun-slb
+    init: ["c3mc-cloud-aliyun.sh"]
+    treeinfo:
+      treename: "服务树"
+      treeinfo:
+        - ["实例ID", "instance"]
+    util:
+      defaulttree: defaulttree.pool
+    colmap:
+      treename: "服务树"
+      uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
+    filter:
+      - name: "ZoneId"
+        alias: 区域
+    outline:
+      uuid:
+        - "实例ID"
+      baseinfo:
+        - "实例ID"
+        - "ZoneId"
+        - "Address"
+        - "RegionId"
+      system:
+        - "ConnectionString"
+      contact:
+        - "服务树"
