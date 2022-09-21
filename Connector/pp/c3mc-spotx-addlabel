@@ -1,6 +1,7 @@
 #!/data/Software/mydan/perl/bin/perl
 use strict;
 use warnings;
+use YAML::XS;
 
 my $id = shift @ARGV;
 die "argv err" unless $id && $id =~ /^\d+$/;
@@ -22,6 +23,19 @@ for my $x ( @x )
     push @data, $data;
 }
 
+my $config = eval{ YAML::XS::LoadFile '/data/open-c3-data/spotx.conf' };
+die "load spotx.conf fail: $@" if $@;
+
+my $conf = $config->{$id};
+die "nofind config in spotx.conf" unless $conf && ref $conf eq 'HASH';
+
+my %debugnode;
+if( $conf->{debugnode} )
+{
+    die "debugnode no ARRAY" unless ref $conf->{debugnode} eq 'ARRAY';
+    map{ $debugnode{$_} = 1 }@{ $conf->{debugnode} };
+}
+
 sub addlabel
 {
     my $node = shift @_;
@@ -31,6 +45,13 @@ sub addlabel
 
     return unless $role && ( $role eq 'large' || $role eq 'small' );
     print "DEBUG:    label node '$node->{NAME}' c3.spotx.node.role/$role=1\n" if $ENV{C3DEBUG};
+
+    if( %debugnode && ! $debugnode{ $node->{NAME} } )
+    {
+        print "label node '$node->{NAME}' c3.spotx.node.role/$role=1 skip by debugnode\n";
+        return;
+    }
+
     system "$kubectl label node '$node->{NAME}' c3.spotx.node.role/$role=1";
 }
 
