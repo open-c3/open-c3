@@ -4,18 +4,24 @@ use warnings;
 
 use YAML::XS;
 
+my $id = @ARGV && $ARGV[0] =~ /^\d+$/ ? $ARGV[0] : undef;
+
 my $config = eval{ YAML::XS::LoadFile '/data/open-c3-data/spotx.conf' };
 die "load spotx.conf fail: $@" if $@;
 
-system "date >> /var/log/spotx.touch.log";
-my $x = `wc -l /var/log/spotx.touch.log`;
+my $touch = sprintf "/var/log/spotx.touch.%s.log", $id ? $id : "glob";
+system "date >> $touch";
+my $x = `wc -l $touch`;
 $x =~ /^(\d+)\b/;
 
 my $count = $1 || 0;
 
 print "count: $count\n";
 
-for my $id ( grep{ /^\d+$/ }keys %$config )
+my @id = grep{ /^\d+$/ }keys %$config;
+@id = grep{ $_ == $id }@id if $id;
+
+for my $id ( @id )
 {
     print "id:$id\n";
 
