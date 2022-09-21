@@ -1,0 +1,27 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+my ( $id, $node ) = @ARGV;
+die "id err"   unless $id   && $id   =~ /^\d+$/;
+die "node err" unless $node && $node =~ /^[a-zA-Z0-9][a-zA-Z0-9\-\._]+$/;
+
+my    $kubectl = `c3mc-k8s-kubectl-get -i $id`;
+chomp $kubectl;
+
+my    @x = `$kubectl describe node $node`;
+chomp @x;
+
+my $in = 0;
+for my $x ( @x )
+{
+    $in = 1 if $x =~ /Resource\s+Requests\s+Limits/ && ! $in;
+
+    last if $in && $x !~ /^\s+/;
+    
+    next unless $in;
+
+    $x =~ s/^\s+//;
+    next if index( $x, '----' ) == 0;
+    print "$x\n";
+}

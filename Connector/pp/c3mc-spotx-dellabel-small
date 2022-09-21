@@ -1,0 +1,56 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+use YAML::XS;
+
+my $id = shift @ARGV;
+die "argv err" unless $id && $id =~ /^\d+$/;
+
+my    $kubectl = `c3mc-k8s-kubectl-get -i $id`;
+chomp $kubectl;
+
+my    @x = `$kubectl get node --show-labels=true`;
+chomp @x;
+
+my @data;
+my @title = split /\s+/, shift @x;
+for my $x ( @x )
+{
+    my @xx = split /\s+/, $x;
+    my $data = +{ map{ $title[$_] => $xx[$_] } 0.. $#title };
+    $data->{label} = $data->{LABELS} ? +{  map{ split /=/, $_, 2 }split /,/, $data->{LABELS} } : +{};
+    delete $data->{LABELS};
+    push @data, $data;
+}
+
+sub free
+{
+    my $node = shift @_;
+    my $free = `c3mc-spotx-util-node-free $id $node->{NAME}`;
+    chomp  $free;
+    return $free;
+}
+
+my ( %free, $free );
+map
+{
+    $free += $free{ $_->{ NAME } } = free( $_ );
+}
+grep
+{
+    $_->{label}{'c3.spotx.node.role/small'}
+}@data;
+
+my $config = eval{ YAML::XS::LoadFile '/data/open-c3-data/spotx.conf' };
+die "load spotx.conf fail: $@" if $@;
+
+my $conf = $config->{$id};
+die "nofind config in spotx.conf" unless $conf && ref $conf eq 'HASH';
+map{ die "nofind $_" unless defined $conf->{$_}; }qw( smallrelease );
+
+exit unless $free && $free > $conf->{smallrelease};
+
+my ( $node ) = sort{ $free{ $a } <=> $free{ $b } }keys %free;
+
+system "c3mc-spotx-util-node-clear $id $node";

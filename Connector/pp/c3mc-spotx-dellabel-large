@@ -1,0 +1,41 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+my $id = shift @ARGV;
+die "argv err" unless $id && $id =~ /^\d+$/;
+
+my    $kubectl = `c3mc-k8s-kubectl-get -i $id`;
+chomp $kubectl;
+
+my    @x = `$kubectl get node --show-labels=true`;
+chomp @x;
+
+my @data;
+
+my @title = split /\s+/, shift @x;
+for my $x ( @x )
+{
+    my @xx = split /\s+/, $x;
+    my $data = +{ map{ $title[$_] => $xx[$_] } 0.. $#title };
+    $data->{label} = $data->{LABELS} ? +{  map{ split /=/, $_, 2 }split /,/, $data->{LABELS} } : +{};
+    delete $data->{LABELS};
+    push @data, $data;
+}
+
+
+sub dellabel
+{
+    my $node = shift @_;
+
+    my    $role = `c3mc-spotx-util-node-role $id $node->{NAME}`;
+    chomp $role;
+
+    return if $role && $role eq 'large';
+
+    system "$kubectl label node $node->{NAME} c3.spotx.node.role/large-";
+}
+
+map{ dellabel( $_ ); }
+grep{ $_->{label}{'c3.spotx.node.role/large'} }@data;
+
