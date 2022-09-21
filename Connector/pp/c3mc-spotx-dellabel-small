@@ -51,6 +51,6 @@ map{ die "nofind $_" unless defined $conf->{$_}; }qw( smallrelease );
 
 exit unless $free && $free > $conf->{smallrelease};
 
-my ( $node ) = sort{ $free{ $a } <=> $free{ $b } }keys %free;
+my ( $node ) = sort{ $free{ $b } <=> $free{ $a } }keys %free;
 
 system "c3mc-spotx-util-node-clear $id $node";
