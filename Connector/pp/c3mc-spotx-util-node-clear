@@ -1,0 +1,17 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+my ( $id, $node ) = @ARGV;
+die "id err"   unless $id   && $id   =~ /^\d+$/;
+die "node err" unless $node && $node =~ /^[a-zA-Z0-9][a-zA-Z0-9\-\._]+$/;
+
+my    $kubectl = `c3mc-k8s-kubectl-get -i $id`;
+chomp $kubectl;
+
+system "$kubectl cordon   $node";
+system "$kubectl drain    $node --force --ignore-daemonsets";
+system "$kubectl uncordon $node";
+
+system "$kubectl label node '$node' c3.spotx.node.role/small-";
+system "$kubectl label node '$node' c3.spotx.node.role/large-";

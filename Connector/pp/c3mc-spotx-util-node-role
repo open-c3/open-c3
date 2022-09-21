@@ -1,0 +1,73 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+use YAML::XS;
+
+my ( $id, $node ) = @ARGV;
+die "id err" unless $id && $id =~ /^\d+$/;
+die "node err" unless $node && $node =~ /^[a-zA-Z0-9][a-zA-Z0-9\-\._]+$/;
+
+my @x = `c3mc-spotx-util-pods $id $node`;
+chomp @x;
+
+$x[0] =~ s/CPU Requests/CPURequests CPURequests%/;
+$x[0] =~ s/CPU Limits/CPULimits CPULimits%/;
+$x[0] =~ s/Memory Requests/MemoryRequests MemoryRequests%/;
+$x[0] =~ s/Memory Limits/MemoryLimits MemoryLimits%/;
+
+my @title = split /\s+/, shift @x;
+
+my $config = eval{ YAML::XS::LoadFile '/data/open-c3-data/spotx.conf' };
+die "load spotx.conf fail: $@" if $@;
+
+my $conf = $config->{$id};
+die "nofind config in spotx.conf" unless $conf && ref $conf eq 'HASH';
+map{ die "nofind $_" unless defined $conf->{$_}; }qw( maxmem maxcpu );
+
+my $role;
+for my $x ( @x )
+{
+    my @xx = split /\s+/, $x;
+    my %data = map{ $title[$_] => $xx[$_] }0.. $#title;
+
+    next if $data{Namespace} =~ /^kube\-/;
+
+    if( $conf->{exclude} )
+    {
+        next if grep{ $_ eq $data{Namespace} }@{ $conf->{exclude} };
+    }
+
+    if( $conf->{excludeprefix} )
+    {
+        next if grep{ 0 == index( $data{Namespace}, $_ ) }@{ $conf->{excludeprefix} };
+    }
+
+    if( $conf->{excludecontain} )
+    {
+        next if grep{ 0 <= index( $data{Namespace}, $_ ) }@{ $conf->{excludecontain} };
+    }
+
+    my ( $mem, $cpu );
+
+    $mem = $1 / 1048576 if defined $data{ MemoryRequests } && $data{ MemoryRequests } =~ /^(\d+)$/;
+    $mem = $1 / 1024    if defined $data{ MemoryRequests } && $data{ MemoryRequests } =~ /^(\d+)K/;
+    $mem = $1           if defined $data{ MemoryRequests } && $data{ MemoryRequests } =~ /^(\d+)M/;
+    $mem = $1 * 1024    if defined $data{ MemoryRequests } && $data{ MemoryRequests } =~ /^(\d+)G/;
+
+    $cpu = $1           if defined $data{ CPURequests    } && $data{ CPURequests    } =~ /^(\d+)m/;
+    $cpu = $1 * 1000    if defined $data{ CPURequests    } && $data{ CPURequests    } =~ /^([\d\.]+)$/;
+
+    if( defined $mem && defined $cpu )
+    {
+        $role = $mem >= $conf->{maxmem} && $cpu >= $conf->{maxcpu} ? 'large' : 'small';
+    }
+    else
+    {
+        warn "Warn: unkown CPURequests $data{ CPURequests } Or MemoryRequests $data{ MemoryRequests }\n";
+    }
+
+    last if $role && $role eq 'large';
+}
+
+print "$role\n" if $role;

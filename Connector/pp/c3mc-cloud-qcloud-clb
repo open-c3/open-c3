@@ -1,0 +1,71 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+
+from tencentcloud.common import credential
+from tencentcloud.common.profile.client_profile import ClientProfile
+from tencentcloud.common.profile.http_profile import HttpProfile
+from tencentcloud.clb.v20180317 import clb_client, models
+
+
+class Clb:
+    def __init__(self, access_id, access_key, region):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.region = region
+        self.page_number = 1
+        self.page_size = 25
+        self.client = self.create_client()
+
+    def create_client(self):
+        cred = credential.Credential(
+            self.access_id, self.access_key)
+        httpProfile = HttpProfile()
+        httpProfile.endpoint = "clb.tencentcloudapi.com"
+
+        clientProfile = ClientProfile()
+        clientProfile.httpProfile = httpProfile
+        client = clb_client.ClbClient(cred, self.region, clientProfile)
+        return client
+
+    def set_request(self):
+        req = models.DescribeLoadBalancersRequest()
+        req.Limit = self.page_size
+        req.Offset = (self.page_number - 1) * self.page_size
+        return req
+
+    def get_response(self):
+        request = self.set_request()
+        response_data = self.client.DescribeLoadBalancers(request)
+        return response_data
+
+    def get_server_count(self):
+        response_data = self.get_response()
+        return response_data.TotalCount
+
+    def show(self):
+        response_data = self.get_response()
+        instance_list = response_data.LoadBalancerSet
+        for instance in instance_list:
+            print(instance.to_json_string())
+
+    def page(self):
+        count = self.get_server_count()
+        mod = count % self.page_size
+        if mod:
+            total_page_number = int(count / self.page_size) + 1
+        else:
+            total_page_number = int(count / self.page_size)
+
+        for cur_page_number in range(1, total_page_number + 1):
+            self.page_number = cur_page_number
+            self.show()
+
+
+def main(access_id, access_key, region):
+    Clb(access_id, access_key, region).page()
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3])

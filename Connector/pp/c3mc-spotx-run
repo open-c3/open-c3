@@ -1,0 +1,35 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+use YAML::XS;
+
+my $id = @ARGV && $ARGV[0] =~ /^\d+$/ ? $ARGV[0] : undef;
+
+my $config = eval{ YAML::XS::LoadFile '/data/open-c3-data/spotx.conf' };
+die "load spotx.conf fail: $@" if $@;
+
+my $touch = sprintf "/var/log/spotx.touch.%s.log", $id ? $id : "glob";
+system "date >> $touch";
+my $x = `wc -l $touch`;
+$x =~ /^(\d+)\b/;
+
+my $count = $1 || 0;
+
+print "count: $count\n";
+
+my @id = grep{ /^\d+$/ }keys %$config;
+@id = grep{ $_ == $id }@id if $id;
+
+for my $id ( @id )
+{
+    print "id:$id\n";
+
+    my $conf = $config->{$id};
+    die "id $id: nofind config in spotx.conf" unless $conf && ref $conf eq 'HASH';
+    map{ die "id: $id nofind $_" unless defined $conf->{$_}; }qw( maxmem maxcpu smallrelease );
+
+    system "c3mc-spotx-addlabel $id";
+    system "c3mc-spotx-dellabel-large $id" unless $count % 10;
+    system "c3mc-spotx-dellabel-small $id" unless $count % 10;
+}

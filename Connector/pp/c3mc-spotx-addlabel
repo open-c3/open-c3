@@ -1,0 +1,59 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use YAML::XS;
+
+my $id = shift @ARGV;
+die "argv err" unless $id && $id =~ /^\d+$/;
+
+my    $kubectl = `c3mc-k8s-kubectl-get -i $id`;
+chomp $kubectl;
+
+my    @x = `$kubectl get node --show-labels=true`;
+chomp @x;
+
+my @data;
+my @title = split /\s+/, shift @x;
+for my $x ( @x )
+{
+    my @xx = split /\s+/, $x;
+    my $data = +{ map{ $title[$_] => $xx[$_] } 0.. $#title };
+    $data->{label} = $data->{LABELS} ? +{  map{ split /=/, $_, 2 }split /,/, $data->{LABELS} } : +{};
+    delete $data->{LABELS};
+    push @data, $data;
+}
+
+my $config = eval{ YAML::XS::LoadFile '/data/open-c3-data/spotx.conf' };
+die "load spotx.conf fail: $@" if $@;
+
+my $conf = $config->{$id};
+die "nofind config in spotx.conf" unless $conf && ref $conf eq 'HASH';
+
+my %debugnode;
+if( $conf->{debugnode} )
+{
+    die "debugnode no ARRAY" unless ref $conf->{debugnode} eq 'ARRAY';
+    map{ $debugnode{$_} = 1 }@{ $conf->{debugnode} };
+}
+
+sub addlabel
+{
+    my $node = shift @_;
+
+    my    $role = `c3mc-spotx-util-node-role $id $node->{NAME}`;
+    chomp $role;
+
+    return unless $role && ( $role eq 'large' || $role eq 'small' );
+    print "DEBUG:    label node '$node->{NAME}' c3.spotx.node.role/$role=1\n" if $ENV{C3DEBUG};
+
+    if( %debugnode && ! $debugnode{ $node->{NAME} } )
+    {
+        print "label node '$node->{NAME}' c3.spotx.node.role/$role=1 skip by debugnode\n";
+        return;
+    }
+
+    system "$kubectl label node '$node->{NAME}' c3.spotx.node.role/$role=1";
+}
+
+map{  addlabel( $_ ); }
+grep{ ! ( $_->{label}{'c3.spotx.node.role/small'} || $_->{label}{'c3.spotx.node.role/large'} ) }@data;

@@ -1,0 +1,19 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+my ( $id, $node ) = @ARGV;
+die "id err"   unless $id   && $id   =~ /^\d+$/;
+die "node err" unless $node && $node =~ /^[a-zA-Z0-9][a-zA-Z0-9\-\._]+$/;
+
+my    @x = `c3mc-spotx-util-node-res $id $node`;
+chomp @x;
+
+my ( $mem ) = grep{ /memory/ }@x;
+
+my @res = split /\s+/, $mem;
+
+if( @res && $res[2] && $res[2] =~ /\((\d+)%\)/ )
+{
+    print 100-$1, "\n";
+}
