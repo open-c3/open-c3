@@ -12,3 +12,6 @@ chomp $kubectl;
 system "$kubectl cordon   $node";
 system "$kubectl drain    $node --force --ignore-daemonsets";
 system "$kubectl uncordon $node";
+
+system "$kubectl label node '$node' c3.spotx.node.role/small-";
+system "$kubectl label node '$node' c3.spotx.node.role/large-";
