@@ -74,7 +74,7 @@ post '/monitor/config/rule/:projectid' => sub {
     {
         return  +{ stat => $JSON::false, info => "check format fail" } unless $param->{metrics} && $param->{method};
         $param->{threshold} ||= 0;
-        $param->{expr} = "$param->{metrics}\{treeid_$param->{projectid}=\"1\"\} $param->{method} $param->{threshold}";
+        $param->{expr} = "$param->{metrics}\{treeid_$param->{projectid}!=\"\"\} $param->{method} $param->{threshold}";
     }
     elsif( $param->{model} eq 'bindtree' )
     {
