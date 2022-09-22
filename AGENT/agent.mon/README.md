@@ -27,6 +27,8 @@
    sar 监控去掉下面两个指标，有的机器没有gnice指标。
    node_cpu_gnice_percent_summary
    node_cpu_gnice_percent
+版本12:
+   url 监控支持指定Host头
 ```
 
 node_collector_error 错误码
