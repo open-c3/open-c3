@@ -23,6 +23,10 @@
     端口和进程监控，名称支持下划线和减号。
 版本10:
     添加文件、目录、软链接监控功能。
+版本11:
+   sar 监控去掉下面两个指标，有的机器没有gnice指标。
+   node_cpu_gnice_percent_summary
+   node_cpu_gnice_percent
 ```
 
 node_collector_error 错误码

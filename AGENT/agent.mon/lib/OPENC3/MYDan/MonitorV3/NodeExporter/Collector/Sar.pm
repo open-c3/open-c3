@@ -28,8 +28,8 @@ my %FIXME =
 my %EMXIF = map{ my $t = $_; map{ $_ => $t }@{$FIXME{$t}} } keys %FIXME;
 
 our %declare = (
-    node_cpu_gnice_percent => 'Time to run virtual machines at low priority',
-    node_cpu_gnice_percent_summary => 'The time to run the virtual machine at low priority, all cores are summarized',
+#    node_cpu_gnice_percent => 'Time to run virtual machines at low priority',
+#    node_cpu_gnice_percent_summary => 'The time to run the virtual machine at low priority, all cores are summarized',
 
     node_cpu_guest_percent => 'Represents the time to run other operating systems through virtualization, that is, the CPU time to run the virtual machine.',
     node_cpu_guest_percent_summary => 'Represents the time to run other operating systems through virtualization, that is, the CPU time to run the virtual machine. all cores are summarized',
