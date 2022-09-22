@@ -29,7 +29,7 @@ sub new
 {
     my ( $class, %this ) = @_;
 
-    my %h = ( 'sar' => [ 'Sar' ] , 'ss --help' => [ 'PortTcp', 'PortUdp' ] );
+    my %h = ( 'sar -A 1 1' => [ 'Sar' ] , 'ss --help' => [ 'PortTcp', 'PortUdp' ] );
     for my $h ( keys %h )
     {
         next unless system "$h >/dev/null 2>&1";
