@@ -34,7 +34,7 @@ sub co
             next;
         }
 
-        unless( $check[1] && $check[1] =~ /^[a-zA-Z0-9 \.\-_@\:\/\?&=]+$/ )
+        unless( $check[1] && $check[1] =~ /^[;a-zA-Z0-9 \.\-_@\:\/\?&=]+$/ )
         {
             warn "monitor http $check[1]";
             $error = 1;
@@ -48,10 +48,18 @@ sub co
             next;
         }
 
+        my %Header = ( "user-agent" => "MYDan Monitor" );
+        my $url = $check[1];
+
+        if( $check[1] =~ /^Host:([^;]+);(http.+)$/ )
+        {
+            ( $Header{Host}, $url ) = ( $1, $2 );
+        }
+
         my $time = Time::HiRes::time;
         http_request
-        $check[0] => $check[1],
-        headers => { "user-agent" => "MYDan Monitor" },
+        $check[0] => $url,
+        headers => \%Header,
         timeout => 10,
         sub {
             my ($body, $hdr) = @_;

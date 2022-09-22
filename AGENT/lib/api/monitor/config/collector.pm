@@ -66,11 +66,11 @@ post '/monitor/config/collector/:projectid' => sub {
     return  +{ stat => $JSON::false, info => "port need in: number" }
         if $param->{type} eq "port" && ! ( $param->{content1} =~ /^\d+[,\d+]+$/ || $param->{content1} =~ /^\d+;[a-zA-Z0-9][a-zA-Z0-9\.\-_]+$/ );
 
-    return  +{ stat => $JSON::false, info => "http url need in: ^[a-zA-Z0-9 \.\-_@\:\/\?&=]+\$" } if $param->{type} eq "http" && $param->{content1} !~ /^[a-zA-Z0-9 \.\-_@\:\/\?&=]+$/;
-    return  +{ stat => $JSON::false, info => "http check need in: ^[a-zA-Z0-9 \.\-_@]+\$" } if $param->{type} eq "http" && $param->{content2} !~ /^[a-zA-Z0-9 \.\-_@]+$/;
+    return  +{ stat => $JSON::false, info => "http url need in: ^[;a-zA-Z0-9 \.\-_@\:\/\?&=]+\$" } if $param->{type} eq "http" && $param->{content1} !~ /^[;a-zA-Z0-9 \.\-_@\:\/\?&=]+$/;
+    return  +{ stat => $JSON::false, info => "http check need in: ^[a-zA-Z0-9 \.\-_@]*\$"        } if $param->{type} eq "http" && $param->{content2} !~ /^[a-zA-Z0-9 \.\-_@]*$/;
 
-    return  +{ stat => $JSON::false, info => "path need in: ^/[\/a-zA-Z0-9\.\-_]+\$"      } if $param->{type} eq "path" && $param->{content1} !~ /^\/[\/a-zA-Z0-9\.\-_]+$/;
-    return  +{ stat => $JSON::false, info => "path check need in: ^/[a-zA-Z0-9 \.\-_]*\$" } if $param->{type} eq "path" && $param->{content2} !~ /^[\/a-zA-Z0-9 \.\-_]*$/;
+    return  +{ stat => $JSON::false, info => "path need in: ^/[\/a-zA-Z0-9\.\-_]+\$"       } if $param->{type} eq "path" && $param->{content1} !~ /^\/[\/a-zA-Z0-9\.\-_]+$/;
+    return  +{ stat => $JSON::false, info => "path check need in: ^[\/a-zA-Z0-9 \.\-_]*\$" } if $param->{type} eq "path" && $param->{content2} !~ /^[\/a-zA-Z0-9 \.\-_]*$/;
 
     my $pmscheck = api::pmscheck( 'openc3_agent_write', $param->{projectid} ); return $pmscheck if $pmscheck;
 
