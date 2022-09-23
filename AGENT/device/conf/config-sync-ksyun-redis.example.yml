@@ -1,0 +1,34 @@
+download:
+  - url: "cmd:c3mc-cloud-ksyun-redis ak sk cn-beijing-6 | c3mc-base-json2tab cacheId 实例ID region 区域 status 状态 protocol 引擎版本 "
+    datatype: tsv
+    type: database
+    subtype: ksyun-redis
+    init: ["c3mc-cloud-ksyun.sh"]
+    treeinfo:
+      treename: "服务树"
+      treeinfo:
+        - ["实例ID", "instance"]
+    util:
+      defaulttree: defaulttree.pool
+    colmap:
+      treename: "服务树"
+      uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
+    filter:
+      - name: "区域"
+        alias: 区域
+      - name: "状态"
+        alias: 状态
+      - name: "引擎版本"
+        alias: 引擎版本
+    outline:
+      uuid:
+        - "实例ID"
+      baseinfo:
+        - "实例ID"
+        - "区域"
+        - "状态"
+        - "引擎版本"
+      system:
+        - "ConnectionDomain"
+      contact:
+        - "服务树"
