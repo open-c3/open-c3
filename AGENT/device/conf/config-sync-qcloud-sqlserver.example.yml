@@ -1,0 +1,35 @@
+download:
+  - url: "cmd:c3mc-cloud-qcloud-sqlserver ak sk ap-beijing | c3mc-base-json2tab InstanceId 实例ID Name 名称 Region 区域 Zone 所在可用区 Status 状态 VersionName 引擎版本 "
+    datatype: tsv
+    type: database
+    subtype: qcloud-sqlserver
+    init: ["c3mc-cloud-qcloud.sh"]
+    treeinfo:
+      treename: "服务树"
+      treeinfo:
+        - ["实例ID", "instance"]
+    util:
+      defaulttree: defaulttree.pool
+    colmap:
+      treename: "服务树"
+      uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
+    filter:
+      - name: "区域"
+        alias: 区域
+      - name: "所在可用区"
+        alias: 所在可用区
+      - name: "状态"
+        alias: 状态
+      - name: "引擎版本"
+        alias: 引擎版本
+    outline:
+      uuid:
+        - "实例ID"
+      baseinfo:
+        - "实例ID"
+        - "区域"
+        - "所在可用区"
+      system:
+        - "ConnectionDomain"
+      contact:
+        - "服务树"
