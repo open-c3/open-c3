@@ -1,0 +1,30 @@
+download:
+  - url: "cmd:c3mc-cloud-aws-s3 ak sk us-east-1 | c3mc-base-json2tab BucketName 实例ID Name 名称 OpsOwner 运维负责人 RegionId 区域 Department 部门 ProductOwner 业务负责人 CreationDate 创建时间"
+    datatype: tsv
+    type: storage
+    subtype: aws-s3
+    init: ["c3mc-cloud-aws.sh"]
+    treeinfo:
+      treename: "服务树"
+      treeinfo:
+        - ["实例ID", "instance"]
+    util:
+      defaulttree: defaulttree.pool
+    colmap:
+      treename: "服务树"
+      uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
+    filter:
+      - name: "RegionId"
+        alias: 区域
+    outline:
+      uuid:
+        - "实例ID"
+      baseinfo:
+        - "名称"
+        - "区域"
+        - "业务负责人"
+        - "运维负责人"
+      system:
+        - "ConnectionDomain"
+      contact:
+        - "服务树"
