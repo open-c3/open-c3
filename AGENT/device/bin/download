@@ -121,5 +121,18 @@ sub download
 
 map{
     my $c = $_;
+    if( $c->{template} )
+    {
+        my $tpl = eval{ YAML::XS::LoadFile "$RealBin/../conf/template/$c->{template}.yml"; };
+        die "load template $c->{template} fail: $@" if $@;
+
+        die "template $c->{template} error"
+          unless $tpl->{download}
+              && ref $tpl->{download} eq 'ARRAY'
+              && @{$tpl->{download} }
+              && ref $tpl->{download}[0] eq 'HASH';
+
+        $c = { %{ $tpl->{download}[0] }, %$c };
+    }
     download( map{ $c->{$_} }qw(type subtype url outline filter colmap util ingestion-node check datatype treeinfo ));
 }@{ $conf->{download} };

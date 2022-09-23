@@ -1,0 +1,27 @@
+download:
+  - url: "cmd:c3mc-cloud-qcloud-cos ak sk ap-beijing | c3mc-base-json2tab Name 实例ID Location ZoneId"
+    datatype: tsv
+    type: storage
+    subtype: qcloud-cos
+    init: ["c3mc-cloud-qcloud.sh"]
+    treeinfo:
+      treename: "服务树"
+      treeinfo:
+        - ["实例ID", "instance"]
+    util:
+      defaulttree: defaulttree.pool
+    colmap:
+      treename: "服务树"
+      uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
+    filter:
+      - name: "ZoneId"
+        alias: 区域
+    outline:
+      uuid:
+        - "实例ID"
+      baseinfo:
+        - "ZoneId"
+      system:
+        - "ConnectionDomain"
+      contact:
+        - "服务树"
