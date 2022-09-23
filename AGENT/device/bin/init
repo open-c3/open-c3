@@ -24,7 +24,23 @@ chdir $runpath or die "chdir fail";
 
 my @init;
 map{
-    push @init, @{$_->{init}}if $_->{init} && ref $_->{init} eq 'ARRAY' && @{$_->{init}};
+    my $c = $_;
+
+    if( $c->{template} )
+    {
+        my $tpl = eval{ YAML::XS::LoadFile "$RealBin/../conf/template/$c->{template}.yml"; };
+        die "load template $c->{template} fail: $@" if $@;
+
+        die "template $c->{template} error"
+          unless $tpl->{download}
+              && ref $tpl->{download} eq 'ARRAY'
+              && @{$tpl->{download} }
+              && ref $tpl->{download}[0] eq 'HASH';
+
+        $c = { %{ $tpl->{download}[0] }, %$c };
+    }
+
+    push @init, @{$c->{init}} if $c->{init} && ref $c->{init} eq 'ARRAY' && @{$c->{init}};
 }@{ $conf->{download} };
 
 my %init;
