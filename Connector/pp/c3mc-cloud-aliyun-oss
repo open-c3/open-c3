@@ -1,0 +1,58 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+
+import oss2
+
+
+class Oss:
+    def __init__(self, access_id, access_key, region):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.region = region
+        self.page_size = 25
+        self.client = self.create_client()
+
+    def create_client(self):
+        endpoint = 'http://oss-{}.aliyuncs.com'.format(self.region)
+        auth = oss2.Auth(self.access_id, self.access_key)
+        client = oss2.Service(auth, endpoint)
+        client.list_buckets()
+        return client
+
+    def get_buckets_from_response(self, response_data):
+        bucket_list = []
+        for aliyun_bucket in response_data.buckets:
+            bucket_list.append({
+                "name": aliyun_bucket.name,
+                "location": aliyun_bucket.location,
+                "creation_date": aliyun_bucket.creation_date,
+                "extranet_endpoint": aliyun_bucket.extranet_endpoint,
+                "intranet_endpoint": aliyun_bucket.intranet_endpoint,
+                "storage_class": aliyun_bucket.storage_class,
+            })
+        return bucket_list
+
+    def list_buckets(self):
+        response = self.client.list_buckets(max_keys=self.page_size)
+        results = self.get_buckets_from_response(response)
+        while response.next_marker != "":
+            response = self.client.list_buckets(
+                max_keys=self.page_size, marker=response.next_marker)
+            results.extend(self.get_buckets_from_response(response))
+        return results
+
+    def show(self):
+        buckets = self.list_buckets()
+        for bucket in buckets:
+            print(json.dumps(bucket))
+
+
+def main(access_id, access_key, region):
+    Oss(access_id, access_key, region).show()
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3])
