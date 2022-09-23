@@ -1,0 +1,67 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+
+import boto3
+
+
+class Dynamodb:
+    def __init__(self, access_id, access_key, region):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.region = region
+        self.bucket_list = []
+        self.client = self.create_client()
+
+    def create_client(self):
+        client = boto3.client(
+            "dynamodb",
+            aws_access_key_id=self.access_id,
+            aws_secret_access_key=self.access_key,
+            region_name=self.region,
+        )
+        return client
+
+    def list_instance(self):
+        instance_list = []
+        response = self.client.list_tables()
+        for table_name in response["TableNames"]:
+            table_info = self.client.describe_table(TableName=table_name)
+            table_arn = table_info["Table"]["TableArn"]
+            list_tag_response = self.client.list_tags_of_resource(
+                ResourceArn=table_arn)
+            tags = list_tag_response["Tags"]
+            while "NextToken" in list_tag_response:
+                response = self.client.describe_load_balancers(
+                    ResourceArn=table_arn,
+                    NextToken=list_tag_response["NextToken"]
+                )
+                tags.extend(list_tag_response["Tags"])
+            if tags is not None:
+                for tag in tags:
+                    if tag["Key"].lower() == "productowner":
+                        table_info["Table"]["ProductOwner"] = tag["Value"]
+                    if tag["Key"].lower() == "opsowner":
+                        table_info["Table"]["OpsOwner"] = tag["Value"]
+                    if tag["Key"].lower() == "dbaowner":
+                        table_info["Table"]["DBAOwner"] = tag["Value"]
+                    if tag["Key"].lower() == "department":
+                        table_info["Table"]["Department"] = tag["Value"]
+            table_info.pop("ResponseMetadata", None)
+            instance_list.append(table_info)
+        return instance_list
+
+    def show(self):
+        instance_list = self.list_instance()
+        for instance in instance_list:
+            print(json.dumps(instance, default=str))
+
+
+def main(access_id, access_key, region):
+    Dynamodb(access_id, access_key, region).show()
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3])
