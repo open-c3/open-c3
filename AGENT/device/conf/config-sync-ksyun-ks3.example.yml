@@ -1,0 +1,24 @@
+download:
+  - url: "cmd:c3mc-cloud-ksyun-ks3 ak sk cn-beijing-6 | c3mc-base-json2tab name 实例ID"
+    datatype: tsv
+    type: storage
+    subtype: ksyun-ks3
+    init: ["install-python2.sh", "c3mc-cloud-ksyun.sh"]
+    treeinfo:
+      treename: "服务树"
+      treeinfo:
+        - ["实例ID", "instance"]
+    util:
+      defaulttree: defaulttree.pool
+    colmap:
+      treename: "服务树"
+      uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
+    outline:
+      uuid:
+        - "实例ID"
+      baseinfo:
+        - "实例ID"
+      system:
+        - "ConnectionDomain"
+      contact:
+        - "服务树"
