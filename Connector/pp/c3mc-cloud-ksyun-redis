@@ -1,0 +1,59 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+
+from kscore.session import get_session
+
+
+class Kcs:
+    def __init__(self, access_id, access_key, region):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.region = region
+        self.page_number = 1
+        self.page_size = 25
+        self.client = self.create_client()
+
+    def create_client(self):
+        s = get_session()
+        client = s.create_client(
+            "kcs", ks_access_key_id=self.access_id, ks_secret_access_key=self.access_key, region_name=self.region)
+        return client
+
+    def get_response(self):
+        response_data = self.client.describe_cache_clusters(
+            Offset=(self.page_number - 1) * self.page_size,
+            Limit=self.page_size,
+        )
+        return response_data
+
+    def get_server_count(self):
+        response_data = self.get_response()
+        return response_data["Data"]["total"]
+
+    def show(self):
+        response_data = self.get_response()
+        for instance in response_data["Data"]["list"]:
+            print(json.dumps(instance, default=str))
+
+    def page(self):
+        count = self.get_server_count()
+        mod = count % self.page_size
+        if mod:
+            total_page_number = int(count / self.page_size) + 1
+        else:
+            total_page_number = int(count / self.page_size)
+
+        for cur_page_number in range(1, total_page_number + 1):
+            self.page_number = cur_page_number
+            self.show()
+
+
+def main(access_id, access_key, region):
+    Kcs(access_id, access_key, region).page()
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3])

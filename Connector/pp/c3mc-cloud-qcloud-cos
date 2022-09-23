@@ -1,0 +1,39 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+
+from qcloud_cos import CosConfig
+from qcloud_cos import CosS3Client
+
+
+class Cos:
+    def __init__(self, access_id, access_key, region):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.region = region
+        self.client = self.create_client()
+
+    def create_client(self):
+        config = CosConfig(Region=self.region, SecretId=self.access_id,
+                           SecretKey=self.access_key, Token=None, Scheme="https")
+        client = CosS3Client(config)
+        return client
+
+    def list_buckets(self):
+        response = self.client.list_buckets()
+        return response["Buckets"]["Bucket"]
+
+    def show(self):
+        buckets = self.list_buckets()
+        for bucket in buckets:
+            print(json.dumps(bucket))
+
+
+def main(access_id, access_key, region):
+    Cos(access_id, access_key, region).show()
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3])
