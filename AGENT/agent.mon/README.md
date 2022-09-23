@@ -29,6 +29,11 @@
    node_cpu_gnice_percent
 版本12:
    url 监控支持指定Host头
+版本13:
+   执行命令时，通过AnyEvent从管道中实时获取数据，避免堵塞导致插件超时。
+版本14:
+   修复上一个版本已入的bug，不要提前退出。
+
 ```
 
 node_collector_error 错误码
