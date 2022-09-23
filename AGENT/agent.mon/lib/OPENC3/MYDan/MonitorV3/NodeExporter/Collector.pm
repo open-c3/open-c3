@@ -97,7 +97,6 @@ sub new
                         pid => $pid, cb => sub{
                             delete $proc{$type}{pid};
                             my $input;my $n = sysread $rdr, $input, 102400;
-                            return unless $n;
 
                             $input = "" unless $n;
                             $input = "$proc{$type}{out}$input";
@@ -136,7 +135,7 @@ sub new
         after => 1, 
         interval => 15,
         cb => sub { 
-            $this{prom}->set( 'node_exporter_version', 13 );
+            $this{prom}->set( 'node_exporter_version', 14 );
             $this{prom}->set( 'node_collector_error', $promeerror, +{ collector => 'node_exporter_prome' } ) if defined $promeerror;
             $promeerror = undef;           
         }
