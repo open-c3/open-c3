@@ -1,0 +1,49 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use JSON;
+use YAML::XS;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 --plugin c3mc-cloud-huawei-rds --account huawei
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o      = $option->get(    qw( plugin=s account=s ) )->dump();
+             $option->assert( qw( plugin ) );
+
+sub sync
+{
+    my $d = shift @_;
+    my ( $account, $argv ) = split /\s+/, $d, 2;
+    my @x = `$o{plugin} $argv`;
+    die "Error" if $?;
+    chomp @x;
+    for ( @x )
+    {
+        my $data = JSON::decode_json( $_ );
+        $data->{account} = $account;
+        print JSON::encode_json( $data ), "\n";
+    }
+}
+
+if( $o{ account } )
+{
+    my @x = `cat /data/Software/mydan/AGENT/device/conf/account/$o{account}`;
+    chomp @x;
+    map{ sync( $_ ) }@x;
+}
+else
+{
+    while(<STDIN>)
+    {
+        chomp;
+        sync( $_ )
+    }
+}
