@@ -1,0 +1,51 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use JSON;
+use YAML::XS;
+
+my ( $id, $ns, $name ) = @ARGV;
+die "argv err" unless $id   && $id   =~ /^\d+$/;
+die "argv err" unless $ns   && $ns   =~ /^[a-zA-Z][a-zA-Z0-9\-]*$/;
+die "argv err" unless $name && $name =~ /^[a-zA-Z][a-zA-Z0-9\-]*$/;
+
+print "=" x 70, "\n";
+print "Namespace: $ns Name: $name\n";
+print "-" x 70, "\n";
+
+my    $kubectl = `c3mc-k8s-kubectl-get -i $id`;
+chomp $kubectl;
+
+my $x = `$kubectl get deployment '$name' -n '$ns' -o json`;
+my $data = eval{ JSON::decode_json( $x ); };
+die "load data from json fail: $@" if $@;
+
+my    $stat = `c3mc-spotx-affinity-check $id $ns $name`;
+chomp $stat;
+
+unless( $stat =~ /ok./ )
+{
+   print "stat: $stat => skip.\n";
+   exit;
+}
+
+my ( $oldp, $newp ) = map{ "/data/open-c3-data/spotx/recovery/$_/$id/$ns" }qw( old new );
+
+map{ system "mkdir -p $_" unless -d $_ }( $oldp, $newp );
+my $oldf = "$oldp/$name.yml";
+my $newf = "$newp/$name.yml";
+
+die "get old conf fail" if system "c3mc-spotx-affinity-oldconf-yaml $id $ns $name > $oldf";
+die "get new conf fail" if system "c3mc-spotx-affinity-recconf-yaml $id $ns $name > $newf";
+
+system "diff $oldf $newf";
+
+while( 1 )
+{
+    print "input \"y\" to continue\n";
+    my $x = <STDIN>;
+    chomp $x;
+    last if $x eq 'y';
+    die "skip. exit.\n" if $x eq 'n';
+}
+system "$kubectl apply -f $newf";
