@@ -1,0 +1,30 @@
+#!/bin/bash
+
+ID=$1
+
+path=/data/open-c3-data/spotx/todo/$ID
+mkdir -p $path
+
+c3mc-spotx-affinity-stat $ID \
+| grep nofind:affinity \
+| awk '{print $1 , $2}' \
+| sort \
+| xargs -i{} bash -c "echo c3mc-spotx-affinity-add $ID {}" > $path/c3-add-affinity-${ID}.sh
+
+c3mc-spotx-affinity-stat $ID \
+| grep ok. \
+| awk '{print $1 , $2}' \
+| sort \
+| xargs -i{} bash -c "echo c3mc-spotx-affinity-del $ID {}" > $path/c3-del-affinity-${ID}.sh
+
+chmod +x $path/c3-add-affinity-${ID}.sh $path/c3-del-affinity-${ID}.sh
+
+echo '#################[ update ]########################'
+echo 
+echo CMD: $path/c3-add-affinity-${ID}.sh
+cat $path/c3-add-affinity-${ID}.sh
+
+echo '#################[ rollback ]########################'
+echo 
+echo CMD: $path/c3-del-affinity-${ID}.sh
+cat $path/c3-del-affinity-${ID}.sh

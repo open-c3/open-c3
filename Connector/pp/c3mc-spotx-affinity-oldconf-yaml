@@ -1,0 +1,13 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+my ( $id, $ns, $name ) = @ARGV;
+die "argv err" unless $id   && $id   =~ /^\d+$/;
+die "argv err" unless $ns   && $ns   =~ /^[a-zA-Z0-9]+$/;
+die "argv err" unless $name && $name =~ /^[a-zA-Z][a-zA-Z0-9\-]*$/;
+
+my    $kubectl = `c3mc-k8s-kubectl-get -i $id`;
+chomp $kubectl;
+
+system "$kubectl get deployment '$name' -n '$ns' -o yaml";

@@ -1,0 +1,18 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+my $id = shift @ARGV;
+die "argv err" unless $id && $id =~ /^\d+$/;
+
+my    @x = `c3mc-spotx-util-deployment $id`;
+chomp @x;
+
+for ( @x )
+{
+    my ( $ns, $name ) = split /\s+/, $_;
+    my $stat = `c3mc-spotx-affinity-check $id $ns $name`;
+    chomp $stat;
+    print "$ns $name $stat\n";
+}
+

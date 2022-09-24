@@ -1,0 +1,45 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use YAML::XS;
+
+my ( $id ) = @ARGV;
+die "id err" unless $id && $id =~ /^\d+$/;
+my    $kubectl = `c3mc-k8s-kubectl-get -i $id`;
+chomp $kubectl;
+
+my    @x = `$kubectl get deployment -A`;
+chomp @x;
+
+my $config = eval{ YAML::XS::LoadFile '/data/open-c3-data/spotx-todo.conf' };
+die "load spotx.conf fail: $@" if $@;
+
+my $conf = $config->{$id};
+die "nofind config in spotx.conf" unless $conf && ref $conf eq 'HASH';
+map{ die "nofind $_" unless defined $conf->{$_}; }qw( maxmem maxcpu );
+
+my @title = split /\s+/, shift @x;
+for my $x ( @x )
+{
+    my @xx = split /\s+/, $x;
+    my %data = map{ $title[$_] => $xx[$_] }0.. $#title;
+
+    next if $data{NAMESPACE} =~ /^kube\-/;
+
+    if( $conf->{exclude} )
+    {
+        next if grep{ $_ eq $data{NAMESPACE} }@{ $conf->{exclude} };
+    }
+
+    if( $conf->{excludeprefix} )
+    {
+        next if grep{ 0 == index( $data{NAMESPACE}, $_ ) }@{ $conf->{excludeprefix} };
+    }
+
+    if( $conf->{excludecontain} )
+    {
+        next if grep{ 0 <= index( $data{NAMESPACE}, $_ ) }@{ $conf->{excludecontain} };
+    }
+
+    print "$data{NAMESPACE} $data{NAME}\n";
+}

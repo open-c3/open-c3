@@ -1,0 +1,58 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use JSON;
+use YAML::XS;
+
+my ( $id, $ns, $name ) = @ARGV;
+die "argv err" unless $id   && $id   =~ /^\d+$/;
+die "argv err" unless $ns   && $ns   =~ /^[a-zA-Z0-9]+$/;
+die "argv err" unless $name && $name =~ /^[a-zA-Z][a-zA-Z0-9\-]*$/;
+
+my    $kubectl = `c3mc-k8s-kubectl-get -i $id`;
+chomp $kubectl;
+
+my $x = `$kubectl get deployment '$name' -n '$ns' -o json`;
+my $data = eval{ JSON::decode_json( $x ); };
+die "load data from json fail: $@" if $@;
+
+my    $stat = `c3mc-spotx-affinity-check $id $ns $name`;
+chomp $stat;
+
+unless( $stat =~ /nofind:affinity/ )
+{
+   print "stat: $stat => skip.\n";
+   exit;
+}
+
+my $affinity = +{
+    weight => 100,
+    preference => +{
+        matchExpressions => [
+          +{
+            key => "c3.spotx.node.role/small",
+            operator => "In",
+            values => [ "1" ]
+          },
+          +{
+            key => "c3.spotx.node.role/large",
+            operator => "NotIn",
+            values => [ "1" ]
+          },
+
+        ]
+    }
+};
+die "not spec"               unless $data->{spec};
+die "not spec.template"      unless $data->{spec}{template};
+die "not spec.template.spec" unless $data->{spec}{template}{spec};
+
+$data->{spec}{template}{spec}{affinity} = +{}               unless $data->{spec}{template}{spec}{affinity};
+$data->{spec}{template}{spec}{affinity}{nodeAffinity} = +{} unless $data->{spec}{template}{spec}{affinity}{nodeAffinity};
+$data->{spec}{template}{spec}{affinity}{nodeAffinity}{preferredDuringSchedulingIgnoredDuringExecution} = [ ]
+    unless $data->{spec}{template}{spec}{affinity}{nodeAffinity}{preferredDuringSchedulingIgnoredDuringExecution};
+
+push @{ $data->{spec}{template}{spec}{affinity}{nodeAffinity}{preferredDuringSchedulingIgnoredDuringExecution} }, $affinity;
+my $json = eval{ JSON::encode_json( $data )};
+die "to json fail: $@" if $@;
+print "$json\n";
