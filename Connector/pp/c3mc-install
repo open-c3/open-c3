@@ -1,4 +1,9 @@
 #!/bin/bash
 set -e
-cd /data/Software/mydan/Connector/pp
-ls c3mc-* |xargs -i{} bash -c " cp {} /usr/bin/{}.temp && mv /usr/bin/{}.temp /usr/bin/{}"
+
+find /data/Software/mydan/Connector/pp -type d |
+while read dir
+do
+    cd $dir
+    ls c3mc-* | xargs -i{} bash -c " cp {} /usr/bin/{}.temp && mv /usr/bin/{}.temp /usr/bin/{}"
+done
