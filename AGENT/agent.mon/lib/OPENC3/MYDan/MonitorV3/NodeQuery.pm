@@ -39,7 +39,7 @@ sub _html
 
 sub getResponseProxy
 {
-    my ( $this, $content, $ip, $proxy, $debug  ) = @_;
+    my ( $this, $content, $ip, $proxy, $url, $debug  ) = @_;
     my @debug;
 
     if( $debug )
@@ -60,6 +60,7 @@ sub getResponseProxy
             "# monagent9100: $monagent9100",
             "# IP: $ip",
             "# PROXY: $proxy",
+            "# URL: $url",
             @carry,
         );
     }
@@ -154,7 +155,7 @@ sub run
                            $index{$idx}{http_get} = http_get $url, sub { 
                                my $c = $_[0] || $_[1]->{URL}. " -> ".$_[1]->{Reason};
                                return if $handle && $handle->destroyed;
-                               $handle->push_write($this->getResponseProxy($c, $ip, $proxy{$ip}, $data =~ /debug=1/ ? 1 : 0 )) if $c;
+                               $handle->push_write($this->getResponseProxy($c, $ip, $proxy{$ip}, $url, $data =~ /debug=1/ ? 1 : 0 )) if $c;
                                $handle->push_shutdown();
                                $handle->destroy();
                                delete $index{$idx};
