@@ -12,7 +12,7 @@ our %declare = (
 );
 
 our $collectorname = 'node_disk_inodes';
-our $cmd = 'LANG=en df -i -T';
+our $cmd = 'LANG=en df -i -T -P';
 
 #Filesystem              Type      Inodes  IUsed   IFree IUse% Mounted on
 #/dev/mapper/centos-root xfs      2423440 346659 2076781   15% /
