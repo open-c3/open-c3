@@ -71,7 +71,7 @@ for my $ingestion ( glob "/data/open-c3-data/device/curr/database/*/ingestion-my
          }
          else
          {
-             $tmp{auth} = ref $colmap->{auth} eq 'ARRAY' ?  join( ":", ( $d{ $colmap->{auth}[0] }, $d{ $colmap->{auth}[1] } )) : $d{ $colmap->{auth} };
+             $tmp{auth} = ref $colmap->{auth} eq 'ARRAY' ?  join( ":", ( map{ $d{ $_ } } @{ $colmap->{auth} } )) : $colmap->{auth};
          }
          for my $tree ( split /,/, $treename )
          {
