@@ -12,7 +12,7 @@ our %declare = (
 );
 
 our $collectorname = 'node_disk_blocks';
-our $cmd = 'LANG=en df -l -T -P';
+our $cmd = 'LANG=en df -T -P';
 
 #Filesystem              Type     1024-blocks      Used Available Capacity Mounted on
 #/dev/mapper/centos-root xfs         14034944  11865608   2169336      85% /
@@ -23,7 +23,7 @@ sub co
     my ( $error, @stat ) = ( 0 );
     eval{
         my $title = shift @df;
-        die "df -l format unkown" unless $title =~ /^Filesystem\s+Type\s+1024-blocks\s+Used\s+Available\s+Capacity\s+Mounted on$/;
+        die "df format unkown" unless $title =~ /^Filesystem\s+Type\s+1024-blocks\s+Used\s+Available\s+Capacity\s+Mounted on$/;
         for ( @df )
         {
             my ( $filesystem, $type, $total, $use, $free, $use_percent, $mountpoint ) = split /\s+/, $_, 7;
