@@ -1,0 +1,9 @@
+#!/bin/bash
+
+docker run -d \
+  -v /bin/docker:/bin/docker \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  -v /data/open-c3-data/mysqld-exporter-v3:/data/open-c3-data/mysqld-exporter-v3 \
+  -p 65113:65113 \
+  --name openc3-mysql-query \
+   openc3/mysql-query:m2209251
