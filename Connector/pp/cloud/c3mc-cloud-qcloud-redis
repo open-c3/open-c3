@@ -9,7 +9,7 @@ from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.redis.v20180412 import redis_client, models
 
 
-class Cdb:
+class Redis:
     def __init__(self, access_id, access_key, region):
         self.access_id = access_id
         self.access_key = access_key
@@ -64,8 +64,7 @@ class Cdb:
 
 
 def main(access_id, access_key, region):
-    cdb = Cdb(access_id, access_key, region)
-    cdb.page()
+    Redis(access_id, access_key, region).page()
 
 
 if __name__ == '__main__':
