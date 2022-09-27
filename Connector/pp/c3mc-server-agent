@@ -300,6 +300,10 @@ if( $name eq 'extend-exporter' )
     push @cmd, "find /data/open-c3-data/mysqld-exporter-v3/cache/ -type f -mmin -60 | c3mc-mon-mysql-v3-exportermaker";
     push @cmd, "find /data/open-c3-data/mysqld-exporter-v3/cache/ -type f -mmin -60 | c3mc-mon-mysql-v3-exporterclean";
 
+    push @cmd, "c3mc-mon-redis-v3-exportercheck";
+    push @cmd, "find /data/open-c3-data/redis-exporter-v3/cache/ -type f -mmin -60 | c3mc-mon-redis-v3-exportermaker";
+    push @cmd, "find /data/open-c3-data/redis-exporter-v3/cache/ -type f -mmin -60 | c3mc-mon-redis-v3-exporterclean";
+
     unless( @cmd ) { $0 = "agent_server_$name"; sleep 10*365*86400; exit; } 
 
     OPENC3::PP::Server->new(

@@ -1,0 +1,42 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my @file = <STDIN>;
+chomp @file;
+
+sub get
+{
+    my %has;
+    my    @ps = `docker ps`;
+    chomp @ps;
+    my @name = map{ my ( $x )= reverse split /\s+/, $_;$x }@ps;
+    map{ $has{$_} = 1 if /^openc3-redis-exporter-v3-([a-z0-9\.\-]+-\d+)$/; }@name;
+    return %has;
+}
+
+my %has = get();
+
+sub run
+{
+    my ( $file, $has ) = @_;
+    my $conf = YAML::XS::LoadFile $file;
+    my $name = "openc3-redis-exporter-v3-$conf->{ip}-$conf->{port}";
+    delete $has->{$name};
+}
+
+map{ run( $_, \%has ); }@file;
+
+map{
+    system "docker stop $_ >/dev/null";
+    system "docker rm   $_ >/dev/null";
+}keys %has;
