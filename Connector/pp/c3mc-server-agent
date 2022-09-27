@@ -254,6 +254,10 @@ if( $name eq 'carry' )
 #mysql
         "cat /data/Software/mydan/AGENT/conf/promesdmysql.temp | awk -F';' '{print \$2}'| c3mc-mon-proxy-port --output /data/Software/mydan/AGENT/conf/openc3_mysql_proxy.yml",
         "cat /data/Software/mydan/AGENT/conf/promesdmysql.temp |                          c3mc-mon-carry-mysql --output /data/Software/mydan/AGENT/conf/openc3_mysql_carry.yml",
+#redis
+        "cat /data/Software/mydan/AGENT/conf/promesdredis.temp | awk -F';' '{print \$2}'| c3mc-mon-proxy-port --output /data/Software/mydan/AGENT/conf/openc3_redis_proxy.yml",
+        "cat /data/Software/mydan/AGENT/conf/promesdredis.temp |                          c3mc-mon-carry-redis --output /data/Software/mydan/AGENT/conf/openc3_redis_carry.yml",
+ 
     );
 }
 
