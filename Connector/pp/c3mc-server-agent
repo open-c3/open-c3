@@ -296,13 +296,21 @@ if( $name eq 'extend-exporter' )
         push @cmd, "cat $file | c3mc-mon-$type-sdformat --output /data/Software/mydan/prometheus/config/openc3_${type}_sd.yml";
     }
 
-    push @cmd, "c3mc-mon-mysql-v3-exportercheck";
-    push @cmd, "find /data/open-c3-data/mysqld-exporter-v3/cache/ -type f -mmin -60 | c3mc-mon-mysql-v3-exportermaker";
-    push @cmd, "find /data/open-c3-data/mysqld-exporter-v3/cache/ -type f -mmin -60 | c3mc-mon-mysql-v3-exporterclean";
+    my   @mysql;
+    push @mysql, "c3mc-mon-mysql-v3-exportercheck";
+    push @mysql, "find /data/open-c3-data/mysqld-exporter-v3/cache/ -type f -mmin -60 | c3mc-mon-mysql-v3-exportermaker";
+    push @mysql, "find /data/open-c3-data/mysqld-exporter-v3/cache/ -type f -mmin -60 | c3mc-mon-mysql-v3-exporterclean";
 
-    push @cmd, "c3mc-mon-redis-v3-exportercheck";
-    push @cmd, "find /data/open-c3-data/redis-exporter-v3/cache/ -type f -mmin -60 | c3mc-mon-redis-v3-exportermaker";
-    push @cmd, "find /data/open-c3-data/redis-exporter-v3/cache/ -type f -mmin -60 | c3mc-mon-redis-v3-exporterclean";
+    my   @redis;
+    push @redis, "c3mc-mon-redis-v3-exportercheck";
+    push @redis, "find /data/open-c3-data/redis-exporter-v3/cache/ -type f -mmin -60 | c3mc-mon-redis-v3-exportermaker";
+    push @redis, "find /data/open-c3-data/redis-exporter-v3/cache/ -type f -mmin -60 | c3mc-mon-redis-v3-exporterclean";
+
+    push @cmd, @mysql, @redis;
+
+    @cmd = @mysql if $ENV{C3_MysqlQuery_Container};
+    @cmd = @redis if $ENV{C3_RedisQuery_Container};
+
 
     unless( @cmd ) { $0 = "agent_server_$name"; sleep 10*365*86400; exit; } 
 
