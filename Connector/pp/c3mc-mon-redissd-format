@@ -1,0 +1,68 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use YAML::XS;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0
+ $0 --output /path/foo.yaml
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o      = $option->get( qw( output=s ) )->dump();
+
+# ip map: 10.10.10.10 => +{ treeid1 => 1, treeid2 => 10 }
+my %ip;
+
+while(<STDIN>)
+{
+   chomp;
+   my ( $treeid, $ip ) = split /;/, $_;
+   $ip{ $ip }{ $treeid }++;
+}
+
+# treemap: treeid => treename
+my    @treemap = `c3mc-base-treemap`;
+die if $?;
+chomp @treemap;
+
+my %treemap;
+for( @treemap )
+{
+    my ( $treeid, $treename ) = split /;/, $_;
+    $treename           =~ s/[^a-zA-Z0-9_\.\-]//g;;
+    $treemap{ $treeid } =  $treename;
+}
+
+# target
+my @target;
+for my $ip ( keys %ip )
+{
+    my %lables = ( instance => $ip, "__metrics_path__" => "/api/agent/v3/redis/metrics/$ip", treeid => 1 );
+
+    map{
+        $lables{"treeid_$_"} = $treemap{$_} || "1";
+    }keys %{$ip{$ip}};
+
+    push @target, +{ targets => [ 'openc3-srv-docker' ], labels => \%lables };
+}
+
+if( $o{output} )
+{
+    my $temp = "$o{output}.temp.$$";
+    YAML::XS::DumpFile $temp, \@target;
+    rename $temp, $o{output} or die "rename fail: $!";
+    exit;
+}
+
+print YAML::XS::Dump \@target;

@@ -44,6 +44,10 @@ if( $name eq 'promesd' )
     my $mysqltmp        = "$mysqltemp.$$";
     my $openc3_mysql_sd = '/data/Software/mydan/prometheus/config/openc3_mysql_sd_v3.yml';
 
+    my $redistemp       = "/data/Software/mydan/AGENT/conf/promesdredis.temp";
+    my $redistmp        = "$redistemp.$$";
+    my $openc3_redis_sd = '/data/Software/mydan/prometheus/config/openc3_redis_sd_v3.yml';
+
     my $mode = OPENC3::SysCtl->new()->get( 'sys.monitor.mode' ) // 'single';
 
     my $greptree = OPENC3::SysCtl->new()->get( 'sys.monitor.grep.tree' );
@@ -90,7 +94,18 @@ if( $name eq 'promesd' )
                "c3mc-mon-mysqlsd-format --output $openc3_mysql_sd.temp",
            ],
            "mv $mysqltmp $mysqltemp && mv $openc3_mysql_sd.temp $openc3_mysql_sd",
-
+#redis
+           [
+               "c3mc-base-treemap",
+               $greptree ? sprintf( "grep -E '%s'", join '|', map{ ";$_" }split /,/, $greptree ) : undef,
+               "awk -F';' '{print \$1}'",
+               "c3mc-device-ingestion-redis -c projectid,addr,auth",
+               $grepnode ? sprintf( "grep -E '%s'", join '|', map{ ";$_" }split /,/, $grepnode ) : undef,
+               ( -f $ignore ) ? "c3mc-base-grepv -c 2 -f $ignore" : undef,
+               "tee $redistmp",
+               "c3mc-mon-redissd-format --output $openc3_redis_sd.temp",
+           ],
+           "mv $redistmp $redistemp && mv $openc3_redis_sd.temp $openc3_redis_sd",
         );
     }
     elsif( $mode eq 'prometheus' )
