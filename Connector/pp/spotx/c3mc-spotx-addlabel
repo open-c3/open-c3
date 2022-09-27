@@ -40,6 +40,12 @@ sub addlabel
 {
     my $node = shift @_;
 
+    if( %debugnode && ! $debugnode{ $node->{NAME} } )
+    {
+        print "label node '$node->{NAME}' c3.spotx.node.role/unkown=1 skip by debugnode\n";
+        return;
+    }
+
     my    $role = `c3mc-spotx-util-node-role $id $node->{NAME}`;
     chomp $role;
 

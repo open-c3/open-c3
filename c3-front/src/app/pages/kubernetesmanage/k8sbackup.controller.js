@@ -33,8 +33,8 @@
         };
         vm.reload();
  
-        vm.downloadfile = function (name) {
-            $http.get( "/api/ci/kubernetes/k8sbackup/download?ticketid=" + ticketid + "&name=" + name ).then(
+        vm.downloadfile = function (name, type ) {
+            $http.get( "/api/ci/kubernetes/k8sbackup/download" + type + "?ticketid=" + ticketid + "&name=" + name ).then(
                 function successCallback(response) {
                     if (response.data.stat){
                         var downloadAddr = window.location.protocol + "//"+window.location.host+"/api/job/download/";

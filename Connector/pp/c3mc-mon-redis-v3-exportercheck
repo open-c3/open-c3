@@ -1,0 +1,53 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my @x = `docker ps|grep openc3-redis-exporter-v3-`;
+chomp @x;
+
+my $envpath = "/data/open-c3-data/redis-exporter-v3/uuidenv";
+system "mkdir -p $envpath" unless -d $envpath;
+
+sub getds
+{
+    my $uuid = shift;
+    
+    system "docker inspect $uuid > $envpath/$uuid" unless -f "$envpath/$uuid";
+
+    my $data = YAML::XS::LoadFile "$envpath/$uuid";
+    my $x = join '', @{ $data->[0]{Config}{Cmd} };
+    die "nofind redis-exporter-v3 Cmd" unless $x;
+    $x =~ s/\s+//g;
+    return $x;
+}
+
+for my $x ( @x )
+{
+    next unless $x =~ /^([a-zA-Z0-9]{12}).+openc3-redis-exporter-v3-(\d+\.\d+\.\d+\.\d+)-(\d+)$/;
+    my ( $addr, $uuid ) = ( "$2:$3", $1 );
+    my $x = eval { getds( $uuid ) };
+    if( $@ )
+    {
+        warn "get redis-exporter-v3 info fail: $@";
+        next;
+    }
+
+    my $conf = eval{ YAML::XS::LoadFile "/data/open-c3-data/redis-exporter-v3/cache/$addr"; };
+    warn "load cache $addr fail: $@" if $@;
+
+    next unless $conf && ref $conf eq 'HASH';
+
+    my $pass = $conf->{password}? "--redis.password $conf->{password}" : "";
+    my $curr = "-redis.addr redis://$conf->{ip}:$conf->{port} $pass";
+    $curr =~ s/\s+//g;
+    system "docker kill $uuid" if $x ne $curr;
+}

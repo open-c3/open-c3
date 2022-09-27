@@ -1,0 +1,60 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib -I/data/Software/mydan/CI/private/lib
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use MYDB;
+use Code;
+use YAML::XS;
+use Encode;
+use MIME::Base64;
+use api::kubernetes;
+use uuid;
+
+my ( $user, $company, $ticketid, $data ) = @ARGV;
+die unless $user && $user !~ /'/;
+die unless $company && $company !~ /'/;
+
+my $db = MYDB->new( "$RealBin/../conf/conn" );
+
+my $datapath = "/data/glusterfs/kerbunetes_backup";
+my $distpath = "/data/glusterfs/kubernetes_backup.mine";
+
+my $uuid = sprintf "%s%s", uuid->new()->create_str, uuid->new()->create_str;
+
+my $datauuid = $data; $datauuid =~ s/\.tar\.gz$//;
+
+my $temp = "$distpath/$uuid.temp";
+
+my ( $kubectl, @ns )= eval{ api::kubernetes::getKubectlAuth( $db, $ticketid, $user, $company, 0 ) };
+die "get ticket fail: $@" if $@;
+
+die "mkdir temp fail" if system "mkdir -p $temp";
+die "untar fail"      if system "tar -zxf $datapath/$ticketid/$data -C $temp";
+
+unless( @ns )
+{
+    my $x = "$temp/$ticketid/$datauuid";
+    @ns = `cd $x && ls`;
+    chomp @ns;
+}
+
+die "no auth" unless @ns;
+
+my $dist = "$distpath/$uuid.dist";
+for my $namespace ( @ns )
+{
+    my $mine = "$dist/$ticketid/$datauuid/$namespace";
+    die "mkdir fail" if system "mkdir -p $mine";
+
+    for my $type ( qw( deployment configmap ) )
+    {
+        my @x = glob "$temp/$ticketid/$datauuid/$namespace/$type-*";
+        next unless @x;
+        die "copy fail" if system "cp -r $temp/$ticketid/$datauuid/$namespace/$type-*   $mine/";
+   }
+}
+
+die "tar fail" if system "cd $dist && tar -zcf data.tar.gz $ticketid";
+my $name = sprintf "K8S.%s.$data", $uuid;
+die "link fail" if system "ln -fsn '$dist/data.tar.gz' '/data/Software/mydan/JOB/downloadpath/$name'";
+print "$name\n";

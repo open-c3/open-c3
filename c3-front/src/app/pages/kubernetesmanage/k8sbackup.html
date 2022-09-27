@@ -18,8 +18,11 @@
                         <td data-title="'名称'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">
                             {{m.NAME}}
                         </td>
-                        <td data-title="'操作'" width="80" >
-                            <i class="fa fa-download fa-1x" aria-hidden="true" ng-click="kubernetesk8sbackup.downloadfile(m.NAME)" uib-tooltip="下载" style="cursor:pointer;color: #f63;" >下载</i>
+                        <td data-title="'集群管理员'" width="80" >
+                            <i class="fa fa-download fa-1x" aria-hidden="true" ng-click="kubernetesk8sbackup.downloadfile(m.NAME, '')" uib-tooltip="下载" style="cursor:pointer;color: #f63;" >全量下载</i>
+                        </td> 
+                        <td data-title="'普通用户'" width="80" >
+                            <i class="fa fa-download fa-1x" aria-hidden="true" ng-click="kubernetesk8sbackup.downloadfile(m.NAME, '/mine')" uib-tooltip="下载" style="cursor:pointer;color: #f63;" >应用下载</i>
                         </td> 
                     </tr>
                 </table>

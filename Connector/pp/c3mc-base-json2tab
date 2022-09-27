@@ -49,5 +49,5 @@ my @title = sort{ $tsort{$b} <=> $tsort{$a} } keys %title;
 unshift @data, +{ map{ $_ => $alias{$_} || $_ }@title };
 for my $d ( @data )
 {
-    printf "%s\n", join "\t", map{ $d->{$_} // '' }@title;
+    printf "%s\n", join "\t", map{ $_ =~ s/\t//g; $_ =~ s/\n//g; $_ } map{ $d->{$_} // '' }@title;
 }

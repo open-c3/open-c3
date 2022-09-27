@@ -68,6 +68,24 @@ get '/kubernetes/k8sbackup/download' => sub {
     return +{ stat => $JSON::true, data => $name };
 };
 
+get '/kubernetes/k8sbackup/download/mine' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        ticketid => qr/^\d+$/, 1,
+        name => qr/^[a-zA-Z0-9][a-zA-Z0-9\-\._]+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+    my $pmscheck = api::pmscheck( 'openc3_ci_read', 0 ); return $pmscheck if $pmscheck;
+
+    my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
+        map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    my ( $cmd, $handle ) = ( "/data/Software/mydan/CI/bin/kubectl-get-backup-mine $user $company $param->{ticketid} $param->{name}", 'showdata' );
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
+    return &{$handle{$handle}}( `$cmd`//'', $? );
+};
+
 post '/kubernetes/k8sbackup' => sub {
     my $param = params();
     my $error = Format->new( 
