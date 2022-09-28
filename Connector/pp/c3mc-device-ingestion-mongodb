@@ -1,0 +1,126 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 treeid1 treeid2 .. treeidn [ --col addr,auth [id|addr|auth|type|projectid] ]
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->set( col => 'addr,auth' )->get( qw( col=s ) )->dump();
+
+my @col = split /,/, $o{col};
+
+my %data;
+for my $ingestion ( glob "/data/open-c3-data/device/curr/database/*/ingestion-mongodb.yml" )
+{
+    my $datafile = $ingestion;
+    $datafile =~ s/ingestion-mongodb\.yml$/data\.tsv/;
+    my $colmap = eval{ YAML::XS::LoadFile $ingestion };
+    die "load $ingestion fail: $@" if $@;
+    map{ die "err" unless $colmap->{$_} }qw( addr tree type );
+    die "err" unless $colmap->{auth} || $colmap->{authfile} || $colmap->{authpath};
+
+    my %auth;
+    if( $colmap->{authfile} )
+    {
+        my @auth = `cat '$colmap->{authfile}'`;
+        chomp @auth;
+        for( @auth )
+        {
+            my @x = split /;/, $_, 2;
+            $auth{ $x[0] } = $x[1] if @x == 2;
+        }
+    }
+    my ( undef, $subtype, $type ) = reverse split /\//, $datafile;
+    my    @data  = `c3mc-device-cat $type $subtype`;
+    chomp @data;
+
+    my $title = shift @data;
+
+    utf8::decode( $title );
+    my @title = split /\t/, $title;
+
+    for my $data ( @data )
+    {
+         utf8::decode( $data );
+         my @d = split /\t/, $data;
+         my %d = map{ $title[ $_ ] => $d[ $_ ] } 0 .. @title - 1;
+
+         next unless my $treename = $d{ $colmap->{tree} };
+         my %tmp = (
+             addr => ref $colmap->{addr} eq 'ARRAY'
+                     ? join( ":", ( $d{ $colmap->{addr}[0] }, $colmap->{addr}[1] ? $d{ $colmap->{addr}[1] } : '3306' ) )
+                     : $d{ $colmap->{addr} },
+             type =>     $colmap->{type},
+         );
+
+         if( $colmap->{authfile} )
+         {
+             $tmp{auth} = $auth{$tmp{addr}} || '';
+         }
+         elsif( $colmap->{authpath} )
+         {
+             $tmp{auth} = '';
+             my $authfile = "$colmap->{authpath}/$tmp{addr}";
+             eval{ $tmp{auth} = YAML::XS::LoadFile $authfile } if -f $authfile;
+         }
+         else
+         {
+             $tmp{auth} = ref $colmap->{auth} eq 'ARRAY' ?  join( ":", ( map{ $d{ $_ } } @{ $colmap->{auth} } )) : $colmap->{auth};
+         }
+         for my $tree ( split /,/, $treename )
+         {
+             $data{$tree} ||= [];
+             push @{ $data{$tree} }, \%tmp;
+         }
+    }
+}
+
+my @treemap = `c3mc-base-treemap`;
+chomp @treemap;
+
+my %treemap;
+map{
+    my @x = split /;/, $_, 2;
+    $treemap{ $x[0] } = $x[1];
+}@treemap;
+
+sub nodeinfo
+{
+    my ( $id ) = @_;
+    die unless $id =~ /^\d+$/;
+
+    return unless my $treename = $treemap{ $id };
+
+    my %res;
+
+    for my $tree ( keys %data )
+    {
+        next unless $tree eq $treename || 0 == index( $tree, "$treename." );
+        for my $node (  @{ $data{ $tree } } )
+        {
+            $res{$node->{addr} } = $node;
+        }
+    }
+
+    my $i = 10000;
+    for my $t (  values %res )
+    {
+        $t->{id} = $i++;
+        $t->{projectid} = $id;
+        printf "%s\n", join ';', map{ $t->{$_} || '' }@col;
+    }
+}
+
+if( @ARGV ) { map{ nodeinfo( $_ ) }@ARGV; } else { while(<STDIN>){ chomp; nodeinfo($_); } }
