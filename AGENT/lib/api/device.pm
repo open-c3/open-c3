@@ -353,6 +353,18 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
         $showredisauth = 1;
     }
  
+    my $showmongodbauth = 0;
+    my @showmongodbaddr;
+    my $ingestionmongodbfile = "$datapath/$param->{type}/$param->{subtype}/ingestion-mongodb.yml";
+    if( -f $ingestionmongodbfile && -f "/data/open-c3-data/device/auth/mongodb.auth/$user" )
+    {
+        my $ingestionmongodb = eval{ YAML::XS::LoadFile $ingestionmongodbfile };
+        return  +{ stat => $JSON::false, info => "load ingestion-mongodb.yml fail: $@" } if $@;
+
+        @showmongodbaddr = @{$ingestionmongodb->{addr}};
+        $showmongodbauth = 1;
+    }
+ 
     my @re2;
     for my $r ( @re )
     {
@@ -399,6 +411,24 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
             push @x, [ _redisauth_ => $redisauth ];
         }
  
+        if( $showmongodbauth )
+        {
+            my $mongodbaddr = join ':',map{ $r->{$_}} @showmongodbaddr;
+            push @x, [ _mongodbaddr_ => $mongodbaddr ];
+
+            my $mongodbpath = '/data/open-c3-data/device/auth/mongodb';
+            system "mkdir -p $mongodbpath" unless -d $mongodbpath;
+
+            my $mongodbfile = "$mongodbpath/$mongodbaddr";
+            my $mongodbauth = '';
+            if( -f $mongodbfile )
+            {
+                $mongodbauth = eval{ YAML::XS::LoadFile "$mongodbpath/$mongodbaddr"; };
+                return  +{ stat => $JSON::false, info => "get mongodb auth fail: $@" } if $@;
+            }
+            push @x, [ _mongodbauth_ => $mongodbauth ];
+        }
+
         push @re2, \@x;
     }
 

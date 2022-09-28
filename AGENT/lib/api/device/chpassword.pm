@@ -9,7 +9,7 @@ use api;
 any '/device/chpassword' => sub {
     my $param = params();
     my $error = Format->new(
-        dbtype => [ 'in', 'mysql', 'redis' ], 1,
+        dbtype    => qr/^[a-z]+$/, 1,
         dbaddr    => qr/^[0-9][0-9:\.]+$/, 1,
         #passwd
     )->check( %$param );
