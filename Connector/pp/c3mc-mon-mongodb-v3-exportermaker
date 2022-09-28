@@ -1,0 +1,44 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my @file = <STDIN>;
+chomp @file;
+
+sub get
+{
+    my %has;
+    my @ps = `docker ps`;
+    chomp @ps;
+    my @name = map{ my ( $x )= reverse split /\s+/, $_;$x }@ps;
+    map{ $has{$_} = 1 if /^openc3-mongodb-exporter-v3-([a-z0-9\.\-]+-\d+)$/; }@name;
+    return %has;
+}
+
+my %has = get();
+
+sub run
+{
+    my ( $file, $has ) = @_;
+    my $conf = YAML::XS::LoadFile $file;
+
+    my $name = "openc3-mongodb-exporter-v3-$conf->{ip}-$conf->{port}";
+
+    return if $has->{$name};
+    system "docker rm $name >/dev/null 2>&1";
+
+    my $password = $conf->{user} && $conf->{password} ? "$conf->{user}:$conf->{password}@" : "";
+    system "docker run -d --network c3_JobNet --name $name percona/mongodb_exporter:0.20 --mongodb.uri mongodb://$password$conf->{ip}:$conf->{port}";
+}
+
+map{ run( $_, \%has ); } @file;

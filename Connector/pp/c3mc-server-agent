@@ -322,10 +322,17 @@ if( $name eq 'extend-exporter' )
     push @redis, "find /data/open-c3-data/redis-exporter-v3/cache/ -type f -mmin -60 | c3mc-mon-redis-v3-exportermaker";
     push @redis, "find /data/open-c3-data/redis-exporter-v3/cache/ -type f -mmin -60 | c3mc-mon-redis-v3-exporterclean";
 
-    push @cmd, @mysql, @redis;
+    my   @mongodb;
+    push @mongodb, "c3mc-mon-mongodb-v3-exportercheck";
+    push @mongodb, "find /data/open-c3-data/mongodb-exporter-v3/cache/ -type f -mmin -60 | c3mc-mon-mongodb-v3-exportermaker";
+    push @mongodb, "find /data/open-c3-data/mongodb-exporter-v3/cache/ -type f -mmin -60 | c3mc-mon-mongodb-v3-exporterclean";
 
-    @cmd = @mysql if $ENV{C3_MysqlQuery_Container};
-    @cmd = @redis if $ENV{C3_RedisQuery_Container};
+
+    push @cmd, @mysql, @redis, @mongodb;
+
+    @cmd = @mysql   if $ENV{ C3_MysqlQuery_Container   };
+    @cmd = @redis   if $ENV{ C3_RedisQuery_Container   };
+    @cmd = @mongodb if $ENV{ C3_MongodbQuery_Container };
 
 
     unless( @cmd ) { $0 = "agent_server_$name"; sleep 10*365*86400; exit; } 
