@@ -22,10 +22,10 @@ my %o = $option->set( col => 'addr,auth' )->get( qw( col=s ) )->dump();
 my @col = split /,/, $o{col};
 
 my %data;
-for my $ingestion ( glob "/data/open-c3-data/device/curr/database/*/ingestion-redis.yml" )
+for my $ingestion ( glob "/data/open-c3-data/device/curr/database/*/ingestion-mongodb.yml" )
 {
     my $datafile = $ingestion;
-    $datafile =~ s/ingestion-redis\.yml$/data\.tsv/;
+    $datafile =~ s/ingestion-mongodb\.yml$/data\.tsv/;
     my $colmap = eval{ YAML::XS::LoadFile $ingestion };
     die "load $ingestion fail: $@" if $@;
     map{ die "err" unless $colmap->{$_} }qw( addr tree type );

@@ -53,7 +53,7 @@ sub download
     elsif( $url =~ /^cmd:(.+)$/ )
     {
         my $cmd = $1;
-        system "$cmd > $temppath/data.tsv"
+        system "$cmd > $temppath/data.tsv";
     }
     else
     {
@@ -66,8 +66,16 @@ sub download
         system "cat $temppath/temp.tsv | sed '1d' > $temppath/data.tsv";
     }
 
+    my $line = 0;
+    if( $check )
+    {
+        $line = `wc -l $temppath/data.tsv | awk '{print \$1}'`;
+        chomp $line;
+        die "get line fail" unless defined $line && $line =~ /^\d+$/;
+    }
+
 #check col
-    if( $check && $check->{col} )
+    if( $check && $check->{col} && $line )
     {
         my $x = `head -n 1 $temppath/data.tsv`;
         chomp $x;
@@ -81,9 +89,7 @@ sub download
 #check min
     if( $check && $check->{min} )
     {
-        my $x = `wc -l $temppath/data.tsv | awk '{print \$1}'`;
-        chomp $x;
-        die "$type $subtype chk min err: len=$x min=$check->{min}" unless $x >= $check->{min};
+        die "$type $subtype chk min err: len=$line min=$check->{min}" unless $line >= $check->{min};
     }
 
     eval{ YAML::XS::DumpFile "temp/$type/$subtype/outline.yml", $outline; };

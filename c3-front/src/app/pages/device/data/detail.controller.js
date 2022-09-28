@@ -69,6 +69,37 @@
 
         };
  
+        vm.chpasswd = function( data, dbaddrcolname, dbtype, password ){
+            vm.dbaddr = '';
+                angular.forEach(data, function (value) {
+                    if( value[0] == dbaddrcolname )
+                    {
+                        vm.dbaddr = value[1];
+                    }
+                });
+
+            swal({
+                title: '修改账号',
+                text: '保存' + dbtype + '://' + vm.dbaddr  + '账号',
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                cancelButtonText: "取消",
+                confirmButtonText: "确定",
+                closeOnConfirm: true
+            }, function(){
+                $http.post('/api/agent/device/chpassword', { "dbtype": dbtype, "dbaddr": vm.dbaddr, "passwd": password } ).success(function(data){
+                    if(data.stat == true) 
+                    { 
+                        toastr.success("操作完成");
+                    } else { 
+                        toastr.error("操作失败:" + data.info)
+                    }
+                });
+              });
+
+        };
+ 
         vm.reload();
 
         vm.names=[];

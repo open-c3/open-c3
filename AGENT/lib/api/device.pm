@@ -277,6 +277,8 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
         : api::pmscheck( 'openc3_job_write', $param->{treeid} );
     return $pmscheck if $pmscheck;
 
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+
     my $greptreename = $param->{treeid} == 4000000000 ? undef : eval{ gettreename( $param->{treeid} ) };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
@@ -326,6 +328,43 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
 
     }
 
+
+    my $showmysqlauth = 0;
+    my @showmysqladdr;
+    my $ingestionmysqlfile = "$datapath/$param->{type}/$param->{subtype}/ingestion-mysql.yml";
+    if( -f $ingestionmysqlfile && -f "/data/open-c3-data/device/auth/mysql.auth/$user" )
+    {
+        my $ingestionmysql = eval{ YAML::XS::LoadFile $ingestionmysqlfile };
+        return  +{ stat => $JSON::false, info => "load ingestion-mysql.yml fail: $@" } if $@;
+
+        @showmysqladdr = @{$ingestionmysql->{addr}};
+        $showmysqlauth = 1;
+    }
+
+    my $showredisauth = 0;
+    my @showredisaddr;
+    my $ingestionredisfile = "$datapath/$param->{type}/$param->{subtype}/ingestion-redis.yml";
+    if( -f $ingestionredisfile && -f "/data/open-c3-data/device/auth/redis.auth/$user" )
+    {
+        my $ingestionredis = eval{ YAML::XS::LoadFile $ingestionredisfile };
+        return  +{ stat => $JSON::false, info => "load ingestion-redis.yml fail: $@" } if $@;
+
+        @showredisaddr = @{$ingestionredis->{addr}};
+        $showredisauth = 1;
+    }
+ 
+    my $showmongodbauth = 0;
+    my @showmongodbaddr;
+    my $ingestionmongodbfile = "$datapath/$param->{type}/$param->{subtype}/ingestion-mongodb.yml";
+    if( -f $ingestionmongodbfile && -f "/data/open-c3-data/device/auth/mongodb.auth/$user" )
+    {
+        my $ingestionmongodb = eval{ YAML::XS::LoadFile $ingestionmongodbfile };
+        return  +{ stat => $JSON::false, info => "load ingestion-mongodb.yml fail: $@" } if $@;
+
+        @showmongodbaddr = @{$ingestionmongodb->{addr}};
+        $showmongodbauth = 1;
+    }
+ 
     my @re2;
     for my $r ( @re )
     {
@@ -334,8 +373,65 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
             $r->{$_} =~ s/_sys_temp_delimiter_temp_sys_/\t/g;
         } @title;
         my @x = map{ [ $_ => $r->{$_} ] } @title;
+
+        if( $showmysqlauth )
+        {
+            my $mysqladdr = join ':',map{ $r->{$_}} @showmysqladdr;
+            push @x, [ _mysqladdr_ => $mysqladdr ];
+
+            my $mysqlpath = '/data/open-c3-data/device/auth/mysql';
+            system "mkdir -p $mysqlpath" unless -d $mysqlpath;
+
+            my $mysqlfile = "$mysqlpath/$mysqladdr";
+            my $mysqlauth = '';
+            if( -f $mysqlfile )
+            {
+                $mysqlauth = eval{ YAML::XS::LoadFile "$mysqlpath/$mysqladdr"; };
+                return  +{ stat => $JSON::false, info => "get mysql auth fail: $@" } if $@;
+            }
+            push @x, [ _mysqlauth_ => $mysqlauth ];
+
+        }
+
+        if( $showredisauth )
+        {
+            my $redisaddr = join ':',map{ $r->{$_}} @showredisaddr;
+            push @x, [ _redisaddr_ => $redisaddr ];
+
+            my $redispath = '/data/open-c3-data/device/auth/redis';
+            system "mkdir -p $redispath" unless -d $redispath;
+
+            my $redisfile = "$redispath/$redisaddr";
+            my $redisauth = '';
+            if( -f $redisfile )
+            {
+                $redisauth = eval{ YAML::XS::LoadFile "$redispath/$redisaddr"; };
+                return  +{ stat => $JSON::false, info => "get redis auth fail: $@" } if $@;
+            }
+            push @x, [ _redisauth_ => $redisauth ];
+        }
+ 
+        if( $showmongodbauth )
+        {
+            my $mongodbaddr = join ':',map{ $r->{$_}} @showmongodbaddr;
+            push @x, [ _mongodbaddr_ => $mongodbaddr ];
+
+            my $mongodbpath = '/data/open-c3-data/device/auth/mongodb';
+            system "mkdir -p $mongodbpath" unless -d $mongodbpath;
+
+            my $mongodbfile = "$mongodbpath/$mongodbaddr";
+            my $mongodbauth = '';
+            if( -f $mongodbfile )
+            {
+                $mongodbauth = eval{ YAML::XS::LoadFile "$mongodbpath/$mongodbaddr"; };
+                return  +{ stat => $JSON::false, info => "get mongodb auth fail: $@" } if $@;
+            }
+            push @x, [ _mongodbauth_ => $mongodbauth ];
+        }
+
         push @re2, \@x;
     }
+
     return +{ stat => $JSON::true, data => \@re2, treenamecol => $treenamecol };
 };
 

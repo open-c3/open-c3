@@ -1,0 +1,43 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use YAML::XS;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0
+ $0 --output /path/foo,yaml
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( output=s ) )->dump();
+
+my %result;
+while(<STDIN>){
+    chomp;
+    my ( $treeid, $addr, $auth ) = split /;/, $_;
+    if( $treeid =~ /^\d+$/ && $addr =~ /^\d+\.\d+\.\d+\.\d+:\d+$/ )
+    {
+        if( $auth )
+        {
+            my @x = split /:/, $auth, 2;
+            $result{$addr} = +{ user => $x[0], password => $x[1] } if @x ==2;
+        }
+    }
+    else { warn "treeid: $treeid addr:$addr"; }
+}
+
+if( $o{output} )
+{
+    my $temp = "$o{output}.temp.$$";
+    YAML::XS::DumpFile $temp, \%result;
+    rename $temp, $o{output} or die "rename fail: $!";
+    exit;
+}
+
+print YAML::XS::Dump \%result;
