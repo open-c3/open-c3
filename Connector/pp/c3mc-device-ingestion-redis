@@ -29,7 +29,7 @@ for my $ingestion ( glob "/data/open-c3-data/device/curr/database/*/ingestion-re
     my $colmap = eval{ YAML::XS::LoadFile $ingestion };
     die "load $ingestion fail: $@" if $@;
     map{ die "err" unless $colmap->{$_} }qw( addr tree type );
-    die "err" unless $colmap->{auth} || $colmap->{authfile};
+    die "err" unless $colmap->{auth} || $colmap->{authfile} || $colmap->{authpath};
 
     my %auth;
     if( $colmap->{authfile} )
@@ -68,6 +68,12 @@ for my $ingestion ( glob "/data/open-c3-data/device/curr/database/*/ingestion-re
          if( $colmap->{authfile} )
          {
              $tmp{auth} = $auth{$tmp{addr}} || '';
+         }
+         elsif( $colmap->{authpath} )
+         {
+             $tmp{auth} = '';
+             my $authfile = "$colmap->{authpath}/$tmp{addr}";
+             eval{ $tmp{auth} = YAML::XS::LoadFile $authfile } if -f $authfile;
          }
          else
          {
