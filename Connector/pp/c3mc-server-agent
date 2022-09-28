@@ -48,6 +48,10 @@ if( $name eq 'promesd' )
     my $redistmp        = "$redistemp.$$";
     my $openc3_redis_sd = '/data/Software/mydan/prometheus/config/openc3_redis_sd_v3.yml';
 
+    my $mongodbtemp       = "/data/Software/mydan/AGENT/conf/promesdmongodb.temp";
+    my $mongodbtmp        = "$mongodbtemp.$$";
+    my $openc3_mongodb_sd = '/data/Software/mydan/prometheus/config/openc3_mongodb_sd_v3.yml';
+
     my $mode = OPENC3::SysCtl->new()->get( 'sys.monitor.mode' ) // 'single';
 
     my $greptree = OPENC3::SysCtl->new()->get( 'sys.monitor.grep.tree' );
@@ -106,6 +110,18 @@ if( $name eq 'promesd' )
                "c3mc-mon-redissd-format --output $openc3_redis_sd.temp",
            ],
            "mv $redistmp $redistemp && mv $openc3_redis_sd.temp $openc3_redis_sd",
+#mongodb
+           [
+               "c3mc-base-treemap",
+               $greptree ? sprintf( "grep -E '%s'", join '|', map{ ";$_" }split /,/, $greptree ) : undef,
+               "awk -F';' '{print \$1}'",
+               "c3mc-device-ingestion-mongodb -c projectid,addr,auth",
+               $grepnode ? sprintf( "grep -E '%s'", join '|', map{ ";$_" }split /,/, $grepnode ) : undef,
+               ( -f $ignore ) ? "c3mc-base-grepv -c 2 -f $ignore" : undef,
+               "tee $mongodbtmp",
+               "c3mc-mon-mongodbsd-format --output $openc3_mongodb_sd.temp",
+           ],
+           "mv $mongodbtmp $mongodbtemp && mv $openc3_mongodb_sd.temp $openc3_mongodb_sd",
         );
     }
     elsif( $mode eq 'prometheus' )
