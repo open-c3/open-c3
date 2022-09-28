@@ -48,6 +48,7 @@ sub run
             for my $cmd ( @cmd )
             {
                 $cmd = join '|', grep{ defined $_ }@$cmd if ref $cmd;
+                warn "cmd: $cmd\n" if $ENV{C3DEBUG};
 
                 unless( $pid = fork )
                 {
@@ -62,6 +63,7 @@ sub run
 
             }
 
+            warn "done.\n" if $ENV{C3DEBUG};
             alarm 0;
         };
 
