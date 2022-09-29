@@ -44,8 +44,8 @@ for my $k ( reverse @ARGV )
     $tsort{ $k } += 10000 * $i ++;
 }
 
-exit unless @title;
 my @title = sort{ $tsort{$b} <=> $tsort{$a} } keys %title;
+exit unless @title;
 
 unshift @data, +{ map{ $_ => $alias{$_} || $_ }@title };
 for my $d ( @data )
