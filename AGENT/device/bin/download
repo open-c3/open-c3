@@ -92,6 +92,14 @@ sub download
         die "$type $subtype chk min err: len=$line min=$check->{min}" unless $line >= $check->{min};
     }
 
+#tagsfilter
+    my $title = `head -n 1 $temppath/data.tsv`;
+    chomp $title;
+    for my $col ( split /\t/, $title )
+    {
+        push @$filter, +{ alias => $1, name => $col } if $col =~ /^tag\.(.+)$/;
+    }
+
     eval{ YAML::XS::DumpFile "temp/$type/$subtype/outline.yml", $outline; };
     eval{ YAML::XS::DumpFile "temp/$type/$subtype/filter.yml",   $filter; };
     eval{ YAML::XS::DumpFile "temp/$type/$subtype/colmap.yml",   $colmap; };
