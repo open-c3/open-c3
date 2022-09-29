@@ -5,11 +5,11 @@ import sys
 import json
 
 from huaweicloudsdkcore.auth.credentials import BasicCredentials
-from huaweicloudsdkdcs.v2.region.dcs_region import DcsRegion
-from huaweicloudsdkdcs.v2 import *
+from huaweicloudsdkdds.v3.region.dds_region import DdsRegion
+from huaweicloudsdkdds.v3 import *
 
 
-class Redis:
+class Dds:
     def __init__(self, access_id, access_key, project_id, region):
         self.access_id = access_id
         self.access_key = access_key
@@ -26,9 +26,9 @@ class Redis:
     def create_client(self):
         credentials = BasicCredentials(
             self.access_id, self.access_key, self.project_id)
-        client = DcsClient.new_builder() \
+        client = DdsClient.new_builder() \
             .with_credentials(credentials) \
-            .with_region(DcsRegion.value_of(self.region)) \
+            .with_region(DdsRegion.value_of(self.region)) \
             .build()
         return client
 
@@ -45,18 +45,12 @@ class Redis:
 
     def get_server_count(self):
         response_data = self.get_response()
-        return response_data["instance_num"]
+        return response_data["total_count"]
 
     def show(self):
         response_data = self.get_response()
         instances = response_data["instances"]
         for instance in instances:
-            availability_zone = None
-            for item in instance['az_codes']:
-                availability_zone = item
-            if availability_zone is not None:
-                instance['availability_zone'] = availability_zone
-                instance['region_id'] = availability_zone[:-1]
             print(json.dumps(instance))
 
     def page(self):
@@ -74,7 +68,7 @@ class Redis:
 
 # project_id 可以命令行传 None
 def main(access_id, access_key, project_id, region):
-    Redis(access_id, access_key, project_id, region).page()
+    Dds(access_id, access_key, project_id, region).page()
 
 
 if __name__ == '__main__':

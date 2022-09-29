@@ -1,8 +1,8 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-huawei-redis --account huawei | c3mc-base-json2tab instance_id 实例ID region_id 区域 availability_zone 所在可用区"
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-huawei-dds --account huawei | c3mc-base-json2tab id 实例ID name 名称 region 区域 engine 引擎 "
     datatype: tsv
     type: database
-    subtype: huawei-redis
+    subtype: huawei-dds
     init: ["install-python3.sh", "c3mc-cloud-huawei.sh"]
     treeinfo:
       treename: "服务树"
@@ -25,7 +25,8 @@ download:
       uuid:
         - "实例ID"
       baseinfo:
-        - "区域"
+        - "名称"
+        - "引擎"
       system:
         - "ConnectionDomain"
       contact:
