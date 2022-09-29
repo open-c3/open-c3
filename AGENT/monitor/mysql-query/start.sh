@@ -7,4 +7,5 @@ docker run -d \
   -p 65113:65113 \
   --network c3_JobNet \
   --name openc3-mysql-query \
+  -e C3_MysqlQuery_Container=1 \
    openc3/mysql-query:m2209251
