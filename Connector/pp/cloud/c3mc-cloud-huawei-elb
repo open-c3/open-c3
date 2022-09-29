@@ -1,0 +1,53 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+
+from huaweicloudsdkcore.auth.credentials import BasicCredentials
+from huaweicloudsdkelb.v2.region.elb_region import ElbRegion
+from huaweicloudsdkelb.v2 import *
+
+
+class Elb:
+    def __init__(self, access_id, access_key, project_id, region):
+        self.access_id = access_id
+        self.access_key = access_key
+        if project_id == "None":
+            self.project_id = None
+        else:
+            self.project_id = project_id.strip()
+        self.region = region
+        self.client = self.create_client()
+
+    def create_client(self):
+        credentials = BasicCredentials(
+            self.access_id, self.access_key, self.project_id)
+        client = ElbClient.new_builder() \
+            .with_credentials(credentials) \
+            .with_region(ElbRegion.value_of(self.region)) \
+            .build()
+        return client
+
+    def set_request(self, marker):
+        request = ListLoadbalancersRequest()
+        return request
+
+    def get_instances_from_response(self, response):
+        return response.loadbalancers
+
+    def show(self):
+        response = self.client.list_loadbalancers(self.set_request(None))
+        results = self.get_instances_from_response(response)
+        for instance in results:
+            print(str(instance))
+        return results
+
+
+# project_id 可以命令行传 None
+def main(access_id, access_key, project_id, region):
+    Elb(access_id, access_key, project_id, region).show()
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
