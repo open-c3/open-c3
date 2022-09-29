@@ -200,6 +200,16 @@ any '/device/data/:type/:subtype/:treeid' => sub {
     my @debug;
 
     my $grepdata = $param->{grepdata} && ref $param->{grepdata} eq 'HASH' && %{ $param->{grepdata} } ?  $param->{grepdata} : undef;
+    if( $grepdata )
+    {
+        for my $grep ( keys %$grepdata )
+        {
+            $grepdata->{$grep} = ""   if $grepdata->{$grep} eq '_null_';
+            delete $grepdata->{$grep} if $grepdata->{$grep} eq '';
+        }
+        $grepdata = undef unless %$grepdata;
+    }
+ 
     my $search = $grepdata && $grepdata->{_search_} ? delete $grepdata->{_search_} : undef;
 
     for my $data ( @data )
@@ -254,7 +264,7 @@ any '/device/data/:type/:subtype/:treeid' => sub {
         my %v = %{ $filterdata{$name} };
         for my $k ( sort{ $v{$b} <=> $v{$a} } keys %v )
         {
-            push @{$filterdata->{$name}}, +{ name => $k, count => $v{$k} };
+            push @{$filterdata->{$name}}, +{ name => $k eq "" ? "_null_" : $k, count => $v{$k} };
         }
     }
     return +{ stat => $JSON::true, data => \@re, debug => \@debug, filter => $filter, filterdata => $filterdata  };

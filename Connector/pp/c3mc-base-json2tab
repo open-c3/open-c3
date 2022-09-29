@@ -45,6 +45,7 @@ for my $k ( reverse @ARGV )
 }
 
 my @title = sort{ $tsort{$b} <=> $tsort{$a} } keys %title;
+exit unless @title;
 
 unshift @data, +{ map{ $_ => $alias{$_} || $_ }@title };
 for my $d ( @data )
