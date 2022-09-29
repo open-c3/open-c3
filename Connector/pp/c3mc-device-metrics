@@ -1,0 +1,30 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+for my $file ( glob "/data/open-c3-data/device/curr/*/*/data.tsv" )
+{
+    my ( undef, $subtype, $type ) = reverse split /\//, $file;
+    my $mtime = ( stat $file )[9];
+
+    my $line = `wc -l $file|awk '{print \$1}'`;
+    chomp $line;
+    if( defined $line && $line =~ /^\d+$/ )
+    {
+        $line -- if $line > 0;
+    }
+    else
+    {
+        $line = -1;
+    }
+    print "c3_cmdb_resources_count{type=\"$type\", subtype=\"$subtype\"} $line\n";
+    print "c3_cmdb_resources_mtime{type=\"$type\", subtype=\"$subtype\"} $mtime\n";
+}
