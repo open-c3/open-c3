@@ -8,4 +8,4 @@ docker run -d \
   --network c3_JobNet \
   --name openc3-redis-query \
   -e C3_RedisQuery_Container=1 \
-  openc3/redis-query:m2209251
+  openc3/redis-query:e2209281

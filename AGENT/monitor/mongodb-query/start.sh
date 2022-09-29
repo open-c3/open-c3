@@ -7,5 +7,5 @@ docker run -d \
   -p 65115:65115 \
   --network c3_JobNet \
   --name openc3-mongodb-query \
-  -e C3_MysqlQuery_Container=1 \
-  openc3/mongodb-query:m2209251
+  -e C3_MongodbQuery_Container=1 \
+  openc3/mongodb-query:o2209291
