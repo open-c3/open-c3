@@ -408,6 +408,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
                 $redisauth = eval{ YAML::XS::LoadFile "$redispath/$redisaddr"; };
                 return  +{ stat => $JSON::false, info => "get redis auth fail: $@" } if $@;
             }
+            $redisauth =~ s/^_://;
             push @x, [ _redisauth_ => $redisauth ];
         }
  
