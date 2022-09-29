@@ -28,5 +28,10 @@
             $state.go('home.device.data', {treeid:vm.treeid, type: type, subtype: subtype });
         };
 
+        vm.openNewWindow = function()
+        {
+            var newurl = '/third-party/monitor/prometheus/graph?g0.expr=c3_cmdb_resources_count&g0.tab=0&g0.stacked=0&g0.show_exemplars=0&g0.range_input=3h';
+            window.open( newurl, '_blank')
+        }
     }
 })();
