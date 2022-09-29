@@ -16,6 +16,17 @@ any '/device/chpassword' => sub {
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
+    my @passwdonly = qw( redis );
+
+    if( grep{ $_ eq $param->{dbtype} } @passwdonly )
+    {
+        $param->{passwd} = "_:$param->{passwd}";
+    }
+    else
+    {
+        return  +{ stat => $JSON::false, info => "auth format error:  username:password" }  unless $param->{passwd} && $param->{passwd} =~ /^[a-zA-Z0-9\.]+:.+/;
+    }
+
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
     my $dbpath = "/data/open-c3-data/device/auth/$param->{dbtype}";
