@@ -1,9 +1,9 @@
 download:
-  - url: "cmd:c3mc-cloud-qcloud-redis ak sk ap-beijing | c3mc-base-json2tab InstanceId 实例ID"
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-redis --account qcloud | c3mc-cloud-tag InstanceTags TagKey TagValue None | c3mc-base-json2tab InstanceId 实例ID ZoneId 所在可用区 Region 区域 "
     datatype: tsv
     type: database
     subtype: qcloud-redis
-    init: ["c3mc-cloud-qcloud.sh"]
+    init: ["install-python3.sh", "c3mc-cloud-qcloud.sh"]
     treeinfo:
       treename: "服务树"
       treeinfo:
@@ -16,11 +16,19 @@ download:
     colmap:
       treename: "服务树"
       uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
+    filter:
+      - name: "account"
+        alias: 账号
+      - name: "所在可用区"
+        alias: 所在可用区
+      - name: "区域"
+        alias: 区域
     outline:
       uuid:
         - "实例ID"
       baseinfo:
-        - "ZoneId"
+        - "account"
+        - "区域"
       system:
         - "ConnectionString"
       contact:

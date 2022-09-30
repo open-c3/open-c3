@@ -1,3 +1,5 @@
 #!/bin/bash
 
-pip install ksc-sdk-python ks3sdk
+set -e
+
+pip2 install ksc-sdk-python ks3sdk

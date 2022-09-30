@@ -1,9 +1,9 @@
 download:
-  - url: "cmd:c3mc-cloud-qcloud-clb ak sk ap-beijing | c3mc-base-json2tab LoadBalancerId 实例ID"
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-clb --account qcloud | c3mc-cloud-tag Tags TagKey TagValue None | c3mc-base-json2tab LoadBalancerId 实例ID TargetRegionInfo.Region 区域"
     datatype: tsv
     type: networking
     subtype: qcloud-clb
-    init: ["c3mc-cloud-qcloud.sh"]
+    init: ["install-python3.sh", "c3mc-cloud-qcloud.sh"]
     treeinfo:
       treename: "服务树"
       treeinfo:
@@ -13,13 +13,21 @@ download:
     colmap:
       treename: "服务树"
       uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
+    check:
+      col: ["实例ID"]
+      min: 0
     filter:
+      - name: "account"
+        alias: 账号
+      - name: "区域"
+        alias: 区域
     outline:
       uuid:
         - "实例ID"
       baseinfo:
+        - "account"
         - "实例ID"
-        - "MasterZone.ZoneName"
+        - "区域"
       system:
         - "ConnectionString"
       contact:

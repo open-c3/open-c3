@@ -2,6 +2,5 @@
 
 set -e
 
-pip3 install huaweicloudsdkcore huaweicloudsdkdcs \
-             huaweicloudsdkecs  huaweicloudsdkrds huaweicloudsdkdds \
-             huaweicloudsdkecs  huaweicloudsdkelb huaweicloudsdkgaussdbfornosql
+pip3 install huaweicloudsdkcore huaweicloudsdkdcs huaweicloudsdkrds \
+             huaweicloudsdkdds huaweicloudsdkecs huaweicloudsdkelb huaweicloudsdkgaussdbfornosql

@@ -25,7 +25,8 @@ class Ecs:
         self.client = self.create_client()
 
     def create_client(self):
-        credentials = BasicCredentials(self.access_id, self.access_key, self.project_id)
+        credentials = BasicCredentials(
+            self.access_id, self.access_key, self.project_id)
         client = EcsClient.new_builder() \
             .with_credentials(credentials) \
             .with_region(EcsRegion.value_of(self.region)) \
@@ -33,7 +34,8 @@ class Ecs:
         return client
 
     def set_request(self):
-        request = ListServersDetailsRequest(offset=self.page_number, limit=self.page_size)
+        request = ListServersDetailsRequest(
+            offset=self.page_number, limit=self.page_size)
         return request
 
     def get_response(self):
@@ -62,6 +64,9 @@ class Ecs:
                 server['private_ip'] = private_ip
             if public_ip is not None:
                 server['public_ip'] = public_ip
+
+            server['os'] = server['metadata']['os_type']
+            server.pop('metadata', None)
             server['region_id'] = server['OS-EXT-AZ:availability_zone'][:-1]
             print(json.dumps(server))
 
