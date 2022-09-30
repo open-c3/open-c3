@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-huawei-redis --account huawei | c3mc-base-json2tab instance_id 实例ID region_id 区域 availability_zone 所在可用区"
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-huawei-redis --account huawei | c3mc-cloud-tag tags key value None | c3mc-base-json2tab instance_id 实例ID region_id 区域 availability_zone 所在可用区 "
     datatype: tsv
     type: database
     subtype: huawei-redis
@@ -25,6 +25,7 @@ download:
       uuid:
         - "实例ID"
       baseinfo:
+        - "account"
         - "区域"
       system:
         - "ConnectionDomain"

@@ -26,12 +26,4 @@ cd Python-2.7.18
 
 make && make install
 
-
-rm -f /usr/bin/python
-ln -s /usr/local/bin/python2.7 /usr/bin/python
-
-cd /tmp
-wget https://bootstrap.pypa.io/pip/2.7/get-pip.py
-python ./get-pip.py
-
-rm -rf /tmp/Python-2.7.18* /tmp/get-pip.py
+rm -rf /tmp/Python-2.7.18*

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -e
+
 pip3 install google-api-core
 pip3 install google-api-python-client
 pip3 install google-auth

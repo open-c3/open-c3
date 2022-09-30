@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python2
 # -*- coding: utf-8 -*-
 
 import sys
@@ -26,7 +26,8 @@ class REDIS:
         page_num = 1
         while True:
             data = self.get_region_redis(page_num)
-            if not data and 'Instances' not in data: break
+            if not data and 'Instances' not in data:
+                break
             page_num += 1
             row = data['Instances']['KVStoreInstance']
             if not row:
@@ -39,6 +40,9 @@ class REDIS:
             return False
         for i in redis_info_list:
             for x in i:
+                if "Tags" in x and "Tag" in x["Tags"]:
+                    x["Tag"] = x["Tags"]["Tag"]
+                    x.pop("Tags", None)
                 print(json.dumps(x))
 
 

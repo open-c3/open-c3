@@ -37,23 +37,13 @@ class S3:
         response = self.client.list_buckets()
         bucket_list = []
         for bucket_info in response["Buckets"]:
+            tags = self.list_tags_of_bucket(bucket_info["Name"])
             bucket = {
                 "BucketName": bucket_info["Name"],
                 "CreationDate": bucket_info["CreationDate"],
                 "RegionId": self.region,
+                "Tags": tags
             }
-
-            tags = self.list_tags_of_bucket(bucket_info["Name"])
-            if tags is not None:
-                for tag in tags:
-                    if tag["Key"].lower() == "name":
-                        bucket["Name"] = tag["Value"]
-                    if tag["Key"].lower() == "productowner":
-                        bucket["ProductOwner"] = tag["Value"]
-                    if tag["Key"].lower() == "department":
-                        bucket["Department"] = tag["Value"]
-                    if tag["Key"].lower() == "opsowner":
-                        bucket["OpsOwner"] = tag["Value"]
             bucket_list.append(bucket)
 
         return bucket_list

@@ -1,30 +1,33 @@
 download:
-  - url: 'cmd:c3mc-cloud-aws-redis ak sk us-east-1 | c3mc-base-json2tab CacheClusterId 实例ID PreferredAvailabilityZone ZoneId'
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aws-redis --account aws | c3mc-base-json2tab CacheClusterId 实例ID RegionId 区域 PreferredAvailabilityZone 所在可用区"
     datatype: tsv
     type: database
     subtype: aws-redis
-    init: [ 'c3mc-cloud-aws.sh' ]
+    init: ["install-python3.sh", "c3mc-cloud-aws.sh"]
     treeinfo:
-      treename: '服务树'
+      treename: "服务树"
       treeinfo:
-        - [ '实例ID', 'instance' ]
+        - ["实例ID", "instance"]
     check:
-      col: [ '实例ID' ]
+      col: ["实例ID"]
       min: 0
     util:
       defaulttree: defaulttree.pool
     colmap:
-      treename: '服务树'
-      uuid: '实例ID' #没有这个可能导致单个资源详情打开无数据
+      treename: "服务树"
+      uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
     filter:
-      - name: 'ZoneId'
-        alias: 区域
+      - name: "account"
+        alias: 账号
+      - name: "所在可用区"
+        alias: 所在可用区
     outline:
       uuid:
-        - '实例ID'
+        - "实例ID"
       baseinfo:
-        - 'ZoneId'
+        - "account"
+        - "区域"
       system:
-        - 'ConnectionDomain'
+        - "ConnectionDomain"
       contact:
-        - '服务树'
+        - "服务树"

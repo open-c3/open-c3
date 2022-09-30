@@ -1,26 +1,32 @@
 download:
-  - url: "cmd:c3mc-cloud-google-rds /absolute/path/to/credential.json | c3mc-base-json2tab etag 实例ID gceZone ZoneId"
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-google-rds --account google | c3mc-base-json2tab etag 实例ID region 区域 gceZone 所在可用区"
     datatype: tsv
     type: database
     subtype: google-rds
-    init: ["c3mc-cloud-google.sh"]
+    init: ["install-python3.sh", "c3mc-cloud-google.sh"]
     treeinfo:
       treename: "服务树"
       treeinfo:
         - ["实例ID", "instance"]
     util:
       defaulttree: defaulttree.pool
+    check:
+      col: ["实例ID"]
+      min: 0
     colmap:
       treename: "服务树"
       uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
     filter:
-      - name: "ZoneId"
+      - name: "account"
+        alias: 账号
+      - name: "区域"
         alias: 区域
     outline:
       uuid:
         - "实例ID"
       baseinfo:
-        - "ZoneId"
+        - "account"
+        - "区域"
       system:
         - "ConnectionString"
       contact:

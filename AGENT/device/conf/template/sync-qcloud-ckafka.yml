@@ -1,9 +1,9 @@
 download:
-  - url: "cmd:c3mc-cloud-qcloud-ckafka ak sk ap-beijing | c3mc-base-json2tab InstanceId 实例ID"
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-ckafka --account qcloud | c3mc-cloud-tag Tags TagKey TagValue None | c3mc-base-json2tab InstanceId 实例ID"
     datatype: tsv
     type: storage
     subtype: qcloud-ckafka
-    init: ["c3mc-cloud-qcloud.sh"]
+    init: ["install-python3.sh", "c3mc-cloud-qcloud.sh"]
     treeinfo:
       treename: "服务树"
       treeinfo:
@@ -13,14 +13,17 @@ download:
     colmap:
       treename: "服务树"
       uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
+    check:
+      col: ["实例ID"]
+      min: 0
     filter:
-      - name: "Vip"
-        alias: vip
+      - name: "account"
+        alias: 账号
     outline:
       uuid:
         - "实例ID"
       baseinfo:
-        - "Vip"
+        - "account"
       system:
         - "ConnectionDomain"
       contact:

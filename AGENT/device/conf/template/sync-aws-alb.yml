@@ -1,23 +1,29 @@
 download:
-  - url: "cmd:c3mc-cloud-aws-alb ak sk us-east-1 | c3mc-base-json2tab LoadBalancerName 实例ID"
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aws-alb --account aws | c3mc-base-json2tab LoadBalancerName 实例ID"
     datatype: tsv
     type: networking
     subtype: aws-alb
-    init: ["c3mc-cloud-aws.sh"]
+    init: ["install-python3.sh", "c3mc-cloud-aws.sh"]
     treeinfo:
       treename: "服务树"
       treeinfo:
         - ["实例ID", "instance"]
     util:
       defaulttree: defaulttree.pool
+    check:
+      col: ["实例ID"]
+      min: 0
     colmap:
       treename: "服务树"
       uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
     filter:
+      - name: "account"
+        alias: 账号
     outline:
       uuid:
         - "实例ID"
       baseinfo:
+        - "account"
         - "实例ID"
         - "Scheme"
       system:

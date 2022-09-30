@@ -19,6 +19,7 @@ class Ec2:
         client = boto3.client(
             "ec2",
             aws_access_key_id=self.access_id,
+            endpoint_url="https://ec2.{}.amazonaws.com".format(self.region),
             aws_secret_access_key=self.access_key,
             region_name=self.region,
         )
@@ -28,34 +29,6 @@ class Ec2:
         instances = []
         for reservation in response_data["Reservations"]:
             for instance in reservation["Instances"]:
-                name = None
-                hostname = None
-                product_owner = None
-                department = None
-                ops_owner = None
-                for tag in instance["Tags"]:
-                    if tag["Key"].lower() == "name":
-                        name = tag["Value"]
-                    if tag["Key"].lower() == "hostname":
-                        hostname = tag["Value"]
-                    if tag["Key"].lower() == "productowner":
-                        product_owner = tag["Value"]
-                    if tag["Key"].lower() == "department":
-                        department = tag["Value"]
-                    if tag["Key"].lower() == "opsowner":
-                        ops_owner = tag["Value"]
-
-                if name is not None:
-                    instance["Name"] = name
-                if hostname is not None:
-                    instance["Hostname"] = hostname
-                if product_owner is not None:
-                    instance["ProductOwner"] = product_owner
-                if department is not None:
-                    instance["Department"] = department
-                if ops_owner is not None:
-                    instance["OpsOwner"] = ops_owner
-
                 instance["RegionId"] = instance["Placement"]["AvailabilityZone"][:-1]
                 instances.append(instance)
         return instances
