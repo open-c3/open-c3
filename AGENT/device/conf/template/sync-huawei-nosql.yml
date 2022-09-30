@@ -1,0 +1,34 @@
+download:
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-huawei-nosql --account huawei | c3mc-base-json2tab id 实例ID name 名称 region 区域 engine 引擎 "
+    datatype: tsv
+    type: database
+    subtype: huawei-nosql
+    init: ["install-python3.sh", "c3mc-cloud-huawei.sh"]
+    treeinfo:
+      treename: "服务树"
+      treeinfo:
+        - ["实例ID", "instance"]
+    check:
+      col: ["实例ID"]
+      min: 0
+    util:
+      defaulttree: defaulttree.pool
+    colmap:
+      treename: "服务树"
+      uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
+    filter:
+      - name: "account"
+        alias: 账号
+      - name: "区域"
+        alias: 区域
+    outline:
+      uuid:
+        - "实例ID"
+      baseinfo:
+        - "account"
+        - "名称"
+        - "引擎"
+      system:
+        - "ConnectionDomain"
+      contact:
+        - "服务树"
