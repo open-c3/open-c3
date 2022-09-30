@@ -7,3 +7,6 @@ do
     cd $dir
     ls c3mc-* | xargs -i{} bash -c " cp {} /usr/bin/{}.temp && mv /usr/bin/{}.temp /usr/bin/{}"
 done
+
+mkdir -p /data/open-c3-data/device/curr
+rsync -av /data/Software/mydan/AGENT/device/conf/curr.all/ /data/open-c3-data/device/curr/

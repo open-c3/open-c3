@@ -35,7 +35,7 @@
             vm.reload();
         };
 
-        vm.showdetail = function (uuid) {
+        vm.showdetail = function (uuid, type, subtype ) {
             $uibModal.open({
                 templateUrl: 'app/pages/device/data/detail.html',
                 controller: 'DeviceDataDetailController',
@@ -47,8 +47,8 @@
                 resolve: {
                     getGroup: function () {return vm.getGroupInfo},
                     uuid: function () {return uuid},
-                    type: function () {return vm.type},
-                    subtype: function () {return vm.subtype},
+                    type: function () {return type},
+                    subtype: function () {return subtype},
                     treeid: function () {return vm.treeid},
                     name: function () {return name},
                     homereload: function () {return vm.reload},
