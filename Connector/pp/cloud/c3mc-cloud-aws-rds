@@ -19,14 +19,18 @@ class Rds:
         client = boto3.client(
             "rds",
             aws_access_key_id=self.access_id,
-            endpoint_url="https://rds.amazonaws.com",
+            endpoint_url="https://rds.{}.amazonaws.com".format(self.region),
             aws_secret_access_key=self.access_key,
             region_name=self.region,
         )
         return client
 
     def get_instances_from_response(self, response_data):
-        return response_data["DBInstances"]
+        results = []
+        for instance in response_data["DBInstances"]:
+            instance["RegionId"] = instance["AvailabilityZone"][:-1]
+            results.append(instance)
+        return results
 
     def get_response(self):
         response = self.client.describe_db_instances(MaxRecords=self.page_size)

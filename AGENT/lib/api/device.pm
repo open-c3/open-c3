@@ -166,7 +166,11 @@ any '/device/data/:type/:subtype/:treeid' => sub {
     my $greptreename = $param->{treeid} == 4000000000 ? undef : eval{ gettreename( $param->{treeid} ) };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
-    my    @data = `c3mc-device-cat $param->{type} $param->{subtype}`;
+    my ( $getdatacmd, $currdatapath ) = $param->{type} eq 'all' && $param->{subtype} eq 'all'
+        ? ( 'c3mc-device-cat-all',                               $datapath                                  )
+        : ( "c3mc-device-cat $param->{type} $param->{subtype}", "$datapath/$param->{type}/$param->{subtype}");
+
+    my    @data = `$getdatacmd`;
     chomp @data;
 
     my $title = shift @data;
@@ -174,13 +178,13 @@ any '/device/data/:type/:subtype/:treeid' => sub {
 
     my @re;
 
-    my $outline = eval{ YAML::XS::LoadFile "$datapath/$param->{type}/$param->{subtype}/outline.yml"; };
+    my $outline = eval{ YAML::XS::LoadFile "$currdatapath/outline.yml"; };
     return +{ stat => $JSON::false, info => "load outline fail: $@" } if $@;
 
     my $colmap;
-    if( -f "$datapath/$param->{type}/$param->{subtype}/colmap.yml" )
+    if( -f "$currdatapath/colmap.yml" )
     {
-        $colmap = eval{ YAML::XS::LoadFile "$datapath/$param->{type}/$param->{subtype}/colmap.yml"; };
+        $colmap = eval{ YAML::XS::LoadFile "$currdatapath/colmap.yml"; };
         return +{ stat => $JSON::false, info => "load colmap fail: $@" } if $@;
     }
 
@@ -190,7 +194,7 @@ any '/device/data/:type/:subtype/:treeid' => sub {
     my $filterdata = {};
     my %filterdata;
 
-    $filter = eval{ YAML::XS::LoadFile "$datapath/$param->{type}/$param->{subtype}/filter.yml"; } if -f "$datapath/$param->{type}/$param->{subtype}/filter.yml";
+    $filter = eval{ YAML::XS::LoadFile "$currdatapath/filter.yml"; } if -f "$currdatapath/filter.yml";
     return +{ stat => $JSON::false, info => "load filter fail: $@" } if $@;
     my %filter; map{ $filter{$_->{name}} = 1; $filterdata->{$_->{name}} = [];  }@$filter;
 
@@ -252,7 +256,12 @@ any '/device/data/:type/:subtype/:treeid' => sub {
                 $match = 0 if $grepdata->{$grep} ne $d{$grep};
             }
         }
+
+        my ( $ctype, $csubtype ) = $param->{type} eq 'all' && $param->{subtype} eq 'all' ? ( $d{type}, $d{subtype} ) : ( $param->{type}, $param->{subtype} );
+
         push @re, +{
+            type    => $ctype,
+            subtype => $csubtype,
             map{
                 $_ => join( ' | ', map{ $d{ $_ } || '' }@{ $outline->{ $_ } } )
             }qw( uuid baseinfo system contact )

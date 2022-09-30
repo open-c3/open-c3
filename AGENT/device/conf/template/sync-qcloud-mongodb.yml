@@ -1,9 +1,9 @@
 download:
-  - url: "cmd:c3mc-cloud-qcloud-mongodb ak sk ap-beijing | c3mc-base-json2tab InstanceId 实例ID InstanceName 名称 Region 区域 Zone 所在可用区 InstanceStatusDesc 状态 MongoVersion 引擎版本 MachineType 实例类型 "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-mongodb --account qcloud | c3mc-cloud-tag Tags TagKey TagValue None | c3mc-base-json2tab InstanceId 实例ID InstanceName 名称 Region 区域 Zone 所在可用区 InstanceStatusDesc 状态 MongoVersion 引擎版本 MachineType 实例类型 "
     datatype: tsv
     type: database
     subtype: qcloud-mongodb
-    init: ["c3mc-cloud-qcloud.sh"]
+    init: ["install-python3.sh", "c3mc-cloud-qcloud.sh"]
     treeinfo:
       treename: "服务树"
       treeinfo:
@@ -13,7 +13,12 @@ download:
     colmap:
       treename: "服务树"
       uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
+    check:
+      col: ["实例ID"]
+      min: 0
     filter:
+      - name: "account"
+        alias: 账号
       - name: "区域"
         alias: 区域
       - name: "所在可用区"
@@ -28,6 +33,7 @@ download:
       uuid:
         - "实例ID"
       baseinfo:
+        - "account"
         - "实例ID"
         - "区域"
         - "所在可用区"

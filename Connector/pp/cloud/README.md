@@ -40,3 +40,6 @@ huawei002 ak2 sk2 None cn-north-4
 
 通过c3mc-cloud-account工具处理完后，原始同步插件返回的数据中多出来一个字段"account", 字段的内容是第一个字段的账号名。
 
+### 注意事项
+
+1. 华为云资源同步。如果传递了 project_id 参数，需要在项目级别配置权限；如果传递了 None，需要在 iam 级别配置权限。

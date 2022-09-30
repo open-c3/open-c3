@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-google-vm /absolute/path/to/credential.json  | c3mc-base-json2tab  id 实例ID name 名称 regionId Region名称 private_ip  内网IP  public_ip 公网IP zone 所在可用区 status 状态 "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-google-vm --account google | c3mc-base-json2tab  id 实例ID name 名称 regionId Region名称 private_ip  内网IP  public_ip 公网IP zone 所在可用区 status 状态 "
     datatype: tsv # 固定值。表示url中命令最终输出的文件格式
     type: compute # 资源类型。cmdb页面中的分类
     subtype: google-vm # 上面资源类型的子类型。
@@ -16,10 +16,15 @@ download:
       type: google-vm
     util:
       defaulttree: defaulttree.pool # 默认的服务树，资源归还后被放到这里
+    check:
+      col: ["实例ID"]
+      min: 0
     colmap:
       treename: "服务树"
       uuid: "实例ID" # 指明哪一列作为uuid列
     filter:
+      - name: "account"
+        alias: 账号
       - name: "Region名称"
         alias: 区域
       - name: "所在可用区"
@@ -31,8 +36,11 @@ download:
       uuid:
         - "实例ID"
       baseinfo:
+        - "account"
         - "Region名称"
         - "所在可用区"
+        - "内网IP"
+        - "公网IP"
       system:
         - "名称"
         - "内网IP"

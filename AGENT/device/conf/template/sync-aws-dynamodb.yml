@@ -1,29 +1,30 @@
 download:
-  - url: "cmd:c3mc-cloud-aws-dynamodb ak sk us-east-1 | c3mc-base-json2tab Table.TableId 实例ID Table.TableName 名称 Table.TableStatus 状态 Table.CreationDateTime 创建时间 Table.TableSizeBytes 字节长度 Table.ItemCount 条目数 Talbe.ProductOwner 业务负责人 Table.OpsOwner 运维负责人 Table.Department 部门 "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aws-dynamodb --account aws  | c3mc-base-json2tab Table.TableId 实例ID Table.TableName 名称 Table.TableStatus 状态 Table.CreationDateTime 创建时间 Table.TableSizeBytes 字节长度 Table.ItemCount 条目数"
     datatype: tsv
     type: database
     subtype: aws-dynamodb
-    init: ["c3mc-cloud-aws.sh"]
+    init: ["install-python3.sh", "c3mc-cloud-aws.sh"]
     treeinfo:
       treename: "服务树"
       treeinfo:
         - ["实例ID", "instance"]
     util:
       defaulttree: defaulttree.pool
+    # check:
+    #   col: ["实例ID"]
+    #   min: 0
     colmap:
       treename: "服务树"
       uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
     filter:
-      - name: "部门"
-        alias: 部门
+      - name: "account"
+        alias: 账号
     outline:
       uuid:
         - "实例ID"
       baseinfo:
+        - "account"
         - "实例ID"
-        - "业务负责人"
-        - "运维负责人"
-        - "部门"
       system:
         - "ConnectionDomain"
       contact:

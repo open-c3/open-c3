@@ -1,24 +1,15 @@
 download:
-  - url: "cmd:c3mc-cloud-aws-ec2 ak sk ap-southeast-1  | c3mc-base-json2tab  InstanceId 实例ID Name 名称 RegionId Region名称 PrivateIpAddress  内网IP  PublicIpAddress 公网IP InstanceType 实例类型  Hostname 主机名  Placement.AvailabilityZone 所在可用区 State.Name 状态 PlatformDetails 操作系统 "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aws-ec2 --account aws  | c3mc-cloud-tag Tags Key Value None | c3mc-base-json2tab  InstanceId 实例ID Name 名称 RegionId Region名称 PrivateIpAddress  内网IP  PublicIpAddress 公网IP InstanceType 实例类型  Placement.AvailabilityZone 所在可用区 State.Name 状态 PlatformDetails 操作系统 "
     datatype: tsv # 固定值。表示url中命令最终输出的文件格式
     type: compute # 资源类型。cmdb页面中的分类
     subtype: aws-ec2 # 上面资源类型的子类型。
-    init: ["c3mc-cloud-aws.sh"]
+    init: ["install-python3.sh", "c3mc-cloud-aws.sh"]
     treeinfo:
       treename: "服务树" # 指明哪一列对应服务树。这一列没有对应列，页面显示的值为空
       treeinfo:
         - ["实例ID", "instance"] # 和监控相关 。 指标是 treeinfo
     check:
-      col: [
-          "实例ID",
-          "名称",
-          "内网IP",
-          "公网IP",
-          "Region名称",
-          "所在可用区",
-          "实例类型",
-          "状态",
-        ] # 打印出的数据必须有的字段
+      col: ["实例ID"] # 打印出的数据必须有的字段
       min: 0 # url中明林执行后最少一行输出，否则认为出错
     ingestion-node: # 控制资源在发布时的可见行，但是cmdb里一直可以看见
       name: "名称"
@@ -32,6 +23,8 @@ download:
       treename: "服务树"
       uuid: "实例ID" # 指明哪一列作为uuid列
     filter:
+      - name: "account"
+        alias: 账号
       - name: "Region名称"
         alias: 区域
       - name: "所在可用区"
@@ -42,3 +35,14 @@ download:
         alias: 状态
       - name: "操作系统"
         alias: 操作系统
+    outline:
+      uuid:
+        - "实例ID"
+      baseinfo:
+        - "account"
+        - "Region名称"
+        - "状态"
+      system:
+        - "ConnectionDomain"
+      contact:
+        - "服务树"

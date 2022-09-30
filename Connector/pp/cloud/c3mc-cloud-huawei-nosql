@@ -3,14 +3,13 @@
 
 import sys
 import json
-import ipaddress
 
 from huaweicloudsdkcore.auth.credentials import BasicCredentials
-from huaweicloudsdkecs.v2.region.ecs_region import EcsRegion
-from huaweicloudsdkecs.v2 import *
+from huaweicloudsdkgaussdbfornosql.v3.region.gaussdbfornosql_region import GaussDBforNoSQLRegion
+from huaweicloudsdkgaussdbfornosql.v3 import *
 
 
-class Ecs:
+class GaussDbForNoSql:
     def __init__(self, access_id, access_key, project_id, region):
         self.access_id = access_id
         self.access_key = access_key
@@ -19,7 +18,7 @@ class Ecs:
         else:
             self.project_id = project_id.strip()
         self.region = region
-        self.page_number = 1
+        self.offset = 0
         self.page_size = 25
 
         self.client = self.create_client()
@@ -27,48 +26,32 @@ class Ecs:
     def create_client(self):
         credentials = BasicCredentials(
             self.access_id, self.access_key, self.project_id)
-        client = EcsClient.new_builder() \
+        client = GaussDBforNoSQLClient.new_builder() \
             .with_credentials(credentials) \
-            .with_region(EcsRegion.value_of(self.region)) \
+            .with_region(GaussDBforNoSQLRegion.value_of(self.region)) \
             .build()
         return client
 
     def set_request(self):
-        request = ListServersDetailsRequest(
-            offset=self.page_number, limit=self.page_size)
+        request = ListInstancesRequest(
+            offset=self.offset, limit=self.page_size)
         return request
 
     def get_response(self):
         request = self.set_request()
-        response = self.client.list_servers_details(request)
+        response = self.client.list_instances(request)
         response_data = json.loads(str(response))
         return response_data
 
     def get_server_count(self):
         response_data = self.get_response()
-        return response_data['count']
+        return response_data["total_count"]
 
     def show(self):
         response_data = self.get_response()
-        servers = response_data['servers']
-        for server in servers:
-            private_ip = None
-            public_ip = None
-            for attr, value in server['addresses'].items():
-                for item in value:
-                    if ipaddress.ip_address(item['addr']).is_private:
-                        private_ip = item['addr']
-                    else:
-                        public_ip = item['addr']
-            if private_ip is not None:
-                server['private_ip'] = private_ip
-            if public_ip is not None:
-                server['public_ip'] = public_ip
-
-            server['os'] = server['metadata']['os_type']
-            server.pop('metadata', None)
-            server['region_id'] = server['OS-EXT-AZ:availability_zone'][:-1]
-            print(json.dumps(server))
+        instances = response_data["instances"]
+        for instance in instances:
+            print(json.dumps(instance))
 
     def page(self):
         count = self.get_server_count()
@@ -78,15 +61,14 @@ class Ecs:
         else:
             total_page_number = int(count / self.page_size)
 
-        for cur_page_number in range(1, total_page_number + 1):
-            self.page_number = cur_page_number
+        for cur_page_number in range(0, total_page_number + 1):
+            self.offset = cur_page_number * self.page_size
             self.show()
 
 
 # project_id 可以命令行传 None
 def main(access_id, access_key, project_id, region):
-    ecs = Ecs(access_id, access_key, project_id, region)
-    ecs.page()
+    GaussDbForNoSql(access_id, access_key, project_id, region).page()
 
 
 if __name__ == '__main__':

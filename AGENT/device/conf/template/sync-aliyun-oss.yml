@@ -1,25 +1,31 @@
 download:
-  - url: "cmd:c3mc-cloud-aliyun-oss ak sk ap-southeast-5 | c3mc-base-json2tab name 实例ID location ZoneId"
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aliyun-oss --account aliyun | c3mc-base-json2tab name 实例ID location ZoneId"
     datatype: tsv
     type: storage
     subtype: aliyun-oss
-    init: ["c3mc-cloud-aliyun.sh"]
+    init: ["install-python2.sh", "install-pip.sh", "c3mc-cloud-aliyun.sh"]
     treeinfo:
       treename: "服务树"
       treeinfo:
         - ["实例ID", "instance"]
     util:
       defaulttree: defaulttree.pool
+    check:
+      col: ["实例ID"]
+      min: 0
     colmap:
       treename: "服务树"
       uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
     filter:
+      - name: "account"
+        alias: 账号
       - name: "ZoneId"
         alias: 区域
     outline:
       uuid:
         - "实例ID"
       baseinfo:
+        - "account"
         - "ZoneId"
       system:
         - "ConnectionDomain"

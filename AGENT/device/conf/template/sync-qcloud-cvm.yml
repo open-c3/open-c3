@@ -1,9 +1,9 @@
 download:
-  - url: "cmd:c3mc-cloud-qcloud-cvm ak sk ap-beijing  | c3mc-base-json2tab  Uuid 实例ID InstanceName 名称 RegionId Region名称 PrivateIP  内网IP  PublicIP 公网IP Placement.Zone 所在可用区 InstanceState 状态 "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-cvm --account qcloud  | c3mc-cloud-tag Tags Key Value None | c3mc-base-json2tab  Uuid 实例ID InstanceName 名称 RegionId Region名称 PrivateIP  内网IP  PublicIP 公网IP Placement.Zone 所在可用区 InstanceState 状态 "
     datatype: tsv # 固定值。表示url中命令最终输出的文件格式
     type: compute # 资源类型。cmdb页面中的分类
     subtype: qcloud-cvm # 上面资源类型的子类型。
-    init: ["c3mc-cloud-qcloud.sh"]
+    init: ["install-python3.sh", "c3mc-cloud-qcloud.sh"]
     treeinfo:
       treename: "服务树" # 指明哪一列对应服务树。这一列没有对应列，页面显示的值为空
       treeinfo:
@@ -23,6 +23,8 @@ download:
       treename: "服务树"
       uuid: "实例ID" # 指明哪一列作为uuid列
     filter:
+      - name: "account"
+        alias: 账号
       - name: "Region名称"
         alias: 区域
       - name: "所在可用区"
@@ -33,6 +35,7 @@ download:
       uuid:
         - "实例ID"
       baseinfo:
+        - "account"
         - "Region名称"
         - "所在可用区"
       system:

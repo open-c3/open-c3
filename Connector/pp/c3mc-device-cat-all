@@ -1,0 +1,64 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+use Encode;
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $allcolmap = YAML::XS::LoadFile "/data/open-c3-data/device/curr/colmap.yml";
+map{ die "undef" unless $allcolmap->{$_} }qw( treename uuid );
+
+my @res;
+
+for ( glob "/data/open-c3-data/device/curr/*/*/data.tsv" )
+{
+    my ( undef, $subtype, $type ) = reverse split /\//, $_;
+    next unless my @data = `c3mc-device-cat $type $subtype`;
+    chomp @data;
+    my $title = shift @data;
+    next unless @data;
+    my @title = split /\t/, $title;
+
+    my $colmap = YAML::XS::LoadFile "/data/open-c3-data/device/curr/$type/$subtype/colmap.yml";
+    map{ die "undef" unless $colmap->{$_} }qw( treename uuid );
+
+    my $outline = YAML::XS::LoadFile "/data/open-c3-data/device/curr/$type/$subtype/outline.yml";
+    map{ die "error" unless $outline->{$_} && ref $outline->{$_} eq 'ARRAY' }qw( baseinfo contact system uuid );
+
+    for my $data ( @data )
+    {
+        my @dat = split /\t/, $data;
+        my %data = map{ $title[$_] => $dat[$_] }0 .. $#title;
+        my %res = ( type => $type, subtype => $subtype );
+        $res{ uuid     } = $data{ Encode::encode('utf8', $colmap->{ uuid     } ) };
+        $res{ treename } = $data{ Encode::encode('utf8', $colmap->{ treename } ) };
+
+        for my $ol ( qw( baseinfo contact system ) )
+        {
+            my @cocol = @{ $outline->{ $ol } };
+
+            my $x = join ' | ', map{ $_ // ''}map{ $data{ Encode::encode('utf8', $_ ) }; }@cocol;
+            $res{ $ol } = $x;
+
+        }
+        my $raw = $data; $raw =~ s/\t/,/g;
+        $res{ raw } = $raw;
+        push @res, \%res;
+    }
+}
+
+my @col = qw( type subtype uuid baseinfo contact system treename raw );
+
+exit unless @res;
+
+printf "%s\n", join "\t", map{ Encode::encode('utf8', $_ ) }map{ $allcolmap->{ $_ } || $_ }@col;
+for my $x ( @res )
+{
+    printf "%s\n", join "\t", map{ $x->{ $_ } } @col;
+}

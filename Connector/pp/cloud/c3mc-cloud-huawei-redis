@@ -51,12 +51,9 @@ class Redis:
         response_data = self.get_response()
         instances = response_data["instances"]
         for instance in instances:
-            availability_zone = None
             for item in instance['az_codes']:
-                availability_zone = item
-            if availability_zone is not None:
-                instance['availability_zone'] = availability_zone
-                instance['region_id'] = availability_zone[:-1]
+                instance['availability_zone'] = item
+                instance['region_id'] = item[:-1]
             print(json.dumps(instance))
 
     def page(self):
