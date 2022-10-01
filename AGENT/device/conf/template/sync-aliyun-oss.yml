@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aliyun-oss --account aliyun | c3mc-base-json2tab name 实例ID location ZoneId"
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aliyun-oss --account aliyun | c3mc-base-json2tab name 实例ID location 区域"
     datatype: tsv
     type: storage
     subtype: aliyun-oss
@@ -19,15 +19,19 @@ download:
     filter:
       - name: "account"
         alias: 账号
-      - name: "ZoneId"
+      - name: "区域"
         alias: 区域
     outline:
       uuid:
         - "实例ID"
       baseinfo:
         - "account"
-        - "ZoneId"
+        - "实例ID"
+        - "区域"
       system:
         - "ConnectionDomain"
+        - "storage_class"
+        - "extranet_endpoint"
+        - "tags"
       contact:
         - "服务树"

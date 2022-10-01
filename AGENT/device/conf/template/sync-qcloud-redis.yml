@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-redis --account qcloud | c3mc-cloud-tag InstanceTags TagKey TagValue None | c3mc-base-json2tab InstanceId 实例ID ZoneId 所在可用区 Region 区域 "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-redis --account qcloud | c3mc-cloud-tag InstanceTags TagKey TagValue None | c3mc-base-json2tab InstanceName 名称 InstanceId 实例ID ZoneId 所在可用区 Region 区域 InstanceTitle 状态 "
     datatype: tsv
     type: database
     subtype: qcloud-redis
@@ -19,17 +19,25 @@ download:
     filter:
       - name: "account"
         alias: 账号
-      - name: "所在可用区"
-        alias: 所在可用区
+      - name: "状态"
+        alias: 状态
       - name: "区域"
         alias: 区域
+      - name: "所在可用区"
+        alias: 所在可用区
     outline:
       uuid:
         - "实例ID"
       baseinfo:
         - "account"
+        - "名称"
+        - "实例ID"
         - "区域"
       system:
-        - "ConnectionString"
+        - "状态"
+        - "所在可用区"
+        - "Port"
+        - "WanIp"
+        - "tags"
       contact:
         - "服务树"

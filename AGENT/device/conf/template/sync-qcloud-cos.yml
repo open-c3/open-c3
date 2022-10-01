@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-cos --account qcloud | c3mc-base-json2tab Name 实例ID Location ZoneId"
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-cos --account qcloud | c3mc-base-json2tab Name 实例ID Location 区域 Type 类型"
     datatype: tsv
     type: storage
     subtype: qcloud-cos
@@ -19,15 +19,19 @@ download:
     filter:
       - name: "account"
         alias: 账号
-      - name: "ZoneId"
+      - name: "区域"
         alias: 区域
+      - name: "类型"
+        alias: 类型
     outline:
       uuid:
         - "实例ID"
       baseinfo:
         - "account"
-        - "ZoneId"
+        - "实例ID"
+        - "区域"
       system:
-        - "ConnectionDomain"
+        - "类型"
+        - "tags"
       contact:
         - "服务树"

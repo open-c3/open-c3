@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-huawei-dds --account huawei | c3mc-cloud-tag tags key value None |  c3mc-base-json2tab id 实例ID name 名称 region 区域 engine 引擎 "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-huawei-dds --account huawei | c3mc-cloud-tag tags key value None |  c3mc-base-json2tab id 实例ID name 名称 region 区域 engine 引擎 status 状态 "
     datatype: tsv
     type: database
     subtype: huawei-dds
@@ -21,14 +21,18 @@ download:
         alias: 账号
       - name: "区域"
         alias: 区域
+      - name: "状态"
+        alias: 状态
     outline:
       uuid:
         - "实例ID"
       baseinfo:
         - "account"
+        - "实例ID"
         - "名称"
-        - "引擎"
+        - "状态"
       system:
-        - "ConnectionDomain"
+        - "引擎"
+        - "tags"
       contact:
         - "服务树"

@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-clb --account qcloud | c3mc-cloud-tag Tags TagKey TagValue None | c3mc-base-json2tab LoadBalancerId 实例ID TargetRegionInfo.Region 区域"
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-clb --account qcloud | c3mc-cloud-tag Tags TagKey TagValue None | c3mc-base-json2tab LoadBalancerName 名称 LoadBalancerId 实例ID TargetRegionInfo.Region 区域 LoadBalancerType 类型"
     datatype: tsv
     type: networking
     subtype: qcloud-clb
@@ -21,14 +21,19 @@ download:
         alias: 账号
       - name: "区域"
         alias: 区域
+      - name: "类型"
+        alias: 类型
     outline:
       uuid:
         - "实例ID"
       baseinfo:
         - "account"
+        - "名称"
         - "实例ID"
         - "区域"
       system:
-        - "ConnectionString"
+        - "VipIsp"
+        - "类型"
+        - "tags"
       contact:
         - "服务树"

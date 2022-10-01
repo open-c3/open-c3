@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-ksyun-redis --account ksyun | c3mc-cloud-tag tags tagKey tagValue None | c3mc-base-json2tab cacheId 实例ID region 区域 status 状态 protocol 引擎版本 "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-ksyun-redis --account ksyun | c3mc-cloud-tag tags tagKey tagValue None | c3mc-base-json2tab name 名称 cacheId 实例ID region 区域 status 状态 protocol 引擎版本 "
     datatype: tsv
     type: database
     subtype: ksyun-redis
@@ -30,11 +30,15 @@ download:
         - "实例ID"
       baseinfo:
         - "account"
+        - "名称"
         - "实例ID"
         - "区域"
         - "状态"
-        - "引擎版本"
       system:
-        - "ConnectionDomain"
+        - "引擎版本"
+        - "az"
+        - "eip"
+        - "vip"
+        - "tags"
       contact:
         - "服务树"
