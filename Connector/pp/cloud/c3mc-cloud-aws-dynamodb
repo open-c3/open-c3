@@ -19,8 +19,6 @@ class Dynamodb:
         client = boto3.client(
             "dynamodb",
             aws_access_key_id=self.access_id,
-            endpoint_url="https://dynamodb.{}.amazonaws.com".format(
-                self.region),
             aws_secret_access_key=self.access_key,
             region_name=self.region,
         )
