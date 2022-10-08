@@ -59,6 +59,29 @@ die "login fail" if system "docker login -u AWS -p '$password' 'https://$addr[0]
 print "[INFO]docker login success.\n";
 
 my $dockerfilestr = `cat '$o{dockerfile}'`;
+
+my %login = ( $o{region} => 1 );
+if( $dockerfilestr =~ /FROM\s+\d+\.dkr\.ecr\.[a-zA-Z0-9\-]+\.amazonaws\.com\// )
+{
+    my @x = split /\n/, $dockerfilestr;
+    for( @x )
+    {
+        if( $_ =~ /^FROM\s+(\d+\.dkr\.ecr\.[a-zA-Z0-9\-]+\.amazonaws\.com)\// )
+        {
+            my $addr = $1;
+            my $region = (split /\./, $addr )[3];
+            next if $login{$region};
+            my $passwd = `$ticket aws ecr get-login-password --region '$region'`;
+            chomp $passwd;
+
+            die "get aws ecr password format error" unless $passwd && $passwd =~ /^[a-zA-Z0-9=]+$/;
+            die "login fail" if system "docker login -u AWS -p '$passwd' 'https://$addr'";
+            print "[INFO]docker login region[$region] success.\n";
+            $login{$region} = 1;
+        }
+    }
+}
+
 if( $dockerfilestr =~ /^FROMOPENC3/ )
 {
     chomp $dockerfilestr;
