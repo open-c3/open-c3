@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-cdb --account qcloud | c3mc-base-json2tab InstanceId 实例ID Zone 所在可用区 Region 区域"
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-cdb --account qcloud | c3mc-base-json2tab InstanceName 名称 InstanceId 实例ID Zone 所在可用区 Region 区域 EngineType 引擎"
     datatype: tsv
     type: database
     subtype: qcloud-cdb
@@ -19,17 +19,22 @@ download:
     filter:
       - name: "account"
         alias: 账号
-      - name: "所在可用区"
-        alias: 所在可用区
       - name: "区域"
         alias: 区域
+      - name: "引擎"
+        alias: 引擎
     outline:
       uuid:
         - "实例ID"
       baseinfo:
         - "account"
+        - "名称"
+        - "实例ID"
         - "区域"
       system:
-        - "ConnectionString"
+        - "所在可用区"
+        - "Vip"
+        - "引擎"
+        - "tags"
       contact:
         - "服务树"

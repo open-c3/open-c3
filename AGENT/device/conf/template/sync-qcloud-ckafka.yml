@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-ckafka --account qcloud | c3mc-cloud-tag Tags TagKey TagValue None | c3mc-base-json2tab InstanceId 实例ID"
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-ckafka --account qcloud | c3mc-cloud-tag Tags TagKey TagValue None | c3mc-base-json2tab InstanceId 实例ID Status 状态"
     datatype: tsv
     type: storage
     subtype: qcloud-ckafka
@@ -19,12 +19,17 @@ download:
     filter:
       - name: "account"
         alias: 账号
+      - name: "状态"
+        alias: 状态
     outline:
       uuid:
         - "实例ID"
       baseinfo:
         - "account"
+        - "实例ID"
       system:
-        - "ConnectionDomain"
+        - "Vip"
+        - "Vport"
+        - "tags"
       contact:
         - "服务树"
