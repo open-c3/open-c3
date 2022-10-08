@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aws-redis --account aws | c3mc-base-json2tab CacheClusterId 实例ID RegionId 区域 PreferredAvailabilityZone 所在可用区"
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aws-redis --account aws | c3mc-base-json2tab CacheClusterId 实例ID RegionId 区域 PreferredAvailabilityZone 所在可用区 CacheNodeType 规格 CacheClusterStatus 状态"
     datatype: tsv
     type: database
     subtype: aws-redis
@@ -19,15 +19,21 @@ download:
     filter:
       - name: "account"
         alias: 账号
-      - name: "所在可用区"
-        alias: 所在可用区
+      - name: "区域"
+        alias: 区域
+      - name: "状态"
+        alias: 状态
     outline:
       uuid:
         - "实例ID"
       baseinfo:
         - "account"
+        - "实例ID"
         - "区域"
       system:
-        - "ConnectionDomain"
+        - "状态"
+        - "规格"
+        - "所在可用区"
+        - "tags"
       contact:
         - "服务树"

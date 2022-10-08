@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-ksyun-kec --account ksyun | c3mc-base-json2tab  InstanceId 实例ID InstanceName 名称 PrivateIpAddress  内网IP RegionId Region名称 AvailabilityZone 所在可用区  InstanceType 实例类型 InstanceState.Name 状态 Platform 操作系统"
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-ksyun-kec --account ksyun | c3mc-base-json2tab  InstanceId 实例ID InstanceName 名称 PrivateIpAddress  内网IP RegionId Region名称 AvailabilityZone 所在可用区  InstanceType 实例类型 InstanceState.Name 状态 Platform 操作系统 HostName 主机名"
     datatype: tsv # 固定值。表示url中命令最终输出的文件格式
     type: compute # 资源类型。cmdb页面中的分类
     subtype: ksyun-kec # 上面资源类型的子类型。
@@ -41,10 +41,13 @@ download:
         - "实例ID"
       baseinfo:
         - "account"
-        - "Region名称"
-        - "所在可用区"
-      system:
+        - "实例ID"
         - "名称"
+        - "Region名称"
+      system:
+        - "主机名"
         - "内网IP"
+        - "所在可用区"
+        - "tags"
       contact:
         - "服务树"

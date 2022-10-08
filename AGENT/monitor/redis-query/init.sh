@@ -1,1 +1,0 @@
-../mysql-query/init.sh

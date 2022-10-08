@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-sqlserver --account qcloud | c3mc-cloud-tag ResourceTags TagKey TagValue None | c3mc-base-json2tab InstanceId 实例ID Name 名称 Region 区域 Zone 所在可用区 Status 状态 VersionName 引擎版本 "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-sqlserver --account qcloud | c3mc-cloud-tag ResourceTags TagKey TagValue None | c3mc-base-json2tab InstanceId 实例ID Name 名称 Region 区域 Zone 所在可用区 Status 状态 VersionName 引擎版本 InstanceType 类型 "
     datatype: tsv
     type: database
     subtype: qcloud-sqlserver
@@ -27,6 +27,8 @@ download:
         alias: 状态
       - name: "引擎版本"
         alias: 引擎版本
+      - name: "类型"
+        alias: 类型
     outline:
       uuid:
         - "实例ID"
@@ -36,6 +38,9 @@ download:
         - "区域"
         - "所在可用区"
       system:
-        - "ConnectionDomain"
+        - "类型"
+        - "Vip"
+        - "Vport"
+        - "tags"
       contact:
         - "服务树"
