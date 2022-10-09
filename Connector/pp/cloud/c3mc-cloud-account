@@ -35,7 +35,9 @@ sub sync
 
 if( $o{ account } )
 {
-    my @x = `cat /data/Software/mydan/AGENT/device/conf/account/$o{account}`;
+    my $accountfile = "/data/Software/mydan/AGENT/device/conf/account/$o{account}";
+    exit unless -f $accountfile;
+    my @x = `cat $accountfile`;
     chomp @x;
     map{ sync( $_ ) }@x;
 }

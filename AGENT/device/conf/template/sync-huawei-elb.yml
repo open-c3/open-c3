@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-huawei-elb --account huawei | c3mc-base-json2tab id 实例ID name 名称 "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-huawei-elb --account huawei | c3mc-cloud-tag tags None None = | c3mc-base-json2tab id 实例ID name 名称  product_owner 业务负责人 ops_owner 运维负责人 department 部门 "
     datatype: tsv
     type: networking
     subtype: huawei-elb
@@ -19,6 +19,12 @@ download:
     filter:
       - name: "account"
         alias: 账号
+      - name: "业务负责人"
+        alias: 业务负责人
+      - name: "运维负责人"
+        alias: 运维负责人
+      - name: "部门"
+        alias: 部门
     outline:
       uuid:
         - "实例ID"
@@ -29,6 +35,8 @@ download:
       system:
         - "provider"
         - "vip_address"
-        - "tags"
       contact:
         - "服务树"
+        - "部门"
+        - "业务负责人"
+        - "运维负责人"

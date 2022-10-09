@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-mongodb --account qcloud | c3mc-cloud-tag Tags TagKey TagValue None | c3mc-base-json2tab InstanceId 实例ID InstanceName 名称 Region 区域 Zone 所在可用区 InstanceStatusDesc 状态 MongoVersion 引擎版本 MachineType 实例类型 "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-mongodb --account qcloud | c3mc-cloud-tag Tags TagKey TagValue None | c3mc-base-json2tab InstanceId 实例ID InstanceName 名称 Region 区域 Zone 所在可用区 InstanceStatusDesc 状态 MongoVersion 引擎版本 MachineType 实例类型  product_owner 业务负责人 ops_owner 运维负责人 department 部门 "
     datatype: tsv
     type: database
     subtype: qcloud-mongodb
@@ -29,6 +29,12 @@ download:
         alias: 引擎版本
       - name: "实例类型"
         alias: 实例类型
+      - name: "业务负责人"
+        alias: 业务负责人
+      - name: "运维负责人"
+        alias: 运维负责人
+      - name: "部门"
+        alias: 部门
     outline:
       uuid:
         - "实例ID"
@@ -40,6 +46,8 @@ download:
         - "所在可用区"
         - "Vip"
         - "Vport"
-        - "tags"
       contact:
         - "服务树"
+        - "部门"
+        - "业务负责人"
+        - "运维负责人"

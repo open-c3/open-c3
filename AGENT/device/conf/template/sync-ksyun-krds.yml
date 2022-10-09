@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-ksyun-krds --account ksyun | c3mc-cloud-tag Tags TagKey TagValue None |  c3mc-base-json2tab DBInstanceIdentifier 实例ID Region 区域 DBInstanceType 实例类型 DBInstanceStatus 状态 EngineVersion 引擎版本 Engine 引擎 "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-ksyun-krds --account ksyun | c3mc-cloud-tag Tags TagKey TagValue None |  c3mc-base-json2tab DBInstanceIdentifier 实例ID Region 区域 DBInstanceType 实例类型 DBInstanceStatus 状态 EngineVersion 引擎版本 Engine 引擎  product_owner 业务负责人 ops_owner 运维负责人 department 部门 "
     datatype: tsv
     type: database
     subtype: ksyun-krds
@@ -29,6 +29,12 @@ download:
         alias: 引擎
       - name: "引擎版本"
         alias: 引擎版本
+      - name: "业务负责人"
+        alias: 业务负责人
+      - name: "运维负责人"
+        alias: 运维负责人
+      - name: "部门"
+        alias: 部门
     outline:
       uuid:
         - "实例ID"
@@ -41,6 +47,8 @@ download:
         - "Vip"
         - "Eip"
         - "引擎"
-        - "tags"
       contact:
         - "服务树"
+        - "部门"
+        - "业务负责人"
+        - "运维负责人"

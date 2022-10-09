@@ -5,6 +5,7 @@ import sys
 import json
 
 from kscore.session import get_session
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
 
 
 class Slb:
@@ -25,7 +26,17 @@ class Slb:
 
     def list_instances(self):
         response = self.client.describe_load_balancers()
-        return self.get_instances_from_response(response)
+        instance_list = self.get_instances_from_response(response)
+
+        tag_dict = self.list_tag()
+        for i, s in enumerate(instance_list):
+            if s["LoadBalancerId"] in tag_dict:
+                instance_list[i]["Tag"] = tag_dict[s["LoadBalancerId"]]
+        return instance_list
+
+    def list_tag(self):
+        from c3mc_cloud_ksyun_tag import KsyunTag
+        return KsyunTag(self.access_id, self.access_key, self.region).get_tag_dict()
 
     def show(self):
         instance_list = self.list_instances()

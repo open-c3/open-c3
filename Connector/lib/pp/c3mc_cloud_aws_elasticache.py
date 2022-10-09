@@ -41,8 +41,17 @@ class Elasticache:
         while "Marker" in response:
             response = self.client.describe_cache_clusters(
                 MaxRecords=self.page_size, Marker=response["Marker"])
-            results.extend(self.get_instances_from_response(response))
+            data_list = self.get_instances_from_response(response)
+            for instance in data_list:
+                tag_resp = self.list_tag(instance["ARN"])
+                instance["Tag"] = tag_resp["TagList"]
+                results.append(instance)
         return results
+
+    def list_tag(self, arn):
+        return self.client.list_tags_for_resource(
+            ResourceName=arn
+        )
 
     def show(self):
         instance_list = self.get_response()

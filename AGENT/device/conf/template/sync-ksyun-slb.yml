@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-ksyun-slb --account ksyun | c3mc-base-json2tab LoadBalancerId 实例ID PublicIp 公网IP LbType 类型 LbStatus 状态"
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-ksyun-slb --account ksyun | c3mc-cloud-tag Tag Key Value None | c3mc-base-json2tab LoadBalancerId 实例ID PublicIp 公网IP LbType 类型 LbStatus 状态  product_owner 业务负责人 ops_owner 运维负责人 department 部门 "
     datatype: tsv
     type: networking
     subtype: ksyun-slb
@@ -21,6 +21,12 @@ download:
         alias: 账号
       - name: "状态"
         alias: 状态
+      - name: "业务负责人"
+        alias: 业务负责人
+      - name: "运维负责人"
+        alias: 运维负责人
+      - name: "部门"
+        alias: 部门
     outline:
       uuid:
         - "实例ID"
@@ -31,6 +37,8 @@ download:
       system:
         - "公网IP"
         - "类型"
-        - "tags"
       contact:
         - "服务树"
+        - "部门"
+        - "业务负责人"
+        - "运维负责人"

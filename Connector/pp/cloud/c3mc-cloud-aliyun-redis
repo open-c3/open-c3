@@ -5,6 +5,7 @@ import sys
 import json
 from aliyunsdkcore.client import AcsClient
 from aliyunsdkr_kvstore.request.v20150101.DescribeInstancesRequest import DescribeInstancesRequest
+from aliyunsdkr_kvstore.request.v20150101.ListTagResourcesRequest import ListTagResourcesRequest
 
 
 class REDIS:
@@ -12,15 +13,32 @@ class REDIS:
         self.region = region
         self.access_id = access_id
         self.access_key = access_key
+        self.client = self.create_client()
+
+    def create_client(self):
+        client = AcsClient(self.access_id, self.access_key, self.region)
+        return client
 
     def get_region_redis(self, page_number=1, page_size=50):
-        clt = AcsClient(self.access_id, self.access_key, self.region)
         request = DescribeInstancesRequest()
         request.set_accept_format('json')
         request.set_PageNumber(page_number)
         request.set_PageSize(page_size)
-        response = clt.do_action_with_exception(request)
+        response = self.client.do_action_with_exception(request)
         return json.loads(response)
+
+    def set_desc_tag_request(self, instance_id):
+        request = ListTagResourcesRequest()
+        request.set_accept_format('json')
+        request.set_ResourceType("INSTANCE")
+        request.set_ResourceIds([instance_id])
+        return request
+
+    def get_desc_tag_response(self, instance_id):
+        request = self.set_desc_tag_request(instance_id)
+        response = self.client.do_action_with_exception(request)
+        response_data = json.loads(response)
+        return response_data
 
     def get_redis_all(self):
         page_num = 1
@@ -32,7 +50,11 @@ class REDIS:
             row = data['Instances']['KVStoreInstance']
             if not row:
                 break
-            yield row
+            for instance in row:
+                tag_response = self.get_desc_tag_response(
+                    instance["InstanceId"])
+                instance["Tag"] = tag_response["TagResources"]["TagResource"]
+                print(json.dumps(instance))
 
     def show(self):
         redis_info_list = self.get_redis_all()
