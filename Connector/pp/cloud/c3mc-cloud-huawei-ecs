@@ -66,8 +66,9 @@ class Ecs:
                 server['public_ip'] = public_ip
 
             server['os'] = server['metadata']['os_type']
-            server.pop('metadata', None)
             server['region_id'] = server['OS-EXT-AZ:availability_zone'][:-1]
+            server.pop('metadata', None)
+            server.pop('OS-EXT-SRV-ATTR:user_data', None)
             print(json.dumps(server))
 
     def page(self):

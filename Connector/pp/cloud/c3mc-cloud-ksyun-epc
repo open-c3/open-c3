@@ -5,6 +5,7 @@ import sys
 import json
 
 from kscore.session import get_session
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
 
 
 class Epc:
@@ -37,7 +38,16 @@ class Epc:
             response = self.client.describe_epcs(
                 MaxResults=self.page_size, NextToken=response["NextToken"])
             results.extend(self.get_instances_from_response(response))
+
+        tag_dict = self.list_tag()
+        for i, s in enumerate(results):
+            if s["HostId"] in tag_dict:
+                results[i]["Tag"] = tag_dict[s["HostId"]]
         return results
+
+    def list_tag(self):
+        from c3mc_cloud_ksyun_tag import KsyunTag
+        return KsyunTag(self.access_id, self.access_key, self.region).get_tag_dict()
 
     def show(self):
         instance_list = self.list_instances()

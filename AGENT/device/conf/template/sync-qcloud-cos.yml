@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-cos --account qcloud | c3mc-base-json2tab Name 实例ID Location 区域 Type 类型"
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-cos --account qcloud | c3mc-base-json2tab Name 实例ID Location 区域 Type 类型  product_owner 业务负责人 ops_owner 运维负责人 department 部门 "
     datatype: tsv
     type: storage
     subtype: qcloud-cos
@@ -23,6 +23,12 @@ download:
         alias: 区域
       - name: "类型"
         alias: 类型
+      - name: "业务负责人"
+        alias: 业务负责人
+      - name: "运维负责人"
+        alias: 运维负责人
+      - name: "部门"
+        alias: 部门
     outline:
       uuid:
         - "实例ID"
@@ -32,6 +38,8 @@ download:
         - "区域"
       system:
         - "类型"
-        - "tags"
       contact:
         - "服务树"
+        - "部门"
+        - "业务负责人"
+        - "运维负责人"

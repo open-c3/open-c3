@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aws-redis --account aws | c3mc-base-json2tab CacheClusterId 实例ID RegionId 区域 PreferredAvailabilityZone 所在可用区 CacheNodeType 规格 CacheClusterStatus 状态"
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aws-redis --account aws | c3mc-cloud-tag Tag Key Value None | c3mc-base-json2tab CacheClusterId 实例ID RegionId 区域 PreferredAvailabilityZone 所在可用区 CacheNodeType 规格 CacheClusterStatus 状态  product_owner 业务负责人 ops_owner 运维负责人 department 部门 "
     datatype: tsv
     type: database
     subtype: aws-redis
@@ -23,6 +23,12 @@ download:
         alias: 区域
       - name: "状态"
         alias: 状态
+      - name: "业务负责人"
+        alias: 业务负责人
+      - name: "运维负责人"
+        alias: 运维负责人
+      - name: "部门"
+        alias: 部门
     outline:
       uuid:
         - "实例ID"
@@ -34,6 +40,8 @@ download:
         - "状态"
         - "规格"
         - "所在可用区"
-        - "tags"
       contact:
         - "服务树"
+        - "部门"
+        - "业务负责人"
+        - "运维负责人"

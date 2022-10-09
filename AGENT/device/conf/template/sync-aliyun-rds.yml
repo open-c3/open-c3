@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aliyun-rds --account aliyun | c3mc-base-json2tab DBInstanceId 实例ID ZoneId 所在可用区 RegionId 区域"
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aliyun-rds --account aliyun | c3mc-cloud-tag Tag TagKey TagValue None | c3mc-base-json2tab DBInstanceId 实例ID ZoneId 所在可用区 RegionId 区域  product_owner 业务负责人 ops_owner 运维负责人 department 部门 "
     datatype: tsv
     type: database
     subtype: aliyun-rds
@@ -21,6 +21,12 @@ download:
         alias: 账号
       - name: "区域"
         alias: 区域
+      - name: "业务负责人"
+        alias: 业务负责人
+      - name: "运维负责人"
+        alias: 运维负责人
+      - name: "部门"
+        alias: 部门
     outline:
       uuid:
         - "实例ID"
@@ -32,6 +38,8 @@ download:
         - "ConnectionString"
         - "Engine"
         - "MasterZone"
-        - "tags"
       contact:
         - "服务树"
+        - "部门"
+        - "业务负责人"
+        - "运维负责人"

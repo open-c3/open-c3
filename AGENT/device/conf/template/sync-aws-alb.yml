@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aws-alb --account aws | c3mc-base-json2tab LoadBalancerName 实例ID"
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aws-alb --account aws | c3mc-cloud-tag Tag Key Value None  | c3mc-base-json2tab LoadBalancerName 实例ID  product_owner 业务负责人 ops_owner 运维负责人 department 部门 "
     datatype: tsv
     type: networking
     subtype: aws-alb
@@ -23,6 +23,12 @@ download:
         alias: 类型
       - name: "State.Code"
         alias: 状态
+      - name: "业务负责人"
+        alias: 业务负责人
+      - name: "运维负责人"
+        alias: 运维负责人
+      - name: "部门"
+        alias: 部门
     outline:
       uuid:
         - "实例ID"
@@ -32,6 +38,8 @@ download:
         - "Scheme"
       system:
         - "DNSName"
-        - "tags"
       contact:
         - "服务树"
+        - "部门"
+        - "业务负责人"
+        - "运维负责人"
