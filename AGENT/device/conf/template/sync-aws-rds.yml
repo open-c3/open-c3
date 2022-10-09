@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aws-rds --account aws | c3mc-cloud-tag TagList Key Value None | c3mc-base-json2tab DBInstanceIdentifier 实例ID RegionId 区域 AvailabilityZone 所在可用区 Engine 引擎 DBInstanceStatus 状态"
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aws-rds --account aws | c3mc-cloud-tag TagList Key Value None | c3mc-base-json2tab DBInstanceIdentifier 实例ID RegionId 区域 AvailabilityZone 所在可用区 Engine 引擎 DBInstanceStatus 状态  product_owner 业务负责人 ops_owner 运维负责人 department 部门 "
     datatype: tsv
     type: database
     subtype: aws-rds
@@ -25,6 +25,12 @@ download:
         alias: 状态
       - name: "引擎"
         alias: 引擎
+      - name: "业务负责人"
+        alias: 业务负责人
+      - name: "运维负责人"
+        alias: 运维负责人
+      - name: "部门"
+        alias: 部门
     outline:
       uuid:
         - "实例ID"
@@ -35,6 +41,8 @@ download:
       system:
         - "状态"
         - "引擎"
-        - "tags"
       contact:
         - "服务树"
+        - "部门"
+        - "业务负责人"
+        - "运维负责人"

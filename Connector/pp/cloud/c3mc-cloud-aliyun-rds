@@ -6,6 +6,7 @@ import sys
 from aliyunsdkcore.client import AcsClient
 from aliyunsdkrds.request.v20140815.DescribeDBInstancesRequest import DescribeDBInstancesRequest
 from aliyunsdkrds.request.v20140815.DescribeDBInstanceAttributeRequest import DescribeDBInstanceAttributeRequest
+from aliyunsdkrds.request.v20140815.DescribeDBInstanceByTagsRequest import DescribeDBInstanceByTagsRequest
 
 
 class RDS:
@@ -14,7 +15,7 @@ class RDS:
         self.access_id = access_id
         self.access_key = access_key
         self.page_number = 1
-        self.page_size = 5
+        self.page_size = 50
         self.client = self.create_client()
 
     def create_client(self):
@@ -30,6 +31,18 @@ class RDS:
 
     def get_desc_response(self):
         request = self.set_desc_request()
+        response = self.client.do_action_with_exception(request)
+        response_data = json.loads(response)
+        return response_data
+
+    def set_desc_tag_request(self, instance_id):
+        request = DescribeDBInstanceByTagsRequest()
+        request.set_accept_format('json')
+        request.set_DBInstanceId(instance_id)
+        return request
+
+    def get_desc_tag_response(self, instance_id):
+        request = self.set_desc_tag_request(instance_id)
         response = self.client.do_action_with_exception(request)
         response_data = json.loads(response)
         return response_data
@@ -56,6 +69,10 @@ class RDS:
             response = self.client.do_action_with_exception(request)
             response_data = json.loads(response)
             rds_attribute_data = response_data['Items']['DBInstanceAttribute'][0]
+
+            tag_response = self.get_desc_tag_response(instance_id)
+            if len(tag_response["Items"]["DBInstanceTag"]) > 0:
+                rds_attribute_data["Tag"] = tag_response["Items"]["DBInstanceTag"][0]["Tags"]["Tag"]
             rds_attribute_data_list.append(rds_attribute_data)
         return rds_attribute_data_list
 

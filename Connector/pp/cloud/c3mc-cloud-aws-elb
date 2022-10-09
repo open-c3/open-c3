@@ -13,7 +13,7 @@ class Alb:
         self.access_key = access_key
         self.region = region
         self.client = self.create_client()
-        self.page_size = 50
+        self.page_size = 20
 
     def create_client(self):
         client = boto3.client(
@@ -30,11 +30,29 @@ class Alb:
     def list_instances(self):
         response = self.client.describe_load_balancers(PageSize=self.page_size)
         results = self.get_instances_from_response(response)
+        name_tag_dict = {}
         while "NextMarker" in response:
             response = self.client.describe_load_balancers(
                 PageSize=self.page_size, Marker=response["NextMarker"])
-            results.extend(self.get_instances_from_response(response))
+
+            data_list = self.get_instances_from_response(response)
+            names = []
+            for instance in data_list:
+                names.append(instance["LoadBalancerName"])
+            tag_resp = self.list_tag(names)
+            for instance_tag in tag_resp["TagDescriptions"]:
+                name_tag_dict[instance_tag["LoadBalancerName"]
+                              ] = instance_tag["Tags"]
+
+            results.extend(data_list)
+        for i, s in enumerate(results):
+            if s["LoadBalancerName"] in name_tag_dict:
+                results[i]["Tag"] = name_tag_dict[s["LoadBalancerName"]]
         return results
+
+    def list_tag(self, loadBalancerNames):
+        return self.client.describe_tags(
+            LoadBalancerNames=loadBalancerNames)
 
     def show(self):
         instance_list = self.list_instances()
