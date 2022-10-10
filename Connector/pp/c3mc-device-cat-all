@@ -39,6 +39,8 @@ for ( glob "/data/open-c3-data/device/curr/*/*/data.tsv" )
         $res{ uuid     } = $data{ Encode::encode('utf8', $colmap->{ uuid     } ) };
         $res{ treename } = $data{ Encode::encode('utf8', $colmap->{ treename } ) };
 
+        map{ $res{ $_ } = $data{  $_ }; }qw( 部门 业务负责人 运维负责人 );
+
         for my $ol ( qw( baseinfo contact system ) )
         {
             my @cocol = @{ $outline->{ $ol } };
@@ -53,12 +55,12 @@ for ( glob "/data/open-c3-data/device/curr/*/*/data.tsv" )
     }
 }
 
-my @col = qw( type subtype uuid baseinfo contact system treename raw );
+my @col = qw( type subtype uuid baseinfo contact system treename 部门 业务负责人 运维负责人 raw );
 
 exit unless @res;
 
-printf "%s\n", join "\t", map{ Encode::encode('utf8', $_ ) }map{ $allcolmap->{ $_ } || $_ }@col;
+printf "%s\n", join "\t", map{ Encode::encode('utf8', $_ ) }map{ $allcolmap->{ $_ } || $_ }map{ Encode::decode('utf8', $_ ) }@col;
 for my $x ( @res )
 {
-    printf "%s\n", join "\t", map{ $x->{ $_ } } @col;
+    printf "%s\n", join "\t", map{ $x->{ $_ } // '' } @col;
 }
