@@ -4,6 +4,7 @@ use warnings;
 use utf8;
 use FindBin qw( $RealBin );
 use YAML::XS;
+use Encode;
 
 =head1 SYNOPSIS
 
@@ -97,7 +98,12 @@ sub download
     chomp $title;
     for my $col ( split /\t/, $title )
     {
-        push @$filter, +{ alias => $1, name => $col } if $col =~ /^tag\.(.+)$/;
+        if( $col =~ /^tag\.(.+)$/ )
+        {
+            my $alias = $1;
+            $alias =~ s#\\\.#.#g;
+            push @$filter, +{ alias => Encode::decode('utf8', $alias ), name => Encode::decode('utf8', $col ) };
+        }
     }
 
     eval{ YAML::XS::DumpFile "temp/$type/$subtype/outline.yml", $outline; };
