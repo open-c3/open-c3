@@ -282,6 +282,23 @@
           });
         }
 
+        vm.cleanRule = function() {
+          swal({
+            title: "清空本节点监控策略",
+            text: "删除",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            cancelButtonText: "取消",
+            confirmButtonText: "确定",
+            closeOnConfirm: true
+          }, function(){
+            $http.delete('/api/agent/monitor/config/rule/' + vm.treeid ).success(function(data){
+                if( ! data.stat ){ toastr.error("删除监控策略:" + date.info)}
+                vm.reloadRule();
+            });
+          });
+        }
 
         vm.deleteRule = function(id) {
           swal({
