@@ -1,0 +1,37 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+
+from huaweicloudsdkcore.auth.credentials import BasicCredentials
+from huaweicloudsdkelb.v2.region.elb_region import ElbRegion
+from huaweicloudsdkelb.v2 import *
+
+
+def get_elb_by_id(access_id, access_key, region, load_balancer_id):
+    """
+        输出huawei elb的详情(json格式)
+    """
+    credentials = BasicCredentials(access_id, access_key) \
+
+    client = ElbClient.new_builder() \
+        .with_credentials(credentials) \
+        .with_region(ElbRegion.value_of(region)) \
+        .build()
+
+    request = ListLoadbalancersRequest()
+    request.id = load_balancer_id
+    response = client.list_loadbalancers(request)
+    for instance in response.loadbalancers:
+        if instance.id == load_balancer_id:
+            return instance
+    raise Exception("根据load_balancer_id {} 未找到elb".format(load_balancer_id))
+
+
+def main(access_id, access_key, region, load_balancer_id):
+    data = get_elb_by_id(access_id, access_key, region, load_balancer_id)
+    print(str(data))
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
