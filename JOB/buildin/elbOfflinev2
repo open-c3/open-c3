@@ -1,0 +1,36 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use Paws;
+use YAML::XS;
+use File::HomeDir;
+use FindBin qw( $RealBin );
+
+$SIG{ALRM} = sub{ die "timeout.\n"; };
+my $timeout = $ENV{TIMEOUT} || 6;
+alarm $timeout;
+
+die "onnode" unless $ENV{NODE};
+
+my ( $region, $elbname ) = @ARGV;
+die "no region" unless $region && $region =~ /^[a-zA-Z0-9_\-]+$/;
+die "no elbname" unless $elbname && $elbname =~ /^[a-zA-Z0-9_\-]+$/;
+
+$ENV{AWS_CONFIG_FILE} = $ENV{TICKETFILE} if $ENV{TICKETFILE} && -f $ENV{TICKETFILE};
+
+my ( @ip, %id2ip ) = grep{ /^\d+\.\d+\.\d+\.\d+$/ }split /,/, $ENV{NODE};
+my $x = `$RealBin/elb.rely/ec2.instance_id -r '$region' @ip`;
+
+my $instance_id = eval{ YAML::XS::Load $x };
+die "ec2.instance_id fail: $@" if $@;
+map{ $id2ip{$instance_id->{$_}} = $_; }keys %{$instance_id};
+
+my $aws = Paws->new;
+my $elb = $aws->service( 'ELB', region => $region );
+
+my $r = $elb->DeregisterInstancesFromLoadBalancer( LoadBalancerName => $elbname, Instances => [ map{ +{ InstanceId => $_} }keys %id2ip ]);
+my @iid = map{ $_->{InstanceId} }@{$r->{Instances}};
+my %ok;
+map{ warn sprintf "$_%s\n", $id2ip{$_} ? "(ip:$id2ip{$_})" : ''; $ok{$id2ip{$_}} ++ if $id2ip{$_}; }@iid;
+
+map{ print "$_:ok\n"; } grep{ ! $ok{$_}  }split /,/, $ENV{NODE};
