@@ -22,6 +22,7 @@ my $file = "$path/data.tsv";
 
 die "nofile $file" unless -f $file;
 my @data = `cat $file`;
+exit unless @data;
 chomp @data;
 
 my @treeow = `c3mc-base-db-get -t openc3_device_bindtree uuid tree -f 'type="$type" and subtype="$subtype"'`;
