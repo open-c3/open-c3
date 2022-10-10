@@ -8,6 +8,8 @@
     function DeviceDataController($state, $http, $scope, ngTableParams, $uibModal) {
         var vm = this;
 
+        vm.showfilter = 0;
+
         vm.treeid  = $state.params.treeid;
         vm.type    = $state.params.type;
         vm.subtype = $state.params.subtype;
