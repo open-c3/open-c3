@@ -22,8 +22,21 @@
         </div>
 
         <div class="panel-body">
+             <form ng-submit="devicedata.reload()">
+                  <div class="input-group input-hero input-hero-sm">
+                      <span class="input-group-addon" style="padding-top: 4px">
+                          <input  type="button"  ng-click="devicedata.showfilter=1" value="显示更多过滤器" class="btn-gradient red"   style="font-size: 12px;padding-top: 10px;padding-bottom: 10px" ng-hide="devicedata.showfilter">
+                          <input  type="button"  ng-click="devicedata.showfilter=0" value="隐藏过滤器"     class="btn-gradient green" style="font-size: 12px;padding-top: 10px;padding-bottom: 10px" ng-show="devicedata.showfilter">
+                          <i class="fa fa-search"></i>
+                     </span>
+                     <input type="text" style="padding-left: 150px" class="form-control searchInput"  ng-model="devicedata.grepdata._search_" placeholder="Enter search terms..">
+                      <span class="append-icon right fs18 pointer" ng-click="devicedata.grepdata._search_=''" ng-if="devicedata.grepdata._search_!=''">
+                            <i class="fa fa-times"></i>
+                     </span>
+                 </div>
+            </form>
 
-            <form class="form-inline"> 
+            <form class="form-inline" ng-show="devicedata.showfilter"> 
                 <div class="form-group" ng-repeat="f in devicedata.filter"  style="padding-right: 10px;" >
                     <select class="form-control" ng-change="devicedata.reload()"  ng-model="devicedata.grepdata[f.name]" >
                         <option value="">{{f.alias}}</option>
@@ -34,15 +47,6 @@
                 <div class="form-group"  style="padding-right: 10px;" >
                     <button class="btn btn-info" uib-tooltip="重置查询条件" ng-click="devicedata.reset()">重置</button>
                 </div>
-
-                <div class="form-group"  style="padding-right: 10px;" >
-                    <input type="text" class="form-control" ng-model="devicedata.grepdata._search_"  placeholder="模糊搜索" required>
-                </div>
-
-                <div class="form-group"  style="padding-right: 10px;" >
-                    <button class="btn btn-info" uib-tooltip="进行模糊搜索" ng-click="devicedata.reload()">搜索</button>
-                </div>
-
              </form> 
        </div>
 
