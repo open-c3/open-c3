@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+from tencentcloud.common import credential
+from tencentcloud.common.profile.client_profile import ClientProfile
+from tencentcloud.common.profile.http_profile import HttpProfile
+from tencentcloud.clb.v20180317 import clb_client, models
+
+
+class ClbBackendServers:
+    def __init__(self, access_id, access_key, region, load_balancer_name):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.region = region
+        self.load_balancer_name = load_balancer_name
+        self.client = self.create_client()
+
+    def create_client(self):
+        cred = credential.Credential(
+            self.access_id, self.access_key)
+        httpProfile = HttpProfile()
+        httpProfile.endpoint = "clb.tencentcloudapi.com"
+
+        clientProfile = ClientProfile()
+        clientProfile.httpProfile = httpProfile
+        client = clb_client.ClbClient(cred, self.region, clientProfile)
+        return client
+
+    def describe_target(self, load_balancer_id):
+        req = models.DescribeTargetsRequest()
+        params = {
+            "LoadBalancerId": load_balancer_id
+        }
+        req.from_json_string(json.dumps(params))
+        return self.client.DescribeTargets(req)
+
+    def get_clb_info(self, ):
+        output = subprocess.getoutput(
+            "c3mc-cloud-qcloud-clb-by-name {} {} {} {}".format(
+                self.access_id, self.access_key, self.region, self.load_balancer_name))
+        return output
+
+    def get_backend_server_info(self):
+        clb_info = json.loads(self.get_clb_info())
+        target_info = self.describe_target(clb_info["LoadBalancerId"])
+
+        result = []
+        m = {}
+        for listener in target_info.Listeners:
+            for rule in listener.Rules:
+                for target in rule.Targets:
+                    if target.InstanceId in m:
+                        continue
+                    m[target.InstanceId] = {}
+                    result.append(target)
+        return result
+
+    def show(self):
+        result = self.get_backend_server_info()
+        print(str(result))
+
+
+def main(access_id, access_key, region, load_balancer_name):
+    ClbBackendServers(access_id, access_key, region, load_balancer_name).show()
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
