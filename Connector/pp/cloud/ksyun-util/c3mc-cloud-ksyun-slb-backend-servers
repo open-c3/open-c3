@@ -1,0 +1,49 @@
+#!/usr/bin/env python2
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+
+from kscore.session import get_session
+
+
+class SlbBackendServers:
+    def __init__(self, access_id, access_key, region, load_balancer_id):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.region = region
+        self.load_balancer_id = load_balancer_id
+        self.client = self.create_client()
+
+    def create_client(self):
+        s = get_session()
+        client = s.create_client(
+            "slb", ks_access_key_id=self.access_id, ks_secret_access_key=self.access_key, region_name=self.region)
+        return client
+
+    def get_backend_server_info(self, load_balancer_id):
+        response = self.client.describe_listeners(
+            **{'Filter.1.Name': 'load-balancer-id', 'Filter.1.Value.1': load_balancer_id})
+
+        result = []
+        m = {}
+        for listener in response["ListenerSet"]:
+            for real_server in listener["RealServer"]:
+                if real_server["RealServerIp"] in m:
+                    continue
+                m[real_server["RealServerIp"]] = {}
+
+                result.append(real_server)
+        return result
+
+    def show(self):
+        result = self.get_backend_server_info(self.load_balancer_id)
+        print(json.dumps(result, default=str))
+
+
+def main(access_id, access_key, region, load_balancer_id):
+    SlbBackendServers(access_id, access_key, region, load_balancer_id).show()
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
