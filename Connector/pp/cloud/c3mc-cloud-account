@@ -18,8 +18,10 @@ my $option = MYDan::Util::OptConf->load();
 my %o      = $option->get(    qw( plugin=s account=s ) )->dump();
              $option->assert( qw( plugin ) );
 
+my $id;
 sub sync
 {
+    $id ++;
     my $d = shift @_;
     my ( $account, $argv ) = split /\s+/, $d, 2;
     my @x = `$o{plugin} $argv`;
@@ -28,7 +30,8 @@ sub sync
     for ( @x )
     {
         my $data = JSON::decode_json( $_ );
-        $data->{account} = $account;
+        $data->{ account     } = $account;
+        $data->{ accountuuid } = "$account.$id";
         print JSON::encode_json( $data ), "\n";
     }
 }

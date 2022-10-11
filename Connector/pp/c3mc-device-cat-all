@@ -39,7 +39,7 @@ for ( glob "/data/open-c3-data/device/curr/*/*/data.tsv" )
         $res{ uuid     } = $data{ Encode::encode('utf8', $colmap->{ uuid     } ) };
         $res{ treename } = $data{ Encode::encode('utf8', $colmap->{ treename } ) };
 
-        map{ $res{ $_ } = $data{  $_ }; }qw( account 部门 业务负责人 运维负责人 );
+        map{ $res{ $_ } = $data{  $_ }; }qw( account accountuuid 部门 业务负责人 运维负责人 );
 
         for my $ol ( qw( baseinfo contact system ) )
         {
@@ -55,7 +55,7 @@ for ( glob "/data/open-c3-data/device/curr/*/*/data.tsv" )
     }
 }
 
-my @col = qw( account type subtype uuid baseinfo contact system treename 部门 业务负责人 运维负责人 raw );
+my @col = qw( account accountuuid type subtype uuid baseinfo contact system treename 部门 业务负责人 运维负责人 raw );
 
 exit unless @res;
 
