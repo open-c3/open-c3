@@ -1,0 +1,67 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+binmode STDIN, ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0
+ $0 --showtree
+ $0 --showuuid
+ $0 --compresstree # 压缩服务树，子树覆盖父树的情况下删除父树
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( showtree showuuid compresstree ) )->dump();
+
+my %treemap;
+if( $o{showtree} )
+{
+    my @x = `c3mc-base-treemap`;
+    chomp @x;
+    for ( @x )
+    {
+        my ( $id, $name ) = split /;/, $_;
+        $treemap{ $id } = $name;
+    }
+}
+
+my %uuidmap;
+if( $o{ showuuid })
+{
+    my @x = `c3mc-device-nodeuuid`;
+    chomp @x;
+    for( @x )
+    {
+        my ( $uuid, $ip ) = split /;/, $_;
+        $uuidmap{ $ip } = $uuid;
+    }
+}
+
+my @x = `c3mc-base-treemap|awk -F ';' '{print \$1}'|c3mc-base-nodeinfo --col projectid,inip,exip`;
+chomp @x;
+
+my $showtree = grep{ $_ eq 'showtree' }
+my %bind;
+for ( @x )
+{
+    my ( $treeid, $inip, $exip ) = split /;/, $_;
+    my $ip = $inip || $exip;
+
+    my $alias = $o{showuuid} ? $uuidmap{ $ip }     : $ip;
+    my $name  = $o{showtree} ? $treemap{ $treeid } : $treeid;
+    $bind{ $alias || "Erruuid:$ip" }{ $name || $treeid } = 1;
+}
+
+for my $ip ( sort keys %bind )
+{
+    printf "$ip;%s\n", join ',', sort keys %{ $bind{ $ip } };
+}
