@@ -31,7 +31,7 @@ sub sync
     {
         my $data = JSON::decode_json( $_ );
         $data->{ account     } = $account;
-        $data->{ accountuuid } = "$account.$id";
+        $data->{ accountuuid } = "$o{account}.$id";
         print JSON::encode_json( $data ), "\n";
     }
 }
