@@ -1,0 +1,69 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use JSON;
+use YAML::XS;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 --uuid uuid
+ $0 --uuid uuid --ctrl tag_add --file /your/contrl/conf.yml
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o      = $option->get(    qw( uuid=s ctrl=s file=s) )->dump();
+             $option->assert( qw( uuid ) );
+
+$option->assert() if ( $o{ctrl} && ! $o{file} ) || ( ! $o{ctrl} && $o{file} );
+
+my @x = `c3mc-device-cat-all '$o{uuid}'`;
+chomp @x;
+exit unless @x;
+
+my @title = split /\t/, shift @x;
+
+my @data;
+for( @x )
+{
+    my @dat = split /\t/, $_;
+    my %tmp = map{ $title[$_] => $dat[$_] }0 .. $#title;
+    push @data, \%tmp;
+}
+
+die "nofind uuid in CMDB" unless @data;
+
+warn "data > 1" if @data > 1;
+my $data = shift @data;
+
+my $config = YAML::XS::LoadFile "/data/Software/mydan/Connector/pp/cloud/control/conf.yml";
+
+my $conf = $config->{"$data->{type}.$data->{subtype}"};
+
+die "$data->{type}.$data->{subtype} undef on control/conf.yml" unless $conf;
+
+
+unless( $o{ctrl} )
+{
+    print YAML::XS::Dump $conf;
+    exit;
+}
+
+my $cmd = $conf->{ $o{ctrl} };
+
+die "ctrl $o{ctrl} undef" unless $cmd;
+
+die "nofind accountuuid" unless my $accountuuid = $data->{accountuuid};
+
+die "accountuuid format err" unless $accountuuid =~ /^(.+)\.(\d+)$/;
+my ( $account, $accountid ) = ( $1, $2 );
+
+my   @account = `cat '/data/Software/mydan/AGENT/device/conf/account/$account'`;
+chomp @account;
+die "nofind account" unless my $aksk = $account[ $accountid -1 ];
+
+system "c3mc-device-cat $data->{type} $data->{subtype} $o{uuid}|c3mc-base-tab2json|head -n 1|c3mc-cloud-control-add -f '$o{file}'|$cmd $aksk";
