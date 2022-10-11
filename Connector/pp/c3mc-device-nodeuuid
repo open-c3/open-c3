@@ -1,0 +1,60 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+for my $ingestion ( glob "/data/open-c3-data/device/curr/compute/*/ingestion-node.yml" )
+{
+    my $colmapfile = $ingestion;
+    $colmapfile  =~ s/ingestion-node\.yml$/colmap\.yml/;
+    my $colm = eval{ YAML::XS::LoadFile $colmapfile };
+    die "load $colmapfile fail: $@" if $@;
+    map{ die "err" unless $colm->{$_} }qw( uuid );
+
+    my $datafile = $ingestion;
+    $datafile =~ s/ingestion-node\.yml$/data\.tsv/;
+    my $colmap = eval{ YAML::XS::LoadFile $ingestion };
+    die "load $ingestion fail: $@" if $@;
+    map{ die "err" unless $colmap->{$_} }qw( name inip exip tree type );
+
+    my ( undef, $subtype, $type ) = reverse split /\//, $datafile;
+    my    @data  = `c3mc-device-cat $type $subtype`;
+    chomp @data;
+
+    my $title = shift @data;
+
+    utf8::decode( $title );
+    my @title = split /\t/, $title;
+
+    for my $data ( @data )
+    {
+         utf8::decode( $data );
+         my @d = split /\t/, $data;
+         my %d = map{ $title[ $_ ] => $d[ $_ ] } 0 .. @title - 1;
+
+         next unless my $treename = $d{ $colmap->{tree} };
+         my %tmp = (
+             uuid => $d{ $colm->{  uuid} },
+             name => $d{ $colmap->{name} },
+             inip => $d{ $colmap->{inip} },
+             exip => $d{ $colmap->{exip} },
+             type =>     $colmap->{type},
+         );
+         printf "%s;%s\n", $tmp{ uuid }, $tmp{inip};
+         printf "%s;%s\n", $tmp{ uuid }, $tmp{exip} if $tmp{exip};
+    }
+}
+
