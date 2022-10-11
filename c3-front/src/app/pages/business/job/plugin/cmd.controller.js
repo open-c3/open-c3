@@ -326,6 +326,9 @@
                 {
                     vm.showmachinelist = 0;
                 }
+                if( cont.search(/^#!elbShowv2\b/)    == 0 ) { vm.showmachinelist = 0; }
+                if( cont.search(/^#!elbOfflinev2\b/) == 0 ) { vm.showmachinelist = 0; }
+                if( cont.search(/^#!elbOnlinev2\b/)  == 0 ) { vm.showmachinelist = 0; }
             }
         }
 

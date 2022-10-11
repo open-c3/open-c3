@@ -26,6 +26,56 @@
     <div class="panel panel-primary">
         <div class="panel-heading">
             <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="monitorconfig.reloadNodeinfo()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!monitorconfig.loadoverNodeinfo}" ></i></button>
+            </span>
+            <h5>节点主机资源</h5>
+        </div>
+
+        <div class="panel-body flowline">
+            <div class="pt20" style="overflow: auto;">
+                <table ng-table="monitorconfig.activeNodeinfoTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
+                    <tr ng-repeat="ss in $data">
+                            <td style="width: 15%" data-title="'机器名称'"> {{ss.name}} </td>
+                            <td style="width: 5%" data-title="'类型'" filter="{ type: 'text'}">{{ss.type}}</td>
+                            <td style="width: 15%" data-title="'内网IP'" filter="{ inip: 'text'}"><input id="{{ss.inip}}" ng-if="ss.inip" type="checkbox" name="selected"  ng-checked="isSelected(ss.inip)" ng-click="inipUpdateSelection($event, ss.id, ss.inip)" style="zoom: 125%"/>
+                                <a style="cursor: pointer;" title="打开终端" ng-click="openOneTab(ss.inip)">{{ss.inip}}</a>
+                                    <i ng-if="ss.inip && ! ss.inips.status" class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                                    <i ng-if="ss.inip && ss.inips.status=='fail'" class="fa fa-circle" style="color: red;" aria-hidden="true"></i>
+                                    <i ng-if="ss.inip && ss.inips.status=='success'" class="fa fa-circle" style="color: green;" aria-hidden="true"></i>
+                            </td>
+                            <td style="width: 15%" data-title="'外网ip'" filter="{ exip: 'text'}"><input ng-if="ss.exip" id="{{ss.exip}}" type="checkbox" name="selected"  ng-checked="isSelected(ss.exip)" ng-click="exipUpdateSelection($event, ss.id, ss.exip)" style="zoom: 125%"/>
+                                <a style="cursor: pointer;" title="打开终端" ng-click="openOneTab(ss.exip)">{{ss.exip}}</a>
+                                    <i ng-if="ss.exip && ! ss.exips.status" class="fa fa-exclamation-circle" aria-hidden="true"></i>
+                                    <i ng-if="ss.exip && ss.exips.status=='fail'" class="fa fa-circle" style="color: red;" aria-hidden="true"></i>
+                                    <i ng-if="ss.exip && ss.exips.status=='success'" class="fa fa-circle" style="color: green;" aria-hidden="true"></i>
+                            </td>
+                            <td style="width: 5%" data-title="'客户端版本'">
+                                <a ng-if="ss.inip">{{ss.inips.version}}</a>
+                                <a ng-if="ss.exip && ! ss.inip">{{ss.exips.version}}</a>
+                            </td>
+
+                            <td style="width: 20%" data-title="'客户端上一次检测时间'">
+                                <a ng-if="ss.inip">{{ss.inips.edit_time}}</a>
+                                <a ng-if="ss.exip && ! ss.inip">{{ss.exips.edit_time}}</a>
+                            </td>
+
+                            <td style="width: 20%" data-title="'客户端错误原因'">
+                                <a ng-if="ss.inip && ss.inips.status=='fail'">failcount:{{ss.inips.fail}}; {{ss.inips.reason}}</a>
+                                <a ng-if="ss.exip && ! ss.inip && ss.exips.status=='fail'">failcount:{{ss.exips.fail}}; {{ss.exips.reason}}</a>
+                            </td>
+
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <hr class="mv20 clear">
+
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
                 <button class="btn btn-primary" uib-tooltip="刷新" ng-click="monitorconfig.reloadAlert()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!monitorconfig.loadoverAlert}" ></i></button>
             </span>
             <h5>当前告警</h5>
@@ -103,6 +153,7 @@
         <div style="float: right;">
             <form class="form-inline" name="myForm" novalidate>
                 <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="monitorconfig.createRule({},'添加')"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i> 添加监控策略</button>
+                <button type="submit" class="btn btn-danger" style="padding: 10px 25px" ng-click="monitorconfig.cleanRule()"><i class="fa fa-times-circle fa-lg" aria-hidden="true"></i>清空节点策略 </button>
             </form>
         </div>
         <div style="clear: both;">&nbsp;</div>

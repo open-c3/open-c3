@@ -137,6 +137,21 @@
 
         vm.reloadRule();
 
+        vm.reloadNodeinfo = function(){
+            vm.loadoverNodeinfo = false;
+            $http.get('/api/agent/nodeinfo/' + vm.treeid ).success(function(data){
+                if(data.stat == true) 
+                { 
+                    vm.activeNodeinfoTable = new ngTableParams({count:20}, {counts:[],data:data.data.reverse()});
+                    vm.loadoverNodeinfo = true;
+                } else { 
+                    toastr.error( "加载Nodeinfo失败:" + data.info )
+                }
+            });
+        };
+
+        vm.reloadNodeinfo();
+
         vm.reloadAlert = function(){
             vm.loadoverAlert = false;
             $http.get('/api/agent/monitor/alert/' + vm.treeid + "?siteaddr=" + vm.siteaddr ).success(function(data){
@@ -282,6 +297,23 @@
           });
         }
 
+        vm.cleanRule = function() {
+          swal({
+            title: "清空本节点监控策略",
+            text: "删除",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            cancelButtonText: "取消",
+            confirmButtonText: "确定",
+            closeOnConfirm: true
+          }, function(){
+            $http.delete('/api/agent/monitor/config/rule/' + vm.treeid ).success(function(data){
+                if( ! data.stat ){ toastr.error("删除监控策略:" + date.info)}
+                vm.reloadRule();
+            });
+          });
+        }
 
         vm.deleteRule = function(id) {
           swal({

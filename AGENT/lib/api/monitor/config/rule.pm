@@ -135,4 +135,25 @@ del '/monitor/config/rule/:projectid/:id' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
 
+del '/monitor/config/rule/:projectid' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        projectid => qr/^\d+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $pmscheck = api::pmscheck( 'openc3_agent_delete', $param->{projectid} ); return $pmscheck if $pmscheck;
+
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+    eval{ $api::auditlog->run( user => $user, title => 'DEL MONITOR CONFIG RULE', content => "TREEID:$param->{projectid} clean tree monitor rule" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
+    my $r = eval{ 
+        $api::mysql->execute(
+            "delete from openc3_monitor_config_rule where projectid='$param->{projectid}'")};
+
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
+};
+
 true;

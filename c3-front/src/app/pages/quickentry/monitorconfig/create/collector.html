@@ -379,11 +379,11 @@ node_path_check{check="v2.2.3",type="link",path="/tmp/bar.txt"} 1
 
 上报方式如下：
 
-curl -X POST -d "[{\"metric\": \"test-metric\", \"endpoint\": \"test-endpoint\",\"value\": 1,\"tags\": \"idc=lg,project=xx\"}]" http://127.0.0.1:65110/v1/push
+curl -X POST -d "[{\"metric\": \"test_metric\", \"endpoint\": \"test-endpoint\",\"value\": 1,\"tags\": \"idc=lg,project=xx\"}]" http://127.0.0.1:65110/v1/push
 
 
 上报后的数据如下：
-test-metric{endpoint="test-endpoint",idc="lg",project="xx",source="apipush"} 1
+test_metric{endpoint="test-endpoint",idc="lg",project="xx",source="apipush"} 1
 
 endpoint被当作一个普通的标签。
 source标签是系统默认添加的，用于区分是通过api push而来的数据。
@@ -394,7 +394,7 @@ metric和value是必要的，endpoint和tags非必要。
 
 兼容falcon:
 ts=`date +%s`;
-curl -X POST -d "[{\"metric\": \"test-metric\", \"endpoint\": \"test-endpoint\", \"timestamp\": $ts,\"step\": 60,\"value\": 1,\"counterType\": \"GAUGE\",\"tags\": \"idc=lg,project=xx\"}]" http://127.0.0.1:65110/v1/push
+curl -X POST -d "[{\"metric\": \"test_metric\", \"endpoint\": \"test-endpoint\", \"timestamp\": $ts,\"step\": 60,\"value\": 1,\"counterType\": \"GAUGE\",\"tags\": \"idc=lg,project=xx\"}]" http://127.0.0.1:65110/v1/push
 
 注：push 方式60秒为周期，如果60秒内没有上报新的数据，本地AGENT会把该指标删除。
                     </textarea>
