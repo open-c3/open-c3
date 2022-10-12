@@ -80,5 +80,6 @@ if __name__ == '__main__':
     if len(l) == 0 or len(l) > 1:
         raise Exception("数据格式错误, 需要一行json数据")
 
+    uuid_field_name = subprocess.getoutput("c3mc-cloud-get-uuid-field networking aliyun-slb")
     data = json.loads(l[0])
-    main(sys.argv[2], sys.argv[3], sys.argv[4], data["实例ID"])
+    main(sys.argv[2], sys.argv[3], sys.argv[4], data[uuid_field_name])
