@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import sys
@@ -74,4 +74,11 @@ def main(access_id, access_key, region, load_balancer_id):
 
 
 if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式错误, 需要一行json数据")
+
+    data = json.loads(l[0])
+    main(sys.argv[2], sys.argv[3], sys.argv[4], data["实例ID"])
