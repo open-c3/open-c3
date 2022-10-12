@@ -32,6 +32,14 @@
 
         vm.jobinfo;
         vm.loadover = false;
+        vm.checkerIsMe = function () {
+            $http.get('/api/connector/connectorx/sso/userinfo').success(function(data){
+                if( ! $scope.taskData.variable.checker )
+                {
+                    $scope.taskData.variable.checker = data.email;
+                }
+            });
+        };
         vm.getAllJob = function () {
             $http.get('/api/job/jobs/' + vm.treeid).then(
                 function successCallback(response) {
@@ -78,6 +86,11 @@
                                                        vm.varsvalue[ value.name ] = vars;
                                                    }
                                                 }
+                                                if( value.name == 'checker' )
+                                                {
+                                                    vm.checkerIsMe();
+                                                }
+ 
                                            });
 
                                            vm.loadover = true;
