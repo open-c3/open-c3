@@ -176,7 +176,8 @@ post '/monitor/config/rule/copy/:fromid/:toid' => sub {
     );
 
     eval{
-        die "copy rule fail: $!" if system "c3mc-mon-rule-dump -t $param->{fromid} | c3mc-mon-rule-load -t $param->{toid}";
+        die "user format error: $user" if $user =~ /'/;
+        die "copy rule fail: $!" if system "c3mc-mon-rule-dump -t $param->{fromid} | c3mc-mon-rule-load -t $param->{toid} -u '$user'";
     };
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
