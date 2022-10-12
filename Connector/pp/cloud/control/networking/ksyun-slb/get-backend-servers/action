@@ -3,6 +3,7 @@
 
 import sys
 import json
+import subprocess
 
 from kscore.session import get_session
 
@@ -52,10 +53,13 @@ if __name__ == '__main__':
     if len(l) == 0 or len(l) > 1:
         raise Exception("数据格式错误, 需要一行json数据")
 
+    uuid_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-uuid-field networking ksyun-slb")
+
     instance_id = None
     data = json.loads(l[0])
     for key in data:
-        if key.encode("utf-8") == "实例ID":
+        if key.encode("utf-8") == uuid_field_name:
             instance_id = data[key]
 
     if instance_id == None:
