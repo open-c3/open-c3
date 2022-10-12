@@ -8,7 +8,8 @@ import boto3
 
 
 class S3:
-    def __init__(self, access_id, access_key, region):
+    def __init__(self, account, access_id, access_key, region):
+        self.account = account
         self.access_id = access_id
         self.access_key = access_key
         self.region = region
@@ -39,6 +40,7 @@ class S3:
         for bucket_info in response["Buckets"]:
             tags = self.list_tags_of_bucket(bucket_info["Name"])
             bucket = {
+                "UUID": "{}-{}-{}".format(self.account, self.region, bucket_info["Name"]),
                 "BucketName": bucket_info["Name"],
                 "CreationDate": bucket_info["CreationDate"],
                 "RegionId": self.region,
@@ -54,9 +56,9 @@ class S3:
             print(json.dumps(bucket, default=str))
 
 
-def main(access_id, access_key, region):
-    S3(access_id, access_key, region).show()
+def main(account, access_id, access_key, region):
+    S3(account, access_id, access_key, region).show()
 
 
 if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2], sys.argv[3])
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
