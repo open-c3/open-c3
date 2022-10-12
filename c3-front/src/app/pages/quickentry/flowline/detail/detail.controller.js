@@ -53,9 +53,9 @@
         };
 
         vm.versionlist = [];
-        vm.reload = function(){
+        vm.reload = function(limit){
             vm.loadover = false;
-            $http.get('/api/ci/version/' + vm.treeid + '/' + vm.projectid ).success(function(data){
+            $http.get('/api/ci/version/' + vm.treeid + '/' + vm.projectid + '?limit=' + limit ).success(function(data){
                 if(data.stat == true) 
                 { 
                     vm.versionlist = [];
