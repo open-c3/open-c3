@@ -11,11 +11,12 @@ use MYDan::Util::OptConf;
 =head1 SYNOPSIS
 
  $0 --plugin c3mc-cloud-huawei-rds --account huawei
+ $0 --plugin c3mc-cloud-huawei-rds --account huawei --raw # use account line
 
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o      = $option->get(    qw( plugin=s account=s ) )->dump();
+my %o      = $option->get(    qw( plugin=s account=s raw ) )->dump();
              $option->assert( qw( plugin ) );
 
 my $id;
@@ -24,6 +25,7 @@ sub sync
     $id ++;
     my $d = shift @_;
     my ( $account, $argv ) = split /\s+/, $d, 2;
+    $argv = $d if $o{raw};
     my @x = `$o{plugin} $argv`;
     die "Error" if $?;
     chomp @x;
