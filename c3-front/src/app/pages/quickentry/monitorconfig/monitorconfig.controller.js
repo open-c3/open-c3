@@ -242,6 +242,23 @@
             });
         };
 
+        vm.copyRule = function (postData, title) {
+            $uibModal.open({
+                templateUrl: 'app/pages/quickentry/monitorconfig/copy/rule.html',
+                controller: 'CopyMonitorConfigRuleController',
+                controllerAs: 'copyMonitorConfigRule',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () { return vm.treeid},
+                    reload : function () { return vm.reloadRule},
+                    title: function(){ return title},
+                    postData: function(){ return postData}
+                }
+            });
+        };
 
         vm.createUser = function () {
             vm.newuser = $scope.newUser;

@@ -156,4 +156,30 @@ del '/monitor/config/rule/:projectid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
 
+post '/monitor/config/rule/copy/:fromid/:toid' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        fromid => qr/^\d+$/, 1,
+        toid   => qr/^\d+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $pmscheck = api::pmscheck( 'openc3_agent_read',  $param->{fromid} ); return $pmscheck if $pmscheck;
+       $pmscheck = api::pmscheck( 'openc3_agent_write', $param->{toid}   ); return $pmscheck if $pmscheck;
+
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+    $api::auditlog->run(
+        user    => $user,
+        title   => "MONITOR CONFIG RULE COPY",
+        content => "TREEID:$param->{toid} from: $param->{fromid}"
+    );
+
+    eval{
+        die "copy rule fail: $!" if system "c3mc-mon-rule-dump -t $param->{fromid} | c3mc-mon-rule-load -t $param->{toid}";
+    };
+
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
+};
+
 true;
