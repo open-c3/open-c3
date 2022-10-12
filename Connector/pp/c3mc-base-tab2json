@@ -1,0 +1,35 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use utf8;
+use JSON;
+use Encode;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+=head1 SYNOPSIS
+
+ echo table | $0
+
+=cut
+
+my @x = <STDIN>;
+chomp @x;
+exit unless @x;
+
+my @title = split /\t/, shift @x;
+
+for ( @x )
+{
+    my @data = split /\t/, $_;
+    my %data = map{ $title[$_] => $data[$_] }0 .. $#title;
+
+    my $v = eval{ JSON::encode_json \%data };
+    die "encode json fail:$@" if $@;
+    printf "%s\n", Encode::decode( 'utf8', $v );
+}
+

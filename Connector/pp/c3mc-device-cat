@@ -11,10 +11,11 @@ binmode STDERR, ':utf8';
 =head1 SYNOPSIS
 
  $0 type subtype
+ $0 type subtype grepuuid
 
 =cut
 
-my ( $type, $subtype ) = @ARGV;
+my ( $type, $subtype, $grepuuid ) = @ARGV;
 die "argv err" unless $subtype;
 
 my $path = "/data/open-c3-data/device/curr/$type/$subtype";
@@ -64,5 +65,7 @@ for my $data ( @data )
     {
         $d{ $treenamecol } = $defaulttree;
     }
+    next if $grepuuid && $d{ $uuidcol} ne $grepuuid;
+
     printf "%s\n", join "\t", map{ $d{$_} // '' }@ptitle;
 }

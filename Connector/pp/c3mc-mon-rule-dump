@@ -1,0 +1,33 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use MYDB;
+use YAML::XS;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 --treeid id
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get(    qw( treeid=i ) )->dump();
+        $option->assert( qw( treeid   ) );
+
+my $db = MYDB->new(  "/data/Software/mydan/AGENT/conf/conn", delayedconnection => 1 );
+my @col = qw( alert expr for severity summary description value model metrics method threshold edit_user edit_time bindtreesql );
+my $x  = $db->query(
+    sprintf("select %s from openc3_monitor_config_rule where projectid='$o{treeid}'", join ',',map{"`$_`"}@col ),
+    \@col
+);
+
+for my $xx ( @$x )
+{
+    $xx->{expr} =~ s/treeid_\d+!/treeid_c3montreeid!/g;
+    $xx->{expr} =~ s/treeinfo\{tid="\d+"\}/treeinfo{tid="c3montreeid"}/g;
+    print YAML::XS::Dump $xx;
+}

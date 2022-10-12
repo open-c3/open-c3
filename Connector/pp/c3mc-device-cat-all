@@ -8,8 +8,11 @@ use YAML::XS;
 =head1 SYNOPSIS
 
  $0
+ $0 grepuuid
 
 =cut
+
+my $grepuuid = shift @ARGV;
 
 my $allcolmap = YAML::XS::LoadFile "/data/open-c3-data/device/curr/colmap.yml";
 map{ die "undef" unless $allcolmap->{$_} }qw( treename uuid );
@@ -39,7 +42,7 @@ for ( glob "/data/open-c3-data/device/curr/*/*/data.tsv" )
         $res{ uuid     } = $data{ Encode::encode('utf8', $colmap->{ uuid     } ) };
         $res{ treename } = $data{ Encode::encode('utf8', $colmap->{ treename } ) };
 
-        map{ $res{ $_ } = $data{  $_ }; }qw( account 部门 业务负责人 运维负责人 );
+        map{ $res{ $_ } = $data{  $_ }; }qw( account accountuuid 部门 业务负责人 运维负责人 );
 
         for my $ol ( qw( baseinfo contact system ) )
         {
@@ -55,12 +58,13 @@ for ( glob "/data/open-c3-data/device/curr/*/*/data.tsv" )
     }
 }
 
-my @col = qw( account type subtype uuid baseinfo contact system treename 部门 业务负责人 运维负责人 raw );
+my @col = qw( account accountuuid type subtype uuid baseinfo contact system treename 部门 业务负责人 运维负责人 raw );
 
 exit unless @res;
 
 printf "%s\n", join "\t", map{ Encode::encode('utf8', $_ ) }map{ $allcolmap->{ $_ } || $_ }map{ Encode::decode('utf8', $_ ) }@col;
 for my $x ( @res )
 {
+    next if $grepuuid && $x->{ uuid } ne $grepuuid;
     printf "%s\n", join "\t", map{ $x->{ $_ } // '' } @col;
 }

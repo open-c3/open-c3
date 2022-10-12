@@ -22,8 +22,7 @@ class HandleTag:
         self.department_tag = self.get_department_tag()
 
     def handle_str_tag(self, data, tag_list):
-        common_tag_dict = dict()
-        not_common_tag_dict = dict()
+        tag_dict = dict()
         for tag in tag_list:
             if tag.strip() == "":
                 continue
@@ -34,7 +33,7 @@ class HandleTag:
 
             if len(item_list) == 1:
                 key = item_list[0]
-                common_tag_dict[key] = key
+                tag_dict[key] = key
 
                 if "tags" in data:
                     data["tags"] += " {}:{},".format(key, key)
@@ -44,66 +43,53 @@ class HandleTag:
                 key = item_list[0].strip()
                 value = ";".join(item_list[1:]).strip()
 
-                found_common_tag = False
                 if key.lower() == self.product_owner_tag.lower():
                     data["product_owner"] = value
-                    common_tag_dict[self.product_owner_tag] = value
-                    found_common_tag = True
-                if key.lower() == self.ops_owner_tag.lower():
+                    tag_dict[self.product_owner_tag] = value
+                elif key.lower() == self.ops_owner_tag.lower():
                     data["ops_owner"] = value
-                    common_tag_dict[self.ops_owner_tag] = value
-                    found_common_tag = True
-                if key.lower() == self.department_tag.lower():
+                    tag_dict[self.ops_owner_tag] = value
+                elif key.lower() == self.department_tag.lower():
                     data["department"] = value
-                    common_tag_dict[self.department_tag] = value
-                    found_common_tag = True
+                    tag_dict[self.department_tag] = value
+                else:
+                    tag_dict[key] = value
 
-                if not found_common_tag:
-                    not_common_tag_dict[key] = value
                 if "tags" in data:
                     data["tags"] += " {}:{},".format(key, value)
                 else:
                     data["tags"] = "{}:{},".format(key, value)
-        if len(common_tag_dict) > 0:
-            data["tag"] = common_tag_dict
-        if len(not_common_tag_dict) > 0:
-            data["other_tag"] = not_common_tag_dict
+        if len(tag_dict) > 0:
+            data["tag"] = tag_dict
         if "tags" in data:
             data["tags"] = data["tags"][: -1]
         return data
 
     def handle_obj_tag(self, data, tag_list):
-        common_tag_dict = dict()
-        not_common_tag_dict = dict()
+        tag_dict = dict()
         for tag in tag_list:
             key = tag[self.key_field_name].strip()
             value = tag[self.value_field_name].strip()
 
-            found_common_tag = False
             if key.lower() == self.product_owner_tag.lower():
                 data["product_owner"] = value
-                common_tag_dict[self.product_owner_tag] = value
-                found_common_tag = True
-            if key.lower() == self.ops_owner_tag.lower():
+                tag_dict[self.product_owner_tag] = value
+            elif key.lower() == self.ops_owner_tag.lower():
                 data["ops_owner"] = value
-                common_tag_dict[self.ops_owner_tag] = value
-                found_common_tag = True
-            if key.lower() == self.department_tag.lower():
+                tag_dict[self.ops_owner_tag] = value
+            elif key.lower() == self.department_tag.lower():
                 data["department"] = value
-                common_tag_dict[self.department_tag] = value
-                found_common_tag = True
+                tag_dict[self.department_tag] = value
+            else:
+                tag_dict[key] = value
 
-            if not found_common_tag:
-                not_common_tag_dict[key] = value
             if "tags" in data:
                 data["tags"] += " {}:{},".format(key, value)
             else:
                 data["tags"] = "{}:{},".format(key, value)
 
-        if len(common_tag_dict) > 0:
-            data["tag"] = common_tag_dict
-        if len(not_common_tag_dict) > 0:
-            data["other_tag"] = not_common_tag_dict
+        if len(tag_dict) > 0:
+            data["tag"] = tag_dict
         if "tags" in data:
             data["tags"] = data["tags"][: -1]
         return data

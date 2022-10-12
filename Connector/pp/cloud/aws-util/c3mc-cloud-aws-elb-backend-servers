@@ -1,0 +1,72 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+import boto3
+
+
+class ElbBackendServers:
+    """
+        输出aws alb的后端服务器列表信息
+    """
+
+    def __init__(self, access_id, access_key, region, elb_name):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.region = region
+        self.elb_name = elb_name
+        self.client = self.create_client()
+
+    def create_client(self):
+        client = boto3.client(
+            "elb",
+            aws_access_key_id=self.access_id,
+            aws_secret_access_key=self.access_key,
+            region_name=self.region,
+        )
+        return client
+
+    def get_ec2_info(self, ec2_id):
+        output = subprocess.getoutput(
+            "c3mc-cloud-aws-ec2-by-id {} {} {} {}".format(
+                self.access_id, self.access_key, self.region, ec2_id))
+        return output
+
+    def get_elb_info(self, elb_name):
+        output = subprocess.getoutput(
+            "c3mc-cloud-aws-elb-by-name {} {} {} {}".format(
+                self.access_id, self.access_key, self.region, elb_name))
+        return output
+
+    def get_backend_servers(self):
+        result = []
+        elb_info = json.loads(self.get_elb_info(self.elb_name))
+        for item in elb_info["Instances"]:
+            ec2_info = json.loads(self.get_ec2_info(item["InstanceId"]))
+            data = {
+                "ec2_id": ec2_info["InstanceId"],
+                "private_ip": ec2_info["PrivateIpAddress"],
+            }
+            if "PublicIpAddress" in ec2_info:
+                data["public_ip"] = ec2_info["PublicIpAddress"]
+            if ec2_info["InstanceType"].startswith("p2") or ec2_info["InstanceType"].startswith("g2"):
+                data["is_gpu"] = 1
+            else:
+                data["is_gpu"] = 0
+            result.append(data)
+        return result
+
+    def show(self):
+        result = self.get_backend_servers()
+        print(json.dumps(result))
+
+
+def main(access_id, access_key, region, elb_name):
+    ElbBackendServers(access_id, access_key, region, elb_name).show()
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])

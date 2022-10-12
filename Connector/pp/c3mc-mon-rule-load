@@ -1,0 +1,41 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use YAML::XS;
+use MYDan::Util::OptConf;
+use MYDB;
+
+=head1 SYNOPSIS
+
+ $0 --treeid id
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get(    qw( treeid=i ) )->dump();
+        $option->assert( qw( treeid   ) );
+
+my @col = qw( projectid alert expr for severity summary description value model metrics method threshold edit_user bindtreesql );
+my $db = MYDB->new(  "/data/Software/mydan/AGENT/conf/conn", delayedconnection => 1 );
+
+local $/ = undef;
+my @data = YAML::XS::Load( <STDIN> );
+local $/ = "\n";
+
+for my $xx ( @data )
+{
+    $xx->{projectid} = $o{treeid};
+    $xx->{expr} =~ s/treeid_c3montreeid!/treeid_$o{treeid}+!/g;
+    $xx->{expr} =~ s/treeinfo\{tid="c3montreeid"\}/treeinfo{tid="$o{treeid}"}/g;
+
+    map{ die "$_ format error: $xx->{$_}" if $xx->{$_} =~ /'/ }@col;
+
+    $db->execute(
+        sprintf "insert into openc3_monitor_config_rule (%s)values(%s)",
+            join( ',', map{"`$_`"} @col ),
+            join( ',', map{"'$_'"}map{ $xx->{$_} }@col)
+    );
+}
