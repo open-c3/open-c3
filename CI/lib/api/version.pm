@@ -10,6 +10,14 @@ use api;
 use Format;
 use uuid;
 
+our $showcount;
+
+BEGIN{
+    my $x = `c3mc-sys-ctl ci.default.showcount`;
+    chomp $x;
+    $showcount = $x && $x =~ /^\d+$/ ? $x : 5;
+};
+
 get '/v/:groupid/:projectid' => sub {
     my $param = params();
     my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
@@ -40,9 +48,10 @@ get '/version/:groupid/:projectid' => sub {
     my @col = qw( id projectid uuid name user slave status starttimems finishtimems 
             starttime  finishtime calltype pid runtime reason create_time tagger taginfo
     );
+    my $limit = $param->{limit} ? "limit $showcount" : "";
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from openc3_ci_version where projectid='$projectid' order by create_time desc,id desc", join( ',', @col)), \@col )};
+            sprintf( "select %s from openc3_ci_version where projectid='$projectid' order by create_time desc,id desc $limit", join( ',', @col)), \@col )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r ||[] };
 };
