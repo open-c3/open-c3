@@ -285,7 +285,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
         type       => qr/^[a-z\d\-_]+$/, 1,
         subtype    => qr/^[a-z\d\-_]+$/, 1,
         treeid     => qr/^\d+$/, 1,
-        uuid       => qr/^[a-z\d\-_]+$/, 1,
+        uuid       => qr/^[a-zA-Z0-9][a-zA-Z\d\-_\.]+$/, 1,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
