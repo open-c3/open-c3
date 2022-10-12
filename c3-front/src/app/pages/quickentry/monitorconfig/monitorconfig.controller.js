@@ -242,6 +242,40 @@
             });
         };
 
+        vm.tplSyncRule = function () {
+
+            $uibModal.open({
+                templateUrl: 'app/pages/quickentry/monitorconfig/tpl/sync.html',
+                controller: 'TplSyncMonitorConfigRuleController',
+                controllerAs: 'tplSyncMonitorConfigRule',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () { return vm.treeid},
+                    reload : function () { return vm.reloadRule},
+                }
+            });
+        };
+ 
+        vm.tplSaveRule = function () {
+
+            $uibModal.open({
+                templateUrl: 'app/pages/quickentry/monitorconfig/tpl/save.html',
+                controller: 'TplSaveMonitorConfigRuleController',
+                controllerAs: 'tplSaveMonitorConfigRule',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () { return vm.treeid},
+                    reload : function () { return vm.reloadRule},
+                }
+            });
+        };
+ 
         vm.copyRule = function (postData, title) {
             $uibModal.open({
                 templateUrl: 'app/pages/quickentry/monitorconfig/copy/rule.html',

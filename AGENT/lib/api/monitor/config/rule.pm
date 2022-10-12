@@ -183,4 +183,72 @@ post '/monitor/config/rule/copy/:fromid/:toid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
 
+my $ruletpl = "/data/Software/mydan/AGENT/lib/api/monitor/config/rule.tpl";
+
+get '/monitor/config/ruletpl/:projectid' => sub {
+    my $param = params();
+    my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $pmscheck = api::pmscheck( 'openc3_agent_read', $param->{projectid} ); return $pmscheck if $pmscheck;
+
+    my @x = `cd $ruletpl && ls`;
+    chomp @x;
+
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@x };
+};
+
+post '/monitor/config/ruletpl/sync/:projectid/:tplname' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        projectid => qr/^\d+$/, 1,
+        tplname   => qr/^[a-zA-Z0-9][a-zA-Z0-9_\-\@\.]+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $pmscheck = api::pmscheck( 'openc3_agent_read',  $param->{projectid} ); return $pmscheck if $pmscheck;
+
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+    $api::auditlog->run(
+        user    => $user,
+        title   => "MONITOR CONFIG RULE COPY",
+        content => "TREEID:$param->{projectid} from tpl: $param->{tplname}"
+    );
+
+    eval{
+        die "user format error: $user" if $user =~ /'/;
+        die "copy rule fail: $!" if system "cat '$ruletpl/$param->{tplname}' | c3mc-mon-rule-load -t $param->{projectid} -u '$user'";
+    };
+
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
+};
+
+post '/monitor/config/ruletpl/save/:projectid/:tplname' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        projectid => qr/^\d+$/, 1,
+        tplname   => qr/^[a-zA-Z0-9][a-zA-Z0-9_\-\@\.]+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $pmscheck = api::pmscheck( 'openc3_agent_read',  $param->{projectid} ); return $pmscheck if $pmscheck;
+
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+    $api::auditlog->run(
+        user    => $user,
+        title   => "MONITOR SAVE RULE TPL",
+        content => "TREEID:$param->{projectid} save tpl: $param->{tplname}"
+    );
+
+    eval{
+        die "user format error: $user" if $user =~ /'/;
+        die "copy rule fail: $!" if system "c3mc-mon-rule-dump -t $param->{projectid} > '$ruletpl/usr.$user.$param->{tplname}'";
+    };
+
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
+};
+
 true;
