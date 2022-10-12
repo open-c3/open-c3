@@ -1,0 +1,102 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib
+use strict;
+use warnings;
+
+$|++;
+
+use JSON;
+use YAML::XS;
+use MYDan::Util::OptConf;
+use uuid;
+
+=head1 SYNOPSIS
+
+ $0 --uuid uuid
+ $0 --uuid uuid --ctrl tag_add
+ $0 --uuid uuid --ctrl tag_add --file /your/contrl/conf.yml
+ $0 --uuid uuid --ctrl tag_add argv1 argv2 ... argvn
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o      = $option->get(    qw( uuid=s ctrl=s file=s) )->dump();
+             $option->assert( qw( uuid ) );
+
+my @x = `c3mc-device-cat-all '$o{uuid}'`;
+chomp @x;
+exit unless @x;
+
+my @title = split /\t/, shift @x;
+
+my @data;
+for( @x )
+{
+    my @dat = split /\t/, $_;
+    my %tmp = map{ $title[$_] => $dat[$_] }0 .. $#title;
+    push @data, \%tmp;
+}
+
+die "nofind uuid in CMDB" unless @data;
+
+warn "data > 1" if @data > 1;
+my $data = shift @data;
+
+my $config = YAML::XS::LoadFile "/data/Software/mydan/Connector/pp/cloud/control/conf.yml";
+
+my $conf = $config->{"$data->{type}.$data->{subtype}"};
+
+die "$data->{type}.$data->{subtype} undef on control/conf.yml" unless $conf;
+
+
+unless( $o{ctrl} )
+{
+    print YAML::XS::Dump $conf;
+    exit;
+}
+
+my $cmd = $conf->{ $o{ctrl} };
+
+die "ctrl $o{ctrl} undef" unless $cmd;
+
+die "nofind accountuuid" unless my $accountuuid = $data->{accountuuid};
+
+die "accountuuid format err" unless $accountuuid =~ /^(.+)\.(\d+)$/;
+my ( $account, $accountid ) = ( $1, $2 );
+
+my   @account = `cat '/data/Software/mydan/AGENT/device/conf/account/$account'`;
+chomp @account;
+die "nofind account" unless my $aksk = $account[ $accountid -1 ];
+
+my $ctrlfile;
+if( $o{file} )
+{
+    $ctrlfile = $o{file}
+}
+else
+{
+    my @argv = @ARGV;
+
+    my $tplfile = "/data/Software/mydan/Connector/pp/cloud/control/template/$data->{type}.$data->{subtype}.$o{ctrl}.yml";
+    my $tmpcont = eval{ YAML::XS::LoadFile $tplfile; };
+    die "load tpl fail: $@" if $@;
+    unless( @argv )
+    {
+        print YAML::XS::Dump $tmpcont;
+        exit;
+    }
+
+    my $cont = YAML::XS::Dump $tmpcont;;
+    for my $id ( 0 .. $#argv )
+    {
+        my $argvid = $id + 1;
+        $cont =~ s/\$env\{\s*argv$argvid\s*\}/$argv[$id]/g
+    }
+
+    die "Not enough parameters\n$cont\n" if $cont =~ /\$env\{\s*argv\d+\s*\}/;
+    $ctrlfile = sprintf "/tmp/c3-device-control-tmp-%s.yml", uuid->new()->create_str;
+
+    eval{ YAML::XS::DumpFile $ctrlfile, YAML::XS::Load $cont; };
+    die "dump $ctrlfile fail: $@" if $@;
+}
+
+system "c3mc-device-cat $data->{type} $data->{subtype} $o{uuid}|c3mc-base-tab2json|head -n 1|c3mc-cloud-control-add -f '$ctrlfile'|$cmd $aksk";
