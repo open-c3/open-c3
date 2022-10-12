@@ -77,6 +77,7 @@ else
     my @argv = @ARGV;
 
     my $tplfile = "/data/Software/mydan/Connector/pp/cloud/control/template/$data->{type}.$data->{subtype}.$o{ctrl}.yml";
+    $tplfile = "/data/Software/mydan/Connector/pp/cloud/control/$data->{type}/$data->{subtype}/$o{ctrl}/tpl.yml" if $cmd =~ /\//;
     my $tmpcont = eval{ YAML::XS::LoadFile $tplfile; };
     die "load tpl fail: $@" if $@;
     unless( @argv )
@@ -99,4 +100,5 @@ else
     die "dump $ctrlfile fail: $@" if $@;
 }
 
+$cmd = "/data/Software/mydan/Connector/pp/cloud/control/$cmd/action" if $cmd =~ /\//;
 system "c3mc-device-cat $data->{type} $data->{subtype} $o{uuid}|c3mc-base-tab2json|head -n 1|c3mc-cloud-control-add -f '$ctrlfile'|$cmd $aksk";
