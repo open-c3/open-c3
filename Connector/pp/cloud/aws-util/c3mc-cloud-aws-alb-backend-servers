@@ -1,0 +1,113 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+import boto3
+
+
+class AlbBackendServers:
+    """
+        输出aws alb的后端服务器列表信息
+    """
+
+    def __init__(self, access_id, access_key, region, alb_arn):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.region = region
+        self.alb_arn = alb_arn
+        self.client = self.create_client()
+
+    def create_client(self):
+        client = boto3.client(
+            "elbv2",
+            aws_access_key_id=self.access_id,
+            aws_secret_access_key=self.access_key,
+            region_name=self.region,
+        )
+        return client
+
+    def get_backend_servers(self):
+        target_group_arns = []
+        response = self.client.describe_target_groups(
+            LoadBalancerArn=self.alb_arn)
+        for item in response["TargetGroups"]:
+            target_group_arns.append(item["TargetGroupArn"])
+        while "NextMarker" in response:
+            response = self.client.describe_target_groups(
+                LoadBalancerArn=self.alb_arn,
+                Marker=response["NextMarker"]
+            )
+            for item in response["TargetGroups"]:
+                target_group_arns.append(item["TargetGroupArn"])
+
+        ec2_id_list = []
+        for target_group_arn in target_group_arns:
+            response = self.client.describe_target_health(
+                TargetGroupArn=target_group_arn,
+            )
+            for item in response["TargetHealthDescriptions"]:
+                ec2_id_list.append(item["Target"]["Id"])
+
+        result = {
+            "ip_data": [],
+            "eks_pod_ips": [],
+            "lambda_arn": []
+        }
+        m = {}
+        for ec2_id in ec2_id_list:
+            if ec2_id in m:
+                continue
+            else:
+                m[ec2_id] = {}
+
+            if self.is_valid_ipv4(ec2_id):
+                result["eks_pod_ips"].append(ec2_id)
+            elif ec2_id.startswith("arn:"):
+                result["lambda_arn"].append(ec2_id)
+            else:
+                ec2_info_str = self.get_ec2_info(ec2_id)
+                if ec2_info_str == "":
+                    continue
+                ec2_info = json.loads(ec2_info_str)
+                data = {
+                    "ec2_id": ec2_info["InstanceId"],
+                    "private_ip": ec2_info["PrivateIpAddress"],
+                }
+                if "PublicIpAddress" in ec2_info:
+                    data["public_ip"] = ec2_info["PublicIpAddress"]
+                if ec2_info["InstanceType"].startswith("p2") or ec2_info["InstanceType"].startswith("g2"):
+                    data["is_gpu"] = 1
+                else:
+                    data["is_gpu"] = 0
+                result["ip_data"].append(data)
+        return result
+
+    def show(self):
+        result = self.get_backend_servers()
+        print(json.dumps(result, default=str))
+
+    def get_ec2_info(self, ec2_id):
+        output = subprocess.getoutput(
+            "c3mc-cloud-aws-ec2-by-id {} {} {} {}".format(
+                self.access_id, self.access_key, self.region, ec2_id))
+        return output
+
+    def is_valid_ipv4(self, s):
+        pieces = s.split('.')
+        if len(pieces) != 4:
+            return False
+        try:
+            return all(0 <= int(p) < 256 for p in pieces)
+        except ValueError:
+            return False
+
+
+def main(access_id, access_key, region, alb_arn):
+    AlbBackendServers(access_id, access_key, region, alb_arn).show()
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
