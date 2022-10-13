@@ -21,8 +21,10 @@ use MYDan::Util::OptConf;
 my $option = MYDan::Util::OptConf->load();
 my %o = $option->get( qw( alias=s ) )->dump();
 
-my    @x = `c3mc-base-tree-dump-bind --showuuid --showtree`;
+my    @x = `c3mc-device-cat-all --col uuid,treename`;
 chomp @x;
+shift @x;
+map{ s/\t/;/ }@x;
 
 my $config = eval{ YAML::XS::LoadFile "/data/Software/mydan/Connector/pp/ingestion/bill/conf/config.yml"; };
 die "load config fail: $@" if $@;
