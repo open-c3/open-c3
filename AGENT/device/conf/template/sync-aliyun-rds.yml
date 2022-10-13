@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aliyun-rds --account aliyun | c3mc-cloud-tag Tag TagKey TagValue None | c3mc-base-json2tab DBInstanceId 实例ID ZoneId 所在可用区 RegionId 区域  product_owner 业务负责人 ops_owner 运维负责人 department 部门 "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aliyun-rds --account aliyun | c3mc-cloud-tag Tag TagKey TagValue None | c3mc-base-json2tab "
     datatype: tsv
     type: database
     subtype: aliyun-rds
@@ -16,6 +16,13 @@ download:
     colmap:
       treename: "服务树"
       uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
+    alias:
+      DBInstanceId: "实例ID"
+      ZoneId: "所在可用区"
+      RegionId: "区域"
+      product_owner: "业务负责人"
+      ops_owner: "运维负责人"
+      department: "部门"
     filter:
       - name: "account"
         alias: 账号
