@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aws-s3 --account aws --raw | c3mc-cloud-tag Tags Key Value None | c3mc-base-json2tab UUID 实例ID Name 名称 RegionId 区域 CreationDate 创建时间  product_owner 业务负责人 ops_owner 运维负责人 department 部门 "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aws-s3 --account aws --raw | c3mc-cloud-tag Tags Key Value None | c3mc-base-json2tab "
     datatype: tsv
     type: storage
     subtype: aws-s3
@@ -16,6 +16,14 @@ download:
     colmap:
       treename: "服务树"
       uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
+    alias:
+      UUID: "实例ID"
+      Name: "名称"
+      RegionId: "区域"
+      CreationDate: "创建时间"
+      product_owner: "业务负责人"
+      ops_owner: "运维负责人"
+      department: "部门"
     filter:
       - name: "account"
         alias: 账号

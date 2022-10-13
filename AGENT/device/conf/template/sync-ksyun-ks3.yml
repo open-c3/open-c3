@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-ksyun-ks3 --account ksyun | c3mc-base-json2tab name 实例ID "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-ksyun-ks3 --account ksyun | c3mc-base-json2tab "
     datatype: tsv
     type: storage
     subtype: ksyun-ks3
@@ -16,6 +16,8 @@ download:
     check:
       col: ["实例ID"]
       min: 0
+    alias:
+      name: "实例ID"
     filter:
       - name: "account"
         alias: 账号

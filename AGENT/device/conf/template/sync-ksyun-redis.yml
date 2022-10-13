@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-ksyun-redis --account ksyun | c3mc-cloud-tag tags tagKey tagValue None | c3mc-base-json2tab name 名称 cacheId 实例ID region 区域 status 状态 protocol 引擎版本  product_owner 业务负责人 ops_owner 运维负责人 department 部门 "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-ksyun-redis --account ksyun | c3mc-cloud-tag tags tagKey tagValue None | c3mc-base-json2tab "
     datatype: tsv
     type: database
     subtype: ksyun-redis
@@ -13,6 +13,15 @@ download:
     colmap:
       treename: "服务树"
       uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
+    alias:
+      name: "名称"
+      cacheId: "实例ID"
+      region: "区域"
+      status: "状态"
+      protocol: "引擎版本"
+      product_owner: "业务负责人"
+      ops_owner: "运维负责人"
+      department: "部门"
     check:
       col: ["实例ID"]
       min: 0

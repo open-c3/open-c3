@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aliyun-slb --account aliyun | c3mc-cloud-tag Tag TagKey TagValue None | c3mc-base-json2tab LoadBalancerId 实例ID MasterZoneId ZoneId product_owner 业务负责人 ops_owner 运维负责人 department 部门"
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aliyun-slb --account aliyun | c3mc-cloud-tag Tag TagKey TagValue None | c3mc-base-json2tab "
     datatype: tsv
     type: networking
     subtype: aliyun-slb
@@ -16,11 +16,17 @@ download:
     colmap:
       treename: "服务树"
       uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
+    alias:
+      LoadBalancerId: "实例ID"
+      MasterZoneId: "所在可用区"
+      product_owner: "业务负责人"
+      ops_owner: "运维负责人"
+      department: "部门"
     filter:
       - name: "account"
         alias: 账号
-      - name: "ZoneId"
-        alias: 区域
+      - name: "所在可用区"
+        alias: 所在可用区
       - name: "业务负责人"
         alias: 业务负责人
       - name: "运维负责人"
