@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-huawei-ecs --account huawei | c3mc-cloud-tag tags None None = | c3mc-base-json2tab  id 实例ID name 名称 region_id Region名称 private_ip  内网IP  public_ip 公网IP flavor.id 实例类型 flavor.ram 内存 OS-EXT-SRV-ATTR.hostname 主机名  OS-EXT-AZ.availability_zone 所在可用区 status 状态 os 操作系统  product_owner 业务负责人 ops_owner 运维负责人 department 部门  "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-huawei-ecs --account huawei | c3mc-cloud-tag tags None None = | c3mc-base-json2tab "
     datatype: tsv # 固定值。表示url中命令最终输出的文件格式
     type: compute # 资源类型。cmdb页面中的分类
     subtype: huawei-ecs # 上面资源类型的子类型。
@@ -22,6 +22,21 @@ download:
     colmap:
       treename: "服务树"
       uuid: "实例ID" # 指明哪一列作为uuid列
+    alias:
+      id: "实例ID"
+      name: "名称"
+      region_id: "Region名称"
+      private_ip: "内网IP"
+      public_ip: "公网IP"
+      flavor.id: "实例类型"
+      flavor.ram: "内存"
+      OS-EXT-SRV-ATTR.hostname: "主机名"
+      OS-EXT-AZ.availability_zone: "所在可用区"
+      status: "状态"
+      os: "操作系统"
+      product_owner: "业务负责人"
+      ops_owner: "运维负责人"
+      department: "部门"
     filter:
       - name: "account"
         alias: 账号

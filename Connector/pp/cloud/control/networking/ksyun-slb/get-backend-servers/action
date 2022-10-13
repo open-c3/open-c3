@@ -53,15 +53,16 @@ if __name__ == '__main__':
     if len(l) == 0 or len(l) > 1:
         raise Exception("数据格式错误, 需要一行json数据")
 
-    uuid_field_name = subprocess.getoutput(
-        "c3mc-cloud-get-uuid-field networking ksyun-slb")
+    field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field networking ksyun-slb LoadBalancerId")
 
     instance_id = None
     data = json.loads(l[0])
     for key in data:
-        if key.encode("utf-8") == uuid_field_name:
+        if key.encode("utf-8") == field_name:
             instance_id = data[key]
 
     if instance_id == None:
         raise Exception("未找到 实例ID 字段")
+
     main(sys.argv[2], sys.argv[3], sys.argv[4], instance_id)

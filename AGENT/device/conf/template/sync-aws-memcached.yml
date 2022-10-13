@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aws-memcached --account aws | c3mc-cloud-tag Tag Key Value None | c3mc-base-json2tab CacheClusterId 实例ID PreferredAvailabilityZone ZoneId  product_owner 业务负责人 ops_owner 运维负责人 department 部门 "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aws-memcached --account aws | c3mc-cloud-tag Tag Key Value None | c3mc-base-json2tab "
     datatype: tsv
     type: database
     subtype: aws-memcached
@@ -16,11 +16,17 @@ download:
     colmap:
       treename: "服务树"
       uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
+    alias:
+      CacheClusterId: "实例ID"
+      PreferredAvailabilityZone: "所在可用区"
+      product_owner: "业务负责人"
+      ops_owner: "运维负责人"
+      department: "部门"
     filter:
       - name: "account"
         alias: 账号
-      - name: "ZoneId"
-        alias: 区域
+      - name: "所在可用区"
+        alias: 所在可用区
       - name: "业务负责人"
         alias: 业务负责人
       - name: "运维负责人"
@@ -33,7 +39,7 @@ download:
       baseinfo:
         - "account"
         - "实例ID"
-        - "ZoneId"
+        - "所在可用区"
       system:
         - "ConnectionDomain"
       contact:

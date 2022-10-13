@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aws-ec2 --account aws  | c3mc-cloud-tag Tags Key Value None | c3mc-base-json2tab  InstanceId 实例ID Name 名称 RegionId Region名称 PrivateIpAddress  内网IP  PublicIpAddress 公网IP InstanceType 实例类型  Placement.AvailabilityZone 所在可用区 State.Name 状态 PlatformDetails 操作系统 product_owner 业务负责人 ops_owner 运维负责人 department 部门 "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aws-ec2 --account aws  | c3mc-cloud-tag Tags Key Value None | c3mc-base-json2tab "
     datatype: tsv # 固定值。表示url中命令最终输出的文件格式
     type: compute # 资源类型。cmdb页面中的分类
     subtype: aws-ec2 # 上面资源类型的子类型。
@@ -22,6 +22,19 @@ download:
     colmap:
       treename: "服务树"
       uuid: "实例ID" # 指明哪一列作为uuid列
+    alias:
+      InstanceId: "实例ID"
+      Name: "名称"
+      RegionId: "Region名称: "
+      PrivateIpAddress: "内网IP"
+      PublicIpAddress: "公网IP"
+      InstanceType: "实例类型"
+      Placement.AvailabilityZone: "所在可用区"
+      State.Name: "状态"
+      PlatformDetails: "操作系统"
+      product_owner: "业务负责人"
+      ops_owner: "运维负责人"
+      department: "部门"
     filter:
       - name: "account"
         alias: 账号

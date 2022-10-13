@@ -77,8 +77,8 @@ if __name__ == '__main__':
     if len(l) == 0 or len(l) > 1:
         raise Exception("数据格式错误, 需要一行json数据")
 
-    colmap_path = "/data/open-c3-data/device/curr/networking/qcloud-clb/colmap.yml"
-    conf = yaml.safe_load(Path(colmap_path).read_text())
+    field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field networking qcloud-clb LoadBalancerName ")
 
     data = json.loads(l[0])
-    main(sys.argv[2], sys.argv[3], sys.argv[4], data[conf["name"]])
+    main(sys.argv[2], sys.argv[3], sys.argv[4], data[field_name])

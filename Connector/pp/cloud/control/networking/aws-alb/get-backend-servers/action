@@ -116,5 +116,8 @@ if __name__ == '__main__':
     if len(l) == 0 or len(l) > 1:
         raise Exception("数据格式错误, 需要一行json数据")
 
+    field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field networking aws-alb LoadBalancerArn")
+
     data = json.loads(l[0])
-    main(sys.argv[2], sys.argv[3], sys.argv[4], data["LoadBalancerArn"])
+    main(sys.argv[2], sys.argv[3], sys.argv[4], data[field_name])
