@@ -47,7 +47,7 @@ sub getproduct
 my @res;
 for my $x ( @x )
 {
-    my ( $node, $tree ) = split /;/, $x, 2;
+    my ( $type, $node, $tree ) = split /;/, $x, 3;
     if( $node =~ /^Erruuid:/ )
     {
         warn "Error uud: $x";
@@ -61,7 +61,7 @@ for my $x ( @x )
         next;
     }
 
-    push @res, [ $node, $product ];
+    push @res, [ $type, $node, $product ];
 }
 
 unless( $o{alias} )
@@ -84,13 +84,13 @@ for( @alias )
 
 for( @res )
 {
-    my ( $node, $product) = @$_;
+    my ( $type, $node, $product ) = @$_;
     my $alias = $alias{$product};
 
     unless( $alias )
     {
-        warn "nofind alias: $node $product";
+        warn "nofind alias: $type $node $product";
         next;
     }
-    print "$node;$alias\n";
+    print "$type;$node;$alias\n";
 }
