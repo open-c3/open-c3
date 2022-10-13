@@ -21,8 +21,10 @@ use MYDan::Util::OptConf;
 my $option = MYDan::Util::OptConf->load();
 my %o = $option->get( qw( alias=s ) )->dump();
 
-my    @x = `c3mc-base-tree-dump-bind --showuuid --showtree`;
+my    @x = `c3mc-device-cat-all --col account,type,subtype,uuid,treename`;
 chomp @x;
+shift @x;
+map{ s/\t/;/g }@x;
 
 my $config = eval{ YAML::XS::LoadFile "/data/Software/mydan/Connector/pp/ingestion/bill/conf/config.yml"; };
 die "load config fail: $@" if $@;
@@ -47,21 +49,15 @@ sub getproduct
 my @res;
 for my $x ( @x )
 {
-    my ( $type, $node, $tree ) = split /;/, $x, 3;
-    if( $node =~ /^Erruuid:/ )
-    {
-        warn "Error uud: $x";
-        next;
-    }
-
-    my $product = eval{ getproduct( $tree ); };
+    my @xx = split /;/, $x, 5;
+    $xx[4] = eval{ getproduct( $xx[4] ); };
     if( $@ )
     {
         warn "Error product: $x => $@";
         next;
     }
 
-    push @res, [ $type, $node, $product ];
+    push @res, \@xx;
 }
 
 unless( $o{alias} )
@@ -84,13 +80,13 @@ for( @alias )
 
 for( @res )
 {
-    my ( $type, $node, $product ) = @$_;
-    my $alias = $alias{$product};
+    my @xx = @$_;
+    $xx[4] = $alias{$xx[4]};
 
-    unless( $alias )
+    unless( $xx[4] )
     {
-        warn "nofind alias: $type $node $product";
+        warn "nofind alias: @xx";
         next;
     }
-    print "$type;$node;$alias\n";
+    printf "%s\n", join ';', @xx;
 }
