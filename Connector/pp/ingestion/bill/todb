@@ -1,0 +1,48 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use YAML::XS;
+use FindBin qw( $RealBin );
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my    @cmdb = `$RealBin/dump`;
+chomp @cmdb;
+
+my %info;
+for ( @cmdb )
+{
+    my ( $account, $type, $subtype, $uuid, $product ) = split /;/, $_;
+    next unless $type eq 'compute';
+    $info{ $uuid } = +{
+        type    => $type,
+        subtype => $subtype,
+    };
+}
+
+my    @tree = `c3mc-base-tree-dump-bind --showuuid --showtree`;
+chomp @tree;
+
+for my $x ( @tree )
+{
+    my ( $_type_, $uuid, $tree ) = split /;/, $x;
+    unless( $info{$uuid} )
+    {
+        warn "nofind uuid in cmdb: $x";
+        next;
+    }
+
+    my %todb = ( %{$info{$uuid}}, uuid => $uuid, tree => $tree );
+    printf "%s\n", join ";",map{ $todb{$_} // '' }qw( type subtype uuid tree );
+}
