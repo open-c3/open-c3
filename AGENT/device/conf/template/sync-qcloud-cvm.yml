@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-cvm --account qcloud  | c3mc-cloud-tag Tags Key Value None | c3mc-base-json2tab  Uuid 实例ID InstanceName 名称 RegionId Region名称 PrivateIP  内网IP  PublicIP 公网IP Placement.Zone 所在可用区 InstanceState 状态  product_owner 业务负责人 ops_owner 运维负责人 department 部门 "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-cvm --account qcloud  | c3mc-cloud-tag Tags Key Value None | c3mc-base-json2tab "
     datatype: tsv # 固定值。表示url中命令最终输出的文件格式
     type: compute # 资源类型。cmdb页面中的分类
     subtype: qcloud-cvm # 上面资源类型的子类型。
@@ -22,6 +22,17 @@ download:
     colmap:
       treename: "服务树"
       uuid: "实例ID" # 指明哪一列作为uuid列
+    alias:
+      Uuid: "实例ID"
+      InstanceName: "名称"
+      RegionId: "Region名称"
+      PrivateIP: "内网IP"
+      PublicIP: "公网IP"
+      Placement.Zone: "所在可用区"
+      InstanceState: "状态"
+      product_owner: "业务负责人"
+      ops_owner: "运维负责人"
+      department: "部门"
     filter:
       - name: "account"
         alias: 账号

@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-ksyun-krds --account ksyun | c3mc-cloud-tag Tags TagKey TagValue None |  c3mc-base-json2tab DBInstanceIdentifier 实例ID Region 区域 DBInstanceType 实例类型 DBInstanceStatus 状态 EngineVersion 引擎版本 Engine 引擎  product_owner 业务负责人 ops_owner 运维负责人 department 部门 "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-ksyun-krds --account ksyun | c3mc-cloud-tag Tags TagKey TagValue None |  c3mc-base-json2tab "
     datatype: tsv
     type: database
     subtype: ksyun-krds
@@ -13,6 +13,16 @@ download:
     colmap:
       treename: "服务树"
       uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
+    alias:
+      DBInstanceIdentifier: "实例ID"
+      Region: "区域"
+      DBInstanceType: "实例类型"
+      DBInstanceStatus: "状态"
+      EngineVersion: "引擎版本"
+      Engine: "引擎"
+      product_owner: "业务负责人"
+      ops_owner: "运维负责人"
+      department: "部门"
     check:
       col: ["实例ID"]
       min: 0

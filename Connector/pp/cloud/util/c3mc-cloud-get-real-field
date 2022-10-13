@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import yaml
+import sys
+from pathlib import Path
+
+
+def get_real_field_name(resource_type, resource_sub_type, original_field_name):
+    """
+        查询别名字段的名称, 如果不存在则返回请求字段
+
+
+        resource_type, 比如 networking
+        resource_sub_type, 比如 aws-alb
+
+        original_field_name 是原始json的字段名称
+    """
+    colmap_path = "/data/open-c3-data/device/curr/{}/{}/alias.yml".format(
+        resource_type, resource_sub_type)
+    conf = yaml.safe_load(Path(colmap_path).read_text())
+    if original_field_name in conf:
+        return conf[original_field_name]
+    return original_field_name
+
+
+def main(resource_type, resource_sub_type, original_field_name):
+    data = get_real_field_name(
+        resource_type, resource_sub_type, original_field_name)
+    print(data)
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3])

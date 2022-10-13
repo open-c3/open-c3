@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-ksyun-epc --account ksyun | c3mc-cloud-tag Tag Key Value None | c3mc-base-json2tab  HostId 实例ID HostName 名称 NetworkInterfaceAttributeSet.0.PrivateIpAddress  内网IP RegionId Region名称 AvailabilityZone 所在可用区 HostStatus 状态 OsName 操作系统  product_owner 业务负责人 ops_owner 运维负责人 department 部门 "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-ksyun-epc --account ksyun | c3mc-cloud-tag Tag Key Value None | c3mc-base-json2tab "
     datatype: tsv # 固定值。表示url中命令最终输出的文件格式
     type: compute # 资源类型。cmdb页面中的分类
     subtype: ksyun-epc # 上面资源类型的子类型。
@@ -22,6 +22,17 @@ download:
     colmap:
       treename: "服务树"
       uuid: "实例ID" # 指明哪一列作为uuid列。没有这个字段会导致单个资源详情打开无数据
+    alias:
+      HostId: "实例ID"
+      HostName: "名称"
+      NetworkInterfaceAttributeSet.0.PrivateIpAddress: "内网IP"
+      RegionId: "Region名称"
+      AvailabilityZone: "所在可用区"
+      HostStatus: "状态"
+      OsName: "操作系统"
+      product_owner: "业务负责人"
+      ops_owner: "运维负责人"
+      department: "部门"
     filter:
       - name: "account"
         alias: 账号

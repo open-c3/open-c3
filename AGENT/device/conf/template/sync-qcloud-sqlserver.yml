@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-sqlserver --account qcloud | c3mc-cloud-tag ResourceTags TagKey TagValue None | c3mc-base-json2tab InstanceId 实例ID Name 名称 Region 区域 Zone 所在可用区 Status 状态 VersionName 引擎版本 InstanceType 类型  product_owner 业务负责人 ops_owner 运维负责人 department 部门 "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-sqlserver --account qcloud | c3mc-cloud-tag ResourceTags TagKey TagValue None | c3mc-base-json2tab "
     datatype: tsv
     type: database
     subtype: qcloud-sqlserver
@@ -13,6 +13,17 @@ download:
     colmap:
       treename: "服务树"
       uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
+    alias:
+      InstanceId: "实例ID"
+      Name: "名称"
+      Region: "区域"
+      Zone: "所在可用区"
+      Status: "状态"
+      VersionName: "引擎版本"
+      InstanceType: "类型"
+      product_owner: "业务负责人"
+      ops_owner: "运维负责人"
+      department: "部门"
     check:
       col: ["实例ID"]
       min: 0

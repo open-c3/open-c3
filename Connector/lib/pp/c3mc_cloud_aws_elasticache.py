@@ -4,6 +4,7 @@
 import json
 
 import boto3
+import botocore
 
 
 class Elasticache:
@@ -43,7 +44,11 @@ class Elasticache:
                 MaxRecords=self.page_size, Marker=response["Marker"])
             data_list = self.get_instances_from_response(response)
             for instance in data_list:
-                tag_resp = self.list_tag(instance["ARN"])
+                try:
+                    tag_resp = self.list_tag(instance["ARN"])
+                except:
+                    continue
+
                 instance["Tag"] = tag_resp["TagList"]
                 results.append(instance)
         return results
