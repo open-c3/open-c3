@@ -34,7 +34,7 @@ system "rm -rf temp; mkdir temp" unless $refresh;
 
 sub download
 {
-    my ( $type, $subtype, $url, $outline, $filter, $colmap, $util, $ingestionnode, $check, $datatype, $treeinfo ) = @_;
+    my ( $type, $subtype, $url, $outline, $filter, $colmap, $util, $ingestionnode, $check, $datatype, $treeinfo, $alias ) = @_;
 
     my ( $temppath, $distpath ) = ( "temp/$type/$subtype", "/data/open-c3-data/device/curr/$type/$subtype" );
 
@@ -54,6 +54,10 @@ sub download
     elsif( $url =~ /^cmd:(.+)$/ )
     {
         my $cmd = $1;
+        if ( $alias && ref $alias eq 'HASH' )
+        {
+            $cmd = sprintf "$cmd %s", join ' ', map{ "$_ $alias->{$_}" }keys %$alias;
+        }
         system "$cmd > $temppath/data.tsv";
     }
     else
@@ -109,12 +113,14 @@ sub download
     eval{ YAML::XS::DumpFile "temp/$type/$subtype/outline.yml", $outline; };
     eval{ YAML::XS::DumpFile "temp/$type/$subtype/filter.yml",   $filter; };
     eval{ YAML::XS::DumpFile "temp/$type/$subtype/colmap.yml",   $colmap; };
+    eval{ YAML::XS::DumpFile "temp/$type/$subtype/alias.yml",     $alias; };
     eval{ YAML::XS::DumpFile "temp/$type/$subtype/util.yml",       $util; };
 
     system "mv $temppath/data.tsv    $distpath/";
     system "mv $temppath/outline.yml $distpath/";
     system "mv $temppath/filter.yml  $distpath/";
     system "mv $temppath/colmap.yml  $distpath/";
+    system "mv $temppath/alias.yml   $distpath/";
     system "mv $temppath/util.yml    $distpath/";
 
     if( $ingestionnode )
@@ -154,5 +160,5 @@ map{
 
         $c = { %{ $tpl->{download}[0] }, %$c };
     }
-    download( map{ $c->{$_} }qw(type subtype url outline filter colmap util ingestion-node check datatype treeinfo ));
+    download( map{ $c->{$_} }qw(type subtype url outline filter colmap util ingestion-node check datatype treeinfo alias ));
 }@{ $conf->{download} };
