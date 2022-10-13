@@ -45,7 +45,7 @@ sub getdatacount
             {
                 if( $treenamecol )
                 {
-                     $treenamematch = 0 unless $d{ $treenamecol }  && ( $d{ $treenamecol } eq $greptreename || ( 0 == index( $d{ $treenamecol } , "$greptreename."  ) ) );
+                     $treenamematch = 0 unless $d{ $treenamecol }  && grep{ ( $_ eq $greptreename || ( 0 == index( $_ , "$greptreename."  ) ) )}split /,/, $d{ $treenamecol };
                 }
                 else
                 {
@@ -208,8 +208,8 @@ any '/device/data/:type/:subtype/:treeid' => sub {
     {
         for my $grep ( keys %$grepdata )
         {
-            $grepdata->{$grep} = ""   if $grepdata->{$grep} eq '_null_';
             delete $grepdata->{$grep} if $grepdata->{$grep} eq '';
+            $grepdata->{$grep} = ""   if $grepdata->{$grep} eq '_null_';
         }
         $grepdata = undef unless %$grepdata;
     }
@@ -240,7 +240,7 @@ any '/device/data/:type/:subtype/:treeid' => sub {
         {
             if( $treenamecol )
             {
-                 $treenamematch = 0 unless $d{ $treenamecol }  && ( $d{ $treenamecol } eq $greptreename || ( 0 == index( $d{ $treenamecol } , "$greptreename."  ) ) );
+                 $treenamematch = 0 unless $d{ $treenamecol }  && grep{ ( $_ eq $greptreename || ( 0 == index( $_ , "$greptreename."  ) ) )}split /,/, $d{ $treenamecol };
             }
             else
             {
@@ -333,7 +333,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
         {
             if( $treenamecol )
             {
-                 $treenamematch = 0 unless $d{ $treenamecol }  && ( $d{ $treenamecol } eq $greptreename || ( 0 == index( $d{ $treenamecol } , "$greptreename."  ) ) );
+                 $treenamematch = 0 unless $d{ $treenamecol }  && grep{ ( $_ eq $greptreename || ( 0 == index( $_ , "$greptreename."  ) ) )}split /,/, $d{ $treenamecol };
             }
             else
             {
