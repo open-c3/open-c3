@@ -208,8 +208,8 @@ any '/device/data/:type/:subtype/:treeid' => sub {
     {
         for my $grep ( keys %$grepdata )
         {
-            $grepdata->{$grep} = ""   if $grepdata->{$grep} eq '_null_';
             delete $grepdata->{$grep} if $grepdata->{$grep} eq '';
+            $grepdata->{$grep} = ""   if $grepdata->{$grep} eq '_null_';
         }
         $grepdata = undef unless %$grepdata;
     }
