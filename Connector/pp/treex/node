@@ -9,6 +9,7 @@ binmode STDERR, ':utf8';
 $|++;
 
 use YAML::XS;
+use FindBin qw( $RealBin );
 use MYDan::Util::OptConf;
 
 =head1 SYNOPSIS
@@ -21,12 +22,10 @@ use MYDan::Util::OptConf;
 my $option = MYDan::Util::OptConf->load();
 my %o = $option->get( qw( alias=s ) )->dump();
 
-my    @x = `c3mc-device-cat-all --col account,type,subtype,uuid,treename`;
+my    @x = `c3mc-base-tree-dump-bind --showuuid --showtree`;
 chomp @x;
-shift @x;
-map{ s/\t/;/g }@x;
 
-my $config = eval{ YAML::XS::LoadFile "/data/Software/mydan/Connector/pp/ingestion/bill/conf/config.yml"; };
+my $config = eval{ YAML::XS::LoadFile "$RealBin/conf/config.yml"; };
 die "load config fail: $@" if $@;
 die "isolatinglayer undef" unless my $isolatinglayer = $config->{isolatinglayer};
 
@@ -49,15 +48,21 @@ sub getproduct
 my @res;
 for my $x ( @x )
 {
-    my @xx = split /;/, $x, 5;
-    $xx[4] = eval{ getproduct( $xx[4] ); };
+    my ( $type, $node, $tree ) = split /;/, $x, 3;
+    if( $node =~ /^Erruuid:/ )
+    {
+        warn "Error uud: $x";
+        next;
+    }
+
+    my $product = eval{ getproduct( $tree ); };
     if( $@ )
     {
         warn "Error product: $x => $@";
         next;
     }
 
-    push @res, \@xx;
+    push @res, [ $type, $node, $product ];
 }
 
 unless( $o{alias} )
@@ -80,13 +85,13 @@ for( @alias )
 
 for( @res )
 {
-    my @xx = @$_;
-    $xx[4] = $alias{$xx[4]};
+    my ( $type, $node, $product ) = @$_;
+    my $alias = $alias{$product};
 
-    unless( $xx[4] )
+    unless( $alias )
     {
-        warn "nofind alias: @xx";
+        warn "nofind alias: $type $node $product";
         next;
     }
-    printf "%s\n", join ';', @xx;
+    print "$type;$node;$alias\n";
 }
