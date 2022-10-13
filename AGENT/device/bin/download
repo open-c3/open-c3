@@ -104,7 +104,7 @@ sub download
     {
         if( $col =~ /^tag\.(.+)$/ )
         {
-            my $alias = $1;
+            my $alias = "TAG.$1";
             $alias =~ s#\\\.#.#g;
             push @$filter, +{ alias => Encode::decode('utf8', $alias ), name => Encode::decode('utf8', $col ) };
         }
