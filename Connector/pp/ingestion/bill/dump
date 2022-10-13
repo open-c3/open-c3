@@ -1,0 +1,98 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use YAML::XS;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0
+ $0 --alias /my/product/alias.file
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( alias=s ) )->dump();
+
+my    @x = `c3mc-device-cat-all --col uuid,treename`;
+chomp @x;
+shift @x;
+map{ s/\t/;/ }@x;
+
+my $config = eval{ YAML::XS::LoadFile "/data/Software/mydan/Connector/pp/ingestion/bill/conf/config.yml"; };
+die "load config fail: $@" if $@;
+die "isolatinglayer undef" unless my $isolatinglayer = $config->{isolatinglayer};
+
+sub getproduct
+{
+    my %temp;
+    for ( split /,/, shift @_ )
+    {
+        my @name = split /\./, $_;
+        die "layer missing" if @name < $isolatinglayer;
+        my $temp = join '.', splice @name, 0, $isolatinglayer;
+        $temp{$temp} = 1;
+    }
+    my @p = keys %temp;
+    die "nofind project"   unless @p;
+    die "multiple product" unless @p == 1;
+    return $p[0];
+}
+
+my @res;
+for my $x ( @x )
+{
+    my ( $node, $tree ) = split /;/, $x, 2;
+    if( $node =~ /^Erruuid:/ )
+    {
+        warn "Error uud: $x";
+        next;
+    }
+
+    my $product = eval{ getproduct( $tree ); };
+    if( $@ )
+    {
+        warn "Error product: $x => $@";
+        next;
+    }
+
+    push @res, [ $node, $product ];
+}
+
+unless( $o{alias} )
+{
+    map{ printf "%s\n", join ';', @$_; }@res;
+    exit;
+}
+
+my    @alias = `cat '$o{alias}'`;
+chomp @alias;
+
+die "nofind alias" unless @alias;
+
+my %alias;
+for( @alias )
+{
+    my @x = split /;/, $_;
+    $alias{$x[0]} = $x[1];
+}
+
+for( @res )
+{
+    my ( $node, $product) = @$_;
+    my $alias = $alias{$product};
+
+    unless( $alias )
+    {
+        warn "nofind alias: $node $product";
+        next;
+    }
+    print "$node;$alias\n";
+}
