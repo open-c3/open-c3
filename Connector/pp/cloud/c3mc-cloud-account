@@ -12,11 +12,12 @@ use MYDan::Util::OptConf;
 
  $0 --plugin c3mc-cloud-huawei-rds --account huawei
  $0 --plugin c3mc-cloud-huawei-rds --account huawei --raw # use account line
+ $0 --plugin c3mc-cloud-huawei-rds --account huawei --aksk
 
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o      = $option->get(    qw( plugin=s account=s raw ) )->dump();
+my %o      = $option->get(    qw( plugin=s account=s raw aksk ) )->dump();
              $option->assert( qw( plugin ) );
 
 my $id;
@@ -34,6 +35,7 @@ sub sync
         my $data = JSON::decode_json( $_ );
         $data->{ account     } = $account;
         $data->{ accountuuid } = "$o{account}.$id";
+        $data->{ _aksk_      } = $d if $o{aksk};
         print JSON::encode_json( $data ), "\n";
     }
 }
