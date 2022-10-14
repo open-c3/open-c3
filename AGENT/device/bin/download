@@ -160,5 +160,7 @@ map{
 
         $c = { %{ $tpl->{download}[0] }, %$c };
     }
+
+    map{ $c->{util}{$_} = $c->{$_} if $c->{$_} }qw( defaulttree copytreecol );
     download( map{ $c->{$_} }qw(type subtype url outline filter colmap util ingestion-node check datatype treeinfo alias ));
 }@{ $conf->{download} };
