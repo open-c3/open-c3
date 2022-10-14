@@ -38,8 +38,8 @@ class ElbBackendServers:
 
     def get_elb_info(self):
         output = subprocess.getoutput(
-            "c3mc-cloud-huawei-elb-by-id {} {} {} {}".format(
-                self.access_id, self.access_key, self.region, self.load_balancer_id))
+            "c3mc-cloud-huawei-elb-by-id {} {} {} {} {}".format(
+                self.access_id, self.access_key, self.project_id, self.region, self.load_balancer_id))
         return output
 
     def list_members(self, pool_id):

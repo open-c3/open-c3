@@ -8,11 +8,13 @@ from huaweicloudsdkecs.v2.region.ecs_region import EcsRegion
 from huaweicloudsdkecs.v2 import *
 
 
-def get_ecs_by_name(access_id, access_key, region, instance_name):
+def get_ecs_by_name(access_id, access_key, project_id, region, instance_name):
     """
         输出huawei ecs的详情(json格式)
     """
-    credentials = BasicCredentials(access_id, access_key) \
+    if project_id == "None":
+        project_id = None
+    credentials = BasicCredentials(access_id, access_key, project_id) \
 
     client = EcsClient.new_builder() \
         .with_credentials(credentials) \
@@ -28,10 +30,11 @@ def get_ecs_by_name(access_id, access_key, region, instance_name):
     raise Exception("根据instance_name {} 未找到ecs".format(instance_name))
 
 
-def main(access_id, access_key, region, instance_name):
-    data = get_ecs_by_name(access_id, access_key, region, instance_name)
+def main(access_id, access_key, project_id, region, instance_name):
+    data = get_ecs_by_name(access_id, access_key,
+                           project_id, region, instance_name)
     print(str(data))
 
 
 if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
