@@ -31,6 +31,7 @@ die "load util fail: $@" if $@;
 my $defaulttree = $util->{defaulttree};
 my $copytreecol = $util->{copytreecol};
 
+my %treeow;
 unless( $copytreecol )
 {
     my @treeow = `c3mc-base-db-get -t openc3_device_bindtree uuid tree -f 'type="$type" and subtype="$subtype"'`;
