@@ -1,0 +1,50 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+from huaweicloudsdkcore.auth.credentials import BasicCredentials
+from huaweicloudsdkecs.v2.region.ecs_region import EcsRegion
+from huaweicloudsdkecs.v2 import *
+
+
+def get(data, access_id, access_key, project_id, region):
+    """
+        输出huawei ecs的详情(json格式)
+    """
+    if project_id == "None":
+        project_id = None
+    credentials = BasicCredentials(access_id, access_key, project_id) \
+
+    client = EcsClient.new_builder() \
+        .with_credentials(credentials) \
+        .with_region(EcsRegion.value_of(region)) \
+        .build()
+
+    field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field compute huawei-ecs name")
+
+    request = ListServersDetailsRequest()
+    request.name = data[field_name]
+    response = client.list_servers_details(request)
+    for instance in response.servers:
+        if instance.name == data[field_name]:
+            return instance
+    raise Exception("根据instance_name {} 未找到ecs".format(data[field_name]))
+
+
+def main(data, access_id, access_key, project_id, region):
+    data = get(data, access_id, access_key, project_id, region)
+    print(str(data))
+
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
