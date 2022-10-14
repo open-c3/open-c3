@@ -15,16 +15,20 @@ class ElbBackendServers:
         输出huawei elb的后端服务器列表信息
     """
 
-    def __init__(self, access_id, access_key, region, load_balancer_id):
+    def __init__(self, access_id, access_key, project_id, region, load_balancer_id):
         self.access_id = access_id
         self.access_key = access_key
+        if project_id == "None":
+            self.project_id = None
+        else:
+            self.project_id = project_id.strip()
         self.region = region
         self.load_balancer_id = load_balancer_id
         self.client = self.create_client()
 
     def create_client(self):
         credentials = BasicCredentials(
-            self.access_id, self.access_key)
+            self.access_id, self.access_key, self.project_id)
 
         client = ElbClient.new_builder() \
             .with_credentials(credentials) \
@@ -34,8 +38,8 @@ class ElbBackendServers:
 
     def get_elb_info(self):
         output = subprocess.getoutput(
-            "c3mc-cloud-huawei-elb-by-id {} {} {} {}".format(
-                self.access_id, self.access_key, self.region, self.load_balancer_id))
+            "c3mc-cloud-huawei-elb-by-id {} {} {} {} {}".format(
+                self.access_id, self.access_key, self.project_id, self.region, self.load_balancer_id))
         return output
 
     def list_members(self, pool_id):
@@ -62,8 +66,9 @@ class ElbBackendServers:
         print(str(result))
 
 
-def main(access_id, access_key, region, load_balancer_id):
-    ElbBackendServers(access_id, access_key, region, load_balancer_id).show()
+def main(access_id, access_key, project_id, region, load_balancer_id):
+    ElbBackendServers(access_id, access_key, project_id,
+                      region, load_balancer_id).show()
 
 
 if __name__ == '__main__':
@@ -77,4 +82,4 @@ if __name__ == '__main__':
         "c3mc-cloud-get-real-field networking huawei-elb id")
 
     data = json.loads(l[0])
-    main(sys.argv[2], sys.argv[3], sys.argv[5], data[field_name])
+    main(sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], data[field_name])

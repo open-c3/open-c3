@@ -8,11 +8,13 @@ from huaweicloudsdkelb.v2.region.elb_region import ElbRegion
 from huaweicloudsdkelb.v2 import *
 
 
-def get_elb_by_id(access_id, access_key, region, load_balancer_id):
+def get_elb_by_id(access_id, access_key, project_id, region, load_balancer_id):
     """
         输出huawei elb的详情(json格式)
     """
-    credentials = BasicCredentials(access_id, access_key) \
+    if project_id == "None":
+        project_id = None
+    credentials = BasicCredentials(access_id, access_key, project_id) \
 
     client = ElbClient.new_builder() \
         .with_credentials(credentials) \
@@ -28,10 +30,11 @@ def get_elb_by_id(access_id, access_key, region, load_balancer_id):
     raise Exception("根据load_balancer_id {} 未找到elb".format(load_balancer_id))
 
 
-def main(access_id, access_key, region, load_balancer_id):
-    data = get_elb_by_id(access_id, access_key, region, load_balancer_id)
+def main(access_id, access_key, project_id, region, load_balancer_id):
+    data = get_elb_by_id(access_id, access_key, project_id,
+                         region, load_balancer_id)
     print(str(data))
 
 
 if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])

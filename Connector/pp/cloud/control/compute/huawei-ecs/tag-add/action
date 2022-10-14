@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+from huaweicloudsdkcore.auth.credentials import BasicCredentials
+from huaweicloudsdkecs.v2.region.ecs_region import EcsRegion
+from huaweicloudsdkecs.v2 import *
+
+
+def tag_add(data, access_id, access_key, project_id, region):
+    if project_id == "None":
+        project_id = None
+    credentials = BasicCredentials(access_id, access_key, project_id)
+
+    client = EcsClient.new_builder() \
+        .with_credentials(credentials) \
+        .with_region(EcsRegion.value_of(region)) \
+        .build()
+
+    field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field compute huawei-ecs id")
+
+    request = BatchCreateServerTagsRequest()
+    request.server_id = data[field_name]
+    listTagsbody = [
+        ServerTag(
+            key=data["_control_"]["tag-add"]["key"],
+            value=data["_control_"]["tag-add"]["value"]
+        )
+    ]
+    request.body = BatchCreateServerTagsRequestBody(
+        tags=listTagsbody,
+        action="create"
+    )
+    client.batch_create_server_tags(request)
+
+
+def main(data, access_id, access_key, project_id, region):
+    tag_add(data, access_id, access_key, project_id, region)
+
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
