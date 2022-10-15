@@ -255,6 +255,12 @@
                 controller: 'UseraddrController',
                 controllerAs: 'useraddr'
             })
+            .state('home.global.monitortreeunbind', {
+                url: 'monitortreeunbind/:treeid',
+                templateUrl: 'app/pages/global/monitortreeunbind/monitortreeunbind.html',
+                controller: 'MonitortreeunbindController',
+                controllerAs: 'monitortreeunbind'
+            })
             .state('home.global.ciwatcher', {
                 url: 'ciwatcher/:treeid',
                 templateUrl: 'app/pages/global/ciwatcher/ciwatcher.html',
