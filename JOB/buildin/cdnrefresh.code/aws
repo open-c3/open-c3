@@ -43,7 +43,7 @@ def aws(domain, push_uri):
     ID = ''
     try:
         aws_key = yaml.load(commands.getoutput(
-            'LANG=en_US.UTF-8 aws cloudfront list-distributions'),Loader=yaml.FullLoader)
+            'LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 aws cloudfront list-distributions'),Loader=yaml.FullLoader)
         for i in aws_key['DistributionList']['Items']:
             for j in i['Aliases']:
                 if j == 'Items':

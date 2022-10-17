@@ -61,7 +61,7 @@ post '/monitor/config/rule/:projectid' => sub {
         summary => [ 'mismatch', qr/'/ ], 0,
         description => [ 'mismatch', qr/'/ ], 0,
         value => [ 'mismatch', qr/'/ ], 0,
-        model => [ 'in', 'simple', 'custom', 'bindtree' ], 1,
+        model => [ 'in', 'simple', 'custom', 'bindtree', 'bindetree' ], 1,
         metrics => [ 'mismatch', qr/'/ ], 0,
         method => [ 'mismatch', qr/'/ ], 0,
         threshold => [ 'mismatch', qr/'/ ], 0,
@@ -76,12 +76,14 @@ post '/monitor/config/rule/:projectid' => sub {
         $param->{threshold} ||= 0;
         $param->{expr} = "$param->{metrics}\{treeid_$param->{projectid}!=\"\"\} $param->{method} $param->{threshold}";
     }
-    elsif( $param->{model} eq 'bindtree' )
+    elsif( $param->{model} eq 'bindtree' || $param->{model} eq 'bindetree' )
     {
         return  +{ stat => $JSON::false, info => "check format fail" } unless $param->{bindtreesql};
 
         return  +{ stat => $JSON::false, info => "Expr format fail, Does not contain a string like: by(instance)" } unless $param->{bindtreesql} =~ /by\s*\(\s*instance\s*\)/;
-        $param->{expr} = "$param->{bindtreesql} and  ( sum(treeinfo{tid=\"$param->{projectid}\"}) by(instance))";
+
+        my $tidname = $param->{model} eq 'bindtree' ? "tid" : "eid";
+        $param->{expr} = "$param->{bindtreesql} and  ( sum(treeinfo{$tidname=\"$param->{projectid}\"}) by(instance))";
     }
     else
     {

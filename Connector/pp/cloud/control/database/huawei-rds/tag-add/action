@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+from huaweicloudsdkcore.auth.credentials import BasicCredentials
+from huaweicloudsdkrds.v3.region.rds_region import RdsRegion
+from huaweicloudsdkrds.v3 import *
+
+
+def tag_add(data, access_id, access_key, project_id, region):
+    if project_id == "None":
+        project_id = None
+    credentials = BasicCredentials(access_id, access_key, project_id)
+
+    client = RdsClient.new_builder() \
+        .with_credentials(credentials) \
+        .with_region(RdsRegion.value_of(region)) \
+        .build()
+
+    field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database huawei-rds id")
+
+    request = BatchTagAddActionRequest()
+    request.instance_id = data[field_name]
+    listTagsbody = [
+        TagWithKeyValue(
+            key=data["_control_"]["tag-add"]["key"],
+            value=data["_control_"]["tag-add"]["value"]
+        )
+    ]
+    request.body = BatchTagActionAddRequestBody(
+        tags=listTagsbody,
+        action="create"
+    )
+    client.batch_tag_add_action(request)
+
+
+def main(data, access_id, access_key, project_id, region):
+    tag_add(data, access_id, access_key, project_id, region)
+
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])

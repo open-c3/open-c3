@@ -361,3 +361,15 @@ create table if not exists `openc3_connector_userauthtree`(
 `level`  VARCHAR(200) comment 'level',
 UNIQUE KEY `uniq_name_tree` (`name`,`tree`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='和服务树相关的权限';
+
+# v2.6.0 sql openc3_monitor_config_treeunbind create
+
+create table if not exists `openc3_monitor_config_treeunbind`(
+`id`     int(16) unsigned not null primary key auto_increment comment 'id',
+`treeid` int(16) unsigned comment 'treeid',
+`status` int(4 ) unsigned comment 'status',
+`edit_user` VARCHAR(100) comment '编辑者',
+`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '编辑时间',
+UNIQUE KEY `uniq_tree` (`treeid`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='监控节点服务树断开继承';
+

@@ -26,14 +26,22 @@ my @data = `cat $file`;
 exit unless @data;
 chomp @data;
 
-my @treeow = `c3mc-base-db-get -t openc3_device_bindtree uuid tree -f 'type="$type" and subtype="$subtype"'`;
-chomp @treeow;
+my $util = eval{ YAML::XS::LoadFile "$path/util.yml" };
+die "load util fail: $@" if $@;
+my $defaulttree = $util->{defaulttree};
+my $copytreecol = $util->{copytreecol};
 
 my %treeow;
-for( grep{ /^[a-zA-Z0-9]/ }@treeow )
+unless( $copytreecol )
 {
-    my ( $uuid, $tree ) = split /;/, $_, 2;
-    $treeow{ $uuid } = $tree;
+    my @treeow = `c3mc-base-db-get -t openc3_device_bindtree uuid tree -f 'type="$type" and subtype="$subtype"'`;
+    chomp @treeow;
+
+    for( grep{ /^[a-zA-Z0-9]/ }@treeow )
+    {
+        my ( $uuid, $tree ) = split /;/, $_, 2;
+        $treeow{ $uuid } = $tree;
+    }
 }
 
 my $colname = eval{ YAML::XS::LoadFile "$path/colmap.yml" };
@@ -41,10 +49,6 @@ die "load colmap fail: $@" if $@;
 
 die "treename undef in colmap.yml" unless my $treenamecol = $colname->{ treename };
 die "uuid     unfef in colmap.yml" unless my $uuidcol     = $colname->{ uuid     };
-
-my $util = eval{ YAML::XS::LoadFile "$path/util.yml" };
-die "load util fail: $@" if $@;
-my $defaulttree = $util->{defaulttree};
 
 my $title = shift @data;
 utf8::decode($title);
@@ -60,7 +64,16 @@ for my $data ( @data )
     my @d = split /\t/, $data;
 
     my %d = map{ $title[ $_ ] => $d[ $_ ] } 0 .. @title - 1;
-    $d{ $treenamecol } = $treeow { $d{ $uuidcol } } if exists $treeow { $d{ $uuidcol } };
+
+    if( $copytreecol )
+    {
+        $d{ $treenamecol } = $d{ $copytreecol } // '';
+    }
+    else
+    {
+        $d{ $treenamecol } = $treeow { $d{ $uuidcol } } if exists $treeow { $d{ $uuidcol } };
+    }
+
     if( $defaulttree && ! $d{ $treenamecol } )
     {
         $d{ $treenamecol } = $defaulttree;
