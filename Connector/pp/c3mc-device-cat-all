@@ -63,10 +63,30 @@ for ( glob "/data/open-c3-data/device/curr/*/*/data.tsv" )
     }
 }
 
-my @col = qw( account accountuuid type subtype uuid baseinfo contact system treename 部门 业务负责人 运维负责人 raw );
+my    @tree = `c3mc-base-treemap cache`;
+chomp @tree;
+my    %tree;
+for( @tree )
+{
+    my ( $id, $name ) = split /;/, $_, 2;
+    $tree{ $name } = $id;
+}
+
+sub luxation
+{
+    my %res;
+    for my $tree ( split /,/, shift @_)
+    {
+        $res{ $tree } = 1 unless $tree{ $tree };
+    }
+    return join ',', keys %res;
+}
+
+my @col = qw( account accountuuid type subtype uuid baseinfo contact system treename luxation 部门 业务负责人 运维负责人 raw );
 @col = split /,/, $o{col} if $o{col};
 
 exit unless @res;
+map{ $_->{ luxation} = luxation( $_->{treename }); }@res;
 
 printf "%s\n", join "\t", map{ Encode::encode('utf8', $_ ) }map{ $allcolmap->{ $_ } || $_ }map{ Encode::decode('utf8', $_ ) }@col;
 for my $x ( @res )
