@@ -74,12 +74,14 @@ for( @tree )
 
 sub luxation
 {
+    my $treename = shift @_;
+    return 0 unless $treename;
     my %res;
-    for my $tree ( split /,/, shift @_)
+    for my $tree ( split /,/, $treename )
     {
         $res{ $tree } = 1 unless $tree{ $tree };
     }
-    return join ',', keys %res;
+    return %res ? 1 : 0;
 }
 
 my @col = qw( account accountuuid type subtype uuid baseinfo contact system treename luxation 部门 业务负责人 运维负责人 raw );
