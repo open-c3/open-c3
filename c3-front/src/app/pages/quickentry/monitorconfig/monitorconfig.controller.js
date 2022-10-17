@@ -418,5 +418,55 @@
             });
         };
 
+
+        vm.checkoldstatus=false;
+        vm.checknewstatus=false;
+        vm.reloadcheck = function(){
+            $http.get('/api/agent/monitor/config/treeunbind/' + vm.treeid ).success(function(data){
+                vm.checkstatusloadover = true;
+                vm.checkstatusdata = data.data;
+                if(  data.data.status )
+                {
+                    vm.checkoldstatus=true;
+                    vm.checknewstatus=true;
+                }
+                else
+                {
+                    vm.checkoldstatus=false;
+                    vm.checknewstatus=false;
+                }
+            });
+        };
+
+        vm.reloadcheck();
+
+        vm.savecheckstatus = function(){
+          swal({
+            title: "保存新状态",
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            cancelButtonText: "取消",
+            confirmButtonText: "确定",
+            closeOnConfirm: true
+          }, function(){
+            vm.checkstatus = '0';
+            if( vm.checknewstatus == true)
+            {
+                vm.checkstatus = '1';
+            }
+            $http.post('/api/agent/monitor/config/treeunbind/' + vm.treeid, { status: vm.checkstatus} ).success(function(data){
+                if(data.stat == true)
+                {
+                    swal({ title: "修改成功!", type:'success' });
+                    vm.checkoldstatus= vm.checknewstatus;
+                } else {
+                    swal({ title: "修改失败!", text: data.info, type:'error' });
+                }
+            })
+
+          })
+        }
+
     }
 })();
