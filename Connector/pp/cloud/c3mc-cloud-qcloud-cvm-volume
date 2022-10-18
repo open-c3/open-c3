@@ -1,0 +1,71 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+
+from tencentcloud.common import credential
+from tencentcloud.common.profile.client_profile import ClientProfile
+from tencentcloud.common.profile.http_profile import HttpProfile
+from tencentcloud.cbs.v20170312 import cbs_client, models
+
+
+def get_volume(data_list):
+    result = []
+    client = None
+    unique_disk_id_m = {}
+    page_size = 20
+    for data in data_list:
+        if "_aksk_" not in data:
+            continue
+
+        if client is None:
+            parts = data["_aksk_"].split()
+
+            cred = credential.Credential(parts[1], parts[2])
+            httpProfile = HttpProfile()
+            httpProfile.endpoint = "cbs.tencentcloudapi.com"
+
+            clientProfile = ClientProfile()
+            clientProfile.httpProfile = httpProfile
+            client = cbs_client.CbsClient(cred, parts[3], clientProfile)
+
+        for disk_item in data["DataDisks"]:
+            if not disk_item["DiskId"].startswith("l"):
+                unique_disk_id_m[disk_item["DiskId"]] = {}
+
+    disk_id_list = list(unique_disk_id_m.keys())
+    for cur_page_number in range(1, sys.maxsize):
+        req = models.DescribeDisksRequest()
+        params = {
+            "DiskIds": disk_id_list,
+            "Limit": page_size,
+            "Offset": (cur_page_number - 1) * page_size
+        }
+        req.from_json_string(json.dumps(params))
+        resp = client.DescribeDisks(req)
+        resp = json.loads(resp.to_json_string())
+
+        for item in resp["DiskSet"]:
+            item["RegionId"] = item["Placement"]["Zone"][:-2]
+            item["ZoneId"] = item["Placement"]["Zone"]
+            result.append(item)
+
+        if len(resp["DiskSet"]) < page_size:
+            break
+
+    return result
+
+
+def main(data_list):
+    result = get_volume(data_list)
+    for item in result:
+        print(json.dumps(item, default=str))
+
+
+if __name__ == '__main__':
+    _data_list = []
+    for line in sys.stdin:
+        _data_list.append(json.loads(line))
+
+    main(_data_list)
