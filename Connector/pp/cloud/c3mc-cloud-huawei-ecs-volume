@@ -1,0 +1,64 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+
+from huaweicloudsdkcore.auth.credentials import BasicCredentials
+from huaweicloudsdkecs.v2.region.ecs_region import EcsRegion
+from huaweicloudsdkevs.v2.region.evs_region import EvsRegion
+from huaweicloudsdkecs.v2 import *
+from huaweicloudsdkevs.v2 import *
+
+
+def get_volume(data_list):
+    result = []
+    m = {}
+    for data in data_list:
+        if "_aksk_" not in data:
+            continue
+
+        parts = data["_aksk_"].split()
+
+        credentials = BasicCredentials(parts[1], parts[2], parts[3])
+
+        volume_client = EcsClient.new_builder() \
+            .with_credentials(credentials) \
+            .with_region(EcsRegion.value_of(parts[4])) \
+            .build()
+        evs_client = EvsClient.new_builder() \
+            .with_credentials(credentials) \
+            .with_region(EvsRegion.value_of(parts[4])) \
+            .build()
+
+        request = ListServerBlockDevicesRequest()
+        request.server_id = data["id"]
+        block_response = volume_client.list_server_block_devices(request)
+
+        for volume in block_response.to_dict()["volume_attachments"]:
+            if volume['id'] in m:
+                continue
+            m[volume['id']] = {}
+
+            request = ShowVolumeTagsRequest()
+            request.volume_id = volume['id']
+            volume_response = evs_client.show_volume_tags(request)
+
+            volume["tags"] = volume_response.to_dict()["tags"]
+            result.append(volume)
+
+    return result
+
+
+def main(data_list):
+    result = get_volume(data_list)
+    for item in result:
+        print(json.dumps(item, default=str))
+
+
+if __name__ == '__main__':
+    data_list = []
+    for line in sys.stdin:
+        data_list.append(json.loads(line))
+
+    main(data_list)

@@ -1,0 +1,61 @@
+download:
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-cvm --account qcloud --aksk |  c3mc-cloud-qcloud-cvm-volume | c3mc-cloud-tag Tags Key Value None | c3mc-base-json2tab "
+    datatype: tsv # 固定值。表示url中命令最终输出的文件格式
+    type: storage # 资源类型。cmdb页面中的分类
+    subtype: qcloud-cvm-volume # 上面资源类型的子类型。
+    init: ["install-python3.sh", "c3mc-cloud-qcloud.sh"]
+    treeinfo:
+      treename: "服务树" # 指明哪一列对应服务树。这一列没有对应列，页面显示的值为空
+      treeinfo:
+        - ["实例ID", "instance"] # 和监控相关 。 指标是 treeinfo
+    check:
+      col: ["实例ID"] # 打印出的数据必须有的字段
+      min: 0 # url中明林执行后最少一行输出，否则认为出错
+    util:
+      defaulttree: defaulttree.pool # 默认的服务树，资源归还后被放到这里
+    colmap:
+      treename: "服务树"
+      uuid: "实例ID" # 指明哪一列作为uuid列
+    alias:
+      DiskId: 实例ID
+      DiskName: 名称
+      DiskSize: 容量
+      RegionId: 区域
+      ZoneId: 所在可用区
+      DiskState: 状态
+      InstanceId: 关联的实例ID
+      product_owner: 业务负责人
+      ops_owner: 运维负责人
+      department: 部门
+    filter:
+      - name: "account"
+        alias: 账号
+      - name: "区域"
+        alias: 区域
+      - name: "所在可用区"
+        alias: 所在可用区
+      - name: "状态"
+        alias: 状态
+      - name: "业务负责人"
+        alias: 业务负责人
+      - name: "运维负责人"
+        alias: 运维负责人
+      - name: "部门"
+        alias: 部门
+    outline:
+      uuid:
+        - "实例ID"
+      baseinfo:
+        - "account"
+        - "实例ID"
+        - "区域"
+        - "状态"
+      system:
+        - "容量"
+        - "所在可用区"
+        - "关联的实例ID"
+      contact:
+        - "服务树"
+        - "部门"
+        - "业务负责人"
+        - "运维负责人"
