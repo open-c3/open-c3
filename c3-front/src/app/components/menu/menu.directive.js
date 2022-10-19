@@ -37,7 +37,7 @@
                         if (treeNode.id == $stateParams.treeid){
                             return;
                         }
-                        if (treeNode.id != 0){
+                        if (treeNode.id != 0 || treeNode.name == 'ROOT' ){
                             var sName = $state.current.name;
 
 // sName.indexOf('home.connector.tree') !=-1
