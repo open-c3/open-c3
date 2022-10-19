@@ -16,7 +16,8 @@
         };
 
         vm.sync = $http.get('/api/connector/connectorx/usertree').success(function(nodes) {
-            $.fn.zTree.init(angular.element('#openc3tree'), setting, nodes.data);
+            var treedata = [ { id: 0, name: 'ROOT', children: nodes.data } ];
+            $.fn.zTree.init(angular.element('#openc3tree'), setting, treedata);
             vm.zTree = $.fn.zTree.getZTreeObj('openc3tree');
             if (vm.zTree){
                 var treeNode = vm.zTree.getNodeByParam('id', $state.params.treeid);
