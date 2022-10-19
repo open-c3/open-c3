@@ -1,6 +1,6 @@
 - labels:
     exporter: cloudeye-exporter
     __metrics_path__: /metrics
-    __param_services: SYS.ELB,SYS.RDS,SYS.DCS,SYS.VPC,SYS.EVS,SYS.ECS,SYS.AS,SYS.NAT
+    __param_services: ${c3var.services}
   targets:
   - 'openc3-cloudmon-${cloudmonid}:8087'
