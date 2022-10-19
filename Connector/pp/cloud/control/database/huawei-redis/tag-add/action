@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+from huaweicloudsdkcore.auth.credentials import BasicCredentials
+from huaweicloudsdkdcs.v2.region.dcs_region import DcsRegion
+from huaweicloudsdkdcs.v2 import *
+
+
+def tag_add(data, access_id, access_key, project_id, region):
+    if project_id == "None":
+        project_id = None
+    credentials = BasicCredentials(access_id, access_key, project_id)
+
+    client = DcsClient.new_builder() \
+        .with_credentials(credentials) \
+        .with_region(DcsRegion.value_of(region)) \
+        .build()
+
+    field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database huawei-redis instance_id")
+
+    request = BatchCreateOrDeleteTagsRequest()
+    request.instance_id = data[field_name]
+    listTagsbody = [
+        ResourceTag(
+            key=data["_control_"]["tag-add"]["key"],
+            value=data["_control_"]["tag-add"]["value"]
+        )
+    ]
+    request.body = CreateOrDeleteInstanceTags(
+        tags=listTagsbody,
+        action="create"
+    )
+    client.batch_create_or_delete_tags(request)
+
+
+def main(data, access_id, access_key, project_id, region):
+    tag_add(data, access_id, access_key, project_id, region)
+
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
