@@ -32,6 +32,8 @@ def get_volume(data_list):
                 continue
             m[item["DiskId"]] = {}
 
+            item["account"] = data["account"]
+            item["accountuuid"] = data["accountuuid"]
             item["Tag"] = item["Tags"]["Tag"]
             item.pop("Tags", None)
             result.append(item)
