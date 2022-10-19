@@ -11,38 +11,40 @@ from google.protobuf.json_format import MessageToJson
 
 def get_volume(data_list):
     result = []
-    m = {}
-    cred_json_path = None
+    m_zone = {}
+    m_aksk = {}
     for data in data_list:
         if "_aksk_" not in data:
             continue
 
-        parts = data["_aksk_"].split()
+        m_aksk[data["_aksk_"]] = data["accountuuid"]
+        m_zone[data["zone"].split("/")[-1]] = {}
 
-        if cred_json_path is None:
-            cred_json_path = parts[1]
+    for aksk, accountuuid in m_aksk.items():
+        for zone in list(m_zone.keys()):
+            parts = aksk.split()
 
-        m[data["zone"].split("/")[-1]] = {}
+            credentials = service_account.Credentials.from_service_account_file(
+                parts[1])
+            disk_client = compute_v1.DisksClient(credentials=credentials)
 
-    credentials = service_account.Credentials.from_service_account_file(
-        cred_json_path)
-    disk_client = compute_v1.DisksClient(credentials=credentials)
+            for disk in disk_client.list(project=credentials.project_id, zone=zone):
+                item = json.loads(MessageToJson(disk._pb))
+                item["typeCode"] = item["type"].split("/")[-1]
+                item["zoneId"] = zone
+                item["regionId"] = zone[:-2]
 
-    for zone in list(m.keys()):
-        for disk in disk_client.list(project=credentials.project_id, zone=zone):
-            item = json.loads(MessageToJson(disk._pb))
-            item["typeCode"] = item["type"].split("/")[-1]
-            item["zoneId"] = zone
-            item["regionId"] = zone[:-2]
+                item["account"] = parts[0]
+                item["accountuuid"] = accountuuid
 
-            if "labels" in item:
-                item["tags"] = []
-                for key, value in item["labels"].items():
-                    item["tags"].append({
-                        "key": key,
-                        "value": value
-                    })
-            result.append(item)
+                if "labels" in item:
+                    item["tags"] = []
+                    for key, value in item["labels"].items():
+                        item["tags"].append({
+                            "key": key,
+                            "value": value
+                        })
+                result.append(item)
     return result
 
 
