@@ -1,0 +1,48 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+from huaweicloudsdkcore.auth.credentials import BasicCredentials
+from huaweicloudsdkevs.v2.region.evs_region import EvsRegion
+from huaweicloudsdkcore.exceptions import exceptions
+from huaweicloudsdkevs.v2 import *
+
+
+def get(data, access_id, access_key, project_id, region):
+    """
+        输出huawei ecs volume的详情(json格式)
+    """
+    if project_id == "None":
+        project_id = None
+    credentials = BasicCredentials(access_id, access_key, project_id) \
+
+    client = EvsClient.new_builder() \
+        .with_credentials(credentials) \
+        .with_region(EvsRegion.value_of(region)) \
+        .build()
+
+    field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field storage huawei-ecs-volume id")
+
+    request = ShowVolumeRequest()
+    request.volume_id = data[field_name]
+    response = client.show_volume(request)
+    return response.volume
+
+
+def main(data, access_id, access_key, project_id, region):
+    data = get(data, access_id, access_key, project_id, region)
+    print(str(data))
+
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
