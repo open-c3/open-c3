@@ -82,12 +82,13 @@ for( @alias )
 for( @res )
 {
     my @xx = @$_;
-    $xx[4] = $alias{$xx[4]};
+    my $t = $alias{$xx[4]};
 
-    unless( $xx[4] )
+    unless( $t )
     {
-        warn "nofind alias: @xx";
+        warn sprintf "ERR nofind alias: %s", join ' ', @xx;
         next;
     }
+    $xx[4] = $t;
     printf "%s\n", join ';', @xx;
 }
