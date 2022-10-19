@@ -1,0 +1,10 @@
+#Author: lijinfeng2011@gmail.com
+
+FROM centos:7
+MAINTAINER lijinfeng2011
+
+ADD temp/cloudeye-exporter /
+ADD temp/metric.yml        /
+ADD temp/logs.conf         /
+ADD entrypoint.sh          /
+ENTRYPOINT [ "/entrypoint.sh" ]
