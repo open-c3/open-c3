@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+
+from google.oauth2 import service_account
+from google.cloud import compute_v1
+from google.protobuf.json_format import MessageToJson
+
+
+def get_volume(data_list):
+    result = []
+    m = {}
+    cred_json_path = None
+    for data in data_list:
+        if "_aksk_" not in data:
+            continue
+
+        parts = data["_aksk_"].split()
+
+        if cred_json_path is None:
+            cred_json_path = parts[1]
+
+        m[data["zone"].split("/")[-1]] = {}
+
+    credentials = service_account.Credentials.from_service_account_file(
+        cred_json_path)
+    disk_client = compute_v1.DisksClient(credentials=credentials)
+
+    for zone in list(m.keys()):
+        for disk in disk_client.list(project=credentials.project_id, zone=zone):
+            item = json.loads(MessageToJson(disk._pb))
+            item["typeCode"] = item["type"].split("/")[-1]
+            item["zoneId"] = zone
+            item["regionId"] = zone[:-2]
+
+            if "labels" in item:
+                item["tags"] = []
+                for key, value in item["labels"].items():
+                    item["tags"].append({
+                        "key": key,
+                        "value": value
+                    })
+            result.append(item)
+    return result
+
+
+def main(data_list):
+    result = get_volume(data_list)
+    for item in result:
+        print(json.dumps(item, default=str))
+
+
+if __name__ == '__main__':
+    data_list = []
+    for line in sys.stdin:
+        data_list.append(json.loads(line))
+
+    main(data_list)
