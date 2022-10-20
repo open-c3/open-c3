@@ -5,20 +5,41 @@
                 <button class="btn btn-primary" uib-tooltip="刷新" ng-click="devicedatadetail.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!devicedatadetail.loadover}" ></i></button>
                 <button class="btn btn-primary" uib-tooltip="关闭" ng-click="devicedatadetail.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
             </span>
-            <h5>{{ devicedatadetail.type }} / {{ devicedatadetail.subtype }} / {{ devicedatadetail.uuid }} </h5>
+            <h5>{{ devicedatadetail.selectedtimemachine }} / {{ devicedatadetail.type }} / {{ devicedatadetail.subtype }} / {{ devicedatadetail.uuid }} </h5>
         </div>
 
-        <div class="panel-body">
+        <div ng-show="devicedatadetail.selectedtimemachine != 'curr'" class="panel-body">
             <div class="pt20">
                 <div>
                     <div class="form-group admin-form" ng-repeat="data in devicedatadetail.data" >
                         <div class="row" ng-repeat="d in data" >
-                            <div ng-if="devicedatadetail.treenamecol!=d[0] && '_mysqlauth_'!=d[0] && '_redisauth_'!=d[0] && '_mongodbauth_'!=d[0]" >
+                            <div >
+                                <label class="col-md-4  control-label fwbold">{{d[0]|cut30}}</label>
+                                <label class="col-md-8 control-label fwbold" >{{d[1]}}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div ng-show="devicedatadetail.selectedtimemachine =='curr'" class="panel-body">
+            <div class="pt20">
+                <div>
+                    <div class="form-group admin-form" ng-repeat="data in devicedatadetail.data" >
+                        <div class="row" ng-repeat="d in data" >
+                            <div ng-if="devicedatadetail.treenamecol!=d[0] && '_tree_'!=d[0] && '_mysqlauth_'!=d[0] && '_redisauth_'!=d[0] && '_mongodbauth_'!=d[0]" >
                                 <label class="col-md-4  control-label fwbold">{{d[0]|cut30}}</label>
                                 <label class="col-md-8 control-label fwbold" >{{d[1]}}</label>
                             </div>
                             <div ng-if="devicedatadetail.treenamecol==d[0]">
-                                <label class="col-md-4  control-label fwbold" >{{d[0]}}</label>
+                                <label class="col-md-4  control-label fwbold" >全量服务树</label>
+                                <label class="col-md-8 control-label fwbold" >{{d[1]}}</label>
+                            </div>
+                            <div ng-if="'_tree_'==d[0]">
+                                <label class="col-md-4  control-label fwbold" >内部服务树</label>
                                 <div class="col-md-6"> <input class="form-control" ng-click="devicedatadetail.search_init()" typeahead="name for name in devicedatadetail.names.sort()|filter:$viewValue| limitTo:20" ng-model="d[1]" /> </div>
                                 <a class="btn btn-system" ng-click="devicedatadetail.bindtree( d[1], '绑定服务树')">绑定</a>
                                 <a class="btn btn-danger" ng-click="devicedatadetail.bindtree( 'x',  '归还资源到资源池' )">归还</a>

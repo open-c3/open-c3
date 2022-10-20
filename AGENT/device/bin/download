@@ -1,10 +1,11 @@
-#!/data/Software/mydan/perl/bin/perl
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
 use strict;
 use warnings;
 use utf8;
 use FindBin qw( $RealBin );
 use YAML::XS;
 use Encode;
+use OPENC3::PP::Pipe;
 
 =head1 SYNOPSIS
 
@@ -58,7 +59,7 @@ sub download
         {
             $cmd = sprintf "$cmd %s", join ' ', map{ "$_ $alias->{$_}" }keys %$alias;
         }
-        system "$cmd > $temppath/data.tsv";
+        die "run cmd: $cmd fail: $!" if OPENC3::PP::Pipe::system( "$cmd > $temppath/data.tsv" );
     }
     else
     {

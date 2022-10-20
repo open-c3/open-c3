@@ -6,14 +6,14 @@ use JSON   qw();
 use POSIX;
 use api;
 
-my $datapath = '/data/open-c3-data/device/curr';
+my $database = '/data/open-c3-data/device';
 
 sub getdatacount
 {
-    my ( $datafile, $greptreename, $treeid, $type, $subtype  ) = @_;
+    my ( $timemachine, $datafile, $greptreename, $treeid, $type, $subtype  ) = @_;
     if( $greptreename )
     {
-        my    @data = `c3mc-device-cat $type $subtype`;
+        my    @data = `c3mc-device-cat $timemachine $type $subtype`;
         chomp @data;
 
         my $title = shift @data;
@@ -69,7 +69,8 @@ sub getdatacount
 get '/device/menu/:treeid' => sub {
     my $param = params();
     my $error = Format->new(
-        treeid     => qr/^\d+$/, 1,
+        treeid       => qr/^\d+$/, 1,
+        timemachine  => qr/^[a-z0-9][a-z0-9\-]+[a-z0-9]$/, 1,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -85,10 +86,11 @@ get '/device/menu/:treeid' => sub {
     my $greptreename = $param->{treeid} == 0 ? undef : eval{ gettreename( $param->{treeid} ) };;
     return +{ stat => $JSON::false, info => $@ } if $@;
 
-    for my $f ( sort glob "$datapath/*/*/data.tsv" )
+    my $datapathx = $param->{timemachine} eq 'curr' ? "$database/curr" : "$database/timemachine/$param->{timemachine}";
+    for my $f ( sort glob "$datapathx/*/*/data.tsv" )
     {
         my ( undef, $subtype, $type ) = reverse split /\//, $f;
-        my $c = getdatacount( $f, $greptreename, $param->{treeid}, $type, $subtype );
+        my $c = getdatacount( $param->{timemachine}, $f, $greptreename, $param->{treeid}, $type, $subtype );
         next unless $c > 0;
         push @{$re{$type}}, [ $subtype, $c ] if defined $re{$type};
     }
@@ -148,9 +150,10 @@ sub gettreename
 any '/device/data/:type/:subtype/:treeid' => sub {
     my $param = params();
     my $error = Format->new(
-        type       => qr/^[a-z\d\-_]+$/, 1,
-        subtype    => qr/^[a-z\d\-_]+$/, 1,
-        treeid     => qr/^\d+$/, 1,
+        type         => qr/^[a-z\d\-_]+$/, 1,
+        subtype      => qr/^[a-z\d\-_]+$/, 1,
+        treeid       => qr/^\d+$/, 1,
+        timemachine  => qr/^[a-z0-9][a-z0-9\-]+[a-z0-9]$/, 1,
 #       grepdata
     )->check( %$param );
 
@@ -166,9 +169,11 @@ any '/device/data/:type/:subtype/:treeid' => sub {
     my $greptreename = $param->{treeid} == 0 ? undef : eval{ gettreename( $param->{treeid} ) };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
+    my $datapathx = $param->{timemachine} eq 'curr' ? "$database/curr" : "$database/timemachine/$param->{timemachine}";
+
     my ( $getdatacmd, $currdatapath ) = $param->{type} eq 'all' && $param->{subtype} eq 'all'
-        ? ( 'c3mc-device-cat-all',                               $datapath                                  )
-        : ( "c3mc-device-cat $param->{type} $param->{subtype}", "$datapath/$param->{type}/$param->{subtype}");
+        ? ( "c3mc-device-cat-all --timemachine $param->{timemachine}",                 $datapathx)
+        : ( "c3mc-device-cat $param->{timemachine} $param->{type} $param->{subtype}", "$datapathx/$param->{type}/$param->{subtype}");
 
     my    @data = `$getdatacmd`;
     chomp @data;
@@ -282,10 +287,11 @@ any '/device/data/:type/:subtype/:treeid' => sub {
 any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
     my $param = params();
     my $error = Format->new(
-        type       => qr/^[a-z\d\-_]+$/, 1,
-        subtype    => qr/^[a-z\d\-_]+$/, 1,
-        treeid     => qr/^\d+$/, 1,
-        uuid       => qr/^[a-zA-Z0-9][a-zA-Z\d\-_\.]+$/, 1,
+        type         => qr/^[a-z\d\-_]+$/, 1,
+        subtype      => qr/^[a-z\d\-_]+$/, 1,
+        treeid       => qr/^\d+$/, 1,
+        uuid         => qr/^[a-zA-Z0-9][a-zA-Z\d\-_\.]+$/, 1,
+        timemachine  => qr/^[a-z0-9][a-z0-9\-]+[a-z0-9]$/, 1,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -301,7 +307,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
     my $greptreename = $param->{treeid} == 0 ? undef : eval{ gettreename( $param->{treeid} ) };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
-    my    @data = `c3mc-device-cat $param->{type} $param->{subtype}`;
+    my    @data = `c3mc-device-cat '$param->{timemachine}' $param->{type} $param->{subtype}`;
     chomp @data;
 
     my $title = shift @data;
@@ -309,10 +315,11 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
 
     my @re;
 
+    my $datapathx = $param->{timemachine} eq 'curr' ? "$database/curr" : "$database/timemachine/$param->{timemachine}";
     my $colmap;
-    if( -f "$datapath/$param->{type}/$param->{subtype}/colmap.yml" )
+    if( -f "$datapathx/$param->{type}/$param->{subtype}/colmap.yml" )
     {
-        $colmap = eval{ YAML::XS::LoadFile "$datapath/$param->{type}/$param->{subtype}/colmap.yml"; };
+        $colmap = eval{ YAML::XS::LoadFile "$datapathx/$param->{type}/$param->{subtype}/colmap.yml"; };
         return +{ stat => $JSON::false, info => "load colmap fail: $@" } if $@;
     }
 
@@ -350,7 +357,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
 
     my $showmysqlauth = 0;
     my @showmysqladdr;
-    my $ingestionmysqlfile = "$datapath/$param->{type}/$param->{subtype}/ingestion-mysql.yml";
+    my $ingestionmysqlfile = "$datapathx/$param->{type}/$param->{subtype}/ingestion-mysql.yml";
     if( -f $ingestionmysqlfile && -f "/data/open-c3-data/device/auth/mysql.auth/$user" )
     {
         my $ingestionmysql = eval{ YAML::XS::LoadFile $ingestionmysqlfile };
@@ -362,7 +369,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
 
     my $showredisauth = 0;
     my @showredisaddr;
-    my $ingestionredisfile = "$datapath/$param->{type}/$param->{subtype}/ingestion-redis.yml";
+    my $ingestionredisfile = "$datapathx/$param->{type}/$param->{subtype}/ingestion-redis.yml";
     if( -f $ingestionredisfile && -f "/data/open-c3-data/device/auth/redis.auth/$user" )
     {
         my $ingestionredis = eval{ YAML::XS::LoadFile $ingestionredisfile };
@@ -374,7 +381,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
  
     my $showmongodbauth = 0;
     my @showmongodbaddr;
-    my $ingestionmongodbfile = "$datapath/$param->{type}/$param->{subtype}/ingestion-mongodb.yml";
+    my $ingestionmongodbfile = "$datapathx/$param->{type}/$param->{subtype}/ingestion-mongodb.yml";
     if( -f $ingestionmongodbfile && -f "/data/open-c3-data/device/auth/mongodb.auth/$user" )
     {
         my $ingestionmongodb = eval{ YAML::XS::LoadFile $ingestionmongodbfile };
@@ -453,6 +460,12 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
     }
 
     return +{ stat => $JSON::true, data => \@re2, treenamecol => $treenamecol };
+};
+
+get '/device/timemachine' => sub {
+    my @x = `cd /data/open-c3-data/device/timemachine && ls`;
+    chomp @x;
+    return +{ stat => $JSON::true, data => [ grep{ /^\d+\-\d+$/ }@x] };
 };
 
 true;

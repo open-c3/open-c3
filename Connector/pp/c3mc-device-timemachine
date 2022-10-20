@@ -1,0 +1,42 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use POSIX;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $date = POSIX::strftime( "%Y%m%d",        localtime );
+my $time = POSIX::strftime( "%Y%m%d-%H%M%S", localtime );
+
+my $dist = "/data/open-c3-data/device/timemachine";
+
+system( "mkdir -p $dist" ) unless -d $dist;
+exit                       if     -d "$dist/$time";
+
+system "cp -r /data/open-c3-data/device/curr $dist/$time";
+
+my    @x = `cd $dist && ls`;
+chomp @x;
+@x = grep{ /^\d+\-\d+$/ }@x;
+
+my %x;
+for my $x ( @x )
+{
+    my ( $d, $t ) = split /\-/, $x;
+    $x{ $d }{ $x } = 1;
+}
+
+delete $x{ $date };
+
+sub keep
+{
+    return unless my @x = sort @_;
+    shift @x;
+    map{ system "rm -rf $dist/$_" }grep{ /^\d+\-\d+$/ }@x
+}
+
+map{ keep( keys %{ $x{$_} } ); } keys %x;

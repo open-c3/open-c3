@@ -477,7 +477,7 @@
             })
 
              .state('home.device.data', {
-                url: 'data/:type/:subtype/:treeid',
+                url: 'data/:timemachine/:type/:subtype/:treeid',
                 templateUrl: 'app/pages/device/data/data.html',
                 controller: 'DeviceDataController',
                 controllerAs: 'devicedata'
