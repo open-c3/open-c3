@@ -18,6 +18,8 @@ system( "mkdir -p $dist" ) unless -d $dist;
 exit                       if     -d "$dist/$time";
 
 system "cp -r /data/open-c3-data/device/curr $dist/$time";
+system "c3mc-base-db-get -t openc3_device_bindtree type subtype uuid tree      > $dist/$time/openc3_device_bindtree.txt";
+system "c3mc-base-db-get -t openc3_device_extcol   type subtype uuid name data > $dist/$time/openc3_device_extcol.txt";
 
 my    @x = `cd $dist && ls`;
 chomp @x;

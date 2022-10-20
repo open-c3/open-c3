@@ -373,3 +373,14 @@ create table if not exists `openc3_monitor_config_treeunbind`(
 UNIQUE KEY `uniq_tree` (`treeid`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='监控节点服务树断开继承';
 
+# v2.6.0 sql openc3_device_extcol create
+create table if not exists `openc3_device_extcol`(
+`id`        int(16) unsigned not null primary key auto_increment comment 'id',
+`type`      VARCHAR(40)   comment 'type',
+`subtype`   VARCHAR(40)   comment 'subtype',
+`uuid`      VARCHAR(150)  comment 'uuid',
+`name`      VARCHAR(100)  comment 'name',
+`data`      VARCHAR(3000) comment 'data',
+UNIQUE KEY `uniq_type_subtype_uuit_name` (`type`, `subtype`,`uuid`,`name`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='资源的扩展列信息';
+

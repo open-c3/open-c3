@@ -50,7 +50,7 @@ for ( glob "$path/*/*/data.tsv" )
         $res{ uuid     } = $data{ Encode::encode('utf8', $colmap->{ uuid     } ) };
         $res{ treename } = $data{ Encode::encode('utf8', $colmap->{ treename } ) };
 
-        map{ $res{ $_ } = $data{  $_ }; }qw( account accountuuid 部门 业务负责人 运维负责人 );
+        map{ $res{ $_ } = $data{  $_ }; }qw( account accountuuid 部门 业务负责人 运维负责人 audit );
 
         for my $ol ( qw( baseinfo contact system ) )
         {
@@ -87,7 +87,7 @@ sub luxation
     return %res ? 1 : 0;
 }
 
-my @col = qw( account accountuuid type subtype uuid baseinfo contact system treename luxation 部门 业务负责人 运维负责人 raw );
+my @col = qw( account accountuuid type subtype uuid baseinfo contact system treename luxation audit 部门 业务负责人 运维负责人 raw );
 @col = split /,/, $o{col} if $o{col};
 
 exit unless @res;

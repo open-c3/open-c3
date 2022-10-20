@@ -32,20 +32,61 @@ my $util = eval{ YAML::XS::LoadFile "$path/util.yml" };
 die "load util fail: $@" if $@;
 my $defaulttree = $util->{defaulttree};
 my $copytreecol = $util->{copytreecol};
+my $extcol      = $util->{extcol     };
+
 $copytreecol ||= '_tree_';
 $copytreecol = [ $copytreecol ] if ref $copytreecol ne 'ARRAY';
 
-my %treeow;
+$extcol = [] unless $extcol && ref $extcol eq 'ARRAY';
+
+my ( %treeow, %extcol );
 my $_tree_ = grep{ $_ eq '_tree_' }@$copytreecol;
 if( $_tree_ )
 {
-    my @treeow = `c3mc-base-db-get -t openc3_device_bindtree uuid tree -f 'type="$type" and subtype="$subtype"'`;
-    chomp @treeow;
-
-    for( grep{ /^[a-zA-Z0-9]/ }@treeow )
+    if( $curr eq 'curr' )
     {
-        my ( $uuid, $tree ) = split /;/, $_, 2;
-        $treeow{ $uuid } = $tree;
+        my @treeow = `c3mc-base-db-get -t openc3_device_bindtree uuid tree -f 'type="$type" and subtype="$subtype"'`;
+        chomp @treeow;
+
+        for( grep{ /^[a-zA-Z0-9]/ }@treeow )
+        {
+            my ( $uuid, $tree ) = split /;/, $_, 2;
+            $treeow{ $uuid } = $tree;
+        }
+    }
+    else
+    {
+        my @treeow = `cat /data/open-c3-data/device/$curr/openc3_device_bindtree.txt`;
+        chomp @treeow;
+        for( grep{ /^[a-zA-Z0-9]/ }@treeow )
+        {
+            my ( $typet, $subtypet, $uuid, $tree ) = split /;/, $_, 4;
+            next unless $typet && $subtypet && $typet eq $type && $subtypet eq $subtype;
+            $treeow{ $uuid } = $tree;
+        }
+    }
+}
+
+if( $curr eq 'curr' )
+{
+    my @extcol = `c3mc-base-db-get -t openc3_device_extcol uuid name data -f 'type="$type" and subtype="$subtype"'`;
+    chomp @extcol;
+
+    for( grep{ /^[a-zA-Z0-9]/ }@extcol )
+    {
+        my ( $uuid, $name, $data ) = split /;/, $_, 3;
+        $extcol{ $uuid }{ $name } = $data;
+    }
+}
+else
+{
+    my @extcol = `cat /data/open-c3-data/device/$curr/openc3_device_extcol.txt`;
+    chomp @extcol;
+    for( grep{ /^[a-zA-Z0-9]/ }@extcol )
+    {
+        my ( $typet, $subtypet, $uuid, $name, $data ) = split /;/, $_, 5;
+        next unless $typet && $subtypet && $typet eq $type && $subtypet eq $subtype;
+        $extcol{ $uuid }{ $name } = $data;
     }
 }
 
@@ -62,6 +103,7 @@ my @title = split /\t/, $title;
 my @ptitle = @title;
 push @ptitle, $treenamecol unless grep{ $_ eq $treenamecol }@title;
 push @ptitle, '_tree_' if $_tree_;
+push @ptitle, map{ $_->{name} }@$extcol;
 
 printf "\%s\n", join "\t", @ptitle;
 for my $data ( @data )
@@ -70,6 +112,11 @@ for my $data ( @data )
     my @d = split /\t/, $data;
 
     my %d = map{ $title[ $_ ] => $d[ $_ ] } 0 .. @title - 1;
+
+    map{
+        $d{ $_->{name} } = $extcol{ $d{ $uuidcol } } && $extcol{ $d{ $uuidcol } }{ $_->{name} }
+            ? $extcol{ $d{ $uuidcol } }{ $_->{name} } : '';
+    }@$extcol;
 
     $d{ _tree_       } = $treeow { $d{ $uuidcol } } if $_tree_;
     $d{ $treenamecol } = join ',', grep{ $_ }map{ $d{ $_ } }@$copytreecol;

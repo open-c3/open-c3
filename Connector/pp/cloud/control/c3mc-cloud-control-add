@@ -35,5 +35,5 @@ for my $x ( <STDIN> )
     $d->{_control_} = $control;
     my $v = eval{ Encode::decode( 'utf8', JSON::encode_json $d ) };
     die "encode json fail:$@" if $@;
-    printf "$v\n";
+    print "$v\n";
 }

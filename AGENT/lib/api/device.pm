@@ -358,7 +358,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
     my $showmysqlauth = 0;
     my @showmysqladdr;
     my $ingestionmysqlfile = "$datapathx/$param->{type}/$param->{subtype}/ingestion-mysql.yml";
-    if( -f $ingestionmysqlfile && -f "/data/open-c3-data/device/auth/mysql.auth/$user" )
+    if( -f $ingestionmysqlfile && -f "$datapathx/auth/mysql.auth/$user" )
     {
         my $ingestionmysql = eval{ YAML::XS::LoadFile $ingestionmysqlfile };
         return  +{ stat => $JSON::false, info => "load ingestion-mysql.yml fail: $@" } if $@;
@@ -370,7 +370,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
     my $showredisauth = 0;
     my @showredisaddr;
     my $ingestionredisfile = "$datapathx/$param->{type}/$param->{subtype}/ingestion-redis.yml";
-    if( -f $ingestionredisfile && -f "/data/open-c3-data/device/auth/redis.auth/$user" )
+    if( -f $ingestionredisfile && -f "$datapathx/auth/redis.auth/$user" )
     {
         my $ingestionredis = eval{ YAML::XS::LoadFile $ingestionredisfile };
         return  +{ stat => $JSON::false, info => "load ingestion-redis.yml fail: $@" } if $@;
@@ -382,7 +382,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
     my $showmongodbauth = 0;
     my @showmongodbaddr;
     my $ingestionmongodbfile = "$datapathx/$param->{type}/$param->{subtype}/ingestion-mongodb.yml";
-    if( -f $ingestionmongodbfile && -f "/data/open-c3-data/device/auth/mongodb.auth/$user" )
+    if( -f $ingestionmongodbfile && -f "$datapathx/auth/mongodb.auth/$user" )
     {
         my $ingestionmongodb = eval{ YAML::XS::LoadFile $ingestionmongodbfile };
         return  +{ stat => $JSON::false, info => "load ingestion-mongodb.yml fail: $@" } if $@;
@@ -405,7 +405,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
             my $mysqladdr = join ':',map{ $r->{$_}} @showmysqladdr;
             push @x, [ _mysqladdr_ => $mysqladdr ];
 
-            my $mysqlpath = '/data/open-c3-data/device/auth/mysql';
+            my $mysqlpath = "$datapathx/auth/mysql";
             system "mkdir -p $mysqlpath" unless -d $mysqlpath;
 
             my $mysqlfile = "$mysqlpath/$mysqladdr";
@@ -424,7 +424,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
             my $redisaddr = join ':',map{ $r->{$_}} @showredisaddr;
             push @x, [ _redisaddr_ => $redisaddr ];
 
-            my $redispath = '/data/open-c3-data/device/auth/redis';
+            my $redispath = "$datapathx/auth/redis";
             system "mkdir -p $redispath" unless -d $redispath;
 
             my $redisfile = "$redispath/$redisaddr";
@@ -443,7 +443,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
             my $mongodbaddr = join ':',map{ $r->{$_}} @showmongodbaddr;
             push @x, [ _mongodbaddr_ => $mongodbaddr ];
 
-            my $mongodbpath = '/data/open-c3-data/device/auth/mongodb';
+            my $mongodbpath = "$datapathx/auth/mongodb";
             system "mkdir -p $mongodbpath" unless -d $mongodbpath;
 
             my $mongodbfile = "$mongodbpath/$mongodbaddr";
@@ -459,7 +459,17 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
         push @re2, \@x;
     }
 
-    return +{ stat => $JSON::true, data => \@re2, treenamecol => $treenamecol };
+    my $util = eval{ YAML::XS::LoadFile "$datapathx/$param->{type}/$param->{subtype}/util.yml"; };
+    return  +{ stat => $JSON::false, info => "get util fail: $@" } if $@;
+    my %extcol = ();
+    if( $util && $util->{extcol} )
+    {
+        map{
+            $_->{alias} //= $_->{name};
+            $extcol{ $_->{name} } = $_;
+        }@{ $util->{extcol} };
+    }
+    return +{ stat => $JSON::true, data => \@re2, treenamecol => $treenamecol, extcol => \%extcol };
 };
 
 get '/device/timemachine' => sub {
