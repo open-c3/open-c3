@@ -45,8 +45,13 @@
                                 <a class="btn btn-danger" ng-click="devicedatadetail.bindtree( 'x',  '归还资源到资源池' )">归还</a>
                             </div>
                             <div ng-if="devicedatadetail.extcol[d[0]]">
-                                <label class="col-md-4  control-label fwbold" >{{d[0]}}</label>
-                                <div class="col-md-6"> <input class="form-control" ng-model="d[1]" /> </div>
+                                <label class="col-md-4  control-label fwbold" >{{devicedatadetail.extcol[d[0]].alias}}</label>
+                                <div class="col-md-6" >
+                                    <input ng-if="!devicedatadetail.extcol[d[0]].select" class="form-control" ng-model="d[1]" />
+                                    <select ng-if="devicedatadetail.extcol[d[0]].select" class="form-control" ng-model="d[1]" >
+                                        <option ng-repeat="t in devicedatadetail.extcol[d[0]].select" value="{{t}}">{{t}}</option>
+                                    </select>
+                                </div>
                                 <a class="btn btn-system" ng-click="devicedatadetail.saveextcol( d[0], d[1])">保存</a>
                             </div>
  

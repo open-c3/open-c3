@@ -464,7 +464,10 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
     my %extcol = ();
     if( $util && $util->{extcol} )
     {
-        map{ $extcol{ $_->{name} } = 1 }@{ $util->{extcol} };
+        map{
+            $_->{alias} //= $_->{name};
+            $extcol{ $_->{name} } = $_;
+        }@{ $util->{extcol} };
     }
     return +{ stat => $JSON::true, data => \@re2, treenamecol => $treenamecol, extcol => \%extcol };
 };
