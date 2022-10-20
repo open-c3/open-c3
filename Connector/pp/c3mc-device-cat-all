@@ -11,32 +11,35 @@ use MYDan::Util::OptConf;
  $0
  $0 grepuuid
  $0 --col uuid,treename
+ $0 --timemachine time
 
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->get( qw( col=s ) )->dump();
+my %o = $option->set( timemachine => 'curr' )->get( qw( col=s timemachine=s ) )->dump();
 
 my $grepuuid = shift @ARGV;
 
-my $allcolmap = YAML::XS::LoadFile "/data/open-c3-data/device/curr/colmap.yml";
+my $path = sprintf "/data/open-c3-data/device/%s", $o{timemachine} ne 'curr' ? "timemachine/$o{timemachine}" : 'curr';
+
+my $allcolmap = YAML::XS::LoadFile "$path/colmap.yml";
 map{ die "undef" unless $allcolmap->{$_} }qw( treename uuid );
 
 my @res;
 
-for ( glob "/data/open-c3-data/device/curr/*/*/data.tsv" )
+for ( glob "$path/*/*/data.tsv" )
 {
     my ( undef, $subtype, $type ) = reverse split /\//, $_;
-    next unless my @data = `c3mc-device-cat curr $type $subtype`;
+    next unless my @data = `c3mc-device-cat $o{timemachine} $type $subtype`;
     chomp @data;
     my $title = shift @data;
     next unless @data;
     my @title = split /\t/, $title;
 
-    my $colmap = YAML::XS::LoadFile "/data/open-c3-data/device/curr/$type/$subtype/colmap.yml";
+    my $colmap = YAML::XS::LoadFile "$path/$type/$subtype/colmap.yml";
     map{ die "undef" unless $colmap->{$_} }qw( treename uuid );
 
-    my $outline = YAML::XS::LoadFile "/data/open-c3-data/device/curr/$type/$subtype/outline.yml";
+    my $outline = YAML::XS::LoadFile "$path/$type/$subtype/outline.yml";
     map{ die "error" unless $outline->{$_} && ref $outline->{$_} eq 'ARRAY' }qw( baseinfo contact system uuid );
 
     for my $data ( @data )
