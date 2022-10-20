@@ -465,7 +465,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
 get '/device/timemachine' => sub {
     my @x = `cd /data/open-c3-data/device/timemachine && ls`;
     chomp @x;
-    return +{ stat => $JSON::true, data => [ grep{ /^\d+\-\d+$/ }@x] };
+    return +{ stat => $JSON::true, data => [ reverse sort grep{ /^\d+\-\d+$/ }@x] };
 };
 
 true;
