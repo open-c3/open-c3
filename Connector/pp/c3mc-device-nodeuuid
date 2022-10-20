@@ -31,7 +31,7 @@ for my $ingestion ( glob "/data/open-c3-data/device/curr/compute/*/ingestion-nod
     map{ die "err" unless $colmap->{$_} }qw( name inip exip tree type );
 
     my ( undef, $subtype, $type ) = reverse split /\//, $datafile;
-    my    @data  = `c3mc-device-cat $type $subtype`;
+    my    @data  = `c3mc-device-cat curr $type $subtype`;
     chomp @data;
 
     next unless @data;

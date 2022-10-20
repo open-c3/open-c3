@@ -13,7 +13,7 @@ sub getdatacount
     my ( $datafile, $greptreename, $treeid, $type, $subtype  ) = @_;
     if( $greptreename )
     {
-        my    @data = `c3mc-device-cat $type $subtype`;
+        my    @data = `c3mc-device-cat curr $type $subtype`;
         chomp @data;
 
         my $title = shift @data;
@@ -168,7 +168,7 @@ any '/device/data/:type/:subtype/:treeid' => sub {
 
     my ( $getdatacmd, $currdatapath ) = $param->{type} eq 'all' && $param->{subtype} eq 'all'
         ? ( 'c3mc-device-cat-all',                               $datapath                                  )
-        : ( "c3mc-device-cat $param->{type} $param->{subtype}", "$datapath/$param->{type}/$param->{subtype}");
+        : ( "c3mc-device-cat curr $param->{type} $param->{subtype}", "$datapath/$param->{type}/$param->{subtype}");
 
     my    @data = `$getdatacmd`;
     chomp @data;
@@ -301,7 +301,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
     my $greptreename = $param->{treeid} == 0 ? undef : eval{ gettreename( $param->{treeid} ) };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
-    my    @data = `c3mc-device-cat $param->{type} $param->{subtype}`;
+    my    @data = `c3mc-device-cat curr $param->{type} $param->{subtype}`;
     chomp @data;
 
     my $title = shift @data;

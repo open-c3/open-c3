@@ -27,7 +27,7 @@ my @res;
 for ( glob "/data/open-c3-data/device/curr/*/*/data.tsv" )
 {
     my ( undef, $subtype, $type ) = reverse split /\//, $_;
-    next unless my @data = `c3mc-device-cat $type $subtype`;
+    next unless my @data = `c3mc-device-cat curr $type $subtype`;
     chomp @data;
     my $title = shift @data;
     next unless @data;
