@@ -26,7 +26,7 @@
         };
         vm.reload();
         vm.reloadtimemachine = function () {
-            $http.get('/api/agent/device/timemachine', ).success(function(data){
+            $http.get('/api/agent/device/timemachine' ).success(function(data){
                 if (data.stat){
                     vm.timemachine = data.data;
                 }else {
