@@ -13,7 +13,7 @@ addr: [ 'private_ips.0', 'port' ]                  # 这里描述的是ip地址�
 #auth: [ 'dbuser','dbpass' ]                       # 从CMDB字段中获取, 如果登录数据库的账号和密码是CMDB中的两个字段，这里写两个字段
 auth: root:abc1234                                 # CMDB中没有redis的账号信息，所有资源是同一个登录账号
 #authfile: /data/open-c3-data/device/curr/database/huawei-rds/authfile.dat # 账号信息在一个外部文件中。文件格式下面内容会描述.
-#authpath: /data/open-c3-data/device/auth/redis    # 从目录中获取账号，每个资源对应一个文件，文件中有账号。可以和CMDB进行联动。
+#authpath: /data/open-c3-data/device/curr/auth/redis    # 从目录中获取账号，每个资源对应一个文件，文件中有账号。可以和CMDB进行联动。
 tree: '服务树'                                     # CMDB中存放服务树信息的字段
 type: huawei-rds                                   # 给资源一个分类，这个字符串可以随意内容,非CMDB字段。
 

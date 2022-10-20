@@ -29,7 +29,7 @@ any '/device/chpassword' => sub {
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
-    my $dbpath = "/data/open-c3-data/device/auth/$param->{dbtype}";
+    my $dbpath = "/data/open-c3-data/device/curr/auth/$param->{dbtype}";
     return  +{ stat => $JSON::false, info => "noauth to change $param->{dbtype} passwd" } if ! -f "$dbpath.auth/$user";
 
     system( "mkdir -p $dbpath" ) unless -d $dbpath;
