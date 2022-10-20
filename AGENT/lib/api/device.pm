@@ -459,7 +459,14 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
         push @re2, \@x;
     }
 
-    return +{ stat => $JSON::true, data => \@re2, treenamecol => $treenamecol };
+    my $util = eval{ YAML::XS::LoadFile "$datapathx/$param->{type}/$param->{subtype}/util.yml"; };
+    return  +{ stat => $JSON::false, info => "get util fail: $@" } if $@;
+    my %extcol = ();
+    if( $util && $util->{extcol} )
+    {
+        map{ $extcol{ $_->{name} } = 1 }@{ $util->{extcol} };
+    }
+    return +{ stat => $JSON::true, data => \@re2, treenamecol => $treenamecol, extcol => \%extcol };
 };
 
 get '/device/timemachine' => sub {

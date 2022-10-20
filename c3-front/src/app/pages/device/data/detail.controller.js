@@ -25,6 +25,7 @@
         vm.uuid = uuid;
         vm.treenamecol = '';
 
+        vm.extcol = {};
         var toastr = toastr || $injector.get('toastr');
 
         vm.cancel = function(){ $uibModalInstance.dismiss(); };
@@ -38,6 +39,7 @@
                 { 
                     vm.data = data.data;
                     vm.treenamecol = data.treenamecol;
+                    vm.extcol = data.extcol;
 
                     vm.loadover = true;
                 } else { 
@@ -68,6 +70,28 @@
                 });
               });
 
+        };
+ 
+        vm.saveextcol = function( name, data ){
+            swal({
+                title: "保存",
+                type: "warning",
+                text: "修改:" + name,
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                cancelButtonText: "取消",
+                confirmButtonText: "确定",
+                closeOnConfirm: true
+            }, function(){
+                $http.post('/api/agent/device/extcol/' + type + '/' + subtype +'/' + vm.uuid + '/' + name, { "data": data } ).success(function(data){
+                    if(data.stat == true) 
+                    { 
+                        toastr.success("操作完成");
+                    } else { 
+                        toastr.error("操作失败:" + data.info)
+                    }
+                });
+              });
         };
  
         vm.chpasswd = function( data, dbaddrcolname, dbtype, password ){
