@@ -23,11 +23,12 @@ sub record
 {
     my $data = shift @_;
 
+    my $content = substr $data->{ 'labels.content' }, 0, 1000 if length $data->{ 'labels.content' }  > 1000;
     eval{
         $db->execute( 
-            sprintf "insert into `openc3_monitor_history_mailmon` (`account`,`severity`,`subject`,`content`,`date`,`from`,`to`) values('%s','%s','%s','%s','%s','%s','%s')",
-               map{$_ ||= 'null'; $_ =~ s/'//g; $_ }
-               @$data{qw( labels.account labels.severity labels.subject labels.content labels.date labels.from labels.to )}
+            sprintf "insert into `openc3_monitor_history_mailmon` (`content`,`account`,`severity`,`subject`,`date`,`from`,`to`) values('%s','%s','%s','%s','%s','%s','%s')",
+               map{$_ ||= 'null'; $_ =~ s/'//g; $_ } $content, 
+               @$data{qw( labels.account labels.severity labels.subject labels.date labels.from labels.to )}
         );
     };
     warn "record mailmon fail:$@" if $@;
