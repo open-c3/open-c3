@@ -15,7 +15,7 @@
             }
         });
 
-    function DeviceDataDetailController( $uibModalInstance, $location, $anchorScroll, $state, $http, $uibModal, treeService, ngTableParams, resoureceService, uuid, $scope, $injector, treeid , type, subtype, homereload ) {
+    function DeviceDataDetailController( $uibModalInstance, $location, $anchorScroll, $state, $http, $uibModal, treeService, ngTableParams, resoureceService, uuid, $scope, $injector, treeid , type, subtype, homereload, selectedtimemachine ) {
 
         var vm = this;
 
@@ -29,10 +29,11 @@
 
         vm.cancel = function(){ $uibModalInstance.dismiss(); };
 
+        vm.selectedtimemachine = selectedtimemachine;
         vm.data = [];
         vm.reload = function(){
             vm.loadover = false;
-            $http.get('/api/agent/device/detail/' + type + '/' + subtype +'/' + vm.treeid + '/' + uuid ).success(function(data){
+            $http.get('/api/agent/device/detail/' + type + '/' + subtype +'/' + vm.treeid + '/' + uuid + '?timemachine=' + vm.selectedtimemachine ).success(function(data){
                 if(data.stat == true) 
                 { 
                     vm.data = data.data;

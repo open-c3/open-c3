@@ -5,10 +5,27 @@
                 <button class="btn btn-primary" uib-tooltip="刷新" ng-click="devicedatadetail.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!devicedatadetail.loadover}" ></i></button>
                 <button class="btn btn-primary" uib-tooltip="关闭" ng-click="devicedatadetail.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
             </span>
-            <h5>{{ devicedatadetail.type }} / {{ devicedatadetail.subtype }} / {{ devicedatadetail.uuid }} </h5>
+            <h5>{{ devicedatadetail.selectedtimemachine }} / {{ devicedatadetail.type }} / {{ devicedatadetail.subtype }} / {{ devicedatadetail.uuid }} </h5>
         </div>
 
-        <div class="panel-body">
+        <div ng-show="devicedatadetail.selectedtimemachine != 'curr'" class="panel-body">
+            <div class="pt20">
+                <div>
+                    <div class="form-group admin-form" ng-repeat="data in devicedatadetail.data" >
+                        <div class="row" ng-repeat="d in data" >
+                            <div >
+                                <label class="col-md-4  control-label fwbold">{{d[0]|cut30}}</label>
+                                <label class="col-md-8 control-label fwbold" >{{d[1]}}</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <div ng-show="devicedatadetail.selectedtimemachine =='curr'" class="panel-body">
             <div class="pt20">
                 <div>
                     <div class="form-group admin-form" ng-repeat="data in devicedatadetail.data" >

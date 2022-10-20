@@ -10,10 +10,12 @@
         vm.treeid = $state.params.treeid;
 
         vm.menu = {};
+        vm.selectedtimemachine = 'curr';
+        vm.timemachine = [];
 
         vm.reload = function () {
             vm.loadover = false;
-            $http.get( '/api/agent/device/menu/' + vm.treeid ).success(function(data){
+            $http.get( '/api/agent/device/menu/' + vm.treeid + '?timemachine=' + vm.selectedtimemachine ).success(function(data){
                 if (data.stat){
                     vm.menu = data.data;
                     vm.loadover = true;
@@ -23,6 +25,16 @@
             });
         };
         vm.reload();
+        vm.reloadtimemachine = function () {
+            $http.get('/api/agent/device/timemachine', ).success(function(data){
+                if (data.stat){
+                    vm.timemachine = data.data;
+                }else {
+                    swal({ title:'获取时间机器列表失败', text: data.info, type:'error' });
+                }
+            });
+        };
+        vm.reloadtimemachine();
 
         vm.gotosubtype = function (type, subtype) {
             $state.go('home.device.data', {treeid:vm.treeid, type: type, subtype: subtype });

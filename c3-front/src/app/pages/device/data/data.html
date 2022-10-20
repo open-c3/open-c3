@@ -1,6 +1,12 @@
 <div id="topbar">
     <div class="topbar-left">
         <ol class="breadcrumb">
+            <li>
+                <select class="form-control" ng-change="devicedata.reload()" ng-model="devicedata.selectedtimemachine" >
+                    <option value="curr">current</option>
+                    <option ng-repeat="t in devicedata.timemachine" value="{{t}}">{{t}}</option>
+                </select>
+            </li>
             <li>CMDB</li>
             <li>{{devicedata.type}}</li>
             <li>{{devicedata.subtype}}</li>
