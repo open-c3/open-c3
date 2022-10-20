@@ -14,7 +14,7 @@
         vm.type    = $state.params.type;
         vm.subtype = $state.params.subtype;
         vm.grepdata = {};
-        vm.selectedtimemachine = 'curr';
+        vm.selectedtimemachine = $state.params.timemachine;
         vm.timemachine = [];
 
         vm.filter = [];

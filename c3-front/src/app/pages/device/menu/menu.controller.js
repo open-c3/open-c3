@@ -37,7 +37,7 @@
         vm.reloadtimemachine();
 
         vm.gotosubtype = function (type, subtype) {
-            $state.go('home.device.data', {treeid:vm.treeid, type: type, subtype: subtype });
+            $state.go('home.device.data', {treeid:vm.treeid, timemachine: vm.selectedtimemachine, type: type, subtype: subtype });
         };
 
         vm.openNewWindow = function()
