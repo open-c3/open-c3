@@ -39,13 +39,27 @@ my %treeow;
 my $_tree_ = grep{ $_ eq '_tree_' }@$copytreecol;
 if( $_tree_ )
 {
-    my @treeow = `c3mc-base-db-get -t openc3_device_bindtree uuid tree -f 'type="$type" and subtype="$subtype"'`;
-    chomp @treeow;
-
-    for( grep{ /^[a-zA-Z0-9]/ }@treeow )
+    if( $curr eq 'curr' )
     {
-        my ( $uuid, $tree ) = split /;/, $_, 2;
-        $treeow{ $uuid } = $tree;
+        my @treeow = `c3mc-base-db-get -t openc3_device_bindtree uuid tree -f 'type="$type" and subtype="$subtype"'`;
+        chomp @treeow;
+
+        for( grep{ /^[a-zA-Z0-9]/ }@treeow )
+        {
+            my ( $uuid, $tree ) = split /;/, $_, 2;
+            $treeow{ $uuid } = $tree;
+        }
+    }
+    else
+    {
+        my @treeow = `cat /data/open-c3-data/device/$curr/openc3_device_bindtree.txt`;
+        chomp @treeow;
+        for( grep{ /^[a-zA-Z0-9]/ }@treeow )
+        {
+            my ( $typet, $subtypet, $uuid, $tree ) = split /;/, $_, 4;
+            next unless $typet && $subtypet && $typet eq $type && $subtypet eq $subtype;
+            $treeow{ $uuid } = $tree;
+        }
     }
 }
 
