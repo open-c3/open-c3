@@ -2,8 +2,8 @@
 
 set -e
 
-pip3 uninstall -y huaweicloudsdkcore
+pip3 install huaweicloudsdkcore --upgrade
 
-pip3 install huaweicloudsdkcore huaweicloudsdkdcs huaweicloudsdkrds \
+pip3 install huaweicloudsdkdcs huaweicloudsdkrds \
              huaweicloudsdkdds huaweicloudsdkecs huaweicloudsdkelb \
              huaweicloudsdkgaussdbfornosql huaweicloudsdkevs
