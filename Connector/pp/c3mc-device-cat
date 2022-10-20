@@ -78,6 +78,17 @@ if( $curr eq 'curr' )
         $extcol{ $uuid }{ $name } = $data;
     }
 }
+else
+{
+    my @extcol = `cat /data/open-c3-data/device/$curr/openc3_device_extcol.txt`;
+    chomp @extcol;
+    for( grep{ /^[a-zA-Z0-9]/ }@extcol )
+    {
+        my ( $typet, $subtypet, $uuid, $name, $data ) = split /;/, $_, 5;
+        next unless $typet && $subtypet && $typet eq $type && $subtypet eq $subtype;
+        $extcol{ $uuid }{ $name } = $data;
+    }
+}
 
 my $colname = eval{ YAML::XS::LoadFile "$path/colmap.yml" };
 die "load colmap fail: $@" if $@;

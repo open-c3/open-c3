@@ -21,6 +21,7 @@ any '/device/extcol/:type/:subtype/:uuid/:name' => sub {
     $data =~ s/'//g;
     $data =~ s/;//g;
     $data =~ s/\t//g;
+    $data =~ s/\n//g;
 
     my $pmscheck = api::pmscheck( 'openc3_job_root' );
     return $pmscheck if $pmscheck;
