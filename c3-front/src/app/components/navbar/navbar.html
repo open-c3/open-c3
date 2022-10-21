@@ -59,27 +59,8 @@
                 <li class="list-group-item">
                     <a ui-sref="home.quickentry.monitormailmon({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-mixcloud"></span><span>邮件监控</span> </a>
                 </li>
-            </ul>
-        </li>
-    </ul>
-
-    <ul class="nav navbar-nav navbar-left">
-        <li>
-            <a ui-sref="home.quickentry.selfhealingconfig({treeid: nav.state.params.treeid})" > <span>故障自愈</span> </a>
-        </li>
-    </ul>
-
-    <ul class="nav navbar-nav navbar-left">
-        <li class="dropdown" uib-dropdown>
-            <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple " uib-dropdown-toggle>
-                <span>报告</span>
-                <span class="caret caret-tp hidden-xs"></span>
-            </a>
-            <ul class="dropdown-menu list-group dropdown-persist w250" uib-dropdown-menu>
                 <li class="list-group-item">
-                    <a ui-sref="home.gitreport({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-gitlab"></span><span>GIT</span> </a>
-                    <a ui-sref="home.flowreport({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-code-fork"></span><span>流水线</span> </a>
-                    <a ui-sref="home.monreport({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><span class="fa fa-bell"></span> <span>监控告警</span> </a>
+                    <a ui-sref="home.quickentry.selfhealingconfig({treeid: nav.state.params.treeid})" > <span class="fa fa-wheelchair-alt"></span><span>故障自愈</span> </a>
                 </li>
             </ul>
         </li>
@@ -87,10 +68,9 @@
 
     <ul class="nav navbar-nav navbar-left">
         <li>
-            <a ui-sref="home.quickentry.flowline({treeid: nav.state.params.treeid})" > <span>流水线[CI/CD]</span> </a>
+            <a ui-sref="home.quickentry.flowline({treeid: nav.state.params.treeid})" > <span>流水线</span> </a>
         </li>
     </ul>
-
 
     <ul class="nav navbar-nav navbar-left">
         <li class="dropdown" uib-dropdown>
@@ -134,32 +114,6 @@
         </li>
     </ul>
     <ul class="nav navbar-nav navbar-left">
-        <li class="dropdown" uib-dropdown>
-            <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple" uib-dropdown-toggle>
-                <span>执行历史</span>
-                <span class="caret caret-tp hidden-xs"></span>
-            </a>
-            <ul class="dropdown-menu list-group dropdown-persist w250" uib-dropdown-menu>
-                <li class="list-group-item">
-                    <a ui-sref="home.history.jobx({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span>分组任务</span> </a>
-                    <a ui-sref="home.history.job({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span>作业任务</span> </a>
-                    <a ui-sref="home.history.terminal({treeid: nav.state.params.treeid})"  class="animated animated-short fadeInUp" > <span>虚拟终端</span> </a>
-                </li>
-                </ul>
-        </li>
-
-    </ul>
-
-    <ul class="nav navbar-nav navbar-left">
-        <li>
-            <a href="/book/index.html" target="_blank" > <span>文档</span> </a>
-        </li>
-    </ul>
-
-    <ul class="nav navbar-nav navbar-right">
-        <!--<li class="menu-divider hidden-xs">-->
-            <!--<i class="fa fa-circle"></i>-->
-        <!--</li>-->
         <li>
             <a ui-sref="home.quickentry.smallapplication({treeid: nav.state.params.treeid})" > <span>轻应用</span> </a>
         </li>
@@ -183,13 +137,43 @@
         </li>
 
  
-<!--
-        <li ng-if="openc3_style_ctrl == 'juyun'" class="dropdown" uib-dropdown>
-            <a href="https://console.polymericcloud.com" class="dropdown-toggle fw600 p15 lh30 ripple">
-                <span>返回聚云立方</span>
-            </a>
+    </ul>
+
+    <ul class="nav navbar-nav navbar-right">
+        <!--<li class="menu-divider hidden-xs">-->
+            <!--<i class="fa fa-circle"></i>-->
+        <!--</li>-->
+        <li>
+            <a href="/book/index.html" target="_blank" > <span>文档</span> </a>
         </li>
--->
+
+        <li class="dropdown" uib-dropdown>
+            <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple" uib-dropdown-toggle>
+                <span>执行历史</span>
+                <span class="caret caret-tp hidden-xs"></span>
+            </a>
+            <ul class="dropdown-menu list-group dropdown-persist w250" uib-dropdown-menu>
+                <li class="list-group-item">
+                    <a ui-sref="home.history.jobx({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span>分组任务</span> </a>
+                    <a ui-sref="home.history.job({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span>作业任务</span> </a>
+                    <a ui-sref="home.history.terminal({treeid: nav.state.params.treeid})"  class="animated animated-short fadeInUp" > <span>虚拟终端</span> </a>
+                </li>
+                </ul>
+        </li>
+        <li class="dropdown" uib-dropdown>
+            <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple " uib-dropdown-toggle>
+                <span>报告</span>
+                <span class="caret caret-tp hidden-xs"></span>
+            </a>
+            <ul class="dropdown-menu list-group dropdown-persist w250" uib-dropdown-menu>
+                <li class="list-group-item">
+                    <a ui-sref="home.gitreport({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-gitlab"></span><span>GIT</span> </a>
+                    <a ui-sref="home.flowreport({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-code-fork"></span><span>流水线</span> </a>
+                    <a ui-sref="home.monreport({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><span class="fa fa-bell"></span> <span>监控告警</span> </a>
+                </li>
+            </ul>
+        </li>
+
         <li ng-if="nav.user.admin==1" class="dropdown" uib-dropdown>
             <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple" uib-dropdown-toggle>
                 <span>管理</span>
