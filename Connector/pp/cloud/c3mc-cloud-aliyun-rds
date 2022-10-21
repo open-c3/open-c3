@@ -7,7 +7,6 @@ import sys
 from aliyunsdkcore.client import AcsClient
 from aliyunsdkrds.request.v20140815.DescribeDBInstancesRequest import DescribeDBInstancesRequest
 from aliyunsdkrds.request.v20140815.DescribeDBInstanceAttributeRequest import DescribeDBInstanceAttributeRequest
-from aliyunsdkrds.request.v20140815.DescribeDBInstanceByTagsRequest import DescribeDBInstanceByTagsRequest
 
 
 class RDS:
@@ -36,18 +35,6 @@ class RDS:
         response_data = json.loads(response)
         return response_data
 
-    def set_desc_tag_request(self, instance_id):
-        request = DescribeDBInstanceByTagsRequest()
-        request.set_accept_format('json')
-        request.set_DBInstanceId(instance_id)
-        return request
-
-    def get_desc_tag_response(self, instance_id):
-        request = self.set_desc_tag_request(instance_id)
-        response = self.client.do_action_with_exception(request)
-        response_data = json.loads(response)
-        return response_data
-
     def get_rds_count(self):
         response_data = self.get_desc_response()
         return response_data['TotalRecordCount']
@@ -68,14 +55,17 @@ class RDS:
         for instance_id in instance_id_list:
             request.set_DBInstanceId(instance_id)
             response = self.client.do_action_with_exception(request)
-            response_data = json.loads(response)
-            rds_attribute_data = response_data['Items']['DBInstanceAttribute'][0]
-
-            tag_response = self.get_desc_tag_response(instance_id)
-            if len(tag_response["Items"]["DBInstanceTag"]) > 0:
-                rds_attribute_data["Tag"] = tag_response["Items"]["DBInstanceTag"][0]["Tags"]["Tag"]
+            rds_attribute_data = json.loads(
+                response)['Items']['DBInstanceAttribute'][0]
+            rds_attribute_data["Tag"] = self.list_tag(
+                self.access_id, self.access_key, self.region, instance_id)
             rds_attribute_data_list.append(rds_attribute_data)
         return rds_attribute_data_list
+
+    def list_tag(self, access_id, access_key, region, instance_id):
+        sys.path.append("/data/Software/mydan/Connector/lib/pp")
+        from c3mc_cloud_aliyun_rds_get_tag import GetTag
+        return GetTag(access_id, access_key, region, instance_id).list_tag()
 
     def show(self):
         rds_attribute_data_list = self.get_attribute_response()
@@ -84,7 +74,6 @@ class RDS:
 
     def page(self):
         count = self.get_rds_count()
-        self.page_size = 100
         mod = count % self.page_size
         if mod:
             total_page_number = int(count / self.page_size) + 1
