@@ -16,3 +16,10 @@
 ```
 ./todb | c3mc-base-savebind
 ```
+
+## 服务树结构导入C3内部
+
+```
+c3mc-base-treemap | c3mc-base-savetree
+
+```

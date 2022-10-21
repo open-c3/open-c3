@@ -5,7 +5,7 @@ import json
 from kscore.session import get_session
 
 
-class KsyunTag:
+class GetTag:
     def __init__(self, access_id, access_key, region):
         self.access_id = access_id
         self.access_key = access_key

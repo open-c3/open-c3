@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aliyun-redis --account aliyun | c3mc-cloud-tag Tag TagKey TagValue None | c3mc-base-json2tab "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aliyun-redis --account aliyun | c3mc-cloud-tag Tag Key Value None | c3mc-base-json2tab "
     datatype: tsv
     type: database
     subtype: aliyun-redis
@@ -13,6 +13,12 @@ download:
       min: 0
     util:
       defaulttree: defaulttree.pool
+      extcol:
+        - name: audit
+          alias: 审计
+          select: ["YES", "NO"]
+        - name: remarks
+          alias: 备注
     colmap:
       treename: "服务树"
       uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据

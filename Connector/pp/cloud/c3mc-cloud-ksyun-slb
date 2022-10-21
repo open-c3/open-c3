@@ -35,8 +35,8 @@ class Slb:
         return instance_list
 
     def list_tag(self):
-        from c3mc_cloud_ksyun_tag import KsyunTag
-        return KsyunTag(self.access_id, self.access_key, self.region).get_tag_dict()
+        from c3mc_cloud_ksyun_get_tag import GetTag
+        return GetTag(self.access_id, self.access_key, self.region).get_tag_dict()
 
     def show(self):
         instance_list = self.list_instances()

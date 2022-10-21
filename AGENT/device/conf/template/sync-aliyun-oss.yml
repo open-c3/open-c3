@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aliyun-oss --account aliyun | c3mc-base-json2tab "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aliyun-oss --account aliyun | c3mc-cloud-tag tags key value None | c3mc-base-json2tab "
     datatype: tsv
     type: storage
     subtype: aliyun-oss
@@ -10,6 +10,12 @@ download:
         - ["实例ID", "instance"]
     util:
       defaulttree: defaulttree.pool
+      extcol:
+        - name: audit
+          alias: 审计
+          select: ["YES", "NO"]
+        - name: remarks
+          alias: 备注
     check:
       col: ["实例ID"]
       min: 0

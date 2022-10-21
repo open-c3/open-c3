@@ -16,23 +16,25 @@ class Oss:
         self.client = self.create_client()
 
     def create_client(self):
-        endpoint = 'http://oss-{}.aliyuncs.com'.format(self.region)
+        endpoint = 'https://oss-{}.aliyuncs.com'.format(self.region)
         auth = oss2.Auth(self.access_id, self.access_key)
-        client = oss2.Service(auth, endpoint)
-        client.list_buckets()
-        return client
+        return oss2.Service(auth, endpoint)
 
     def get_buckets_from_response(self, response_data):
         bucket_list = []
-        for aliyun_bucket in response_data.buckets:
-            bucket_list.append({
-                "name": aliyun_bucket.name,
-                "location": aliyun_bucket.location,
-                "creation_date": aliyun_bucket.creation_date,
-                "extranet_endpoint": aliyun_bucket.extranet_endpoint,
-                "intranet_endpoint": aliyun_bucket.intranet_endpoint,
-                "storage_class": aliyun_bucket.storage_class,
-            })
+        for bucket in response_data.buckets:
+            item = {
+                "name": bucket.name,
+                "location": bucket.location,
+                "creation_date": bucket.creation_date,
+                "extranet_endpoint": bucket.extranet_endpoint,
+                "intranet_endpoint": bucket.intranet_endpoint,
+                "storage_class": bucket.storage_class,
+            }
+            item["tags"] = self.list_tag(
+                self.access_id, self.access_key, bucket.location, bucket.name)
+
+            bucket_list.append(item)
         return bucket_list
 
     def list_buckets(self):
@@ -43,6 +45,11 @@ class Oss:
                 max_keys=self.page_size, marker=response.next_marker)
             results.extend(self.get_buckets_from_response(response))
         return results
+
+    def list_tag(self, access_id, access_key, location, bucket_name):
+        sys.path.append("/data/Software/mydan/Connector/lib/pp")
+        from c3mc_cloud_aliyun_oss_tag import GetTag
+        return GetTag(access_id, access_key, location, bucket_name).list_tag()
 
     def show(self):
         buckets = self.list_buckets()

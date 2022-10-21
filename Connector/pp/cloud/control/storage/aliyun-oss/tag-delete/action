@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+
+import oss2
+from oss2.models import Tagging, TaggingRule
+
+
+def tag_delete(data, access_id, access_key):
+    location_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field storage aliyun-oss location")
+    name_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field storage aliyun-oss name")
+
+    auth = oss2.Auth(access_id, access_key)
+    bucket = oss2.Bucket(
+        auth, 'https://{}.aliyuncs.com'.format(data[location_field_name]), data[name_field_name])
+
+    curr_tag_list = get_oss_tag(
+        access_id, access_key, data[location_field_name], data[name_field_name])
+
+    rule = TaggingRule()
+    key = data["_control_"]["tag-delete"]["key"]
+    has = False
+    for i in range(len(curr_tag_list)):
+        if curr_tag_list[i]["key"] != key:
+            rule.add(curr_tag_list[i]["key"], curr_tag_list[i]["value"])
+            has = True
+
+    tagging = Tagging(rule)
+    if has:
+        bucket.put_bucket_tagging(tagging)
+    else:
+        bucket.delete_bucket_tagging()
+
+
+def get_oss_tag(access_id, access_key, location, bucket_name):
+    sys.path.append("/data/Software/mydan/Connector/lib/pp")
+    from c3mc_cloud_aliyun_oss_tag import GetTag
+    return GetTag(access_id, access_key, location, bucket_name).list_tag()
+
+
+def main(data, access_id, access_key):
+    tag_delete(data, access_id, access_key)
+
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]), sys.argv[2], sys.argv[3])

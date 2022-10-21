@@ -57,9 +57,12 @@
 
  
         vm.reload = function () {
+            vm.loadover1 = false;
+            vm.loadover2 = false;
             $http.get('/api/ci/flowreport/' + vm.treeid + "/datalist?" ).then(
                 function successCallback(response) {
                     if (response.data.stat){
+                        vm.loadover1 = true;
                         vm.datalist = response.data.data; 
                     }else {
                         toastr.error( "获取数据失败："+response.data.info );
@@ -72,6 +75,7 @@
             $http.get('/api/ci/flowreport/' + vm.treeid + "/report?user=" + vm.selecteduser + "&data=" + vm.selecteddata ).then(
                 function successCallback(response) {
                     if (response.data.stat){
+                        vm.loadover2 = true;
                         $scope.ciCount = response.data.data.cicount;
                         $scope.testCount = response.data.data.testcount;
                         $scope.deployCount = response.data.data.deploycount;
