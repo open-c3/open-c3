@@ -13,7 +13,6 @@ class S3:
         self.access_id = access_id
         self.access_key = access_key
         self.region = region
-        self.bucket_list = []
         self.client = self.create_client()
 
     def create_client(self):
@@ -38,7 +37,8 @@ class S3:
         response = self.client.list_buckets()
         bucket_list = []
         for bucket_info in response["Buckets"]:
-            tags = self.list_tags_of_bucket(bucket_info["Name"])
+            tags = self.list_tag(
+                self.access_id, self.access_key, self.region, bucket_info["Name"])
             bucket = {
                 "UUID": "{}-{}-{}".format(self.account, self.region, bucket_info["Name"]),
                 "BucketName": bucket_info["Name"],
@@ -49,6 +49,11 @@ class S3:
             bucket_list.append(bucket)
 
         return bucket_list
+
+    def list_tag(self, access_id, access_key, region, bucket_name):
+        sys.path.append("/data/Software/mydan/Connector/lib/pp")
+        from c3mc_cloud_aws_s3_get_tag import GetTag
+        return GetTag(access_id, access_key, region, bucket_name).list_tag()
 
     def show(self):
         bucket_list = self.list_buckets()

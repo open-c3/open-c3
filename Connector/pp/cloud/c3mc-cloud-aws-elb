@@ -28,31 +28,59 @@ class Elb:
         return response_data["LoadBalancerDescriptions"]
 
     def list_instances(self):
-        response = self.client.describe_load_balancers(PageSize=self.page_size)
-        results = self.get_instances_from_response(response)
         name_tag_dict = {}
-        while "NextMarker" in response:
-            response = self.client.describe_load_balancers(
-                PageSize=self.page_size, Marker=response["NextMarker"])
+        next_marker = ""
+        result = []
 
-            data_list = self.get_instances_from_response(response)
-            names = []
-            for instance in data_list:
-                names.append(instance["LoadBalancerName"])
-            tag_resp = self.list_tag(names)
-            for instance_tag in tag_resp["TagDescriptions"]:
-                name_tag_dict[instance_tag["LoadBalancerName"]
-                              ] = instance_tag["Tags"]
+        res = self.get_data("")
+        if res["name_tag_dict"] is not None:
+            name_tag_dict = dict(list(name_tag_dict.items()) +
+                                 list(res["name_tag_dict"].items()))
+        result.extend(res["data_list"])
+        next_marker = res["next_marker"]
 
-            results.extend(data_list)
-        for i, s in enumerate(results):
+        while next_marker != "":
+            res = self.get_data(next_marker)
+            if res["name_tag_dict"] is not None:
+                name_tag_dict = dict(list(name_tag_dict.items()) +
+                                     list(res["name_tag_dict"].items()))
+            result.extend(res["data_list"])
+            next_marker = res["next_marker"]
+
+        for i, s in enumerate(result):
             if s["LoadBalancerName"] in name_tag_dict:
-                results[i]["Tag"] = name_tag_dict[s["LoadBalancerName"]]
-        return results
+                result[i]["Tag"] = name_tag_dict[s["LoadBalancerName"]]
+        return result
 
-    def list_tag(self, loadBalancerNames):
-        return self.client.describe_tags(
-            LoadBalancerNames=loadBalancerNames)
+    def get_data(self, next_marker=""):
+        response = None
+        if next_marker == "":
+            response = self.client.describe_load_balancers(
+                PageSize=self.page_size)
+        else:
+            response = self.client.describe_load_balancers(
+                PageSize=self.page_size, Marker=next_marker)
+        loadBalancerNames = []
+        data_list = self.get_instances_from_response(response)
+        for instance in data_list:
+            loadBalancerNames.append(instance["LoadBalancerName"])
+
+        d = self.list_tag(
+            self.access_id, self.access_key, self.region, loadBalancerNames)
+
+        res = {
+            "next_marker": "",
+            "data_list": data_list,
+            "name_tag_dict": d
+        }
+        if "NextMarker" in response:
+            res["next_marker"] = response["NextMarker"]
+        return res
+
+    def list_tag(self, access_id, access_key, region, loadBalancerNames):
+        sys.path.append("/data/Software/mydan/Connector/lib/pp")
+        from c3mc_cloud_aws_elb_get_tag import GetTag
+        return GetTag(access_id, access_key, region, loadBalancerNames).list_tag()
 
     def show(self):
         instance_list = self.list_instances()

@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+import oss2
+
+
+def get(data, access_id, access_key, region):
+    """
+        输出 aliyun oss 的详情(json格式)
+    """
+    endpoint = 'http://oss-{}.aliyuncs.com'.format(region)
+    auth = oss2.Auth(access_id, access_key)
+    client = oss2.Service(auth, endpoint)
+
+    field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field storage aliyun-oss name")
+
+    response = client.list_buckets(prefix=data[field_name])
+
+    for bucket in response.buckets:
+        if bucket.name != data[field_name]:
+            continue
+        return {
+            "name": bucket.name,
+            "location": bucket.location,
+            "creation_date": bucket.creation_date,
+            "extranet_endpoint": bucket.extranet_endpoint,
+            "intranet_endpoint": bucket.intranet_endpoint,
+            "storage_class": bucket.storage_class,
+            "tags": get_oss_tag(access_id, access_key, bucket.location, bucket.name)
+        }
+    raise Exception(
+        "根据 bucket name {} 未找到 aliyun oss".format(data[field_name]))
+
+
+def get_oss_tag(access_id, access_key, location, bucket_name):
+    sys.path.append("/data/Software/mydan/Connector/lib/pp")
+    from c3mc_cloud_aliyun_oss_tag import GetTag
+    return GetTag(access_id, access_key, location, bucket_name).list_tag()
+
+
+def main(data, access_id, access_key, region):
+    data = get(data, access_id, access_key, region)
+    print(json.dumps(data, default=str))
+
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4])

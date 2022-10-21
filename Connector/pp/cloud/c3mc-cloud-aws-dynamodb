@@ -30,23 +30,17 @@ class Dynamodb:
         for table_name in response["TableNames"]:
             table_info = self.client.describe_table(TableName=table_name)
             table_arn = table_info["Table"]["TableArn"]
-            tag_list = self.list_tag(table_arn)
+            tag_list = self.list_tag(
+                self.access_id, self.access_key, self.region, table_arn)
             table_info["Tag"] = tag_list
             table_info.pop("ResponseMetadata", None)
             instance_list.append(table_info)
         return instance_list
 
-    def list_tag(self, arn):
-        tag_list = []
-        response = self.client.list_tags_of_resource(ResourceArn=arn)
-        tag_list.extend(response["Tags"])
-        while "NextToken" in response:
-            response = self.client.list_tags_of_resource(
-                ResourceArn=arn,
-                NextToken=response["NextToken"]
-            )
-            tag_list.extend(response["Tags"])
-        return tag_list
+    def list_tag(self, access_id, access_key, region, arn):
+        sys.path.append("/data/Software/mydan/Connector/lib/pp")
+        from c3mc_cloud_aws_dynamodb_get_tag import GetTag
+        return GetTag(access_id, access_key, region, arn).list_tag()
 
     def show(self):
         instance_list = self.list_instance()

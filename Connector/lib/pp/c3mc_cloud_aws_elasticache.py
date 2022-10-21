@@ -4,7 +4,6 @@
 import json
 
 import boto3
-import botocore
 
 
 class Elasticache:
@@ -36,27 +35,43 @@ class Elasticache:
         return results
 
     def get_response(self):
+        result = []
+        res = self.get_data("")
+        result.extend(res["data_list"])
+        marker = res["marker"]
+
+        while marker != "":
+            res = self.get_data(marker)
+            result.extend(res["data_list"])
+            marker = res["marker"]
+        return result
+
+    def get_data(self, marker=""):
         response = self.client.describe_cache_clusters(
-            MaxRecords=self.page_size)
-        results = self.get_instances_from_response(response)
-        while "Marker" in response:
-            response = self.client.describe_cache_clusters(
-                MaxRecords=self.page_size, Marker=response["Marker"])
-            data_list = self.get_instances_from_response(response)
-            for instance in data_list:
-                try:
-                    tag_resp = self.list_tag(instance["ARN"])
-                except:
-                    continue
+            MaxRecords=self.page_size, Marker=marker)
+        result = []
+        data_list = self.get_instances_from_response(response)
+        for instance in data_list:
+            try:
+                tag_list = self.list_tag(
+                    self.resource_type, self.access_id, self.access_key, self.region, instance["ARN"])
+            except Exception as e:
+                continue
 
-                instance["Tag"] = tag_resp["TagList"]
-                results.append(instance)
-        return results
+            instance["Tag"] = tag_list
+            result.append(instance)
 
-    def list_tag(self, arn):
-        return self.client.list_tags_for_resource(
-            ResourceName=arn
-        )
+        res = {
+            "marker": "",
+            "data_list": result,
+        }
+        if "Marker" in response:
+            res["marker"] = response["Marker"]
+        return res
+
+    def list_tag(self, resource_type, access_id, access_key, region, arn):
+        from c3mc_cloud_aws_elasticache_get_tag import GetTag
+        return GetTag(resource_type, access_id, access_key, region, arn).list_tag()
 
     def show(self):
         instance_list = self.get_response()
