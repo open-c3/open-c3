@@ -7,6 +7,7 @@ $|++;
 use JSON;
 use YAML::XS;
 use MYDan::Util::OptConf;
+use POSIX;
 
 =head1 SYNOPSIS
 
@@ -36,6 +37,8 @@ sub sync
         $data->{ account     } = $account;
         $data->{ accountuuid } = "$o{account}.$id";
         $data->{ _aksk_      } = $d if $o{aksk};
+
+        $data->{ _synctime_  }  = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
         print JSON::encode_json( $data ), "\n";
     }
 }
