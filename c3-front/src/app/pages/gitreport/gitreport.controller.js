@@ -64,9 +64,12 @@
 
  
         vm.reload = function () {
+            vm.loadover1 = false;
+            vm.loadover2 = false;
             $http.get('/api/ci/gitreport/' + vm.treeid + "/datalist?" ).then(
                 function successCallback(response) {
                     if (response.data.stat){
+                        vm.loadover1 = true;
                         vm.datalist = response.data.data; 
                     }else {
                         toastr.error( "获取数据失败："+response.data.info );
@@ -79,6 +82,7 @@
             $http.get('/api/ci/gitreport/' + vm.treeid + "/report?user=" + vm.selecteduser + "&data=" + vm.selecteddata + "&project=" + vm.selectedproject ).then(
                 function successCallback(response) {
                     if (response.data.stat){
+                        vm.loadover2 = true;
                         $scope.userCount = response.data.data.usercount;
                         $scope.codeAddCount = response.data.data.addcount;
                         $scope.codeDelCount = response.data.data.delcount;

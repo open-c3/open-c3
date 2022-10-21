@@ -36,9 +36,12 @@
         });
 
         vm.reload = function () {
+            vm.loadover1 = false;
+            vm.loadover2 = false;
             $http.get('/api/ci/monreport/' + vm.treeid + "/datalist?" ).then(
                 function successCallback(response) {
                     if (response.data.stat){
+                        vm.loadover1 = true;
                         vm.datalist = response.data.data; 
                     }else {
                         toastr.error( "获取数据失败："+response.data.info );
@@ -51,6 +54,7 @@
             $http.get('/api/ci/monreport/' + vm.treeid + "/report?data=" + vm.selecteddata ).then(
                 function successCallback(response) {
                     if (response.data.stat){
+                        vm.loadover2 = true;
                         $scope.count1 = response.data.data.count1;
                         $scope.count2 = response.data.data.count2;
                         $scope.count3 = response.data.data.count3;
