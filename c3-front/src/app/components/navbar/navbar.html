@@ -192,7 +192,7 @@
 -->
         <li ng-if="nav.user.admin==1" class="dropdown" uib-dropdown>
             <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple" uib-dropdown-toggle>
-                <span>管理员</span>
+                <span>管理</span>
                 <span class="caret caret-tp hidden-xs"></span>
             </a>
             <ul class="dropdown-menu list-group dropdown-persist w250" uib-dropdown-menu>
@@ -213,40 +213,20 @@
                     <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.adminapproval({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>管理员审批管理</span> </a>
                     <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.cloudmon({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>云监控</span> </a>
                 </li>
-            </ul>
-
-        </li>
-
-        <li ng-if="nav.user.showconnector==1 || nav.user.admin==1" class="dropdown" uib-dropdown>
-            <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple" uib-dropdown-toggle>
-                <span>连接器</span>
-                <span class="caret caret-tp hidden-xs"></span>
-            </a>
-            <ul class="dropdown-menu list-group dropdown-persist w250" uib-dropdown-menu>
-                <li ng-if="nav.user.admin==1" class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">设置连接器</div> </li>
-                <li ng-if="nav.user.admin==1" class="list-group-item">
+                <li ng-if="nav.user.showconnector==1" class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">连接器</div> </li>
+                <li ng-if="nav.user.showconnector==1" class="list-group-item">
                     <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.config({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>设置连接器</span> </a>
-                </li>
- 
-                <li ng-if="nav.user.admin==1" class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">登录管理(内置)</div> </li>
-                <li ng-if="nav.user.admin==1" class="list-group-item">
                     <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.userinfo({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>用户管理</span> </a>
                     <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.userauth({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>权限管理</span> </a>
-                </li>
-                <li class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">服务树(内置)</div> </li>
-                <li class="list-group-item">
                     <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.tree({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>编辑服务树节点</span> </a>
                     <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.node({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>编辑服务树资源</span> </a>
-                </li>
-                <li class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">消息出口(内置)</div> </li>
-                <li class="list-group-item">
                     <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.mail({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>给我的邮件</span> </a>
                     <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.mesg({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>给我的短信</span> </a>
                 </li>
             </ul>
 
         </li>
- 
+
         <li class="dropdown" uib-dropdown>
             <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple" uib-dropdown-toggle>
                 <span>{{ nav.user.name }}</span>
@@ -382,7 +362,7 @@
 -->
         <li ng-if="nav.user.admin==1" class="dropdown" uib-dropdown>
             <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple" uib-dropdown-toggle>
-                <span>管理员</span>
+                <span>管理</span>
                 <span class="caret caret-tp hidden-xs"></span>
             </a>
             <ul class="dropdown-menu list-group dropdown-persist w250" uib-dropdown-menu>
