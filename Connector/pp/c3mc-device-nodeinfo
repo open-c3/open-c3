@@ -36,6 +36,7 @@ for my $ingestion ( glob "/data/open-c3-data/device/curr/compute/*/ingestion-nod
 
     my $title = shift @data;
 
+    next unless @data;
     utf8::decode( $title );
     my @title = split /\t/, $title;
 
