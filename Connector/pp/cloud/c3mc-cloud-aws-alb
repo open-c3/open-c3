@@ -28,33 +28,54 @@ class Alb:
         return response_data["LoadBalancers"]
 
     def list_instances(self):
-        response = self.client.describe_load_balancers(PageSize=self.page_size)
-        results = self.get_instances_from_response(response)
         arn_tag_dict = {}
-        while "NextMarker" in response:
-            response = self.client.describe_load_balancers(
-                PageSize=self.page_size, Marker=response["NextMarker"])
-            arn_list = []
-            data_list = self.get_instances_from_response(response)
-            for instance in data_list:
-                arn_list.append(instance["LoadBalancerArn"])
+        next_marker = ""
+        result = []
 
-            tag_resp = self.list_tag(arn_list)
-            for instance_tag in tag_resp["TagDescriptions"]:
-                arn_tag_dict[instance_tag["ResourceArn"]
-                             ] = instance_tag["Tags"]
+        res = self.get_data("")
+        if res["arn_tag_dict"] is not None:
+            arn_tag_dict = dict(list(arn_tag_dict.items()) +
+                                list(res["arn_tag_dict"].items()))
+        result.extend(res["data_list"])
+        next_marker = res["next_marker"]
 
-            results.extend(data_list)
+        while next_marker != "":
+            res = self.get_data(next_marker)
+            if res["arn_tag_dict"] is not None:
+                arn_tag_dict = dict(list(arn_tag_dict.items()) +
+                                    list(res["arn_tag_dict"].items()))
+            result.extend(res["data_list"])
+            next_marker = res["next_marker"]
 
-        for i, s in enumerate(results):
+        for i, s in enumerate(result):
             if s["LoadBalancerArn"] in arn_tag_dict:
-                results[i]["Tag"] = arn_tag_dict[s["LoadBalancerArn"]]
-        return results
+                result[i]["Tag"] = arn_tag_dict[s["LoadBalancerArn"]]
+        return result
 
-    def list_tag(self, arn_list):
-        return self.client.describe_tags(
-            ResourceArns=arn_list
-        )
+    def get_data(self, next_marker=""):
+        response = self.client.describe_load_balancers(
+            PageSize=self.page_size, Marker=next_marker)
+        arn_list = []
+        data_list = self.get_instances_from_response(response)
+        for instance in data_list:
+            arn_list.append(instance["LoadBalancerArn"])
+
+        d = self.list_tag(
+            self.access_id, self.access_key, self.region, arn_list)
+
+        res = {
+            "next_marker": "",
+            "data_list": data_list,
+            "arn_tag_dict": d
+        }
+        if "NextMarker" in response:
+            res["next_marker"] = response["NextMarker"]
+        return res
+
+    def list_tag(self, access_id, access_key, region, arn_list):
+        sys.path.append("/data/Software/mydan/Connector/lib/pp")
+        from c3mc_cloud_aws_alb_get_tag import GetTag
+        return GetTag(access_id, access_key, region, arn_list).list_tag()
 
     def show(self):
         instance_list = self.list_instances()
