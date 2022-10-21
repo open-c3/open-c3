@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+from aliyunsdkcore.client import AcsClient
+from aliyunsdkcore.auth.credentials import AccessKeyCredential
+from aliyunsdkslb.request.v20140515.DescribeLoadBalancersRequest import DescribeLoadBalancersRequest
+
+
+def get(data, access_id, access_key, region):
+    """
+        输出 aliyun slb 的详情(json格式)
+    """
+    credentials = AccessKeyCredential(
+        access_id, access_key)
+    client = AcsClient(region_id=region, credential=credentials)
+
+    field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field networking aliyun-slb LoadBalancerId")
+
+    request = DescribeLoadBalancersRequest()
+    request.set_accept_format('json')
+    request.set_LoadBalancerId(data[field_name])
+    response = client.do_action_with_exception(request)
+
+    response = client.do_action_with_exception(request)
+    for instance in json.loads(response)["LoadBalancers"]["LoadBalancer"]:
+        if instance["LoadBalancerId"] == data[field_name]:
+            instance["Tag"] = instance["Tags"]["Tag"]
+            instance.pop("Tags", None)
+            return instance
+    raise Exception(
+        "根据 LoadBalancerId {} 未找到 aliyun slb".format(data[field_name]))
+
+
+def main(data, access_id, access_key, region):
+    data = get(data, access_id, access_key, region)
+    print(json.dumps(data, default=str))
+
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4])
