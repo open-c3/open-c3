@@ -30,7 +30,7 @@
                 <div>
                     <div class="form-group admin-form" ng-repeat="data in devicedatadetail.data" >
                         <div class="row" ng-repeat="d in data" >
-                            <div ng-if="devicedatadetail.treenamecol!=d[0] && '_tree_'!=d[0] && '_mysqlauth_'!=d[0] && '_redisauth_'!=d[0] && '_mongodbauth_'!=d[0] && ! devicedatadetail.extcol[d[0]]" >
+                            <div ng-if="devicedatadetail.treenamecol!=d[0] && '_tree_'!=d[0] && '_mysqlauth_'!=d[0] && '_redisauth_'!=d[0] && '_mongodbauth_'!=d[0] && '_auth_'!=d[0] && ! devicedatadetail.extcol[d[0]]" >
                                 <label class="col-md-4  control-label fwbold">{{d[0]|cut30}}</label>
                                 <label class="col-md-8 control-label fwbold" >{{d[1]}}</label>
                             </div>
@@ -70,6 +70,12 @@
                                 <div class="col-md-6"> <input class="form-control" ng-model="d[1]" /> </div>
                                 <a class="btn btn-system" ng-click="devicedatadetail.chpasswd( data, '_mongodbaddr_', 'mongodb', d[1])">修改MongoDB密码</a>
                             </div>
+                            <div ng-if="'_auth_'==d[0]">
+                                <label class="col-md-4  control-label fwbold" >登录账号</label>
+                                <div class="col-md-6"> <input class="form-control" ng-model="d[1]" /> </div>
+                                <a class="btn btn-system" ng-click="devicedatadetail.chauth( d[1])">修改账号</a>
+                            </div>
+ 
                         </div>
                     </div>
                 </div>
