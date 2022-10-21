@@ -29,6 +29,12 @@ map{ $tree{$_->[0]} = 1 }@$x;
 sub save
 {
     my $treename = shift @_;
+    my $id;
+    if( $treename =~ /^(\d+);(.+)/ )
+    {
+        ( $id, $treename ) = ( $1, $2 );
+    }
+
     unless( $treename =~ /^[a-zA-Z][a-zA-Z0-9\.\-_]*$/ && $treename !~ /\.\./ )
     {
         warn "[Warn] treename format error: $treename"
@@ -41,7 +47,12 @@ sub save
         my $name = join '.', map{ $treename[ $_ ]} 0 .. $c;
         next if $tree{$name};
         my $len = $c + 1;
-        eval{ $db->execute( "insert into openc3_connector_tree (`name`,`len`,`update_time`) value('$name','$len','$time')" ); };
+
+        eval{ 
+            $db->execute(
+            $id ? "replace into openc3_connector_tree (`id`,`name`,`len`,`update_time`) value('$id','$name','$len','$time')"
+                : "insert  into openc3_connector_tree (     `name`,`len`,`update_time`) value(      '$name','$len','$time')" );
+         };
         die "update $name info fail:$@"  if $@;
 
         $tree{$name} ++;
