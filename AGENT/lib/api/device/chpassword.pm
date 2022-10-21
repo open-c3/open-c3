@@ -9,22 +9,20 @@ use api;
 any '/device/chpassword' => sub {
     my $param = params();
     my $error = Format->new(
-        dbtype    => qr/^[a-z]+$/, 1,
-        dbaddr    => qr/^[0-9][0-9:\.]+$/, 1,
+        dbtype    => qr/^[a-zA-Z0-9][a-zA-Z0-9\-]+[a-zA-Z0-9]$/, 1,
+        dbaddr    => qr/^[a-zA-Z0-9][a-zA-Z0-9\-:\.]+[a-zA-Z0-9]$/, 1,
         #passwd
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    my @passwdonly = qw( redis );
-
-    if( grep{ $_ eq $param->{dbtype} } @passwdonly )
+    if( grep{ $_ eq $param->{dbtype} }qw( redis )  )
     {
         $param->{passwd} = "_:$param->{passwd}";
     }
-    else
+    if( grep{ $_ eq $param->{dbtype} }qw( mysql redis mongodb )  )
     {
-        return  +{ stat => $JSON::false, info => "auth format error:  username:password" }  unless $param->{passwd} && $param->{passwd} =~ /^[a-zA-Z0-9\.]+:.+/;
+        return  +{ stat => $JSON::false, info => "auth format error:  username:password" }  unless $param->{passwd} && $param->{passwd} =~ /^[a-zA-Z0-9_\.]+:.+/;
     }
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );

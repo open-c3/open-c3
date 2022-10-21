@@ -125,6 +125,29 @@
 
         };
  
+        vm.chauth = function( password ){
+            swal({
+                title: '修改账号信息',
+                text: '保存账号',
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                cancelButtonText: "取消",
+                confirmButtonText: "确定",
+                closeOnConfirm: true
+            }, function(){
+                $http.post('/api/agent/device/chpassword', { "dbtype": vm.type + '-' + vm.subtype , "dbaddr": vm.uuid, "passwd": password } ).success(function(data){
+                    if(data.stat == true) 
+                    { 
+                        toastr.success("操作完成");
+                    } else { 
+                        toastr.error("操作失败:" + data.info)
+                    }
+                });
+              });
+
+        };
+
         vm.reload();
 
         vm.names=[];

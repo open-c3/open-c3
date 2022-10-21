@@ -400,6 +400,18 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
         } @title;
         my @x = map{ [ $_ => $r->{$_} ] } @title;
 
+        if( -f "$datapathx/auth/$param->{type}-$param->{subtype}.auth/$user" )
+        {
+            my $passfile = "$datapathx/auth/$param->{type}-$param->{subtype}/$r->{$uuidcol}";
+            my $passcont = '';
+            if( -f $passfile )
+            {
+                $passcont = eval{ YAML::XS::LoadFile $passfile };
+                return  +{ stat => $JSON::false, info => "get auth fail: $@" } if $@;
+            }
+            push @x, [ _auth_ => $passcont ];
+        }
+
         if( $showmysqlauth )
         {
             my $mysqladdr = join ':',map{ $r->{$_}} @showmysqladdr;

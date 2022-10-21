@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use YAML::XS;
 
+use utf8;
 binmode STDIN,  ':utf8';
 binmode STDOUT, ':utf8';
 binmode STDERR, ':utf8';
@@ -74,6 +75,7 @@ if( $curr eq 'curr' )
 
     for( grep{ /^[a-zA-Z0-9]/ }@extcol )
     {
+        utf8::decode( $_ );
         my ( $uuid, $name, $data ) = split /;/, $_, 3;
         $extcol{ $uuid }{ $name } = $data;
     }
@@ -84,6 +86,7 @@ else
     chomp @extcol;
     for( grep{ /^[a-zA-Z0-9]/ }@extcol )
     {
+        utf8::decode( $_ );
         my ( $typet, $subtypet, $uuid, $name, $data ) = split /;/, $_, 5;
         next unless $typet && $subtypet && $typet eq $type && $subtypet eq $subtype;
         $extcol{ $uuid }{ $name } = $data;
