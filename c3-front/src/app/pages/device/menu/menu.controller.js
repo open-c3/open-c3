@@ -5,9 +5,13 @@
         .module('openc3')
         .controller('DeviceMenuController', DeviceMenuController);
 
-    function DeviceMenuController($state, $http, $scope, ngTableParams) {
+    function DeviceMenuController($state, $http, $scope, ngTableParams, treeService ) {
         var vm = this;
         vm.treeid = $state.params.treeid;
+
+        treeService.sync.then(function(){      // when the tree was success.
+            vm.nodeStr = treeService.selectname();  // get tree name
+        });
 
         vm.menu = {};
         vm.selectedtimemachine = 'curr';

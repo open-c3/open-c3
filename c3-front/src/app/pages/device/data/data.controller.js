@@ -5,8 +5,12 @@
         .module('openc3')
         .controller('DeviceDataController', DeviceDataController);
 
-    function DeviceDataController($state, $http, $scope, ngTableParams, $uibModal) {
+    function DeviceDataController($state, $http, $scope, ngTableParams, $uibModal, treeService ) {
         var vm = this;
+
+        treeService.sync.then(function(){      // when the tree was success.
+            vm.nodeStr = treeService.selectname();  // get tree name
+        });
 
         vm.showfilter = 0;
 
