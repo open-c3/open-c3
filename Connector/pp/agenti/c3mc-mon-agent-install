@@ -7,7 +7,11 @@ if [ "X" == "X$addr" ];then
     echo nofind .addr
     exit 1
 fi
+
+export MYDan_Agent_Proxy_Addr=$addr/api/agent/proxy/0
+export MYDan_Agent_Proxy_Header="appname:job,appkey:${OPEN_C3_RANDOM}"
+
 c3mc-mon-agent-install-errnode \
-|sort -R    \
-|head -n 10 \
-|xargs -i{} /data/Software/mydan/dan/tools/rcall -r {} --timeout 300 exec "curl -L $addr/api/scripts/installAgentMon.sh |sudo OPEN_C3_ADDR=$addr bash"
+| sort  -R    \
+| head  -n 10 \
+| xargs -P 2 -i{} /data/Software/mydan/dan/tools/rcall -r {} --timeout 300 exec "curl -L $addr/api/scripts/installAgentMon.sh | OPEN_C3_ADDR=$addr bash"
