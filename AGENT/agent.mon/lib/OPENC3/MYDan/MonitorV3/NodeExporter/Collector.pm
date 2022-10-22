@@ -96,6 +96,7 @@ sub new
                     $proc{$type}{child} = AnyEvent->child(
                         pid => $pid, cb => sub{
                             delete $proc{$type}{pid};
+                            delete $proc{$type}{rdr};
                             my $input;my $n = sysread $rdr, $input, 102400;
 
                             $input = "" unless $n;
@@ -135,7 +136,7 @@ sub new
         after => 1, 
         interval => 15,
         cb => sub { 
-            $this{prom}->set( 'node_exporter_version', 17 );
+            $this{prom}->set( 'node_exporter_version', 18 );
             $this{prom}->set( 'node_collector_error', $promeerror, +{ collector => 'node_exporter_prome' } ) if defined $promeerror;
             $promeerror = undef;           
         }
