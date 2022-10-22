@@ -1,7 +1,0 @@
-#!/bin/bash
-
-domain=$(c3mc-sys-ctl sys.cluster.domain)
-c3mc-mon-agent-install-errnode \
-|sort -R \
-|head -n 10 \
-|xargs -i{} /data/Software/mydan/dan/tools/rcall -r {} --timeout 300 exec "curl -L http://$domain/api/scripts/installAgentMon.sh |sudo OPEN_C3_ADDR=http://$domain bash"
