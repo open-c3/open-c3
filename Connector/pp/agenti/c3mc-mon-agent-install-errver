@@ -1,0 +1,42 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use JSON;
+use FindBin qw( $RealBin );
+use LWP::UserAgent;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $version = `cat .version`;
+chomp $version;
+
+die "nofind version in .version" unless $version && $version =~ /^\d+$/;
+
+my $ua = LWP::UserAgent->new;
+$ua->timeout( 30 );
+my $res = $ua->get( 'http://openc3-prometheus:9090/api/v1/query?query=node_exporter_version%3C'. $version );
+
+die "call prometheus fail" unless $res->is_success;
+
+my $cont = $res->decoded_content;
+
+my $v = eval{JSON::decode_json $res->decoded_content};
+die "load json fail: $@" if $@;
+die "call fail" unless $v->{status} && $v->{status} eq 'success';
+
+my @data = @{$v->{data}{result}};
+
+for my $data ( @data )
+{
+    next unless $data->{metric};
+    my $instance = $data->{metric}{instance};
+    next unless $instance && $instance =~ /^\d+\.\d+\.\d+\.\d+$/;
+    print "$instance\n";
+}

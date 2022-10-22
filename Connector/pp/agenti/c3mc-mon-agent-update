@@ -7,7 +7,7 @@ if [ "X" == "X$addr" ];then
     echo nofind .addr
     exit 1
 fi
-c3mc-mon-agent-install-errnode \
+c3mc-mon-agent-install-errver \
 |sort -R    \
 |head -n 10 \
 |xargs -i{} /data/Software/mydan/dan/tools/rcall -r {} --timeout 300 exec "curl -L $addr/api/scripts/installAgentMon.sh |sudo OPEN_C3_ADDR=$addr bash"
