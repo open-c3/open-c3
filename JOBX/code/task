@@ -48,10 +48,14 @@ return sub
 
     my $clusterVersionTag;
 
+    my $_pip_;
     if( $variable && $name =~ /^_ci_(\d+)_$/ )
     {
         my $flowlineid = $1;
         my $var  = eval{ YAML::XS::Load decode_base64( $variable ) };
+
+        $_pip_ = $var->{_pip_} if $var && $var->{_pip_};
+
         if( $var->{_jobtype_} eq 'online' && $var->{version} )
         {
             $clusterVersionTag = +{ flowlineid => $flowlineid, version => $var->{version}, jobxuuid => $uuid };
@@ -62,6 +66,9 @@ return sub
     {
         my $var  = eval{ YAML::XS::Load decode_base64( $variable ) };
         $logs->die( "task variable decode load error:$@" ) if $@;
+
+        $_pip_ = $var->{_pip_} if $var && $var->{_pip_};
+
         unless( $var && $var->{_rollbackVersion_} )
         {
             my $ruuid =  uuid::get_rollback_uuid( $uuid );
@@ -101,7 +108,15 @@ return sub
     }
     else
     {
-        if( $group =~ /^val=(.+)$/ )
+        if( $_pip_ )
+        {
+            for my $x ( split /;/, $_pip_ )
+            {
+                next unless $x;
+                push @group, [ split /,/, $x ];
+            }
+        }
+        elsif( $group =~ /^val=(.+)$/ )
         {
             @group = ( [ split /,/, $1 ] );
         }

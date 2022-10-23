@@ -170,7 +170,7 @@ post '/variable/:projectid/update' => sub {
         return  +{ stat => $JSON::false, info => "check data format fail $error" } if $error;
         $d->{value} = '' unless defined $d->{value};
 
-        if( grep{ $d->{name} eq $_ || $d->{name} =~ /^wk_/  }qw( _exit_ _appname_ _skipSameVersion_ _rollbackVersion_ _authorization_ _nodebatch_ ) )
+        if( grep{ $d->{name} eq $_ || $d->{name} =~ /^wk_/  }qw( _exit_ _appname_ _skipSameVersion_ _rollbackVersion_ _authorization_ _nodebatch_ _pip_ ) )
         {
             eval{
                 $api::mysql->execute( "replace into openc3_job_variable ( `jobuuid`,`name`,`value`,`describe`,`option`,`create_user` ) 
