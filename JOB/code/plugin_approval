@@ -197,6 +197,15 @@ return sub
         $logs->die( "relpace variable approver fail:$@" ) if $@;
     }
 
+    if( $approver =~ /^@[a-zA-Z]/ || $approver =~ /,@[a-zA-Z]/ || $approver =~ /^%[a-zA-Z]/ || $approver =~ /,%[a-zA-Z]/ )
+    {
+        $logs->die( "approver error format:$@" ) unless $approver =~ /^[\@\%a-zA-Z0-9][a-zA-Z0-9\@\%\-_\.,]+$/;
+        my    @x = `echo '$approver'|sed 's/,/ /g'|xargs -n 1|c3mc-app-usrext`;
+        chomp @x;
+        die "nofind approver" unless @x;
+        $approver = join ',', @x;
+    }
+
     $timeout ||= 86400;
 
     print "timeout: $timeout\n";
