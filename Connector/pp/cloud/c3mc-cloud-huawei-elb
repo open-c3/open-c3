@@ -34,14 +34,20 @@ class Elb:
         return request
 
     def get_instances_from_response(self, response):
-        return response.loadbalancers
+        result = []
+        for instance in json.loads(str(response.loadbalancers)):
+            instance["region"] = self.region
+            result.append(instance)
+        return result
+
+    def list_instance(self):
+        response = self.client.list_loadbalancers(self.set_request(None))
+        return self.get_instances_from_response(response)
 
     def show(self):
-        response = self.client.list_loadbalancers(self.set_request(None))
-        results = self.get_instances_from_response(response)
-        for instance in results:
-            print(str(instance))
-        return results
+        instance_list = self.list_instance()
+        for instance in instance_list:
+            print(json.dumps(instance))
 
 
 # project_id 可以命令行传 None
