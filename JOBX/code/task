@@ -54,7 +54,7 @@ return sub
         my $flowlineid = $1;
         my $var  = eval{ YAML::XS::Load decode_base64( $variable ) };
 
-        $_pip_ = $var->{_pip_} if $var && $var->{_pip_};
+        $_pip_ = $var->{_pip_} if $var && defined $var->{_pip_};
 
         if( $var->{_jobtype_} eq 'online' && $var->{version} )
         {
@@ -67,7 +67,7 @@ return sub
         my $var  = eval{ YAML::XS::Load decode_base64( $variable ) };
         $logs->die( "task variable decode load error:$@" ) if $@;
 
-        $_pip_ = $var->{_pip_} if $var && $var->{_pip_};
+        $_pip_ = $var->{_pip_} if $var && defined $var->{_pip_};
 
         unless( $var && $var->{_rollbackVersion_} )
         {
