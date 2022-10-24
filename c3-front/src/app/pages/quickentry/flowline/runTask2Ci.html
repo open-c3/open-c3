@@ -7,13 +7,22 @@
             <div class="form-horizontal">
                 <form class="form-horizontal" name="runtask2ciForm"  role="form" novalidate>
                     <h3 style="margin: 0px" >机器列表</h3>
-                    <div class="row" ng-repeat="group in runtask2ci.showIPstr">
+                    <div ng-show="!taskData.variable._pip_" class="row" ng-repeat="group in runtask2ci.showIPstr">
                         <div class="col-sm-12 form-group">
                             <label class="col-sm-3 control-label">分组{{$index+1}}: ({{group.num}}台机器)
                             </label>
                             <div class="col-sm-9" style="padding-top: 10px">
                                 <p ng-repeat="ip in group.infos">{{ip}}</p>
                            </div>
+                       </div>
+                   </div>
+
+                    <div ng-show="taskData.variable._pip_" class="row">
+                        <div class="col-sm-12 form-group">
+                            <label class="col-sm-3 control-label">机器</label>
+                            <div class="col-sm-9" style="padding-top: 10px">
+                                <p>{{taskData.variable._pip_}}</p>
+                            </div>
                        </div>
                    </div>
 
@@ -145,8 +154,19 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="col-sm-10 form-group">
+                            <div ng-if="ss.name == '_pip_' " >
+                                <label class="col-sm-3 control-label"></label>
+                                <div class="col-sm-9">
+                                    <button class="btn btn-primary ng-binding" ng-click="runtask2ci.choiceServer()">选择第{{choiceServerNum}}批服务器</button>
+                                    {{runtask2ci.machineList}}
+                                </div>
+                            </div>
+                        </div>
  
                     </div>
+
                     <div class="row">
                         <div class="col-sm-3 form-group" style="margin-left: 40%;">
                             <button ng-if="!runtask2ci.loadover" class="btn btn-primary" ng-disabled="1" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!runtask2ci.loadover}" ></i>加载中...</button>

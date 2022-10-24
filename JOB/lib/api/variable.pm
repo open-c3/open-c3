@@ -99,6 +99,7 @@ get '/variable/:projectid/:jobuuid' => sub {
         tester   =>  Encode::decode("utf8", '1.测试审批人'),
         approver =>  Encode::decode("utf8", '2.OA审批人 或 领导审批人'),
         checker  =>  Encode::decode("utf8", '3.发布前确认人'),
+        '_pip_'  =>  Encode::decode("utf8", '4.指定IP发布'),
     );
     for( @$r )
     {
@@ -170,7 +171,7 @@ post '/variable/:projectid/update' => sub {
         return  +{ stat => $JSON::false, info => "check data format fail $error" } if $error;
         $d->{value} = '' unless defined $d->{value};
 
-        if( grep{ $d->{name} eq $_ || $d->{name} =~ /^wk_/  }qw( _exit_ _appname_ _skipSameVersion_ _rollbackVersion_ _authorization_ _nodebatch_ ) )
+        if( grep{ $d->{name} eq $_ || $d->{name} =~ /^wk_/  }qw( _exit_ _appname_ _skipSameVersion_ _rollbackVersion_ _authorization_ _nodebatch_ _pip_ ) )
         {
             eval{
                 $api::mysql->execute( "replace into openc3_job_variable ( `jobuuid`,`name`,`value`,`describe`,`option`,`create_user` ) 

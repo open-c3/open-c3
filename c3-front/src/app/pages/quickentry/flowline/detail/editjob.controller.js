@@ -34,7 +34,7 @@
             "jobuuid":"",
             "name":"",
             "value":"",
-            "describe":" "
+            "describe":""
         };
 //        if (!vm.editJobData){
 //            $state.go('home.business.job', {

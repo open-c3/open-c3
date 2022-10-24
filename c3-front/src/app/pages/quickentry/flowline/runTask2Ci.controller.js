@@ -245,6 +245,10 @@
 
         vm.checkinput = function( str, key )
         {
+            if( key == '_pip_' )
+            {
+                $scope.choiceServerNum = $scope.taskData.variable._pip_.split(';').length + 1;
+            }
             var regex = /[\u4E00-\u9FA5\uF900-\uFA2D]/;
             if (regex.test(str)) {
                 vm.error[key]= '参数存在中文';
@@ -253,7 +257,41 @@
             {
                 vm.error[key] = '';
             }
-        }
+        };
+
+        $scope.choiceServerNum = 1;
+        vm.choiceServer = function () {
+                var openChoice = $uibModal.open({
+                templateUrl: 'app/components/machine/choiceMachine.html',
+                controller: 'ChoiceController',
+                controllerAs: 'choice',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeId: function () { return vm.treeid},
+
+                }
+            });
+            openChoice.result.then(
+                function (result) {
+                    if (result.length != 0){
+                        $scope.choiceShow = true;
+                        var machineInfoNew = "";
+                        machineInfoNew = result.join(',');
+                        if ($scope.taskData.variable._pip_) {
+                            $scope.taskData.variable._pip_ = $scope.taskData.variable._pip_ + ';' + machineInfoNew;
+                        } else {
+                            $scope.taskData.variable._pip_ = machineInfoNew;
+                        };
+                        $scope.choiceServerNum = $scope.taskData.variable._pip_.split(';').length + 1;
+                    }
+                },function (reason) {
+                    console.log("error reason", reason)
+                }
+            );
+        };
 
     }
 })();
