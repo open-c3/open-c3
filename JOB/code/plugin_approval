@@ -240,16 +240,17 @@ return sub
         my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
         my $muuid = uuid->new()->create_str;
         print "Send mesg to $user, wait for his confirmation\n";
+        my $tempeo = $everyone ? 'YES' :'NO';
         if( $relaxed && $user eq $submitter )
         {
             eval{ $db->execute( 
-                "insert into openc3_job_approval (`taskuuid`,`uuid`,`user`,`submitter`,`cont`,`opinion`,`remarks`,`create_time`,`finishtime`,`notifystatus`,`oauuid`,`name`)values('$puuid','$muuid','$user','$submitter','$cont','agree', 'sys.handle.auto','$time','$time', 'skip', '0','$name' )"
+                "insert into openc3_job_approval (`taskuuid`,`uuid`,`user`,`submitter`,`cont`,`opinion`,`remarks`,`create_time`,`finishtime`,`notifystatus`,`oauuid`,`name`,`everyone`)values('$puuid','$muuid','$user','$submitter','$cont','agree', 'sys.handle.auto','$time','$time', 'skip', '0','$name', '$tempeo' )"
             ) };
         }
         else
         {
             eval{ $db->execute( 
-                "insert into openc3_job_approval (`taskuuid`,`uuid`,`user`,`submitter`,`cont`,`opinion`,`remarks`,`create_time`,`notifystatus`,`oauuid`,`name`)values('$puuid','$muuid','$user','$submitter','$cont','unconfirmed', '','$time', 'null', '0','$name' )"
+                "insert into openc3_job_approval (`taskuuid`,`uuid`,`user`,`submitter`,`cont`,`opinion`,`remarks`,`create_time`,`notifystatus`,`oauuid`,`name`,`everyone`)values('$puuid','$muuid','$user','$submitter','$cont','unconfirmed', '','$time', 'null', '0','$name', '$tempeo' )"
             ) };
  
         }
