@@ -23,3 +23,10 @@
 c3mc-base-treemap | c3mc-base-savetree
 
 ```
+## 常规导出(去掉了cmdb中的磁盘导出关系，磁盘uuid从主机中获取id)
+
+TODO: 可以把磁盘服务树关系从主机中获取出来，之后磁盘就可以直接从CMDB获取
+```
+./run.sh
+# 然后到当前目录下的data目录获取生成的数据
+```
