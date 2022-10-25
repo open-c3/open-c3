@@ -384,3 +384,6 @@ create table if not exists `openc3_device_extcol`(
 UNIQUE KEY `uniq_type_subtype_uuit_name` (`type`, `subtype`,`uuid`,`name`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='资源的扩展列信息';
 
+# v2.6.0 sql openc3_job_approval add everyone
+ALTER TABLE openc3_job_approval ADD `everyone` VARCHAR(20) comment '是否每个人都需要审批';
+
