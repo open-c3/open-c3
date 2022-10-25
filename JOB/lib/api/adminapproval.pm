@@ -82,7 +82,7 @@ get '/adminapproval/oalog/:id' => sub {
     my $path = "/data/open-c3-data/glusterfs/approval_log";
 
     my %data;
-    for my $x ( qw( create query ) )
+    for my $x ( qw( create query sync ) )
     {
         $data{$x} = +{ log => 'NULL', time => 'NULL' };
         my $f = "$path/$x.$param->{id}";
