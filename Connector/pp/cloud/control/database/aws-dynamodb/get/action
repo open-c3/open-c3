@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+import boto3
+
+
+def get(data, access_id, access_key, region):
+    """
+        输出 aws dynamodb 的详情(json格式)
+    """
+    client = boto3.client(
+        "dynamodb",
+        aws_access_key_id=access_id,
+        aws_secret_access_key=access_key,
+        region_name=region,
+    )
+
+    field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database aws-dynamodb TableName")
+
+    response = client.describe_table(
+        TableName=data[field_name],
+    )
+
+    dynamodb_item = {}
+    for key, value in response["Table"].items():
+        dynamodb_item[key] = value
+
+    dynamodb_item["Tag"] = list_tag(
+        access_id, access_key, region, response["Table"]["TableArn"])
+    return dynamodb_item
+
+
+def list_tag(access_id, access_key, region, arn):
+    sys.path.append("/data/Software/mydan/Connector/lib/pp")
+    from c3mc_cloud_aws_dynamodb_get_tag import GetTag
+    return GetTag(access_id, access_key, region, arn).list_tag()
+
+
+def main(data, access_id, access_key, region):
+    data = get(data, access_id, access_key, region)
+    print(json.dumps(data, default=str))
+
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4])

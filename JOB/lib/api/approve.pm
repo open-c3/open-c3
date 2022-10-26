@@ -37,9 +37,12 @@ post '/approve/approval' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
-    my $r = eval{ $api::mysql->execute( "update openc3_job_approval set opinion='$param->{opinion}',finishtime='$time' where uuid='$param->{uuid}' and user='$user' and opinion='unconfirmed'")};
+    eval{
+        $api::mysql->execute( "update openc3_job_approval set opinion='$param->{opinion}',finishtime='$time' where uuid='$param->{uuid}' and user='$user' and opinion='unconfirmed'");
+        $api::mysql->execute( "update openc3_job_approval set opinion='$param->{opinion}',finishtime='$time',remarks='close by $user' where opinion='unconfirmed' and taskuuid in ( select t.taskuuid from ( select taskuuid from openc3_job_approval where uuid='$param->{uuid}' and everyone='NO' ) t )");
+    };
 
-    return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
+    return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => 1 };
 };
 
 get '/approve/approval/:uuid' => sub {

@@ -44,5 +44,6 @@ die "call c3mc-base-approval-creat fail." if $?;
 
 my $output;my $n = sysread $chld_out, $output, 102400;
 
+chomp $output;
 die "oauuid format error" unless $output && $output =~ /^[a-zA-Z0-9_\.\-@]+$/;
 $db->execute( "update openc3_job_approval set oauuid='$output' where id='$id' and oauuid='1'" );

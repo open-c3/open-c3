@@ -34,6 +34,7 @@ if( $name eq 'approval' )
     )->run(
       qq( c3mc-base-db-get -t openc3_job_approval id --filter "oauuid='0'                                  and opinion='unconfirmed' and create_time>'`date +%F -d \"15 days ago\"`'" | c3mc-base-task-grep -m job | xargs -i{} bash -c "c3mc-job-approval-create -i {} >$path/create.{} 2>&1 ; exit 0" ),
       qq( c3mc-base-db-get -t openc3_job_approval id --filter "oauuid !='' and oauuid!='0' and oauuid!='1' and opinion='unconfirmed' and create_time>'`date +%F -d \"15 days ago\"`'" | c3mc-base-task-grep -m job | xargs -i{} bash -c "c3mc-job-approval-query  -i {} >$path/query.{}  2>&1 ; exit 0" ),
+      qq( c3mc-base-db-get -t openc3_job_approval id --filter "oauuid !='' and oauuid!='0' and oauuid!='1' and ( opinion='agree' or opinion='refuse' ) and oasync='0' and create_time>'`date +%F -d \"15 days ago\"`'" | c3mc-base-task-grep -m job | xargs -i{} bash -c "c3mc-job-approval-sync  -i {} >$path/sync.{}  2>&1 ; exit 0" ),
     );
 }
 

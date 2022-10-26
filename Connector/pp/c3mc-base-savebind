@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use uuid;
 use POSIX;
+use OPENC3::Tree;
 
 binmode STDIN,  ':utf8';
 binmode STDOUT, ':utf8';
@@ -43,6 +44,7 @@ sub save
 
     die "uuid err[$uuid]" unless $uuid && $uuid =~ /^[a-zA-Z0-9][a-zA-Z0-9\.\-_]*[a-zA-Z0-9]$/;
     checktree( $tree );
+    $tree = OPENC3::Tree::compress( $tree );
 
     eval{ $db->execute( "replace into openc3_device_bindtree (`type`,`subtype`,`uuid`,`tree`) value('$type','$subtype','$uuid','$tree')" ); };
     die "update fail:$@"  if $@;

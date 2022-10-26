@@ -1,0 +1,65 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDan::Util::OptConf;
+use Encode;
+use LWP::UserAgent;
+use JSON;
+use Configini;
+use uuid;
+
+=head1 SYNOPSIS
+
+ $0 --uuid uuid --status agree,refuse
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get(    qw( uuid=s status=s ) )->dump();
+        $option->assert( qw( uuid   status )   );
+
+local $/ = undef;
+my $content = Encode::encode('utf8', <STDIN> );
+local $/ = "\n";
+
+my $approver     = Configini::get( 'approver'    );
+my %env          = Configini::env( 'approverenv' );
+my $approversync = Configini::get( 'approversync' );
+
+unless( $approversync )
+{
+    warn "approversync undef, skip.\n";
+    exit;
+}
+
+unless( $approver )
+{
+    warn "approver undef, skip.\n";
+    exit;
+}
+
+my $ua = LWP::UserAgent->new;
+$ua->timeout( 10 );
+$ua->default_header( %env ) if %env;
+
+my $cont = $approver =~ /encode=1/
+    ? JSON::to_json(     +{ uuid => $o{uuid}, status => $o{status}, content => $content } )
+    : JSON::encode_json( +{ uuid => $o{uuid}, status => $o{status}, content => $content } );
+my $res = $ua->delete( $approver, Content => $cont, 'Content-Type' => 'application/json' );
+
+my $err = sprintf "call approver fail: $approver\n%s\n", YAML::XS::Dump $res;
+$err =~ s/appkey:\s+['"]?[a-zA-Z0-9]{32}['"]?\b/appkey: ******/g;
+
+die sprintf( "$err: code %s", $res->code ) unless $res->is_success;
+
+my $v = eval{JSON::decode_json $res->decoded_content};
+die "$err: data no JSON: $@" if $@;
+
+die $err unless $v->{stat};

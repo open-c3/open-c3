@@ -54,6 +54,8 @@ def get_volume(data_list):
             item["ZoneId"] = item["Placement"]["Zone"]
             item["account"] = unique_disk_id_m[item["DiskId"]]["account"]
             item["accountuuid"] = unique_disk_id_m[item["DiskId"]]["accountuuid"]
+            if "InstanceId" in item:
+                item["_vmuuid_"] = item["InstanceId"]
             result.append(item)
 
         if len(resp["DiskSet"]) < page_size:
@@ -63,6 +65,8 @@ def get_volume(data_list):
 
 
 def main(data_list):
+    if len(data_list) == 0:
+        return
     result = get_volume(data_list)
     for item in result:
         print(json.dumps(item, default=str))

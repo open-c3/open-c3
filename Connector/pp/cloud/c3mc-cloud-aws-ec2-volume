@@ -27,7 +27,9 @@ class Volume:
     def get_instances_from_response(self, response_data):
         result = []
         for volume in response_data["Volumes"]:
-            volume["RegionId"] = volume["AvailabilityZone"][:-1]
+            volume["RegionId"] = self.region
+            if len(volume["Attachments"]) > 0:
+                volume["_vmuuid_"] = volume["Attachments"][0]["InstanceId"]
             result.append(volume)
         return result
 

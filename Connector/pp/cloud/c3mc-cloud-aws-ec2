@@ -28,7 +28,7 @@ class Ec2:
         instances = []
         for reservation in response_data["Reservations"]:
             for instance in reservation["Instances"]:
-                instance["RegionId"] = instance["Placement"]["AvailabilityZone"][:-1]
+                instance["RegionId"] = self.region
                 instances.append(instance)
         return instances
 

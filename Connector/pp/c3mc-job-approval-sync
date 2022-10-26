@@ -1,0 +1,44 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDB;
+use MYDan::Util::OptConf;
+use Encode;
+use uuid;
+use IPC::Open3;
+
+=head1 SYNOPSIS
+
+ $0 --id id
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( id=i ) )->dump();
+$option->assert(qw( id ));
+
+my $id = $o{id};
+my $db = MYDB->new( "/data/Software/mydan/JOB/conf/conn", delayedconnection => 1 );
+
+my $x = eval{ $db->query( "select oauuid,`opinion`,remarks from openc3_job_approval where id='$id' and ( `opinion`='agree' or `opinion`='refuse' ) and ( oauuid!='' and oauuid!='0' and oauuid!='1' ) and oasync='0'" ) };
+die "id $id nofind in db" unless $x && @$x;
+
+my $pipe = "c3mc-base-approval-sync --uuid '$x->[0][0]' --status $x->[0][1]";
+my $pid   = IPC::Open3::open3( my $chld_in, '>&STDOUT', '>&STDERR', $pipe);
+
+print $chld_in $x->[0][2] // 'null'; 
+close $chld_in;
+waitpid( $pid, 0 );
+
+my $stat = 1;
+( $stat = 2 && warn "send mesg fail." ) if $?;
+
+$db->execute( "update openc3_job_approval set `oasync`='$stat' where id='$id'" );
+

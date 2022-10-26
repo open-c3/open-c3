@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+import boto3
+
+
+def tag_add(data, access_id, access_key, region):
+    client = boto3.client(
+        "s3",
+        aws_access_key_id=access_id,
+        aws_secret_access_key=access_key,
+        region_name=region,
+    )
+
+    field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field storage aws-s3 BucketName")
+
+    response = client.get_bucket_tagging(
+        Bucket=data[field_name],
+    )
+    tag_list = response["TagSet"]
+
+    need_add_key = data["_control_"]["tag-add"]["key"]
+    need_add_value = data["_control_"]["tag-add"]["value"]
+    found = False
+    for i in range(len(tag_list)):
+        if tag_list[i]['Key'] == need_add_key:
+            tag_list[i]['Value'] = need_add_value
+            found = True
+            break
+    if not found:
+        tag_list.append({
+            'Key': data["_control_"]["tag-add"]["key"],
+            'Value': data["_control_"]["tag-add"]["value"]
+        })
+
+    client.put_bucket_tagging(
+        Bucket=data[field_name],
+        Tagging={
+            'TagSet': tag_list
+        },
+    )
+
+
+def main(data, access_id, access_key, region):
+    tag_add(data, access_id, access_key, region)
+
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4])

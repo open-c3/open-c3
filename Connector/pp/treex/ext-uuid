@@ -1,0 +1,51 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my @cmd = ( "c3mc-device-data-get compute huawei-ecs uuid" );
+map{ push @cmd, "os-extended-volumes:volumes_attached.$_.id" } 0 .. 16;
+my $cmd = join ' ', @cmd;
+
+my    @x = `$cmd`;
+chomp @x;
+shift @x;
+
+my %uuid;
+for( @x )
+{
+    my ( $vmuuid, @voluuid ) = split /\t/, $_;
+    map{ push @{$uuid{$vmuuid}}, $_  }grep{ $_ }@voluuid;
+}
+
+for my $x ( <STDIN> )
+{
+    #web;compute;huawei-ecs;8854ae53-ee04-4462-bdcf-a30123450d55;cn_cloud_clean
+    chomp $x;
+    my ( $account, $type, $subtype, $uuid, $product ) = split /;/, $x;
+    print "$x\n";
+    if( $type eq 'compute' && $subtype eq 'huawei-ecs' )
+    {
+        next unless $uuid{$uuid};
+        map{ printf "%s\n", join ';', $account, 'storage', 'huawei-ecs-volume', $_, $product; }@{ $uuid{$uuid} };
+    }
+
+    #web;database;huawei-rds;abfd31768bc4457f12345083c1157ca3in01;cn_browser
+    if( $type eq 'database' && $subtype eq 'huawei-rds' )
+    {
+        printf "%s\n", join ';', $account, 'database', 'huawei-rds-vm',     "$uuid.vm",     $product;
+        printf "%s\n", join ';', $account, 'database', 'huawei-rds-volume', "$uuid.volume", $product;
+    }
+}
+

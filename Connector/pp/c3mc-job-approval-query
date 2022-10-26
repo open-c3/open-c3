@@ -35,4 +35,7 @@ chomp $xx;
 my ( $status, $reason ) = split /;/, $xx;
 
 exit unless $status && ( $status eq 'agree' || $status eq 'refuse' );
-$db->execute( "update openc3_job_approval set `opinion`='$status' where id='$id' and  `opinion`!='agree' and `opinion`!='refuse'" );
+$db->execute( "update openc3_job_approval set `opinion`='$status',oasync='1' where id='$id' and  `opinion`!='agree' and `opinion`!='refuse'" );
+
+my $m = $db->query( "select taskuuid,user from openc3_job_approval where id='$id' and everyone='NO'" );
+$db->execute( "update openc3_job_approval set opinion='$status',remarks='sync by $m->[0][1]' where opinion='unconfirmed' and taskuuid='$m->[0][0]'") if @$m > 0;

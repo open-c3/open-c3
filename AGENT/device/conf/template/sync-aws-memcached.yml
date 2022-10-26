@@ -24,6 +24,8 @@ download:
       uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
     alias:
       CacheClusterId: "实例ID"
+      CacheClusterStatus: "状态"
+      RegionId: 区域
       PreferredAvailabilityZone: "所在可用区"
       product_owner: "业务负责人"
       ops_owner: "运维负责人"
@@ -31,6 +33,8 @@ download:
     filter:
       - name: "account"
         alias: 账号
+      - name: "区域"
+        alias: 区域
       - name: "所在可用区"
         alias: 所在可用区
       - name: "业务负责人"
@@ -45,9 +49,10 @@ download:
       baseinfo:
         - "account"
         - "实例ID"
-        - "所在可用区"
+        - "区域"
       system:
-        - "ConnectionDomain"
+        - "状态"
+        - "所在可用区"
       contact:
         - "服务树"
         - "部门"

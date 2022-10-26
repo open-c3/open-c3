@@ -25,6 +25,8 @@ class Volume:
         results = []
         for instance in response_data["Volumes"]:
             instance["RegionId"] = instance["AvailabilityZone"][:-1]
+            if "InstanceId" in instance:
+                instance["_vmuuid_"] = instance["InstanceId"]
             results.append(instance)
         return results
 
