@@ -186,6 +186,7 @@ return sub
     $var_map{"deploy_env"} = $var_map{"_jobtype_"};
     $var_map{"rollback"} = defined $var_map{"_rollbackVersion_"} ? "如需回滚会回滚到版本: $var_map{_rollbackVersion_}" : "";
     $var_map{"rollback_version"} = $var_map{"_rollbackVersion_"} // 'no rollback version';
+    $var_map{"stepname"} = $name;
 
     map{ $var_map{$_} //= 'undefind'; utf8::decode($var_map{$_}) }keys %var_map;
 
