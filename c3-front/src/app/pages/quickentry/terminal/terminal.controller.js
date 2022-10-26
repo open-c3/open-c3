@@ -20,6 +20,7 @@
         $scope.selectedDataExip = [];
         $scope.choiceShow = false;
         $scope.selectedUser = 'root';
+        vm.nodecount = 0;
 
         treeService.sync.then(function(){ 
             vm.nodeStr = treeService.selectname(); 
@@ -46,6 +47,7 @@
             $http.get('/api/agent/nodeinfo/' + vm.treeid).then(
                 function successCallback(response) {
                     if (response.data.stat){
+                        vm.nodecount = response.data.data.length;
                         vm.machine_Table = new ngTableParams({count:10}, {counts:[],data:response.data.data.reverse()});
                         vm.loadover = true
                     }else {
