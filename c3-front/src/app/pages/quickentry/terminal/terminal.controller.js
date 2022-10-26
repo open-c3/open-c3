@@ -42,13 +42,21 @@
             );
         }
 
+        vm.allinip = [];
         vm.reload = function () {
             vm.loadover = false
+            vm.allinip = [];
             $http.get('/api/agent/nodeinfo/' + vm.treeid).then(
                 function successCallback(response) {
                     if (response.data.stat){
                         vm.nodecount = response.data.data.length;
                         vm.machine_Table = new ngTableParams({count:10}, {counts:[],data:response.data.data.reverse()});
+                        angular.forEach(response.data.data, function (value, key) {
+                            if( value.inip )
+                            {
+                                vm.allinip.push( value.inip )
+                            }
+                        });
                         vm.loadover = true
                     }else {
                         toastr.error( "获取机器列表失败："+response.data.info)
@@ -114,6 +122,15 @@
 
         vm.delAllData = function () {
             $scope.selectedData.splice(0,$scope.selectedData.length);
+        };
+
+        vm.selectAllData = function () {
+            angular.forEach(vm.allinip, function (value, key) {
+                if( $scope.isSelected(value) == false )
+                {
+                    $scope.selectedData.push(value)
+                }
+            });
         };
 
         $scope.openOneTab = function (name) {
