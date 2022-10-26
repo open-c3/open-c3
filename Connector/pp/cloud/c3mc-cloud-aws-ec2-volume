@@ -28,6 +28,8 @@ class Volume:
         result = []
         for volume in response_data["Volumes"]:
             volume["RegionId"] = self.region
+            if len(volume["Attachments"]) > 0:
+                volume["_vmuuid_"] = volume["Attachments"][0]["InstanceId"]
             result.append(volume)
         return result
 
