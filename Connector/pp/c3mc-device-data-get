@@ -7,13 +7,17 @@ use YAML::XS;
 =head1 SYNOPSIS
 
  $0
- $0 type subtype col1 ... coln
+ $0 time|curr type subtype col1 ... coln
 
 =cut
 
-my ( $type, $subtype, @col ) = @ARGV;
+my ( $curr, $type, $subtype, @col ) = @ARGV;
 die "argv err" unless @col;
-my ( $file, $colmap ) = map{ "/data/open-c3-data/device/curr/$type/$subtype/$_" }qw( data.tsv colmap.yml );
+
+
+my $path = $curr eq 'curr' ? 'curr' : "timemachine/$curr";
+
+my ( $file, $colmap ) = map{ "/data/open-c3-data/device/$path/$type/$subtype/$_" }qw( data.tsv colmap.yml );
 die "no data" unless -f $file;
 
 if( -f $colmap )
@@ -23,7 +27,7 @@ if( -f $colmap )
     @col = map{ $x->{$_} || $_ }@col;
 }
 
-my    @data  = `c3mc-device-cat curr $type $subtype`;
+my    @data  = `c3mc-device-cat $curr $type $subtype`;
 chomp @data;
 
 exit unless @data;

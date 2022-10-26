@@ -11,5 +11,5 @@ use warnings;
 for ( glob "/data/open-c3-data/device/curr/*/*/data.tsv" )
 {
     my ( undef, $subtype, $type ) = reverse split /\//, $_;
-    system "c3mc-device-data-get $type $subtype treename";
+    system "c3mc-device-data-get curr $type $subtype treename";
 }

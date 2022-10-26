@@ -19,6 +19,19 @@ binmode STDERR, ':utf8';
 my ( $curr, $type, $subtype, $grepuuid ) = @ARGV;
 die "argv err" unless $subtype;
 
+my $vmtype = $subtype =~ /^(.+)\-volume$/ ? $1 : undef;
+my %vmtree;
+if( $vmtype )
+{
+    my @x = `c3mc-device-data-get $curr compute $vmtype uuid treename`;
+    chomp @x;
+    for( @x )
+    {
+        my ( $uuid, $tree ) = split /\t/, $_;
+        $vmtree{ $uuid } = $tree;
+    }
+}
+
 $curr = "timemachine/$curr" if $curr ne 'curr';
 
 my $path = "/data/open-c3-data/device/$curr/$type/$subtype";
@@ -106,6 +119,7 @@ my @title = split /\t/, $title;
 my @ptitle = @title;
 push @ptitle, $treenamecol unless grep{ $_ eq $treenamecol }@title;
 push @ptitle, '_tree_' if $_tree_;
+push @ptitle, '_vmtree_' if $vmtype;
 push @ptitle, map{ $_->{name} }@$extcol;
 
 printf "\%s\n", join "\t", @ptitle;
@@ -120,6 +134,12 @@ for my $data ( @data )
         $d{ $_->{name} } = $extcol{ $d{ $uuidcol } } && $extcol{ $d{ $uuidcol } }{ $_->{name} }
             ? $extcol{ $d{ $uuidcol } }{ $_->{name} } : '';
     }@$extcol;
+
+
+    if( $vmtype )
+    {
+        $d{ _vmtree_ } = ( $d{'_vmuuid_'} && $vmtree{ $d{'_vmuuid_'} } ) ? $vmtree{ $d{'_vmuuid_'} } : '';
+    }
 
     $d{ _tree_       } = $treeow { $d{ $uuidcol } } if $_tree_;
     $d{ $treenamecol } = join ',', grep{ $_ }map{ $d{ $_ } }@$copytreecol;
