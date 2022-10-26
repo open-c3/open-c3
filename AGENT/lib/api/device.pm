@@ -398,7 +398,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
             $r->{$_} =~ s/_sys_temp_newline_temp_sys_/\n/g;
             $r->{$_} =~ s/_sys_temp_delimiter_temp_sys_/\t/g;
         } @title;
-        my @x = map{ [ $_ => $r->{$_} ] } grep{ $r->{$_} ne "" }@title;
+        my @x = map{ [ $_ => $r->{$_} ] } grep{ ! ( $_ =~ /\./ && $r->{$_} eq "" ) }@title;
 
         if( -f "$datapathx/auth/$param->{type}-$param->{subtype}.auth/$user" )
         {
