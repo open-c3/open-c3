@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+import boto3
+
+
+def tag_delete(data, access_id, access_key, region):
+    client = boto3.client(
+        "elbv2",
+        aws_access_key_id=access_id,
+        aws_secret_access_key=access_key,
+        region_name=region,
+    )
+
+    field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field networking aws-alb LoadBalancerArn")
+
+    client.remove_tags(
+        ResourceArns=[
+            data[field_name],
+        ],
+        TagKeys=[
+            data["_control_"]["tag-delete"]["key"],
+        ]
+    )
+
+
+def main(data, access_id, access_key, region):
+    tag_delete(data, access_id, access_key, region)
+
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4])
