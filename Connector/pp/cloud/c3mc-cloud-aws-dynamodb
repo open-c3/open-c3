@@ -30,11 +30,14 @@ class Dynamodb:
         for table_name in response["TableNames"]:
             table_info = self.client.describe_table(TableName=table_name)
             table_arn = table_info["Table"]["TableArn"]
-            tag_list = self.list_tag(
+
+            item = {}
+            for key, value in table_info["Table"].items():
+                item[key] = value
+
+            item["Tag"] = self.list_tag(
                 self.access_id, self.access_key, self.region, table_arn)
-            table_info["Tag"] = tag_list
-            table_info.pop("ResponseMetadata", None)
-            instance_list.append(table_info)
+            instance_list.append(item)
         return instance_list
 
     def list_tag(self, access_id, access_key, region, arn):

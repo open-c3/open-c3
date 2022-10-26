@@ -29,7 +29,7 @@ class Elasticache:
         data = response_data["CacheClusters"]
         results = []
         for instance in data:
-            instance["RegionId"] = instance["PreferredAvailabilityZone"][:-1]
+            instance["RegionId"] = self.region
             if instance["Engine"] == self.resource_type:
                 results.append(instance)
         return results

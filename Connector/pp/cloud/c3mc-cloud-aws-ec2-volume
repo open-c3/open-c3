@@ -27,7 +27,7 @@ class Volume:
     def get_instances_from_response(self, response_data):
         result = []
         for volume in response_data["Volumes"]:
-            volume["RegionId"] = volume["AvailabilityZone"][:-1]
+            volume["RegionId"] = self.region
             result.append(volume)
         return result
 

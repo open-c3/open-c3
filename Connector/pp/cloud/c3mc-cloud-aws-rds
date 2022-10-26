@@ -27,7 +27,7 @@ class Rds:
     def get_instances_from_response(self, response_data):
         results = []
         for instance in response_data["DBInstances"]:
-            instance["RegionId"] = instance["AvailabilityZone"][:-1]
+            instance["RegionId"] = self.region
             results.append(instance)
         return results
 

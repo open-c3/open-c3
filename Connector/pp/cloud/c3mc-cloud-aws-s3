@@ -24,15 +24,6 @@ class S3:
         )
         return client
 
-    def list_tags_of_bucket(self, bucket_name):
-        try:
-            response = self.client.get_bucket_tagging(
-                Bucket=bucket_name,
-            )
-        except Exception as e:
-            return None
-        return response["TagSet"]
-
     def list_buckets(self):
         response = self.client.list_buckets()
         bucket_list = []
