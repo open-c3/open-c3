@@ -80,7 +80,7 @@ class Elb:
     def list_tag(self, access_id, access_key, region, loadBalancerNames):
         sys.path.append("/data/Software/mydan/Connector/lib/pp")
         from c3mc_cloud_aws_elb_get_tag import GetTag
-        return GetTag(access_id, access_key, region, loadBalancerNames).list_tag()
+        return GetTag(access_id, access_key, region).list_tag(loadBalancerNames)
 
     def show(self):
         instance_list = self.list_instances()

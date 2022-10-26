@@ -109,7 +109,7 @@ class HandleTag:
     def handle(self):
         for d in self.data_list:
             data = json.loads(d)
-            if self.tag_field_name in d:
+            if self.tag_field_name in data:
                 tags = data[self.tag_field_name]
                 if tags is not None:
                     data.pop(self.tag_field_name, None)

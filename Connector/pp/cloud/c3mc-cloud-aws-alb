@@ -75,7 +75,7 @@ class Alb:
     def list_tag(self, access_id, access_key, region, arn_list):
         sys.path.append("/data/Software/mydan/Connector/lib/pp")
         from c3mc_cloud_aws_alb_get_tag import GetTag
-        return GetTag(access_id, access_key, region, arn_list).list_tag()
+        return GetTag(access_id, access_key, region).list_tag(arn_list)
 
     def show(self):
         instance_list = self.list_instances()
