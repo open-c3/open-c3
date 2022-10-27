@@ -509,6 +509,17 @@
                 }
         };
 
+        vm.describek8s = function (name) {
+            if(  vm.project.ci_type_kind == 'deployment' )
+            {
+                vm.describedeployment( name );
+            }
+            if(  vm.project.ci_type_kind == 'daemonset' )
+            {
+                vm.describeutil( 'daemonset', name, vm.project.ci_type_namespace );
+            }
+        };
+
         vm.describedeployment = function (name) {
             $uibModal.open({
                 templateUrl: 'app/pages/kubernetesmanage/describedeployment.html',
@@ -528,6 +539,24 @@
             });
         };
 
+        vm.describeutil = function (type,name,namespace) {
+            $uibModal.open({
+                templateUrl: 'app/pages/kubernetesmanage/describe.html',
+                controller: 'KubernetesDescribeController',
+                controllerAs: 'kubernetesdescribe',
+                backdrop: 'static',
+                size: 'lg', 
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () {return vm.treeid},
+                    type: function () {return type},
+                    name: function () {return name},
+                    namespace: function () {return namespace},
+                    ticketid: function () {return vm.project.ci_type_ticketid},
+                }
+            });
+        };
         vm.describeecs = function (name,data) {
             $uibModal.open({
                 templateUrl: 'app/pages/kubernetesmanage/describeecs.html',
@@ -548,11 +577,36 @@
             });
         };
 //
+        vm.editk8s = function (name) {
+            if(  vm.project.ci_type_kind == 'deployment' )
+            {
+                vm.createdeployment( name );
+            }
+            if(  vm.project.ci_type_kind == 'daemonset' )
+            {
+                vm.createdaemonset( name );
+            }
+        };
+
         vm.createdeployment = function (name) {
             $http.get('/api/ci/ticket/' + vm.project.ci_type_ticketid ).then(
                 function successCallback(response) {
                     if (response.data.stat) {
                         vm.createDeployment(name, response.data.data);
+                    }else{
+                        toastr.error( "获取凭据信息失败：" + response.data.info )
+                    };
+                });
+                function errorCallback(response) {
+                    toastr.error( "获取凭据信息失败：" + response.status )
+                }
+        };
+
+        vm.createdaemonset = function (name) {
+            $http.get('/api/ci/ticket/' + vm.project.ci_type_ticketid ).then(
+                function successCallback(response) {
+                    if (response.data.stat) {
+                        vm.createDaemonset(name, response.data.data);
                     }else{
                         toastr.error( "获取凭据信息失败：" + response.data.info )
                     };
@@ -580,6 +634,27 @@
                     homereload: function () {return function(){}},
                 }
             });
+
+        };
+        vm.createDaemonset = function (name, selecteCluster) {
+            $uibModal.open({
+                templateUrl: 'app/pages/kubernetesmanage/createdaemonset.html',
+                controller: 'KubernetesCreateDaemonSetController',
+                controllerAs: 'kubernetescreatedaemonset',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () {return vm.treeid},
+                    ticketid: function () {return vm.project.ci_type_ticketid},
+                    clusterinfo: function () {return selecteCluster},
+                    namespace: function () {return vm.project.ci_type_namespace},
+                    name: function () {return name},
+                    homereload: function () {return function(){}},
+                }
+            });
+
         };
 
         vm.getVersion();

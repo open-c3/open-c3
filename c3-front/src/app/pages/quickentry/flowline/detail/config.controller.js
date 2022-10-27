@@ -704,7 +704,7 @@
         {
             return;
         }
-        $http.get("/api/ci/v2/kubernetes/deployment?ticketid=" +vm.project.ci_type_ticketid + "&namespace=" + vm.project.ci_type_namespace ).then(
+        $http.get("/api/ci/v2/kubernetes/" + vm.project.ci_type_kind + "?ticketid=" +vm.project.ci_type_ticketid + "&namespace=" + vm.project.ci_type_namespace ).then(
             function successCallback(response) {
                 if (response.data.stat){
 
@@ -776,7 +776,7 @@
         {
             ci_type_name = vm.project.ci_type_name;
         }
-        $http.get("/api/ci/v2/kubernetes/app/flowlineinfo?ticketid=" +vm.project.ci_type_ticketid + "&type=deployment&namespace=" + vm.project.ci_type_namespace + "&name=" + ci_type_name ).then(
+        $http.get("/api/ci/v2/kubernetes/app/flowlineinfo?ticketid=" +vm.project.ci_type_ticketid + "&type=" + vm.project.ci_type_kind + "&namespace=" + vm.project.ci_type_namespace + "&name=" + ci_type_name ).then(
             function successCallback(response) {
                 if (response.data.stat){
 
@@ -812,10 +812,18 @@
     };
 
     vm.changeNamespace = function() {
+        vm.project.ci_type_kind = "";
         vm.project.ci_type_name = "";
         vm.project.ci_type_container = "";
         vm.getDeploymentList();
     };
+
+    vm.changeKind = function() {
+        vm.project.ci_type_name = "";
+        vm.project.ci_type_container = "";
+        vm.getDeploymentList();
+    };
+
     vm.changeDeployment = function() {
         if( vm.isArray( vm.project.ci_type_name ) && vm.project.ci_type_container == '__app_name__' )
         {

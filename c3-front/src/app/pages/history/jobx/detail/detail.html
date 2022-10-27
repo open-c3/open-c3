@@ -5,13 +5,14 @@
         <nodestr></nodestr>
     </div>
 
+{{historyjobxdetail.projectinfo.ci_type_kind}}
     <hr class="mv10 clear">
 
     <a aria-hidden="true" ng-if="historyjobxdetail.backid" ng-click="historyjobxdetail.versiondetail(historyjobxdetail.backid)" uib-tooltip="回到流水线页面" style="cursor:pointer;color: #339094;" >点击返回流水线:{{historyjobxdetail.backname}}</a> 
     ({{taskDetail.name}})
 
     <div ng-repeat="name in historyjobxdetail.k8sname">
-        <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="historyjobxdetail.describedeployment('deployment',name)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" >{{name}}</i>  
+        <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="historyjobxdetail.describek8s(name)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" >{{name}}</i>  
     </div>
     <div ng-repeat="data in historyjobxdetail.ecsname">
         <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="historyjobxdetail.describeecs(data.name,data)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" >{{data.name}}[{{data.min}}/{{data.max}}]</i>  

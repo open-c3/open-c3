@@ -632,6 +632,17 @@
             });
         };
 
+        vm.describek8s = function (name) {
+            if(  vm.projectinfo.ci_type_kind == 'deployment' )
+            {
+                vm.describedeployment( 'deployment', name );
+            }
+            if(  vm.projectinfo.ci_type_kind == 'daemonset' )
+            {
+                vm.describeutil( 'daemonset', name, vm.projectinfo.ci_type_namespace );
+            }
+        };
+
         vm.describedeployment = function (type,name) {
             $uibModal.open({
                 templateUrl: 'app/pages/kubernetesmanage/describedeployment.html',
@@ -647,6 +658,25 @@
                     name: function () {return name},
                     namespace: function () {return vm.projectinfo.ci_type_namespace},
                     ticketid: function () {return vm.projectinfo.ci_type_ticketid}, 
+                }
+            });
+        };
+
+        vm.describeutil = function (type,name,namespace) {
+            $uibModal.open({
+                templateUrl: 'app/pages/kubernetesmanage/describe.html',
+                controller: 'KubernetesDescribeController',
+                controllerAs: 'kubernetesdescribe',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () {return vm.treeid},
+                    type: function () {return type},
+                    name: function () {return name},
+                    namespace: function () {return namespace},
+                    ticketid: function () {return vm.projectinfo.ci_type_ticketid},
                 }
             });
         };
