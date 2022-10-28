@@ -30,6 +30,8 @@ for my $ingestion ( glob "/data/open-c3-data/device/curr/compute/*/ingestion-nod
     die "load $ingestion fail: $@" if $@;
     map{ die "err" unless $colmap->{$_} }qw( name inip exip tree type );
 
+    my $exclude = $colmap->{exclude} && ref $colmap->{exclude} eq 'HASH' ? $colmap->{exclude} : undef;
+
     my ( undef, $subtype, $type ) = reverse split /\//, $datafile;
     my    @data  = `c3mc-device-cat curr $type $subtype`;
     chomp @data;
@@ -46,6 +48,15 @@ for my $ingestion ( glob "/data/open-c3-data/device/curr/compute/*/ingestion-nod
          my @d = split /\t/, $data;
          my %d = map{ $title[ $_ ] => $d[ $_ ] } 0 .. @title - 1;
 
+         if( $exclude )
+         {
+             my $skip = 0;
+             for my $col ( keys %$exclude )
+             {
+                 map{ $skip = 1 if $_ eq $d{ $col } }@{ $exclude->{ $col } };
+             }
+             next if $skip;
+         }
          next unless my $treename = $d{ $colmap->{tree} };
          my %tmp = (
              name => $d{ $colmap->{name} },
