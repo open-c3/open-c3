@@ -47,7 +47,7 @@
                              {{m.ci_type}}.{{m.ci_type_kind}}
                               <div ng-if="m.ci_type_name" ng-repeat="name in m.ci_type_name.split(',')" >
                                  {{m.ci_type_namespace}}/{{name}}
-                                 <i ng-if="m.ci_type === 'kubernetes'" class="fa fa-search fa-2x" aria-hidden="true" ng-click="cigroup.describedeployment(m.ci_type_ticketid,m.ci_type,name,m.ci_type_namespace)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
+                                 <i ng-if="m.ci_type === 'kubernetes'" class="fa fa-search fa-2x" aria-hidden="true" ng-click="cigroup.describek8s(m.ci_type_ticketid,m.ci_type,name,m.ci_type_namespace,m.ci_type_kind)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
                               </div>
                         </td>
                         <td data-title="'构建状态'">

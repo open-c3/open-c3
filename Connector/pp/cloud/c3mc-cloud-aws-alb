@@ -52,22 +52,28 @@ class Alb:
                 result[i]["Tag"] = arn_tag_dict[s["LoadBalancerArn"]]
         return result
 
-    def get_data(self, next_marker=""):
+    def get_data(self, next_marker):
+        res = {
+            "next_marker": "",
+            "data_list": [],
+            "arn_tag_dict": {}
+        }
         response = self.client.describe_load_balancers(
             PageSize=self.page_size, Marker=next_marker)
         arn_list = []
         data_list = self.get_instances_from_response(response)
+        if len(data_list) == 0:
+            return res
+
         for instance in data_list:
             arn_list.append(instance["LoadBalancerArn"])
 
         d = self.list_tag(
             self.access_id, self.access_key, self.region, arn_list)
 
-        res = {
-            "next_marker": "",
-            "data_list": data_list,
-            "arn_tag_dict": d
-        }
+        res["data_list"] = data_list
+        res["arn_tag_dict"] = d
+
         if "NextMarker" in response:
             res["next_marker"] = response["NextMarker"]
         return res
