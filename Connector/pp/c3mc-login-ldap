@@ -32,7 +32,9 @@ map{ $level{$_} = 3 }split /,/, $ldap{'role.admin'};
 sub checkpass
 {
     my $ldap = shift @_;
-    my $mesg = $ldap->bind("cn=$o{user},$ldap{dn}", password => decode_base64( $o{pass} ) );
+
+    my $user = $ldap{dn} ? "cn=$o{user},$ldap{dn}" : $o{user};
+    my $mesg = $ldap->bind($user, password => decode_base64( $o{pass} ) );
 
     unless ( $mesg and $mesg->code() == 0 ) {
         print "Unsuccessful Authentication\n";
@@ -44,6 +46,9 @@ sub getuserinfo
 {
     my $ldap = shift @_;
     my %re   = ( gid => '' );
+
+    return \%re unless $ldap{'admin.user'} && $ldap{'admin.pass'};
+
     my $mesg = $ldap->bind( $ldap{'admin.user'}, password => $ldap{'admin.pass'} );
 
     unless ( $mesg and $mesg->code() == 0 ) {
@@ -71,7 +76,7 @@ sub update
     my $db = MYDB->new(  "/data/Software/mydan/Connector/conf/conn", delayedconnection => 1 );
     my $x  = $db->query( "select id from openc3_connector_userinfo where name='$user'"      );
     $db->execute( "insert into openc3_connector_userinfo(name) value('$user')" ) unless @$x;
-    $db->execute( sprintf "replace into openc3_connector_userauth(name,level) value('$user',%s)", $level{$info->{gid}} || 0 );
+    $db->execute( sprintf "replace into openc3_connector_userauth(name,level) value('$user',%s)", $level{$info->{gid}} || 0 ) if $ldap{'admin.user'} && $ldap{'admin.pass'};
 }
 
 my $ldap = Net::LDAP->new( $ldap{host}, port=> $ldap{port}, timeout => 15 ) or die " Cannot connect to LDAP server ! ";
