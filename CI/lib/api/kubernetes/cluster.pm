@@ -23,6 +23,10 @@ post '/kubernetes/cluster/connectiontest' => sub {
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
     my $pmscheck = api::pmscheck( 'openc3_ci_root' ); return $pmscheck if $pmscheck;
 
+    my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
+        map{ $_ => request->headers->{$_} }qw( appkey appname ));
+    eval{ $api::auditlog->run( user => $user, title => 'KUBERNETES CONNECTIONTEST', content => "kubectlVersion:$param->{kubectlVersion}" ); };
+
     my $fh = File::Temp->new( UNLINK => 0, SUFFIX => '.config', TEMPLATE => "/data/Software/mydan/tmp/kubeconfig_connectiontest_XXXXXXXX" );
     print $fh $param->{kubeconfig};
     close $fh;
@@ -46,6 +50,7 @@ post '/kubernetes/cluster/connectiontest/:ticketid' => sub {
     
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
+    eval{ $api::auditlog->run( user => $user, title => 'KUBERNETES CONNECTIONTEST', content => "ticketid:$param->{ticketid}" ); };
 
     my ( $kubectl, @ns )= eval{ api::kubernetes::getKubectlAuth( $api::mysql, $param->{ticketid}, $user, $company, 0 ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;

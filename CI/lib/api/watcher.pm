@@ -61,6 +61,11 @@ post '/watcher/jump/:uuid' => sub {
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
     my $pmscheck = api::pmscheck( 'openc3_ci_root' ); return $pmscheck if $pmscheck;
 
+    my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ),
+        map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    eval{ $api::auditlog->run( user => $user, title => 'WATCHER JUMP', content => "uuid:$param->{uuid}" ); };
+
     my $r = eval{ $api::mysql->query( "select queueid from openc3_ci_version where status='ready'" )};
     my @queueid = sort map{ @$_ }@$r;
     return  +{ stat => $JSON::true } unless @queueid;

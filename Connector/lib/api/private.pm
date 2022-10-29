@@ -27,6 +27,8 @@ post '/private' => sub {
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
+    eval{ $api::mysql->execute( "insert into openc3_connector_auditlog (`user`,`title`,`content`) values('$ssouser','ADD PRIVATE','USER:$param->{user}')" ); };
+
     $param->{user} =~ s/\./_/g;
     eval{ $api::mysql->execute( "insert into openc3_connector_private (`user`,`edit_user`) values('$param->{user}', '$ssouser')" ); };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, info => 'ok' };

@@ -69,13 +69,7 @@ post '/monitor/config/treeunbind/:treeid' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
     my $status = $param->{status} ? 1 : 0;
-    eval{
-        $api::auditlog->run(
-            user => $user,
-            title => sprintf("MONITOR CONFIG TREE UNBIND %s", $status ? 'ON' : 'OFF' ),
-            content => "TREEID:$param->{treeid}"
-        );
-    };
+    eval{ $api::auditlog->run( user => $user, title => "MONITOR CONFIG TREE UNBIND $status", content => "TREEID:$param->{treeid}"); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 

@@ -304,6 +304,8 @@ post '/kubernetes/app/apply' => sub {
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
+    eval{ $api::auditlog->run( user => $user, title => 'KUBERNETES APPLY', content => "ticketid:$param->{ticketid}" ); };
+
     my ( $kubectl, @ns ) = eval{ api::kubernetes::getKubectlAuth( $api::mysql, $param->{ticketid}, $user, $company, 1 ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
@@ -340,6 +342,8 @@ post '/kubernetes/app/create' => sub {
 
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    eval{ $api::auditlog->run( user => $user, title => 'KUBERNETES CREATE', content => "ticketid:$param->{ticketid}" ); };
 
     my ( $kubectl, @ns ) = eval{ api::kubernetes::getKubectlAuth( $api::mysql, $param->{ticketid}, $user, $company, 1 ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
@@ -380,6 +384,8 @@ post '/kubernetes/app/rollback' => sub {
 
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    eval{ $api::auditlog->run( user => $user, title => 'KUBERNETES ROLLBACK', content => "ticketid:$param->{ticketid} namespace:$param->{namespace} type:$param->{type} name:$param->{name} version:$param->{version}" ); };
 
     my ( $kubectl, @ns ) = eval{ api::kubernetes::getKubectlAuth( $api::mysql, $param->{ticketid}, $user, $company, 1 ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
@@ -445,6 +451,8 @@ post '/kubernetes/app/delete' => sub {
 
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    eval{ $api::auditlog->run( user => $user, title => 'KUBERNETES DELETE', content => "ticketid:$param->{ticketid} namespace:$param->{namespace} type:$param->{type} name:$param->{name}" ); };
 
     my ( $kubectl, @ns ) = eval{ api::kubernetes::getKubectlAuth( $api::mysql, $param->{ticketid}, $user, $company, 1 ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;

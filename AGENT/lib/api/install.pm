@@ -80,6 +80,9 @@ post '/install/:projectid/:regionid' => sub {
     my $username = $param->{username} || 'root';
 
     my $password = $param->{password} ? encode_base64( encode('UTF-8',  $param->{password}) ) : '';
+
+    eval{ $api::auditlog->run( user => $user, title => 'INSTALL AGENT', content => "TREEID:$param->{projectid} REGIONID:$param->{regionid} IP:$param->{ip}" ); };
+
     my $uuid = uuid->new()->create_str;
     my $r = eval{ 
         $api::mysql->execute(

@@ -130,6 +130,9 @@ post '/variable/:projectid' => sub {
 
     $param->{value} = '' unless defined $param->{value};
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+
+    eval{ $api::auditlog->run( user => $user, title => 'UPDATE JOB VARIABLE', content => "TREEID:$param->{projectid} NAME:$param->{name}" ); };
+
     my $r = eval{ 
        $api::mysql->execute( 
          "replace into openc3_job_variable (`jobuuid`,`name`,`value`,`describe`,`option`,`create_user`)
@@ -154,6 +157,7 @@ post '/variable/:projectid/update' => sub {
     my $pmscheck = api::pmscheck( 'openc3_job_write', $param->{projectid} ); return $pmscheck if $pmscheck;
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+    eval{ $api::auditlog->run( user => $user, title => 'UPDATE JOB VARIABLE', content => "TREEID:$param->{projectid} JOBUUID:$param->{jobuuid}" ); };
 
     my $x = eval{ $api::mysql->query( "select uuid from openc3_job_jobs where projectid='$param->{projectid}' and uuid='$param->{jobuuid}'" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
@@ -204,6 +208,8 @@ del '/variable/:projectid' => sub {
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
     my $pmscheck = api::pmscheck( 'openc3_job_delete', $param->{projectid} ); return $pmscheck if $pmscheck;
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+    eval{ $api::auditlog->run( user => $user, title => 'DELETE JOB VARIABLE', content => "TREEID:$param->{projectid} JOBUUID:$param->{jobuuid} NAME:$param->{name}" ); };
 
     my $r = eval{ 
         $api::mysql->execute(
@@ -222,6 +228,9 @@ del '/variable/byid/:jobid' => sub {
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
     my $pmscheck = api::pmscheck( 'openc3_job_root' ); return $pmscheck if $pmscheck;
+
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+    eval{ $api::auditlog->run( user => $user, title => 'DELETE JOB VARIABLE', content => "JOBID:$param->{jobid} NAME:$param->{name}" ); };
 
     my $r = eval{ 
         $api::mysql->execute(

@@ -246,6 +246,9 @@ post '/group/connectk8s/:groupid/:flowid' => sub {
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
     my $pmscheck = api::pmscheck( 'openc3_ci_write', $param->{groupid} ); return $pmscheck if $pmscheck;
 
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ));
+    eval{ $api::auditlog->run( user => $user, title => 'CONNECTK8S', content => "GROUPID:$param->{groupid} FLOWID:$param->{flowid}" ); };
+
     eval{ 
         my @col = qw( ci_type ci_type_ticketid ci_type_kind ci_type_namespace ci_type_name ci_type_container ci_type_repository ci_type_dockerfile ci_type_dockerfile_content );
         $api::mysql->execute( sprintf "update openc3_ci_project set %s where id='$param->{flowid}' and groupid='$param->{groupid}'", join ',', map{ "$_='$param->{$_}'" }@col);

@@ -31,6 +31,8 @@ post '/kubernetes/app/set/image' => sub {
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
+    eval{ $api::auditlog->run( user => $user, title => 'KUBERNETES SET IMAGE', content => "ticketid:$param->{ticketid} namespace:$param->{namespace} container:$param->{container} image:$param->{image}" ); };
+
     my ( $kubectl, @ns ) = eval{ api::kubernetes::getKubectlAuth( $api::mysql, $param->{ticketid}, $user, $company, 1 ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
@@ -56,6 +58,8 @@ post '/kubernetes/app/set/replicas' => sub {
 
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    eval{ $api::auditlog->run( user => $user, title => 'KUBERNETES SET REPLICAS', content => "ticketid:$param->{ticketid} namespace:$param->{namespace} name:$param->{name} replicas:$param->{replicas}" ); };
 
     my ( $kubectl, @ns ) = eval{ api::kubernetes::getKubectlAuth( $api::mysql, $param->{ticketid}, $user, $company, 1 ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;

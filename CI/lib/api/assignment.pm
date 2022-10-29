@@ -84,8 +84,7 @@ post '/assignment' => sub {
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
-#    eval{ $api::auditlog->run( user => $user, title => 'USR APPROVAL', content => "UUID:$param->{uuid} OPINION:$param->{opinion}" ); };
-#    return +{ stat => $JSON::false, info => $@ } if $@;
+    eval{ $api::auditlog->run( user => $user, title => 'ASSIGNMENT', content => "NAME:$param->{name}" ); };
 
     my $data = eval{ encode_base64( encode('UTF-8', YAML::XS::Dump $param->{data} )); };
     return +{ stat => $JSON::false, info => "post.data encode err:$@" } if $@;
@@ -109,8 +108,7 @@ post '/assignment/:id' => sub {
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
-#    eval{ $api::auditlog->run( user => $user, title => 'USR APPROVAL', content => "UUID:$param->{uuid} OPINION:$param->{opinion}" ); };
-#    return +{ stat => $JSON::false, info => $@ } if $@;
+    eval{ $api::auditlog->run( user => $user, title => 'ASSIGNMENT', content => "ID:$param->{id} STATUS:$param->{status}" ); };
 
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
 

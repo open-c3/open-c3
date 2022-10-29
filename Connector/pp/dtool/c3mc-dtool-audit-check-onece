@@ -1,0 +1,53 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0 /api/file.pm
+
+=cut
+
+my ( $file, $detail ) = @ARGV;
+die "nofile" unless $file && -f $file;
+
+my    @x = `cat '$file'`;
+chomp @x;
+
+my ( $name, %data ) = 'null';
+for my $x ( @x )
+{
+    $x =~ s/#.*//;
+    if( $x =~ /^([a-z]+\s+'\/.*')/ )
+    {
+        $name = $1;
+        $data{$name} = [] unless $data{$name};
+    }
+
+    if( $x =~ /auditlog.*title\s+=>\s*'([^']+)'/ )
+    {
+        push @{ $data{$name}}, $1;
+    }
+    if( $x =~ /auditlog.*title\s+=>\s*"([^"]+)"/ )
+    {
+        push @{ $data{$name}}, $1;
+    }
+
+    if( $x =~ /openc3_connector_auditlog\s+\(`user`,`title`,`content`\) values\('[^']+','([^']+)'/ )
+    {
+        push @{ $data{$name}}, $1;
+    }
+}
+
+$file =~ s#^/data/Software/mydan##;
+for my $x ( keys %data )
+{
+    unless( $detail )
+    {
+        next if @{$data{ $x }};
+        next if $x =~ /get/;
+    }
+    printf "$file $x %s\n", join ' ', grep{ $_ =~ s/\s/_/g }@{$data{ $x }};
+}

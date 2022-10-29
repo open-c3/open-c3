@@ -69,6 +69,8 @@ post '/default/node/:projectid' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
     my $pmscheck = api::pmscheck( 'openc3_connector_write' ); return $pmscheck if $pmscheck;
 
+    eval{ $api::mysql->execute( "insert into openc3_connector_auditlog (`user`,`title`,`content`) values('$ssouser','ADD NODE','projectid:$param->{projectid} name:$param->{name}')" ); };
+
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
 #TODO    my $check = eval{ Code->new( "checkcreateip" )->run( ip => $param->{name}, name => $ssouser );};
 #    if( $@ ){
@@ -99,6 +101,8 @@ del '/default/node/:projectid/:id' => sub {
 
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
     my $pmscheck = api::pmscheck( 'openc3_connector_write' ); return $pmscheck if $pmscheck;
+
+    eval{ $api::mysql->execute( "insert into openc3_connector_auditlog (`user`,`title`,`content`) values('$ssouser','DEL NODE','projectid:$param->{projectid} id:$param->{id}')" ); };
 
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     my $t    = Util::deleteSuffix();

@@ -1,0 +1,8 @@
+#!/bin/bash
+
+x=0
+if [ "X$1" == "Xx" ]; then
+    x=1
+fi
+
+find /data/Software/mydan/*/lib/api -name *.pm | xargs  -i{} c3mc-dtool-audit-check-onece {} $x | column -t

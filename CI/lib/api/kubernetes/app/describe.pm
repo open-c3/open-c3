@@ -154,7 +154,7 @@ $handle{getdescribeservice} = sub
     return +{ stat => $JSON::true, data => $data };
 };
 
-post '/kubernetes/app/describe/ecs' => sub {
+any '/kubernetes/app/describe/ecs' => sub {
     my $param = params();
     my $error = Format->new( 
         ticketid => qr/^\d+$/, 1,
