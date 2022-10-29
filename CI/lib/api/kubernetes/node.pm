@@ -68,6 +68,8 @@ post '/kubernetes/node/cordon' => sub {
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
+    eval{ $api::auditlog->run( user => $user, title => 'KUBERNETES CORDON', content => "ticketid:$param->{ticketid} cordon:$param->{cordon} node:$param->{node}" ); };
+
     my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 1 ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
@@ -88,6 +90,8 @@ post '/kubernetes/node/drain' => sub {
     
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    eval{ $api::auditlog->run( user => $user, title => 'KUBERNETES DRAIN', content => "ticketid:$param->{ticketid} node:$param->{node}" ); };
 
     my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 1 ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
@@ -149,6 +153,8 @@ post '/kubernetes/node/taint' => sub {
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
+    eval{ $api::auditlog->run( user => $user, title => 'KUBERNETES TAINT SET', content => "ticketid:$param->{ticketid} nodename:$param->{nodename}" ); };
+
     my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 1 ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
@@ -171,6 +177,7 @@ del '/kubernetes/node/taint' => sub {
 
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
+    eval{ $api::auditlog->run( user => $user, title => 'KUBERNETES TAINT DEL', content => "ticketid:$param->{ticketid} nodename:$param->{nodename}" ); };
 
     my $kubectl = eval{ api::kubernetes::getKubectlCmd( $api::mysql, $param->{ticketid}, $user, $company, 1 ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;

@@ -87,6 +87,8 @@ post '/kubernetes/hpa/create' => sub {
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
+    eval{ $api::auditlog->run( user => $user, title => 'KUBERNETES SET HPA', content => "ticketid:$param->{ticketid} namespace:$param->{namespace} type:$param->{type} name:$param->{name} min:$param->{min} max:$param->{max} cpu:$param->{cpu}" ); };
+
     my ( $kubectl, @ns ) = eval{ api::kubernetes::getKubectlAuth( $api::mysql, $param->{ticketid}, $user, $company, 1 ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 

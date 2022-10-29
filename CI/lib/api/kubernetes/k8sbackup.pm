@@ -98,6 +98,8 @@ post '/kubernetes/k8sbackup' => sub {
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
+    eval{ $api::auditlog->run( user => $user, title => 'KUBERNETES K8SBACKUP', content => "ticketid:$param->{ticketid}" ); };
+
     my ( $cmd, $handle ) = ( "nohup c3mc-k8s-backup-once $param->{ticketid} >/dev/null 2>/dev/null &", 'showinfo' );
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( `$cmd`//'', $? );

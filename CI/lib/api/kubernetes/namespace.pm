@@ -48,6 +48,8 @@ post '/kubernetes/namespace' => sub {
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
         map{ $_ => request->headers->{$_} }qw( appkey appname ));
 
+    eval{ $api::auditlog->run( user => $user, title => 'KUBERNETES CREATE NAMESPACE', content => "ticketid:$param->{ticketid} namespace:$param->{namespace}" ); };
+
     my ( $kubectl, @ns ) = eval{ api::kubernetes::getKubectlAuth( $api::mysql, $param->{ticketid}, $user, $company, 1 ) };
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
