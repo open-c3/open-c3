@@ -46,6 +46,7 @@ config.inix/current
 修复监控看版抱错,提示异常，cookie变化引起的。
 
 cookie 从sid修改成u之后，可能会异常，/data/open-c3/open-c3.sh start 修复
+【注意：此处主容器可能会recreate,如果是使用高峰期，可以先手动修复】
 
 # 系统参数中 ，摄取主机 开关打开
 
