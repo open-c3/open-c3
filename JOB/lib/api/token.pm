@@ -14,7 +14,7 @@ use Util;
 #edit_user
 #create_time_start
 #create_time_end
-post '/token/:projectid/info' => sub {
+any '/token/:projectid/info' => sub {
     my $param = params();
     my $error = Format->new( 
         projectid => qr/^\d+$/, 1,

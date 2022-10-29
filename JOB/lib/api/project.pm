@@ -37,6 +37,7 @@ post '/project/:projectid' => sub {
     my $pmscheck = api::pmscheck( 'openc3_job_write', $param->{projectid} ); return $pmscheck if $pmscheck;
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+    eval{ $api::auditlog->run( user => $user, title => 'CHANGE PROJECT STATUS', content => "TREEID:$param->{projectid} STATUS:$param->{status}" ); };
 
     my $r = eval{ 
         $api::mysql->execute( 

@@ -197,13 +197,7 @@ del '/killtask/:uuid' => sub {
     return +{ stat => $JSON::true, info => "task $uuid has been exit,nofind pid $data->{pid}" }
         unless kill( 0, $data->{pid} );
 
-    eval{
-        $auditlog->run(
-            user    => $user,
-            title   => 'KILL JOB TASK',
-            content => "TREEID:$data->{projectid} TASKUUID:$uuid NAME:$data->{name}"
-        );
-    };
+    eval{ $auditlog->run( user => $user, title => 'KILL JOB TASK', content => "TREEID:$data->{projectid} TASKUUID:$uuid NAME:$data->{name}" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $killinfo = defined $user && $user =~ /^[a-zA-Z0-9\.\-\@_]+$/ ? "killed by $user" : 'killed';
