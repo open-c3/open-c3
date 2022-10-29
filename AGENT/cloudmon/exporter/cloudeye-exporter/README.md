@@ -3,12 +3,15 @@
 ```
 global:
   prefix: "huaweicloud"
-  scrape_batch_size: 10
+  scrape_batch_size: 300
 
 auth:
-  auth_url: "https://iam.cn-north-1.myhwclouds.com/v3"
+  auth_url: "https://iam.cn-north-4.myhuaweicloud.com/v3"
   project_name: "cn-north-4"
   access_key: "xxx"
   secret_key: "xxx"
   region: "cn-north-4"
+
+metric: simple # simple or full
+services: SYS.RDS,SYS,ECS
 ```
