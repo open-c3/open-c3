@@ -76,6 +76,8 @@ post '/default/tree' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
     my $pmscheck = api::pmscheck( 'openc3_connector_write' ); return $pmscheck if $pmscheck;
 
+    eval{ $api::mysql->execute( "insert into openc3_connector_auditlog (`user`,`title`,`content`) values('$ssouser','ADD TREE','name:$param->{name}')" ); };
+
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
 
     eval{ $api::mysql->execute( "insert into openc3_connector_tree (`name`,`len`,`update_time`) values( '$param->{name}', 1, '$time' )")};
@@ -112,6 +114,8 @@ post '/default/tree/:projectid' => sub {
     my $name = "$father.$param->{name}";
     $len ++;
 
+    eval{ $api::mysql->execute( "insert into openc3_connector_auditlog (`user`,`title`,`content`) values('$ssouser','ADD TREE','projectid:$param->{projectid} name:$param->{name}')" ); };
+
     eval{ $api::mysql->execute( "insert into openc3_connector_tree (`name`,`len`,`update_time`) values( '$name', $len, '$time' )")};
     return +{ stat => $JSON::false, info => $@ } if $@;
 
@@ -131,6 +135,8 @@ del '/default/tree/:treeid' => sub {
 
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
     my $pmscheck = api::pmscheck( 'openc3_connector_delete' ); return $pmscheck if $pmscheck;
+
+    eval{ $api::mysql->execute( "insert into openc3_connector_auditlog (`user`,`title`,`content`) values('$ssouser','DEL TREE','treeid:$param->{treeid}')" ); };
 
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
 

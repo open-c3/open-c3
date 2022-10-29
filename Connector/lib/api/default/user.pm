@@ -33,6 +33,8 @@ post '/default/user/adduser' => sub {
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
+   eval{ $api::mysql->execute( "insert into openc3_connector_auditlog (`user`,`title`,`content`) values('$ssouser','ADD USER','USER:$param->{user}')" ); };
+
     eval{ $api::mysql->execute( "replace into openc3_connector_userinfo (`name`,`pass`,`sid`,`expire`) values( '$param->{user}', '4cb9c8a8048fd02294477fcb1a41191a', '', 0 )" ); };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
@@ -46,6 +48,8 @@ del '/default/user/deluser' => sub {
         user => qr/^[a-zA-Z0-9\@_\.\-]+$/, 1,
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    eval{ $api::mysql->execute( "insert into openc3_connector_auditlog (`user`,`title`,`content`) values('$ssouser','DEL USER','USER:$param->{user}')" ); };
 
     eval{ $api::mysql->execute( "delete from openc3_connector_userinfo where name='$param->{user}'" ); };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
@@ -66,6 +70,9 @@ post '/default/user/chpasswd' => sub {
     
     my $newmd5 = Digest::MD5->new->add($param->{new1})->hexdigest;
     my $oldmd5 = Digest::MD5->new->add($param->{old})->hexdigest;
+
+    my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
+    eval{ $api::mysql->execute( "insert into openc3_connector_auditlog (`user`,`title`,`content`) values('$ssouser','CHANGE PASSWD','-')" ); };
 
     my $x = eval{ $api::mysql->execute( "update openc3_connector_userinfo set pass='$newmd5' where sid='$cookie' and pass='$oldmd5'" ); };
 
@@ -91,6 +98,9 @@ post '/default/approve/user/chpasswd' => sub {
     
     my $newmd5 = Digest::MD5->new->add($param->{new1})->hexdigest;
     my $oldmd5 = Digest::MD5->new->add($param->{old})->hexdigest;
+
+    my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
+    eval{ $api::mysql->execute( "insert into openc3_connector_auditlog (`user`,`title`,`content`) values('$ssouser','CHANGE APPROVE PASSWD','-')" ); };
 
     my $x = eval{ $api::mysql->execute( "update openc3_connector_userinfo set pass='$newmd5' where sid='$cookie' and pass='$oldmd5'" ); };
 
