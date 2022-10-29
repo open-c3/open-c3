@@ -171,11 +171,7 @@ post '/monitor/config/rule/copy/:fromid/:toid' => sub {
        $pmscheck = api::pmscheck( 'openc3_agent_write', $param->{toid}   ); return $pmscheck if $pmscheck;
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
-    $api::auditlog->run(
-        user    => $user,
-        title   => "MONITOR CONFIG RULE COPY",
-        content => "TREEID:$param->{toid} from: $param->{fromid}"
-    );
+    $api::auditlog->run( user => $user, title => "MONITOR CONFIG RULE COPY", content => "TREEID:$param->{toid} from: $param->{fromid}" );
 
     eval{
         die "user format error: $user" if $user =~ /'/;
@@ -213,11 +209,7 @@ post '/monitor/config/ruletpl/sync/:projectid/:tplname' => sub {
     my $pmscheck = api::pmscheck( 'openc3_agent_read',  $param->{projectid} ); return $pmscheck if $pmscheck;
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
-    $api::auditlog->run(
-        user    => $user,
-        title   => "MONITOR CONFIG RULE COPY",
-        content => "TREEID:$param->{projectid} from tpl: $param->{tplname}"
-    );
+    $api::auditlog->run( user => $user, title => "MONITOR CONFIG RULE COPY", content => "TREEID:$param->{projectid} from tpl: $param->{tplname}" );
 
     eval{
         die "user format error: $user" if $user =~ /'/;
@@ -239,11 +231,7 @@ post '/monitor/config/ruletpl/save/:projectid/:tplname' => sub {
     my $pmscheck = api::pmscheck( 'openc3_agent_read',  $param->{projectid} ); return $pmscheck if $pmscheck;
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
-    $api::auditlog->run(
-        user    => $user,
-        title   => "MONITOR SAVE RULE TPL",
-        content => "TREEID:$param->{projectid} save tpl: $param->{tplname}"
-    );
+    $api::auditlog->run( user => $user, title => "MONITOR SAVE RULE TPL", content => "TREEID:$param->{projectid} save tpl: $param->{tplname}" );
 
     eval{
         die "user format error: $user" if $user =~ /'/;

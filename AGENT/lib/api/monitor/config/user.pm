@@ -113,6 +113,9 @@ post '/monitor/config/usertest' => sub {
 
     my $pmscheck = api::pmscheck( 'openc3_agent_write', $param->{projectid} ); return $pmscheck if $pmscheck;
 
+    my $usr = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+    eval{ $api::auditlog->run( user => $usr, title => 'Monitor Test User', content => "TREE:$param->{project} USER:$param->{user}" ); };
+
     my $user = $param->{user};
 
     return +{ stat => $JSON::false, info => "user format error" } unless $user && $user =~ /^[a-zA-Z0-9@\.\-_:%]+$/;
