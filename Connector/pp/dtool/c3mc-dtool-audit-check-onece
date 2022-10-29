@@ -30,6 +30,15 @@ for my $x ( @x )
     {
         push @{ $data{$name}}, $1;
     }
+    if( $x =~ /auditlog.*title\s+=>\s*"([^"]+)"/ )
+    {
+        push @{ $data{$name}}, $1;
+    }
+
+    if( $x =~ /openc3_connector_auditlog\s+\(`user`,`title`,`content`\) values\('[^']+','([^']+)'/ )
+    {
+        push @{ $data{$name}}, $1;
+    }
 }
 
 $file =~ s#^/data/Software/mydan##;
@@ -40,5 +49,5 @@ for my $x ( keys %data )
         next if @{$data{ $x }};
         next if $x =~ /get/;
     }
-    printf "$file $x %s\n", join ' ', grep{ $_ =~ s/\s/_/ }@{$data{ $x }};
+    printf "$file $x %s\n", join ' ', grep{ $_ =~ s/\s/_/g }@{$data{ $x }};
 }
