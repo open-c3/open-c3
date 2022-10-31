@@ -184,7 +184,7 @@
                 $scope.taskData.group = null
 
                 vm.loadover = false;
-                $http.get('/api/job/variable/' + vm.treeid + '/' + $scope.choiceJob.uuid + "?empty=0").then(
+                $http.get('/api/job/variable/' + vm.treeid + '/' + $scope.choiceJob.uuid + "?empty=0&usrext=1").then(
                     function successCallback(response) {
 
                         if (response.data.stat){

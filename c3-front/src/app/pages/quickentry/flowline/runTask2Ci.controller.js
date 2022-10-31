@@ -55,7 +55,7 @@
                         {
                             $scope.taskData.jobname = vm.jobinfo.name;
 
-                            $http.get('/api/job/variable/' + vm.treeid + '/' + vm.jobinfo.uuid + "?empty=1&env=" + jobtype ).then(
+                            $http.get('/api/job/variable/' + vm.treeid + '/' + vm.jobinfo.uuid + "?empty=1&usrext=1&env=" + jobtype ).then(
                                function successCallback(response) {
                                    if (response.data.stat){
                                //        if (response.data.data.length == 0){
