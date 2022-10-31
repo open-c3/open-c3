@@ -15,9 +15,13 @@ def get_volume(data_list):
     client = None
     unique_disk_id_m = {}
     page_size = 20
+
+    cvm_m = {}
     for data in data_list:
         if "_aksk_" not in data:
             continue
+
+        cvm_m[data["InstanceId"]] = data["Uuid"]
 
         if client is None:
             parts = data["_aksk_"].split()
@@ -54,8 +58,8 @@ def get_volume(data_list):
             item["ZoneId"] = item["Placement"]["Zone"]
             item["account"] = unique_disk_id_m[item["DiskId"]]["account"]
             item["accountuuid"] = unique_disk_id_m[item["DiskId"]]["accountuuid"]
-            if "InstanceId" in item:
-                item["_vmuuid_"] = item["InstanceId"]
+            if "InstanceId" in item and item["InstanceId"] in cvm_m:
+                item["_vmuuid_"] = cvm_m[item["InstanceId"]]
             result.append(item)
 
         if len(resp["DiskSet"]) < page_size:
