@@ -25,8 +25,9 @@
                     <tr ng-repeat="user in $data">
                         <td style="width: 10%" data-title="'用户'" filter="{ name: 'text'}" sortable="'name'">{{user.name}}</td>
                         <td style="width: 10%" data-title="'密码未修改'" sortable="'pass'">
-                            <a ng-if="user.pass" style="color: red"> 是(危险) </a>
-                            <a ng-if="!user.pass" > 否 </a>
+                            <a ng-if="user.pass==2" style="color: red"  > 是(危险) </a>
+                            <a ng-if="user.pass==1" style="color: green"> 否 </a>
+                            <a ng-if="user.pass==0" >非本地用户 </a>
                         </td>
                         <td style="width: 10%" data-title="'操作'">
                             <button class="btn btn-primary btn-md" ng-click="connectoruserinfo.addUser(user.name, '重置密码')">重置密码</button>

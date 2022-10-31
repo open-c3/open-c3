@@ -24,10 +24,21 @@ $option->assert(qw( user pass ));
 my $sysctl = OPENC3::SysCtl->new();
 
 my ( %ldap, %level );
-map{ $ldap{$_} = $sysctl->get( "sys.login.ldap.$_" ); }qw( host port admin.user admin.pass dn role.admin role.ops role.dev );
+map{ $ldap{$_} = $sysctl->get( "sys.login.ldap.$_" ); }qw( host port admin.user admin.pass dn role.admin role.ops role.dev mysqlon );
 map{ $level{$_} = 1 }split /,/, $ldap{'role.dev'  };
 map{ $level{$_} = 2 }split /,/, $ldap{'role.ops'  };
 map{ $level{$_} = 3 }split /,/, $ldap{'role.admin'};
+
+if( $ldap{mysqlon} )
+{
+    my    $x = `c3mc-login-mysql --user '$o{user}' --pass '$o{pass}'`;
+    chomp $x;
+    if( $x eq 'ok' )
+    {
+        print "ok\n";
+        exit;
+    }
+}
 
 sub checkpass
 {
