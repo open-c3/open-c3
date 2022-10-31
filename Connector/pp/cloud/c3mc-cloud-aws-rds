@@ -18,6 +18,7 @@ class Rds:
     def create_client(self):
         client = boto3.client(
             "rds",
+            endpoint_url="https://rds.{}.amazonaws.com".format(self.region),
             aws_access_key_id=self.access_id,
             aws_secret_access_key=self.access_key,
             region_name=self.region,
