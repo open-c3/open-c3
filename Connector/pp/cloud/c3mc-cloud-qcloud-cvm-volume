@@ -54,7 +54,7 @@ def get_volume(data_list):
         resp = json.loads(resp.to_json_string())
 
         for item in resp["DiskSet"]:
-            item["RegionId"] = item["Placement"]["Zone"][:-2]
+            item["Region"] = item["Placement"]["Zone"][:-2]
             item["ZoneId"] = item["Placement"]["Zone"]
             item["account"] = unique_disk_id_m[item["DiskId"]]["account"]
             item["accountuuid"] = unique_disk_id_m[item["DiskId"]]["accountuuid"]

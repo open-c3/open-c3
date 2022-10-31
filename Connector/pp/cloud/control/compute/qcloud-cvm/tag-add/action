@@ -1,0 +1,57 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+from tencentcloud.common import credential
+from tencentcloud.common.profile.client_profile import ClientProfile
+from tencentcloud.common.profile.http_profile import HttpProfile
+from tencentcloud.tag.v20180813 import tag_client, models
+
+
+def tag_add(data, access_id, access_key, region, uin):
+    cred = credential.Credential(access_id, access_key)
+    httpProfile = HttpProfile()
+    httpProfile.endpoint = "tag.tencentcloudapi.com"
+
+    clientProfile = ClientProfile()
+    clientProfile.httpProfile = httpProfile
+    client = tag_client.TagClient(cred, region, clientProfile)
+
+    id_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field compute qcloud-cvm InstanceId")
+    region_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field compute qcloud-cvm Region")
+
+    rid = "qcs::cvm:{}:uin/{}:instance/{}".format(
+        data[region_field_name], uin, data[id_field_name])
+
+    req = models.TagResourcesRequest()
+    params = {
+        "ResourceList": [rid],
+        "Tags": [
+            {
+                "TagKey": data["_control_"]["tag-add"]["key"],
+                "TagValue": data["_control_"]["tag-add"]["value"]
+            }
+        ]
+    }
+    req.from_json_string(json.dumps(params))
+
+    client.TagResources(req)
+
+
+def main(data, access_id, access_key, region, uin):
+    tag_add(data, access_id, access_key, region, uin)
+
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])

@@ -1,0 +1,57 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+from tencentcloud.common import credential
+from tencentcloud.common.profile.client_profile import ClientProfile
+from tencentcloud.common.profile.http_profile import HttpProfile
+from tencentcloud.redis.v20180412 import redis_client, models
+
+
+def get(data, access_id, access_key, region):
+    """
+        输出 qcloud redis 的详情(json格式)
+    """
+    cred = credential.Credential(access_id, access_key)
+    httpProfile = HttpProfile()
+    httpProfile.endpoint = "redis.tencentcloudapi.com"
+
+    clientProfile = ClientProfile()
+    clientProfile.httpProfile = httpProfile
+    client = redis_client.RedisClient(cred, region, clientProfile)
+
+    field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database qcloud-redis InstanceId")
+
+    req = models.DescribeInstancesRequest()
+    params = {
+        "InstanceIds": [data[field_name]]
+    }
+    req.from_json_string(json.dumps(params))
+
+    resp = client.DescribeInstances(req)
+    for instance in resp.InstanceSet:
+        if instance.InstanceId == data[field_name]:
+            item = json.loads(str(instance))
+            item["Region"] = region
+            return item
+    raise Exception(
+        "根据 InstanceId {} 未找到 qcloud redis".format(data[field_name]))
+
+
+def main(data, access_id, access_key, region):
+    data = get(data, access_id, access_key, region)
+    print(json.dumps(data, default=str))
+
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4])

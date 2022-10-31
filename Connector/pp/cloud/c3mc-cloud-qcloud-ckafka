@@ -48,11 +48,18 @@ class Ckafka:
         response_data = self.get_response()
         return response_data.Result.TotalCount
 
-    def show(self):
+    def list_instances(self):
+        result = []
         response_data = self.get_response()
-        instance_list = response_data.Result.InstanceList
+        for instance in json.loads(response_data.to_json_string())["Result"]["InstanceList"]:
+            instance["Region"] = self.region
+            result.append(instance)
+        return result
+
+    def show(self):
+        instance_list = self.list_instances()
         for instance in instance_list:
-            print(instance.to_json_string())
+            print(json.dumps(instance, default=str))
 
     def page(self):
         count = self.get_server_count()
