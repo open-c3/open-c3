@@ -59,7 +59,7 @@ class Cvm:
                 public_ip = d["PublicIpAddresses"][0]
             d["PrivateIP"] = private_ip
             d["PublicIP"] = public_ip
-            d["RegionId"] = d["Placement"]["Zone"][:-2]
+            d["Region"] = self.region
 
             print(json.dumps(d))
 
