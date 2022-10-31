@@ -10,6 +10,8 @@
 
         var vm = this;
         vm.versionname = 'null'
+        vm.versionuuid = 'null'
+        vm.versiontime = 'null'
         vm.reload = function () {
             vm.loadover = false;
             $http.get('/api/connector/version/log').success(function(data){
@@ -22,7 +24,9 @@
             });
             $http.get('/api/connector/version/name').success(function(data){
                 if (data.stat){
-                    vm.versionname = data.data
+                    vm.versionname = data.data.name
+                    vm.versionuuid = data.data.uuid
+                    vm.versiontime = data.data.time
                 }else {
                     swal({ title:'获取数据失败', text: data.info, type:'error' });
                 }
