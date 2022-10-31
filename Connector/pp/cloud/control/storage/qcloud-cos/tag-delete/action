@@ -1,0 +1,55 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+from qcloud_cos import CosConfig
+from qcloud_cos import CosS3Client
+
+
+def tag_delete(data, access_id, access_key, region):
+    service_domain = 'cos.{}.myqcloud.com'.format(region)
+    config = CosConfig(Region=region, SecretId=access_id,
+                       SecretKey=access_key, ServiceDomain=service_domain)  # 获取配置对象
+    client = CosS3Client(config)
+
+    field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field storage qcloud-cos Name")
+
+    response = client.get_bucket_tagging(Bucket=data[field_name])
+    tag_list = []
+    if "TagSet" in response and "Tag" in response["TagSet"]:
+        tag_list = response["TagSet"]["Tag"]
+
+    need_delete_key = data["_control_"]["tag-delete"]["key"]
+
+    new_list = []
+    for i in range(len(tag_list)):
+        if tag_list[i]['Key'] == need_delete_key:
+            continue
+        new_list.append(tag_list[i])
+
+    client.put_bucket_tagging(
+        Bucket=data[field_name],
+        Tagging={
+            'TagSet': {
+                'Tag': new_list
+            }
+        }
+    )
+
+
+def main(data, access_id, access_key, region):
+    tag_delete(data, access_id, access_key, region)
+
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4])
