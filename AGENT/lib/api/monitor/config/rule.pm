@@ -7,6 +7,7 @@ use JSON qw();
 use POSIX;
 use api;
 use Format;
+use URI::Escape;
 
 get '/monitor/config/rule/:projectid' => sub {
     my $param = params();
@@ -91,6 +92,10 @@ post '/monitor/config/rule/:projectid' => sub {
     }
 
     my $pmscheck = api::pmscheck( 'openc3_agent_write', $param->{projectid} ); return $pmscheck if $pmscheck;
+
+    my $tempexpr = URI::Escape::uri_escape( $param->{expr} );
+    my $x = `c3mc-prometheus-check-expr '$tempexpr' 2>&1`;
+    return +{ stat => $JSON::false, info => $x } if $?;
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     map{ $param->{$_} = '' unless defined $param->{$_}; }qw( for summary description value );

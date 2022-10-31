@@ -1,0 +1,30 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+use JSON;
+use LWP::UserAgent;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+die unless my $x = shift @ARGV;
+
+my $ua = LWP::UserAgent->new();
+$ua->agent('Mozilla/9 [en] (Centos; Linux)');
+
+$ua->timeout( 10 );
+$ua->default_header ( 'Cache-control' => 'no-cache', 'Pragma' => 'no-cache' );
+
+my $url = "http://openc3-prometheus:9090/api/v1/query?query=$x";
+my $res = $ua->get( $url );
+
+my $data = eval{ JSON::from_json $res->content };
+die "call server check PromQL, res no JSON: $@" if $@;
+exit if $data && $data->{status} && $data->{status} eq 'success';
+die "PromQL Err: $data->{error}\n";
