@@ -16,9 +16,14 @@ class Rds:
         self.page_size = 20
 
     def create_client(self):
+        endpoint_url = "https://rds.{}.amazonaws.com".format(self.region)
+        if self.region.startswith("cn"):
+            endpoint_url = "https://rds.{}.amazonaws.com.cn".format(
+                self.region)
+
         client = boto3.client(
             "rds",
-            endpoint_url="https://rds.{}.amazonaws.com".format(self.region),
+            endpoint_url=endpoint_url,
             aws_access_key_id=self.access_id,
             aws_secret_access_key=self.access_key,
             region_name=self.region,
