@@ -27,7 +27,9 @@ class VM:
 
                 item["zone"] = item["zone"].split("/")[-1]
                 item["regionId"] = item["zone"].split("/")[-1][:-2]
-                item["metadata"]["items"] = []
+                item["metadata"].pop("items", None)
+                item["vm_tags"] = item["tags"]
+                item.pop("tags", None)
 
                 private_ip = None
                 public_ip = None
@@ -41,6 +43,14 @@ class VM:
                     item["private_ip"] = private_ip
                 if public_ip is not None:
                     item["public_ip"] = public_ip
+
+                item["tags_list"] = []
+                if "labels" in item:
+                    for key, value in item["labels"].items():
+                        item["tags_list"].append({
+                            "Key": key,
+                            "Value": value
+                        })
 
                 results.append(item)
         return results
