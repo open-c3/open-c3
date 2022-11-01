@@ -128,7 +128,7 @@
                                     <input type="text" class="form-control" ng-model="taskData.variable[ss.name]" placeholder="{{ss.describe}}" ng-change="runtask2ci.checkinput(taskData.variable[ss.name],ss.name)" required>
                                 </div>
  
-                                <div class="col-sm-1"> 
+                                <div class="col-sm-1" ng-if="ss.name != 'tester' && ss.name != 'approver'"> 
                                     <a ng-if="runtask2ci.handwritten[ss.name]" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="选择" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="runtask2ci.handwritten[ss.name]=0"></a>
                                     <a ng-if="!runtask2ci.handwritten[ss.name]" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="手写" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="runtask2ci.handwritten[ss.name]=1"></a>
  
@@ -170,7 +170,7 @@
                     <div class="row">
                         <div class="col-sm-3 form-group" style="margin-left: 40%;">
                             <button ng-if="!runtask2ci.loadover" class="btn btn-primary" ng-disabled="1" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!runtask2ci.loadover}" ></i>加载中...</button>
-                            <button ng-if="runtask2ci.loadover"  class="btn btn-primary" ng-disabled="runtask2ciForm.$invalid && !runtask2ci.rollbacknoneeded"  ng-click="runtask2ci.runTask()">确认</button>
+                            <button ng-if="runtask2ci.loadover"  class="btn btn-primary" ng-disabled="runtask2ciForm.$invalid" ng-click="runtask2ci.runTask()">确认</button>
                             <button class="btn btn-primary" ng-click="runtask2ci.cancel()">取消</button>
                         </div>
                     </div>

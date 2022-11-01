@@ -235,7 +235,7 @@
 
         vm.cleanRollbackVersion = function () {
             if (vm.rollbacknoneeded){
-                $scope.taskData.variable._rollbackVersion_ = "";
+                $scope.taskData.variable._rollbackVersion_ = "0";
             }
         };
 
