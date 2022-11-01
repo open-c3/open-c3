@@ -17,7 +17,7 @@ any '/default/user/userlist' => sub {
 
     my $user = eval{ $api::mysql->query( "select name,pass from `openc3_connector_userinfo`", [ 'name', 'pass' ] ) };
     return +{ stat => $JSON::false, info => $@ } if $@;
-    map{ $_->{pass} = $_->{pass} eq '4cb9c8a8048fd02294477fcb1a41191a' ? 1 : 0;}@$user;
+    map{ $_->{pass} = $_->{pass} ? ( $_->{pass} eq '4cb9c8a8048fd02294477fcb1a41191a' ? 2 : 1 ) : 0;}@$user;
 
     return +{ stat => $JSON::true, data => $user };
 

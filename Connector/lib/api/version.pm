@@ -18,9 +18,15 @@ get '/version/log' => sub {
 };
 
 get '/version/name' => sub {
-    my $version = `cat '$RealBin/../.versionname'`;
-    chomp $version;
-    return +{ stat => $JSON::true, data => $version || 'unkown' };
+    my %version;
+    for my $x ( qw( name uuid time ) )
+    {
+        my    $xx = `cat '$RealBin/../.version$x'`;
+        chomp $xx;
+        $version{ $x } = $xx || 'unkown';
+    }
+
+    return +{ stat => $JSON::true, data => \%version };
 };
 
 true;

@@ -107,6 +107,30 @@ get '/variable/:projectid/:jobuuid' => sub {
         $_->{describe} = $defaultdescribe{$_->{name}} if $defaultdescribe{$_->{name}};
     }
 
+    if( $param->{usrext} )
+    {
+        for( @$r )
+        {
+            next unless $_->{option} && $_->{option} =~ /_\@[a-zA-Z0-9_\-\.]+_/;
+            my @opt = split /,/, $_->{option};
+            my @tmp;
+            for my $x ( @opt )
+            {
+                if( $x && $x =~ /^_(\@[a-zA-Z0-9_\-\.]+)_$/ )
+                {
+                    my    @x = `echo '$1'|sed 's/,/ /g'|xargs -n 1|c3mc-app-usrext`;
+                    chomp @x;
+                    push @tmp, @x;
+                }
+                else
+                {
+                    push @tmp, $x;
+                }
+            }
+            $_->{option} = join ',', @tmp;
+        }
+    }
+
     return +{ stat => $JSON::true, data => [ sort{ $a->{describe} cmp $b->{describe} }@$r ] };
 };
 

@@ -16,14 +16,24 @@ class Cos:
         self.client = self.create_client()
 
     def create_client(self):
+        service_domain = 'cos.{}.myqcloud.com'.format(self.region)
         config = CosConfig(Region=self.region, SecretId=self.access_id,
-                           SecretKey=self.access_key, Token=None, Scheme="https")
+                           SecretKey=self.access_key, Token=None, Scheme="https", ServiceDomain=service_domain)
         client = CosS3Client(config)
         return client
 
     def list_buckets(self):
         response = self.client.list_buckets()
-        return response["Buckets"]["Bucket"]
+        result = []
+        for bucket in response["Buckets"]["Bucket"]:
+            bucket["tags"] = self.list_tag(bucket["Location"], bucket["Name"])
+            result.append(bucket)
+        return result
+
+    def list_tag(self, region, bucket_name):
+        sys.path.append("/data/Software/mydan/Connector/lib/pp")
+        from c3mc_cloud_qcloud_cos_get_tag import GetTag
+        return GetTag(self.access_id, self.access_key, region, bucket_name).list_tag()
 
     def show(self):
         buckets = self.list_buckets()

@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import json
 
 from tencentcloud.common import credential
 from tencentcloud.common.profile.client_profile import ClientProfile
@@ -44,11 +45,20 @@ class Clb:
         response_data = self.get_response()
         return response_data.TotalCount
 
-    def show(self):
+    def list_instance(self):
         response_data = self.get_response()
-        instance_list = response_data.LoadBalancerSet
+        response_data = json.loads(response_data.to_json_string())
+
+        result = []
+        for instance in response_data["LoadBalancerSet"]:
+            instance["Region"] = self.region
+            result.append(instance)
+        return result
+
+    def show(self):
+        instance_list = self.list_instance()
         for instance in instance_list:
-            print(instance.to_json_string())
+            print(json.dumps(instance, default=str))
 
     def page(self):
         count = self.get_server_count()

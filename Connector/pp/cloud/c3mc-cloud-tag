@@ -69,7 +69,10 @@ class HandleTag:
         tag_dict = dict()
         for tag in tag_list:
             key = tag[self.key_field_name].strip()
-            value = tag[self.value_field_name].strip()
+            # 有的资源比如腾讯云cos, 可能出现标签value没有值的问题, 那就用空字符串显示
+            value = ""
+            if self.value_field_name in tag and tag[self.value_field_name] is not None:
+                value = tag[self.value_field_name].strip()
 
             if key.lower() == self.product_owner_tag.lower():
                 data["product_owner"] = value

@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+from tencentcloud.common import credential
+from tencentcloud.common.profile.client_profile import ClientProfile
+from tencentcloud.common.profile.http_profile import HttpProfile
+from tencentcloud.cdb.v20170320 import cdb_client, models
+
+
+def tag_add(data, access_id, access_key, region):
+    cred = credential.Credential(access_id, access_key)
+    httpProfile = HttpProfile()
+    httpProfile.endpoint = "cdb.tencentcloudapi.com"
+
+    clientProfile = ClientProfile()
+    clientProfile.httpProfile = httpProfile
+    client = cdb_client.CdbClient(cred, region, clientProfile)
+
+    field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database qcloud-cdb InstanceId")
+
+    req = models.ModifyInstanceTagRequest()
+    params = {
+        "InstanceId": data[field_name],
+        "ReplaceTags": [
+            {
+                "TagKey": data["_control_"]["tag-add"]["key"],
+                "TagValue": [data["_control_"]["tag-add"]["value"]]
+            }
+        ]
+    }
+    req.from_json_string(json.dumps(params))
+
+    client.ModifyInstanceTag(req)
+
+
+def main(data, access_id, access_key, region):
+    tag_add(data, access_id, access_key, region)
+
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4])

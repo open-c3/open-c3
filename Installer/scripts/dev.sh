@@ -161,6 +161,8 @@ function start() {
         
         git log --pretty=format:'%ai - %s' |grep -v 'Merge branch' > $BASE_PATH/Connector/.versionlog
         git branch |grep ^*|awk '{print $2}' > $BASE_PATH/Connector/.versionname
+        git rev-parse --short HEAD           > $BASE_PATH/Connector/.versionuuid
+        date '+%F %H:%M:%S'                  > $BASE_PATH/Connector/.versiontime
 
         exit
     fi
