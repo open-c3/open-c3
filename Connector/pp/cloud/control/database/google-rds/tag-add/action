@@ -1,0 +1,41 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+
+def tag_add(data, cred_json_path):
+    etag_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database google-rds etag")
+    name_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database google-rds name")
+    instance = json.loads(subprocess.getoutput(
+        "c3mc-cloud-control --uuid {} --ctrl get none".format(data[etag_field_name])))
+
+    if "userLabels" not in instance["settings"]:
+        instance["settings"]["userLabels"] = {}
+
+    new_key = data["_control_"]["tag-add"]["key"]
+    new_value = data["_control_"]["tag-add"]["value"]
+    instance["settings"]["userLabels"][new_key] = new_value
+
+    sys.path.append("/data/Software/mydan/Connector/lib/pp")
+    from c3mc_cloud_google_rds_tag import MysqlTag
+    MysqlTag(cred_json_path, data[name_field_name]
+             ).update_settings(instance["settings"])
+
+
+def main(data, cred_json_path):
+    tag_add(data, cred_json_path)
+
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]), sys.argv[2])

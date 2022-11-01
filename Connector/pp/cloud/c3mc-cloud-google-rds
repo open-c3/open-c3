@@ -28,6 +28,13 @@ class Mysql:
 
             for instance in response['items']:
                 instance.pop("serverCaCert", None)
+                instance["tags_list"] = []
+                if "userLabels" in instance["settings"]:
+                    for key, value in instance["settings"]["userLabels"].items():
+                        instance["tags_list"].append({
+                            "Key": key,
+                            "Value": value
+                        })
                 results.append(instance)
 
             request = service.instances().list_next(

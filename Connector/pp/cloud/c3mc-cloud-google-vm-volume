@@ -44,12 +44,12 @@ def get_volume(data_list):
                 if item["name"] in m_diskname_to_vmid:
                     item["_vmuuid_"] = m_diskname_to_vmid[item["name"]]
 
+                item["tags_list"] = []
                 if "labels" in item:
-                    item["tags"] = []
                     for key, value in item["labels"].items():
-                        item["tags"].append({
-                            "key": key,
-                            "value": value
+                        item["tags_list"].append({
+                            "Key": key,
+                            "Value": value
                         })
                 result.append(item)
     return result

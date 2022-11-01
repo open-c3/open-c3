@@ -1,0 +1,54 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+from googleapiclient import discovery
+from google.oauth2 import service_account
+
+
+def get(data, cred_json_path):
+    """
+        输出 google vm 的详情(json格式)
+    """
+    credentials = service_account.Credentials.from_service_account_file(
+        cred_json_path)
+
+    name_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field compute google-vm name")
+    zone_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field compute google-vm zone")
+
+    service = discovery.build('compute', 'v1', credentials=credentials)
+
+    request = service.instances().get(project=credentials.project_id,
+                                      zone=data[zone_field_name], instance=data[name_field_name])
+
+    instance = request.execute()
+    instance["metadata"].pop("items", None)
+
+    instance["tags_list"] = []
+    if "labels" in instance:
+        for key, value in instance["labels"].items():
+            instance["tags_list"].append({
+                "Key": key,
+                "Value": value
+            })
+    return instance
+
+
+def main(data, cred_json_path):
+    data = get(data, cred_json_path)
+    print(json.dumps(data, default=str))
+
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]), sys.argv[2])
