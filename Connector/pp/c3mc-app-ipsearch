@@ -40,7 +40,7 @@ sub search
     {
         if( ($xx->{inip} && $xx->{inip} eq $ip ) ||  ($xx->{exip} && $xx->{exip} eq $ip ) )
         {
-            printf "%s\n", join ',', map{ $xx->{$_} || '' }qw( name inip exip );
+            printf "%s\n", join ',', map{ $_ =~ s/,/\//g; $_ } map{ $xx->{$_} || '' }qw( name inip exip );
             exit;
         }
     }
