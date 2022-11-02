@@ -20,6 +20,7 @@ class HandleTag:
         self.product_owner_tag = self.get_product_owner_tag()
         self.ops_owner_tag = self.get_ops_owner_tag()
         self.department_tag = self.get_department_tag()
+        self.name_tag = self.get_name_tag()
 
     def handle_str_tag(self, data, tag_list):
         tag_dict = dict()
@@ -44,14 +45,17 @@ class HandleTag:
                 value = ";".join(item_list[1:]).strip()
 
                 if key.lower() == self.product_owner_tag.lower():
-                    data["product_owner"] = value
+                    data["_product_owner_"] = value
                     tag_dict[self.product_owner_tag] = value
                 elif key.lower() == self.ops_owner_tag.lower():
-                    data["ops_owner"] = value
+                    data["_ops_owner_"] = value
                     tag_dict[self.ops_owner_tag] = value
                 elif key.lower() == self.department_tag.lower():
-                    data["department"] = value
+                    data["_department_"] = value
                     tag_dict[self.department_tag] = value
+                elif key.lower() == self.name_tag.lower():
+                    data["_name_"] = value
+                    tag_dict[self.name_tag] = value
                 else:
                     tag_dict[key] = value
 
@@ -75,14 +79,17 @@ class HandleTag:
                 value = tag[self.value_field_name].strip()
 
             if key.lower() == self.product_owner_tag.lower():
-                data["product_owner"] = value
+                data["_product_owner_"] = value
                 tag_dict[self.product_owner_tag] = value
             elif key.lower() == self.ops_owner_tag.lower():
-                data["ops_owner"] = value
+                data["_ops_owner_"] = value
                 tag_dict[self.ops_owner_tag] = value
             elif key.lower() == self.department_tag.lower():
-                data["department"] = value
+                data["_department_"] = value
                 tag_dict[self.department_tag] = value
+            elif key.lower() == self.name_tag.lower():
+                data["_name_"] = value
+                tag_dict[self.name_tag] = value
             else:
                 tag_dict[key] = value
 
@@ -107,6 +114,10 @@ class HandleTag:
 
     def get_department_tag(self):
         output = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.Department")
+        return output
+
+    def get_name_tag(self):
+        output = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.Name")
         return output
 
     def handle(self):
