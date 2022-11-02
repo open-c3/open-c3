@@ -2,12 +2,11 @@
 
 curl -L $OPEN_C3_ADDR/api/scripts/installQueryInit.sh | bash
 
-IMAGE=openc3/mysql-query:m2211021
+IMAGE=openc3/mysql-query:m2211023
 VPATH=mysqld-exporter-v3
 NAME=openc3-mysql-query
 
 C=$(docker ps|grep "$IMAGE"|grep -v grep|wc -l)
-echo C:$C
 if [ "X$C" != "X0" ];then
     echo "Already installed $IMAGE, skip!"
     exit;
