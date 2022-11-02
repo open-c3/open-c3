@@ -37,6 +37,17 @@ sub run
     return if $has->{$name};
     system "docker rm $name >/dev/null 2>&1";
     system "docker run -d -e DATA_SOURCE_NAME='$conf->{user}:$conf->{password}@($conf->{ip}:$conf->{port})/' --network c3_JobNet --name $name prom/mysqld-exporter";
+    $has->{$name} = 1;
 }
 
-map{ run( $_, \%has ); } @file;
+my $default = 10;
+my $maxfile = "/data/open-c3-data/mysqld-exporter-v3/max";
+system ( "echo $default > $maxfile" ) unless -f $maxfile;
+my    $max = `cat $maxfile`;
+chomp $max;
+$max = $default unless defined $max && $max =~ /^\d+$/;
+
+map{
+    exit if $max <= keys %has;
+    run( $_, \%has );
+} @file;
