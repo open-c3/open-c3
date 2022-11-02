@@ -45,23 +45,25 @@ class Cvm:
         response_data = self.get_response()
         return response_data.TotalCount
 
-    def show(self):
+    def list_instances(self):
+        result = []
         response_data = self.get_response()
-        servers = response_data.InstanceSet
-        for server in servers:
-            d = json.loads(server.to_json_string())
+        for server in response_data.InstanceSet:
+            item = json.loads(server.to_json_string())
+            item["Region"] = self.region
 
-            public_ip = None
-            private_ip = None
-            if d["PrivateIpAddresses"] is not None and len(d["PrivateIpAddresses"]) > 0:
-                private_ip = d["PrivateIpAddresses"][0]
-            if d["PublicIpAddresses"] is not None and len(d["PublicIpAddresses"]) > 0:
-                public_ip = d["PublicIpAddresses"][0]
-            d["PrivateIP"] = private_ip
-            d["PublicIP"] = public_ip
-            d["Region"] = self.region
+            if item["PrivateIpAddresses"] is not None and len(item["PrivateIpAddresses"]) > 0:
+                item["PrivateIP"] = item["PrivateIpAddresses"][0]
+            if item["PublicIpAddresses"] is not None and len(item["PublicIpAddresses"]) > 0:
+                item["PublicIP"] = item["PublicIpAddresses"][0]
 
-            print(json.dumps(d))
+            result.append(item)
+        return result
+
+    def show(self):
+        instance_list = self.list_instances()
+        for instance in instance_list:
+            print(json.dumps(instance, default=str))
 
     def page(self):
         count = self.get_server_count()
