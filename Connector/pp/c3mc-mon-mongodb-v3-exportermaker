@@ -39,6 +39,17 @@ sub run
 
     my $password = $conf->{user} && $conf->{password} ? "$conf->{user}:$conf->{password}@" : "";
     system "docker run -d --network c3_JobNet --name $name percona/mongodb_exporter:0.20 --mongodb.uri mongodb://$password$conf->{ip}:$conf->{port}";
+    $has->{$name} = 1;
 }
 
-map{ run( $_, \%has ); } @file;
+my $default = 10;
+my $maxfile = "/data/open-c3-data/mongodb-exporter-v3/max";
+system ( "echo $default > $maxfile" ) unless -f $maxfile;
+my    $max = `cat $maxfile`;
+chomp $max;
+$max = $default unless defined $max && $max =~ /^\d+$/;
+
+map{
+    exit if $max <= keys %has;
+    run( $_, \%has );
+} @file;
