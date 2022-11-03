@@ -30,7 +30,7 @@ sub get
     my    @ps = `docker ps`;
     chomp @ps;
     my @name = map{ my ( $x )= reverse split /\s+/, $_;$x }@ps;
-    map{ $has{$_} = 1 if /^openc3-redis-exporter-([a-z0-9\.\-]+-\d+)$/; }@name;
+    map{ $has{$_} = 1 if $_ =~ /^openc3-redis-exporter-([a-z0-9\.\-]+-\d+)$/ && $_ !~ /^openc3-redis-exporter-v\d+-([a-z0-9\.\-]+-\d+)$/; }@name;
     return %has;
 }
 

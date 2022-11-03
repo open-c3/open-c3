@@ -30,9 +30,9 @@ sub getds
     return $x;
 }
 
-for my $x ( @x )
+for ( @x )
 {
-    next unless $x =~ /^([a-zA-Z0-9]{12}).+openc3-redis-exporter-v3-(\d+\.\d+\.\d+\.\d+)-(\d+)$/;
+    next unless $_ =~ /^([a-zA-Z0-9]{12}).+openc3-redis-exporter-v3-(\d+\.\d+\.\d+\.\d+)-(\d+)$/;
     my ( $addr, $uuid ) = ( "$2:$3", $1 );
     my $x = eval { getds( $uuid ) };
     if( $@ )
