@@ -398,3 +398,189 @@ ALTER TABLE openc3_device_bindtree modify `tree` varchar(1000) DEFAULT NULL COMM
 
 # v2.6.0 sql openc3_device_bindtree modify tree to 2000
 ALTER TABLE openc3_device_bindtree modify `tree` varchar(2000) DEFAULT NULL COMMENT 'tree';
+
+# v2.6.0 sql openc3_tt_base_impact create
+create table if not exists `openc3_tt_base_impact` (
+`id`           int(11)      unsigned NOT NULL AUTO_INCREMENT,
+`level`        int(11)      NOT NULL UNIQUE COMMENT '影响级别',
+`name`         varchar(100) UNIQUE COMMENT '名称',
+`response_sla` int(11)      unsigned NOT NULL COMMENT '响应sla',
+`resolve_sla`  int(11)      unsigned NOT NULL COMMENT '解决sla',
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='影响级别表';
+
+# v2.6.0 sql openc3_tt_base_category create
+create table if not exists `openc3_tt_base_category` (
+`id`    int(11)      unsigned NOT NULL AUTO_INCREMENT,
+`name`  varchar(100) UNIQUE COMMENT '名称',
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='总类表';
+
+# v2.6.0 sql openc3_tt_base_type create
+create table if not exists `openc3_tt_base_type` (
+`id`          int(11) unsigned NOT NULL AUTO_INCREMENT,
+`name`        varchar(100) COMMENT '名称',
+`category_id` int(11) unsigned NOT NULL,
+PRIMARY KEY (`id`),
+UNIQUE(name, category_id),
+FOREIGN KEY (`category_id`) REFERENCES openc3_tt_base_category(`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='子类表';
+
+# v2.6.0 sql openc3_tt_base_item create
+create table if not exists `openc3_tt_base_item` (
+`id`          int(11) unsigned NOT NULL AUTO_INCREMENT,
+`name`        varchar(100) COMMENT '名称',
+`type_id`     int(11) unsigned NOT NULL,
+`tpl_title`   varchar(200) COMMENT '模板标题',
+`tpl_content` text COMMENT '模板内容',
+PRIMARY KEY (`id`),
+UNIQUE(name,type_id),
+FOREIGN KEY (`type_id`) REFERENCES openc3_tt_base_type(`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='名目表';
+
+# v2.6.0 sql openc3_tt_base_group create
+create table if not exists `openc3_tt_base_group` (
+`id` int(11)      unsigned NOT NULL AUTO_INCREMENT,
+`group_name`      varchar(100) COMMENT '组名',
+`group_email`     varchar(100) COMMENT '组email',
+`admin_email`     varchar(100) COMMENT '管理员email',
+`timezone`        int(11) NOT NULL DEFAULT 8 COMMENT '时区',
+`work_day`        varchar(50) NOT NULL DEFAULT '1,2,3,4,5' COMMENT '工作日[1,2,3,4,5]',
+`work_hour_start` int(11) COMMENT '工作开始时间',
+`work_hour_end`   int(11) COMMENT '工作结束时间',
+`level1_report`   varchar(100) COMMENT '1-level 投诉人',
+`level2_report`   varchar(100) COMMENT '2-level 投诉人',
+`level3_report`   varchar(100) COMMENT '3-level 投诉人',
+`level4_report`   varchar(100) COMMENT '4-level 投诉人',
+`level5_report`   varchar(100) COMMENT '5-level 投诉人',
+`disabled` int(1) unsigned DEFAULT 0 COMMENT '是否可用',
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='工作组';
+
+# v2.6.0 sql openc3_tt_base_item_group_map create
+create table if not exists `openc3_tt_base_item_group_map` (
+`id`       int(11) unsigned NOT NULL AUTO_INCREMENT,
+`item_id`  int(11) unsigned NOT NULL,
+`group_id` int(11) unsigned NOT NULL,
+`priority` int(11) unsigned DEFAULT 0 COMMENT '优先级',
+FOREIGN KEY (`item_id`)  REFERENCES openc3_tt_base_item(`id`)  ON DELETE CASCADE,
+FOREIGN KEY (`group_id`) REFERENCES openc3_tt_base_group(`id`) ON DELETE CASCADE,
+UNIQUE(item_id, group_id),
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='item工作组映射表';
+
+# v2.6.0 sql openc3_tt_base_group_user create
+create table if not exists `openc3_tt_base_group_user` (
+`id`       int(11) unsigned NOT NULL AUTO_INCREMENT,
+`group_id` int(11) unsigned NOT NULL,
+`email`    varchar(100) COMMENT '组员邮箱',
+`priority` int(11) unsigned DEFAULT 0 COMMENT '优先级',
+`disabled` int(1) unsigned DEFAULT 0 COMMENT '禁用',
+PRIMARY KEY (`id`),
+UNIQUE(group_id, email),
+FOREIGN KEY (`group_id`) REFERENCES openc3_tt_base_group(`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='组员表';
+
+# v2.6.0 sql openc3_tt_base_email_templates create
+create table if not exists `openc3_tt_base_email_templates` (
+`id`          int(11) unsigned NOT NULL AUTO_INCREMENT,
+`name`        varchar(100) UNIQUE COMMENT '模板名称',
+`description` varchar(200) COMMENT '模板描述',
+`title`       varchar(300) COMMENT '邮件标题',
+`content`     text COMMENT '内容',
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='邮件模板';
+
+# v2.6.0 sql openc3_tt_ticket create
+create table if not exists `openc3_tt_ticket` (
+`id`                     int(11) unsigned NOT NULL AUTO_INCREMENT,
+`no`                     varchar(100) UNIQUE COMMENT '编号',
+`submit_user`            varchar(100) COMMENT '提交人',
+`apply_user`             varchar(100) COMMENT '申请人',
+`status`                 enum('assigned', 'wip', 'pending', 'resolved', 'closed') NOT NULL COMMENT '当前状态',
+`impact`                 int(11) unsigned NOT NULL default 1 COMMENT '事件影响',
+`category`               int(11) unsigned NOT NULL default 1 COMMENT 'C',
+`type`                   int(11) unsigned NOT NULL default 1 COMMENT 'T',
+`item`                   int(11) unsigned NOT NULL default 1 COMMENT 'I',
+`workgroup`              int(11) unsigned NOT NULL default 1 COMMENT '工作组',
+`group_user`             int(11) unsigned COMMENT '指派人',
+`title`                  varchar(300) COMMENT '标题',
+`content`                text COMMENT '详述',
+`email_list`             text COMMENT '抄送列表',
+`root_cause`             text COMMENT '根本原因',
+`solution`               text COMMENT '解决方案',
+`response_time`          DATETIME COMMENT '响应时间',
+`response_cost`          int(11) unsigned DEFAULT 0 COMMENT '响应sla耗时(s)',
+`response_timeout_sent`  int(11) unsigned DEFAULT 0 COMMENT '响应超时邮件已发送',
+`resolve_time`           DATETIME COMMENT '解决时间',
+`resolve_cost`           int(11) unsigned DEFAULT 0 COMMENT '解决sla耗时(s)',
+`resolve_timeout_sent`   int(11) unsigned DEFAULT 0 COMMENT '解决超时邮件已发送',
+`closed_time`            DATETIME COMMENT '关闭时间',
+`one_time_resolve_rate`  int(11) unsigned default 0 COMMENT '一次解决率',
+`created_at`             DATETIME NOT NULL COMMENT '添加时间',
+PRIMARY KEY (`id`),
+FOREIGN KEY (`impact`)     REFERENCES openc3_tt_base_impact(`id`),
+FOREIGN KEY (`category`)   REFERENCES openc3_tt_base_category(`id`),
+FOREIGN KEY (`type`)       REFERENCES openc3_tt_base_type(`id`),
+FOREIGN KEY (`item`)       REFERENCES openc3_tt_base_item(`id`),
+FOREIGN KEY (`workgroup`)  REFERENCES openc3_tt_base_group(`id`),
+FOREIGN KEY (`group_user`) REFERENCES openc3_tt_base_group_user(`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1001 DEFAULT CHARSET=utf8 COMMENT='ticket表';
+
+# v2.6.0 sql openc3_tt_ticket_attachment create
+create table if not exists `openc3_tt_ticket_attachment` (
+`id`         int(11) unsigned NOT NULL AUTO_INCREMENT,
+`name`       varchar(200) COMMENT '文件名',
+`size`       int(11) COMMENT '文件大小',
+`uuid`       varchar(100) UNIQUE COMMENT 'uuid',
+`ticket_id`  int(11) unsigned NOT NULL COMMENT 'ticket id',
+`created_at` DATETIME NOT NULL COMMENT '添加时间',
+PRIMARY KEY (`id`),
+FOREIGN KEY (`ticket_id`) REFERENCES openc3_tt_ticket(`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT='附件表';
+
+# v2.6.0 sql openc3_tt_common_reply_log create
+create table if not exists `openc3_tt_common_reply_log` (
+`id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+`oper_user`  varchar(100) COMMENT 'user',
+`content`    varchar(500) COMMENT 'content',
+`ticket_id`  int(11) unsigned NOT NULL COMMENT 'ticket id',
+`created_at` DATETIME NOT NULL COMMENT '添加时间',
+PRIMARY KEY (`id`),
+FOREIGN KEY (`ticket_id`) REFERENCES openc3_tt_ticket(`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT="replylog表";
+
+# v2.6.0 sql openc3_tt_common_work_log create
+create table if not exists `openc3_tt_common_work_log` (
+`id` int(11) unsigned NOT NULL AUTO_INCREMENT,
+`oper_user`  varchar(100) COMMENT 'user',
+`content`    text COMMENT 'content',
+`ticket_id`  int(11) unsigned NOT NULL COMMENT 'ticket id',
+`created_at` DATETIME NOT NULL COMMENT '添加时间',
+PRIMARY KEY (`id`),
+FOREIGN KEY (`ticket_id`) REFERENCES openc3_tt_ticket(`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT="worklog表";
+
+# v2.6.0 sql openc3_tt_common_sys_log create
+create table if not exists `openc3_tt_common_sys_log` (
+`id` int(11)  unsigned NOT NULL AUTO_INCREMENT,
+`oper_user`   varchar(100) COMMENT '修改人',
+`oper_type`   varchar(100) COMMENT '修改类型(add, update, delete)',
+`oper_column` varchar(100) COMMENT '修改字段',
+`oper_pre`    varchar(200) COMMENT '修改前',
+`oper_after`  varchar(200) COMMENT '修改后',
+`content`     varchar(500) COMMENT '修改记录描述',
+`ticket_id`   int(11) unsigned NOT NULL COMMENT 'ticket id',
+`created_at`  DATETIME NOT NULL COMMENT '添加时间',
+PRIMARY KEY (`id`),
+FOREIGN KEY (`ticket_id`) REFERENCES openc3_tt_ticket(`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT="syslog表";
+
+# v2.6.0 sql openc3_tt_common_lang create
+create table if not exists `openc3_tt_common_lang` (
+`id`      int(11) unsigned NOT NULL AUTO_INCREMENT,
+`lang`    varchar(100) NOT NULL UNIQUE COMMENT 'language',
+`langkey` varchar(100) NOT NULL UNIQUE COMMENT 'language key',
+`data`    text COMMENT 'data',
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COMMENT="翻译表";
