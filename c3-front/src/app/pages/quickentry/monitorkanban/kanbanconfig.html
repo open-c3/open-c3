@@ -39,7 +39,8 @@
 
 
                         <td data-title="'删除'" width="80" >
-                            <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kanbanconfig.delKanban(m.id)" uib-tooltip="删除看版" style="cursor:pointer;color: red;" ></i>
+                            <i ng-if="m.id <= 100000000" class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kanbanconfig.delKanban(m.id)" uib-tooltip="删除看版" style="cursor:pointer;color: red;" ></i>
+                            <i ng-if="m.id >  100000000"class="fa fa-minus-circle fa-2x" aria-hidden="true" uib-tooltip="系统内置" style="cursor:pointer;color: grey;" ></i>
                         </td> 
                     </tr>
                 </table>
