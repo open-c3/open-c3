@@ -138,7 +138,7 @@ sub run
                            my $carry = $carry{$ip} ? "carry_$carry{$ip}_carry" : "";
                            my $debug = $data =~ /debug=1/ ? "debug=1" : "";
 
-                           my $url = "http://$call:65110/$uri/$carry/$debug";
+                           my $url = "http://$call:65110/$uri?c=/$carry/$debug";
                            if( $monagent9100 )
                            {
                                if( $proxy{$ip} )
