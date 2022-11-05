@@ -83,10 +83,12 @@ post '/monitor/config/rule/:projectid' => sub {
     {
         return  +{ stat => $JSON::false, info => "check format fail" } unless $param->{bindtreesql};
 
-        return  +{ stat => $JSON::false, info => "Expr format fail, Does not contain a string like: by(instance)" } unless $param->{bindtreesql} =~ /by\s*\(\s*instance\s*\)/;
+        $param->{bindtreesql} =~ /by\s*\(\s*([a-z][a-z0-9_\-\.]+[a-z0-9])\s*\)/;
+        my $by = $1;
+        return  +{ stat => $JSON::false, info => "Expr format fail, Does not contain a string like: by(instance)" } unless $by;
 
         my $tidname = $param->{model} eq 'bindtree' ? "tid" : "eid";
-        $param->{expr} = "$param->{bindtreesql} and  ( sum(treeinfo{$tidname=\"$param->{projectid}\"}) by(instance))";
+        $param->{expr} = "$param->{bindtreesql} and  ( sum(treeinfo{$tidname=\"$param->{projectid}\"}) by($by))";
     }
     else
     {
