@@ -19,7 +19,7 @@ my $option = MYDan::Util::OptConf->load();
 my %o = $option->get(    qw( treeid=i user=s ) )->dump();
         $option->assert( qw( treeid   ) );
 
-my @col = qw( projectid alert expr for severity summary description value model metrics method threshold edit_user bindtreesql );
+my @col = qw( projectid alert expr for severity summary description value model metrics method threshold edit_user bindtreesql job );
 my $db = MYDB->new(  "/data/Software/mydan/AGENT/conf/conn", delayedconnection => 1 );
 
 local $/ = undef;

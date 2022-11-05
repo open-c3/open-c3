@@ -48,11 +48,14 @@
                 <div class="col-sm-3">
                     <input type="text" class="form-control" placeholder="指标名" ng-model="createMonitorConfigRule.postData.metrics">
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-2">
                     <input type="text" class="form-control" placeholder="比较" ng-model="createMonitorConfigRule.postData.method">
                 </div>
-                <div class="col-sm-3">
+                <div class="col-sm-2">
                     <input type="text" class="form-control" placeholder="阈值" ng-model="createMonitorConfigRule.postData.threshold">
+                </div>
+                <div class="col-sm-2"style="float: right;" ng-init="job= [ { name: '', alias: '全部'} , { name: 'openc3', alias: '主机'} , { name: 'openc3-mysql-v3', alias: 'Mysql'}, { name: 'openc3-redis-v3', alias: 'redis' }, { name: 'openc3-mongodb-v3', alias: 'mongodb' } ]">
+                    <select class="form-control"  ng-model="createMonitorConfigRule.postData.job"  ng-options="o.name as o.alias for o in job"  > </select>
                 </div>
             </div>
         </div>
