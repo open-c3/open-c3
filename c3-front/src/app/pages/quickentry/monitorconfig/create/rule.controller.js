@@ -24,6 +24,7 @@
             vm.postData.method = postData.method
             vm.postData.threshold = postData.threshold
             vm.postData.bindtreesql = postData.bindtreesql
+            vm.postData.job = postData.job
         }
 
         vm.cancel = function(){ $uibModalInstance.dismiss()};

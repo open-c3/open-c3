@@ -1,29 +1,34 @@
 ---
-alert: Node节点内存使用率大于90%
-bindtreesql: ''
-description: 'Node节点 {{$labels.instance}} 内存使用超过90% 当前Node节点内存使用率: {{ $value }}%'
-edit_time: 2022-02-17 19:52:01
-edit_user: open-c3
-expr: ceil( (node_memory_MemTotal_bytes - (node_memory_MemFree_bytes + node_memory_Buffers_bytes
-  + node_memory_Cached_bytes)) / node_memory_MemTotal_bytes * 100 ) > 90
-for: ''
+alert: Node节点内存使用率大于98%
+bindtreesql: round(sum((node_memory_MemTotal_bytes - (node_memory_MemFree_bytes +
+  node_memory_Buffers_bytes + node_memory_Cached_bytes)) / node_memory_MemTotal_bytes
+  * 100) by (instance)) > 98
+description: 'Node节点 {{$labels.instance}} 内存使用超过98%当前Node节点内存使用率: {{ $value }}%'
+edit_time: 2022-11-01 16:12:02
+edit_user: zhangjie1@cmcm.com
+expr: round(sum((node_memory_MemTotal_bytes - (node_memory_MemFree_bytes + node_memory_Buffers_bytes
+  + node_memory_Cached_bytes)) / node_memory_MemTotal_bytes * 100) by (instance))
+  > 98 and  ( sum(treeinfo{tid="c3montreeid"}) by(instance))
+for: 10m
+job: ''
 method: ''
 metrics: ''
-model: custom
+model: bindtree
 severity: level2
 summary: 内存报警
 threshold: ''
 value: '{{ $value }}%'
 ---
-alert: Node节点CPU使用率大于90%
+alert: Node节点CPU使用率大于98%
 bindtreesql: ceil( (1-(sum(increase(node_cpu_seconds_total{mode="idle"}[5m]))by(instance))/(sum(increase(node_cpu_seconds_total[5m]))by(instance)))
-  * 100 ) > 1
-description: 'Node节点 {{$labels.instance}} 内存使用超过90% 当前Node节点CPU使用率: {{ $value }}%'
-edit_time: 2022-09-29 16:06:13
-edit_user: open-c3
+  * 100 ) > 98
+description: 'Node节点 {{$labels.instance}} CPU使用超过98%当前Node节点CPU使用率: {{ $value }}%'
+edit_time: 2022-11-01 16:10:24
+edit_user: zhangjie1@cmcm.com
 expr: ceil( (1-(sum(increase(node_cpu_seconds_total{mode="idle"}[5m]))by(instance))/(sum(increase(node_cpu_seconds_total[5m]))by(instance)))
-  * 100 ) > 1 and  ( sum(treeinfo{tid="c3montreeid"}) by(instance))
-for: ''
+  * 100 ) > 98 and  ( sum(treeinfo{tid="c3montreeid"}) by(instance))
+for: 10m
+job: ''
 method: ''
 metrics: ''
 model: bindtree
@@ -33,186 +38,113 @@ threshold: ''
 value: '{{ $value }}%'
 ---
 alert: 根盘/使用百分比大于85%
-bindtreesql: ''
-description: '磁盘使用超过85% 当前主机根盘使用百分比: {{ $value }}%'
-edit_time: 2022-02-17 19:52:25
-edit_user: open-c3
+bindtreesql: ceil( max by(instance) ((node_filesystem_size_bytes {mountpoint ="/"}
+  - node_filesystem_free_bytes{mountpoint ="/"}) / node_filesystem_size_bytes {mountpoint
+  ="/"} * 100 ) ) > 85
+description: '磁盘使用超过85%当前主机根盘使用百分比: {{ $value }}%'
+edit_time: 2022-11-01 16:09:01
+edit_user: zhangjie1@cmcm.com
 expr: ceil( max by(instance) ((node_filesystem_size_bytes {mountpoint ="/"} - node_filesystem_free_bytes{mountpoint
-  ="/"}) / node_filesystem_size_bytes {mountpoint ="/"} * 100 ) ) > 85
-for: ''
+  ="/"}) / node_filesystem_size_bytes {mountpoint ="/"} * 100 ) ) > 85 and  ( sum(treeinfo{tid="c3montreeid"})
+  by(instance))
+for: 10m
+job: ''
 method: ''
 metrics: ''
-model: custom
+model: bindtree
 severity: level2
 summary: 磁盘报警
 threshold: ''
 value: '{{ $value }}%'
 ---
 alert: 数据盘/data使用百分比大于85%
-bindtreesql: ''
-description: '磁盘使用超过85% 当前主机数据盘使用百分比: {{ $value }}%'
-edit_time: 2022-02-17 19:52:38
-edit_user: open-c3
+bindtreesql: ceil( max by(instance) ((node_filesystem_size_bytes {mountpoint ="/data"}
+  - node_filesystem_free_bytes{mountpoint ="/data"}) / node_filesystem_size_bytes
+  {mountpoint ="/data"} * 100 ) ) > 85
+description: '磁盘使用超过85%当前主机数据盘使用百分比: {{ $value }}%'
+edit_time: 2022-11-01 16:08:26
+edit_user: zhangjie1@cmcm.com
 expr: ceil( max by(instance) ((node_filesystem_size_bytes {mountpoint ="/data"} -
   node_filesystem_free_bytes{mountpoint ="/data"}) / node_filesystem_size_bytes {mountpoint
-  ="/data"} * 100 ) ) > 85
-for: ''
+  ="/data"} * 100 ) ) > 85 and  ( sum(treeinfo{tid="c3montreeid"}) by(instance))
+for: 10m
+job: ''
 method: ''
 metrics: ''
-model: custom
+model: bindtree
 severity: level2
 summary: 磁盘报警
 threshold: ''
 value: '{{ $value }}%'
 ---
-alert: 服务器宕机
-bindtreesql: ''
-description: 服务器宕机
-edit_time: 2022-09-22 19:17:35
-edit_user: open-c3
-expr: up{treeid_c3montreeid!=""} == 0
-for: ''
+alert: 服务器负载过高
+bindtreesql: 2 * sum(count(node_cpu_seconds_total{ mode="system"}) by (cpu,instance))
+  by(instance) < sum(node_load1) by(instance)
+description: '服务器负载过高, load 大于 CPU核数的两倍，当前load是: {{ $value }}'
+edit_time: 2022-11-01 16:08:07
+edit_user: zhangjie1@cmcm.com
+expr: 2 * sum(count(node_cpu_seconds_total{ mode="system"}) by (cpu,instance)) by(instance)
+  < sum(node_load1) by(instance) and  ( sum(treeinfo{tid="c3montreeid"}) by(instance))
+for: 10m
+job: ''
+method: ''
+metrics: ''
+model: bindtree
+severity: level2
+summary: 服务器load过高
+threshold: ''
+value: '{{ $value }}'
+---
+alert: Node节点CPU使用率大于90%
+bindtreesql: round( (1-(sum(increase(node_cpu_seconds_total{mode="idle"}[5m]))by(instance))/(sum(increase(node_cpu_seconds_total[5m]))by(instance)))
+  * 100 ) > 90
+description: 'Node节点 {{$labels.instance}} CPU使用超过90% 当前Node节点CPU使用率: {{ $value }}%'
+edit_time: 2022-11-01 16:12:26
+edit_user: zhangjie1@cmcm.com
+expr: round( (1-(sum(increase(node_cpu_seconds_total{mode="idle"}[5m]))by(instance))/(sum(increase(node_cpu_seconds_total[5m]))by(instance)))
+  * 100 ) > 90 and  ( sum(treeinfo{tid="c3montreeid"}) by(instance))
+for: 10m
+job: ''
+method: ''
+metrics: ''
+model: bindtree
+severity: level2
+summary: CPU报警
+threshold: ''
+value: '{{ $value }}%'
+---
+alert: Node节点内存使用率大于90%
+bindtreesql: round(sum((node_memory_MemTotal_bytes - (node_memory_MemFree_bytes +
+  node_memory_Buffers_bytes + node_memory_Cached_bytes)) / node_memory_MemTotal_bytes
+  * 100) by (instance)) > 90
+description: 'Node节点 {{$labels.instance}} 内存使用超过90% 当前Node节点内存使用率: {{ $value }}%'
+edit_time: 2022-11-03 18:26:38
+edit_user: zhangjie1@cmcm.com
+expr: round(sum((node_memory_MemTotal_bytes - (node_memory_MemFree_bytes + node_memory_Buffers_bytes
+  + node_memory_Cached_bytes)) / node_memory_MemTotal_bytes * 100) by (instance))
+  > 90 and  ( sum(treeinfo{tid="c3montreeid"}) by(instance))
+for: 20m
+job: ''
+method: ''
+metrics: ''
+model: bindtree
+severity: level2
+summary: 内存报警
+threshold: ''
+value: '{{ $value }}%'
+---
+alert: 主机存活检查
+bindtreesql: sum(up) by(instance) == 0
+description: Node节点 {{$labels.instance}} 已宕机
+edit_time: 2022-11-05 23:18:18
+edit_user: lijinfeng01@orionstar.com
+expr: up{treeid_c3montreeid!="",job="openc3"} == 0
+for: 1m
+job: openc3
 method: ==
 metrics: up
 model: simple
-severity: level1
-summary: 服务器宕机
+severity: level2
+summary: 主机已宕机
 threshold: '0'
-value: '{{ $value }}'
----
-alert: 服务器重启了
-bindtreesql: ''
-description: 服务器在5分钟内被重启过
-edit_time: 2022-02-17 18:33:42
-edit_user: open-c3
-expr: node_system_uptime < 300
-for: ''
-method: ''
-metrics: ''
-model: custom
-severity: level2
-summary: 服务器重启
-threshold: ''
-value: '{{ $value }}'
----
-alert: 服务器负载过高
-bindtreesql: ''
-description: '服务器负载过高, load 大于 CPU核数，当前load是: {{ $value }}'
-edit_time: 2022-03-02 14:57:34
-edit_user: open-c3
-expr: sum(node_load1) by(instance) * 100 > sum(count(node_cpu_seconds_total{ mode="system"})
-  by (cpu,instance)) by(instance)
-for: ''
-method: ''
-metrics: ''
-model: custom
-severity: level2
-summary: 服务load过高
-threshold: ''
-value: '{{ $value }}'
----
-alert: 进程挂了
-bindtreesql: ''
-description: 应用 {{ $labels.app }} 进程{{ $labels.cmdline }}挂了
-edit_time: 2022-03-07 15:51:33
-edit_user: open-c3
-expr: node_process_count < 0
-for: ''
-method: ''
-metrics: ''
-model: custom
-severity: level1
-summary: 应用 {{ $labels.app }} 进程{{ $labels.cmdline }}挂了
-threshold: ''
-value: '{{ $value }}'
----
-alert: 进程被重启了
-bindtreesql: ''
-description: 应用 {{ $labels.app }} 进程{{ $labels.cmdline }} 5分钟内被重启过
-edit_time: 2022-02-17 22:24:40
-edit_user: open-c3
-expr: node_process_etime < 300
-for: ''
-method: ''
-metrics: ''
-model: custom
-severity: level2
-summary: 应用 {{ $labels.app }} 进程{{ $labels.cmdline }} 5分钟内被重启过
-threshold: ''
-value: '{{ $value }}'
----
-alert: 进程端口挂了
-bindtreesql: ''
-description: 应用 {{ $labels.app }} 端口{{$labels.protocol }} {{$labels.port }}挂了
-edit_time: 2022-02-17 22:45:51
-edit_user: open-c3
-expr: node_port{port="65111",protocol="tcp"} < 1
-for: ''
-method: ''
-metrics: ''
-model: custom
-severity: level2
-summary: 应用 {{ $labels.app }} 端口{{$labels.protocol }} {{$labels.port }}挂了
-threshold: ''
-value: '{{ $value }}'
----
-alert: redis连接数报警大于500
-bindtreesql: ''
-description: 'reids连接数大于500，当前连接数为: {{ $value }}'
-edit_time: 2022-03-07 14:21:20
-edit_user: open-c3
-expr: redis_connected_clients > 0
-for: ''
-method: ''
-metrics: ''
-model: custom
-severity: level2
-summary: redis连接数报警
-threshold: ''
-value: '{{ $value }}'
----
-alert: 运维工具未安装
-bindtreesql: ''
-description: ''
-edit_time: 2022-03-02 22:35:26
-edit_user: open-c3
-expr: node_path_check{path="/data/package/ops/app"}== 0
-for: ''
-method: ''
-metrics: ''
-model: custom
-severity: level2
-summary: ''
-threshold: ''
-value: ''
----
-alert: C3监控agent版本低
-bindtreesql: ''
-description: ''
-edit_time: 2022-03-03 10:14:27
-edit_user: open-c3
-expr: node_exporter_version < 10
-for: ''
-method: ''
-metrics: ''
-model: custom
-severity: level2
-summary: ''
-threshold: ''
-value: ''
----
-alert: es内存分配和垃圾回收22
-bindtreesql: ''
-description: 内存使用率超过最大限制99%，当前使用率为 {{ $value }}%
-edit_time: 2022-06-16 14:43:58
-edit_user: open-c3
-expr: (elasticsearch_filesystem_data_free_bytes/elasticsearch_filesystem_data_size_bytes)*100
-  < 99
-for: ''
-method: ''
-metrics: ''
-model: custom
-severity: level2
-summary: 内存使用率超过最大限制99%
-threshold: ''
 value: '{{ $value }}%'

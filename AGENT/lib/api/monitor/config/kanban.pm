@@ -25,7 +25,39 @@ get '/monitor/config/kanban/:projectid' => sub {
             sprintf( "select %s from openc3_monitor_config_kanban
                 $where", join( ',', map{ "`$_`" }@col)), \@col )};
 
-    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
+    my ( @r, %default );
+    for my $x ( @$r )
+    {
+        if( $x->{name} =~ /^_(\d+)_$/ )
+        {
+            $default{ $1 } = $x->{default};
+        }
+        else
+        {
+            push @r, $x;
+        }
+    }
+
+    my @x = `cat cat /data/Software/mydan/AGENT/lib/api/monitor/config/kanban.default`;
+    chomp @x;
+    
+    for( @x )
+    {
+        my ( $id, $name, $url ) = split /;/, $_, 3;
+        utf8::decode($name);
+        $url =~ s/\{\{treeid\}\}/$param->{projectid}/g;
+        push @r, +{
+            projectid => $param->{projectid},
+            id => $id,
+            name => $name,
+            url => $url,
+            edit_user => 'sys',
+            edit_time => '2022-11-05 12:16:30',
+            default   => $default{ $id } || 0,
+        };
+    }
+
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@r };
 };
 
 get '/monitor/config/kanban/:projectid/:id' => sub {
@@ -95,7 +127,16 @@ post '/monitor/config/kanban/setdefault/:projectid/:kanbanid' => sub {
     eval{
         $api::auditlog->run( user => $user, title => "$title MONITOR DEFAULT KANBAN", content => "TREEID:$projectid KANBANID:$kanbanid" );
         $api::mysql->execute( "update openc3_monitor_config_kanban set `default`=0 where projectid=$projectid" );
-        $api::mysql->execute( "update openc3_monitor_config_kanban set `default`=$stat where projectid=$projectid and id=$kanbanid" );
+        if( $kanbanid > 100000000 )
+        {
+            $api::mysql->execute( "delete from openc3_monitor_config_kanban where projectid=$projectid and name='_${kanbanid}_'" );
+            $api::mysql->execute( "insert into openc3_monitor_config_kanban (`projectid`,`name`,`url`,`edit_user`,`default`)
+                values('$projectid','_${kanbanid}_','_url_','$user',$stat)" );
+        }
+        else
+        {
+            $api::mysql->execute( "update openc3_monitor_config_kanban set `default`=$stat where projectid=$projectid and id=$kanbanid" );
+        }
     };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
