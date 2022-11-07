@@ -1,0 +1,97 @@
+<div id="topbar">
+    <div class="topbar-left">
+        <ol class="breadcrumb">
+            <li class="fs16">报表</li>
+            <li>User看板</li>
+        </ol>
+    </div>
+    <div class="topbar-right">
+        <ol class="breadcrumb">
+            <li>Trouble Ticketing</li>
+            <li>Report</li>
+        </ol>
+    </div>
+</div>
+
+<div class="block">
+
+    <div class="panel panel-dark">
+
+        <div class="panel-body">
+
+            <form class="form-inline">
+
+                <div class="row">
+
+                    <div class="form-group col-md-4">
+                        <div class="input-group fluid-width">
+                            <input type="text" class="form-control" placeholder="起始（from）" uib-datepicker-popup="yyyy-MM-dd" ng-model="report.tableFilter.start" is-open="report.dateOpen" close-text="Close" />
+                            <span class="input-group-btn">
+                                <button type="button" class="btn btn-default fluid-width" ng-click="report.dateOpen=1"><i class="glyphicon glyphicon-calendar"></i></button>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-4">
+                        <div class="input-group fluid-width">
+                            <input type="text" class="form-control" placeholder="结束（to）" uib-datepicker-popup="yyyy-MM-dd" ng-model="report.tableFilter.end" is-open="report.dateOpen2" close-text="Close" />
+                            <span class="input-group-btn">
+                                <button type="button" class="btn btn-default fluid-width" ng-click="report.dateOpen2=1"><i class="glyphicon glyphicon-calendar"></i></button>
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="col-md-1">
+                        <button class="btn btn-block btn-primary" ng-click="report.report()">
+                            <i class="fa fa-search fa-fw"></i>
+                        </button>
+                    </div>
+
+                </div>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+
+<div class="block">
+
+    <div class="panel panel-primary">
+
+        <div class="panel-heading">
+            <span class="panel-title">
+                <b>{{report.tableFilter.start | date:"yyyy-MM-dd"}} 00:00:00</b> To
+                <b>{{report.tableFilter.end | date:"yyyy-MM-dd"}} 23:59:59</b>
+            </span>
+        </div>
+
+        <div class="panel-body">
+
+            <cmloading ng-if="report.loading"></cmloading>
+
+            <div class="table-scroll" ng-if="!report.loading">
+                <table ng-table="report.tables.group_user" class="table table-hover text-center table-condensed va-m">
+                    <tr ng-repeat="v in $data">
+                        <td data-title="'user'" filter="{ user: 'text'}" >
+                            {{v.user}}
+                          </b>
+                        </td>
+                        <td data-title="'提交数量'" sortable="'submit_number'">{{v.submit_number}}</td>
+                        <td data-title="'解决数量'">{{v.resolve_number}}</td>
+                        <td data-title="'响应超时数量'">{{v.response_timeout_number}}</td>
+                        <td data-title="'解决超时数量'">{{v.resolve_timeout_number}}</td>
+                        <td data-title="'解决率'">{{v.resolve_rate}}</td>
+                        <td data-title="'响应超时率'">{{v.response_timeout_rate}}</td>
+                        <td data-title="'解决超时率'">{{v.resolve_timeout_rate}}</td>
+                        <td data-title="'一次解决率'">{{v.one_time_resolve_rate}}</td>
+                        <td data-title="'平均响应时间'">{{v.mean_response_time/3600 | floor}}h {{v.mean_response_time % 3600 / 60 | floor}}m {{v.mean_response_time % 60}}s</td>
+                        <td data-title="'平均解决时间'">{{v.mean_resolve_time/3600 | floor}}h {{v.mean_resolve_time % 3600 / 60 | floor}}m {{v.mean_resolve_time % 60}}s</td>
+                    </tr>
+                </table>
+            </div>
+
+        </div>
+    </div>
+</div>

@@ -1,0 +1,116 @@
+<div id="sidebar_left" class="affix nano nano-primary">
+
+    <div class="sidebar-left-content nano-content has-scrollbar">
+
+        <ul class="nav sidebar-menu">
+
+            <li ng-class="{active: menu.states.is('home')}">
+                <a ui-sref="home" class="ripple">
+                    <span class="fa fa-compass"></span>
+                    <span class="sidebar-title" translate="S.Menu.dashboard"></span>
+                </a>
+            </li>
+
+            <!-- 事件 -->
+            <li ng-class="{active: menu.states.includes('home.tt')}">
+
+                <a href="javascript:void(0)" class="ripple" toggle-class="menu-open" ng-class="{'menu-open': menu.states.includes('home.tt')}">
+                    <span class="fa fa-ticket"></span>
+                    <span class="sidebar-title" translate="S.Menu.tt"></span>
+                    <span class="caret"></span>
+                </a>
+                <ul class="nav sub-nav animated slideInLeft animated-shorter">
+                    <li class="ripple" ng-class="{active: menu.states.includes('home.tt.new')}">
+                        <a href ui-sref="home.tt.new" translate="S.Menu.create_tt"></a>
+                    </li>
+                    <li class="ripple" ng-class="{active: menu.states.includes('home.tt.search')}">
+                        <a href ui-sref="home.tt.search" translate="S.Menu.search_tt"></a>
+                    </li>
+                </ul>
+
+            </li>
+
+            <!-- 组管理 -->
+            <li ng-class="{active: menu.states.includes('home.group_manage')}">
+
+                <a href="javascript:void(0)" class="ripple" toggle-class="menu-open" ng-class="{'menu-open': menu.states.includes('home.group_manage')}">
+                    <span class="fa fa-users"></span>
+                    <span class="sidebar-title" translate="S.Menu.group_manage"></span>
+                    <span class="caret"></span>
+                </a>
+                <ul class="nav sub-nav animated slideInLeft animated-shorter">
+                    <li class="ripple" ng-class="{active: menu.states.includes('home.group_manage.my_group')}">
+                        <a href ui-sref="home.group_manage.my_group" translate="S.Menu.my_group"></a>
+                    </li>
+                </ul>
+
+            </li>
+
+            <!-- 报表 -->
+            <li ng-class="{active: menu.states.includes('home.report')}">
+                <a href="javascript:void(0)" class="ripple" toggle-class="menu-open" ng-class="{'menu-open': menu.states.includes('home.report')}">
+                    <span class="fa fa-table"></span>
+                    <span class="sidebar-title">报表</span>
+                    <span class="caret"></span>
+                </a>
+                <ul class="nav sub-nav animated slideInLeft animated-shorter">
+                    <li class="ripple" ng-class="{active: menu.states.includes('home.report.workgroup')}">
+                        <a href ui-sref="home.report.workgroup">工作组看板</a>
+                    </li>
+                    <li class="ripple" ng-class="{active: menu.states.includes('home.report.cti')}">
+                        <a href ui-sref="home.report.cti">CTI看板</a>
+                    </li>
+                  <li class="ripple" ng-class="{active: menu.states.includes('home.report.user')}">
+                    <a href ui-sref="home.report.user">User看板</a>
+                  </li>
+                </ul>
+
+            </li>
+
+            <!-- 系统设置 -->
+            <li ng-class="{active: menu.states.includes('home.system')}" ng-if="menu.isAdmin">
+                <a href="javascript:void(0)" class="ripple" toggle-class="menu-open" ng-class="{'menu-open': menu.states.includes('home.system')}">
+                    <span class="fa fa-cog"></span>
+                    <span class="sidebar-title" translate="S.Menu.console"></span>
+                    <span class="caret"></span>
+                </a>
+                <ul class="nav sub-nav animated slideInLeft animated-shorter">
+                    <li class="ripple" ng-class="{active: menu.states.includes('home.system.i18n')}">
+                        <a ui-sref="home.system.i18n" translate="S.Menu.i18n_setting"></a>
+                    </li>
+                    <li class="ripple" ng-class="{active: menu.states.includes('home.system.impact')}">
+                        <a ui-sref="home.system.impact" translate="S.Menu.impact"></a>
+                    </li>
+                    <li class="ripple" ng-class="{active: menu.states.includes('home.system.cti')}">
+                        <a ui-sref="home.system.cti" translate="S.Menu.cti"></a>
+                    </li>
+                    <li class="ripple" ng-class="{active: menu.states.includes('home.system.workgroup')}">
+                        <a ui-sref="home.system.workgroup" translate="S.Menu.workgroup"></a>
+                    </li>
+                    <li class="ripple" ng-class="{active: menu.states.includes('home.system.email_tpl')}">
+                        <a ui-sref="home.system.email_tpl" translate="S.Menu.email_tpl"></a>
+                    </li>
+                </ul>
+
+            </li>
+
+            <!-- 帮助 -->
+            <li>
+                <a href="javascript:void(0)" class="ripple" toggle-class="menu-open">
+                    <span class="fa fa-file-text-o"></span>
+                    <span class="sidebar-title" translate="S.Menu.system_doc"></span>
+                    <span class="caret"></span>
+                </a>
+                <ul class="nav sub-nav animated slideInLeft animated-shorter">
+                    <li class="ripple">
+                        <a href="https://open-c3.github.io" target="_blank" translate="S.Menu.user_manual"></a>
+                    </li>
+                </ul>
+
+            </li>
+
+        </ul>
+
+    </div>
+
+</div>

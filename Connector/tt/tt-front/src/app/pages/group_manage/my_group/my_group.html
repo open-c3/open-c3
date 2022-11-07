@@ -1,0 +1,155 @@
+<div id="topbar">
+    <div class="topbar-left">
+        <ol class="breadcrumb">
+            <li class="fs16" translate='S.Menu.my_group'></li>
+        </ol>
+    </div>
+</div>
+
+<div class="block">
+
+    <div class="loading-container hide">
+        <div class="loading">
+            <div class="l1"><div></div></div>
+            <div class="l2"><div></div></div>
+            <div class="l3"><div></div></div>
+            <div class="l4"><div></div></div>
+        </div>
+    </div>
+
+    <uib-tabset>
+
+        <uib-tab ng-repeat="group in mygroup.groups" heading="{{group.group_name}}">
+            <fieldset>
+                <legend>{{group.group_name}}</legend>
+                <form class="form-horizontal row" onsubmit="return false;" name="addForm" novalidate>
+
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >Group Name*</label>
+                        <div class="col-md-8">
+                            <input class="form-control" ng-model="group.group_name" required>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >Group Email*</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="email" ng-model="group.group_email" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >Admin Email*</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="email" ng-model="group.admin_email" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >Timezone[-12,12]*</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="number" ng-model="group.timezone" placeholder="8" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >Workday[0,6]*</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="text" ng-model="group.work_day" placeholder="1,2,3,4,5" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >workhour from*</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="text" ng-model="group.work_hour_start" placeholder="00:00" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >workhour to*</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="text" ng-model="group.work_hour_end" placeholder="24:00" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >L1 Reporter Email</label>
+                        <div class="col-md-8">
+                            <input class="form-control" ng-model="group.level1_report">
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >L2 Reporter Email</label>
+                        <div class="col-md-8">
+                            <input class="form-control" ng-model="group.level2_report">
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >L3 Reporter Email</label>
+                        <div class="col-md-8">
+                            <input class="form-control" ng-model="group.level3_report">
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >L4 Reporter Email</label>
+                        <div class="col-md-8">
+                            <input class="form-control" ng-model="group.level4_report">
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >L5 Reporter Email</label>
+                        <div class="col-md-8">
+                            <input class="form-control" ng-model="group.level5_report">
+                        </div>
+                    </div>
+
+                    <div class="form-group form-actions text-center">
+                        <div class="col-md-8 col-md-offset-2">
+                            <button class="btn btn-primary" ng-disabled="addForm.$invalid" translate="S.Index.update" ng-click="mygroup.updateGroup(group)"></button>
+                        </div>
+                    </div>
+
+                </form>
+            </fieldset>
+
+            <fieldset>
+                <legend>Users &nbsp;
+                    <button class="btn btn-primary" translate="S.Index.add" ng-click="mygroup.addUser(group)"></button>
+                </legend>
+
+                <table class="table text-center">
+                    <thead>
+                        <tr>
+                            <th class="text-center">No.</th>
+                            <th class="text-center">Email</th>
+                            <th class="text-center">Priority</th>
+                            <th class="text-center">#</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="u in group.users track by $index">
+                            <td>{{$index+1}}</td>
+                            <td>
+                                <input type="email" class="form-control" ng-model="u.email"/>
+                            </td>
+                            <td>
+                                <input type="number" class="form-control" ng-model="u.priority"/>
+                            </td>
+                            <td>
+                                <div class="btn-group">
+                                    <button class="btn btn-primary" translate="S.Index.update" ng-click="mygroup.updateUser(u)"></button>
+                                    <button class="btn btn-danger" translate="S.Index.delete" ng-click="mygroup.deleteUser(u)"></button>
+                                    <button class="btn btn-primary" ng-if="u.disabled==1" ng-click="mygroup.disableUser(u)">启用</button>
+                                    <button class="btn btn-warning" ng-if="u.disabled==0" ng-click="mygroup.disableUser(u)">禁用</button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </fieldset>
+
+        </uib-tab>
+
+    </uib-tabset>
+
+</div>

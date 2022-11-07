@@ -1,0 +1,26 @@
+<div class="block-section" style="height:300px;overflow-y:auto;">
+    <ul class="list-unstyled">
+        <li ng-repeat="log in ttshow.syslog">
+            <span><b>{{log.oper_user | splitStr:'@':0 }} </b></span>
+            <span> [ {{log.created_at | amDateFormat:'YYYY-MM-DD HH:mm:ss'}} ] : </span>
+            <span> 
+                <label class="label" ng-class="{'label-primary':log.oper_type=='update', 'label-success':log.oper_type=='add', 'label-danger':log.oper_type=='delete'}">{{log.oper_type}}</label>
+            </span>&nbsp;
+            <span translate="D.Base.{{log.oper_column}}"></span>&nbsp;
+            <span ng-if="log.oper_type!='update'"><code>{{log.content}}</code></span>
+            <span ng-if="log.oper_type=='update'">
+
+                <span ng-if="log.oper_column!='title' && log.oper_column!='content' && log.oper_column!='root_cause' && log.oper_column!='solution' && log.oper_column!='status'">
+                    <code>{{ log.oper_pre | historyColumnMap:log.oper_column:ttshow.baseData }}</code> -&gt; 
+                    <code>{{ log.oper_after | historyColumnMap:log.oper_column:ttshow.baseData }}</code>
+                </span>
+
+                <span ng-if="log.oper_column=='status'">
+                    <code translate="D.Status.{{ log.oper_pre }}"></code> -&gt; 
+                    <code translate="D.Status.{{ log.oper_after }}"></code>
+                </span>
+
+            </span>
+        </li>
+    </ul>
+</div>
