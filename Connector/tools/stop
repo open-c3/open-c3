@@ -38,3 +38,5 @@ for my $type ( qw( api ) )
         print "stop $type port: $_\n";
     }$port->{$type}{from} .. $port->{$type}{to};
 }
+
+system "ps -ef|grep trouble-ticketing|grep -v grep|awk '{print \$2}'|xargs -i{} kill {}";
