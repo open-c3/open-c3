@@ -1,0 +1,22 @@
+<div class="block-section" style="height:300px;overflow-y:auto;">
+
+    <div class="row" style="height:40px;margin:5px;">
+        <div class="form-group col-md-12">
+            <div ng-model="ttshow.newWorklog" contenteditable class="tteditor"></div> 
+        </div>
+        <div class="form-group col-md-12">
+            <a href="javascript:void(0)" class="btn btn-primary" translate="S.Index.submit" ng-disabled="!ttshow.newWorklog" ng-click="ttshow.addWorklog()"></a>
+            {{addworklogform}}
+        </div>
+    </div>
+
+    <div style="height:240px;">
+        <div ng-repeat="log in ttshow.worklog" class="reply-log">
+            <h5>{{log.oper_user}}
+                <small>{{log.created_at | amDateFormat:'YYYY-MM-DD HH:mm:ss'}}</small>
+            </h5>
+            <div ng-bind-html="log.content"></div>
+        </div>
+    </div>
+
+</div>

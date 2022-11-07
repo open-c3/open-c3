@@ -1,0 +1,223 @@
+<div id="topbar">
+    <div class="topbar-left">
+        <ol class="breadcrumb">
+            <li class="fs16" translate='S.Menu.email_tpl'></li>
+        </ol>
+    </div>
+</div>
+
+<div class="block">
+
+            <div class="loading-container" ng-if="!emailtpl.showTab">
+                <div class="loading">
+                    <div class="l1"><div></div></div>
+                    <div class="l2"><div></div></div>
+                    <div class="l3"><div></div></div>
+                    <div class="l4"><div></div></div>
+                </div>
+            </div>
+
+    <div class="panel panel-primary" ng-if="emailtpl.showTab">
+
+        <div class="panel-heading">
+            <span class="block-options pull-right">
+                <button class="btn btn-primary" ng-click="emailtpl.reload($event)"><i class="fa fa-refresh tableFresh"></i></button>
+            </span>
+            <span>Total：{{ emailtpl.tplsTable.total() }}</span>
+        </div>
+
+        <div class="panel-body">
+
+            <div class="loading-container hide">
+                <div class="loading">
+                    <div class="l1"><div></div></div>
+                    <div class="l2"><div></div></div>
+                    <div class="l3"><div></div></div>
+                    <div class="l4"><div></div></div>
+                </div>
+            </div>
+
+        <table ng-table="emailtpl.tplsTable" class="table text-center vertical-center">
+            <tr ng-repeat="m in $data">
+                <td data-title="'Name'">{{m.name}}</td>
+                <td data-title="'description'">{{m.description}}</td>
+                <td data-title="'#'">
+                    <button class="btn btn-primary" ng-click="emailtpl.openEditForm(m)">
+                        <i class="fa fa-edit"></i>
+                    </button>
+                </td>
+            </tr>
+        </table>
+
+        <button class="btn btn-primary" translate="S.Index.add" ng-click="emailtpl.openAddForm()"></button>
+        <hr>
+
+        <!-- add form start -->
+        <fieldset class="addFieldset" ng-if="emailtpl.newtpl">
+            <legend>Add Email Template</legend>
+            <form class="form-horizontal" onsubmit="return false;" name="addForm" novalidate>
+
+                <div class="form-group">
+                    <label class="col-md-3 control-label">Name</label>
+                    <div class="col-md-8">
+                        <input class="form-control" ng-model="emailtpl.newtpl.name" readonly required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-3 control-label">Description</label>
+                    <div class="col-md-8">
+                        <input class="form-control" ng-model="emailtpl.newtpl.description" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-3 control-label">Title</label>
+                    <div class="col-md-8">
+                        <input class="form-control" ng-model="emailtpl.newtpl.title" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-3 control-label">Content</label>
+                    <div class="col-md-8">
+                        <!-- editor start -->
+                        <div class="btn-toolbar" data-role="editor-toolbar" data-target=".editor">
+                            <div class="btn-group">
+                                <a class="btn btn-default" data-edit="bold" title="Bold"><i class="fa fa-bold"></i></a>
+                                <a class="btn btn-default" data-edit="italic" title="Italic"><i class="fa fa-italic"></i></a>
+                                <a class="btn btn-default" data-edit="strikethrough" title="Strikethrough"><i class="fa fa-strikethrough"></i></a>
+                                <a class="btn btn-default" data-edit="underline" title="Underline"><i class="fa fa-underline"></i></a>
+                            </div>
+                            <div class="btn-group">
+                                <a class="btn btn-default" title="Color" toggle-next><i class="fa fa-stop text-danger"></i></a>
+                                <div class="hide float-toolbar" style="width:90px;">
+                                    <a data-edit="foreColor #ff0000"><i class="fa fa-stop" style="color:#f00"></i></a>
+                                    <a data-edit="foreColor #00ff00"><i class="fa fa-stop" style="color:#0f0"></i></a>
+                                    <a data-edit="foreColor #0000ff"><i class="fa fa-stop" style="color:#00f"></i></a>
+                                    <a data-edit="foreColor #000000"><i class="fa fa-stop" style="color:#000"></i></a>
+                                    <a data-edit="foreColor #0080ff"><i class="fa fa-stop" style="color:#0080ff"></i></a>
+                                </div>
+
+                            </div>
+                            <div class="btn-group">
+                                <a class="btn btn-default" data-edit="justifyleft" title="Align Left"><i class="fa fa-align-left"></i></a>
+                                <a class="btn btn-default" data-edit="justifycenter" title="Center"><i class="fa fa-align-center"></i></a>
+                                <a class="btn btn-default" data-edit="justifyright" title="Align Right"><i class="fa fa-align-right"></i></a>
+                                <a class="btn btn-default" data-edit="justifyfull" title="Justify"><i class="fa fa-align-justify"></i></a>
+                            </div>
+                            <div class="btn-group">
+                                <a class="btn btn-default" title="Hyperlink" toggle-next><i class="fa fa-link"></i></a>
+                                <div class="float-toolbar hide">
+                                    <input placeholder="URL" type="text" data-edit="createLink" style="float:left;height:32px;">
+                                    <button class="btn btn-default" type="button">Add</button>
+                                </div>
+                                <a class="btn btn-default" data-edit="unlink" title="Remove Hyperlink"><i class="fa fa-cut"></i></a>
+
+                            </div>
+                            <div class="btn-group">
+                                <a class="btn btn-default" data-edit="undo" title="Undo"><i class="fa fa-undo"></i></a>
+                                <a class="btn btn-default" data-edit="redo" title="Redo"><i class="fa fa-repeat"></i></a>
+                            </div>
+                        </div>
+                        <div class="editor" ng-model="emailtpl.newtpl.content" contenteditable></div>
+                        <textarea class="editor_html fluid-width" ng-model="emailtpl.newtpl.content" rows="10"></textarea>
+                        <!-- editor end -->
+                    </div>
+                </div>
+                <div class="form-group form-actions">
+                    <div class="col-md-8 col-md-offset-3">
+                        <button class="btn btn-primary" ng-disabled="addForm.$invalid" translate="S.Index.add" ng-click="emailtpl.addTpl()"></button>
+                        <button class="btn btn-danger" translate="S.Index.cancel" ng-click="emailtpl.cancelForm()"></button>
+                    </div>
+                </div>
+
+            </form>
+        </fieldset>
+        <!-- add form end -->
+
+        <!-- edit form start -->
+        <fieldset class="addFieldset" ng-if="emailtpl.currenttpl">
+            <legend>Edit Email Template [{{emailtpl.currenttpl.name}}]</legend>
+            <form class="form-horizontal" onsubmit="return false;" name="addForm" novalidate>
+
+                <div class="form-group">
+                    <label class="col-md-3 control-label">Name</label>
+                    <div class="col-md-8">
+                        <input class="form-control" ng-model="emailtpl.currenttpl.name" readonly required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-3 control-label">Description</label>
+                    <div class="col-md-8">
+                        <input class="form-control" ng-model="emailtpl.currenttpl.description" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-3 control-label">Title</label>
+                    <div class="col-md-8">
+                        <input class="form-control" ng-model="emailtpl.currenttpl.title" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-md-3 control-label">Content</label>
+                    <div class="col-md-8">
+
+                        <!-- editor start -->
+                        <div class="btn-toolbar" data-role="editor-toolbar" data-target=".editor">
+                            <div class="btn-group">
+                                <a class="btn btn-default" data-edit="bold" title="Bold"><i class="fa fa-bold"></i></a>
+                                <a class="btn btn-default" data-edit="italic" title="Italic"><i class="fa fa-italic"></i></a>
+                                <a class="btn btn-default" data-edit="strikethrough" title="Strikethrough"><i class="fa fa-strikethrough"></i></a>
+                                <a class="btn btn-default" data-edit="underline" title="Underline"><i class="fa fa-underline"></i></a>
+                            </div>
+                            <div class="btn-group">
+                                <a class="btn btn-default" title="Color" toggle-next><i class="fa fa-stop text-danger"></i></a>
+                                <div class="hide float-toolbar" style="width:90px;">
+                                    <a data-edit="foreColor #ff0000"><i class="fa fa-stop" style="color:#f00"></i></a>
+                                    <a data-edit="foreColor #00ff00"><i class="fa fa-stop" style="color:#0f0"></i></a>
+                                    <a data-edit="foreColor #0000ff"><i class="fa fa-stop" style="color:#00f"></i></a>
+                                    <a data-edit="foreColor #000000"><i class="fa fa-stop" style="color:#000"></i></a>
+                                    <a data-edit="foreColor #0080ff"><i class="fa fa-stop" style="color:#0080ff"></i></a>
+                                </div>
+
+                            </div>
+                            <div class="btn-group">
+                                <a class="btn btn-default" data-edit="justifyleft" title="Align Left"><i class="fa fa-align-left"></i></a>
+                                <a class="btn btn-default" data-edit="justifycenter" title="Center"><i class="fa fa-align-center"></i></a>
+                                <a class="btn btn-default" data-edit="justifyright" title="Align Right"><i class="fa fa-align-right"></i></a>
+                                <a class="btn btn-default" data-edit="justifyfull" title="Justify"><i class="fa fa-align-justify"></i></a>
+                            </div>
+                            <div class="btn-group">
+                                <a class="btn btn-default" title="Hyperlink" toggle-next><i class="fa fa-link"></i></a>
+                                <div class="float-toolbar hide">
+                                    <input placeholder="URL" type="text" data-edit="createLink" style="float:left;height:32px;">
+                                    <button class="btn btn-default" type="button">Add</button>
+                                </div>
+                                <a class="btn btn-default" data-edit="unlink" title="Remove Hyperlink"><i class="fa fa-cut"></i></a>
+
+                            </div>
+                            <div class="btn-group">
+                                <a class="btn btn-default" data-edit="undo" title="Undo"><i class="fa fa-undo"></i></a>
+                                <a class="btn btn-default" data-edit="redo" title="Redo"><i class="fa fa-repeat"></i></a>
+                            </div>
+                        </div>
+
+                        <div class="editor" ng-model="emailtpl.currenttpl.content" contenteditable></div>
+                        <textarea class="fluid-width editor_html" ng-model="emailtpl.currenttpl.content" rows="10"></textarea>
+                        <!-- editor end -->
+
+                    </div>
+                </div>
+                <div class="form-group form-actions">
+                    <div class="col-md-8 col-md-offset-3">
+                        <button class="btn btn-primary" ng-disabled="addForm.$invalid" translate="S.Index.update" ng-click="emailtpl.updateTpl()"></button>
+                        <button class="btn btn-danger" translate="S.Index.cancel" ng-click="emailtpl.cancelForm()"></button>
+                    </div>
+                </div>
+
+            </form>
+        </fieldset>
+        <!-- add form end -->
+
+    </div>
+
+</div>
+</div>

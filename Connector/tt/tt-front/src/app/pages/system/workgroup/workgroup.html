@@ -1,0 +1,301 @@
+<div id="topbar">
+    <div class="topbar-left">
+        <ol class="breadcrumb">
+            <li class="fs16" translate='S.Menu.workgroup'></li>
+        </ol>
+    </div>
+</div>
+
+<div class="block">
+
+    <div class="loading-container" ng-if="!workgroup.showTab">
+        <div class="loading">
+            <div class="l1"><div></div></div>
+            <div class="l2"><div></div></div>
+            <div class="l3"><div></div></div>
+            <div class="l4"><div></div></div>
+        </div>
+    </div>
+
+    <div class="panel panel-primary" ng-if="workgroup.showTab">
+
+        <div class="panel-heading">
+            <span class="block-options pull-right">
+                <button class="btn btn-primary" ng-click="workgroup.reload($event)"><i class="fa fa-refresh tableFresh"></i></button>
+            </span>
+            <span>Total：{{ workgroup.workgroupTable.total() }}</span>
+        </div>
+
+        <div class="panel-body">
+
+            <div class="loading-container hide">
+                <div class="loading">
+                    <div class="l1"><div></div></div>
+                    <div class="l2"><div></div></div>
+                    <div class="l3"><div></div></div>
+                    <div class="l4"><div></div></div>
+                </div>
+            </div>
+
+            <table ng-table="workgroup.workgroupTable" class="table text-center vertical-center">
+                <tr ng-repeat="m in $data">
+                    <td data-title="'GroupName'">{{m.group.group_name}}</td>
+                    <td data-title="'Group Users'">
+                        <ul class="list-unstyled">
+                            <li ng-repeat="u in m.users track by $index">
+                                <span>{{u.priority}}-{{u.email}}</span>
+                                <!--禁用-->
+                                <!--<a href ng-click="workgroup.delUser(u)" title="删除"><i class="fa fa-close text-danger"></i></a>-->
+                                <a href ng-click="workgroup.disableUser(u)" ng-if="u.disabled==0" class="text-warning">禁用</a>
+                                <a href ng-click="workgroup.disableUser(u)" ng-if="u.disabled==1" class="text-primary">启用</a>
+                            </li>
+                        </ul>
+                    </td>
+                    <td data-title="'C.T.I.'">
+                        <ul class="list-unstyled">
+                            <li ng-repeat="i in m.items track by $index">
+                                <span>{{i}}</span>
+                            </li>
+                        </ul>
+                    </td>
+                    <td data-title="'#'">
+                        <div class="btn-group">
+                            <button class="btn btn-primary" ng-click="workgroup.openAddUserForm(m.group)">
+                                <i class="fa fa-plus"></i>&nbsp;用户
+                            </button>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn btn-primary" ng-click="workgroup.openEditForm(m.group)">
+                                <i class="fa fa-edit"></i>
+                            </button>
+                            <button class="btn btn-danger" ng-click="workgroup.delGroup(m.group)">
+                                <i class="fa fa-trash-o"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            </table>
+
+            <button class="btn btn-primary" translate="S.Index.add" ng-click="workgroup.openAddForm()"></button>
+            <hr>
+
+            <!-- add form start -->
+            <fieldset class="addFieldset" ng-if="workgroup.newGroup">
+                <legend>Add WorkGroup</legend>
+                <form class="form-horizontal row" onsubmit="return false;" name="addForm" novalidate>
+
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >Group Name*</label>
+                        <div class="col-md-8">
+                            <input class="form-control" ng-model="workgroup.newGroup.group_name" required>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >Group Email*</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="email" ng-model="workgroup.newGroup.group_email" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >Admin Email*</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="email" ng-model="workgroup.newGroup.admin_email" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >Timezone[-12,12]*</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="number" ng-model="workgroup.newGroup.timezone" placeholder="8" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >Workday[0,6]*</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="text" ng-model="workgroup.newGroup.work_day" placeholder="1,2,3,4,5" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >workhour from*</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="text" ng-model="workgroup.newGroup.work_hour_start" placeholder="00:00" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >workhour to*</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="text" ng-model="workgroup.newGroup.work_hour_end" placeholder="24:00" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >L1 Reporter Email</label>
+                        <div class="col-md-8">
+                            <input class="form-control" ng-model="workgroup.newGroup.level1_report">
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >L2 Reporter Email</label>
+                        <div class="col-md-8">
+                            <input class="form-control" ng-model="workgroup.newGroup.level2_report">
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >L3 Reporter Email</label>
+                        <div class="col-md-8">
+                            <input class="form-control" ng-model="workgroup.newGroup.level3_report">
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >L4 Reporter Email</label>
+                        <div class="col-md-8">
+                            <input class="form-control" ng-model="workgroup.newGroup.level4_report">
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >L5 Reporter Email</label>
+                        <div class="col-md-8">
+                            <input class="form-control" ng-model="workgroup.newGroup.level5_report">
+                        </div>
+                    </div>
+
+                    <div class="form-group form-actions text-center">
+                        <div class="col-md-8 col-md-offset-2">
+                            <button class="btn btn-primary" ng-disabled="addForm.$invalid" translate="S.Index.add" ng-click="workgroup.addGroup()"></button>
+                            <button class="btn btn-danger" translate="S.Index.cancel" ng-click="workgroup.cancelForm()"></button>
+                        </div>
+                    </div>
+
+                </form>
+            </fieldset>
+            <!-- add form end -->
+
+            <!-- edit form start -->
+            <fieldset class="addFieldset" ng-if="workgroup.currentGroup">
+                <legend>Edit WorkGroup</legend>
+                <form class="form-horizontal" onsubmit="return false;" name="editForm" novalidate>
+
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >Group Name*</label>
+                        <div class="col-md-8">
+                            <input class="form-control" ng-model="workgroup.currentGroup.group_name" required>
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >Group Email*</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="email" ng-model="workgroup.currentGroup.group_email" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >Admin Email*</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="email" ng-model="workgroup.currentGroup.admin_email" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >Timezone[-12,12]*</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="number" ng-model="workgroup.currentGroup.timezone" placeholder="8" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >Workday[0,6]*</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="text" ng-model="workgroup.currentGroup.work_day" placeholder="1,2,3,4,5" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >workhour from*</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="text" ng-model="workgroup.currentGroup.work_hour_start" placeholder="00:00" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >workhour to*</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="text" ng-model="workgroup.currentGroup.work_hour_end" placeholder="24:00" required>
+                        </div>
+                    </div>
+
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >L1 Reporter Email</label>
+                        <div class="col-md-8">
+                            <input class="form-control" ng-model="workgroup.currentGroup.level1_report">
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >L2 Reporter Email</label>
+                        <div class="col-md-8">
+                            <input class="form-control" ng-model="workgroup.currentGroup.level2_report">
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >L3 Reporter Email</label>
+                        <div class="col-md-8">
+                            <input class="form-control" ng-model="workgroup.currentGroup.level3_report">
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >L4 Reporter Email</label>
+                        <div class="col-md-8">
+                            <input class="form-control" ng-model="workgroup.currentGroup.level4_report">
+                        </div>
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label class="col-md-4 control-label" >L5 Reporter Email</label>
+                        <div class="col-md-8">
+                            <input class="form-control" ng-model="workgroup.currentGroup.level5_report">
+                        </div>
+                    </div>
+
+                    <div class="form-group form-actions">
+                        <div class="col-md-8 col-md-offset-3">
+                            <button class="btn btn-primary" ng-disabled="editForm.$invalid" translate="S.Index.update" ng-click="workgroup.updateGroup()"></button>
+                            <button class="btn btn-danger" translate="S.Index.cancel" ng-click="workgroup.cancelForm()"></button>
+                        </div>
+                    </div>
+
+                </form>
+            </fieldset>
+            <!-- edit form end -->
+
+            <!-- add user form start -->
+            <fieldset class="addFieldset" ng-if="workgroup.newUser">
+                <legend>Add User [Group: {{workgroup.newUser.group_id|baseDataMap:workgroup.basedata:'group':'group_name'}}]</legend>
+                <form class="form-horizontal" onsubmit="return false;" name="addUserForm" novalidate>
+
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" >User Email</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="email" ng-model="workgroup.newUser.email" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" >Priority</label>
+                        <div class="col-md-8">
+                            <input class="form-control" type="number" ng-model="workgroup.newUser.priority" required>
+                        </div>
+                    </div>
+                    <div class="form-group form-actions">
+                        <div class="col-md-8 col-md-offset-3">
+                            <button class="btn btn-primary" ng-disabled="addUserForm.$invalid" translate="S.Index.add" ng-click="workgroup.addUser()"></button>
+                            <button class="btn btn-danger" translate="S.Index.cancel" ng-click="workgroup.cancelForm()"></button>
+                        </div>
+                    </div>
+
+                </form>
+
+        </div>
+
+    </div>
+</div>

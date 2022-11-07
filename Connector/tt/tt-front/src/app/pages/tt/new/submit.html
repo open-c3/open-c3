@@ -1,0 +1,39 @@
+<div class="modal-body">
+
+    <div class="text-center">
+        <i class="fa fa-check-circle-o text-info fa-4x" ng-if="ttsubmit.astatus=='complete'"></i>
+        <i class="fa fa-circle-o-notch fa-spin text-primary fa-4x" ng-if="ttsubmit.astatus!='complete'"></i>
+    </div>
+
+    <ul class="list-unstyled">
+        <li>
+            <h4 class="inline">提交(submit)
+                <i class="text-success fa fa-check" ng-if="ttsubmit.tstatus=='success'"></i>
+                <i class="text-danger fa fa-warning" ng-if="ttsubmit.tstatus=='error'"></i>
+                <a href ui-sref="home.tt.show({id:ttsubmit.newTTNo})" ng-if="ttsubmit.tstatus=='success' && ttsubmit.astatus=='complete'" translate="S.Index.view" ng-click="ttsubmit.cancel()"></a>
+                <span ng-if="ttsubmit.tstatus=='success' && ttsubmit.astatus=='complete'">&nbsp; redirecting in {{ttsubmit.timeSec}} seconds</span>
+            </h4>
+        </li>
+        <li ng-if="ttsubmit.uploader.queue.length > 0 && ttsubmit.tstatus == 'success'">
+            <h4>上传附件(uploading files)</h4>
+            <div ng-repeat="item in ttsubmit.uploader.queue track by $index" class="row">
+                <div class="col-md-6">
+                    <span><b>{{ $index+1 }}.</b> {{item.file.name}} <b>({{ item.file.size/1024/1024|number:2}}MB)</b></span>
+                    <i class="fa fa-check text-success" ng-if="item.isSuccess"></i>
+                    <i class="fa fa-check text-danger" ng-if="item.isError"></i>
+                </div>
+                <div class="col-md-6">
+                    <div class="progress">
+                        <div class="progress-bar progress-bar-info" style="width:{{item.progress}}%">{{item.progress}}%</div>
+                    </div>
+                </div>
+            </div>
+        </li>
+    </ul>
+
+    <div class="text-center" ng-if="ttsubmit.tstatus!='success'">
+        <button class="btn btn-primary" ng-click="ttsubmit.go('home')" translate="S.Menu.dashboard"></button>
+        <button class="btn btn-primary" ng-click="ttsubmit.cancel()" translate="S.Index.back"></button>
+    </div>
+
+</div>

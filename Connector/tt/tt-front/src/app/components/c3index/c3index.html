@@ -1,0 +1,110 @@
+<div class="page-content animated fadeIn">
+
+    <div class="block">
+
+        <div class="row">
+
+            <div class="col-md-3">
+
+                <div class="panel panel-primary">
+
+                    <div class="panel-body">
+
+                        <ul class="toggle-menu">
+
+                            <li class="open" style="margin-bottom:15px;">
+                                <a href="javascript:void(0)" class="submenu">
+                                    <i class="fa fa-angle-right"></i>
+                                    <span translate="S.Submenu.quick_search"></span>
+                                </a>
+                                <ul>
+                                    <li>
+                                        <a href="javascript:void(0)" ui-sref="home.tt.list({mod:'assignme'})">
+                                            <span translate="S.Submenu.me_not_finish"></span>&nbsp;[{{c3index.assignme.length}}]
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" ui-sref="home.tt.list({mod:'selfsubmit'})">
+                                            <span translate="S.Submenu.self_submit_not_finish"></span>&nbsp;[{{c3index.selfsubmit.length}}]
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" ui-sref="home.tt.list({mod:'emaillistme'})">
+                                            <span translate="S.Submenu.email_me_not_finish"></span>&nbsp;[{{c3index.emaillistme.length}}]
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" ui-sref="home.tt.list({mod:'level12'})">
+                                            <span translate="S.Submenu.level_12"></span>&nbsp;[{{c3index.level12.length}}]
+                                        </a>
+                                    </li>
+                                    <li>
+                                        <a href="javascript:void(0)" ui-sref="home.tt.list({mod:'myticket'})">
+                                            <span translate="S.Submenu.myticket"></span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <li class="open" style="margin-bottom:15px;">
+                                <a href="javascript:void(0)" class="submenu">
+                                    <i class="fa fa-angle-right"></i>
+                                    <span translate="S.Submenu.mygroup_not_finish" ui-sref="home.tt.list({mod:'menulist'})"></span>
+                                </a>
+                                <ul>
+                                    <li ng-repeat="(g,tickets) in c3index.menulist.group track by $index">
+                                        <a href="javascript:void(0)" class="submenu">
+                                            <span ui-sref="home.tt.list({mod:'menulist',g:g})">{{g}} [{{tickets.length}}]</span>
+                                        </a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                            <li class="open" style="margin-bottom:15px;">
+                                <a href="javascript:void(0)" class="submenu">
+                                    <i class="fa fa-angle-right"></i>
+                                    <span translate="S.Submenu.me_not_finish" ui-sref="home.tt.list({mod:'assignme'})"></span>&nbsp;[{{c3index.menulist.me.length}}]
+                                </a>
+                                <ul>
+                                    <li ng-repeat="t in c3index.menulist.me track by $index">
+                                        <a href="javascript:void(0)" target="_blank" ui-sref="home.tt.show({id:t.no})" ng-class="{'text-danger':t.response_timeout || t.resolve_timeout }">{{t.no}}</a>
+                                    </li>
+                                </ul>
+                            </li>
+
+                        </ul>
+
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="col-md-9">
+
+                <h2 class="mt5">Trouble Ticketing System</h2>
+
+                <blockquote class="blockquote-info blockquote-thin">
+                    <ul class="pn">
+                        <ul class="mn fs16">
+                            <li class="mb5">一致事件处理流程与一致沟通方式的平台</li>
+                            <li class="mb5">汇报运维问题的便捷程序</li>
+                            <li class="mb5">大型（严重）运维事件跟踪的有效工具</li>
+                            <li class="mb5">运维监控报警系统的有效衔接</li>
+                        </ul>
+                    </ul>
+                </blockquote>
+
+                <hr class="alt">
+
+                <div class="text-center p20 ptn">
+                    <button class="btn btn-system br4 p20 fs16 m10" ui-sref="home.tt.new" translate="S.Menu.create_tt"></button>
+                    <button class="btn btn-info br4 p20 fs16 m10" ui-sref="home.tt.search" translate="S.Menu.search_tt"></button>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
