@@ -88,6 +88,32 @@ function upgradeSelf() {
         CTRL=reload
     fi
     ./Installer/scripts/single.sh $CTRL
+
+    echo =================================================================
+    echo "[INFO]tt-front build ..."
+
+    ./Connector/tt/tt-front/dev.sh build
+
+    if [ $? = 0 ]; then
+        echo "[SUCC]tt-front build success."
+    else
+        echo "[FAIL]tt-front build fail."
+        exit 1
+    fi
+
+    echo =================================================================
+    echo "[INFO]copy trouble-ticketing ..."
+
+    cp /data/open-c3/Installer/install-cache/trouble-ticketing/trouble-ticketing /data/open-c3/Connector/tt/trouble-ticketing/trouble-ticketing.$$
+    mv /data/open-c3/Connector/tt/trouble-ticketing/trouble-ticketing.$$ /data/open-c3/Connector/tt/trouble-ticketing/trouble-ticketing
+    chmod +x /data/open-c3/Connector/tt/trouble-ticketing/trouble-ticketing
+
+    if [ $? = 0 ]; then
+        echo "[SUCC]copy trouble-ticketing success."
+    else
+        echo "[FAIL]copy trouble-ticketing fail."
+        exit 1
+    fi
 }
 
 function upgradeCluster() {

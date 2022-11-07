@@ -37,8 +37,8 @@ function start() {
         docker run --rm -i -v /data/open-c3/Connector/tt/tt-front/:/code openc3/gulp npm   install --unsafe-perm 
         docker run --rm -i -v /data/open-c3/Connector/tt/tt-front/:/code openc3/gulp gulp  build
         mkdir -p /data/open-c3/c3-front/dist/tt/
-        rsync -av /data/open-c3/Connector/tt/tt-front/dist/ /data/open-c3/c3-front/dist/tt/ --delete
-        rsync -av src/assets/images/  /data/open-c3/c3-front/dist/assets/images/
+        rsync -av /data/open-c3/Connector/tt/tt-front/dist/               /data/open-c3/c3-front/dist/tt/ --delete
+        rsync -av /data/open-c3/Connector/tt/tt-front/src/assets/images/  /data/open-c3/c3-front/dist/assets/images/
         
         exit
     fi
