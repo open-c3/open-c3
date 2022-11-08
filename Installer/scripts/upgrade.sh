@@ -92,11 +92,9 @@ function upgradeSelf() {
     echo =================================================================
     echo "[INFO]tt-front build ..."
 
-    if [ ! -d /data/open-c3/Connector/tt/tt-front/node_modules ]; then
-        ./Connector/tt/tt-front/dev.sh init
-    fi
-
-    ./Connector/tt/tt-front/dev.sh build
+    mkdir -p /data/open-c3/c3-front/dist/tt
+    rsync  -av /data/open-c3/Installer/install-cache/trouble-ticketing/tt-front/dist/ /data/open-c3/c3-front/dist/tt/ --delete
+    rsync -av /data/open-c3/Connector/tt/tt-front/src/assets/images/  /data/open-c3/c3-front/dist/assets/images/
 
     if [ $? = 0 ]; then
         echo "[SUCC]tt-front build success."
