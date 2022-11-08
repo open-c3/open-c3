@@ -1,0 +1,34 @@
+<div class="modal-body">
+    <div class="row">
+        <div class="col-md-4">
+            <h5 translate="D.Base.category" class="text-bold"></h5>
+            <ul class="list-unstyled">
+                <li ng-repeat="c in ctisearch.s_c track by $index">
+                    <a href="javascript:void(0)" ng-click="ctisearch.select_c(c)" ng-if="c.hide!=1">{{c.name}}</a>
+                    <span ng-if="c.hide==1">{{c.name}}</span>
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-4">
+            <h5 translate="D.Base.type" class="text-bold"></h5>
+            <ul class="list-unstyled">
+                <li ng-repeat="t in ctisearch.s_t track by $index">
+                    <a href="javascript:void(0)" ng-click="ctisearch.select_t(t)" ng-if="t.hide!=1">{{t.name}}</a>
+                    <span ng-if="t.hide==1">{{t.name}}</span>
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-4">
+            <h5 translate="D.Base.item" class="text-bold"></h5>
+            <ul class="list-unstyled">
+                <li ng-repeat="i in ctisearch.s_i track by $index">
+                    <a href="javascript:void(0)" ng-click="ctisearch.select_i(i)">{{i.name}}</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div class="modal-footer">
+    <button class="btn btn-primary" ng-click="ctisearch.cancel()" translate="S.Index.back"></button>
+</div>

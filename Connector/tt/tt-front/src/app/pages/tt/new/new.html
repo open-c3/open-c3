@@ -1,0 +1,193 @@
+<div id="topbar">
+    <div class="topbar-left">
+        <ol class="breadcrumb">
+            <li class="fs16" translate='S.Menu.create_tt'></li>
+        </ol>
+    </div>
+    <div class="topbar-right">
+        <ol class="breadcrumb">
+            <li>Trouble Ticketing</li>
+            <li>New</li>
+        </ol>
+    </div>
+</div>
+
+<div class="row block">
+
+    <form name="newtt_form" class="form-horizontal newtt" onsubmit="return false;" novalidate>
+
+        <!--left-->
+        <div class="col-md-5">
+            <!--事件影响-->
+            <div class="panel panel-danger panel-border top">
+                <div class="panel-heading">
+                    <h5 translate="S.TT.effect"></h5>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-md-3 control-label"><span translate="D.Base.impact"></span>&nbsp;<span class="text-danger">*</span></label>
+                        <div class="col-md-8">
+                            <select class="form-control" size="1" ng-model="ttnew.ticket.impact" convert-to-number required>
+                                <option ng-repeat="v in ttnew.baseData.impact track by $index" value="{{v.id}}">{{v.level}} - {{'D.Impact.level' + v.level | translate}}</option>
+                            </select>
+                        </div>
+                        <div class="col-md-1" style="line-height:30px;padding:3px;">
+                            <a href="https://open-c3.github.io" target="_blank"><i class="fa fa-question-circle-o fa-lg"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--C.T.I-->
+            <div class="panel panel-warning panel-border top">
+                <div class="panel-heading">
+                    <h5 class="pull-left">C.T.I.</h5>
+                    <span class="pull-right">
+                        <input type="text" style="padding:3px 10px;height:36px;" class="form-control" placeholder="Search(搜索)" ng-model="ttnew.cti_search_w" ng-keyup="$event.keyCode == 13 ? ttnew.cti_search() : null"/>
+                    </span>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-md-3 control-label"><span translate="D.Base.category"></span>&nbsp;<span class="text-danger">*</span></label>
+                        <div class="col-md-9">
+                            <select class="form-control" size="1" ng-model="ttnew.ticket.category" convert-to-number required>
+                                <option ng-repeat="v in ttnew.baseData.category track by $index" value="{{v.id}}">{{v.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label"><span translate="D.Base.type"></span>&nbsp;<span class="text-danger">*</span></label>
+                        <div class="col-md-9">
+                            <select class="form-control" size="1" ng-model="ttnew.ticket.type" convert-to-number required>
+                                <option ng-repeat="v in ttnew.baseData.type track by $index" value="{{v.id}}" ng-if="v.category_id == ttnew.ticket.category">{{v.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label"><span translate="D.Base.item"></span>&nbsp;<span class="text-danger">*</span></label>
+                        <div class="col-md-9">
+                            <select class="form-control" size="1" ng-model="ttnew.ticket.item" ng-change="ttnew.item_change()" convert-to-number required>
+                                <option ng-repeat="v in ttnew.baseData.item track by $index" value="{{v.id}}" ng-if="v.type_id == ttnew.ticket.type">{{v.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--指派-->
+            <div class="panel panel-system panel-border top">
+                <div class="panel-heading">
+                    <h5 translate="S.TT.assign"></h5>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-md-3 control-label"><span translate="D.Base.workgroup"></span>&nbsp;<span class="text-danger">*</span></label>
+                        <div class="col-md-9">
+                            <select class="form-control" size="1" ng-model="ttnew.ticket.workgroup" ng-change="ttnew.group_change()" convert-to-number required>
+                                <option ng-repeat="v in ttnew.item_groups track by $index" value="{{v.id}}">{{v.priority}} {{v.group_name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label"><span translate="D.Base.group_user"></span>&nbsp;<span class="text-danger">&nbsp;</span></label>
+                        <div class="col-md-9">
+                            <select class="form-control" size="1" ng-model="ttnew.ticket.group_user" convert-to-number>
+                                <option value=""></option>
+                                <option ng-repeat="v in ttnew.baseData.group_user track by $index" value="{{v.id}}" ng-if="v.group_id == ttnew.ticket.workgroup && v.disabled==0">{{v.priority}} - {{v.email}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--联系人-->
+            <div class="panel panel-info panel-border top">
+                <div class="panel-heading">
+                    <h5 translate="S.TT.contact"></h5>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-md-3 control-label"><span translate="D.Base.submit_user"></span>&nbsp;<span class="text-danger">*</span></label>
+                        <div class="col-md-9">
+                            <p class="form-control-static">{{ ttnew.ticket.submit_user }}</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label"><span translate="D.Base.apply_user"></span>&nbsp;<span class="text-danger">*</span></label>
+                        <div class="col-md-9">
+                            <input class="form-control" ng-model="ttnew.ticket.apply_user" required/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--right-->
+        <div class="col-md-7">
+            <!--事件描述-->
+            <div class="panel panel-primary panel-border top">
+                <div class="panel-heading">
+                    <h5 translate="S.TT.desc"></h5>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-md-2 control-label"><span translate="D.Base.title"></span>&nbsp;<span class="text-danger">*</span></label>
+                        <div class="col-md-10">
+                            <input class="form-control" ng-model="ttnew.ticket.title" required/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-2 control-label"><span translate="D.Base.content"></span>&nbsp;<span class="text-danger">*</span></label>
+                        <div class="col-md-10">
+                            <div ng-model="ttnew.ticket.content" contenteditable class="tteditor"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-success panel-border top">
+                <div class="panel-heading">
+                    <h5>More</h5>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-md-2 control-label" translate="D.Base.email_list"></label>
+                        <div class="col-md-10">
+                          <ng-form name="someForm">
+                            <textarea name="email" class="form-control" rows="2" ng-model="ttnew.ticket.email_list" pattern="^[a-zA-Z0-9_-]+@[a-zA-Z]+\.[a-zA-Z]+(,[a-zA-Z0-9_-]+@[a-zA-Z]+\.[a-zA-Z]*)*$"></textarea>
+                            <span style="color:red" ng-show="someForm.email.$error.pattern">请输入正确的邮箱地址格式，多个邮箱地址之间用逗号分隔</span>
+                            <span class="help-block">填写OA邮箱,多个邮箱地址之间用逗号分隔</span>
+                          </ng-form>
+                        </div>
+                    </div>
+                    <hr class="short alt">
+                    <div class="form-group">
+                        <label class="col-md-2 control-label" translate="D.Base.attachment"></label>
+                        <div class="col-md-10">
+                            <input type="file" nv-file-select uploader="ttnew.uploader" multiple>
+                            <span class="help-block">附件最多5个，单个不大于5MB</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <ul class="fa-ul col-md-10 col-md-offset-2">
+                            <li ng-repeat="item in ttnew.uploader.queue track by $index">
+                                <i class="fa fa-file-o"></i>
+                                <b>{{$index+1}}. </b>
+                                <span>{{ item.file.name }} ({{ item.file.size/1024/1024|number:2}}MB)
+                                    <a href ng-click="item.remove()"><i class="text-danger fa fa-times"></i></a>
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group text-right">
+            <div class="col-md-9 col-md-offset-3 panel">
+                <button ng-disabled="newtt_form.$invalid" class="btn btn-primary" ng-click="ttnew.submit()">
+                    <i class="fa fa-send fa-fw"></i>
+                    <span translate="S.Index.submit"></span>
+                </button>
+            </div>
+        </div>
+
+    </form>
+
+</div>

@@ -1,0 +1,61 @@
+<div id="topbar">
+    <div class="topbar-left">
+        <ol class="breadcrumb">
+            <li class="fs16" translate="S.Menu.impact"></li>
+        </ol>
+    </div>
+</div>
+
+<div class="block">
+
+    <div class="loading-container" ng-if="!impact.showTab">
+        <div class="loading">
+            <div class="l1"><div></div></div>
+            <div class="l2"><div></div></div>
+            <div class="l3"><div></div></div>
+            <div class="l4"><div></div></div>
+        </div>
+    </div>
+
+    <div class="panel panel-primary" ng-if="impact.showTab">
+
+        <div class="panel-heading">
+            <span class="block-options pull-right">
+                <button class="btn btn-primary" ng-click="impact.tableReload($event)"><i class="fa fa-refresh tableFresh"></i></button>
+            </span>
+            <span>Total：{{ impact.impactTable.total() }}</span>
+        </div>
+
+        <div class="panel-body">
+
+            <div class="loading-container hide">
+                <div class="loading">
+                    <div class="l1"><div></div></div>
+                    <div class="l2"><div></div></div>
+                    <div class="l3"><div></div></div>
+                    <div class="l4"><div></div></div>
+                </div>
+            </div>
+
+            <table ng-table="impact.impactTable" class="table text-center vertical-center">
+                <tr ng-repeat="m in $data">
+                    <td data-title="'Name (I18N)'">{{m.name}} ( <small translate="D.Impact.level{{m.level}}"> </small> )</td>
+                    <td data-title="'Level'">{{m.level}}</td>
+                    <td data-title="'响应SLA'">
+                        <input class="form-control" type="number" ng-model="m.response_sla">
+                    </td>
+                    <td data-title="'解决SLA'">
+                        <input class="form-control" type="number" ng-model="m.resolve_sla">
+                    </td>
+                    <td data-title="'#'">
+                        <button class="btn btn-primary" ng-click="impact.updateImpact(m)">
+                            <i class="fa fa-floppy-o"></i>
+                        </button>
+                    </td>
+                </tr>
+            </table>
+
+        </div>
+
+    </div>
+</div>

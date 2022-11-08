@@ -1,0 +1,849 @@
+/**
+.scroller {
+position: relative;
+overflow:hidden;
+min-height: 100%;
+}
+.ps-container > .ps-scrollbar-y-rail {
+background-color: #30363e;
+width:3px;
+}
+.ps-container.ps-in-scrolling > .ps-scrollbar-y-rail {
+background-color: #30363e;
+width:3px;
+}
+.ps-container.ps-in-scrolling > .ps-scrollbar-y-rail > .ps-scrollbar-y{
+background-color: #337ab7;
+width:3px;
+border-radius:0;
+}
+.ps-container > .ps-scrollbar-y-rail > .ps-scrollbar-y{
+background-color: #337ab7;
+width:3px;
+border-radius:0;
+}
+ */
+
+
+/* Fixed Sidebar */
+
+#sidebar_left.affix {
+    position: fixed;
+}
+
+
+/* Scrollbar for Sidebars in Fixed Positions */
+
+#sidebar_left.affix>.sidebar-menu {
+    overflow-x: hidden;
+    position: absolute;
+    width: 100%;
+    top: 85px;
+    bottom: 52px;
+    transition: top 0.2s ease-in-out;
+}
+
+#sidebar_left.affix>.email-menu+.sidebar-menu {
+    overflow-x: hidden;
+    position: absolute;
+    width: 100%;
+    top: 485px;
+    bottom: 52px;
+    transition: top 0.2s ease-in-out;
+}
+
+
+/* Corrects Pseudo sidebar bg when fixed */
+
+#sidebar_left.affix:before {
+    left: 0;
+}
+
+#sidebar_left {
+    color: #fff;
+    font-size: 13px;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 240px;
+    min-height: 100%;
+    padding-top: 60px;
+    background-color: #30363e;
+    z-index: 1028;
+}
+
+
+/* Sidebar Content Container */
+
+.sidebar-left-content {
+    height: 100%;
+}
+
+
+/* Sidebar-Menu Top Level Items */
+
+.sidebar-menu>li {
+    margin: 0;
+}
+
+.sidebar-menu>li:first-child {
+    padding-top: 4px;
+}
+
+
+/* Sidebar Menu Links */
+
+
+/* Sidebar-Menu Top Level Links */
+
+.sidebar-menu>li>a {
+    padding: 0;
+    line-height: 40px;
+    height: 40px;
+    overflow: hidden;
+}
+
+
+/* Sidebar-Menu Top Level - Icon */
+
+.sidebar-menu>li>a>span:nth-child(1) {
+    float: left;
+    top: 0;
+    line-height: 40px;
+    width: 38px;
+    font-size: 13px;
+    text-align: center;
+    padding-left: 13px;
+}
+
+
+/* Sidebar-Menu Top Level - Title */
+
+.sidebar-menu>li>a>span:nth-child(2) {
+    font-weight: 600;
+    padding-left: 6px;
+}
+
+
+/* Sidebar-Menu Top Level - Tray(holds labels,etc) */
+
+.sidebar-menu li>a>.sidebar-title-tray {
+    position: absolute;
+    right: 13px;
+    top: -2px;
+}
+
+
+/* Sidebar-Menu Top Level - Label */
+
+.sidebar-menu li>a>.sidebar-title-tray .label {
+    padding: .0em .4em .2em;
+    font-size: 11px;
+}
+
+
+/* Sidebar-Menu Top Level - Caret */
+
+.sidebar-menu li>a>span.caret {
+    position: absolute;
+    top: 45%;
+    right: 13px;
+    border-top: 5px solid;
+    border-right: 5px solid transparent;
+    border-left: 5px solid transparent;
+}
+
+
+/* Open Menu Item Caret - we simply flip the carets border */
+
+.sidebar-menu li>a.menu-open>span.caret {
+    border-top: 0;
+    border-bottom: 5px solid;
+}
+
+
+/* Sidebar-Menu Sub Level */
+
+.sidebar-menu>li>ul {
+    clear: both;
+    display: none;
+    width: 240px;
+    height: auto;
+}
+
+.sidebar-menu li>a.menu-open+ul {
+    display: block;
+}
+
+
+/* Sidebar-Menu Sub Level Items */
+
+.sidebar-menu>li>ul>li>a {
+    padding: 11px 20px 11px 30px;
+}
+
+
+/* Sidebar-Menu Sub Level - first and last items */
+
+.sidebar-menu>li>ul>li:first-child>a {
+    padding-top: 14px;
+}
+
+.sidebar-menu>li>ul>li:last-child>a {
+    padding-bottom: 17px;
+}
+
+
+/* Sidebar-Menu Sub Level Item - Title */
+
+.sidebar-menu>li>ul>li>a>span:nth-child(1) {
+    margin-right: 10px;
+    font-size: 11px;
+}
+
+
+/* Sidebar-Menu Sub Level Item - Label */
+
+.sidebar-menu>li>ul>li>a>span.label {
+    float: right;
+    line-height: 17px;
+}
+
+
+/* Sidebar-Menu Multi-level (submenu inside a submenu and so on) */
+
+.sidebar-menu>li>ul>li ul {
+    clear: both;
+    display: none;
+    width: 240px;
+    height: auto;
+}
+
+
+/* Sidebar-Menu Multi-level - Links */
+
+.sidebar-menu>li>ul>li>ul li a {
+    padding: 9px 12px 9px 30px;
+}
+
+.sidebar-menu>li>ul>li>ul li:last-child a {
+    padding-bottom: 13px;
+}
+
+
+/* Sidebar-Menu Multi-level - Label(xs) */
+
+.sidebar-menu>li>ul>li>ul li a .label.label-xs {
+    float: right;
+    line-height: 17px;
+}
+
+
+/* Top Level - Active Item Border */
+
+
+/**
+.sidebar-menu > li > a.menu-open:after,
+.sidebar-menu > li.active > a:after,
+.sidebar-menu > li:hover > a:after,
+.sidebar-menu > li:focus > a:after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 3px;
+    background: #AAA;
+}
+**/
+
+
+/* Sub Level - Active Item Border */
+
+.sidebar-menu>li>ul>li>a.menu-open:after,
+.sidebar-menu>li>ul>li.active>a:after,
+.sidebar-menu>li>ul>li:hover>a:after,
+.sidebar-menu>li>ul>li:focus>a:after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 3px;
+    background: #AAA;
+}
+
+
+/* Multi Level - Active Item Border */
+
+.sidebar-menu>li>ul>li>ul>li.active>a:after,
+.sidebar-menu>li>ul>li>ul>li:hover>a:after,
+.sidebar-menu>li>ul>li>ul>li:focus>a:after {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 5%;
+    height: 90%;
+    width: 3px;
+    background: #999;
+}
+
+
+/* Sidebar labels */
+
+.sidebar-menu .sidebar-label {
+    text-transform: uppercase;
+    color: #70829a;
+    font-weight: 600;
+    padding-left: 18px;
+    padding-bottom: 3px;
+    font-size: 12px;
+}
+
+
+/* Sidebar Project Links */
+
+
+/* Sidebar Progress Bars */
+
+.sidebar-menu .sidebar-stat .progress {
+    clear: both;
+    background-color: #AAA;
+    background-color: rgba(0, 0, 0, 0.15);
+}
+
+
+/* Sidebar Progress Bars Titles */
+
+.sidebar-menu .sidebar-stat>a {
+    height: auto;
+    overflow: visible;
+}
+
+
+/* Sidebar Toggle Button */
+
+.sidebar-toggle-mini {
+    width: 35px;
+    height: 32px;
+    padding: 7px 0;
+}
+
+.sidebar-toggle-mini a {
+    display: block;
+    position: absolute;
+    right: 0;
+    text-align: center;
+    padding: 6px 6px 5px;
+    background: rgba(0, 0, 0, 0.15);
+}
+
+.sidebar-toggle-mini span {
+    position: relative;
+    color: #999;
+    font-size: 16px;
+    -webkit-transition: all ease-in-out 0.2s;
+    transition: all ease-in-out 0.2s;
+    -webkit-transform: rotate(180deg);
+    transform: rotate(180deg);
+}
+
+.sidebar-toggle-mini:hover span {
+    color: #EEE;
+}
+
+
+/* Sidebar Minified State */
+
+body.sb-l-m #sidebar_left {
+    z-index: 1028;
+    overflow: visible;
+    width: 60px;
+    height: 100%;
+    left: 0;
+    background-color: #30363e;
+}
+
+body.sb-l-m #sidebar_left:before {
+    width: 60px;
+}
+
+
+/* Hide Multiple Sidebar Elements */
+
+body.sb-l-m .sidebar-header,
+body.sb-l-m #sidebar_left .sidebar-title,
+body.sb-l-m #sidebar_left .sidebar-label,
+body.sb-l-m #sidebar_left .sidebar-title-tray,
+body.sb-l-m #sidebar_left .caret,
+body.sb-l-m #sidebar_left .sidebar-proj,
+body.sb-l-m #sidebar_left .sidebar-stat {
+    display: none;
+}
+
+
+/* Only Icon is showing - Modify Padding to fit */
+
+body.sb-l-m .sidebar-menu>li {
+    padding: 7px 0;
+}
+
+
+/* Menu will be converted to on:hover - It requires overflow */
+
+body.sb-l-m .sidebar-menu>li>a {
+    overflow: visible;
+}
+
+
+/* Sidebar-Menu Top Level - Icon */
+
+body.sb-l-m .sidebar-menu>li>a>span:nth-child(1) {
+    color: #ccc;
+    left: -1px;
+    width: 60px;
+    font-size: 18px;
+    padding-left: 0;
+}
+
+
+/* Sidebar-Menu Top Level - Title */
+
+body.sb-l-m .sidebar-menu>li>a>.sidebar-title {
+    position: absolute;
+    left: 60px;
+    top: -4px;
+    width: 230px;
+    height: 44px;
+    line-height: 44px;
+    font-size: 14px;
+    padding-left: 15px;
+    border-left: 1px solid #222;
+    background-color: transparent;
+}
+
+
+/* Menus have been converted to show only on:hover. Hide by default */
+
+body.sb-l-m .sidebar-menu>li>a.menu-open+ul {
+    display: none;
+}
+
+
+/* Menus have been converted. We display them on:hover */
+
+body.sb-l-m .sidebar-menu>li:hover>a+ul,
+body.sb-l-m .sidebar-menu>li:hover>a>.sidebar-title,
+body.sb-l-m .sidebar-menu>li:hover>ul .caret {
+    display: block !important;
+}
+
+
+/* Sidebar-Menu Sub Level */
+
+body.sb-l-m .sidebar-menu>li>ul {
+    position: absolute;
+    left: 60px;
+    top: 38px;
+    width: 230px;
+    height: auto;
+    border-left: 1px solid #222;
+    padding-bottom: 7px;
+    overflow: hidden;
+}
+
+
+/* Sidebar-Menu Multi Level */
+
+body.sb-l-m .sidebar-menu>li>ul>li {
+    overflow: hidden;
+}
+
+body.sb-l-m .sidebar-menu>li>ul>li ul {
+    width: 200px;
+}
+
+
+/* Sidebar-Menu Sub Level - Link Padding */
+
+body.sb-l-m .sidebar-menu li>ul>li>a {
+    padding: 8px 15px 8px 15px;
+}
+
+
+/* Sidebar-Menu Multi Level - Link Padding */
+
+body.sb-l-m .sidebar-menu li>ul>li>ul>li a {
+    padding: 8px 15px 8px 20px;
+}
+
+
+/* Sidebar-Menu Sub/Multi Level - Caret Position */
+
+body.sb-l-m .sidebar-menu li>ul>li>a>span.caret,
+body.sb-l-m .sidebar-menu li>ul>li>a.menu-open>span.caret {
+    top: 7px;
+}
+
+
+/* Menu Item - Label Color */
+
+.sidebar-menu .sidebar-label {
+    color: #70829a;
+}
+
+
+/* Menu item Caret */
+
+.sidebar-menu li>a>span.caret {
+    color: #858483;
+}
+
+
+/* Open Menu item Caret */
+
+.sidebar-menu li>a.menu-open>span.caret {
+    color: #FFF;
+}
+
+
+/* Top Level Menu Item - Text Color */
+
+.sidebar-menu>li>a {
+    color: #FFFFFF;
+}
+
+
+/* Top Level Menu Item - BG Color:hover */
+
+.sidebar-menu>li>a:hover,
+.sidebar-menu>li>a:focus,
+.sidebar-menu>li>a:active {
+    color: inherit;
+    background-color: transparent;
+}
+
+
+/* Top Level Item - Border Color:hover */
+
+
+/**
+.sidebar-menu > li:hover > a:after,
+.sidebar-menu > li:focus > a:after {
+    background: transparent;
+}
+**/
+
+
+/* Top Level Active Menu Item - BG/Text Color */
+
+.sidebar-menu>li.active>a {
+    color: #FFFFFF;
+    background-color: transparent;
+}
+
+
+/* Top Level Active Menu Item - Icon Color */
+
+.sidebar-menu>li.active>a>span:nth-child(1) {
+    color: #4a89dc;
+}
+
+
+/* Top Level Active Item - Border Color */
+
+
+/**
+.sidebar-menu > li.active > a:after,
+.sidebar-menu > li > a.menu-open:after {
+    background: transparent;
+}
+**/
+
+
+/* Sub-Menu Item - BG Color */
+
+.sidebar-menu>li>ul {
+    background-color: #282d33;
+}
+
+
+/* Sub-Menu Item - BG Color:hover */
+
+.sidebar-menu>li>ul>li>a {
+    color: #BBBBBB;
+}
+
+
+/* Sub-Menu Item - BG Color:hover */
+
+.sidebar-menu>li>ul>li>a:hover,
+.sidebar-menu>li>ul>li>a:focus {
+    color: inherit;
+    background-color: transparent;
+}
+
+
+/* Sub-Menu Item - Border Color:hover */
+
+.sidebar-menu>li>ul>li:hover>a:after,
+.sidebar-menu>li>ul>li:focus>a:after {
+    background: #4a89dc;
+}
+
+
+/* Sub-Menu Active Item - BG/Text Color */
+
+.sidebar-menu>li>ul>li.active>a {
+    color: #FFFFFF;
+    background-color: transparent;
+}
+
+
+/* Sub-Menu Active Item - Icon Color */
+
+.sidebar-menu>li>ul>li.active>a>span:nth-child(1),
+.sidebar-menu>li>ul>li>a.menu-open>span:nth-child(1) {
+    color: #4a89dc;
+}
+
+
+/* Sub-Menu Active Item - Border Color */
+
+.sidebar-menu>li>ul>li.active>a:after,
+.sidebar-menu>li>ul>li>a.menu-open:after {
+    background: #4a89dc;
+}
+
+
+/* Multi-Menu Item - BG Color */
+
+.sidebar-menu>li>ul>li ul {
+    background-color: #22262c;
+}
+
+
+/* Multi-level Item - BG Color:hover */
+
+.sidebar-menu>li>ul>li>ul>li>a {
+    color: #BBBBBB;
+}
+
+
+/* Multi-level Item - BG Color:hover */
+
+.sidebar-menu>li>ul>li>ul>li>a:hover,
+.sidebar-menu>li>ul>li>ul>li>a:focus {
+    color: inherit;
+    background-color: transparent;
+}
+
+
+/* Multi-level Active Item - Border Color:hover */
+
+.sidebar-menu>li>ul>li>ul>li:hover>a:after,
+.sidebar-menu>li>ul>li>ul>li:focus>a:after {
+    background: #967adc;
+}
+
+
+/* Multi-level Active Item - BG/Text Color */
+
+.sidebar-menu>li>ul>li>ul>li.active>a {
+    color: #FFFFFF;
+    background: transparent;
+}
+
+
+/* Multi-level Active Item - Icon Color */
+
+.sidebar-menu>li>ul>li>ul>li.active>a>span:nth-child(1),
+.sidebar-menu>li>ul>li>ul>li>a.menu-open>span:nth-child(1) {
+    color: #FFF;
+}
+
+
+/* Multi-level Active Item - Border Color */
+
+.sidebar-menu>li>ul>li>ul>li.active>a:after {
+    background: #967adc;
+}
+
+
+/* Minified Sidebar - Title */
+
+body.sb-l-m .sidebar-menu>li>a>.sidebar-title {
+    background-color: #282d33;
+}
+
+
+/* Minified Sidebar - Active Icon */
+
+body.sb-l-m .sidebar-menu>li.active>a>span:nth-child(1) {
+    color: #4a89dc;
+}
+
+
+/*===============================================
+Nano Scroller
+================================================= */
+
+
+/** initial setup **/
+
+.nano {
+    position: relative;
+    width: 100%;
+    overflow: hidden;
+}
+
+.nano.affix {
+    height: 100%;
+}
+
+.nano>.nano-content {
+    height: 100%;
+    overflow-y: auto;
+}
+
+.nano.has-scrollbar>.nano-content {
+    height: 100%;
+    overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+.nano.affix>.nano-content:focus {
+    outline: 0;
+}
+
+.nano.affix>.nano-content::-webkit-scrollbar {
+    display: none;
+}
+
+.affix.has-scrollbar>.nano-content::-webkit-scrollbar {
+    display: block;
+}
+
+.nano.affix>.nano-pane {
+    background: rgba(0, 0, 0, 0.18);
+    position: absolute;
+    width: 5px;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    visibility: hidden\9;
+    /* Target only IE7 and IE8 with this hack */
+    opacity: .01;
+    -webkit-transition: .2s;
+    -moz-transition: .2s;
+    -o-transition: .2s;
+    transition: .2s;
+    -moz-border-radius: 0px;
+    -webkit-border-radius: 0px;
+    border-radius: 0px;
+}
+
+.nano.affix>.nano-pane>.nano-slider {
+    background: #999;
+    position: relative;
+    margin: 0;
+    -moz-border-radius: 0px;
+    -webkit-border-radius: 0px;
+    border-radius: 0px;
+}
+
+.nano.affix:hover>.nano-pane,
+.nano-pane.active,
+.nano-pane.flashed {
+    visibility: visible\9;
+    /* Target only IE7 and IE8 with this hack */
+    opacity: 0.99;
+}
+
+
+/* Nano colors/contextuals - default color grey */
+
+.nano.affix.nano-primary>.nano-pane>.nano-slider {
+    background: #4a89dc;
+}
+
+.nano.affix.nano-success>.nano-pane>.nano-slider {
+    background: #70ca63;
+}
+
+.nano.affix.nano-info>.nano-pane>.nano-slider {
+    background: #3bafda;
+}
+
+.nano.affix.nano-warning>.nano-pane>.nano-slider {
+    background: #f6bb42;
+}
+
+.nano.affix.nano-danger>.nano-pane>.nano-slider {
+    background: #e9573f;
+}
+
+.nano.affix.nano-alert>.nano-pane>.nano-slider {
+    background: #967adc;
+}
+
+.nano.affix.nano-system>.nano-pane>.nano-slider {
+    background: #37bc9b;
+}
+
+.nano.affix.nano-dark>.nano-pane>.nano-slider {
+    background: #3b3f4f;
+}
+
+
+/*==================================================
+H. Sidebar "Nano Scroller" Settings (Core Plugin)
+==================================================== */
+
+#sidebar_left.nano.affix {
+    padding-bottom: 0;
+}
+
+#sidebar_left.affix.nano .tooltip {
+    z-index: 9999 !important;
+}
+
+
+/* If the sidebar is minified we disable nanoscroll via css
+ * otherwise nano scroll hides popout menus and the scroll is
+ * needed to see submenus with many items */
+
+body.sb-l-m #sidebar_left.nano {
+    position: absolute;
+}
+
+body.sb-l-m #sidebar_left.nano>.nano-content {
+    overflow: visible;
+    right: 0 !important;
+}
+
+
+/* If the sidebar is minified and in mobile mode we hard disable
+ * the entire plugin via a display !important */
+
+body.sb-l-m.mobile-view .nano>.nano-pane {
+    display: none !important;
+}
+
+
+/**DIY**/
+
+
+/**
+body:not(.sb-l-m) .sidebar-menu > li > ul.nav{
+    display:block;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0,1,1,1);
+}
+body:not(.sb-l-m) .sidebar-menu > li > a.menu-open + ul.nav{
+    display:block;
+    max-height: 400px;
+    transition: max-height 0.3s cubic-bezier(1,1,0.2,0.3);
+}
+**/

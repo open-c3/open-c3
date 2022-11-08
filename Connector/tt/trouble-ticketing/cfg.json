@@ -1,0 +1,50 @@
+{
+    "debug": true,
+    "salt":"x",
+    "dbname":"connector",
+    "http": {
+        "enabled": true,
+        "listen": "0.0.0.0:9008"
+    },
+    "mysql": {
+        "addr": "@tcp(OPENC3_DB_IP:3306)/connector?charset=utf8&&loc=Asia%2FShanghai&parseTime=true",
+        "user":"root",
+        "pass":"openc3123456^!",
+        "idle": 10,
+        "max": 20
+    },
+    "sso":{
+        "url":"http://sso.openc3.org",
+        "cookiekey":"sid"
+    },
+    "mail":{
+        "host":"ops.mail.xxx.com",
+        "port":25,
+        "debug_user":["lijinfeng2011@gmail.com"],
+        "sys_mail":"openc3sys@gmail.com"
+    },
+    "attachment": "/data/open-c3-data/tt/attachments",
+    "reminder": {
+        "cdn_related": {
+            "enable": true,
+            "keyword": [
+                "CDN",
+                "FTP账号",
+                "域名",
+                "公有云证书",
+                "博睿监控"
+            ],
+            "users": [
+                {
+                    "work_group_id": 3,
+                    "group_user_id": 116
+                },
+                {
+                    "work_group_id": 3,
+                    "group_user_id": 146
+                }
+            ]
+        }
+    }
+
+}

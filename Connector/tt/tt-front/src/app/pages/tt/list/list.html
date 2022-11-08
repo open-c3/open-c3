@@ -1,0 +1,72 @@
+<div id="topbar">
+    <div class="topbar-left">
+        <ol class="breadcrumb">
+            <li class="fs16" translate='S.Submenu.{{ttlist.presetMod}}'></li>
+            <li ng-if="ttlist.groupname">{{ ttlist.groupname }}</li>
+        </ol>
+    </div>
+    <div class="topbar-right">
+        <ol class="breadcrumb">
+            <li>Trouble Ticketing</li>
+            <li>List</li>
+        </ol>
+    </div>
+</div>
+
+<div class="block">
+
+    <div class="panel panel-primary">
+
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <c3download data="ttlist.tickets"></c3download>
+                <button class="btn btn-primary" ng-click="ttlist.tableReload($event)">
+                    <i class="fa fa-refresh" ng-class="{'fa-spin':ttlist.loading}"></i>
+                </button>
+            </span>
+            <span>Total: {{ttlist.tableParams.total()}}</span>
+        </div>
+
+        <div class="panel-body">
+
+            <cmloading ng-if="ttlist.loading"></cmloading>
+
+            <div class="table-scroll" ng-if="!ttlist.loading">
+                <table ng-table="ttlist.tableParams" class="table table-hover text-center table-condensed va-m">
+                    <tbody>
+                        <tr ng-repeat="m in $data" ng-class="{danger:m.response_timeout || m.resolve_timeout}">
+                            <td data-title="'#'">
+                                <span>
+                                    {{ (ttlist.tableParams.page() - 1)*ttlist.tableParams.count() + $index + 1 }}
+                                </span>
+                            </td>
+                            <td data-title="'D.Base.ttno'|translate">
+                                <a href ui-sref="home.tt.show({id:m.no})" target="_blank">{{m.no}}</a>
+                            </td>
+                            <td data-title="'D.Base.impact'|translate">{{m.impact}}-{{'D.Impact.level' + m.impact | translate}}</td>
+                            <td data-title="'D.Base.status'|translate">{{'D.Status.' + m.status | translate}}</td>
+                            <td data-title="'C.T.I.'">{{m.category | baseDataMap:ttlist.baseData:'category'}}.{{m.type | baseDataMap:ttlist.baseData:'type'}}.{{m.item | baseDataMap:ttlist.baseData:'item'}}.</td>
+                            <td data-title="'D.Base.title'|translate">{{m.title}}</td>
+                            <td data-title="'D.Base.workgroup'|translate">{{m.workgroup | baseDataMap:ttlist.baseData:'group':'group_name'}}</td>
+                            <td data-title="'D.Base.group_user'|translate">{{m.group_user | baseDataMap:ttlist.baseData:'group_user':'email'}}</td>
+                            <td data-title="'D.Base.submit_user'|translate">{{m.submit_user}}</td>
+                            <td data-title="'D.Base.apply_user'|translate">{{m.apply_user}}</td>
+                            <td data-title="'D.Base.create_time'|translate">{{m.created_at | amDateFormat:'YYYY-MM-DD HH:mm:ss'}}</td>
+                            <td data-title="'D.Base.response_time'|translate"><span ng-if="(m.response_time | date:'yyyy')>'0001'">{{m.response_time | amDateFormat:'YYYY-MM-DD HH:mm:ss'}}</span></td>
+                            <td data-title="'D.Base.resolved_time'|translate"><span ng-if="m.status=='resolved' || m.status=='closed'">{{m.resolve_time | amDateFormat:'YYYY-MM-DD HH:mm:ss'}}</span></td>
+                            <td data-title="'D.Base.response_sla'|translate">
+                                <span class="label label-danger" ng-if="m.response_timeout" translate="S.TT.timeout"></span>
+                                <span class="label label-info" ng-if="!m.response_timeout" translate="S.TT.no_timeout"></span>
+                            </td>
+                            <td data-title="'D.Base.resolve_sla'|translate">
+                                <span class="label label-danger" ng-if="m.resolve_timeout" translate="S.TT.timeout"></span>
+                                <span class="label label-info" ng-if="!m.resolve_timeout" translate="S.TT.no_timeout"></span>
+                            </td>
+                            <td data-title="'S.TT.resolve_deadline'|translate">{{m.resolve_deadline | amDateFormat:'YYYY-MM-DD HH:mm:ss'}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

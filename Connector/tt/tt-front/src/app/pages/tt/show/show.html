@@ -1,0 +1,300 @@
+<div id="topbar">
+    <div class="topbar-left">
+        <ol class="breadcrumb">
+            <li class="fs18">{{ttshow.no|uppercase}}</li>
+        </ol>
+    </div>
+    <div class="topbar-right">
+        <ol class="breadcrumb">
+            <li>Trouble Ticketing</li>
+            <li>{{ttshow.no|uppercase}}</li>
+        </ol>
+    </div>
+</div>
+
+<div ng-class="{'tt-closed':ttshow.ticket.status=='closed'}"></div>
+
+<div class="row block">
+
+    <div class="panel status-flow m10 mtn">
+        <div class="panel-body br6 br-primary-light" ng-class="{'br-danger-light':ttshow.ticket.status=='closed'}">
+            <span>
+                <h5>
+                    <span translate="D.Status.assigned"></span><br>
+                    <small>{{ttshow.ticket.created_at | amDateFormat:'YYYY-MM-DD HH:mm:ss'}}</small>
+                </h5>
+            </span>
+            <span ng-repeat="flow in ttshow.status_flow track by $index">
+                <h5 ng-if="$index+1<ttshow.status_flow.length">
+                    <span translate="D.Status.{{flow.oper_after}}"></span><br>
+                    <small>{{flow.created_at | amDateFormat:'YYYY-MM-DD HH:mm:ss'}}</small>
+                </h5>
+                <h4 ng-if="$index+1==ttshow.status_flow.length">
+                    <span translate="D.Status.{{flow.oper_after}}"></span><br>
+                    <small>{{flow.created_at | amDateFormat:'YYYY-MM-DD HH:mm:ss'}}</small>
+                </h4>
+            </span>
+        </div>
+    </div>
+
+    <div name="showtt_form" class="form-horizontal showtt" onsubmit="return false;" novalidate>
+
+        <!--left-->
+        <div class="col-md-5">
+            <!--事件信息-->
+            <div class="panel panel-system panel-border top">
+                <div class="panel-heading">
+                    <h5 translate="S.TT.info"></h5>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" translate="D.Base.ttno"></label>
+                        <div class="col-md-9">
+                            <p class="form-control-static">{{ ttshow.ticket.no }}</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" translate="D.Base.submit_user"></label>
+                        <div class="col-md-9">
+                            <p class="form-control-static">{{ ttshow.ticket.submit_user }}</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" translate="D.Base.apply_user"></label>
+                        <div class="col-md-9">
+                            <input class="form-control" ng-model="ttshow.ticket.apply_user" ng-disabled="ttshow.ticket.status=='closed'" required/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" translate="D.Base.status"></label>
+                        <div class="col-md-9">
+                            <select class="form-control" size="1" ng-model="ttshow.ticket.status" required ng-if="ttshow.ticket.status!='closed'" ng-change="ttshow.changeStatus()">
+                                <option value="assigned" translate="D.Status.assigned"></option>
+                                <option value="wip" translate="D.Status.wip">wip</option>
+                                <option value="pending" translate="D.Status.pending">pending</option>
+                                <option value="resolved" translate="D.Status.resolved">resolved</option>
+                            </select>
+                            <p ng-if="ttshow.ticket.status=='closed'" class="form-control-static text-red text-bold">Closed</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" translate="D.Base.create_time"></label>
+                        <div class="col-md-9">
+                            <p class="form-control-static">{{ ttshow.ticket.created_at | amDateFormat:'YYYY-MM-DD HH:mm:ss'}}</p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" translate="D.Base.resolved_time"></label>
+                        <div class="col-md-9">
+                            <p class="form-control-static" ng-if="ttshow.oldTicket.status=='resolved' || ttshow.oldTicket.status=='closed'">{{ ttshow.oldTicket.resolve_time | amDateFormat:'YYYY-MM-DD HH:mm:ss' }}</p>
+                            <p class="form-control-static" ng-if="ttshow.oldTicket.status!='resolved' && ttshow.oldTicket.status!='closed'">{{ttshow.oldTicket.resolve_days}}&nbsp;days</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--事件影响-->
+            <div class="panel panel-danger panel-border top">
+                <div class="panel-heading">
+                    <h5 translate="S.TT.effect"></h5>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" translate="D.Base.impact"></label>
+                        <div class="col-md-9">
+                            <select class="form-control" size="1" ng-model="ttshow.ticket.impact" ng-disabled="ttshow.ticket.status=='closed'" convert-to-number required>
+                                <option ng-repeat="v in ttshow.baseData.impact track by $index" value="{{v.id}}">{{v.level}} - {{'D.Impact.level' + v.level | translate}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--SLA-->
+            <div class="panel panel-warning panel-border top">
+                <div class="panel-heading">
+                    <h5>S.L.A.</h5>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" translate="D.Base.response_sla"></label>
+                        <div class="col-md-9">
+                            <p class="form-control-static">
+                            <span ng-class="{'text-red':ttshow.ticket.response_timeout}">{{ttshow.ticket.response_deadline | amDateFormat:'YYYY-MM-DD HH:mm:ss'}}</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" translate="D.Base.resolve_sla"></label>
+                        <div class="col-md-9">
+                            <p class="form-control-static">
+                            <span ng-class="{'text-red':ttshow.ticket.resolve_timeout}">{{ttshow.ticket.resolve_deadline | amDateFormat:'YYYY-MM-DD HH:mm:ss'}}</span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--C.T.I-->
+            <div class="panel panel-info panel-border top">
+                <div class="panel-heading">
+                    <h5>C.T.I.</h5>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" translate="D.Base.category"></label>
+                        <div class="col-md-9">
+                            <select class="form-control" size="1" ng-model="ttshow.ticket.category" ng-disabled="ttshow.ticket.status=='closed'" convert-to-number required>
+                                <option ng-repeat="v in ttshow.baseData.category track by $index" value="{{v.id}}">{{v.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" translate="D.Base.type"></label>
+                        <div class="col-md-9">
+                            <select class="form-control" size="1" ng-model="ttshow.ticket.type" ng-disabled="ttshow.ticket.status=='closed'" convert-to-number required>
+                                <option ng-repeat="v in ttshow.baseData.type track by $index" value="{{v.id}}" ng-if="v.category_id == ttshow.ticket.category">{{v.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" translate="D.Base.item"></label>
+                        <div class="col-md-9">
+                            <select class="form-control" size="1" ng-model="ttshow.ticket.item" ng-disabled="ttshow.ticket.status=='closed'" ng-change="ttshow.item_change()" convert-to-number required>
+                                <option ng-repeat="v in ttshow.baseData.item track by $index" value="{{v.id}}" ng-if="v.type_id == ttshow.ticket.type">{{v.name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--指派-->
+            <div class="panel panel-system panel-border top">
+                <div class="panel-heading">
+                    <h5 translate="S.TT.assign"></h5>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" translate="D.Base.workgroup"></label>
+                        <div class="col-md-9">
+                            <select class="form-control" size="1" ng-model="ttshow.ticket.workgroup" ng-disabled="ttshow.ticket.status=='closed'" ng-change="ttshow.group_change()" convert-to-number required>
+                                <option ng-repeat="v in ttshow.item_groups track by $index" value="{{v.id}}">{{v.priority}} {{v.group_name}}</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-3 control-label" translate="D.Base.group_user"></label>
+                        <div class="col-md-9">
+                            <select class="form-control" size="1" ng-model="ttshow.ticket.group_user" convert-to-number required ng-if="ttshow.ticket.status=='closed'" disabled>
+                                <option ng-repeat="v in ttshow.baseData.group_user track by $index" value="{{v.id}}" ng-if="v.group_id == ttshow.ticket.workgroup">{{v.priority}} - {{v.email}}</option>
+                            </select>
+                            <select class="form-control" size="1" ng-model="ttshow.ticket.group_user" convert-to-number required ng-if="ttshow.ticket.status!='closed'">
+                                <option value="0" ng-if="ttshow.ticket.group_user"></option>
+                                <option ng-repeat="v in ttshow.baseData.group_user track by $index" value="{{v.id}}" ng-if="v.group_id == ttshow.ticket.workgroup && v.disabled==0">{{v.priority}} - {{v.email}}</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!--right-->
+        <div class="col-md-7">
+            <!--事件描述--> 
+            <div class="panel panel-primary panel-border top">
+                <div class="panel-heading">
+                    <h5 translate="S.TT.desc"></h5>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-md-2 control-label" translate="D.Base.title"></label>
+                        <div class="col-md-10">
+                            <input class="form-control" ng-model="ttshow.ticket.title" ng-disabled="ttshow.ticket.status=='closed'" required/>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-md-2 control-label" translate="D.Base.content"></label>
+                        <div class="col-md-10">
+                            <div ng-model="ttshow.ticket.content" contenteditable class="tteditor" ng-if="ttshow.ticket.status!='closed'"></div>
+                            <div class="tteditor" ng-bind-html="ttshow.ticket.content" ng-if="ttshow.ticket.status=='closed'"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-success panel-border top">
+                <div class="panel-heading">
+                    <h5>More</h5>
+                </div>
+                <div class="panel-body">
+                    <div class="form-group">
+                        <label class="col-md-2 control-label" translate="D.Base.email_list"></label>
+                        <div class="col-md-10">
+                            <textarea class="form-control" rows="2" ng-model="ttshow.ticket.email_list" ng-disabled="ttshow.ticket.status=='closed'"></textarea>
+                        </div>
+                    </div>
+                    <hr class="short alt">
+                    <div class="form-group" ng-if="ttshow.ticket.attachment.length<5">
+                        <label class="col-md-2 control-label" translate="D.Base.attachment"></label>
+                        <div class="col-md-10">
+                            <input type="file" nv-file-select uploader="ttshow.uploader" multiple>
+                            <span class="help-block">附件最多5个，单个不大于5MB</span>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <ul class="fa-ul col-md-10 col-md-offset-2">
+                            <li ng-repeat="item in ttshow.uploader.queue track by $index">
+                                <i class="fa fa-file"></i>
+                                <b>{{$index+1}}. </b>
+                                <span>{{ item.file.name }} ({{ item.file.size/1024/1024|number:2}}MB)
+                                    <a ng-if="!item.isUploading" href ng-click="item.remove()"><i class="text-danger fa fa-times"></i></a>
+                                </span>
+                                <a href ng-if="!item.isUploading" ng-click="item.upload()"><i class="fa fa-upload"></i></a>
+                                <span ng-if="item.isUploading">(<b>{{item.progress}}%</b>)</span>
+                                <span class="text-danger" ng-if="item.isError">Upload Error!</span>
+                            </li>
+                        </ul>
+                        <ul class="fa-ul col-md-10 col-md-offset-2">
+                            <li ng-repeat="a in ttshow.ticket.attachment track by $index">
+                                <i class="fa fa-file-o"></i>
+                                <b>{{$index+1}}. </b>
+                                <span>
+                                    <a href ng-click="ttshow.download(a.uuid)">{{ a.name }}</a> ({{ a.size/1024/1024|number:2}}MB)
+                                    <a href ng-click="ttshow.del_attachment(a)"><i class="text-danger fa fa-times"></i></a>
+                                </span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <uib-tabset justified="true" active="ttshow.tabActive">
+                <uib-tab heading="{{'S.Tab.reply'|translate}}">
+                    <div ng-include="'app/pages/tt/show/tabs/reply.html'"></div>
+                </uib-tab>
+                <uib-tab heading="{{'S.Tab.worklog'|translate}}">
+                    <div ng-include="'app/pages/tt/show/tabs/worklog.html'"></div>
+                </uib-tab>
+                <uib-tab heading="{{'S.Tab.solution'|translate}}">
+                    <div ng-include="'app/pages/tt/show/tabs/solution.html'"></div>
+                </uib-tab>
+                <uib-tab heading="{{'S.Tab.syslog'|translate}}">
+                    <div ng-include="'app/pages/tt/show/tabs/syslog.html'"></div>
+                </uib-tab>
+            </uib-tabset>
+
+        </div>
+
+    </div>
+
+    <div class="row text-right" ng-if="ttshow.ticket.status!='closed'">
+        <div class="col-md-9 col-md-offset-3 panel">
+            <i class="fa fa-spin fa-circle-o-notch fa-lg" ng-if="ttshow.isUpdating"></i>
+            <button ng-disabled="ttshow.isUpdating" class="btn btn-system" ng-click="ttshow.init()">
+                <i class="fa fa-refresh fa-fw"></i>
+                <span translate="S.Index.refresh"></span>
+            </button>
+            <button ng-disabled="ttshow.isUpdating" class="btn btn-primary" ng-click="ttshow.submit()">
+                <i class="fa fa-send fa-fw"></i>
+                <span translate="S.Index.update"></span>
+            </button>
+        </div>
+
+    </div>
+
+</div>

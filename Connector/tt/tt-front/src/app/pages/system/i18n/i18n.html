@@ -1,0 +1,69 @@
+<div id="topbar">
+    <div class="topbar-left">
+        <ol class="breadcrumb">
+            <li class="fs16" translate="S.Menu.i18n_setting"></li>
+        </ol>
+    </div>
+</div>
+
+<div class="block" id="i18n">
+
+    <div class="loading-container hide">
+        <div class="loading">
+            <div class="l1"><div></div></div>
+            <div class="l2"><div></div></div>
+            <div class="l3"><div></div></div>
+            <div class="l4"><div></div></div>
+        </div>
+    </div>
+
+    <uib-tabset>
+
+        <uib-tab ng-repeat="lang in i18n.langData" heading="{{lang.lang}}">
+
+            <div class="row">
+                <div class="col-lg-8">
+
+                    <div class="sub-header">
+                        <button class="btn btn-primary" ng-click="i18n.save(lang.id, lang.jsonData)">保存</button>
+                    </div>
+
+                    <div class="loading-container" ng-if="!i18n.showTab">
+                        <div class="loading">
+                            <div class="l1"><div></div></div>
+                            <div class="l2"><div></div></div>
+                            <div class="l3"><div></div></div>
+                            <div class="l4"><div></div></div>
+                        </div>
+                    </div>
+
+                    <div class="jsonView" ng-if="i18n.showTab">
+                        <json child="lang.jsonData" default-collapsed="true" type="object"></json>
+                    </div>
+
+                </div>
+
+                <div class="col-lg-4">
+
+                    <div class="sub-header">
+                        <button class="btn btn-primary" ng-click="i18n.parseJson(lang,lang.jsonString)">
+                            <i class="fa fa-arrow-left"></i>
+                        </button>
+                        <button class="btn btn-primary" ng-click="i18n.unparseJson(lang,lang.jsonData)">
+                            <i class="fa fa-arrow-right"></i>
+                        </button>
+
+                        <span class="red" ng-if="!lang.wellFormed">JSON not well-formed!</span>
+                    </div>
+                    <div>
+                        <textarea class="fluid-width" ng-model="lang.jsonString"></textarea>
+                    </div>
+
+                </div>
+            </div>
+
+        </uib-tab>
+
+    </uib-tabset>
+
+</div>

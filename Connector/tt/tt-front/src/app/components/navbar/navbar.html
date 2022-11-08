@@ -1,0 +1,49 @@
+<header class="navbar navbar-fixed-top bg-danger">
+    <div class="navbar-branding bg-openc3-dark">
+        <a class="navbar-brand" ui-sref="home">
+            <img src="/assets/images/ticket.png"/>
+            <span translate="S.Index.title"></span>
+        </a>
+        <span id="toggle_sidemenu_l" ng-click="nav.toggleMenu()">
+            <i ng-if="nav.currentMenu=='sb-l-m'" class="fa fa-bars fa-fw animated fadeInRight"></i>
+            <i ng-if="nav.currentMenu=='none'" class="fa fa-ellipsis-v animated fadeInLeft fa-fw"></i>
+        </span>
+    </div>
+    <ul class="nav navbar-nav navbar-right">
+        <li>
+            <a ui-sref="home.tt.search" class="ripple"><i class="fa fa-search fa-lg"></i></a>
+        </li>
+        <li class="dropdown" uib-dropdown>
+            <a class="dropdown-toggle ripple" href="javascript:void(0)" uib-dropdown-toggle>
+                <i class="fa fa-language fa-lg"></i>
+            </a>
+            <ul class="dropdown-menu pv5 animated animated-short flipInX" uib-dropdown-menu>
+                <li ng-repeat="lang in nav.langData">
+                    <a href="javascript:void(0);" ng-click="nav.changeLang(lang.langkey)">
+                        <span class="fa fa-language mr10"></span>{{ lang.lang }}
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        <li class="menu-divider hidden-xs">
+            <i class="fa fa-circle"></i>
+        </li>
+
+        <li class="dropdown" uib-dropdown>
+            <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple" uib-dropdown-toggle> 
+                <span>{{ nav.user.name }}</span>
+                <span class="caret caret-tp hidden-xs"></span>
+            </a>
+            <ul class="dropdown-menu list-group dropdown-persist w250" uib-dropdown-menu>
+                <li class="dropdown-header clearfix">
+                    <div class="pull-left ml10">{{ nav.user.email }}</div>
+                </li>
+                <li class="list-group-item">
+                    <a href="javascript:void(0)" class="animated animated-short fadeInUp" ng-click="nav.logout()">
+                        <span class="fa fa-power-off"></span><span translate="S.Index.logout"></span>
+                    </a>
+                </li>
+            </ul>
+        </li>
+</header>

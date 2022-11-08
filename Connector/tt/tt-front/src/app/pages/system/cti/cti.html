@@ -1,0 +1,169 @@
+<div id="topbar">
+    <div class="topbar-left">
+        <ol class="breadcrumb">
+            <li class="fs16" translate='S.Menu.cti'></li>
+        </ol>
+    </div>
+</div>
+
+<div class="block">
+
+    <div class="loading-container" ng-if="!cti.showTab">
+        <div class="loading">
+            <div class="l1"><div></div></div>
+            <div class="l2"><div></div></div>
+            <div class="l3"><div></div></div>
+            <div class="l4"><div></div></div>
+        </div>
+    </div>
+
+    <div class="panel panel-primary" ng-if="cti.showTab">
+
+        <div class="panel-heading">
+            <span class="block-options pull-right">
+                <button class="btn btn-primary" ng-click="cti.reload($event)"><i class="fa fa-refresh tableFresh"></i></button>
+            </span>
+            <span>CTI</span>
+        </div>
+
+        <div class="panel-body">
+
+            <div class="loading-container hide">
+                <div class="loading">
+                    <div class="l1"><div></div></div>
+                    <div class="l2"><div></div></div>
+                    <div class="l3"><div></div></div>
+                    <div class="l4"><div></div></div>
+                </div>
+            </div>
+
+            <div>
+                <button class="btn btn-primary" ng-click="cti.addCategory()">添加Category</button>
+            </div>
+            <hr>
+
+            <div class="row">
+
+                <ul class="toggle-menu col-md-6 cti-tree">
+
+                    <li class="open" style="margin-bottom:15px;" ng-repeat="c in cti.cti_tree track by $index">
+                        <a href="javascript:void(0)" class="submenu" toggle-parent-class="open">
+                            <i class="fa fa-angle-right"></i>{{c.name}}
+                        </a>
+                        <span>
+                            <label class="pointer text-primary padding-5" ng-click="cti.updateSwal(c,'base/category/')"><i class="fa fa-edit"></i></label>
+                            <label class="pointer text-danger padding-5" ng-click="cti.delSwal(c, c.name, 'base/category/')"><i class="fa fa-trash"></i></label>
+                            <label class="pointer text-info padding-5" ng-click="cti.addType(c)"><i class="fa fa-plus"></i></label>
+                        </span>
+                        <ul>
+                            <li class="open" ng-repeat="t in c.types track by $index">
+                                <a href="javascript:void(0)" class="submenu" toggle-parent-class="open">
+                                    <i class="fa fa-angle-right"></i>{{t.name}}
+                                </a>
+                                <span>
+                                    <label class="pointer text-primary padding-5" ng-click="cti.updateSwal(t,'base/type/')"><i class="fa fa-edit"></i></label>
+                                    <label class="pointer text-danger padding-5" ng-click="cti.delSwal(t, t.name, 'base/type/')"><i class="fa fa-trash"></i></label>
+                                    <label class="pointer text-info padding-5" ng-click="cti.addItem(t)"><i class="fa fa-plus"></i></label>
+                                </span>
+                                <ul>
+                                    <li ng-repeat="i in t.items track by $index">
+                                        <a href="javascript:void(0)" ng-click="cti.editItem(i)">{{i.name}}</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+
+                <!-- item edit -->
+                <fieldset class="col-md-6" ng-if="cti.currentItem.id">
+                    <legend>Edit Item</legend>
+                    <form class="item_form form-horizontal " novalidate>
+                        <div class="form-group">
+                            <label class="col-md-3 control-label">Name</label>
+                            <div class="col-md-9">
+                                <input type="text" class="form-control" ng-model="cti.currentItem.name">
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="form-group">
+                            <label class="col-md-3 control-label">title</label>
+                            <div class="col-md-9">
+                                <input type="text" class="form-control" ng-model="cti.currentItem.tpl_title">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 control-label">content</label>
+                            <div class="col-md-9">
+                                <textarea class="form-control" rows="8" ng-model="cti.currentItem.tpl_content"></textarea>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="form-group">
+                            <label class="col-md-3 control-label">groups</label>
+                            <div class="col-md-9">
+                                <ul class="list-unstyled">
+                                    <li ng-repeat="map in cti.basedata.item_group_map" ng-if="map.item_id==cti.currentItem.id">
+                                        <span>{{map.priority}}-{{map.group_id|baseDataMap:cti.basedata:'group':'group_name'}}</span>
+                                        <span>
+                                            <a href ng-click="cti.delGroup(map)"><i class="fa fa-close text-danger"></i></a>
+                                        </span>
+                                    </li>
+                                    <li>
+                                        <a href ng-click="cti.addGroup()"><i class="fa fa-plus text-primary"></i></a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-9 col-md-offset-3">
+                                <button class="btn btn-primary" translate="S.Index.update" ng-click="cti.updateItem()"></button>
+                                <button class="btn btn-danger" translate="S.Index.delete" ng-click="cti.delSwal(cti.currentItem, cti.currentItem.name, 'base/item/')"></button>
+                                <button class="btn btn-default" translate="S.Index.cancel" ng-click="cti.cancelItem()"></button>
+                            </div>
+                        </div>
+
+                    </form>
+                </fieldset>
+                <!-- item edit -->
+
+                <!-- item add -->
+                <fieldset class="col-md-6" ng-if="cti.currentType.id">
+                    <legend>Add Item [Type: {{cti.currentType.name}}] </legend>
+                    <form class="item_form form-horizontal " novalidate>
+                        <div class="form-group">
+                            <label class="col-md-3 control-label">Name</label>
+                            <div class="col-md-9">
+                                <input type="text" class="form-control" ng-model="cti.newItem.name">
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="form-group">
+                            <label class="col-md-3 control-label">title</label>
+                            <div class="col-md-9">
+                                <input type="text" class="form-control" ng-model="cti.newItem.tpl_title">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-3 control-label">content</label>
+                            <div class="col-md-9">
+                                <textarea class="form-control" rows="10" ng-model="cti.newItem.tpl_content"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-md-9 col-md-offset-3">
+                                <button class="btn btn-primary" translate="S.Index.add" ng-click="cti.addItemSwal()"></button>
+                                <button class="btn btn-default" translate="S.Index.cancel" ng-click="cti.cancelItem()"></button>
+                            </div>
+                        </div>
+
+                    </form>
+                </fieldset>
+                <!-- item add -->
+
+            </div>
+
+        </div>
+
+    </div>
+</div>

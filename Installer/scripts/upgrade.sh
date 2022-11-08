@@ -100,6 +100,39 @@ function upgradeSelf() {
         CTRL=reload
     fi
     ./Installer/scripts/single.sh $CTRL
+
+    echo =================================================================
+    echo "[INFO]tt-front build ..."
+
+    if [ ! -d /data/open-c3/Connector/tt/tt-front/node_modules ]; then
+        ./Connector/tt/tt-front/dev.sh init
+    fi
+
+    ./Connector/tt/tt-front/dev.sh build
+
+    if [ $? = 0 ]; then
+        echo "[SUCC]tt-front build success."
+    else
+        echo "[FAIL]tt-front build fail."
+        exit 1
+    fi
+
+    echo =================================================================
+    echo "[INFO]copy trouble-ticketing ..."
+
+    COOKIEKEY=$(cat /data/open-c3/Connector/config.inix | grep -v '^ *#' | grep cookiekey:|awk '{print $2}'|grep ^[a-zA-Z0-9]*$)
+    sed -i "s/\"cookiekey\":\".*\"/\"cookiekey\":\"$COOKIEKEY\"/g" /data/open-c3/Connector/tt/trouble-ticketing/cfg.json
+
+    cp /data/open-c3/Installer/install-cache/trouble-ticketing/trouble-ticketing /data/open-c3/Connector/tt/trouble-ticketing/trouble-ticketing.$$
+    mv /data/open-c3/Connector/tt/trouble-ticketing/trouble-ticketing.$$ /data/open-c3/Connector/tt/trouble-ticketing/trouble-ticketing
+    chmod +x /data/open-c3/Connector/tt/trouble-ticketing/trouble-ticketing
+
+    if [ $? = 0 ]; then
+        echo "[SUCC]copy trouble-ticketing success."
+    else
+        echo "[FAIL]copy trouble-ticketing fail."
+        exit 1
+    fi
 }
 
 function upgradeCluster() {
