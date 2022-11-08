@@ -1,0 +1,50 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDB;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 --user user1
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o      = $option->get( qw(    user=s ) )->dump();
+             $option->assert( qw( user   ) );
+
+die "user format error" unless $o{user} =~ /^[a-zA-Z0-9][a-zA-Z0-9\.\-_\@]+$/;
+
+my %info = (
+    user       => $o{user},
+    email      => "",
+    phone      => "",
+    voicemail  => "",
+    department => ""
+);
+
+my $db = MYDB->new( "/data/Software/mydan/Connector/conf/conn", delayedconnection => 1 );
+
+my $x = $db->query( sprintf "select email,phone,voicemail from openc3_connector_useraddr where user='$o{user}'" );
+if( @$x )
+{
+    $info{ email     } = $x->[0][0] || '';
+    $info{ phone     } = $x->[0][1] || '';
+    $info{ voicemail } = $x->[0][2] || '';
+}
+
+$x = $db->query( sprintf "select department from openc3_connector_userdepartment where user='$o{user}'" );
+if( @$x )
+{
+    $info{ department } = $x->[0][0] || '';
+}
+
+print YAML::XS::Dump \%info;
