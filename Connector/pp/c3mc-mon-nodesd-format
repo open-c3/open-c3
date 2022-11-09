@@ -27,7 +27,9 @@ my %ip;
 while(<STDIN>)
 {
    chomp;
-   my ( $treeid, $ip ) = split /;/, $_;
+   my ( $treeid, @ip ) = split /;/, $_;
+   my ( $ip ) = grep{ $_ }@ip;
+   $ip ||= "noip.$treeid";
    $ip{ $ip }{ $treeid }++;
 }
 
