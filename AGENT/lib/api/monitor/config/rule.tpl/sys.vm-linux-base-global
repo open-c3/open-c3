@@ -1,0 +1,149 @@
+---
+alert: Node节点内存使用率大于98%
+bindtreesql: round(sum((node_memory_MemTotal_bytes - (node_memory_MemFree_bytes +
+  node_memory_Buffers_bytes + node_memory_Cached_bytes)) / node_memory_MemTotal_bytes
+  * 100) by (instance)) > 98
+description: 'Node节点 {{$labels.instance}} 内存使用超过98%当前Node节点内存使用率: {{ $value }}%'
+edit_time: 2022-11-09 21:57:20
+edit_user: open-c3
+expr: round(sum((node_memory_MemTotal_bytes - (node_memory_MemFree_bytes + node_memory_Buffers_bytes
+  + node_memory_Cached_bytes)) / node_memory_MemTotal_bytes * 100) by (instance))
+  > 98
+for: 10m
+job: ''
+method: ''
+metrics: ''
+model: custom
+severity: level2
+summary: 内存报警
+threshold: ''
+value: '{{ $value }}%'
+---
+alert: Node节点CPU使用率大于98%
+bindtreesql: ceil( (1-(sum(increase(node_cpu_seconds_total{mode="idle"}[5m]))by(instance))/(sum(increase(node_cpu_seconds_total[5m]))by(instance)))
+  * 100 ) > 98
+description: 'Node节点 {{$labels.instance}} CPU使用超过98%当前Node节点CPU使用率: {{ $value }}%'
+edit_time: 2022-11-09 21:57:08
+edit_user: open-c3
+expr: ceil( (1-(sum(increase(node_cpu_seconds_total{mode="idle"}[5m]))by(instance))/(sum(increase(node_cpu_seconds_total[5m]))by(instance)))
+  * 100 ) > 98
+for: 10m
+job: ''
+method: ''
+metrics: ''
+model: custom
+severity: level2
+summary: CPU报警
+threshold: ''
+value: '{{ $value }}%'
+---
+alert: 根盘/使用百分比大于85%
+bindtreesql: ceil( max by(instance) ((node_filesystem_size_bytes {mountpoint ="/"}
+  - node_filesystem_free_bytes{mountpoint ="/"}) / node_filesystem_size_bytes {mountpoint
+  ="/"} * 100 ) ) > 85
+description: '磁盘使用超过85%当前主机根盘使用百分比: {{ $value }}%'
+edit_time: 2022-11-09 21:56:52
+edit_user: open-c3
+expr: ceil( max by(instance) ((node_filesystem_size_bytes {mountpoint ="/"} - node_filesystem_free_bytes{mountpoint
+  ="/"}) / node_filesystem_size_bytes {mountpoint ="/"} * 100 ) ) > 85
+for: 10m
+job: ''
+method: ''
+metrics: ''
+model: custom
+severity: level2
+summary: 磁盘报警
+threshold: ''
+value: '{{ $value }}%'
+---
+alert: 数据盘/data使用百分比大于85%
+bindtreesql: ceil( max by(instance) ((node_filesystem_size_bytes {mountpoint ="/data"}
+  - node_filesystem_free_bytes{mountpoint ="/data"}) / node_filesystem_size_bytes
+  {mountpoint ="/data"} * 100 ) ) > 85
+description: '磁盘使用超过85%当前主机数据盘使用百分比: {{ $value }}%'
+edit_time: 2022-11-09 21:56:28
+edit_user: open-c3
+expr: ceil( max by(instance) ((node_filesystem_size_bytes {mountpoint ="/data"} -
+  node_filesystem_free_bytes{mountpoint ="/data"}) / node_filesystem_size_bytes {mountpoint
+  ="/data"} * 100 ) ) > 85
+for: 10m
+job: ''
+method: ''
+metrics: ''
+model: custom
+severity: level2
+summary: 磁盘报警
+threshold: ''
+value: '{{ $value }}%'
+---
+alert: 服务器负载过高
+bindtreesql: 2 * sum(count(node_cpu_seconds_total{ mode="system"}) by (cpu,instance))
+  by(instance) < sum(node_load1) by(instance)
+description: '服务器负载过高, load 大于 CPU核数的两倍，当前load是: {{ $value }}'
+edit_time: 2022-11-09 21:56:10
+edit_user: open-c3
+expr: 2 * sum(count(node_cpu_seconds_total{ mode="system"}) by (cpu,instance)) by(instance)
+  < sum(node_load1) by(instance)
+for: 10m
+job: ''
+method: ''
+metrics: ''
+model: custom
+severity: level2
+summary: 服务器load过高
+threshold: ''
+value: '{{ $value }}'
+---
+alert: Node节点CPU使用率大于90%
+bindtreesql: round( (1-(sum(increase(node_cpu_seconds_total{mode="idle"}[5m]))by(instance))/(sum(increase(node_cpu_seconds_total[5m]))by(instance)))
+  * 100 ) > 90
+description: 'Node节点 {{$labels.instance}} CPU使用超过90% 当前Node节点CPU使用率: {{ $value }}%'
+edit_time: 2022-11-09 21:55:44
+edit_user: open-c3
+expr: round( (1-(sum(increase(node_cpu_seconds_total{mode="idle"}[5m]))by(instance))/(sum(increase(node_cpu_seconds_total[5m]))by(instance)))
+  * 100 ) > 90
+for: 10m
+job: ''
+method: ''
+metrics: ''
+model: custom
+severity: level2
+summary: CPU报警
+threshold: ''
+value: '{{ $value }}%'
+---
+alert: Node节点内存使用率大于90%
+bindtreesql: round(sum((node_memory_MemTotal_bytes - (node_memory_MemFree_bytes +
+  node_memory_Buffers_bytes + node_memory_Cached_bytes)) / node_memory_MemTotal_bytes
+  * 100) by (instance)) > 90
+description: 'Node节点 {{$labels.instance}} 内存使用超过90% 当前Node节点内存使用率: {{ $value }}%'
+edit_time: 2022-11-09 21:55:28
+edit_user: open-c3
+expr: round(sum((node_memory_MemTotal_bytes - (node_memory_MemFree_bytes + node_memory_Buffers_bytes
+  + node_memory_Cached_bytes)) / node_memory_MemTotal_bytes * 100) by (instance))
+  > 90
+for: 20m
+job: ''
+method: ''
+metrics: ''
+model: custom
+severity: level2
+summary: 内存报警
+threshold: ''
+value: '{{ $value }}%'
+---
+alert: 主机存活检查
+bindtreesql: sum(up) by(instance) == 0
+description: Node节点 {{$labels.instance}} 已宕机
+edit_time: 2022-11-09 21:55:12
+edit_user: open-c3
+expr: up{job="openc3"} == 0
+for: 1m
+job: openc3
+method: ==
+metrics: up
+model: custom
+severity: level2
+summary: 主机已宕机
+threshold: '0'
+value: '{{ $value }}%'

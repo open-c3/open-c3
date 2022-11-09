@@ -1,0 +1,84 @@
+---
+alert: Mysql监控数据采集失败
+bindtreesql: ''
+description: Mysql监控采集失败
+edit_time: 2022-11-09 20:48:36
+edit_user: open-c3
+expr: up{treeid_c3montreeid!="",job="openc3-mysql-v3"} == 0
+for: 3m
+job: openc3-mysql-v3
+method: ==
+metrics: up
+model: simple
+severity: level3
+summary: Mysql监控采集失败
+threshold: '0'
+value: ''
+---
+alert: MYSQL连接数大于80%
+bindtreesql: max(max_over_time(mysql_global_status_threads_connected[1m]) / mysql_global_variables_max_connections
+  * 100 )by(instance) > 80
+description: mysql连接数大于80%， 当前为{{$value}}%
+edit_time: 2022-11-09 21:53:28
+edit_user: open-c3
+expr: max(max_over_time(mysql_global_status_threads_connected[1m]) / mysql_global_variables_max_connections
+  * 100 )by(instance) > 80 and  ( sum(treeinfo{tid="c3montreeid"}) by(instance))
+for: 3m
+job: ''
+method: ''
+metrics: ''
+model: bindtree
+severity: level2
+summary: MYSQL连接数告警
+threshold: ''
+value: '{{$value}}%'
+---
+alert: MYSQL连接数大于60%
+bindtreesql: max(max_over_time(mysql_global_status_threads_connected[1m]) / mysql_global_variables_max_connections
+  * 100 )by(instance) > 60
+description: MYSQL连接数大于60%，当前为{{$value}}%
+edit_time: 2022-11-09 20:50:17
+edit_user: open-c3
+expr: max(max_over_time(mysql_global_status_threads_connected[1m]) / mysql_global_variables_max_connections
+  * 100 )by(instance) > 60 and  ( sum(treeinfo{tid="c3montreeid"}) by(instance))
+for: 3m
+job: ''
+method: ''
+metrics: ''
+model: bindtree
+severity: level1
+summary: MYSQL连接数告警
+threshold: ''
+value: '{{$value}}%'
+---
+alert: Mysql重启
+bindtreesql: ''
+description: MYSQL在一分钟内重启过
+edit_time: 2022-11-09 20:48:26
+edit_user: open-c3
+expr: mysql_global_status_uptime{treeid_c3montreeid!=""} < 60
+for: ''
+job: ''
+method: <
+metrics: mysql_global_status_uptime
+model: simple
+severity: level2
+summary: MYSQL重启
+threshold: '60'
+value: ''
+---
+alert: Mysql挂了
+bindtreesql: mysql_up == 0
+description: MysqlDown
+edit_time: 2022-11-09 20:48:02
+edit_user: open-c3
+expr: mysql_up{treeid_c3montreeid!=""} == 0
+for: 1m
+job: ''
+method: ==
+metrics: mysql_up
+model: simple
+severity: level1
+summary: MysqlDown
+threshold: '0'
+value: '{{$value}}'
