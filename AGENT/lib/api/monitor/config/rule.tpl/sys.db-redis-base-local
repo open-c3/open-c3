@@ -1,0 +1,71 @@
+---
+alert: redis挂了
+bindtreesql: ''
+description: redis挂了
+edit_time: 2022-11-09 22:37:21
+edit_user: open-c3
+expr: redis_up{treeid_c3montreeid!=""} == 0
+for: ''
+job: ''
+method: ==
+metrics: redis_up
+model: simple
+severity: level1
+summary: redis挂了
+threshold: '0'
+value: '{{ $value }}'
+---
+alert: redis连接数报警大于2000
+bindtreesql: ''
+description: 'reids连接数大于2000，当前连接数为: {{ $value }}'
+edit_time: 2022-11-09 22:37:33
+edit_user: open-c3
+expr: redis_connected_clients{treeid_c3montreeid!=""} > 2000
+for: ''
+job: ''
+method: '>'
+metrics: redis_connected_clients
+model: simple
+severity: level2
+summary: redis连接数报警
+threshold: '2000'
+value: '{{ $value }}'
+---
+alert: redis内存使用率大于95%
+bindtreesql: max(ceil(100 * (redis_memory_used_bytes  / redis_memory_max_bytes ) ))by(instance)
+  > 95
+description: 'redis内存使用率大于95%，当前使用率: {{ $value }}%'
+edit_time: 2022-11-09 22:38:33
+edit_user: open-c3
+expr: max(ceil(100 * (redis_memory_used_bytes  / redis_memory_max_bytes ) ))by(instance)
+  > 95 and  ( sum(treeinfo{tid="c3montreeid"}) by(instance))
+for: ''
+job: ''
+method: ''
+metrics: ''
+model: bindtree
+severity: level2
+summary: redis内存报警
+threshold: ''
+value: '{{ $value }}%'
+---
+alert: redis CPU利用率大于90%
+bindtreesql: (sum(rate(redis_cpu_sys_seconds_total [5m]))by(instance) + sum(rate(redis_cpu_user_seconds_total
+  [5m]))by(instance) +  sum(rate(redis_cpu_sys_children_seconds_total[5m]))by(instance)
+  + sum(rate(redis_cpu_user_children_seconds_total [5m]))by(instance) ) * 100 > 90
+description: 'redis节点 {{$labels.instance}} CPU使用超过50%当前redis节点CPU使用率: {{ $value }}%'
+edit_time: 2022-11-09 22:42:57
+edit_user: open-c3
+expr: (sum(rate(redis_cpu_sys_seconds_total [5m]))by(instance) + sum(rate(redis_cpu_user_seconds_total
+  [5m]))by(instance) +  sum(rate(redis_cpu_sys_children_seconds_total[5m]))by(instance)
+  + sum(rate(redis_cpu_user_children_seconds_total [5m]))by(instance) ) * 100 > 90
+  and  ( sum(treeinfo{tid="c3montreeid"}) by(instance))
+for: 3m
+job: ''
+method: ''
+metrics: ''
+model: bindtree
+severity: level2
+summary: redis CPU报警
+threshold: ''
+value: '{{ $value }}%'
