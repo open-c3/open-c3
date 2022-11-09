@@ -60,7 +60,7 @@ for my $ingestion ( glob "/data/open-c3-data/device/curr/database/*/ingestion-re
          next unless my $treename = $d{ $colmap->{tree} };
          my %tmp = (
              addr => ref $colmap->{addr} eq 'ARRAY'
-                     ? join( ":", ( $d{ $colmap->{addr}[0] }, $colmap->{addr}[1] ? $d{ $colmap->{addr}[1] } : '3306' ) )
+                     ? join( ":", ( $d{ $colmap->{addr}[0] }, $colmap->{addr}[1] ? $d{ $colmap->{addr}[1] } : '6379' ) )
                      : $d{ $colmap->{addr} },
              type =>     $colmap->{type},
          );

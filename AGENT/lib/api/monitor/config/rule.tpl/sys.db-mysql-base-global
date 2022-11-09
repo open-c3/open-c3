@@ -1,0 +1,82 @@
+---
+alert: Mysql监控数据采集失败
+bindtreesql: ''
+description: Mysql监控采集失败
+edit_time: 2022-11-09 20:42:21
+edit_user: open-c3
+expr: up{job="openc3-mysql-v3"} == 0
+for: 3m
+job: openc3-mysql-v3
+method: ==
+metrics: up
+model: custom
+severity: level3
+summary: Mysql监控采集失败
+threshold: '0'
+value: ''
+---
+alert: MYSQL连接数大于80%
+bindtreesql: ''
+description: mysql连接数大于80%， 当前为{{$value}}%
+edit_time: 2022-11-09 20:39:53
+edit_user: open-c3
+expr: max_over_time(mysql_global_status_threads_connected[1m]) / mysql_global_variables_max_connections
+  * 100 > 80
+for: 3m
+job: ''
+method: ''
+metrics: ''
+model: custom
+severity: level2
+summary: MYSQL连接数告警
+threshold: ''
+value: '{{$value}}%'
+---
+alert: MYSQL连接数大于60%
+bindtreesql: ''
+description: MYSQL连接数大于60%，当前为{{$value}}%
+edit_time: 2022-11-09 20:39:53
+edit_user: open-c3
+expr: max_over_time(mysql_global_status_threads_connected[1m]) / mysql_global_variables_max_connections
+  * 100 > 60
+for: 3m
+job: ''
+method: ''
+metrics: ''
+model: custom
+severity: level1
+summary: MYSQL连接数告警
+threshold: ''
+value: '{{$value}}%'
+---
+alert: Mysql重启
+bindtreesql: ''
+description: MYSQL在一分钟内重启过
+edit_time: 2022-11-09 20:39:53
+edit_user: open-c3
+expr: mysql_global_status_uptime < 60
+for: ''
+job: ''
+method: ''
+metrics: ''
+model: custom
+severity: level2
+summary: MYSQL重启
+threshold: ''
+value: ''
+---
+alert: Mysql挂了
+bindtreesql: mysql_up == 0
+description: MysqlDown
+edit_time: 2022-11-09 20:39:53
+edit_user: open-c3
+expr: mysql_up == 0
+for: 1m
+job: ''
+method: ''
+metrics: ''
+model: custom
+severity: level1
+summary: MysqlDown
+threshold: ''
+value: '{{$value}}'

@@ -290,7 +290,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
         type         => qr/^[a-z\d\-_]+$/, 1,
         subtype      => qr/^[a-z\d\-_]+$/, 1,
         treeid       => qr/^\d+$/, 1,
-        uuid         => qr/^[a-zA-Z0-9][a-zA-Z\d\-_\.]+$/, 1,
+        uuid         => qr/^[a-zA-Z0-9][a-zA-Z\d\-_\.:]+$/, 1,
         timemachine  => qr/^[a-z0-9][a-z0-9\-]+[a-z0-9]$/, 1,
     )->check( %$param );
 
@@ -363,7 +363,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
         my $ingestionmysql = eval{ YAML::XS::LoadFile $ingestionmysqlfile };
         return  +{ stat => $JSON::false, info => "load ingestion-mysql.yml fail: $@" } if $@;
 
-        @showmysqladdr = @{$ingestionmysql->{addr}};
+        @showmysqladdr = ref $ingestionmysql->{addr} ? @{$ingestionmysql->{addr}} : ( $ingestionmysql->{addr} );
         $showmysqlauth = 1;
     }
 
@@ -375,7 +375,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
         my $ingestionredis = eval{ YAML::XS::LoadFile $ingestionredisfile };
         return  +{ stat => $JSON::false, info => "load ingestion-redis.yml fail: $@" } if $@;
 
-        @showredisaddr = @{$ingestionredis->{addr}};
+        @showredisaddr = ref $ingestionredis->{addr} ? @{$ingestionredis->{addr}} : ( $ingestionredis->{addr} );
         $showredisauth = 1;
     }
  
@@ -387,7 +387,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
         my $ingestionmongodb = eval{ YAML::XS::LoadFile $ingestionmongodbfile };
         return  +{ stat => $JSON::false, info => "load ingestion-mongodb.yml fail: $@" } if $@;
 
-        @showmongodbaddr = @{$ingestionmongodb->{addr}};
+        @showmongodbaddr = ref $ingestionmongodb->{addr} ? @{$ingestionmongodb->{addr}} : ( $ingestionmongodb->{addr} );
         $showmongodbauth = 1;
     }
  
