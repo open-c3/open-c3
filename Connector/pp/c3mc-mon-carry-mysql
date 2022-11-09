@@ -21,7 +21,7 @@ my %result;
 while(<STDIN>){
     chomp;
     my ( $treeid, $addr, $auth ) = split /;/, $_;
-    if( $treeid =~ /^\d+$/ && $addr =~ /^\d+\.\d+\.\d+\.\d+:\d+$/ )
+    if( $treeid =~ /^\d+$/ && $addr =~ /^[a-z0-9][a-z0-9\-\.]+[a-z0-9]:\d+$/ )
     {
         if( $auth )
         {

@@ -123,7 +123,7 @@ sub run
                        my $data = $_[1];
 
                        print "$data\n" if $cmc;
-                       if( $data =~ m#/query_([\d+\.\d+\.\d+\.\d+]+):(\d+)_query# )
+                       if( $data =~ m#/query_([a-z0-9][a-z0-9\-\.]+[a-z0-9]):(\d+)_query# )
                        {
                            my ( $ip, $port ) = ( $1, $2 );
                            my $addr = "$ip:$port";
