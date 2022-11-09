@@ -46,7 +46,7 @@ server {
     }
 
     location /v3/mysql/metrics/ {
-        rewrite /v3/mysql/metrics/([0-9a-z\.-:]+)$ /query_$1_query break;
+        rewrite /v3/mysql/metrics/([0-9a-z\.\-:]+)$ /query_$1_query break;
         proxy_pass http://127.0.0.1:65113;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -54,7 +54,7 @@ server {
     }
 
     location /v3/redis/metrics/ {
-        rewrite /v3/redis/metrics/([0-9a-z\.-:]+)$ /query_$1_query break;
+        rewrite /v3/redis/metrics/([0-9a-z\.\-:]+)$ /query_$1_query break;
         proxy_pass http://127.0.0.1:65114;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
@@ -62,7 +62,7 @@ server {
     }
 
     location /v3/mongodb/metrics/ {
-        rewrite /v3/mongodb/metrics/([0-9a-z\.-:]+)$ /query_$1_query break;
+        rewrite /v3/mongodb/metrics/([0-9a-z\.\-:]+)$ /query_$1_query break;
         proxy_pass http://127.0.0.1:65115;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
