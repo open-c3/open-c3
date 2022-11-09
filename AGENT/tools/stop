@@ -26,8 +26,7 @@ die "port undef" unless my $port = $Config->{port};
 
 system "killall agent_supervisor 2>/dev/null";
 
-#TODO api.slave remove
-for my $type ( qw( api api.slave ) )
+for my $type ( qw( api ) )
 {
     map{
         system '/usr/sbin/lsof -i:'.$_.'|tail -n 1|awk \'{print $2}\'|xargs -i{} kill {}';
