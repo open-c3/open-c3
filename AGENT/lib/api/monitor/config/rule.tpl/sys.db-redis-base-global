@@ -64,3 +64,19 @@ severity: level2
 summary: redis CPU报警
 threshold: ''
 value: '{{ $value }}%'
+---
+alert: Redis监控数据采集失败
+bindtreesql: ''
+description: Redis监控采集失败
+edit_time: 2022-11-10 23:27:59
+edit_user: open-c3
+expr: up{job="openc3-redis-v3"} == 0
+for: 3m
+job: openc3-redis-v3
+method: ==
+metrics: up
+model: custom
+severity: level3
+summary: Redis监控采集失败
+threshold: '0'
+value: ''
