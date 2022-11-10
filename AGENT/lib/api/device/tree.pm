@@ -11,7 +11,7 @@ any '/device/tree/bind/:type/:subtype/:uuid/:tree' => sub {
     my $error = Format->new(
         type       => qr/^[a-z\d\-_]+$/, 1,
         subtype    => qr/^[a-z\d\-_]+$/, 1,
-        uuid       => qr/^[a-z\d\-_]+$/, 1,
+        uuid       => qr/^[a-z\d\-_\.\:]+$/, 1,
         tree       => qr/^[a-zA-Z\d\-_\.\,]+$/, 1,
     )->check( %$param );
 
