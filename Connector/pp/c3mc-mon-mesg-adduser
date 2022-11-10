@@ -20,7 +20,7 @@ my @out;
 sub adduser
 {
     my $data = shift @_;
-    return unless $data && ref $data eq 'HASH' && $data->{'labels.fromtreeid'} && $data->{'labels.fromtreeid'} =~ /^\d+$/;
+    return unless $data && ref $data eq 'HASH' && defined $data->{'labels.fromtreeid'} && $data->{'labels.fromtreeid'} =~ /^\d+$/;
 
     my @user = `c3mc-base-db-get user --table openc3_monitor_config_user --filter 'projectid=$data->{"labels.fromtreeid"}' | c3mc-app-usrext`;
     chomp @user;
