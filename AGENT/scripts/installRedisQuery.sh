@@ -2,7 +2,7 @@
 
 curl -L $OPEN_C3_ADDR/api/scripts/installQueryInit.sh | bash
 
-IMAGE=openc3/redis-query:e2209281
+IMAGE=openc3/redis-query:e2211101
 VPATH=redis-exporter-v3
 NAME=openc3-redis-query
 
