@@ -58,4 +58,4 @@ mkdir -p /data/open-c3-data/cache/userinfo
 mkdir -p /data/open-c3-data/cache/point
 mkdir -p /data/open-c3-data/cache/usertree
 
-yum install mysql -y
+docker exec -i openc3-server yum install mysql -y
