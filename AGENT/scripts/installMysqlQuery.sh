@@ -2,7 +2,7 @@
 
 curl -L $OPEN_C3_ADDR/api/scripts/installQueryInit.sh | bash
 
-IMAGE=openc3/mysql-query:m2211023
+IMAGE=openc3/mysql-query:m2211101
 VPATH=mysqld-exporter-v3
 NAME=openc3-mysql-query
 
