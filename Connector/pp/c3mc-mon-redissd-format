@@ -54,7 +54,7 @@ for my $ip ( keys %ip )
         $lables{"treeid_$_"} = $treemap{$_} || "1";
     }keys %{$ip{$ip}};
 
-    push @target, +{ targets => [ 'openc3-srv-docker' ], labels => \%lables };
+    push @target, +{ targets => [ 'openc3-server' ], labels => \%lables };
 }
 
 if( $o{output} )
