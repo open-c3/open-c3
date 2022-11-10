@@ -45,9 +45,15 @@ for ( @x )
     warn "load cache $addr fail: $@" if $@;
 
     next unless $conf && ref $conf eq 'HASH';
+    my $redisprotocol = 'redis://';
+    if( $conf->{password} && $conf->{password} =~ /^rediss:\/\/(.*)$/ )
+    {
+        $conf->{password} = $1;
+        $redisprotocol = 'rediss://';
+    }
 
     my $pass = $conf->{password}? "--redis.password $conf->{password}" : "";
-    my $curr = "-redis.addr redis://$conf->{ip}:$conf->{port} $pass";
+    my $curr = "-redis.addr $redisprotocol$conf->{ip}:$conf->{port} $pass";
     $curr =~ s/\s+//g;
     system "docker kill $uuid" if $x ne $curr;
 }
