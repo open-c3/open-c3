@@ -1,0 +1,32 @@
+---
+alert: 网站不能访问
+bindtreesql: ''
+description: '{{$labels.instance}} 不能访问'
+edit_time: 2022-11-10 11:06:34
+edit_user: open-c3
+expr: probe_success == 0
+for: ''
+job: ''
+method: ''
+metrics: ''
+model: custom
+severity: level1
+summary: '{{$labels.instance}} 不能访问'
+threshold: ''
+value: ''
+---
+alert: SSLCertExpiringSoon-域名证书过期告警
+bindtreesql: ''
+description: '{{ $labels.instance }}证书将在 {{ $value }} 天后过期告警'
+edit_time: 2022-11-10 11:09:58
+edit_user: open-c3
+expr: round((probe_ssl_earliest_cert_expiry - time()) / 86400) < 15
+for: ''
+job: ''
+method: ''
+metrics: ''
+model: custom
+severity: level2
+summary: '{{ $labels.instance }}证书将在 {{ $value }} 天后过期告警'
+threshold: ''
+value: ''
