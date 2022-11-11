@@ -11,7 +11,7 @@ $|++;
 use Encode;
 use YAML::XS;
 use MYDan::Util::OptConf;
-use MYDan::Agent::Proxy;
+use OPENC3::MYDan::Agent::Proxy;
 use Util;
 
 =head1 SYNOPSIS
@@ -28,7 +28,7 @@ my %env = Util::envinfo( qw( appname appkey ) );
 $ENV{ MYDan_Agent_Proxy_Addr   } = "http://api.agent.open-c3.org/proxy/0";
 $ENV{ MYDan_Agent_Proxy_Header } = "appname:$env{appname},appkey:$env{appkey}";
 
-my $proxy = MYDan::Agent::Proxy->new();
+my $proxy = OPENC3::MYDan::Agent::Proxy->new();
 
 my @addr;
 
