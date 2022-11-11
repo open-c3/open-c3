@@ -186,6 +186,13 @@
             });
         };
 
+        // applicant oa info
+        vm.getApplyUserOa = function(){
+            $http.get('/api/tt/base/get_user_info?user=' + vm.ticket.apply_user).success(function(data){
+                vm.OA_applicant = data.data;
+            });
+        };
+
         // change status
         vm.changeStatus = function(){
             if (vm.ticket.status=='resolved'){
@@ -223,6 +230,7 @@
                     vm.getReplylog(vm.ticket.id);
                     vm.getWorklog(vm.ticket.id);
                     vm.getStatusFlow(vm.ticket.id);
+                    vm.getApplyUserOa();
 
                 }
 
