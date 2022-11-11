@@ -1,15 +1,15 @@
 package handler
 
 import (
-	"openc3.org/trouble-ticketing/model"
 	"errors"
 	"fmt"
 	"net/http"
+	"openc3.org/trouble-ticketing/model"
 	"strings"
 
+	"github.com/gin-gonic/gin"
 	"openc3.org/trouble-ticketing/config"
 	"openc3.org/trouble-ticketing/orm"
-	"github.com/gin-gonic/gin"
 )
 
 // 第三方系统添加事件
@@ -47,7 +47,6 @@ func PublicPostTicket(c *gin.Context) {
 					return
 				}
 
-				obj.SubmitUser = config.Config().Mail.SysMail
 				obj.ApplyUser = req.ApplyUser
 				obj.Impact = int64(5)
 				obj.Category = int64(1)
@@ -79,8 +78,6 @@ func PublicPostTicket(c *gin.Context) {
 			// 用户OA部门信息变动
 			if req.Type == "dept_change" {
 
-				obj.ApplyUser = config.Config().Mail.SysMail
-				obj.SubmitUser = config.Config().Mail.SysMail
 				obj.Impact = int64(5)
 				obj.Category = int64(1)
 				obj.Type = int64(1)
@@ -109,8 +106,6 @@ func PublicPostTicket(c *gin.Context) {
 
 			if req.Type == "desktop" {
 
-				obj.SubmitUser = config.Config().Mail.SysMail
-				obj.ApplyUser = config.Config().Mail.SysMail
 				obj.Impact = int64(5)
 				obj.Category = int64(1)
 				obj.Type = int64(3)
@@ -154,8 +149,6 @@ func PublicPostTicket(c *gin.Context) {
 
 			if req.Type == "common" {
 
-				obj.SubmitUser = config.Config().Mail.SysMail
-				obj.ApplyUser = config.Config().Mail.SysMail
 				obj.Impact = int64(5)
 				obj.Category = int64(1)
 				obj.Type = int64(1)
@@ -189,8 +182,6 @@ func PublicPostTicket(c *gin.Context) {
 
 			if req.Type == "common" {
 
-				obj.SubmitUser = config.Config().Mail.SysMail
-				obj.ApplyUser = config.Config().Mail.SysMail
 				obj.Impact = int64(5)
 				obj.Category = int64(1)
 				obj.Type = int64(1)
@@ -219,13 +210,10 @@ func PublicPostTicket(c *gin.Context) {
 
 			if req.Type == "diy" {
 
-				obj.ApplyUser = config.Config().Mail.SysMail
-
 				if strings.TrimSpace(req.ApplyUser) != "" {
 					obj.ApplyUser = strings.TrimSpace(req.ApplyUser)
 				}
 
-				obj.SubmitUser = config.Config().Mail.SysMail
 				obj.Title = req.Title
 				obj.Content = req.Content
 				obj.EmailList = req.EmailList
