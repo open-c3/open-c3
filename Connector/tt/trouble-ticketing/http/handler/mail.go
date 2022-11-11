@@ -85,7 +85,7 @@ func sendmail(modifyuser, mailtype string, ticketId int64, oldTicket *model.Tick
 	)
 
 	// 查询过的oa用户 暂存, 防止一个用户被多次请求查询
-	oausers := make(map[string]funcs.BaseOaUsers)
+	oausers := make(map[string]funcs.UserInfo)
 
 	// 所有邮件类型
 	mailtypes := map[string]bool{
@@ -125,17 +125,26 @@ func sendmail(modifyuser, mailtype string, ticketId int64, oldTicket *model.Tick
 
 	// get modify user's oa info
 	if _, exist := oausers[modifyuser]; !exist {
-		modifyuseroa, _ := funcs.GetOaInfo(modifyuser)
+		modifyuseroa, err := funcs.GetUserInfo(modifyuser)
+		if err != nil {
+			funcs.PrintlnLog(fmt.Sprintf("sendmaill.GetUserInfo. get modifyuser info: err: %v", err))
+		}
 		oausers[modifyuser] = modifyuseroa
 	}
 	// get apply user's oa info
 	if _, exist := oausers[ticket.ApplyUser]; !exist {
-		applyuser, _ := funcs.GetOaInfo(ticket.ApplyUser)
+		applyuser, err := funcs.GetUserInfo(ticket.ApplyUser)
+		if err != nil {
+			funcs.PrintlnLog(fmt.Sprintf("sendmaill.GetUserInfo. get applyuser info: err: %v", err))
+		}
 		oausers[ticket.ApplyUser] = applyuser
 	}
 	// get assign user's oa info
 	if _, exist := oausers[assigns.AssignUserEmail]; !exist {
-		assignuser, _ := funcs.GetOaInfo(assigns.AssignUserEmail)
+		assignuser, err := funcs.GetUserInfo(assigns.AssignUserEmail)
+		if err != nil {
+			funcs.PrintlnLog(fmt.Sprintf("sendmaill.GetUserInfo. get assignuser info: err: %v", err))
+		}
 		oausers[assigns.AssignUserEmail] = assignuser
 	}
 
@@ -208,7 +217,7 @@ func sendmail(modifyuser, mailtype string, ticketId int64, oldTicket *model.Tick
 		orm.Db.Table("openc3_tt_common_reply_log").Where("ticket_id = ?", ticket.ID).Order("id desc").Find(&metadata.Reply)
 		for k, r := range metadata.Reply {
 			if _, exist := oausers[r.OperUser]; !exist {
-				oauser, _ := funcs.GetOaInfo(r.OperUser)
+				oauser, _ := funcs.GetUserInfo(r.OperUser)
 				oausers[r.OperUser] = oauser
 			}
 			metadata.Reply[k].UserName = oausers[r.OperUser].AccountName
