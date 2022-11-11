@@ -1,9 +1,9 @@
 package routers
 
 import (
+	"github.com/gin-gonic/gin"
 	"openc3.org/trouble-ticketing/http/handler"
 	"openc3.org/trouble-ticketing/http/middleware"
-	"github.com/gin-gonic/gin"
 )
 
 func ConfigRouter(r *gin.RouterGroup) {
@@ -69,6 +69,8 @@ func base_route(r *gin.RouterGroup) {
 	r.GET("/all", handler.GetBaseAll)
 	r.GET("/cti_tree_map", handler.GetCITtreeMap)
 	r.GET("/group_item_user_rel", handler.GetGroupItemUserRel)
+
+	r.GET("/get_user_info", handler.GetUserInfo)
 }
 
 func ticket_route(r *gin.RouterGroup) {
