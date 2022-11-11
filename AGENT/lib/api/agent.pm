@@ -55,7 +55,7 @@ post '/agent/:projectid/:regionid/subnet' => sub {
     my $error = Format->new( 
         projectid => qr/^\d+$/, 1,
         regionid => qr/^\d+$/, 1,
-        subnet => qr/^[\d\.\/, ]+$/, 1,
+        subnet => qr/^[\^\$a-zA-Z\-\*\d\.\/, ]+$/, 1,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -63,12 +63,13 @@ post '/agent/:projectid/:regionid/subnet' => sub {
     my $pmscheck = api::pmscheck( 'openc3_agent_write', $param->{projectid} ); return $pmscheck if $pmscheck;
 
     my @subnet = grep{ $_ =~ /^\d+\.\d+\.\d+\.\d+\/\d+$/ } split /,| /, $param->{subnet};
+    my @regex  = grep{ $_ =~ /^\/.+\/$/                  } split /,| /, $param->{subnet};
 
-    return +{ stat => $JSON::false, info => 'No effective subnet' } unless @subnet;
+    return +{ stat => $JSON::false, info => 'No effective subnet or regx' } unless @subnet || @regex;
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
-    eval{ $api::auditlog->run( user => $user, title => 'ADD SUBNET', content => "TREEID:$param->{projectid} REGIONID:$param->{regionid} SUBNET:$param->{subnet}" ); };
+    eval{ $api::auditlog->run( user => $user, title => 'ADD SUBNET', content => "TREEID:$param->{projectid} REGIONID:$param->{regionid} SUBNET_OR_REGEX:$param->{subnet}" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     eval{
@@ -76,6 +77,10 @@ post '/agent/:projectid/:regionid/subnet' => sub {
             $api::mysql->execute( "replace into openc3_agent_agent (`relationid`,`projectid`,`ip`,`status`,`reason`,`version`) 
             select id,'$param->{projectid}', '$_','success', 'subnet', '0' from openc3_agent_project_region_relation where regionid='$param->{regionid}' and projectid='$param->{projectid}'" );
         }@subnet;
+        map{
+            $api::mysql->execute( "replace into openc3_agent_agent (`relationid`,`projectid`,`ip`,`status`,`reason`,`version`) 
+            select id,'$param->{projectid}', '$_','success', 'regex', '0' from openc3_agent_project_region_relation where regionid='$param->{regionid}' and projectid='$param->{projectid}'" );
+        }@regex;
     };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
