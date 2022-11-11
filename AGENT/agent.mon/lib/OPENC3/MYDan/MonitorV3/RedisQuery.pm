@@ -44,24 +44,17 @@ sub _html
 
 sub getResponseProxy
 {
-    my ( $this, $content, $ip, $proxy, $url, $debug  ) = @_;
+    my ( $this, $content, $addr, $proxy, $url, $debug  ) = @_;
     my @debug;
 
     if( $debug )
     {
-        my @carry;
-        my $carry = $carry{$ip} ? MIME::Base64::decode_base64( $carry{$ip} ) : 'Null';
-
-        $carry =   join "\n", map{ "# $_" }split /\n/, $carry;
         $proxy ||= 'Null';
-        @carry =   ( "# CARRY:", $carry );
-
         @debug = (
             "# DEBUG",
-            "# IP: $ip",
+            "# ADDR: $addr",
             "# PROXY: $proxy",
             "# URL: $url",
-            @carry,
         );
     }
 
@@ -165,9 +158,11 @@ sub run
 
                            return if $index{$idx}{http_get};
                            $index{$idx}{http_get} = http_get $url, sub { 
-                               my $c = $_[0] || $_[1]->{URL}. " -> ".$_[1]->{Reason};
+                               my $tmpurl = $_[1]->{URL};
+                               $tmpurl =~ s/carry_.*_carry/carry_xxx_carry/;
+                               my $c = $_[0] || $tmpurl. " -> ".$_[1]->{Reason};
                                return if $handle && $handle->destroyed;
-                               $handle->push_write($this->getResponseProxy($c, $ip, $proxy{$ip}, $url, $data =~ /debug=1/ ? 1 : 0 )) if $c;
+                               $handle->push_write($this->getResponseProxy($c, $addr, $proxy{$addr}, $tmpurl, $data =~ /debug=1/ ? 1 : 0 )) if $c;
                                $handle->push_shutdown();
                                $handle->destroy();
                                delete $index{$idx};
