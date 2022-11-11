@@ -8,12 +8,12 @@ import (
 	"strings"
 	"time"
 
+	"openc3.org/trouble-ticketing/util"
+
 	"openc3.org/trouble-ticketing/config"
 	"openc3.org/trouble-ticketing/funcs"
 	"openc3.org/trouble-ticketing/model"
 	"openc3.org/trouble-ticketing/orm"
-
-	"gopkg.in/gomail.v2"
 )
 
 /**************************************/
@@ -79,9 +79,13 @@ type recipient struct {
 // send mail
 // a-> 添加worklog时新log
 func sendmail(modifyuser, mailtype string, ticketId int64, oldTicket *model.Ticket, a ...interface{}) {
+	var (
+		subject, body *string
+		receivers     = make([]string, 0)
+	)
 
 	// 查询过的oa用户 暂存, 防止一个用户被多次请求查询
-	oausers := make(map[string]funcs.BaseOaUsers)
+	users := make(map[string]funcs.UserInfo)
 
 	// 所有邮件类型
 	mailtypes := map[string]bool{
@@ -120,19 +124,28 @@ func sendmail(modifyuser, mailtype string, ticketId int64, oldTicket *model.Tick
 	}
 
 	// get modify user's oa info
-	if _, exist := oausers[modifyuser]; !exist {
-		modifyuseroa, _ := funcs.GetOaInfo(modifyuser)
-		oausers[modifyuser] = modifyuseroa
+	if _, exist := users[modifyuser]; !exist {
+		modifyuseroa, err := funcs.GetUserInfo(modifyuser)
+		if err != nil {
+			funcs.PrintlnLog(fmt.Sprintf("sendmaill.GetUserInfo. get modifyuser info: err: %v", err))
+		}
+		users[modifyuser] = modifyuseroa
 	}
 	// get apply user's oa info
-	if _, exist := oausers[ticket.ApplyUser]; !exist {
-		applyuser, _ := funcs.GetOaInfo(ticket.ApplyUser)
-		oausers[ticket.ApplyUser] = applyuser
+	if _, exist := users[ticket.ApplyUser]; !exist {
+		applyuser, err := funcs.GetUserInfo(ticket.ApplyUser)
+		if err != nil {
+			funcs.PrintlnLog(fmt.Sprintf("sendmaill.GetUserInfo. get applyuser info: err: %v", err))
+		}
+		users[ticket.ApplyUser] = applyuser
 	}
 	// get assign user's oa info
-	if _, exist := oausers[assigns.AssignUserEmail]; !exist {
-		assignuser, _ := funcs.GetOaInfo(assigns.AssignUserEmail)
-		oausers[assigns.AssignUserEmail] = assignuser
+	if _, exist := users[assigns.AssignUserEmail]; !exist {
+		assignuser, err := funcs.GetUserInfo(assigns.AssignUserEmail)
+		if err != nil {
+			funcs.PrintlnLog(fmt.Sprintf("sendmaill.GetUserInfo. get assignuser info: err: %v", err))
+		}
+		users[assigns.AssignUserEmail] = assignuser
 	}
 
 	var metadata metadataType
@@ -148,90 +161,79 @@ func sendmail(modifyuser, mailtype string, ticketId int64, oldTicket *model.Tick
 	metadata.ResolveTime = ticket.ResolveTime
 	metadata.ClosedTime = ticket.ClosedTime
 	metadata.ApplyUserEmail = ticket.ApplyUser
-	metadata.ApplyUserName = oausers[ticket.ApplyUser].AccountName
-	metadata.ApplyUserPhone = oausers[ticket.ApplyUser].Mobile
-	metadata.ApplyUserSyb = oausers[ticket.ApplyUser].SybDeptName
-	metadata.ApplyUserOnedpt = oausers[ticket.ApplyUser].OneDeptName
+	metadata.ApplyUserName = users[ticket.ApplyUser].AccountName
+	metadata.ApplyUserPhone = users[ticket.ApplyUser].Mobile
+	metadata.ApplyUserSyb = users[ticket.ApplyUser].SybDeptName
+	metadata.ApplyUserOnedpt = users[ticket.ApplyUser].OneDeptName
 	metadata.Category = cti.Category
 	metadata.Type = cti.Type
 	metadata.Item = cti.Item
 	metadata.AssignGroupName = assigns.AssignGroupName
 	metadata.AssignUserEmail = assigns.AssignUserEmail
-	metadata.AssignUserName = oausers[assigns.AssignUserEmail].AccountName
-	metadata.ModifyUserName = oausers[modifyuser].AccountName
+	metadata.AssignUserName = users[assigns.AssignUserEmail].AccountName
+	metadata.ModifyUserName = users[modifyuser].AccountName
 	metadata.ModifyUserEmail = modifyuser
 	metadata.ModifyTime = time.Now()
 
-	// mail message
-	mailMd := new(gomail.Message)
-
 	// ticket_submit
 	if mailtype == "ticket_submit" {
-		mailMd, err = sendMail_TicketSubmit(ticket, metadata)
+		subject, body, receivers, err = getSubmitTypeTicketInfo(ticket, metadata)
 		if err != nil {
 			return
 		}
-		mailMd.SetHeader("From", ticket.SubmitUser)
-
 	}
 	// ticket_update
 	if mailtype == "ticket_update" {
-		mailMd, err = sendMail_TicketUpdate(ticket, metadata)
+		subject, body, receivers, err = getUpdateTypeTicketInfo(ticket, metadata)
 		if err != nil {
 			return
 		}
-		mailMd.SetHeader("From", modifyuser)
 	}
 	// ticket_update_reassign
 	if mailtype == "ticket_update_reassign" {
-		mailMd, err = sendMail_TicketUpdateReassign(ticket, metadata)
+		subject, body, receivers, err = getReAssignTypeTicketInfo(ticket, metadata)
 		if err != nil {
 			return
 		}
-		mailMd.SetHeader("From", modifyuser)
 
-		ccArr := mailMd.GetHeader("Cc")
 		// 原事件 指派人/工作组邮箱
 		var rcpt_cc1 recipient
 		var rcpt_cc2 recipient
 		orm.Db.Table("openc3_tt_base_group_user").Select("email users").Where("id = ?", oldTicket.GroupUser).Find(&rcpt_cc1)
 		orm.Db.Table("openc3_tt_base_group").Select("group_email users").Where("id = ?", oldTicket.Workgroup).Find(&rcpt_cc2)
-		ccArr = append(ccArr, rcpt_cc1.Users, rcpt_cc2.Users)
-		mailMd.SetHeader("Cc", ccArr...)
+		receivers = append(receivers, rcpt_cc1.Users, rcpt_cc2.Users)
+
 	}
 	// ticket_update_solution
 	if mailtype == "ticket_update_solution" {
-		mailMd, err = sendMail_TicketUpdateSolution(ticket, metadata)
+		subject, body, receivers, err = getUpdateSolutionTypeTicketInfo(ticket, metadata)
 		if err != nil {
 			return
 		}
-		mailMd.SetHeader("From", modifyuser)
 	}
 	// ticket_add_reply
 	if mailtype == "ticket_add_reply" {
 		// get relay logs
 		orm.Db.Table("openc3_tt_common_reply_log").Where("ticket_id = ?", ticket.ID).Order("id desc").Find(&metadata.Reply)
 		for k, r := range metadata.Reply {
-			if _, exist := oausers[r.OperUser]; !exist {
-				oauser, _ := funcs.GetOaInfo(r.OperUser)
-				oausers[r.OperUser] = oauser
+			if _, exist := users[r.OperUser]; !exist {
+				oauser, _ := funcs.GetUserInfo(r.OperUser)
+				users[r.OperUser] = oauser
 			}
-			metadata.Reply[k].UserName = oausers[r.OperUser].AccountName
+			metadata.Reply[k].UserName = users[r.OperUser].AccountName
 		}
-		mailMd, err = sendMail_TicketAddReply(ticket, metadata)
+		subject, body, receivers, err = getAddReplyTypeTicketInfo(ticket, metadata)
 		if err != nil {
 			return
 		}
-		mailMd.SetHeader("From", modifyuser)
 	}
 	// ticket_add_worklog
 	if mailtype == "ticket_add_worklog" {
 		metadata.NewWorklog = a[0].(model.CommonWorkLog)
-		mailMd, err = sendMail_TicketAddWorklog(ticket, metadata)
+		subject, body, receivers, err = getAddWorkLogTypeTicketInfo(ticket, metadata)
 		if err != nil {
 			return
 		}
-		mailMd.SetHeader("From", modifyuser)
 	}
 	// ticket_closed
 	if mailtype == "ticket_closed" {
@@ -249,11 +251,10 @@ func sendmail(modifyuser, mailtype string, ticketId int64, oldTicket *model.Tick
 		metadata.ResponseTimeout = responseTimeout
 		metadata.ResolveTimeout = resolveTimeout
 
-		mailMd, err = sendMail_TicketClosed(ticket, metadata)
+		subject, body, receivers, err = getCloseTypeTicketInfo(ticket, metadata)
 		if err != nil {
 			return
 		}
-		mailMd.SetHeader("From", config.Config().Mail.SysMail)
 	}
 	// ticket_timeout
 	if mailtype == "ticket_timeout" {
@@ -261,45 +262,29 @@ func sendmail(modifyuser, mailtype string, ticketId int64, oldTicket *model.Tick
 		metadata.ResolveDeadline = a[1].(time.Time)
 		metadata.ResponseTimeout = a[2].(bool)
 		metadata.ResolveTimeout = a[3].(bool)
-		mailMd, err = sendMail_TicketTimeout(ticket, metadata)
+		subject, body, receivers, err = getTimeoutTypeTicketInfo(ticket, metadata)
 		if err != nil {
 			return
 		}
-		mailMd.SetHeader("From", config.Config().Mail.SysMail)
 	}
+	receivers = util.RemoveDuplicateStr(receivers)
 
-	if err != nil {
-		fmt.Println(err)
-		return
+	funcs.PrintlnLog(fmt.Sprintf("sendmail. email info: subject = %v, body = %v, receivers = %v", *subject, *body, receivers))
+
+	for _, receiver := range receivers {
+
+		err = funcs.SendEmail(*body, *subject, []string{receiver})
+		if err != nil {
+			funcs.PrintlnLog(fmt.Sprintf("sendmail.SendEmail.err: %v, receiver = %v", err, receiver))
+		}
 	}
-	fmt.Println(mailMd)
-
-	// debug check
-	if config.Config().Debug {
-		mailMd.SetHeader("To", config.Config().Mail.DebugUser...)
-		mailMd.SetHeader("Cc", config.Config().Mail.DebugUser...)
-	}
-
-	fmt.Println("final:", mailMd)
-	//return
-
-	// send
-	d := gomail.Dialer{Host: config.Config().Mail.Host, Port: config.Config().Mail.Port}
-	if err = d.DialAndSend(mailMd); err != nil {
-		fmt.Println("send err:", err)
-	}
-
 }
 
 // ticket submit mail
-func sendMail_TicketSubmit(ticket model.Ticket, md metadataType) (*gomail.Message, error) {
-
-	var err error
-	mailMd := gomail.NewMessage()
-
-	// to & cc
-	mailMd.SetHeader("To", filterEmailAddr(getToList("submit", ticket))...)
-	mailMd.SetHeader("Cc", filterEmailAddr(getCcList("submit", ticket))...)
+func getSubmitTypeTicketInfo(ticket model.Ticket, md metadataType) (*string, *string, []string, error) {
+	receivers := make([]string, 0)
+	receivers = append(receivers, getToList("submit", ticket)...)
+	receivers = append(receivers, getCcList("submit", ticket)...)
 
 	// get email title/content from db
 	var emailTpl model.BaseEmailTemplates
@@ -308,29 +293,19 @@ func sendMail_TicketSubmit(ticket model.Ticket, md metadataType) (*gomail.Messag
 	// mail:subject
 	subject, err := mergeEmailSubject(emailTpl.Title, md)
 	if err != nil {
-		return nil, err
+		return nil, nil, nil, err
 	}
 	// mail:body
 	body, err := mergeEmailBody(emailTpl.Content, md)
 	if err != nil {
-		return nil, err
+		return nil, nil, nil, err
 	}
-
-	mailMd.SetHeader("Subject", subject)
-	mailMd.SetBody("text/html;charset=UTF-8", body)
-
-	return mailMd, nil
+	return &subject, &body, receivers, nil
 }
-
-// ticket update mail
-func sendMail_TicketUpdate(ticket model.Ticket, md metadataType) (*gomail.Message, error) {
-
-	var err error
-	mailMd := gomail.NewMessage()
-
-	// to & cc
-	mailMd.SetHeader("To", filterEmailAddr(getToList("update", ticket))...)
-	mailMd.SetHeader("Cc", filterEmailAddr(getCcList("update", ticket))...)
+func getUpdateTypeTicketInfo(ticket model.Ticket, md metadataType) (*string, *string, []string, error) {
+	receivers := make([]string, 0)
+	receivers = append(receivers, getToList("update", ticket)...)
+	receivers = append(receivers, getCcList("update", ticket)...)
 
 	// get email title/content from db
 	var emailTpl model.BaseEmailTemplates
@@ -339,29 +314,21 @@ func sendMail_TicketUpdate(ticket model.Ticket, md metadataType) (*gomail.Messag
 	// mail:subject
 	subject, err := mergeEmailSubject(emailTpl.Title, md)
 	if err != nil {
-		return nil, err
+		return nil, nil, nil, err
 	}
 	// mail:body
 	body, err := mergeEmailBody(emailTpl.Content, md)
 	if err != nil {
-		return nil, err
+		return nil, nil, nil, err
 	}
-
-	mailMd.SetHeader("Subject", subject)
-	mailMd.SetBody("text/html;charset=UTF-8", body)
-
-	return mailMd, nil
+	return &subject, &body, receivers, nil
 }
 
 // ticket update_reassign mail
-func sendMail_TicketUpdateReassign(ticket model.Ticket, md metadataType) (*gomail.Message, error) {
-
-	var err error
-	mailMd := gomail.NewMessage()
-
-	// to & cc
-	mailMd.SetHeader("To", filterEmailAddr(getToList("update_reassign", ticket))...)
-	mailMd.SetHeader("Cc", filterEmailAddr(getCcList("update_reassign", ticket))...)
+func getReAssignTypeTicketInfo(ticket model.Ticket, md metadataType) (*string, *string, []string, error) {
+	receivers := make([]string, 0)
+	receivers = append(receivers, getToList("update_reassign", ticket)...)
+	receivers = append(receivers, getCcList("update_reassign", ticket)...)
 
 	// get email title/content from db
 	var emailTpl model.BaseEmailTemplates
@@ -370,29 +337,21 @@ func sendMail_TicketUpdateReassign(ticket model.Ticket, md metadataType) (*gomai
 	// mail:subject
 	subject, err := mergeEmailSubject(emailTpl.Title, md)
 	if err != nil {
-		return nil, err
+		return nil, nil, nil, err
 	}
 	// mail:body
 	body, err := mergeEmailBody(emailTpl.Content, md)
 	if err != nil {
-		return nil, err
+		return nil, nil, nil, err
 	}
-
-	mailMd.SetHeader("Subject", subject)
-	mailMd.SetBody("text/html;charset=UTF-8", body)
-
-	return mailMd, nil
+	return &subject, &body, receivers, nil
 }
 
 // ticket update_solution mail
-func sendMail_TicketUpdateSolution(ticket model.Ticket, md metadataType) (*gomail.Message, error) {
-
-	var err error
-	mailMd := gomail.NewMessage()
-
-	// to & cc
-	mailMd.SetHeader("To", filterEmailAddr(getToList("update_solution", ticket))...)
-	mailMd.SetHeader("Cc", filterEmailAddr(getCcList("update_solution", ticket))...)
+func getUpdateSolutionTypeTicketInfo(ticket model.Ticket, md metadataType) (*string, *string, []string, error) {
+	receivers := make([]string, 0)
+	receivers = append(receivers, getToList("update_solution", ticket)...)
+	receivers = append(receivers, getCcList("update_solution", ticket)...)
 
 	// get email title/content from db
 	var emailTpl model.BaseEmailTemplates
@@ -401,29 +360,21 @@ func sendMail_TicketUpdateSolution(ticket model.Ticket, md metadataType) (*gomai
 	// mail:subject
 	subject, err := mergeEmailSubject(emailTpl.Title, md)
 	if err != nil {
-		return nil, err
+		return nil, nil, nil, err
 	}
 	// mail:body
 	body, err := mergeEmailBody(emailTpl.Content, md)
 	if err != nil {
-		return nil, err
+		return nil, nil, nil, err
 	}
-
-	mailMd.SetHeader("Subject", subject)
-	mailMd.SetBody("text/html;charset=UTF-8", body)
-
-	return mailMd, nil
+	return &subject, &body, receivers, nil
 }
 
 // ticket add reply mail
-func sendMail_TicketAddReply(ticket model.Ticket, md metadataType) (*gomail.Message, error) {
-
-	var err error
-	mailMd := gomail.NewMessage()
-
-	// to & cc
-	mailMd.SetHeader("To", filterEmailAddr(getToList("add_reply", ticket))...)
-	mailMd.SetHeader("Cc", filterEmailAddr(getCcList("add_reply", ticket))...)
+func getAddReplyTypeTicketInfo(ticket model.Ticket, md metadataType) (*string, *string, []string, error) {
+	receivers := make([]string, 0)
+	receivers = append(receivers, getToList("add_reply", ticket)...)
+	receivers = append(receivers, getCcList("add_reply", ticket)...)
 
 	// get email title/content from db
 	var emailTpl model.BaseEmailTemplates
@@ -432,29 +383,21 @@ func sendMail_TicketAddReply(ticket model.Ticket, md metadataType) (*gomail.Mess
 	// mail:subject
 	subject, err := mergeEmailSubject(emailTpl.Title, md)
 	if err != nil {
-		return nil, err
+		return nil, nil, nil, err
 	}
 	// mail:body
 	body, err := mergeEmailBody(emailTpl.Content, md)
 	if err != nil {
-		return nil, err
+		return nil, nil, nil, err
 	}
-
-	mailMd.SetHeader("Subject", subject)
-	mailMd.SetBody("text/html;charset=UTF-8", body)
-
-	return mailMd, nil
+	return &subject, &body, receivers, nil
 }
 
 // ticket add worklog mail
-func sendMail_TicketAddWorklog(ticket model.Ticket, md metadataType) (*gomail.Message, error) {
-
-	var err error
-	mailMd := gomail.NewMessage()
-
-	// to & cc
-	mailMd.SetHeader("To", filterEmailAddr(getToList("add_worklog", ticket))...)
-	mailMd.SetHeader("Cc", filterEmailAddr(getCcList("add_worklog", ticket))...)
+func getAddWorkLogTypeTicketInfo(ticket model.Ticket, md metadataType) (*string, *string, []string, error) {
+	receivers := make([]string, 0)
+	receivers = append(receivers, getToList("add_worklog", ticket)...)
+	receivers = append(receivers, getCcList("add_worklog", ticket)...)
 
 	// get email title/content from db
 	var emailTpl model.BaseEmailTemplates
@@ -463,29 +406,21 @@ func sendMail_TicketAddWorklog(ticket model.Ticket, md metadataType) (*gomail.Me
 	// mail:subject
 	subject, err := mergeEmailSubject(emailTpl.Title, md)
 	if err != nil {
-		return nil, err
+		return nil, nil, nil, err
 	}
 	// mail:body
 	body, err := mergeEmailBody(emailTpl.Content, md)
 	if err != nil {
-		return nil, err
+		return nil, nil, nil, err
 	}
-
-	mailMd.SetHeader("Subject", subject)
-	mailMd.SetBody("text/html;charset=UTF-8", body)
-
-	return mailMd, nil
+	return &subject, &body, receivers, nil
 }
 
 // ticket timeout
-func sendMail_TicketTimeout(ticket model.Ticket, md metadataType) (*gomail.Message, error) {
-
-	var err error
-	mailMd := gomail.NewMessage()
-
-	// to & cc
-	mailMd.SetHeader("To", filterEmailAddr(getToList("timeout", ticket))...)
-	mailMd.SetHeader("Cc", filterEmailAddr(getCcList("timeout", ticket))...)
+func getTimeoutTypeTicketInfo(ticket model.Ticket, md metadataType) (*string, *string, []string, error) {
+	receivers := make([]string, 0)
+	receivers = append(receivers, getToList("timeout", ticket)...)
+	receivers = append(receivers, getCcList("timeout", ticket)...)
 
 	// get email title/content from db
 	var emailTpl model.BaseEmailTemplates
@@ -494,29 +429,21 @@ func sendMail_TicketTimeout(ticket model.Ticket, md metadataType) (*gomail.Messa
 	// mail:subject
 	subject, err := mergeEmailSubject(emailTpl.Title, md)
 	if err != nil {
-		return nil, err
+		return nil, nil, nil, err
 	}
 	// mail:body
 	body, err := mergeEmailBody(emailTpl.Content, md)
 	if err != nil {
-		return nil, err
+		return nil, nil, nil, err
 	}
-
-	mailMd.SetHeader("Subject", subject)
-	mailMd.SetBody("text/html;charset=UTF-8", body)
-
-	return mailMd, nil
+	return &subject, &body, receivers, nil
 }
 
 // ticket closed
-func sendMail_TicketClosed(ticket model.Ticket, md metadataType) (*gomail.Message, error) {
-
-	var err error
-	mailMd := gomail.NewMessage()
-
-	// to & cc
-	mailMd.SetHeader("To", filterEmailAddr(getToList("closed", ticket))...)
-	mailMd.SetHeader("Cc", filterEmailAddr(getCcList("closed", ticket))...)
+func getCloseTypeTicketInfo(ticket model.Ticket, md metadataType) (*string, *string, []string, error) {
+	receivers := make([]string, 0)
+	receivers = append(receivers, getToList("closed", ticket)...)
+	receivers = append(receivers, getCcList("closed", ticket)...)
 
 	// get email title/content from db
 	var emailTpl model.BaseEmailTemplates
@@ -525,18 +452,14 @@ func sendMail_TicketClosed(ticket model.Ticket, md metadataType) (*gomail.Messag
 	// mail:subject
 	subject, err := mergeEmailSubject(emailTpl.Title, md)
 	if err != nil {
-		return nil, err
+		return nil, nil, nil, err
 	}
 	// mail:body
 	body, err := mergeEmailBody(emailTpl.Content, md)
 	if err != nil {
-		return nil, err
+		return nil, nil, nil, err
 	}
-
-	mailMd.SetHeader("Subject", subject)
-	mailMd.SetBody("text/html;charset=UTF-8", body)
-
-	return mailMd, nil
+	return &subject, &body, receivers, nil
 }
 
 /******************************************/
