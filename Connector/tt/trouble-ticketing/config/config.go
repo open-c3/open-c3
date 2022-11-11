@@ -32,17 +32,11 @@ type GlobalConfig struct {
 		Src  string `json:"src"`
 	} `json:"web"`
 	Sso struct {
-		URL    string `json:"url"`
+		URL       string `json:"url"`
 		CookieKey string `json:"cookiekey"`
 	} `json:"sso"`
-	Mail struct {
-		Host      string   `json:"host"`
-		Port      int      `json:"port"`
-		DebugUser []string `json:"debug_user"`
-		SysMail   string   `json:"sys_mail"`
-	} `json:"mail"`
-	Attachment    string `json:"attachment"`
-	ReminderList []struct{ // 用于配置相关工单默认的tt指派人。有些高频工单可以略过服务台直接发送给指定人
+	Attachment   string     `json:"attachment"`
+	ReminderList []struct { // 用于配置相关工单默认的tt指派人。有些高频工单可以略过服务台直接发送给指定人
 		Enable  bool     `json:"enable"`
 		Keyword []string `json:"keyword"`
 		Users   []struct {
