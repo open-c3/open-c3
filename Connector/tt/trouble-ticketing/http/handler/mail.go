@@ -85,7 +85,7 @@ func sendmail(modifyuser, mailtype string, ticketId int64, oldTicket *model.Tick
 	)
 
 	// 查询过的oa用户 暂存, 防止一个用户被多次请求查询
-	oausers := make(map[string]funcs.UserInfo)
+	users := make(map[string]funcs.UserInfo)
 
 	// 所有邮件类型
 	mailtypes := map[string]bool{
@@ -124,28 +124,28 @@ func sendmail(modifyuser, mailtype string, ticketId int64, oldTicket *model.Tick
 	}
 
 	// get modify user's oa info
-	if _, exist := oausers[modifyuser]; !exist {
+	if _, exist := users[modifyuser]; !exist {
 		modifyuseroa, err := funcs.GetUserInfo(modifyuser)
 		if err != nil {
 			funcs.PrintlnLog(fmt.Sprintf("sendmaill.GetUserInfo. get modifyuser info: err: %v", err))
 		}
-		oausers[modifyuser] = modifyuseroa
+		users[modifyuser] = modifyuseroa
 	}
 	// get apply user's oa info
-	if _, exist := oausers[ticket.ApplyUser]; !exist {
+	if _, exist := users[ticket.ApplyUser]; !exist {
 		applyuser, err := funcs.GetUserInfo(ticket.ApplyUser)
 		if err != nil {
 			funcs.PrintlnLog(fmt.Sprintf("sendmaill.GetUserInfo. get applyuser info: err: %v", err))
 		}
-		oausers[ticket.ApplyUser] = applyuser
+		users[ticket.ApplyUser] = applyuser
 	}
 	// get assign user's oa info
-	if _, exist := oausers[assigns.AssignUserEmail]; !exist {
+	if _, exist := users[assigns.AssignUserEmail]; !exist {
 		assignuser, err := funcs.GetUserInfo(assigns.AssignUserEmail)
 		if err != nil {
 			funcs.PrintlnLog(fmt.Sprintf("sendmaill.GetUserInfo. get assignuser info: err: %v", err))
 		}
-		oausers[assigns.AssignUserEmail] = assignuser
+		users[assigns.AssignUserEmail] = assignuser
 	}
 
 	var metadata metadataType
@@ -161,17 +161,17 @@ func sendmail(modifyuser, mailtype string, ticketId int64, oldTicket *model.Tick
 	metadata.ResolveTime = ticket.ResolveTime
 	metadata.ClosedTime = ticket.ClosedTime
 	metadata.ApplyUserEmail = ticket.ApplyUser
-	metadata.ApplyUserName = oausers[ticket.ApplyUser].AccountName
-	metadata.ApplyUserPhone = oausers[ticket.ApplyUser].Mobile
-	metadata.ApplyUserSyb = oausers[ticket.ApplyUser].SybDeptName
-	metadata.ApplyUserOnedpt = oausers[ticket.ApplyUser].OneDeptName
+	metadata.ApplyUserName = users[ticket.ApplyUser].AccountName
+	metadata.ApplyUserPhone = users[ticket.ApplyUser].Mobile
+	metadata.ApplyUserSyb = users[ticket.ApplyUser].SybDeptName
+	metadata.ApplyUserOnedpt = users[ticket.ApplyUser].OneDeptName
 	metadata.Category = cti.Category
 	metadata.Type = cti.Type
 	metadata.Item = cti.Item
 	metadata.AssignGroupName = assigns.AssignGroupName
 	metadata.AssignUserEmail = assigns.AssignUserEmail
-	metadata.AssignUserName = oausers[assigns.AssignUserEmail].AccountName
-	metadata.ModifyUserName = oausers[modifyuser].AccountName
+	metadata.AssignUserName = users[assigns.AssignUserEmail].AccountName
+	metadata.ModifyUserName = users[modifyuser].AccountName
 	metadata.ModifyUserEmail = modifyuser
 	metadata.ModifyTime = time.Now()
 
@@ -216,11 +216,11 @@ func sendmail(modifyuser, mailtype string, ticketId int64, oldTicket *model.Tick
 		// get relay logs
 		orm.Db.Table("openc3_tt_common_reply_log").Where("ticket_id = ?", ticket.ID).Order("id desc").Find(&metadata.Reply)
 		for k, r := range metadata.Reply {
-			if _, exist := oausers[r.OperUser]; !exist {
+			if _, exist := users[r.OperUser]; !exist {
 				oauser, _ := funcs.GetUserInfo(r.OperUser)
-				oausers[r.OperUser] = oauser
+				users[r.OperUser] = oauser
 			}
-			metadata.Reply[k].UserName = oausers[r.OperUser].AccountName
+			metadata.Reply[k].UserName = users[r.OperUser].AccountName
 		}
 		subject, body, receivers, err = getAddReplyTypeTicketInfo(ticket, metadata)
 		if err != nil {
