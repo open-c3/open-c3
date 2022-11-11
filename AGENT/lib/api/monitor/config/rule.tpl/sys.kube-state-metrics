@@ -1,0 +1,64 @@
+---
+alert: KubePodCrashLooping
+bindtreesql: ''
+description: 'Pod {{ $labels.namespace }}/{{ $labels.pod }} ({{ $labels.container }}) is in waiting state (reason: "CrashLoopBackOff").'
+edit_time: 2022-09-05 23:17:32
+edit_user: open-c3
+expr: max_over_time(kube_pod_container_status_waiting_reason{reason="CrashLoopBackOff", job="kube-state-metrics",cloudmonname="k8s-demo-001"}[5m]) >= 1
+for: 15m
+job: ''
+method: ''
+metrics: ''
+model: custom
+severity: level2
+summary: Pod is crash looping.
+threshold: ''
+value: ''
+---
+alert: KubePodNotReady
+bindtreesql: ''
+description: Pod {{ $labels.namespace }}/{{ $labels.pod }} has been in a non-ready state for longer than 15 minutes.
+edit_time: 2022-09-05 23:18:24
+edit_user: open-c3
+expr: sum by (cloudmonname,namespace, pod) ( max by(cloudmonname,namespace, pod) ( kube_pod_status_phase{job="kube-state-metrics", phase=~"Pending|Unknown",cloudmonname="k8s-demo-001"} ) * on(namespace, pod) group_left(owner_kind) topk by(namespace, pod) ( 1, max by(namespace, pod, owner_kind) (kube_pod_owner{owner_kind!="Job"}) ) )
+for: 15m
+job: ''
+method: ''
+metrics: ''
+model: custom
+severity: level2
+summary: Pod has been in a non-ready state for more than 15 minutes.
+threshold: ''
+value: ''
+---
+alert: KubeDeploymentGenerationMismatch
+bindtreesql: ''
+description: Deployment generation for {{ $labels.namespace }}/{{ $labels.deployment }} does not match, this indicates that the Deployment has failed but has not been rolled back.
+edit_time: 2022-09-05 23:19:41
+edit_user: open-c3
+expr: kube_deployment_status_observed_generation{job="kube-state-metrics",cloudmonname="k8s-demo-001"} != kube_deployment_metadata_generation{job="kube-state-metrics",cloudmonname="k8s-demo-001"}
+for: 15m
+job: ''
+method: ''
+metrics: ''
+model: custom
+severity: level2
+summary: Deployment generation mismatch due to possible roll-back
+threshold: ''
+value: ''
+---
+alert: KubeDeploymentReplicasMismatch
+bindtreesql: ''
+description: Deployment {{ $labels.namespace }}/{{ $labels.deployment }} has not matched the expected number of replicas for longer than 15 minutes.
+edit_time: 2022-09-05 23:20:30
+edit_user: open-c3
+expr: ( kube_deployment_spec_replicas{job="kube-state-metrics",cloudmonname="k8s-demo-001"} > kube_deployment_status_replicas_available{job="kube-state-metrics",cloudmonname="k8s-demo-001"} ) and ( changes(kube_deployment_status_replicas_updated{job="kube-state-metrics",cloudmonname="k8s-demo-001"}[10m]) == 0 )
+for: 15m
+job: ''
+method: ''
+metrics: ''
+model: custom
+severity: level2
+summary: Deployment has not matched the expected number of replicas.
+threshold: ''
+value: ''
