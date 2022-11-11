@@ -2,14 +2,13 @@
 use strict;
 use warnings;
 
-binmode STDIN,  ':utf8';
-binmode STDOUT, ':utf8';
-binmode STDERR, ':utf8';
-
 $|++;
 
 use MYDB;
 use MYDan::Util::OptConf;
+use LWP::UserAgent;
+use JSON;
+use Configini;
 
 =head1 SYNOPSIS
 
@@ -24,27 +23,71 @@ my %o      = $option->get( qw(    user=s ) )->dump();
 die "user format error" unless $o{user} =~ /^[a-zA-Z0-9][a-zA-Z0-9\.\-_\@]+$/;
 
 my %info = (
-    user       => $o{user},
-    email      => "",
-    phone      => "",
-    voicemail  => "",
-    department => ""
+    accountId   => $o{user},
+    accountName => "",
+    mobile      => "",
+    sybDeptName => "",
+    oneDeptName => "",
 );
 
 my $db = MYDB->new( "/data/Software/mydan/Connector/conf/conn", delayedconnection => 1 );
 
-my $x = $db->query( sprintf "select email,phone,voicemail from openc3_connector_useraddr where user='$o{user}'" );
+my $x = $db->query( sprintf "select email,phone from openc3_connector_useraddr where user='$o{user}'" );
 if( @$x )
 {
-    $info{ email     } = $x->[0][0] || '';
-    $info{ phone     } = $x->[0][1] || '';
-    $info{ voicemail } = $x->[0][2] || '';
+    $info{ accountId  } = $x->[0][0] if $x->[0][0];
+    $info{ mobile     } = $x->[0][1] || '';
 }
 
 $x = $db->query( sprintf "select department from openc3_connector_userdepartment where user='$o{user}'" );
 if( @$x )
 {
-    $info{ department } = $x->[0][0] || '';
+    $info{ oneDeptName } = $x->[0][0] if $x->[0][0];
+}
+
+my ( $userinfo, %env );
+$userinfo = Configini::get( 'userinfo'    );
+%env      = Configini::env( 'userinfoenv' );
+
+if( $userinfo ){
+
+    my $ua = LWP::UserAgent->new;
+    $ua->timeout( 15 );
+    $ua->default_header( %env ) if %env;
+
+    my ( $res, $err );
+    for my $i ( reverse 1 .. 3 )
+    {
+        $res = $ua->get( $userinfo . $o{user});
+
+        $err = sprintf "get userinfo fail: $userinfo: %s", YAML::XS::Dump $res;
+        $err =~ s/appkey:\s+['"]?[a-zA-Z0-9]{32}['"]?\b/appkey: ******/g;
+
+        last if $res->is_success;
+        if( $i > 1 )
+        {
+            warn sprintf( "userinfo code %s", $res->code );
+            sleep 3;
+        }
+    }
+
+    die sprintf( "$err: code %s", $res->code ) unless $res->is_success;
+
+    my $v = eval{JSON::decode_json $res->decoded_content};
+    die "$err: data no JSON: $@" if $@;
+    die $err unless $v->{stat};
+    die "$err: data no HASH: $@" unless $v->{data} && ref $v->{data} eq 'HASH';
+
+    for ( keys %info )
+    {
+        $info{$_} ||= $v->{data}{$_};
+    }
+}
+
+unless( $info{accountName} )
+{
+    $info{accountName} = $o{user};
+    $info{accountName} =~ s/@.*$//;
 }
 
 print YAML::XS::Dump \%info;
