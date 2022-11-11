@@ -23,27 +23,26 @@ my %o      = $option->get( qw(    user=s ) )->dump();
 die "user format error" unless $o{user} =~ /^[a-zA-Z0-9][a-zA-Z0-9\.\-_\@]+$/;
 
 my %info = (
-    user       => $o{user},
-    email      => "",
-    phone      => "",
-    voicemail  => "",
-    department => ""
+    accountId   => $o{user},
+    accountName => "",
+    mobile      => "",
+    sybDeptName => "",
+    oneDeptName => "",
 );
 
 my $db = MYDB->new( "/data/Software/mydan/Connector/conf/conn", delayedconnection => 1 );
 
-my $x = $db->query( sprintf "select email,phone,voicemail from openc3_connector_useraddr where user='$o{user}'" );
+my $x = $db->query( sprintf "select email,phone from openc3_connector_useraddr where user='$o{user}'" );
 if( @$x )
 {
-    $info{ email     } = $x->[0][0] || '';
-    $info{ phone     } = $x->[0][1] || '';
-    $info{ voicemail } = $x->[0][2] || '';
+    $info{ accountId  } = $x->[0][0] if $x->[0][0];
+    $info{ mobile     } = $x->[0][1] || '';
 }
 
 $x = $db->query( sprintf "select department from openc3_connector_userdepartment where user='$o{user}'" );
 if( @$x )
 {
-    $info{ department } = $x->[0][0] || '';
+    $info{ oneDeptName } = $x->[0][0] if $x->[0][0];
 }
 
 my ( $userinfo, %env );
@@ -79,10 +78,16 @@ if( $userinfo ){
     die $err unless $v->{stat};
     die "$err: data no HASH: $@" unless $v->{data} && ref $v->{data} eq 'HASH';
 
-    for ( keys %{$v->{data}})
+    for ( keys %info )
     {
         $info{$_} ||= $v->{data}{$_};
     }
+}
+
+unless( $info{accountName} )
+{
+    $info{accountName} = $o{user};
+    $info{accountName} =~ s/@.*$//;
 }
 
 print YAML::XS::Dump \%info;
