@@ -6,6 +6,13 @@ use JSON   qw();
 use POSIX;
 use api;
 
+my $authstrict;
+BEGIN{
+    my $x = `c3mc-sys-ctl sys.device.auth.strict`;
+    chomp $x;
+    $authstrict = defined $x && $x eq '0' ? 0 : 1;
+};
+
 my $database = '/data/open-c3-data/device';
 
 sub getdatacount
@@ -78,9 +85,17 @@ get '/device/menu/:treeid' => sub {
     my %re = map{ $_ => [] }qw( compute database domain networking others storage );
     return +{ stat => $JSON::true, data => \%re  } if $param->{treeid} >= 4000000000;
 
-    my $pmscheck = $param->{treeid} == 0
-        ? api::pmscheck( 'openc3_job_root'                    )
-        : api::pmscheck( 'openc3_job_write', $param->{treeid} );
+    my $pmscheck;
+    if( $authstrict )
+    {
+          $pmscheck = $param->{treeid} == 0
+            ? api::pmscheck( 'openc3_job_root'                    )
+            : api::pmscheck( 'openc3_job_write', $param->{treeid} );
+    }
+    else
+    {
+          $pmscheck = api::pmscheck( 'openc3_job_read', $param->{treeid} );
+    }
     return $pmscheck if $pmscheck;
 
     my $greptreename = $param->{treeid} == 0 ? undef : eval{ gettreename( $param->{treeid} ) };;
@@ -161,9 +176,17 @@ any '/device/data/:type/:subtype/:treeid' => sub {
 
     return +{ stat => $JSON::true, data => []  } if $param->{treeid} >= 4000000000;
 
-    my $pmscheck = $param->{treeid} == 0
-        ? api::pmscheck( 'openc3_job_root'                    )
-        : api::pmscheck( 'openc3_job_write', $param->{treeid} );
+    my $pmscheck;
+    if( $authstrict )
+    {
+          $pmscheck = $param->{treeid} == 0
+            ? api::pmscheck( 'openc3_job_root'                    )
+            : api::pmscheck( 'openc3_job_write', $param->{treeid} );
+    }
+    else
+    {
+          $pmscheck = api::pmscheck( 'openc3_job_read', $param->{treeid} );
+    }
     return $pmscheck if $pmscheck;
 
     my $greptreename = $param->{treeid} == 0 ? undef : eval{ gettreename( $param->{treeid} ) };
@@ -297,9 +320,18 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
     return +{ stat => $JSON::true, data => []  } if $param->{treeid} >= 4000000000;
-    my $pmscheck = $param->{treeid} == 0
-        ? api::pmscheck( 'openc3_job_root'                    )
-        : api::pmscheck( 'openc3_job_write', $param->{treeid} );
+
+    my $pmscheck;
+    if( $authstrict )
+    {
+          $pmscheck = $param->{treeid} == 0
+            ? api::pmscheck( 'openc3_job_root'                    )
+            : api::pmscheck( 'openc3_job_write', $param->{treeid} );
+    }
+    else
+    {
+          $pmscheck = api::pmscheck( 'openc3_job_read', $param->{treeid} );
+    }
     return $pmscheck if $pmscheck;
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
