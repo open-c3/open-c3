@@ -88,6 +88,38 @@ sub run
 {
     my $this = shift;
 
+    my $loadproxy = sub { 
+            my $proxy = eval{ YAML::XS::LoadFile $this->{proxy} };
+
+            if ( $@ ) { warn "load proxy file fail: $@"; return; }
+            unless( $proxy && ref $proxy eq 'HASH' ) { warn "load proxy file no HASH"; return; }
+
+            %proxy = %$proxy;
+        };
+
+    &$loadproxy() if $this->{proxy};
+    my $proxyUpdate = AnyEvent->timer(
+        after    => 3, 
+        interval => 6,
+        cb       => $loadproxy,
+    ) if $this->{proxy}; 
+
+    my $loadcarry = sub { 
+            my $carry = eval{ YAML::XS::LoadFile $this->{carry} };
+
+            if ( $@ ) { warn "load carry file fail: $@"; return; }
+            unless( $carry && ref $carry eq 'HASH' ) { warn "load carry file no HASH"; return; }
+
+            %carry = %$carry;
+        };
+
+    &$loadcarry() if $this->{carry};
+    my $carryUpdate = AnyEvent->timer(
+        after    => 5, 
+        interval => 6,
+        cb       => $loadcarry,
+    ) if $this->{carry}; 
+
     #$AnyEvent::HTTP::TIMEOUT = 10;
     $AnyEvent::HTTP::MAX_PER_HOST = 512;
     my $cv = AnyEvent->condvar;
@@ -180,32 +212,6 @@ sub run
            },
         );
     };
-
-    my $proxyUpdate = AnyEvent->timer(
-        after    => 3, 
-        interval => 6,
-        cb       => sub { 
-            my $proxy = eval{ YAML::XS::LoadFile $this->{proxy} };
-
-            if ( $@ ) { warn "load proxy file fail: $@"; return; }
-            unless( $proxy && ref $proxy eq 'HASH' ) { warn "load proxy file no HASH"; return; }
-
-            %proxy = %$proxy;
-        }
-    ) if $this->{proxy}; 
-
-    my $carryUpdate = AnyEvent->timer(
-        after    => 5, 
-        interval => 6,
-        cb       => sub { 
-            my $carry = eval{ YAML::XS::LoadFile $this->{carry} };
-
-            if ( $@ ) { warn "load carry file fail: $@"; return; }
-            unless( $carry && ref $carry eq 'HASH' ) { warn "load carry file no HASH"; return; }
-
-            %carry = %$carry;
-        }
-    ) if $this->{carry}; 
 
     $cv->recv;
 }
