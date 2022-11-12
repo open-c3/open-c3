@@ -68,6 +68,7 @@ sub save
     chomp $autobuild;
 
     ( $status, $reason ) = ( 'done', 'sys@app sysctl.ci.autobuild off' ) unless $autobuild && $autobuild eq '1';
+    ( $status, $reason ) = ( 'done', 'sys@app c3.maintain' ) if -f '/data/Software/mydan/Connector/c3.maintain';
 
     my $uuid = uuid->new()->create_str;
     eval{ $db->execute( "insert into openc3_ci_version (`projectid`,`name`,`status`,`calltype`,`user`,`uuid`,`slave`,`reason`) 
