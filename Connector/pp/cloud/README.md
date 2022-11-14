@@ -1,3 +1,15 @@
+# 当前支持的公有云
+
+| 云厂商 | 资源同步                                                                                   |
+| ------ | ------------------------------------------------------------------------------------------ |
+| AWS    | 计算(ec2)、     数据库(rds、redis、memcached、dynamodb)、存储(s3)、         网络(alb、elb) |
+| 华为云 | 计算(ecs)、     数据库(rds、redis、dds、nosql)、                            网络(elb)      |
+| 腾讯云 | 计算(cvm)、     数据库(cdb、redis、mongodb、sqlserver)、 存储(ckafka、cos)、网络(clb)      |
+| 谷歌云 | 计算(vm)、      数据库(rds)                                                                |
+| 阿里云 | 计算(ecs)、     数据库(rds、redis)、                     存储(oss)、        网络(slb)      |
+| 金山云 | 计算(kec、epc)、数据库(krds、redis)、                    存储(ks3)、        网络(slb)      |
+
+
 # CMDB 云资源同步
 
 ## 说明
