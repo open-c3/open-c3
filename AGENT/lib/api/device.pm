@@ -80,6 +80,8 @@ get '/device/menu/:treeid' => sub {
         timemachine  => qr/^[a-z0-9][a-z0-9\-]+[a-z0-9]$/, 1,
     )->check( %$param );
 
+    $param->{treeid} = 0 if $param->{treeid} eq 4000000000;
+
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
     my %re = map{ $_ => [] }qw( compute database domain networking others storage );
@@ -173,6 +175,8 @@ any '/device/data/:type/:subtype/:treeid' => sub {
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    $param->{treeid} = 0 if $param->{treeid} eq 4000000000;
 
     return +{ stat => $JSON::true, data => []  } if $param->{treeid} >= 4000000000;
 
@@ -328,6 +332,8 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    $param->{treeid} = 0 if $param->{treeid} eq 4000000000;
 
     return +{ stat => $JSON::true, data => []  } if $param->{treeid} >= 4000000000;
 
