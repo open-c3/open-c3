@@ -5,8 +5,8 @@ import sys
 import json
 
 from huaweicloudsdkcore.auth.credentials import BasicCredentials
-from huaweicloudsdkelb.v2.region.elb_region import ElbRegion
-from huaweicloudsdkelb.v2 import *
+from huaweicloudsdkelb.v3.region.elb_region import ElbRegion
+from huaweicloudsdkelb.v3 import *
 
 
 class Elb:
@@ -30,7 +30,7 @@ class Elb:
         return client
 
     def set_request(self, marker):
-        request = ListLoadbalancersRequest()
+        request = ListLoadBalancersRequest()
         return request
 
     def get_instances_from_response(self, response):
@@ -41,7 +41,7 @@ class Elb:
         return result
 
     def list_instance(self):
-        response = self.client.list_loadbalancers(self.set_request(None))
+        response = self.client.list_load_balancers(self.set_request(None))
         return self.get_instances_from_response(response)
 
     def show(self):
