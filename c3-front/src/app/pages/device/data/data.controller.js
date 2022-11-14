@@ -14,6 +14,11 @@
 
         vm.showfilter = 0;
 
+        vm.chshowfilter = function(stat){
+            vm.showfilter = stat;
+            vm.grepfilter();
+        }
+
         vm.treeid  = $state.params.treeid;
         vm.type    = $state.params.type;
         vm.subtype = $state.params.subtype;
@@ -22,7 +27,25 @@
         vm.timemachine = [];
 
         vm.filter = [];
+        vm.filtergrep = [];
         vm.filterdata = {};
+        vm.grepfilter = function(){
+            if( vm.showfilter )
+            {
+                vm.filtergrep = vm.filter;
+            }
+            else
+            {
+                vm.filtergrep = [];
+                angular.forEach(vm.filter, function (value) {
+                    if( vm.filtergrep.length < 6 )
+                    {
+                        vm.filtergrep.push(value)
+                    }
+                });
+            }
+        }
+
         vm.reload = function () {
             vm.loadover = false;
             $http.post('/api/agent/device/data/' + vm.type + '/' + vm.subtype + '/' + vm.treeid, { "grepdata": vm.grepdata, "timemachine": vm.selectedtimemachine } ).success(function(data){
@@ -30,6 +53,7 @@
                     vm.dataTable = new ngTableParams({count:25}, {counts:[],data:data.data});
                     vm.filter = data.filter;
                     vm.filterdata = data.filterdata;
+                    vm.grepfilter();
                     vm.loadover = true;
                 }else {
                     swal({ title:'获取数据失败', text: data.info, type:'error' });
