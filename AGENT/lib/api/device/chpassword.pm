@@ -16,13 +16,16 @@ any '/device/chpassword' => sub {
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    if( grep{ $_ eq $param->{dbtype} }qw( redis )  )
+    if( $param->{passwd} )
     {
-        $param->{passwd} = "_:$param->{passwd}";
-    }
-    if( grep{ $_ eq $param->{dbtype} }qw( mysql redis mongodb )  )
-    {
-        return  +{ stat => $JSON::false, info => "auth format error:  username:password" }  unless $param->{passwd} && $param->{passwd} =~ /^[a-zA-Z0-9_\.]+:.+/;
+        if( grep{ $_ eq $param->{dbtype} }qw( redis )  )
+        {
+            $param->{passwd} = "_:$param->{passwd}";
+        }
+        if( grep{ $_ eq $param->{dbtype} }qw( mysql redis mongodb )  )
+        {
+            return  +{ stat => $JSON::false, info => "auth format error:  username:password" }  unless $param->{passwd} && $param->{passwd} =~ /^[a-zA-Z0-9_\.]+:.+/;
+        }
     }
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
