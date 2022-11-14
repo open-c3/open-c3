@@ -36,7 +36,7 @@
                           <input  type="button"  ng-click="devicedata.showfilter=0" value="隐藏过滤器"     class="btn-gradient green" style="font-size: 12px;padding-top: 10px;padding-bottom: 10px" ng-show="devicedata.showfilter">
                           <i class="fa fa-search"></i>
                      </span>
-                     <input type="text" style="padding-left: 150px" class="form-control searchInput"  ng-model="devicedata.grepdata._search_" placeholder="Enter search terms..">
+                     <input ng-disabled="!devicedata.loadover" type="text" style="padding-left: 150px" class="form-control searchInput"  ng-model="devicedata.grepdata._search_" placeholder="Enter search terms..">
                       <span class="append-icon right fs18 pointer" ng-click="devicedata.grepdata._search_=''" ng-if="devicedata.grepdata._search_!=''">
                             <i class="fa fa-times"></i>
                      </span>
@@ -45,7 +45,7 @@
 
             <form class="form-inline" ng-show="devicedata.showfilter"> 
                 <div class="form-group" ng-repeat="f in devicedata.filter"  style="padding-right: 10px;" >
-                    <select class="form-control" ng-change="devicedata.reload()"  ng-model="devicedata.grepdata[f.name]" >
+                    <select class="form-control" ng-disabled="!devicedata.loadover" ng-change="devicedata.reload()"  ng-model="devicedata.grepdata[f.name]" >
                         <option value="">{{f.alias}}</option>
                         <option ng-repeat="v in devicedata.filterdata[f.name]" value="{{v.name}}"> {{v.name}}({{v.count}})</option>
                     </select>
