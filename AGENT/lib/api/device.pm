@@ -221,10 +221,11 @@ any '/device/data/:type/:subtype/:treeid' => sub {
     my $filter = [];
     my $filterdata = {};
     my %filterdata;
+    my %filtermatch;
 
     $filter = eval{ YAML::XS::LoadFile "$currdatapath/filter.yml"; } if -f "$currdatapath/filter.yml";
     return +{ stat => $JSON::false, info => "load filter fail: $@" } if $@;
-    my %filter; map{ $filter{$_->{name}} = 1; $filterdata->{$_->{name}} = [];  }@$filter;
+    my %filter; map{ $filter{$_->{name}} = 1; $filterdata->{$_->{name}} = []; }@$filter;
 
     utf8::decode($title);
     my @title = split /\t/, $title;
@@ -287,21 +288,30 @@ any '/device/data/:type/:subtype/:treeid' => sub {
 
         my ( $ctype, $csubtype ) = $param->{type} eq 'all' && $param->{subtype} eq 'all' ? ( $d{type}, $d{subtype} ) : ( $param->{type}, $param->{subtype} );
 
+        next unless $match && $searchmath && $treenamematch;
         push @re, +{
             type    => $ctype,
             subtype => $csubtype,
             map{
                 $_ => join( ' | ', map{ $d{ $_ } || '' }@{ $outline->{ $_ } } )
             }qw( uuid baseinfo system contact )
-        } if $match && $searchmath && $treenamematch;
+        };
+
+        for my $f ( keys %filter )
+        {
+            $filtermatch{$f}{$d{$f}} ++;
+        }
+ 
     }
 
     for my $name ( keys %filterdata )
     {
         my %v = %{ $filterdata{$name} };
-        for my $k ( sort{ $v{$b} <=> $v{$a} } keys %v )
+        my %vm = $filtermatch{$name} && ref $filtermatch{$name} eq 'HASH' ? %{ $filtermatch{$name} } : ();
+        map{ $vm{$_} ||= 0 }keys %v;
+        for my $k ( sort{ $vm{$b} <=> $vm{$a} } keys %v )
         {
-            push @{$filterdata->{$name}}, +{ name => $k eq "" ? "_null_" : $k, count => $v{$k} };
+            push @{$filterdata->{$name}}, +{ name => $k eq "" ? "_null_" : $k, count => $vm{$k}||0 };
         }
     }
     return +{ stat => $JSON::true, data => \@re, debug => \@debug, filter => $filter, filterdata => $filterdata  };
