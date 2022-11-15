@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+
+import boto3
+
+
+def describe_image(access_id, access_key, region, image_id):
+    """
+        查询指定镜像详情
+    """
+
+    client = boto3.client(
+        "ec2",
+        aws_access_key_id=access_id,
+        aws_secret_access_key=access_key,
+        region_name=region,
+    )
+
+    response = client.describe_images(ImageIds=[image_id])
+    if len(response["Images"]) == 0:
+        raise Exception("根据 image_id: {} 未找到镜像".format(image_id))
+    return response["Images"][0]
+
+
+def main(access_id, access_key, region, image_id):
+    data = describe_image(access_id, access_key, region, image_id)
+    print(json.dumps(data, default=str))
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
