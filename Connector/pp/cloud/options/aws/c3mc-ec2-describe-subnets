@@ -1,0 +1,82 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+import boto3
+
+
+def describe_subnets(access_id, access_key, region, availability_zone, vpc_id):
+    """
+        查询子网列表
+    """
+    client = boto3.client(
+        "ec2",
+        aws_access_key_id=access_id,
+        aws_secret_access_key=access_key,
+        region_name=region
+    )
+
+    page_size = 100
+
+    filter = [
+        {
+            "Name": "availability-zone",
+            "Values": [availability_zone]
+        },
+        {
+            "Name": "vpc-id",
+            "Values": [vpc_id]
+        }
+    ]
+
+    result = []
+    response = client.describe_subnets(MaxResults=page_size, Filters=filter)
+    result.extend(response["Subnets"])
+    marker = ""
+    if "NextToken" in response:
+        marker = response["NextToken"]
+
+    while marker != "":
+        response = client.describe_subnets(
+            MaxResults=page_size, NextToken=marker, Filters=filter)
+        result.extend(response["Subnets"])
+
+        marker = ""
+        if "NextToken" in response:
+            marker = response["NextToken"]
+
+    for i in range(len(result)):
+        for tag in result[i]["Tags"]:
+            if tag["Key"] == "Name":
+                result[i]["Name"] = tag["Value"]
+                break
+
+    return result
+
+
+def main(params):
+    account = params["user_select_one_account"]
+    region = params["c3mc_ec2_describe_regions"]
+    az = params["c3mc_ec2_describe_availability_zones"]
+    vpc_id = params["c3mc_ec2_describe_vpcs"]
+
+    key_info = json.loads(subprocess.getoutput(
+        "c3mc-get-account-info aws {}".format(account)))
+
+    subnet_list = describe_subnets(
+        key_info["access_id"], key_info["access_key"], region, az, vpc_id)
+    for subnet in subnet_list:
+        print(json.dumps(subnet, default=str))
+
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]))

@@ -1,0 +1,167 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+import time
+
+import boto3
+
+
+class Ec2:
+    def __init__(self, access_id, access_key, region, params):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.region = region
+        self.instance_params = params
+        self.client = self.create_client()
+
+    def create_client(self):
+        client = boto3.client(
+            "ec2",
+            aws_access_key_id=self.access_id,
+            aws_secret_access_key=self.access_key,
+            region_name=self.region,
+        )
+        return client
+
+    def run_instance(self):
+        # 查询角色。如果不存在则创建
+        iam_role = json.loads(subprocess.getoutput(
+            "c3mc-ec2-describe-role-get {} {} {} {}".format(
+                self.access_id, self.access_key, self.region, self.instance_params["RoleName"])))
+        if iam_role == {}:
+            subprocess.getoutput(
+                "c3mc-ec2-role-create {} {} {} {}".format(
+                    self.access_id, self.access_key, self.region, self.instance_params["RoleName"]))
+
+        # 查询实例配置文件。如果不存在则创建
+        instance_profile = json.loads(subprocess.getoutput(
+            "c3mc-ec2-describe-instance-profile-get {} {} {} {}".format(
+                self.access_id, self.access_key, self.region, self.instance_params["RoleName"])))
+        if instance_profile == {}:
+            subprocess.getoutput(
+                "c3mc-ec2-instance-profile-create {} {} {} {}".format(
+                    self.access_id, self.access_key, self.region, self.instance_params["RoleName"]))
+            instance_profile = json.loads(subprocess.getoutput(
+                "c3mc-ec2-describe-instance-profile-get {} {} {} {}".format(
+                    self.access_id, self.access_key, self.region, self.instance_params["RoleName"])))
+
+        # 关联角色和实例配置文件。多次关联会报错，忽略错误
+        add_role_to_instance_profile_res = json.loads(subprocess.getoutput(
+            "c3mc-ec2-add-role-to-instance-profile {} {} {} {} {}".format(
+                self.access_id,
+                self.access_key,
+                self.region,
+                self.instance_params["RoleName"],
+                self.instance_params["RoleName"]),
+        ))
+
+        if add_role_to_instance_profile_res == True:
+            time.sleep(30)
+
+        image_info = json.loads(subprocess.getoutput(
+            "c3mc-ec2-describe-image-get {} {} {} {}".format(
+                self.access_id, self.access_key, self.region, self.instance_params["ImageId"])))
+
+        create_ec2_params = {"BlockDeviceMappings": []}
+        # 存储卷配置
+        create_ec2_params["BlockDeviceMappings"].append({
+            "DeviceName": image_info["RootDeviceName"],
+            "Ebs": {
+                "VolumeType": self.instance_params["RootPartitionVolumeType"],
+            }
+        })
+        if self.instance_params["DataVolume"]["IfNeedDataVolume"]:
+            data_volume = {
+                "DeviceName": "/dev/sdb",
+                "Ebs": {
+                    "DeleteOnTermination": self.instance_params["DataVolume"]["DeleteOnTermination"],
+
+                    "VolumeSize": self.instance_params["DataVolume"]["VolumeSize"],
+                    "VolumeType": self.instance_params["DataVolume"]["VolumeType"],
+                }
+            }
+            data_volume_type = self.instance_params["DataVolume"]["VolumeType"]
+            if data_volume_type == "io1" or data_volume_type == "io2":
+                data_volume["Ebs"]["Iops"] = self.instance_params["DataVolume"]["Iops"]
+
+            create_ec2_params["BlockDeviceMappings"].append(data_volume)
+
+        # 网卡配置
+        create_ec2_params["NetworkInterfaces"] = [
+            {
+                'AssociatePublicIpAddress': self.instance_params["AssociatePublicIpAddress"],
+                'DeleteOnTermination': True,
+                'DeviceIndex': 0,  # 固定
+                'Groups': self.instance_params["SecurityGroupIds"].split(","),
+                'SubnetId': self.instance_params["SubnetId"],
+            },
+        ]
+
+        create_ec2_params["InstanceInitiatedShutdownBehavior"] = "stop"
+        create_ec2_params["DisableApiTermination"] = False
+        create_ec2_params["ImageId"] = self.instance_params["ImageId"]
+        create_ec2_params["EbsOptimized"] = False
+        create_ec2_params["InstanceType"] = self.instance_params["InstanceType"]
+        create_ec2_params["UserData"] = self.instance_params["UserData"]
+        create_ec2_params["Monitoring"] = {
+            "Enabled": self.instance_params["IfNeedMonitor"]
+        }
+        create_ec2_params["Placement"] = {
+            "AvailabilityZone": self.instance_params["AvailabilityZone"]
+        }
+        create_ec2_params["IamInstanceProfile"] = {
+            # "Arn": instance_profile["Arn"],
+            "Name": instance_profile["InstanceProfileName"]
+        }
+        create_ec2_params["MinCount"] = 1
+        create_ec2_params["MaxCount"] = 1
+
+        params_instance_tags = json.loads(self.instance_params["InstanceTag"])
+        instance_tag = {"ResourceType": "instance", "Tags": []}
+        for params_tag in params_instance_tags:
+            instance_tag["Tags"].append({
+                "Key": params_tag["key"],
+                "Value": params_tag["value"]
+            })
+        params_volume_tags = json.loads(self.instance_params["VolumeTag"])
+        volume_tag = {"ResourceType": "volume", "Tags": []}
+        for params_tag in params_volume_tags:
+            volume_tag["Tags"].append({
+                "Key": params_tag["key"],
+                "Value": params_tag["value"]
+            })
+        create_ec2_params["TagSpecifications"] = [instance_tag, volume_tag]
+
+        sys.path.append("/data/Software/mydan/Connector/lib/pp")
+        from c3mc_utils import print_c3debug1_log
+        print_c3debug1_log(
+            "DEBUG1: {}, create ec2 create_ec2_params: ".format(sys.argv[0]))
+        print_c3debug1_log(json.dumps(
+            create_ec2_params, indent=4, default=str))
+
+        instance = self.client.run_instances(**create_ec2_params)
+        return instance
+
+
+def main(params):
+    account = params["Account"]
+    region = params["Region"]
+    key_info = json.loads(subprocess.getoutput(
+        "c3mc-get-account-info aws {}".format(account)))
+
+    response = Ec2(key_info["access_id"],
+                   key_info["access_key"], region, params).run_instance()
+    print(json.dumps(response, default=str))
+
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]))
