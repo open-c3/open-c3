@@ -237,6 +237,10 @@
             if (vm.rollbacknoneeded){
                 $scope.taskData.variable._rollbackVersion_ = "0";
             }
+            else
+            {
+                $scope.taskData.variable._rollbackVersion_ = "";
+            }
         };
 
         vm.noshowrollback = noshowrollback;
