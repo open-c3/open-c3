@@ -1,0 +1,61 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+import boto3
+
+
+def describe_images(access_id, access_key, region, state="available", is_public="false", root_device_type="ebs"):
+    """
+        根据条件查询aws的镜像列表 (如果不加任何条件, 拉取的数据量将达到几百兆字节)
+    """
+    client = boto3.client(
+        "ec2",
+        aws_access_key_id=access_id,
+        aws_secret_access_key=access_key,
+        region_name=region,
+    )
+
+    response = client.describe_images(
+        Filters=[
+            {
+                "Name": "state",
+                "Values": [state],
+            },
+            {
+                "Name": "is-public",
+                "Values": [is_public]
+            },
+            {
+                "Name": "root-device-type",
+                "Values": [root_device_type],
+            }
+        ]
+    )
+    return response["Images"]
+
+
+def main(params):
+    account = params["user_select_one_account"]
+    region = params["c3mc_ec2_describe_regions"]
+
+    key_info = json.loads(subprocess.getoutput(
+        "c3mc-get-account-info aws {}".format(account)))
+
+    image_list = describe_images(
+        key_info["access_id"], key_info["access_key"], region)
+    for image in image_list:
+        print(json.dumps(image, default=str))
+
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]))

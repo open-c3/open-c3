@@ -1,0 +1,62 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+import boto3
+
+
+def list_roles(access_id, access_key, region):
+    """
+        查询角色列表
+    """
+    client = boto3.client(
+        "iam",
+        aws_access_key_id=access_id,
+        aws_secret_access_key=access_key,
+        region_name=region
+    )
+
+    page_size = 1000
+
+    result = []
+    response = client.list_roles(MaxItems=page_size)
+    result.extend(response["Roles"])
+    marker = ""
+    if "Marker" in response:
+        marker = response["Marker"]
+
+    while marker != "":
+        response = client.list_roles(MaxItems=page_size, Marker=marker)
+        result.extend(response["Roles"])
+
+        marker = ""
+        if "Marker" in response:
+            marker = response["Marker"]
+
+    return result
+
+
+def main(params):
+    account = params["user_select_one_account"]
+    region = params["c3mc_ec2_describe_regions"]
+
+    key_info = json.loads(subprocess.getoutput(
+        "c3mc-get-account-info aws {}".format(account)))
+
+    role_list = list_roles(
+        key_info["access_id"], key_info["access_key"], region)
+    for role in role_list:
+        print(json.dumps(role, default=str))
+
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]))
