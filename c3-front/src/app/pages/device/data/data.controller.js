@@ -3,7 +3,17 @@
 
     angular
         .module('openc3')
-        .controller('DeviceDataController', DeviceDataController);
+        .controller('DeviceDataController', DeviceDataController)
+        .filter('cut61', function () {
+            return function (text) {
+                if( text.length > 64 )
+                {
+                    return text.substr(0, 61) + "..."
+                }
+                return text;
+
+            }
+        });
 
     function DeviceDataController($state, $http, $scope, ngTableParams, $uibModal, treeService ) {
         var vm = this;
