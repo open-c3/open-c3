@@ -1,7 +1,8 @@
-#!/data/Software/mydan/perl/bin/perl
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
 use strict;
 use warnings;
 use YAML::XS;
+use OPENC3::Tree;
 
 use utf8;
 binmode STDIN,  ':utf8';
@@ -149,6 +150,8 @@ for my $data ( @data )
         $d{ $treenamecol } = $defaulttree;
     }
     next if $grepuuid && $d{ $uuidcol} ne $grepuuid;
+
+    map{ $d{ $_ } = OPENC3::Tree::compress( $d{ $_ } ) if $d{ $_ }; }( '_tree_', '服务树' );
 
     printf "%s\n", join "\t", map{ $d{$_} // '' }@ptitle;
 }
