@@ -151,7 +151,7 @@ for my $data ( @data )
     }
     next if $grepuuid && $d{ $uuidcol} ne $grepuuid;
 
-    map{ $d{ $_ } = OPENC3::Tree::compress( $d{ $_ } ) if $d{ $_ }; }( '_tree_', '服务树' );
+    map{ $d{ $_ } = OPENC3::Tree::compress( $d{ $_ } ) if $d{ $_ }; }( '_tree_', $treenamecol );
 
     printf "%s\n", join "\t", map{ $d{$_} // '' }@ptitle;
 }
