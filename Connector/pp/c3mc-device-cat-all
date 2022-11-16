@@ -1,10 +1,11 @@
-#!/data/Software/mydan/perl/bin/perl
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
 use strict;
 use warnings;
 
 use Encode;
 use YAML::XS;
 use MYDan::Util::OptConf;
+use OPENC3::Tree;
 
 =head1 SYNOPSIS
 
@@ -51,6 +52,9 @@ for ( glob "$path/*/*/data.tsv" )
         $res{ treename } = $data{ Encode::encode('utf8', $colmap->{ treename } ) };
 
         map{ $res{ $_ } = $data{  $_ }; }qw( account accountuuid 部门 业务负责人 运维负责人 audit );
+
+        my $treenamcol = Encode::encode('utf8', $colmap->{ treename } );
+        map{ $data{ $_ } = OPENC3::Tree::merge( $data{ $_ } ) if $data{ $_ }; }( $treenamcol );
 
         for my $ol ( qw( baseinfo contact system ) )
         {
