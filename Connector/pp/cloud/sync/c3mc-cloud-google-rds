@@ -28,6 +28,7 @@ class Mysql:
 
             for instance in response['items']:
                 instance.pop("serverCaCert", None)
+                instance["project_id"] = self.credentials.project_id
                 instance["tags_list"] = []
                 if "userLabels" in instance["settings"]:
                     for key, value in instance["settings"]["userLabels"].items():

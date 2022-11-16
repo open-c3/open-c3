@@ -32,6 +32,7 @@ class Slb:
         for i, s in enumerate(instance_list):
             if s["LoadBalancerId"] in tag_dict:
                 instance_list[i]["Tag"] = tag_dict[s["LoadBalancerId"]]
+            instance_list[i]["RegionId"] = self.region
         return instance_list
 
     def list_tag(self):

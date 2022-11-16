@@ -24,7 +24,7 @@ download:
       extcol:
         - name: audit
           alias: 审计
-          select: [ 'YES', 'NO' ]
+          select: ["YES", "NO"]
         - name: remarks
           alias: 备注
     colmap:
@@ -33,6 +33,7 @@ download:
     alias:
       id: "实例ID"
       name: "名称"
+      region_id: "区域"
       zone_id: "所在可用区"
       private_ip: "内网IP"
       public_ip: "公网IP"
@@ -48,6 +49,8 @@ download:
     filter:
       - name: "account"
         alias: 账号
+      - name: "区域"
+        alias: "区域"
       - name: "所在可用区"
         alias: 所在可用区
       - name: "实例类型"
@@ -62,7 +65,7 @@ download:
         alias: 运维负责人
       - name: "部门"
         alias: 部门
-      - name: "audit" 
+      - name: "audit"
         alias: 审计
     outline:
       uuid:
@@ -71,12 +74,15 @@ download:
         - "account"
         - "实例ID"
         - "名称"
+        - "区域"
       system:
+        - "状态"
+        - "实例类型"
+        - "所在可用区"
         - "内网IP"
         - "公网IP"
-        - "所在可用区"
       contact:
-        - "服务树"
         - "部门"
         - "业务负责人"
         - "运维负责人"
+        - "服务树"

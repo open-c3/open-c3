@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import json
 
 from tencentcloud.common import credential
 from tencentcloud.common.profile.client_profile import ClientProfile
@@ -17,6 +18,25 @@ class Sqlserver:
         self.page_number = 1
         self.page_size = 25
         self.client = self.create_client()
+        self.status_code_m = {
+            1: "申请中",
+            2: "运行中",
+            3: "受限运行中(主备切换中)",
+            4: "已隔离",
+            5: "回收中",
+            6: "已回收",
+            7: "任务执行中(实例做备份、回档等操作)",
+            8: "已下线",
+            9: "实例扩容中",
+            10: "实例迁移中",
+            11: "只读",
+            12: "重启中",
+            13: "实例修改中且待切换",
+            14: "订阅发布创建中",
+            15: "订阅发布修改中",
+            16: "实例修改中且切换中",
+            17: "创建RO副本中",
+        }
 
     def create_client(self):
         cred = credential.Credential(
@@ -45,11 +65,22 @@ class Sqlserver:
         response_data = self.get_response()
         return response_data.TotalCount
 
-    def show(self):
+    def list_instance(self):
         response_data = self.get_response()
-        instance_list = response_data.DBInstances
+        response_data = json.loads(response_data.to_json_string())
+
+        result = []
+        for instance in response_data["DBInstances"]:
+            if "Status" in instance and isinstance(instance["Status"], int):
+                instance["StatusZhDesc"] = self.status_code_m[instance["Status"]]
+
+            result.append(instance)
+        return result
+
+    def show(self):
+        instance_list = self.list_instance()
         for instance in instance_list:
-            print(instance.to_json_string())
+            print(json.dumps(instance, default=str))
 
     def page(self):
         count = self.get_server_count()
