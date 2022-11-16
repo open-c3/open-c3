@@ -173,6 +173,40 @@
             }
         };
 
+        vm.choiceServer = function () {
+                var openChoice = $uibModal.open({
+                templateUrl: 'app/components/machine/choiceMachine.html',
+                controller: 'ChoiceController',
+                controllerAs: 'choice',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeId: function () { return vm.treeid},
+
+                }
+            });
+            openChoice.result.then(
+                function (result) {
+                    if (result.length != 0){
+                        $scope.choiceShow = true;
+                        var machineInfoNew = "";
+                        angular.forEach($scope.jobVar, function (value, key) {
+                            if( value.name == "ip" )
+                            {
+                                value.value = result.join(',');
+                            }
+
+                        });
+ 
+                    }
+                },function (reason) {
+                    console.log("error reason", reason)
+                }
+            );
+        };
+
         vm.loadover = false;
         $scope.$watch('choiceJob', function () {
             if($scope.choiceJob){
@@ -230,8 +264,10 @@
                                     }
                                     else
                                     {
-                                        vm.vartemp.push( value )
-
+                                        if( value.name != "_pip_" )
+                                        {
+                                            vm.vartemp.push( value )
+                                        }
                                         if( value.option )
                                         {
                                             var splitstr = ",";
