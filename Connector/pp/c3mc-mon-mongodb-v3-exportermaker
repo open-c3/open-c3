@@ -38,7 +38,7 @@ sub run
     system "docker rm $name >/dev/null 2>&1";
 
     my $password = $conf->{user} && $conf->{password} ? "$conf->{user}:$conf->{password}@" : "";
-    system "docker run -d --network c3_JobNet --name $name percona/mongodb_exporter:0.20 --mongodb.uri mongodb://$password$conf->{ip}:$conf->{port}";
+    system "docker run -d --network c3_JobNet --name $name amazonaws/mongodb_exporter --mongodb.uri 'mongodb://$password$conf->{ip}:$conf->{port}' -mongodb.collect.collection -mongodb.collect.connpoolstats -mongodb.collect.database -mongodb.collect.oplog -mongodb.collect.profile -mongodb.collect.replset -mongodb.collect.top";
     $has->{$name} = 1;
 }
 

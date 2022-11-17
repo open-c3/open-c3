@@ -47,7 +47,7 @@ for ( @x )
     next unless $conf && ref $conf eq 'HASH';
 
     my $password = $conf->{user} && $conf->{password} ? "$conf->{user}:$conf->{password}@" : "";
-    my $curr = "--mongodb.uri mongodb://$password$conf->{ip}:$conf->{port}";
+    my $curr = "--mongodb.uri mongodb://$password$conf->{ip}:$conf->{port} -mongodb.collect.collection -mongodb.collect.connpoolstats -mongodb.collect.database -mongodb.collect.oplog -mongodb.collect.profile -mongodb.collect.replset -mongodb.collect.top";
 
     $curr =~ s/\s+//g;
     system "docker kill $uuid" if $x ne $curr;
