@@ -28,6 +28,7 @@ class VM:
                 item["zone"] = item["zone"].split("/")[-1]
                 item["regionId"] = item["zone"].split("/")[-1][:-2]
                 item["metadata"].pop("items", None)
+                item["projectId"] = self.credentials.project_id
                 item["vm_tags"] = item["tags"]
                 item.pop("tags", None)
 

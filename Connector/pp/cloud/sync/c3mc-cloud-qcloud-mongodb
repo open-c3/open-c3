@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import json
 
 from tencentcloud.common import credential
 from tencentcloud.common.profile.client_profile import ClientProfile
@@ -45,11 +46,20 @@ class Mongodb:
         response_data = self.get_response()
         return response_data.TotalCount
 
-    def show(self):
+    def list_instance(self):
+        result = []
         response_data = self.get_response()
         instance_list = response_data.InstanceDetails
         for instance in instance_list:
-            print(instance.to_json_string())
+            item = json.loads(instance.to_json_string())
+            item["IP"] = item["Vip"].split(";")[0]
+            result.append(item)
+        return result
+
+    def show(self):
+        instance_list = self.list_instance()
+        for instance in instance_list:
+            print(json.dumps(instance, default=str))
 
     def page(self):
         count = self.get_server_count()

@@ -67,6 +67,7 @@ class Ecs:
 
             server['os'] = server['metadata']['os_type']
             server['zone_id'] = server['OS-EXT-AZ:availability_zone']
+            server['region_id'] = self.region
             server.pop('metadata', None)
             server.pop('OS-EXT-SRV-ATTR:user_data', None)
             print(json.dumps(server))

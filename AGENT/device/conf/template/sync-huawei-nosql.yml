@@ -16,7 +16,7 @@ download:
       extcol:
         - name: audit
           alias: 审计
-          select: [ 'YES', 'NO' ]
+          select: ["YES", "NO"]
         - name: remarks
           alias: 备注
     colmap:
@@ -25,14 +25,24 @@ download:
     alias:
       id: "实例ID"
       name: "名称"
+      status: "状态"
       region: "区域"
       engine: "引擎"
+      _product_owner_: "业务负责人"
+      _ops_owner_: "运维负责人"
+      _department_: "部门"
     filter:
       - name: "account"
         alias: 账号
       - name: "区域"
         alias: 区域
-      - name: "audit" 
+      - name: "业务负责人"
+        alias: 业务负责人
+      - name: "运维负责人"
+        alias: 运维负责人
+      - name: "部门"
+        alias: 部门
+      - name: "audit"
         alias: 审计
     outline:
       uuid:
@@ -41,7 +51,13 @@ download:
         - "account"
         - "实例ID"
         - "名称"
+        - "区域"
       system:
         - "引擎"
+        - "mode"
+        - "db_user_name"
       contact:
+        - "部门"
+        - "业务负责人"
+        - "运维负责人"
         - "服务树"

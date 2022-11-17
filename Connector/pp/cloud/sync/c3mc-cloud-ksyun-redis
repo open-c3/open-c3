@@ -15,6 +15,23 @@ class Kcs:
         self.page_number = 1
         self.page_size = 25
         self.client = self.create_client()
+        self.status_code_m = {
+            0: "未知",
+            1: "创建中",
+            2: "运行中",
+            3: "更配中",
+            4: "删除中",
+            5: "锁定中",
+            6: "解锁中",
+            7: "配置中",
+            8: "已锁定",
+            9: "续费",
+            10: "已删除",
+            11: "备份中",
+            12: "恢复中",
+            13: "重启中",
+            99: "异常",
+        }
 
     def create_client(self):
         s = get_session()
@@ -33,9 +50,20 @@ class Kcs:
         response_data = self.get_response()
         return response_data["Data"]["total"]
 
-    def show(self):
+    def list_instance(self):
         response_data = self.get_response()
+
+        result = []
         for instance in response_data["Data"]["list"]:
+            if "status" in instance and isinstance(instance["status"], int):
+                instance["status_zh_desc"] = self.status_code_m[instance["status"]]
+
+            result.append(instance)
+        return result
+
+    def show(self):
+        instance_list = self.list_instance()
+        for instance in instance_list:
             print(json.dumps(instance, default=str))
 
     def page(self):

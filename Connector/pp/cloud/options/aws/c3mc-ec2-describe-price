@@ -1,0 +1,79 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+from pkg_resources import resource_filename
+
+import boto3
+
+
+class QueryPrice:
+    def __init__(self, access_id, access_key, account_region, region):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.client = self.create_client(account_region, region)
+
+    def create_client(self, account_region, region_code):
+        region = "us-east-1"
+        if account_region == "aws-cn":
+            region = "cn-north-1"
+
+        print("aa11---------regin = ", region)
+        client = boto3.client(
+            "pricing",
+            aws_access_key_id=self.access_id,
+            aws_secret_access_key=self.access_key,
+            # region_name=region,
+
+            region_name="cn-northwest-1",
+            # endpoint_url="https://pricing.cn-north-1.amazonaws.com.cn"
+        )
+        return client
+
+    def get_region_name(self, region_code):
+        default_region = 'US East (N. Virginia)'
+        endpoint_file = resource_filename('botocore', 'data/endpoints.json')
+        try:
+            with open(endpoint_file, 'r') as f:
+                data = json.load(f)
+            for partition in data['partitions']:
+                for region, info in partition["regions"].items():
+                    if region == region_code:
+                        return info['description'].replace('Europe', 'EU')
+        except IOError:
+            return default_region
+
+    # Get current AWS price for an on-demand instance
+    def get_price(self, region, instance_type, os):
+        region_name = self.get_region_name(region)
+        print("aa00-------", region_name, instance_type, os)
+        # Search product filter. This will reduce the amount of data returned by the
+        # get_products function of the Pricing API
+        FLT = '[{{"Field": "tenancy", "Value": "shared", "Type": "TERM_MATCH"}},'\
+            '{{"Field": "operatingSystem", "Value": "{o}", "Type": "TERM_MATCH"}},'\
+            '{{"Field": "preInstalledSw", "Value": "NA", "Type": "TERM_MATCH"}},'\
+            '{{"Field": "instanceType", "Value": "{t}", "Type": "TERM_MATCH"}},'\
+            '{{"Field": "location", "Value": "{r}", "Type": "TERM_MATCH"}},'\
+            '{{"Field": "capacitystatus", "Value": "Used", "Type": "TERM_MATCH"}}]'
+        f = FLT.format(r=region_name, t=instance_type, o=os)
+        data = self.client.get_products(
+            ServiceCode='AmazonEC2', Filters=json.loads(f))
+        print("aa11----------data = ", json.dumps(data, default=str))
+        od = json.loads(data['PriceList'][0])['terms']['OnDemand']
+        id1 = list(od)[0]
+        id2 = list(od[id1]['priceDimensions'])[0]
+        print("aa22--------- = ", od[id1]
+              ['priceDimensions'][id2]['pricePerUnit'])
+        return od[id1]['priceDimensions'][id2]['pricePerUnit']['USD']
+
+
+def main(access_id, access_key, account_region, target_region, instance_type, os):
+    price = QueryPrice(access_id, access_key, account_region, target_region).get_price(
+        target_region, instance_type, os)
+    print(price)
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3],
+         sys.argv[4], sys.argv[5], sys.argv[6])

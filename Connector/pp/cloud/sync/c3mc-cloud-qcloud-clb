@@ -18,6 +18,10 @@ class Clb:
         self.page_number = 1
         self.page_size = 25
         self.client = self.create_client()
+        self.status_code_m = {
+            0: "创建中",
+            1: "正常运行",
+        }
 
     def create_client(self):
         cred = credential.Credential(
@@ -52,6 +56,10 @@ class Clb:
         result = []
         for instance in response_data["LoadBalancerSet"]:
             instance["Region"] = self.region
+            # 注意：此字段可能返回 null，表示取不到有效值。(摘自腾讯云文档)
+            if "Status" in instance and isinstance(instance["Status"], int):
+                instance["StatusZhDesc"] = self.status_code_m[instance["Status"]]
+
             result.append(instance)
         return result
 
