@@ -14,7 +14,7 @@ class Elasticache:
         self.access_key = access_key
         self.region = region
         self.client = self.create_client()
-        self.page_size = 25
+        self.page_size = 100
 
     def create_client(self):
         client = boto3.client(
@@ -48,7 +48,7 @@ class Elasticache:
 
     def get_data(self, marker=""):
         response = self.client.describe_cache_clusters(
-            MaxRecords=self.page_size, Marker=marker)
+            MaxRecords=self.page_size, Marker=marker, ShowCacheNodeInfo=True)
         result = []
         data_list = self.get_instances_from_response(response)
         for instance in data_list:
