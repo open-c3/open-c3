@@ -48,7 +48,7 @@ class Elasticache:
 
     def get_data(self, marker=""):
         response = self.client.describe_cache_clusters(
-            MaxRecords=self.page_size, Marker=marker)
+            MaxRecords=self.page_size, Marker=marker, ShowCacheNodeInfo=True)
         result = []
         data_list = self.get_instances_from_response(response)
         for instance in data_list:
