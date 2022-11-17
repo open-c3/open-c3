@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import json
 
 from tencentcloud.common import credential
 from tencentcloud.common.profile.client_profile import ClientProfile
@@ -17,6 +18,12 @@ class Cdb:
         self.page_number = 1
         self.page_size = 25
         self.client = self.create_client()
+        self.status_code_m = {
+            0: "创建中",
+            1: "运行中",
+            4: "正在进行隔离操作",
+            5: "隔离中（可在回收站恢复开机）",
+        }
 
     def create_client(self):
         cred = credential.Credential(
@@ -44,11 +51,19 @@ class Cdb:
         response_data = self.get_response()
         return response_data.TotalCount
 
-    def show(self):
+    def list_instances(self):
+        result = []
         response_data = self.get_response()
-        cdb_list = response_data.Items
-        for cdb in cdb_list:
-            print(cdb.to_json_string())
+        for instance in response_data.Items:
+            item = json.loads(instance.to_json_string())
+            item["StatusZhDesc"] = self.status_code_m[item["Status"]]
+            result.append(item)
+        return result
+
+    def show(self):
+        instance_list = self.list_instances()
+        for instance in instance_list:
+            print(json.dumps(instance, default=str))
 
     def page(self):
         count = self.get_server_count()

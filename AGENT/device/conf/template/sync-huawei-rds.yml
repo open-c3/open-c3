@@ -16,7 +16,7 @@ download:
       extcol:
         - name: audit
           alias: 审计
-          select: [ 'YES', 'NO' ]
+          select: ["YES", "NO"]
         - name: remarks
           alias: 备注
     colmap:
@@ -27,6 +27,8 @@ download:
       region: "区域"
       name: "名称"
       availability_zone: "所在可用区"
+      status: "状态"
+      flavor_ref: "实例规格"
       _product_owner_: "业务负责人"
       _ops_owner_: "运维负责人"
       _department_: "部门"
@@ -35,6 +37,8 @@ download:
         alias: 账号
       - name: "区域"
         alias: 区域
+      - name: "状态"
+        alias: "状态"
       - name: "所在可用区"
         alias: 所在可用区
       - name: "产品"
@@ -53,13 +57,15 @@ download:
       baseinfo:
         - "account"
         - "实例ID"
+        - "名称"
         - "区域"
       system:
+        - "状态"
+        - "实例规格"
         - "private_ips.0"
         - "port"
-        - "ConnectionString"
       contact:
-        - "服务树"
         - "部门"
         - "业务负责人"
         - "运维负责人"
+        - "服务树"

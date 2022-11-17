@@ -6,7 +6,6 @@ import json
 import subprocess
 
 from aliyunsdkcore.client import AcsClient
-from aliyunsdkcore.auth.credentials import AccessKeyCredential
 from aliyunsdkecs.request.v20140526.DescribeInstancesRequest import DescribeInstancesRequest
 
 
@@ -14,9 +13,7 @@ def get(data, access_id, access_key, region):
     """
         输出 aliyun ecs 的详情(json格式)
     """
-    credentials = AccessKeyCredential(
-        access_id, access_key)
-    client = AcsClient(region_id=region, credential=credentials)
+    client = AcsClient(access_id, access_key, region)
 
     field_name = subprocess.getoutput(
         "c3mc-cloud-get-real-field compute aliyun-ecs InstanceId")
@@ -30,6 +27,9 @@ def get(data, access_id, access_key, region):
     response = json.loads(response)
     for instance in response["Instances"]["Instance"]:
         if instance["InstanceId"] == instance_id:
+            if "Tags" in instance and "Tag" in instance["Tags"]:
+                instance["Tag"] = instance["Tags"]["Tag"]
+                instance.pop("Tags", None)
             return instance
     raise Exception("根据 instance_id {} 未找到 aliyun ecs".format(instance_id))
 

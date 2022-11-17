@@ -46,6 +46,7 @@ def get_volume(data_list):
             request.volume_id = volume['id']
             volume_response = evs_client.show_volume_tags(request)
 
+            volume["region_id"] = data["region_id"]
             volume["account"] = data["account"]
             volume["accountuuid"] = data["accountuuid"]
             volume["tags"] = volume_response.to_dict()["tags"]

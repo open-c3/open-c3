@@ -35,6 +35,7 @@ class Dynamodb:
             for key, value in table_info["Table"].items():
                 item[key] = value
 
+            item["RegionId"] = self.region
             item["Tag"] = self.list_tag(
                 self.access_id, self.access_key, self.region, table_arn)
             instance_list.append(item)

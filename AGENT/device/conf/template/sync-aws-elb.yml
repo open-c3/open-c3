@@ -25,12 +25,15 @@ download:
     alias:
       DNSName: "实例ID"
       LoadBalancerName: 名称
+      RegionId: "区域"
       _product_owner_: "业务负责人"
       _ops_owner_: "运维负责人"
       _department_: "部门"
     filter:
       - name: "account"
         alias: 账号
+      - name: "区域"
+        alias: 区域
       - name: "业务负责人"
         alias: 业务负责人
       - name: "运维负责人"
@@ -42,14 +45,15 @@ download:
         - "实例ID"
       baseinfo:
         - "account"
-        - "名称"
         - "实例ID"
+        - "名称"
+        - "区域"
       system:
         - "Scheme"
         - "SourceSecurityGroup.GroupName"
-        - "CreatedTime"
+        - "HealthCheck.Target"
       contact:
-        - "服务树"
         - "部门"
         - "业务负责人"
         - "运维负责人"
+        - "服务树"

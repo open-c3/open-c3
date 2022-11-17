@@ -16,17 +16,20 @@ download:
       extcol:
         - name: audit
           alias: 审计
-          select: [ 'YES', 'NO' ]
+          select: ["YES", "NO"]
         - name: remarks
           alias: 备注
     colmap:
       treename: "服务树"
       uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
     alias:
+      name: "名称"
       instance_id: "实例ID"
       region_id: "区域"
       availability_zone: "所在可用区"
       status: "状态"
+      spec_code: "实例规格"
+      max_memory: "最大内存"
       _product_owner_: "业务负责人"
       _ops_owner_: "运维负责人"
       _department_: "部门"
@@ -43,7 +46,7 @@ download:
         alias: 运维负责人
       - name: "部门"
         alias: 部门
-      - name: "audit" 
+      - name: "audit"
         alias: 审计
     outline:
       uuid:
@@ -51,13 +54,16 @@ download:
       baseinfo:
         - "account"
         - "实例ID"
+        - "名称"
         - "区域"
       system:
+        - "实例规格"
         - "所在可用区"
+        - "最大内存"
         - "ip"
         - "port"
       contact:
-        - "服务树"
         - "部门"
         - "业务负责人"
         - "运维负责人"
+        - "服务树"

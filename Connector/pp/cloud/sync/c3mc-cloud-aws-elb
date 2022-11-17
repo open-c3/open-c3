@@ -25,6 +25,8 @@ class Elb:
         return client
 
     def get_instances_from_response(self, response_data):
+        for i in range(len(response_data["LoadBalancerDescriptions"])):
+            response_data["LoadBalancerDescriptions"][i]["RegionId"] = self.region
         return response_data["LoadBalancerDescriptions"]
 
     def list_instances(self):
