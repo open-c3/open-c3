@@ -29,8 +29,9 @@ def get(data, access_id, access_key, region):
     response = client.do_action_with_exception(request)
     for instance in json.loads(response)["LoadBalancers"]["LoadBalancer"]:
         if instance["LoadBalancerId"] == data[field_name]:
-            instance["Tag"] = instance["Tags"]["Tag"]
-            instance.pop("Tags", None)
+            if "Tags" in instance and "Tag" in instance["Tags"]:
+                instance["Tag"] = instance["Tags"]["Tag"]
+                instance.pop("Tags", None)
             return instance
     raise Exception(
         "根据 LoadBalancerId {} 未找到 aliyun slb".format(data[field_name]))

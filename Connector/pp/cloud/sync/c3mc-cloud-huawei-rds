@@ -51,11 +51,6 @@ class Rds:
         response_data = self.get_response()
         instances = response_data['instances']
         for instance in instances:
-            availability_zone = None
-            for item in instance['nodes']:
-                availability_zone = item['availability_zone']
-            if availability_zone is not None:
-                instance['availability_zone'] = availability_zone
             print(json.dumps(instance))
 
     def page(self):

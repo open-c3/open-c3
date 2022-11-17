@@ -26,6 +26,13 @@ def get(data, access_id, access_key, region):
     field_name = subprocess.getoutput(
         "c3mc-cloud-get-real-field database qcloud-cdb InstanceId")
 
+    status_code_m = {
+        0: "创建中",
+        1: "运行中",
+        4: "正在进行隔离操作",
+        5: "隔离中（可在回收站恢复开机）",
+    }
+
     req = models.DescribeDBInstancesRequest()
     params = {
         "InstanceIds": [data[field_name]]
@@ -35,13 +42,15 @@ def get(data, access_id, access_key, region):
     resp = client.DescribeDBInstances(req)
     for instance in resp.Items:
         if instance.InstanceId == data[field_name]:
+            instance = json.loads(instance.to_json_string())
+            instance["StatusZhDesc"] = status_code_m[instance["Status"]]
             return instance
     raise Exception("根据 InstanceId {} 未找到 qcloud cdb".format(data[field_name]))
 
 
 def main(data, access_id, access_key, region):
     data = get(data, access_id, access_key, region)
-    print(data)
+    print(json.dumps(data, default=str))
 
 
 if __name__ == '__main__':

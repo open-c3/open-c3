@@ -51,9 +51,7 @@ class Redis:
         response_data = self.get_response()
         instances = response_data["instances"]
         for instance in instances:
-            for item in instance['az_codes']:
-                instance['availability_zone'] = item
-                instance['region_id'] = item[:-1]
+            instance['region_id'] = self.region
             print(json.dumps(instance))
 
     def page(self):

@@ -28,6 +28,7 @@ def get(data, access_id, access_key, region):
 
     for instance in response["Reservations"][0]["Instances"]:
         if instance["InstanceId"] == data[field_name]:
+            instance["RegionId"] = region
             return instance
     raise Exception(
         "根据 InstanceId {} 未找到 aws ec2".format(data[field_name]))

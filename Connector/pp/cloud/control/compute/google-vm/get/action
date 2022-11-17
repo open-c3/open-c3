@@ -27,8 +27,13 @@ def get(data, cred_json_path):
                                       zone=data[zone_field_name], instance=data[name_field_name])
 
     instance = request.execute()
-    instance["metadata"].pop("items", None)
 
+    instance["metadata"].pop("items", None)
+    instance["zone"] = instance["zone"].split("/")[-1]
+    instance["regionId"] = instance["zone"].split("/")[-1][:-2]
+    instance["metadata"].pop("items", None)
+    instance["projectId"] = credentials.project_id
+    instance.pop("tags", None)
     instance["tags_list"] = []
     if "labels" in instance:
         for key, value in instance["labels"].items():

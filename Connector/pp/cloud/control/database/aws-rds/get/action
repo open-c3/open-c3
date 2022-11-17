@@ -12,8 +12,12 @@ def get(data, access_id, access_key, region):
     """
         输出 aws rds 的详情(json格式)
     """
+    endpoint_url = "https://rds.{}.amazonaws.com".format(region)
+    if region.startswith("cn"):
+        endpoint_url = "https://rds.{}.amazonaws.com.cn".format(region)
     client = boto3.client(
         "rds",
+        endpoint_url=endpoint_url,
         aws_access_key_id=access_id,
         aws_secret_access_key=access_key,
         region_name=region,
@@ -28,6 +32,7 @@ def get(data, access_id, access_key, region):
 
     for instance in response["DBInstances"]:
         if instance["DBInstanceIdentifier"] == data[field_name]:
+            instance["RegionId"] = region
             return instance
     raise Exception(
         "根据 DBInstanceIdentifier {} 未找到 aws rds".format(data[field_name]))

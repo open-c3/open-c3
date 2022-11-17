@@ -28,6 +28,10 @@ def get(data, access_id, access_key, region):
 
     for volume in response["Volumes"]:
         if volume["VolumeId"] == data[field_name]:
+            if "_vmuuid_" in data:
+                volume["_vmuuid_"] = data["_vmuuid_"]
+            volume["account"] = data["account"]
+            volume["accountuuid"] = data["accountuuid"]
             return volume
     raise Exception(
         "根据 VolumeId {} 未找到 aws ec2 volume".format(data[field_name]))
