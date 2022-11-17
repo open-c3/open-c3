@@ -1,0 +1,43 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use YAML::XS;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0 echo '10.10.10.10:6379;123456' | ./$0
+
+=cut
+
+my $path = '/data/open-c3-data/device/curr/auth/redis';
+
+sub _save
+{
+    my ( $addr, $passwd ) = @_;
+    eval{ YAML::XS::DumpFile "$path/$addr", "_:$passwd" };
+    warn "save passwd $addr fail: $@" if $@;
+}
+
+sub _clean
+{
+    my ( $addr ) = @_;
+    return unless -f "$path/$addr";
+    unlink "$path/$addr" or warn "clean passwd $addr fail: $!";
+}
+
+sub load
+{
+    my ( $addr, $passwd ) = split /;/, shift( @_), 2;
+
+    unless( $addr && $addr =~ /^[a-zA-Z0-9][a-zA-Z0-9\-_\.]+[a-zA-Z0-9]:\d+$/ )
+    {
+        warn "addr format error: $addr";
+        return;
+    }
+
+    $passwd ? _save( $addr, $passwd ) : _clean( $addr );
+}
+
+if( @ARGV ) { map{ load( $_ ) }@ARGV; } else { while(<STDIN>){ chomp; load($_); } }

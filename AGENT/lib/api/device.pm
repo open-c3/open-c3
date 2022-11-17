@@ -5,6 +5,7 @@ use Encode qw(encode);
 use JSON   qw();
 use POSIX;
 use api;
+use OPENC3::Tree;
 
 my $authstrict;
 BEGIN{
@@ -293,6 +294,9 @@ any '/device/data/:type/:subtype/:treeid' => sub {
         my ( $ctype, $csubtype ) = $param->{type} eq 'all' && $param->{subtype} eq 'all' ? ( $d{type}, $d{subtype} ) : ( $param->{type}, $param->{subtype} );
 
         next unless $match && $searchmath && $treenamematch;
+
+        map{ $d{ $_ } = OPENC3::Tree::merge( $d{ $_ } ) if $d{ $_ }; }( '_tree_', $treenamecol );
+
         push @re, +{
             type    => $ctype,
             subtype => $csubtype,

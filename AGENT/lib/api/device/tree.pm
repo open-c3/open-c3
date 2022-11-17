@@ -5,6 +5,7 @@ use Encode qw(encode);
 use JSON   qw();
 use POSIX;
 use api;
+use OPENC3::Tree;
 
 any '/device/tree/bind/:type/:subtype/:uuid/:tree' => sub {
     my $param = params();
@@ -25,6 +26,8 @@ any '/device/tree/bind/:type/:subtype/:uuid/:tree' => sub {
 
     my $pmscheck = api::pmscheck( 'openc3_job_root' );
     return $pmscheck if $pmscheck;
+
+    $param->{tree} = OPENC3::Tree::compress( $param->{tree} );
 
     eval{
         $api::mysql->execute(

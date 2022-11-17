@@ -18,6 +18,10 @@
                         <input type="radio" ng-model="formType" value="variable" ng-click="choice.cleanSelected()">
                         <span class="radio" style="padding-top: 0;min-height: 0"></span>选择变量
                     </label>
+                    <label class="option option-primary">
+                        <input type="radio" ng-model="formType" value="custom" ng-click="choice.cleanSelected()">
+                        <span class="radio" style="padding-top: 0;min-height: 0"></span>手写IP
+                    </label>
                 </div>
             </div>
         </div>
@@ -116,6 +120,15 @@
                 </div>
             </div>
 
+            <!--手写-->
+            <div ng-switch-when="custom" style="width: 40%">
+                <dataerror ng-hide="dataready" errmsg={{dataerror}}></dataerror>
+                手写IP，可写多个IP。<br>分隔符：换行符、逗号、空格
+                <div class="panel-tabs">
+                    <textarea style="min-height: 100px;" ng-blur="dataEdit=false" class="form-control" rows="20" cols="20" ng-model="choice.customstr"></textarea>
+                </div>
+            </div>
+ 
         </div>
         <div class="row">
             <div class="col-sm-5 form-group pull-right">

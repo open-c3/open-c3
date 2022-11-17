@@ -20,6 +20,7 @@
         $scope.allData = [];
         $scope.ipVar = {"variable":"$ip"};
         $scope.formType = 'ip';
+        vm.customstr = "";
         $scope.groupHide = false;
         var ss = window.location.href;
         if(ss.split("#")[1].indexOf("/quickentry/terminal") !=-1){
@@ -105,6 +106,20 @@
             if ($scope.formType == "variable"){
                 $uibModalInstance.close(
                     vm.ipVar
+                );
+            }
+
+            if ($scope.formType == "custom"){
+                var ips = [];
+                angular.forEach(vm.customstr.split(/\n| |,/), function (value, key) {
+                    if( value.length > 0 )
+                    {
+                        ips.push(value)
+                    }
+                });
+
+                $uibModalInstance.close(
+                    ips
                 );
             }
 

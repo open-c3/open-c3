@@ -1,0 +1,38 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+
+import boto3
+
+
+def get_instance_profile(access_id, access_key, region, instance_profile_name):
+    """
+        查询实例配置文件
+
+        如果不存在, 返回空字典
+    """
+    client = boto3.client(
+        "iam",
+        aws_access_key_id=access_id,
+        aws_secret_access_key=access_key,
+        region_name=region
+    )
+
+    try:
+        response = client.get_instance_profile(
+            InstanceProfileName=instance_profile_name)
+        return response["InstanceProfile"]
+    except client.exceptions.NoSuchEntityException:
+        return {}
+
+
+def main(access_id, access_key, region, instance_profile_name):
+    data = get_instance_profile(
+        access_id, access_key, region, instance_profile_name)
+    print(json.dumps(data, default=str))
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])

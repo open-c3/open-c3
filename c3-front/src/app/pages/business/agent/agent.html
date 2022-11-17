@@ -52,13 +52,26 @@
             <hr>
 
             <div style="padding: 10px">
-                <span style="font-size: 14px;font-weight: bold; color: #626262">安装AGENT UDP:</span>
-                <span style="color: red">curl -L {{agent.siteaddr}}/api/scripts/installAgentUdp.sh |sudo OPEN_C3_ADDR={{agent.siteaddr}} bash</span>
-            </div>
-
-            <div style="padding: 10px">
                 <span style="font-size: 14px;font-weight: bold; color: #626262">安装AGENT MON:</span>
                 <span style="color: red">curl -L {{agent.siteaddr}}/api/scripts/installAgentMon.sh |sudo OPEN_C3_ADDR={{agent.siteaddr}} bash</span>
+            </div>
+ 
+            <div style="padding: 10px">
+                <span style="font-size: 14px;font-weight: bold; color: #626262">部署windowns_exporter服务(window系统):</span>
+                <span>
+<br>
+一、下载最新版：<br>
+Release v0.20.0 · prometheus-community/windows_exporter<br>
+<br>
+二、安装（默认端口9128，这里可以通过此方法在安装的时候指定端口）<br>
+cd C:\Users\Administrator\Downloads<br>
+msiexec /i windows_exporter-0.20.0-amd64.msi LISTEN_PORT=65110<br>
+<br>
+三、验证服务<br>
+netstat -ano 检查65110端口是否启动<br>
+service.msc 查看服务名为windowns_exporter的服务是否启动<br>
+http://localhost:65110/metrics 浏览器访问测试一下<br>
+</span>
             </div>
  
             <hr>

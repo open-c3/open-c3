@@ -5,6 +5,9 @@ mysqldump  -h $host -uroot -p$password  --no-create-info --databases tt > tt.sql
 ## 更新sql语句,添加表前缀
 
 ```
+sed -i 's/^USE `.*`;/USE `connector`;/'  tt.sql
+sed -i '/^CREATE DATABASE/d'             tt.sql
+
 sed -i 's/`base_category`/`openc3_tt_base_category`/g'                             tt.sql 
 sed -i 's/`base_email_templates`/`openc3_tt_base_email_templates`/g'               tt.sql 
 sed -i 's/`base_group`/`openc3_tt_base_group`/g'                                   tt.sql 
