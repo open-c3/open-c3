@@ -52,7 +52,7 @@ class Ckafka:
         result = []
         response_data = self.get_response()
         for instance in json.loads(response_data.to_json_string())["Result"]["InstanceList"]:
-            instance["Region"] = self.region
+            instance["RegionId"] = self.region
             result.append(instance)
         return result
 

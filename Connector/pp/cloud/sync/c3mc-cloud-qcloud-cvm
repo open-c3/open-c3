@@ -50,7 +50,7 @@ class Cvm:
         response_data = self.get_response()
         for server in response_data.InstanceSet:
             item = json.loads(server.to_json_string())
-            item["Region"] = self.region
+            item["RegionId"] = self.region
 
             if item["PrivateIpAddresses"] is not None and len(item["PrivateIpAddresses"]) > 0:
                 item["PrivateIP"] = item["PrivateIpAddresses"][0]

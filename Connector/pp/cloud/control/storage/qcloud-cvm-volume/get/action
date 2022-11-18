@@ -23,23 +23,33 @@ def get(data, access_id, access_key, region):
     clientProfile.httpProfile = httpProfile
     client = cbs_client.CbsClient(cred, region, clientProfile)
 
-    field_name = subprocess.getoutput(
+    id_field_name = subprocess.getoutput(
         "c3mc-cloud-get-real-field storage qcloud-cvm-volume DiskId")
+    zone_id_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field storage qcloud-cvm-volume ZoneId")
+    account_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field storage qcloud-cvm-volume account")
+    accountuuid_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field storage qcloud-cvm-volume accountuuid")
 
     req = models.DescribeDisksRequest()
     params = {
-        "DiskIds": [data[field_name]]
+        "DiskIds": [data[id_field_name]]
     }
     req.from_json_string(json.dumps(params))
 
     resp = client.DescribeDisks(req)
     for disk in resp.DiskSet:
-        if disk.DiskId == data[field_name]:
+        if disk.DiskId == data[id_field_name]:
             item = json.loads(str(disk))
-            item["Region"] = region
+            item["RegionId"] = region
+            item["ZoneId"] = data[zone_id_field_name]
+            item["account"] = data[account_field_name]
+            item["accountuuid"] = data[accountuuid_field_name]
+            item["_vmuuid_"] = data["_vmuuid_"]
             return item
     raise Exception(
-        "根据 DiskId {} 未找到 qcloud cbs".format(data[field_name]))
+        "根据 DiskId {} 未找到 qcloud cbs".format(data[id_field_name]))
 
 
 def main(data, access_id, access_key, region):

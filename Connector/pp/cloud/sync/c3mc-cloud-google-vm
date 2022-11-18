@@ -29,7 +29,6 @@ class VM:
                 item["regionId"] = item["zone"].split("/")[-1][:-2]
                 item["metadata"].pop("items", None)
                 item["projectId"] = self.credentials.project_id
-                item["vm_tags"] = item["tags"]
                 item.pop("tags", None)
 
                 private_ip = None

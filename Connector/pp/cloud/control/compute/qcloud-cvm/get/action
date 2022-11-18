@@ -36,7 +36,11 @@ def get(data, access_id, access_key, region):
     for instance in resp.InstanceSet:
         if instance.InstanceId == data[field_name]:
             item = json.loads(str(instance))
-            item["Region"] = region
+            item["RegionId"] = region
+            if item["PrivateIpAddresses"] is not None and len(item["PrivateIpAddresses"]) > 0:
+                item["PrivateIP"] = item["PrivateIpAddresses"][0]
+            if item["PublicIpAddresses"] is not None and len(item["PublicIpAddresses"]) > 0:
+                item["PublicIP"] = item["PublicIpAddresses"][0]
             return item
     raise Exception(
         "根据 InstanceId {} 未找到 qcloud cvm".format(data[field_name]))

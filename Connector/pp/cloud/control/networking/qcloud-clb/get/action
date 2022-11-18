@@ -26,6 +26,11 @@ def get(data, access_id, access_key, region):
     field_name = subprocess.getoutput(
         "c3mc-cloud-get-real-field networking qcloud-clb LoadBalancerId")
 
+    status_code_m = {
+        0: "创建中",
+        1: "正常运行",
+    }
+
     req = models.DescribeLoadBalancersRequest()
     params = {
         "LoadBalancerIds": [data[field_name]]
@@ -36,7 +41,10 @@ def get(data, access_id, access_key, region):
     for instance in resp.LoadBalancerSet:
         if instance.LoadBalancerId == data[field_name]:
             data = json.loads(str(instance))
-            data["Region"] = region
+            data["RegionId"] = region
+            # 注意：此字段可能返回 null，表示取不到有效值。(摘自腾讯云文档)
+            if "Status" in data and isinstance(data["Status"], int):
+                data["StatusZhDesc"] = status_code_m[data["Status"]]
             return data
     raise Exception(
         "根据 LoadBalancerId {} 未找到 qcloud clb".format(data[field_name]))

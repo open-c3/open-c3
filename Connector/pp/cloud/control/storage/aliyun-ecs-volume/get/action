@@ -28,6 +28,12 @@ def get(data, access_id, access_key, region):
     response = client.do_action_with_exception(request)
     for disk in json.loads(response)["Disks"]["Disk"]:
         if disk["DiskId"] == data[field_name]:
+            if "_vmuuid_" in data:
+                disk["_vmuuid_"] = data["InstanceId"]
+            disk["account"] = data["account"]
+            disk["accountuuid"] = data["accountuuid"]
+            disk["Tag"] = disk["Tags"]["Tag"]
+            disk.pop("Tags", None)
             return disk
     raise Exception(
         "根据 disk_id {} 未找到 aliyun ecs volume".format(data[field_name]))

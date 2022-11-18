@@ -28,12 +28,14 @@ def get(data, access_id, access_key, project_id, region):
 
     request = ShowInstanceRequest()
     request.instance_id = data[field_name]
-    return client.show_instance(request)
+    data = json.loads(str(client.show_instance(request)))
+    data['region_id'] = region
+    return data
 
 
 def main(data, access_id, access_key, project_id, region):
     data = get(data, access_id, access_key, project_id, region)
-    print(str(data))
+    print(json.dumps(data, default=str))
 
 
 if __name__ == '__main__':
