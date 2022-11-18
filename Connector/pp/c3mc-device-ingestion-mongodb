@@ -31,6 +31,8 @@ for my $ingestion ( glob "/data/open-c3-data/device/curr/database/*/ingestion-mo
     map{ die "err" unless $colmap->{$_} }qw( addr tree type );
     die "err" unless $colmap->{auth} || $colmap->{authfile} || $colmap->{authpath};
 
+    my $exclude = $colmap->{exclude} && ref $colmap->{exclude} eq 'HASH' ? $colmap->{exclude} : undef;
+
     my %auth;
     if( $colmap->{authfile} )
     {
@@ -57,6 +59,16 @@ for my $ingestion ( glob "/data/open-c3-data/device/curr/database/*/ingestion-mo
          my @d = split /\t/, $data;
          my %d = map{ $title[ $_ ] => $d[ $_ ] } 0 .. @title - 1;
 
+         if( $exclude )
+         {
+             my $skip = 0;
+             for my $col ( keys %$exclude )
+             {
+                 map{ $skip = 1 if $_ eq $d{ $col } }@{ $exclude->{ $col } };
+             }
+             next if $skip;
+         }
+ 
          next unless my $treename = $d{ $colmap->{tree} };
          my %tmp = (
              addr => ref $colmap->{addr} eq 'ARRAY'
