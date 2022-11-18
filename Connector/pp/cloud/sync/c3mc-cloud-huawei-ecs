@@ -52,18 +52,12 @@ class Ecs:
         response_data = self.get_response()
         servers = response_data['servers']
         for server in servers:
-            private_ip = None
-            public_ip = None
-            for attr, value in server['addresses'].items():
-                for item in value:
-                    if ipaddress.ip_address(item['addr']).is_private:
-                        private_ip = item['addr']
+            for key in server['addresses']:
+                for item in server['addresses'][key]:
+                    if item["OS-EXT-IPS:type"] == "fixed":
+                        server['private_ip'] = item['addr']
                     else:
-                        public_ip = item['addr']
-            if private_ip is not None:
-                server['private_ip'] = private_ip
-            if public_ip is not None:
-                server['public_ip'] = public_ip
+                        server['public_ip'] = item['addr']
 
             server['os'] = server['metadata']['os_type']
             server['zone_id'] = server['OS-EXT-AZ:availability_zone']

@@ -6,8 +6,9 @@ import json
 import subprocess
 
 from huaweicloudsdkcore.auth.credentials import BasicCredentials
+from huaweicloudsdkecs.v2.region.ecs_region import EcsRegion
 from huaweicloudsdkevs.v2.region.evs_region import EvsRegion
-from huaweicloudsdkcore.exceptions import exceptions
+from huaweicloudsdkecs.v2 import *
 from huaweicloudsdkevs.v2 import *
 
 
@@ -17,25 +18,45 @@ def get(data, access_id, access_key, project_id, region):
     """
     if project_id == "None":
         project_id = None
-    credentials = BasicCredentials(access_id, access_key, project_id) \
+    credentials = BasicCredentials(access_id, access_key, project_id)
 
-    client = EvsClient.new_builder() \
+    ecs_client = EcsClient.new_builder() \
+        .with_credentials(credentials) \
+        .with_region(EcsRegion.value_of(region)) \
+        .build()
+    evs_client = EvsClient.new_builder() \
         .with_credentials(credentials) \
         .with_region(EvsRegion.value_of(region)) \
         .build()
 
-    field_name = subprocess.getoutput(
+    id_field_name = subprocess.getoutput(
         "c3mc-cloud-get-real-field storage huawei-ecs-volume id")
+    server_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field storage huawei-ecs-volume server_id")
 
-    request = ShowVolumeRequest()
-    request.volume_id = data[field_name]
-    response = client.show_volume(request)
-    return response.volume
+    request = ShowServerBlockDeviceRequest()
+    request.volume_id = data[id_field_name]
+    request.server_id = data[server_field_name]
+    block_response = ecs_client.show_server_block_device(request)
+    block_response = json.loads(str(block_response))
+
+    request = ShowVolumeTagsRequest()
+    request.volume_id = data[id_field_name]
+    volume_response = evs_client.show_volume_tags(request)
+
+    volume = block_response["volumeAttachment"]
+
+    volume["region_id"] = region
+    volume["account"] = data["account"]
+    volume["accountuuid"] = data["accountuuid"]
+    volume["tags"] = volume_response.to_dict()["tags"]
+    volume["_vmuuid_"] = data[server_field_name]
+    return volume
 
 
 def main(data, access_id, access_key, project_id, region):
     data = get(data, access_id, access_key, project_id, region)
-    print(str(data))
+    print(json.dumps(data, default=str))
 
 
 if __name__ == '__main__':

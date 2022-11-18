@@ -26,6 +26,26 @@ def get(data, access_id, access_key, region):
     field_name = subprocess.getoutput(
         "c3mc-cloud-get-real-field database qcloud-sqlserver InstanceId")
 
+    status_code_m = {
+        1: "申请中",
+        2: "运行中",
+        3: "受限运行中(主备切换中)",
+        4: "已隔离",
+        5: "回收中",
+        6: "已回收",
+        7: "任务执行中(实例做备份、回档等操作)",
+        8: "已下线",
+        9: "实例扩容中",
+        10: "实例迁移中",
+        11: "只读",
+        12: "重启中",
+        13: "实例修改中且待切换",
+        14: "订阅发布创建中",
+        15: "订阅发布修改中",
+        16: "实例修改中且切换中",
+        17: "创建RO副本中",
+    }
+
     req = models.DescribeDBInstancesRequest()
     params = {
         "InstanceIds": [data[field_name]]
@@ -35,9 +55,10 @@ def get(data, access_id, access_key, region):
     resp = client.DescribeDBInstances(req)
     for instance in resp.DBInstances:
         if instance.InstanceId == data[field_name]:
-            item = json.loads(str(instance))
-            item["Region"] = region
-            return item
+            data = json.loads(str(instance))
+            if "Status" in data and isinstance(data["Status"], int):
+                data["StatusZhDesc"] = status_code_m[data["Status"]]
+            return data
     raise Exception(
         "根据 InstanceId {} 未找到 qcloud sqlserver".format(data[field_name]))
 

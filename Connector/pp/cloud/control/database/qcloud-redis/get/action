@@ -35,16 +35,14 @@ def get(data, access_id, access_key, region):
     resp = client.DescribeInstances(req)
     for instance in resp.InstanceSet:
         if instance.InstanceId == data[field_name]:
-            item = json.loads(str(instance))
-            item["Region"] = region
-            return item
+            return instance
     raise Exception(
         "根据 InstanceId {} 未找到 qcloud redis".format(data[field_name]))
 
 
 def main(data, access_id, access_key, region):
     data = get(data, access_id, access_key, region)
-    print(json.dumps(data, default=str))
+    print(data)
 
 
 if __name__ == '__main__':

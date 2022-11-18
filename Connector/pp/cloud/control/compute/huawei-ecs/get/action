@@ -24,15 +24,28 @@ def get(data, access_id, access_key, project_id, region):
         .build()
 
     field_name = subprocess.getoutput(
-        "c3mc-cloud-get-real-field compute huawei-ecs name")
+        "c3mc-cloud-get-real-field compute huawei-ecs id")
 
-    request = ListServersDetailsRequest()
-    request.name = data[field_name]
-    response = client.list_servers_details(request)
-    for instance in response.servers:
-        if instance.name == data[field_name]:
-            return instance
-    raise Exception("根据instance_name {} 未找到ecs".format(data[field_name]))
+    request = ShowServerRequest()
+    request.server_id = data[field_name]
+    response = client.show_server(request)
+    response = json.loads(str(response))
+
+    instance = response["server"]
+
+    for key in instance['addresses']:
+        for item in instance['addresses'][key]:
+            if item["OS-EXT-IPS:type"] == "fixed":
+                instance['private_ip'] = item['addr']
+            else:
+                instance['public_ip'] = item['addr']
+
+    instance['os'] = instance['metadata']['os_type']
+    instance['zone_id'] = instance['OS-EXT-AZ:availability_zone']
+    instance['region_id'] = region
+    instance.pop('metadata', None)
+    instance.pop('OS-EXT-SRV-ATTR:user_data', None)
+    return instance
 
 
 def main(data, access_id, access_key, project_id, region):

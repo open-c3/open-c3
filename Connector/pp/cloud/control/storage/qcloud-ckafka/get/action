@@ -35,7 +35,7 @@ def get(data, access_id, access_key, region):
     resp = client.DescribeInstanceAttributes(req)
 
     data = json.loads(str(resp.Result))
-    data["Region"] = region
+    data["RegionId"] = region
     return data
 
 

@@ -36,9 +36,12 @@ def get(data, cred_json_path):
     instance["typeCode"] = instance["type"].split("/")[-1]
     instance["zoneId"] = data[zone_field_name]
     instance["regionId"] = data[zone_field_name][:-2]
+    instance["projectId"] = credentials.project_id
+
+    if "_vmuuid_" in data:
+        instance["_vmuuid_"] = data[vmuuid_field_name]
     instance["account"] = data[account_field_name]
     instance["accountuuid"] = data[accountuuid_field_name]
-    instance["_vmuuid_"] = data[vmuuid_field_name]
 
     instance["tags_list"] = []
     if "labels" in instance:

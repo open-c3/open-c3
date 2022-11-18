@@ -55,7 +55,7 @@ class Clb:
 
         result = []
         for instance in response_data["LoadBalancerSet"]:
-            instance["Region"] = self.region
+            instance["RegionId"] = self.region
             # 注意：此字段可能返回 null，表示取不到有效值。(摘自腾讯云文档)
             if "Status" in instance and isinstance(instance["Status"], int):
                 instance["StatusZhDesc"] = self.status_code_m[instance["Status"]]
