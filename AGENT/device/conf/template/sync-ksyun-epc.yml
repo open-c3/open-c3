@@ -19,6 +19,7 @@ download:
       type: ksyun-epc
       exclude:
         "状态": ["Stopped"]
+        "_ingestion_": ["NO"]
     util:
       defaulttree: defaulttree.pool # 默认的服务树，资源归还后被放到这里
       extcol:
@@ -27,6 +28,9 @@ download:
           select: ["YES", "NO"]
         - name: remarks
           alias: 备注
+        - name: _ingestion_
+          alias: 摄取
+          select: ["YES", "NO"]
     colmap:
       treename: "服务树"
       uuid: "实例ID" # 指明哪一列作为uuid列。没有这个字段会导致单个资源详情打开无数据
@@ -58,6 +62,8 @@ download:
         alias: 运维负责人
       - name: "部门"
         alias: 部门
+      - name: "_ingestion_"
+        alias: 摄取
     outline:
       uuid:
         - "实例ID"
