@@ -2,7 +2,7 @@
 
 curl -L $OPEN_C3_ADDR/api/scripts/installQueryInit.sh | bash
 
-IMAGE=openc3/mongodb-query:o2211181
+IMAGE=openc3/mongodb-query:o2211191
 VPATH=mongodb-exporter-v3
 NAME=openc3-mongodb-query
 
