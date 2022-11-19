@@ -16,6 +16,7 @@ download:
       type: qcloud-cvm
       exclude:
         "状态": ["STOPPED", "SHUTDOWN"]
+        "_ingestion_": ["NO"]
     check:
       col: ["实例ID"]
       min: 0
@@ -27,6 +28,9 @@ download:
           select: ["YES", "NO"]
         - name: remarks
           alias: 备注
+        - name: _ingestion_
+          alias: 摄取
+          select: ["YES", "NO"]
     colmap:
       treename: "服务树"
       uuid: "实例ID" # 指明哪一列作为uuid列
@@ -57,6 +61,8 @@ download:
         alias: 运维负责人
       - name: "部门"
         alias: 部门
+      - name: "_ingestion_"
+        alias: 摄取
     outline:
       uuid:
         - "实例ID"
