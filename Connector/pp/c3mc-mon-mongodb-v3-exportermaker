@@ -37,6 +37,9 @@ sub run
     return if $has->{$name};
     system "docker rm $name >/dev/null 2>&1";
 
+    $conf->{password} =~ s/@/%40/g if defined $conf->{password};
+    $conf->{password} =~ s/:/%3a/g if defined $conf->{password};
+
     my $password = $conf->{user} && $conf->{password} ? "$conf->{user}:$conf->{password}@" : "";
     system "docker run -d --network c3_JobNet --name $name amazonaws/mongodb_exporter --mongodb.uri 'mongodb://$password$conf->{ip}:$conf->{port}' -mongodb.collect.collection -mongodb.collect.connpoolstats -mongodb.collect.database -mongodb.collect.oplog -mongodb.collect.profile -mongodb.collect.replset -mongodb.collect.top";
     $has->{$name} = 1;

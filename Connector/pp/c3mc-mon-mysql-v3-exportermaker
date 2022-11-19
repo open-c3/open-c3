@@ -35,6 +35,10 @@ sub run
     my $name = "openc3-mysqld-exporter-v3-$conf->{ip}-$conf->{port}";
 
     return if $has->{$name};
+
+    $conf->{password} =~ s/@/%40/g if defined $conf->{password};
+    $conf->{password} =~ s/:/%3a/g if defined $conf->{password};
+
     system "docker rm $name >/dev/null 2>&1";
     system "docker run -d -e DATA_SOURCE_NAME='$conf->{user}:$conf->{password}@($conf->{ip}:$conf->{port})/' --network c3_JobNet --name $name prom/mysqld-exporter";
     $has->{$name} = 1;
