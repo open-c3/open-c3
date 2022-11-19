@@ -181,7 +181,7 @@ sub run
                            }
                            else
                            {
-                               $url = "http://openc3-mongodb-exporter-v3-$ip-$port:9001/metrics";
+                               $url = "http://openc3-mongodb-exporter-v3-$ip-$port:9216/metrics";
                                eval{
                                    YAML::XS::DumpFile "/data/open-c3-data/mongodb-exporter-v3/cache/$addr", \%exp;
                                };
