@@ -480,10 +480,11 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
             system "mkdir -p $mysqlpath" unless -d $mysqlpath;
 
             my $mysqlfile = "$mysqlpath/$mysqladdr";
+               $mysqlfile = "$mysqlpath/default" unless -f $mysqlfile;
             my $mysqlauth = '';
             if( -f $mysqlfile )
             {
-                $mysqlauth = eval{ YAML::XS::LoadFile "$mysqlpath/$mysqladdr"; };
+                $mysqlauth = eval{ YAML::XS::LoadFile $mysqlfile; };
                 return  +{ stat => $JSON::false, info => "get mysql auth fail: $@" } if $@;
             }
             push @x, [ _mysqlauth_ => $mysqlauth ];
@@ -500,10 +501,11 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
             system "mkdir -p $redispath" unless -d $redispath;
 
             my $redisfile = "$redispath/$redisaddr";
+               $redisfile = "$redispath/default" unless -f $redisfile;
             my $redisauth = '';
             if( -f $redisfile )
             {
-                $redisauth = eval{ YAML::XS::LoadFile "$redispath/$redisaddr"; };
+                $redisauth = eval{ YAML::XS::LoadFile $redisfile; };
                 return  +{ stat => $JSON::false, info => "get redis auth fail: $@" } if $@;
             }
             $redisauth =~ s/^_://;
@@ -520,10 +522,11 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
             system "mkdir -p $mongodbpath" unless -d $mongodbpath;
 
             my $mongodbfile = "$mongodbpath/$mongodbaddr";
+               $mongodbfile = "$mongodbpath/default" unless -f $mongodbfile;
             my $mongodbauth = '';
             if( -f $mongodbfile )
             {
-                $mongodbauth = eval{ YAML::XS::LoadFile "$mongodbpath/$mongodbaddr"; };
+                $mongodbauth = eval{ YAML::XS::LoadFile $mongodbfile; };
                 return  +{ stat => $JSON::false, info => "get mongodb auth fail: $@" } if $@;
             }
             push @x, [ _mongodbauth_ => $mongodbauth ];

@@ -85,6 +85,7 @@ for my $ingestion ( glob "/data/open-c3-data/device/curr/database/*/ingestion-re
          {
              $tmp{auth} = '';
              my $authfile = "$colmap->{authpath}/$tmp{addr}";
+                $authfile = "$colmap->{authpath}/default" unless -f $authfile;
              eval{ $tmp{auth} = YAML::XS::LoadFile $authfile } if -f $authfile;
          }
          else
