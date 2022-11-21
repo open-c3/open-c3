@@ -20,7 +20,7 @@ class Mysql:
     def list_instance(self):
         results = []
         service = discovery.build(
-            'sqladmin', 'v1beta4', credentials=self.credentials)
+            'sqladmin', 'v1', credentials=self.credentials)
 
         request = service.instances().list(project=self.credentials.project_id)
         while request is not None:
