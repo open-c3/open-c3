@@ -8,6 +8,13 @@ download:
       treename: "服务树"
       treeinfo:
         - ["实例ID", "instance"]
+    ingestion-redis:
+      addr: [ 'EndpointAddress', 'EndpointPort' ]
+      authpath: /data/open-c3-data/device/curr/auth/redis
+      tree: '服务树'
+      type: aws-redis
+      exclude:
+        "_ingestion_": ["NO"]
     check:
       col: ["实例ID"]
       min: 0

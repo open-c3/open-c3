@@ -1,0 +1,54 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use utf8;
+use FindBin qw( $RealBin );
+use YAML::XS;
+use Encode;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $config = "$RealBin/../conf/config.yml";
+exit unless -f $config;
+
+my $conf = eval{ YAML::XS::LoadFile $config };
+die "load confg fail: $@" if $@;
+
+sub ingestion
+{
+    my %c = @_;
+    my $distpath = "/data/open-c3-data/device/curr/$c{type}/$c{subtype}";
+    return  unless -d $distpath;
+
+    for my $name ( qw( ingestion-mysql ingestion-redis ingestion-momgodb ) )
+    {
+        next unless my $conf = $c{$name};
+        my $file = "$distpath/$name.yml";
+        print "$file\n";
+        eval{YAML::XS::DumpFile $file, $conf;};
+        warn "dumpfile $file fail: $@" if $@;
+    }
+}
+
+map{
+    my $c = $_;
+    if( $c->{template} )
+    {
+        my $tpl = eval{ YAML::XS::LoadFile "$RealBin/../conf/template/$c->{template}.yml"; };
+        die "load template $c->{template} fail: $@" if $@;
+
+        die "template $c->{template} error"
+          unless $tpl->{download}
+              && ref $tpl->{download} eq 'ARRAY'
+              && @{$tpl->{download} }
+              && ref $tpl->{download}[0] eq 'HASH';
+
+        $c = { %{ $tpl->{download}[0] }, %$c };
+    }
+
+    ingestion( %$c );
+}@{ $conf->{download} };
