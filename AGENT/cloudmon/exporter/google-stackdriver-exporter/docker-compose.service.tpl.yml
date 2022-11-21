@@ -1,4 +1,4 @@
-  openc3-cloudmon-${cloudmonid}:
+penc3-cloudmon-${cloudmonid}:
     container_name: openc3-cloudmon-${cloudmonid}
     environment:
       TZ: 'Asia/Shanghai'
@@ -9,6 +9,7 @@
       - "/data/open-c3-data/cloudmon/task/${taskid}/config.dat:/service-account-file.json"
     command:
      - '--monitoring.metrics-type-prefixes'
-     - 'compute.googleapis.com/instance/cpu,compute.googleapis.com/instance/disk'
+     - 'cloudsql.googleapis.com/database/disk,cloudsql.googleapis.com/database/cpu,cloudsql.googleapis.com/database/memory,redis.googleapis.com/stats'
+#     - 'compute.googleapis.com/instance/cpu,compute.googleapis.com/instance/disk,cloudsql.googleapis.com/database/disk,cloudsql.googleapis.com/database/cpu,redis.googleapis.com/stats'
     networks:
       - alise_net
