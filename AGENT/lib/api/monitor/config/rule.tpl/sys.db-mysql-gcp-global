@@ -1,0 +1,52 @@
+---
+alert: RDS磁盘使用率大于80%
+bindtreesql: ''
+description: MYSQL磁盘使用率大于80%，当前为{{$value}}%
+edit_time: 2022-11-21 20:43:57
+edit_user: open-c3
+expr: stackdriver_cloudsql_database_cloudsql_googleapis_com_database_disk_utilization
+  * 100 > 80
+for: ''
+job: ''
+method: ''
+metrics: ''
+model: custom
+severity: level1
+summary: MYSQL磁盘告警
+threshold: ''
+value: '{{$value}}'
+---
+alert: RDS的CPU使用率大于80%
+bindtreesql: stackdriver_cloudsql_database_cloudsql_googleapis_com_database_disk_utilization
+  * 100 > 80
+description: MYSQL磁盘使用率大于80%，当前为{{$value}}%
+edit_time: 2022-11-21 20:43:57
+edit_user: open-c3
+expr: stackdriver_cloudsql_database_cloudsql_googleapis_com_database_cpu_utilization*
+  100 > 80
+for: ''
+job: ''
+method: ''
+metrics: ''
+model: custom
+severity: level1
+summary: MYSQL的CPU告警
+threshold: ''
+value: '{{$value}}'
+---
+alert: RDS内存使用率大于90%
+bindtreesql: ''
+description: MYSQL内存使用率大于90%，当前为{{$value}}%
+edit_time: 2022-11-21 20:43:57
+edit_user: open-c3
+expr: stackdriver_cloudsql_database_cloudsql_googleapis_com_database_memory_utilization
+  * 100 > 90
+for: ''
+job: ''
+method: ''
+metrics: ''
+model: custom
+severity: level1
+summary: MYSQL内存告警
+threshold: ''
+value: '{{$value}}'
