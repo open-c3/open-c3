@@ -24,7 +24,7 @@ sub ingestion
     my $distpath = "/data/open-c3-data/device/curr/$c{type}/$c{subtype}";
     return  unless -d $distpath;
 
-    for my $name ( qw( ingestion-mysql ingestion-redis ingestion-momgodb ) )
+    for my $name ( qw( ingestion-mysql ingestion-redis ingestion-mongodb ) )
     {
         next unless my $conf = $c{$name};
         my $file = "$distpath/$name.yml";
