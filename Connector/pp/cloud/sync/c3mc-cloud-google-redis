@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+
+from google.oauth2 import service_account
+from google.cloud import redis_v1
+from google.protobuf.json_format import MessageToJson
+
+
+class Redis:
+    def __init__(self, cred_json_path, region):
+        self.cred_json_path = cred_json_path
+        self.region = region
+        self.credentials = self.create_credentials()
+        self.page_size = 100
+
+    def create_credentials(self):
+        return service_account.Credentials.from_service_account_file(self.cred_json_path)
+
+    def list_instance(self):
+        client = redis_v1.CloudRedisClient(credentials=self.credentials)
+
+        request = redis_v1.ListInstancesRequest(
+            parent="projects/{}/locations/{}".format(
+                self.credentials.project_id, self.region),
+            page_size=self.page_size
+        )
+
+        page_result = client.list_instances(request=request)
+
+        result = []
+        for response in page_result:
+            item = json.loads(MessageToJson(response._pb))
+            item["uuid"] = "{}-{}".format(self.credentials.project_id, item["displayName"])
+            item["region"] = self.region
+            item["project"] = self.credentials.project_id
+            item["tags_list"] = []
+            if "labels" in item:
+                for key, value in item["labels"].items():
+                    item["tags_list"].append({
+                        "Key": key,
+                        "Value": value
+                    })
+            result.append(item)
+        return result
+
+    def show(self):
+        instance_list = self.list_instance()
+        for instance in instance_list:
+            print(json.dumps(instance, default=str))
+
+
+def main(cred_json_path, region):
+    Redis(cred_json_path, region).show()
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2])
