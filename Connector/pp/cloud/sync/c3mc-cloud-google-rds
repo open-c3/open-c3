@@ -28,6 +28,11 @@ class Mysql:
 
             for instance in response['items']:
                 instance.pop("serverCaCert", None)
+                if "ipAddresses" in instance:
+                    for item in instance["ipAddresses"]:
+                        if item["type"] == "PRIVATE":
+                            instance["private_ip"] = item["ipAddress"]
+                            break
                 instance["tags_list"] = []
                 if "userLabels" in instance["settings"]:
                     for key, value in instance["settings"]["userLabels"].items():
