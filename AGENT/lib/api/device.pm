@@ -409,6 +409,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
 
     my $showmysqlauth = 0;
     my @showmysqladdr;
+    my $mysqladdrtail = '';
     my $ingestionmysqlfile = "$datapathx/$param->{type}/$param->{subtype}/ingestion-mysql.yml";
     if( -f $ingestionmysqlfile && -f "$datapathx/auth/mysql.auth/$user" )
     {
@@ -416,11 +417,13 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
         return  +{ stat => $JSON::false, info => "load ingestion-mysql.yml fail: $@" } if $@;
 
         @showmysqladdr = ref $ingestionmysql->{addr} ? @{$ingestionmysql->{addr}} : ( $ingestionmysql->{addr} );
+        $mysqladdrtail = ':3306' if ref $ingestionmysql->{addr} && @{$ingestionmysql->{addr}} <= 1;
         $showmysqlauth = 1;
     }
 
     my $showredisauth = 0;
     my @showredisaddr;
+    my $redisaddrtail = '';
     my $ingestionredisfile = "$datapathx/$param->{type}/$param->{subtype}/ingestion-redis.yml";
     if( -f $ingestionredisfile && -f "$datapathx/auth/redis.auth/$user" )
     {
@@ -428,11 +431,13 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
         return  +{ stat => $JSON::false, info => "load ingestion-redis.yml fail: $@" } if $@;
 
         @showredisaddr = ref $ingestionredis->{addr} ? @{$ingestionredis->{addr}} : ( $ingestionredis->{addr} );
+        $redisaddrtail = ":6379" if ref $ingestionredis->{addr} && @{$ingestionredis->{addr}} <= 1;
         $showredisauth = 1;
     }
  
     my $showmongodbauth = 0;
     my @showmongodbaddr;
+    my $mongodbaddrtail = '';
     my $ingestionmongodbfile = "$datapathx/$param->{type}/$param->{subtype}/ingestion-mongodb.yml";
     if( -f $ingestionmongodbfile && -f "$datapathx/auth/mongodb.auth/$user" )
     {
@@ -440,6 +445,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
         return  +{ stat => $JSON::false, info => "load ingestion-mongodb.yml fail: $@" } if $@;
 
         @showmongodbaddr = ref $ingestionmongodb->{addr} ? @{$ingestionmongodb->{addr}} : ( $ingestionmongodb->{addr} );
+        $mongodbaddrtail = ':27017' if ref $ingestionmongodb->{addr} && @{$ingestionmongodb->{addr}} <= 1;
         $showmongodbauth = 1;
     }
  
@@ -467,16 +473,18 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
         if( $showmysqlauth )
         {
             my $mysqladdr = join ':',map{ $r->{$_}} @showmysqladdr;
+            $mysqladdr .= $mysqladdrtail;
             push @x, [ _mysqladdr_ => $mysqladdr ];
 
             my $mysqlpath = "$datapathx/auth/mysql";
             system "mkdir -p $mysqlpath" unless -d $mysqlpath;
 
             my $mysqlfile = "$mysqlpath/$mysqladdr";
+               $mysqlfile = "$mysqlpath/default" unless -f $mysqlfile;
             my $mysqlauth = '';
             if( -f $mysqlfile )
             {
-                $mysqlauth = eval{ YAML::XS::LoadFile "$mysqlpath/$mysqladdr"; };
+                $mysqlauth = eval{ YAML::XS::LoadFile $mysqlfile; };
                 return  +{ stat => $JSON::false, info => "get mysql auth fail: $@" } if $@;
             }
             push @x, [ _mysqlauth_ => $mysqlauth ];
@@ -486,16 +494,18 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
         if( $showredisauth )
         {
             my $redisaddr = join ':',map{ $r->{$_}} @showredisaddr;
+            $redisaddr .= $redisaddrtail;
             push @x, [ _redisaddr_ => $redisaddr ];
 
             my $redispath = "$datapathx/auth/redis";
             system "mkdir -p $redispath" unless -d $redispath;
 
             my $redisfile = "$redispath/$redisaddr";
+               $redisfile = "$redispath/default" unless -f $redisfile;
             my $redisauth = '';
             if( -f $redisfile )
             {
-                $redisauth = eval{ YAML::XS::LoadFile "$redispath/$redisaddr"; };
+                $redisauth = eval{ YAML::XS::LoadFile $redisfile; };
                 return  +{ stat => $JSON::false, info => "get redis auth fail: $@" } if $@;
             }
             $redisauth =~ s/^_://;
@@ -505,16 +515,18 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
         if( $showmongodbauth )
         {
             my $mongodbaddr = join ':',map{ $r->{$_}} @showmongodbaddr;
+            $mongodbaddr .= $mongodbaddrtail;
             push @x, [ _mongodbaddr_ => $mongodbaddr ];
 
             my $mongodbpath = "$datapathx/auth/mongodb";
             system "mkdir -p $mongodbpath" unless -d $mongodbpath;
 
             my $mongodbfile = "$mongodbpath/$mongodbaddr";
+               $mongodbfile = "$mongodbpath/default" unless -f $mongodbfile;
             my $mongodbauth = '';
             if( -f $mongodbfile )
             {
-                $mongodbauth = eval{ YAML::XS::LoadFile "$mongodbpath/$mongodbaddr"; };
+                $mongodbauth = eval{ YAML::XS::LoadFile $mongodbfile; };
                 return  +{ stat => $JSON::false, info => "get mongodb auth fail: $@" } if $@;
             }
             push @x, [ _mongodbauth_ => $mongodbauth ];
