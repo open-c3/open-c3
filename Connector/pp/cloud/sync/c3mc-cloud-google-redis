@@ -6,7 +6,7 @@ import json
 
 from google.oauth2 import service_account
 from google.cloud import redis_v1
-from google.protobuf.json_format import MessageToJson
+from google.protobuf.json_format import MessageToDict
 
 
 class Redis:
@@ -32,8 +32,12 @@ class Redis:
 
         result = []
         for response in page_result:
-            item = json.loads(MessageToJson(response._pb))
-            item["uuid"] = "{}-{}".format(self.credentials.project_id, item["displayName"])
+            try:
+                item = MessageToDict(response)
+            except:
+                item = MessageToDict(response._pb)
+            item["uuid"] = "{}-{}".format(self.credentials.project_id,
+                                          item["displayName"])
             item["region"] = self.region
             item["project"] = self.credentials.project_id
             item["tags_list"] = []
