@@ -16,6 +16,11 @@ metrics:
    aws_statistics: [Maximum]
 
  - aws_namespace: AWS/RDS
+   aws_metric_name: FreeableMemory
+   aws_dimensions: [ DBInstanceIdentifier]
+   aws_statistics: [Maximum]
+
+ - aws_namespace: AWS/RDS
    aws_metric_name: CPUUtilization
    aws_dimensions: [ DBInstanceIdentifier]
    aws_statistics: [Maximum]
