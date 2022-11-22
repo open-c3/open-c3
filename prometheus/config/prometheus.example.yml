@@ -95,6 +95,14 @@ scrape_configs:
     static_configs:
     - targets: ['OPENC3_SERVER_IP:38080']
 
+  - job_name: 'openc3-deviceextmetrics'
+    scrape_interval: 60s
+    scrape_timeout: 60s
+    metrics_path: /deviceextmetrics.txt
+    honor_labels: true
+    static_configs:
+    - targets: ['OPENC3_SERVER_IP:38080']
+
   - job_name: 'blackbox'
     metrics_path: /probe
     params:

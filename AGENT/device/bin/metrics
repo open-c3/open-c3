@@ -1,0 +1,58 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use utf8;
+use FindBin qw( $RealBin );
+use YAML::XS;
+use Encode;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $config = "$RealBin/../conf/config.yml";
+exit unless -f $config;
+
+my $conf = eval{ YAML::XS::LoadFile $config };
+die "load confg fail: $@" if $@;
+
+sub metrics
+{
+    my %c = @_;
+    my $distpath = "/data/open-c3-data/device/curr/$c{type}/$c{subtype}";
+    return  unless -d $distpath;
+
+    return unless my $metrics = $c{metrics};
+    for my $m ( @$metrics )
+    {
+        my ( $name, $value ) = map{ $m->{$_} }qw( name value );
+        my $cmd = sprintf "c3mc-device-data-get curr '$c{type}' '$c{subtype}' %s", join ' ', @$value;
+        my @x = `$cmd`;
+        chomp @x;
+        for my $x ( @x )
+        {
+            printf "$name\n", split /\t/, $x;
+        }
+    }
+}
+
+map{
+    my $c = $_;
+    if( $c->{template} )
+    {
+        my $tpl = eval{ YAML::XS::LoadFile "$RealBin/../conf/template/$c->{template}.yml"; };
+        die "load template $c->{template} fail: $@" if $@;
+
+        die "template $c->{template} error"
+          unless $tpl->{download}
+              && ref $tpl->{download} eq 'ARRAY'
+              && @{$tpl->{download} }
+              && ref $tpl->{download}[0] eq 'HASH';
+
+        $c = { %{ $tpl->{download}[0] }, %$c };
+    }
+
+    metrics( %$c );
+}@{ $conf->{download} };
