@@ -33,7 +33,9 @@ sub metrics
         chomp @x;
         for my $x ( @x )
         {
-            printf "$name\n", split /\t/, $x;
+            my @col = split /\t/, $x;
+            next unless @col == @$value;
+            printf "$name\n", @col;
         }
     }
 }
