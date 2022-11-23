@@ -22,6 +22,15 @@ class RdsPrice:
         )
         return client
 
+    def query_instance_type_attributes(self, region, instance_type):
+        FLT = '[{{"Field": "instanceType", "Value": "{t}", "Type": "TERM_MATCH"}},' \
+              '{{"Field": "deploymentOption", "Value": "Single-AZ", "Type": "TERM_MATCH"}},' \
+              '{{"Field": "regionCode", "Value": "{r}", "Type": "TERM_MATCH"}}]'
+        f = FLT.format(r=region, t=instance_type)
+        data = self.client.get_products(
+            ServiceCode='AmazonRDS', Filters=json.loads(f))
+        return json.loads(data['PriceList'][0])['product']['attributes']
+
     def query_hour_price(self, region, instance_type):
         FLT = '[{{"Field": "instanceType", "Value": "{t}", "Type": "TERM_MATCH"}},'\
             '{{"Field": "deploymentOption", "Value": "Single-AZ", "Type": "TERM_MATCH"}},'\
@@ -29,6 +38,7 @@ class RdsPrice:
         f = FLT.format(r=region, t=instance_type)
         data = self.client.get_products(
             ServiceCode='AmazonRDS', Filters=json.loads(f))
+        print(data)
         od = json.loads(data['PriceList'][0])['terms']['OnDemand']
         id1 = list(od)[0]
         id2 = list(od[id1]['priceDimensions'])[0]
