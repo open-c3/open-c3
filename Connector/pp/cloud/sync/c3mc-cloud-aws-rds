@@ -75,8 +75,8 @@ class Rds:
                     res = self.get_cpu_and_memory(instance_type)
                     instance_type_m[instance_type] = json.loads(res)
 
-            results[i]["Cpu"] = instance_type_m[instance_type]["vcpu"]
-            results[i]["Memory"] = instance_type_m[instance_type]["memory"]
+            results[i]["_cpu_"] = instance_type_m[instance_type]["vcpu"]
+            results[i]["_memory_"] = instance_type_m[instance_type]["memory"]
         return results
 
     def show(self):
