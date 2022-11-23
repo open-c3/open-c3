@@ -57,18 +57,20 @@ class Rds:
         for i in range(len(results)):
             instance_type = results[i]["DBInstanceClass"]
             if instance_type not in instance_type_m:
-                if self.region.startswith("cn-") and len(aws_china_rds_price) == 0:
-                    sys.path.append("/data/Software/mydan/Connector/lib/pp")
-                    from c3mc_cloud_get_china_aws_rds_price_file import get_price_file
-                    aws_china_rds_price = get_price_file()
-                    instance_type_m[self.region] = {}
-                    for code in aws_china_rds_price["products"]:
-                        product = aws_china_rds_price["products"][code]
-                        attr = product["attributes"]
-                        if attr["regionCode"] != self.region or "instanceType" not in attr:
-                            continue
-                        attr["memory"] = attr["memory"][:-len(" GiB")]
-                        instance_type_m[attr["instanceType"]] = attr
+                if self.region.startswith("cn-"):
+                    if len(aws_china_rds_price) == 0:
+                        sys.path.append(
+                            "/data/Software/mydan/Connector/lib/pp")
+                        from c3mc_cloud_get_china_aws_rds_price_file import get_price_file
+                        aws_china_rds_price = get_price_file()
+                        instance_type_m[self.region] = {}
+                        for code in aws_china_rds_price["products"]:
+                            product = aws_china_rds_price["products"][code]
+                            attr = product["attributes"]
+                            if attr["regionCode"] != self.region or "instanceType" not in attr:
+                                continue
+                            attr["memory"] = attr["memory"][:-len(" GiB")]
+                            instance_type_m[attr["instanceType"]] = attr
                 else:
                     res = self.get_cpu_and_memory(instance_type)
                     instance_type_m[instance_type] = json.loads(res)
