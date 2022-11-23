@@ -1,0 +1,14 @@
+---
+credential:
+  access_key: "ak"
+  secret_key: "sk"
+  region: "ap-beijing"
+products:
+  - namespace: QCE/CMONGO
+    only_include_metrics: [ClusterDiskusage,Connper]    
+    all_instances: true
+    extra_labels: [InstanceName,Zone]
+  - namespace: QCE/CDB
+    only_include_metrics: [CpuUseRate,MemoryUseRate,VolumeRate]    
+    all_instances: true
+    extra_labels: [InstanceName,Zone]
