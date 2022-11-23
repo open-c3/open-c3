@@ -37,6 +37,8 @@ my $title = shift @data;
 utf8::decode( $title );
 my @title = split /\t/, $title;
 
+map{ utf8::decode( $_ ); }@col;
+
 for my $data ( @data )
 {
      utf8::decode( $data );
