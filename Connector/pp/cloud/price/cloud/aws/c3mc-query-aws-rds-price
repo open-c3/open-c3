@@ -38,7 +38,6 @@ class RdsPrice:
         f = FLT.format(r=region, t=instance_type)
         data = self.client.get_products(
             ServiceCode='AmazonRDS', Filters=json.loads(f))
-        print(data)
         od = json.loads(data['PriceList'][0])['terms']['OnDemand']
         id1 = list(od)[0]
         id2 = list(od[id1]['priceDimensions'])[0]
