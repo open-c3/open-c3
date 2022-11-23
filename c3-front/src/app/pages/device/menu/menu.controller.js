@@ -44,9 +44,9 @@
             $state.go('home.device.data', {treeid:vm.treeid, timemachine: vm.selectedtimemachine, type: type, subtype: subtype });
         };
 
-        vm.openNewWindow = function( metrics )
+        vm.openNewWindow = function( metrics, tab )
         {
-            var newurl = '/third-party/monitor/prometheus/graph?g0.expr=' + metrics + '&g0.tab=0&g0.stacked=0&g0.show_exemplars=0&g0.range_input=3h';
+            var newurl = '/third-party/monitor/prometheus/graph?g0.expr=' + metrics + '&g0.tab=' + tab + '&g0.stacked=0&g0.show_exemplars=0&g0.range_input=3h';
             window.open( newurl, '_blank')
         }
     }
