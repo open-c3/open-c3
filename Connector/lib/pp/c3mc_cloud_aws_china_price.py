@@ -55,5 +55,7 @@ def get_price(instance_type, filepath, url):
     od = data['terms']['OnDemand']
     od = od[target_code][list(od[target_code])[0]]["priceDimensions"]
     od = od[list(od)[0]]["pricePerUnit"]
-
-    return "{}{}".format(od[list(od)[0]], list(od)[0])
+    return  {
+        "amount": od[list(od)[0]],
+        "money_type": list(od)[0],
+    }

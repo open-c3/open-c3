@@ -22,32 +22,28 @@ class RdsPrice:
         )
         return client
 
-    def query_instance_type_attributes(self, region, instance_type):
-        FLT = '[{{"Field": "instanceType", "Value": "{t}", "Type": "TERM_MATCH"}},' \
-              '{{"Field": "deploymentOption", "Value": "Single-AZ", "Type": "TERM_MATCH"}},' \
-              '{{"Field": "regionCode", "Value": "{r}", "Type": "TERM_MATCH"}}]'
-        f = FLT.format(r=region, t=instance_type)
-        data = self.client.get_products(
-            ServiceCode='AmazonRDS', Filters=json.loads(f))
-        return json.loads(data['PriceList'][0])['product']['attributes']
-
     def query_hour_price(self, region, instance_type):
-        FLT = '[{{"Field": "instanceType", "Value": "{t}", "Type": "TERM_MATCH"}},'\
-            '{{"Field": "deploymentOption", "Value": "Single-AZ", "Type": "TERM_MATCH"}},'\
-            '{{"Field": "regionCode", "Value": "{r}", "Type": "TERM_MATCH"}}]'
-        f = FLT.format(r=region, t=instance_type)
-        data = self.client.get_products(
-            ServiceCode='AmazonRDS', Filters=json.loads(f))
-        od = json.loads(data['PriceList'][0])['terms']['OnDemand']
-        id1 = list(od)[0]
-        id2 = list(od[id1]['priceDimensions'])[0]
+        if region.startswith("cn-"):
+            sys.path.append("/data/Software/mydan/Connector/lib/pp")
+            from c3mc_cloud_aws_china_get_price_data import get_rds_price
+            return get_rds_price(region, instance_type)
+        else:
+            FLT = '[{{"Field": "instanceType", "Value": "{t}", "Type": "TERM_MATCH"}},'\
+                '{{"Field": "deploymentOption", "Value": "Single-AZ", "Type": "TERM_MATCH"}},'\
+                '{{"Field": "regionCode", "Value": "{r}", "Type": "TERM_MATCH"}}]'
+            f = FLT.format(r=region, t=instance_type)
+            data = self.client.get_products(
+                ServiceCode='AmazonRDS', Filters=json.loads(f))
+            od = json.loads(data['PriceList'][0])['terms']['OnDemand']
+            id1 = list(od)[0]
+            id2 = list(od[id1]['priceDimensions'])[0]
 
-        for money_type, amount in od[id1]['priceDimensions'][id2]['pricePerUnit'].items():
-            return {
-                "amount": amount,
-                "money_type": money_type,
-            }
-        raise Exception("无法找到单价")
+            for money_type, amount in od[id1]['priceDimensions'][id2]['pricePerUnit'].items():
+                return {
+                    "amount": amount,
+                    "money_type": money_type,
+                }
+            raise Exception("无法找到单价")
 
     def query_month_price(self, region, instance_type):
         hour_price = self.query_hour_price(region, instance_type)
