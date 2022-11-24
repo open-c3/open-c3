@@ -59,8 +59,8 @@ class Rds:
                 if self.region.startswith("cn-"):
                     if len(aws_instance_info_m) == 0:
                         sys.path.append("/data/Software/mydan/Connector/lib/pp")
-                        from c3mc_cloud_get_china_aws_rds_price_file import get_instance_type_info_m
-                        aws_instance_info_m = get_instance_type_info_m(self.region)
+                        from c3mc_cloud_aws_china_get_price_data import get_rds_instance_type_info_m
+                        aws_instance_info_m = get_rds_instance_type_info_m(self.region)
 
                     deploy_mode = ""
                     if results[i]["MultiAZ"]:
