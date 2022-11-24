@@ -15,7 +15,7 @@ products:
     all_instances: true
     extra_labels: [InstanceName,Zone]
   - namespace: QCE/CDB
-    only_include_metrics: [CpuUseRate,MemoryUseRate,VolumeRate]    
+    only_include_metrics: [CpuUseRate,MemoryUseRate,VolumeRate,Capacity]
     all_instances: true
     extra_labels: [InstanceName,Zone]
 ```
