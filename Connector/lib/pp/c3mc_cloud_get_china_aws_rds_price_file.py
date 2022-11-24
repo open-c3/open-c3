@@ -2,9 +2,8 @@
 # -*- coding: utf-8 -*-
 
 
-import urllib.request
 import json
-
+from c3mc_utils import redownload_file_if_need
 
 def get_price_file_data():
     """
@@ -13,10 +12,17 @@ def get_price_file_data():
         本来可以通过boto3的pricing服务获取价格信息, 但是目前中国区调用
         这个服务会报错, 咨询aws工程师后, 给的建议是从下面地址获取价格文件
     """
+    
+    filepath = "/tmp/aws_rds/index.json"
+    alive_seconds = 24 * 60 * 60
     url = 'https://pricing.amazonaws.com/offers/v1.0/cn/AmazonRDS/current/cn-northwest-1/index.json'
 
-    with urllib.request.urlopen(url) as url:
-        return json.load(url)
+    redownload_file_if_need(filepath, url, alive_seconds)
+
+    data = {}
+    with open(filepath) as json_file:
+        data = json.load(json_file)
+    return data
 
 
 def get_instance_type_info_m():
