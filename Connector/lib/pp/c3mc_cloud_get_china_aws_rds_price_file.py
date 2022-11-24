@@ -6,7 +6,7 @@ import urllib.request
 import json
 
 
-def get_price_file():
+def get_price_file_data():
     """
         获取aws中国区rds的价格文件。
 
@@ -17,3 +17,91 @@ def get_price_file():
 
     with urllib.request.urlopen(url) as url:
         return json.load(url)
+
+
+def get_instance_type_info_m():
+    """
+        返回数据的格式如下:
+            {
+                "cn-northwest-1":
+                {
+                    "db.r4.xlarge":
+                    {
+                        "Multi-AZ":
+                        {
+                            "servicecode": "AmazonRDS",
+                            "location": "China (Ningxia)",
+                            "locationType": "AWS Region",
+                            "instanceType": "db.r4.xlarge",
+                            "currentGeneration": "No",
+                            "instanceFamily": "Memory optimized",
+                            "vcpu": "4",
+                            "physicalProcessor": "Intel Xeon E5-2686 v4 (Broadwell)",
+                            "clockSpeed": "2.3 GHz",
+                            "memory": "30.5 GiB",
+                            "storage": "EBS Only",
+                            "networkPerformance": "Up to 10 Gigabit",
+                            "processorArchitecture": "64-bit",
+                            "engineCode": "2",
+                            "databaseEngine": "MySQL",
+                            "licenseModel": "No license required",
+                            "deploymentOption": "Multi-AZ",
+                            "usagetype": "CNW1-Multi-AZUsage:db.r4.xlarge",
+                            "operation": "CreateDBInstance:0002",
+                            "dedicatedEbsThroughput": "800 Mbps",
+                            "enhancedNetworkingSupported": "Yes",
+                            "instanceTypeFamily": "R4",
+                            "normalizationSizeFactor": "16",
+                            "processorFeatures": "Intel AVX, Intel AVX2, Intel Turbo",
+                            "regionCode": "cn-northwest-1",
+                            "servicename": "Amazon Relational Database Service"
+                        },
+                        "Single-AZ":
+                        {
+                            "servicecode": "AmazonRDS",
+                            "location": "China (Ningxia)",
+                            "locationType": "AWS Region",
+                            "instanceType": "db.r4.xlarge",
+                            "currentGeneration": "No",
+                            "instanceFamily": "Memory optimized",
+                            "vcpu": "4",
+                            "physicalProcessor": "Intel Xeon E5-2686 v4 (Broadwell)",
+                            "clockSpeed": "2.3 GHz",
+                            "memory": "30.5 GiB",
+                            "storage": "EBS Only",
+                            "networkPerformance": "Up to 10 Gigabit",
+                            "processorArchitecture": "64-bit",
+                            "engineCode": "20",
+                            "databaseEngine": "Oracle",
+                            "databaseEdition": "Standard Two",
+                            "licenseModel": "License included",
+                            "deploymentOption": "Single-AZ",
+                            "usagetype": "CNW1-InstanceUsage:db.r4.xlarge",
+                            "operation": "CreateDBInstance:0020",
+                            "dedicatedEbsThroughput": "800 Mbps",
+                            "enhancedNetworkingSupported": "Yes",
+                            "instanceTypeFamily": "R4",
+                            "normalizationSizeFactor": "NA",
+                            "processorFeatures": "Intel AVX, Intel AVX2, Intel Turbo",
+                            "regionCode": "cn-northwest-1",
+                            "servicename": "Amazon Relational Database Service"
+                        }
+                    },
+                    ....
+                }
+            }
+    """
+    data = get_price_file_data()
+    attr_m = {}
+    for code in data["products"]:
+        attr = data["products"][code]["attributes"]
+        if "instanceType" not in attr:
+            continue
+        if attr["regionCode"] not in attr_m:
+            attr_m[attr["regionCode"]] = {}
+        if attr["instanceType"] not in attr_m[attr["regionCode"]]:
+            attr_m[attr["regionCode"]][attr["instanceType"]] = {}
+        # 对于相同的regionCode、instanceType、deploymentOption, attr可能会有多个，主要区别是数据库种类不一样
+        # 但是cpu、memory等主要信息是一致的，如果不在乎数据库种类，使用该方法没有问题
+        attr_m[attr["regionCode"]][attr["instanceType"]][attr["deploymentOption"]] = attr
+    return attr_m
