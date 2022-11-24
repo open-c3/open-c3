@@ -8,6 +8,14 @@ download:
       treename: "服务树"
       treeinfo:
         - ["实例ID", "instance"]
+    ingestion-mysql:
+      addr: [ 'Vip', 'Vport' ]
+      authpath: /data/open-c3-data/device/curr/auth/mysql
+      tree: '服务树'
+      type: qcloud-cdb
+      exclude:
+        "Status": ["5"]
+        "_ingestion_": ["NO"]
     check:
       col: ["实例ID"]
       min: 0

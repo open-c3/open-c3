@@ -8,6 +8,19 @@ download:
       treename: "服务树"
       treeinfo:
         - ["实例ID", "instance"]
+    ingestion-mysql:
+      addr: [ 'Endpoint.Address', 'Endpoint.Port' ]
+      authpath: /data/open-c3-data/device/curr/auth/mysql
+      tree: '服务树'
+      type: aws-rds
+      exclude:
+        "LicenseModel": ["postgresql-license"]
+        "_ingestion_": ["NO"]
+    metrics:
+      - name: 'aws_rds_storage_space_allocated{dbinstance_identifier="%s"} %d'
+        value: [ 'uuid', 'AllocatedStorage' ]
+      - name: 'aws_rds_freeable_memory_total{dbinstance_identifier="%s"} %d'
+        value: [ 'uuid', '_memory_' ]
     util:
       defaulttree: defaulttree.pool
       extcol:

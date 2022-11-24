@@ -3,6 +3,7 @@
 
 import sys
 import json
+import subprocess
 
 import boto3
 
@@ -37,17 +38,49 @@ class Rds:
             results.append(instance)
         return results
 
-    def get_response(self):
+    def get_cpu_and_memory(self, instance_type):
+        return subprocess.getoutput(
+            "c3mc-query-aws-rds-instance-type-info {} {} {} {}".format(
+                self.access_id, self.access_key, self.region, instance_type))
+
+    def list_instance(self):
         response = self.client.describe_db_instances(MaxRecords=self.page_size)
         results = self.get_instances_from_response(response)
         while "Marker" in response:
             response = self.client.describe_db_instances(
                 MaxRecords=self.page_size, Marker=response["Marker"])
             results.extend(self.get_instances_from_response(response))
+
+        aws_china_rds_price = {}
+        instance_type_m = {}
+
+        for i in range(len(results)):
+            instance_type = results[i]["DBInstanceClass"]
+            if instance_type not in instance_type_m:
+                if self.region.startswith("cn-"):
+                    if len(aws_china_rds_price) == 0:
+                        sys.path.append(
+                            "/data/Software/mydan/Connector/lib/pp")
+                        from c3mc_cloud_get_china_aws_rds_price_file import get_price_file
+                        aws_china_rds_price = get_price_file()
+                        instance_type_m[self.region] = {}
+                        for code in aws_china_rds_price["products"]:
+                            product = aws_china_rds_price["products"][code]
+                            attr = product["attributes"]
+                            if attr["regionCode"] != self.region or "instanceType" not in attr:
+                                continue
+                            attr["memory"] = attr["memory"][:-len(" GiB")]
+                            instance_type_m[attr["instanceType"]] = attr
+                else:
+                    res = self.get_cpu_and_memory(instance_type)
+                    instance_type_m[instance_type] = json.loads(res)
+
+            results[i]["_cpu_"] = instance_type_m[instance_type]["vcpu"]
+            results[i]["_memory_"] = instance_type_m[instance_type]["memory"]
         return results
 
     def show(self):
-        instance_list = self.get_response()
+        instance_list = self.list_instance()
         for instance in instance_list:
             print(json.dumps(instance, default=str))
 

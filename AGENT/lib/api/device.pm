@@ -26,6 +26,7 @@ sub getdatacount
 
         my $title = shift @data;
 
+        return 0 unless $title;
         utf8::decode($title);
         my @title = split /\t/, $title;
 
@@ -125,6 +126,7 @@ get '/device/menu/:treeid' => sub {
             $subtypecount{$type}{$g} ++;
             $re2{$type}{$g} ||= [];
             push @{ $re2{$type}{$g}}, [ $g, @$subtype, join "-", @alias ];
+            $max{$type} ||= 0;
             $max{$type} = @{ $re2{$type}{$g}} - 1 if $max{$type} < @{ $re2{$type}{$g}} - 1;
         }
     }

@@ -53,7 +53,7 @@ for my $ingestion ( glob "/data/open-c3-data/device/curr/compute/*/ingestion-nod
              my $skip = 0;
              for my $col ( keys %$exclude )
              {
-                 map{ $skip = 1 if $_ eq $d{ $col } }@{ $exclude->{ $col } };
+                 map{ $skip = 1 if defined $d{ $col } && $_ eq $d{ $col } }@{ $exclude->{ $col } };
              }
              next if $skip;
          }

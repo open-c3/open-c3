@@ -163,5 +163,15 @@ map{
     }
 
     map{ $c->{util}{$_} = $c->{$_} if $c->{$_} }qw( defaulttree copytreecol extcol );
-    download( map{ $c->{$_} }qw(type subtype url outline filter colmap util ingestion-node check datatype treeinfo alias ));
+    my $time = time;
+    eval{
+        download( map{ $c->{$_} }qw(type subtype url outline filter colmap util ingestion-node check datatype treeinfo alias ));
+    };
+    my $usetime = time - $time;
+    if( $@ )
+    {
+        warn "sync type:$c->{type} subtype:$c->{subtype} fail: $@";
+        $usetime = -1;
+    }
+    printf "c3_cmdb_sync_usetime{type=\"%s\", subtype=\"%s\"} %s\n", $c->{type}, $c->{subtype}, $usetime;
 }@{ $conf->{download} };

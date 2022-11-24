@@ -1,6 +1,6 @@
 #!/bin/bash
 
-/data/Software/mydan/AGENT/device/bin/download
+cd /data/Software/mydan/Connector/local && /data/Software/mydan/AGENT/device/bin/download > devicesynctime.txt.temp && mv devicesynctime.txt.temp devicesynctime.txt
 
 SAVETREE=$(c3mc-sys-ctl sys.device.sync.tree)
 if [ "X$SAVETREE" == "X1" ];then
@@ -12,5 +12,6 @@ if [ "X$BINDTREE" == "X1" ];then
     c3mc-device-dump-bind | c3mc-base-savebind 
 fi
 
-cd /data/Software/mydan/Connector/local && c3mc-device-dump-treeinfo > devicetreeinfo.txt.temp && mv devicetreeinfo.txt.temp devicetreeinfo.txt
-cd /data/Software/mydan/Connector/local && c3mc-device-metrics       > devicesyncinfo.txt.temp && mv devicesyncinfo.txt.temp devicesyncinfo.txt
+cd /data/Software/mydan/Connector/local && c3mc-device-dump-treeinfo                      > devicetreeinfo.txt.temp && mv devicetreeinfo.txt.temp devicetreeinfo.txt
+cd /data/Software/mydan/Connector/local && c3mc-device-metrics                            > devicesyncinfo.txt.temp && mv devicesyncinfo.txt.temp devicesyncinfo.txt
+cd /data/Software/mydan/Connector/local && /data/Software/mydan/AGENT/device/bin/metrics  > deviceextmetrics.txt.temp && mv deviceextmetrics.txt.temp deviceextmetrics.txt

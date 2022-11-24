@@ -1,0 +1,65 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import json
+import sys
+
+import boto3
+
+
+class RdsPrice:
+    def __init__(self, access_id, access_key):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.client = self.create_client()
+
+    def create_client(self):
+        client = boto3.client(
+            "pricing",
+            aws_access_key_id=self.access_id,
+            aws_secret_access_key=self.access_key,
+            region_name="us-east-1",
+        )
+        return client
+
+    def query_instance_type_attributes(self, region, instance_type):
+        FLT = '[{{"Field": "instanceType", "Value": "{t}", "Type": "TERM_MATCH"}},' \
+              '{{"Field": "deploymentOption", "Value": "Single-AZ", "Type": "TERM_MATCH"}},' \
+              '{{"Field": "regionCode", "Value": "{r}", "Type": "TERM_MATCH"}}]'
+        f = FLT.format(r=region, t=instance_type)
+        data = self.client.get_products(
+            ServiceCode='AmazonRDS', Filters=json.loads(f))
+        return json.loads(data['PriceList'][0])['product']['attributes']
+
+    def query_hour_price(self, region, instance_type):
+        FLT = '[{{"Field": "instanceType", "Value": "{t}", "Type": "TERM_MATCH"}},'\
+            '{{"Field": "deploymentOption", "Value": "Single-AZ", "Type": "TERM_MATCH"}},'\
+            '{{"Field": "regionCode", "Value": "{r}", "Type": "TERM_MATCH"}}]'
+        f = FLT.format(r=region, t=instance_type)
+        data = self.client.get_products(
+            ServiceCode='AmazonRDS', Filters=json.loads(f))
+        od = json.loads(data['PriceList'][0])['terms']['OnDemand']
+        id1 = list(od)[0]
+        id2 = list(od[id1]['priceDimensions'])[0]
+
+        for money_type, amount in od[id1]['priceDimensions'][id2]['pricePerUnit'].items():
+            return {
+                "amount": amount,
+                "money_type": money_type,
+            }
+        raise Exception("无法找到单价")
+
+    def query_month_price(self, region, instance_type):
+        hour_price = self.query_hour_price(region, instance_type)
+        # 一个月的小时数 = 365天 * 24小时 / 12个月
+        return "{}{}".format(float(hour_price["amount"]) * 730, hour_price["money_type"])
+
+
+def main(access_id, access_key, region, instance_type):
+    price = RdsPrice(access_id, access_key).query_month_price(
+        region, instance_type)
+    print(price)
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])

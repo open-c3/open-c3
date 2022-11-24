@@ -1,0 +1,11 @@
+  openc3-cloudmon-${cloudmonid}:
+    container_name: openc3-cloudmon-${cloudmonid}
+    environment:
+      TZ: 'Asia/Shanghai'
+    image: "openc3/tencentcloud-exporter:20221122"
+    working_dir: /
+    restart: always
+    volumes:
+      - "/data/open-c3-data/cloudmon/task/${taskid}/config.dat:/qcloud.yml"
+    networks:
+      - alise_net
