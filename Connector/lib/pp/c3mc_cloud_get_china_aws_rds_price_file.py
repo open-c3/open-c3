@@ -5,7 +5,7 @@
 import json
 from c3mc_utils import redownload_file_if_need
 
-def get_price_file_data():
+def get_price_file_data(region):
     """
         获取aws中国区rds的价格文件。
 
@@ -15,7 +15,7 @@ def get_price_file_data():
     
     filepath = "/tmp/aws_rds/index.json"
     alive_seconds = 24 * 60 * 60
-    url = 'https://pricing.amazonaws.com/offers/v1.0/cn/AmazonRDS/current/cn-northwest-1/index.json'
+    url = 'https://pricing.amazonaws.com/offers/v1.0/cn/AmazonRDS/current/{}/index.json'.format(region)
 
     redownload_file_if_need(filepath, url, alive_seconds)
 
@@ -25,7 +25,7 @@ def get_price_file_data():
     return data
 
 
-def get_instance_type_info_m():
+def get_instance_type_info_m(region):
     """
         返回数据的格式如下:
             {
@@ -97,7 +97,7 @@ def get_instance_type_info_m():
                 }
             }
     """
-    data = get_price_file_data()
+    data = get_price_file_data(region)
     attr_m = {}
     for code in data["products"]:
         attr = data["products"][code]["attributes"]
