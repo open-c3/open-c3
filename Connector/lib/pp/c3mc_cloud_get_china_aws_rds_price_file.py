@@ -13,7 +13,7 @@ def get_price_file_data(region):
         这个服务会报错, 咨询aws工程师后, 给的建议是从下面地址获取价格文件
     """
     
-    filepath = "/tmp/aws_rds/index.json"
+    filepath = "/tmp/aws_rds/{}/index.json".format(region)
     alive_seconds = 24 * 60 * 60
     url = 'https://pricing.amazonaws.com/offers/v1.0/cn/AmazonRDS/current/{}/index.json'.format(region)
 
