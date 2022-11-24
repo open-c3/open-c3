@@ -67,7 +67,10 @@ class Rds:
                         deploy_mode = "Multi-AZ"
                     else:
                         deploy_mode = "Single-AZ"
-                    instance_type_m[instance_type] = aws_instance_info_m[self.region][instance_type][deploy_mode]
+                    
+                    attr = aws_instance_info_m[self.region][instance_type][deploy_mode]
+                    attr["memory"] = attr["memory"][:-len(" GiB")]
+                    instance_type_m[instance_type] = attr
                 else:
                     res = self.get_cpu_and_memory(instance_type)
                     instance_type_m[instance_type] = json.loads(res)
