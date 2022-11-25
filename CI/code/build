@@ -39,6 +39,8 @@ return sub
         where uuid='$uuid' and ( slave='' or slave='$myname' ) and pid is null" );
     $logs->die( "build $uuid Already running, or no belong to the slave" ) unless $x && $x eq 1;
 
+    $logs->die( "maintain" ) if -f '/data/Software/mydan/Connector/c3.maintain.flow';
+
     my $applyResourcesPrintTemp = '';
     my $applyResourcesPrint = sub
     {
