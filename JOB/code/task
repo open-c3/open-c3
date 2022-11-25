@@ -34,6 +34,8 @@ return sub
 
     $logs = Logs->new( 'code.task', $uuid =~ /^[a-zA-Z0-9]+$/ ? (  $uuid, $db ) : () ) unless $logs;
 
+    $logs->die( "maintain" ) if -f '/data/Software/mydan/Connector/c3.maintain.flow';
+
     $logs->die( "uuid format error" ) unless $uuid =~ /^[a-zA-Z0-9]+$/;
 
     my ( $stimems, $stime ) = ( time, POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime ) );
