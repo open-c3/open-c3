@@ -53,6 +53,7 @@ if( $name eq 'promesd' )
     my $openc3_mongodb_sd = '/data/Software/mydan/prometheus/config/openc3_mongodb_sd_v3.yml';
 
     my $mode = OPENC3::SysCtl->new()->get( 'sys.monitor.mode' ) // 'single';
+    $mode = 'off' if -f '/data/Software/mydan/Connector/c3.maintain.mon';
 
     my $greptree = OPENC3::SysCtl->new()->get( 'sys.monitor.grep.tree' );
     my $grepnode = OPENC3::SysCtl->new()->get( 'sys.monitor.grep.node' );
@@ -196,6 +197,7 @@ if( $name eq 'promesdx' )
     my $openc3_node_sd = '/data/Software/mydan/prometheus/config/openc3_node_sd.yml';
 
     my $mode = OPENC3::SysCtl->new()->get( 'sys.monitor.mode' ) // 'single';
+    $mode = 'off' if -f '/data/Software/mydan/Connector/c3.maintain.mon';
 
     if( $mode eq 'thanos' )
     {
@@ -226,6 +228,7 @@ if( $name eq 'promesdx' )
 if( $name eq 'rule' )
 {
     my $mode = OPENC3::SysCtl->new()->get( 'sys.monitor.mode' ) // 'single';
+    $mode = 'off' if -f '/data/Software/mydan/Connector/c3.maintain.mon';
 
     if( $mode eq 'off' || -f "/data/open-c3-data/promesd.off" ) {
         $0 = "agent_server_$name";
@@ -247,6 +250,7 @@ if( $name eq 'rule' )
 if( $name eq 'carry' )
 {
     my $mode = OPENC3::SysCtl->new()->get( 'sys.monitor.mode' ) // 'single';
+    $mode = 'off' if -f '/data/Software/mydan/Connector/c3.maintain.mon';
 
     if( $mode eq 'off' || -f "/data/open-c3-data/promesd.off" ) {
         $0 = "agent_server_$name";
@@ -284,6 +288,7 @@ if( $name eq 'carry' )
 if( $name eq 'sender' )
 {
     my $mode = OPENC3::SysCtl->new()->get( 'sys.monitor.mode' ) // 'single';
+    $mode = 'off' if -f '/data/Software/mydan/Connector/c3.maintain.mon';
 
     if( $mode eq 'off' || -f "/data/open-c3-data/promesd.off" ) {
         $0 = "agent_server_$name";
