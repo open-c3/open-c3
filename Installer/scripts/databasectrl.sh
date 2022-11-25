@@ -16,7 +16,7 @@ function list() {
 
 function backup() {
     echo =================================================================
-    version=$(date +%Y%m%d.%H%M%S)
+    version=$(date +%y%m%d.%H%M%S)
     if [ "X$1" != "X" ];then
         version=$1
     fi
