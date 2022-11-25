@@ -51,7 +51,9 @@ def get_price(instance_type, filepath, url):
         if "instanceType" not in attr:
             continue
         if attr["instanceType"] == instance_type:
-            target_code = code
+                target_code = code
+                break
+
     od = data['terms']['OnDemand']
     od = od[target_code][list(od[target_code])[0]]["priceDimensions"]
     od = od[list(od)[0]]["pricePerUnit"]
