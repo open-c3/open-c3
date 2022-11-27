@@ -1,9 +1,13 @@
 #!/bin/bash
 
+mkdir -p /data/open-c3-data/glusterfs/maintain
+cd /data/open-c3-data/glusterfs/maintain || exit
+
 version=$1
 
 if [ "X$version" == "X" ];then
-    echo nofind version
+    echo nofind version, \$0 version
+    ls data/mysql|sed 's/^openc3.//'|sed 's/.sql//'
     exit
 fi
 

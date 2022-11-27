@@ -1,5 +1,8 @@
 #!/bin/bash
 
+mkdir -p /data/open-c3-data/glusterfs/maintain
+cd /data/open-c3-data/glusterfs/maintain || exit
+
 mkdir -p data/auth
 cp /data/open-c3/Connector/config.ini/current data/
 cp /data/open-c3-data/sysctl.conf             data/
