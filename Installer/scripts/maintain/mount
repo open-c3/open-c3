@@ -1,0 +1,15 @@
+#!/bin/bash
+ip=$1
+name=$2
+if [ "X$ip" = "X" ];then
+    echo "$0 serverip c3name"
+    exit;
+fi
+if [ "X$name" = "X" ];then
+    echo "$0 serverip c3name"
+    exit;
+fi
+
+test -d /data/open-c3-data/glusterfs || mkdir /data/open-c3-data/glusterfs
+umount /data/open-c3-data/glusterfs
+mount -t glusterfs $ip:/c3smx/c3_$name/glusterfs /data/open-c3-data/glusterfs

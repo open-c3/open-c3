@@ -11,6 +11,7 @@ if [ "X$version" == "X" ];then
     exit
 fi
 
+mkdir -p /data/open-c3-data/backup/mysql
 cp data/mysql/openc3.${version}.sql /data/open-c3-data/backup/mysql/
 
 /data/open-c3/Installer/scripts/databasectrl.sh recovery $version
