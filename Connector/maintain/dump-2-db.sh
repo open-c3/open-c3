@@ -14,5 +14,4 @@ cd $DIST || exit
 
 mkdir -p  data/mysql
 
-/data/open-c3/Installer/scripts/databasectrl.sh  backup $version
-cp /data/open-c3-data/backup/mysql/openc3.${version}.sql data/mysql/
+docker exec -i openc3-mysql mysqldump -h127.0.0.1 -uroot -popenc3123456^! --databases jobs jobx ci agent connector > data/mysql/openc3.${version}.sql
