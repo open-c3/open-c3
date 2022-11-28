@@ -7,9 +7,13 @@ use api;
 use uuid;
 use Format;
 use OPENC3::Crypt;
+use OPENC3::SysCtl;
 
-my $crypt;
-BEGIN{ $crypt = OPENC3::Crypt->new();};
+my ( $crypt, $desensitized );
+BEGIN{
+    $crypt        = OPENC3::Crypt->new();
+    $desensitized = OPENC3::SysCtl->new()->get( 'sys.userinfo.desensitized' );
+};
 
 get '/useraddr' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
@@ -21,6 +25,10 @@ get '/useraddr' => sub {
     for my $u ( @$addr )
     {
         map{ $u->{$_} = $crypt->decode( $u->{$_} ) if $u->{$_} }qw( email phone voicemail );
+        map{
+            $u->{$_} =~ s/^(.{3}).+(.{4})$/$1****$2/ if $u->{$_} && $u->{$_} =~ /^\d+$/;
+            $u->{$_} =~ s/^.{3}(.+)(@.+)$/***$1$2/   if $u->{$_} && $u->{$_} =~ /@/;
+        }qw( email phone voicemail ) if $desensitized;
     }
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $addr };
 };
