@@ -6,6 +6,10 @@ use POSIX;
 use api;
 use uuid;
 use Format;
+use OPENC3::Crypt;
+
+my $crypt;
+BEGIN{ $crypt = OPENC3::Crypt->new();};
 
 get '/useraddr' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
@@ -14,6 +18,10 @@ get '/useraddr' => sub {
     my @col = qw( id user email phone edit_user edit_time voicemail );
     my $addr = eval{ $api::mysql->query( sprintf( "select %s from `openc3_connector_useraddr`", join( ',', @col ) ), \@col ) };
 
+    for my $u ( @$addr )
+    {
+        map{ $u->{$_} = $crypt->decode( $u->{$_} ) if $u->{$_} }qw( email phone voicemail );
+    }
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $addr };
 };
 
@@ -33,6 +41,8 @@ post '/useraddr' => sub {
     $param->{voicemail} ||= '';
     eval{ $api::mysql->execute( "insert into openc3_connector_auditlog (`user`,`title`,`content`) values('$ssouser','CREATE USERADDR','USER:$param->{user} EMAIL:$param->{email} PHONE:$param->{phone} VOICEMAIL:$param->{voicemail}')" ); };
 
+    map{ $param->{$_} = $crypt->encode( $param->{$_} ) if $param->{$_} }qw( email phone voicemail );
+ 
     eval{ $api::mysql->execute( "replace into openc3_connector_useraddr (`user`,`email`,`phone`,`voicemail`,`edit_user`) values('$param->{user}','$param->{email}','$param->{phone}','$param->{voicemail}', '$ssouser')" ); };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, info => 'ok' };
 };

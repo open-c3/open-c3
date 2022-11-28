@@ -14,6 +14,7 @@ use Encode;
 use LWP::UserAgent;
 use JSON;
 use Configini;
+use OPENC3::Crypt;
 
 =head1 SYNOPSIS
 
@@ -40,6 +41,7 @@ $ua->timeout( 15 );
 $ua->default_header( %env ) if %env;
 
 my $db = MYDB->new( "/data/Software/mydan/Connector/conf/conn", delayedconnection => 1 );
+my $crypt = OPENC3::Crypt->new();
 
 sub sendmesg
 {
@@ -48,7 +50,7 @@ sub sendmesg
     my $x = $db->query( sprintf "select `phone`,`voicemail` from openc3_connector_useraddr where user='$user'" );
     if( @$x )
     {
-        $user = $x->[0][1] ? $x->[0][1] : $x->[0][0];
+        $user = $crypt->decode( $x->[0][1] ? $x->[0][1] : $x->[0][0] );
     }
 
     my $cont = $usercall =~ /encode/
