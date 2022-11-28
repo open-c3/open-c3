@@ -1,7 +1,12 @@
 #!/bin/bash
 
-mkdir -p /data/open-c3-data/glusterfs/maintain
-cd /data/open-c3-data/glusterfs/maintain || exit
+V=$1
+DIST=/data/open-c3-data/glusterfs/maintain
+if [ "X$V" != "X" ];then
+    DIST="$DIST-$V"
+fi
+mkdir -p $DIST
+cd $DIST || exit
 
 mkdir -p data/auth
 cp /data/open-c3/Connector/config.ini/current data/
