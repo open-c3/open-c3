@@ -14,6 +14,7 @@ use Encode;
 use LWP::UserAgent;
 use JSON;
 use Configini;
+use OPENC3::Crypt;
 
 =head1 SYNOPSIS
 
@@ -45,12 +46,14 @@ my $ua = LWP::UserAgent->new;
 $ua->timeout( 15 );
 $ua->default_header( %env ) if %env;
 
+my $crypt = OPENC3::Crypt->new();
+
 sub sendmail
 {
     my ( $user, $title, $content ) = @_;
 
     my $x = $db->query( sprintf "select `email` from openc3_connector_useraddr where user='$user'" );
-    $user = $x->[0][0] if @$x;
+    $user = $crypt->decode( $x->[0][0] ) if @$x;
 
     if( $usermail =~ /api.connector.open-c3.org/ )
     {

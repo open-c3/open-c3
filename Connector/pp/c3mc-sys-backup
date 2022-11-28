@@ -13,28 +13,15 @@ c3version=$(cat /data/Software/mydan/Connector/.versionname|grep -E "^v[0-9]+\.[
 
 uuid=$(date +%y%m%d.%H%M%S)
 
-dbfile=/data/open-c3-data/backup/mysql/openc3.${uuid}.sql
+/data/Software/mydan/Connector/maintain/dump-1-base.sh $uuid
+/data/Software/mydan/Connector/maintain/dump-2-db.sh   $uuid
 
-set +e
-docker inspect openc3-mysql >/dev/null 2>&1
-nodocker=$?
-set -e
-
-if [ $nodocker -eq 0 ];then
-    docker exec -i openc3-mysql mysqldump -h127.0.0.1 -uroot -popenc3123456^! --databases jobs jobx ci agent connector > $dbfile
-else
-    mysqldump -hOPENC3_DB_IP -uroot -popenc3123456^! --databases jobs jobx ci agent connector > $dbfile
-fi
-
-path=/data/open-c3-data/backup/c3sys
+path=/data/open-c3-data/glusterfs/backup/c3maintain
 mkdir -p $path
 file="$path/c3-$name-$c3version-$uuid.tar.gz"
 
-tar -zcvf $file $dbfile \
-    /data/Software/mydan/Connector/config.ini/current \
-    /data/open-c3-data/sysctl.conf \
-    /data/Software/mydan/etc/agent/auth \
-    /data/open-c3-data/private
+cd /data/open-c3-data/glusterfs && tar -zcvf $file maintain-$uuid
+rm -rf maintain-$uuid
 
 url=$(  c3mc-sys-ctl sys.backup.url   | grep -E "^http[s]*://[a-zA-Z0-9\.\/\-]+$")
 token=$(c3mc-sys-ctl sys.backup.token | grep -E "^[a-zA-Z0-9]{32}$"              )

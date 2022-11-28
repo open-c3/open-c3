@@ -9,6 +9,7 @@ use MYDan::Util::OptConf;
 use LWP::UserAgent;
 use JSON;
 use Configini;
+use OPENC3::Crypt;
 
 =head1 SYNOPSIS
 
@@ -32,11 +33,12 @@ my %info = (
 
 my $db = MYDB->new( "/data/Software/mydan/Connector/conf/conn", delayedconnection => 1 );
 
+my $crypt = OPENC3::Crypt->new();
 my $x = $db->query( sprintf "select email,phone from openc3_connector_useraddr where user='$o{user}'" );
 if( @$x )
 {
-    $info{ accountId  } = $x->[0][0] if $x->[0][0];
-    $info{ mobile     } = $x->[0][1] || '';
+    $info{ accountId  } = $crypt->decode( $x->[0][0] ) if $x->[0][0];
+    $info{ mobile     } = $x->[0][1] ? $crypt->decode( $x->[0][1] ) : '';
 }
 
 $x = $db->query( sprintf "select department from openc3_connector_userdepartment where user='$o{user}'" );

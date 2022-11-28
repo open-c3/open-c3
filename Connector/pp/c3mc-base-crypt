@@ -1,0 +1,21 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use OPENC3::Crypt;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 mesg --encode || --decode
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o      = $option->get(    qw( encode decode ) )->dump();
+$option->assert() unless @ARGV;
+
+my $c = OPENC3::Crypt->new();
+printf "%s\n", $o{decode} ? $c->decode( $ARGV[0] ) : $c->encode( $ARGV[0] );

@@ -68,7 +68,7 @@ post '/nodelist/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
         projectid => qr/^\d+$/, 1,
-        name => qr/^\d+\.\d+\.\d+\.\d+|[a-zA-Z0-9\.\-_]+::\d+\.\d+\.\d+\.\d+::\d+\.\d+\.\d+\.\d+$/, 1,
+        name => qr/^\d+\.\d+\.\d+\.\d+|[a-zA-Z0-9\.\-_]+::\d+\.\d+\.\d+\.\d+|[a-zA-Z0-9\.\-_]+::\d+\.\d+\.\d+\.\d+::\d+\.\d+\.\d+\.\d+$/, 1,
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
@@ -92,6 +92,7 @@ post '/nodelist/:projectid' => sub {
     if( $param->{name} =~ /::/ )
     {
         ( $name, $inip, $exip ) = split /::/, $param->{name};
+        $exip ||= '';
     }
     else
     {

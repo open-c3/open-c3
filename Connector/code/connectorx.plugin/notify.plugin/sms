@@ -5,6 +5,7 @@ use utf8;
 use YAML::XS;
 use Logs;
 use LWP::UserAgent;
+use OPENC3::Crypt;
 
 $| ++;
 
@@ -16,13 +17,14 @@ $| ++;
 
 =cut
 
-my ( $usermesg, %env, $debug );
+my ( $usermesg, %env, $debug, $crypt );
 BEGIN{
     use Configini;
     $usermesg = Configini::get( 'usermesg' );
     %env = Configini::env( 'usermesgenv' );
 
     $debug = Configini::get( 'debug' );
+    $crypt = OPENC3::Crypt->new();
 };
 
 return sub
@@ -42,7 +44,7 @@ return sub
 
     my $x = $param{db}->query( sprintf "select `user`,`phone` from openc3_connector_useraddr where user in ( %s )", join ',', map{"'$_'"}@to );
     die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
-    map{ $to{$_->[0]} = $_->[1] }@$x;
+    map{ $to{$_->[0]} = $crypt->decode( $_->[1] ) }@$x;
 
     my %t = map{ $_ => 1 } values %to;
     for my $to ( keys %t )
