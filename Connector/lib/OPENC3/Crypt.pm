@@ -25,13 +25,13 @@ sub new
 sub encode
 {
     my ( $this, $mesg ) = @_;
-    return _rc4_encrypt_hex( $this->{passwd}, $mesg );
+    return $this->{passwd} ? _rc4_encrypt_hex( $this->{passwd}, $mesg ) : $mesg;
 }
 
 sub decode
 {
     my ( $this, $mesg ) = @_;
-    return _rc4_decrypt_hex( $this->{passwd}, $mesg );
+    return $this->{passwd} ? _rc4_decrypt_hex( $this->{passwd}, $mesg ) : $mesg;
 }
 
 1;
