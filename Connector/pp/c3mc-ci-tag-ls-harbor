@@ -45,6 +45,7 @@ if( $ticketid )
 my $ctrl = $pass ? "curl -u '$username:$pass'" : 'curl';
 
 my @list;
+local $SIG{ALRM} = sub { die "timeout!\n"; };
 eval{
     alarm 30;
     my $str = `$ctrl '$addr' 2>/dev/null`;
@@ -52,5 +53,6 @@ eval{
     map{ push @list, $_->{name} }@$data;
     alarm 0;
 };
+die "Error: $@\n" if $@;
 
 map{ print "$id;$_\n" }@list;

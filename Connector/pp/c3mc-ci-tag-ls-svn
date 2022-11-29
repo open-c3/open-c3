@@ -33,7 +33,9 @@ if( $ticketid )
 
 my $ctrl = $pass ? "svn --username '$username'  --password '" . $pass . "'" : 'svn';
 
+local $SIG{ALRM} = sub { die "timeout!\n"; };
 my @list; eval{ alarm 10; @list = `$ctrl list $addr/tags/`; alarm 0; };
+die "Error: $@\n" if $@;
 chomp @list;
 
 my @tags;
