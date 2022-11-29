@@ -28,7 +28,7 @@ def save_price_to_file(price_list):
         with open(file_path, "w") as f:
             f.write(price)
 
-        parts = name.split(".")
+        parts = name.split("@")
         if parts[0] in special_resources:
             instance_type = parts[-1]
             file_path = dir_path.joinpath(instance_type)

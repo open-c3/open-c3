@@ -58,7 +58,54 @@ def get_aws_ec2_price():
                     region,
                     instance_type,
                 ))
-            result.append("aws-ec2.{}.{};{}".format(region, instance_type, price))
+            result.append("aws-ec2@{}@{};{}".format(region, instance_type, price))
+    return result
+
+
+def get_aws_ebs_price():
+    account_file_path = "/data/Software/mydan/AGENT/device/conf/account/aws"
+
+    region_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field storage aws-ec2-volume RegionId")
+    volume_type_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field storage aws-ec2-volume VolumeType")
+    size_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field storage aws-ec2-volume Size")
+    lines = subprocess.getoutput(
+        "c3mc-device-data-get curr storage aws-ec2-volume {} {} {}".format(
+            region_field_name, volume_type_field_name, size_field_name)).split("\n")
+    
+    data = {}
+    for line in lines:
+        data[line] = {}
+
+    account_m = {}
+    with open(account_file_path) as file:
+        for account_line in [line.rstrip() for line in file]:
+            parts = account_line.split()
+            ac = "aws"
+            if parts[3].startswith("cn-"):
+                ac = "aws-cn"
+            account_m[ac] = {
+                "ak": parts[1],
+                "sk": parts[2],
+            }
+
+    result = []
+    for line in data:
+        parts = line.split()
+        region_id = parts[0]
+        volume_type = parts[1]
+        size = parts[2]
+        price = subprocess.getoutput(
+            "c3mc-query-aws-ebs-price {} {} {} {} {}".format(
+                account_m[ac]["ak"],
+                account_m[ac]["sk"],
+                region_id,
+                volume_type,
+                size,
+            ))
+        result.append("aws-ec2-volume@{}@{}@{};{}".format(region_id, volume_type, size, price))
     return result
 
 
@@ -114,7 +161,7 @@ def get_aws_rds_price():
                     region,
                     instance_type,
                 ))
-            result.append("aws-rds.{}.{};{}".format(region, instance_type, price))
+            result.append("aws-rds@{}@{};{}".format(region, instance_type, price))
     return result
 
 
@@ -170,7 +217,7 @@ def get_aws_redis_price():
                     region,
                     instance_type,
                 ))
-            result.append("aws-redis.{}.{};{}".format(region, instance_type, price))
+            result.append("aws-redis@{}@{};{}".format(region, instance_type, price))
     return result
 
 
@@ -211,7 +258,7 @@ def get_qcloud_cvm_volume_price():
             price = subprocess.getoutput(
                 "c3mc-query-qcloud-cbs-price {} {} {} {}".format(ak, sk, region, size))
             if price != "":
-                result.append("qcloud-cvm-volume.{}.{};{}".format(region, size, price))
+                result.append("qcloud-cvm-volume@{}@{};{}".format(region, size, price))
     return result
 
 
@@ -258,7 +305,7 @@ def get_qcloud_cdb_price():
             "c3mc-query-qcloud-cdb-price {} {} {} {} {} {} {}".format(
                 ak, sk, region, zone, cpu, memory, volume))
         if price != "":
-            result.append("qcloud-cdb.{}.{}.{}.{}.{};{}".format(region, zone, cpu, memory, volume, price))
+            result.append("qcloud-cdb@{}@{}@{}@{}@{};{}".format(region, zone, cpu, memory, volume, price))
     return result
 
 
@@ -298,7 +345,7 @@ def get_qcloud_cvm_price():
             "c3mc-query-qcloud-cvm-price {} {} {} {} {}".format(
                 ak, sk, region, zone, instance_type))
         if price != "":
-            result.append("qcloud-cvm.{}.{}.{};{}".format(region, zone, instance_type, price))
+            result.append("qcloud-cvm@{}@{}@{};{}".format(region, zone, instance_type, price))
     return result
 
 
@@ -384,7 +431,7 @@ def get_qcloud_mongodb_price():
             "c3mc-query-qcloud-mongodb-price {} {} {} {} {} {} {} {} {} {} {}".format(
                 ak, sk, region, zone, memory, volume, cluster_type, replication_set_num, node_num, mongo_version, machine_type))
         if price != "":
-            result.append("qcloud-mongodb.{}.{}.{}.{}.{}.{}.{}.{}.{};{}".format(
+            result.append("qcloud-mongodb@{}@{}@{}@{}@{}@{}@{}@{}@{};{}".format(
                 region, zone, int(float(memory)), int(float(volume)), cluster_type, replication_set_num, node_num, mongo_version, machine_type, price))
     return result
 
@@ -440,7 +487,7 @@ def get_qcloud_redis_price():
             "c3mc-query-qcloud-redis-price {} {} {} {} {} {} {} {}".format(
                 ak, sk, region, zone, type_id, mem_size, redis_shard_num, redis_replicas_num))
         if price != "":
-            result.append("qcloud-redis.{}.{}.{}.{}.{}.{};{}".format(
+            result.append("qcloud-redis@{}@{}@{}@{}@{}@{};{}".format(
                 region, zone, type_id, mem_size, redis_shard_num, redis_replicas_num, price))
     return result
 
@@ -449,6 +496,9 @@ def get_all_resource_price():
     result = []
 
     price_list = get_aws_ec2_price()
+    result.extend(price_list)
+
+    price_list = get_aws_ebs_price()
     result.extend(price_list)
 
     price_list = get_aws_rds_price()

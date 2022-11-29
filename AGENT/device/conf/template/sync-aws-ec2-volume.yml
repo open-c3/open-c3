@@ -1,9 +1,8 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aws-ec2-volume --account aws | c3mc-cloud-tag Tags Key Value None | c3mc-base-json2tab "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aws-ec2-volume --account aws | c3mc-cloud-tag Tags Key Value None | c3mc-price-fetch aws-ec2-volume 'RegionId;VolumeType;Size' | c3mc-base-json2tab "
     datatype: tsv # 固定值。表示url中命令最终输出的文件格式
     type: storage # 资源类型。cmdb页面中的分类
     subtype: aws-ec2-volume # 上面资源类型的子类型。
-    init: ["install-python3.sh", "c3mc-cloud-aws.sh"]
     treeinfo:
       treename: "服务树" # 指明哪一列对应服务树。这一列没有对应列，页面显示的值为空
       treeinfo:

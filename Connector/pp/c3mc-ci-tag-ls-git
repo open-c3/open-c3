@@ -34,6 +34,8 @@ if( $ticketid )
 
 my $ctrl = $ssh_key ? "c3mc-base-git -i " . Temp->new( chmod => 0600 )->dump( $ssh_key ) : 'git';
 
-my @list; eval{ alarm 10; @list = `$ctrl ls-remote --tags $addr`; alarm 0; };
+local $SIG{ALRM} = sub { die "timeout!\n"; };
+my @list; eval{ alarm 20; @list = `$ctrl ls-remote --tags $addr`; alarm 0; };
+die "Error: $@\n" if $@;
 chomp @list;
 map{ print "$id;$1\n" if $_ =~ /\w+\s+refs\/tags\/(.+)/ }grep{ $_ !~ /\^\{\}$/ }@list;
