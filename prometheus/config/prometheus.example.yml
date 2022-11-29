@@ -110,6 +110,14 @@ scrape_configs:
     honor_labels: true
     static_configs:
     - targets: ['OPENC3_SERVER_IP:38080']
+
+  - job_name: 'openc3-system'
+    scrape_interval: 60s
+    scrape_timeout: 60s
+    metrics_path: /api/jobx/monitor/metrics
+    honor_labels: true
+    static_configs:
+    - targets: ['openc3-server']
  
   - job_name: 'blackbox'
     metrics_path: /probe
