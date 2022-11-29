@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import json
 import subprocess
 
 
@@ -323,22 +324,33 @@ def get_qcloud_mongodb_price():
         "c3mc-cloud-get-real-field database qcloud-mongodb MongoVersion")
     machine_type_field_name = subprocess.getoutput(
         "c3mc-cloud-get-real-field database qcloud-mongodb MachineType")
-    lines = subprocess.getoutput(
-        "c3mc-device-data-get curr database qcloud-mongodb {} {} {} {} {} {} {} {} {}".format(
-            region_field_name,
-            zone_field_name, 
-            memory_field_name,
-            volume_field_name,
-            cluster_type_field_name,
-            replication_set_num_field_name,
-            node_num_field_name,
-            mongo_version_field_name,
-            machine_type_field_name,
-        )).split("\n")
+    
+    field_name_list = [
+        region_field_name,
+        zone_field_name, 
+        memory_field_name,
+        volume_field_name,
+        cluster_type_field_name,
+        replication_set_num_field_name,
+        node_num_field_name,
+        mongo_version_field_name,
+        machine_type_field_name,
+    ]
+    get_data_command = "c3mc-device-data-get curr database qcloud-mongodb {} {} {} {} {} {} {} {} {}".format(*field_name_list)
+    lines = subprocess.getoutput(get_data_command).split("\n")
+
+    # 打印日志
+    sys.path.append("/data/Software/mydan/Connector/lib/pp")
+    from c3mc_utils import print_c3debug1_log
+    print_c3debug1_log(
+        "DEBUG1: {}. field_name_list: {}".format(sys.argv[0], field_name_list))
+    print_c3debug1_log(
+        "DEBUG1: {}. lines: {}".format(sys.argv[0], json.dumps(lines, default=str)))
+
     data = {}
     for line in lines:
         data[line] = {}
-    
+
     ak = ""
     sk = ""
     with open(account_file_path) as file:
