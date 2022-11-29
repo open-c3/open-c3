@@ -1,0 +1,65 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import json
+import sys
+
+from tencentcloud.common import credential
+from tencentcloud.common.profile.client_profile import ClientProfile
+from tencentcloud.common.profile.http_profile import HttpProfile
+from tencentcloud.redis.v20180412 import redis_client, models
+
+
+def get_mongodb_price(access_id, access_key, region, zone, type_id, mem_size, redis_shard_num, redis_replicas_num):
+    """
+        参数说明:
+        type_id: 2 - Redis2.8内存版(标准架构)
+                3 - CKV 3.2内存版(标准架构)
+                4 - CKV 3.2内存版(集群架构)
+                6 - Redis4.0内存版(标准架构)
+                7 - Redis4.0内存版(集群架构)
+                8 - Redis5.0内存版(标准架构)
+                9 - Redis5.0内存版(集群架构)
+        mem_size: 内存容量, 单位为MB, 数值需为1024的整数倍, 具体规格以 [查询产品售卖规格](https://cloud.tencent.com/document/api/239/30600) 返回的规格为准。 TypeId为标准架构时, MemSize是实例总内存容量; TypeId为集群架构时, MemSize是单分片内存容量
+    """
+    cred = credential.Credential(access_id, access_key)
+    httpProfile = HttpProfile()
+    httpProfile.endpoint = "redis.tencentcloudapi.com"
+
+    clientProfile = ClientProfile()
+    clientProfile.httpProfile = httpProfile
+    client = redis_client.RedisClient(cred, region, clientProfile)
+
+    req = models.InquiryPriceCreateInstanceRequest()
+    params = {
+        "ZoneId": int(zone),
+        "TypeId": int(type_id),
+        "MemSize": int(mem_size),
+        "GoodsNum": 1,
+        "Period": 1,
+        "BillingMode": 1,
+        "RedisShardNum": int(redis_replicas_num),
+        "RedisReplicasNum": int(redis_shard_num),
+    }
+    req.from_json_string(json.dumps(params))
+
+    try:
+        resp = client.InquiryPriceCreateInstance(req)
+    except Exception as e:
+        if "ResourceUnavailable" in str(e):
+            return ""
+        else:
+            raise e
+    # 单位：分
+    return "{} {}".format(resp.Price/100.0, "CNY")
+
+
+def main(access_id, access_key, region, zone, type_id, mem_size, redis_shard_num, redis_replicas_num):
+    data = get_mongodb_price(access_id, access_key, region, zone,
+                             type_id, mem_size, redis_shard_num, redis_replicas_num)
+    print(data)
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3],
+         sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7], sys.argv[8])

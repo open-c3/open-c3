@@ -3,12 +3,14 @@
 
 import sys
 import json
+import time
 
 from tencentcloud.common import credential
 from tencentcloud.common.profile.client_profile import ClientProfile
 from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.mongodb.v20190725 import mongodb_client, models
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
 
 class Mongodb:
     def __init__(self, access_id, access_key, region):
@@ -45,6 +47,11 @@ class Mongodb:
     def get_server_count(self):
         response_data = self.get_response()
         return response_data.TotalCount
+    
+    def describe_db_instance_node_property(self, instance_id):
+        from c3mc_cloud_qcloud_mongodb import MongodbInfo
+        node_property = MongodbInfo(self.access_id, self.access_key, self.region).describe_db_instance_node_property(instance_id)
+        return node_property
 
     def list_instance(self):
         result = []
@@ -53,6 +60,10 @@ class Mongodb:
         for instance in instance_list:
             item = json.loads(instance.to_json_string())
             item["IP"] = item["Vip"].split(";")[0]
+            time.sleep(0.2)
+            # 腾讯describe_db_instance_node_property()方法的请求频率只有每秒最高频率3次
+            node_property_info = self.describe_db_instance_node_property(item["InstanceId"])
+            item["NodeNum"] = len(json.loads(node_property_info.to_json_string())["ReplicateSets"][0]["Nodes"])
             result.append(item)
         return result
 

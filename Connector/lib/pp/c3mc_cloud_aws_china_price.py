@@ -3,6 +3,8 @@
 
 
 import json
+import statistics
+
 from c3mc_utils import redownload_file_if_need
 
 
@@ -45,19 +47,29 @@ def get_price(instance_type, filepath, url):
     """
     data = get_price_file_data(filepath, url)
 
-    target_code = None
+    target_code_list = []
     for code in data["products"]:
         attr = data["products"][code]["attributes"]
         if "instanceType" not in attr:
             continue
         if attr["instanceType"] == instance_type:
-                target_code = code
-                break
+                target_code_list.append(code)
 
-    od = data['terms']['OnDemand']
-    od = od[target_code][list(od[target_code])[0]]["priceDimensions"]
-    od = od[list(od)[0]]["pricePerUnit"]
+    pl = []
+    mt = ""
+    for target_code in target_code_list:
+        od = data['terms']['OnDemand']
+        od = od[target_code][list(od[target_code])[0]]["priceDimensions"]
+        od = od[list(od)[0]]["pricePerUnit"]
+
+        amount = float(od[list(od)[0]])
+        if amount == 0:
+            continue
+        pl.append(amount)
+        if mt == "":
+            mt = list(od)[0]
+
     return  {
-        "amount": od[list(od)[0]],
-        "money_type": list(od)[0],
+        "amount": statistics.mean(pl),
+        "money_type": mt,
     }
