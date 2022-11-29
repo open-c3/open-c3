@@ -58,7 +58,54 @@ def get_aws_ec2_price():
                     region,
                     instance_type,
                 ))
-            result.append("aws-ec2.{}.{};{}".format(region, instance_type, price))
+            result.append("aws-ec2@{}@{};{}".format(region, instance_type, price))
+    return result
+
+
+def get_aws_ebs_price():
+    account_file_path = "/data/Software/mydan/AGENT/device/conf/account/aws"
+
+    region_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field storage aws-ec2-volume RegionId")
+    volume_type_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field storage aws-ec2-volume VolumeType")
+    size_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field storage aws-ec2-volume Size")
+    lines = subprocess.getoutput(
+        "c3mc-device-data-get curr storage aws-ec2-volume {} {} {}".format(
+            region_field_name, volume_type_field_name, size_field_name)).split("\n")
+    
+    data = {}
+    for line in lines:
+        data[line] = {}
+
+    account_m = {}
+    with open(account_file_path) as file:
+        for account_line in [line.rstrip() for line in file]:
+            parts = account_line.split()
+            ac = "aws"
+            if parts[3].startswith("cn-"):
+                ac = "aws-cn"
+            account_m[ac] = {
+                "ak": parts[1],
+                "sk": parts[2],
+            }
+
+    result = []
+    for line in data:
+        parts = line.split()
+        region_id = parts[0]
+        volume_type = parts[1]
+        size = parts[2]
+        price = subprocess.getoutput(
+            "c3mc-query-aws-ebs-price {} {} {} {} {}".format(
+                account_m[ac]["ak"],
+                account_m[ac]["sk"],
+                region_id,
+                volume_type,
+                size,
+            ))
+        result.append("aws-ec2-volume@{}@{}@{};{}".format(region_id, volume_type, size, price))
     return result
 
 
@@ -449,6 +496,9 @@ def get_all_resource_price():
     result = []
 
     price_list = get_aws_ec2_price()
+    result.extend(price_list)
+
+    price_list = get_aws_ebs_price()
     result.extend(price_list)
 
     price_list = get_aws_rds_price()
