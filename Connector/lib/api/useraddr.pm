@@ -26,8 +26,8 @@ get '/useraddr' => sub {
     {
         map{ $u->{$_} = $crypt->decode( $u->{$_} ) if $u->{$_} }qw( email phone voicemail );
         map{
-            $u->{$_} =~ s/^(.{3}).+(.{4})$/$1****$2/ if $u->{$_} && $u->{$_} =~ /^\d+$/;
-            $u->{$_} =~ s/^.{3}(.+)(@.+)$/***$1$2/   if $u->{$_} && $u->{$_} =~ /@/;
+            $u->{$_} =~ s/^(.{3}).+(.{4})$/$1****$2/      if $u->{$_} && $u->{$_} =~ /^\d+$/;
+            $u->{$_} =~ s/^.{3}(.+)@.{2}(.+)$/***$1@**$2/ if $u->{$_} && $u->{$_} =~ /@/;
         }qw( email phone voicemail ) if $desensitized;
     }
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $addr };
