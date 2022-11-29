@@ -60,8 +60,6 @@ class Mongodb:
         for instance in instance_list:
             item = json.loads(instance.to_json_string())
             item["IP"] = item["Vip"].split(";")[0]
-            item["Memory"] = item["Memory"] / 1024
-            item["Volume"] = item["Volume"] / 1024
             time.sleep(0.2)
             # 腾讯describe_db_instance_node_property()方法的请求频率只有每秒最高频率3次
             node_property_info = self.describe_db_instance_node_property(item["InstanceId"])
