@@ -1,0 +1,69 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import json
+import sys
+
+import boto3
+
+
+class EbsPrice:
+    def __init__(self, access_id, access_key):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.client = self.create_client()
+
+    def create_client(self):
+        client = boto3.client(
+            "pricing",
+            aws_access_key_id=self.access_id,
+            aws_secret_access_key=self.access_key,
+            region_name="us-east-1",
+        )
+        return client
+
+    def query_month_price(self, region, volume_api_name, size):
+        data  = None
+        ebs_name_map = {
+            'standard': 'Magnetic',
+            'gp2': 'General Purpose',
+            'gp3': 'General Purpose',
+            'io1': 'Provisioned IOPS',
+            'io2': 'Provisioned IOPS',
+            'st1': 'Throughput Optimized HDD',
+            'sc1': 'Cold HDD'
+        }
+        if region.startswith("cn-"):
+            sys.path.append("/data/Software/mydan/Connector/lib/pp")
+            from c3mc_cloud_aws_china_get_price_data import get_ebs_price
+            data = get_ebs_price(region, volume_api_name, ebs_name_map[volume_api_name])
+        else:
+            response = self.client.get_products(ServiceCode='AmazonEC2', Filters=[
+                {'Type': 'TERM_MATCH', 'Field': 'volumeApiName', 'Value': volume_api_name}, 
+                {'Type': 'TERM_MATCH', 'Field': 'volumeType', 'Value': ebs_name_map[volume_api_name]}, 
+                {'Type': 'TERM_MATCH', 'Field': 'regionCode', 'Value': region}])
+            for result in response['PriceList']:
+                json_result = json.loads(result)
+                for json_result_level_1 in json_result['terms']['OnDemand'].values():
+                    for json_result_level_2 in json_result_level_1['priceDimensions'].values():
+                        for price_currency, price_value in json_result_level_2['pricePerUnit'].items():
+                            data = {
+                                "amount": float(price_value),
+                                "money_type": price_currency,
+                            }
+        if data is None:
+            raise Exception("未找到价格信息, 区域: {}, ebs类型: {}".format(region, volume_api_name)) 
+        return "{} {}".format(round(float(data["amount"]) * int(size), 2), data["money_type"])
+            
+
+
+def main(access_id, access_key, region, ebs_type, size):
+    """
+        ebs_type取值: standard gp2 io1 st1 sc1
+    """
+    price = EbsPrice(access_id, access_key).query_month_price(region, ebs_type, size)
+    print(price)
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])

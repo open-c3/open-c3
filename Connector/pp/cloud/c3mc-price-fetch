@@ -12,6 +12,8 @@ def add_price_to_cmdb(data_list, resource_subtype, filter_list):
     dir_path = Path(price_dir)
     Path(dir_path).mkdir(parents=True, exist_ok=True)
 
+    concat_condition_flag = "@"
+
     file_path_m = {}
     for filename in os.listdir(dir_path):
         f = os.path.join(dir_path, filename)
@@ -30,9 +32,9 @@ def add_price_to_cmdb(data_list, resource_subtype, filter_list):
             need_extra_match = False
             for item in condition_field_list:
                 if item in data_list[i]:
-                    possible_filename += ";" + str(data_list[i][item])
+                    possible_filename += concat_condition_flag + str(data_list[i][item])
                 else:
-                    possible_filename += ";" + str(item)
+                    possible_filename += concat_condition_flag + str(item)
                     if "." in item:
                         # 条件字段里的值可能是层级字段，比如 Placement.Zone
                         need_extra_match = True
@@ -45,12 +47,12 @@ def add_price_to_cmdb(data_list, resource_subtype, filter_list):
                 possible_filename = resource_subtype
                 for item in condition_field_list:
                     if item in data_list[i]:
-                        possible_filename += ";" + str(data_list[i][item])
+                        possible_filename += concat_condition_flag + str(data_list[i][item])
                     else:
                         v = data_list[i]
                         for item in item.split("."):
                             v = v[item]
-                        possible_filename += ";" + str(v)
+                        possible_filename += concat_condition_flag + str(v)
                 if possible_filename in file_path_m:
                     file_path = file_path_m[possible_filename]
                     found = True

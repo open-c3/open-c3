@@ -41,7 +41,7 @@ def get_instance_type_info_m(filepath, url):
     return attr_m
     
 
-def get_price(instance_type, filepath, url):
+def get_price(filters, filepath, url):
     """
         返回指定实例类型在指定区域(filepath已经指定价格文件地址)按需的小时价格
     """
@@ -50,10 +50,19 @@ def get_price(instance_type, filepath, url):
     target_code_list = []
     for code in data["products"]:
         attr = data["products"][code]["attributes"]
-        if "instanceType" not in attr:
-            continue
-        if attr["instanceType"] == instance_type:
-                target_code_list.append(code)
+
+        ok = True
+        for item in filters:
+            key = list(item)[0]
+            value = item[key]
+            if key not in attr:
+                ok = False
+                break
+            if attr[key] != value:
+                ok = False
+                break
+        if ok:
+            target_code_list.append(code)
 
     pl = []
     mt = ""
