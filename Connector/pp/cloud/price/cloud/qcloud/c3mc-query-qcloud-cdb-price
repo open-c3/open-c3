@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import json
+import sys
+
+from tencentcloud.common import credential
+from tencentcloud.common.profile.client_profile import ClientProfile
+from tencentcloud.common.profile.http_profile import HttpProfile
+from tencentcloud.cdb.v20170320 import cdb_client, models
+
+
+def get_cdb_price(access_id, access_key, region, zone, cpu, memory, disk_size):
+    cred = credential.Credential(access_id, access_key)
+    httpProfile = HttpProfile()
+    httpProfile.endpoint = "cdb.tencentcloudapi.com"
+
+    clientProfile = ClientProfile()
+    clientProfile.httpProfile = httpProfile
+    client = cdb_client.CdbClient(cred, region, clientProfile)
+
+    req = models.DescribeDBPriceRequest()
+    params = {
+        "Zone": zone,
+        "Cpu": int(cpu),
+        # 单位 MB
+        "Memory": int(memory),
+        "GoodsNum": 1,
+        # 单位 GB
+        "Volume": int(disk_size),
+        "PayType": "PRE_PAID",
+        "Period": 1,
+        "InstanceNodes": 1,
+    }
+    req.from_json_string(json.dumps(params))
+
+    try:
+        resp = client.DescribeDBPrice(req)
+    except Exception as e:
+        if "ResourceUnavailable" in str(e):
+            return ""
+        else:
+            raise e
+    # 单位: 分
+    return "{} {}".format(resp.Price/100.0, resp.Currency)
+
+
+def main(access_id, access_key, region, zone, cpu, memory, disk_size):
+    data = get_cdb_price(access_id, access_key, region,
+                         zone, cpu, memory, disk_size)
+    print(data)
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3],
+         sys.argv[4], sys.argv[5], sys.argv[6], sys.argv[7])

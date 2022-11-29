@@ -1,0 +1,51 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import json
+import sys
+
+from tencentcloud.common import credential
+from tencentcloud.common.profile.client_profile import ClientProfile
+from tencentcloud.common.profile.http_profile import HttpProfile
+from tencentcloud.cbs.v20170312 import cbs_client, models
+
+
+def get_cbs_price(access_id, access_key, region, size):
+    cred = credential.Credential(access_id, access_key)
+    httpProfile = HttpProfile()
+    httpProfile.endpoint = "cbs.tencentcloudapi.com"
+
+    clientProfile = ClientProfile()
+    clientProfile.httpProfile = httpProfile
+    client = cbs_client.CbsClient(cred, region, clientProfile)
+
+    req = models.InquiryPriceCreateDisksRequest()
+    params = {
+        "DiskChargeType": "PREPAID",
+        "DiskCount": 1,
+        "DiskSize": int(size),
+        "DiskType": "CLOUD_BASIC",
+        "DiskChargePrepaid": {
+            "RenewFlag": "DISABLE_NOTIFY_AND_MANUAL_RENEW",
+            "Period": 1
+        }
+    }
+    req.from_json_string(json.dumps(params))
+    try:
+        resp = client.InquiryPriceCreateDisks(req)
+    except Exception as e:
+        if "ResourceUnavailable" in str(e):
+            return ""
+        else:
+            raise e
+    # 单位: 元
+    return "{} {}".format(resp.DiskPrice.DiscountPrice, "CNY")
+
+
+def main(access_id, access_key, region, size):
+    price = get_cbs_price(access_id, access_key, region, size)
+    print(price)
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
