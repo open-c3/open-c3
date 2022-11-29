@@ -1,0 +1,47 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+from pathlib import Path
+
+
+def save_price_to_file(price_list):
+    price_dir = "/data/open-c3-data/device/curr/price"
+    dir_path = Path(price_dir)
+    Path(dir_path).mkdir(parents=True, exist_ok=True)
+
+    # 下面这些资源在下面for循环的name中具有实例类型,
+    # 后面会按照实例类型存储一份价格数据
+    special_resources = {
+        "aws-ec2",
+        "aws-rds",
+        "aws-redis",
+        "qcloud-cvm",
+    }
+
+    for price_info in price_list:
+        parts = price_info.split(";")
+        name = parts[0]
+        price = parts[1]
+
+        file_path = dir_path.joinpath(name)
+        with open(file_path, "w") as f:
+            f.write(price)
+
+        parts = name.split(".")
+        if parts[0] in special_resources:
+            instance_type = parts[-1]
+            file_path = dir_path.joinpath(instance_type)
+            with open(file_path, "w") as f:
+                f.write(price)
+
+
+def main(price_list):
+    save_price_to_file(price_list)
+
+
+if __name__ == '__main__':
+    price_list = []
+    for line in sys.stdin:
+        price_list.append(line)
+    main(price_list)

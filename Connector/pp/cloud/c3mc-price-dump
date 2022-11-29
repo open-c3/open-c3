@@ -1,0 +1,473 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import subprocess
+
+
+def get_aws_ec2_price():
+    account_file_path = "/data/Software/mydan/AGENT/device/conf/account/aws"
+
+    region_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field compute aws-ec2 RegionId")
+    instance_type_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field compute aws-ec2 InstanceType")
+    lines = subprocess.getoutput(
+        "c3mc-device-data-get curr compute aws-ec2 {} {}".format(
+            region_field_name, instance_type_field_name)).split("\n")
+    data = {}
+    for line in lines:
+        parts = line.split()
+        region = parts[0]
+        instance_type = parts[1]
+
+        if region not in data:
+            data[region] = {}
+        if instance_type not in data[region]:
+            data[region][instance_type] = {}
+
+    account_m = {}
+    with open(account_file_path) as file:
+        for account_line in [line.rstrip() for line in file]:
+            parts = account_line.split()
+            account_m[parts[4]] = {
+                "ak": parts[1],
+                "sk": parts[2],
+            }
+
+    result = []
+    for region in data:
+        for instance_type in data[region]:
+            ac = "aws"
+            if region.startswith("cn-"):
+                ac = "aws-cn"
+            if ac not in account_m:
+                # 出现这种情况可能是
+                # 1. 以前同步过中国区账号的资源, 后来账号被删掉了, 但是资源还在数据库
+                # 2. 账号文件中没有配置aws-cn或者aws项
+                sys.path.append("/data/Software/mydan/Connector/lib/pp")
+                from c3mc_utils import print_c3debug1_log
+                print_c3debug1_log(
+                    "DEBUG1: {}. 同步aws ec2实例类型价格时, 发现账号文件未配置账号类型".format(sys.argv[0]))
+                break
+            price = subprocess.getoutput(
+                "c3mc-query-aws-ec2-price {} {} {} {}".format(
+                    account_m[ac]["ak"],
+                    account_m[ac]["sk"],
+                    region,
+                    instance_type,
+                ))
+            result.append("aws-ec2.{}.{};{}".format(region, instance_type, price))
+    return result
+
+
+def get_aws_rds_price():
+    account_file_path = "/data/Software/mydan/AGENT/device/conf/account/aws"
+
+    region_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database aws-rds RegionId")
+    instance_type_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database aws-rds DBInstanceClass")
+    lines = subprocess.getoutput(
+        "c3mc-device-data-get curr database aws-rds {} {}".format(
+            region_field_name, instance_type_field_name)).split("\n")
+    data = {}
+    for line in lines:
+        parts = line.split()
+        region = parts[0]
+        instance_type = parts[1]
+
+        if region not in data:
+            data[region] = {}
+        if instance_type not in data[region]:
+            data[region][instance_type] = {}
+
+    account_m = {}
+    with open(account_file_path) as file:
+        for account_line in [line.rstrip() for line in file]:
+            parts = account_line.split()
+            account_m[parts[4]] = {
+                "ak": parts[1],
+                "sk": parts[2],
+            }
+
+    result = []
+    for region in data:
+        for instance_type in data[region]:
+            ac = "aws"
+            if region.startswith("cn-"):
+                ac = "aws-cn"
+            if ac not in account_m:
+                # 出现这种情况可能是
+                # 1. 以前同步过中国区账号的资源, 后来账号被删掉了, 但是资源还在数据库
+                # 2. 账号文件中没有配置aws-cn或者aws项
+                sys.path.append("/data/Software/mydan/Connector/lib/pp")
+                from c3mc_utils import print_c3debug1_log
+                print_c3debug1_log(
+                    "DEBUG1: {}. 同步aws rds实例类型价格时, 发现账号文件未配置账号类型".format(sys.argv[0]))
+                break
+            price = subprocess.getoutput(
+                "c3mc-query-aws-rds-price {} {} {} {}".format(
+                    account_m[ac]["ak"],
+                    account_m[ac]["sk"],
+                    region,
+                    instance_type,
+                ))
+            result.append("aws-rds.{}.{};{}".format(region, instance_type, price))
+    return result
+
+
+def get_aws_redis_price():
+    account_file_path = "/data/Software/mydan/AGENT/device/conf/account/aws"
+
+    region_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database aws-redis RegionId")
+    instance_type_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database aws-redis CacheNodeType")
+    lines = subprocess.getoutput(
+        "c3mc-device-data-get curr database aws-redis {} {}".format(
+            region_field_name, instance_type_field_name)).split("\n")
+    data = {}
+    for line in lines:
+        parts = line.split()
+        region = parts[0]
+        instance_type = parts[1]
+
+        if region not in data:
+            data[region] = {}
+        if instance_type not in data[region]:
+            data[region][instance_type] = {}
+
+    account_m = {}
+    with open(account_file_path) as file:
+        for account_line in [line.rstrip() for line in file]:
+            parts = account_line.split()
+            account_m[parts[4]] = {
+                "ak": parts[1],
+                "sk": parts[2],
+            }
+
+    result = []
+    for region in data:
+        for instance_type in data[region]:
+            ac = "aws"
+            if region.startswith("cn-"):
+                ac = "aws-cn"
+            if ac not in account_m:
+                # 出现这种情况可能是
+                # 1. 以前同步过中国区账号的资源, 后来账号被删掉了, 但是资源还在数据库
+                # 2. 账号文件中没有配置aws-cn或者aws项
+                sys.path.append("/data/Software/mydan/Connector/lib/pp")
+                from c3mc_utils import print_c3debug1_log
+                print_c3debug1_log(
+                    "DEBUG1: {}. 同步aws redis实例类型价格时, 发现账号文件未配置账号类型".format(sys.argv[0]))
+                break
+            price = subprocess.getoutput(
+                "c3mc-query-aws-redis-price {} {} {} {}".format(
+                    account_m[ac]["ak"],
+                    account_m[ac]["sk"],
+                    region,
+                    instance_type,
+                ))
+            result.append("aws-redis.{}.{};{}".format(region, instance_type, price))
+    return result
+
+
+def get_qcloud_cvm_volume_price():
+    account_file_path = "/data/Software/mydan/AGENT/device/conf/account/qcloud"
+
+    region_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field storage qcloud-cvm-volume RegionId")
+    size_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field storage qcloud-cvm-volume DiskSize")
+    lines = subprocess.getoutput(
+        "c3mc-device-data-get curr storage qcloud-cvm-volume {} {}".format(
+            region_field_name, size_field_name)).split("\n")
+    data = {}
+    for line in lines:
+        parts = line.split()
+        region = parts[0]
+        size = parts[1]
+
+        if region not in data:
+            data[region] = {}
+        if size not in data[region]:
+            data[region][size] = {}
+
+    ak = ""
+    sk = ""
+    with open(account_file_path) as file:
+        for account_line in [line.rstrip() for line in file]:
+            if ak != "":
+                break
+            parts = account_line.split()
+            ak = parts[1]
+            sk = parts[2]
+
+    result = []
+    for region in data:
+        for size in data[region]:
+            price = subprocess.getoutput(
+                "c3mc-query-qcloud-cbs-price {} {} {} {}".format(ak, sk, region, size))
+            if price != "":
+                result.append("qcloud-cvm-volume.{}.{};{}".format(region, size, price))
+    return result
+
+
+def get_qcloud_cdb_price():
+    account_file_path = "/data/Software/mydan/AGENT/device/conf/account/qcloud"
+
+    region_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database qcloud-cdb Region")
+    zone_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database qcloud-cdb Zone")
+    cpu_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database qcloud-cdb Cpu")
+    memory_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database qcloud-cdb Memory")
+    volume_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database qcloud-cdb Volume")
+    lines = subprocess.getoutput(
+        "c3mc-device-data-get curr database qcloud-cdb {} {} {} {} {}".format(
+            region_field_name, zone_field_name, cpu_field_name, memory_field_name, volume_field_name
+        )).split("\n")
+    data = {}
+    for line in lines:
+        data[line] = {}
+
+    ak = ""
+    sk = ""
+    with open(account_file_path) as file:
+        for account_line in [line.rstrip() for line in file]:
+            if ak != "":
+                break
+            parts = account_line.split()
+            ak = parts[1]
+            sk = parts[2]
+
+    result = []
+    for line in data:
+        parts = line.split()
+        region = parts[0]
+        zone = parts[1]
+        cpu = parts[2]
+        memory = parts[3]
+        volume = parts[4]
+        price = subprocess.getoutput(
+            "c3mc-query-qcloud-cdb-price {} {} {} {} {} {} {}".format(
+                ak, sk, region, zone, cpu, memory, volume))
+        if price != "":
+            result.append("qcloud-cdb.{}.{}.{}.{}.{};{}".format(region, zone, cpu, memory, volume, price))
+    return result
+
+
+def get_qcloud_cvm_price():
+    account_file_path = "/data/Software/mydan/AGENT/device/conf/account/qcloud"
+
+    region_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field compute qcloud-cvm RegionId")
+    zone_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field compute qcloud-cvm Placement.Zone")
+    instance_type_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field compute qcloud-cvm InstanceType")
+    lines = subprocess.getoutput(
+        "c3mc-device-data-get curr compute qcloud-cvm {} {} {}".format(
+            region_field_name, zone_field_name, instance_type_field_name)).split("\n")
+    data = {}
+    for line in lines:
+        data[line] = {}
+
+    ak = ""
+    sk = ""
+    with open(account_file_path) as file:
+        for account_line in [line.rstrip() for line in file]:
+            if ak != "":
+                break
+            parts = account_line.split()
+            ak = parts[1]
+            sk = parts[2]
+
+    result = []
+    for line in data:
+        parts = line.split()
+        region = parts[0]
+        zone = parts[1]
+        instance_type = parts[2]
+        price = subprocess.getoutput(
+            "c3mc-query-qcloud-cvm-price {} {} {} {} {}".format(
+                ak, sk, region, zone, instance_type))
+        if price != "":
+            result.append("qcloud-cvm.{}.{}.{};{}".format(region, zone, instance_type, price))
+    return result
+
+
+def get_qcloud_mongodb_price():
+    account_file_path = "/data/Software/mydan/AGENT/device/conf/account/qcloud"
+
+
+    region_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database qcloud-mongodb Region")
+    zone_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database qcloud-mongodb Zone")
+    memory_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database qcloud-mongodb Memory")
+    volume_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database qcloud-mongodb Volume")
+    cluster_type_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database qcloud-mongodb ClusterType")
+    replication_set_num_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database qcloud-mongodb ReplicationSetNum")
+    node_num_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database qcloud-mongodb NodeNum")
+    mongo_version_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database qcloud-mongodb MongoVersion")
+    machine_type_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database qcloud-mongodb MachineType")
+    lines = subprocess.getoutput(
+        "c3mc-device-data-get curr database qcloud-mongodb {} {} {} {} {} {} {} {} {}".format(
+            region_field_name,
+            zone_field_name, 
+            memory_field_name,
+            volume_field_name,
+            cluster_type_field_name,
+            replication_set_num_field_name,
+            node_num_field_name,
+            mongo_version_field_name,
+            machine_type_field_name,
+        )).split("\n")
+    data = {}
+    for line in lines:
+        data[line] = {}
+    
+    ak = ""
+    sk = ""
+    with open(account_file_path) as file:
+        for account_line in [line.rstrip() for line in file]:
+            if ak != "":
+                break
+            parts = account_line.split()
+            ak = parts[1]
+            sk = parts[2]
+
+    result = []
+    for line in data:
+        parts = line.split()
+
+        region = parts[0]
+        zone = parts[1]
+        memory = int(parts[2]) / 1024
+        volume = int(parts[3]) / 1024
+        cluster_type = parts[4]
+        # 集群类型，取值：1-分片集群，0-副本集集群
+        if cluster_type == 0:
+            cluster_type = "REPLSET"
+        elif cluster_type == 1: 
+            cluster_type = "SHARD"
+        replication_set_num = parts[5]
+        node_num = parts[6]
+        mongo_version = parts[7]
+        machine_type = parts[8]
+
+        price = subprocess.getoutput(
+            "c3mc-query-qcloud-mongodb-price {} {} {} {} {} {} {} {} {} {} {}".format(
+                ak, sk, region, zone, memory, volume, cluster_type, replication_set_num, node_num, mongo_version, machine_type))
+        if price != "":
+            result.append("qcloud-mongodb.{}.{}.{}.{}.{}.{}.{}.{}.{};{}".format(
+                region, zone, int(float(memory)), int(float(volume)), cluster_type, replication_set_num, node_num, mongo_version, machine_type, price))
+    return result
+
+
+def get_qcloud_redis_price():
+    account_file_path = "/data/Software/mydan/AGENT/device/conf/account/qcloud"
+
+    region_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database qcloud-redis Region")
+    zone_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database qcloud-redis ZoneId")
+    type_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database qcloud-redis Type")
+    size_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database qcloud-redis Size")
+    shard_num_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database qcloud-redis RedisShardNum")
+    replicas_num_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database qcloud-redis RedisReplicasNum")
+    lines = subprocess.getoutput(
+        "c3mc-device-data-get curr database qcloud-redis {} {} {} {} {} {}".format(
+            region_field_name,
+            zone_field_name,
+            type_field_name,
+            size_field_name,
+            shard_num_field_name,
+            replicas_num_field_name,
+        )).split("\n")
+    data = {}
+    for line in lines:
+        data[line] = {}
+
+    ak = ""
+    sk = ""
+    with open(account_file_path) as file:
+        for account_line in [line.rstrip() for line in file]:
+            if ak != "":
+                break
+            parts = account_line.split()
+            ak = parts[1]
+            sk = parts[2]
+
+    result = []
+    for line in data:
+        parts = line.split()
+        region = parts[0]
+        zone = parts[1]
+        type_id = parts[2]
+        mem_size = parts[3]
+        redis_shard_num = parts[4]
+        redis_replicas_num = parts[5]
+        price = subprocess.getoutput(
+            "c3mc-query-qcloud-redis-price {} {} {} {} {} {} {} {}".format(
+                ak, sk, region, zone, type_id, mem_size, redis_shard_num, redis_replicas_num))
+        if price != "":
+            result.append("qcloud-redis.{}.{}.{}.{}.{}.{};{}".format(
+                region, zone, type_id, mem_size, redis_shard_num, redis_replicas_num, price))
+    return result
+
+
+def get_all_resource_price():
+    result = []
+
+    price_list = get_aws_ec2_price()
+    result.extend(price_list)
+
+    price_list = get_aws_rds_price()
+    result.extend(price_list)
+
+    price_list = get_aws_redis_price()
+    result.extend(price_list)
+
+    price_list = get_qcloud_cvm_volume_price()
+    result.extend(price_list)
+
+    price_list = get_qcloud_cdb_price()
+    result.extend(price_list)
+
+    price_list = get_qcloud_cvm_price()
+    result.extend(price_list)
+
+    price_list = get_qcloud_mongodb_price()
+    result.extend(price_list)
+
+    price_list = get_qcloud_redis_price()
+    result.extend(price_list)
+
+    return result
+
+
+def main():
+    price_list = get_all_resource_price()
+    for price in price_list:
+        print(price)
+    
+
+if __name__ == '__main__':
+    main()

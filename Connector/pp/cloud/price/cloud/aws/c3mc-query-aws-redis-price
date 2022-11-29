@@ -3,6 +3,7 @@
 
 import json
 import sys
+import statistics
 
 import boto3
 
@@ -34,21 +35,30 @@ class RedisPrice:
             f = FLT.format(r=region, t=instance_type)
             data = self.client.get_products(
                 ServiceCode='AmazonElasticache', Filters=json.loads(f))
-            od = json.loads(data['PriceList'][0])['terms']['OnDemand']
-            id1 = list(od)[0]
-            id2 = list(od[id1]['priceDimensions'])[0]
+            pl = []
+            mt = ""
+            for item in data['PriceList']:
+                od = json.loads(item)['terms']['OnDemand']
+                id1 = list(od)[0]
+                id2 = list(od[id1]['priceDimensions'])[0]
+                od = od[id1]['priceDimensions'][id2]['pricePerUnit']
 
-            for money_type, amount in od[id1]['priceDimensions'][id2]['pricePerUnit'].items():
-                return {
-                    "amount": amount,
-                    "money_type": money_type,
-                }
-            raise Exception("无法找到单价")
+                amount = float(od[list(od)[0]])
+                if amount == 0:
+                    continue
+                pl.append(amount)
+                if mt == "":
+                    mt = list(od)[0]
+
+            return {
+                "amount": statistics.mean(pl),
+                "money_type": mt,
+            }
 
     def query_month_price(self, region, instance_type):
         hour_price = self.query_hour_price(region, instance_type)
         # 一个月的小时数 = 365天 * 24小时 / 12个月
-        return "{}{}".format(round(float(hour_price["amount"]) * 730, 2), hour_price["money_type"])
+        return "{} {}".format(round(float(hour_price["amount"]) * 730, 2), hour_price["money_type"])
 
 
 def main(access_id, access_key, region, instance_type):
