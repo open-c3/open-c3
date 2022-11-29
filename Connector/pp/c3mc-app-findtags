@@ -20,8 +20,11 @@ sub findtag
 
     die "id err" unless $id =~ /^\d+$/;
 
+    my $time = time;
     system "date > logs/findtags/$id";
     system "c3mc-ci-project-show $id 2>> logs/findtags/$id |c3mc-ci-tag-ls 2>>logs/findtags/$id | c3mc-ci-tag-grep | c3mc-ci-tag-save >> logs/findtags/$id 2>&1";
+    my $usetime = time - $time;
+    system "echo 'Done.( $usetime sec )' >> logs/findtags/$id";
 }
 
 if( @ARGV ) { map{ findtag($_) }@ARGV; } else { while(<STDIN>){ chomp; findtag($_); } }
