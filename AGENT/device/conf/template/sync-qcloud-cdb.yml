@@ -15,6 +15,9 @@ download:
       exclude:
         "Status": ["5"]
         "_ingestion_": ["NO"]
+    metrics:
+      - name: 'qce_cdb_volume_size{instanceid="%s"} %d'
+        value: [ 'uuid', 'Volume' ]
     check:
       col: ["实例ID"]
       min: 0
