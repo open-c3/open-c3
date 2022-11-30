@@ -34,8 +34,8 @@ def get_mongodb_price(access_id, access_key, region, zone, memory, disk_size, cl
     params = {
         "Zone": zone,
         "NodeNum": int(node_num),
-        "Memory": int(float(memory)),
-        "Volume": int(float(disk_size)),
+        "Memory": int(float(memory) / 1024),
+        "Volume": int(float(disk_size) / 1024),
         "MongoVersion": mongo_version,
         "MachineCode": machine_type,
         "GoodsNum": 1,
@@ -57,11 +57,20 @@ def get_mongodb_price(access_id, access_key, region, zone, memory, disk_size, cl
     # 单位: 元
     return "{} {}".format(resp.Price.DiscountPrice, "CNY")
 
+def get_price_info(access_id, access_key, region, zone, memory, disk_size, cluster_type, replication_set_num, node_num, mongo_version, machine_type):
+    price = get_mongodb_price(access_id, access_key, region, zone, memory, disk_size, cluster_type, replication_set_num, node_num, mongo_version, machine_type)
+    if price == "":
+        return None
+    return "qcloud-mongodb@{}@{}@{}@{}@{}@{}@{}@{}@{};{}".format(
+            region, zone, int(float(memory)), int(float(disk_size)), cluster_type, replication_set_num, node_num, mongo_version, machine_type, price)
+ 
+
 
 def main(access_id, access_key, region, zone, memory, disk_size, cluster_type, replication_set_num, node_num, mongo_version, machine_type):
-    data = get_mongodb_price(access_id, access_key, region, zone,
+    data = get_price_info(access_id, access_key, region, zone,
                              memory, disk_size, cluster_type, replication_set_num, node_num, mongo_version, machine_type)
-    print(data)
+    if data is not None:
+        print(data)
 
 
 if __name__ == '__main__':

@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 
-def get_real_field_name(resource_type, resource_sub_type, original_field_name):
+def get_real_field_name(resource_type, resource_sub_type, name_list):
     """
         查询别名字段的名称, 如果不存在则返回请求字段
 
@@ -14,21 +14,25 @@ def get_real_field_name(resource_type, resource_sub_type, original_field_name):
         resource_type, 比如 networking
         resource_sub_type, 比如 aws-alb
 
-        original_field_name 是原始json的字段名称
+        name_list 是原始json的字段名称列表
     """
-    colmap_path = "/data/open-c3-data/device/curr/{}/{}/alias.yml".format(
-        resource_type, resource_sub_type)
-    conf = yaml.safe_load(Path(colmap_path).read_text())
-    if original_field_name in conf:
-        return conf[original_field_name]
-    return original_field_name
+    result = []
+    for name in name_list:
+        colmap_path = "/data/open-c3-data/device/curr/{}/{}/alias.yml".format(
+            resource_type, resource_sub_type)
+        conf = yaml.safe_load(Path(colmap_path).read_text())
+        if name in conf:
+            result.append(conf[name])
+        else:
+            result.append(name)
+    return " ".join(result)
 
 
-def main(resource_type, resource_sub_type, original_field_name):
+def main(resource_type, resource_sub_type, name_list):
     data = get_real_field_name(
-        resource_type, resource_sub_type, original_field_name)
+        resource_type, resource_sub_type, name_list)
     print(data)
 
 
 if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2], sys.argv[3])
+    main(sys.argv[1], sys.argv[2], sys.argv[3:])
