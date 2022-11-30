@@ -10,7 +10,7 @@ from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.redis.v20180412 import redis_client, models
 
 
-def get_mongodb_price(access_id, access_key, region, zone, type_id, mem_size, redis_shard_num, redis_replicas_num):
+def get_redis_price(access_id, access_key, region, zone, type_id, mem_size, redis_shard_num, redis_replicas_num):
     """
         参数说明:
         type_id: 2 - Redis2.8内存版(标准架构)
@@ -53,11 +53,20 @@ def get_mongodb_price(access_id, access_key, region, zone, type_id, mem_size, re
     # 单位：分
     return "{} {}".format(resp.Price/100.0, "CNY")
 
+def get_price_info(access_id, access_key, region, zone, type_id, mem_size, redis_shard_num, redis_replicas_num):
+    price = get_redis_price(access_id, access_key, region, zone, type_id, mem_size, redis_shard_num, redis_replicas_num)  
+    if price == "":
+        return None
+    return "qcloud-redis@{}@{}@{}@{}@{}@{};{}".format(
+                region, zone, type_id, mem_size, redis_shard_num, redis_replicas_num, price)
+
+
 
 def main(access_id, access_key, region, zone, type_id, mem_size, redis_shard_num, redis_replicas_num):
-    data = get_mongodb_price(access_id, access_key, region, zone,
+    data = get_price_info(access_id, access_key, region, zone,
                              type_id, mem_size, redis_shard_num, redis_replicas_num)
-    print(data)
+    if data is not None:
+        print(data)
 
 
 if __name__ == '__main__':

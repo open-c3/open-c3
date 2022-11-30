@@ -44,11 +44,19 @@ def get_cdb_price(access_id, access_key, region, zone, cpu, memory, disk_size):
     # 单位: 分
     return "{} {}".format(resp.Price/100.0, resp.Currency)
 
+def get_price_info(access_id, access_key, region, zone, cpu, memory, disk_size):
+    price = get_cdb_price(access_id, access_key, region, zone, cpu, memory, disk_size)  
+    if price == "":
+        return
+    return "qcloud-cdb@{}@{}@{}@{}@{};{}".format(region, zone, cpu, memory, disk_size, price)
+
+
 
 def main(access_id, access_key, region, zone, cpu, memory, disk_size):
-    data = get_cdb_price(access_id, access_key, region,
+    data = get_price_info(access_id, access_key, region,
                          zone, cpu, memory, disk_size)
-    print(data)
+    if data is not None:
+        print(data)
 
 
 if __name__ == '__main__':

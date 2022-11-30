@@ -46,10 +46,17 @@ def get_cvm_price(access_id, access_key, region, zone, instance_type):
     # 单位: 元
     return "{} {}".format(resp.Price.InstancePrice.DiscountPrice, "CNY")
 
+def get_price_info(access_id, access_key, region, zone, instance_type):
+    price = get_cvm_price(access_id, access_key, region, zone, instance_type)
+    if price == "":
+        return None
+    return "qcloud-cvm@{}@{}@{};{}".format(region, zone, instance_type, price)
+
 
 def main(access_id, access_key, region, zone, instance_type):
-    price = get_cvm_price(access_id, access_key, region, zone, instance_type)
-    print(price)
+    data = get_price_info(access_id, access_key, region, zone, instance_type)
+    if data is not None:
+        print(data)
 
 
 if __name__ == '__main__':
