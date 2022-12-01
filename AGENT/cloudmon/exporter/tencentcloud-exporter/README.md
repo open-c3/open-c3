@@ -19,7 +19,7 @@ products:
     all_instances: true
     extra_labels: [InstanceName,Zone]
   - namespace: QCE/REDIS_MEM
-    only_include_metrics: [CpuMaxUtil]    
+    only_include_metrics: [CpuMaxUtil,MemMaxUtil] 
     all_instances: true
     extra_labels: [InstanceName,Zone]
 ```
