@@ -54,7 +54,7 @@ class EbsPrice:
         if data is None:
             raise Exception("未找到价格信息, 区域: {}, ebs类型: {}".format(region, volume_api_name)) 
         return {
-            "amount": round(float(data["amount"]) * int(size), 2),
+            "amount": float(data["amount"]) * int(size),
             "money_type": data["money_type"],
         }
 

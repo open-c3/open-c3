@@ -17,8 +17,8 @@ download:
         "状态": ["STOPPED", "SHUTDOWN"]
         "_ingestion_": ["NO"]
     metrics:
-      - name: 'openc3_cmdb_resource_price{account="%s",instanceid="%s",type="compute",subtype="qcloud-cvm",unit="%s"} %d'
-        value: ["account", "uuid", "_priceunit_", "_price_"]
+      - name: 'openc3_cmdb_resource_price{account="%s",instanceid="%s",type="compute",subtype="qcloud-cvm",unit="%s",status="%s"} %f'
+        value: ["account", "uuid", "_priceunit_", "_price_", "状态"]
     check:
       col: ["实例ID"]
       min: 0
