@@ -1,0 +1,62 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use utf8;
+use FindBin qw( $RealBin );
+use YAML::XS;
+use Encode;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $config = "$RealBin/../conf/config.yml";
+exit unless -f $config;
+
+my $conf = eval{ YAML::XS::LoadFile $config };
+die "load confg fail: $@" if $@;
+
+sub instancealias
+{
+    my %c = @_;
+    my $distpath = "/data/open-c3-data/device/curr/$c{type}/$c{subtype}";
+    return  unless -d $distpath;
+
+    return unless my $instancealias = $c{instancealias};
+    for my $m ( @$instancealias )
+    {
+        my ( $name, $value ) = map{ $m->{$_} }qw( name value );
+        my @allcol = ( @$name, @$value );
+        my $cmd = sprintf "c3mc-device-data-get curr '$c{type}' '$c{subtype}' %s", join ' ', @allcol;
+        my @x = `$cmd`;
+        chomp @x;
+        for my $x ( @x )
+        {
+            my @col = split /\t/, $x;
+            next unless @col == @allcol;
+            my @name = splice @col, 0, scalar @$name;
+            printf "%s;%s\n", join( ":", @name ), join( ":", @col );
+        }
+    }
+}
+
+map{
+    my $c = $_;
+    if( $c->{template} )
+    {
+        my $tpl = eval{ YAML::XS::LoadFile "$RealBin/../conf/template/$c->{template}.yml"; };
+        die "load template $c->{template} fail: $@" if $@;
+
+        die "template $c->{template} error"
+          unless $tpl->{download}
+              && ref $tpl->{download} eq 'ARRAY'
+              && @{$tpl->{download} }
+              && ref $tpl->{download}[0] eq 'HASH';
+
+        $c = { %{ $tpl->{download}[0] }, %$c };
+    }
+
+    instancealias( %$c );
+}@{ $conf->{download} };

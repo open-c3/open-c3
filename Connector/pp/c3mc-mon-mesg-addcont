@@ -73,6 +73,12 @@ sub gethostname
     
         return $hostname || 'unkown';
     }
+    elsif( $ip =~ /^[a-zA-Z0-9][a-zA-Z0-9\-\._:@]+[a-zA-Z0-9]$/ )
+    {
+        my $x = `c3mc-mon-instancealias '$ip'`;
+        chomp $x;
+        return $x || 'unkown';
+    }
     else
     {
         return 'unkown' unless $labels && ref $labels eq 'HASH';
@@ -100,12 +106,12 @@ sub addcont
     $data->{ endsAtZH   } = gettime( $data->{ endsAt   } ) if $data->{ endsAt   };
 
     $data->{treename} = gettreename( $data->{'labels.instance'}, $data );
-    $data->{hostname} = gethostname( $data->{'labels.instance'}, $data );
 
     $data->{instancename } = $data->{'labels.instance'        };
     $data->{instancename } = $data->{'labels.instanceid'      } if $data->{'labels.instanceid'      };
     $data->{instancename } = $data->{'labels.cache_cluster_id'} if $data->{'labels.cache_cluster_id'};
 
+    $data->{hostname} = gethostname( $data->{'instancename'}, $data );
     $data->{instancealias} = $data->{hostname};
     
     for my $x ( qw( cloudmonname ) )

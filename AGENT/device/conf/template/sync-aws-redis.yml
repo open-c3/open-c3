@@ -17,6 +17,9 @@ download:
     metrics:
       - name: 'openc3_cmdb_resource_price{account="%s",instanceid="%s",type="database",subtype="aws-redis",unit="%s",status="%s"} %f'
         value: ["account", "uuid", "_priceunit_", "_price_", "状态"]
+    instancealias:
+      - name:  ['uuid']
+        value: ["EndpointAddress",'EndpointPort']
     check:
       col: ["实例ID"]
       min: 0

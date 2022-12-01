@@ -17,6 +17,9 @@ download:
     metrics:
       - name: 'openc3_cmdb_resource_price{account="%s",instanceid="%s",type="database",subtype="qcloud-redis",unit="%s",status="%s"} %f'
         value: ["account", "uuid", "_priceunit_", "_price_", "状态"]
+    instancealias:
+      - name:  ['uuid']
+        value: ["WanIp",'Port']
     check:
       col: ["实例ID"]
       min: 0
