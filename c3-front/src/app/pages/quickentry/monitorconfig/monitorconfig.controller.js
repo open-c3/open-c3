@@ -426,6 +426,11 @@
                 name = labels['instanceid'];
             }
 
+            if( labels['cache_cluster_id'] )
+            {
+                name = labels['cache_cluster_id'];
+            }
+
             return name;
         };
 
