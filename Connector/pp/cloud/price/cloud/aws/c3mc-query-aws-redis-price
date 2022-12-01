@@ -59,7 +59,7 @@ class RedisPrice:
         hour_price = self.query_hour_price(region, instance_type)
         # 一个月的小时数 = 365天 * 24小时 / 12个月
         return {
-            "amount": round(float(hour_price["amount"]) * 730, 2),
+            "amount": float(hour_price["amount"]) * 730,
             "money_type": hour_price["money_type"],
         }
     
