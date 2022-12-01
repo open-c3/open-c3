@@ -102,6 +102,10 @@ sub addcont
     $data->{treename} = gettreename( $data->{'labels.instance'}, $data );
     $data->{hostname} = gethostname( $data->{'labels.instance'}, $data );
 
+    $data->{instancename } = $data->{'labels.instance'        };
+    $data->{instancename } = $data->{'labels.instanceid'      } if $data->{'labels.instanceid'      };
+    $data->{instancename } = $data->{'labels.cache_cluster_id'} if $data->{'labels.cache_cluster_id'};
+
     $data->{instancealias} = $data->{hostname};
     
     for my $x ( qw( cloudmonname ) )
