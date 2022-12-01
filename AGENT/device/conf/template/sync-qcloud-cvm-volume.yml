@@ -18,6 +18,9 @@ download:
           select: ["YES", "NO"]
         - name: remarks
           alias: 备注
+    metrics:
+      - name: 'openc3_cmdb_resource_price{instanceid="%s",type="storage",subtype="qcloud-cvm-volume",unit="%s"} %d'
+        value: ["uuid", "_priceunit_", "_price_"]
     colmap:
       treename: "服务树"
       uuid: "实例ID" # 指明哪一列作为uuid列
