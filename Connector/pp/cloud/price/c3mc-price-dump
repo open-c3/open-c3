@@ -1,94 +1,59 @@
-#!/usr/bin/env python3
+#!/usr/bin/env bash
 # -*- coding: utf-8 -*-
 
-import os
+# aws
+c3mc-device-data-get curr storage aws-ec2-volume $(c3mc-cloud-get-real-field storage aws-ec2-volume accountuuid RegionId VolumeType Size) \
+| sort \
+| uniq \
+| c3mc-device-account-ext 2 3 \
+| xargs -L1 c3mc-query-aws-ebs-price 
+
+c3mc-device-data-get curr compute aws-ec2 $(c3mc-cloud-get-real-field compute aws-ec2 accountuuid RegionId InstanceType) \
+| sort \
+| uniq \
+| c3mc-device-account-ext 2 3  \
+| xargs -L1 c3mc-query-aws-ec2-price
+
+c3mc-device-data-get curr database aws-rds $(c3mc-cloud-get-real-field database aws-rds accountuuid RegionId DBInstanceClass)\
+| sort \
+| uniq \
+| c3mc-device-account-ext 2 3  \
+| xargs -L1 c3mc-query-aws-rds-price 
+
+c3mc-device-data-get curr database aws-redis $(c3mc-cloud-get-real-field database aws-redis accountuuid RegionId CacheNodeType) \
+| sort \
+| uniq \
+| c3mc-device-account-ext 2 3  \
+| xargs -L1 c3mc-query-aws-redis-price 
 
 
-def get_price_list():
-    # aws ebs
-    os.system(
-        "c3mc-device-data-get curr storage aws-ec2-volume $(c3mc-cloud-get-real-field storage aws-ec2-volume accountuuid RegionId VolumeType Size) \
-        | sort \
-        | uniq \
-        | c3mc-device-account-ext 2 3  \
-        | xargs -L1 c3mc-query-aws-ebs-price "
-    )
+# qcloud
+c3mc-device-data-get curr storage qcloud-cvm-volume $(c3mc-cloud-get-real-field storage qcloud-cvm-volume accountuuid RegionId DiskSize) \
+| sort \
+| uniq \
+| c3mc-device-account-ext 2 3  \
+| xargs -L1 c3mc-query-qcloud-cbs-price
 
-    # aws ec2
-    os.system(
-        "c3mc-device-data-get curr compute aws-ec2 $(c3mc-cloud-get-real-field compute aws-ec2 accountuuid RegionId InstanceType) \
-        | sort \
-        | uniq \
-        | c3mc-device-account-ext 2 3  \
-        | xargs -L1 c3mc-query-aws-ec2-price "
-    )
+c3mc-device-data-get curr database qcloud-cdb $(c3mc-cloud-get-real-field database qcloud-cdb accountuuid Region Zone Cpu Memory Volume) \
+| sort \
+| uniq \
+| c3mc-device-account-ext 2 3  \
+| xargs -L1 c3mc-query-qcloud-cdb-price
 
-    # aws rds
-    os.system(
-        "c3mc-device-data-get curr database aws-rds $(c3mc-cloud-get-real-field database aws-rds accountuuid RegionId DBInstanceClass)\
-        | sort \
-        | uniq \
-        | c3mc-device-account-ext 2 3  \
-        | xargs -L1 c3mc-query-aws-rds-price "
-    )
+c3mc-device-data-get curr compute qcloud-cvm $(c3mc-cloud-get-real-field compute qcloud-cvm accountuuid RegionId Placement.Zone InstanceType) \
+| sort \
+| uniq \
+| c3mc-device-account-ext 2 3  \
+| xargs -L1 c3mc-query-qcloud-cvm-price
 
-    # aws redis
-    os.system(
-        "c3mc-device-data-get curr database aws-redis $(c3mc-cloud-get-real-field database aws-redis accountuuid RegionId CacheNodeType) \
-        | sort \
-        | uniq \
-        | c3mc-device-account-ext 2 3  \
-        | xargs -L1 c3mc-query-aws-redis-price "
-    )
+c3mc-device-data-get curr database qcloud-mongodb $(c3mc-cloud-get-real-field database qcloud-mongodb accountuuid Region Zone Memory Volume ClusterType ReplicationSetNum NodeNum MongoVersion MachineType) \
+| sort \
+| uniq \
+| c3mc-device-account-ext 2 3  \
+| xargs -L1 c3mc-query-qcloud-mongodb-price
 
-    # qcloud cbs
-    os.system(
-        "c3mc-device-data-get curr storage qcloud-cvm-volume $(c3mc-cloud-get-real-field storage qcloud-cvm-volume accountuuid RegionId DiskSize) \
-        | sort \
-        | uniq \
-        | c3mc-device-account-ext 2 3  \
-        | xargs -L1 c3mc-query-qcloud-cbs-price "
-    )
-
-    # qcloud cdb
-    os.system(
-        "c3mc-device-data-get curr database qcloud-cdb $(c3mc-cloud-get-real-field database qcloud-cdb accountuuid Region Zone Cpu Memory Volume) \
-        | sort \
-        | uniq \
-        | c3mc-device-account-ext 2 3  \
-        | xargs -L1 c3mc-query-qcloud-cdb-price "
-    )
-
-    # qcloud cvm
-    os.system(
-        "c3mc-device-data-get curr compute qcloud-cvm $(c3mc-cloud-get-real-field compute qcloud-cvm accountuuid RegionId Placement.Zone InstanceType) \
-        | sort \
-        | uniq \
-        | c3mc-device-account-ext 2 3  \
-        | xargs -L1 c3mc-query-qcloud-cvm-price "
-    )
-
-    # qcloud mongodb
-    os.system(
-        "c3mc-device-data-get curr database qcloud-mongodb $(c3mc-cloud-get-real-field database qcloud-mongodb accountuuid Region Zone Memory Volume ClusterType ReplicationSetNum NodeNum MongoVersion MachineType) \
-        | sort \
-        | uniq \
-        | c3mc-device-account-ext 2 3  \
-        | xargs -L1 c3mc-query-qcloud-mongodb-price "
-    )
-
-    # qcloud redis
-    os.system(
-        "c3mc-device-data-get curr database qcloud-redis $(c3mc-cloud-get-real-field database qcloud-redis accountuuid Region ZoneId Type Size RedisShardNum RedisReplicasNum) \
-        | sort \
-        | uniq \
-        | c3mc-device-account-ext 2 3  \
-        | xargs -L1 c3mc-query-qcloud-redis-price "
-    )
-
-
-def main():
-    get_price_list()
-
-if __name__ == '__main__':
-    main()
+c3mc-device-data-get curr database qcloud-redis $(c3mc-cloud-get-real-field database qcloud-redis accountuuid Region ZoneId Type Size RedisShardNum RedisReplicasNum) \
+| sort \
+| uniq \
+| c3mc-device-account-ext 2 3  \
+| xargs -L1 c3mc-query-qcloud-redis-price
