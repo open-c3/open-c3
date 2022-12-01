@@ -35,6 +35,18 @@ metrics:
    aws_dimensions: [AvailabilityZone, LoadBalancerName]
    aws_statistics: [Sum]
 
+ - aws_namespace: AWS/ElastiCache
+   aws_metric_name: EngineCPUUtilization
+   aws_dimensions: [ CacheClusterId]
+   aws_statistics: [Maximum]
+
+ - aws_namespace: AWS/ElastiCache
+   aws_metric_name: DatabaseMemoryUsagePercentage
+   aws_dimensions: [ CacheClusterId]
+   aws_statistics: [Maximum]
+
 ```
 # 获取metrics列表
 AWS_ACCESS_KEY_ID='ak' AWS_SECRET_ACCESS_KEY='sk' aws cloudwatch list-metrics
+AWS_ACCESS_KEY_ID='ak' AWS_SECRET_ACCESS_KEY='sk' aws cloudwatch list-metrics --namespace AWS/RDS
+AWS_ACCESS_KEY_ID='ak' AWS_SECRET_ACCESS_KEY='sk' aws cloudwatch list-metrics --namespace AWS/ElastiCache
