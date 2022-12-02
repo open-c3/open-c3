@@ -57,3 +57,23 @@ c3mc-device-data-get curr database qcloud-redis $(c3mc-cloud-get-real-field data
 | uniq \
 | c3mc-device-account-ext 2 3  \
 | xargs -L1 c3mc-query-qcloud-redis-price
+
+
+# huawei
+c3mc-device-data-get curr compute huawei-ecs $(c3mc-cloud-get-real-field compute huawei-ecs accountuuid region_id flaver_id) \
+| sort \
+| uniq \
+| c3mc-device-account-ext 2 3 6 \
+| xargs -L1 c3mc-query-huawei-ecs-price 
+
+c3mc-device-data-get curr database huawei-redis $(c3mc-cloud-get-real-field database huawei-redis accountuuid region_id spec_code) \
+| sort \
+| uniq \
+| c3mc-device-account-ext 2 3 6 \
+| xargs -L1 c3mc-query-huawei-redis-price 
+
+c3mc-device-data-get curr database huawei-rds $(c3mc-cloud-get-real-field database huawei-rds accountuuid region flavor_ref) \
+| sort \
+| uniq \
+| c3mc-device-account-ext 2 3 6 \
+| xargs -L1 c3mc-query-huawei-rds-price
