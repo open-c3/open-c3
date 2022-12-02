@@ -71,3 +71,9 @@ c3mc-device-data-get curr database huawei-redis $(c3mc-cloud-get-real-field data
 | uniq \
 | c3mc-device-account-ext 2 3 6 \
 | xargs -L1 c3mc-query-huawei-redis-price 
+
+c3mc-device-data-get curr database huawei-rds $(c3mc-cloud-get-real-field database huawei-rds accountuuid region flavor_ref) \
+| sort \
+| uniq \
+| c3mc-device-account-ext 2 3 6 \
+| xargs -L1 c3mc-query-huawei-rds-price
