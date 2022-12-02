@@ -593,3 +593,25 @@ PRIMARY KEY (`id`)
 
 # v2.6.0 sql openc3_job_subtask modify pause to 100
 ALTER TABLE openc3_job_subtask modify `pause` varchar(100) DEFAULT NULL COMMENT '暂停标志';
+
+# v2.6.0 sql openc3_monitor_ack_active create
+create table if not exists `openc3_monitor_ack_active`(
+`id`        int(16) unsigned not null primary key auto_increment comment 'id',
+`uuid`      VARCHAR(100) comment 'uuid',
+`treeid`    VARCHAR(100) comment '服务树ID',
+`expire`    VARCHAR(100) comment '失效时间点',
+`edit_user` VARCHAR(100) comment '编辑者',
+`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间'
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='openc3_monitor_ack_active';
+
+# v2.6.0 sql openc3_monitor_ack_table create
+create table if not exists `openc3_monitor_ack_table`(
+`id`            int(16) unsigned not null primary key auto_increment comment 'id',
+`fingerprint`   VARCHAR(100)  comment 'fingerprint',
+`caseuuid`      VARCHAR(100)  comment 'caseuuid',
+`ackuuid`       VARCHAR(100)  comment 'ackuuid',
+`treeid`        VARCHAR(100)  comment 'treeid',
+`labels`        VARCHAR(2000) comment 'labels',
+`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间'
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='openc3_monitor_ack_table';
+

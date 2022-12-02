@@ -28,6 +28,12 @@
                 controller: 'QuickApprovalController',
                 controllerAs: 'quickapproval',
             })
+             .state('ack', {
+                url: '/ack/:uuid',
+                templateUrl: 'app/pages/ack/ack.html',
+                controller: 'ACKController',
+                controllerAs: 'ack',
+            })
  
             .state('home.dashboard', {
                 url: 'dashboard/:treeid',

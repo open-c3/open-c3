@@ -1,0 +1,49 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib
+use strict;
+use warnings;
+
+$|++;
+
+use YAML::XS;
+use uuid;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+local $/ = undef;
+my @data = YAML::XS::Load( <STDIN> );
+local $/ = "\n";
+
+my @out;
+sub adduser
+{
+    my $data = shift @_;
+    unless( $data && ref $data eq 'HASH'
+        && defined $data->{'fingerprint'         } && $data->{'fingerprint'         } =~ /^[a-zA-Z0-9]+$/
+        && defined $data->{'startsAt'            } && $data->{'startsAt'            } =~ /^[a-zA-Z0-9:\.\-]+$/
+        && defined $data->{'labels.fromtreeid'   } && $data->{'labels.fromtreeid'   } =~ /^\d+$/
+    )
+    {
+        push @out, $data;
+        return;
+    }
+
+    my $caseuuid = join '.',$data->{'fingerprint'}, $data->{'startsAt'};
+    my $treeid   = $data->{'labels.fromtreeid'};
+    my $uuid     = uuid->new()->create_str;
+    my $time     = time;
+
+    my @acked = `c3mc-base-db-get id --table openc3_monitor_ack_active --filter "uuid='$data->{fingerprint}' or uuid='$caseuuid' and expire>$time"`;
+    return if @acked;
+
+    $data->{ack} = $uuid;
+    system "c3mc-base-db-ins -t openc3_monitor_ack_table fingerprint '$data->{fingerprint}' caseuuid '$caseuuid' ackuuid '$uuid' treeid '$treeid' labels 'foo=123,bar=111'";
+    push @out, $data;
+}
+
+map{ adduser($_ ) }@data;
+
+print YAML::XS::Dump @out;
