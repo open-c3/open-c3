@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+
+from huaweicloudsdkcore.auth.credentials import GlobalCredentials
+from huaweicloudsdkbss.v2.region.bss_region import BssRegion
+from huaweicloudsdkbss.v2 import *
+
+
+def get_ecs_price(access_id, access_key, user_id, region, resource_spec):
+    credentials = GlobalCredentials(access_id, access_key)
+    client = BssClient.new_builder() \
+        .with_credentials(credentials) \
+        .with_region(BssRegion.value_of("cn-north-1")) \
+        .build()
+
+    sys.path.append("/data/Software/mydan/Connector/lib/pp")
+    from c3mc_cloud_huawei_iam import HuaweiIam
+    project_id = HuaweiIam(access_id, access_key, user_id, region).get_project_id()
+
+    request = ListRateOnPeriodDetailRequest()
+    listProductInfosbody = [
+        PeriodProductInfo(
+            id="id",
+            cloud_service_type="hws.service.type.ec2",
+            resource_type="hws.resource.type.vm",
+            resource_spec="{}.linux".format(resource_spec),
+            region=region,
+            period_type=2,
+            period_num=1,
+            subscription_num=1
+        )
+    ]
+    request.body = RateOnPeriodReq(
+        product_infos=listProductInfosbody,
+        project_id=project_id
+    )
+    resp = client.list_rate_on_period_detail(request)
+    return "{} {}".format(resp.official_website_rating_result.official_website_amount, resp.currency)
+
+
+def main(access_id, access_key, user_id, region, resource_spec):
+    price = get_ecs_price(access_id, access_key, user_id, region, resource_spec)
+    print("huawei-ecs@{}@{};{}".format(region, resource_spec, price))
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])

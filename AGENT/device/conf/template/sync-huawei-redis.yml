@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-huawei-redis --account huawei | c3mc-cloud-tag tags key value None | c3mc-base-json2tab "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-huawei-redis --account huawei | c3mc-cloud-tag tags key value None | c3mc-price-fetch huawei-redis 'region_id;spec_code'   | c3mc-base-json2tab "
     datatype: tsv
     type: database
     subtype: huawei-redis
@@ -17,6 +17,9 @@ download:
     check:
       col: ["实例ID"]
       min: 0
+    metrics:
+      - name: 'openc3_cmdb_resource_price{account="%s",instanceid="%s",type="database",subtype="huawei-redis",unit="%s",status="%s"} %f'
+        value: ["account", "uuid", "_priceunit_", "状态", "_price_"]
     util:
       defaulttree: defaulttree.pool
       extcol:

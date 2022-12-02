@@ -60,6 +60,7 @@ class Ecs:
                         server['public_ip'] = item['addr']
 
             server['os'] = server['metadata']['os_type']
+            server['flaver_id'] = server['flavor']['id']
             server['zone_id'] = server['OS-EXT-AZ:availability_zone']
             server['region_id'] = self.region
             server.pop('metadata', None)
