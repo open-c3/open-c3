@@ -40,7 +40,10 @@ sub adduser
     return if @acked;
 
     $data->{ack} = $uuid;
-    system "c3mc-base-db-ins -t openc3_monitor_ack_table fingerprint '$data->{fingerprint}' caseuuid '$caseuuid' ackuuid '$uuid' treeid '$treeid' labels 'foo=123,bar=111'";
+
+    my $labels = join ',', map{ "$_=$data->{$_}" }sort grep{ /^annotations/ || /^labels/}keys %$data;
+    $labels =~ s/'|"//g;
+    system "c3mc-base-db-ins -t openc3_monitor_ack_table fingerprint '$data->{fingerprint}' caseuuid '$caseuuid' ackuuid '$uuid' treeid '$treeid' labels '$labels'";
     push @out, $data;
 }
 
