@@ -615,3 +615,12 @@ create table if not exists `openc3_monitor_ack_table`(
 `edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间'
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='openc3_monitor_ack_table';
 
+# v2.6.0 sql openc3_connector_user_temp_token create
+create table if not exists `openc3_connector_user_temp_token`(
+`id`        int(16) unsigned not null primary key auto_increment comment 'id',
+`user`      VARCHAR(200)  comment 'user',
+`token`     VARCHAR(200)  comment 'token',
+`expire`    VARCHAR(100) comment '失效时间点',
+`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间'
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='openc3_connector_user_temp_token';
+
