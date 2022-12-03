@@ -16,10 +16,12 @@ get '/monitor/ack/:uuid' => sub {
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
+    my $uuid = substr( $param->{uuid}, 0, 12 );
+
     my @col = qw( labels fingerprint caseuuid );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from openc3_monitor_ack_table where ackuuid='$param->{uuid}'", join( ',', @col)), \@col )};
+            sprintf( "select %s from openc3_monitor_ack_table where ackuuid='$uuid'", join( ',', @col)), \@col )};
 
     my ( $acked, $time, @res ) = ( 0, time );
     for my $x ( @$r )
@@ -46,17 +48,21 @@ post '/monitor/ack/:uuid' => sub {
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    my ( $uuid, $ctrl ) = @$param{qw( uuid ctrl )};
+    my ( $u, $ctrl ) = @$param{qw( uuid ctrl )};
+    my ( $uuid, $usertoken ) = ( substr( $u, 0, 12 ), substr( $u, 12 ) );
+    my $user = `c3mc-base-user-temp-token  -get '$usertoken'`;
+    chomp $user;
+    return  +{ stat => $JSON::false, info => "check format fail $error" } unless $user && $user =~ /^[a-zA-Z0-9][a-zA-Z0-9@\.\-_\/]+[a-zA-Z0-9]$/;
 
     my $time = time + 86400;
     eval{
         if( $ctrl eq 'ackcase' )
         {
-            $api::mysql->execute( "insert into openc3_monitor_ack_active ( uuid,treeid,expire ) select `caseuuid`,treeid,'$time' from openc3_monitor_ack_table  where ackuuid='$uuid'" );
+            $api::mysql->execute( "insert into openc3_monitor_ack_active ( uuid,treeid,edit_user,expire ) select `caseuuid`,treeid,'$user','$time' from openc3_monitor_ack_table  where ackuuid='$uuid'" );
         }
         else
         {
-            $api::mysql->execute( "insert into openc3_monitor_ack_active ( uuid,treeid,expire ) select `fingerprint`,treeid,'$time' from openc3_monitor_ack_table  where ackuuid='$uuid'" );
+            $api::mysql->execute( "insert into openc3_monitor_ack_active ( uuid,treeid,edit_user,expire ) select `fingerprint`,treeid,'$user','$time' from openc3_monitor_ack_table  where ackuuid='$uuid'" );
         }
     };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };

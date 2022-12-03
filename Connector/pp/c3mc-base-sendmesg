@@ -45,6 +45,13 @@ sub sendmesg
 {
     my ( $user, $mesg ) = @_;
 
+    if( $mesg =~ /\$\{c3tempusertoken\}/ )
+    {
+        my $token = `c3mc-base-user-temp-token --set '$user/phone'`;
+        chomp $token;
+        $mesg =~ s/\$\{c3tempusertoken\}/$token/g;
+    }
+
     my $x = $db->query( sprintf "select `phone` from openc3_connector_useraddr where user='$user'" );
     $user = $crypt->decode( $x->[0][0] ) if @$x;
 

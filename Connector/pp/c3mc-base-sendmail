@@ -52,6 +52,13 @@ sub sendmail
 {
     my ( $user, $title, $content ) = @_;
 
+    if( $content =~ /\$\{c3tempusertoken\}/ )
+    {
+        my $token = `c3mc-base-user-temp-token --set '$user/email'`;
+        chomp $token;
+        $content =~ s/\$\{c3tempusertoken\}/$token/g;
+    }
+
     my $x = $db->query( sprintf "select `email` from openc3_connector_useraddr where user='$user'" );
     $user = $crypt->decode( $x->[0][0] ) if @$x;
 
