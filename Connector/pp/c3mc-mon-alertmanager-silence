@@ -1,0 +1,23 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 --user open-c3/email labels1=123 label2=foo labels3=bar
+
+ $0 --user open-c3/email --comment byc3labels1=123 label2=foo labels3=bar
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o      = $option->get(    qw( user=s comment=s ) )->dump();
+             $option->assert( qw( user ) );
+             $option->assert() unless @ARGV;
+
+my $comment = $o{comment} || 'by-c3';
+system sprintf "amtool --alertmanager.url=http://openc3-alertmanager:9093  silence add -a '$o{user}' -c '$comment' -d 7d %s", join " ", map{ "'$_'" }@ARGV;
