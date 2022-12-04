@@ -24,6 +24,7 @@ get '/monitor/ack/:uuid' => sub {
             sprintf( "select %s from openc3_monitor_ack_table where ackuuid='$uuid'", join( ',', @col)), \@col )};
 
     my ( $acked, $time, @res ) = ( 0, time );
+    my %acked = map{ $_ => 0 }qw( ackP ackG ackcaseP ackcaseG ackam );
     my $amackid = 0;
     for my $x ( @$r )
     {
@@ -34,13 +35,18 @@ get '/monitor/ack/:uuid' => sub {
         } split /,/, $x->{labels};
 
         my $xx = eval{ 
-            $api::mysql->query( "select id from openc3_monitor_ack_active where ( uuid='$x->{fingerprint}' or uuid='$x->{caseuuid}' ) and type='G' and expire>$time" ) };
-        $acked = 1 if @$xx > 0;
+            $api::mysql->query( "select type,uuid from openc3_monitor_ack_active where ( uuid='$x->{fingerprint}' or uuid='$x->{caseuuid}' ) and expire>$time" ) };
+        for( @$xx )
+        {
+            my ( $type, $uuid ) = @$_;
+            my $bt = $uuid =~ /\./ ? 'ackcase' : 'ack';
+            $acked{ $bt. $type } = 1;
+        }
     }
 
     my $info = `amtool --alertmanager.url=http://openc3-alertmanager:9093 silence`;
-    my $amacked = $info =~ m#by-c3-ack-\($amackid\)# ? 1 : 0;
-    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@res, acked => $acked, amacked => $amacked };
+    $acked{ackam} = $info =~ m#by-c3-ack-\($amackid\)# ? 1 : 0;
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@res, acked => \%acked };
 };
 
 post '/monitor/ack/:uuid' => sub {
