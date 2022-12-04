@@ -8,6 +8,10 @@ from qcloud_cos import CosConfig
 from qcloud_cos import CosS3Client
 
 
+# 查询cos标签的接口请求频率限制
+max_times_list_cos_tags = 5
+
+
 class Cos:
     def __init__(self, access_id, access_key, region):
         self.access_id = access_id
@@ -22,13 +26,20 @@ class Cos:
         client = CosS3Client(config)
         return client
 
+    def sleep(self):
+        sys.path.append("/data/Software/mydan/Connector/lib/pp")
+        from c3mc_utils import sleep_time_for_limiting
+        sleep_time_for_limiting(max_times_list_cos_tags)
+
     def list_buckets(self):
         response = self.client.list_buckets()
         result = []
         for bucket in response["Buckets"]["Bucket"]:
+            self.sleep()
             bucket["tags"] = self.list_tag(bucket["Location"], bucket["Name"])
             result.append(bucket)
         return result
+
 
     def list_tag(self, region, bucket_name):
         sys.path.append("/data/Software/mydan/Connector/lib/pp")

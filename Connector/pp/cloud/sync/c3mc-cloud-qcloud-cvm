@@ -10,6 +10,9 @@ from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.cvm.v20170312 import cvm_client, models
 
 
+# DescribeInstances() 的接口请求频率限制
+max_times_describe_instances = 40
+
 class Cvm:
     def __init__(self, access_id, access_key, region):
         self.access_id = access_id
@@ -65,6 +68,11 @@ class Cvm:
         for instance in instance_list:
             print(json.dumps(instance, default=str))
 
+    def sleep(self):
+        sys.path.append("/data/Software/mydan/Connector/lib/pp")
+        from c3mc_utils import sleep_time_for_limiting
+        sleep_time_for_limiting(max_times_describe_instances)
+
     def page(self):
         count = self.get_server_count()
         mod = count % self.page_size
@@ -75,6 +83,7 @@ class Cvm:
 
         for cur_page_number in range(1, total_page_number + 1):
             self.page_number = cur_page_number
+            self.sleep()
             self.show()
 
 
