@@ -8,6 +8,60 @@ use POSIX;
 use api;
 use Format;
 
+get '/monitor/ack/myack/bycookie' => sub {
+    my $param = params();
+
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+
+    my @col = qw(
+        openc3_monitor_ack_table.id
+        openc3_monitor_ack_table.caseuuid
+        openc3_monitor_ack_table.labels
+        openc3_monitor_ack_table.ackuuid
+
+        openc3_monitor_ack_active.uuid
+        openc3_monitor_ack_active.type
+        openc3_monitor_ack_active.expire
+        openc3_monitor_ack_active.edit_user
+        openc3_monitor_ack_active.edit_time
+    );
+    my $time = time;
+    my $r = eval{ 
+        $api::mysql->query( 
+            sprintf( "select %s from openc3_monitor_ack_active left join openc3_monitor_ack_table on openc3_monitor_ack_active.ackuuid=openc3_monitor_ack_table.ackuuid where (  openc3_monitor_ack_active.edit_user='$user' or openc3_monitor_ack_active.edit_user='$user/email' or openc3_monitor_ack_active.edit_user='$user/phone') and expire > $time", join( ',', @col)), \@col )};
+
+    my @res;
+    for my $x ( @$r )
+    {
+        my %x;
+        for my $k ( keys %$x )
+        {
+            my $alias = $k; $alias =~ s/^[^.]+\.//;
+            $x{$alias} = $x->{$k};
+        }
+        $x{expirem} = 1 + int (( $x{expire} - time )/ 60 );
+        $x{mt     } = $x{uuid} =~ /\./ ? "Case" : "Strategy";
+        $x{to     } = $x{type} eq 'P' ? "Personal" : "All";
+        push @res, \%x;
+    }
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@res };
+};
+
+post '/monitor/ack/myack/bycookie' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        uuid => qr/^[a-zA-Z0-9]+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+ 
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+
+    eval{ $api::mysql->execute( "update openc3_monitor_ack_active set expire=0 where  ( edit_user='$user' or edit_user='$user/email' or edit_user='$user/phone') and ackuuid='$param->{uuid}'" ); };
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
+};
+
+
 get '/monitor/ack/:uuid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -96,7 +150,7 @@ post '/monitor/ack/:uuid' => sub {
     eval{
         if( $ctrl eq 'ackcase' )
         {
-            $api::mysql->execute( "insert into openc3_monitor_ack_active ( uuid,type,treeid,edit_user,expire ) select `caseuuid`,'$type',treeid,'$user','$time' from openc3_monitor_ack_table  where ackuuid='$uuid'" );
+            $api::mysql->execute( "insert into openc3_monitor_ack_active ( uuid,type,treeid,edit_user,expire,ackuuid ) select `caseuuid`,'$type',treeid,'$user','$time','$uuid' from openc3_monitor_ack_table  where ackuuid='$uuid'" );
         }
         elsif( $ctrl eq 'ackam' )
         {
@@ -114,7 +168,7 @@ post '/monitor/ack/:uuid' => sub {
         }
         else
         {
-            $api::mysql->execute( "insert into openc3_monitor_ack_active ( uuid,type,treeid,edit_user,expire ) select `fingerprint`,'$type',treeid,'$user','$time' from openc3_monitor_ack_table  where ackuuid='$uuid'" );
+            $api::mysql->execute( "insert into openc3_monitor_ack_active ( uuid,type,treeid,edit_user,expire,ackuuid ) select `fingerprint`,'$type',treeid,'$user','$time','$uuid' from openc3_monitor_ack_table  where ackuuid='$uuid'" );
         }
     };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };

@@ -429,6 +429,12 @@
                 controller: 'ApprovalController',
                 controllerAs: 'approval'
             })
+            .state('home.myack', {
+                url: 'myack/:treeid',
+                templateUrl: 'app/pages/myack/myack.html',
+                controller: 'MyackController',
+                controllerAs: 'myack'
+            })
             .state('home.assignment', {
                 url: 'assignment/:treeid',
                 templateUrl: 'app/pages/assignment/assignment.html',

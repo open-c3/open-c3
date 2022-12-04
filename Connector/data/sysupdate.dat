@@ -601,6 +601,7 @@ create table if not exists `openc3_monitor_ack_active`(
 `uuid`      VARCHAR(100) comment 'uuid',
 `treeid`    VARCHAR(100) comment '服务树ID',
 `expire`    VARCHAR(100) comment '失效时间点',
+`ackuuid`   VARCHAR(100) comment 'ackuuid,用于用户管理表格时候找到table表的详细对应关系',
 `edit_user` VARCHAR(100) comment '编辑者',
 `edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间'
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='openc3_monitor_ack_active';
