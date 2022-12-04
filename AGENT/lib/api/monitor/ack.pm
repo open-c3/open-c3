@@ -16,7 +16,11 @@ get '/monitor/ack/:uuid' => sub {
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    my $uuid = substr( $param->{uuid}, 0, 12 );
+    my ( $uuid, $usertoken ) = ( substr( $param->{uuid}, 0, 12 ), substr( $param->{uuid}, 12 ) );
+    my $user = `c3mc-base-user-temp-token  -get '$usertoken'`;
+    chomp $user;
+    return  +{ stat => $JSON::false, info => "check format fail $error" } unless $user && $user =~ /^[a-zA-Z0-9][a-zA-Z0-9@\.\-_\/]+[a-zA-Z0-9]$/;
+    my $u = ( split /\//, $user )[0];
 
     my @col = qw( id labels fingerprint caseuuid );
     my $r = eval{ 
@@ -35,12 +39,20 @@ get '/monitor/ack/:uuid' => sub {
         } split /,/, $x->{labels};
 
         my $xx = eval{ 
-            $api::mysql->query( "select type,uuid from openc3_monitor_ack_active where ( uuid='$x->{fingerprint}' or uuid='$x->{caseuuid}' ) and expire>$time" ) };
+            $api::mysql->query( "select type,uuid,edit_user from openc3_monitor_ack_active where ( uuid='$x->{fingerprint}' or uuid='$x->{caseuuid}' ) and expire>$time" ) };
         for( @$xx )
         {
-            my ( $type, $uuid ) = @$_;
+            my ( $type, $uuid, $edit_user ) = @$_;
             my $bt = $uuid =~ /\./ ? 'ackcase' : 'ack';
-            $acked{ $bt. $type } = 1;
+            my $ut = ( split /\//, $edit_user )[0];
+            if( $type eq 'P' )
+            {
+                $acked{ $bt. $type } = 1 if $u eq  $ut;
+            }
+            else
+            {
+                $acked{ $bt. $type } = 1;
+            }
         }
     }
 
