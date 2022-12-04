@@ -597,6 +597,7 @@ ALTER TABLE openc3_job_subtask modify `pause` varchar(100) DEFAULT NULL COMMENT 
 # v2.6.0 sql openc3_monitor_ack_active create
 create table if not exists `openc3_monitor_ack_active`(
 `id`        int(16) unsigned not null primary key auto_increment comment 'id',
+`type`      VARCHAR(20)  comment '类型，组还是个人, G or P',
 `uuid`      VARCHAR(100) comment 'uuid',
 `treeid`    VARCHAR(100) comment '服务树ID',
 `expire`    VARCHAR(100) comment '失效时间点',

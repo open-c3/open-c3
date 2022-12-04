@@ -34,7 +34,7 @@ get '/monitor/ack/:uuid' => sub {
         } split /,/, $x->{labels};
 
         my $xx = eval{ 
-            $api::mysql->query( "select id from openc3_monitor_ack_active where uuid='$x->{fingerprint}' or uuid='$x->{caseuuid}' and expire>$time" ) };
+            $api::mysql->query( "select id from openc3_monitor_ack_active where ( uuid='$x->{fingerprint}' or uuid='$x->{caseuuid}' ) and type='G' and expire>$time" ) };
         $acked = 1 if @$xx > 0;
     }
 
@@ -62,7 +62,7 @@ post '/monitor/ack/:uuid' => sub {
     eval{
         if( $ctrl eq 'ackcase' )
         {
-            $api::mysql->execute( "insert into openc3_monitor_ack_active ( uuid,treeid,edit_user,expire ) select `caseuuid`,treeid,'$user','$time' from openc3_monitor_ack_table  where ackuuid='$uuid'" );
+            $api::mysql->execute( "insert into openc3_monitor_ack_active ( uuid,type,treeid,edit_user,expire ) select `caseuuid`,'G',treeid,'$user','$time' from openc3_monitor_ack_table  where ackuuid='$uuid'" );
         }
         elsif( $ctrl eq 'ackam' )
         {
@@ -80,7 +80,7 @@ post '/monitor/ack/:uuid' => sub {
         }
         else
         {
-            $api::mysql->execute( "insert into openc3_monitor_ack_active ( uuid,treeid,edit_user,expire ) select `fingerprint`,treeid,'$user','$time' from openc3_monitor_ack_table  where ackuuid='$uuid'" );
+            $api::mysql->execute( "insert into openc3_monitor_ack_active ( uuid,type,treeid,edit_user,expire ) select `fingerprint`,'G',treeid,'$user','$time' from openc3_monitor_ack_table  where ackuuid='$uuid'" );
         }
     };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
