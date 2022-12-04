@@ -61,6 +61,61 @@ post '/monitor/ack/myack/bycookie' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
 
+get '/monitor/ack/allack/bycookie' => sub {
+    my $param = params();
+
+    my $pmscheck = api::pmscheck( 'openc3_agent_root' ); return $pmscheck if $pmscheck;
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+
+    my @col = qw(
+        openc3_monitor_ack_table.id
+        openc3_monitor_ack_table.caseuuid
+        openc3_monitor_ack_table.labels
+        openc3_monitor_ack_table.ackuuid
+
+        openc3_monitor_ack_active.uuid
+        openc3_monitor_ack_active.type
+        openc3_monitor_ack_active.expire
+        openc3_monitor_ack_active.edit_user
+        openc3_monitor_ack_active.edit_time
+    );
+    my $time = time;
+    my $r = eval{ 
+        $api::mysql->query( 
+            sprintf( "select %s from openc3_monitor_ack_active left join openc3_monitor_ack_table on openc3_monitor_ack_active.ackuuid=openc3_monitor_ack_table.ackuuid where expire > $time", join( ',', @col)), \@col )};
+
+    my @res;
+    for my $x ( @$r )
+    {
+        my %x;
+        for my $k ( keys %$x )
+        {
+            my $alias = $k; $alias =~ s/^[^.]+\.//;
+            $x{$alias} = $x->{$k};
+        }
+        $x{expirem} = 1 + int (( $x{expire} - time )/ 60 );
+        $x{mt     } = $x{uuid} =~ /\./ ? "Case" : "Strategy";
+        $x{to     } = $x{type} eq 'P' ? "Personal" : "All";
+        push @res, \%x;
+    }
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@res };
+};
+
+post '/monitor/ack/allack/bycookie' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        uuid => qr/^[a-zA-Z0-9]+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+    my $pmscheck = api::pmscheck( 'openc3_agent_root' ); return $pmscheck if $pmscheck;
+ 
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+
+    eval{ $api::mysql->execute( "update openc3_monitor_ack_active set expire=0 where ackuuid='$param->{uuid}'" ); };
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
+};
+
 
 get '/monitor/ack/:uuid' => sub {
     my $param = params();

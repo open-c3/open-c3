@@ -435,6 +435,12 @@
                 controller: 'MyackController',
                 controllerAs: 'myack'
             })
+            .state('home.allack', {
+                url: 'allack/:treeid',
+                templateUrl: 'app/pages/allack/allack.html',
+                controller: 'AllackController',
+                controllerAs: 'allack'
+            })
             .state('home.assignment', {
                 url: 'assignment/:treeid',
                 templateUrl: 'app/pages/assignment/assignment.html',
