@@ -51,13 +51,17 @@ post '/monitor/ack/myack/bycookie' => sub {
     my $param = params();
     my $error = Format->new( 
         uuid => qr/^[a-zA-Z0-9]+$/, 1,
+        type => [ 'in', 'P', 'G' ], 1,
+        mt   => [ 'in', 'Strategy', 'Case' ], 1,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
  
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
-    eval{ $api::mysql->execute( "update openc3_monitor_ack_active set expire=0 where  ( edit_user='$user' or edit_user='$user/email' or edit_user='$user/phone') and ackuuid='$param->{uuid}'" ); };
+    my $where = $param->{mt} eq 'Case' ? ' and uuid like "%.%"' : ' and uuid not like "%.%"';
+
+    eval{ $api::mysql->execute( "update openc3_monitor_ack_active set expire=0 where  ( edit_user='$user' or edit_user='$user/email' or edit_user='$user/phone') and type='$param->{type}' and ackuuid='$param->{uuid}' $where" ); };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
 
@@ -105,6 +109,8 @@ post '/monitor/ack/allack/bycookie' => sub {
     my $param = params();
     my $error = Format->new( 
         uuid => qr/^[a-zA-Z0-9]+$/, 1,
+        type => [ 'in', 'P', 'G' ], 1,
+        mt   => [ 'in', 'Strategy', 'Case' ], 1,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -112,7 +118,8 @@ post '/monitor/ack/allack/bycookie' => sub {
  
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
-    eval{ $api::mysql->execute( "update openc3_monitor_ack_active set expire=0 where ackuuid='$param->{uuid}'" ); };
+    my $where = $param->{mt} eq 'Case' ? ' and uuid like "%.%"' : ' and uuid not like "%.%"';
+    eval{ $api::mysql->execute( "update openc3_monitor_ack_active set expire=0 where type='$param->{type}' and ackuuid='$param->{uuid}' $where" ); };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
 

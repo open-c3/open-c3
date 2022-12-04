@@ -9,8 +9,8 @@
         var vm = this;
         vm.seftime = genericService.seftime
 
-        vm.edit = function (ackuuid) {
-            $http.post( '/api/agent/monitor/ack/myack/bycookie', { uuid: ackuuid} ).success(function(data){
+        vm.edit = function (ackuuid,type,mt) {
+            $http.post( '/api/agent/monitor/ack/myack/bycookie', { uuid: ackuuid,type: type, mt: mt} ).success(function(data){
                 if (data.stat){
                     vm.reload();
                 }else {

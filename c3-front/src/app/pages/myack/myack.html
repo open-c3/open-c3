@@ -15,7 +15,7 @@
                 <table ng-table="myack.dataTable" class="table table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="d in $data">
                         <td style="width: 10%" data-title="'操作'">
-                            <button class="btn btn-primary btn-sm" ng-click="myack.edit(d.ackuuid)">撤销</button>
+                            <button class="btn btn-primary btn-sm" ng-click="myack.edit(d.ackuuid,d.type,d.mt)">撤销</button>
                         </td>
                         <td style="width: 10%" data-title="'创建时间'" filter="{ edit_time: 'text'}" sortable="'create_time'">{{d.edit_time}}</td>
                         <td style="width: 10%" data-title="'过期时间'" filter="{ expire: 'text'}" sortable="'d.expire'">{{d.expirem}}分钟</td>
