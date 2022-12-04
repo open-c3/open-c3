@@ -139,6 +139,7 @@ sub addcont
     {
         $data->{ title   } = $senddata{ title   };
         $data->{ content } = $senddata{ content };
+        $data->{ content } .= "\nc3monitormsguuid:[$data->{c3monitormsguuid}]" if $data->{c3monitormsguuid};
     }
 
     if(
@@ -148,6 +149,7 @@ sub addcont
     {
 
         $data->{mesg} = $senddata{mesg};
+        $data->{mesg} .= "\nc3monitormsguuid:[$data->{c3monitormsguuid}]" if $data->{c3monitormsguuid};
     }
 
     if(
@@ -157,6 +159,7 @@ sub addcont
     {
 
         $data->{call} = $senddata{call};
+        $data->{call} .= "\nc3monitormsguuid:[$data->{c3monitormsguuid}]" if $data->{c3monitormsguuid};
     }
 
     for my $t ( qw( title content mesg call ) )

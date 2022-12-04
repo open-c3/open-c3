@@ -149,7 +149,7 @@
 //Monitor
         vm.emailMonitorSet = function () {
             vm.environment.monitorTemplateEmailTitle   = "告警名称: ${labels.alertname} 状态：${statusZH}";
-            vm.environment.monitorTemplateEmailContent = "[openc3]\n状态：${statusZH}\n告警时间: ${startsAtZH}\n\n监控对象: ${instancename}\n对象别名: ${instancealias}\n\n服务树: ${treename}\n\n告警名称: ${labels.alertname}\n告警概要: ${annotations.summary}\n故障描述：\n${annotations.descriptions}";
+            vm.environment.monitorTemplateEmailContent = "[openc3]\n状态：${statusZH}\n告警时间: ${startsAtZH}\n\n监控对象: ${instancename}\n对象别名: ${instancealias}\n\n服务树: ${treename}\n\n告警名称: ${labels.alertname}\n告警概要: ${annotations.summary}\n故障描述：\n${annotations.descriptions}\n\nACK:" + window.location.protocol + '//' + window.location.host + "/#/ack/${ack}${c3tempusertoken}";
         };
 
         vm.emailMonitorSave = function () {
@@ -159,7 +159,7 @@
             vm.save( emailDetail )
         };
         vm.smsMonitorSet = function () {
-            vm.environment.monitorTemplateSmsContent = "[openc3]\n状态：${statusZH}\n告警时间: ${startsAtZH}\n\n监控对象: ${instancename}\n对象别名: ${instancealias}\n\n服务树: ${treename}\n\n告警名称: ${labels.alertname}\n告警概要: ${annotations.summary}\n故障描述：\n${annotations.descriptions}";
+            vm.environment.monitorTemplateSmsContent = "[openc3]\n状态：${statusZH}\n告警时间: ${startsAtZH}\n\n监控对象: ${instancename}\n对象别名: ${instancealias}\n\n服务树: ${treename}\n\n告警名称: ${labels.alertname}\n告警概要: ${annotations.summary}\n故障描述：\n${annotations.descriptions}\n\nACK:" + window.location.protocol + '//' + window.location.host + "/#/ack/${ack}${c3tempusertoken}";
         };
         vm.smsMonitorSave = function () {
             var msmDetail = {};

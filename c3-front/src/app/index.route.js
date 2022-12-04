@@ -28,6 +28,12 @@
                 controller: 'QuickApprovalController',
                 controllerAs: 'quickapproval',
             })
+             .state('ack', {
+                url: '/ack/:uuid',
+                templateUrl: 'app/pages/ack/ack.html',
+                controller: 'ACKController',
+                controllerAs: 'ack',
+            })
  
             .state('home.dashboard', {
                 url: 'dashboard/:treeid',
@@ -422,6 +428,18 @@
                 templateUrl: 'app/pages/approval/approval.html',
                 controller: 'ApprovalController',
                 controllerAs: 'approval'
+            })
+            .state('home.myack', {
+                url: 'myack/:treeid',
+                templateUrl: 'app/pages/myack/myack.html',
+                controller: 'MyackController',
+                controllerAs: 'myack'
+            })
+            .state('home.allack', {
+                url: 'allack/:treeid',
+                templateUrl: 'app/pages/allack/allack.html',
+                controller: 'AllackController',
+                controllerAs: 'allack'
             })
             .state('home.assignment', {
                 url: 'assignment/:treeid',

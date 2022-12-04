@@ -1,0 +1,36 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib
+use strict;
+use warnings;
+
+$|++;
+
+use uuid;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 --set user001
+ $0 --set user002/email
+ $0 --set user003/phone
+
+ $0 --get token.uuid
+
+=cut
+my $option = MYDan::Util::OptConf->load();
+my %o      = $option->get( qw( set=s get=s ) )->dump();
+             $option->assert() unless $o{get} || $o{set};
+
+if( $o{set} )
+{
+    my $uuid   = uuid->new()->create_str;
+    my $expire = time + 86400 * 7;
+    system "c3mc-base-db-ins -t openc3_connector_user_temp_token user '$o{set}' token '$uuid' expire $expire";
+    print "$uuid\n";
+    exit;
+}
+
+if( $o{get} )
+{
+    my $time = time;
+    exec "c3mc-base-db-get user -t openc3_connector_user_temp_token --filter \"token='$o{get}' and expire>$time\"";
+}

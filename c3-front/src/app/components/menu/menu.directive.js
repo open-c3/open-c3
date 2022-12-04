@@ -74,6 +74,8 @@
                                 || sName == 'home.history.job'
                                 || sName == 'home.history.terminal'
                                 || sName == 'home.approval'
+                                || sName == 'home.myack'
+                                || sName == 'home.allack'
                                 || sName == 'home.global.notify'
                                 || sName == 'home.global.template'
                                 || sName == 'home.global.sysctl'
