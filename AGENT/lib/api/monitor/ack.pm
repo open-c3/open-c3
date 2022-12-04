@@ -66,6 +66,21 @@ post '/monitor/ack/:uuid' => sub {
 
     my $time = time + 86400;
     my $type = $param->{type} && $param->{type} eq 'P' ? 'P' : 'G';
+
+    if( $type eq 'G' && $ctrl ne 'ackam' )
+    {
+        my $u = (split /\//, $user )[0];
+        my @auth = `c3mc-base-db-get name -t openc3_connector_userauth --filter "name='$u' and level >=2"`;
+        return  +{ stat => $JSON::false, info => "no auth" } unless @auth;
+    }
+
+    if( $ctrl eq 'ackam' )
+    {
+        my $u = (split /\//, $user )[0];
+        my @auth = `c3mc-base-db-get name -t openc3_connector_userauth --filter "name='$u' and level >=3"`;
+        return  +{ stat => $JSON::false, info => "no auth" } unless @auth;
+    }
+
     eval{
         if( $ctrl eq 'ackcase' )
         {
