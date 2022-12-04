@@ -59,10 +59,11 @@ post '/monitor/ack/:uuid' => sub {
     return  +{ stat => $JSON::false, info => "check format fail $error" } unless $user && $user =~ /^[a-zA-Z0-9][a-zA-Z0-9@\.\-_\/]+[a-zA-Z0-9]$/;
 
     my $time = time + 86400;
+    my $type = $param->{type} && $param->{type} eq 'P' ? 'P' : 'G';
     eval{
         if( $ctrl eq 'ackcase' )
         {
-            $api::mysql->execute( "insert into openc3_monitor_ack_active ( uuid,type,treeid,edit_user,expire ) select `caseuuid`,'G',treeid,'$user','$time' from openc3_monitor_ack_table  where ackuuid='$uuid'" );
+            $api::mysql->execute( "insert into openc3_monitor_ack_active ( uuid,type,treeid,edit_user,expire ) select `caseuuid`,'$type',treeid,'$user','$time' from openc3_monitor_ack_table  where ackuuid='$uuid'" );
         }
         elsif( $ctrl eq 'ackam' )
         {
@@ -80,7 +81,7 @@ post '/monitor/ack/:uuid' => sub {
         }
         else
         {
-            $api::mysql->execute( "insert into openc3_monitor_ack_active ( uuid,type,treeid,edit_user,expire ) select `fingerprint`,'G',treeid,'$user','$time' from openc3_monitor_ack_table  where ackuuid='$uuid'" );
+            $api::mysql->execute( "insert into openc3_monitor_ack_active ( uuid,type,treeid,edit_user,expire ) select `fingerprint`,'$type',treeid,'$user','$time' from openc3_monitor_ack_table  where ackuuid='$uuid'" );
         }
     };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };

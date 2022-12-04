@@ -52,6 +52,15 @@ sub sendmail
 {
     my ( $user, $title, $content ) = @_;
 
+    if( $content =~ s/\nc3monitormsguuid:\[([a-zA-Z0-9][a-zA-Z0-9\-\.:]+[a-zA-Z0-9])\]// )
+    {
+        my $msgid = $1;
+        my $caseid = (split /\./, $msgid)[0];
+        my $time = time;
+        my @acked = `c3mc-base-db-get id --table openc3_monitor_ack_active --filter "(uuid='$caseid' or uuid='$msgid' ) and type='P' and ( edit_user='$user' or edit_user='$user/email' or edit_user='$user/phone' ) and expire>$time"`;
+        return if @acked;
+    }
+
     if( $content =~ /\$\{c3tempusertoken\}/ )
     {
         my $token = `c3mc-base-user-temp-token --set '$user/email'`;

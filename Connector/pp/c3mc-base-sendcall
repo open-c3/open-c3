@@ -47,6 +47,15 @@ sub sendmesg
 {
     my ( $user, $mesg ) = @_;
 
+    if( $mesg =~ s/\nc3monitormsguuid:\[([a-zA-Z0-9][a-zA-Z0-9\-\.:]+[a-zA-Z0-9])\]// )
+    {
+        my $msgid = $1;
+        my $caseid = (split /\./, $msgid)[0];
+        my $time = time;
+        my @acked = `c3mc-base-db-get id --table openc3_monitor_ack_active --filter "(uuid='$caseid' or uuid='$msgid' ) and type='P' and ( edit_user='$user' or edit_user='$user/email' or edit_user='$user/phone' ) and expire>$time"`;
+        return if @acked;
+    }
+
     my $x = $db->query( sprintf "select `phone`,`voicemail` from openc3_connector_useraddr where user='$user'" );
     if( @$x )
     {

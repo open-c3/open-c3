@@ -34,8 +34,8 @@
                 });
         };
 
-        vm.edit = function (ctrl) {
-            $http.post( '/api/agent/monitor/ack/' + uuid, { ctrl: ctrl} ).success(function(data){
+        vm.edit = function (ctrl, type) {
+            $http.post( '/api/agent/monitor/ack/' + uuid, { ctrl: ctrl, type: type} ).success(function(data){
                 if (data.stat){
                     vm.reload();
                 }else {

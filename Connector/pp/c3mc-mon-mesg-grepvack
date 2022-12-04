@@ -40,6 +40,7 @@ sub adduser
     return if @acked;
 
     $data->{ack} = $uuid;
+    $data->{c3monitormsguuid} = $caseuuid;
 
     my $labels = join ',', map{ "$_=$data->{$_}" }sort grep{ /^annotations/ || /^labels/}keys %$data;
     $labels =~ s/'|"//g;
