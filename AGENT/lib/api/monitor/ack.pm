@@ -133,8 +133,18 @@ get '/monitor/ack/:uuid' => sub {
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
     my ( $uuid, $usertoken ) = ( substr( $param->{uuid}, 0, 12 ), substr( $param->{uuid}, 12 ) );
-    my $user = `c3mc-base-user-temp-token  -get '$usertoken'`;
-    chomp $user;
+
+    my $user;
+    if( $usertoken )
+    {
+        $user = `c3mc-base-user-temp-token  -get '$usertoken'`;
+        chomp $user;
+    }
+    else
+    {
+        $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+    }
+
     return  +{ stat => $JSON::false, info => "check format fail $error" } unless $user && $user =~ /^[a-zA-Z0-9][a-zA-Z0-9@\.\-_\/]+[a-zA-Z0-9]$/;
     my $u = ( split /\//, $user )[0];
 
@@ -197,8 +207,18 @@ post '/monitor/ack/:uuid' => sub {
 
     my ( $u, $ctrl ) = @$param{qw( uuid ctrl )};
     my ( $uuid, $usertoken ) = ( substr( $u, 0, 12 ), substr( $u, 12 ) );
-    my $user = `c3mc-base-user-temp-token  -get '$usertoken'`;
-    chomp $user;
+
+    my $user;
+    if( $usertoken )
+    {
+        $user = `c3mc-base-user-temp-token  -get '$usertoken'`;
+        chomp $user;
+    }
+    else
+    {
+        $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+    }
+
     return  +{ stat => $JSON::false, info => "check format fail $error" } unless $user && $user =~ /^[a-zA-Z0-9][a-zA-Z0-9@\.\-_\/]+[a-zA-Z0-9]$/;
 
     my $time = time + 86400;
