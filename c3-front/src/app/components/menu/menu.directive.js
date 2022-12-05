@@ -76,6 +76,7 @@
                                 || sName == 'home.approval'
                                 || sName == 'home.myack'
                                 || sName == 'home.allack'
+                                || sName == 'home.mycase'
                                 || sName == 'home.global.notify'
                                 || sName == 'home.global.template'
                                 || sName == 'home.global.sysctl'
