@@ -26,10 +26,10 @@ get '/monitor/caseinfo/mycase' => sub {
 
         openc3_monitor_usercase.user
     );
-    my $time = time;
+    my $expire = time - ( 3600 * 6 );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from openc3_monitor_usercase,openc3_monitor_caseinfo where openc3_monitor_usercase.caseuuid=openc3_monitor_caseinfo.caseuuid and openc3_monitor_caseinfo.casestat ='firing' and user='$user'", join( ',', @col)), \@col )};
+            sprintf( "select %s from openc3_monitor_usercase,openc3_monitor_caseinfo where openc3_monitor_usercase.caseuuid=openc3_monitor_caseinfo.caseuuid and openc3_monitor_caseinfo.casestat ='firing' and user='$user' and mtime>$expire", join( ',', @col)), \@col )};
 
     my @res;
     for my $x ( @$r )

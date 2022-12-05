@@ -629,6 +629,7 @@ create table if not exists `openc3_connector_user_temp_token`(
 # v2.6.0 sql openc3_monitor_caseinfo create
 create table if not exists `openc3_monitor_caseinfo`(
 `id`            int(16) unsigned not null primary key auto_increment comment 'id',
+`mtime`         VARCHAR(30)   comment '更新时间',
 `treeid`        VARCHAR(30)   comment '服务树id',
 `ackuuid`       VARCHAR(30)   comment 'ACK编号，方便跳转到ACK页面',
 `instance`      VARCHAR(100)  comment 'instance',
