@@ -172,9 +172,18 @@ get '/monitor/ack/:uuid' => sub {
         }
     }
 
+    my $caseinfo = +{};
+    for my $x ( @$r )
+    {
+        my @col = qw( instance title content );
+        my $xx = eval{ $api::mysql->query( sprintf( "select %s from openc3_monitor_caseinfo where caseuuid='$x->{caseuuid}'", join ',', @col), \@col ) };
+        return +{ stat => $JSON::false, info => $@ } if $@;
+        $caseinfo = $xx->[0] if @$xx > 0;
+    }
+
     my $info = `amtool --alertmanager.url=http://openc3-alertmanager:9093 silence`;
     $acked{ackam} = $info =~ m#by-c3-ack-\($amackid\)# ? 1 : 0;
-    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@res, acked => \%acked };
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@res, acked => \%acked, caseinfo => $caseinfo };
 };
 
 post '/monitor/ack/:uuid' => sub {

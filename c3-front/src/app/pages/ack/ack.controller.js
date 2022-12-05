@@ -13,6 +13,7 @@
         vm.seftime = genericService.seftime
         vm.loadover = false;
         vm.acked = {};
+        vm.caseinfo = {};
         vm.reload = function () {
             vm.loadover = false;
             $http.get('/api/agent/monitor/ack/' + uuid).then(
@@ -20,6 +21,7 @@
                     if (response.data.stat){
                         vm.dataTable = new ngTableParams({count:25}, {counts:[],data:response.data.data});
                         vm.acked = response.data.acked
+                        vm.caseinfo = response.data.caseinfo
                         vm.loadover = true;
                     }else{
                         toastr.error("获取信息失败:"+response.data.info)

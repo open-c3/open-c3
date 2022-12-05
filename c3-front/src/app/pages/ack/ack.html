@@ -8,7 +8,22 @@
             <h5>监控ACK</h5>
         </div>
 
-        <div class="panel-body">
+        <div ng-if="ack.caseinfo.content" class="table-responsive" style="width: 100%">
+            <table class="table table-bordered" style="font-weight: bold;border: 0px;">
+                <tbody>
+                    <tr>
+                        <td>监控对象</td>
+                        <td>{{ack.caseinfo.instance}}</td>
+                        <td>监控内容</td>
+                        <td>{{ack.caseinfo.title}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <a ng-if="ack.caseinfo.content" ><pre>{{ack.caseinfo.content}}</pre></a>
+
+        <div ng-if="!ack.caseinfo.content" class="panel-body">
             <div class="panel-tabs">
                 <table ng-table="ack.dataTable" class="table table-hover text-center table-condensed">
                     <tr ng-repeat="d in $data">
