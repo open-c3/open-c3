@@ -15,6 +15,7 @@ get '/monitor/caseinfo/mycase' => sub {
 
     my @col = qw(
         openc3_monitor_caseinfo.treeid
+        openc3_monitor_caseinfo.ackuuid
         openc3_monitor_caseinfo.instance
         openc3_monitor_caseinfo.fingerprint
         openc3_monitor_caseinfo.caseuuid

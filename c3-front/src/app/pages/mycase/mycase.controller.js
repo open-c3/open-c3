@@ -32,5 +32,11 @@
             });
         };
         vm.reload();
+
+        vm.openOneTab = function (ackuuid) {
+            var terminalAddr = window.location.protocol + "//" + window.location.host+"/#/ack/" + ackuuid;
+            window.open(terminalAddr, '_blank')
+        };
+
     }
 })();
