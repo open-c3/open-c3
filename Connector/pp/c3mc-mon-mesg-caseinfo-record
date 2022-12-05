@@ -40,6 +40,12 @@ sub recode
     my @col = keys %data;
     eval{$db->execute( sprintf "replace into openc3_monitor_caseinfo(%s) value(%s)",join(',', @col),join(',', map{ $data{$_} //= ''; $data{$_} =~ s/'//;"'$data{$_}'"}@col) ); };
     warn "caseinfo-record err: $@" if $@;
+
+    return unless $data->{to} && ref $data->{to} eq 'ARRAY';
+    eval{
+        map{ $db->execute( sprintf "replace into openc3_monitor_usercase(`user`,`caseuuid`) value('$_', '$data{caseuuid}')" ); }@{$data->{to}}
+    };
+    warn "usercase-record err: $@" if $@;
 }
 
 map{ recode($_ ) }@data;

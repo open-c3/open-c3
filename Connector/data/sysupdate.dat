@@ -640,3 +640,12 @@ create table if not exists `openc3_monitor_caseinfo`(
 UNIQUE KEY `uniq_uuid` (`caseuuid`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='openc3_monitor_caseinfo';
 
+# v2.6.0 sql openc3_monitor_usercase create
+create table if not exists `openc3_monitor_usercase`(
+`id`            int(16) unsigned not null primary key auto_increment comment 'id',
+`user`          VARCHAR(100)  comment '用户',
+`caseuuid`      VARCHAR(100)  comment 'caseuuid',
+`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
+UNIQUE KEY `uniq_uuid` (`user`,`caseuuid`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='openc3_monitor_usercase';
+
