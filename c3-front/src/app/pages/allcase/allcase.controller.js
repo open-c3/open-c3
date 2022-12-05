@@ -3,15 +3,15 @@
 
     angular
         .module('openc3')
-        .controller('MycaseController', MycaseController);
+        .controller('AllcaseController', AllcaseController);
 
-    function MycaseController($http, ngTableParams, $uibModal, genericService) {
+    function AllcaseController($http, ngTableParams, $uibModal, genericService) {
         var vm = this;
         vm.seftime = genericService.seftime
 
         vm.reload = function () {
             vm.loadover = false;
-            $http.get('/api/agent/monitor/caseinfo/mycase').success(function(data){
+            $http.get('/api/agent/monitor/caseinfo/allcase').success(function(data){
                 if (data.stat){
                     vm.dataTable = new ngTableParams({count:25}, {counts:[],data:data.data});
                     vm.loadover = true;

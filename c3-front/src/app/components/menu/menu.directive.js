@@ -77,6 +77,7 @@
                                 || sName == 'home.myack'
                                 || sName == 'home.allack'
                                 || sName == 'home.mycase'
+                                || sName == 'home.allcase'
                                 || sName == 'home.global.notify'
                                 || sName == 'home.global.template'
                                 || sName == 'home.global.sysctl'
