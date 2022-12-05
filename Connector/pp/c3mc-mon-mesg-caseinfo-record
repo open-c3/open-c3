@@ -1,0 +1,47 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use YAML::XS;
+use MYDB;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+local $/ = undef;
+my @data = YAML::XS::Load( my $x = <STDIN> );
+local $/ = "\n";
+
+my $db = MYDB->new( "/data/Software/mydan/AGENT/conf/conn", delayedconnection => 1 );
+sub recode
+{
+    my $data = shift @_;
+
+    return unless( $data && ref $data eq 'HASH'
+        && defined $data->{'fingerprint'         } && $data->{'fingerprint'         } =~ /^[a-zA-Z0-9]+$/
+        && defined $data->{'labels.fromtreeid'   } && $data->{'labels.fromtreeid'   } =~ /^\d+$/
+    );
+
+    my %data = (
+        treeid      => $data->{'labels.fromtreeid'},
+        instance    => $data->{'labels.instance'  },
+        fingerprint => $data->{fingerprint        },
+        caseuuid    => $data->{c3monitormsguuid   },
+        casestat    => $data->{status             },
+        title       => $data->{title              },
+        content     => $data->{content            },
+    );
+
+    my @col = keys %data;
+    eval{$db->execute( sprintf "replace into openc3_monitor_caseinfo(%s) value(%s)",join(',', @col),join(',', map{ $data{$_} //= ''; $data{$_} =~ s/'//;"'$data{$_}'"}@col) ); };
+    warn "caseinfo-record err: $@" if $@;
+}
+
+map{ recode($_ ) }@data;
+
+print YAML::XS::Dump @data;

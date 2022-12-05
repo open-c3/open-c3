@@ -626,3 +626,17 @@ create table if not exists `openc3_connector_user_temp_token`(
 `edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间'
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='openc3_connector_user_temp_token';
 
+# v2.6.0 sql openc3_monitor_caseinfo create
+create table if not exists `openc3_monitor_caseinfo`(
+`id`            int(16) unsigned not null primary key auto_increment comment 'id',
+`treeid`        VARCHAR(30)   comment '服务树id',
+`instance`      VARCHAR(100)  comment 'instance',
+`fingerprint`   VARCHAR(100)  comment 'fingerprint',
+`caseuuid`      VARCHAR(100)  comment 'caseuuid',
+`casestat`      VARCHAR(100)  comment 'case状态',
+`title`         VARCHAR(100)  comment '标题',
+`content`       VARCHAR(5000) comment '内容',
+`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
+UNIQUE KEY `uniq_uuid` (`caseuuid`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='openc3_monitor_caseinfo';
+
