@@ -40,6 +40,7 @@ class Mysql:
                             "Key": key,
                             "Value": value
                         })
+                instance["id"] = "{}-{}-{}".format(instance["project"], instance["region"], instance["name"])
                 results.append(instance)
 
             request = service.instances().list_next(
