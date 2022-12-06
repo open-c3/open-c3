@@ -22,6 +22,12 @@ chdir $dist or die "chdir fail:$!";
 my ( $temp, $oldf ) = ( "data.temp.$$", "metrics.old" );
 system "wget http://openc3-cloudmon-$o{id}:$o{port}/metrics -O $temp 2>/dev/null";
 
+if( -f $oldf )
+{
+    my $mtime = ( stat $oldf)[9];
+    unlink( $oldf ) unless $mtime && $mtime + 180 > time;
+}
+
 system( "cp '$temp' '$oldf'" ) unless -f $oldf;
 
 my $owc = `wc -l $oldf` =~ /^(\d+)\b/ ? $1 : 0;
@@ -36,8 +42,7 @@ else
     unlink $temp;
 }
 
-my $mtime = ( stat $oldf)[9];
-if( $mtime + 160 > time )
+if( -f $oldf )
 {
     system "cp '$oldf' '$oldf.$$' && mv '$oldf.$$' 'metrics'";
 }
