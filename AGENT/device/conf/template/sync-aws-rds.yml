@@ -20,6 +20,11 @@ download:
         value: [ 'uuid', 'AllocatedStorage' ]
       - name: 'aws_rds_freeable_memory_total{dbinstance_identifier="%s"} %d'
         value: [ 'uuid', '_memory_' ]
+      - name: 'openc3_cmdb_resource_price{account="%s",instanceid="%s",type="database",subtype="aws-rds",unit="%s",status="%s"} %f'
+        value: ["account", "uuid", "_priceunit_", "状态", "_price_"]
+    instancealias:
+      - name:  ['uuid']
+        value: ["Endpoint.Address",'Endpoint.Port']
     util:
       defaulttree: defaulttree.pool
       extcol:

@@ -1,0 +1,32 @@
+<div class="row block" >
+
+<div>
+    <div class="panel panel-primary">
+
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="mycase.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!mycase.loadover}" ></i></button>
+            </span>
+            <h5>我的告警事件</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="panel-tabs">
+                <table ng-table="mycase.dataTable" class="table table-hover text-center table-condensed" show-filter="true">
+                    <tr ng-repeat="d in $data">
+                        <td style="width: 10%" data-title="'时间'" filter="{ edit_time: 'text'}" sortable="'edit_time'">{{d.edit_time}}</td>
+                        <td style="width: 10%" data-title="'实例'" filter="{ instance: 'text'}" sortable="'d.instance'">{{d.instance}}</td>
+                        <td style="width: 10%" data-title="'标题'" filter="{ title: 'text'}" sortable="'d.title'">{{d.title}}</td>
+                        <td style="width: 10%" data-title="'操作'">
+                            <button class="btn btn-primary btn-sm" ng-click="mycase.openOneTab(d.ackuuid)">屏蔽</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+</div>

@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+# -*- coding: utf-8 -*-
+
+# aws
+c3mc-device-data-get curr storage aws-ec2-volume $(c3mc-cloud-get-real-field storage aws-ec2-volume accountuuid RegionId VolumeType Size) \
+| sort \
+| uniq \
+| c3mc-device-account-ext 2 3 \
+| xargs -L1 c3mc-query-aws-ebs-price 
+
+c3mc-device-data-get curr compute aws-ec2 $(c3mc-cloud-get-real-field compute aws-ec2 accountuuid RegionId InstanceType) \
+| sort \
+| uniq \
+| c3mc-device-account-ext 2 3  \
+| xargs -L1 c3mc-query-aws-ec2-price
+
+c3mc-device-data-get curr database aws-rds $(c3mc-cloud-get-real-field database aws-rds accountuuid RegionId DBInstanceClass)\
+| sort \
+| uniq \
+| c3mc-device-account-ext 2 3  \
+| xargs -L1 c3mc-query-aws-rds-price 
+
+c3mc-device-data-get curr database aws-redis $(c3mc-cloud-get-real-field database aws-redis accountuuid RegionId CacheNodeType) \
+| sort \
+| uniq \
+| c3mc-device-account-ext 2 3  \
+| xargs -L1 c3mc-query-aws-redis-price 
+
+
+# qcloud
+c3mc-device-data-get curr storage qcloud-cvm-volume $(c3mc-cloud-get-real-field storage qcloud-cvm-volume accountuuid RegionId DiskSize) \
+| sort \
+| uniq \
+| c3mc-device-account-ext 2 3  \
+| xargs -L1 c3mc-query-qcloud-cbs-price
+
+c3mc-device-data-get curr database qcloud-cdb $(c3mc-cloud-get-real-field database qcloud-cdb accountuuid Region Zone Cpu Memory Volume) \
+| sort \
+| uniq \
+| c3mc-device-account-ext 2 3  \
+| xargs -L1 c3mc-query-qcloud-cdb-price
+
+c3mc-device-data-get curr compute qcloud-cvm $(c3mc-cloud-get-real-field compute qcloud-cvm accountuuid RegionId Placement.Zone InstanceType) \
+| sort \
+| uniq \
+| c3mc-device-account-ext 2 3  \
+| xargs -L1 c3mc-query-qcloud-cvm-price
+
+c3mc-device-data-get curr database qcloud-mongodb $(c3mc-cloud-get-real-field database qcloud-mongodb accountuuid Region Zone Memory Volume ClusterType ReplicationSetNum NodeNum MongoVersion MachineType) \
+| sort \
+| uniq \
+| c3mc-device-account-ext 2 3  \
+| xargs -L1 c3mc-query-qcloud-mongodb-price
+
+c3mc-device-data-get curr database qcloud-redis $(c3mc-cloud-get-real-field database qcloud-redis accountuuid Region ZoneId Type Size RedisShardNum RedisReplicasNum) \
+| sort \
+| uniq \
+| c3mc-device-account-ext 2 3  \
+| xargs -L1 c3mc-query-qcloud-redis-price
+
+
+# huawei
+c3mc-device-data-get curr compute huawei-ecs $(c3mc-cloud-get-real-field compute huawei-ecs accountuuid region_id flaver_id) \
+| sort \
+| uniq \
+| c3mc-device-account-ext 2 3 6 \
+| xargs -L1 c3mc-query-huawei-ecs-price 
+
+c3mc-device-data-get curr database huawei-redis $(c3mc-cloud-get-real-field database huawei-redis accountuuid region_id spec_code) \
+| sort \
+| uniq \
+| c3mc-device-account-ext 2 3 6 \
+| xargs -L1 c3mc-query-huawei-redis-price 
+
+c3mc-device-data-get curr database huawei-rds $(c3mc-cloud-get-real-field database huawei-rds accountuuid region flavor_ref) \
+| sort \
+| uniq \
+| c3mc-device-account-ext 2 3 6 \
+| xargs -L1 c3mc-query-huawei-rds-price

@@ -593,3 +593,61 @@ PRIMARY KEY (`id`)
 
 # v2.6.0 sql openc3_job_subtask modify pause to 100
 ALTER TABLE openc3_job_subtask modify `pause` varchar(100) DEFAULT NULL COMMENT '暂停标志';
+
+# v2.6.0 sql openc3_monitor_ack_active create
+create table if not exists `openc3_monitor_ack_active`(
+`id`        int(16) unsigned not null primary key auto_increment comment 'id',
+`type`      VARCHAR(20)  comment '类型，组还是个人, G or P',
+`uuid`      VARCHAR(100) comment 'uuid',
+`treeid`    VARCHAR(100) comment '服务树ID',
+`expire`    VARCHAR(100) comment '失效时间点',
+`ackuuid`   VARCHAR(100) comment 'ackuuid,用于用户管理表格时候找到table表的详细对应关系',
+`edit_user` VARCHAR(100) comment '编辑者',
+`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间'
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='openc3_monitor_ack_active';
+
+# v2.6.0 sql openc3_monitor_ack_table create
+create table if not exists `openc3_monitor_ack_table`(
+`id`            int(16) unsigned not null primary key auto_increment comment 'id',
+`fingerprint`   VARCHAR(100)  comment 'fingerprint',
+`caseuuid`      VARCHAR(100)  comment 'caseuuid',
+`ackuuid`       VARCHAR(100)  comment 'ackuuid',
+`treeid`        VARCHAR(100)  comment 'treeid',
+`labels`        VARCHAR(2000) comment 'labels',
+`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间'
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='openc3_monitor_ack_table';
+
+# v2.6.0 sql openc3_connector_user_temp_token create
+create table if not exists `openc3_connector_user_temp_token`(
+`id`        int(16) unsigned not null primary key auto_increment comment 'id',
+`user`      VARCHAR(200)  comment 'user',
+`token`     VARCHAR(200)  comment 'token',
+`expire`    VARCHAR(100) comment '失效时间点',
+`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间'
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='openc3_connector_user_temp_token';
+
+# v2.6.0 sql openc3_monitor_caseinfo create
+create table if not exists `openc3_monitor_caseinfo`(
+`id`            int(16) unsigned not null primary key auto_increment comment 'id',
+`mtime`         VARCHAR(30)   comment '更新时间',
+`treeid`        VARCHAR(30)   comment '服务树id',
+`ackuuid`       VARCHAR(30)   comment 'ACK编号，方便跳转到ACK页面',
+`instance`      VARCHAR(100)  comment 'instance',
+`fingerprint`   VARCHAR(100)  comment 'fingerprint',
+`caseuuid`      VARCHAR(100)  comment 'caseuuid',
+`casestat`      VARCHAR(100)  comment 'case状态',
+`title`         VARCHAR(100)  comment '标题',
+`content`       VARCHAR(5000) comment '内容',
+`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
+UNIQUE KEY `uniq_uuid` (`caseuuid`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='openc3_monitor_caseinfo';
+
+# v2.6.0 sql openc3_monitor_usercase create
+create table if not exists `openc3_monitor_usercase`(
+`id`            int(16) unsigned not null primary key auto_increment comment 'id',
+`user`          VARCHAR(100)  comment '用户',
+`caseuuid`      VARCHAR(100)  comment 'caseuuid',
+`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
+UNIQUE KEY `uniq_uuid` (`user`,`caseuuid`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='openc3_monitor_usercase';
+

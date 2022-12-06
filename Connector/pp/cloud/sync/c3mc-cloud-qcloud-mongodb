@@ -12,6 +12,9 @@ from tencentcloud.mongodb.v20190725 import mongodb_client, models
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
 
+# describe_db_instance_node_property() 的频率限制
+max_times_of_get_node_property = 3
+
 class Mongodb:
     def __init__(self, access_id, access_key, region):
         self.access_id = access_id
@@ -60,8 +63,10 @@ class Mongodb:
         for instance in instance_list:
             item = json.loads(instance.to_json_string())
             item["IP"] = item["Vip"].split(";")[0]
-            time.sleep(0.2)
+
             # 腾讯describe_db_instance_node_property()方法的请求频率只有每秒最高频率3次
+            # 因为该方法的频率远低于DescribeDBInstances(), 所以只要在这里加频率限制就可以了
+            self.sleep()
             node_property_info = self.describe_db_instance_node_property(item["InstanceId"])
             item["NodeNum"] = len(json.loads(node_property_info.to_json_string())["ReplicateSets"][0]["Nodes"])
             result.append(item)
@@ -71,6 +76,11 @@ class Mongodb:
         instance_list = self.list_instance()
         for instance in instance_list:
             print(json.dumps(instance, default=str))
+
+    def sleep(self):
+        sys.path.append("/data/Software/mydan/Connector/lib/pp")
+        from c3mc_utils import sleep_time_for_limiting
+        sleep_time_for_limiting(max_times_of_get_node_property)
 
     def page(self):
         count = self.get_server_count()

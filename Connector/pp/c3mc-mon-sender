@@ -10,7 +10,7 @@ mv $file /data/open-c3-data/monitor-sender/run/
 
 cd /data/open-c3-data/monitor-sender || exit
 
-c3mc-mon-mesg-format run/$filename | c3mc-mon-mesg-merge | c3mc-mon-mesg-adduser | c3mc-mon-mesg-addcont | c3mc-base-send
+c3mc-mon-mesg-format run/$filename | c3mc-mon-mesg-merge | c3mc-mon-mesg-grepvack | c3mc-mon-mesg-adduser | c3mc-mon-mesg-addcont | c3mc-mon-mesg-caseinfo-record | c3mc-base-send
 
 if [ "X$?" == "X0" ]; then
     mv run/$filename zsucc/

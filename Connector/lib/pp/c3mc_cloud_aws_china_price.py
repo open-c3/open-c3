@@ -41,7 +41,7 @@ def get_instance_type_info_m(filepath, url):
     return attr_m
     
 
-def get_price(filters, filepath, url):
+def get_price(filters, not_exist_fields, filepath, url):
     """
         返回指定实例类型在指定区域(filepath已经指定价格文件地址)按需的小时价格
     """
@@ -59,6 +59,10 @@ def get_price(filters, filepath, url):
                 ok = False
                 break
             if attr[key] != value:
+                ok = False
+                break
+        for field in not_exist_fields:
+            if field in attr:
                 ok = False
                 break
         if ok:

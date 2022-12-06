@@ -32,6 +32,8 @@ class Ec2Price:
             FLT = '[{{"Field": "preInstalledSw", "Value": "NA", "Type": "TERM_MATCH"}},'\
                 '{{"Field": "instanceType", "Value": "{t}", "Type": "TERM_MATCH"}},'\
                 '{{"Field": "regionCode", "Value": "{r}", "Type": "TERM_MATCH"}},'\
+                '{{"Field": "tenancy", "Value": "Shared", "Type": "TERM_MATCH"}},'\
+                '{{"Field": "operatingSystem", "Value": "Linux", "Type": "TERM_MATCH"}},'\
                 '{{"Field": "capacitystatus", "Value": "Used", "Type": "TERM_MATCH"}}]'
             f = FLT.format(r=region, t=instance_type)
             data = self.client.get_products(
@@ -63,11 +65,19 @@ class Ec2Price:
         """
         hour_price = self.query_hour_price(region, instance_type)
         # 一个月的小时数 = 365天 * 24小时 / 12个月
-        return "{} {}".format(round(float(hour_price["amount"]) * 730, 2), hour_price["money_type"])
+        return {
+            "amount": float(hour_price["amount"]) * 730,
+            "money_type": hour_price["money_type"],
+        }
+    
+    def get_price_info(self, region, instance_type):
+        price = self.query_month_price(region, instance_type)  
+        price_info = "{} {}".format(price["amount"], price["money_type"])
+        return "aws-ec2@{}@{};{}".format(region, instance_type, price_info)
 
 
 def main(access_id, access_key, region, instance_type):
-    price = Ec2Price(access_id, access_key).query_month_price(region, instance_type)
+    price = Ec2Price(access_id, access_key).get_price_info(region, instance_type)
     print(price)
 
 

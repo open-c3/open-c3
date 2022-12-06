@@ -41,7 +41,6 @@ map{ utf8::decode( $_ ); }@col;
 
 for my $data ( @data )
 {
-     utf8::decode( $data );
      my @d = split /\t/, $data;
      my %d = map{ $title[ $_ ] => $d[ $_ ] } 0 .. @title - 1;
      printf "%s\n", join "\t", map{ $_ // '' } @d{@col};

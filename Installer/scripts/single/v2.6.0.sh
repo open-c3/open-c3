@@ -62,4 +62,6 @@ docker exec -i openc3-server yum install mysql -y
 
 docker exec -i openc3-server /data/Software/mydan/perl/bin/cpan install Crypt::RC4::XS
 
+docker cp /data/open-c3/Installer/install-cache/bin/amtool  openc3-server:/usr/bin/
+
 docker exec -i openc3-server /data/Software/mydan/AGENT/device/init/install.sh

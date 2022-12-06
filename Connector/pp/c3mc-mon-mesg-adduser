@@ -13,7 +13,7 @@ use YAML::XS;
 =cut
 
 local $/ = undef;
-my @data = YAML::XS::Load( <STDIN> );
+my @data = YAML::XS::Load( my $x = <STDIN> );
 local $/ = "\n";
 
 my @out;

@@ -1,0 +1,35 @@
+<div class="row block" >
+
+<div>
+    <div class="panel panel-primary">
+
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="myack.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!myack.loadover}" ></i></button>
+            </span>
+            <h5>我的ACK</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="panel-tabs">
+                <table ng-table="myack.dataTable" class="table table-hover text-center table-condensed" show-filter="true">
+                    <tr ng-repeat="d in $data">
+                        <td style="width: 10%" data-title="'操作'">
+                            <button class="btn btn-primary btn-sm" ng-click="myack.edit(d.ackuuid,d.type,d.mt)">撤销</button>
+                        </td>
+                        <td style="width: 10%" data-title="'创建时间'" filter="{ edit_time: 'text'}" sortable="'create_time'">{{d.edit_time}}</td>
+                        <td style="width: 10%" data-title="'过期时间'" filter="{ expire: 'text'}" sortable="'d.expire'">{{d.expirem}}分钟</td>
+                        <td style="width: 10%" data-title="'作用对象'" filter="{ to: 'text'}" sortable="'d.to'">{{d.to}}</td>
+                        <td style="width: 10%" data-title="'类型'" filter="{ mt: 'text'}" sortable="'d.mt'">{{d.mt}}</td>
+                        <td style="width: 10%" data-title="'编辑人'" filter="{ edit_user: 'text'}" sortable="'edit_user'">{{d.edit_user}}</td>
+                        <td style="width: 10%" data-title="'labels'" filter="{ labels: 'text'}" sortable="'labels'">{{d.labels}}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+</div>

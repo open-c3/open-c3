@@ -8,23 +8,24 @@ import subprocess
 import boto3
 
 
-def describe_regions(access_id, access_key, account_region):
+def describe_regions(access_id, access_key):
     """
         查询aws区域列表
     """
-    region = "us-east-1"
-    if account_region == "aws-cn":
-        region = "cn-north-1"
+    for region in ["us-east-1", "cn-north-1"]:
+        try:
+            client = boto3.client(
+                "ec2",
+                aws_access_key_id=access_id,
+                aws_secret_access_key=access_key,
+                region_name=region
+            )
 
-    client = boto3.client(
-        "ec2",
-        aws_access_key_id=access_id,
-        aws_secret_access_key=access_key,
-        region_name=region
-    )
-
-    response = client.describe_regions(AllRegions=True)
-    return response["Regions"]
+            response = client.describe_regions(AllRegions=True)
+            return response["Regions"]
+        except Exception:
+            continue
+    raise Exception("未查询到区域列表")
 
 
 def main(params):
@@ -34,7 +35,7 @@ def main(params):
         "c3mc-get-account-info aws {}".format(account)))
 
     region_list = describe_regions(
-        key_info["access_id"], key_info["access_key"], key_info["account_region"])
+        key_info["access_id"], key_info["access_key"])
     for region in region_list:
         print(json.dumps(region, default=str))
 

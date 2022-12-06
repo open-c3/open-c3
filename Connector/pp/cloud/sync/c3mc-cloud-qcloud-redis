@@ -9,6 +9,9 @@ from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.redis.v20180412 import redis_client, models
 
 
+# DescribeInstances() 的接口请求频率限制
+max_times_describe_instances = 50
+
 class Redis:
     def __init__(self, access_id, access_key, region):
         self.access_id = access_id
@@ -50,6 +53,11 @@ class Redis:
         for redis in redis_list:
             print(redis.to_json_string())
 
+    def sleep(self):
+        sys.path.append("/data/Software/mydan/Connector/lib/pp")
+        from c3mc_utils import sleep_time_for_limiting
+        sleep_time_for_limiting(max_times_describe_instances)
+
     def page(self):
         count = self.get_server_count()
         mod = count % self.page_size
@@ -60,6 +68,7 @@ class Redis:
 
         for cur_page_number in range(1, total_page_number + 1):
             self.page_number = cur_page_number
+            self.sleep()
             self.show()
 
 

@@ -418,6 +418,21 @@
             });
         };
 
+        vm.getinstancename = function( labels ) {
+            var name = labels['instance'];
+            
+            if( labels['instanceid'] )
+            {
+                name = labels['instanceid'];
+            }
+
+            if( labels['cache_cluster_id'] )
+            {
+                name = labels['cache_cluster_id'];
+            }
+
+            return name;
+        };
 
         vm.checkoldstatus=false;
         vm.checknewstatus=false;

@@ -18,6 +18,10 @@ products:
     only_include_metrics: [CpuUseRate,MemoryUseRate,VolumeRate,Capacity]
     all_instances: true
     extra_labels: [InstanceName,Zone]
+  - namespace: QCE/REDIS_MEM
+    only_include_metrics: [CpuMaxUtil,MemMaxUtil] 
+    all_instances: true
+    extra_labels: [InstanceName,Zone]
 ```
 # 获取metrics列表
 github 地址的文档里面有, https://github.com/tencentyun/tencentcloud-exporter
