@@ -5,6 +5,9 @@
     image: "openc3/tencentcloud-exporter:20221122"
     working_dir: /
     restart: always
+    command:
+      - '--web.enable-exporter-metrics'
+      - '--log.level=debug'
     volumes:
       - "/data/open-c3-data/cloudmon/task/${taskid}/config.dat:/qcloud.yml"
     networks:
