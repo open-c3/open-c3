@@ -1,0 +1,134 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib
+$0="agent_api_event";
+
+use strict;
+use warnings;
+use 5.24.0;
+
+use JSON;
+use YAML::XS;
+use IPC::Open3;
+use Symbol 'gensym';
+use LWP::UserAgent;
+use HTTP::Cookies;
+use AnyEvent;
+use AnyEvent::HTTPD::Router;
+use AnyEvent::HTTPD::CookiePatch qw(inject);
+use Encode;
+
+my $cookiekey;
+BEGIN{
+    use FindBin qw( $RealBin );
+    $cookiekey = `cat $RealBin/../conf/cookiekey`;
+    chomp $cookiekey;
+    die "get cookiekey fail" unless $cookiekey =~ /^[a-zA-Z0-9]+$/
+};
+
+my ( %handle, %index, $index ) = ( );
+
+my $port = $ENV{CI_API_EVENT_PORT} // '38081';
+my $httpd = AnyEvent::HTTPD::Router->new( port => $port, request_class => 'AnyEvent::HTTPD::CookiePatch' );
+
+my $xx = sub {
+        my ( $httpd, $req, $param ) = @_;
+        $httpd->stop_request;
+
+        my $method = $req->{method};
+
+        my $url = $req->{url}->as_string;
+
+        my ( $cid, $port );
+        if( $req->{url}->as_string =~ /\/cloudmonmetrics\/(\d+)\/(\d+)$/ )
+        {
+            ( $cid, $port ) = ( $1, $2 );
+        }
+        else
+        {
+            $req->respond([
+                 200, 'ok', { 'Content-Type' => 'application/json'},
+                 'err'
+            ]);
+            return;
+        }
+        
+        my $cmd = "/data/Software/mydan/AGENT/bin//cloudmonmetrics  -i '$cid' -p '$port'";
+
+        my $idx = $index ++;
+        my ( $err, $wtr, $rdr ) = gensym;
+        my $pid = IPC::Open3::open3( undef, $rdr, $err, $cmd );
+
+        $index{$idx}{pid} = $pid;
+        $index{$idx}{rdr} = $rdr;
+        $index{$idx}{dat} = '';
+        $index{$idx}{timeout} = time + 120;
+
+        $index{$idx}{rdr} = AnyEvent->io(
+            fh => $rdr, poll => "r",
+            cb => sub {
+                    my $input;my $n = sysread $rdr, $input, 102400;
+                    $index{$idx}{dat} .= $input if $n;
+                }
+        );
+
+        $index{$idx}{child} = AnyEvent->child(
+            pid => $pid,
+            cb => sub{
+                my ($pid, $status) = @_;
+                my $res = $index{$idx}{dat};
+                my $input;
+                while ( 1 )
+                {
+                    my $n = sysread $rdr, $input, 102400;
+                    last unless $n;
+                    $res .= $input;
+                }
+
+                Encode::_utf8_on( $res );
+
+                delete $index{$idx};
+                $req->respond([
+                     200, 'ok', { 'Content-Type' => 'application/json'},
+                     $res
+                ]);
+            },
+        ); 
+    };
+
+
+$httpd->reg_routes(
+    GET => '/404' => sub {
+        my ( $httpd, $req, $param ) = @_;
+        $httpd->stop_request;
+        $req->respond([ 404, 'ok', { 'Content-Type' => 'application/json'}, "404" ]);
+    },
+
+    GET => '/mon' => sub {
+        my ( $httpd, $req, $param ) = @_;
+        $httpd->stop_request;
+        $req->respond([ 200, 'ok', { 'Content-Type' => 'application/json'}, "ok" ]);
+    },
+
+    GET => '/reload' => sub {
+        my ( $httpd, $req, $param ) = @_;
+        $httpd->stop_request;
+        my $token = `cat /etc/openc3.reload.token 2>/dev/null`; chomp $token;
+        exit if $req->{hdr}{token} && $token && $req->{hdr}{token} eq $token;
+
+        $req->respond([ 200, 'ok', { 'Content-Type' => 'application/json'}, "err" ]);
+    },
+
+    GET => '/cloudmonmetrics/*' => $xx,
+);
+
+$httpd->reg_cb('' => sub {
+    my ( $httpd, $req ) = @_;
+    $req->respond( [ 404, 'not found', {}, '' ] );
+});
+
+my $tt = AnyEvent->timer(
+    after => 6,
+    interval => 6,
+    cb => sub { map { kill( 9, $_->{pid} ) if $_->{timeout} < time }values %index; }
+);
+
+$httpd->run();

@@ -1,0 +1,49 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 [--id id] [--port 8080]
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( id=i port=i ) )->dump();
+        $option->assert( qw( id port ) );
+
+my $dist = "/data/open-c3-data/cloudmonmetrics/$o{id}.$o{port}";
+
+system "mkdir -p '$dist'" unless -d $dist;
+
+chdir $dist or die "chdir fail:$!";
+
+my ( $temp, $oldf ) = ( "data.temp.$$", "metrics.old" );
+system "wget http://openc3-cloudmon-$o{id}:$o{port}/metrics -O $temp 2>/dev/null";
+
+system( "cp '$temp' '$oldf'" ) unless -f $oldf;
+
+my $owc = `wc -l $oldf` =~ /^(\d+)\b/ ? $1 : 0;
+my $nwc = `wc -l $temp` =~ /^(\d+)\b/ ? $1 : 0;
+
+if( $nwc * 100 > $owc * 75 )
+{
+    system "mv '$temp' '$oldf'";
+}
+else
+{
+    unlink $temp;
+}
+
+my $mtime = ( stat $oldf)[9];
+if( $mtime + 160 > time )
+{
+    system "cp '$oldf' '$oldf.$$' && mv '$oldf.$$' 'metrics'";
+}
+else
+{
+    unlink "metrics";
+}
+
+-f "metrics" ? system( "cat metrics" ) : die "get metrics fail";

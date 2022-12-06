@@ -44,6 +44,18 @@ map{
 }$port->{api}{from} .. $port->{api}{to};
 
 map{
+    die "start api.event fail: $!"
+        if system join " ",
+            $supervisor,
+            "--errname 'agent.api.event.$_'",
+            "--cmd 'AGENT_API_EVENT_PORT=$_ $base/bin/api.event'",
+            "--log '$base/logs/server/api.event.$_'",
+            "--http http://127.0.0.1:$_/mon",
+            "--check ok";
+    print "start api.event port: $_\n"
+}$port->{'api.event'}{from} .. $port->{'api.event'}{to};
+
+map{
     die "start $_ fail: $!"
         if system "$supervisor --errname 'agent.server.$_' --cmd '$base/server/$_' --log '$base/logs/server/$_'";
 }qw(
