@@ -39,6 +39,11 @@ sub recode
         content     => $data->{content            },
     );
 
+    
+    $data{ instance } = $data->{'labels.instanceid'           } if $data->{'labels.instanceid'           };
+    $data{ instance } = $data->{'labels.cache_cluster_id'     } if $data->{'labels.cache_cluster_id'     };
+    $data{ instance } = $data->{'labels.dbinstance_identifier'} if $data->{'labels.dbinstance_identifier'};
+
     my @col = keys %data;
     eval{$db->execute( sprintf "replace into openc3_monitor_caseinfo(%s) value(%s)",join(',', @col),join(',', map{ $data{$_} //= ''; $data{$_} =~ s/'//;"'$data{$_}'"}@col) ); };
     warn "caseinfo-record err: $@" if $@;
