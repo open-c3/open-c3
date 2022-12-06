@@ -1,6 +1,7 @@
 #!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib -I/data/Software/mydan/AGENT/private/lib
 use strict;
 use warnings;
+use POSIX;
 use MYDan::Util::OptConf;
 
 =head1 SYNOPSIS
@@ -32,6 +33,10 @@ system( "cp '$temp' '$oldf'" ) unless -f $oldf;
 
 my $owc = `wc -l $oldf` =~ /^(\d+)\b/ ? $1 : 0;
 my $nwc = `wc -l $temp` =~ /^(\d+)\b/ ? $1 : 0;
+
+my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
+
+system "echo $time $nwc $owc >> count.log";
 
 if( $nwc * 100 > $owc * 75 )
 {
