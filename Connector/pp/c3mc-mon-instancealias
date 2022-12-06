@@ -1,0 +1,25 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0 ip
+
+=cut
+
+
+die unless my $n = shift @ARGV;
+
+my @x = `cat /data/open-c3-data/device/curr/instancealias.txt`;
+chomp @x;
+
+for ( @x )
+{
+    my ( $name, $alias ) = split /;/, $_, 2;
+    next unless $name && $name eq $n;
+    print "$alias\n";
+    exit;
+}
