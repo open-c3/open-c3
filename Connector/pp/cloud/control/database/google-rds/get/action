@@ -26,6 +26,11 @@ def get(data, cred_json_path):
         project=credentials.project_id, instance=data[field_name])
     instance = request.execute()
 
+    if "ipAddresses" in instance:
+        for item in instance["ipAddresses"]:
+            if item["type"] == "PRIVATE":
+                instance["private_ip"] = item["ipAddress"]
+                break
     instance["tags_list"] = []
     if "userLabels" in instance["settings"]:
         for key, value in instance["settings"]["userLabels"].items():
@@ -33,6 +38,7 @@ def get(data, cred_json_path):
                 "Key": key,
                 "Value": value
             })
+    instance["id"] = "{}-{}-{}".format(instance["project"], instance["region"], instance["name"])
     instance.pop("serverCaCert", None)
     return instance
 
