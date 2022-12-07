@@ -11,7 +11,7 @@ get '/common/i18n' => sub {
     my %d;
     for my $k ( keys %$data )
     {
-        my @d = @{$data->{$k}};
+        my @d = ref $data->{$k} ? @{$data->{$k}} : ( $data->{$k} );
         $d{en}{C3T}{ $k } = $d[0];
         $d{zh}{C3T}{ $k } = @d > 1 ? $d[1] : $k;
     }
