@@ -125,7 +125,7 @@
 
                 var deferred = $q.defer();
 
-                var apiPath = '/api/tt/' + path;
+                var apiPath = '/api/connector/' + path;
 
                 if(key && val){
 
