@@ -43,6 +43,7 @@ function browserSyncInit(baseDir, browser) {
       proxyMiddleware('/api/job/',{ pathRewrite:{'^/api/job/': '/'}, target: proxyDomain + '/api/job', changeOrigin: true}),
       proxyMiddleware('/api/agent/',{ pathRewrite:{'^/api/agent/': '/'}, target: proxyDomain + '/api/agent', changeOrigin: true}),
       proxyMiddleware('/api/ci/',{ pathRewrite:{'^/api/ci/': '/'}, target: proxyDomain + '/api/ci', changeOrigin: true}),
+      proxyMiddleware('/api/tt/',{ pathRewrite:{'^/api/tt/': '/'}, target: proxyDomain + '/api/tt', changeOrigin: true}),
       proxyMiddleware('/third-party/',{ pathRewrite:{'^/third-party/': '/'}, target: proxyDomain + '/third-party', changeOrigin: true})
   ];
 

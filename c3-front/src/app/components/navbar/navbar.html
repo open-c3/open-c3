@@ -214,6 +214,24 @@
 
         </li>
 
+
+        <li class="dropdown" uib-dropdown>
+            <a class="dropdown-toggle ripple" href="javascript:void(0)" uib-dropdown-toggle>
+                <i class="fa fa-language fa-lg"></i>
+            </a>
+            <ul class="dropdown-menu pv5 animated animated-short flipInX" uib-dropdown-menu>
+                <li ng-repeat="lang in nav.langData">
+                    <a href="javascript:void(0);" ng-click="nav.changeLang(lang.langkey)">
+                        <span class="fa fa-language mr10"></span>{{ lang.lang }}
+                    </a>
+                </li>
+            </ul>
+        </li>
+
+        <li class="menu-divider hidden-xs">
+            <i class="fa fa-circle"></i>
+        </li>
+
         <li class="dropdown" uib-dropdown>
             <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple" uib-dropdown-toggle>
                 <span>{{ nav.user.name }}</span>
