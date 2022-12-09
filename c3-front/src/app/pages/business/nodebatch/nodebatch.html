@@ -7,7 +7,7 @@
     <div>
         <div style="float: right;">
             <form class="form-inline" name="myForm" novalidate>
-                <button type="submit" class="btn btn-primary" ng-click="groupindex.createJobGroup()"><i class="fa fa-object-ungroup fa-lg" aria-hidden="true"></i>新建分批</button>
+                <button type="submit" class="btn btn-primary" ng-click="groupindex.createJobGroup()"><i class="fa fa-object-ungroup fa-lg" aria-hidden="true"></i>{{'C3T.新建分批'|translate}}</button>
             </form>
         </div>
         <div style="clear: both;">&nbsp;</div>
@@ -20,7 +20,7 @@
                 <!--<button type="submit" class="btn btn-dark" ng-click="groupindex.showEditLog()">日志</button>-->
                 <button class="btn btn-dark" uib-tooltip="刷新" ng-click="groupindex.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!groupindex.loadover}" ></i></button>
             </span>
-            <h5>分批列表</h5>
+            <h5>{{'C3T.分批列表'|translate}}</h5>
 
         </div>
 
@@ -29,15 +29,15 @@
 
             <table ng-table="groupindex.group_Table" class="table table-hover text-center table-condensed">
                 <tr ng-repeat="ss in $data">
-                    <td data-title="'分组名称'" >{{ss.name}}</td>
-                    <td data-title="'关联流水线'" >{{groupindex.ciinfo[ss.name]}}</td>
-                    <td data-title="'创建时间'">{{ss.edit_time}}</td>
-                    <td data-title="'分组类型'">{{ss.group_type}}</td>
-                    <td data-title="'备注'">{{ss.note}}</td>
-                    <td data-title="'操作'">
-                        <button class="btn btn-system btn-sm" ng-click="groupindex.showIPlist(ss.id)">机器列表</button>
-                        <button class="btn btn-primary btn-sm" ng-click="groupindex.editGroup(ss.id)">编辑</button>
-                        <button class="btn btn-danger btn-sm" ng-click="groupindex.deleteGroup(ss.id)">删除</button>
+                    <td data-title="'C3T.分组名称'|translate" >{{ss.name}}</td>
+                    <td data-title="'C3T.关联流水线'|translate" >{{groupindex.ciinfo[ss.name]}}</td>
+                    <td data-title="'C3T.创建时间'|translate">{{ss.edit_time}}</td>
+                    <td data-title="'C3T.分组类型'|translate">{{ss.group_type}}</td>
+                    <td data-title="'C3T.备注'|translate">{{ss.note}}</td>
+                    <td data-title="'C3T.操作'|translate">
+                        <button class="btn btn-system btn-sm" ng-click="groupindex.showIPlist(ss.id)">{{'C3T.机器列表'|translate}}</button>
+                        <button class="btn btn-primary btn-sm" ng-click="groupindex.editGroup(ss.id)">{{'C3T.编辑'|translate}}</button>
+                        <button class="btn btn-danger btn-sm" ng-click="groupindex.deleteGroup(ss.id)">{{'C3T.删除'|translate}}</button>
                     </td>
                 </tr>
             </table>

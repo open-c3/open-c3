@@ -1,5 +1,5 @@
 <div class="modal-header">
-    <h4 class="modal-title">{{createSelfHealingConfig.title}}自愈套餐</h4>
+    <h4 class="modal-title">{{createSelfHealingConfig.title|translate}} {{'C3T.自愈套餐'|translate}}</h4>
 </div>
 <div class="modal-body">
 
@@ -7,7 +7,7 @@
 
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">自愈套餐名称<a style="color: red;">*</a></label>
+                <label class="col-sm-3 control-label">{{'C3T.自愈套餐名称'|translate}}<a style="color: red;">*</a></label>
                 <div class="col-sm-9">
                     <input type="text" class="form-control" placeholder="自愈套餐名称" ng-model="createSelfHealingConfig.postData.name" required>
                 </div>
@@ -16,7 +16,7 @@
 
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">告警名称<a style="color: red;">*</a></label>
+                <label class="col-sm-3 control-label">{{'C3T.告警名称'|translate}}<a style="color: red;">*</a></label>
                 <div class="col-sm-9">
                     <select class="form-control"  ng-model="createSelfHealingConfig.postData.altername" >
                          <option ng-repeat="x in createSelfHealingConfig.Alerts" value="{{x.alert}}">{{x.alert}}</option>
@@ -28,14 +28,14 @@
 
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">作业名称<a style="color: red;">*</a></label>
+                <label class="col-sm-3 control-label">{{'C3T.作业名称'|translate}}<a style="color: red;">*</a></label>
                 <div class="col-sm-6">
                     <select class="form-control"  ng-model="createSelfHealingConfig.postData.jobname" >
                          <option ng-repeat="x in createSelfHealingConfig.Jobs" value="{{x.name}}">{{x.name}}</option>
                     </select>
                 </div>
                 <div class="col-sm-3">
-                    <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="createSelfHealingConfig.openJOBList( )" ><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i> 自愈作业</button>
+                    <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="createSelfHealingConfig.openJOBList( )" ><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i>{{'C3T.自愈作业'|translate}}</button>
                 </div>
  
             </div>
@@ -43,7 +43,7 @@
 
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">作用IP</label>
+                <label class="col-sm-3 control-label">{{'C3T.作用IP'|translate}}</label>
                 <div class="col-sm-9">
                     <input type="text" class="form-control" placeholder="生效的IP，为空情况下为全部匹配" ng-model="createSelfHealingConfig.postData.eips">
                 </div>
@@ -54,8 +54,8 @@
 
         <div class="row">
             <div class="col-sm-5 form-group pull-right">
-                <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="createSelfHealingConfig.add()">确认</button>
-                <button class="btn btn-warning" ng-click="createSelfHealingConfig.cancel()">取消</button>
+                <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="createSelfHealingConfig.add()">{{'C3T.确认'|translate}}</button>
+                <button class="btn btn-warning" ng-click="createSelfHealingConfig.cancel()">{{'C3T.取消'|translate}}</button>
             </div>
         </div>
     </form>

@@ -16,21 +16,21 @@
                 <table ng-table="region.proxylistTable" class="table table-hover text-center table-condensed">
                     <tr ng-repeat="m in $data">
                         <td data-title="'ID'">{{m.id}}</td>
-                        <td data-title="'选择'"><input type="checkbox" ng-model="m.selected"> </td>
-                        <td data-title="'区域'"><font size="5">{{m.name}}</font></td>
-                        <td data-title="'删除'">
+                        <td data-title="'C3T.选择'|translate"><input type="checkbox" ng-model="m.selected"> </td>
+                        <td data-title="'C3T.区域'|translate"><font size="5">{{m.name}}</font></td>
+                        <td data-title="'C3T.删除'|translate">
                             <button class="btn btn-effect-ripple btn-xs btn-danger ng-scope" ng-if="m.projectid == region.treeid" uib-tooltip="删除区域" ng-click="region.deleteRegion( m.id )"><i class="fa fa-trash"></i></button></td>
                     </tr>
                     <tr>
                         <td colspan="5" style="text-align:left;" > 
-                             <a ng-if="!region.showRegionBool" ng-click="region.showRegion(1)"  ><font size="5">+自定义一个区域</font></a>
+                             <a ng-if="!region.showRegionBool" ng-click="region.showRegion(1)"  ><font size="5">+{{'C3T.自定义一个区域'|translate}}</font></a>
 
                            <div ng-if="region.showRegionBool" >
                                <div class="col-md-8">
                                    <input class="form-control" ng-model="region.regionText" placeholder="新区域"/>
                               </div>
-                              <button class="btn btn-primary" ng-if="region.regionText" uib-tooltip="保存" ng-click="region.createRegion()">保存</button>
-                              <button class="btn btn-warning" uib-tooltip="取消" ng-click="region.showRegion(0)">取消</button>
+                              <button class="btn btn-primary" ng-if="region.regionText" uib-tooltip="保存" ng-click="region.createRegion()">{{'C3T.保存'|translate}}</button>
+                              <button class="btn btn-warning" uib-tooltip="取消" ng-click="region.showRegion(0)">{{'C3T.取消'|translate}}</button>
                           </div>
                        </td>
                      </tr>

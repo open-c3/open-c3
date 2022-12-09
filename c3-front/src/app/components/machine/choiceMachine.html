@@ -1,5 +1,5 @@
 <div class="modal-header">
-    <h4  class="modal-title">选择服务器</h4>
+    <h4  class="modal-title">{{'C3T.选择服务器'|translate}}</h4>
 </div>
 <div class="modal-body">
     <form class="form-horizontal" name="addForm" role="form">
@@ -8,19 +8,19 @@
                 <div class="option-group field" >
                     <label class="option option-primary">
                         <input type="radio" ng-model="formType" value="ip" ng-click="choice.cleanSelected()">
-                        <span class="radio" style="padding-top: 0;min-height: 0"></span>通过IP选择服务器
+                        <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.通过IP选择服务器'|translate}}
                     </label>
                     <label ng-hide="groupHide" class="option option-primary">
                         <input type="radio" ng-model="formType" value="group" ng-click="choice.cleanSelected()">
-                        <span class="radio" style="padding-top: 0;min-height: 0"></span>分组选择
+                        <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.分组选择'|translate}}
                     </label>
                     <label ng-show="variableShow" class="option option-primary">
                         <input type="radio" ng-model="formType" value="variable" ng-click="choice.cleanSelected()">
-                        <span class="radio" style="padding-top: 0;min-height: 0"></span>选择变量
+                        <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.选择变量'|translate}}
                     </label>
                     <label class="option option-primary">
                         <input type="radio" ng-model="formType" value="custom" ng-click="choice.cleanSelected()">
-                        <span class="radio" style="padding-top: 0;min-height: 0"></span>手写IP
+                        <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.手写IP'|translate}}
                     </label>
                 </div>
             </div>
@@ -35,16 +35,16 @@
                     <table ng-table="choice.machine_Table" show-filter="true" class="table table-hover text-center table-condensed" >
                         <!--<table class="table table-hover text-center table-condensed">-->
                             <tr ng-repeat="ss in $data" style="text-align: left">
-                                <td style="width: 20%" data-title="'机器名称'" filter="{ name: 'text'}"><label for="{{ss.name}}" style="font-weight: normal;height: 100%;width: 100%">{{ss.name}}</label></td>
-                                <td style="width: 15%" data-title="'类型'" filter="{ type: 'text'}">{{ss.type}}</td>
-                                <td style="width: 20%" data-title="'内网IP'" filter="{ inip: 'text'}"><label for="{{ss.inip}}" style="font-weight: normal;height: 100%;width: 100%"><input id="{{ss.inip}}" ng-if="ss.inip" type="checkbox" name="selected"  ng-checked="isSelected(ss.id, 'inip')" ng-click="inipUpdateSelection($event, ss.id, ss.inip)" style="zoom: 125%"/>{{ss.inip}}
+                                <td style="width: 20%" data-title="'C3T.机器名称'|translate" filter="{ name: 'text'}"><label for="{{ss.name}}" style="font-weight: normal;height: 100%;width: 100%">{{ss.name}}</label></td>
+                                <td style="width: 15%" data-title="'C3T.类型'|translate" filter="{ type: 'text'}">{{ss.type}}</td>
+                                <td style="width: 20%" data-title="'C3T.内网IP'|translate" filter="{ inip: 'text'}"><label for="{{ss.inip}}" style="font-weight: normal;height: 100%;width: 100%"><input id="{{ss.inip}}" ng-if="ss.inip" type="checkbox" name="selected"  ng-checked="isSelected(ss.id, 'inip')" ng-click="inipUpdateSelection($event, ss.id, ss.inip)" style="zoom: 125%"/>{{ss.inip}}
 
                                     <i ng-if="ss.inip && ! ss.inips.status" class="fa fa-exclamation-circle" aria-hidden="true"></i>
                                     <i ng-if="ss.inip && ss.inips.status=='fail'" class="fa fa-circle" style="color: red;" aria-hidden="true"></i>
                                     <i ng-if="ss.inip && ss.inips.status=='success'" class="fa fa-circle" style="color: green;" aria-hidden="true"></i>
                                     </label>
                                 </td>
-                                <td style="width: 20%" data-title="'外网ip'" filter="{ exip: 'text'}"><label for="{{ss.exip}}" style="font-weight: normal;height: 100%;width: 100%"><input ng-if="ss.exip" id="{{ss.exip}}" type="checkbox" name="selected"  ng-checked="isSelected(ss.id, 'exip')" ng-click="exipUpdateSelection($event, ss.id, ss.exip)" style="zoom: 125%"/>{{ss.exip}}
+                                <td style="width: 20%" data-title="'C3T.外网IP'|translate" filter="{ exip: 'text'}"><label for="{{ss.exip}}" style="font-weight: normal;height: 100%;width: 100%"><input ng-if="ss.exip" id="{{ss.exip}}" type="checkbox" name="selected"  ng-checked="isSelected(ss.id, 'exip')" ng-click="exipUpdateSelection($event, ss.id, ss.exip)" style="zoom: 125%"/>{{ss.exip}}
 
                                     <i ng-if="ss.exip && ! ss.exips.status" class="fa fa-exclamation-circle" aria-hidden="true"></i>
                                     <i ng-if="ss.exip && ss.exips.status=='fail'" class="fa fa-circle" style="color: red;" aria-hidden="true"></i>
@@ -52,17 +52,17 @@
                                 </label>
                             </td>
 
-                            <td style="width: 5%" data-title="'客户端版本'">
+                            <td style="width: 5%" data-title="'C3T.客户端版本'|translate">
                                 <a ng-if="ss.inip">{{ss.inips.version}}</a>
                                 <a ng-if="ss.exip && ! ss.inip">{{ss.exips.version}}</a>
                             </td>
 
-                            <td style="width: 20%" data-title="'客户端上一次检测时间'">
+                            <td style="width: 20%" data-title="'C3T.客户端上一次检测时间'|translate">
                                 <a ng-if="ss.inip">{{ss.inips.edit_time}}</a>
                                 <a ng-if="ss.exip && ! ss.inip">{{ss.exips.edit_time}}</a>
                             </td>
 
-                            <td style="width: 20%" data-title="'客户端错误原因'">
+                            <td style="width: 20%" data-title="'C3T.客户端错误原因'|translate">
                                 <a ng-if="ss.inip && ss.inips.status=='fail'">failcount:{{ss.inips.fail}}; {{ss.inips.reason}}</a>
                                 <a ng-if="ss.exip && ! ss.inip && ss.exips.status=='fail'">failcount:{{ss.exips.fail}}; {{ss.exips.reason}}</a>
                             </td>
@@ -83,8 +83,8 @@
                             <th>
                                 <!--<input type="checkbox" ng-click="selectAll($event)" ng-checked="isSelectedAll()" style="zoom: 125%" />-->
                             </th>
-                            <th>名称</th>
-                            <th>插件</th>
+                            <th>{{'C3T.名称'|translate}}</th>
+                            <th>{{'C3T.插件'|translate}}</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -107,7 +107,7 @@
                         <!--<table class="table table-hover text-center table-condensed">-->
                         <thead>
                             <tr>
-                                <th>名称</th>
+                                <th>{{'C3T.名称'|translate}}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -123,7 +123,7 @@
             <!--手写-->
             <div ng-switch-when="custom" style="width: 40%">
                 <dataerror ng-hide="dataready" errmsg={{dataerror}}></dataerror>
-                手写IP，可写多个IP。<br>分隔符：换行符、逗号、空格
+                {{'C3T.手写IP，可写多个IP。'|translate}}<br>{{'C3T.分隔符：换行符、逗号、空格'|translate}}
                 <div class="panel-tabs">
                     <textarea style="min-height: 100px;" ng-blur="dataEdit=false" class="form-control" rows="20" cols="20" ng-model="choice.customstr"></textarea>
                 </div>
@@ -132,8 +132,8 @@
         </div>
         <div class="row">
             <div class="col-sm-5 form-group pull-right">
-                <button class="btn btn-primary" ng-disabled="addForm.$invalid" ng-click="choice.add()">确认</button>
-                <button class="btn btn-warning" ng-click="choice.cancel()">取消</button>
+                <button class="btn btn-primary" ng-disabled="addForm.$invalid" ng-click="choice.add()">{{'C3T.确认'|translate}}</button>
+                <button class="btn btn-warning" ng-click="choice.cancel()">{{'C3T.取消'|translate}}</button>
             </div>
         </div>
 

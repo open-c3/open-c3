@@ -9,8 +9,8 @@
     <div class="panel"  ng-hide="saveHide">
 
         <div class="panel-heading">
-            <h5 ng-if="!businessjobedit.copyjob">编辑作业</h5>
-            <h5 ng-if="businessjobedit.copyjob">克隆作业</h5>
+            <h5 ng-if="!businessjobedit.copyjob">{{'C3T.编辑作业'|translate}}</h5>
+            <h5 ng-if="businessjobedit.copyjob">{{'C3T.克隆作业'|translate}}</h5>
         </div>
 
         <div class="panel-body">
@@ -21,20 +21,20 @@
                     <div class="container-fluid">
                         <div class="row">
                             <div class="form-group col-sm-10" style="padding: 0">
-                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;" for="jobName">作业名称：</label>
+                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;" for="jobName">{{'C3T.作业名称'|translate}}：</label>
                                 <input type="text" id="jobName" class="form-control" style="width: 50%"  ng-model="newjobname" >
                                 <button class="btn btn-default" style="margin-left: 20%; font-size: 14px" ng-click="businessjobedit.hideGlobalVar()">
-                                    全局变量设置
+                                    {{'C3T.全局变量设置'|translate}}
                                 </button>
                                 <button ng-show="businessjobedit.copyjob" class="btn btn-default" style="font-size: 14px;margin-right: 3px" ng-click="businessjobedit.cloneToNode()">
-                                    克隆至目标节点
+                                    {{'C3T.克隆至目标节点'|translate}}
                                 </button>
                             </div>
                         </div>
                         <div class="row" ng-show="businessjobedit.hashCloneNodes" style="padding-top: 10px;">
                             <div class="form-group col-sm-10" style="padding: 0">
                                 <div class="panel-tabs">
-                                    <label style="float: left;line-height: 29px;min-width: 90px;text-align: right;" for="jobName">克隆节点：</label>
+                                    <label style="float: left;line-height: 29px;min-width: 90px;text-align: right;" for="jobName">{{'C3T.克隆节点'|translate}}：</label>
                                     <table class="table-hover text-center table-condensed">
                                         <tbody>
                                         <tr style="font-weight: bold;font-size: 14px;color: red">
@@ -58,7 +58,7 @@
     {{ businessjobedit.vartoken }}
     <div class="panel panel-default" ng-hide="globalVar">
         <div class="panel-heading">
-            <h5>全局变量参数</h5>
+            <h5>{{'C3T.全局变量参数'|translate}}</h5>
         </div>
         <div class="panel-body" style="padding: 10px">
             <div class="panel-tabs">
@@ -66,11 +66,11 @@
                     <!--<table class="table table-hover text-center table-condensed">-->
                     <thead>
                     <tr>
-                        <th style="text-align: center;">变量名称</th>
-                        <th style="text-align: center;">变量默认值</th>
-                        <th style="text-align: center;">变量描述</th>
-                        <th style="text-align: center;">选项</th>
-                        <th style="text-align: center;">操作</th>
+                        <th style="text-align: center;">{{'C3T.变量名称'|translate}}</th>
+                        <th style="text-align: center;">{{'C3T.变量默认值'|translate}}</th>
+                        <th style="text-align: center;">{{'C3T.变量描述'|translate}}</th>
+                        <th style="text-align: center;">{{'C3T.选项'|translate}}</th>
+                        <th style="text-align: center;">{{'C3T.操作'|translate}}</th>
                     </tr>
                     </thead>
                     <tr ng-repeat="ss in businessjobedit.allVar">
@@ -79,8 +79,8 @@
                         <td ><input type="text" class="form-control input-global" ng-model="ss.describe" ></td>
                         <td ><input type="text" class="form-control input-global" ng-model="ss.option" ></td>
                         <td >
-                            <button class="btn btn-danger btn-sm" ng-click="businessjobedit.delVar($index, ss)">删除</button>
-                            <button class="btn btn-info btn-sm" ng-click="businessjobedit.getVarToken(ss.name, ss.option)">获取更新链接</button>
+                            <button class="btn btn-danger btn-sm" ng-click="businessjobedit.delVar($index, ss)">{{'C3T.删除'|translate}}</button>
+                            <button class="btn btn-info btn-sm" ng-click="businessjobedit.getVarToken(ss.name, ss.option)">{{'C3T.获取更新链接'|translate}}</button>
                         </td>
                     </tr>
                 </table>
@@ -90,31 +90,31 @@
     </div>
     <div style="margin-bottom: 15px;"  ng-hide="saveHide" ng-init='openc3_job_system_only=0'>
         <button class="btn btn-success " ng-click="businessjobedit.createScriptJob()">
-            <i class="glyphicon glyphicon-copy"></i> 添加脚本步骤</button>
+            <i class="glyphicon glyphicon-copy"></i> {{'C3T.添加脚本步骤'|translate}}</button>
         <button class="btn btn-primary" ng-click="businessjobedit.createScpJob()">
-            <i class="glyphicon glyphicon-file"></i> 添加分发文件步骤</button>
+            <i class="glyphicon glyphicon-file"></i> {{'C3T.添加分发文件步骤'|translate}}</button>
 
         <button class="btn btn-primary" ng-if="openc3_job_system_only==0" ng-click="businessjobedit.createApprovalJob()">
-            <i class="fa fa-id-card"></i> 添加审批步骤</button>
+            <i class="fa fa-id-card"></i> {{'C3T.添加审批步骤'|translate}}</button>
     </div>
 
     <div ng-repeat="item in businessjobedit.allNewJob" ng-init='openc3_job_system_only=0'>
         <div ng-if="item.plugin_type == 'cmd'" class="panel panel-success">
             <div style="padding: 2px">
-                <strong style="font-size: 15px">步骤.{{$index+1}}</strong>
-                <button class="btn btn-success btn-xs" ng-click="businessjobedit.createScriptJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>脚本</button>
-                <button class="btn btn-primary btn-xs" ng-click="businessjobedit.createScpJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>文件</button>
-                <button class="btn btn-primary btn-xs" ng-if="openc3_job_system_only==0" ng-click="businessjobedit.createApprovalJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>审批</button>
+                <strong style="font-size: 15px">{{'C3T.步骤'|translate}}.{{$index+1}}</strong>
+                <button class="btn btn-success btn-xs" ng-click="businessjobedit.createScriptJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>{{'C3T.脚本'|translate}}</button>
+                <button class="btn btn-primary btn-xs" ng-click="businessjobedit.createScpJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>{{'C3T.文件'|translate}}</button>
+                <button class="btn btn-primary btn-xs" ng-if="openc3_job_system_only==0" ng-click="businessjobedit.createApprovalJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>{{'C3T.审批'|translate}}</button>
             </div>
             <div class="panel-heading">
-                <h5>脚本作业
+                <h5>{{'C3T.脚本作业'|translate}}
 
-                    <span ng-if="item.batches==='firsttime'" style="color: gray" >[仅第一组]</span>
-                    <span ng-if="item.batches==='thelasttime'" style="color: gray" >[仅最后一组]</span>
-                    <span ng-if="item.deployenv==='test'" style="color: gray" >[仅测试]</span>
-                    <span ng-if="item.deployenv==='online'" style="color: gray" >[仅线上]</span>
-                    <span ng-if="item.action==='deploy'" style="color: gray" >[仅发布]</span>
-                    <span ng-if="item.action==='rollback'" style="color: gray">[仅回滚]</span>
+                    <span ng-if="item.batches==='firsttime'" style="color: gray" >[{{'C3T.仅第一组'|translate}}]</span>
+                    <span ng-if="item.batches==='thelasttime'" style="color: gray" >[{{'C3T.仅最后一组'|translate}}]</span>
+                    <span ng-if="item.deployenv==='test'" style="color: gray" >[{{'C3T.仅测试'|translate}}]</span>
+                    <span ng-if="item.deployenv==='online'" style="color: gray" >[{{'C3T.仅线上'|translate}}]</span>
+                    <span ng-if="item.action==='deploy'" style="color: gray" >[{{'C3T.仅发布'|translate}}]</span>
+                    <span ng-if="item.action==='rollback'" style="color: gray">[{{'C3T.仅回滚'|translate}}]</span>
 
                 </h5>
             </div>
@@ -124,11 +124,11 @@
                         <!--<table class="table table-hover text-center table-condensed">-->
                         <thead>
                             <tr>
-                                <th style="text-align: center;">作业名称</th>
-                                <th style="text-align: center;">执行账户</th>
-                                <th style="text-align: center;">服务器类型</th>
-                                <th style="text-align: center;">脚本参数</th>
-                                <th style="text-align: center;width: 20%;">操作</th>
+                                <th style="text-align: center;">{{'C3T.作业名称'|translate}}</th>
+                                <th style="text-align: center;">{{'C3T.执行账户'|translate}}</th>
+                                <th style="text-align: center;">{{'C3T.服务器类型'|translate}}</th>
+                                <th style="text-align: center;">{{'C3T.脚本参数'|translate}}</th>
+                                <th style="text-align: center;width: 20%;">{{'C3T.操作'|translate}}</th>
                             </tr>
                         </thead>
                         <tr>
@@ -137,9 +137,9 @@
                             <td>{{item.node_type}}</td>
                             <td>{{item.scripts_argv}}</td>
                             <td style="width: 20%;">
-                                <button class="btn btn-info btn-sm" ng-hide="saveHide" ng-click="businessjobedit.copyScript($index)">复制</button>
-                                <button class="btn btn-warning btn-sm" ng-hide="saveHide" ng-click="businessjobedit.editScript($index)">编辑</button>
-                                <button class="btn btn-danger btn-sm" ng-hide="saveHide" ng-click="businessjobedit.deljobdata($index)">删除</button>
+                                <button class="btn btn-info btn-sm" ng-hide="saveHide" ng-click="businessjobedit.copyScript($index)">{{'C3T.复制'|translate}}</button>
+                                <button class="btn btn-warning btn-sm" ng-hide="saveHide" ng-click="businessjobedit.editScript($index)">{{'C3T.编辑'|translate}}</button>
+                                <button class="btn btn-danger btn-sm" ng-hide="saveHide" ng-click="businessjobedit.deljobdata($index)">{{'C3T.删除'|translate}}</button>
                                 <button class="btn btn-danger btn-sm" ng-hide="saveHide" ng-click="businessjobedit.up($index)"><i class="fa fa-arrow-up"></i></button>
                                 <button class="btn btn-danger btn-sm" ng-hide="saveHide" ng-click="businessjobedit.down($index)"><i class="fa fa-arrow-down"></i></button>
                             </td>
@@ -150,20 +150,20 @@
         </div>
         <div ng-if="item.plugin_type == 'scp'" class="panel panel-primary">
             <div style="padding: 1px">
-                <strong style="font-size: 15px">步骤.{{$index+1}}</strong>
-                <button class="btn btn-success btn-xs" ng-click="businessjobedit.createScriptJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>脚本</button>
-                <button class="btn btn-primary btn-xs" ng-click="businessjobedit.createScpJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>文件</button>
-                <button class="btn btn-primary btn-xs" ng-click="businessjobedit.createApprovalJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>审批</button>
+                <strong style="font-size: 15px">{{'C3T.步骤'|translate}}.{{$index+1}}</strong>
+                <button class="btn btn-success btn-xs" ng-click="businessjobedit.createScriptJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>{{'C3T.脚本'|translate}}</button>
+                <button class="btn btn-primary btn-xs" ng-click="businessjobedit.createScpJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>{{'C3T.文件'|translate}}</button>
+                <button class="btn btn-primary btn-xs" ng-click="businessjobedit.createApprovalJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>{{'C3T.审批'|translate}}</button>
             </div>
             <div class="panel-heading">
-                <h5>文件作业
+                <h5>{{'C3T.文件作业'|translate}}
 
-                    <span ng-if="item.batches==='firsttime'" style="color: gray" >[仅第一组]</span>
-                    <span ng-if="item.batches==='thelasttime'" style="color: gray" >[仅最后一组]</span>
-                    <span ng-if="item.deployenv==='test'" style="color: gray" >[仅测试]</span>
-                    <span ng-if="item.deployenv==='online'" style="color: gray" >[仅线上]</span>
-                    <span ng-if="item.action==='deploy'" style="color: gray" >[仅发布]</span>
-                    <span ng-if="item.action==='rollback'" style="color: gray">[仅回滚]</span>
+                    <span ng-if="item.batches==='firsttime'" style="color: gray" >[{{'C3T.仅第一组'|translate}}]</span>
+                    <span ng-if="item.batches==='thelasttime'" style="color: gray" >[{{'C3T.仅最后一组'|translate}}]</span>
+                    <span ng-if="item.deployenv==='test'" style="color: gray" >[{{'C3T.仅测试'|translate}}]</span>
+                    <span ng-if="item.deployenv==='online'" style="color: gray" >[{{'C3T.仅线上'|translate}}]</span>
+                    <span ng-if="item.action==='deploy'" style="color: gray" >[{{'C3T.仅发布'|translate}}]</span>
+                    <span ng-if="item.action==='rollback'" style="color: gray">[{{'C3T.仅回滚'|translate}}]</span>
 
                 </h5>
             </div>
@@ -172,11 +172,11 @@
                     <table class="table table-hover text-center table-condensed" style="margin-bottom: 0;width: 100%">
                         <thead>
                             <tr>
-                                <th style="text-align: center;">作业名称</th>
-                                <th style="text-align: center;">执行账户</th>
-                                <th style="text-align: center;max-width:600px;">目标服务器</th>
-                                <th style="text-align: center;">目标路径</th>
-                                <th style="text-align: center;width: 20%;">操作</th>
+                                <th style="text-align: center;">{{'C3T.作业名称'|translate}}</th>
+                                <th style="text-align: center;">{{'C3T.执行账户'|translate}}</th>
+                                <th style="text-align: center;max-width:600px;">{{'C3T.目标服务器'|translate}}</th>
+                                <th style="text-align: center;">{{'C3T.目标路径'|translate}}</th>
+                                <th style="text-align: center;width: 20%;">{{'C3T.操作'|translate}}</th>
                             </tr>
                         </thead>
                         <!--<table class="table table-hover text-center table-condensed">-->
@@ -187,9 +187,9 @@
                                 <td style="max-width:600px;">{{item.dst}}</td>
                                 <td >{{item.dp}}</td>
                                 <td style="width: 20%;">
-                                    <button class="btn btn-info btn-sm" ng-hide="saveHide" ng-click="businessjobedit.copyScp($index)">复制</button>
-                                    <button class="btn btn-warning btn-sm" ng-hide="saveHide" ng-click="businessjobedit.editScp($index)">编辑</button>
-                                    <button class="btn btn-danger btn-sm" ng-hide="saveHide" ng-click="businessjobedit.deljobdata($index)">删除</button>
+                                    <button class="btn btn-info btn-sm" ng-hide="saveHide" ng-click="businessjobedit.copyScp($index)">{{'C3T.复制'|translate}}</button>
+                                    <button class="btn btn-warning btn-sm" ng-hide="saveHide" ng-click="businessjobedit.editScp($index)">{{'C3T.编辑'|translate}}</button>
+                                    <button class="btn btn-danger btn-sm" ng-hide="saveHide" ng-click="businessjobedit.deljobdata($index)">{{'C3T.删除'|translate}}</button>
                                     <button class="btn btn-danger btn-sm" ng-hide="saveHide" ng-click="businessjobedit.up($index)"><i class="fa fa-arrow-up"></i></button>
                                     <button class="btn btn-danger btn-sm" ng-hide="saveHide" ng-click="businessjobedit.down($index)"><i class="fa fa-arrow-down"></i></button>
                                 </td>
@@ -202,20 +202,20 @@
 
         <div ng-if="item.plugin_type == 'approval'" class="panel panel-primary">
             <div style="padding: 1px">
-                <strong style="font-size: 15px">步骤.{{$index+1}}</strong>
-                <button class="btn btn-success btn-xs" ng-click="businessjobedit.createScriptJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>脚本</button>
-                <button class="btn btn-primary btn-xs" ng-click="businessjobedit.createScpJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>文件</button>
-                <button class="btn btn-primary btn-xs" ng-click="businessjobedit.createApprovalJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>审批</button>
+                <strong style="font-size: 15px">{{'C3T.步骤'|translate}}.{{$index+1}}</strong>
+                <button class="btn btn-success btn-xs" ng-click="businessjobedit.createScriptJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>{{'C3T.脚本'|translate}}</button>
+                <button class="btn btn-primary btn-xs" ng-click="businessjobedit.createScpJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>{{'C3T.文件'|translate}}</button>
+                <button class="btn btn-primary btn-xs" ng-click="businessjobedit.createApprovalJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>{{'C3T.审批'|translate}}</button>
             </div>
             <div class="panel-heading">
-                <h5>审批作业
+                <h5>{{'C3T.审批作业'|translate}}
 
-                    <span ng-if="item.batches==='firsttime'" style="color: gray" >[仅第一组]</span>
-                    <span ng-if="item.batches==='thelasttime'" style="color: gray" >[仅最后一组]</span>
-                    <span ng-if="item.deployenv==='test'" style="color: gray" >[仅测试]</span>
-                    <span ng-if="item.deployenv==='online'" style="color: gray" >[仅线上]</span>
-                    <span ng-if="item.action==='deploy'" style="color: gray" >[仅发布]</span>
-                    <span ng-if="item.action==='rollback'" style="color: gray">[仅回滚]</span>
+                    <span ng-if="item.batches==='firsttime'" style="color: gray" >[{{'C3T.仅第一组'|translate}}]</span>
+                    <span ng-if="item.batches==='thelasttime'" style="color: gray" >[{{'C3T.仅最后一组'|translate}}]</span>
+                    <span ng-if="item.deployenv==='test'" style="color: gray" >[{{'C3T.仅测试'|translate}}]</span>
+                    <span ng-if="item.deployenv==='online'" style="color: gray" >[{{'C3T.仅线上'|translate}}]</span>
+                    <span ng-if="item.action==='deploy'" style="color: gray" >[{{'C3T.仅发布'|translate}}]</span>
+                    <span ng-if="item.action==='rollback'" style="color: gray">[{{'C3T.仅回滚'|translate}}]</span>
 
                 </h5>
             </div>
@@ -224,10 +224,10 @@
                     <table class="table table-hover text-center table-condensed" style="margin-bottom: 0;width: 100%">
                         <thead>
                             <tr>
-                                <th style="text-align: center;">作业名称</th>
-                                <th style="text-align: center;">审批人</th>
-                                <th style="text-align: center;max-width:600px;">审批内容</th>
-                                <th style="text-align: center;width: 20%;">操作</th>
+                                <th style="text-align: center;">{{'C3T.作业名称'|translate}}</th>
+                                <th style="text-align: center;">{{'C3T.审批人'|translate}}</th>
+                                <th style="text-align: center;max-width:600px;">{{'C3T.审批内容'|translate}}</th>
+                                <th style="text-align: center;width: 20%;">{{'C3T.操作'|translate}}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -236,9 +236,9 @@
                                 <td >{{item.approver}}</td>
                                 <td style="max-width:600px;">{{item.cont}}</td>
                                 <td style="width: 20%;">
-                                    <button class="btn btn-info btn-sm" ng-hide="saveHide" ng-click="businessjobedit.copyApproval($index)">复制</button>
-                                    <button class="btn btn-warning btn-sm" ng-hide="saveHide" ng-click="businessjobedit.editApproval($index)">编辑</button>
-                                    <button class="btn btn-danger btn-sm" ng-hide="saveHide" ng-click="businessjobedit.deljobdata($index)">删除</button>
+                                    <button class="btn btn-info btn-sm" ng-hide="saveHide" ng-click="businessjobedit.copyApproval($index)">{{'C3T.复制'|translate}}</button>
+                                    <button class="btn btn-warning btn-sm" ng-hide="saveHide" ng-click="businessjobedit.editApproval($index)">{{'C3T.编辑'|translate}}</button>
+                                    <button class="btn btn-danger btn-sm" ng-hide="saveHide" ng-click="businessjobedit.deljobdata($index)">{{'C3T.删除'|translate}}</button>
                                     <button class="btn btn-danger btn-sm" ng-hide="saveHide" ng-click="businessjobedit.up($index)"><i class="fa fa-arrow-up"></i></button>
                                     <button class="btn btn-danger btn-sm" ng-hide="saveHide" ng-click="businessjobedit.down($index)"><i class="fa fa-arrow-down"></i></button>
                                 </td>
@@ -258,13 +258,13 @@
         <div style="margin-left: 40%;">
 
             <button ng-if="businessjobedit.copyjob" class="btn btn-warning" ng-click="businessjobedit.saveCloneData()">
-                克隆作业
+                {{'C3T.克隆作业'|translate}}
             </button>
             <button ng-if="!businessjobedit.copyjob" class="btn btn-warning" ng-hide="saveHide" ng-click="businessjobedit.saveCreateData()">
-                保存作业
+                {{'C3T.保存作业'|translate}}
             </button>
             <button ng-if="!businessjobedit.copyjob" class="btn btn-danger"  ng-click="businessjobedit.runJob()" ng-disabled="saveOK">
-                立即执行
+                {{'C3T.立即执行'|translate}}
             </button>
         </div>
     </div>

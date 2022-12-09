@@ -2,7 +2,7 @@
 
     <div>
         <div style="float: left;">
-            <h1>已节省人力: {{selfhealingconfig.time}} 小时</h1>
+            <h1>{{'C3T.已节省人力'|translate}}: {{selfhealingconfig.time}} {{'C3T.小时'|translate}}</h1>
         </div>
         <div style="clear: both;">&nbsp;</div>
     </div>
@@ -12,22 +12,22 @@
             <span class="panel-controls">
                 <button class="btn btn-primary" uib-tooltip="刷新" ng-click="selfhealingconfig.reloadTask()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!selfhealingconfig.loadoverTask}" ></i></button>
             </span>
-            <h5>已执行的自愈任务</h5>
+            <h5>{{'C3T.已执行的自愈任务'|translate}}</h5>
         </div>
 
         <div class="panel-body flowline">
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="selfhealingconfig.activeTaskTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'开始时间'" sortable="'time'">{{m.time}}</td>
-                        <td data-title="'实例'" sortable="'instance'">{{m.instance}}</td>
-                        <td data-title="'告警名称'" sortable="'alertname'">{{m.alertname}}</td>
-                        <td data-title="'作业名称'" sortable="'jobname'">{{m.jobname}}</td>
-                        <td data-title="'作业执行状态'" sortable="'taskstat'">{{m.taskstat}}</td>
-                        <td data-title="'自愈状态'" sortable="'healingstat'">{{m.healingstat}}</td>
-                        <td class="textcenter"  data-title="'操作'">
+                        <td data-title="'C3T.开始时间'|translate" sortable="'time'">{{m.time}}</td>
+                        <td data-title="'C3T.实例'|translate" sortable="'instance'">{{m.instance}}</td>
+                        <td data-title="'C3T.告警名称'|translate" sortable="'alertname'">{{m.alertname}}</td>
+                        <td data-title="'C3T.作业名称'|translate" sortable="'jobname'">{{m.jobname}}</td>
+                        <td data-title="'C3T.作业执行状态'|translate" sortable="'taskstat'">{{m.taskstat}}</td>
+                        <td data-title="'C3T.自愈状态'|translate" sortable="'healingstat'">{{m.healingstat}}</td>
+                        <td class="textcenter"  data-title="'C3T.操作'|translate">
                             <nobr>
-                                <button ng-f="m.taskuuid" type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="selfhealingconfig.openJOBHistory( m.taskuuid )">查看作业</button>
+                                <button ng-f="m.taskuuid" type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="selfhealingconfig.openJOBHistory( m.taskuuid )">{{'C3T.查看作业'|translate}}</button>
                             </nobr>
                         </td>
                     </tr>
@@ -41,7 +41,7 @@
     <div>
         <div style="float: right;">
             <form class="form-inline" name="myForm" novalidate>
-                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="selfhealingconfig.createConfig({},'添加')"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i> 添加自愈套餐</button>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="selfhealingconfig.createConfig({},'C3T.添加')"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i>{{'C3T.添加自愈套餐'|translate}}</button>
             </form>
         </div>
         <div style="clear: both;">&nbsp;</div>
@@ -53,23 +53,23 @@
             <span class="panel-controls">
                 <button class="btn btn-primary" uib-tooltip="刷新" ng-click="selfhealingconfig.reloadConfig()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!selfhealingconfig.loadoverConfig}" ></i></button>
             </span>
-            <h5>自愈套餐配置</h5>
+            <h5>{{'C3T.自愈套餐配置'|translate}}</h5>
         </div>
 
         <div class="panel-body flowline">
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="selfhealingconfig.activeConfigTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'编号'" sortable="'id'">{{m.id}}</td>
-                        <td data-title="'自愈套餐名称'" sortable="'name'">{{m.name}}</td>
-                        <td data-title="'告警名称'" sortable="'altername'">{{m.altername}}</td>
-                        <td data-title="'作业名称'" sortable="'jobname'">{{m.jobname}}</td>
-                        <td data-title="'作用IP'" sortable="'eips'">{{m.eips}}</td>
-                        <td data-title="'编辑者'" sortable="'edit_user'">{{m.edit_user}}</td>
-                        <td data-title="'编辑时间'" sortable="'edit_time'">{{m.edit_time}}</td>
-                        <td class="textcenter"  data-title="'操作'">
+                        <td data-title="'C3T.编号'|translate" sortable="'id'">{{m.id}}</td>
+                        <td data-title="'C3T.自愈套餐名称'|translate" sortable="'name'">{{m.name}}</td>
+                        <td data-title="'C3T.告警名称'|translate" sortable="'altername'">{{m.altername}}</td>
+                        <td data-title="'C3T.作业名称'|translate" sortable="'jobname'">{{m.jobname}}</td>
+                        <td data-title="'C3T.作用IP'|translate" sortable="'eips'">{{m.eips}}</td>
+                        <td data-title="'C3T.编辑者'|translate" sortable="'edit_user'">{{m.edit_user}}</td>
+                        <td data-title="'C3T.编辑时间'|translate" sortable="'edit_time'">{{m.edit_time}}</td>
+                        <td class="textcenter"  data-title="'C3T.操作'|translate">
                             <nobr>
-                                <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="selfhealingconfig.createConfig(m,'编辑')" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
+                                <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="selfhealingconfig.createConfig(m,'C3T.编辑')" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
                                 <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="selfhealingconfig.deleteConfig(m.id)" uib-tooltip="删除" style="cursor:pointer;color: red;" ></i>
                             </nobr>
                         </td>

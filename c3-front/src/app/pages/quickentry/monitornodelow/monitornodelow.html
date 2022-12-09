@@ -4,7 +4,7 @@
     <div class="col-lg-3 col-xs-12 ml0 pl0" style="padding-left: 0">
         <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
             <div class="panel-heading">
-                <h4 class="kb_title">利用率低: low</h4>
+                <h4 class="kb_title">{{'C3T.利用率低'|translate}}: low</h4>
             </div>
             <div class="panel-body">
                 <div style="font-size: 45px;font-weight: bold;text-align: center;height: 115px;cursor:pointer; color: red">
@@ -16,7 +16,7 @@
     <div class="col-lg-3 col-xs-12 ml0 pl0" style="padding-left: 0">
         <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
             <div class="panel-heading">
-                <h4 style="font-weight: bold;color: #337ab7">警告: warn</h4>
+                <h4 style="font-weight: bold;color: #337ab7">{{'C3T.警告'|translate}}: warn</h4>
             </div>
             <div class="panel-body">
                 <div style="font-size: 45px;font-weight: bold;text-align: center;height: 115px;cursor:pointer;color: #f6bb42">
@@ -29,7 +29,7 @@
     <div class="col-lg-3 col-xs-12 ml0 pl0" style="padding-left: 0">
         <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
             <div class="panel-heading">
-                <h4 style="font-weight: bold;color: #337ab7">正常: normal</h4>
+                <h4 style="font-weight: bold;color: #337ab7">{{'C3T.正常'|translate}}: normal</h4>
             </div>
             <div class="panel-body" >
                 <div style="font-size: 45px;font-weight: bold;text-align: center;height: 115px;cursor:pointer;color: green">
@@ -41,7 +41,7 @@
     <div class="col-lg-3 col-xs-12 ml0 pl0" style="padding-left: 0">
         <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
             <div class="panel-heading">
-                <h4 style="font-weight: bold;color: #337ab7">未知: unkown</h4>
+                <h4 style="font-weight: bold;color: #337ab7">{{'C3T.未知'|translate}}: unkown</h4>
             </div>
             <div class="panel-body">
                 <div style="font-size: 45px;font-weight: bold;text-align: center;height: 115px;cursor:pointer;">
@@ -60,39 +60,39 @@
             <span class="panel-controls">
                 <button class="btn btn-primary" uib-tooltip="刷新" ng-click="monitornodelow.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!monitornodelow.loadover}" ></i></button>
             </span>
-            <h5>资源利用率低</h5>
+            <h5>{{'C3T.资源利用率低'|translate}}</h5>
         </div>
 
         <div class="panel-body flowline">
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="monitornodelow.dataTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'编号'"   sortable="'id'"    >{{m.id}}</td>
-                        <td data-title="'主机名'" sortable="'name'" filter="{ name: 'text'}" >{{m.name}}</td>
-                        <td data-title="'内网IP'" sortable="'inip'" filter="{ inip: 'text'}" >{{m.inip}}</td>
-                        <td data-title="'外网IP'" sortable="'exip'" filter="{ exip: 'text'}" >{{m.exip}}</td>
-                        <td data-title="'资源类型'" sortable="'type'">{{m.type}}</td>
-                        <td data-title="'状态'" sortable="'status'" filter="{ status: 'text'}" >
+                        <td data-title="'C3T.编号'|translate"   sortable="'id'"    >{{m.id}}</td>
+                        <td data-title="'C3T.主机名'|translate" sortable="'name'" filter="{ name: 'text'}" >{{m.name}}</td>
+                        <td data-title="'C3T.内网IP'|translate" sortable="'inip'" filter="{ inip: 'text'}" >{{m.inip}}</td>
+                        <td data-title="'C3T.外网IP'|translate" sortable="'exip'" filter="{ exip: 'text'}" >{{m.exip}}</td>
+                        <td data-title="'C3T.资源类型'|translate" sortable="'type'">{{m.type}}</td>
+                        <td data-title="'C3T.状态'|translate" sortable="'status'" filter="{ status: 'text'}" >
                             <a ng-if="m.status=='low'"    style="color: red"     >{{m.status}}<a>
                             <a ng-if="m.status=='warn'"   style="color: #f6bb42" >{{m.status}}<a>
                             <a ng-if="m.status=='normal'" style="color: green"   >{{m.status}}<a>
                             <a ng-if="m.status=='unkown'" >{{m.status}}<a>
                         </td>
-                        <td data-title="'低利用率天数/14天'" sortable="'lowcnt'">{{m.lowcnt}}</td>
-                        <td data-title="'CPU(%)'"            sortable="'cpu'"   >{{m.cpu}}</td>
-                        <td data-title="'内存(%)'"           sortable="'mem'"   >{{m.mem}}</td>
-                        <td data-title="'下载带宽'"    sortable="'netin'" >
+                        <td data-title="'C3T.低利用率天数/14天'|translate" sortable="'lowcnt'">{{m.lowcnt}}</td>
+                        <td data-title="'CPU(%)"            sortable="'cpu'"   >{{m.cpu}}</td>
+                        <td data-title="'C3T.内存(%)'|translate"           sortable="'mem'"   >{{m.mem}}</td>
+                        <td data-title="'C3T.下载带宽'|translate"    sortable="'netin'" >
                             <a ng-if="1048576 < m.netin"                    >{{m.netin / 1048576 | number : 2 }} Mb/s<a>
                             <a ng-if="1024 < m.netin && m.netin <= 1048576" >{{m.netin / 1024    | number : 2 }} kb/s<a>
                             <a ng-if="m.netin <= 1024"                      >{{m.netin                        }}  b/s<a>
                         </td>
-                        <td data-title="'上传带宽'"    sortable="'netout'" >
+                        <td data-title="'C3T.上传带宽'|translate"    sortable="'netout'" >
                             <a ng-if="1048576 < m.netout"                     >{{m.netout / 1048576 | number : 2 }} Mb/s<a>
                             <a ng-if="1024 < m.netout && m.netout <= 1048576" >{{m.netout / 1024    | number : 2 }} kb/s<a>
                             <a ng-if="m.netout <= 1024"                       >{{m.netout                        }}  b/s<a>
                         </td>
-                        <td data-title="'最后统计日期'"      sortable="'date'"  >{{m.date}}</td>
-                        <td class="textcenter"  data-title="'操作'">
+                        <td data-title="'C3T.最后统计日期'|translate"      sortable="'date'"  >{{m.date}}</td>
+                        <td class="textcenter"  data-title="'C3T.操作'|translate">
                             <nobr>
                                 <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="monitornodelow.showDetail(m.inip)" uib-tooltip="详情" style="cursor:pointer;color: #339094;" ></i>
                                 <i class="fa fa-tachometer fa-2x" aria-hidden="true" ng-click="monitornodelow.openNewWindow(m.inip)" uib-tooltip="图表" style="cursor:pointer;color: #339094;" ></i>

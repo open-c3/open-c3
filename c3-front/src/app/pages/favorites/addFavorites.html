@@ -5,7 +5,7 @@
                 <button class="btn btn-primary" uib-tooltip="刷新" ng-click="addfavorites.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!addfavorites.loadover}" ></i></button>
                 <button class="btn btn-primary" uib-tooltip="关闭" ng-click="addfavorites.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
             </span>
-            <h5>我可见的流水线</h5>
+            <h5>{{'C3T.我可见的流水线'|translate}}</h5>
         </div>
 
         <div class="panel-body">
@@ -18,16 +18,16 @@
                             <i class="fa fa-star fa-1x" aria-hidden="true"  ng-if="m.favorites" ng-click="addfavorites.delToFavorites(m.id,m.name)" uib-tooltip="取消收藏" style="cursor:pointer;color: #339094;" ></i>
                             {{m.id}}
                         </td>
-                        <td style="width: 15%" data-title="'名称'" filter="{ name: 'text'}" sortable="'name'">{{m.name}}</td>
-                        <td style="width: 20px" data-title="'审计'" sortable="'audit_level'">
-                            <a ng-if="m.audit_level==1" style="color: green;" >是<a>
-                            <a ng-if="m.audit_level!=1" >否<a>
+                        <td style="width: 15%" data-title="'C3T.名称'|translate" filter="{ name: 'text'}" sortable="'name'">{{m.name}}</td>
+                        <td style="width: 20px" data-title="'C3T.审计'|translate" sortable="'audit_level'">
+                            <a ng-if="m.audit_level==1" style="color: green;" >{{'C3T.是'|translate}}<a>
+                            <a ng-if="m.audit_level!=1" >{{'C3T.否'|translate}}<a>
                          </td>
-                        <td style="width: 15%" data-title="'别名'" filter="{ alias: 'text'}" sortable="'alias'">{{m.alias}}</td>
-                        <td style="width: 25%" data-title="'服务树名'" filter="{ treename: 'text'}" sortable="'treename'">{{m.treename}}</td>
-                        <td style="width: 30%" data-title="'代码仓库地址'" filter="{ addr: 'text'}" sortable="'addr'">{{m.addr}}</td>
-                        <td style="width: 5%" data-title="'编辑者'" filter="{ edit_user: 'text'}" sortable="'edit_user'">{{m.edit_user}}</td>
-                        <td style="width: 5%" data-title="'操作'">
+                        <td style="width: 15%" data-title="'C3T.别名'|translate" filter="{ alias: 'text'}" sortable="'alias'">{{m.alias}}</td>
+                        <td style="width: 25%" data-title="'C3T.服务树名'|translate" filter="{ treename: 'text'}" sortable="'treename'">{{m.treename}}</td>
+                        <td style="width: 30%" data-title="'C3T.代码仓库地址'|translate" filter="{ addr: 'text'}" sortable="'addr'">{{m.addr}}</td>
+                        <td style="width: 5%" data-title="'C3T.编辑者'|translate" filter="{ edit_user: 'text'}" sortable="'edit_user'">{{m.edit_user}}</td>
+                        <td style="width: 5%" data-title="'C3T.操作'|translate">
                             <i class="fa fa-chevron-circle-right fa-2x" aria-hidden="true" ng-click="addfavorites.versiondetail(m.groupid, m.id)" uib-tooltip="进入" style="cursor:pointer;color: #339094;" ></i>
                         </td>
                     </tr>

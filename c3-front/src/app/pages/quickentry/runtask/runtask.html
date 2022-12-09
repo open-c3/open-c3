@@ -11,7 +11,7 @@
                     </div>
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">作业: &nbsp;
+                            <label class="col-sm-3 control-label">{{'C3T.作业'|translate}}: &nbsp;
                                 <i ng-if="!runtask.jobsloadover" class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!runtask.jobsloadover}" ></i>
                             </label>
                             <div class="col-sm-6">
@@ -22,7 +22,7 @@
                     </div>
                     <div class="row" ng-if="runtask.showjobxgroup == 1" >
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">分组: &nbsp;</label>
+                            <label class="col-sm-3 control-label">{{'C3T.分组'|translate}}: &nbsp;</label>
                             <div class="col-sm-6"> <select  class="form-control " style="font-size: 15px;height: 42px"  ng-model="taskData.group" ng-options="s.name as s.alias for s in allGroups" required> </select> </div>
                         </div>
                     </div>
@@ -79,8 +79,8 @@
                             </div>
 
                             <div class="col-sm-1" ng-if="ss.name != 'tester' && ss.name != 'approver'">
-                                <a ng-if="runtask.handwritten[ss.name]" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="选择" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="runtask.handwritten[ss.name]=0">选择</a>
-                                <a ng-if="!runtask.handwritten[ss.name]" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="手写" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="runtask.handwritten[ss.name]=1">过滤</a>
+                                <a ng-if="runtask.handwritten[ss.name]" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="选择" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="runtask.handwritten[ss.name]=0">{{'C3T.选择'|translate}}</a>
+                                <a ng-if="!runtask.handwritten[ss.name]" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="手写" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="runtask.handwritten[ss.name]=1">{{'C3T.过滤'|translate}}</a>
                             </div>
 
                         </div>
@@ -89,7 +89,7 @@
                             <div ng-if="ss.name == 'ip' " >
                                 <label class="col-sm-3 control-label"></label>
                                 <div class="col-sm-9">
-                                    <button class="btn btn-primary ng-binding" ng-click="runtask.choiceServer()">选择服务器</button>
+                                    <button class="btn btn-primary ng-binding" ng-click="runtask.choiceServer()">{{'C3T.选择服务器'|translate}}</button>
                                 </div>
                             </div>
                         </div>
@@ -97,8 +97,8 @@
                     </div>
                     <div ng-if="choiceJob" class="row">
                         <div class="col-sm-3 form-group" style="margin-left: 40%;">
-                            <button ng-if="!runtask.loadover" class="btn btn-primary" ng-disabled="1" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!runtask.loadover}" ></i>加载中...</button>
-                            <button ng-if="runtask.loadover"  class="btn btn-primary" ng-disabled="runtaskForm.$invalid" ng-click="runtask.runTask()">确认</button>
+                            <button ng-if="!runtask.loadover" class="btn btn-primary" ng-disabled="1" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!runtask.loadover}" ></i>{{'C3T.加载中'|translate}}...</button>
+                            <button ng-if="runtask.loadover"  class="btn btn-primary" ng-disabled="runtaskForm.$invalid" ng-click="runtask.runTask()">{{'C3T.确认'|translate}}</button>
                         </div>
                     </div>
                 </form>

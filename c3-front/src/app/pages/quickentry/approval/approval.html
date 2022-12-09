@@ -11,17 +11,17 @@
                 <form class="form-horizontal" name="myForm"  role="form" novalidate>
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">作业名称 <span style="color: red">*</span></label>
+                            <label class="col-sm-3 control-label">{{'C3T.作业名称'|translate}} <span style="color: red">*</span></label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" name="quickentryapproval.postdata.name" ng-model="quickentryapproval.postdata.name" ng-minlength="3" ng-disabled="unClick" required />
 
-                                <span style="color:red" ng-show="myForm.s_name.$error.minlength">不少于2字符</span>
+                                <span style="color:red" ng-show="myForm.s_name.$error.minlength">{{'C3T.不少于2字符'|translate}}</span>
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">审批内容<span style="color: red">*</span></label>
+                            <label class="col-sm-3 control-label">{{'C3T.审批内容'|translate}}<span style="color: red">*</span></label>
                             <div class="col-sm-9">
                                 <textarea type="textarea" class="form-control"  ng-model="quickentryapproval.postdata.cont" required></textarea>
                             </div>
@@ -31,7 +31,7 @@
  
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">审批人<span style="color: red">*</span></label>
+                            <label class="col-sm-3 control-label">{{'C3T.审批人'|translate}}<span style="color: red">*</span></label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control"  ng-model="quickentryapproval.postdata.approver" required>
                             </div>
@@ -40,21 +40,21 @@
 
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">生效环境 <span style="color: red">*</span></label>
+                            <label class="col-sm-3 control-label">{{'C3T.生效环境'|translate}} <span style="color: red">*</span></label>
                             <div class="col-sm-9">
                                 <div class="admin-form">
                                     <div class="option-group field" >
                                         <label class="option option-primary" ng-model="unClickDeployenv">
                                             <input type="radio" name="unClickDeployenv" ng-model="quickentryapproval.postdata.deployenv" value="always">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>总是执行
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.总是执行'|translate}}
                                         </label>
                                         <label class="option option-primary">
                                             <input type="radio" name="unClickDeployenv" ng-model="quickentryapproval.postdata.deployenv" value="test">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>测试环境
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.测试环境'|translate}}
                                         </label>
                                         <label class="option option-primary">
                                             <input type="radio" name="unClickDeployenv" ng-model="quickentryapproval.postdata.deployenv" value="online">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>线上环境
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.线上环境'|translate}}
                                         </label>
                                     </div>
                                 </div>
@@ -65,21 +65,21 @@
 
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">生效动作 <span style="color: red">*</span></label>
+                            <label class="col-sm-3 control-label">{{'C3T.生效动作'|translate}} <span style="color: red">*</span></label>
                             <div class="col-sm-9">
                                 <div class="admin-form">
                                     <div class="option-group field" >
                                         <label class="option option-primary" ng-model="unClickAction">
                                             <input type="radio" name="unClickAction" ng-model="quickentryapproval.postdata.action" value="always">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>总是执行
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.总是执行'|translate}}
                                         </label>
                                         <label class="option option-primary">
                                             <input type="radio" name="unClickAction" ng-model="quickentryapproval.postdata.action" value="deploy">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>仅发布时执行
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.仅发布时执行'|translate}}
                                         </label>
                                         <label class="option option-primary">
                                             <input type="radio" name="unClickAction" ng-model="quickentryapproval.postdata.action" value="rollback">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>仅回滚时执行
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.仅回滚时执行'|translate}}
                                         </label>
                                     </div>
                                 </div>
@@ -89,21 +89,21 @@
 
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">分批 <span style="color: red">*</span></label>
+                            <label class="col-sm-3 control-label">{{'C3T.分批'|translate}} <span style="color: red">*</span></label>
                             <div class="col-sm-9">
                                 <div class="admin-form">
                                     <div class="option-group field" >
                                         <label class="option option-primary" ng-model="unClickBatches">
                                             <input type="radio" name="unClickBatches" ng-model="quickentryapproval.postdata.batches" value="always">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>总是执行
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.总是执行'|translate}}
                                         </label>
                                         <label class="option option-primary">
                                             <input type="radio" name="unClickBatches" ng-model="quickentryapproval.postdata.batches" value="firsttime">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>仅第一个分组
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.仅第一个分组'|translate}}
                                         </label>
                                         <label class="option option-primary">
                                             <input type="radio" name="unClickBatches" ng-model="quickentryapproval.postdata.batches" value="thelasttime">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>仅最后一个分组
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.仅最后一个分组'|translate}}
                                         </label>
                                     </div>
                                 </div>
@@ -113,17 +113,17 @@
 
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">所有审批人都要审批<span style="color: red">*</span></label>
+                            <label class="col-sm-3 control-label">{{'C3T.所有审批人都要审批'|translate}}<span style="color: red">*</span></label>
                             <div class="col-sm-9">
                                 <div class="admin-form">
                                     <div class="option-group field" >
                                         <label class="option option-primary">
                                             <input type="radio" name="unClickEveryone" ng-model="quickentryapproval.postdata.everyone" value="on">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>是
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.是'|translate}}
                                         </label>
                                         <label class="option option-primary">
                                             <input type="radio" name="unClickEveryone" ng-model="quickentryapproval.postdata.everyone" value="off">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>只要一个人审批
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.只要一个人审批'|translate}}
                                         </label>
                                     </div>
                                 </div>
@@ -133,21 +133,21 @@
 
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">策略<span style="color: red">*</span></label>
+                            <label class="col-sm-3 control-label">{{'C3T.策略'|translate}}<span style="color: red">*</span></label>
                             <div class="col-sm-9">
                                 <div class="admin-form">
                                     <div class="option-group field" >
                                         <label class="option option-primary">
                                             <input type="radio" name="unClickRelaxed" ng-model="quickentryapproval.postdata.relaxed" value="on">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>提交人和审批人为同一个人是跳过审批
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.提交人和审批人为同一个人是跳过审批'|translate}}
                                         </label>
                                         <label class="option option-primary">
                                             <input type="radio" name="unClickRelaxed" ng-model="quickentryapproval.postdata.relaxed" value="off">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>如果提交人和审批人为同一个人，可能会升级到上一级领导审批
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.如果提交人和审批人为同一个人，可能会升级到上一级领导审批'|translate}}
                                         </label>
                                         <label class="option option-primary">
                                             <input type="radio" name="unClickRelaxed" ng-model="quickentryapproval.postdata.relaxed" value="nervous">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>必须审批人审批
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.必须审批人审批'|translate}}
                                         </label>
  
                                     </div>
@@ -159,7 +159,7 @@
 
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">超时时间</label>
+                            <label class="col-sm-3 control-label">{{'C3T.超时时间'|translate}}</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" placeholder="脚本执行超时时间，单位为秒，默认60秒" ng-model="quickentryapproval.postdata.timeout" required>
                             </div>
@@ -168,7 +168,7 @@
 
                     <div class="row">
                         <div class="col-sm-3 form-group" style="margin-left: 40%;">
-                            <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="quickentryapproval.runapproval()">执行</button>
+                            <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="quickentryapproval.runapproval()">{{'C3T.执行'|translate}}</button>
                         </div>
                     </div>
                 </form>

@@ -3,7 +3,7 @@
     <div>
         <div style="float: right;">
             <form class="form-inline" name="myForm" novalidate>
-                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="monitorgroup.createGroup({},'添加')"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i> 添加告警接收组</button>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="monitorgroup.createGroup({},'C3T.添加')"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i>{{'C3T.添加告警接收组'|translate}}</button>
             </form>
         </div>
         <div style="clear: both;">&nbsp;</div>
@@ -15,22 +15,22 @@
             <span class="panel-controls">
                 <button class="btn btn-primary" uib-tooltip="刷新" ng-click="monitorgroup.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!monitorgroup.loadover}" ></i></button>
             </span>
-            <h5>监控组成员</h5>
+            <h5>{{'C3T.监控组成员'|translate}}</h5>
         </div>
 
         <div class="panel-body flowline">
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="monitorgroup.groupTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'编号'" sortable="'id'">{{m.id}}</td>
-                        <td data-title="'名称'" sortable="'name'">{{m.name}}</td>
-                        <td data-title="'描述'" sortable="'summary'">{{m.description}}</td>
-                        <td data-title="'编辑者'" sortable="'edit_user'">{{m.edit_user}}</td>
-                        <td data-title="'编辑时间'" sortable="'edit_time'">{{m.edit_time}}</td>
-                        <td class="textcenter"  data-title="'操作'">
+                        <td data-title="'C3T.编号'|translate" sortable="'id'">{{m.id}}</td>
+                        <td data-title="'C3T.名称'|translate" sortable="'name'">{{m.name}}</td>
+                        <td data-title="'C3T.描述'|translate" sortable="'summary'">{{m.description}}</td>
+                        <td data-title="'C3T.编辑者'|translate" sortable="'edit_user'">{{m.edit_user}}</td>
+                        <td data-title="'C3T.编辑时间'|translate" sortable="'edit_time'">{{m.edit_time}}</td>
+                        <td class="textcenter"  data-title="'C3T.操作'|translate">
                             <nobr>
                                 <i class="fa fa-user fa-2x" aria-hidden="true" ng-click="monitorgroup.editGroupUser(m.id)" uib-tooltip="编辑组成员" style="cursor:pointer;color: #339094;" ></i>
-                                <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="monitorgroup.createGroup(m,'编辑')" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
+                                <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="monitorgroup.createGroup(m,'C3T.编辑')" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
                                 <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="monitorgroup.deleteGroup(m.id)" uib-tooltip="删除" style="cursor:pointer;color: red;" ></i>
                             </nobr>
                         </td>

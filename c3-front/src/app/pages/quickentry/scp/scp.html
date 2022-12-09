@@ -8,7 +8,7 @@
             <div class="row">
                 <div class="col-sm-10">
                     <label class="col-sm-2  control-label">
-                        作业名称 <span style="color: red">*</span>
+                        {{'C3T.作业名称'|translate}} <span style="color: red">*</span>
                     </label>
                     <div class="col-sm-9">
                         <input type="text" class="form-control" name="s_name" ng-model="dstDate.name" required />
@@ -24,19 +24,19 @@
                     <div class="row">
                         <div class="col-sm-12 form-group">
                             <label class="col-sm-5" style="font-size: 16px;padding-top: 10px;">
-                                <span class="glyphicon glyphicon-hdd" style="padding: 0 3px;"></span>源文件
-                                <span style="margin-left:15px;font-weight: normal;font-size: 12px">注意：本地文件上传会用同名文件覆盖危险</span>
+                                <span class="glyphicon glyphicon-hdd" style="padding: 0 3px;"></span>{{'C3T.源文件'|translate}}
+                                <span style="margin-left:15px;font-weight: normal;font-size: 12px">{{'C3T.注意：本地文件上传会用同名文件覆盖危险'|translate}}</span>
                             </label>
 
                             <div class="col-sm-7">
                                 <button class="btn btn-primary" ng-click="distribute.choiceShareFiles()" >
-                                    <span class="glyphicon glyphicon-cloud" style="padding: 0 3px;"></span>选择共享文件
+                                    <span class="glyphicon glyphicon-cloud" style="padding: 0 3px;"></span>{{'C3T.选择共享文件'|translate}}
                                 </button>
                                 <button class="btn btn-primary" ng-click="distribute.choiceSourceFile()" >
-                                    <span class="glyphicon glyphicon-oil" style="padding: 0 3px;"></span>选择源服务器文件
+                                    <span class="glyphicon glyphicon-oil" style="padding: 0 3px;"></span>{{'C3T.选择源服务器文件'|translate}}
                                 </button>
                                 <button class="btn btn-primary" ng-if="openc3_job_system_only==0" ng-click="distribute.choiceVariable()" >
-                                    <span class="glyphicon glyphicon-oil" style="padding: 0 3px;"></span>选择构建文件
+                                    <span class="glyphicon glyphicon-oil" style="padding: 0 3px;"></span>{{'C3T.选择构建文件'|translate}}
                                 </button>
                                 <div id="upresult" class="form-inline" style="font-weight: bold">
                                     <span>{{distribute.up_re}}</span>
@@ -49,20 +49,20 @@
                                 <table ng-table="choice.shareResult" class="table table-hover" style="border: 1px solid #ddd;" >
                                     <thead >
                                         <tr ng-if="!varShow">
-                                            <th style="text-align: left;width: 27%">文件列表</th>
-                                            <th style="text-align: left;width: 29%">服务器地址</th>
-                                            <th ng-hide="true" style="text-align: left;width: 25%">执行账户</th>
+                                            <th style="text-align: left;width: 27%">{{'C3T.文件列表'|translate}}</th>
+                                            <th style="text-align: left;width: 29%">{{'C3T.服务器地址'|translate}}</th>
+                                            <th ng-hide="true" style="text-align: left;width: 25%">{{'C3T.执行账户'|translate}}</th>
                                         </tr>
                                         <tr ng-if="varShow">
-                                            <th style="text-align: left;width: 27%">环境</th>
-                                            <th style="text-align: left;width: 29%">版本</th>
-                                            <th ng-hide="true" style="text-align: left;width: 25%">执行账户</th>
+                                            <th style="text-align: left;width: 27%">{{'C3T.环境'|translate}}</th>
+                                            <th style="text-align: left;width: 29%">{{'C3T.版本'|translate}}</th>
+                                            <th ng-hide="true" style="text-align: left;width: 25%">{{'C3T.执行账户'|translate}}</th>
                                         </tr>
                                     </thead>
                                     <tbody id="srcbody">
                                         <tr ng-repeat="ss in shareResult">
                                             <td>{{ss.name}}</td>
-                                            <td>默认空</td>
+                                            <td>{{'C3T.默认空'|translate}}</td>
                                             <td ng-hide="true">
                                                 <select class="form-control " style="font-size: 18px" disabled="disabled" ng-model="dstUser" ng-options="s.username for s in allProUsers" ></select></td>
                                         </tr>
@@ -79,8 +79,8 @@
                                                         <span>{{srouceServerResult}}</span>
                                                     </div>
                                                     <div>
-                                                        <button ng-hide="true" id="click123" class="btn btn-default btn-xs" style="margin-left: 73%;" ng-click="distribute.choiceSourceServer($event)" required >添加</button>
-                                                        <span style="color: red" ng-show="srcServerShow">必选源服务器</span>
+                                                        <button ng-hide="true" id="click123" class="btn btn-default btn-xs" style="margin-left: 73%;" ng-click="distribute.choiceSourceServer($event)" required >{{'C3T.添加'|translate}}</button>
+                                                        <span style="color: red" ng-show="srcServerShow">{{'C3T.必选源服务器'|translate}}</span>
                                                     </div>
                                                 </div>
                                             </td>
@@ -106,14 +106,14 @@
                     <div class="row">
                         <div class="col-sm-12 form-group">
                             <label class="col-sm-6 " style="font-size: 16px;padding-top: 10px;">
-                                <span class="glyphicon glyphicon-folder-open" style="padding: 0 3px;"></span>目标文件
+                                <span class="glyphicon glyphicon-folder-open" style="padding: 0 3px;"></span>{{'C3T.目标文件'|translate}}
                             </label>
 
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">目标路径 <span style="color: red">*</span></label>
+                            <label class="col-sm-3 control-label">{{'C3T.目标路径'|translate}} <span style="color: red">*</span></label>
                             <div class="col-sm-8">
                                 <input type="text" class="form-control" ng-model="dstDate.dp" name="dstpath" placeholder="请填写分发路径"  required />
                             </div>
@@ -123,7 +123,7 @@
 
                     <div class="row" ng-show="scp_dir">
                         <div class="col-sm-10 form-group">
-                            <label class="col-md-3 control-label" >同步delete</label>
+                            <label class="col-md-3 control-label" >{{'C3T.同步delete'|translate}}</label>
                             <div class="col-md-2 admin-form">
                                 <label class="switch switch-system mt5">
                                     <input type="checkbox" id="scp_delete" ng-model="dstDate.scp_delete">
@@ -136,11 +136,11 @@
 
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">执行账户 <span style="color: red">*</span></label>
+                            <label class="col-sm-3 control-label">{{'C3T.执行账户'|translate}} <span style="color: red">*</span></label>
                             <div class="col-sm-7">
                                 <select  class="form-control " style="font-size: 18px;padding: 0 12px;"  ng-model="dstUser" ng-options="s.username for s in allProUsers" required>
                                 </select>
-                                <span style="color: red" ng-show="userShow">必选执行用户</span>
+                                <span style="color: red" ng-show="userShow">{{'C3T.必选执行用户'|translate}}</span>
                             </div>
                             <button class="btn btn-primary col-sm-1" uib-tooltip="添加" ng-click="distribute.addProUser()"><i class="fa fa-plus"></i></button>
 
@@ -160,17 +160,17 @@
 
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">目标机器 <span style="color: red">*</span></label>
+                            <label class="col-sm-3 control-label">{{'C3T.目标机器'|translate}} <span style="color: red">*</span></label>
                             <div class="col-sm-9">
-                                <button class="btn btn-primary" ng-click="distribute.choiceServer()" required >选择服务器</button>
-                                <span style="color: red" ng-show="dstServerShow">必须目标服务器</span>
+                                <button class="btn btn-primary" ng-click="distribute.choiceServer()" required >{{'C3T.选择服务器'|translate}}</button>
+                                <span style="color: red" ng-show="dstServerShow">{{'C3T.必须目标服务器'|translate}}</span>
                                 <table ng-table="distribute.choiceResult" class="table table-hover" ng-show="choiceShow" style="margin-top: 10px;border: 1px solid #ddd;" >
                                     <thead >
                                         <tr>
-                                            <th style="text-align: left;">编号</th>
-                                            <th style="text-align: left;">名称</th>
-                                            <th style="text-align: left;">类型</th>
-                                            <th style="text-align: left;">操作</th>
+                                            <th style="text-align: left;">{{'C3T.编号'|translate}}</th>
+                                            <th style="text-align: left;">{{'C3T.名称'|translate}}</th>
+                                            <th style="text-align: left;">{{'C3T.类型'|translate}}</th>
+                                            <th style="text-align: left;">{{'C3T.操作'|translate}}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -180,8 +180,8 @@
                                             <td ng-if="dstDate.dst_type =='builtin'">{{ss}}</td>
                                             <td>{{choiceType}}</td>
                                             <td>
-                                                <button ng-if="dstDate.dst_type =='group'"  ng-click="distribute.delChoice($index, ss.name)">删除</button>
-                                                <button ng-if="dstDate.dst_type =='builtin'" ng-click="distribute.delChoice($index, ss)">删除</button>
+                                                <button ng-if="dstDate.dst_type =='group'"  ng-click="distribute.delChoice($index, ss.name)">{{'C3T.删除'|translate}}</button>
+                                                <button ng-if="dstDate.dst_type =='builtin'" ng-click="distribute.delChoice($index, ss)">{{'C3T.删除'|translate}}</button>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -191,11 +191,11 @@
                     </div>
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">文件归属者 &nbsp;</label>
+                            <label class="col-sm-3 control-label">{{'C3T.文件归属者'|translate}} &nbsp;</label>
                             <div class="col-sm-7">
                                 <select  class="form-control " style="font-size: 18px;padding: 0 12px;"  ng-model="fileChown" ng-options="s.username for s in allProUsers" required>
                                 </select>
-                                <span>做chown操作，为空的情况下文件最后的归属着和Agent的启动用户有关。</span>
+                                <span>{{'C3T.做chown操作，为空的情况下文件最后的归属着和Agent的启动用户有关。'|translate}}</span>
 
                             </div>
                             <button class="btn btn-primary col-sm-1" uib-tooltip="添加" ng-click="distribute.addProUser()"><i class="fa fa-plus"></i></button>
@@ -205,16 +205,16 @@
                     </div>
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">文件权限 &nbsp;</label>
+                            <label class="col-sm-3 control-label">{{'C3T.文件权限'|translate}} &nbsp;</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" ng-model="dstDate.chmod" name="dstchmod" required />
-                                <span>做chmod操作，为空的情况下文件权限和系统设置有关。</span>
+                                <span>{{'C3T.做chmod操作，为空的情况下文件权限和系统设置有关。'|translate}}</span>
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">超时时间 <span style="color: red">*</span></label>
+                            <label class="col-sm-3 control-label">{{'C3T.超时时间'|translate}} <span style="color: red">*</span></label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" ng-model="dstDate.timeout" name="timeout" required />
 
@@ -223,21 +223,21 @@
                     </div>
                     <div class="row" ng-if="openc3_job_system_only==0">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">生效环境 <span style="color: red">*</span></label>
+                            <label class="col-sm-3 control-label">{{'C3T.生效环境'|translate}} <span style="color: red">*</span></label>
                             <div class="col-sm-9">
                                 <div class="admin-form">
                                     <div class="option-group field" >
                                         <label class="option option-primary" ng-model="unClickDeployenv">
                                             <input type="radio" name="unClickDeployenv" ng-model="distribute.postdata.deployenv" value="always">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>总是执行
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.总是执行'|translate}}
                                         </label>
                                         <label class="option option-primary">
                                             <input type="radio" name="unClickDeployenv" ng-model="distribute.postdata.deployenv" value="test">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>测试环境
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.测试环境'|translate}}
                                         </label>
                                         <label class="option option-primary">
                                             <input type="radio" name="unClickDeployenv" ng-model="distribute.postdata.deployenv" value="online">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>线上环境
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.线上环境'|translate}}
                                         </label>
                                     </div>
                                 </div>
@@ -246,21 +246,21 @@
                     </div>
                     <div class="row" ng-if="openc3_job_system_only==0">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">生效动作 <span style="color: red">*</span></label>
+                            <label class="col-sm-3 control-label">{{'C3T.生效动作'|translate}} <span style="color: red">*</span></label>
                             <div class="col-sm-9">
                                 <div class="admin-form">
                                     <div class="option-group field" >
                                         <label class="option option-primary" ng-model="unClickAction">
                                             <input type="radio" name="unClickAction" ng-model="distribute.postdata.action" value="always">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>总是执行
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.总是执行'|translate}}
                                         </label>
                                         <label class="option option-primary">
                                             <input type="radio" name="unClickAction" ng-model="distribute.postdata.action" value="deploy">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>仅发布时执行
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.仅发布时执行'|translate}}
                                         </label>
                                         <label class="option option-primary">
                                             <input type="radio" name="unClickAction" ng-model="distribute.postdata.action" value="rollback">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>仅回滚时执行
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.仅回滚时执行'|translate}}
                                         </label>
                                     </div>
                                 </div>
@@ -269,21 +269,21 @@
                     </div>
                     <div class="row" ng-if="openc3_job_system_only==0">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">分批 <span style="color: red">*</span></label>
+                            <label class="col-sm-3 control-label">{{'C3T.分批'|translate}} <span style="color: red">*</span></label>
                             <div class="col-sm-9">
                                 <div class="admin-form">
                                     <div class="option-group field" >
                                         <label class="option option-primary" ng-model="unClickBatches">
                                             <input type="radio" name="unClickBatches" ng-model="distribute.postdata.batches" value="always">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>总是执行
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.总是执行'|translate}}
                                         </label>
                                         <label class="option option-primary">
                                             <input type="radio" name="unClickBatches" ng-model="distribute.postdata.batches" value="firsttime">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>仅第一个分组
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.仅第一个分组'|translate}}
                                         </label>
                                         <label class="option option-primary">
                                             <input type="radio" name="unClickBatches" ng-model="distribute.postdata.batches" value="thelasttime">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>仅最后一个分组
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.仅最后一个分组'|translate}}
                                         </label>
                                     </div>
                                 </div>
@@ -292,7 +292,7 @@
                     </div>
                     <div class="row">
                         <div class="col-sm-3 form-group" style="margin-left: 40%;">
-                            <button class="btn btn-success" ng-disabled="" ng-click="distribute.postData()">开始执行</button>
+                            <button class="btn btn-success" ng-disabled="" ng-click="distribute.postData()">{{'C3T.开始执行'|translate}}</button>
                         </div>
                     </div>
 
