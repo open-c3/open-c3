@@ -1,7 +1,7 @@
 package config
 
 import (
-//	"encoding/base64"
+	//	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -35,15 +35,7 @@ type GlobalConfig struct {
 		URL       string `json:"url"`
 		CookieKey string `json:"cookiekey"`
 	} `json:"sso"`
-	Attachment   string     `json:"attachment"`
-	ReminderList []struct { // 用于配置相关工单默认的tt指派人。有些高频工单可以略过服务台直接发送给指定人
-		Enable  bool     `json:"enable"`
-		Keyword []string `json:"keyword"`
-		Users   []struct {
-			WorkGroupId int64 `json:"work_group_id"`
-			GroupUserId int64 `json:"group_user_id"`
-		} `json:"users"`
-	} `json:"reminder_list"`
+	Attachment string `json:"attachment"`
 }
 
 func (this *GlobalConfig) Decryption() {
