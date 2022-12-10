@@ -8,7 +8,7 @@
     <div class="panel panel-primary">
 
         <div class="panel-heading">
-            <h5>基本信息</h5>
+            <h5>{{'C3T.基本信息'|translate}}</h5>
         </div>
 
         <div class="panel-body">
@@ -19,44 +19,44 @@
                     <div class="container-fluid">
                         <div class="row" style="padding: 5px;">
                             <div class="form-group col-sm-4" style="padding: 0">
-                                <label style="line-height: 34px;min-width: 90px;text-align: right;">作业名称：</label>
+                                <label style="line-height: 34px;min-width: 90px;text-align: right;">{{'C3T.作业名称'|translate}}：</label>
                                 <span style="font-size: 15px">{{taskname}}</span>
                             </div>
                             <div class="form-group col-sm-4" style="padding: 0">
-                                <label style="line-height: 34px;min-width: 90px;text-align: right;">执行结果：</label>
+                                <label style="line-height: 34px;min-width: 90px;text-align: right;">{{'C3T.执行结果'|translate}}：</label>
                                 <span style="font-size: 15px">{{historyjobdetail.statuszh[status]}}</span>
                                 <i ng-if="status != 'success' && status != 'fail' && status != 'refuse'" class="fa fa-refresh fa-fw" ng-class="{'fa-spin':1}"></i>
-                                <button ng-if="status == 'running' || status == 'waiting'" class="btn btn-danger btn-sm" ng-click="historyjobdetail.killTask()" style="border-radius: 10%;padding: 1px 10px;">终止任务 </button>
+                                <button ng-if="status == 'running' || status == 'waiting'" class="btn btn-danger btn-sm" ng-click="historyjobdetail.killTask()" style="border-radius: 10%;padding: 1px 10px;">{{'C3T.终止任务'|translate}} </button>
                             </div>
                             <div class="form-group col-sm-4" style="padding: 0">
-                                <label style="line-height: 34px;min-width: 90px;text-align: right;">启动人：</label>
+                                <label style="line-height: 34px;min-width: 90px;text-align: right;">{{'C3T.启动人'|translate}}：</label>
                                 <span style="font-size: 15px">{{runuser}}</span>
                             </div>
                         </div>
                         <div class="row" style="padding: 5px;">
                             <div class="form-group col-sm-4" style="padding: 0">
-                                <label style="line-height: 34px;min-width: 90px;text-align: right;">开始时间：</label>
+                                <label style="line-height: 34px;min-width: 90px;text-align: right;">{{'C3T.开始时间'|translate}}：</label>
                                 <span style="font-size: 15px">{{starttime}}</span>
                             </div>
                             <div class="form-group col-sm-4" style="padding: 0">
-                                <label style="line-height: 34px;min-width: 90px;text-align: right;">结束时间：</label>
+                                <label style="line-height: 34px;min-width: 90px;text-align: right;">{{'C3T.结束时间'|translate}}：</label>
                                 <span style="font-size: 15px">{{finishtime}}</span>
                             </div>
                             <div class="form-group col-sm-4" style="padding: 0">
-                                <label style="line-height: 34px;min-width: 90px;text-align: right;">耗时：</label>
+                                <label style="line-height: 34px;min-width: 90px;text-align: right;">{{'C3T.耗时'|translate}}：</label>
                                 <span style="font-size: 15px">{{historyjobdetail.seftime(starttime,finishtime)}}</span>
                             </div>
                         </div>
                         <div ng-show="historyjobdetail.taskuuid" class="row" style="padding: 5px;">
                             <div class="form-group" style="padding: 0">
-                                <label style="line-height: 34px;min-width: 90px;text-align: right;">任务日志：</label>
-                                <button class="btn btn-primary btn-sm" ng-click="historyjobdetail.taskLogDetail()">执行详情</button>
-                                <span ng-show="errreason" style="color: red;margin-left: 10px">错误: &nbsp; {{errreason}}</span>
+                                <label style="line-height: 34px;min-width: 90px;text-align: right;">{{'C3T.任务日志'|translate}}：</label>
+                                <button class="btn btn-primary btn-sm" ng-click="historyjobdetail.taskLogDetail()">{{'C3T.执行详情'|translate}}</button>
+                                <span ng-show="errreason" style="color: red;margin-left: 10px">{{'C3T.错误'|translate}}: &nbsp; {{errreason}}</span>
                             </div>
                         </div>
                         <div ng-if="variable" ng-show="historyjobdetail.taskuuid" class="row" style="padding: 5px;">
                             <div class="form-group" style="padding: 0">
-                                <label style="line-height: 34px;min-width: 90px;text-align: right;">调用变量：</label>
+                                <label style="line-height: 34px;min-width: 90px;text-align: right;">{{'C3T.调用变量'|translate}}：</label>
                                 <span style="font-size: 15px">{{variable}}</span>
                             </div>
                         </div>
@@ -75,27 +75,27 @@
             <span class="panel-controls">
                 <button class="btn btn-dark" uib-tooltip="刷新" ng-click="historyjobdetail.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!historyjobdetail.loadover}" ></i></button>
             </span>
-            <h5>作业步骤 </h5>
+            <h5>{{'C3T.作业步骤'|translate}} </h5>
         </div>
 
         <div class="panel-body">
             <div ng-repeat="item in historyjobdetail.allRuningData">
                 <div ng-if="item.subtask_type == 'cmd'" class="panel panel-success">
                     <div class="panel-heading" style="height: 33px">
-                        <h5>脚本作业</h5>
+                        <h5>{{'C3T.脚本作业'|translate}}</h5>
                     </div>
                     <div class="panel-body" style="padding: 10px">
                         <div class="panel-tabs">
                             <table class="table table-hover text-center table-condensed" style="margin-bottom: 0">
                                 <thead>
                                 <tr>
-                                    <th style="text-align: center;">作业名称</th>
-                                    <th style="text-align: center;">执行主机数</th>
-                                    <th style="text-align: center;">开始时间</th>
-                                    <th style="text-align: center;">结束时间</th>
-                                    <th style="text-align: center;">耗时</th>
-                                    <th style="text-align: center;">状态</th>
-                                    <th style="text-align: center;">操作</th>
+                                    <th style="text-align: center;">{{'C3T.作业名称'|translate}}</th>
+                                    <th style="text-align: center;">{{'C3T.执行主机数'|translate}}</th>
+                                    <th style="text-align: center;">{{'C3T.开始时间'|translate}}</th>
+                                    <th style="text-align: center;">{{'C3T.结束时间'|translate}}</th>
+                                    <th style="text-align: center;">{{'C3T.耗时'|translate}}</th>
+                                    <th style="text-align: center;">{{'C3T.状态'|translate}}</th>
+                                    <th style="text-align: center;">{{'C3T.操作'|translate}}</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -107,27 +107,27 @@
                                         <td>{{historyjobdetail.seftime(item.starttime,item.finishtime)}}</td>
                                         <td ng-style="setStatuColor(item.status)">{{historyjobdetail.statuszh[item.status]}}</td>
                                         <td ng-if="item.status == 'success'">
-                                            <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">执行详情</button>
-                                            <button ng-if="item.pause" class="btn btn-success btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runConfirm($index, item,item.pause)">执行确认</button>
+                                            <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">{{'C3T.执行详情'|translate}}</button>
+                                            <button ng-if="item.pause" class="btn btn-success btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runConfirm($index, item,item.pause)">{{'C3T.执行确认'|translate}}</button>
                                         </td>
                                         <td ng-if="item.status=='decision'">
-                                            <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">执行详情</button>
-                                            <button class="btn btn-success btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.Runnigs($index, item)">重试</button>
-                                            <button class="btn btn-danger btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runIgnore($index, item)">忽略错误</button>
-                                            <button class="btn btn-dark btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runShutTask($index, item)">终止任务 </button>
+                                            <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">{{'C3T.执行详情'|translate}}</button>
+                                            <button class="btn btn-success btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.Runnigs($index, item)">{{'C3T.重试'|translate}}</button>
+                                            <button class="btn btn-danger btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runIgnore($index, item)">{{'C3T.忽略错误'|translate}}</button>
+                                            <button class="btn btn-dark btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runShutTask($index, item)">{{'C3T.终止任务'|translate}} </button>
 
                                         </td>
                                         <td ng-if="item.status=='ignore'">
-                                            <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">执行详情</button>
-                                            <button ng-if="item.pause" class="btn btn-success btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runConfirm($index, item,item.pause)">执行确认</button>
+                                            <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">{{'C3T.执行详情'|translate}}</button>
+                                            <button ng-if="item.pause" class="btn btn-success btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runConfirm($index, item,item.pause)">{{'C3T.执行确认'|translate}}</button>
 
                                         </td>
                                         <td ng-if="item.status=='running'">
-                                            <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">执行详情</button>
+                                            <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">{{'C3T.执行详情'|translate}}</button>
                                         </td>
                                         <td ng-if="item.status=='fail'">
-                                            <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">执行详情</button>
-                                            <button ng-if="item.pause" class="btn btn-success btn-sm" ng-click="historyjobdetail.runConfirm($index, item,item.pause)">执行确认</button>
+                                            <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">{{'C3T.执行详情'|translate}}</button>
+                                            <button ng-if="item.pause" class="btn btn-success btn-sm" ng-click="historyjobdetail.runConfirm($index, item,item.pause)">{{'C3T.执行确认'|translate}}</button>
                                         </td>
                                         <td ng-if="!item.status"> </td>
                                     </tr>
@@ -189,20 +189,20 @@
 
                 <div ng-if="item.subtask_type == 'scp'" class="panel panel-primary">
                     <div class="panel-heading" style="height: 33px">
-                        <h5>文件作业</h5>
+                        <h5>{{'C3T.文件作业'|translate}}</h5>
                     </div>
                     <div class="panel-body"  style="padding: 10px">
                         <div class="panel-tabs">
                             <table class="table table-hover text-center table-condensed" style="margin-bottom: 0">
                                 <thead>
                                     <tr>
-                                        <th style="text-align: center;">作业名称</th>
-                                        <th style="text-align: center;">执行主机数</th>
-                                        <th style="text-align: center;">开始时间</th>
-                                        <th style="text-align: center;">结束时间</th>
-                                        <th style="text-align: center;">耗时</th>
-                                        <th style="text-align: center;">状态</th>
-                                        <th style="text-align: center;">操作</th>
+                                        <th style="text-align: center;">{{'C3T.作业名称'|translate}}</th>
+                                        <th style="text-align: center;">{{'C3T.执行主机数'|translate}}</th>
+                                        <th style="text-align: center;">{{'C3T.开始时间'|translate}}</th>
+                                        <th style="text-align: center;">{{'C3T.结束时间'|translate}}</th>
+                                        <th style="text-align: center;">{{'C3T.耗时'|translate}}</th>
+                                        <th style="text-align: center;">{{'C3T.状态'|translate}}</th>
+                                        <th style="text-align: center;">{{'C3T.操作'|translate}}</th>
                                     </tr>
                                 </thead>
                                 <!--<table class="table table-hover text-center table-condensed">-->
@@ -215,26 +215,26 @@
                                     <td >{{historyjobdetail.seftime(item.starttime,item.finishtime)}}</td>
                                     <td ng-style="setStatuColor(item.status, 'scp')">{{historyjobdetail.statuszh[item.status]}}</td>
                                     <td ng-if="item.status == 'success'">
-                                        <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">执行详情</button>
-                                        <button ng-if="item.pause" class="btn btn-success btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runConfirm($index, item,item.pause)">执行确认</button>
+                                        <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">{{'C3T.执行详情'|translate}}</button>
+                                        <button ng-if="item.pause" class="btn btn-success btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runConfirm($index, item,item.pause)">{{'C3T.执行确认'|translate}}</button>
                                     </td>
                                     <td ng-if="item.status=='decision'">
-                                        <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">执行详情</button>
-                                        <button class="btn btn-success btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.Runnigs($index, item)">重试</button>
-                                        <button class="btn btn-danger btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runIgnore($index, item)">忽略错误</button>
-                                        <button class="btn btn-dark btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runShutTask($index, item)">终止任务</button>
+                                        <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">{{'C3T.执行详情'|translate}}</button>
+                                        <button class="btn btn-success btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.Runnigs($index, item)">{{'C3T.重试'|translate}}</button>
+                                        <button class="btn btn-danger btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runIgnore($index, item)">{{'C3T.忽略错误'|translate}}</button>
+                                        <button class="btn btn-dark btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runShutTask($index, item)">{{'C3T.终止任务'|translate}}</button>
                                     </td>
                                     <td ng-if="item.status=='fail'">
-                                        <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">执行详情</button>
-                                        <button ng-if="$index != historyjobdetail.tasklength  && status != 'fail'" class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runConfirm($index, item,item.pause)">下一步</button>
-                                        <button ng-if="item.pause" class="btn btn-success btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runConfirm($index, item,item.pause)">执行确认</button>
+                                        <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">{{'C3T.执行详情'|translate}}</button>
+                                        <button ng-if="$index != historyjobdetail.tasklength  && status != 'fail'" class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runConfirm($index, item,item.pause)">{{'C3T.下一步'|translate}}</button>
+                                        <button ng-if="item.pause" class="btn btn-success btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runConfirm($index, item,item.pause)">{{'C3T.执行确认'|translate}}</button>
                                     </td>
                                     <td ng-if="item.status=='ignore'">
-                                        <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">执行详情</button>
-                                        <button ng-if="item.pause" class="btn btn-success btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runConfirm($index, item,item.pause)">执行确认</button>
+                                        <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">{{'C3T.执行详情'|translate}}</button>
+                                        <button ng-if="item.pause" class="btn btn-success btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runConfirm($index, item,item.pause)">{{'C3T.执行确认'|translate}}</button>
                                     </td>
                                     <td ng-if="item.status=='running'">
-                                        <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">执行详情</button>
+                                        <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">{{'C3T.执行详情'|translate}}</button>
                                     </td>
                                     <td ng-if="!item.status"> </td>
 
@@ -315,20 +315,20 @@
 
                 <div ng-if="item.subtask_type == 'approval'" class="panel panel-info">
                     <div class="panel-heading" style="height: 33px">
-                        <h5>审批作业</h5>
+                        <h5>{{'C3T.审批作业'|translate}}</h5>
                     </div>
                     <div class="panel-body"  style="padding: 10px">
                         <div class="panel-tabs">
                             <table class="table table-hover text-center table-condensed" style="margin-bottom: 0">
                                 <thead>
                                     <tr>
-                                        <th style="text-align: center;">作业名称</th>
-                                        <th style="text-align: center;">审批人</th>
-                                        <th style="text-align: center;">开始时间</th>
-                                        <th style="text-align: center;">结束时间</th>
-                                        <th style="text-align: center;">耗时</th>
-                                        <th style="text-align: center;">状态</th>
-                                        <th style="text-align: center;">操作</th>
+                                        <th style="text-align: center;">{{'C3T.作业名称'|translate}}</th>
+                                        <th style="text-align: center;">{{'C3T.审批人'|translate}}</th>
+                                        <th style="text-align: center;">{{'C3T.开始时间'|translate}}</th>
+                                        <th style="text-align: center;">{{'C3T.结束时间'|translate}}</th>
+                                        <th style="text-align: center;">{{'C3T.耗时'|translate}}</th>
+                                        <th style="text-align: center;">{{'C3T.状态'|translate}}</th>
+                                        <th style="text-align: center;">{{'C3T.操作'|translate}}</th>
                                     </tr>
                                 </thead>
                                 <!--<table class="table table-hover text-center table-condensed">-->
@@ -341,30 +341,30 @@
                                     <td >{{historyjobdetail.seftime(item.starttime,item.finishtime)}}</td>
                                     <td ng-style="setStatuColor(item.status, 'scp')">{{historyjobdetail.statuszh[item.status]}}</td>
                                     <td ng-if="item.status == 'success'">
-                                        <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">执行详情</button>
-                                        <button ng-if="item.pause" class="btn btn-success btn-sm" ng-click="historyjobdetail.runConfirm($index, item,item.pause)">执行确认</button>
+                                        <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">{{'C3T.执行详情'|translate}}</button>
+                                        <button ng-if="item.pause" class="btn btn-success btn-sm" ng-click="historyjobdetail.runConfirm($index, item,item.pause)">{{'C3T.执行确认'|translate}}</button>
                                     </td>
                                     <td ng-if="item.status=='decision'">
-                                        <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">执行详情</button>
-                                        <button class="btn btn-success btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.Runnigs($index, item)">重试</button>
-                                        <button class="btn btn-danger btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runIgnore($index, item)">忽略错误</button>
-                                        <button class="btn btn-dark btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runShutTask($index, item)">终止任务</button>
+                                        <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">{{'C3T.执行详情'|translate}}</button>
+                                        <button class="btn btn-success btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.Runnigs($index, item)">{{'C3T.重试'|translate}}</button>
+                                        <button class="btn btn-danger btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runIgnore($index, item)">{{'C3T.忽略错误'|translate}}</button>
+                                        <button class="btn btn-dark btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runShutTask($index, item)">{{'C3T.终止任务'|translate}}</button>
                                     </td>
                                     <td ng-if="item.status=='fail'">
-                                        <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">执行详情</button>
-                                        <button ng-if="$index != historyjobdetail.tasklength  && status != 'fail'" class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runConfirm($index, item,item.pause)">下一步</button>
-                                        <button ng-if="item.pause" class="btn btn-success btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runConfirm($index, item,item.pause)">执行确认</button>
+                                        <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">{{'C3T.执行详情'|translate}}</button>
+                                        <button ng-if="$index != historyjobdetail.tasklength  && status != 'fail'" class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runConfirm($index, item,item.pause)">{{'C3T.下一步'|translate}}</button>
+                                        <button ng-if="item.pause" class="btn btn-success btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runConfirm($index, item,item.pause)">{{'C3T.执行确认'|translate}}</button>
                                     </td>
                                     <td ng-if="item.status=='ignore'">
-                                        <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">执行详情</button>
-                                        <button ng-if="item.pause" class="btn btn-success btn-sm" ng-click="historyjobdetail.runConfirm($index, item,item.pause)">执行确认</button>
+                                        <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">{{'C3T.执行详情'|translate}}</button>
+                                        <button ng-if="item.pause" class="btn btn-success btn-sm" ng-click="historyjobdetail.runConfirm($index, item,item.pause)">{{'C3T.执行确认'|translate}}</button>
                                     </td>
                                     <td ng-if="item.status=='running'">
-                                        <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">执行详情</button>
+                                        <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">{{'C3T.执行详情'|translate}}</button>
                                     </td>
 
                                     <td ng-if="item.status=='refuse'">
-                                        <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">执行详情</button>
+                                        <button class="btn btn-warning btn-sm" onclick="event.cancelBubble=true" ng-click="historyjobdetail.runDetail($index)">{{'C3T.执行详情'|translate}}</button>
                                     </td>
                                     <td ng-if="!item.status"> </td>
                                 </tr>
@@ -376,7 +376,7 @@
                                         <div class="container-fluid">
                                             <div class="row" style="padding: 5px;margin-left: 1%;">
                                                 <div class="form-group col-sm-6" style="padding: 0">
-                                                    <label style="line-height: 34px;min-width: 90px;text-align: right;">审批内容:</label>
+                                                    <label style="line-height: 34px;min-width: 90px;text-align: right;">{{'C3T.审批内容'|translate}}:</label>
                                                     <span style="font-size: 15px">{{item.extended.cont}}</span>
                                                 </div>
                                                 <div class="form-group col-sm-3" style="padding: 0">
@@ -396,7 +396,7 @@
 
                 <div ng-if="item.jobtype" class="panel panel-primary">
                     <div class="panel-heading" style="height: 33px">
-                        <h5>作业日志</h5>
+                        <h5>{{'C3T.作业日志'|translate}}</h5>
                     </div>
 
                     <job-subtask-log-area jobuuid="jobuuid" loguuid="loguuid" jobaddr="salve"  class="fluid-width"></job-subtask-log-area>
