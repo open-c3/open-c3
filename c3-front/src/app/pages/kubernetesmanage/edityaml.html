@@ -5,7 +5,7 @@
                 <button class="btn btn-primary" uib-tooltip="刷新" ng-click="kubernetesedityaml.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetesedityaml.loadover}" ></i></button>
                 <button class="btn btn-primary" uib-tooltip="关闭" ng-click="kubernetesedityaml.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
             </span>
-            <h5>编辑YAML</h5>
+            <h5>{{'C3T.编辑'|translate}} YAML</h5>
         </div>
 
         <div class="panel-body">
@@ -18,7 +18,7 @@
                     <input type="text" class="form-control" name="dst" placeholder="目标字符串" ng-model="kubernetesedityaml.replace2">
                 </div>
                  <div class="col-sm-1 form-group pull-left">
-                    <button class="btn btn-primary" ng-disabled="!(kubernetesedityaml.replace1 && kubernetesedityaml.replace2)" ng-click="kubernetesedityaml.replaceyaml()">文本替换</button>
+                    <button class="btn btn-primary" ng-disabled="!(kubernetesedityaml.replace1 && kubernetesedityaml.replace2)" ng-click="kubernetesedityaml.replaceyaml()">{{'C3T.文本替换'|translate}}</button>
                 </div>
  
             </div>
@@ -36,9 +36,9 @@
 
             <div class="row">
                 <div class="col-sm-2 form-group pull-right">
-                    <button class="btn btn-info" ng-disabled="myForm.$invalid" ng-click="kubernetesedityaml.assignment()">操作协助</button>
-                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetesedityaml.apply()">提交变更</button>
-                    <button class="btn btn-warning" ng-click="kubernetesedityaml.cancel()">关闭</button>
+                    <button class="btn btn-info" ng-disabled="myForm.$invalid" ng-click="kubernetesedityaml.assignment()">{{'C3T.操作协助'|translate}}</button>
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetesedityaml.apply()">{{'C3T.提交变更'|translate}}</button>
+                    <button class="btn btn-warning" ng-click="kubernetesedityaml.cancel()">{{'C3T.关闭'|translate}}</button>
                 </div>
             </div>
         </div>

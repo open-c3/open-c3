@@ -5,24 +5,24 @@
                 <button class="btn btn-primary" uib-tooltip="刷新" ng-click="kubernetesconfigmap.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetesconfigmap.loadover}" ></i></button>
                 <button class="btn btn-primary" uib-tooltip="关闭" ng-click="kubernetesconfigmap.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
             </span>
-            <h5>ConfigMap 管理 集群: {{kubernetesconfigmap.clusterinfo.name}}</h5>
+            <h5>ConfigMap {{'C3T.管理'|translate}} {{'C3T.集群'|translate}}: {{kubernetesconfigmap.clusterinfo.name}}</h5>
         </div>
 
 
         <div class="panel-body" style="margin-top: 2px">
-                    <button class="btn btn-info" uib-tooltip="创建ConfigMap" ng-click="kubernetesconfigmap.createConfigMap(kubernetesconfigmap.namespace,'')"><i class="fa fa-cubes" aria-hidden="true">创建ConfigMap</i></button>
+                    <button class="btn btn-info" uib-tooltip="创建ConfigMap" ng-click="kubernetesconfigmap.createConfigMap(kubernetesconfigmap.namespace,'')"><i class="fa fa-cubes" aria-hidden="true">{{'C3T.创建'|translate}} ConfigMap</i></button>
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesconfigmap.nodeTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td ng-if="!kubernetesconfigmap.namespace" data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'名称'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">
+                        <td ng-if="!kubernetesconfigmap.namespace" data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">
                             <i class="fa fa-cog fa-2x" aria-hidden="true" ng-if="kubernetesconfigmap.clusterinfo.auth==='X' || kubernetesconfigmap.clusterinfo.auth==='ns'" ng-click="kubernetesconfigmap.createConfigMap(m.NAMESPACE||kubernetesconfigmap.namespace,m.NAME)" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-cog fa-2x" aria-hidden="true" ng-if="!( kubernetesconfigmap.clusterinfo.auth==='X' || kubernetesconfigmap.clusterinfo.auth==='ns' )" style="color: #685e5e;" uib-tooltip="无编辑权限" style="cursor:pointer;color: #339094;" ></i>
                             {{m.NAME}}
                         </td>
-                        <td data-title="'数据'" width="80" filter="{ DATA: 'text'}" sortable="'DATA'">{{m.DATA}}</td>
-                        <td data-title="'时间'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
-                        <td data-title="'操作'" width="80" >
+                        <td data-title="'C3T.数据'|translate" width="80" filter="{ DATA: 'text'}" sortable="'DATA'">{{m.DATA}}</td>
+                        <td data-title="'C3T.时间'|translate" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
+                        <td data-title="'C3T.操作'|translate" width="80" >
 
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-if="kubernetesconfigmap.clusterinfo.auth==='X' ||  kubernetesconfigmap.clusterinfo.auth==='ns'" ng-click="kubernetesconfigmap.describe('configmap',m.NAME,m.NAMESPACE||kubernetesconfigmap.namespace)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-if="!( kubernetesconfigmap.clusterinfo.auth==='X' || kubernetesconfigmap.clusterinfo.auth==='ns' )" style="color: #685e5e;" uib-tooltip="无查看权限" style="cursor:pointer;color: #339094;" ></i>

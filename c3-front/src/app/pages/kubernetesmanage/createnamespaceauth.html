@@ -1,13 +1,13 @@
 <div class="row block">
     <div class="modal-header">
-        <h4 class="modal-title">添加授权</h4>
+        <h4 class="modal-title">{{'C3T.添加授权'|translate}}</h4>
     </div>
     <div class="modal-body">
         <form class="form-horizontal" name="myForm" role="form">
 
             <div ng-if="!kubernetescreatenamespaceauth.namespacetemp" class="row">
                 <div class="col-sm-10 form-group">
-                    <label class="col-sm-3 control-label">*命名空间</label>
+                    <label class="col-sm-3 control-label">*{{'C3T.命名空间'|translate}}</label>
                     <div class="col-sm-9">
                         <select id="selectednameval" class="form-control"  ng-model="kubernetescreatenamespaceauth.namespace" required>
                              <option ng-repeat="x in kubernetescreatenamespaceauth.namespaces" value="{{x.NAME}}">{{x.NAME}}</option>
@@ -18,7 +18,7 @@
  
             <div ng-if="kubernetescreatenamespaceauth.namespacetemp" class="row">
                 <div class="col-sm-10 form-group">
-                    <label class="col-sm-3 control-label">*命名空间</label>
+                    <label class="col-sm-3 control-label">*{{'C3T.命名空间'|translate}}</label>
                     <div class="col-sm-9">
                         <input type="text" ng-disabled="1" class="form-control" placeholder="" ng-model="kubernetescreatenamespaceauth.namespace" required>
                     </div>
@@ -27,7 +27,7 @@
  
             <div class="row">
                 <div class="col-sm-10 form-group">
-                    <label class="col-sm-3 control-label">*用户名称</label>
+                    <label class="col-sm-3 control-label">*{{'C3T.用户名称'|translate}}</label>
                     <div class="col-sm-9">
                         <input type="text" class="form-control" placeholder="用户名称，OA账号" ng-model="kubernetescreatenamespaceauth.user" required>
                     </div>
@@ -36,21 +36,21 @@
 
             <div class="row">
                 <div class="col-sm-10 form-group">
-                    <label class="col-sm-3 control-label">*权限</label>
+                    <label class="col-sm-3 control-label">*{{'C3T.权限'|translate}}</label>
                     <div class="col-sm-9">
                         <div class="admin-form">
                             <div class="option-group field" >
                                   <label class="option option-primary">
                                      <input type="radio" ng-model="kubernetescreatenamespaceauth.auth" value="r" >
-                                     <span class="radio" style="padding-top: 0;min-height: 0"></span>读权限
+                                     <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.读权限'|translate}}
                                   </label>
                                   <label class="option option-primary">
                                      <input type="radio" ng-model="kubernetescreatenamespaceauth.auth" value="rx" >
-                                     <span class="radio" style="padding-top: 0;min-height: 0"></span>[读+执行]权限(执行权限可以进入pod的shell)
+                                     <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.[读+执行]权限(执行权限可以进入pod的shell)'|translate}}
                                   </label>
                                   <label class="option option-primary">
                                       <input type="radio" ng-model="kubernetescreatenamespaceauth.auth" value="rw" >
-                                      <span class="radio" style="padding-top: 0;min-height: 0"></span>[读+写+执行]权限
+                                      <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.[读+写+执行]权限'|translate}}
                                   </label>
                              </div>
                        </div>
@@ -60,8 +60,8 @@
 
             <div class="row">
                 <div class="col-sm-5 form-group pull-right">
-                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreatenamespaceauth.addauth()">确认添加</button>
-                    <button class="btn btn-warning" ng-click="kubernetescreatenamespaceauth.cancel()">取消</button>
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreatenamespaceauth.addauth()">{{'C3T.确认添加'|translate}}</button>
+                    <button class="btn btn-warning" ng-click="kubernetescreatenamespaceauth.cancel()">{{'C3T.取消'|translate}}</button>
                 </div>
             </div>
         </form>

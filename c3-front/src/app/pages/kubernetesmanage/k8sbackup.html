@@ -5,24 +5,24 @@
                 <button class="btn btn-primary" uib-tooltip="刷新" ng-click="kubernetesk8sbackup.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetesk8sbackup.loadover}" ></i></button>
                 <button class="btn btn-primary" uib-tooltip="关闭" ng-click="kubernetesk8sbackup.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
             </span>
-            <h5>备份管理 集群: {{kubernetesk8sbackup.clusterinfo.name}}</h5>
+            <h5>{{'C3T.备份'|translate}} {{'C3T.管理'|translate}} {{'C3T.集群'|translate}}: {{kubernetesk8sbackup.clusterinfo.name}}</h5>
         </div>
 
 
         <div class="panel-body" style="margin-top: 2px">
-             <button class="btn btn-info" uib-tooltip="点击立即备份" ng-click="kubernetesk8sbackup.backup()"><i class="fa fa-cubes" aria-hidden="true">点击立即备份</i></button>
+             <button class="btn btn-info" uib-tooltip="点击立即备份" ng-click="kubernetesk8sbackup.backup()"><i class="fa fa-cubes" aria-hidden="true">{{'C3T.点击立即备份'|translate}}</i></button>
 
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesk8sbackup.nodeTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'名称'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">
                             {{m.NAME}}
                         </td>
-                        <td data-title="'集群管理员'" width="80" >
-                            <i class="fa fa-download fa-1x" aria-hidden="true" ng-click="kubernetesk8sbackup.downloadfile(m.NAME, '')" uib-tooltip="下载" style="cursor:pointer;color: #f63;" >全量下载</i>
+                        <td data-title="'C3T.集群管理员'|translate" width="80" >
+                            <i class="fa fa-download fa-1x" aria-hidden="true" ng-click="kubernetesk8sbackup.downloadfile(m.NAME, '')" uib-tooltip="下载" style="cursor:pointer;color: #f63;" >{{'C3T.全量下载'|translate}}</i>
                         </td> 
-                        <td data-title="'普通用户'" width="80" >
-                            <i class="fa fa-download fa-1x" aria-hidden="true" ng-click="kubernetesk8sbackup.downloadfile(m.NAME, '/mine')" uib-tooltip="下载" style="cursor:pointer;color: #f63;" >应用下载</i>
+                        <td data-title="'C3T.普通用户'|translate" width="80" >
+                            <i class="fa fa-download fa-1x" aria-hidden="true" ng-click="kubernetesk8sbackup.downloadfile(m.NAME, '/mine')" uib-tooltip="下载" style="cursor:pointer;color: #f63;" >{{'C3T.应用下载'|translate}}</i>
                         </td> 
                     </tr>
                 </table>

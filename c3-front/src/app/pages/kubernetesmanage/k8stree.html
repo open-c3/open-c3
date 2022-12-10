@@ -5,21 +5,21 @@
                 <button class="btn btn-primary" uib-tooltip="刷新" ng-click="kubernetesk8stree.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetesk8stree.loadover}" ></i></button>
                 <button class="btn btn-primary" uib-tooltip="关闭" ng-click="kubernetesk8stree.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
             </span>
-            <h5>Kubernetes集群和服务树节点关联</h5>
+            <h5>Kubernetes {{'C3T.集群和服务树节点关联'|translate}}</h5>
         </div>
 
         <div class="panel-body" style="margin-top: 2px">
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesk8stree.k8sTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'名称'" width="80" filter="{ name: 'text'}" sortable="'name'"> {{m.name}} </td>
-                        <td data-title="'描述'" width="80" filter="{ describe: 'text'}" sortable="'describe'">{{m.describe}}</td>
-                        <td data-title="'流水线自动关联'" width="80" >
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ name: 'text'}" sortable="'name'"> {{m.name}} </td>
+                        <td data-title="'C3T.描述'|translate" width="80" filter="{ describe: 'text'}" sortable="'describe'">{{m.describe}}</td>
+                        <td data-title="'C3T.流水线自动关联'|translate" width="80" >
                             <i ng-if="kubernetesk8stree.k8stree.auto[m.id] !== 1" class="fa fa-toggle-off fa-2x" aria-hidden="true" style="cursor:pointer;color: #C0C0C0;" ></i>
                             <i ng-if="kubernetesk8stree.k8stree.auto[m.id] === 1" class="fa fa-toggle-on fa-2x" aria-hidden="true"  style="cursor:pointer;color: black;" ></i>
                         </td> 
  
-                        <td data-title="'手动关联服务树'" width="80" >
+                        <td data-title="'C3T.手动关联服务树'|translate" width="80" >
                             <i ng-if="kubernetesk8stree.k8stree.human[m.id] !== 1" class="fa fa-toggle-off fa-2x" aria-hidden="true" ng-click="kubernetesk8stree.addK8sTree(m.id)" uib-tooltip="点击进行关联" style="cursor:pointer;color: #f63;" ></i>
                             <i ng-if="kubernetesk8stree.k8stree.human[m.id] === 1" class="fa fa-toggle-on fa-2x" aria-hidden="true" ng-click="kubernetesk8stree.delK8sTree(m.id)" uib-tooltip="点击去关联" style="cursor:pointer;color: green;" ></i>
                         </td> 

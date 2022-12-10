@@ -5,7 +5,7 @@
                 <button class="btn btn-primary" uib-tooltip="刷新" ng-click="kubernetesdescribeingress.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetesdescribeingress.loadover}" ></i></button>
                 <button class="btn btn-primary" uib-tooltip="关闭" ng-click="kubernetesdescribeingress.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
             </span>
-            <h5>ingress describe 信息</h5>
+            <h5>ingress describe {{'C3T.信息'|translate}}</h5>
         </div>
 
         <div class="panel-body">
@@ -15,14 +15,14 @@
                         <div class="pt20" style="overflow: auto;">
                             <table ng-table="kubernetesdescribeingress.serviceTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                                 <tr ng-repeat="m in $data">
-                                    <td data-title="'域名'" width="80">{{m.host}}</td>
-                                    <td data-title="'路径'" width="80">{{m.path}}</td>
-                                    <td data-title="'路径类型'" width="80">{{m.pathType}}</td>
+                                    <td data-title="'C3T.域名'|translate" width="80">{{m.host}}</td>
+                                    <td data-title="'C3T.路径'|translate" width="80">{{m.path}}</td>
+                                    <td data-title="'C3T.路径类型'|translate" width="80">{{m.pathType}}</td>
                                     <td data-title="'service'" width="80">
                                         <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesdescribeingress.describexxservice('service',m.servicename)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
                                         {{m.servicename}}
                                     </td>
-                                    <td data-title="'端口'" width="80">{{m.port}}</td>
+                                    <td data-title="'C3T.端口'|translate" width="80">{{m.port}}</td>
                                 </tr>
                             </table>
                         </div>

@@ -6,25 +6,25 @@
 
             <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-info" uib-tooltip="搜索" ng-click="kubernetesmanage.searchingress()" ><i class="fa fa-search fa-fw" ></i>搜索</button>
-                <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC)}" ></i>刷新</button>
+                <button class="btn btn-info" uib-tooltip="搜索" ng-click="kubernetesmanage.searchingress()" ><i class="fa fa-search fa-fw" ></i>{{'C3T.搜索'|translate}}</button>
+                <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC)}" ></i>{{'C3T.刷新'|translate}}</button>
             </span>
 
-                <h4 style="font-weight: bold;color: #337ab7">集群({{clusterCount||0}})</h4>
+                <h4 style="font-weight: bold;color: #337ab7">{{'C3T.集群'|translate}}({{clusterCount||0}})</h4>
             </div>
 
 
             <div class="panel-body" style="margin-top: 20px" ng-init="searchcluster=0">
                 <div class="row">
                     <div class="col-sm-12 form-group">
-                        <label class="col-sm-1 control-label">集群
+                        <label class="col-sm-1 control-label">{{'C3T.集群'|translate}}
                             <img ng-if="kubernetesmanage.selecteCluster.subtype==='AWS'" src="/assets/images/AWS.jpeg" style="width: 52px;"/>
                             <img ng-if="kubernetesmanage.selecteCluster.subtype==='QCloud'" src="/assets/images/QCloud.jpeg" style="width: 52px;"/>
                             <img ng-if="!( kubernetesmanage.selecteCluster.subtype==='AWS' || kubernetesmanage.selecteCluster.subtype==='QCloud')" src="/assets/images/kubernetes.jpeg" style="width: 31px;"/>
                         </label>
                         <div class="col-sm-4" ng-show="searchcluster===0">
                             <select id="selecteddataval" class="form-control"  ng-model="choiceClusterId" >
-                                 <option ng-repeat="x in kubernetesmanage.clusterlist" value="{{x.id}}">{{x.name}} 详情: {{x.describe}} 操作权限: {{x.auth}}</option>
+                                 <option ng-repeat="x in kubernetesmanage.clusterlist" value="{{x.id}}">{{x.name}} {{'C3T.详情'|translate}}: {{x.describe}} {{'C3T.操作权限'|translate}}: {{x.auth}}</option>
                             </select>
                         </div>
 
@@ -38,10 +38,10 @@
                         </div>
 
                         <div class="col-sm-3">
-                            <button ng-show="searchcluster===0" class="btn btn-info" uib-tooltip="搜索集群" ng-click="searchcluster=1"><i class="fa fa-search" aria-hidden="true">搜索</i></button>
-                            <button ng-show="searchcluster===1" class="btn btn-info" uib-tooltip="取消搜索" ng-click="searchcluster=0"><i class="fa fa-close" aria-hidden="true">不搜索</i></button>
-                            <button class="btn btn-info" uib-tooltip="添加集群" ng-click="kubernetesmanage.addCluster()"><i class="fa fa-plus" aria-hidden="true">添加</i></button>
-                            <button class="btn btn-info" uib-tooltip="关联集群" ng-click="kubernetesmanage.k8sTree()"><i class="fa fa-plus" aria-hidden="true">关联服务树</i></button>
+                            <button ng-show="searchcluster===0" class="btn btn-info" uib-tooltip="搜索集群" ng-click="searchcluster=1"><i class="fa fa-search" aria-hidden="true">{{'C3T.搜索'|translate}}</i></button>
+                            <button ng-show="searchcluster===1" class="btn btn-info" uib-tooltip="取消搜索" ng-click="searchcluster=0"><i class="fa fa-close" aria-hidden="true">不搜索{{'C3T.不搜索'|translate}}</i></button>
+                            <button class="btn btn-info" uib-tooltip="添加集群" ng-click="kubernetesmanage.addCluster()"><i class="fa fa-plus" aria-hidden="true">{{'C3T.添加'|translate}}</i></button>
+                            <button class="btn btn-info" uib-tooltip="关联集群" ng-click="kubernetesmanage.k8sTree()"><i class="fa fa-plus" aria-hidden="true">{{'C3T.关联服务树'|translate}}</i></button>
                         </div>
  
                     </div>
@@ -49,15 +49,15 @@
 
                 <div class="row">
                     <div class="col-sm-12 form-group">
-                        <label class="col-sm-1 control-label">命名空间</label>
+                        <label class="col-sm-1 control-label">{{'C3T.命名空间'|translate}}</label>
                         <div class="col-sm-4">
                             <select id="selectednameval" class="form-control"  ng-model="choiceNamespace" >
-                                 <option value="">全部</option>
+                                 <option value="">{{'C3T.全部'|translate}}</option>
                                  <option ng-repeat="x in kubernetesmanage.namespace" value="{{x.NAME}}">{{x.NAME}}</option>
                             </select>
                         </div>
                         <div class="col-sm-1" ng-if="choiceClusterId">
-                            <button class="btn btn-info" uib-tooltip="添加命名空间" ng-click="kubernetesmanage.addNamespace()"><i class="fa fa-plus" aria-hidden="true">添加</i></button>
+                            <button class="btn btn-info" uib-tooltip="添加命名空间" ng-click="kubernetesmanage.addNamespace()"><i class="fa fa-plus" aria-hidden="true">{{'C3T.添加'|translate}}</i></button>
                         </div>
  
                     </div>
@@ -65,11 +65,11 @@
 
                 <div class="row">
                     <div class="col-sm-12 form-group">
-                        <label class="col-sm-1 control-label">状态</label>
+                        <label class="col-sm-1 control-label">{{'C3T.状态'|translate}}</label>
                         <div class="col-sm-2">
                             <select id="selectedprojectval" class="form-control"  ng-model="choiceStat" style="width: 40%" >
-                                 <option value="">全部</option>
-                                 <option value="fail">异常</option>
+                                 <option value="">{{'C3T.全部'|translate}}</option>
+                                 <option value="fail">{{'C3T.异常'|translate}}</option>
                             </select>
                         </div>
                     </div>
@@ -77,16 +77,16 @@
 
 
                 <div ng-if="choiceClusterId" class="row">
-                    <button style="float: right;margin-right: 4px;" class="btn btn-info" uib-tooltip="新建应用" ng-click="kubernetesmanage.apply()"><i class="fa fa-rocket" aria-hidden="true">通过yaml创建</i></button>
-                    <button class="btn btn-info" uib-tooltip="测试能否连接上集群" ng-click="kubernetesmanage.connectiontest()"><i class="fa fa-cubes" aria-hidden="true">连接测试</i></button>
-                    <button class="btn btn-info" ng-if="kubernetesmanage.selecteCluster.auth==='X'" uib-tooltip="集群授权" ng-click="kubernetesmanage.namespaceauth()"><i class="fa fa-cubes" aria-hidden="true">集群授权</i></button>
-                    <button class="btn btn-info" ng-if="kubernetesmanage.selecteCluster.auth==='X'" uib-tooltip="编辑本集群凭据" ng-click="kubernetesmanage.editCluster()"><i class="fa fa-cubes" aria-hidden="true">修改集群</i></button>
-                    <button class="btn btn-info" ng-if="kubernetesmanage.selecteCluster.auth==='X'" uib-tooltip="管理集群节点" ng-click="kubernetesmanage.node()"><i class="fa fa-cubes" aria-hidden="true">Node管理</i></button>
-                    <button class="btn btn-info" uib-tooltip="管理集群Secret" ng-click="kubernetesmanage.secret()"><i class="fa fa-cubes" aria-hidden="true">Secret管理</i></button>
-                    <button class="btn btn-info" uib-tooltip="管理集群ConfigMap" ng-click="kubernetesmanage.configMap()"><i class="fa fa-cubes" aria-hidden="true">ConfigMap管理</i></button>
-                    <button class="btn btn-info" uib-tooltip="集群备份" ng-click="kubernetesmanage.k8sbackup()"><i class="fa fa-cubes" aria-hidden="true">集群备份</i></button>
-                    <button class="btn btn-info" ng-if="kubernetesmanage.selecteCluster.auth==='X'" uib-tooltip="Kubectl" ng-click="kubernetesmanage.openKubectl('1')"><i class="fa fa-cubes" aria-hidden="true">kubectl【速度快】</i></button>
-                    <button class="btn btn-info" ng-if="kubernetesmanage.selecteCluster.auth==='X'" uib-tooltip="Kubectl" ng-click="kubernetesmanage.openKubectl('full')"><i class="fa fa-cubes" aria-hidden="true">kubectl【功能多】</i></button>
+                    <button style="float: right;margin-right: 4px;" class="btn btn-info" uib-tooltip="新建应用" ng-click="kubernetesmanage.apply()"><i class="fa fa-rocket" aria-hidden="true">{{'C3T.通过yaml创建'|translate}}</i></button>
+                    <button class="btn btn-info" uib-tooltip="测试能否连接上集群" ng-click="kubernetesmanage.connectiontest()"><i class="fa fa-cubes" aria-hidden="true">{{'C3T.连接测试'|translate}}</i></button>
+                    <button class="btn btn-info" ng-if="kubernetesmanage.selecteCluster.auth==='X'" uib-tooltip="集群授权" ng-click="kubernetesmanage.namespaceauth()"><i class="fa fa-cubes" aria-hidden="true">{{'C3T.集群授权'|translate}}</i></button>
+                    <button class="btn btn-info" ng-if="kubernetesmanage.selecteCluster.auth==='X'" uib-tooltip="编辑本集群凭据" ng-click="kubernetesmanage.editCluster()"><i class="fa fa-cubes" aria-hidden="true">{{'C3T.修改集群'|translate}}</i></button>
+                    <button class="btn btn-info" ng-if="kubernetesmanage.selecteCluster.auth==='X'" uib-tooltip="管理集群节点" ng-click="kubernetesmanage.node()"><i class="fa fa-cubes" aria-hidden="true">Node {{'C3T.管理'|translate}}</i></button>
+                    <button class="btn btn-info" uib-tooltip="管理集群Secret" ng-click="kubernetesmanage.secret()"><i class="fa fa-cubes" aria-hidden="true">Secret {{'C3T.管理'|translate}}</i></button>
+                    <button class="btn btn-info" uib-tooltip="管理集群ConfigMap" ng-click="kubernetesmanage.configMap()"><i class="fa fa-cubes" aria-hidden="true">ConfigMap {{'C3T.管理'|translate}}</i></button>
+                    <button class="btn btn-info" uib-tooltip="集群备份" ng-click="kubernetesmanage.k8sbackup()"><i class="fa fa-cubes" aria-hidden="true">{{'C3T.集群备份'|translate}}</i></button>
+                    <button class="btn btn-info" ng-if="kubernetesmanage.selecteCluster.auth==='X'" uib-tooltip="Kubectl" ng-click="kubernetesmanage.openKubectl('1')"><i class="fa fa-cubes" aria-hidden="true">kubectl【{{'C3T.速度快'|translate}}】</i></button>
+                    <button class="btn btn-info" ng-if="kubernetesmanage.selecteCluster.auth==='X'" uib-tooltip="Kubectl" ng-click="kubernetesmanage.openKubectl('full')"><i class="fa fa-cubes" aria-hidden="true">kubectl【{{'C3T.功能多'|translate}}】</i></button>
                 </div>
             </div>
         </div>
@@ -111,7 +111,7 @@
                      <button class="btn btn-info" ng-click="kubernetesmanage.showApp('all')">
                         <i ng-if="kubernetesmanage.showapp==='all'" class="fa fa-envelope-open" aria-hidden="true"></i>
                         <i ng-if="!(kubernetesmanage.showapp==='all')" class="fa fa-envelope-o" aria-hidden="true"></i>
-                        显示全部<a style="color: #FFF;" >{{kubernetesmanage.showAppCount['all']}}</a>
+                        {{'C3T.显示全部'|translate}}<a style="color: #FFF;" >{{kubernetesmanage.showAppCount['all']}}</a>
                     </button>
                   </div>
                 </div>
@@ -126,8 +126,8 @@
 
             <div class="panel-heading">
                 <span class="panel-controls">
-                    <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD) }" ></i>刷新</button>
-                <button class="btn btn-info" uib-tooltip="创建Ingress" ng-click="kubernetesmanage.createIngress(kubernetesmanage.selectednamespace,'')"><i class="fa fa-plus" aria-hidden="true">创建</i></button>
+                    <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD) }" ></i>{{'C3T.刷新'|translate}}</button>
+                <button class="btn btn-info" uib-tooltip="创建Ingress" ng-click="kubernetesmanage.createIngress(kubernetesmanage.selectednamespace,'')"><i class="fa fa-plus" aria-hidden="true">{{'C3T.创建'|translate}}</i></button>
                 </span>
                 <h4 style="font-weight: bold;color: #337ab7">Ingress({{kubernetesmanage.ingressCount||0}})
                 </h4>
@@ -137,8 +137,8 @@
               <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesmanage.ingressTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'名称'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">
+                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">
                             <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="kubernetesmanage.createIngress(m.NAMESPACE,m.NAME)" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
                             {{m.NAME}}
                         </td>
@@ -150,7 +150,7 @@
                         </td>
                         <td data-title="'PORTS'" width="80" filter="{ PORTS: 'text'}" sortable="'PORTS'">{{m.PORTS}}</td>
                         <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
-                        <td data-title="'操作'" width="80" >
+                        <td data-title="'C3T.操作'|translate" width="80" >
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describeingress('ingress',m.NAME,m.NAMESPACE)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('ingress',m.NAME,m.NAMESPACE)" uib-tooltip="编辑yaml" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesmanage.deleteApp('ingress',m.NAME,m.NAMESPACE)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
@@ -168,8 +168,8 @@
 
             <div class="panel-heading">
                 <span class="panel-controls">
-                    <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD) }" ></i>刷新</button>
-                <button class="btn btn-info" uib-tooltip="创建Service" ng-click="kubernetesmanage.createService(kubernetesmanage.selectednamespace,'')"><i class="fa fa-plus" aria-hidden="true">创建</i></button>
+                    <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD) }" ></i>{{'C3T.刷新'|translate}}</button>
+                <button class="btn btn-info" uib-tooltip="创建Service" ng-click="kubernetesmanage.createService(kubernetesmanage.selectednamespace,'')"><i class="fa fa-plus" aria-hidden="true">{{'C3T.创建'|translate}}</i></button>
                 </span>
                 <h4 style="font-weight: bold;color: #337ab7">Service({{kubernetesmanage.serviceCount||0}})</h4>
             </div>
@@ -177,8 +177,8 @@
               <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesmanage.serviceTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'名称'" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">
+                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">
                             <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="kubernetesmanage.createService(m.NAMESPACE,m.INAME)" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
                             {{m.INAME}}
                         </td>
@@ -188,7 +188,7 @@
                         <td data-title="'PORT(S)'" width="80" filter="{ PORT_S_: 'text'}" sortable="'PORT_S_'">{{m.PORT_S_}}</td>
                         <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
                         <td data-title="'SELECTOR'" width="80" filter="{ SELECTOR: 'text'}" sortable="'SELECTOR'">{{m.SELECTOR}}</td>
-                        <td data-title="'操作'" width="80" >
+                        <td data-title="'C3T.操作'|translate" width="80" >
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describeservice('service',m.INAME,m.NAMESPACE)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('service',m.INAME,m.NAMESPACE)" uib-tooltip="编辑yaml" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesmanage.deleteApp('service',m.INAME,m.NAMESPACE)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
@@ -206,8 +206,8 @@
 
             <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD)}" ></i>刷新</button>
-                <button class="btn btn-info" uib-tooltip="创建无状态应用" ng-click="kubernetesmanage.createDeployment(kubernetesmanage.selectednamespace,'')"><i class="fa fa-plus" aria-hidden="true">创建</i></button>
+                <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD)}" ></i>{{'C3T.刷新'|translate}}</button>
+                <button class="btn btn-info" uib-tooltip="创建无状态应用" ng-click="kubernetesmanage.createDeployment(kubernetesmanage.selectednamespace,'')"><i class="fa fa-plus" aria-hidden="true">{{'C3T.创建'|translate}}</i></button>
             </span>
                 <h4 ng-if="kubernetesmanage.selecteCluster.auth==='ns'" style="font-weight: bold;color: #337ab7">Deployment({{kubernetesmanage.deploymentCount||0}})</h4>
                 <h4 ng-if="kubernetesmanage.selecteCluster.auth!=='ns'" style="font-weight: bold;color: #337ab7">Deployment({{kubernetesmanage.deploymentCount||0}})<a>:READY({{ kubernetesmanage.deploymentReady||0}}) </a></h4>
@@ -217,8 +217,8 @@
 
                 <table ng-table="kubernetesmanage.deploymentTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'名称'" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">
+                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">
 
                             <i class="fa fa-location-arrow fa-2x" aria-hidden="true" ng-click="kubernetesmanage.setimage('deployment',m.INAME,m.NAMESPACE,m.IMAGES,m.CONTAINERS)" uib-tooltip="升级" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-life-ring fa-2x" aria-hidden="true" ng-click="kubernetesmanage.rollback('deployment',m.INAME,m.NAMESPACE,m.IMAGES,m.CONTAINERS)" uib-tooltip="回滚" style="cursor:pointer;color: #339094;" ></i>
@@ -244,7 +244,7 @@
 
                             <i ng-if="kubernetesmanage.hpa[m.NAMESPACE][m.NAME]" class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesmanage.deleteApp('hpa',kubernetesmanage.hpa[m.NAMESPACE][m.NAME]['NAME'],m.NAMESPACE)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
                         </td>
-                        <td data-title="'发布流水线'" width="80" class="text-center">
+                        <td data-title="'C3T.发布流水线'|translate" width="80" class="text-center">
                             <div ng-repeat="xx in kubernetesmanage.flowlineinfo['deployment'][m.NAMESPACE][m.INAME]">
                                 {{xx.name}}
                                 <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.gotoflowline(xx.groupid, xx.id)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
@@ -256,7 +256,7 @@
                         <td data-title="'CONTAINERS'" width="80" filter="{ CONTAINERS: 'text'}" sortable="'CONTAINERS'">{{m.CONTAINERS}}</td>
                         <td data-title="'IMAGES'" width="80" filter="{ IMAGES: 'text'}" sortable="'IMAGES'"><a uib-tooltip="{{m.IMAGES}}" >{{m.IMAGES|cut}}</a></td>
                         <td data-title="'SELECTOR'" width="80" filter="{ SELECTOR: 'text'}" sortable="'SELECTOR'">{{m.SELECTOR}}</td>
-                        <td data-title="'操作'" width="80" >
+                        <td data-title="'C3T.操作'|translate" width="80" >
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describedeployment('deployment',m.INAME,m.NAMESPACE)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('deployment',m.INAME,m.NAMESPACE)" uib-tooltip="编辑yaml" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesmanage.deleteApp('deployment',m.INAME,m.NAMESPACE)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
@@ -274,8 +274,8 @@
 
             <div class="panel-heading">
                 <span class="panel-controls">
-                    <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD) }" ></i>刷新</button>
-                    <button class="btn btn-info" uib-tooltip="创建守护进程集" ng-click="kubernetesmanage.createDaemonSet(kubernetesmanage.selectednamespace,'')"><i class="fa fa-plus" aria-hidden="true">创建</i></button>
+                    <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD) }" ></i>{{'C3T.刷新'|translate}}</button>
+                    <button class="btn btn-info" uib-tooltip="创建守护进程集" ng-click="kubernetesmanage.createDaemonSet(kubernetesmanage.selectednamespace,'')"><i class="fa fa-plus" aria-hidden="true">{{'C3T.创建'|translate}}</i></button>
                 </span>
 
                 <h4 ng-if="kubernetesmanage.selecteCluster.auth==='ns'" style="font-weight: bold;color: #337ab7">DaemonSet({{kubernetesmanage.daemonsetCount||0}}) </h4>
@@ -291,8 +291,8 @@
               <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesmanage.daemonsetTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'名称'" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">
+                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">
 
                             <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="kubernetesmanage.createDaemonSet(m.NAMESPACE,m.INAME)" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
                             {{m.INAME}}
@@ -306,7 +306,7 @@
                         <td data-title="'CONTAINERS'" width="80" filter="{ CONTAINERS: 'text'}" sortable="'CONTAINERS'">{{m.CONTAINERS}}</td>
                         <td data-title="'IMAGES'" width="80" filter="{ IMAGES: 'text'}" sortable="'IMAGES'"><a uib-tooltip="{{m.IMAGES}}" >{{m.IMAGES|cut}}</a></td>
                         <td data-title="'SELECTOR'" width="80" filter="{ SELECTOR: 'text'}" sortable="'SELECTOR'">{{m.SELECTOR}}</td>
-                        <td data-title="'操作'" width="80" >
+                        <td data-title="'C3T.操作'|translate" width="80" >
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describe('daemonset',m.INAME,m.NAMESPACE)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('daemonset',m.INAME,m.NAMESPACE)" uib-tooltip="编辑yaml" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesmanage.deleteApp('daemonset',m.INAME,m.NAMESPACE)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
@@ -324,7 +324,7 @@
 
             <div class="panel-heading">
                 <span class="panel-controls">
-                    <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD) }" ></i>刷新</button>
+                    <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD) }" ></i>{{'C3T.刷新'|translate}}</button>
                 </span>
                 <h4 ng-if="kubernetesmanage.selecteCluster.auth==='ns'" style="font-weight: bold;color: #337ab7">Pod({{kubernetesmanage.podCount||0}}) </h4>
                 <h4 ng-if="kubernetesmanage.selecteCluster.auth!=='ns'" style="font-weight: bold;color: #337ab7">Pod({{kubernetesmanage.podCount||0}})
@@ -342,8 +342,8 @@
               <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesmanage.podTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'名称'" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">
+                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">
                             <i class="fa fa-television fa-2x" aria-hidden="true" ng-click="kubernetesmanage.openOneTab(m,'sh')" uib-tooltip="进入POD虚拟终端" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-file-text-o fa-2x" aria-hidden="true" ng-click="kubernetesmanage.openOneTab(m,'log')" uib-tooltip="查看POD日志" style="cursor:pointer;color: #339094;" ></i>
                             {{m.INAME}}
@@ -362,7 +362,7 @@
                         <td data-title="'NODE'" width="80" filter="{ NODE: 'text'}" sortable="'NODE'">{{m.NODE}}</td>
                         <td data-title="'NOMINATED NODE'" width="80" filter="{ NOMINATED_NODE: 'text'}" sortable="'NOMINATED_NODE'">{{m.NOMINATED_NODE}}</td>
                         <td data-title="'READINESS GATES'" width="80" filter="{ READINESS_GATES: 'text'}" sortable="'READINESS_GATES'">{{m.READINESS_GATES}}</td>
-                        <td data-title="'操作'" width="80" >
+                        <td data-title="'C3T.操作'|translate" width="80" >
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describe('pod',m.INAME,m.NAMESPACE)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
 
                             <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('pod',m.INAME,m.NAMESPACE)" uib-tooltip="编辑yaml" style="cursor:pointer;color: #339094;" ></i>
@@ -382,7 +382,7 @@
 
             <div class="panel-heading">
                 <span class="panel-controls">
-                    <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD) }" ></i>刷新</button>
+                    <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD) }" ></i>{{'C3T.刷新'|translate}}</button>
                 </span>
                 <h4 ng-if="kubernetesmanage.selecteCluster.auth==='ns'" style="font-weight: bold;color: #337ab7">Replicaset({{kubernetesmanage.replicasetCount||0}}) </h4>
                 <h4 ng-if="kubernetesmanage.selecteCluster.auth!=='ns'" style="font-weight: bold;color: #337ab7">Replicaset({{kubernetesmanage.replicasetCount||0}})
@@ -396,8 +396,8 @@
               <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesmanage.replicasetTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'名称'" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">{{m.INAME}}</td>
+                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">{{m.INAME}}</td>
                         <td data-title="'DESIRED'" width="80" filter="{ DESIRED: 'text'}" sortable="'DESIRED'">{{m.DESIRED}}</td>
                         <td data-title="'CURRENT'" width="80" filter="{ CURRENT: 'text'}" sortable="'CURRENT'">{{m.CURRENT}}</td>
                         <td data-title="'READY'" width="80" filter="{ READY: 'text'}" sortable="'READY'">{{m.READY}}</td>
@@ -405,7 +405,7 @@
                         <td data-title="'CONTAINERS'" width="80" filter="{ CONTAINERS: 'text'}" sortable="'CONTAINERS'">{{m.CONTAINERS}}</td>
                         <td data-title="'IMAGES'" width="80" filter="{ IMAGES: 'text'}" sortable="'IMAGES'"><a uib-tooltip="{{m.IMAGES}}" >{{m.IMAGES|cut}}</a></td>
                         <td data-title="'SELECTOR'" width="80" filter="{ SELECTOR: 'text'}" sortable="'SELECTOR'">{{m.SELECTOR}}</td>
-                        <td data-title="'操作'" width="80" >
+                        <td data-title="'C3T.操作'|translate" width="80" >
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describe('replicaset',m.INAME,m.NAMESPACE)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('replicaset',m.INAME,m.NAMESPACE)" uib-tooltip="编辑yaml" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesmanage.deleteApp('replicaset',m.INAME,m.NAMESPACE)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
@@ -423,8 +423,8 @@
 
             <div class="panel-heading">
                 <span class="panel-controls">
-                    <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD) }" ></i>刷新</button>
-                    <button class="btn btn-info" uib-tooltip="创建HPA" ng-click="kubernetesmanage.createHpa('','',kubernetesmanage.selectednamespace)"><i class="fa fa-plus" aria-hidden="true">创建</i></button>
+                    <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD) }" ></i>{{'C3T.刷新'|translate}}</button>
+                    <button class="btn btn-info" uib-tooltip="创建HPA" ng-click="kubernetesmanage.createHpa('','',kubernetesmanage.selectednamespace)"><i class="fa fa-plus" aria-hidden="true">{{'C3T.创建'|translate}}</i></button>
                 </span>
                 <h4 style="font-weight: bold;color: #337ab7">HPA({{kubernetesmanage.hpaCount||0}})
                 </h4>
@@ -434,8 +434,8 @@
               <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesmanage.hpaTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'名称'" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">
+                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">
                             <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="kubernetesmanage.editHpa(m.NAMESPACE,m.INAME)" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
                             {{m.INAME}}
                         </td>
@@ -445,7 +445,7 @@
                         <td data-title="'MAXPODS'" width="80" filter="{ MAXPODS: 'text'}" sortable="'MAXPODS'">{{m.MAXPODS}}</td>
                         <td data-title="'REPLICAS'" width="80" filter="{ REPLICAS: 'text'}" sortable="'REPLICAS'">{{m.REPLICAS}}</td>
                         <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
-                        <td data-title="'操作'" width="80" >
+                        <td data-title="'C3T.操作'|translate" width="80" >
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describe('hpa',m.INAME,m.NAMESPACE)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('hpa',m.INAME,m.NAMESPACE)" uib-tooltip="编辑yaml" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesmanage.deleteApp('hpa',m.INAME,m.NAMESPACE)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
@@ -463,7 +463,7 @@
 
             <div class="panel-heading">
                 <span class="panel-controls">
-                    <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD) }" ></i>刷新</button>
+                    <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD) }" ></i>{{'C3T.刷新'|translate}}</button>
                 </span>
                 <h4 style="font-weight: bold;color: #337ab7">Endpoint({{kubernetesmanage.endpointCount||0}})
                 </h4>
@@ -473,14 +473,14 @@
               <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesmanage.endpointTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'名称'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">{{m.NAME}}</td>
+                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">{{m.NAME}}</td>
                         <td data-title="'ENDPOINTS'" width="80" filter="{ ENDPOINTS: 'text'}" sortable="'ENDPOINTS'">
                             <a ng-if="m.ENDPOINTS==='<none>'" style="color: red" >{{m.ENDPOINTS}}<a>
                             <a ng-if="m.ENDPOINTS!=='<none>'">{{m.ENDPOINTS}}<a>
                         </td>
                         <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
-                        <td data-title="'操作'" width="80" >
+                        <td data-title="'C3T.操作'|translate" width="80" >
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describe('endpoints',m.NAME,m.NAMESPACE)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('endpoints',m.NAME,m.NAMESPACE)" uib-tooltip="编辑yaml" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesmanage.deleteApp('endpoints',m.NAME,m.NAMESPACE)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
@@ -497,7 +497,7 @@
 
             <div class="panel-heading">
                 <span class="panel-controls">
-                    <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD) }" ></i>刷新</button>
+                    <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD) }" ></i>{{'C3T.刷新'|translate}}</button>
                 </span>
                 <h4 style="font-weight: bold;color: #337ab7">Job.Batch({{kubernetesmanage.jobbatchCount||0}})
                 </h4>
@@ -507,15 +507,15 @@
               <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesmanage.jobbatchTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'名称'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">{{m.NAME}}</td>
+                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">{{m.NAME}}</td>
                         <td data-title="'COMPLETIONS'" width="80" filter="{ COMPLETIONS: 'text'}" sortable="'COMPLETIONS'">{{m.COMPLETIONS}}</td>
                         <td data-title="'DURATION'" width="80" filter="{ DURATION: 'text'}" sortable="'DURATION'">{{m.DURATION}}</td>
                         <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
                         <td data-title="'CONTAINERS'" width="80" filter="{ CONTAINERS: 'text'}" sortable="'CONTAINERS'">{{m.CONTAINERS}}</td>
                         <td data-title="'IMAGES'" width="80" filter="{ IMAGES: 'text'}" sortable="'IMAGES'"><a uib-tooltip="{{m.IMAGES}}" >{{m.IMAGES|cut}}</a></td>
                         <td data-title="'SELECTOR'" width="80" filter="{ SELECTOR: 'text'}" sortable="'SELECTOR'">{{m.SELECTOR}}</td>
-                        <td data-title="'操作'" width="80" >
+                        <td data-title="'C3T.操作'|translate" width="80" >
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describe('job',m.INAME,m.NAMESPACE)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('job',m.INAME,m.NAMESPACE)" uib-tooltip="编辑yaml" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesmanage.deleteApp('job',m.INAME,m.NAMESPACE)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
@@ -535,7 +535,7 @@
 
             <div class="panel-heading">
                 <span class="panel-controls">
-                    <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD) }" ></i>刷新</button>
+                    <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD) }" ></i>{{'C3T.刷新'|translate}}</button>
                 </span>
                 <h4 style="font-weight: bold;color: #337ab7">CronJob.Batch({{kubernetesmanage.cronjobbatchCount||0}})
                 </h4>
@@ -545,8 +545,8 @@
               <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesmanage.cronjobbatchTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'名称'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">{{m.NAME}}</td>
+                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">{{m.NAME}}</td>
                         <td data-title="'SCHEDULE'" width="80">{{m.SCHEDULE1}} {{m.SCHEDULE2}} {{m.SCHEDULE3}} {{m.SCHEDULE4}} {{m.SCHEDULE5}}</td>
                         <td data-title="'SUSPEND'" width="80" filter="{ SUSPEND: 'text'}" sortable="'SUSPEND'">{{m.SUSPEND}}</td>
                         <td data-title="'ACTIVE'" width="80" filter="{ ACTIVE: 'text'}" sortable="'ACTIVE'">{{m.ACTIVE}}</td>
@@ -555,7 +555,7 @@
                         <td data-title="'CONTAINERS'" width="80" filter="{ CONTAINERS: 'text'}" sortable="'CONTAINERS'">{{m.CONTAINERS}}</td>
                         <td data-title="'IMAGES'" width="80" filter="{ IMAGES: 'text'}" sortable="'IMAGES'"><a uib-tooltip="{{m.IMAGES}}" >{{m.IMAGES|cut}}</a></td>
                         <td data-title="'SELECTOR'" width="80" filter="{ SELECTOR: 'text'}" sortable="'SELECTOR'">{{m.SELECTOR}}</td>
-                        <td data-title="'操作'" width="80" >
+                        <td data-title="'C3T.操作'|translate" width="80" >
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describe('cronjob',m.INAME,m.NAMESPACE)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('cronjob',m.INAME,m.NAMESPACE)" uib-tooltip="编辑yaml" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesmanage.deleteApp('cronjob',m.INAME,m.NAMESPACE)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
@@ -573,7 +573,7 @@
 
             <div class="panel-heading">
                 <span class="panel-controls">
-                    <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD) }" ></i>刷新</button>
+                    <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD) }" ></i>{{'C3T.刷新'|translate}}</button>
                 </span>
                 <h4 style="font-weight: bold;color: #337ab7">StatefulSet({{kubernetesmanage.statefulsetCount||0}})
                 </h4>
@@ -583,13 +583,13 @@
               <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesmanage.statefulsetTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'名称'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">{{m.NAME}}</td>
+                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">{{m.NAME}}</td>
                         <td data-title="'READY'" width="80" filter="{ READY: 'text'}" sortable="'READY'">{{m.READY}}</td>
                         <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
                         <td data-title="'CONTAINERS'" width="80" filter="{ CONTAINERS: 'text'}" sortable="'CONTAINERS'">{{m.CONTAINERS}}</td>
                         <td data-title="'IMAGES'" width="80" filter="{ IMAGES: 'text'}" sortable="'IMAGES'"><a uib-tooltip="{{m.IMAGES}}" >{{m.IMAGES|cut}}</a></td>
-                        <td data-title="'操作'" width="80" >
+                        <td data-title="'C3T.操作'|translate" width="80" >
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describe('statefulset',m.INAME,m.NAMESPACE)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('statefulset',m.INAME,m.NAMESPACE)" uib-tooltip="编辑yaml" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesmanage.deleteApp('statefulset',m.INAME,m.NAMESPACE)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
@@ -606,7 +606,7 @@
 
             <div class="panel-heading">
                 <span class="panel-controls">
-                    <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD) }" ></i>刷新</button>
+                    <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD) }" ></i>{{'C3T.刷新'|translate}}</button>
                 </span>
                 <h4 style="font-weight: bold;color: #337ab7">Ingressroute({{kubernetesmanage.ingressrouteCount||0}})
                 </h4>
@@ -616,10 +616,10 @@
               <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesmanage.ingressrouteTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'名称'" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">{{m.INAME}}</td>
+                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">{{m.INAME}}</td>
                         <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
-                        <td data-title="'操作'" width="80" >
+                        <td data-title="'C3T.操作'|translate" width="80" >
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describe('ingressroute',m.INAME,m.NAMESPACE)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('ingressroute',m.INAME,m.NAMESPACE)" uib-tooltip="编辑yaml" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesmanage.deleteApp('ingressroute',m.INAME,m.NAMESPACE)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
@@ -636,7 +636,7 @@
 
             <div class="panel-heading">
                 <span class="panel-controls">
-                    <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD) }" ></i>刷新</button>
+                    <button class="btn btn-info" uib-tooltip="刷新" ng-click="kubernetesmanage.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':(!kubernetesmanage.loadoverA ) || (!kubernetesmanage.loadoverB) || (!kubernetesmanage.loadoverC) || (!kubernetesmanage.loadoverD) }" ></i>{{'C3T.刷新'|translate}}</button>
                 </span>
                 <h4 style="font-weight: bold;color: #337ab7">Ingressroutetcp({{kubernetesmanage.ingressroutetcpCount||0}})
                 </h4>
@@ -646,10 +646,10 @@
               <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesmanage.ingressroutetcpTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'命名空间'" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'名称'" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">{{m.INAME}}</td>
+                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">{{m.INAME}}</td>
                         <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
-                        <td data-title="'操作'" width="80" >
+                        <td data-title="'C3T.操作'|translate" width="80" >
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describe('ingressroutetcp',m.INAME,m.NAMESPACE)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('ingressroutetcp',m.INAME,m.NAMESPACE)" uib-tooltip="编辑yaml" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesmanage.deleteApp('ingressroutetcp',m.INAME,m.NAMESPACE)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>

@@ -5,7 +5,7 @@
                 <button class="btn btn-primary" uib-tooltip="刷新" ng-click="kubernetesedithpa.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetesedithpa.loadover}" ></i></button>
                 <button class="btn btn-primary" uib-tooltip="关闭" ng-click="kubernetesedithpa.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
             </span>
-            <h5>HPA编辑</h5>
+            <h5>HPA {{'C3T.编辑'|translate}}</h5>
         </div>
 
         <div class="panel-body" ng-if="editstep===0">
@@ -22,7 +22,7 @@
 
             <div class="row">
                 <div class="col-sm-2 form-group pull-right">
-                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetesedithpa.gotostep1()">下一步</button>
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetesedithpa.gotostep1()">{{'C3T.下一步'|translate}}</button>
                 </div>
             </div>
         </div>
@@ -31,7 +31,7 @@
 
             <div class="row">
                 <div class="col-sm-12 form-group">
-                    <label class="col-sm-1 control-label">命名空间</label>
+                    <label class="col-sm-1 control-label">{{'C3T.命名空间'|translate}}</label>
                     <div class="col-sm-6">
                         <input ng-disabled="1" type="text" class="form-control" name="adduser" placeholder="名称" ng-disabled="kubernetesedithpa.tasktype==='apply'" ng-model="kubernetesedithpa.editData.metadata.namespace" required>
                     </div>
@@ -41,7 +41,7 @@
 
             <div class="row">
                 <div class="col-sm-12 form-group">
-                    <label class="col-sm-1 control-label">名称</label>
+                    <label class="col-sm-1 control-label">{{'C3T.名称'|translate}}</label>
                     <div class="col-sm-6">
                         <input type="text" class="form-control" name="adduser" placeholder="名称" ng-disabled="kubernetesedithpa.tasktype==='apply'" ng-model="kubernetesedithpa.editData.metadata.name" ng-mouseenter="kubernetesedithpa.namedemoin()" ng-mouseleave="kubernetesedithpa.namedemoout()" required>
                     </div>
@@ -52,7 +52,7 @@
 
            <div class="row">
                 <div class="col-sm-12 form-group">
-                    <label class="col-sm-1 control-label">CPU阈值</label>
+                    <label class="col-sm-1 control-label">CPU {{'C3T.阈值'|translate}}</label>
                     <div class="col-sm-1">
                         <input type="number" class="form-control" name="adduser" placeholder="CPU阈值" ng-model="kubernetesedithpa.editData.spec.targetCPUUtilizationPercentage" required>
                     </div>
@@ -61,7 +61,7 @@
 
             <div class="row">
                 <div class="col-sm-12 form-group">
-                    <label class="col-sm-1 control-label">副本数量</label>
+                    <label class="col-sm-1 control-label">{{'C3T.副本数量'|translate}}</label>
                     <div class="col-sm-1">
                         <input type="number" class="form-control" name="adduser" placeholder="最小副本数量" ng-model="kubernetesedithpa.editData.spec.minReplicas" required>
                     </div>
@@ -77,7 +77,7 @@
 
             <div class="row">
                 <div class="col-sm-2 form-group pull-right">
-                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetesedithpa.gotostep2()">下一步</button>
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetesedithpa.gotostep2()">{{'C3T.下一步'|translate}}</button>
                 </div>
             </div>
 
@@ -86,7 +86,7 @@
         <div class="panel-body" ng-if="editstep===2">
             <div class="row">
                 <div class="col-sm-2 form-group pull-right">
-                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetesedithpa.gotostep1()">返回上一步</button>
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetesedithpa.gotostep1()">{{'C3T.返回上一步'|translate}}</button>
                 </div>
             </div>
             <div class="pt20">
@@ -105,8 +105,8 @@
 
             <div class="row">
                 <div class="col-sm-2 form-group pull-right">
-                    <button class="btn btn-info" ng-disabled="myForm.$invalid" ng-click="kubernetesedithpa.assignment()">操作协助</button>
-                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetesedithpa.apply()">提交变更</button>
+                    <button class="btn btn-info" ng-disabled="myForm.$invalid" ng-click="kubernetesedithpa.assignment()">{{'C3T.操作协助'|translate}}</button>
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetesedithpa.apply()">{{'C3T.提交变更'|translate}}</button>
                 </div>
             </div>
         </div>
