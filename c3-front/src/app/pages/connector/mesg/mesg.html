@@ -5,15 +5,15 @@
             <span class="panel-controls">
                 <button class="btn btn-primary" uib-tooltip="刷新" ng-click="connectormesg.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!connectormesg.loadover}" ></i></button>
             </span>
-            <h5>给我的短信</h5>
+            <h5>{{'C3T.给我的短信'|translate}}</h5>
         </div>
 
         <div class="panel-body">
             <div class="panel-tabs">
                 <table ng-table="connectormesg.mesgTable" class="table table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="d in $data">
-                        <td style="width: 10%" data-title="'时间'" filter="{ time: 'text'}" sortable="'time'">{{d.time}}</td>
-                        <td style="width: 70%" data-title="'内容'" filter="{ mesg: 'text'}" sortable="'mesg'">{{d.mesg}}</td>
+                        <td style="width: 10%" data-title="'C3T.时间'|translate" filter="{ time: 'text'}" sortable="'time'">{{d.time}}</td>
+                        <td style="width: 70%" data-title="'C3T.内容'|translate" filter="{ mesg: 'text'}" sortable="'mesg'">{{d.mesg}}</td>
                     </tr>
                 </table>
             </div>

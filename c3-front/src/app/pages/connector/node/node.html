@@ -7,7 +7,7 @@
                 <div class="form-group" ng-init="username=''">
                     <input type="text" class="form-control" ng-model="nodename"  placeholder="机器ip" required>
                 </div>
-                <button type="submit" ng-disabled="myForm.$invalid" class="btn btn-primary" ng-click="connectornode.addNode()"><i class="fa fa-desktop fa-lg" aria-hidden="true"></i>添加机器</button>
+                <button type="submit" ng-disabled="myForm.$invalid" class="btn btn-primary" ng-click="connectornode.addNode()"><i class="fa fa-desktop fa-lg" aria-hidden="true"></i>{{'C3T.添加机器'|translate}}</button>
             </form>
         </div>
         <div style="clear: both;">&nbsp;</div>
@@ -18,20 +18,20 @@
             <span class="panel-controls">
                 <button class="btn btn-primary" uib-tooltip="刷新" ng-click="connectornode.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!connectornode.loadover}" ></i></button>
             </span>
-            <h5>服务器资源</h5>
+            <h5>{{'C3T.服务器资源'|translate}}</h5>
         </div>
 
         <div class="panel-body">
             <div class="panel-tabs">
                 <table ng-table="connectornode.nodeTable" class="table table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td style="width: 10%" data-title="'机器名称'" filter="{ name: 'text'}" sortable="'name'">{{m.name}}</td>
-                        <td style="width: 10%" data-title="'创建人'" filter="{ create_user: 'text'}" sortable="'create_user'">{{m.create_user}}</td>
-                        <td style="width: 10%" data-title="'内网IP'" filter="{ inip: 'text'}" sortable="'inip'">{{m.inip}}</td>
-                        <td style="width: 10%" data-title="'外网IP'" filter="{ exip: 'text'}" sortable="'exip'">{{m.exip}}</td>
-                        <td style="width: 10%" data-title="'创建时间'" filter="{ create_time: 'text'}" sortable="'create_time'">{{m.create_time}}</td>
-                        <td style="width: 10%" data-title="'操作'">
-                            <button class="btn btn-primary btn-md" ng-click="connectornode.delete(m.id)">删除</button>
+                        <td style="width: 10%" data-title="'C3T.机器名称'|translate" filter="{ name: 'text'}" sortable="'name'">{{m.name}}</td>
+                        <td style="width: 10%" data-title="'C3T.创建人'|translate" filter="{ create_user: 'text'}" sortable="'create_user'">{{m.create_user}}</td>
+                        <td style="width: 10%" data-title="'C3T.内网IP'|translate" filter="{ inip: 'text'}" sortable="'inip'">{{m.inip}}</td>
+                        <td style="width: 10%" data-title="'C3T.外网IP'|translate" filter="{ exip: 'text'}" sortable="'exip'">{{m.exip}}</td>
+                        <td style="width: 10%" data-title="'C3T.创建时间'|translate" filter="{ create_time: 'text'}" sortable="'create_time'">{{m.create_time}}</td>
+                        <td style="width: 10%" data-title="'C3T.操作'|translate">
+                            <button class="btn btn-primary btn-md" ng-click="connectornode.delete(m.id)">{{'C3T.删除'|translate}}</button>
                         </td>
                     </tr>
                 </table>

@@ -10,7 +10,7 @@
                     <select class="form-control"  ng-model="connectoruserauth.role"  ng-options="o.id as o.name for o in role"  > </select>
                 </div>
 
-                <button type="submit" ng-disabled="!username" class="btn btn-primary" ng-click="connectoruserauth.addAuth()"><i class="fa fa-user-secret fa-lg" aria-hidden="true"></i>添加权限</button>
+                <button type="submit" ng-disabled="!username" class="btn btn-primary" ng-click="connectoruserauth.addAuth()"><i class="fa fa-user-secret fa-lg" aria-hidden="true"></i>{{'C3T.添加权限'|translate}}</button>
             </form>
         </div>
         <div style="clear: both;">&nbsp;</div>
@@ -21,21 +21,21 @@
             <span class="panel-controls">
                 <button class="btn btn-primary" uib-tooltip="刷新" ng-click="connectoruserauth.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!connectoruserauth.loadover}" ></i></button>
             </span>
-            <h5>用户权限:【全局】</h5>
+            <h5>{{'C3T.用户权限'|translate}}:【{{'C3T.全局'|translate}}】</h5>
         </div>
 
         <div class="panel-body">
             <div class="panel-tabs">
                 <table ng-table="connectoruserauth.userTable" class="table table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="user in $data">
-                        <td style="width: 10%" data-title="'用户'" filter="{ name: 'text'}" sortable="'name'">{{user.name}}</td>
-                        <td style="width: 10%" data-title="'级别'" sortable="'level'">
-                            <a ng-if="user.level==1" > 研发 </a>
-                            <a ng-if="user.level==2" style="color: #e52" > 运维 </a>
-                            <a ng-if="user.level==3" style="color: red" > 管理员 </a>
+                        <td style="width: 10%" data-title="'C3T.用户'|translate" filter="{ name: 'text'}" sortable="'name'">{{user.name}}</td>
+                        <td style="width: 10%" data-title="'C3T.级别'|translate" sortable="'level'">
+                            <a ng-if="user.level==1" > {{'C3T.研发'|translate}} </a>
+                            <a ng-if="user.level==2" style="color: #e52" > {{'C3T.运维'|translate}} </a>
+                            <a ng-if="user.level==3" style="color: red" > {{'C3T.管理员'|translate}} </a>
                         </td>
-                        <td style="width: 10%" data-title="'操作'">
-                            <button class="btn btn-primary btn-md" ng-click="connectoruserauth.delete(user.name)">删除</button>
+                        <td style="width: 10%" data-title="'C3T.操作'|translate">
+                            <button class="btn btn-primary btn-md" ng-click="connectoruserauth.delete(user.name)">{{'C3T.删除'|translate}}</button>
                         </td>
                     </tr>
                 </table>
@@ -54,7 +54,7 @@
                     <select class="form-control"  ng-model="connectoruserauth.roleut"  ng-options="o.id as o.name for o in role"  > </select>
                 </div>
 
-                <button type="submit" ng-disabled="!usernameut" class="btn btn-primary" ng-click="connectoruserauth.addut()"><i class="fa fa-user-secret fa-lg" aria-hidden="true"></i>添加权限</button>
+                <button type="submit" ng-disabled="!usernameut" class="btn btn-primary" ng-click="connectoruserauth.addut()"><i class="fa fa-user-secret fa-lg" aria-hidden="true"></i>{{'C3T.添加权限'|translate}}</button>
             </form>
         </div>
         <div style="clear: both;">&nbsp;</div>
@@ -65,7 +65,7 @@
             <span class="panel-controls">
                 <button class="btn btn-primary" uib-tooltip="刷新" ng-click="connectoruserauth.reloadut()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!connectoruserauth.utloadover}" ></i></button>
             </span>
-            <h5>用户权限: 【服务树相关】</h5>
+            <h5>{{'C3T.用户权限'|translate}}: 【{{'C3T.服务树相关'|translate}}】</h5>
         </div>
 
         <div class="panel-body">
@@ -73,16 +73,16 @@
                 <table ng-table="connectoruserauth.utTable" class="table table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="user in $data">
                         <td style="width: 10%" data-title="'ID'" filter="{ id: 'text'}" sortable="'id'">{{user.id}}</td>
-                        <td style="width: 10%" data-title="'用户'" filter="{ name: 'text'}" sortable="'name'">{{user.name}}</td>
-                        <td style="width: 10%" data-title="'服务树ID'" filter="{ tree: 'text'}" sortable="'tree'">{{user.tree}}</td>
-                        <td style="width: 10%" data-title="'服务树名'" filter="{ treename: 'text'}" sortable="'treename'">{{user.treename}}</td>
-                        <td style="width: 10%" data-title="'级别'" sortable="'level'">
-                            <a ng-if="user.level==1" > 研发 </a>
-                            <a ng-if="user.level==2" style="color: #e52" > 运维 </a>
-                            <a ng-if="user.level==3" style="color: red" > 管理员 </a>
+                        <td style="width: 10%" data-title="'C3T.用户'|translate" filter="{ name: 'text'}" sortable="'name'">{{user.name}}</td>
+                        <td style="width: 10%" data-title="'C3T.服务树ID'|translate" filter="{ tree: 'text'}" sortable="'tree'">{{user.tree}}</td>
+                        <td style="width: 10%" data-title="'C3T.服务树名'|translate" filter="{ treename: 'text'}" sortable="'treename'">{{user.treename}}</td>
+                        <td style="width: 10%" data-title="'C3T.级别'|translate" sortable="'level'">
+                            <a ng-if="user.level==1" > {{'C3T.研发'|translate}} </a>
+                            <a ng-if="user.level==2" style="color: #e52" > {{'C3T.运维'|translate}} </a>
+                            <a ng-if="user.level==3" style="color: red" > {{'C3T.管理员'|translate}} </a>
                         </td>
-                        <td style="width: 10%" data-title="'操作'">
-                            <button class="btn btn-primary btn-md" ng-click="connectoruserauth.deleteut(user.id)">删除</button>
+                        <td style="width: 10%" data-title="'C3T.操作'|translate">
+                            <button class="btn btn-primary btn-md" ng-click="connectoruserauth.deleteut(user.id)">{{'C3T.删除'|translate}}</button>
                         </td>
                     </tr>
                 </table>
