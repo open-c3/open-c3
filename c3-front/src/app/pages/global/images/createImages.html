@@ -2,9 +2,9 @@
     <div class="panel panel-primary">
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-primary" uib-tooltip="关闭" ng-click="createimages.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.关闭'|translate}}" ng-click="createimages.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
             </span>
-            <h5>{{createimages.title}}</h5>
+            <h5>{{createimages.title|translate}}</h5>
         </div>
         <div class="panel-body">
             <div class="pt20">
@@ -13,7 +13,7 @@
                         <form class="form-horizontal" name="myForm" novalidate>
                                <div class="row" ng-show="createimages.title=='编辑镜像'">
                                     <div class="col-sm-10 form-group">
-                                        <label class="col-sm-3 control-label">编号</label>
+                                        <label class="col-sm-3 control-label">{{'C3T.编号'|translate}}</label>
                                         <div class="col-sm-9">
                                             <input type="text" disabled="disabled" class="form-control" name="addGroup" ng-minlength="2" ng-model="createimages.postData.id">
                                         </div>
@@ -22,7 +22,7 @@
 
                                <div class="row" ng-show="!createimages.ciid">
                                     <div class="col-sm-10 form-group">
-                                        <label class="col-sm-3 control-label">名称</label>
+                                        <label class="col-sm-3 control-label">{{'C3T.名称'|translate}}</label>
                                         <div class="col-sm-9">
                                             <input type="text" class="form-control" name="addGroup" ng-minlength="2" ng-model="createimages.postData.name" required>
                                         </div>
@@ -30,7 +30,7 @@
                                 </div>
                                 <div class="row" ng-show="!createimages.ciid">
                                     <div class="col-sm-10 form-group">
-                                        <label class="col-sm-3 control-label">描述</label>
+                                        <label class="col-sm-3 control-label">{{'C3T.描述'|translate}}</label>
                                         <div class="col-sm-9">
                                             <input type="text" class="form-control" name="addGroup" ng-minlength="2" ng-model="createimages.postData.describe" required>
                                         </div>
@@ -38,21 +38,21 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-sm-10 form-group">
-                                        <label class="col-sm-3 control-label">授权</label>
+                                        <label class="col-sm-3 control-label">{{'C3T.授权'|translate}}</label>
                                         <div class="col-sm-9">
                                             <div class="admin-form">
                                                 <div class="option-group field" >
                                                     <label class="option option-primary">
                                                         <input type="radio" ng-model="createimages.postData.share" value="private" >
-                                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>仅个人可见
+                                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.仅个人可见'|translate}}
                                                     </label>
                                                     <label class="option option-primary">
                                                         <input type="radio" ng-model="createimages.postData.share" value="team" >
-                                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>共享给组内人员
+                                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.共享给组内人员'|translate}}
                                                     </label>
                                                     <label class="option option-primary">
                                                         <input type="radio" ng-model="createimages.postData.share" value="public" >
-                                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>公开所有人可见
+                                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.公开所有人可见'|translate}}
                                                     </label>
                                                 </div>
                                             </div>
@@ -65,8 +65,8 @@
                                 <div ng-if="createimages.imagesid" class="row">
                                     <hr>
                                     <div class="col-sm-10 form-group">
-                                        <label class="col-sm-3 control-label">镜像文件信息</label>
-                                        <label ng-if="createimages.uploadstatus.status=='1'" class="col-sm-9 control-label" style="text-align: left" >上传时间:{{createimages.uploadstatus.time}} 镜像大小:{{createimages.bytesToSize(createimages.uploadstatus.size)}}</label>
+                                        <label class="col-sm-3 control-label">{{'C3T.镜像文件信息'|translate}}</label>
+                                        <label ng-if="createimages.uploadstatus.status=='1'" class="col-sm-9 control-label" style="text-align: left" >{{'C3T.上传时间'|translate}}:{{createimages.uploadstatus.time}} {{'C3T.镜像大小'|translate}}:{{createimages.bytesToSize(createimages.uploadstatus.size)}}</label>
                                         <div ng-if="createimages.uploadstatus.status=='0'" class="col-sm-9">
                                             <div class="admin-form">
                                                 <div class="option-group field" >
@@ -74,9 +74,9 @@
                                                         <input type="file" class="newFile" id="choicefilesx" style="display: none" onchange="angular.element(this).scope().upForm()" multiple="multiple" />
                                                         <input type="hidden" name="newFileMsg" data-name=""/>
                                                         <button class="btn btn-primary" ng-click="createimages.clickImport()" >
-                                                            <span class="glyphicon glyphicon-upload" style="padding: 0 3px;"></span>上传镜像
+                                                            <span class="glyphicon glyphicon-upload" style="padding: 0 3px;"></span>{{'C3T.上传镜像'|translate}}
                                                         </button>
-                                                        <a class="glyphicon glyphicon-question-sign" data-toggle="tooltip" data-placement="right" target='_blank' ng-href="/book/我的镜像/" uib-tooltip="看镜像生成方式" aria-hidden="true" style="padding-top: 11px;font-size: larger;">查看镜像生成方式</a>
+                                                        <a class="glyphicon glyphicon-question-sign" data-toggle="tooltip" data-placement="right" target='_blank' ng-href="/book/我的镜像/" uib-tooltip="{{'C3T.看镜像生成方式'|translate}}" aria-hidden="true" style="padding-top: 11px;font-size: larger;">{{'C3T.查看镜像生成方式'|translate}}</a>
                                                     </div>
                                                     <div style="display: none;" id="upload_progressBar_Module">
                                                         <div class="progress">
@@ -94,14 +94,14 @@
                                     <hr>
                                     <div class="panel-body" >
                                         <div style="padding: 10px">
-                                            <span style="font-size: 14px;font-weight: bold; color: #626262">1. 安装AGENT:</span>
+                                            <span style="font-size: 14px;font-weight: bold; color: #626262">1. {{'C3T.安装'|translate}} AGENT:</span>
                                             <span style="color: red">curl -L {{createimages.siteaddr}}/api/scripts/installAgent.sh |sudo OPEN_C3_ADDR={{createimages.siteaddr}} bash </span>
                                         </div>
                                     </div>
  
                                     <div class="panel-body" >
                                         <div style="padding: 10px">
-                                            <span style="font-size: 14px;font-weight: bold; color: #626262">2. 添加公钥:</span>
+                                            <span style="font-size: 14px;font-weight: bold; color: #626262">2. {{'C3T.添加公钥'|translate}}:</span>
                                             <span style="color: red">wget {{createimages.siteaddr}}/api/ci/images/{{createimages.imagesid}}/sshkey.pub -O /opt/mydan/etc/agent/auth/c3_ci_{{createimages.imagesid}}.pub </span>
                                         </div>
                                     </div>
@@ -109,7 +109,7 @@
 
                                 <div class="row" ng-show="createimages.type!='show'">
                                     <div class="col-sm-5 form-group pull-right">
-                                        <button class="btn btn-primary" ng-disabled="!( createimages.postData.describe && createimages.postData.name )" ng-click="createimages.saveImages()">保存镜像</button>
+                                        <button class="btn btn-primary" ng-disabled="!( createimages.postData.describe && createimages.postData.name )" ng-click="createimages.saveImages()">{{'C3T.保存镜像'|translate}}</button>
                                     </div>
                                 </div>
                         </form>

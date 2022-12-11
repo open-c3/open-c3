@@ -431,6 +431,11 @@
                 name = labels['cache_cluster_id'];
             }
 
+            if( labels['dbinstance_identifier'] )
+            {
+                name = labels['dbinstance_identifier'];
+            }
+
             return name;
         };
 

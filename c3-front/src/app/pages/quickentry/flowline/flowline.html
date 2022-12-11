@@ -5,14 +5,14 @@
     <div>
         <div style="float: left;">
             <form class="form-inline" name="myForm" novalidate>
-                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="cigroup.addFavorites()"><i class="fa fa-search fa-lg" aria-hidden="true"></i>查找流水线</button>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="cigroup.addFavorites()"><i class="fa fa-search fa-lg" aria-hidden="true"></i>{{'C3T.查找流水线'|translate}}</button>
             </form>
         </div>
  
         <div style="float: right;">
             <form class="form-inline" name="myForm" novalidate>
-                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="cigroup.createProject()"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i> 新建空白流水线</button>
-                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="cigroup.createProjectByTemplate()"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i> 通过模版建流水线</button>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="cigroup.createProject()"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i>{{'C3T.新建空白流水线'|translate}}</button>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="cigroup.createProjectByTemplate()"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i>{{'C3T.通过模版建流水线'|translate}}</button>
             </form>
         </div>
         <div style="clear: both;">&nbsp;</div>
@@ -23,34 +23,34 @@
     <div class="panel panel-primary">
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="cigroup.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!cigroup.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="cigroup.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!cigroup.loadover}" ></i></button>
             </span>
-            <h5>本节点流水线数量:{{cigroup.flowlinecount}}</h5>
+            <h5>{{'C3T.本节点流水线数量'|translate}}:{{cigroup.flowlinecount}}</h5>
         </div>
 
         <div class="panel-body flowline">
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="cigroup.activeRegionTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td width="60" data-title="'名称'" filter="{ name: 'text'}" sortable="'name'">
-                            <i class="fa fa-star-o fa-1x" aria-hidden="true"  ng-if="!m.favorites" ng-click="cigroup.addToFavorites(m.id,m.name)" uib-tooltip="收藏" style="cursor:pointer;color: #339094;font-size: 18px;" ></i>
-                            <i class="fa fa-star fa-1x" aria-hidden="true"  ng-if="m.favorites" ng-click="cigroup.delToFavorites(m.id,m.name)" uib-tooltip="取消收藏" style="cursor:pointer;color: #339094;font-size: 18px;" ></i>
+                        <td width="60" data-title="'C3T.名称'|translate" filter="{ name: 'text'}" sortable="'name'">
+                            <i class="fa fa-star-o fa-1x" aria-hidden="true"  ng-if="!m.favorites" ng-click="cigroup.addToFavorites(m.id,m.name)" uib-tooltip="{{'C3T.收藏'|translate}}" style="cursor:pointer;color: #339094;font-size: 18px;" ></i>
+                            <i class="fa fa-star fa-1x" aria-hidden="true"  ng-if="m.favorites" ng-click="cigroup.delToFavorites(m.id,m.name)" uib-tooltip="{{'C3T.取消收藏'|translate}}" style="cursor:pointer;color: #339094;font-size: 18px;" ></i>
                             {{m.name}}
                         </td>
-                        <td data-title="'审计'" width="80" filter="{ audit_level: 'text'}" sortable="'audit_level'">
+                        <td data-title="'C3T.审计'|translate" width="80" filter="{ audit_level: 'text'}" sortable="'audit_level'">
                             <a ng-if="m.audit_level==1" style="color: green;" >是<a>
                             <a ng-if="m.audit_level!=1" >否<a>
                         </td>
-                        <td data-title="'别名'" width="80" filter="{ alias: 'text'}" sortable="'alias'">{{m.alias}}</td>
-                        <td data-title="'命名空间'" width="80" filter="{ ci_type_namespace: 'text'}" sortable="'ci_type_namespace'">{{m.ci_type_namespace}}</td>
-                        <td data-title="'应用'" width="80" filter="{ ci_type: 'text'}" sortable="'ci_type'">
+                        <td data-title="'C3T.别名'|translate" width="80" filter="{ alias: 'text'}" sortable="'alias'">{{m.alias}}</td>
+                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ ci_type_namespace: 'text'}" sortable="'ci_type_namespace'">{{m.ci_type_namespace}}</td>
+                        <td data-title="'C3T.应用'|translate" width="80" filter="{ ci_type: 'text'}" sortable="'ci_type'">
                              {{m.ci_type}}.{{m.ci_type_kind}}
                               <div ng-if="m.ci_type_name" ng-repeat="name in m.ci_type_name.split(',')" >
                                  {{m.ci_type_namespace}}/{{name}}
-                                 <i ng-if="m.ci_type === 'kubernetes'" class="fa fa-search fa-2x" aria-hidden="true" ng-click="cigroup.describek8s(m.ci_type_ticketid,m.ci_type,name,m.ci_type_namespace,m.ci_type_kind)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
+                                 <i ng-if="m.ci_type === 'kubernetes'" class="fa fa-search fa-2x" aria-hidden="true" ng-click="cigroup.describek8s(m.ci_type_ticketid,m.ci_type,name,m.ci_type_namespace,m.ci_type_kind)" uib-tooltip="{{'C3T.查看'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                               </div>
                         </td>
-                        <td data-title="'构建状态'">
+                        <td data-title="'C3T.构建状态'|translate">
                                 <div class="panel panel-info" ng-if="m.lastbuild.status" style="cursor:pointer;margin: 0 0 0 " ng-click="cigroup.showlog(m.lastbuild.uuid, m.lastbuild.slave)">
                                     <span class="bold" style="cursor:pointer;color: {{panelcolor[m.lastbuild.status]}};margin: 0 0 0 ">
                                         <i class="fa fa-cloud" ng-if="m.lastbuild.status=='fail'" aria-hidden="true"></i>
@@ -62,7 +62,7 @@
                                     {{m.lastbuild.starttime}}
                                 </div>
                         </td>
-                        <td data-title="'测试环境状态'">
+                        <td data-title="'C3T.测试环境状态'|translate">
                                 <div class="panel panel-info" ng-if="cigroup.taskInfoTest[m.id]" style="cursor:pointer;margin: 0 0 0 " ng-click="cigroup.deployDetail(cigroup.taskInfoTest[m.id].uuid)">
                                     <span class="bold" style="cursor:pointer;color: {{panelcolor[cigroup.taskInfoTest[m.id].status]}};margin: 0 0 0 ">
                                         <i class="fa fa-cloud" ng-if="cigroup.taskInfoTest[m.id].status=='fail'" aria-hidden="true"></i>
@@ -76,7 +76,7 @@
                                 </div>
                         </td>
  
-                        <td data-title="'线上环境状态'">
+                        <td data-title="'C3T.线上环境状态'|translate">
                                 <div class="panel panel-info" ng-if="cigroup.taskInfoOnline[m.id]" style="cursor:pointer;margin: 0 0 0 " ng-click="cigroup.deployDetail(cigroup.taskInfoOnline[m.id].uuid)">
                                     <span class="bold" style="cursor:pointer;color: {{panelcolor[cigroup.taskInfoOnline[m.id].status]}};margin: 0 0 0 ">
                                         {{cigroup.deployType(cigroup.taskInfoOnline[m.id].uuid)}}
@@ -91,16 +91,16 @@
                                 </div>
                         </td>
  
-                        <td data-title="'编辑者'" width="80" filter="{ edit_user: 'text'}" sortable="'edit_user'">{{m.edit_user}}</td>
-                        <td data-title="'编号'" width="30" filter="{ id: 'text'}" sortable="'id'">{{m.id}}</td>
-                        <td class="textcenter" width="175" data-title="'操作'">
+                        <td data-title="'C3T.编辑者'|translate" width="80" filter="{ edit_user: 'text'}" sortable="'edit_user'">{{m.edit_user}}</td>
+                        <td data-title="'C3T.编号'|translate" width="30" filter="{ id: 'text'}" sortable="'id'">{{m.id}}</td>
+                        <td class="textcenter" width="175" data-title="'C3T.操作'|translate">
                             <nobr>
-                                <i class="fa fa-chevron-circle-right fa-2x" aria-hidden="true" ng-click="cigroup.versiondetail(m.id)" uib-tooltip="进入" style="cursor:pointer;color: #339094;" ></i>
-                                <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="cigroup.editconfig(m.id,m.name)" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
-                                <i class="fa fa-clone fa-2x" aria-hidden="true" ng-click="cigroup.copyProject(m.id,m.name)" uib-tooltip="复制为" style="cursor:pointer;color: #339094;" ></i>
-                                <i class="fa fa-bookmark fa-2x" aria-hidden="true" ng-click="cigroup.copyProjectToTemplate(m.id,m.name)" uib-tooltip="另存为模版" style="cursor:pointer;color: #339094;" ></i>
-                                <i class="fa fa-pencil-square fa-2x" aria-hidden="true" ng-click="cigroup.flowlineRename(m.id,m.name)" uib-tooltip="修改名称" style="cursor:pointer;color: #339094;" ></i>
-                                <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="cigroup.deleteProject(m.id)" uib-tooltip="删除" style="cursor:pointer;color: red;" ></i>
+                                <i class="fa fa-chevron-circle-right fa-2x" aria-hidden="true" ng-click="cigroup.versiondetail(m.id)" uib-tooltip="{{'C3T.进入'|translate}}" style="cursor:pointer;color: #339094;" ></i>
+                                <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="cigroup.editconfig(m.id,m.name)" uib-tooltip="{{'C3T.编辑'|translate}}" style="cursor:pointer;color: #339094;" ></i>
+                                <i class="fa fa-clone fa-2x" aria-hidden="true" ng-click="cigroup.copyProject(m.id,m.name)" uib-tooltip="{{'C3T.复制为'|translate}}" style="cursor:pointer;color: #339094;" ></i>
+                                <i class="fa fa-bookmark fa-2x" aria-hidden="true" ng-click="cigroup.copyProjectToTemplate(m.id,m.name)" uib-tooltip="{{'C3T.另存为模版'|translate}}" style="cursor:pointer;color: #339094;" ></i>
+                                <i class="fa fa-pencil-square fa-2x" aria-hidden="true" ng-click="cigroup.flowlineRename(m.id,m.name)" uib-tooltip="{{'C3T.修改名称'|translate}}" style="cursor:pointer;color: #339094;" ></i>
+                                <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="cigroup.deleteProject(m.id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: red;" ></i>
 </nobr>
                         </td>
                     </tr>

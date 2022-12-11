@@ -2,8 +2,8 @@
     <div class="panel panel-primary">
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="kubernetescreateingress.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetescreateingress.loadover}" ></i></button>
-                <button class="btn btn-primary" uib-tooltip="关闭" ng-click="kubernetescreateingress.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="kubernetescreateingress.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetescreateingress.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.关闭'|translate}}" ng-click="kubernetescreateingress.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
             </span>
             <h5>Ingress</h5>
         </div>
@@ -22,7 +22,7 @@
 
             <div class="row">
                 <div class="col-sm-2 form-group pull-right">
-                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateingress.gotostep1()">下一步</button>
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateingress.gotostep1()">{{'C3T.下一步'|translate}}</button>
                 </div>
             </div>
 
@@ -32,19 +32,19 @@
 
             <div class="row">
                 <div class="col-sm-2 form-group pull-right">
-                    <button class="btn btn-info" ng-disabled="myForm.$invalid" ng-click="kubernetescreateingress.gotostep0()">导入YAML</button>
+                    <button class="btn btn-info" ng-disabled="myForm.$invalid" ng-click="kubernetescreateingress.gotostep0()">{{'C3T.导入'|translate}} YAML</button>
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-sm-12 form-group">
-                    <label class="col-sm-1 control-label">名称</label>
+                    <label class="col-sm-1 control-label">{{'C3T.名称'|translate}}</label>
                     <div class="col-sm-3">
-                        <input type="text" class="form-control" name="adduser" placeholder="名称" ng-disabled="kubernetescreateingress.tasktype==='apply'" ng-model="kubernetescreateingress.editData.metadata.name" ng-mouseenter="kubernetescreateingress.namedemoin()" ng-mouseleave="kubernetescreateingress.namedemoout()" required>
+                        <input type="text" class="form-control" name="adduser" placeholder="{{'C3T.名称'|translate}}" ng-disabled="kubernetescreateingress.tasktype==='apply'" ng-model="kubernetescreateingress.editData.metadata.name" ng-mouseenter="kubernetescreateingress.namedemoin()" ng-mouseleave="kubernetescreateingress.namedemoout()" required>
                     </div>
-                    <label class="col-sm-1 control-label">命名空间</label>
+                    <label class="col-sm-1 control-label">{{'C3T.命名空间'|translate}} </label>
                     <div class="col-sm-3">
-                        <input ng-if="kubernetescreateingress.tasktype==='apply'"  ng-disabled="1" type="text" class="form-control" name="adduser" placeholder="名称" ng-disabled="kubernetescreateingress.tasktype==='apply'" ng-model="kubernetescreateingress.editData.metadata.namespace" required>
+                        <input ng-if="kubernetescreateingress.tasktype==='apply'"  ng-disabled="1" type="text" class="form-control" name="adduser" placeholder="{{'C3T.命名空间'|translate}}" ng-disabled="kubernetescreateingress.tasktype==='apply'" ng-model="kubernetescreateingress.editData.metadata.namespace" required>
                         <select ng-change="kubernetescreateingress.namespacechange( kubernetescreateingress.editData.metadata.namespace )" id="selectednameval" class="form-control" ng-if="kubernetescreateingress.tasktype!=='apply'"  ng-model="kubernetescreateingress.editData.metadata.namespace" required>
                              <option ng-repeat="x in kubernetescreateingress.namespaces" value="{{x.NAME}}">{{x.NAME}}</option>
                         </select>
@@ -58,7 +58,7 @@
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">描述</label>
                     <div class="col-sm-9">
-                        <input type="text" class="form-control" name="adduser" placeholder="描述" ng-model="kubernetescreateingress.editData.metadata.annotations.describe" ng-mouseenter="kubernetescreateingress.describedemoin()" ng-mouseleave="kubernetescreateingress.describedemoout()"required>
+                        <input type="text" class="form-control" name="adduser" placeholder="{{'C3T.描述'|placeholder}}" ng-model="kubernetescreateingress.editData.metadata.annotations.describe" ng-mouseenter="kubernetescreateingress.describedemoin()" ng-mouseleave="kubernetescreateingress.describedemoout()"required>
                     </div>
                 </div>
             </div>
@@ -66,9 +66,9 @@
 
             <div class="row">
                 <div class="col-sm-12 form-group">
-                    <label class="col-sm-1 control-label">标签</label>
+                    <label class="col-sm-1 control-label">{{'C3T.标签'|translate}} </label>
                     <div class="col-sm-1">
-                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.addLabel()" uib-tooltip="添加" style="cursor:pointer;color: #339094;" ></i>
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.addLabel()" uib-tooltip="{{'C3T.添加'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                      </div>
                 </div>
 
@@ -84,7 +84,7 @@
                                 <td style="width: 20px">=</td>
                                 <td><input type="text" class="form-control"  ng-model="x.V"></td>
                                 <td style="width: 50px">
-                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.delLabel(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.delLabel(id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
                                 </td>
                             </tr>
                        </table>
@@ -96,10 +96,10 @@
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">annotations</label>
                     <div class="col-sm-1">
-                        <i ng-if="annotations.length == 0" class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.addAnnotations()" uib-tooltip="添加" style="cursor:pointer;color: #339094;" ></i>
+                        <i ng-if="annotations.length == 0" class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.addAnnotations()" uib-tooltip="{{'C3T.添加'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                      </div>
                     <div ng-repeat="id in kubernetescreateingress.annotationTypeList" style="float: left;margin-right: 4px;" ng-if="kubernetescreateingress.tasktype==='create'" >
-                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.addAnnotationsByType(id)" uib-tooltip="添加" style="cursor:pointer;color: #339094;" >{{id}}</i>
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.addAnnotationsByType(id)" uib-tooltip="{{'C3T.添加'|translate}}" style="cursor:pointer;color: #339094;" >{{id}}</i>
                     </div>
                 </div>
 
@@ -115,7 +115,7 @@
                                 <td style="width: 20px">=</td>
                                 <td> <input type="text" class="form-control" style="color: {{kubernetescreateingress.inputTodo(x.V)}}" ng-model="x.V"> </td>
                                 <td style="width: 50px">
-                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.delAnnotations(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.delAnnotations(id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
                                </td>
                             </tr>
                        </table>
@@ -127,7 +127,7 @@
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-4 control-label"></label>
                     <div class="col-sm-1">
-                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.addAnnotations()" uib-tooltip="添加" style="cursor:pointer;color: #339094;" ></i>
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.addAnnotations()" uib-tooltip="{{'C3T.添加'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                      </div>
                 </div>
 
@@ -138,8 +138,8 @@
 apiVersion
             <div class="row">
                 <div class="col-sm-12 form-group pull-left">
-                    <button class="btn btn-primary" ng-disabled="kubernetescreateingress.editData.apiVersion == 'extensions/v1beta1'" ng-click="kubernetescreateingress.switchApiVersion('extensions/v1beta1')">extensions/v1beta1旧版</button>
-                    <button class="btn btn-primary" ng-disabled="kubernetescreateingress.editData.apiVersion == 'networking.k8s.io/v1'" ng-click="kubernetescreateingress.switchApiVersion('networking.k8s.io/v1')">networking.k8s.io/v1新版本</button>
+                    <button class="btn btn-primary" ng-disabled="kubernetescreateingress.editData.apiVersion == 'extensions/v1beta1'" ng-click="kubernetescreateingress.switchApiVersion('extensions/v1beta1')">extensions/v1beta1 {{'C3T.旧版'|translate}}</button>
+                    <button class="btn btn-primary" ng-disabled="kubernetescreateingress.editData.apiVersion == 'networking.k8s.io/v1'" ng-click="kubernetescreateingress.switchApiVersion('networking.k8s.io/v1')">networking.k8s.io/v1 {{'C3T.新版本'|translate}}</button>
                 </div>
             </div>
 
@@ -147,9 +147,9 @@ apiVersion
 
             <div class="row">
                 <div class="col-sm-12 form-group">
-                    <label class="col-sm-1 control-label">规则</label>
+                    <label class="col-sm-1 control-label">{{'C3T.规则'|translate}}</label>
                     <div class="col-sm-6">
-                            <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.addRules()" uib-tooltip="添加规则" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.addRules()" uib-tooltip="{{'C3T.添加规则'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                     </div>
                 </div>
             </div>
@@ -163,11 +163,11 @@ apiVersion
 
                                     <div class="row">
                                         <div class="col-sm-12 form-group">
-                                            <label class="col-sm-1 control-label">域名</label>
+                                            <label class="col-sm-1 control-label">{{'C3T.域名'|translate}}</label>
                                             <div class="col-sm-5">
-                                                <input type="text" class="form-control" placeholder="域名" ng-model="x.host" required>
+                                                <input type="text" class="form-control" placeholder="{{'C3T.域名'|translate}}" ng-model="x.host" required>
                                            </div>
-                                            <label class="col-sm-1 control-label">HTTPS证书</label>
+                                            <label class="col-sm-1 control-label">HTTPS {{'C3T.证书'|translate}}</label>
                                             <div class="col-sm-5">
                                                <select id="selectednameval" class="form-control" ng-model="x.https_tls_temp" required>
                                                    <option value=""></option>
@@ -182,7 +182,7 @@ apiVersion
                                         <div class="col-sm-12 form-group">
                                             <label class="col-sm-1 control-label">Path</label>
                                             <div class="col-sm-9">
-                                                <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.addPaths(x)" uib-tooltip="添加Path" style="cursor:pointer;color: #339094;" ></i>
+                                                <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.addPaths(x)" uib-tooltip="{{'C3T.添加Path'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                                             </div>
                                         </div>
                                     </div>
@@ -199,9 +199,9 @@ apiVersion
                                                            <div class="row" ng-if="kubernetescreateingress.editData.apiVersion === 'extensions/v1beta1'">
                                                                <div class="col-sm-12 form-group">
  
-                                                                   <label class="col-sm-1 control-label">路径</label>
+                                                                   <label class="col-sm-1 control-label">{{'C3T.路径'|translate}}</label>
                                                                    <div class="col-sm-2"> <input type="text" class="form-control" placeholder="" ng-model="xx.path" required> </div>
-                                                                   <label class="col-sm-1 control-label">类型</label>
+                                                                   <label class="col-sm-1 control-label">{{'C3T.类型'|translate}}</label>
                                                                    <div class="col-sm-2"> 
                                                                        <select id="selectednameval" class="form-control" ng-model="xx.pathType" required>
                                                                            <option value="ImplementationSpecific">ImplementationSpecific</option>
@@ -215,7 +215,7 @@ apiVersion
                                                                            <option ng-repeat="x in kubernetescreateingress.services" value="{{x.NAME}}">{{x.NAME}}</option>
                                                                        </select>
                                                                    </div>
-                                                                   <label class="col-sm-1 control-label">端口</label>
+                                                                   <label class="col-sm-1 control-label">{{'C3T.端口'|translate}}</label>
                                                                    <div class="col-sm-2"> <input type="number" class="form-control" placeholder="" ng-model="xx.backend.servicePort" required> </div>
                                                                </div>
                                                            </div>
@@ -223,9 +223,9 @@ apiVersion
 
                                                            <div class="row" ng-if="kubernetescreateingress.editData.apiVersion === 'networking.k8s.io/v1'">
                                                                <div class="col-sm-12 form-group">
-                                                                   <label class="col-sm-1 control-label">路径</label>
+                                                                   <label class="col-sm-1 control-label">{{'C3T.路径'|translate}}</label>
                                                                    <div class="col-sm-2"> <input type="text" class="form-control" placeholder="" ng-model="xx.path" required> </div>
-                                                                   <label class="col-sm-1 control-label">类型</label>
+                                                                   <label class="col-sm-1 control-label">{{'C3T.类型'|translate}}</label>
                                                                    <div class="col-sm-2"> 
                                                                        <select id="selectednameval" class="form-control" ng-model="xx.pathType" required>
                                                                            <option value="ImplementationSpecific">ImplementationSpecific</option>
@@ -239,14 +239,14 @@ apiVersion
                                                                            <option ng-repeat="x in kubernetescreateingress.services" value="{{x.NAME}}">{{x.NAME}}</option>
                                                                        </select>
                                                                    </div>
-                                                                   <label class="col-sm-1 control-label">端口</label>
+                                                                   <label class="col-sm-1 control-label">{{'C3T.端口'|translate}}</label>
                                                                    <div class="col-sm-2"> <input type="number" class="form-control" placeholder="" ng-model="xx.backend.service.port.number" required> </div>
                                                                </div>
                                                            </div>
 
                                                       </td>
                                                        <td style="width: 50px">
-                                                           <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.delPaths(x,id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                                           <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.delPaths(x,id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
                                                        </td>
                                                    </tr>
                                               </table>
@@ -257,7 +257,7 @@ apiVersion
 
                                 </td>
                                 <td style="width: 50px">
-                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.delRules(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.delRules(id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
                                 </td>
                             </tr>
                        </table>
@@ -266,7 +266,7 @@ apiVersion
             </div>
             <div class="row">
                 <div class="col-sm-2 form-group pull-right">
-                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateingress.gotostep2()">下一步</button>
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateingress.gotostep2()">{{'C3T.下一步'|translate}}</button>
                 </div>
             </div>
 
@@ -276,7 +276,7 @@ apiVersion
         <div class="panel-body" ng-if="editstep===2">
             <div class="row">
                 <div class="col-sm-2 form-group pull-right">
-                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateingress.gotostep1()">返回上一步</button>
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateingress.gotostep1()">{{'C3T.返回上一步'|translate}}</button>
                 </div>
             </div>
             <div class="pt20">
@@ -291,8 +291,8 @@ apiVersion
             </div>
             <div class="row">
                 <div class="col-sm-2 form-group pull-right">
-                    <button class="btn btn-info" ng-disabled="myForm.$invalid" ng-click="kubernetescreateingress.assignment()">操作协助</button>
-                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateingress.apply()">提交变更</button>
+                    <button class="btn btn-info" ng-disabled="myForm.$invalid" ng-click="kubernetescreateingress.assignment()">{{'C3T.操作协助'|translate}}</button>
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateingress.apply()">{{'C3T.提交变更'|translate}}</button>
                 </div>
             </div>
         </div>

@@ -1,12 +1,12 @@
 <div class="modal-header">
-    <h4 ng-if="businesscrontabcreate.edit==false" class="modal-title">创建定时任务</h4>
-    <h4 ng-if="businesscrontabcreate.edit==true" class="modal-title">编辑定时任务</h4>
+    <h4 ng-if="businesscrontabcreate.edit==false" class="modal-title">{{'C3T.创建'|translate}} {{'C3T.定时任务'|translate}}</h4>
+    <h4 ng-if="businesscrontabcreate.edit==true" class="modal-title">{{'C3T.编辑'|translate}} {{'C3T.定时任务'|translate}}</h4>
 </div>
 <div class="modal-body">
     <form class="form-horizontal" role="form" name="myForm" novalidate>
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">定时任务 <span style="color: red">*</span> :</label>
+                <label class="col-sm-3 control-label">{{'C3T.定时任务'|translate}} <span style="color: red">*</span> :</label>
                 <div class="col-sm-9">
                     <input type="text" name="cronTabname" class="form-control" ng-model="cronTabname" ng-minlength="3" required />
                 </div>
@@ -14,7 +14,7 @@
         </div>
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label" style="padding-top: 16px;">作业名称 <span style="color: red">*</span> :</label>
+                <label class="col-sm-3 control-label" style="padding-top: 16px;">{{'C3T.作业名称'|translate}} <span style="color: red">*</span> :</label>
                 <div class="col-sm-9">
                     <select class="form-control"  ng-model="selectedjob" required>
                          <option ng-repeat="x in allJobs" value="{{x.uuid}}">{{x.name}}</option>
@@ -25,7 +25,7 @@
 
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">规 则 <span style="color: red">*</span> :</label>
+                <label class="col-sm-3 control-label">{{'C3T.规则'|translate}} <span style="color: red">*</span> :</label>
                 <div class="col-sm-9">
                     <input type="text" name="cronRule" class="form-control" ng-model="cronrule" ng-minlength="3" required />
                 </div>
@@ -33,7 +33,7 @@
         </div>
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">互斥锁:</label>
+                <label class="col-sm-3 control-label">{{'C3T.互斥锁'|translate}}:</label>
                 <div class="col-sm-9" style="margin-top: 10px;">
                     <div class="admin-form" ng-disabled="unClick">
                         <div class="option-group field">
@@ -48,8 +48,8 @@
 
         <div class="row">
             <div class="col-sm-5 form-group pull-right">
-                <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="businesscrontabcreate.createCron()">保 存</button>
-                <button class="btn btn-warning" ng-click="businesscrontabcreate.cancel()">取 消</button>
+                <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="businesscrontabcreate.createCron()">{{'C3T.保存'|translate}}</button>
+                <button class="btn btn-warning" ng-click="businesscrontabcreate.cancel()">{{'C3T.取消'|translate}}</button>
             </div>
         </div>
     </form>

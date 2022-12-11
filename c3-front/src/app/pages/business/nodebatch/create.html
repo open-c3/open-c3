@@ -1,11 +1,11 @@
 <div class="modal-header">
-    <h4  class="modal-title">选择服务器</h4>
+    <h4  class="modal-title">{{'C3T.选择服务器'|translate}}</h4>
 </div>
 <div class="modal-body">
     <form class="form-horizontal" name="addForm" role="form">
         <div class="row" ng-if="!createjobgroup.ciid">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">分组名称</label>
+                <label class="col-sm-3 control-label">{{'C3T.分组名称'|translate}}</label>
                 <div class="col-sm-9">
                     <input type="text" class="form-control" name="addGroup" ng-minlength="2" ng-model="createjobgroup.postData.name" required>
                 </div>
@@ -13,7 +13,7 @@
         </div>
         <div class="row" ng-if="!createjobgroup.ciid">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">备注</label>
+                <label class="col-sm-3 control-label">{{'C3T.备注'|translate}}</label>
                 <div class="col-sm-9">
                     <input type="text" class="form-control" name="addGroup" ng-minlength="2" ng-model="createjobgroup.postData.note" required>
                 </div>
@@ -21,17 +21,17 @@
         </div>
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">分组类型</label>
+                <label class="col-sm-3 control-label">{{'C3T.分组类型'|translate}}</label>
                 <div class="col-sm-9">
                     <div class="admin-form">
                         <div class="option-group field" >
                             <label class="option option-primary">
                                 <input type="radio" ng-model="machineType" value="list" >
-                                <span class="radio" style="padding-top: 0;min-height: 0"></span>机器列表
+                                <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.机器列表'|translate}}
                             </label>
                             <label class="option option-primary">
                                 <input type="radio" ng-model="machineType" value="percent" >
-                                <span class="radio" style="padding-top: 0;min-height: 0"></span>百分比
+                                <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.百分比'|translate}}
                             </label>
 
                         </div>
@@ -44,12 +44,12 @@
         <div ng-switch=machineType class="row">
             <div ng-switch-when="list">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">选择机器</label>
+                            <label class="col-sm-3 control-label">{{'C3T.选择机器'|translate}}</label>
                             <div class="col-sm-7">
                                 <div class="admin-form">
                                     <div class="option-group field" >
-                                        <button class="btn btn-primary ng-binding" ng-click="createjobgroup.choiceServer()">选择第{{choiceServerNum}}批服务器</button>
-                                        <span>（可以选择，也可以手动输入）</span>
+                                        <button class="btn btn-primary ng-binding" ng-click="createjobgroup.choiceServer()">{{'C3T.选择服务器分批'|translate}}({{choiceServerNum}})</button>
+                                        <span>（{{'C3T.可以选择，也可以手动输入'|translate}})</span>
                                     </div>
                                 </div>
                             </div>
@@ -60,23 +60,23 @@
         <div ng-switch="machineType" class="row">
             <div ng-switch-when="list">
                 <div class="col-sm-10 form-group">
-                    <label class="col-sm-3 control-label">输入机器IP</label>
+                    <label class="col-sm-3 control-label">{{'C3T.输入机器IP'|translate}}</label>
                     <div class="col-sm-9">
                         <textarea name="ips" id="ips" ng-model="createjobgroup.machineList" style="width: 100%; height: 110px"></textarea>
-                        <span>机器列表,用逗号分隔，不同的分批用分号或者换行分隔 (如: 1.1.1.1,2.2.2.2;3.3.3.3)</span>
+                        <span>{{'C3T.机器列表,用逗号分隔，不同的分批用分号或者换行分隔'|translate}} ({{'C3T.例如'|translate}}: 1.1.1.1,2.2.2.2;3.3.3.3)</span>
                     </div>
                 </div>
             </div>
 
         <div ng-switch-when="percent">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">比例输入</label>
+                <label class="col-sm-3 control-label">{{'C3T.比例输入'|translate}}</label>
                 <div class="col-sm-9">
                     <textarea name="ips" id="ippercent" ng-model="createjobgroup.machinePercent" style="width: 100%; height: 110px"></textarea>
                     <!--<span>百分比:用冒号分割数字或者百分比( 如: 1:2 or 10%:5% )</span>-->
-                    <p>1.本节点的百分比用冒号分割数字或者百分比( 如: 1:2 or 10%:5% )</p>
-                    <p> 2.扩展的百分比.每一行是一个大分组；每一行由3段信息组成，用分号分隔（子树id［如：123 、 234 、空字符］，用英文逗号分隔; 机器编号范围［用逗号分隔，用～号标示范围］；百分比，和第一组类型一样）</p>
-                    <p>如:
+                    <p>1.{{'C3T.本节点的百分比用冒号分割数字或者百分比'|translate}}( {{'C3T.例如'|translate}}: 1:2 or 10%:5% )</p>
+                    <p>2.{{'C3T.扩展的百分比.每一行是一个大分组；每一行由3段信息组成，用分号分隔（子树id［如：123 、 234 、空字符］，用英文逗号分隔; 机器编号范围［用逗号分隔，用～号标示范围］；百分比，和第一组类型一样'|translate}}）</p>
+                    <p>{{'C3T.例如'|translate}}:
                     123,234;1~100;1:2 <br>
                     ;1~10,13;2 <br>
                     1234;1,3,5;1:10%
@@ -87,11 +87,11 @@
 
         <div ng-switch-when="percent">
             <div class="col-sm-10 form-group">
-            <label class="col-sm-3 control-label">服务器信息</label>
+            <label class="col-sm-3 control-label">{{'C3T.服务器信息'|translate}}</label>
             <div class="col-sm-9">
                 <div class="panel-tabs">
                     <table ng-table="createjobgroup.macheinInfoTable" class="table table-hover text-center table-condensed table-bordered">
-                        <thead><tr><th>名称</th><th>类型</th></tr></thead>
+                        <thead><tr><th>{{'C3T.名称'|translate}}</th><th>{{'C3T.类型'|translate}}</th></tr></thead>
                         <tbody>
                             <tr ng-repeat="ss in $data"><td>{{ss.name}}</td><td>{{ss.type}}</td></tr>
                         </tbody>
@@ -106,9 +106,9 @@
     </form>
     <div class="row">
         <div class="col-sm-5 form-group pull-right">
-            <button class="btn btn-danger" ng-click="createjobgroup.deleteGroup()">删除并退出</button>
-            <button class="btn btn-primary" ng-disabled="addForm.$invalid" ng-click="createjobgroup.saveGroup()">保存</button>
-            <button class="btn btn-warning" ng-click="createjobgroup.cancel()">取消</button>
+            <button class="btn btn-danger" ng-click="createjobgroup.deleteGroup()">{{'C3T.删除并退出'|translate}}</button>
+            <button class="btn btn-primary" ng-disabled="addForm.$invalid" ng-click="createjobgroup.saveGroup()">{{'C3T.保存'|translate}}</button>
+            <button class="btn btn-warning" ng-click="createjobgroup.cancel()">{{'C3T.取消'|translate}}</button>
         </div>
     </div>
 

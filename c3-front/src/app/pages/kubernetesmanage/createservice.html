@@ -2,8 +2,8 @@
     <div class="panel panel-primary">
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="kubernetescreateservice.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetescreateservice.loadover}" ></i></button>
-                <button class="btn btn-primary" uib-tooltip="关闭" ng-click="kubernetescreateservice.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="kubernetescreateservice.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetescreateservice.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.关闭'|translate}}" ng-click="kubernetescreateservice.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
             </span>
             <h5>Service</h5>
         </div>
@@ -22,7 +22,7 @@
 
             <div class="row">
                 <div class="col-sm-2 form-group pull-right">
-                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateservice.gotostep1()">下一步</button>
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateservice.gotostep1()">{{'C3T.下一步'|translate}}</button>
                 </div>
             </div>
         </div>
@@ -30,19 +30,19 @@
         <div class="panel-body" ng-if="editstep===1" >
             <div class="row">
                 <div class="col-sm-2 form-group pull-right">
-                    <button class="btn btn-info" ng-disabled="myForm.$invalid" ng-click="kubernetescreateservice.gotostep0()">导入YAML</button>
+                    <button class="btn btn-info" ng-disabled="myForm.$invalid" ng-click="kubernetescreateservice.gotostep0()">{{'C3T.导入'|translate}} YAML</button>
                 </div>
             </div>
 
             <div class="row">
                 <div class="col-sm-12 form-group">
-                    <label class="col-sm-1 control-label">名称</label>
+                    <label class="col-sm-1 control-label">{{'C3T.名称'|translate}}</label>
                     <div class="col-sm-3">
-                        <input type="text" class="form-control" name="adduser" placeholder="名称" ng-disabled="kubernetescreateservice.tasktype==='apply'" ng-model="kubernetescreateservice.editData.metadata.name" ng-mouseenter="kubernetescreateservice.namedemoin()" ng-mouseleave="kubernetescreateservice.namedemoout()" required>
+                        <input type="text" class="form-control" name="adduser" placeholder="{{'C3T.名称'|translate}}" ng-disabled="kubernetescreateservice.tasktype==='apply'" ng-model="kubernetescreateservice.editData.metadata.name" ng-mouseenter="kubernetescreateservice.namedemoin()" ng-mouseleave="kubernetescreateservice.namedemoout()" required>
                     </div>
-                    <label class="col-sm-1 control-label">命名空间</label>
+                    <label class="col-sm-1 control-label">{{'C3T.命名空间'|translate}}</label>
                     <div class="col-sm-3">
-                        <input ng-if="kubernetescreateservice.tasktype==='apply'"  ng-disabled="1" type="text" class="form-control" name="adduser" placeholder="名称" ng-disabled="kubernetescreateservice.tasktype==='apply'" ng-model="kubernetescreateservice.editData.metadata.namespace" required>
+                        <input ng-if="kubernetescreateservice.tasktype==='apply'"  ng-disabled="1" type="text" class="form-control" name="adduser" placeholder="{{'C3T.命名空间'|translate}}" ng-disabled="kubernetescreateservice.tasktype==='apply'" ng-model="kubernetescreateservice.editData.metadata.namespace" required>
                         <select ng-change="kubernetescreateservice.namespacechange( kubernetescreateservice.editData.metadata.namespace )" id="selectednameval" class="form-control" ng-if="kubernetescreateservice.tasktype!=='apply'"  ng-model="kubernetescreateservice.editData.metadata.namespace" required>
                              <option ng-repeat="x in kubernetescreateservice.namespaces" value="{{x.NAME}}">{{x.NAME}}</option>
                         </select>
@@ -56,16 +56,16 @@
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">描述</label>
                     <div class="col-sm-7">
-                        <input type="text" class="form-control" name="adduser" placeholder="描述" ng-model="kubernetescreateservice.editData.metadata.annotations.describe" ng-mouseenter="kubernetescreateservice.describedemoin()" ng-mouseleave="kubernetescreateservice.describedemoout()"required>
+                        <input type="text" class="form-control" name="adduser" placeholder="{{'C3T.描述'|translate}}" ng-model="kubernetescreateservice.editData.metadata.annotations.describe" ng-mouseenter="kubernetescreateservice.describedemoin()" ng-mouseleave="kubernetescreateservice.describedemoout()"required>
                     </div>
                 </div>
             </div>
 -->
             <div class="row">
                 <div class="col-sm-12 form-group">
-                    <label class="col-sm-1 control-label">标签</label>
+                    <label class="col-sm-1 control-label">{{'C3T.标签'|translate}}</label>
                     <div class="col-sm-1">
-                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addLabel()" uib-tooltip="添加" style="cursor:pointer;color: #339094;" ></i>
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addLabel()" uib-tooltip="{{'C3T.添加'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                     </div>
                 </div>
             </div>
@@ -80,7 +80,7 @@
                                 <td style="width: 20px">=</td>
                                 <td><input type="text" class="form-control"  ng-model="x.V"></td>
                                 <td style="width: 50px">
-                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.delLabel(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.delLabel(id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
                                </td>
                             </tr>
                        </table>
@@ -92,10 +92,10 @@
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">annotations</label>
                     <div class="col-sm-1">
-                        <i ng-if="annotations.length == 0" class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addAnnotations()" uib-tooltip="添加" style="cursor:pointer;color: #339094;" ></i>
+                        <i ng-if="annotations.length == 0" class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addAnnotations()" uib-tooltip="{{'C3T.添加'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                     </div>
                     <div ng-repeat="id in kubernetescreateservice.annotationTypeList" style="float: left;margin-right: 4px;" ng-if="kubernetescreateservice.tasktype==='create'">
-                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addAnnotationsByType(id)" uib-tooltip="添加" style="cursor:pointer;color: #339094;" >{{id}}</i>
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addAnnotationsByType(id)" uib-tooltip="{{'C3T.添加'|translate}}" style="cursor:pointer;color: #339094;" >{{id}}</i>
                     </div>
                 </div>
 
@@ -111,7 +111,7 @@
                                 <td style="width: 20px">=</td>
                                 <td> <input type="text" class="form-control" style="color: {{kubernetescreateservice.inputTodo(x.V)}}" ng-model="x.V"> </td>
                                 <td style="width: 50px">
-                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.delAnnotations(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.delAnnotations(id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
                                </td>
                             </tr>
                        </table>
@@ -122,7 +122,7 @@
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-4 control-label"></label>
                     <div class="col-sm-1">
-                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addAnnotations()" uib-tooltip="添加" style="cursor:pointer;color: #339094;" ></i>
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addAnnotations()" uib-tooltip="{{'C3T.添加'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                     </div>
                 </div>
 
@@ -133,9 +133,9 @@
 
             <div class="row">
                 <div class="col-sm-12 form-group">
-                    <label class="col-sm-1 control-label">开放端口</label>
+                    <label class="col-sm-1 control-label">{{'C3T.开放端口'|translate}}</label>
                     <div class="col-sm-6">
-                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addPorts()" uib-tooltip="添加端口" style="cursor:pointer;color: #339094;" ></i>
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addPorts()" uib-tooltip="{{'C3T.添加端口'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                     </div>
                 </div>
             </div>
@@ -151,19 +151,19 @@
 
                                     <div class="row">
                                         <div class="col-sm-12 form-group">
-                                            <label class="col-sm-1 control-label">名称</label>
+                                            <label class="col-sm-1 control-label">{{'C3T.名称'|translate}}</label>
                                             <div class="col-sm-2">
-                                                <input type="text" class="form-control" placeholder="名称" ng-model="x.name" required>
+                                                <input type="text" class="form-control" placeholder="{{'C3T.名称'|translate}}" ng-model="x.name" required>
                                            </div>
-                                            <label class="col-sm-1 control-label">端口</label>
+                                            <label class="col-sm-1 control-label">{{'C3T.端口'|translate}}</label>
                                             <div class="col-sm-2">
-                                                <input type="number" class="form-control" placeholder="端口" ng-model="x.port" required>
+                                                <input type="number" class="form-control" placeholder="{{'C3T.端口'|translate}}" ng-model="x.port" required>
                                            </div>
-                                            <label class="col-sm-1 control-label">容器端口</label>
+                                            <label class="col-sm-1 control-label">{{'C3T.容器端口'|translate}}</label>
                                             <div class="col-sm-2">
-                                                <input type="number" class="form-control" placeholder="端口" ng-model="x.targetPort" required>
+                                                <input type="number" class="form-control" placeholder="{{'C3T.容器端口'|translate}}" ng-model="x.targetPort" required>
                                            </div>
-                                           <label class="col-sm-1 control-label">协议</label>
+                                           <label class="col-sm-1 control-label">{{'C3T.协议'|translate}}</label>
                                             <div class="col-sm-2">
                                                 <select id="selectednameval" class="form-control" ng-model="x.protocol" required>
                                                     <option value="TCP">TCP</option>
@@ -176,7 +176,7 @@
 
                                 </td>
                                 <td style="width: 50px">
-                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.delPorts(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.delPorts(id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
                                 </td>
                             </tr>
                        </table>
@@ -188,7 +188,7 @@
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">selector</label>
                     <div class="col-sm-6">
-                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addSelector()" uib-tooltip="添加" style="cursor:pointer;color: #339094;" ></i>
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addSelector()" uib-tooltip="{{'C3T.添加'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                     </div>
                 </div>
             </div>
@@ -211,7 +211,7 @@
                                     </select>
                                 </td>
                                 <td style="width: 50px">
-                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.delSelector(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.delSelector(id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
                                 </td>
                             </tr>
                        </table>
@@ -222,7 +222,7 @@
 <hr>
             <div class="row">
                 <div class="col-sm-12 form-group">
-                    <label class="col-sm-1 control-label">类型</label>
+                    <label class="col-sm-1 control-label">{{'C3T.类型'|translate}}</label>
                 </div>
             </div>
 
@@ -241,7 +241,7 @@
 
             <div class="row">
                 <div class="col-sm-2 form-group pull-right">
-                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateservice.gotostep2()">下一步</button>
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateservice.gotostep2()">{{'C3T.下一步'|translate}}</button>
                 </div>
             </div>
 
@@ -250,7 +250,7 @@
         <div class="panel-body" ng-if="editstep===2">
             <div class="row">
                 <div class="col-sm-2 form-group pull-right">
-                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateservice.gotostep1()">返回上一步</button>
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateservice.gotostep1()">{{'C3T.返回上一步'|translate}}</button>
                 </div>
             </div>
             <div class="pt20">
@@ -265,8 +265,8 @@
             </div>
             <div class="row">
                 <div class="col-sm-2 form-group pull-right">
-                    <button class="btn btn-info" ng-disabled="myForm.$invalid" ng-click="kubernetescreateservice.assignment()">操作协助</button>
-                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateservice.apply()">提交变更</button>
+                    <button class="btn btn-info" ng-disabled="myForm.$invalid" ng-click="kubernetescreateservice.assignment()">{{'C3T.操作协助'|translate}}</button>
+                    <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="kubernetescreateservice.apply()">{{'C3T.提交变更'|translate}}</button>
                 </div>
             </div>
         </div>

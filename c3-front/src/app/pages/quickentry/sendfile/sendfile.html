@@ -7,7 +7,7 @@
     <div class="row">
         <div class="col-sm-8 form-group">
             <label class="control-label" style="padding-top: 8px;padding-right: 0;width: 11%;float: left;position: relative;min-height: 1px;padding-left: 15px;">
-                执行账户
+                {{'C3T.执行账户'|translate}}
             </label>
             <div class="col-sm-4">
                 <form action="">
@@ -22,9 +22,9 @@
     <div ng-if="!sendfile.filepath" class="panel panel-dark">
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-dark" uib-tooltip="刷新" ng-click="sendfile.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!sendfile.loadover}" ></i></button>
+                <button class="btn btn-dark" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="sendfile.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!sendfile.loadover}" ></i></button>
             </span>
-            <h5>请点击选择节点</h5>
+            <h5>{{'C3T.请点击选择节点'|translate}}</h5>
         </div>
 
         <div class="panel-body">
@@ -33,32 +33,32 @@
                 <table ng-table="sendfile.machine_Table" class="table table-hover text-center table-condensed" show-filter="true" style="border: 1px solid #ddd;">
                     
                         <tr ng-repeat="ss in $data" style="text-align: left">
-                            <td style="width: 15%" data-title="'机器名称'" filter="{ name: 'text'}"><a id="{{ss.name}}" type="checkbox" name="selected"  ng-checked="isSelected(ss.name)" ng-click="nameUpdateSelection($event, ss.id, ss.name)" style="zoom: 125%"/>
+                            <td style="width: 15%" data-title="'C3T.机器名称'|translate" filter="{ name: 'text'}"><a id="{{ss.name}}" type="checkbox" name="selected"  ng-checked="isSelected(ss.name)" ng-click="nameUpdateSelection($event, ss.id, ss.name)" style="zoom: 125%"/>
                                 <a style="cursor: pointer;" title="打开" ng-click="sendfile.openOne(ss.name)">{{ss.name}}</a></td>
-                            <td style="width: 5%" data-title="'类型'" filter="{ type: 'text'}">{{ss.type}}</td>
-                            <td style="width: 15%" data-title="'内网IP'" filter="{ inip: 'text'}"><a id="{{ss.inip}}" ng-if="ss.inip" type="checkbox" name="selected"  ng-checked="isSelected(ss.inip)" ng-click="inipUpdateSelection($event, ss.id, ss.inip)" style="zoom: 125%"/>
+                            <td style="width: 5%" data-title="'C3T.类型'|translate" filter="{ type: 'text'}">{{ss.type}}</td>
+                            <td style="width: 15%" data-title="'C3T.内网IP'|translate" filter="{ inip: 'text'}"><a id="{{ss.inip}}" ng-if="ss.inip" type="checkbox" name="selected"  ng-checked="isSelected(ss.inip)" ng-click="inipUpdateSelection($event, ss.id, ss.inip)" style="zoom: 125%"/>
                                 <a style="cursor: pointer;" title="打开" ng-click="sendfile.openOne(ss.inip)">{{ss.inip}}</a>
                                     <i ng-if="ss.inip && ! ss.inips.status" class="fa fa-exclamation-circle" aria-hidden="true"></i>
                                     <i ng-if="ss.inip && ss.inips.status=='fail'" class="fa fa-circle" style="color: red;" aria-hidden="true"></i>
                                     <i ng-if="ss.inip && ss.inips.status=='success'" class="fa fa-circle" style="color: green;" aria-hidden="true"></i>
                             </td>
-                            <td style="width: 15%" data-title="'外网ip'" filter="{ exip: 'text'}"><a ng-if="ss.exip" id="{{ss.exip}}" type="checkbox" name="selected"  ng-checked="isSelected(ss.exip)" ng-click="exipUpdateSelection($event, ss.id, ss.exip)" style="zoom: 125%"/>
+                            <td style="width: 15%" data-title="'C3T.外网IP'|translate" filter="{ exip: 'text'}"><a ng-if="ss.exip" id="{{ss.exip}}" type="checkbox" name="selected"  ng-checked="isSelected(ss.exip)" ng-click="exipUpdateSelection($event, ss.id, ss.exip)" style="zoom: 125%"/>
                                 <a style="cursor: pointer;" title="打开" ng-click="sendfile.openOne(ss.exip)">{{ss.exip}}</a>
                                     <i ng-if="ss.exip && ! ss.exips.status" class="fa fa-exclamation-circle" aria-hidden="true"></i>
                                     <i ng-if="ss.exip && ss.exips.status=='fail'" class="fa fa-circle" style="color: red;" aria-hidden="true"></i>
                                     <i ng-if="ss.exip && ss.exips.status=='success'" class="fa fa-circle" style="color: green;" aria-hidden="true"></i>
                             </td>
-                            <td style="width: 5%" data-title="'客户端版本'">
+                            <td style="width: 5%" data-title="'C3T.客户端版本'|translate">
                                 <a ng-if="ss.inip">{{ss.inips.version}}</a>
                                 <a ng-if="ss.exip && ! ss.inip">{{ss.exips.version}}</a>
                             </td>
 
-                            <td style="width: 20%" data-title="'客户端上一次检测时间'">
+                            <td style="width: 20%" data-title="'C3T.客户端上一次检测时间'|translate">
                                 <a ng-if="ss.inip">{{ss.inips.edit_time}}</a>
                                 <a ng-if="ss.exip && ! ss.inip">{{ss.exips.edit_time}}</a>
                             </td>
 
-                            <td style="width: 20%" data-title="'客户端错误原因'">
+                            <td style="width: 20%" data-title="'C3T.客户端错误原因'|translate">
                                 <a ng-if="ss.inip && ss.inips.status=='fail'">failcount:{{ss.inips.fail}}; {{ss.inips.reason}}</a>
                                 <a ng-if="ss.exip && ! ss.inip && ss.exips.status=='fail'">failcount:{{ss.exips.fail}}; {{ss.exips.reason}}</a>
                             </td>
@@ -72,24 +72,24 @@
     <div ng-if="sendfile.filepath" class="panel panel-dark">
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-dark" uib-tooltip="刷新" ng-click="sendfile.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!sendfile.loadover}" ></i></button>
+                <button class="btn btn-dark" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="sendfile.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!sendfile.loadover}" ></i></button>
             </span>
-            <h5>文件管理</h5>
+            <h5>{{'C3T.文件管理'|translate}}</h5>
         </div>
 
         <form class="form-horizontal" name="cForm" role="form" ng-init='openc3_job_system_only=0'>
             <div class="row">
                 <div class="col-sm-8 form-group">
-                    <label class="col-sm-1 control-label">地址</label>
+                    <label class="col-sm-1 control-label">{{'C3T.地址'|translate}}</label>
                     <div class="col-sm-7">
-                        <input type="text" class="form-control" name="tpath" placeholder="路径" ng-minlength="2" ng-model="sendfile.filepath" required>
-                        <span style="color:red" ng-show="cForm.tpath.$error.minlength">不少于2字符</span>
+                        <input type="text" class="form-control" name="tpath" placeholder="{{'C3T.路径'|translate}}" ng-minlength="2" ng-model="sendfile.filepath" required>
+                        <span style="color:red" ng-show="cForm.tpath.$error.minlength">{{'C3T.不少于2字符'|translate}}</span>
                     </div>
                 </div>
                 <div class="col-sm-4 form-group">
-                    <button class="btn btn-primary" ng-click="sendfile.reload()">手动输入查询</button>
-                    <button class="btn btn-primary" ng-click="sendfile.reset()">重置</button>
-                    <button class="btn btn-primary" ng-if="openc3_job_system_only==0" ng-click="sendfile.openOneTab()">打开主机终端</button>
+                    <button class="btn btn-primary" ng-click="sendfile.reload()">{{'C3T.手动输入查询'|translate}}</button>
+                    <button class="btn btn-primary" ng-click="sendfile.reset()">{{'C3T.重置'|translate}}</button>
+                    <button class="btn btn-primary" ng-if="openc3_job_system_only==0" ng-click="sendfile.openOneTab()">{{'C3T.打开主机终端'|translate}}</button>
                 </div>
             </div>
         </form>
@@ -101,16 +101,16 @@
             <div style="float: left;width: 60%">
                 <table ng-table="sendfile.dir_Table" class="table table-hover text-center table-condensed" show-filter="true" style="border: 1px solid #ddd;">
                         <tr ng-repeat="ss in $data" style="text-align: left">
-                            <td data-title="'主机'"> {{ss.host}} </td>
-                            <td data-title="'信息'"> {{ss.info}} </td>
-                            <td data-title="'类型'"> {{ss.type}} </td>
-                            <td data-title="'路径'"> {{ss.path}} </td>
-                            <td class="textcenter" width="75" data-title="'操作'">
+                            <td data-title="'C3T.主机'|translate"> {{ss.host}} </td>
+                            <td data-title="'C3T.信息'|translate"> {{ss.info}} </td>
+                            <td data-title="'C3T.类型'|translate"> {{ss.type}} </td>
+                            <td data-title="'C3T.路径'|translate"> {{ss.path}} </td>
+                            <td class="textcenter" width="75" data-title="'C3T.操作'|translate">
                                 <nobr>
-                                    <i ng-if="ss.type=='parent'" class="fa fa-chevron-circle-left fa-2x" aria-hidden="true" ng-click="sendfile.backdir()" uib-tooltip="返回上一层" style="cursor:pointer;color: red;" ></i>
-                                    <i ng-if="ss.type=='dir'" class="fa fa-chevron-circle-right fa-2x" aria-hidden="true" ng-click="sendfile.intodir( ss.path )" uib-tooltip="进入" style="cursor:pointer;color: #339094;" ></i>
-                                    <i ng-if="ss.type=='file'" class="fa fa-download fa-2x" aria-hidden="true" ng-click="sendfile.startDownloadTask(ss.path)" uib-tooltip="下载" style="cursor:pointer;color: green;" ></i>
-                                    <i ng-if="ss.type=='file'" class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="sendfile.unlinkfile(ss.path)" uib-tooltip="删除文件" style="cursor:pointer;color: red;" ></i>
+                                    <i ng-if="ss.type=='parent'" class="fa fa-chevron-circle-left fa-2x" aria-hidden="true" ng-click="sendfile.backdir()" uib-tooltip="{{'C3T.返回上一层'|translate}}" style="cursor:pointer;color: red;" ></i>
+                                    <i ng-if="ss.type=='dir'" class="fa fa-chevron-circle-right fa-2x" aria-hidden="true" ng-click="sendfile.intodir( ss.path )" uib-tooltip="{{'C3T.进入'|translate}}" style="cursor:pointer;color: #339094;" ></i>
+                                    <i ng-if="ss.type=='file'" class="fa fa-download fa-2x" aria-hidden="true" ng-click="sendfile.startDownloadTask(ss.path)" uib-tooltip="{{'C3T.下载'|translate}}" style="cursor:pointer;color: green;" ></i>
+                                    <i ng-if="ss.type=='file'" class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="sendfile.unlinkfile(ss.path)" uib-tooltip="{{'C3T.删除文件'|translate}}" style="cursor:pointer;color: red;" ></i>
                                 </nobr>
                             </td>
                         </tr>
@@ -122,19 +122,19 @@
 
                 <input type="file" id="choicefiles" style="display: none" onchange="angular.element(this).scope().upForm()" multiple="multiple" />
                 <button class="btn btn-primary" ng-click="sendfile.clickImport()" >
-                    <span class="glyphicon glyphicon-upload" style="padding: 0 3px;"></span>上传文件
+                    <span class="glyphicon glyphicon-upload" style="padding: 0 3px;"></span>{{'C3T.上传文件'|translate}}
                 </button>
  
                 <table ng-table="sendfile.fileserver_Table" class="table table-hover text-center table-condensed" show-filter="true" style="border: 1px solid #ddd;">
                         <tr ng-repeat="ss in $data" style="text-align: left">
                             <td data-title="'ID'"> {{ss.id}} </td>
-                            <td data-title="'文件名'"> {{ss.name}} </td>
-                            <td data-title="'大小'"> {{sendfile.bytesToSize(ss.size)}} </td>
-                            <td class="textcenter" width="75" data-title="'操作'">
+                            <td data-title="'C3T.文件名'|translate"> {{ss.name}} </td>
+                            <td data-title="'C3T.大小'|translate"> {{sendfile.bytesToSize(ss.size)}} </td>
+                            <td class="textcenter" width="75" data-title="'C3T.操作'|translate">
                                 <nobr>
-                                    <i class="fa fa-upload fa-2x" aria-hidden="true" ng-click="sendfile.startUoloadTask( ss.name )" uib-tooltip="上传" style="cursor:pointer;color: #339094;" ></i>
-                                    <i class="fa fa-download fa-2x" aria-hidden="true" ng-click="sendfile.downloadfile(ss.name)" uib-tooltip="下载" style="cursor:pointer;color: green;" ></i>
-                                    <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="sendfile.deleteFile(ss.id)" uib-tooltip="删除" style="cursor:pointer;color: red;" ></i>
+                                    <i class="fa fa-upload fa-2x" aria-hidden="true" ng-click="sendfile.startUoloadTask( ss.name )" uib-tooltip="{{'C3T.上传'|translate}}" style="cursor:pointer;color: #339094;" ></i>
+                                    <i class="fa fa-download fa-2x" aria-hidden="true" ng-click="sendfile.downloadfile(ss.name)" uib-tooltip="{{'C3T.下载'|translate}}" style="cursor:pointer;color: green;" ></i>
+                                    <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="sendfile.deleteFile(ss.id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: red;" ></i>
                                 </nobr>
                             </td>
                         </tr>
@@ -142,10 +142,10 @@
 
                 <table ng-table="sendfile.sendfiletask_Table" class="table table-hover text-center table-condensed" show-filter="true" style="border: 1px solid #ddd;">
                         <tr ng-repeat="ss in $data" style="text-align: left">
-                            <td data-title="'今日任务'"> {{ss.name}} </td>
-                            <td data-title="'操作人'"> {{ss.user}} </td>
-                            <td data-title="'耗时(秒)'"> {{ss.runtime}} </td>
-                            <td data-title="'状态'"> {{ss.status}} </td>
+                            <td data-title="'C3T.今日任务'|translate"> {{ss.name}} </td>
+                            <td data-title="'C3T.操作人'|translate"> {{ss.user}} </td>
+                            <td data-title="'C3T.耗时(秒)'|translate"> {{ss.runtime}} </td>
+                            <td data-title="'C3T.状态'|translate"> {{ss.status}} </td>
                         </tr>
                 </table>
  

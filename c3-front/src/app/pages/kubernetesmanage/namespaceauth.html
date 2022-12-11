@@ -2,26 +2,26 @@
     <div class="panel panel-primary">
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="kubernetesnamespaceauth.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetesnamespaceauth.loadover}" ></i></button>
-                <button class="btn btn-primary" uib-tooltip="关闭" ng-click="kubernetesnamespaceauth.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="kubernetesnamespaceauth.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetesnamespaceauth.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.关闭'|translate}}" ng-click="kubernetesnamespaceauth.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
             </span>
-            <h5>Namespace 授权 管理 集群:{{kubernetesnamespaceauth.clusterinfo.name}}</h5>
+            <h5>Namespace {{'C3T.授权'|translate}} {{'C3T.管理'|translate}} {{'C3T.集群'|translate}}:{{kubernetesnamespaceauth.clusterinfo.name}}</h5>
         </div>
 
         <div class="panel-body" style="margin-top: 2px">
-                    <button class="btn btn-info" uib-tooltip="创建secret" ng-click="kubernetesnamespaceauth.createNamespaceAuth('','',kubernetesnamespaceauth.namespace)"><i class="fa fa-cubes" aria-hidden="true">添加授权</i></button>
+                    <button class="btn btn-info" uib-tooltip="{{'C3T.创建secret'|translate}}" ng-click="kubernetesnamespaceauth.createNamespaceAuth('','',kubernetesnamespaceauth.namespace)"><i class="fa fa-cubes" aria-hidden="true">{{'C3T.添加授权'|translate}}</i></button>
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesnamespaceauth.nodeTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'命名空间'" width="80" filter="{ namespace: 'text'}" sortable="'namespace'">{{m.namespace}}</td>
-                        <td data-title="'用户'" width="80" filter="{ user: 'text'}" sortable="'user'">{{m.user}}</td>
-                        <td data-title="'权限'" width="80" filter="{ auth: 'text'}" sortable="'auth'">
-                            <a ng-if="m.auth=='r'"  >读权限 </a>
-                            <a ng-if="m.auth=='rx'"  >[读+执行]权限 </a>
-                            <a ng-if="m.auth=='rw'" >[读+写+执行]权限</a>
+                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ namespace: 'text'}" sortable="'namespace'">{{m.namespace}}</td>
+                        <td data-title="'C3T.用户'|translate" width="80" filter="{ user: 'text'}" sortable="'user'">{{m.user}}</td>
+                        <td data-title="'C3T.权限'|translate" width="80" filter="{ auth: 'text'}" sortable="'auth'">
+                            <a ng-if="m.auth=='r'"  >{{'C3T.读权限'|translate}} </a>
+                            <a ng-if="m.auth=='rx'"  >{{'C3T.[读+执行]权限'|translate}} </a>
+                            <a ng-if="m.auth=='rw'" >{{'C3T.[读+写+执行]权限'|translate}}</a>
                         </td>
-                        <td data-title="'操作'" width="80" >
-                            <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesnamespaceauth.deleteAuth(m.id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                        <td data-title="'C3T.操作'|translate" width="80" >
+                            <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetesnamespaceauth.deleteAuth(m.id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
                         </td> 
                     </tr>
                 </table>

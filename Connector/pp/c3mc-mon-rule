@@ -37,10 +37,9 @@ for my $treeid ( keys %rule )
     my @rules;
     for my $rule ( @{$rule{$treeid}} )
     {
-        push @rules, +{
+        my $x = +{
             alert => $rule->{ alert },
             expr  => $rule->{ expr  },
-            for   => $rule->{ for   } || '1s',
             labels => +{
                 severity   => $rule->{severity},
                 fromtreeid => $treeid,
@@ -51,6 +50,10 @@ for my $treeid ( keys %rule )
                 value       => $rule->{ value       }||'-',
             },
         };
+
+        $x->{for} = $rule->{ for } if $rule->{ for };
+
+        push @rules, $x;
     }
 
     push @groups, +{ name => "treeid_$treeid", rules => \@rules };

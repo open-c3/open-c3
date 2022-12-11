@@ -1,11 +1,11 @@
 <div class="row block">
-    <h2>用户部门关系绑定</h2>
+    <h2>{{'C3T.用户部门关系绑定'|translate}}</h2>
     <hr class="mv20 clear">
 
     <div>
         <div style="float: right;">
             <form class="form-inline" name="myForm" novalidate>
-                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="userdepartment.createUserdepartment()"><i class="fa fa-plusecircle fa-lg" aria-hidden="true"></i>添加用户部门关联</button>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="userdepartment.createUserdepartment()"><i class="fa fa-plusecircle fa-lg" aria-hidden="true"></i>{{'C3T.添加用户部门关联'|translate}}</button>
             </form>
         </div>
         <div style="clear: both;">&nbsp;</div>
@@ -14,9 +14,9 @@
     <div class="panel panel-primary">
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="userdepartment.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!userdepartment.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="userdepartment.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!userdepartment.loadover}" ></i></button>
             </span>
-            <h5>用户部门关联关系</h5>
+            <h5>{{'C3T.用户部门关联关系'|translate}}</h5>
         </div>
 
         <div class="panel-body">
@@ -24,12 +24,12 @@
                 <table ng-table="userdepartment.dataTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
                         <td width="60" class="textcenter" data-title="'ID'" filter="{ id: 'text'}" sortable="'id'"> {{m.id}} </td>
-                        <td data-title="'用户'" width="80" filter="{ user: 'text'}" sortable="'user'">{{m.user}}</td>
-                        <td data-title="'部门'" width="80" filter="{ department: 'text'}" sortable="'department'">{{m.department}}</td>
-                        <td data-title="'最后编辑人'" width="80" filter="{ edit_user: 'text'}" sortable="'edit_user'">{{m.edit_user}}</td>
-                        <td data-title="'更新时间'" width="80" filter="{ edit_time: 'text'}" sortable="'edit_time'">{{m.edit_time}}</td>
-                        <td data-title="'操作'" width="80" >
-                            <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="userdepartment.deleteUserdepartment(m.id)" uib-tooltip="删除" style="cursor:pointer;color: red;" ></i>
+                        <td data-title="'C3T.用户'|translate" width="80" filter="{ user: 'text'}" sortable="'user'">{{m.user}}</td>
+                        <td data-title="'C3T.部门'|translate" width="80" filter="{ department: 'text'}" sortable="'department'">{{m.department}}</td>
+                        <td data-title="'C3T.最后编辑人'|translate" width="80" filter="{ edit_user: 'text'}" sortable="'edit_user'">{{m.edit_user}}</td>
+                        <td data-title="'C3T.更新时间'|translate" width="80" filter="{ edit_time: 'text'}" sortable="'edit_time'">{{m.edit_time}}</td>
+                        <td data-title="'C3T.操作'|translate" width="80" >
+                            <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="userdepartment.deleteUserdepartment(m.id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: red;" ></i>
                         </td>
                     </tr>
                 </table>

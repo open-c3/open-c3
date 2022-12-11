@@ -6,7 +6,7 @@
         .config(config);
 
     /** @ngInject */
-    function config($logProvider, $httpProvider, toastrConfig, $sceDelegateProvider, env) {
+    function config($logProvider, $translateProvider, $httpProvider, toastrConfig, $sceDelegateProvider, env) {
 
         $sceDelegateProvider.resourceUrlWhitelist([
           // Allow same origin resource loads.
@@ -25,6 +25,18 @@
 
         // interceptor
         $httpProvider.interceptors.push('authInterceptor');
+
+        // translate
+        $translateProvider
+            .useCookieStorage()
+            .useLoader('langAsyncLoader')
+            .useSanitizeValueStrategy('escape')
+            .fallbackLanguage('zh_CN')
+            .registerAvailableLanguageKeys(['en', 'zh_CN'], {
+                'en_*': 'en',
+                'zh_*': 'zh_CN'
+            })
+            .determinePreferredLanguage();
 
         // Set options third-party lib
         toastrConfig.allowHtml = true;

@@ -2,7 +2,7 @@
     <div>
         <div style="float: right;">
             <form class="form-inline" name="myForm" novalidate>
-                <button type="submit" ng-disabled="myForm.$invalid" class="btn btn-primary" ng-click="images.createImages()"><i class="fa fa-cube fa-lg" aria-hidden="true"></i>新建镜像</button>
+                <button type="submit" ng-disabled="myForm.$invalid" class="btn btn-primary" ng-click="images.createImages()"><i class="fa fa-cube fa-lg" aria-hidden="true"></i>{{'C3T.新建镜像'|translate}}</button>
             </form>
         </div>
         <div style="clear: both;">&nbsp;</div>
@@ -11,23 +11,23 @@
 
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="images.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!images.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="images.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!images.loadover}" ></i></button>
             </span>
-            <h5>镜像</h5>
+            <h5>{{'C3T.镜像'|translate}}</h5>
         </div>
 
         <div class="panel-body">
             <div class="panel-tabs">
                 <table ng-table="images.group_Table" class="table table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="d in $data">
-                        <td style="width: 10%" data-title="'镜像名称'" filter="{ name: 'text'}" sortable="'name'">{{d.name}}</td>
-                        <td style="width: 10%" data-title="'创建时间'" filter="{ edit_time: 'text'}" sortable="'edit_time'">{{d.edit_time}}</td>
-                        <td style="width: 10%" data-title="'最后编辑人'" filter="{ edit_user: 'text'}" sortable="'edit_user'">{{d.edit_user}}</td>
-                        <td style="width: 10%" data-title="'备注'" filter="{ describe: 'text'}" sortable="'describe'">{{d.describe}}</td>
-                        <td style="width: 10%" data-title="'操作'">
+                        <td style="width: 10%" data-title="'C3T.镜像名称'|translate" filter="{ name: 'text'}" sortable="'name'">{{d.name}}</td>
+                        <td style="width: 10%" data-title="'C3T.创建时间'|translate" filter="{ edit_time: 'text'}" sortable="'edit_time'">{{d.edit_time}}</td>
+                        <td style="width: 10%" data-title="'C3T.最后编辑人'|translate" filter="{ edit_user: 'text'}" sortable="'edit_user'">{{d.edit_user}}</td>
+                        <td style="width: 10%" data-title="'C3T.备注'|translate" filter="{ describe: 'text'}" sortable="'describe'">{{d.describe}}</td>
+                        <td style="width: 10%" data-title="'C3T.操作'|translate">
 
-                            <button class="btn btn-primary btn-sm" ng-disabled="d.self==0" ng-click="images.editImages(d.id)">编辑</button>
-                            <button class="btn btn-danger btn-sm" ng-disabled="d.self==0" ng-click="images.deleteImages(d.id)">删除</button>
+                            <button class="btn btn-primary btn-sm" ng-disabled="d.self==0" ng-click="images.editImages(d.id)">{{'C3T.编辑'|translate}}</button>
+                            <button class="btn btn-danger btn-sm" ng-disabled="d.self==0" ng-click="images.deleteImages(d.id)">{{'C3T.删除'|translate}}</button>
                         </td>
                     </tr>
                 </table>

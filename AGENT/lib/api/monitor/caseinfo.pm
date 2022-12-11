@@ -64,6 +64,10 @@ get '/monitor/caseinfo/allcase' => sub {
         $api::mysql->query( 
             sprintf( "select %s from openc3_monitor_caseinfo where casestat='firing' and mtime>$expire", join( ',', @col)), \@col )};
 
+    for my $x ( @$r )
+    {
+        ( undef, $x->{startat} ) = split /\./, $x->{caseuuid}, 2;
+    }
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
 

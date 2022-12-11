@@ -4,7 +4,7 @@
 
     <div ng-show="openc3_demo_version_only">
         <div style="float: left;font-size: 60px;">
-            体验版不支持该功能
+            {{'C3T.体验版不支持该功能'|translate}}
         </div>
     </div>
 
@@ -21,7 +21,7 @@
 
     <div class="panel panel-primary" ng-show="!openc3_demo_version_only">
         <div class="panel-heading">
-            <h5>监控看板</h5>
+            <h5>{{'C3T.监控看板'|translate}}</h5>
         </div>
 
         <div class="panel-body flowline">
@@ -29,20 +29,20 @@
 
                 <div class="row">
                     <div class="col-sm-12 form-group">
-                        <label class="col-sm-1 control-label">选择看板</label>
+                        <label class="col-sm-1 control-label">{{'C3T.选择看板'|translate}}</label>
                         <div class="col-sm-4">
                             <select id="selecteddataval" class="form-control"  ng-model="monitorkanban.choiceKanban" ng-change="monitorkanban.changeKanban()">
-                                 <option value="_host_">主机监控</option>
+                                 <option value="_host_">{{'C3T.主机监控'|translate}}</option>
                                  <option ng-repeat="x in monitorkanban.clusterlist" value="{{x.url}}">{{x.name}}</option>
                             </select>
                         </div>
                         <div class="col-sm-3">
-                            <button class="btn btn-info" uib-tooltip="看版管理" ng-click="monitorkanban.kanbanConfig()"><i class="fa fa-plus" aria-hidden="true">看版管理</i></button>
+                            <button class="btn btn-info" uib-tooltip="{{'C3T.看版管理'|translate}}" ng-click="monitorkanban.kanbanConfig()"><i class="fa fa-plus" aria-hidden="true">{{'C3T.看板管理'|translate}}</i></button>
                         </div>
                     </div>
                 </div>
 
-                <a class="glyphicon glyphicon-share" data-toggle="tooltip" data-placement="right" ng-click="monitorkanban.openNewWindow( monitorkanban.url )" uib-tooltip="{{monitorkanban.url}}" aria-hidden="true" style="padding-top: 11px;font-size: larger;cursor:pointer;">在新页面打开grafana</a>
+                <a class="glyphicon glyphicon-share" data-toggle="tooltip" data-placement="right" ng-click="monitorkanban.openNewWindow( monitorkanban.url )" uib-tooltip="{{monitorkanban.url}}" aria-hidden="true" style="padding-top: 11px;font-size: larger;cursor:pointer;">{{'C3T.在新页面打开grafana'|translate}}</a>
                 <iframe id="frame_id" ng-src="{{monitorkanban.trustSrc()}}" width="100%" height="800" frameborder="0" name="grafana" scrolling="auto"></iframe> 
             </div>
         </div>

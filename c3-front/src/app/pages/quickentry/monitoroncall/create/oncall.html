@@ -1,5 +1,5 @@
 <div class="modal-header">
-    <h4 class="modal-title">{{createMonitorOncallOncall.title}}值班组</h4>
+    <h4 class="modal-title">{{createMonitorOncallOncall.title|translate}} {{'C3T.值班组'|translate}}</h4>
 </div>
 <div class="modal-body">
 
@@ -7,19 +7,19 @@
 
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">名称<a style="color: red;">*</a></label>
+                <label class="col-sm-3 control-label">{{'C3T.名称'|translate}}<a style="color: red;">*</a></label>
                 <div class="col-sm-9">
-                    <input ng-if="createMonitorOncallOncall.title!=='编辑'" type="text" class="form-control" placeholder="组名" ng-model="createMonitorOncallOncall.postData.name" required>
-                    <input ng-if="createMonitorOncallOncall.title=='编辑'" type="text" class="form-control" placeholder="组名" ng-model="createMonitorOncallOncall.postData.name" readonly required>
+                    <input ng-if="createMonitorOncallOncall.title!=='编辑'" type="text" class="form-control" placeholder="{{'C3T.组名'|translate}}" ng-model="createMonitorOncallOncall.postData.name" required>
+                    <input ng-if="createMonitorOncallOncall.title=='编辑'" type="text" class="form-control" placeholder="{{'C3T.组名'|translate}}" ng-model="createMonitorOncallOncall.postData.name" readonly required>
                 </div>
             </div>
         </div>
 
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">描述</label>
+                <label class="col-sm-3 control-label">{{'C3T.描述'|translate}}</label>
                 <div class="col-sm-9">
-                    <input type="text" class="form-control" placeholder="值班组描述" ng-model="createMonitorOncallOncall.postData.description">
+                    <input type="text" class="form-control" placeholder="{{'C3T.监控值班组描述'|translate}}" ng-model="createMonitorOncallOncall.postData.description">
                 </div>
             </div>
         </div>
@@ -36,8 +36,8 @@
 
         <div class="row">
             <div class="col-sm-5 form-group pull-right">
-                <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="createMonitorOncallOncall.add()">确认</button>
-                <button class="btn btn-warning" ng-click="createMonitorOncallOncall.cancel()">取消</button>
+                <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="createMonitorOncallOncall.add()">{{'C3T.确认'|translate}}</button>
+                <button class="btn btn-warning" ng-click="createMonitorOncallOncall.cancel()">{{'C3T.取消'|translate}}</button>
             </div>
         </div>
     </form>
