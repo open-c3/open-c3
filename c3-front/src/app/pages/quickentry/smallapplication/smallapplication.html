@@ -5,9 +5,9 @@
     <div class="panel panel-primary">
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="smallapplication.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!smallapplication.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="smallapplication.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!smallapplication.loadover}" ></i></button>
             </span>
-            <h5>轻应用</h5>
+            <h5>{{'C3T.轻应用'|translate}}</h5>
         </div>
 
         <div class="panel-body">
@@ -15,15 +15,15 @@
                 <table ng-table="smallapplication.dataTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
                         <td width="60" class="textcenter" data-title="'ID'" filter="{ id: 'text'}" sortable="'id'"> {{m.id}} </td>
-                        <td data-title="'类型'" width="80" filter="{ type: 'text'}" sortable="'type'">{{m.type}}</td>
-                        <td data-title="'名称'" width="80" filter="{ title: 'text'}" sortable="'title'">{{m.title}}</td>
-                        <td data-title="'描述'" width="80" filter="{ describe: 'text'}" sortable="'describe'">{{m.describe}}</td>
-                        <td data-title="'创建人'" width="80" filter="{ create_user: 'text'}" sortable="'create_user'">{{m.create_user}}</td>
-                        <td data-title="'最后编辑人'" width="80" filter="{ edit_user: 'text'}" sortable="'edit_user'">{{m.edit_user}}</td>
-                        <td data-title="'创建时间'" width="80" filter="{ create_time: 'text'}" sortable="'create_time'">{{m.create_time}}</td>
-                        <td data-title="'最后更新时间'" width="80" filter="{ edit_time: 'text'}" sortable="'edit_time'">{{m.edit_time}}</td>
-                        <td data-title="'操作'" width="80" >
-                            <i class="fa fa-chevron-circle-right fa-2x" aria-hidden="true" ui-sref="home.quickentry.runtasksa({treeid: {{m.projectid}}, jobid: {{m.jobid}}})" uib-tooltip="进入" style="cursor:pointer;color: #339094;" ></i>
+                        <td data-title="'C3T.类型'|translate" width="80" filter="{ type: 'text'}" sortable="'type'">{{m.type}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ title: 'text'}" sortable="'title'">{{m.title}}</td>
+                        <td data-title="'C3T.描述'|translate" width="80" filter="{ describe: 'text'}" sortable="'describe'">{{m.describe}}</td>
+                        <td data-title="'C3T.创建人'|translate" width="80" filter="{ create_user: 'text'}" sortable="'create_user'">{{m.create_user}}</td>
+                        <td data-title="'C3T.最后编辑人'|translate" width="80" filter="{ edit_user: 'text'}" sortable="'edit_user'">{{m.edit_user}}</td>
+                        <td data-title="'C3T.创建时间'|translate" width="80" filter="{ create_time: 'text'}" sortable="'create_time'">{{m.create_time}}</td>
+                        <td data-title="'C3T.最后更新时间'|translate" width="80" filter="{ edit_time: 'text'}" sortable="'edit_time'">{{m.edit_time}}</td>
+                        <td data-title="'C3T.操作'|translate" width="80" >
+                            <i class="fa fa-chevron-circle-right fa-2x" aria-hidden="true" ui-sref="home.quickentry.runtasksa({treeid: {{m.projectid}}, jobid: {{m.jobid}}})" uib-tooltip="{{'C3T.进入'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                         </td> 
                     </tr>
                 </table>

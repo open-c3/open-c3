@@ -1,5 +1,5 @@
 <div class="modal-header">
-    <h4 class="modal-title">{{createMonitorMailmonMailmon.title}}邮件监控项</h4>
+    <h4 class="modal-title">{{createMonitorMailmonMailmon.title|translate}} {{'C3T.邮件监控项'|translate}}</h4>
 </div>
 <div class="modal-body">
 
@@ -7,19 +7,19 @@
 
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">名称<a style="color: red;">*</a></label>
+                <label class="col-sm-3 control-label">{{'C3T.名称'|translate}}<a style="color: red;">*</a></label>
                 <div class="col-sm-9">
-                    <input ng-if="createMonitorMailmonMailmon.title!=='编辑'" type="text" class="form-control" placeholder="名称" ng-model="createMonitorMailmonMailmon.postData.name" required>
-                    <input ng-if="createMonitorMailmonMailmon.title=='编辑'" type="text" class="form-control" placeholder="名称" ng-model="createMonitorMailmonMailmon.postData.name" readonly required>
+                    <input ng-if="createMonitorMailmonMailmon.title!=='编辑'" type="text" class="form-control" placeholder="{{'C3T.名称'|translate}}" ng-model="createMonitorMailmonMailmon.postData.name" required>
+                    <input ng-if="createMonitorMailmonMailmon.title=='编辑'" type="text" class="form-control" placeholder="{{'C3T.名称'|translate}}" ng-model="createMonitorMailmonMailmon.postData.name" readonly required>
                 </div>
             </div>
         </div>
 
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">描述</label>
+                <label class="col-sm-3 control-label">{{'C3T.描述'|translate}}</label>
                 <div class="col-sm-9">
-                    <input type="text" class="form-control" placeholder="描述" ng-model="createMonitorMailmonMailmon.postData.description">
+                    <input type="text" class="form-control" placeholder="{{'C3T.描述{'|translate}}" ng-model="createMonitorMailmonMailmon.postData.description">
                 </div>
             </div>
         </div>
@@ -36,8 +36,8 @@
 
         <div class="row">
             <div class="col-sm-5 form-group pull-right">
-                <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="createMonitorMailmonMailmon.add()">确认</button>
-                <button class="btn btn-warning" ng-click="createMonitorMailmonMailmon.cancel()">取消</button>
+                <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="createMonitorMailmonMailmon.add()">{{'C3T.确认'|translate}}</button>
+                <button class="btn btn-warning" ng-click="createMonitorMailmonMailmon.cancel()">{{'C3T.取消'|translate}}</button>
             </div>
         </div>
     </form>

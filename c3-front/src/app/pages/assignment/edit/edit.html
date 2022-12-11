@@ -5,34 +5,34 @@
         <div class="panel-heading">
             <span class="panel-controls">
 
-                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="assignmentedit.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!assignmentedit.loadover}" ></i></button>
-                <button class="btn btn-primary" ng-click="assignmentedit.cancel()" uib-tooltip="关闭">
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="assignmentedit.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!assignmentedit.loadover}" ></i></button>
+                <button class="btn btn-primary" ng-click="assignmentedit.cancel()" uib-tooltip="{{'C3T.关闭'|translate}}">
                     <i class="fa fa-times fa-fw"></i>
                 </button>
             </span>
-            <h5>名称:{{assignmentedit.data.name}}</h5>
+            <h5>{{'C3T.名称'|translate}}:{{assignmentedit.data.name}}</h5>
         </div>
 
         <div class="table-responsive" style="width: 100%">
             <table class="table table-bordered" style="font-weight: bold;border: 0px;">
                 <tbody>
                     <tr>
-                        <td>创建时间</td>
+                        <td>{{'C3T.创建时间'|translate}}</td>
                         <td>{{assignmentedit.data.create_time}}</td>
-                        <td>结束时间</td>
+                        <td>{{'C3T.结束时间'|translate}}</td>
                         <td>{{assignmentedit.data.finish_time}}</td>
                     </tr>
                     <tr>
-                        <td>提交人</td>
+                        <td>{{'C3T.提交人'|translate}}</td>
                         <td>{{assignmentedit.data.submitter}}</td>
-                        <td>处理人</td>
+                        <td>{{'C3T.处理人'|translate}}</td>
                         <td>{{assignmentedit.data.handler}}</td>
                     </tr>
 
                     <tr>
-                        <td>类型</td>
+                        <td>{{'C3T.类型'|translate}}</td>
                         <td>{{assignmentedit.data.type}}</td>
-                        <td>审批名称</td>
+                        <td>{{'C3T.审批名称'|translate}}</td>
                         <td>{{assignmentedit.data.name}}</td>
                     </tr>
 
@@ -40,15 +40,15 @@
             </table>
         </div>
 
-        <a><pre>申请详情: {{assignmentedit.data.remarks}}</pre></a>
-        <a><pre>申请理由: {{assignmentedit.data.submit_reason}}</pre></a>
-        <a ng-show="!(assignmentedit.show && assignmentedit.data.status==='todo')"><pre>处理答复: {{assignmentedit.data.handle_reason}}</pre></a>
-        <a ng-show="assignmentedit.show && assignmentedit.data.status==='todo'">处理答复:</a>
+        <a><pre>{{'C3T.申请详情'|translate}}: {{assignmentedit.data.remarks}}</pre></a>
+        <a><pre>{{'C3T.申请理由'|translate}}: {{assignmentedit.data.submit_reason}}</pre></a>
+        <a ng-show="!(assignmentedit.show && assignmentedit.data.status==='todo')"><pre>{{'C3T.处理答复'|translate}}: {{assignmentedit.data.handle_reason}}</pre></a>
+        <a ng-show="assignmentedit.show && assignmentedit.data.status==='todo'">{{'C3T.处理答复'|translate}}:</a>
         <textarea style="min-height: 100px;" ng-show="assignmentedit.show && assignmentedit.data.status==='todo'" class="form-control" rows="3" cols="100" ng-model="assignmentedit.data.handle_reason" > </textarea>
 
         <div ng-if="assignmentedit.show" class="panel-footer text-right">
-            <button class="btn btn-success" ng-disabled="assignmentedit.data.status!=='todo'" ng-click="assignmentedit.commit()">提交</button>
-            <button class="btn btn-danger" ng-disabled="assignmentedit.data.status!=='todo'"ng-click="assignmentedit.updateStatus('refuse')">拒绝</button>
+            <button class="btn btn-success" ng-disabled="assignmentedit.data.status!=='todo'" ng-click="assignmentedit.commit()">{{'C3T.提交'|translate}}</button>
+            <button class="btn btn-danger" ng-disabled="assignmentedit.data.status!=='todo'"ng-click="assignmentedit.updateStatus('refuse')">{{'C3T.拒绝'|translate}}</button>
         </div>
 
     </div>

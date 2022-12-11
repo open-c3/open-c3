@@ -2,19 +2,19 @@
     <div class="panel panel-primary">
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="versionlog.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!versionlog.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="versionlog.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!versionlog.loadover}" ></i></button>
             </span>
-            <h5>系统代码更新</h5>
+            <h5>{{'C3T.系统代码更新'|translate}}</h5>
         </div>
 
         <div class="panel-body">
-            版本：{{versionlog.versionname}}-{{versionlog.versionuuid}}<br>
-            更新：{{versionlog.versiontime}}
+            {{'C3T.版本'|translate}}：{{versionlog.versionname}}-{{versionlog.versionuuid}}<br>
+            {{'C3T.更新'|translate}}：{{versionlog.versiontime}}
             <div class="panel-tabs">
                 <table ng-table="versionlog.versionlogTable" class="table table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="d in $data">
-                        <td data-title="'时间'">{{d.time}}</td>
-                        <td style="text-align:left;" data-title="'更新内容'">{{d.mesg}}</td>
+                        <td data-title="'C3T.时间'|translate">{{d.time}}</td>
+                        <td style="text-align:left;" data-title="'C3T.更新内容'|translate">{{d.mesg}}</td>
                     </tr>
                 </table>
             </div>

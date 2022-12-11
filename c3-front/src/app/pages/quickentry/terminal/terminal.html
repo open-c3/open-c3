@@ -8,7 +8,7 @@
     <div class="row">
         <div class="col-sm-8 form-group">
             <label class="control-label" style="padding-top: 8px;padding-right: 0;width: 11%;float: left;position: relative;min-height: 1px;padding-left: 15px;">
-                执行账户
+                {{'C3T.执行账户'|translate}}
             </label>
             <div class="col-sm-4">
                 <form action="">
@@ -23,9 +23,9 @@
     <div class="panel panel-dark">
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-dark" uib-tooltip="刷新" ng-click="templatecmd.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!templatecmd.loadover}" ></i></button>
+                <button class="btn btn-dark" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="templatecmd.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!templatecmd.loadover}" ></i></button>
             </span>
-            <h5>总数: {{templatecmd.nodecount}}</h5>
+            <h5>{{'C3T.总数'|translate}}: {{templatecmd.nodecount}}</h5>
         </div>
 
         <div class="panel-body">
@@ -36,31 +36,31 @@
                         <tr ng-repeat="ss in $data" style="text-align: left">
                             <!-- <td style="width: 15%" data-title="'机器名称'" filter="{ name: 'text'}"><input id="{{ss.name}}" type="checkbox" name="selected"  ng-checked="isSelected(ss.name)" ng-click="nameUpdateSelection($event, ss.id, ss.name)" style="zoom: 125%"/>
                                 <a style="cursor: pointer;" title="打开终端" ng-click="openOneTab(ss.name)">{{ss.name}}</a></td> -->
-                            <td style="width: 15%" data-title="'机器名称'"> {{ss.name}} </td> 
-                            <td style="width: 5%" data-title="'类型'" filter="{ type: 'text'}">{{ss.type}}</td>
-                            <td style="width: 15%" data-title="'内网IP'" filter="{ inip: 'text'}"><input id="{{ss.inip}}" ng-if="ss.inip" type="checkbox" name="selected"  ng-checked="isSelected(ss.inip)" ng-click="inipUpdateSelection($event, ss.id, ss.inip)" style="zoom: 125%"/>
+                            <td style="width: 15%" data-title="'C3T.机器名称'|translate"> {{ss.name}} </td> 
+                            <td style="width: 5%" data-title="'C3T.类型'|translate" filter="{ type: 'text'}">{{ss.type}}</td>
+                            <td style="width: 15%" data-title="'C3T.内网IP'|translate" filter="{ inip: 'text'}"><input id="{{ss.inip}}" ng-if="ss.inip" type="checkbox" name="selected"  ng-checked="isSelected(ss.inip)" ng-click="inipUpdateSelection($event, ss.id, ss.inip)" style="zoom: 125%"/>
                                 <a style="cursor: pointer;" title="打开终端" ng-click="openOneTab(ss.inip)">{{ss.inip}}</a>
                                     <i ng-if="ss.inip && ! ss.inips.status" class="fa fa-exclamation-circle" aria-hidden="true"></i>
                                     <i ng-if="ss.inip && ss.inips.status=='fail'" class="fa fa-circle" style="color: red;" aria-hidden="true"></i>
                                     <i ng-if="ss.inip && ss.inips.status=='success'" class="fa fa-circle" style="color: green;" aria-hidden="true"></i>
                             </td>
-                            <td style="width: 15%" data-title="'外网ip'" filter="{ exip: 'text'}"><input ng-if="ss.exip" id="{{ss.exip}}" type="checkbox" name="selected"  ng-checked="isSelected(ss.exip)" ng-click="exipUpdateSelection($event, ss.id, ss.exip)" style="zoom: 125%"/>
+                            <td style="width: 15%" data-title="'C3T.外网IP'|translate" filter="{ exip: 'text'}"><input ng-if="ss.exip" id="{{ss.exip}}" type="checkbox" name="selected"  ng-checked="isSelected(ss.exip)" ng-click="exipUpdateSelection($event, ss.id, ss.exip)" style="zoom: 125%"/>
                                 <a style="cursor: pointer;" title="打开终端" ng-click="openOneTab(ss.exip)">{{ss.exip}}</a>
                                     <i ng-if="ss.exip && ! ss.exips.status" class="fa fa-exclamation-circle" aria-hidden="true"></i>
                                     <i ng-if="ss.exip && ss.exips.status=='fail'" class="fa fa-circle" style="color: red;" aria-hidden="true"></i>
                                     <i ng-if="ss.exip && ss.exips.status=='success'" class="fa fa-circle" style="color: green;" aria-hidden="true"></i>
                             </td>
-                            <td style="width: 5%" data-title="'客户端版本'">
+                            <td style="width: 5%" data-title="'C3T.客户端版本'|translate">
                                 <a ng-if="ss.inip">{{ss.inips.version}}</a>
                                 <a ng-if="ss.exip && ! ss.inip">{{ss.exips.version}}</a>
                             </td>
 
-                            <td style="width: 20%" data-title="'客户端上一次检测时间'">
+                            <td style="width: 20%" data-title="'C3T.客户端上一次检测时间'|translate">
                                 <a ng-if="ss.inip">{{ss.inips.edit_time}}</a>
                                 <a ng-if="ss.exip && ! ss.inip">{{ss.exips.edit_time}}</a>
                             </td>
 
-                            <td style="width: 20%" data-title="'客户端错误原因'">
+                            <td style="width: 20%" data-title="'C3T.客户端错误原因'|translate">
                                 <a ng-if="ss.inip && ss.inips.status=='fail'">failcount:{{ss.inips.fail}}; {{ss.inips.reason}}</a>
                                 <a ng-if="ss.exip && ! ss.inip && ss.exips.status=='fail'">failcount:{{ss.exips.fail}}; {{ss.exips.reason}}</a>
                             </td>
@@ -74,14 +74,14 @@
                 <table ng-table="choice.choiceResult" class="table table-hover" style="border: 1px solid #ddd;" >
                     <thead >
                     <tr>
-                        <th style="text-align: left;">地址</th>
-                        <th style="text-align: left;">操作</th>
+                        <th style="text-align: left;">{{'C3T.地址'|translate}}</th>
+                        <th style="text-align: left;">{{'C3T.操作'|translate}}</th>
                     </tr>
                     </thead>
                     <tbody>
                     <tr ng-repeat="ss in selectedData">
                         <td>{{ss}}</td>
-                        <td><button ng-click="templatecmd.delChoice($index)">删除</button></td>
+                        <td><button ng-click="templatecmd.delChoice($index)">{{'C3T.删除'|translate}}</button></td>
                     </tr>
                     </tbody>
                 </table>
@@ -92,13 +92,13 @@
                     </button>
                     -->
                     <button class="btn btn-success" ng-click="templatecmd.openNewTab()">
-                        开始操作
+                        {{'C3T.开始操作'|translate}}
                     </button>
                     <button class="btn btn-info" ng-click="templatecmd.delAllData()">
-                        清除
+                        {{'C3T.清除'|translate}}
                     </button>
                     <button class="btn btn-danger" ng-click="templatecmd.selectAllData()">
-                        全选(内网ip)
+                        {{'C3T.全选'|translate}}({{'C3T.内网IP'|translate}})
                     </button>
                 </div>
             </div>

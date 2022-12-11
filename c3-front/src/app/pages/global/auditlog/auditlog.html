@@ -2,7 +2,7 @@
     <div class="panel panel-primary">
 
         <div class="panel-heading">
-            <h5>查询条件</h5>
+            <h5>{{'C3T.查询条件'|translate}}</h5>
         </div>
 
         <div class="panel-body">
@@ -13,20 +13,20 @@
                     <div class="container-fluid">
                         <div class="row">
                             <div class="form-group col-sm-3" style="padding: 0">
-                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">时间：</label>
+                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">{{'C3T.时间'|translate}}：</label>
                                 <input type="text" class="form-control"  ng-model="auditlog.time" placeholder="2021-04-09 11:12">
                             </div>
                             <div class="form-group col-sm-3" style="padding: 0">
-                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">用户：</label>
-                                <input type="text" class="form-control" ng-model="auditlog.user" placeholder="用户名">
+                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">{{'C3T.用户'|translate}}：</label>
+                                <input type="text" class="form-control" ng-model="auditlog.user" placeholder="{{'C3T.用户'|translate}}">
                             </div> 
                             <div class="form-group col-sm-3" style="padding: 0">
-                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">标题：</label>
-                                <input type="text" class="form-control" ng-model="auditlog.title" placeholder="标题">
+                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">{{'C3T.标题'|translate}}：</label>
+                                <input type="text" class="form-control" ng-model="auditlog.title" placeholder="{{'C3T.标题'|translate}}">
                             </div> 
                             <div class="form-group col-sm-3" style="padding: 0">
-                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">内容：</label>
-                                <input type="text" class="form-control" ng-model="auditlog.content" placeholder="内容">
+                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">{{'C3T.内容'|translate}}：</label>
+                                <input type="text" class="form-control" ng-model="auditlog.content" placeholder="{{'C3T.内容'|translate}}">
                             </div> 
                         </div>
 
@@ -37,10 +37,10 @@
                 <hr class="mv20 clear" style="margin-top: 30px!important;">
                 <div class="col-md-10">
                     <button class="btn btn-primary" ng-click="auditlog.reload()">
-                        <i class="fa fa-search fa-fw"></i>查询
+                        <i class="fa fa-search fa-fw"></i>{{'C3T.查询'|translate}}
                     </button>
                     <button class="btn btn-success" ng-click="auditlog.Reset()">
-                        <i class="fa fa-refresh fa-fw"></i>重置
+                        <i class="fa fa-refresh fa-fw"></i>{{'C3T.重置'|translate}}
                     </button>
                 </div>
 
@@ -54,19 +54,19 @@
 
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-dark" uib-tooltip="刷新" ng-click="auditlog.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!auditlog.loadover}" ></i></button>
+                <button class="btn btn-dark" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="auditlog.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!auditlog.loadover}" ></i></button>
             </span>
-            <h5>审计日志</h5>
+            <h5>{{'C3T.审计日志'|translate}}</h5>
         </div>
 
         <div class="panel-body">
             <div class="panel-tabs">
                 <table ng-table="auditlog.auditlogTable" class="table table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="d in $data">
-                        <td data-title="'时间'" filter="{ time: 'text'}" sortable="'time'">{{d.time}}</td>
-                        <td data-title="'用户'" filter="{ user: 'text'}" sortable="'user'">{{d.user}}</td>
-                        <td data-title="'标题'" filter="{ title: 'text'}" sortable="'title'">{{d.title}}</td>
-                        <td data-title="'具体内容'" filter="{ content: 'text'}" sortable="'content'">{{d.content}}</td>
+                        <td data-title="'C3T.时间'|translate" filter="{ time: 'text'}" sortable="'time'">{{d.time}}</td>
+                        <td data-title="'C3T.用户'|translate" filter="{ user: 'text'}" sortable="'user'">{{d.user}}</td>
+                        <td data-title="'C3T.标题'|translate" filter="{ title: 'text'}" sortable="'title'">{{d.title}}</td>
+                        <td data-title="'C3T.具体内容'|translate" filter="{ content: 'text'}" sortable="'content'">{{d.content}}</td>
                     </tr>
                 </table>
             </div>

@@ -5,26 +5,26 @@
         <div class="panel-heading">
             <span class="panel-controls">
 
-                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="adminapprovaledit.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!adminapprovaledit.loadover}" ></i></button>
-                <button class="btn btn-primary" ng-click="adminapprovaledit.cancel()" uib-tooltip="关闭">
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="adminapprovaledit.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!adminapprovaledit.loadover}" ></i></button>
+                <button class="btn btn-primary" ng-click="adminapprovaledit.cancel()" uib-tooltip="{{'C3T.关闭'|translate}}">
                     <i class="fa fa-times fa-fw"></i>
                 </button>
             </span>
-            <h5>审批:{{adminapprovaledit.data.name}}</h5>
+            <h5>{{'C3T.审批'|translate}}:{{adminapprovaledit.data.name}}</h5>
         </div>
 
-        <div class="panel-body" ng-init="ns = { 'null': '未发送', 'sending': '发送中', 'done':'完成', 'skip': '忽略', 'fail': '失败'}">
+        <div class="panel-body" ng-init="ns = { 'null': 'C3T.未发送', 'sending': 'C3T.发送中', 'done':'C3T.完成', 'skip': 'C3T.忽略', 'fail': 'C3T.失败'}">
             <div class="panel-tabs">
                 <table ng-table="adminapprovaledit.dataTable" class="table table-hover text-center table-condensed">
                     <tr ng-repeat="d in $data">
-                        <td style="width: 10%" data-title="'审批人'">{{d.user}}</td>
-                        <td style="width: 10%" data-title="'耗时'">{{adminapprovaledit.seftime(d.create_time,d.finishtime)}}</td>
-                        <td style="width: 10%" data-title="'OA单号'">{{d.oauuid}}</td>
-                        <td style="width: 10%" data-title="'通知状态'" >{{ns[d.notifystatus]}}</td>
-                        <td style="width: 10%" data-title="'审批状态'">
-                            <a ng-if="d.opinion == 'agree'" style="color: green"> 同意 </a>
-                            <a ng-if="d.opinion == 'unconfirmed'"> 未审批 </a>
-                            <a ng-if="d.opinion == 'refuse'" style="color: red"> 拒绝 </a>
+                        <td style="width: 10%" data-title="'C3T.审批人'|translate">{{d.user}}</td>
+                        <td style="width: 10%" data-title="'C3T.耗时'|translate">{{adminapprovaledit.seftime(d.create_time,d.finishtime)}}</td>
+                        <td style="width: 10%" data-title="'C3T.OA单号'|translate">{{d.oauuid}}</td>
+                        <td style="width: 10%" data-title="'C3T.通知状态'|translate" >{{ns[d.notifystatus]|translate}}</td>
+                        <td style="width: 10%" data-title="'C3T.审批状态'|translate">
+                            <a ng-if="d.opinion == 'agree'" style="color: green"> {{'C3T.同意'|translate}} </a>
+                            <a ng-if="d.opinion == 'unconfirmed'"> {{'C3T.未审批'|translate}} </a>
+                            <a ng-if="d.opinion == 'refuse'" style="color: red"> {{'C3T.拒绝'|translate}} </a>
                        </td>
                     </tr>
                 </table>
@@ -35,22 +35,22 @@
             <table class="table table-bordered" style="font-weight: bold;border: 0px;">
                 <tbody>
                     <tr>
-                        <td>创建时间</td>
+                        <td>{{'C3T.创建时间'|translate}}</td>
                         <td>{{adminapprovaledit.data.create_time}}</td>
-                        <td>审批名称</td>
+                        <td>{{'C3T.审批名称'|translate}}</td>
                         <td>{{adminapprovaledit.data.name}}</td>
-                        <td>提交人</td>
+                        <td>{{'C3T.提交人'|translate}}</td>
                         <td>{{adminapprovaledit.data.submitter}}</td>
                     </tr>
                 </tbody>
             </table>
         </div>
 
-        <a><pre>审批内容: {{adminapprovaledit.data.cont}}</pre></a>
+        <a><pre>{{'C3T.审批内容'|translate}}: {{adminapprovaledit.data.cont}}</pre></a>
 
         <div class="panel-footer text-right">
-            <button class="btn btn-success" ng-disabled="!adminapprovaledit.show" ng-click="adminapprovaledit.edit('agree')">同意</button>
-            <button class="btn btn-danger" ng-disabled="!adminapprovaledit.show" ng-click="adminapprovaledit.edit('refuse')">拒绝</button>
+            <button class="btn btn-success" ng-disabled="!adminapprovaledit.show" ng-click="adminapprovaledit.edit('agree')">{{'C3T.同意'|translate}}</button>
+            <button class="btn btn-danger" ng-disabled="!adminapprovaledit.show" ng-click="adminapprovaledit.edit('refuse')">{{'C3T.拒绝'|translate}}</button>
         </div>
 
     </div>

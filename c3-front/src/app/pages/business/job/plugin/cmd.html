@@ -1,5 +1,5 @@
 <div class="modal-header">
-    <h4  class="modal-title">新建脚本步骤</h4>
+    <h4  class="modal-title">{{'C3T.新建脚本步骤'|translate}}</h4>
 </div>
     <div class="panel panel-primary" ng-init='openc3_job_system_only=0'>
         <div class="panel-body">
@@ -9,31 +9,31 @@
                 <form class="form-horizontal" name="scriptForm"  role="form" novalidate>
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">作业名称 <span style="color: red">*</span></label>
+                            <label class="col-sm-3 control-label">{{'C3T.作业名称'|translate}} <span style="color: red">*</span></label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" name="s_name" ng-model="scriptjob.s_name" ng-minlength="3" ng-disabled="unClick" required />
 
-                                <span style="color:red" ng-show="scriptForm.s_name.$error.minlength">不少于2字符</span>
+                                <span style="color:red" ng-show="scriptForm.s_name.$error.minlength">{{'C3T.不少于2字符'|translate}}</span>
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">脚本来源 <span style="color: red">*</span></label>
+                            <label class="col-sm-3 control-label">{{'C3T.脚本来源'|translate}} <span style="color: red">*</span></label>
                             <div class="col-sm-9">
                                 <div class="admin-form">
                                     <div class="option-group field" >
                                         <label class="option option-primary" ng-model="unClick">
                                             <input type="radio" name="src" ng-model="scriptjob.from" value="manual" ng-click="scriptjob.scriptManual()" ng-disabled="unClick">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>手工录入
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.手工录入'|translate}}
                                         </label>
                                         <label class="option option-primary">
                                             <input type="radio" name="src" ng-model="scriptjob.from" value="clone" ng-click="scriptjob.scriptClone()" ng-disabled="unClick">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>脚本克隆
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.脚本克隆'|translate}}
                                         </label>
                                         <label class="option option-primary">
                                             <input type="radio" name="src" ng-model="scriptjob.from" value="local" ng-click="scriptjob.scriptLocal()" ng-disabled="unClick">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>本地脚本
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.本地脚本'|translate}}
                                         </label>
                                     </div>
 
@@ -48,7 +48,7 @@
                     </div>
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">脚本内容 <span style="color: red">*</span></label>
+                            <label class="col-sm-3 control-label">{{'C3T.脚本内容'|translate}} <span style="color: red">*</span></label>
                             <div class="col-sm-9">
                                 <div class="panel panel-primary">
                                     <div style="border: 1px solid #e5e5e5;padding: 10px">
@@ -73,18 +73,18 @@
                                                 </label>
                                                 <label class="option option-primary">
                                                     <input type="radio" name="cont" ng-model="scriptType" ng-click="scriptjob.editorBuildin()" ng-disabled="scriptUnclick" value="buildin">
-                                                    <span class="radio" style="padding-top: 0;min-height: 0"></span>内建
+                                                    <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.内建'|translate}}
                                                 </label>
                                                 <label class="option option-primary">
                                                     <input type="radio" name="cont" ng-model="scriptType" ng-click="scriptjob.editorAuto()" ng-disabled="scriptUnclick" value="auto">
-                                                    <span class="radio" style="padding-top: 0;min-height: 0"></span>自动识别
+                                                    <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.自动识别'|translate}}
                                                 </label>
                                             </div>
                                         </div>
 
                                         <div ng-show="scriptType=='buildin' && scriptjob.from == 'manual'" class="admin-form">
                                             <div class="option-group field" style="padding-bottom: 9px;">
-                                                <label class="option option-primary" style="cursor:default;"></span>内建插件: </label>
+                                                <label class="option option-primary" style="cursor:default;"></span>{{'C3T.内建插件'|translate}}: </label>
                                                 <label class="option option-primary" ng-click="scriptjob.buildinSet( 'kubectl' )" >kubectl</label>
                                                 <label class="option option-primary" ng-click="scriptjob.buildinSet( 'terraform' )" >terraform</label>
                                                 <label class="option option-primary" ng-click="scriptjob.buildinSet( 'terraformv2' )" >terraformv2</label>
@@ -120,12 +120,12 @@
 
                             </div>
                         </div>
-                        <a class="glyphicon glyphicon-question-sign" data-toggle="tooltip" data-placement="right" target='_blank' ng-href="/book/客户端内置命令/" uib-tooltip="查看客户端内置命令帮助" aria-hidden="true" style="padding-top: 11px;font-size: larger;"></a>
+                        <a class="glyphicon glyphicon-question-sign" data-toggle="tooltip" data-placement="right" target='_blank' ng-href="/book/客户端内置命令/" uib-tooltip="{{'C3T.查看客户端内置命令帮助'|translate}}" aria-hidden="true" style="padding-top: 11px;font-size: larger;"></a>
                     </div>
 
                     <div class="row" ng-show="scriptType!='buildin'">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">执行账户 <span style="color: red">*</span></label>
+                            <label class="col-sm-3 control-label">{{'C3T.执行账户'|translate}} <span style="color: red">*</span></label>
                             <div class="col-sm-7">
                                 <select class="form-control" style="font-size: 15px;height: 42px" ng-model="selectedUser" >
                                      <option ng-repeat="x in allProUsers" value="{{x.username}}">{{x.username}}</option>
@@ -134,7 +134,7 @@
 
 
                             </div>
-                            <button class="btn btn-primary col-sm-1" uib-tooltip="添加" ng-click="scriptjob.addProUser()"><i class="fa fa-plus"></i></button>
+                            <button class="btn btn-primary col-sm-1" uib-tooltip="{{'C3T.添加'|translate}}" ng-click="scriptjob.addProUser()"><i class="fa fa-plus"></i></button>
 
                         </div>
 
@@ -142,7 +142,7 @@
 
                     <div class="row" ng-show="scriptType=='buildin'">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">使用凭据 &nbsp&nbsp</label>
+                            <label class="col-sm-3 control-label">{{'C3T.使用凭据'|translate}}  &nbsp&nbsp</label>
                             <div class="col-sm-7">
                                 <select class="form-control"  ng-model="selectedUser" >
                                      <option ng-repeat="x in scriptjob.ticketinfo" value="{{x.id}}">{{x.name}}</option>
@@ -167,16 +167,16 @@
 
                     <div ng-show="scriptjob.showmachinelist" class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">目标机器 <span style="color: red">*</span></label>
+                            <label class="col-sm-3 control-label">{{'C3T.目标机器'|translate}} <span style="color: red">*</span></label>
                             <div class="col-sm-9">
-                                <button class="btn btn-primary" ng-click="scriptjob.choiceServer()" required >选择服务器</button>
+                                <button class="btn btn-primary" ng-click="scriptjob.choiceServer()" required >{{'C3T.选择服务器'|translate}}</button>
                                 <table ng-table="choice.choiceResult" class="table table-hover" ng-show="choiceShow" style="margin-top: 10px;border: 1px solid #ddd;" >
                                     <thead >
                                         <tr>
-                                            <th style="text-align: left;">编号</th>
-                                            <th style="text-align: left;">名称</th>
-                                            <th style="text-align: left;">类型</th>
-                                            <th style="text-align: left;">操作</th>
+                                            <th style="text-align: left;">{{'C3T.编号'|translate}}</th>
+                                            <th style="text-align: left;">{{'C3T.名称'|translate}}</th>
+                                            <th style="text-align: left;">{{'C3T.类型'|translate}}</th>
+                                            <th style="text-align: left;">{{'C3T.操作'|translate}}</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -187,9 +187,9 @@
                                             <td ng-if="nodeType =='variable'">{{ss.variable}}</td>
                                             <td>{{choiceType}}</td>
                                             <td>
-                                                <button ng-if="nodeType =='group'"  ng-click="scriptjob.delChoice($index, ss.name)">删除</button>
-                                                <button ng-if="nodeType =='builtin'" ng-click="scriptjob.delChoice($index, ss)">删除</button>
-                                                <button ng-if="nodeType =='variable'" ng-click="scriptjob.delChoice($index, ss.variable)">删除</button>
+                                                <button ng-if="nodeType =='group'"  ng-click="scriptjob.delChoice($index, ss.name)">{{'C3T.删除'|translate}}</button>
+                                                <button ng-if="nodeType =='builtin'" ng-click="scriptjob.delChoice($index, ss)">{{'C3T.删除'|translate}}</button>
+                                                <button ng-if="nodeType =='variable'" ng-click="scriptjob.delChoice($index, ss.variable)">{{'C3T.删除'|translate}}</button>
                                             </td>
                                         </tr>
                                     </tbody>
@@ -199,7 +199,7 @@
                     </div>
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">脚本参数</label>
+                            <label class="col-sm-3 control-label">{{'C3T.脚本参数'|translate}}</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control"  ng-model="s_argv">
                             </div>
@@ -207,37 +207,37 @@
                     </div>
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">超时时间</label>
+                            <label class="col-sm-3 control-label">{{'C3T.超时时间'|translate}}</label>
                             <div class="col-sm-9">
-                                <input type="text" class="form-control" placeholder="脚本执行超时时间，单位为秒，默认60秒" ng-model="s_timeout">
+                                <input type="text" class="form-control" placeholder="{{'C3T.执行超时时间，单位为秒，默认60秒'|translate}}" ng-model="s_timeout">
                             </div>
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">结束是否暂停</label>
+                            <label class="col-sm-3 control-label">{{'C3T.结束是否暂停'|translate}}</label>
                             <div class="col-sm-9">
-                                <input type="text" class="form-control" placeholder="任务执行结束后是否暂停，如果不填，则表示不停止。" ng-model="pause">
+                                <input type="text" class="form-control" placeholder="{{'C3T.任务执行结束后是否暂停，如果不填，则表示不停止。'|translate}}" ng-model="pause">
                             </div>
                         </div>
                     </div>
                     <div class="row" ng-if="openc3_job_system_only==0">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">生效环境 <span style="color: red">*</span></label>
+                            <label class="col-sm-3 control-label">{{'C3T.生效环境'|translate}} <span style="color: red">*</span></label>
                             <div class="col-sm-9">
                                 <div class="admin-form">
                                     <div class="option-group field" >
                                         <label class="option option-primary" ng-model="unClickDeployenv">
                                             <input type="radio" name="unClickDeployenv" ng-model="scriptjob.postdata.deployenv" value="always">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>总是执行
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.总是执行'|translate}}
                                         </label>
                                         <label class="option option-primary">
                                             <input type="radio" name="unClickDeployenv" ng-model="scriptjob.postdata.deployenv" value="test">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>测试环境
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.测试环境'|translate}}
                                         </label>
                                         <label class="option option-primary">
                                             <input type="radio" name="unClickDeployenv" ng-model="scriptjob.postdata.deployenv" value="online">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>线上环境
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.线上环境'|translate}}
                                         </label>
                                     </div>
                                 </div>
@@ -246,21 +246,21 @@
                     </div>
                     <div class="row" ng-if="openc3_job_system_only==0">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">生效动作 <span style="color: red">*</span></label>
+                            <label class="col-sm-3 control-label">{{'C3T.生效动作'|translate}} <span style="color: red">*</span></label>
                             <div class="col-sm-9">
                                 <div class="admin-form">
                                     <div class="option-group field" >
                                         <label class="option option-primary" ng-model="unClickAction">
                                             <input type="radio" name="unClickAction" ng-model="scriptjob.postdata.action" value="always">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>总是执行
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.总是执行'|translate}}
                                         </label>
                                         <label class="option option-primary">
                                             <input type="radio" name="unClickAction" ng-model="scriptjob.postdata.action" value="deploy">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>仅发布时执行
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.仅发布时执行'|translate}}
                                         </label>
                                         <label class="option option-primary">
                                             <input type="radio" name="unClickAction" ng-model="scriptjob.postdata.action" value="rollback">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>仅回滚时执行
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.仅回滚时执行'|translate}}
                                         </label>
                                     </div>
                                 </div>
@@ -269,21 +269,21 @@
                     </div>
                     <div class="row" ng-if="openc3_job_system_only==0">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">分批 <span style="color: red">*</span></label>
+                            <label class="col-sm-3 control-label">{{'C3T.分批'|translate}} <span style="color: red">*</span></label>
                             <div class="col-sm-9">
                                 <div class="admin-form">
                                     <div class="option-group field" >
                                         <label class="option option-primary" ng-model="unClickBatches">
                                             <input type="radio" name="unClickBatches" ng-model="scriptjob.postdata.batches" value="always">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>总是执行
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.总是执行'|translate}}
                                         </label>
                                         <label class="option option-primary">
                                             <input type="radio" name="unClickBatches" ng-model="scriptjob.postdata.batches" value="firsttime">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>仅第一个分组
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.仅第一个分组'|translate}}
                                         </label>
                                         <label class="option option-primary">
                                             <input type="radio" name="unClickBatches" ng-model="scriptjob.postdata.batches" value="thelasttime">
-                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>仅最后一个分组
+                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.仅最后一个分组'|translate}}
                                         </label>
                                     </div>
                                 </div>
@@ -292,8 +292,8 @@
                     </div>
                     <div class="row">
                         <div class="col-sm-3 form-group" style="margin-left: 40%;">
-                            <button class="btn btn-success" ng-disabled="scriptForm.$invalid" ng-click="scriptjob.returnSave(scriptForm)">保存</button>
-                            <button class="btn btn-warning" ng-click="scriptjob.cancel(scriptForm)">取消</button>
+                            <button class="btn btn-success" ng-disabled="scriptForm.$invalid" ng-click="scriptjob.returnSave(scriptForm)">{{'C3T.保存'|translate}}</button>
+                            <button class="btn btn-warning" ng-click="scriptjob.cancel(scriptForm)">{{'C3T.取消'|translate}}</button>
                         </div>
                     </div>
                 </form>

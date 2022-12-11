@@ -18,14 +18,14 @@
     <div>
         <div style="float: left;">
             <form class="form-inline" name="myForm" novalidate>
-                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="devicemenu.gotosubtype('all','all')"> <i class="fa fa-search fa-lg" aria-hidden="true"></i>全局搜索</button>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="devicemenu.gotosubtype('all','all')"> <i class="fa fa-search fa-lg" aria-hidden="true"></i>{{'C3T.全局搜索'|translate}}</button>
             </form>
         </div>
         <div style="float: right;">
             <form class="form-inline" name="myForm" novalidate>
-                <button type="submit" class="btn btn-info" style="padding: 10px 25px" ng-click="devicemenu.openNewWindow('c3_cmdb_resources_count', 0 )">数量</button>
-                <button type="submit" class="btn btn-info" style="padding: 10px 25px" ng-click="devicemenu.openNewWindow('c3_cmdb_sync_usetime',    0 )">耗时</button>
-                <button type="submit" class="btn btn-info" style="padding: 10px 25px" ng-click="devicemenu.openNewWindow('c3_cmdb_resources_mtime', 1 )">过期</button>
+                <button type="submit" class="btn btn-info" style="padding: 10px 25px" ng-click="devicemenu.openNewWindow('c3_cmdb_resources_count', 0 )">{{'C3T.数量'|translate}}</button>
+                <button type="submit" class="btn btn-info" style="padding: 10px 25px" ng-click="devicemenu.openNewWindow('c3_cmdb_sync_usetime',    0 )">{{'C3T.耗时'|translate}}</button>
+                <button type="submit" class="btn btn-info" style="padding: 10px 25px" ng-click="devicemenu.openNewWindow('c3_cmdb_resources_mtime', 1 )">{{'C3T.过期'|translate}}</button>
             </form>
         </div>
         <div style="clear: both;">&nbsp;</div>
@@ -33,10 +33,10 @@
 
 <div class="page-content">
 
-    <div ng-repeat="type in [ [ 'compute', '计算资源' ], [ 'networking', '网络' ], [ 'storage', '存储' ], [ 'database','数据库' ], [ 'domain', '域名' ], [ 'others', '其他'] ]">
+    <div ng-repeat="type in [ [ 'compute', 'C3T.计算资源' ], [ 'networking', 'C3T.网络' ], [ 'storage', 'C3T.存储' ], [ 'database','C3T.数据库' ], [ 'domain', 'C3T.域名' ], [ 'others', 'C3T.其他'] ]">
         <div class="panel panel-border top">
             <div class="panel-heading">
-                <span class="panel-title">{{type[1]}}</span>
+                <span class="panel-title">{{type[1]|translate}}</span>
             </div>
             <div class="panel-body">
 
@@ -57,7 +57,7 @@
                           </div>
                         </td>
                     </tr>
-                    <a ng-if="! devicemenu.menu[type[0]].length && devicemenu.loadover" > 无 </a>
+                    <a ng-if="! devicemenu.menu[type[0]].length && devicemenu.loadover" > {{'C3T.无'|translate}} </a>
                 </table>
 
             </div>

@@ -1,5 +1,5 @@
 <div class="modal-header">
-    <h4 class="modal-title">{{createMonitorConfigRule.title}}监控策略</h4>
+    <h4 class="modal-title">{{createMonitorConfigRule.title|translate}} {{'C3T.监控策略'|translate}}</h4>
 </div>
 <div class="modal-body">
 
@@ -7,34 +7,34 @@
 
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">监控名称<a style="color: red;">*</a></label>
+                <label class="col-sm-3 control-label">{{'C3T.监控名称'|translate}}<a style="color: red;">*</a></label>
                 <div class="col-sm-9">
-                    <input type="text" class="form-control" placeholder="监控的名称" ng-model="createMonitorConfigRule.postData.alert" required>
+                    <input type="text" class="form-control" placeholder="{{'C3T.监控名称'|translate}}" ng-model="createMonitorConfigRule.postData.alert" required>
                 </div>
             </div>
         </div>
 
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">模式<a style="color: red;">*</a></label>
+                <label class="col-sm-3 control-label">{{'C3T.模式'|translate}}<a style="color: red;">*</a></label>
                 <div class="col-sm-9">
                     <div class="admin-form">
                         <div class="option-group field" >
                             <label class="option option-primary">
                                 <input type="radio" ng-model="createMonitorConfigRule.postData.model" value="simple" >
-                                <span class="radio" style="padding-top: 0;min-height: 0"></span>简单
+                                <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.简单'|translate}}
                             </label>
                             <label class="option option-primary">
                                 <input type="radio" ng-model="createMonitorConfigRule.postData.model" value="bindtree" >
-                                <span class="radio" style="padding-top: 0;min-height: 0"></span>绑定服务树
+                                <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.绑定服务树'|translate}}
                             </label>
                             <label class="option option-primary">
                                 <input type="radio" ng-model="createMonitorConfigRule.postData.model" value="bindetree" >
-                                <span class="radio" style="padding-top: 0;min-height: 0"></span>绑定服务树【继承关系解除】
+                                <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.绑定服务树'|translate}}【{{'C3T.继承关系解除'|translate}}】
                             </label>
                             <label class="option option-primary">
                                 <input type="radio" ng-model="createMonitorConfigRule.postData.model" value="custom" >
-                                <span class="radio" style="padding-top: 0;min-height: 0"></span>自定义
+                                <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.自定义'|translate}}
                             </label>
                         </div>
                     </div>
@@ -44,17 +44,17 @@
 
         <div class="row" ng-if="createMonitorConfigRule.postData.model==='simple'">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">条件<a style="color: red;">*</a></label>
+                <label class="col-sm-3 control-label">{{'C3T.条件'|translate}}<a style="color: red;">*</a></label>
                 <div class="col-sm-3">
-                    <input type="text" class="form-control" placeholder="指标名" ng-model="createMonitorConfigRule.postData.metrics">
+                    <input type="text" class="form-control" placeholder="{{'C3T.指标名'|translate}}" ng-model="createMonitorConfigRule.postData.metrics">
                 </div>
                 <div class="col-sm-2">
-                    <input type="text" class="form-control" placeholder="比较" ng-model="createMonitorConfigRule.postData.method">
+                    <input type="text" class="form-control" placeholder="{{'C3T.比较'|translate}}" ng-model="createMonitorConfigRule.postData.method">
                 </div>
                 <div class="col-sm-2">
-                    <input type="text" class="form-control" placeholder="阈值" ng-model="createMonitorConfigRule.postData.threshold">
+                    <input type="text" class="form-control" placeholder="{{'C3T.阈值'|translate}}" ng-model="createMonitorConfigRule.postData.threshold">
                 </div>
-                <div class="col-sm-2"style="float: right;" ng-init="job= [ { name: '', alias: '全部'} , { name: 'openc3', alias: '主机'} , { name: 'openc3-mysql-v3', alias: 'Mysql'}, { name: 'openc3-redis-v3', alias: 'redis' }, { name: 'openc3-mongodb-v3', alias: 'mongodb' } ]">
+                <div class="col-sm-2"style="float: right;" ng-init="job= [ { name: '', alias: 'All'} , { name: 'openc3', alias: 'machine'} , { name: 'openc3-mysql-v3', alias: 'Mysql'}, { name: 'openc3-redis-v3', alias: 'redis' }, { name: 'openc3-mongodb-v3', alias: 'mongodb' } ]">
                     <select class="form-control"  ng-model="createMonitorConfigRule.postData.job"  ng-options="o.name as o.alias for o in job"  > </select>
                 </div>
             </div>
@@ -62,43 +62,43 @@
 
         <div class="row" ng-if="createMonitorConfigRule.postData.model==='bindtree' || createMonitorConfigRule.postData.model==='bindetree'">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">表达式<a style="color: red;">*</a></label>
+                <label class="col-sm-3 control-label">{{'C3T.表达式'|translate}}<a style="color: red;">*</a></label>
                 <div class="col-sm-9">
-                    <input type="text" class="form-control" placeholder="普罗米修斯表达式" ng-model="createMonitorConfigRule.postData.bindtreesql">
+                    <input type="text" class="form-control" placeholder="{{'C3T.普罗米修斯表达式'|translate}}" ng-model="createMonitorConfigRule.postData.bindtreesql">
                 </div>
             </div>
         </div>
 
         <div class="row" ng-if="createMonitorConfigRule.postData.model==='custom'">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">表达式<a style="color: red;">*</a></label>
+                <label class="col-sm-3 control-label">{{'C3T.表达式'|translate}}<a style="color: red;">*</a></label>
                 <div class="col-sm-9">
-                    <input type="text" class="form-control" placeholder="普罗米修斯表达式" ng-model="createMonitorConfigRule.postData.expr">
+                    <input type="text" class="form-control" placeholder="{{'C3T.普罗米修斯表达式'|translate}}" ng-model="createMonitorConfigRule.postData.expr">
                 </div>
             </div>
         </div>
 
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">告警级别<a style="color: red;">*</a></label>
+                <label class="col-sm-3 control-label">{{'C3T.告警级别'|translate}}<a style="color: red;">*</a></label>
                 <div class="col-sm-9">
                     <div class="admin-form">
                         <div class="option-group field" >
                             <label class="option option-primary">
                                 <input type="radio" ng-model="createMonitorConfigRule.postData.severity" value="level1" >
-                                <span class="radio" style="padding-top: 0;min-height: 0"></span>一级(电话+短信+邮件)
+                                <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.一级'|translate}}({{'C3T.电话'|translate}}+{{'C3T.短信'|translate}}+{{'C3T.邮件'|translate}})
                             </label>
                             <label class="option option-primary">
                                 <input type="radio" ng-model="createMonitorConfigRule.postData.severity" value="level2" >
-                                <span class="radio" style="padding-top: 0;min-height: 0"></span>二级(短信+邮件)
+                                <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.二级'|translate}}({{'C3T.短信'|translate}}+{{'C3T.邮件'|translate}})
                             </label>
                              <label class="option option-primary">
                                 <input type="radio" ng-model="createMonitorConfigRule.postData.severity" value="level3" >
-                                <span class="radio" style="padding-top: 0;min-height: 0"></span>三级(邮件)
+                                <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.三级'|translate}}({{'C3T.邮件'|translate}})
                             </label>
                             <label class="option option-primary">
                                 <input type="radio" ng-model="createMonitorConfigRule.postData.severity" value="level4" >
-                                <span class="radio" style="padding-top: 0;min-height: 0"></span>四级(仅用于展示)
+                                <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.四级'|translate}}({{'C3T.仅用于展示'|translate}})
                             </label>
                         </div>
                     </div>
@@ -109,9 +109,9 @@
 
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">持续时间</label>
+                <label class="col-sm-3 control-label">{{'C3T.持续时间'|translate}}</label>
                 <div class="col-sm-9">
-                    <input type="text" class="form-control" placeholder="持续时间，如 30s ，5m" ng-model="createMonitorConfigRule.postData.for">
+                    <input type="text" class="form-control" placeholder="{{'C3T.持续时间'|translate}}，{{'C3T.例子'|translate}} 30s ，5m" ng-model="createMonitorConfigRule.postData.for">
                 </div>
             </div>
         </div>
@@ -119,18 +119,18 @@
 
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">概要</label>
+                <label class="col-sm-3 control-label">{{'C3T.概要'|translate}}</label>
                 <div class="col-sm-9">
-                    <input type="text" class="form-control" placeholder="例：load1 :\{\{$labels.alertname}}" ng-model="createMonitorConfigRule.postData.summary">
+                    <input type="text" class="form-control" placeholder="{{'C3T.例如'|translate}}：load1 :\{\{$labels.alertname}}" ng-model="createMonitorConfigRule.postData.summary">
                 </div>
             </div>
         </div>
 
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">描述</label>
+                <label class="col-sm-3 control-label">{{'C3T.描述'|translate}}</label>
                 <div class="col-sm-9">
-                    <input type="text" class="form-control" placeholder="业务500报警: \{\{ $value }}" ng-model="createMonitorConfigRule.postData.description">
+                    <input type="text" class="form-control" placeholder="{{'C3T.业务500报警'|translate}}: \{\{ $value }}" ng-model="createMonitorConfigRule.postData.description">
                 </div>
             </div>
         </div>
@@ -138,9 +138,9 @@
 
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">值</label>
+                <label class="col-sm-3 control-label">{{'C3T.值'|translate}}</label>
                 <div class="col-sm-9">
-                    <input type="text" class="form-control" placeholder="告警显示的值：如 \{\{ $value }} " ng-model="createMonitorConfigRule.postData.value">
+                    <input type="text" class="form-control" placeholder="{{'C3T.告警显示的值'|translate}}：{{'C3T.例如'|translate}} \{\{ $value }} " ng-model="createMonitorConfigRule.postData.value">
                 </div>
             </div>
         </div>
@@ -148,8 +148,8 @@
 
         <div class="row">
             <div class="col-sm-5 form-group pull-right">
-                <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="createMonitorConfigRule.add()">确认</button>
-                <button class="btn btn-warning" ng-click="createMonitorConfigRule.cancel()">取消</button>
+                <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="createMonitorConfigRule.add()">{{'C3T.确认'|translate}}</button>
+                <button class="btn btn-warning" ng-click="createMonitorConfigRule.cancel()">{{'C3T.取消'|translate}}</button>
             </div>
         </div>
     </form>

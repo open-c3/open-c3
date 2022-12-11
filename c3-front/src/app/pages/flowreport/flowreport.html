@@ -3,7 +3,7 @@
     <div class="col-lg-3 col-xs-12 ml0 pl0" style="padding-left: 0">
         <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
             <div class="panel-heading">
-                <h4 class="kb_title">打包次数</h4>
+                <h4 class="kb_title">{{'C3T.打包次数'|translate}}</h4>
             </div>
             <div class="panel-body">
                 <div style="font-size: 45px;font-weight: bold;text-align: center;height: 115px;">
@@ -15,7 +15,7 @@
     <div class="col-lg-3 col-xs-12 ml0 pl0" style="padding-left: 0">
         <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
             <div class="panel-heading">
-                <h4 class="kb_title">测试环境发布</h4>
+                <h4 class="kb_title">{{'C3T.测试环境发布'|translate}}</h4>
             </div>
             <div class="panel-body">
                 <div style="font-size: 45px;font-weight: bold;text-align: center;height: 115px;">
@@ -27,7 +27,7 @@
     <div class="col-lg-3 col-xs-12 ml0 pl0" style="padding-left: 0">
         <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
             <div class="panel-heading">
-                <h4 style="font-weight: bold;color: #337ab7">发版次数</h4>
+                <h4 style="font-weight: bold;color: #337ab7">{{'C3T.发版次数'|translate}}</h4>
             </div>
             <div class="panel-body">
                 <div style="font-size: 45px;font-weight: bold;text-align: center;height: 115px;">
@@ -40,7 +40,7 @@
     <div class="col-lg-3 col-xs-12 ml0 pl0" style="padding-left: 0">
         <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
             <div class="panel-heading">
-                <h4 style="font-weight: bold;color: #337ab7">回滚次数</h4>
+                <h4 style="font-weight: bold;color: #337ab7">{{'C3T.回滚次数'|translate}}</h4>
             </div>
             <div class="panel-body" >
                 <div style="font-size: 45px;font-weight: bold;text-align: center;height: 115px;">
@@ -55,15 +55,15 @@
         <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
 
             <div class="panel-heading">
-                <h4 style="font-weight: bold;color: #337ab7">标签</h4>
+                <h4 style="font-weight: bold;color: #337ab7">{{'C3T.标签'|translate}}</h4>
             </div>
 
             <div class="panel-body" style="margin-top: 20px">
 
-                <a ng-if="flowreport.updatetime" >数据最近更新时间:{{flowreport.updatetime}}</a>
+                <a ng-if="flowreport.updatetime" >{{'C3T.数据最近更新时间'|translate}}:{{flowreport.updatetime}}</a>
 
                 <div class="row">
-                    <label class="col-md-1 control-label fwbold">数据:</label>
+                    <label class="col-md-1 control-label fwbold">{{'C3T.数据'|translate}}:</label>
                     <select id="selecteddataval" class="form-control"  ng-model="choiceData" style="width: 20%" >
                          <option ng-repeat="x in flowreport.datalist" value="{{x}}">{{x}}</option>
                     </select>
@@ -78,7 +78,7 @@
         <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
 
             <div class="panel-heading">
-                <h4 style="font-weight: bold;color: #337ab7">趋势图</h4>
+                <h4 style="font-weight: bold;color: #337ab7">{{'C3T.趋势图'|translate}}</h4>
             </div>
 
             <div class="panel-body" style="margin-top: 20px">
@@ -91,21 +91,21 @@
         <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
 
             <div class="panel-heading">
-                <h4 style="font-weight: bold;color: #337ab7">详情</h4>
+                <h4 style="font-weight: bold;color: #337ab7">{{'C3T.详情'|translate}}</h4>
             </div>
 
             <div class="panel-body">
                 <div class="panel-tabs">
                     <table ng-table="flowreport.data_Table" class="table table-hover text-center table-condensed">
                         <tr ng-repeat="ss in $data" style="height: 35px;">
-                            <td data-title="'时间'">{{ss.time}}</td>
-                            <td data-title="'类型'">{{ss.type}}</td>
-                            <td data-title="'编号'">{{ss.uuid}}</td>
-                            <td data-title="'服务树编号'">{{ss.groupid}}</td>
-                            <td data-title="'流水线编号'">{{ss.projectid}}</td>
-                            <td data-title="'状态'">{{ss.status}}</td>
-                            <td data-title="'版本'">{{ss.version}}</td>
-                            <td data-title="'发布地址'">
+                            <td data-title="'C3T.时间'|translate">{{ss.time}}</td>
+                            <td data-title="'C3T.类型'|translate">{{ss.type}}</td>
+                            <td data-title="'C3T.编号'|translate">{{ss.uuid}}</td>
+                            <td data-title="'C3T.服务树编号'|translate">{{ss.groupid}}</td>
+                            <td data-title="'C3T.流水线编号'|translate">{{ss.projectid}}</td>
+                            <td data-title="'C3T.状态'|translate">{{ss.status}}</td>
+                            <td data-title="'C3T.版本'|translate">{{ss.version}}</td>
+                            <td data-title="'C3T.发布地址'|translate">
                                 <a ng-if="ss.type=='ci'" target='_blank' ng-href="{{flowreport.siteaddr}}/#/quickentry/flowlinedetail/{{ss.groupid}}/{{ss.projectid}}">{{flowreport.siteaddr}}/#/quickentry/flowlinedetail/{{ss.groupid}}/{{ss.projectid}}</a>
                                 <a ng-if="ss.type!='ci'" target='_blank' ng-href="{{flowreport.siteaddr}}/#/history/jobxdetail/{{ss.groupid}}/{{ss.uuid}}">{{flowreport.siteaddr}}/#/history/jobxdetail/{{ss.groupid}}/{{ss.uuid}}</a>
                             </td>

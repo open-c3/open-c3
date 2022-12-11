@@ -2,36 +2,36 @@
     <div class="panel panel-primary">
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-primary" uib-tooltip="保存" ng-click="sysctl.save()"><i class="fa fa-floppy-o" aria-hidden="true"></i></button>
-                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="sysctl.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!sysctl.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.保存'|translate}}" ng-click="sysctl.save()"><i class="fa fa-floppy-o" aria-hidden="true"></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="sysctl.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!sysctl.loadover}" ></i></button>
             </span>
-            <h5>系统参数管理</h5>
+            <h5>{{'C3T.系统参数管理'|translate}}</h5>
         </div>
 
 
         <div class="panel-body">
             <div class="form-horizontal">
                 <div class="container-fluid">
-                  <h4>CI(持续构建)</h4>
+                  <h4>CI({{'C3T.持续构建'|translate}})</h4>
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">自动构建</label>
+                            <label class="col-sm-2 control-label">{{'C3T.自动构建'|translate}}</label>
                             <div class="col-sm-2" ng-init="autobuildlist = [0,1]" >
                                 <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['ci.autobuild']" >
                                     <option ng-repeat="x in autobuildlist" value="{{x}}">{{x}}</option>
                                 </select>
                             </div>
-                            <label class="col-sm-4 control-label">默认是1。如果是0时，发现的tag都不进行自动构建。</label>
+                            <label class="col-sm-4 control-label">{{'C3T.默认是1。如果是0时，发现的tag都不进行自动构建。'|translate}}</label>
                         </div>
 
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">默认tagger</label>
+                            <label class="col-sm-2 control-label">{{'C3T.默认'|translate}} tagger</label>
                             <div class="col-sm-4">
                                 <input type="text" class="form-control" ng-model="sysctl.sysctl.cidefaulttagger" required />
                             </div>
                         </div>
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">findtags并发数</label>
+                            <label class="col-sm-2 control-label">findtags {{'C3T.并发数'|translate}}</label>
                             <div class="col-sm-9" ng-init="cifindtagsconcurrencylist = [1,2,3,4,5,6,7,8,9,10,15,20,30,40,50,60,70,80,90,100]" >
                                 <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['ci.findtags.concurrency']" style="width: 20%" >
                                     <option ng-repeat="x in cifindtagsconcurrencylist" value="{{x}}">{{x}}</option>
@@ -39,45 +39,45 @@
                             </div>
                         </div>
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">findtags间隔（秒）</label>
+                            <label class="col-sm-2 control-label">findtags {{'C3T.间隔'|translate}}（{{'C3T.秒'|translate}}）</label>
                             <div class="col-sm-2" ng-init="cifindtagsintervallist = [0,30, 60, 90,120, 180, 300]" >
                                 <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['ci.findtags.interval']" >
                                     <option ng-repeat="x in cifindtagsintervallist" value="{{x}}">{{x}}</option>
                                 </select>
                             </div>
-                            <label class="col-sm-4 control-label">当时间间隔为0时表示不开启该服务</label>
+                            <label class="col-sm-4 control-label">{{'C3T.当时间间隔为0时表示不开启该服务'|translate}}</label>
                         </div>
 
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">单个构建默认CPU限制(核)</label>
+                            <label class="col-sm-2 control-label">{{'C3T.单个构建默认CPU限制(核)'|translate}}</label>
                             <div class="col-sm-2">
                                 <input type="text" class="form-control" ng-model="sysctl.sysctl['ci.default.cpulimit']" required />
                             </div>
-                            <label class="col-sm-4 control-label">最多使用的cpu核数，可以是小数，如 1.5 </label>
+                            <label class="col-sm-4 control-label">{{'C3T.最多使用的cpu核数，可以是小数，如 1.5 '|translate}}</label>
                         </div>
  
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">单个构建默认内存限制(m)</label>
+                            <label class="col-sm-2 control-label">{{'C3T.单个构建默认内存限制'|translate}}(m)</label>
                             <div class="col-sm-2">
                                 <input type="text" class="form-control" ng-model="sysctl.sysctl['ci.default.memlimit']" required />
                             </div>
-                            <label class="col-sm-4 control-label">单个构建中最多使用的内存,单位是兆</label>
+                            <label class="col-sm-4 control-label">{{'C3T.单个构建中最多使用的内存,单位是兆'|translate}}</label>
                         </div>
 
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">可以分配给构建任务的所有内存(m)</label>
+                            <label class="col-sm-2 control-label">{{'C3T.可以分配给构建任务的所有内存'|translate}}(m)</label>
                             <div class="col-sm-2">
                                 <input type="text" class="form-control" ng-model="sysctl.sysctl['ci.available.mem']" required />
                             </div>
-                            <label class="col-sm-4 control-label">内存会被分配给任务，内存不够分配时，构建任务会排队等待</label>
+                            <label class="col-sm-4 control-label">{{'C3T.内存会被分配给任务，内存不够分配时，构建任务会排队等待'|translate}}</label>
                         </div>
 
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">流水线默认显示版本数量</label>
+                            <label class="col-sm-2 control-label">{{'C3T.流水线默认显示版本数量'|translate}}</label>
                             <div class="col-sm-2">
                                 <input type="text" class="form-control" ng-model="sysctl.sysctl['ci.default.showcount']" required />
                             </div>
-                            <label class="col-sm-4 control-label">需要reload服务后生效</label>
+                            <label class="col-sm-4 control-label">{{'C3T.需要reload服务后生效'|translate}}</label>
                         </div>
 
                     </div>
@@ -86,22 +86,22 @@
 <hr>
 
                 <div class="container-fluid">
-                  <h4>系统备份</h4>
+                  <h4>{{'C3T.系统备份'|translate}}</h4>
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">名称</label>
+                            <label class="col-sm-2 control-label">{{'C3T.名称'|translate}}</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" ng-model="sysctl.sysctl['sys.backup.name']" required />
                             </div>
                         </div>
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">上传地址url</label>
+                            <label class="col-sm-2 control-label">{{'C3T.上传'|translate}} {{'C3T.地址'|translate}} url</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" ng-model="sysctl.sysctl['sys.backup.url']" required />
                             </div>
                         </div>
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">上传地址token</label>
+                            <label class="col-sm-2 control-label">上传{{'C3T.上传'|translate}} {{'C3T.地址'|translate}} token</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" ng-model="sysctl.sysctl['sys.backup.token']" required />
                             </div>
@@ -111,16 +111,16 @@
 
 <hr>
                 <div class="container-fluid">
-                  <h4>QA系统联动</h4>
+                  <h4>{{'C3T.QA系统联动'|translate}}</h4>
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">回调地址</label>
+                            <label class="col-sm-2 control-label">{{'C3T.回调'|translate}} {{'C3T.地址'|translate}}</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" ng-model="sysctl.sysctl['external.qa.sys.callback.url']" required />
                             </div>
                         </div>
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">返回结果匹配内容</label>
+                            <label class="col-sm-2 control-label">{{'C3T.返回结果匹配内容'|translate}}</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" ng-model="sysctl.sysctl['external.qa.sys.callback.match']" required />
                             </div>
@@ -131,16 +131,16 @@
 
 <hr>
                 <div class="container-fluid">
-                  <h4>集群设置</h4>
+                  <h4>{{'C3T.集群设置'|translate}}</h4>
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">域名</label>
+                            <label class="col-sm-2 control-label">{{'C3T.域名'|translate}}</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" ng-model="sysctl.sysctl['sys.cluster.domain']"/>
                             </div>
                         </div>
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">slave列表</label>
+                            <label class="col-sm-2 control-label">slave {{'C3T.列表'|translate}}</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" ng-model="sysctl.sysctl['sys.cluster.slave']"/>
                             </div>
@@ -151,10 +151,10 @@
 
 <hr>
                 <div class="container-fluid">
-                  <h4>登录</h4>
+                  <h4>{{'C3T.登录'|translate}}</h4>
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">登录验证方式</label>
+                            <label class="col-sm-2 control-label">{{'C3T.登录验证方式'|translate}}</label>
                             <div class="col-sm-9" ng-init="logintypelist = ['mysql','ldap']" >
                                 <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['sys.login.type']" style="width: 20%" >
                                     <option ng-repeat="x in logintypelist" value="{{x}}">{{x}}</option>
@@ -165,63 +165,63 @@
                         <div ng-if="sysctl.sysctl['sys.login.type'] == 'ldap'" >
 
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">ldap主机名</label>
+                            <label class="col-sm-2 control-label">ldap {{'C3T.主机名'|translate}}</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" ng-model="sysctl.sysctl['sys.login.ldap.host']" required />
                             </div>
                         </div>
 
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">ldap端口</label>
+                            <label class="col-sm-2 control-label">ldap {{'C3T.端口'|translate}}</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" ng-model="sysctl.sysctl['sys.login.ldap.port']" required />
                             </div>
                         </div>
 
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">admin用户</label>
+                            <label class="col-sm-2 control-label">admin {{'C3T.用户'|translate}}</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" ng-model="sysctl.sysctl['sys.login.ldap.admin.user']" required />
                             </div>
                         </div>
 
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">admin密码</label>
+                            <label class="col-sm-2 control-label">admin {{'C3T.密码'|translate}}</label>
                             <div class="col-sm-9">
                                 <input type="password" class="form-control" ng-model="sysctl.sysctl['sys.login.ldap.admin.pass']" required />
                             </div>
                         </div>
 
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">基础DN</label>
+                            <label class="col-sm-2 control-label">{{'C3T.基础'|translate}} DN</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" ng-model="sysctl.sysctl['sys.login.ldap.dn']" required />
                             </div>
                         </div>
 
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">组角色ID【管理员】</label>
+                            <label class="col-sm-2 control-label">{{'C3T.组角色'|translate}}ID【{{'C3T.管理员'|translate}}】</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" ng-model="sysctl.sysctl['sys.login.ldap.role.admin']" required />
                             </div>
                         </div>
 
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">组角色ID【运维】</label>
+                            <label class="col-sm-2 control-label">{{'C3T.组角色'|translate}}ID【{{'C3T.运维'|translate}}】</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" ng-model="sysctl.sysctl['sys.login.ldap.role.ops']" required />
                             </div>
                         </div>
 
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">组角色ID【研发】</label>
+                            <label class="col-sm-2 control-label">{{'C3T.组角色'|translate}}ID【{{'C3T.研发'|translate}}】</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" ng-model="sysctl.sysctl['sys.login.ldap.role.dev']" required />
                             </div>
                         </div>
 
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">保留先验证本地用户</label>
+                            <label class="col-sm-2 control-label">{{'C3T.保留先验证本地用户'|translate}}</label>
                             <div class="col-sm-9" ng-init="mysqlonlist = ['0','1']" >
                                 <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['sys.login.ldap.mysqlon']" style="width: 20%" >
                                     <option ng-repeat="x in mysqlonlist" value="{{x}}">{{x}}</option>
@@ -237,10 +237,10 @@
 <hr>
 
                 <div class="container-fluid">
-                  <h4>连接器缓存</h4>
+                  <h4>{{'C3T.连接器缓存'|translate}}</h4>
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">nodeinfo缓存超时</label>
+                            <label class="col-sm-2 control-label">nodeinfo {{'C3T.缓存超时'|translate}}</label>
                             <div class="col-sm-9">
                                 <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['sys.cache.nodeinfo.timeout']" style="width: 20%" >
                                     <option ng-repeat="x in [0, 30, 60, 120, 300, 3600, 86400, 604800, 31536000]" value="{{x}}">{{x}}</option>
@@ -251,7 +251,7 @@
                     </div>
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">treemap缓存超时</label>
+                            <label class="col-sm-2 control-label">treemap {{'C3T.缓存超时'|translate}}</label>
                             <div class="col-sm-9">
                                 <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['sys.cache.treemap.timeout']" style="width: 20%" >
                                     <option ng-repeat="x in [0, 30, 60, 120, 300, 3600, 86400, 604800, 31536000]" value="{{x}}">{{x}}</option>
@@ -263,7 +263,7 @@
  
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">userinfo缓存超时</label>
+                            <label class="col-sm-2 control-label">userinfo {{'C3T.缓存超时'|translate}}</label>
                             <div class="col-sm-9">
                                 <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['sys.cache.userinfo.timeout']" style="width: 20%" >
                                     <option ng-repeat="x in [0, 30, 60, 120, 300, 3600, 86400, 604800, 31536000]" value="{{x}}">{{x}}</option>
@@ -275,7 +275,7 @@
  
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">point缓存超时</label>
+                            <label class="col-sm-2 control-label">point {{'C3T.缓存超时'|translate}}</label>
                             <div class="col-sm-9">
                                 <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['sys.cache.point.timeout']" style="width: 20%" >
                                     <option ng-repeat="x in [0, 30, 60, 120, 300, 3600, 86400, 604800, 31536000]" value="{{x}}">{{x}}</option>
@@ -287,7 +287,7 @@
  
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">usertree缓存超时</label>
+                            <label class="col-sm-2 control-label">usertree {{'C3T.缓存超时'|translate}}</label>
                             <div class="col-sm-9">
                                 <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['sys.cache.usertree.timeout']" style="width: 20%" >
                                     <option ng-repeat="x in [0, 30, 60, 120, 300, 3600, 86400, 604800, 31536000]" value="{{x}}">{{x}}</option>
@@ -301,10 +301,10 @@
  
 <hr>
                 <div class="container-fluid">
-                  <h4>监控系统设置</h4>
+                  <h4>{{'C3T.监控系统'|translate}} {{'C3T.设置'|translate}}</h4>
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">监控模式</label>
+                            <label class="col-sm-2 control-label">{{'C3T.监控模式'|translate}}</label>
                             <div class="col-sm-9" >
                                 <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['sys.monitor.mode']" style="width: 20%" >
                                     <option ng-repeat="x in [{'k':'禁用','v': 'off'},{'k': '单机版模式', 'v': 'single'},{ 'k': 'prometheus','v': 'prometheus' },{'k': 'thanos','v':'thanos'}]" value="{{x.v}}">{{x.k}}</option>
@@ -315,21 +315,21 @@
                         <div ng-if="sysctl.sysctl['sys.monitor.mode'] !== 'off'" >
 
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">服务树过滤</label>
+                            <label class="col-sm-2 control-label">{{'C3T.服务树'|translate}} {{'C3T.过滤'|translate}}</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" ng-model="sysctl.sysctl['sys.monitor.grep.tree']" required />
                             </div>
                         </div>
  
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">主机ip过滤</label>
+                            <label class="col-sm-2 control-label">{{'C3T.主机'|translate}} ip {{'C3T.过滤'|translate}}</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" ng-model="sysctl.sysctl['sys.monitor.grep.node']" required />
                             </div>
                         </div>
 
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">使用公网IP监控的网段</label>
+                            <label class="col-sm-2 control-label">{{'C3T.使用公网IP监控的网段'|translate}}</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" ng-model="sysctl.sysctl['sys.monitor.uexip']" required />
                             </div>
@@ -340,7 +340,7 @@
                         <div ng-if="sysctl.sysctl['sys.monitor.mode'] == 'prometheus'" >
 
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">prometheus副本数</label>
+                            <label class="col-sm-2 control-label">prometheus {{'C3T.副本数'|translate}}</label>
                             <div class="col-sm-9"  >
                                 <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['sys.monitor.prometheus.prometheus.replica']" style="width: 20%" >
                                     <option ng-repeat="x in [1,2,3,4]" value="{{x}}">{{x}}</option>
@@ -349,7 +349,7 @@
                         </div>
 
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">alertmanager副本数</label>
+                            <label class="col-sm-2 control-label">alertmanager {{'C3T.副本数'|translate}}</label>
                             <div class="col-sm-9"  >
                                 <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['sys.monitor.prometheus.alertmanager.replica']" style="width: 20%" >
                                     <option ng-repeat="x in [1,2,3,4]" value="{{x}}">{{x}}</option>
@@ -363,7 +363,7 @@
                         <div ng-if="sysctl.sysctl['sys.monitor.mode'] == 'thanos'" >
 
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">thanos web地址</label>
+                            <label class="col-sm-2 control-label">thanos web {{'C3T.地址'|translate}}</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" ng-model="sysctl.sysctl['sys.monitor.thanos.thanos.web.addr']" required />
                             </div>
@@ -371,7 +371,7 @@
  
 
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">对象存储类型</label>
+                            <label class="col-sm-2 control-label">{{'C3T.对象存储类型'|translate}}</label>
                             <div class="col-sm-9" >
                                 <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['sys.monitor.thanos.objstore.mode']" style="width: 20%" >
                                     <option ng-repeat="x in ['S3','null']" value="{{x}}">{{x}}</option>
@@ -411,7 +411,7 @@
                         </div>
  
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">alertmanager副本数</label>
+                            <label class="col-sm-2 control-label">alertmanager {{'C3T.副本数'|translate}}</label>
                             <div class="col-sm-9"  >
                                 <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['sys.monitor.thanos.alertmanager.replica']" style="width: 20%" >
                                     <option ng-repeat="x in [1,2,3,4]" value="{{x}}">{{x}}</option>
@@ -426,14 +426,14 @@
 
 <hr>
                 <div class="container-fluid">
-                  <h4>监控代理</h4>
+                  <h4>{{'C3T.监控代理'|translate}}</h4>
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">代理服务树节点</label>
+                            <label class="col-sm-2 control-label">{{'C3T.代理服务树节点'|translate}}</label>
                             <div class="col-sm-9">
                                 <input type="text" class="form-control" ng-model="sysctl.sysctl['sys.monitor.proxy.default.treeid']" style="width: 20%" required />
                             </div>
-                            <label class="col-sm-5 control-label">指定服务树中某个节点作为数据库监控的代理配置</label>
+                            <label class="col-sm-5 control-label">{{'C3T.指定服务树中某个节点作为数据库监控的代理配置'|translate}}</label>
                         </div>
                     </div>
                 </div>
@@ -441,10 +441,10 @@
 
 <hr>
                 <div class="container-fluid">
-                  <h4>CMDB 同步</h4>
+                  <h4>CMDB {{'C3T.同步'|translate}}</h4>
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">同步间隔</label>
+                            <label class="col-sm-2 control-label">{{'C3T.同步间隔'|translate}}</label>
                             <div class="col-sm-9">
                                 <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['sys.device.sync.interval']" style="width: 20%" >
                                     <option ng-repeat="x in [0, 60, 120, 300, 600, 1800, 3600, 7200, 86400 ]" value="{{x}}">{{x}}</option>
@@ -455,7 +455,7 @@
                     </div>
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">导入服务树结构</label>
+                            <label class="col-sm-2 control-label">{{'C3T.导入服务树结构'|translate}}</label>
                             <div class="col-sm-9">
                                 <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['sys.device.sync.tree']" style="width: 20%" >
                                     <option ng-repeat="x in [0, 1]" value="{{x}}">{{x}}</option>
@@ -467,7 +467,7 @@
  
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">导入服务树绑定关系</label>
+                            <label class="col-sm-2 control-label">{{'C3T.导入服务树绑定关系'|translate}}</label>
                             <div class="col-sm-9">
                                 <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['sys.device.sync.bind']" style="width: 20%" >
                                     <option ng-repeat="x in [0, 1]" value="{{x}}">{{x}}</option>
@@ -482,10 +482,10 @@
 <hr>
 
                 <div class="container-fluid">
-                  <h4>CMDB 摄取</h4>
+                  <h4>CMDB {{'C3T.摄取'|translate}}</h4>
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">主机摄取</label>
+                            <label class="col-sm-2 control-label">{{'C3T.主机摄取'|translate}}</label>
                             <div class="col-sm-9">
                                 <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['sys.device.ingestion.node']" style="width: 20%" >
                                     <option ng-repeat="x in [0, 1 ]" value="{{x}}">{{x}}</option>
@@ -497,26 +497,26 @@
                 </div>
 
                 <div class="container-fluid">
-                  <h4>CMDB 权限</h4>
+                  <h4>CMDB {{'C3T.权限'|translate}}</h4>
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">严格</label>
+                            <label class="col-sm-2 control-label">{{'C3T.严格'|translate}}</label>
                             <div class="col-sm-5">
                                 <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['sys.device.auth.strict']" style="width: 20%" >
                                     <option ng-repeat="x in [0, 1 ]" value="{{x}}">{{x}}</option>
                                 </select>
  
                             </div>
-                            <label class="col-sm-5 control-label">默认是0。只读权限即可以访问; 是1时，运维可以访问本服务树节点，管理员可以访问全局。</label>
+                            <label class="col-sm-5 control-label">{{'C3T.默认是0。只读权限即可以访问; 是1时，运维可以访问本服务树节点，管理员可以访问全局。'|translate}}</label>
                         </div>
                     </div>
                 </div>
 
                 <div class="container-fluid">
-                  <h4>CMDB 标签</h4>
+                  <h4>CMDB {{'C3T.标签'|translate}}</h4>
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">产品负责人</label>
+                            <label class="col-sm-2 control-label">{{'C3T.产品负责人'|translate}}</label>
                             <div class="col-sm-4">
                                 <input type="text" class="form-control" ng-model="sysctl.sysctl['cmdb.tags.ProductOwner']" required />
                             </div>
@@ -525,7 +525,7 @@
 
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">运维负责人</label>
+                            <label class="col-sm-2 control-label">{{'C3T.运维负责人'|translate}}</label>
                             <div class="col-sm-4">
                                 <input type="text" class="form-control" ng-model="sysctl.sysctl['cmdb.tags.OpsOwner']" required />
                             </div>
@@ -534,7 +534,7 @@
 
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">所属部门</label>
+                            <label class="col-sm-2 control-label">{{'C3T.所属部门'|translate}}</label>
                             <div class="col-sm-4">
                                 <input type="text" class="form-control" ng-model="sysctl.sysctl['cmdb.tags.Department']" required />
                             </div>
@@ -543,7 +543,7 @@
 
                     <div class="row">
                         <div class="col-sm-10 form-group">
-                            <label class="col-sm-2 control-label">资源名称【AWS主机名】</label>
+                            <label class="col-sm-2 control-label">{{'C3T.资源名称'|translate}}【AWS {{'C3T.主机名'|translate}}】</label>
                             <div class="col-sm-4">
                                 <input type="text" class="form-control" ng-model="sysctl.sysctl['cmdb.tags.Name']" required />
                             </div>

@@ -21,7 +21,7 @@
                     ticketid: function () {},
                     homereload: function () { return vm.reload },
                     type: function () { return 'create' },
-                    title: function () { return '新建凭据' },
+                    title: function () { return 'C3T.新建凭据' },
                     point: function () { return '' },
                 }
             });
@@ -63,7 +63,7 @@
                     ticketid: function () { return id},
                     homereload: function () { return vm.reload },
                     type: function () { return 'show' },
-                    title: function () { return '查看凭据' },
+                    title: function () { return 'C3T.查看凭据' },
                     point: function () { return '' },
                 }
             });
@@ -82,7 +82,7 @@
                     ticketid: function () { return id},
                     homereload: function () { return vm.reload },
                     type: function () { return 'edit' },
-                    title: function () { return '编辑凭据' },
+                    title: function () { return 'C3T.编辑凭据' },
                     point: function () { return '' },
                 }
             });

@@ -19,7 +19,7 @@
         return directive;
 
         /** @ngInject */
-        function NavbarController($scope, $location, $http, $state, treeService, $window, ssoService) {
+        function NavbarController($scope, $location, $http, $state, treeService, $window, ssoService, langService, $translate) {
 
             var vm = this;
             vm.zTree = '';
@@ -117,6 +117,18 @@
                 var nextUrl = '';
                 window.open(nextUrl, '_blank')
             }
+
+          // language
+          langService.getData().then(function(data){
+              vm.langData = data;
+          });
+
+          vm.changeLang = function(key){
+              $translate.use(key);
+              vm.currentLang = $translate.proposedLanguage() || $translate.use();
+          };
+
+
         }
     }
 

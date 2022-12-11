@@ -2,40 +2,40 @@
     <div class="panel panel-primary">
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="kubernetesnode.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetesnode.loadover}" ></i></button>
-                <button class="btn btn-primary" uib-tooltip="关闭" ng-click="kubernetesnode.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="kubernetesnode.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetesnode.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.关闭'|translate}}" ng-click="kubernetesnode.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
             </span>
-            <h5>集群节点管理</h5>
+            <h5>{{'C3T.集群节点管理'|translate}}</h5>
         </div>
 
         <div class="panel-body" style="margin-top: 2px">
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesnode.nodeTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'名称'" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">{{m.NAME}}</td>
-                        <td data-title="'状态'" width="80" filter="{ STATUS: 'text'}" sortable="'STATUS'">{{m.STATUS}}</td>
-                        <td data-title="'角色'" width="80" filter="{ ROLES: 'text'}" sortable="'ROLES'">{{m.ROLES}}</td>
-                        <td data-title="'时间'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
-                        <td data-title="'版本'" width="80" filter="{ VERSION: 'text'}" sortable="'VERSION'">{{m.VERSION}}</td>
-                        <td data-title="'内网IP'" width="80" filter="{ INTERNAL_IP: 'text'}" sortable="'INTERNAL_IP'">{{m.INTERNAL_IP}}</td>
-                        <td data-title="'外网IP'" width="80" filter="{ EXTERNAL_IP: 'text'}" sortable="'EXTERNAL_IP'">{{m.EXTERNAL_IP}}</td>
-                        <td data-title="'操作系统'" width="80" filter="{ OS_IMAGE: 'text'}" sortable="'OS_IMAGE'">{{m.OS_IMAGE}}</td>
-                        <td data-title="'内核版本'" width="80" filter="{ KERNEL_VERSION: 'text'}" sortable="'KERNEL_VERSION'">{{m.KERNEL_VERSION}}</td>
-                        <td data-title="'容器运行时'" width="80" filter="{ CONTAINER_RUNTIME: 'text'}" sortable="'CONTAINER_RUNTIME'">{{m.CONTAINER_RUNTIME}}</td>
-                        <td data-title="'调度设置'" width="80" >
-                              <button class="btn btn-danger" ng-disabled="m.stat.SchedulingDisabled" ng-click="kubernetesnode.cordon(m.NAME,'cordon')">设置成不可调度</button>
-                              <button class="btn btn-primary" ng-disabled="!m.stat.SchedulingDisabled" ng-click="kubernetesnode.cordon(m.NAME,'uncordon')">设置成可调度</button>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">{{m.NAME}}</td>
+                        <td data-title="'C3T.状态'|translate" width="80" filter="{ STATUS: 'text'}" sortable="'STATUS'">{{m.STATUS}}</td>
+                        <td data-title="'C3T.角色'|translate" width="80" filter="{ ROLES: 'text'}" sortable="'ROLES'">{{m.ROLES}}</td>
+                        <td data-title="'C3T.时间'|translate" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
+                        <td data-title="'C3T.版本'|translate" width="80" filter="{ VERSION: 'text'}" sortable="'VERSION'">{{m.VERSION}}</td>
+                        <td data-title="'C3T.内网IP'|translate" width="80" filter="{ INTERNAL_IP: 'text'}" sortable="'INTERNAL_IP'">{{m.INTERNAL_IP}}</td>
+                        <td data-title="'C3T.外网IP'|translate" width="80" filter="{ EXTERNAL_IP: 'text'}" sortable="'EXTERNAL_IP'">{{m.EXTERNAL_IP}}</td>
+                        <td data-title="'C3T.操作系统'|translate" width="80" filter="{ OS_IMAGE: 'text'}" sortable="'OS_IMAGE'">{{m.OS_IMAGE}}</td>
+                        <td data-title="'C3T.内核版本'|translate" width="80" filter="{ KERNEL_VERSION: 'text'}" sortable="'KERNEL_VERSION'">{{m.KERNEL_VERSION}}</td>
+                        <td data-title="'C3T.容器运行时'|translate" width="80" filter="{ CONTAINER_RUNTIME: 'text'}" sortable="'CONTAINER_RUNTIME'">{{m.CONTAINER_RUNTIME}}</td>
+                        <td data-title="'C3T.调度设置'|translate" width="80" >
+                              <button class="btn btn-danger" ng-disabled="m.stat.SchedulingDisabled" ng-click="kubernetesnode.cordon(m.NAME,'cordon')">{{'C3T.设置成不可调度'|translate}}</button>
+                              <button class="btn btn-primary" ng-disabled="!m.stat.SchedulingDisabled" ng-click="kubernetesnode.cordon(m.NAME,'uncordon')">{{'C3T.设置成可调度'|translate}}</button>
                         </td> 
-                        <td data-title="'驱逐POD'" width="80" >
-                              <button class="btn btn-primary" ng-click="kubernetesnode.drain(m.NAME)">执行驱逐操作</button>
+                        <td data-title="'C3T.驱逐POD'|translate" width="80" >
+                              <button class="btn btn-primary" ng-click="kubernetesnode.drain(m.NAME)">{{'C3T.执行驱逐操作'|translate}}</button>
                         </td> 
  
-                        <td data-title="'污点'" width="80" >
-                            <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesnode.nodetaint('nodes',m.NAME,'x')" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
+                        <td data-title="'C3T.污点'|translate" width="80" >
+                            <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesnode.nodetaint('nodes',m.NAME,'x')" uib-tooltip="{{'C3T.编辑'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                         </td> 
  
                         <td data-title="'describe'" width="80" >
-                            <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesnode.describe('nodes',m.NAME,'x')" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesnode.describe('nodes',m.NAME,'x')" uib-tooltip="{{'C3T.查看'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                         </td> 
                     </tr>
                 </table>
