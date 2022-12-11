@@ -41,11 +41,11 @@
                 <div class="col-sm-10 form-group">
                     <label class="col-sm-1 control-label">{{'C3T.名称'|translate}}</label>
                     <div class="col-sm-3">
-                        <input type="text" class="form-control" name="adduser" placeholder="名称" ng-disabled="kubernetescreateconfigmap.tasktype==='apply'" ng-model="kubernetescreateconfigmap.editData.metadata.name" ng-mouseenter="kubernetescreateconfigmap.namedemoin()" ng-mouseleave="kubernetescreateconfigmap.namedemoout()" required>
+                        <input type="text" class="form-control" name="adduser" placeholder="{{'C3T.名称'|translate}}" ng-disabled="kubernetescreateconfigmap.tasktype==='apply'" ng-model="kubernetescreateconfigmap.editData.metadata.name" ng-mouseenter="kubernetescreateconfigmap.namedemoin()" ng-mouseleave="kubernetescreateconfigmap.namedemoout()" required>
                     </div>
                     <label class="col-sm-1 control-label">{{'C3T.命名空间'|translate}}</label>
                     <div class="col-sm-4">
-                        <input ng-if="kubernetescreateconfigmap.tasktype==='apply'"  ng-disabled="1" type="text" class="form-control" name="adduser" placeholder="名称" ng-disabled="kubernetescreateconfigmap.tasktype==='apply'" ng-model="kubernetescreateconfigmap.editData.metadata.namespace" required>
+                        <input ng-if="kubernetescreateconfigmap.tasktype==='apply'"  ng-disabled="1" type="text" class="form-control" name="adduser" placeholder="{{'C3T.命名空间'|translate}}" ng-disabled="kubernetescreateconfigmap.tasktype==='apply'" ng-model="kubernetescreateconfigmap.editData.metadata.namespace" required>
                         <select id="selectednameval" class="form-control" ng-if="kubernetescreateconfigmap.tasktype!=='apply'"  ng-model="kubernetescreateconfigmap.editData.metadata.namespace" required>
                              <option ng-repeat="x in kubernetescreateconfigmap.namespaces" value="{{x.NAME}}">{{x.NAME}}</option>
                         </select>
@@ -58,7 +58,7 @@
                 <div class="col-sm-10 form-group">
                     <label class="col-sm-1 control-label">{{'C3T.描述'|translate}}</label>
                     <div class="col-sm-8">
-                        <input type="text" class="form-control" name="adduser" placeholder="描述" ng-model="kubernetescreateconfigmap.editData.metadata.annotations.describe" ng-mouseenter="kubernetescreateconfigmap.describedemoin()" ng-mouseleave="kubernetescreateconfigmap.describedemoout()"required>
+                        <input type="text" class="form-control" name="adduser" placeholder="{{'C3T.描述'|translate}}" ng-model="kubernetescreateconfigmap.editData.metadata.annotations.describe" ng-mouseenter="kubernetescreateconfigmap.describedemoin()" ng-mouseleave="kubernetescreateconfigmap.describedemoout()"required>
                     </div>
                 </div>
             </div>
@@ -116,7 +116,7 @@
                                         <div class="col-sm-12 form-group">
                                             <label class="col-sm-1 control-label">{{'C3T.名称'|translate}}</label>
                                             <div class="col-sm-3">
-                                                <input type="text" class="form-control" placeholder="名称" ng-model="x.key" required>
+                                                <input type="text" class="form-control" placeholder="{{'C3T.名称'|translate}}" ng-model="x.key" required>
                                            </div>
                                         </div>
                                     </div>

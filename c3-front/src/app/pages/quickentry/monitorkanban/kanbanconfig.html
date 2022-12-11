@@ -5,7 +5,7 @@
                 <button class="btn btn-primary" uib-tooltip="刷新" ng-click="kanbanconfig.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kanbanconfig.loadover}" ></i></button>
                 <button class="btn btn-primary" uib-tooltip="关闭" ng-click="kanbanconfig.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
             </span>
-            <h5>本节点看版管理</h5>
+            <h5>{{'C3T.本节点看板管理'|translate}}</h5>
         </div>
 
         <div class="panel-body" style="margin-top: 2px">
@@ -14,10 +14,10 @@
                 <div style="float: right;">
                      <form class="form-inline" name="myForm" novalidate>
                         <div class="form-group">
-                            <input type="text" class="form-control" ng-model="kanbanconfig.kanbanName"  placeholder="看版名称" required>
-                            <input type="text" class="form-control" ng-model="kanbanconfig.kanbanUrl"  placeholder="看版url地址" style="width: 600px;" required>
+                            <input type="text" class="form-control" ng-model="kanbanconfig.kanbanName"  placeholder="{{'C3T.看板名称'|translate}}" required>
+                            <input type="text" class="form-control" ng-model="kanbanconfig.kanbanUrl"  placeholder="{{'C3T.看板url地址'|translate}}" style="width: 600px;" required>
                         </div>
-                        <button type="submit" ng-disabled="myForm.$invalid" class="btn btn-primary" ng-click="kanbanconfig.addKanban()"><i class="fa fa-plus fa-lg" aria-hidden="true"></i>添加看版</button>
+                        <button type="submit" ng-disabled="myForm.$invalid" class="btn btn-primary" ng-click="kanbanconfig.addKanban()"><i class="fa fa-plus fa-lg" aria-hidden="true"></i>{{'C3T.添加看板'|translate}}</button>
                     </form>
                 </div>
                 <div style="clear: both;">&nbsp;</div>
@@ -26,19 +26,19 @@
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="kanbanconfig.kanbanTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'名称'" width="80" filter="{ name: 'text'}" sortable="'name'"> {{m.name}} </td>
-                        <td data-title="'URL地址'" filter="{ url: 'text'}" sortable="'url'">{{m.url}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ name: 'text'}" sortable="'name'"> {{m.name}} </td>
+                        <td data-title="'C3T.URL地址'|translate" filter="{ url: 'text'}" sortable="'url'">{{m.url}}</td>
  
-                        <td data-title="'创建人'" width="80" filter="{ edit_user: 'text'}" sortable="'edit_user'"> {{m.edit_user}} </td>
-                        <td data-title="'创建时间'" width="80" filter="{ edit_time: 'text'}" sortable="'edit_time'"> {{m.edit_time}} </td>
+                        <td data-title="'C3T.创建人'|translate" width="80" filter="{ edit_user: 'text'}" sortable="'edit_user'"> {{m.edit_user}} </td>
+                        <td data-title="'C3T.创建时间'|translate" width="80" filter="{ edit_time: 'text'}" sortable="'edit_time'"> {{m.edit_time}} </td>
 
-                        <td data-title="'默认打开'" width="80" >
+                        <td data-title="'C3T.默认打开'|translate" width="80" >
                             <i ng-if="m.default !== 1" class="fa fa-toggle-off fa-2x" aria-hidden="true" ng-click="kanbanconfig.setDefaultKanban(m.id, 1 )" uib-tooltip="设置成默认打开" style="cursor:pointer;color: #f63;" ></i>
                             <i ng-if="m.default === 1" class="fa fa-toggle-on fa-2x" aria-hidden="true" ng-click="kanbanconfig.setDefaultKanban(m.id, 0 )" uib-tooltip="去掉默认打开" style="cursor:pointer;color: green;" ></i>
                         </td>
 
 
-                        <td data-title="'删除'" width="80" >
+                        <td data-title="'C3T.删除'|translate" width="80" >
                             <i ng-if="m.id <= 100000000" class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kanbanconfig.delKanban(m.id)" uib-tooltip="删除看版" style="cursor:pointer;color: red;" ></i>
                             <i ng-if="m.id >  100000000"class="fa fa-minus-circle fa-2x" aria-hidden="true" uib-tooltip="系统内置" style="cursor:pointer;color: grey;" ></i>
                         </td> 

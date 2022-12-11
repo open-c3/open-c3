@@ -40,11 +40,11 @@
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">{{'C3T.名称'|translate}}</label>
                     <div class="col-sm-3">
-                        <input type="text" class="form-control" name="adduser" placeholder="名称" ng-disabled="kubernetescreateingress.tasktype==='apply'" ng-model="kubernetescreateingress.editData.metadata.name" ng-mouseenter="kubernetescreateingress.namedemoin()" ng-mouseleave="kubernetescreateingress.namedemoout()" required>
+                        <input type="text" class="form-control" name="adduser" placeholder="{{'C3T.名称'|translate}}" ng-disabled="kubernetescreateingress.tasktype==='apply'" ng-model="kubernetescreateingress.editData.metadata.name" ng-mouseenter="kubernetescreateingress.namedemoin()" ng-mouseleave="kubernetescreateingress.namedemoout()" required>
                     </div>
                     <label class="col-sm-1 control-label">{{'C3T.命名空间'|translate}} </label>
                     <div class="col-sm-3">
-                        <input ng-if="kubernetescreateingress.tasktype==='apply'"  ng-disabled="1" type="text" class="form-control" name="adduser" placeholder="名称" ng-disabled="kubernetescreateingress.tasktype==='apply'" ng-model="kubernetescreateingress.editData.metadata.namespace" required>
+                        <input ng-if="kubernetescreateingress.tasktype==='apply'"  ng-disabled="1" type="text" class="form-control" name="adduser" placeholder="{{'C3T.命名空间'|translate}}" ng-disabled="kubernetescreateingress.tasktype==='apply'" ng-model="kubernetescreateingress.editData.metadata.namespace" required>
                         <select ng-change="kubernetescreateingress.namespacechange( kubernetescreateingress.editData.metadata.namespace )" id="selectednameval" class="form-control" ng-if="kubernetescreateingress.tasktype!=='apply'"  ng-model="kubernetescreateingress.editData.metadata.namespace" required>
                              <option ng-repeat="x in kubernetescreateingress.namespaces" value="{{x.NAME}}">{{x.NAME}}</option>
                         </select>
@@ -58,7 +58,7 @@
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">描述</label>
                     <div class="col-sm-9">
-                        <input type="text" class="form-control" name="adduser" placeholder="描述" ng-model="kubernetescreateingress.editData.metadata.annotations.describe" ng-mouseenter="kubernetescreateingress.describedemoin()" ng-mouseleave="kubernetescreateingress.describedemoout()"required>
+                        <input type="text" class="form-control" name="adduser" placeholder="{{'C3T.描述'|placeholder}}" ng-model="kubernetescreateingress.editData.metadata.annotations.describe" ng-mouseenter="kubernetescreateingress.describedemoin()" ng-mouseleave="kubernetescreateingress.describedemoout()"required>
                     </div>
                 </div>
             </div>
@@ -165,7 +165,7 @@ apiVersion
                                         <div class="col-sm-12 form-group">
                                             <label class="col-sm-1 control-label">{{'C3T.域名'|translate}}</label>
                                             <div class="col-sm-5">
-                                                <input type="text" class="form-control" placeholder="域名" ng-model="x.host" required>
+                                                <input type="text" class="form-control" placeholder="{{'C3T.域名'|translate}}" ng-model="x.host" required>
                                            </div>
                                             <label class="col-sm-1 control-label">HTTPS {{'C3T.证书'|translate}}</label>
                                             <div class="col-sm-5">

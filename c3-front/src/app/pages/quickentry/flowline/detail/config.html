@@ -53,13 +53,13 @@
 
                         <div class="row">
                             <label class="col-md-2 control-label fwbold">{{'C3T.代码地址'|translate}}:</label>
-                            <div class="col-md-8"> <input class="form-control" ng-model="config.project.addr" ng-change="config.changeaddr()" placeholder="git地址、svn地址、openc3文件" ng-mouseenter="config.addrdemoin()" ng-mouseleave="config.addrdemoout()"/> </div>
+                            <div class="col-md-8"> <input class="form-control" ng-model="config.project.addr" ng-change="config.changeaddr()" placeholder="{{'C3T.git地址、svn地址、openc3文件'|translate}}" ng-mouseenter="config.addrdemoin()" ng-mouseleave="config.addrdemoout()"/> </div>
                             <a class="glyphicon glyphicon-question-sign" data-toggle="tooltip" data-placement="right" target='_blank' ng-href="/book/流水线多种代码来源/" uib-tooltip="查看代码地址帮助" aria-hidden="true" style="padding-top: 11px;font-size: larger;"></a>
                         </div>
 
                         <div class="row">
                             <label class="col-md-2 control-label fwbold">{{'C3T.tag正则'|translate}}:</label>
-                            <div class="col-md-6"> <input class="form-control" ng-model="config.project.tag_regex" placeholder="tag的正则表达式,空的情况下会拉取所有的tag"/> </div>
+                            <div class="col-md-6"> <input class="form-control" ng-model="config.project.tag_regex" placeholder="{{'C3T.tag的正则表达式,空的情况下会拉取所有的tag'|translate}}"/> </div>
                         </div>
                     </div>
 
@@ -95,10 +95,10 @@
                             </label>
                         </div>
                         <div ng-show="config.webhook" class="col-md-4">
-                            <input type="text" class="form-control" ng-model="config.project.webhook_password" placeholder="webhook密码">{{'C3T.密码'|translate}}</input>
+                            <input type="text" class="form-control" ng-model="config.project.webhook_password" placeholder="webhook {{'C3T.密码'|translate}}">{{'C3T.密码'|translate}}</input>
                         </div>
                         <div ng-show="config.webhook" class="col-md-4">
-                            <input type="text" class="form-control" ng-model="config.project.webhook_release" placeholder="多个分支用逗号分开">{{'C3T.匹配分支'|translate}}</input>
+                            <input type="text" class="form-control" ng-model="config.project.webhook_release" placeholder="{{'C3T.多个分支用逗号分开'|translate}}">{{'C3T.匹配分支'|translate}}</input>
                         </div>
  
                     </div>
@@ -153,7 +153,7 @@
 <div ng-if="config.project.ci_type_open === '1' && config.project.ci_type !== 'kubernetes'">
                     <div class="row">
                         <label class="col-md-2 control-label fwbold">{{'C3T.触发脚本'|translate}}:</label>
-                        <div class="col-md-8"> <input class="form-control" ng-model="config.project.follow_up" placeholder="构建完成后触发脚本"/> </div>
+                        <div class="col-md-8"> <input class="form-control" ng-model="config.project.follow_up" placeholder="{{'C3T.构建完成后触发脚本'|translate}}"/> </div>
                         <a class="glyphicon glyphicon-question-sign" data-toggle="tooltip" data-placement="right" target='_blank' ng-href="/book/构建触发脚本/" uib-tooltip="查看脚本帮助" aria-hidden="true" style="padding-top: 11px;font-size: larger;"></a>
                     </div>
                     <div class="row" >
@@ -180,7 +180,7 @@
                         </div>
 
                         <div class="col-md-6" ng-show="searchcluster===1">
-                            <input type="text" class="form-control" ng-model="ffff" placeholder="集群关键字" >
+                            <input type="text" class="form-control" ng-model="ffff" placeholder="{{'C3T.集群关键字'|translate}}" >
                             <ul>
                                 <li ng-repeat="x in config.clusterlist | filter:ffff">
                                     <a ng-show="x.id==config.project.ci_type_ticketid" style="cursor: pointer;color: green;" ng-click="config.setcid(x.id)">{{x.name}}</a>
@@ -279,7 +279,7 @@
 
                     <div class="row" ng-show="config.project.ci_type_dockerfile!=='_buildin_'" >
                         <label class="col-md-2 control-label fwbold">{{'C3T.dockerfile路径'|translate}}</label>
-                        <div class="col-md-6"> <input class="form-control" ng-model="config.project.ci_type_dockerfile" placeholder="dockerfile路径"/> </div>
+                        <div class="col-md-6"> <input class="form-control" ng-model="config.project.ci_type_dockerfile" placeholder="dockerfile {{'C3T.路径'|translate}}"/> </div>
                         <div class="col-md-2">
                             <button class="btn btn-primary" uib-tooltip="切换，运维配置dockerfile" ng-click="config.project.ci_type_dockerfile='_buildin_'"><i class="fa fa-cogs fa-1x" >{{'C3T.切换'|translate}}</i></button>
                         </div>
@@ -333,7 +333,7 @@
 
                     <div ng-if="config.followupopen == 1"  class="row">
                         <label class="col-md-2 control-label fwbold">{{'C3T.触发脚本'|translate}}:</label>
-                        <div class="col-md-6"> <input class="form-control" ng-model="config.project.follow_up" placeholder="构建完成后触发脚本"/> </div>
+                        <div class="col-md-6"> <input class="form-control" ng-model="config.project.follow_up" placeholder="{{'C3T.构建完成后触发脚本'|translate}}"/> </div>
                         <a class="glyphicon glyphicon-question-sign" data-toggle="tooltip" data-placement="right" target='_blank' ng-href="/book/构建触发脚本/" uib-tooltip="查看脚本帮助" aria-hidden="true" style="padding-top: 11px;font-size: larger;"></a>
 
                         <div class="col-md-2">
@@ -368,16 +368,16 @@
                     <hr style="margin: 5px" >
                     <div class="row">
                         <label class="col-md-2 control-label fwbold">{{'C3T.消息通知人'|translate}}:</label>
-                        <div class="col-md-8"> <input class="form-control" ng-model="config.project.notify" placeholder="构建情况通知人，多个人用逗号分隔"/> </div>
+                        <div class="col-md-8"> <input class="form-control" ng-model="config.project.notify" placeholder="{{'C3T.构建情况通知人，多个人用逗号分隔'|translate}}"/> </div>
                     </div>
                     <hr style="margin: 5px" >
                     <div class="row">
                         <label class="col-md-2 control-label fwbold">{{'C3T.资源限制'|translate}}:</label>
                         <label class="col-md-1 control-label fwbold">CPU:</label>
-                        <div class="col-md-2"> <input class="form-control" ng-model="config.project.cpulimit" placeholder="默认:2"/> </div>
+                        <div class="col-md-2"> <input class="form-control" ng-model="config.project.cpulimit" placeholder="{{'C3T.默认'|translate}}:2"/> </div>
                         <label class="col-md-1 control-label fwbold">({{'C3T.核'|translate}})</label>
                         <label class="col-md-1 control-label fwbold">{{'C3T.内存'|translate}}:</label>
-                        <div class="col-md-2"> <input class="form-control" ng-model="config.project.memlimit" placeholder="默认:2048"/> </div>
+                        <div class="col-md-2"> <input class="form-control" ng-model="config.project.memlimit" placeholder="{{'C3T.默认'|translate}}:2048"/> </div>
                         <label class="col-md-1 control-label fwbold">({{'C3T.兆'|translate}})</label>
                     </div>
 

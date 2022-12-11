@@ -121,7 +121,7 @@
     <div ng-if="openc3_monitor_monagent9100==0" >
         <div style="float: right;">
             <form class="form-inline" name="myForm" novalidate>
-                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="monitorconfig.createCollector({},'添加')"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i> 添加监控指标采集</button>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="monitorconfig.createCollector({},'C3T.添加')"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i> {{'C3T.添加监控指标采集'|translate}}</button>
             </form>
         </div>
         <div style="clear: both;">&nbsp;</div>
@@ -150,7 +150,7 @@
                         <td data-title="'C3T.编辑时间'|translate" sortable="'edit_time'">{{m.edit_time}}</td>
                         <td class="textcenter"  data-title="'C3T.操作'|translate">
                             <nobr>
-                                <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="monitorconfig.createCollector(m,'编辑')" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
+                                <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="monitorconfig.createCollector(m,'C3T.编辑')" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
                                 <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="monitorconfig.deleteCollector(m.id)" uib-tooltip="删除" style="cursor:pointer;color: red;" ></i>
                             </nobr>
                         </td>
@@ -166,7 +166,7 @@
     <div>
         <div style="float: right;">
             <form class="form-inline" name="myForm" novalidate>
-                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="monitorconfig.createRule({},'添加')"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i>{{'C3T.添加监控策略'|translate}}</button>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="monitorconfig.createRule({},'C3T.添加')"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i>{{'C3T.添加监控策略'|translate}}</button>
                 <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="monitorconfig.tplSyncRule()"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i>{{'C3T.通过模版添加监控策略'|translate}}</button>
                 <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="monitorconfig.tplSaveRule()"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i>{{'C3T.保存为模板'|translate}}</button>
                 <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="monitorconfig.copyRule()"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i>{{'C3T.复制其他服务树节点策略'|translate}}</button>
@@ -198,7 +198,7 @@
                         <td data-title="'C3T.编辑时间'|translate" sortable="'edit_time'">{{m.edit_time}}</td>
                         <td class="textcenter"  data-title="'C3T.操作'|translate">
                             <nobr>
-                                <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="monitorconfig.createRule(m,'编辑')" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
+                                <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="monitorconfig.createRule(m,'C3T.编辑')" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
                                 <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="monitorconfig.deleteRule(m.id)" uib-tooltip="删除" style="cursor:pointer;color: red;" ></i>
                             </nobr>
                         </td>
@@ -215,7 +215,7 @@
         <div style="float: right;" ng-show="monitorconfig.usersign===''">
             <form class="form-inline" name="myFormUser" novalidate>
                 <div class="form-group">
-                    <input type="text" style="width: 250px" class="form-control" ng-model="newUser"  placeholder="添加报警人" required>
+                    <input type="text" style="width: 250px" class="form-control" ng-model="newUser"  placeholder="{{'C3T.添加报警人'|translate}}" required>
                 </div>
                 <button type="submit" ng-disabled="myFormUser.$invalid" class="btn btn-primary" ng-click="monitorconfig.createUser()"><i class="fa fa-user fa-lg" aria-hidden="true"></i>{{'C3T.添加报警人'|translate}}</button>
             </form>
@@ -240,7 +240,7 @@
         <div style="float: right;" ng-show="monitorconfig.usersign===':'">
             <form class="form-inline" name="myFormDepartment" novalidate>
                 <div class="form-group">
-                    <input type="text" style="width: 250px" class="form-control" ng-model="newUser"  placeholder="添加部门组" required>
+                    <input type="text" style="width: 250px" class="form-control" ng-model="newUser"  placeholder="{{'C3T.添加部门组'|translate}}" required>
                 </div>
                 <button type="submit" ng-disabled="myFormDepartment.$invalid" class="btn btn-primary" ng-click="monitorconfig.createUser()"><i class="fa fa-user fa-lg" aria-hidden="true"></i>{{'C3T.添加部门组'|translate}}</button>
             </form>

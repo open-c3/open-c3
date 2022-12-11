@@ -1,22 +1,22 @@
 <div class="modal-header">
-    <h4 class="modal-title">{{createMonitorConfig.title}}监控指标采集</h4>
+    <h4 class="modal-title">{{createMonitorConfig.title|translate}} {{'C3T.监控指标采集'|translate}}</h4>
 </div>
 <div class="modal-body">
 
 <form class="form-horizontal" >
     <div class="row">
         <div class="col-sm-10 form-group">
-            <label class="col-sm-3 control-label">类型</label>
+            <label class="col-sm-3 control-label">{{'C3T.类型'|translate}}</label>
             <div class="col-sm-9">
                 <div class="admin-form">
                     <div class="option-group field" >
                         <label class="option option-primary">
                             <input type="radio" ng-model="createMonitorConfig.postData.type" ng-change="createMonitorConfig.changeType('tcp')" value="port" >
-                            <span class="radio" style="padding-top: 0;min-height: 0"></span>端口
+                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.端口'|translate}}
                         </label>
                         <label class="option option-primary">
                              <input type="radio" ng-model="createMonitorConfig.postData.type" ng-change="createMonitorConfig.changeType('cmdline')" value="process" >
-                             <span class="radio" style="padding-top: 0;min-height: 0"></span>进程
+                             <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.进程'|translate}}
                         </label>
                         <label class="option option-primary">
                              <input type="radio" ng-model="createMonitorConfig.postData.type" ng-change="createMonitorConfig.changeType('GET')" value="http" >
@@ -24,7 +24,7 @@
                         </label>
                         <label class="option option-primary">
                              <input type="radio" ng-model="createMonitorConfig.postData.type" ng-change="createMonitorConfig.changeType('file')" value="path" >
-                             <span class="radio" style="padding-top: 0;min-height: 0"></span>路径
+                             <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.路径'|translate}}
                         </label>
                         <label class="option option-primary">
                              <input type="radio" ng-model="createMonitorConfig.postData.type" ng-change="createMonitorConfig.changeType('push')" value="push" >
@@ -43,7 +43,7 @@
 
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">协议</label>
+                <label class="col-sm-3 control-label">{{'C3T.协议'|translate}}</label>
                 <div class="col-sm-9">
                     <div class="admin-form">
                         <div class="option-group field" >
@@ -65,36 +65,36 @@
 
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">端口</label>
+                <label class="col-sm-3 control-label">{{'C3T.端口'|translate}}</label>
                 <div class="col-sm-9">
-                    <input type="text" class="form-control" placeholder="要采集的端口，多个用英文逗号分隔" ng-model="createMonitorConfig.postData.content1" required>
+                    <input type="text" class="form-control" placeholder="{{'C3T.要采集的端口，多个用英文逗号分隔'|translate}}" ng-model="createMonitorConfig.postData.content1" required>
                 </div>
             </div>
         </div>
 
         <div class="row">
             <div class="col-sm-5 form-group pull-right">
-                <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="createMonitorConfig.add()">确认</button>
-                <button class="btn btn-warning" ng-click="createMonitorConfig.cancel()">取消</button>
+                <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="createMonitorConfig.add()">{{'C3T.确认'|translate}}</button>
+                <button class="btn btn-warning" ng-click="createMonitorConfig.cancel()">{{'C3T.取消'|translate}}</button>
             </div>
         </div>
 
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">帮助</label>
+                <label class="col-sm-3 control-label">{{'C3T.帮助'|translate}}</label>
                 <div class="col-sm-9">
 
                     <textarea style="height: 550px" class="fluid-width" readonly>
-用途：监控端口死活, 监控端口是否对外开放。
-指标：
+{{'C3T.用途'|translate}}：{{'C3T.监控端口死活, 监控端口是否对外开放。'|translate}}
+{{'C3T.指标'|translate}}：
 
-node_port: 端口状态，有如下三种状态：
+node_port: {{'C3T.端口状态，有如下三种状态'|translate}}：
 
-   0: 端口没在监听状态
-   1: 有端口活动，可能监听的是127.0.0.1
-   2: 端口监听在0.0.0.0上，对外开放
+   0: {{'C3T.端口没在监听状态'|translate}}
+   1: {{'C3T.有端口活动，可能监听的是127.0.0.1'|translate}}
+   2: {{'C3T.端口监听在0.0.0.0上，对外开放'|translate}}
 
-例子：
+{{'C3T.例如'|translate}}：
 
 udp:
 node_port{port="53",protocol="udp"} 0
@@ -104,10 +104,10 @@ node_port{port="22",protocol="tcp"} 2
 node_port{port="80",protocol="tcp"} 1
 node_port{port="8080",protocol="tcp"} 0
 
-说明：
+{{'C3T.说明'|translate}}：
 
-可以用ss -t -l -n查看tcp端口，ss -u -l -n 为udp。
-采集过程中把如 *:80 、:::8080 的状态设置为2。
+{{'C3T.可以用ss -t -l -n查看tcp端口，ss -u -l -n 为udp。'|translate}}
+{{'C3T.采集过程中把如 *:80 、:::8080 的状态设置为2。'|translate}}
 
                     </textarea>
                 </div>
@@ -122,18 +122,18 @@ node_port{port="8080",protocol="tcp"} 0
     <form class="form-horizontal" name="myForm" role="form">
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">方式</label>
+                <label class="col-sm-3 control-label">{{'C3T.方式'|translate}}</label>
                 <div class="col-sm-9">
                     <div class="admin-form">
                         <div class="option-group field" >
                             <label class="option option-primary">
                                 <input type="radio" ng-model="createMonitorConfig.postData.subtype" value="name" >
-                                <span class="radio" style="padding-top: 0;min-height: 0"></span>name[进程名]
+                                <span class="radio" style="padding-top: 0;min-height: 0"></span>name[{{'C3T.进程名'|translate}}]
                             </label>
 
                             <label class="option option-primary">
                                  <input type="radio" ng-model="createMonitorConfig.postData.subtype" value="cmdline" >
-                                 <span class="radio" style="padding-top: 0;min-height: 0"></span>cmdline[启动命令行]
+                                 <span class="radio" style="padding-top: 0;min-height: 0"></span>cmdline[{{'C3T.启动命令行'|translate}}]
                             </label>
                         </div>
                     </div>
@@ -144,47 +144,47 @@ node_port{port="8080",protocol="tcp"} 0
 
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">进程</label>
+                <label class="col-sm-3 control-label">{{'C3T.进程'|translate}}</label>
                 <div class="col-sm-9">
-                    <input type="text" class="form-control" placeholder="进程" ng-model="createMonitorConfig.postData.content1" required>
+                    <input type="text" class="form-control" placeholder="{{'C3T.进程'|translate}}" ng-model="createMonitorConfig.postData.content1" required>
                 </div>
             </div>
         </div>
 
         <div class="row">
             <div class="col-sm-5 form-group pull-right">
-                <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="createMonitorConfig.add()">确认</button>
-                <button class="btn btn-warning" ng-click="createMonitorConfig.cancel()">取消</button>
+                <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="createMonitorConfig.add()">{{'C3T.确认'|translate}}</button>
+                <button class="btn btn-warning" ng-click="createMonitorConfig.cancel()">{{'C3T.取消'|translate}}</button>
             </div>
         </div>
 
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">帮助</label>
+                <label class="col-sm-3 control-label">{{'C3T.帮助'|translate}}</label>
                 <div class="col-sm-9">
 
                     <textarea style="height: 450px" class="fluid-width" readonly>
-用途：进程死活监控，进程重启监控。
-指标：
+{{'C3T.用途'|translate}}：{{'C3T.进程死活监控，进程重启监控。'|translate}}
+{{'C3T.指标'|translate}}：
 
-node_process_count: 匹配到的进程的数量
-node_process_etime: 进程已经运行的时间，单位秒。
+node_process_count: {{'C3T.匹配到的进程的数量'|translate}}
+node_process_etime: {{'C3T.进程已经运行的时间，单位秒。'|translate}}
 
-例子：
-name[进程名]监控方式：
+{{'C3T.例如'|translate}}：
+name[{{'C3T.进程名'|translate}}]{{'C3T.监控方式'|translate}}：
 node_process_count{name="c3_api"} 2
 node_process_etime{name="c3_api",pid="17706"} 52210
 node_process_etime{name="c3_api",pid="17705"} 52210
 
-cmdline[启动命令行]监控方式:
+cmdline[{{'C3T.启动命令行'|translate}}]监控方式{{'C3T.监控方式'|translate}}:
 node_process_count{cmdline="openc3.node_query.65110"} 1
 node_process_etime{cmdline="openc3.node_query.65110",pid="24137"} 2294903
 
-不同方式区别：
-name为进程名，可以通过 ps -p $pid -o comm查看。
-cmdline为启动命令行，可以通过ps -p $pid -o cmd查看。
+{{'C3T.不同方式区别'|translate}}：
+{{'C3T.name为进程名，可以通过 ps -p $pid -o comm查看。'|translate}}
+{{'C3T.cmdline为启动命令行，可以通过ps -p $pid -o cmd查看。'|translate}}
 
-支持的字符：a-zA-Z0-9 .-_@
+{{'C3T.支持的字符'|translate}}：a-zA-Z0-9 .-_@
                     </textarea>
                 </div>
             </div>
@@ -197,7 +197,7 @@ cmdline为启动命令行，可以通过ps -p $pid -o cmd查看。
     <form class="form-horizontal" name="myForm" role="form">
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">协议</label>
+                <label class="col-sm-3 control-label">{{'C3T.协议'|translate}}</label>
                 <div class="col-sm-9">
                     <div class="admin-form">
                         <div class="option-group field" >
@@ -225,7 +225,7 @@ cmdline为启动命令行，可以通过ps -p $pid -o cmd查看。
             <div class="col-sm-10 form-group">
                 <label class="col-sm-3 control-label">URL</label>
                 <div class="col-sm-9">
-                    <input type="text" class="form-control" placeholder="内容" ng-model="createMonitorConfig.postData.content1" required>
+                    <input type="text" class="form-control" placeholder="{{'C3T.内容'|translate}}" ng-model="createMonitorConfig.postData.content1" required>
                 </div>
             </div>
         </div>
@@ -234,33 +234,33 @@ cmdline为启动命令行，可以通过ps -p $pid -o cmd查看。
             <div class="col-sm-10 form-group">
                 <label class="col-sm-3 control-label">匹配</label>
                 <div class="col-sm-9">
-                    <input type="text" class="form-control" placeholder="匹配" ng-model="createMonitorConfig.postData.content2">
+                    <input type="text" class="form-control" placeholder="{{'C3T.匹配'|translate}}" ng-model="createMonitorConfig.postData.content2">
                 </div>
             </div>
         </div>
 
         <div class="row">
             <div class="col-sm-5 form-group pull-right">
-                <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="createMonitorConfig.add()">确认</button>
-                <button class="btn btn-warning" ng-click="createMonitorConfig.cancel()">取消</button>
+                <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="createMonitorConfig.add()">{{'C3T.确认'|translate}}</button>
+                <button class="btn btn-warning" ng-click="createMonitorConfig.cancel()">{{'C3T.取消'|translate}}</button>
             </div>
         </div>
 
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">帮助</label>
+                <label class="col-sm-3 control-label">{{'C3T.帮助'|translate}}</label>
                 <div class="col-sm-9">
 
                     <textarea style="height: 450px" class="fluid-width" readonly>
-用途：监控HTTP服务。
-指标：
+{{'C3T.用途'|translate}}：{{'C3T.监控HTTP服务。'|translate}}
+{{'C3T.指标'|translate}}：
 
-node_http_code: http返回码
-node_http_time: 请求耗时，单位为毫秒
-node_http_content_check: 返回的内容和配置的是否匹配
+node_http_code: http {{'C3T.返回码'|translate}}
+node_http_time: {{'C3T.请求耗时，单位为毫秒'|translate}}
+node_http_content_check: {{'C3T.返回的内容和配置的是否匹配'|translate}}
 
 
-例子：
+{{'C3T.例如'|translate}}：
 
 node_http_code{method="GET",url="http://127.0.0.1"} 200
 node_http_code{method="GET",url="https://www.baidu.com"} 200
@@ -282,21 +282,21 @@ node_http_content_check{check="baidu",method="GET",url="https://www.baidu.com"} 
     <form class="form-horizontal" name="myForm" role="form">
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">路径类型</label>
+                <label class="col-sm-3 control-label">{{'C3T.路径类型'|translate}}</label>
                 <div class="col-sm-9">
                     <div class="admin-form">
                         <div class="option-group field" >
                             <label class="option option-primary">
                                 <input type="radio" ng-model="createMonitorConfig.postData.subtype" value="file" >
-                                <span class="radio" style="padding-top: 0;min-height: 0"></span>文件
+                                <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.文件'|translate}}
                             </label>
                             <label class="option option-primary">
                                  <input type="radio" ng-model="createMonitorConfig.postData.subtype" value="dir" >
-                                 <span class="radio" style="padding-top: 0;min-height: 0"></span>目录
+                                 <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.目录'|translate}}
                             </label>
                             <label class="option option-primary">
                                 <input type="radio" ng-model="createMonitorConfig.postData.subtype" value="link" >
-                                <span class="radio" style="padding-top: 0;min-height: 0"></span>软链接
+                                <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.软链接'|translate}}
                             </label>
                         </div>
                     </div>
@@ -307,18 +307,18 @@ node_http_content_check{check="baidu",method="GET",url="https://www.baidu.com"} 
 
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">路径</label>
+                <label class="col-sm-3 control-label">{{'C3T.路径'|translate}}</label>
                 <div class="col-sm-9">
-                    <input type="text" class="form-control" placeholder="内容" ng-model="createMonitorConfig.postData.content1" required>
+                    <input type="text" class="form-control" placeholder="{{'C3T.内容'|translate}}" ng-model="createMonitorConfig.postData.content1" required>
                 </div>
             </div>
         </div>
 
         <div class="row" ng-if="createMonitorConfig.postData.subtype=='link'">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">匹配</label>
+                <label class="col-sm-3 control-label">{{'C3T.匹配'|translate}}</label>
                 <div class="col-sm-9">
-                    <input type="text" class="form-control" placeholder="匹配" ng-model="createMonitorConfig.postData.content2">
+                    <input type="text" class="form-control" placeholder="{{'C3T.匹配'|translate}}" ng-model="createMonitorConfig.postData.content2">
                 </div>
             </div>
         </div>
@@ -326,25 +326,25 @@ node_http_content_check{check="baidu",method="GET",url="https://www.baidu.com"} 
 
         <div class="row">
             <div class="col-sm-5 form-group pull-right">
-                <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="createMonitorConfig.add()">确认</button>
-                <button class="btn btn-warning" ng-click="createMonitorConfig.cancel()">取消</button>
+                <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="createMonitorConfig.add()">{{'C3T.确认'|translate}}</button>
+                <button class="btn btn-warning" ng-click="createMonitorConfig.cancel()">{{'C3T.取消'|translate}}</button>
             </div>
         </div>
 
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">帮助</label>
+                <label class="col-sm-3 control-label">{{'C3T.帮助'|translate}}</label>
                 <div class="col-sm-9">
 
                     <textarea style="height: 450px" class="fluid-width" readonly>
-用途：判断文件或者目录是否存在。判断软链接是否存在，判断软链接的内容是否匹配。
-指标：
+{{'C3T.用途'|translate}}：{{'C3T.判断文件或者目录是否存在。判断软链接是否存在，判断软链接的内容是否匹配。'|translate}}
+{{'C3T.指标'|translate}}：
 
-node_path: 路径是否存在
-node_path_check: 是否匹配
+node_path: {{'C3T.路径是否存在'|translate}}
+node_path_check: {{'C3T.是否匹配'|translate}}
 
 
-例子：
+{{'C3T.例如'|translate}}：
 
 node_path{type="file",path="/tmp/foo.txt"} 1
 node_path{type="link",path="/tmp/bar.txt"} 0
@@ -366,37 +366,37 @@ node_path_check{check="v2.2.3",type="link",path="/tmp/bar.txt"} 1
 
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">帮助</label>
+                <label class="col-sm-3 control-label">{{'C3T.帮助'|translate}}</label>
                 <div class="col-sm-9">
 
                     <textarea style="height: 700px" class="fluid-width" readonly>
-用途：收集用户自己上报的指标。
+{{'C3T.用途'|translate}}：{{'C3T.收集用户自己上报的指标。'|translate}}
 
-用法：
+{{'C3T.用法'|translate}}：
 
-监控的AGENT安装后，会在本地监听65110端口。
-把要上报的数据上报到本地该端口，系统会定时收集。
+{{'C3T.监控的AGENT安装后，会在本地监听65110端口。'|translate}}
+{{'C3T.把要上报的数据上报到本地该端口，系统会定时收集。'|translate}}
 
-上报方式如下：
+{{'C3T.上报方式如下'|translate}}：
 
 curl -X POST -d "[{\"metric\": \"test_metric\", \"endpoint\": \"test-endpoint\",\"value\": 1,\"tags\": \"idc=lg,project=xx\"}]" http://127.0.0.1:65110/v1/push
 
 
-上报后的数据如下：
+{{'C3T.上报后的数据如下'|translate}}：
 test_metric{endpoint="test-endpoint",idc="lg",project="xx",source="apipush"} 1
 
-endpoint被当作一个普通的标签。
-source标签是系统默认添加的，用于区分是通过api push而来的数据。
-tags中的标签会变成一个或者多个标签。
+endpoint {{'C3T.被当作一个普通的标签。'|translate}}
+{{'C3T.source标签是系统默认添加的，用于区分是通过api push而来的数据。'|translate}}
+{{'C3T.tags中的标签会变成一个或者多个标签。'|translate}}
 
-字段:
-metric和value是必要的，endpoint和tags非必要。
+{{'C3T.字段'|translate}}:
+{{'C3T.metric和value是必要的，endpoint和tags非必要。'|translate}}
 
-兼容falcon:
+{{'C3T.兼容'|translate}} falcon:
 ts=`date +%s`;
 curl -X POST -d "[{\"metric\": \"test_metric\", \"endpoint\": \"test-endpoint\", \"timestamp\": $ts,\"step\": 60,\"value\": 1,\"counterType\": \"GAUGE\",\"tags\": \"idc=lg,project=xx\"}]" http://127.0.0.1:65110/v1/push
 
-注：push 方式60秒为周期，如果60秒内没有上报新的数据，本地AGENT会把该指标删除。
+{{'C3T.注：push 方式60秒为周期，如果60秒内没有上报新的数据，本地AGENT会把该指标删除。'|translate}}
                     </textarea>
                 </div>
             </div>

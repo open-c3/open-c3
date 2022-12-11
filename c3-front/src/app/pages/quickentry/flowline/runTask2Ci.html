@@ -48,14 +48,14 @@
 
                     <div class="col-sm-10 form-group" ng-if="!runtask2ci.version">
                             <label class="col-sm-3 control-label">{{'C3T.发布版本'|translate}}: &nbsp;</label>
-                            <div class="col-sm-8"> <input type="text" class="form-control"  ng-model="runtask2ci.deployversioncurrent" placeholder="发布版本" required> </div>
+                            <div class="col-sm-8"> <input type="text" class="form-control"  ng-model="runtask2ci.deployversioncurrent" placeholder="{{'C3T.发布版本'|translate}}" required> </div>
                             <div class="col-sm-1"> 
                             </div>
                     </div>
 
                     <div class="col-sm-10 form-group" ng-if="!runtask2ci.version">
                             <label class="col-sm-3 control-label">{{'C3T.版本描述'|translate}}: &nbsp;</label>
-                            <div class="col-sm-8"> <input type="text" class="form-control"  ng-model="runtask2ci.describeversioncurrent" placeholder="描述信息，可以写中文"> </div>
+                            <div class="col-sm-8"> <input type="text" class="form-control"  ng-model="runtask2ci.describeversioncurrent" placeholder="{{'C3T.描述信息，可以写中文'|translate}}"> </div>
                             <div class="col-sm-1"> 
                             </div>
                     </div>
@@ -91,7 +91,7 @@
  
                         <div class="col-sm-10 form-group" ng-show="runtask2ci.advancedconfig==1">
                                 <label class="col-sm-3 control-label">{{'C3T.回滚版本'|translate}}: &nbsp;</label>
-                                <div class="col-sm-8"> <input type="text" class="form-control" ng-disabled="runtask2ci.rollbacknoneeded" ng-model="taskData.variable._rollbackVersion_" placeholder="回滚版本" required> </div>
+                                <div class="col-sm-8"> <input type="text" class="form-control" ng-disabled="runtask2ci.rollbacknoneeded" ng-model="taskData.variable._rollbackVersion_" placeholder="{{'C3T.回滚版本'|translate}}" required> </div>
                                 <div class="col-sm-1"> 
                                     <a ng-if="runtask2ci.advancedconfig" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="选择版本" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="runtask2ci.advancedconfig=0"></a>
                                     <a ng-if="!runtask2ci.advancedconfig" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="手写版本" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="runtask2ci.advancedconfig=1"></a>

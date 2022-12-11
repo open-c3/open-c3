@@ -37,11 +37,11 @@
                 <div class="col-sm-10 form-group">
                     <label class="col-sm-1 control-label">{{'C3T.名称'|translate}}</label>
                     <div class="col-sm-3">
-                        <input type="text" class="form-control" name="adduser" placeholder="名称" ng-disabled="kubernetescreatedaemonset.tasktype==='apply'" ng-model="kubernetescreatedaemonset.editData.metadata.name" ng-mouseenter="kubernetescreatedaemonset.namedemoin()" ng-mouseleave="kubernetescreatedaemonset.namedemoout()" required>
+                        <input type="text" class="form-control" name="adduser" placeholder="{{'C3T.名称'|translate}}" ng-disabled="kubernetescreatedaemonset.tasktype==='apply'" ng-model="kubernetescreatedaemonset.editData.metadata.name" ng-mouseenter="kubernetescreatedaemonset.namedemoin()" ng-mouseleave="kubernetescreatedaemonset.namedemoout()" required>
                     </div>
                     <label class="col-sm-1 control-label">{{'C3T.命名空间'|translate}}</label>
                     <div class="col-sm-3">
-                        <input ng-if="kubernetescreatedaemonset.tasktype==='apply'"  ng-disabled="1" type="text" class="form-control" name="adduser" placeholder="名称" ng-disabled="kubernetescreatedaemonset.tasktype==='apply'" ng-model="kubernetescreatedaemonset.editData.metadata.namespace" required>
+                        <input ng-if="kubernetescreatedaemonset.tasktype==='apply'"  ng-disabled="1" type="text" class="form-control" name="adduser" placeholder="{{'C3T.命名空间'|translate}}" ng-disabled="kubernetescreatedaemonset.tasktype==='apply'" ng-model="kubernetescreatedaemonset.editData.metadata.namespace" required>
                         <select id="selectednameval" class="form-control" ng-if="kubernetescreatedaemonset.tasktype!=='apply'"  ng-model="kubernetescreatedaemonset.editData.metadata.namespace" required>
                              <option ng-repeat="x in kubernetescreatedaemonset.namespaces" value="{{x.NAME}}">{{x.NAME}}</option>
                         </select>
@@ -113,7 +113,7 @@
                 <div class="col-sm-10 form-group">
                     <label class="col-sm-1 control-label">{{'C3T.停止等待时间'|translate}}</label>
                     <div class="col-sm-1">
-                        <input type="number" class="form-control" name="adduser" placeholder="停止等待时间" ng-model="kubernetescreatedaemonset.editData.spec.template.spec.terminationGracePeriodSeconds" required>
+                        <input type="number" class="form-control" name="adduser" placeholder="{{'C3T.停止等待时间'|translate}}" ng-model="kubernetescreatedaemonset.editData.spec.template.spec.terminationGracePeriodSeconds" required>
                     </div>
                 </div>
             </div>
@@ -404,7 +404,7 @@
 
                     <label class="col-sm-1 control-label">topologyKey</label>
                     <div class="col-sm-3">
-                        <input type="text" class="form-control" placeholder="节点标签Key" ng-model="kubernetescreatedaemonset.editData.spec.template.spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].topologyKey">
+                        <input type="text" class="form-control" placeholder="{{'C3T.节点标签Key'|translate}}" ng-model="kubernetescreatedaemonset.editData.spec.template.spec.affinity.podAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].topologyKey">
                     </div>
                 </div>
             </div>
@@ -489,7 +489,7 @@
 
                     <label class="col-sm-1 control-label">topologyKey</label>
                     <div class="col-sm-3">
-                        <input type="text" class="form-control" placeholder="节点标签Key" ng-model="kubernetescreatedaemonset.editData.spec.template.spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].topologyKey">
+                        <input type="text" class="form-control" placeholder="{{'C3T.节点标签Key'|translate}}" ng-model="kubernetescreatedaemonset.editData.spec.template.spec.affinity.podAntiAffinity.requiredDuringSchedulingIgnoredDuringExecution[0].topologyKey">
                     </div>
                 </div>
             </div>
@@ -595,7 +595,7 @@
                                         <div class="col-sm-12 form-group">
                                             <label class="col-sm-1 control-label">{{'C3T.容器名称'|translate}}</label>
                                             <div class="col-sm-9">
-                                                <input type="text" class="form-control" placeholder="容器名称" ng-model="x.name" required>
+                                                <input type="text" class="form-control" placeholder="{{'C3T.容器名称'|translate}}" ng-model="x.name" required>
                                            </div>
                                         </div>
                                     </div>
@@ -604,7 +604,7 @@
                                         <div class="col-sm-12 form-group">
                                             <label class="col-sm-1 control-label">{{'C3T.镜像'|translate}}</label>
                                             <div class="col-sm-9">
-                                                <input type="text" class="form-control" placeholder="镜像" ng-model="x.image" required>
+                                                <input type="text" class="form-control" placeholder="{{'C3T.镜像'|translate}}" ng-model="x.image" required>
                                            </div>
                                             <div class="col-sm-1">
                                                 <button class="btn btn-primary" ng-click="kubernetescreatedaemonset.addImageAddrByTicket(x)">{{'C3T.获取仓库地址'|translate}}</button>
@@ -700,7 +700,7 @@ Ki，Mi，Gi，Ti，Pi，Ei #{{'C3T.通常是以1024为换算标准的。'|trans
                                         <div class="col-sm-12 form-group">
                                             <label class="col-sm-1 control-label"></label>
                                             <div class="col-sm-7">
-                                                <input type="text" class="form-control" name="adduser" placeholder="启动命令" ng-model="x.tempcommandstring"  >
+                                                <input type="text" class="form-control" name="adduser" placeholder="{{'C3T.启动命令'|translate}}" ng-model="x.tempcommandstring"  >
                                             </div>
                                             <div class="col-sm-1">
                                                 <a ng-click="kubernetescreatedaemonset.addCommand(x, x.tempcommandstring)" style="cursor:pointer;color: #339094;" >{{'C3T.添加'|translate}}</a>
@@ -729,7 +729,7 @@ Ki，Mi，Gi，Ti，Pi，Ei #{{'C3T.通常是以1024为换算标准的。'|trans
                                         <div class="col-sm-12 form-group">
                                             <label class="col-sm-1 control-label"></label>
                                             <div class="col-sm-7">
-                                                <input type="text" class="form-control" name="adduser" placeholder="命令参数" ng-model="x.tempargsstring"  >
+                                                <input type="text" class="form-control" name="adduser" placeholder="{{'C3T.命令参数'|translate}}" ng-model="x.tempargsstring"  >
                                             </div>
                                             <div class="col-sm-1">
                                                 <a ng-click="kubernetescreatedaemonset.addArgs(x, x.tempargsstring)" style="cursor:pointer;color: #339094;" >{{'C3T.添加'|translate}}</a>
@@ -896,7 +896,7 @@ Ki，Mi，Gi，Ti，Pi，Ei #{{'C3T.通常是以1024为换算标准的。'|trans
                                                                        </select>
                                                                    </div>
                                                                    <label class="col-sm-1 control-label">mountPath</label>
-                                                                   <div class="col-sm-3"> <input type="text" class="form-control" placeholder="挂载文件时写文件路径" ng-model="xx.mountPath" required> </div>
+                                                                   <div class="col-sm-3"> <input type="text" class="form-control" placeholder="{{'C3T.挂载文件时写文件路径'|translate}}" ng-model="xx.mountPath" required> </div>
 
                                                                    <label ng-if="!(xx.subPath === undefined)" class="col-sm-1 control-label">subPath</label>
                                                                    <div ng-if="!(xx.subPath === undefined)" class="col-sm-3"> <input type="text" class="form-control" placeholder="" ng-model="xx.subPath" required> </div>

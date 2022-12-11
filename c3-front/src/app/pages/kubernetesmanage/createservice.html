@@ -38,11 +38,11 @@
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">{{'C3T.名称'|translate}}</label>
                     <div class="col-sm-3">
-                        <input type="text" class="form-control" name="adduser" placeholder="名称" ng-disabled="kubernetescreateservice.tasktype==='apply'" ng-model="kubernetescreateservice.editData.metadata.name" ng-mouseenter="kubernetescreateservice.namedemoin()" ng-mouseleave="kubernetescreateservice.namedemoout()" required>
+                        <input type="text" class="form-control" name="adduser" placeholder="{{'C3T.名称'|translate}}" ng-disabled="kubernetescreateservice.tasktype==='apply'" ng-model="kubernetescreateservice.editData.metadata.name" ng-mouseenter="kubernetescreateservice.namedemoin()" ng-mouseleave="kubernetescreateservice.namedemoout()" required>
                     </div>
                     <label class="col-sm-1 control-label">{{'C3T.命名空间'|translate}}</label>
                     <div class="col-sm-3">
-                        <input ng-if="kubernetescreateservice.tasktype==='apply'"  ng-disabled="1" type="text" class="form-control" name="adduser" placeholder="名称" ng-disabled="kubernetescreateservice.tasktype==='apply'" ng-model="kubernetescreateservice.editData.metadata.namespace" required>
+                        <input ng-if="kubernetescreateservice.tasktype==='apply'"  ng-disabled="1" type="text" class="form-control" name="adduser" placeholder="{{'C3T.命名空间'|translate}}" ng-disabled="kubernetescreateservice.tasktype==='apply'" ng-model="kubernetescreateservice.editData.metadata.namespace" required>
                         <select ng-change="kubernetescreateservice.namespacechange( kubernetescreateservice.editData.metadata.namespace )" id="selectednameval" class="form-control" ng-if="kubernetescreateservice.tasktype!=='apply'"  ng-model="kubernetescreateservice.editData.metadata.namespace" required>
                              <option ng-repeat="x in kubernetescreateservice.namespaces" value="{{x.NAME}}">{{x.NAME}}</option>
                         </select>
@@ -56,7 +56,7 @@
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">描述</label>
                     <div class="col-sm-7">
-                        <input type="text" class="form-control" name="adduser" placeholder="描述" ng-model="kubernetescreateservice.editData.metadata.annotations.describe" ng-mouseenter="kubernetescreateservice.describedemoin()" ng-mouseleave="kubernetescreateservice.describedemoout()"required>
+                        <input type="text" class="form-control" name="adduser" placeholder="{{'C3T.描述'|translate}}" ng-model="kubernetescreateservice.editData.metadata.annotations.describe" ng-mouseenter="kubernetescreateservice.describedemoin()" ng-mouseleave="kubernetescreateservice.describedemoout()"required>
                     </div>
                 </div>
             </div>
@@ -153,15 +153,15 @@
                                         <div class="col-sm-12 form-group">
                                             <label class="col-sm-1 control-label">{{'C3T.名称'|translate}}</label>
                                             <div class="col-sm-2">
-                                                <input type="text" class="form-control" placeholder="名称" ng-model="x.name" required>
+                                                <input type="text" class="form-control" placeholder="{{'C3T.名称'|translate}}" ng-model="x.name" required>
                                            </div>
                                             <label class="col-sm-1 control-label">{{'C3T.端口'|translate}}</label>
                                             <div class="col-sm-2">
-                                                <input type="number" class="form-control" placeholder="端口" ng-model="x.port" required>
+                                                <input type="number" class="form-control" placeholder="{{'C3T.端口'|translate}}" ng-model="x.port" required>
                                            </div>
                                             <label class="col-sm-1 control-label">{{'C3T.容器端口'|translate}}</label>
                                             <div class="col-sm-2">
-                                                <input type="number" class="form-control" placeholder="端口" ng-model="x.targetPort" required>
+                                                <input type="number" class="form-control" placeholder="{{'C3T.容器端口'|translate}}" ng-model="x.targetPort" required>
                                            </div>
                                            <label class="col-sm-1 control-label">{{'C3T.协议'|translate}}</label>
                                             <div class="col-sm-2">
