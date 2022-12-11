@@ -10,13 +10,13 @@
             <h5> {{ proxy.nodeStr }} {{'C3T.区域'|translate}}:{{proxy.regionname}}</h5>
         </div>
 
-        <div class="panel-body" ng-init="s = { 'fail': '失败', 'success': '成功'}">
+        <div class="panel-body" ng-init="s = { 'fail': 'C3T.失败', 'success': 'C3T.成功'}">
             <div class="pt20">
                 <table ng-table="proxy.proxylistTable" class="table table-hover text-center table-condensed">
                     <tr ng-repeat="m in $data">
                         <td data-title="'ID'">{{m.id}}</td>
                         <td data-title="'IP'">{{m.ip}}</td>
-                        <td data-title="'C3T.状态'|translate">{{s[m.status]}}</td>
+                        <td data-title="'C3T.状态'|translate">{{s[m.status]|translate}}</td>
                         <td data-title="'C3T.版本'|translate">{{m.version||'未知'}}</td>
                         <td data-title="'C3T.失败次数'|translate">{{m.fail}}</td>
                         <td data-title="'C3T.理由'|translate">{{m.reason}}</td>

@@ -246,10 +246,10 @@
             </form>
  
         </div>
-        <div style="float: right;" ng-init="role= [ { sign: '', name: '用户'} , { sign: '@', name: '报警组'} , { sign: '%', name: '轮班组'}, { sign: ':', name: '部门组' } ]">
+        <div style="float: right;" ng-init="role= [ { sign: '', name: 'C3T.用户'} , { sign: '@', name: 'C3T.报警组'} , { sign: '%', name: 'C3T.轮班组'}, { sign: ':', name: 'C3T.部门组' } ]">
             <form class="form-inline" name="myForm" novalidate>
                 <div class="form-group">
-                    <select class="form-control"  ng-model="monitorconfig.usersign"  ng-options="o.sign as o.name for o in role"  > </select>
+                    <select class="form-control"  ng-model="monitorconfig.usersign"  ng-options="o.sign as o.name|translate for o in role"  > </select>
                 </div>
             </form>
         </div>

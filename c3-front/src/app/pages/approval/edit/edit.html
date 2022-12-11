@@ -13,14 +13,14 @@
             <h5>{{'C3T.审批'|translate}}:{{approvaledit.data.name}}</h5>
         </div>
 
-        <div class="panel-body" ng-init="ns = { 'null': '未发送', 'sending': '发送中', 'done':'完成', 'skip': '忽略', 'fail': '失败'}">
+        <div class="panel-body" ng-init="ns = { 'null': 'C3T.未发送', 'sending': 'C3T.发送中', 'done':'C3T.完成', 'skip': 'C3T.忽略', 'fail': 'C3T.失败'}">
             <div class="panel-tabs">
                 <table ng-table="approvaledit.dataTable" class="table table-hover text-center table-condensed">
                     <tr ng-repeat="d in $data">
                         <td style="width: 10%" data-title="'C3T.审批人'|translate">{{d.user}}</td>
                         <td style="width: 10%" data-title="'C3T.耗时'|translate">{{approvaledit.seftime(d.create_time,d.finishtime)}}</td>
                         <td style="width: 10%" data-title="'C3T.OA单号'|translate">{{d.oauuid}}</td>
-                        <td style="width: 10%" data-title="'C3T.通知状态'|translate" >{{ns[d.notifystatus]}}</td>
+                        <td style="width: 10%" data-title="'C3T.通知状态'|translate" >{{ns[d.notifystatus]|translate}}</td>
                         <td style="width: 10%" data-title="'C3T.审批状态'|translate">
                             <a ng-if="d.opinion == 'agree'" style="color: green"> {{'C3T.同意'|translate}} </a>
                             <a ng-if="d.opinion == 'unconfirmed'"> {{'C3T.未审批'|translate}} </a>

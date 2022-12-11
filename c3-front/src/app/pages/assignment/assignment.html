@@ -1,4 +1,4 @@
-<div class="row block" ng-init="assignmentns = { 'todo': '待办', 'fail': '操作失败', 'success':'已完成', 'refuse': '已拒绝', 'cancel': '已取消', 'close': '关闭'}" >
+<div class="row block" ng-init="assignmentns = { 'todo': 'C3T.待办', 'fail': 'C3T.操作失败', 'success':'C3T.已完成', 'refuse': 'C3T.已拒绝', 'cancel': 'C3T.已取消', 'close': 'C3T.关闭'}" >
 
 <div>
     <div class="panel panel-info">
@@ -19,7 +19,7 @@
                         <td style="width: 10%" data-title="'C3T.耗时'|translate">{{ assignment.seftime(d.create_time,d.finish_time)}}</td>
                         <td style="width: 10%" data-title="'C3T.处理人'|translate" filter="{ handler: 'text'}" sortable="'handler'">{{d.handler}}</td>
                         <td style="width: 20%" data-title="'C3T.审批名称'|translate" filter="{ name: 'text'}" sortable="'name'">{{d.name}}</td>
-                        <td style="width: 10%" data-title="'C3T.状态'|translate" >{{assignmentns[d.status]}}</td>
+                        <td style="width: 10%" data-title="'C3T.状态'|translate" >{{assignmentns[d.status]|translate}}</td>
                         <td style="width: 10%" data-title="'C3T.操作'|translate">
                             <button ng-disabled="d.status!=='todo'" class="btn btn-primary btn-sm" ng-click="assignment.updateStatus(d.id, 'cancel')">{{'C3T.取消'|translate}}</button>
                             <button class="btn btn-info btn-sm" ng-click="assignment.edit(d.id,0)">{{'C3T.详情'|translate}}</button>
@@ -50,7 +50,7 @@
                         <td style="width: 10%" data-title="'C3T.耗时'|translate">{{ assignment.seftime(d.create_time,d.finish_time)}}</td>
                         <td style="width: 10%" data-title="'C3T.提交人'|translate" filter="{ submitter: 'text'}" sortable="'submitter'">{{d.submitter}}</td>
                         <td style="width: 20%" data-title="'C3T.审批名称'|translate" filter="{ name: 'text'}" sortable="'name'">{{d.name}}</td>
-                        <td style="width: 10%" data-title="'C3T.状态'|translate" >{{assignmentns[d.status]}}</td>
+                        <td style="width: 10%" data-title="'C3T.状态'|translate" >{{assignmentns[d.status]|translate}}</td>
                         <td style="width: 10%" data-title="'C3T.操作'|translate">
                             <button ng-disabled="d.status!=='todo'" class="btn btn-primary btn-sm" ng-click="assignment.commit(d, 'todo')">{{'C3T.提交'|translate}}</button>
                             <button ng-disabled="d.status!=='todo'" class="btn btn-primary btn-sm" ng-click="assignment.updateStatus(d.id, 'refuse')">{{'C3T.拒绝'|translate}}</button>

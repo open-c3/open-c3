@@ -12,7 +12,7 @@
             <h5>{{'C3T.我的审批'|translate}}</h5>
         </div>
 
-        <div class="panel-body" ng-init="ns = { 'null': '未发送', 'sending': '发送中', 'done':'完成', 'skip': '忽略', 'fail': '失败'}">
+        <div class="panel-body" ng-init="ns = { 'null': 'C3T.未发送', 'sending': 'C3T.发送中', 'done':'C3T.完成', 'skip': 'C3T.忽略', 'fail': 'C3T.失败'}">
             <div class="panel-tabs">
                 <table ng-table="approval.dataTable" class="table table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="d in $data">
@@ -26,7 +26,7 @@
                             <a ng-if="d.oauuid==1"> {{'C3T.创建中'|translate}}</a>
                             <a ng-if="d.oauuid!=0 && d.oauuid!=1">{{d.oauuid}}</a>
                         </td>
-                        <td style="width: 10%" data-title="'C3T.通知状态'|translate" >{{ns[d.notifystatus]}}</td>
+                        <td style="width: 10%" data-title="'C3T.通知状态'|translate" >{{ns[d.notifystatus]|translate}}</td>
                         <td style="width: 10%" data-title="'C3T.审批状态'|translate" sortable="'opinion'">
                             <a ng-if="d.opinion == 'agree'" style="color: green"> {{'C3T.同意'|translate}} </a>
                             <a ng-if="d.opinion == 'unconfirmed'"> {{'C3T.未审批'|translate}} </a>
