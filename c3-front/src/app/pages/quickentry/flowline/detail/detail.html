@@ -2,8 +2,8 @@
     <div class="panel panel-primary">
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-primary" ng-disabled="ci.project.status!=1" uib-tooltip="查看Tag的发现情况" ng-click="ci.showTagFind()" >{{'C3T.TAG发现'|translate}}</button> 
-                <button class="btn btn-primary" uib-tooltip="显示所有历史版本" ng-click="ci.reload(0)" >{{'C3T.展示历史版本'|translate}}</button> 
+                <button class="btn btn-primary" ng-disabled="ci.project.status!=1" uib-tooltip="{{'C3T.查看Tag的发现情况'|translate}}" ng-click="ci.showTagFind()" >{{'C3T.TAG发现'|translate}}</button> 
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.显示所有历史版本'|translate}}" ng-click="ci.reload(0)" >{{'C3T.展示历史版本'|translate}}</button> 
                 <!--<button class="btn btn-primary" uib-tooltip="{{'C3T.查看记录'|translate}}" ng-click="ci.showEditLog()" >记录</button> -->
                 <button class="btn btn-primary" uib-tooltip="{{'C3T.停止所有未进行的构建'|translate}}" ng-click="ci.stop()" ><i class="fa fa-stop fa-fw" ></i></button>
                 <button class="btn btn-primary" uib-tooltip="{{'C3T.编辑配置'|translate}}" ng-click="ci.editconfig()" ><i class="fa fa-cogs" aria-hidden="true"></i></button>
@@ -21,8 +21,8 @@
             </div>
         </div>
 
-        <i ng-if="ci.project.addr == 'null' && ci.jobStepLen && showIPstrLen.online" class="fa fa-play-circle-o fa-2x" aria-hidden="true" ng-click="ci.runJob('', 'online', 0 )" uib-tooltip="发布" style="cursor:pointer;color: green;" >{{'C3T.线上环境发布新版本'|translate}}</i>
-        <i ng-if="ci.project.addr == 'null' && ci.jobStepLen && showIPstrLen.test"   class="fa fa-play-circle-o fa-2x" aria-hidden="true" ng-click="ci.runJob('', 'test',   0 )" uib-tooltip="发布" style="cursor:pointer;color: green;" >{{'C3T.测试环境发布新版本'|translate}}</i>
+        <i ng-if="ci.project.addr == 'null' && ci.jobStepLen && showIPstrLen.online" class="fa fa-play-circle-o fa-2x" aria-hidden="true" ng-click="ci.runJob('', 'online', 0 )" uib-tooltip="{{'C3T.发布'|translate}}" style="cursor:pointer;color: green;" >{{'C3T.线上环境发布新版本'|translate}}</i>
+        <i ng-if="ci.project.addr == 'null' && ci.jobStepLen && showIPstrLen.test"   class="fa fa-play-circle-o fa-2x" aria-hidden="true" ng-click="ci.runJob('', 'test',   0 )" uib-tooltip="{{'C3T.发布'|translate}}" style="cursor:pointer;color: green;" >{{'C3T.测试环境发布新版本'|translate}}</i>
 
         <div class="row">
             <label class="col-md-6 control-label fwbold"><h3 ng-if="ci.lastversion.version" >{{'C3T.最后一次发布成功的版本为'|translate}}:{{ci.lastversion.version}} </h3></label>
@@ -61,10 +61,10 @@
                                     <i class="fa fa-spinner" ng-class="{'fa-spin':1}" aria-hidden="true"></i>
                                     init ...
                                 </div>
-                            <i class="fa fa-play-circle-o fa-2x" ng-if="!( m.status=='running' || m.status=='ready')" aria-hidden="true" ng-click="ci.build(m.uuid)" uib-tooltip="构建" style="cursor:pointer;color: green;" >{{'C3T.构建'|translate}}</i>
-                            <i class="fa fa-stop-circle-o fa-2x" ng-if="m.status=='running' || m.status=='ready'" aria-hidden="true" ng-click="ci.killbuild(m.uuid, m.slave)" uib-tooltip="停止" style="cursor:pointer;color: red;" >{{'C3T.停止'|translate}}</i>
-                            <a ng-if="ci.project.buildimage" aria-hidden="true" target='_blank' ng-href="/api/ci/dockershell?image={{ci.project.buildimage}}&projectid={{ci.projectid}}&tag={{m.name}}&siteaddr={{ci.siteaddr}}" uib-tooltip="调试" style="cursor:pointer;color: green;"><i class="fa fa-arrow-circle-right fa-2x" >{{'C3T.调试'|translate}}</i></a>
-                            <a ng-if="!ci.project.buildimage" aria-hidden="true" target='_blank' ng-href="/api/ci/dockershell?image=centos:7&projectid={{ci.projectid}}&tag={{m.name}}&siteaddr={{ci.siteaddr}}" uib-tooltip="调试" style="cursor:pointer;color: #BB3D00;"><i class="fa fa-arrow-circle-right fa-2x" >{{'C3T.调试'|translate}}</i></a>
+                            <i class="fa fa-play-circle-o fa-2x" ng-if="!( m.status=='running' || m.status=='ready')" aria-hidden="true" ng-click="ci.build(m.uuid)" uib-tooltip="{{'C3T.构建'|translate}}" style="cursor:pointer;color: green;" >{{'C3T.构建'|translate}}</i>
+                            <i class="fa fa-stop-circle-o fa-2x" ng-if="m.status=='running' || m.status=='ready'" aria-hidden="true" ng-click="ci.killbuild(m.uuid, m.slave)" uib-tooltip="{{'C3T.停止'|translate}}" style="cursor:pointer;color: red;" >{{'C3T.停止'|translate}}</i>
+                            <a ng-if="ci.project.buildimage" aria-hidden="true" target='_blank' ng-href="/api/ci/dockershell?image={{ci.project.buildimage}}&projectid={{ci.projectid}}&tag={{m.name}}&siteaddr={{ci.siteaddr}}" uib-tooltip="{{'C3T.调试'|translate}}" style="cursor:pointer;color: green;"><i class="fa fa-arrow-circle-right fa-2x" >{{'C3T.调试'|translate}}</i></a>
+                            <a ng-if="!ci.project.buildimage" aria-hidden="true" target='_blank' ng-href="/api/ci/dockershell?image=centos:7&projectid={{ci.projectid}}&tag={{m.name}}&siteaddr={{ci.siteaddr}}" uib-tooltip="{{'C3T.调试'|translate}}" style="cursor:pointer;color: #BB3D00;"><i class="fa fa-arrow-circle-right fa-2x" >{{'C3T.调试'|translate}}</i></a>
                         </td>
                         <td style="width: 10%" data-title="'C3T.发布测试环境'|translate" >
                             <div ng-repeat="deploy in ci.taskInfoTest[m.name]">
@@ -110,8 +110,8 @@
                                 </div>
  
                              </div>
-                                <i class="fa fa-play-circle-o fa-2x" ng-if="id === 0 && m.status =='success' && ci.jobStepLen && showIPstrLen.online" aria-hidden="true" ng-click="ci.runJob(m.name, 'online', id )" uib-tooltip="发布" style="cursor:pointer;color: green;" >{{'C3T.发布'|translate}}</i>
-                                <i class="fa fa-play-circle-o fa-2x" ng-if="id > 0   && m.status =='success' && ci.jobStepLen && showIPstrLen.online" aria-hidden="true" ng-click="ci.runJob(m.name, 'online', id )" uib-tooltip="发布" style="cursor:pointer;color: #003f80;" >{{'C3T.回滚'|translate}}</i>
+                                <i class="fa fa-play-circle-o fa-2x" ng-if="id === 0 && m.status =='success' && ci.jobStepLen && showIPstrLen.online" aria-hidden="true" ng-click="ci.runJob(m.name, 'online', id )" uib-tooltip="{{'C3T.发布'|translate}}" style="cursor:pointer;color: green;" >{{'C3T.发布'|translate}}</i>
+                                <i class="fa fa-play-circle-o fa-2x" ng-if="id > 0   && m.status =='success' && ci.jobStepLen && showIPstrLen.online" aria-hidden="true" ng-click="ci.runJob(m.name, 'online', id )" uib-tooltip="{{'C3T.发布'|translate}}" style="cursor:pointer;color: #003f80;" >{{'C3T.回滚'|translate}}</i>
                                 <i class="fa fa-play-circle-o fa-2x" ng-if="m.status != 'success' && ci.jobStepLen && showIPstrLen.online" aria-hidden="true" uib-tooltip="{{'C3T.请先进行构建'|translate}}" style="color: orange;" ></i>
                                 <i class="fa fa-play-circle-o fa-2x" ng-if="!ci.jobStepLen || ! showIPstrLen.online" aria-hidden="true" uib-tooltip="{{'C3T.没有配置'|translate}}" style="color: dimgray;" ></i>
                         </td>

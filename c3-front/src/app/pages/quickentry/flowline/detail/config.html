@@ -146,7 +146,7 @@
                         <a ng-if="config.project.ci_type_open === '1'" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.隐藏高级配置'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.ci_type_open='0'"></a>
                         <a ng-if="!(config.project.ci_type_open === '1' )" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.显示高级配置'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.ci_type_open='1'"></a>
 
-                        <button ng-if="config.project.ci_type_open === '1'" class="btn btn-primary" ng-disabled="config.project.ci_type !== 'kubernetes'" uib-tooltip="自定义" ng-click="config.setcitype('default')" style="float: right" ><i class="fa fa-cogs fa-1x" > {{'C3T.通用发布'|translate}}</i></button>
+                        <button ng-if="config.project.ci_type_open === '1'" class="btn btn-primary" ng-disabled="config.project.ci_type !== 'kubernetes'" uib-tooltip="{{'C3T.自定义'|translate}}" ng-click="config.setcitype('default')" style="float: right" ><i class="fa fa-cogs fa-1x" > {{'C3T.通用发布'|translate}}</i></button>
                         <button ng-if="config.project.ci_type_open === '1'" class="btn btn-primary" ng-disabled="config.project.ci_type === 'kubernetes'" uib-tooltip="{{'C3T.发布kubernetes服务'|translate}}" ng-click="config.setcitype('kubernetes')" style="float: right" ><i class="fa fa-cogs fa-1x" >  Kubernetes</i></button>
                     </div>
  
@@ -191,11 +191,11 @@
                         </div>
 
                         <div class="col-md-2">
-                            <button ng-show="searchcluster===0" class="btn btn-primary" uib-tooltip="搜索集群" ng-click="searchcluster=1"><i class="fa fa-search fa-1x" >{{'C3T.搜索'|translate}}</i></button>
-                            <button ng-show="searchcluster===1" class="btn btn-primary" uib-tooltip="取消搜索" ng-click="searchcluster=0"><i class="fa fa-close fa-1x" >{{'C3T.不搜索'|translate}}</i></button>
+                            <button ng-show="searchcluster===0" class="btn btn-primary" uib-tooltip="{{'C3T.搜索集群'|translate}}" ng-click="searchcluster=1"><i class="fa fa-search fa-1x" >{{'C3T.搜索'|translate}}</i></button>
+                            <button ng-show="searchcluster===1" class="btn btn-primary" uib-tooltip="{{'C3T.取消搜索'|translate}}" ng-click="searchcluster=0"><i class="fa fa-close fa-1x" >{{'C3T.不搜索'|translate}}</i></button>
                         </div>
                         <div class="col-md-2">
-                            <button class="btn btn-primary" uib-tooltip="导入集群" ng-click="config.addCluster()"><i class="fa fa-plus fa-1x" >{{'C3T.添加'|translate}}</i></button>
+                            <button class="btn btn-primary" uib-tooltip="{{'C3T.导入集群'|translate}}" ng-click="config.addCluster()"><i class="fa fa-plus fa-1x" >{{'C3T.添加'|translate}}</i></button>
                         </div>
                     </div>
 
@@ -208,7 +208,7 @@
                         </div>
                         <div class="col-md-2"> </div>
                         <div class="col-md-2">
-                            <button class="btn btn-primary" uib-tooltip="创建命名空间" ng-click="config.addNamespace()"><i class="fa fa-plus fa-1x" >{{'C3T.创建'|translate}}</i></button>
+                            <button class="btn btn-primary" uib-tooltip="{{'C3T.创建命名空间'|translate}}" ng-click="config.addNamespace()"><i class="fa fa-plus fa-1x" >{{'C3T.创建'|translate}}</i></button>
                         </div>
  
                     </div>
@@ -233,12 +233,12 @@
                         </div>
  
                         <div class="col-md-2">
-                            <a ng-if="config.isArray(config.project.ci_type_name)" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="发布单个应用" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.switchMultiple(false)">{{'C3T.多应用'|translate}}</a>
-                            <a ng-if="!config.isArray(config.project.ci_type_name)" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="发布多个应用" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.switchMultiple(true)">{{'C3T.多应用'|translate}}</a>
+                            <a ng-if="config.isArray(config.project.ci_type_name)" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.发布单个应用'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.switchMultiple(false)">{{'C3T.多应用'|translate}}</a>
+                            <a ng-if="!config.isArray(config.project.ci_type_name)" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.发布多个应用'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.switchMultiple(true)">{{'C3T.多应用'|translate}}</a>
                         </div>
  
                         <div class="col-md-2">
-                            <button class="btn btn-primary" uib-tooltip="创建应用" ng-click="config.createDeployment()"><i class="fa fa-plus fa-1x" >{{'C3T.创建'|translate}}</i></button>
+                            <button class="btn btn-primary" uib-tooltip="{{'C3T.创建应用'|translate}}" ng-click="config.createDeployment()"><i class="fa fa-plus fa-1x" >{{'C3T.创建'|translate}}</i></button>
                         </div>
                     </div>
 
@@ -252,11 +252,11 @@
                         </div>
  
                         <div class="col-md-2">
-                            <a ng-if="config.isArray(config.project.ci_type_name)" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="发布单个应用" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.switchMultiple(false)">{{'C3T.多应用'|translate}}</a>
-                            <a ng-if="!config.isArray(config.project.ci_type_name)" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="发布多个应用" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.switchMultiple(true)">{{'C3T.多应用'|translate}}</a>
+                            <a ng-if="config.isArray(config.project.ci_type_name)" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.发布单个应用'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.switchMultiple(false)">{{'C3T.多应用'|translate}}</a>
+                            <a ng-if="!config.isArray(config.project.ci_type_name)" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.发布多个应用'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.switchMultiple(true)">{{'C3T.多应用'|translate}}</a>
                         </div>
                         <div class="col-md-2">
-                            <button class="btn btn-primary" uib-tooltip="创建应用" ng-click="config.createDeployment()"><i class="fa fa-plus fa-1x" >{{'C3T.创建'|translate}}</i></button>
+                            <button class="btn btn-primary" uib-tooltip="{{'C3T.创建应用'|translate}}" ng-click="config.createDeployment()"><i class="fa fa-plus fa-1x" >{{'C3T.创建'|translate}}</i></button>
                         </div>
                         <div class="col-md-2">
                             <input type="number" class="form-control" ng-model="config.project.ci_type_concurrent" placeholder="1">{{'C3T.并发数'|translate}}</input>
@@ -281,7 +281,7 @@
                         <label class="col-md-2 control-label fwbold">{{'C3T.dockerfile路径'|translate}}</label>
                         <div class="col-md-6"> <input class="form-control" ng-model="config.project.ci_type_dockerfile" placeholder="dockerfile {{'C3T.路径'|translate}}"/> </div>
                         <div class="col-md-2">
-                            <button class="btn btn-primary" uib-tooltip="切换，运维配置dockerfile" ng-click="config.project.ci_type_dockerfile='_buildin_'"><i class="fa fa-cogs fa-1x" >{{'C3T.切换'|translate}}</i></button>
+                            <button class="btn btn-primary" uib-tooltip="{{'C3T.切换，运维配置dockerfile'|translate}}" ng-click="config.project.ci_type_dockerfile='_buildin_'"><i class="fa fa-cogs fa-1x" >{{'C3T.切换'|translate}}</i></button>
                         </div>
  
                     </div>
@@ -293,7 +293,7 @@
                             <textarea style="min-height: 100px;" ng-blur="dataEdit=false" ng-show="config.project.ci_type_dockerfile==='_buildin_'" class="form-control" rows="5" cols="20" ng-model="config.project.ci_type_dockerfile_content" > </textarea>
                         </div>
                         <div class="col-md-2">
-                            <button class="btn btn-primary" uib-tooltip="切换，使用代码仓库中的dockerfile" ng-click="config.project.ci_type_dockerfile='Dockerfile'"><i class="fa fa-cogs fa-1x" >{{'C3T.切换'|translate}}</i></button>
+                            <button class="btn btn-primary" uib-tooltip="{{'C3T.切换，使用代码仓库中的dockerfile'|translate}}" ng-click="config.project.ci_type_dockerfile='Dockerfile'"><i class="fa fa-cogs fa-1x" >{{'C3T.切换'|translate}}</i></button>
                         </div>
  
                     </div>
@@ -310,7 +310,7 @@
 
 
                         <div class="col-md-2">
-                            <button class="btn btn-primary" uib-tooltip="新建Harbor凭据" ng-click="config.addHarbor()"><i class="fa fa-plus fa-1x" >&nbsp{{'C3T.添加'|translate}}</i></button>
+                            <button class="btn btn-primary" uib-tooltip="{{'C3T.新建Harbor凭据'|translate}}" ng-click="config.addHarbor()"><i class="fa fa-plus fa-1x" >&nbsp{{'C3T.添加'|translate}}</i></button>
                         </div>
                     </div>
 
@@ -325,8 +325,8 @@
                         </div>
 
                         <div class="col-md-2">
-                            <a ng-if="config.followupopen == 1" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="重定义触发脚本" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.followupopen=0">{{'C3T.自定义'|translate}}</a>
-                            <a ng-if="!config.followupopen == 1" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="重定义触发脚本" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.followupopen=1">{{'C3T.自定义'|translate}}</a>
+                            <a ng-if="config.followupopen == 1" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.重定义触发脚本'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.followupopen=0">{{'C3T.自定义'|translate}}</a>
+                            <a ng-if="!config.followupopen == 1" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.重定义触发脚本'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.followupopen=1">{{'C3T.自定义'|translate}}</a>
                         </div>
  
                     </div>
@@ -337,8 +337,8 @@
                         <a class="glyphicon glyphicon-question-sign" data-toggle="tooltip" data-placement="right" target='_blank' ng-href="/book/构建触发脚本/" uib-tooltip="{{'C3T.查看脚本帮助'|translate}}" aria-hidden="true" style="padding-top: 11px;font-size: larger;"></a>
 
                         <div class="col-md-2">
-                            <a ng-if="config.followupopen == 1" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="重定义触发脚本" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.followupopen=0">{{'C3T.自定义'|translate}}</a>
-                            <a ng-if="!config.followupopen == 1" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="重定义触发脚本" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.followupopen=1">{{'C3T.自定义'|translate}}</a>
+                            <a ng-if="config.followupopen == 1" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.重定义触发脚本'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.followupopen=0">{{'C3T.自定义'|translate}}</a>
+                            <a ng-if="!config.followupopen == 1" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.重定义触发脚本'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.followupopen=1">{{'C3T.自定义'|translate}}</a>
                         </div>
                     </div>
 
@@ -347,10 +347,10 @@
                         <label class="col-md-2 control-label fwbold">{{'C3T.镜像地址'|translate}}</label>
                         <div class="col-md-6"> <input class="form-control" ng-model="config.project.ci_type_repository" placeholder="ci_type_repository"/> </div>
                         <div class="col-md-2">
-                            <button class="btn btn-primary" ng-disabled="!config.project.ci_type_container" uib-tooltip="从容器中提取镜像信息" ng-click="config.addImageAddr()"><i class="fa fa-cogs fa-1x" >{{'C3T.提取'|translate}}</i></button>
+                            <button class="btn btn-primary" ng-disabled="!config.project.ci_type_container" uib-tooltip="{{'C3T.从容器中提取镜像信息'|translate}}" ng-click="config.addImageAddr()"><i class="fa fa-cogs fa-1x" >{{'C3T.提取'|translate}}</i></button>
                         </div>
                         <div class="col-md-2" ng-if="config.project.follow_up === 'harbor_push_image.pl'" >
-                            <button class="btn btn-primary" ng-disabled="!config.project.follow_up_ticketid" uib-tooltip="从凭据中提取镜像信息" ng-click="config.addImageAddrByTicket()"><i class="fa fa-cogs fa-1x" >{{'C3T.提取'|translate}}</i></button>
+                            <button class="btn btn-primary" ng-disabled="!config.project.follow_up_ticketid" uib-tooltip="{{'C3T.从凭据中提取镜像信息'|translate}}" ng-click="config.addImageAddrByTicket()"><i class="fa fa-cogs fa-1x" >{{'C3T.提取'|translate}}</i></button>
                         </div>
  
                     </div>
@@ -359,8 +359,8 @@
                         <label class="col-md-2 control-label fwbold">{{'C3T.发布审批人'|translate}}</label>
                         <div class="col-md-6"> <input class="form-control" ng-model="config.project.ci_type_approver2" ng-disabled="config.project.ci_type_approver1" placeholder="foo@openc3.com"/> </div>
                         <div class="col-md-4">
-                            <a ng-if="config.project.ci_type_approver1" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="自定义步骤" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.ci_type_approver1=''">{{'C3T.自定义发布过程'|translate}}</a>
-                            <a ng-if="!config.project.ci_type_approver1" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="自定义步骤" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.ci_type_approver1=1">{{'C3T.自定义发布过程'|translate}}</a>
+                            <a ng-if="config.project.ci_type_approver1" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.自定义步骤'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.ci_type_approver1=''">{{'C3T.自定义发布过程'|translate}}</a>
+                            <a ng-if="!config.project.ci_type_approver1" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.自定义步骤'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.ci_type_approver1=1">{{'C3T.自定义发布过程'|translate}}</a>
                         </div>
                     </div>
 
@@ -391,31 +391,31 @@
  
                     <div class="row" ng-if="config.professional == '1'" >
                         <label class="col-md-2 control-label fwbold">{{'C3T.构建保存成目录'|translate}}:</label>
-                        <a ng-if="config.project.saveasdir == '1'" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="点击存成文件" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.saveasdir='0'">{{'C3T.当前选择为保存成目录'|translate}}</a>
-                        <a ng-if="!(config.project.saveasdir == '1' )" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="点击存成目录" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.saveasdir='1'">{{'C3T.保存成tar包【常规】'|translate}}</a>
+                        <a ng-if="config.project.saveasdir == '1'" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.点击存成文件'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.saveasdir='0'">{{'C3T.当前选择为保存成目录'|translate}}</a>
+                        <a ng-if="!(config.project.saveasdir == '1' )" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.点击存成目录'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.saveasdir='1'">{{'C3T.保存成tar包【常规】'|translate}}</a>
 
                     </div>
  
                     <div class="row" ng-if="config.professional == '1'" >
                         <label class="col-md-2 control-label fwbold">{{'C3T.git使用缓存目录'|translate}}:</label>
-                        <a ng-if="config.project.gitclonebycache == '1'" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="点击不使用缓存目录" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.gitclonebycache='0'">{{'C3T.当前选择为使用缓存目录'|translate}}</a>
-                        <a ng-if="!(config.project.gitclonebycache == '1' )" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="点击使用缓存目录" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.gitclonebycache='1'">{{'C3T.当前选择为不使用缓存目录【常规】'|translate}}</a>
+                        <a ng-if="config.project.gitclonebycache == '1'" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.点击不使用缓存目录'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.gitclonebycache='0'">{{'C3T.当前选择为使用缓存目录'|translate}}</a>
+                        <a ng-if="!(config.project.gitclonebycache == '1' )" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.点击使用缓存目录'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.gitclonebycache='1'">{{'C3T.当前选择为不使用缓存目录【常规】'|translate}}</a>
 
                     </div>
  
 
                     <div class="row" ng-if="config.professional == '1'" >
                         <label class="col-md-2 control-label fwbold">{{'C3T.构建不发邮件'|translate}}:</label>
-                        <a ng-if="config.project.nomail == '1'" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="点击不发送邮件" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.nomail='0'">{{'C3T.当前选择为不发邮件'|translate}}</a>
-                        <a ng-if="!(config.project.nomail == '1' )" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="点击发起发送邮件" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.nomail='1'">{{'C3T.当前选择为发送邮件【常规】'|translate}}</a>
+                        <a ng-if="config.project.nomail == '1'" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.点击不发送邮件'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.nomail='0'">{{'C3T.当前选择为不发邮件'|translate}}</a>
+                        <a ng-if="!(config.project.nomail == '1' )" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.点击发起发送邮件'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.nomail='1'">{{'C3T.当前选择为发送邮件【常规】'|translate}}</a>
 
                     </div>
  
 
                     <div class="row" ng-if="config.professional == '1'" >
                         <label class="col-md-2 control-label fwbold">{{'C3T.构建不发短信'|translate}}:</label>
-                        <a ng-if="config.project.nomesg == '1'" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="点击不发送短信" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.nomesg='0'">{{'C3T.当前选择为不发短信'|translate}}</a>
-                        <a ng-if="!(config.project.nomesg == '1' )" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="点击发起发送短信" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.nomesg='1'">{{'C3T.当前选择为发送短信【常规】'|translate}}</a>
+                        <a ng-if="config.project.nomesg == '1'" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.点击不发送短信'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.nomesg='0'">{{'C3T.当前选择为不发短信'|translate}}</a>
+                        <a ng-if="!(config.project.nomesg == '1' )" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.点击发起发送短信'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="config.project.nomesg='1'">{{'C3T.当前选择为发送短信【常规】'|translate}}</a>
 
                     </div>
  
@@ -447,7 +447,7 @@
                     <hr style="margin: 5px" ng-if="config.project.ci_type !== 'kubernetes'">
 
                     <div class="form-group admin-form row" ng-if="config.project.ci_type !== 'kubernetes'" >
-                        <button class="btn btn-primary" uib-tooltip="编辑测试分组" ng-click="config.editgroup('test')" style="float: right" ><i class="fa fa-cogs fa-1x" > {{'C3T.测试分组'|translate}}</i></button>
+                        <button class="btn btn-primary" uib-tooltip="{{'C3T.编辑测试分组'|translate}}" ng-click="config.editgroup('test')" style="float: right" ><i class="fa fa-cogs fa-1x" > {{'C3T.测试分组'|translate}}</i></button>
                         <div class="col-md-2" style="float: right" >
                             <label class="switch switch-system mt5">
                                 <input type="checkbox" id="check_test" ng-model="config.calltestenv">
@@ -471,7 +471,7 @@
                    <hr style="margin: 5px" ng-if="config.project.ci_type !== 'kubernetes'">
 
                    <div class="form-group admin-form row" ng-if="config.project.ci_type !== 'kubernetes'">
-                       <button class="btn btn-primary" uib-tooltip="编辑线上分组" ng-click="config.editgroup('online')" style="float: right" ><i class="fa fa-cogs fa-1x" >{{'C3T.线上分组'|translate}}</i></button>
+                       <button class="btn btn-primary" uib-tooltip="{{'C3T.编辑线上分组'|translate}}" ng-click="config.editgroup('online')" style="float: right" ><i class="fa fa-cogs fa-1x" >{{'C3T.线上分组'|translate}}</i></button>
                         <div class="col-md-2" style="float: right" >
                             <label class="switch switch-system mt5">
                                 <input type="checkbox" id="check_online" ng-model="config.callonlineenv">
@@ -496,7 +496,7 @@
                    <hr style="margin: 5px">
 
                     <div class="row" ng-if="!(config.project.ci_type === 'kubernetes' && !(config.project.ci_type_approver1) )" >
-                        <button class="btn btn-primary" uib-tooltip="编辑作业" ng-click="config.editjob()" style="float: right" ><i class="fa fa-cogs fa-1x" >{{'C3T.作业步骤'|translate}}</i></button>
+                        <button class="btn btn-primary" uib-tooltip="{{'C3T.编辑作业'|translate}}" ng-click="config.editjob()" style="float: right" ><i class="fa fa-cogs fa-1x" >{{'C3T.作业步骤'|translate}}</i></button>
                     </div>
                    <div class="row" ng-repeat="step in config.jobStep">
                        <div class="col-sm-12 form-group" style="margin: 0px">
