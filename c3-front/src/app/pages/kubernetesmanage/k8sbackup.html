@@ -2,8 +2,8 @@
     <div class="panel panel-primary">
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="kubernetesk8sbackup.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetesk8sbackup.loadover}" ></i></button>
-                <button class="btn btn-primary" uib-tooltip="关闭" ng-click="kubernetesk8sbackup.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="kubernetesk8sbackup.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetesk8sbackup.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.关闭'|translate}}" ng-click="kubernetesk8sbackup.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
             </span>
             <h5>{{'C3T.备份'|translate}} {{'C3T.管理'|translate}} {{'C3T.集群'|translate}}: {{kubernetesk8sbackup.clusterinfo.name}}</h5>
         </div>
@@ -19,10 +19,10 @@
                             {{m.NAME}}
                         </td>
                         <td data-title="'C3T.集群管理员'|translate" width="80" >
-                            <i class="fa fa-download fa-1x" aria-hidden="true" ng-click="kubernetesk8sbackup.downloadfile(m.NAME, '')" uib-tooltip="下载" style="cursor:pointer;color: #f63;" >{{'C3T.全量下载'|translate}}</i>
+                            <i class="fa fa-download fa-1x" aria-hidden="true" ng-click="kubernetesk8sbackup.downloadfile(m.NAME, '')" uib-tooltip="{{'C3T.下载'|translate}}" style="cursor:pointer;color: #f63;" >{{'C3T.全量下载'|translate}}</i>
                         </td> 
                         <td data-title="'C3T.普通用户'|translate" width="80" >
-                            <i class="fa fa-download fa-1x" aria-hidden="true" ng-click="kubernetesk8sbackup.downloadfile(m.NAME, '/mine')" uib-tooltip="下载" style="cursor:pointer;color: #f63;" >{{'C3T.应用下载'|translate}}</i>
+                            <i class="fa fa-download fa-1x" aria-hidden="true" ng-click="kubernetesk8sbackup.downloadfile(m.NAME, '/mine')" uib-tooltip="{{'C3T.下载'|translate}}" style="cursor:pointer;color: #f63;" >{{'C3T.应用下载'|translate}}</i>
                         </td> 
                     </tr>
                 </table>

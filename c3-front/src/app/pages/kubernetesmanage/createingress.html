@@ -2,8 +2,8 @@
     <div class="panel panel-primary">
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="kubernetescreateingress.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetescreateingress.loadover}" ></i></button>
-                <button class="btn btn-primary" uib-tooltip="关闭" ng-click="kubernetescreateingress.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="kubernetescreateingress.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetescreateingress.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.关闭'|translate}}" ng-click="kubernetescreateingress.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
             </span>
             <h5>Ingress</h5>
         </div>
@@ -68,7 +68,7 @@
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">{{'C3T.标签'|translate}} </label>
                     <div class="col-sm-1">
-                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.addLabel()" uib-tooltip="添加" style="cursor:pointer;color: #339094;" ></i>
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.addLabel()" uib-tooltip="{{'C3T.添加'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                      </div>
                 </div>
 
@@ -84,7 +84,7 @@
                                 <td style="width: 20px">=</td>
                                 <td><input type="text" class="form-control"  ng-model="x.V"></td>
                                 <td style="width: 50px">
-                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.delLabel(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.delLabel(id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
                                 </td>
                             </tr>
                        </table>
@@ -96,10 +96,10 @@
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">annotations</label>
                     <div class="col-sm-1">
-                        <i ng-if="annotations.length == 0" class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.addAnnotations()" uib-tooltip="添加" style="cursor:pointer;color: #339094;" ></i>
+                        <i ng-if="annotations.length == 0" class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.addAnnotations()" uib-tooltip="{{'C3T.添加'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                      </div>
                     <div ng-repeat="id in kubernetescreateingress.annotationTypeList" style="float: left;margin-right: 4px;" ng-if="kubernetescreateingress.tasktype==='create'" >
-                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.addAnnotationsByType(id)" uib-tooltip="添加" style="cursor:pointer;color: #339094;" >{{id}}</i>
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.addAnnotationsByType(id)" uib-tooltip="{{'C3T.添加'|translate}}" style="cursor:pointer;color: #339094;" >{{id}}</i>
                     </div>
                 </div>
 
@@ -115,7 +115,7 @@
                                 <td style="width: 20px">=</td>
                                 <td> <input type="text" class="form-control" style="color: {{kubernetescreateingress.inputTodo(x.V)}}" ng-model="x.V"> </td>
                                 <td style="width: 50px">
-                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.delAnnotations(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.delAnnotations(id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
                                </td>
                             </tr>
                        </table>
@@ -127,7 +127,7 @@
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-4 control-label"></label>
                     <div class="col-sm-1">
-                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.addAnnotations()" uib-tooltip="添加" style="cursor:pointer;color: #339094;" ></i>
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.addAnnotations()" uib-tooltip="{{'C3T.添加'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                      </div>
                 </div>
 
@@ -149,7 +149,7 @@ apiVersion
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">{{'C3T.规则'|translate}}</label>
                     <div class="col-sm-6">
-                            <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.addRules()" uib-tooltip="添加规则" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.addRules()" uib-tooltip="{{'C3T.添加规则'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                     </div>
                 </div>
             </div>
@@ -182,7 +182,7 @@ apiVersion
                                         <div class="col-sm-12 form-group">
                                             <label class="col-sm-1 control-label">Path</label>
                                             <div class="col-sm-9">
-                                                <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.addPaths(x)" uib-tooltip="添加Path" style="cursor:pointer;color: #339094;" ></i>
+                                                <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.addPaths(x)" uib-tooltip="{{'C3T.添加Path'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                                             </div>
                                         </div>
                                     </div>
@@ -246,7 +246,7 @@ apiVersion
 
                                                       </td>
                                                        <td style="width: 50px">
-                                                           <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.delPaths(x,id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                                           <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.delPaths(x,id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
                                                        </td>
                                                    </tr>
                                               </table>
@@ -257,7 +257,7 @@ apiVersion
 
                                 </td>
                                 <td style="width: 50px">
-                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.delRules(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateingress.delRules(id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
                                 </td>
                             </tr>
                        </table>

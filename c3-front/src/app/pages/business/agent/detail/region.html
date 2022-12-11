@@ -4,9 +4,9 @@
 
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="region.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!region.loadover}" ></i></button>
-                <button class="btn btn-primary" uib-tooltip="保存" ng-click="region.save()"><i class="fa fa-floppy-o" aria-hidden="true"></i></button>
-                <button class="btn btn-primary" uib-tooltip="关闭" ng-click="region.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="region.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!region.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.保存'|translate}}" ng-click="region.save()"><i class="fa fa-floppy-o" aria-hidden="true"></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.关闭'|translate}}" ng-click="region.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
             </span>
             <h5> {{ region.nodeStr }}</h5>
         </div>
@@ -19,7 +19,7 @@
                         <td data-title="'C3T.选择'|translate"><input type="checkbox" ng-model="m.selected"> </td>
                         <td data-title="'C3T.区域'|translate"><font size="5">{{m.name}}</font></td>
                         <td data-title="'C3T.删除'|translate">
-                            <button class="btn btn-effect-ripple btn-xs btn-danger ng-scope" ng-if="m.projectid == region.treeid" uib-tooltip="删除区域" ng-click="region.deleteRegion( m.id )"><i class="fa fa-trash"></i></button></td>
+                            <button class="btn btn-effect-ripple btn-xs btn-danger ng-scope" ng-if="m.projectid == region.treeid" uib-tooltip="{{'C3T.删除区域'|translate}}" ng-click="region.deleteRegion( m.id )"><i class="fa fa-trash"></i></button></td>
                     </tr>
                     <tr>
                         <td colspan="5" style="text-align:left;" > 
@@ -29,7 +29,7 @@
                                <div class="col-md-8">
                                    <input class="form-control" ng-model="region.regionText" placeholder="{{'C3T.新区域'|translate}}"/>
                               </div>
-                              <button class="btn btn-primary" ng-if="region.regionText" uib-tooltip="保存" ng-click="region.createRegion()">{{'C3T.保存'|translate}}</button>
+                              <button class="btn btn-primary" ng-if="region.regionText" uib-tooltip="{{'C3T.保存'|translate}}" ng-click="region.createRegion()">{{'C3T.保存'|translate}}</button>
                               <button class="btn btn-warning" uib-tooltip="取消" ng-click="region.showRegion(0)">{{'C3T.取消'|translate}}</button>
                           </div>
                        </td>

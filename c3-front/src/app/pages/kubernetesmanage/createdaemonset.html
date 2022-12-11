@@ -2,8 +2,8 @@
     <div class="panel panel-primary">
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="kubernetescreatedaemonset.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetescreatedaemonset.loadover}" ></i></button>
-                <button class="btn btn-primary" uib-tooltip="关闭" ng-click="kubernetescreatedaemonset.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="kubernetescreatedaemonset.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetescreatedaemonset.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.关闭'|translate}}" ng-click="kubernetescreatedaemonset.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
             </span>
             <h5>{{'C3T.守护进程集'|translate}}</h5>
         </div>
@@ -54,7 +54,7 @@
                 <div class="col-sm-10 form-group">
                     <label class="col-sm-1 control-label">{{'C3T.标签'|translate}}</label>
                     <div class="col-sm-7">
-                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addLabel()" uib-tooltip="添加标签" style="cursor:pointer;color: #339094;" ></i>
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addLabel()" uib-tooltip="{{'C3T.添加标签'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                     </div>
                 </div>
 
@@ -73,7 +73,7 @@
                                     <input ng-if="!(x.K==='app' && kubernetescreatedaemonset.tasktype==='create')" type="text" class="form-control"  ng-model="x.V">
                                 </td>
                                 <td style="width: 50px">
-                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.delLabel(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.delLabel(id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
                                 </td>
                             </tr>
                        </table>
@@ -85,7 +85,7 @@
                 <div class="col-sm-10 form-group">
                     <label class="col-sm-1 control-label">{{'C3T.注解'|translate}}</label>
                     <div class="col-sm-1">
-                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addAnnotations()" uib-tooltip="添加注解" style="cursor:pointer;color: #339094;" ></i>
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addAnnotations()" uib-tooltip="{{'C3T.添加注解'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                     </div>
                 </div>
 
@@ -101,7 +101,7 @@
                                 <td style="width: 20px">=</td>
                                 <td><input type="text" class="form-control"  ng-model="x.V"></td>
                                 <td style="width: 50px">
-                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.delAnnotations(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.delAnnotations(id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
                                 </td>
                             </tr>
                        </table>
@@ -123,13 +123,13 @@
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">{{'C3T.添加数据卷'|translate}}</label>
                     <div class="col-sm-9">
-                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addVolume('emptyDir')" uib-tooltip="添加emptyDir" style="cursor:pointer;color: #339094;" >empty</i>
-                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addVolume('hostPath')" uib-tooltip="添加hostPath" style="cursor:pointer;color: #339094;" >hostpath</i>
-                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addVolume('nfs')" uib-tooltip="添加nfs" style="cursor:pointer;color: #339094;" >nfs</i>
-                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addVolume('secret')" uib-tooltip="添加secret" style="cursor:pointer;color: #339094;" >secret</i>
-                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addVolume('configMap')" uib-tooltip="添加configMap" style="cursor:pointer;color: #339094;" >configMap</i>
-                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addVolume('persistentVolumeClaim')" uib-tooltip="添加persistentVolumeClaim" style="cursor:pointer;color: #339094;" >persistentVolumeClaim</i>
-                        <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.cleanVolume()" uib-tooltip="清空" style="cursor:pointer;color: #f63;" >{{'C3T.清空'|translate}}</i>
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addVolume('emptyDir')" uib-tooltip="{{'C3T.添加emptyDir'|translate}}" style="cursor:pointer;color: #339094;" >empty</i>
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addVolume('hostPath')" uib-tooltip="{{'C3T.添加hostPath'|translate}}" style="cursor:pointer;color: #339094;" >hostpath</i>
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addVolume('nfs')" uib-tooltip="{{'C3T.添加nfs'|translate}}" style="cursor:pointer;color: #339094;" >nfs</i>
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addVolume('secret')" uib-tooltip="{{'C3T.添加secret'|translate}}" style="cursor:pointer;color: #339094;" >secret</i>
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addVolume('configMap')" uib-tooltip="{{'C3T.添加configMap'|translate}}" style="cursor:pointer;color: #339094;" >configMap</i>
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addVolume('persistentVolumeClaim')" uib-tooltip="{{'C3T.添加persistentVolumeClaim'|translate}}" style="cursor:pointer;color: #339094;" >persistentVolumeClaim</i>
+                        <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.cleanVolume()" uib-tooltip="{{'C3T.清空'|translate}}" style="cursor:pointer;color: #f63;" >{{'C3T.清空'|translate}}</i>
                     </div>
                 </div>
             </div>
@@ -218,7 +218,7 @@
                                 </td>
 
                                 <td style="width: 50px">
-                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.delVolume(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.delVolume(id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
                                 </td>
                             </tr>
                        </table>
@@ -233,7 +233,7 @@
                             <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addSecret()" uib-tooltip="添加凭证" style="cursor:pointer;color: #339094;" >{{'C3T.添加已有凭证'|translate}}</i>
                             <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.createSecret()" uib-tooltip="创建" style="cursor:pointer;color: green;" >{{'C3T.创建'|translate}}</i>
                             <i class="fa fa-arrow-circle-down fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.autoGetSecret()" uib-tooltip="自动获取Namepspace下所有凭证" style="cursor:pointer;color: #4541f4;" >{{'C3T.导入'|translate}}</i>
-                            <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.cleanSecret()" uib-tooltip="清空" style="cursor:pointer;color: #f63;" >{{'C3T.清空'|translate}}</i>
+                            <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.cleanSecret()" uib-tooltip="{{'C3T.清空'|translate}}" style="cursor:pointer;color: #f63;" >{{'C3T.清空'|translate}}</i>
  
                     </div>
                 </div>
@@ -247,7 +247,7 @@
                             <tr ng-repeat="(id, x) in kubernetescreatedaemonset.editData.spec.template.spec.imagePullSecrets">
                                 <td><input type="text" class="form-control"  ng-model="x.name"></td>
                                 <td style="width: 50px">
-                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.delSecret(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.delSecret(id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
                                 </td>
                             </tr>
                        </table>
@@ -259,8 +259,8 @@
 {{'C3T.调度'|translate}}
 
 
-<a ng-if="kubernetescreatedaemonset.advancedconfig" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="隐藏高级配置" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="kubernetescreatedaemonset.advancedconfig=0"></a>
-<a ng-if="!kubernetescreatedaemonset.advancedconfig" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="显示高级配置" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="kubernetescreatedaemonset.advancedconfig=1"></a>
+<a ng-if="kubernetescreatedaemonset.advancedconfig" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.隐藏高级配置'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="kubernetescreatedaemonset.advancedconfig=0"></a>
+<a ng-if="!kubernetescreatedaemonset.advancedconfig" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.显示高级配置'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="kubernetescreatedaemonset.advancedconfig=1"></a>
 
 
 <br>
@@ -269,8 +269,8 @@
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">{{'C3T.节点亲和性调度'|translate}}</label>
                     <div class="col-sm-6">
-                            <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addNodeAffinity()" uib-tooltip="添加" style="cursor:pointer;color: #339094;" ></i>
-                            <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.cleanNodeAffinity()" uib-tooltip="清空" style="cursor:pointer;color: #f63;" >{{'C3T.清空'|translate}}</i>
+                            <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addNodeAffinity()" uib-tooltip="{{'C3T.添加'|translate}}" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.cleanNodeAffinity()" uib-tooltip="{{'C3T.清空'|translate}}" style="cursor:pointer;color: #f63;" >{{'C3T.清空'|translate}}</i>
                     </div>
                 </div>
             </div>
@@ -317,7 +317,7 @@
 
                                 </td>
                                 <td style="width: 50px">
-                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.delNodeAffinity(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.delNodeAffinity(id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
                                 </td>
                             </tr>
                        </table>
@@ -334,8 +334,8 @@
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">{{'C3T.POD亲和性调度'|translate}}</label>
                     <div class="col-sm-6">
-                            <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addPodAffinity()" uib-tooltip="添加亲和POD信息" style="cursor:pointer;color: #339094;" ></i>
-                            <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.cleanPodAffinity()" uib-tooltip="清空" style="cursor:pointer;color: #f63;" >{{'C3T.清空'|translate}}</i>
+                            <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addPodAffinity()" uib-tooltip="{{'C3T.添加亲和POD信息'|translate}}" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.cleanPodAffinity()" uib-tooltip="{{'C3T.清空'|translate}}" style="cursor:pointer;color: #f63;" >{{'C3T.清空'|translate}}</i>
                     </div>
                 </div>
             </div>
@@ -382,7 +382,7 @@
 
                                 </td>
                                 <td style="width: 50px">
-                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.delPodAffinity(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.delPodAffinity(id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
                                 </td>
                             </tr>
                        </table>
@@ -419,8 +419,8 @@
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">{{'C3T.POD反亲和性调度'|translate}}</label>
                     <div class="col-sm-6">
-                            <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addPodAntiAffinity()" uib-tooltip="添加反亲和POD信息" style="cursor:pointer;color: #339094;" ></i>
-                            <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.cleanPodAntiAffinity()" uib-tooltip="清空" style="cursor:pointer;color: #f63;" >{{'C3T.清空'|translate}}</i>
+                            <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addPodAntiAffinity()" uib-tooltip="{{'C3T.添加反亲和POD信息'|translate}}" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.cleanPodAntiAffinity()" uib-tooltip="{{'C3T.清空'|translate}}" style="cursor:pointer;color: #f63;" >{{'C3T.清空'|translate}}</i>
                     </div>
                 </div>
             </div>
@@ -467,7 +467,7 @@
 
                                 </td>
                                 <td style="width: 50px">
-                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.delPodAntiAffinity(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.delPodAntiAffinity(id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
                                 </td>
                             </tr>
                        </table>
@@ -506,8 +506,8 @@
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">{{'C3T.容忍'|translate}}</label>
                     <div class="col-sm-6">
-                            <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addTolerations()" uib-tooltip="添加容忍规则" style="cursor:pointer;color: #339094;" ></i>
-                            <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.cleanTolerations()" uib-tooltip="清空" style="cursor:pointer;color: #f63;" >{{'C3T.清空'|translate}}</i>
+                            <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addTolerations()" uib-tooltip="{{'C3T.添加容忍规则'|translate}}" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.cleanTolerations()" uib-tooltip="{{'C3T.清空'|translate}}" style="cursor:pointer;color: #f63;" >{{'C3T.清空'|translate}}</i>
                     </div>
                 </div>
             </div>
@@ -557,7 +557,7 @@
 
                                 </td>
                                 <td style="width: 50px">
-                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.delTolerations(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.delTolerations(id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
                                 </td>
                             </tr>
                        </table>
@@ -578,7 +578,7 @@
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">{{'C3T.容器'|translate}}</label>
                     <div class="col-sm-6">
-                            <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addContainer()" uib-tooltip="添加容器" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addContainer()" uib-tooltip="{{'C3T.添加容器'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                     </div>
                 </div>
             </div>
@@ -816,7 +816,7 @@ Ki，Mi，Gi，Ti，Pi，Ei #{{'C3T.通常是以1024为换算标准的。'|trans
 
                                                       </td>
                                                        <td style="width: 50px">
-                                                           <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.delContainerEnv(x,id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                                           <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.delContainerEnv(x,id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
                                                        </td>
                                                    </tr>
                                               </table>
@@ -828,9 +828,9 @@ Ki，Mi，Gi，Ti，Pi，Ei #{{'C3T.通常是以1024为换算标准的。'|trans
                                         <div class="col-sm-12 form-group">
                                             <label class="col-sm-1 control-label">{{'C3T.端口'|translate}} {{'C3T.设置'|translate}}</label>
                                             <div class="col-sm-9">
-                                                <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addContainerPorts(x,'TCP')" uib-tooltip="添加TCP端口" style="cursor:pointer;color: #339094;" >TCP</i>
-                                                <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addContainerPorts(x,'UDP')" uib-tooltip="添加UDP端口" style="cursor:pointer;color: #339094;" >UDP</i>
-                                                <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.cleanContainerPorts(x)" uib-tooltip="清空" style="cursor:pointer;color: #f63;" >{{'C3T.清空'|translate}}</i>
+                                                <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addContainerPorts(x,'TCP')" uib-tooltip="{{'C3T.添加TCP端口'|translate}}" style="cursor:pointer;color: #339094;" >TCP</i>
+                                                <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addContainerPorts(x,'UDP')" uib-tooltip="{{'C3T.添加UDP端口'|translate}}" style="cursor:pointer;color: #339094;" >UDP</i>
+                                                <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.cleanContainerPorts(x)" uib-tooltip="{{'C3T.清空'|translate}}" style="cursor:pointer;color: #f63;" >{{'C3T.清空'|translate}}</i>
                                             </div>
                                         </div>
                                     </div>
@@ -860,7 +860,7 @@ Ki，Mi，Gi，Ti，Pi，Ei #{{'C3T.通常是以1024为换算标准的。'|trans
 
                                                       </td>
                                                        <td style="width: 50px">
-                                                           <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.delContainerPorts(x,id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                                           <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.delContainerPorts(x,id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
                                                        </td>
                                                    </tr>
                                               </table>
@@ -874,7 +874,7 @@ Ki，Mi，Gi，Ti，Pi，Ei #{{'C3T.通常是以1024为换算标准的。'|trans
                                             <div class="col-sm-9">
                                                 <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addContainerVolume(x)" uib-tooltip="添加挂载点" style="cursor:pointer;color: #339094;" >{{'C3T.目录'|translate}}</i>
                                                 <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.addContainerVolumeFile(x)" uib-tooltip="添加挂载点" style="cursor:pointer;color: #339094;" >{{'C3T.单个文件'|translate}}</i>
-                                                <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.cleanContainerVolume(x)" uib-tooltip="清空" style="cursor:pointer;color: #f63;" >{{'C3T.清空'|translate}}</i>
+                                                <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.cleanContainerVolume(x)" uib-tooltip="{{'C3T.清空'|translate}}" style="cursor:pointer;color: #f63;" >{{'C3T.清空'|translate}}</i>
                                             </div>
                                         </div>
                                     </div>
@@ -907,7 +907,7 @@ Ki，Mi，Gi，Ti，Pi，Ei #{{'C3T.通常是以1024为换算标准的。'|trans
 
                                                       </td>
                                                        <td style="width: 50px">
-                                                           <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.delContainerVolume(x,id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                                           <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.delContainerVolume(x,id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
                                                        </td>
                                                    </tr>
                                               </table>
@@ -1021,7 +1021,7 @@ Ki，Mi，Gi，Ti，Pi，Ei #{{'C3T.通常是以1024为换算标准的。'|trans
 
                                 </td>
                                 <td style="width: 50px">
-                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.delContainer(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreatedaemonset.delContainer(id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
                                 </td>
                             </tr>
                        </table>

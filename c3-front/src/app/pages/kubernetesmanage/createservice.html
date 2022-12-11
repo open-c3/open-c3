@@ -2,8 +2,8 @@
     <div class="panel panel-primary">
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="kubernetescreateservice.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetescreateservice.loadover}" ></i></button>
-                <button class="btn btn-primary" uib-tooltip="关闭" ng-click="kubernetescreateservice.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="kubernetescreateservice.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetescreateservice.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.关闭'|translate}}" ng-click="kubernetescreateservice.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
             </span>
             <h5>Service</h5>
         </div>
@@ -65,7 +65,7 @@
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">{{'C3T.标签'|translate}}</label>
                     <div class="col-sm-1">
-                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addLabel()" uib-tooltip="添加" style="cursor:pointer;color: #339094;" ></i>
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addLabel()" uib-tooltip="{{'C3T.添加'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                     </div>
                 </div>
             </div>
@@ -80,7 +80,7 @@
                                 <td style="width: 20px">=</td>
                                 <td><input type="text" class="form-control"  ng-model="x.V"></td>
                                 <td style="width: 50px">
-                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.delLabel(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.delLabel(id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
                                </td>
                             </tr>
                        </table>
@@ -92,10 +92,10 @@
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">annotations</label>
                     <div class="col-sm-1">
-                        <i ng-if="annotations.length == 0" class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addAnnotations()" uib-tooltip="添加" style="cursor:pointer;color: #339094;" ></i>
+                        <i ng-if="annotations.length == 0" class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addAnnotations()" uib-tooltip="{{'C3T.添加'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                     </div>
                     <div ng-repeat="id in kubernetescreateservice.annotationTypeList" style="float: left;margin-right: 4px;" ng-if="kubernetescreateservice.tasktype==='create'">
-                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addAnnotationsByType(id)" uib-tooltip="添加" style="cursor:pointer;color: #339094;" >{{id}}</i>
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addAnnotationsByType(id)" uib-tooltip="{{'C3T.添加'|translate}}" style="cursor:pointer;color: #339094;" >{{id}}</i>
                     </div>
                 </div>
 
@@ -111,7 +111,7 @@
                                 <td style="width: 20px">=</td>
                                 <td> <input type="text" class="form-control" style="color: {{kubernetescreateservice.inputTodo(x.V)}}" ng-model="x.V"> </td>
                                 <td style="width: 50px">
-                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.delAnnotations(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.delAnnotations(id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
                                </td>
                             </tr>
                        </table>
@@ -122,7 +122,7 @@
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-4 control-label"></label>
                     <div class="col-sm-1">
-                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addAnnotations()" uib-tooltip="添加" style="cursor:pointer;color: #339094;" ></i>
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addAnnotations()" uib-tooltip="{{'C3T.添加'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                     </div>
                 </div>
 
@@ -135,7 +135,7 @@
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">{{'C3T.开放端口'|translate}}</label>
                     <div class="col-sm-6">
-                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addPorts()" uib-tooltip="添加端口" style="cursor:pointer;color: #339094;" ></i>
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addPorts()" uib-tooltip="{{'C3T.添加端口'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                     </div>
                 </div>
             </div>
@@ -176,7 +176,7 @@
 
                                 </td>
                                 <td style="width: 50px">
-                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.delPorts(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.delPorts(id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
                                 </td>
                             </tr>
                        </table>
@@ -188,7 +188,7 @@
                 <div class="col-sm-12 form-group">
                     <label class="col-sm-1 control-label">selector</label>
                     <div class="col-sm-6">
-                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addSelector()" uib-tooltip="添加" style="cursor:pointer;color: #339094;" ></i>
+                        <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.addSelector()" uib-tooltip="{{'C3T.添加'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                     </div>
                 </div>
             </div>
@@ -211,7 +211,7 @@
                                     </select>
                                 </td>
                                 <td style="width: 50px">
-                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.delSelector(id)" uib-tooltip="删除" style="cursor:pointer;color: #f63;" ></i>
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kubernetescreateservice.delSelector(id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
                                 </td>
                             </tr>
                        </table>

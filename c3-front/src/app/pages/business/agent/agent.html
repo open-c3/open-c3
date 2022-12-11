@@ -3,8 +3,8 @@
         <div class="panel-heading">
             <span class="panel-controls">
                 <button class="btn btn-primary" uib-tooltip="修改记录" ng-click="agent.showctrlLog()">{{'C3T.修改记录'|translate}}</button>
-                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="agent.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!agent.loadover}" ></i></button>
-                <button class="btn btn-primary" uib-tooltip="添加" ng-click="agent.addregion()"><i class="fa fa-plus"></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="agent.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!agent.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.添加'|translate}}" ng-click="agent.addregion()"><i class="fa fa-plus"></i></button>
             </span>
             <h5>{{ agent.nodeStr }}</h5>
         </div>
@@ -103,10 +103,10 @@ http://localhost:65110/metrics {{'C3T.浏览器访问测试一下'|translate}}<b
                         <td data-title="'C3T.区域'|translate"><font size="5">{{m.region}}</font></td>
                         <td data-title="'C3T.代理'|translate">
                             <font size="3" color="green">{{'C3T.正常'|translate}}：{{m.proxy.success||0}}</font><br><font size="3" color="red">{{'C3T.异常'|translate}}：{{m.proxy.fail||0}}</font><br>
-                            <button class="btn btn-primary" ng-if="m.regionprojectid == agent.treeid" uib-tooltip="添加代理" ng-click="agent.addproxy( m.id, m.region )"><i class="fa fa-plus"></i></button></td>
+                            <button class="btn btn-primary" ng-if="m.regionprojectid == agent.treeid" uib-tooltip="{{'C3T.添加代理'|translate}}" ng-click="agent.addproxy( m.id, m.region )"><i class="fa fa-plus"></i></button></td>
                         <td data-title="'C3T.网段'|translate">
                             <font size="3" color="green">{{'C3T.正常'|translate}}：{{m.agent.success||0}}</font><br><font size="3" color="red">{{'C3T.异常'|translate}}：{{m.agent.fail||0}}</font><br>
-                            <button class="btn btn-primary" ng-if="m.proxy.success || m.agent.success > 0 || m.agent.fail > 0 " uib-tooltip="添加网段" ng-click="agent.addagent(m.id,m.region)"><i class="fa fa-plus"></i></button></td>
+                            <button class="btn btn-primary" ng-if="m.proxy.success || m.agent.success > 0 || m.agent.fail > 0 " uib-tooltip="{{'C3T.添加网段'|translate}}" ng-click="agent.addagent(m.id,m.region)"><i class="fa fa-plus"></i></button></td>
                     </tr>
                 </table>
             </div>

@@ -2,8 +2,8 @@
     <div class="panel panel-primary">
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="kubernetessearchingress.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetessearchingress.loadover}" ></i></button>
-                <button class="btn btn-primary" uib-tooltip="关闭" ng-click="kubernetessearchingress.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="kubernetessearchingress.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kubernetessearchingress.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.关闭'|translate}}" ng-click="kubernetessearchingress.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
             </span>
             <h5>{{'C3T.所有集群'|translate}} Ingress {{'C3T.汇总'|translate}}</h5>
         </div>
@@ -15,7 +15,7 @@
                         <td data-title="'C3T.集群名称'|translate" width="80" filter="{ clustername: 'text'}" sortable="'clustername'">{{m.clustername}}</td>
                         <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
                         <td data-title="'C3T.名称'|translate" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">
-                            <i ng-if="m.NAME" class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetessearchingress.describeingress(m.clusterid,'ingress',m.NAME,m.NAMESPACE)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" ></i>
+                            <i ng-if="m.NAME" class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetessearchingress.describeingress(m.clusterid,'ingress',m.NAME,m.NAMESPACE)" uib-tooltip="{{'C3T.查看'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                              {{m.NAME}}
                         </td>
                         <td data-title="'CLASS'" width="80" filter="{ CLASS: 'text'}" sortable="'CLASS'">{{m.CLASS}}</td>

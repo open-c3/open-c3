@@ -2,8 +2,8 @@
     <div class="panel panel-primary">
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="addfavorites.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!addfavorites.loadover}" ></i></button>
-                <button class="btn btn-primary" uib-tooltip="关闭" ng-click="addfavorites.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="addfavorites.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!addfavorites.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.关闭'|translate}}" ng-click="addfavorites.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
             </span>
             <h5>{{'C3T.我可见的流水线'|translate}}</h5>
         </div>
@@ -14,8 +14,8 @@
                     <tr ng-repeat="m in $data">
                         <td style="width: 5%" data-title="'ID'" filter="{ id: 'text'}" sortable="'id'">
 
-                            <i class="fa fa-star-o fa-1x" aria-hidden="true"  ng-if="!m.favorites" ng-click="addfavorites.addToFavorites(m.id,m.name)" uib-tooltip="收藏" style="cursor:pointer;color: #339094;" ></i>
-                            <i class="fa fa-star fa-1x" aria-hidden="true"  ng-if="m.favorites" ng-click="addfavorites.delToFavorites(m.id,m.name)" uib-tooltip="取消收藏" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-star-o fa-1x" aria-hidden="true"  ng-if="!m.favorites" ng-click="addfavorites.addToFavorites(m.id,m.name)" uib-tooltip="{{'C3T.收藏'|translate}}" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-star fa-1x" aria-hidden="true"  ng-if="m.favorites" ng-click="addfavorites.delToFavorites(m.id,m.name)" uib-tooltip="{{'C3T.取消收藏'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                             {{m.id}}
                         </td>
                         <td style="width: 15%" data-title="'C3T.名称'|translate" filter="{ name: 'text'}" sortable="'name'">{{m.name}}</td>
@@ -28,7 +28,7 @@
                         <td style="width: 30%" data-title="'C3T.代码仓库地址'|translate" filter="{ addr: 'text'}" sortable="'addr'">{{m.addr}}</td>
                         <td style="width: 5%" data-title="'C3T.编辑者'|translate" filter="{ edit_user: 'text'}" sortable="'edit_user'">{{m.edit_user}}</td>
                         <td style="width: 5%" data-title="'C3T.操作'|translate">
-                            <i class="fa fa-chevron-circle-right fa-2x" aria-hidden="true" ng-click="addfavorites.versiondetail(m.groupid, m.id)" uib-tooltip="进入" style="cursor:pointer;color: #339094;" ></i>
+                            <i class="fa fa-chevron-circle-right fa-2x" aria-hidden="true" ng-click="addfavorites.versiondetail(m.groupid, m.id)" uib-tooltip="{{'C3T.进入'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                         </td>
                     </tr>
                 </table>

@@ -12,10 +12,10 @@
     ({{taskDetail.name}})
 
     <div ng-repeat="name in historyjobxdetail.k8sname">
-        <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="historyjobxdetail.describek8s(name)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" >{{name}}</i>  
+        <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="historyjobxdetail.describek8s(name)" uib-tooltip="{{'C3T.查看'|translate}}" style="cursor:pointer;color: #339094;" >{{name}}</i>  
     </div>
     <div ng-repeat="data in historyjobxdetail.ecsname">
-        <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="historyjobxdetail.describeecs(data.name,data)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" >{{data.name}}[{{data.min}}/{{data.max}}]</i>  
+        <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="historyjobxdetail.describeecs(data.name,data)" uib-tooltip="{{'C3T.查看'|translate}}" style="cursor:pointer;color: #339094;" >{{data.name}}[{{data.min}}/{{data.max}}]</i>  
     </div>
     <div class="panel">
 
@@ -30,7 +30,7 @@
                 <button ng-if="historyjobxdetail.rollbackShow && ( taskDetail.status == 'success' || taskDetail.status == 'fail' ) && historyjobxdetail.rversion && ! historyjobxdetail.rollbackexpire( taskDetail.starttimems )" class="btn btn-primary btn-sm" ng-click="historyjobxdetail.rollbackJudge('norollback')">{{'C3T.不回滚'|translate}}</button>
                 <button ng-if="historyjobxdetail.rollbackShow && ( taskDetail.status == 'success' || taskDetail.status == 'fail' ) && historyjobxdetail.rversion && historyjobxdetail.rollbackexpire( taskDetail.starttimems )" class="btn btn-primary btn-sm">{{'C3T.已过期不可回滚'|translate}}</button>
 
-                <button class="btn" uib-tooltip="刷新" ng-click="historyjobxdetail.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!historyjobxdetail.loadover}" ></i></button>
+                <button class="btn" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="historyjobxdetail.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!historyjobxdetail.loadover}" ></i></button>
                 <span>{{historyjobxdetail.seftime( taskDetail.starttime, taskDetail.finishtime )}}</span>
             </span>
 
@@ -83,7 +83,7 @@
                                                  <span ng-if="item.extended.action==='deploy'" style="color: gray" >[{{'C3T.仅发布'|translate}}]</span>
                                                  <span ng-if="item.extended.action==='rollback'" style="color: gray">[{{'C3T.仅回滚'|translate}}]</span>
 
-                                                 <button class="btn btn-info btn-sm" style="padding: 0px;" ng-if="historyjobxdetail.ecsnamehash[item.extended.name]" uib-tooltip="查看" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.describeecs(historyjobxdetail.ecsnamehash[item.extended.name].name,historyjobxdetail.ecsnamehash[item.extended.name])" style="cursor:pointer">{{'C3T.查看'|translate}} ECS {{'C3T.状态'|translate}}</button>
+                                                 <button class="btn btn-info btn-sm" style="padding: 0px;" ng-if="historyjobxdetail.ecsnamehash[item.extended.name]" uib-tooltip="{{'C3T.查看'|translate}}" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.describeecs(historyjobxdetail.ecsnamehash[item.extended.name].name,historyjobxdetail.ecsnamehash[item.extended.name])" style="cursor:pointer">{{'C3T.查看'|translate}} ECS {{'C3T.状态'|translate}}</button>
 
                                             </span>
  
@@ -125,7 +125,7 @@
             <span class="panel-controls">
                 <button class="btn btn-null btn-sm" ng-click="historyjobxdetail.taskLogDetaiXl()">{{'C3T.执行详情'|translate}}</button>
                 <button ng-if="taskDetaiXl.status == 'running'" class="btn btn-danger btn-sm" ng-click="historyjobxdetail.killTaskRollback(historyjobxdetail.taskuuiXd)">{{'C3T.终止任务'|translate}}</button>
-                <button class="btn" uib-tooltip="刷新" ng-click="historyjobxdetail.reloaXd()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!historyjobxdetail.loadoveXr}" ></i></button>
+                <button class="btn" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="historyjobxdetail.reloaXd()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!historyjobxdetail.loadoveXr}" ></i></button>
                 <span>{{historyjobxdetail.seftime(taskDetaiXl.starttime,taskDetaiXl.finishtime)}}</span>
             </span>
 
@@ -179,7 +179,7 @@
                                                   <span ng-if="item.extended.action==='deploy'" style="color: gray" >[{{'C3T.仅发布'|translate}}]</span>
                                                   <span ng-if="item.extended.action==='rollback'" style="color: gray">[{{'C3T.仅回滚'|translate}}]</span>
 
-                                                  <button class="btn btn-info btn-sm" style="padding: 0px;" ng-if="historyjobxdetail.ecsnamehash[item.extended.name]" uib-tooltip="查看" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.describeecs(historyjobxdetail.ecsnamehash[item.extended.name].name,historyjobxdetail.ecsnamehash[item.extended.name])" style="cursor:pointer">{{'C3T.查看'|translate}} ECS {{'C3T.状态'|translate}}</button>
+                                                  <button class="btn btn-info btn-sm" style="padding: 0px;" ng-if="historyjobxdetail.ecsnamehash[item.extended.name]" uib-tooltip="{{'C3T.查看'|translate}}" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.describeecs(historyjobxdetail.ecsnamehash[item.extended.name].name,historyjobxdetail.ecsnamehash[item.extended.name])" style="cursor:pointer">{{'C3T.查看'|translate}} ECS {{'C3T.状态'|translate}}</button>
 
                                             </span>
  

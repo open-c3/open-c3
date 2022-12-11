@@ -2,8 +2,8 @@
     <div class="panel panel-primary">
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="kanbanconfig.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kanbanconfig.loadover}" ></i></button>
-                <button class="btn btn-primary" uib-tooltip="关闭" ng-click="kanbanconfig.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="kanbanconfig.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!kanbanconfig.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.关闭'|translate}}" ng-click="kanbanconfig.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
             </span>
             <h5>{{'C3T.本节点看板管理'|translate}}</h5>
         </div>
@@ -33,14 +33,14 @@
                         <td data-title="'C3T.创建时间'|translate" width="80" filter="{ edit_time: 'text'}" sortable="'edit_time'"> {{m.edit_time}} </td>
 
                         <td data-title="'C3T.默认打开'|translate" width="80" >
-                            <i ng-if="m.default !== 1" class="fa fa-toggle-off fa-2x" aria-hidden="true" ng-click="kanbanconfig.setDefaultKanban(m.id, 1 )" uib-tooltip="设置成默认打开" style="cursor:pointer;color: #f63;" ></i>
-                            <i ng-if="m.default === 1" class="fa fa-toggle-on fa-2x" aria-hidden="true" ng-click="kanbanconfig.setDefaultKanban(m.id, 0 )" uib-tooltip="去掉默认打开" style="cursor:pointer;color: green;" ></i>
+                            <i ng-if="m.default !== 1" class="fa fa-toggle-off fa-2x" aria-hidden="true" ng-click="kanbanconfig.setDefaultKanban(m.id, 1 )" uib-tooltip="{{'C3T.设置成默认打开'|translate}}" style="cursor:pointer;color: #f63;" ></i>
+                            <i ng-if="m.default === 1" class="fa fa-toggle-on fa-2x" aria-hidden="true" ng-click="kanbanconfig.setDefaultKanban(m.id, 0 )" uib-tooltip="{{'C3T.去掉默认打开'|translate}}" style="cursor:pointer;color: green;" ></i>
                         </td>
 
 
                         <td data-title="'C3T.删除'|translate" width="80" >
-                            <i ng-if="m.id <= 100000000" class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kanbanconfig.delKanban(m.id)" uib-tooltip="删除看版" style="cursor:pointer;color: red;" ></i>
-                            <i ng-if="m.id >  100000000"class="fa fa-minus-circle fa-2x" aria-hidden="true" uib-tooltip="系统内置" style="cursor:pointer;color: grey;" ></i>
+                            <i ng-if="m.id <= 100000000" class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="kanbanconfig.delKanban(m.id)" uib-tooltip="{{'C3T.删除看版'|translate}}" style="cursor:pointer;color: red;" ></i>
+                            <i ng-if="m.id >  100000000"class="fa fa-minus-circle fa-2x" aria-hidden="true" uib-tooltip="{{'C3T.系统内置'|translate}}" style="cursor:pointer;color: grey;" ></i>
                         </td> 
                     </tr>
                 </table>

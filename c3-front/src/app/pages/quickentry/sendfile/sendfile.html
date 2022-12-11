@@ -22,7 +22,7 @@
     <div ng-if="!sendfile.filepath" class="panel panel-dark">
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-dark" uib-tooltip="刷新" ng-click="sendfile.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!sendfile.loadover}" ></i></button>
+                <button class="btn btn-dark" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="sendfile.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!sendfile.loadover}" ></i></button>
             </span>
             <h5>{{'C3T.请点击选择节点'|translate}}</h5>
         </div>
@@ -72,7 +72,7 @@
     <div ng-if="sendfile.filepath" class="panel panel-dark">
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-dark" uib-tooltip="刷新" ng-click="sendfile.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!sendfile.loadover}" ></i></button>
+                <button class="btn btn-dark" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="sendfile.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!sendfile.loadover}" ></i></button>
             </span>
             <h5>{{'C3T.文件管理'|translate}}</h5>
         </div>
@@ -107,10 +107,10 @@
                             <td data-title="'C3T.路径'|translate"> {{ss.path}} </td>
                             <td class="textcenter" width="75" data-title="'C3T.操作'|translate">
                                 <nobr>
-                                    <i ng-if="ss.type=='parent'" class="fa fa-chevron-circle-left fa-2x" aria-hidden="true" ng-click="sendfile.backdir()" uib-tooltip="返回上一层" style="cursor:pointer;color: red;" ></i>
-                                    <i ng-if="ss.type=='dir'" class="fa fa-chevron-circle-right fa-2x" aria-hidden="true" ng-click="sendfile.intodir( ss.path )" uib-tooltip="进入" style="cursor:pointer;color: #339094;" ></i>
-                                    <i ng-if="ss.type=='file'" class="fa fa-download fa-2x" aria-hidden="true" ng-click="sendfile.startDownloadTask(ss.path)" uib-tooltip="下载" style="cursor:pointer;color: green;" ></i>
-                                    <i ng-if="ss.type=='file'" class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="sendfile.unlinkfile(ss.path)" uib-tooltip="删除文件" style="cursor:pointer;color: red;" ></i>
+                                    <i ng-if="ss.type=='parent'" class="fa fa-chevron-circle-left fa-2x" aria-hidden="true" ng-click="sendfile.backdir()" uib-tooltip="{{'C3T.返回上一层'|translate}}" style="cursor:pointer;color: red;" ></i>
+                                    <i ng-if="ss.type=='dir'" class="fa fa-chevron-circle-right fa-2x" aria-hidden="true" ng-click="sendfile.intodir( ss.path )" uib-tooltip="{{'C3T.进入'|translate}}" style="cursor:pointer;color: #339094;" ></i>
+                                    <i ng-if="ss.type=='file'" class="fa fa-download fa-2x" aria-hidden="true" ng-click="sendfile.startDownloadTask(ss.path)" uib-tooltip="{{'C3T.下载'|translate}}" style="cursor:pointer;color: green;" ></i>
+                                    <i ng-if="ss.type=='file'" class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="sendfile.unlinkfile(ss.path)" uib-tooltip="{{'C3T.删除文件'|translate}}" style="cursor:pointer;color: red;" ></i>
                                 </nobr>
                             </td>
                         </tr>
@@ -132,9 +132,9 @@
                             <td data-title="'C3T.大小'|translate"> {{sendfile.bytesToSize(ss.size)}} </td>
                             <td class="textcenter" width="75" data-title="'C3T.操作'|translate">
                                 <nobr>
-                                    <i class="fa fa-upload fa-2x" aria-hidden="true" ng-click="sendfile.startUoloadTask( ss.name )" uib-tooltip="上传" style="cursor:pointer;color: #339094;" ></i>
-                                    <i class="fa fa-download fa-2x" aria-hidden="true" ng-click="sendfile.downloadfile(ss.name)" uib-tooltip="下载" style="cursor:pointer;color: green;" ></i>
-                                    <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="sendfile.deleteFile(ss.id)" uib-tooltip="删除" style="cursor:pointer;color: red;" ></i>
+                                    <i class="fa fa-upload fa-2x" aria-hidden="true" ng-click="sendfile.startUoloadTask( ss.name )" uib-tooltip="{{'C3T.上传'|translate}}" style="cursor:pointer;color: #339094;" ></i>
+                                    <i class="fa fa-download fa-2x" aria-hidden="true" ng-click="sendfile.downloadfile(ss.name)" uib-tooltip="{{'C3T.下载'|translate}}" style="cursor:pointer;color: green;" ></i>
+                                    <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="sendfile.deleteFile(ss.id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: red;" ></i>
                                 </nobr>
                             </td>
                         </tr>
