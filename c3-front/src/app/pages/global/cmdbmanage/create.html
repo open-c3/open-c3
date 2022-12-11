@@ -1,0 +1,32 @@
+<div class="modal-header">
+    <h4  class="modal-title">{{'C3T.CMDB'|translate}}</h4>
+</div>
+<div class="modal-body">
+    <form class="form-horizontal" name="myForm" role="form">
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">{{'C3T.名称'|translate}}</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" name="adduser" ng-disabled="1" placeholder="{{'C3T.名称'|translate}}" ng-model="cmdbmanagecreate.name" />
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">{{'C3T.配置'|translate}}</label>
+                <div class="col-sm-9">
+                    <textarea type="text" rows="30" cols="100" class="form-control" name="adduser" placeholder="{{'C3T.配置'|translate}}" ng-model="cmdbmanagecreate.postdata.config" required></textarea>
+                </div>
+            </div>
+        </div>
+ 
+        <div class="row">
+            <div class="col-sm-5 form-group pull-right">
+                <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="cmdbmanagecreate.add()">{{'C3T.确认'|translate}}</button>
+                <button class="btn btn-warning" ng-click="cmdbmanagecreate.cancel()">{{'C3T.取消'|translate}}</button>
+            </div>
+        </div>
+    </form>
+</div>
+
