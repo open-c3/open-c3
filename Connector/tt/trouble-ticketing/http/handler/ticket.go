@@ -83,7 +83,7 @@ type ticket struct {
 	Type       int64         `json:"type" binding:"required"`
 	Item       int64         `json:"item" binding:"required"`
 	Workgroup  int64         `json:"workgroup" binding:"required"`
-	GroupUser  JsonNullInt64 `json:"group_user"`
+	GroupUser  int64 		 `json:"group_user"`
 	Title      string        `json:"title" binding:"required`
 	Content    string        `json:"content" binding:"required`
 	EmailList  string        `json:"email_list"`

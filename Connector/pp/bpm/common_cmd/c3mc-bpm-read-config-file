@@ -1,0 +1,35 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import os
+import json
+
+
+def read_data(filename):
+    """
+        读取bpm配置文件中的数据。优先读/data/open-c3-data/bpm/config/{filename}, 
+        如果该路径不存在, 那么读/data/open-c3/Connector/bpm/config/{filename}
+    """
+    filepath = "/data/open-c3-data/bpm/config/{}".format(filename)
+    if not os.path.exists(filepath):
+        filepath = "/data/open-c3/Connector/bpm/config/{}".format(filename)
+        if not os.path.exists(filepath):
+            raise Exception("无法为bpm工单找到相关配置文件: {}".format(filename))
+
+    lines = []
+    with open(filepath) as file_in:
+        for line in file_in:
+            if line.startswith("#"):
+                continue
+            lines.append(line)
+    return lines
+
+
+def main(filename):
+    data = read_data(filename)
+    print(json.dumps(data, default=str))
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3])

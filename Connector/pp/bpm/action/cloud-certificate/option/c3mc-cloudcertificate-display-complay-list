@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import json
+import subprocess
+
+
+def display_company_list():
+    """
+        查询公司列表
+    """
+    data = []
+    company_list = json.loads(
+        subprocess.getoutput("c3mc-bpm-read-config-file " + "company_list")
+    )
+    for item in company_list:
+        data.append({
+            "id" : item,
+            "desc" : item,
+        })
+
+
+def main():
+    data_list = display_company_list()
+    for item in data_list:
+        print(json.dumps(item))
+
+
+if __name__ == '__main__':
+    main()

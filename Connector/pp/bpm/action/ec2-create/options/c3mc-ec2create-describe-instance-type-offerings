@@ -1,0 +1,79 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+import boto3
+
+
+def describe_instance_type_offerings(access_id, access_key, region):
+    """
+        查询ec2的实例类型列表
+    """
+    client = boto3.client(
+        "ec2",
+        aws_access_key_id=access_id,
+        aws_secret_access_key=access_key,
+        region_name=region
+    )
+    page_size = 1000
+
+    result = []
+    next_token = ""
+    response = client.describe_instance_type_offerings(
+        LocationType="region",
+        Filters=[
+            {
+                'Name': 'location',
+                'Values': [region]
+            },
+        ],
+        MaxResults=page_size
+    )
+    result.extend(response["InstanceTypeOfferings"])
+    if "NextToken" in response:
+        next_token = response["NextToken"]
+
+    while next_token != "":
+        response = client.describe_instance_type_offerings(
+            LocationType="region",
+            Filters=[
+                {
+                    'Name': 'location',
+                    'Values': [region]
+                },
+            ],
+            NextToken=next_token,
+            MaxResults=page_size
+        )
+        result.extend(response["InstanceTypeOfferings"])
+
+        next_token = ""
+        if "NextToken" in response:
+            next_token = response["NextToken"]
+    return result
+
+
+def main(params):
+    account = params["account"]
+    region = params["region"]
+
+    key_info = json.loads(subprocess.getoutput(
+        "c3mc-get-account-info aws {}".format(account)))
+
+    instance_type_list = describe_instance_type_offerings(
+        key_info["access_id"], key_info["access_key"], region)
+    for instance_type in instance_type_list:
+        print(json.dumps(instance_type, default=str))
+
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]))

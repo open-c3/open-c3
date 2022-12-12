@@ -1,0 +1,77 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import json
+import sys
+import operator
+import subprocess
+
+import boto3
+
+
+class Ec2InstanceTypes:
+    def __init__(self, access_id, access_key):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.client = self.create_client()
+
+    def create_client(self):
+        client = boto3.client(
+            "pricing",
+            aws_access_key_id=self.access_id,
+            aws_secret_access_key=self.access_key,
+            region_name="us-east-1",
+        )
+        return client
+
+    def list_instance_types(self, region):
+        if region.startswith("cn-"):
+            sys.path.append("/data/Software/mydan/Connector/lib/pp")
+            from c3mc_cloud_aws_china_get_price_data import get_ec2_instance_types
+            return get_ec2_instance_types(region)
+        else:
+            FLT = '[{{"Field": "preInstalledSw", "Value": "NA", "Type": "TERM_MATCH"}},'\
+                '{{"Field": "regionCode", "Value": "{r}", "Type": "TERM_MATCH"}},'\
+                '{{"Field": "tenancy", "Value": "Shared", "Type": "TERM_MATCH"}},'\
+                '{{"Field": "operatingSystem", "Value": "Linux", "Type": "TERM_MATCH"}},'\
+                '{{"Field": "capacitystatus", "Value": "Used", "Type": "TERM_MATCH"}}]'
+            f = FLT.format(r=region)
+            data = self.client.get_products(
+                ServiceCode='AmazonEC2', Filters=json.loads(f))
+
+            result = []
+            for item in data['PriceList']:
+                attr = json.loads(item)["product"]["attributes"]
+                result.append({
+                    "instanceType": attr["instanceType"],
+                    "vcpu": attr["vcpu"],
+                    "memory": attr["memory"],
+                })
+            result.sort(key=operator.itemgetter('instanceType'))
+            result.sort(key=operator.itemgetter('vcpu'))
+            result.sort(key=operator.itemgetter('memory'))
+
+            return result
+
+
+def main(params):
+    account = params["account"]
+    region = params["region"]
+
+    key_info = json.loads(subprocess.getoutput(
+        "c3mc-get-account-info aws {}".format(account)))
+
+    instance_type_list = Ec2InstanceTypes(key_info["access_id"], key_info["access_key"]) \
+        .list_instance_types(region)
+    for instance_type in instance_type_list:
+        print(json.dumps(instance_type))
+
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]))

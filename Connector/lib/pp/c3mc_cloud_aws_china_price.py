@@ -4,6 +4,7 @@
 
 import json
 import statistics
+import operator
 
 from c3mc_utils import redownload_file_if_need
 
@@ -86,3 +87,38 @@ def get_price(filters, not_exist_fields, filepath, url):
         "amount": statistics.mean(pl),
         "money_type": mt,
     }
+
+
+def get_instance_types(filters, not_exist_fields, filepath, url, extract_keys):
+    """
+        extract_keys 是要从attr信息里提取的字段, 顺序将被用来对结果进行排序
+    """
+    data = get_price_file_data(filepath, url)
+
+    result = []
+    for code in data["products"]:
+        attr = data["products"][code]["attributes"]
+
+        ok = True
+        for item in filters:
+            key = list(item)[0]
+            value = item[key]
+            if key not in attr:
+                ok = False
+                break
+            if attr[key] != value:
+                ok = False
+                break
+        for field in not_exist_fields:
+            if field in attr:
+                ok = False
+                break
+        if ok:
+            item = {}
+            for key in extract_keys:
+                item[key] = attr[key]
+            result.append(item)
+    for key in extract_keys:
+        result.sort(key=operator.itemgetter(key))
+
+    return result

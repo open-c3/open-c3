@@ -1,0 +1,63 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+import boto3
+
+
+def describe_security_groups(access_id, access_key, region):
+    """
+        查询安全组列表
+    """
+    client = boto3.client(
+        "ec2",
+        aws_access_key_id=access_id,
+        aws_secret_access_key=access_key,
+        region_name=region,
+    )
+
+    page_size = 100
+
+    result = []
+    response = client.describe_security_groups(MaxResults=page_size)
+    result.extend(response["SecurityGroups"])
+    marker = ""
+    if "NextToken" in response:
+        marker = response["NextToken"]
+
+    while marker != "":
+        response = client.describe_security_groups(
+            MaxResults=page_size, NextToken=marker)
+        result.extend(response["SecurityGroups"])
+
+        marker = ""
+        if "NextToken" in response:
+            marker = response["NextToken"]
+
+    return result
+
+
+def main(params):
+    account = params["account"]
+    region = params["region"]
+
+    key_info = json.loads(subprocess.getoutput(
+        "c3mc-get-account-info aws {}".format(account)))
+
+    security_groups_list = describe_security_groups(
+        key_info["access_id"], key_info["access_key"], region)
+    for security_group in security_groups_list:
+        print(json.dumps(security_group, default=str))
+
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]))

@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import json
+
+
+def display_certificate_type_list():
+    """
+        查询证书类型
+    """
+    return [
+        {
+            "id": "SSL证书",
+            "desc": "SSL证书 (域名)"
+        },
+        {
+            "id": "代码签名证书",
+            "desc": "代码签名证书 (业务名称)"
+        }
+    ]
+
+
+def main():
+    data_list = display_certificate_type_list()
+    for item in data_list:
+        print(json.dumps(item))
+
+
+if __name__ == '__main__':
+    main()
