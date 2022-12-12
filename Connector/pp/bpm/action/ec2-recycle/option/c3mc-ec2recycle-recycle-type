@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import json
+
+
+def get_recycle_type():
+    """
+        查询ec2回收类型
+    """
+    return [
+        {
+            "id": "stop",
+            "desc": "临时停机(可以再次启动)"
+        },
+        {
+            "id": "terminate",
+            "desc": "永久回收(不可再次启动)"
+        }
+    ]
+
+
+def main():
+    option_list = get_recycle_type()
+    for option in option_list:
+        print(json.dumps(option))
+
+
+if __name__ == '__main__':
+    main()
