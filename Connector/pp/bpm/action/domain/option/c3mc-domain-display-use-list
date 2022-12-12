@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import json
+import subprocess
+
+
+def display_use_list():
+    """
+        查询域名所属业务使用范围
+    """
+    data = []
+    company_list = json.loads(
+        subprocess.getoutput("c3mc-bpm-read-config-file " + "domain_use_location")
+    )
+    for item in company_list:
+        data.append({
+            "id" : item,
+            "desc" : item,
+        })
+
+
+def main():
+    data_list = display_use_list()
+    for item in data_list:
+        print(json.dumps(item))
+
+
+if __name__ == '__main__':
+    main()
