@@ -1,0 +1,38 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import json
+
+
+def display_apply_type_list():
+    """
+        域名申请分类
+    """
+    return [
+        {
+            "id": "域名解析新申请",
+            "desc": "域名解析新申请"
+        },
+        {
+            "id": "域名解析修改",
+            "desc": "域名解析修改"
+        },
+        {
+            "id": "域名解析删除",
+            "desc": "域名解析删除"
+        },
+        {
+            "id": "域名注册",
+            "desc": "域名注册"
+        }
+    ]
+
+
+def main():
+    option_list = display_apply_type_list()
+    for option in option_list:
+        print(json.dumps(option))
+
+
+if __name__ == '__main__':
+    main()

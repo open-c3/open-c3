@@ -1,0 +1,87 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+import time
+
+import boto3
+
+
+class Ec2Modify:
+    def __init__(self, access_id, access_key, region, params):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.region = region
+        self.instance_params = params
+        self.client = self.create_client()
+
+    def create_client(self):
+        client = boto3.client(
+            "ec2",
+            aws_access_key_id=self.access_id,
+            aws_secret_access_key=self.access_key,
+            region_name=self.region,
+        )
+        return client
+
+    def describe_instances(self, instance_id):
+        response = self.client.describe_instances(
+            InstanceIds=[ instance_id ],
+        )
+        if len(response["Reservations"]["Instances"]) == 0:
+            return None
+        return response["Reservations"]["Instances"][0]
+
+    def stop_instance(self, instance_id):
+        self.client.stop_instances(
+            InstanceIds=[ instance_id ],
+        )
+
+    def modify_instance_attribute(self, instance_id, instance_type):
+        self.client.modify_instance_attribute(
+            InstanceId=instance_id,
+            InstanceType={
+                'Value': instance_type
+            },
+        )
+    
+    def get_instance_state(self, instance_id):
+        ec2_info = self.describe_instances(instance_id)
+        return ec2_info["State"]["Name"]
+
+    def modify_instance(self, instance_ids, instance_type):
+        for instance_id in instance_ids:
+            self.stop_instance(instance_id)
+        
+        wait_stop_timeout = 360
+        for instance_id in instance_ids:
+            state = self.get_instance_state(instance_id)
+            start = time.time()
+            while True:
+                end = time.time()
+                if end - start > wait_stop_timeout:
+                    raise Exception("等待ec2实例{}停止超过{}秒".format(instance_id, wait_stop_timeout))
+                if state != "stopped":
+                    time.sleep(5)
+                    continue
+                self.modify_instance_attribute(instance_id, instance_type)
+
+
+def main(params):
+    params = json.loads(params)
+    account = params["Account"]
+    region = params["Region"]
+    instance_ids = params["InstanceIds"].split(",")
+    instance_type = params["InstanceType"]
+
+    key_info = json.loads(subprocess.getoutput(
+        "c3mc-get-account-info aws {}".format(account)))
+
+    Ec2Modify(key_info["access_id"], key_info["access_key"], region, params) \
+        .modify_instance(instance_ids, instance_type)
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2])
