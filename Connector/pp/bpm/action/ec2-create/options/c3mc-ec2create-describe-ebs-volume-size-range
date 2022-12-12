@@ -5,35 +5,37 @@ import json
 import sys
 
 
-def ec2_describe_ebs_volume_max_iops(ebs_volume_type):
+def ec2_describe_ebs_volume_size_range(ebs_volume_type):
     """
-        查询ebs指定volume类型支持的最大iops
+        查询ebs不同volume类型的磁盘大小范围
     """
 
     if ebs_volume_type == "standard":
-        return 100
+        return [1, 1000]
     if ebs_volume_type == "io2":
-        return 64000
+        return [4, 16000]
     elif ebs_volume_type == "io2 Block Express":
-        return 256000
+        return [4, 64000]
     elif ebs_volume_type == "io1":
-        return 64000
+        return [4, 16000]
     elif ebs_volume_type == "gp3":
-        return 16000
+        return [1, 16000]
     elif ebs_volume_type == "gp2":
-        return 16000
+        return [1, 16000]
     elif ebs_volume_type == "st1":
-        return 500
+        return [125, 16000]
     elif ebs_volume_type == "sc1":
-        return 250
+        return [125, 16000]
     else:
         raise Exception("错误的 ebs_volume_type 类型: {}".format(ebs_volume_type))
 
 
 def main(params):
-    ebs_volume_type = params["c3mc_ec2_describe_ebs_volume_types"]
+    data_volume_type = params["data_volume_type"]
+    if data_volume_type is None:
+        return
 
-    data = ec2_describe_ebs_volume_max_iops(ebs_volume_type)
+    data = ec2_describe_ebs_volume_size_range(data_volume_type)
     print(json.dumps(data, default=str))
 
 
@@ -44,4 +46,4 @@ if __name__ == '__main__':
     if len(l) == 0 or len(l) > 1:
         raise Exception("数据格式不对, 需要一行json字符串")
 
-    main(json.loads(l[0]))
+    main(sys.argv[1])

@@ -8,9 +8,9 @@ import subprocess
 import boto3
 
 
-def describe_subnets(access_id, access_key, region, availability_zone, vpc_id):
+def describe_vpcs(access_id, access_key, region):
     """
-        查询子网列表
+        查询vpc列表
     """
     client = boto3.client(
         "ec2",
@@ -21,33 +21,20 @@ def describe_subnets(access_id, access_key, region, availability_zone, vpc_id):
 
     page_size = 100
 
-    filter = [
-        {
-            "Name": "availability-zone",
-            "Values": [availability_zone]
-        },
-        {
-            "Name": "vpc-id",
-            "Values": [vpc_id]
-        }
-    ]
-
     result = []
-    response = client.describe_subnets(MaxResults=page_size, Filters=filter)
-    result.extend(response["Subnets"])
+    response = client.describe_vpcs(MaxResults=page_size)
+    result.extend(response["Vpcs"])
     marker = ""
     if "NextToken" in response:
         marker = response["NextToken"]
 
     while marker != "":
-        response = client.describe_subnets(
-            MaxResults=page_size, NextToken=marker, Filters=filter)
-        result.extend(response["Subnets"])
+        response = client.describe_vpcs(MaxResults=page_size, NextToken=marker)
+        result.extend(response["Vpcs"])
 
         marker = ""
         if "NextToken" in response:
             marker = response["NextToken"]
-
     for i in range(len(result)):
         for tag in result[i]["Tags"]:
             if tag["Key"] == "Name":
@@ -58,18 +45,16 @@ def describe_subnets(access_id, access_key, region, availability_zone, vpc_id):
 
 
 def main(params):
-    account = params["user_select_one_account"]
-    region = params["c3mc_ec2_describe_regions"]
-    az = params["c3mc_ec2_describe_availability_zones"]
-    vpc_id = params["c3mc_ec2_describe_vpcs"]
+    account = params["account"]
+    region = params["region"]
 
     key_info = json.loads(subprocess.getoutput(
         "c3mc-get-account-info aws {}".format(account)))
 
-    subnet_list = describe_subnets(
-        key_info["access_id"], key_info["access_key"], region, az, vpc_id)
-    for subnet in subnet_list:
-        print(json.dumps(subnet, default=str))
+    vpc_list = describe_vpcs(
+        key_info["access_id"], key_info["access_key"], region)
+    for vpc in vpc_list:
+        print(json.dumps(vpc, default=str))
 
 
 if __name__ == '__main__':

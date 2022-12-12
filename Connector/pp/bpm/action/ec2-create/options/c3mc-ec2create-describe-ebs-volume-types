@@ -44,7 +44,11 @@ def ec2_describe_ebs_volume_types():
     ]
 
 
-def main():
+def main(params):
+    if_need_data_volume = params["if_need_data_volume"]
+    if not if_need_data_volume:
+        return
+
     volume_type_list = ec2_describe_ebs_volume_types()
     for volume_type in volume_type_list:
         print(json.dumps(volume_type, default=str))

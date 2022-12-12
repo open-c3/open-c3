@@ -57,8 +57,8 @@ def describe_instance_type_offerings(access_id, access_key, region):
 
 
 def main(params):
-    account = params["user_select_one_account"]
-    region = params["c3mc_ec2_describe_regions"]
+    account = params["account"]
+    region = params["region"]
 
     key_info = json.loads(subprocess.getoutput(
         "c3mc-get-account-info aws {}".format(account)))

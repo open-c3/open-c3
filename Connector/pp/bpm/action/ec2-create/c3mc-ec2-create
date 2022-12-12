@@ -105,7 +105,8 @@ class Ec2:
         create_ec2_params["ImageId"] = self.instance_params["ImageId"]
         create_ec2_params["EbsOptimized"] = False
         create_ec2_params["InstanceType"] = self.instance_params["InstanceType"]
-        create_ec2_params["UserData"] = self.instance_params["UserData"]
+        if self.instance_params["UserData"] != None and self.instance_params["UserData"] != "":
+            create_ec2_params["UserData"] = self.instance_params["UserData"]
         create_ec2_params["Monitoring"] = {
             "Enabled": self.instance_params["IfNeedMonitor"]
         }
@@ -119,20 +120,22 @@ class Ec2:
         create_ec2_params["MinCount"] = 1
         create_ec2_params["MaxCount"] = 1
 
-        params_instance_tags = json.loads(self.instance_params["InstanceTag"])
-        instance_tag = {"ResourceType": "instance", "Tags": []}
-        for params_tag in params_instance_tags:
-            instance_tag["Tags"].append({
-                "Key": params_tag["key"],
-                "Value": params_tag["value"]
-            })
-        params_volume_tags = json.loads(self.instance_params["VolumeTag"])
-        volume_tag = {"ResourceType": "volume", "Tags": []}
-        for params_tag in params_volume_tags:
-            volume_tag["Tags"].append({
-                "Key": params_tag["key"],
-                "Value": params_tag["value"]
-            })
+        if self.instance_params["InstanceTag"] != None and self.instance_params["InstanceTag"] != "":
+            params_instance_tags = json.loads(self.instance_params["InstanceTag"])
+            instance_tag = {"ResourceType": "instance", "Tags": []}
+            for params_tag in params_instance_tags:
+                instance_tag["Tags"].append({
+                    "Key": params_tag["key"],
+                    "Value": params_tag["value"]
+                })
+        if self.instance_params["VolumeTag"] != None and self.instance_params["VolumeTag"] != "":
+            params_volume_tags = json.loads(self.instance_params["VolumeTag"])
+            volume_tag = {"ResourceType": "volume", "Tags": []}
+            for params_tag in params_volume_tags:
+                volume_tag["Tags"].append({
+                    "Key": params_tag["key"],
+                    "Value": params_tag["value"]
+                })
         create_ec2_params["TagSpecifications"] = [instance_tag, volume_tag]
 
         sys.path.append("/data/Software/mydan/Connector/lib/pp")
@@ -147,6 +150,8 @@ class Ec2:
 
 
 def main(params):
+    params = json.loads(params)
+
     account = params["Account"]
     region = params["Region"]
     key_info = json.loads(subprocess.getoutput(
@@ -158,10 +163,4 @@ def main(params):
 
 
 if __name__ == '__main__':
-    l = []
-    for line in sys.stdin:
-        l.append(line)
-    if len(l) == 0 or len(l) > 1:
-        raise Exception("数据格式不对, 需要一行json字符串")
-
-    main(json.loads(l[0]))
+    main(sys.argv[1], sys.argv[2])
