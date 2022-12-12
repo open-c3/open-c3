@@ -36,6 +36,11 @@ type GlobalConfig struct {
 		CookieKey string `json:"cookiekey"`
 	} `json:"sso"`
 	Attachment string `json:"attachment"`
+	Workflow   []struct {
+		Keyword     []string `json:"keyword"`
+		WorkGroupId int64    `json:"work_group_id"`
+		GroupUserId int64    `json:"group_user_id"`
+	} `json:"workflow"`
 }
 
 func (this *GlobalConfig) Decryption() {

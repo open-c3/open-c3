@@ -6,27 +6,26 @@ import (
 	"strings"
 
 	"github.com/gin-gonic/gin"
+	"openc3.org/trouble-ticketing/config"
 	"openc3.org/trouble-ticketing/orm"
 )
 
 // 第三方系统添加事件
 func PublicPostTicket(c *gin.Context) {
 	type reqT struct {
-		System    string `json:"system" binding:"required"`
-		Type      string `json:"type" binding:"required"`
 		Title     string `json:"title" binding:"required"`
 		Content   string `json:"content" binding:"required"`
 		EmailList string `json:"email_list"`
 
-		Impact    int64 `json:"impact"`
-		C         int64 `json:"c"`
-		T         int64 `json:"t"`
-		I         int64 `json:"i"`
-		Workgroup int64 `json:"workgroup"`
+		Impact int64 `json:"impact"`
+		C      int64 `json:"c"`
+		T      int64 `json:"t"`
+		I      int64 `json:"i"`
 
 		SubmitUser string `json:"submit_user"`
 		ApplyUser  string `json:"apply_user"`
 	}
+
 	var req reqT
 
 	err := c.BindJSON(&req)
@@ -34,33 +33,51 @@ func PublicPostTicket(c *gin.Context) {
 		c.JSON(http.StatusOK, status_400(err.Error()))
 		return
 	}
-	var obj ticket
-
-	switch strings.ToLower(req.System) {
-	case "all":
-		if strings.TrimSpace(req.ApplyUser) == "" {
-			c.JSON(http.StatusOK, status_400("apply user reqiured"))
-			return
+	var (
+		obj            ticket
+		defaultGroupId int64
+		defaultUserId  int64
+		found          bool
+	)
+	for _, workflowConfig := range config.Config().Workflow {
+		for _, keyword := range workflowConfig.Keyword {
+			if strings.Contains(req.Title, keyword) {
+				defaultGroupId = workflowConfig.WorkGroupId
+				defaultUserId = workflowConfig.GroupUserId
+				found = true
+				break
+			}
 		}
-
-		obj.ApplyUser = req.ApplyUser
-		obj.Impact = int64(5)
-		obj.Category = int64(1)
-		obj.Type = int64(6)
-		obj.Item = int64(60)
-		obj.Workgroup = req.Workgroup
-		obj.Title = req.Title
-		obj.Content = req.Content
-		obj.EmailList = req.EmailList
-
-		d := orm.Db.Create(&obj)
-		if err := d.Error; err != nil {
-			c.JSON(http.StatusOK, status_400(err.Error()))
-			return
-		}
-		c.JSON(http.StatusOK, status_200(obj.No))
+	}
+	if !found {
+		c.JSON(http.StatusOK, status_400("没有找到默认的组和处理用户, 工单名称: "+req.Title))
 		return
 	}
+
+	if strings.TrimSpace(req.ApplyUser) == "" {
+		c.JSON(http.StatusOK, status_400("apply user reqiured"))
+		return
+	}
+
+	obj.ApplyUser = req.ApplyUser
+	obj.Impact = req.Impact
+	obj.Category = req.C
+	obj.Type = req.T
+	obj.Item = req.I
+	obj.Workgroup = defaultGroupId
+	obj.GroupUser = defaultUserId
+	obj.Title = req.Title
+	obj.Content = req.Content
+	obj.EmailList = req.EmailList
+	obj.SubmitUser = req.SubmitUser
+	obj.ApplyUser = req.ApplyUser
+
+	err = orm.Db.Create(&obj).Error
+	if err != nil {
+		c.JSON(http.StatusOK, status_400(err.Error()))
+		return
+	}
+	c.JSON(http.StatusOK, status_200(obj.No))
 }
 
 // 获取某个事件状态

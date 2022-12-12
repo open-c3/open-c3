@@ -1,0 +1,52 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+import os
+import json
+
+def run_work_order(action_name, content):
+    """
+        执行工单
+
+        type_id: 工单类型id
+        content: 工单内容
+    """
+    if action_name == "ec2-create":
+        # ec2创建工单
+        os.system("c3mc-ec2-create {}".format(json.dumps(content)))
+
+    elif action_name == "ec2-recycle":
+        # ec2回收工单
+        os.system("c3mc-ec2-recycle {}".format(json.dumps(content)))
+
+    elif action_name == "server-auth":
+        # 服务器权限申请工单
+        os.system("c3mc-server-auth {}".format(json.dumps(content)))
+
+    elif action_name == "cloud-certificate":
+        # 公有云证书申请/采购
+        os.system("c3mc-cloud-certificate {}".format(json.dumps(content)))
+
+    elif action_name == "domain":
+        # 域名申请与解析
+        os.system("c3mc-domain {}".format(json.dumps(content)))
+
+    elif action_name == "ec2-modify":
+        # 修改AWS EC2机器类型
+        os.system("c3mc-ec2-modify {}".format(json.dumps(content)))
+    else:
+        raise Exception("不存在类型为{}的工单".format(action_name))
+
+
+def main(type_id, content):
+    run_work_order(type_id, content)
+
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+    main(sys.argv[1], l[0])
