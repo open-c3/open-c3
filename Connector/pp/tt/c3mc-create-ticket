@@ -13,6 +13,7 @@ def create_ticket(
     title, 
     content, 
     email_list,
+    if_ext,
 ):
     impact = int(subprocess.getoutput("c3mc-sys-ctl sys.tt.impact"))
     c = int(subprocess.getoutput("c3mc-sys-ctl sys.tt.c"))
@@ -21,8 +22,7 @@ def create_ticket(
 
     API_ENDPOINT = "http://localhost:9008/public/ticket"
 
-    enable_external_api = subprocess.getoutput("c3mc-sys-ctl sys.tt.enable_external_api")
-    if enable_external_api == "1":
+    if if_ext == "1":
         API_ENDPOINT = subprocess.getoutput("c3mc-sys-ctl sys.tt.external_api_endpoint")
         if API_ENDPOINT == "":
             raise Exception("使用外部tt时, 外部tt的接口地址不允许为空")
@@ -53,12 +53,14 @@ def main(
     title, 
     content, 
     email_list, 
+    if_ext_tt,
 ):
     create_ticket(
         submit_user, 
         title, 
         content, 
         email_list, 
+        if_ext_tt,
     )
 
 
@@ -73,6 +75,7 @@ if __name__ == '__main__':
     parser.add_argument('--submit_user', type=str, required=True, help='提交人账号')
     parser.add_argument('--title', type=str, required=True, help='标题')
     parser.add_argument('--email_list', type=str, required=False, help='邮箱列表,多个邮箱用英文逗号分隔')
+    parser.add_argument('--if_ext', type=str, required=True, help='是否使用外部tt, 1: 使用外部tt, 0: 使用内部tt')
     args = parser.parse_args()
 
     submit_user = args.submit_user
@@ -80,16 +83,17 @@ if __name__ == '__main__':
     email_list = ""
     if args.email_list != None and args.email_list != "":
         email_list = args.email_list
-    if_external = False
-    if args.if_external != None and args.if_external != "false":
-        if_external = True
+    if_ext = False
+    if args.if_ext != None and args.if_ext != "0":
+        if_ext = True
 
 
-    print("LOG: 创建tt, 调用参数为, submit_user: {}, title: {}, email_list: {}, if_external: {}, content: {}\n".format(
-        submit_user, title, email_list, if_external, l[0]), file=sys.stderr)
+    print("LOG: 创建tt, 调用参数为, submit_user: {}, title: {}, email_list: {}, if_ext: {}, content: {}\n".format(
+        submit_user, title, email_list, if_ext, l[0]), file=sys.stderr)
     main(
         submit_user, 
         title, 
         l[0],
         email_list, 
+        if_ext
     )
