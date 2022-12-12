@@ -6,10 +6,10 @@
         <div class="panel-body">
             <div class="form-horizontal">
                 <form class="form-horizontal" name="runtask2ciForm"  role="form" novalidate>
-                    <h3 style="margin: 0px" >机器列表</h3>
+                    <h3 style="margin: 0px" >{{'C3T.机器列表'|translate}}</h3>
                     <div ng-show="!taskData.variable._pip_" class="row" ng-repeat="group in runtask2ci.showIPstr">
                         <div class="col-sm-12 form-group">
-                            <label class="col-sm-3 control-label">分组{{$index+1}}: ({{group.num}}台机器)
+                            <label class="col-sm-3 control-label">{{'C3T.分组'|translate}}{{$index+1}}: ({{group.num}}{{'C3T.台机器'|translate}})
                             </label>
                             <div class="col-sm-9" style="padding-top: 10px">
                                 <p ng-repeat="ip in group.infos">{{ip}}</p>
@@ -19,7 +19,7 @@
 
                     <div ng-show="taskData.variable._pip_" class="row">
                         <div class="col-sm-12 form-group">
-                            <label class="col-sm-3 control-label">机器</label>
+                            <label class="col-sm-3 control-label">{{'C3T.机器'|translate}}</label>
                             <div class="col-sm-9" style="padding-top: 10px">
                                 <p>{{taskData.variable._pip_}}</p>
                             </div>
@@ -28,10 +28,10 @@
 
                    <hr style="margin: 5px">
 
-                   <h3 style="margin: 0px" >发布步骤</h3>
+                   <h3 style="margin: 0px" >{{'C3T.发布步骤'|translate}}</h3>
                    <div class="row" ng-repeat="step in runtask2ci.jobStep" style="margin: 0px">
                         <div class="col-sm-12 form-group" style="margin-bottom: 0px" >
-                            <label class="col-sm-3 control-label">第{{$index+1}}步:
+                            <label class="col-sm-3 control-label">{{'C3T.步骤'|translate}} {{$index+1}}:
                             </label>
                             <div class="col-sm-9" style="padding-top: 10px">
                                 <p>{{step}}</p>
@@ -42,64 +42,64 @@
 
                    <hr style="margin: 5px">
 
-                    <h3 ng-if="runtask2ci.noshowrollback === 0 && runtask2ci.version" >发布版本:
+                    <h3 ng-if="runtask2ci.noshowrollback === 0 && runtask2ci.version" >{{'C3T.发布版本'|translate}}:
                         <a style="color: green;" >{{runtask2ci.version}}</a>
                     </h3>
 
                     <div class="col-sm-10 form-group" ng-if="!runtask2ci.version">
-                            <label class="col-sm-3 control-label">发布版本: &nbsp;</label>
-                            <div class="col-sm-8"> <input type="text" class="form-control"  ng-model="runtask2ci.deployversioncurrent" placeholder="发布版本" required> </div>
+                            <label class="col-sm-3 control-label">{{'C3T.发布版本'|translate}}: &nbsp;</label>
+                            <div class="col-sm-8"> <input type="text" class="form-control"  ng-model="runtask2ci.deployversioncurrent" placeholder="{{'C3T.发布版本'|translate}}" required> </div>
                             <div class="col-sm-1"> 
                             </div>
                     </div>
 
                     <div class="col-sm-10 form-group" ng-if="!runtask2ci.version">
-                            <label class="col-sm-3 control-label">版本描述: &nbsp;</label>
-                            <div class="col-sm-8"> <input type="text" class="form-control"  ng-model="runtask2ci.describeversioncurrent" placeholder="描述信息，可以写中文"> </div>
+                            <label class="col-sm-3 control-label">{{'C3T.版本描述'|translate}}: &nbsp;</label>
+                            <div class="col-sm-8"> <input type="text" class="form-control"  ng-model="runtask2ci.describeversioncurrent" placeholder="{{'C3T.描述信息，可以写中文'|translate}}"> </div>
                             <div class="col-sm-1"> 
                             </div>
                     </div>
 
 
-                    <h3 ng-if="runtask2ci.noshowrollback > 0" >回滚版本:
+                    <h3 ng-if="runtask2ci.noshowrollback > 0" >{{'C3T.回滚版本'|translate}}:
                         <a style="color: red;" >{{runtask2ci.version}}</a>
                     </h3>
 
                     <div class="row" ng-if="runtask2ci.jobtype=='online' && runtask2ci.noshowrollback === 0 ">
                         <div ng-if="runtask2ci.lastversion.version" >
-                             <label class="col-sm-9 control-label" style="padding: 1px" >最后一次成功发布的版本:{{runtask2ci.lastversion.version}} 时间: {{runtask2ci.lastversion.create_time}} 发布的任务 {{runtask2ci.lastversion.jobxuuid}} </label>
+                             <label class="col-sm-9 control-label" style="padding: 1px" >{{'C3T.最后一次成功发布的版本'|translate}}:{{runtask2ci.lastversion.version}} {{'C3T.时间'|translate}}: {{runtask2ci.lastversion.create_time}} {{'C3T.发布的任务'|translate}} {{runtask2ci.lastversion.jobxuuid}} </label>
                              <div class="col-sm-3">
-                                 <button class="btn btn-danger" style="padding: 0px" ng-disabled="runtask2ci.rollbacknoneeded" ng-click="runtask2ci.setRollbackVersion(runtask2ci.lastversion.version)">点击使用</button>
+                                 <button class="btn btn-danger" style="padding: 0px" ng-disabled="runtask2ci.rollbacknoneeded" ng-click="runtask2ci.setRollbackVersion(runtask2ci.lastversion.version)">{{'C3T.点击使用'|translate}}</button>
                              </div>
                         </div>
                         <div ng-if="!runtask2ci.lastversion.version" >
-                             <label class="col-sm-9 control-label" style="padding: 1px" >没有发现可回滚版本，请手动填写回滚版本</label>
+                             <label class="col-sm-9 control-label" style="padding: 1px" >{{'C3T.没有发现可回滚版本，请手动填写回滚版本'|translate}}</label>
                         </div>
 
                         <div class="col-sm-10 form-group" ng-show="runtask2ci.advancedconfig==0">
-                                <label class="col-sm-3 control-label">回滚版本: &nbsp;</label>
+                                <label class="col-sm-3 control-label">{{'C3T.回滚版本'|translate}}: &nbsp;</label>
                                 <div class="col-sm-8"> 
                                     <select class="form-control" ng-disabled="runtask2ci.rollbacknoneeded" ng-model="taskData.variable._rollbackVersion_" >
                                          <option ng-repeat="x in runtask2ci.versionlist" value="{{x.name}}">{{x.create_time}} = {{x.name}} </option>
                                     </select>
                                 </div>
                                 <div class="col-sm-1"> 
-                                    <a ng-if="runtask2ci.advancedconfig" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="选择版本" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="runtask2ci.advancedconfig=0"></a>
-                                    <a ng-if="!runtask2ci.advancedconfig" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="手写版本" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="runtask2ci.advancedconfig=1"></a>
+                                    <a ng-if="runtask2ci.advancedconfig" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.选择版本'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="runtask2ci.advancedconfig=0"></a>
+                                    <a ng-if="!runtask2ci.advancedconfig" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.手写版本'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="runtask2ci.advancedconfig=1"></a>
                                 </div>
                         </div>
  
                         <div class="col-sm-10 form-group" ng-show="runtask2ci.advancedconfig==1">
-                                <label class="col-sm-3 control-label">回滚版本: &nbsp;</label>
-                                <div class="col-sm-8"> <input type="text" class="form-control" ng-disabled="runtask2ci.rollbacknoneeded" ng-model="taskData.variable._rollbackVersion_" placeholder="回滚版本" required> </div>
+                                <label class="col-sm-3 control-label">{{'C3T.回滚版本'|translate}}: &nbsp;</label>
+                                <div class="col-sm-8"> <input type="text" class="form-control" ng-disabled="runtask2ci.rollbacknoneeded" ng-model="taskData.variable._rollbackVersion_" placeholder="{{'C3T.回滚版本'|translate}}" required> </div>
                                 <div class="col-sm-1"> 
-                                    <a ng-if="runtask2ci.advancedconfig" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="选择版本" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="runtask2ci.advancedconfig=0"></a>
-                                    <a ng-if="!runtask2ci.advancedconfig" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="手写版本" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="runtask2ci.advancedconfig=1"></a>
+                                    <a ng-if="runtask2ci.advancedconfig" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.选择版本'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="runtask2ci.advancedconfig=0"></a>
+                                    <a ng-if="!runtask2ci.advancedconfig" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.手写版本'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="runtask2ci.advancedconfig=1"></a>
                                 </div>
  
                         </div>
                         <div class="col-sm-10 form-group admin-form">
-                            <label class="col-sm-3 control-label fwbold" >无需回滚: &nbsp;</label>
+                            <label class="col-sm-3 control-label fwbold" >{{'C3T.无需回滚'|translate}}: &nbsp;</label>
                             <div class="col-sm-9">
                                 <label class="switch switch-system mt5">
                                     <input type="checkbox" id="set_rollbacknoneeded" ng-model="runtask2ci.rollbacknoneeded" ng-click="runtask2ci.cleanRollbackVersion()">
@@ -129,8 +129,8 @@
                                 </div>
  
                                 <div class="col-sm-1" ng-if="ss.name != 'tester' && ss.name != 'approver'"> 
-                                    <a ng-if="runtask2ci.handwritten[ss.name]" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="选择" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="runtask2ci.handwritten[ss.name]=0"></a>
-                                    <a ng-if="!runtask2ci.handwritten[ss.name]" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="手写" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="runtask2ci.handwritten[ss.name]=1"></a>
+                                    <a ng-if="runtask2ci.handwritten[ss.name]" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.选择'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="runtask2ci.handwritten[ss.name]=0"></a>
+                                    <a ng-if="!runtask2ci.handwritten[ss.name]" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.手写'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="runtask2ci.handwritten[ss.name]=1"></a>
  
                                </div>
                             </div>
@@ -141,7 +141,7 @@
                             <div ng-if="ss.name != 'ip' && ss.name != 'version'" >
                                 <label class="col-sm-3 control-label"></label>
                                 <div class="col-sm-9">
-                                    <a style="color: red">警告:{{runtask2ci.error[ss.name]}}</a>
+                                    <a style="color: red">{{'C3T.警告'|translate}}:{{runtask2ci.error[ss.name]}}</a>
                                 </div>
                             </div>
                         </div>
@@ -159,7 +159,7 @@
                             <div ng-if="ss.name == '_pip_' " >
                                 <label class="col-sm-3 control-label"></label>
                                 <div class="col-sm-9">
-                                    <button class="btn btn-primary ng-binding" ng-click="runtask2ci.choiceServer()">选择第{{choiceServerNum}}批服务器</button>
+                                    <button class="btn btn-primary ng-binding" ng-click="runtask2ci.choiceServer()">{{'C3T.选择服务器批次'|translate}} {{choiceServerNum}}</button>
                                     {{runtask2ci.machineList}}
                                 </div>
                             </div>
@@ -169,9 +169,9 @@
 
                     <div class="row">
                         <div class="col-sm-3 form-group" style="margin-left: 40%;">
-                            <button ng-if="!runtask2ci.loadover" class="btn btn-primary" ng-disabled="1" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!runtask2ci.loadover}" ></i>加载中...</button>
-                            <button ng-if="runtask2ci.loadover"  class="btn btn-primary" ng-disabled="runtask2ciForm.$invalid" ng-click="runtask2ci.runTask()">确认</button>
-                            <button class="btn btn-primary" ng-click="runtask2ci.cancel()">取消</button>
+                            <button ng-if="!runtask2ci.loadover" class="btn btn-primary" ng-disabled="1" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!runtask2ci.loadover}" ></i>{{'C3T.加载中'|translate}}...</button>
+                            <button ng-if="runtask2ci.loadover"  class="btn btn-primary" ng-disabled="runtask2ciForm.$invalid" ng-click="runtask2ci.runTask()">{{'C3T.确认'|translate}}</button>
+                            <button class="btn btn-primary" ng-click="runtask2ci.cancel()">{{'C3T.取消'|translate}}</button>
                         </div>
                     </div>
                 </form>

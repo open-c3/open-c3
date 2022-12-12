@@ -285,6 +285,12 @@
                 controller: 'CloudMonController',
                 controllerAs: 'cloudmon'
             })
+            .state('home.global.cmdbmanage', {
+                url: 'cmdbmanage/:treeid',
+                templateUrl: 'app/pages/global/cmdbmanage/cmdbmanage.html',
+                controller: 'CmdbManageController',
+                controllerAs: 'cmdbmanage'
+            })
             .state('home.global.adminapproval', {
                 url: 'adminapproval/:treeid',
                 templateUrl: 'app/pages/global/adminapproval/adminapproval.html',

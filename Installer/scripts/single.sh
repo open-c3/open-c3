@@ -432,6 +432,10 @@ function dup() {
     docker exec -t openc3-server c3mc-sys-dup
 }
 
+function cmdbdemo() {
+    /data/open-c3/Installer/scripts/cmdb-demo.sh
+}
+
 OPENC3_ZONE_CHECK=$(cat /data/open-c3/.git/config |grep gitee.com/open-c3/open-c3|wc -l)
 if [ "X$OPENC3_ZONE_CHECK" == "X1" ];then
     export OPENC3_ZONE=CN
@@ -491,8 +495,11 @@ log)
 dup)
     dup
     ;;
+cmdbdemo)
+    cmdbdemo
+    ;;
 *)
-    echo "Usage: $0 {start|stop|status|restart|reload|install|rebuild|reborn|upgrade|switchversion|inx|app|sql|log|dup}"
+    echo "Usage: $0 {start|stop|status|restart|reload|install|rebuild|reborn|upgrade|switchversion|inx|app|sql|log|dup|cmdbdemo}"
     echo "$0 install 10.10.10.10(Your Internet IP)"
     exit 2
 esac

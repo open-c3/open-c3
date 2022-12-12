@@ -20,7 +20,7 @@
                 resolve: {
                     imagesid: function () {},
                     homereload: function () { return vm.reload },
-                    title: function () { return '新建镜像' },
+                    title: function () { return 'C3T.新建镜像' },
                 }
             });
 
@@ -60,7 +60,7 @@
                 resolve: {
                     imagesid: function () { return id},
                     homereload: function () { return vm.reload },
-                    title: function () { return '编辑镜像' },
+                    title: function () { return 'C3T.编辑镜像' },
                 }
             });
         };

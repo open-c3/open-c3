@@ -8,38 +8,38 @@
 {{historyjobxdetail.projectinfo.ci_type_kind}}
     <hr class="mv10 clear">
 
-    <a aria-hidden="true" ng-if="historyjobxdetail.backid" ng-click="historyjobxdetail.versiondetail(historyjobxdetail.backid)" uib-tooltip="回到流水线页面" style="cursor:pointer;color: #339094;" >点击返回流水线:{{historyjobxdetail.backname}}</a> 
+    <a aria-hidden="true" ng-if="historyjobxdetail.backid" ng-click="historyjobxdetail.versiondetail(historyjobxdetail.backid)" uib-tooltip="{{'C3T.回到流水线页面'|translate}}" style="cursor:pointer;color: #339094;" >{{'C3T.点击返回流水线'|translate}}:{{historyjobxdetail.backname}}</a> 
     ({{taskDetail.name}})
 
     <div ng-repeat="name in historyjobxdetail.k8sname">
-        <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="historyjobxdetail.describek8s(name)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" >{{name}}</i>  
+        <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="historyjobxdetail.describek8s(name)" uib-tooltip="{{'C3T.查看'|translate}}" style="cursor:pointer;color: #339094;" >{{name}}</i>  
     </div>
     <div ng-repeat="data in historyjobxdetail.ecsname">
-        <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="historyjobxdetail.describeecs(data.name,data)" uib-tooltip="查看" style="cursor:pointer;color: #339094;" >{{data.name}}[{{data.min}}/{{data.max}}]</i>  
+        <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="historyjobxdetail.describeecs(data.name,data)" uib-tooltip="{{'C3T.查看'|translate}}" style="cursor:pointer;color: #339094;" >{{data.name}}[{{data.min}}/{{data.max}}]</i>  
     </div>
     <div class="panel">
 
         <div class="panel-heading">
 
             <span class="panel-controls">
-                <button class="btn btn-null btn-sm" ng-click="historyjobxdetail.taskLogDetail()">执行详情</button>
-                <button ng-if="taskDetail.status == 'running'" class="btn btn-danger btn-sm" ng-click="historyjobxdetail.killTaskDeploy(historyjobxdetail.taskuuid)">终止任务</button>
+                <button class="btn btn-null btn-sm" ng-click="historyjobxdetail.taskLogDetail()">{{'C3T.执行详情'|translate}}</button>
+                <button ng-if="taskDetail.status == 'running'" class="btn btn-danger btn-sm" ng-click="historyjobxdetail.killTaskDeploy(historyjobxdetail.taskuuid)">{{'C3T.终止任务'|translate}}</button>
 
-                <button ng-if="historyjobxdetail.rollbackShow && taskDetail.status == 'running' && historyjobxdetail.rversion && ! historyjobxdetail.rollbackexpire( taskDetail.starttimems )" class="btn btn-primary btn-sm" ng-click="historyjobxdetail.rollbackJudge('rollback')">紧急回滚</button>
-                <button ng-if="historyjobxdetail.rollbackShow && ( taskDetail.status == 'success' || taskDetail.status == 'fail' ) && historyjobxdetail.rversion && ! historyjobxdetail.rollbackexpire( taskDetail.starttimems )" class="btn btn-primary btn-sm" ng-click="historyjobxdetail.rollbackJudge('rollback')">回滚</button>
-                <button ng-if="historyjobxdetail.rollbackShow && ( taskDetail.status == 'success' || taskDetail.status == 'fail' ) && historyjobxdetail.rversion && ! historyjobxdetail.rollbackexpire( taskDetail.starttimems )" class="btn btn-primary btn-sm" ng-click="historyjobxdetail.rollbackJudge('norollback')">不回滚</button>
-                <button ng-if="historyjobxdetail.rollbackShow && ( taskDetail.status == 'success' || taskDetail.status == 'fail' ) && historyjobxdetail.rversion && historyjobxdetail.rollbackexpire( taskDetail.starttimems )" class="btn btn-primary btn-sm">已过期不可回滚</button>
+                <button ng-if="historyjobxdetail.rollbackShow && taskDetail.status == 'running' && historyjobxdetail.rversion && ! historyjobxdetail.rollbackexpire( taskDetail.starttimems )" class="btn btn-primary btn-sm" ng-click="historyjobxdetail.rollbackJudge('rollback')">{{'C3T.紧急回滚'|translate}}</button>
+                <button ng-if="historyjobxdetail.rollbackShow && ( taskDetail.status == 'success' || taskDetail.status == 'fail' ) && historyjobxdetail.rversion && ! historyjobxdetail.rollbackexpire( taskDetail.starttimems )" class="btn btn-primary btn-sm" ng-click="historyjobxdetail.rollbackJudge('rollback')">{{'C3T.回滚'|translate}}</button>
+                <button ng-if="historyjobxdetail.rollbackShow && ( taskDetail.status == 'success' || taskDetail.status == 'fail' ) && historyjobxdetail.rversion && ! historyjobxdetail.rollbackexpire( taskDetail.starttimems )" class="btn btn-primary btn-sm" ng-click="historyjobxdetail.rollbackJudge('norollback')">{{'C3T.不回滚'|translate}}</button>
+                <button ng-if="historyjobxdetail.rollbackShow && ( taskDetail.status == 'success' || taskDetail.status == 'fail' ) && historyjobxdetail.rversion && historyjobxdetail.rollbackexpire( taskDetail.starttimems )" class="btn btn-primary btn-sm">{{'C3T.已过期不可回滚'|translate}}</button>
 
-                <button class="btn" uib-tooltip="刷新" ng-click="historyjobxdetail.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!historyjobxdetail.loadover}" ></i></button>
+                <button class="btn" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="historyjobxdetail.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!historyjobxdetail.loadover}" ></i></button>
                 <span>{{historyjobxdetail.seftime( taskDetail.starttime, taskDetail.finishtime )}}</span>
             </span>
 
             <span>
-                <label>发布任务 {{taskDetail.starttime}} 版本:{{historyjobxdetail.dversion}}</label>
+                <label>{{'C3T.发布任务'|translate}} {{taskDetail.starttime}} {{'C3T.版本'|translate}}:{{historyjobxdetail.dversion}}</label>
                 (<a ng-style="setStatuColor(taskDetail.status)" style="pointer-events: none;">{{historyjobxdetail.statuszh[taskDetail.status]}}</a>)
 
-                <label>启动人：{{taskDetail.user}}</label>
-                <span ng-if="taskDetail.reason">错误: &nbsp; {{taskDetail.reason}}</span>
+                <label>{{'C3T.启动人'|translate}}：{{taskDetail.user}}</label>
+                <span ng-if="taskDetail.reason">{{'C3T.错误'|translate}}: &nbsp; {{taskDetail.reason}}</span>
 
             </span>
         </div>
@@ -55,7 +55,7 @@
                             <a href="" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.showNode(jobx.nodelist)">{{jobx.nodelist| shownode}}</a>
                        </span>
                        <span class="panel-controls">
-                            <button class="btn btn-danger btn-sm" style="padding: 0px;" ng-if="jobx.confirm == 'WaitConfirm'" uib-tooltip="确认忽略该分组" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.runConfirm(jobx.uuid)" style="cursor:pointer">忽略错误</button>
+                            <button class="btn btn-danger btn-sm" style="padding: 0px;" ng-if="jobx.confirm == 'WaitConfirm'" uib-tooltip="{{'C3T.确认忽略该分组'|translate}}" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.runConfirm(jobx.uuid)" style="cursor:pointer">{{'C3T.忽略错误'|translate}}</button>
                             {{historyjobxdetail.seftime(jobx.starttime, jobx.finishtime)}}
                       </span>
                     </div>
@@ -72,18 +72,18 @@
                                            </span>
                                            <span class="panel-controls">
                                                   <i class="fa fa-refresh fa-fw" ng-if="item.status == 'running' && taskDetail.status == 'running' && jobx.status == 'running'" ng-class="{'fa-spin':item.status=='running'}" ></i>
-                                                  <button class="btn btn-warning btn-sm" style="padding: 0px;" ng-if="item.pause && ( item.status=='fail' || item.status == 'success' || item.status=='ignore')" uib-tooltip="执行确认" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.runJobConfirm(item,jobx.uuid)" style="cursor:pointer">执行确认</button>
-                                                  <button class="btn btn-success btn-sm" style="padding: 0px;" ng-if="item.status=='decision'" uib-tooltip="重试任务" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.Runnigs(item, jobx.uuid)" style="cursor:pointer">重试</button>
-                                                  <button class="btn btn-danger btn-sm" style="padding: 0px;" ng-if="item.status=='decision'" uib-tooltip="忽略错误" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.runIgnore(item, jobx.uuid)" style="cursor:pointer">忽略</button>
-                                                  <button class="btn btn-danger btn-sm" style="padding: 0px;" ng-if="item.status=='decision'" uib-tooltip="终止任务" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.runShutTask(item, jobx.uuid)" style="cursor:pointer">终止</button>
-                                                 <span ng-if="item.extended.batches==='firsttime'" style="color: gray" >[仅第一组]</span>
-                                                 <span ng-if="item.extended.batches==='thelasttime'" style="color: gray" >[仅最后一组]</span>
-                                                 <span ng-if="item.extended.deployenv==='test'" style="color: gray" >[仅测试]</span>
-                                                 <span ng-if="item.extended.deployenv==='online'" style="color: gray" >[仅线上]</span>
-                                                 <span ng-if="item.extended.action==='deploy'" style="color: gray" >[仅发布]</span>
-                                                 <span ng-if="item.extended.action==='rollback'" style="color: gray">[仅回滚]</span>
+                                                  <button class="btn btn-warning btn-sm" style="padding: 0px;" ng-if="item.pause && ( item.status=='fail' || item.status == 'success' || item.status=='ignore')" uib-tooltip="{{'C3T.执行确认'|translate}}" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.runJobConfirm(item,jobx.uuid)" style="cursor:pointer">{{'C3T.执行确认'|translate}}</button>
+                                                  <button class="btn btn-success btn-sm" style="padding: 0px;" ng-if="item.status=='decision'" uib-tooltip="{{'C3T.重试任务'|translate}}" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.Runnigs(item, jobx.uuid)" style="cursor:pointer">{{'C3T.重试'|translate}}</button>
+                                                  <button class="btn btn-danger btn-sm" style="padding: 0px;" ng-if="item.status=='decision'" uib-tooltip="{{'C3T.忽略错误'|translate}}" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.runIgnore(item, jobx.uuid)" style="cursor:pointer">{{'C3T.忽略'|translate}}</button>
+                                                  <button class="btn btn-danger btn-sm" style="padding: 0px;" ng-if="item.status=='decision'" uib-tooltip="{{'C3T.终止任务'|translate}}" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.runShutTask(item, jobx.uuid)" style="cursor:pointer">{{'C3T.终止'|translate}}</button>
+                                                 <span ng-if="item.extended.batches==='firsttime'" style="color: gray" >[{{'C3T.仅第一组'|translate}}]</span>
+                                                 <span ng-if="item.extended.batches==='thelasttime'" style="color: gray" >[{{'C3T.仅最后一组'|translate}}]</span>
+                                                 <span ng-if="item.extended.deployenv==='test'" style="color: gray" >[{{'C3T.仅测试'|translate}}]</span>
+                                                 <span ng-if="item.extended.deployenv==='online'" style="color: gray" >[{{'C3T.仅线上'|translate}}]</span>
+                                                 <span ng-if="item.extended.action==='deploy'" style="color: gray" >[{{'C3T.仅发布'|translate}}]</span>
+                                                 <span ng-if="item.extended.action==='rollback'" style="color: gray">[{{'C3T.仅回滚'|translate}}]</span>
 
-                                                 <button class="btn btn-info btn-sm" style="padding: 0px;" ng-if="historyjobxdetail.ecsnamehash[item.extended.name]" uib-tooltip="查看" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.describeecs(historyjobxdetail.ecsnamehash[item.extended.name].name,historyjobxdetail.ecsnamehash[item.extended.name])" style="cursor:pointer">查看ECS状态</button>
+                                                 <button class="btn btn-info btn-sm" style="padding: 0px;" ng-if="historyjobxdetail.ecsnamehash[item.extended.name]" uib-tooltip="{{'C3T.查看'|translate}}" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.describeecs(historyjobxdetail.ecsnamehash[item.extended.name].name,historyjobxdetail.ecsnamehash[item.extended.name])" style="cursor:pointer">{{'C3T.查看'|translate}} ECS {{'C3T.状态'|translate}}</button>
 
                                             </span>
  
@@ -123,17 +123,17 @@
         <div class="panel-heading">
 
             <span class="panel-controls">
-                <button class="btn btn-null btn-sm" ng-click="historyjobxdetail.taskLogDetaiXl()">执行详情</button>
-                <button ng-if="taskDetaiXl.status == 'running'" class="btn btn-danger btn-sm" ng-click="historyjobxdetail.killTaskRollback(historyjobxdetail.taskuuiXd)">终止任务</button>
-                <button class="btn" uib-tooltip="刷新" ng-click="historyjobxdetail.reloaXd()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!historyjobxdetail.loadoveXr}" ></i></button>
+                <button class="btn btn-null btn-sm" ng-click="historyjobxdetail.taskLogDetaiXl()">{{'C3T.执行详情'|translate}}</button>
+                <button ng-if="taskDetaiXl.status == 'running'" class="btn btn-danger btn-sm" ng-click="historyjobxdetail.killTaskRollback(historyjobxdetail.taskuuiXd)">{{'C3T.终止任务'|translate}}</button>
+                <button class="btn" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="historyjobxdetail.reloaXd()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!historyjobxdetail.loadoveXr}" ></i></button>
                 <span>{{historyjobxdetail.seftime(taskDetaiXl.starttime,taskDetaiXl.finishtime)}}</span>
             </span>
 
             <span>
-                <label>回滚任务 {{taskDetaiXl.starttime}} 版本:{{historyjobxdetail.rversion}}</label>
+                <label>{{'C3T.回滚任务'|translate}} {{taskDetaiXl.starttime}} {{'C3T.版本'|translate}}:{{historyjobxdetail.rversion}}</label>
                 (<a ng-style="setStatuColor(taskDetaiXl.status)" style="pointer-events: none;">{{historyjobxdetail.statuszh[taskDetaiXl.status]}}</a>)
-                <label>启动人：{{taskDetaiXl.user}}</label>
-                <span ng-if="taskDetaiXl.reason">错误: &nbsp; {{taskDetaiXl.reason}}</span>
+                <label>{{'C3T.启动人'|translate}}：{{taskDetaiXl.user}}</label>
+                <span ng-if="taskDetaiXl.reason">{{'C3T.错误'|translate}}: &nbsp; {{taskDetaiXl.reason}}</span>
 
             </span>
         </div>
@@ -150,7 +150,7 @@
                             <a href="" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.showNode(jobx.nodelist)">{{jobx.nodelist| shownode}}</a>
                        </span>
                        <span class="panel-controls">
-                            <button class="btn btn-danger btn-sm" style="padding: 0px;" ng-if="jobx.confirm == 'WaitConfirm'" uib-tooltip="确认忽略该分组" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.runConfirm(jobx.uuid)" style="cursor:pointer">忽略错误</button>
+                            <button class="btn btn-danger btn-sm" style="padding: 0px;" ng-if="jobx.confirm == 'WaitConfirm'" uib-tooltip="{{'C3T.确认忽略该分组'|translate}}" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.runConfirm(jobx.uuid)" style="cursor:pointer">{{'C3T.忽略错误'|translate}}</button>
                             {{historyjobxdetail.seftime(jobx.starttime,jobx.finishtime)}}
                       </span>
                     </div>
@@ -168,18 +168,18 @@
                                            <span class="panel-controls">
 
                                                   <i class="fa fa-refresh fa-fw" ng-if="item.status == 'running' && taskDetaiXl.status == 'running' && jobx.status =='running'" ng-class="{'fa-spin':item.status=='running'}" ></i>
-                                                  <button class="btn btn-warning btn-sm" style="padding: 0px;" ng-if="item.pause && ( item.status=='fail' || item.status == 'success' || item.status=='ignore')" uib-tooltip="执行确认" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.runJobConfirm(item,jobx.uuid)" style="cursor:pointer">执行确认</button>
-                                                  <button class="btn btn-success btn-sm" style="padding: 0px;" ng-if="item.status=='decision'" uib-tooltip="重试任务" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.Runnigs(item, jobx.uuid)" style="cursor:pointer">重试</button>
-                                                  <button class="btn btn-danger btn-sm" style="padding: 0px;" ng-if="item.status=='decision'" uib-tooltip="忽略错误" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.runIgnore(item, jobx.uuid)" style="cursor:pointer">忽略</button>
-                                                  <button class="btn btn-danger btn-sm" style="padding: 0px;" ng-if="item.status=='decision'" uib-tooltip="终止任务" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.runShutTask(item, jobx.uuid)" style="cursor:pointer">终止</button>
-                                                  <span ng-if="item.extended.batches==='firsttime'" style="color: gray" >[仅第一组]</span>
-                                                  <span ng-if="item.extended.batches==='thelasttime'" style="color: gray" >[仅最后一组]</span>
-                                                  <span ng-if="item.extended.deployenv==='test'" style="color: gray" >[仅测试]</span>
-                                                  <span ng-if="item.extended.deployenv==='online'" style="color: gray" >[仅线上]</span>
-                                                  <span ng-if="item.extended.action==='deploy'" style="color: gray" >[仅发布]</span>
-                                                  <span ng-if="item.extended.action==='rollback'" style="color: gray">[仅回滚]</span>
+                                                  <button class="btn btn-warning btn-sm" style="padding: 0px;" ng-if="item.pause && ( item.status=='fail' || item.status == 'success' || item.status=='ignore')" uib-tooltip="{{'C3T.执行确认'|translate}}" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.runJobConfirm(item,jobx.uuid)" style="cursor:pointer">{{'C3T.执行确认'|translate}}</button>
+                                                  <button class="btn btn-success btn-sm" style="padding: 0px;" ng-if="item.status=='decision'" uib-tooltip="{{'C3T.重试任务'|translate}}" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.Runnigs(item, jobx.uuid)" style="cursor:pointer">{{'C3T.重试'|translate}}</button>
+                                                  <button class="btn btn-danger btn-sm" style="padding: 0px;" ng-if="item.status=='decision'" uib-tooltip="{{'C3T.忽略错误'|translate}}" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.runIgnore(item, jobx.uuid)" style="cursor:pointer">{{'C3T.忽略'|translate}}</button>
+                                                  <button class="btn btn-danger btn-sm" style="padding: 0px;" ng-if="item.status=='decision'" uib-tooltip="{{'C3T.终止任务'|translate}}" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.runShutTask(item, jobx.uuid)" style="cursor:pointer">{{'C3T.终止'|translate}}</button>
+                                                  <span ng-if="item.extended.batches==='firsttime'" style="color: gray" >[{{'C3T.仅第一组'|translate}}]</span>
+                                                  <span ng-if="item.extended.batches==='thelasttime'" style="color: gray" >[{{'C3T.仅最后一组'|translate}}]</span>
+                                                  <span ng-if="item.extended.deployenv==='test'" style="color: gray" >[{{'C3T.仅测试'|translate}}]</span>
+                                                  <span ng-if="item.extended.deployenv==='online'" style="color: gray" >[{{'C3T.仅线上'|translate}}]</span>
+                                                  <span ng-if="item.extended.action==='deploy'" style="color: gray" >[{{'C3T.仅发布'|translate}}]</span>
+                                                  <span ng-if="item.extended.action==='rollback'" style="color: gray">[{{'C3T.仅回滚'|translate}}]</span>
 
-                                                  <button class="btn btn-info btn-sm" style="padding: 0px;" ng-if="historyjobxdetail.ecsnamehash[item.extended.name]" uib-tooltip="查看" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.describeecs(historyjobxdetail.ecsnamehash[item.extended.name].name,historyjobxdetail.ecsnamehash[item.extended.name])" style="cursor:pointer">查看ECS状态</button>
+                                                  <button class="btn btn-info btn-sm" style="padding: 0px;" ng-if="historyjobxdetail.ecsnamehash[item.extended.name]" uib-tooltip="{{'C3T.查看'|translate}}" onclick="event.cancelBubble=true" ng-click="historyjobxdetail.describeecs(historyjobxdetail.ecsnamehash[item.extended.name].name,historyjobxdetail.ecsnamehash[item.extended.name])" style="cursor:pointer">{{'C3T.查看'|translate}} ECS {{'C3T.状态'|translate}}</button>
 
                                             </span>
  

@@ -1,12 +1,12 @@
 <div class="modal-header">
-    <h4  class="modal-title">创建流水线</h4>
+    <h4  class="modal-title">{{'C3T.创建流水线'|translate}}</h4>
 </div>
 <div class="modal-body">
     <form class="form-horizontal" name="addForm" role="form">
 
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">模版</label>
+                <label class="col-sm-3 control-label">{{'C3T.模版'|translate}}</label>
                 <div class="col-sm-9">
                     <select id="selecteddataval" class="form-control"  ng-model="copyProjectByTemplate.templateid" >
                          <option ng-repeat="x in copyProjectByTemplate.templatelist" value="{{x.id}}">{{x.name}}</option>
@@ -17,10 +17,10 @@
 
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">容器</label>
+                <label class="col-sm-3 control-label">{{'C3T.容器'|translate}}</label>
                 <div class="col-sm-9">
                     <select id="selecteddataval" class="form-control"  ng-model="copyProjectByTemplate.containerid" >
-                         <option ng-repeat="x in copyProjectByTemplate.containerlist" value="{{x.id}}">名称:{{x.name}} 镜像:{{x.image}}</option>
+                         <option ng-repeat="x in copyProjectByTemplate.containerlist" value="{{x.id}}">{{'C3T.名称'|translate}}:{{x.name}} {{'C3T.镜像'|translate}}:{{x.image}}</option>
                     </select>
                 </div>
             </div>
@@ -29,17 +29,17 @@
 
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">流水线名称</label>
+                <label class="col-sm-3 control-label">{{'C3T.流水线名称'|translate}}</label>
                 <div class="col-sm-9">
-                    <input type="text" class="form-control" name="adduser" placeholder="流水线名" ng-model="projectname" required>
+                    <input type="text" class="form-control" name="adduser" placeholder="{{'C3T.流水线名称'|translate}}" ng-model="projectname" required>
                 </div>
             </div>
         </div>
 
         <div class="row">
             <div class="col-sm-5 form-group pull-right">
-                <button class="btn btn-primary" ng-disabled="addForm.$invalid" ng-click="copyProjectByTemplate.add()">创建</button>
-                <button class="btn btn-warning" ng-click="copyProjectByTemplate.cancel()">取消</button>
+                <button class="btn btn-primary" ng-disabled="addForm.$invalid" ng-click="copyProjectByTemplate.add()">{{'C3T.创建'|translate}}</button>
+                <button class="btn btn-warning" ng-click="copyProjectByTemplate.cancel()">{{'C3T.取消'|translate}}</button>
             </div>
         </div>
     </form>
@@ -49,14 +49,14 @@
 <hr>
 
 <div class="modal-header">
-    <h4  class="modal-title">关联已有流水线</h4>
+    <h4  class="modal-title">{{'C3T.关联已有流水线'|translate}}</h4>
 </div>
 <div class="modal-body">
     <form class="form-horizontal" name="flowForm" role="form">
 
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">流水线名称</label>
+                <label class="col-sm-3 control-label">{{'C3T.流水线名称'|translate}}</label>
                 <div class="col-sm-9">
                     <select id="selecteddataval" class="form-control"  ng-model="copyProjectByTemplate.flowlineid" required>
                          <option ng-repeat="x in copyProjectByTemplate.flowlinelist" value="{{x.id}}">{{x.name}}</option>
@@ -67,10 +67,10 @@
 
         <div class="row">
             <div class="col-sm-10 form-group">
-                <label class="col-sm-3 control-label">容器</label>
+                <label class="col-sm-3 control-label">{{'C3T.容器'|translate}}</label>
                 <div class="col-sm-9">
                     <select id="selecteddataval" class="form-control"  ng-model="copyProjectByTemplate.containerid" >
-                         <option ng-repeat="x in copyProjectByTemplate.containerlist" value="{{x.id}}">名称:{{x.name}} 镜像:{{x.image}}</option>
+                         <option ng-repeat="x in copyProjectByTemplate.containerlist" value="{{x.id}}">{{'C3T.名称'|translate}}:{{x.name}} {{'C3T.镜像'|translate}}:{{x.image}}</option>
                     </select>
                 </div>
             </div>
@@ -78,8 +78,8 @@
 
         <div class="row">
             <div class="col-sm-5 form-group pull-right">
-                <button class="btn btn-primary" ng-disabled="flowForm.$invalid" ng-click="copyProjectByTemplate.connect()">关联</button>
-                <button class="btn btn-warning" ng-click="copyProjectByTemplate.cancel()">取消</button>
+                <button class="btn btn-primary" ng-disabled="flowForm.$invalid" ng-click="copyProjectByTemplate.connect()">{{'C3T.关联'|translate}}</button>
+                <button class="btn btn-warning" ng-click="copyProjectByTemplate.cancel()">{{'C3T.取消'|translate}}</button>
             </div>
         </div>
     </form>

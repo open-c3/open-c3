@@ -3,9 +3,9 @@
     <div class="panel panel-primary">
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-primary" uib-tooltip="关闭" ng-click="createticket.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.关闭'|translate}}" ng-click="createticket.cancel()"><i class="fa fa-times" aria-hidden="true"></i></button>
             </span>
-            <h5>{{createticket.title}}</h5>
+            <h5>{{createticket.title|translate}}</h5>
         </div>
         <div class="panel-body">
             <div class="pt20">
@@ -14,7 +14,7 @@
                         <form class="form-horizontal" name="myForm" novalidate>
                                <div class="row" ng-if="!createticket.ciid">
                                     <div class="col-sm-10 form-group">
-                                        <label class="col-sm-3 control-label">名称</label>
+                                        <label class="col-sm-3 control-label">{{'C3T.名称'|translate}}</label>
                                         <div class="col-sm-9">
                                             <input type="text" class="form-control" name="addGroup" ng-minlength="2" ng-model="createticket.postData.name" required>
                                         </div>
@@ -22,7 +22,7 @@
                                 </div>
                                 <div class="row" ng-if="!createticket.ciid">
                                     <div class="col-sm-10 form-group">
-                                        <label class="col-sm-3 control-label">描述</label>
+                                        <label class="col-sm-3 control-label">{{'C3T.描述'|translate}}</label>
                                         <div class="col-sm-9">
                                             <input type="text" class="form-control" name="addGroup" ng-minlength="2" ng-model="createticket.postData.describe" required>
                                         </div>
@@ -30,21 +30,21 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-sm-10 form-group">
-                                        <label class="col-sm-3 control-label">授权</label>
+                                        <label class="col-sm-3 control-label">{{'C3T.授权'|translate}}</label>
                                         <div class="col-sm-9">
                                             <div class="admin-form">
                                                 <div class="option-group field" >
                                                     <label class="option option-primary">
                                                         <input type="radio" ng-model="createticket.postData.share" value="P" >
-                                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>仅个人可见
+                                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.仅个人可见'|translate}}
                                                     </label>
                                                     <label class="option option-primary">
                                                         <input type="radio" ng-model="createticket.postData.share" value="T" >
-                                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>读写共享给组内人员
+                                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.读写共享给组内人员'|translate}}
                                                     </label>
                                                     <label class="option option-primary">
                                                         <input type="radio" ng-model="createticket.postData.share" value="O" >
-                                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>高级共享配置
+                                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.高级共享配置'|translate}}
                                                     </label>
                                                 </div>
                                             </div>
@@ -54,9 +54,9 @@
                                 </div>
                                 <div class="row">
                                     <div class="col-sm-10 form-group">
-                                        <label class="col-sm-3 control-label">凭据自身编辑权授权</label>
+                                        <label class="col-sm-3 control-label">{{'C3T.凭据自身编辑权授权'|translate}}</label>
                                         <div class="col-sm-9">
-                                            <input type="text" class="form-control" name="addGroup" placeholder="把本凭据的编辑权共享给他人,多个人用逗号分隔" ng-model="createticket.postData.edit_share">
+                                            <input type="text" class="form-control" name="addGroup" placeholder="{{'C3T.把本凭据的编辑权共享给他人,多个人用逗号分隔'|translate}}" ng-model="createticket.postData.edit_share">
                                         </div>
                                     </div>
                                 </div>
@@ -64,15 +64,15 @@
                                 <div class="row" ng-if="createticket.postData.share==='O'">
                                     <div>
                                         <div class="col-sm-10 form-group">
-                                            <label class="col-sm-3 control-label">共享组</label>
+                                            <label class="col-sm-3 control-label">{{'C3T.共享组'|translate}}</label>
                                             <div class="col-sm-4">
                                                 <textarea ng-model="createticket.postData.share_T" style="width: 100%; height: 110px"></textarea>
-                                                <span>读写权限</span>
+                                                <span>{{'C3T.读写权限'|translate}}</span>
                                             </div>
                                             <label class="col-sm-1 control-label"></label>
                                             <div class="col-sm-4">
                                                 <textarea ng-model="createticket.postData.share_TR" style="width: 100%; height: 110px"></textarea>
-                                                <span>只读权限</span>
+                                                <span>{{'C3T.只读权限'|translate}}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -81,15 +81,15 @@
                                 <div class="row" ng-if="createticket.postData.share==='O'">
                                     <div>
                                         <div class="col-sm-10 form-group">
-                                            <label class="col-sm-3 control-label">用户共享</label>
+                                            <label class="col-sm-3 control-label">{{'C3T.用户共享'|translate}}</label>
                                             <div class="col-sm-4">
                                                 <textarea ng-model="createticket.postData.share_P" style="width: 100%; height: 110px"></textarea>
-                                                <span>读写权限</span>
+                                                <span>{{'C3T.读写权限'|translate}}</span>
                                             </div>
                                             <label class="col-sm-1 control-label"></label>
                                             <div class="col-sm-4">
                                                 <textarea ng-model="createticket.postData.share_PR" style="width: 100%; height: 110px"></textarea>
-                                                <span>只读权限</span>
+                                                <span>{{'C3T.只读权限'|translate}}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -97,7 +97,7 @@
 
                                 <div ng-if="!createticket.point" class="row">
                                     <div class="col-sm-10 form-group">
-                                        <label class="col-sm-3 control-label">类型</label>
+                                        <label class="col-sm-3 control-label">{{'C3T.类型'|translate}}</label>
                                         <div class="col-sm-9">
                                             <div class="admin-form">
                                                 <div class="option-group field" >
@@ -107,11 +107,11 @@
                                                     </label>
                                                     <label class="option option-primary">
                                                         <input type="radio" ng-model="createticket.postData.type" value="UsernamePassword" >
-                                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>用户名密码
+                                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.用户名密码'|translate}}
                                                     </label>
                                                     <label class="option option-primary">
                                                         <input type="radio" ng-model="createticket.postData.type" value="JobBuildin" >
-                                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>插件
+                                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.插件'|translate}}
                                                     </label>
                                                     <label class="option option-primary">
                                                         <input type="radio" ng-model="createticket.postData.type" value="KubeConfig" >
@@ -119,7 +119,7 @@
                                                     </label>
                                                     <label class="option option-primary">
                                                         <input type="radio" ng-model="createticket.postData.type" value="Harbor" >
-                                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>Harbor镜像仓库
+                                                        <span class="radio" style="padding-top: 0;min-height: 0"></span>Harbor {{'C3T.镜像仓库'|translate}}
                                                     </label>
                                                 </div>
                                             </div>
@@ -134,18 +134,18 @@
                                             <label class="col-sm-3 control-label">SSH Key</label>
                                             <div class="col-sm-9">
                                                 <textarea ng-model="createticket.postData.ticket.SSHKey" style="width: 100%; height: 110px"></textarea>
-                                                <span>SSH Key 适用于git</span>
+                                                <span>SSH Key {{'C3T.适用于'|translate}} git</span>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div ng-if="createticket.postData.type=='UsernamePassword'">
                                         <div class="col-sm-12 form-group">
-                                            <label class="col-sm-3 control-label">用户名</label>
+                                            <label class="col-sm-3 control-label">{{'C3T.用户名'|translate}}</label>
                                             <div class="col-sm-3"> <input ng-model="createticket.postData.ticket.Username"></input> </div>
                                         </div>
                                         <div class="col-sm-12 form-group">
-                                            <label class="col-sm-3 control-label">密码</label>
+                                            <label class="col-sm-3 control-label">{{'C3T.密码'|translate}} </label>
                                             <div class="col-sm-3"> <input ng-model="createticket.postData.ticket.Password"></input> </div>
                                         </div>
  
@@ -153,10 +153,10 @@
 
                                     <div ng-if="createticket.postData.type=='JobBuildin'">
                                         <div class="col-sm-10 form-group">
-                                            <label class="col-sm-3 control-label">内容</label>
+                                            <label class="col-sm-3 control-label">{{'C3T.内容'|translate}}</label>
                                             <div class="col-sm-9">
                                                 <textarea ng-model="createticket.postData.ticket.JobBuildin" style="width: 100%; height: 110px"></textarea>
-                                                <span>适用于作业内建插件或者构建触发脚本</span>
+                                                <span>{{'C3T.适用于作业内建插件或者构建触发脚本'|translate}}</span>
                                             </div>
                                         </div>
                                     </div>
@@ -169,11 +169,11 @@
                                                     <div class="option-group field" >
                                                         <label class="option option-primary">
                                                             <input type="radio" ng-model="createticket.postData.pod_shell_relaxed" value="0" >
-                                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>有写权限才能进入
+                                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.有写权限才能进入'|translate}}
                                                         </label>
                                                         <label class="option option-primary">
                                                             <input type="radio" ng-model="createticket.postData.pod_shell_relaxed" value="1" >
-                                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>宽松的,有读权限即可进入
+                                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.宽松的,有读权限即可进入'|translate}}
                                                         </label>
                                                     </div>
                                                 </div>
@@ -181,10 +181,10 @@
                                         </div>
 
                                         <div class="col-sm-10 form-group">
-                                            <label class="col-sm-3 control-label">kubectl版本</label>
+                                            <label class="col-sm-3 control-label">kubectl {{'C3T.版本'|translate}}</label>
                                             <div class="col-sm-9">
                                                 <select id="selectednameval" class="form-control" ng-model="createticket.postData.ticket.kubectlVersion">
-                                                    <option value="v0.0.0">默认版本</option>
+                                                    <option value="v0.0.0">{{'C3T.默认版本'|translate}}</option>
                                                     <option ng-repeat="x in createticket.kubectlVersion" value="{{x}}">{{x}}</option>
                                                 </select>
 
@@ -192,13 +192,13 @@
                                         </div>
 
                                         <div class="col-sm-10 form-group">
-                                            <label class="col-sm-3 control-label">云厂商</label>
+                                            <label class="col-sm-3 control-label">{{'C3T.云厂商'|translate}}</label>
                                             <div class="col-sm-9">
                                                 <div class="admin-form">
                                                     <div class="option-group field" >
                                                         <label class="option option-primary">
                                                             <input type="radio" ng-model="createticket.postData.subtype" value="default" >
-                                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>自建
+                                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.自建'|translate}}
                                                             <img src="/assets/images/kubernetes.jpeg" style="width: 17px;"/>
                                                         </label>
                                                         <label class="option option-primary">
@@ -208,7 +208,7 @@
                                                         </label>
                                                         <label class="option option-primary">
                                                             <input type="radio" ng-model="createticket.postData.subtype" value="QCloud" >
-                                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>腾讯云
+                                                            <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.腾讯云'|translate}}
                                                             <img src="/assets/images/QCloud.jpeg" style="width: 23px;"/>
                                                         </label>
                                                     </div>
@@ -220,40 +220,40 @@
 
                                         <div class="row" >
                                             <div class="col-sm-10 form-group">
-                                                <label class="col-sm-3 control-label">网络代理</label>
+                                                <label class="col-sm-3 control-label">{{'C3T.网络代理'|translate}}</label>
                                                 <div class="col-sm-9">
                                                     <input type="text" class="form-control" placeholder="username:password@10.10.10.10:1080 或 10.10.10.10:1080" ng-minlength="2" ng-model="createticket.postData.ticket.proxyAddr">
-                                                <span>代理安装方式：<a href="https://hub.docker.com/r/vimagick/dante" target="_blank" >https://hub.docker.com/r/vimagick/dante</a></span>
+                                                <span>{{'C3T.代理安装方式'|translate}}：<a href="https://hub.docker.com/r/vimagick/dante" target="_blank" >https://hub.docker.com/r/vimagick/dante</a></span>
                                                 </div>
                                             </div>
                                         </div>
  
                                         <div class="col-sm-10 form-group">
-                                            <label class="col-sm-3 control-label">内容</label>
+                                            <label class="col-sm-3 control-label">{{'C3T.内容'|translate}}</label>
                                             <div class="col-sm-9">
                                                 <textarea ng-model="createticket.postData.ticket.KubeConfig" style="width: 100%; height: 310px"></textarea>
-                                                <span>~/.kube/config文件内容</span>
+                                                <span>~/.kube/config {{'C3T.文件内容'|translate}}</span>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div ng-if="createticket.postData.type=='Harbor'">
                                         <div class="col-sm-10 form-group">
-                                            <label class="col-sm-3 control-label">服务地址</label>
+                                            <label class="col-sm-3 control-label">{{'C3T.服务地址'|translate}}</label>
                                             <div class="col-sm-9"> <input  style="width: 100%;" ng-model="createticket.postData.ticket.Server"></input> </div>
                                         </div>
                                         <div class="col-sm-10 form-group">
                                             <label class="col-sm-1 control-label"></label>
-                                            <label class="col-sm-9 control-label">例:https://harbor.xxx.org/api/v2.0/search</label>
+                                            <label class="col-sm-9 control-label">{{'C3T.例如'|translate}}:https://harbor.xxx.org/api/v2.0/search</label>
                                         </div>
  
                                          <div class="col-sm-10 form-group">
-                                            <label class="col-sm-3 control-label">用户名</label>
+                                            <label class="col-sm-3 control-label">{{'C3T.用户名'|translate}}</label>
                                             <div class="col-sm-3"> <input ng-model="createticket.postData.ticket.Username"></input> </div>
                                         </div>
  
                                         <div class="col-sm-10 form-group">
-                                            <label class="col-sm-3 control-label">密码</label>
+                                            <label class="col-sm-3 control-label">{{'C3T.密码'|translate}}</label>
                                             <div class="col-sm-3"> <input ng-model="createticket.postData.ticket.Password"></input> </div>
                                         </div>
                                     </div>
@@ -261,8 +261,8 @@
                                 </div>
                                 <div class="row" ng-show="createticket.type!='show'">
                                     <div class="col-sm-5 form-group pull-right">
-                                        <button ng-if="createticket.postData.type=='KubeConfig'" class="btn btn-info" ng-disabled="myForm.$invalid" ng-click="createticket.connectiontest()">连接测试</button>
-                                        <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="createticket.saveTicket()">保存凭据</button>
+                                        <button ng-if="createticket.postData.type=='KubeConfig'" class="btn btn-info" ng-disabled="myForm.$invalid" ng-click="createticket.connectiontest()">{{'C3T.连接测试'|translate}}</button>
+                                        <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="createticket.saveTicket()">{{'C3T.保存凭据'|translate}}</button>
                                     </div>
                                 </div>
                          </form>

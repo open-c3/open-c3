@@ -15,7 +15,7 @@
     <div>
 
         <div class="admin-form row">
-            <label class="col-md-2 control-label fwbold" style="padding-left: 27px;padding-right: 27px;padding-top: 6px;">服务树继承解除</label>
+            <label class="col-md-2 control-label fwbold" style="padding-left: 27px;padding-right: 27px;padding-top: 6px;">{{'C3T.服务树继承解除'|translate}}</label>
             <div class="col-md-1" style="padding: 0;">
                 <label class="switch switch-system mt5">
                     <input type="checkbox" id="check_status" ng-model="monitorconfig.checknewstatus">
@@ -23,7 +23,7 @@
                 </label>
             </div>
             <div class="col-md-1" style="padding: 0;">
-                <button class="btn btn-primary" ng-if="monitorconfig.checkoldstatus!=monitorconfig.checknewstatus" ng-click="monitorconfig.savecheckstatus()">保存新状态</button>
+                <button class="btn btn-primary" ng-if="monitorconfig.checkoldstatus!=monitorconfig.checknewstatus" ng-click="monitorconfig.savecheckstatus()">{{'C3T.保存新状态'|translate}}</button>
             </div>
         </div>
 
@@ -40,40 +40,40 @@
     <div class="panel panel-primary">
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="monitorconfig.reloadNodeinfo()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!monitorconfig.loadoverNodeinfo}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="monitorconfig.reloadNodeinfo()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!monitorconfig.loadoverNodeinfo}" ></i></button>
             </span>
-            <h5>节点主机资源</h5>
+            <h5>{{'C3T.节点主机资源'|translate}}</h5>
         </div>
 
         <div class="panel-body flowline">
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="monitorconfig.activeNodeinfoTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="ss in $data">
-                            <td style="width: 15%" data-title="'机器名称'"> {{ss.name}} </td>
-                            <td style="width: 5%" data-title="'类型'" filter="{ type: 'text'}">{{ss.type}}</td>
-                            <td style="width: 15%" data-title="'内网IP'" filter="{ inip: 'text'}"><input id="{{ss.inip}}" ng-if="ss.inip" type="checkbox" name="selected"  ng-checked="isSelected(ss.inip)" ng-click="inipUpdateSelection($event, ss.id, ss.inip)" style="zoom: 125%"/>
+                            <td style="width: 15%" data-title="'C3T.机器名称'|translate"> {{ss.name}} </td>
+                            <td style="width: 5%" data-title="'C3T.类型'|translate" filter="{ type: 'text'}">{{ss.type}}</td>
+                            <td style="width: 15%" data-title="'C3T.内网IP'|translate" filter="{ inip: 'text'}"><input id="{{ss.inip}}" ng-if="ss.inip" type="checkbox" name="selected"  ng-checked="isSelected(ss.inip)" ng-click="inipUpdateSelection($event, ss.id, ss.inip)" style="zoom: 125%"/>
                                 <a style="cursor: pointer;" title="打开终端" ng-click="openOneTab(ss.inip)">{{ss.inip}}</a>
                                     <i ng-if="ss.inip && ! ss.inips.status" class="fa fa-exclamation-circle" aria-hidden="true"></i>
                                     <i ng-if="ss.inip && ss.inips.status=='fail'" class="fa fa-circle" style="color: red;" aria-hidden="true"></i>
                                     <i ng-if="ss.inip && ss.inips.status=='success'" class="fa fa-circle" style="color: green;" aria-hidden="true"></i>
                             </td>
-                            <td style="width: 15%" data-title="'外网ip'" filter="{ exip: 'text'}"><input ng-if="ss.exip" id="{{ss.exip}}" type="checkbox" name="selected"  ng-checked="isSelected(ss.exip)" ng-click="exipUpdateSelection($event, ss.id, ss.exip)" style="zoom: 125%"/>
+                            <td style="width: 15%" data-title="'C3T.外网IP'|translate" filter="{ exip: 'text'}"><input ng-if="ss.exip" id="{{ss.exip}}" type="checkbox" name="selected"  ng-checked="isSelected(ss.exip)" ng-click="exipUpdateSelection($event, ss.id, ss.exip)" style="zoom: 125%"/>
                                 <a style="cursor: pointer;" title="打开终端" ng-click="openOneTab(ss.exip)">{{ss.exip}}</a>
                                     <i ng-if="ss.exip && ! ss.exips.status" class="fa fa-exclamation-circle" aria-hidden="true"></i>
                                     <i ng-if="ss.exip && ss.exips.status=='fail'" class="fa fa-circle" style="color: red;" aria-hidden="true"></i>
                                     <i ng-if="ss.exip && ss.exips.status=='success'" class="fa fa-circle" style="color: green;" aria-hidden="true"></i>
                             </td>
-                            <td style="width: 5%" data-title="'客户端版本'">
+                            <td style="width: 5%" data-title="'C3T.客户端版本'|translate">
                                 <a ng-if="ss.inip">{{ss.inips.version}}</a>
                                 <a ng-if="ss.exip && ! ss.inip">{{ss.exips.version}}</a>
                             </td>
 
-                            <td style="width: 20%" data-title="'客户端上一次检测时间'">
+                            <td style="width: 20%" data-title="'C3T.客户端上一次检测时间'|translate">
                                 <a ng-if="ss.inip">{{ss.inips.edit_time}}</a>
                                 <a ng-if="ss.exip && ! ss.inip">{{ss.exips.edit_time}}</a>
                             </td>
 
-                            <td style="width: 20%" data-title="'客户端错误原因'">
+                            <td style="width: 20%" data-title="'C3T.客户端错误原因'|translate">
                                 <a ng-if="ss.inip && ss.inips.status=='fail'">failcount:{{ss.inips.fail}}; {{ss.inips.reason}}</a>
                                 <a ng-if="ss.exip && ! ss.inip && ss.exips.status=='fail'">failcount:{{ss.exips.fail}}; {{ss.exips.reason}}</a>
                             </td>
@@ -90,24 +90,24 @@
     <div class="panel panel-primary">
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="monitorconfig.reloadAlert()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!monitorconfig.loadoverAlert}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="monitorconfig.reloadAlert()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!monitorconfig.loadoverAlert}" ></i></button>
             </span>
-            <h5>当前告警</h5>
+            <h5>{{'C3T.当前告警'|translate}}</h5>
         </div>
 
         <div class="panel-body flowline">
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="monitorconfig.activeAlertTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'开始时间'" sortable="'startsAt'">{{m.startsAt}}</td>
-                        <td data-title="'名称'" sortable="'labels.alertname'">{{m.labels.alertname}}</td>
-                        <td data-title="'监控对象'" sortable="'labels.instance'">{{monitorconfig.getinstancename(m.labels)}}</td>
-                        <td data-title="'状态'" sortable="'status.state'">{{m.status.state}}</td>
-                        <td data-title="'概要'" sortable="'annotations.summary'">{{m.annotations.summary}}</td>
-                        <td data-title="'值'" sortable="'annotations.value'">{{m.annotations.value}}</td>
-                        <td class="textcenter"  data-title="'操作'">
+                        <td data-title="'C3T.开始时间'|translate" sortable="'startsAt'">{{m.startsAt}}</td>
+                        <td data-title="'C3T.名称'|translate" sortable="'labels.alertname'">{{m.labels.alertname}}</td>
+                        <td data-title="'C3T.监控对象'|translate" sortable="'labels.instance'">{{monitorconfig.getinstancename(m.labels)}}</td>
+                        <td data-title="'C3T.状态'|translate" sortable="'status.state'">{{m.status.state}}</td>
+                        <td data-title="'C3T.概要'|translate" sortable="'annotations.summary'">{{m.annotations.summary}}</td>
+                        <td data-title="'C3T.值'|translate" sortable="'annotations.value'">{{m.annotations.value}}</td>
+                        <td class="textcenter"  data-title="'C3T.操作'|translate">
                             <nobr>
-                                <a style="font-size: 10px;font-weight: bold" class="btn btn-primary" href="{{m.generatorURL}}" target="_blank">查看图表</a>
+                                <a style="font-size: 10px;font-weight: bold" class="btn btn-primary" href="{{m.generatorURL}}" target="_blank">{{'C3T.查看图表'|translate}}</a>
                             </nobr>
                         </td>
                     </tr>
@@ -121,7 +121,7 @@
     <div ng-if="openc3_monitor_monagent9100==0" >
         <div style="float: right;">
             <form class="form-inline" name="myForm" novalidate>
-                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="monitorconfig.createCollector({},'添加')"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i> 添加监控指标采集</button>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="monitorconfig.createCollector({},'C3T.添加')"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i> {{'C3T.添加监控指标采集'|translate}}</button>
             </form>
         </div>
         <div style="clear: both;">&nbsp;</div>
@@ -130,28 +130,28 @@
     <div class="panel panel-primary" ng-if="openc3_monitor_monagent9100==0" >
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="monitorconfig.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!monitorconfig.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="monitorconfig.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!monitorconfig.loadover}" ></i></button>
             </span>
-            <h5>监控指标采集【进程、端口、HTTP】</h5>
+            <h5>{{'C3T.监控指标采集'|translate}}【{{'C3T.进程'|translate}}、{{'C3T.端口'|translate}}、HTTP】</h5>
         </div>
 
         <div class="panel-body flowline">
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="monitorconfig.activeRegionTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'编号'" sortable="'edit_user'">{{m.id}}</td>
-                        <td data-title="'类型'" sortable="'type'">{{monitorconfig.alias[m.type] || m.type}}</td>
-                        <td data-title="'分类'" sortable="'subtype'">{{monitorconfig.alias[m.subtype] || m.subtype }}</td>
-                        <td data-title="'内容'" sortable="'content1'">
-                            <div ng-if="m.content2" >{{m.content1}}【匹配:{{m.content2}}】</div>
+                        <td data-title="'C3T.编号'|translate" sortable="'edit_user'">{{m.id}}</td>
+                        <td data-title="'C3T.类型'|translate" sortable="'type'">{{monitorconfig.alias[m.type] || m.type}}</td>
+                        <td data-title="'C3T.分类'|translate" sortable="'subtype'">{{monitorconfig.alias[m.subtype] || m.subtype }}</td>
+                        <td data-title="'C3T.内容'|translate" sortable="'content1'">
+                            <div ng-if="m.content2" >{{m.content1}}【{{'C3T.匹配'|translate}}:{{m.content2}}】</div>
                             <div ng-if="!m.content2" >{{m.content1}}</div>
                         </td>
-                        <td data-title="'编辑者'" sortable="'edit_user'">{{m.edit_user}}</td>
-                        <td data-title="'编辑时间'" sortable="'edit_time'">{{m.edit_time}}</td>
-                        <td class="textcenter"  data-title="'操作'">
+                        <td data-title="'C3T.编辑者'|translate" sortable="'edit_user'">{{m.edit_user}}</td>
+                        <td data-title="'C3T.编辑时间'|translate" sortable="'edit_time'">{{m.edit_time}}</td>
+                        <td class="textcenter"  data-title="'C3T.操作'|translate">
                             <nobr>
-                                <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="monitorconfig.createCollector(m,'编辑')" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
-                                <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="monitorconfig.deleteCollector(m.id)" uib-tooltip="删除" style="cursor:pointer;color: red;" ></i>
+                                <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="monitorconfig.createCollector(m,'C3T.编辑')" uib-tooltip="{{'C3T.编辑'|translate}}" style="cursor:pointer;color: #339094;" ></i>
+                                <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="monitorconfig.deleteCollector(m.id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: red;" ></i>
                             </nobr>
                         </td>
                     </tr>
@@ -166,11 +166,11 @@
     <div>
         <div style="float: right;">
             <form class="form-inline" name="myForm" novalidate>
-                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="monitorconfig.createRule({},'添加')"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i> 添加监控策略</button>
-                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="monitorconfig.tplSyncRule()"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i> 通过模版添加监控策略</button>
-                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="monitorconfig.tplSaveRule()"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i>保存为模板</button>
-                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="monitorconfig.copyRule()"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i>复制其他服务树节点策略</button>
-                <button type="submit" class="btn btn-danger"  style="padding: 10px 25px" ng-click="monitorconfig.cleanRule()"><i class="fa fa-times-circle fa-lg" aria-hidden="true"></i>清空节点策略</button>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="monitorconfig.createRule({},'C3T.添加')"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i>{{'C3T.添加监控策略'|translate}}</button>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="monitorconfig.tplSyncRule()"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i>{{'C3T.通过模版添加监控策略'|translate}}</button>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="monitorconfig.tplSaveRule()"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i>{{'C3T.保存为模板'|translate}}</button>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="monitorconfig.copyRule()"><i class="fa fa-plus-circle fa-lg" aria-hidden="true"></i>{{'C3T.复制其他服务树节点策略'|translate}}</button>
+                <button type="submit" class="btn btn-danger"  style="padding: 10px 25px" ng-click="monitorconfig.cleanRule()"><i class="fa fa-times-circle fa-lg" aria-hidden="true"></i>{{'C3T.清空节点策略'|translate}}</button>
             </form>
         </div>
         <div style="clear: both;">&nbsp;</div>
@@ -180,26 +180,26 @@
     <div class="panel panel-primary">
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="monitorconfig.reloadRule()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!monitorconfig.loadoverRule}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="monitorconfig.reloadRule()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!monitorconfig.loadoverRule}" ></i></button>
             </span>
-            <h5>监控策略</h5>
+            <h5>{{'C3T.监控策略'|translate}}</h5>
         </div>
 
         <div class="panel-body flowline">
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="monitorconfig.activeRuleTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'编号'" sortable="'id'">{{m.id}}</td>
-                        <td data-title="'名称'" sortable="'alert'">{{m.alert}}</td>
-                        <td data-title="'表达式'" sortable="'expr'"><a uib-tooltip="{{m.expr}}" >{{m.expr|cut60}} </a></td>
-                        <td data-title="'告警级别'" sortable="'severity'">{{m.severity}}</td>
-                        <td data-title="'概要'" sortable="'summary'">{{m.summary}}</td>
-                        <td data-title="'编辑者'" sortable="'edit_user'">{{m.edit_user}}</td>
-                        <td data-title="'编辑时间'" sortable="'edit_time'">{{m.edit_time}}</td>
-                        <td class="textcenter"  data-title="'操作'">
+                        <td data-title="'C3T.编号'|translate" sortable="'id'">{{m.id}}</td>
+                        <td data-title="'C3T.名称'|translate" sortable="'alert'">{{m.alert}}</td>
+                        <td data-title="'C3T.表达式'|translate" sortable="'expr'"><a uib-tooltip="{{m.expr}}" >{{m.expr|cut60}} </a></td>
+                        <td data-title="'C3T.告警级别'|translate" sortable="'severity'">{{m.severity}}</td>
+                        <td data-title="'C3T.概要'|translate" sortable="'summary'">{{m.summary}}</td>
+                        <td data-title="'C3T.编辑者'|translate" sortable="'edit_user'">{{m.edit_user}}</td>
+                        <td data-title="'C3T.编辑时间'|translate" sortable="'edit_time'">{{m.edit_time}}</td>
+                        <td class="textcenter"  data-title="'C3T.操作'|translate">
                             <nobr>
-                                <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="monitorconfig.createRule(m,'编辑')" uib-tooltip="编辑" style="cursor:pointer;color: #339094;" ></i>
-                                <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="monitorconfig.deleteRule(m.id)" uib-tooltip="删除" style="cursor:pointer;color: red;" ></i>
+                                <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="monitorconfig.createRule(m,'C3T.编辑')" uib-tooltip="{{'C3T.编辑'|translate}}" style="cursor:pointer;color: #339094;" ></i>
+                                <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="monitorconfig.deleteRule(m.id)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: red;" ></i>
                             </nobr>
                         </td>
                     </tr>
@@ -215,9 +215,9 @@
         <div style="float: right;" ng-show="monitorconfig.usersign===''">
             <form class="form-inline" name="myFormUser" novalidate>
                 <div class="form-group">
-                    <input type="text" style="width: 250px" class="form-control" ng-model="newUser"  placeholder="添加报警人" required>
+                    <input type="text" style="width: 250px" class="form-control" ng-model="newUser"  placeholder="{{'C3T.添加报警人'|translate}}" required>
                 </div>
-                <button type="submit" ng-disabled="myFormUser.$invalid" class="btn btn-primary" ng-click="monitorconfig.createUser()"><i class="fa fa-user fa-lg" aria-hidden="true"></i>添加报警人</button>
+                <button type="submit" ng-disabled="myFormUser.$invalid" class="btn btn-primary" ng-click="monitorconfig.createUser()"><i class="fa fa-user fa-lg" aria-hidden="true"></i>{{'C3T.添加报警人'|translate}}</button>
             </form>
         </div>
         <div style="float: right;" ng-show="monitorconfig.usersign==='@'">
@@ -225,7 +225,7 @@
                 <div class="form-group">
                     <select class="form-control" style="width: 250px" ng-model="newUser"  ng-options="o.name as o.name for o in monitorconfig.monitorgroup"> </select>
                 </div>
-                <button type="submit" ng-disabled="myFormGroup.$invalid" class="btn btn-primary" ng-click="monitorconfig.createUser()"><i class="fa fa-user fa-lg" aria-hidden="true"></i>添加报警组</button>
+                <button type="submit" ng-disabled="myFormGroup.$invalid" class="btn btn-primary" ng-click="monitorconfig.createUser()"><i class="fa fa-user fa-lg" aria-hidden="true"></i>{{'C3T.添加报警组'|translate}}</button>
             </form>
         </div>
         <div style="float: right;" ng-show="monitorconfig.usersign==='%'">
@@ -233,23 +233,23 @@
                 <div class="form-group">
                     <select class="form-control" style="width: 250px" ng-model="newUser"  ng-options="o.name as o.name for o in monitorconfig.monitoroncall"> </select>
                 </div>
-                <button type="submit" ng-disabled="myFormOncall.$invalid" class="btn btn-primary" ng-click="monitorconfig.createUser()"><i class="fa fa-user fa-lg" aria-hidden="true"></i>添加轮班组</button>
+                <button type="submit" ng-disabled="myFormOncall.$invalid" class="btn btn-primary" ng-click="monitorconfig.createUser()"><i class="fa fa-user fa-lg" aria-hidden="true"></i>{{'C3T.添加轮班组'|translate}}</button>
             </form>
        </div>
 
         <div style="float: right;" ng-show="monitorconfig.usersign===':'">
             <form class="form-inline" name="myFormDepartment" novalidate>
                 <div class="form-group">
-                    <input type="text" style="width: 250px" class="form-control" ng-model="newUser"  placeholder="添加部门组" required>
+                    <input type="text" style="width: 250px" class="form-control" ng-model="newUser"  placeholder="{{'C3T.添加部门组'|translate}}" required>
                 </div>
-                <button type="submit" ng-disabled="myFormDepartment.$invalid" class="btn btn-primary" ng-click="monitorconfig.createUser()"><i class="fa fa-user fa-lg" aria-hidden="true"></i>添加部门组</button>
+                <button type="submit" ng-disabled="myFormDepartment.$invalid" class="btn btn-primary" ng-click="monitorconfig.createUser()"><i class="fa fa-user fa-lg" aria-hidden="true"></i>{{'C3T.添加部门组'|translate}}</button>
             </form>
  
         </div>
-        <div style="float: right;" ng-init="role= [ { sign: '', name: '用户'} , { sign: '@', name: '报警组'} , { sign: '%', name: '轮班组'}, { sign: ':', name: '部门组' } ]">
+        <div style="float: right;" ng-init="role= [ { sign: '', name: 'C3T.用户'} , { sign: '@', name: 'C3T.报警组'} , { sign: '%', name: 'C3T.轮班组'}, { sign: ':', name: 'C3T.部门组' } ]">
             <form class="form-inline" name="myForm" novalidate>
                 <div class="form-group">
-                    <select class="form-control"  ng-model="monitorconfig.usersign"  ng-options="o.sign as o.name for o in role"  > </select>
+                    <select class="form-control"  ng-model="monitorconfig.usersign"  ng-options="o.sign as o.name|translate for o in role"  > </select>
                 </div>
             </form>
         </div>
@@ -261,9 +261,9 @@
 
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-dark" uib-tooltip="刷新" ng-click="monitorconfig.reloadUser()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!monitorconfig.loadoverUser}" ></i></button>
+                <button class="btn btn-dark" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="monitorconfig.reloadUser()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!monitorconfig.loadoverUser}" ></i></button>
             </span>
-            <h5>通知列表</h5>
+            <h5>{{'C3T.通知列表'|translate}}</h5>
         </div>
 
         <div class="panel-body">
@@ -271,12 +271,12 @@
 
             <table ng-table="monitorconfig.activeUserTable" class="table table-hover text-center table-condensed">
                 <tr ng-repeat="ss in $data">
-                    <td data-title="'账户名'" >{{ss.user}}</td>
-                    <td data-title="'创建人'">{{ss.edit_user}}</td>
-                    <td data-title="'创建时间'">{{ss.edit_time}}</td>
-                    <td data-title="'操作'">
-                        <button class="btn btn-primary btn-sm" ng-click="monitorconfig.deleteUser(ss.id)">删除</button>
-                        <button class="btn btn-primary btn-sm" ng-click="monitorconfig.testsend(ss.user)">测试消息通道</button>
+                    <td data-title="'C3T.账户名'|translate" >{{ss.user}}</td>
+                    <td data-title="'C3T.创建人'|translate">{{ss.edit_user}}</td>
+                    <td data-title="'C3T.创建时间'|translate">{{ss.edit_time}}</td>
+                    <td data-title="'C3T.操作'|translate">
+                        <button class="btn btn-primary btn-sm" ng-click="monitorconfig.deleteUser(ss.id)">{{'C3T.删除'|translate}}</button>
+                        <button class="btn btn-primary btn-sm" ng-click="monitorconfig.testsend(ss.user)">{{'C3T.测试消息通道'|translate}}</button>
                     </td>
                 </tr>
             </table>

@@ -1,2 +1,2 @@
 #!/bin/bash
-curl -XPOST http://localhost:9090/-/reload
+docker exec -it openc3-server curl -XPOST http://openc3-prometheus:9090/-/reload

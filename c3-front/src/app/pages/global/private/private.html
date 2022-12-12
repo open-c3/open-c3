@@ -1,11 +1,11 @@
 <div class="row block">
-    <h2>私有节点管理</h2>
+    <h2>{{'C3T.私有节点管理'|translate}}</h2>
     <hr class="mv20 clear">
 
     <div>
         <div style="float: right;">
             <form class="form-inline" name="myForm" novalidate>
-                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="private.createPrivate()"><i class="fa fa-plusecircle fa-lg" aria-hidden="true"></i> 添加用户</button>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="private.createPrivate()"><i class="fa fa-plusecircle fa-lg" aria-hidden="true"></i> {{'C3T.添加用户'|translate}}</button>
             </form>
         </div>
         <div style="clear: both;">&nbsp;</div>
@@ -14,9 +14,9 @@
     <div class="panel panel-primary">
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="private.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!private.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="private.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!private.loadover}" ></i></button>
             </span>
-            <h5>用户</h5>
+            <h5>{{'C3T.用户'|translate}}</h5>
         </div>
 
         <div class="panel-body">
@@ -24,12 +24,12 @@
                 <table ng-table="private.dataTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
                         <td width="60" class="textcenter" data-title="'ID'" filter="{ id: 'text'}" sortable="'id'"> {{m.id}} </td>
-                        <td data-title="'用户'" width="80" filter="{ user: 'text'}" sortable="'user'">{{m.user}}</td>
-                        <td data-title="'添加操作人'" width="80" filter="{ edit_user: 'text'}" sortable="'edit_user'">{{m.edit_user}}</td>
-                        <td data-title="'添加时间'" width="80" filter="{ edit_time: 'text'}" sortable="'edit_time'">{{m.edit_time}}</td>
-                        <td data-title="'操作'" width="80" >
-                            <button class="btn btn-primary btn-sm" ng-click="private.testsend(m.user)">测试消息通道</button>
-                            <i class="fa fa-edit fa-2x" aria-hidden="true" ui-sref="home.business.machine({treeid: {{m.id}}})" uib-tooltip="机器管理" style="cursor:pointer;" >管理机器</i>
+                        <td data-title="'C3T.用户'|translate" width="80" filter="{ user: 'text'}" sortable="'user'">{{m.user}}</td>
+                        <td data-title="'C3T.操作人'|translate" width="80" filter="{ edit_user: 'text'}" sortable="'edit_user'">{{m.edit_user}}</td>
+                        <td data-title="'C3T.时间'|translate" width="80" filter="{ edit_time: 'text'}" sortable="'edit_time'">{{m.edit_time}}</td>
+                        <td data-title="'C3T.操作'|translate" width="80" >
+                            <button class="btn btn-primary btn-sm" ng-click="private.testsend(m.user)">{{'C3T.测试消息通道'|translate}}</button>
+                            <i class="fa fa-edit fa-2x" aria-hidden="true" ui-sref="home.business.machine({treeid: {{m.id}}})" uib-tooltip="{{'C3T.机器管理'|translate}}" style="cursor:pointer;" >{{'C3T.管理机器'|translate}}</i>
                         </td>
                     </tr>
                 </table>

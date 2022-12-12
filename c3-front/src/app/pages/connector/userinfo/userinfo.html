@@ -3,9 +3,9 @@
         <div style="float: right;">
             <form class="form-inline" name="myForm" novalidate>
                 <div class="form-group" ng-init="username=''">
-                    <input type="text" class="form-control" ng-model="username"  placeholder="用户登录名" required>
+                    <input type="text" class="form-control" ng-model="username"  placeholder="{{'C3T.用户登录名'|translate}}" required>
                 </div>
-                <button type="submit" ng-disabled="myForm.$invalid" class="btn btn-primary" ng-click="connectoruserinfo.addUser(username,'创建')"><i class="fa fa-user-circle-o fa-lg" aria-hidden="true"></i>添加用户</button>
+                <button type="submit" ng-disabled="myForm.$invalid" class="btn btn-primary" ng-click="connectoruserinfo.addUser(username,'创建')"><i class="fa fa-user-circle-o fa-lg" aria-hidden="true"></i>{{'C3T.添加用户'|translate}}</button>
             </form>
         </div>
         <div style="clear: both;">&nbsp;</div>
@@ -14,24 +14,24 @@
 
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-primary" uib-tooltip="刷新" ng-click="connectoruserinfo.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!connectoruserinfo.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="connectoruserinfo.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!connectoruserinfo.loadover}" ></i></button>
             </span>
-            <h5>可登录用户</h5>
+            <h5>{{'C3T.可登录用户'|translate}}</h5>
         </div>
 
         <div class="panel-body">
             <div class="panel-tabs">
                 <table ng-table="connectoruserinfo.userTable" class="table table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="user in $data">
-                        <td style="width: 10%" data-title="'用户'" filter="{ name: 'text'}" sortable="'name'">{{user.name}}</td>
-                        <td style="width: 10%" data-title="'密码未修改'" sortable="'pass'">
-                            <a ng-if="user.pass==2" style="color: red"  > 是(危险) </a>
-                            <a ng-if="user.pass==1" style="color: green"> 否 </a>
-                            <a ng-if="user.pass==0" >非本地用户 </a>
+                        <td style="width: 10%" data-title="'C3T.用户'|translate" filter="{ name: 'text'}" sortable="'name'">{{user.name}}</td>
+                        <td style="width: 10%" data-title="'C3T.密码未修改'|translate" sortable="'pass'">
+                            <a ng-if="user.pass==2" style="color: red"  > {{'C3T.是'|translate}}({{'C3T.危险'|translate}}) </a>
+                            <a ng-if="user.pass==1" style="color: green"> {{'C3T.否'|translate}} </a>
+                            <a ng-if="user.pass==0" >{{'C3T.非本地用户'|translate}} </a>
                         </td>
-                        <td style="width: 10%" data-title="'操作'">
-                            <button class="btn btn-primary btn-md" ng-click="connectoruserinfo.addUser(user.name, '重置密码')">重置密码</button>
-                            <button class="btn btn-primary btn-md" ng-click="connectoruserinfo.delete(user.name)">删除</button>
+                        <td style="width: 10%" data-title="'C3T.操作'|translate">
+                            <button class="btn btn-primary btn-md" ng-click="connectoruserinfo.addUser(user.name, '重置密码')">{{'C3T.重置密码'|translate}}</button>
+                            <button class="btn btn-primary btn-md" ng-click="connectoruserinfo.delete(user.name)">{{'C3T.删除'|translate}}</button>
                         </td>
                     </tr>
                 </table>
