@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import json
+
+
+def display_apply_type_list():
+    """
+        查询证书申请类型
+    """
+    return [
+        {
+            "id": "商业证书购买申请",
+            "desc": "商业证书购买申请"
+        },
+        {
+            "id": "免费证书申请",
+            "desc": "免费证书申请"
+        }
+    ]
+
+
+def main():
+    data_list = display_apply_type_list()
+    for item in data_list:
+        print(json.dumps(item))
+
+
+if __name__ == '__main__':
+    main()
