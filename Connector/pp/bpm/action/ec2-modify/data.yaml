@@ -1,0 +1,44 @@
+---
+uuid: c3mc-ec2-modify
+name: 修改AWS EC2机器类型
+action: c3mc-ec2-modify
+option:
+  - desc: 用户选择aws账号
+    name: 账号
+    command: c3mc-display-cloud-account-list aws
+    type: select
+    variable_name: account
+    required: true
+  - desc: 根据选择的账号获取区域列表
+    name: 区域
+    command_input:
+      account: 选择的账号
+    command: c3mc-ec2-describe-regions
+    type: select
+    variable_name: region
+    required: true
+  - desc: 选择实例
+    name: 实例列表
+    command_input:
+      account: 选择的账号
+      region: 选择的区域
+    command: c3mc-ec2modify-display-instance-list
+    type: select
+    variable_name: instance_ids
+    required: true
+  - desc: 选择实例类型
+    name: 更改类型
+    command_input:
+      account: 选择的账号
+      region: 选择的区域
+    command: c3mc-ec2-describe-instance-types
+    type: select
+    variable_name: instance_type
+    required: true
+
+template_argv:
+  Account: ${account}
+  Region: ${region}
+  # 支持多个实例, 英文逗号连接
+  InstanceIds: ${instance_ids}
+  InstanceType: ${instance_type}
