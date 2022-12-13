@@ -1,0 +1,84 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+use YAML::XS;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+#UUID: '实例ID'
+#InstanceId: '实例ID'
+#HostName: 'tag.name'
+#IP: '内网IP'
+#InIP: '内网IP'
+#ExIP: '公网IP'
+#OS: '操作系统'
+#Site: [ '{huawei}', 'security_groups.0.name' ]
+#VpcId:   'security_groups.0.id'
+#VpcName: 'security_groups.0.name'
+
+my @col = qw( UUID InstanceId HostName IP InIP ExIP OS Site VpcId VpcName );
+my $dir = '/data/open-c3-data/device/curr/jumpserver/exipsite';
+
+my @out;
+for my $ingestion ( glob "/data/open-c3-data/device/curr/compute/*/ingestion-jumpserver.yml" )
+{
+    my $datafile = $ingestion;
+    $datafile =~ s/ingestion-jumpserver\.yml$/data\.tsv/;
+    my $colmap = eval{ YAML::XS::LoadFile $ingestion };
+    die "load $ingestion fail: $@" if $@;
+    map{ die "err" unless $colmap->{$_} }@col;
+
+    my $exclude = $colmap->{exclude} && ref $colmap->{exclude} eq 'HASH' ? $colmap->{exclude} : undef;
+
+    my ( undef, $subtype, $type ) = reverse split /\//, $datafile;
+    my    @data  = `c3mc-device-cat curr $type $subtype`;
+    chomp @data;
+
+    my $title = shift @data;
+
+    utf8::decode( $title );
+    my @title = split /\t/, $title;
+
+    for my $data ( @data )
+    {
+         utf8::decode( $data );
+         my @d = split /\t/, $data;
+         my %d = map{ $title[ $_ ] => $d[ $_ ] } 0 .. @title - 1;
+
+         if( $exclude )
+         {
+             my $skip = 0;
+             for my $col ( keys %$exclude )
+             {
+                 map{ $skip = 1 if defined $d{ $col } && $_ eq $d{ $col } }@{ $exclude->{ $col } };
+             }
+             next if $skip;
+         }
+ 
+         my %tmp;
+         for my $c ( @col )
+         {
+             my @c = ref $colmap->{$c} ? @{ $colmap->{$c} } : ( $colmap->{$c} );
+             $tmp{ $c } = join '-', map{ $_ =~ /^\{(.+)\}$/ ? $1 : $d{$_} // '' }@c;
+         }
+         $tmp{IP} = $tmp{ExIP} if -f "$dir/$tmp{Site}";
+
+         push @out, \%tmp;
+    }
+}
+
+for my $t ( @out )
+{
+    printf "%s\n", join ';', map{ $t->{$_} || '' }@col;
+}
