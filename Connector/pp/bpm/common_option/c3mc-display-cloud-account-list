@@ -1,0 +1,27 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import sys
+
+def display_cloud_account_list(cloud):
+    """
+        查询云账号列表
+    """
+    account_file = "/data/Software/mydan/AGENT/device/conf/account/{}".format(cloud.lower())
+    f = open(account_file)
+
+    account_list = []
+    for line in f.readlines():
+        account_list.append(line.split()[0])
+
+    return account_list
+
+
+def main(cloud):
+    account_list = display_cloud_account_list(cloud)
+    for account in account_list:
+        print(account)
+
+
+if __name__ == '__main__':
+    main(sys.argv[1])

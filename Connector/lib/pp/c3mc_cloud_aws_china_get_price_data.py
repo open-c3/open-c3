@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
-from c3mc_cloud_aws_china_price import get_price, get_instance_type_info_m
+from c3mc_cloud_aws_china_price import get_price, get_instance_type_info_m, get_instance_types
 
 def get_ec2_url(region):
     return "https://pricing.amazonaws.com/offers/v1.0/cn/AmazonEC2/current/{}/index.json".format(region)
@@ -74,3 +74,19 @@ def get_elasticache_instance_type_info_m(region):
     url = get_elasticache_url(region)
     filepath = "/tmp/aws_elasticache/{}/index.json".format(region)
     return get_instance_type_info_m(filepath, url)
+
+
+def get_ec2_instance_types(region):
+    url = get_ec2_url(region)
+    filepath = "/tmp/aws_ec2/{}/index.json".format(region)
+    return get_instance_types(
+        [
+            {"tenancy": "Shared"}, 
+            {"operatingSystem": "Linux"}, 
+            {"preInstalledSw": "NA"}
+        ], 
+        ["instancesku"],
+        filepath, 
+        url,
+        ["instanceType", "vcpu", "memory"]
+    )

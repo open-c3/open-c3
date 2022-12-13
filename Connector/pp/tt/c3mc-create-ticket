@@ -1,0 +1,99 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import requests
+import sys
+import subprocess
+import argparse
+import json
+
+
+def create_ticket(
+    submit_user, 
+    title, 
+    content, 
+    email_list,
+    if_ext,
+):
+    impact = int(subprocess.getoutput("c3mc-sys-ctl sys.tt.impact"))
+    c = int(subprocess.getoutput("c3mc-sys-ctl sys.tt.c"))
+    t = int(subprocess.getoutput("c3mc-sys-ctl sys.tt.t"))
+    i = int(subprocess.getoutput("c3mc-sys-ctl sys.tt.i"))
+
+    API_ENDPOINT = "http://localhost:9008/public/ticket"
+
+    if if_ext == "1":
+        API_ENDPOINT = subprocess.getoutput("c3mc-sys-ctl sys.tt.external_api_endpoint")
+        if API_ENDPOINT == "":
+            raise Exception("使用外部tt时, 外部tt的接口地址不允许为空")
+    data = {
+        "title": title,
+        "content": content,
+        "email_list": email_list,
+        "impact": impact,
+        "c": c,
+        "t": t,
+        "i": i,
+        "submit_user": submit_user,
+        "apply_user": submit_user
+    }
+
+    header = {
+        "Content-Type": "application/json"
+    }
+    resp = requests.post(url = API_ENDPOINT, headers = header, json=data).json()
+    print("LOG: 创建tt, api地址: {}, 接口响应为: {}\n".format(API_ENDPOINT, json.dumps(resp, default=str)), file=sys.stderr)
+
+    if "data" in resp:
+        print(resp['data'])
+
+
+def main(    
+    submit_user, 
+    title, 
+    content, 
+    email_list, 
+    if_ext_tt,
+):
+    create_ticket(
+        submit_user, 
+        title, 
+        content, 
+        email_list, 
+        if_ext_tt,
+    )
+
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    parser = argparse.ArgumentParser(description="创建tt。工单内容请使用stdin输入参数, 其他参数使用命令行参数.")
+    parser.add_argument('--submit_user', type=str, required=True, help='提交人账号')
+    parser.add_argument('--title', type=str, required=True, help='标题')
+    parser.add_argument('--email_list', type=str, required=False, help='邮箱列表,多个邮箱用英文逗号分隔')
+    parser.add_argument('--if_ext', type=str, required=True, help='是否使用外部tt, 1: 使用外部tt, 0: 使用内部tt')
+    args = parser.parse_args()
+
+    submit_user = args.submit_user
+    title = args.title
+    email_list = ""
+    if args.email_list != None and args.email_list != "":
+        email_list = args.email_list
+    if_ext = False
+    if args.if_ext != None and args.if_ext != "0":
+        if_ext = True
+
+
+    print("LOG: 创建tt, 调用参数为, submit_user: {}, title: {}, email_list: {}, if_ext: {}, content: {}\n".format(
+        submit_user, title, email_list, if_ext, l[0]), file=sys.stderr)
+    main(
+        submit_user, 
+        title, 
+        l[0],
+        email_list, 
+        if_ext
+    )

@@ -1,0 +1,86 @@
+---
+uuid: c3mc-cloud-certificate
+name: 公有云证书申请/采购
+action: c3mc-cloud-certificate
+option:
+  - desc: 申请类型, 免费证书或者商业证书
+    name: 申请类型
+    command: c3mc-cloudcertificate-display-apply-type-list
+    type: select
+    variable_name: apply_type
+    required: true
+  - desc: 证书类型, SSL证书 或者 代码签名证书
+    name: 证书类型
+    command: c3mc-cloudcertificate-display-certificate-type-list
+    type: select
+    variable_name: certificate_type
+    required: true
+  - desc: 使用范围
+    name: 使用范围
+    command: c3mc-cloudcertificate-display-target-list
+    type: select
+    variable_name: target
+    required: true
+  - desc: 购买年限
+    name: 购买年限
+    variable_name: buy_years
+    type: input
+    required: true
+  - desc: 产品名称
+    name: 产品名称
+    variable_name: product_name
+    type: input
+    required: true
+  - desc: 公司主体名称
+    name: 公司主体
+    command: c3mc-cloudcertificate-display-complay-list
+    type: select
+    variable_name: company
+    required: true
+  - desc: 业务名称
+    name: 业务名称
+    command: c3mc-display-business-node-list
+    type: select
+    variable_name: business_node
+    required: true
+  - desc: 域名
+    name: 域名
+    variable_name: domain_name
+    type: input
+    required: true
+  - desc: 业务负责人
+    name: 业务负责人
+    variable_name: yewu_owner
+    type: input
+    required: true
+  - desc: 运维负责人
+    name: 运维负责人
+    variable_name: ops_owner
+    type: input
+    required: true
+  - desc: 申请理由
+    name: 申请理由
+    variable_name: apply_note
+    type: input
+    required: true
+  - desc: 是否使用外部tt, 1: 使用外部tt, 0: 使用内部tt
+    name: 是否使用外部tt
+    hide: "yes"
+    variable_name: if_ext
+    type: input
+    required: false
+
+template_argv:
+  Title: "公有云证书申请/采购"
+  ApplyType: ${apply_type}
+  CertificateType: ${certificate_type}
+  Target: ${target}
+  BuyYears: ${buy_years}
+  ProductName: ${product_name}
+  Company: ${company}
+  BusinessNode: ${business_node}
+  DomainName: ${domain_name}
+  YewuOwner: ${yewu_owner}
+  OpsOwner: ${ops_owner}
+  ApplyNote: ${apply_note}
+  IfExt: ${if_ext}
