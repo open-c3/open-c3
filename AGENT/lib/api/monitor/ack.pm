@@ -248,14 +248,20 @@ post '/monitor/ack/:uuid' => sub {
             my $x = $api::mysql->query( "select labels,id from openc3_monitor_ack_table where ackuuid='$uuid'" );
             die "nofind your ackuuid" unless $x && @$x > 0;
             my @x;
+            my %label = map{ "labels.".$_ => 1 }qw( alertname fromtreeid instance severity );
             for( split /,/, $x->[0][0] )
             {
                 next if $_ =~ /'/;
                 my @xx = split /=/, $_, 2;
+                next unless $label{$xx[0]};
+                delete $label{$xx[0]};
                 push @x, "$1=$xx[1]" if $xx[0] =~ /^labels\.(.+)$/;
             }
             
-            system( sprintf "c3mc-mon-alertmanager-silence -c 'by-c3-ack-($x->[0][1])' -u '$user' %s", join ' ', map{ "'$_'" }@x  ) if @x;
+            die sprintf( "label defect:%s\n", join ',', keys %label ) if keys %label;
+            my $cmd = sprintf "c3mc-mon-alertmanager-silence -c 'by-c3-ack-($x->[0][1])' -u '$user' %s", join ' ', map{ "'$_'" }@x;
+            my $xxx = `$cmd 2>&1`;
+            die "alertmanager-silence err: $xxx\n" if $?;
         }
         else
         {

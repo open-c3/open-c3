@@ -20,4 +20,4 @@ my %o      = $option->get(    qw( user=s comment=s ) )->dump();
              $option->assert() unless @ARGV;
 
 my $comment = $o{comment} || 'by-c3';
-system sprintf "amtool --alertmanager.url=http://openc3-alertmanager:9093  silence add -a '$o{user}' -c '$comment' -d 7d %s", join " ", map{ "'$_'" }@ARGV;
+die "amtool err: $!" if system sprintf "amtool --alertmanager.url=http://openc3-alertmanager:9093  silence add -a '$o{user}' -c '$comment' -d 7d %s", join " ", map{ "'$_'" }@ARGV;
