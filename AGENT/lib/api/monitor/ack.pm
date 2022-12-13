@@ -7,6 +7,7 @@ use JSON qw();
 use POSIX;
 use api;
 use Format;
+use Digest::MD5;
 
 get '/monitor/ack/myack/bycookie' => sub {
     my $param = params();
@@ -156,6 +157,7 @@ get '/monitor/ack/:uuid' => sub {
     my ( $acked, $time, @res ) = ( 0, time );
     my %acked = map{ $_ => 0 }qw( ackP ackG ackcaseP ackcaseG ackam );
     my $amackid = 0;
+    my @currlabel;
     for my $x ( @$r )
     {
         $amackid = $x->{id};
@@ -164,6 +166,16 @@ get '/monitor/ack/:uuid' => sub {
             push @res, +{ name => $x[0], value => $x[1] }
         } split /,/, $x->{labels};
 
+        my %label = map{ "labels.".$_ => 1 }qw( alertname fromtreeid instance severity );
+        for( sort split /,/, $x->{labels} )
+        {
+            next if $_ =~ /'/;
+            my @xx = split /=/, $_, 2;
+            next unless $label{$xx[0]};
+            delete $label{$xx[0]};
+            push @currlabel, "$1=$xx[1]" if $xx[0] =~ /^labels\.(.+)$/;
+        }
+ 
         my $xx = eval{ 
             $api::mysql->query( "select type,uuid,edit_user from openc3_monitor_ack_active where ( uuid='$x->{fingerprint}' or uuid='$x->{caseuuid}' ) and expire>$time" ) };
         for( @$xx )
@@ -191,8 +203,11 @@ get '/monitor/ack/:uuid' => sub {
         $caseinfo = $xx->[0] if @$xx > 0;
     }
 
+
+    @currlabel = (time) unless @currlabel;
+    my $md5 = Digest::MD5->new()->add( join ',', map{ Encode::encode("utf8", $_)}@currlabel )->hexdigest();
     my $info = `amtool --alertmanager.url=http://openc3-alertmanager:9093 silence`;
-    $acked{ackam} = $info =~ m#by-c3-ack-\($amackid\)# ? 1 : 0;
+    $acked{ackam} = $info =~ m#by-c3-ack-\($md5\)# ? 1 : 0;
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@res, acked => \%acked, caseinfo => $caseinfo };
 };
 
@@ -249,7 +264,7 @@ post '/monitor/ack/:uuid' => sub {
             die "nofind your ackuuid" unless $x && @$x > 0;
             my @x;
             my %label = map{ "labels.".$_ => 1 }qw( alertname fromtreeid instance severity );
-            for( split /,/, $x->[0][0] )
+            for( sort split /,/, $x->[0][0] )
             {
                 next if $_ =~ /'/;
                 my @xx = split /=/, $_, 2;
@@ -259,7 +274,8 @@ post '/monitor/ack/:uuid' => sub {
             }
             
             die sprintf( "label defect:%s\n", join ',', keys %label ) if keys %label;
-            my $cmd = sprintf "c3mc-mon-alertmanager-silence -c 'by-c3-ack-($x->[0][1])' -u '$user' %s", join ' ', map{ "'$_'" }@x;
+            my $md5 = Digest::MD5->new()->add( join ',', map{ Encode::encode("utf8", $_)}@x )->hexdigest();
+            my $cmd = sprintf "c3mc-mon-alertmanager-silence -c 'by-c3-ack-($md5)' -u '$user' %s", join ' ', map{ "'$_'" }@x;
             my $xxx = `$cmd 2>&1`;
             die "alertmanager-silence err: $xxx\n" if $?;
         }
