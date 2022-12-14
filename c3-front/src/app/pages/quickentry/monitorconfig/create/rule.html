@@ -54,8 +54,8 @@
                 <div class="col-sm-2">
                     <input type="text" class="form-control" placeholder="{{'C3T.阈值'|translate}}" ng-model="createMonitorConfigRule.postData.threshold">
                 </div>
-                <div class="col-sm-2"style="float: right;" ng-init="job= [ { name: '', alias: 'All'} , { name: 'openc3', alias: 'machine'} , { name: 'openc3-mysql-v3', alias: 'Mysql'}, { name: 'openc3-redis-v3', alias: 'redis' }, { name: 'openc3-mongodb-v3', alias: 'mongodb' } ]">
-                    <select class="form-control"  ng-model="createMonitorConfigRule.postData.job"  ng-options="o.name as o.alias for o in job"  > </select>
+                <div class="col-sm-2"style="float: right;" ng-init="job= [ { name: '', alias: 'C3T.全部'} , { name: 'openc3', alias: 'C3T.主机'} , { name: 'openc3-mysql-v3', alias: 'Mysql'}, { name: 'openc3-redis-v3', alias: 'redis' }, { name: 'openc3-mongodb-v3', alias: 'mongodb' },{ name: 'openc3-nodeext', alias: 'C3T.外部数据' } ]">
+                    <select class="form-control"  ng-model="createMonitorConfigRule.postData.job"  ng-options="o.name as o.alias|translate for o in job"  > </select>
                 </div>
             </div>
         </div>
