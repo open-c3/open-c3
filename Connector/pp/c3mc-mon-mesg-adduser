@@ -22,7 +22,13 @@ sub adduser
     my $data = shift @_;
     return unless $data && ref $data eq 'HASH' && defined $data->{'labels.fromtreeid'} && $data->{'labels.fromtreeid'} =~ /^\d+$/;
 
-    my @user = `c3mc-base-db-get user --table openc3_monitor_config_user --filter 'projectid=$data->{"labels.fromtreeid"}' | c3mc-app-usrext`;
+    my $filter = "projectid=$data->{'labels.fromtreeid'} and subgroup=\"\"";
+    if( $data->{'labels.subgroup'} && $data->{'labels.subgroup'} =~ /^[a-zA-Z0-9]+$/ )
+    {
+        $filter = "projectid=$data->{'labels.fromtreeid'} and ( subgroup=\"\" or subgroup=\"$data->{'labels.subgroup'}\" )";
+    }
+
+    my @user = `c3mc-base-db-get user --table openc3_monitor_config_user --filter '$filter' | c3mc-app-usrext`;
     chomp @user;
 
     return unless @user;
