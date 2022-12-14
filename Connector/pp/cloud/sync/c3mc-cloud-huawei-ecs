@@ -3,11 +3,13 @@
 
 import sys
 import json
-import ipaddress
 
 from huaweicloudsdkcore.auth.credentials import BasicCredentials
 from huaweicloudsdkecs.v2.region.ecs_region import EcsRegion
 from huaweicloudsdkecs.v2 import *
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_huawei_vpc import HuaweiVpc
 
 
 class Ecs:
@@ -49,6 +51,7 @@ class Ecs:
         return response_data['count']
 
     def show(self):
+        huawei_vpc = HuaweiVpc(self.access_id, self.access_key, self.project_id, self.region)
         response_data = self.get_response()
         servers = response_data['servers']
         for server in servers:
@@ -65,6 +68,13 @@ class Ecs:
             server['region_id'] = self.region
             server.pop('metadata', None)
             server.pop('OS-EXT-SRV-ATTR:user_data', None)
+
+            if len(list(server["addresses"])) > 0:
+                vpc_id = list(server["addresses"])[0]
+                vpc_info = huawei_vpc.show_vpc(vpc_id)
+                server['vpc_id'] = vpc_id
+                server['vpc_name'] = vpc_info["name"]
+
             print(json.dumps(server))
 
     def page(self):
@@ -88,3 +98,4 @@ def main(access_id, access_key, project_id, region):
 
 if __name__ == '__main__':
     main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+
