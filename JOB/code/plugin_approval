@@ -16,6 +16,7 @@ use variable;
 use Buildin;
 use uuid;
 use Util;
+use Encode;
 use utf8;
 
 
@@ -160,6 +161,7 @@ return sub
         $var_map{"jobname"} = $jobname_res->[0][0];
     }
 
+    my $approvalname = $name;
     if ( $var_map{"jobname"} && $var_map{"jobname"} =~ /^_ci_(\d+)_$/ ) {
         my $flow_id = $1;
 
@@ -174,6 +176,8 @@ return sub
         $var_map{"tagtime"} = $x[0];
         $var_map{"tagger" } = $x[1];
         $var_map{"taginfo"} = $x[2];
+
+        $approvalname = join "/", $xxcc->{action}, Encode::decode( 'UTF-8', $flowname ), $name, $variable->{version} // 'current';
     }
 
     my $treename = `c3mc-base-db-get fullname --table openc3_agent_inherit --filter 'projectid=$projectid'`;
@@ -245,13 +249,13 @@ return sub
         if( $relaxed && $user eq $submitter )
         {
             eval{ $db->execute( 
-                "insert into openc3_job_approval (`taskuuid`,`uuid`,`user`,`submitter`,`cont`,`opinion`,`remarks`,`create_time`,`finishtime`,`notifystatus`,`oauuid`,`name`,`everyone`)values('$puuid','$muuid','$user','$submitter','$cont','agree', 'sys.handle.auto','$time','$time', 'skip', '0','$name', '$tempeo' )"
+                "insert into openc3_job_approval (`taskuuid`,`uuid`,`user`,`submitter`,`cont`,`opinion`,`remarks`,`create_time`,`finishtime`,`notifystatus`,`oauuid`,`name`,`everyone`)values('$puuid','$muuid','$user','$submitter','$cont','agree', 'sys.handle.auto','$time','$time', 'skip', '0','$approvalname', '$tempeo' )"
             ) };
         }
         else
         {
             eval{ $db->execute( 
-                "insert into openc3_job_approval (`taskuuid`,`uuid`,`user`,`submitter`,`cont`,`opinion`,`remarks`,`create_time`,`notifystatus`,`oauuid`,`name`,`everyone`)values('$puuid','$muuid','$user','$submitter','$cont','unconfirmed', '','$time', 'null', '0','$name', '$tempeo' )"
+                "insert into openc3_job_approval (`taskuuid`,`uuid`,`user`,`submitter`,`cont`,`opinion`,`remarks`,`create_time`,`notifystatus`,`oauuid`,`name`,`everyone`)values('$puuid','$muuid','$user','$submitter','$cont','unconfirmed', '','$time', 'null', '0','$approvalname', '$tempeo' )"
             ) };
  
         }
