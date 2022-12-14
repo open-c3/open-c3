@@ -140,8 +140,8 @@
                 <table ng-table="monitorconfig.activeRegionTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
                         <td data-title="'C3T.编号'|translate" sortable="'edit_user'">{{m.id}}</td>
-                        <td data-title="'C3T.类型'|translate" sortable="'type'">{{monitorconfig.alias[m.type] || m.type}}</td>
-                        <td data-title="'C3T.分类'|translate" sortable="'subtype'">{{monitorconfig.alias[m.subtype] || m.subtype }}</td>
+                        <td data-title="'C3T.类型'|translate" sortable="'type'">{{monitorconfig.alias[m.type] || m.type|translate}}</td>
+                        <td data-title="'C3T.分类'|translate" sortable="'subtype'">{{monitorconfig.alias[m.subtype] || m.subtype | translate }}</td>
                         <td data-title="'C3T.内容'|translate" sortable="'content1'">
                             <div ng-if="m.content2" >{{m.content1}}【{{'C3T.匹配'|translate}}:{{m.content2}}】</div>
                             <div ng-if="!m.content2" >{{m.content1}}</div>
