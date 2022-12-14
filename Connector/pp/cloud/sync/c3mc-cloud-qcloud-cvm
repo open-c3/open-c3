@@ -15,8 +15,6 @@ from c3mc_cloud_qcloud_vpc import Vpc
 
 # DescribeInstances() 的接口请求频率限制
 max_times_describe_instances = 40
-# DescribeVpcs() 的接口请求频率限制
-max_times_describe_vpc = 100
 
 class Cvm:
     def __init__(self, access_id, access_key, region):
@@ -57,6 +55,9 @@ class Cvm:
         vpc_client = Vpc(self.access_id, self.access_key, self.region)
 
         response_data = self.get_response()
+
+        result = []
+        vpc_ids = []
         for server in response_data.InstanceSet:
             item = json.loads(server.to_json_string())
             item["RegionId"] = self.region
@@ -65,11 +66,18 @@ class Cvm:
                 item["PrivateIP"] = item["PrivateIpAddresses"][0]
             if item["PublicIpAddresses"] is not None and len(item["PublicIpAddresses"]) > 0:
                 item["PublicIP"] = item["PublicIpAddresses"][0]
+
+            result.append(item)
             
             if item["VirtualPrivateCloud"]["VpcId"] is not None:
+                vpc_ids.append(item["VirtualPrivateCloud"]["VpcId"])
+
+        
+        vpc_info_d = vpc_client.show_vpcs(vpc_ids)
+        for item in result:
+            if item["VirtualPrivateCloud"]["VpcId"] is not None:
                 item["VpcId"] = item["VirtualPrivateCloud"]["VpcId"]
-                item["VpcName"] = vpc_client.show_vpc(item["VpcId"])["VpcName"]
-            self.sleep(max_times_describe_vpc)
+                item["VpcName"] = vpc_info_d[item["VpcId"]]["VpcName"]
 
             print(json.dumps(item, default=str))
 

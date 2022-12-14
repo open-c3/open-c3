@@ -34,3 +34,15 @@ class Vpc:
         resp = self.client.DescribeVpcs(req)
         return json.loads(resp.to_json_string())["VpcSet"][0]
 
+    def show_vpcs(self, vpc_ids):
+        req = models.DescribeVpcsRequest()
+        params = {
+            "VpcIds": vpc_ids
+        }
+        req.from_json_string(json.dumps(params))
+        resp = self.client.DescribeVpcs(req)
+
+        res = {}
+        for vpc in json.loads(resp.to_json_string())["VpcSet"]:
+            res[vpc["VpcId"]] = vpc
+        return res
