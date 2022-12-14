@@ -5,19 +5,19 @@
             <span class="panel-controls">
                 <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="quickapproval.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!( quickapproval.loadoverA && quickapproval.loadoverB ) }" ></i></button>
             </span>
-            <h5>审批:{{quickapproval.data.name}}</h5>
+            <h5>{{'C3T.审批'|translate}}:{{quickapproval.data.name}}</h5>
         </div>
 
-        <div class="panel-body" ng-init="ns = { 'null': '未发送', 'sending': '发送中', 'done':'完成', 'skip': '忽略', 'fail': '失败'}">
+        <div class="panel-body">
             <div class="panel-tabs">
                 <table ng-table="quickapproval.dataTable" class="table table-hover text-center table-condensed">
                     <tr ng-repeat="d in $data">
-                        <td style="width: 10%" data-title="'审批人'">{{d.user}}</td>
-                        <td style="width: 10%" data-title="'耗时'">{{quickapproval.seftime(d.create_time,d.finishtime)}}</td>
-                        <td style="width: 10%" data-title="'审批状态'">
-                            <a ng-if="d.opinion == 'agree'" style="color: green"> 同意 </a>
-                            <a ng-if="d.opinion == 'unconfirmed'"> 未审批 </a>
-                            <a ng-if="d.opinion == 'refuse'" style="color: red"> 拒绝 </a>
+                        <td style="width: 10%" data-title="'C3T.审批人'|translate">{{d.user}}</td>
+                        <td style="width: 10%" data-title="'C3T.耗时'|translate">{{quickapproval.seftime(d.create_time,d.finishtime)}}</td>
+                        <td style="width: 10%" data-title="'C3T.审批状态'|translate">
+                            <a ng-if="d.opinion == 'agree'" style="color: green"> {{'C3T.同意'|translate}} </a>
+                            <a ng-if="d.opinion == 'unconfirmed'"> {{'C3T.未审批'|translate}} </a>
+                            <a ng-if="d.opinion == 'refuse'" style="color: red"> {{'C3T.拒绝'|translate}} </a>
                        </td>
                     </tr>
                 </table>
@@ -25,24 +25,24 @@
         </div>
 
         <div class="row" >
-            <label class="col-md-2 control-label fwbold">创建时间</label>
+            <label class="col-md-2 control-label fwbold">{{'C3T.创建时间'|translate}}</label>
             <label class="col-md-4 control-label fwbold">{{quickapproval.data.create_time}}</label>
         </div>
 
         <div class="row" >
-            <label class="col-md-2 control-label fwbold">提交人</label>
+            <label class="col-md-2 control-label fwbold">{{'C3T.提交人'|translate}}</label>
             <label class="col-md-4 control-label fwbold">{{quickapproval.data.submitter}}</label>
         </div>
 
         <div class="row" >
-            <label class="col-md-2 control-label fwbold">审批内容</label>
+            <label class="col-md-2 control-label fwbold">{{'C3T.审批内容'|translate}}</label>
             <label class="col-md-4 control-label fwbold">{{quickapproval.data.cont}}</label>
         </div>
 
 
         <div class="panel-footer text-right">
-            <button class="btn btn-success" ng-disabled="quickapproval.stat.opinion != 'unconfirmed'" ng-click="quickapproval.edit('agree')">同意</button>
-            <button class="btn btn-danger" ng-disabled="quickapproval.stat.opinion != 'unconfirmed'" ng-click="quickapproval.edit('refuse')">拒绝</button>
+            <button class="btn btn-success" ng-disabled="quickapproval.stat.opinion != 'unconfirmed'" ng-click="quickapproval.edit('agree')">{{'C3T.同意'|translate}}</button>
+            <button class="btn btn-danger" ng-disabled="quickapproval.stat.opinion != 'unconfirmed'" ng-click="quickapproval.edit('refuse')">{{'C3T.拒绝'|translate}}</button>
         </div>
 
     </div>
