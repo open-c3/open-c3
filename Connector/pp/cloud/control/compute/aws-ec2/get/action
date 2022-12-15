@@ -7,6 +7,9 @@ import subprocess
 
 import boto3
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_aws_vpc import Vpc
+
 
 def get(data, access_id, access_key, region):
     """
@@ -26,9 +29,17 @@ def get(data, access_id, access_key, region):
         InstanceIds=[data[field_name]],
     )
 
+    vpc_client = Vpc(access_id, access_key, region)
+
     for instance in response["Reservations"][0]["Instances"]:
         if instance["InstanceId"] == data[field_name]:
             instance["RegionId"] = region
+
+            if "VpcId" in instance:
+                vpc_info = vpc_client.show_vpc(instance["VpcId"])
+                for tag in vpc_info["Tags"]:
+                    if tag["Key"].lower() == "name":
+                        instance["VpcName"] = tag["Value"]
             return instance
     raise Exception(
         "根据 InstanceId {} 未找到 aws ec2".format(data[field_name]))

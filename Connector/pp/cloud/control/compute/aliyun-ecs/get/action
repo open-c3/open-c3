@@ -8,6 +8,10 @@ import subprocess
 from aliyunsdkcore.client import AcsClient
 from aliyunsdkecs.request.v20140526.DescribeInstancesRequest import DescribeInstancesRequest
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_aliyun_vpc import Vpc
+
+
 
 def get(data, access_id, access_key, region):
     """
@@ -23,6 +27,8 @@ def get(data, access_id, access_key, region):
     request.set_accept_format('json')
     request.set_InstanceIds([instance_id])
 
+    vpc_client = Vpc(access_id, access_key, region)
+
     response = client.do_action_with_exception(request)
     response = json.loads(response)
     for instance in response["Instances"]["Instance"]:
@@ -30,6 +36,8 @@ def get(data, access_id, access_key, region):
             if "Tags" in instance and "Tag" in instance["Tags"]:
                 instance["Tag"] = instance["Tags"]["Tag"]
                 instance.pop("Tags", None)
+            instance["VpcId"] = instance["VpcAttributes"]["VpcId"]
+            instance["VpcName"] = vpc_client.show_vpc(instance["VpcId"])["VpcName"]
             return instance
     raise Exception("根据 instance_id {} 未找到 aliyun ecs".format(instance_id))
 

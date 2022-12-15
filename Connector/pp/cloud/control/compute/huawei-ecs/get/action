@@ -9,6 +9,9 @@ from huaweicloudsdkcore.auth.credentials import BasicCredentials
 from huaweicloudsdkecs.v2.region.ecs_region import EcsRegion
 from huaweicloudsdkecs.v2 import *
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_huawei_vpc import Vpc
+
 
 def get(data, access_id, access_key, project_id, region):
     """
@@ -46,12 +49,20 @@ def get(data, access_id, access_key, project_id, region):
     instance['region_id'] = region
     instance.pop('metadata', None)
     instance.pop('OS-EXT-SRV-ATTR:user_data', None)
+
+    huawei_vpc = Vpc(access_id, access_key, project_id, region)
+    if len(list(instance["addresses"])) > 0:
+        vpc_id = list(instance["addresses"])[0]
+        vpc_info = huawei_vpc.show_vpc(vpc_id)
+        instance['vpc_id'] = vpc_id
+        instance['vpc_name'] = vpc_info["name"]
+
     return instance
 
 
 def main(data, access_id, access_key, project_id, region):
     data = get(data, access_id, access_key, project_id, region)
-    print(str(data))
+    print(json.dumps(data, default=str))
 
 
 if __name__ == '__main__':
