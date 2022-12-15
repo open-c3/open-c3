@@ -1,0 +1,58 @@
+package bastion
+
+import (
+	"bl/src/bastion/bastion"
+	"bl/src/logger"
+	"bl/src/model"
+	"fmt"
+	"os/exec"
+	"strings"
+)
+
+func SyncMachines() {
+	user, pass, url, blMode := getBlAccountAndPass()
+	if user == "" {
+		return
+	}
+	syncBastion := NewBastion(
+		model.Bastion{
+			AuthUser:     user,
+			AuthPass:     pass,
+			BaseUrl:      url,
+			Manufacturer: bastion.Manufacturer(blMode),
+		},
+	)
+
+	err := syncBastion.SetToken()
+	if err != nil {
+		logger.FsErrorf("SyncMachine.SetToken.err: %v", err)
+		return
+	}
+	err = BastionHelper(syncBastion)
+	if err != nil {
+		logger.FsErrorf("SyncMachine.BastionHelper.err: %v", err)
+		return
+	}
+}
+
+func getBlAccountAndPass() (string, string, string, string) {
+	blMode := getSysCtlValue("sys.bl.mode")
+	if blMode == "none" || blMode == "" {
+		return "", "", "", ""
+	}
+	user := getSysCtlValue(fmt.Sprintf("sys.bl.sync.%s.admin.user", blMode))
+	pass := getSysCtlValue(fmt.Sprintf("sys.bl.sync.%s.admin.pass", blMode))
+	url := getSysCtlValue(fmt.Sprintf("sys.bl.sync.%s.url", blMode))
+
+	return user, pass, url, blMode
+}
+
+func getSysCtlValue(variable string) string {
+	cmd := exec.Command("c3mc-sys-ctl", variable)
+	stdout, err := cmd.Output()
+	if err != nil {
+		fmt.Println(err.Error())
+		return ""
+	}
+	return strings.TrimSpace(string(stdout))
+}
