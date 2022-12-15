@@ -37,7 +37,7 @@ for my $ingestion ( glob "/data/open-c3-data/device/curr/compute/*/ingestion-jum
     $datafile =~ s/ingestion-jumpserver\.yml$/data\.tsv/;
     my $colmap = eval{ YAML::XS::LoadFile $ingestion };
     die "load $ingestion fail: $@" if $@;
-    map{ die "err" unless $colmap->{$_} }@col;
+    map{ die "err $ingestion:nofind $_" unless $colmap->{$_} }@col;
 
     my $exclude = $colmap->{exclude} && ref $colmap->{exclude} eq 'HASH' ? $colmap->{exclude} : undef;
 
