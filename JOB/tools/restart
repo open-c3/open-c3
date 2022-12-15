@@ -10,13 +10,14 @@ use Tie::File;
 
 =cut
 
+my $service = @ARGV ? $ARGV[0] : '';
 my $perl = $^X;
 
 my $base = $RealBin;
 $base =~ s#/[^/]+$##;
 
-system "$base/tools/stop && $base/tools/start";
+system "$base/tools/stop $service && $base/tools/start $service";
 
 sleep 1;
 
-system "ps -ef|grep job";
+$service ? system( "ps -ef|grep job|grep $service" ) : system( "ps -ef|grep job" );

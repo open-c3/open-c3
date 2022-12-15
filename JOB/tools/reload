@@ -12,6 +12,8 @@ use uuid;
 =cut
 
 print "reload job\n";
+my $base = $RealBin;
+$base =~ s#/[^/]+$##;
 
 my $Config = eval{ YAML::XS::LoadFile "$RealBin/../config/Config";};
 die "load Config fail: $!" unless $Config;
@@ -45,6 +47,7 @@ for my $type ( qw( api api.slave ) )
         my $newpid;
         for my $index ( 1 .. 30 )
         {
+            system "$base/tools/restart $port" if $index == 20;
             print "check api ...\n";
             $newpid = `/usr/sbin/lsof -i:$port|tail -n 1|awk '{print \$2}'`;
             if( $newpid )
@@ -74,6 +77,7 @@ for my $server ( qw( call bury crontab keepalive notify approval clean ) )
     my $newpid;
     for my $index ( 1 .. 30 )
     {
+        system "$base/tools/restart $port" if $index == 20;
         print "check server job_server_$server ...\n";
         $newpid = `ps -ef|grep [j]ob_server_$server|head -n 1|awk '{print \$2}'`;
 

@@ -10,6 +10,7 @@ use YAML::XS;
 
 =cut
 
+my $service = shift @ARGV;
 print "stop jobx\n";
 
 my $Config = eval{ YAML::XS::LoadFile "$RealBin/../config/Config";};
@@ -23,22 +24,26 @@ die "envname $envname undef in Config" unless $Config = $Config->{$envname};
 
 die "port undef" unless my $port = $Config->{port};
 
-
+# todo remove, old jobx_supervisor
 system "killall jobx_supervisor 2>/dev/null";
 
 for my $type ( qw( api api.slave ) )
 {
     map{
+        system "killall jobx_supervisor_$_ 2>/dev/null";
     	if ($^O eq "darwin") {
     		system '/usr/sbin/lsof -i:'.$_.'|tail -n 1|awk \'{print $2}\'|xargs -I{} kill {}';
     	} else {
     		system '/usr/sbin/lsof -i:'.$_.'|tail -n 1|awk \'{print $2}\'|xargs -i{} kill {}';
     	}
         print "stop $type port: $_\n";
-    }$port->{$type}{from} .. $port->{$type}{to};
+    }grep{ ( ! $service ) || ( $service && $service eq $_ ) }
+    $port->{$type}{from} .. $port->{$type}{to};
 }
 
 map{
+    system "killall jobx_supervisor_$_ 2>/dev/null";
     system "killall jobx_server_$_";
     print "stop jobx_server_$_\n"
-}qw( call bury keepalive monitor );
+}grep{ ( ! $service ) || ( $service && $service eq $_ ) }
+qw( call bury keepalive monitor );
