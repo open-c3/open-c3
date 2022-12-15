@@ -43,6 +43,6 @@ for my $type ( qw( api ) )
     $port->{$type}{from} .. $port->{$type}{to};
 }
 
-exit if $service && $service eq 'trouble-ticketing';
+exit if $service && $service ne 'trouble-ticketing';
 system "killall connector_supervisor_trouble-ticketing 2>/dev/null";
-system "ps -ef|grep trouble-ticketing|grep -v grep|awk '{print \$2}'|xargs -i{} kill {}";
+system "ps -ef|grep trouble-ticketing|grep -v /stop|grep -v /start|grep -v /restart |grep -v /reload |grep -v grep|awk '{print \$2}'|xargs -i{} kill {}";

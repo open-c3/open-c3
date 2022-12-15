@@ -44,6 +44,6 @@ my $sudo = $user eq 'root' ? '' : 'sudo ';
 
 die "set connector.mark fail:$!" if system "${sudo}sh -c 'date > $mymarkfile'";
 
-exit if $service && $service eq 'trouble-ticketing';
+exit if $service && $service ne 'trouble-ticketing';
 chdir '/data/Software/mydan/Connector/tt/trouble-ticketing' or die "chdir fail";
 die "start trouble-ticketing fail: $!" if system "$supervisor --name connector_supervisor_trouble-ticketing --errname 'connector.server.trouble-ticketing' --cmd './trouble-ticketing' --log '$base/logs/server/trouble-ticketing'";
