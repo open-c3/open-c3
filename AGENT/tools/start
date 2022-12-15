@@ -11,6 +11,8 @@ use MYDan;
 
 =cut
 
+my $service = shift @ARGV;
+
 my $base = $RealBin;
 $base =~ s#/[^/]+$##;
 
@@ -28,7 +30,7 @@ die "envname $envname undef in Config" unless $Config = $Config->{$envname};
 
 die "port undef" unless my $port = $Config->{port};
 
-my $supervisor = "$RealBin/../../JOB/bin/supervisor --name agent_supervisor --err /var/log/open-c3.error.log";
+my $supervisor = "$RealBin/../../JOB/bin/supervisor --err /var/log/open-c3.error.log";
 
 map{
     print "start api port: $_\n";
@@ -36,29 +38,34 @@ map{
     die "start api fail: $!"
         if system join " ",
             $supervisor,
+            "--name agent_supervisor_$_",
             "--errname 'agent.api.$_'",
             "--cmd '$base/bin/api -p $_'",
             "--log '$base/logs/server/api.$_'",
             "--http http://127.0.0.1:$_/mon",
             "--check ok";
-}$port->{api}{from} .. $port->{api}{to};
+}grep{ ( ! $service ) || ( $service && $service eq $_ ) }
+$port->{api}{from} .. $port->{api}{to};
 
 map{
     die "start api.event fail: $!"
         if system join " ",
             $supervisor,
+            "--name agent_supervisor_$_",
             "--errname 'agent.api.event.$_'",
             "--cmd 'AGENT_API_EVENT_PORT=$_ $base/bin/api.event'",
             "--log '$base/logs/server/api.event.$_'",
             "--http http://127.0.0.1:$_/mon",
             "--check ok";
     print "start api.event port: $_\n"
-}$port->{'api.event'}{from} .. $port->{'api.event'}{to};
+}grep{ ( ! $service ) || ( $service && $service eq $_ ) }
+$port->{'api.event'}{from} .. $port->{'api.event'}{to};
 
 map{
     die "start $_ fail: $!"
-        if system "$supervisor --errname 'agent.server.$_' --cmd '$base/server/$_' --log '$base/logs/server/$_'";
-}qw(
+        if system "$supervisor --name agent_supervisor_$_ --errname 'agent.server.$_' --cmd '$base/server/$_' --log '$base/logs/server/$_'";
+}grep{ ( ! $service ) || ( $service && $service eq $_ ) }
+qw(
     bury
     check
     nodequery
@@ -70,8 +77,9 @@ map{
 
 map{
     die "start $_ fail: $!"
-        if system "$supervisor --errname 'agent.server.$_' --cmd 'c3mc-server-agent $_' --log '$base/logs/server/$_'";
-}qw(
+        if system "$supervisor --name agent_supervisor_$_ --errname 'agent.server.$_' --cmd 'c3mc-server-agent $_' --log '$base/logs/server/$_'";
+}grep{ ( ! $service ) || ( $service && $service eq $_ ) }
+qw(
     promesd
     promesdx
     rule

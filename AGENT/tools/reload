@@ -13,6 +13,9 @@ use uuid;
 
 print "reload agent\n";
 
+my $base = $RealBin;
+$base =~ s#/[^/]+$##;
+
 my $Config = eval{ YAML::XS::LoadFile "$RealBin/../config/Config";};
 die "load Config fail: $!" unless $Config;
 
@@ -46,6 +49,7 @@ for my $type ( qw( api api.event ) )
         my $newpid;
         for my $index ( 1 .. 30 )
         {
+            system "$base/tools/restart $port" if $index == 20;
             print "check api ...\n";
             $newpid = `/usr/sbin/lsof -i:$port|tail -n 1|awk '{print \$2}'`;
             if( $newpid )
@@ -66,7 +70,28 @@ for my $type ( qw( api api.event ) )
     }
 }
 
-for my $server ( qw( bury keepalive check inherit promesd promesdx carry rule sender extend-exporter self-healing nodequery mysqlquery redisquery mongodbquery nodeextquery mailmon portcheckok cloudmon devicesync ) )
+for my $server ( qw( 
+    bury
+    keepalive
+    check
+    inherit
+    promesd
+    promesdx
+    carry
+    rule
+    sender
+    extend-exporter
+    self-healing
+    nodequery
+    mysqlquery
+    redisquery
+    mongodbquery
+    nodeextquery
+    mailmon
+    portcheckok
+    cloudmon
+    devicesync
+    ) )
 {
     my $oldpid = `ps -ef|grep [a]gent_server_$server|head -n 1|awk '{print \$2}'`;
     chomp $oldpid;
@@ -76,6 +101,8 @@ for my $server ( qw( bury keepalive check inherit promesd promesdx carry rule se
     my $newpid;
     for my $index ( 1 .. 30 )
     {
+        system "$base/tools/restart $server" if $index == 20;
+
         print "check server agent_server_$server ...\n";
         $newpid = `ps -ef|grep [a]gent_server_$server|head -n 1|awk '{print \$2}'`;
 
