@@ -1,0 +1,62 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use YAML::XS;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0
+ $0 --output /path/foo.yaml
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o      = $option->get( qw( output=s ) )->dump();
+
+my    @x = `c3mc-base-db-get -t openc3_monitor_config_collector projectid content1 --filter "type='nodeext'"`;
+chomp @x;
+
+my %data;
+for( @x )
+{
+    my ( $treeid, $uri ) = split /;/, $_, 2;
+    $data{ $treeid }{ $uri } = 1;
+}
+
+my $nsd = eval{ YAML::XS::LoadFile "/data/Software/mydan/prometheus/config/openc3_node_sd.yml" };
+die "load node sd fail: $@" if $@;
+
+my ( @target, %uniq );
+for my $treeid ( keys %data )
+{
+    for my $uri ( keys %{$data{$treeid}} )
+    {
+        for my $osd ( @$nsd )
+        {
+            next unless $osd->{labels}{"treeid_$treeid"};
+            $osd->{labels}{__metrics_path__} = "/api/agent/v3/nodeext/metrics/$osd->{labels}{instance}/$uri";
+            $osd->{labels}{uri} = $uri;
+
+            next if $uniq{ $osd->{labels}{__metrics_path__} } ++ > 0;
+            push @target, +{ %$osd, labels => +{ %{$osd->{labels}} } };
+        }
+    }
+}
+
+if( $o{output} )
+{
+    my $temp = "$o{output}.temp.$$";
+    YAML::XS::DumpFile $temp, \@target;
+    rename $temp, $o{output} or die "rename fail: $!";
+    exit;
+}
+
+print YAML::XS::Dump \@target;

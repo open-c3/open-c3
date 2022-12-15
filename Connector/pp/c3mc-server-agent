@@ -199,6 +199,18 @@ if( $name eq 'promesdx' )
     my $mode = OPENC3::SysCtl->new()->get( 'sys.monitor.mode' ) // 'single';
     $mode = 'off' if -f '/data/Software/mydan/Connector/c3.maintain.mon';
 
+    if( $mode eq 'single' || $mode eq 'prometheus' )
+    {
+        OPENC3::PP::Server->new(
+            name     => "agent_server_$name",
+            interval => 60,
+            timeout  => 120,
+            pipefail => 1,
+        )->run(
+           "c3mc-mon-nodeextsd-format --output /data/Software/mydan/prometheus/config/openc3_nodeext_sd.yml",
+        );
+ 
+    }
     if( $mode eq 'thanos' )
     {
         OPENC3::PP::Server->new(
@@ -215,6 +227,7 @@ if( $name eq 'promesdx' )
                "c3mc-mon-nodesd-format --output $openc3_node_sd.tempx"
            ],
            "mv $openc3_node_sd.tempx $openc3_node_sd",
+           "c3mc-mon-nodeextsd-format --output /data/Software/mydan/prometheus/config/openc3_nodeext_sd.yml",
         );
     }
     else

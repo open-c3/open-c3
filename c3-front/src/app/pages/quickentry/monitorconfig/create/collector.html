@@ -27,6 +27,10 @@
                              <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.路径'|translate}}
                         </label>
                         <label class="option option-primary">
+                             <input type="radio" ng-model="createMonitorConfig.postData.type" ng-change="createMonitorConfig.changeType('nodeext')" value="nodeext" >
+                             <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.外部数据'|translate}}
+                        </label>
+                        <label class="option option-primary">
                              <input type="radio" ng-model="createMonitorConfig.postData.type" ng-change="createMonitorConfig.changeType('push')" value="push" >
                              <span class="radio" style="padding-top: 0;min-height: 0"></span>PUSH
                         </label>
@@ -351,6 +355,44 @@ node_path{type="link",path="/tmp/bar.txt"} 0
 node_path{type="dir",path="/tmp/bar.txt"} 0
 
 node_path_check{check="v2.2.3",type="link",path="/tmp/bar.txt"} 1
+
+                    </textarea>
+                </div>
+            </div>
+        </div>
+ 
+
+    </form>
+</div>
+
+<div ng-if="createMonitorConfig.postData.type=='nodeext'">
+    <form class="form-horizontal" name="myForm" role="form">
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">URI</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" placeholder="URI {{'C3T.例如'|translate}}: :9100/metrics" ng-model="createMonitorConfig.postData.content1" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-5 form-group pull-right">
+                <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="createMonitorConfig.add()">{{'C3T.确认'|translate}}</button>
+                <button class="btn btn-warning" ng-click="createMonitorConfig.cancel()">{{'C3T.取消'|translate}}</button>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">{{'C3T.帮助'|translate}}</label>
+                <div class="col-sm-9">
+
+                    <textarea style="height: 450px" class="fluid-width" readonly>
+{{'C3T.用途'|translate}}：{{'C3T.采集主机上其他服务的metrics'|translate}}
+
+{{'C3T.例如'|translate}}：
+:9100/metrics
 
                     </textarea>
                 </div>

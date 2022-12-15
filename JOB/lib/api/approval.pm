@@ -97,7 +97,18 @@ get '/approval/control/status/:uuid' => sub {
             sprintf( "select %s from openc3_job_approval where uuid='$param->{uuid}' ", join( ',', @col ) ), \@col )};
 
     return +{ stat => $JSON::false, info => $@ } if $@;
-    return +{ stat => $JSON::true, data => @$r ? $r->[0] : +{} };
+    my $res = @$r ? $r->[0] : +{};
+    $res->{checkcode} = '';
+    my $x = `c3mc-sys-ctl sys.flow.checkcode`;
+    chomp $x;
+    if( $x && $res->{name} && $res->{name} =~ /^(deploy|rollback)\// )
+    {
+        $res->{checkaction} = $1;
+        ( $res->{checkversion} ) = ( reverse split /\//, $res->{name} );
+        $res->{checkcode} = $1 if $res->{checkversion} =~ /(\d{3})$/;
+        $res->{checkcode} = $1 if $res->{checkversion} =~ /(\d{4})$/;
+    }
+    return +{ stat => $JSON::true, data => $res };
 };
 
 

@@ -119,6 +119,31 @@ sub run
                            return;
                        }
 
+                       if( $data =~ m#/nodeext_([0-9a-z\.\-:]+)/([0-9a-z\.\-:\/]+)_nodeext# )
+                       {
+                           my ( $ip, $uri ) = ( $1, $2 );
+                           my $url = "http://$ip$uri";
+
+                           http_get $url, sub { 
+                               my $c = $_[0] || $_[1]->{URL}. " -> ".$_[1]->{Reason};
+
+                               my $debug = $data =~ /debug=1/ ? 1 : 0;
+                               my @debug;
+                               if( $debug )
+                               {
+                                   @debug = (
+                                       "# DEBUG",
+                                       "# Proxy HOSTNAME: $this->{hostname}"
+                                   );
+                               }
+                               $handle->push_write( $this->_html( join "\n", "# HELP OPEN-C3 Proxy debug[$debug]", @debug, $c ) ) if $c;
+                               $handle->push_shutdown();
+                               $handle->destroy();
+                               delete $index{$idx};
+                           };
+                           return;
+                       }
+
                        if( $data =~ m#/metrics# )
                        {
                            $this->{collector}->setExt( $1 )

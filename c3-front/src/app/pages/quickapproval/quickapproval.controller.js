@@ -10,6 +10,7 @@
         var toastr = toastr || $injector.get('toastr');
         var uuid = $state.params.uuid;
 
+        vm.inputcheckcode = '';
         vm.seftime = genericService.seftime
         vm.show = false
         vm.stat = {}

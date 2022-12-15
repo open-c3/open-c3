@@ -18,7 +18,7 @@ get '/monitor/config/user/:projectid' => sub {
 
     my $projectid = $param->{projectid};
 
-    my @col = qw( id user edit_user edit_time );
+    my @col = qw( id user edit_user edit_time subgroup );
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_monitor_config_user
@@ -40,7 +40,7 @@ get '/monitor/config/user/:projectid/:id' => sub {
 
     my $projectid = $param->{projectid};
 
-    my @col = qw( id user edit_user edit_time );
+    my @col = qw( id user edit_user edit_time subgroup );
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_monitor_config_user where projectid='$projectid' and id='$param->{id}'", join( ',', @col)), \@col )};
@@ -54,6 +54,7 @@ post '/monitor/config/user/:projectid' => sub {
         projectid => qr/^\d+$/, 1,
         id => qr/^\d+$/, 0,
         user => [ 'mismatch', qr/'/ ], 1,
+        subgroup => qr/^[a-zA-Z0-9]*$/, 0,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -62,18 +63,18 @@ post '/monitor/config/user/:projectid' => sub {
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
-    my ( $id, $projectid ) = @$param{qw( id projectid )};
+    my ( $id, $projectid, $subgroup ) = @$param{qw( id projectid subgroup )};
 
     eval{
         my $title = $id ? "UPDATE" : "ADD";
-        $api::auditlog->run( user => $user, title => "$title MONITOR CONFIG USER", content => "TREEID:$projectid USER:$param->{user}" );
+        $api::auditlog->run( user => $user, title => "$title MONITOR CONFIG USER", content => "TREEID:$projectid USER:$param->{user} SUBGROUP:$subgroup" );
         if( $param->{id} )
         {
-            $api::mysql->execute( "update openc3_monitor_config_user set `user`='$param->{user}',edit_user='$user' where projectid='$projectid' and id='$id'" );
+            $api::mysql->execute( "update openc3_monitor_config_user set `user`='$param->{user}',edit_user='$user',subgroup='$subgroup' where projectid='$projectid' and id='$id'" );
         }
         else
         {
-            $api::mysql->execute( "insert into openc3_monitor_config_user (`projectid`,`user`,`edit_user`) values('$projectid','$param->{user}','$user')" );
+            $api::mysql->execute( "insert into openc3_monitor_config_user (`projectid`,`user`,`edit_user`,`subgroup`) values('$projectid','$param->{user}','$user','$subgroup')" );
         }
     };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };

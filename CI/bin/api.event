@@ -34,6 +34,7 @@ use api::kubernetes::nodecheck;
 use api::kubernetes::k8sbackup;
 
 use api::c3mc::tree;
+use api::c3mc::jumpserver;
 
 my $cookiekey;
 BEGIN{
@@ -62,6 +63,7 @@ my ( %handle, %index, $index ) = (
     %api::kubernetes::k8sbackup::handle,
 
     %api::c3mc::tree::handle,
+    %api::c3mc::jumpserver::handle,
 );
 
 my $port = $ENV{CI_API_EVENT_PORT} // '8080';
@@ -88,7 +90,7 @@ my $xx = sub {
         map{ $header{$_} = $req->{hdr}{$_} if $req->{hdr}{$_} }qw( appname appkey );
         $ua->default_header( %header );
 
-        if ( $req->cookie($cookiekey) )
+        if ( $req->headers->{cookie} && $req->cookie($cookiekey) )
         {
             my $cookie = HTTP::Cookies->new();
             $cookie->set_cookie(

@@ -26,7 +26,7 @@
         vm.dashboarnuuid1 = 'dUrNraOn1';
         vm.dashboarnuuid2 = 'dUrNraOnz';
 
-        vm.alias = { 'port': '端口', 'process': '进程', 'http': 'HTTP', 'tcp': 'TCP','udp': 'UDP', 'path': '路径' }
+        vm.alias = { 'port': 'C3T.端口', 'process': 'C3T.进程', 'http': 'HTTP', 'tcp': 'TCP','udp': 'UDP', 'path': 'C3T.路径', 'nodeext': 'C3T.外部数据' }
         vm.locked = 0;
         treeService.sync.then(function(){
             vm.nodeStr = treeService.selectname();
@@ -294,10 +294,11 @@
             });
         };
 
+        vm.subgroup = '';
         vm.createUser = function () {
             vm.newuser = $scope.newUser;
             if ( vm.newuser != undefined && vm.newuser.length > 0){
-                $http.post('/api/agent/monitor/config/user/' + vm.treeid, {'user': vm.usersign + vm.newuser }).then(
+                $http.post('/api/agent/monitor/config/user/' + vm.treeid, { 'subgroup': vm.subgroup, 'user': vm.usersign + vm.newuser }).then(
                     function successCallback(response) {
                         if (response.data.stat){
                             vm.reloadUser();
