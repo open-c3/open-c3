@@ -10,6 +10,9 @@ from tencentcloud.common.profile.client_profile import ClientProfile
 from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.cvm.v20170312 import cvm_client, models
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_qcloud_vpc import Vpc
+
 
 def get(data, access_id, access_key, region):
     """
@@ -26,6 +29,9 @@ def get(data, access_id, access_key, region):
     field_name = subprocess.getoutput(
         "c3mc-cloud-get-real-field compute qcloud-cvm InstanceId")
 
+
+    vpc_client = Vpc(access_id, access_key, region)
+
     req = models.DescribeInstancesRequest()
     params = {
         "InstanceIds": [data[field_name]]
@@ -41,6 +47,11 @@ def get(data, access_id, access_key, region):
                 item["PrivateIP"] = item["PrivateIpAddresses"][0]
             if item["PublicIpAddresses"] is not None and len(item["PublicIpAddresses"]) > 0:
                 item["PublicIP"] = item["PublicIpAddresses"][0]
+
+            if item["VirtualPrivateCloud"]["VpcId"] is not None:
+                item["VpcId"] = item["VirtualPrivateCloud"]["VpcId"]
+                item["VpcName"] =  vpc_client.show_vpc(item["VpcId"])["VpcName"]
+
             return item
     raise Exception(
         "根据 InstanceId {} 未找到 qcloud cvm".format(data[field_name]))

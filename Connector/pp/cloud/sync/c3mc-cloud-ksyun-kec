@@ -51,6 +51,9 @@ class Kec:
                 instance["VpcId"] = instance["NetworkInterfaceSet"][0]["VpcId"]
                 instance["VpcName"] = vpc_client.show_vpc(instance["VpcId"])["VpcName"]
 
+                if "PublicIp" in instance["NetworkInterfaceSet"][0]:
+                    instance["PublicIp"] = instance["NetworkInterfaceSet"][0]["PublicIp"]
+
             print(json.dumps(instance, default=str))
 
     def list_tag(self):

@@ -8,7 +8,7 @@ from huaweicloudsdkvpc.v3.region.vpc_region import VpcRegion
 from huaweicloudsdkvpc.v3 import *
 
 
-class HuaweiVpc:
+class Vpc:
     def __init__(self, access_id, access_key, project_id, region):
         self.access_id = access_id
         self.access_key = access_key

@@ -19,6 +19,17 @@ download:
       exclude:
         "状态": ["stopped"]
         "_ingestion_": ["NO"]
+    ingestion-jumpserver:
+      UUID: '实例ID'
+      InstanceId: '实例ID'
+      HostName: '_name_'
+      IP: '内网IP'
+      InIP: '内网IP'
+      ExIP: '公网IP'
+      OS: '操作系统'
+      Site: [ '{AWS}', 'VpcName' ]
+      VpcId:   'VpcId'
+      VpcName: 'VpcName'
     metrics:
       - name: 'openc3_cmdb_resource_price{account="%s",instanceid="%s",type="compute",subtype="aws-ec2",unit="%s",status="%s"} %f'
         value: ["account", "uuid", "_priceunit_", "状态", "_price_"]
