@@ -21,7 +21,7 @@ my %o      = $option->get( qw( output=s ) )->dump();
 my $db     = MYDB->new( "/data/Software/mydan/AGENT/conf/conn" );
 
 my %rule;
-my @col    = qw( projectid alert expr for severity summary description value );
+my @col    = qw( projectid alert expr for severity summary description value subgroup );
 my $x      = eval{ $db->query( sprintf ( "select %s from `openc3_monitor_config_rule`", join ',', map{"`$_`"}@col ), \@col ) };
 
 for my $row ( @$x )
@@ -52,6 +52,7 @@ for my $treeid ( keys %rule )
         };
 
         $x->{for} = $rule->{ for } if $rule->{ for };
+        $x->{labels}{subgroup} = $rule->{ subgroup } if $rule->{ subgroup };
 
         push @rules, $x;
     }

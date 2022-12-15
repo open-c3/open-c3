@@ -294,10 +294,11 @@
             });
         };
 
+        vm.subgroup = '';
         vm.createUser = function () {
             vm.newuser = $scope.newUser;
             if ( vm.newuser != undefined && vm.newuser.length > 0){
-                $http.post('/api/agent/monitor/config/user/' + vm.treeid, {'user': vm.usersign + vm.newuser }).then(
+                $http.post('/api/agent/monitor/config/user/' + vm.treeid, { 'subgroup': vm.subgroup, 'user': vm.usersign + vm.newuser }).then(
                     function successCallback(response) {
                         if (response.data.stat){
                             vm.reloadUser();

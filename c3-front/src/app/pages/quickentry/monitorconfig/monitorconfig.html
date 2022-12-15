@@ -191,6 +191,7 @@
                     <tr ng-repeat="m in $data">
                         <td data-title="'C3T.编号'|translate" sortable="'id'">{{m.id}}</td>
                         <td data-title="'C3T.名称'|translate" sortable="'alert'">{{m.alert}}</td>
+                        <td data-title="'C3T.子组'|translate" sortable="'alert'">{{m.subgroup}}</td>
                         <td data-title="'C3T.表达式'|translate" sortable="'expr'"><a uib-tooltip="{{m.expr}}" >{{m.expr|cut60}} </a></td>
                         <td data-title="'C3T.告警级别'|translate" sortable="'severity'">{{m.severity}}</td>
                         <td data-title="'C3T.概要'|translate" sortable="'summary'">{{m.summary}}</td>
@@ -216,6 +217,7 @@
             <form class="form-inline" name="myFormUser" novalidate>
                 <div class="form-group">
                     <input type="text" style="width: 250px" class="form-control" ng-model="newUser"  placeholder="{{'C3T.添加报警人'|translate}}" required>
+                    <input type="text" style="width: 250px" class="form-control" ng-model="monitorconfig.subgroup"  placeholder="{{'C3T.子组'|translate}}">
                 </div>
                 <button type="submit" ng-disabled="myFormUser.$invalid" class="btn btn-primary" ng-click="monitorconfig.createUser()"><i class="fa fa-user fa-lg" aria-hidden="true"></i>{{'C3T.添加报警人'|translate}}</button>
             </form>
@@ -224,6 +226,7 @@
            <form class="form-inline" name="myFormGroup" novalidate>
                 <div class="form-group">
                     <select class="form-control" style="width: 250px" ng-model="newUser"  ng-options="o.name as o.name for o in monitorconfig.monitorgroup"> </select>
+                    <input type="text" style="width: 250px" class="form-control" ng-model="monitorconfig.subgroup"  placeholder="{{'C3T.子组'|translate}}">
                 </div>
                 <button type="submit" ng-disabled="myFormGroup.$invalid" class="btn btn-primary" ng-click="monitorconfig.createUser()"><i class="fa fa-user fa-lg" aria-hidden="true"></i>{{'C3T.添加报警组'|translate}}</button>
             </form>
@@ -232,6 +235,7 @@
            <form class="form-inline" name="myFormOncall" novalidate>
                 <div class="form-group">
                     <select class="form-control" style="width: 250px" ng-model="newUser"  ng-options="o.name as o.name for o in monitorconfig.monitoroncall"> </select>
+                    <input type="text" style="width: 250px" class="form-control" ng-model="monitorconfig.subgroup"  placeholder="{{'C3T.子组'|translate}}">
                 </div>
                 <button type="submit" ng-disabled="myFormOncall.$invalid" class="btn btn-primary" ng-click="monitorconfig.createUser()"><i class="fa fa-user fa-lg" aria-hidden="true"></i>{{'C3T.添加轮班组'|translate}}</button>
             </form>
@@ -241,6 +245,7 @@
             <form class="form-inline" name="myFormDepartment" novalidate>
                 <div class="form-group">
                     <input type="text" style="width: 250px" class="form-control" ng-model="newUser"  placeholder="{{'C3T.添加部门组'|translate}}" required>
+                    <input type="text" style="width: 250px" class="form-control" ng-model="monitorconfig.subgroup"  placeholder="{{'C3T.子组'|translate}}">
                 </div>
                 <button type="submit" ng-disabled="myFormDepartment.$invalid" class="btn btn-primary" ng-click="monitorconfig.createUser()"><i class="fa fa-user fa-lg" aria-hidden="true"></i>{{'C3T.添加部门组'|translate}}</button>
             </form>
@@ -272,6 +277,7 @@
             <table ng-table="monitorconfig.activeUserTable" class="table table-hover text-center table-condensed">
                 <tr ng-repeat="ss in $data">
                     <td data-title="'C3T.账户名'|translate" >{{ss.user}}</td>
+                    <td data-title="'C3T.子组'|translate" >{{ss.subgroup}}</td>
                     <td data-title="'C3T.创建人'|translate">{{ss.edit_user}}</td>
                     <td data-title="'C3T.创建时间'|translate">{{ss.edit_time}}</td>
                     <td data-title="'C3T.操作'|translate">

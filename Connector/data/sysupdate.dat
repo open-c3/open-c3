@@ -651,3 +651,8 @@ create table if not exists `openc3_monitor_usercase`(
 UNIQUE KEY `uniq_uuid` (`user`,`caseuuid`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='openc3_monitor_usercase';
 
+# v2.6.0 sql openc3_monitor_config_rule add subgroup
+ALTER TABLE openc3_monitor_config_rule ADD `subgroup` VARCHAR(50) DEFAULT '' comment '子分组,告警接收人可以根据组配置接收';
+
+# v2.6.0 sql openc3_monitor_config_user add subgroup
+ALTER TABLE openc3_monitor_config_user ADD `subgroup` VARCHAR(50) DEFAULT '' comment '子分组,接收部分告警策略的告警';
