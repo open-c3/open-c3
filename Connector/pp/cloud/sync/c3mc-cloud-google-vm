@@ -6,7 +6,7 @@ import json
 
 from google.oauth2 import service_account
 from google.cloud import compute_v1
-from google.protobuf.json_format import MessageToJson
+from google.protobuf.json_format import MessageToJson, MessageToDict
 
 
 class VM:
@@ -23,7 +23,10 @@ class VM:
         results = []
         for _, instances in client.aggregated_list(request={"project": self.credentials.project_id, "max_results": self.page_size}):
             for instance in instances.instances:
-                item = json.loads(MessageToJson(instance._pb))
+                try:
+                    item = MessageToDict(instance)
+                except:
+                    item = MessageToDict(instance._pb)
 
                 item["zone"] = item["zone"].split("/")[-1]
                 item["regionId"] = item["zone"].split("/")[-1][:-2]
