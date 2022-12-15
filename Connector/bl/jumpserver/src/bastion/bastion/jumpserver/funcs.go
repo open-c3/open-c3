@@ -12,7 +12,7 @@ import (
 // 检查用户是否存在
 func (b *Bastion) getUser(username string) (*User, error) {
 	apiUrl, err := utils.GetUrlWithParams(
-		b.bastion.BaseUrl,
+		b.bastion.Url,
 		"/api/v1/users/users/",
 		map[string]string{
 			"username": username,
@@ -39,7 +39,7 @@ func (b *Bastion) getUser(username string) (*User, error) {
 
 func (b *Bastion) checkIfUserDuplicate(username, email string) (*bool, error) {
 	apiUrl, err := utils.GetUrlWithParams(
-		b.bastion.BaseUrl,
+		b.bastion.Url,
 		"/api/v1/users/users/",
 		map[string]string{
 			"username": username,
@@ -71,12 +71,12 @@ func (b *Bastion) createUser(username, email, password, phone string) error {
 		return err
 	}
 	if *exist {
-		errMsg := fmt.Sprintf("用户名或邮箱已存在")
+		errMsg := "用户名或邮箱已存在"
 		return errors.New(errMsg)
 	}
 
 	apiUrl, err := utils.GetUrlWithParams(
-		b.bastion.BaseUrl,
+		b.bastion.Url,
 		"/api/v1/users/users/",
 		nil,
 	)
@@ -109,7 +109,7 @@ func (b *Bastion) createUser(username, email, password, phone string) error {
 // 获取资产信息
 func (b *Bastion) getAsset(ip string) (*Asset, error) {
 	apiUrl, err := utils.GetUrlWithParams(
-		b.bastion.BaseUrl,
+		b.bastion.Url,
 		"/api/v1/assets/assets/",
 		map[string]string{
 			"ip": ip,
@@ -145,7 +145,7 @@ func (b *Bastion) createSystemUser(username, ip, password string) error {
 	}
 
 	apiUrl, err := utils.GetUrlWithParams(
-		b.bastion.BaseUrl,
+		b.bastion.Url,
 		"/api/v1/assets/system-users/",
 		nil,
 	)
@@ -189,7 +189,7 @@ func (b *Bastion) deleteSystemUser(username, ip string) error {
 		return nil
 	}
 	apiUrl, err := utils.GetUrlWithParams(
-		b.bastion.BaseUrl,
+		b.bastion.Url,
 		fmt.Sprintf("/api/v1/assets/system-users/%v/", systemUser.Id),
 		nil,
 	)
@@ -207,7 +207,7 @@ func (b *Bastion) deleteSystemUser(username, ip string) error {
 
 func (b *Bastion) getSystemUserByName(username, ip string) (*SystemUser, error) {
 	apiUrl, err := utils.GetUrlWithParams(
-		b.bastion.BaseUrl,
+		b.bastion.Url,
 		"/api/v1/assets/system-users/",
 		map[string]string{
 			"name": fmt.Sprintf("%v_%v", username, ip),
@@ -260,7 +260,7 @@ func (b *Bastion) upsertAssetPermission(user *User, newSystemUser *SystemUser, n
 	)
 	if oldAssetPermission == nil {
 		apiUrl, err = utils.GetUrlWithParams(
-			b.bastion.BaseUrl,
+			b.bastion.Url,
 			"/api/v1/perms/asset-permissions/",
 			nil,
 		)
@@ -285,7 +285,7 @@ func (b *Bastion) upsertAssetPermission(user *User, newSystemUser *SystemUser, n
 		method = http.MethodPost
 	} else {
 		apiUrl, err = utils.GetUrlWithParams(
-			b.bastion.BaseUrl,
+			b.bastion.Url,
 			fmt.Sprintf("/api/v1/perms/asset-permissions/%v/", oldAssetPermission.Id),
 			nil,
 		)
@@ -319,7 +319,7 @@ func (b *Bastion) upsertAssetPermission(user *User, newSystemUser *SystemUser, n
 
 func (b *Bastion) getAssetPermissions(username string) (*AssetPermission, error) {
 	apiUrl, err := utils.GetUrlWithParams(
-		b.bastion.BaseUrl,
+		b.bastion.Url,
 		"/api/v1/perms/asset-permissions/",
 		map[string]string{
 			"name": username,

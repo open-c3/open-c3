@@ -1,0 +1,27 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+import os
+import subprocess
+
+
+def main():
+    bl_mode = subprocess.getoutput("c3mc-sys-ctl sys.bl.mode").strip()
+    if bl_mode == 'none' or bl_mode == '':
+        return
+
+    user = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.{}.admin.user".format(bl_mode)).strip()
+    passwd = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.{}.admin.pass".format(bl_mode)).strip()
+    url = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.{}.url".format(bl_mode)).strip()
+
+    command = None
+    if bl_mode == "jumpserver":
+        command = "c3mc-bl-jumpserver"
+    else:
+        raise Exception("不支持的堡垒机类型")
+
+    os.system("{} -user {} -pass {} -url {}".format(command, user, passwd, url))
+    
+
+if __name__ == '__main__':
+    main()

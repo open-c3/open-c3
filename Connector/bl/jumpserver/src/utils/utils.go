@@ -4,7 +4,6 @@ import (
 	"bl/src/logger"
 	"crypto/tls"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"math/rand"
@@ -28,16 +27,11 @@ func createHttpClient() http.Client {
 }
 
 func DoNetworkRequest(method string, url, postData string, headMap map[string]string, respValue interface{}) ([]byte, *int, error) {
-	hasHardTry := false
+	maxRetries := 3
 
-here:
-	retryTimes := 2
-	var res *http.Response
-	for i := 0; i < retryTimes; i++ {
-		if i == retryTimes-1 {
-			// 尝试了多次仍然不行，后面有错没必要重试了
-			hasHardTry = true
-		}
+	var resp *http.Response
+	var err error
+	for i := 0; i < maxRetries; i++ {
 		client := createHttpClient()
 		req, err := http.NewRequest(method, url, strings.NewReader(postData))
 		if err != nil {
@@ -47,26 +41,20 @@ here:
 		for k, v := range headMap {
 			req.Header.Set(k, v)
 		}
-		res, err = client.Do(req)
-		if err != nil {
-			logger.FsWarnf("util", "请求出错.err: %v, 正在进行重试, 总尝试次数: %v, 当前正在尝试第 %v 次\n", err, retryTimes, i)
-			time.Sleep(time.Second * time.Duration(i+1))
-			continue
+		resp, err = client.Do(req)
+		if err == nil {
+			break
 		}
-		break
+		time.Sleep(time.Second)
 	}
 
-	if res == nil {
-		return nil, nil, errors.New("http响应为空")
-	}
-
-	body, err := ioutil.ReadAll(res.Body)
 	if err != nil {
-		if !hasHardTry {
-			goto here
-		} else {
-			return body, nil, err
-		}
+		return nil, nil, err
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, nil, err
 	}
 
 	if respValue != nil {
@@ -75,18 +63,15 @@ here:
 			return body, nil, err
 		}
 	}
-	statusCode := res.StatusCode
+	statusCode := resp.StatusCode
 
-	err = res.Body.Close()
+	err = resp.Body.Close()
 	if err != nil {
 		return body, nil, err
 	}
 	return body, &statusCode, nil
 }
 
-/*
-get请求中根据参数创建请求url
-*/
 func GetUrlWithParams(serverAddr string, uri string, params map[string]string) (*string, error) {
 	u, err := url.Parse(serverAddr)
 	if err != nil {

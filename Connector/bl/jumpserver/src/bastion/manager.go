@@ -1,7 +1,6 @@
 package bastion
 
 import (
-	"bl/src/bastion/bastion"
 	"bl/src/logger"
 	"bl/src/model"
 	"fmt"
@@ -9,17 +8,12 @@ import (
 	"strings"
 )
 
-func SyncMachines() {
-	user, pass, url, blMode := getBlAccountAndPass()
-	if user == "" {
-		return
-	}
+func SyncMachines(user, pass, url string) {
 	syncBastion := NewBastion(
 		model.Bastion{
-			AuthUser:     user,
-			AuthPass:     pass,
-			BaseUrl:      url,
-			Manufacturer: bastion.Manufacturer(blMode),
+			User: user,
+			Pass: pass,
+			Url:  url,
 		},
 	)
 
@@ -28,9 +22,9 @@ func SyncMachines() {
 		logger.FsErrorf("SyncMachine.SetToken.err: %v", err)
 		return
 	}
-	err = BastionHelper(syncBastion)
+	err = Helper(syncBastion)
 	if err != nil {
-		logger.FsErrorf("SyncMachine.BastionHelper.err: %v", err)
+		logger.FsErrorf("SyncMachine.Helper.err: %v", err)
 		return
 	}
 }

@@ -1,7 +1,6 @@
 package jumpserver
 
 import (
-	"bl/src/bastion/bastion"
 	"bl/src/logger"
 	"bl/src/model"
 	"bl/src/utils"
@@ -17,7 +16,6 @@ type Bastion struct {
 	bastion model.Bastion
 }
 
-// NewBastion -.
 func NewBastion(bastion model.Bastion) *Bastion {
 	return &Bastion{
 		bastion: bastion,
@@ -25,10 +23,10 @@ func NewBastion(bastion model.Bastion) *Bastion {
 }
 
 func (b *Bastion) SetToken() error {
-	user := b.bastion.AuthUser
-	password := b.bastion.AuthPass
+	user := b.bastion.User
+	password := b.bastion.Pass
 
-	apiUrl, err := utils.GetUrlWithParams(b.bastion.BaseUrl, "/api/v1/authentication/auth/", nil)
+	apiUrl, err := utils.GetUrlWithParams(b.bastion.Url, "/api/v1/authentication/auth/", nil)
 	if err != nil {
 		logger.FsErrorf("SetToken.GetUrlWithParams.err: %v", err)
 		return err
@@ -68,18 +66,6 @@ func (b *Bastion) SetToken() error {
 	return nil
 }
 
-func (b *Bastion) GetManufacturer() bastion.Manufacturer {
-	return b.bastion.Manufacturer
-}
-
-func (b *Bastion) GetFilterVpcKeywords() []string {
-	return b.bastion.FilterVpcKeyWords
-}
-
-func (b *Bastion) GetBastionData() model.Bastion {
-	return b.bastion
-}
-
 func (b *Bastion) getHeader() map[string]string {
 	return map[string]string{
 		"Authorization": fmt.Sprintf("Bearer %v", b.token),
@@ -89,7 +75,7 @@ func (b *Bastion) getHeader() map[string]string {
 
 func (b *Bastion) GetAssetMap(localMachines []model.MachineInfo) (map[interface{}]model.MachineInfo, map[interface{}]interface{}, error) {
 	apiUrl, err := utils.GetUrlWithParams(
-		b.bastion.BaseUrl,
+		b.bastion.Url,
 		"/api/v1/assets/assets/",
 		nil,
 	)
@@ -141,7 +127,7 @@ func (b *Bastion) CompareMachineInfoAndAsset(machineInfo model.MachineInfo, asse
 func (b *Bastion) DeleteAsset(asset interface{}) error {
 	assetInfo := asset.(Asset)
 	apiUrl, err := utils.GetUrlWithParams(
-		b.bastion.BaseUrl,
+		b.bastion.Url,
 		fmt.Sprintf("/api/v1/assets/assets/%v/", assetInfo.Id),
 		nil,
 	)
@@ -160,7 +146,7 @@ func (b *Bastion) DeleteAsset(asset interface{}) error {
 
 func (b *Bastion) CreateOrUpdateAsset(machineInfo model.MachineInfo) error {
 	apiUrl, err := utils.GetUrlWithParams(
-		b.bastion.BaseUrl,
+		b.bastion.Url,
 		"/api/v1/assets/assets/",
 		nil,
 	)
@@ -175,8 +161,7 @@ func (b *Bastion) CreateOrUpdateAsset(machineInfo model.MachineInfo) error {
 	}
 
 	data := utils.ToJsonString(CreateAssetRequest{
-		// jumpserver 要求uuid是这种格式 a1856c5a-1789-11ed-bddf-bee271d8d5b5。
-		// 但是数据库里记录的uuid和资源的实例id都不是这种格式
+		// jumpserver要求uuid是这种格式 a1856c5a-1789-11ed-bddf-bee271d8d5b5。
 		Id:       *id,
 		HostName: machineInfo.HostName,
 		Ip:       machineInfo.IP,
@@ -189,6 +174,5 @@ func (b *Bastion) CreateOrUpdateAsset(machineInfo model.MachineInfo) error {
 		logger.FsErrorf("CreateAsset.DoNetworkRequest.err: %v, body = %v", err, string(body))
 		return err
 	}
-
 	return nil
 }
