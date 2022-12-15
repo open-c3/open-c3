@@ -70,6 +70,31 @@ for my $type ( qw( api api.event ) )
     }
 }
 
+my %nginxdeploying = 
+(
+    nodeextquery  => 'nodeextdeploying',
+    nodeext2query => 'nodeextdeploying',
+);
+
+sub nginx_off
+{
+    my $srv = shift @_;
+    return unless my $name = $nginxdeploying{$srv};
+    my $time = time;
+    system "sed -i 's/agent_api_${name}_.*;/agent_api_${name}_$srv;/' /etc/nginx/conf.d/api.agent.open-c3.org.conf";
+    system "nginx -s reload";
+    map{ print "wait nginx reload ... $_\n"; sleep 1; }1..15;
+}
+
+sub nginx_on
+{
+    my $srv = shift @_;
+    return unless my $name = $nginxdeploying{$srv};
+    my $time = time;
+    system "sed -i 's/agent_api_${name}_.*;/agent_api_${name}_off;/' /etc/nginx/conf.d/api.agent.open-c3.org.conf";
+    system "nginx -s reload";
+}
+
 for my $server ( qw( 
     bury
     keepalive
@@ -87,6 +112,7 @@ for my $server ( qw(
     redisquery
     mongodbquery
     nodeextquery
+    nodeext2query
     mailmon
     portcheckok
     cloudmon
@@ -96,6 +122,7 @@ for my $server ( qw(
     my $oldpid = `ps -ef|grep [a]gent_server_$server|head -n 1|awk '{print \$2}'`;
     chomp $oldpid;
 
+    nginx_off( $server );
     system "killall agent_server_$server";
 
     my $newpid;
@@ -122,4 +149,5 @@ for my $server ( qw(
     print "restart server agent_server_$server old pid: $oldpid new pid: $newpid\n";
 
     die "same pid.\n" if $oldpid && $newpid && $oldpid eq $newpid;
+    nginx_on( $server );
 }

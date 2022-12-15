@@ -14,6 +14,20 @@
 #  server 127.0.0.1:8010;
 #}
 #
+
+upstream agent_api_nodeextdeploying_off{
+  server 127.0.0.1:65216;
+  server 127.0.0.1:65116;
+}
+
+upstream agent_api_nodeextdeploying_nodeextquery{
+  server 127.0.0.1:65216;
+}
+
+upstream agent_api_nodeextdeploying_nodeext2query{
+  server 127.0.0.1:65116;
+}
+
 server {
     listen       80;
     server_name  api.agent.open-c3.org;
@@ -71,7 +85,7 @@ server {
 
     location /v3/nodeext/metrics/ {
         rewrite /v3/nodeext/metrics/([0-9a-z\.\-:\/]+)$ /query_$1_query break;
-        proxy_pass http://127.0.0.1:65116;
+        proxy_pass http://agent_api_nodeextdeploying_off;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header Host $host:$server_port;
