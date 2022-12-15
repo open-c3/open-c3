@@ -16,7 +16,7 @@ our %handle = %api::kubernetes::handle;
 get '/c3mc/jumpserver' => sub {
     my $pmscheck = api::pmscheck( 'openc3_ci_root' ); return $pmscheck if $pmscheck;
 
-    my $cmd = "c3mc-device-ingestion-jumpserver";
+    my $cmd = "c3mc-device-ingestion-jumpserver 2>&1";
     my $handle = 'jumpserver';
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
@@ -25,7 +25,7 @@ get '/c3mc/jumpserver' => sub {
 $handle{jumpserver} = sub
 {
     my ( $x, $status ) = @_;
-    return +{ stat => $JSON::false, data => $x } if $status;
+    return +{ stat => $JSON::false, info => $x } if $status;
     my @res;
     my @col = qw( UUID InstanceId HostName IP InIP ExIP OS Site VpcId VpcName );
     for( split /\n/, $x )
