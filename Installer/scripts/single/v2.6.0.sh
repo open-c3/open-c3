@@ -67,4 +67,3 @@ docker cp /data/open-c3/Installer/install-cache/bin/amtool  openc3-server:/usr/b
 docker exec -i openc3-server /data/Software/mydan/AGENT/device/init/install.sh
 
 docker exec -i openc3-server /data/Software/mydan/Connector/bl/sync/jumpserver/build.sh
-docker cp /data/open-c3/Connector/bl/c3mc-bl openc3-server:/usr/bin/
