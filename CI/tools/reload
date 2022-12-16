@@ -71,7 +71,7 @@ for my $type ( qw( api api.slave api.event ) )
 
 for my $server ( qw( keepalive findtags findtagsonce build bury clean flowreport ) )
 {
-    my $oldpid = `ps -ef|grep [c]i_server_$server|head -n 1|awk '{print \$2}'`;
+    my $oldpid = `ps -ef|grep "[c]i_server_$server\\b"|head -n 1|awk '{print \$2}'`;
     chomp $oldpid;
 
     system "killall ci_server_$server";
@@ -81,7 +81,7 @@ for my $server ( qw( keepalive findtags findtagsonce build bury clean flowreport
     {
         system "$base/tools/restart $server" if $index == 20;
         print "check server ci_server_$server ...\n";
-        $newpid = `ps -ef|grep [c]i_server_$server|head -n 1|awk '{print \$2}'`;
+        $newpid = `ps -ef|grep "[c]i_server_$server\\b"|head -n 1|awk '{print \$2}'`;
 
         if( $newpid )
         {

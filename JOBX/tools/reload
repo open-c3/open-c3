@@ -70,7 +70,7 @@ for my $type ( qw( api api.slave ) )
 
 for my $server ( qw( call bury keepalive monitor ) )
 {
-    my $oldpid = `ps -ef|grep [j]obx_server_$server|head -n 1|awk '{print \$2}'`;
+    my $oldpid = `ps -ef|grep "[j]obx_server_$server\\b"|head -n 1|awk '{print \$2}'`;
     chomp $oldpid;
 
     system "killall jobx_server_$server";
@@ -80,7 +80,7 @@ for my $server ( qw( call bury keepalive monitor ) )
     {
         system "$base/tools/restart $server" if $index == 20;
         print "check server jobx_server_$server ...\n";
-        $newpid = `ps -ef|grep [j]obx_server_$server|head -n 1|awk '{print \$2}'`;
+        $newpid = `ps -ef|grep "[j]obx_server_$server\\b"|head -n 1|awk '{print \$2}'`;
 
         if( $newpid )
         {

@@ -134,7 +134,7 @@ for my $server ( qw(
     devicesync
     ) )
 {
-    my $oldpid = `ps -ef|grep [a]gent_server_$server|head -n 1|awk '{print \$2}'`;
+    my $oldpid = `ps -ef|grep "[a]gent_server_$server\\b"|head -n 1|awk '{print \$2}'`;
     chomp $oldpid;
 
     nginx_off( $server );
@@ -146,7 +146,7 @@ for my $server ( qw(
         system "$base/tools/restart $server" if $index == 20;
 
         print "check server agent_server_$server ...\n";
-        $newpid = `ps -ef|grep [a]gent_server_$server|head -n 1|awk '{print \$2}'`;
+        $newpid = `ps -ef|grep "[a]gent_server_$server\\b"|head -n 1|awk '{print \$2}'`;
 
         if( $newpid )
         {

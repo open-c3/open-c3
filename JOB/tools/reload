@@ -69,7 +69,7 @@ for my $type ( qw( api api.slave ) )
 
 for my $server ( qw( call bury crontab keepalive notify approval clean ) )
 {
-    my $oldpid = `ps -ef|grep [j]ob_server_$server|head -n 1|awk '{print \$2}'`;
+    my $oldpid = `ps -ef|grep "[j]ob_server_$server\\b"|head -n 1|awk '{print \$2}'`;
     chomp $oldpid;
 
     system "killall job_server_$server";
@@ -79,7 +79,7 @@ for my $server ( qw( call bury crontab keepalive notify approval clean ) )
     {
         system "$base/tools/restart $port" if $index == 20;
         print "check server job_server_$server ...\n";
-        $newpid = `ps -ef|grep [j]ob_server_$server|head -n 1|awk '{print \$2}'`;
+        $newpid = `ps -ef|grep "[j]ob_server_$server\\b"|head -n 1|awk '{print \$2}'`;
 
         if( $newpid )
         {
