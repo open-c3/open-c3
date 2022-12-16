@@ -2,6 +2,10 @@
 
 docker exec -i openc3-server /data/Software/mydan/perl/bin/cpan install AnyEvent::HTTPD::Router AnyEvent::HTTPD::CookiePatch AnyEvent::HTTP
 
+bash /data/open-c3/Connector/bl/jumpserver/deploy.sh
+docker cp /data/open-c3/Connector/pp/bl/jumpserver/c3mc-bl-jumpserver    openc3-server:/usr/bin/
+docker cp /data/open-c3/Connector/bl/c3mc-bl    openc3-server:/usr/bin/
+
 docker cp /data/open-c3/Installer/install-cache/bin/kubectl    openc3-server:/usr/bin/
 docker cp /data/open-c3/Installer/install-cache/bin/yaml2json  openc3-server:/usr/bin/
 docker cp /data/open-c3/Installer/install-cache/bin/json2yaml  openc3-server:/usr/bin/
