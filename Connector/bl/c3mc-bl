@@ -13,14 +13,12 @@ def main():
     user = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.{}.admin.user".format(bl_mode)).strip()
     passwd = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.{}.admin.pass".format(bl_mode)).strip()
     url = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.{}.url".format(bl_mode)).strip()
+    app_key = os.getenv("OPEN_C3_RANDOM")
 
-    command = None
-    if bl_mode == "jumpserver":
-        command = "c3mc-bl-jumpserver"
-    else:
-        raise Exception("不支持的堡垒机类型")
 
-    os.system("{} -user {} -pass {} -url {}".format(command, user, passwd, url))
+    command = "/data/Software/mydan/Connector/bl/sync/{}/{}".format(bl_mode, bl_mode)
+
+    os.system("{} {} {} {} {} {}".format(command, user, passwd, url, "job", app_key))
     
 
 if __name__ == '__main__':

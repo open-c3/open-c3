@@ -5,22 +5,15 @@ import (
 	"bl/src/model"
 	"bl/src/utils"
 	"net/http"
-	"os"
-	"strings"
 )
 
 type C3MachineInfoList struct{}
 
-func (c C3MachineInfoList) GetMachineInfoList() ([]model.MachineInfo, error) {
-	appkey := strings.TrimSpace(os.Getenv("OPEN_C3_RANDOM"))
-	if appkey == "" {
-		return nil, nil
-	}
-
+func (c C3MachineInfoList) GetMachineInfoList(appName, appKey string) ([]model.MachineInfo, error) {
 	header := map[string]string{
 		"Content-Type": "application/json",
-		"appname":      "job",
-		"appkey":       appkey,
+		"appname":      appName,
+		"appkey":       appKey,
 	}
 
 	url := "http://localhost:88/api/ci/v2/c3mc/jumpserver"
