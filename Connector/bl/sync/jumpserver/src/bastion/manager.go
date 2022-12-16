@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func SyncMachines(user, pass, url string) {
+func SyncMachines(user, pass, url, appName, appKey string) {
 	syncBastion := NewBastion(
 		model.Bastion{
 			User: user,
@@ -22,7 +22,7 @@ func SyncMachines(user, pass, url string) {
 		logger.FsErrorf("SyncMachine.SetToken.err: %v", err)
 		return
 	}
-	err = Helper(syncBastion)
+	err = Helper(syncBastion, appName, appKey)
 	if err != nil {
 		logger.FsErrorf("SyncMachine.Helper.err: %v", err)
 		return

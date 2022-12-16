@@ -6,7 +6,7 @@ import (
 
 type (
 	CloudMachineInfoList interface {
-		GetMachineInfoList() ([]model.MachineInfo, error)
+		GetMachineInfoList(appName, appKey string) ([]model.MachineInfo, error)
 	}
 
 	SyncBastion interface {
