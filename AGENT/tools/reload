@@ -72,6 +72,18 @@ for my $type ( qw( api api.event ) )
 
 my %nginxdeploying = 
 (
+    nodequery     => 'nodedeploying',
+    node2query    => 'nodedeploying',
+
+    mysqlquery    => 'mysqldeploying',
+    mysql2query   => 'mysqldeploying',
+
+    redisquery    => 'redisdeploying',
+    redis2query   => 'redisdeploying',
+
+    mongodbquery  => 'mongodbdeploying',
+    mongodb2query => 'mongodbdeploying',
+
     nodeextquery  => 'nodeextdeploying',
     nodeext2query => 'nodeextdeploying',
 );
@@ -80,7 +92,6 @@ sub nginx_off
 {
     my $srv = shift @_;
     return unless my $name = $nginxdeploying{$srv};
-    my $time = time;
     system "sed -i 's/agent_api_${name}_.*;/agent_api_${name}_$srv;/' /etc/nginx/conf.d/api.agent.open-c3.org.conf";
     system "nginx -s reload";
     map{ print "wait nginx reload ... $_\n"; sleep 1; }1..15;
@@ -90,7 +101,7 @@ sub nginx_on
 {
     my $srv = shift @_;
     return unless my $name = $nginxdeploying{$srv};
-    my $time = time;
+    map{ print "wait nginx reload ... $_\n"; sleep 1; }1..15; # wait server ready, for example: load proxy or carry done
     system "sed -i 's/agent_api_${name}_.*;/agent_api_${name}_off;/' /etc/nginx/conf.d/api.agent.open-c3.org.conf";
     system "nginx -s reload";
 }
@@ -108,9 +119,13 @@ for my $server ( qw(
     extend-exporter
     self-healing
     nodequery
+    node2query
     mysqlquery
+    mysql2query
     redisquery
+    redis2query
     mongodbquery
+    mongodb2query
     nodeextquery
     nodeext2query
     mailmon

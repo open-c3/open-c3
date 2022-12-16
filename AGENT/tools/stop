@@ -42,4 +42,31 @@ map{
     system "killall agent_server_$_";
     print "stop agent_server_$_\n"
 }grep{ ( ! $service ) || ( $service && $service eq $_ ) }
-qw( call bury keepalive check inherit promesd promesdx carry rule sender nodequery mysqlquery redisquery mongodbquery nodeextquery nodeext2query extend-exporter self-healing mailmon portcheckok cloudmon devicesync );
+qw(
+    call
+    bury
+    keepalive
+    check
+    inherit
+    promesd
+    promesdx
+    carry
+    rule
+    sender
+    nodequery
+    node2query
+    mysqlquery
+    mysql2query
+    redisquery
+    redis2query
+    mongodbquery
+    mongodb2query
+    nodeextquery
+    nodeext2query
+    extend-exporter
+    self-healing
+    mailmon
+    portcheckok
+    cloudmon
+    devicesync
+);
