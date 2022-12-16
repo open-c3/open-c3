@@ -17,14 +17,14 @@ func NewBastion(bl model.Bastion) SyncBastion {
 	return jumpserver.NewBastion(bl)
 }
 
-func Helper(syncBastion SyncBastion) error {
+func Helper(syncBastion SyncBastion, appName, appKey string) error {
 	var (
 		machinesList []model.MachineInfo
 		err          error
 	)
 
 	for _, dataSource := range supportedDataSource {
-		list, err := dataSource.GetMachineInfoList()
+		list, err := dataSource.GetMachineInfoList(appName, appKey)
 		if err != nil {
 			logger.FsErrorf("Helper.GetMachineInfoList.err: %v", err)
 			return err
