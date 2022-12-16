@@ -15,7 +15,7 @@ def main():
 
     args = ""
     for name in sys_args:
-        if name.startswith("sys.bl.sync."):
+        if name.startswith("sys.bl.sync." + bl_mode):
             args += "-{} {} ".format(name.split(".")[-1], sys_args[name])
 
     app_key = os.getenv("OPEN_C3_RANDOM")
