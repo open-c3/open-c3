@@ -75,40 +75,36 @@ for my $type ( qw( api api.event ) )
 
 system "c3mc-nginx-reload --reset --reload";
 
-my %nginxdeploying = 
+my %port = 
 (
-    nodequery     => 'nodedeploying',
-    node2query    => 'nodedeploying',
+    nodequery     => '65112',
+    node2query    => '65212',
 
-    mysqlquery    => 'mysqldeploying',
-    mysql2query   => 'mysqldeploying',
+    mysqlquery    => '65113',
+    mysql2query   => '65213',
 
-    redisquery    => 'redisdeploying',
-    redis2query   => 'redisdeploying',
+    redisquery    => '65114',
+    redis2query   => '65214',
 
-    mongodbquery  => 'mongodbdeploying',
-    mongodb2query => 'mongodbdeploying',
+    mongodbquery  => '65115',
+    mongodb2query => '65215',
 
-    nodeextquery  => 'nodeextdeploying',
-    nodeext2query => 'nodeextdeploying',
+    nodeextquery  => '65116',
+    nodeext2query => '65216',
 );
 
 sub nginx_off
 {
     my $srv = shift @_;
-    return unless my $name = $nginxdeploying{$srv};
-    system "sed -i 's/agent_api_${name}_.*;/agent_api_${name}_$srv;/' /etc/nginx/conf.d/api.agent.open-c3.org.conf";
-    system "nginx -s reload";
-    map{ print "wait nginx reload ... $_\n"; sleep 1; }1..15;
+    return unless my $port = $port{$srv};
+    system "c3mc-nginx-reload --off $port --reload --before";
 }
 
 sub nginx_on
 {
     my $srv = shift @_;
-    return unless my $name = $nginxdeploying{$srv};
-    map{ print "wait nginx reload ... $_\n"; sleep 1; }1..15; # wait server ready, for example: load proxy or carry done
-    system "sed -i 's/agent_api_${name}_.*;/agent_api_${name}_off;/' /etc/nginx/conf.d/api.agent.open-c3.org.conf";
-    system "nginx -s reload";
+    return unless my $port = $port{$srv};
+    system "c3mc-nginx-reload --on $port --reload --after";
 }
 
 for my $server ( qw( 
@@ -171,3 +167,5 @@ for my $server ( qw(
     die "same pid.\n" if $oldpid && $newpid && $oldpid eq $newpid;
     nginx_on( $server );
 }
+
+system "c3mc-nginx-reload --reset --reload";

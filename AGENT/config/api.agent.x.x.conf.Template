@@ -15,68 +15,28 @@
 #}
 #
 
-upstream agent_api_nodedeploying_off{
+upstream agent_api_nodequery{
   server 127.0.0.1:65212;
   server 127.0.0.1:65112;
 }
 
-upstream agent_api_nodedeploying_nodequery{
-  server 127.0.0.1:65212;
-}
-
-upstream agent_api_nodedeploying_node2query{
-  server 127.0.0.1:65112;
-}
-
-upstream agent_api_mysqldeploying_off{
+upstream agent_api_mysqlquery{
   server 127.0.0.1:65213;
   server 127.0.0.1:65113;
 }
 
-upstream agent_api_mysqldeploying_mysqlquery{
-  server 127.0.0.1:65213;
-}
-
-upstream agent_api_mysqldeploying_mysql2query{
-  server 127.0.0.1:65113;
-}
-
-upstream agent_api_redisdeploying_off{
+upstream agent_api_redisquery{
   server 127.0.0.1:65214;
   server 127.0.0.1:65114;
 }
 
-upstream agent_api_redisdeploying_redisquery{
-  server 127.0.0.1:65214;
-}
-
-upstream agent_api_redisdeploying_redis2query{
-  server 127.0.0.1:65114;
-}
-
-upstream agent_api_mongodbdeploying_off{
+upstream agent_api_mongodbquery{
   server 127.0.0.1:65215;
   server 127.0.0.1:65115;
 }
 
-upstream agent_api_mongodbdeploying_mongodbquery{
-  server 127.0.0.1:65215;
-}
-
-upstream agent_api_mongodbdeploying_mongodb2query{
-  server 127.0.0.1:65115;
-}
-
-upstream agent_api_nodeextdeploying_off{
+upstream agent_api_nodeextquery{
   server 127.0.0.1:65216;
-  server 127.0.0.1:65116;
-}
-
-upstream agent_api_nodeextdeploying_nodeextquery{
-  server 127.0.0.1:65216;
-}
-
-upstream agent_api_nodeextdeploying_nodeext2query{
   server 127.0.0.1:65116;
 }
 
@@ -105,7 +65,7 @@ server {
 
     location /v3/node/metrics/ {
         rewrite /v3/node/metrics/([0-9a-z\.-]+)$ /query_$1_query break;
-        proxy_pass http://agent_api_nodedeploying_off;
+        proxy_pass http://agent_api_nodequery;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header Host $host:$server_port;
@@ -113,7 +73,7 @@ server {
 
     location /v3/mysql/metrics/ {
         rewrite /v3/mysql/metrics/([0-9a-z\.\-:]+)$ /query_$1_query break;
-        proxy_pass http://agent_api_mysqldeploying_off;
+        proxy_pass http://agent_api_mysqlquery;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header Host $host:$server_port;
@@ -121,7 +81,7 @@ server {
 
     location /v3/redis/metrics/ {
         rewrite /v3/redis/metrics/([0-9a-z\.\-:]+)$ /query_$1_query break;
-        proxy_pass http://agent_api_redisdeploying_off;
+        proxy_pass http://agent_api_redisquery;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header Host $host:$server_port;
@@ -129,7 +89,7 @@ server {
 
     location /v3/mongodb/metrics/ {
         rewrite /v3/mongodb/metrics/([0-9a-z\.\-:]+)$ /query_$1_query break;
-        proxy_pass http://agent_api_mongodbdeploying_off;
+        proxy_pass http://agent_api_mongodbquery;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header Host $host:$server_port;
@@ -137,7 +97,7 @@ server {
 
     location /v3/nodeext/metrics/ {
         rewrite /v3/nodeext/metrics/([0-9a-z\.\-:\/]+)$ /query_$1_query break;
-        proxy_pass http://agent_api_nodeextdeploying_off;
+        proxy_pass http://agent_api_nodeextquery;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header Host $host:$server_port;
