@@ -26,7 +26,7 @@ BEGIN{
 
 my ( %handle, %index, $index ) = ( );
 
-my $port = $ENV{CI_API_EVENT_PORT} // '38081';
+my $port = $ENV{AGENT_API_EVENT_PORT} // '38081';
 my $httpd = AnyEvent::HTTPD::Router->new( port => $port, request_class => 'AnyEvent::HTTPD::CookiePatch' );
 
 my $xx = sub {

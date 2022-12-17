@@ -1,0 +1,60 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0
+ $0 --off 8080
+ $0 --on 8080
+ $0 --reload
+ $0 --before
+ $0 --after
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o      = $option->get( qw( off=i on=i reset reload before after ) )->dump();
+
+chdir "/etc/nginx/conf.d" or die "chdir to conf.d fail";
+
+my $file = "api.*.open-c3.org.conf open-c3.local.conf";
+
+if( $o{before} )
+{
+    print "sleep 15 sec before reload nginx...\n";
+    sleep 15;
+}
+
+if( my $port = $o{off} )
+{
+    print "nginx off $port\n";
+    system "sed -i 's/ server 127.0.0.1:$port;/#C3MC_NGINX_RELOAD server 127.0.0.1:$port;/' $file";
+}
+
+if( my $port = $o{on} )
+{
+    print "nginx on $port\n";
+    system "sed -i 's/#C3MC_NGINX_RELOAD server 127.0.0.1:$port;/ server 127.0.0.1:$port;/' $file";
+}
+
+if( $o{reset} )
+{
+    print "nginx reset\n";
+    system "sed -i 's/#C3MC_NGINX_RELOAD//' $file";
+}
+if( $o{reload} )
+{
+    print "nginx reload.\n";
+    system "nginx -s reload"
+}
+
+if( $o{after} )
+{
+    print "sleep 15 sec after reload nginx...\n";
+    sleep 15;
+}
