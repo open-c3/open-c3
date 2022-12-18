@@ -14,9 +14,9 @@ mkdir  tempdata
 
 # trouble-ticketing
 bash -c "cd /data/open-c3/Connector/tt/trouble-ticketing && ./build.sh"
-mkdir -p tempdata/open-c3/Connector/tt/trouble-ticketing
-cp /data/open-c3/Connector/tt/trouble-ticketing/trouble-ticketing tempdata/open-c3/Connector/tt/trouble-ticketing/
-chmod +x tempdata/open-c3/Connector/tt/trouble-ticketing/trouble-ticketing
+mkdir -p tempdata/open-c3/pkg
+cp /data/open-c3/Connector/tt/trouble-ticketing/trouble-ticketing tempdata/open-c3/pkg/
+chmod +x tempdata/open-c3/pkg/trouble-ticketing
 
 #jumpserver
 bash -c "cd /data/open-c3/Connector/bl/sync/jumpserver && ./build.sh"
