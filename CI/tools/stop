@@ -10,6 +10,7 @@ use YAML::XS;
 
 =cut
 
+my $service = shift @ARGV;
 print "stop ci\n";
 
 my $Config = eval{ YAML::XS::LoadFile "$RealBin/../config/Config";};
@@ -23,22 +24,26 @@ die "envname $envname undef in Config" unless $Config = $Config->{$envname};
 
 die "port undef" unless my $port = $Config->{port};
 
-
+# todo remove, old ci_supervisor
 system "killall ci_supervisor 2>/dev/null";
 
 for my $type ( qw( api api.slave api.event ) )
 {
     map{
+        system "killall ci_supervisor_$_ 2>/dev/null";
         if ($^O eq "darwin") {
 			system '/usr/sbin/lsof -i:'.$_.'|tail -n 1|awk \'{print $2}\'|xargs -I{} kill {}';
 		} else {
 			system '/usr/sbin/lsof -i:'.$_.'|tail -n 1|awk \'{print $2}\'|xargs -i{} kill {}';
 		}
         print "stop $type port: $_\n";
-    }$port->{$type}{from} .. $port->{$type}{to};
+    }grep{ ( ! $service ) || ( $service && $service eq $_ ) }
+    $port->{$type}{from} .. $port->{$type}{to};
 }
 
 map{
+    system "killall ci_supervisor_$_ 2>/dev/null";
     system "killall ci_server_$_";
     print "stop ci_server_$_\n"
-}qw( keepalive findtags findtagsonce build bury clean flowreport );
+}grep{ ( ! $service ) || ( $service && $service eq $_ ) }
+qw( keepalive findtags findtagsonce build bury clean flowreport );

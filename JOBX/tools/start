@@ -11,6 +11,7 @@ use MYDan;
 
 =cut
 
+my $service = shift @ARGV;
 my $base = $RealBin;
 $base =~ s#/[^/]+$##;
 
@@ -28,21 +29,25 @@ die "envname $envname undef in Config" unless $Config = $Config->{$envname};
 
 die "port undef" unless my $port = $Config->{port};
 
-my $supervisor = "$RealBin/../../JOB/bin/supervisor --name jobx_supervisor";
+my $supervisor = "$RealBin/../../JOB/bin/supervisor --err /var/log/open-c3.error.log";
 
 map{
-    die "start api fail: $!" if  system "$supervisor --cmd '$base/bin/api -p $_' --log '$base/logs/server/api.$_' --http http://127.0.0.1:$_/mon --check ok";
+    die "start api fail: $!" if  system "$supervisor --name jobx_supervisor_$_ --cmd '$base/bin/api -p $_' --log '$base/logs/server/api.$_' --http http://127.0.0.1:$_/mon --check ok";
     print "start api port: $_\n"
-}$port->{api}{from} .. $port->{api}{to};
+}grep{ ( ! $service ) || ( $service && $service eq $_ ) }
+$port->{api}{from} .. $port->{api}{to};
 
 map{
-    die "start api.slave fail: $!" if system "$supervisor --cmd '$MYDan::PATH/perl/bin/twiggy $base/bin/api.slave --port $_' --log '$base/logs/server/api.slave.$_' --http http://127.0.0.1:$_/mon --check ok";
+    die "start api.slave fail: $!" if system "$supervisor --name jobx_supervisor_$_ --cmd '$MYDan::PATH/perl/bin/twiggy $base/bin/api.slave --port $_' --log '$base/logs/server/api.slave.$_' --http http://127.0.0.1:$_/mon --check ok";
     print "start api.slave port: $_\n"
-}$port->{'api.slave'}{from} .. $port->{'api.slave'}{to};
+}grep{ ( ! $service ) || ( $service && $service eq $_ ) }
+$port->{'api.slave'}{from} .. $port->{'api.slave'}{to};
 map{
-    die "start $_ fail: $!" if system "$supervisor --cmd '$base/server/$_' --log '$base/logs/server/$_'";
-}qw( call bury monitor );
+    die "start $_ fail: $!" if system "$supervisor --name jobx_supervisor_$_ --cmd '$base/server/$_' --log '$base/logs/server/$_'";
+}grep{ ( ! $service ) || ( $service && $service eq $_ ) }
+qw( call bury monitor );
 
 map{
-    die "start $_ fail: $!" if system "$supervisor --errname 'jobx.server.$_' --cmd 'c3mc-server-jobx $_' --log '$base/logs/server/$_'";
-}qw( keepalive );
+    die "start $_ fail: $!" if system "$supervisor --name jobx_supervisor_$_ --errname 'jobx.server.$_' --cmd 'c3mc-server-jobx $_' --log '$base/logs/server/$_'";
+}grep{ ( ! $service ) || ( $service && $service eq $_ ) }
+qw( keepalive );

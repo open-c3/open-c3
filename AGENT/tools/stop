@@ -10,6 +10,7 @@ use YAML::XS;
 
 =cut
 
+my $service = shift @ARGV;
 print "stop agent\n";
 
 my $Config = eval{ YAML::XS::LoadFile "$RealBin/../config/Config";};
@@ -23,18 +24,49 @@ die "envname $envname undef in Config" unless $Config = $Config->{$envname};
 
 die "port undef" unless my $port = $Config->{port};
 
-
+# todo remove, old agent_supervisor
 system "killall agent_supervisor 2>/dev/null";
 
 for my $type ( qw( api api.event ) )
 {
     map{
+        system "killall agent_supervisor_$_ 2>/dev/null";
         system '/usr/sbin/lsof -i:'.$_.'|tail -n 1|awk \'{print $2}\'|xargs -i{} kill {}';
         print "stop $type port: $_\n";
-    }$port->{$type}{from} .. $port->{$type}{to};
+    }grep{ ( ! $service ) || ( $service && $service eq $_ ) }
+    $port->{$type}{from} .. $port->{$type}{to};
 }
 
 map{
+    system "killall agent_supervisor_$_ 2>/dev/null";
     system "killall agent_server_$_";
     print "stop agent_server_$_\n"
-}qw( call bury keepalive check inherit promesd promesdx carry rule sender nodequery mysqlquery redisquery mongodbquery nodeextquery extend-exporter self-healing mailmon portcheckok cloudmon devicesync );
+}grep{ ( ! $service ) || ( $service && $service eq $_ ) }
+qw(
+    call
+    bury
+    keepalive
+    check
+    inherit
+    promesd
+    promesdx
+    carry
+    rule
+    sender
+    nodequery
+    node2query
+    mysqlquery
+    mysql2query
+    redisquery
+    redis2query
+    mongodbquery
+    mongodb2query
+    nodeextquery
+    nodeext2query
+    extend-exporter
+    self-healing
+    mailmon
+    portcheckok
+    cloudmon
+    devicesync
+);

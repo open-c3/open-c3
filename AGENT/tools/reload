@@ -11,7 +11,10 @@ use uuid;
 
 =cut
 
-print "reload agent\n";
+print '=' x 30, "[ reload agent ]", '=' x 30, "\n";
+
+my $base = $RealBin;
+$base =~ s#/[^/]+$##;
 
 my $Config = eval{ YAML::XS::LoadFile "$RealBin/../config/Config";};
 die "load Config fail: $!" unless $Config;
@@ -38,6 +41,7 @@ for my $type ( qw( api api.event ) )
 
     for my $port ( $port->{$type}{from} .. $port->{$type}{to} )
     {
+        system "c3mc-nginx-reload --off $port --reload --before";
         my $oldpid = `/usr/sbin/lsof -i:$port|tail -n 1|awk '{print \$2}'`;
         chomp $oldpid;
 
@@ -46,6 +50,7 @@ for my $type ( qw( api api.event ) )
         my $newpid;
         for my $index ( 1 .. 30 )
         {
+            system "$base/tools/restart $port" if $index == 20;
             print "check api ...\n";
             $newpid = `/usr/sbin/lsof -i:$port|tail -n 1|awk '{print \$2}'`;
             if( $newpid )
@@ -63,21 +68,86 @@ for my $type ( qw( api api.event ) )
         print "reload $type port: $port old pid: $oldpid new pid: $newpid\n";
 
         die "same pid.\n" if $oldpid && $newpid && $oldpid eq $newpid;
+
+        system "c3mc-nginx-reload --on $port --reload";
     }
 }
 
-for my $server ( qw( bury keepalive check inherit promesd promesdx carry rule sender extend-exporter self-healing nodequery mysqlquery redisquery mongodbquery nodeextquery mailmon portcheckok cloudmon devicesync ) )
+system "c3mc-nginx-reload --reset --reload";
+
+my %port = 
+(
+    nodequery     => '65112',
+    node2query    => '65212',
+
+    mysqlquery    => '65113',
+    mysql2query   => '65213',
+
+    redisquery    => '65114',
+    redis2query   => '65214',
+
+    mongodbquery  => '65115',
+    mongodb2query => '65215',
+
+    nodeextquery  => '65116',
+    nodeext2query => '65216',
+);
+
+sub nginx_off
 {
-    my $oldpid = `ps -ef|grep [a]gent_server_$server|head -n 1|awk '{print \$2}'`;
+    my $srv = shift @_;
+    return unless my $port = $port{$srv};
+    system "c3mc-nginx-reload --off $port --reload --before";
+}
+
+sub nginx_on
+{
+    my $srv = shift @_;
+    return unless my $port = $port{$srv};
+    system "c3mc-nginx-reload --on $port --reload --after";
+}
+
+for my $server ( qw( 
+    bury
+    keepalive
+    check
+    inherit
+    promesd
+    promesdx
+    carry
+    rule
+    sender
+    extend-exporter
+    self-healing
+    nodequery
+    node2query
+    mysqlquery
+    mysql2query
+    redisquery
+    redis2query
+    mongodbquery
+    mongodb2query
+    nodeextquery
+    nodeext2query
+    mailmon
+    portcheckok
+    cloudmon
+    devicesync
+    ) )
+{
+    my $oldpid = `ps -ef|grep "[a]gent_server_$server\\b"|head -n 1|awk '{print \$2}'`;
     chomp $oldpid;
 
+    nginx_off( $server );
     system "killall agent_server_$server";
 
     my $newpid;
     for my $index ( 1 .. 30 )
     {
+        system "$base/tools/restart $server" if $index == 20;
+
         print "check server agent_server_$server ...\n";
-        $newpid = `ps -ef|grep [a]gent_server_$server|head -n 1|awk '{print \$2}'`;
+        $newpid = `ps -ef|grep "[a]gent_server_$server\\b"|head -n 1|awk '{print \$2}'`;
 
         if( $newpid )
         {
@@ -95,4 +165,7 @@ for my $server ( qw( bury keepalive check inherit promesd promesdx carry rule se
     print "restart server agent_server_$server old pid: $oldpid new pid: $newpid\n";
 
     die "same pid.\n" if $oldpid && $newpid && $oldpid eq $newpid;
+    nginx_on( $server );
 }
+
+system "c3mc-nginx-reload --reset --reload";

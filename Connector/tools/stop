@@ -10,6 +10,7 @@ use YAML::XS;
 
 =cut
 
+my $service = shift @ARGV;
 print "stop connector\n";
 
 my $Config = eval{ YAML::XS::LoadFile "$RealBin/../config/Config";};
@@ -22,11 +23,13 @@ die "envname undef"                    unless $envname;
 die "envname $envname undef in Config" unless $Config = $Config->{$envname};
 die "port undef"                       unless my $port = $Config->{port};
 
+# todo remove, old connector_supervisor
 system "killall connector_supervisor 2>/dev/null";
 
 for my $type ( qw( api ) )
 {
     map{
+        system "killall connector_supervisor_$_ 2>/dev/null";
         if( $^O eq "darwin" )
         {
             system '/usr/sbin/lsof -i:'.$_.'|tail -n 1|awk \'{print $2}\'|xargs -I{} kill {}';
@@ -36,7 +39,10 @@ for my $type ( qw( api ) )
             system '/usr/sbin/lsof -i:'.$_.'|tail -n 1|awk \'{print $2}\'|xargs -i{} kill {}';
         }
         print "stop $type port: $_\n";
-    }$port->{$type}{from} .. $port->{$type}{to};
+    }grep{ ( ! $service ) || ( $service && $service eq $_ ) }
+    $port->{$type}{from} .. $port->{$type}{to};
 }
 
-system "ps -ef|grep trouble-ticketing|grep -v grep|awk '{print \$2}'|xargs -i{} kill {}";
+exit if $service && $service ne 'trouble-ticketing';
+system "killall connector_supervisor_trouble-ticketing 2>/dev/null";
+system "ps -ef|grep trouble-ticketing|grep -v /stop|grep -v /start|grep -v /restart |grep -v /reload |grep -v grep|awk '{print \$2}'|xargs -i{} kill {}";

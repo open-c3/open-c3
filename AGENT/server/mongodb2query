@@ -1,0 +1,28 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib -I/data/Software/mydan/AGENT/private/lib
+
+=head1 SYNOPSIS
+
+ $0 [--port num] [--proxy /path/file] [--carry /path/carry]
+
+=cut
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+
+use lib '/data/Software/mydan/AGENT/agent.mon/lib';
+
+use OPENC3::MYDan::MonitorV3::MongodbQuery;
+use MYDan::Util::OptConf;
+
+$| ++;
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->set(
+    port  => 65215,
+    carry => "$RealBin/../conf/openc3_mongodb_carry.yml",
+    proxy => "$RealBin/../conf/openc3_mongodb_proxy.yml",
+)->get( qw( port=i proxy=s carry=s ) )->dump();
+
+$0 = 'agent_server_mongodb2query';
+
+OPENC3::MYDan::MonitorV3::MongodbQuery->new( %o )->run();

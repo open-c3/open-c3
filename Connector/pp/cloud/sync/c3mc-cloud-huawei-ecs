@@ -3,11 +3,17 @@
 
 import sys
 import json
-import ipaddress
 
 from huaweicloudsdkcore.auth.credentials import BasicCredentials
 from huaweicloudsdkecs.v2.region.ecs_region import EcsRegion
 from huaweicloudsdkecs.v2 import *
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_huawei_vpc import Vpc
+
+
+max_times_for_get_ecs = 20
+max_times_for_get_vpc = 20
 
 
 class Ecs:
@@ -49,6 +55,7 @@ class Ecs:
         return response_data['count']
 
     def show(self):
+        huawei_vpc = Vpc(self.access_id, self.access_key, self.project_id, self.region)
         response_data = self.get_response()
         servers = response_data['servers']
         for server in servers:
@@ -65,7 +72,20 @@ class Ecs:
             server['region_id'] = self.region
             server.pop('metadata', None)
             server.pop('OS-EXT-SRV-ATTR:user_data', None)
+
+            if len(list(server["addresses"])) > 0:
+                vpc_id = list(server["addresses"])[0]
+                vpc_info = huawei_vpc.show_vpc(vpc_id)
+                server['vpc_id'] = vpc_id
+                server['vpc_name'] = vpc_info["name"]
+
+                self.sleep(max_times_for_get_vpc)
+
             print(json.dumps(server))
+
+    def sleep(self, seconds):
+        from c3mc_utils import sleep_time_for_limiting
+        sleep_time_for_limiting(seconds)
 
     def page(self):
         count = self.get_server_count()
@@ -78,6 +98,7 @@ class Ecs:
         for cur_page_number in range(1, total_page_number + 1):
             self.page_number = cur_page_number
             self.show()
+            self.sleep(max_times_for_get_ecs)
 
 
 # project_id 可以命令行传 None
@@ -88,3 +109,4 @@ def main(access_id, access_key, project_id, region):
 
 if __name__ == '__main__':
     main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+

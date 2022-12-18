@@ -9,6 +9,9 @@ from tencentcloud.common.profile.client_profile import ClientProfile
 from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.cvm.v20170312 import cvm_client, models
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_qcloud_vpc import Vpc
+
 
 # DescribeInstances() 的接口请求频率限制
 max_times_describe_instances = 40
@@ -48,9 +51,13 @@ class Cvm:
         response_data = self.get_response()
         return response_data.TotalCount
 
-    def list_instances(self):
-        result = []
+    def show(self):
+        vpc_client = Vpc(self.access_id, self.access_key, self.region)
+
         response_data = self.get_response()
+
+        result = []
+        vpc_ids = []
         for server in response_data.InstanceSet:
             item = json.loads(server.to_json_string())
             item["RegionId"] = self.region
@@ -61,17 +68,22 @@ class Cvm:
                 item["PublicIP"] = item["PublicIpAddresses"][0]
 
             result.append(item)
-        return result
+            
+            if item["VirtualPrivateCloud"]["VpcId"] is not None:
+                vpc_ids.append(item["VirtualPrivateCloud"]["VpcId"])
 
-    def show(self):
-        instance_list = self.list_instances()
-        for instance in instance_list:
-            print(json.dumps(instance, default=str))
+        
+        vpc_info_d = vpc_client.show_vpcs(vpc_ids)
+        for item in result:
+            if item["VirtualPrivateCloud"]["VpcId"] is not None:
+                item["VpcId"] = item["VirtualPrivateCloud"]["VpcId"]
+                item["VpcName"] = vpc_info_d[item["VpcId"]]["VpcName"]
 
-    def sleep(self):
-        sys.path.append("/data/Software/mydan/Connector/lib/pp")
+            print(json.dumps(item, default=str))
+
+    def sleep(self, seconds):
         from c3mc_utils import sleep_time_for_limiting
-        sleep_time_for_limiting(max_times_describe_instances)
+        sleep_time_for_limiting(seconds)
 
     def page(self):
         count = self.get_server_count()
@@ -83,7 +95,7 @@ class Cvm:
 
         for cur_page_number in range(1, total_page_number + 1):
             self.page_number = cur_page_number
-            self.sleep()
+            self.sleep(max_times_describe_instances)
             self.show()
 
 

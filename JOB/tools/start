@@ -11,6 +11,8 @@ use MYDan;
 
 =cut
 
+my $service = shift @ARGV;
+
 my $base = $RealBin;
 $base =~ s#/[^/]+$##;
 
@@ -28,22 +30,26 @@ die "envname $envname undef in Config" unless $Config = $Config->{$envname};
 
 die "port undef" unless my $port = $Config->{port};
 
-my $supervisor = "$RealBin/../bin/supervisor --name job_supervisor";
+my $supervisor = "$RealBin/../bin/supervisor --err /var/log/open-c3.error.log";
 
 map{
-    die "start api fail: $!" if  system "$supervisor --cmd '$base/bin/api -p $_' --log '$base/logs/server/api.$_' --http http://127.0.0.1:$_/mon --check ok";
+    die "start api fail: $!" if  system "$supervisor --name job_supervisor_$_ --cmd '$base/bin/api -p $_' --log '$base/logs/server/api.$_' --http http://127.0.0.1:$_/mon --check ok";
     print "start api port: $_\n"
-}$port->{api}{from} .. $port->{api}{to};
+}grep{ ( ! $service ) || ( $service && $service eq $_ ) }
+$port->{api}{from} .. $port->{api}{to};
 
 map{
-    die "start api.slave fail: $!" if system "$supervisor --cmd '$MYDan::PATH/perl/bin/twiggy $base/bin/api.slave --port $_' --log '$base/logs/server/api.slave.$_' --http http://127.0.0.1:$_/mon --check ok";
+    die "start api.slave fail: $!" if system "$supervisor --name job_supervisor_$_ --cmd '$MYDan::PATH/perl/bin/twiggy $base/bin/api.slave --port $_' --log '$base/logs/server/api.slave.$_' --http http://127.0.0.1:$_/mon --check ok";
     print "start api.slave port: $_\n"
-}$port->{'api.slave'}{from} .. $port->{'api.slave'}{to};
-map{
-    die "start $_ fail: $!" if system "$supervisor --cmd '$base/server/$_' --log '$base/logs/server/$_'";
-}qw( call bury crontab notify clean );
-
+}grep{ ( ! $service ) || ( $service && $service eq $_ ) }
+$port->{'api.slave'}{from} .. $port->{'api.slave'}{to};
 
 map{
-    die "start $_ fail: $!" if system "$supervisor --errname 'job.server.$_' --cmd 'c3mc-server-job $_' --log '$base/logs/server/$_'";
-}qw( approval keepalive );
+    die "start $_ fail: $!" if system "$supervisor --name job_supervisor_$_ --cmd '$base/server/$_' --log '$base/logs/server/$_'";
+}grep{ ( ! $service ) || ( $service && $service eq $_ ) }
+qw( call bury crontab notify clean );
+
+map{
+    die "start $_ fail: $!" if system "$supervisor --name job_supervisor_$_ --errname 'job.server.$_' --cmd 'c3mc-server-job $_' --log '$base/logs/server/$_'";
+}grep{ ( ! $service ) || ( $service && $service eq $_ ) }
+qw( approval keepalive );

@@ -43,6 +43,18 @@ function upgradeSelf() {
     fi
 
     echo =================================================================
+    echo "[INFO]pkg extract ..."
+
+    /data/open-c3/Installer/C3/pkg/extract.sh
+
+    if [ $? = 0 ]; then
+        echo "[SUCC]pkg extract success."
+    else
+        echo "[FAIL]pkg extract fail."
+        exit 1
+    fi
+
+    echo =================================================================
     echo "[INFO]install-cache pull ..."
 
     cd Installer/install-cache && git pull
@@ -121,7 +133,7 @@ function upgradeSelf() {
     COOKIEKEY=$(cat /data/open-c3/Connector/config.inix | grep -v '^ *#' | grep cookiekey:|awk '{print $2}'|grep ^[a-zA-Z0-9]*$)
     sed -i "s/\"cookiekey\":\".*\"/\"cookiekey\":\"$COOKIEKEY\"/g" /data/open-c3/Connector/tt/trouble-ticketing/cfg.json
 
-    cp /data/open-c3/Installer/install-cache/trouble-ticketing/trouble-ticketing /data/open-c3/Connector/tt/trouble-ticketing/trouble-ticketing.$$
+    cp /data/open-c3/pkg/trouble-ticketing /data/open-c3/Connector/tt/trouble-ticketing/trouble-ticketing.$$
     mv /data/open-c3/Connector/tt/trouble-ticketing/trouble-ticketing.$$ /data/open-c3/Connector/tt/trouble-ticketing/trouble-ticketing
     chmod +x /data/open-c3/Connector/tt/trouble-ticketing/trouble-ticketing
 

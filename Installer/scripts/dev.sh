@@ -79,6 +79,9 @@ function start() {
         exit 1
     fi
 
+    cd $BASE_PATH/Installer/dev-cache && git pull
+    cd $BASE_PATH || exit 1
+
     echo =================================================================
     echo "[INFO]synchronize the dependent part of c3-front ..."
 

@@ -1,0 +1,10 @@
+#Author: lijinfeng2011@gmail.com
+
+FROM centos:7
+MAINTAINER lijinfeng2011
+
+RUN yum -y install rsync && yum clean all
+
+ADD tempdata tempdata
+ADD entrypoint.sh /
+ENTRYPOINT [ "/entrypoint.sh" ]

@@ -12,6 +12,8 @@ use uuid;
 =cut
 
 print "reload job\n";
+my $base = $RealBin;
+$base =~ s#/[^/]+$##;
 
 my $Config = eval{ YAML::XS::LoadFile "$RealBin/../config/Config";};
 die "load Config fail: $!" unless $Config;
@@ -37,6 +39,7 @@ for my $type ( qw( api api.slave ) )
 {
     for my $port ( $port->{$type}{from} .. $port->{$type}{to} )
     {
+        system "c3mc-nginx-reload --off $port --reload --before";
         my $oldpid = `/usr/sbin/lsof -i:$port|tail -n 1|awk '{print \$2}'`;
         chomp $oldpid;
 
@@ -45,6 +48,7 @@ for my $type ( qw( api api.slave ) )
         my $newpid;
         for my $index ( 1 .. 30 )
         {
+            system "$base/tools/restart $port" if $index == 20;
             print "check api ...\n";
             $newpid = `/usr/sbin/lsof -i:$port|tail -n 1|awk '{print \$2}'`;
             if( $newpid )
@@ -61,12 +65,16 @@ for my $type ( qw( api api.slave ) )
 
         print "reload $type port: $port old pid: $oldpid new pid: $newpid\n";
         die "same pid.\n" if $oldpid && $newpid && $oldpid eq $newpid;
+
+        system "c3mc-nginx-reload --on $port --reload";
     }
 }
 
+system "c3mc-nginx-reload --reset --reload";
+
 for my $server ( qw( call bury crontab keepalive notify approval clean ) )
 {
-    my $oldpid = `ps -ef|grep [j]ob_server_$server|head -n 1|awk '{print \$2}'`;
+    my $oldpid = `ps -ef|grep "[j]ob_server_$server\\b"|head -n 1|awk '{print \$2}'`;
     chomp $oldpid;
 
     system "killall job_server_$server";
@@ -74,8 +82,9 @@ for my $server ( qw( call bury crontab keepalive notify approval clean ) )
     my $newpid;
     for my $index ( 1 .. 30 )
     {
+        system "$base/tools/restart $port" if $index == 20;
         print "check server job_server_$server ...\n";
-        $newpid = `ps -ef|grep [j]ob_server_$server|head -n 1|awk '{print \$2}'`;
+        $newpid = `ps -ef|grep "[j]ob_server_$server\\b"|head -n 1|awk '{print \$2}'`;
 
         if( $newpid )
         {

@@ -11,6 +11,7 @@ use MYDan;
 
 =cut
 
+my $service = shift @ARGV;
 my $base = $RealBin;
 $base =~ s#/[^/]+$##;
 
@@ -28,13 +29,14 @@ die "envname undef"                    unless $envname;
 die "envname $envname undef in Config" unless $Config = $Config->{$envname};
 die "port undef"                       unless my $port = $Config->{port};
 
-my $supervisor = "$RealBin/../../JOB/bin/supervisor --name connector_supervisor";
+my $supervisor = "$RealBin/../../JOB/bin/supervisor --err /var/log/open-c3.error.log";
 
 map{
     die "start api fail: $!"
-        if system "$supervisor --cmd '$base/bin/api -p $_' --log '$base/logs/server/api.$_' --http http://127.0.0.1:$_/mon --check ok";
+        if system "$supervisor --name connector_supervisor_$_ --cmd '$base/bin/api -p $_' --log '$base/logs/server/api.$_' --http http://127.0.0.1:$_/mon --check ok";
     print "start api port: $_\n"
-}$port->{api}{from} .. $port->{api}{to};
+}grep{ ( ! $service ) || ( $service && $service eq $_ ) }
+$port->{api}{from} .. $port->{api}{to};
 
 my $mymarkfile = '/etc/connector.mark';
 my $user = `id -un`;chop $user;
@@ -42,5 +44,6 @@ my $sudo = $user eq 'root' ? '' : 'sudo ';
 
 die "set connector.mark fail:$!" if system "${sudo}sh -c 'date > $mymarkfile'";
 
+exit if $service && $service ne 'trouble-ticketing';
 chdir '/data/Software/mydan/Connector/tt/trouble-ticketing' or die "chdir fail";
-die "start trouble-ticketing fail: $!" if system "$supervisor --errname 'connector.server.trouble-ticketing' --cmd './trouble-ticketing' --log '$base/logs/server/trouble-ticketing'";
+die "start trouble-ticketing fail: $!" if system "$supervisor --name connector_supervisor_trouble-ticketing --errname 'connector.server.trouble-ticketing' --cmd './trouble-ticketing' --log '$base/logs/server/trouble-ticketing'";
