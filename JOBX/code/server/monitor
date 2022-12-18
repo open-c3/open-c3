@@ -42,7 +42,7 @@ my %c = (
   agent_server_check     => 1,
   agent_server_inherit   => 1,
   agent_server_keepalive => 1,
-  agent_supervisor       => 26,
+  agent_supervisor       => 32,
 
   ci_api                 => 5,
   ci_server_build        => 1,
@@ -105,6 +105,10 @@ return sub
             }elsif( $_ =~ /^(job[x]{0,1}_worker_task)_[a-zA-Z0-9]{12}$/ )
             {
                 $task{$1} ++;
+            }
+            elsif( $_ =~ /^([a-z]+)_supervisor/ )
+            {
+                $proc{$1."_supervisor"} ++;
             }
         }@ps;
 
