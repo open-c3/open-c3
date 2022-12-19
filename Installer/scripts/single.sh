@@ -29,72 +29,6 @@ function install() {
     fi
 
     echo =================================================================
-    echo "[INFO]get open-c3 ..."
-    if [ ! -d $BASE_PATH ]; then
-        if [ ! -d /data ];then
-            mkdir /data
-        fi
-        if [ -d /data/open-c3-installer/open-c3 ];then
-            cd /data && cp -r /data/open-c3-installer/open-c3 .
-        else
-            cd /data && git clone -b "$OPENC3VERSION" $GITADDR/open-c3/open-c3
-        fi
-    fi
-
-    if [ -d "$BASE_PATH" ]; then
-        echo "[SUCC]get open-c3 success."
-    else
-        echo "[FAIL]get open-c3 fail."
-        exit 1
-    fi
-
-    cd $BASE_PATH || exit 1
-
-    echo =================================================================
-    echo "[INFO]create Installer/C3/.env"
-
-    if [ "X$1" != "X" ]; then
-        echo $1 |grep "^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$" > /dev/null
-        if [ $? = 0 ]; then
-            random=$RANDOM$RANDOM$RANDOM$RANDOM$RANDOM$RANDOM$RANDOM
-            name="test"
-            if [ "X$OPEN_C3_NAME" != "X" ];then
-                name=$OPEN_C3_NAME
-            fi
-            echo "OPEN_C3_RANDOM=$random" > $BASE_PATH/Installer/C3/.env
-            echo "OPEN_C3_EXIP=$1" >> $BASE_PATH/Installer/C3/.env
-            echo "OPEN_C3_NAME=$name" >> $BASE_PATH/Installer/C3/.env
-        else
-            echo "$0 install 10.10.10.10(Your Internet IP)"
-            exit 1
-        fi
-    else
-        echo "$0 install 10.10.10.10(Your Internet IP)"
-        exit 1
-    fi
-
-    if [ -f "$BASE_PATH/Installer/C3/.env" ]; then
-        echo "[SUCC]create $BASE_PATH/Installer/C3/.env success."
-    else
-        echo "[FAIL]create $BASE_PATH/Installer/C3/.env fail."
-        exit 1
-    fi
-
-    echo =================================================================
-    echo "[INFO]create Connector/config.ini/current ..."
-
-    if [ ! -f $BASE_PATH/Connector/config.ini/current ];then
-        cp $BASE_PATH/Connector/config.ini/openc3 $BASE_PATH/Connector/config.ini/current
-    fi
-
-    if [ -f "$BASE_PATH/Connector/config.ini/current" ]; then
-        echo "[SUCC]create Connector/config.ini/current success."
-    else
-        echo "[FAIL]create Connector/config.ini/current fail."
-        exit 1
-    fi
-
-    echo =================================================================
     echo "[INFO]install docker ..."
 
     docker --help 1>/dev/null 2>&1 || curl -fsSL $DOCKERINSTALL | bash
@@ -128,23 +62,105 @@ function install() {
     fi
 
     echo =================================================================
-    echo "[INFO]get open-c3-install-cache ..."
-
-    if [ ! -d "$BASE_PATH/Installer/install-cache" ]; then
-        if [ -d /data/open-c3-installer/install-cache ];then
-            cd $BASE_PATH/Installer && cp -r /data/open-c3-installer/install-cache .
-        else
-            cd $BASE_PATH/Installer && git clone $GITADDR/open-c3/open-c3-install-cache install-cache
+    echo "[INFO]get open-c3 ..."
+    if [ ! -d $BASE_PATH ]; then
+        if [ ! -d /data ];then
+            mkdir /data
         fi
-        cd $BASE_PATH
+        if [ -d /data/open-c3-installer/open-c3 ];then
+            cd /data && cp -r /data/open-c3-installer/open-c3 .
+        else
+            cd /data && git clone -b "$OPENC3VERSION" $GITADDR/open-c3/open-c3
+        fi
     fi
 
-    if [ -d "$BASE_PATH/Installer/install-cache" ]; then
-        echo "[SUCC]get open-c3-install-cache success."
+    if [ -d "$BASE_PATH" ]; then
+        echo "[SUCC]get open-c3 success."
     else
-        echo "[FAIL]get open-c3-install-cache fail."
+        echo "[FAIL]get open-c3 fail."
         exit 1
     fi
+
+    cd $BASE_PATH || exit 1
+
+    echo =================================================================
+    echo "[INFO]pkg extract ..."
+
+    /data/open-c3/Installer/C3/pkg/extract.sh
+
+    if [ $? = 0 ]; then
+        echo "[SUCC]pkg extract success."
+    else
+        echo "[FAIL]pkg extract fail."
+        exit 1
+    fi
+
+    echo =================================================================
+    echo "[INFO]create Installer/C3/.env"
+
+    MYIP=$1
+    if [ "X$MYIP" == "X" ]; then
+       MYIP=10.10.10.10 #default
+    fi
+    if [ "X$MYIP" != "X" ]; then
+        echo $MYIP |grep "^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$" > /dev/null
+        if [ $? = 0 ]; then
+            random=$RANDOM$RANDOM$RANDOM$RANDOM$RANDOM$RANDOM$RANDOM
+            name="test"
+            if [ "X$OPEN_C3_NAME" != "X" ];then
+                name=$OPEN_C3_NAME
+            fi
+            echo "OPEN_C3_RANDOM=$random" > $BASE_PATH/Installer/C3/.env
+            echo "OPEN_C3_EXIP=$MYIP"    >> $BASE_PATH/Installer/C3/.env
+            echo "OPEN_C3_NAME=$name"    >> $BASE_PATH/Installer/C3/.env
+        else
+            echo "$0 install 10.10.10.10(Your Internet IP)"
+            exit 1
+        fi
+    else
+        echo "$0 install 10.10.10.10(Your Internet IP)"
+        exit 1
+    fi
+
+    if [ -f "$BASE_PATH/Installer/C3/.env" ]; then
+        echo "[SUCC]create $BASE_PATH/Installer/C3/.env success."
+    else
+        echo "[FAIL]create $BASE_PATH/Installer/C3/.env fail."
+        exit 1
+    fi
+
+    echo =================================================================
+    echo "[INFO]create Connector/config.ini/current ..."
+
+    if [ ! -f $BASE_PATH/Connector/config.ini/current ];then
+        cp $BASE_PATH/Connector/config.ini/openc3 $BASE_PATH/Connector/config.ini/current
+    fi
+
+    if [ -f "$BASE_PATH/Connector/config.ini/current" ]; then
+        echo "[SUCC]create Connector/config.ini/current success."
+    else
+        echo "[FAIL]create Connector/config.ini/current fail."
+        exit 1
+    fi
+
+#    echo =================================================================
+#    echo "[INFO]get open-c3-install-cache ..."
+#
+#    if [ ! -d "$BASE_PATH/Installer/install-cache" ]; then
+#        if [ -d /data/open-c3-installer/install-cache ];then
+#            cd $BASE_PATH/Installer && cp -r /data/open-c3-installer/install-cache .
+#        else
+#            cd $BASE_PATH/Installer && git clone $GITADDR/open-c3/open-c3-install-cache install-cache
+#        fi
+#        cd $BASE_PATH
+#    fi
+#
+#    if [ -d "$BASE_PATH/Installer/install-cache" ]; then
+#        echo "[SUCC]get open-c3-install-cache success."
+#    else
+#        echo "[FAIL]get open-c3-install-cache fail."
+#        exit 1
+#    fi
 
     echo =================================================================
     echo "[INFO]create c3-front/dist ..."
@@ -278,8 +294,9 @@ function install() {
     fi
     /data/open-c3/Installer/scripts/dev.sh build
 
-    /data/open-c3/open-c3.sh dup
     /data/open-c3/open-c3.sh start
+    /data/open-c3/open-c3.sh sup
+    docker exec openc3-server /data/Software/mydan/Connector/app/c3-restart
 
     echo =================================================================
     echo "[INFO]run script ..."
@@ -296,6 +313,14 @@ function install() {
 
     mkdir -p /data/open-c3-data/grafana-data
     rsync -av /data/open-c3/Installer/install-cache/grafana-data/ /data/open-c3-data/grafana-data/
+
+
+    echo sleep 60 sec ...
+    sleep 60
+
+    /data/open-c3/open-c3.sh sup
+    /data/open-c3/open-c3.sh dup
+    /data/open-c3/open-c3.sh start
 }
 
 function start() {
@@ -429,11 +454,11 @@ function log() {
 }
 
 function dup() {
-    docker exec -t openc3-server c3mc-sys-dup
+    docker exec -t openc3-server /data/Software/mydan/Connector/pp/c3mc-sys-dup
 }
 
 function sup() {
-    docker exec -t openc3-server c3mc-sys-sup
+    docker exec -t openc3-server /data/Software/mydan/Connector/pp/c3mc-sys-sup
 }
 
 function cmdbdemo() {

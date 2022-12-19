@@ -6,4 +6,4 @@ rm -rf /data/Software/mydan/perl/man
 rm -rf /root/.cpan
 
 cd /data/Software/mydan
-tar -zcvf perl.tar.gz perl
+tar -zcf perl.tar.gz perl
