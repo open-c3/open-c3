@@ -58,7 +58,7 @@ mkdir -p /data/open-c3-data/cache/userinfo
 mkdir -p /data/open-c3-data/cache/point
 mkdir -p /data/open-c3-data/cache/usertree
 
-docker exec -i openc3-server yum install mysql -y
+#docker exec -i openc3-server yum install mysql -y
 
 #docker exec -i openc3-server /data/Software/mydan/perl/bin/cpan install Crypt::RC4::XS
 
