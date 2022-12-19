@@ -1,6 +1,6 @@
 #!/bin/bash
 
-docker exec -i openc3-server /data/Software/mydan/perl/bin/cpan install AnyEvent::HTTPD::Router AnyEvent::HTTPD::CookiePatch AnyEvent::HTTP
+#docker exec -i openc3-server /data/Software/mydan/perl/bin/cpan install AnyEvent::HTTPD::Router AnyEvent::HTTPD::CookiePatch AnyEvent::HTTP
 
 docker cp /data/open-c3/Installer/install-cache/bin/kubectl    openc3-server:/usr/bin/
 docker cp /data/open-c3/Installer/install-cache/bin/yaml2json  openc3-server:/usr/bin/
@@ -19,11 +19,11 @@ docker cp /data/open-c3/CI/bin/aws_c3 openc3-server:/usr/local/bin/
 #docker cp /data/open-c3/lua/lualib/resty/http_headers.lua openc3-lua:/usr/local/openresty/lualib/resty/http_headers.lua
 
 #oncall 需要的插件
-docker exec -i openc3-server /data/Software/mydan/perl/bin/cpan install DateTime
+#docker exec -i openc3-server /data/Software/mydan/perl/bin/cpan install DateTime
 mkdir -p /data/open-c3-data/glusterfs/oncall/{conf,data}
 
 #mail mon
-docker exec -i openc3-server /data/Software/mydan/perl/bin/cpan install Mail::POP3Client Email::MIME Email::MIME::RFC2047::Decoder
+#docker exec -i openc3-server /data/Software/mydan/perl/bin/cpan install Mail::POP3Client Email::MIME Email::MIME::RFC2047::Decoder
 mkdir -p /data/open-c3-data/glusterfs/mailmon/{conf,data,run}
 
 mkdir -p /data/open-c3-data/monitor-sender
@@ -38,7 +38,7 @@ docker rm   openc3-localbash
 mkdir -p /data/open-c3-data/logs/CI/webhooks_data
 mkdir -p /data/open-c3-data/logs/CI/webhooks_logs
 
-docker exec -i openc3-server /data/Software/mydan/perl/bin/cpan install Paws Hash::Flatten
+#docker exec -i openc3-server /data/Software/mydan/perl/bin/cpan install Paws Hash::Flatten
 
 docker exec -i openc3-server touch /etc/openc3.supervisormin.on
 
@@ -48,7 +48,7 @@ if [ ! -f /data/open-c3-data/cloudmon/docker-compose ]; then
     chmod +x /data/open-c3-data/cloudmon/docker-compose
 fi
 
-docker exec -i openc3-server /data/Software/mydan/perl/bin/cpan install Net::LDAP
+#docker exec -i openc3-server /data/Software/mydan/perl/bin/cpan install Net::LDAP
 
 docker exec -i openc3-server bash -c "curl -L http://openc3-srv-docker/api/scripts/installAgent.sh |OPEN_C3_ADDR=http://openc3-srv-docker bash"
 
@@ -60,8 +60,9 @@ mkdir -p /data/open-c3-data/cache/usertree
 
 docker exec -i openc3-server yum install mysql -y
 
-docker exec -i openc3-server /data/Software/mydan/perl/bin/cpan install Crypt::RC4::XS
+#docker exec -i openc3-server /data/Software/mydan/perl/bin/cpan install Crypt::RC4::XS
 
 docker cp /data/open-c3/Installer/install-cache/bin/amtool  openc3-server:/usr/bin/
 
-docker exec -i openc3-server /data/Software/mydan/AGENT/device/init/install.sh
+/data/open-c3/open-c3.sh sup
+#docker exec -i openc3-server /data/Software/mydan/AGENT/device/init/install.sh
