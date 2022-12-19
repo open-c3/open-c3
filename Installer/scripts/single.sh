@@ -98,8 +98,12 @@ function install() {
     echo =================================================================
     echo "[INFO]create Installer/C3/.env"
 
-    if [ "X$1" != "X" ]; then
-        echo $1 |grep "^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$" > /dev/null
+    MYIP=$1
+    if [ "X$MYIP" == "X" ]; then
+       MYIP=10.10.10.10 #default
+    fi
+    if [ "X$MYIP" != "X" ]; then
+        echo $MYIP |grep "^[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}\.[0-9]\{1,3\}$" > /dev/null
         if [ $? = 0 ]; then
             random=$RANDOM$RANDOM$RANDOM$RANDOM$RANDOM$RANDOM$RANDOM
             name="test"
@@ -107,8 +111,8 @@ function install() {
                 name=$OPEN_C3_NAME
             fi
             echo "OPEN_C3_RANDOM=$random" > $BASE_PATH/Installer/C3/.env
-            echo "OPEN_C3_EXIP=$1" >> $BASE_PATH/Installer/C3/.env
-            echo "OPEN_C3_NAME=$name" >> $BASE_PATH/Installer/C3/.env
+            echo "OPEN_C3_EXIP=$MYIP"    >> $BASE_PATH/Installer/C3/.env
+            echo "OPEN_C3_NAME=$name"    >> $BASE_PATH/Installer/C3/.env
         else
             echo "$0 install 10.10.10.10(Your Internet IP)"
             exit 1
@@ -290,9 +294,9 @@ function install() {
     fi
     /data/open-c3/Installer/scripts/dev.sh build
 
-    /data/open-c3/open-c3.sh sup
-    /data/open-c3/open-c3.sh dup
     /data/open-c3/open-c3.sh start
+    /data/open-c3/open-c3.sh sup
+    docker exec openc3-server /data/Software/mydan/Connector/app/c3-restart
 
     echo =================================================================
     echo "[INFO]run script ..."
@@ -310,7 +314,7 @@ function install() {
     mkdir -p /data/open-c3-data/grafana-data
     rsync -av /data/open-c3/Installer/install-cache/grafana-data/ /data/open-c3-data/grafana-data/
 
-    /data/open-c3/open-c3.sh c3-restart
+
     echo sleep 60 sec ...
     sleep 60
 
