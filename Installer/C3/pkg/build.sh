@@ -17,6 +17,18 @@ mkdir -p tempdata/open-c3/Connector/pkg
 ./perl/build.sh
 cp perl/perl.tar.gz tempdata/open-c3/Connector/pkg/perl.tar.gz
 
+# install-cache
+./install-cache/build.sh
+cp install-cache/install-cache.tar.gz tempdata/open-c3/Connector/pkg/install-cache.tar.gz
+
+# dev-cache
+./dev-cache/build.sh
+cp dev-cache/dev-cache.tar.gz tempdata/open-c3/Connector/pkg/dev-cache.tar.gz
+
+# book
+./book/build.sh
+cp book/book.tar.gz tempdata/open-c3/Connector/pkg/book.tar.gz
+
 # trouble-ticketing
 bash -c "cd /data/open-c3/Connector/tt/trouble-ticketing && ./build.sh"
 cp /data/open-c3/Connector/tt/trouble-ticketing/trouble-ticketing tempdata/open-c3/Connector/pkg/
