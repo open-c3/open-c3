@@ -1,0 +1,9 @@
+#Author: lijinfeng2011@gmail.com
+
+FROM openc3/basev2:t2206131
+MAINTAINER lijinfeng2011
+
+RUN yum install mysql -y
+
+ADD entrypoint.sh /
+ENTRYPOINT [ "/entrypoint.sh" ]

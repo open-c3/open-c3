@@ -1,13 +1,13 @@
 #!/bin/bash
 set -e
 
-VERSION=2212193
+VERSION=2212194
 if [ "X$1" != "X" ];then
     VERSION=$1
 fi
 echo VERSION:$VERSION
 
-docker run -v /data/open-c3:/data/open-c3 openc3/pkg:$VERSION
+docker run --rm -v /data/open-c3:/data/open-c3 openc3/pkg:$VERSION
 
 bash -c "cd /data/open-c3/Connector/pkg && tar -zxvf install-cache.tar.gz";
 bash -c "cd /data/open-c3/Connector/pkg && tar -zxvf dev-cache.tar.gz";

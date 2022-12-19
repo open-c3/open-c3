@@ -20,6 +20,13 @@ if [ "X$MODULE" == "X" ] || [ "X$MODULE" == "Xperl" ] ;then
     cp perl/perl.tar.gz tempdata/open-c3/Connector/pkg/perl.tar.gz
 fi
 
+# mysql
+if [ "X$MODULE" == "X" ] || [ "X$MODULE" == "Xmysql" ] ;then
+    ./mysql/build.sh
+    cp mysql/mysql tempdata/open-c3/Connector/pkg/mysql
+    chmod + tempdata/open-c3/Connector/pkg/mysql
+fi
+
 # install-cache
 if [ "X$MODULE" == "X" ] || [ "X$MODULE" == "install-cache" ];then
     ./install-cache/build.sh
