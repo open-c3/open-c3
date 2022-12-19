@@ -42,8 +42,6 @@ def create_ticket(
         "Content-Type": "application/json"
     }
     resp = requests.post(url = API_ENDPOINT, headers = header, json=data).json()
-    print("LOG: 创建tt, api地址: {}, 接口响应为: {}\n".format(API_ENDPOINT, json.dumps(resp, default=str)), file=sys.stderr)
-
     if "data" in resp:
         print(resp['data'])
 
@@ -87,9 +85,6 @@ if __name__ == '__main__':
     if args.if_ext != None and args.if_ext != "0":
         if_ext = True
 
-
-    print("LOG: 创建tt, 调用参数为, submit_user: {}, title: {}, email_list: {}, if_ext: {}, content: {}\n".format(
-        submit_user, title, email_list, if_ext, l[0]), file=sys.stderr)
     main(
         submit_user, 
         title, 
