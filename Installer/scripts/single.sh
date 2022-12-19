@@ -29,6 +29,39 @@ function install() {
     fi
 
     echo =================================================================
+    echo "[INFO]install docker ..."
+
+    docker --help 1>/dev/null 2>&1 || curl -fsSL $DOCKERINSTALL | bash
+    docker --help 1>/dev/null 2>&1
+    if [ $? = 0 ]; then
+        echo "[SUCC]docker installed."
+    else
+        echo "[FAIL]install docker fail."
+        exit 1
+    fi
+
+    echo =================================================================
+    echo "[INFO]start docker ..."
+    docker ps 1>/dev/null 2>&1 || service docker start
+    docker ps 1>/dev/null 2>&1
+    if [ $? = 0 ]; then
+        echo "[SUCC]docker is started."
+    else
+        echo "[FAIL]start docker fail."
+        exit 1
+    fi
+
+    echo =================================================================
+    echo "[INFO]enable docker.service ..."
+    systemctl enable docker.service
+    if [ $? = 0 ]; then
+        echo "[SUCC]enable docker.service success."
+    else
+        echo "[FAIL]enable docker.service fail."
+        exit 1
+    fi
+
+    echo =================================================================
     echo "[INFO]get open-c3 ..."
     if [ ! -d $BASE_PATH ]; then
         if [ ! -d /data ];then
@@ -49,6 +82,18 @@ function install() {
     fi
 
     cd $BASE_PATH || exit 1
+
+    echo =================================================================
+    echo "[INFO]pkg extract ..."
+
+    /data/open-c3/Installer/C3/pkg/extract.sh
+
+    if [ $? = 0 ]; then
+        echo "[SUCC]pkg extract success."
+    else
+        echo "[FAIL]pkg extract fail."
+        exit 1
+    fi
 
     echo =================================================================
     echo "[INFO]create Installer/C3/.env"
@@ -94,57 +139,24 @@ function install() {
         exit 1
     fi
 
-    echo =================================================================
-    echo "[INFO]install docker ..."
-
-    docker --help 1>/dev/null 2>&1 || curl -fsSL $DOCKERINSTALL | bash
-    docker --help 1>/dev/null 2>&1
-    if [ $? = 0 ]; then
-        echo "[SUCC]docker installed."
-    else
-        echo "[FAIL]install docker fail."
-        exit 1
-    fi
-
-    echo =================================================================
-    echo "[INFO]start docker ..."
-    docker ps 1>/dev/null 2>&1 || service docker start
-    docker ps 1>/dev/null 2>&1
-    if [ $? = 0 ]; then
-        echo "[SUCC]docker is started."
-    else
-        echo "[FAIL]start docker fail."
-        exit 1
-    fi
-
-    echo =================================================================
-    echo "[INFO]enable docker.service ..."
-    systemctl enable docker.service
-    if [ $? = 0 ]; then
-        echo "[SUCC]enable docker.service success."
-    else
-        echo "[FAIL]enable docker.service fail."
-        exit 1
-    fi
-
-    echo =================================================================
-    echo "[INFO]get open-c3-install-cache ..."
-
-    if [ ! -d "$BASE_PATH/Installer/install-cache" ]; then
-        if [ -d /data/open-c3-installer/install-cache ];then
-            cd $BASE_PATH/Installer && cp -r /data/open-c3-installer/install-cache .
-        else
-            cd $BASE_PATH/Installer && git clone $GITADDR/open-c3/open-c3-install-cache install-cache
-        fi
-        cd $BASE_PATH
-    fi
-
-    if [ -d "$BASE_PATH/Installer/install-cache" ]; then
-        echo "[SUCC]get open-c3-install-cache success."
-    else
-        echo "[FAIL]get open-c3-install-cache fail."
-        exit 1
-    fi
+#    echo =================================================================
+#    echo "[INFO]get open-c3-install-cache ..."
+#
+#    if [ ! -d "$BASE_PATH/Installer/install-cache" ]; then
+#        if [ -d /data/open-c3-installer/install-cache ];then
+#            cd $BASE_PATH/Installer && cp -r /data/open-c3-installer/install-cache .
+#        else
+#            cd $BASE_PATH/Installer && git clone $GITADDR/open-c3/open-c3-install-cache install-cache
+#        fi
+#        cd $BASE_PATH
+#    fi
+#
+#    if [ -d "$BASE_PATH/Installer/install-cache" ]; then
+#        echo "[SUCC]get open-c3-install-cache success."
+#    else
+#        echo "[FAIL]get open-c3-install-cache fail."
+#        exit 1
+#    fi
 
     echo =================================================================
     echo "[INFO]create c3-front/dist ..."
