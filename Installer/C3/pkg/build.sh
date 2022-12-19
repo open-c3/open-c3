@@ -12,6 +12,11 @@ cd /data/open-c3/Installer/C3/pkg || exit
 rm -rf tempdata
 mkdir  tempdata
 
+# perl
+mkdir -p tempdata/open-c3/pkg
+./perl/build.sh
+cp perl/perl.tar.gz tempdata/open-c3/pkg/perl.tar.gz
+
 # trouble-ticketing
 bash -c "cd /data/open-c3/Connector/tt/trouble-ticketing && ./build.sh"
 mkdir -p tempdata/open-c3/pkg

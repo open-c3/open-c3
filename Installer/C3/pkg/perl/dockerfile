@@ -1,0 +1,10 @@
+#Author: lijinfeng2011@gmail.com
+
+FROM openc3/basev2:t2206131
+MAINTAINER lijinfeng2011
+
+ADD make.sh /make.sh
+RUN /make.sh
+
+ADD entrypoint.sh /
+ENTRYPOINT [ "/entrypoint.sh" ]
