@@ -289,6 +289,37 @@ function install() {
 
     echo "[INFO]Run command to start service: /data/open-c3/open-c3.sh start"
 
+    echo =================================================================
+    echo "[INFO]tt-front build ..."
+
+    mkdir -p /data/open-c3/c3-front/dist/tt
+    rsync  -av /data/open-c3/Installer/install-cache/trouble-ticketing/tt-front/dist/ /data/open-c3/c3-front/dist/tt/ --delete
+    rsync -av /data/open-c3/Connector/tt/tt-front/src/assets/images/  /data/open-c3/c3-front/dist/assets/images/
+
+    if [ $? = 0 ]; then
+        echo "[SUCC]tt-front build success."
+    else
+        echo "[FAIL]tt-front build fail."
+        exit 1
+    fi
+
+    echo =================================================================
+    echo "[INFO]copy trouble-ticketing ..."
+
+    COOKIEKEY=$(cat /data/open-c3/Connector/config.inix | grep -v '^ *#' | grep cookiekey:|awk '{print $2}'|grep ^[a-zA-Z0-9]*$)
+    sed -i "s/\"cookiekey\":\".*\"/\"cookiekey\":\"$COOKIEKEY\"/g" /data/open-c3/Connector/tt/trouble-ticketing/cfg.json
+
+    cp /data/open-c3/Connector/pkg/trouble-ticketing /data/open-c3/Connector/tt/trouble-ticketing/trouble-ticketing.$$
+    mv /data/open-c3/Connector/tt/trouble-ticketing/trouble-ticketing.$$ /data/open-c3/Connector/tt/trouble-ticketing/trouble-ticketing
+    chmod +x /data/open-c3/Connector/tt/trouble-ticketing/trouble-ticketing
+
+    if [ $? = 0 ]; then
+        echo "[SUCC]copy trouble-ticketing success."
+    else
+        echo "[FAIL]copy trouble-ticketing fail."
+        exit 1
+    fi
+
     if [ -d /data/open-c3-installer/dev-cache ];then
         cp -r /data/open-c3-installer/dev-cache /data/open-c3/Installer/
     fi
