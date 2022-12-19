@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-VERSION=2212191
+VERSION=2212192
 if [ "X$1" != "X" ];then
     VERSION=$1
 fi
