@@ -13,7 +13,7 @@ def create_ticket(
     title, 
     content, 
     email_list,
-    if_ext,
+    ext_tt,
 ):
     impact = int(subprocess.getoutput("c3mc-sys-ctl sys.tt.impact"))
     c = int(subprocess.getoutput("c3mc-sys-ctl sys.tt.c"))
@@ -22,7 +22,7 @@ def create_ticket(
 
     API_ENDPOINT = "http://localhost:9008/public/ticket"
 
-    if if_ext == "1":
+    if ext_tt == "1":
         API_ENDPOINT = subprocess.getoutput("c3mc-sys-ctl sys.tt.external_api_endpoint")
         if API_ENDPOINT == "":
             raise Exception("使用外部tt时, 外部tt的接口地址不允许为空")
@@ -51,14 +51,14 @@ def main(
     title, 
     content, 
     email_list, 
-    if_ext_tt,
+    ext_tt,
 ):
     create_ticket(
         submit_user, 
         title, 
         content, 
         email_list, 
-        if_ext_tt,
+        ext_tt,
     )
 
 
@@ -70,25 +70,30 @@ if __name__ == '__main__':
         raise Exception("数据格式不对, 需要一行json字符串")
 
     parser = argparse.ArgumentParser(description="创建tt。工单内容请使用stdin输入参数, 其他参数使用命令行参数.")
-    parser.add_argument('--submit_user', type=str, required=True, help='提交人账号')
     parser.add_argument('--title', type=str, required=True, help='标题')
     parser.add_argument('--email_list', type=str, required=False, help='邮箱列表,多个邮箱用英文逗号分隔')
-    parser.add_argument('--if_ext', type=str, required=True, help='是否使用外部tt, 1: 使用外部tt, 0: 使用内部tt')
+    parser.add_argument('--submit_user', type=str, required=False, help='提交人账号')
+    parser.add_argument('--ext_tt', type=str, required=False, help='是否使用外部tt, 1: 使用外部tt, 0: 使用内部tt')
     args = parser.parse_args()
 
-    submit_user = args.submit_user
     title = args.title
+
     email_list = ""
     if args.email_list != None and args.email_list != "":
         email_list = args.email_list
-    if_ext = False
-    if args.if_ext != None and args.if_ext != "0":
-        if_ext = True
+
+    submit_user = "app@sys"
+    if args.submit_user != None and args.submit_user != "":
+        submit_user = args.submit_user
+
+    ext_tt = "0"
+    if args.ext_tt != None and args.ext_tt != "0":
+        ext_tt = "1"
 
     main(
         submit_user, 
         title, 
         l[0],
         email_list, 
-        if_ext
+        ext_tt
     )
