@@ -101,6 +101,9 @@ fi
 mkdir -p /data/open-c3-data/glusterfs/oncall/{conf,data};
 mkdir -p /data/open-c3-data/glusterfs/mailmon/{conf,data,run};
 mkdir -p /data/open-c3-data/monitor-sender
+
+/data/Software/mydan/Connector/pp/c3mc-sys-sup
+/data/Software/mydan/Connector/pp/c3mc-sys-dup
 #=end
 
 /data/Software/mydan/Connector/restart-open-c3-auto-config-change.pl
