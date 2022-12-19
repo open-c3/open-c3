@@ -432,6 +432,10 @@ function dup() {
     docker exec -t openc3-server c3mc-sys-dup
 }
 
+function sup() {
+    docker exec -t openc3-server c3mc-sys-sup
+}
+
 function cmdbdemo() {
     /data/open-c3/Installer/scripts/cmdb-demo.sh
 }
@@ -495,11 +499,14 @@ log)
 dup)
     dup
     ;;
+sup)
+    sup
+    ;;
 cmdbdemo)
     cmdbdemo
     ;;
 *)
-    echo "Usage: $0 {start|stop|status|restart|reload|install|rebuild|reborn|upgrade|switchversion|inx|app|sql|log|dup|cmdbdemo}"
+    echo "Usage: $0 {start|stop|status|restart|reload|install|rebuild|reborn|upgrade|switchversion|inx|app|sql|log|dup|sup|cmdbdemo}"
     echo "$0 install 10.10.10.10(Your Internet IP)"
     exit 2
 esac
