@@ -12,16 +12,15 @@ cd /data/open-c3/Installer/C3/pkg || exit
 rm -rf tempdata
 mkdir  tempdata
 
+mkdir -p tempdata/open-c3/Connector/pkg
 # perl
-mkdir -p tempdata/open-c3/pkg
 ./perl/build.sh
-cp perl/perl.tar.gz tempdata/open-c3/pkg/perl.tar.gz
+cp perl/perl.tar.gz tempdata/open-c3/Connector/pkg/perl.tar.gz
 
 # trouble-ticketing
 bash -c "cd /data/open-c3/Connector/tt/trouble-ticketing && ./build.sh"
-mkdir -p tempdata/open-c3/pkg
-cp /data/open-c3/Connector/tt/trouble-ticketing/trouble-ticketing tempdata/open-c3/pkg/
-chmod +x tempdata/open-c3/pkg/trouble-ticketing
+cp /data/open-c3/Connector/tt/trouble-ticketing/trouble-ticketing tempdata/open-c3/Connector/pkg/
+chmod +x tempdata/open-c3/Connector/pkg/trouble-ticketing
 
 #jumpserver
 bash -c "cd /data/open-c3/Connector/bl/sync/jumpserver && ./build.sh"
