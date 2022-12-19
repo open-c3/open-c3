@@ -1,0 +1,9 @@
+#Author: lijinfeng2011@gmail.com
+
+FROM openc3/pkg:2212194
+MAINTAINER lijinfeng2011
+
+ADD tempdata tempdata_patch
+RUN rsync -av /tempdata_patch/ /tempdata/ && rm -rf /tempdata_patch
+ADD entrypoint.sh /
+ENTRYPOINT [ "/entrypoint.sh" ]

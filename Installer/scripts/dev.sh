@@ -64,23 +64,23 @@ function start() {
         exit 1
     fi
 
-    echo =================================================================
-    echo "[INFO]get open-c3-dev-cache ..."
-
-    if [ ! -d "$BASE_PATH/Installer/dev-cache" ]; then
-        cd $BASE_PATH/Installer && git clone $GITADDR/open-c3/open-c3-dev-cache dev-cache
-        cd $BASE_PATH
-    fi
-
-    if [ -d "$BASE_PATH/Installer/dev-cache" ]; then
-        echo "[SUCC]get open-c3-dev-cache success."
-    else
-        echo "[FAIL]get open-c3-dev-cache fail."
-        exit 1
-    fi
-
-    cd $BASE_PATH/Installer/dev-cache && git pull
-    cd $BASE_PATH || exit 1
+#    echo =================================================================
+#    echo "[INFO]get open-c3-dev-cache ..."
+#
+#    if [ ! -d "$BASE_PATH/Installer/dev-cache" ]; then
+#        cd $BASE_PATH/Installer && git clone $GITADDR/open-c3/open-c3-dev-cache dev-cache
+#        cd $BASE_PATH
+#    fi
+#
+#    if [ -d "$BASE_PATH/Installer/dev-cache" ]; then
+#        echo "[SUCC]get open-c3-dev-cache success."
+#    else
+#        echo "[FAIL]get open-c3-dev-cache fail."
+#        exit 1
+#    fi
+#
+#    cd $BASE_PATH/Installer/dev-cache && git pull
+#    cd $BASE_PATH || exit 1
 
     echo =================================================================
     echo "[INFO]synchronize the dependent part of c3-front ..."
@@ -130,38 +130,43 @@ function start() {
 
         rsync -av $BASE_PATH/c3-front/src/assets/ $BASE_PATH/c3-front/dist/assets/
 
-        NEWBOOK=0
-        if [ ! -d $BASE_PATH/c3-front/dist/book ];then
-            NEWBOOK=1
-        else
-
-            GITBOOKINDEX=https://raw.githubusercontent.com/open-c3/open-c3.github.io/main/index.html
-            if [ "X$OPENC3_ZONE" == "XCN"  ]; then
-                GITBOOKINDEX=https://gitee.com/open-c3/open-c3.github.io/raw/main/index.html
-            fi
-
-            REMOTEUUID=$(curl $GITBOOKINDEX 2>/dev/null |md5sum |awk '{print $1}')
-            LOCALUUID=$(md5sum $BASE_PATH/c3-front/dist/book/index.html 2>/dev/null |awk '{print $1}')
-            if [ "X$REMOTEUUID" != "X$LOCALUUID" ];then
-                NEWBOOK=1
-            fi
-        fi
-
-        if [ "X$NEWBOOK" == "X1" ];then
-
-            rm -rf $BASE_PATH/c3-front/dist/book.new
-            rm -rf $BASE_PATH/c3-front/dist/book.old
-
-            if [ -d /data/open-c3-book ]; then
-                cp -r /data/open-c3-book $BASE_PATH/c3-front/dist/book.new
-            else
-                cd $BASE_PATH/c3-front/dist && git clone $GITADDR/open-c3/open-c3.github.io book.new || exit 1
-            fi
-
-            mv book book.old
-            mv book.new book
-        fi
+#        NEWBOOK=0
+#        if [ ! -d $BASE_PATH/c3-front/dist/book ];then
+#            NEWBOOK=1
+#        else
+#
+#            GITBOOKINDEX=https://raw.githubusercontent.com/open-c3/open-c3.github.io/main/index.html
+#            if [ "X$OPENC3_ZONE" == "XCN"  ]; then
+#                GITBOOKINDEX=https://gitee.com/open-c3/open-c3.github.io/raw/main/index.html
+#            fi
+#
+#            REMOTEUUID=$(curl $GITBOOKINDEX 2>/dev/null |md5sum |awk '{print $1}')
+#            LOCALUUID=$(md5sum $BASE_PATH/c3-front/dist/book/index.html 2>/dev/null |awk '{print $1}')
+#            if [ "X$REMOTEUUID" != "X$LOCALUUID" ];then
+#                NEWBOOK=1
+#            fi
+#        fi
+#
+#        if [ "X$NEWBOOK" == "X1" ];then
+#
+#            rm -rf $BASE_PATH/c3-front/dist/book.new
+#            rm -rf $BASE_PATH/c3-front/dist/book.old
+#
+#            if [ -d /data/open-c3-book ]; then
+#                cp -r /data/open-c3-book $BASE_PATH/c3-front/dist/book.new
+#            else
+#                cd $BASE_PATH/c3-front/dist && git clone $GITADDR/open-c3/open-c3.github.io book.new || exit 1
+#            fi
+#
+#            mv book book.old
+#            mv book.new book
+#        fi
         
+        rm -rf $BASE_PATH/c3-front/dist/book.new
+        cp -r /data/open-c3/Connector/pkg/book $BASE_PATH/c3-front/dist/book.new
+        rm -rf $BASE_PATH/c3-front/dist/book
+        mv $BASE_PATH/c3-front/dist/book.new $BASE_PATH/c3-front/dist/book
+
         git log --pretty=format:'%ai - %s' |grep -v 'Merge branch' > $BASE_PATH/Connector/.versionlog
         git branch |grep ^*|awk '{print $2}' > $BASE_PATH/Connector/.versionname
         git rev-parse --short HEAD           > $BASE_PATH/Connector/.versionuuid

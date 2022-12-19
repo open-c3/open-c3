@@ -133,7 +133,7 @@ function upgradeSelf() {
     COOKIEKEY=$(cat /data/open-c3/Connector/config.inix | grep -v '^ *#' | grep cookiekey:|awk '{print $2}'|grep ^[a-zA-Z0-9]*$)
     sed -i "s/\"cookiekey\":\".*\"/\"cookiekey\":\"$COOKIEKEY\"/g" /data/open-c3/Connector/tt/trouble-ticketing/cfg.json
 
-    cp /data/open-c3/pkg/trouble-ticketing /data/open-c3/Connector/tt/trouble-ticketing/trouble-ticketing.$$
+    cp /data/open-c3/Connector/pkg/trouble-ticketing /data/open-c3/Connector/tt/trouble-ticketing/trouble-ticketing.$$
     mv /data/open-c3/Connector/tt/trouble-ticketing/trouble-ticketing.$$ /data/open-c3/Connector/tt/trouble-ticketing/trouble-ticketing
     chmod +x /data/open-c3/Connector/tt/trouble-ticketing/trouble-ticketing
 
