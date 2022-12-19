@@ -441,11 +441,11 @@ function log() {
 }
 
 function dup() {
-    docker exec -t openc3-server c3mc-sys-dup
+    docker exec -t openc3-server /data/Software/mydan/Connector/pp/c3mc-sys-dup
 }
 
 function sup() {
-    docker exec -t openc3-server c3mc-sys-sup
+    docker exec -t openc3-server /data/Software/mydan/Connector/pp/c3mc-sys-sup
 }
 
 function cmdbdemo() {
