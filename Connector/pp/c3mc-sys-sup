@@ -3,3 +3,31 @@ cd /data/Software/mydan && tar -zxf Connector/pkg/perl.tar.gz
 
 cp /data/Software/mydan/Connector/pkg/mysql /usr/bin/mysql
 chmod +x /usr/bin/mysql
+
+cp /data/Software/mydan/Connector/pkg/install-cache/bin/kubectl    /usr/bin/
+cp /data/Software/mydan/Connector/pkg/install-cache/bin/yaml2json  /usr/bin/
+cp /data/Software/mydan/Connector/pkg/install-cache/bin/json2yaml  /usr/bin/
+cp /data/Software/mydan/Connector/pkg/install-cache/bin/xlsx2csv   /usr/bin/
+cp /data/Software/mydan/Connector/pkg/install-cache/bin/csv2xlsx   /usr/bin/
+cp /data/Software/mydan/Connector/pkg/install-cache/bin/amtool     /usr/bin/
+
+cp /data/Software/mydan/CI/bin/aws_c3                              /usr/local/bin/
+
+mkdir -p /data/open-c3-data/glusterfs/oncall/{conf,data}
+mkdir -p /data/open-c3-data/glusterfs/mailmon/{conf,data,run}
+mkdir -p /data/open-c3-data/monitor-sender
+
+
+mkdir -p /data/open-c3-data/logs/CI/webhooks_data
+mkdir -p /data/open-c3-data/logs/CI/webhooks_logs
+
+touch /etc/openc3.supervisormin.on
+
+
+mkdir -p /data/open-c3-data/cache/nodeinfo
+mkdir -p /data/open-c3-data/cache/treemap
+mkdir -p /data/open-c3-data/cache/userinfo
+mkdir -p /data/open-c3-data/cache/point
+mkdir -p /data/open-c3-data/cache/usertree
+
+curl -L http://openc3-srv-docker/api/scripts/installAgent.sh |OPEN_C3_ADDR=http://openc3-srv-docker bash
