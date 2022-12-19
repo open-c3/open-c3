@@ -290,6 +290,7 @@ function install() {
     fi
     /data/open-c3/Installer/scripts/dev.sh build
 
+    /data/open-c3/open-c3.sh sup
     /data/open-c3/open-c3.sh dup
     /data/open-c3/open-c3.sh start
 
@@ -308,6 +309,14 @@ function install() {
 
     mkdir -p /data/open-c3-data/grafana-data
     rsync -av /data/open-c3/Installer/install-cache/grafana-data/ /data/open-c3-data/grafana-data/
+
+    /data/open-c3/open-c3.sh c3-restart
+    echo sleep 60 sec ...
+    sleep 60
+
+    /data/open-c3/open-c3.sh sup
+    /data/open-c3/open-c3.sh dup
+    /data/open-c3/open-c3.sh start
 }
 
 function start() {
