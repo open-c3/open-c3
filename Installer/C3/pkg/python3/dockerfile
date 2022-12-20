@@ -1,0 +1,11 @@
+FROM centos:7
+
+WORKDIR /app
+
+ADD make.sh make.sh
+ADD init  init
+
+RUN /app/make.sh
+
+ADD entrypoint.sh .
+ENTRYPOINT [ "/app/entrypoint.sh" ]
