@@ -8,6 +8,14 @@ cat /data/open-c3/*/schema.sql  /data/open-c3/Installer/C3/mysql/init.sql > temp
 
 cp ../mysql/conf/my.cnf temp/
 cp -r /data/open-c3/Connector temp/
+rm -rf temp/Connector/pkg/book
+rm -rf temp/Connector/pkg/book.tar.gz
+rm -rf temp/Connector/pkg/dev-cache
+rm -rf temp/Connector/pkg/dev-cache.tar.gz
+rm -rf temp/Connector/pkg/install-cache.tar.gz
+rm -rf temp/Connector/pkg/install-cache/.git
+bash -c "cd temp/Connector/pkg/install-cache && ls | grep -v ^bin$|xargs -i{} rm -rf {}"
+
 cp -r /data/open-c3/MYDan temp/
 rm -rf temp/MYDan/repo/data/perl/data/CYGWIN_NT-10.0
 rm -rf temp/MYDan/repo/data/perl/data/CYGWIN_NT-6.1
