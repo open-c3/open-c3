@@ -120,4 +120,28 @@ get '/monitor/alert/tottbind/:projectid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \%res };
 };
 
+get '/monitor/alert/gotocase/:projectid' => sub {
+    my $param = params();
+    my $error = Format->new(
+        uuid     => qr/^[a-zA-Z0-9\.\-:]+$/, 1,
+        caseuuid => qr/^[a-zA-Z0-9\.\-:]+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $pmscheck = api::pmscheck( 'openc3_agent_read' ); return $pmscheck if $pmscheck;
+
+    my $url = "/tt/#/tt/show/$param->{caseuuid}";
+    my $r = eval{ $api::mysql->query( "select type from openc3_monitor_tott where uuid='$param->{uuid}' and caseuuid='$param->{caseuuid}'" )}; 
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    if( @$r && $r->[0][0] )
+    {
+        my    $caseurl = `c3mc-sys-ctl sys.monitor.tt.caseurl`;
+        chomp $caseurl;
+        return +{ stat => $JSON::false, info => "sys.monitor.tt.caseurl undef" } unless $caseurl;
+        $url = sprintf $caseurl, $param->{caseuuid};
+    }
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $url };
+};
+
 true;

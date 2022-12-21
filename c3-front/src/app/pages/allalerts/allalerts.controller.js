@@ -73,7 +73,13 @@
         };
 
         vm.openTT = function (uuid, caseuuid) {
-            window.open("/tt/#/tt/show/" + caseuuid, '_blank')
+            $http.get('/api/agent/monitor/alert/gotocase/0?uuid=' + uuid + '&caseuuid=' + caseuuid ).success(function(data){
+                if (data.stat){
+                    window.open(data.data, '_blank')
+                }else {
+                    swal({ title:'获取工单地址失败', text: data.info, type:'error' });
+                }
+            });
         };
  
         vm.openOneTab = function (url) {
