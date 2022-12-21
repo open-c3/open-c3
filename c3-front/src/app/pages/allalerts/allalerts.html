@@ -1,0 +1,37 @@
+<div class="row block" >
+
+<div>
+    <div class="panel panel-primary">
+
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="allalerts.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!allalerts.loadover}" ></i></button>
+            </span>
+            <h5>{{'C3T.当前告警'|translate}}</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="panel-tabs">
+                <table ng-table="allalerts.dataTable" class="table table-hover text-center table-condensed" show-filter="true">
+                    <tr ng-repeat="m in $data">
+                        <td data-title="'C3T.开始时间'|translate" sortable="'startsAt'">{{m.startsAt}}</td>
+                        <td data-title="'C3T.名称'|translate" sortable="'labels.alertname'">{{m.labels.alertname}}</td>
+                        <td data-title="'C3T.监控对象'|translate" sortable="'labels.instance'">{{monitorconfig.getinstancename(m.labels)}}</td>
+                        <td data-title="'C3T.状态'|translate" sortable="'status.state'">{{m.status.state}}</td>
+                        <td data-title="'C3T.概要'|translate" sortable="'annotations.summary'">{{m.annotations.summary}}</td>
+                        <td data-title="'C3T.值'|translate" sortable="'annotations.value'">{{m.annotations.value}}</td>
+                        <td class="textcenter"  data-title="'C3T.操作'|translate">
+                            <nobr>
+                                <a style="font-size: 10px;font-weight: bold" class="btn btn-primary" href="{{m.generatorURL}}" target="_blank">{{'C3T.查看图表'|translate}}</a>
+                            </nobr>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+</div>

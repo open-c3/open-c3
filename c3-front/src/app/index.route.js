@@ -459,6 +459,12 @@
                 controller: 'AllcaseController',
                 controllerAs: 'allcase'
             })
+            .state('home.allalerts', {
+                url: 'allalerts/:treeid',
+                templateUrl: 'app/pages/allalerts/allalerts.html',
+                controller: 'AllalertsController',
+                controllerAs: 'allalerts'
+            })
             .state('home.assignment', {
                 url: 'assignment/:treeid',
                 templateUrl: 'app/pages/assignment/assignment.html',
