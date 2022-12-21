@@ -15,6 +15,8 @@ def create_ticket(
     content, 
     email_list,
     ext_tt,
+    app_name,
+    app_key
 ):
     impact = int(subprocess.getoutput("c3mc-sys-ctl sys.tt.impact"))
     c = int(subprocess.getoutput("c3mc-sys-ctl sys.tt.c"))
@@ -40,8 +42,12 @@ def create_ticket(
     }
 
     header = {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
     }
+    if app_name != None and app_key != None:
+        header["appname"] = app_name
+        header["appkey"] = app_key
+    
     resp = requests.post(url = API_ENDPOINT, headers = header, json=data)
 
     from c3mc_utils import print_c3debug1_log
@@ -60,6 +66,8 @@ def main(
     content, 
     email_list, 
     ext_tt,
+    app_name,
+    app_key
 ):
     create_ticket(
         submit_user, 
@@ -67,6 +75,8 @@ def main(
         content, 
         email_list, 
         ext_tt,
+        app_name,
+        app_key
     )
 
 
@@ -81,6 +91,8 @@ if __name__ == '__main__':
     parser.add_argument('--email_list', type=str, required=False, help='邮箱列表,多个邮箱用英文逗号分隔')
     parser.add_argument('--submit_user', type=str, required=False, help='提交人账号')
     parser.add_argument('--ext_tt', type=str, required=False, help='是否使用外部tt, 1: 使用外部tt, 0: 使用内部tt')
+    parser.add_argument('--appname', type=str, required=False, help='app name')
+    parser.add_argument('--appkey', type=str, required=False, help='app key')
     args = parser.parse_args()
 
     title = args.title
@@ -96,11 +108,16 @@ if __name__ == '__main__':
     ext_tt = "0"
     if args.ext_tt != None and args.ext_tt != "0":
         ext_tt = "1"
+    
+    app_name = args.appname
+    app_key = args.appkey
 
     main(
         submit_user, 
         title, 
         content,
         email_list, 
-        ext_tt
+        ext_tt,
+        app_name,
+        app_key
     )
