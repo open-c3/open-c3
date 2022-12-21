@@ -73,7 +73,7 @@ func (b *Bastion) getHeader() map[string]string {
 	}
 }
 
-func (b *Bastion) GetAssetMap(localMachines []model.MachineInfo) (map[interface{}]model.MachineInfo, map[interface{}]interface{}, error) {
+func (b *Bastion) GetAssetMap(localMachines []model.MachineInfo) (map[string]model.MachineInfo, map[string]Asset, error) {
 	apiUrl, err := utils.GetUrlWithParams(
 		b.bastion.Url,
 		"/api/v1/assets/assets/",
@@ -86,15 +86,15 @@ func (b *Bastion) GetAssetMap(localMachines []model.MachineInfo) (map[interface{
 
 	assets := make([]Asset, 0)
 
-	body, _, err := utils.DoNetworkRequest(http.MethodGet, *apiUrl, "", b.getHeader(), assets)
+	body, _, err := utils.DoNetworkRequest(http.MethodGet, *apiUrl, "", b.getHeader(), &assets)
 	if err != nil {
 		logger.FsErrorf("GetAssetMap.DoNetworkRequest.err: %v, body = %v", err, string(body))
 		return nil, nil, err
 	}
 
 	var (
-		mBastion = make(map[interface{}]interface{})
-		mLocal   = make(map[interface{}]model.MachineInfo)
+		mBastion = make(map[string]Asset)
+		mLocal   = make(map[string]model.MachineInfo)
 	)
 	for _, item := range assets {
 		mBastion[item.Ip] = item
@@ -145,34 +145,62 @@ func (b *Bastion) DeleteAsset(asset interface{}) error {
 }
 
 func (b *Bastion) CreateOrUpdateAsset(machineInfo model.MachineInfo) error {
-	apiUrl, err := utils.GetUrlWithParams(
-		b.bastion.Url,
-		"/api/v1/assets/assets/",
-		nil,
-	)
-	if err != nil {
-		logger.FsErrorf("CreateAsset.GetUrlWithParams.err: %v", err)
-		return err
+	if machineInfo.Id == "" {
+		apiUrl, err := utils.GetUrlWithParams(
+			b.bastion.Url,
+			"/api/v1/assets/assets/",
+			nil,
+		)
+		if err != nil {
+			logger.FsErrorf("CreateOrUpdateAsset.GetUrlWithParams.err: %v", err)
+			return err
+		}
+
+		idPtr, err := utils.GetUUID()
+		if err != nil {
+			return err
+		}
+		req := UpsertAssetRequest{
+			// jumpserver要求uuid是这种格式 a1856c5a-1789-11ed-bddf-bee271d8d5b5。
+			Id: *idPtr,
+			// HostName: machineInfo.HostName,
+			HostName: machineInfo.IP,
+			Ip:       machineInfo.IP,
+			Platform: machineInfo.OS,
+			Comment:  fmt.Sprintf("[%v]", machineInfo.InstanceId),
+		}
+		data := utils.ToJsonString(req)
+		body, _, err := utils.DoNetworkRequest(http.MethodPost, *apiUrl, data, b.getHeader(), nil)
+		if err != nil {
+			logger.FsErrorf("CreateOrUpdateAsset.DoNetworkRequest.err: %v, body = %v", err, string(body))
+			return err
+		}
+	} else {
+		apiUrl, err := utils.GetUrlWithParams(
+			b.bastion.Url,
+			fmt.Sprintf("/api/v1/assets/assets/%v/", machineInfo.Id),
+			nil,
+		)
+		if err != nil {
+			logger.FsErrorf("CreateOrUpdateAsset.GetUrlWithParams.err: %v", err)
+			return err
+		}
+		req := UpsertAssetRequest{
+			// jumpserver要求uuid是这种格式 a1856c5a-1789-11ed-bddf-bee271d8d5b5。
+			Id: machineInfo.Id,
+			// HostName: machineInfo.HostName,
+			HostName: machineInfo.IP,
+			Ip:       machineInfo.IP,
+			Platform: machineInfo.OS,
+			Comment:  fmt.Sprintf("[%v]", machineInfo.InstanceId),
+		}
+		data := utils.ToJsonString(req)
+		body, _, err := utils.DoNetworkRequest(http.MethodPut, *apiUrl, data, b.getHeader(), nil)
+		if err != nil {
+			logger.FsErrorf("CreateOrUpdateAsset.DoNetworkRequest.err: %v, body = %v", err, string(body))
+			return err
+		}
 	}
 
-	id, err := utils.GetUUID()
-	if err != nil {
-		return err
-	}
-
-	data := utils.ToJsonString(CreateAssetRequest{
-		// jumpserver要求uuid是这种格式 a1856c5a-1789-11ed-bddf-bee271d8d5b5。
-		Id:       *id,
-		HostName: machineInfo.HostName,
-		Ip:       machineInfo.IP,
-		Platform: machineInfo.OS,
-		Comment:  fmt.Sprintf("[%v]", machineInfo.InstanceId),
-	})
-
-	body, _, err := utils.DoNetworkRequest(http.MethodPost, *apiUrl, data, b.getHeader(), nil)
-	if err != nil {
-		logger.FsErrorf("CreateAsset.DoNetworkRequest.err: %v, body = %v", err, string(body))
-		return err
-	}
 	return nil
 }

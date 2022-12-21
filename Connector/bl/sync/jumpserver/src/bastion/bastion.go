@@ -5,6 +5,7 @@ import (
 	"bl/src/bastion/source"
 	"bl/src/logger"
 	"bl/src/model"
+	"strings"
 )
 
 var (
@@ -34,6 +35,16 @@ func Helper(syncBastion SyncBastion, appName, appKey string) error {
 		}
 	}
 
+	for i, item := range machinesList {
+		if strings.Contains(strings.ToLower(item.OS), "centos") ||
+			strings.Contains(strings.ToLower(item.OS), "linux") ||
+			strings.Contains(strings.ToLower(item.OS), "ubuntu") {
+			machinesList[i].OS = "Linux"
+		} else if strings.Contains(strings.ToLower(item.OS), "window") {
+			machinesList[i].OS = "Windows"
+		}
+	}
+
 	mLocal, mBastion, err := syncBastion.GetAssetMap(machinesList)
 	if err != nil {
 		logger.FsErrorf("Helper.GetAssetMap.err: %v", err)
@@ -45,9 +56,14 @@ func Helper(syncBastion SyncBastion, appName, appKey string) error {
 		needDeleteAssets = make([]interface{}, 0)
 	)
 
+	invalidNum := 0
 	for uuid, machineInfo := range mLocal {
-		if machineInfo.IP == "" || machineInfo.HostName == "" {
+		if machineInfo.IP == "" && machineInfo.HostName == "" {
+			invalidNum++
 			continue
+		}
+		if machineInfo.IP != "" && machineInfo.HostName == "" {
+			machineInfo.HostName = machineInfo.IP
 		}
 
 		if asset, ok := mBastion[uuid]; ok {
@@ -57,12 +73,14 @@ func Helper(syncBastion SyncBastion, appName, appKey string) error {
 				return err
 			}
 			if !*same {
+				machineInfo.Id = asset.Id
 				needUpsertList = append(needUpsertList, machineInfo)
 			}
 		} else {
 			needUpsertList = append(needUpsertList, machineInfo)
 		}
 	}
+	logger.FsInfof("Helper. 没有ip同时没有hostname的机器数是 =  %v\n", invalidNum)
 
 	for uuid, asset := range mBastion {
 		if _, ok := mLocal[uuid]; !ok {

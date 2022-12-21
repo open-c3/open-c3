@@ -9,7 +9,7 @@ type AuthenticateResponse struct {
 	Token string `json:"token"`
 }
 
-type CreateAssetRequest struct {
+type UpsertAssetRequest struct {
 	Id       string `json:"id"`
 	HostName string `json:"hostname"`
 	Ip       string `json:"ip"`
