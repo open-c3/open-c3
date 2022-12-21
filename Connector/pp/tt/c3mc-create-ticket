@@ -5,7 +5,8 @@ import requests
 import sys
 import subprocess
 import argparse
-import json
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
 
 
 def create_ticket(
@@ -41,7 +42,14 @@ def create_ticket(
     header = {
         "Content-Type": "application/json"
     }
-    resp = requests.post(url = API_ENDPOINT, headers = header, json=data).json()
+    resp = requests.post(url = API_ENDPOINT, headers = header, json=data)
+
+    from c3mc_utils import print_c3debug1_log
+    print_c3debug1_log(
+        "DEBUG1: {}, create_ticket, call tt. request: {}, response: {}".format(sys.argv[0], data, resp))
+
+    resp = resp.json()
+
     if "data" in resp:
         print(resp['data'])
 
