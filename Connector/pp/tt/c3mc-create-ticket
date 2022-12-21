@@ -7,6 +7,8 @@ import subprocess
 import argparse
 import json
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+
 
 def create_ticket(
     submit_user, 
@@ -22,10 +24,20 @@ def create_ticket(
 
     API_ENDPOINT = "http://localhost:9008/public/ticket"
 
+    header = {
+        "Content-Type": "application/json",
+    }
+
     if ext_tt == "1":
         API_ENDPOINT = subprocess.getoutput("c3mc-sys-ctl sys.tt.external_api_endpoint")
         if API_ENDPOINT == "":
             raise Exception("使用外部tt时, 外部tt的接口地址不允许为空")
+        app_name = subprocess.getoutput("c3mc-sys-ctl sys.tt.external_api_endpoint.env.appname")
+        app_key = subprocess.getoutput("c3mc-sys-ctl sys.tt.external_api_endpoint.env.appkey")
+        if app_name != "" and app_key != "":
+            header["appname"] = app_name
+            header["appkey"] = app_key
+
     data = {
         "title": title,
         "content": content,
@@ -37,13 +49,14 @@ def create_ticket(
         "submit_user": submit_user,
         "apply_user": submit_user
     }
+    
+    resp = requests.post(url = API_ENDPOINT, headers = header, json=data)
 
-    header = {
-        "Content-Type": "application/json"
-    }
-    resp = requests.post(url = API_ENDPOINT, headers = header, json=data).json()
-    if "data" in resp:
-        print(resp['data'])
+    from c3mc_utils import print_c3debug1_log
+    print_c3debug1_log(
+        "DEBUG1: {}, create_ticket, call tt. request: {}, response: {}".format(sys.argv[0], data, resp))
+
+    return resp.json()
 
 
 def main(    
@@ -53,13 +66,17 @@ def main(
     email_list, 
     ext_tt,
 ):
-    create_ticket(
+    data = create_ticket(
         submit_user, 
         title, 
         content, 
         email_list, 
         ext_tt,
     )
+    if data["stat"] == 1:
+        print(data["data"])
+    else:
+        print(json.dumps(data, default=str))
 
 
 if __name__ == '__main__':
