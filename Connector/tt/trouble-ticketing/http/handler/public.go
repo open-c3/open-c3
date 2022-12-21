@@ -30,7 +30,7 @@ func PublicPostTicket(c *gin.Context) {
 
 	err := c.BindJSON(&req)
 	if err != nil {
-		c.JSON(http.StatusOK, status_400(err.Error()))
+		c.JSON(http.StatusOK, status_400_v2(err.Error()))
 		return
 	}
 	var (
@@ -50,12 +50,12 @@ func PublicPostTicket(c *gin.Context) {
 		}
 	}
 	if !found {
-		c.JSON(http.StatusOK, status_400("没有找到默认的组和处理用户, 工单名称: "+req.Title))
+		c.JSON(http.StatusOK, status_400_v2("没有找到默认的组和处理用户, 工单名称: "+req.Title))
 		return
 	}
 
 	if strings.TrimSpace(req.ApplyUser) == "" {
-		c.JSON(http.StatusOK, status_400("apply user reqiured"))
+		c.JSON(http.StatusOK, status_400_v2("apply user reqiured"))
 		return
 	}
 
@@ -74,10 +74,10 @@ func PublicPostTicket(c *gin.Context) {
 
 	err = orm.Db.Create(&obj).Error
 	if err != nil {
-		c.JSON(http.StatusOK, status_400(err.Error()))
+		c.JSON(http.StatusOK, status_400_v2(err.Error()))
 		return
 	}
-	c.JSON(http.StatusOK, status_200(obj.No))
+	c.JSON(http.StatusOK, status_200_v2(obj.No))
 }
 
 // 获取某个事件状态
