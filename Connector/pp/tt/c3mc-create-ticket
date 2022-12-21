@@ -5,6 +5,7 @@ import requests
 import sys
 import subprocess
 import argparse
+import json
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
 
@@ -15,8 +16,6 @@ def create_ticket(
     content, 
     email_list,
     ext_tt,
-    app_name,
-    app_key
 ):
     impact = int(subprocess.getoutput("c3mc-sys-ctl sys.tt.impact"))
     c = int(subprocess.getoutput("c3mc-sys-ctl sys.tt.c"))
@@ -44,7 +43,10 @@ def create_ticket(
     header = {
         "Content-Type": "application/json",
     }
-    if app_name != None and app_key != None:
+
+    app_name = subprocess.getoutput("c3mc-sys-ctl sys.tt.external_api_endpoint.env.appname")
+    app_key = subprocess.getoutput("c3mc-sys-ctl sys.tt.external_api_endpoint.env.appkey")
+    if app_name != "" and app_key != "":
         header["appname"] = app_name
         header["appkey"] = app_key
     
@@ -54,10 +56,7 @@ def create_ticket(
     print_c3debug1_log(
         "DEBUG1: {}, create_ticket, call tt. request: {}, response: {}".format(sys.argv[0], data, resp))
 
-    resp = resp.json()
-
-    if "data" in resp:
-        print(resp['data'])
+    return resp.json()
 
 
 def main(    
@@ -66,18 +65,18 @@ def main(
     content, 
     email_list, 
     ext_tt,
-    app_name,
-    app_key
 ):
-    create_ticket(
+    data = create_ticket(
         submit_user, 
         title, 
         content, 
         email_list, 
         ext_tt,
-        app_name,
-        app_key
     )
+    if data["stat"] == 1:
+        print(data["data"])
+    else:
+        print(json.dumps(data, default=str))
 
 
 if __name__ == '__main__':
@@ -91,8 +90,6 @@ if __name__ == '__main__':
     parser.add_argument('--email_list', type=str, required=False, help='邮箱列表,多个邮箱用英文逗号分隔')
     parser.add_argument('--submit_user', type=str, required=False, help='提交人账号')
     parser.add_argument('--ext_tt', type=str, required=False, help='是否使用外部tt, 1: 使用外部tt, 0: 使用内部tt')
-    parser.add_argument('--appname', type=str, required=False, help='app name')
-    parser.add_argument('--appkey', type=str, required=False, help='app key')
     args = parser.parse_args()
 
     title = args.title
@@ -109,15 +106,10 @@ if __name__ == '__main__':
     if args.ext_tt != None and args.ext_tt != "0":
         ext_tt = "1"
     
-    app_name = args.appname
-    app_key = args.appkey
-
     main(
         submit_user, 
         title, 
         content,
         email_list, 
         ext_tt,
-        app_name,
-        app_key
     )
