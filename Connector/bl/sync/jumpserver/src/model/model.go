@@ -1,6 +1,7 @@
 package model
 
 type MachineInfo struct {
+	Id         string `json:"id"`
 	InstanceId string `json:"instanceId"`
 	HostName   string `json:"hostName"`
 	IP         string `json:"ip"`
