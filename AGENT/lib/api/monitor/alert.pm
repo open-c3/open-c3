@@ -76,6 +76,9 @@ post '/monitor/alert/tott/:projectid' => sub {
     push @cont, "";
     push @cont, "URL: "      . Encode::encode("utf8", $param->{generatorURL}             );
 
+    my    $type = `c3mc-sys-ctl sys.monitor.tt.type`;
+    chomp $type;
+    my $ext_tt = $type ? '--ext_tt 1' : '';
     my $file;
     eval{
         my    $tmp = File::Temp->new( SUFFIX => ".tott", UNLINK => 0 );
@@ -84,7 +87,7 @@ post '/monitor/alert/tott/:projectid' => sub {
         $file = $tmp->filename;
         my $title = "监控事件:" . Encode::encode("utf8",$param->{labels}{alertname} ). '['.Encode::encode("utf8",$param->{labels}{instance} ). ']';
         $title =~ s/'//g;
-        die "err: $!" if system "cat '$file'|c3mc-create-ticket --title '$title'";
+        die "err: $!" if system "cat '$file'|c3mc-create-ticket --title '$title' $ext_tt";
     };
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $file };

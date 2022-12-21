@@ -23,6 +23,27 @@
         };
         vm.reload();
 
+        vm.getinstancename = function( labels ) {
+            var name = labels['instance'];
+
+            if( labels['instanceid'] )
+            {
+                name = labels['instanceid'];
+            }
+
+            if( labels['cache_cluster_id'] )
+            {
+                name = labels['cache_cluster_id'];
+            }
+
+            if( labels['dbinstance_identifier'] )
+            {
+                name = labels['dbinstance_identifier'];
+            }
+
+            return name;
+        };
+
         vm.tott = function(d){
             vm.loadover = false;
             $http.post("/api/agent/monitor/alert/tott/0", d  ).success(function(data){
