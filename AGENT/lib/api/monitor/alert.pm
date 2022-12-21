@@ -56,6 +56,10 @@ get '/monitor/alert/:projectid' => sub {
     }@$data;
 
     my @res = $projectid ? grep{ $_->{labels} && $_->{labels}{"fromtreeid"} && $_->{labels}{"fromtreeid"} eq $projectid }@$data : @$data;
+    map{
+        my $t = $_->{startsAt}; $t =~ s/ /T/g;
+        $_->{uuid} = $_->{fingerprint} . '.'. $t;
+    }@res;
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@res };
 };
 
@@ -87,10 +91,33 @@ post '/monitor/alert/tott/:projectid' => sub {
         $file = $tmp->filename;
         my $title = "监控事件:" . Encode::encode("utf8",$param->{labels}{alertname} ). '['.Encode::encode("utf8",$param->{labels}{instance} ). ']';
         $title =~ s/'//g;
-        die "err: $!" if system "cat '$file'|c3mc-create-ticket --title '$title' $ext_tt";
+        my $x = `cat '$file'|c3mc-create-ticket --title '$title' $ext_tt 2>&1`;
+        die "err: $x" if $?;
+        $x =~ s/\n//g;
+        die "create tt fail" unless $x && $x =~ /^[A-Z][A-Z0-9]+$/;
+        my $uuid = $param->{uuid};
+        die "uuid err" unless $uuid && $uuid =~ /^[a-zA-Z0-9\.\-:]+$/;
+        my $ctype = $type ? '1' : '0';
+        $api::mysql->execute( "insert into openc3_monitor_tott ( uuid,type,caseuuid ) value('$uuid','$ctype','$x')" );
     };
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $file };
+};
+
+get '/monitor/alert/tottbind/:projectid' => sub {
+    my $param = params();
+
+    my $pmscheck = api::pmscheck( 'openc3_agent_read' ); return $pmscheck if $pmscheck;
+
+    my @col = qw( uuid caseuuid);
+    my $r = eval{ $api::mysql->query( sprintf( "select %s from openc3_monitor_tott", join( ',', @col)), \@col )}; 
+    my %res;
+    for my $x ( @$r )
+    {
+        $res{ $x->{uuid} } ||= [];
+        push @{ $res{ $x->{uuid} } }, $x->{caseuuid};
+    }
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \%res };
 };
 
 true;

@@ -23,6 +23,20 @@
         };
         vm.reload();
 
+        vm.tottbind = {};
+        vm.reloadB = function () {
+            vm.loadBover = false;
+            $http.get('/api/agent/monitor/alert/tottbind/0').success(function(data){
+                if (data.stat){
+                    vm.tottbind = data.data;
+                    vm.loadBover = true;
+                }else {
+                    swal({ title:'获取列表失败', text: data.info, type:'error' });
+                }
+            });
+        };
+        vm.reloadB();
+
         vm.getinstancename = function( labels ) {
             var name = labels['instance'];
 
@@ -58,6 +72,10 @@
             });
         };
 
+        vm.openTT = function (uuid, caseuuid) {
+            window.open("/tt/#/tt/show/" + caseuuid, '_blank')
+        };
+ 
         vm.openOneTab = function (url) {
             window.open(url, '_blank')
         };

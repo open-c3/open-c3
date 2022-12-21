@@ -656,3 +656,14 @@ ALTER TABLE openc3_monitor_config_rule ADD `subgroup` VARCHAR(50) DEFAULT '' com
 
 # v2.6.0 sql openc3_monitor_config_user add subgroup
 ALTER TABLE openc3_monitor_config_user ADD `subgroup` VARCHAR(50) DEFAULT '' comment '子分组,接收部分告警策略的告警';
+
+# v2.6.0 sql openc3_monitor_tott create
+create table if not exists `openc3_monitor_tott`(
+`id`            int(16) unsigned not null primary key auto_increment comment 'id',
+`uuid`          VARCHAR(100)  comment 'alertuuid',
+`type`          VARCHAR(10)   comment '0是内部tt，1是外部tt',
+`caseuuid`      VARCHAR(100)  comment 'caseuuid',
+`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '创建时间',
+UNIQUE KEY `uniq_uuid` (`uuid`,`caseuuid`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='openc3_monitor_tott';
+
