@@ -11,6 +11,7 @@ use LWP::UserAgent;
 
 use POSIX;
 use Time::Local;
+use File::Temp;
 
 sub gettime
 {
@@ -56,6 +57,37 @@ get '/monitor/alert/:projectid' => sub {
 
     my @res = $projectid ? grep{ $_->{labels} && $_->{labels}{"fromtreeid"} && $_->{labels}{"fromtreeid"} eq $projectid }@$data : @$data;
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@res };
+};
+
+post '/monitor/alert/tott/:projectid' => sub {
+    my $param = params();
+    my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $pmscheck = api::pmscheck( 'openc3_agent_read', $param->{projectid} ); return $pmscheck if $pmscheck;
+
+    my @cont = ( '从监控系统转过来的工单' );
+    push @cont, "监控名称: " . Encode::encode("utf8", $param->{labels}{alertname}        );
+    push @cont, "监控对象:"  . Encode::encode("utf8", $param->{labels}{instance}         );
+    push @cont, "";
+    push @cont, "概要: "     . Encode::encode("utf8", $param->{annotations}{summary}     );
+    push @cont, "详情:"      . Encode::encode("utf8", $param->{annotations}{description} );
+    push @cont, "";
+    push @cont, "URL: "      . Encode::encode("utf8", $param->{generatorURL}             );
+
+    my $file;
+    eval{
+        my    $tmp = File::Temp->new( SUFFIX => ".tott", UNLINK => 0 );
+        print $tmp join "\n", @cont;
+        close $tmp;
+        $file = $tmp->filename;
+        my $title = "监控事件:" . Encode::encode("utf8",$param->{labels}{alertname} ). '['.Encode::encode("utf8",$param->{labels}{instance} ). ']';
+        $title =~ s/'//g;
+        die "err: $!" if system "cat '$file'|c3mc-create-ticket --title '$title'";
+    };
+
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $file };
 };
 
 true;

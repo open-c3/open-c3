@@ -23,9 +23,22 @@
         };
         vm.reload();
 
-        vm.openOneTab = function (ackuuid) {
-            var terminalAddr = window.location.protocol + "//" + window.location.host+"/#/ack/" + ackuuid;
-            window.open(terminalAddr, '_blank')
+        vm.tott = function(d){
+            vm.loadover = false;
+            $http.post("/api/agent/monitor/alert/tott/0", d  ).success(function(data){
+                if(data.stat == true)
+                {
+                   vm.loadover = true;
+                   vm.cancel();
+                   swal({ title:'提交成功', text: data.info, type:'success' });
+                } else {
+                   swal({ title:'提交失败', text: data.info, type:'error' });
+                }
+            });
+        };
+
+        vm.openOneTab = function (url) {
+            window.open(url, '_blank')
         };
 
     }
