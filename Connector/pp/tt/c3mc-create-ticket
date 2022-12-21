@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
 # -*- coding: utf-8 -*-
 
 import requests
@@ -63,11 +63,10 @@ def main(
 
 
 if __name__ == '__main__':
-    l = []
+    content = []
     for line in sys.stdin:
-        l.append(line)
-    if len(l) == 0 or len(l) > 1:
-        raise Exception("数据格式不对, 需要一行json字符串")
+        content.append(line)
+    content = "<br />".join(content)
 
     parser = argparse.ArgumentParser(description="创建tt。工单内容请使用stdin输入参数, 其他参数使用命令行参数.")
     parser.add_argument('--title', type=str, required=True, help='标题')
@@ -93,7 +92,7 @@ if __name__ == '__main__':
     main(
         submit_user, 
         title, 
-        l[0],
+        content,
         email_list, 
         ext_tt
     )

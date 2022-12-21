@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
 # -*- coding: utf-8 -*-
 
 import sys
@@ -36,8 +36,7 @@ class Redis:
                 item = MessageToDict(response)
             except:
                 item = MessageToDict(response._pb)
-            item["uuid"] = "{}-{}".format(self.credentials.project_id,
-                                          item["displayName"])
+            item["uuid"] = "{}-{}".format(self.credentials.project_id, item["host"])
             item["region"] = self.region
             item["project"] = self.credentials.project_id
             item["tags_list"] = []
