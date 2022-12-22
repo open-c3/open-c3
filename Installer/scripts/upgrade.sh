@@ -18,17 +18,17 @@ function upgradeSelf() {
         fi
     fi
 
-    echo =================================================================
-    echo "[INFO]git pull ..."
-
-    git pull
-
-    if [ $? = 0 ]; then
-        echo "[SUCC]git pull success."
-    else
-        echo "[FAIL]git pull fail."
-        exit 1
-    fi
+#    echo =================================================================
+#    echo "[INFO]git pull ..."
+#
+#    git pull
+#
+#    if [ $? = 0 ]; then
+#        echo "[SUCC]git pull success."
+#    else
+#        echo "[FAIL]git pull fail."
+#        exit 1
+#    fi
 
     echo =================================================================
     echo "[INFO]docker pull ..."

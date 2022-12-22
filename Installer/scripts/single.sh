@@ -515,6 +515,21 @@ reborn)
     $BASE_PATH/Installer/scripts/upgrade.sh
     ;;
 upgrade)
+
+    cd $BASE_PATH || exit 1
+
+    echo =================================================================
+    echo "[INFO]git pull ..."
+
+    git pull
+
+    if [ $? = 0 ]; then
+        echo "[SUCC]git pull success."
+    else
+        echo "[FAIL]git pull fail."
+        exit 1
+    fi
+
     $BASE_PATH/Installer/scripts/upgrade.sh $2 $3
     ;;
 switchversion)

@@ -66,4 +66,3 @@ fi
 
 /data/open-c3/open-c3.sh sup
 /data/open-c3/open-c3.sh dup
-#docker exec -i openc3-server /data/Software/mydan/AGENT/device/init/install.sh

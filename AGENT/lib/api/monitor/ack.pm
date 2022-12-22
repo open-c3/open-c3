@@ -158,9 +158,11 @@ get '/monitor/ack/:uuid' => sub {
     my %acked = map{ $_ => 0 }qw( ackP ackG ackcaseP ackcaseG ackam );
     my $amackid = 0;
     my @currlabel;
+    my $caseuuid = time;
     for my $x ( @$r )
     {
         $amackid = $x->{id};
+        $caseuuid = $x->{caseuuid};
         map{
             my @x = split /=/, $_, 2;
             push @res, +{ name => $x[0], value => $x[1] }
@@ -208,7 +210,12 @@ get '/monitor/ack/:uuid' => sub {
     my $md5 = Digest::MD5->new()->add( join ',', map{ Encode::encode("utf8", $_)}@currlabel )->hexdigest();
     my $info = `amtool --alertmanager.url=http://openc3-alertmanager:9093 silence`;
     $acked{ackam} = $info =~ m#by-c3-ack-\($md5\)# ? 1 : 0;
-    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@res, acked => \%acked, caseinfo => $caseinfo };
+
+    $r = eval{ $api::mysql->query( "select type from openc3_monitor_tott where uuid='$caseuuid'" )}; 
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
+    $acked{tott} = $r && @$r ? 1 : 0;
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@res, acked => \%acked, caseinfo => $caseinfo, caseuuid => $caseuuid };
 };
 
 post '/monitor/ack/:uuid' => sub {
@@ -285,6 +292,79 @@ post '/monitor/ack/:uuid' => sub {
         }
     };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
+};
+
+post '/monitor/ack/tott/:uuid' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        uuid => qr/^[a-zA-Z0-9]+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my ( $u, $ctrl ) = @$param{qw( uuid ctrl )};
+    my ( $uuid, $usertoken ) = ( substr( $u, 0, 12 ), substr( $u, 12 ) );
+
+    my $user;
+    if( $usertoken )
+    {
+        $user = `c3mc-base-user-temp-token  -get '$usertoken'`;
+        chomp $user;
+    }
+    else
+    {
+        $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+    }
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } unless $user && $user =~ /^[a-zA-Z0-9][a-zA-Z0-9@\.\-_\/]+[a-zA-Z0-9]$/;
+
+
+    my @cont = ( '从监控系统转过来的工单 By '. $user  );
+
+    my $title = '监控事件';
+    if( $param->{caseinfo} )
+    {
+        $title = "监控事件:" . Encode::encode("utf8",$param->{caseinfo}{title} ). '['.Encode::encode("utf8",$param->{caseinfo}{instance} ). ']';
+
+        push @cont, "监控对象:"  . Encode::encode("utf8", $param->{caseinfo}{instance} );
+        push @cont, "";
+        push @cont, Encode::encode("utf8", $param->{caseinfo}{content} );
+    }
+    else
+    {
+        my %casedata;
+        map{ $casedata{$_->{name}} = $_->{value} }@{ $param->{casedata}};
+    
+        $title = "监控事件:" . Encode::encode("utf8",$casedata{'labels.alertname'} ). '['.Encode::encode("utf8",$casedata{'labels.instance'} ). ']';
+
+        push @cont, "监控名称: " . Encode::encode("utf8", $casedata{'labels.alertname'}        );
+        push @cont, "监控对象:"  . Encode::encode("utf8", $casedata{'labels.instance'}     );
+        push @cont, "";
+        push @cont, "概要: "     . Encode::encode("utf8", $casedata{'labels.summary'}     );
+        push @cont, "详情:"      . Encode::encode("utf8", $casedata{'labels.descriptions'} );
+    }
+
+    my    $type = `c3mc-sys-ctl sys.monitor.tt.type`;
+    chomp $type;
+    my $ext_tt = $type ? '--ext_tt 1' : '';
+    my $file;
+    eval{
+        my    $tmp = File::Temp->new( SUFFIX => ".tott", UNLINK => 0 );
+        print $tmp join "\n", @cont;
+        close $tmp;
+        $file = $tmp->filename;
+        $title =~ s/'//g;
+        my $x = `cat '$file'|c3mc-create-ticket --title '$title' $ext_tt 2>&1`;
+        die "err: $x" if $?;
+        $x =~ s/\n//g;
+        die "create tt fail" unless $x && $x =~ /^[A-Z][A-Z0-9]+$/;
+        my $uuid = $param->{caseuuid};
+        die "uuid err" unless $uuid && $uuid =~ /^[a-zA-Z0-9\.\-:]+$/;
+        my $ctype = $type ? '1' : '0';
+        $api::mysql->execute( "insert into openc3_monitor_tott ( uuid,type,caseuuid ) value('$uuid','$ctype','$x')" );
+    };
+
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $file };
 };
 
 true;

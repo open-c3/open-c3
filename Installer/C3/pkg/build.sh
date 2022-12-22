@@ -20,6 +20,12 @@ if [ "X$MODULE" == "X" ] || [ "X$MODULE" == "Xperl" ] ;then
     cp perl/perl.tar.gz tempdata/open-c3/Connector/pkg/perl.tar.gz
 fi
 
+# python3
+if [ "X$MODULE" == "X" ] || [ "X$MODULE" == "Xpython3" ] ;then
+    ./python3/build.sh
+    cp python3/python3.tar.gz tempdata/open-c3/Connector/pkg/python3.tar.gz
+fi
+
 # mysql
 if [ "X$MODULE" == "X" ] || [ "X$MODULE" == "Xmysql" ] ;then
     ./mysql/build.sh

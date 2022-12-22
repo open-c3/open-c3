@@ -6,6 +6,8 @@ $|++;
 
 use YAML::XS;
 use uuid;
+use POSIX;
+use Time::Local;
 
 =head1 SYNOPSIS
 
@@ -16,6 +18,14 @@ use uuid;
 local $/ = undef;
 my @data = YAML::XS::Load( <STDIN> );
 local $/ = "\n";
+
+sub gettime
+{
+    my $t = shift;
+    return $t unless $t =~ /^(\d+)-(\d+)-(\d+)T(\d+):(\d+):(\d+)\.\d+Z$/;
+    my $x = timelocal($6,$5,$4,$3,$2-1,$1);
+    return POSIX::strftime( "%Y-%m-%dT%H:%M:%S", localtime( $x + 8 * 3600) );
+}
 
 my @out;
 sub adduser
@@ -31,7 +41,7 @@ sub adduser
         return;
     }
 
-    my $caseuuid = join '.',$data->{'fingerprint'}, $data->{'startsAt'};
+    my $caseuuid = join '.',$data->{'fingerprint'}, gettime( $data->{'startsAt'} );
     my $treeid   = $data->{'labels.fromtreeid'};
     my $uuid     = uuid->new()->create_str;
     my $time     = time;

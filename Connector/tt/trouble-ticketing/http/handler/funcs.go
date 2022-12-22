@@ -20,12 +20,26 @@ func status_200(data interface{}) gin.H {
 	}
 }
 
+func status_200_v2(data interface{}) gin.H {
+	return gin.H{
+		"stat": 1,
+		"data": data,
+	}
+}
+
 // 400
 func status_400(data interface{}) gin.H {
 	return gin.H{
 		"code": 400,
 		"msg":  "bad request",
 		"data": data,
+	}
+}
+
+func status_400_v2(info interface{}) gin.H {
+	return gin.H{
+		"stat": 0,
+		"info": info,
 	}
 }
 
