@@ -59,10 +59,10 @@ get '/monitor/caseinfo/allcase' => sub {
         content
         edit_time
     );
-    my $expire = time - 900;
+    my $expire = time - 86400 * 90;
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from openc3_monitor_caseinfo where casestat='firing' and mtime>$expire", join( ',', @col)), \@col )};
+            sprintf( "select %s from openc3_monitor_caseinfo where casestat='firing' and mtime>$expire order by id desc", join( ',', @col)), \@col )};
 
     for my $x ( @$r )
     {

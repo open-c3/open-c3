@@ -60,6 +60,9 @@ get '/monitor/alert/:projectid' => sub {
         my $t = $_->{startsAt}; $t =~ s/ /T/g;
         $_->{uuid} = $_->{fingerprint} . '.'. $t;
     }@res;
+
+    return +{ stat => $JSON::true, data => +{ map{ $_->{uuid} => 1 } @res } } if $param->{uuidonly};
+
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@res };
 };
 
