@@ -7,6 +7,8 @@ if [ "X$VERSION" == "X" ];then
 fi
 echo VERSION:$VERSION
 
+cd /data/open-c3/Installer/C3/pkg/python3 || exit
+
 docker build . -t openc3/pkg-python3:$VERSION --no-cache
 
 docker run -v /data/open-c3/Installer/C3/pkg/python3:/tempdata openc3/pkg-python3:$VERSION
