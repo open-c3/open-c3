@@ -17,6 +17,15 @@
                         <td style="width: 10%" data-title="'C3T.时间'|translate" filter="{ edit_time: 'text'}" sortable="'edit_time'">{{d.startat}}</td>
                         <td style="width: 10%" data-title="'C3T.实例'|translate" filter="{ instance: 'text'}" sortable="'d.instance'">{{d.instance}}</td>
                         <td style="width: 10%" data-title="'C3T.标题'|translate" filter="{ title: 'text'}" sortable="'d.title'">{{d.title}}</td>
+                        <td style="width: 10%" data-title="'C3T.告警中'|translate">
+                            <a ng-if="allcase.alertsuuid[d.caseuuid]"> {{'C3T.是'|translate}}</a>
+                         </td>
+                        <td style="width: 10%" class="textcenter"  data-title="'C3T.关联工单'|translate">
+                            <div ng-repeat="caseuuid in allcase.tottbind[d.caseuuid]">
+                                <i class="fa fa-search fa-1x" aria-hidden="true" ng-click="allcase.openTT(d.caseuuid, caseuuid)" uib-tooltip="{{'C3T.查看'|translate}}" style="cursor:pointer;color: #339094;" >{{caseuuid}}</i>
+                            </div>
+                        </td>
+
                         <td style="width: 10%" data-title="'C3T.操作'|translate">
                             <button class="btn btn-primary btn-sm" ng-click="allcase.openOneTab(d.ackuuid)">{{'C3T.屏蔽'|translate}}</button>
                         </td>

@@ -14,6 +14,8 @@
         vm.loadover = false;
         vm.acked = {};
         vm.caseinfo = {};
+        vm.casedata = []
+        vm.caseuuid = '';
         vm.reload = function () {
             vm.loadover = false;
             $http.get('/api/agent/monitor/ack/' + uuid).then(
@@ -21,7 +23,9 @@
                     if (response.data.stat){
                         vm.dataTable = new ngTableParams({count:25}, {counts:[],data:response.data.data});
                         vm.acked = response.data.acked
+                        vm.casedata = response.data.data
                         vm.caseinfo = response.data.caseinfo
+                        vm.caseuuid = response.data.caseuuid
                         vm.loadover = true;
                     }else{
                         toastr.error("获取信息失败:"+response.data.info)
@@ -46,5 +50,31 @@
 
         vm.reload();
 
+        vm.tott = function(){
+            swal({
+                title: "提交工单",
+                text: '监控告警转工单',
+                type: "info",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                cancelButtonText: "取消",
+                confirmButtonText: "确定",
+                closeOnConfirm: true
+
+            }, function(){
+                vm.loadover = false;
+                $http.post("/api/agent/monitor/ack/tott/" + uuid, { caseinfo: vm.caseinfo, casedata: vm.casedata, caseuuid: vm.caseuuid }  ).success(function(data){
+                    if(data.stat == true)
+                    {
+                       vm.loadover = true;
+                       vm.reload();
+                       swal({ title:'提交成功', text: data.info, type:'success' });
+                    } else {
+                       swal({ title:'提交失败', text: data.info, type:'error' });
+                    }
+                });
+
+            });
+        };
     }
 })();

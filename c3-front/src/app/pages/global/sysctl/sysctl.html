@@ -426,6 +426,42 @@
 
 <hr>
                 <div class="container-fluid">
+                  <h4>{{'C3T.外部工单系统'|translate}}</h4>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">{{'C3T.工单地址'|translate}}</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" ng-model="sysctl.sysctl['sys.tt.external_api_endpoint']" required />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label"></label>
+                            <label class="col-sm-2 control-label">appname</label>
+                            <div class="col-sm-2">
+                                <input type="text" class="form-control" ng-model="sysctl.sysctl['sys.tt.external_api_endpoint.env.appname']" required />
+                            </div>
+                            <label class="col-sm-2 control-label">appkey</label>
+                            <div class="col-sm-2">
+                                <input type="text" class="form-control" ng-model="sysctl.sysctl['sys.tt.external_api_endpoint.env.appkey']" required />
+                            </div>
+                        </div>
+                    </div>
+ 
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">{{'C3T.工单查看'|translate}}</label>
+                            <div class="col-sm-9">
+                                <input type="text" class="form-control" ng-model="sysctl.sysctl['sys.monitor.tt.caseurl']" required />
+                            </div>
+                        </div>
+                    </div>
+ 
+                </div>
+
+<hr>
+                <div class="container-fluid">
                   <h4>{{'C3T.监控代理'|translate}}</h4>
                     <div class="row">
                         <div class="col-sm-10 form-group">
@@ -438,6 +474,20 @@
                     </div>
                 </div>
 
+                <div class="container-fluid">
+                  <h4>{{'C3T.监控转工单'|translate}}</h4>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">{{'C3T.默认使用的工单系统'|translate}}</label>
+                            <div class="col-sm-9"  >
+                                <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['sys.monitor.tt.type']" style="width: 20%" >
+                                    <option ng-repeat="x in [0,1]" value="{{x}}">{{x}}</option>
+                                </select>
+                            </div>
+                            <label class="col-sm-5 control-label">{{'C3T.0是内部工单，1是外部工单'|translate}}</label>
+                        </div>
+                    </div>
+                </div>
 
 <hr>
                 <div class="container-fluid">
