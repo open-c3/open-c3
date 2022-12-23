@@ -15,8 +15,8 @@
         vm.openTab = function (app, page) {
             vm.loadover = false;
             $http.get('/api/agent/thirdparty/gotopage/' + app + '/' + page ).success(function(data){
+                vm.loadover = true;
                 if (data.stat){
-                    vm.loadover = true;
                     window.open(data.data, '_blank')
                 }else {
                     swal({ title:'获取应用地址失败', text: data.info, type:'error' });
