@@ -52,8 +52,8 @@ return sub
 
     my $applyResources = sub
     {
-        my $memlimit = OPENC3::SysCtl->new()->getint ( 'ci.default.memlimit', 4,    32768, 2048 );
-        my $memtotal = OPENC3::SysCtl->new()->getint ( 'ci.available.mem',    2048, 32768, 8192 );
+        my $memlimit = OPENC3::SysCtl->new()->getint ( 'ci.default.memlimit', 4,    32768,  2048 );
+        my $memtotal = OPENC3::SysCtl->new()->getint ( 'ci.available.mem',    2048, 327680, 8192 );
 
         my @col  = qw(
             project.name project.groupid project.id project.cpulimit project.memlimit
