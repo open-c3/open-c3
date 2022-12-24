@@ -465,6 +465,12 @@
                 controller: 'AllalertsController',
                 controllerAs: 'allalerts'
             })
+            .state('home.thirdparty', {
+                url: 'thirdparty/:treeid',
+                templateUrl: 'app/pages/thirdparty/thirdparty.html',
+                controller: 'ThirdpartyController',
+                controllerAs: 'thirdparty'
+            })
             .state('home.assignment', {
                 url: 'assignment/:treeid',
                 templateUrl: 'app/pages/assignment/assignment.html',

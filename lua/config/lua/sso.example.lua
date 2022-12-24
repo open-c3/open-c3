@@ -9,6 +9,11 @@ if not isapi then
     skip = true
 end
 
+local iskeycloak = string.match( ngx.var.request_uri, '/keycloak' )
+if iskeycloak then
+    skip = false
+end
+
 if ngx.var.request_uri == "/third-party/monitor/grafana/login" and ngx.var.request_method == "POST" then
     skip = false
 end

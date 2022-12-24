@@ -1,0 +1,125 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use Paws;
+use YAML::XS;
+use File::HomeDir;
+use FindBin qw( $RealBin );
+
+my $timeout = time + ( $ENV{TIMEOUT} || 600 );
+
+die "onip" unless $ENV{NODE};
+my ( $ctrl, $region, $elbname ) = @ARGV;
+die "no ctrl"    unless $ctrl    && grep{ $ctrl eq $_ }qw( online Online offline Offline status );
+die "no region"  unless $region  && $region  =~ /^[a-zA-Z0-9_\-]+$/;
+die "no elbname" unless $elbname && $elbname =~ /^[a-zA-Z0-9_\-]+$/;
+
+$ENV{AWS_CONFIG_FILE} = $ENV{TICKETFILE} if $ENV{TICKETFILE} && -f $ENV{TICKETFILE};
+
+my ( @ip, %id2ip ) = grep{ /^\d+\.\d+\.\d+\.\d+$/ }split /,/, $ENV{NODE};
+warn "No valid ip" unless @ip;
+my %ip = map{ $_ => 1 }@ip;
+
+my $x = `$RealBin/elb.rely/ec2.instance_id -r '$region' @ip`;
+
+my $ip2id = eval{ YAML::XS::Load $x };
+die "ec2.instance_id fail: $@" if $@;
+map{ $id2ip{$ip2id->{$_}} = $_; }keys %$ip2id;
+
+map{
+    unless( $ip2id->{ $_ } )
+    {
+        warn "nofind $_ ip2id\n";
+        delete $ip{ $_ };
+    }
+} keys %ip;
+
+my @instanceid = values %$ip2id;
+die "No valid instanceid" unless @instanceid;
+
+my $aws = Paws->new;
+my $elb = $aws->service( 'ELBv2', region => $region );
+
+my $r = $elb->DescribeTargetGroups( Names => [ $elbname ] );
+
+my @targetgroup = @{$r->TargetGroups};
+die "nofind targetgroup" unless @targetgroup;
+die "targetgroup > 1"    if     @targetgroup > 1;
+
+my $TargetGroupArn = $targetgroup[0]->TargetGroupArn;
+die "TargetGroupArn  format error: $TargetGroupArn" unless $TargetGroupArn && $TargetGroupArn =~ /^[a-zA-Z\d:\-\/]+$/;
+
+my %status = map{ $_ => 'unkown'}keys %ip;
+
+sub offline
+{
+    $r = $elb->DeregisterTargets( TargetGroupArn => $TargetGroupArn, Targets => [  map{ +{ Id => $_ } } @instanceid ] );
+}
+
+sub online
+{
+    $r = $elb->RegisterTargets(   TargetGroupArn => $TargetGroupArn, Targets => [  map{ +{ Id => $_ } } @instanceid ] );
+}
+
+sub status
+{
+    my $status = shift @_;
+    $r = $elb->DescribeTargetHealth( TargetGroupArn => $TargetGroupArn );
+    my @iid = map{ $_->Target->Id }@{$r->{TargetHealthDescriptions}};
+    my %iid = map{$_ => 1} @iid;
+    warn "binded:\n";
+    map{ warn sprintf "$_%s\n", $id2ip{$_} ? "(ip:$id2ip{$_})" : ''; } sort @iid;
+    warn "status:\n";
+    map{
+        $status{$_} = $iid{ $ip2id->{$_} } ? 'online': 'offline';
+        warn "$_: $status{$_}\n"
+    }sort keys %ip;
+
+    return 1 unless $status;
+    return ( grep{ $_ ne $status }values %status ) ? 0 : 1;
+}
+
+if( $ctrl eq 'offline' )
+{
+    for( 1 .. 100 )
+    {
+        warn "try $_ ...\n";
+        offline();
+        last if status( 'offline' );
+        
+        die "timeout.\n" if time > $timeout;
+        sleep 30;
+    }
+}
+
+if( $ctrl eq 'Offline' )
+{
+    offline();
+    status();
+}
+
+if( $ctrl eq 'online' )
+{
+    for( 1 .. 100 )
+    {
+        warn "try $_ ...\n";
+        online();
+        last if status( 'online' );
+        
+        die "timeout.\n" if time > $timeout;
+        sleep 30;
+    }
+}
+
+if( $ctrl eq 'Online' )
+{
+    online();
+    status();
+}
+
+if( $ctrl eq 'status' )
+{
+    status();
+}
+
+map{ print "$_:ok\n"; } keys %ip;
