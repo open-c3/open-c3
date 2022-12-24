@@ -14,9 +14,9 @@ use OPENC3::SysCtl;
 get '/watcher' => sub {
     my $pmscheck = api::pmscheck( 'openc3_ci_root' ); return $pmscheck if $pmscheck;
 
-    my $cpulimit = OPENC3::SysCtl->new()->getintx( 'ci.default.cpulimit', 0.01, 32,    2    );
-    my $memlimit = OPENC3::SysCtl->new()->getint ( 'ci.default.memlimit', 4,    32768, 2048 );
-    my $memtotal = OPENC3::SysCtl->new()->getint ( 'ci.available.mem',    2048, 32768, 8192 );
+    my $cpulimit = OPENC3::SysCtl->new()->getintx( 'ci.default.cpulimit', 0.01, 32,     2    );
+    my $memlimit = OPENC3::SysCtl->new()->getint ( 'ci.default.memlimit', 4,    32768,  2048 );
+    my $memtotal = OPENC3::SysCtl->new()->getint ( 'ci.available.mem',    2048, 327680, 8192 );
 
     my @col  = qw(
         project.name project.groupid project.id project.cpulimit project.memlimit
