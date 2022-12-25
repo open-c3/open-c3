@@ -30,6 +30,6 @@ for my $id ( @id )
     map{ die "id: $id nofind $_" unless defined $conf->{$_}; }qw( maxmem maxcpu smallrelease );
 
     system "c3mc-spotx-addlabel $id";
-    system "c3mc-spotx-dellabel-large $id" unless $count % 10;
-    system "c3mc-spotx-dellabel-small $id" unless $count % 10;
+    system "c3mc-spotx-dellabel-large $id" unless $count % 5;
+    system "c3mc-spotx-dellabel-small $id" unless $count % 5;
 }
