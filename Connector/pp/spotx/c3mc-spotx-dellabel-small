@@ -49,6 +49,11 @@ my $conf = $config->{$id};
 die "nofind config in spotx.conf" unless $conf && ref $conf eq 'HASH';
 map{ die "nofind $_" unless defined $conf->{$_}; }qw( smallrelease );
 
+if ( $ENV{C3DEBUG} )
+{
+    printf "DEBUG: c3mc-spotx-dellabel-small free:%s smallrelease:%s\n", $free //'', $conf->{smallrelease};
+}
+
 exit unless $free && $free > $conf->{smallrelease};
 
 my ( $node ) = sort{ $free{ $b } <=> $free{ $a } }keys %free;
@@ -60,4 +65,5 @@ if ( $ENV{C3DEBUG} )
     print "DEBUG: c3mc-spotx-util-node-clear $id $node\n";
 }
 
-system "c3mc-spotx-util-node-clear $id $node";
+exit;
+#system "c3mc-spotx-util-node-clear $id $node";

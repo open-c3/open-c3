@@ -17,7 +17,7 @@ get '/adminapproval' => sub {
     my @col = qw( id taskuuid name opinion remarks create_time finishtime submitter oauuid notifystatus user assist );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from openc3_job_approval order by id desc limit 100", join( ',', @col ) ), \@col )};
+            sprintf( "select %s from openc3_job_approval order by id desc limit 1000", join( ',', @col ) ), \@col )};
 
     return +{ stat => $JSON::false, info => $@ } if $@;
     return +{ stat => $JSON::true, data => $r };
