@@ -1,0 +1,61 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import subprocess
+import argparse
+import json
+import sys
+import requests
+
+
+def main():
+    bl_mode = subprocess.getoutput("c3mc-sys-ctl sys.bl.mode").strip()
+    if bl_mode == 'none' or bl_mode == '':
+        print("堡垒机配置未启用", file=sys.stderr)
+        exit(1)
+
+    parser = argparse.ArgumentParser(description="堡垒机服务器权限处理")
+    # 权限处理类型。1: 添加普通权限; 2: 删除普通权限; 3: 添加sudo权限; 4: 删除sudo权限(保留账户); 5: 删除sudo权限(不保留账户)
+    parser.add_argument('--add_type', type=str, required=True, help='1: 添加普通权限; 2: 删除普通权限; 3: 添加sudo权限; 4: 删除sudo权限(保留账户); 5: 删除sudo权限(不保留账户)')
+    parser.add_argument('--username', type=str, required=True, help='用户账户名')
+    parser.add_argument('--email', type=str, required=True, help='用户邮箱')
+    parser.add_argument('--ip', type=str, required=True, help='目标IP')
+    parser.add_argument('--ssh_port', type=str, required=True, help='目标IP的ssh端口')
+    parser.add_argument('--ssh_user', type=str, required=True, help='ssh用户账户')
+    # 目前支持跳板机登陆目标服务器的方式是无密码登陆，所以要指定跳板机ssh user的私钥地址
+    parser.add_argument('--private_key_path', type=str, required=True, help='私钥地址')
+    parser.add_argument('--proxy_ip', type=str, required=True, help='代理服务的ip')
+    parser.add_argument('--if_keep_home', type=str, required=True, help='删除用户时是否保留用户主目录。 0: 不保留; 1: 保留')
+    args = parser.parse_args()
+
+    bl_admin_user = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.{}.admin.user".format(bl_mode)).strip()
+    bl_admin_pass = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.{}.admin.pass".format(bl_mode)).strip()
+    bl_url = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.{}.url".format(bl_mode)).strip()
+
+    request_data = {
+        "command": "{}-bastion".format(bl_mode),
+        "arguments": json.dumps(
+            {
+                "admin_user": bl_admin_user,
+                "admin_pass": bl_admin_pass,
+                "url": bl_url,
+                "username": args.username,
+                "ip": args.ip,
+                "ssh_port": args.ssh_port,
+                "ssh_user": args.ssh_user,
+                "add_type": args.add_type,
+                "private_key_path": args.private_key_path,
+                "email": args.email,
+                "if_keep_home": args.if_keep_home
+            }
+        )
+    }
+
+    api_addr = "http://{}:56383/run".format(args.proxy_ip)
+    headers = {'Content-Type': 'application/json'}
+    response = requests.request("POST", api_addr, headers=headers, data=json.dumps(request_data))
+    print(response.json())
+
+
+if __name__ == '__main__':
+    main()
