@@ -14,7 +14,7 @@ die "no ctrl"    unless $ctrl    && grep{ $ctrl eq $_ }qw( online Online offline
 die "no region"  unless $region  && $region  =~ /^[a-zA-Z0-9_\-]+$/;
 die "no elbname" unless $elbname && $elbname =~ /^[a-zA-Z0-9_\-]+$/;
 
-if( $ctrl eq 'online' || $ctrl eq 'Online' )
+if( $ctrl ne 'status' )
 {
     die "no port" unless $port && $port =~ /^\d+$/;
 }
@@ -58,7 +58,7 @@ my %status = map{ $_ => 'unkown'}keys %ip;
 
 sub offline
 {
-    $r = $elb->DeregisterTargets( TargetGroupArn => $TargetGroupArn, Targets => [  map{ +{ Id => $_ } } @instanceid ] );
+    $r = $elb->DeregisterTargets( TargetGroupArn => $TargetGroupArn, Targets => [  map{ +{ Port => $port, Id => $_ } } @instanceid ] );
 }
 
 sub online
