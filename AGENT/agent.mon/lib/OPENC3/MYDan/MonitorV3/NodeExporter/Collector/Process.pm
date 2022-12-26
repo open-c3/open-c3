@@ -11,8 +11,9 @@ our %declare = (
     node_process_etime => 'process elapsed time.',
 );
 
+our $psdumpidx = 0;
 our $collectorname = 'node_process';
-our $cmd = 'LANG=en ps -eo pid,stat,etime,comm,cmd';
+our $cmd = 'LANG=en ps -eo ppid,pid,stat,etime,comm,cmd';
 
 sub getProcessTime
 {
@@ -58,11 +59,12 @@ sub co
 
     eval{
         my $title = shift @ps;
-        die "$cmd format unkown" unless $title =~ /^\s*PID\s+STAT\s+ELAPSED\s+COMMAND\s+CMD\s*$/;
+        die "$cmd format unkown" unless $title =~ /^\s*PPID\s+PID\s+STAT\s+ELAPSED\s+COMMAND\s+CMD\s*$/;
+        my $psdump;
         for ( @ps )
         {
             s/^\s*//g;
-            my ( $pid, $stat, $etime, $name, $cmd ) = split /\s+/, $_, 5;
+            my ( undef, $pid, $stat, $etime, $name, $cmd ) = split /\s+/, $_, 6;
             next if $stat =~ /^Z/;
 
             unless( $pid =~ /^\d+$/ ) { warn; $error = 1; next; }
@@ -78,9 +80,17 @@ sub co
                     next if index( $data, $check[0] ) < 0;
 
                     $count{"$type:$check"} ++;
-                    push @stat, +{ name => 'node_process_etime', value => getProcessTime( $etime ), lable => +{ $type => $check[0], app => $check[-1], pid => $pid } };
+                    my $value = getProcessTime( $etime );
+                    $psdump = 1 if $value <= 60;
+                    push @stat, +{ name => 'node_process_etime', value => $value, lable => +{ $type => $check[0], app => $check[-1], pid => $pid } };
                 }
             }
+        }
+        if( $psdump )
+        {
+            $psdumpidx ++;
+            $psdumpidx = 0 if $psdumpidx > 240;
+            eval{ YAML::XS::DumpFile "/opt/mydan/var/logs/monitor/openc3.mointor.process.debug.$psdumpidx", \@ps };
         }
     };
     if( $@ )
