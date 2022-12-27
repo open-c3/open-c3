@@ -80,6 +80,7 @@
                                 || sName == 'home.allcase'
                                 || sName == 'home.allalerts'
                                 || sName == 'home.thirdparty'
+                                || sName == 'home.bpm'
                                 || sName == 'home.global.notify'
                                 || sName == 'home.global.template'
                                 || sName == 'home.global.sysctl'

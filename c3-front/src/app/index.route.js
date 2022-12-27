@@ -471,6 +471,12 @@
                 controller: 'ThirdpartyController',
                 controllerAs: 'thirdparty'
             })
+            .state('home.bpm', {
+                url: 'bpm/:treeid',
+                templateUrl: 'app/pages/bpm/bpm.html',
+                controller: 'BpmController',
+                controllerAs: 'bpm'
+            })
             .state('home.assignment', {
                 url: 'assignment/:treeid',
                 templateUrl: 'app/pages/assignment/assignment.html',
