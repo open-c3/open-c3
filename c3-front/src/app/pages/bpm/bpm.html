@@ -20,16 +20,10 @@
                             </div>
                         </div>
                     </div>
-                    <div class="row" ng-if="bpm.showjobxgroup == 1" >
-                        <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">{{'C3T.分组'|translate}}: &nbsp;</label>
-                            <div class="col-sm-6"> <select  class="form-control " style="font-size: 15px;height: 42px"  ng-model="taskData.group" ng-options="s.name as s.alias for s in allGroups" required> </select> </div>
-                        </div>
-                    </div>
  
                     <div class="row" ng-repeat="ss in jobVar">
 
-                        <div ng-show="!bpm.varsvalue[ss.name] && ss.name=='C3TEXT'" class="col-sm-10 form-group">
+                        <div ng-show="ss.type && ss.type=='text'" class="col-sm-10 form-group">
                             <div>
                                 <label class="col-sm-3 control-label">{{ss.name}}: &nbsp;</label>
                                 <div class="col-sm-6"> 
@@ -39,21 +33,7 @@
                             </div>
                         </div>
 
-                        <div ng-show="!bpm.varsvalue[ss.name] && ss.name=='C3SUBTREE'" class="col-sm-10 form-group">
-                            <div>
-                                <label class="col-sm-3 control-label">{{ss.name}}: &nbsp;
-                                    <i ng-if="!bpm.c3subtreeloadover" class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!bpm.c3subtreeloadover}" ></i>
-                                </label>
-                                <div class="col-sm-6">
-                                    <select  class="form-control " style="font-size: 15px;height: 42px"  ng-model="ss.value" required>
-                                        <option ng-repeat="x in bpm.c3subtree" value="{{x.id}}">{{x.name}}</option>
-                                    </select>
-                                </div>
-                                <label class="col-sm-3" style="color: gray" >{{ss.describe}}</label>
-                            </div>
-                        </div>
-
-                        <div ng-show="!bpm.varsvalue[ss.name] && ss.name!='C3TEXT' && ss.name!='C3SUBTREE'" class="col-sm-10 form-group">
+                        <div ng-show="( ! ss.type ) || ss.type=='input'" class="col-sm-10 form-group">
                             <div>
                                 <label class="col-sm-3 control-label">{{ss.name}}: &nbsp;</label>
                                 <div class="col-sm-6"> <input type="text" class="form-control" ng-model="ss.value" placeholder="{{'C3T.填写任务变量'|translate}}" required> </div>
@@ -62,38 +42,6 @@
 
                         </div>
 
-                        <div ng-show="bpm.varsvalue[ss.name]" class="col-sm-10 form-group">
-                            <div ng-show="bpm.handwritten[ss.name]">
-                                <label class="col-sm-3 control-label">{{ss.name}}: &nbsp;</label>
-                                <div class="col-sm-6"> <input type="text" class="form-control" ng-model="ss.value" placeholder="{{'C3T.填写任务变量'|translate}}" typeahead="name for name in bpm.varsvalue[ss.name].sort()|filter:$viewValue| limitTo:8" required> </div>
-                                <label class="col-sm-3" style="color: gray" >{{ss.describe}}</label>
-                            </div>
-
-                            <div ng-show="!bpm.handwritten[ss.name]">
-                                <label class="col-sm-3 control-label">{{ss.name}}: &nbsp;</label>
-                                <div class="col-sm-6">
-                                    <select  class="form-control " style="font-size: 15px;height: 42px"  ng-model="ss.value" ng-options="n for n in bpm.varsvalue[ss.name]" required>
-                                    </select>
-                                </div>
-                                <label class="col-sm-3" style="color: gray" >{{ss.describe}}</label>
-                            </div>
-
-                            <div class="col-sm-1" ng-if="ss.name != 'tester' && ss.name != 'approver'">
-                                <a ng-if="bpm.handwritten[ss.name]" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.选择'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="bpm.handwritten[ss.name]=0">{{'C3T.选择'|translate}}</a>
-                                <a ng-if="!bpm.handwritten[ss.name]" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.手写'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="bpm.handwritten[ss.name]=1">{{'C3T.过滤'|translate}}</a>
-                            </div>
-
-                        </div>
-
-                        <div class="col-sm-10 form-group">
-                            <div ng-if="ss.name == 'ip' " >
-                                <label class="col-sm-3 control-label"></label>
-                                <div class="col-sm-9">
-                                    <button class="btn btn-primary ng-binding" ng-click="bpm.choiceServer()">{{'C3T.选择服务器'|translate}}</button>
-                                </div>
-                            </div>
-                        </div>
- 
                     </div>
                     <div ng-if="choiceJob" class="row">
                         <div class="col-sm-3 form-group" style="margin-left: 40%;">

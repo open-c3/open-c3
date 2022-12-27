@@ -341,6 +341,14 @@ post '/task/:projectid/job/byname' => sub {
     eval{ $api::auditlog->run( user => $user, title => 'START JOB TASK', content => "TREEID:$param->{projectid} JOBUUID:$jobuuid" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
+    if( $param->{bpm_variable} )
+    {
+        my $bpmuuid = sprintf "BPM%s%04d", POSIX::strftime( "%Y%m%d%H%M%S", localtime ), int rand 10000;
+        eval{ YAML::XS::DumpFile "/data/Software/mydan/JOB/bpm/task/$bpmuuid", $param->{bpm_variable} };
+        return +{ stat => $JSON::false, info => $@ } if $@;
+        $param->{variable} = +{ BPMUUID => $bpmuuid };
+    }
+
     my $variable = $param->{variable} ? encode_base64( encode('UTF-8', YAML::XS::Dump $param->{variable}) ) : '';
 
     my $r = eval{ 
