@@ -1,0 +1,23 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use MYDan::Util::OptConf;
+use FindBin qw( $RealBin );
+
+=head1 SYNOPSIS
+
+ $0 bpmuuid action
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+$option->assert() unless @ARGV == 2;
+
+my ( $bpmuuid, $action ) = @ARGV;
+
+die "bpmuuid err" unless $bpmuuid && $bpmuuid =~ /^BPM\d+$/;
+die "action err"  unless $action  && $action  =~ /^[a-zA-Z0-9][a-zA-Z0-9\-_\.]+$/;
+
+#TODO pipefail
+#TODO log recode
+die "err" if system "$RealBin/taskcfg '$bpmuuid' '$action' | c3mc-create-work-order '$action'";

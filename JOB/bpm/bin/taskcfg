@@ -1,0 +1,41 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use MYDan::Util::OptConf;
+use YAML::XS;
+use JSON;
+
+=head1 SYNOPSIS
+
+ $0 bpmuuid action
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+$option->assert() unless @ARGV == 2;
+
+my ( $bpmuuid, $action ) = @ARGV;
+
+die "bpmuuid err" unless $bpmuuid && $bpmuuid =~ /^BPM\d+$/;
+die "action err"  unless $action  && $action  =~ /^[a-zA-Z0-9][a-zA-Z0-9\-_\.]+$/;
+
+my $var = eval{ YAML::XS::LoadFile "/data/Software/mydan/JOB/bpm/task/$bpmuuid"; };
+die "load var fail: $@" if $@;
+
+my $conf = eval{ YAML::XS::LoadFile "/data/Software/mydan/Connector/pp/bpm/action/$action/data.yaml" };
+die "load template_argv fail: $@" if $@;
+
+my $template_argv = $conf->{template_argv};
+
+die "template_argv error" unless $template_argv && ref $template_argv eq 'HASH';
+
+my $json = eval{JSON::encode_json $template_argv};
+die "encode template_argv to json fail: $@" if $@;
+
+for my $k ( %$var )
+{
+    my $v = $var->{$k};
+    $json =~ s/\$\{$k\}/$v/g;
+}
+
+print "$json\n";

@@ -29,8 +29,26 @@ get '/bpm/variable/:bpmname' => sub {
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
     my $pmscheck = api::pmscheck( 'openc3_agent_read' ); return $pmscheck if $pmscheck;
 
-    my $conf = eval{ YAML::XS::LoadFile "/data/Software/mydan/JOB/bpm/config/flow/$param->{bpmname}/variable" };
-
+    my $conf = [];
+    eval{
+        my $pluginconf = "/data/Software/mydan/JOB/bpm/config/flow/$param->{bpmname}/plugin";
+        if( -f $pluginconf )
+        {
+            my $plugin = YAML::XS::LoadFile $pluginconf;
+            for my $name ( @$plugin )
+            {
+                my $config = YAML::XS::LoadFile  "/data/Software/mydan/Connector/pp/bpm/action/$name/data.yaml";
+                for my $opt ( @{$config->{option}} )
+                {
+                    push @$conf, $opt;
+                }
+            }
+        }
+        else
+        {
+            $conf = YAML::XS::LoadFile "/data/Software/mydan/JOB/bpm/config/flow/$param->{bpmname}/variable";
+        }
+    };
     return $@ ? +{ stat => $JSON::false, info => "load config fail:$@" } : +{ stat => $JSON::true, data => $conf };
 };
 
