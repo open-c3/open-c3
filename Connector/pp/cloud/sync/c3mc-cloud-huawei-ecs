@@ -10,6 +10,7 @@ from huaweicloudsdkecs.v2 import *
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
 from c3mc_cloud_huawei_vpc import Vpc
+from c3mc_cloud_huawei_flavors import Flavors
 
 
 max_times_for_get_ecs = 20
@@ -53,6 +54,9 @@ class Ecs:
     def get_server_count(self):
         response_data = self.get_response()
         return response_data['count']
+    
+    def list_flavors(self):
+        return Flavors(self.access_id, self.access_key, self.project_id, self.region).list_flavors()
 
     def show(self):
         huawei_vpc = Vpc(self.access_id, self.access_key, self.project_id, self.region)
@@ -72,6 +76,9 @@ class Ecs:
             server['region_id'] = self.region
             server.pop('metadata', None)
             server.pop('OS-EXT-SRV-ATTR:user_data', None)
+
+            server["quota_min_rate"] = self.flavors_dict[server["flaver_id"]]["os_extra_specs"]["quota:min_rate"]
+            server["quota_max_rate"] = self.flavors_dict[server["flaver_id"]]["os_extra_specs"]["quota:max_rate"]
 
             if len(list(server["addresses"])) > 0:
                 vpc_id = list(server["addresses"])[0]
@@ -99,12 +106,18 @@ class Ecs:
             self.page_number = cur_page_number
             self.show()
             self.sleep(max_times_for_get_ecs)
+        
+    def display(self):
+        flavors_list = self.list_flavors()
+        self.flavors_dict = {}
+        for item in flavors_list:
+            self.flavors_dict[item["id"]] = item
+        self.page()
 
 
 # project_id 可以命令行传 None
 def main(access_id, access_key, project_id, region):
-    ecs = Ecs(access_id, access_key, project_id, region)
-    ecs.page()
+    Ecs(access_id, access_key, project_id, region).display()
 
 
 if __name__ == '__main__':

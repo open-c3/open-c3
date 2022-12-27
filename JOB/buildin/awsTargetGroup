@@ -9,10 +9,15 @@ use FindBin qw( $RealBin );
 my $timeout = time + ( $ENV{TIMEOUT} || 600 );
 
 die "onip" unless $ENV{NODE};
-my ( $ctrl, $region, $elbname ) = @ARGV;
+my ( $ctrl, $region, $elbname, $port ) = @ARGV;
 die "no ctrl"    unless $ctrl    && grep{ $ctrl eq $_ }qw( online Online offline Offline status );
 die "no region"  unless $region  && $region  =~ /^[a-zA-Z0-9_\-]+$/;
 die "no elbname" unless $elbname && $elbname =~ /^[a-zA-Z0-9_\-]+$/;
+
+if( $ctrl ne 'status' )
+{
+    die "no port" unless $port && $port =~ /^\d+$/;
+}
 
 $ENV{AWS_CONFIG_FILE} = $ENV{TICKETFILE} if $ENV{TICKETFILE} && -f $ENV{TICKETFILE};
 
@@ -53,12 +58,12 @@ my %status = map{ $_ => 'unkown'}keys %ip;
 
 sub offline
 {
-    $r = $elb->DeregisterTargets( TargetGroupArn => $TargetGroupArn, Targets => [  map{ +{ Id => $_ } } @instanceid ] );
+    $r = $elb->DeregisterTargets( TargetGroupArn => $TargetGroupArn, Targets => [  map{ +{ Port => $port, Id => $_ } } @instanceid ] );
 }
 
 sub online
 {
-    $r = $elb->RegisterTargets(   TargetGroupArn => $TargetGroupArn, Targets => [  map{ +{ Id => $_ } } @instanceid ] );
+    $r = $elb->RegisterTargets(   TargetGroupArn => $TargetGroupArn, Targets => [  map{ +{ Port => $port, Id => $_ } } @instanceid ] );
 }
 
 sub status
