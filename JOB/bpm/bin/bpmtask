@@ -11,13 +11,15 @@ use FindBin qw( $RealBin );
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-$option->assert() unless @ARGV == 2;
+$option->assert() unless @ARGV >= 2;
 
-my ( $bpmuuid, $action ) = @ARGV;
+my ( $bpmuuid, $action, @idx ) = @ARGV;
 
 die "bpmuuid err" unless $bpmuuid && $bpmuuid =~ /^BPM\d+$/;
 die "action err"  unless $action  && $action  =~ /^[a-zA-Z0-9][a-zA-Z0-9\-_\.]+$/;
 
+map{ die "idx format error" unless $_ =~ /^[a-zA-Z0-9]+$/  }@idx;
+
 #BPM TODO pipefail
 #BPM TODO log record
-die "err" if system "$RealBin/taskcfg '$bpmuuid' '$action' | c3mc-bpm-action-$action >&2";
+die "err" if system "$RealBin/taskcfg '$bpmuuid' '$action' @idx | c3mc-bpm-action-$action >&2";

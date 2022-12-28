@@ -20,10 +20,11 @@ sub success
     exit;
 }
 
-my ( $bpmuuid, $action ) = @ARGV;
+my ( $bpmuuid, $action, @idx ) = @ARGV;
 
 die "bpmuuid err" unless $bpmuuid && $bpmuuid =~ /^BPM\d+$/;
 die "action err"  unless $action  && $action  =~ /^[a-zA-Z0-9][a-zA-Z0-9\-_\.]+$/;
+map{ die "idx format error" unless $_ =~ /^[a-zA-Z0-9]+$/  }@idx;
 
-die "Error" if system "/data/Software/mydan/JOB/bpm/bin/bpmtask '$bpmuuid' '$action'";
+die "Error" if system "/data/Software/mydan/JOB/bpm/bin/bpmtask '$bpmuuid' '$action' @idx";
 success();

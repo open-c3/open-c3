@@ -12,9 +12,9 @@ use JSON;
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-$option->assert() unless @ARGV == 2;
+$option->assert() unless @ARGV >= 2;
 
-my ( $bpmuuid, $action ) = @ARGV;
+my ( $bpmuuid, $action, @idx ) = @ARGV;
 
 die "bpmuuid err" unless $bpmuuid && $bpmuuid =~ /^BPM\d+$/;
 die "action err"  unless $action  && $action  =~ /^[a-zA-Z0-9][a-zA-Z0-9\-_\.]+$/;
@@ -32,9 +32,21 @@ die "template_argv error" unless $template_argv && ref $template_argv eq 'HASH';
 my $json = eval{JSON::encode_json $template_argv};
 die "encode template_argv to json fail: $@" if $@;
 
-for my $k ( %$var )
+my %var;
+
+for my $idx ( @idx )
 {
-    my $v = $var->{$k};
+    for my $k ( keys %$var )
+    {
+        my $tk = $k;
+        next unless $tk =~ s/^$idx\.//;
+        $var{$tk} = $var->{$k};
+    }
+}
+
+for my $k ( keys %var )
+{
+    my $v = $var{$k};
     $json =~ s/\$\{$k\}/$v/g;
 }
 
