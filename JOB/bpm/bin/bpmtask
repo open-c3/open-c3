@@ -18,6 +18,6 @@ my ( $bpmuuid, $action ) = @ARGV;
 die "bpmuuid err" unless $bpmuuid && $bpmuuid =~ /^BPM\d+$/;
 die "action err"  unless $action  && $action  =~ /^[a-zA-Z0-9][a-zA-Z0-9\-_\.]+$/;
 
-#TODO pipefail
-#TODO log recode
-die "err" if system "$RealBin/taskcfg '$bpmuuid' '$action' | c3mc-create-work-order '$action'";
+#BPM TODO pipefail
+#BPM TODO log record
+die "err" if system "$RealBin/taskcfg '$bpmuuid' '$action' | c3mc-bpm-action-$action >&2";
