@@ -26,30 +26,30 @@
                         <hr ng-if="ss.idx == 0" class="mv20 clear">
                         <div ng-show="ss.type && ss.type=='text'" class="col-sm-10 form-group">
                             <div>
-                                <label class="col-sm-3 control-label">{{ss.name}}: &nbsp;</label>
+                                <label class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
                                 <div class="col-sm-6"> 
                                     <textarea type="text" rows="5" cols="1"  class="form-control" ng-model="ss.value" placeholder="{{'C3T.内容'|translate}}" required> </textarea>
                                 </div>
-                                <label class="col-sm-3" style="color: gray" >{{ss.describe}}</label>
+                                <label class="col-sm-3" style="color: gray" >{{ss.name}}</label>
                             </div>
                         </div>
 
                         <div ng-show="ss.type && ss.type=='select'" class="col-sm-10 form-group">
                             <div>
-                                <label class="col-sm-3 control-label">{{ss.name}}: &nbsp;</label>
+                                <label class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
                                 <div class="col-sm-6">
                                     <select  class="form-control " style="font-size: 15px;height: 42px"  ng-model="ss.value" ng-options="n for n in ss.option" required>
                                     </select>
                                 </div>
-                                <label class="col-sm-3" style="color: gray" >{{ss.describe}}</label>
+                                <label class="col-sm-3" style="color: gray" >{{ss.name}}</label>
                             </div>
                         </div>
 
                         <div ng-show="( ! ss.type ) || ss.type=='input'" class="col-sm-10 form-group">
                             <div>
-                                <label class="col-sm-3 control-label">{{ss.name}}: &nbsp;</label>
+                                <label class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
                                 <div class="col-sm-6"> <input type="text" class="form-control" ng-model="ss.value" placeholder="{{'C3T.填写任务变量'|translate}}" required> </div>
-                                <label class="col-sm-3" style="color: gray" >{{ss.describe}}</label>
+                                <label class="col-sm-3" style="color: gray" >{{ss.name}}</label>
                             </div>
 
                         </div>
