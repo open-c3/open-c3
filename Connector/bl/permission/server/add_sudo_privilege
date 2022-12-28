@@ -1,0 +1,19 @@
+#!/bin/bash
+# 添加sudo权限
+
+set -e
+
+# 目标IP
+ip=$1
+# 用户账户
+username=$2
+# 用户密码
+password=$3
+
+# 添加登陆权限
+add_normal_privilege "$ip" "$username" "$password"
+
+command="sudo gpasswd -a $username wheel>/dev/null 2>&1;
+         cat /etc/group | grep wheel | grep -w $username | wc -l"
+
+ssh -p 22 $ip $command
