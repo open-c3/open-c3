@@ -1,0 +1,17 @@
+#!/bin/bash
+# 添加用户登陆权限
+
+set -e
+
+# 目标IP
+ip=$1
+# 用户账户
+username=$2
+# 用户密码
+password=$3
+
+command="sudo useradd $username >/dev/null 2>&1;
+             echo $password | sudo passwd --stdin $username >/dev/null 2>&1;
+             cat /etc/passwd | awk -F ':' '{print \$1}'| grep -w $username | wc -l"
+
+ssh -p 22 $ip $command
