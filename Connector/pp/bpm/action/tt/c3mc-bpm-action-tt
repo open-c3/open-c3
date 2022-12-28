@@ -1,0 +1,46 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+
+def domain(params):
+    content = params["content"]
+
+    submit_user = "sys@app"
+    if 'submit_user' in params:
+        submit_user = params['submit_user']
+
+    tt_number = subprocess.run([
+            "c3mc-create-ticket", 
+            "--submit_user", submit_user, 
+            "--title", params["title"], 
+            "--ext_tt", params["ext_tt"],
+        ], 
+        input=content.encode(), 
+        stdout=subprocess.PIPE,
+    ).stdout.decode('utf-8').rstrip()
+    print("LOG. tt单号: {}".format(tt_number))
+
+    tt_status_txt = subprocess.run([
+        "c3mc-wait-ticket-status-change",
+        "--number", tt_number,
+        "--ext_tt", params["ext_tt"]],
+        stdout=subprocess.PIPE,
+    ).stdout.decode('utf-8').rstrip()
+    print("LOG. tt结束, 单号: {}, 状态: {}".format(tt_number, tt_status_txt))
+
+    return
+
+
+def main(params):
+    domain(params)
+    
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    main(json.loads(''.join(l)))
