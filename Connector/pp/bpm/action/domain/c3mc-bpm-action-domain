@@ -68,8 +68,7 @@ def main(params):
     
 
 if __name__ == '__main__':
-    arg = sys.argv[1]
-    if arg[-2:] == "\\n":
-        # arg参数末尾可能带着\n后缀,测试发现无法通过rstrip()去除
-        arg = arg[:-2]
-    main(json.loads(arg))
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    main(json.loads(''.join(l)))
