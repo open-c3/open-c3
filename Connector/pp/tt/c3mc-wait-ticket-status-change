@@ -1,0 +1,84 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import requests
+import sys
+import subprocess
+import argparse
+import time
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+
+
+def check_tt_status(
+    tt_number,
+    ext_tt,
+):
+    API_ENDPOINT = "http://localhost:9008/public/ticket/info"
+
+    header = {
+        "Content-Type": "application/json",
+    }
+
+    if ext_tt == "1":
+        API_ENDPOINT = subprocess.getoutput("c3mc-sys-ctl sys.tt.external_api_endpoint")
+        if API_ENDPOINT == "":
+            raise Exception("使用外部tt时, 外部tt的接口地址不允许为空")
+        app_name = subprocess.getoutput("c3mc-sys-ctl sys.tt.external_api_endpoint.env.appname")
+        app_key = subprocess.getoutput("c3mc-sys-ctl sys.tt.external_api_endpoint.env.appkey")
+        if app_name != "" and app_key != "":
+            header["appname"] = app_name
+            header["appkey"] = app_key
+
+    data = {
+        "no": tt_number,
+    }
+    
+    resp = requests.post(url = API_ENDPOINT, headers = header, json=data)
+
+    from c3mc_utils import print_c3debug1_log
+    print_c3debug1_log(
+        "DEBUG1: {}, check_tt_status, call tt. request: {}, response: {}".format(sys.argv[0], data, resp))
+    
+    resp = resp.json()
+
+    status_txt = ""
+    if len(resp["data"]) == 0:
+        status_txt = "无法找到tt工单"
+    else:
+        status = resp["data"][0]["status"]
+        if status == "resolved":
+            status_txt = "已解决"
+        if status == "closed":
+            status_txt = "已关闭"
+    return status_txt
+
+
+def main(    
+    tt_number,
+    ext_tt,
+):
+    status_txt = ""
+    while status_txt == "":
+        status_txt = check_tt_status(
+            tt_number,
+            ext_tt,
+        )
+        time.sleep(10)
+    print(status_txt)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="查询并等待tt状态发生变更, 变更后打印tt新状态, 然后脚本退出")
+    parser.add_argument('--number', type=str, required=True, help='标题')
+    parser.add_argument('--ext_tt', type=str, required=False, help='是否使用外部tt, 1: 使用外部tt, 0: 使用内部tt')
+    args = parser.parse_args()
+
+    ext_tt = "0"
+    if args.ext_tt != None and args.ext_tt != "0":
+        ext_tt = "1"
+
+    main(
+        args.number,
+        ext_tt
+    )
