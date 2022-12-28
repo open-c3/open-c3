@@ -1,0 +1,51 @@
+---
+option:
+  - describe: 域名
+    name: domain_name
+    type: text
+    value: ""
+  - describe: 是否被注册
+    name: registered
+    type: select
+    option:
+      - Yes
+      - No
+    value: ""
+ 
+  - describe: 域名所属业务使用范围
+    name: scope
+    type: select
+    option:
+      - '海外'
+      - '国内'
+      - '海外&国内'
+    value: ""
+ 
+  - describe: 备案主体
+    name: website_belonger
+    type: input
+    value: ""
+    required: true
+  - describe: 所属业务
+    name: belong
+    type: input
+    value: ""
+ 
+  - describe: 申请理由
+    name: apply_note
+    type: text
+    value: ""
+
+template_argv:
+  ApplyType:             ${apply_type}
+  DomainName:            ${domain_name}
+  ResolveTarget:         ${resolve_target}
+  BusinessNode:          ${business_node}
+  OldResolveTarget:      ${old_resolve_target}
+  IfDomainHasRegistered: ${if_domain_has_registered}
+  WebsiteBelonger:       ${website_belonger}
+  Title:                 "域名申请与解析"
+  ApplyNote:             ${apply_note}
+  IfExt:                 0
+#  IfExt: ${if_ext}
+

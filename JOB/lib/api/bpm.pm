@@ -24,7 +24,7 @@ get '/bpm/menu' => sub {
 get '/bpm/variable/:bpmname' => sub {
     my $param = params();
     my $error = Format->new(
-        bpmname => qr/^[a-zA-Z\d]+$/, 1,
+        bpmname => qr/^[a-zA-Z\d][a-zA-Z\d\-]+$/, 1,
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
     my $pmscheck = api::pmscheck( 'openc3_agent_read' ); return $pmscheck if $pmscheck;
@@ -39,7 +39,14 @@ get '/bpm/variable/:bpmname' => sub {
             for my $name ( @$plugin )
             {
                 $index ++;
-                my $config = YAML::XS::LoadFile  "/data/Software/mydan/Connector/pp/bpm/action/$name/data.yaml";
+                my $pluginfile = "/data/Software/mydan/Connector/pp/bpm/action/$name/data.yaml";
+                my $pluginfileself = "/data/Software/mydan/JOB/bpm/config/flow/$param->{bpmname}/plugin.conf/$name.yaml";
+                $pluginfile = $pluginfileself if -f $pluginfileself;
+
+                $pluginfileself = "/data/Software/mydan/JOB/bpm/config/flow/$param->{bpmname}/plugin.conf/$index.$name.yaml";
+                $pluginfile = $pluginfileself if -f $pluginfileself;
+
+                my $config = YAML::XS::LoadFile $pluginfile;
                 my $idx = 0;
                 for my $opt ( @{$config->{option}} )
                 {
