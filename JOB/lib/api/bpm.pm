@@ -40,9 +40,10 @@ get '/bpm/variable/:bpmname' => sub {
             {
                 $index ++;
                 my $config = YAML::XS::LoadFile  "/data/Software/mydan/Connector/pp/bpm/action/$name/data.yaml";
+                my $idx = 0;
                 for my $opt ( @{$config->{option}} )
                 {
-                    push @$conf, +{ %$opt, name => "$index.".$opt->{name} };
+                    push @$conf, +{ %$opt, name => "$index.".$opt->{name}, idx => $idx ++ };
                 }
             }
         }
