@@ -36,22 +36,21 @@ def apply_cloud_certificate(params):
     newline = "<br/>"
     data = data.replace("\n", newline)[len(newline):]
 
-    result = subprocess.run([
-            "c3mc-create-ticket", 
-            "--submit_user", "sys@app", 
-            "--title", params["Title"], 
-            "--if_ext", params["IfExt"],
-        ], 
-        input=data.encode(), 
-        stdout=subprocess.PIPE, 
-        stderr=subprocess.PIPE
-    )
-    return result.stdout
+    tt_number = subprocess.run([
+        "c3mc-create-ticket", 
+        "--submit_user", "sys@app", 
+        "--title", params["Title"], 
+        "--ext_tt", params["IfExt"],
+    ], 
+    input=data.encode(), 
+    stdout=subprocess.PIPE,
+    ).stdout.decode('utf-8')
+    return tt_number
 
 
 def main(params):
     data = apply_cloud_certificate(params)
-    print(data.decode().rstrip())
+    print(data.rstrip())
     
 
 if __name__ == '__main__':
