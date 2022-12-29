@@ -22,7 +22,17 @@ die "action err"  unless $action  && $action  =~ /^[a-zA-Z0-9][a-zA-Z0-9\-_\.]+$
 my $var = eval{ YAML::XS::LoadFile "/data/Software/mydan/JOB/bpm/task/$bpmuuid"; };
 die "load var fail: $@" if $@;
 
-my $conf = eval{ YAML::XS::LoadFile "/data/Software/mydan/Connector/pp/bpm/action/$action/data.yaml" };
+my $jobname = $var->{_jobname_};
+die "jobname err" unless $jobname && $jobname =~ /^[a-zA-Z\d][a-zA-Z0-9\-\._]+$/;
+my $index  = shift @idx;
+
+my $pluginfile     = "/data/Software/mydan/Connector/pp/bpm/action/$action/data.yaml";
+my $pluginfileself = "/data/Software/mydan/JOB/bpm/config/flow/$jobname/plugin.conf/$action.yaml";
+   $pluginfile     = $pluginfileself if -f $pluginfileself;
+   $pluginfileself = "/data/Software/mydan/JOB/bpm/config/flow/$jobname/plugin.conf/$index.$action.yaml";
+   $pluginfile     = $pluginfileself if -f $pluginfileself;
+
+my $conf = eval{ YAML::XS::LoadFile $pluginfile };
 die "load template_argv fail: $@" if $@;
 
 my $template_argv = $conf->{template_argv};
