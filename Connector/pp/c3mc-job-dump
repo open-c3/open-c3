@@ -1,0 +1,40 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use JSON;
+use YAML::XS;
+use MYDan::Util::OptConf;
+use LWP::UserAgent;
+
+=head1 SYNOPSIS
+
+ $0 --treeid id --jobname name
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( treeid=i jobname=s ) )->dump();
+$option->assert(qw( treeid jobname ));
+
+my $ua = LWP::UserAgent->new();
+$ua->agent('Mozilla/9 [en] (Centos; Linux)');
+$ua->timeout( 15 );
+
+$ua->default_header( appname => 'job', appkey => $ENV{OPEN_C3_RANDOM} );
+my $res = $ua->get( "http://localhost:88/api/job/jobs/$o{treeid}/byname?name=$o{jobname}" );
+
+my $err = sprintf "call fail:\n%s\n", YAML::XS::Dump $res;
+$err =~ s/appkey:\s+['"]?[a-zA-Z0-9]{32}['"]?\b/appkey: ******/g;
+
+die sprintf( "$err: code %s", $res->code ) unless $res->is_success;
+my $v = eval{JSON::decode_json $res->decoded_content};
+die sprintf( "$err: data no JSON: $@" )if $@;
+
+die $err unless $v->{stat};
+print YAML::XS::Dump $v->{data};
+
+die "nofind uuid" unless my $uuid = $v->{data}{uuid};
+system "c3mc-flow-exctl-dump-jobv  -t $o{treeid} -j '$uuid'";

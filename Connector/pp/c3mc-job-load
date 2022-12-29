@@ -1,0 +1,63 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use JSON;
+use YAML::XS;
+use MYDan::Util::OptConf;
+use LWP::UserAgent;
+
+=head1 SYNOPSIS
+
+ $0 --treeid id --jobname name
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( treeid=i jobname=s ) )->dump();
+$option->assert(qw( treeid jobname ));
+
+my $ua = LWP::UserAgent->new();
+$ua->agent('Mozilla/9 [en] (Centos; Linux)');
+$ua->timeout( 15 );
+
+local $/ = undef;
+my @data = YAML::XS::Load( <STDIN> );
+local $/ = "\n";
+
+$data[0]{name} = $o{jobname};
+$data[0]{permanent} = 1;
+
+my @plugin_type;
+for( split /,/, $data[0]{uuids})
+{
+    push @plugin_type, ( split /_/, $_ )[0];
+}
+
+my $idx = 0;
+for( @{$data[0]{data}} )
+{
+    $_->{plugin_type} = $plugin_type[$idx];
+    $idx ++;
+}
+
+$ua->default_header( appname => 'job', appkey => $ENV{OPEN_C3_RANDOM} );
+my $cont = JSON::encode_json( $data[0] );
+
+my $jobuuid = `c3mc-base-db-get --table openc3_job_jobs uuid --filter "projectid='$o{treeid}' and name='$o{jobname}'"`;
+chomp $jobuuid;
+
+my $url = sprintf "http://localhost:88/api/job/jobs/$o{treeid}%s", $jobuuid ? "/$jobuuid" : '';
+my $res = $ua->post( $url, Content => $cont, 'Content-Type' => 'application/json');
+
+my $err = sprintf "call fail:\n%s\n", YAML::XS::Dump $res;
+$err =~ s/appkey:\s+['"]?[a-zA-Z0-9]{32}['"]?\b/appkey: ******/g;
+
+die sprintf( "$err: code %s", $res->code ) unless $res->is_success;
+my $v = eval{JSON::decode_json $res->decoded_content};
+die sprintf( "$err: data no JSON: $@" )if $@;
+
+die $err unless $v->{stat};
+print "$v->{uuid}\n" if $v->{uuid};
