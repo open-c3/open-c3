@@ -5,6 +5,8 @@ use MYDan::Util::OptConf;
 use YAML::XS;
 use JSON;
 
+binmode STDOUT, ':utf8';
+
 =head1 SYNOPSIS
 
  $0 bpmuuid action
@@ -24,7 +26,7 @@ die "load var fail: $@" if $@;
 
 my $jobname = $var->{_jobname_};
 die "jobname err" unless $jobname && $jobname =~ /^[a-zA-Z\d][a-zA-Z0-9\-\._]+$/;
-my $index  = shift @idx;
+my ( $index ) = @idx;
 
 my $pluginfile     = "/data/Software/mydan/Connector/pp/bpm/action/$action/data.yaml";
 my $pluginfileself = "/data/Software/mydan/JOB/bpm/config/flow/$jobname/plugin.conf/$action.yaml";
@@ -39,7 +41,7 @@ my $template_argv = $conf->{template_argv};
 
 die "template_argv error" unless $template_argv && ref $template_argv eq 'HASH';
 
-my $json = eval{JSON::encode_json $template_argv};
+my $json = eval{JSON::to_json $template_argv };
 die "encode template_argv to json fail: $@" if $@;
 
 my %var;
