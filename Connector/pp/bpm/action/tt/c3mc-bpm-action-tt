@@ -13,11 +13,13 @@ def domain(params):
     if 'submit_user' in params:
         submit_user = params['submit_user']
 
+    ext_tt = subprocess.getoutput("c3mc-sys-ctl sys.bpm.tt.type")
+
     tt_number = subprocess.run([
             "c3mc-create-ticket", 
             "--submit_user", submit_user, 
             "--title", params["title"], 
-            "--ext_tt", params["ext_tt"],
+            "--ext_tt", ext_tt,
         ], 
         input=content.encode(), 
         stdout=subprocess.PIPE,
@@ -27,7 +29,9 @@ def domain(params):
     tt_status_txt = subprocess.run([
         "c3mc-wait-ticket-status-change",
         "--number", tt_number,
-        "--ext_tt", params["ext_tt"]],
+        "--ext_tt", ext_tt,
+        ], 
+        input=content.encode(), 
         stdout=subprocess.PIPE,
     ).stdout.decode('utf-8').rstrip()
     print("LOG. tt结束, 单号: {}, 状态: {}".format(tt_number, tt_status_txt))
