@@ -15,7 +15,7 @@ def domain(params):
 
     ext_tt = subprocess.getoutput("c3mc-sys-ctl sys.bpm.tt.type")
 
-    tt_number = subprocess.run([
+    resp = subprocess.run([
             "c3mc-create-ticket", 
             "--submit_user", submit_user, 
             "--title", params["title"], 
@@ -23,7 +23,15 @@ def domain(params):
         ], 
         input=content.encode(), 
         stdout=subprocess.PIPE,
-    ).stdout.decode('utf-8').rstrip()
+        stderr=subprocess.PIPE,
+    )
+    err = resp.stderr.decode('utf-8').rstrip()
+    tt_number = resp.stdout.decode('utf-8').rstrip()
+
+    if err != "":
+        print("LOG. 创建tt出错: {}".format(err))
+        raise Exception(err)
+
     print("LOG. tt单号: {}".format(tt_number))
 
     tt_status_txt = subprocess.run([
