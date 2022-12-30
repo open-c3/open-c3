@@ -72,6 +72,7 @@
                                 || sName == 'home.business.variate'
                                 || sName == 'home.history.jobx'
                                 || sName == 'home.history.job'
+                                || sName == 'home.history.bpm'
                                 || sName == 'home.history.terminal'
                                 || sName == 'home.approval'
                                 || sName == 'home.myack'

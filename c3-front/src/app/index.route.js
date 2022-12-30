@@ -397,6 +397,12 @@
                 controller: 'HistoryJobController',
                 controllerAs: 'historyjob',
             })
+            .state('home.history.bpm', {
+                url: 'bpm/:treeid',
+                templateUrl: 'app/pages/history/bpm/bpm.html',
+                controller: 'HistoryBpmController',
+                controllerAs: 'historybpm',
+            })
 
             // business
             .state('home.business', {
