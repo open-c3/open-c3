@@ -239,6 +239,7 @@
             vm.reload();
         };
 
+        vm.bpmuuid = '';
         vm.reload =  function () {
             vm.loadover = false
             $http.get('/api/job/task/' + vm.treeid + "/" + vm.taskuuid).then(
@@ -258,7 +259,9 @@
                         $scope.salve = task_msg.slave;
                         $scope.errorreason = task_msg.reason;
                         $scope.variable = task_msg.variable;
+                        vm.bpmuuid = task_msg.extid;
 
+                        vm.loadbpmlog();
                         if ($scope.status == "fail" || $scope.status == "success"){
                             $interval.cancel(reRun);
                         }
@@ -285,6 +288,21 @@
 
             };
 
+
+        vm.loadbpmlog =  function () {
+            $http.get('/api/job/bpm/log/' + vm.bpmuuid ).then(
+                function successCallback(response) {
+                    if (response.data.stat){
+                        vm.bpmlog = response.data.data
+                    }else {
+                        swal('获取信息失败', response.data.info, 'error' );
+                    }
+                },
+                function errorCallback (response){
+                    swal('获取信息失败', response.status, 'error' );
+                });
+        };
+        vm.bpmlog = [];
         vm.reload();
 
         var reRun = $interval(function () {

@@ -111,7 +111,7 @@ get '/task/:projectid/:uuid' => sub {
 
     my $pmscheck = api::pmscheck( 'openc3_job_read', $param->{projectid} ); return $pmscheck if $pmscheck;
 
-    my @col = qw( id uuid name user slave status starttime finishtime calltype jobtype jobuuid runtime mutex pid starttimems finishtimems reason variable );
+    my @col = qw( id uuid name user slave status starttime finishtime calltype jobtype jobuuid runtime mutex pid starttimems finishtimems reason variable extid );
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_job_task

@@ -62,4 +62,28 @@ get '/bpm/variable/:bpmname' => sub {
     return $@ ? +{ stat => $JSON::false, info => "load config fail:$@" } : +{ stat => $JSON::true, data => $conf };
 };
 
+get '/bpm/log/:bpmuuid' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        bpmuuid => qr/^[a-zA-Z\d]+$/, 1,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $pmscheck = api::pmscheck( 'openc3_job_read', 0 ); return $pmscheck if $pmscheck;
+
+    my @col = qw( id step info time );
+    my $r = eval{ $api::mysql->query( sprintf( "select %s from openc3_job_bpm_log where bpmuuid='$param->{bpmuuid}'", join ",", @col ), \@col )}; 
+
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
+    my %res;
+    for( @$r )
+    {
+        my $step = $_->{step};
+        $res{$step} ||= [];
+        push @{ $res{$step} }, $_;
+    }
+    return +{ stat => $JSON::true, data => \%res };
+};
+
 true;
