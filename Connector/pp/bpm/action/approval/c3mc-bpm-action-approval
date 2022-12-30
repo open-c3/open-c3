@@ -17,6 +17,7 @@ my $data = JSON::from_json( Encode::encode('utf8', <STDIN> ) );
 local $/ = "\n";
 
 die "node data" unless $data;
+map { $data->{$_} = Encode::decode( 'utf8', $data->{$_} ) }keys %$data;
 my ( $submitter, $approver, $approvalname, $cont, $timeout, $everyone, $relaxed )
   = @$data{qw( submitter approver title content timeout everyone relaxed )};
 
@@ -41,13 +42,17 @@ for my $user ( @approver )
     if( $relaxed && $user eq $submitter )
     {
         eval{ $db->execute( 
-            "insert into openc3_job_approval (`taskuuid`,`uuid`,`user`,`submitter`,`cont`,`opinion`,`remarks`,`create_time`,`finishtime`,`notifystatus`,`oauuid`,`name`,`everyone`)values('$puuid','$muuid','$user','$submitter','$cont','agree', 'sys.handle.auto','$time','$time', 'skip', '0','$approvalname', '$tempeo' )"
+            Encode::decode('utf8',
+                "insert into openc3_job_approval (`taskuuid`,`uuid`,`user`,`submitter`,`cont`,`opinion`,`remarks`,`create_time`,`finishtime`,`notifystatus`,`oauuid`,`name`,`everyone`)values('$puuid','$muuid','$user','$submitter','$cont','agree', 'sys.handle.auto','$time','$time', 'skip', '0','$approvalname', '$tempeo' )"
+            )
         ) };
     }
     else
     {
         eval{ $db->execute( 
-            "insert into openc3_job_approval (`taskuuid`,`uuid`,`user`,`submitter`,`cont`,`opinion`,`remarks`,`create_time`,`notifystatus`,`oauuid`,`name`,`everyone`)values('$puuid','$muuid','$user','$submitter','$cont','unconfirmed', '','$time', 'null', '0','$approvalname', '$tempeo' )"
+            Encode::decode('utf8',
+                "insert into openc3_job_approval (`taskuuid`,`uuid`,`user`,`submitter`,`cont`,`opinion`,`remarks`,`create_time`,`notifystatus`,`oauuid`,`name`,`everyone`)values('$puuid','$muuid','$user','$submitter','$cont','unconfirmed', '','$time', 'null', '0','$approvalname', '$tempeo' )"
+            )
         ) };
 
     }
