@@ -21,5 +21,4 @@ die "action err"  unless $action  && $action  =~ /^[a-zA-Z0-9][a-zA-Z0-9\-_\.]+$
 map{ die "idx format error" unless $_ =~ /^[a-zA-Z0-9]+$/  }@idx;
 
 #BPM TODO pipefail
-#BPM TODO log record
-die "err" if system "$RealBin/taskcfg '$bpmuuid' '$action' @idx | c3mc-bpm-action-$action >&2";
+die "err" if system "$RealBin/taskcfg '$bpmuuid' '$action' @idx | c3mc-bpm-action-$action | $RealBin/logrecord --bpmuuid '$bpmuuid' --step '$idx[0]'";
