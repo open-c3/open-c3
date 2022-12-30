@@ -82,7 +82,26 @@
             <div ng-repeat="item in historybpmdetail.allRuningData">
                 <div ng-if="item.subtask_type == 'cmd'" class="panel panel-success">
                     <div class="panel-heading" style="height: 33px">
-                        <h5>{{'C3T.脚本作业'|translate}} LOG. {{historybpmdetail.bpmlog[$index+1]}}</h5>
+                        <h5>{{item.extended.name}}</h5>
+                    </div>
+                    <div ng-if="historybpmdetail.bpmlog[$index+1]"  class="panel-body" style="padding: 10px">
+                        <div class="panel-tabs">
+                            <table class="table table-hover text-center table-condensed" style="margin-bottom: 0">
+                                <thead>
+                                <tr>
+                                    <th style="text-align: center;">{{'C3T.时间'|translate}}</th>
+                                    <th style="text-align: center;">{{'C3T.日志'|translate}}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="item in historybpmdetail.bpmlog[$index+1]" style="cursor: pointer">
+                                        <td>{{item.time}}</td>
+                                        <td>{{item.info}}</td>
+                                    </tr>
+                                </tbody>
+
+                            </table>
+                        </div>
                     </div>
                     <div class="panel-body" style="padding: 10px">
                         <div class="panel-tabs">
@@ -186,10 +205,28 @@
                         </div>
                     </div>
                 </div>
-
                 <div ng-if="item.subtask_type == 'scp'" class="panel panel-primary">
                     <div class="panel-heading" style="height: 33px">
-                        <h5>{{'C3T.文件作业'|translate}}</h5>
+                        <h5>{{item.extended.name}}</h5>
+                    </div>
+                    <div ng-if="historybpmdetail.bpmlog[$index+1]"  class="panel-body" style="padding: 10px">
+                        <div class="panel-tabs">
+                            <table class="table table-hover text-center table-condensed" style="margin-bottom: 0">
+                                <thead>
+                                <tr>
+                                    <th style="text-align: center;">{{'C3T.时间'|translate}}</th>
+                                    <th style="text-align: center;">{{'C3T.日志'|translate}}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="item in historybpmdetail.bpmlog[$index+1]" style="cursor: pointer">
+                                        <td>{{item.time}}</td>
+                                        <td>{{item.info}}</td>
+                                    </tr>
+                                </tbody>
+
+                            </table>
+                        </div>
                     </div>
                     <div class="panel-body"  style="padding: 10px">
                         <div class="panel-tabs">
@@ -311,11 +348,28 @@
                         </div>
                     </div>
                 </div>
-
-
                 <div ng-if="item.subtask_type == 'approval'" class="panel panel-info">
                     <div class="panel-heading" style="height: 33px">
-                        <h5>{{'C3T.审批作业'|translate}}</h5>
+                        <h5>{{item.extended.name}}</h5>
+                    </div>
+                    <div ng-if="historybpmdetail.bpmlog[$index+1]"  class="panel-body" style="padding: 10px">
+                        <div class="panel-tabs">
+                            <table class="table table-hover text-center table-condensed" style="margin-bottom: 0">
+                                <thead>
+                                <tr>
+                                    <th style="text-align: center;">{{'C3T.时间'|translate}}</th>
+                                    <th style="text-align: center;">{{'C3T.日志'|translate}}</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                    <tr ng-repeat="item in historybpmdetail.bpmlog[$index+1]" style="cursor: pointer">
+                                        <td>{{item.time}}</td>
+                                        <td>{{item.info}}</td>
+                                    </tr>
+                                </tbody>
+
+                            </table>
+                        </div>
                     </div>
                     <div class="panel-body"  style="padding: 10px">
                         <div class="panel-tabs">
