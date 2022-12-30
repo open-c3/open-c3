@@ -14,7 +14,7 @@ def check_tt_status(
     tt_number,
     ext_tt,
 ):
-    API_ENDPOINT = "http://localhost:9008/public/ticket/info"
+    API_ENDPOINT = "http://localhost:9008/public/ticket?no={}".format(tt_number)
 
     header = {
         "Content-Type": "application/json",
@@ -30,27 +30,24 @@ def check_tt_status(
             header["appname"] = app_name
             header["appkey"] = app_key
 
-    data = {
-        "no": tt_number,
-    }
-    
-    resp = requests.post(url = API_ENDPOINT, headers = header, json=data)
+    resp = requests.get(url = API_ENDPOINT, headers = header)
 
     from c3mc_utils import print_c3debug1_log
     print_c3debug1_log(
-        "DEBUG1: {}, check_tt_status, call tt. request: {}, response: {}".format(sys.argv[0], data, resp))
+        "DEBUG1: {}, check_tt_status, call tt. request tt number: {}, response: {}".format(sys.argv[0], tt_number, resp))
     
     resp = resp.json()
 
+    if resp["stat"] == 0:
+        print(resp["info"], file=sys.stderr)
+        exit(1)
+
     status_txt = ""
-    if len(resp["data"]) == 0:
-        status_txt = "无法找到tt工单"
-    else:
-        status = resp["data"][0]["status"]
-        if status == "resolved":
-            status_txt = "已解决"
-        if status == "closed":
-            status_txt = "已关闭"
+    status = resp["data"]["status"]
+    if status == "resolved":
+        status_txt = "已解决"
+    if status == "closed":
+        status_txt = "已关闭"
     return status_txt
 
 
@@ -64,6 +61,8 @@ def main(
             tt_number,
             ext_tt,
         )
+        if status_txt != "":
+            break
         time.sleep(10)
     print(status_txt)
 

@@ -31,7 +31,8 @@ def domain(params):
         raise Exception(err)
 
     tt_number = resp.stdout.decode('utf-8').rstrip()
-    print("LOG. tt单号: {}".format(tt_number))
+
+    print("LOG. tt单号: {}".format(tt_number), flush=True)
 
     resp = subprocess.run([
         "c3mc-wait-ticket-status-change",
