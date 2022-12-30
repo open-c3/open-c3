@@ -84,7 +84,7 @@ func main() {
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{"stat": 1, "data": string(output)})
+		c.JSON(http.StatusOK, gin.H{"stat": 1, "data": strings.TrimSpace(string(output))})
 	})
 
 	r.Run("0.0.0.0:56383")

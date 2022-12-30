@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"permisstion/src"
+	"strings"
 )
 
 func main() {
@@ -16,11 +17,7 @@ func main() {
 	username := flag.String("username", "", "需要添加服务器权限的目标账户")
 	email := flag.String("email", "", "需要添加服务器权限的目标账户邮箱")
 	ip := flag.String("ip", "", "需要添加服务器权限的目标IP")
-	sshPort := flag.String("ssh_port", "", "Port")
-	sshUser := flag.String("ssh_user", "", "ssh用户")
-	addType := flag.String("add_type", "", "权限处理类型。1: 添加普通权限; 2: 删除普通权限; 3: 添加sudo权限; 4: 删除sudo权限(保留账户); 5: 删除sudo权限(不保留账户)")
-	ifKeepHome := flag.String("if_keep_home", "", "删除用户时是否需要保留用户主目录。0: 不保留; 1: 保留")
-	privateKeyPath := flag.String("private_key_path", "", "私钥地址")
+	addType := flag.String("add_type", "", "权限处理类型。1: 添加普通权限; 2: 删除权限; 3: 添加sudo权限; 4: 删除sudo权限(保留账户)")
 
 	flag.Parse()
 
@@ -48,24 +45,8 @@ func main() {
 		fmt.Fprintln(os.Stderr, "-ip参数必传")
 		return
 	}
-	if *sshPort == "" {
-		fmt.Fprintln(os.Stderr, "-ssh_port参数必传")
-		return
-	}
-	if *sshUser == "" {
-		fmt.Fprintln(os.Stderr, "-ssh_user参数必传")
-		return
-	}
 	if *addType == "" {
 		fmt.Fprintln(os.Stderr, "-add_type参数必传")
-		return
-	}
-	if *ifKeepHome == "" {
-		fmt.Fprintln(os.Stderr, "-if_keep_home参数必传")
-		return
-	}
-	if *privateKeyPath == "" {
-		fmt.Fprintln(os.Stderr, "-private_key_path参数必传")
 		return
 	}
 
@@ -76,8 +57,8 @@ func main() {
 	}
 
 	var (
-		systemUserPassword = "xxx"
-		output             string
+		systemUserPassword        = "xxx"
+		output             string = ""
 	)
 	switch *addType {
 	// 1.添加普通权限、3.添加sudo权限
@@ -91,8 +72,8 @@ func main() {
 
 		br, _ := json.Marshal(resp)
 		output = string(br)
-	// 2.删除针对ip的普通权限、4.删除sudo权限(保留账户)、5.删除sudo权限(不保留账户)
-	case "2", "4", "5":
+	// 2.删除针对ip的普通权限、4.删除sudo权限(保留账户)
+	case "2", "4":
 		permission, err := b.GetAssetPermissions(*username)
 		if err != nil {
 			fmt.Fprintln(os.Stderr, err)
@@ -103,18 +84,39 @@ func main() {
 			fmt.Fprintln(os.Stderr, err)
 			return
 		}
+	default:
+		fmt.Fprintln(os.Stderr, "不支持该处理类型")
+		return
 	}
 
-	command := fmt.Sprintf("jumpserver-server -ip %v -ssh_port %v -ssh_user %v -add_type %v -username %v -userpass '%v' -private_key_path %v -if_keep_home %v",
-		*ip,
-		*sshPort,
-		*sshUser,
-		*addType,
-		*username,
-		systemUserPassword,
-		*privateKeyPath,
-		*ifKeepHome,
-	)
+	var command string
+	switch *addType {
+	case "1":
+		command = fmt.Sprintf("add_normal_privilege %v %v %v",
+			*ip,
+			*username,
+			systemUserPassword,
+		)
+	case "2":
+		command = fmt.Sprintf("del_normal_privilege %v %v",
+			*ip,
+			*username,
+		)
+	case "3":
+		command = fmt.Sprintf("add_sudo_privilege %v %v %v",
+			*ip,
+			*username,
+			systemUserPassword,
+		)
+	case "4":
+		command = fmt.Sprintf("del_just_sudo_privilege %v %v",
+			*ip,
+			*username,
+		)
+	default:
+		fmt.Fprintln(os.Stderr, "不支持该处理类型")
+		return
+	}
 
 	cmd := exec.Command("bash", "-c", command)
 	_, err = cmd.Output()
@@ -123,5 +125,5 @@ func main() {
 		return
 	}
 
-	fmt.Println(output)
+	fmt.Println(strings.TrimSpace(output))
 }
