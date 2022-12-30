@@ -377,6 +377,14 @@
                 params:{"taskuuid":null, "jobtype":null, "jobuuid":null}
             })
  
+            .state('home.history.bpmdetail', {
+                url: 'bpmdetail/:treeid/:taskuuid',
+                templateUrl: 'app/pages/history/bpm/detail/detail.html',
+                controller: 'HistoryBpmDetailController',
+                controllerAs: 'historybpmdetail',
+                params:{"taskuuid":null, "jobtype":null, "jobuuid":null}
+            })
+ 
             // flow
             // .state('work', {
             //     url: '/',
