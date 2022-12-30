@@ -5,7 +5,7 @@ import requests
 import sys
 import subprocess
 import argparse
-import json
+import re
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
 
@@ -74,9 +74,13 @@ def main(
         ext_tt,
     )
     if data["stat"] == 1:
-        print(data["data"])
+        tt_number = data["data"]
+        if not re.match(r"^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9]+)$", tt_number):
+            print("tt单号不符合格式: {}".format(tt_number), file=sys.stderr)
+            exit(1)
+        print(tt_number)
     else:
-        print(json.dumps(data, default=str), file=sys.stderr)
+        print(data["info"], file=sys.stderr)
         exit(1)
 
 
