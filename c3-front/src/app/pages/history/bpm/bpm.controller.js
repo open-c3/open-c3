@@ -36,7 +36,7 @@
         });
 
         vm.taskDetail = function(taskuuid){
-            $state.go('home.history.jobdetail', {treeid: '0',taskuuid:taskuuid});
+            $state.go('home.history.bpmdetail', {treeid: '0',taskuuid:taskuuid});
         };
         vm.quickTaskDetail = function(jobuuid, taskuuid,type){
             $state.go('home.history.jobdetail', {treeid: '0',taskuuid:taskuuid,jobuuid:jobuuid, jobtype:type});

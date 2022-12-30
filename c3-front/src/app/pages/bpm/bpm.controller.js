@@ -51,7 +51,7 @@
             resoureceService.work.runJobByName(vm.treeid, {"jobname":$scope.choiceJob.name, "bpm_variable": $scope.taskData.variable, "variable": {} })
                 .then(function (repo) {
                     if (repo.stat){
-                        $state.go('home.history.jobdetail', {treeid:vm.treeid,taskuuid:repo.uuid});
+                        $state.go('home.history.bpmdetail', {treeid:vm.treeid,taskuuid:repo.uuid});
                     }
 
                  }, function (repo) { });
