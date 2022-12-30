@@ -75,7 +75,7 @@ def main(
     )
     if data["stat"] == 1:
         tt_number = data["data"]
-        if not re.match(r"^TT[0-9]{10}$", tt_number):
+        if not re.match(r"^(?=.*[0-9])(?=.*[a-zA-Z])([a-zA-Z0-9]+)$", tt_number):
             print("tt单号不符合格式: {}".format(tt_number), file=sys.stderr)
             exit(1)
         print(tt_number)
