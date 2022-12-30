@@ -1,0 +1,15 @@
+#!/bin/bash
+# 删除sudo权限
+
+set -e
+
+# 目标IP
+ip=$1
+# 用户账户
+username=$2
+
+# 删除sudo权限
+command="sudo gpasswd -d $username wheel>/dev/null 2>&1;
+         cat /etc/group | grep wheel | grep -w $username | wc -l"
+
+ssh -p 22 $ip $command
