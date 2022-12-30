@@ -44,7 +44,8 @@ get '/task/:projectid' => sub {
     push @where, "starttime>='$param->{time_start} 00:00:00'" if defined $param->{time_start};
     push @where, "starttime<='$param->{time_end} 23:59:59'" if defined $param->{time_end};
 
-    my @col = qw( id uuid name user slave status starttime finishtime calltype jobtype jobuuid runtime reason variable );
+    push @where, "extid like 'BPM%'" if defined $param->{bpmonly};
+    my @col = qw( id uuid name user slave status starttime finishtime calltype jobtype jobuuid runtime reason variable extid );
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_job_task
