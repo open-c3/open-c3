@@ -44,7 +44,7 @@ die "template_argv error" unless $template_argv && ref $template_argv eq 'HASH';
 my $json = eval{JSON::to_json $template_argv };
 die "encode template_argv to json fail: $@" if $@;
 
-my %var;
+my %var = %$var;
 
 for my $idx ( @idx )
 {
@@ -54,6 +54,13 @@ for my $idx ( @idx )
         next unless $tk =~ s/^$idx\.//;
         $var{$tk} = $var->{$k};
     }
+}
+
+for my $k ( keys %$var )
+{
+    my $tk = $k;
+    next unless $tk =~ s/^\d+\./x./;
+    $var{$tk} = $var->{$k};
 }
 
 for my $k ( keys %var )

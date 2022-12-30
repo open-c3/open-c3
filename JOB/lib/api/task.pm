@@ -344,6 +344,9 @@ post '/task/:projectid/job/byname' => sub {
     if( $param->{bpm_variable} )
     {
         my $bpmuuid = sprintf "BPM%s%04d", POSIX::strftime( "%Y%m%d%H%M%S", localtime ), int rand 10000;
+        $param->{bpm_variable}{_jobname_ } = $param->{jobname};
+        $param->{bpm_variable}{_user_    } = $user;
+        $param->{bpm_variable}{_bpmuuid_ } = $bpmuuid;
         eval{ YAML::XS::DumpFile "/data/Software/mydan/JOB/bpm/task/$bpmuuid", $param->{bpm_variable} };
         return +{ stat => $JSON::false, info => $@ } if $@;
         $param->{variable} = +{ BPMUUID => $bpmuuid };
