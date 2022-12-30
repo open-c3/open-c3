@@ -37,7 +37,7 @@ for my $user ( @approver )
 {
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     my $muuid = uuid->new()->create_str;
-    print "Send mesg to $user, wait for his confirmation\n";
+    print "LOG. Send mesg to $user, wait for his confirmation\n";
     my $tempeo = $everyone ? 'YES' :'NO';
     if( $relaxed && $user eq $submitter )
     {
@@ -77,13 +77,13 @@ for( 1 .. $rtime )
         next if $opinion eq 'unconfirmed';
         if( $opinion eq 'refuse' )
         {
-            print "refuse by user $user , reason: $remarks\n";
+            print "LOG. refuse by user $user , reason: $remarks\n";
             $subtaskstatus = 'refuse';
             last;
         }elsif( $opinion eq 'agree' )
         {
             next unless $approver{$user};
-            print "$user: agree\n";
+            print "LOG. $user: agree\n";
             delete $approver{$user};
             %approver = () unless $everyone;
         }
@@ -94,14 +94,14 @@ for( 1 .. $rtime )
     }
     unless( %approver )
     {
-        print "OK\n";
+        print "LOG. OK\n";
         $subtaskstatus = 'success';
         last;
     }
 
     if( $_ >= $rtime )
     {
-        print "timeout.\n";
+        print "LOG. timeout.\n";
         $subtaskstatus = 'fail';
     }
     sleep 3;
