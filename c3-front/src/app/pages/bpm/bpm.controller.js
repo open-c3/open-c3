@@ -47,7 +47,6 @@
                 varDict[data.name] = data.value;
             });
             $scope.taskData.variable = varDict;
-            $scope.taskData.variable['_jobname_'] = $scope.choiceJob.name;
 
             resoureceService.work.runJobByName(vm.treeid, {"jobname":$scope.choiceJob.name, "bpm_variable": $scope.taskData.variable, "variable": {} })
                 .then(function (repo) {

@@ -341,19 +341,24 @@ post '/task/:projectid/job/byname' => sub {
     eval{ $api::auditlog->run( user => $user, title => 'START JOB TASK', content => "TREEID:$param->{projectid} JOBUUID:$jobuuid" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
+    my $extid = '';
     if( $param->{bpm_variable} )
     {
         my $bpmuuid = sprintf "BPM%s%04d", POSIX::strftime( "%Y%m%d%H%M%S", localtime ), int rand 10000;
+        $param->{bpm_variable}{_jobname_ } = $param->{jobname};
+        $param->{bpm_variable}{_user_    } = $user;
+        $param->{bpm_variable}{_bpmuuid_ } = $bpmuuid;
         eval{ YAML::XS::DumpFile "/data/Software/mydan/JOB/bpm/task/$bpmuuid", $param->{bpm_variable} };
         return +{ stat => $JSON::false, info => $@ } if $@;
         $param->{variable} = +{ BPMUUID => $bpmuuid };
+        $extid = $bpmuuid;
     }
 
     my $variable = $param->{variable} ? encode_base64( encode('UTF-8', YAML::XS::Dump $param->{variable}) ) : '';
 
     my $r = eval{ 
-        $api::mysql->execute( "insert into openc3_job_task (`projectid`,`uuid`,`name`,`user`,`slave`,`status`,`calltype`,`jobtype`,`jobuuid`,`mutex`,`variable`) 
-            values('$param->{projectid}','$uuid','$param->{jobname}','$user','$slave', 'init','$calltype','jobs','$jobuuid','','$variable')" )};
+        $api::mysql->execute( "insert into openc3_job_task (`projectid`,`uuid`,`name`,`user`,`slave`,`status`,`calltype`,`jobtype`,`jobuuid`,`mutex`,`variable`,`extid`) 
+            values('$param->{projectid}','$uuid','$param->{jobname}','$user','$slave', 'init','$calltype','jobs','$jobuuid','','$variable','$extid')" )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, uuid => $uuid, data => $r };
 };
