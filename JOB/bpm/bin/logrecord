@@ -1,0 +1,31 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use MYDan::Util::OptConf;
+use FindBin qw( $RealBin );
+use MYDB;
+
+=head1 SYNOPSIS
+
+ $0 --bpmuuid xx --step 1
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( bpmuuid=s step=s ) )->dump();
+$option->assert(qw( bpmuuid step ));
+
+my $db = MYDB->new( "/data/Software/mydan/JOB/conf/conn", delayedconnection => 1 );
+
+sub record
+{
+    my $row = shift @_;
+    print $row, "\n";
+    return unless $row =~ s/LOG\.\s*//;
+    $row =~ s/'//g;
+    $row = substr $row, 0, 1000 if length $row > 1000;
+    eval{ $db->execute( "insert into openc3_job_bpm_log (`bpmuuid`,`step`,`info`) values('$o{bpmuuid}','$o{step}','$row')" ); };
+    warn "bpm log record err: $@" if $@;
+}
+
+while( <STDIN> ) { chomp; record( $_ ); }
