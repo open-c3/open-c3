@@ -667,3 +667,5 @@ create table if not exists `openc3_monitor_tott`(
 UNIQUE KEY `uniq_uuid` (`uuid`,`caseuuid`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='openc3_monitor_tott';
 
+# v2.6.0 sql openc3_job_task add extid
+ALTER TABLE openc3_job_task ADD `extid` VARCHAR(50) DEFAULT '' comment '外部关联ID，比如BPM单号';
