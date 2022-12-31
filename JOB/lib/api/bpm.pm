@@ -86,4 +86,17 @@ get '/bpm/log/:bpmuuid' => sub {
     return +{ stat => $JSON::true, data => \%res };
 };
 
+get '/bpm/var/:bpmuuid' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        bpmuuid => qr/^[a-zA-Z\d]+$/, 1,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $pmscheck = api::pmscheck( 'openc3_job_read', 0 ); return $pmscheck if $pmscheck;
+
+    my $var = eval{ YAML::XS::LoadFile "/data/Software/mydan/JOB/bpm/task/$param->{bpmuuid}" };
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $var };
+};
+
 true;

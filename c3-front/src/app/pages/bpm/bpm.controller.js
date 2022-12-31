@@ -8,6 +8,7 @@
 
         var vm = this;
         vm.treeid = $state.params.treeid;
+        vm.bpmuuid = $state.params.bpmuuid;
         vm.jobid = $state.params.jobid;
 
         var toastr = toastr || $injector.get('toastr');
@@ -21,6 +22,18 @@
             'uuid':null,
         };
 
+        vm.bpmvar = {};
+        vm.loadbpmvar = function () {
+            $http.get('/api/job/bpm/var/' + vm.bpmuuid ).success(function(data){
+                if (data.stat){
+                    vm.bpmvar = data.data;
+                    vm.reload();
+                }else {
+                    swal({ title:'获取表单内容失败', text: data.info, type:'error' });
+                }
+            });
+        };
+ 
         vm.jobsloadover = true;
         vm.menu = [];
         vm.reload = function () {
@@ -29,14 +42,27 @@
                 vm.jobsloadover = true;
                 if (data.stat){
                     vm.menu = data.data;
+                    angular.forEach(vm.menu, function (data, index) {
+                        if( data.name == vm.bpmvar._jobname_ )
+                        {
+                            $scope.choiceJob = data
+                        }
+                    });
                 }else {
                     swal({ title:'获取应用地址失败', text: data.info, type:'error' });
                 }
             });
         };
-        vm.reload();
 
         vm.jobsloadover = false;
+        if( vm.bpmuuid != "0" )
+        {
+            vm.loadbpmvar();
+        }
+        else
+        {
+            vm.reload();
+        }
 
 
         vm.varsvalue = {};
@@ -106,6 +132,10 @@
                             angular.forEach(response.data.data, function (value, key) {
                                 if( value.value == "" )
                                 {
+                                    if( vm.bpmvar[value.name] != undefined )
+                                    {
+                                        value.value = vm.bpmvar[value.name] 
+                                    }
                                      vm.vartemp.push( value )
                                 }
                             });
