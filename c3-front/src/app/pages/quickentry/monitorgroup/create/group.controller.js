@@ -14,6 +14,7 @@
             vm.postData.id = postData.id
             vm.postData.name = postData.name
             vm.postData.description = postData.description
+            vm.postData.share = postData.share
         }
 
         vm.cancel = function(){ $uibModalInstance.dismiss()};
