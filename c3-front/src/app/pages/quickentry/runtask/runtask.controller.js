@@ -294,6 +294,22 @@
                                     {
                                         vm.deployversion = value.value
                                     }
+                                    if( value.option )
+                                    {
+                                        var splitstr = ",";
+                                        if( value.option.search(/;/) >= 0 )
+                                        {
+                                            splitstr = ";"
+                                        }
+
+                                        var vars = value.option.split(splitstr);
+                                        if( value.option.length > 0 &&  vars.length > 0 )
+                                        {
+                                            vm.varsvalue[ value.name ] = vars;
+                                            vm.vartemp.push( value )
+                                        }
+                                    }                                       
+ 
                                 }
 
                             });
