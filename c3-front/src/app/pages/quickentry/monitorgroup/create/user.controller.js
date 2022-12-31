@@ -4,11 +4,13 @@
         .module('openc3')
         .controller('CreateMonitorGroupUserController', CreateMonitorGroupUserController);
 
-    function CreateMonitorGroupUserController( $state, $http, ngTableParams, $uibModalInstance, $scope, resoureceService, treeid, reload, groupid ) {
+    function CreateMonitorGroupUserController( $state, $http, ngTableParams, $uibModalInstance, $scope, resoureceService, treeid, reload, groupid, $injector ) {
 
         var vm = this;
         vm.user='';
         vm.cancel = function(){ $uibModalInstance.dismiss()};
+
+        var toastr = toastr || $injector.get('toastr');
 
         vm.add = function(){
             $http.post('/api/agent/monitor/config/groupuser', { 'groupid': groupid, 'user': vm.user }  ).success(function(data){
@@ -45,7 +47,7 @@
             closeOnConfirm: true
           }, function(){
             $http.delete('/api/agent/monitor/config/groupuser/' + id ).success(function(data){
-                if( ! data.stat ){ toastr.error("删除失败:" + date.info)}
+                if( ! data.stat ){ toastr.error("删除失败:" + data.info)}
                 vm.reload();
             });
           });
