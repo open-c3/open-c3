@@ -101,6 +101,8 @@ return sub
                    ( $batches eq 'always' )
                 || ( $batches eq 'firsttime'   && $xxcc->{batches} eq 1 )
                 || ( $batches eq 'thelasttime' && $xxcc->{batches} eq $xxcc->{groups} )
+                || ( $batches eq 'notfirsttime'   && $xxcc->{batches} ne 1 )
+                || ( $batches eq 'notthelasttime' && $xxcc->{batches} ne $xxcc->{groups} )
              )
          )
         {
@@ -122,7 +124,7 @@ return sub
     return 'success' if $action eq 'rollback' && $xxcc->{action} ne 'rollback';
       
     print "expect batches: $batches; real batches: $xxcc->{batches}\n";
-    if( $batches eq 'firsttime' && $xxcc->{batches} ne 1 )
+    if( ( $batches eq 'firsttime' && $xxcc->{batches} ne 1 ) || ( $batches eq 'notthelasttime' && $xxcc->{batches} eq $xxcc->{groups} ) )
     {
         if(
             length( $xxcc->{deployjobxuuid} ) == 12
@@ -148,7 +150,9 @@ return sub
         }
  
     }
+
     return 'success' if $batches eq 'thelasttime' && $xxcc->{batches} ne $xxcc->{groups};
+    return 'success' if $batches eq 'notfirsttime'   && $xxcc->{batches} eq 1;
 
     $submitter = $xxcc->{submitter} if $submitter eq 'jobx@app' && $xxcc->{submitter} ne 'nofind';
     print "submitter: $submitter\n";
