@@ -328,6 +328,8 @@
 //                if( cont.search(/^#!elbOfflinev2\b/) == 0 ) { vm.showmachinelist = 0; }
 //                if( cont.search(/^#!elbOnlinev2\b/)  == 0 ) { vm.showmachinelist = 0; }
 //                if( cont.search(/^#!awsTargetGroup\b/)  == 0 ) { vm.showmachinelist = 0; }
+                if( cont.search(/^#!null\b/)  == 0  ) { vm.showmachinelist = 0; }
+                if( cont.search(/^#!sleep\b/)  == 0 ) { vm.showmachinelist = 0; }
             }
         }
 

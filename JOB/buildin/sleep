@@ -1,0 +1,14 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+die "onnode" unless $ENV{NODE};
+
+my $sleep = @ARGV && $ARGV[0] && $ARGV[0] =~ /^\d+$/ ? $ARGV[0] : 0;
+
+exit unless $sleep;
+
+warn "sleep $sleep ...\n";
+sleep $sleep;
+warn "done.\n";
+
+map{ print "$_:ok\n"; } split /,/, $ENV{NODE};

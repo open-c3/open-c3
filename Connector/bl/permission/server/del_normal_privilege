@@ -1,0 +1,18 @@
+#!/bin/bash
+# 删除用户登陆权限。如果用户有sudo权限也会一起删除
+
+set -e
+
+# 目标IP
+ip=$1
+# 用户账户
+username=$2
+
+del_just_sudo_privilege "$ip" "$username"
+
+# 删除登陆权限，保留了用户的主目录
+command="sudo killall -u $username;
+    sudo userdel $username >/dev/null 2>&1;
+    cat /etc/passwd | awk -F ':' '{print \$1}'| grep -w $username | wc -l"
+
+ssh -p 22 $ip $command

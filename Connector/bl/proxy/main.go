@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"net/http"
@@ -27,8 +28,7 @@ func main() {
 	r := gin.Default()
 
 	type RequestData struct {
-		Command string `json:"command" binding:"required"`
-		// 多个参数用分号连接
+		Command   string `json:"command" binding:"required"`
 		Arguments string `json:"arguments"`
 	}
 
@@ -38,7 +38,6 @@ func main() {
 			c.JSON(http.StatusBadRequest, gin.H{"stat": 0, "info": err.Error()})
 			return
 		}
-		args := strings.Split(data.Arguments, ";")
 
 		absPath, err := filepath.Abs(*commandDir)
 		if err != nil {
@@ -65,15 +64,28 @@ func main() {
 			return
 		}
 
-		cmd := exec.Command(data.Command, args...)
+		var args map[string]interface{}
+
+		err = json.Unmarshal([]byte(data.Arguments), &args)
+		if err != nil {
+			c.JSON(http.StatusBadRequest, gin.H{"stat": 0, "info": "命令参数提取失败"})
+			return
+		}
+		argsStr := make([]string, 0)
+		for key, value := range args {
+			argsStr = append(argsStr, fmt.Sprintf("-%v", key))
+			argsStr = append(argsStr, value.(string))
+		}
+
+		cmd := exec.Command(data.Command, argsStr...)
 		output, err := cmd.CombinedOutput()
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"stat": 0, "info": fmt.Sprintf("执行命令失败, err: %v", err.Error())})
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{"stat": 1, "data": string(output)})
+		c.JSON(http.StatusOK, gin.H{"stat": 1, "data": strings.TrimSpace(string(output))})
 	})
 
-	r.Run("0.0.0.0:8080")
+	r.Run("0.0.0.0:56383")
 }
