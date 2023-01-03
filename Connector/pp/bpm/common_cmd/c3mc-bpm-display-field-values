@@ -5,21 +5,22 @@ import sys
 import json
 
 
-def keep_fields(data_list, target_fields):
+def display_field_values(data_list, target_fields):
     """
-        字段过滤
+        展示字段值
     """
     result = []
     fields_list = target_fields.split(",")
-    m = {}
-    for field in fields_list:
-        m[field] = {}
     for data in data_list:
-        for field in list(data):
-            if field in m:
-                continue
-            data.pop(field, None)
-        result.append(data)
+        item_list = []
+        for field in fields_list:
+            item_list.append(data[field])
+        if len(item_list) == 0:
+            continue
+        if len(item_list) == 1:
+            result.append(item_list[0])
+        else:
+            result.append("{} ({})".format(item_list[0], "-".join(item_list[1:])))
     return result
 
 
@@ -27,9 +28,9 @@ def main(data_list, target_fields):
     """
     target_fields 是要保留的字段, 多个字段用英文逗号分隔
     """
-    result = keep_fields(data_list, target_fields)
-    for data in result:
-        print(json.dumps(data, default=str))
+    data_list = display_field_values(data_list, target_fields)
+    for item in data_list:
+        print(item)
 
 
 if __name__ == '__main__':

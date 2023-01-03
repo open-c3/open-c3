@@ -24,7 +24,7 @@ option:
     command_input:
       - account
       - region
-    command: c3mc-qcloud-cvm-describe-zones | c3mc-keep-fields Zone,ZoneName,ZoneState
+    command: c3mc-qcloud-cvm-describe-zones | c3mc-bpm-display-field-values Zone,ZoneName,ZoneState
     variable_name: zone
     type: select
     required: true
@@ -34,7 +34,7 @@ option:
     command_input:
       - account
       - region
-    command: c3mc-qcloud-cvm-describe-projects | c3mc-keep-fields ProjectId,Name
+    command: c3mc-qcloud-cvm-describe-projects | c3mc-bpm-display-field-values ProjectId,Name
     variable_name: project_id
     type: select
     required: true
@@ -46,7 +46,7 @@ option:
       - region
       - zone
       - charge_type
-    command: c3mc-qcloud-cvm-describe-instance-configs | c3mc-keep-fields InstanceType,Cpu,Memory,Status,Gpu
+    command: c3mc-qcloud-cvm-describe-instance-configs | c3mc-bpm-display-field-values InstanceType,Cpu,Memory,Status,Gpu
     variable_name: instance_config
     type: select
     required: true
@@ -56,7 +56,7 @@ option:
     command_input:
       - account
       - region
-    command: c3mc-qcloud-cvm-describe-images | c3mc-keep-fields ImageId,OsName,ImageName,ImageSize
+    command: c3mc-qcloud-cvm-describe-images | c3mc-bpm-display-field-values ImageId,OsName,ImageName,ImageSize
     variable_name: image_id
     type: select
     required: true
@@ -99,7 +99,7 @@ option:
     command_input:
       - account
       - region
-    command: c3mc-qcloud-cvm-describe-vpcs | c3mc-keep-fields VpcName,VpcId,CidrBlock
+    command: c3mc-qcloud-cvm-describe-vpcs | c3mc-bpm-display-field-values VpcName,VpcId,CidrBlock
     variable_name: vpc_id
     type: select
     required: true
@@ -110,7 +110,7 @@ option:
       - account
       - region
       - vpc_id
-    command: c3mc-qcloud-cvm-describe-subnets | c3mc-keep-fields SubnetId,SubnetName,CidrBlock,AvailableIpAddressCount,TotalIpAddressCount
+    command: c3mc-qcloud-cvm-describe-subnets | c3mc-bpm-display-field-values SubnetId,SubnetName,CidrBlock,AvailableIpAddressCount,TotalIpAddressCount
     variable_name: subnet_id
     type: select
     required: true
@@ -121,7 +121,7 @@ option:
       - account
       - region
       - project_id
-    command: c3mc-ec2create-describe-security-groups | c3mc-keep-fields SecurityGroupId,SecurityGroupName,SecurityGroupDesc
+    command: c3mc-ec2create-describe-security-groups | c3mc-bpm-display-field-values SecurityGroupId,SecurityGroupName,SecurityGroupDesc
     variable_name: security_group_ids
     type: multiple_select
     required: true
@@ -145,6 +145,31 @@ option:
     command: c3mc-qcloud-cvm-describe-renew-flag-list
     type: select
     required: true
+
+  - name: 实例名称
+    desc: 实例名称
+    variable_name: instance_name
+    type: input
+    required: true
+
+  - name: 网络计费类型
+    desc: 网络计费类型
+    variable_name: internet_charge_type
+    command: c3mc-qcloud-cvm-describe-internet-charge-type-list
+    type: select
+    required: true
+
+  - name: 公网出带宽上限
+    desc: "公网出带宽上限, 单位: Mbps。默认值: 0Mbps。"
+    variable_name: internet_max_bandwidth_out
+    type: input
+    required: false
+
+  - name: 虚假运行
+    desc: "虚假运行。0: 真实运行; 1: 虚假运行, 在创建机器前自动退出。默认真实运行"
+    variable_name: fake_run
+    type: input
+    required: false
 
 template_argv:
   # 账号
@@ -180,3 +205,11 @@ template_argv:
   tag: ${tag}
   # 自动续费标识
   renew_flag: ${renew_flag}
+  # 实例名称
+  instance_name: ${instance_name}
+  # 网络计费类型
+  internet_charge_type: ${internet_charge_type}
+  # 公网出带宽上限
+  internet_max_bandwidth_out: ${internet_max_bandwidth_out}
+  # 虚假运行标识
+  fake_run: ${fake_run}
