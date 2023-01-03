@@ -146,6 +146,31 @@ option:
     type: select
     required: true
 
+  - name: 实例名称
+    desc: 实例名称
+    variable_name: instance_name
+    type: input
+    required: true
+
+  - name: 网络计费类型
+    desc: 网络计费类型
+    variable_name: internet_charge_type
+    command: c3mc-qcloud-cvm-describe-internet-charge-type-list
+    type: select
+    required: true
+
+  - name: 公网出带宽上限
+    desc: "公网出带宽上限, 单位: Mbps。默认值: 0Mbps。"
+    variable_name: internet_max_bandwidth_out
+    type: input
+    required: false
+
+  - name: 虚假运行
+    desc: "虚假运行。0: 真实运行; 1: 虚假运行, 在创建机器前自动退出。默认真实运行"
+    variable_name: fake_run
+    type: input
+    required: false
+
 template_argv:
   # 账号
   account: ${account}
@@ -180,3 +205,11 @@ template_argv:
   tag: ${tag}
   # 自动续费标识
   renew_flag: ${renew_flag}
+  # 实例名称
+  instance_name: ${instance_name}
+  # 网络计费类型
+  internet_charge_type: ${internet_charge_type}
+  # 公网出带宽上限
+  internet_max_bandwidth_out: ${internet_max_bandwidth_out}
+  # 虚假运行标识
+  fake_run: ${fake_run}
