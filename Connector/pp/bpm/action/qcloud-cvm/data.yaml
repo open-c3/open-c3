@@ -1,0 +1,182 @@
+---
+uuid: c3mc-bpm-action-qcloud-cvm
+name: 创建腾讯云cvm
+action: c3mc-bpm-action-qcloud-cvm
+option:
+  - name: 账号
+    desc: 选择账号
+    command: c3mc-display-cloud-account-list qcloud
+    type: select
+    variable_name: account
+    required: true
+
+  - name: 区域
+    desc: 查询区域列表
+    command_input:
+      - account
+    command: c3mc-qcloud-cvm-describe-regions
+    type: select
+    variable_name: region
+    required: true
+
+  - name: 可用区
+    desc: 查询可用区列表
+    command_input:
+      - account
+      - region
+    command: c3mc-qcloud-cvm-describe-zones | c3mc-keep-fields Zone,ZoneName,ZoneState
+    variable_name: zone
+    type: select
+    required: true
+
+  - name: 项目
+    desc: 查询项目列表
+    command_input:
+      - account
+      - region
+    command: c3mc-qcloud-cvm-describe-projects | c3mc-keep-fields ProjectId,Name
+    variable_name: project_id
+    type: select
+    required: true
+
+  - name: 机型
+    desc: 查询机型列表
+    command_input:
+      - account
+      - region
+      - zone
+      - charge_type
+    command: c3mc-qcloud-cvm-describe-instance-configs | c3mc-keep-fields InstanceType,Cpu,Memory,Status,Gpu
+    variable_name: instance_config
+    type: select
+    required: true
+
+  - name: 镜像
+    desc: 查询镜像列表
+    command_input:
+      - account
+      - region
+    command: c3mc-qcloud-cvm-describe-images | c3mc-keep-fields ImageId,OsName,ImageName,ImageSize
+    variable_name: image_id
+    type: select
+    required: true
+
+  - name: 系统盘类型
+    desc: 查询支持的系统盘类型列表
+    command: c3mc-qcloud-cvm-describe-system-disk-type-list
+    variable_name: system_disk_type
+    type: select
+    required: true
+
+  - name: 系统盘大小
+    desc: 输入系统盘大小, 单位GB
+    variable_name: system_disk_size
+    type: input
+    required: true
+
+  - name: 是否需要数据盘
+    desc: 是否需要数据盘
+    command: c3mc-yes-and-no
+    variable_name: if_need_data_volume
+    type: select
+    required: true
+
+  - name: 数据盘类型
+    desc: 查询支持的数据盘类型列表
+    command: c3mc-qcloud-cvm-describe-data-disk-type-list
+    variable_name: data_disk_type
+    type: select
+    required: true
+
+  - name: 数据盘大小
+    desc: 输入数据盘大小, 单位GB
+    variable_name: data_disk_size
+    type: input
+    required: true
+
+  - name: vpc
+    desc: 查询vpc列表
+    command_input:
+      - account
+      - region
+    command: c3mc-qcloud-cvm-describe-vpcs | c3mc-keep-fields VpcName,VpcId,CidrBlock
+    variable_name: vpc_id
+    type: select
+    required: true
+
+  - name: subnet
+    desc: 查询子网列表
+    command_input:
+      - account
+      - region
+      - vpc_id
+    command: c3mc-qcloud-cvm-describe-subnets | c3mc-keep-fields SubnetId,SubnetName,CidrBlock,AvailableIpAddressCount,TotalIpAddressCount
+    variable_name: subnet_id
+    type: select
+    required: true
+
+  - name: 安全组
+    desc: 根据选择的区域选择安全组
+    command_input:
+      - account
+      - region
+      - project_id
+    command: c3mc-ec2create-describe-security-groups | c3mc-keep-fields SecurityGroupId,SecurityGroupName,SecurityGroupDesc
+    variable_name: security_group_ids
+    type: multiple_select
+    required: true
+
+  - name: 标签
+    desc: 机器标签
+    # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
+    variable_name: tag
+    type: input_array
+    required: false
+
+  - name: 购买时长
+    desc: "购买实例的时长, 单位:月。取值范围: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 24, 36, 48, 60。"
+    variable_name: count
+    type: input
+    required: true
+
+  - name: 自动续费方式
+    desc: 自动续费方式
+    variable_name: renew_flag
+    command: c3mc-qcloud-cvm-describe-renew-flag-list
+    type: select
+    required: true
+
+template_argv:
+  # 账号
+  account: ${account}
+  # 区域
+  region: ${region}
+  # 可用区
+  zone: ${zone}
+  # 项目id
+  project_id: ${project_id}
+  # 机型型号
+  instance_config: ${instance_config}
+  # 镜像id
+  image_id: ${image_id}
+  # 系统盘类型
+  system_disk_type: ${system_disk_type}
+  # 系统盘大小
+  system_disk_size: ${system_disk_size}
+  # 是否需要数据盘
+  if_need_data_volume: ${if_need_data_volume}
+  # 数据盘类型
+  data_disk_type: ${data_disk_type}
+  # 数据盘大小
+  data_disk_size: ${data_disk_size}
+  # vpc_id
+  vpc_id: ${vpc_id}
+  # 子网id
+  subnet_id: ${subnet_id}
+  # 安全组id列表，多个安全组id用英文逗号分隔
+  security_group_ids: ${security_group_ids}
+  # 标签
+  # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
+  tag: ${tag}
+  # 自动续费标识
+  renew_flag: ${renew_flag}
