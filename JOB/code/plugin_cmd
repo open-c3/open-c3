@@ -89,6 +89,8 @@ return sub
     print "expect batches: $batches; real batches: $xxcc->{batches}\n";
     return 'success' if $batches eq 'firsttime'   && $xxcc->{batches} ne 1;
     return 'success' if $batches eq 'thelasttime' && $xxcc->{batches} ne $xxcc->{groups};
+    return 'success' if $batches eq 'notfirsttime'   && $xxcc->{batches} eq 1;
+    return 'success' if $batches eq 'notthelasttime' && $xxcc->{batches} eq $xxcc->{groups};
 
     $logs->die( "user format error" ) unless defined $user && $user =~ /^[a-zA-Z0-9_\-]+$/;
 
@@ -189,6 +191,7 @@ return sub
     my $subtaskstatus = 'success'; #runnigs,fail,success,decision,ignore
 
     my ( $flowid, $version, $buildininfoget ) = ( 0, 0, 1 );
+    my $subtasksrefuse = '';
     while(1)
     {
         delete $query{auth};
@@ -228,6 +231,7 @@ return sub
             %result = Buildin->new(
                 @node
             )->run( %o, query => \%query, jobuuid => $fromjob, taskuuid => $taskuuid, db => $db, treeid => $projectid, flowid => $flowid, version => $version, deployenv => $xxcc->{deployenv} );
+            $subtasksrefuse = 1 if delete $result{_openc3_sys_pluginrefuse_sys_openc3_};
         }
         else
         {
@@ -305,6 +309,7 @@ return sub
         last;
     }
 
+    $subtaskstatus = 'refuse' if $subtasksrefuse && $subtaskstatus eq 'success';
     print "substatus = $subtaskstatus\n";
 
     if( $taskuuid && $fromjob )

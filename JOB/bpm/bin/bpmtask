@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use MYDan::Util::OptConf;
 use FindBin qw( $RealBin );
+use OPENC3::PP::Pipe;
 
 =head1 SYNOPSIS
 
@@ -20,5 +21,4 @@ die "action err"  unless $action  && $action  =~ /^[a-zA-Z0-9][a-zA-Z0-9\-_\.]+$
 
 map{ die "idx format error" unless $_ =~ /^[a-zA-Z0-9]+$/  }@idx;
 
-#BPM TODO pipefail
-die "err" if system "$RealBin/taskcfg '$bpmuuid' '$action' @idx | c3mc-bpm-action-$action | $RealBin/logrecord --bpmuuid '$bpmuuid' --step '$idx[0]'";
+die "err" if OPENC3::PP::Pipe::system( "$RealBin/taskcfg '$bpmuuid' '$action' @idx | c3mc-bpm-action-$action | $RealBin/logrecord --bpmuuid '$bpmuuid' --step '$idx[0]'" );

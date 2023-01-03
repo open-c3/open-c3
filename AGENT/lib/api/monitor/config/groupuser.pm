@@ -35,9 +35,15 @@ post '/monitor/config/groupuser' => sub {
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    my $pmscheck = api::pmscheck( 'openc3_agent_root' ); return $pmscheck if $pmscheck;
-
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+
+    my $auth = eval{ $api::mysql->query( "select share from openc3_monitor_config_group where id='$param->{groupid}'" ) };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    my %share = map{ $_ => 1 } split /,/, @$auth ? $auth->[0][0] : '';
+    unless( $share{$user} )
+    {
+        my $pmscheck = api::pmscheck( 'openc3_agent_root' ); return $pmscheck if $pmscheck;
+    }
 
     my ( $groupid, $usr ) = @$param{qw( groupid user )};
 
@@ -56,9 +62,16 @@ del '/monitor/config/groupuser/:id' => sub {
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    my $pmscheck = api::pmscheck( 'openc3_agent_root' ); return $pmscheck if $pmscheck;
-
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+
+    my $auth = eval{ $api::mysql->query( "select share from openc3_monitor_config_group where id in ( select groupid from openc3_monitor_config_groupuser where id='$param->{id}' )" ) };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    my %share = map{ $_ => 1 } split /,/, @$auth ? $auth->[0][0] : '';
+    unless( $share{$user} )
+    {
+        my $pmscheck = api::pmscheck( 'openc3_agent_root' ); return $pmscheck if $pmscheck;
+    }
+
     my $cont = eval{ $api::mysql->query( "select `user`,`groupid` from openc3_monitor_config_groupuser where id='$param->{id}'")};
     my $c = $cont->[0];
     eval{ $api::auditlog->run( user => $user, title => 'DEL MONITOR CONFIG GROUPUSER', content => "NAME:$c->[0] GROUPID:$c->[1]" ); };

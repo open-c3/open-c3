@@ -486,7 +486,7 @@
                 controllerAs: 'thirdparty'
             })
             .state('home.bpm', {
-                url: 'bpm/:treeid',
+                url: 'bpm/:treeid/:bpmuuid',
                 templateUrl: 'app/pages/bpm/bpm.html',
                 controller: 'BpmController',
                 controllerAs: 'bpm'

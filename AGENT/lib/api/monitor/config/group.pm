@@ -11,7 +11,7 @@ use Format;
 get '/monitor/config/group' => sub {
     my $pmscheck = api::pmscheck( 'openc3_agent_read', 0 ); return $pmscheck if $pmscheck;
 
-    my @col = qw( id name description edit_user edit_time );
+    my @col = qw( id name description edit_user edit_time share );
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_monitor_config_group", join( ',', map{ "`$_`" }@col)), \@col )};
@@ -29,7 +29,7 @@ get '/monitor/config/group/:id' => sub {
 
     my $pmscheck = api::pmscheck( 'openc3_agent_read', 0 ); return $pmscheck if $pmscheck;
 
-    my @col = qw( id name description edit_user edit_time );
+    my @col = qw( id name description edit_user edit_time share );
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_monitor_config_group where id='$param->{id}'", join( ',', @col)), \@col )};
@@ -40,9 +40,10 @@ get '/monitor/config/group/:id' => sub {
 post '/monitor/config/group' => sub {
     my $param = params();
     my $error = Format->new( 
-        id => qr/^\d+$/, 0,
-        name => [ 'mismatch', qr/'/ ], 1,
+        id           => qr/^\d+$/, 0,
+        name        => [ 'mismatch', qr/'/ ], 1,
         description => [ 'mismatch', qr/'/ ], 0,
+        share       => [ 'mismatch', qr/'/ ], 0,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -51,18 +52,20 @@ post '/monitor/config/group' => sub {
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
-    my ( $id, $name, $description ) = @$param{qw( id name description )};
+    my ( $id, $name, $description, $share ) = @$param{qw( id name description share )};
+
+    $share ||= '';
 
     eval{
         my $title = $id ? "UPDATE" : "ADD";
         $api::auditlog->run( user => $user, title => "$title MONITOR CONFIG GROUP", content => "NAME:$name DESCRIPTION:$description" );
         if( $param->{id} )
         {
-            $api::mysql->execute( "update openc3_monitor_config_group set `name`='$name',description='$description' where id='$id'" );
+            $api::mysql->execute( "update openc3_monitor_config_group set `name`='$name',description='$description',share='$share' where id='$id'" );
         }
         else
         {
-            $api::mysql->execute( "insert into openc3_monitor_config_group (`name`,`description`,`edit_user`) values('$name','$description','$user')" );
+            $api::mysql->execute( "insert into openc3_monitor_config_group (`name`,`description`,`edit_user`,`share`) values('$name','$description','$user','$share')" );
         }
     };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };

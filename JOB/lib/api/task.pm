@@ -10,6 +10,7 @@ use keepalive;
 use Encode qw(decode encode);
 use Format;
 use YAML::XS;
+use BPM::Task::Config;
 
 my $task_statistics; BEGIN { $task_statistics = Code->new( 'task_statistics' ); };
 
@@ -111,7 +112,7 @@ get '/task/:projectid/:uuid' => sub {
 
     my $pmscheck = api::pmscheck( 'openc3_job_read', $param->{projectid} ); return $pmscheck if $pmscheck;
 
-    my @col = qw( id uuid name user slave status starttime finishtime calltype jobtype jobuuid runtime mutex pid starttimems finishtimems reason variable );
+    my @col = qw( id uuid name user slave status starttime finishtime calltype jobtype jobuuid runtime mutex pid starttimems finishtimems reason variable extid );
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_job_task
@@ -345,11 +346,7 @@ post '/task/:projectid/job/byname' => sub {
     my $extid = '';
     if( $param->{bpm_variable} )
     {
-        my $bpmuuid = sprintf "BPM%s%04d", POSIX::strftime( "%Y%m%d%H%M%S", localtime ), int rand 10000;
-        $param->{bpm_variable}{_jobname_ } = $param->{jobname};
-        $param->{bpm_variable}{_user_    } = $user;
-        $param->{bpm_variable}{_bpmuuid_ } = $bpmuuid;
-        eval{ YAML::XS::DumpFile "/data/Software/mydan/JOB/bpm/task/$bpmuuid", $param->{bpm_variable} };
+        my $bpmuuid = eval{ BPM::Task::Config->new()->save( $param->{bpm_variable}, $user, $param->{jobname} ); };
         return +{ stat => $JSON::false, info => $@ } if $@;
         $param->{variable} = +{ BPMUUID => $bpmuuid };
         $extid = $bpmuuid;
@@ -599,7 +596,7 @@ post '/task/:projectid/plugin_approval' => sub {
         approver => qr/^[a-zA-Z0-9,\@_\-\.%]+$/, 1,
         deployenv => [ 'in', 'test', 'online', 'always' ], 1,
         action => [ 'in', 'deploy', 'rollback', 'always' ], 1,
-        batches => [ 'in', 'firsttime', 'thelasttime', 'always' ], 1,
+        batches => [ 'in', 'firsttime', 'thelasttime', 'notfirsttime', 'notthelasttime', 'always' ], 1,
         everyone => [ 'in', 'on', 'off' ], 1,
         timeout => qr/^\d+$/, 0,
     )->check( %$param );

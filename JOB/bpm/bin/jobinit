@@ -3,6 +3,7 @@ use strict;
 use warnings;
 use YAML::XS;
 use FindBin qw( $RealBin );
+use BPM::Flow;
 
 =head1 SYNOPSIS
 
@@ -10,7 +11,7 @@ use FindBin qw( $RealBin );
 
 =cut
 
-my $menu = eval{ YAML::XS::LoadFile "$RealBin/../config/menu"; };
+my $menu = eval{ BPM::Flow->new()->menu(); };
 die "load menu fail: $@" if $@;
 
 sub init
@@ -18,10 +19,10 @@ sub init
     my $jobname = shift @_;
     print "=" x 75, "\n";
     print "jobname: $jobname\n";
-    my $step = eval{ YAML::XS::LoadFile "$RealBin/../config/flow/$jobname/plugin" };
+    my @step = eval{ BPM::Flow->new()->step( $jobname ); };
     die "job $jobname load step fail: $@" if $@;
     print "step:\n";
-    print YAML::XS::Dump $step;
+    print YAML::XS::Dump \@step;
 
     my %jobconf;
     $jobconf{ create_time } = '2022-12-28 16:23:03';
@@ -33,18 +34,23 @@ sub init
     $jobconf{ mon_status  } = 0;
     $jobconf{ name        } = $jobname;
     $jobconf{ uuid        } = 'x' x 12;
-    $jobconf{ uuids       } = join ',', map{ sprintf "cmd_%s", 'x' x 12 }0 .. @$step -1;
+    $jobconf{ uuids       } = join ',', map{ sprintf "cmd_%s", 'x' x 12 }0 .. @step -1;
     
     my @data;
     my $idx = 0;
-    for my $stepname ( @$step )
+    for my $stepname ( @step )
     {
         $idx ++;
+
+        my $config = eval{ BPM::Flow->new()->subvariable( $jobname, $idx, $stepname ); };
+        die "load $jobname - $idx - $stepname fail: $@" if $@;
+
+        my $alias = $config->{name} || $stepname;
         push @data, +{
             action       => 'always',
             batches      => 'always',
             deployenv    => 'always',
-            name         => $stepname,
+            name         => $alias,
             node_cont    => 'openc3skipnode',
             node_type    => 'builtin',
             pause        => '',
