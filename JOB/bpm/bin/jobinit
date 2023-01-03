@@ -40,11 +40,23 @@ sub init
     for my $stepname ( @$step )
     {
         $idx ++;
+
+        my $pluginfile = "/data/Software/mydan/Connector/pp/bpm/action/$stepname/data.yaml";
+        my $pluginfileself = "/data/Software/mydan/JOB/bpm/config/flow/$jobname/plugin.conf/$stepname.yaml";
+        $pluginfile = $pluginfileself if -f $pluginfileself;
+
+        $pluginfileself = "/data/Software/mydan/JOB/bpm/config/flow/$jobname/plugin.conf/$idx.$stepname.yaml";
+        $pluginfile = $pluginfileself if -f $pluginfileself;
+
+        my $config = eval{ YAML::XS::LoadFile $pluginfile };
+        die "load $pluginfile fail: $@" if $@;
+
+        my $alias = $config->{name} || $stepname;
         push @data, +{
             action       => 'always',
             batches      => 'always',
             deployenv    => 'always',
-            name         => $stepname,
+            name         => $alias,
             node_cont    => 'openc3skipnode',
             node_type    => 'builtin',
             pause        => '',
