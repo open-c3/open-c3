@@ -10,6 +10,7 @@ use keepalive;
 use Encode qw(decode encode);
 use Format;
 use YAML::XS;
+use BPM::Task::Config;
 
 my $task_statistics; BEGIN { $task_statistics = Code->new( 'task_statistics' ); };
 
@@ -345,11 +346,7 @@ post '/task/:projectid/job/byname' => sub {
     my $extid = '';
     if( $param->{bpm_variable} )
     {
-        my $bpmuuid = sprintf "BPM%s%04d", POSIX::strftime( "%Y%m%d%H%M%S", localtime ), int rand 10000;
-        $param->{bpm_variable}{_jobname_ } = $param->{jobname};
-        $param->{bpm_variable}{_user_    } = $user;
-        $param->{bpm_variable}{_bpmuuid_ } = $bpmuuid;
-        eval{ YAML::XS::DumpFile "/data/Software/mydan/JOB/bpm/task/$bpmuuid", $param->{bpm_variable} };
+        my $bpmuuid = eval{ BPM::Task::Config->new()->save( $param->{bpm_variable}, $user, $param->{jobname} ); };
         return +{ stat => $JSON::false, info => $@ } if $@;
         $param->{variable} = +{ BPMUUID => $bpmuuid };
         $extid = $bpmuuid;

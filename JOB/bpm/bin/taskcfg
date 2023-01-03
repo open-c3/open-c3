@@ -4,6 +4,8 @@ use warnings;
 use MYDan::Util::OptConf;
 use YAML::XS;
 use JSON;
+use BPM::Flow;
+use BPM::Task::Config;
 
 binmode STDOUT, ':utf8';
 
@@ -21,24 +23,14 @@ my ( $bpmuuid, $action, @idx ) = @ARGV;
 die "bpmuuid err" unless $bpmuuid && $bpmuuid =~ /^BPM\d+$/;
 die "action err"  unless $action  && $action  =~ /^[a-zA-Z0-9][a-zA-Z0-9\-_\.]+$/;
 
-my $file = "/data/Software/mydan/JOB/bpm/task/$bpmuuid";
-my $efile = "/data/Software/mydan/JOB/bpm/task/$bpmuuid.data/data.yaml";
-$file = $efile if -f $efile;
-
-my $var = eval{ YAML::XS::LoadFile $file; };
+my $var = eval{ BPM::Task::Config->new()->get( $bpmuuid ) };
 die "load var fail: $@" if $@;
 
 my $jobname = $var->{_jobname_};
 die "jobname err" unless $jobname && $jobname =~ /^[a-zA-Z\d][a-zA-Z0-9\-\._]+$/;
 my ( $index ) = @idx;
 
-my $pluginfile     = "/data/Software/mydan/Connector/pp/bpm/action/$action/data.yaml";
-my $pluginfileself = "/data/Software/mydan/JOB/bpm/config/flow/$jobname/plugin.conf/$action.yaml";
-   $pluginfile     = $pluginfileself if -f $pluginfileself;
-   $pluginfileself = "/data/Software/mydan/JOB/bpm/config/flow/$jobname/plugin.conf/$index.$action.yaml";
-   $pluginfile     = $pluginfileself if -f $pluginfileself;
-
-my $conf = eval{ YAML::XS::LoadFile $pluginfile };
+my $conf = eval{ BPM::Flow->new()->subvariable( $jobname, $index, $action ); };
 die "load template_argv fail: $@" if $@;
 
 my $template_argv = $conf->{template_argv};
