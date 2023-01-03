@@ -1,0 +1,76 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import json
+import sys
+import subprocess
+
+from tencentcloud.common import credential
+from tencentcloud.common.profile.client_profile import ClientProfile
+from tencentcloud.common.profile.http_profile import HttpProfile
+from tencentcloud.cvm.v20170312 import cvm_client, models
+
+
+class ZoneInstanceConfig:
+    def __init__(self, access_id, access_key, region):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.region = region
+        self.client = self.create_client()
+
+    def create_client(self):
+        cred = credential.Credential(self.access_id, self.access_key)
+        httpProfile = HttpProfile()
+        httpProfile.endpoint = "cvm.tencentcloudapi.com"
+
+        clientProfile = ClientProfile()
+        clientProfile.httpProfile = httpProfile
+        return cvm_client.CvmClient(cred, self.region, clientProfile)
+    
+    def describe_zone_instance_config_infos(self, zone, instance_charge_type):
+        """
+            instance-charge-type: PREPAID: 表示预付费，即包年包月
+                                  POSTPAID_BY_HOUR: 表示后付费, 即按量计费
+        """
+        req = models.DescribeZoneInstanceConfigInfosRequest()
+        params = {
+            "Filters": [
+                {
+                    "Name": "zone",
+                    "Values": [ zone ]
+                },
+                {
+                    "Name": "instance-charge-type",
+                    "Values": [ instance_charge_type ]
+                }
+            ]
+        }
+        req.from_json_string(json.dumps(params))
+        resp = json.loads(self.client.DescribeZoneInstanceConfigInfos(req).to_json_string())
+        return resp["InstanceTypeQuotaSet"]
+    
+    def show(self, zone, instance_charge_type):
+        data_list = self.describe_zone_instance_config_infos(zone, instance_charge_type)
+        for item in data_list:
+            print(json.dumps(item))
+
+
+def main(params):
+    account = params["account"]
+    region = params["region"]
+    zone = params["zone"]
+    charge_type = params["charge_type"]
+
+    key_info = json.loads(subprocess.getoutput(
+        "c3mc-get-account-info qcloud {}".format(account)))
+    ZoneInstanceConfig(key_info["access_id"], key_info["access_key"], region).show(zone, charge_type)
+
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]))
