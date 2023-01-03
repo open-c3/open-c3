@@ -83,6 +83,22 @@
                  }, function (repo) { });
         };
 
+        vm.reSave = function(){
+            var varDict = {};
+            angular.forEach($scope.jobVar, function (data, index) {
+                varDict[data.name] = data.value;
+            });
+            $scope.taskData.variable = varDict;
+
+            $http.post( '/api/job/bpm/var/' + vm.bpmuuid, { "bpm_variable": $scope.taskData.variable } ).success(function(data){
+                if (data.stat){
+                    swal({ title: '保存成功', type:'success' });
+                }else {
+                    swal({ title: '保存失败', text: data.info, type:'error' });
+                }
+            });
+        };
+
         vm.choiceServer = function () {
                 var openChoice = $uibModal.open({
                 templateUrl: 'app/components/machine/choiceMachine.html',

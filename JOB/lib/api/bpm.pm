@@ -95,8 +95,42 @@ get '/bpm/var/:bpmuuid' => sub {
 
     my $pmscheck = api::pmscheck( 'openc3_job_read', 0 ); return $pmscheck if $pmscheck;
 
-    my $var = eval{ YAML::XS::LoadFile "/data/Software/mydan/JOB/bpm/task/$param->{bpmuuid}" };
+    my $file = "/data/Software/mydan/JOB/bpm/task/$param->{bpmuuid}";
+    my $efile = "/data/Software/mydan/JOB/bpm/task/$param->{bpmuuid}.data/data.yaml";
+    $file = $efile if -f $efile;
+    my $var = eval{ YAML::XS::LoadFile $file };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $var };
+};
+
+post '/bpm/var/:bpmuuid' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        bpmuuid => qr/^[a-zA-Z\d]+$/, 1,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $pmscheck = api::pmscheck( 'openc3_job_read', 0 ); return $pmscheck if $pmscheck;
+
+    my $bpmuuid = $param->{bpmuuid};
+
+    my $var = eval{ YAML::XS::LoadFile "/data/Software/mydan/JOB/bpm/task/$param->{bpmuuid}" };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+
+    my $path = "/data/Software/mydan/JOB/bpm/task/$bpmuuid.data";
+    mkdir $path unless -f $path;
+    my $tempuuid = sprintf "%s%04d", POSIX::strftime( "%Y%m%d%H%M%S", localtime ), int rand 10000;
+    if( $param->{bpm_variable} )
+    {
+        $param->{bpm_variable}{_jobname_ } = $var->{_jobname_};
+        $param->{bpm_variable}{_user_    } = $user;
+        $param->{bpm_variable}{_bpmuuid_ } = $bpmuuid;
+        eval{ YAML::XS::DumpFile "$path/data.$tempuuid.yaml", $param->{bpm_variable} };
+        return +{ stat => $JSON::false, info => $@ } if $@;
+        return +{ stat => $JSON::false, info => "link fail" } if system "ln -fsn data.$tempuuid.yaml $path/data.yaml";
+    }
+
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
 
 true;

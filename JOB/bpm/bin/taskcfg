@@ -21,7 +21,11 @@ my ( $bpmuuid, $action, @idx ) = @ARGV;
 die "bpmuuid err" unless $bpmuuid && $bpmuuid =~ /^BPM\d+$/;
 die "action err"  unless $action  && $action  =~ /^[a-zA-Z0-9][a-zA-Z0-9\-_\.]+$/;
 
-my $var = eval{ YAML::XS::LoadFile "/data/Software/mydan/JOB/bpm/task/$bpmuuid"; };
+my $file = "/data/Software/mydan/JOB/bpm/task/$bpmuuid";
+my $efile = "/data/Software/mydan/JOB/bpm/task/$bpmuuid.data/data.yaml";
+$file = $efile if -f $efile;
+
+my $var = eval{ YAML::XS::LoadFile $file; };
 die "load var fail: $@" if $@;
 
 my $jobname = $var->{_jobname_};
