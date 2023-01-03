@@ -10,11 +10,11 @@ def display_cloud_account_list(cloud):
     account_file = "/data/Software/mydan/AGENT/device/conf/account/{}".format(cloud.lower())
     f = open(account_file)
 
-    account_list = []
+    account_d = {}
     for line in f.readlines():
-        account_list.append(line.split()[0])
+        account_d[line.split()[0]] = {}
 
-    return account_list
+    return list(account_d)
 
 
 def main(cloud):
