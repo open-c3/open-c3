@@ -8,6 +8,7 @@
 
         var vm = this;
         vm.treeid = $state.params.treeid;
+        vm.defaulttreeid = '0';
         vm.bpmuuid = $state.params.bpmuuid;
         vm.jobid = $state.params.jobid;
 
@@ -74,10 +75,10 @@
             });
             $scope.taskData.variable = varDict;
 
-            resoureceService.work.runJobByName(vm.treeid, {"jobname":$scope.choiceJob.name, "bpm_variable": $scope.taskData.variable, "variable": {} })
+            resoureceService.work.runJobByName(vm.defaulttreeid, {"jobname":$scope.choiceJob.name, "bpm_variable": $scope.taskData.variable, "variable": {} })
                 .then(function (repo) {
                     if (repo.stat){
-                        $state.go('home.history.bpmdetail', {treeid:vm.treeid,taskuuid:repo.uuid});
+                        $state.go('home.history.bpmdetail', {treeid:vm.defaulttreeid,taskuuid:repo.uuid});
                     }
 
                  }, function (repo) { });
