@@ -86,4 +86,68 @@ post '/bpm/var/:bpmuuid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
 
+post '/bpm/optionx' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        jobname  => qr/^[a-zA-Z0-9][a-zA-Z\d\-]+$/, 1,
+        stepname => qr/^\d+\.[a-zA-Z0-9][a-zA-Z\d\-]+$/, 1,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $pmscheck = api::pmscheck( 'openc3_job_read', 0 ); return $pmscheck if $pmscheck;
+
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+
+    my $step = eval{ YAML::XS::LoadFile "/data/Software/mydan/JOB/bpm/config/flow/$param->{jobname}/plugin" };
+    return +{ stat => $JSON::false, info => "load step fail:$@" } if $@;
+
+    my ( $stepindex, $varname ) = split /\./, $param->{stepname};
+
+    my $pluginname = $step->[$stepindex-1];
+    return +{ stat => $JSON::false, info => "nofind plugin name" } unless $pluginname;
+
+    my $config = BPM::Flow->new()->subvariable( $param->{jobname}, $stepindex, $pluginname );
+
+    my $stepconfig;
+    for ( @{ $config->{option}} )
+    {
+        $stepconfig = $_ if $_->{name} eq $varname;
+    }
+    return +{ stat => $JSON::false, info => "nofind stepconfig" } unless $stepconfig;
+
+    my $command = $stepconfig->{command};
+    return +{ stat => $JSON::false, info => "nofind command" } unless $command;
+
+    my $currvar = $param->{bpm_variable};
+    my %var;
+    for my $k ( keys %$currvar )
+    {
+        my ( $ti, $tk ) = split /\./, $k;
+        next unless $ti eq $stepindex;
+        $var{$tk} = $currvar->{$k};
+    }
+
+    my $json = eval{JSON::to_json \%var };
+    die "var to json fail: $@" if $@;
+
+    my ( $TEMP, $tempfile ) = File::Temp::tempfile();
+    print $TEMP $json;
+    close $TEMP;
+
+    my @x = `cat '$tempfile'|$command`;
+    chomp @x;
+    my @data;
+    for my $name ( @x )
+    {
+        my $alias = $name;
+        if( $name =~ /;/ )
+        {
+            ( $name, $alias ) = split /;/, $name, 2;
+        }
+        push @data, +{ name => $name, alias => $alias };
+    }
+    return +{ stat => $JSON::true, data => \@data };
+};
+
 true;

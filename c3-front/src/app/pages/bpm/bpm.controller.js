@@ -12,6 +12,7 @@
         vm.bpmuuid = $state.params.bpmuuid;
         vm.jobid = $state.params.jobid;
 
+        vm.optionx = {};
         var toastr = toastr || $injector.get('toastr');
 
         $scope.jobVar = [];         // 保存作业中需要填写的变量
@@ -35,6 +36,23 @@
             });
         };
  
+        vm.optionxchange = function( stepname )
+        {
+            var varDict = {};
+            angular.forEach($scope.jobVar, function (data, index) {
+                varDict[data.name] = data.value;
+            });
+
+            $http.post( '/api/job/bpm/optionx', { "bpm_variable": varDict, "stepname": stepname, "jobname":$scope.choiceJob.name } ).success(function(data){
+                if (data.stat){
+                    vm.optionx[stepname] = data.data
+                }else {
+                    swal({ title: '获取选项失败', text: data.info, type:'error' });
+                }
+            });
+ 
+        }
+
         vm.jobsloadover = true;
         vm.menu = [];
         vm.reload = function () {
@@ -140,6 +158,7 @@
                 $scope.taskData.jobname = $scope.choiceJob.name;
                 $scope.taskData.group = null
 
+                vm.optionx = {};
                 vm.loadover = false;
                 $http.get('/api/job/bpm/variable/' + $scope.choiceJob.name ).then(
                     function successCallback(response) {
