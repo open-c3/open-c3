@@ -305,6 +305,10 @@
         vm.bpmlog = [];
         vm.reload();
 
+        vm.editForm = function(){
+            window.open('/#/bpm/0/' + vm.bpmuuid, '_blank')
+        };
+
         var reRun = $interval(function () {
             if (vm.taskuuid){ vm.reload(); }
         }, 5000);
