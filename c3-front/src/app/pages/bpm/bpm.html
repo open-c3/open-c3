@@ -56,6 +56,14 @@
                             </div>
                         </div>
 
+                        <div ng-show="( ! ss.type ) || ss.type=='input'" class="col-sm-10 form-group">
+                            <div>
+                                <label class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
+                                <div class="col-sm-6"> <input type="text" class="form-control" ng-model="ss.value" placeholder="{{'C3T.填写任务变量'|translate}}" required> </div>
+                                <label class="col-sm-3" style="color: gray" >{{ss.name}}</label>
+                            </div>
+
+                        </div>
                         <div ng-show="ss.ridx == 0 && ss.multi==1" class="col-sm-10 form-group">
                             <div>
                                 <label class="col-sm-3 control-label"></label>
@@ -65,16 +73,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <div ng-show="( ! ss.type ) || ss.type=='input'" class="col-sm-10 form-group">
-                            <div>
-                                <label class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
-                                <div class="col-sm-6"> <input type="text" class="form-control" ng-model="ss.value" placeholder="{{'C3T.填写任务变量'|translate}}" required> </div>
-                                <label class="col-sm-3" style="color: gray" >{{ss.name}}</label>
-                            </div>
-
-                        </div>
-
                     </div>
                     <div ng-if="choiceJob" class="row">
                         <div class="col-sm-3 form-group" style="margin-left: 40%;">
