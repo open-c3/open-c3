@@ -90,7 +90,7 @@ post '/bpm/optionx' => sub {
     my $param = params();
     my $error = Format->new( 
         jobname  => qr/^[a-zA-Z0-9][a-zA-Z\d\-]+$/, 1,
-        stepname => qr/^\d+\.[a-zA-Z0-9][a-zA-Z\d\-]+$/, 1,
+        stepname => qr/^\d+\.[a-zA-Z0-9][a-zA-Z\d\-_\.]+$/, 1,
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
@@ -102,7 +102,12 @@ post '/bpm/optionx' => sub {
     my $step = eval{ YAML::XS::LoadFile "/data/Software/mydan/JOB/bpm/config/flow/$param->{jobname}/plugin" };
     return +{ stat => $JSON::false, info => "load step fail:$@" } if $@;
 
-    my ( $stepindex, $varname ) = split /\./, $param->{stepname};
+    my ( $stepindex, $varname ) = split /\./, $param->{stepname}, 2;
+    my $grp = '';
+    if( $varname =~ /^(\d+)\./)
+    {
+        ( $grp, $varname ) = split /\./, $varname, 2;
+    }
 
     my $pluginname = $step->[$stepindex-1];
     return +{ stat => $JSON::false, info => "nofind plugin name" } unless $pluginname;
@@ -114,7 +119,7 @@ post '/bpm/optionx' => sub {
     {
         $stepconfig = $_ if $_->{name} eq $varname;
     }
-    return +{ stat => $JSON::false, info => "nofind stepconfig" } unless $stepconfig;
+    return +{ stat => $JSON::false, info => "nofind stepconfig: $varname" } unless $stepconfig;
 
     my $command = $stepconfig->{command};
     return +{ stat => $JSON::false, info => "nofind command" } unless $command;
@@ -123,8 +128,14 @@ post '/bpm/optionx' => sub {
     my %var;
     for my $k ( keys %$currvar )
     {
-        my ( $ti, $tk ) = split /\./, $k;
+        my ( $ti, $tk ) = split /\./, $k, 2;
         next unless $ti eq $stepindex;
+        if( $grp )
+        {
+            my $tgrp;
+            ( $tgrp, $tk ) = split /\./, $tk, 2;
+            next unless $tgrp eq $grp;
+        }
         $var{$tk} = $currvar->{$k};
     }
 
@@ -136,10 +147,15 @@ post '/bpm/optionx' => sub {
     close $TEMP;
 
     my @x = `cat '$tempfile'|$command`;
+    if( $? )
+    {
+        return +{ stat => $JSON::false, info => \@x };
+    }
     chomp @x;
     my @data;
-    for my $name ( @x )
+    for ( @x )
     {
+        my $name =  Encode::decode('utf8', $_ );
         my $alias = $name;
         if( $name =~ /;/ )
         {
