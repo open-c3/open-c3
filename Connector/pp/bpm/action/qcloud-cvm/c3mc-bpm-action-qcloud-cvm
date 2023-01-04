@@ -49,19 +49,23 @@ class Cvm:
                 "SubnetId": self.params["subnet_id"]
             },
             "InternetAccessible": {
-                "InternetChargeType": self.params["internet_charge_type"],
-                "InternetMaxBandwidthOut": int(self.params["internet_max_bandwidth_out"])
+                "InternetChargeType": self.params["internet_charge_type"]
             },
             "InstanceCount": 1,
             "InstanceName": self.params["instance_name"],
             "SecurityGroupIds": self.params["security_group_ids"].split(",")
         }
+
+        if "internet_max_bandwidth_out" in self.params:
+            api_params["InternetAccessible"]["InternetMaxBandwidthOut"] = int(self.params["internet_max_bandwidth_out"])
+
         # 包年包月时，需要配置购买时长和自动续费方式
         if api_params["InstanceChargeType"] == "PREPAID":
             api_params["InstanceChargePrepaid"] = {
-                "Period": self.params["instance_charge_count"],
+                "Period": int(self.params["instance_charge_count"]),
                 "RenewFlag": self.params["renew_flag"]
             }
+
         if self.params["if_need_data_volume"] == "yes":
             api_params["DataDisks"] = [
                 {
@@ -69,19 +73,21 @@ class Cvm:
                     "DiskSize": int(self.params["data_disk_size"])
                 }
             ]
-        tag_list = json.loads(self.params["tag"])
-        if len(tag_list) > 0:
-            api_params["TagSpecification"] = [
-                {
-                    "ResourceType": "instance",
-                    "Tags": []
-                }
-            ]
-            for tag in tag_list:
-                api_params["TagSpecification"][0]["Tags"].append({
-                    "Key": tag['key'],
-                    "Value": tag['value']
-                })
+
+        if "tag" in self.params:
+            tag_list = json.loads(self.params["tag"])
+            if len(tag_list) > 0:
+                api_params["TagSpecification"] = [
+                    {
+                        "ResourceType": "instance",
+                        "Tags": []
+                    }
+                ]
+                for tag in tag_list:
+                    api_params["TagSpecification"][0]["Tags"].append({
+                        "Key": tag['key'],
+                        "Value": tag['value']
+                    })
         req.from_json_string(json.dumps(api_params))
         return req
     
