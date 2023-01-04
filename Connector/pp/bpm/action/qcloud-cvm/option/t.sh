@@ -21,7 +21,7 @@ c3mc-qcloud-cvm-describe-data-disk-type-list | c3mc-bpm-display-field-values id,
 # 查询vpc列表
 echo '{"account": "example-account", "region": "ap-beijing"}' | c3mc-qcloud-cvm-describe-vpcs | c3mc-bpm-display-field-values VpcId,VpcName
 # 查询子网列表
-echo '{"account": "example-account", "region": "ap-beijing", "vpc_id": "vpc-wefwefwef"}' | c3mc-qcloud-cvm-describe-subnets | c3mc-bpm-display-field-values SubnetId,SubnetName,AvailableIpAddressCount
+echo '{"account": "example-account", "region": "ap-beijing", "vpc_id": "vpc-wefwefwef", "zone": "ap-beijing-4"}' | c3mc-qcloud-cvm-describe-subnets | c3mc-bpm-display-field-values SubnetId,SubnetName,AvailableIpAddressCount
 # 查询安全组列表
 echo '{"account": "example-account", "region": "ap-beijing", "project_id": 1234434}' | c3mc-qcloud-cvm-describe-security-groups | c3mc-bpm-display-field-values SecurityGroupId,SecurityGroupName
 # 查询实例付费方式列表

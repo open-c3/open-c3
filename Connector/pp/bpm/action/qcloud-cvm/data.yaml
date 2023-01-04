@@ -110,6 +110,7 @@ option:
       - account
       - region
       - vpc_id
+      - zone
     command: c3mc-qcloud-cvm-describe-subnets | c3mc-bpm-display-field-values SubnetId,SubnetName,AvailableIpAddressCount
     variable_name: subnet_id
     type: select
@@ -175,12 +176,6 @@ option:
     type: input
     required: false
 
-  - name: 虚假运行
-    desc: "虚假运行。0: 真实运行; 1: 虚假运行, 在创建机器前自动退出。默认真实运行"
-    variable_name: fake_run
-    type: input
-    required: false
-
 template_argv:
   # 账号
   account: ${account}
@@ -225,5 +220,3 @@ template_argv:
   internet_charge_type: ${internet_charge_type}
   # 公网出带宽上限
   internet_max_bandwidth_out: ${internet_max_bandwidth_out}
-  # 虚假运行标识
-  fake_run: ${fake_run}
