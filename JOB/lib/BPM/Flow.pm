@@ -32,10 +32,13 @@ sub variable
             {
                 $index ++;
                 my $config = $this->subvariable( $bpmname, $index, $name );
+                my $multi = $config->{multi};
+                my $multimark = $multi ? "1." : "";
                 my $idx = 0;
+                my $ridx = @{$config->{option}} -1 ;
                 for my $opt ( @{$config->{option}} )
                 {
-                    push @$conf, +{ %$opt, name => "$index.".$opt->{name}, idx => $idx ++ };
+                    push @$conf, +{ %$opt, name => "$index.$multimark".$opt->{name}, multi => $multi ? 1 : 0,  ridx => $ridx --, idx => $idx ++ };
                 }
             }
         }

@@ -24,6 +24,37 @@
             'uuid':null,
         };
 
+        vm.multitempidx = 1;
+        vm.delVar = function ( index, lastvarname ) {
+            var lastvarnames = lastvarname.split(".")
+            for( var i = $scope.jobVar.length -1; i>=0;i--)
+            {
+                var names = $scope.jobVar[i].name.split(".")
+                if( names[0] == lastvarnames[0] && names[1] == lastvarnames[1] )
+                {
+                    $scope.jobVar.splice(i , 1);
+                }
+            }
+        };
+        vm.addVar = function ( index, lastvarname ) {
+            vm.multitempidx = vm.multitempidx + 1;
+            var lastvarnames = lastvarname.split(".")
+        
+            var tempidx = 0;
+            angular.forEach($scope.jobVar, function (data, idx) {
+                var names = data.name.split(".")
+                if( names[0] == lastvarnames[0] && names[1] == '1' )
+                {
+                    tempidx = tempidx + 1;
+                    names[1] = vm.multitempidx;
+                    var newdata = angular.copy(data);
+                    newdata.name = names.join('.')
+                    newdata['byaddvar'] = true;
+                    $scope.jobVar.splice(index + tempidx, 0, newdata);
+                }
+            });
+        };
+
         vm.bpmvar = {};
         vm.loadbpmvar = function () {
             $http.get('/api/job/bpm/var/' + vm.bpmuuid ).success(function(data){
