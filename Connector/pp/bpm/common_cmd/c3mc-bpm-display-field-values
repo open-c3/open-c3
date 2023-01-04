@@ -14,13 +14,16 @@ def display_field_values(data_list, target_fields):
     for data in data_list:
         item_list = []
         for field in fields_list:
-            item_list.append(data[field])
+            if isinstance(data[field], list):
+                item_list.append("_".join(map(str, data[field])))
+            else:
+                item_list.append(str(data[field]))
         if len(item_list) == 0:
             continue
         if len(item_list) == 1:
             result.append(item_list[0])
         else:
-            result.append("{} ({})".format(item_list[0], "-".join(item_list[1:])))
+            result.append("{};({})".format(item_list[0], "-".join(item_list[1:])))
     return result
 
 
