@@ -14,7 +14,7 @@ option:
     desc: 查询区域列表
     command_input:
       - account
-    command: c3mc-qcloud-cvm-describe-regions
+    command: c3mc-qcloud-cvm-describe-regions | c3mc-bpm-display-field-values Region,RegionName,RegionState
     type: select
     variable_name: region
     required: true
@@ -56,14 +56,14 @@ option:
     command_input:
       - account
       - region
-    command: c3mc-qcloud-cvm-describe-images | c3mc-bpm-display-field-values ImageId,OsName,ImageName,ImageSize
+    command: c3mc-qcloud-cvm-describe-images | c3mc-bpm-display-field-values ImageId,ImageName
     variable_name: image_id
     type: select
     required: true
 
   - name: 系统盘类型
     desc: 查询支持的系统盘类型列表
-    command: c3mc-qcloud-cvm-describe-system-disk-type-list
+    command: c3mc-qcloud-cvm-describe-system-disk-type-list | c3mc-bpm-display-field-values id,name,size_range
     variable_name: system_disk_type
     type: select
     required: true
@@ -76,14 +76,14 @@ option:
 
   - name: 是否需要数据盘
     desc: 是否需要数据盘
-    command: c3mc-yes-and-no
+    command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
     variable_name: if_need_data_volume
     type: select
     required: true
 
   - name: 数据盘类型
     desc: 查询支持的数据盘类型列表
-    command: c3mc-qcloud-cvm-describe-data-disk-type-list
+    command: c3mc-qcloud-cvm-describe-data-disk-type-list | c3mc-bpm-display-field-values id,name,size_range
     variable_name: data_disk_type
     type: select
     required: true
@@ -99,7 +99,7 @@ option:
     command_input:
       - account
       - region
-    command: c3mc-qcloud-cvm-describe-vpcs | c3mc-bpm-display-field-values VpcName,VpcId,CidrBlock
+    command: c3mc-qcloud-cvm-describe-vpcs | c3mc-bpm-display-field-values VpcId,VpcName
     variable_name: vpc_id
     type: select
     required: true
@@ -110,7 +110,7 @@ option:
       - account
       - region
       - vpc_id
-    command: c3mc-qcloud-cvm-describe-subnets | c3mc-bpm-display-field-values SubnetId,SubnetName,CidrBlock,AvailableIpAddressCount,TotalIpAddressCount
+    command: c3mc-qcloud-cvm-describe-subnets | c3mc-bpm-display-field-values SubnetId,SubnetName,AvailableIpAddressCount
     variable_name: subnet_id
     type: select
     required: true
@@ -121,7 +121,7 @@ option:
       - account
       - region
       - project_id
-    command: c3mc-ec2create-describe-security-groups | c3mc-bpm-display-field-values SecurityGroupId,SecurityGroupName,SecurityGroupDesc
+    command: c3mc-qcloud-cvm-describe-security-groups | c3mc-bpm-display-field-values SecurityGroupId,SecurityGroupName
     variable_name: security_group_ids
     type: multiple_select
     required: true
@@ -133,16 +133,26 @@ option:
     type: input_array
     required: false
 
+  - name: 实例付费方式
+    desc: 实例付费方式
+    variable_name: instance_charge_type
+    command: c3mc-qcloud-cvm-describe-instance-charge-type-list | c3mc-bpm-display-field-values id,name
+    type: select
+    required: true
+
   - name: 购买时长
     desc: "购买实例的时长, 单位:月。取值范围: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 24, 36, 48, 60。"
-    variable_name: count
+    variable_name: instance_charge_count
+    exist_when: instance_charge_type == PREPAID
     type: input
+    value_type: number
     required: true
 
   - name: 自动续费方式
     desc: 自动续费方式
     variable_name: renew_flag
-    command: c3mc-qcloud-cvm-describe-renew-flag-list
+    exist_when: instance_charge_type == PREPAID
+    command: c3mc-qcloud-cvm-describe-renew-flag-list | c3mc-bpm-display-field-values id,name
     type: select
     required: true
 
@@ -155,7 +165,7 @@ option:
   - name: 网络计费类型
     desc: 网络计费类型
     variable_name: internet_charge_type
-    command: c3mc-qcloud-cvm-describe-internet-charge-type-list
+    command: c3mc-qcloud-cvm-describe-internet-charge-type-list | c3mc-bpm-display-field-values id,name
     type: select
     required: true
 
@@ -203,6 +213,10 @@ template_argv:
   # 标签
   # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
   tag: ${tag}
+  # 实例付费方式
+  instance_charge_type: ${instance_charge_type}
+  # 购买时长
+  instance_charge_count: ${instance_charge_count}
   # 自动续费标识
   renew_flag: ${renew_flag}
   # 实例名称
