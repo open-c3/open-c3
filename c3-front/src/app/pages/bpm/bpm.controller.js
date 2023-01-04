@@ -67,6 +67,7 @@
             });
         };
  
+        vm.selectxloading = {};
         vm.optionxchange = function( stepname )
         {
             var varDict = {};
@@ -74,8 +75,10 @@
                 varDict[data.name] = data.value;
             });
 
+            vm.selectxloading[stepname] = true;
             $http.post( '/api/job/bpm/optionx', { "bpm_variable": varDict, "stepname": stepname, "jobname":$scope.choiceJob.name } ).success(function(data){
                 if (data.stat){
+                    vm.selectxloading[stepname] = false;
                     vm.optionx[stepname] = data.data
                 }else {
                     swal({ title: '获取选项失败', text: data.info, type:'error' });
