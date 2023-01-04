@@ -12,7 +12,7 @@ from tencentcloud.vpc.v20170312 import vpc_client, models
 
 
 class Subnets:
-    def __init__(self, access_id, access_key, region, vpc_id):
+    def __init__(self, access_id, access_key, region, vpc_id, zone):
         self.access_id = access_id
         self.access_key = access_key
         self.region = region
@@ -20,6 +20,7 @@ class Subnets:
         self.page_number = 1
         self.page_size = 100
         self.vpc_id = vpc_id
+        self.zone = zone
 
     def create_client(self):
         cred = credential.Credential(self.access_id, self.access_key)
@@ -37,6 +38,10 @@ class Subnets:
                 {
                     "Name": "vpc-id",
                     "Values": [ self.vpc_id ]
+                },
+                 {
+                    "Name": "zone",
+                    "Values": [ self.zone ]
                 }
             ],
             "Limit": str(self.page_size),
@@ -71,11 +76,12 @@ class Subnets:
 def main(params):
     account = params["account"]
     region = params["region"]
+    zone = params["zone"]
     vpc_id = params["vpc_id"]
 
     key_info = json.loads(subprocess.getoutput(
         "c3mc-get-account-info qcloud {}".format(account)))
-    Subnets(key_info["access_id"], key_info["access_key"], region, vpc_id).page()
+    Subnets(key_info["access_id"], key_info["access_key"], region, vpc_id, zone).page()
 
 
 if __name__ == '__main__':
