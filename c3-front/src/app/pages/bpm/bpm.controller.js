@@ -43,7 +43,7 @@
             var tempidx = 0;
             angular.forEach($scope.jobVar, function (data, idx) {
                 var names = data.name.split(".")
-                if( names[0] == lastvarnames[0] && names[1] == '1' )
+                if( names[0] == lastvarnames[0] && names[1] == lastvarnames[1] )
                 {
                     tempidx = tempidx + 1;
                     names[1] = vm.multitempidx;
@@ -51,6 +51,19 @@
                     newdata.name = names.join('.')
                     newdata['byaddvar'] = true;
                     $scope.jobVar.splice(index + tempidx, 0, newdata);
+                    if( vm.optionx[data.name] )
+                    {
+                        vm.optionx[newdata.name] = vm.optionx[data.name];
+                    }
+                    if( vm.selectxrely[data.name] != undefined )
+                    {
+                        vm.selectxrely[newdata.name] = vm.selectxrely[data.name];
+                    }
+ 
+                    if( vm.selectxhide[data.name] != undefined )
+                    {
+                        vm.selectxhide[newdata.name] = vm.selectxhide[data.name];
+                    }
                 }
             });
         };
