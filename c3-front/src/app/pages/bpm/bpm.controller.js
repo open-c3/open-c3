@@ -68,13 +68,53 @@
         };
  
         vm.selectxloading = {};
+        vm.selectxrely = {};
         vm.optionxchange = function( stepname )
         {
             var varDict = {};
+            var stepconf;
             angular.forEach($scope.jobVar, function (data, index) {
                 varDict[data.name] = data.value;
+                vm.selectxrely[data.name] = false;
+                if( data.name == stepname )
+                {
+                    stepconf = data;
+                }
             });
 
+            if( stepconf['rely'] )
+            {
+                
+                var stepnames = stepname.split(".")
+                var prefix;
+                var rawname;
+                if( stepnames.length == 2 )
+                {
+                    prefix = stepnames[0];
+                    rawname = stepnames[1];
+                }
+                else
+                {
+                    prefix = stepnames[0] + '.' + stepnames[1];
+                    rawname = stepnames[2]
+                }
+                var defect = false;
+                angular.forEach(stepconf['rely'], function (data, index) {
+                    var checkname = prefix +'.'+ data;
+                    if( varDict[checkname] == "" )
+                    {
+                        vm.selectxrely[checkname] = true;
+                        defect = true;
+                    }
+                });
+
+                if( defect )
+                {
+                    vm.optionx[stepname] = [];
+                    return;
+                }
+            }
+ 
             vm.selectxloading[stepname] = true;
             $http.post( '/api/job/bpm/optionx', { "bpm_variable": varDict, "stepname": stepname, "jobname":$scope.choiceJob.name } ).success(function(data){
                 if (data.stat){

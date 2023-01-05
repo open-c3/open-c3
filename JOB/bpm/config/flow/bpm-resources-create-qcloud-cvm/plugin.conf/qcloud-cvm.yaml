@@ -10,7 +10,7 @@ option:
 
   - name: region
     describe: 区域
-    command_input:
+    rely:
       - account
     command: c3mc-qcloud-cvm-describe-regions | c3mc-bpm-display-field-values Region,RegionName,RegionState
     type: selectx
@@ -18,7 +18,7 @@ option:
 
   - name: zone
     describe: 可用区
-    command_input:
+    rely:
       - account
       - region
     command: c3mc-qcloud-cvm-describe-zones | c3mc-bpm-display-field-values Zone,ZoneName,ZoneState
@@ -27,7 +27,7 @@ option:
 
   - name: project_id
     describe: 项目
-    command_input:
+    rely:
       - account
       - region
     command: c3mc-qcloud-cvm-describe-projects | c3mc-bpm-display-field-values ProjectId,Name
@@ -42,7 +42,7 @@ option:
 
   - name: instance_config
     describe: 机型
-    command_input:
+    rely:
       - account
       - region
       - zone
@@ -53,7 +53,7 @@ option:
 
   - name: image_id
     describe: 镜像
-    command_input:
+    rely:
       - account
       - region
     command: c3mc-qcloud-cvm-describe-images | c3mc-bpm-display-field-values ImageId,ImageName
@@ -92,7 +92,7 @@ option:
 
   - name: vpc_id
     describe: VPC
-    command_input:
+    rely:
       - account
       - region
     command: c3mc-qcloud-cvm-describe-vpcs | c3mc-bpm-display-field-values VpcId,VpcName
@@ -101,7 +101,7 @@ option:
 
   - name: subnet_id
     describe: 子网
-    command_input:
+    rely:
       - account
       - region
       - vpc_id
@@ -111,7 +111,7 @@ option:
 
   - name: security_group_ids
     describe: 安全组
-    command_input:
+    rely:
       - account
       - region
       - project_id
