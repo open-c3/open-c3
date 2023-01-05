@@ -1,0 +1,52 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+import requests
+
+
+def mount_tree(params):
+    tree_path = params["tree_path"]
+    instance_id = params["instance_id"]
+
+    api_endpoint = subprocess.getoutput("c3mc-sys-ctl sys.mms.external_api_endpoint")
+    appname = subprocess.getoutput("c3mc-sys-ctl sys.mms.external_api_endpoint.env.appname")
+    appkey = subprocess.getoutput("c3mc-sys-ctl sys.mms.external_api_endpoint.env.appkey")
+
+    if api_endpoint == "":
+        print("挂树失败, 没有配置挂树接口地址")
+        exit(1)
+
+    header = {
+        "Content-Type": "application/json",
+    }
+    if appname != "" and appkey != "":
+        header["appname"] = appname
+        header["appkey"] = appkey
+
+    data = {
+        "tree_tag": tree_path,
+        "uuid": instance_id,
+    }
+    
+    resp = requests.post(url = api_endpoint, headers = header, json=data)
+    resp = resp.json()
+    if resp["code"] == 400:
+        print("挂树失败, instance_id: {}, tree_path: {}, err: {}".format(instance_id, tree_path, resp["msg"]), file=sys.stderr)
+        exit(1)
+
+
+def main(params):
+    mount_tree(params)
+
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]))
