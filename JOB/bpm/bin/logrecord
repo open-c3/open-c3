@@ -4,6 +4,7 @@ use warnings;
 use MYDan::Util::OptConf;
 use FindBin qw( $RealBin );
 use MYDB;
+use BPM::Task::Config;
 
 =head1 SYNOPSIS
 
@@ -21,11 +22,19 @@ sub record
 {
     my $row = shift @_;
     warn $row, "\n";
-    return unless $row =~ s/LOG\.\s*//;
+    return unless $row =~ s/^LOG\.\s*//;
     $row =~ s/'//g;
     $row = substr $row, 0, 1000 if length $row > 1000;
     eval{ $db->execute( "insert into openc3_job_bpm_log (`bpmuuid`,`step`,`info`) values('$o{bpmuuid}','$o{step}','$row')" ); };
     warn "bpm log record err: $@" if $@;
 }
 
-while( <STDIN> ) { chomp; record( $_ ); }
+sub savevar
+{
+    my $row = shift @_;
+    return unless $row =~ /^VAR\.\s*([a-zA-Z0-9][a-zA-Z0-9\-\._]+):\s*([a-zA-Z0-9][a-zA-Z0-9\-\._]+)$/;
+    my ( $k, $v ) = ( $1, $2 );
+    BPM::Task::Config->new()->savevar( $o{bpmuuid}, $k, $v );
+}
+
+while( <STDIN> ) { chomp; record( $_ ); savevar( $_); }

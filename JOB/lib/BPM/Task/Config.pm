@@ -44,6 +44,16 @@ sub resave
     die "link fail" if system "ln -fsn data.$tempuuid.yaml $path/data.yaml";
 }
 
+sub savevar
+{
+    my ( $this, $uuid, $k, $v ) = @_;
+
+    my $path = "$base/$uuid.data";
+    mkdir $path unless -f $path;
+
+    system "echo '$k: $v' >> '$path/var'";
+}
+
 sub get
 {
     my ( $this, $uuid ) = @_;
@@ -53,6 +63,21 @@ sub get
     $file = $efile if -f $efile;
     my $var = eval{ YAML::XS::LoadFile $file };
     die "load $file fail: $@" if $@;
+    my $varfile = "$base/$uuid.data/var";
+    if( -f $varfile )
+    {
+        my    @x = `cat '$varfile'`;
+        chomp @x;
+        my ( %tmp, %var );
+        for( @x )
+        {
+            next unless $_ =~ /^\s*([a-zA-Z0-9][a-zA-Z0-9\-\._]+):\s*([a-zA-Z0-9][a-zA-Z0-9\-\._]+)$/;
+            my ( $k, $v ) = ( $1, $2 );
+            $var{$k} ||= [];
+            push( @{$var{$k}}, $v ) unless $tmp{$k}{$v} ++;
+        }
+        map{ $var->{"var.$_"} = join ",", @{$var{$_}}; }keys %var;
+    }
     return $var;
 }
 
