@@ -69,6 +69,7 @@
  
         vm.selectxloading = {};
         vm.selectxrely = {};
+        vm.selectxhide = {};
 
         vm.extname = function( stepname )
         {
@@ -88,9 +89,10 @@
                 return [ prefix, rawname ];
         }
 
-        vm.optionxchange = function( stepname )
+        vm.optionxchange = function( stepname, stepvalue )
         {
              var ename = vm.extname( stepname );
+             //clear
              angular.forEach($scope.jobVar, function (data, index) {
 
                  var tempename = vm.extname( data.name ); 
@@ -102,6 +104,25 @@
                             data.value= "";
                         }
                     });
+                 }
+            });
+
+            //hide
+            angular.forEach($scope.jobVar, function (data, index) {
+
+                 var tempename = vm.extname( data.name ); 
+                 if( ename[0] == tempename[0] && data['show'] && data['show'][0] == ename[1] )
+                 {
+                     if( data['show'][1] == stepvalue )
+                     {
+                         vm.selectxhide[data.name] = false;
+                         data.value = "";
+                     }
+                     else
+                     {
+                         vm.selectxhide[data.name] = true;
+                         data.value = "_openc3_hide_";
+                     }
                  }
             });
         }
