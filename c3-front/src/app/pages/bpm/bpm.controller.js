@@ -69,7 +69,44 @@
  
         vm.selectxloading = {};
         vm.selectxrely = {};
+
+        vm.extname = function( stepname )
+        {
+                var stepnames = stepname.split(".")
+                var prefix;
+                var rawname;
+                if( stepnames.length == 2 )
+                {
+                    prefix = stepnames[0];
+                    rawname = stepnames[1];
+                }
+                else
+                {
+                    prefix = stepnames[0] + '.' + stepnames[1];
+                    rawname = stepnames[2]
+                }
+                return [ prefix, rawname ];
+        }
+
         vm.optionxchange = function( stepname )
+        {
+             var ename = vm.extname( stepname );
+             angular.forEach($scope.jobVar, function (data, index) {
+
+                 var tempename = vm.extname( data.name ); 
+                 if( ename[0] == tempename[0] && data['rely'])
+                 {
+                    angular.forEach(data['rely'], function (name, index) {
+                        if( name == ename[1] )
+                        {
+                            data.value= "";
+                        }
+                    });
+                 }
+            });
+        }
+
+        vm.optionxclick = function( stepname )
         {
             var varDict = {};
             var stepconf;
@@ -85,19 +122,12 @@
             if( stepconf['rely'] )
             {
                 
-                var stepnames = stepname.split(".")
                 var prefix;
                 var rawname;
-                if( stepnames.length == 2 )
-                {
-                    prefix = stepnames[0];
-                    rawname = stepnames[1];
-                }
-                else
-                {
-                    prefix = stepnames[0] + '.' + stepnames[1];
-                    rawname = stepnames[2]
-                }
+                var ename = vm.extname( stepname );
+                prefix = ename[0];
+                rawname = ename[1];
+
                 var defect = false;
                 angular.forEach(stepconf['rely'], function (data, index) {
                     var checkname = prefix +'.'+ data;

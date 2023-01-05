@@ -52,7 +52,7 @@
                                 <label ng-if="bpm.selectxrely[ss.name]" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
                                 <label ng-if="!bpm.selectxrely[ss.name]" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
                                 <div class="col-sm-6">
-                                    <select  class="form-control " style="font-size: 15px;height: 42px" ng-click="bpm.optionxchange(ss.name)"  ng-model="ss.value" ng-options="n.name as n.alias for n in bpm.optionx[ss.name]" required>
+                                    <select  class="form-control " style="font-size: 15px;height: 42px" ng-change="bpm.optionxchange(ss.name)" ng-click="bpm.optionxclick(ss.name)"  ng-model="ss.value" ng-options="n.name as n.alias for n in bpm.optionx[ss.name]" required>
                                     </select>
                                 </div>
                                 <label class="col-sm-3" style="color: gray" >{{ss.name}}</label>
