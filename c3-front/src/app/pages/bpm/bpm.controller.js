@@ -73,6 +73,12 @@
             $http.get('/api/job/bpm/var/' + vm.bpmuuid ).success(function(data){
                 if (data.stat){
                     vm.bpmvar = data.data;
+                    if( data.data['_sys_opt_'] )
+                    {
+                        vm.optionx     = data.data['_sys_opt_']['optionx'];
+                        vm.selectxrely = data.data['_sys_opt_']['selectxrely'];
+                        vm.selectxhide = data.data['_sys_opt_']['selectxhide'];
+                    }
                     vm.reload();
                 }else {
                     swal({ title:'获取表单内容失败', text: data.info, type:'error' });
@@ -128,12 +134,12 @@
                  {
                      if( data['show'][1] == stepvalue )
                      {
-                         vm.selectxhide[data.name] = false;
+                         vm.selectxhide[data.name] = '0';
                          data.value = "";
                      }
                      else
                      {
-                         vm.selectxhide[data.name] = true;
+                         vm.selectxhide[data.name] = '1';
                          data.value = "_openc3_hide_";
                      }
                  }
@@ -146,7 +152,7 @@
             var stepconf;
             angular.forEach($scope.jobVar, function (data, index) {
                 varDict[data.name] = data.value;
-                vm.selectxrely[data.name] = false;
+                vm.selectxrely[data.name] = '0';
                 if( data.name == stepname )
                 {
                     stepconf = data;
@@ -167,7 +173,7 @@
                     var checkname = prefix +'.'+ data;
                     if( varDict[checkname] == "" )
                     {
-                        vm.selectxrely[checkname] = true;
+                        vm.selectxrely[checkname] = '1';
                         defect = true;
                     }
                 });
@@ -231,6 +237,11 @@
             });
             $scope.taskData.variable = varDict;
 
+            $scope.taskData.variable['_sys_opt_'] = {};
+            $scope.taskData.variable['_sys_opt_']['optionx']     = vm.optionx;
+            $scope.taskData.variable['_sys_opt_']['selectxrely'] = vm.selectxrely;
+            $scope.taskData.variable['_sys_opt_']['selectxhide'] = vm.selectxhide;
+
             resoureceService.work.runJobByName(vm.defaulttreeid, {"jobname":$scope.choiceJob.name, "bpm_variable": $scope.taskData.variable, "variable": {} })
                 .then(function (repo) {
                     if (repo.stat){
@@ -246,6 +257,11 @@
                 varDict[data.name] = data.value;
             });
             $scope.taskData.variable = varDict;
+
+            $scope.taskData.variable['_sys_opt_'] = {};
+            $scope.taskData.variable['_sys_opt_']['optionx']     = vm.optionx;
+            $scope.taskData.variable['_sys_opt_']['selectxrely'] = vm.selectxrely;
+            $scope.taskData.variable['_sys_opt_']['selectxhide'] = vm.selectxhide;
 
             $http.post( '/api/job/bpm/var/' + vm.bpmuuid, { "bpm_variable": $scope.taskData.variable } ).success(function(data){
                 if (data.stat){
@@ -296,7 +312,6 @@
                 $scope.taskData.jobname = $scope.choiceJob.name;
                 $scope.taskData.group = null
 
-                vm.optionx = {};
                 vm.loadover = false;
                 $http.get('/api/job/bpm/variable/' + $scope.choiceJob.name ).then(
                     function successCallback(response) {
