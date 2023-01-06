@@ -24,6 +24,24 @@
             'uuid':null,
         };
 
+        vm.chKvArray = function ( obj, index ) {
+            obj['value'] = angular.toJson( obj['tempvalue'] );
+        };
+
+        vm.addKvArray = function ( obj ) {
+            if( obj['tempvalue'] == undefined )
+            {
+                obj['tempvalue'] = [];
+            }
+            obj['tempvalue'].push( { "key": "", "value": "" } );
+            obj['value'] = angular.toJson( obj['tempvalue'] );
+        };
+
+        vm.delKvArray = function ( obj, index ) {
+            obj['tempvalue'].splice(index , 1);
+            obj['value'] = angular.toJson( obj['tempvalue'] );
+        };
+
         vm.multitempidx = 1;
         vm.delVar = function ( index, lastvarname ) {
             var lastvarnames = lastvarname.split(".")
@@ -319,13 +337,17 @@
                         if (response.data.stat){
                             vm.vartemp = [];
                             angular.forEach(response.data.data, function (value, key) {
-                                if( value.value == "" )
+                                if( value.name )
                                 {
                                     if( vm.bpmvar[value.name] != undefined )
                                     {
                                         value.value = vm.bpmvar[value.name] 
+                                        if( value.type && value.type == "kvarray" )
+                                        {
+                                            value.tempvalue = angular.fromJson( value.value );
+                                        }
                                     }
-                                     vm.vartemp.push( value )
+                                    vm.vartemp.push( value )
                                 }
                             });
 

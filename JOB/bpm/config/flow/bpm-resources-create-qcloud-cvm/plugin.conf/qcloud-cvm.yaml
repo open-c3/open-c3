@@ -38,7 +38,7 @@ option:
     describe: 付费方式
     type: select
     option: [ 'PREPAID' ]
-    value: ""
+    value: "PREPAID"
 
   - name: instance_config
     describe: 机型
@@ -121,13 +121,12 @@ option:
 #BPM TODO    type: multiple_select
     type: selectx
     value: ""
-# BPM TODO
-#  - name: 标签
-#    desc: 机器标签
-#    # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
-#    variable_name: tag
-#    type: input_array
-#    required: false
+
+  - name: tag
+    describe: 机器标签
+    # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
+    type: kvarray
+    value: "[]"
 
   - name: instance_charge_count
     describe: "购买时长"
@@ -189,7 +188,7 @@ template_argv:
   security_group_ids: ${security_group_ids}
   # 标签
   # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
-#  tag: ${tag}
+  tag: ${tag}
   # 实例付费方式
   instance_charge_type: ${charge_type}
   # 购买时长

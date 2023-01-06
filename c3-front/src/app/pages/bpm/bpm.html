@@ -20,7 +20,7 @@
                             </div>
                         </div>
                     </div>
- 
+
                     <div class="row" ng-repeat="ss in jobVar">
 
                         <hr ng-if="ss.idx == 0" class="mv20 clear">
@@ -32,6 +32,27 @@
                                     <textarea type="text" rows="5" cols="1"  class="form-control" ng-model="ss.value" placeholder="{{'C3T.内容'|translate}}" required> </textarea>
                                 </div>
                                 <label class="col-sm-3" style="color: gray" >{{ss.name}}</label>
+                            </div>
+                        </div>
+
+                        <div ng-if="(bpm.selectxhide[ss.name] != '1') && (ss.type && ss.type=='kvarray')">
+                            <div class="col-sm-10 form-group" >
+                                <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
+                                <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
+                                <div class="col-sm-3"> 
+                                    <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="bpm.addKvArray( ss )" uib-tooltip="{{'C3T.添加'|translate}}" style="cursor:pointer;color: green;" ></i>
+                                </div>
+                                <div class="col-sm-3">
+                                </div>
+                                <label class="col-sm-3" style="color: gray" >{{ss.name}}</label>
+                            </div>
+                            <div ng-repeat="x in ss.tempvalue" class="col-sm-10 form-group" >
+                                <label class="col-sm-3 control-label"></label>
+                                <div class="col-sm-2"> <input type="text" class="form-control" ng-change="bpm.chKvArray(ss,$index)" ng-model="x.key" placeholder="{{'C3T.填写任务变量'|translate}}" required> </div>
+                                <div class="col-sm-2"> <input type="text" class="form-control" ng-change="bpm.chKvArray(ss,$index)" ng-model="x.value" placeholder="{{'C3T.填写任务变量'|translate}}" required> </div>
+                                <div class="col-sm-2">
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="bpm.delKvArray(ss,$index)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
+                                 </div>
                             </div>
                         </div>
 
