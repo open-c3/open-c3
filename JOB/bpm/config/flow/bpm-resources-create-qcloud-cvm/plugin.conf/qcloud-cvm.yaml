@@ -3,7 +3,7 @@ name: 创建腾讯云cvm
 multi: 1
 option:
   - name: account
-    describe: 选择账号
+    describe: 云账号
     command: c3mc-display-cloud-account-list qcloud
     type: selectx
     value: ""
@@ -118,8 +118,7 @@ option:
       - region
       - project_id
     command: c3mc-qcloud-cvm-describe-security-groups | c3mc-bpm-display-field-values SecurityGroupId,SecurityGroupName
-#BPM TODO    type: multiple_select
-    type: selectx
+    type: selectxm
     value: ""
 
   - name: tag
@@ -129,7 +128,7 @@ option:
     value: "[]"
 
   - name: instance_charge_count
-    describe: "购买时长"
+    describe: "购买时长(月)"
     type: number
     value: ""
 
@@ -150,9 +149,8 @@ option:
     type: selectx
     value: ""
 
-#BPM TODO
   - name: internet_max_bandwidth_out
-    describe: "公网出带宽上限"
+    describe: "公网出带宽上限(兆)"
     variable_name: internet_max_bandwidth_out
     type: input
     value: ""
