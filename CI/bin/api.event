@@ -35,6 +35,7 @@ use api::kubernetes::k8sbackup;
 
 use api::c3mc::tree;
 use api::c3mc::jumpserver;
+use api::c3mc::cmdb;
 
 my $cookiekey;
 BEGIN{
@@ -64,6 +65,7 @@ my ( %handle, %index, $index ) = (
 
     %api::c3mc::tree::handle,
     %api::c3mc::jumpserver::handle,
+    %api::c3mc::cmdb::handle,
 );
 
 my $port = $ENV{CI_API_EVENT_PORT} // '8080';
