@@ -24,7 +24,54 @@
             'uuid':null,
         };
 
-        vm.chKvArray = function ( obj, index ) {
+      
+        vm.chtempclear = function ( obj ) {
+            if( obj.type == "kvarray" )
+            {
+                obj.tempvalue = [];
+                vm.chKvArray( obj );
+            }
+            if( obj.type == "selectxm" )
+            {
+                obj.tempvalue = [ { "value": "" }];
+                vm.chSelectxm( obj );
+            }
+        };
+
+        vm.chSelectxm = function ( obj ) {
+            var temp = [];
+            angular.forEach(obj['tempvalue'], function (data, idx) {
+                temp.push(data.value)
+            });
+            obj['value'] = temp.join(',');
+ 
+            vm.optionxchange( obj.name, obj.value )
+        };
+
+        vm.addSelectxm = function ( obj ) {
+            if( obj['tempvalue'] == undefined )
+            {
+                obj['tempvalue'] = [];
+            }
+            obj['tempvalue'].push( { "value": "" } );
+
+            var temp = [];
+            angular.forEach(obj['tempvalue'], function (data, idx) {
+                temp.push(data.value)
+            });
+            obj['value'] = temp.join(',');
+        };
+
+        vm.delSelectxm = function ( obj, index ) {
+            obj['tempvalue'].splice(index , 1);
+            var temp = [];
+            angular.forEach(obj['tempvalue'], function (data, idx) {
+                temp.push(data.value)
+            });
+            obj['value'] = temp.join(',');
+        };
+
+        vm.chKvArray = function ( obj ) {
             obj['value'] = angular.toJson( obj['tempvalue'] );
         };
 
@@ -139,6 +186,7 @@
                         if( name == ename[1] )
                         {
                             data.value= "";
+                            vm.chtempclear(data);
                         }
                     });
                  }
@@ -345,6 +393,17 @@
                                         if( value.type && value.type == "kvarray" )
                                         {
                                             value.tempvalue = angular.fromJson( value.value );
+                                        }
+                                        if( value.type && value.type == "selectxm" )
+                                        {
+                                            value.tempvalue = [];
+                                            angular.forEach(value.value.split(","), function (data, idx) {
+                                                value.tempvalue.push({"value": data})
+                                            });
+                                            if( value.tempvalue.length < 1 )
+                                            {
+                                                value.tempvalue.push({"value": ""})
+                                            }
                                         }
                                     }
                                     vm.vartemp.push( value )
