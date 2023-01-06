@@ -9,13 +9,48 @@ option:
     variable_name: tree_path
     required: true
   - name: 实例ID
-    desc: 新创建实例的ID
+    desc: 新创建实例的ID,多个实例ID用英文逗号分隔
     type: input
-    variable_name: instance_id
+    variable_name: instance_ids
+    required: true
+  - name: 资源类型
+    desc: 资源类型
+    type: input
+    variable_name: type
+    required: true
+  - name: 资源子类型
+    desc: 资源子类型
+    type: input
+    variable_name: subtype
+    required: true
+  - name: 资源类型编码
+    desc: 资源类型编码
+    type: input
+    variable_name: type_code
+    required: true
+  - name: 账号
+    desc: 账号
+    type: input
+    variable_name: account_name
+    required: true
+  - name: 区域
+    desc: 区域
+    type: input
+    variable_name: region_name
     required: true
 
 template_argv:
   # 树节点
-  account: ${tree_path}
-  # 实例ID
-  account: ${instande_id}
+  tree_path: ${tree_path}
+  # 新创建实例的ID,多个实例ID用英文逗号分隔
+  instance_ids: ${instance_ids}
+  # 资源类型
+  type: ${type}
+  # 资源子类型
+  subtype: ${subtype}
+  # 类型编码
+  type_code: ${type_code}
+  # 账户名
+  account_name: ${account_name}
+  # 资源所在区域
+  region_name: ${region_name}
