@@ -13,12 +13,19 @@ def mount_tree(params):
     instance_type = params["type"]
     instance_subtype = params["subtype"]
     type_code = params["type_code"]
-    account_name = params["account_name"]
-    region_name = params["region_name"]
+    extinstance_ids = params["extinstance_ids"]
 
     api_endpoint = subprocess.getoutput("c3mc-sys-ctl sys.mms.external_api_endpoint")
     appname = subprocess.getoutput("c3mc-sys-ctl sys.mms.external_api_endpoint.env.appname")
     appkey = subprocess.getoutput("c3mc-sys-ctl sys.mms.external_api_endpoint.env.appkey")
+
+    ext_info_m = {}
+    for item in extinstance_ids.split(","):
+        parts = item.split(".")
+        ext_info_m[parts[2]] = {
+            "account": parts[0],
+            "region": parts[1],
+        }
 
     for instance_id in instance_ids.split(","):
         # 内部挂树
@@ -50,8 +57,8 @@ def mount_tree(params):
                 "tree_tag": tree_path,
                 "uuid": instance_id,
                 "type_code": type_code,
-                "account_name": account_name,
-                "region_name": region_name,
+                "account_name": ext_info_m[instance_id]["account"],
+                "region_name": ext_info_m[instance_id]["region"],
             }
             
             resp = requests.post(url = api_endpoint, headers = header, json=data)
