@@ -100,7 +100,7 @@ class Cvm:
             print("创建cvm, 响应为: xxxxxx")
             print("LOG. instance_id:xxxxxx")
             print("VAR. instance_id:xxxxxx")
-            print("VAR. extinstance_id:{}.xxxxx".format(self.params["region"]))
+            print("VAR. extinstance_id:{}.{}.xxxxx".format(self.params["account"], self.params["region"]))
         else:
             try:
                 resp = self.client.RunInstances(req)
@@ -108,7 +108,7 @@ class Cvm:
                 print("创建cvm, 响应为: {}".format(resp.to_json_string()))
                 print("LOG. instance_id:{}".format(resp.InstanceIdSet[0]))
                 print("VAR. instance_id:{}".format(resp.InstanceIdSet[0]))
-                print("VAR. extinstance_id:{}.{}".format(self.params["region"], resp.InstanceIdSet[0]))
+                print("VAR. extinstance_id:{}.{}.{}".format(self.params["account"], self.params["region"], resp.InstanceIdSet[0]))
             except Exception as e:
                 print("创建腾讯云cvm出错, err: {}".format(e), file=sys.stderr)
                 exit(1)
