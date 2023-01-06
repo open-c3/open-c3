@@ -67,8 +67,8 @@ option:
     value: ""
 
   - name: system_disk_size
-    describe: 输入系统盘大小, 单位GB
-    type: input
+    describe: 系统盘大小(GB)
+    type: number
     required: true
     value: ""
 
@@ -86,9 +86,9 @@ option:
     show: [ 'if_need_data_volume', 'yes' ]
  
   - name: data_disk_size
-    describe: 数据盘大小.单位GB
+    describe: 数据盘大小(GB)
     variable_name: data_disk_size
-    type: input
+    type: number
     value: ""
     show: [ 'if_need_data_volume', 'yes' ]
 
@@ -131,9 +131,8 @@ option:
 
   - name: instance_charge_count
     describe: "购买时长"
-    type: input
+    type: number
     value: ""
-#BPM TODO    value_type: number
 
   - name: renew_flag
     describe: 自动续费方式

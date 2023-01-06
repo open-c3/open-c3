@@ -78,6 +78,16 @@ sub get
         }
         map{ $var->{"var.$_"} = join ",", @{$var{$_}}; }keys %var;
     }
+
+    #BPM TODO: 处理YAML中的数字类型,数字类型在API返回后变成了字符串类型，这里做了特殊处理。
+    # 不应该进行特殊处理，应该能识别出数字类型。
+    for my $k ( keys %$var )
+    {
+        if( $k =~ /(_count|_size)$/ && defined $var->{$k} && $var->{$k} =~ /^\d+$/ )
+        {
+             $var->{$k} += 0;
+        }
+    }
     return $var;
 }
 
