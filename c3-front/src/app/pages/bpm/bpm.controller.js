@@ -24,6 +24,24 @@
             'uuid':null,
         };
 
+        vm.chKvArray = function ( obj, index ) {
+            obj['value'] = angular.toJson( obj['tempvalue'] );
+        };
+
+        vm.addKvArray = function ( obj ) {
+            if( obj['tempvalue'] == undefined )
+            {
+                obj['tempvalue'] = [];
+            }
+            obj['tempvalue'].push( { "key": "", "value": "" } );
+            obj['value'] = angular.toJson( obj['tempvalue'] );
+        };
+
+        vm.delKvArray = function ( obj, index ) {
+            obj['tempvalue'].splice(index , 1);
+            obj['value'] = angular.toJson( obj['tempvalue'] );
+        };
+
         vm.multitempidx = 1;
         vm.delVar = function ( index, lastvarname ) {
             var lastvarnames = lastvarname.split(".")
@@ -43,7 +61,7 @@
             var tempidx = 0;
             angular.forEach($scope.jobVar, function (data, idx) {
                 var names = data.name.split(".")
-                if( names[0] == lastvarnames[0] && names[1] == '1' )
+                if( names[0] == lastvarnames[0] && names[1] == lastvarnames[1] )
                 {
                     tempidx = tempidx + 1;
                     names[1] = vm.multitempidx;
@@ -51,6 +69,19 @@
                     newdata.name = names.join('.')
                     newdata['byaddvar'] = true;
                     $scope.jobVar.splice(index + tempidx, 0, newdata);
+                    if( vm.optionx[data.name] )
+                    {
+                        vm.optionx[newdata.name] = vm.optionx[data.name];
+                    }
+                    if( vm.selectxrely[data.name] != undefined )
+                    {
+                        vm.selectxrely[newdata.name] = vm.selectxrely[data.name];
+                    }
+ 
+                    if( vm.selectxhide[data.name] != undefined )
+                    {
+                        vm.selectxhide[newdata.name] = vm.selectxhide[data.name];
+                    }
                 }
             });
         };
@@ -60,6 +91,12 @@
             $http.get('/api/job/bpm/var/' + vm.bpmuuid ).success(function(data){
                 if (data.stat){
                     vm.bpmvar = data.data;
+                    if( data.data['_sys_opt_'] )
+                    {
+                        vm.optionx     = data.data['_sys_opt_']['optionx'];
+                        vm.selectxrely = data.data['_sys_opt_']['selectxrely'];
+                        vm.selectxhide = data.data['_sys_opt_']['selectxhide'];
+                    }
                     vm.reload();
                 }else {
                     swal({ title:'获取表单内容失败', text: data.info, type:'error' });
@@ -68,13 +105,104 @@
         };
  
         vm.selectxloading = {};
-        vm.optionxchange = function( stepname )
+        vm.selectxrely = {};
+        vm.selectxhide = {};
+
+        vm.extname = function( stepname )
         {
-            var varDict = {};
-            angular.forEach($scope.jobVar, function (data, index) {
-                varDict[data.name] = data.value;
+                var stepnames = stepname.split(".")
+                var prefix;
+                var rawname;
+                if( stepnames.length == 2 )
+                {
+                    prefix = stepnames[0];
+                    rawname = stepnames[1];
+                }
+                else
+                {
+                    prefix = stepnames[0] + '.' + stepnames[1];
+                    rawname = stepnames[2]
+                }
+                return [ prefix, rawname ];
+        }
+
+        vm.optionxchange = function( stepname, stepvalue )
+        {
+             var ename = vm.extname( stepname );
+             //clear
+             angular.forEach($scope.jobVar, function (data, index) {
+
+                 var tempename = vm.extname( data.name ); 
+                 if( ename[0] == tempename[0] && data['rely'])
+                 {
+                    angular.forEach(data['rely'], function (name, index) {
+                        if( name == ename[1] )
+                        {
+                            data.value= "";
+                        }
+                    });
+                 }
             });
 
+            //hide
+            angular.forEach($scope.jobVar, function (data, index) {
+
+                 var tempename = vm.extname( data.name ); 
+                 if( ename[0] == tempename[0] && data['show'] && data['show'][0] == ename[1] )
+                 {
+                     if( data['show'][1] == stepvalue )
+                     {
+                         vm.selectxhide[data.name] = '0';
+                         data.value = "";
+                     }
+                     else
+                     {
+                         vm.selectxhide[data.name] = '1';
+                         data.value = "_openc3_hide_";
+                     }
+                 }
+            });
+        }
+
+        vm.optionxclick = function( stepname )
+        {
+            var varDict = {};
+            var stepconf;
+            angular.forEach($scope.jobVar, function (data, index) {
+                varDict[data.name] = data.value;
+                vm.selectxrely[data.name] = '0';
+                if( data.name == stepname )
+                {
+                    stepconf = data;
+                }
+            });
+
+            if( stepconf['rely'] )
+            {
+                
+                var prefix;
+                var rawname;
+                var ename = vm.extname( stepname );
+                prefix = ename[0];
+                rawname = ename[1];
+
+                var defect = false;
+                angular.forEach(stepconf['rely'], function (data, index) {
+                    var checkname = prefix +'.'+ data;
+                    if( varDict[checkname] == "" )
+                    {
+                        vm.selectxrely[checkname] = '1';
+                        defect = true;
+                    }
+                });
+
+                if( defect )
+                {
+                    vm.optionx[stepname] = [];
+                    return;
+                }
+            }
+ 
             vm.selectxloading[stepname] = true;
             $http.post( '/api/job/bpm/optionx', { "bpm_variable": varDict, "stepname": stepname, "jobname":$scope.choiceJob.name } ).success(function(data){
                 if (data.stat){
@@ -127,6 +255,11 @@
             });
             $scope.taskData.variable = varDict;
 
+            $scope.taskData.variable['_sys_opt_'] = {};
+            $scope.taskData.variable['_sys_opt_']['optionx']     = vm.optionx;
+            $scope.taskData.variable['_sys_opt_']['selectxrely'] = vm.selectxrely;
+            $scope.taskData.variable['_sys_opt_']['selectxhide'] = vm.selectxhide;
+
             resoureceService.work.runJobByName(vm.defaulttreeid, {"jobname":$scope.choiceJob.name, "bpm_variable": $scope.taskData.variable, "variable": {} })
                 .then(function (repo) {
                     if (repo.stat){
@@ -142,6 +275,11 @@
                 varDict[data.name] = data.value;
             });
             $scope.taskData.variable = varDict;
+
+            $scope.taskData.variable['_sys_opt_'] = {};
+            $scope.taskData.variable['_sys_opt_']['optionx']     = vm.optionx;
+            $scope.taskData.variable['_sys_opt_']['selectxrely'] = vm.selectxrely;
+            $scope.taskData.variable['_sys_opt_']['selectxhide'] = vm.selectxhide;
 
             $http.post( '/api/job/bpm/var/' + vm.bpmuuid, { "bpm_variable": $scope.taskData.variable } ).success(function(data){
                 if (data.stat){
@@ -192,7 +330,6 @@
                 $scope.taskData.jobname = $scope.choiceJob.name;
                 $scope.taskData.group = null
 
-                vm.optionx = {};
                 vm.loadover = false;
                 $http.get('/api/job/bpm/variable/' + $scope.choiceJob.name ).then(
                     function successCallback(response) {
@@ -200,13 +337,17 @@
                         if (response.data.stat){
                             vm.vartemp = [];
                             angular.forEach(response.data.data, function (value, key) {
-                                if( value.value == "" )
+                                if( value.name )
                                 {
                                     if( vm.bpmvar[value.name] != undefined )
                                     {
                                         value.value = vm.bpmvar[value.name] 
+                                        if( value.type && value.type == "kvarray" )
+                                        {
+                                            value.tempvalue = angular.fromJson( value.value );
+                                        }
                                     }
-                                     vm.vartemp.push( value )
+                                    vm.vartemp.push( value )
                                 }
                             });
 

@@ -10,7 +10,7 @@ option:
 
   - name: region
     describe: 区域
-    command_input:
+    rely:
       - account
     command: c3mc-qcloud-cvm-describe-regions | c3mc-bpm-display-field-values Region,RegionName,RegionState
     type: selectx
@@ -18,7 +18,7 @@ option:
 
   - name: zone
     describe: 可用区
-    command_input:
+    rely:
       - account
       - region
     command: c3mc-qcloud-cvm-describe-zones | c3mc-bpm-display-field-values Zone,ZoneName,ZoneState
@@ -27,7 +27,7 @@ option:
 
   - name: project_id
     describe: 项目
-    command_input:
+    rely:
       - account
       - region
     command: c3mc-qcloud-cvm-describe-projects | c3mc-bpm-display-field-values ProjectId,Name
@@ -38,11 +38,11 @@ option:
     describe: 付费方式
     type: select
     option: [ 'PREPAID' ]
-    value: ""
+    value: "PREPAID"
 
   - name: instance_config
     describe: 机型
-    command_input:
+    rely:
       - account
       - region
       - zone
@@ -53,7 +53,7 @@ option:
 
   - name: image_id
     describe: 镜像
-    command_input:
+    rely:
       - account
       - region
     command: c3mc-qcloud-cvm-describe-images | c3mc-bpm-display-field-values ImageId,ImageName
@@ -67,8 +67,8 @@ option:
     value: ""
 
   - name: system_disk_size
-    describe: 输入系统盘大小, 单位GB
-    type: input
+    describe: 系统盘大小(GB)
+    type: number
     required: true
     value: ""
 
@@ -83,16 +83,18 @@ option:
     command: c3mc-qcloud-cvm-describe-data-disk-type-list | c3mc-bpm-display-field-values id,name,size_range
     type: selectx
     value: ""
+    show: [ 'if_need_data_volume', 'yes' ]
  
   - name: data_disk_size
-    describe: 数据盘大小.单位GB
+    describe: 数据盘大小(GB)
     variable_name: data_disk_size
-    type: input
+    type: number
     value: ""
+    show: [ 'if_need_data_volume', 'yes' ]
 
   - name: vpc_id
     describe: VPC
-    command_input:
+    rely:
       - account
       - region
     command: c3mc-qcloud-cvm-describe-vpcs | c3mc-bpm-display-field-values VpcId,VpcName
@@ -101,7 +103,7 @@ option:
 
   - name: subnet_id
     describe: 子网
-    command_input:
+    rely:
       - account
       - region
       - vpc_id
@@ -111,7 +113,7 @@ option:
 
   - name: security_group_ids
     describe: 安全组
-    command_input:
+    rely:
       - account
       - region
       - project_id
@@ -119,19 +121,17 @@ option:
 #BPM TODO    type: multiple_select
     type: selectx
     value: ""
-# BPM TODO
-#  - name: 标签
-#    desc: 机器标签
-#    # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
-#    variable_name: tag
-#    type: input_array
-#    required: false
+
+  - name: tag
+    describe: 机器标签
+    # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
+    type: kvarray
+    value: "[]"
 
   - name: instance_charge_count
     describe: "购买时长"
-    type: input
+    type: number
     value: ""
-#BPM TODO    value_type: number
 
   - name: renew_flag
     describe: 自动续费方式
@@ -188,7 +188,7 @@ template_argv:
   security_group_ids: ${security_group_ids}
   # 标签
   # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
-#  tag: ${tag}
+  tag: ${tag}
   # 实例付费方式
   instance_charge_type: ${charge_type}
   # 购买时长

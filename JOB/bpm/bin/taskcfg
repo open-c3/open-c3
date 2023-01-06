@@ -79,6 +79,7 @@ for my $grp ( @grp )
     for my $k ( keys %var )
     {
         my $v = $var{$k};
+        $v =~ s/"/\\"/g;
         $json =~ s/\$\{$k\}/$v/g;
     }
 
