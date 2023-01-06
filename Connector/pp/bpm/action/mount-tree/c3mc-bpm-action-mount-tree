@@ -9,33 +9,55 @@ import requests
 
 def mount_tree(params):
     tree_path = params["tree_path"]
-    instance_id = params["instance_id"]
+    instance_ids = params["instance_ids"]
+    instance_type = params["type"]
+    instance_subtype = params["subtype"]
+    type_code = params["type_code"]
+    account_name = params["account_name"]
+    region_name = params["region_name"]
 
     api_endpoint = subprocess.getoutput("c3mc-sys-ctl sys.mms.external_api_endpoint")
     appname = subprocess.getoutput("c3mc-sys-ctl sys.mms.external_api_endpoint.env.appname")
     appkey = subprocess.getoutput("c3mc-sys-ctl sys.mms.external_api_endpoint.env.appkey")
 
-    if api_endpoint == "":
-        print("挂树失败, 没有配置挂树接口地址")
-        exit(1)
+    for instance_id in instance_ids.split(","):
+        # 内部挂树
+        resp = subprocess.run([
+            "c3mc-base-db-ins",
+            "--table", "openc3_device_bindtree",
+            "type", instance_type,
+            "subtype", instance_subtype,
+            "uuid", instance_id,
+            "tree", tree_path,
+            ], 
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        if resp.returncode != 0:
+            err = resp.stderr.decode('utf-8').rstrip()
+            print("内部挂树失败, instance_id: {}, tree_path: {}, err: {}".format(instance_id, tree_path, err), file=sys.stderr)
 
-    header = {
-        "Content-Type": "application/json",
-    }
-    if appname != "" and appkey != "":
-        header["appname"] = appname
-        header["appkey"] = appkey
+        # 外部挂树
+        if api_endpoint != "":
+            header = {
+                "Content-Type": "application/json",
+            }
+            if appname != "" and appkey != "":
+                header["appname"] = appname
+                header["appkey"] = appkey
 
-    data = {
-        "tree_tag": tree_path,
-        "uuid": instance_id,
-    }
-    
-    resp = requests.post(url = api_endpoint, headers = header, json=data)
-    resp = resp.json()
-    if resp["code"] == 400:
-        print("挂树失败, instance_id: {}, tree_path: {}, err: {}".format(instance_id, tree_path, resp["msg"]), file=sys.stderr)
-        exit(1)
+            data = {
+                "tree_tag": tree_path,
+                "uuid": instance_id,
+                "type_code": type_code,
+                "account_name": account_name,
+                "region_name": region_name,
+            }
+            
+            resp = requests.post(url = api_endpoint, headers = header, json=data)
+            resp = resp.json()
+            if resp["code"] == 400:
+                print("外部挂树失败, instance_id: {}, tree_path: {}, err: {}".format(instance_id, tree_path, resp["msg"]), file=sys.stderr)
 
 
 def main(params):
