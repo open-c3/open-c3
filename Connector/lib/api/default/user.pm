@@ -11,6 +11,12 @@ use uuid;
 use Format;
 use Digest::MD5;
 
+my $ssocookie;
+BEGIN{
+    $ssocookie = `c3mc-sys-ctl sys.sso.cookie`;
+    chomp $ssocookie;
+};
+
 any '/default/user/userlist' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
     my $pmscheck = api::pmscheck( 'openc3_connector_root' ); return $pmscheck if $pmscheck;
@@ -147,7 +153,7 @@ any '/default/user/login' => sub {
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    my ( $user, $pass, $err ) = @$param{qw( user pass )};
+    my ( $user, $pass, $domain, $err ) = @$param{qw( user pass domain )};
 
     return +{ stat => $JSON::false, info => 'user or pass undef' }
         unless defined $user & defined $pass;
@@ -162,7 +168,14 @@ any '/default/user/login' => sub {
         eval{ $api::mysql->execute( sprintf "update openc3_connector_userinfo set expire=%d,sid='%s' where name='%s'", time + 7 * 86400, $keys, $user ); };
         return +{ stat => $JSON::false, info => $@ } if $@;
 
-        set_cookie( sid => $keys, http_only => 0, expires => time + 8 * 3600 );
+        my %domain;
+        if( $ssocookie && $domain && $domain =~ /[a-z]/ )
+        {
+            my @x = reverse split /\./, $domain;
+            %domain = ( domain => ".$x[1].$x[0]") if @x >= 3;
+        }
+
+        set_cookie( sid => $keys, http_only => 0, expires => time + 8 * 3600, %domain );
         return +{ stat => $JSON::true, info => 'ok' };
     }
     else

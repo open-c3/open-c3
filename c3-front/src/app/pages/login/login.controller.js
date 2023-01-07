@@ -14,6 +14,7 @@
         vm.login = function()
         {
             vm.logining = 1;
+            vm.post.domain = window.location.host;
             $http.post('/api/connector/default/user/login', vm.post ).then(
                 function successCallback(response) {
                     if (response.data.stat){
