@@ -86,17 +86,23 @@ class Cvm:
         sleep_time_for_limiting(seconds)
 
     def page(self):
-        count = self.get_server_count()
-        mod = count % self.page_size
-        if mod:
-            total_page_number = int(count / self.page_size) + 1
-        else:
-            total_page_number = int(count / self.page_size)
+        try:
+            count = self.get_server_count()
+            mod = count % self.page_size
+            if mod:
+                total_page_number = int(count / self.page_size) + 1
+            else:
+                total_page_number = int(count / self.page_size)
 
-        for cur_page_number in range(1, total_page_number + 1):
-            self.page_number = cur_page_number
-            self.sleep(max_times_describe_instances)
-            self.show()
+            for cur_page_number in range(1, total_page_number + 1):
+                self.page_number = cur_page_number
+                self.sleep(max_times_describe_instances)
+                self.show()
+        except Exception as e:
+            if "该接口不支持此地域访问" in str(e):
+                return []
+            else: 
+                raise Exception(e)
 
 
 def main(access_id, access_key, region):
