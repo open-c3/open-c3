@@ -113,7 +113,10 @@ get '/connectorx/cookiekey' => sub {
 
 #获取用户信息，前端使用
 get '/connectorx/sso/userinfo' => sub {
-    my ( $user, $company, $admin, $showconnector )= eval{ $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) ) };
+    my $co = cookie( $api::cookiekey );
+    $co = request->headers->{token} if ( !$co ) && request->headers->{token};
+
+    my ( $user, $company, $admin, $showconnector )= eval{ $api::sso->run( cookie => $co, map{ $_ => request->headers->{$_} }qw( appkey appname ) ) };
     return( +{ stat => $JSON::false, info => "sso code error:$@" } ) if $@;
     return( +{ stat => $JSON::false, code => 10000 } ) unless $user;
     my $name = $user;
