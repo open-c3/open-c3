@@ -130,7 +130,7 @@ get '/connectorx/sso/userinfo' => sub {
 
 #给审批插件用
 get '/connectorx/approve/sso/userinfo' => sub {
-    my ( $user, $company, $admin, $showconnector )= eval{ $api::approvesso->run( cookie => cookie( 'sid' ) ) };
+    my ( $user, $company, $admin, $showconnector )= eval{ $api::approvesso->run( cookie => cookie( $api::cookiekey ) ) };
     return( +{ stat => $JSON::false, info => "sso code error:$@" } ) if $@;
     return( +{ stat => $JSON::false, code => 10000 } ) unless $user;
     my $name = $user;
@@ -150,8 +150,8 @@ get '/connectorx/approve/username' => sub {
 
 any '/connectorx/approve/ssologout' => sub {
     my $param = params();
-    my $redirect = eval{ $api::approvessologout->run( cookie => cookie( 'sid' ) ) };
-    set_cookie( 'sid' => '', http_only => 0, expires => -1 );
+    my $redirect = eval{ $api::approvessologout->run( cookie => cookie( $api::cookiekey ) ) };
+    set_cookie( $api::cookiekey => '', http_only => 0, expires => -1 );
     return +{ stat => $JSON::false, info => "sso code error:$@" } if $@;
     return +{ stat => $JSON::true, info => 'ok', data => '/#/login' };
 };

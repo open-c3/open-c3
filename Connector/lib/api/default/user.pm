@@ -100,7 +100,7 @@ post '/default/approve/user/chpasswd' => sub {
     return  +{ stat => $JSON::false, info => "The password is too simple" }
         unless length $param->{new1} >= 8 && $param->{new1} =~ /[a-z]/  && $param->{new1} =~ /[A-Z]/  && $param->{new1} =~ /[0-9]/;
 
-    my $cookie = cookie( 'sid' );
+    my $cookie = cookie( $api::cookiekey );
     
     my $newmd5 = Digest::MD5->new->add($param->{new1})->hexdigest;
     my $oldmd5 = Digest::MD5->new->add($param->{old})->hexdigest;
@@ -135,7 +135,7 @@ get '/internal/user/username' => sub {
 any '/default/user/logout' => sub {
 
     my $sid = params()->{sid};
-    $sid ||= cookie( "sid" );
+    $sid ||= cookie( $api::cookiekey );
 
     return +{ stat => $JSON::true, info => 'ok' } unless $sid;
     return +{ stat => $JSON::false, info => 'sid format err' } unless $sid =~ /^[a-zA-Z0-9]{64}$/;
@@ -175,7 +175,7 @@ any '/default/user/login' => sub {
             %domain = ( domain => ".$x[1].$x[0]") if @x >= 3;
         }
 
-        set_cookie( sid => $keys, http_only => 0, expires => time + 8 * 3600, %domain );
+        set_cookie( $api::cookiekey => $keys, http_only => 0, expires => time + 8 * 3600, %domain );
         return +{ stat => $JSON::true, info => 'ok' };
     }
     else
