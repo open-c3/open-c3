@@ -122,14 +122,14 @@ get '/internal/user/username' => sub {
     my $info = eval{ $api::mysql->query( sprintf "select name from `openc3_connector_userinfo` where sid='$sid'" ) };
     
     return +{ stat => $JSON::false, info => $@ } if $@;
-    return +{ stat => JSON::false, info => 'Not logged in yet' } unless @$info;
+    return +{ stat => $JSON::true, data => +{}, info => 'Not logged in yet' } unless @$info;
 
     my $user = $info->[0][0];
 
     my $level = eval{ $api::mysql->query( "select level from openc3_connector_userauth where name='$user'" ) };
     my $userlevel = @$level ? $level->[0][0] : 0;
 
-    return +{ stat => JSON::true, data => +{ user => $user, company => $user =~ /(@.+)$/ ? $1 : 'default', admin => $userlevel >= 3 ? 1 : 0, showconnector => 1 }};
+    return +{ stat => $JSON::true, data => +{ user => $user, company => $user =~ /(@.+)$/ ? $1 : 'default', admin => $userlevel >= 3 ? 1 : 0, showconnector => 1 }};
 };
 
 any '/default/user/logout' => sub {
