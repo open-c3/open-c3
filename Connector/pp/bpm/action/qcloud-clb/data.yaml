@@ -65,8 +65,31 @@ option:
     type: select
     value: ""
 
+  - name: vpc_id
+    describe: VPC
+    rely:
+      - account
+      - region
+    command: c3mc-qcloud-cvm-describe-vpcs | c3mc-bpm-display-field-values VpcId,VpcName
+    type: selectx
+    value: ""
+
+  - name: subnet_id
+    describe: 子网
+    rely:
+      - account
+      - region
+      - vpc_id
+    command: c3mc-qcloud-cvm-describe-subnets | c3mc-bpm-display-field-values SubnetId,SubnetName,AvailableIpAddressCount
+    type: selectx
+    value: ""
+
   - name: backend_instance_ids
     describe: 绑定机器
+    rely:
+      - account
+      - region
+      - subnet_id
     command: c3mc-qcloud-clb-describe-cvm-list | c3mc-bpm-display-field-values InstanceId,InstanceName,PrivateIp,PublicIp
     type: selectx
     value: ""
@@ -91,6 +114,10 @@ template_argv:
   clb_name: ${clb_name}
   # 项目
   project_id: ${project_id}
+  # vpc_id
+  vpc_id: ${vpc_id}
+  # 子网id
+  subnet_id: ${subnet_id}
 
   # ------------------------------
   # 监听器配置
