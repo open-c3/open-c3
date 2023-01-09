@@ -1,0 +1,27 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import json
+
+
+def describe_balancer_type_list():
+    return [
+        {
+            "id": "按权重轮询",
+            "name": "按权重轮询",
+        },
+        {
+            "id": "最小连接数",
+            "name": "最小连接数",
+        },
+    ]
+
+
+def main():
+    data_list = describe_balancer_type_list()
+    for item in data_list:
+        print(json.dumps(item))
+
+
+if __name__ == '__main__':
+    main()

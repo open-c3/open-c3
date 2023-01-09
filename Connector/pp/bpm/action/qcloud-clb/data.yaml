@@ -1,0 +1,109 @@
+---
+name: 创建腾讯云clb
+multi: 1
+option:
+  # -------------------------------------------
+  # 基本信息配置
+  - name: account
+    describe: 云账号
+    command: c3mc-display-cloud-account-list qcloud
+    type: selectx
+    value: ""
+
+  - name: region
+    describe: 区域
+    rely:
+      - account
+    command: c3mc-qcloud-cvm-describe-regions | c3mc-bpm-display-field-values Region,RegionName,RegionState
+    type: selectx
+    value: ""
+
+  - name: instance_type
+    describe: 实例类型
+    command: c3mc-qcloud-clb-describe-instance-type-list | c3mc-bpm-display-field-values id,name
+    type: selectx
+    value: ""
+
+  - name: network_type
+    describe: 网络类型
+    command: c3mc-qcloud-clb-describe-network-type-list | c3mc-bpm-display-field-values id,name
+    type: selectx
+    value: ""
+
+  - name: clb_name
+    describe: clb名称
+    type: input
+
+  - name: project_id
+    describe: 项目
+    rely:
+      - account
+      - region
+    command: c3mc-qcloud-cvm-describe-projects | c3mc-bpm-display-field-values ProjectId,Name
+    type: selectx
+    value: ""
+
+  # ------------------------------------------
+  # 监听器配置
+  - name: listener_name
+    describe: 监听器名称
+    type: input
+
+  - name: protocol
+    describe: 协议
+    command: c3mc-qcloud-clb-describe-protocol-type-list | c3mc-bpm-display-field-values id,name
+    type: selectx
+    value: ""
+
+  - name: listener_port
+    describe: 监听器端口
+    type: input
+
+  - name: balancer_type
+    describe: 负载均衡方式
+    command: c3mc-qcloud-clb-describe-balancer-type-list | c3mc-bpm-display-field-values id,name
+    type: selectx
+    value: ""
+
+  - name: backend_instance_ids
+    describe: 绑定机器
+    command: c3mc-qcloud-clb-describe-cvm-list | c3mc-bpm-display-field-values InstanceId,InstanceName,PrivateIp,PublicIp
+    type: selectx
+    value: ""
+
+  - name: port
+    describe: 端口
+    type: input
+
+template_argv:
+  # ------------------------------
+  # 基本信息配置
+
+  # 账号
+  account: ${account}
+  # 区域
+  region: ${region}
+  # 实例类型
+  instance_type: ${instance_type}
+  # 网络类型
+  network_type: ${network_type}
+  # clb名称
+  clb_name: ${clb_name}
+  # 项目
+  project_id: ${project_id}
+
+  # ------------------------------
+  # 监听器配置
+
+  # 监听器名称
+  listener_name: ${listener_name}
+  # 协议
+  protocol: ${protocol}
+  # 监听器端口
+  listener_port: ${listener_port}
+  # 负载均衡方式
+  balancer_type: ${balancer_type}
+  # 绑定机器
+  backend_instance_ids: ${backend_instance_ids}
+  # 端口
+  port: ${port}
