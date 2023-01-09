@@ -20,14 +20,14 @@ option:
 
   - name: instance_type
     describe: 实例类型
-    command: c3mc-qcloud-clb-describe-instance-type-list | c3mc-bpm-display-field-values id,name
-    type: selectx
+    option: ["应用型", "传统型"]
+    type: select
     value: ""
 
   - name: network_type
     describe: 网络类型
-    command: c3mc-qcloud-clb-describe-network-type-list | c3mc-bpm-display-field-values id,name
-    type: selectx
+    option: ["公网", "内网"]
+    type: select
     value: ""
 
   - name: clb_name
@@ -51,8 +51,8 @@ option:
 
   - name: protocol
     describe: 协议
-    command: c3mc-qcloud-clb-describe-protocol-type-list | c3mc-bpm-display-field-values id,name
-    type: selectx
+    option: ["http", "https", "udp", "tcp"]
+    type: select
     value: ""
 
   - name: listener_port
@@ -61,8 +61,8 @@ option:
 
   - name: balancer_type
     describe: 负载均衡方式
-    command: c3mc-qcloud-clb-describe-balancer-type-list | c3mc-bpm-display-field-values id,name
-    type: selectx
+    option: ["按权重轮询", "最小连接数"]
+    type: select
     value: ""
 
   - name: backend_instance_ids
