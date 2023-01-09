@@ -670,3 +670,16 @@ UNIQUE KEY `uniq_uuid` (`uuid`,`caseuuid`)
 # v2.6.0 sql openc3_monitor_config_group add share
 ALTER TABLE openc3_monitor_config_group ADD `share` VARCHAR(200) DEFAULT '' comment '告警组成员编辑权限共享';
 
+# v2.6.0 sql openc3_job_task add extid
+ALTER TABLE openc3_job_task ADD `extid` VARCHAR(50) DEFAULT '' comment '外部关联ID，比如BPM单号';
+
+# v2.6.0 sql openc3_job_bpm_log create
+create table if not exists `openc3_job_bpm_log`(
+`id` int(16) unsigned not null primary key auto_increment comment 'id',
+`bpmuuid` VARCHAR(50) comment 'uuid',
+`step`    VARCHAR(50) comment '步骤',
+`info`    VARCHAR(1000) comment '日志内容',
+`time`    TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '时间'
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='BPM日志';
+
+

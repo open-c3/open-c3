@@ -1,0 +1,87 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use MYDan::Util::OptConf;
+use YAML::XS;
+use JSON;
+use BPM::Flow;
+use BPM::Task::Config;
+
+binmode STDOUT, ':utf8';
+
+=head1 SYNOPSIS
+
+ $0 bpmuuid action
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+$option->assert() unless @ARGV >= 2;
+
+my ( $bpmuuid, $action, @idx ) = @ARGV;
+
+die "bpmuuid err" unless $bpmuuid && $bpmuuid =~ /^BPM\d+$/;
+die "action err"  unless $action  && $action  =~ /^[a-zA-Z0-9][a-zA-Z0-9\-_\.]+$/;
+
+my $var = eval{ BPM::Task::Config->new()->get( $bpmuuid ) };
+die "load var fail: $@" if $@;
+
+my $jobname = $var->{_jobname_};
+die "jobname err" unless $jobname && $jobname =~ /^[a-zA-Z\d][a-zA-Z0-9\-\._]+$/;
+my ( $index ) = @idx;
+
+my $conf = eval{ BPM::Flow->new()->subvariable( $jobname, $index, $action ); };
+die "load template_argv fail: $@" if $@;
+
+my $template_argv = $conf->{template_argv};
+
+die "template_argv error" unless $template_argv && ref $template_argv eq 'HASH';
+
+my @grp = ( '' );
+
+if( $conf->{multi} )
+{
+    my %grp;
+    for my $k ( keys %$var )
+    {
+        next unless $k =~ s/^$index\.(\d+)\.//;
+        $grp{$1} ++;
+    }
+
+    @grp = map{ "$_." }keys %grp;
+}
+
+#BPM TODO grp 按照数字排序
+for my $grp ( @grp )
+{
+    my $json = eval{JSON::to_json $template_argv };
+    die "encode template_argv to json fail: $@" if $@;
+
+    my %var = %$var;
+
+    for my $idx ( @idx )
+    {
+        for my $k ( keys %$var )
+        {
+            my $tk = $k;
+            next unless $tk =~ s/^$idx\.$grp//;
+            $var{$tk} = $var->{$k};
+        }
+    }
+
+    for my $k ( keys %$var )
+    {
+        my $tk = $k;
+        next unless $tk =~ s/^\d+\./x./;
+        $var{$tk} = $var->{$k};
+    }
+
+    for my $k ( keys %var )
+    {
+        my $v = $var{$k};
+        $v =~ s/"/\\"/g;
+        $json =~ s/\$\{$k\}/$v/g;
+    }
+
+    print "$json\n";
+}

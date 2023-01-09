@@ -3,86 +3,94 @@ uuid: c3mc-domain
 name: 域名申请与解析
 action: c3mc-domain
 option:
-  - desc: 申请分类
-    name: 申请分类
+  - describe: 申请分类
     command: c3mc-domain-display-apply-type-list
-    variable_name: apply_type
+    name: apply_type
     type: select
+    option:
+      - '域名解析新申请'
+      - '域名解析修改'
+      - '域名解析删除'
+      - '域名注册'
+    value: ""
     required: true
 
-  - desc: 域名
-    name: 域名
-    variable_name: domain_name
+  - describe: 域名
+    name: domain_name
     type: input
     required: true
-  - desc: 解析目的(IP/线路/域名)
-    name: 解析目的(IP/线路/域名)
+    value: ""
+  - describe: 解析目的(IP/线路/域名)
     pre_or_condition: [
       "apply_type == 域名解析新申请",
       "apply_type == 域名解析修改",
     ]
-    variable_name: resolve_target
+    name: resolve_target
     type: input
+    value: ""
     required: true
-  - desc: 业务名称
-    name: 业务名称
+  - describe: 业务名称
     pre_or_condition: [
       "apply_type == 域名解析新申请",
       "apply_type == 域名注册",
     ]
     command: c3mc-display-business-node-list
-    type: select
-    variable_name: business_node
+    type: input
+#    type: select
+    name: business_node
+    value: ""
     required: true
 
-  - desc: 原解析
-    name: 原解析
+  - describe: 原解析
     pre_or_condition: [
       "apply_type == 域名解析修改",
       "apply_type == 域名解析删除",
     ]
-    variable_name: old_resolve_target
+    name: old_resolve_target
     type: input
+    value: ""
     required: true
 
-  - desc: 是否被注册(已被注册域名请直接联系采购同事跟进)
-    name: 是否被注册(已被注册域名请直接联系采购同事跟进)
+  - describe: 是否被注册(已被注册域名请直接联系采购同事跟进)
     pre_or_condition: [
       "apply_type == 域名注册",
     ]
     command: c3mc-yes-and-no
-    variable_name: if_domain_has_registered
-    type: select
+    name: if_domain_has_registered
+    type: input
+#    type: select
+    value: ""
     required: true
-  - desc: 备案主体
-    name: 备案主体
+  - describe: 备案主体
     pre_or_condition: [
       "apply_type == 域名注册",
     ]
-    variable_name: website_belonger
+    name: website_belonger
     type: input
+    value: ""
     required: true
-  - desc: 申请理由
-    name: 申请理由
-    variable_name: apply_note
-    type: input
+  - describe: 申请理由
+    name: apply_note
+    type: text
+    value: ""
     required: true
-  - desc: 是否使用外部tt, 1: 使用外部tt, 0: 使用内部tt
-    name: 是否使用外部tt
-    hide: "yes"
-    variable_name: if_ext
-    type: input
-    required: false
+#  - describe: '是否使用外部tt, 1: 使用外部tt, 0: 使用内部tt'
+#    hide: "yes"
+#    name: if_ext
+#    type: input
+#    value: ""
+#    required: false
 
 template_argv:
-  ApplyType: ${apply_type}
-  DomainName: ${domain_name}
-  ResolveTarget: ${resolve_target}
-  BusinessNode: ${business_node}
-  OldResolveTarget: ${old_resolve_target}
+  ApplyType:             ${apply_type}
+  DomainName:            ${domain_name}
+  ResolveTarget:         ${resolve_target}
+  BusinessNode:          ${business_node}
+  OldResolveTarget:      ${old_resolve_target}
   IfDomainHasRegistered: ${if_domain_has_registered}
-  WebsiteBelonger: ${website_belonger}
-  Title: "域名申请与解析"
-  ApplyNote: ${apply_note}
-  IfExt: ${if_ext}
+  WebsiteBelonger:       ${website_belonger}
+  Title:                 "域名申请与解析"
+  ApplyNote:             ${apply_note}
+  IfExt:                 0
+#  IfExt: ${if_ext}
 

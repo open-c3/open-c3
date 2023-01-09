@@ -1,0 +1,146 @@
+    <div class="row" style="padding: 10px 20px 0px;">
+        <nodestr></nodestr>
+    </div>
+    <div class="panel panel-primary" style="width: 100%">
+        <div class="panel-body">
+            <div class="form-horizontal">
+                <form class="form-horizontal" name="bpmForm"  role="form" novalidate>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">{{'C3T.名称'|translate}}: &nbsp;
+                                <i ng-if="!bpm.jobsloadover" class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!bpm.jobsloadover}" ></i>
+                            </label>
+                            <div class="col-sm-6">
+                                <select  class="form-control " style="font-size: 15px;height: 42px" ng-disabled="bpm.bpmuuid!='0'" ng-model="choiceJob" ng-options="s.alias for s in bpm.menu" required>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row" ng-repeat="ss in jobVar">
+
+                        <hr ng-if="ss.idx == 0" class="mv20 clear">
+                        <div ng-if="(bpm.selectxhide[ss.name] != '1') && (ss.type && ss.type=='text')" class="col-sm-10 form-group">
+                            <div>
+                                <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
+                                <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
+                                <div class="col-sm-6"> 
+                                    <textarea type="text" rows="5" cols="1"  class="form-control" ng-model="ss.value" placeholder="{{'C3T.内容'|translate}}" required> </textarea>
+                                </div>
+                                <label class="col-sm-3" style="color: gray" >{{ss.name}}</label>
+                            </div>
+                        </div>
+
+                        <div ng-if="(bpm.selectxhide[ss.name] != '1') && (ss.type && ss.type=='kvarray')">
+                            <div class="col-sm-10 form-group" >
+                                <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
+                                <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
+                                <div class="col-sm-3"> 
+                                    <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="bpm.addKvArray( ss )" uib-tooltip="{{'C3T.添加'|translate}}" style="cursor:pointer;color: green;" ></i>
+                                </div>
+                                <div class="col-sm-3">
+                                </div>
+                                <label class="col-sm-3" style="color: gray" >{{ss.name}}</label>
+                            </div>
+                            <div ng-repeat="x in ss.tempvalue" class="col-sm-10 form-group" >
+                                <label class="col-sm-3 control-label"></label>
+                                <div class="col-sm-2"> <input type="text" class="form-control" ng-change="bpm.chKvArray(ss,$index)" ng-model="x.key" placeholder="{{'C3T.填写任务变量'|translate}}" required> </div>
+                                <div class="col-sm-2"> <input type="text" class="form-control" ng-change="bpm.chKvArray(ss,$index)" ng-model="x.value" placeholder="{{'C3T.填写任务变量'|translate}}" required> </div>
+                                <div class="col-sm-2">
+                                    <i class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="bpm.delKvArray(ss,$index)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
+                                 </div>
+                            </div>
+                        </div>
+
+                        <div ng-if="(bpm.selectxhide[ss.name] != '1') && (ss.type && ss.type=='select')" class="col-sm-10 form-group">
+                            <div>
+                                <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
+                                <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
+                                <div class="col-sm-6">
+                                    <select  class="form-control " style="font-size: 15px;height: 42px" ng-change="bpm.optionxchange(ss.name, ss.value)" ng-model="ss.value" ng-options="n for n in ss.option" required>
+                                    </select>
+                                </div>
+                                <label class="col-sm-3" style="color: gray" >{{ss.name}}</label>
+                            </div>
+                        </div>
+
+                        <div ng-if="( bpm.selectxhide[ss.name] != '1' ) && (ss.type && ss.type=='selectx')" class="col-sm-10 form-group">
+                            <div>
+                                <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
+                                <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
+                                <div class="col-sm-6">
+                                    <select  class="form-control " style="font-size: 15px;height: 42px" ng-change="bpm.optionxchange(ss.name, ss.value)" ng-click="bpm.optionxclick(ss.name)"  ng-model="ss.value" ng-options="n.name as n.alias for n in bpm.optionx[ss.name]" required>
+                                    </select>
+                                </div>
+                                <label class="col-sm-3" style="color: gray" >{{ss.name}}</label>
+                                <i ng-if="bpm.selectxloading[ss.name]" class="fa fa-refresh fa-fw" ng-class="{'fa-spin':bpm.selectxloading[ss.name]}" ></i>
+                            </div>
+                        </div>
+
+                        <div ng-if="(bpm.selectxhide[ss.name] != '1') && (ss.type && ss.type=='selectxm')">
+                            <div class="col-sm-10 form-group" >
+                                <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
+                                <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
+                                <div class="col-sm-3"> 
+                                    <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="bpm.addSelectxm( ss )" uib-tooltip="{{'C3T.添加'|translate}}" style="cursor:pointer;color: green;" ></i>
+                                </div>
+                                <div class="col-sm-3">
+                                </div>
+                                <label class="col-sm-3" style="color: gray" >{{ss.name}}</label>
+                            </div>
+                            <div ng-repeat="x in ss.tempvalue" class="col-sm-10 form-group" >
+                                <label class="col-sm-3 control-label"></label>
+                                <div class="col-sm-4">
+                                    <select  class="form-control " style="font-size: 15px;height: 42px" ng-change="bpm.chSelectxm(ss,$index)" ng-click="bpm.optionxclick(ss.name)"  ng-model="x.value" ng-options="n.name as n.alias for n in bpm.optionx[ss.name]" required>
+                                    </select>
+                                </div>
+ 
+                                <div class="col-sm-2">
+                                    <i ng-if="$index != 0" class="fa fa-minus-circle fa-2x" aria-hidden="true" ng-click="bpm.delSelectxm(ss,$index)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: #f63;" ></i>
+                                 </div>
+                            </div>
+                        </div>
+
+                        <div ng-if="( bpm.selectxhide[ss.name] != '1' ) && ( ss.type && ss.type=='number' )" class="col-sm-10 form-group">
+                            <div>
+                                <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
+                                <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
+                                <div class="col-sm-6"> <input type="number" class="form-control" ng-model="ss.value" placeholder="{{'C3T.填写任务变量'|translate}}" required> </div>
+                                <label class="col-sm-3" style="color: gray" >{{ss.name}}</label>
+                            </div>
+                        </div>
+
+                        <div ng-if="( bpm.selectxhide[ss.name] != '1' ) && ( ( ! ss.type ) || ss.type=='input' )" class="col-sm-10 form-group">
+                            <div>
+                                <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
+                                <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
+                                <div class="col-sm-6"> <input type="text" class="form-control" ng-model="ss.value" placeholder="{{'C3T.填写任务变量'|translate}}" required> </div>
+                                <label class="col-sm-3" style="color: gray" >{{ss.name}}</label>
+                            </div>
+                        </div>
+
+                        <div ng-if="ss.ridx == 0 && ss.multi==1" class="col-sm-10 form-group">
+                            <div>
+                                <label class="col-sm-3 control-label"></label>
+                                <div class="col-sm-6">
+                                     <button class="btn btn-primary" ng-click="bpm.addVar($index, ss.name)">{{'C3T.添加'|translate}}</button>
+                                     <button class="btn btn-danger"  ng-if="ss.byaddvar" ng-click="bpm.delVar($index,ss.name)">{{'C3T.删除'|translate}}</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div ng-if="choiceJob" class="row">
+                        <div class="col-sm-3 form-group" style="margin-left: 40%;">
+                            <button ng-if="!bpm.loadover" class="btn btn-primary" ng-disabled="1" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!bpm.loadover}" ></i>{{'C3T.加载中'|translate}}...</button>
+                            <button ng-if="bpm.loadover && bpm.bpmuuid=='0'"  class="btn btn-primary" ng-disabled="bpmForm.$invalid" ng-click="bpm.runTask()">{{'C3T.确认'|translate}}</button>
+                            <button ng-if="bpm.loadover && bpm.bpmuuid!='0'"  class="btn btn-primary" ng-disabled="bpmForm.$invalid" ng-click="bpm.reSave()">{{'C3T.重新保存'|translate}}</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>

@@ -22,7 +22,7 @@ option:
     command_input:
       account: 选择的账号
       region: 选择的区域
-    command: c3mc-ec2create-describe-availability-zones | c3mc-keep-fields ZoneName
+    command: c3mc-ec2create-describe-availability-zones | c3mc-bpm-display-field-values ZoneName
     variable_name: availability_zone
     type: select
     required: true
@@ -31,7 +31,7 @@ option:
     command_input:
       account: 选择的账号
       region: 选择的区域
-    command: c3mc-ec2create-describe-vpcs | c3mc-keep-fields VpcId,Name
+    command: c3mc-ec2create-describe-vpcs | c3mc-bpm-display-field-values VpcId,Name
     variable_name: vpc_id
     type: select
     required: true
@@ -42,7 +42,7 @@ option:
       region: 选择的区域
       availability_zone: 选择的可用区
       vpc_id: 选择的 vpc_id
-    command: c3mc-ec2create-describe-subnets | c3mc-keep-fields SubnetId,Name,AvailableIpAddressCount
+    command: c3mc-ec2create-describe-subnets | c3mc-bpm-display-field-values SubnetId,Name,AvailableIpAddressCount
     variable_name: subnet_id
     type: select
     required: true
@@ -51,7 +51,7 @@ option:
     command_input:
       account: 选择的账号
       region: 选择的区域
-    command: c3mc-ec2create-describe-images-all | c3mc-keep-fields ImageId,Name
+    command: c3mc-ec2create-describe-images-all | c3mc-bpm-display-field-values ImageId,Name
     variable_name: image_id
     type: select
     required: true
@@ -60,7 +60,7 @@ option:
     command_input:
       account: 选择的账号
       region: 选择的区域
-    command: c3mc-ec2create-describe-role-list | c3mc-keep-fields RoleName
+    command: c3mc-ec2create-describe-role-list | c3mc-bpm-display-field-values RoleName
     variable_name: role_name
     type: select_or_input
     required: true
@@ -78,7 +78,7 @@ option:
     command_input:
       account: 选择的账号
       region: 选择的区域
-    command: c3mc-ec2create-describe-security-groups | c3mc-keep-fields GroupId,GroupName
+    command: c3mc-ec2create-describe-security-groups | c3mc-bpm-display-field-values GroupId,GroupName
     variable_name: security_group_ids
     type: multiple_select
     required: true

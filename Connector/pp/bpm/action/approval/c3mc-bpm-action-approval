@@ -1,0 +1,112 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+
+use YAML::XS;
+use POSIX;
+use uuid;
+use Encode;
+use JSON;
+use MYDB;
+use utf8;
+
+$| ++;
+
+local $/ = undef;
+my $data = JSON::from_json( Encode::encode('utf8', <STDIN> ) );
+local $/ = "\n";
+
+die "node data" unless $data;
+map { $data->{$_} = Encode::decode( 'utf8', $data->{$_} ) }keys %$data;
+my ( $submitter, $approver, $approvalname, $cont, $timeout, $everyone, $relaxed )
+  = @$data{qw( submitter approver title content timeout everyone relaxed )};
+
+die "approver undef" unless $approver;
+die "title undef"    unless $approvalname;
+die "content undef"  unless $cont;
+
+$submitter ||= 'sys@app';
+$timeout   ||= '86400';
+
+my $puuid = uuid->new()->create_str;
+my @approver = split /,/, $approver;
+
+my $db = MYDB->new( "/data/Software/mydan/JOB/conf/conn", delayedconnection => 1 );
+
+for my $user ( @approver )
+{
+    my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
+    my $muuid = uuid->new()->create_str;
+    print "LOG. Send mesg to $user, wait for his confirmation\n";
+    my $tempeo = $everyone ? 'YES' :'NO';
+    if( $relaxed && $user eq $submitter )
+    {
+        eval{ $db->execute( 
+            Encode::decode('utf8',
+                "insert into openc3_job_approval (`taskuuid`,`uuid`,`user`,`submitter`,`cont`,`opinion`,`remarks`,`create_time`,`finishtime`,`notifystatus`,`oauuid`,`name`,`everyone`)values('$puuid','$muuid','$user','$submitter','$cont','agree', 'sys.handle.auto','$time','$time', 'skip', '0','$approvalname', '$tempeo' )"
+            )
+        ) };
+    }
+    else
+    {
+        eval{ $db->execute( 
+            Encode::decode('utf8',
+                "insert into openc3_job_approval (`taskuuid`,`uuid`,`user`,`submitter`,`cont`,`opinion`,`remarks`,`create_time`,`notifystatus`,`oauuid`,`name`,`everyone`)values('$puuid','$muuid','$user','$submitter','$cont','unconfirmed', '','$time', 'null', '0','$approvalname', '$tempeo' )"
+            )
+        ) };
+
+    }
+    die "insert to mysql fail: $@" if $@;
+}
+
+my %approver = map{ $_ => 1 }@approver;
+
+my $rtime = int ( $timeout / 3 ) + 1;
+my $subtaskstatus = 'success'; #runnigs,fail,success,decision,ignore,refuse
+for( 1 .. $rtime )
+{
+    my $stat = eval{ $db->query( "select opinion,user,remarks from openc3_job_approval where taskuuid='$puuid'" );};
+    if( $@ )
+    {
+        die "get approval stat err: $@";
+        $stat = [];
+    }
+    for( @$stat )
+    {
+        my ( $opinion, $user, $remarks ) = @$_;
+        next if $opinion eq 'unconfirmed';
+        if( $opinion eq 'refuse' )
+        {
+            print "LOG. refuse by user $user , reason: $remarks\n";
+            $subtaskstatus = 'refuse';
+            last;
+        }elsif( $opinion eq 'agree' )
+        {
+            next unless $approver{$user};
+            print "LOG. $user: agree\n";
+            delete $approver{$user};
+            %approver = () unless $everyone;
+        }
+        else { die "unkown opinion: $opinion"; }
+    }
+    if( $subtaskstatus eq 'fail' || $subtaskstatus eq 'refuse' ){
+        last;
+    }
+    unless( %approver )
+    {
+        print "LOG. OK\n";
+        $subtaskstatus = 'success';
+        last;
+    }
+
+    if( $_ >= $rtime )
+    {
+        print "LOG. timeout.\n";
+        $subtaskstatus = 'fail';
+    }
+    sleep 3;
+}
+ 
+print "substatus = $subtaskstatus\n";
+print "_openc3_sys_pluginstatus_sys_openc3_:$subtaskstatus\n"
+

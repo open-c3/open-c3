@@ -1,0 +1,74 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use YAML::XS;
+use FindBin qw( $RealBin );
+use BPM::Flow;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $menu = eval{ BPM::Flow->new()->menu(); };
+die "load menu fail: $@" if $@;
+
+sub init
+{
+    my $jobname = shift @_;
+    print "=" x 75, "\n";
+    print "jobname: $jobname\n";
+    my @step = eval{ BPM::Flow->new()->step( $jobname ); };
+    die "job $jobname load step fail: $@" if $@;
+    print "step:\n";
+    print YAML::XS::Dump \@step;
+
+    my %jobconf;
+    $jobconf{ create_time } = '2022-12-28 16:23:03';
+    $jobconf{ create_user } = 'open-c3';
+    $jobconf{ edit_time   } = '2022-12-28 16:23:03';
+    $jobconf{ edit_user   } = 'open-c3';
+    $jobconf{ id          } = '0';
+    $jobconf{ mon_ids     } = '';
+    $jobconf{ mon_status  } = 0;
+    $jobconf{ name        } = $jobname;
+    $jobconf{ uuid        } = 'x' x 12;
+    $jobconf{ uuids       } = join ',', map{ sprintf "cmd_%s", 'x' x 12 }0 .. @step -1;
+    
+    my @data;
+    my $idx = 0;
+    for my $stepname ( @step )
+    {
+        $idx ++;
+
+        my $config = eval{ BPM::Flow->new()->subvariable( $jobname, $idx, $stepname ); };
+        die "load $jobname - $idx - $stepname fail: $@" if $@;
+
+        my $alias = $config->{name} || $stepname;
+        push @data, +{
+            action       => 'always',
+            batches      => 'always',
+            deployenv    => 'always',
+            name         => $alias,
+            node_cont    => 'openc3skipnode',
+            node_type    => 'builtin',
+            pause        => '',
+            scripts_argv => "\$BPMUUID $stepname $idx",
+            scripts_cont => '#!bpmtask',
+            scripts_type => 'buildin',
+            timeout      => '86400',
+            user         => '0',
+            uuid         => 'x' x 12,
+        };
+    }
+    $jobconf{ data } = \@data;
+    
+    my $tempfile = "/tmp/openc3-bpm-$jobname.temp";
+    eval{ YAML::XS::DumpFile $tempfile, \%jobconf };
+    die "dump file $tempfile fail: $@" if $@;
+    die "$jobname job-load fail" if system "cat '$tempfile'|c3mc-job-load  -t 0 -j '$jobname'";
+}
+
+map{ init( $_->{name} ) }@$menu;
+

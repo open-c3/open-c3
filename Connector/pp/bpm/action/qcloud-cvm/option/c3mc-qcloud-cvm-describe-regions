@@ -1,0 +1,58 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+from tencentcloud.common import credential
+from tencentcloud.common.profile.client_profile import ClientProfile
+from tencentcloud.common.profile.http_profile import HttpProfile
+from tencentcloud.cvm.v20170312 import cvm_client, models
+
+
+class Regions:
+    def __init__(self, access_id, access_key):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.client = self.create_client()
+
+    def create_client(self):
+        cred = credential.Credential(self.access_id, self.access_key)
+        httpProfile = HttpProfile()
+        httpProfile.endpoint = "cvm.tencentcloudapi.com"
+
+        clientProfile = ClientProfile()
+        clientProfile.httpProfile = httpProfile
+        return cvm_client.CvmClient(cred, "", clientProfile)
+    
+    def describe_regions(self):
+        req = models.DescribeRegionsRequest()
+        params = {}
+        req.from_json_string(json.dumps(params))
+        resp = json.loads(self.client.DescribeRegions(req).to_json_string())
+        return resp["RegionSet"]
+    
+    def show(self):
+        data_list = self.describe_regions()
+        for item in data_list:
+            print(json.dumps(item))
+
+
+def main(params):
+    account = params["account"]
+
+    key_info = json.loads(subprocess.getoutput(
+        "c3mc-get-account-info qcloud {}".format(account)))
+
+    Regions(key_info["access_id"], key_info["access_key"]).show()
+
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]))

@@ -10,13 +10,16 @@ use api;
 use Code;
 use Format;
 
-my ( $nodeinfo, $usertree, $treemap, $point, %notify, %approval );
+my ( $nodeinfo, $usertree, $treemap, $point, %notify, %approval, $ssocookie );
 BEGIN {
     ( $nodeinfo, $usertree, $treemap, $point )
         = map{ Code->new( "connectorx.plugin/$_" ) }qw( nodeinfo usertree treemap point ); 
 
     %notify = map{ $_ => Code->new( "connectorx.plugin/notify.plugin/$_" ) }qw( email sms );
     %approval = map{ $_ => Code->new( "connectorx.plugin/approval.plugin/$_" ) }qw( create query );
+
+    $ssocookie = `c3mc-sys-ctl sys.sso.cookie`;
+    chomp $ssocookie;
 };
 
 #获取服务树节点资源列表
@@ -188,7 +191,19 @@ any '/connectorx/ssologout' => sub {
     my $param = params();
     my $redirect = eval{ $api::ssologout->run( cookie => cookie( $api::cookiekey ) ) };
     $redirect =~ s/\$\{siteaddr\}/$param->{siteaddr}/g if $redirect && $param->{siteaddr};
-    set_cookie( $api::cookiekey => '', http_only => 0, expires => -1 );
+
+    my $domain = $param->{siteaddr};
+    $domain = $1 if $domain && $domain =~ /^http[s]*:\/\/(.+)$/;
+    $domain = $1 if $domain && $domain =~ /^(.+):\d+$/;
+
+    my %domain;
+    if( $ssocookie && $domain && $domain =~ /[a-z]/ )
+    {
+        my @x = reverse split /\./, $domain;
+        %domain = ( domain => ".$x[1].$x[0]") if @x >= 3;
+    }
+
+    set_cookie( $api::cookiekey => '', http_only => 0, expires => -1, %domain );
     return +{ stat => $JSON::false, info => "sso code error:$@" } if $@;
     return +{ stat => $JSON::true, info => 'ok', data => $redirect };
 };

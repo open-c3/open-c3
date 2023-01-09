@@ -32,8 +32,17 @@ class Cos:
         sleep_time_for_limiting(max_times_list_cos_tags)
 
     def list_buckets(self):
-        response = self.client.list_buckets()
+        try:
+            response = self.client.list_buckets()
+        except Exception as e:
+            if "Failed to establish a new connection" in str(e):
+                return []
+            else: 
+                raise Exception(e)
+
         result = []
+        if response["Buckets"] is None:
+            return []
         for bucket in response["Buckets"]["Bucket"]:
             self.sleep()
             bucket["tags"] = self.list_tag(bucket["Location"], bucket["Name"])

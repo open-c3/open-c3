@@ -1,0 +1,59 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import json
+import sys
+import subprocess
+
+from tencentcloud.common import credential
+from tencentcloud.common.profile.client_profile import ClientProfile
+from tencentcloud.common.profile.http_profile import HttpProfile
+from tencentcloud.dcdb.v20180411 import dcdb_client, models
+
+
+class Projects:
+    def __init__(self, access_id, access_key, region):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.region = region
+        self.client = self.create_client()
+
+    def create_client(self):
+        cred = credential.Credential(self.access_id, self.access_key)
+        httpProfile = HttpProfile()
+        httpProfile.endpoint = "dcdb.tencentcloudapi.com"
+
+        clientProfile = ClientProfile()
+        clientProfile.httpProfile = httpProfile
+        return dcdb_client.DcdbClient(cred, self.region, clientProfile)
+    
+    def describe_projects(self):
+        req = models.DescribeProjectsRequest()
+        params = {}
+        req.from_json_string(json.dumps(params))
+        resp = json.loads(self.client.DescribeProjects(req).to_json_string())
+        return resp["Projects"]
+    
+    def show(self):
+        data_list = self.describe_projects()
+        for item in data_list:
+            print(json.dumps(item))
+
+
+def main(params):
+    account = params["account"]
+    region = params["region"]
+
+    key_info = json.loads(subprocess.getoutput(
+        "c3mc-get-account-info qcloud {}".format(account)))
+    Projects(key_info["access_id"], key_info["access_key"], region).show()
+
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]))
