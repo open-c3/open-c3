@@ -1,0 +1,105 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+from tencentcloud.common import credential
+from tencentcloud.common.profile.client_profile import ClientProfile
+from tencentcloud.common.profile.http_profile import HttpProfile
+from tencentcloud.clb.v20180317 import clb_client, models
+
+
+class Clb:
+    def __init__(self, access_id, access_key, region, params):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.region = region
+        self.params = params
+        self.client = self.create_client()
+
+    def create_client(self):
+        cred = credential.Credential(
+            self.access_id, self.access_key)
+        httpProfile = HttpProfile()
+        httpProfile.endpoint = "clb.tencentcloudapi.com"
+
+        clientProfile = ClientProfile()
+        clientProfile.httpProfile = httpProfile
+        client = clb_client.ClbClient(cred, self.region, clientProfile)
+        return client
+    
+    def get_request(self):
+        req = models.CreateLoadBalancerRequest()
+
+        network_type = "OPEN"
+        if self.params["network_type"] == "内网":
+            network_type = "INTERNAL"
+        api_params = {
+            "LoadBalancerType": network_type,
+            "Forward": 1,
+            "ProjectId": int(self.params["project_id"]),
+            "LoadBalancerName": self.params["clb_name"],
+            "VpcId": self.params["vpc_id"],
+            "Number": 1
+        }
+        if network_type == "INTERNAL":
+            api_params["SubnetId"] = self.params["subnet_id"]
+        if "tag" in self.params:
+            tag_list = json.loads(self.params["tag"])
+            if len(tag_list) > 0:
+                api_params["Tags"] = []
+                for tag in tag_list:
+                    api_params["Tags"].append({
+                        "TagKey": tag['key'],
+                        "TagValue": tag['value']
+                    })
+        req.from_json_string(json.dumps(api_params))
+        return req
+
+    def create_clb(self, req):
+        resp = self.client.CreateLoadBalancer(req)
+        return json.loads(resp.to_json_string())
+    
+
+def main(params):
+    account = params["account"]
+    region = params["region"]
+
+    key_info = json.loads(subprocess.getoutput(
+        "c3mc-get-account-info qcloud {}".format(account)))
+
+    clb = Clb(key_info["access_id"],
+        key_info["access_key"], region, params)
+    
+    req = clb.get_request()
+    print("创建clb, 请求参数为: {}".format(req))
+
+    if subprocess.getoutput("c3mc-sys-ctl sys.bpm.fake.run") == "1":
+        # bpm虚假运行
+        print("创建clb, 响应为: xxxxxx")
+        print("LOG. clb_id:xxxxxx")
+        print("VAR. clb_id:xxxxxx")
+    else:
+        try:
+            resp = clb.create_clb(req)
+            print("创建clb, 响应为: {}".format(json.dumps(resp)))
+
+            clb_id = resp["LoadBalancerIds"][0]
+
+            print("LOG. clb_id:{}".format(clb_id))
+            print("VAR. clb_id:{}".format(clb_id))
+        except Exception as e:
+            print("创建腾讯云clb出错, err: {}".format(e), file=sys.stderr)
+            exit(1)
+    
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]))
