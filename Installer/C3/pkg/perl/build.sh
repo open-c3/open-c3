@@ -13,3 +13,6 @@ docker build . -t openc3/pkg-perl:$VERSION --no-cache
 
 docker run -v /data/open-c3/Installer/C3/pkg/perl:/tempdata openc3/pkg-perl:$VERSION
 
+mkdir -p _tempdata/open-c3/Connector/pkg
+mv perl.tar.gz _tempdata/open-c3/Connector/pkg/
+mv _tempdata tempdata

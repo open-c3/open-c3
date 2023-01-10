@@ -9,3 +9,6 @@ fi
 bash -c "cd dev-cache && git pull";
 tar -zcf dev-cache.tar.gz dev-cache --exclude .git
 
+mkdir -p _tempdata/open-c3/Connector/pkg
+mv dev-cache.tar.gz _tempdata/open-c3/Connector/pkg/
+mv _tempdata tempdata
