@@ -5,6 +5,8 @@ cd /data/open-c3/Installer/C3/pkg || exit 1
 
 cat module|xargs -i{} bash -c "./extract-module.sh {} || exit 255"
 
+# unzip
+cd /data/open-c3/Connector/pkg || exit 1
 tar -zxvf install-cache.tar.gz;
 tar -zxvf dev-cache.tar.gz;
 tar -zxvf book.tar.gz;
