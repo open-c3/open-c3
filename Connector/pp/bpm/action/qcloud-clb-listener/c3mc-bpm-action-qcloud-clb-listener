@@ -1,0 +1,97 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+from tencentcloud.common import credential
+from tencentcloud.common.profile.client_profile import ClientProfile
+from tencentcloud.common.profile.http_profile import HttpProfile
+from tencentcloud.clb.v20180317 import clb_client, models
+
+
+class Listener:
+    def __init__(self, access_id, access_key, region, params):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.region = region
+        self.params = params
+        self.client = self.create_client()
+
+    def create_client(self):
+        cred = credential.Credential(
+            self.access_id, self.access_key)
+        httpProfile = HttpProfile()
+        httpProfile.endpoint = "clb.tencentcloudapi.com"
+
+        clientProfile = ClientProfile()
+        clientProfile.httpProfile = httpProfile
+        client = clb_client.ClbClient(cred, self.region, clientProfile)
+        return client
+    
+    def get_request(self):
+        req = models.CreateListenerRequest()
+
+        api_params = {
+            "LoadBalancerId": self.params["clb_id"],
+            "Ports": [ int(self.params["listener_port"]) ],
+            "Protocol": self.params["protocol"].upper(),
+            "ListenerNames": [ self.params["listener_name"] ],
+        }
+        if self.params["protocol"] == "https":
+            api_params["Certificate"] = {
+                "SSLMode": "UNIDIRECTIONAL",
+                "CertId": self.params["cert_id"]
+            }
+        if self.params["balancer_type"] == "tcp" or self.params["balancer_type"] == "udp":
+            api_params["Scheduler"] = self.params["balancer_type"]
+        
+        req.from_json_string(json.dumps(api_params))
+        return req
+
+    def create_listener(self, req):
+        resp = self.client.CreateListener(req)
+        return json.loads(resp.to_json_string())
+    
+
+def main(params):
+    account = params["account"]
+    region = params["region"]
+
+    key_info = json.loads(subprocess.getoutput(
+        "c3mc-get-account-info qcloud {}".format(account)))
+
+    listener = Listener(key_info["access_id"],
+        key_info["access_key"], region, params)
+    
+    req = listener.get_request()
+    print("创建listener, 请求参数为: {}".format(req))
+
+    if subprocess.getoutput("c3mc-sys-ctl sys.bpm.fake.run") == "1":
+        # bpm虚假运行
+        print("创建listener, 响应为: xxxxxx")
+        print("LOG. listener_id:xxxxxx")
+        print("VAR. listener_id:xxxxxx")
+    else:
+        try:
+            resp = listener.create_listener(req)
+            print("创建listener, 响应为: {}".format(json.dumps(resp)))
+
+            listener_id = resp["ListenerIds"][0]
+
+            print("LOG. listener_id:{}".format(listener_id))
+            print("VAR. listener_id:{}".format(listener_id))
+        except Exception as e:
+            print("创建腾讯云监听器出错, err: {}".format(e), file=sys.stderr)
+            exit(1)
+    
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]))
