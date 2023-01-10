@@ -20,4 +20,4 @@ docker push openc3/pkg-$MODULE:$VERSION
 
 git add $MODULE/version
 
-echo >> "upload $MODULE to version: $VERSION" >> upload.txt
+echo "upload $MODULE to version: $VERSION" >> upload.txt
