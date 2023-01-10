@@ -38,15 +38,16 @@ class Subnets:
                 {
                     "Name": "vpc-id",
                     "Values": [ self.vpc_id ]
-                },
-                 {
-                    "Name": "zone",
-                    "Values": [ self.zone ]
                 }
             ],
             "Limit": str(self.page_size),
             "Offset": str((self.page_number - 1) * self.page_size)
         }
+        if self.zone is not None:
+            params["Filters"].append({
+                "Name": "zone",
+                "Values": [ self.zone ]
+            })
         req.from_json_string(json.dumps(params))
         return self.client.DescribeSubnets(req)
     
@@ -76,7 +77,9 @@ class Subnets:
 def main(params):
     account = params["account"]
     region = params["region"]
-    zone = params["zone"]
+    zone = None
+    if "zone" in params:
+        zone = params["zone"]
     vpc_id = params["vpc_id"]
 
     key_info = json.loads(subprocess.getoutput(
