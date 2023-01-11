@@ -1,7 +1,8 @@
-#!/bin/bash
+#!/bin/sh
 set -e
 
-if [ "X$1" == "Xbash" ]; then
-    exec bash
+if [ "X$1" == "Xsh" ]; then
+    exec sh
 fi
-rsync -av /tempdata/open-c3/ /data/open-c3/
+
+tar -zxvf /x.tar.gz -C /data

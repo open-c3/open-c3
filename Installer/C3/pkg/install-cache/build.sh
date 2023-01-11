@@ -9,3 +9,6 @@ fi
 bash -c "cd install-cache && git pull";
 tar -zcf install-cache.tar.gz install-cache --exclude .git
 
+mkdir -p _tempdata/open-c3/Connector/pkg
+mv install-cache.tar.gz _tempdata/open-c3/Connector/pkg/
+mv _tempdata tempdata

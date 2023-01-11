@@ -1,17 +1,15 @@
 #!/bin/bash
 set -e
 
-VERSION=2212221
-if [ "X$1" != "X" ];then
-    VERSION=$1
-fi
-echo VERSION:$VERSION
+cd /data/open-c3/Installer/C3/pkg || exit 1
 
-docker run --rm -v /data/open-c3:/data/open-c3 openc3/pkg:$VERSION
+cat module|xargs -i{} bash -c "./extract-module.sh {} || exit 255"
 
-bash -c "cd /data/open-c3/Connector/pkg && tar -zxvf install-cache.tar.gz";
-bash -c "cd /data/open-c3/Connector/pkg && tar -zxvf dev-cache.tar.gz";
-bash -c "cd /data/open-c3/Connector/pkg && tar -zxvf book.tar.gz";
+# unzip
+cd /data/open-c3/Connector/pkg || exit 1
+tar -zxvf install-cache.tar.gz;
+tar -zxvf dev-cache.tar.gz;
+tar -zxvf book.tar.gz;
 
 # install-cache
 if [ -d "/data/open-c3/Installer/install-cache" ] && [ ! -L "/data/open-c3/Installer/install-cache" ] ; then
