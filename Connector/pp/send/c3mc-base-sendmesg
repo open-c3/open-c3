@@ -15,6 +15,7 @@ use LWP::UserAgent;
 use JSON;
 use Configini;
 use OPENC3::Crypt;
+use File::Temp;
 
 =head1 SYNOPSIS
 
@@ -63,6 +64,16 @@ sub sendmesg
 
     my $x = $db->query( sprintf "select `phone` from openc3_connector_useraddr where user='$user'" );
     $user = $crypt->decode( $x->[0][0] ) if @$x;
+
+    if( $user =~ /^([a-z][a-z\-]*[a-z]):(.+)$/ )
+    {
+        my ( $extc, $extu ) = ( $1, $2 );
+        my ( $TEMP, $tempfile ) = File::Temp::tempfile();
+        print $TEMP $mesg;
+        die "sendmesg-$extc fail: $!" if system "cat $tempfile|c3mc-base-sendmesg-$extc '$extu'";
+        close $TEMP;
+        return;
+    }
 
     if( $usermesg =~ /api.connector.open-c3.org/ )
     {
