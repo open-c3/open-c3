@@ -71,8 +71,8 @@ def main(params):
     if subprocess.getoutput("c3mc-sys-ctl sys.bpm.fake.run") == "1":
         # bpm虚假运行
         print("创建listener, 响应为: xxxxxx")
-        print("LOG. listener_id:xxxxxx")
-        print("VAR. listener_id:xxxxxx")
+        print("LOG. listener_info:xxxxx=sssss=vvvvv")
+        print("VAR. listener_info:xxxxx=sssss=vvvvv")
     else:
         try:
             resp = listener.create_listener(req)
@@ -80,8 +80,8 @@ def main(params):
 
             listener_id = resp["ListenerIds"][0]
 
-            print("LOG. listener_id:{}".format(listener_id))
-            print("VAR. listener_id:{}".format(listener_id))
+            print("LOG. listener_info:{}={}={}".format(params["listener_name"], listener_id, params["protocol"]))
+            print("VAR. listener_info:{}={}={}".format(params["listener_name"], listener_id, params["protocol"]))
         except Exception as e:
             print("创建腾讯云监听器出错, err: {}".format(e), file=sys.stderr)
             exit(1)

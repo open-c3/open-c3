@@ -1,0 +1,65 @@
+---
+name: 创建腾讯云应用型clb转发规则
+multi: 1
+option:
+  # -------------------------------------------
+  - name: domain
+    describe: 域名
+    type: input
+
+  - name: url
+    describe: url
+    type: input
+
+  - name: listener_list
+    describe: 监听器列表
+    type: input
+
+  - name: instance_ids
+    describe: 绑定机器
+    rely:
+      - account
+      - region
+      - subnet_id
+    command: c3mc-qcloud-clb-describe-cvm-list | c3mc-bpm-display-field-values InstanceId,InstanceName,PrivateIp,PublicIp
+    type: selectx
+    value: ""
+
+  - name: port
+    describe: 服务器端口
+    type: input
+
+  - name: scheduler
+    describe: 规则请求转发方式
+    option: ["按权重轮询", "最小连接数", "按IP哈希"]
+    type: select
+    value: "按权重轮询"
+
+  - name: forward_type
+    # 负载均衡与后端服务之间的转发协议
+    describe: 转发协议
+    option: ["HTTP", "HTTPS", "TRPC"]
+    type: select
+    value: ""
+
+template_argv:
+  # 账号
+  account: ${account}
+  # 区域
+  region: ${region}
+  # 域名
+  domain: ${domain}
+  # url
+  url: ${url}
+  # clb实例的ID
+  clb_id: ${var.clb_id}
+  # 监听器的ID
+  extlistener_id: ${var.listener_id}
+  # 服务器实例ID列表
+  instance_ids: ${instance_ids}
+  # 服务器端口
+  port: ${port}
+  # 规则请求转发方式
+  scheduler: ${scheduler}
+  # 负载均衡与后端服务之间的转发协议
+  forward_type: ${forward_type}
