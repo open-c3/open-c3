@@ -41,7 +41,7 @@ post '/useraddr' => sub {
     my $error = Format->new( 
         user      => qr/^[a-zA-Z0-9\.\@_\-]+$/, 1,
         email     => qr/^[a-zA-Z0-9\.\@_\-]+$/, 1,
-        phone     => qr/^[a-zA-Z0-9\.\@_\-]+$/, 1,
+        phone     => qr/^[a-zA-Z0-9:\.\@_\-]+$/, 1,
         voicemail => qr/^[a-zA-Z0-9\.\@_\-]+$/, 0,
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;

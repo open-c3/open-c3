@@ -1,0 +1,87 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDan::Util::OptConf;
+use LWP::UserAgent;
+use JSON;
+use POSIX;
+
+=head1 SYNOPSIS
+
+ $0 user1 user2 ... user3
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o      = $option->get()->dump();
+$option->assert() unless @ARGV;
+
+local $/ = undef;
+my $mesg = Encode::encode('utf8', <STDIN> );
+local $/ = "\n";
+
+my $ua = LWP::UserAgent->new;
+$ua->timeout( 15 );
+
+my $name = 'feishu-bot';
+my $path = sprintf "/data/open-c3-data/send/%s/$name/", POSIX::strftime( "%F", localtime );
+system "mkdir -p '$path'" unless -d $path;
+
+sub call
+{
+    my ( $user, $mesg ) = @_;
+
+    my %form = (
+        msg_type => 'text',
+        content  => +{ text => $mesg },
+    );
+
+    my $url = "https://open.feishu.cn/open-apis/bot/v2/hook/$user";
+    my $res = $ua->post( $url,
+        Content => JSON::to_json( \%form ), 'Content-Type' => 'application/json'
+    );
+
+    if( $res->is_success )
+    {
+        my $data = eval{JSON::from_json $res->content};
+        die sprintf( "res from json fail: %s", $res->content ) if $@;
+        die "resp error: $res->content" unless $data && $data->{StatusMessage} && $data->{StatusMessage} eq 'success';
+        return 1;
+    }
+    die sprintf "http error: %s", YAML::XS::Dump $res;
+}
+
+sub sendmesg
+{
+    my ( $user, $mesg ) = @_;
+
+    my ( $err, $status );
+    for my $i ( reverse 1 .. 3 )
+    {
+        my $stat = eval{ call( $user, $mesg ); };
+        $err = $@ ? "call $name error: $@" : "";
+        $status = ( $stat  && ! $err ) ? "ok": "fail";
+
+        YAML::XS::DumpFile sprintf( "$path/%s.%03d.$user.$status", POSIX::strftime( "%Y%m%d%H%M%S", localtime ), rand 1000 ),
+             +{ mesg => Encode::decode('utf8', $mesg ), user => $user, err => $err };
+
+        last if $status eq 'ok';
+
+        if( $i > 1 )
+        {
+            warn sprintf( "sendmesg error %s", $err );
+            sleep 3;
+        }
+    }
+
+    die sprintf( "$err: status %s", $status ) unless $status eq 'ok';
+}
+
+map{ sendmesg( $_, $mesg ) }@ARGV;
