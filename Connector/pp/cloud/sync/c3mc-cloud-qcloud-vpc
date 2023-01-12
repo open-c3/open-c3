@@ -1,0 +1,90 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+
+from tencentcloud.common import credential
+from tencentcloud.common.profile.client_profile import ClientProfile
+from tencentcloud.common.profile.http_profile import HttpProfile
+from tencentcloud.vpc.v20170312 import vpc_client, models
+
+# DescribeVpcs() 的接口请求频率限制
+max_times_describe_vpcs = 100
+
+
+class Vpc:
+    def __init__(self, access_id, access_key, region):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.region = region
+        self.page_number = 1
+        self.page_size = 100
+        self.client = self.create_client()
+
+    def create_client(self):
+        cred = credential.Credential(
+            self.access_id, self.access_key)
+        http_profile = HttpProfile()
+        http_profile.endpoint = "vpc.tencentcloudapi.com"
+
+        client_profile = ClientProfile()
+        client_profile.httpProfile = http_profile
+        client = vpc_client.VpcClient(cred, self.region, client_profile)
+        return client
+
+    def set_request(self):
+        req = models.DescribeVpcsRequest()
+        req.Limit = str(self.page_size)
+        req.Offset = str((self.page_number - 1) * self.page_size)
+        return req
+
+    def get_response(self):
+        request = self.set_request()
+        response_data = self.client.DescribeVpcs(request)
+        return response_data
+
+    def get_server_count(self):
+        response_data = self.get_response()
+        return response_data.TotalCount
+
+    def list_instance(self):
+        response_data = self.get_response()
+        response_data = json.loads(response_data.to_json_string())
+
+        result = []
+        for instance in response_data["VpcSet"]:
+            instance["RegionId"] = self.region
+            result.append(instance)
+        return result
+
+    def show(self):
+        instance_list = self.list_instance()
+        for instance in instance_list:
+            print(json.dumps(instance, default=str))
+
+    def sleep(self):
+        sys.path.append("/data/Software/mydan/Connector/lib/pp")
+        from c3mc_utils import sleep_time_for_limiting
+        sleep_time_for_limiting(max_times_describe_vpcs)
+
+    def page(self):
+        count = self.get_server_count()
+        mod = count % self.page_size
+        if mod:
+            total_page_number = int(count / self.page_size) + 1
+        else:
+            total_page_number = int(count / self.page_size)
+
+        for cur_page_number in range(1, total_page_number + 1):
+            self.page_number = cur_page_number
+            self.sleep()
+            self.show()
+
+
+def main(access_id, access_key, region):
+    Vpc(access_id, access_key, region).page()
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3])
