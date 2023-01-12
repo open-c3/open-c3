@@ -82,6 +82,7 @@ def main(params):
         print("创建clb, 响应为: xxxxxx")
         print("LOG. clb_id:xxxxxx")
         print("VAR. clb_id:xxxxxx")
+        print("VAR. extinstance_id:xx.cc.vv")
     else:
         try:
             resp = clb.create_clb(req)
@@ -91,6 +92,7 @@ def main(params):
 
             print("LOG. clb_id:{}".format(clb_id))
             print("VAR. clb_id:{}".format(clb_id))
+            print("VAR. extinstance_id:{}.{}.{}".format(params["account"], params["region"], clb_id))
         except Exception as e:
             print("创建腾讯云clb出错, err: {}".format(e), file=sys.stderr)
             exit(1)
