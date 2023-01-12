@@ -11,8 +11,8 @@ option:
     describe: url
     type: input
 
-  - name: listener_list
-    describe: 监听器列表
+  - name: listener_name
+    describe: 监听器名字
     type: input
 
   - name: instance_ids
@@ -54,7 +54,9 @@ template_argv:
   # clb实例的ID
   clb_id: ${var.clb_id}
   # 监听器的ID
-  extlistener_id: ${var.listener_id}
+  listener_id: ${var.listener_id_${listener_name}}
+  # 协议
+  protocol: ${var.protocol_${listener_name}}
   # 服务器实例ID列表
   instance_ids: ${instance_ids}
   # 服务器端口

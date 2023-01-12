@@ -43,7 +43,7 @@ class Rule:
 
         api_params = {
             "LoadBalancerId": self.params["clb_id"],
-            "ListenerId": self.params["extlistener_id"].split("=")[1],
+            "ListenerId": self.params["listener_id"],
             "Rules": [{
                 "Domain": self.params["domain"],
                 "Url": self.params["url"],
@@ -63,7 +63,7 @@ class Rule:
 
         api_params = {
             "LoadBalancerId": self.params["clb_id"],
-            "ListenerId": self.params["extlistener_id"].split("=")[1],
+            "ListenerId": self.params["listener_id"],
             "Targets": []
         }
         if location_id is not None:
@@ -95,7 +95,7 @@ def main(params):
     
     # 监听器使用的协议
     # udp和tcp协议时，不需要创建转发规则
-    listener_protocol = params["extlistener_id"].split("=")[2]
+    listener_protocol = params["protocol"]
     
     location_id = None
     
