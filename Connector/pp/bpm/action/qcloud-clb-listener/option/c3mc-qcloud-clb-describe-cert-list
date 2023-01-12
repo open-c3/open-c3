@@ -8,51 +8,44 @@ import subprocess
 from tencentcloud.common import credential
 from tencentcloud.common.profile.client_profile import ClientProfile
 from tencentcloud.common.profile.http_profile import HttpProfile
-from tencentcloud.cvm.v20170312 import cvm_client, models
+from tencentcloud.ssl.v20191205 import ssl_client, models
 
 
-class Cvm:
-    def __init__(self, access_id, access_key, region):
+class SSL:
+    def __init__(self, access_id, access_key):
         self.access_id = access_id
         self.access_key = access_key
-        self.region = region
         self.client = self.create_client()
         self.page_number = 1
-        self.page_size = 100
+        self.page_size = 1000
 
     def create_client(self):
         cred = credential.Credential(self.access_id, self.access_key)
         httpProfile = HttpProfile()
-        httpProfile.endpoint = "cvm.tencentcloudapi.com"
+        httpProfile.endpoint = "ssl.tencentcloudapi.com"
 
         clientProfile = ClientProfile()
         clientProfile.httpProfile = httpProfile
-        return cvm_client.CvmClient(cred, self.region, clientProfile)
+        return ssl_client.SslClient(cred, "", clientProfile)
     
-    def describe_cvms(self):
-        req = models.DescribeInstancesRequest()
+    def describe_certificates(self):
+        req = models.DescribeCertificatesRequest()
         params = {
             "Limit": self.page_size,
             "Offset": (self.page_number - 1) * self.page_size
         }
         req.from_json_string(json.dumps(params))
-        return self.client.DescribeInstances(req)
+        return self.client.DescribeCertificates(req)
     
     def get_total_count(self):
-        response_data = self.describe_cvms()
+        response_data = self.describe_certificates()
         return response_data.TotalCount
 
     def show(self):
-        response_data = self.describe_cvms()
+        response_data = self.describe_certificates()
         response_data = json.loads(response_data.to_json_string())
-        data_list = response_data["InstanceSet"]
+        data_list = response_data["Certificates"]
         for item in data_list:
-            item["PrivateIp"] = ""
-            item["PublicIp"] = ""
-            if len(item["PrivateIpAddresses"]) > 0:
-                item["PrivateIp"] = item["PrivateIpAddresses"][0]
-            if len(item["PublicIpAddresses"]) > 0:
-                item["PublicIp"] = item["PublicIpAddresses"][0]
             print(json.dumps(item, default=str))
 
     def page(self):
@@ -70,11 +63,10 @@ class Cvm:
 
 def main(params):
     account = params["account"]
-    region = params["region"]
 
     key_info = json.loads(subprocess.getoutput(
         "c3mc-get-account-info qcloud {}".format(account)))
-    Cvm(key_info["access_id"], key_info["access_key"], region).page()
+    SSL(key_info["access_id"], key_info["access_key"]).page()
 
 
 if __name__ == '__main__':
