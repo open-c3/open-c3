@@ -136,6 +136,10 @@ def main(params):
         except Exception as e:
             print("绑定后端机器到监听器, err: {}".format(e), file=sys.stderr)
             exit(1)
+
+        # 防止后续再次立即执行创建转发规则时报错
+        # 休眠一会儿等待状态正常
+        time.sleep(25)
     
 
 if __name__ == '__main__':
