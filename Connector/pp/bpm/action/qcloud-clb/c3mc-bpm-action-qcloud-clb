@@ -4,6 +4,7 @@
 import sys
 import json
 import subprocess
+import time
 
 from tencentcloud.common import credential
 from tencentcloud.common.profile.client_profile import ClientProfile
@@ -93,6 +94,10 @@ def main(params):
         except Exception as e:
             print("创建腾讯云clb出错, err: {}".format(e), file=sys.stderr)
             exit(1)
+
+        # 防止后续立即执行创建监听器时报错
+        # 休眠一会儿等待clb状态正常
+        time.sleep(25)
     
 
 if __name__ == '__main__':
