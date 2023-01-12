@@ -198,7 +198,16 @@
                  var tempename = vm.extname( data.name ); 
                  if( ename[0] == tempename[0] && data['show'] && data['show'][0] == ename[1] )
                  {
-                     if( data['show'][1] == stepvalue )
+                     var match = false;
+                     angular.forEach(data['show'], function (data, index) {
+                         if( data == stepvalue && index > 0 )
+                         {
+                             match = true;
+                         }
+                     });
+
+                     //if( data['show'][1] == stepvalue )
+                     if( match )
                      {
                          vm.selectxhide[data.name] = '0';
                          data.value = "";
