@@ -21,7 +21,8 @@ my $db = MYDB->new( "/data/Software/mydan/JOB/conf/conn", delayedconnection => 1
 sub record
 {
     my $row = shift @_;
-    warn $row, "\n";
+    warn  $row, "\n";
+    print $row, "\n";
     return unless $row =~ s/^LOG\.\s*//;
     $row =~ s/'//g;
     $row = substr $row, 0, 1000 if length $row > 1000;
