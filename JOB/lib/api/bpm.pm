@@ -166,6 +166,33 @@ post '/bpm/optionx' => sub {
                 push @data, +{ name => $currvar->{$k}, alias => $currvar->{$k} } if $tk eq $command->[1];
             }
         }
+        if( $command->[0] eq 'point' && $command->[1] && $command->[2] )
+        {
+            #$command->[1] 要匹配的字段
+            #$command->[2] 要赋值给自己的字段
+            #
+            #$stepindex, $grp, $varname  # 如果是multi形式的话,grp是子组的id，否则为""
+            #$currvar 为原始hash数据
+            #%var 是正常给command的json数据
+
+            my $prefix = $grp ? "$stepindex.$grp": $stepindex;
+            my $selected = $currvar->{"$prefix.$command->[1]"};
+
+            # 查找其他组里面匹配的字段，赋值给自己这个组
+            my $point;
+            for my $k ( keys %$currvar )
+            {
+                $k =~ /^([\d][.\d]+)\.([a-z].+)$/;
+                my ( $p, $n ) = ($1, $2);
+                next if $n ne $command->[1];
+                next if $p eq $prefix;
+                next if $currvar->{$k} ne $selected;
+                $point = $currvar->{"$p.$command->[2]"};
+            }
+
+            push @data, +{ name => $point, alias => $point } if $point;
+        }
+ 
         return +{ stat => $JSON::true, data => \@data };
     }
 

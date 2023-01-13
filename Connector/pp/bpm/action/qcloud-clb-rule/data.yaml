@@ -7,13 +7,13 @@ option:
     type: selectx
     command: [ 'list', 'listener_name' ]
 
-  - name: domain
-    describe: 域名
-    type: input
-
-  - name: url
-    describe: url
-    type: input
+  - name: protocol
+    describe: 协议
+    rely:
+      - listener_name
+    command: ["point", "listener_name", "protocol" ]
+    type: selectx
+    value: ""
 
   - name: instance_ids
     describe: 绑定机器
@@ -25,15 +25,27 @@ option:
     type: selectx
     value: ""
 
+  - name: domain
+    describe: 域名
+    type: input
+    show: ["protocol", "http", "https"]
+
+  - name: url
+    describe: url
+    type: input
+    show: ["protocol", "http", "https"]
+
   - name: port
     describe: 服务器端口
     type: input
+    show: ["protocol", "http", "https"]
 
   - name: scheduler
     describe: 规则请求转发方式
     option: ["按权重轮询", "最小连接数", "按IP哈希"]
     type: select
     value: "按权重轮询"
+    show: ["protocol", "http", "https"]
 
   - name: forward_type
     # 负载均衡与后端服务之间的转发协议
@@ -41,6 +53,7 @@ option:
     option: ["HTTP", "HTTPS", "TRPC"]
     type: select
     value: ""
+    show: ["protocol", "http", "https"]
 
 template_argv:
   # 账号
