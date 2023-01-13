@@ -126,6 +126,18 @@ post '/bpm/optionx' => sub {
 
     my $currvar = $param->{bpm_variable};
     my %var;
+
+    #BPM TODO, 传入的数据过多，这个是把所有插件的数据压扁传入选项命令中.
+    #其后会有一层覆盖，用本插件本步骤的进行覆盖，极端情况下可能会有子步骤变量缺失，
+    #但是确用了全局变量，需要明确是外部变量，格式如 x.var
+    for my $k ( keys %$currvar )
+    {
+        my $tk = $k;
+        $tk =~ s/^\d+\.//;
+        $tk =~ s/^\d+\.//;
+        $var{$tk} = $currvar->{$k};
+    }
+
     for my $k ( keys %$currvar )
     {
         my ( $ti, $tk ) = split /\./, $k, 2;
