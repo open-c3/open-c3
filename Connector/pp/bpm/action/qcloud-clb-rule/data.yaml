@@ -2,7 +2,6 @@
 name: 创建腾讯云应用型clb转发规则
 multi: 1
 option:
-  # -------------------------------------------
   - name: domain
     describe: 域名
     type: input
@@ -18,9 +17,9 @@ option:
   - name: instance_ids
     describe: 绑定机器
     rely:
-      - account
-      - region
-      - subnet_id
+      - x.account
+      - x.region
+      - x.subnet_id
     command: c3mc-qcloud-clb-describe-cvm-list | c3mc-bpm-display-field-values InstanceId,InstanceName,PrivateIp,PublicIp
     type: selectx
     value: ""
@@ -44,9 +43,9 @@ option:
 
 template_argv:
   # 账号
-  account: ${account}
+  account: ${x.account}
   # 区域
-  region: ${region}
+  region: ${x.region}
   # 域名
   domain: ${domain}
   # url
