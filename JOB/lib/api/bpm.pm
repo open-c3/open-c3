@@ -151,6 +151,24 @@ post '/bpm/optionx' => sub {
         $var{$tk} = $currvar->{$k};
     }
 
+    if( ref $command eq 'ARRAY' )
+    {
+        my @data;
+        if( $command->[0] eq 'list' && $command->[1] )
+        {
+            my %uniq;
+            for my $k ( sort keys %$currvar )
+            {
+                my $tk = $k;
+                $tk =~ s/^\d+\.//;
+                $tk =~ s/^\d+\.//;
+                next if $uniq{$currvar->{$k}} ++;
+                push @data, +{ name => $currvar->{$k}, alias => $currvar->{$k} } if $tk eq $command->[1];
+            }
+        }
+        return +{ stat => $JSON::true, data => \@data };
+    }
+
     my $json = eval{JSON::to_json \%var };
     die "var to json fail: $@" if $@;
 

@@ -2,16 +2,17 @@
 name: 创建腾讯云应用型clb转发规则
 multi: 1
 option:
+  - name: listener_name
+    describe: 监听器名字
+    type: selectx
+    command: [ 'list', 'listener_name' ]
+
   - name: domain
     describe: 域名
     type: input
 
   - name: url
     describe: url
-    type: input
-
-  - name: listener_name
-    describe: 监听器名字
     type: input
 
   - name: instance_ids
