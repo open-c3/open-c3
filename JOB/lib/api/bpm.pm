@@ -79,8 +79,12 @@ post '/bpm/var/:bpmuuid' => sub {
 
     my $pmscheck = api::pmscheck( 'openc3_job_read', 0 ); return $pmscheck if $pmscheck;
 
-    return +{ stat => $JSON::false, info => $@ } if $@;
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+    return +{ stat => $JSON::false, info => "nofind user" } unless $user;
+
+    my @x = `c3mc-bpm-optionx-opapprover`;
+    chomp @x;
+    return +{ stat => $JSON::false, info => "Unauthorized" } unless grep{ $user eq $_ }@x;
 
     eval{ BPM::Task::Config->new()->resave( $param->{bpm_variable}, $user, $param->{bpmuuid} ); };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
