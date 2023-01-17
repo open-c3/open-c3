@@ -4,7 +4,7 @@
         .module('openc3')
         .controller('BpmController', BpmController);
 
-    function BpmController($state, $uibModal,$http, $scope, ngTableParams,resoureceService, $injector) {
+    function BpmController($state, $uibModal,$http, $scope, ngTableParams,resoureceService, $injector, $location ) {
 
         var vm = this;
         vm.treeid = $state.params.treeid;
@@ -15,6 +15,7 @@
         vm.optionx = {};
         var toastr = toastr || $injector.get('toastr');
 
+        vm.bpmname = $location.search()['name'];
         $scope.jobVar = [];         // 保存作业中需要填写的变量
         $scope.choiceJob = null;    // 已选择的作业数据
         $scope.taskData = {
@@ -294,6 +295,10 @@
                     vm.menu = data.data;
                     angular.forEach(vm.menu, function (data, index) {
                         if( data.name == vm.bpmvar._jobname_ )
+                        {
+                            $scope.choiceJob = data
+                        }
+                        if( vm.bpmname && data.name == vm.bpmname )
                         {
                             $scope.choiceJob = data
                         }

@@ -15,7 +15,7 @@
                                 <i ng-if="!bpm.jobsloadover" class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!bpm.jobsloadover}" ></i>
                             </label>
                             <div class="col-sm-6">
-                                <select  class="form-control " style="font-size: 15px;height: 42px" ng-disabled="bpm.bpmuuid!='0'" ng-model="choiceJob" ng-options="s.alias for s in bpm.menu" required>
+                                <select  class="form-control " style="font-size: 15px;height: 42px" ng-disabled="bpm.bpmuuid!='0' || bpm.bpmname" ng-model="choiceJob" ng-options="s.alias for s in bpm.menu" required>
                                 </select>
                             </div>
                         </div>
