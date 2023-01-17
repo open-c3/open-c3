@@ -160,8 +160,8 @@ post '/task/:projectid/redo' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
-        $api::mysql->execute( "insert into openc3_job_task (`projectid`,`uuid`,`name`,`user`,`slave`,`status`,`calltype`,`jobtype`,`jobuuid`,`mutex`,`variable`) 
-            select projectid,'$uuid',name,'$user','$slave','init','$calltype',jobtype,jobuuid,mutex,variable from openc3_job_task where uuid='$param->{taskuuid}' and projectid='$param->{projectid}'" )};
+        $api::mysql->execute( "insert into openc3_job_task (`projectid`,`uuid`,`name`,`user`,`slave`,`status`,`calltype`,`jobtype`,`jobuuid`,`mutex`,`variable`,`extid`) 
+            select projectid,'$uuid',name,'$user','$slave','init','$calltype',jobtype,jobuuid,mutex,variable,extid from openc3_job_task where uuid='$param->{taskuuid}' and projectid='$param->{projectid}'" )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, uuid => $uuid, data => $r };
 };
