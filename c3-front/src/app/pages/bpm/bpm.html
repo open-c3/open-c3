@@ -21,10 +21,21 @@
                         </div>
                     </div>
 
+                    <div ng-if="bpm.showfromops == '1' && bpm.bpmuuid == '0'" class="row">
+                        <div class="col-sm-10 form-group">
+                            <div class="col-sm-10">
+                            </div>
+                            <div class="col-sm-2">
+                                <button ng-if="bpm.fromopsdefault == '0'" class="btn btn-primary" ng-click="bpm.fromops('1')">{{'C3T.运维代填'|translate}}</button>
+                                <button ng-if="bpm.fromopsdefault == '1'" class="btn btn-primary" ng-click="bpm.fromops('0')">{{'C3T.不要运维代填'|translate}}</button>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row" ng-repeat="ss in jobVar">
 
                         <hr ng-if="ss.idx == 0" class="mv20 clear">
-                        <div ng-if="(bpm.selectxhide[ss.name] != '1') && (ss.type && ss.type=='text')" class="col-sm-10 form-group">
+                        <div ng-if="(bpm.selectxhide[ss.name] != '1') && (bpm.vfromops[ss.name] != '1') && (ss.type && ss.type=='text')" class="col-sm-10 form-group">
                             <div>
                                 <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
                                 <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
@@ -35,7 +46,7 @@
                             </div>
                         </div>
 
-                        <div ng-if="(bpm.selectxhide[ss.name] != '1') && (ss.type && ss.type=='kvarray')">
+                        <div ng-if="(bpm.selectxhide[ss.name] != '1') && (bpm.vfromops[ss.name] != '1') && (ss.type && ss.type=='kvarray')">
                             <div class="col-sm-10 form-group" >
                                 <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
                                 <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
@@ -56,7 +67,7 @@
                             </div>
                         </div>
 
-                        <div ng-if="(bpm.selectxhide[ss.name] != '1') && (ss.type && ss.type=='select')" class="col-sm-10 form-group">
+                        <div ng-if="(bpm.selectxhide[ss.name] != '1') && (bpm.vfromops[ss.name] != '1') && (ss.type && ss.type=='select')" class="col-sm-10 form-group">
                             <div>
                                 <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
                                 <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
@@ -68,7 +79,7 @@
                             </div>
                         </div>
 
-                        <div ng-if="( bpm.selectxhide[ss.name] != '1' ) && (ss.type && ss.type=='selectx')" class="col-sm-10 form-group">
+                        <div ng-if="( bpm.selectxhide[ss.name] != '1' ) && (bpm.vfromops[ss.name] != '1') && (ss.type && ss.type=='selectx')" class="col-sm-10 form-group">
                             <div>
                                 <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
                                 <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
@@ -81,7 +92,7 @@
                             </div>
                         </div>
 
-                        <div ng-if="(bpm.selectxhide[ss.name] != '1') && (ss.type && ss.type=='selectxm')">
+                        <div ng-if="(bpm.selectxhide[ss.name] != '1') && (bpm.vfromops[ss.name] != '1') && (ss.type && ss.type=='selectxm')">
                             <div class="col-sm-10 form-group" >
                                 <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
                                 <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
@@ -105,7 +116,7 @@
                             </div>
                         </div>
 
-                        <div ng-if="( bpm.selectxhide[ss.name] != '1' ) && ( ss.type && ss.type=='number' )" class="col-sm-10 form-group">
+                        <div ng-if="( bpm.selectxhide[ss.name] != '1' ) && (bpm.vfromops[ss.name] != '1') && ( ss.type && ss.type=='number' )" class="col-sm-10 form-group">
                             <div>
                                 <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
                                 <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
@@ -114,7 +125,7 @@
                             </div>
                         </div>
 
-                        <div ng-if="( bpm.selectxhide[ss.name] != '1' ) && ( ( ! ss.type ) || ss.type=='input' )" class="col-sm-10 form-group">
+                        <div ng-if="( bpm.selectxhide[ss.name] != '1' ) && (bpm.vfromops[ss.name] != '1') && ( ( ! ss.type ) || ss.type=='input' )" class="col-sm-10 form-group">
                             <div>
                                 <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
                                 <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
@@ -123,7 +134,7 @@
                             </div>
                         </div>
 
-                        <div ng-if="ss.ridx == 0 && ss.multi==1" class="col-sm-10 form-group">
+                        <div ng-if="ss.ridx == 0 && ss.multi==1 && bpm.vfromops[ss.name] != '1'" class="col-sm-10 form-group">
                             <div>
                                 <label class="col-sm-3 control-label"></label>
                                 <div class="col-sm-6">

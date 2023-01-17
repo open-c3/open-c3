@@ -36,9 +36,10 @@ sub variable
                 my $multimark = $multi ? "1." : "";
                 my $idx = 0;
                 my $ridx = @{$config->{option}} -1 ;
+                my $fromops = $config->{fromops} // 0;
                 for my $opt ( @{$config->{option}} )
                 {
-                    push @$conf, +{ %$opt, name => "$index.$multimark".$opt->{name}, multi => $multi ? 1 : 0,  ridx => $ridx --, idx => $idx ++ };
+                    push @$conf, +{ %$opt, name => "$index.$multimark".$opt->{name}, multi => $multi ? 1 : 0,  fromops => $opt->{fromops} // $fromops, ridx => $ridx --, idx => $idx ++ };
                 }
             }
         }

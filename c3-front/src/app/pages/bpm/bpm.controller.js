@@ -24,7 +24,19 @@
             'uuid':null,
         };
 
-      
+        vm.showfromops = '0';
+        vm.fromopsdefault = '0';
+        vm.vfromops = {};
+        vm.fromops = function ( type ) {
+            vm.fromopsdefault = type;
+            angular.forEach($scope.jobVar, function (data, idx) {
+                if( data.fromops == '1' )
+                {
+                    vm.vfromops[data.name] = type;
+                }
+            });
+        };
+
         vm.chtempclear = function ( obj ) {
             if( obj.type == "kvarray" )
             {
@@ -393,9 +405,14 @@
 
                         if (response.data.stat){
                             vm.vartemp = [];
+                            vm.showfromops = '0';
                             angular.forEach(response.data.data, function (value, key) {
                                 if( value.name )
                                 {
+                                    if( value.fromops == '1' )
+                                    {
+                                        vm.showfromops = '1';
+                                    }
                                     if( vm.bpmvar[value.name] != undefined )
                                     {
                                         value.value = vm.bpmvar[value.name] 
