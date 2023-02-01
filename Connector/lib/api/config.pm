@@ -85,6 +85,15 @@ post '/config' => sub {
         system "sed -i 's#openc3_job_system_only=1#openc3_job_system_only=0#g' $BASE_PATH/scripts/*";
     }
 
+    if( $config->{openc3_default_lang} && $config->{openc3_default_lang} eq 'en' )
+    {
+        system "sed -i 's#openc3DefaultLang=\"zh_CN\"#openc3DefaultLang=\"en\"#g' $BASE_PATH/scripts/*";
+    }
+    else
+    {
+        system "sed -i 's#openc3DefaultLang=\"en\"#openc3DefaultLang=\"zh_CN\"#g' $BASE_PATH/scripts/*";
+    }
+ 
     if( $config->{openc3_monitor_monagent9100} )
     {
         system "sed -i 's#openc3_monitor_monagent9100=0#openc3_monitor_monagent9100=1#g' $BASE_PATH/scripts/*";
