@@ -6,9 +6,12 @@
     <hr class="mv10 clear">
 
     <div class="panel panel-primary">
-
         <div class="panel-heading">
-            <h5>{{'C3T.表单信息'|translate}}</h5>
+            <span class="panel-controls">
+                <a ng-if="historybpmdetail.advancedinfo" class="fa fa-toggle-on fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.隐藏详情'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="historybpmdetail.advancedinfo=0"></a>
+                <a ng-if="!historybpmdetail.advancedinfo" class="fa fa-toggle-off fa-2x" data-toggle="tooltip" data-placement="left" uib-tooltip="{{'C3T.显示详情'|translate}}" aria-hidden="true"style="padding-top: 11px;font-size: larger;" ng-click="historybpmdetail.advancedinfo=1"></a>
+            </span>
+            <h5>{{'C3T.表单信息'|translate}} / {{ historybpmdetail.bpmuuid }}</h5>
         </div>
 
         <div class="panel-body">
@@ -19,14 +22,14 @@
                     <div class="container-fluid">
                         <div class="row" style="padding: 5px;">
                             <div class="form-group col-sm-4" style="padding: 0">
-                                <label style="line-height: 34px;min-width: 90px;text-align: right;">{{'C3T.作业名称'|translate}}：</label>
+                                <label style="line-height: 34px;min-width: 90px;text-align: right;">{{'C3T.流程名称'|translate}}：</label>
                                 <span style="font-size: 15px">{{taskname}}</span>
                             </div>
                             <div class="form-group col-sm-4" style="padding: 0">
                                 <label style="line-height: 34px;min-width: 90px;text-align: right;">{{'C3T.执行结果'|translate}}：</label>
                                 <span style="font-size: 15px">{{historybpmdetail.statuszh[status]}}</span>
                                 <i ng-if="status != 'success' && status != 'fail' && status != 'refuse'" class="fa fa-refresh fa-fw" ng-class="{'fa-spin':1}"></i>
-                                <button ng-if="status == 'running' || status == 'waiting'" class="btn btn-danger btn-sm" ng-click="historybpmdetail.killTask()" style="border-radius: 10%;padding: 1px 10px;">{{'C3T.终止任务'|translate}} </button>
+                                <button ng-if="(status == 'running' || status == 'waiting') && historybpmdetail.advancedinfo == 1" class="btn btn-danger btn-sm" ng-click="historybpmdetail.killTask()" style="border-radius: 10%;padding: 1px 10px;">{{'C3T.终止任务'|translate}} </button>
                             </div>
                             <div class="form-group col-sm-4" style="padding: 0">
                                 <label style="line-height: 34px;min-width: 90px;text-align: right;">{{'C3T.启动人'|translate}}：</label>
@@ -47,20 +50,20 @@
                                 <span style="font-size: 15px">{{historybpmdetail.seftime(starttime,finishtime)}}</span>
                             </div>
                         </div>
-                        <div ng-show="historybpmdetail.taskuuid" class="row" style="padding: 5px;">
+                        <div ng-show="historybpmdetail.taskuuid && historybpmdetail.advancedinfo == 1" class="row" style="padding: 5px;">
                             <div class="form-group" style="padding: 0">
                                 <label style="line-height: 34px;min-width: 90px;text-align: right;">{{'C3T.任务日志'|translate}}：</label>
                                 <button class="btn btn-primary btn-sm" ng-click="historybpmdetail.taskLogDetail()">{{'C3T.执行详情'|translate}}</button>
                                 <span ng-show="errreason" style="color: red;margin-left: 10px">{{'C3T.错误'|translate}}: &nbsp; {{errreason}}</span>
                             </div>
                         </div>
-                        <div ng-show="historybpmdetail.bpmuuid" class="row" style="padding: 5px;">
+                        <div ng-show="historybpmdetail.bpmuuid && historybpmdetail.advancedinfo == 1" class="row" style="padding: 5px;">
                             <div class="form-group" style="padding: 0">
                                 <label style="line-height: 34px;min-width: 90px;text-align: right;">{{'C3T.操作'|translate}}：</label>
                                 <button class="btn btn-primary btn-sm" ng-click="historybpmdetail.editForm()">{{'C3T.重新编辑表单'|translate}}</button>
                             </div>
                         </div>
-                        <div ng-if="variable" ng-show="historybpmdetail.taskuuid" class="row" style="padding: 5px;">
+                        <div ng-if="variable" ng-show="historybpmdetail.taskuuid && historybpmdetail.advancedinfo == 1" class="row" style="padding: 5px;">
                             <div class="form-group" style="padding: 0">
                                 <label style="line-height: 34px;min-width: 90px;text-align: right;">{{'C3T.调用变量'|translate}}：</label>
                                 <span style="font-size: 15px">{{variable}}</span>
@@ -81,14 +84,14 @@
             <span class="panel-controls">
                 <button class="btn btn-dark" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="historybpmdetail.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!historybpmdetail.loadover}" ></i></button>
             </span>
-            <h5>{{'C3T.作业步骤'|translate}} </h5>
+            <h5>{{'C3T.步骤'|translate}} </h5>
         </div>
 
         <div class="panel-body">
             <div ng-repeat="item in historybpmdetail.allRuningData">
                 <div ng-if="item.subtask_type == 'cmd'" class="panel panel-success">
                     <div class="panel-heading" style="height: 33px">
-                        <h5>{{item.extended.name}}</h5>
+                        <h5>{{item.extended.name}} / {{historybpmdetail.statuszh[item.status]}}</h5>
                     </div>
                     <div ng-if="historybpmdetail.bpmlog[$index+1]"  class="panel-body" style="padding: 10px">
                         <div class="panel-tabs">
@@ -109,13 +112,12 @@
                             </table>
                         </div>
                     </div>
-                    <div class="panel-body" style="padding: 10px">
+                    <div ng-if="historybpmdetail.advancedinfo == 1" class="panel-body" style="padding: 10px">
                         <div class="panel-tabs">
                             <table class="table table-hover text-center table-condensed" style="margin-bottom: 0">
                                 <thead>
                                 <tr>
                                     <th style="text-align: center;">{{'C3T.作业名称'|translate}}</th>
-                                    <th style="text-align: center;">{{'C3T.执行主机数'|translate}}</th>
                                     <th style="text-align: center;">{{'C3T.开始时间'|translate}}</th>
                                     <th style="text-align: center;">{{'C3T.结束时间'|translate}}</th>
                                     <th style="text-align: center;">{{'C3T.耗时'|translate}}</th>
@@ -126,7 +128,6 @@
                                 <tbody>
                                     <tr ng-click="historybpmdetail.HideMsg($index)" style="cursor: pointer">
                                         <td>{{item.extended.name}}</td>
-                                        <td>{{item.nodecount}}</td>
                                         <td>{{item.starttime}}</td>
                                         <td>{{item.finishtime}}</td>
                                         <td>{{historybpmdetail.seftime(item.starttime,item.finishtime)}}</td>
@@ -213,7 +214,7 @@
                 </div>
                 <div ng-if="item.subtask_type == 'scp'" class="panel panel-primary">
                     <div class="panel-heading" style="height: 33px">
-                        <h5>{{item.extended.name}}</h5>
+                        <h5>{{item.extended.name}} / {{historybpmdetail.statuszh[item.status]}}</h5>
                     </div>
                     <div ng-if="historybpmdetail.bpmlog[$index+1]"  class="panel-body" style="padding: 10px">
                         <div class="panel-tabs">
@@ -234,13 +235,12 @@
                             </table>
                         </div>
                     </div>
-                    <div class="panel-body"  style="padding: 10px">
+                    <div ng-if="historybpmdetail.advancedinfo == 1" class="panel-body"  style="padding: 10px">
                         <div class="panel-tabs">
                             <table class="table table-hover text-center table-condensed" style="margin-bottom: 0">
                                 <thead>
                                     <tr>
                                         <th style="text-align: center;">{{'C3T.作业名称'|translate}}</th>
-                                        <th style="text-align: center;">{{'C3T.执行主机数'|translate}}</th>
                                         <th style="text-align: center;">{{'C3T.开始时间'|translate}}</th>
                                         <th style="text-align: center;">{{'C3T.结束时间'|translate}}</th>
                                         <th style="text-align: center;">{{'C3T.耗时'|translate}}</th>
@@ -252,7 +252,6 @@
                                 <tbody>
                                 <tr ng-click="historybpmdetail.HideMsg($index)" style="cursor: pointer">
                                     <td >{{item.extended.name}}</td>
-                                    <td >{{item.nodecount}}</td>
                                     <td >{{item.starttime}}</td>
                                     <td >{{item.finishtime}}</td>
                                     <td >{{historybpmdetail.seftime(item.starttime,item.finishtime)}}</td>
@@ -356,7 +355,7 @@
                 </div>
                 <div ng-if="item.subtask_type == 'approval'" class="panel panel-info">
                     <div class="panel-heading" style="height: 33px">
-                        <h5>{{item.extended.name}}</h5>
+                        <h5>{{item.extended.name}} / {{historybpmdetail.statuszh[item.status]}}</h5>
                     </div>
                     <div ng-if="historybpmdetail.bpmlog[$index+1]"  class="panel-body" style="padding: 10px">
                         <div class="panel-tabs">
@@ -377,7 +376,7 @@
                             </table>
                         </div>
                     </div>
-                    <div class="panel-body"  style="padding: 10px">
+                    <div ng-if="historybpmdetail.advancedinfo == 1" class="panel-body"  style="padding: 10px">
                         <div class="panel-tabs">
                             <table class="table table-hover text-center table-condensed" style="margin-bottom: 0">
                                 <thead>

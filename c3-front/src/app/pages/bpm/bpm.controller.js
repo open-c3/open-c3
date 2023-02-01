@@ -4,7 +4,7 @@
         .module('openc3')
         .controller('BpmController', BpmController);
 
-    function BpmController($state, $uibModal,$http, $scope, ngTableParams,resoureceService, $injector) {
+    function BpmController($state, $uibModal,$http, $scope, ngTableParams,resoureceService, $injector, $location ) {
 
         var vm = this;
         vm.treeid = $state.params.treeid;
@@ -15,6 +15,7 @@
         vm.optionx = {};
         var toastr = toastr || $injector.get('toastr');
 
+        vm.bpmname = $location.search()['name'];
         $scope.jobVar = [];         // 保存作业中需要填写的变量
         $scope.choiceJob = null;    // 已选择的作业数据
         $scope.taskData = {
@@ -24,7 +25,19 @@
             'uuid':null,
         };
 
-      
+        vm.showfromops = '0';
+        vm.fromopsdefault = '0';
+        vm.vfromops = {};
+        vm.fromops = function ( type ) {
+            vm.fromopsdefault = type;
+            angular.forEach($scope.jobVar, function (data, idx) {
+                if( data.fromops == '1' )
+                {
+                    vm.vfromops[data.name] = type;
+                }
+            });
+        };
+
         vm.chtempclear = function ( obj ) {
             if( obj.type == "kvarray" )
             {
@@ -198,7 +211,16 @@
                  var tempename = vm.extname( data.name ); 
                  if( ename[0] == tempename[0] && data['show'] && data['show'][0] == ename[1] )
                  {
-                     if( data['show'][1] == stepvalue )
+                     var match = false;
+                     angular.forEach(data['show'], function (data, index) {
+                         if( data == stepvalue && index > 0 )
+                         {
+                             match = true;
+                         }
+                     });
+
+                     //if( data['show'][1] == stepvalue )
+                     if( match )
                      {
                          vm.selectxhide[data.name] = '0';
                          data.value = "";
@@ -273,6 +295,10 @@
                     vm.menu = data.data;
                     angular.forEach(vm.menu, function (data, index) {
                         if( data.name == vm.bpmvar._jobname_ )
+                        {
+                            $scope.choiceJob = data
+                        }
+                        if( vm.bpmname && data.name == vm.bpmname )
                         {
                             $scope.choiceJob = data
                         }
@@ -384,9 +410,14 @@
 
                         if (response.data.stat){
                             vm.vartemp = [];
+                            vm.showfromops = '0';
                             angular.forEach(response.data.data, function (value, key) {
                                 if( value.name )
                                 {
+                                    if( value.fromops == '1' )
+                                    {
+                                        vm.showfromops = '1';
+                                    }
                                     if( vm.bpmvar[value.name] != undefined )
                                     {
                                         value.value = vm.bpmvar[value.name] 

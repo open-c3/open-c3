@@ -79,8 +79,12 @@ post '/bpm/var/:bpmuuid' => sub {
 
     my $pmscheck = api::pmscheck( 'openc3_job_read', 0 ); return $pmscheck if $pmscheck;
 
-    return +{ stat => $JSON::false, info => $@ } if $@;
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+    return +{ stat => $JSON::false, info => "nofind user" } unless $user;
+
+    my @x = `c3mc-bpm-optionx-opapprover`;
+    chomp @x;
+    return +{ stat => $JSON::false, info => "Unauthorized" } unless grep{ $user eq $_ }@x;
 
     eval{ BPM::Task::Config->new()->resave( $param->{bpm_variable}, $user, $param->{bpmuuid} ); };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
@@ -126,6 +130,18 @@ post '/bpm/optionx' => sub {
 
     my $currvar = $param->{bpm_variable};
     my %var;
+
+    #BPM TODO, 传入的数据过多，这个是把所有插件的数据压扁传入选项命令中.
+    #其后会有一层覆盖，用本插件本步骤的进行覆盖，极端情况下可能会有子步骤变量缺失，
+    #但是确用了全局变量，需要明确是外部变量，格式如 x.var
+    for my $k ( keys %$currvar )
+    {
+        my $tk = $k;
+        $tk =~ s/^\d+\.//;
+        $tk =~ s/^\d+\.//;
+        $var{$tk} = $currvar->{$k};
+    }
+
     for my $k ( keys %$currvar )
     {
         my ( $ti, $tk ) = split /\./, $k, 2;
@@ -137,6 +153,51 @@ post '/bpm/optionx' => sub {
             next unless $tgrp eq $grp;
         }
         $var{$tk} = $currvar->{$k};
+    }
+
+    if( ref $command eq 'ARRAY' )
+    {
+        my @data;
+        if( $command->[0] eq 'list' && $command->[1] )
+        {
+            my %uniq;
+            for my $k ( sort keys %$currvar )
+            {
+                my $tk = $k;
+                $tk =~ s/^\d+\.//;
+                $tk =~ s/^\d+\.//;
+                next if $uniq{$currvar->{$k}} ++;
+                push @data, +{ name => $currvar->{$k}, alias => $currvar->{$k} } if $tk eq $command->[1];
+            }
+        }
+        if( $command->[0] eq 'point' && $command->[1] && $command->[2] )
+        {
+            #$command->[1] 要匹配的字段
+            #$command->[2] 要赋值给自己的字段
+            #
+            #$stepindex, $grp, $varname  # 如果是multi形式的话,grp是子组的id，否则为""
+            #$currvar 为原始hash数据
+            #%var 是正常给command的json数据
+
+            my $prefix = $grp ? "$stepindex.$grp": $stepindex;
+            my $selected = $currvar->{"$prefix.$command->[1]"};
+
+            # 查找其他组里面匹配的字段，赋值给自己这个组
+            my $point;
+            for my $k ( keys %$currvar )
+            {
+                $k =~ /^([\d][.\d]+)\.([a-z].+)$/;
+                my ( $p, $n ) = ($1, $2);
+                next if $n ne $command->[1];
+                next if $p eq $prefix;
+                next if $currvar->{$k} ne $selected;
+                $point = $currvar->{"$p.$command->[2]"};
+            }
+
+            push @data, +{ name => $point, alias => $point } if $point;
+        }
+ 
+        return +{ stat => $JSON::true, data => \@data };
     }
 
     my $json = eval{JSON::to_json \%var };

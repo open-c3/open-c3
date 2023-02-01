@@ -74,7 +74,7 @@ func main() {
 		argsStr := make([]string, 0)
 		for key, value := range args {
 			argsStr = append(argsStr, fmt.Sprintf("-%v", key))
-			argsStr = append(argsStr, value.(string))
+			argsStr = append(argsStr, fmt.Sprintf("%v", value))
 		}
 
 		cmd := exec.Command(data.Command, argsStr...)

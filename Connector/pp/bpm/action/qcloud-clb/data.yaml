@@ -1,9 +1,7 @@
 ---
-name: 创建腾讯云clb
-multi: 1
+name: 创建腾讯云应用型clb
+fromops: 1
 option:
-  # -------------------------------------------
-  # 基本信息配置
   - name: account
     describe: 云账号
     command: c3mc-display-cloud-account-list qcloud
@@ -18,12 +16,6 @@ option:
     type: selectx
     value: ""
 
-  - name: instance_type
-    describe: 实例类型
-    option: ["应用型", "传统型"]
-    type: select
-    value: ""
-
   - name: network_type
     describe: 网络类型
     option: ["公网", "内网"]
@@ -34,6 +26,25 @@ option:
     describe: clb名称
     type: input
 
+  - name: vpc_id
+    describe: VPC
+    rely:
+      - account
+      - region
+    command: c3mc-qcloud-cvm-describe-vpcs | c3mc-bpm-display-field-values VpcId,VpcName
+    type: selectx
+    value: ""
+
+  - name: subnet_id
+    describe: 子网
+    rely:
+      - account
+      - region
+      - vpc_id
+    command: c3mc-qcloud-cvm-describe-subnets | c3mc-bpm-display-field-values SubnetId,SubnetName,AvailableIpAddressCount
+    type: selectx
+    value: ""
+
   - name: project_id
     describe: 项目
     rely:
@@ -43,67 +54,27 @@ option:
     type: selectx
     value: ""
 
-  # ------------------------------------------
-  # 监听器配置
-  - name: listener_name
-    describe: 监听器名称
-    type: input
-
-  - name: protocol
-    describe: 协议
-    option: ["http", "https", "udp", "tcp"]
-    type: select
-    value: ""
-
-  - name: listener_port
-    describe: 监听器端口
-    type: input
-
-  - name: balancer_type
-    describe: 负载均衡方式
-    option: ["按权重轮询", "最小连接数"]
-    type: select
-    value: ""
-
-  - name: backend_instance_ids
-    describe: 绑定机器
-    command: c3mc-qcloud-clb-describe-cvm-list | c3mc-bpm-display-field-values InstanceId,InstanceName,PrivateIp,PublicIp
-    type: selectx
-    value: ""
-
-  - name: port
-    describe: 端口
-    type: input
+  - name: tag
+    describe: 标签
+    # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
+    type: kvarray
+    value: "[]"
 
 template_argv:
-  # ------------------------------
-  # 基本信息配置
-
   # 账号
   account: ${account}
   # 区域
   region: ${region}
-  # 实例类型
-  instance_type: ${instance_type}
   # 网络类型
   network_type: ${network_type}
   # clb名称
   clb_name: ${clb_name}
   # 项目
   project_id: ${project_id}
-
-  # ------------------------------
-  # 监听器配置
-
-  # 监听器名称
-  listener_name: ${listener_name}
-  # 协议
-  protocol: ${protocol}
-  # 监听器端口
-  listener_port: ${listener_port}
-  # 负载均衡方式
-  balancer_type: ${balancer_type}
-  # 绑定机器
-  backend_instance_ids: ${backend_instance_ids}
-  # 端口
-  port: ${port}
+  # vpc_id
+  vpc_id: ${vpc_id}
+  # 子网id
+  subnet_id: ${subnet_id}
+  # 标签
+  # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
+  tag: ${tag}

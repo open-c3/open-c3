@@ -1,0 +1,50 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+import re
+
+
+def is_valid_ip(ip):
+    pattern = r"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
+    return re.match(pattern, ip) is not None
+
+def main(params):
+    account = params["account"]
+    email = params["email"]
+    auth_type = params["auth_type"]
+    ip_list = params["ip_list"]
+
+    has_invalid_ip = False
+    for ip in ip_list.split(","):
+      if not is_valid_ip(ip):
+        print("{} 不是合法IP地址", file=sys.stderr)
+        has_invalid_ip = True
+        continue
+
+      resp = subprocess.getoutput("c3mc-bl-permission --add_type {} --username {} --email {} --ip {}".format(auth_type, account, email, ip))
+      resp = json.loads(resp)
+
+      info = json.loads(resp["data"])
+      if info["user_password"] != "":
+        # 如果用户第一次申请服务器权限, 此时堡垒机没有该用户账号, 
+        # 申请服务器权限时, 会在堡垒机创建用户账号, 然后返回该用户的登陆密码,
+        # 后续申请服务器权限不会重新创建用户或更新密码
+        print("LOG. 创建堡垒机用户, 用户名: {}, 登陆密码: {}".format(info["user_name"], info["user_password"]))
+      print("LOG. 服务器 {} 权限申请成功".format(ip))
+
+    if has_invalid_ip:
+      print("LOG. ip列表存在格式不合法的ip")
+      exit(1)
+
+    
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]))

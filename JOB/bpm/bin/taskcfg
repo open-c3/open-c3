@@ -76,12 +76,16 @@ for my $grp ( @grp )
         $var{$tk} = $var->{$k};
     }
 
-    for my $k ( keys %var )
+   # 这里var进行两次替换，因为这里可能有变量嵌套
+    for( 1.. 2 )
     {
-        my $v = $var{$k};
-        $v =~ s/"/\\"/g;
-        $json =~ s/\$\{$k\}/$v/g;
+        for my $k ( keys %var )
+        {
+            my $v = $var{$k};
+            $v =~ s/"/\\"/g;
+            $v =~ s/\n/\\n/g;
+            $json =~ s/\$\{$k\}/$v/g;
+        }
     }
-
     print "$json\n";
 }
