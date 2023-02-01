@@ -3,27 +3,39 @@
 
 import sys
 import json
+import re
 
 
-def display_field_values(data_list, target_fields):
+def display_field_values(data_list, fields_desc):
     """
         展示字段值
     """
     result = []
-    fields_list = target_fields.split(",")
-    for data in data_list:
-        item_list = []
-        for field in fields_list:
-            if isinstance(data[field], list):
-                item_list.append("_".join(map(str, data[field])))
+
+    bracket_content = re.findall(r'\{(.*?)\}', fields_desc)
+    if len(bracket_content) > 0:
+        # 模板字符串的配置方式
+        for data in data_list:
+            value_list = {}
+            for field_name in bracket_content:
+                value_list[field_name] = data[field_name]
+            result.append(fields_desc.format(**value_list))
+    else:
+        # 兼容旧的配置方式
+        fields_list = fields_desc.split(",")
+        for data in data_list:
+            item_list = []
+            for field in fields_list:
+                if isinstance(data[field], list):
+                    item_list.append("_".join(map(str, data[field])))
+                else:
+                    item_list.append(str(data[field]))
+            if len(item_list) == 0:
+                continue
+            if len(item_list) == 1:
+                result.append(item_list[0])
             else:
-                item_list.append(str(data[field]))
-        if len(item_list) == 0:
-            continue
-        if len(item_list) == 1:
-            result.append(item_list[0])
-        else:
-            result.append("{};({})".format(item_list[0], "-".join(item_list[1:])))
+                result.append("{};({})".format(item_list[0], "-".join(item_list[1:])))
     return result
 
 

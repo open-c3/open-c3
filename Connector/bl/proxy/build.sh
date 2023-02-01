@@ -1,6 +1,4 @@
 #!/bin/bash
-
-#!/bin/bash
 set -e
 
 docker run --rm -i \
