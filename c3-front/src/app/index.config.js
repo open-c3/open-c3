@@ -27,16 +27,18 @@
         $httpProvider.interceptors.push('authInterceptor');
 
         // translate
+        var openc3DefaultLang="en"; // en or zh_CN
         $translateProvider
             .useCookieStorage()
-            .useLoader('langAsyncLoader')
-            .useSanitizeValueStrategy('escape')
-            .fallbackLanguage('zh_CN')
+            .useLoader('langAsyncLoader');
+        $translateProvider.useSanitizeValueStrategy('escape')
+            .fallbackLanguage(openc3DefaultLang)
+            .preferredLanguage(openc3DefaultLang)
             .registerAvailableLanguageKeys(['en', 'zh_CN'], {
                 'en_*': 'en',
                 'zh_*': 'zh_CN'
-            })
-            .determinePreferredLanguage();
+            });
+            //.determinePreferredLanguage(); //自动选择一个默认的语言
 
         // Set options third-party lib
         toastrConfig.allowHtml = true;
