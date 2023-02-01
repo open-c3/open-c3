@@ -7,12 +7,12 @@ import subprocess
 
 
 def tag_add(data, cred_json_path):
-    etag_field_name = subprocess.getoutput(
-        "c3mc-cloud-get-real-field database google-rds etag")
+    id_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field database google-rds id")
     name_field_name = subprocess.getoutput(
         "c3mc-cloud-get-real-field database google-rds name")
     instance = json.loads(subprocess.getoutput(
-        "c3mc-cloud-control --uuid {} --ctrl get none".format(data[etag_field_name])))
+        "c3mc-cloud-control --uuid {} --ctrl get none".format(data[id_field_name])))
 
     if "userLabels" not in instance["settings"]:
         instance["settings"]["userLabels"] = {}
