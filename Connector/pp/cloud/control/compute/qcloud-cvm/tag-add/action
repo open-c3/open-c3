@@ -23,7 +23,7 @@ def tag_add(data, access_id, access_key, region, uin):
     id_field_name = subprocess.getoutput(
         "c3mc-cloud-get-real-field compute qcloud-cvm InstanceId")
     region_field_name = subprocess.getoutput(
-        "c3mc-cloud-get-real-field compute qcloud-cvm Region")
+        "c3mc-cloud-get-real-field compute qcloud-cvm RegionId")
 
     rid = "qcs::cvm:{}:uin/{}:instance/{}".format(
         data[region_field_name], uin, data[id_field_name])
