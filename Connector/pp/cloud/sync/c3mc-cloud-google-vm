@@ -41,7 +41,8 @@ class VM:
 
                     if "accessConfigs" in netInterface:
                         for configItem in netInterface["accessConfigs"]:
-                            public_ip = configItem["natIP"]
+                            if "natIP" in configItem:
+                                public_ip = configItem["natIP"]
                 if private_ip is not None:
                     item["private_ip"] = private_ip
                 if public_ip is not None:
