@@ -1,0 +1,56 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+
+from obs import ObsClient
+
+
+class Obs:
+    def __init__(self, access_id, access_key, region):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.region = region
+        self.client = self.create_client()
+
+    def create_client(self):
+        return ObsClient(
+            access_key_id=self.access_id,
+            secret_access_key=self.access_key,
+            server="https://obs.{}.myhuaweicloud.com/".format(self.region)
+        )
+
+    def list_buckets(self):
+        result = []
+        resp = self.client.listBuckets(isQueryLocation=True)
+        for bucket in resp.body.buckets:
+            item = {
+                "uuid": "obs-{}-{}".format(bucket.location, bucket.name),
+                "name": bucket.name,
+                "create_date": bucket.create_date,
+                "location": bucket.location,
+                "tags": [],
+            }
+            tag_res = self.client.getBucketTagging(bucket.name)
+            if tag_res.status == 200:
+                for tag_item in tag_res.body.tagSet:
+                    item["tags"].append({
+                        "key": tag_item.key,
+                        "value": tag_item.value,
+                    })
+            result.append(item)
+        return result
+
+    def show(self):
+        bucket_list = self.list_buckets()
+        for bucket in bucket_list:
+            print(json.dumps(bucket))
+
+
+def main(access_id, access_key, region):
+    Obs(access_id, access_key, region).show()
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[4])

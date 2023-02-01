@@ -1,0 +1,261 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDan::Util::OptConf;
+use LWP::UserAgent;
+use JSON;
+use POSIX;
+use Digest::MD5;
+
+=head1 SYNOPSIS
+
+ $0 user1 user2 ... user3
+
+=cut
+
+# 钉钉的发送包括如下几步
+# I. 获取token，token默认过期时间是7200秒，本脚本会把token记入到文件中，如果文件时间在3600秒内则使用文件中的记录
+# II.发送钉钉时一般使用的邮箱地址进行发送。所以需要获取要发送用户的邮箱的用户id
+#       A. 获取公司所有成员的用户id
+#       B. 通过ID遍历获取用户信息，在用户信息的获取“邮箱”字段，匹配到邮箱字段后返回用户ID
+#       C. 用户ID进行缓存，保存到文件中,文件在7200秒内的则使用文件中的用户id
+# III.通过用户id进行消息发送
+
+my $option = MYDan::Util::OptConf->load();
+my %o      = $option->get()->dump();
+$option->assert() unless @ARGV;
+
+local $/ = undef;
+my $mesg = Encode::encode('utf8', <STDIN> );
+local $/ = "\n";
+
+my $ua = LWP::UserAgent->new;
+$ua->timeout( 15 );
+
+my $name = 'dingding';
+my $path = sprintf "/data/open-c3-data/send/%s/$name/", POSIX::strftime( "%F", localtime );
+system "mkdir -p '$path'" unless -d $path;
+
+my ( $appKey, $appSecret, $agentId ) = map{ my $x = `c3mc-sys-ctl sys.send.dingding.$_`; chomp $x; die "sys.send.dingding.$_ undef" unless $x; }qw( app_key app_secret agent_id );
+
+my $uuid = Digest::MD5->new->add( join ":", $appKey, $appSecret, $agentId )->hexdigest;
+
+my $cachepath  = "/var/send-dingding/$uuid";
+my $cachetoken = "/var/send-dingding/$uuid.token";
+
+system "mkdir -p '$cachepath'" unless -d $cachepath;
+
+sub getTokenCache
+{
+    return unless -f $cachetoken;
+    return if ( stat $cachetoken )[9] + 3600 < time;
+    my     $x = `cat '$cachetoken'`;
+    chomp  $x;
+    return $x;
+}
+
+sub setTokenCache
+{
+    my $token = shift @_;
+    die "token format err" unless $token =~ /^[a-zA-Z\d]+$/;
+    die "save token error: $!" if system "echo '$token' > $cachetoken";
+    return $token;
+}
+
+sub getToken
+{
+    my $cache = getTokenCache();
+    return $cache if $cache;
+
+    my %form = (
+        msgtype => 'text',
+        text  => +{ content => $mesg }
+    );
+
+    my $res = $ua->get( "https://oapi.dingtalk.com/gettoken?appkey=$appKey&appsecret=$appSecret" );
+
+    if( $res->is_success )
+    {
+        my $data = eval{JSON::from_json $res->content};
+        die sprintf( "res from json fail: %s", $res->content ) if $@;
+        die "resp error: $res->content" unless defined $data && defined $data->{errcode} && $data->{errcode} eq '0';
+        return setTokenCache( $data->{access_token} );
+    }
+
+    die sprintf "http getToken error code: %s", $res->code;
+}
+
+my $token = getToken();
+
+sub getUserIds
+{
+    my $offset = shift @_;
+
+    #在职员工子状态筛选，可以查询多个状态。不同状态之间使用英文逗号分隔。
+    #2： 试用期
+    #3： 正式
+    #5： 待离职
+    #-1：无状态
+
+    my %form = (
+        status_list => "2,3,5,-1",
+        offset      => $offset // 0,
+        size        => 50,
+    );
+
+    my $res = $ua->post(
+        "https://oapi.dingtalk.com/topapi/smartwork/hrm/employee/queryonjob?access_token=$token",
+        Content => JSON::to_json( \%form ), 'Content-Type' => 'application/json'
+    );
+
+    if( $res->is_success )
+    {
+        my $data = eval{JSON::from_json $res->content};
+        die sprintf( "res from json fail: %s", $res->content ) if $@;
+        die "resp error: $res->content" unless defined $data && defined $data->{errcode} && $data->{errcode} eq '0';
+        my @userid = @{ $data->{result}{data_list} };
+
+        my $offset = $data->{result}{next_cursor};
+        return @userid unless $offset;
+        push @userid, getUserIds( $offset);
+        return @userid;
+    }
+
+    die sprintf "http getUserIds error code: %s", $res->code;
+}
+
+sub getUserIdCache
+{
+    my $email = shift @_;
+    my $cache = "$cachepath/$email";
+    return unless -f $cache;
+    return if (stat $cache )[9] + 7200 < time;
+    my     $x = `cat '$cache'`;
+    chomp  $x;
+    return $x;
+}
+
+sub setUserIdCache
+{
+    my ( $email, $userid ) =  @_;
+    die "email format error"  unless $email  =~ /^[a-zA-Z\d][a-zA-Z\d@\.\-]+$/;
+    die "userid format error" unless $userid =~ /^[a-zA-Z\d]+$/;
+    die "save userid error: $!" if system "echo '$userid' > '$cachepath/$email'";
+    return $userid;
+}
+
+sub getUserId
+{
+    my ( $useremail ) = @_;
+
+    my $cache = getUserIdCache( $useremail );
+    return $cache if $cache;
+
+    my @userid = getUserIds();
+
+    while( @userid )
+    {
+        my @usrid = splice @userid, 0, 50;
+        my %form = (
+            userid_list => join( ',', @usrid ),
+            agentid     => $agentId,
+        );
+
+        my $res = $ua->post(
+            "https://oapi.dingtalk.com/topapi/smartwork/hrm/employee/v2/list?access_token=$token",
+            Content => JSON::to_json( \%form ), 'Content-Type' => 'application/json'
+        );
+
+       if( $res->is_success )
+        {
+            my $data = eval{JSON::from_json $res->content};
+            die sprintf( "res from json fail: %s", $res->content ) if $@;
+            die "resp error: $res->content" unless defined $data && defined $data->{errcode} && $data->{errcode} eq '0';
+
+            for my $user ( @{ $data->{result} } )
+            {
+                my $userid = $user->{userid};
+                for my $field ( @{ $user->{field_data_list} } )
+                {
+                    next unless Encode::decode('utf8', $field->{field_name} ) eq Encode::decode('utf8', '邮箱' );
+                    for my $fv ( @{ $field->{field_value_list} } )
+                    {
+                        return setUserIdCache( $useremail, $userid ) if $fv->{value} && $fv->{value} eq $useremail;
+                    }
+                }
+            }
+        }
+        else
+        {
+            die sprintf "http getUserId error code: %s", $res->code;
+        }
+
+     }
+     return 0;
+
+};
+
+sub call
+{
+    my ( $user, $mesg ) = @_;
+
+    my $userid = getUserId( $user );
+
+    my %form = (
+        agent_id    => $agentId,
+        userid_list => $userid,
+        msg => +{
+            msgtype => "text",
+            text    => +{ content => $mesg }
+        }
+    );
+
+    my $res = $ua->post(
+        "https://oapi.dingtalk.com/topapi/message/corpconversation/asyncsend_v2?access_token=$token",
+        Content => JSON::to_json( \%form ), 'Content-Type' => 'application/json'
+    );
+
+    if( $res->is_success )
+    {
+        my $data = eval{JSON::from_json $res->content};
+        die sprintf( "res from json fail: %s", $res->content ) if $@;
+        die "resp error: $res->content" unless defined $data && defined $data->{errcode} && $data->{errcode} eq '0';
+        return 1;
+    }
+    die sprintf "http call error code: %s", $res->code;
+}
+
+sub sendmesg
+{
+    my ( $user, $mesg ) = @_;
+
+    my ( $err, $status );
+    for my $i ( reverse 1 .. 3 )
+    {
+        my $stat = eval{ call( $user, $mesg ); };
+        $err = $@ ? "call $name error: $@" : "";
+        $status = ( $stat  && ! $err ) ? "ok": "fail";
+
+        YAML::XS::DumpFile sprintf( "$path/%s.%03d.$user.$status", POSIX::strftime( "%Y%m%d%H%M%S", localtime ), rand 1000 ),
+             +{ mesg => Encode::decode('utf8', $mesg ), user => $user, err => $err };
+
+        last if $status eq 'ok';
+
+        if( $i > 1 )
+        {
+            warn sprintf( "sendmesg error %s", $err );
+            sleep 3;
+        }
+    }
+
+    die sprintf( "$err: status %s", $status ) unless $status eq 'ok';
+}
+
+map{ sendmesg( $_, $mesg ) }@ARGV;

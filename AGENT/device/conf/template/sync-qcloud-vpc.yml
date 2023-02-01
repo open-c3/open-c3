@@ -1,0 +1,56 @@
+download:
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-vpc --account qcloud | c3mc-cloud-tag TagSet Key Value None | c3mc-base-json2tab "
+    datatype: tsv
+    type: networking
+    subtype: qcloud-vpc
+    treeinfo:
+      treename: "服务树"
+      treeinfo:
+        - ["实例ID", "instance"]
+    util:
+      defaulttree: defaulttree.pool
+      extcol:
+        - name: audit
+          alias: 审计
+          select: ["YES", "NO"]
+        - name: remarks
+          alias: 备注
+    colmap:
+      treename: "服务树"
+      uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
+    alias:
+      VpcName: "名称"
+      VpcId: "实例ID"
+      RegionId: "区域"
+      _product_owner_: "业务负责人"
+      _ops_owner_: "运维负责人"
+      _department_: "部门"
+    check:
+      col: ["实例ID"]
+      min: 0
+    filter:
+      - name: "account"
+        alias: 账号
+      - name: "区域"
+        alias: 区域
+      - name: "业务负责人"
+        alias: 业务负责人
+      - name: "运维负责人"
+        alias: 运维负责人
+      - name: "部门"
+        alias: 部门
+    outline:
+      uuid:
+        - "实例ID"
+      baseinfo:
+        - "account"
+        - "实例ID"
+        - "名称"
+        - "区域"
+      system:
+        - "CidrBlock"
+      contact:
+        - "部门"
+        - "业务负责人"
+        - "运维负责人"
+        - "服务树"

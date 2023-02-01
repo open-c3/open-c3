@@ -682,4 +682,5 @@ create table if not exists `openc3_job_bpm_log`(
 `time`    TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '时间'
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='BPM日志';
 
-
+# v2.6.0 sql openc3_connector_useraddr modify phone to 500
+ALTER TABLE openc3_connector_useraddr modify `phone` varchar(500) DEFAULT NULL COMMENT 'phone';
