@@ -85,7 +85,8 @@ class HandleTag:
             self.data_list[i]["tags"] = tags_str
 
             # 删除旧的标签字段
-            del self.data_list[i][self.tag_field]
+            if self.tag_field != "tag" and self.tag_field != "tags":
+                del self.data_list[i][self.tag_field]
         return
     
     def display(self):
