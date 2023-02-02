@@ -5,157 +5,148 @@
 import sys
 import json
 import subprocess
+import argparse
 
 
 class HandleTag:
-    def __init__(self, data_list, tag_field_name, key_field_name, value_field_name, delimiter):
+    def __init__(self, data_list, tag_field, delimiter, key_field, value_field):
         self.data_list = data_list
-        # 标签字段的名称
-        self.tag_field_name = tag_field_name
-        self.key_field_name = key_field_name
-        self.value_field_name = value_field_name
-        # 标签字段为字符串数组时，字符串中kv的分隔符
-        # 如果标签字段为对象列表，该字段传None
+        self.tag_field = tag_field
+
         self.delimiter = delimiter
-        self.product_owner_tag = self.get_product_owner_tag()
-        self.ops_owner_tag = self.get_ops_owner_tag()
-        self.department_tag = self.get_department_tag()
-        self.name_tag = self.get_name_tag()
 
-    def handle_str_tag(self, data, tag_list):
-        tag_dict = dict()
-        for tag in tag_list:
-            if tag.strip() == "":
+        self.key_field = key_field
+        self.value_field = value_field
+
+        self.pre_names = self.init_pre_names()
+    
+    def init_pre_names(self):
+        product_owner_env_vlaue = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.ProductOwner").lower()
+        ops_owner_env_value = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.OpsOwner").lower()
+        department_env_value = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.Department").lower()
+        name_env_value = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.Name").lower()
+
+        pre_names = {
+            product_owner_env_vlaue: "_product_owner_",
+            ops_owner_env_value: "_ops_owner_",
+            department_env_value: "_department_",
+            name_env_value: "_name_",
+        }
+        return pre_names
+
+    def helper(self):
+        for i in range(len(self.data_list)):
+            data = self.data_list[i]
+
+            if self.tag_field not in data:
                 continue
 
-            item_list = tag.split(self.delimiter)
-            if len(item_list) == 0:
-                continue
-
-            if len(item_list) == 1:
-                key = item_list[0]
-                tag_dict[key] = key
-
-                if "tags" in data:
-                    data["tags"] += " {}:{},".format(key, key)
-                else:
-                    data["tags"] = " {}:{},".format(key, key)
+            tmp_tag_dict = {}
+            if isinstance(data[self.tag_field], dict):
+                # 第一种处理类型。作为默认处理结果
+                tmp_tag_dict = data[self.tag_field]
             else:
-                key = item_list[0].strip()
-                value = ";".join(item_list[1:]).strip()
+                tag_list = data[self.tag_field]
+                if tag_list is None:
+                    continue
+                for tag in tag_list:
+                    if isinstance(tag, dict):
+                        # 第三种处理类型
+                        tmp_tag_dict[tag[self.key_field]] = tag[self.value_field]
+                    elif isinstance(tag, str):
+                        # 第二种处理类型
+                        parts = tag.split(self.delimiter)
+                        if len(parts) == 0:
+                            continue
+                        tmp_tag_dict[parts[0]] = parts[1]
 
-                if key.lower() == self.product_owner_tag.lower():
-                    data["_product_owner_"] = value
-                    tag_dict[self.product_owner_tag] = value
-                elif key.lower() == self.ops_owner_tag.lower():
-                    data["_ops_owner_"] = value
-                    tag_dict[self.ops_owner_tag] = value
-                elif key.lower() == self.department_tag.lower():
-                    data["_department_"] = value
-                    tag_dict[self.department_tag] = value
-                elif key.lower() == self.name_tag.lower():
-                    data["_name_"] = value
-                    tag_dict[self.name_tag] = value
-                else:
-                    tag_dict[key] = value
+            new_tag_dict = {}
 
-                if "tags" in data:
-                    data["tags"] += " {}:{},".format(key, value)
-                else:
-                    data["tags"] = "{}:{},".format(key, value)
-        if len(tag_dict) > 0:
-            data["tag"] = tag_dict
-        if "tags" in data:
-            data["tags"] = data["tags"][: -1]
-        return data
+            for key, value in tmp_tag_dict.items():
+                found = False
+                for pre_name, pre_value in self.pre_names.items():
+                    if key.lower() == pre_name:
+                        new_tag_dict[pre_name] = value
+                        self.data_list[i][pre_value] = value
+                        found = True
+                        break
+                if not found:
+                    new_tag_dict[key] = value
 
-    def handle_obj_tag(self, data, tag_list):
-        tag_dict = dict()
-        for tag in tag_list:
-            key = tag[self.key_field_name].strip()
-            # 有的资源比如腾讯云cos, 可能出现标签value没有值的问题, 那就用空字符串显示
-            value = ""
-            if self.value_field_name in tag and tag[self.value_field_name] is not None:
-                value = tag[self.value_field_name].strip()
+            # 添加 tag 字段，类型是 dict
+            self.data_list[i]["tag"] = new_tag_dict
 
-            if key.lower() == self.product_owner_tag.lower():
-                data["_product_owner_"] = value
-                tag_dict[self.product_owner_tag] = value
-            elif key.lower() == self.ops_owner_tag.lower():
-                data["_ops_owner_"] = value
-                tag_dict[self.ops_owner_tag] = value
-            elif key.lower() == self.department_tag.lower():
-                data["_department_"] = value
-                tag_dict[self.department_tag] = value
-            elif key.lower() == self.name_tag.lower():
-                data["_name_"] = value
-                tag_dict[self.name_tag] = value
-            else:
-                tag_dict[key] = value
+            # 保存字符串形式的标签列表
+            tags_str = ""
+            for key, value in new_tag_dict.items():
+                tags_str += "{}:{}, ".format(key, value)
+            # 去掉末尾的逗号和空格
+            tags_str = tags_str[: -2]
+            self.data_list[i]["tags"] = tags_str
 
-            if "tags" in data:
-                data["tags"] += " {}:{},".format(key, value)
-            else:
-                data["tags"] = "{}:{},".format(key, value)
-
-        if len(tag_dict) > 0:
-            data["tag"] = tag_dict
-        if "tags" in data:
-            data["tags"] = data["tags"][: -1]
-        return data
-
-    def get_product_owner_tag(self):
-        output = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.ProductOwner")
-        return output
-
-    def get_ops_owner_tag(self):
-        output = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.OpsOwner")
-        return output
-
-    def get_department_tag(self):
-        output = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.Department")
-        return output
-
-    def get_name_tag(self):
-        output = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.Name")
-        return output
-
-    def handle(self):
-        for d in self.data_list:
-            data = json.loads(d)
-            if self.tag_field_name in data:
-                tags = data[self.tag_field_name]
-                if tags is not None:
-                    data.pop(self.tag_field_name, None)
-                    if len(tags) > 0:
-                        if isinstance(tags[0], dict):
-                            data = self.handle_obj_tag(data, tags)
-                        elif isinstance(tags[0], str):
-                            data = self.handle_str_tag(data, tags)
-                        else:
-                            raise Exception("未识别的标签字段")
-
-            print(json.dumps(data))
-
+            # 删除旧的标签字段
+            if self.tag_field != "tag" and self.tag_field != "tags":
+                del self.data_list[i][self.tag_field]
         return
+    
+    def display(self):
+        self.helper()
+
+        for data in self.data_list:
+            print(json.dumps(data, default=str))
 
 
-# data_list         json字符串列表
-# tag_field_name    标签字段名称
-# key_field_name    标签列表元素为字典时，key字段的名称
-# value_field_name  标签列表元素为字典时，value字段的名称
-# delimiter         标签列表元素为字符串时，字符串中分隔kv的分隔符
-#
-# 例子
-# some_command | c3mc-cloud-tag tags key value None
-# some_command | c3mc-cloud-tag tags None None =
-def main(data_list, tag_field_name, key_field_name, value_field_name, delimiter):
-    HandleTag(data_list, tag_field_name, key_field_name,
-              value_field_name, delimiter).handle()
+def main(data_list, tag_field, delimiter, key_field, value_field):
+    HandleTag(data_list, tag_field, delimiter, key_field, value_field).display()
 
 
 if __name__ == '__main__':
+    """
+    例子
+
+    第一种类型:
+    当标签字段值格式为:
+    {
+        "name": "wp",
+        "sex": "man"
+    }
+    调用命令: c3mc-cloud-tag --tag-field xxx
+
+    第二种类型:
+    当标签字段值格式为:
+    [
+        "name=wp",
+        "sex=man"
+    ]
+    调用命令: c3mc-cloud-tag --tag-field xxx --delimiter =
+
+    第三种类型:
+    当标签字段值格式为:
+    [
+        {
+            "key": "name",
+            "value": "wp",
+        }    
+    ]
+    调用命令: c3mc-cloud-tag --tag-field xxx --key-field key --value-field value
+    """
+
     data_list = []
     for line in sys.stdin:
-        data_list.append(line)
-    main(data_list, sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+        data_list.append(json.loads(line))
+
+    parser = argparse.ArgumentParser(description="重构标签字段")
+    parser.add_argument('--tagfield', type=str, required=False, help='标签字段名')
+
+    parser.add_argument('--delimiter', type=str, required=False, help='标签的key和value由分割符连接时,需要传递分隔符')
+
+    parser.add_argument('--key', type=str, required=False, help='如果标签是对象时, 需要传递key字段名称')
+    parser.add_argument('--value', type=str, required=False, help='如果标签是对象时, 需要传递value字段名称')
+    args = parser.parse_args()
+
+    tag_field = args.tagfield
+    delimiter = args.delimiter
+    key_field = args.key
+    value_field = args.value
+
+    main(data_list, tag_field, delimiter, key_field, value_field)
