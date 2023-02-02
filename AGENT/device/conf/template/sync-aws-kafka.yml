@@ -1,19 +1,12 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aliyun-redis --account aliyun | c3mc-cloud-tag --tagfield Tag --key Key --value Value | c3mc-base-json2tab "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aws-kafka --account aws | c3mc-cloud-tag --tagfield Tags | c3mc-base-json2tab "
     datatype: tsv
-    type: database
-    subtype: aliyun-redis
+    type: storage
+    subtype: aws-kafka
     treeinfo:
       treename: "服务树"
       treeinfo:
         - ["实例ID", "instance"]
-    ingestion-redis:
-      addr: ["内网IP", "Port"]
-      authpath: /data/open-c3-data/device/curr/auth/redis
-      tree: "服务树"
-      type: aliyun-redis
-      exclude:
-        "_ingestion_": ["NO"]
     check:
       col: ["实例ID"]
       min: 0
@@ -32,47 +25,37 @@ download:
       treename: "服务树"
       uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
     alias:
-      InstanceId: "实例ID"
-      InstanceName: "名称"
-      PrivateIp: "内网IP"
+      ClusterType: "类型"
       RegionId: "区域"
-      Capacity: "内存大小"
-      EngineVersion: "版本"
-      ZoneId: "所在可用区"
+      ClusterName: "实例ID"
+      State: "状态"
       _product_owner_: "业务负责人"
       _ops_owner_: "运维负责人"
       _department_: "部门"
     filter:
       - name: "account"
         alias: 账号
-      - name: "ZoneId"
+      - name: "区域"
         alias: 区域
-      - name: "所在可用区"
-        alias: "所在可用区"
-      - name: "版本"
-        alias: 版本
+      - name: "状态"
+        alias: 状态
+      - name: "类型"
+        alias: 类型
       - name: "业务负责人"
         alias: 业务负责人
       - name: "运维负责人"
         alias: 运维负责人
       - name: "部门"
         alias: 部门
-      - name: "_ingestion_"
-        alias: 摄取
     outline:
       uuid:
         - "实例ID"
       baseinfo:
         - "account"
         - "实例ID"
-        - "名称"
         - "区域"
       system:
-        - "所在可用区"
-        - "内网IP"
-        - "内存大小"
-        - "版本"
-        - "ConnectionDomain"
+        - "状态"
       contact:
         - "部门"
         - "业务负责人"

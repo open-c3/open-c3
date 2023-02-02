@@ -65,7 +65,8 @@
         "ec2:DescribeVolumes",
         "rds:DescribeDBInstances",
         "elasticache:DescribeCacheClusters",
-        "rds:RemoveTagsFromResource"
+        "rds:RemoveTagsFromResource",
+        "kafka:ListClustersV2"
       ],
       "Resource": "*"
     }
