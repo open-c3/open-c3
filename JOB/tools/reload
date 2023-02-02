@@ -82,7 +82,7 @@ for my $server ( qw( call bury crontab keepalive notify approval clean ) )
     my $newpid;
     for my $index ( 1 .. 30 )
     {
-        system "$base/tools/restart $port" if $index == 20;
+        system "$base/tools/restart $server" if $index == 20;
         print "check server job_server_$server ...\n";
         $newpid = `ps -ef|grep "[j]ob_server_$server\\b"|head -n 1|awk '{print \$2}'`;
 
