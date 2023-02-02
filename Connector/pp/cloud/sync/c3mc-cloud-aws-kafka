@@ -1,0 +1,62 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+import boto3
+
+
+class Kafka:
+    def __init__(self, access_id, access_key, region):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.region = region
+        self.client = self.create_client()
+        self.page_size = 100
+
+    def create_client(self):
+        endpoint_url = "https://kafka.{}.amazonaws.com".format(self.region)
+        if self.region.startswith("cn"):
+            endpoint_url = "https://kafka.{}.amazonaws.com.cn".format(
+                self.region)
+
+        client = boto3.client(
+            "kafka",
+            endpoint_url=endpoint_url,
+            aws_access_key_id=self.access_id,
+            aws_secret_access_key=self.access_key,
+            region_name=self.region,
+        )
+        return client
+
+    def get_instances_from_response(self, response_data):
+        results = []
+        for instance in response_data["ClusterInfoList"]:
+            instance["RegionId"] = self.region
+            results.append(instance)
+        return results
+
+    def list_instance(self):
+        response = self.client.list_clusters_v2(MaxResults=self.page_size)
+        results = self.get_instances_from_response(response)
+        while "NextToken" in response:
+            response = self.client.list_clusters_v2(
+                MaxResults=self.page_size, NextToken=response["NextToken"])
+            results.extend(self.get_instances_from_response(response))
+
+        return results
+
+    def show(self):
+        instance_list = self.list_instance()
+        for instance in instance_list:
+            print(json.dumps(instance, default=str))
+
+
+def main(access_id, access_key, region):
+    Kafka(access_id, access_key, region).show()
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3])
