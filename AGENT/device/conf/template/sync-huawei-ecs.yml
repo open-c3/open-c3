@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-huawei-ecs --account huawei | c3mc-cloud-tag tags None None = | c3mc-cloud-convert-obj-to-array addresses | c3mc-price-fetch huawei-ecs 'region_id;flaver_id' | c3mc-base-json2tab "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-huawei-ecs --account huawei | c3mc-cloud-tag --tagfield tags --delimiter = | c3mc-cloud-convert-obj-to-array addresses | c3mc-price-fetch huawei-ecs 'region_id;flaver_id' | c3mc-base-json2tab "
     datatype: tsv # 固定值。表示url中命令最终输出的文件格式
     type: compute # 资源类型。cmdb页面中的分类
     subtype: huawei-ecs # 上面资源类型的子类型。
