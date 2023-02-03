@@ -72,8 +72,11 @@ class Rds:
                     attr["memory"] = attr["memory"][:-len(" GiB")]
                     instance_type_m[instance_type] = attr
                 else:
-                    res = self.get_cpu_and_memory(instance_type)
-                    instance_type_m[instance_type] = json.loads(res)
+                    try:
+                        res = self.get_cpu_and_memory(instance_type)
+                        instance_type_m[instance_type] = json.loads(res)
+                    except Exception as e:
+                        raise Exception(res)
 
             results[i]["_cpu_"] = instance_type_m[instance_type]["vcpu"]
             results[i]["_memory_"] = instance_type_m[instance_type]["memory"]

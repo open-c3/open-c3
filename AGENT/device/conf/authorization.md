@@ -1,4 +1,4 @@
-# ak 权限点要求
+# 云账号权限说明
 --
 
 ## 腾讯云
@@ -65,7 +65,8 @@
         "ec2:DescribeVolumes",
         "rds:DescribeDBInstances",
         "elasticache:DescribeCacheClusters",
-        "rds:RemoveTagsFromResource"
+        "rds:RemoveTagsFromResource",
+        "kafka:ListClustersV2"
       ],
       "Resource": "*"
     }

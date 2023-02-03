@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-redis --account qcloud | c3mc-cloud-tag InstanceTags TagKey TagValue None | c3mc-price-fetch qcloud-redis 'Region;ZoneId;Type;Size;RedisShardNum;RedisReplicasNum' | c3mc-base-json2tab "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-redis --account qcloud | c3mc-cloud-tag --tagfield InstanceTags --key TagKey --value TagValue | c3mc-price-fetch qcloud-redis 'Region;ZoneId;Type;Size;RedisShardNum;RedisReplicasNum' | c3mc-base-json2tab "
     datatype: tsv
     type: database
     subtype: qcloud-redis
