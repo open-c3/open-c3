@@ -1,5 +1,6 @@
+# 连接器配置说明
 
-# treemap 
+## treemap 
 
 ```
 treemap: http://xx.xx.xx.xx:8081/v2/tree/treemap

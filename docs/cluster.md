@@ -1,4 +1,4 @@
-# 集群版
+# 集群版部署
 
 ```
 把第一台的数据库3306端口打开,/data/open-c3/Installer/C3/docker-compose.yml 

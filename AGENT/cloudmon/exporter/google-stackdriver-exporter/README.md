@@ -1,4 +1,4 @@
-# 帮助
+# 监控采集器/云监控/google
 
 ## github
 https://github.com/prometheus-community/stackdriver_exporter
