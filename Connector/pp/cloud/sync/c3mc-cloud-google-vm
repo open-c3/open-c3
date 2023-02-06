@@ -27,6 +27,10 @@ class VM:
                     item = MessageToDict(instance)
                 except:
                     item = MessageToDict(instance._pb)
+                
+                network_config = item["networkInterfaces"][0]
+                vpc_network_url = network_config['network']
+                item["vpcName"] = vpc_network_url.rsplit('/', 1)[-1]
 
                 item["zone"] = item["zone"].split("/")[-1]
                 item["regionId"] = item["zone"].split("/")[-1][:-2]
