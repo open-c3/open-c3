@@ -50,3 +50,15 @@ metrics:
 AWS_ACCESS_KEY_ID='ak' AWS_SECRET_ACCESS_KEY='sk' aws cloudwatch list-metrics
 AWS_ACCESS_KEY_ID='ak' AWS_SECRET_ACCESS_KEY='sk' aws cloudwatch list-metrics --namespace AWS/RDS
 AWS_ACCESS_KEY_ID='ak' AWS_SECRET_ACCESS_KEY='sk' aws cloudwatch list-metrics --namespace AWS/ElastiCache
+
+# 生成配置文件
+
+上述配置文件的编写步骤繁琐，可以通过如下方式生产配置文件。
+
+```
+# 查看可用的namespace
+./cloudmon/exporter/cloudwatch-exporter/config-make  --ak yourak --sk yoursk --region ap-southeast-1
+
+# 生成某类资源的配置
+./cloudmon/exporter/cloudwatch-exporter/config-make  --ak yourak --sk yoursk --region ap-southeast-1 --namespace AWS/Kafka
+```

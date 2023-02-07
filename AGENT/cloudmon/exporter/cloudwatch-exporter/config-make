@@ -1,0 +1,60 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib -I/data/Software/mydan/AGENT/private/lib
+use warnings;
+use strict;
+
+use YAML::XS;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 [--ak your_ak [--sk your_sk] [--region ap-southeast-1 ]
+ $0 [--ak your_ak [--sk your_sk] [--region ap-southeast-1 ] [--namespace AWS/Kafka]
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( ak=s sk=s region=s namespace=s ) )->dump();
+
+$option->assert( qw( ak sk region ) );
+
+if( $o{namespace} )
+{
+    my $x = `AWS_ACCESS_KEY_ID='$o{ak}' AWS_SECRET_ACCESS_KEY='$o{sk}' aws cloudwatch list-metrics --region '$o{region}' --namespace '$o{namespace}'`;
+    my $data = eval{ YAML::XS::Load $x };
+    die "load yaml from cmd fail: $@" if $@;
+
+    my %c;
+    for my $m ( @{ $data->{Metrics} } )
+    {
+        next unless $m->{Namespace} eq $o{namespace};
+        my $uuid = join '.', $m->{Namespace}, $m->{MetricName}, sort map{ $_->{Name}}@{ $m->{Dimensions} };
+        $c{ $uuid } = +{
+            aws_namespace   => $m->{Namespace },
+            aws_metric_name => $m->{MetricName},
+            aws_dimensions  => [ sort map{ $_->{Name}}@{ $m->{Dimensions} } ],
+            aws_statistics  => [ 'Maximum' ]
+        };
+    }
+
+    print "---\n";
+    print map{ "$_: '$o{$_}'\n" }qw( ak sk region );
+    print "metrics:\n";
+    for ( sort keys %c )
+    {
+        my $x = $c{$_};
+        printf " - aws_namespace: %s\n",   $x->{aws_namespace  };
+        printf "   aws_metric_name: %s\n", $x->{aws_metric_name};
+        map{ printf "   $_: [%s]\n", join ',', map{ "'$_'" }@{$x->{$_}}; }qw( aws_dimensions aws_statistics );
+    }
+
+}
+else
+{
+    my $x = `AWS_ACCESS_KEY_ID='$o{ak}' AWS_SECRET_ACCESS_KEY='$o{sk}' aws cloudwatch list-metrics --region '$o{region}'`;
+    my $data = eval{ YAML::XS::Load $x };
+    die "load yaml from cmd fail: $@" if $@;
+
+    my %x;
+    map{$x{ $_->{Namespace} } ++; }@{ $data->{Metrics} };
+    map{ print "$_\n" }sort keys %x;
+}
