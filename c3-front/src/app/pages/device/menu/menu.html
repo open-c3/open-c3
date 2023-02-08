@@ -3,10 +3,23 @@
     <div class="topbar-left">
         <ol class="breadcrumb">
             <li>
-                <select class="form-control" ng-change="devicemenu.reload()" ng-model="devicemenu.selectedtimemachine" >
+              <input
+              class="form-control"
+              type="text"
+              list="appNamelist"
+              style="padding: 0.5em"
+              ng-change="devicemenu.reload()" 
+              ng-model="devicemenu.selectedtimemachine"
+              />
+              <!-- ng-model="devicemenu.selectedtimemachine" -->
+            <datalist id="appNamelist">
+              <option value="current"/>
+              <option ng-repeat="t in devicemenu.timemachine" value="{{t}}">{{t}}</option>
+            </datalist>
+                <!-- <select class="form-control" ng-change="devicemenu.reload()" ng-model="devicemenu.selectedtimemachine" >
                     <option value="curr">current</option>
                     <option ng-repeat="t in devicemenu.timemachine" value="{{t}}">{{t}}</option>
-                </select>
+                </select> -->
             </li>
  
             <li>CMDB</li>

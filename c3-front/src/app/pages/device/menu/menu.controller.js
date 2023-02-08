@@ -14,19 +14,19 @@
         });
 
         vm.menu = {};
-        vm.selectedtimemachine = 'curr';
+        vm.selectedtimemachine = 'current';
         vm.timemachine = [];
 
         vm.reload = function () {
             vm.loadover = false;
-            $http.get( '/api/agent/device/menu/' + vm.treeid + '?timemachine=' + vm.selectedtimemachine ).success(function(data){
-                if (data.stat){
-                    vm.menu = data.data;
-                    vm.loadover = true;
-                }else {
-                    swal({ title:'获取菜单失败', text: data.info, type:'error' });
-                }
-            });
+            $http.get( '/api/agent/device/menu/' + vm.treeid + '?timemachine=' + ((vm.selectedtimemachine=== ''|| vm.selectedtimemachine.length <= 2 )? 'current': vm.selectedtimemachine)).success(function(data){
+              if (data.stat){
+                  vm.menu = data.data;
+                  vm.loadover = true;
+              }else {
+                  swal({ title:'获取菜单失败', text: data.info, type:'error' });
+              }
+          });
         };
         vm.reload();
         vm.reloadtimemachine = function () {
