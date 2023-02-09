@@ -14,12 +14,12 @@
         });
 
         vm.menu = {};
-        vm.selectedtimemachine = 'current';
+        vm.selectedtimemachine = 'curr';
         vm.timemachine = [];
 
         vm.reload = function () {
             vm.loadover = false;
-            $http.get( '/api/agent/device/menu/' + vm.treeid + '?timemachine=' + ((vm.selectedtimemachine=== ''|| vm.selectedtimemachine.length <= 2 )? 'current': vm.selectedtimemachine)).success(function(data){
+            $http.get( '/api/agent/device/menu/' + vm.treeid + '?timemachine=' + vm.selectedtimemachine).success(function(data){
               if (data.stat){
                   vm.menu = data.data;
                   vm.loadover = true;
