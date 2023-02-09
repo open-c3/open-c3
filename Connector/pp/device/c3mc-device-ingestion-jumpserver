@@ -48,7 +48,8 @@ for my $ingestion ( glob "/data/open-c3-data/device/curr/compute/*/ingestion-jum
     die "load $ingestion fail: $@" if $@;
     map{ die "err $ingestion:nofind $_" unless $colmap->{$_} }@col;
 
-    my $exclude = $colmap->{exclude} && ref $colmap->{exclude} eq 'HASH' ? $colmap->{exclude} : undef;
+    my $exclude        = $colmap->{exclude       } && ref $colmap->{exclude       } eq 'HASH' ? $colmap->{exclude       } : undef;
+    my $excludeContain = $colmap->{excludeContain} && ref $colmap->{excludeContain} eq 'HASH' ? $colmap->{excludeContain} : undef;
 
     my ( undef, $subtype, $type ) = reverse split /\//, $datafile;
     my    @data  = `c3mc-device-cat curr $type $subtype`;
@@ -71,6 +72,16 @@ for my $ingestion ( glob "/data/open-c3-data/device/curr/compute/*/ingestion-jum
              for my $col ( keys %$exclude )
              {
                  map{ $skip = 1 if defined $d{ $col } && $_ eq $d{ $col } }@{ $exclude->{ $col } };
+             }
+             next if $skip;
+         }
+ 
+         if( $excludeContain )
+         {
+             my $skip = 0;
+             for my $col ( keys %$excludeContain )
+             {
+                 map{ $skip = 1 if defined $d{ $col } && index( $d{ $col }, $_ ) >= 0 }@{ $excludeContain->{ $col } };
              }
              next if $skip;
          }
