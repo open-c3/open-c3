@@ -36,7 +36,11 @@
                             </div>
                             <div ng-if="devicedatadetail.treenamecol==d[0]">
                                 <label class="col-md-4  control-label fwbold" >全量服务树</label>
-                                <label class="col-md-8 control-label fwbold" >{{d[1]}}</label>
+                                <label class="col-md-8 control-label fwbold" >
+                                  <div class="service-standard-tags" ng-repeat="item in d[1].split(',')">
+                                    {{item}}
+                                  </div>
+                                </label>
                             </div>
                             <div ng-if="'_tree_'==d[0]">
                                 <label class="col-md-4  control-label fwbold" >内部服务树</label>
