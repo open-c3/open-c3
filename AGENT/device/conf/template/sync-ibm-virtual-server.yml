@@ -28,14 +28,18 @@ download:
         "状态": ["Stopped"]
         "_ingestion_": ["NO"]
     ingestion-jumpserver:
-      UUID: "实例ID"
-      InstanceId: "实例ID"
-      HostName: "名称"
-      IP: "内网IP"
-      InIP: "内网IP"
-      ExIP: "公网IP"
-      Site: ["{IBM}", "VpcName"]
-      VpcName: "vpcName"
+      uuid: "实例ID"
+      instanceId: "实例ID"
+      hostName: "主机名"
+      ip: "内网IP"
+      inIP: "内网IP"
+      exIP: "公网IP"
+      os: "os"
+      site: ["{IBM}", "vpcName"]
+      vpc_id: "vpcName"
+      vpc_name: "vpcName"
+      exclude:
+        "vpcName": ["/ThirdParty/", "/CMTest/"]
     util:
       defaulttree: defaulttree.pool # 默认的服务树，资源归还后被放到这里
       extcol:
@@ -51,7 +55,8 @@ download:
       treename: "服务树"
       uuid: "实例ID" # 指明哪一列作为uuid列。没有这个字段会导致单个资源详情打开无数据
     alias:
-      uuid: "实例ID"
+      fullyQualifiedDomainName: "实例ID"
+      fullyHostName: "主机名"
       hostname: "名称"
       primaryBackendIpAddress: "内网IP"
       primaryIpAddress: "公网IP"

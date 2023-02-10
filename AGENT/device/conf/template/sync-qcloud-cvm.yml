@@ -17,16 +17,19 @@ download:
         "状态": ["STOPPED", "SHUTDOWN"]
         "_ingestion_": ["NO"]
     ingestion-jumpserver:
-      UUID: '实例ID'
-      InstanceId: '实例ID'
-      HostName: '名称'
-      IP: '内网IP'
-      InIP: '内网IP'
-      ExIP: '公网IP'
-      OS: 'OsName'
-      Site: [ '{QCloud}', 'VpcName' ]
-      VpcId:   'VpcId'
-      VpcName: 'VpcName'
+      uuid: "实例ID"
+      instanceId: "InstanceId"
+      hostName: "名称"
+      ip: "内网IP"
+      inIP: "内网IP"
+      exIP: "公网IP"
+      os: "os"
+      site: ["{QCloud}", "VpcName"]
+      vpc_id: "VpcId"
+      vpc_name: "VpcName"
+      exclude:
+        "状态": ["STOPPED", "SHUTDOWN"]
+        "VpcName": ["/ThirdParty/", "/CMTest/"]
     metrics:
       - name: 'openc3_cmdb_resource_price{account="%s",instanceid="%s",type="compute",subtype="qcloud-cvm",unit="%s",status="%s"} %f'
         value: ["account", "uuid", "_priceunit_", "状态", "_price_"]

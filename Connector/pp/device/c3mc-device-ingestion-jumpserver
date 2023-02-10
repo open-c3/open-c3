@@ -36,7 +36,7 @@ if( -f $aliasfile )
     die "alias err" unless ref $alias eq 'HASH';
 }
 
-my @col = qw( UUID InstanceId HostName IP InIP ExIP OS Site VpcId VpcName );
+my @col = qw( uuid instanceId hostName ip inIP exIP os site vpc_id vpc_name );
 my $dir = '/data/open-c3-data/device/curr/jumpserver/exipsite';
 
 my @out;
@@ -92,9 +92,9 @@ for my $ingestion ( glob "/data/open-c3-data/device/curr/compute/*/ingestion-jum
              my @c = ref $colmap->{$c} ? @{ $colmap->{$c} } : ( $colmap->{$c} );
              $tmp{ $c } = join '_', map{ $_ =~ /^\{(.+)\}$/ ? $1 : $d{$_} // '' }@c;
          }
-         $tmp{IP} = $tmp{ExIP} if -f "$dir/$tmp{Site}";
+         $tmp{ip} = $tmp{exIP} if -f "$dir/$tmp{site}";
 
-         $tmp{UUID} = $alias->{$tmp{UUID}} // $tmp{UUID};
+         $tmp{uuid} = $alias->{$tmp{uuid}} // $tmp{uuid};
 
          push @out, \%tmp;
     }
