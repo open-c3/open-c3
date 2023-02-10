@@ -8,6 +8,7 @@
 | 谷歌云 | 计算(vm)、      数据库(rds、redis)                                                                |
 | 阿里云 | 计算(ecs)、     数据库(rds、redis)、                     存储(oss)、        网络(slb)      |
 | 金山云 | 计算(kec、epc)、数据库(krds、redis)、                    存储(ks3)、        网络(slb)      |
+| IBM | 计算(虚拟机、裸金属服务器)  |
 
 
 # CMDB 云资源同步

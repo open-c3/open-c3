@@ -17,7 +17,7 @@ $| ++;
 return sub
 {
     my %param = @_;
-    my ( $logs, $projectid, $groupid, $version ) = @param{qw( logs projectid groupid version )};
+    my ( $logs, $projectid, $groupid, $version, $tagger ) = @param{qw( logs projectid groupid version tagger )};
     print '=' x 75, "\n";
     print "calltestenv...\n";
 
@@ -26,7 +26,13 @@ return sub
     #HTTP::Message content must be bytes at
     my ( $jobname, $jobgroup ) = ( '_ci_' . $projectid . '_', '_ci_test_' . $projectid . '_');
 
-    my $uuid = `c3mc-jobx-task-run $groupid $jobname $jobgroup --user ci\@app --variablekv version=$version,_jobtype_=test,_exit_=1`;
+    unless( $tagger && $tagger =~ /^[a-zA-Z0-9][a-zA-Z0-9\-\._@]*[a-zA-Z0-9]$/ )
+    {
+        print "Warn: error tagger format: $tagger\n";
+        $tagger = 'unkown';
+    }
+
+    my $uuid = `c3mc-jobx-task-run $groupid $jobname $jobgroup --user ci\@app --variablekv version=$version,_jobtype_=test,_exit_=1,tagger=$tagger`;
     chomp $uuid;
     $logs->die( "deploy test env fail" ) unless $uuid && $uuid =~ /^[a-zA-Z0-9]{12}$/;
 

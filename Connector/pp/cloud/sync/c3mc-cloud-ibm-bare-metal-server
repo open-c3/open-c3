@@ -1,0 +1,74 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import json
+import sys
+import SoftLayer
+
+
+class IBMBareMetalServer():
+    def __init__(self, api_key, api_secret, vpc_name):
+        self.api_key = api_key
+        self.api_secret = api_secret
+        self.vpc_name = vpc_name
+
+    def get_server_list(self):
+        server_list = []
+        has_items = True
+
+        client = SoftLayer.create_client_from_env(username=self.api_key, api_key=self.api_secret)
+
+        mask = 'id,hostname,primaryIpAddress,datacenter,fullyQualifiedDomainName,operatingSystem.softwareLicense' \
+                    '.softwareDescription.longDescription,hardwareChassis.manufacturer,' \
+                    'hardwareChassis.name,hardwareChassis.version,networkComponents' \
+                    '.primaryIpAddress,processorCount,datacenter.name,' \
+                    'primaryBackendIpAddress,motherboard.hardwareComponentModel' \
+                    '.longDescription,processors.hardwareComponentModel.longDescription,' \
+                    'memory.hardwareComponentModel.longDescription,' \
+                    'memory.hardwareComponentModel.capacity,raidControllers' \
+                    '.hardwareComponentModel.longDescription,hardDrives' \
+                    '.hardwareComponentModel.longDescription,tagReferences'
+        limit = 50
+        offset = 0
+        while has_items:
+            items = client['SoftLayer_Account'].getHardware(mask=mask,
+                                                                    limit=limit,
+                                                                    offset=offset)
+            for i in range(len(items)):
+                if self.vpc_name is not None:
+                    items[i]["vpcName"] = self.vpc_name
+                items[i]["tagList"] = self.extract_tag(items[i]["tagReferences"])
+
+            server_list.extend(items)
+
+            if len(items) > 0:
+                offset += limit
+            else:
+                has_items = False
+        return server_list
+    
+    def extract_tag(self, tag_reference_list):
+        tag_list = []
+        for tag_reference_item in tag_reference_list:
+            tag_str = tag_reference_item["tag"]["name"]
+            tag_str = tag_str.replace("__", "@")
+            tag_list.append(tag_str)
+        return tag_list
+
+    def display(self):
+        server_list = self.get_server_list()
+
+        for server in server_list:
+            print(json.dumps(server))
+
+
+def main(username, password, raw_vpc_name):
+    vpc_name = None
+    if raw_vpc_name.lower() != "none":
+        vpc_name = raw_vpc_name
+    IBMBareMetalServer(username, password, vpc_name).display()
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3])
+

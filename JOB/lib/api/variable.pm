@@ -99,7 +99,8 @@ get '/variable/:projectid/:jobuuid' => sub {
         tester   =>  Encode::decode("utf8", '1.测试审批人'),
         approver =>  Encode::decode("utf8", '2.OA审批人 或 领导审批人'),
         checker  =>  Encode::decode("utf8", '3.发布前确认人'),
-        '_pip_'  =>  Encode::decode("utf8", '4.指定IP发布'),
+        tagger   =>  Encode::decode("utf8", '4.触发人,发布前确认人'),
+        '_pip_'  =>  Encode::decode("utf8", '5.指定IP发布'),
     );
     for( @$r )
     {

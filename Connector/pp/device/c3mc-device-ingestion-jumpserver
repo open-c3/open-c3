@@ -27,6 +27,15 @@ $|++;
 #VpcId:   'security_groups.0.id'
 #VpcName: 'security_groups.0.name'
 
+my $aliasfile = '/data/open-c3-data/device/ingestion-jumpserver-uuid-alias.yml';
+my $alias = +{};
+if( -f $aliasfile )
+{
+    $alias = eval{ YAML::XS::LoadFile $aliasfile };
+    die "load alias file fail: $@" if $@;
+    die "alias err" unless ref $alias eq 'HASH';
+}
+
 my @col = qw( UUID InstanceId HostName IP InIP ExIP OS Site VpcId VpcName );
 my $dir = '/data/open-c3-data/device/curr/jumpserver/exipsite';
 
@@ -39,7 +48,8 @@ for my $ingestion ( glob "/data/open-c3-data/device/curr/compute/*/ingestion-jum
     die "load $ingestion fail: $@" if $@;
     map{ die "err $ingestion:nofind $_" unless $colmap->{$_} }@col;
 
-    my $exclude = $colmap->{exclude} && ref $colmap->{exclude} eq 'HASH' ? $colmap->{exclude} : undef;
+    my $exclude        = $colmap->{exclude       } && ref $colmap->{exclude       } eq 'HASH' ? $colmap->{exclude       } : undef;
+    my $excludeContain = $colmap->{excludeContain} && ref $colmap->{excludeContain} eq 'HASH' ? $colmap->{excludeContain} : undef;
 
     my ( undef, $subtype, $type ) = reverse split /\//, $datafile;
     my    @data  = `c3mc-device-cat curr $type $subtype`;
@@ -66,6 +76,16 @@ for my $ingestion ( glob "/data/open-c3-data/device/curr/compute/*/ingestion-jum
              next if $skip;
          }
  
+         if( $excludeContain )
+         {
+             my $skip = 0;
+             for my $col ( keys %$excludeContain )
+             {
+                 map{ $skip = 1 if defined $d{ $col } && index( $d{ $col }, $_ ) >= 0 }@{ $excludeContain->{ $col } };
+             }
+             next if $skip;
+         }
+ 
          my %tmp;
          for my $c ( @col )
          {
@@ -73,6 +93,8 @@ for my $ingestion ( glob "/data/open-c3-data/device/curr/compute/*/ingestion-jum
              $tmp{ $c } = join '_', map{ $_ =~ /^\{(.+)\}$/ ? $1 : $d{$_} // '' }@c;
          }
          $tmp{IP} = $tmp{ExIP} if -f "$dir/$tmp{Site}";
+
+         $tmp{UUID} = $alias->{$tmp{UUID}} // $tmp{UUID};
 
          push @out, \%tmp;
     }

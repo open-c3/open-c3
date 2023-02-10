@@ -17,7 +17,7 @@ $| ++;
 return sub
 {
     my %param = @_;
-    my ( $logs, $projectid, $groupid, $version ) = @param{qw( logs projectid groupid version )};
+    my ( $logs, $projectid, $groupid, $version, $tagger ) = @param{qw( logs projectid groupid version tagger )};
     print '=' x 75, "\n";
     print "callonlineenv...\n";
 
@@ -26,10 +26,16 @@ return sub
     #HTTP::Message content must be bytes at
     my ( $jobname, $jobgroup ) = ( '_ci_' . $projectid . '_', '_ci_online_' . $projectid . '_');
 
+    unless( $tagger && $tagger =~ /^[a-zA-Z0-9][a-zA-Z0-9\-\._@]*[a-zA-Z0-9]$/ )
+    {
+        print "Warn: error tagger format: $tagger\n";
+        $tagger = 'unkown';
+    }
+
     my $lastversion = `c3mc-base-db-get -t openc3_jobx_flowline_version version -f 'flowlineid=$projectid'`;
     chomp $lastversion;
 
-    my $variablekv = "version=$version,_jobtype_=online,_appname_=_ci_${projectid}_";
+    my $variablekv = "version=$version,_jobtype_=online,_appname_=_ci_${projectid}_,tagger=$tagger";
     $variablekv .= ",_rollbackVersion_=$lastversion" if $lastversion;
 
     my $uuid = `c3mc-jobx-task-run $groupid $jobname $jobgroup --user ci\@app --variablekv $variablekv`;
