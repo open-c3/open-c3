@@ -18,8 +18,8 @@ class IBMBareMetalServer():
 
         client = SoftLayer.create_client_from_env(username=self.api_key, api_key=self.api_secret)
 
-        mask = 'id,hostname,primaryIpAddress,datacenter,fullyQualifiedDomainName,operatingSystem.softwareLicense' \
-                    '.softwareDescription.longDescription,hardwareChassis.manufacturer,' \
+        mask = 'id,hostname,primaryIpAddress,datacenter,fullyQualifiedDomainName,operatingSystem,' \
+                    'hardwareChassis.manufacturer,' \
                     'hardwareChassis.name,hardwareChassis.version,networkComponents' \
                     '.primaryIpAddress,processorCount,datacenter.name,' \
                     'primaryBackendIpAddress,motherboard.hardwareComponentModel' \
@@ -39,6 +39,11 @@ class IBMBareMetalServer():
                     items[i]["vpcName"] = self.vpc_name
                 items[i]["tagList"] = self.extract_tag(items[i]["tagReferences"])
 
+                if 'operatingSystem' in items[i]:
+                    items[i]["os"] = "Windows" if items[i]['operatingSystem']['softwareLicense']['softwareDescription']['name'].lower().find("window") != -1 else "Linux"
+                else:
+                    items[i]["os"] = "Other"
+                items[i]["fullyHostName"] = items[i]["fullyQualifiedDomainName"]
             server_list.extend(items)
 
             if len(items) > 0:

@@ -17,7 +17,7 @@ class IBMVirtualServer:
 
         client = SoftLayer.create_client_from_env(username=self.api_key, api_key=self.api_secret)
 
-        mask = 'accountId,datacenter,createDate, dedicatedAccountHostOnlyFlag, deviceStatusId, domain,' \
+        mask = 'accountId,datacenter,createDate,operatingSystem,dedicatedAccountHostOnlyFlag, deviceStatusId, domain,' \
                 'fullyQualifiedDomainName, hostname, id, lastPowerStateId, lastVerifiedDate,' \
                 'maxCpu, maxCpuUnits, maxMemory, metricPollDate, modifyDate, placementGroupId,' \
                 'provisionDate, startCpus, statusId, typeId, uuid, globalIdentifier,' \
@@ -33,6 +33,12 @@ class IBMVirtualServer:
                 if self.vpc_name is not None:
                     items[i]["vpcName"] = self.vpc_name
                 items[i]["tagList"] = self.extract_tag(items[i]["tagReferences"])
+
+                if 'operatingSystem' in items[i]:
+                    items[i]["os"] = "Windows" if items[i]['operatingSystem']['softwareLicense']['softwareDescription']['name'].lower().find("window") != -1 else "Linux"
+                else:
+                    items[i]["os"] = "Other"
+                items[i]["fullyHostName"] = items[i]["fullyQualifiedDomainName"]
             server_list.extend(items)
 
             if len(items) > 0:
