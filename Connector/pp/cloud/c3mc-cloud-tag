@@ -21,17 +21,21 @@ class HandleTag:
         self.pre_names = self.init_pre_names()
     
     def init_pre_names(self):
-        product_owner_env_vlaue = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.ProductOwner").lower()
-        ops_owner_env_value = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.OpsOwner").lower()
-        department_env_value = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.Department").lower()
-        name_env_value = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.Name").lower()
+        product_owner_env_vlaue_list = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.ProductOwner").lower().split(",")[::-1]
+        ops_owner_env_value_list = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.OpsOwner").lower().split(",")[::-1]
+        department_env_value_list = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.Department").lower().split(",")[::-1]
+        name_env_value_list = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.Name").lower().split(",")[::-1]
 
-        pre_names = {
-            product_owner_env_vlaue: "_product_owner_",
-            ops_owner_env_value: "_ops_owner_",
-            department_env_value: "_department_",
-            name_env_value: "_name_",
-        }
+        pre_names = []
+        for item in product_owner_env_vlaue_list:
+            pre_names.append({"pre_name": item, "pre_value": "_product_owner_"})
+        for item in ops_owner_env_value_list:
+            pre_names.append({"pre_name": item, "pre_value": "_ops_owner_"})
+        for item in department_env_value_list:
+            pre_names.append({"pre_name": item, "pre_value": "_department_"})
+        for item in name_env_value_list:
+            pre_names.append({"pre_name": item, "pre_value": "_name_"})
+        
         return pre_names
 
     def helper(self):
@@ -63,15 +67,12 @@ class HandleTag:
             new_tag_dict = {}
 
             for key, value in tmp_tag_dict.items():
-                found = False
-                for pre_name, pre_value in self.pre_names.items():
-                    if key.lower() == pre_name:
-                        new_tag_dict[pre_name] = value
-                        self.data_list[i][pre_value] = value
-                        found = True
-                        break
-                if not found:
-                    new_tag_dict[key] = value
+                new_tag_dict[key] = value
+
+            for item in self.pre_names:
+                for key, value in tmp_tag_dict.items():
+                    if key.lower() == item["pre_name"].lower():
+                        self.data_list[i][item["pre_value"]] = value
 
             # 添加 tag 字段，类型是 dict
             self.data_list[i]["tag"] = new_tag_dict
