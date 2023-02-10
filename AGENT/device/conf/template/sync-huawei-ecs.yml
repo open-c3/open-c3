@@ -20,16 +20,19 @@ download:
         "状态": ["SHUTOFF"]
         "_ingestion_": ["NO"]
     ingestion-jumpserver:
-      UUID: '实例ID'
-      InstanceId: '实例ID'
-      HostName: '主机名'
-      IP: '内网IP'
-      InIP: '内网IP'
-      ExIP: '公网IP'
-      OS: '操作系统'
-      Site: [ '{Huawei}', 'vpc_name' ]
-      VpcId:   'vpc_id'
-      VpcName: 'vpc_name'
+      uuid: "实例ID"
+      instanceId: "实例ID"
+      hostName: "主机名"
+      ip: "内网IP"
+      inIP: "内网IP"
+      exIP: "公网IP"
+      os: "os"
+      site: ["{Huawei}", "vpc_name"]
+      vpc_id: "vpc_id"
+      vpc_name: "vpc_name"
+      exclude:
+        "状态": ["SHUTOFF"]
+        "vpc_name": ["/ThirdParty/", "/CMTest/"]
     metrics:
       - name: 'openc3_cmdb_resource_price{account="%s",instanceid="%s",type="compute",subtype="huawei-ecs",unit="%s",status="%s"} %f'
         value: ["account", "uuid", "_priceunit_", "状态", "_price_"]
