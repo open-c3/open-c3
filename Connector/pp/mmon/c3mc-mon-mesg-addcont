@@ -134,6 +134,7 @@ sub addcont
     }
 
     if(
+        ( ! $data->{'labels.nomail'} ) &&
         ( $environment->{isMonitorSuccessEmail} && $environment->{isMonitorSuccessEmail} eq 'true' ) &&
         ( $data->{'labels.severity'} && ( $data->{'labels.severity'} eq 'level1' || $data->{'labels.severity'} eq 'level2' || $data->{'labels.severity'} eq 'level3' ) )
     )
@@ -144,6 +145,7 @@ sub addcont
     }
 
     if(
+        ( ! $data->{'labels.nomesg'} ) &&
         ( $environment->{isMonitorSuccessSms} && $environment->{isMonitorSuccessSms} eq 'true' ) &&
         ( $data->{'labels.severity'} && ( $data->{'labels.severity'} eq 'level1' || $data->{'labels.severity'} eq 'level2' ) ) 
     )
@@ -154,6 +156,7 @@ sub addcont
     }
 
     if(
+        ( ! $data->{'labels.nocall'} ) &&
         ( $environment->{isMonitorSuccessCall} && $environment->{isMonitorSuccessCall} eq 'true' ) &&
         ( $data->{'labels.severity'} && ( $data->{'labels.severity'} eq 'level1' ) ) 
     )

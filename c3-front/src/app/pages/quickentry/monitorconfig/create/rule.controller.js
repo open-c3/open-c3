@@ -26,6 +26,10 @@
             vm.postData.bindtreesql = postData.bindtreesql
             vm.postData.job = postData.job
             vm.postData.subgroup = postData.subgroup
+
+            vm.postData.nocall = postData.nocall
+            vm.postData.nomesg = postData.nomesg
+            vm.postData.nomail = postData.nomail
         }
 
         vm.cancel = function(){ $uibModalInstance.dismiss()};
