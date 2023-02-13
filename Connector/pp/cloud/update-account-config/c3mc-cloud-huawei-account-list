@@ -1,0 +1,108 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import os
+import requests
+from bs4 import BeautifulSoup
+
+
+class Huawei:
+    def __init__(self, account, access_id, access_key, iam_user_id):
+        self.account = account
+        self.access_id = access_id
+        self.access_key = access_key
+        self.iam_user_id = iam_user_id
+
+    def append_to_file(self, file_path, strings_list):
+        if not os.path.exists(file_path):
+            open(file_path, "w").close()
+
+        with open(file_path, 'a') as file:
+            for line in strings_list:
+                file.write(line + '\n')
+
+    def list_regions(self, title):
+        # 华为云目前没有可以直接查询区域列表的接口，因此使用爬虫获取区域列表
+        url = 'https://developer.huaweicloud.com/endpoint?all'
+        response = requests.get(url)
+        html_content = response.text
+
+        soup = BeautifulSoup(html_content, 'html.parser')
+        target_div = soup.find('div', string=title)
+        parent = target_div.find_parent()
+        target_table = parent.find('table')
+
+        result = []
+        for row in target_table.find_all('tr'):
+            i = 0
+            for cell in row.find_all('td'):
+                if i == 1:
+                    result.append(cell.text)
+                    break
+                i += 1
+        return sorted(result)
+
+    def display(self):
+        # 查询 dds 区域列表
+        account_lines = []
+        regions = self.list_regions("文档数据库服务 DDS")
+        for region in regions:
+            account_lines.append("{} {} {} None {} {}".format(self.account, self.access_id, self.access_key, region, self.iam_user_id))
+        self.append_to_file("/data/Software/mydan/AGENT/device/conf/account/.tmp/huawei.dds", account_lines)
+
+        # 查询 ecs 区域列表
+        account_lines = []
+        regions = self.list_regions("弹性云服务 ECS")
+        for region in regions:
+            account_lines.append("{} {} {} None {} {}".format(self.account, self.access_id, self.access_key, region, self.iam_user_id))
+        self.append_to_file("/data/Software/mydan/AGENT/device/conf/account/.tmp/huawei.ecs", account_lines)
+
+        # 查询 ecs-volume 区域列表
+        account_lines = []
+        regions = self.list_regions("云硬盘 EVS")
+        for region in regions:
+            account_lines.append("{} {} {} None {} {}".format(self.account, self.access_id, self.access_key, region, self.iam_user_id))
+        self.append_to_file("/data/Software/mydan/AGENT/device/conf/account/.tmp/huawei.ecs-volume", account_lines)
+
+        # 查询 elb 区域列表
+        account_lines = []
+        regions = self.list_regions("弹性负载均衡 ELB")
+        for region in regions:
+            account_lines.append("{} {} {} None {} {}".format(self.account, self.access_id, self.access_key, region, self.iam_user_id))
+        self.append_to_file("/data/Software/mydan/AGENT/device/conf/account/.tmp/huawei.elb", account_lines)
+
+        # 查询 nosql 区域列表
+        account_lines = []
+        regions = self.list_regions("云数据库 GaussDB NoSQL")
+        for region in regions:
+            account_lines.append("{} {} {} None {} {}".format(self.account, self.access_id, self.access_key, region, self.iam_user_id))
+        self.append_to_file("/data/Software/mydan/AGENT/device/conf/account/.tmp/huawei.nosql", account_lines)
+
+        # 查询 obs 区域列表
+        account_lines = []
+        regions = self.list_regions("对象存储服务 OBS")
+        for region in regions:
+            account_lines.append("{} {} {} None {} {}".format(self.account, self.access_id, self.access_key, region, self.iam_user_id))
+        self.append_to_file("/data/Software/mydan/AGENT/device/conf/account/.tmp/huawei.obs", account_lines)
+
+        # 查询 rds 区域列表
+        account_lines = []
+        regions = self.list_regions("云数据库 RDS")
+        for region in regions:
+            account_lines.append("{} {} {} None {} {}".format(self.account, self.access_id, self.access_key, region, self.iam_user_id))
+        self.append_to_file("/data/Software/mydan/AGENT/device/conf/account/.tmp/huawei.rds", account_lines)
+
+        # 查询 redis 区域列表
+        account_lines = []
+        regions = self.list_regions("分布式缓存服务 Redis")
+        for region in regions:
+            account_lines.append("{} {} {} None {} {}".format(self.account, self.access_id, self.access_key, region, self.iam_user_id))
+        self.append_to_file("/data/Software/mydan/AGENT/device/conf/account/.tmp/huawei.redis", account_lines)
+
+def main(account, access_id, access_key, iam_user_id):
+    Huawei(account, access_id, access_key, iam_user_id).display()
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
