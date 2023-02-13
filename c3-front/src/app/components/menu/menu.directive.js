@@ -21,7 +21,6 @@
 
             var vm = this;
             vm.zTree = '';
-            vm.isShow = false
             var toastr = toastr || $injector.get('toastr');
 
             // tree height auto
@@ -157,17 +156,6 @@
                 });
             };
 
-            vm.unfold = function() {
-              vm.isShow = true
-              angular.element('#sidebar_left').addClass('show-unfold')
-              angular.element('#content_wrapper').addClass('show-wrapper')
-            }    
-            vm.packUp = function() {
-              vm.isShow = false
-              angular.element('#sidebar_left').removeClass('show-unfold')
-              angular.element('#content_wrapper').removeClass('show-wrapper')
-            }
-
             vm.select_map = {};
             vm.search_init = function () {
                 vm.names = [];
@@ -186,6 +174,7 @@
               vm.zTree.expandNode(node);
               vm.search_init(event)
             };
+
         }
     }
 

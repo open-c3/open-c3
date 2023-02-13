@@ -26,11 +26,6 @@
         vm.treenamecol = '';
 
         vm.extcol = {};
-        vm.grpcol = {};
-        vm.systemFlag = true;
-        vm.baseinfoFlag = true;
-        vm.otherinfoFlag = false;
-        
         var toastr = toastr || $injector.get('toastr');
 
         vm.cancel = function(){ $uibModalInstance.dismiss(); };
@@ -40,90 +35,18 @@
         vm.reload = function(){
             vm.loadover = false;
             $http.get('/api/agent/device/detail/' + type + '/' + subtype +'/' + vm.treeid + '/' + uuid + '?timemachine=' + vm.selectedtimemachine ).success(function(data){
-              const addinfo = [...data.grpcol.system, ...data.grpcol.baseinfo]
-              const newSystem = []
-              const newBaseinfo = []
-              data.grpcol.system.map(info => {
-                if (info.prefix) {
-                  newSystem.push(...data.data[0].filter(item => item[0].indexOf(addinfo.find(cItem => !!cItem.prefix).prefix) === 0).map(item => {
-                    return {
-                      name: item[0],
-                      value: item[1]
-                    }
-                  }))
-                } else {
-                  newSystem.push(...data.data[0].filter(item => item[0] === info.name).map(item => {
-                    info.name = item[0]
-                    info.value = item[1]
-                    if(info.success) {
-                      info.isSuccess = !!info.success.find(d => d === item[1])
-                    }
-                    return info
-                  }))
-                }
-              })  
-              data.grpcol.baseinfo.map(info => {
-                if (info.prefix) {
-                  newBaseinfo.push(...data.data[0].filter(item => item[0].indexOf(addinfo.find(cItem => !!cItem.prefix).prefix) === 0).map(item => {
-                    return {
-                      name: item[0],
-                      value: item[1]
-                    }
-                  }))
-                } else {
-                  newBaseinfo.push(...data.data[0].filter(item => item[0] === info.name).map(item => {
-                    info.name = item[0]
-                    info.value = item[1]
-                    if(info.success) {
-                      info.isSuccess = !!info.success.find(d => d === item[1])
-                    }
-                    return info
-                  }))
-  
-                }
-              })
-              const newGrpcol = [
-                ...data.grpcol.system.filter(item => !!item.name).map(item => item.name),
-                ...data.grpcol.baseinfo.filter(item => !!item.name).map(item => item.name),
-                ...data.data[0].filter(item => item[0].indexOf(addinfo.find(cItem => cItem.prefix).prefix) === 0).map(item => item[0])
-              ]
-              const newOtherinfo = data.data[0].filter(item => !newGrpcol.find(cItem => cItem === item[0]))
-              const disposeGrpcol = {
-                system: newSystem,
-                baseinfo: newBaseinfo,
-                otherinfo: newOtherinfo
-              }  
-              if(data.stat == true) 
+                if(data.stat == true) 
                 { 
                     vm.data = data.data;
                     vm.treenamecol = data.treenamecol;
                     vm.extcol = data.extcol;
 
                     vm.loadover = true;
-                    vm.loadover = true;
-                    vm.grpcol = disposeGrpcol
-                    vm.systemFlag = true,
-                    vm.baseinfoFlag = true;
-                    vm.otherinfoFlag = false;
                 } else { 
                     toastr.error("加载数据失败:" + data.info)
                 }
             });
         };
-
-        vm.showFlag = function (type, flag) {
-          switch (type) {
-            case 'systemFlag':
-              vm.systemFlag = !flag
-              break
-            case 'baseinfoFlag':
-              vm.baseinfoFlag = !flag
-              break
-            case 'otherinfoFlag':
-              vm.otherinfoFlag = !flag
-              break
-          }
-        }
 
         vm.bindtree = function( newtree, title ){
             swal({

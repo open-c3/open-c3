@@ -217,7 +217,7 @@
         vm.getCiInfo();
 
         vm.show30Task = function (datetimes, okcounts, allcounts) {
-            var charts = Highcharts.chart('container', {
+            Highcharts.chart('container', {
                 chart: {
                     type: 'spline'
                 },
@@ -265,19 +265,13 @@
                         symbol: 'diamond'
                     },
                     data: allcounts
-                }],
+                }]
             });
-            let oldmarginLeft = angular.element('#content_wrapper').css("marginLeft")
-            window.addEventListener('click', function() {
-              if (oldmarginLeft !== angular.element('#content_wrapper').css("marginLeft")) {
-                charts.setSize(angular.element('#container').css('width').split('px')[0])
-                oldmarginLeft = angular.element('#content_wrapper').css("marginLeft")
-              }
-            })
+
         };
 
         vm.showRuntime = function (times) {
-          var charts = Highcharts.chart('container2', {
+            $('#container2').highcharts({
                 chart: {
                     plotBackgroundColor: null,
                     plotBorderWidth: null,
@@ -309,14 +303,6 @@
                     data: times
                 }]
             });
-
-            let oldmarginLeft = angular.element('#content_wrapper').css("marginLeft")
-            window.addEventListener('click', function() {
-              if (oldmarginLeft !== angular.element('#content_wrapper').css("marginLeft")) {
-                charts.setSize(angular.element('#container2').css('width').split('px')[0])
-                oldmarginLeft = angular.element('#content_wrapper').css("marginLeft")
-              }
-            })
         };
 
     }
