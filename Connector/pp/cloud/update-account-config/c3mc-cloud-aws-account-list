@@ -1,0 +1,64 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import os
+import boto3
+
+
+class Aws:
+    def __init__(self, account, access_id, access_key):
+        self.account = account
+        self.access_id = access_id
+        self.access_key = access_key
+
+    def append_to_file(self, file_path, strings_list):
+        if not os.path.exists(file_path):
+            open(file_path, "w").close()
+
+        with open(file_path, 'a') as file:
+            for line in strings_list:
+                file.write(line + '\n')
+
+    def list_ec2_regions(self):
+        result = []
+        for region in ["us-east-1", "cn-north-1"]:
+            try:
+                client = boto3.client(
+                    "ec2",
+                    aws_access_key_id=self.access_id,
+                    aws_secret_access_key=self.access_key,
+                    region_name=region
+                )
+
+                response = client.describe_regions(AllRegions=False)
+                for item in response["Regions"]:
+                    result.append(item["RegionName"])
+            except Exception:
+                continue
+        return sorted(result)
+
+    def display(self):
+        account_lines = []
+        regions = self.list_ec2_regions()
+        for region in regions:
+            account_lines.append("{} {} {} {}".format(self.account, self.access_id, self.access_key, region))
+        self.append_to_file("/data/Software/mydan/AGENT/device/conf/account/.tmp/aws.ec2", account_lines)
+        self.append_to_file("/data/Software/mydan/AGENT/device/conf/account/.tmp/aws.alb", account_lines)
+        self.append_to_file("/data/Software/mydan/AGENT/device/conf/account/.tmp/aws.nlb", account_lines)
+        self.append_to_file("/data/Software/mydan/AGENT/device/conf/account/.tmp/aws.dynamodb", account_lines)
+        self.append_to_file("/data/Software/mydan/AGENT/device/conf/account/.tmp/aws.ec2-volume", account_lines)
+        self.append_to_file("/data/Software/mydan/AGENT/device/conf/account/.tmp/aws.elb", account_lines)
+        self.append_to_file("/data/Software/mydan/AGENT/device/conf/account/.tmp/aws.kafka", account_lines)
+        self.append_to_file("/data/Software/mydan/AGENT/device/conf/account/.tmp/aws.memcached", account_lines)
+        self.append_to_file("/data/Software/mydan/AGENT/device/conf/account/.tmp/aws.rds", account_lines)
+        self.append_to_file("/data/Software/mydan/AGENT/device/conf/account/.tmp/aws.redis", account_lines)
+        self.append_to_file("/data/Software/mydan/AGENT/device/conf/account/.tmp/aws.s3", account_lines)
+
+
+def main(account, access_id, access_key):
+    Aws(account, access_id, access_key).display()
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3])

@@ -1,0 +1,58 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import os
+
+from google.oauth2 import service_account
+from googleapiclient import discovery
+
+
+class Google:
+    def __init__(self, account, cred_path):
+        self.account = account
+        self.cred_path = cred_path
+        self.credentials = self.create_credentials()
+
+    def create_credentials(self):
+        return service_account.Credentials.from_service_account_file(self.cred_path)
+
+    def append_to_file(self, file_path, strings_list):
+        if not os.path.exists(file_path):
+            open(file_path, "w").close()
+
+        with open(file_path, 'a') as file:
+            for line in strings_list:
+                file.write(line + '\n')
+
+    def list_vm_regions(self):
+        service = discovery.build('compute', 'v1', credentials=self.credentials)
+
+        result = []
+        request = service.regions().list(project=self.credentials.project_id)
+        while request is not None:
+            response = request.execute()
+
+            for region_info in response['items']:
+                result.append(region_info["name"])
+
+            request = service.regions().list_next(previous_request=request, previous_response=response)
+        return result
+
+    def display(self):
+        regions = self.list_vm_regions()
+        account_lines = []
+        for region in regions:
+            account_lines.append("{} {} {}".format(self.account, self.cred_path, region))
+        self.append_to_file("/data/Software/mydan/AGENT/device/conf/account/.tmp/google.vm", account_lines)
+        self.append_to_file("/data/Software/mydan/AGENT/device/conf/account/.tmp/google.rds", account_lines)
+        self.append_to_file("/data/Software/mydan/AGENT/device/conf/account/.tmp/google.redis", account_lines)
+        self.append_to_file("/data/Software/mydan/AGENT/device/conf/account/.tmp/google.vm-volume", account_lines)
+
+
+def main(account, cred_path):
+    Google(account, cred_path).display()
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2])

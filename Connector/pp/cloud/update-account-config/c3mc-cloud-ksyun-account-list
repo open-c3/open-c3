@@ -1,0 +1,53 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import os
+
+from kscore.session import get_session
+
+
+class Ksyun:
+    def __init__(self, account, access_id, access_key):
+        self.account = account
+        self.access_id = access_id
+        self.access_key = access_key
+
+    def append_to_file(self, file_path, strings_list):
+        if not os.path.exists(file_path):
+            open(file_path, "w").close()
+
+        with open(file_path, 'a') as file:
+            for line in strings_list:
+                file.write(line + '\n')
+
+    def list_kec_regions(self):
+        s = get_session()
+        client = s.create_client(
+            "kec", ks_access_key_id=self.access_id, ks_secret_access_key=self.access_key, region_name="cn-beijing-6")
+        response = client.describe_regions()
+        result = []
+        for item in response["RegionSet"]:
+            result.append(item["Region"])
+        return sorted(result)
+
+    def display(self):
+        regions = self.list_kec_regions()
+        account_lines = []
+        for region in regions:
+            account_lines.append("{} {} {} {}".format(self.account, self.access_id, self.access_key, region))
+        self.append_to_file("/data/Software/mydan/AGENT/device/conf/account/.tmp/ksyun.kec", account_lines)
+        self.append_to_file("/data/Software/mydan/AGENT/device/conf/account/.tmp/ksyun.epc", account_lines)
+        self.append_to_file("/data/Software/mydan/AGENT/device/conf/account/.tmp/ksyun.kec-volume", account_lines)
+        self.append_to_file("/data/Software/mydan/AGENT/device/conf/account/.tmp/ksyun.krds", account_lines)
+        self.append_to_file("/data/Software/mydan/AGENT/device/conf/account/.tmp/ksyun.ks3", account_lines)
+        self.append_to_file("/data/Software/mydan/AGENT/device/conf/account/.tmp/ksyun.redis", account_lines)
+        self.append_to_file("/data/Software/mydan/AGENT/device/conf/account/.tmp/ksyun.slb", account_lines)
+
+
+def main(account, access_id, access_key):
+    Ksyun(account, access_id, access_key).display()
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3])

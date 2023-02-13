@@ -1,0 +1,47 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import os
+import shutil
+
+
+def update(cmd, file_path):
+    if not os.path.exists(file_path):
+        return
+
+    with open(file_path, 'r') as file:
+        for line in file:
+            line = line.strip()
+            if line == "":
+                continue
+            os.system("{} {}".format(cmd, line))
+
+def update_cloud_account():
+    tmp_dir_path = "/data/Software/mydan/AGENT/device/conf/account/.tmp"
+    dir_path = "/data/Software/mydan/AGENT/device/conf/account"
+
+    if os.path.exists(tmp_dir_path):
+        os.rmdir(tmp_dir_path)
+    os.mkdir(tmp_dir_path)
+
+    update("c3mc-cloud-aliyun-account-list", os.path.join(dir_path, "aliyunx"))
+    update("c3mc-cloud-aws-account-list", os.path.join(dir_path, "awsx"))
+    update("c3mc-cloud-google-account-list", os.path.join(dir_path, "googlex"))
+    update("c3mc-cloud-huawei-account-list", os.path.join(dir_path, "huaweix"))
+    update("c3mc-cloud-ksyun-account-list", os.path.join(dir_path, "ksyunx"))
+    update("c3mc-cloud-qcloud-account-list", os.path.join(dir_path, "qcloudx"))
+
+    for filename in os.listdir(tmp_dir_path):
+        src_file = os.path.join(tmp_dir_path, filename)
+        dst_file = os.path.join(dir_path, filename)
+        shutil.move(src_file, dst_file)
+
+    os.rmdir(tmp_dir_path)
+
+
+def main():
+    update_cloud_account()
+
+
+if __name__ == '__main__':
+    main()
