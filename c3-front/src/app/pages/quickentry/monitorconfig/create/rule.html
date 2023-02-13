@@ -109,6 +109,37 @@
 
         <div class="row">
             <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">{{'C3T.屏蔽消息'|translate}}</label>
+                <div class="col-sm-9">
+                    <div class="admin-form">
+                        <div class="option-group field" >
+                            <label class="option option-primary">
+                                <a ng-if="createMonitorConfigRule.postData.nocall == '1'"     class="fa fa-toggle-on  fa-2x" aria-hidden="true" style="padding-top: 11px;font-size: larger;" ng-click="createMonitorConfigRule.postData.nocall='0'">{{'C3T.忽略电话'|translate}}</a>
+                                <a ng-if="!(createMonitorConfigRule.postData.nocall == '1' )" class="fa fa-toggle-off fa-2x" aria-hidden="true" style="padding-top: 11px;font-size: larger;" ng-click="createMonitorConfigRule.postData.nocall='1'">{{'C3T.忽略电话'|translate}}</a>
+                            </label>
+
+                            <label class="option option-primary">
+                                <a ng-if="createMonitorConfigRule.postData.nomesg == '1'"     class="fa fa-toggle-on  fa-2x" aria-hidden="true" style="padding-top: 11px;font-size: larger;" ng-click="createMonitorConfigRule.postData.nomesg='0'">{{'C3T.忽略短信'|translate}}</a>
+                                <a ng-if="!(createMonitorConfigRule.postData.nomesg == '1' )" class="fa fa-toggle-off fa-2x" aria-hidden="true" style="padding-top: 11px;font-size: larger;" ng-click="createMonitorConfigRule.postData.nomesg='1'">{{'C3T.忽略短信'|translate}}</a>
+                            </label>
+
+                            <label class="option option-primary">
+                                <a ng-if="createMonitorConfigRule.postData.nomail == '1'"     class="fa fa-toggle-on  fa-2x" aria-hidden="true" style="padding-top: 11px;font-size: larger;" ng-click="createMonitorConfigRule.postData.nomail='0'">{{'C3T.忽略邮件'|translate}}</a>
+                                <a ng-if="!(createMonitorConfigRule.postData.nomail == '1' )" class="fa fa-toggle-off fa-2x" aria-hidden="true" style="padding-top: 11px;font-size: larger;" ng-click="createMonitorConfigRule.postData.nomail='1'">{{'C3T.忽略邮件'|translate}}</a>
+                            </label>
+
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
+
+        <div class="row">
+            <div class="col-sm-10 form-group">
                 <label class="col-sm-3 control-label">{{'C3T.持续时间'|translate}}</label>
                 <div class="col-sm-9">
                     <input type="text" class="form-control" placeholder="{{'C3T.持续时间'|translate}}，{{'C3T.例子'|translate}} 30s ，5m" ng-model="createMonitorConfigRule.postData.for">

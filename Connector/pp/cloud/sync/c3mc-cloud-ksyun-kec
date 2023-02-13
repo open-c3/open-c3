@@ -27,6 +27,12 @@ class Kec:
         results = []
         for instance in response_data["InstancesSet"]:
             instance["RegionId"] = instance["AvailabilityZone"][:-1]
+
+            if 'Platform' in instance:
+                instance["os"] = "Windows" if instance["Platform"].lower().find("window") != -1 else "Linux"
+            else:
+                instance["os"] = "Other"
+
             results.append(instance)
         return results
 

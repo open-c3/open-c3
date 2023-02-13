@@ -16,7 +16,8 @@ class Ec2:
         self.access_key = access_key
         self.region = region
         self.client = self.create_client()
-        self.page_size = 25
+        self.vpc_info_m = {}
+        self.page_size = 500
 
     def create_client(self):
         client = boto3.client(
@@ -28,29 +29,40 @@ class Ec2:
         return client
 
     def get_instances_from_response(self, response_data):
+        vpc_client = Vpc(self.access_id, self.access_key, self.region)
+
         instances = []
         for reservation in response_data["Reservations"]:
             for instance in reservation["Instances"]:
                 instance["RegionId"] = self.region
+
+                if "window" in instance["PlatformDetails"].lower():
+                    instance["os"] = "Windows"
+                else:
+                    instance["os"] = "Linux"
+                
+                if "VpcId" in instance:
+                    vpc_info = None
+                    if instance["VpcId"] in self.vpc_info_m:
+                        vpc_info = self.vpc_info_m[instance["VpcId"]]
+                    else:
+                        vpc_info = vpc_client.show_vpc(instance["VpcId"])
+                        self.vpc_info_m[instance["VpcId"]] = vpc_info
+
+                    for tag in vpc_info["Tags"]:
+                        if tag["Key"].lower() == "name":
+                            instance["VpcName"] = tag["Value"]
+
                 instances.append(instance)
         return instances
 
     def get_response(self):
-        vpc_client = Vpc(self.access_id, self.access_key, self.region)
-
         response = self.client.describe_instances(MaxResults=self.page_size)
         results = self.get_instances_from_response(response)
         while "NextToken" in response:
             response = self.client.describe_instances(
                 MaxResults=self.page_size, NextToken=response["NextToken"])
             results.extend(self.get_instances_from_response(response))
-        
-        for i in range(len(results)):
-            if "VpcId" in results[i]:
-                vpc_info = vpc_client.show_vpc(results[i]["VpcId"])
-                for tag in vpc_info["Tags"]:
-                    if tag["Key"].lower() == "name":
-                        results[i]["VpcName"] = tag["Value"]
         return results
 
     def show(self):

@@ -672,3 +672,12 @@ ALTER TABLE openc3_monitor_config_group ADD `share` VARCHAR(200) DEFAULT '' comm
 
 # v2.6.0 sql openc3_connector_useraddr modify phone to 500
 ALTER TABLE openc3_connector_useraddr modify `phone` varchar(500) DEFAULT NULL COMMENT 'phone';
+
+# v2.6.0 sql openc3_monitor_config_rule add nocall
+ALTER TABLE openc3_monitor_config_rule ADD `nocall` VARCHAR(2) DEFAULT '0' comment '忽略电话';
+
+# v2.6.0 sql openc3_monitor_config_rule add nomesg
+ALTER TABLE openc3_monitor_config_rule ADD `nomesg` VARCHAR(2) DEFAULT '0' comment '忽略短信';
+
+# v2.6.0 sql openc3_monitor_config_rule add nomail
+ALTER TABLE openc3_monitor_config_rule ADD `nomail` VARCHAR(2) DEFAULT '0' comment '忽略邮件';
