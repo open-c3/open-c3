@@ -40,19 +40,20 @@
         vm.reload = function(){
             vm.loadover = false;
             $http.get('/api/agent/device/detail/' + type + '/' + subtype +'/' + vm.treeid + '/' + uuid + '?timemachine=' + vm.selectedtimemachine ).success(function(data){
+              const newData = [].concat(...data.data)
               const addinfo = [...data.grpcol.system, ...data.grpcol.baseinfo]
               const newSystem = []
               const newBaseinfo = []
               data.grpcol.system.map(info => {
                 if (info.prefix) {
-                  newSystem.push(...data.data[0].filter(item => item[0].indexOf(addinfo.find(cItem => !!cItem.prefix).prefix) === 0).map(item => {
+                  newSystem.push(...newData.filter(item => item[0].indexOf(addinfo.find(cItem => !!cItem.prefix).prefix) === 0).map(item => {
                     return {
                       name: item[0],
                       value: item[1]
                     }
                   }))
                 } else {
-                  newSystem.push(...data.data[0].filter(item => item[0] === info.name).map(item => {
+                  newSystem.push(...newData.filter(item => item[0] === info.name).map(item => {
                     info.name = item[0]
                     info.value = item[1]
                     if(info.success) {
@@ -64,14 +65,14 @@
               })  
               data.grpcol.baseinfo.map(info => {
                 if (info.prefix) {
-                  newBaseinfo.push(...data.data[0].filter(item => item[0].indexOf(addinfo.find(cItem => !!cItem.prefix).prefix) === 0).map(item => {
+                  newBaseinfo.push(...newData.filter(item => item[0].indexOf(addinfo.find(cItem => !!cItem.prefix).prefix) === 0).map(item => {
                     return {
                       name: item[0],
                       value: item[1]
                     }
                   }))
                 } else {
-                  newBaseinfo.push(...data.data[0].filter(item => item[0] === info.name).map(item => {
+                  newBaseinfo.push(...newData.filter(item => item[0] === info.name).map(item => {
                     info.name = item[0]
                     info.value = item[1]
                     if(info.success) {
@@ -85,9 +86,13 @@
               const newGrpcol = [
                 ...data.grpcol.system.filter(item => !!item.name).map(item => item.name),
                 ...data.grpcol.baseinfo.filter(item => !!item.name).map(item => item.name),
-                ...data.data[0].filter(item => item[0].indexOf(addinfo.find(cItem => cItem.prefix).prefix) === 0).map(item => item[0])
               ]
-              const newOtherinfo = data.data[0].filter(item => !newGrpcol.find(cItem => cItem === item[0]))
+              if (addinfo.find(cItem => cItem.prefix)) {
+                newGrpcol.push(
+                    ...newData.filter(item => item[0].indexOf(addinfo.find(cItem => cItem.prefix).prefix) === 0).map(item => item[0])
+                ) 
+              }
+              const newOtherinfo = newData.filter(item => !newGrpcol.find(cItem => cItem === item[0]))
               const disposeGrpcol = {
                 system: newSystem,
                 baseinfo: newBaseinfo,
