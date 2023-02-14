@@ -25,7 +25,7 @@ my $id;
 sub sync
 {
     $id ++;
-    my $d = shift @_;
+    my ( $d, $accounttype ) = @_;
     my ( $account, $argv ) = split /\s+/, $d, 2;
     $argv = $d if $o{raw};
     my @x = `$o{plugin} $argv`;
@@ -35,7 +35,7 @@ sub sync
     {
         my $data = JSON::decode_json( $_ );
         $data->{ account     } = $account;
-        $data->{ accountuuid } = "$o{account}.$id";
+        $data->{ accountuuid } = "$accounttype.$id";
         $data->{ _aksk_      } = $d if $o{aksk};
 
         $data->{ _synctime_  }  = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
@@ -45,11 +45,25 @@ sub sync
 
 if( $o{ account } )
 {
-    my $accountfile = "/data/Software/mydan/AGENT/device/conf/account/$o{account}";
-    exit unless -f $accountfile;
-    my @x = `cat $accountfile`;
-    chomp @x;
-    map{ sync( $_ ) }@x;
+    my @subname = split /\-/, $o{plugin};
+    for( 0 .. $#subname )
+    {
+        my $x = shift @subname;
+        last if $x eq $o{account};
+    }
+
+    my $subname = join '-', @subname;
+
+    for my $accounttype ( ( $o{account}, "$o{account}.$subname" ) )
+    {
+        my $accountfile = "/data/Software/mydan/AGENT/device/conf/account/$accounttype";
+        next unless -f $accountfile;
+
+        my @x = `cat $accountfile`;
+        chomp @x;
+        $id = 0;
+        map{ sync( $_, $accounttype ) }@x;
+    }
 }
 else
 {
