@@ -158,6 +158,7 @@
   "compute.instances.list",
   "compute.instances.setLabels",
   "compute.images.get",
+  "compute.regions.list",
   "redis.instances.list",
 ]
 ```

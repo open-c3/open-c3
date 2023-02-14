@@ -1,0 +1,45 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import boto3
+
+
+class Aws:
+    def __init__(self, access_id, access_key, resource_type):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.resource_type = resource_type
+
+    def list_ec2_regions(self):
+        result = []
+        for region in ["us-east-1", "cn-north-1"]:
+            try:
+                client = boto3.client(
+                    "ec2",
+                    aws_access_key_id=self.access_id,
+                    aws_secret_access_key=self.access_key,
+                    region_name=region
+                )
+
+                response = client.describe_regions(AllRegions=False)
+                for item in response["Regions"]:
+                    result.append(item["RegionName"])
+            except Exception:
+                continue
+        return sorted(result)
+
+    def display(self):
+        # 目前没有遇到不同资源区域不一致的问题
+        # 注意: 只获取用户开通了的区域列表
+        regions = self.list_ec2_regions()
+        for region in regions:
+            print(region)
+
+
+def main(access_id, access_key, resource_type):
+    Aws(access_id, access_key, resource_type).display()
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3])

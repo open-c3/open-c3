@@ -1,0 +1,53 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+
+from tencentcloud.common import credential
+from tencentcloud.common.profile.client_profile import ClientProfile
+from tencentcloud.common.profile.http_profile import HttpProfile
+from tencentcloud.cvm.v20170312 import cvm_client, models
+
+
+class Qcloud:
+    def __init__(self, access_id, access_key, cloud_account_id, resource_type):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.cloud_account_id = cloud_account_id
+        self.resource_type = resource_type
+
+    def list_cvm_regions(self):
+        cred = credential.Credential(self.access_id, self.access_key)
+        httpProfile = HttpProfile()
+        httpProfile.endpoint = "cvm.tencentcloudapi.com"
+
+        clientProfile = ClientProfile()
+        clientProfile.httpProfile = httpProfile
+        client = cvm_client.CvmClient(cred, "", clientProfile)
+
+        req = models.DescribeRegionsRequest()
+        params = {}
+        req.from_json_string(json.dumps(params))
+
+        resp = client.DescribeRegions(req)
+
+        result = []
+        for item in json.loads(resp.to_json_string())["RegionSet"]:
+            if item["RegionState"] == "AVAILABLE":
+                result.append(item["Region"])
+        return sorted(result)
+
+    def display(self):
+        # 目前没有遇到不同资源区域不一致的问题
+        regions = self.list_cvm_regions()
+        for region in regions:
+            print(region)
+
+
+def main(access_id, access_key, cloud_account_id, resource_type):
+    Qcloud(access_id, access_key, cloud_account_id, resource_type).display()
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
