@@ -11,6 +11,7 @@ use OPENC3::PP::Pipe;
 
  $0
  $0 refresh
+ $0 regex # example: aws , aws-ec2 , sync-aws-ec2
 
 =cut
 
@@ -32,6 +33,8 @@ if( $conf->{cookie} && $conf->{cookie}{cmd} && ! $refresh )
 }
 
 system "rm -rf temp; mkdir temp" unless $refresh;
+
+my %sync = map{ $_ => 1 }grep{ $_ ne 'refresh' }@ARGV;
 
 sub download
 {
@@ -146,8 +149,10 @@ sub download
 
 }
 
-map{
-    my $c = $_;
+for my $c ( @{ $conf->{download} } )
+{
+    next if %sync && ! grep{ $c->{template} =~ /$_/ } keys %sync;
+
     if( $c->{template} )
     {
         my $tpl = eval{ YAML::XS::LoadFile "$RealBin/../conf/template/$c->{template}.yml"; };
@@ -174,4 +179,4 @@ map{
         $usetime = -1;
     }
     printf "c3_cmdb_sync_usetime{type=\"%s\", subtype=\"%s\"} %s\n", $c->{type}, $c->{subtype}, $usetime;
-}@{ $conf->{download} };
+}
