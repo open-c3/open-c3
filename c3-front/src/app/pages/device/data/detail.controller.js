@@ -101,6 +101,7 @@
                 systemFlag : true,
                 baseinfoFlag : true,
                 otherinfoFlag : false,
+                operationFlag: true,
               })
               })
               if(data.stat == true) 
@@ -130,6 +131,9 @@
                 break
               case 'otherinfoFlag':
                 item.otherinfoFlag = !flag
+                break
+              case 'operationFlag':
+                item.operationFlag = !flag
                 break
             }
             }
