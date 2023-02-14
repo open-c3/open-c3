@@ -27,9 +27,6 @@
 
         vm.extcol = {};
         vm.grpcol = {};
-        vm.systemFlag = true;
-        vm.baseinfoFlag = true;
-        vm.otherinfoFlag = false;
         
         var toastr = toastr || $injector.get('toastr');
 
@@ -40,20 +37,23 @@
         vm.reload = function(){
             vm.loadover = false;
             $http.get('/api/agent/device/detail/' + type + '/' + subtype +'/' + vm.treeid + '/' + uuid + '?timemachine=' + vm.selectedtimemachine ).success(function(data){
-              const newData = [].concat(...data.data)
+              const newData = JSON.parse(JSON.stringify(data.data))
               const addinfo = [...data.grpcol.system, ...data.grpcol.baseinfo]
-              const newSystem = []
-              const newBaseinfo = []
+              const disposeGrpcol = []
+              newData.forEach((dataItems, dataIndex) => {
+                const newSystem = []
+                const newBaseinfo = []
+
               data.grpcol.system.map(info => {
                 if (info.prefix) {
-                  newSystem.push(...newData.filter(item => item[0].indexOf(addinfo.find(cItem => !!cItem.prefix).prefix) === 0).map(item => {
+                  newSystem.push(...dataItems.filter(item => item[0].indexOf(addinfo.find(cItem => !!cItem.prefix).prefix) === 0).map(item => {
                     return {
                       name: item[0],
                       value: item[1]
                     }
                   }))
                 } else {
-                  newSystem.push(...newData.filter(item => item[0] === info.name).map(item => {
+                  newSystem.push(...dataItems.filter(item => item[0] === info.name).map(item => {
                     info.name = item[0]
                     info.value = item[1]
                     if(info.success) {
@@ -63,16 +63,17 @@
                   }))
                 }
               })  
+
               data.grpcol.baseinfo.map(info => {
                 if (info.prefix) {
-                  newBaseinfo.push(...newData.filter(item => item[0].indexOf(addinfo.find(cItem => !!cItem.prefix).prefix) === 0).map(item => {
+                  newBaseinfo.push(...dataItems.filter(item => item[0].indexOf(addinfo.find(cItem => !!cItem.prefix).prefix) === 0).map(item => {
                     return {
                       name: item[0],
                       value: item[1]
                     }
                   }))
                 } else {
-                  newBaseinfo.push(...newData.filter(item => item[0] === info.name).map(item => {
+                  newBaseinfo.push(...dataItems.filter(item => item[0] === info.name).map(item => {
                     info.name = item[0]
                     info.value = item[1]
                     if(info.success) {
@@ -80,7 +81,6 @@
                     }
                     return info
                   }))
-  
                 }
               })
               const newGrpcol = [
@@ -89,15 +89,20 @@
               ]
               if (addinfo.find(cItem => cItem.prefix)) {
                 newGrpcol.push(
-                    ...newData.filter(item => item[0].indexOf(addinfo.find(cItem => cItem.prefix).prefix) === 0).map(item => item[0])
+                    ...dataItems.filter(item => item[0].indexOf(addinfo.find(cItem => cItem.prefix).prefix) === 0).map(item => item[0])
                 ) 
               }
-              const newOtherinfo = newData.filter(item => !newGrpcol.find(cItem => cItem === item[0]))
-              const disposeGrpcol = {
+              const newOtherinfo = dataItems.filter(item => !newGrpcol.find(cItem => cItem === item[0]))
+              disposeGrpcol.push ({
+                index:dataIndex,
                 system: newSystem,
                 baseinfo: newBaseinfo,
-                otherinfo: newOtherinfo
-              }  
+                otherinfo: newOtherinfo,
+                systemFlag : true,
+                baseinfoFlag : true,
+                otherinfoFlag : false,
+              })
+              })
               if(data.stat == true) 
                 { 
                     vm.data = data.data;
@@ -107,27 +112,28 @@
                     vm.loadover = true;
                     vm.loadover = true;
                     vm.grpcol = disposeGrpcol
-                    vm.systemFlag = true,
-                    vm.baseinfoFlag = true;
-                    vm.otherinfoFlag = false;
                 } else { 
                     toastr.error("加载数据失败:" + data.info)
                 }
             });
         };
 
-        vm.showFlag = function (type, flag) {
-          switch (type) {
-            case 'systemFlag':
-              vm.systemFlag = !flag
-              break
-            case 'baseinfoFlag':
-              vm.baseinfoFlag = !flag
-              break
-            case 'otherinfoFlag':
-              vm.otherinfoFlag = !flag
-              break
-          }
+        vm.showFlag = function (index, type, flag) {
+          vm.grpcol.forEach(item => {
+            if (item.index === index) {
+            switch (type) {
+              case 'systemFlag':
+                item.systemFlag = !flag
+                break
+              case 'baseinfoFlag':
+                item.baseinfoFlag = !flag
+                break
+              case 'otherinfoFlag':
+                item.otherinfoFlag = !flag
+                break
+            }
+            }
+          })
         }
 
         vm.bindtree = function( newtree, title ){
