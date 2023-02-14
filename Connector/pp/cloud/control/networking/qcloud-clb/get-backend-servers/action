@@ -40,7 +40,7 @@ class ClbBackendServers:
         req.from_json_string(json.dumps(params))
         return self.client.DescribeTargets(req)
 
-    def get_clb_info(self, ):
+    def get_clb_info(self):
         output = subprocess.getoutput(
             "c3mc-cloud-qcloud-clb-by-name {} {} {} {}".format(
                 self.access_id, self.access_key, self.region, self.load_balancer_name))
