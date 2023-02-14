@@ -40,6 +40,15 @@ class ClbBackendServers:
         req.from_json_string(json.dumps(params))
         return self.client.DescribeTargets(req)
 
+    # 查询腾讯云传统型负载均衡器的后端服务器列表
+    def describe_classic_target(self, load_balancer_id):
+        req = models.DescribeClassicalLBTargetsRequest()
+        params = {
+            "LoadBalancerId": load_balancer_id
+        }
+        req.from_json_string(json.dumps(params))
+        return self.client.DescribeClassicalLBTargets(req)
+
     def get_clb_info(self):
         output = subprocess.getoutput(
             "c3mc-cloud-qcloud-clb-by-name {} {} {} {}".format(
@@ -47,18 +56,27 @@ class ClbBackendServers:
         return output
 
     def get_backend_server_info(self):
-        clb_info = json.loads(self.get_clb_info())
-        target_info = self.describe_target(clb_info["LoadBalancerId"])
-
         result = []
         m = {}
-        for listener in target_info.Listeners:
-            for rule in listener.Rules:
-                for target in rule.Targets:
-                    if target.InstanceId in m:
-                        continue
-                    m[target.InstanceId] = {}
-                    result.append(target)
+
+        clb_info = json.loads(self.get_clb_info())
+        if clb_info["Forward"] == 0:
+            target_info = self.describe_classic_target(clb_info["LoadBalancerId"])
+            for target in target_info.Targets:
+                if target.InstanceId in m:
+                    continue
+                m[target.InstanceId] = {}
+                result.append(target)
+        else:
+            target_info = self.describe_target(clb_info["LoadBalancerId"])
+            for listener in target_info.Listeners:
+                for rule in listener.Rules:
+                    for target in rule.Targets:
+                        if target.InstanceId in m:
+                            continue
+                        m[target.InstanceId] = {}
+                        result.append(target)
+        
         return result
 
     def show(self):
