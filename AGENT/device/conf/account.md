@@ -1,12 +1,41 @@
-# 云账号配置说明
+# 云账号/配置说明
 
-## 目录说明
+---
+## 标准配置如下
+### 阿里云
+  ```
+  账号(或者别名, 这个信息将会在资源详情中展示) ak sk 区域编码(比如 cn-beijing)
+  ```
+### Aws
+  ```
+  账号(或者别名, 这个信息将会在资源详情中展示) ak sk 区域编码(比如 us-east-1)
+  ```
+### 谷歌云
+  ```
+  账号(或者别名, 这个信息将会在资源详情中展示) credentials.json(该文件是从谷歌云导出的json格式的凭证文件) 区域编码(比如 europe-west4)
+  ```
+### 华为云
+  ```
+  账号(或者别名, 这个信息将会在资源详情中展示) ak sk 区域编码(比如 cn-east-2) iam_user_id(华为云iam用户id,询价的时候要用)
+  ```
+### 金山云
+  ```
+  账号(或者别名, 这个信息将会在资源详情中展示) ak sk 区域编码(比如 cn-beijing-6) 
+  ```
+### 腾讯云
+  ```
+  账号(或者别名, 这个信息将会在资源详情中展示) ak sk 区域编码(比如 ap-hongkong) cloud_account_id(腾讯云主账号, 在腾讯云控制台的位置：账号中心 -> 账号信息 -> 账号权限 -> 所属主账号)
+  ```
+---
 
-### 目录
+## 开发手册
+### 目录说明
+
+#### 目录
 * `/data/Software/mydan/AGENT/device/conf/account/`
 * `/data/Software/mydan/AGENT/device/conf/accountx/`
 
-### 区别
+#### 区别
 1. `account` 目录下文件有两种格式
     * `aws`、`qcloud`、`aliyun`这种格式。
         这种格式的文件，在同步云资源时，会使用文件的每一行，同步对应云资源的每一种 (openc3所支持的云资源类型)。
@@ -16,9 +45,9 @@
 3. 可以不需要配置 `accountx` 目录下的文件。只是配置了更加方便，后面在新的区域开通了资源，不需要修改 `account` 目录下的云账号配置文件，系统会自动更新文件比如`aws.ec2`的内容添加新区域对应的配置。
 
 
-## 配置文件说明
+### 配置文件说明
 
-### 阿里云
+#### 阿里云
 * `/data/Software/mydan/AGENT/device/conf/account/aliyun`
   文件内容格式为:
   ```
@@ -29,7 +58,7 @@
   ```
   账号(或者别名, 这个信息将会在资源详情中展示) ak sk
   ```
-### Aws
+#### Aws
 * `/data/Software/mydan/AGENT/device/conf/account/aws`
   文件内容格式为:
   ```
@@ -40,7 +69,7 @@
   ```
   账号(或者别名, 这个信息将会在资源详情中展示) ak sk
   ```
-### 谷歌云
+#### 谷歌云
 * `/data/Software/mydan/AGENT/device/conf/account/google`
   文件内容格式为:
   ```
@@ -51,7 +80,7 @@
   ```
   账号(或者别名, 这个信息将会在资源详情中展示) credentials.json(该文件是从谷歌云导出的json格式的凭证文件)
   ```
-### 华为云
+#### 华为云
 * `/data/Software/mydan/AGENT/device/conf/account/huawei`
   文件内容格式为:
   ```
@@ -62,7 +91,7 @@
   ```
   账号(或者别名, 这个信息将会在资源详情中展示) ak sk iam_user_id(华为云iam用户id,询价的时候要用)
   ```
-### 金山云
+#### 金山云
 * `/data/Software/mydan/AGENT/device/conf/account/ksyun`
   文件内容格式为:
   ```
@@ -73,7 +102,7 @@
   ```
   账号(或者别名, 这个信息将会在资源详情中展示) ak sk
   ```
-### 腾讯云
+#### 腾讯云
 * `/data/Software/mydan/AGENT/device/conf/account/qcloud`
   文件内容格式为:
   ```
