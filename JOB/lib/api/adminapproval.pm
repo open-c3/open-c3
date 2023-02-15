@@ -9,6 +9,14 @@ use api;
 use Format;
 use Util;
 
+=pod
+
+管理/审批/列表获取
+
+默认返回最后1000条数据
+
+=cut
+
 get '/adminapproval' => sub {
     my $pmscheck = api::pmscheck( 'openc3_job_root' ); return $pmscheck if $pmscheck;
 
@@ -22,6 +30,12 @@ get '/adminapproval' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
     return +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+管理/审批/提交审批
+
+=cut
 
 post '/adminapproval' => sub {
     my $param = params();
@@ -49,6 +63,12 @@ post '/adminapproval' => sub {
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => 1 };
 };
 
+=pod
+
+管理/审批/获取单个审批详情
+
+=cut
+
 get '/adminapproval/:id' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -69,6 +89,12 @@ get '/adminapproval/:id' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
     return +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+管理/审批/获取OA提交日志
+
+=cut
 
 get '/adminapproval/oalog/:id' => sub {
     my $param = params();
@@ -96,6 +122,12 @@ get '/adminapproval/oalog/:id' => sub {
     };
 };
 
+=pod
+
+管理/审批/OA重新发起
+
+=cut
+
 post '/adminapproval/oaredo/:id' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -115,6 +147,13 @@ post '/adminapproval/oaredo/:id' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
     return +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+管理/审批/消息通知重新发起
+
+=cut
+
 
 post '/adminapproval/notifyredo/:id' => sub {
     my $param = params();

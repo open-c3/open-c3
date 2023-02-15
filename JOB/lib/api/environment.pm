@@ -7,6 +7,12 @@ use POSIX;
 use MIME::Base64;
 use api;
 
+=pod
+
+通知管理/获取所以环境变量
+
+=cut
+
 get '/environment' => sub {
     my $param = params();
 
@@ -17,28 +23,35 @@ get '/environment' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => +{ map{ @$_ }@$r } };
 };
 
-##isApiFailEmail:false
-##isApiFailSms:false
-##isApiSuccessEmail:false
-##isApiSuccessSms:false
-##isApiWaitingEmail:false
-##isApiWaitingSms:false
-##isCrontabFailEmail:false
-##isCrontabFailSms:false
-##isCrontabSuccessEmail:false
-##isCrontabSuccessSms:false
-##isCrontabWaitingEmail:false
-##isCrontabWaitingSms:false
-##isPageFailEmail:false
-##isPageFailSms:false
-##isPageSuccessEmail:false
-##isPageSuccessSms:false
-##isPageWaitingEmail:false
-##isPageWaitingSms:false
-#
-#notifyTemplateEmailTitle
-#notifyTemplateEmailContent
-#notifyTemplateSmsContent
+=pod
+
+通知管理/提交变量状态
+
+isApiFailEmail:false
+isApiFailSms:false
+isApiSuccessEmail:false
+isApiSuccessSms:false
+isApiWaitingEmail:false
+isApiWaitingSms:false
+isCrontabFailEmail:false
+isCrontabFailSms:false
+isCrontabSuccessEmail:false
+isCrontabSuccessSms:false
+isCrontabWaitingEmail:false
+isCrontabWaitingSms:false
+isPageFailEmail:false
+isPageFailSms:false
+isPageSuccessEmail:false
+isPageSuccessSms:false
+isPageWaitingEmail:false
+isPageWaitingSms:false
+
+notifyTemplateEmailTitle
+notifyTemplateEmailContent
+notifyTemplateSmsContent
+
+=cut
+
 post '/environment' => sub {
     my $param = params();
 
@@ -64,8 +77,16 @@ post '/environment' => sub {
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => scalar keys %$param };
 };
 
-#deletename1=1
-#deletename2=1
+=pod
+
+通知管理/删除变量
+
+参数:
+  deletename1=1
+  deletename2=1
+
+=cut
+
 del '/environment' => sub {
     my $param = params();
 

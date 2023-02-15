@@ -13,12 +13,12 @@ use YAML::XS;
 
 my $task_statistics; BEGIN { $task_statistics = Code->new( 'task_statistics' ); };
 
-#name
-#user
-#status
-#time_start
-#time_end
-#taskuuid
+=pod
+
+作业任务/获取任务列表
+
+=cut
+
 get '/task/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -58,6 +58,12 @@ get '/task/:projectid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
 
+=pod
+
+作业任务/获取任务数量
+
+=cut
+
 get '/task/:projectid/count' => sub {
     my $param = params();
     my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
@@ -77,7 +83,14 @@ get '/task/:projectid/count' => sub {
     return +{ stat => $JSON::true, data => \%data };
 };
 
-# 按时间段统计
+=pod
+
+作业任务/获取任务统计信息
+
+按时间段统计
+
+=cut
+
 get '/task/:projectid/total_count' => sub {
     my $param = params();
     my $error = Format->new(
@@ -99,6 +112,12 @@ get '/task/:projectid/total_count' => sub {
     map{$data{$_}||=0}qw( success running fail );
     return +{ stat => $JSON::true, data => \%data };
 };
+
+=pod
+
+作业任务/获取任务详情
+
+=cut
 
 get '/task/:projectid/:uuid' => sub {
     my $param = params();
@@ -130,7 +149,12 @@ get '/task/:projectid/:uuid' => sub {
     return +{ stat => $JSON::true, data => \%x };
 };
 
-#/task/:projectid/redo?taskuuid=uuid
+=pod
+
+作业任务/任务重做
+
+=cut
+
 post '/task/:projectid/redo' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -164,6 +188,12 @@ post '/task/:projectid/redo' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, uuid => $uuid, data => $r };
 };
 
+=pod
+
+作业任务/任务权限查询
+
+=cut
+
 get '/task/:projectid/authorization/:group/:jobname' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -180,8 +210,14 @@ get '/task/:projectid/authorization/:group/:jobname' => sub {
     return  +{ stat => $JSON::true, data => @$authorization > 0 ? 1 : 0 };
 };
 
-#/task/:projectid/job?jobuuid=uuid
-#variable = %hash
+=pod
+
+作业任务/提交任务
+
+variable = { foo => 123 }
+
+=cut
+
 post '/task/:projectid/job' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -233,6 +269,12 @@ post '/task/:projectid/job' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, uuid => $uuid, data => $r };
 };
+
+=pod
+
+作业任务/监控调用作业
+
+=cut
 
 get '/task/:projectid/job/bymon' => sub {
     my $param = params();
@@ -296,9 +338,15 @@ get '/task/:projectid/job/bymon' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, uuid => $uuid, data => @node };
 };
 
+=pod
 
-#/task/:projectid/job/byname?jobname=jobname1
-#variable = %hash
+作业任务/通过作业名称调用作业
+
+/task/:projectid/job/byname?jobname=jobname1
+variable = { foo => 123 }
+
+=cut
+
 post '/task/:projectid/job/byname' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -350,15 +398,12 @@ post '/task/:projectid/job/byname' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, uuid => $uuid, data => $r };
 };
 
-#name
-#user
-#node_type
-#node_cont
-#scripts_type
-#scripts_cont
-#scripts_argv
-#timeout
-#variable = %hash
+=pod
+
+作业任务/启动一个命令任务
+
+=cut
+
 post '/task/:projectid/plugin_cmd' => sub {
     my $param = params();
 
@@ -446,19 +491,12 @@ post '/task/:projectid/plugin_cmd' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => +{ slave => $slave, uuid => $uuid, loguuid=> "$uuid${plugin_uuid}cmd" } };
 };
 
+=pod
 
-#name
-#user
-#src_type
-#src
-#dst_type
-#dst
-#sp
-#dp
-#chown
-#chmod
-#timeout
-#variable = %hash
+作业任务/启动一个文件同步任务
+
+=cut
+
 post '/task/:projectid/plugin_scp' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -566,15 +604,12 @@ post '/task/:projectid/plugin_scp' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => +{ slave => $slave, uuid => $uuid, loguuid=> "$uuid${plugin_uuid}scp" } };
 };
 
-#name
-#cont
-#approver
-#deployenv
-#action
-#batches
-#everyone
-#timeout
-#variable = %hash
+=pod
+
+作业任务/启动一个审批任务
+
+=cut
+
 post '/task/:projectid/plugin_approval' => sub {
     my $param = params();
 
@@ -621,7 +656,12 @@ post '/task/:projectid/plugin_approval' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => +{ slave => $slave, uuid => $uuid, loguuid=> "$uuid${plugin_uuid}approval" } };
 };
 
-#count
+=pod
+
+作业任务/任务统计/最近几条
+
+=cut
+
 get '/task/:projectid/analysis/last' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -643,6 +683,12 @@ get '/task/:projectid/analysis/last' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+作业任务/任务统计/按日期
+
+=cut
 
 get '/task/:projectid/analysis/date' => sub {
     my $param = params();
@@ -676,6 +722,11 @@ get '/task/:projectid/analysis/date' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@data };
 };
 
+=pod
+
+作业任务/任务统计/按小时
+
+=cut
 
 get '/task/:projectid/analysis/hour' => sub {
     my $param = params();
@@ -696,6 +747,11 @@ get '/task/:projectid/analysis/hour' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
 
+=pod
+
+作业任务/任务统计/运行时间
+
+=cut
 
 get '/task/:projectid/analysis/runtime' => sub {
     my $param = params();
@@ -748,6 +804,12 @@ get '/task/:projectid/analysis/runtime' => sub {
     map{ $data{$_} = sprintf "%0.2f", 100 * $data{$_} / $count }keys %data if $count;
     return +{ stat => $JSON::true, data => \%data };
 };
+
+=pod
+
+作业任务/任务统计/概要
+
+=cut
 
 get '/task/:projectid/analysis/statistics' => sub {
     my $param = params();

@@ -8,6 +8,12 @@ use MIME::Base64;
 use api;
 use Format;
 
+=pod
+
+服务树节点状态/获取状态
+
+=cut
+
 get '/project/:projectid' => sub {
     my $param = params();
     my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
@@ -25,7 +31,12 @@ get '/project/:projectid' => sub {
         : +{ stat => $JSON::true, data => $r->[0]||+{status=> 'active'} };
 };
 
-#status = active,inactive
+=pod
+
+服务树节点状态/修改状态
+
+=cut
+
 post '/project/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 

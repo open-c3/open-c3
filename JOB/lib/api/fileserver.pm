@@ -15,6 +15,12 @@ use Logs;
 
 my $logs = Logs->new( 'job_api_fileserver' );
 
+=pod
+
+文件管理/获取列表
+
+=cut
+
 get '/fileserver/:projectid' => sub {
     my $param = params();
     my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
@@ -30,6 +36,12 @@ get '/fileserver/:projectid' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+文件管理/上传文件
+
+=cut
 
 post '/fileserver/:projectid' => sub {
     my $param = params();
@@ -79,9 +91,18 @@ post '/fileserver/:projectid' => sub {
     return  +{ stat => $JSON::true, data => scalar keys %$upload };
 };
 
+=pod
+
+文件管理/下载文件
+
+=cut
+
 get '/fileserver/:projectid/download' => sub {
     my $param = params();
-    my $error = Format->new( projectid => qr/^\d+$/, 1, name => [ 'mismatch', qr/'/ ], 1 )->check( %$param );
+    my $error = Format->new(
+        projectid => qr/^\d+$/, 1,
+        name => [ 'mismatch', qr/'/ ], 1,
+     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
     my $pmscheck = api::pmscheck( 'openc3_job_write', $param->{projectid} ); return $pmscheck if $pmscheck;
@@ -112,6 +133,12 @@ get '/fileserver/:projectid/download' => sub {
     return +{ stat => $JSON::false, info => "link fail: $!" } if system "ln -fsn '$path/$r->[0]{md5}' '$RealBin/../downloadpath/$name'";
     return +{ stat => $JSON::true, data => $name };
 };
+
+=pod
+
+文件管理/通过命令行上传文件
+
+=cut
 
 post '/fileserver/:projectid/upload' => sub {
     my $param = params();
@@ -202,6 +229,12 @@ post '/fileserver/:projectid/upload' => sub {
 
     return  +{ stat => $JSON::true, data => scalar keys %$upload };
 };
+
+=pod
+
+文件管理/删除文件
+
+=cut
 
 del '/fileserver/:projectid/:fileserverid' => sub {
     my $param = params();

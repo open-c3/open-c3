@@ -8,16 +8,12 @@ use MIME::Base64;
 use api;
 use Format;
 
-#id
-#jobid
-#type
-#title
-#describe
-#parameter
-#create_user
-#edit_user
-#edit_time
-#
+=pod
+
+轻应用/获取列表
+
+=cut
+
 get '/smallapplication/bytreeid/:treeid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -30,6 +26,12 @@ get '/smallapplication/bytreeid/:treeid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
 
+=pod
+
+轻应用/获取详情
+
+=cut
+
 get '/smallapplication/:id' => sub {
     my $param = params();
     my $error = Format->new( id => qr/^\d+$/, 1,)->check( %$param );
@@ -40,6 +42,12 @@ get '/smallapplication/:id' => sub {
  
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r->[0] };
 };
+
+=pod
+
+轻应用/创建轻应用
+
+=cut
 
 post '/smallapplication' => sub {
     my $param = params();
@@ -69,6 +77,12 @@ post '/smallapplication' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
 
+=pod
+
+轻应用/编辑轻应用
+
+=cut
+
 post '/smallapplication/:id' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -97,6 +111,12 @@ post '/smallapplication/:id' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+轻应用/删除轻应用
+
+=cut
 
 del '/smallapplication/:id' => sub {
     my $param = params();

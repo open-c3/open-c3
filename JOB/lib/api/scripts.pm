@@ -10,14 +10,12 @@ use MIME::Base64;
 use api;
 use Format;
 
-#name
-#create_user
-#edit_user
-#create_time_start
-#create_time_end
-#edit_time_start
-#edit_time_end
-#jobname
+=pod
+
+脚本管理/获取脚本列表
+
+=cut
+
 get '/scripts/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -91,6 +89,11 @@ get '/scripts/:projectid' => sub {
     return +{ stat => $JSON::true, data => $data };
 };
 
+=pod
+
+脚本管理/获取单个脚本详细信息
+
+=cut
 
 get '/scripts/:projectid/:scriptsid' => sub {
     my $param = params();
@@ -114,9 +117,12 @@ get '/scripts/:projectid/:scriptsid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \%x };
 };
 
-#name
-#type
-#cont
+=pod
+
+脚本管理/创建脚本
+
+=cut
+
 post '/scripts/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -147,10 +153,12 @@ post '/scripts/:projectid' => sub {
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
 };
 
+=pod
 
-#name
-#type
-#cont
+脚本管理/编辑脚本
+
+=cut
+
 post '/scripts/:projectid/:scriptsid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -180,6 +188,12 @@ post '/scripts/:projectid/:scriptsid' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
 };
+
+=pod
+
+脚本管理/删除脚本
+
+=cut
 
 del '/scripts/:projectid/:scriptsid' => sub {
     my $param = params();

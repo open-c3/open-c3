@@ -14,6 +14,12 @@ BEGIN{
     die "/etc/job.exip nofind" unless $exip;
 };
 
+=pod
+
+虚拟终端/打开虚拟终端
+
+=cut
+
 any '/cmd/:projectid' => sub {
     my $param = params();
     my ( $projectid, $node, $siteaddr ) = @$param{qw( projectid node siteaddr )};
@@ -30,6 +36,12 @@ any '/cmd/:projectid' => sub {
     redirect "$siteaddr/webshell/index.html?u=$u&projectid=$projectid&node=$node$sudo$bash$tail";
     #redirect "http://cmd$id.$env{envname}.job.$env{domainname}?u=$u&projectid=$projectid&node=$node$sudo$bash$tail";
 };
+
+=pod
+
+虚拟终端/查看操作日志
+
+=cut
 
 get '/cmd/:projectid/log' => sub {
     my $param = params();

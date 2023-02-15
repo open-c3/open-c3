@@ -7,7 +7,12 @@ use Util;
 use Encode;
 use Util;
 
-#path
+=pod
+
+文件分发/获取目录下文件列表
+
+=cut
+
 get '/sendfile/list/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -43,6 +48,12 @@ get '/sendfile/list/:projectid' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@data };
 };
+
+=pod
+
+文件分发/删除文件
+
+=cut
 
 post '/sendfile/unlink/:projectid' => sub {
     my $param = params();
