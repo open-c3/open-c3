@@ -13,6 +13,8 @@ class Aws:
 
     def list_ec2_regions(self):
         result = []
+
+        error_list = []
         for region in ["us-east-1", "cn-north-1"]:
             try:
                 client = boto3.client(
@@ -25,8 +27,11 @@ class Aws:
                 response = client.describe_regions(AllRegions=False)
                 for item in response["Regions"]:
                     result.append(item["RegionName"])
-            except Exception:
+            except Exception as e:
+                error_list.append(e)
                 continue
+        if len(result) == 0 and len(error_list) == 2:
+            raise RuntimeError("无法成功获取区域列表, ak: {}, resource_type: {}, 错误: {}".format(self.access_id, self.resource_type, error_list))
         return sorted(result)
 
     def display(self):
