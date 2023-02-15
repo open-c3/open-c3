@@ -34,6 +34,17 @@
 
         vm.selectedtimemachine = selectedtimemachine;
         vm.data = [];
+
+        vm.formatArr = function (arr) {
+          let map = new Map();
+          for (let item of arr) {
+            if (!map.has(item.name)) {
+              map.set(item.name, item);
+            }
+          }
+          return [...map.values()];
+        }
+
         vm.reload = function(){
             vm.loadover = false;
             $http.get('/api/agent/device/detail/' + type + '/' + subtype +'/' + vm.treeid + '/' + uuid + '?timemachine=' + vm.selectedtimemachine ).success(function(data){
@@ -46,12 +57,14 @@
 
               data.grpcol.system.map(info => {
                 if (info.prefix) {
-                  newSystem.push(...dataItems.filter(item => item[0].indexOf(addinfo.find(cItem => !!cItem.prefix).prefix) === 0).map(item => {
-                    return {
-                      name: item[0],
-                      value: item[1]
-                    }
-                  }))
+                  addinfo.filter(cItem => !!cItem.prefix).map(preItem => {
+                    newSystem.push(...dataItems.filter(item => item[0].indexOf(preItem.prefix) === 0).map(item => {
+                      return {
+                        name: item[0],
+                        value: item[1]
+                      }
+                    }))
+                  })
                 } else {
                   newSystem.push(...dataItems.filter(item => item[0] === info.name).map(item => {
                     info.name = item[0]
@@ -66,12 +79,14 @@
 
               data.grpcol.baseinfo.map(info => {
                 if (info.prefix) {
-                  newBaseinfo.push(...dataItems.filter(item => item[0].indexOf(addinfo.find(cItem => !!cItem.prefix).prefix) === 0).map(item => {
-                    return {
-                      name: item[0],
-                      value: item[1]
-                    }
-                  }))
+                  addinfo.filter(cItem => !!cItem.prefix).map(preItem => {
+                    newBaseinfo.push(...dataItems.filter(item => item[0].indexOf(preItem.prefix) === 0).map(item => {
+                      return {
+                        name: item[0],
+                        value: item[1]
+                      }
+                    }))
+                  })
                 } else {
                   newBaseinfo.push(...dataItems.filter(item => item[0] === info.name).map(item => {
                     info.name = item[0]
@@ -95,8 +110,8 @@
               const newOtherinfo = dataItems.filter(item => !newGrpcol.find(cItem => cItem === item[0]))
               disposeGrpcol.push ({
                 index:dataIndex,
-                system: newSystem,
-                baseinfo: newBaseinfo,
+                system: vm.formatArr(newSystem),
+                baseinfo: vm.formatArr(newBaseinfo),
                 otherinfo: newOtherinfo,
                 systemFlag : true,
                 baseinfoFlag : true,
