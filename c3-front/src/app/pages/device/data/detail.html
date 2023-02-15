@@ -31,11 +31,11 @@
                 <div ng-repeat="infoItems in devicedatadetail.grpcol">
                 <!-- 系统信息 -->
                 <div ng-if="infoItems.system.length>0">
-                  <div class="detail-card-header">
+                  <div class="detail-card-header" ng-click="devicedatadetail.showFlag($index,'systemFlag',infoItems.systemFlag)">
                     <div class="detail-card-header-text">系统信息</div>
                     <div class="detail-card-header-button">
-                      <div ng-if="!infoItems.systemFlag" class="detail-card-header-button-top" ng-click="devicedatadetail.showFlag($index,'systemFlag',infoItems.systemFlag)"></div>
-                      <div ng-if="infoItems.systemFlag" class="detail-card-header-button-bottom" ng-click="devicedatadetail.showFlag($index,'systemFlag',infoItems.systemFlag)"></div>
+                      <div ng-if="!infoItems.systemFlag" class="detail-card-header-button-top"></div>
+                      <div ng-if="infoItems.systemFlag" class="detail-card-header-button-bottom"></div>
                     </div>
                   </div>
                   <div ng-if="infoItems.systemFlag" class="detail-card" ng-show="infoItems">
@@ -71,11 +71,11 @@
         
                 <!-- 主要信息 -->
                 <div ng-if="infoItems.baseinfo.length>0">
-                  <div class="detail-card-header">
+                  <div class="detail-card-header" ng-click="devicedatadetail.showFlag($index,'baseinfoFlag',infoItems.baseinfoFlag)">
                     <div class="detail-card-header-text">主要信息</div>
                     <div class="detail-card-header-button">
-                      <div ng-if="!infoItems.baseinfoFlag" class="detail-card-header-button-top" ng-click="devicedatadetail.showFlag($index,'baseinfoFlag',infoItems.baseinfoFlag)"></div>
-                      <div ng-if="infoItems.baseinfoFlag" class="detail-card-header-button-bottom" ng-click="devicedatadetail.showFlag($index, 'baseinfoFlag',infoItems.baseinfoFlag)"></div>
+                      <div ng-if="!infoItems.baseinfoFlag" class="detail-card-header-button-top"></div>
+                      <div ng-if="infoItems.baseinfoFlag" class="detail-card-header-button-bottom"></div>
                     </div>
                   </div>
                   <div ng-if="infoItems.baseinfoFlag" class="detail-card" ng-show="devicedatadetail">
@@ -110,11 +110,13 @@
                 </div>
         
                 <!-- 其他信息 -->
-                <div class="detail-card-header" ng-if="infoItems.system.length>0 && infoItems.baseinfo.length>0">
+                <div class="detail-card-header" 
+                     ng-click="devicedatadetail.showFlag($index,'otherinfoFlag',infoItems.otherinfoFlag)"
+                     ng-if="infoItems.system.length>0 && infoItems.baseinfo.length>0">
                   <div class="detail-card-header-text">其他信息</div>
                   <div class="detail-card-header-button">
-                    <div ng-if="!infoItems.otherinfoFlag" class="detail-card-header-button-top" ng-click="devicedatadetail.showFlag($index,'otherinfoFlag',infoItems.otherinfoFlag)"></div>
-                    <div ng-if="infoItems.otherinfoFlag" class="detail-card-header-button-bottom" ng-click="devicedatadetail.showFlag($index,'otherinfoFlag',infoItems.otherinfoFlag)"></div>
+                    <div ng-if="!infoItems.otherinfoFlag" class="detail-card-header-button-top" ></div>
+                    <div ng-if="infoItems.otherinfoFlag" class="detail-card-header-button-bottom"></div>
                   </div>
                 </div>
         
@@ -122,13 +124,7 @@
                   <div class="detail-card-content">
                     <div class="row" ng-repeat="item in infoItems.otherinfo">
                         <div ng-if="
-                        devicedatadetail.treenamecol!=item[0] 
-                        && '_tree_'!=item[0] 
-                        && '_mysqlauth_'!=item[0] 
-                        && '_redisauth_'!=item[0] 
-                        && '_mongodbauth_'!=item[0] 
-                        && '_auth_'!=item[0] 
-                        && ! devicedatadetail.extcol[item[0]]">
+                        devicedatadetail.treenamecol!=item[0]">
                           <div ng-if="devicedatadetail.treenamecol!==item[0]" class="label-content">
                             <label class="col-md-4  control-label fwbold overflow-wraps">
                               <div ng-if="item.color">
@@ -143,53 +139,76 @@
                             </label>
                         </div>
                         </div>
-                      <div ng-if="devicedatadetail.treenamecol===item[0]" class="label-content">
-                        <label class="col-md-4  control-label fwbold" >全量服务树</label>
-                        <label class="col-md-8 control-label fwbold" >
-                          <div class="service-standard-tags" ng-repeat="cItem in item[1].split(',')">
-                            {{cItem}}
-                          </div>
-                        </label>
-                      </div>
-        
-                      <div ng-if="'_tree_'==item[0]">
-                        <label class="col-md-4  control-label fwbold" >内部服务树</label>
-                        <div class="col-md-6"> <input class="form-control" ng-click="devicedatadetail.search_init()" typeahead="name for name in devicedatadetail.names.sort()|filter:$viewValue| limitTo:20" ng-model="item[1]" /> </div>
-                        <a class="btn btn-system" ng-click="devicedatadetail.bindtree( item[1], '绑定服务树')">绑定</a>
-                        <a class="btn btn-danger" ng-click="devicedatadetail.bindtree( 'x',  '归还资源到资源池' )">归还</a>
                     </div>
-        
-                      <div ng-if="devicedatadetail.extcol[item[0]]">
-                        <label class="col-md-4  control-label fwbold" >{{devicedatadetail.extcol[item[0]].alias}}</label>
-                        <div class="col-md-6" >
-                            <input ng-if="!devicedatadetail.extcol[item[0]].select" class="form-control" ng-model="item[1]" />
-                            <select ng-if="devicedatadetail.extcol[item[0]].select" class="form-control" ng-model="item[1]" >
-                                <option ng-repeat="t in devicedatadetail.extcol[item[0]].select" value="{{t}}">{{t}}</option>
-                            </select>
+                  </div>
+                </div>
+
+                <!-- 操作 -->
+                <div class="detail-card-header" 
+                     ng-click="devicedatadetail.showFlag($index,'operationFlag',infoItems.operationFlag)"
+                     ng-if="infoItems.system.length>0 && infoItems.baseinfo.length>0">
+                  <div class="detail-card-header-text">操作</div>
+                  <div class="detail-card-header-button">
+                    <div ng-if="!infoItems.operationFlag" class="detail-card-header-button-top" ></div>
+                    <div ng-if="infoItems.operationFlag" class="detail-card-header-button-bottom"></div>
+                  </div>
+                </div>
+                <div ng-if="infoItems.operationFlag" class="detail-card" ng-show="devicedatadetail">
+                  <div class="detail-card-content">
+                    <div class="row" ng-repeat="item in infoItems.otherinfo">
+                      <div 
+                      >
+                        <div ng-if="devicedatadetail.treenamecol===item[0]" class="label-content">
+                          <label class="col-md-4  control-label fwbold" >全量服务树</label>
+                          <label class="col-md-8 control-label fwbold" >
+                            <div class="service-standard-tags" ng-repeat="cItem in item[1].split(',')">
+                              {{cItem}}
+                            </div>
+                          </label>
                         </div>
-                        <a class="btn btn-system" ng-click="devicedatadetail.saveextcol( item[0], item[1])">保存</a>
+
+                        <div ng-if="'_tree_'==item[0]">
+                          <label class="col-md-4  control-label fwbold" >内部服务树</label>
+                          <div class="col-md-6"> <input class="form-control" ng-click="devicedatadetail.search_init()" typeahead="name for name in devicedatadetail.names.sort()|filter:$viewValue| limitTo:20" ng-model="item[1]" /> </div>
+                          <a class="btn btn-system" ng-click="devicedatadetail.bindtree( item[1], '绑定服务树')">绑定</a>
+                          <a class="btn btn-danger" ng-click="devicedatadetail.bindtree( 'x',  '归还资源到资源池' )">归还</a>
+                        </div>
+
+                        <div ng-if="devicedatadetail.extcol[item[0]]">
+                          <label class="col-md-4  control-label fwbold" >{{devicedatadetail.extcol[item[0]].alias}}</label>
+                          <div class="col-md-6" >
+                              <input ng-if="!devicedatadetail.extcol[item[0]].select" class="form-control" ng-model="item[1]" />
+                              <select ng-if="devicedatadetail.extcol[item[0]].select" class="form-control" ng-model="item[1]" >
+                                  <option ng-repeat="t in devicedatadetail.extcol[item[0]].select" value="{{t}}">{{t}}</option>
+                              </select>
+                          </div>
+                          <a class="btn btn-system" ng-click="devicedatadetail.saveextcol( item[0], item[1])">保存</a>
+                        </div>
+
+                        <div ng-if="'_mysqlauth_'==item[0]">
+                          <label class="col-md-4  control-label fwbold" >{{item[0]}}</label>
+                          <div class="col-md-6"> <input class="form-control" ng-model="item[1]" /> </div>
+                          <a class="btn btn-system" ng-click="devicedatadetail.chpasswd( data, '_mysqladdr_', 'mysql', item[1])">修改Mysql密码</a>
+                        </div>
+
+                        <div ng-if="'_redisauth_'==item[0]">
+                          <label class="col-md-4  control-label fwbold" >{{item[0]}}</label>
+                          <div class="col-md-6"> <input class="form-control" ng-model="item[1]" /> </div>
+                          <a class="btn btn-system" ng-click="devicedatadetail.chpasswd( data, '_redisaddr_', 'redis', item[1])">修改Redis密码</a>
+                        </div>
+
+                        <div ng-if="'_mongodbauth_'==item[0]">
+                          <label class="col-md-4  control-label fwbold" >{{item[0]}}</label>
+                          <div class="col-md-6"> <input class="form-control" ng-model="item[1]" /> </div>
+                          <a class="btn btn-system" ng-click="devicedatadetail.chpasswd( data, '_mongodbaddr_', 'mongodb', item[1])">修改MongoDB密码</a>
+                        </div>
+
+                        <div ng-if="'_auth_'==item[0]">
+                          <label class="col-md-4  control-label fwbold" >登录账号</label>
+                          <div class="col-md-6"> <input class="form-control" ng-model="item[1]" /> </div>
+                          <a class="btn btn-system" ng-click="devicedatadetail.chauth( item[1])">修改账号</a>
+                        </div>
                       </div>
-        
-                      <div ng-if="'_mysqlauth_'==item[0]">
-                        <label class="col-md-4  control-label fwbold" >{{item[0]}}</label>
-                        <div class="col-md-6"> <input class="form-control" ng-model="item[1]" /> </div>
-                        <a class="btn btn-system" ng-click="devicedatadetail.chpasswd( data, '_mysqladdr_', 'mysql', item[1])">修改Mysql密码</a>
-                    </div>
-                    <div ng-if="'_redisauth_'==item[0]">
-                        <label class="col-md-4  control-label fwbold" >{{item[0]}}</label>
-                        <div class="col-md-6"> <input class="form-control" ng-model="item[1]" /> </div>
-                        <a class="btn btn-system" ng-click="devicedatadetail.chpasswd( data, '_redisaddr_', 'redis', item[1])">修改Redis密码</a>
-                    </div>
-                    <div ng-if="'_mongodbauth_'==item[0]">
-                        <label class="col-md-4  control-label fwbold" >{{item[0]}}</label>
-                        <div class="col-md-6"> <input class="form-control" ng-model="item[1]" /> </div>
-                        <a class="btn btn-system" ng-click="devicedatadetail.chpasswd( data, '_mongodbaddr_', 'mongodb', item[1])">修改MongoDB密码</a>
-                    </div>
-                    <div ng-if="'_auth_'==item[0]">
-                        <label class="col-md-4  control-label fwbold" >登录账号</label>
-                        <div class="col-md-6"> <input class="form-control" ng-model="item[1]" /> </div>
-                        <a class="btn btn-system" ng-click="devicedatadetail.chauth( item[1])">修改账号</a>
-                    </div>
                     </div>
                   </div>
                 </div>
