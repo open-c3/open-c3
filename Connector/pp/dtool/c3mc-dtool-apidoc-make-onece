@@ -10,8 +10,10 @@ $|++;
 
 =cut
 
-my ( $file, $detail ) = @ARGV;
+my ( $file ) = @ARGV;
 die "nofile" unless $file && -f $file;
+
+my $prefix = $file =~ m#/([a-zA-Z\d+]+)/lib/api/# ? sprintf( "http://127.0.0.1/api/%s", lc $1 ) : '';
 
 my    @x = `cat '$file'`;
 chomp @x;
@@ -134,8 +136,10 @@ for my $api ( sort{ $idx{$a} <=> $idx{$b} }keys %idx )
     $title =~ s/\s*//g;
     print "## $title\n";
 
+    my $rapi = $api;
+    $rapi =~ s/'\//$prefix\//;
     print "```\n";
-    map{ print "$_\n"; } "API: $api", @cont;
+    map{ print "$_\n"; } "API: $rapi", @cont;
 
     if( @{$param{$api}} )
     {
