@@ -84,6 +84,8 @@ for my $api ( sort{ $idx{$a} <=> $idx{$b} }keys %idx )
     }
 
     my $title = shift @cont;
+       $title = shift @cont unless $title;
+
     $title =~ s/\s*//g;
     print "## $title\n";
 
