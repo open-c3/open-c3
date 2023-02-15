@@ -1,0 +1,32 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+
+my @x = `find /data/Software/mydan/*/lib/api -name *.pm`;
+chomp @x;
+
+my %data;
+for my $x ( @x )
+{
+    my @cont = `c3mc-dtool-apidoc-make-onece '$x'`;
+    die "task error: $!" if $?;
+    chomp @cont;
+
+    my $title = @cont ? $cont[0] : 'unkown';
+    $data{$title} //= [];
+
+    push @{$data{$title}}, @cont;
+}
+
+print "# 系统/接口文档\n\n";
+
+map{  map{ print "$_\n" }@{$data{$_}}; }sort keys %data;
