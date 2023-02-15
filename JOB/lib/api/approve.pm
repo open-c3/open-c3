@@ -9,6 +9,14 @@ use api;
 use Format;
 use Util;
 
+=pod
+
+手机审批/获取列表
+
+只返回最近100条
+
+=cut
+
 get '/approve/approval' => sub {
     my $user = $api::approvesso->run( cookie => cookie( 'sid' ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
@@ -21,6 +29,12 @@ get '/approve/approval' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
     return +{ stat => $JSON::true, data => $r, xxx => sprintf( "select %s from openc3_job_approval  where user='$user' order by id desc limit 100", join( ',', @col ) ) };
 };
+
+=pod
+
+手机审批/提交审批意见
+
+=cut
 
 post '/approve/approval' => sub {
     my $param = params();
@@ -44,6 +58,12 @@ post '/approve/approval' => sub {
 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => 1 };
 };
+
+=pod
+
+手机审批/获取审批详情
+
+=cut
 
 get '/approve/approval/:uuid' => sub {
     my $param = params();

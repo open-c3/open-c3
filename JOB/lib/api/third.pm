@@ -15,6 +15,12 @@ use Util;
 my %env;
 BEGIN{ %env = Util::envinfo( qw( envname domainname ) ); };
 
+=pod
+
+第三方调用/获取作业列表
+
+=cut
+
 post '/third/option/jobname' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -31,6 +37,12 @@ post '/third/option/jobname' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => [map{@$_}@$r] };
 };
+
+=pod
+
+第三方调用/获取作业变量信息
+
+=cut
 
 post '/third/option/variable' => sub {
     my $param = params();
@@ -73,6 +85,12 @@ sub makeuuid
     my $retry_count = ( $param{retry_count} >= 0 && $param{retry_count} < @x ) ? $param{retry_count} : $#x;
     return substr( $param{uuid}, 0, 11 ).$x[$retry_count];
 };
+
+=pod
+
+第三方调用/检查执行参数
+
+=cut
 
 post '/third/interface/dry-run' => sub {
     my $param = params();
@@ -124,6 +142,12 @@ post '/third/interface/dry-run' => sub {
 
     return +{ stat => $JSON::true, uuid => $uuid, msg => "ok" };
 };
+
+=pod
+
+第三方调用/执行作业
+
+=cut
 
 post '/third/interface/invoke' => sub {
     my $param = params();
@@ -179,6 +203,12 @@ post '/third/interface/invoke' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, uuid => $uuid, data => $r };
 };
 
+=pod
+
+第三方调用/查询作业状态
+
+=cut
+
 post '/third/interface/query' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -222,6 +252,12 @@ post '/third/interface/query' => sub {
         %ctrl,
     };
 };
+
+=pod
+
+第三方调用/停止作业
+
+=cut
 
 post '/third/interface/stop' => sub {
     my $param = params();

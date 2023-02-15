@@ -9,15 +9,12 @@ use api;
 use Format;
 use Util;
 
-#name
-#plugin
-#jobname
-#create_user
-#edit_user
-#create_time_start
-#create_time_end
-#edit_time_start
-#edit_time_end
+=pod
+
+机器分批/获取分批列表
+
+=cut
+
 get '/nodegroup/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -105,6 +102,11 @@ get '/nodegroup/:projectid' => sub {
 
 };
 
+=pod
+
+机器分批/获取单个分批的配置
+
+=cut
 
 get '/nodegroup/:projectid/:id' => sub {
     my $param = params();
@@ -130,6 +132,12 @@ get '/nodegroup/:projectid/:id' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \%x };
 };
 
+=pod
+
+机器分批/获取的机器列表
+
+=cut
+
 get '/nodegroup/:projectid/:id/nodelist' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -153,10 +161,12 @@ get '/nodegroup/:projectid/:id/nodelist' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@node };
 };
 
+=pod
 
-#name
-#plugin
-#params
+机器分批/创建分批
+
+=cut
+
 post '/nodegroup/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -185,9 +195,12 @@ post '/nodegroup/:projectid' => sub {
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
 };
 
-#name
-#plugin
-#params
+=pod
+
+机器分批/编辑分批
+
+=cut
+
 post '/nodegroup/:projectid/:id' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -217,6 +230,12 @@ post '/nodegroup/:projectid/:id' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
 };
+
+=pod
+
+机器分批/删除分批
+
+=cut
 
 del '/nodegroup/:projectid/:id' => sub {
     my $param = params();

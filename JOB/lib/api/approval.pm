@@ -9,6 +9,14 @@ use api;
 use Format;
 use Util;
 
+=pod
+
+审批/获取审批列表
+
+只返回最近100条
+
+=cut
+
 get '/approval' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
@@ -21,6 +29,12 @@ get '/approval' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
     return +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+审批/提交审批意见
+
+=cut
 
 post '/approval' => sub {
     my $param = params();
@@ -45,6 +59,14 @@ post '/approval' => sub {
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => 1 };
 };
 
+=pod
+
+审批/获取单个审批详情
+
+登陆后可以查询
+
+=cut
+
 get '/approval/:uuid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -65,6 +87,14 @@ get '/approval/:uuid' => sub {
     return +{ stat => $JSON::true, data => $r };
 };
 
+=pod
+
+审批/获取单个审批详情
+
+不用登录也可以查询
+
+=cut
+
 get '/approval/control/:uuid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -82,6 +112,12 @@ get '/approval/control/:uuid' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
     return +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+审批/获取审批状态
+
+=cut
 
 get '/approval/control/status/:uuid' => sub {
     my $param = params();
@@ -111,6 +147,11 @@ get '/approval/control/status/:uuid' => sub {
     return +{ stat => $JSON::true, data => $res };
 };
 
+=pod
+
+审批/提交审批意见
+
+=cut
 
 post '/approval/control' => sub {
     my $param = params();
@@ -134,6 +175,11 @@ post '/approval/control' => sub {
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => 1 };
 };
 
+=pod
+
+审批/快速审批
+
+=cut
 
 any '/approval/fast/:uuid' => sub {
     my $param = params();

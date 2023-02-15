@@ -9,6 +9,14 @@ use api;
 use Format;
 use Digest::MD5;
 
+=pod
+
+作业/变量/获取变量token
+
+在需要自动更新变量内容时，需要创建一个token
+
+=cut
+
 get '/variable/:projectid/:jobuuid/token' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -31,6 +39,12 @@ get '/variable/:projectid/:jobuuid/token' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $md5 };
 };
+
+=pod
+
+作业/变量/更新变量的下拉框列表
+
+=cut
 
 any '/variable/update/:projectid/:jobuuid/:token/:name/:option' => sub {
     my $param = params();
@@ -58,6 +72,12 @@ any '/variable/update/:projectid/:jobuuid/:token/:name/:option' => sub {
  
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
+
+=pod
+
+作业/变量/获取作业变量
+
+=cut
 
 get '/variable/:projectid/:jobuuid' => sub {
     my $param = params();
@@ -135,10 +155,12 @@ get '/variable/:projectid/:jobuuid' => sub {
     return +{ stat => $JSON::true, data => [ sort{ $a->{describe} cmp $b->{describe} }@$r ] };
 };
 
-#jobuuid
-#name
-#value
-#describe
+=pod
+
+作业/变量/提交作业变量
+
+=cut
+
 post '/variable/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -169,8 +191,14 @@ post '/variable/:projectid' => sub {
     return $x ?  +{ stat => $JSON::false, info => $x } : +{ stat => $JSON::true, data => $r };
 };
 
-#jobuuid
-#data [ +{ name => '', value => '', describe => '', option => '' } ]
+=pod
+
+作业/变量/更新作业变量
+
+data [ +{ name => '', value => '', describe => '', option => '' } ]
+
+=cut
+
 post '/variable/:projectid/update' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -221,8 +249,12 @@ post '/variable/:projectid/update' => sub {
     return +{ stat => $JSON::true };
 };
 
-#jobuuid
-#name
+=pod
+
+作业/变量/删除变量
+
+=cut
+
 del '/variable/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -243,6 +275,12 @@ del '/variable/:projectid' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
 };
+
+=pod
+
+作业/变量/通过变量id删除变量
+
+=cut
 
 del '/variable/byid/:jobid' => sub {
     my $param = params();

@@ -10,13 +10,12 @@ use Format;
 use Util;
 use Crontab;
 
-#name
-#create_user
-#edit_user
-#create_time_start
-#create_time_end
-#edit_time_start
-#edit_time_end
+=pod
+
+  定时任务/获取定时任务列表
+
+=cut
+
 get '/crontab/:projectid' => sub {
     my $param = params();
 
@@ -65,7 +64,7 @@ get '/crontab/:projectid' => sub {
 
 =pod
 
-  作业/定时任务/获取定时任务数量
+  定时任务/获取定时任务数量
 
   通过服务树id获取定时任务数量
 
@@ -97,6 +96,11 @@ get '/crontab/:projectid/count' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \%data };
 };
 
+=pod
+
+  定时任务/获取定时任务详情
+
+=cut
 
 get '/crontab/:projectid/:crontabid' => sub {
     my $param = params();
@@ -122,10 +126,12 @@ get '/crontab/:projectid/:crontabid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \%x };
 };
 
-#name
-#jobuuid
-#cron
-#mutex  ?
+=pod
+
+  定时任务/创建定时任务
+
+=cut
+
 post '/crontab/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -166,10 +172,12 @@ post '/crontab/:projectid' => sub {
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
 };
 
-#name
-#jobuuid
-#cron
-#mutex  ?
+=pod
+
+  定时任务/编辑定时任务
+
+=cut
+
 post '/crontab/:projectid/:crontabid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -213,7 +221,12 @@ post '/crontab/:projectid/:crontabid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
 };
 
-#status
+=pod
+
+  定时任务/修改定时任务状态
+
+=cut
+
 post '/crontab/:projectid/:crontabid/status' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -249,6 +262,12 @@ post '/crontab/:projectid/:crontabid/status' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
 };
+
+=pod
+
+  定时任务/删除定时任务
+
+=cut
 
 del '/crontab/:projectid/:crontabid' => sub {
     my $param = params();

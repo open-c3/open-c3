@@ -9,6 +9,12 @@ use api;
 use Format;
 use Util;
 
+=pod
+
+业务管理/报警通知/获取列表
+
+=cut
+
 get '/notify/:projectid' => sub {
     my $param = params();
     my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
@@ -26,7 +32,12 @@ get '/notify/:projectid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } :  +{ stat => $JSON::true, data => $r };
 };
 
-#user
+=pod
+
+业务管理/报警通知/添加用户
+
+=cut
+
 post '/notify/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -50,6 +61,12 @@ post '/notify/:projectid' => sub {
 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
 };
+
+=pod
+
+业务管理/报警通知/删除用户
+
+=cut
 
 del '/notify/:projectid/:id' => sub {
     my $param = params();

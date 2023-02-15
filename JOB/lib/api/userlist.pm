@@ -9,11 +9,12 @@ use api;
 use Format;
 use Util;
 
-#name
-#create_user
-#edit_user
-#create_time_start
-#create_time_end
+=pod
+
+业务管理/账号管理/列表查询
+
+=cut
+
 get '/userlist/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -53,6 +54,12 @@ get '/userlist/:projectid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r || []};
 };
 
+=pod
+
+业务管理/账号管理/添加账号
+
+=cut
+
 post '/userlist/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -76,6 +83,12 @@ post '/userlist/:projectid' => sub {
 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
 };
+
+=pod
+
+业务管理/账号管理/删除账号
+
+=cut
 
 del '/userlist/:projectid/:id' => sub {
     my $param = params();
