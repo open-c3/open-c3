@@ -63,6 +63,20 @@ get '/crontab/:projectid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
 
+=pod
+
+  作业/定时任务/获取定时任务数量
+
+  通过服务树id获取定时任务数量
+
+  返回数据
+  +{
+      available =>   0, # 开启的数量
+      unavailable => 0, # 暂停的数量
+  }
+ 
+=cut
+
 get '/crontab/:projectid/count' => sub {
     my $param = params();
 
