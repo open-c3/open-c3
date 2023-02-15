@@ -47,6 +47,31 @@ download:
         - name: _ingestion_
           alias: 摄取
           select: ["YES", "NO"]
+      grpcol:
+        baseinfo:
+        - name: 名称
+        - name: 实例ID
+        - name: 状态
+          success:
+          - ACTIVE
+        - name: account
+          color: red
+        - name: 所在可用区
+        - name: 部门
+        - name: 业务负责人
+        - name: 运维负责人
+        - name: 公网IP
+        - name: 内网IP
+        system:
+        - name: 操作系统
+        - name: 实例类型
+        - name: flavor.vcpus
+          tail: (核) 
+        - name: 内存
+          tail: (兆)
+        - prefix: tag.
+        - prefix: security_groups.
+
     colmap:
       treename: "服务树"
       uuid: "实例ID" # 指明哪一列作为uuid列
