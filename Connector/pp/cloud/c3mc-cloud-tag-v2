@@ -1,0 +1,153 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+
+import sys
+import json
+import subprocess
+import argparse
+
+
+class HandleTag:
+    def __init__(self, data_list, tag_field, delimiter, key_field, value_field):
+        self.data_list = data_list
+        self.tag_field = tag_field
+
+        self.delimiter = delimiter
+
+        self.key_field = key_field
+        self.value_field = value_field
+
+        self.pre_names = self.init_pre_names()
+    
+    def init_pre_names(self):
+        product_owner_env_vlaue_list = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.ProductOwner").lower().split(",")[::-1]
+        ops_owner_env_value_list = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.OpsOwner").lower().split(",")[::-1]
+        department_env_value_list = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.Department").lower().split(",")[::-1]
+        name_env_value_list = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.Name").lower().split(",")[::-1]
+
+        pre_names = []
+        for item in product_owner_env_vlaue_list:
+            pre_names.append({"pre_name": item, "pre_value": "_product_owner_"})
+        for item in ops_owner_env_value_list:
+            pre_names.append({"pre_name": item, "pre_value": "_ops_owner_"})
+        for item in department_env_value_list:
+            pre_names.append({"pre_name": item, "pre_value": "_department_"})
+        for item in name_env_value_list:
+            pre_names.append({"pre_name": item, "pre_value": "_name_"})
+        
+        return pre_names
+
+    def helper(self):
+        for i in range(len(self.data_list)):
+            data = self.data_list[i]
+
+            if self.tag_field not in data:
+                continue
+
+            tmp_tag_dict = {}
+            if isinstance(data[self.tag_field], dict):
+                # 第一种处理类型。作为默认处理结果
+                tmp_tag_dict = data[self.tag_field]
+            else:
+                tag_list = data[self.tag_field]
+                if tag_list is None:
+                    continue
+                for tag in tag_list:
+                    if isinstance(tag, dict):
+                        # 第三种处理类型
+                        tmp_tag_dict[tag[self.key_field]] = tag[self.value_field]
+                    elif isinstance(tag, str):
+                        # 第二种处理类型
+                        parts = tag.split(self.delimiter)
+                        if len(parts) == 0:
+                            continue
+                        tmp_tag_dict[parts[0]] = parts[1]
+
+            new_tag_dict = {}
+
+            for key, value in tmp_tag_dict.items():
+                new_tag_dict[key] = value
+
+            for item in self.pre_names:
+                for key, value in tmp_tag_dict.items():
+                    if key.lower() == item["pre_name"].lower():
+                        self.data_list[i][item["pre_value"]] = value
+
+            # 添加 tag 字段，类型是 dict
+            self.data_list[i]["tag"] = new_tag_dict
+
+            # 保存字符串形式的标签列表
+            tags_str = ""
+            for key, value in new_tag_dict.items():
+                tags_str += "{}:{}, ".format(key, value)
+            # 去掉末尾的逗号和空格
+            tags_str = tags_str[: -2]
+            self.data_list[i]["tags"] = tags_str
+
+            # 删除旧的标签字段
+            if self.tag_field != "tag" and self.tag_field != "tags":
+                del self.data_list[i][self.tag_field]
+        return
+    
+    def display(self):
+        self.helper()
+
+        for data in self.data_list:
+            print(json.dumps(data, default=str))
+
+
+def main(data_list, tag_field, delimiter, key_field, value_field):
+    HandleTag(data_list, tag_field, delimiter, key_field, value_field).display()
+
+
+if __name__ == '__main__':
+    """
+    例子
+
+    第一种类型:
+    当标签字段值格式为:
+    {
+        "name": "wp",
+        "sex": "man"
+    }
+    调用命令: c3mc-cloud-tag --tag-field xxx
+
+    第二种类型:
+    当标签字段值格式为:
+    [
+        "name=wp",
+        "sex=man"
+    ]
+    调用命令: c3mc-cloud-tag --tag-field xxx --delimiter =
+
+    第三种类型:
+    当标签字段值格式为:
+    [
+        {
+            "key": "name",
+            "value": "wp",
+        }    
+    ]
+    调用命令: c3mc-cloud-tag --tag-field xxx --key-field key --value-field value
+    """
+
+    data_list = []
+    for line in sys.stdin:
+        data_list.append(json.loads(line))
+
+    parser = argparse.ArgumentParser(description="重构标签字段")
+    parser.add_argument('--tagfield', type=str, required=False, help='标签字段名')
+
+    parser.add_argument('--delimiter', type=str, required=False, help='标签的key和value由分割符连接时,需要传递分隔符')
+
+    parser.add_argument('--key', type=str, required=False, help='如果标签是对象时, 需要传递key字段名称')
+    parser.add_argument('--value', type=str, required=False, help='如果标签是对象时, 需要传递value字段名称')
+    args = parser.parse_args()
+
+    tag_field = args.tagfield
+    delimiter = args.delimiter
+    key_field = args.key
+    value_field = args.value
+
+    main(data_list, tag_field, delimiter, key_field, value_field)

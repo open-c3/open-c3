@@ -27,7 +27,7 @@ $handle{jumpserver} = sub
     my ( $x, $status ) = @_;
     return +{ stat => $JSON::false, info => $x } if $status;
     my @res;
-    my @col = qw( UUID InstanceId HostName IP InIP ExIP OS Site VpcId VpcName );
+    my @col = qw( uuid instanceId hostName ip inIP exIP os site vpc_id vpc_name );
     for( split /\n/, $x )
     {
         my @x = split /;/, $_;

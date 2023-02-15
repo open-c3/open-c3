@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-cvm --account qcloud --aksk |  c3mc-cloud-qcloud-cvm-volume | c3mc-cloud-tag Tags Key Value None | c3mc-price-fetch qcloud-cvm-volume 'RegionId;DiskSize' | c3mc-base-json2tab "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-cvm --account qcloud --aksk |  c3mc-cloud-qcloud-cvm-volume | c3mc-cloud-tag-v2 --tagfield Tags --key Key --value Value | c3mc-price-fetch qcloud-cvm-volume 'RegionId;DiskSize' | c3mc-base-json2tab "
     datatype: tsv # 固定值。表示url中命令最终输出的文件格式
     type: storage # 资源类型。cmdb页面中的分类
     subtype: qcloud-cvm-volume # 上面资源类型的子类型。

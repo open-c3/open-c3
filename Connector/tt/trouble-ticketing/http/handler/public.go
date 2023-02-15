@@ -3,6 +3,10 @@ package handler
 import (
 	"fmt"
 	"net/http"
+	"openc3.org/trouble-ticketing/model"
+	"openc3.org/trouble-ticketing/util"
+	"os"
+	"os/exec"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -10,7 +14,7 @@ import (
 	"openc3.org/trouble-ticketing/orm"
 )
 
-// 第三方系统添加事件
+// PublicPostTicket 第三方系统添加事件
 func PublicPostTicket(c *gin.Context) {
 	type reqT struct {
 		Title     string `json:"title" binding:"required"`
@@ -34,22 +38,12 @@ func PublicPostTicket(c *gin.Context) {
 		return
 	}
 	var (
-		obj            ticket
-		defaultGroupId int64
-		defaultUserId  int64
-		found          bool
+		obj         ticket
+		workGroupId *int64
+		groupUserId *int64
 	)
-	for _, workflowConfig := range config.Config().Workflow {
-		for _, keyword := range workflowConfig.Keyword {
-			if strings.Contains(req.Title, keyword) {
-				defaultGroupId = workflowConfig.WorkGroupId
-				defaultUserId = workflowConfig.GroupUserId
-				found = true
-				break
-			}
-		}
-	}
-	if !found {
+	workGroupId, groupUserId = findGroupIdAndUserId(req.Title)
+	if workGroupId == nil {
 		c.JSON(http.StatusOK, status_400_v2("没有找到默认的组和处理用户, 工单名称: "+req.Title))
 		return
 	}
@@ -64,8 +58,8 @@ func PublicPostTicket(c *gin.Context) {
 	obj.Category = req.C
 	obj.Type = req.T
 	obj.Item = req.I
-	obj.Workgroup = defaultGroupId
-	obj.GroupUser = defaultUserId
+	obj.Workgroup = *workGroupId
+	obj.GroupUser = *groupUserId
 	obj.Title = req.Title
 	obj.Content = req.Content
 	obj.EmailList = req.EmailList
@@ -78,6 +72,71 @@ func PublicPostTicket(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, status_200_v2(obj.No))
+}
+
+func findGroupIdAndUserId(title string) (*int64, *int64) {
+	var (
+		workGroupId, groupUserId *int64
+		found                    bool
+		err                      error
+	)
+
+	for _, workflowConfig := range config.Config().WorkflowList {
+		for _, keyword := range workflowConfig.KeywordList {
+			if strings.Contains(title, keyword) || keyword == "*" {
+				found = true
+				break
+			}
+		}
+		if !found {
+			continue
+		}
+
+		var (
+			group model.BaseGroup
+			user  model.BaseGroupUser
+		)
+
+		workGroupId, err = getValue(workflowConfig.WorkGroupId, &group, "group_name")
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "findGroupIdAndUserId.getValue.group_name.err: %v", err)
+			return nil, nil
+		}
+		groupUserId, err = getValue(workflowConfig.GroupUserId, &user, "email")
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "findGroupIdAndUserId.getValue.name.err: %v", err)
+			return nil, nil
+		}
+		if found {
+			return workGroupId, groupUserId
+		}
+	}
+	return nil, nil
+}
+
+func getValue(i interface{}, tableRecord interface{}, fieldName string) (*int64, error) {
+	var (
+		value int64
+	)
+	switch v := i.(type) {
+	case float64:
+		value = int64(v)
+	case string:
+		b, err := exec.Command("c3mc-sys-ctl", v).Output()
+		if err != nil {
+			return nil, fmt.Errorf("从系统参数获取默认组或用户时出错, 错误信息为: %v", err)
+		}
+		sysEnvValue := strings.TrimRight(string(b), "\n")
+		if orm.Db.Where(fmt.Sprintf("%v = ?", fieldName), sysEnvValue).First(tableRecord).RecordNotFound() {
+			return nil, fmt.Errorf("从数据库查找组或者用户时未找到相关记录, 名称: %v", sysEnvValue)
+		}
+
+		m := util.ConvertStructInterToMap(tableRecord)
+		value = m["ID"].(int64)
+	default:
+		return nil, nil
+	}
+	return &value, nil
 }
 
 // 获取某个事件状态

@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aws-ec2 --account aws  | c3mc-cloud-tag Tags Key Value None | c3mc-price-fetch aws-ec2 'RegionId;InstanceType'  | c3mc-base-json2tab "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aws-ec2 --account aws  | c3mc-cloud-tag-v2 --tagfield Tags --key Key --value Value | c3mc-price-fetch aws-ec2 'RegionId;InstanceType'  | c3mc-base-json2tab "
     datatype: tsv # 固定值。表示url中命令最终输出的文件格式
     type: compute # 资源类型。cmdb页面中的分类
     subtype: aws-ec2 # 上面资源类型的子类型。
@@ -20,16 +20,19 @@ download:
         "状态": ["stopped"]
         "_ingestion_": ["NO"]
     ingestion-jumpserver:
-      UUID: '实例ID'
-      InstanceId: '实例ID'
-      HostName: '_name_'
-      IP: '内网IP'
-      InIP: '内网IP'
-      ExIP: '公网IP'
-      OS: '操作系统'
-      Site: [ '{AWS}', 'VpcName' ]
-      VpcId:   'VpcId'
-      VpcName: 'VpcName'
+      uuid: "实例ID"
+      instanceId: "实例ID"
+      hostName: "主机名"
+      ip: "内网IP"
+      inIP: "内网IP"
+      exIP: "公网IP"
+      os: "os"
+      site: ["{AWS}", "VpcName"]
+      vpc_id: "VpcId"
+      vpc_name: "VpcName"
+      exclude:
+        "状态": ["stopped"]
+        "VpcName": ["/ThirdParty/", "/CMTest/"]
     metrics:
       - name: 'openc3_cmdb_resource_price{account="%s",instanceid="%s",type="compute",subtype="aws-ec2",unit="%s",status="%s"} %f'
         value: ["account", "uuid", "_priceunit_", "状态", "_price_"]

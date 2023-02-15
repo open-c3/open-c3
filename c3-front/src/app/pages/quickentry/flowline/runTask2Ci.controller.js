@@ -40,6 +40,16 @@
                 }
             });
         };
+
+        vm.taggerIsMe = function () {
+            $http.get('/api/connector/connectorx/sso/userinfo').success(function(data){
+                if( ! $scope.taskData.variable.tagger )
+                {
+                    $scope.taskData.variable.tagger = data.email;
+                }
+            });
+        };
+ 
         vm.getAllJob = function () {
             $http.get('/api/job/jobs/' + vm.treeid).then(
                 function successCallback(response) {
@@ -89,6 +99,11 @@
                                                 if( value.name == 'checker' )
                                                 {
                                                     vm.checkerIsMe();
+                                                }
+ 
+                                                if( value.name == 'tagger' )
+                                                {
+                                                    vm.taggerIsMe();
                                                 }
  
                                            });

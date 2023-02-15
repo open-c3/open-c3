@@ -136,6 +136,7 @@ post '/fileserver/:projectid/upload' => sub {
 
     my $user = substr( $token, 0, 8 ) .'@token';
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
+    my $username = $param->{'user' } && $param->{'user' } =~ /^[a-zA-Z0-9\.\-_@]+$/ ? $param->{'user' } : $user;
 
     my $upfilename;
     for my $info ( values %$upload )
@@ -162,7 +163,7 @@ post '/fileserver/:projectid/upload' => sub {
         my $r = eval{ 
             $api::mysql->execute( 
                 "replace into openc3_job_fileserver (`projectid`,`name`,`size`,`md5`,`create_user`,`create_time`,`edit_user`,`edit_time`,`status`)
-                    values( '$param->{projectid}', '$filename','$size', '$md5', '$user','$time', '$user', '$time','available' )")};
+                    values( '$param->{projectid}', '$filename','$size', '$md5', '$username','$time', '$user', '$time','available' )")};
     
         return +{ stat => $JSON::false, info => $@ } if $@;
     }

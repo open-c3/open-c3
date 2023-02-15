@@ -1,5 +1,4 @@
-
-# mongodb 监控
+# 监控/mongodb不同的exporter说明
 
 ## amazonaws/mongodb_exporter
 ```

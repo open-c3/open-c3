@@ -51,6 +51,19 @@ class Ecs:
                 instance.pop("Tags", None)
             instance["VpcId"] = instance["VpcAttributes"]["VpcId"]
             instance["VpcName"] = vpc_client.show_vpc(instance["VpcId"])["VpcName"]
+
+            if 'OSName' in instance:
+                instance["os"] = "Windows" if instance["OSName"].lower().find("window") != -1 else "Linux"
+            else:
+                instance["os"] = "Other"
+            
+            public_ip = ""
+            if len(instance["PublicIpAddress"]["IpAddress"]) > 0:
+                public_ip = instance["PublicIpAddress"]["IpAddress"][0]
+            if instance["EipAddress"]["IpAddress"] != "":
+                public_ip = instance["EipAddress"]["IpAddress"]
+            instance["PublicIp"] = public_ip
+
             print(json.dumps(instance))
 
     def page(self):

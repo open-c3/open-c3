@@ -3,30 +3,46 @@
 
 import sys
 import json
+import re
 
 from google.oauth2 import service_account
 from google.cloud import compute_v1
 from google.protobuf.json_format import MessageToJson, MessageToDict
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_google import Google
 
 
 class VM:
     def __init__(self, cred_json_path):
         self.cred_json_path = cred_json_path
         self.credentials = self.create_credentials()
+        self.lib_google_client = Google(cred_json_path)
         self.page_size = 500
 
     def create_credentials(self):
         return service_account.Credentials.from_service_account_file(self.cred_json_path)
 
     def list_instance(self):
-        client = compute_v1.InstancesClient(credentials=self.credentials)
+        compute_client = compute_v1.InstancesClient(credentials=self.credentials)
         results = []
-        for _, instances in client.aggregated_list(request={"project": self.credentials.project_id, "max_results": self.page_size}):
+        for _, instances in compute_client.aggregated_list(request={"project": self.credentials.project_id, "max_results": self.page_size}):
             for instance in instances.instances:
                 try:
                     item = MessageToDict(instance)
                 except:
                     item = MessageToDict(instance._pb)
+
+                network_config = item["networkInterfaces"][0]
+                vpc_network_url = network_config['network']
+                item["vpcName"] = vpc_network_url.rsplit('/', 1)[-1]
+
+                disk_source = None
+                for disk_item in item["disks"]:
+                    if disk_item["boot"] == True:
+                        disk_source = disk_item["source"] 
+                        break
+                item["os"] = self.lib_google_client.get_os(disk_source)
 
                 item["zone"] = item["zone"].split("/")[-1]
                 item["regionId"] = item["zone"].split("/")[-1][:-2]
@@ -41,7 +57,8 @@ class VM:
 
                     if "accessConfigs" in netInterface:
                         for configItem in netInterface["accessConfigs"]:
-                            public_ip = configItem["natIP"]
+                            if "natIP" in configItem:
+                                public_ip = configItem["natIP"]
                 if private_ip is not None:
                     item["private_ip"] = private_ip
                 if public_ip is not None:

@@ -1,4 +1,4 @@
-# 弹性伸缩
+# 弹性伸缩/spotx
 
 ## 添加配置: /data/open-c3-data/spotx.conf
 

@@ -1,8 +1,10 @@
-# github
+# 监控采集器/云监控/腾讯云
+
+## github
 
 https://github.com/tencentyun/tencentcloud-exporter
 
-# 配置例子
+## 配置例子
 ```
 ---
 credential:
@@ -23,5 +25,6 @@ products:
     all_instances: true
     extra_labels: [InstanceName,Zone]
 ```
-# 获取metrics列表
+## 获取metrics列表
+
 github 地址的文档里面有, https://github.com/tencentyun/tencentcloud-exporter

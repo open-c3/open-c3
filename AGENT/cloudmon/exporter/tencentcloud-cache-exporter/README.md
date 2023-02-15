@@ -1,4 +1,4 @@
-# 说明
+# 监控采集器/云监控/腾讯云cache
 
 是tencentcloud-exporter的cache版，tencentcloud-exporter采集数据不稳定，有丢数据的情况。
 

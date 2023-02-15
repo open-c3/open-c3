@@ -547,7 +547,8 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
             $extcol{ $_->{name} } = $_;
         }@{ $util->{extcol} };
     }
-    return +{ stat => $JSON::true, data => \@re2, treenamecol => $treenamecol, extcol => \%extcol };
+    my $grpcol = $util->{grpcol} && ref $util->{grpcol} eq 'HASH' ? $util->{grpcol} : +{ baseinfo => [], system => [] };
+    return +{ stat => $JSON::true, data => \@re2, treenamecol => $treenamecol, extcol => \%extcol, grpcol => $grpcol };
 };
 
 get '/device/timemachine' => sub {

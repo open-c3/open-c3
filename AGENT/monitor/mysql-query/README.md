@@ -1,4 +1,4 @@
-# mysql监控
+# 监控/MysqlQuery
 
 ## 提取监控资源
 

@@ -1,0 +1,63 @@
+download:
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aws-kafka --account aws | c3mc-cloud-tag-v2 --tagfield Tags | c3mc-base-json2tab "
+    datatype: tsv
+    type: storage
+    subtype: aws-kafka
+    treeinfo:
+      treename: "服务树"
+      treeinfo:
+        - ["实例ID", "instance"]
+    check:
+      col: ["实例ID"]
+      min: 0
+    util:
+      defaulttree: defaulttree.pool
+      extcol:
+        - name: audit
+          alias: 审计
+          select: ["YES", "NO"]
+        - name: remarks
+          alias: 备注
+        - name: _ingestion_
+          alias: 摄取
+          select: ["YES", "NO"]
+    colmap:
+      treename: "服务树"
+      uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
+    alias:
+      ClusterType: "类型"
+      RegionId: "区域"
+      ClusterName: "实例ID"
+      State: "状态"
+      _product_owner_: "业务负责人"
+      _ops_owner_: "运维负责人"
+      _department_: "部门"
+    filter:
+      - name: "account"
+        alias: 账号
+      - name: "区域"
+        alias: 区域
+      - name: "状态"
+        alias: 状态
+      - name: "类型"
+        alias: 类型
+      - name: "业务负责人"
+        alias: 业务负责人
+      - name: "运维负责人"
+        alias: 运维负责人
+      - name: "部门"
+        alias: 部门
+    outline:
+      uuid:
+        - "实例ID"
+      baseinfo:
+        - "account"
+        - "实例ID"
+        - "区域"
+      system:
+        - "状态"
+      contact:
+        - "部门"
+        - "业务负责人"
+        - "运维负责人"
+        - "服务树"

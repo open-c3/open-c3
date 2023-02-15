@@ -20,7 +20,7 @@ get '/monitor/config/rule/:projectid' => sub {
     my $projectid = $param->{projectid};
 
     my $where = $projectid ? " where projectid='$projectid'" : "";
-    my @col = qw( id alert expr for severity summary description value model metrics method threshold edit_user edit_time bindtreesql job subgroup );
+    my @col = qw( id alert expr for severity summary description value model metrics method threshold edit_user edit_time bindtreesql job subgroup nocall nomesg nomail );
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_monitor_config_rule
@@ -42,7 +42,7 @@ get '/monitor/config/rule/:projectid/:id' => sub {
 
     my $projectid = $param->{projectid};
 
-    my @col = qw( id alert expr for severity summary description value model metrics method threshold edit_user edit_time bindtreesql job subgroup );
+    my @col = qw( id alert expr for severity summary description value model metrics method threshold edit_user edit_time bindtreesql job subgroup nocall nomesg nomail );
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_monitor_config_rule where projectid='$projectid' and id='$param->{id}'", join( ',', @col)), \@col )};
@@ -69,6 +69,10 @@ post '/monitor/config/rule/:projectid' => sub {
         bindtreesql => [ 'mismatch', qr/'/ ], 0,
         job         => [ 'mismatch', qr/'/ ], 0,
         subgroup => qr/^[a-zA-Z0-9]*$/, 0,
+
+        nocall => qr/^\d*$/, 0,
+        nomesg => qr/^\d*$/, 0,
+        nomail => qr/^\d*$/, 0,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -105,20 +109,24 @@ post '/monitor/config/rule/:projectid' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     map{ $param->{$_} = '' unless defined $param->{$_}; }qw( for summary description value );
 
-    my ( $id, $projectid, $alert, $expr, $for, $severity, $summary, $description, $value, $model, $metrics, $method, $threshold, $bindtreesql, $job, $subgroup )
-        = @$param{qw( id projectid alert expr for severity summary description value model metrics method threshold bindtreesql job subgroup )};
+    my ( $id, $projectid, $alert, $expr, $for, $severity, $summary, $description, $value, $model, $metrics, $method, $threshold, $bindtreesql, $job, $subgroup, $nocall, $nomesg, $nomail )
+        = @$param{qw( id projectid alert expr for severity summary description value model metrics method threshold bindtreesql job subgroup nocall nomesg nomail )};
+
+    $nocall = $nocall && $nocall eq '1' ? 1 : 0;
+    $nomesg = $nomesg && $nomesg eq '1' ? 1 : 0;
+    $nomail = $nomail && $nomail eq '1' ? 1 : 0;
 
     eval{
         my $title = $id ? "UPDATE" : "ADD";
         $api::auditlog->run( user => $user, title => "$title MONITOR CONFIG RULE", content => "TREEID:$projectid ALERT:$alert EXPR:$expr FOR:$for SEVERITY:$severity SUMMARY:$summary DESCRIPTION:$description VALUE:$value JOB:$job" );
         if( $param->{id} )
         {
-            $api::mysql->execute( "update openc3_monitor_config_rule set `alert`='$alert',`expr`='$expr',`for`='$for',`severity`='$severity',summary='$summary',description='$description',`value`='$value',edit_user='$user',model='$model',metrics='$metrics',method='$method',threshold='$threshold',bindtreesql='$bindtreesql',job='$job',subgroup='$subgroup' where projectid='$projectid' and id='$id'" );
+            $api::mysql->execute( "update openc3_monitor_config_rule set `alert`='$alert',`expr`='$expr',`for`='$for',`severity`='$severity',summary='$summary',description='$description',`value`='$value',edit_user='$user',model='$model',metrics='$metrics',method='$method',threshold='$threshold',bindtreesql='$bindtreesql',job='$job',subgroup='$subgroup',nocall='$nocall',nomesg='$nomesg',nomail='$nomail' where projectid='$projectid' and id='$id'" );
         }
         else
         {
-            $api::mysql->execute( "insert into openc3_monitor_config_rule (`projectid`,`alert`,`expr`,`for`,`severity`,`summary`,`description`,`value`,`edit_user`,`model`,`metrics`,`method`,`threshold`,`bindtreesql`,`job`,`subgroup`)
-                values('$projectid','$alert','$expr','$for','$severity','$summary','$description','$value','$user','$model','$metrics','$method','$threshold','$bindtreesql','$job','$subgroup')" );
+            $api::mysql->execute( "insert into openc3_monitor_config_rule (`projectid`,`alert`,`expr`,`for`,`severity`,`summary`,`description`,`value`,`edit_user`,`model`,`metrics`,`method`,`threshold`,`bindtreesql`,`job`,`subgroup`,`nocall`,`nomesg`,`nomail`)
+                values('$projectid','$alert','$expr','$for','$severity','$summary','$description','$value','$user','$model','$metrics','$method','$threshold','$bindtreesql','$job','$subgroup','$nocall','$nomesg','$nomail')" );
         }
     };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };

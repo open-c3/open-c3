@@ -1,4 +1,5 @@
-# 使用说明
+# 构建/tencentcloud采集器
+## 使用说明
 
 ./init.sh 下载项目代码
 
@@ -6,6 +7,6 @@
 
 测试一下请求返回 curl localhost:9123/metrics
 
-# github
+## github
 
 https://github.com/tencentyun/tencentcloud-exporter

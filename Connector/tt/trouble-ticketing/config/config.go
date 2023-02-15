@@ -35,12 +35,14 @@ type GlobalConfig struct {
 		URL       string `json:"url"`
 		CookieKey string `json:"cookiekey"`
 	} `json:"sso"`
-	Attachment string `json:"attachment"`
-	Workflow   []struct {
-		Keyword     []string `json:"keyword"`
-		WorkGroupId int64    `json:"work_group_id"`
-		GroupUserId int64    `json:"group_user_id"`
-	} `json:"workflow"`
+	Attachment   string `json:"attachment"`
+	WorkflowList []struct {
+		KeywordList []string `json:"keyword_list"`
+		// WorkGroupId 和 GroupUserId 的值有可能需要从系统参数中获取
+		// 可以填具体的数据库记录id或者组名称或者用户名称
+		WorkGroupId interface{} `json:"work_group_id"`
+		GroupUserId interface{} `json:"group_user_id"`
+	} `json:"workflow_list"`
 }
 
 func (this *GlobalConfig) Decryption() {

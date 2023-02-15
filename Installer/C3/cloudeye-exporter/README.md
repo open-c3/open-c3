@@ -1,3 +1,4 @@
+# 构建/cloudeye采集器
 
 ./init.sh 下载二进制文件
 

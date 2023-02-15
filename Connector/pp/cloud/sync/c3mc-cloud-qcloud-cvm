@@ -68,6 +68,11 @@ class Cvm:
             if item["PublicIpAddresses"] is not None and len(item["PublicIpAddresses"]) > 0:
                 item["PublicIP"] = item["PublicIpAddresses"][0]
             item["ProjectName"] = self.project_m[item["Placement"]["ProjectId"]]["Name"]
+            
+            if 'OsName' in item:
+                item["os"] = "Windows" if item["OsName"].lower().find("window") != -1 else "Linux"
+            else:
+                item["os"] = "Other"
 
             result.append(item)
             
