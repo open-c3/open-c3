@@ -1,0 +1,93 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0 /api/file.pm
+
+=cut
+
+my ( $file, $detail ) = @ARGV;
+die "nofile" unless $file && -f $file;
+
+my    @x = `cat '$file'`;
+chomp @x;
+
+my @raw = @x;
+
+# idx 记录每个api所在的行号
+my ( $idx, %idx )= ( 0 );
+for my $x ( @x )
+{
+    $x =~ s/#.*//;
+    $x =~ s/^\s*//;
+    $x =~ s/\s*$//;
+    $idx ++;
+    $idx{$1} = $idx if $x =~ /^([a-z]+\s+'\/.*')/;
+
+}
+
+# from 记录着API 的上一个结尾的行号
+my %from;
+sub getfrom
+{
+    my $to = shift @_;
+    my $i = 0;
+    my $res = 1;
+    for my $x ( @x )
+    {
+        $i ++;
+
+        if( $x eq '};' )
+        {
+            $res = $i;
+        }
+        last if $i >= $to;
+    }
+    return $res;
+}
+
+for my $api ( keys %idx )
+{
+    $from{$api} = getfrom( $idx{$api} );
+}
+
+# pod 保存对应API的pod内容
+my %pod;
+
+sub findpod
+{
+    my ( $from, $to, @res, $start ) = @_;
+    for( $from .. $to )
+    {
+        my $row = $x[$_];
+        last                if $row eq '=cut';
+        push @res, $raw[$_] if $start;
+        $start = 1          if $row eq '=pod';
+    }
+
+    return \@res;
+}
+
+map{ $pod{$_} = findpod( $from{$_} -1 , $idx{$_} -1 ) }keys %idx;
+
+for my $api ( sort{ $idx{$a} <=> $idx{$b} }keys %idx )
+{
+    my @cont = @{$pod{$api}};
+    unless( @cont )
+    {
+        warn "[Warn]: $api nofind pod\n";
+        next;
+    }
+
+    my $title = shift @cont;
+    $title =~ s/\s*//g;
+    print "## $title\n";
+
+    print "```\n";
+    print join "\n", "API: $api", @cont;
+    print "\n```\n\n";
+}
