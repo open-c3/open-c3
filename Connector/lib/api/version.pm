@@ -7,6 +7,12 @@ use utf8;
 use Tie::File;
 use Fcntl 'O_RDONLY';
 
+=pod
+
+系统版本/获取更新内容
+
+=cut
+
 get '/version/log' => sub {
     my $param = params();
 
@@ -16,6 +22,12 @@ get '/version/log' => sub {
     my @temp = @cont[0.. ( $#cont >= 99 ? 99 : $#cont ) ];
     return +{ stat => $JSON::true, data => [ map{ my @x = split / \+0800 - /, $_; +{ time => $x[0], mesg => $x[1] } }@temp ] };
 };
+
+=pod
+
+系统版本/获取当前版本号
+
+=cut
 
 get '/version/name' => sub {
     my %version;

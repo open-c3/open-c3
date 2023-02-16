@@ -9,6 +9,12 @@ use api;
 use Format;
 use Util;
 
+=pod
+
+系统内置/获取服务树map信息
+
+=cut
+
 get '/default/tree/map' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
     my $pmscheck = api::pmscheck( 'openc3_connector_read' ); return $pmscheck if $pmscheck;
@@ -46,6 +52,12 @@ sub maketree
     }
 };
 
+=pod
+
+系统内置/获取服务树结构
+
+=cut
+
 get '/default/tree' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
     my $pmscheck = api::pmscheck( 'openc3_connector_read' ); return $pmscheck if $pmscheck;
@@ -65,6 +77,12 @@ get '/default/tree' => sub {
     return +{ stat => $JSON::true, data => $data };
 };
 
+
+=pod
+
+系统内置/在跟节点上创建服务树节点
+
+=cut
 
 post '/default/tree' => sub {
     my $param = params();
@@ -88,9 +106,13 @@ post '/default/tree' => sub {
     return +{ stat => $JSON::false, info => 'get id err' } unless $r && @$r > 0;
 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r->[0][0] };
-
-
 };
+
+=pod
+
+系统内置/在普通节点上创建服务树节点
+
+=cut
 
 post '/default/tree/:projectid' => sub {
     my $param = params();
@@ -125,6 +147,12 @@ post '/default/tree/:projectid' => sub {
 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r->[0][0] };
 };
+
+=pod
+
+系统内置/删除服务树节点
+
+=cut
 
 del '/default/tree/:treeid' => sub {
     my $param = params();

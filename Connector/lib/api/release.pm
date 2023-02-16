@@ -8,6 +8,14 @@ use MIME::Base64;
 use api;
 use Format;
 
+=pod
+
+系统/接口释放/全局判断服务树节点释放可以释放
+
+该接口会查询job、ci模块的release接口，都可以释放是才会返回释放
+
+=cut
+
 get '/release' => sub {
     my $param = params();
     my $error = Format->new( 

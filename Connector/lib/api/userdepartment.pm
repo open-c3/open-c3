@@ -7,6 +7,12 @@ use api;
 use uuid;
 use Format;
 
+=pod
+
+管理/部门/获取用户和部门的关系表
+
+=cut
+
 get '/userdepartment' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
     my $pmscheck = api::pmscheck( 'openc3_connector_root' ); return $pmscheck if $pmscheck;
@@ -16,6 +22,12 @@ get '/userdepartment' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $department };
 };
+
+=pod
+
+管理/部门/绑定用户和部门的关系
+
+=cut
 
 post '/userdepartment' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
@@ -33,6 +45,12 @@ post '/userdepartment' => sub {
     eval{ $api::mysql->execute( "replace into openc3_connector_userdepartment (`user`,`department`,`edit_user`) values('$param->{user}','$param->{department}', '$ssouser')" ); };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, info => 'ok' };
 };
+
+=pod
+
+管理/部门/删除用户和部门的绑定关系
+
+=cut
 
 del '/userdepartment/:id' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;

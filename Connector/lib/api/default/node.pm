@@ -9,13 +9,12 @@ use api;
 use Format;
 use Util;
 
-#name
-#inip
-#exip
-#create_user
-#edit_user
-#create_time_start
-#create_time_end
+=pod
+
+系统内置/服务树资源/获取服务树下资源列表
+
+=cut
+
 get '/default/node/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -58,6 +57,12 @@ get '/default/node/:projectid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r || [] };
 };
 
+=pod
+
+系统内置/服务树资源/添加资源
+
+=cut
+
 post '/default/node/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -91,6 +96,12 @@ post '/default/node/:projectid' => sub {
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
 };
 
+=pod
+
+系统内置/服务树资源/删除资源
+
+=cut
+
 del '/default/node/:projectid/:id' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -114,6 +125,15 @@ del '/default/node/:projectid/:id' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
 };
+
+
+=pod
+
+系统内置/服务树资源/获取资源列表
+
+前端不要调用，该地址配置在连接器配置文件中用于获取资源
+
+=cut
 
 get '/default/node/api/:projectid' => sub {
     my $param = params();
