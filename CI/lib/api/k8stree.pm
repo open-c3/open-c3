@@ -9,6 +9,12 @@ use MIME::Base64;
 use api;
 use Format;
 
+=pod
+
+K8S/服务树绑定/获取绑定关系
+
+=cut
+
 get '/k8stree/:treeid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -29,6 +35,12 @@ get '/k8stree/:treeid' => sub {
     return +{ stat => $JSON::true, data => +{ human => \%r, auto => \%r2 } };
 };
 
+=pod
+
+K8S/服务树绑定/进行绑定
+
+=cut
+
 post '/k8stree/:treeid/:k8sid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -47,6 +59,12 @@ post '/k8stree/:treeid/:k8sid' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
+
+=pod
+
+K8S/服务树绑定/删除绑定
+
+=cut
 
 del '/k8stree/:treeid/:k8sid' => sub {
     my $param = params();

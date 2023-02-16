@@ -13,6 +13,12 @@ use api::c3mc;
 
 our %handle = %api::kubernetes::handle;
 
+=pod
+
+堡垒机/提供数据给堡垒机
+
+=cut
+
 get '/c3mc/jumpserver' => sub {
     my $pmscheck = api::pmscheck( 'openc3_ci_root' ); return $pmscheck if $pmscheck;
 

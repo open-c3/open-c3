@@ -9,6 +9,14 @@ use MIME::Base64;
 use api;
 use Format;
 
+=pod
+
+系统管理/网络监控
+
+监控代理的网络情况
+
+=cut
+
 get '/networkmonitor' => sub {
     my $pmscheck = api::pmscheck( 'openc3_ci_root' ); return $pmscheck if $pmscheck;
 

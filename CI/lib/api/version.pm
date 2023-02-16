@@ -18,6 +18,12 @@ BEGIN{
     $showcount = $x && $x =~ /^\d+$/ ? $x : 5;
 };
 
+=pod
+
+流水线/获取单个流水线的版本列表/简单列表
+
+=cut
+
 get '/v/:groupid/:projectid' => sub {
     my $param = params();
     my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
@@ -34,6 +40,12 @@ get '/v/:groupid/:projectid' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => , [map{$_->[0] }@$r] };
 };
+
+=pod
+
+流水线/获取单个流水线的版本列表/详细数据
+
+=cut
 
 get '/version/:groupid/:projectid' => sub {
     my $param = params();
@@ -56,6 +68,12 @@ get '/version/:groupid/:projectid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r ||[] };
 };
 
+=pod
+
+流水线/获取单个版本的详情
+
+=cut
+
 get '/versiondetail/:projectid/:version' => sub {
     my $param = params();
     my $error = Format->new(
@@ -77,6 +95,11 @@ get '/versiondetail/:projectid/:version' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => @$r ? $r->[0] : +{} };
 };
 
+=pod
+
+流水线/一次获取多个流水线下的版本信息
+
+=cut
 
 get '/versions' => sub {
     my $param = params();
@@ -100,6 +123,12 @@ get '/versions' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \%results};
 };
+
+=pod
+
+流水线/终止流水线下所有待运行的构建
+
+=cut
 
 put '/version/:groupid/:projectid/stop_project' => sub {
     my $param = params();
@@ -125,6 +154,12 @@ put '/version/:groupid/:projectid/stop_project' => sub {
 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
+
+=pod
+
+流水线/触发某个版本的构建
+
+=cut
 
 put '/version/:groupid/:projectid/:uuid/build' => sub {
     my $param = params();
@@ -156,6 +191,14 @@ put '/version/:groupid/:projectid/:uuid/build' => sub {
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
 
+=pod
+
+流水线/CI调用统计/调用类型
+
+按照调用类型进行统计
+
+=cut
+
 get '/version/:groupid/:projectid/count/calltype' => sub {
     my $param = params();
     my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
@@ -171,6 +214,14 @@ get '/version/:groupid/:projectid/count/calltype' => sub {
     map{$data{$_}||=0}qw( crontab webhook manmade );
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \%data };
 };
+
+=pod
+
+流水线/CI调用统计/任务状态
+
+按照任务状态进行统计
+
+=cut
 
 get '/version/:groupid/:projectid/count/status' => sub {
     my $param = params();
@@ -188,6 +239,13 @@ get '/version/:groupid/:projectid/count/status' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \%data };
 };
 
+=pod
+
+流水线/CI调用统计/运行时长
+
+按照运行时长进行统计
+
+=cut
 
 get '/version/:groupid/:projectid/analysis/runtime' => sub {
     my $param = params();
@@ -241,7 +299,13 @@ get '/version/:groupid/:projectid/analysis/runtime' => sub {
     return +{ stat => $JSON::true, data => \%data };
 };
 
+=pod
 
+流水线/CI调用统计/按天统计
+
+按照每天执行次数进行统计
+
+=cut
 
 get '/version/:groupid/:projectid/analysis/date' => sub {
     my $param = params();
@@ -267,6 +331,14 @@ get '/version/:groupid/:projectid/analysis/date' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@data };
 };
 
+=pod
+
+流水线/CI调用统计/最后几条
+
+默认显示最后10条
+
+=cut
+
 get '/version/:groupid/:projectid/analysis/last' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -288,6 +360,12 @@ get '/version/:groupid/:projectid/analysis/last' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+流水线/手动提交版本
+
+=cut
 
 post '/version/:groupid/:projectid/record' => sub {
     my $param = params();

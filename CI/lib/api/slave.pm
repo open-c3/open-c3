@@ -162,6 +162,14 @@ websocket_on_close sub
     delete $conn{$conn};
 };
 
+=pod
+
+流水线/CI/获取CI任务日志页
+
+HTML页面
+
+=cut
+
 get '/cilog/:uuid' => sub {
   my $uuid = params()->{uuid};
   my $ws_url = request->env->{HTTP_X_REAL_IP}
@@ -187,6 +195,12 @@ get '/cilog/:uuid' => sub {
   </html>
 END
 };
+
+=pod
+
+流水线/CI/停止CI任务
+
+=cut
 
 put '/killbuild/:uuid' => sub {
   my $uuid = params()->{uuid};
@@ -256,10 +270,22 @@ put '/killbuild/:uuid' => sub {
       : JSON::to_json( +{ stat => $JSON::false, info => "kill build fail"     } );
 };
 
+=pod
+
+系统内置/自监控
+
+=cut
+
 any '/mon' => sub {
      eval{ $mysql->query( "select count(*) from openc3_ci_keepalive" )};
      return $@ ? "ERR:$@" : "ok";
 };
+
+=pod
+
+系统内置/模块reload
+
+=cut
 
 any '/reload' => sub {
     my $token = `cat /etc/openc3.reload.token 2>/dev/null`; chomp $token;

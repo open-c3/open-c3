@@ -11,6 +11,12 @@ use Format;
 use uuid;
 use OPENC3::SysCtl;
 
+=pod
+
+管理/CI任务监视器/获取数据
+
+=cut
+
 get '/watcher' => sub {
     my $pmscheck = api::pmscheck( 'openc3_ci_root' ); return $pmscheck if $pmscheck;
 
@@ -51,6 +57,14 @@ get '/watcher' => sub {
             }
         };
 };
+
+=pod
+
+管理/CI任务监视器/插队
+
+任务排到队伍最前面
+
+=cut
 
 post '/watcher/jump/:uuid' => sub {
     my $param = params();

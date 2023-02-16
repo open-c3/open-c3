@@ -15,6 +15,12 @@ use api::kubernetes;
 our %handle = %api::kubernetes::handle;
 our $datapath = "/data/glusterfs/kerbunetes_backup";
 
+=pod
+
+K8S/备份/获取备份列表
+
+=cut
+
 get '/kubernetes/k8sbackup' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -42,6 +48,12 @@ $handle{showk8sbackup} = sub
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@data };
 };
 
+=pod
+
+K8S/备份/下载备份文件
+
+=cut
+
 get '/kubernetes/k8sbackup/download' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -68,6 +80,14 @@ get '/kubernetes/k8sbackup/download' => sub {
     return +{ stat => $JSON::true, data => $name };
 };
 
+=pod
+
+K8S/备份/下载备份文件/普通角色进行下载
+
+只下载我有权限的命名空间
+
+=cut
+
 get '/kubernetes/k8sbackup/download/mine' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -85,6 +105,12 @@ get '/kubernetes/k8sbackup/download/mine' => sub {
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( `$cmd`//'', $? );
 };
+
+=pod
+
+K8S/备份/触发一次备份任务
+
+=cut
 
 post '/kubernetes/k8sbackup' => sub {
     my $param = params();

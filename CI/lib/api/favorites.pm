@@ -9,6 +9,12 @@ use MIME::Base64;
 use api;
 use Format;
 
+=pod
+
+收藏夹/添加收藏
+
+=cut
+
 post '/favorites/:groupid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -31,6 +37,11 @@ post '/favorites/:groupid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
 
+=pod
+
+收藏夹/删除收藏
+
+=cut
 
 del '/favorites/:groupid' => sub {
     my $param = params();

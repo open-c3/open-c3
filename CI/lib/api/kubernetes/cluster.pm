@@ -12,6 +12,14 @@ use File::Temp;
 
 our %handle = %api::kubernetes::handle;
 
+=pod
+
+K8S/集群/集群的链接测试/通过配置进行测试
+
+测试一下集群是不是可用的, 测试的网络权限等
+
+=cut
+
 post '/kubernetes/cluster/connectiontest' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -38,6 +46,14 @@ post '/kubernetes/cluster/connectiontest' => sub {
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
 };
+
+=pod
+
+K8S/集群/集群的链接测试/指定测试已经存在的集群
+
+测试一下集群是不是可用的, 测试的网络权限等
+
+=cut
 
 post '/kubernetes/cluster/connectiontest/:ticketid' => sub {
     my $param = params();

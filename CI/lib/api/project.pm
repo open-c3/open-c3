@@ -9,6 +9,14 @@ use MIME::Base64;
 use api;
 use Format;
 
+=pod
+
+K8S/流水线/获取K8S集群关联的流水线
+
+在K8S管理页面中，显示应用在哪些流水线中被使用了。
+
+=cut
+
 get '/project/kubernetes/:ticketid' => sub {
     my $param = params();
     my $error = Format->new( ticketid => qr/^\d+$/, 1 )->check( %$param );
@@ -37,6 +45,12 @@ get '/project/kubernetes/:ticketid' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \%r };
 };
+
+=pod
+
+流水线/获取单个流水线CI配置详情
+
+=cut
 
 get '/project/:groupid/:projectid' => sub {
     my $param = params();
@@ -79,6 +93,12 @@ get '/project/:groupid/:projectid' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $data  };
 };
+
+=pod
+
+流水线/编辑CI配置
+
+=cut
 
 post '/project/:groupid/:projectid' => sub {
     my $param = params();
@@ -174,6 +194,12 @@ post '/project/:groupid/:projectid' => sub {
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
 
+=pod
+
+流水线/删除CI配置
+
+=cut
+
 del '/project/:groupid/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -201,6 +227,12 @@ del '/project/:groupid/:projectid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
 };
 
+=pod
+
+流水线/流水线改名
+
+=cut
+
 post '/project/:groupid/:projectid/rename' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -227,6 +259,12 @@ post '/project/:groupid/:projectid/rename' => sub {
 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
+
+=pod
+
+流水线/触发一次找tag操作
+
+=cut
 
 put '/project/:groupid/:projectid/findtags_at_once' => sub {
     my $param = params();

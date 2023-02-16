@@ -13,6 +13,12 @@ use api::kubernetes;
 
 our %handle = %api::kubernetes::handle;
 
+=pod
+
+K8S/获取daemonset列表
+
+=cut
+
 get '/kubernetes/daemonset' => sub {
     my $param = params();
     my $error = Format->new( 
