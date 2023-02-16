@@ -14,6 +14,12 @@ use api::kubernetes;
 
 our %handle = %api::kubernetes::handle;
 
+=pod
+
+K8S/harbor/获取harbor中仓库列表
+
+=cut
+
 get '/kubernetes/harbor/repository' => sub {
     my $param = params();
     my $error = Format->new( 

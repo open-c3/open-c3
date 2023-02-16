@@ -13,6 +13,12 @@ use api::kubernetes;
 
 our %handle = %api::kubernetes::handle;
 
+=pod
+
+K8S/secret/获取列表
+
+=cut
+
 get '/kubernetes/secret' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -62,6 +68,12 @@ $handle{getsecret} = sub
 
     return +{ stat => $JSON::true, data => \@r, };
 };
+
+=pod
+
+K8S/secret/创建dockerconfigjson
+
+=cut
 
 post '/kubernetes/secret/dockerconfigjson' => sub {
     my $param = params();

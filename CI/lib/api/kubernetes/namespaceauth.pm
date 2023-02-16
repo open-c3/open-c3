@@ -9,6 +9,12 @@ use MIME::Base64;
 use api;
 use Format;
 
+=pod
+
+K8S/按照命名空间授权/获取已授权的列表
+
+=cut
+
 get '/kubernetes/namespaceauth/:ticketid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -35,6 +41,12 @@ get '/kubernetes/namespaceauth/:ticketid' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
     return +{ stat => $JSON::true,  data => $r };
 };
+
+=pod
+
+K8S/按照命名空间授权/添加一个授权
+
+=cut
 
 post '/kubernetes/namespaceauth/:ticketid' => sub {
     my $param = params();
@@ -68,6 +80,12 @@ post '/kubernetes/namespaceauth/:ticketid' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
+
+=pod
+
+K8S/按照命名空间授权/删除一个授权
+
+=cut
 
 del '/kubernetes/namespaceauth/:ticketid/:id' => sub {
     my $param = params();

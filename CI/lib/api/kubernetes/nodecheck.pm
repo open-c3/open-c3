@@ -13,6 +13,18 @@ use api::kubernetes;
 
 our %handle = %api::kubernetes::handle;
 
+=pod
+
+节点管理/主机节点健康检查
+
+检查一个节点是否能连上或者是否能同步文件。
+
+注: 该接口不应该放到kubernetes的url下，临时借用的v2版本的接口特性。
+
+可以迁移到c3mc接口中。
+
+=cut
+
 get '/kubernetes/nodecheck' => sub {
     my $param = params();
     my $error = Format->new( 

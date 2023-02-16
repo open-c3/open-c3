@@ -13,6 +13,12 @@ use api::kubernetes;
 
 our %handle = %api::kubernetes::handle;
 
+=pod
+
+K8S/HPA/获取集群HPA列表
+
+=cut
+
 get '/kubernetes/hpa' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -66,6 +72,12 @@ $handle{gethpa} = sub
         data => \%r
     };
 };
+
+=pod
+
+K8S/HPA/创建
+
+=cut
 
 post '/kubernetes/hpa/create' => sub {
     my $param = params();

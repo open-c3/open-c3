@@ -10,6 +10,12 @@ use Format;
 use File::Basename;
 use Time::Local;
 
+=pod
+
+报告/监控报告/获取报告详情
+
+=cut
+
 get '/monreport/:groupid/report' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -105,6 +111,12 @@ get '/monreport/:groupid/report' => sub {
 
     return +{ stat => $JSON::true, data => \%re };
 };
+
+=pod
+
+报告/监控报告/获取数据列表
+
+=cut
 
 get '/monreport/:groupid/datalist' => sub {
     my $param = params();

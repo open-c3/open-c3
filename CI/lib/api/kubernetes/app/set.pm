@@ -14,6 +14,14 @@ use api::kubernetes;
 
 our %handle = %api::kubernetes::handle;
 
+=pod
+
+K8S/修改镜像地址
+
+对应K8S中的set image命令
+
+=cut
+
 post '/kubernetes/app/set/image' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -42,6 +50,12 @@ post '/kubernetes/app/set/image' => sub {
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( `$cmd`//'', $? ); 
 };
+
+=pod
+
+K8S/调整福本数
+
+=cut
 
 post '/kubernetes/app/set/replicas' => sub {
     my $param = params();

@@ -13,6 +13,12 @@ BEGIN{
     die "/etc/ci.exip nofind" unless $exip;
 };
 
+=pod
+
+CI/进入构建调试的shell中
+
+=cut
+
 any '/dockershell' => sub {
     my $param = params();
     my ( $image, $projectid, $tag, $siteaddr ) = @$param{qw( image projectid tag siteaddr )};

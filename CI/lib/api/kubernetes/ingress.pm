@@ -14,6 +14,12 @@ use api::kubernetes;
 
 our %handle = %api::kubernetes::handle;
 
+=pod
+
+K8S/ingress/获取集群ingress列表
+
+=cut
+
 get '/kubernetes/ingress' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -80,6 +86,12 @@ $handle{getingress} = sub
 
     return +{ stat => $JSON::true, data => \@r, };
 };
+
+=pod
+
+K8S/ingress/获取用户所有集群的ingress表格信息
+
+=cut
 
 get '/kubernetes/app/ingress/dump' => sub {
     my $pmscheck = api::pmscheck( 'openc3_ci_read', 0 ); return $pmscheck if $pmscheck;

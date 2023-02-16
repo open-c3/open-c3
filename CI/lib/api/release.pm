@@ -8,6 +8,12 @@ use MIME::Base64;
 use api;
 use Format;
 
+=pod
+
+系统内置/判断服务树是否能释放/CI相关
+
+=cut
+
 get '/release' => sub {
     my $param = params();
     my $error = Format->new( 

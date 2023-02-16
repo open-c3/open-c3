@@ -13,6 +13,12 @@ use api::kubernetes;
 
 our %handle = %api::kubernetes::handle;
 
+=pod
+
+K8S/service/获取列表
+
+=cut
+
 get '/kubernetes/service' => sub {
     my $param = params();
     my $error = Format->new( 

@@ -5,6 +5,12 @@ use Util;
 use JSON qw();
 use Encode;
 
+=pod
+
+K8S/数据/获取模版内容
+
+=cut
+
 get '/kubernetes/data/template/:name' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -17,6 +23,14 @@ get '/kubernetes/data/template/:name' => sub {
     my $data = eval{JSON::decode_json $jsonstring};
     return $@ ? +{ stat => JSON::false, info => $@ } : +{ stat => JSON::true, data => $data };
 };
+
+=pod
+
+K8S/数据/json转yaml
+
+注: 必须通过这个来进行转换，直接在前端转换可能会有差异
+
+=cut
 
 any '/kubernetes/data/json2yaml' => sub {
     my $param = params();
@@ -39,6 +53,14 @@ any '/kubernetes/data/json2yaml' => sub {
 
     return $? ? +{ stat => JSON::false, info => "json2yaml fail" } : +{ stat => JSON::true, data => $data };
 };
+
+=pod
+
+K8S/数据/json转yaml/perl的现实方式
+
+注: 旧的方式，后续可能会删除，尽量不要使用。
+
+=cut
 
 any '/kubernetes/data/json2yaml/perl' => sub {
     my $param = params();
@@ -63,6 +85,14 @@ any '/kubernetes/data/json2yaml/perl' => sub {
     return $@ ? +{ stat => JSON::false, info => $@ } : +{ stat => JSON::true, data => $data};
 };
 
+=pod
+
+K8S/数据/yaml转json
+
+注: 必须通过这个来进行转换，直接在前端转换可能会有差异
+
+=cut
+
 any '/kubernetes/data/yaml2json' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -84,6 +114,14 @@ any '/kubernetes/data/yaml2json' => sub {
 
     return ( ref $data ne 'HASH' ) ? +{ stat => JSON::false, info => "data no hash" } : +{ stat => JSON::true, data => $data };
 };
+
+=pod
+
+K8S/数据/yaml转json/perl的现实方式
+
+注: 旧的方式，后续可能会删除，尽量不要使用。
+
+=cut
 
 any '/kubernetes/data/yaml2json/perl' => sub {
     my $param = params();

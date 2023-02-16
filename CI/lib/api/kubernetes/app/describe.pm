@@ -14,6 +14,14 @@ use api::kubernetes;
 
 our %handle = %api::kubernetes::handle;
 
+=pod
+
+K8S/获取应用的describe信息
+
+对应K8S中的describe命令
+
+=cut
+
 get '/kubernetes/app/describe' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -42,6 +50,14 @@ get '/kubernetes/app/describe' => sub {
 
     return &{$handle{$handle}}( `$cmd`//'', $? ); 
 };
+
+=pod
+
+K8S/获取应用的describe信息/针对deployment
+
+对deployment的describe进行特殊处理，返回更多的信息
+
+=cut
 
 get '/kubernetes/app/describe/deployment' => sub {
     my $param = params();
@@ -80,6 +96,14 @@ $handle{getdescribedeployment} = sub
     return +{ stat => $JSON::true, data => $data };
 };
 
+=pod
+
+K8S/获取应用的describe信息/针对ingress
+
+对ingress的describe进行特殊处理，返回更多的信息
+
+=cut
+
 get '/kubernetes/app/describe/ingress' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -117,6 +141,14 @@ $handle{getdescribeingress} = sub
     return +{ stat => $JSON::true, data => $data };
 };
 
+=pod
+
+K8S/获取应用的describe信息/针对service
+
+对service的describe进行特殊处理，返回更多的信息
+
+=cut
+
 get '/kubernetes/app/describe/service' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -153,6 +185,12 @@ $handle{getdescribeservice} = sub
 
     return +{ stat => $JSON::true, data => $data };
 };
+
+=pod
+
+ECS/获取ECS的描述信息
+
+=cut
 
 any '/kubernetes/app/describe/ecs' => sub {
     my $param = params();

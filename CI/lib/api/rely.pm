@@ -9,6 +9,12 @@ use MIME::Base64;
 use api;
 use Format;
 
+=pod
+
+流水线/代码依赖/获取依赖列表
+
+=cut
+
 get '/rely/:projectid' => sub {
     my $param = params();
     my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
@@ -43,6 +49,12 @@ get '/rely/:projectid' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r ||[]  };
 };
+
+=pod
+
+流水线/代码依赖/添加依赖配置
+
+=cut
 
 post '/rely/:projectid' => sub {
     my $param = params();
@@ -81,6 +93,12 @@ post '/rely/:projectid' => sub {
 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
+
+=pod
+
+流水线/代码依赖/删除依赖
+
+=cut
 
 del '/rely/:projectid/:relyid' => sub {
     my $param = params();
