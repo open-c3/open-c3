@@ -22,7 +22,12 @@ BEGIN {
     chomp $ssocookie;
 };
 
-#获取服务树节点资源列表
+=pod
+
+连接器/获取服务树节点资源列表
+
+=cut
+
 get '/connectorx/nodeinfo/:projectid' => sub {
     my $param = params();
     my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
@@ -36,7 +41,12 @@ get '/connectorx/nodeinfo/:projectid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@node };
 };
 
-#获取用户服务树
+=pod
+
+连接器/获取用户服务树
+
+=cut
+
 get '/connectorx/usertree' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
 
@@ -66,6 +76,12 @@ sub tree2map
     return %map;
 }
 
+=pod
+
+连接器/获取用户服务树/map格式
+
+=cut
+
 get '/connectorx/usertree/treemap' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
 
@@ -74,8 +90,12 @@ get '/connectorx/usertree/treemap' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } :  +{ stat => $JSON::true, data => \%map };
 };
 
+=pod
 
-#获取全量服务树map
+连接器/获取全量服务树map
+
+=cut
+
 get '/connectorx/treemap' => sub {
     my ( $user )= eval{ $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) ) };
     return( +{ stat => $JSON::false, info => "sso code error:$@" } ) if $@;
@@ -85,7 +105,12 @@ get '/connectorx/treemap' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } :  +{ stat => $JSON::true, data => $tree };
 };
 
-#内部权限对接: point/treeid/cookie
+=pod
+
+连接器/内部权限对接
+
+=cut
+
 get '/connectorx/point' => sub {
     my $param = params();
     my $error = Format->new(
@@ -99,7 +124,12 @@ get '/connectorx/point' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } :  +{ stat => $JSON::true, data => $stat };
 };
 
-# 内部连接器查询用户名称
+=pod
+
+连接器/内部连接器查询用户名称
+
+=cut
+
 get '/connectorx/username' => sub {
     #cookie appname appkey
     my $param = params();
@@ -109,12 +139,24 @@ get '/connectorx/username' => sub {
     return( +{ stat => $JSON::true, data => +{ user  => $user, company => $company } } );
 };
 
-#cookie的key名称
+=pod
+
+连接器/获取cookie的key名称
+
+=cut
+
 get '/connectorx/cookiekey' => sub {
     return +{ stat => $JSON::true, data => $api::cookiekey };
 };
 
-#获取用户信息，前端使用
+=pod
+
+连接器/获取用户信息
+
+前端使用
+
+=cut
+
 get '/connectorx/sso/userinfo' => sub {
     my $co = cookie( $api::cookiekey );
     $co = request->headers->{token} if ( !$co ) && request->headers->{token};
@@ -134,7 +176,14 @@ get '/connectorx/sso/userinfo' => sub {
     return +{ name => uc( $name ), email => $user, company => $company, admin => $admin, showconnector => $showconnector };
 };
 
-#给审批插件用
+=pod
+
+连接器/获取用户信息
+
+给审批插件用
+
+=cut
+
 get '/connectorx/approve/sso/userinfo' => sub {
     my ( $user, $company, $admin, $showconnector )= eval{ $api::approvesso->run( cookie => cookie( $api::cookiekey ) ) };
     return( +{ stat => $JSON::false, info => "sso code error:$@" } ) if $@;
@@ -144,7 +193,15 @@ get '/connectorx/approve/sso/userinfo' => sub {
 
     return +{ name => uc( $name ), email => $user, company => $company, admin => $admin, showconnector => $showconnector };
 };
-#  给审批插件用 内部连接器查询用户名称
+
+=pod
+
+连接器/查询用户名称
+
+给审批插件用
+
+=cut
+
 get '/connectorx/approve/username' => sub {
     #cookie appname appkey
     my $param = params();
@@ -154,6 +211,14 @@ get '/connectorx/approve/username' => sub {
     return( +{ stat => $JSON::true, data => +{ user  => $user, company => $company } } );
 };
 
+=pod
+
+连接器/用户登出
+
+给审批插件用
+
+=cut
+
 any '/connectorx/approve/ssologout' => sub {
     my $param = params();
     my $redirect = eval{ $api::approvessologout->run( cookie => cookie( $api::cookiekey ) ) };
@@ -162,7 +227,12 @@ any '/connectorx/approve/ssologout' => sub {
     return +{ stat => $JSON::true, info => 'ok', data => '/#/login' };
 };
 
-#前端跳转登录
+=pod
+
+连接器/前端跳转登录
+
+=cut
+
 any '/connectorx/sso/loginredirect' => sub {
     my $param = params();
     my $ssocallback = $api::ssoconfig->{ssocallback};
@@ -176,7 +246,12 @@ any '/connectorx/sso/loginredirect' => sub {
     redirect $ssocallback . ( $param->{callback} || '' );
 };
 
-#前端跳转修改密码
+=pod
+
+连接器/前端跳转修改密码
+
+=cut
+
 any '/connectorx/sso/chpasswdredirect' => sub {
     my $param = params();
     my $ssochpasswd = $api::ssoconfig->{ssochpasswd};
@@ -186,6 +261,12 @@ any '/connectorx/sso/chpasswdredirect' => sub {
     }
     redirect $ssochpasswd;
 };
+
+=pod
+
+连接器/登出
+
+=cut
 
 any '/connectorx/ssologout' => sub {
     my $param = params();
@@ -207,7 +288,19 @@ any '/connectorx/ssologout' => sub {
     return +{ stat => $JSON::false, info => "sso code error:$@" } if $@;
     return +{ stat => $JSON::true, info => 'ok', data => $redirect };
 };
-#
+
+=pod
+
+连接器/消息通知
+
+通过这个接口发送消息通知。
+
+其它模块要发送邮件短信等消息，通过这个接口进行统一处理。
+
+该接口会把消息发送到连接器配置中的出口。
+
+=cut
+
 any '/connectorx/notify' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
 
@@ -243,6 +336,16 @@ any '/connectorx/notify' => sub {
     return @error ? +{ stat => $JSON::false, info => sprintf "Err: %s", join ';', @error  } : +{ stat => $JSON::true, info => 'ok' };
 };
 
+=pod
+
+连接器/发起审批
+
+外部审批接口, 审批发起到该接口。
+
+接口会把请求打到外部审批接口。
+
+=cut
+
 post '/connectorx/approval' => sub {
     my $param = params();
     my $error = Format->new(
@@ -257,6 +360,12 @@ post '/connectorx/approval' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $uuid };
 };
 
+=pod
+
+连接器/获取审批状态
+
+=cut
+
 get '/connectorx/approval' => sub {
     my $param = params();
     my $error = Format->new(
@@ -269,6 +378,12 @@ get '/connectorx/approval' => sub {
     
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $data };
 };
+
+=pod
+
+连接器/审计日志/添加
+
+=cut
 
 post '/connectorx/auditlog' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
@@ -286,6 +401,12 @@ post '/connectorx/auditlog' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => "run auditlog fail:$@"  } : +{ stat => $JSON::true, info => 'ok' };
 };
+
+=pod
+
+连接器/审计日志/获取
+
+=cut
 
 get '/connectorx/auditlog' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
@@ -311,6 +432,12 @@ get '/connectorx/auditlog' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $mesg };
 };
+
+=pod
+
+连接器/设置cookie
+
+=cut
 
 any '/connectorx/setcookie' => sub {
     my $param = params();

@@ -12,6 +12,12 @@ use Format;
 use Digest::MD5;
 use point;
 
+=pod
+
+权限/获取用户角色列表
+
+=cut
+
 any '/default/auth/userauth' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
     my $pmscheck = api::pmscheck( 'openc3_connector_root' ); return $pmscheck if $pmscheck;
@@ -19,6 +25,12 @@ any '/default/auth/userauth' => sub {
     my $user = eval{ $api::mysql->query( "select name,level from `openc3_connector_userauth`", [ 'name', 'level' ] ) };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $user };
 };
+
+=pod
+
+权限/删除权限
+
+=cut
 
 del '/default/auth/delauth' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
@@ -36,6 +48,12 @@ del '/default/auth/delauth' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
 
+=pod
+
+权限/添加权限
+
+=cut
+
 post '/default/auth/addauth' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
     my $pmscheck = api::pmscheck( 'openc3_connector_root' ); return $pmscheck if $pmscheck;
@@ -52,6 +70,20 @@ post '/default/auth/addauth' => sub {
     eval{ $api::mysql->execute( "replace into openc3_connector_userauth (`name`,`level`) values( '$param->{user}', '$param->{level}')" ); };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
+
+=pod
+
+权限/通过权限点检查用户权限
+
+该接口是系统内置的权限系统权限验证的接口。
+
+如果C3启动使用的内置的权限系统，使用的就是该接口。
+
+其它位置不要主动的调用它，/connectorx/point 接口会找到它进行调用。
+
+属于后端模块使用的接口。
+
+=cut
 
 get '/default/auth/point' => sub {
     my $param = params();

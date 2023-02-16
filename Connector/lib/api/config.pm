@@ -13,6 +13,12 @@ use FindBin qw( $RealBin );
 use File::Basename;
 use POSIX;
 
+=pod
+
+连接器配置/获取配置内容
+
+=cut
+
 get '/config' => sub {
     my $param = params();
     my $error = Format->new(
@@ -30,6 +36,14 @@ get '/config' => sub {
     return +{ stat => $JSON::true, data => $config };
 
 };
+
+=pod
+
+连接器配置/修改配置
+
+注: 配置修改后系统会自动reload
+
+=cut
 
 post '/config' => sub {
     my $param = params();
@@ -130,6 +144,12 @@ post '/config' => sub {
 
     return +{ stat => $JSON::true, info => 'ok' };
 };
+
+=pod
+
+连接器配置/获取历史版本列表
+
+=cut
 
 get '/config/list' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;

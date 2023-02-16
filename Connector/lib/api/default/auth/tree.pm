@@ -12,6 +12,12 @@ use Format;
 use Digest::MD5;
 use point;
 
+=pod
+
+系统内置/用户服务树权限/获取列表
+
+=cut
+
 any '/default/auth/tree/userauth' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
     my $pmscheck = api::pmscheck( 'openc3_connector_root' ); return $pmscheck if $pmscheck;
@@ -30,6 +36,12 @@ any '/default/auth/tree/userauth' => sub {
       : +{ stat => $JSON::true,  data => [ map{ +{ %$_, treename => $treemap{ $_->{tree} } } } @$user ] };
 };
 
+=pod
+
+系统内置/用户服务树权限/删除权限
+
+=cut
+
 del '/default/auth/tree/delauth' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
     my $pmscheck = api::pmscheck( 'openc3_connector_root' ); return $pmscheck if $pmscheck;
@@ -45,6 +57,12 @@ del '/default/auth/tree/delauth' => sub {
     eval{ $api::mysql->execute( "delete from openc3_connector_userauthtree where id='$param->{id}'" ); };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
+
+=pod
+
+系统内置/用户服务树权限/添加权限
+
+=cut
 
 post '/default/auth/tree/addauth' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;

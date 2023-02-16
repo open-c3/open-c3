@@ -15,6 +15,12 @@ BEGIN{
     $desensitized = OPENC3::SysCtl->new()->get( 'sys.userinfo.desensitized' );
 };
 
+=pod
+
+管理/地址簿/获取地址簿列表
+
+=cut
+
 get '/useraddr' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
     my $pmscheck = api::pmscheck( 'openc3_connector_root' ); return $pmscheck if $pmscheck;
@@ -32,6 +38,12 @@ get '/useraddr' => sub {
     }
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $addr };
 };
+
+=pod
+
+管理/地址簿/提交新地址簿
+
+=cut
 
 post '/useraddr' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
@@ -54,6 +66,12 @@ post '/useraddr' => sub {
     eval{ $api::mysql->execute( "replace into openc3_connector_useraddr (`user`,`email`,`phone`,`voicemail`,`edit_user`) values('$param->{user}','$param->{email}','$param->{phone}','$param->{voicemail}', '$ssouser')" ); };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, info => 'ok' };
 };
+
+=pod
+
+管理/地址簿/删除地址簿
+
+=cut
 
 del '/useraddr/:id' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
