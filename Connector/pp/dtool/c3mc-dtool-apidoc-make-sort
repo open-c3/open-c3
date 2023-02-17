@@ -1,0 +1,3 @@
+#!/bin/bash
+
+c3mc-dtool-apidoc-make |grep '^## '|grep /|awk '{print $2}' |awk -F'/' '{print $1}'|sort|uniq|xargs -i{} c3mc-dtool-apidoc-make {}

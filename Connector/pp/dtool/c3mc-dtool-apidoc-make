@@ -6,10 +6,11 @@ $|++;
 
 =head1 SYNOPSIS
 
- $0
+ $0 grep
 
 =cut
 
+my $argv = @ARGV ? "'$ARGV[0]'" : "";
 
 my @x = `find /data/Software/mydan/*/lib/api -name *.pm`;
 chomp @x;
@@ -17,7 +18,7 @@ chomp @x;
 my %data;
 for my $x ( @x )
 {
-    my @cont = `c3mc-dtool-apidoc-make-onece '$x'`;
+    my @cont = `c3mc-dtool-apidoc-make-onece '$x' $argv`;
     die "task error: $!" if $?;
     chomp @cont;
 
@@ -27,6 +28,6 @@ for my $x ( @x )
     push @{$data{$title}}, @cont;
 }
 
-print "# 系统/接口文档\n\n";
+#print "# 系统/接口文档\n\n";
 
 map{  map{ print "$_\n" }@{$data{$_}}; }sort keys %data;

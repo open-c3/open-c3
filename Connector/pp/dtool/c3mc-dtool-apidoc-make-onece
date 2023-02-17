@@ -10,7 +10,7 @@ $|++;
 
 =cut
 
-my ( $file ) = @ARGV;
+my ( $file, $grep ) = @ARGV;
 die "nofile" unless $file && -f $file;
 
 my $prefix = $file =~ m#/([a-zA-Z\d+]+)/lib/api/# ? sprintf( "http://127.0.0.1/api/%s", lc $1 ) : '';
@@ -123,10 +123,13 @@ map{ $param{$_} = findparam( $idx{$_} -1, $to{$_} -1 ) }keys %idx;
 
 for my $api ( sort{ $idx{$a} <=> $idx{$b} }keys %idx )
 {
+    my $rapi = $api;
+    $rapi =~ s/'\//$prefix\//;
+
     my @cont = @{$pod{$api}};
     unless( @cont )
     {
-        warn "[Warn]: $api nofind pod\n";
+        warn "[Warn]: $rapi nofind pod\n";
         next;
     }
 
@@ -134,10 +137,11 @@ for my $api ( sort{ $idx{$a} <=> $idx{$b} }keys %idx )
        $title = shift @cont unless $title;
 
     $title =~ s/\s*//g;
+
+    next if $grep && $title !~ /^$grep\//;
+
     print "## $title\n";
 
-    my $rapi = $api;
-    $rapi =~ s/'\//$prefix\//;
     print "```\n";
     map{ print "$_\n"; } "API: $rapi", @cont;
 
@@ -146,5 +150,5 @@ for my $api ( sort{ $idx{$a} <=> $idx{$b} }keys %idx )
         print "\nParam:\n";
         map{ print "$_\n" }@{$param{$api}};
     }
-    print "\n```\n\n";
+    print "```\n\n";
 }
