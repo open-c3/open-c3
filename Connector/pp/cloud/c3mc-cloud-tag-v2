@@ -26,16 +26,22 @@ class HandleTag:
         department_env_value_list = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.Department").lower().split(",")[::-1]
         name_env_value_list = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.Name").lower().split(",")[::-1]
 
-        pre_names = []
-        for item in product_owner_env_vlaue_list:
-            pre_names.append({"pre_name": item, "pre_value": "_product_owner_"})
-        for item in ops_owner_env_value_list:
-            pre_names.append({"pre_name": item, "pre_value": "_ops_owner_"})
-        for item in department_env_value_list:
-            pre_names.append({"pre_name": item, "pre_value": "_department_"})
-        for item in name_env_value_list:
-            pre_names.append({"pre_name": item, "pre_value": "_name_"})
-        
+        pre_names = [
+            {"pre_name": item, "pre_value": "_product_owner_"}
+            for item in product_owner_env_vlaue_list
+        ]
+        pre_names.extend(
+            {"pre_name": item, "pre_value": "_ops_owner_"}
+            for item in ops_owner_env_value_list
+        )
+        pre_names.extend(
+            {"pre_name": item, "pre_value": "_department_"}
+            for item in department_env_value_list
+        )
+        pre_names.extend(
+            {"pre_name": item, "pre_value": "_name_"}
+            for item in name_env_value_list
+        )
         return pre_names
 
     def helper(self):
@@ -75,15 +81,14 @@ class HandleTag:
             self.data_list[i]["tag"] = tmp_tag_dict
 
             # 保存字符串形式的标签列表
-            tags_str = ""
-            for key, value in tmp_tag_dict.items():
-                tags_str += "{}:{}, ".format(key, value)
+            tags_str = "".join(f"{key}:{value}, " for key, value in tmp_tag_dict.items())
+
             # 去掉末尾的逗号和空格
             tags_str = tags_str[: -2]
             self.data_list[i]["tags"] = tags_str
 
             # 删除旧的标签字段
-            if self.tag_field != "tag" and self.tag_field != "tags":
+            if self.tag_field not in ["tag", "tags"]:
                 del self.data_list[i][self.tag_field]
         return
     
@@ -129,10 +134,7 @@ if __name__ == '__main__':
     调用命令: c3mc-cloud-tag --tag-field xxx --key-field key --value-field value
     """
 
-    data_list = []
-    for line in sys.stdin:
-        data_list.append(json.loads(line))
-
+    data_list = [json.loads(line) for line in sys.stdin]
     parser = argparse.ArgumentParser(description="重构标签字段")
     parser.add_argument('--tagfield', type=str, required=False, help='标签字段名')
 
