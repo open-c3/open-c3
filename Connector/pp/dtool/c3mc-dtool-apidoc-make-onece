@@ -150,5 +150,14 @@ for my $api ( sort{ $idx{$a} <=> $idx{$b} }keys %idx )
         print "\nParam:\n";
         map{ print "$_\n" }@{$param{$api}};
     }
-    print "```\n\n";
+    print "```\n";
+
+    if( $ENV{C3GITBASEURL} )
+    {
+        my $uri = $file;
+        next unless $uri =~ s#.*/([a-zA-Z]+)/lib/api/#$1/lib/api/#;
+        print "[编辑]($ENV{C3GITBASEURL}/$uri)\n";
+    }
+
+    print "\n";
 }
