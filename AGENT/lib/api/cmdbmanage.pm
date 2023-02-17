@@ -8,11 +8,23 @@ use POSIX;
 use api;
 use Format;
 
+=pod
+
+CMDB/管理/获取账号类型列表
+
+=cut
+
 get '/cmdbmanage' => sub {
     my $pmscheck = api::pmscheck( 'openc3_agent_root' ); return $pmscheck if $pmscheck;
     my $conf = eval{ YAML::XS::LoadFile "/data/Software/mydan/AGENT/device/conf/cmdbmanage.yml" };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $conf };
 };
+
+=pod
+
+CMDB/管理/获取某个公有云的配置
+
+=cut
 
 get '/cmdbmanage/:name' => sub {
     my $param = params();
@@ -31,6 +43,13 @@ get '/cmdbmanage/:name' => sub {
     utf8::decode($x);
     return +{ stat => $JSON::true, data => +{ config => $x } };
 };
+
+
+=pod
+
+CMDB/管理/编辑某个公有云的配置
+
+=cut
 
 post '/cmdbmanage' => sub {
     my $param = params();

@@ -9,13 +9,12 @@ use api;
 use Format;
 use Util;
 
-#name
-#inip
-#exip
-#create_user
-#edit_user
-#create_time_start
-#create_time_end
+=pod
+
+机器管理/获取列表
+
+=cut
+
 get '/nodelist/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -64,6 +63,14 @@ get '/nodelist/:projectid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r || []};
 };
 
+=pod
+
+机器管理/添加机器
+
+只有管理员可以操作
+
+=cut
+
 post '/nodelist/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -108,6 +115,12 @@ post '/nodelist/:projectid' => sub {
 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
 };
+
+=pod
+
+机器管理/删除机器
+
+=cut
 
 del '/nodelist/:projectid/:id' => sub {
     my $param = params();
