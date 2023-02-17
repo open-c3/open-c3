@@ -32,6 +32,12 @@ sub getnet
     return \%data;
 };
 
+=pod
+
+AGENT/代理/获取列表
+
+=cut
+
 get '/proxy/:projectid' => sub {
     my $param = params();
     my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
@@ -56,6 +62,12 @@ get '/proxy/:projectid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@data, info => "id:" . join ',', @id };
 };
 
+=pod
+
+AGENT/代理/获取详情
+
+=cut
+
 get '/proxy/:projectid/:regionid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -78,6 +90,11 @@ get '/proxy/:projectid/:regionid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
 
+=pod
+
+AGENT/代理/删除
+
+=cut
 
 del '/proxy/:projectid/:proxyid' => sub {
     my $param = params();
@@ -102,6 +119,12 @@ del '/proxy/:projectid/:proxyid' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+AGENT/代理/添加代理
+
+=cut
 
 post '/proxy/:projectid/:regionid' => sub {
     my $param = params();

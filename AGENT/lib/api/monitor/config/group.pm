@@ -8,6 +8,12 @@ use POSIX;
 use api;
 use Format;
 
+=pod
+
+监控系统/告警组/获取列表
+
+=cut
+
 get '/monitor/config/group' => sub {
     my $pmscheck = api::pmscheck( 'openc3_agent_read', 0 ); return $pmscheck if $pmscheck;
 
@@ -18,6 +24,12 @@ get '/monitor/config/group' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+监控系统/告警组/获取详情
+
+=cut
 
 get '/monitor/config/group/:id' => sub {
     my $param = params();
@@ -36,6 +48,12 @@ get '/monitor/config/group/:id' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r->[0] };
 };
+
+=pod
+
+监控系统/告警组/创建或编辑告警组
+
+=cut
 
 post '/monitor/config/group' => sub {
     my $param = params();
@@ -70,6 +88,12 @@ post '/monitor/config/group' => sub {
     };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
+
+=pod
+
+监控系统/告警组/删除告警组
+
+=cut
 
 del '/monitor/config/group/:id' => sub {
     my $param = params();

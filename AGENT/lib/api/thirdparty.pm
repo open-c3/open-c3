@@ -13,6 +13,17 @@ use POSIX;
 use Time::Local;
 use File::Temp;
 
+=pod
+
+其它工具/页面跳转
+
+C3会把其它第三方工具进行统一管理。
+
+工具的调整地址是配置系统参数中的，有的变量需要进行转换。
+需要调用该接口获取到准确的第三方工具地址。
+
+=cut
+
 get '/thirdparty/gotopage/:app/:page' => sub {
     my $param = params();
     my $error = Format->new(

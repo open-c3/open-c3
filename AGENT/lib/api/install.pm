@@ -11,6 +11,12 @@ use uuid;
 use Format;
 use keepalive;
 
+=pod
+
+AGENT/获取安装列表
+
+=cut
+
 get '/install/:projectid' => sub {
     my $param = params();
     my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
@@ -30,6 +36,11 @@ get '/install/:projectid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
 
+=pod
+
+AGENT/获取安装详情
+
+=cut
 
 get '/install/:projectid/:uuid' => sub {
     my $param = params();
@@ -52,7 +63,11 @@ get '/install/:projectid/:uuid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
 
+=pod
 
+AGENT/安装agent
+
+=cut
 
 post '/install/:projectid/:regionid' => sub {
     my $param = params();

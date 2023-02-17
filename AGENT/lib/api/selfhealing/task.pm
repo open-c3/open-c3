@@ -18,6 +18,12 @@ sub gettime
     return POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( $x + 8 * 3600) );
 }
 
+=pod
+
+故障自愈/获取自愈套餐
+
+=cut
+
 get '/selfhealing/task' => sub {
     my $param = params();
     my $pmscheck = api::pmscheck( 'openc3_agent_read', 0 ); return $pmscheck if $pmscheck;

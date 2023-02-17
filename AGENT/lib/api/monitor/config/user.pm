@@ -8,6 +8,12 @@ use POSIX;
 use api;
 use Format;
 
+=pod
+
+监控系统/告警接收人/获取列表
+
+=cut
+
 get '/monitor/config/user/:projectid' => sub {
     my $param = params();
     my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
@@ -26,6 +32,12 @@ get '/monitor/config/user/:projectid' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+监控系统/告警接收人/获取详情
+
+=cut
 
 get '/monitor/config/user/:projectid/:id' => sub {
     my $param = params();
@@ -47,6 +59,12 @@ get '/monitor/config/user/:projectid/:id' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r->[0] };
 };
+
+=pod
+
+监控系统/告警接收人/创建或编辑接收人
+
+=cut
 
 post '/monitor/config/user/:projectid' => sub {
     my $param = params();
@@ -80,6 +98,12 @@ post '/monitor/config/user/:projectid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
 
+=pod
+
+监控系统/告警接收人/删除接收人
+
+=cut
+
 del '/monitor/config/user/:projectid/:id' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -102,6 +126,16 @@ del '/monitor/config/user/:projectid/:id' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+监控系统/告警接收人/测试消息通道
+
+回给接收人发送消息，测试一下接收人是否可以正常收到告警消息。
+
+消息包括邮件、短信、电话。
+
+=cut
 
 post '/monitor/config/usertest' => sub {
     my $param = params();

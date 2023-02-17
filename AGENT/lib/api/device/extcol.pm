@@ -6,6 +6,12 @@ use JSON   qw();
 use POSIX;
 use api;
 
+=pod
+
+CMDB/编辑扩增字段
+
+=cut
+
 any '/device/extcol/:type/:subtype/:uuid/:name' => sub {
     my $param = params();
     my $error = Format->new(

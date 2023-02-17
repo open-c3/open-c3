@@ -9,6 +9,12 @@ use MIME::Base64;
 use api;
 use Format;
 
+=pod
+
+服务树/获取服务树继承关系
+
+=cut
+
 get '/inherit/:projectid' => sub {
     my $param = params();
     my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
