@@ -34,17 +34,23 @@ class IBMBareMetalServer():
             items = client['SoftLayer_Account'].getHardware(mask=mask,
                                                                     limit=limit,
                                                                     offset=offset)
-            for i in range(len(items)):
-                if self.vpc_name is not None:
-                    items[i]["vpcName"] = self.vpc_name
-                items[i]["tagList"] = self.extract_tag(items[i]["tagReferences"])
+            data = []
+            for item in items:
+                if "fullyQualifiedDomainName" not in item or item["fullyQualifiedDomainName"].strip() == "":
+                    continue
 
-                if 'operatingSystem' in items[i]:
-                    items[i]["os"] = "Windows" if items[i]['operatingSystem']['softwareLicense']['softwareDescription']['name'].lower().find("window") != -1 else "Linux"
+                if self.vpc_name is not None:
+                    item["vpcName"] = self.vpc_name
+                item["tagList"] = self.extract_tag(item["tagReferences"])
+
+                if 'operatingSystem' in item:
+                    item["os"] = "Windows" if item['operatingSystem']['softwareLicense']['softwareDescription']['name'].lower().find("window") != -1 else "Linux"
                 else:
-                    items[i]["os"] = "Other"
-                items[i]["fullyHostName"] = items[i]["fullyQualifiedDomainName"]
-            server_list.extend(items)
+                    item["os"] = "Other"
+                item["fullyHostName"] = item["fullyQualifiedDomainName"]
+                data.append(item)
+
+            server_list.extend(data)
 
             if len(items) > 0:
                 offset += limit
