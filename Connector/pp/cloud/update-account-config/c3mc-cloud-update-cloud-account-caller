@@ -16,7 +16,7 @@ def update_accounts():
     for cloud in ["aliyun", "aws", "google", "huawei", "ksyun", "qcloud"]:
         filepath = f'/data/Software/mydan/AGENT/device/conf/accountx/{cloud}x'
 
-        if time.time() - os.path.getmtime(filepath) < 90:
+        if time.time() - os.path.getmtime(filepath) < 600:
             os.system('/usr/bin/c3mc-cloud-update-cloud-account')
     
     os.remove(file_path)
