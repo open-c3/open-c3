@@ -30,9 +30,9 @@ download:
       site: ["{Huawei}", "vpc_name"]
       vpc_id: "vpc_id"
       vpc_name: "vpc_name"
-      exclude:
+      excludeContain:
         "状态": ["SHUTOFF"]
-        "vpc_name": ["/ThirdParty/", "/CMTest/"]
+        "vpc_name": ["ThirdParty", "CMTest"]
     metrics:
       - name: 'openc3_cmdb_resource_price{account="%s",instanceid="%s",type="compute",subtype="huawei-ecs",unit="%s",status="%s"} %f'
         value: ["account", "uuid", "_priceunit_", "状态", "_price_"]
