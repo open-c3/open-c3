@@ -64,22 +64,19 @@ class HandleTag:
                             continue
                         tmp_tag_dict[parts[0]] = parts[1]
 
-            new_tag_dict = {}
-
-            for key, value in tmp_tag_dict.items():
-                new_tag_dict[key] = value
+            tmp_tag_dict = {key.strip(): value.strip() for key, value in tmp_tag_dict.items()}
 
             for item in self.pre_names:
                 for key, value in tmp_tag_dict.items():
                     if key.lower() == item["pre_name"].lower():
-                        self.data_list[i][item["pre_value"]] = value
+                        self.data_list[i][item["pre_value"]] = value.strip()
 
             # 添加 tag 字段，类型是 dict
-            self.data_list[i]["tag"] = new_tag_dict
+            self.data_list[i]["tag"] = tmp_tag_dict
 
             # 保存字符串形式的标签列表
             tags_str = ""
-            for key, value in new_tag_dict.items():
+            for key, value in tmp_tag_dict.items():
                 tags_str += "{}:{}, ".format(key, value)
             # 去掉末尾的逗号和空格
             tags_str = tags_str[: -2]
