@@ -1,0 +1,36 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use MYDan::Util::OptConf;
+use FindBin qw( $RealBin );
+use OPENC3::PP::Pipe;
+use File::Temp;
+
+=head1 SYNOPSIS
+
+ $0 bpmuuid action
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+$option->assert() unless @ARGV >= 2;
+
+my ( $bpmuuid, $action, @idx ) = @ARGV;
+
+die "bpmuuid err" unless $bpmuuid && $bpmuuid =~ /^BPM\d+$/;
+die "action err"  unless $action  && $action  =~ /^[a-zA-Z0-9][a-zA-Z0-9\-_\.]+$/;
+
+map{ die "idx format error" unless $_ =~ /^[a-zA-Z0-9]+$/  }@idx;
+
+my    @x = `$RealBin/taskcfg '$bpmuuid' '$action' @idx`;
+chomp @x;
+
+# BPM TODO: 已经执行成功的在重试时跳过,不要重复执行。
+for( @x )
+{
+    my ( $TEMP, $tempfile ) = File::Temp::tempfile();
+    print $TEMP $_;
+    close $TEMP;
+    
+    die "err" if OPENC3::PP::Pipe::system( "cat '$tempfile' | c3mc-bpm-action-$action | $RealBin/logrecord --bpmuuid '$bpmuuid' --step '$idx[0]'" );
+}

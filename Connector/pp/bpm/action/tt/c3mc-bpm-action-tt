@@ -1,0 +1,64 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+
+def domain(params):
+    content = params["content"]
+
+    submit_user = "sys@app"
+    if 'submit_user' in params:
+        submit_user = params['submit_user']
+
+    ext_tt = subprocess.getoutput("c3mc-sys-ctl sys.bpm.tt.type")
+
+    resp = subprocess.run([
+            "c3mc-create-ticket", 
+            "--submit_user", submit_user, 
+            "--title", params["title"], 
+            "--ext_tt", ext_tt,
+        ], 
+        input=content.encode(), 
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if resp.returncode != 0:
+        err = resp.stderr.decode('utf-8').rstrip()
+        print("LOG. 创建tt出错: {}".format(err))
+        raise Exception(err)
+
+    tt_number = resp.stdout.decode('utf-8').rstrip()
+
+    print("LOG. tt单号: {}".format(tt_number), flush=True)
+
+    resp = subprocess.run([
+        "c3mc-wait-ticket-status-change",
+        "--number", tt_number,
+        "--ext_tt", ext_tt,
+        ], 
+        input=content.encode(), 
+        stdout=subprocess.PIPE,
+    )
+    if resp.returncode != 0:
+        err = resp.stderr.decode('utf-8').rstrip()
+        print("LOG. 等待tt结束出错: {}".format(err))
+        raise Exception(err)
+
+    tt_status_txt = resp.stdout.decode('utf-8').rstrip()
+    print("LOG. tt结束, 单号: {}, 状态: {}".format(tt_number, tt_status_txt))
+
+    return
+
+
+def main(params):
+    domain(params)
+    
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    main(json.loads(''.join(l)))

@@ -1,0 +1,52 @@
+---
+name: 创建腾讯云应用型clb监听器
+multi: 1
+fromops: 1
+option:
+  - name: listener_name
+    describe: 监听器名称
+    type: input
+
+  - name: protocol
+    describe: 协议
+    option: ["http", "https", "udp", "tcp"]
+    type: select
+    value: ""
+
+  - name: cert_id
+    describe: 证书
+    rely:
+      - account
+    command: c3mc-qcloud-clb-describe-cert-list | c3mc-bpm-display-field-values CertificateId,Domain
+    type: selectx
+    value: ""
+    show: ["protocol", "https"]
+
+  - name: listener_port
+    describe: 监听器端口
+    type: input
+
+  - name: balancer_type
+    describe: 负载均衡方式
+    option: ["按权重轮询", "最小连接数"]
+    type: select
+    value: ""
+    show: ["protocol", "udp", "tcp"]
+
+template_argv:
+  # 账号
+  account: ${x.account}
+  # 区域
+  region: ${x.region}
+  # clb实例的ID
+  clb_id: ${var.clb_id}
+  # 监听器名称
+  listener_name: ${listener_name}
+  # 协议
+  protocol: ${protocol}
+  # 监听器端口
+  listener_port: ${listener_port}
+  # 负载均衡方式
+  balancer_type: ${balancer_type}
+  # 证书
+  cert_id: ${cert_id}

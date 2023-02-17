@@ -114,6 +114,7 @@ sub run
             my ( $n, $c ) = ( $1, $2 );
             $result{$n} .= $c if defined $result{$n};
         }
+        $result{_openc3_sys_pluginrefuse_sys_openc3_} = 1 if $_ eq '_openc3_sys_pluginstatus_sys_openc3_:refuse';
     }@x;
 
     map{ $result{$_} .= "--- 0\n" if $result{$_} eq 'ok'  }@node;

@@ -1,0 +1,182 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import csv
+import json
+import os
+import sys
+import re
+import argparse
+
+
+def get_tag_list(user_tag):
+    tag = {}
+    for k in user_tag:
+        if "key" in k.lower():
+            tag["key"] = user_tag[k]
+        if "value" in k.lower():
+            tag["value"] = user_tag[k]
+    return tag
+
+
+def parse_data_line_v1(lines, instance_id_column_index, tag_column_index):
+    """ 
+    解析tsv文件
+
+    注意:
+    1. 输入的数据中标签数组是标准的json格式
+    2. 标签的键中必须包含"key"字符串, 标签的值中必须包含"value"字符串
+
+    输入数据的格式:
+    i-xxxxxx    [{"TagKey": "OpsOwner", "TagValue": "空"}, {"TagKey": "env", "TagValue": "online"}]
+    .....
+
+    返回数据的格式:
+    i-xxx     key1    value1
+    i-vvv     key2    value2
+    ...
+    """
+    result = []
+    try:
+        for line in lines:
+            instance_id = line[instance_id_column_index]
+            tag_list = json.loads(line[tag_column_index])
+            for user_tag in tag_list:
+                tag = get_tag_list(user_tag)
+                result.append("{}\t{}\t{}".format(instance_id, tag["key"], tag["value"]))
+    except:
+        return []
+    return result
+
+
+def parse_data_line_v2(lines, instance_id_column_index, tag_column_index):
+    """ 
+    解析tsv文件
+
+    注意:
+    1. 输入的数据中标签数组不是标准的json格式
+    2. 输入的数据中标签值如果为空字符串, 请把值设置为"空", 如例子中所示, 程序会把"空"替换为空字符串
+    3 .标签的键中必须包含"key"字符串, 标签的值中必须包含"value"字符串
+
+    输入数据的格式:
+    i-xxxxxx    [{TagKey=OpsOwner, TagValue=空}, {TagKey=env, TagValue=online}]
+    .......
+
+    返回数据的格式:
+    i-xxx     key1    value1
+    i-vvv     key2    value2
+    ...
+    """
+    result = []
+
+    try:
+        for line in lines:
+            raw_str = line[tag_column_index]
+            raw_str = raw_str.replace("TagKey=", '"TagKey": "')
+            raw_str = raw_str.replace(", TagValue=", '", "TagValue": "')
+            raw_str = raw_str.replace('"[', '[')
+            raw_str = raw_str.replace(']"', ']')
+
+            valid_index = 0
+            while valid_index != len(raw_str) - 1:
+                last_char = ""
+                for i, char in enumerate(raw_str):
+                    if char == "}" and last_char != '"':
+                        raw_str = raw_str[:i] + '"' + raw_str[i:]
+                        break
+                    last_char = char
+                    valid_index = i
+            tag_list = json.loads(raw_str)
+            for i in range(len(tag_list)):
+                tag = tag_list[i]
+                for key in tag:
+                    if tag[key] == "空":
+                        tag_list[i][key] = ""
+
+            instance_id = line[instance_id_column_index]
+            for user_tag in tag_list:
+                tag = get_tag_list(user_tag)
+                result.append("{}\t{}\t{}".format(instance_id, tag["key"], tag["value"]))
+    except:
+        return []
+    return result
+
+
+def parse_data_line_v3(lines, instance_id_column_index, tag_column_index):
+    """ 
+    解析tsv文件
+
+    注意:
+        1. 输入的数据中标签数组不是标准的json格式
+        2. 输入的数据中标签值如果为空字符串, 请把值设置为空, 如例子中所示, 等号后面为空
+        3. 标签的键中必须包含"key"字符串, 标签的值中必须包含"value"字符串
+
+    输入数据的格式:
+    i-xxxxwefwf    [{TagKey=OpsOwner, TagValue=}, {TagKey=env, TagValue=online}]
+    i-xxxx234j2    [{TagKey=, TagValue=wfwfe}, {TagKey=env, TagValue=online}]
+    i-xxxxwr24r    [{TagKey=, TagValue=}, {TagKey=env, TagValue=online}]
+    .......
+
+    返回数据的格式:
+    i-xxx     key1    value1
+    i-vvv     key2    value2
+    ...
+    """
+    result = []
+    try:
+        for line in lines:
+            raw_str = line[tag_column_index]
+            raw_str = re.sub(r"\s+", "", raw_str)
+            raw_str = raw_str.replace("TagKey=", '"TagKey":"')
+            raw_str = raw_str.replace(",TagValue=", '","TagValue":"')
+            raw_str = raw_str.replace(':"}', ':""}')
+
+            raw_str = raw_str.replace('"[', '[')
+            raw_str = raw_str.replace(']"', ']')
+
+            valid_index = 0
+            while valid_index != len(raw_str) - 1:
+                last_char = ""
+                for i, char in enumerate(raw_str):
+                    if char == "}" and last_char != '"':
+                        raw_str = raw_str[:i] + '"' + raw_str[i:]
+                        break
+                    last_char = char
+                    valid_index = i
+
+            tag_list = json.loads(raw_str)
+            instance_id = line[instance_id_column_index]
+            for user_tag in tag_list:
+                tag = get_tag_list(user_tag)
+                result.append("{}\t{}\t{}".format(instance_id, tag["key"], tag["value"]))
+    except Exception as e:
+        return []
+    return result
+
+
+def display(lines, instance_id_column_index, tag_column_index):
+    data_list = parse_data_line_v1(lines, instance_id_column_index, tag_column_index)
+    if len(data_list) == 0:
+        data_list = parse_data_line_v2(lines, instance_id_column_index, tag_column_index)
+        if len(data_list) == 0:
+            data_list = parse_data_line_v3(lines, instance_id_column_index, tag_column_index)
+
+    if len(data_list) == 0:
+        raise Exception("文件为空或者无法解析文件内的数据")
+
+    for item in data_list:
+        print(item)
+
+
+if __name__ == '__main__':
+    lines = []
+    for line in sys.stdin:
+        lines.append(line.split("\t"))
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--idindex", required=True, type=int, help="实例id列的索引, 从0开始算")
+    parser.add_argument("--tagindex", required=True, type=int, help="标签列的索引,  从0开始算")
+    args = parser.parse_args()
+
+
+    display(lines, args.idindex, args.tagindex)

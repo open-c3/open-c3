@@ -1,0 +1,39 @@
+---
+name: 工单处理
+option:
+  - describe: 域名
+    name: domain
+    type: text
+    value: ""
+  - describe: 是否被注册
+    name: registered
+    type: select
+    option:
+      - Yes
+      - No
+    value: ""
+  - describe: 域名所属业务使用范围
+    name: scope
+    type: select
+    option:
+      - '海外'
+      - '国内'
+      - '海外&国内'
+    value: ""
+  - describe: 备案主体
+    name: belonger
+    type: input
+    value: ""
+    required: true
+  - describe: 所属业务
+    name: belong
+    type: input
+    value: ""
+  - describe: 申请理由
+    name: note
+    type: text
+    value: ""
+
+template_argv:
+  title:   "BPM/注册域名"
+  content: "域名:\n${domain}\n是否被注册:\n${registered}\n域名所属业务使用范:\n${scope}\n备案主体:\n${belonger}\n所属业务:\n${belong}\n申请理由:\n${note}"

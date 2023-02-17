@@ -269,7 +269,7 @@ post '/jobs/:projectid' => sub {
     my $error = Format->new( 
         projectid => qr/^\d+$/, 1,
         name => [ 'mismatch', qr/'/ ], 1,
-        mon_ids => qr/^[a-zA-Z0-9_\,\.\/]+$/, 0,
+        mon_ids => qr/^[a-zA-Z0-9_\,\.\/]*$/, 0,
         mon_status => [ 'mismatch', qr/'/ ], 0,
     )->check( %$param );
 
@@ -577,7 +577,7 @@ post '/jobs/:projectid/:jobuuid' => sub {
     my $error = Format->new( 
         projectid => qr/^\d+$/, 1,
         jobuuid => qr/^[a-zA-Z0-9]+$/, 1,
-        mon_ids => qr/^[a-zA-Z0-9_\,\.\/]+$/, 0,
+        mon_ids => qr/^[a-zA-Z0-9_\,\.\/]*$/, 0,
         mon_status => [ 'mismatch', qr/'/ ], 0,
         name => [ 'mismatch', qr/'/ ], 1,
     )->check( %$param );
