@@ -10,6 +10,12 @@ use api;
 use Format;
 use Util;
 
+=pod
+
+协助操作/获取我的协助操作列表
+
+=cut
+
 get '/assignment/byme' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
@@ -25,6 +31,12 @@ get '/assignment/byme' => sub {
     return +{ stat => $JSON::true, data => $r };
 };
 
+=pod
+
+协助操作/获取需要我协助操作的列表
+
+=cut
+
 get '/assignment/tome' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
@@ -38,6 +50,12 @@ get '/assignment/tome' => sub {
     map{ $_->{data} = eval{ YAML::XS::Load decode_base64( $_->{data} ) } }@$r;
     return +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+协助操作/获取一个操作的详情
+
+=cut
 
 get '/assignment/:id' => sub {
     my $param = params();
@@ -60,6 +78,12 @@ get '/assignment/:id' => sub {
     $r->[0]{data} = eval{ YAML::XS::Load decode_base64( $r->[0]{data} ) };
     return +{ stat => $JSON::true, data => $r->[0] };
 };
+
+=pod
+
+协助操作/提交一个协助操作
+
+=cut
 
 post '/assignment' => sub {
     my $param = params();
@@ -95,6 +119,12 @@ post '/assignment' => sub {
 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
 };
+
+=pod
+
+协助操作/操作一个需要我协助的操作
+
+=cut
 
 post '/assignment/:id' => sub {
     my $param = params();

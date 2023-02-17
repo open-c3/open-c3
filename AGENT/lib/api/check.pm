@@ -9,6 +9,12 @@ use MIME::Base64;
 use api;
 use Format;
 
+=pod
+
+AGENT/自动检查/获取开关状态
+
+=cut
+
 get '/check/:projectid' => sub {
     my $param = params();
     my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
@@ -29,6 +35,12 @@ get '/check/:projectid' => sub {
     $data->{last_success_x} = ($data->{last_success_s} + 600 > $data->{last_check_s}  ) ? 0 : 1 if $data->{last_check_s} && $data->{last_success_s};
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $data };
 };
+
+=pod
+
+AGENT/自动检查/修改开关状态
+
+=cut
 
 post '/check/:projectid' => sub {
     my $param = params();

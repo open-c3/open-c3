@@ -7,6 +7,12 @@ use api;
 use uuid;
 use Format;
 
+=pod
+
+私有节点/获取私有节点列表
+
+=cut
+
 get '/private' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
     my $pmscheck = api::pmscheck( 'openc3_connector_root' ); return $pmscheck if $pmscheck;
@@ -16,6 +22,12 @@ get '/private' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $addr };
 };
+
+=pod
+
+私有节点/添加私有节点
+
+=cut
 
 post '/private' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;

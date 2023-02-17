@@ -13,6 +13,12 @@ use api::c3mc;
 
 our %handle = %api::kubernetes::handle;
 
+=pod
+
+CMDB/获取CMDB数据
+
+=cut
+
 get '/c3mc/cmdb' => sub {
     my $param = params();
     my $error = Format->new( 

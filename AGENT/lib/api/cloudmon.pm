@@ -10,11 +10,23 @@ use api;
 use Format;
 use Encode qw(decode encode);
 
+=pod
+
+云监控/获取支持的exporter列表
+
+=cut
+
 get '/cloudmon/exporter' => sub {
     my @x = `cd /data/Software/mydan/AGENT/cloudmon/exporter && ls`;
     chomp @x;
     return +{ stat => $JSON::true, data => \@x };
 };
+
+=pod
+
+云监控/获取当前已经配置的云监控列表
+
+=cut
 
 get '/cloudmon' => sub {
     my $pmscheck = api::pmscheck( 'openc3_agent_root' ); return $pmscheck if $pmscheck;
@@ -26,6 +38,12 @@ get '/cloudmon' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+云监控/获取单个云监控配置
+
+=cut
 
 get '/cloudmon/:id' => sub {
     my $param = params();
@@ -48,6 +66,12 @@ get '/cloudmon/:id' => sub {
 
     return +{ stat => $JSON::true, data => ( $r && @$r ) ? $r->[0] : +{} };
 };
+
+=pod
+
+云监控/创建或编辑云监控配置
+
+=cut
 
 post '/cloudmon' => sub {
     my $param = params();
@@ -80,6 +104,12 @@ post '/cloudmon' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
+
+=pod
+
+云监控/删除云监控配置
+
+=cut
 
 del '/cloudmon/:id' => sub {
     my $param = params();

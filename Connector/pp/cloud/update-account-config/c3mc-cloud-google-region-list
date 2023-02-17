@@ -1,0 +1,49 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import os
+
+from google.oauth2 import service_account
+from googleapiclient import discovery
+
+
+class Google:
+    def __init__(self, cred_path, resource_type):
+        self.cred_path = cred_path
+        self.credentials = self.create_credentials()
+        self.resource_type = resource_type
+
+    def create_credentials(self):
+        return service_account.Credentials.from_service_account_file(self.cred_path)
+
+    def list_vm_regions(self):
+        service = discovery.build('compute', 'v1', credentials=self.credentials)
+
+        result = []
+        try:
+            request = service.regions().list(project=self.credentials.project_id)
+        except Exception as e:
+            raise RuntimeError("拉取区域列表出错, project_id: {}, resource_type: {}".format(self.credentials.project_id, self.resource_type)) from e
+
+        while request is not None:
+            response = request.execute()
+
+            for region_info in response['items']:
+                result.append(region_info["name"])
+
+            request = service.regions().list_next(previous_request=request, previous_response=response)
+        return sorted(result)
+
+    def display(self):
+        # 目前没有遇到不同资源区域不一致的问题
+        regions = self.list_vm_regions()
+        for region in regions:
+            print(region)
+
+def main(cred_path, resource_type):
+    Google(cred_path, resource_type).display()
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2])

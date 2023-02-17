@@ -166,13 +166,8 @@ func PublicGetTicketStatus(c *gin.Context) {
 	c.JSON(http.StatusOK, status_200(obj))
 }
 
-// 获取事件基础信息　批量
+// 获取事件基础信息
 func PublicGetTicketInfo(c *gin.Context) {
-
-	type request struct {
-		No string `json:"no" binding:"required"` // 逗号分隔多个事件no/id
-	}
-
 	type ticket struct {
 		ID           int64  `json:"id"`
 		No           string `json:"no"`
@@ -180,20 +175,17 @@ func PublicGetTicketInfo(c *gin.Context) {
 		ResponseCost int64  `json:"response_cost"`
 		ResolveCost  int64  `json:"resolve_cost"`
 	}
-
-	obj := make([]ticket, 0)
-	var req request
-
-	if c.BindJSON(&req) == nil {
-
-		no_arr := strings.Split(req.No, ",")
-
-		if err := orm.Db.Table("openc3_tt_ticket").Where("id in (?)", no_arr).Or("no in (?)", no_arr).Select("id, no, response_cost, resolve_cost, status").Find(&obj).Error; err != nil {
-			c.JSON(http.StatusOK, status_400(err.Error()))
-		} else {
-			c.JSON(http.StatusOK, status_200(obj))
-		}
-
+	number := c.Query("no")
+	if number == "" {
+		c.JSON(http.StatusOK, status_400("tt单号不允许为空"))
+		return
 	}
 
+	var resp ticket
+
+	if err := orm.Db.Table("openc3_tt_ticket").Where("no = ?", number).Select("id, no, response_cost, resolve_cost, status").Find(&resp).Error; err != nil {
+		c.JSON(http.StatusOK, status_400_v2(err.Error()))
+	} else {
+		c.JSON(http.StatusOK, status_200_v2(resp))
+	}
 }

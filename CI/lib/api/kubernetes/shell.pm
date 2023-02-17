@@ -3,6 +3,12 @@ use Dancer ':syntax';
 use FindBin qw( $RealBin );
 use Util;
 
+=pod
+
+K8S/虚拟终端/进入POD
+
+=cut
+
 any '/kubernetes/pod/shell' => sub {
     my $param = params();
     my ( $namespace, $name, $clusterid, $type, $siteaddr ) = @$param{qw( namespace name clusterid type siteaddr )};
@@ -12,6 +18,12 @@ any '/kubernetes/pod/shell' => sub {
 
     redirect "$siteaddr/webshell/index.html?u=$u&clusterid=$clusterid&namespace=$namespace&name=$name&type=$type";
 };
+
+=pod
+
+K8S/虚拟终端/进入kubectl命令行
+
+=cut
 
 any '/kubernetes/kubectl/shell' => sub {
     my $param = params();

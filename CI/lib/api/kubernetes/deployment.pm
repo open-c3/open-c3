@@ -13,6 +13,12 @@ use api::kubernetes;
 
 our %handle = %api::kubernetes::handle;
 
+=pod
+
+K8S/获取deployment列表
+
+=cut
+
 get '/kubernetes/deployment' => sub {
     my $param = params();
     my $error = Format->new( 

@@ -8,11 +8,11 @@ def get_account_by_uuid(account_uuid):
     """
         根据accountuuid查询账号信息
     """
-    parts = account_uuid.split(".")
-    account_file = "/data/Software/mydan/AGENT/device/conf/account/{}".format(parts[0])
+    filename, line_index = account_uuid.rsplit(".", 1)
+    account_file = "/data/Software/mydan/AGENT/device/conf/account/{}".format(filename)
 
     f = open(account_file)
-    return f.readlines()[int(parts[1]) - 1]
+    return f.readlines()[int(line_index) - 1]
 
 
 def main(account_uuid):

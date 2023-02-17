@@ -12,6 +12,12 @@ use File::Basename;
 use Time::Local;
 use Tie::File;
 
+=pod
+
+报告/获取git代码报告
+
+=cut
+
 get '/gitreport/:groupid/report' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -184,6 +190,12 @@ get '/gitreport/:groupid/report' => sub {
 
     return +{ stat => $JSON::true, data => \%re };
 };
+
+=pod
+
+报告/获取git代码报告数据源列表
+
+=cut
 
 get '/gitreport/:groupid/datalist' => sub {
     my $param = params();

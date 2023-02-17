@@ -1,0 +1,152 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+import time
+
+from tencentcloud.common import credential
+from tencentcloud.common.profile.client_profile import ClientProfile
+from tencentcloud.common.profile.http_profile import HttpProfile
+from tencentcloud.clb.v20180317 import clb_client, models
+
+
+# 规则的请求转发方式
+rule_hash = {
+    "按权重轮询": "WRR",
+    "最小连接数": "LEAST_CONN",
+    "按IP哈希": "IP_HASH",
+}
+
+class Rule:
+    def __init__(self, access_id, access_key, region, params):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.region = region
+        self.params = params
+        self.client = self.create_client()
+
+    def create_client(self):
+        cred = credential.Credential(
+            self.access_id, self.access_key)
+        httpProfile = HttpProfile()
+        httpProfile.endpoint = "clb.tencentcloudapi.com"
+
+        clientProfile = ClientProfile()
+        clientProfile.httpProfile = httpProfile
+        client = clb_client.ClbClient(cred, self.region, clientProfile)
+        return client
+    
+    def get_request_for_create_rule(self):
+        req = models.CreateRuleRequest()
+
+        api_params = {
+            "LoadBalancerId": self.params["clb_id"],
+            "ListenerId": self.params["listener_id"],
+            "Rules": [{
+                "Domain": self.params["domain"],
+                "Url": self.params["url"],
+            }],
+            "Scheduler": rule_hash[self.params["scheduler"]]
+        }
+        
+        req.from_json_string(json.dumps(api_params))
+        return req
+
+    def create_rule(self, req):
+        resp = self.client.CreateRule(req)
+        return json.loads(resp.to_json_string())
+
+    def get_request_for_register_target(self, location_id):
+        req = models.RegisterTargetsRequest()
+
+        api_params = {
+            "LoadBalancerId": self.params["clb_id"],
+            "ListenerId": self.params["listener_id"],
+            "Targets": []
+        }
+        if location_id is not None:
+            api_params["LocationId"] = location_id
+        for instance_id in self.params["instance_ids"].split(","):
+            api_params["Targets"].append({
+                "Type": "CVM",
+                "InstanceId": instance_id,
+                "Port": int(self.params["port"]),
+            })
+        
+        req.from_json_string(json.dumps(api_params))
+        return req
+
+    def register_targets(self, req):
+        resp = self.client.RegisterTargets(req)
+        return json.loads(resp.to_json_string())
+    
+
+def main(params):
+    account = params["account"]
+    region = params["region"]
+
+    key_info = json.loads(subprocess.getoutput(
+        "c3mc-get-account-info qcloud {}".format(account)))
+
+    rule = Rule(key_info["access_id"],
+        key_info["access_key"], region, params)
+    
+    # 监听器使用的协议
+    # udp和tcp协议时，不需要创建转发规则
+    listener_protocol = params["protocol"]
+    
+    location_id = None
+    
+    if listener_protocol == "http" or listener_protocol == "https":
+        req_for_create_rule = rule.get_request_for_create_rule()
+        print("创建clb转发规则, 请求参数为: {}".format(req_for_create_rule))
+        if subprocess.getoutput("c3mc-sys-ctl sys.bpm.fake.run") == "1":
+            # bpm虚假运行
+            print("创建clb转发规则, 响应为: xxxxxx")
+            print("LOG. location_id:xxxxxx")
+            print("VAR. location_id:xxxxxx")
+        else:
+            try:
+                resp = rule.create_rule(req_for_create_rule)
+                print("创建clb转发规则, 响应为: {}".format(json.dumps(resp)))
+
+                location_id = resp["LocationIds"][0]
+
+                print("LOG. location_id:{}".format(location_id))
+                print("VAR. location_id:{}".format(location_id))
+            except Exception as e:
+                print("创建clb转发规则出错, err: {}".format(e), file=sys.stderr)
+                exit(1)
+    
+            # 虽然上面调用完接口马上返回转发规则ID，但是云端还有其他操作需要进行，
+            # 如果这时马上开始执行下面的绑定会出错, 云上大概4秒钟可以完成操作，这里等待20秒钟
+            time.sleep(20)
+
+    req_for_register_target = rule.get_request_for_register_target(location_id)
+    print("绑定后端机器到监听器, 请求参数为: {}".format(req_for_register_target))
+    if subprocess.getoutput("c3mc-sys-ctl sys.bpm.fake.run") == "1":
+        # bpm虚假运行
+        print("绑定后端机器到监听器, 响应为: xxxxxx")
+    else:
+        try:
+            resp = rule.register_targets(req_for_register_target)
+            print("绑定后端机器到监听器, 响应为: {}".format(json.dumps(resp)))
+        except Exception as e:
+            print("绑定后端机器到监听器, err: {}".format(e), file=sys.stderr)
+            exit(1)
+
+        # 防止后续再次立即执行创建转发规则时报错
+        # 休眠一会儿等待状态正常
+        time.sleep(25)
+    
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]))

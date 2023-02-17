@@ -9,11 +9,12 @@ use api;
 use Format;
 use Util;
 
-#token
-#create_user
-#edit_user
-#create_time_start
-#create_time_end
+=pod
+
+文件管理/Token管理/列表查询
+
+=cut
+
 any '/token/:projectid/info' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -51,6 +52,12 @@ any '/token/:projectid/info' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r || []};
 };
 
+=pod
+
+文件管理/Token管理/创建Token
+
+=cut
+
 post '/token/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -77,6 +84,12 @@ post '/token/:projectid' => sub {
 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
 };
+
+=pod
+
+文件管理/Token管理/删除Token
+
+=cut
 
 del '/token/:projectid/:id' => sub {
     my $param = params();

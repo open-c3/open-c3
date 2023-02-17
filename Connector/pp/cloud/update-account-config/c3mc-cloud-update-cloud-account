@@ -1,0 +1,103 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import os
+import shutil
+import subprocess
+import sys
+
+
+# 这种情况直接把 line 和 regin 拼接在一起
+def create_ak_line_v1(line, region_list):
+    result = []
+    for region in region_list:
+        result.append("{} {}".format(line, region))
+    return result
+
+# 这种情况是 line 最后有账号配置，而 region 应该配置在账号前面
+def create_ak_line_v2(line, region_list):
+    result = []
+    for region in region_list:
+        items = line.split()
+        items[-2] += "  " + region
+        result.append(" ".join(items))
+    return result
+
+def get_file_lines(file_path):
+    if not os.path.exists(file_path):
+        return []
+    result = []
+    with open(file_path, "r") as file:
+        for line in file.readlines():
+            result.append(line.rstrip('\n'))
+    return result
+
+def append_to_file(file_path, strings_list):
+    if not os.path.exists(file_path):
+        open(file_path, "w").close()
+
+    with open(file_path, 'a') as file:
+        for line in strings_list:
+            file.write(line + '\n')
+
+def get_ak_line_list(dir_path, cloud):
+    result = {}
+    ext_account_line_list = get_file_lines(os.path.join(dir_path, "{}x".format(cloud)))
+    resource_codes = subprocess.getoutput("c3mc-cloud-get-resource-type-list {}".format(cloud)).split("\n")
+    for resource_code in resource_codes:
+        for ext_account_line in ext_account_line_list:
+            region_list = []
+            cmd_parts = []
+            cmd_parts.append("c3mc-cloud-{}-region-list".format(cloud))
+            cmd_parts.extend(ext_account_line.split()[1:])
+            cmd_parts.append(resource_code)
+
+            output = subprocess.run(cmd_parts, capture_output=True, text=True)
+            if output.returncode != 0:
+                print(output.stderr, file=sys.stderr)
+                exit(1)
+            region_list = output.stdout.split("\n")
+            region_list = list(filter(lambda x: x != "", region_list))
+
+            ak_list = []
+            if cloud == "qcloud" or cloud == "huawei":
+                ak_list = create_ak_line_v2(ext_account_line, region_list)
+            else:
+                ak_list = create_ak_line_v1(ext_account_line, region_list)
+            if len(ak_list) > 0:
+                if resource_code not in result:
+                    result[resource_code] = []
+                result[resource_code].extend(ak_list)
+    return result 
+
+def create_cloud_ak_lines():
+    dir_path = "/data/Software/mydan/AGENT/device/conf/account"
+    ext_dir_path = "/data/Software/mydan/AGENT/device/conf/accountx"
+    tmp_dir_path = "/data/Software/mydan/AGENT/device/conf/account/.tmp"
+
+    if os.path.exists(tmp_dir_path):
+        shutil.rmtree(tmp_dir_path)
+    os.mkdir(tmp_dir_path)
+
+    try:
+        for cloud in ["aliyun", "aws", "google", "huawei", "ksyun", "qcloud"]:
+            data = get_ak_line_list(ext_dir_path, cloud)
+            for resource_code in data:
+                append_to_file(os.path.join(tmp_dir_path, "{}.{}".format(cloud, resource_code)), data[resource_code])
+
+        for filename in os.listdir(tmp_dir_path):
+            src_file = os.path.join(tmp_dir_path, filename)
+            dst_file = os.path.join(dir_path, filename)
+            shutil.move(src_file, dst_file)
+    except Exception as e:
+        raise Exception(e)
+    finally:
+        shutil.rmtree(tmp_dir_path)
+    
+
+def main():
+    create_cloud_ak_lines()
+
+
+if __name__ == '__main__':
+    main()

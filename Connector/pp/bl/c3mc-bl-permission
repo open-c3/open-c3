@@ -20,12 +20,12 @@ def main():
     parser.add_argument('--username', type=str, required=True, help='用户账户名')
     parser.add_argument('--email', type=str, required=True, help='用户邮箱')
     parser.add_argument('--ip', type=str, required=True, help='目标IP')
-    parser.add_argument('--proxy_ip', type=str, required=True, help='代理服务的IP')
     args = parser.parse_args()
 
     bl_admin_user = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.{}.admin.user".format(bl_mode)).strip()
     bl_admin_pass = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.{}.admin.pass".format(bl_mode)).strip()
     bl_url = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.{}.url".format(bl_mode)).strip()
+    proxy_ip = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.{}.proxy_ip".format(bl_mode)).strip()
 
     request_data = {
         "command": "{}-bastion".format(bl_mode),
@@ -42,10 +42,10 @@ def main():
         )
     }
 
-    api_addr = "http://{}:56383/run".format(args.proxy_ip)
+    api_addr = "http://{}:56383/run".format(proxy_ip)
     headers = {'Content-Type': 'application/json'}
     response = requests.request("POST", api_addr, headers=headers, data=json.dumps(request_data))
-    print(response.json())
+    print(json.dumps(response.json()))
 
 
 if __name__ == '__main__':

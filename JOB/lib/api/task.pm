@@ -10,15 +10,16 @@ use keepalive;
 use Encode qw(decode encode);
 use Format;
 use YAML::XS;
+use BPM::Task::Config;
 
 my $task_statistics; BEGIN { $task_statistics = Code->new( 'task_statistics' ); };
 
-#name
-#user
-#status
-#time_start
-#time_end
-#taskuuid
+=pod
+
+作业任务/获取任务列表
+
+=cut
+
 get '/task/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -44,7 +45,8 @@ get '/task/:projectid' => sub {
     push @where, "starttime>='$param->{time_start} 00:00:00'" if defined $param->{time_start};
     push @where, "starttime<='$param->{time_end} 23:59:59'" if defined $param->{time_end};
 
-    my @col = qw( id uuid name user slave status starttime finishtime calltype jobtype jobuuid runtime reason variable );
+    push @where, "extid like 'BPM%'" if defined $param->{bpmonly};
+    my @col = qw( id uuid name user slave status starttime finishtime calltype jobtype jobuuid runtime reason variable extid );
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_job_task
@@ -57,6 +59,12 @@ get '/task/:projectid' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+作业任务/获取任务数量
+
+=cut
 
 get '/task/:projectid/count' => sub {
     my $param = params();
@@ -77,7 +85,14 @@ get '/task/:projectid/count' => sub {
     return +{ stat => $JSON::true, data => \%data };
 };
 
-# 按时间段统计
+=pod
+
+作业任务/获取任务统计信息
+
+按时间段统计
+
+=cut
+
 get '/task/:projectid/total_count' => sub {
     my $param = params();
     my $error = Format->new(
@@ -100,6 +115,12 @@ get '/task/:projectid/total_count' => sub {
     return +{ stat => $JSON::true, data => \%data };
 };
 
+=pod
+
+作业任务/获取任务详情
+
+=cut
+
 get '/task/:projectid/:uuid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -110,7 +131,7 @@ get '/task/:projectid/:uuid' => sub {
 
     my $pmscheck = api::pmscheck( 'openc3_job_read', $param->{projectid} ); return $pmscheck if $pmscheck;
 
-    my @col = qw( id uuid name user slave status starttime finishtime calltype jobtype jobuuid runtime mutex pid starttimems finishtimems reason variable );
+    my @col = qw( id uuid name user slave status starttime finishtime calltype jobtype jobuuid runtime mutex pid starttimems finishtimems reason variable extid );
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_job_task
@@ -130,7 +151,12 @@ get '/task/:projectid/:uuid' => sub {
     return +{ stat => $JSON::true, data => \%x };
 };
 
-#/task/:projectid/redo?taskuuid=uuid
+=pod
+
+作业任务/任务重做
+
+=cut
+
 post '/task/:projectid/redo' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -158,11 +184,17 @@ post '/task/:projectid/redo' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $r = eval{ 
-        $api::mysql->execute( "insert into openc3_job_task (`projectid`,`uuid`,`name`,`user`,`slave`,`status`,`calltype`,`jobtype`,`jobuuid`,`mutex`,`variable`) 
-            select projectid,'$uuid',name,'$user','$slave','init','$calltype',jobtype,jobuuid,mutex,variable from openc3_job_task where uuid='$param->{taskuuid}' and projectid='$param->{projectid}'" )};
+        $api::mysql->execute( "insert into openc3_job_task (`projectid`,`uuid`,`name`,`user`,`slave`,`status`,`calltype`,`jobtype`,`jobuuid`,`mutex`,`variable`,`extid`) 
+            select projectid,'$uuid',name,'$user','$slave','init','$calltype',jobtype,jobuuid,mutex,variable,extid from openc3_job_task where uuid='$param->{taskuuid}' and projectid='$param->{projectid}'" )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, uuid => $uuid, data => $r };
 };
+
+=pod
+
+作业任务/任务权限查询
+
+=cut
 
 get '/task/:projectid/authorization/:group/:jobname' => sub {
     my $param = params();
@@ -180,8 +212,14 @@ get '/task/:projectid/authorization/:group/:jobname' => sub {
     return  +{ stat => $JSON::true, data => @$authorization > 0 ? 1 : 0 };
 };
 
-#/task/:projectid/job?jobuuid=uuid
-#variable = %hash
+=pod
+
+作业任务/提交任务
+
+variable = { foo => 123 }
+
+=cut
+
 post '/task/:projectid/job' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -233,6 +271,12 @@ post '/task/:projectid/job' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, uuid => $uuid, data => $r };
 };
+
+=pod
+
+作业任务/监控调用作业
+
+=cut
 
 get '/task/:projectid/job/bymon' => sub {
     my $param = params();
@@ -296,9 +340,15 @@ get '/task/:projectid/job/bymon' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, uuid => $uuid, data => @node };
 };
 
+=pod
 
-#/task/:projectid/job/byname?jobname=jobname1
-#variable = %hash
+作业任务/通过作业名称调用作业
+
+/task/:projectid/job/byname?jobname=jobname1
+variable = { foo => 123 }
+
+=cut
+
 post '/task/:projectid/job/byname' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -341,24 +391,30 @@ post '/task/:projectid/job/byname' => sub {
     eval{ $api::auditlog->run( user => $user, title => 'START JOB TASK', content => "TREEID:$param->{projectid} JOBUUID:$jobuuid" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
+    my $extid = '';
+    if( $param->{bpm_variable} )
+    {
+        my $bpmuuid = eval{ BPM::Task::Config->new()->save( $param->{bpm_variable}, $user, $param->{jobname} ); };
+        return +{ stat => $JSON::false, info => $@ } if $@;
+        $param->{variable} = +{ BPMUUID => $bpmuuid };
+        $extid = $bpmuuid;
+    }
+
     my $variable = $param->{variable} ? encode_base64( encode('UTF-8', YAML::XS::Dump $param->{variable}) ) : '';
 
     my $r = eval{ 
-        $api::mysql->execute( "insert into openc3_job_task (`projectid`,`uuid`,`name`,`user`,`slave`,`status`,`calltype`,`jobtype`,`jobuuid`,`mutex`,`variable`) 
-            values('$param->{projectid}','$uuid','$param->{jobname}','$user','$slave', 'init','$calltype','jobs','$jobuuid','','$variable')" )};
+        $api::mysql->execute( "insert into openc3_job_task (`projectid`,`uuid`,`name`,`user`,`slave`,`status`,`calltype`,`jobtype`,`jobuuid`,`mutex`,`variable`,`extid`) 
+            values('$param->{projectid}','$uuid','$param->{jobname}','$user','$slave', 'init','$calltype','jobs','$jobuuid','','$variable','$extid')" )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, uuid => $uuid, data => $r };
 };
 
-#name
-#user
-#node_type
-#node_cont
-#scripts_type
-#scripts_cont
-#scripts_argv
-#timeout
-#variable = %hash
+=pod
+
+作业任务/启动一个命令任务
+
+=cut
+
 post '/task/:projectid/plugin_cmd' => sub {
     my $param = params();
 
@@ -446,19 +502,12 @@ post '/task/:projectid/plugin_cmd' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => +{ slave => $slave, uuid => $uuid, loguuid=> "$uuid${plugin_uuid}cmd" } };
 };
 
+=pod
 
-#name
-#user
-#src_type
-#src
-#dst_type
-#dst
-#sp
-#dp
-#chown
-#chmod
-#timeout
-#variable = %hash
+作业任务/启动一个文件同步任务
+
+=cut
+
 post '/task/:projectid/plugin_scp' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -566,15 +615,12 @@ post '/task/:projectid/plugin_scp' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => +{ slave => $slave, uuid => $uuid, loguuid=> "$uuid${plugin_uuid}scp" } };
 };
 
-#name
-#cont
-#approver
-#deployenv
-#action
-#batches
-#everyone
-#timeout
-#variable = %hash
+=pod
+
+作业任务/启动一个审批任务
+
+=cut
+
 post '/task/:projectid/plugin_approval' => sub {
     my $param = params();
 
@@ -621,7 +667,12 @@ post '/task/:projectid/plugin_approval' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => +{ slave => $slave, uuid => $uuid, loguuid=> "$uuid${plugin_uuid}approval" } };
 };
 
-#count
+=pod
+
+作业任务/任务统计/最近几条
+
+=cut
+
 get '/task/:projectid/analysis/last' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -643,6 +694,12 @@ get '/task/:projectid/analysis/last' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+作业任务/任务统计/按日期
+
+=cut
 
 get '/task/:projectid/analysis/date' => sub {
     my $param = params();
@@ -676,6 +733,11 @@ get '/task/:projectid/analysis/date' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@data };
 };
 
+=pod
+
+作业任务/任务统计/按小时
+
+=cut
 
 get '/task/:projectid/analysis/hour' => sub {
     my $param = params();
@@ -696,6 +758,11 @@ get '/task/:projectid/analysis/hour' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
 
+=pod
+
+作业任务/任务统计/运行时间
+
+=cut
 
 get '/task/:projectid/analysis/runtime' => sub {
     my $param = params();
@@ -748,6 +815,12 @@ get '/task/:projectid/analysis/runtime' => sub {
     map{ $data{$_} = sprintf "%0.2f", 100 * $data{$_} / $count }keys %data if $count;
     return +{ stat => $JSON::true, data => \%data };
 };
+
+=pod
+
+作业任务/任务统计/概要
+
+=cut
 
 get '/task/:projectid/analysis/statistics' => sub {
     my $param = params();

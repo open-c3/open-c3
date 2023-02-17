@@ -8,6 +8,14 @@ use POSIX;
 use api;
 use Format;
 
+=pod
+
+监控系统/服务树解绑/获取列表
+
+管理页面中会使用到。
+
+=cut
+
 get '/monitor/config/treeunbind' => sub {
     my $param = params();
 
@@ -33,6 +41,14 @@ get '/monitor/config/treeunbind' => sub {
       : +{ stat => $JSON::true,  data => [ map{ +{ %$_, treename => $treemap{ $_->{treeid} } } } @$r ] };
 };
 
+=pod
+
+监控系统/服务树解绑/获取状态
+
+管理页面中会使用到。
+
+=cut
+
 get '/monitor/config/treeunbind/:treeid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -54,6 +70,14 @@ get '/monitor/config/treeunbind/:treeid' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => @$r ? $r->[0] : +{} };
 };
+
+=pod
+
+监控系统/服务树解绑/修改状态
+
+管理页面中会使用到。
+
+=cut
 
 post '/monitor/config/treeunbind/:treeid' => sub {
     my $param = params();

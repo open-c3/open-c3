@@ -13,6 +13,12 @@ use api::c3mc;
 
 our %handle = %api::kubernetes::handle;
 
+=pod
+
+服务树/获取子树列表
+
+=cut
+
 get '/c3mc/tree/subtreemap/:treeid' => sub {
     my $param = params();
     my $error = Format->new( 

@@ -377,6 +377,14 @@
                 params:{"taskuuid":null, "jobtype":null, "jobuuid":null}
             })
  
+            .state('home.history.bpmdetail', {
+                url: 'bpmdetail/:treeid/:taskuuid',
+                templateUrl: 'app/pages/history/bpm/detail/detail.html',
+                controller: 'HistoryBpmDetailController',
+                controllerAs: 'historybpmdetail',
+                params:{"taskuuid":null, "jobtype":null, "jobuuid":null}
+            })
+ 
             // flow
             // .state('work', {
             //     url: '/',
@@ -396,6 +404,12 @@
                 templateUrl: 'app/pages/history/job/job.html',
                 controller: 'HistoryJobController',
                 controllerAs: 'historyjob',
+            })
+            .state('home.history.bpm', {
+                url: 'bpm/:treeid',
+                templateUrl: 'app/pages/history/bpm/bpm.html',
+                controller: 'HistoryBpmController',
+                controllerAs: 'historybpm',
             })
 
             // business
@@ -470,6 +484,12 @@
                 templateUrl: 'app/pages/thirdparty/thirdparty.html',
                 controller: 'ThirdpartyController',
                 controllerAs: 'thirdparty'
+            })
+            .state('home.bpm', {
+                url: 'bpm/:treeid/:bpmuuid',
+                templateUrl: 'app/pages/bpm/bpm.html',
+                controller: 'BpmController',
+                controllerAs: 'bpm'
             })
             .state('home.assignment', {
                 url: 'assignment/:treeid',

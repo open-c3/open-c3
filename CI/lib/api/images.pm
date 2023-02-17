@@ -9,6 +9,12 @@ use MIME::Base64;
 use api;
 use Format;
 
+=pod
+
+CI镜像/获取镜像列表
+
+=cut
+
 get '/images' => sub {
     my $param = params();
 
@@ -28,6 +34,12 @@ get '/images' => sub {
     }
     return +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+CI镜像/获取某个镜像详情
+
+=cut
 
 get '/images/:imagesid' => sub {
     my $param = params();
@@ -54,6 +66,16 @@ get '/images/:imagesid' => sub {
     return +{ stat => $JSON::true, data => $r->[0] || +{} };
 };
 
+=pod
+
+CI镜像/获取某个镜像的公钥
+
+把主机当作镜像来用时，在主机安装agent过程中，
+
+会通过这个地址下载公钥。
+
+=cut
+
 get '/images/:imagesid/sshkey.pub' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -68,6 +90,12 @@ get '/images/:imagesid/sshkey.pub' => sub {
     my $c = `cat '$path'`;
     return $c;
 };
+
+=pod
+
+CI镜像/创建镜像
+
+=cut
 
 post '/images' => sub {
     my $param = params();
@@ -113,6 +141,12 @@ post '/images' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
 
+=pod
+
+CI镜像/编辑镜像
+
+=cut
+
 post '/images/:imagesid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -156,6 +190,12 @@ post '/images/:imagesid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : $update ? +{ stat => $JSON::true } : +{ stat => $JSON::false, info => 'not update' } ;
 };
 
+=pod
+
+CI镜像/删除镜像
+
+=cut
+
 del '/images/:imagesid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -177,6 +217,12 @@ del '/images/:imagesid' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : $update ? +{ stat => $JSON::true } : +{ stat => $JSON::false, info => 'not delete' };
 };
+
+=pod
+
+CI镜像/镜像上传/获取状态
+
+=cut
 
 get '/images/:imagesid/upload' => sub {
     my $param = params();
@@ -205,6 +251,12 @@ get '/images/:imagesid/upload' => sub {
     }
     return  +{ stat => $JSON::true, data => \%result };
 };
+
+=pod
+
+CI镜像/镜像上传/提交上传文件
+
+=cut
 
 post '/images/:imagesid/upload' => sub {
     my $param = params();

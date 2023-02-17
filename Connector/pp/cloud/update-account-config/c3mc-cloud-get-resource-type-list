@@ -1,0 +1,34 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import os
+import re
+
+
+def get_cloud_resource_code_list(cloud):
+    """
+    获取云资源产品code列表
+
+    目前是从/data/Software/mydan/AGENT/device/conf/template
+    目录下的配置文件名称中提取
+    """
+    flag = "sync-{}".format(cloud)
+
+    results = []
+    regex = r"sync-{}-(\w+(?:-\w+)*)\.ya?ml".format(cloud)
+    for file in os.listdir("/data/Software/mydan/AGENT/device/conf/template"):
+        if not file.startswith(flag):
+            continue
+        match = re.search(regex, file)
+        if match:
+            results.append(match.group(1))
+    return results
+
+def main(cloud):
+    resource_type_list = get_cloud_resource_code_list(cloud)
+    for resource_type in resource_type_list:
+        print(resource_type)
+
+if __name__ == '__main__':
+    main(sys.argv[1])

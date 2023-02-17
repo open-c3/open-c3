@@ -9,6 +9,12 @@ use MIME::Base64;
 use api;
 use Format;
 
+=pod
+
+凭据/获取凭据列表
+
+=cut
+
 get '/ticket' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -58,6 +64,14 @@ get '/ticket' => sub {
     }
     return +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+凭据/获取凭据列表
+
+只返回K8S的部分
+
+=cut
 
 get '/ticket/KubeConfig' => sub {
     my $param = params();
@@ -110,6 +124,12 @@ get '/ticket/KubeConfig' => sub {
     }
     return +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+凭据/获取单个凭据详情
+
+=cut
 
 get '/ticket/:ticketid' => sub {
     my $param = params();
@@ -184,6 +204,11 @@ get '/ticket/:ticketid' => sub {
     return +{ stat => $JSON::true, data => $r->[0] || +{} };
 };
 
+=pod
+
+凭据/创建
+
+=cut
 
 post '/ticket' => sub {
     my $param = params();
@@ -282,6 +307,12 @@ post '/ticket' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
 
+=pod
+
+凭据/编辑
+
+=cut
+
 post '/ticket/:ticketid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -374,6 +405,12 @@ post '/ticket/:ticketid' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : $update ? +{ stat => $JSON::true } : +{ stat => $JSON::false, info => 'not update' } ;
 };
+
+=pod
+
+凭据/删除
+
+=cut
 
 del '/ticket/:ticketid' => sub {
     my $param = params();

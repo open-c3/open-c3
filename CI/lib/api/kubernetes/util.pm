@@ -13,9 +13,16 @@ use api::kubernetes;
 
 our %handle = %api::kubernetes::handle;
 
-#kubectl get node --show-labels
-#用于亲和性的标签选择
-#name = node, pod, node_pod
+=pod
+
+K8S/标签/获取标签
+
+kubectl get node --show-labels
+用于亲和性的标签选择
+name = node, pod, node_pod
+
+=cut
+
 get '/kubernetes/util/labels/:name' => sub {
     my $param = params();
     my $error = Format->new( 

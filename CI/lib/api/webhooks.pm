@@ -13,6 +13,14 @@ set serializer => 'JSON';
 our $VERSION = '0.1';
 use Logs;
 
+=pod
+
+流水线/webhook
+
+git的回调地址
+
+=cut
+
 any '/webhooks' => sub {
     my $logs = Logs->new( 'webhooks' );
     my %param = request->params;

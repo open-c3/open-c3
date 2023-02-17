@@ -17,6 +17,12 @@ BEGIN{
     chomp $ssocookie;
 };
 
+=pod
+
+系统内置/用户/获取用户列表
+
+=cut
+
 any '/default/user/userlist' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
     my $pmscheck = api::pmscheck( 'openc3_connector_root' ); return $pmscheck if $pmscheck;
@@ -28,6 +34,12 @@ any '/default/user/userlist' => sub {
     return +{ stat => $JSON::true, data => $user };
 
 };
+
+=pod
+
+系统内置/用户/添加用户
+
+=cut
 
 post '/default/user/adduser' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
@@ -45,6 +57,12 @@ post '/default/user/adduser' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
 
+=pod
+
+系统内置/用户/删除用户
+
+=cut
+
 del '/default/user/deluser' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
     my $pmscheck = api::pmscheck( 'openc3_connector_root' ); return $pmscheck if $pmscheck;
@@ -60,6 +78,12 @@ del '/default/user/deluser' => sub {
     eval{ $api::mysql->execute( "delete from openc3_connector_userinfo where name='$param->{user}'" ); };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
+
+=pod
+
+系统内置/用户/修改自己的密码
+
+=cut
 
 post '/default/user/chpasswd' => sub {
     my $param = params();
@@ -86,6 +110,12 @@ post '/default/user/chpasswd' => sub {
 
     return $x eq 1 ? +{ stat => $JSON::true, info => $x } : +{ stat => $JSON::false, info => 'Password error' };
 };
+
+=pod
+
+系统内置/用户/修改自己的密码/给审批前端使用
+
+=cut
 
 post '/default/approve/user/chpasswd' => sub {
     my $param = params();
@@ -115,6 +145,12 @@ post '/default/approve/user/chpasswd' => sub {
     return $x eq 1 ? +{ stat => $JSON::true, info => $x } : +{ stat => $JSON::false, info => 'Password error' };
 };
 
+=pod
+
+系统内置/用户/获取用户基本信息
+
+=cut
+
 get '/internal/user/username' => sub {
     my $sid = params()->{cookie};
     return +{ stat => JSON::false, info => 'sid format err' } unless $sid && $sid =~ /^[a-zA-Z0-9]{64}$/;
@@ -132,6 +168,12 @@ get '/internal/user/username' => sub {
     return +{ stat => $JSON::true, data => +{ user => $user, company => $user =~ /(@.+)$/ ? $1 : 'default', admin => $userlevel >= 3 ? 1 : 0, showconnector => 1 }};
 };
 
+=pod
+
+系统内置/用户/用户登出
+
+=cut
+
 any '/default/user/logout' => sub {
 
     my $sid = params()->{sid};
@@ -145,6 +187,11 @@ any '/default/user/logout' => sub {
     return +{ stat => $JSON::true, info => 'ok' };
 };
 
+=pod
+
+系统内置/用户/用户登录
+
+=cut
 
 any '/default/user/login' => sub {
     my $param = params();

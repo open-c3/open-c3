@@ -7,11 +7,18 @@
             </span>
             <h5>{{'C3T.集群节点管理'|translate}}</h5>
         </div>
+        <!-- 批量调度配置 -->
+        <div class="batch-operation">
+          <button class="btn operation-first btn-danger" ng-disabled="kubernetesnode.nodeTable.data.length === 0 || kubernetesnode.checkboxes.itemsNumber === 0" ng-click="kubernetesnode.cordon('batchs',kubernetesnode.checkboxes,'cordon')">{{'C3T.设置成不可调度'|translate}}</button>
+          <button class="btn operation-items btn-primary" ng-disabled="kubernetesnode.nodeTable.data.length === 0 || kubernetesnode.checkboxes.itemsNumber === 0" ng-click="kubernetesnode.cordon('batchs',kubernetesnode.checkboxes,'uncordon')">{{'C3T.设置成可调度'|translate}}</button>
+          <button class="btn btn-primary" ng-disabled="kubernetesnode.nodeTable.data.length === 0 || kubernetesnode.checkboxes.itemsNumber === 0" ng-click="kubernetesnode.drain('batchs', kubernetesnode.checkboxes)">{{'C3T.执行驱逐操作'|translate}}</button>
+        </div>
 
         <div class="panel-body" style="margin-top: 2px">
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesnode.nodeTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
+                        <td header="'headerCheckbox.html'" ><input type="checkbox" ng-model="kubernetesnode.checkboxes.items[m.NAME]"/></td>
                         <td data-title="'C3T.名称'|translate" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">{{m.NAME}}</td>
                         <td data-title="'C3T.状态'|translate" width="80" filter="{ STATUS: 'text'}" sortable="'STATUS'">{{m.STATUS}}</td>
                         <td data-title="'C3T.角色'|translate" width="80" filter="{ ROLES: 'text'}" sortable="'ROLES'">{{m.ROLES}}</td>
@@ -23,11 +30,11 @@
                         <td data-title="'C3T.内核版本'|translate" width="80" filter="{ KERNEL_VERSION: 'text'}" sortable="'KERNEL_VERSION'">{{m.KERNEL_VERSION}}</td>
                         <td data-title="'C3T.容器运行时'|translate" width="80" filter="{ CONTAINER_RUNTIME: 'text'}" sortable="'CONTAINER_RUNTIME'">{{m.CONTAINER_RUNTIME}}</td>
                         <td data-title="'C3T.调度设置'|translate" width="80" >
-                              <button class="btn btn-danger" ng-disabled="m.stat.SchedulingDisabled" ng-click="kubernetesnode.cordon(m.NAME,'cordon')">{{'C3T.设置成不可调度'|translate}}</button>
-                              <button class="btn btn-primary" ng-disabled="!m.stat.SchedulingDisabled" ng-click="kubernetesnode.cordon(m.NAME,'uncordon')">{{'C3T.设置成可调度'|translate}}</button>
+                              <button class="btn btn-danger" ng-disabled="m.stat.SchedulingDisabled" ng-click="kubernetesnode.cordon('single',m.NAME,'cordon')">{{'C3T.设置成不可调度'|translate}}</button>
+                              <button class="btn btn-primary" ng-disabled="!m.stat.SchedulingDisabled" ng-click="kubernetesnode.cordon('single', m.NAME,'uncordon')">{{'C3T.设置成可调度'|translate}}</button>
                         </td> 
                         <td data-title="'C3T.驱逐POD'|translate" width="80" >
-                              <button class="btn btn-primary" ng-click="kubernetesnode.drain(m.NAME)">{{'C3T.执行驱逐操作'|translate}}</button>
+                              <button class="btn btn-primary" ng-click="kubernetesnode.drain('single', m.NAME)">{{'C3T.执行驱逐操作'|translate}}</button>
                         </td> 
  
                         <td data-title="'C3T.污点'|translate" width="80" >
@@ -46,4 +53,7 @@
 
 </div>
 
+<script type="text/ng-template" id="headerCheckbox.html">
+  <input type="checkbox" ng-model="kubernetesnode.checkboxes.checked"  class="select-all"/>
+</script>
 <style>.modal-dialog {width: 90%;} </style>

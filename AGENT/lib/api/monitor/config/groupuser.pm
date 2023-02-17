@@ -8,6 +8,12 @@ use POSIX;
 use api;
 use Format;
 
+=pod
+
+监控系统/告警组/获取组内成员
+
+=cut
+
 get '/monitor/config/groupuser/:groupid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -25,6 +31,12 @@ get '/monitor/config/groupuser/:groupid' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+监控系统/告警组/添加成员
+
+=cut
 
 post '/monitor/config/groupuser' => sub {
     my $param = params();
@@ -53,6 +65,12 @@ post '/monitor/config/groupuser' => sub {
     };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
+
+=pod
+
+监控系统/告警组/删除成员
+
+=cut
 
 del '/monitor/config/groupuser/:id' => sub {
     my $param = params();

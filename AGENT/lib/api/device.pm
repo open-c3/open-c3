@@ -75,6 +75,12 @@ sub getdatacount
     }
 };
 
+=pod
+
+CMDB/获取菜单
+
+=cut
+
 get '/device/menu/:treeid' => sub {
     my $param = params();
     my $error = Format->new(
@@ -166,6 +172,12 @@ sub gettreename
     die "get treename by id: $treeid fail" unless @x;
     return $x[0];
 };
+
+=pod
+
+CMDB/获取子分类的表格
+
+=cut
 
 any '/device/data/:type/:subtype/:treeid' => sub {
     my $param = params();
@@ -326,6 +338,12 @@ any '/device/data/:type/:subtype/:treeid' => sub {
     }
     return +{ stat => $JSON::true, data => \@re, debug => \@debug, filter => $filter, filterdata => $filterdata  };
 };
+
+=pod
+
+CMDB/获取单个资源的详情
+
+=cut
 
 any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
     my $param = params();
@@ -550,6 +568,12 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
     my $grpcol = $util->{grpcol} && ref $util->{grpcol} eq 'HASH' ? $util->{grpcol} : +{ baseinfo => [], system => [] };
     return +{ stat => $JSON::true, data => \@re2, treenamecol => $treenamecol, extcol => \%extcol, grpcol => $grpcol };
 };
+
+=pod
+
+CMDB/获取时间机器列表
+
+=cut
 
 get '/device/timemachine' => sub {
     my @x = `cd /data/open-c3-data/device/timemachine && ls`;

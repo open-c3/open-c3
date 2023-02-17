@@ -9,6 +9,12 @@ use MIME::Base64;
 use api;
 use Format;
 
+=pod
+
+AGENT/获取服务树下agent列表
+
+=cut
+
 get '/agent/:projectid' => sub {
     my $param = params();
     my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
@@ -27,6 +33,12 @@ get '/agent/:projectid' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+AGENT/获取服务树下某区域的agent列表
+
+=cut
 
 get '/agent/:projectid/:regionid' => sub {
     my $param = params();
@@ -49,6 +61,12 @@ get '/agent/:projectid/:regionid' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+AGENT/在区域中添加子网地址
+
+=cut
 
 post '/agent/:projectid/:regionid/subnet' => sub {
     my $param = params();
@@ -85,6 +103,11 @@ post '/agent/:projectid/:regionid/subnet' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
 
+=pod
+
+AGENT/删除agent
+
+=cut
 
 del '/agent/:projectid/:agentid' => sub {
     my $param = params();

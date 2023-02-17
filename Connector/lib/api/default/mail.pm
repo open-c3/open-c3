@@ -8,6 +8,12 @@ use api;
 use uuid;
 use Format;
 
+=pod
+
+内置接口/邮件/获取邮件列表
+
+=cut
+
 get '/default/mail' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
 
@@ -15,6 +21,14 @@ get '/default/mail' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $mesg };
 };
+
+=pod
+
+内置接口/邮件/发送邮件
+
+注：属于内置接口，只有后端模块可能会调用。
+
+=cut
 
 post '/default/mail' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;

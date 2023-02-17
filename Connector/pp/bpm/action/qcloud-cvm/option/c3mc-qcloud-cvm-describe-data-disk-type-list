@@ -1,0 +1,39 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import json
+
+
+def describe_data_disk_types():
+    return [
+        {
+            "id": "CLOUD_SSD",
+            "name": "SSD云硬盘",
+            "size_range": [20, 32000]
+        },
+        {
+            "id": "CLOUD_HSSD",
+            "name": "增强型SSD云硬盘",
+            "size_range": [20, 32000]
+        },
+        {
+            "id": "CLOUD_PREMIUM",
+            "name": "高性能云硬盘",
+            "size_range": [10, 32000]
+        },
+        {
+            "id": "CLOUD_BSSD",
+            "name": "通用型SSD云硬盘",
+            "size_range": [20, 32000]
+        },
+    ]
+
+
+def main():
+    data_list = describe_data_disk_types()
+    for item in data_list:
+        print(json.dumps(item))
+
+
+if __name__ == '__main__':
+    main()

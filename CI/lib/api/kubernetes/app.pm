@@ -14,6 +14,12 @@ use api::kubernetes;
 
 our %handle = %api::kubernetes::handle;
 
+=pod
+
+K8S/获取应用列表
+
+=cut
+
 get '/kubernetes/app' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -151,6 +157,12 @@ $handle{getall} = sub
     };
 };
 
+=pod
+
+K8S/获取应用YAML内容
+
+=cut
+
 get '/kubernetes/app/yaml' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -178,6 +190,18 @@ get '/kubernetes/app/yaml' => sub {
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
 };
+
+=pod
+
+K8S/获取应用YAML内容/总是
+
+与上一个接口不一样的地方是，如果应用不存在，会返回空的内容。
+
+在创建和编辑应用的时候，前端需要显示diff内容。
+
+该接口在获取不存在的应用时，查询K8S发现该应用不存在时，接口会返回空。
+
+=cut
 
 get '/kubernetes/app/yaml/always' => sub {
     my $param = params();
@@ -209,6 +233,12 @@ $handle{getappyamlalways} = sub
     my ( $x, $status, $filter ) = @_;
     return $status ? +{ data => "", info => $x, stat =>  $x =~ /not found/ ?  $JSON::true : $JSON::false } : +{ stat => $JSON::true, data => $x };
 };
+
+=pod
+
+K8S/获取应用json内容
+
+=cut
 
 get '/kubernetes/app/json' => sub {
     my $param = params();
@@ -245,6 +275,14 @@ $handle{getappjson} = sub
     my $data = eval{ JSON::from_json $x };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $data };
 };
+
+=pod
+
+K8S/获取应用中的数据给流水线
+
+返回应用的镜像地址，仓库等信息，在配置流水线的时候用于提取
+
+=cut
 
 get '/kubernetes/app/flowlineinfo' => sub {
     my $param = params();
@@ -291,6 +329,14 @@ $handle{getflowlineinfo} = sub
     return +{ stat => $JSON::true, data => \@r };
 };
 
+=pod
+
+K8S/提交变更配置到K8S中
+
+对应K8S中的apply命令
+
+=cut
+
 post '/kubernetes/app/apply' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -329,6 +375,14 @@ post '/kubernetes/app/apply' => sub {
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
 };
+
+=pod
+
+K8S/提交新配置到K8S中
+
+对应K8S中的create命令
+
+=cut
 
 post '/kubernetes/app/create' => sub {
     my $param = params();
@@ -369,6 +423,12 @@ post '/kubernetes/app/create' => sub {
     return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
 };
 
+=pod
+
+K8S/对应用进行回滚
+
+=cut
+
 post '/kubernetes/app/rollback' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -396,6 +456,12 @@ post '/kubernetes/app/rollback' => sub {
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
 };
+
+=pod
+
+K8S/获取应用可回滚的版本列表
+
+=cut
 
 get '/kubernetes/app/rollback' => sub {
     my $param = params();
@@ -436,6 +502,14 @@ $handle{gethistory} = sub
     }
     return +{ stat => $JSON::true, data => \@r };
 };
+
+=pod
+
+K8S/删除应用
+
+对应K8S中的delete命令
+
+=cut
 
 post '/kubernetes/app/delete' => sub {
     my $param = params();

@@ -9,6 +9,12 @@ use MIME::Base64;
 use api;
 use Format;
 
+=pod
+
+AGENT/区域管理/获取区域和服务树的绑定关系
+
+=cut
+
 get '/project_region_relation/:projectid' => sub {
     my $param = params();
     my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
@@ -26,7 +32,12 @@ get '/project_region_relation/:projectid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
 
-#regionid
+=pod
+
+AGENT/区域管理/添加区域和服务树的绑定关系
+
+=cut
+
 post '/project_region_relation/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -48,6 +59,12 @@ post '/project_region_relation/:projectid' => sub {
 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+AGENT/区域管理/解除区域和服务树的绑定关系
+
+=cut
 
 del '/project_region_relation/:projectid/:regionid' => sub {
     my $param = params();

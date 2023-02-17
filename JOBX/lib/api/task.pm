@@ -12,13 +12,12 @@ use Format;
 use Util;
 use FindBin qw( $RealBin );
 
+=pod
 
-#name
-#user
-#status
-#time_start
-#time_end
-#taskuuid
+分组作业/获取任务列表
+
+=cut
+
 get '/task/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -76,6 +75,12 @@ get '/task/:projectid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
 
+=pod
+
+分组作业/获取任务数量
+
+=cut
+
 get '/task/:projectid/count' => sub {
     my $param = params();
     my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
@@ -93,7 +98,12 @@ get '/task/:projectid/count' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \%data };
 };
 
-# 按时间段统计
+=pod
+
+分组作业/任务统计/按照时间段统计
+
+=cut
+
 get '/task/:projectid/total_count' => sub {
     my $param = params();
     my $error = Format->new(
@@ -115,6 +125,12 @@ get '/task/:projectid/total_count' => sub {
     map{$data{$_}||=0}qw( success running fail );
     return +{ stat => $JSON::true, data => \%data };
 };
+
+=pod
+
+分组作业/任务统计/获取任务详情
+
+=cut
 
 get '/task/:projectid/:uuid' => sub {
     my $param = params();
@@ -139,9 +155,16 @@ get '/task/:projectid/:uuid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r->[0] };
 };
 
-#/task/:projectid/job/byname?jobname=jobname1
-#group = groupname1
-#variable = %hash
+=pod
+
+分组作业/通过作业名称启动任务
+
+/task/:projectid/job/byname?jobname=jobname1
+group = groupname1
+variable = { foo: 123 }
+
+=cut
+
 post '/task/:projectid/job/byname' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -212,6 +235,12 @@ post '/task/:projectid/job/byname' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, uuid => $uuid, data => $r };
 };
 
+=pod
+
+流水线/回滚确认/是否回滚任务
+
+=cut
+
 put '/task/:projectid/:uuid/:control' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -268,6 +297,12 @@ put '/task/:projectid/:uuid/:control' => sub {
     };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, info => "ok" };
 };
+
+=pod
+
+分组作业/停止任务
+
+=cut
 
 any ['put', 'delete'] => '/task/:projectid/:uuid' => sub {
     my $param = params();
@@ -345,7 +380,12 @@ any ['put', 'delete'] => '/task/:projectid/:uuid' => sub {
     return +{ stat => $JSON::true };
 };
 
-#count
+=pod
+
+分组作业/任务统计/最后几条记录
+
+=cut
+
 get '/task/:projectid/analysis/last' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -367,6 +407,12 @@ get '/task/:projectid/analysis/last' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+分组作业/任务统计/按照日期统计
+
+=cut
 
 get '/task/:projectid/analysis/date' => sub {
     my $param = params();
@@ -392,6 +438,11 @@ get '/task/:projectid/analysis/date' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@data };
 };
 
+=pod
+
+分组作业/任务统计/按照小时统计
+
+=cut
 
 get '/task/:projectid/analysis/hour' => sub {
     my $param = params();
@@ -412,6 +463,11 @@ get '/task/:projectid/analysis/hour' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
 
+=pod
+
+分组作业/任务统计/按照运行时长统计
+
+=cut
 
 get '/task/:projectid/analysis/runtime' => sub {
     my $param = params();

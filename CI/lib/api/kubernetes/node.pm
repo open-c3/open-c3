@@ -13,6 +13,12 @@ use api::kubernetes;
 
 our %handle = %api::kubernetes::handle;
 
+=pod
+
+K8S/节点管理/获取节点列表
+
+=cut
+
 get '/kubernetes/node' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -54,6 +60,17 @@ $handle{getnode} = sub
     return +{ stat => $JSON::true, data => \@r, };
 };
 
+=pod
+
+K8S/节点管理/调度设置
+
+对应K8S中的cordon操作
+
+cordon:    不可调度
+uncordon:  可调度
+
+=cut
+
 post '/kubernetes/node/cordon' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -78,6 +95,14 @@ post '/kubernetes/node/cordon' => sub {
     return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
 };
 
+=pod
+
+K8S/节点管理/驱逐
+
+对应K8S中的drain操作
+
+=cut
+
 post '/kubernetes/node/drain' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -100,6 +125,12 @@ post '/kubernetes/node/drain' => sub {
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
 };
+
+=pod
+
+K8S/节点管理/污点信息获取
+
+=cut
 
 get '/kubernetes/node/taint' => sub {
     my $param = params();
@@ -137,6 +168,12 @@ $handle{getnodetaint} = sub
     return +{ stat => $JSON::true, data => \@r, };
 };
 
+=pod
+
+K8S/节点管理/污点设置
+
+=cut
+
 post '/kubernetes/node/taint' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -162,6 +199,12 @@ post '/kubernetes/node/taint' => sub {
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
 };
+
+=pod
+
+K8S/节点管理/污点删除
+
+=cut
 
 del '/kubernetes/node/taint' => sub {
     my $param = params();

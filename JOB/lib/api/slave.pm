@@ -121,6 +121,12 @@ websocket_on_close sub
     delete $conn{$conn};
 };
 
+=pod
+
+SLAVE/获取任务日志HTML页面
+
+=cut
+
 get '/tasklog/:uuid' => sub {
   my $uuid = params()->{uuid};
   my $ws_url = request->env->{HTTP_X_REAL_IP}
@@ -146,6 +152,12 @@ get '/tasklog/:uuid' => sub {
   </html>
 END
 };
+
+=pod
+
+SLAVE/通过任务UUID停止任务
+
+=cut
 
 del '/killtask/:uuid' => sub {
     my $uuid = params()->{uuid};
@@ -209,10 +221,22 @@ del '/killtask/:uuid' => sub {
         : +{ stat => $JSON::true, info => "kill task succcess" };
 };
 
+=pod
+
+SLAVE/获取自身监控状态
+
+=cut
+
 any '/mon' => sub {
      eval{ $mysql->query( "select count(*) from openc3_job_keepalive" )};
      return $@ ? +{ status => "ERR:$@" } : { status => "ok" };
 };
+
+=pod
+
+SLAVE/reload服务
+
+=cut
 
 any '/reload' => sub {
     my $token = `cat /etc/openc3.reload.token 2>/dev/null`; chomp $token;

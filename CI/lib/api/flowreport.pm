@@ -11,6 +11,12 @@ use Format;
 use File::Basename;
 use Time::Local;
 
+=pod
+
+报告/获取流水线报告
+
+=cut
+
 get '/flowreport/:groupid/report' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -133,6 +139,12 @@ get '/flowreport/:groupid/report' => sub {
 
     return +{ stat => $JSON::true, data => \%re };
 };
+
+=pod
+
+报告/获取流水线报告数据源列表
+
+=cut
 
 get '/flowreport/:groupid/datalist' => sub {
     my $param = params();

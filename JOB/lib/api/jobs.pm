@@ -8,13 +8,12 @@ use MIME::Base64;
 use api;
 use Format;
 
-#name
-#create_user
-#edit_user
-#create_time_start
-#create_time_end
-#edit_time_start
-#edit_time_end
+=pod
+
+作业/获取作业列表
+
+=cut
+
 get '/jobs/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -70,6 +69,12 @@ get '/jobs/:projectid' => sub {
     return +{ stat => $JSON::true, data => [ map{ +{ stepcount => scalar( split /,/, delete $_->{uuids}), hasvariable => $hasvariable{$_->{uuid}} || 0, %$_  }}@$r] };
 };
 
+=pod
+
+作业/获取作业数量
+
+=cut
+
 get '/jobs/:projectid/count' => sub {
     my $param = params();
     my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
@@ -80,6 +85,12 @@ get '/jobs/:projectid/count' => sub {
     my $r = eval{ $api::mysql->query( "select count(id) from openc3_job_jobs where projectid='$param->{projectid}' and status='permanent'" )};
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => +{ permanent => $r->[0][0] }};
 };
+
+=pod
+
+作业/获取单个作业详情
+
+=cut
 
 get '/jobs/:projectid/:jobuuid' => sub {
     my $param = params();
@@ -169,6 +180,12 @@ get '/jobs/:projectid/:jobuuid' => sub {
     return +{ stat => $JSON::true, data => \%x };
 };
 
+=pod
+
+作业/通过作业名称拷贝作业
+
+=cut
+
 post '/jobs/:projectid/copy/byname' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -241,15 +258,18 @@ post '/jobs/:projectid/copy/byname' => sub {
     return +{ stat => $JSON::true, uuid => $touuid };
 };
 
-#name
-#permanent
-#data
+=pod
+
+作业/创建作业
+
+=cut
+
 post '/jobs/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
         projectid => qr/^\d+$/, 1,
         name => [ 'mismatch', qr/'/ ], 1,
-        mon_ids => qr/^[a-zA-Z0-9_\,\.\/]+$/, 0,
+        mon_ids => qr/^[a-zA-Z0-9_\,\.\/]*$/, 0,
         mon_status => [ 'mismatch', qr/'/ ], 0,
     )->check( %$param );
 
@@ -546,15 +566,18 @@ post '/jobs/:projectid' => sub {
     return +{ stat => $JSON::true, uuid => $jobuuid, data => \$r };
 };
 
+=pod
 
-#name
-#data
+作业/编辑作业
+
+=cut
+
 post '/jobs/:projectid/:jobuuid' => sub {
     my $param = params();
     my $error = Format->new( 
         projectid => qr/^\d+$/, 1,
         jobuuid => qr/^[a-zA-Z0-9]+$/, 1,
-        mon_ids => qr/^[a-zA-Z0-9_\,\.\/]+$/, 0,
+        mon_ids => qr/^[a-zA-Z0-9_\,\.\/]*$/, 0,
         mon_status => [ 'mismatch', qr/'/ ], 0,
         name => [ 'mismatch', qr/'/ ], 1,
     )->check( %$param );
@@ -867,6 +890,12 @@ post '/jobs/:projectid/:jobuuid' => sub {
 
 };
 
+=pod
+
+作业/删除作业
+
+=cut
+
 del '/jobs/:projectid/:jobuuid' => sub {
     my $param = params();
 
@@ -896,6 +925,12 @@ del '/jobs/:projectid/:jobuuid' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
 };
+
+=pod
+
+作业/通过作业名称删除作业
+
+=cut
 
 del '/jobs/:projectid/:name/byname' => sub {
     my $param = params();

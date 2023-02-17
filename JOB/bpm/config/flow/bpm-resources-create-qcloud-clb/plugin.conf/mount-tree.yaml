@@ -1,0 +1,16 @@
+---
+name: 挂树
+fromops: 1
+option:
+  - name:     tree_path
+    describe: 服务树
+    type:     input
+    value:    ""
+
+template_argv:
+  tree_path:        ${tree_path}
+  instance_ids:     ${var.clb_id}
+  type:             'network'
+  subtype:          "qcloud-clb"
+  type_code:        "g9"
+  extinstance_ids:  ${var.extinstance_id} 

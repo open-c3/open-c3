@@ -6,6 +6,14 @@ use JSON   qw();
 use POSIX;
 use api;
 
+=pod
+
+CMDB/修改资源密码
+
+mysql/redis/mongodb 监控时需要登录帐号，在CMDB中管理该帐号
+
+=cut
+
 any '/device/chpassword' => sub {
     my $param = params();
     my $error = Format->new(

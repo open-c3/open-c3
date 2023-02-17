@@ -52,6 +52,11 @@
               actName:   '执行作业', confirm: true, failAlert: true, sucAlert: true,
           },
           {
+              namespace: 'work.runJobByName', method: 'post',
+              url:       function(treeid){return '/api/job/task/' + treeid + "/job/byname"},
+              actName:   '执行作业', confirm: true, failAlert: true, sucAlert: true,
+          },
+          {
               namespace: 'work.rebootTask', method: 'post',
               url:       function(treeid){return '/api/job/task/' + treeid + "/job"},
               actName:   '重新执行任务', confirm: true, failAlert: true, sucAlert: true,

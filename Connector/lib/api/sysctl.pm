@@ -14,6 +14,12 @@ use File::Basename;
 use POSIX;
 use OPENC3::SysCtl;
 
+=pod
+
+系统设置/获取设置信息
+
+=cut
+
 get '/sysctl' => sub
 {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
@@ -22,12 +28,26 @@ get '/sysctl' => sub
     return +{ stat => $JSON::true, data => $config };
 };
 
+=pod
+
+系统设置/获取节点名称
+
+集群中的每台机器都有一个唯一的名称，这个接口可以查询当前相应请求的节点的名称。
+
+=cut
+
 get '/sysctl/hostname' => sub
 {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
     my $pmscheck = api::pmscheck('openc3_connector_root'); return $pmscheck if $pmscheck;
     return +{ stat => $JSON::true, data => `c3mc-base-hostname` };
 };
+
+=pod
+
+系统设置/编辑设置
+
+=cut
 
 post '/sysctl' => sub
 {

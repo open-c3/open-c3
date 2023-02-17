@@ -6,6 +6,12 @@ use JSON qw();
 use POSIX;
 use api;
 
+=pod
+
+系统内置/数据库监控状态
+
+=cut
+
 get '/monitor/metrics/mysql' => sub {
     my $param = params();
 
@@ -27,6 +33,12 @@ get '/monitor/metrics/mysql' => sub {
 
     return +{ stat => $JSON::true, data => \%re };
 };
+
+=pod
+
+系统内置/模块监控状态
+
+=cut
 
 get '/monitor/metrics/app' => sub {
     my $param = params();

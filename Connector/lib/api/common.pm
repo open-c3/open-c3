@@ -4,6 +4,12 @@ use Dancer qw(cookie);
 use Encode qw(encode);
 use POSIX;
 
+=pod
+
+多语言/多语言数据
+
+=cut
+
 get '/common/i18n' => sub {
     my $data = eval{ YAML::XS::LoadFile "/data/Software/mydan/Connector/lib/api/i18n.yaml"; };
     return +{ stat => $JSON::false, info => "load i18n.yaml fail: $@" } if $@;

@@ -8,6 +8,12 @@ use api;
 use uuid;
 use Format;
 
+=pod
+
+系统内置/短信/获取短信列表
+
+=cut
+
 get '/default/mesg' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
 
@@ -15,6 +21,14 @@ get '/default/mesg' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $mesg };
 };
+
+=pod
+
+系统内置/短信/发送短信
+
+注：属于内置接口，只有后端模块可能会调用。
+
+=cut
 
 post '/default/mesg' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;

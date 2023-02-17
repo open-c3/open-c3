@@ -13,6 +13,12 @@ use api::kubernetes;
 
 our %handle = %api::kubernetes::handle;
 
+=pod
+
+K8S/命名空间/获取命名空间列表
+
+=cut
+
 get '/kubernetes/namespace' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -34,6 +40,12 @@ get '/kubernetes/namespace' => sub {
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle, filter => $filter }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $?, $filter ); 
 };
+
+=pod
+
+K8S/命名空间/创建命名空间
+
+=cut
 
 post '/kubernetes/namespace' => sub {
     my $param = params();

@@ -1,0 +1,62 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import os
+import json
+import subprocess
+
+def update_tags(filepath):
+    try:
+        result = subprocess.run(
+            "tail -n +2 {} | c3mc-parse-tsv-tag-file --idindex 0 --tagindex 1".format(filepath), 
+            shell=True, 
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
+    except subprocess.CalledProcessError as error:
+        raise Exception("获取标签列表出错. error: {}".format(error))
+
+    data_list = result.stdout.decode().split("\n")
+    for item in data_list:
+        if item == "":
+            continue
+        parts = item.split("\t")
+        instance_id = parts[0]
+        key = parts[1]
+        value = parts[2]
+        if key.startswith("acs:"):
+            # "acs:" 开头的标签属于系统标签，更新或者删除系统标签都会报错，这里直接跳过
+            continue
+        if value == "":
+            os.system("c3mc-cloud-control --uuid {} --ctrl tag-delete {}"
+            .format(
+                instance_id,
+                key,
+            ))
+        else:
+            os.system("c3mc-cloud-control --uuid {} --ctrl tag-add {} {}"
+            .format(
+                instance_id,
+                key,
+                value
+            ))
+        print("成功更新实例 {} 的标签, 标签键: {}, 标签值:{}".format(instance_id, key, value))
+    print("成功更新 {} 个的标签数据".format(len(data_list)))
+    return
+
+
+def main(params):
+    filepath = params["filepath"]
+    update_tags(filepath)
+    
+
+if __name__ == '__main__':
+    l = []
+    for line in sys.stdin:
+        l.append(line)
+    if len(l) == 0 or len(l) > 1:
+        raise Exception("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]))

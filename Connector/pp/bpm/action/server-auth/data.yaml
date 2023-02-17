@@ -1,0 +1,29 @@
+---
+name: 申请服务器访问权限
+fromops: 1
+option:
+  - name: account
+    describe: 登陆账号
+    extra_desc: 用户的登录账号, 由系统生成, 比如根据账号 zhangsan@zxcf.com 提取登陆账号为 zhangsan
+    type: input
+
+  - name: auth_type
+    describe: 权限类型
+    option: ["登陆权限", "sudo权限"]
+    type: select
+    value: ""
+
+  - name: ip_list
+    describe: 服务器IP列表
+    extra_desc: 多个IP用英文逗号分割
+    type: input
+
+template_argv:
+  # 账号
+  account: ${account}
+  # 用户邮箱
+  email: ${email}
+  # 权限类型
+  auth_type: ${auth_type}
+  # 服务器IP列表
+  ip_list: ${ip_list}

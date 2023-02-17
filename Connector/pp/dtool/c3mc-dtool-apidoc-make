@@ -1,0 +1,31 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0 grep
+
+=cut
+
+my $argv = @ARGV ? "'$ARGV[0]'" : "";
+
+my @x = `find /data/Software/mydan/*/lib/api -name *.pm`;
+chomp @x;
+
+my %data;
+for my $x ( @x )
+{
+    my @cont = `c3mc-dtool-apidoc-make-onece '$x' $argv`;
+    die "task error: $!" if $?;
+    chomp @cont;
+
+    my $title = @cont ? $cont[0] : 'unkown';
+    $data{$title} //= [];
+
+    push @{$data{$title}}, @cont;
+}
+
+map{  map{ print "$_\n" }@{$data{$_}}; }sort keys %data;

@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-huawei-ecs --account huawei | c3mc-cloud-tag --tagfield tags --delimiter = | c3mc-cloud-convert-obj-to-array addresses | c3mc-price-fetch huawei-ecs 'region_id;flaver_id' | c3mc-base-json2tab "
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-huawei-ecs --account huawei | c3mc-cloud-tag-v2 --tagfield tags --delimiter = | c3mc-cloud-convert-obj-to-array addresses | c3mc-price-fetch huawei-ecs 'region_id;flaver_id' | c3mc-base-json2tab "
     datatype: tsv # 固定值。表示url中命令最终输出的文件格式
     type: compute # 资源类型。cmdb页面中的分类
     subtype: huawei-ecs # 上面资源类型的子类型。
@@ -30,9 +30,9 @@ download:
       site: ["{Huawei}", "vpc_name"]
       vpc_id: "vpc_id"
       vpc_name: "vpc_name"
-      exclude:
+      excludeContain:
         "状态": ["SHUTOFF"]
-        "vpc_name": ["/ThirdParty/", "/CMTest/"]
+        "vpc_name": ["ThirdParty", "CMTest"]
     metrics:
       - name: 'openc3_cmdb_resource_price{account="%s",instanceid="%s",type="compute",subtype="huawei-ecs",unit="%s",status="%s"} %f'
         value: ["account", "uuid", "_priceunit_", "状态", "_price_"]
@@ -47,6 +47,31 @@ download:
         - name: _ingestion_
           alias: 摄取
           select: ["YES", "NO"]
+      grpcol:
+        baseinfo:
+        - name: 名称
+        - name: 实例ID
+        - name: 状态
+          success:
+          - ACTIVE
+        - name: account
+          color: red
+        - name: 所在可用区
+        - name: 部门
+        - name: 业务负责人
+        - name: 运维负责人
+        - name: 公网IP
+        - name: 内网IP
+        system:
+        - name: 操作系统
+        - name: 实例类型
+        - name: flavor.vcpus
+          tail: (核) 
+        - name: 内存
+          tail: (兆)
+        - prefix: tag.
+        - prefix: security_groups.
+
     colmap:
       treename: "服务树"
       uuid: "实例ID" # 指明哪一列作为uuid列

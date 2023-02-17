@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"permisstion/src"
+	"strconv"
 	"strings"
 )
 
@@ -17,6 +18,8 @@ func main() {
 	username := flag.String("username", "", "需要添加服务器权限的目标账户")
 	email := flag.String("email", "", "需要添加服务器权限的目标账户邮箱")
 	ip := flag.String("ip", "", "需要添加服务器权限的目标IP")
+	sudoHoursStr := flag.String("sudo_hours", "", "sudo权限的小时数")
+	scanDir := flag.String("scan_dir", "", "如果是申请sudo权限, 在此目录需要记录用户ip的sudo过期时间戳")
 	addType := flag.String("add_type", "", "权限处理类型。1: 添加普通权限; 2: 删除权限; 3: 添加sudo权限; 4: 删除sudo权限(保留账户)")
 
 	flag.Parse()
@@ -48,6 +51,9 @@ func main() {
 	if *addType == "" {
 		fmt.Fprintln(os.Stderr, "-add_type参数必传")
 		return
+	}
+	if *addType == "3" && *sudoHoursStr == "" {
+		fmt.Fprintln(os.Stderr, "添加sudo权限时, -sudo_hours参数必传")
 	}
 
 	b, err := src.NewBastion(*adminUser, *adminPass, *url)
@@ -108,6 +114,17 @@ func main() {
 			*username,
 			systemUserPassword,
 		)
+		sudoHours, err := strconv.Atoi(*sudoHoursStr)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "转换sudo小时数出错, %v", err)
+			return
+		}
+		upsertSudo := src.NewUpsertSudo(*scanDir)
+		err = upsertSudo.Upsert(*username, *ip, sudoHours)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "记录sudo时间出错, %v", err)
+			return
+		}
 	case "4":
 		command = fmt.Sprintf("del_just_sudo_privilege %v %v",
 			*ip,

@@ -10,6 +10,12 @@ use Format;
 
 my $path = "/data/glusterfs/mailmon";
 
+=pod
+
+监控系统/邮件监控/获取列表
+
+=cut
+
 get '/monitor/config/mailmon' => sub {
     my $pmscheck = api::pmscheck( 'openc3_agent_read', 0 ); return $pmscheck if $pmscheck;
 
@@ -21,6 +27,12 @@ get '/monitor/config/mailmon' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
 
+=pod
+
+监控系统/邮件监控/获取历史
+
+=cut
+
 get '/monitor/config/mailmon/history' => sub {
     my $pmscheck = api::pmscheck( 'openc3_agent_read', 0 ); return $pmscheck if $pmscheck;
 
@@ -31,6 +43,12 @@ get '/monitor/config/mailmon/history' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+监控系统/邮件监控/获取某个邮件监控的配置
+
+=cut
 
 get '/monitor/config/mailmon/:id' => sub {
     my $param = params();
@@ -58,6 +76,12 @@ get '/monitor/config/mailmon/:id' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r->[0] };
 };
+
+=pod
+
+监控系统/邮件监控/创建邮件监控
+
+=cut
 
 post '/monitor/config/mailmon' => sub {
     my $param = params();
@@ -101,6 +125,12 @@ post '/monitor/config/mailmon' => sub {
     };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
+
+=pod
+
+监控系统/邮件监控/删除邮件监控
+
+=cut
 
 del '/monitor/config/mailmon/:id' => sub {
     my $param = params();

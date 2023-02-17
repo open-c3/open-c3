@@ -9,6 +9,12 @@ use MIME::Base64;
 use api;
 use Format;
 
+=pod
+
+流水线/获取某个服务树下流水线列表
+
+=cut
+
 get '/group/:groupid' => sub {
     my $param = params();
     my $error = Format->new( groupid => qr/^\d+$/, 1 )->check( %$param );
@@ -57,6 +63,12 @@ get '/group/:groupid' => sub {
 
     return +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+流水线/获取某个服务树下收藏的流水线
+
+=cut
 
 get '/group/favorites/:groupid' => sub {
     my $param = params();
@@ -115,6 +127,12 @@ get '/group/favorites/:groupid' => sub {
     return +{ stat => $JSON::true, data => \@list };
 };
 
+=pod
+
+流水线/获取用户所有可见的流水线
+
+=cut
+
 get '/group/all/:groupid' => sub {
     my $param = params();
     my $error = Format->new( groupid => qr/^\d+$/, 1 )->check( %$param );
@@ -158,6 +176,12 @@ get '/group/all/:groupid' => sub {
     }@$r;
     return +{ stat => $JSON::true, data => \@list };
 };
+
+=pod
+
+流水线/创建流水线
+
+=cut
 
 post '/group/:groupid' => sub {
     my $param = params();
@@ -226,6 +250,14 @@ post '/group/:groupid' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, id => $flowid->[0][0] };
 };
+
+=pod
+
+流水线/K8S集群和流水线关联
+
+在K8S应用列表中可以直接把应用关联到某个发布流水线中。
+
+=cut
 
 post '/group/connectk8s/:groupid/:flowid' => sub {
     my $param = params();

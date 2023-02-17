@@ -8,6 +8,12 @@ use MIME::Base64;
 use api;
 use Format;
 
+=pod
+
+作业/任务/获取任务信息
+
+=cut
+
 get '/subtask/:projectid/:taskuuid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -50,6 +56,12 @@ get '/subtask/:projectid/:taskuuid' => sub {
     return +{ stat => $JSON::true, data => [ map{ +{ %$_, extended => $e{$_->{subtask_type}} ? $e{$_->{subtask_type}}{$_->{uuid}} : +{}}}@$r ]};
 };
 
+=pod
+
+作业/任务/获取任务单个步骤信息
+
+=cut
+
 #这里通过子任务uuid查不太严谨，正常应该通过id  活着子任务uuid＋子任务类型
 get '/subtask/:projectid/:taskuuid/:subtaskuuid' => sub {
     my $param = params();
@@ -84,11 +96,12 @@ get '/subtask/:projectid/:taskuuid/:subtaskuuid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $data };
 };
 
-#taskuuid
-#taskuuid
-#subtaskuuid
-#subtasktype
-#control = next,fail,running,ignore
+=pod
+
+作业/任务/操作子任务
+
+=cut
+
 post '/subtask/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -140,7 +153,14 @@ post '/subtask/:projectid' => sub {
     return $x ?  +{ stat => $JSON::false, info => $x } : +{ stat => $JSON::true, data => $r };
 };
 
-#同上，区别是只能操作next
+=pod
+
+作业/任务/操作子任务
+
+同上，区别是只能操作next
+
+=cut
+
 put '/subtask/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -185,6 +205,5 @@ put '/subtask/:projectid' => sub {
 
     return $x ?  +{ stat => $JSON::false, info => $x } : +{ stat => $JSON::true, data => $r };
 };
-
 
 true;

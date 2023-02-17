@@ -1,0 +1,5 @@
+#!/bin/bash
+
+export C3GITBASEURL='https://github.com/open-c3/open-c3/blob/v2.6.0'
+
+c3mc-dtool-apidoc-make |grep '^## '|grep /|awk '{print $2}' |awk -F'/' '{print $1}'|sort|uniq|xargs -i{} c3mc-dtool-apidoc-make {}

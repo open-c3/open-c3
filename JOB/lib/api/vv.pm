@@ -7,11 +7,12 @@ use api;
 use Encode qw(encode);
 use Format;
 
-#node
-#name
-#value
-#time_start
-#time_end
+=pod
+
+业务管理/变量查看/信息查询
+
+=cut
+
 get '/vv/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -42,11 +43,12 @@ get '/vv/:projectid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
 
-#node
-#name
-#value
-#time_start
-#time_end
+=pod
+
+业务管理/变量查看/获取表格数据
+
+=cut
+
 get '/vv/:projectid/table' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -87,6 +89,12 @@ get '/vv/:projectid/table' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@x };
 };
 
+=pod
+
+业务管理/变量查看/获取列表数据
+
+=cut
+
 get '/vv/:projectid/list' => sub {
     my $param = params();
     my $error = Format->new(
@@ -126,6 +134,11 @@ get '/vv/:projectid/list' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@result };
 };
 
+=pod
+
+业务管理/变量查看/按照node进行删除
+
+=cut
 
 del '/vv/:projectid/:node' => sub {
     my $param = params();
@@ -148,6 +161,12 @@ del '/vv/:projectid/:node' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => "delete success" };
 };
+
+=pod
+
+业务管理/变量查看/获取版本比例分布
+
+=cut
 
 get '/vv/:projectid/analysis/version' => sub {
     my $param = params();

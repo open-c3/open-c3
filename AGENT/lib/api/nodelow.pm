@@ -13,6 +13,12 @@ use Format;
 my $nodelow;
 BEGIN { ( $nodelow ) = map{ Code->new( $_ ) }qw( nodelow ); };
 
+=pod
+
+监控系统/资源低负载/获取概要
+
+=cut
+
 get '/nodelow/:projectid' => sub {
     my $param = params();
     my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
@@ -24,6 +30,12 @@ get '/nodelow/:projectid' => sub {
     my @node = eval{ $nodelow->run( db => $api::mysql, id => $param->{projectid} ) };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@node };
 };
+
+=pod
+
+监控系统/资源低负载/获取单个资源详情
+
+=cut
 
 get '/nodelow/detail/:projectid/:ip' => sub {
     my $param = params();

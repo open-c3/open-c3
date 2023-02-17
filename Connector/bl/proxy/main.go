@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"log"
 	"net/http"
 	"os"
 	"os/exec"
@@ -11,20 +12,43 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/sirupsen/logrus"
+
+	"proxy/src"
+
 	"github.com/gin-gonic/gin"
 )
 
 func main() {
+	logrus.SetFormatter(&logrus.TextFormatter{
+		FullTimestamp: true,
+	})
+
+	var (
+		defaultScanDir = "scan_dir"
+	)
+
 	commandDir := flag.String("command_dir", "", "命令所在目录, 必传")
 	appName := flag.String("app_name", "", "app name, 非必传")
 	appKey := flag.String("app_key", "", "app key, 非必传")
+	scanDir := flag.String("scan_dir", "", "定时任务扫描的绝对路径, 如果不指定, 则在当前路径创建scan_dir目录")
 
 	flag.Parse()
 
 	if *commandDir == "" {
 		panic("-command_dir 不允许为空")
 	}
+	if *commandDir == "" {
+		panic("-scanDir 不允许为空")
+	}
 
+	if *scanDir == "" {
+		dir, err := createDir(defaultScanDir)
+		if err != nil {
+			log.Fatalf("createDir.err: %v", err)
+		}
+		scanDir = dir
+	}
 	r := gin.Default()
 
 	type RequestData struct {
@@ -50,7 +74,7 @@ func main() {
 			return
 		}
 
-		if _, err := os.Stat(path.Join(absPath, data.Command)); os.IsNotExist(err) {
+		if _, err = os.Stat(path.Join(absPath, data.Command)); os.IsNotExist(err) {
 			c.JSON(http.StatusBadRequest, gin.H{"stat": 0, "info": "在指定路径无法找到要执行的命令"})
 			return
 		}
@@ -74,8 +98,11 @@ func main() {
 		argsStr := make([]string, 0)
 		for key, value := range args {
 			argsStr = append(argsStr, fmt.Sprintf("-%v", key))
-			argsStr = append(argsStr, value.(string))
+			argsStr = append(argsStr, fmt.Sprintf("%v", value))
 		}
+
+		argsStr = append(argsStr, "-scan_dir")
+		argsStr = append(argsStr, fmt.Sprintf("%v", *scanDir))
 
 		cmd := exec.Command(data.Command, argsStr...)
 		output, err := cmd.CombinedOutput()
@@ -87,5 +114,30 @@ func main() {
 		c.JSON(http.StatusOK, gin.H{"stat": 1, "data": strings.TrimSpace(string(output))})
 	})
 
-	r.Run("0.0.0.0:56383")
+	go func() {
+		r := src.NewRunCmdOnFile(*scanDir)
+		err := r.Run()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+
+	err := r.Run("0.0.0.0:56383")
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func createDir(dirName string) (*string, error) {
+	absPath, err := filepath.Abs(dirName)
+	if err != nil {
+		return nil, err
+	}
+	if _, err := os.Stat(absPath); os.IsNotExist(err) {
+		err = os.Mkdir(absPath, 0755)
+		if err != nil {
+			return nil, err
+		}
+	}
+	return &absPath, nil
 }
