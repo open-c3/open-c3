@@ -9,7 +9,14 @@ use MIME::Base64;
 use api;
 use Format;
 
-#relation 同时返回项目0的列表
+=pod
+
+AGENT/区域/获取列表
+
+relation 同时返回项目0的列表
+
+=cut
+
 get '/region/:projectid' => sub {
     my $param = params();
     my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
@@ -30,7 +37,12 @@ get '/region/:projectid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
 
-#name
+=pod
+
+AGENT/区域/创建区域
+
+=cut
+
 post '/region/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -54,6 +66,12 @@ post '/region/:projectid' => sub {
 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+AGENT/区域/删除
+
+=cut
 
 del '/region/:projectid/:regionid' => sub {
     my $param = params();
@@ -83,7 +101,11 @@ del '/region/:projectid/:regionid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
 
-#Extended
+=pod
+
+AGENT/区域/获取活跃区域信息
+
+=cut
 
 get '/region/:projectid/active' => sub {
     my $param = params();

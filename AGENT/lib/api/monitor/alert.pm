@@ -21,6 +21,12 @@ sub gettime
     return POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( $x + 8 * 3600) );
 }
 
+=pod
+
+监控系统/获取告警列表
+
+=cut
+
 get '/monitor/alert/:projectid' => sub {
     my $param = params();
     my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
@@ -66,6 +72,12 @@ get '/monitor/alert/:projectid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@res };
 };
 
+=pod
+
+监控系统/告警转工单
+
+=cut
+
 post '/monitor/alert/tott/:projectid' => sub {
     my $param = params();
     my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
@@ -107,6 +119,12 @@ post '/monitor/alert/tott/:projectid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $file };
 };
 
+=pod
+
+监控系统/获取告警和工单的绑定关系
+
+=cut
+
 get '/monitor/alert/tottbind/:projectid' => sub {
     my $param = params();
 
@@ -122,6 +140,12 @@ get '/monitor/alert/tottbind/:projectid' => sub {
     }
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \%res };
 };
+
+=pod
+
+监控系统/获取监控的工单url地址
+
+=cut
 
 get '/monitor/alert/gotocase/:projectid' => sub {
     my $param = params();

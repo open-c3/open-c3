@@ -10,6 +10,12 @@ use Format;
 
 my $path = "/data/open-c3-data/glusterfs/oncall";
 
+=pod
+
+监控系统/值班组/获取列表
+
+=cut
+
 get '/monitor/config/oncall' => sub {
     my $pmscheck = api::pmscheck( 'openc3_agent_read', 0 ); return $pmscheck if $pmscheck;
 
@@ -20,6 +26,12 @@ get '/monitor/config/oncall' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+监控系统/值班组/获取值班组配置
+
+=cut
 
 get '/monitor/config/oncall/:id' => sub {
     my $param = params();
@@ -54,6 +66,12 @@ get '/monitor/config/oncall/:id' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r->[0] };
 };
 
+=pod
+
+监控系统/值班组/获取日历
+
+=cut
+
 get '/monitor/config/oncall/cal/:name' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -71,6 +89,12 @@ get '/monitor/config/oncall/cal/:name' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $out };
 };
 
+=pod
+
+监控系统/值班组/获取值班表
+
+=cut
+
 get '/monitor/config/oncall/list/:name' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -84,6 +108,12 @@ get '/monitor/config/oncall/list/:name' => sub {
     my $out = `c3mc-oncall-list -d 30 '$param->{name}'`;
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $out };
 };
+
+=pod
+
+监控系统/值班组/修改值班组配置
+
+=cut
 
 post '/monitor/config/oncall' => sub {
     my $param = params();
@@ -128,6 +158,12 @@ post '/monitor/config/oncall' => sub {
     };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
+
+=pod
+
+监控系统/值班组/删除值班组配置
+
+=cut
 
 del '/monitor/config/oncall/:id' => sub {
     my $param = params();

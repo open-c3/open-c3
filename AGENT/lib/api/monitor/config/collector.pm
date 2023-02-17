@@ -8,6 +8,12 @@ use POSIX;
 use api;
 use Format;
 
+=pod
+
+监控系统/采集配置/获取列表
+
+=cut
+
 get '/monitor/config/collector/:projectid' => sub {
     my $param = params();
     my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
@@ -26,6 +32,12 @@ get '/monitor/config/collector/:projectid' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+监控系统/采集配置/获取单个采集配置详情
+
+=cut
 
 get '/monitor/config/collector/:projectid/:id' => sub {
     my $param = params();
@@ -47,6 +59,12 @@ get '/monitor/config/collector/:projectid/:id' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r->[0] };
 };
+
+=pod
+
+监控系统/采集配置/添加或编辑采集配置
+
+=cut
 
 post '/monitor/config/collector/:projectid' => sub {
     my $param = params();
@@ -94,6 +112,12 @@ post '/monitor/config/collector/:projectid' => sub {
     };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
+
+=pod
+
+监控系统/采集配置/删除采集配置
+
+=cut
 
 del '/monitor/config/collector/:projectid/:id' => sub {
     my $param = params();

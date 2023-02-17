@@ -9,6 +9,12 @@ use api;
 use Format;
 use Digest::MD5;
 
+=pod
+
+监控系统/ACK/个人ACK/通过cookie方式获取
+
+=cut
+
 get '/monitor/ack/myack/bycookie' => sub {
     my $param = params();
 
@@ -48,6 +54,12 @@ get '/monitor/ack/myack/bycookie' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@res };
 };
 
+=pod
+
+监控系统/ACK/个人ACK/状态提交
+
+=cut
+
 post '/monitor/ack/myack/bycookie' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -65,6 +77,13 @@ post '/monitor/ack/myack/bycookie' => sub {
     eval{ $api::mysql->execute( "update openc3_monitor_ack_active set expire=0 where  ( edit_user='$user' or edit_user='$user/email' or edit_user='$user/phone') and type='$param->{type}' and ackuuid='$param->{uuid}' $where" ); };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
+
+
+=pod
+
+监控系统/ACK/全部ACK/通过cookie方式获取
+
+=cut
 
 get '/monitor/ack/allack/bycookie' => sub {
     my $param = params();
@@ -106,6 +125,12 @@ get '/monitor/ack/allack/bycookie' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@res };
 };
 
+=pod
+
+监控系统/ACK/全局ACK/状态提交
+
+=cut
+
 post '/monitor/ack/allack/bycookie' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -124,6 +149,11 @@ post '/monitor/ack/allack/bycookie' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
 
+=pod
+
+监控系统/ACK/获取详情
+
+=cut
 
 get '/monitor/ack/:uuid' => sub {
     my $param = params();
@@ -218,6 +248,12 @@ get '/monitor/ack/:uuid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@res, acked => \%acked, caseinfo => $caseinfo, caseuuid => $caseuuid };
 };
 
+=pod
+
+监控系统/ACK/编辑状态
+
+=cut
+
 post '/monitor/ack/:uuid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -293,6 +329,12 @@ post '/monitor/ack/:uuid' => sub {
     };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
+
+=pod
+
+监控系统/ACK/监控转工单
+
+=cut
 
 post '/monitor/ack/tott/:uuid' => sub {
     my $param = params();

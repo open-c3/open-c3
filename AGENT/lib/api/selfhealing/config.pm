@@ -8,6 +8,12 @@ use POSIX;
 use api;
 use Format;
 
+=pod
+
+故障愈合/获取配置列表
+
+=cut
+
 get '/selfhealing/config' => sub {
     my $param = params();
 
@@ -20,6 +26,12 @@ get '/selfhealing/config' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+故障愈合/获取详情
+
+=cut
 
 get '/selfhealing/config/:id' => sub {
     my $param = params();
@@ -40,6 +52,12 @@ get '/selfhealing/config/:id' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r->[0] };
 };
+
+=pod
+
+故障愈合/添加或编辑自愈套餐
+
+=cut
 
 post '/selfhealing/config' => sub {
     my $param = params();
@@ -72,6 +90,12 @@ post '/selfhealing/config' => sub {
     };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
+
+=pod
+
+故障愈合/删除自愈套餐
+
+=cut
 
 del '/selfhealing/config/:id' => sub {
     my $param = params();

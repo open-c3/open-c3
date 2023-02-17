@@ -9,6 +9,12 @@ use api;
 use Format;
 use URI::Escape;
 
+=pod
+
+监控系统/监控策略/获取列表
+
+=cut
+
 get '/monitor/config/rule/:projectid' => sub {
     my $param = params();
     my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
@@ -28,6 +34,12 @@ get '/monitor/config/rule/:projectid' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+监控系统/监控策略/获取单个策略的配置
+
+=cut
 
 get '/monitor/config/rule/:projectid/:id' => sub {
     my $param = params();
@@ -49,6 +61,12 @@ get '/monitor/config/rule/:projectid/:id' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r->[0] };
 };
+
+=pod
+
+监控系统/监控策略/创建或编辑策略
+
+=cut
 
 post '/monitor/config/rule/:projectid' => sub {
     my $param = params();
@@ -132,6 +150,12 @@ post '/monitor/config/rule/:projectid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
 
+=pod
+
+监控系统/监控策略/删除策略
+
+=cut
+
 del '/monitor/config/rule/:projectid/:id' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -156,6 +180,12 @@ del '/monitor/config/rule/:projectid/:id' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
 
+=pod
+
+监控系统/监控策略/清空服务树节点的策略
+
+=cut
+
 del '/monitor/config/rule/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -176,6 +206,12 @@ del '/monitor/config/rule/:projectid' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+监控系统/监控策略/根据服务树复制策略
+
+=cut
 
 post '/monitor/config/rule/copy/:fromid/:toid' => sub {
     my $param = params();
@@ -202,6 +238,12 @@ post '/monitor/config/rule/copy/:fromid/:toid' => sub {
 
 my $ruletpl = "/data/Software/mydan/AGENT/lib/api/monitor/config/rule.tpl";
 
+=pod
+
+监控系统/监控策略/获取模版列表
+
+=cut
+
 get '/monitor/config/ruletpl/:projectid' => sub {
     my $param = params();
     my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
@@ -215,6 +257,12 @@ get '/monitor/config/ruletpl/:projectid' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@x };
 };
+
+=pod
+
+监控系统/监控策略/同步模版
+
+=cut
 
 post '/monitor/config/ruletpl/sync/:projectid/:tplname' => sub {
     my $param = params();
@@ -237,6 +285,12 @@ post '/monitor/config/ruletpl/sync/:projectid/:tplname' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
+
+=pod
+
+监控系统/监控策略/保存模版
+
+=cut
 
 post '/monitor/config/ruletpl/save/:projectid/:tplname' => sub {
     my $param = params();

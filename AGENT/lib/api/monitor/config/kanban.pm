@@ -8,6 +8,12 @@ use POSIX;
 use api;
 use Format;
 
+=pod
+
+监控系统/获取服务树下绑定的看板
+
+=cut
+
 get '/monitor/config/kanban/:projectid' => sub {
     my $param = params();
     my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
@@ -60,6 +66,12 @@ get '/monitor/config/kanban/:projectid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@r };
 };
 
+=pod
+
+监控系统/获取看板详情
+
+=cut
+
 get '/monitor/config/kanban/:projectid/:id' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -80,6 +92,12 @@ get '/monitor/config/kanban/:projectid/:id' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r->[0] };
 };
+
+=pod
+
+监控系统/添加看板
+
+=cut
 
 post '/monitor/config/kanban/:projectid' => sub {
     my $param = params();
@@ -104,6 +122,12 @@ post '/monitor/config/kanban/:projectid' => sub {
     };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
+
+=pod
+
+监控系统/设置缺省看板
+
+=cut
 
 post '/monitor/config/kanban/setdefault/:projectid/:kanbanid' => sub {
     my $param = params();
@@ -140,6 +164,12 @@ post '/monitor/config/kanban/setdefault/:projectid/:kanbanid' => sub {
     };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
+
+=pod
+
+监控系统/删除看板
+
+=cut
 
 del '/monitor/config/kanban/:projectid/:id' => sub {
     my $param = params();

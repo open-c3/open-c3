@@ -8,6 +8,12 @@ use POSIX;
 use api;
 use Format;
 
+=pod
+
+监控系统/case/获取我的事件列表
+
+=cut
+
 get '/monitor/caseinfo/mycase' => sub {
     my $param = params();
 
@@ -44,6 +50,12 @@ get '/monitor/caseinfo/mycase' => sub {
     }
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@res };
 };
+
+=pod
+
+监控系统/case/获取全局事件列表
+
+=cut
 
 get '/monitor/caseinfo/allcase' => sub {
     my $param = params();

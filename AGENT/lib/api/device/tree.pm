@@ -7,6 +7,12 @@ use POSIX;
 use api;
 use OPENC3::Tree;
 
+=pod
+
+CMDB/资源绑定服务树
+
+=cut
+
 any '/device/tree/bind/:type/:subtype/:uuid/:tree' => sub {
     my $param = params();
     my $error = Format->new(
