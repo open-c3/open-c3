@@ -120,6 +120,14 @@ websocket_on_close sub
     delete $conn{$conn};
 };
 
+=pod
+
+JOBX/slave/获取任务日志
+
+返回的是html页面
+
+=cut
+
 get '/log/:uuid' => sub {
   my $uuid = params()->{uuid};
   my $ws_url = request->env->{HTTP_X_REAL_IP}
@@ -146,10 +154,22 @@ get '/log/:uuid' => sub {
 END
 };
 
+=pod
+
+JOBX/模块监控
+
+=cut
+
 any '/mon' => sub {
      eval{ $mysql->query( "select count(*) from openc3_jobx_keepalive" )};
      return $@ ? "ERR:$@" : "ok";
 };
+
+=pod
+
+JOBX/模块reload
+
+=cut
 
 any '/reload' => sub {
     my $token = `cat /etc/openc3.reload.token 2>/dev/null`; chomp $token;

@@ -10,6 +10,12 @@ use Format;
 use Util;
 use uuid;
 
+=pod
+
+机器分批/获取列表
+
+=cut
+
 get '/group/:projectid' => sub {
     my $param = params();
     my $error = Format->new( projectid => qr/^\d+$/, 1,)->check( %$param );
@@ -26,6 +32,12 @@ get '/group/:projectid' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+机器分批/复制机器分批
+
+=cut
 
 post '/group/:projectid/copy/byname' => sub {
     my $param = params();
@@ -85,6 +97,12 @@ post '/group/:projectid/copy/byname' => sub {
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
 };
 
+=pod
+
+机器分批/机器分批详情
+
+=cut
+
 get '/group/:projectid/:id' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -133,6 +151,12 @@ get '/group/:projectid/:id' => sub {
     return +{ stat => $JSON::true, data => \%r };
 };
 
+=pod
+
+机器分批/获取机器分组内容
+
+=cut
+
 get '/group/:projectid/:id/node' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -148,6 +172,12 @@ get '/group/:projectid/:id/node' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@node };
 };
+
+=pod
+
+机器分批/获取机器分组内容/通过分组名查询
+
+=cut
 
 get '/group/:projectid/:name/node/byname' => sub {
     my $param = params();
@@ -172,6 +202,12 @@ get '/group/:projectid/:name/node/byname' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@node };
 };
+
+=pod
+
+机器分批/创建
+
+=cut
 
 post '/group/:projectid' => sub {
     my $param = params();
@@ -228,6 +264,12 @@ post '/group/:projectid' => sub {
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
 };
 
+=pod
+
+机器分批/编辑
+
+=cut
+
 post '/group/:projectid/:id' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -283,6 +325,12 @@ post '/group/:projectid/:id' => sub {
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
 };
 
+=pod
+
+机器分批/删除
+
+=cut
+
 del '/group/:projectid/:id' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -306,6 +354,12 @@ del '/group/:projectid/:id' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \$r };
 };
+
+=pod
+
+机器分批/删除/通过名称删除
+
+=cut
 
 del '/group/:projectid/:name/byname' => sub {
     my $param = params();

@@ -15,6 +15,12 @@ use Util;
 my %env;
 BEGIN{ %env = Util::envinfo( qw( envname domainname ) ); };
 
+=pod
+
+第三方调用/获取机器分批列表
+
+=cut
+
 post '/third/option/groupname' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -72,6 +78,12 @@ sub getjobstatus
     return +{ status => $data->{data}{status} };
 };
 
+=pod
+
+第三方调用/检查执行参数
+
+=cut
+
 post '/third/interface/dry-run' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -116,6 +128,11 @@ post '/third/interface/dry-run' => sub {
     return +{ stat => $JSON::true, uuid => $uuid, msg => 'ok' };
 };
 
+=pod
+
+第三方调用/执行作业
+
+=cut
 
 post '/third/interface/invoke' => sub {
     my $param = params();
@@ -165,6 +182,11 @@ post '/third/interface/invoke' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, uuid => $uuid, data => $r };
 };
 
+=pod
+
+第三方调用/查询分组作业状态
+
+=cut
 
 post '/third/interface/query' => sub {
     my $param = params();
@@ -315,6 +337,12 @@ post '/third/interface/query' => sub {
     }
 
 };
+
+=pod
+
+第三方调用/停止分组作业
+
+=cut
 
 post '/third/interface/stop' => sub {
     my $param = params();

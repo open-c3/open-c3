@@ -6,6 +6,14 @@ use JSON qw();
 use POSIX;
 use api;
 
+=pod
+
+系统内置/自监控/C3监控指标
+
+系统自监控，普罗米修斯的数据格式
+
+=cut
+
 get '/monitor/metrics' => sub {
     my $param = params();
 
@@ -44,6 +52,12 @@ get '/monitor/metrics' => sub {
     }
 };
 
+=pod
+
+系统内置/自监控/数据库指标监控
+
+=cut
+
 get '/monitor/metrics/mysql' => sub {
     my $param = params();
 
@@ -65,6 +79,12 @@ get '/monitor/metrics/mysql' => sub {
 
     return +{ stat => $JSON::true, data => \%re };
 };
+
+=pod
+
+系统内置/自监控/模块指标监控
+
+=cut
 
 get '/monitor/metrics/app' => sub {
     my $param = params();

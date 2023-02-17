@@ -10,6 +10,12 @@ use Format;
 use Util;
 use uuid;
 
+=pod
+
+流水线/流水线线上环境最后发布成功的版本
+
+=cut
+
 get '/flowline_version/:flowlineid' => sub {
     my $param = params();
     my $error = Format->new( flowlineid => qr/^\d+$/, 1,)->check( %$param );

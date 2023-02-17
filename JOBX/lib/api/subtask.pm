@@ -8,6 +8,12 @@ use MIME::Base64;
 use api;
 use Format;
 
+=pod
+
+分组作业任务/获取任务详情
+
+=cut
+
 get '/subtask/:projectid/:taskuuid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -26,6 +32,12 @@ get '/subtask/:projectid/:taskuuid' => sub {
                     join ',',@col ), \@col )};
     return $@ ? +{ stat => $JSON::false, info => $@ } :  +{ stat => $JSON::true, data => $r };
 };
+
+=pod
+
+分组作业任务/获取任务状态
+
+=cut
 
 get '/subtask/:projectid/:subtaskuuid/mystatus' => sub {
     my $param = params();
@@ -65,6 +77,14 @@ get '/subtask/:projectid/:subtaskuuid/mystatus' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } :  +{ stat => $JSON::true, data => \%data };
 };
 
+=pod
+
+分组作业任务/操作任务
+
+对卡住的任务进行确认
+
+=cut
+
 put '/subtask/:projectid/:subtaskuuid/confirm' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -81,4 +101,5 @@ put '/subtask/:projectid/:subtaskuuid/confirm' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } :  +{ stat => $JSON::true, data => $r };
 
 };
+
 true;
