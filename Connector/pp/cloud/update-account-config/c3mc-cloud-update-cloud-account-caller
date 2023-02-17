@@ -1,0 +1,21 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import os
+import time
+
+
+def update_accounts():
+    for cloud in ["aliyun", "aws", "google", "huawei", "ksyun", "qcloud"]:
+        filepath = f'/data/Software/mydan/AGENT/device/conf/accountx/{cloud}x'
+
+        if time.time() - os.path.getmtime(filepath) < 60:
+            os.system('/usr/bin/c3mc-cloud-update-cloud-account')
+
+
+def main():
+    update_accounts()
+
+
+if __name__ == '__main__':
+    main()
