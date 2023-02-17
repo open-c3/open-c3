@@ -69,6 +69,7 @@
         "ec2:DescribeVpcs",
         "elasticloadbalancing:AddTags",
         "ec2:DescribeVolumes",
+        "ec2:DescribeRegions",
         "rds:DescribeDBInstances",
         "elasticache:DescribeCacheClusters",
         "rds:RemoveTagsFromResource",

@@ -21,7 +21,11 @@ class Google:
         service = discovery.build('compute', 'v1', credentials=self.credentials)
 
         result = []
-        request = service.regions().list(project=self.credentials.project_id)
+        try:
+            request = service.regions().list(project=self.credentials.project_id)
+        except Exception as e:
+            raise RuntimeError("拉取区域列表出错, project_id: {}, resource_type: {}".format(self.credentials.project_id, self.resource_type)) from e
+
         while request is not None:
             response = request.execute()
 

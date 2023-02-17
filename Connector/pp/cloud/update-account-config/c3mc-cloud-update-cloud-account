@@ -4,6 +4,7 @@
 import os
 import shutil
 import subprocess
+import sys
 
 
 # 这种情况直接把 line 和 regin 拼接在一起
@@ -44,16 +45,28 @@ def get_ak_line_list(dir_path, cloud):
     ext_account_line_list = get_file_lines(os.path.join(dir_path, "{}x".format(cloud)))
     resource_codes = subprocess.getoutput("c3mc-cloud-get-resource-type-list {}".format(cloud)).split("\n")
     for resource_code in resource_codes:
-        if resource_code not in result:
-            result[resource_code] = []
         for ext_account_line in ext_account_line_list:
-            cmd_str = "c3mc-cloud-{}-region-list {} {}".format(cloud, ' '.join(ext_account_line.split()[1:]), resource_code)
-            region_list = subprocess.getoutput(cmd_str).split("\n")
+            region_list = []
+            cmd_parts = []
+            cmd_parts.append("c3mc-cloud-{}-region-list".format(cloud))
+            cmd_parts.extend(ext_account_line.split()[1:])
+            cmd_parts.append(resource_code)
+
+            output = subprocess.run(cmd_parts, capture_output=True, text=True)
+            if output.returncode != 0:
+                print(output.stderr, file=sys.stderr)
+                exit(1)
+            region_list = output.stdout.split("\n")
+            region_list = list(filter(lambda x: x != "", region_list))
+
+            ak_list = []
             if cloud == "qcloud" or cloud == "huawei":
                 ak_list = create_ak_line_v2(ext_account_line, region_list)
-                result[resource_code].extend(ak_list)
             else:
                 ak_list = create_ak_line_v1(ext_account_line, region_list)
+            if len(ak_list) > 0:
+                if resource_code not in result:
+                    result[resource_code] = []
                 result[resource_code].extend(ak_list)
     return result 
 

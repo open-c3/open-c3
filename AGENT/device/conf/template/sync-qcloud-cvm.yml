@@ -27,9 +27,9 @@ download:
       site: ["{QCloud}", "VpcName"]
       vpc_id: "VpcId"
       vpc_name: "VpcName"
-      exclude:
+      excludeContain:
         "状态": ["STOPPED", "SHUTDOWN"]
-        "VpcName": ["/ThirdParty/", "/CMTest/"]
+        "VpcName": ["ThirdParty", "CMTest"]
     metrics:
       - name: 'openc3_cmdb_resource_price{account="%s",instanceid="%s",type="compute",subtype="qcloud-cvm",unit="%s",status="%s"} %f'
         value: ["account", "uuid", "_priceunit_", "状态", "_price_"]

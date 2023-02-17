@@ -22,7 +22,10 @@ class Aliyun:
         request = DescribeRegionsRequest()
         request.set_accept_format('json')
 
-        response = client.do_action_with_exception(request)
+        try:
+            response = client.do_action_with_exception(request)
+        except Exception as e:
+            raise RuntimeError("拉取区域列表出错, ak: {}, resource_type: {}".format(self.access_id, self.resource_type)) from e
 
         result = []
         for item in json.loads(str(response, encoding='utf-8'))["Regions"]["Region"]:
