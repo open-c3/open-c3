@@ -49,9 +49,10 @@ class Ec2:
                         vpc_info = vpc_client.show_vpc(instance["VpcId"])
                         self.vpc_info_m[instance["VpcId"]] = vpc_info
 
-                    for tag in vpc_info["Tags"]:
-                        if tag["Key"].lower() == "name":
-                            instance["VpcName"] = tag["Value"]
+                    if "Tags" in vpc_info:
+                        for tag in vpc_info["Tags"]:
+                            if tag["Key"].lower() == "name":
+                                instance["VpcName"] = tag["Value"]
 
                 instances.append(instance)
         return instances
