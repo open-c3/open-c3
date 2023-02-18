@@ -1,0 +1,54 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+$| ++;
+
+die "nofind module" unless my $module = shift @ARGV;
+
+my    @log = `git log`;
+chomp @log;
+
+my ( $last, %data ) = ( '_' );
+
+for ( @log )
+{
+    next unless $_ =~ /c3bot:autopkg\($module:(\d{6}\d+)\)/;
+    $last = $1;
+    last;
+}
+
+sub find
+{
+    my $check = shift @_;
+    my $i = 1;
+    for ( @log )
+    {
+        $i ++;
+        last if index( $_, $check ) >= 0;
+    }
+    return $i;
+}
+
+$data{renew} = find( "c3bot:autopkg:renew"          );
+$data{need } = find( "c3bot:autopkg($module)"       );
+$data{last } = find( "c3bot:autopkg($module:$last)" );
+
+exit unless $data{need} < $data{renew} && $data{need} < $data{last};
+
+my    $date = `date +%y%m%d`;
+chomp $date;
+
+my $version = "${date}1";
+
+if( $last =~ /^(\d{6})(\d+)$/ )
+{
+    my ($ldate, $id ) = ( $1, $2 );
+    $version = sprintf( "$date%i", $id + 1 ) if $ldate eq $date;
+}
+
+print "build $module $version\n";
+
+die "build-module fail: $!" if system "./build-module.sh '$module' '$version'";
+die "upload fail: $!"       if system "./upload.sh";
+die "git push fail: $!"     if system "git push";
