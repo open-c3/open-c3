@@ -109,7 +109,7 @@ if( $last =~ /^(\d{6})(\d+)$/ )
 print "build $module $version\n";
 
 my $bookdir = "/data/open-c3-book";
-if( -f $bookdir )
+if( -d $bookdir )
 {
     die "build book error $!" if system "$bookdir/run";
 }
