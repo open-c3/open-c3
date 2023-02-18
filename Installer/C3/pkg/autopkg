@@ -49,6 +49,12 @@ if( $last =~ /^(\d{6})(\d+)$/ )
 
 print "build $module $version\n";
 
+my $bookdir = "/data/open-c3-book";
+if( -f $bookdir )
+{
+    die "build book error $!" if system "$bookdir/run";
+}
+
 die "build-module fail: $!" if system "./build-module.sh '$module' '$version'";
 die "upload fail: $!"       if system "./upload.sh";
 die "git push fail: $!"     if system "git push";
