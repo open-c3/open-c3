@@ -34,7 +34,66 @@ $data{renew} = find( "c3bot:autopkg:renew"          );
 $data{need } = find( "c3bot:autopkg($module)"       );
 $data{last } = find( "c3bot:autopkg($module:$last)" );
 
-exit unless $data{need} < $data{renew} && $data{need} < $data{last};
+my $do = $data{need} < $data{renew} && $data{need} < $data{last} ? 1 : 0;
+
+sub findcommit
+{
+    my $line = shift @_;
+
+    my @commit;
+    my $i = 0;
+    for my $x ( @log )
+    {
+        $i ++;
+        if( $x =~ /^commit\s+([a-zA-Z0-9]+)$/ )
+        {
+            push @commit, $1;
+        }
+        last if $i >= $line;
+    }
+    return @commit >= 1 ? $commit[-1] : undef;
+}
+
+sub getheadcommit
+{
+    return unless $log[0];
+    return $log[0] =~ /^commit\s+([a-zA-Z0-9]+)$/ ? $1 : undef;
+}
+
+sub checkeditfile
+{
+    #如果没有标记，尝试在提交的代码中匹配是否是修改了模块相关的部分
+    my $linkfile = "$module/link";
+    return unless -f $linkfile;
+
+    my @x = `./$linkfile`;
+    die "get link fail: $!" if $?;
+    chomp @x;
+
+    my ( $head ) = sort{ $a <=> $b }values %data;
+    return 0 unless my $commit = findcommit( $head );
+    my $headcommit = getheadcommit();
+    return 0 if $headcommit eq $commit;
+    my @editedfile = `git diff '$headcommit' '$commit' |grep "^diff --git"`;
+    my @file;
+    for( @editedfile )
+    {
+        push @file, $1 if $_ = ~ m#diff\s+--git\s+a/(.+)\s+b/#;
+    }
+
+    chomp @editedfile;
+
+    for my $file ( @file )
+    {
+        map{ return 1 if index( $file, $_ ) == 0; }@x;
+    }
+
+    return 0;
+}
+
+$do = checkeditfile() unless $do;
+
+exit unless $do;
 
 my    $date = `date +%y%m%d`;
 chomp $date;
