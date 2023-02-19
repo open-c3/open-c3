@@ -1,0 +1,11 @@
+#!/bin/bash
+set -e
+
+ID=$1
+
+main=v2.6.0
+git checkout $main
+
+if [ "X$ID" != "X" ]; then
+    git branch -D pr$ID || echo
+fi

@@ -1,0 +1,15 @@
+#!/bin/bash
+set -e
+
+ID=$1
+
+cd /data/open-c3
+
+main=v2.6.0
+git checkout $main
+
+if [ "X$ID" != "X" ]; then
+    git branch -D pr$ID || echo
+    git fetch origin pull/$ID/head:pr$ID
+    git checkout pr$ID
+fi

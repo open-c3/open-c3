@@ -14,6 +14,12 @@ use Time::Local;
 use File::Temp;
 use BPM::Flow;
 
+=pod
+
+BPM/获取bpm列表
+
+=cut
+
 get '/bpm/menu' => sub {
     my $pmscheck = api::pmscheck( 'openc3_agent_read' ); return $pmscheck if $pmscheck;
 
@@ -21,6 +27,12 @@ get '/bpm/menu' => sub {
 
     return $@ ? +{ stat => $JSON::false, info => "get menu fail:$@" } : +{ stat => $JSON::true, data => $conf };
 };
+
+=pod
+
+BPM/获取bpm流程的变量
+
+=cut
 
 get '/bpm/variable/:bpmname' => sub {
     my $param = params();
@@ -33,6 +45,12 @@ get '/bpm/variable/:bpmname' => sub {
     my $conf = eval{ BPM::Flow->new()->variable( $param->{bpmname} )};
     return $@ ? +{ stat => $JSON::false, info => "load config fail:$@" } : +{ stat => $JSON::true, data => $conf };
 };
+
+=pod
+
+BPM/获取bpm流程中的日志
+
+=cut
 
 get '/bpm/log/:bpmuuid' => sub {
     my $param = params();
@@ -58,6 +76,12 @@ get '/bpm/log/:bpmuuid' => sub {
     return +{ stat => $JSON::true, data => \%res };
 };
 
+=pod
+
+BPM/获取bpm某个流程的变量
+
+=cut
+
 get '/bpm/var/:bpmuuid' => sub {
     my $param = params();
     my $error = Format->new( 
@@ -69,6 +93,12 @@ get '/bpm/var/:bpmuuid' => sub {
     my $var = eval{ BPM::Task::Config->new()->get( $param->{bpmuuid} ); };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $var };
 };
+
+=pod
+
+BPM/编辑流程
+
+=cut
 
 post '/bpm/var/:bpmuuid' => sub {
     my $param = params();
@@ -89,6 +119,12 @@ post '/bpm/var/:bpmuuid' => sub {
     eval{ BPM::Task::Config->new()->resave( $param->{bpm_variable}, $user, $param->{bpmuuid} ); };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
+
+=pod
+
+BPM/获取下拉框选项
+
+=cut
 
 post '/bpm/optionx' => sub {
     my $param = params();

@@ -1,0 +1,8 @@
+#!/bin/bash
+
+set -e
+
+cd /data/open-c3 || exit
+
+find */lib/api/ -name *pm
+find . -name "*.md"|grep -v /node_modules/|grep -v /bower_components/|grep -v /mod/ |sed 's/^\.\///'

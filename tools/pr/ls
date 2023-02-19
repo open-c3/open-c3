@@ -1,0 +1,32 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+use YAML::XS;
+
+my $x = `curl \\
+  -H "Accept: application/vnd.github+json" \\
+  https://api.github.com/repos/open-c3/open-c3/pulls \\
+  2>/dev/null`;
+
+die "curl err: $!" if $?;
+
+my $data = eval{ YAML::XS::Load $x; };
+die "load data fail: $@" if $@;
+
+for my $pr ( @$data )
+{
+    $pr->{title} =~ s/\n/ /g;
+
+    printf "%s\n", join "\t",
+        $pr->{ created_at },
+        $pr->{ number     },
+        $pr->{ state      },
+        $pr->{ base       }{ label },
+        $pr->{ user       }{ login },
+        $pr->{ title      };
+}
