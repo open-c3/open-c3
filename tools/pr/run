@@ -6,12 +6,19 @@ use YAML::XS;
 my $runpath = @ARGV ? $ARGV[0] : '/data/open-c3/tools/pr';
 chdir $runpath or die "chdir fail: $!";
 
+my    @auth = `cat /etc/c3bot.auth.user`;
+chomp @auth;
+
+my %auth = map{ $_ => 1 }@auth;
+
 my    @x = `./ls`;
 chomp @x;
 
 sub todo
 {
-    my $id = shift @_;
+    my ( $id, $usr ) =  @_;
+
+    my %usr = ( $usr => 1 );
     my @x = `./see $id`;
     chomp @x;
     my %idx = ( test => 0, need => 0 );
@@ -26,9 +33,12 @@ sub todo
         }
         if ( $cont =~ /^\/test/ )
         {
+            $usr{ $user } = 1;
             $idx{need} = $idx;
         }
     }
+
+    return 0 unless grep{ $auth{$_} }keys %usr;
 
     return 1 unless $idx{test};
     return 1 if $idx{need} > $idx{test};
@@ -38,10 +48,10 @@ sub todo
 
 sub run
 {
-    my $id = shift @_;
+    my ( $id, $usr ) =  @_;
     print "chk id: $id\n";
 
-    return unless todo( $id );
+    return unless todo( $id, $usr );
     print "run id: $id\n";
 
     die "checkout fail: $!" if system "./co '$id'";
@@ -55,5 +65,5 @@ for( @x )
     my ( $time, $id, $stat, $branch, $user, $title ) = split /\t/, $_;
     next if $stat   ne 'open';
     next if $branch ne 'open-c3:v2.6.0';
-    run( $id );
+    run( $id, $user );
 }
