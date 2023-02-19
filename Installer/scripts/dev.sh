@@ -98,6 +98,8 @@ function start() {
         echo =================================================================
         echo "[INFO]build ..."
 
+        set -e
+
         docker run --rm -i -v /data/open-c3/c3-front/:/code openc3/gulp bower install --allow-root
         docker run --rm -i -v /data/open-c3/c3-front/:/code openc3/gulp gulp build
         

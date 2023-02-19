@@ -1,0 +1,58 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use YAML::XS;
+
+chdir '/data/open-c3/tools/pr' or die "chdir fail: $!";
+
+my    @x = `./ls`;
+chomp @x;
+
+sub todo
+{
+    my $id = shift @_;
+    my @x = `./see $id`;
+    chomp @x;
+    my %idx = ( test => 0, need => 0 );
+    my $idx = 0;
+    for ( @x )
+    {
+        $idx ++;
+        my ( $time, $user, $cont ) = split /\t/, $_, 3;
+        if ( $user eq 'openc3-bot-001' && $cont =~ /^test\// )
+        {
+            $idx{test} = $idx;
+        }
+        if ( $cont =~ /^\/test/ )
+        {
+            $idx{need} = $idx;
+        }
+    }
+
+    return 1 unless $idx{test};
+    return 1 if $idx{need} > $idx{test};
+
+    return 0;
+}
+
+sub run
+{
+    my $id = shift @_;
+    print "chk id: $id\n";
+
+    return unless todo( $id );
+    print "run id: $id\n";
+
+    die "checkout fail: $!" if system "./co '$id'";
+
+    my $res = system( "./test" ) ? "err" : "ok";
+    die "say fail: $!" if system "./say $id 'test/$res'";
+}
+
+for( @x )
+{
+    my ( $time, $id, $stat, $branch, $user, $title ) = split /\t/, $_;
+    next if $stat   ne 'open';
+    next if $branch ne 'open-c3:v2.6.0';
+    run( $id );
+}
