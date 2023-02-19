@@ -7,6 +7,57 @@
             </span>
             <h5>监控ACK</h5>
         </div>
+        
+       
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="ack.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!( ack.loadover ) }" ></i></button>
+            </span>
+            <h5>监控ACK</h5>
+        <
+/div
+>>>>>
+
+        <d
+iv ng-if="ack.caseinfo.content" class="table-responsive" style="width: 100%">
+>>
+            <table class="table table-bordered" style="font-weight: bold;border: 0px;">
+                <tbody>
+                    <tr>
+                        <td>监控对象</td>
+                        <td>{{ack.caseinfo.instance}}</td>
+                        <td>监控内容</td>
+                        <td>{{ack.caseinfo.title}}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <a ng-if="ack.caseinfo.content" ><pre>{{ack.caseinfo.content}}</pre></a>
+
+        <div ng-if="!ack.caseinfo.content" class="panel-body">
+            <div class="panel-tabs">
+                <table ng-table="ack.dataTable" class="table table-hover text-center table-condensed">
+                    <tr ng-repeat="d in $data">
+                        <td style="width: 10%" data-title="'NAME'">{{d.name}}</td>
+                        <td style="width: 10%" data-title="'VALUE'">{{d.value}}</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="panel-footer text-right">
+            <button class="btn btn-success" ng-disabled="ack.acked.ackcaseP" ng-click="ack.edit('ackcase', 'P')">事件屏蔽(我个人)</button>
+            <button class="btn btn-success" ng-disabled="ack.acked.ackP"     ng-click="ack.edit('ack',     'P')">监控屏蔽(我个人)</button>
+            <button class="btn btn-danger"  ng-disabled="ack.acked.ackcaseG" ng-click="ack.edit('ackcase', '' )">事件屏蔽(所有人)</button>
+            <button class="btn btn-danger"  ng-disabled="ack.acked.ackG"     ng-click="ack.edit('ack',     '' )">监控屏蔽(所有人)</button>
+            <button class="btn btn-danger"  ng-disabled="ack.acked.ackam"    ng-click="ack.edit('ackam',   '' )">AM屏蔽</button>
+            <button class="btn btn-info"    ng-disabled="ack.acked.tott"     ng-click="ack.tott()"              >转工单</button>
+        </div>
+
+    </div>
+
+</div>
 
         <div ng-if="ack.caseinfo.content" class="table-responsive" style="width: 100%">
             <table class="table table-bordered" style="font-weight: bold;border: 0px;">
