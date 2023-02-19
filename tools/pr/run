@@ -3,7 +3,8 @@ use strict;
 use warnings;
 use YAML::XS;
 
-chdir '/data/open-c3/tools/pr' or die "chdir fail: $!";
+my $runpath = @ARGV ? $ARGV[0] : '/data/open-c3/tools/pr';
+chdir $runpath or die "chdir fail: $!";
 
 my    @x = `./ls`;
 chomp @x;
