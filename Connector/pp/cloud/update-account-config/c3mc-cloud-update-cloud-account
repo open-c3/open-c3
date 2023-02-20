@@ -40,9 +40,9 @@ def append_to_file(file_path, strings_list):
         for line in strings_list:
             file.write(line + '\n')
 
-def get_ak_line_list(dir_path, cloud):
+def get_ak_line_list(ext_account_path, cloud):
     result = {}
-    ext_account_line_list = get_file_lines(os.path.join(dir_path, "{}x".format(cloud)))
+    ext_account_line_list = get_file_lines(ext_account_path)
     resource_codes = subprocess.getoutput("c3mc-cloud-get-resource-type-list {}".format(cloud)).split("\n")
     for resource_code in resource_codes:
         for ext_account_line in ext_account_line_list:
@@ -81,7 +81,11 @@ def create_cloud_ak_lines():
 
     try:
         for cloud in ["aliyun", "aws", "google", "huawei", "ksyun", "qcloud"]:
-            data = get_ak_line_list(ext_dir_path, cloud)
+            ext_account_path = os.path.join(ext_dir_path, f"{cloud}x")
+            if not os.path.exists(ext_account_path):
+                continue
+
+            data = get_ak_line_list(ext_account_path, cloud)
             for resource_code in data:
                 append_to_file(os.path.join(tmp_dir_path, "{}.{}".format(cloud, resource_code)), data[resource_code])
 
