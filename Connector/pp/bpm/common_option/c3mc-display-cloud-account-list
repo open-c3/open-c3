@@ -2,17 +2,39 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import os
+import fnmatch
+
+
+def find_files_with_pattern(path_pattern):
+    result = []
+    for root, dirs, files in os.walk(os.path.dirname(path_pattern)):
+        result.extend(
+            os.path.abspath(os.path.join(root, name))
+            for name in files
+            if fnmatch.fnmatchcase(name, f'{os.path.basename(path_pattern)}.*')
+        )
+    return result
+
 
 def display_cloud_account_list(cloud):
     """
         查询云账号列表
     """
-    account_file = "/data/Software/mydan/AGENT/device/conf/account/{}".format(cloud.lower())
-    f = open(account_file)
-
     account_d = {}
-    for line in f.readlines():
-        account_d[line.split()[0]] = {}
+
+    default_account_file = (
+        f"/data/Software/mydan/AGENT/device/conf/account/{cloud.lower()}")
+    if os.path.exists(default_account_file):
+        f = open(default_account_file)
+        for line in f:
+            account_d[line.split()[0]] = {}
+
+    ext_account_file_list = find_files_with_pattern(default_account_file)
+    if len(ext_account_file_list) > 0:
+        f = open(ext_account_file_list[0])
+        for line in f:
+            account_d[line.split()[0]] = {}
 
     return list(account_d)
 
