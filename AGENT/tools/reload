@@ -41,7 +41,7 @@ for my $type ( qw( api api.event ) )
 
     for my $port ( $port->{$type}{from} .. $port->{$type}{to} )
     {
-        system "c3mc-nginx-reload --off $port --reload --before";
+        system "c3mc-nginx-reload --off $port --reload --after";
         my $oldpid = `/usr/sbin/lsof -i:$port|tail -n 1|awk '{print \$2}'`;
         chomp $oldpid;
 
@@ -97,14 +97,14 @@ sub nginx_off
 {
     my $srv = shift @_;
     return unless my $port = $port{$srv};
-    system "c3mc-nginx-reload --off $port --reload --before";
+    system "c3mc-nginx-reload --off $port --reload --after";
 }
 
 sub nginx_on
 {
     my $srv = shift @_;
     return unless my $port = $port{$srv};
-    system "c3mc-nginx-reload --on $port --reload --after";
+    system "c3mc-nginx-reload --on $port --reload --before";
 }
 
 for my $server ( qw( 

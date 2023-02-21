@@ -40,7 +40,7 @@ for my $type ( qw( api api.slave api.event ) )
 {
     for my $port ( $port->{$type}{from} .. $port->{$type}{to} )
     {
-        system "c3mc-nginx-reload --off $port --reload --before";
+        system "c3mc-nginx-reload --off $port --reload --after";
         my $oldpid = `/usr/sbin/lsof -i:$port|tail -n 1|awk '{print \$2}'`;
         chomp $oldpid;
 
