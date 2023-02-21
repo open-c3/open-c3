@@ -165,7 +165,7 @@
           angular.forEach(vm.tableData, function (item, index, array) {
             vm.checkboxes.items[[array[index].NAME]] = value
           });
-          vm.checkboxes.itemsNumber = Object.keys(vm.checkboxes.items).length
+          vm.checkboxes.itemsNumber = Object.keys(vm.checkboxes.items).filter(item => item === true).length
           let nodeList = []
           for (let key in vm.checkboxes.items) {
             nodeList.push(String(key))
