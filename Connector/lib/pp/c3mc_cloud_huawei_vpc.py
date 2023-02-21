@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import json
+import subprocess
 
 from huaweicloudsdkcore.auth.credentials import BasicCredentials
 from huaweicloudsdkvpc.v3.region.vpc_region import VpcRegion
@@ -32,3 +33,19 @@ class Vpc:
         request.vpc_id = vpc_id
         response = self.client.show_vpc(request)
         return json.loads(str(response))["vpc"]
+
+    def check_vpc_internet(self, vpc_id):
+        vpc_info = self.show_vpc(vpc_id)
+        if "tags" not in vpc_info:
+            return False
+
+        value = subprocess.getoutput("c3mc-sys-ctl sys.vpc-internet").lower()
+
+        return next(
+            (
+                tag["value"].lower() == value
+                for tag in vpc_info["tags"]
+                if tag["key"].lower() == "vpc-internet"
+            ),
+            False,
+        )
