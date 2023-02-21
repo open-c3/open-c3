@@ -4,6 +4,9 @@
 import sys
 import requests
 from bs4 import BeautifulSoup
+import json
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
 
 
 class Huawei:
@@ -12,8 +15,25 @@ class Huawei:
         self.access_key = access_key
         self.iam_user_id = iam_user_id
         self.resource_type = resource_type
+        self.project_region_list = self.get_project_region_list()
 
-    def list_regions(self, title):
+    def get_project_region_list(self):
+        from c3mc_cloud_huawei_iam import HuaweiIam
+
+        project_region_list = []
+        official_ecs_region_list = self.list_webpage_regions("弹性云服务 ECS")
+        for region in official_ecs_region_list:
+            try:
+                project_list = HuaweiIam(
+                    self.access_id, self.access_key, region).list_projects()
+                project_region_list.extend(
+                    project.name for project in project_list if project.name not in ["cn-north-1", "cn-east-2"])
+                return project_region_list
+            except Exception as e:
+                continue
+        return project_region_list
+
+    def list_webpage_regions(self, title):
         # 华为云目前没有可以直接查询区域列表的接口, 这里使用爬虫从华为云官网文档获取区域
         url = 'https://developer.huaweicloud.com/endpoint?all'
         response = requests.get(url)
@@ -33,6 +53,11 @@ class Huawei:
                     break
                 i += 1
         return sorted(result)
+
+    def list_regions(self, title):
+        webpage_region_list = self.list_webpage_regions(title)
+        intersection = set(self.project_region_list) & set(webpage_region_list)
+        return sorted(list(intersection))
 
     def display(self):
         regions = []
@@ -58,6 +83,7 @@ class Huawei:
 
         for region in regions:
             print(region)
+
 
 def main(access_id, access_key, iam_user_id, resource_type):
     Huawei(access_id, access_key, iam_user_id, resource_type).display()
