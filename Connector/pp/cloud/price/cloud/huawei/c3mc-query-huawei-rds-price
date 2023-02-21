@@ -17,7 +17,7 @@ def get_rds_price(access_id, access_key, user_id, region, resource_spec):
 
     sys.path.append("/data/Software/mydan/Connector/lib/pp")
     from c3mc_cloud_huawei_iam import HuaweiIam
-    project_id = HuaweiIam(access_id, access_key, user_id, region).get_project_id()
+    project_id = HuaweiIam(access_id, access_key, region).get_project_id(user_id)
 
     request = ListRateOnPeriodDetailRequest()
     listProductInfosbody = [

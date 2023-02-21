@@ -7,11 +7,10 @@ from huaweicloudsdkiam.v3 import *
 
 
 class HuaweiIam:
-    def __init__(self, access_id, access_key, user_id, region):
+    def __init__(self, access_id, access_key, region):
         self.access_id = access_id
         self.access_key = access_key
         self.region = region
-        self.user_id = user_id
         self.client = self.create_client()
 
     def create_client(self):
@@ -23,17 +22,22 @@ class HuaweiIam:
             .build()
 
     # 查询指定IAM用户的项目列表
-    def list_projects_for_user(self, user_id):
-        request = KeystoneListProjectsForUserRequest()
-        request.user_id = user_id
+    def list_projects_for_user(self, iam_user_id):
+        request = KeystoneListProjectsRequest()
+        request.user_id = iam_user_id
         response = self.client.keystone_list_projects_for_user(request)
         return response.projects
 
+    # 查询项目列表
+    def list_projects(self):
+        request = KeystoneListAuthProjectsRequest()
+        response = self.client.keystone_list_auth_projects(request)
+        return response.projects
+
     # 查询指定IAM用户指定区域的项目id
-    def get_project_id(self):
-        project_list = self.list_projects_for_user(self.user_id)
+    def get_project_id(self, iam_user_id):
+        project_list = self.list_projects_for_user(iam_user_id)
         for project in project_list:
             if project.name == self.region:
                 return project.id
-        raise Exception("未找到指定用户: {}, 指定区域: {}的项目id".format(
-            self.user_id, self.region))
+        raise Exception(f"未找到指定用户: {self.user_id}, 指定区域: {self.region}的项目id")
