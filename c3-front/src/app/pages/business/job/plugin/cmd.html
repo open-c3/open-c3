@@ -187,7 +187,7 @@
                                         <tr ng-repeat="ss in choiceResult">
                                             <td>{{$index + 1}}</td>
                                             <td ng-if="nodeType =='group'"  >{{ss.name}}</td>
-                                            <td ng-if="nodeType =='builtin'">{{ss}}</td>
+                                            <td width="300" class="line-heed" ng-if="nodeType =='builtin'">{{ss}}</td>
                                             <td ng-if="nodeType =='variable'">{{ss.variable}}</td>
                                             <td>{{choiceType}}</td>
                                             <td>
@@ -315,3 +315,9 @@
 
         </div>
     </div>
+
+    <style>
+      .line-heed {
+        word-break: break-all;
+      }
+    </style>

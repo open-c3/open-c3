@@ -174,7 +174,7 @@
                                         <tr ng-repeat="ss in choiceResult">
                                             <td>{{$index + 1}}</td>
                                             <td ng-if="dstDate.dst_type =='group'"  >{{ss.name}}</td>
-                                            <td ng-if="dstDate.dst_type =='builtin'">{{ss}}</td>
+                                            <td width="200" class="line-heed" ng-if="dstDate.dst_type =='builtin'">{{ss}}</td>
                                             <td ng-if="dstDate.dst_type =='variable'">{{ss.variable}}</td>
                                             <td>{{choiceType}}</td>
                                             <td>
@@ -317,3 +317,9 @@
         </div>
       </div>
     </form>
+
+    <style>
+      .line-heed {
+        word-break: break-all;
+      }
+    </style>
