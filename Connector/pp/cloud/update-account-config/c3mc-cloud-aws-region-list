@@ -25,13 +25,14 @@ class Aws:
                 )
 
                 response = client.describe_regions(AllRegions=False)
-                for item in response["Regions"]:
-                    result.append(item["RegionName"])
+                result.extend(item["RegionName"] for item in response["Regions"])
             except Exception as e:
                 error_list.append(e)
                 continue
-        if len(result) == 0 and len(error_list) == 2:
-            raise RuntimeError("无法成功获取区域列表, ak: {}, resource_type: {}, 错误: {}".format(self.access_id, self.resource_type, error_list))
+        if not result and len(error_list) == 2:
+            raise RuntimeError(
+                f"无法成功获取区域列表, ak: {self.access_id}, resource_type: {self.resource_type}, 错误: {error_list}"
+            )
         return sorted(result)
 
     def display(self):

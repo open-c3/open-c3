@@ -1,0 +1,71 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use utf8;
+use YAML::XS;
+use File::Basename;
+
+=head1 SYNOPSIS
+
+监控系统/告警消息操作/临时数据放回管道
+
+从altermanager发送出来的告警信息，通过api接口转换后，会先存储到目录/data/open-c3-data/monitor-sender 中。
+
+在某些情况下，比如出现可预知的出现大量告警，或者更新服务担心告警抖动，可以手动创建目录/data/open-c3-data/monitor-sender-dev。
+
+如果dev目录存在，接收到告警信息后消息会存入dev中。
+
+消息进入dev目录后就不发送出去了，可以通过该工具查看dev中的消息，如果有重要的告警，可以通过该工具把消息过滤出来放回到monitor-sender目录。
+
+使用方式1:
+
+查看所有dev中的消息列表: ./$0 
+
+使用方式2:
+
+把部分消息放回到monitor-sender中让消息处理程序把它发送出去. $0 grep1 grep2 ...
+过滤方式就是匹配输出内容该行的文本，多个grep参数是'与'的关系，都满足才匹配。
+如: c3mc-mon-sender-ctrl 主机挂了 'status="firing"'
+
+=cut
+
+my @grep = @ARGV;
+
+my $dstpath = "/data/open-c3-data/monitor-sender";
+my $devpath = "$dstpath-dev";
+
+my @x = grep{ -f $_ }glob "$devpath/sender.*.wait";
+
+sub getkey
+{
+    my $file = shift @_;
+    my $conf = eval{ YAML::XS::LoadFile $file; };
+    if( $@ )
+    {
+        warn "load $file fail: $@" if $@;
+        return '{error="loadFail"}';
+    }
+    return '{groupKey="undef"}' unless $conf->{groupKey};
+    return '{status="undef"}'   unless $conf->{status  };
+    return join ":", $conf->{groupKey}, "{status=\"$conf->{status}\"}";
+}
+
+for my $file ( @x )
+{
+    my $name = basename $file;
+    my $key  = getkey( $file );
+    my $str  = "{filename=\"$name\"}:$key";
+
+    utf8::encode($str);
+    print $str, "\n";
+
+    if( @grep )
+    {
+        map { next if index($str, $_ ) < 0; }@grep;
+        print "recovery\n";
+        system "mv", "$devpath/$name", "$dstpath/$name";
+    }
+}

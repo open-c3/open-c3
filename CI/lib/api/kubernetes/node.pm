@@ -69,17 +69,26 @@ K8S/节点管理/调度设置
 cordon:    不可调度
 uncordon:  可调度
 
+因为可以进行批量操作，在批量操作时候node传入数组格式。
+
 =cut
 
 post '/kubernetes/node/cordon' => sub {
     my $param = params();
     my $error = Format->new( 
-        node => qr/^[a-zA-Z0-9][a-zA-Z0-9_\.\-@]+$/, 1,
+        #node => qr/^[a-zA-Z0-9][a-zA-Z0-9_\.\-@]+$/, 1,    批量操作时请传入数组
         cordon => [ 'in', 'cordon', 'uncordon' ], 1,
         ticketid => qr/^\d+$/, 1,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    return  +{ stat => $JSON::false, info => "node undef" } unless $param->{node};
+
+    my @node = ( ref $param->{node} eq 'ARRAY' ) ? @{ $param->{node} } : ( $param->{node} );
+
+    map{ return +{ stat => $JSON::false, info => "node format error: $_" } unless $_ =~ /^[a-zA-Z0-9][a-zA-Z0-9_\.\-@]+$/ }@node;
+
     my $pmscheck = api::pmscheck( 'openc3_ci_read', 0 ); return $pmscheck if $pmscheck;
     
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
@@ -91,6 +100,13 @@ post '/kubernetes/node/cordon' => sub {
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
     my ( $cmd, $handle ) = ( "$kubectl '$param->{cordon}' '$param->{node}' 2>&1", 'showinfo' );
+
+    if( ref $param->{node} eq 'ARRAY' )
+    {
+         my $nodes = join " ", @node;
+         $cmd = "echo $nodes|xargs -n 1|xargs -i{} bash -c \"$kubectl '$param->{cordon}' '{}' 2>&1 || exit 255\"";
+    }
+
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
 };
@@ -101,16 +117,24 @@ K8S/节点管理/驱逐
 
 对应K8S中的drain操作
 
+因为可以进行批量操作，在批量操作时候node传入数组格式。
+
 =cut
 
 post '/kubernetes/node/drain' => sub {
     my $param = params();
     my $error = Format->new( 
-        node => qr/^[a-zA-Z0-9][a-zA-Z0-9_\.\-]+$/, 1,
+        #node => qr/^[a-zA-Z0-9][a-zA-Z0-9_\.\-]+$/, 1, 批量操作时候传入数组
         ticketid => qr/^\d+$/, 1,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    return  +{ stat => $JSON::false, info => "node undef" } unless $param->{node};
+
+    my @node = ( ref $param->{node} eq 'ARRAY' ) ? @{ $param->{node} } : ( $param->{node} );
+    map{ return +{ stat => $JSON::false, info => "node format error: $_" } unless $_ =~ /^[a-zA-Z0-9][a-zA-Z0-9_\.\-@]+$/ }@node;
+
     my $pmscheck = api::pmscheck( 'openc3_ci_read', 0 ); return $pmscheck if $pmscheck;
     
     my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ), 
@@ -122,6 +146,12 @@ post '/kubernetes/node/drain' => sub {
     return +{ stat => $JSON::false, info => "get ticket fail: $@" } if $@;
 
     my ( $cmd, $handle ) = ( "$kubectl drain '$param->{node}' --ignore-daemonsets 2>&1", 'showinfo' );
+    if( ref $param->{node} eq 'ARRAY' )
+    {
+         my $nodes = join " ", @node;
+         $cmd = "echo $nodes|xargs -n 1|xargs -i{} bash -c \"$kubectl drain '{}' --ignore-daemonsets 2>&1 || exit 255\"";
+    }
+
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
 };
