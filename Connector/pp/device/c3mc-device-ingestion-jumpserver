@@ -55,9 +55,9 @@ for my $ingestion ( glob "/data/open-c3-data/device/curr/compute/*/ingestion-jum
     my    @data  = `c3mc-device-cat curr $type $subtype`;
     chomp @data;
 
-    my $title = shift @data;
+    next unless @data > 1;
 
-    next unless $title;
+    my $title = shift @data;
 
     utf8::decode( $title );
     my @title = split /\t/, $title;

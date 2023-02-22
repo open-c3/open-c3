@@ -61,9 +61,9 @@ sub treename2tid
 my    @data  = `c3mc-device-cat curr $type $subtype`;
 chomp @data;
 
-my $title = shift @data;
+exit unless @data > 1;
 
-exit unless $title;
+my $title = shift @data;
 
 utf8::decode( $title );
 my @title = split /\t/, $title;
