@@ -7,19 +7,25 @@ use File::Basename;
 
 my @res;
 
+my $err = 0;
+
 for my $file ( glob "$RealBin/test.task/*" )
 {
     my $name = basename $file;
     unless( $name =~ /^[a-z][a-zA-Z\d\-\.]*$/ )
     {
         push @res, 'task-name-format:err';
+        $err ++;
         next;
     }
 
     my $stat = system( "$file >/dev/null 2>/dev/null" ) ? 'err' : 'ok';
     push @res, "$name:$stat";
+    $err ++ if $stat eq 'err';
 }
 
 print join " ", @res;
 print "\n"; 
+
+exit 1 if $err;
 
