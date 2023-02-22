@@ -37,13 +37,18 @@ class Vpc:
     def check_vpc_internet(self, vpc_id):
         vpc_info = self.show_vpc(vpc_id)
         if "tags" not in vpc_info:
-            return False
+            return "inip"
 
         key = subprocess.getoutput("c3mc-sys-ctl sys.exip_flag_field").lower()
         value = subprocess.getoutput("c3mc-sys-ctl sys.exip_flag_value").lower()
 
         compare_list = ["true", "1", "ok", "t"] if value == "true" else []
-        return any(
-            tag["key"].lower() == key and tag["value"].lower() in compare_list
-            for tag in vpc_info["tags"]
+        return next(
+            (
+                "exip"
+                for tag in vpc_info["tags"]
+                if tag["key"].lower() == key
+                and tag["value"].lower() in compare_list
+            ),
+            "inip",
         )
