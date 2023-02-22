@@ -31,6 +31,8 @@ docker run -p 8080:88 openc3/allinone:latest
 
 可以简单看一下OPEN-C3的[设计理念](https://open-c3.github.io/设计理念/)。安装一个[体验版](https://open-c3.github.io/体验版安装/)试试吧。点击查看[视频教程](https://open-c3.github.io/视频教程/)。
 
+test
+
 # 社区
 
 点击查看[社区](https://open-c3.github.io/社区/)情况，可以扫描二维码添加open-c3微信。
