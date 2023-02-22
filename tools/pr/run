@@ -56,8 +56,10 @@ sub run
 
     die "checkout fail: $!" if system "./co '$id'";
 
-    my $res = system( "./test" ) ? "err" : "ok";
-    die "say fail: $!" if system "./say $id 'test/$res'";
+    my $detail = `./test`;
+    my $res = $? ? "err" : "ok";
+
+    die "say fail: $!" if system "./say $id 'test/$res $detail'";
 }
 
 for( @x )

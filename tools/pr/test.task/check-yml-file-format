@@ -1,0 +1,23 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+use YAML::XS;
+
+my @x = `find /data/open-c3 -name *.yml \\
+    | grep -v /node_modules/     \\
+    | grep -v /bower_components/ \\
+    | grep -v /pkg/mod/`;
+
+die "curl err: $!" if $?;
+
+chomp @x;
+
+for my $x ( @x )
+{
+    die "$x not a file" unless -f $x;
+    eval{ YAML::XS::LoadFile $x; };
+    die "load $x error: $@" if $@;
+}
+
+exit;

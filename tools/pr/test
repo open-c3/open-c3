@@ -1,3 +1,25 @@
-#!/bin/bash
-set -e
-bash -e /data/open-c3/Installer/scripts/dev.sh build
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+use FindBin qw( $RealBin );
+use File::Basename;
+
+my @res;
+
+for my $file ( glob "$RealBin/test.task/*" )
+{
+    my $name = basename $file;
+    unless( $name =~ /^[a-z][a-zA-Z\d\-\.]*$/ )
+    {
+        push @res, 'task-name-format:err';
+        next;
+    }
+
+    my $stat = system( "$file >/dev/null 2>/dev/null" ) ? 'err' : 'ok';
+    push @res, "$name:$stat";
+}
+
+print join " ", @res;
+print "\n"; 
+
