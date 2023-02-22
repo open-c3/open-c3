@@ -27,13 +27,22 @@ $|++;
 #VpcId:   'security_groups.0.id'
 #VpcName: 'security_groups.0.name'
 
-my $aliasfile = '/data/open-c3-data/device/ingestion-jumpserver-uuid-alias.yml';
-my $alias = +{};
-if( -f $aliasfile )
+my $uuidaliasfile = '/data/open-c3-data/device/ingestion-jumpserver-uuid-alias.yml';
+my $uuidalias = +{};
+if( -f $uuidaliasfile )
 {
-    $alias = eval{ YAML::XS::LoadFile $aliasfile };
-    die "load alias file fail: $@" if $@;
-    die "alias err" unless ref $alias eq 'HASH';
+    $uuidalias = eval{ YAML::XS::LoadFile $uuidaliasfile };
+    die "load uuidalias file fail: $@" if $@;
+    die "uuidalias err" unless ref $uuidalias eq 'HASH';
+}
+
+my $namealiasfile = '/data/open-c3-data/device/ingestion-jumpserver-name-alias.yml';
+my $namealias = +{};
+if( -f $namealiasfile )
+{
+    $namealias = eval{ YAML::XS::LoadFile $namealiasfile };
+    die "load namealias file fail: $@" if $@;
+    die "namealias err" unless ref $namealias eq 'HASH';
 }
 
 my @col = qw( uuid instanceId hostName ip inIP exIP os site vpc_id vpc_name );
@@ -99,7 +108,8 @@ for my $ingestion ( glob "/data/open-c3-data/device/curr/compute/*/ingestion-jum
 
          $tmp{hostName} ||= $tmp{ip};
 
-         $tmp{uuid} = $alias->{$tmp{uuid}} // $tmp{uuid};
+         $tmp{uuid    } = $uuidalias->{$tmp{uuid}} if $uuidalias->{$tmp{uuid}};
+         $tmp{hostName} = $namealias->{$tmp{uuid}} if $namealias->{$tmp{uuid}};
 
          push @out, \%tmp;
     }
