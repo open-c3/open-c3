@@ -80,7 +80,8 @@ class Ecs:
             server["quota_min_rate"] = self.flavors_dict[server["flaver_id"]]["os_extra_specs"]["quota:min_rate"]
             server["quota_max_rate"] = self.flavors_dict[server["flaver_id"]]["os_extra_specs"]["quota:max_rate"]
 
-            server['_default_ip_kind_'] = False
+            # 默认内网ip
+            server['_default_ip_kind_'] = "inip"
             if list(server["addresses"]):
                 vpc_id = list(server["addresses"])[0]
                 vpc_info = huawei_vpc.show_vpc(vpc_id)

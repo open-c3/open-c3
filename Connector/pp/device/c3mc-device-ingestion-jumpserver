@@ -95,6 +95,8 @@ for my $ingestion ( glob "/data/open-c3-data/device/curr/compute/*/ingestion-jum
              $tmp{ $c } = join '_', map{ $_ =~ /^\{(.+)\}$/ ? $1 : $d{$_} // '' }@c;
          }
          $tmp{ip} = $tmp{exIP} if -f "$dir/$tmp{site}";
+         $tmp{ip} = $tmp{exIP} if $d{_default_ip_kind_} && $d{_default_ip_kind_} eq 'exip';
+
          $tmp{hostName} ||= $tmp{ip};
 
          $tmp{uuid} = $alias->{$tmp{uuid}} // $tmp{uuid};
