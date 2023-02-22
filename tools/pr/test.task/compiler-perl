@@ -1,0 +1,46 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+my @dir = qw(
+    /data/open-c3/Connector/pp
+
+    /data/open-c3/AGENT/tools/
+    /data/open-c3/AGENT/bin/
+
+    /data/open-c3/Connector/tools/
+    /data/open-c3/Connector/bin/
+
+    /data/open-c3/JOB/tools/
+    /data/open-c3/JOB/bin/
+
+    /data/open-c3/JOBX/tools/
+    /data/open-c3/JOBX/bin/
+
+    /data/open-c3/CI/tools/
+    /data/open-c3/CI/bin/
+);
+
+sub check
+{
+    my $file = shift @_;
+    return unless -x $file;
+    my $x = `head -n 1 '$file'`;
+    chomp $x;
+    return unless  index( $x, '#!/data/Software/mydan/perl/bin/perl' ) == 0;
+    $x =~ s/^#!//;
+    $x =~ s/#.*//;
+
+    $file =~ s#/data/open-c3/#/data/Software/mydan/#;
+    die "$file error" if system "docker exec openc3-server $x -c '$file'";
+}
+
+sub scan
+{
+    my $path = shift @_;
+    my @file = `find '$_' -type f`;
+    chomp @file;
+    map{ check( $_ ) }@file;
+}
+
+map{ scan( $_ ) }@dir;
