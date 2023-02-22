@@ -81,11 +81,11 @@
                             </tr>
                         </thead>
                         <tr>
-                            <td>{{item.name}}</td>
-                            <td>{{item.user}}</td>
-                            <td>{{item.node_type}}</td>
-                            <td>{{item.scripts_argv}}</td>
-                            <td style="width: 25%;">
+                            <td width="200" class="line-feed">{{item.name}}</td>
+                            <td width="300" class="line-feed">{{item.user}}</td>
+                            <td width="300" class="line-feed">{{item.node_type}}</td>
+                            <td width="400" class="line-feed">{{item.scripts_argv}}</td>
+                            <td width="200" class="line-feed" style="width: 25%;">
                                 <button class="btn btn-info btn-sm" ng-hide="saveHide" ng-click="editjob2ci.copyScript($index)">{{'C3T.复制'|translate}}</button>
                                 <button class="btn btn-warning btn-sm" ng-hide="saveHide" ng-click="editjob2ci.editScript($index)">{{'C3T.编辑'|translate}}</button>
                                 <button class="btn btn-danger btn-sm" ng-hide="saveHide" ng-click="editjob2ci.deljobdata($index)">{{'C3T.删除'|translate}}</button>
@@ -132,11 +132,11 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td >{{item.name}}</td>
-                                <td >{{item.user}}</td>
-                                <td style="max-width:600px;">{{item.dst}}</td>
-                                <td >{{item.dp}}</td>
-                                <td style="width: 25%;">
+                                <td width="200" class="line-feed">{{item.name}}</td>
+                                <td width="300" class="line-feed">{{item.user}}</td>
+                                <td width="300" class="line-feed" style="max-width:600px;">{{item.dst}}</td>
+                                <td width="400" class="line-feed" >{{item.dp}}</td>
+                                <td width="200" class="line-feed" style="width: 25%;">
                                     <button class="btn btn-info btn-sm" ng-hide="saveHide" ng-click="editjob2ci.copyScp($index)">{{'C3T.复制'|translate}}</button>
                                     <button class="btn btn-warning btn-sm" ng-hide="saveHide" ng-click="editjob2ci.editScp($index)">{{'C3T.编辑'|translate}}</button>
                                     <button class="btn btn-danger btn-sm" ng-hide="saveHide" ng-click="editjob2ci.deljobdata($index)">{{'C3T.删除'|translate}}</button>
@@ -184,10 +184,10 @@
                         </thead>
                         <tbody>
                             <tr>
-                                <td >{{item.name}}</td>
-                                <td >{{item.approver}}</td>
-                                <td style="max-width:600px;">{{item.cont}}</td>
-                                <td style="width: 25%;">
+                                <td width="200" class="line-feed">{{item.name}}</td>
+                                <td width="200" class="line-feed">{{item.approver}}</td>
+                                <td width="300" class="line-feed" style="max-width:600px;">{{item.cont}}</td>
+                                <td width="200" class="line-feed" style="width: 25%;">
                                     <button class="btn btn-info btn-sm" ng-hide="saveHide" ng-click="editjob2ci.copyApproval($index)">{{'C3T.复制'|translate}}</button>
                                     <button class="btn btn-warning btn-sm" ng-hide="saveHide" ng-click="editjob2ci.editApproval($index)">{{'C3T.编辑'|translate}}</button>
                                     <button class="btn btn-danger btn-sm" ng-hide="saveHide" ng-click="editjob2ci.deljobdata($index)">{{'C3T.删除'|translate}}</button>
@@ -216,3 +216,9 @@
     </div>
 
 </div>
+
+<style>
+  .line-feed {
+    word-break: break-all;
+  }
+</style>

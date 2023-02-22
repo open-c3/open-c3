@@ -83,6 +83,64 @@
 
         vm.reload();
 
+        vm.download = function () {
+          let str = `<tr><td>编号</td><td>主机名</td><td>内网IP</td><td>外网IP</td><td>资源类型</td><td>状态</td><td>低利用率天数/14天</td><td>CPU(%)</td><td>内存(%)</td><td>下载带宽</td><td>上传带宽</td><td>最后统计日期</td></tr>`
+          const jsonData = vm.allData
+          jsonData.forEach((items,i) => {
+            let newItem = {
+              id: items.id || '',
+              name: items.name || '',
+              inip: items.inip || '',
+              exip: items.exip || '',
+              type: items.type || '',
+              status: items.status || '',
+              lowcnt: items.lowcnt || '',
+              cpu: items.cpu || '',
+              mem: items.mem || '',
+              netin: items.netin? 
+                      1048576 < items.netin? 
+                        `${items.netin / 1048576}Mb/s` :
+                          1024 < items.netin && items.netin <= 1048576 ? 
+                            `${items.netin / 1024}Kb/s` :
+                            items.netin <= 1024? 
+                              `${items.netin}b/s`: ''
+                      :'',
+               netout: items.netout? 
+                      1048576 < items.netout? 
+                        `${items.netout / 1048576}Mb/s` :
+                          1024 < items.netout && items.netout <= 1048576 ? 
+                            `${items.netout / 1024}Kbs` :
+                            items.netout <= 1024? 
+                              `${items.netout}b/s`: ''
+                      :'',
+              date: items.date || ''
+            }
+            str += '<tr>'
+            for (let item in Object.assign({}, newItem)) {
+              if (item !== '$$hashKey') {
+                let cellvalue = newItem[item] || ''
+                str += `<td style="mso-number-format:'\@';">${cellvalue}</td>`
+                // str+=`<td>${cellvalue}</td>`;
+              }
+            }
+            str += '</tr>'
+          })
+          const worksheet = '导出结果'
+          const uri = 'data:application/vnd.ms-excel;base64,'
+          const template = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
+            xmlns:x="urn:schemas-microsoft-com:office:excel"
+            xmlns="http://www.w3.org/TR/REC-html40">
+            <head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>
+            <x:Name>${worksheet}</x:Name>
+            <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet>
+            </x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+            </head><body><table>${str}</table></body></html>`
+          function base64(s) {
+            return window.btoa(unescape(encodeURIComponent(s)))
+          }
+          window.location.href = uri + base64(template)
+        }
+
         vm.showDetail = function (ip) {
             $uibModal.open({
                 templateUrl: 'app/pages/quickentry/monitornodelow/detail.html',
