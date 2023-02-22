@@ -49,6 +49,11 @@ class Epc:
 
             if instance["HostId"] in tag_dict:
                 instance["Tag"] = tag_dict[instance["HostId"]]
+            
+            if 'OsName' in instance:
+                instance["os"] = "Windows" if instance["OsName"].lower().find("window") != -1 else "Linux"
+            else:
+                instance["os"] = "Other"
 
             print(json.dumps(instance, default=str))
 
