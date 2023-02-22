@@ -48,6 +48,8 @@ for my $ingestion ( glob "/data/open-c3-data/device/curr/database/*/ingestion-my
     my    @data  = `c3mc-device-cat curr $type $subtype`;
     chomp @data;
 
+    next unless @data > 1;
+
     my $title = shift @data;
 
     utf8::decode( $title );

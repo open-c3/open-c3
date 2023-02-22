@@ -34,7 +34,7 @@ for my $ingestion ( glob "/data/open-c3-data/device/curr/compute/*/ingestion-nod
     my    @data  = `c3mc-device-cat curr $type $subtype`;
     chomp @data;
 
-    next unless @data;
+    next unless @data > 1;
 
     my $title = shift @data;
 
