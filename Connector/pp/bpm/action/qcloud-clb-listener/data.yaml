@@ -9,7 +9,7 @@ option:
 
   - name: protocol
     describe: 协议
-    option: ["http", "https", "udp", "tcp"]
+    option: ["HTTP", "HTTPS", "UDP", "TCP", "TCP_SSL", "QUIC"]
     type: select
     value: ""
 
@@ -20,7 +20,16 @@ option:
     command: c3mc-qcloud-clb-describe-cert-list | c3mc-bpm-display-field-values CertificateId,Domain
     type: selectx
     value: ""
-    show: ["protocol", "https"]
+    show: 
+      - protocol: ["HTTP", "HTTPS", "UDP", "TCP", "TCP_SSL", "QUIC"]
+
+  - name: enable_sni
+    describe: 启用SNI
+    option: ["是", "否"]
+    type: select
+    value: ""
+    show: 
+      - protocol: ["HTTPS"]
 
   - name: listener_port
     describe: 监听器端口
@@ -31,7 +40,54 @@ option:
     option: ["按权重轮询", "最小连接数"]
     type: select
     value: ""
-    show: ["protocol", "udp", "tcp"]
+    show: 
+      - protocol: ["UDP", "TCP", "TCP_SSL"]
+
+  - name: enable_health_check
+    describe: 是否开启健康检查
+    option: ["是", "否"]
+    type: select
+    value: ""
+
+  - name: health_check_type
+    describe: 健康检查协议
+    option: ["TCP", "HTTP"]
+    type: select
+    value: ""
+    show:
+      - enable_health_check: ["是"]
+
+  - name: http_check_domain
+    describe: 健康检查域名
+    type: input
+    show:
+      - enable_health_check: ["是"]
+        health_check_type: ["HTTP"]
+
+  - name: http_check_path
+    describe: 健康检查路径
+    type: input
+    show:
+      - enable_health_check: ["是"]
+        health_check_type: ["HTTP"]
+
+  - name: http_check_method
+    describe: HTTP请求方式
+    option: ["GET", "HEAD"]
+    type: select
+    value: ""
+    show:
+      - enable_health_check: ["是"]
+        health_check_type: ["HTTP"]
+
+  - name: health_check_http_codes
+    describe: 健康检查http状态码
+    command: c3mc-qcloud-health-check-http-code
+    type: selectxm
+    value: ""
+    show:
+      - enable_health_check: ["是"]
+        health_check_type: ["HTTP"]
 
 template_argv:
   # 账号
@@ -44,9 +100,24 @@ template_argv:
   listener_name: ${listener_name}
   # 协议
   protocol: ${protocol}
+  # 是否启用SNI
+  enable_sni: ${enable_sni}
   # 监听器端口
   listener_port: ${listener_port}
   # 负载均衡方式
   balancer_type: ${balancer_type}
   # 证书
   cert_id: ${cert_id}
+
+  # 是否开启健康检查
+  enable_health_check: ${enable_health_check}
+  # 健康检查协议
+  health_check_type: ${health_check_type}
+  # 健康检查域名
+  http_check_domain: ${http_check_domain}
+  # 健康检查路径
+  http_check_path: ${http_check_path}
+  # HTTP请求方式
+  http_check_method: ${http_check_method}
+  # 健康检查http状态码
+  health_check_http_codes: ${health_check_http_codes}
