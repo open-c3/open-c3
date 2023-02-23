@@ -6,6 +6,44 @@ import json
 import re
 
 
+def convert_dict_string_key_to_dict(old_dict):
+    """
+    字典转换
+
+    示例:
+    将 {'a': 'xxx', 'b[c][d][e][f]': "nnn"}
+    转换为: {'a': 'xxx', 'b': {'c': {'d': {'e': {'f': 'nnn'}}}}}
+    """
+    new_dict = {}
+    for key, value in old_dict.items():
+        if '[' in key and ']' in key:
+            key_parts = key.split('[')
+            current_dict = new_dict
+            for i, part in enumerate(key_parts):
+                if ']' in part:
+                    k, _ = part.split(']')
+                else:
+                    k = part
+                if i == len(key_parts) - 1:
+                    current_dict[k] = value
+                else:
+                    if k not in current_dict:
+                        current_dict[k] = {}
+                    current_dict = current_dict[k]
+        else:
+            new_dict[key] = value
+    return new_dict
+
+
+def find_value(d, key):
+    keys = key.split('[')
+    for k in keys:
+        if k.endswith(']'):
+            k = k[:-1]
+        d = d[k]
+    return d
+
+
 def display_field_values(data_list, fields_desc):
     """
         展示字段值
@@ -16,26 +54,29 @@ def display_field_values(data_list, fields_desc):
     if len(bracket_content) > 0:
         # 模板字符串的配置方式
         for data in data_list:
-            value_list = {}
+            value_dict = {}
             for field_name in bracket_content:
-                value_list[field_name] = data[field_name]
-            result.append(fields_desc.format(**value_list))
+                value = find_value(data, field_name)
+                value_dict[field_name] = value
+            new_dict = convert_dict_string_key_to_dict(value_dict)
+            result.append(fields_desc.format(**new_dict))
     else:
         # 兼容旧的配置方式
         fields_list = fields_desc.split(",")
         for data in data_list:
             item_list = []
-            for field in fields_list:
-                if isinstance(data[field], list):
-                    item_list.append("_".join(map(str, data[field])))
+            for field_name in fields_list:
+                value = find_value(data, field_name)
+                if isinstance(value, list):
+                    item_list.append("_".join(map(str, value)))
                 else:
-                    item_list.append(str(data[field]))
-            if len(item_list) == 0:
+                    item_list.append(str(value))
+            if not item_list:
                 continue
             if len(item_list) == 1:
                 result.append(item_list[0])
             else:
-                result.append("{};({})".format(item_list[0], "-".join(item_list[1:])))
+                result.append(f'{item_list[0]};({"-".join(item_list[1:])})')
     return result
 
 
@@ -49,8 +90,5 @@ def main(data_list, target_fields):
 
 
 if __name__ == '__main__':
-    data_list = []
-    for line in sys.stdin:
-        data_list.append(json.loads(line))
-
+    data_list = [json.loads(line) for line in sys.stdin]
     main(data_list, sys.argv[1])
