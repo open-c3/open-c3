@@ -15,6 +15,7 @@ use LWP::UserAgent;
 use JSON;
 use Configini;
 use OPENC3::Crypt;
+use File::Temp;
 
 =head1 SYNOPSIS
 
@@ -70,6 +71,18 @@ sub sendmail
 
     my $x = $db->query( sprintf "select `email` from openc3_connector_useraddr where user='$user'" );
     $user = $crypt->decode( $x->[0][0] ) if @$x;
+
+    my    $mailtype = `c3mc-sys-ctl sys.notify.mail.type`;
+    chomp $mailtype;
+
+    if( $mailtype && $mailtype ne 'api' && $mailtype =~ /^([a-z][a-z\-]*[a-z])$/ )
+    {
+        my ( $TEMP, $tempfile ) = File::Temp::tempfile();
+        print $TEMP $content;
+        die "sendmail-$mailtype fail: $!" if system "cat $tempfile|c3mc-base-sendmail-$mailtype '$user' --subject '$title'";
+        close $TEMP;
+        return;
+    }
 
     if( $usermail =~ /api.connector.open-c3.org/ )
     {
