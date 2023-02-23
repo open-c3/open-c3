@@ -2,6 +2,7 @@
 set -ex
 
 /data/Software/mydan/perl/bin/cpan install Net::LDAP Crypt::RC4::XS
+/data/Software/mydan/perl/bin/cpan install Email::Sender::Simple
 /data/Software/mydan/perl/bin/cpan install Email::Sender::Transport::SMTPS
 
 rm -rf /data/Software/mydan/perl/man
