@@ -91,7 +91,7 @@
     <div style="margin-bottom: 15px;"  ng-hide="saveHide" ng-init='openc3_job_system_only=0'>
         <button class="btn btn-success " ng-click="businessjobedit.createScriptJob()">
             <i class="glyphicon glyphicon-copy"></i> {{'C3T.添加脚本步骤'|translate}}</button>
-        <button class="btn btn-primary" ng-click="businessjobedit.createScpJob()">
+        <button class="btn btn-primary file-dist" ng-click="businessjobedit.createScpJob()">
             <i class="glyphicon glyphicon-file"></i> {{'C3T.添加分发文件步骤'|translate}}</button>
 
         <button class="btn btn-primary" ng-if="openc3_job_system_only==0" ng-click="businessjobedit.createApprovalJob()">
@@ -103,7 +103,7 @@
             <div style="padding: 2px">
                 <strong style="font-size: 15px">{{'C3T.步骤'|translate}}.{{$index+1}}</strong>
                 <button class="btn btn-success btn-xs" ng-click="businessjobedit.createScriptJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>{{'C3T.脚本'|translate}}</button>
-                <button class="btn btn-primary btn-xs" ng-click="businessjobedit.createScpJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>{{'C3T.文件'|translate}}</button>
+                <button class="btn btn-primary btn-xs file-dist" ng-click="businessjobedit.createScpJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>{{'C3T.文件'|translate}}</button>
                 <button class="btn btn-primary btn-xs" ng-if="openc3_job_system_only==0" ng-click="businessjobedit.createApprovalJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>{{'C3T.审批'|translate}}</button>
             </div>
             <div class="panel-heading">
@@ -154,10 +154,10 @@
             <div style="padding: 1px">
                 <strong style="font-size: 15px">{{'C3T.步骤'|translate}}.{{$index+1}}</strong>
                 <button class="btn btn-success btn-xs" ng-click="businessjobedit.createScriptJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>{{'C3T.脚本'|translate}}</button>
-                <button class="btn btn-primary btn-xs" ng-click="businessjobedit.createScpJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>{{'C3T.文件'|translate}}</button>
+                <button class="btn btn-primary btn-xs file-dist" ng-click="businessjobedit.createScpJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>{{'C3T.文件'|translate}}</button>
                 <button class="btn btn-primary btn-xs" ng-click="businessjobedit.createApprovalJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>{{'C3T.审批'|translate}}</button>
             </div>
-            <div class="panel-heading">
+            <div class="panel-heading file-dist">
                 <h5>{{'C3T.文件作业'|translate}}
 
                     <span ng-if="item.batches==='firsttime'" style="color: gray" >[{{'C3T.仅第一组'|translate}}]</span>
@@ -208,7 +208,7 @@
             <div style="padding: 1px">
                 <strong style="font-size: 15px">{{'C3T.步骤'|translate}}.{{$index+1}}</strong>
                 <button class="btn btn-success btn-xs" ng-click="businessjobedit.createScriptJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>{{'C3T.脚本'|translate}}</button>
-                <button class="btn btn-primary btn-xs" ng-click="businessjobedit.createScpJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>{{'C3T.文件'|translate}}</button>
+                <button class="btn btn-primary btn-xs file-dist" ng-click="businessjobedit.createScpJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>{{'C3T.文件'|translate}}</button>
                 <button class="btn btn-primary btn-xs" ng-click="businessjobedit.createApprovalJob($index)" ng-hide="saveHide"><i class="fa fa-plus"></i>{{'C3T.审批'|translate}}</button>
             </div>
             <div class="panel-heading">
@@ -280,5 +280,11 @@
 <style>
 .line-feed {
   word-break: break-all;
+}
+.file-dist {
+  background-color:#3b3677e7!important;
+}
+.file-dist:hover {
+  background-color:#423d77;
 }
 </style>
