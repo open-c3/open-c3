@@ -36,6 +36,17 @@ def convert_dict_string_key_to_dict(old_dict):
 
 
 def find_value(d, key):
+    """
+    查询键值。支持查询普通键值，还支持查询特殊键值
+
+    # 示例
+    输入
+        d: {"a": {"b": {"c": 1}}
+        key: a[b][c]
+    输出
+        1
+
+    """
     keys = key.split('[')
     for k in keys:
         if k.endswith(']'):
