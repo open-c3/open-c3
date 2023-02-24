@@ -3,33 +3,19 @@
 
 import sys
 import json
-import fnmatch
 import os
 
 
-def find_files_with_pattern(path_pattern):
-    result = []
-    for root, dirs, files in os.walk(os.path.dirname(path_pattern)):
-        result.extend(
-            os.path.abspath(os.path.join(root, name))
-            for name in files
-            if fnmatch.fnmatchcase(name, f'{os.path.basename(path_pattern)}.*')
-        )
-    return result
-
-
-def get_account_from_file(account_file, account):
-    with open(account_file) as fp:
-        for line in fp:
-            parts = line.split()
-            if len(parts) == 0:
-                continue
-            if parts[0].strip() == account:
-                return {
-                    "access_id": parts[1].strip(),
-                    "access_key": parts[2].strip(),
-                }
-        return None
+def search_files(rootdir, prefix, account):
+    for subdir, dirs, files in os.walk(rootdir):
+        for file in files:
+            filepath = os.path.join(subdir, file)
+            if filepath.startswith(prefix):
+                with open(filepath) as f:
+                    for line in f:
+                        if line.startswith(account):
+                            return line.strip()
+    return None
 
 
 def describe_account_info(cloud, account):
@@ -37,20 +23,17 @@ def describe_account_info(cloud, account):
         查询指定账号的信息
     """
 
-    default_account_file = (
-        f"/data/Software/mydan/AGENT/device/conf/account/{cloud.lower()}")
+    dir_path = ("/data/Software/mydan/AGENT/device/conf/account/")
+    prefix = (f"/data/Software/mydan/AGENT/device/conf/account/{cloud}")
 
-    account_info = None
-    if os.path.exists(default_account_file):
-        account_info = get_account_from_file(default_account_file, account)
-
-    if account_info is None:
-        ext_account_file_list = find_files_with_pattern(default_account_file)
-        if len(ext_account_file_list) > 0:
-            account_info = get_account_from_file(ext_account_file_list[0], account)
-    if account_info is not None:
-        return account_info
-    raise Exception(f"无法找到指定账号的信息. cloud: {cloud}, account: {account}")
+    account_line = search_files(dir_path, prefix, account)
+    if account_line is None:
+        raise type('DataNotFound', (Exception,), {})('无法找到账号信息')
+    parts = account_line.split()
+    return {
+        "access_id": parts[1].strip(),
+        "access_key": parts[2].strip(),
+    }
 
 
 def main(cloud, account):

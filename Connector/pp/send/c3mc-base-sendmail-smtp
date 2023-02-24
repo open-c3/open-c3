@@ -1,0 +1,103 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDan::Util::OptConf;
+use Encode;
+use File::Temp;
+use POSIX;
+use Email::Sender::Simple qw(sendmail);
+use Email::Sender::Transport::SMTPS;
+
+=head1 SYNOPSIS
+
+ $0 user1 user2 user3 --subject test
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o      = $option->get( qw( subject=s ) )->dump();
+$option->assert() unless @ARGV;
+$option->assert( 'subject' );
+
+local $/ = undef;
+my $content = Encode::encode('utf8', <STDIN> );
+local $/ = "\n";
+
+my $name = 'mail';
+my $path = sprintf "/data/open-c3-data/send/%s/$name/", POSIX::strftime( "%F", localtime );
+system "mkdir -p '$path'" unless -d $path;
+
+sub call
+{
+    my ( $user, $subject, $content ) = @_;
+
+    my %conf;
+    map{
+        $conf{$_} = `c3mc-sys-ctl sys.notify.mail.kind.smtp.$_`;
+        chomp $conf{$_};
+    }qw( server port username password from );
+
+    my $transport = Email::Sender::Transport::SMTPS->new(
+      host => $conf{server},
+      port => $conf{port},      
+      timeout => 300,
+      sasl_username => $conf{username},
+      sasl_password => $conf{password},
+    );
+
+    my $message = Email::Simple->create(
+        header => [
+            From    => $conf{from},
+            To      => $user,
+            Subject => $subject,
+
+            'Content-Type' => 'text/plain',
+            'charset'      => 'UTF-8',
+        ],
+        body => $content,
+    );
+    eval { sendmail($message, { transport => $transport }); };
+    die "sendmail fail: $@" if $@;
+
+    return 1;
+}
+
+sub xsend
+{
+    my ( $user, $subject, $content ) = @_;
+
+    my ( $err, $status );
+    for my $i ( reverse 1 .. 2 )
+    {
+        my $stat = eval{ call( $user, $subject, $content ); };
+        $err = $@ ? "call $name error: $@" : "";
+        $status = ( $stat  && ! $err ) ? "ok": "fail";
+
+        YAML::XS::DumpFile sprintf( "$path/%s.%03d.$user.$status", POSIX::strftime( "%Y%m%d%H%M%S", localtime ), rand 1000 ),
+             +{
+                 subject => Encode::decode('utf8', $subject ),
+                 content => Encode::decode('utf8', $content ),
+                 user    => $user,
+                 err     => $err
+              };
+
+        last if $status eq 'ok';
+
+        if( $i > 1 )
+        {
+            warn sprintf( "sendmesg error %s", $err );
+            sleep 3;
+        }
+    }
+
+    die sprintf( "$err: status %s", $status ) unless $status eq 'ok';
+}
+
+map{ xsend( $_, $o{subject}, $content ) }@ARGV;

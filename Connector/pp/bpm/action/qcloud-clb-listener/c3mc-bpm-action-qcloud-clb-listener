@@ -28,46 +28,73 @@ class Listener:
 
         clientProfile = ClientProfile()
         clientProfile.httpProfile = httpProfile
-        client = clb_client.ClbClient(cred, self.region, clientProfile)
-        return client
-    
+        return clb_client.ClbClient(cred, self.region, clientProfile)
+
     def get_request(self):
         req = models.CreateListenerRequest()
 
         api_params = {
             "LoadBalancerId": self.params["clb_id"],
-            "Ports": [ int(self.params["listener_port"]) ],
-            "Protocol": self.params["protocol"].upper(),
-            "ListenerNames": [ self.params["listener_name"] ],
+            "Ports": [int(self.params["listener_port"])],
+            "Protocol": self.params["protocol"],
+            "ListenerNames": [self.params["listener_name"]],
+            "SniSwitch": 1 if self.params.get("enable_sni") == "是" else 0,
         }
-        if self.params["protocol"] == "https":
+        if self.params["protocol"] in ["HTTPS", "TCP_SSL", "QUIC"]:
             api_params["Certificate"] = {
                 "SSLMode": "UNIDIRECTIONAL",
                 "CertId": self.params["cert_id"]
             }
-        if self.params["balancer_type"] == "tcp" or self.params["balancer_type"] == "udp":
-            api_params["Scheduler"] = self.params["balancer_type"]
-        
+        if self.params["balancer_type"] in ["UDP", "TCP", "TCP_SSL"]:
+            api_params["Scheduler"] = {
+                "按权重轮询": "WRR",
+                "最小连接数": "LEAST_CONN"
+            }[self.params["balancer_type"]]
+
+        # 配置健康检查
+        if (
+            self.params["protocol"] in ["UDP", "TCP", "TCP_SSL", "QUIC"]
+            and "enable_health_check" in self.params
+            and self.params["enable_health_check"] == "是"
+        ):
+            if self.params["health_check_type"] not in ["TCP", "HTTP"]:
+                raise type('C3NotSupportedHealthCheckType', (Exception,), {})('不支持的健康检查协议类型"')
+
+            if self.params["health_check_type"] == "TCP":
+                api_params["HealthCheck"] = {
+                    "HealthSwitch": 1,
+                }
+            if self.params["health_check_type"] == "HTTP":
+                api_params["HealthCheck"] = {
+                    "HealthSwitch": 1,
+                    "HttpCode": sum(map(int, self.params["health_check_http_codes"].split(","))),
+                    "HttpCheckPath": self.params["http_check_path"],
+                    "HttpCheckDomain": self.params["http_check_domain"],
+                    "HttpCheckMethod": self.params["http_check_method"],
+                    "CheckType": self.params["health_check_type"]
+                }
+
         req.from_json_string(json.dumps(api_params))
         return req
 
     def create_listener(self, req):
         resp = self.client.CreateListener(req)
         return json.loads(resp.to_json_string())
-    
+
 
 def main(params):
     account = params["account"]
     region = params["region"]
 
-    key_info = json.loads(subprocess.getoutput(
-        "c3mc-get-account-info qcloud {}".format(account)))
+    key_info = json.loads(
+        subprocess.getoutput(f"c3mc-get-account-info qcloud {account}")
+    )
 
     listener = Listener(key_info["access_id"],
-        key_info["access_key"], region, params)
-    
+                        key_info["access_key"], region, params)
+
     req = listener.get_request()
-    print("创建listener, 请求参数为: {}".format(req))
+    print(f"创建listener, 请求参数为: {req}")
 
     if subprocess.getoutput("c3mc-sys-ctl sys.bpm.fake.run") == "1":
         # bpm虚假运行
@@ -83,24 +110,26 @@ def main(params):
 
             listener_id = resp["ListenerIds"][0]
 
-            print("LOG. listener_id_{}:{}".format(params["listener_name"], listener_id))
-            print("LOG. protocol_{}:{}".format(params["listener_name"], params["protocol"]))
-            print("VAR. listener_id_{}:{}".format(params["listener_name"], listener_id))
-            print("VAR. protocol_{}:{}".format(params["listener_name"], params["protocol"]))
+            print("LOG. listener_id_{}:{}".format(
+                params["listener_name"], listener_id))
+            print("LOG. protocol_{}:{}".format(
+                params["listener_name"], params["protocol"]))
+            print("VAR. listener_id_{}:{}".format(
+                params["listener_name"], listener_id))
+            print("VAR. protocol_{}:{}".format(
+                params["listener_name"], params["protocol"]))
         except Exception as e:
-            print("创建腾讯云监听器出错, err: {}".format(e), file=sys.stderr)
+            print(f"创建腾讯云监听器出错, err: {e}", file=sys.stderr)
             exit(1)
 
         # 防止后续立即执行创建转发规则时报错
         # 休眠一会儿等待监听器状态正常
         time.sleep(25)
-    
+
 
 if __name__ == '__main__':
-    l = []
-    for line in sys.stdin:
-        l.append(line)
-    if len(l) == 0 or len(l) > 1:
-        raise Exception("数据格式不对, 需要一行json字符串")
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
 
     main(json.loads(l[0]))

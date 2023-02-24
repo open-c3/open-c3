@@ -209,8 +209,9 @@
             angular.forEach($scope.jobVar, function (data, index) {
 
                  var tempename = vm.extname( data.name ); 
-                 if( ename[0] == tempename[0] && data['show'] && data['show'][0] == ename[1] )
+                 if(data['show'] && typeof data['show'][0] === 'string')
                  {
+                    if (ename[0] == tempename[0] && data['show'][0] == ename[1]) {
                      var match = false;
                      angular.forEach(data['show'], function (data, index) {
                          if( data == stepvalue && index > 0 )
@@ -230,6 +231,29 @@
                          vm.selectxhide[data.name] = '1';
                          data.value = "_openc3_hide_";
                      }
+                    }
+                 } else if (data['show']) {
+                    let itemKeysResults = []
+                    let selectItem = {}
+                    angular.forEach(data['show'], function (item, index) {
+                      let itemKeysResult = {select: []}
+                      itemKeysResult['name'] = Object.keys(item)
+                      for (let key in item) {
+                        selectItem =  $scope.jobVar.filter(cItem => cItem.name.indexOf(key) > -1)[0]
+                        itemKeysResult['select'].push(!!item[key].find(cItem=> cItem === selectItem.value))
+                      }
+                      itemKeysResults[index] = itemKeysResult
+                    });
+                    angular.forEach(itemKeysResults, function (item) {
+                        item.match = !item.select.filter(cItem=> cItem === false).length
+                    })
+                    if(itemKeysResults.map(item => item.match).filter(cItem => cItem === true ).length > 0) {
+                      vm.selectxhide[data.name] = '0';
+                      data.value = "";
+                    } else {
+                      vm.selectxhide[data.name] = '1';
+                      data.value = "_openc3_hide_";
+                    }
                  }
             });
         }

@@ -60,7 +60,9 @@ sub run
     chomp $detail;
     my $res = $? ? "err" : "ok";
 
-    die "say fail: $!" if system "./say $id 'test/$res $detail'";
+    my $msg = "test/$res  $detail";
+    $msg =~ s#\s#\\n#g;
+    die "say fail: $!" if system "./say $id \"$msg\"";
 }
 
 for( @x )
