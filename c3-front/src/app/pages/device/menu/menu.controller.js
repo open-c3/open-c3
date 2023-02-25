@@ -27,7 +27,7 @@
         }
         vm.reload = function () {
             vm.loadover = false;
-            $http.get( '/api/agent/device/menu/' + vm.treeid + '?timemachine=' + vm.selectedtimemachine ).success(function(data){
+            $http.get( '/api/ci/v2/c3mc/cmdb/menu?treeid=' + vm.treeid + '&timemachine=' + vm.selectedtimemachine ).success(function(data){
                 if (data.stat){
                     vm.menu = data.data;
                     vm.loadover = true;
