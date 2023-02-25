@@ -13,6 +13,13 @@ use api::c3mc;
 
 our %handle = %api::kubernetes::handle;
 
+my $authstrict;
+BEGIN{
+    my $x = `c3mc-sys-ctl sys.device.auth.strict`;
+    chomp $x;
+    $authstrict = defined $x && $x eq '0' ? 0 : 1;
+};
+
 =pod
 
 CMDB/获取CMDB数据
@@ -70,5 +77,49 @@ $handle{cmdb} = sub
 
     return +{ stat => $JSON::true, data => \@res };
 };
+
+=pod
+
+CMDB/获取菜单
+
+=cut
+
+get '/c3mc/cmdb/menu' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        treeid       => qr/^\d+$/, 1,
+        timemachine  => qr/^[a-z0-9][a-z0-9\-]+[a-z0-9]$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+ 
+    my $pmscheck;
+    if( $authstrict )
+    {                                                                                                    
+          $pmscheck = $param->{treeid} == 0                                                              
+            ? api::pmscheck( 'openc3_job_root'                    )                                      
+            : api::pmscheck( 'openc3_job_write', $param->{treeid} );                                     
+    }                                                                                                    
+    else 
+    {                                                                                                    
+          $pmscheck = api::pmscheck( 'openc3_job_read', $param->{treeid} );                              
+    }                                                                                                    
+    return $pmscheck if $pmscheck;  
+
+    my $cmd = "c3mc-device-menu '$param->{treeid}' '$param->{timemachine}' 2>&1";
+    my $handle = 'cmdb_menu';
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
+    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
+};
+
+$handle{cmdb_menu} = sub
+{
+    my ( $x, $status ) = @_;
+    return +{ stat => $JSON::false, info => $x } if $status;
+    my $data = eval{ YAML::XS::Load $x };
+
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $data };
+};
+
 
 true;

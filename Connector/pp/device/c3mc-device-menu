@@ -1,0 +1,159 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use YAML::XS;
+use JSON;
+
+=head1 SYNOPSIS
+
+ $0 treeid timemachine
+
+=cut
+
+my ( $treeid, $timemachine ) = @ARGV;
+die unless $timemachine;
+
+my $database = '/data/open-c3-data/device';
+
+sub getdatacount
+{
+    my ( $timemachine, $datafile, $greptreename, $treeid, $type, $subtype  ) = @_;
+    if( $greptreename )
+    {
+        my    @data = `c3mc-device-cat $timemachine $type $subtype`;
+        chomp @data;
+
+        my $title = shift @data;
+
+        return 0 unless $title;
+        utf8::decode($title);
+        my @title = split /\t/, $title;
+
+        my $colmap;
+        my $cmf = $datafile;
+        $cmf =~ s/data.tsv$/colmap.yml/;
+        if( -f $cmf )
+        {
+            $colmap = eval{ YAML::XS::LoadFile $cmf; };
+            die "load colmap fail: $@" if $@;
+        }
+
+        my $treenamecol = ( $colmap && $colmap->{treename} ) ? $colmap->{treename} : undef;
+
+        my $c = 0;
+        for my $data ( @data )
+        {
+             utf8::decode($data);
+             my @d = split /\t/, $data;
+
+             my %d = map{ $title[ $_ ] => $d[ $_ ] } 0 .. @title - 1;
+
+            my $treenamematch = 1;
+            if( $greptreename )
+            {
+                if( $treenamecol )
+                {
+                     $treenamematch = 0 unless $d{ $treenamecol }  && grep{ ( $_ eq $greptreename || ( 0 == index( $_ , "$greptreename."  ) ) )}split /,/, $d{ $treenamecol };
+                }
+                else
+                {
+                     $treenamematch = 0 unless $treeid == 0;
+                }
+            }
+
+             $c ++ if $treenamematch;
+
+        }
+        return $c;
+    }
+    else
+    {
+        my $c = `wc -l $datafile | awk '{print \$1}'`;
+        chomp $c;
+        return $c -1;
+    }
+};
+
+sub gettreename
+{
+    my $treeid = shift @_;
+    my @x = `c3mc-base-treemap cache| grep "^$treeid;"|awk -F';'  '{print \$2}'`;
+    chomp @x;
+    die "get treename by id: $treeid fail" unless @x;
+    return $x[0];
+};
+
+sub getmenu
+{
+    my %param = @_;
+    my $param = \%param;
+
+    $param->{treeid} = 0 if $param->{treeid} eq 4000000000;
+
+    my %re = map{ $_ => [] }qw( compute database domain networking others storage );
+    return \%re if $param->{treeid} >= 4000000000;
+
+    my $greptreename = $param->{treeid} == 0 ? undef : eval{ gettreename( $param->{treeid} ) };;
+    die "gettreename fail: $@" if $@;
+
+    my $datapathx = $param->{timemachine} eq 'curr' ? "$database/curr" : "$database/timemachine/$param->{timemachine}";
+    for my $f ( sort glob "$datapathx/*/*/data.tsv" )
+    {
+        my ( undef, $subtype, $type ) = reverse split /\//, $f;
+        my $c = getdatacount( $param->{timemachine}, $f, $greptreename, $param->{treeid}, $type, $subtype );
+        next unless $c > 0;
+        push @{$re{$type}}, [ $subtype, $c ] if defined $re{$type};
+    }
+
+    my ( %re2, %subtypecount, %max );
+
+    for my $type (  keys %re )
+    {
+        $re2{$type} = +{};
+        for my $subtype ( @{ $re{$type} } )
+        {
+            my ( $name, $count ) = @{ $subtype };
+            my ( $g, @alias ) = split /-/, $name;
+            $subtypecount{$type}{$g} ++;
+            $re2{$type}{$g} ||= [];
+            push @{ $re2{$type}{$g}}, [ $g, @$subtype, join "-", @alias ];
+            $max{$type} ||= 0;
+            $max{$type} = @{ $re2{$type}{$g}} - 1 if $max{$type} < @{ $re2{$type}{$g}} - 1;
+        }
+    }
+
+    for my $type (  keys %re )
+    {
+        for my $group ( keys %{ $re2{ $type  } } )
+        {
+            for ( 1.. 15 )
+            {
+                next unless @{ $re2{ $type  }{ $group }} <= $max{$type};
+                push @{ $re2{ $type  }{ $group }}, [];
+            }
+        }
+    }
+
+    my %re3;
+    for my $type ( keys %re2 )
+    {
+        $re3{ $type } = [];
+        for my $group ( sort{ $subtypecount{$type}{$b} <=> $subtypecount{$type}{$a} }keys %{ $re2{ $type } } )
+        {
+            my @x = @{ $re2{ $type }{ $group } };
+            map{ push @{ $re3{ $type }[ $_] }, $x[$_]  } 0 .. @x -1;
+        }
+    }
+
+    return data => \%re3;
+};
+
+my $x = getmenu( treeid => $treeid, timemachine => $timemachine );
+print YAML::XS::Dump $x;
