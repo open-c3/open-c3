@@ -20,7 +20,7 @@ my $file = "$path/c3mc-device-bind-info.txt";
 if( $ctrl eq 'set' )
 {
     system "mkdir -p $path" unless -d $path;
-    exec "c3mc-device-bind-info > $file.$$.temp && mv $file.$$.temp $file";
+    exec "c3mc-device-bind-info $timemachine > $file.$$.temp && mv $file.$$.temp $file";
 }
 else
 {
