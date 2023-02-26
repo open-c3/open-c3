@@ -7,4 +7,7 @@ TZ=Asia/Shanghai
 5  5 * * * root /usr/bin/c3mc-sys-backup         > /tmp/c3mc-sys-backup.log         2>&1
 15 4 * * * root /usr/bin/c3mc-mon-nlow-cron      > /tmp/c3mc-mon-nlow-cron.log      2>&1
 1  * * * * root /usr/bin/c3mc-device-timemachine > /tmp/c3mc-device-timemachine.log      2>&1
+
 */10 * * * * root flock -n /tmp/c3mc-cloud-update-cloud-account-caller.lock /usr/bin/c3mc-cloud-update-cloud-account-caller > /tmp/c3mc-cloud-update-cloud-account-caller.log 2>&1
+
+*/5 * * * * root /usr/bin/c3mc-device-bind-info-cache set > /tmp/c3mc-device-bind-info-cache.log 2>&1
