@@ -1,0 +1,31 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+=head1 SYNOPSIS
+
+ $0 ctrl
+ $0 ctrl --timemachine curr
+
+=cut
+
+my $ctrl = shift @ARGV;
+
+die "ctrl err" unless $ctrl && ( $ctrl eq 'get' || $ctrl eq 'set' );
+
+my $argv = join " ", @ARGV;
+
+my $timemachine = $argv =~ /\-\-timemachine\s+([^\s]+)\s*/ ? $1 : 'curr';
+
+my $path = sprintf "/data/open-c3-data/device/%s/cache", $timemachine eq 'curr' ? 'curr' : "timemachine/$timemachine";
+my $file = "$path/c3mc-device-cat-all.txt";
+
+if( $ctrl eq 'set' )
+{
+    system "mkdir -p $path" unless -d $path;
+    exec "c3mc-device-cat-all $argv > $file.$$.temp && mv $file.$$.temp $file";
+}
+else
+{
+    -f $file ? exec( "cat $file" ) : exec( "c3mc-device-cat-all $argv");
+}

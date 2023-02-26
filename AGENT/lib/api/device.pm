@@ -66,7 +66,7 @@ any '/device/data/:type/:subtype/:treeid' => sub {
     my $datapathx = $param->{timemachine} eq 'curr' ? "$database/curr" : "$database/timemachine/$param->{timemachine}";
 
     my ( $getdatacmd, $currdatapath ) = $param->{type} eq 'all' && $param->{subtype} eq 'all'
-        ? ( "c3mc-device-cat-all --timemachine $param->{timemachine}",                 $datapathx)
+        ? ( "c3mc-device-cat-all-cache get --timemachine $param->{timemachine}",       $datapathx)
         : ( "c3mc-device-cat $param->{timemachine} $param->{type} $param->{subtype}", "$datapathx/$param->{type}/$param->{subtype}");
 
     my    @data = `$getdatacmd`;
