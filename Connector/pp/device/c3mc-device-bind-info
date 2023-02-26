@@ -1,0 +1,13 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+=head1 SYNOPSIS
+
+ $0 timemachine
+
+=cut
+
+my $timemachine = @ARGV ? $ARGV[0] : 'curr';
+
+exec "c3mc-device-cat-all --timemachine '$timemachine' --col type,subtype,uuid,treename";
