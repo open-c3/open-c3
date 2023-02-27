@@ -20,7 +20,9 @@ die "nofile" unless $file && -f $file;
 my    @x = `cat '$file'`;
 chomp @x;
 
-sub perlh
+my %code;
+
+$code{perl} = sub
 {
     my ( $match, @c, @r ) = ( 0, @_ );
     for my $x ( @c )
@@ -32,33 +34,29 @@ sub perlh
         $match = 1 if $x eq '=head1 SYNOPSIS';
     }
     return @r;
-}
+};
 
-sub perl
-{
-    my ( $name, @c ) = @_;
-    print "## $name\n";
-    if( my @xx = perlh(@c) )
-    {
-        print "```\n";
-        map{ print "$_\n"; }@xx;
-        print "```\n";
-    }
-    else { warn "[Warn] $name nofind\n"; }
-}
-
-sub bashh
+$code{bash} = sub
 {
     my ( @c, @r ) = @_;
     map{push @r, $1 if $_ =~ /^### (.+)/;}@c;
     return @r;
-}
+};
 
-sub bash
+$code{python3} = sub
 {
-    my ( $name, @c ) = @_;
-    print "## $name\n";
-    if( my @xx = bashh(@c) )
+    my ( @c, @r ) = @_;
+    map{push @r, $1 if $_ =~ /^### (.+)/;}@c;
+    return @r;
+};
+
+sub run
+{
+    my ( $name, $type, @c ) = @_;
+    my $title = "$name/$type";
+    print "## $title\n";
+    my @xx = $code{$type}( @c );
+    if( @xx )
     {
         print "```\n";
         map{ print "$_\n"; }@xx;
@@ -70,8 +68,9 @@ sub bash
 my $name = basename $file;
 
 my $m = 0;
-$m = 1 && perl( "$name/perl", @x ) if $x[0] && index( $x[0],  "#!/data/Software/mydan/perl/bin/perl" ) == 0;
-$m = 1 && bash( "$name/bash", @x ) if $x[0] && index( $x[0],  "#!/bin/bash" ) == 0;
+$m = 1 && run( $name, "perl",   @x ) if $x[0] && index( $x[0],  "#!/data/Software/mydan/perl/bin/perl" ) == 0;
+$m = 1 && run( $name, "bash",   @x ) if $x[0] && index( $x[0],  "#!/bin/bash" ) == 0;
+$m = 1 && run( $name, "python3",@x ) if $x[0] && index( $x[0],  "#!/usr/bin/env /data/Software/mydan/python3/bin/python3" ) == 0;
 
 exit if $m;
 
