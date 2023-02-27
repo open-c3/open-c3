@@ -33,7 +33,7 @@
                     vm.loadover = true;
                     let totalArr = JSON.parse(JSON.stringify(data.data))
                     for (let key in totalArr) {
-                      vm.totalResources[key] = totalArr[key].map(item=> item.map(cItem => cItem[2]? cItem[2]: 0))
+                      vm.totalResources[key] = totalArr[key].map(item=> item.map(cItem => cItem[2]? Number(cItem[2]): 0))
                     }
                     for (let key in  vm.totalResources) {
                       const initialValue = 0;
