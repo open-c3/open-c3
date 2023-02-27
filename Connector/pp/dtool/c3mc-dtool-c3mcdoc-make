@@ -1,0 +1,15 @@
+#!/bin/bash
+
+###
+### 生成c3mc所有工具的帮助文档
+###
+### Usage:
+###
+###   $0
+###
+### Options:
+###   -h        获取帮助信息
+
+. /usr/bin/c3mc-bash-help || exit 1
+
+find /data/Software/mydan/Connector/pp -name "c3mc-*" | sort | xargs -i{} ./c3mc-dtool-c3mcdoc-make-onece  {}
