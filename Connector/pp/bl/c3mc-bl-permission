@@ -10,7 +10,7 @@ import requests
 
 def main():
     bl_mode = subprocess.getoutput("c3mc-sys-ctl sys.bl.mode").strip()
-    if bl_mode == 'none' or bl_mode == '':
+    if bl_mode in ['none', '']:
         print("堡垒机配置未启用", file=sys.stderr)
         exit(1)
 
@@ -22,13 +22,21 @@ def main():
     parser.add_argument('--ip', type=str, required=True, help='目标IP')
     args = parser.parse_args()
 
-    bl_admin_user = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.{}.admin.user".format(bl_mode)).strip()
-    bl_admin_pass = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.{}.admin.pass".format(bl_mode)).strip()
-    bl_url = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.{}.url".format(bl_mode)).strip()
-    proxy_ip = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.{}.proxy_ip".format(bl_mode)).strip()
+    bl_admin_user = subprocess.getoutput(
+        f"c3mc-sys-ctl sys.bl.sync.{bl_mode}.admin.user"
+    ).strip()
+    bl_admin_pass = subprocess.getoutput(
+        f"c3mc-sys-ctl sys.bl.sync.{bl_mode}.admin.pass"
+    ).strip()
+    bl_url = subprocess.getoutput(
+        f"c3mc-sys-ctl sys.bl.sync.{bl_mode}.url"
+    ).strip()
+    proxy_ip = subprocess.getoutput(
+        f"c3mc-sys-ctl sys.bl.sync.{bl_mode}.proxy_ip"
+    ).strip()
 
     request_data = {
-        "command": "{}-bastion".format(bl_mode),
+        "command": f"{bl_mode}-bastion",
         "arguments": json.dumps(
             {
                 "add_type": args.add_type,
@@ -39,10 +47,10 @@ def main():
                 "admin_pass": bl_admin_pass,
                 "url": bl_url,
             }
-        )
+        ),
     }
 
-    api_addr = "http://{}:56383/run".format(proxy_ip)
+    api_addr = f"http://{proxy_ip}:56383/run"
     headers = {'Content-Type': 'application/json'}
     response = requests.request("POST", api_addr, headers=headers, data=json.dumps(request_data))
     print(json.dumps(response.json()))
