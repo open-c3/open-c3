@@ -235,6 +235,8 @@
                  } else if (data['show']) {
                     let itemKeysResults = []
                     let selectItem = {}
+                    const dataShowItems = Object.keys(data['show'][0])
+                    if(ename[0] === tempename[0] && dataShowItems.find(item => item === ename[1])){
                     angular.forEach(data['show'], function (item, index) {
                       let itemKeysResult = {select: []}
                       itemKeysResult['name'] = Object.keys(item)
@@ -255,6 +257,7 @@
                       data.value = "_openc3_hide_";
                     }
                  }
+                }
             });
         }
 
