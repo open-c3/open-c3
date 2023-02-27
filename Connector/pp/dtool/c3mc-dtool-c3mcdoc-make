@@ -12,4 +12,4 @@
 
 . /usr/bin/c3mc-bash-help || exit 1
 
-find /data/Software/mydan/Connector/pp -name "c3mc-*" | sort | xargs -i{} ./c3mc-dtool-c3mcdoc-make-onece  {}
+find /data/Software/mydan/Connector/pp -name "c3mc-*" | sort | xargs -i{} bash -c "./c3mc-dtool-c3mcdoc-make-onece {} || exit 255"

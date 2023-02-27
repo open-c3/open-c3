@@ -73,6 +73,6 @@ my $m = 0;
 $m = 1 && perl( "$name/perl", @x ) if $x[0] && index( $x[0],  "#!/data/Software/mydan/perl/bin/perl" ) == 0;
 $m = 1 && bash( "$name/bash", @x ) if $x[0] && index( $x[0],  "#!/bin/bash" ) == 0;
 
-exit 1 if $m;
+exit if $m;
 
 warn "[Warn] $name/unkown nofind\n";
