@@ -202,8 +202,11 @@ post '/bpm/optionx' => sub {
                 my $tk = $k;
                 $tk =~ s/^\d+\.//;
                 $tk =~ s/^\d+\.//;
-                next if $uniq{$currvar->{$k}} ++;
-                push @data, +{ name => $currvar->{$k}, alias => $currvar->{$k} } if $tk eq $command->[1];
+                if( $tk eq $command->[1] )
+                {
+                    next if $uniq{$currvar->{$k}} ++;
+                    push @data, +{ name => $currvar->{$k}, alias => $currvar->{$k} };
+                }
             }
         }
         if( $command->[0] eq 'point' && $command->[1] && $command->[2] )
