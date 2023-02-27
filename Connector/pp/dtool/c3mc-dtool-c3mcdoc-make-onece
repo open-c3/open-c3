@@ -63,6 +63,14 @@ sub run
         print "```\n";
     }
     else { warn "[Warn] $name nofind\n"; }
+
+    if( $ENV{C3GITBASEURL} )
+    {
+        my $uri = $file;
+        return unless $uri =~ s#.*/Connector/pp/#Connector/pp/#;
+        print "[编辑]($ENV{C3GITBASEURL}/$uri)\n\n";
+    }
+
 }
 
 my $name = basename $file;
