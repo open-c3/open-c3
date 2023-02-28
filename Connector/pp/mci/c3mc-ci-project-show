@@ -15,7 +15,7 @@ sub get
     my $id = shift;
     die "id err" unless $id =~ /^\d+$/;
 
-    system "c3mc-base-db-get  -t openc3_ci_project -y id status autofindtags callonlineenv calltestenv findtags_at_once autobuild name excuteflow calljobx calljob webhook webhook_password webhook_release rely buildimage buildscripts follow_up follow_up_ticketid callback groupid tag_regex addr  ticketid notify slave last_findtags last_findtags_success edit_user edit_time -f 'id=$id'";
+    system "c3mc-base-db-get  -t openc3_ci_project -y id status autofindtags callonlineenv calltestenv findtags_at_once autobuild name excuteflow calljobx calljob webhook webhook_password webhook_release rely buildimage buildscripts follow_up follow_up_ticketid callback groupid tag_regex addr  ticketid notify notifyci notifycd slave last_findtags last_findtags_success edit_user edit_time -f 'id=$id'";
 }
 
 if( @ARGV ) { map{ get($_) }@ARGV; } else { while(<STDIN>){ chomp; get($_); } }

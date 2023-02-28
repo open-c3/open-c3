@@ -52,6 +52,7 @@ for my $key ( keys %content )
 
 my %user;
 map{ $user{$_} = 1 }split /,/, $info->{ 'ci.notify' };
+map{ $user{$_} = 1 }split /,/, $info->{ 'ci.notifycd' };
 $user{ $info->{ 'ci.tagger' } } = 1;
 
 exit unless %user;

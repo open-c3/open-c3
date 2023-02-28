@@ -36,7 +36,7 @@ return sub
 
     my @col;
     map{ push @col, "openc3_ci_version.$_" } qw( projectid name user status starttime finishtime calltype runtime );
-    map{ push @col, "openc3_ci_project.$_" } qw( groupid name addr calltestenv callonlineenv notify nomail nomesg );
+    map{ push @col, "openc3_ci_project.$_" } qw( groupid name addr calltestenv callonlineenv notify notifyci nomail nomesg );
     
     my $x = eval{ $db->query( sprintf( "select %s from openc3_ci_version,openc3_ci_project where openc3_ci_version.projectid=openc3_ci_project.id and uuid='$uuid'", join( ',',@col) ), \@col ); };
 
@@ -59,6 +59,7 @@ return sub
     }
 
     map{ $notify{$_} = 1 } split /,/, $x{'openc3_ci_project.notify'} if $x{'openc3_ci_project.notify'};
+    map{ $notify{$_} = 1 } split /,/, $x{'openc3_ci_project.notifyci'} if $x{'openc3_ci_project.notifyci'};
 
     my %template = 
     (
