@@ -37,7 +37,7 @@
                 }
             });
         };
-
+        vm.selectIndex = 0
         vm.chtempclear = function ( obj ) {
             if( obj.type == "kvarray" )
             {
@@ -261,8 +261,9 @@
             });
         }
 
-        vm.optionxclick = function( stepname )
+        vm.optionxclick = function( stepname , selectIndex)
         {
+            vm.selectIndex = selectIndex
             var varDict = {};
             var stepconf;
             angular.forEach($scope.jobVar, function (data, index) {
