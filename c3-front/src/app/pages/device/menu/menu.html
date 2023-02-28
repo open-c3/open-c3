@@ -18,7 +18,7 @@
     <div>
         <div style="float: left;">
             <form class="form-inline" name="myForm" novalidate>
-                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="devicemenu.gotosubtype('all','all')"> <i class="fa fa-search fa-lg" aria-hidden="true"></i>{{'C3T.全局搜索'|translate}}</button>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="devicemenu.gotosubtype('all','all', 'global')"> <i class="fa fa-search fa-lg" aria-hidden="true"></i>{{'C3T.全局搜索'|translate}}</button>
             </form>
         </div>
         <div style="float: right;">
@@ -30,6 +30,24 @@
         </div>
         <div style="clear: both;">&nbsp;</div>
     </div>
+
+    <div class="panel panel-dark">
+      <div class="panel-heading">
+          <span class="panel-icon">
+              <i class="fa fa-filter"></i>
+          </span>
+      </div>
+      <div class="panel-body">
+           <form ng-submit="devicemenu.gotosubtype('all', 'all', 'input')">
+                <div class="input-group input-hero input-hero-sm">
+                   <input ng-disabled="!devicemenu.loadover" type="text" class="form-control searchInput clear-weight"  ng-model="devicemenu.grepdata._search_" placeholder="Enter search terms..">
+                    <span class="append-icon right fs18 pointer" ng-click="devicemenu.grepdata._search_=''" ng-show="devicemenu.grepdata._search_!=''">
+                          <i class="fa fa-times"></i>
+                   </span>
+               </div>
+          </form>
+     </div>
+  </div>
 
 <div class="page-content">
 
@@ -53,8 +71,8 @@
                             <img ng-if="m[0]==='huawei'" src="/assets/images/huawei.jpeg" style="width: 26px;"/>
                             <img ng-if="m[0]==='ibm'"    src="/assets/images/ibm.jpeg"    style="width: 42px;"/>
 
-                            <a ng-if="   m[0] === 'qcloud' || m[0] === 'aws' || m[0] === 'aliyun' || m[0] === 'ksyun' || m[0] === 'google' || m[0] === 'huawei' || m[0] === 'ibm' "  ng-click="devicemenu.gotosubtype(type[0],m[1])" style="cursor:pointer;color: #339094;"> {{m[3]}}({{m[2]}}) </a>
-                            <a ng-if="!( m[0] === 'qcloud' || m[0] === 'aws' || m[0] === 'aliyun' || m[0] === 'ksyun' || m[0] === 'google' || m[0] === 'huawei' || m[0] === 'ibm')" ng-click="devicemenu.gotosubtype(type[0],m[1])" style="cursor:pointer;color: #339094;"> {{m[1]}}({{m[2]}}) </a>
+                            <a ng-if="   m[0] === 'qcloud' || m[0] === 'aws' || m[0] === 'aliyun' || m[0] === 'ksyun' || m[0] === 'google' || m[0] === 'huawei' || m[0] === 'ibm' "  ng-click="devicemenu.gotosubtype(type[0],m[1], 'items')" style="cursor:pointer;color: #339094;"> {{m[3]}}({{m[2]}}) </a>
+                            <a ng-if="!( m[0] === 'qcloud' || m[0] === 'aws' || m[0] === 'aliyun' || m[0] === 'ksyun' || m[0] === 'google' || m[0] === 'huawei' || m[0] === 'ibm')" ng-click="devicemenu.gotosubtype(type[0],m[1], 'items')" style="cursor:pointer;color: #339094;"> {{m[1]}}({{m[2]}}) </a>
 
                           </div>
                         </td>
@@ -68,3 +86,9 @@
 
     </div>
 </div>
+
+<style>
+  .clear-weight {
+    z-index: 0 !important;
+  }
+</style>
