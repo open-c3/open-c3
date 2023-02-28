@@ -217,6 +217,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
         uuid         => qr/^[a-zA-Z0-9][a-zA-Z\d\-_\.:]+$/, 1,
         timemachine  => qr/^[a-z0-9][a-z0-9\-]+[a-z0-9]$/, 1,
         hash         => qr/^[a-z\d\-_]+$/, 0, # 默认为0，当为1时返回hash数据
+        exturl       => qr/.*/, 0, # 扩展URL，如果有这个字段，说明需要的是url解析。数据返回解析后的url
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -427,6 +428,15 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
             map{ $hash{$_->[0]} = $_->[1]  }@$r;
         }
         return +{ stat => $JSON::true, data => \%hash };
+    }
+
+    if( my $url = $param->{exturl} )
+    {
+        for my $r ( @re2 )
+        {
+            map{ $url =~ s/\$\{$_->[0]\}/$_->[1]/; }@$r;
+        }
+        return +{ stat => $JSON::true, data => $url };
     }
 
     my $util = eval{ YAML::XS::LoadFile "$datapathx/$param->{type}/$param->{subtype}/util.yml"; };
