@@ -31,20 +31,16 @@
         <div style="clear: both;">&nbsp;</div>
     </div>
 
-    <div class="panel panel-dark">
-      <div class="panel-heading">
-          <span class="panel-icon">
-              <i class="fa fa-filter"></i>
-          </span>
-      </div>
-      <div class="panel-body">
-           <form ng-submit="devicemenu.gotosubtype('all', 'all', 'input')">
-                <div class="input-group input-hero input-hero-sm">
+    <div class="panel panel-dark menu-panel-search">
+      <div class="panel-body menu-panel-content">
+           <form class="menu-panel-form" ng-submit="devicemenu.gotosubtype('all', 'all', 'input')">
+                <div class="input-group input-hero input-hero-sm menu-panel-form-group">
                    <input ng-disabled="!devicemenu.loadover" type="text" class="form-control searchInput clear-weight"  ng-model="devicemenu.grepdata._search_" placeholder="Enter search terms..">
-                    <span class="append-icon right fs18 pointer" ng-click="devicemenu.grepdata._search_=''" ng-show="devicemenu.grepdata._search_!=''">
+                    <span class="append-icon right fs18 pointer menu-panel-form-group-span" ng-click="devicemenu.grepdata._search_=''" ng-show="devicemenu.grepdata._search_ && devicemenu.grepdata._search_!=''">
                           <i class="fa fa-times"></i>
                    </span>
                </div>
+               <button type="submit" class="btn btn-info menu-panel-form-button" style="padding: 10px 25px">{{'C3T.搜索'|translate}}</button>
           </form>
      </div>
   </div>
@@ -90,5 +86,23 @@
 <style>
   .clear-weight {
     z-index: 0 !important;
+  }
+  .menu-panel-search {
+    margin: 50px auto;
+  }
+  .menu-panel-content {
+    border: none;
+    left: 15%;
+  }
+  .menu-panel-form-group {
+    width: 60%;
+  }
+  .menu-panel-form-group-span {
+    top: 14px;
+  }
+  .menu-panel-form-button {
+    width: 100px;
+    font-size: 20px;
+    margin-left: 20px;
   }
 </style>
