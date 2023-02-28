@@ -270,6 +270,32 @@
                 </div>
 
 
+                <div class="panel panel-primary">
+
+                    <div class="panel-heading">
+                        <span class="panel-controls">
+                            <button class="btn btn-primary" uib-tooltip="{{'C3T.复制模版'|translate}}" ng-click="template.pluginApprovalSet()"><i class="fa fa-clone" aria-hidden="true"></i></button>
+                            <button class="btn btn-primary" uib-tooltip="{{'C3T.保存'|translate}}" ng-click="template.pluginApprovalSave()"><i class="fa fa-floppy-o" aria-hidden="true"></i></button>
+                            <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="template.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!template.loadover}" ></i></button>
+                        </span>
+                        <h5 style="font-weight: bold;">{{'C3T.审批插件模版'|translate}}</h5>
+                    </div>
+                    <div class="panel-body">
+                        <form class="form-horizontal" name="templateForm"  role="form" novalidate>
+
+                            <div class="row">
+                                <div class="col-sm-10 form-group">
+                                    <label class="col-sm-2 control-label">{{'C3T.审批插件默认模版'|translate}}： </label>
+                                    <div class="col-sm-9">
+                                        <textarea style="height: 150px" class="fluid-width"  ng-model="template.environment.approvalTemplatePluginContent"></textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+
+                </div>
+
         </uib-tab>
 
         <uib-tab>
