@@ -216,6 +216,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
         treeid       => qr/^\d+$/, 1,
         uuid         => qr/^[a-zA-Z0-9][a-zA-Z\d\-_\.:]+$/, 1,
         timemachine  => qr/^[a-z0-9][a-z0-9\-]+[a-z0-9]$/, 1,
+        hash         => qr/^[a-z\d\-_]+$/, 0, # 默认为0，当为1时返回hash数据
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -416,6 +417,16 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
         }
 
         push @re2, \@x;
+    }
+
+    if( $param->{hash} )
+    {
+        my %hash;
+        for my $r ( @re2 )
+        {
+            map{ $hash{$_->[0]} = $_->[1]  }@$r;
+        }
+        return +{ stat => $JSON::true, data => \%hash };
     }
 
     my $util = eval{ YAML::XS::LoadFile "$datapathx/$param->{type}/$param->{subtype}/util.yml"; };
