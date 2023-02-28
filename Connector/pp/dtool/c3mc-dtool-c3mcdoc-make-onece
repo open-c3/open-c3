@@ -28,6 +28,11 @@ $code{perl} = sub
     for my $x ( @c )
     {
         $x =~ s/\s*$//;
+        if( $x eq '=encoding UTF-8' )
+        {
+            @r = ();
+            next;
+        }
 
         last if $x eq '=cut';
         push @r, $x if $match;
