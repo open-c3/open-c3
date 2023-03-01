@@ -8,10 +8,15 @@ use api;
 use OPENC3::Tree;
 
 my $authstrict;
+
+my $control;
 BEGIN{
     my $x = `c3mc-sys-ctl sys.device.auth.strict`;
     chomp $x;
     $authstrict = defined $x && $x eq '0' ? 0 : 1;
+
+    $control = eval{ YAML::XS::LoadFile '/data/Software/mydan/AGENT/device/conf/control.yml' };
+    die "load control fail: $@" if $@;
 };
 
 my $database = '/data/open-c3-data/device';
@@ -188,6 +193,12 @@ any '/device/data/:type/:subtype/:treeid' => sub {
             push @{$filterdata->{$name}}, +{ name => $k eq "" ? "_null_" : $k, count => $vm{$k}||0 };
         }
     }
+
+    map
+    {
+        $_->{control} = ( $_->{type} && $_->{subtype} && $control->{$_->{type}} && $control->{$_->{type}}{$_->{subtype}} ) ? $control->{$_->{type}}{$_->{subtype}} : [];
+    }@re;
+
     return +{ stat => $JSON::true, data => \@re, debug => \@debug, filter => $filter, filterdata => $filterdata  };
 };
 
@@ -205,6 +216,8 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
         treeid       => qr/^\d+$/, 1,
         uuid         => qr/^[a-zA-Z0-9][a-zA-Z\d\-_\.:]+$/, 1,
         timemachine  => qr/^[a-z0-9][a-z0-9\-]+[a-z0-9]$/, 1,
+        hash         => qr/^[a-z\d\-_]+$/, 0, # 默认为0，当为1时返回hash数据
+        exturl       => qr/.*/, 0, # 扩展URL，如果有这个字段，说明需要的是url解析。数据返回解析后的url
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -405,6 +418,25 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
         }
 
         push @re2, \@x;
+    }
+
+    if( $param->{hash} )
+    {
+        my %hash;
+        for my $r ( @re2 )
+        {
+            map{ $hash{$_->[0]} = $_->[1]  }@$r;
+        }
+        return +{ stat => $JSON::true, data => \%hash };
+    }
+
+    if( my $url = $param->{exturl} )
+    {
+        for my $r ( @re2 )
+        {
+            map{ $url =~ s/\$\{$_->[0]\}/$_->[1]/; }@$r;
+        }
+        return +{ stat => $JSON::true, data => $url };
     }
 
     my $util = eval{ YAML::XS::LoadFile "$datapathx/$param->{type}/$param->{subtype}/util.yml"; };

@@ -167,6 +167,11 @@ post '/bpm/optionx' => sub {
     my $currvar = $param->{bpm_variable};
     my %var;
 
+    my %rely;
+    if( $stepconfig->{rely} )
+    {
+        map{ $rely{$1} = 1 if $_ =~ /^x\.(.+)/; }@{$stepconfig->{rely}};
+    }
     #BPM TODO, 传入的数据过多，这个是把所有插件的数据压扁传入选项命令中.
     #其后会有一层覆盖，用本插件本步骤的进行覆盖，极端情况下可能会有子步骤变量缺失，
     #但是确用了全局变量，需要明确是外部变量，格式如 x.var
@@ -175,6 +180,7 @@ post '/bpm/optionx' => sub {
         my $tk = $k;
         $tk =~ s/^\d+\.//;
         $tk =~ s/^\d+\.//;
+        next unless $rely{$tk};
         $var{$tk} = $currvar->{$k};
     }
 
@@ -202,8 +208,11 @@ post '/bpm/optionx' => sub {
                 my $tk = $k;
                 $tk =~ s/^\d+\.//;
                 $tk =~ s/^\d+\.//;
-                next if $uniq{$currvar->{$k}} ++;
-                push @data, +{ name => $currvar->{$k}, alias => $currvar->{$k} } if $tk eq $command->[1];
+                if( $tk eq $command->[1] )
+                {
+                    next if $uniq{$currvar->{$k}} ++;
+                    push @data, +{ name => $currvar->{$k}, alias => $currvar->{$k} };
+                }
             }
         }
         if( $command->[0] eq 'point' && $command->[1] && $command->[2] )
@@ -260,7 +269,7 @@ post '/bpm/optionx' => sub {
         }
         push @data, +{ name => $name, alias => $alias };
     }
-    return +{ stat => $JSON::true, data => \@data };
+    return +{ stat => $JSON::true, data => \@data, debug => +{ var => \%var, stepconfig => $stepconfig } };
 };
 
 true;

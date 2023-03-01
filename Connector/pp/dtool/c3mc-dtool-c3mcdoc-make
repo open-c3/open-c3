@@ -1,0 +1,17 @@
+#!/bin/bash
+
+###
+### 生成c3mc所有工具的帮助文档
+###
+### Usage:
+###
+###   $0
+###
+### Options:
+###   -h        获取帮助信息
+
+. /usr/bin/c3mc-bash-help || exit 1
+
+export C3GITBASEURL='https://github.com/open-c3/open-c3/blob/v2.6.0'
+
+find /data/Software/mydan/Connector/pp -name "c3mc-*" | sort | xargs -i{} bash -c "./c3mc-dtool-c3mcdoc-make-onece {} || exit 255"

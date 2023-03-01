@@ -1,0 +1,90 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+use File::Basename;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ 生成c3mc工具的帮助文档，处理单个文件
+
+ $0 /dir/c3mc-xxx
+
+=cut
+
+my $file = shift @ARGV;
+die "nofile" unless $file && -f $file;
+
+my    @x = `cat '$file'`;
+chomp @x;
+
+my %code;
+
+$code{perl} = sub
+{
+    my ( $match, @c, @r ) = ( 0, @_ );
+    for my $x ( @c )
+    {
+        $x =~ s/\s*$//;
+        if( $x eq '=encoding UTF-8' )
+        {
+            @r = ();
+            next;
+        }
+
+        last if $x eq '=cut';
+        push @r, $x if $match;
+        $match = 1 if $x eq '=head1 SYNOPSIS';
+    }
+    return @r;
+};
+
+$code{bash} = sub
+{
+    my ( @c, @r ) = @_;
+    map{push @r, $1 if $_ =~ /^### (.+)/;}@c;
+    return @r;
+};
+
+$code{python3} = sub
+{
+    my ( @c, @r ) = @_;
+    map{push @r, $1 if $_ =~ /^### (.+)/;}@c;
+    return @r;
+};
+
+sub run
+{
+    my ( $name, $type, @c ) = @_;
+    my $title = "$name/$type";
+    print "## $title\n";
+    my @xx = $code{$type}( @c );
+    if( @xx )
+    {
+        print "```\n";
+        map{ print "$_\n"; }@xx;
+        print "```\n";
+    }
+    else { warn "[Warn] $title nofind\n"; }
+
+    if( $ENV{C3GITBASEURL} )
+    {
+        my $uri = $file;
+        return unless $uri =~ s#.*/Connector/pp/#Connector/pp/#;
+        print "[编辑]($ENV{C3GITBASEURL}/$uri)\n\n";
+    }
+
+}
+
+my $name = basename $file;
+
+my $m = 0;
+$m = 1 && run( $name, "perl",   @x ) if $x[0] && index( $x[0],  "#!/data/Software/mydan/perl/bin/perl" ) == 0;
+$m = 1 && run( $name, "bash",   @x ) if $x[0] && index( $x[0],  "#!/bin/bash" ) == 0;
+$m = 1 && run( $name, "python3",@x ) if $x[0] && index( $x[0],  "#!/usr/bin/env /data/Software/mydan/python3/bin/python3" ) == 0;
+
+exit if $m;
+
+warn "[Warn] $name/unkown nofind\n";

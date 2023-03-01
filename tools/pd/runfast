@@ -1,0 +1,30 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+die "no cmd" unless my $cmd = join " ", @ARGV;
+my $file = ( split /\s/, $cmd )[0];
+
+my    $head = `docker exec openc3-server head -n 1 $file`;
+chomp $head;
+
+$head =~ s/^#!//;
+$head =~ s/#.*//;
+$head =~ s/bin\/perl/bin\/perl \-d:NYTProf/;
+
+my $uuid = time;
+my $path = "/data/open-c3-data/devel/pd/$uuid";
+system "mkdir -p $path";
+
+print "path: $path\n";
+
+system "docker exec openc3-server bash -c \"cd $path && $head $cmd\"";
+system "docker exec openc3-server bash -c \"cd $path && /data/Software/mydan/perl/bin/nytprofhtml\"";
+
+chdir "$path/nytprof" or die "chdir fail";
+
+system "python -m SimpleHTTPServer";

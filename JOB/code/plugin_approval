@@ -66,6 +66,12 @@ return sub
     $logs->die( "plugin_approval uuid mismatch uuid=$uuid" ) unless @$x;
 
     my ( $jobuuid, $name, $cont, $approver, $deployenv, $action, $batches, $everyone, $relaxed, $timeout, $pause ) = @{$x->[0]};
+    if( $cont eq 'defaultTemplate' )
+    {
+        my $xx = eval{ $db->query( "select value from openc3_job_environment where `key`='approvalTemplatePluginContent'" );};
+        $logs->die( "get approvalTemplatePluginContent from mysql fail $@" ) if $@;
+        $cont = $xx->[0][0] if $xx && @$xx > 0 && $xx->[0][0];
+    }
 
     my $xx = `c3mc-jobx-task-info-bysubuuid '$taskuuid'`;
     my $xxcc = eval { YAML::XS::Load $xx };

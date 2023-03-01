@@ -28,3 +28,6 @@ my $db = MYDB->new( "/data/Software/mydan/JOB/conf/conn", delayedconnection => 1
 map{
     $db->execute( "update openc3_job_plugin_approval set cont='$new' where cont='$_'" );
 }@old;
+
+# 审批模版变更为默认使用“模版管理”中的内容
+$db->execute( "update openc3_job_plugin_approval set cont='defaultTemplate' where cont='$new'" );

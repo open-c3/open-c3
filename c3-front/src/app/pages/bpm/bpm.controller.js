@@ -37,7 +37,7 @@
                 }
             });
         };
-
+        vm.selectIndex = 0
         vm.chtempclear = function ( obj ) {
             if( obj.type == "kvarray" )
             {
@@ -235,6 +235,8 @@
                  } else if (data['show']) {
                     let itemKeysResults = []
                     let selectItem = {}
+                    const dataShowItems = Object.keys(data['show'][0])
+                    if(ename[0] === tempename[0] && dataShowItems.find(item => item === ename[1])){
                     angular.forEach(data['show'], function (item, index) {
                       let itemKeysResult = {select: []}
                       itemKeysResult['name'] = Object.keys(item)
@@ -255,11 +257,13 @@
                       data.value = "_openc3_hide_";
                     }
                  }
+                }
             });
         }
 
-        vm.optionxclick = function( stepname )
+        vm.optionxclick = function( stepname , selectIndex)
         {
+            vm.selectIndex = selectIndex
             var varDict = {};
             var stepconf;
             angular.forEach($scope.jobVar, function (data, index) {

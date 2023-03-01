@@ -1,0 +1,49 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use JSON;
+use YAML::XS;
+use MYDan::Util::OptConf;
+use LWP::UserAgent;
+
+=head1 SYNOPSIS
+
+ $0 --uuid x --uuids x --ip x --ips x
+ $0 --cache
+ $0 --json
+
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( uuid=s ip=s uuids=s ips=s cache json ) )->dump();
+
+my $ua = LWP::UserAgent->new();
+$ua->agent('Mozilla/9 [en] (Centos; Linux)');
+$ua->timeout( 15 );
+
+my @param;
+map{ push @param, "$_=$o{$_}" if $o{$_}; }qw( uuid uuids ip ips );
+push @param, "cache=1" if $o{cache};
+
+my $param = @param ? sprintf( "?%s", join "&", @param ): "";
+
+$ua->default_header( 'appname' => 'job', 'appkey' => $ENV{OPEN_C3_RANDOM} );
+my $res = $ua->get( "http://localhost:88/api/ci/v2/c3mc/jumpserver$param" );
+
+die sprintf( "code %s", $res->code ) unless $res->is_success;
+my $v = eval{JSON::decode_json $res->decoded_content};
+die sprintf( "data no JSON: $@" )if $@;
+
+die( sprintf "err: %s",  $res->decoded_content  )unless $v->{stat};
+if( $o{json} )
+{
+    print JSON::encode_json $v->{data};
+}
+else
+{
+    print YAML::XS::Dump $v->{data};
+}

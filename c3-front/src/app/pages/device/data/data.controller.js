@@ -58,6 +58,11 @@
 
         vm.reload = function () {
             vm.loadover = false;
+            if (sessionStorage.getItem('sourceType') !== 'input') {
+              sessionStorage.removeItem('globalSearch')
+            } else {
+              vm.grepdata._search_= sessionStorage.getItem('globalSearch')
+            }
             $http.post('/api/agent/device/data/' + vm.type + '/' + vm.subtype + '/' + vm.treeid, { "grepdata": vm.grepdata, "timemachine": vm.selectedtimemachine } ).success(function(data){
                 if (data.stat){
                     vm.dataTable = new ngTableParams({count:25}, {counts:[],data:data.data});
@@ -71,6 +76,7 @@
             });
         };
         vm.reload();
+        sessionStorage.removeItem('globalSearch');
 
         vm.reloadtimemachine = function () {
             $http.get('/api/agent/device/timemachine' ).success(function(data){

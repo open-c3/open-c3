@@ -7,35 +7,75 @@ $|++;
 use utf8;
 use YAML::XS;
 use File::Basename;
+use MYDan::Util::OptConf;
 
 =head1 SYNOPSIS
 
+=encoding UTF-8
+
 监控系统/告警消息操作/临时数据放回管道
 
-从altermanager发送出来的告警信息，通过api接口转换后，会先存储到目录/data/open-c3-data/monitor-sender 中。
+从altermanager发送出来的告警信息，通过api接口转换后，
+会先存储到目录/data/open-c3-data/monitor-sender 中。
 
-在某些情况下，比如出现可预知的出现大量告警，或者更新服务担心告警抖动，可以手动创建目录/data/open-c3-data/monitor-sender-dev。
+在某些情况下，需要人为介入进行消息管理。
 
-如果dev目录存在，接收到告警信息后消息会存入dev中。
+./$0 --open             # 打开临时通道
 
-消息进入dev目录后就不发送出去了，可以通过该工具查看dev中的消息，如果有重要的告警，可以通过该工具把消息过滤出来放回到monitor-sender目录。
+./$0 --close            # 关闭临时通道
 
-使用方式1:
+./$0 --stat             # 查看状态
 
-查看所有dev中的消息列表: ./$0 
+./$0 --load             # 把线上通道的数据加载到临时通道。待发送的消息太多情况下使用
 
-使用方式2:
+./$0 --list    grep1 grep2 ...  # 列出临时通道的消息
 
-把部分消息放回到monitor-sender中让消息处理程序把它发送出去. $0 grep1 grep2 ...
-过滤方式就是匹配输出内容该行的文本，多个grep参数是'与'的关系，都满足才匹配。
-如: c3mc-mon-sender-ctrl 主机挂了 'status="firing"'
+./$0 --recover grep1 grep2 ...  # 恢复消息需要携带过滤条件
+
+./$0 --delete  grep1 grep2 ...  # 删除消息需要携带过滤条件
+
+注: grep1 grep2 ... 为“与”的关系，都满足才算匹配
 
 =cut
 
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( open close stat load list recover delete ) )->dump();
+
 my @grep = @ARGV;
+
+$option->assert() unless grep{ $o{$_} }qw( open close stat load list recover delete );
+$option->assert() if $o{recover} && ! @grep;
+$option->assert() if $o{delete } && ! @grep;
 
 my $dstpath = "/data/open-c3-data/monitor-sender";
 my $devpath = "$dstpath-dev";
+
+if( $o{open} )
+{
+    system "mkdir -p '$devpath'" unless -d $devpath;
+    die "open fail: $!" if system "touch '$devpath/open'";
+    exit;
+}
+
+if( $o{close} )
+{
+    system "rm '$devpath/open' 2>/dev/null";
+    die "close fail: $!" if -f "$devpath/open";
+    exit;
+}
+
+if( $o{stat} )
+{
+    printf "%s\n", -f "$devpath/open" ? "open" : "close";
+    exit;
+}
+
+if( $o{load} )
+{
+    system "mkdir -p '$devpath'" unless -d $devpath;
+    die "load fail: $!" if system "mv '$dstpath/sender.*.wait' '$devpath/'";
+    exit;
+}
 
 my @x = grep{ -f $_ }glob "$devpath/sender.*.wait";
 
@@ -60,12 +100,16 @@ for my $file ( @x )
     my $str  = "{filename=\"$name\"}:$key";
 
     utf8::encode($str);
-    print $str, "\n";
 
+    my @ctrl;
     if( @grep )
     {
         map { next if index($str, $_ ) < 0; }@grep;
-        print "recovery\n";
-        system "mv", "$devpath/$name", "$dstpath/$name";
+        push( @ctrl,"match"    ) if $o{list   };
+        push( @ctrl, "recover" ) if $o{recover};
+        push( @ctrl, "delete"  ) if $o{delete };
+        system( "mv", "$devpath/$name", "$dstpath/$name" ) if $o{recover};
+        system( "rm", "$devpath/$name"                   ) if $o{delete };
     }
+    print $str, @ctrl ? sprintf( " | %s", join " ", @ctrl ) : "", "\n";
 }

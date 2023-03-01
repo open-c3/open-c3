@@ -76,6 +76,13 @@ for my $grp ( @grp )
         $var{$tk} = $var->{$k};
     }
 
+    for my $k ( keys %$var )
+    {
+        my $tk = $k;
+        next unless $tk =~ s/^\d+\.\d+\./x./;
+        $var{$tk} = $var->{$k};
+    }
+
    # 这里var进行两次替换，因为这里可能有变量嵌套
     for( 1.. 2 )
     {

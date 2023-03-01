@@ -146,6 +146,16 @@
             msmDetail['approvalTemplateSmsContent'] = vm.environment.approvalTemplateSmsContent;
             vm.save( msmDetail )
         };
+
+        vm.pluginApprovalSet = function () {
+            vm.environment.approvalTemplatePluginContent = "发布审批：${stepname}\n\n提交人：${submitter};\n\n流水线名: ${flowname};\n服务树名称: ${treename};\n\n发布版本: ${version};\n${rollback}\n\n发布环境: ${deploy_env}\n\n发现tag的时间: ${tagtime}\n打tag的人: ${tagger}\n发布版本tag信息: ${taginfo}\n";
+        };
+        vm.pluginApprovalSave = function () {
+            var msmDetail = {};
+            msmDetail['approvalTemplatePluginContent'] = vm.environment.approvalTemplatePluginContent;
+            vm.save( msmDetail )
+        };
+
 //Monitor
         vm.emailMonitorSet = function () {
             vm.environment.monitorTemplateEmailTitle   = "告警名称: ${labels.alertname} 状态：${statusZH}";
