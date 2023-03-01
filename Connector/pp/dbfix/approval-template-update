@@ -31,3 +31,8 @@ map{
 
 # 审批模版变更为默认使用“模版管理”中的内容
 $db->execute( "update openc3_job_plugin_approval set cont='defaultTemplate' where cont='$new'" );
+
+
+# 写入默认模版到模版管理中，如果没有进行配置的话。
+my $x = $db->query( "select * from openc3_job_environment where `key`='approvalTemplatePluginContent'" );
+$db->execute( "insert into openc3_job_environment (`key`,`value`,`create_user`) value('approvalTemplatePluginContent','$new','open-c3\@app')" ) unless @$x;
