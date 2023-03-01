@@ -1,0 +1,21 @@
+---
+credential:
+  access_key: "${ak}"
+  secret_key: "${sk}"
+  region: "${region}"
+
+rate_limit: 5
+
+products:
+  - namespace: QCE/CMONGO
+    only_include_metrics: [ClusterDiskusage,Connper]    
+    all_instances: true
+    extra_labels: [InstanceName,Zone]
+  - namespace: QCE/CDB
+    only_include_metrics: [CpuUseRate,MemoryUseRate,VolumeRate,Capacity]    
+    all_instances: true
+    extra_labels: [InstanceName,Zone]
+  - namespace: QCE/REDIS_MEM
+    only_include_metrics: [CpuMaxUtil,MemMaxUtil]    
+    all_instances: true
+    extra_labels: [InstanceName,Zone]

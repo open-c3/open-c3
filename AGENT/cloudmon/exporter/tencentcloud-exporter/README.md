@@ -28,3 +28,9 @@ products:
 ## 获取metrics列表
 
 github 地址的文档里面有, https://github.com/tencentyun/tencentcloud-exporter
+
+## CMDB联动
+
+本exporter和tencentcloud-cache-exporter功能一致，tencentcloud-cache-exporter是被c3特殊处理优化过的，自动联动的部分默认使用tencentcloud-cache-exporter。
+
+所以要想做联动，请到tencentcloud-cache-exporter下查看。

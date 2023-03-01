@@ -60,7 +60,7 @@
         vm.gotosubtype = function (type, subtype, source) {
           sessionStorage.setItem('sourceType', source)
           if (source === 'input') {
-            sessionStorage.setItem('globalSearch', vm.grepdata._search_)
+            sessionStorage.setItem('globalSearch', vm.grepdata._search_  || '')
           }
             $state.go('home.device.data', {treeid:vm.treeid, timemachine: vm.selectedtimemachine, type: type, subtype: subtype });
         };

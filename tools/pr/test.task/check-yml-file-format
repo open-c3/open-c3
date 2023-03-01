@@ -13,6 +13,11 @@ die "curl err: $!" if $?;
 
 chomp @x;
 
+push @x, qw(
+    /data/open-c3/Connector/config.ini/openc3
+    /data/open-c3/Connector/config/sysctl.conf
+);
+
 for my $x ( @x )
 {
     die "$x not a file" unless -f $x;
