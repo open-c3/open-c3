@@ -79,8 +79,8 @@ post '/monitor/config/collector/:projectid' => sub {
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    return  +{ stat => $JSON::false, info => "process need in: ^[a-zA-Z0-9 \.\-_@]+\$" }
-        if $param->{type} eq "process" && ! ( $param->{content1} =~ /^[a-zA-Z0-9 \.\-_@]+$/ || $param->{content1} =~ /^[a-zA-Z0-9 \.\-_@]+;[a-zA-Z0-9][a-zA-Z0-9\.\-_]+$/ );
+    return  +{ stat => $JSON::false, info => "process need in: ^[a-zA-Z0-9: \.\-_@]+\$" }
+        if $param->{type} eq "process" && ! ( $param->{content1} =~ /^[a-zA-Z0-9: \.\-_@]+$/ || $param->{content1} =~ /^[a-zA-Z0-9: \.\-_@]+;[a-zA-Z0-9][a-zA-Z0-9\.\-_]+$/ );
     return  +{ stat => $JSON::false, info => "port need in: number" }
         if $param->{type} eq "port" && ! ( $param->{content1} =~ /^\d+[,\d+]+$/ || $param->{content1} =~ /^\d+;[a-zA-Z0-9][a-zA-Z0-9\.\-_]+$/ );
 
