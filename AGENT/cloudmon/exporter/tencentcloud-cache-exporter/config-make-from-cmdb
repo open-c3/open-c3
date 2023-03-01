@@ -5,6 +5,7 @@ use warnings;
 use MIME::Base64;
 use Encode qw(decode encode);
 use MYDB;
+use FindBin qw( $RealBin );
 
 $| ++;
 
@@ -25,7 +26,7 @@ chomp @cont;
 
 my @contx = map{ $cont[$_-1] }@id;
 
-my $template = `cat template.yml`;
+my $template = `cat $RealBin/template.yml`;
 
 my $db = MYDB->new( "/data/Software/mydan/AGENT/conf/conn", delayedconnection => 1 );
 sub todb
