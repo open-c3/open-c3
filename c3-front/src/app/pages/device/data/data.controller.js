@@ -61,7 +61,9 @@
             if (sessionStorage.getItem('sourceType') !== 'input') {
               sessionStorage.removeItem('globalSearch')
             } else {
-              vm.grepdata._search_= sessionStorage.getItem('globalSearch')
+              if (!vm.grepdata._search_ && sessionStorage.getItem('globalSearch')) {
+                vm.grepdata._search_= sessionStorage.getItem('globalSearch')
+              }
             }
             $http.post('/api/agent/device/data/' + vm.type + '/' + vm.subtype + '/' + vm.treeid, { "grepdata": vm.grepdata, "timemachine": vm.selectedtimemachine } ).success(function(data){
                 if (data.stat){
