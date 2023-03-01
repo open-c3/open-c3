@@ -1,0 +1,68 @@
+#!/data/Software/mydan/perl/bin/perl  -I/data/Software/mydan/AGENT/lib
+use strict;
+use warnings;
+
+use MIME::Base64;
+use Encode qw(decode encode);
+use MYDB;
+
+$| ++;
+
+my    @x = `c3mc-device-data-get curr compute qcloud-cvm accountuuid | sort | uniq`;
+chomp @x;
+
+my @id;
+for( @x )
+{
+    next unless $_ =~ /qcloud\.cvm\.(\d+)$/;
+    push @id, $1;
+}
+
+@id = sort{ $a <=> $b } @id;
+
+my    @cont = `cat /data/Software/mydan/AGENT/device/conf/account/qcloud.cvm`;
+chomp @cont;
+
+my @contx = map{ $cont[$_-1] }@id;
+
+my $template = `cat template.yml`;
+
+my $db = MYDB->new( "/data/Software/mydan/AGENT/conf/conn", delayedconnection => 1 );
+sub todb
+{
+    my %data = @_;
+
+    my $v = eval{ $db->query( "select id from openc3_monitor_cloudmon where name='$data{name}' and type='$data{type}' and `describe`='sys sync by: config-make-from-cmdb'" ); };
+    die "get openc3_monitor_cloudmon from database fail: $@" if $@;
+    die "v not array" unless defined $v && ref $v eq 'ARRAY';
+
+    if( @$v )
+    {
+        my @key = sort keys %data;
+        eval{ $db->execute( sprintf "update `openc3_monitor_cloudmon` set config='$data{config}' where name='$data{name}' and type='$data{type}' and `describe`='sys sync by: config-make-from-cmdb'" ); };
+        die "update project info fail:$@"  if $@;
+    }
+    else
+    {
+        my @key = sort keys %data;
+        eval{ $db->execute( sprintf "insert into `openc3_monitor_cloudmon` (%s)values(%s)", join( ',', map{"`$_`"}@key ), join( ',', map{ "'$data{$_}'" }@key) ); };
+        die "update project info fail:$@"  if $@;
+    }
+}
+
+sub sync
+{
+    my @x = split /\s+/, shift @_;
+    my %data = ( name => $x[0], ak => $x[1], sk => $x[2], region => $x[3] );
+    my $tpl = $template;
+
+    for my $k ( keys %data )
+    {
+        $tpl =~ s/\$\{$k\}/$data{$k}/;
+    }
+
+    $data{config} = $tpl;
+    my $config = encode_base64( encode('UTF-8', $data{config}) );
+    todb( name => "cmdb-qcloud-$data{name}-$data{region}", type => "tencentcloud-cache-exporter", describe => "sys sync by: config-make-from-cmdb", config => $config );
+}
+map{ sync( $_ ); }@contx;
