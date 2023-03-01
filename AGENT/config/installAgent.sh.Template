@@ -41,7 +41,7 @@ fi
 
 curl -s $OPEN_C3_ADDR/api/scripts/MYDan_mydan_update.sh|bash
 
-curl --connect-timeout 5 -m 5 myip.ipip.net 2>/dev/null|awk '{print $2}'|awk -F： '{print $2}' >  $MYDanPATH/etc/ips
+curl --connect-timeout 5 -m 5 myip.ipip.net 2>/dev/null|awk '{print $2}'|awk -F： '{print $2}' >  $MYDanPATH/etc/ips || echo "Warn: ips fail"
 
 
 if [[ -f $MYDanPATH/etc/iamproxy ]];then
