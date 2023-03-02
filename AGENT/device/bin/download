@@ -32,15 +32,17 @@ if( $conf->{cookie} && $conf->{cookie}{cmd} && ! $refresh )
     system $conf->{cookie}{cmd};
 }
 
-system "rm -rf temp; mkdir temp" unless $refresh;
+#system "rm -rf temp; mkdir temp" unless $refresh;
 
 my %sync = map{ $_ => 1 }grep{ $_ ne 'refresh' }@ARGV;
+
+my $pid = $$;
 
 sub download
 {
     my ( $type, $subtype, $url, $outline, $filter, $colmap, $util, $ingestionnode, $check, $datatype, $treeinfo, $alias ) = @_;
 
-    my ( $temppath, $distpath ) = ( "temp/$type/$subtype", "/data/open-c3-data/device/curr/$type/$subtype" );
+    my ( $temppath, $distpath ) = ( "sync_temp/$pid/$type/$subtype", "/data/open-c3-data/device/curr/$type/$subtype" );
 
     system "mkdir -p $temppath" unless -d $temppath;
     system "mkdir -p $distpath" unless -d $distpath;
@@ -114,11 +116,11 @@ sub download
         }
     }
 
-    eval{ YAML::XS::DumpFile "temp/$type/$subtype/outline.yml", $outline; };
-    eval{ YAML::XS::DumpFile "temp/$type/$subtype/filter.yml",   $filter; };
-    eval{ YAML::XS::DumpFile "temp/$type/$subtype/colmap.yml",   $colmap; };
-    eval{ YAML::XS::DumpFile "temp/$type/$subtype/alias.yml",     $alias; };
-    eval{ YAML::XS::DumpFile "temp/$type/$subtype/util.yml",       $util; };
+    eval{ YAML::XS::DumpFile "$temppath/outline.yml", $outline; };
+    eval{ YAML::XS::DumpFile "$temppath/filter.yml",   $filter; };
+    eval{ YAML::XS::DumpFile "$temppath/colmap.yml",   $colmap; };
+    eval{ YAML::XS::DumpFile "$temppath/alias.yml",     $alias; };
+    eval{ YAML::XS::DumpFile "$temppath/util.yml",       $util; };
 
     system "mv $temppath/data.tsv    $distpath/";
     system "mv $temppath/outline.yml $distpath/";
@@ -129,7 +131,7 @@ sub download
 
     if( $ingestionnode )
     {
-        eval{ YAML::XS::DumpFile "temp/$type/$subtype/ingestion-node.yml", $ingestionnode; };
+        eval{ YAML::XS::DumpFile "$temppath/ingestion-node.yml", $ingestionnode; };
         system "mv $temppath/ingestion-node.yml  $distpath/";
     }
     else
@@ -139,7 +141,7 @@ sub download
 
     if( $treeinfo )
     {
-        eval{ YAML::XS::DumpFile "temp/$type/$subtype/treeinfo.yml", $treeinfo; };
+        eval{ YAML::XS::DumpFile "$temppath/treeinfo.yml", $treeinfo; };
         system "mv $temppath/treeinfo.yml  $distpath/";
     }
     else
@@ -179,4 +181,5 @@ for my $c ( @{ $conf->{download} } )
         $usetime = -1;
     }
     printf "c3_cmdb_sync_usetime{type=\"%s\", subtype=\"%s\"} %s\n", $c->{type}, $c->{subtype}, $usetime;
+    system "rm -rf 'sync_temp/$pid'";
 }
