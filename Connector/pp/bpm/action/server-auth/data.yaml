@@ -12,6 +12,13 @@ option:
     option: ["登陆权限", "sudo权限"]
     type: select
     value: ""
+  
+  - name: sudo_hours
+    describe: sudo权限小时数
+    option: ["8", "12", "24", "48", "72", "168"]
+    type: select
+    value: ""
+    show: ["auth_type", "sudo权限"]
 
   - name: ip_list
     describe: 服务器IP列表
@@ -27,3 +34,5 @@ template_argv:
   auth_type: ${auth_type}
   # 服务器IP列表
   ip_list: ${ip_list}
+  # sudo权限小时数
+  sudo_hours: ${sudo_hours}

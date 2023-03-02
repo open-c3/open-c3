@@ -14,4 +14,4 @@ command="sudo useradd $username >/dev/null 2>&1;
              echo $password | sudo passwd --stdin $username >/dev/null 2>&1;
              cat /etc/passwd | awk -F ':' '{print \$1}'| grep -w $username | wc -l"
 
-ssh -p 22 $ip $command
+ssh -t $ip $command
