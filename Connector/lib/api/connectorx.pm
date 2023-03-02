@@ -9,6 +9,7 @@ use MIME::Base64;
 use api;
 use Code;
 use Format;
+use OPENC3::SysCtl;
 
 my ( $nodeinfo, $usertree, $treemap, $point, %notify, %approval, $ssocookie );
 BEGIN {
@@ -173,7 +174,15 @@ get '/connectorx/sso/userinfo' => sub {
     my $match = eval{ $api::mysql->query( "select id from openc3_connector_private where user='$privatename'" )};
     eval{ $api::mysql->execute( "insert into openc3_connector_private (`user`,`edit_user`) values('$privatename','$privatename')" ); } if $match && @$match == 0;
 
-    return +{ name => uc( $name ), email => $user, company => $company, admin => $admin, showconnector => $showconnector };
+
+    my $conf = OPENC3::SysCtl->new()->dump();
+    my %menu;
+    for ( keys %$conf )
+    {
+        $menu{$1} = $conf->{$_} if $_ =~ /^sys.c3-front.menu.(.+)$/;
+    }
+
+    return +{ name => uc( $name ), email => $user, company => $company, admin => $admin, showconnector => $showconnector, menu => \%menu };
 };
 
 =pod
