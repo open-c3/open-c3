@@ -115,5 +115,18 @@
             });
         };
 
+        vm.show = function ( uuid, type, subtype, config ) {
+            if( config['type'] == 'blank' )
+            {
+                $http.post('/api/agent/device/detail/' + type+ '/' + subtype + '/' + vm.treeid +'/' + uuid + '?timemachine=' + vm.selectedtimemachine , { 'exturl': config['url'] }).success(function(data){
+                    if (data.stat){
+                        window.open(data.data, '_blank')
+                    }else {
+                        swal({ title:'获取URL地址失败', text: data.info, type:'error' });
+                    }
+                });
+            }
+        };
+
     }
 })();
