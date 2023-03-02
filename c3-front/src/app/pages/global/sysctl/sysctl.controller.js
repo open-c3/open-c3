@@ -11,6 +11,7 @@
         var vm = this;
 
         vm.sysctl = {};
+        vm.menu = [];
 
         vm.reload = function(){
             vm.loadover = false;
@@ -18,6 +19,7 @@
                 if(data.stat == true) 
                 { 
                     vm.sysctl = data.data
+                    vm.menu = data.ext.menu;
                     vm.loadover = true;
                 } else { 
                     swal({ title: "加载配置失败!", text: data.info, type:'error' });

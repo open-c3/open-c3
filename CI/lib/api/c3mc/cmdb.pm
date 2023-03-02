@@ -106,7 +106,7 @@ get '/c3mc/cmdb/menu' => sub {
     }                                                                                                    
     return $pmscheck if $pmscheck;  
 
-    my $cmd = "c3mc-device-menu '$param->{treeid}' '$param->{timemachine}' 2>&1";
+    my $cmd = "c3mc-device-menu '$param->{treeid}' '$param->{timemachine}'";
     my $handle = 'cmdb_menu';
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 

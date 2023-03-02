@@ -25,7 +25,18 @@ get '/sysctl' => sub
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
     my $pmscheck = api::pmscheck('openc3_connector_root'); return $pmscheck if $pmscheck;
     my $config = OPENC3::SysCtl->new()->dump();
-    return +{ stat => $JSON::true, data => $config };
+
+    # C3TODO 230302 此处不应该直接读取sysctl.conf文件，应该通过OPENC3::SysCtl模块来完成该操作。
+    my   @x = `cat /data/Software/mydan/Connector/config/sysctl.conf`;
+    chomp @x;
+    my @menu;
+    for ( @x )
+    {
+        utf8::decode( $_ );
+        push @menu, $1 if $_ =~ /^sys\.c3-front\.menu\.([^:]+)/;
+    }
+
+    return +{ stat => $JSON::true, data => $config, ext => { menu => \@menu } };
 };
 
 =pod

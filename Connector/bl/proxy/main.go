@@ -10,13 +10,12 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+	"proxy/src"
+	"strconv"
 	"strings"
 
-	"github.com/sirupsen/logrus"
-
-	"proxy/src"
-
 	"github.com/gin-gonic/gin"
+	"github.com/sirupsen/logrus"
 )
 
 func main() {
@@ -28,18 +27,19 @@ func main() {
 		defaultScanDir = "scan_dir"
 	)
 
-	commandDir := flag.String("command_dir", "", "命令所在目录, 必传")
+	commandDir := flag.String("command_dir", "", "命令所在目录，使用绝对路径, 必传")
 	appName := flag.String("app_name", "", "app name, 非必传")
 	appKey := flag.String("app_key", "", "app key, 非必传")
 	scanDir := flag.String("scan_dir", "", "定时任务扫描的绝对路径, 如果不指定, 则在当前路径创建scan_dir目录")
+	portStr := flag.String("port", "", "监听端口, 必传")
 
 	flag.Parse()
 
 	if *commandDir == "" {
 		panic("-command_dir 不允许为空")
 	}
-	if *commandDir == "" {
-		panic("-scanDir 不允许为空")
+	if *portStr == "" {
+		panic("-port 不允许为空")
 	}
 
 	if *scanDir == "" {
@@ -49,6 +49,11 @@ func main() {
 		}
 		scanDir = dir
 	}
+	port, err := strconv.Atoi(*portStr)
+	if err != nil {
+		panic("-port 不允许为空")
+	}
+
 	r := gin.Default()
 
 	type RequestData struct {
@@ -79,11 +84,12 @@ func main() {
 			return
 		}
 
-		if *appName != "" && *appName != c.GetHeader("AppName") {
+
+		if *appName != "" && *appName != c.GetHeader("app_name") {
 			c.JSON(http.StatusBadRequest, gin.H{"stat": 0, "info": "app name验证失败"})
 			return
 		}
-		if *appKey != "" && *appKey != c.GetHeader("AppKey") {
+		if *appKey != "" && *appKey != c.GetHeader("app_key") {
 			c.JSON(http.StatusBadRequest, gin.H{"stat": 0, "info": "app key验证失败"})
 			return
 		}
@@ -101,10 +107,16 @@ func main() {
 			argsStr = append(argsStr, fmt.Sprintf("%v", value))
 		}
 
-		argsStr = append(argsStr, "-scan_dir")
-		argsStr = append(argsStr, fmt.Sprintf("%v", *scanDir))
+		if strings.Contains(data.Arguments, "add_type") {
+			argsStr = append(argsStr, "-scan_dir")
+			argsStr = append(argsStr, fmt.Sprintf("%v", *scanDir))
+		}
 
-		cmd := exec.Command(data.Command, argsStr...)
+		cmdStr := filepath.Join(*commandDir, data.Command)
+		log.Println("cmdStr = ", cmdStr)
+		log.Println("args = ", argsStr)
+
+		cmd := exec.Command(cmdStr, argsStr...)
 		output, err := cmd.CombinedOutput()
 		if err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"stat": 0, "info": fmt.Sprintf("执行命令失败, err: %v", err.Error())})
@@ -115,14 +127,14 @@ func main() {
 	})
 
 	go func() {
-		r := src.NewRunCmdOnFile(*scanDir)
+		r := src.NewRunCmdOnFile(*commandDir, *scanDir)
 		err := r.Run()
 		if err != nil {
-			log.Fatal(err)
+			log.Println(err)
 		}
 	}()
 
-	err := r.Run("0.0.0.0:56383")
+	err = r.Run(fmt.Sprintf("0.0.0.0:%d", port))
 	if err != nil {
 		log.Fatal(err)
 	}

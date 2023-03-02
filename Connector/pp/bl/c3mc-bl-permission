@@ -6,46 +6,63 @@ import argparse
 import json
 import sys
 import requests
+from urllib.parse import urljoin
 
 
 def main():
     bl_mode = subprocess.getoutput("c3mc-sys-ctl sys.bl.mode").strip()
-    if bl_mode == 'none' or bl_mode == '':
+    if bl_mode in ['']:
         print("堡垒机配置未启用", file=sys.stderr)
         exit(1)
 
     parser = argparse.ArgumentParser(description="堡垒机服务器权限处理")
     # 权限处理类型。1: 添加普通权限; 2: 删除权限; 3: 添加sudo权限; 4: 删除sudo权限(保留账户)
-    parser.add_argument('--add_type', type=str, required=True, help='权限处理类型。1: 添加普通权限; 2: 删除权限; 3: 添加sudo权限; 4: 删除sudo权限(保留账户)')
+    parser.add_argument('--add_type', type=str, required=True,
+                        help='权限处理类型。1: 添加普通权限; 2: 删除权限; 3: 添加sudo权限; 4: 删除sudo权限(保留账户)')
     parser.add_argument('--username', type=str, required=True, help='用户账户名')
     parser.add_argument('--email', type=str, required=True, help='用户邮箱')
     parser.add_argument('--ip', type=str, required=True, help='目标IP')
+    parser.add_argument('--sudo_hours', type=int,
+                        required=True, help='sudo权限小时数, 申请普通权限时该参数传0')
     args = parser.parse_args()
 
-    bl_admin_user = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.{}.admin.user".format(bl_mode)).strip()
-    bl_admin_pass = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.{}.admin.pass".format(bl_mode)).strip()
-    bl_url = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.{}.url".format(bl_mode)).strip()
-    proxy_ip = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.{}.proxy_ip".format(bl_mode)).strip()
+    proxy_addr_list = subprocess.getoutput(f"c3mc-sys-ctl sys.bl.sync.{bl_mode}.proxy_addr_list").strip().split(",")
+    app_name = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.app_name").strip()
+    app_key = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.app_key").strip()
 
     request_data = {
-        "command": "{}-bastion".format(bl_mode),
-        "arguments": json.dumps(
-            {
-                "add_type": args.add_type,
-                "username": args.username,
-                "email": args.email,
-                "ip": args.ip,
-                "admin_user": bl_admin_user,
-                "admin_pass": bl_admin_pass,
-                "url": bl_url,
-            }
-        )
+        "command": f"{bl_mode}-bastion",
+        "arguments": json.dumps({
+            "add_type": args.add_type,
+            "username": args.username,
+            "email": args.email,
+            "ip": args.ip,
+            "sudo_hours": args.sudo_hours,
+        }),
     }
 
-    api_addr = "http://{}:56383/run".format(proxy_ip)
-    headers = {'Content-Type': 'application/json'}
-    response = requests.request("POST", api_addr, headers=headers, data=json.dumps(request_data))
-    print(json.dumps(response.json()))
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    if app_name != "":
+        headers["app_name"] = app_name
+    if app_key != "":
+        headers["app_key"] = app_key
+
+    ok = False
+    for proxy_addr in proxy_addr_list:
+        api_addr = urljoin(proxy_addr.strip(), "/run")
+        res = requests.request(
+            "POST", api_addr, headers=headers, data=json.dumps(request_data))
+
+        data = json.loads(res.text)
+        # 通过一个代理执行成功后直接退出
+        if data["stat"] == 1:
+            ok = True
+            break
+    if not ok:
+        print(f"权限添加失败: {args.ip}")
+        exit(1)
 
 
 if __name__ == '__main__':

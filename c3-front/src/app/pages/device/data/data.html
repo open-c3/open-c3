@@ -32,8 +32,8 @@
              <form ng-submit="devicedata.reload()">
                   <div class="input-group input-hero input-hero-sm">
                       <span class="input-group-addon" style="padding-top: 4px">
-                          <input  type="button"  ng-click="devicedata.chshowfilter(1)" value="显示更多过滤器" class="btn-gradient red"   style="font-size: 12px;padding-top: 10px;padding-bottom: 10px" ng-hide="devicedata.showfilter">
-                          <input  type="button"  ng-click="devicedata.chshowfilter(0)" value="隐藏过滤器"     class="btn-gradient green" style="font-size: 12px;padding-top: 10px;padding-bottom: 10px" ng-show="devicedata.showfilter">
+                          <input  type="button"  ng-click="devicedata.chshowfilter(1)" value="{{'C3T.显示更多过滤器'|translate}}" class="btn-gradient red"   style="font-size: 12px;padding-top: 10px;padding-bottom: 10px" ng-hide="devicedata.showfilter">
+                          <input  type="button"  ng-click="devicedata.chshowfilter(0)" value="{{'C3T.隐藏过滤器'|translate}}"     class="btn-gradient green" style="font-size: 12px;padding-top: 10px;padding-bottom: 10px" ng-show="devicedata.showfilter">
                           <i class="fa fa-search"></i>
                      </span>
                      <input ng-disabled="!devicedata.loadover" type="text" style="padding-left: 150px" class="form-control searchInput"  ng-model="devicedata.grepdata._search_" placeholder="Enter search terms..">
@@ -100,12 +100,17 @@
                                 {{ (devicedata.dataTable.page() - 1)*devicedata.dataTable.count() + $index + 1 }}
                             </span>
                         </td>
-                        <td data-title="'资源类型'">
+                        <td data-title="'C3T.资源类型'|translate">
                             <a ng-click="devicedata.showdetail( m.uuid, m.type, m.subtype )" style="cursor:pointer;color: #339094;" >{{m.subtype}}</a>
                         </td>
-                        <td data-title="'基本信息'">{{m.baseinfo}}</td>
-                        <td data-title="'系统信息'">{{m.system}}</td>
-                        <td data-title="'联系信息'"><a uib-tooltip="{{m.contact}}" >{{m.contact |cut61}}</a></td>
+                        <td data-title="'C3T.基本信息'|translate">{{m.baseinfo}}</td>
+                        <td data-title="'C3T.基本信息'|translate">{{m.system}}</td>
+                        <td data-title="'C3T.联系信息'|translate"><a uib-tooltip="{{m.contact}}" >{{m.contact |cut61}}</a></td>
+                        <td data-title="'C3T.资源操作'|translate">
+                            <div ng-repeat="c in m.control">
+                                <a style="cursor:pointer;color: #339094;" ng-click="devicedata.show( m.uuid, m.type, m.subtype, c)" >{{'C3T.' + c.name|translate}} </a>
+                            </div>
+                        </td>
                     </tr>
                 </table>
             </div>

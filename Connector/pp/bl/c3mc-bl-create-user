@@ -1,0 +1,53 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+from asyncio import proactor_events
+import subprocess
+import argparse
+import json
+import sys
+import requests
+from urllib.parse import urljoin
+
+
+def main():
+    bl_mode = subprocess.getoutput("c3mc-sys-ctl sys.bl.mode").strip()
+    if bl_mode in ['']:
+        print("堡垒机配置未启用", file=sys.stderr)
+        exit(1)
+
+    parser = argparse.ArgumentParser(description="添加堡垒机用户")
+    parser.add_argument('--username', type=str, required=True, help='用户账户名')
+    parser.add_argument('--email', type=str, required=True, help='用户邮箱')
+    args = parser.parse_args()
+
+    proxy_addr_list = subprocess.getoutput(f"c3mc-sys-ctl sys.bl.sync.{bl_mode}.proxy_addr_list").strip().split(",")
+    app_name = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.app_name").strip()
+    app_key = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.app_key").strip()
+
+    request_data = {
+        "command": f"add-{bl_mode}-bastion-user",
+        "arguments": json.dumps(
+            {
+                "username": args.username,
+                "email": args.email,
+            }
+        ),
+    }
+
+    api_addr = urljoin(proxy_addr_list[0], "/run")
+
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    if app_name != "":
+        headers["app_name"] = app_name
+    if app_key != "":
+        headers["app_key"] = app_key
+
+    response = requests.request("POST", api_addr, headers=headers, data=json.dumps(request_data))
+    print(json.dumps(response.json()))
+
+
+if __name__ == '__main__':
+    main()
