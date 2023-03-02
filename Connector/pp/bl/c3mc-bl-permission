@@ -26,32 +26,43 @@ def main():
                         required=True, help='sudo权限小时数, 申请普通权限时该参数传0')
     args = parser.parse_args()
 
-    proxy_addr_list = subprocess.getoutput(
-        f"c3mc-sys-ctl sys.bl.sync.{bl_mode}.proxy_addr_list"
-    ).strip().split(",")
+    proxy_addr_list = subprocess.getoutput(f"c3mc-sys-ctl sys.bl.sync.{bl_mode}.proxy_addr_list").strip().split(",")
+    app_name = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.app_name").strip()
+    app_key = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.app_key").strip()
 
     request_data = {
         "command": f"{bl_mode}-bastion",
-        "arguments": json.dumps(
-            {
-                "add_type": args.add_type,
-                "username": args.username,
-                "email": args.email,
-                "ip": args.ip,
-                "sudo_hours": args.sudo_hours,
-            }
-        ),
+        "arguments": json.dumps({
+            "add_type": args.add_type,
+            "username": args.username,
+            "email": args.email,
+            "ip": args.ip,
+            "sudo_hours": args.sudo_hours,
+        }),
     }
 
+    headers = {
+        'Content-Type': 'application/json'
+    }
+    if app_name != "":
+        headers["app_name"] = app_name
+    if app_key != "":
+        headers["app_key"] = app_key
+
+    ok = False
     for proxy_addr in proxy_addr_list:
         api_addr = urljoin(proxy_addr.strip(), "/run")
-        headers = {'Content-Type': 'application/json'}
         res = requests.request(
             "POST", api_addr, headers=headers, data=json.dumps(request_data))
+
         data = json.loads(res.text)
         # 通过一个代理执行成功后直接退出
         if data["stat"] == 1:
+            ok = True
             break
+    if not ok:
+        print(f"权限添加失败: {args.ip}")
+        exit(1)
 
 
 if __name__ == '__main__':

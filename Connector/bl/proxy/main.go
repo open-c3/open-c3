@@ -84,11 +84,12 @@ func main() {
 			return
 		}
 
-		if *appName != "" && *appName != c.GetHeader("AppName") {
+
+		if *appName != "" && *appName != c.GetHeader("app_name") {
 			c.JSON(http.StatusBadRequest, gin.H{"stat": 0, "info": "app name验证失败"})
 			return
 		}
-		if *appKey != "" && *appKey != c.GetHeader("AppKey") {
+		if *appKey != "" && *appKey != c.GetHeader("app_key") {
 			c.JSON(http.StatusBadRequest, gin.H{"stat": 0, "info": "app key验证失败"})
 			return
 		}
