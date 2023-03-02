@@ -106,6 +106,11 @@
                         <td data-title="'基本信息'">{{m.baseinfo}}</td>
                         <td data-title="'系统信息'">{{m.system}}</td>
                         <td data-title="'联系信息'"><a uib-tooltip="{{m.contact}}" >{{m.contact |cut61}}</a></td>
+                        <td data-title="'资源操作'">
+                            <div ng-repeat="c in m.control">
+                                <a style="cursor:pointer;color: #339094;" ng-click="devicedata.show( m.uuid, m.type, m.subtype, c)" >{{c.name}}</a>
+                            </div>
+                        </td>
                     </tr>
                 </table>
             </div>
