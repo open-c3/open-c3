@@ -60,6 +60,8 @@ sub getmenu
         $tmpre{$type}{$subtype} ++;
     }
 
+    delete $tmpre{type}; # 第一行的title就叫type,删除
+
     for my $type ( keys %tmpre )
     {
 
@@ -70,6 +72,8 @@ sub getmenu
 
     }
 
+    # %re 把资源按照 type分类，变成一个数组用于前端展示
+    # 展示成一个数组不美观，继续进行转换
     my ( %re2, %subtypecount, %max );
 
     for my $type (  keys %re )
@@ -79,7 +83,8 @@ sub getmenu
         {
             my ( $name, $count ) = @{ $subtype };
             my ( $g, @alias ) = split /-/, $name;
-            $subtypecount{$type}{$g} ++;
+            $subtypecount{$type}{$g} += 100000000; # 资源种类计数，资源种类优先级排序
+            $subtypecount{$type}{$g} += $count*10; # 资源数量排序
             $re2{$type}{$g} ||= [];
             push @{ $re2{$type}{$g}}, [ $g, @$subtype, join "-", @alias ];
             $max{$type} ||= 0;
@@ -87,6 +92,17 @@ sub getmenu
         }
     }
 
+    #按照字母排序
+    for my $type ( keys %subtypecount )
+    {
+        my @k = sort keys %{$subtypecount{$type}};
+        map{ $subtypecount{$type}{$k[$_]} += $_ } 0 .. @k -1;
+    }
+
+    #排序结果
+    #同步的资源种类多的在前面
+    #资源种类一样多的情况下资源数量多的在前面
+    #资源数量也一样多的情况下，按照字母排序
     for my $type (  keys %re )
     {
         for my $group ( keys %{ $re2{ $type  } } )
@@ -98,6 +114,26 @@ sub getmenu
             }
         }
     }
+    #%re2 按照资源分类，云分类。如下
+    #
+    #'networking' => {
+    #  'qcloud' => [
+    #      [
+    #         'qcloud',
+    #         'qcloud-clb',
+    #          1,
+    #         'clb'
+    #       ]
+    #   ],
+    #  'huawei' => [
+    #      [
+    #         'huawei',
+    #         'huawei-elb',
+    #         16,
+    #         'elb'
+    #      ]
+    #   ]
+
 
     my %re3;
     for my $type ( keys %re2 )
@@ -110,6 +146,7 @@ sub getmenu
         }
     }
 
+    #%re3 二维表格，就是前端展示的二维表，其中每个元素又是一个单独的小数组，整体是三维表格
     return data => \%re3;
 };
 
