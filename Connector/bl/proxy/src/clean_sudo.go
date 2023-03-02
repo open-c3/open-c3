@@ -35,12 +35,14 @@ var (
 )
 
 type RunCmdOnFile struct {
-	ScanDir string
+	CommandDir string
+	ScanDir    string
 }
 
-func NewRunCmdOnFile(scanDir string) *RunCmdOnFile {
+func NewRunCmdOnFile(commandDir, scanDir string) *RunCmdOnFile {
 	return &RunCmdOnFile{
-		ScanDir: scanDir,
+		CommandDir: commandDir,
+		ScanDir:    scanDir,
 	}
 }
 
@@ -92,9 +94,15 @@ func (r RunCmdOnFile) runCmdOnFile(filePath string) error {
 		args = parts[1:]
 	}
 
-	err = r.runCmd(userCmd, args...)
+	cmd := exec.Command(filepath.Join(r.CommandDir, userCmd), args...)
+	cmd.Stdin = os.Stdin
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	// 运行命令
+	err = cmd.Run()
 	if err != nil {
-		return fmt.Errorf("runCmd.runCmd.err: %v", err)
+		return fmt.Errorf("runCmd.Command.err: %v", err)
 	}
 
 	err = os.Remove(filePath)
@@ -116,20 +124,6 @@ func (r RunCmdOnFile) ifOkRunCmd(timestampStr string) (bool, error) {
 		return false, nil
 	}
 	return true, nil
-}
-
-func (r RunCmdOnFile) runCmd(userCmd string, a ...string) error {
-	command := fmt.Sprintf("%v %v",
-		userCmd,
-		strings.Join(a, " "),
-	)
-
-	cmd := exec.Command("bash", "-r", command)
-	_, err := cmd.Output()
-	if err != nil {
-		return fmt.Errorf("runCmd.Output.err: %v", err)
-	}
-	return nil
 }
 
 func (r RunCmdOnFile) listFilesOfDir(rootDir string) ([]string, error) {

@@ -3,45 +3,66 @@
 
 import sys
 import json
-import subprocess
 import re
+import subprocess
 
 
-def is_valid_ip(ip):
-    pattern = r"^((25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$"
-    return re.match(pattern, ip) is not None
+def extract_ips(text):
+    pattern = r'\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b'
+
+    matches = re.findall(pattern, text)
+
+    valid_ips = []
+    for ip in matches:
+        octets = ip.split('.')
+        if len(octets) == 4 and all(0 <= int(octet) <= 255 for octet in octets):
+            valid_ips.append(ip)
+
+    return valid_ips
 
 
 def main(params):
     account = params["account"]
     email = params["email"]
     auth_type = params["auth_type"]
-    ip_list = params["ip_list"]
+    ip_list = extract_ips(params["ip_list"])
+    sudo_hours = int(params["sudo_hours"]) if "sudo_hours" in params else 0
 
-    has_invalid_ip = False
-    for ip in ip_list.split(","):
-        if not is_valid_ip(ip):
-            print("{} 不是合法IP地址", file=sys.stderr)
-            has_invalid_ip = True
-            continue
-
-        resp = subprocess.getoutput(
-            f"c3mc-bl-permission --add_type {auth_type} --username {account} --email {email} --ip {ip}"
-        )
-        resp = json.loads(resp)
-
-        info = json.loads(resp["data"])
-        if info["user_password"] != "":
-            # 如果用户第一次申请服务器权限, 此时堡垒机没有该用户账号,
-            # 申请服务器权限时, 会在堡垒机创建用户账号, 然后返回该用户的登陆密码,
-            # 后续申请服务器权限不会重新创建用户或更新密码
-            print(
-                f'LOG. 创建堡垒机用户, 用户名: {info["user_name"]}, 登陆密码: {info["user_password"]}')
-        print(f"LOG. 服务器 {ip} 权限申请成功")
-
-    if has_invalid_ip:
-        print("LOG. ip列表存在格式不合法的ip")
+    # 创建堡垒机用户
+    cmd_parts = ["c3mc-bl-create-user",
+                 "--username", account, "--email", email]
+    output = subprocess.run(cmd_parts, capture_output=True, text=True)
+    if output.returncode != 0:
+        print(output.stderr, file=sys.stderr)
         exit(1)
+
+    # 添加目标服务器的权限 
+    cmd_parts = ["c3mc-device-api-jumpserver",
+                 "--json", "--cache", "--ips", ",".join(ip_list)]
+    output = subprocess.run(cmd_parts, capture_output=True, text=True)
+    if output.returncode != 0:
+        print(output.stderr, file=sys.stderr)
+        exit(1)
+
+    data_list = json.loads(output.stdout)
+
+    for data in data_list:
+        ok = False
+        for ip in [data["inIP"], data["exIP"]]:
+            if ip == "":
+                continue
+            cmd_parts = ["c3mc-bl-permission", "--add_type",
+                         auth_type, "--username", account, "--email", email, "--ip", data['inIP'], "--sudo_hours", str(sudo_hours)]
+            output = subprocess.run(cmd_parts, capture_output=True, text=True)
+            if output.returncode != 0:
+                continue
+            ok = True
+            print(f"LOG. 服务器 {ip} 权限申请成功")
+            break
+        if not ok:
+            print(f"LOG. 服务器 {ip} 权限申请失败", file=sys.stderr)
+
+    print("LOG. 权限添加结束")
 
 
 if __name__ == '__main__':

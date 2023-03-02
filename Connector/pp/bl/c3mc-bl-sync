@@ -8,21 +8,21 @@ import subprocess
 
 def main():
     bl_mode = subprocess.getoutput("c3mc-sys-ctl sys.bl.mode").strip()
-    if bl_mode == 'none' or bl_mode == '':
+    if bl_mode == '':
         return
-    
+
     sys_args = json.loads(subprocess.getoutput("c3mc-sys-ctl | yaml2json"))
 
-    args = ""
-    for name in sys_args:
-        if name.startswith("sys.bl.sync." + bl_mode):
-            args += "-{} {} ".format(name.split(".")[-1], sys_args[name])
-
+    args = "".join(
+        f'-{name.split(".")[-1]} {sys_args[name]} '
+        for name in sys_args
+        if name.startswith(f"sys.bl.sync.{bl_mode}")
+    )
     app_key = os.getenv("OPEN_C3_RANDOM")
 
-    command = "/data/Software/mydan/Connector/bl/sync/{}/{}".format(bl_mode, bl_mode)
+    command = f"/data/Software/mydan/Connector/bl/sync/{bl_mode}/{bl_mode}"
 
-    os.system("{} {} -appname {} -appkey {}".format(command, args, "job", app_key))
+    os.system(f"{command} {args} -appname job -appkey {app_key}")
     
 
 if __name__ == '__main__':

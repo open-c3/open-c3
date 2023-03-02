@@ -29,18 +29,6 @@ func SyncMachines(user, pass, url, appName, appKey string) {
 	}
 }
 
-func getBlAccountAndPass() (string, string, string, string) {
-	blMode := getSysCtlValue("sys.bl.mode")
-	if blMode == "none" || blMode == "" {
-		return "", "", "", ""
-	}
-	user := getSysCtlValue(fmt.Sprintf("sys.bl.sync.%s.admin.user", blMode))
-	pass := getSysCtlValue(fmt.Sprintf("sys.bl.sync.%s.admin.pass", blMode))
-	url := getSysCtlValue(fmt.Sprintf("sys.bl.sync.%s.url", blMode))
-
-	return user, pass, url, blMode
-}
-
 func getSysCtlValue(variable string) string {
 	cmd := exec.Command("c3mc-sys-ctl", variable)
 	stdout, err := cmd.Output()
