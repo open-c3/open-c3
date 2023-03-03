@@ -111,7 +111,7 @@
                 <!-- 其他信息 -->
                 <div class="detail-card-header" 
                      ng-click="devicedatadetail.showFlag($index,'otherinfoFlag',infoItems.otherinfoFlag)"
-                     ng-if="infoItems.system.length>0 && infoItems.baseinfo.length>0">
+                     ng-if="infoItems.system.length>0 || infoItems.baseinfo.length>0">
                   <div class="detail-card-header-text">其他信息</div>
                   <div class="detail-card-header-button">
                     <div ng-if="!infoItems.otherinfoFlag" class="detail-card-header-button-top" ></div>
@@ -119,7 +119,7 @@
                   </div>
                 </div>
         
-                <div class="detail-card" ng-if="infoItems.system.length===0 && infoItems.baseinfo.length===0 || infoItems.otherinfoFlag" ng-show="infoItems">
+                <div class="detail-card" ng-if="( infoItems.system.length===0 || infoItems.baseinfo.length===0 ) || infoItems.otherinfoFlag" ng-show="infoItems">
                   <div class="detail-card-content">
                     <div class="row" ng-repeat="item in infoItems.otherinfo">
                         <div ng-if="
@@ -145,7 +145,7 @@
                 <!-- 操作 -->
                 <div class="detail-card-header" 
                      ng-click="devicedatadetail.showFlag($index,'operationFlag',infoItems.operationFlag)"
-                     ng-if="infoItems.system.length>0 && infoItems.baseinfo.length>0">
+                     ng-if="infoItems.system.length>0 || infoItems.baseinfo.length>0">
                   <div class="detail-card-header-text">操作</div>
                   <div class="detail-card-header-button">
                     <div ng-if="!infoItems.operationFlag" class="detail-card-header-button-top" ></div>
