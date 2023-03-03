@@ -55,7 +55,7 @@ sub gettodo
     if( $ENV{C3GITBASEURL} )
     {
         my $uri = $file;
-        return unless $uri =~ s#.*/mydan/##;
+        return unless $uri =~ s#.*/mydan/## || $uri =~ s#open-c3-code_/##;
         print "[编辑]($ENV{C3GITBASEURL}/$uri)\n\n";
     }
 
