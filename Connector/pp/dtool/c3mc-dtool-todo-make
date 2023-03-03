@@ -1,0 +1,26 @@
+#!/bin/bash
+
+###
+### 生成c3 todo文档
+###
+### Usage:
+###
+###   $0
+###
+### Options:
+###   -h        获取帮助信息
+
+. /usr/bin/c3mc-bash-help || exit 1
+
+export C3GITBASEURL='https://github.com/open-c3/open-c3/blob/v2.6.0'
+
+echo \
+  /data/Software/mydan/AGENT/lib/ \
+  /data/Software/mydan/JOBX/lib/  \
+  /data/Software/mydan/JOB/lib/   \
+  /data/Software/mydan/CI/lib/    \
+  /data/Software/mydan/Connector/lib/ \
+  | xargs -n 1 \
+  | xargs -i{} bash -c 'grep "C3TODO [0-9][0-9][0-9][0-9][0-9][0-9] " {} -Rl' \
+  | grep -v ".swp$" \
+  | xargs -i{} bash -c "c3mc-dtool-todo-make-onece {} || exit 255"
