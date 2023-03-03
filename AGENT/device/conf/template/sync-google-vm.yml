@@ -43,7 +43,29 @@ download:
         - name: _ingestion_
           alias: 摄取
           select: ["YES", "NO"]
-    check:
+      grpcol:
+        baseinfo:
+        - name: 名称
+        - name: 实例ID
+        - name: 状态
+          success:
+          - ACTIVE
+        - name: 项目
+        - name: account
+          color: red
+        - name: 所在可用区
+        - name: 部门
+        - name: 业务负责人
+        - name: 运维负责人
+        - name: 公网IP
+        - name: 内网IP
+        system:
+        - name: os
+        - name: 实例类型
+        - name: cpuPlatform
+        - name: vpcName
+        - prefix: tag.
+        - prefix: disks.
       col: ["实例ID"]
       min: 0
     colmap:
