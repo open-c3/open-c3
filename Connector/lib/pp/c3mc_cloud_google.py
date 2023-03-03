@@ -2,6 +2,8 @@
 # -*- coding: utf-8 -*-
 
 import re
+import json
+import sys
 
 from googleapiclient import discovery
 from google.oauth2 import service_account
@@ -21,6 +23,10 @@ class Google:
             return None
 
         disk_resp = self.get_disk_info(disk_source)
+
+        if "sourceImage" not in disk_resp:
+            return None
+
         image_resp = self.get_image_info(disk_resp["sourceImage"])
 
         os = "Other"
