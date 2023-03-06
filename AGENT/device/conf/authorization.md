@@ -73,7 +73,10 @@
         "rds:DescribeDBInstances",
         "elasticache:DescribeCacheClusters",
         "rds:RemoveTagsFromResource",
-        "kafka:ListClustersV2"
+        "kafka:ListClustersV2",
+        "lightsail:GetInstances",
+        "lightsail:GetLoadBalancers",
+        "lightsail:GetRelationalDatabases",
       ],
       "Resource": "*"
     }

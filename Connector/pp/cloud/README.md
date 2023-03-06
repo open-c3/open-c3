@@ -2,7 +2,7 @@
 
 | 云厂商 | 资源同步                                                                                   |
 | ------ | ------------------------------------------------------------------------------------------ |
-| AWS    | 计算(ec2)、     数据库(rds、redis、memcached、dynamodb)、存储(s3)、         网络(alb、elb) |
+| AWS    | 计算(ec2、lightsail-vps)、     数据库(rds、redis、memcached、dynamodb、lightsail-db)、存储(s3)、         网络(alb、elb、lightsail-lb) |
 | 华为云 | 计算(ecs)、     数据库(rds、redis、dds、nosql)、                            网络(elb)      |
 | 腾讯云 | 计算(cvm)、     数据库(cdb、redis、mongodb、sqlserver)、 存储(ckafka、cos)、网络(clb)      |
 | 谷歌云 | 计算(vm)、      数据库(rds、redis)                                                                |
