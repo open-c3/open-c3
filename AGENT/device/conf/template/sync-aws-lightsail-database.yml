@@ -1,0 +1,89 @@
+download:
+  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aws-lightsail-database --account aws | c3mc-cloud-tag-v2 --tagfield tags --key key --value value | c3mc-base-json2tab "
+    datatype: tsv
+    type: database
+    subtype: aws-lightsail-database
+    treeinfo:
+      treename: "服务树"
+      treeinfo:
+        - ["实例ID", "instance"]
+    ingestion-mysql:
+      addr: [ 'masterEndpoint.address', 'masterEndpoint.port' ]
+      authpath: /data/open-c3-data/device/curr/auth/mysql
+      tree: '服务树'
+      type: aws-lightsail-database
+      exclude:
+        "_ingestion_": ["NO"]
+    instancealias:
+      - name:  ['uuid']
+        value: ["masterEndpoint.address",'masterEndpoint.port']
+    util:
+      defaulttree: defaulttree.pool
+      extcol:
+        - name: audit
+          alias: 审计
+          select: ["YES", "NO"]
+        - name: remarks
+          alias: 备注
+        - name: _ingestion_
+          alias: 摄取
+          select: ["YES", "NO"]
+    check:
+      col: ["实例ID"]
+      min: 0
+    colmap:
+      treename: "服务树"
+      uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
+    alias:
+      name: "实例ID"
+      regionId: "区域"
+      location.availabilityZone: "所在可用区"
+      hardware.cpuCount: "cpu核数"
+      hardware.diskSizeInGb: "磁盘大小"
+      hardware.ramSizeInGb: "内存大小"
+      state: "状态"
+      backupRetentionEnabled: "是否启用备份保存"
+      engine: "引擎"
+      engineVersion: "引擎版本"
+      masterEndpoint.address: "地址"
+      masterEndpoint.port: "端口"
+      _product_owner_: "业务负责人"
+      _ops_owner_: "运维负责人"
+      _department_: "部门"
+    filter:
+      - name: "account"
+        alias: 账号
+      - name: "区域"
+        alias: 区域
+      - name: "状态"
+        alias: 状态
+      - name: "引擎"
+        alias: 引擎
+      - name: "业务负责人"
+        alias: 业务负责人
+      - name: "运维负责人"
+        alias: 运维负责人
+      - name: "部门"
+        alias: 部门
+      - name: "_ingestion_"
+        alias: 摄取
+    outline:
+      uuid:
+        - "实例ID"
+      baseinfo:
+        - "account"
+        - "实例ID"
+        - "状态"
+        - "区域"
+        - "所在可用区"
+      system:
+        - "引擎"
+        - "引擎版本"
+        - "地址"
+        - "端口"
+        - "引擎"
+      contact:
+        - "部门"
+        - "业务负责人"
+        - "运维负责人"
+        - "服务树"

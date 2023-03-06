@@ -1,0 +1,59 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+
+import boto3
+
+
+class LightsailInstance:
+    """
+    同步lightsail的服务器资源
+    """
+    def __init__(self, access_id, access_key, region):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.region = region
+        self.client = self.create_client()
+
+    def create_client(self):
+        client = boto3.client(
+            "lightsail",
+            aws_access_key_id=self.access_id,
+            aws_secret_access_key=self.access_key,
+            region_name=self.region,
+        )
+        return client
+
+    def get_data_from_response(self, response_data):
+        for i in range(len(response_data["instances"])):
+            response_data["instances"][i]["regionId"] = self.region
+        return response_data["instances"]
+
+    def list_instances(self):
+        instances = []
+        next_page_token = None
+        while True:
+            params = {}
+            if next_page_token:
+                params['pageToken'] = next_page_token
+            response = self.client.get_instances(**params)
+            instances += self.get_data_from_response(response)
+            if 'nextPageToken' not in response:
+                break
+            next_page_token = response['nextPageToken']
+        return instances
+
+    def show(self):
+        data_list = self.list_instances()
+        for item in data_list:
+            print(json.dumps(item, default=str))
+
+
+def main(access_id, access_key, region):
+    LightsailInstance(access_id, access_key, region).show()
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3])
