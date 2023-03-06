@@ -70,7 +70,7 @@ sub subvariable
     map{ $file = $_ if -f $_ }( "$base/flow/$bpmname/plugin.conf/$name.yaml", "$base/flow/$bpmname/plugin.conf/$index.$name.yaml" );
 
     my $config = eval{ YAML::XS::LoadFile $file };
-    die "load config fail: $@" if $@;
+    die "load config $file fail: $@" if $@;
     return $config;
 }
 
