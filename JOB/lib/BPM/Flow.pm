@@ -39,7 +39,7 @@ sub variable
                 my $fromops = $config->{fromops} // 0;
                 for my $opt ( @{$config->{option}} )
                 {
-                    push @$conf, +{ %$opt, name => "$index.$multimark".$opt->{name}, multi => $multi ? 1 : 0,  fromops => $opt->{fromops} // $fromops, ridx => $ridx --, idx => $idx ++ };
+                    push @$conf, +{ %$opt, name => "$index.$multimark".$opt->{name}, multi => $multi ? 1 : 0,  fromops => $opt->{fromops} // $fromops, ridx => $ridx --, idx => $idx ++, actionname => $config->{name} // $name };
                 }
             }
         }
