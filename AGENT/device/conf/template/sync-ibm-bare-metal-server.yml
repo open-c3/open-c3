@@ -43,6 +43,28 @@ download:
         - name: _ingestion_
           alias: 摄取
           select: ["YES", "NO"]
+      grpcol:
+        baseinfo:
+        - name: 名称
+        - name: 实例ID
+        - name: 状态
+          success:
+          - ACTIVE
+        - name: 主机名
+        - name: account
+          color: red
+        - name: 区域
+        - name: 部门
+        - name: 业务负责人
+        - name: 运维负责人
+        - name: 公网IP
+        - name: 内网IP
+        system:
+        - name: os
+        - name: vpcName
+        - name: operatingSystem.softwareLicense.softwareDescription.name
+        - name: operatingSystem.softwareLicense.softwareDescription.version
+        - prefix: tag.
     colmap:
       treename: "服务树"
       uuid: "实例ID" # 指明哪一列作为uuid列。没有这个字段会导致单个资源详情打开无数据
@@ -50,6 +72,7 @@ download:
       fullyQualifiedDomainName: "实例ID"
       fullyHostName: "主机名"
       hostname: "名称"
+      hardwareStatus.status: "状态"
       primaryBackendIpAddress: "内网IP"
       primaryIpAddress: "公网IP"
       datacenter.name: "区域"
@@ -59,6 +82,8 @@ download:
     filter:
       - name: "account"
         alias: 账号
+      - name: "状态"
+        alias: 状态
       - name: "区域"
         alias: 区域
       - name: "业务负责人"

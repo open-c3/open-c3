@@ -54,6 +54,35 @@ download:
         - name: _ingestion_
           alias: 摄取
           select: ["YES", "NO"]
+      grpcol:
+        baseinfo:
+        - name: 名称
+        - name: 实例ID
+        - name: 主机名
+        - name: 区域
+        - name: 状态
+          success:
+          - Active
+        - name: account
+          color: red
+        - name: 部门
+        - name: 业务负责人
+        - name: 运维负责人
+        - name: 公网IP
+        - name: 内网IP
+        system:
+        - name: vpcName
+        - name: os
+        - name: domain
+        - name: startCpus
+          tail: (核) 
+        - name: maxCpu
+          tail: (核) 
+        - name: maxMemory
+          tail: (兆)
+        - prefix: tag.
+        - name: operatingSystem.softwareLicense.softwareDescription.name
+        - name: operatingSystem.softwareLicense.softwareDescription.version
     colmap:
       treename: "服务树"
       uuid: "实例ID" # 指明哪一列作为uuid列。没有这个字段会导致单个资源详情打开无数据

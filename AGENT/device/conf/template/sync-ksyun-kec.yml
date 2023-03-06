@@ -47,6 +47,35 @@ download:
         - name: _ingestion_
           alias: 摄取
           select: ["YES", "NO"]
+      grpcol:
+        baseinfo:
+        - name: 名称
+        - name: 实例ID
+        - name: 主机名
+        - name: 区域
+        - name: 状态
+          success:
+          - active
+        - name: os
+        - name: account
+          color: red
+        - name: 所在可用区
+        - name: 部门
+        - name: 业务负责人
+        - name: 运维负责人
+        - name: 公网IP
+        - name: 内网IP
+        system:
+        - name: 操作系统
+        - name: 实例类型
+        - name: VpcName
+        - name: ChargeType
+        - name: InstanceConfigure.VCPU
+          tail: (核) 
+        - name: InstanceConfigure.MemoryGb
+          tail: (Gb)
+        - prefix: InstanceConfigure.
+        - prefix: tag.
     colmap:
       treename: "服务树"
       uuid: "实例ID" # 指明哪一列作为uuid列。没有这个字段会导致单个资源详情打开无数据

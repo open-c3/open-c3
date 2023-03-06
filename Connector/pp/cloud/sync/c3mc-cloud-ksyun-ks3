@@ -7,6 +7,23 @@ import json
 from ks3.connection import Connection
 
 
+# C3TODO 230303 目前拉取ks3使用了kec的区域列表
+# 但是kec的某些区域不在官方的域名列表里，比如cn-taipei-1,
+# 此时拉取会出现域名解析错误, 因此拉取ks3时，
+# 不在官方区域列表里的区域被自动跳过了
+
+region_to_endpoint = {
+    "cn-beijing-6": "ks3-cn-beijing.ksyuncs.com",
+    "cn-beijing-fin": "ks3-jr-beijing.ksyuncs.com",
+    "cn-shanghai-2": "ks3-cn-shanghai.ksyuncs.com",
+    "cn-shanghai-fin": "ks3-jr-shanghai.ksyuncs.com",
+    "cn-guangzhou-1": "ks3-cn-guangzhou.ksyuncs.com",
+    "cn-hongkong-2": "ks3-cn-hk-1.ksyuncs.com",
+    "ap-singapore-1": "ks3-sgp.ksyuncs.com",
+    "eu-east-1": "ks3-rus.ksyuncs.com",
+}
+
+
 class Ks3:
     def __init__(self, access_id, access_key, region):
         self.access_id = access_id
@@ -15,14 +32,10 @@ class Ks3:
         self.client = self.create_client()
 
     def create_client(self):
-        region_name = self.region
-        if region_name[-1].isdigit():
-            region_name = region_name[:-2]
-
         return Connection(
             self.access_id,
             self.access_key,
-            "ks3-{}.ksyuncs.com".format(region_name),
+            region_to_endpoint[self.region],
         )
 
     def list_instances(self):
@@ -43,6 +56,8 @@ class Ks3:
 
 
 def main(access_id, access_key, region):
+    if region not in region_to_endpoint:
+        return
     Ks3(access_id, access_key, region).show()
 
 
