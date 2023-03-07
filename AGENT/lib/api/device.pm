@@ -127,7 +127,9 @@ any '/device/data/:type/:subtype/:treeid' => sub {
         my $searchmath = 1;
         if( $search )
         {
-            $searchmath = 0 if index( $data, $search ) < 0;
+            my $m = 0;
+            map{ $m = 1 if $m == 0 && index( $data, $_ ) >= 0 }split /\s+/, $search;
+            $searchmath = $m;
         }
         my @d = split /\t/, $data;
 
