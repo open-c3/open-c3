@@ -28,24 +28,24 @@ option:
   - name: domain
     describe: 域名
     type: input
-    show: ["protocol", "http", "https"]
+    show: ["protocol", "HTTP", "HTTPS"]
 
   - name: url
     describe: url
     type: input
-    show: ["protocol", "http", "https"]
+    show: ["protocol", "HTTP", "HTTPS"]
 
   - name: port
     describe: 服务器端口
     type: input
-    show: ["protocol", "http", "https"]
+    show: ["protocol", "HTTP", "HTTPS"]
 
   - name: scheduler
     describe: 规则请求转发方式
     option: ["按权重轮询", "最小连接数", "按IP哈希"]
     type: select
     value: "按权重轮询"
-    show: ["protocol", "http", "https"]
+    show: ["protocol", "HTTP", "HTTPS"]
 
   - name: forward_type
     # 负载均衡与后端服务之间的转发协议
@@ -53,7 +53,17 @@ option:
     option: ["HTTP", "HTTPS", "TRPC"]
     type: select
     value: ""
-    show: ["protocol", "http", "https"]
+    show: ["protocol", "HTTP", "HTTPS"]
+
+  - name: cert_id
+    describe: 证书
+    rely:
+      - x.account
+    command: c3mc-qcloud-clb-describe-cert-list |  c3mc-bpm-display-field-values CertificateId,Domain
+    type: selectx
+    value: ""
+    show: 
+      - forward_type: ["HTTPS"]
 
 template_argv:
   # 账号
@@ -78,3 +88,6 @@ template_argv:
   scheduler: ${scheduler}
   # 负载均衡与后端服务之间的转发协议
   forward_type: ${forward_type}
+  # 证书
+  cert_id: ${cert_id}  
+  # _sys_multi_: 1
