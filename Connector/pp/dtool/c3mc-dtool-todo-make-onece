@@ -1,0 +1,71 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+use File::Basename;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ 生成C3 TODO的帮助文档，处理单个文件
+
+ $0 /dir/c3mc-xxx
+
+=cut
+
+my $file = shift @ARGV;
+die "nofile" unless $file && -f $file;
+
+my    @x = `cat '$file'`;
+chomp @x;
+
+sub getindex
+{
+    my ( @c, @index ) = @_;
+    my $index = 0;
+    for my $x ( @c )
+    {
+        $index ++;
+        push @index, $index if $x =~ /C3TODO\s+\d{6}\s+/;
+    }
+    return @index;
+}
+
+sub gettodo
+{
+    my ( $index, @c ) = @_;
+    my $row = $c[ $index -1 ];
+    return unless $row =~ /^(.*)C3TODO\s(\d{6})\s+(.+)$/;
+    my ( $prefix, $date, $title ) = ( $1, $2, $3 );
+    my @detail;
+    for my $i ( $index ... @c -1 )
+    {
+        last unless index( $c[$i], $prefix ) == 0;
+        push @detail, substr( $c[$i], length $prefix );
+    }
+    print "## $date $title\n";
+    if( @detail )
+    {
+        print "```\n";
+        map{ print "$_\n" }@detail;
+        print "```\n";
+    }
+
+    if( $ENV{C3GITBASEURL} )
+    {
+        my $uri = $file;
+        return unless $uri =~ s#.*/mydan/## || $uri =~ s#open-c3-code_/##;
+        print "[编辑]($ENV{C3GITBASEURL}/$uri)\n\n";
+    }
+
+}
+
+sub run
+{
+    my @c = @_;
+    my @index = getindex( @c );
+    map{ gettodo( $_, @c ) }@index;
+}
+
+run( @x );

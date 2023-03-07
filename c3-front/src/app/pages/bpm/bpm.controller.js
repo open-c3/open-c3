@@ -102,7 +102,6 @@
             obj['value'] = angular.toJson( obj['tempvalue'] );
         };
 
-        vm.multitempidx = 1;
         vm.delVar = function ( index, lastvarname ) {
             var lastvarnames = lastvarname.split(".")
             for( var i = $scope.jobVar.length -1; i>=0;i--)
@@ -153,9 +152,14 @@
                     vm.bpmvar = data.data;
                     if( data.data['_sys_opt_'] )
                     {
-                        vm.optionx     = data.data['_sys_opt_']['optionx'];
-                        vm.selectxrely = data.data['_sys_opt_']['selectxrely'];
-                        vm.selectxhide = data.data['_sys_opt_']['selectxhide'];
+                        vm.optionx      = data.data['_sys_opt_']['optionx'];
+                        vm.selectxrely  = data.data['_sys_opt_']['selectxrely'];
+                        vm.selectxhide  = data.data['_sys_opt_']['selectxhide'];
+                        $scope.jobVar   = data.data['_sys_opt_']['variable'];
+                        // C3TODO 230306 BPM表单的数据，存入后重新获取后，整型变成了字符串类型
+                        // 这里的multitempidx存入时是一个数字，存入后重新获取，变成了一个字符串
+                        // 现在通过Number进行转换，应该处理一下接口让其返回数字类型
+                        vm.multitempidx = Number(data.data['_sys_opt_']['multitempidx']);
                     }
                     vm.reload();
                 }else {
@@ -332,7 +336,7 @@
                         }
                     });
                 }else {
-                    swal({ title:'获取应用地址失败', text: data.info, type:'error' });
+                    swal({ title:'获取BPM菜单失败', text: data.info, type:'error' });
                 }
             });
         };
@@ -344,6 +348,7 @@
         }
         else
         {
+            vm.multitempidx = 1;
             vm.reload();
         }
 
@@ -358,9 +363,11 @@
             $scope.taskData.variable = varDict;
 
             $scope.taskData.variable['_sys_opt_'] = {};
-            $scope.taskData.variable['_sys_opt_']['optionx']     = vm.optionx;
-            $scope.taskData.variable['_sys_opt_']['selectxrely'] = vm.selectxrely;
-            $scope.taskData.variable['_sys_opt_']['selectxhide'] = vm.selectxhide;
+            $scope.taskData.variable['_sys_opt_']['optionx']      = vm.optionx;
+            $scope.taskData.variable['_sys_opt_']['selectxrely']  = vm.selectxrely;
+            $scope.taskData.variable['_sys_opt_']['selectxhide']  = vm.selectxhide;
+            $scope.taskData.variable['_sys_opt_']['variable']     = $scope.jobVar;
+            $scope.taskData.variable['_sys_opt_']['multitempidx'] = vm.multitempidx;
 
             resoureceService.work.runJobByName(vm.defaulttreeid, {"jobname":$scope.choiceJob.name, "bpm_variable": $scope.taskData.variable, "variable": {} })
                 .then(function (repo) {
@@ -379,9 +386,11 @@
             $scope.taskData.variable = varDict;
 
             $scope.taskData.variable['_sys_opt_'] = {};
-            $scope.taskData.variable['_sys_opt_']['optionx']     = vm.optionx;
-            $scope.taskData.variable['_sys_opt_']['selectxrely'] = vm.selectxrely;
-            $scope.taskData.variable['_sys_opt_']['selectxhide'] = vm.selectxhide;
+            $scope.taskData.variable['_sys_opt_']['optionx']      = vm.optionx;
+            $scope.taskData.variable['_sys_opt_']['selectxrely']  = vm.selectxrely;
+            $scope.taskData.variable['_sys_opt_']['selectxhide']  = vm.selectxhide;
+            $scope.taskData.variable['_sys_opt_']['variable']     = $scope.jobVar;
+            $scope.taskData.variable['_sys_opt_']['multitempidx'] = vm.multitempidx;
 
             $http.post( '/api/job/bpm/var/' + vm.bpmuuid, { "bpm_variable": $scope.taskData.variable } ).success(function(data){
                 if (data.stat){
@@ -428,6 +437,12 @@
 
         vm.loadover = false;
         $scope.$watch('choiceJob', function () {
+            if( vm.bpmuuid != "0" )
+            {
+                vm.loadover = true;
+                return;
+            }
+ 
             if($scope.choiceJob){
                 $scope.taskData.jobname = $scope.choiceJob.name;
                 $scope.taskData.group = null

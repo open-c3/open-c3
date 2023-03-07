@@ -1,4 +1,4 @@
-# 云账号权限说明
+# 公有云/权限说明
 ---
 
 ## IP白名单
@@ -73,7 +73,10 @@
         "rds:DescribeDBInstances",
         "elasticache:DescribeCacheClusters",
         "rds:RemoveTagsFromResource",
-        "kafka:ListClustersV2"
+        "kafka:ListClustersV2",
+        "lightsail:GetInstances",
+        "lightsail:GetLoadBalancers",
+        "lightsail:GetRelationalDatabases",
       ],
       "Resource": "*"
     }

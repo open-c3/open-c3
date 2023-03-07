@@ -5,6 +5,7 @@ use MYDan::Util::OptConf;
 use FindBin qw( $RealBin );
 use OPENC3::PP::Pipe;
 use File::Temp;
+use JSON;
 
 =head1 SYNOPSIS
 
@@ -25,7 +26,15 @@ map{ die "idx format error" unless $_ =~ /^[a-zA-Z0-9]+$/  }@idx;
 my    @x = `$RealBin/taskcfg '$bpmuuid' '$action' @idx`;
 chomp @x;
 
-# BPM TODO: 已经执行成功的在重试时跳过,不要重复执行。
+# C3TODO 已经执行成功的在重试时跳过,不要重复执行。
+
+if( @x )
+{
+    my $c = eval{ JSON::from_json $x[0] };
+    die "load data from json fail: $@" if $@;
+    @x = ( join "\n", @x ) if $c->{'_sys_multi_'};
+}
+
 for( @x )
 {
     my ( $TEMP, $tempfile ) = File::Temp::tempfile();

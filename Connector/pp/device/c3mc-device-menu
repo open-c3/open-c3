@@ -99,6 +99,16 @@ sub getmenu
         map{ $subtypecount{$type}{$k[$_]} += $_ } 0 .. @k -1;
     }
 
+    # 一个云厂商的资源在内部进行排序，比如AWS的数据库如果已经确定了全局的位置，
+    # 那么dynamodb、memcached、rds、redis等排序是固定的,避免用户查看时抖动
+    for my $type ( keys %re2 )
+    {
+        for my $subtype ( keys %{$re2{$type} })
+        {
+            $re2{$type}{$subtype} = [ sort{ $a->[1] cmp $b->[1] } @{ $re2{$type}{$subtype} } ];
+        }
+    }
+
     #排序结果
     #同步的资源种类多的在前面
     #资源种类一样多的情况下资源数量多的在前面

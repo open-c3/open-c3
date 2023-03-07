@@ -70,7 +70,7 @@ class HandleTag:
                             continue
                         tmp_tag_dict[parts[0]] = parts[1]
 
-            tmp_tag_dict = {key.strip(): value.strip() for key, value in tmp_tag_dict.items()}
+            tmp_tag_dict = {key.strip(): value.strip() for key, value in tmp_tag_dict.items() if key is not None and value is not None}
 
             for item in self.pre_names:
                 for key, value in tmp_tag_dict.items():

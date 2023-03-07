@@ -35,6 +35,12 @@
                     <div class="row" ng-repeat="ss in jobVar">
 
                         <hr ng-if="ss.idx == 0" class="mv20 clear">
+                        <div ng-if="ss.idx == 0 && ss.actionname != ''" class="col-sm-10 form-group">
+                            <div>
+                                <label class="col-sm-12" >{{ss.actionname}}</label>
+                            </div>
+                        </div>
+ 
                         <div ng-if="(bpm.selectxhide[ss.name] != '1') && (bpm.vfromops[ss.name] != '1') && (ss.type && ss.type=='text')" class="col-sm-10 form-group">
                             <div>
                                 <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
