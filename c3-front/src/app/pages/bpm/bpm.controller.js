@@ -256,7 +256,7 @@
 
                             for (let key in item) {//循环一个分组,小组内是"与"的关系
                                 var realkey =  ename[0] + "." + key;
-                                selectItem =  $scope.jobVar.filter(cItem => cItem.name.indexOf(realkey) == 0 )[0]
+                                selectItem =  $scope.jobVar.filter(cItem => cItem.name == realkey )[0]
                                 itemKeysResult['select'].push(!!item[key].find(cItem=> cItem === selectItem.value))
                             }
 
