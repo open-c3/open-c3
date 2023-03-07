@@ -29,9 +29,17 @@ class Clb:
         clientProfile = ClientProfile()
         clientProfile.httpProfile = httpProfile
         return clb_client.ClbClient(cred, self.region, clientProfile)
-    
+
     def get_request(self):
         req = models.CreateLoadBalancerRequest()
+
+        cmd_parts = ["c3mc-cloud-qcloud-get-cvm", self.params["account"],
+                     self.params["instance_ids"].split(",")[0], self.region]
+        output = subprocess.run(cmd_parts, capture_output=True, text=True)
+        if output.returncode != 0:
+            print(output.stderr, file=sys.stderr)
+            exit(1)
+        cvmInfo = json.loads(output.stdout)
 
         network_type = "INTERNAL" if self.params["network_type"] == "内网" else "OPEN"
         api_params = {
@@ -39,11 +47,11 @@ class Clb:
             "Forward": 1,
             "ProjectId": int(self.params["project_id"]),
             "LoadBalancerName": self.params["clb_name"],
-            "VpcId": self.params["vpc_id"],
+            "VpcId": cvmInfo["VirtualPrivateCloud"]["VpcId"],
             "Number": 1
         }
         if network_type == "INTERNAL":
-            api_params["SubnetId"] = self.params["subnet_id"]
+            api_params["SubnetId"] = cvmInfo["VirtualPrivateCloud"]["SubnetId"]
         if "tag" in self.params:
             tag_list = json.loads(self.params["tag"])
             if len(tag_list) > 0:
@@ -57,7 +65,7 @@ class Clb:
     def create_clb(self, req):
         resp = self.client.CreateLoadBalancer(req)
         return json.loads(resp.to_json_string())
-    
+
 
 def main(params):
     account = params["account"]
@@ -68,7 +76,7 @@ def main(params):
     )
 
     clb = Clb(key_info["access_id"],
-        key_info["access_key"], region, params)
+              key_info["access_key"], region, params)
 
     req = clb.get_request()
     print(f"创建clb, 请求参数为: {req}")
@@ -88,7 +96,8 @@ def main(params):
 
             print("LOG. clb_id:{}".format(clb_id))
             print("VAR. clb_id:{}".format(clb_id))
-            print("VAR. extinstance_id:{}.{}.{}".format(params["account"], params["region"], clb_id))
+            print("VAR. extinstance_id:{}.{}.{}".format(
+                params["account"], params["region"], clb_id))
         except Exception as e:
             print(f"创建腾讯云clb出错, err: {e}", file=sys.stderr)
             exit(1)
@@ -96,7 +105,7 @@ def main(params):
         # 防止后续立即执行创建监听器时报错
         # 休眠一会儿等待clb状态正常
         time.sleep(25)
-    
+
 
 if __name__ == '__main__':
     l = list(sys.stdin)
