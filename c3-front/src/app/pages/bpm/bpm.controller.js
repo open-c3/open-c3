@@ -237,30 +237,48 @@
                      }
                     }
                  } else if (data['show']) {
+
+
                     let itemKeysResults = []
                     let selectItem = {}
-                    const dataShowItems = Object.keys(data['show'][0])
-                    if(ename[0] === tempename[0] && dataShowItems.find(item => item === ename[1])){
+
+                    var allkey = [];//show里面涉及到的所有key
                     angular.forEach(data['show'], function (item, index) {
-                      let itemKeysResult = {select: []}
-                      itemKeysResult['name'] = Object.keys(item)
-                      for (let key in item) {
-                        selectItem =  $scope.jobVar.filter(cItem => cItem.name.indexOf(key) > -1)[0]
-                        itemKeysResult['select'].push(!!item[key].find(cItem=> cItem === selectItem.value))
-                      }
-                      itemKeysResults[index] = itemKeysResult
+                        angular.forEach(Object.keys(item), function (item, index) {
+                            allkey.push( item );
+                        });
                     });
-                    angular.forEach(itemKeysResults, function (item) {
-                        item.match = !item.select.filter(cItem=> cItem === false).length
-                    })
-                    if(itemKeysResults.map(item => item.match).filter(cItem => cItem === true ).length > 0) {
-                      vm.selectxhide[data.name] = '0';
-                      data.value = "";
-                    } else {
-                      vm.selectxhide[data.name] = '1';
-                      data.value = "_openc3_hide_";
-                    }
-                 }
+                    if(ename[0] === tempename[0] && allkey.find(item => item === ename[1])){
+                        angular.forEach(data['show'], function (item, index) {
+
+                            let itemKeysResult = {select: []}
+                            itemKeysResult['name'] = Object.keys(item) //其中一组的所有key
+
+                            for (let key in item) {//循环一个分组,小组内是"与"的关系
+                                var realkey =  ename[0] + "." + key;
+                                selectItem =  $scope.jobVar.filter(cItem => cItem.name.indexOf(realkey) == 0 )[0]
+                                itemKeysResult['select'].push(!!item[key].find(cItem=> cItem === selectItem.value))
+                            }
+
+                            itemKeysResults[index] = itemKeysResult //小组内的匹配结果的数组
+
+                        });
+                        angular.forEach(itemKeysResults, function (item) {
+                            item.match = !item.select.filter(cItem=> cItem === false).length
+                        })
+
+                        if(itemKeysResults.map(item => item.match).filter(cItem => cItem === true ).length > 0) {
+                            vm.selectxhide[data.name] = '0';
+                            data.value = "";
+                        } else {
+                            vm.selectxhide[data.name] = '1';
+                            data.value = "_openc3_hide_";
+                        }
+
+
+                   }
+
+
                 }
             });
         }
