@@ -124,12 +124,19 @@ any '/device/data/:type/:subtype/:treeid' => sub {
     for my $data ( @data )
     {
         utf8::decode($data);
-        my $searchmath = 1;
+        my $searchmatch = 1;
         if( $search )
         {
             my $m = 0;
-            map{ $m = 1 if $m == 0 && index( $data, $_ ) >= 0 }split /\s+/, $search;
-            $searchmath = $m;
+            map{
+                $m = 1 if $m == 0 && index( $data, $_ ) >= 0;
+                if( $_ =~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/ )
+                {
+                    $m = 2 if $data =~ /\D$1\.$2\.$3\.$4\D/;
+                }
+            }split /\s+/, $search;
+
+            $searchmatch = $m;
         }
         my @d = split /\t/, $data;
 
@@ -166,13 +173,14 @@ any '/device/data/:type/:subtype/:treeid' => sub {
 
         my ( $ctype, $csubtype ) = $param->{type} eq 'all' && $param->{subtype} eq 'all' ? ( $d{type}, $d{subtype} ) : ( $param->{type}, $param->{subtype} );
 
-        next unless $match && $searchmath && $treenamematch;
+        next unless $match && $searchmatch && $treenamematch;
 
         map{ $d{ $_ } = OPENC3::Tree::merge( $d{ $_ } ) if $d{ $_ }; }( '_tree_', $treenamecol );
 
         push @re, +{
             type    => $ctype,
             subtype => $csubtype,
+            match   => $searchmatch,
             map{
                 $_ => join( ' | ', map{ $d{ $_ } || '' }@{ $outline->{ $_ } } )
             }qw( uuid baseinfo system contact )
