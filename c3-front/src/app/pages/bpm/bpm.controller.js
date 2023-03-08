@@ -358,7 +358,7 @@
             });
         }
 
-        vm.optionxclick = function( stepname , selectIndex)
+        vm.optionxclick = function( stepname , selectIndex, tempvalue, myvalue )
         {
             vm.selectIndex = selectIndex
             var varDict = {};
@@ -402,7 +402,24 @@
             $http.post( '/api/job/bpm/optionx', { "bpm_variable": varDict, "stepname": stepname, "jobname":$scope.choiceJob.name } ).success(function(data){
                 if (data.stat){
                     vm.selectxloading[stepname] = false;
-                    vm.optionx[stepname] = data.data
+                    if( selectIndex == 0 && tempvalue == undefined )
+                    {
+                        vm.optionx[stepname] = data.data
+                    }
+                    else
+                    {
+                        var temp = {};
+                        angular.forEach(tempvalue, function (data, index) {
+                            temp[data.value] = 1;
+                        });
+                        delete temp[myvalue];
+                        
+                        if( vm.optionx[stepname] ==  undefined )
+                        {
+                            vm.optionx[stepname] = {};
+                        }
+                        vm.optionx[stepname][selectIndex] =  data.data.filter(cItem => temp[cItem.name] != 1  );
+                    }
                 }else {
                     swal({ title: '获取选项失败', text: data.info, type:'error' });
                 }
