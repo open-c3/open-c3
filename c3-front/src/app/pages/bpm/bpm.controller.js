@@ -226,7 +226,7 @@
                       var otherlinkkey = ename[0] + "." + bindname;
                       var mylinkkey    = tempename[0] + "." + bindname;//这两个值不能相等，相等说明是自己操作的自己
 
-                      if( linkname == ename[1]  && linkname == tempename[1] )
+                      if( otherlinkkey != mylinkkey && linkname == ename[1]  && linkname == tempename[1] )
                       {
                           var otherlinkkeyItem =  $scope.jobVar.filter(cItem => cItem.name == otherlinkkey )[0];
                           var mylinkkeyItem    =  $scope.jobVar.filter(cItem => cItem.name == mylinkkey    )[0];
