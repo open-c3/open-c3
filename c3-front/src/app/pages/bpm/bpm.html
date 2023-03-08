@@ -137,7 +137,7 @@
                             <div>
                                 <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;<a ng-if="ss.value == '' || ss.value == undefined" style="color: red" >*</a></label>
                                 <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;<a ng-if="ss.value == '' || ss.value == undefined" style="color: red" >*</a></label>
-                                <div class="col-sm-6"> <input type="text" class="form-control" ng-model="ss.value" placeholder="{{'C3T.填写任务变量'|translate}}" required> </div>
+                                <div class="col-sm-6"> <input type="text" class="form-control" ng-change="bpm.optionxchange(ss.name, ss.value)" ng-model="ss.value" placeholder="{{'C3T.填写任务变量'|translate}}" required> </div>
                                 <label class="col-sm-3 label-text-color" >{{ss.name}}</label>
                             </div>
                         </div>
