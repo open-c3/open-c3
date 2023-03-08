@@ -209,6 +209,38 @@
                  }
             });
 
+             //clear point
+             angular.forEach($scope.jobVar, function (data, index) {
+                 var tempename = vm.extname( data.name ); 
+
+                 //ename[0];    // 变动的框的前缀
+                 //ename[1];    // 变动的框的名称
+                 //tempename[0] //当前的框的前缀
+                 //tempename[1] //当前的框的名称
+                 // 我的步骤中有point配置，做一下处理，看是不是需要清空自己
+                 if( data['command'] && typeof data['command'] === 'object' && data['command'][0] == 'point' ) //是否配置的point
+                 {
+                      var bindname = data['command'][1];//绑定的上一步插件的选项名字
+                      var linkname = data['command'][2];//我与它关联的字段
+
+                      var otherlinkkey = ename[0] + "." + bindname;
+                      var mylinkkey    = tempename[0] + "." + bindname;//这两个值不能相等，相等说明是自己操作的自己
+
+                      if( linkname == ename[1]  && linkname == tempename[1] )
+                      {
+                          var otherlinkkeyItem =  $scope.jobVar.filter(cItem => cItem.name == otherlinkkey )[0];
+                          var mylinkkeyItem    =  $scope.jobVar.filter(cItem => cItem.name == mylinkkey    )[0];
+
+                          if( otherlinkkey !== mylinkkey && otherlinkkeyItem != undefined && mylinkkeyItem != undefined  && otherlinkkeyItem.value == mylinkkeyItem.value )
+                          {
+                               data.value = "";
+                          }
+                      }
+                 } 
+            });
+
+ 
+
             //hide
             angular.forEach($scope.jobVar, function (data, index) {
 
