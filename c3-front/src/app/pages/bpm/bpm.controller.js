@@ -300,6 +300,11 @@
                      {
                          vm.selectxhide[data.name] = '1';
                          data.value = "_openc3_hide_";
+                         if( data.tempvalue != undefined )
+                         {
+                             data.tempvalue = [];
+                         }
+ 
                      }
                     }
                  } else if (data['show']) {
@@ -339,6 +344,10 @@
                         } else {
                             vm.selectxhide[data.name] = '1';
                             data.value = "_openc3_hide_";
+                            if( data.tempvalue != undefined )
+                            {
+                                data.tempvalue = [];
+                            }
                         }
 
 
