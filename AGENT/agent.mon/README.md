@@ -62,3 +62,5 @@ node_collector_error 错误码
 2: 超时
 3: 依赖工具缺失
 ```
+
+监控agent的版本指标: node_exporter_version
