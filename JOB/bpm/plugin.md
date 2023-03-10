@@ -59,6 +59,14 @@ option:
     describe: 域名
     type: select
     option: ["HTTP", "HTTPS", "TRPC"]
+  - name: domain2
+    describe: 另一种格式有别名
+    type: select
+    option:
+    - name: HTTP
+      alias: 名字1
+    - name: HTTPS
+      alias: 名字2
 
 template_argv:
   domain: ${domain}

@@ -25,6 +25,17 @@
             'uuid':null,
         };
 
+        vm.isstring = function ( obj ) {
+            if( typeof obj === 'string')
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        };
+ 
         vm.showfromops = '0';
         vm.fromopsdefault = '0';
         vm.vfromops = {};
