@@ -29,7 +29,62 @@ $submitter ||= 'sys@app';
 $timeout   ||= '86400';
 
 my $puuid = uuid->new()->create_str;
-my @approver = split /,/, $approver;
+my @approver;
+
+sub getapprover
+{
+    my ( $str, %res ) = shift @_;
+    if( $str =~ /leader\(\s*(.+)\s*\)/ )
+    {
+        my $users = $1;
+        my $file = '/data/open-c3-data/bpm/leader.conf';
+        return unless -f $file;
+        my $leader = eval{ YAML::XS::LoadFile $file };
+        die "load $file fail: $@" if $@;
+        map{
+            if( $leader->{$_} )
+            {
+                $res{ $leader->{$_} } = 1;
+                print "LOG.$_ leader = $leader->{$_}\n";
+            }
+        }split /,/, $users;
+        return keys %res;
+    }
+    if ( $str =~ /ipowner\(\s*(.+)\s*\)/ )
+    {
+        my $ips = $1;
+        my $x = `c3mc-device-api-jumpserver --ips '$ips'`;
+        die "get ip owner fail: $!" if $?;
+        my $d = eval{ YAML::XS::Load $x };
+        die "load fail: $@" if $@;
+        map{
+            $res{ $_->{product_owner} } ++;
+            print "LOG.$_->{ip} product_owner = $_->{product_owner}\n";
+        }@$d;
+
+        return keys %res;
+    }
+
+    return split /,/, $str;
+}
+
+if( $approver =~ /\s+or\s+/ )
+{
+    my @x = split /\s+or\s+/, $approver;
+    for( @x )
+    {
+        my @xx = getapprover( $_ );
+        next unless @xx;
+        @approver = @xx;
+        last;
+    }
+    die "nofind any approver" unless @approver;
+}
+
+else
+{
+    @approver = getapprover( $approver );
+}
 
 my $db = MYDB->new( "/data/Software/mydan/JOB/conf/conn", delayedconnection => 1 );
 
