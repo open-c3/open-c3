@@ -51,9 +51,11 @@ if( $conf->{multi} )
     @grp = map{ "$_." }keys %grp;
 }
 
-#BPM TODO grp 按照数字排序
-for my $grp ( @grp )
+for my $grp ( sort @grp )
 {
+    my $uuid = "$idx[0].$grp"; $uuid =~ s/\.$//;
+    $template_argv->{'_step_uuid_'} = $uuid;
+
     my $json = eval{JSON::to_json $template_argv };
     die "encode template_argv to json fail: $@" if $@;
 
