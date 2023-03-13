@@ -237,7 +237,10 @@
                       var otherlinkkey = ename[0] + "." + bindname;
                       var mylinkkey    = tempename[0] + "." + bindname;//这两个值不能相等，相等说明是自己操作的自己
 
-                      if( otherlinkkey != mylinkkey && linkname == ename[1]  && linkname == tempename[1] )
+                      var otherpluginid = otherlinkkey.split(".")[0];
+                      var mypluginid    = mylinkkey.split(".")[0]; //不清空同类插件的数据, 比如lb的转发规则，使用了多个同名的监听器，这时候是不应该做清空操作的。
+
+                      if( otherpluginid != mypluginid && otherlinkkey != mylinkkey && linkname == ename[1]  && linkname == tempename[1] )
                       {
                           var otherlinkkeyItem =  $scope.jobVar.filter(cItem => cItem.name == otherlinkkey )[0];
                           var mylinkkeyItem    =  $scope.jobVar.filter(cItem => cItem.name == mylinkkey    )[0];
