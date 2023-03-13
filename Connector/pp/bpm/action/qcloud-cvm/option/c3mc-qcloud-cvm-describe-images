@@ -32,6 +32,12 @@ class Images:
     def describe_images(self):
         req = models.DescribeImagesRequest()
         params = {
+            "Filters": [
+                {
+                    "Name": "image-type",
+                    "Values": [ "PRIVATE_IMAGE", "SHARED_IMAGE" ]
+                }
+            ],
             "Limit": self.page_size,
             "Offset": (self.page_number - 1) * self.page_size
         }
