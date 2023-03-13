@@ -1,0 +1,50 @@
+#!/opt/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use JSON;
+use YAML::XS;
+use MYDan::Util::OptConf;
+use File::Basename;
+
+=head1 SYNOPSIS
+
+ $0 --node 10.10.10.10
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( node=s ) )->dump();
+$option->assert(qw( node ));
+
+my $node = $o{node};
+
+delete $ENV{MYDanPATH};
+
+my $temppath = "/data/open-c3-data/c3-migrate-temp";
+mkdir $temppath unless -d $temppath;
+
+sub migrate
+{
+    my ( $node ) = @_;
+    print "#" x 70, "\n";
+    my $distname = 'open-c3-code.migrate';
+
+    my $time = `date "+%y%m%d.%H%M%S"`;
+    chomp $time;
+
+    die "tar fail: $!" if system "/data/open-c3/Installer/scripts/databasectrl.sh backup '$time'";
+    my $x = `/opt/mydan/dan/tools/rcall --timeout 86400 --verbose -r '$node' dump /data/open-c3-data/backup/mysql/openc3.$time.sql 2>&1`;
+    die "call $node fail" if $?;
+    ( $x && $x =~ /:ok/ ) ? print "dump success\n" : die "dump fail: $x";
+
+    $x = `/opt/mydan/dan/tools/rcall --timeout 86400 --verbose -r '$node' exec '/data/open-c3/Installer/scripts/databasectrl.sh recovery $time && echo success' 2>&1`;
+    die "call $node fail" if $?;
+    ( $x && $x =~ /success/ ) ? print "recovery success\n" : die "recovery fail: $x";
+}
+
+migrate( $node );
+
+print "sync db done.\n";

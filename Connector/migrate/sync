@@ -1,0 +1,45 @@
+#!/opt/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use JSON;
+use YAML::XS;
+use MYDan::Util::OptConf;
+use FindBin qw( $RealBin );
+
+=head1 SYNOPSIS
+
+ $0 --node 10.10.10.10
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( node=s ) )->dump();
+        $option->assert(qw( node ));
+my $node = $o{node};
+
+delete $ENV{MYDanPATH};
+
+sub connectTest
+{
+    my $node = shift @_;
+    my $x = `/opt/mydan/dan/tools/rcall --verbose -r '$node' exec 'echo connectok' 2>&1`;
+    die "call $node fail" if $?;
+    ( $x && $x =~ /connectok/ ) ? print "connect test ok\n" : die "connect test fail: $x";
+}
+
+sub addAuth
+{
+    die "add auth fail: $!" if system "cp /data/open-c3-data/auth/c3_test.key /opt/mydan/etc/agent/auth/";
+}
+
+addAuth();
+connectTest( $node );
+
+die "migrate open-c3-data fail: $!"  if system "$RealBin/syncx/open-c3-data --node '$node'";
+die "migrate open-c3 fail: $!"       if system "$RealBin/syncx/open-c3      --node '$node'";
+die "migrate open-c3 db fail: $!"    if system "$RealBin/syncx/db           --node '$node'";
+
+print "sync done.\n";
