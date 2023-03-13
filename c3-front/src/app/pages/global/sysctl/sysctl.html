@@ -715,6 +715,15 @@
                       </div>
 
                       <div class="col-sm-10 form-group">
+                          <label class="col-sm-2 control-label">{{'C3T.SSL类型'|translate}}</label>
+                          <div class="col-sm-9">
+                            <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['sys.notify.mail.kind.smtp.ssl']" style="width: 20%" >
+                                <option ng-repeat="x in ['null', 'ssl','starttls' ]" value="{{x}}">{{x}}</option>
+                            </select>
+                          </div>
+                      </div>
+
+                      <div class="col-sm-10 form-group">
                           <label class="col-sm-2 control-label">{{'C3T.账号'|translate}}</label>
                           <div class="col-sm-9">
                               <input type="text" class="form-control" ng-model="sysctl.sysctl['sys.notify.mail.kind.smtp.username']" required />

@@ -42,7 +42,9 @@ sub call
     map{
         $conf{$_} = `c3mc-sys-ctl sys.notify.mail.kind.smtp.$_`;
         chomp $conf{$_};
-    }qw( server port username password from );
+    }qw( server port username password from ssl );
+
+    my %ssl = ( $conf{ssl} && $conf{ssl} ne 'null' ) ? ( ssl => $conf{ssl} ) : ();
 
     my $transport = Email::Sender::Transport::SMTPS->new(
       host => $conf{server},
@@ -50,6 +52,8 @@ sub call
       timeout => 300,
       sasl_username => $conf{username},
       sasl_password => $conf{password},
+
+      %ssl,
     );
 
     my $message = Email::Simple->create(
