@@ -26,11 +26,21 @@ delete $ENV{MYDanPATH};
 my $temppath = "/data/open-c3-data/c3-migrate-temp";
 mkdir $temppath unless -d $temppath;
 
+my $succpath = "$temppath/succ";
+mkdir $succpath unless -d $succpath;
+
 sub migrate
 {
     my ( $node ) = @_;
     print "#" x 70, "\n";
     my $distname = 'open-c3-code.migrate';
+
+    my $succfile = "$succpath/sync-open-c3-code";
+    if( -f $succfile )
+    {
+        print "skip.\n";
+        return;
+    }
 
     die "tar fail: $! "      if system "cd $temppath && tar -zcf $distname.tar.gz  /data/open-c3 2>/dev/null";
     my $x = `/opt/mydan/dan/tools/rcall --timeout 86400 --verbose -r '$node' dump /data/open-c3-data/c3-migrate-temp/$distname.tar.gz`;
@@ -41,6 +51,7 @@ sub migrate
     die "call $node fail" if $?;
     ( $x && $x =~ /success/ ) ? print "untar success\n" : die "untar fail: $x";
     die "unlink fail: $!" if system "rm /data/open-c3-data/c3-migrate-temp/$distname.tar.gz";
+    die "touch $succfile fail: $!" if system "touch '$succfile'";
 }
 
 migrate( $node );

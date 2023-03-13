@@ -26,6 +26,9 @@ delete $ENV{MYDanPATH};
 my $temppath = "/data/open-c3-data/c3-migrate-temp";
 mkdir $temppath unless -d $temppath;
 
+my $succpath = "$temppath/succ";
+mkdir $succpath unless -d $succpath;
+
 my %nozip = ( logs => 1 );
 
 sub migrate
@@ -38,6 +41,12 @@ sub migrate
     $distname =~ s/\//-/g;
     my $zip = $nozip{$name} ? "" : "z";
 
+    my $succfile = "$succpath/sync-open-c3-data-$distname";
+    if( -f $succfile )
+    {
+        print "skip.\n";
+        return;
+    }
     system "cd $temppath && tar --warning=no-file-changed -${zip}cf $distname.tar.gz  /data/open-c3-data/$name";
     my $stat = $? >> 8;
     if( $stat == 0 )
@@ -61,6 +70,7 @@ sub migrate
     die "call $node fail" if $?;
     ( $x && $x =~ /success/ ) ? print "untar success\n" : die "untar fail: $x";
     die "unlink fail" if system "rm /data/open-c3-data/c3-migrate-temp/$distname.tar.gz";
+    die "touch $succfile fail: $!" if system "touch '$succfile'";
 }
 
 sub run
