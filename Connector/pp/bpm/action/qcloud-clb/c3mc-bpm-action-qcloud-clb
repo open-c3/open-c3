@@ -102,14 +102,10 @@ def main(params):
             print(f"创建腾讯云clb出错, err: {e}", file=sys.stderr)
             exit(1)
 
-        # 防止后续立即执行创建监听器时报错
-        # 休眠一会儿等待clb状态正常
-        time.sleep(25)
-
 
 if __name__ == '__main__':
     l = list(sys.stdin)
     if not l or len(l) > 1:
         raise Exception("数据格式不对, 需要一行json字符串")
 
-    main(json.loads(l[0]))
+    main(json.loads(l[0].strip()))

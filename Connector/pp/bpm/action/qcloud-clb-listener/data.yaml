@@ -13,6 +13,14 @@ option:
     type: select
     value: ""
 
+  - name: enable_sni
+    describe: 启用SNI
+    option: ["是", "否"]
+    type: select
+    value: ""
+    show: 
+      - protocol: ["HTTPS"]
+
   - name: cert_id
     describe: 证书
     rely:
@@ -21,15 +29,9 @@ option:
     type: selectx
     value: ""
     show: 
-      - protocol: ["HTTPS", "TCP_SSL", "QUIC"]
-
-  - name: enable_sni
-    describe: 启用SNI
-    option: ["是", "否"]
-    type: select
-    value: ""
-    show: 
       - protocol: ["HTTPS"]
+        enable_sni: ["否"]
+      - protocol: ["TCP_SSL", "QUIC"]
 
   - name: listener_port
     describe: 监听器端口
@@ -41,7 +43,7 @@ option:
     type: select
     value: ""
     show: 
-      - protocol: ["UDP", "TCP", "TCP_SSL"]
+      - protocol: ["UDP", "TCP", "TCP_SSL", "QUIC"]
 
   - name: enable_health_check
     describe: 是否开启健康检查
@@ -58,7 +60,8 @@ option:
     value: ""
     show:
       - enable_health_check: ["是"]
-        protocol: ["UDP", "TCP", "TCP_SSL", "QUIC"]
+        # UDP 协议的监听器没有健康检查协议选项
+        protocol: ["TCP", "TCP_SSL", "QUIC"]
 
   - name: http_check_domain
     describe: 健康检查域名
@@ -66,7 +69,7 @@ option:
     show:
       - enable_health_check: ["是"]
         health_check_type: ["HTTP"]
-        protocol: ["UDP", "TCP", "TCP_SSL", "QUIC"]
+        protocol: ["TCP", "TCP_SSL", "QUIC"]
 
   - name: http_check_path
     describe: 健康检查路径
@@ -74,7 +77,7 @@ option:
     show:
       - enable_health_check: ["是"]
         health_check_type: ["HTTP"]
-        protocol: ["UDP", "TCP", "TCP_SSL", "QUIC"]
+        protocol: ["TCP", "TCP_SSL", "QUIC"]
 
 
   - name: http_check_method
@@ -85,7 +88,7 @@ option:
     show:
       - enable_health_check: ["是"]
         health_check_type: ["HTTP"]
-        protocol: ["UDP", "TCP", "TCP_SSL", "QUIC"]
+        protocol: ["TCP", "TCP_SSL", "QUIC"]
 
 
   - name: health_check_http_codes
@@ -96,7 +99,7 @@ option:
     show:
       - enable_health_check: ["是"]
         health_check_type: ["HTTP"]
-        protocol: ["UDP", "TCP", "TCP_SSL", "QUIC"]
+        protocol: ["TCP", "TCP_SSL", "QUIC"]
 
 
 template_argv:
