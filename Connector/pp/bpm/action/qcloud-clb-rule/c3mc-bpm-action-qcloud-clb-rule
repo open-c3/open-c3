@@ -19,6 +19,11 @@ rule_hash = {
     "按IP哈希": "IP_HASH",
 }
 
+suppored_forward_type_list = [
+    "HTTP",
+    "HTTPS"
+]
+
 
 class Rule:
     def __init__(self, access_id, access_key, region, params):
@@ -44,13 +49,36 @@ class Rule:
         rule = {
             "Domain": self.params["domain"],
             "Url": self.params["url"],
-            "ForwardType": self.params["forward_type"],
             "Scheduler": rule_hash[self.params["scheduler"]]
         }
-        if self.params["forward_type"] in ["HTTPS"]:
+        if self.params["forward_type"] in suppored_forward_type_list:
+            rule["ForwardType"] = self.params["forward_type"]
+
+        if self.params["enable_sni"] in ["是"]:
             rule["Certificate"] = {
                 "SSLMode": "UNIDIRECTIONAL",
                 "CertId": self.params["cert_id"],
+            }
+
+        # 配置健康检查
+        if self.params["enable_health_check"] == "是":
+            if self.params["health_check_type"] == "TCP":
+                rule["HealthCheck"] = {
+                    "HealthSwitch": 1,
+                    "CheckType": self.params["health_check_type"]
+                }
+            if self.params["health_check_type"] in ["HTTP", "HTTPS"]:
+                rule["HealthCheck"] = {
+                    "HealthSwitch": 1,
+                    "HttpCode": sum(map(int, self.params["health_check_http_codes"].split(","))),
+                    "HttpCheckPath": self.params["http_check_path"],
+                    "HttpCheckDomain": self.params["http_check_domain"],
+                    "HttpCheckMethod": self.params["http_check_method"],
+                    "CheckType": self.params["health_check_type"]
+                }
+        else:
+            rule["HealthCheck"] = {
+                "HealthSwitch": 0,
             }
 
         api_params = {
@@ -92,6 +120,8 @@ class Rule:
 
 
 def main(params):
+    print("输入的参数为: ", json.dumps(params))
+
     account = params["account"]
     region = params["region"]
 
@@ -117,21 +147,23 @@ def main(params):
             print("LOG. location_id:xxxxxx")
             print("VAR. location_id:xxxxxx")
         else:
-            try:
-                resp = rule.create_rule(req_for_create_rule)
-                print(f"创建clb转发规则, 响应为: {json.dumps(resp)}")
+            while True:
+                try:
+                    resp = rule.create_rule(req_for_create_rule)
+                    print(f"创建clb转发规则, 响应为: {json.dumps(resp)}")
 
-                location_id = resp["LocationIds"][0]
+                    location_id = resp["LocationIds"][0]
 
-                print(f"LOG. location_id:{location_id}")
-                print(f"VAR. location_id:{location_id}")
-            except Exception as e:
-                print(f"创建clb转发规则出错, err: {e}", file=sys.stderr)
-                exit(1)
+                    print(f"LOG. location_id:{location_id}")
+                    print(f"VAR. location_id:{location_id}")
 
-            # 虽然上面调用完接口马上返回转发规则ID，但是云端还有其他操作需要进行，
-            # 如果这时马上开始执行下面的绑定会出错, 云上大概4秒钟可以完成操作，这里等待20秒钟
-            time.sleep(20)
+                    break
+                except Exception as e:
+                    if "maybe some tasks are being processed" in str(e) or "Pls wait for the task to complete and try again" in str(e):
+                        time.sleep(5)
+                        continue
+                    print(f"创建clb转发规则出错, err: {e}", file=sys.stderr)
+                    exit(1)
 
     req_for_register_target = rule.get_request_for_register_target(location_id)
     print(f"绑定后端机器到监听器, 请求参数为: {req_for_register_target}")
@@ -139,20 +171,23 @@ def main(params):
         # bpm虚假运行
         print("绑定后端机器到监听器, 响应为: xxxxxx")
     else:
-        try:
-            resp = rule.register_targets(req_for_register_target)
-            print(f"绑定后端机器到监听器, 响应为: {json.dumps(resp)}")
-        except Exception as e:
-            print(f"绑定后端机器到监听器, err: {e}", file=sys.stderr)
-            exit(1)
+        while True:
+            try:
+                resp = rule.register_targets(req_for_register_target)
+                print(f"绑定后端机器到监听器, 响应为: {json.dumps(resp)}")
 
-        # 防止后续再次立即执行创建转发规则时报错
-        # 休眠一会儿等待状态正常
-        time.sleep(25)
+                break
+            except Exception as e:
+                if "maybe some tasks are being processed" in str(e) or "wait for the task to complete" in str(e):
+                    time.sleep(5)
+                    continue
+                print(f"绑定后端机器到监听器, err: {e}", file=sys.stderr)
+                exit(1)
 
 
 if __name__ == '__main__':
     l = list(sys.stdin)
     if len(l) == 0:
         raise Exception("数据格式不对")
-    main(json.loads(l[0]))
+
+    main(json.loads(l[0].strip()))

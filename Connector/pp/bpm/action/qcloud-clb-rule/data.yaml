@@ -6,15 +6,24 @@ option:
   - name: listener_name
     describe: 监听器名字
     type: selectx
-    command: [ 'list', 'listener_name' ]
+    command: ["list", "listener_name"]
 
   - name: protocol
     describe: 协议
     rely:
       - listener_name
-    command: ["point", "listener_name", "protocol" ]
+    command: ["point", "listener_name", "protocol"]
     type: selectx
     value: ""
+
+  - name: enable_sni
+    describe: 是否启用了SNI
+    rely:
+      - listener_name
+    command: ["point", "listener_name", "enable_sni"]
+    type: selectx
+    value: ""
+    show: ["protocol", "HTTPS"]
 
   - name: instance_ids
     describe: 绑定机器
@@ -35,11 +44,6 @@ option:
     type: input
     show: ["protocol", "HTTP", "HTTPS"]
 
-  - name: port
-    describe: 服务器端口
-    type: input
-    show: ["protocol", "HTTP", "HTTPS"]
-
   - name: scheduler
     describe: 规则请求转发方式
     option: ["按权重轮询", "最小连接数", "按IP哈希"]
@@ -50,20 +54,80 @@ option:
   - name: forward_type
     # 负载均衡与后端服务之间的转发协议
     describe: 转发协议
-    option: ["HTTP", "HTTPS", "TRPC"]
+    option: ["HTTP", "HTTPS"]
     type: select
     value: ""
-    show: ["protocol", "HTTP", "HTTPS"]
+    show: ["protocol", "HTTPS"]
 
   - name: cert_id
     describe: 证书
     rely:
       - x.account
-    command: c3mc-qcloud-clb-describe-cert-list |  c3mc-bpm-display-field-values CertificateId,Domain
+    command: c3mc-qcloud-clb-describe-cert-list | c3mc-bpm-display-field-values CertificateId,Domain
     type: selectx
     value: ""
-    show: 
-      - forward_type: ["HTTPS"]
+    show:
+      - protocol: ["HTTP", "HTTPS"]
+        enable_sni: ["是"]
+
+  - name: port
+    describe: 服务器端口
+    type: input
+
+  - name: enable_health_check
+    describe: 是否开启健康检查
+    option: ["是", "否"]
+    type: select
+    value: ""
+    show:
+      - protocol: ["HTTP", "HTTPS"]
+
+  - name: health_check_type
+    describe: 健康检查协议
+    rely:
+      - forward_type
+    command: c3mc-qcloud-clb-describe-check-type
+    type: selectx
+    value: ""
+    show:
+      - enable_health_check: ["是"]
+        protocol: ["HTTP", "HTTPS"]
+
+  - name: http_check_domain
+    describe: 健康检查域名
+    type: input
+    show:
+      - enable_health_check: ["是"]
+        health_check_type: ["HTTP", "HTTPS"]
+        protocol: ["protocol", "HTTP", "HTTPS"]
+
+  - name: http_check_path
+    describe: 健康检查路径
+    type: input
+    show:
+      - enable_health_check: ["是"]
+        health_check_type: ["HTTP", "HTTPS"]
+        protocol: ["protocol", "HTTP", "HTTPS"]
+
+  - name: http_check_method
+    describe: HTTP请求方式
+    option: ["GET", "HEAD"]
+    type: select
+    value: ""
+    show:
+      - enable_health_check: ["是"]
+        health_check_type: ["HTTP", "HTTPS"]
+        protocol: ["protocol", "HTTP", "HTTPS"]
+
+  - name: health_check_http_codes
+    describe: 健康检查http状态码
+    command: c3mc-qcloud-health-check-http-code | c3mc-bpm-display-field-values value,name
+    type: selectxm
+    value: ""
+    show:
+      - enable_health_check: ["是"]
+        health_check_type: ["HTTP", "HTTPS"]
+        protocol: ["protocol", "HTTP", "HTTPS"]
 
 template_argv:
   # 账号
@@ -80,6 +144,13 @@ template_argv:
   listener_id: ${var.listener_id_${listener_name}}
   # 协议
   protocol: ${var.protocol_${listener_name}}
+  # 是否启用了sni
+  #
+  # 创建https监听器并启用sni时，不需要上传证书。
+  # 此时，创建转发规则，不管转发协议是http还是https都需要
+  # 上传证书。所以在创建转发规则时需要知道对应的监听器
+  # 是否开启了sni。
+  enable_sni: ${enable_sni}
   # 服务器实例ID列表
   instance_ids: ${instance_ids}
   # 服务器端口
@@ -89,5 +160,21 @@ template_argv:
   # 负载均衡与后端服务之间的转发协议
   forward_type: ${forward_type}
   # 证书
-  cert_id: ${cert_id}  
+  cert_id: ${cert_id}
+
+  # http和https协议的监听器的转发规则可以配置健康检查
+  #
+  # 是否开启健康检查
+  enable_health_check: ${enable_health_check}
+  # 健康检查协议
+  health_check_type: ${health_check_type}
+  # 健康检查域名
+  http_check_domain: ${http_check_domain}
+  # 健康检查路径
+  http_check_path: ${http_check_path}
+  # HTTP请求方式
+  http_check_method: ${http_check_method}
+  # 健康检查http状态码
+  health_check_http_codes: ${health_check_http_codes}
+  # 是否合并所有创建转发规则然后作为数组一次性提交
   # _sys_multi_: 1

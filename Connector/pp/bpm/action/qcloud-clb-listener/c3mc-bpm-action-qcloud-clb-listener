@@ -52,26 +52,24 @@ class Listener:
             }[self.params["balancer_type"]]
 
         # 配置健康检查
-        if (
-            self.params["protocol"] in ["UDP", "TCP", "TCP_SSL", "QUIC"]
-            and "enable_health_check" in self.params
-            and self.params["enable_health_check"] == "是"
-        ):
-            if self.params["health_check_type"] not in ["TCP", "HTTP"]:
-                raise type('C3NotSupportedHealthCheckType', (Exception,), {})('不支持的健康检查协议类型"')
-
-            if self.params["health_check_type"] == "TCP":
+        if self.params["protocol"] in ["UDP", "TCP", "TCP_SSL", "QUIC"]:
+            if self.params["enable_health_check"] == "是":
+                if self.params["health_check_type"] == "TCP":
+                    api_params["HealthCheck"] = {
+                        "HealthSwitch": 1,
+                    }
+                if self.params["health_check_type"] == "HTTP":
+                    api_params["HealthCheck"] = {
+                        "HealthSwitch": 1,
+                        "HttpCode": sum(map(int, self.params["health_check_http_codes"].split(","))),
+                        "HttpCheckPath": self.params["http_check_path"],
+                        "HttpCheckDomain": self.params["http_check_domain"],
+                        "HttpCheckMethod": self.params["http_check_method"],
+                        "CheckType": self.params["health_check_type"]
+                    }
+            else:
                 api_params["HealthCheck"] = {
-                    "HealthSwitch": 1,
-                }
-            if self.params["health_check_type"] == "HTTP":
-                api_params["HealthCheck"] = {
-                    "HealthSwitch": 1,
-                    "HttpCode": sum(map(int, self.params["health_check_http_codes"].split(","))),
-                    "HttpCheckPath": self.params["http_check_path"],
-                    "HttpCheckDomain": self.params["http_check_domain"],
-                    "HttpCheckMethod": self.params["http_check_method"],
-                    "CheckType": self.params["health_check_type"]
+                    "HealthSwitch": 0,
                 }
 
         req.from_json_string(json.dumps(api_params))
@@ -83,6 +81,8 @@ class Listener:
 
 
 def main(params):
+    print("输入的参数为: ", json.dumps(params))
+
     account = params["account"]
     region = params["region"]
 
@@ -104,27 +104,27 @@ def main(params):
         print("VAR. listener_id_sssss:vvvvv")
         print("VAR. protocol_sssss:vvvvv")
     else:
-        try:
-            resp = listener.create_listener(req)
-            print("创建listener, 响应为: {}".format(json.dumps(resp)))
+        while True:
+            try:
+                resp = listener.create_listener(req)
+                print(f"创建listener, 响应为: {json.dumps(resp)}")
 
-            listener_id = resp["ListenerIds"][0]
+                listener_id = resp["ListenerIds"][0]
 
-            print("LOG. listener_id_{}:{}".format(
-                params["listener_name"], listener_id))
-            print("LOG. protocol_{}:{}".format(
-                params["listener_name"], params["protocol"]))
-            print("VAR. listener_id_{}:{}".format(
-                params["listener_name"], listener_id))
-            print("VAR. protocol_{}:{}".format(
-                params["listener_name"], params["protocol"]))
-        except Exception as e:
-            print(f"创建腾讯云监听器出错, err: {e}", file=sys.stderr)
-            exit(1)
+                print(f'LOG. listener_id_{params["listener_name"]}:{listener_id}')
+                print(f'LOG. protocol_{params["listener_name"]}:{params["protocol"]}')
+                print(f'VAR. listener_id_{params["listener_name"]}:{listener_id}')
+                print(f'VAR. protocol_{params["listener_name"]}:{params["protocol"]}')
 
-        # 防止后续立即执行创建转发规则时报错
-        # 休眠一会儿等待监听器状态正常
-        time.sleep(25)
+                break
+            except Exception as e:
+                if "Loadbalancer is not in normal status" in str(e) or \
+                    "maybe some tasks are being processed" in str(e) or \
+                    "wait for the task to complete and try again" in str(e):
+                    time.sleep(5)
+                    continue
+                print(f"创建腾讯云监听器出错, err: {e}", file=sys.stderr)
+                exit(1)
 
 
 if __name__ == '__main__':
@@ -132,4 +132,4 @@ if __name__ == '__main__':
     if not l or len(l) > 1:
         raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
 
-    main(json.loads(l[0]))
+    main(json.loads(l[0].strip()))
