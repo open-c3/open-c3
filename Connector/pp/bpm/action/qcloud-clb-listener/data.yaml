@@ -13,16 +13,6 @@ option:
     type: select
     value: ""
 
-  - name: cert_id
-    describe: 证书
-    rely:
-      - account
-    command: c3mc-qcloud-clb-describe-cert-list | c3mc-bpm-display-field-values CertificateId,Domain
-    type: selectx
-    value: ""
-    show: 
-      - protocol: ["HTTPS", "TCP_SSL", "QUIC"]
-
   - name: enable_sni
     describe: 启用SNI
     option: ["是", "否"]
@@ -30,6 +20,18 @@ option:
     value: ""
     show: 
       - protocol: ["HTTPS"]
+
+  - name: cert_id
+    describe: 证书
+    rely:
+      - x.account
+    command: c3mc-qcloud-clb-describe-cert-list | c3mc-bpm-display-field-values CertificateId,Domain
+    type: selectx
+    value: ""
+    show: 
+      - protocol: ["HTTPS"]
+        enable_sni: ["否"]
+      - protocol: ["TCP_SSL", "QUIC"]
 
   - name: listener_port
     describe: 监听器端口
@@ -41,13 +43,15 @@ option:
     type: select
     value: ""
     show: 
-      - protocol: ["UDP", "TCP", "TCP_SSL"]
+      - protocol: ["UDP", "TCP", "TCP_SSL", "QUIC"]
 
   - name: enable_health_check
     describe: 是否开启健康检查
     option: ["是", "否"]
     type: select
     value: ""
+    show: 
+      - protocol: ["UDP", "TCP", "TCP_SSL", "QUIC"]
 
   - name: health_check_type
     describe: 健康检查协议
@@ -56,6 +60,8 @@ option:
     value: ""
     show:
       - enable_health_check: ["是"]
+        # UDP 协议的监听器没有健康检查协议选项
+        protocol: ["TCP", "TCP_SSL", "QUIC"]
 
   - name: http_check_domain
     describe: 健康检查域名
@@ -63,6 +69,7 @@ option:
     show:
       - enable_health_check: ["是"]
         health_check_type: ["HTTP"]
+        protocol: ["TCP", "TCP_SSL", "QUIC"]
 
   - name: http_check_path
     describe: 健康检查路径
@@ -70,6 +77,8 @@ option:
     show:
       - enable_health_check: ["是"]
         health_check_type: ["HTTP"]
+        protocol: ["TCP", "TCP_SSL", "QUIC"]
+
 
   - name: http_check_method
     describe: HTTP请求方式
@@ -79,15 +88,19 @@ option:
     show:
       - enable_health_check: ["是"]
         health_check_type: ["HTTP"]
+        protocol: ["TCP", "TCP_SSL", "QUIC"]
+
 
   - name: health_check_http_codes
     describe: 健康检查http状态码
-    command: c3mc-qcloud-health-check-http-code
+    command: c3mc-qcloud-health-check-http-code | c3mc-bpm-display-field-values value,name
     type: selectxm
     value: ""
     show:
       - enable_health_check: ["是"]
         health_check_type: ["HTTP"]
+        protocol: ["TCP", "TCP_SSL", "QUIC"]
+
 
 template_argv:
   # 账号

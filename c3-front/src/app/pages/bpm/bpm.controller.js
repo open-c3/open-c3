@@ -25,6 +25,17 @@
             'uuid':null,
         };
 
+        vm.isstring = function ( obj ) {
+            if( typeof obj === 'string')
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        };
+ 
         vm.showfromops = '0';
         vm.fromopsdefault = '0';
         vm.vfromops = {};
@@ -209,6 +220,75 @@
                  }
             });
 
+             //clear point
+             angular.forEach($scope.jobVar, function (data, index) {
+                 var tempename = vm.extname( data.name ); 
+
+                 //ename[0];    // 变动的框的前缀
+                 //ename[1];    // 变动的框的名称
+                 //tempename[0] //当前的框的前缀
+                 //tempename[1] //当前的框的名称
+                 // 我的步骤中有point配置，做一下处理，看是不是需要清空自己
+                 if( data['command'] && typeof data['command'] === 'object' && data['command'][0] == 'point' ) //是否配置的point
+                 {
+                      var bindname = data['command'][1];//绑定的上一步插件的选项名字
+                      var linkname = data['command'][2];//我与它关联的字段
+
+                      var otherlinkkey = ename[0] + "." + bindname;
+                      var mylinkkey    = tempename[0] + "." + bindname;//这两个值不能相等，相等说明是自己操作的自己
+
+                      var otherpluginid = otherlinkkey.split(".")[0];
+                      var mypluginid    = mylinkkey.split(".")[0]; //不清空同类插件的数据, 比如lb的转发规则，使用了多个同名的监听器，这时候是不应该做清空操作的。
+
+                      if( otherpluginid != mypluginid && otherlinkkey != mylinkkey && linkname == ename[1]  && linkname == tempename[1] )
+                      {
+                          var otherlinkkeyItem =  $scope.jobVar.filter(cItem => cItem.name == otherlinkkey )[0];
+                          var mylinkkeyItem    =  $scope.jobVar.filter(cItem => cItem.name == mylinkkey    )[0];
+
+                          if( otherlinkkey !== mylinkkey && otherlinkkeyItem != undefined && mylinkkeyItem != undefined  && otherlinkkeyItem.value == mylinkkeyItem.value )
+                          {
+                               data.value = "";
+                          }
+                      }
+                 } 
+            });
+
+             //clear list
+             angular.forEach($scope.jobVar, function (data, index) {
+                 var tempename = vm.extname( data.name ); 
+
+                 //ename[0];    // 变动的框的前缀
+                 //ename[1];    // 变动的框的名称
+                 //tempename[0] //当前的框的前缀
+                 //tempename[1] //当前的框的名称
+                 // 我的步骤中有point配置，做一下处理，看是不是需要清空自己
+                 if( data['command'] && typeof data['command'] === 'object' && data['command'][0] == 'list' ) //是否配置的list
+                 {
+                      var bindname = data['command'][1];//绑定的上一步插件的选项名字
+
+                      var otherlinkkey = ename[0] + "." + bindname;
+                      var mylinkkey    = tempename[0] + "." + bindname;//这两个值不能相等，相等说明是自己操作的自己
+
+                      if( otherlinkkey != mylinkkey && ename[1] == bindname && tempename[1] == bindname )
+                      {
+                          var match = 0;
+                          angular.forEach($scope.jobVar, function (tempdata, index) {
+                              var temp = vm.extname( data.name ); 
+                              if( data.name != tempdata.name && temp[1] == bindname && data.value == tempdata.value  )
+                              {
+                                  match = 1;
+                              }
+                          });
+
+                          if( match == 0 )
+                          {
+                              data.value = "";
+                          }
+                      }
+                 } 
+            });
+
+
             //hide
             angular.forEach($scope.jobVar, function (data, index) {
 
@@ -234,38 +314,65 @@
                      {
                          vm.selectxhide[data.name] = '1';
                          data.value = "_openc3_hide_";
+                         if( data.tempvalue != undefined )
+                         {
+                             data.tempvalue = [];
+                         }
+ 
                      }
                     }
                  } else if (data['show']) {
+
+
                     let itemKeysResults = []
                     let selectItem = {}
-                    const dataShowItems = Object.keys(data['show'][0])
-                    if(ename[0] === tempename[0] && dataShowItems.find(item => item === ename[1])){
+
+                    var allkey = [];//show里面涉及到的所有key
                     angular.forEach(data['show'], function (item, index) {
-                      let itemKeysResult = {select: []}
-                      itemKeysResult['name'] = Object.keys(item)
-                      for (let key in item) {
-                        selectItem =  $scope.jobVar.filter(cItem => cItem.name.indexOf(key) > -1)[0]
-                        itemKeysResult['select'].push(!!item[key].find(cItem=> cItem === selectItem.value))
-                      }
-                      itemKeysResults[index] = itemKeysResult
+                        angular.forEach(Object.keys(item), function (item, index) {
+                            allkey.push( item );
+                        });
                     });
-                    angular.forEach(itemKeysResults, function (item) {
-                        item.match = !item.select.filter(cItem=> cItem === false).length
-                    })
-                    if(itemKeysResults.map(item => item.match).filter(cItem => cItem === true ).length > 0) {
-                      vm.selectxhide[data.name] = '0';
-                      data.value = "";
-                    } else {
-                      vm.selectxhide[data.name] = '1';
-                      data.value = "_openc3_hide_";
-                    }
-                 }
+                    if(ename[0] === tempename[0] && allkey.find(item => item === ename[1])){
+                        angular.forEach(data['show'], function (item, index) {
+
+                            let itemKeysResult = {select: []}
+                            itemKeysResult['name'] = Object.keys(item) //其中一组的所有key
+
+                            for (let key in item) {//循环一个分组,小组内是"与"的关系
+                                var realkey =  ename[0] + "." + key;
+                                selectItem =  $scope.jobVar.filter(cItem => cItem.name == realkey )[0]
+                                itemKeysResult['select'].push(!!item[key].find(cItem=> cItem === selectItem.value))
+                            }
+
+                            itemKeysResults[index] = itemKeysResult //小组内的匹配结果的数组
+
+                        });
+                        angular.forEach(itemKeysResults, function (item) {
+                            item.match = !item.select.filter(cItem=> cItem === false).length
+                        })
+
+                        if(itemKeysResults.map(item => item.match).filter(cItem => cItem === true ).length > 0) {
+                            vm.selectxhide[data.name] = '0';
+                            data.value = "";
+                        } else {
+                            vm.selectxhide[data.name] = '1';
+                            data.value = "_openc3_hide_";
+                            if( data.tempvalue != undefined )
+                            {
+                                data.tempvalue = [];
+                            }
+                        }
+
+
+                   }
+
+
                 }
             });
         }
 
-        vm.optionxclick = function( stepname , selectIndex)
+        vm.optionxclick = function( stepname , selectIndex, tempvalue, myvalue )
         {
             vm.selectIndex = selectIndex
             var varDict = {};
@@ -309,7 +416,24 @@
             $http.post( '/api/job/bpm/optionx', { "bpm_variable": varDict, "stepname": stepname, "jobname":$scope.choiceJob.name } ).success(function(data){
                 if (data.stat){
                     vm.selectxloading[stepname] = false;
-                    vm.optionx[stepname] = data.data
+                    if( selectIndex == 0 && tempvalue == undefined )
+                    {
+                        vm.optionx[stepname] = data.data
+                    }
+                    else
+                    {
+                        var temp = {};
+                        angular.forEach(tempvalue, function (data, index) {
+                            temp[data.value] = 1;
+                        });
+                        delete temp[myvalue];
+                        
+                        if( vm.optionx[stepname] ==  undefined )
+                        {
+                            vm.optionx[stepname] = {};
+                        }
+                        vm.optionx[stepname][selectIndex] =  data.data.filter(cItem => temp[cItem.name] != 1  );
+                    }
                 }else {
                     swal({ title: '获取选项失败', text: data.info, type:'error' });
                 }

@@ -119,7 +119,7 @@ func main() {
 		cmd := exec.Command(cmdStr, argsStr...)
 		output, err := cmd.CombinedOutput()
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"stat": 0, "info": fmt.Sprintf("执行命令失败, err: %v", err.Error())})
+			c.JSON(http.StatusBadRequest, gin.H{"stat": 0, "info": fmt.Sprintf("%v. %v", err, string(output))})
 			return
 		}
 

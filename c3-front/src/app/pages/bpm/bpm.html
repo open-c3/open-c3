@@ -43,8 +43,8 @@
  
                         <div ng-if="(bpm.selectxhide[ss.name] != '1') && (bpm.vfromops[ss.name] != '1') && (ss.type && ss.type=='text')" class="col-sm-10 form-group">
                             <div>
-                                <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
-                                <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
+                                <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;<a ng-if="ss.value == '' || ss.value == undefined" style="color: red" >*</a></label>
+                                <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;<a ng-if="ss.value == '' || ss.value == undefined" style="color: red" >*</a></label>
                                 <div class="col-sm-6"> 
                                     <textarea type="text" rows="5" cols="1"  class="form-control" ng-model="ss.value" placeholder="{{'C3T.内容'|translate}}" required> </textarea>
                                 </div>
@@ -54,8 +54,8 @@
 
                         <div ng-if="(bpm.selectxhide[ss.name] != '1') && (bpm.vfromops[ss.name] != '1') && (ss.type && ss.type=='kvarray')">
                             <div class="col-sm-10 form-group" >
-                                <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
-                                <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
+                                <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;<a ng-if="ss.value == '' || ss.value == undefined" style="color: red" >*</a></label>
+                                <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;<a ng-if="ss.value == '' || ss.value == undefined" style="color: red" >*</a></label>
                                 <div class="col-sm-3"> 
                                     <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="bpm.addKvArray( ss )" uib-tooltip="{{'C3T.添加'|translate}}" style="cursor:pointer;color: green;" ></i>
                                 </div>
@@ -75,11 +75,11 @@
 
                         <div ng-if="(bpm.selectxhide[ss.name] != '1') && (bpm.vfromops[ss.name] != '1') && (ss.type && ss.type=='select')" class="col-sm-10 form-group">
                             <div>
-                                <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
-                                <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
+                                <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;<a ng-if="ss.value == '' || ss.value == undefined" style="color: red" >*</a></label>
+                                <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;<a ng-if="ss.value == '' || ss.value == undefined" style="color: red" >*</a></label>
                                 <div class="col-sm-6">
-                                    <select  class="form-control " style="font-size: 15px;height: 42px" ng-change="bpm.optionxchange(ss.name, ss.value)" ng-model="ss.value" ng-options="n for n in ss.option" required>
-                                    </select>
+                                    <select ng-show="bpm.isstring(ss.option[0])" class="form-control " style="font-size: 15px;height: 42px" ng-change="bpm.optionxchange(ss.name, ss.value)" ng-model="ss.value" ng-options="n for n in ss.option" required> </select>
+                                    <select ng-show="!bpm.isstring(ss.option[0])" class="form-control " style="font-size: 15px;height: 42px" ng-change="bpm.optionxchange(ss.name, ss.value)" ng-model="ss.value" ng-options="o.name as o.alias for o in ss.option" required> </select>
                                 </div>
                                 <label class="col-sm-3 label-text-color" >{{ss.name}}</label>
                             </div>
@@ -87,10 +87,10 @@
 
                         <div ng-if="( bpm.selectxhide[ss.name] != '1' ) && (bpm.vfromops[ss.name] != '1') && (ss.type && ss.type=='selectx')" class="col-sm-10 form-group">
                             <div>
-                                <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
-                                <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
+                                <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;<a ng-if="ss.value == '' || ss.value == undefined" style="color: red" >*</a></label>
+                                <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;<a ng-if="ss.value == '' || ss.value == undefined" style="color: red" >*</a></label>
                                 <div class="col-sm-6">
-                                    <select  class="form-control " style="font-size: 15px;height: 42px" ng-change="bpm.optionxchange(ss.name, ss.value)" ng-click="bpm.optionxclick(ss.name)"  ng-model="ss.value" ng-options="n.name as n.alias for n in bpm.optionx[ss.name]" required>
+                                    <select  class="form-control " style="font-size: 15px;height: 42px" ng-change="bpm.optionxchange(ss.name, ss.value)" ng-click="bpm.optionxclick(ss.name, 0)"  ng-model="ss.value" ng-options="n.name as n.alias for n in bpm.optionx[ss.name]" required>
                                     </select>
                                 </div>
                                 <label class="col-sm-3 label-text-color" >{{ss.name}}</label>
@@ -100,19 +100,20 @@
 
                         <div ng-if="(bpm.selectxhide[ss.name] != '1') && (bpm.vfromops[ss.name] != '1') && (ss.type && ss.type=='selectxm')">
                             <div class="col-sm-10 form-group" >
-                                <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
-                                <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
+                                <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;<a ng-if="ss.value == '' || ss.value == undefined" style="color: red" >*</a></label>
+                                <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;<a ng-if="ss.value == '' || ss.value == undefined" style="color: red" >*</a></label>
                                 <div class="col-sm-3"> 
                                     <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="bpm.addSelectxm( ss )" uib-tooltip="{{'C3T.添加'|translate}}" style="cursor:pointer;color: green;" ></i>
                                 </div>
                                 <div class="col-sm-3">
+                                    <label>{{ss.value}}</label>
                                 </div>
                                 <label class="col-sm-3 label-text-color" >{{ss.name}}</label>
                             </div>
                             <div ng-repeat="x in ss.tempvalue" class="col-sm-10 form-group" >
                                 <label class="col-sm-3 control-label"></label>
                                 <div class="col-sm-4">
-                                    <select  class="form-control " style="font-size: 15px;height: 42px" ng-change="bpm.chSelectxm(ss,$index)" ng-click="bpm.optionxclick(ss.name, $index)"  ng-model="x.value" ng-options="n.name as n.alias for n in bpm.optionx[ss.name]" required>
+                                    <select  class="form-control " style="font-size: 15px;height: 42px" ng-change="bpm.chSelectxm(ss,$index)" ng-click="bpm.optionxclick(ss.name, $index, ss.tempvalue, x.value )"  ng-model="x.value" ng-options="n.name as n.alias for n in bpm.optionx[ss.name][$index]" required>
                                     </select>
                                 </div>
  
@@ -125,8 +126,8 @@
 
                         <div ng-if="( bpm.selectxhide[ss.name] != '1' ) && (bpm.vfromops[ss.name] != '1') && ( ss.type && ss.type=='number' )" class="col-sm-10 form-group">
                             <div>
-                                <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
-                                <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
+                                <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;<a ng-if="ss.value == '' || ss.value == undefined" style="color: red" >*</a></label>
+                                <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;<a ng-if="ss.value == '' || ss.value == undefined" style="color: red" >*</a></label>
                                 <div class="col-sm-6"> <input type="number" class="form-control" ng-model="ss.value" placeholder="{{'C3T.填写任务变量'|translate}}" required> </div>
                                 <label class="col-sm-3 label-text-color" >{{ss.name}}</label>
                             </div>
@@ -134,9 +135,9 @@
 
                         <div ng-if="( bpm.selectxhide[ss.name] != '1' ) && (bpm.vfromops[ss.name] != '1') && ( ( ! ss.type ) || ss.type=='input' )" class="col-sm-10 form-group">
                             <div>
-                                <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
-                                <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;</label>
-                                <div class="col-sm-6"> <input type="text" class="form-control" ng-model="ss.value" placeholder="{{'C3T.填写任务变量'|translate}}" required> </div>
+                                <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;<a ng-if="ss.value == '' || ss.value == undefined" style="color: red" >*</a></label>
+                                <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;<a ng-if="ss.value == '' || ss.value == undefined" style="color: red" >*</a></label>
+                                <div class="col-sm-6"> <input type="text" class="form-control" ng-change="bpm.optionxchange(ss.name, ss.value)" ng-model="ss.value" placeholder="{{'C3T.填写任务变量'|translate}}" required> </div>
                                 <label class="col-sm-3 label-text-color" >{{ss.name}}</label>
                             </div>
                         </div>
@@ -155,6 +156,7 @@
                         <div class="col-sm-3 form-group" style="margin-left: 40%;">
                             <button ng-if="!bpm.loadover" class="btn btn-primary" ng-disabled="1" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!bpm.loadover}" ></i>{{'C3T.加载中'|translate}}...</button>
                             <button ng-if="bpm.loadover && bpm.bpmuuid=='0'"  class="btn btn-primary" ng-disabled="bpmForm.$invalid" ng-click="bpm.runTask()">{{'C3T.确认'|translate}}</button>
+                            <button ng-if="bpm.loadover && bpm.bpmuuid!='0'"  class="btn btn-danger" ng-disabled="bpmForm.$invalid" ng-click="bpm.runTask()">{{'C3T.重新发起一个新的BPM流程'|translate}}</button>
                             <button ng-if="bpm.loadover && bpm.bpmuuid!='0'"  class="btn btn-primary" ng-disabled="bpmForm.$invalid" ng-click="bpm.reSave()">{{'C3T.重新保存'|translate}}</button>
                         </div>
                     </div>

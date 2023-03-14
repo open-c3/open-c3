@@ -218,7 +218,19 @@
         };
 
 //
+//bpm堡垒机模版
+        vm.emailBpmjumpserverSet = function () {
+            vm.environment.bpmjumpserverTemplateEmailTitle   = "服务器权限申请: ${title}";
+            vm.environment.bpmjumpserverTemplateEmailContent = "您在BPM中申请的服务器权限已经开通，密码为: ${password}\n";
+        };
 
+        vm.emailBpmjumpserverSave = function () {
+            var emailDetail = {};
+            emailDetail['bpmjumpserverTemplateEmailTitle'] = vm.environment.bpmjumpserverTemplateEmailTitle;
+            emailDetail['bpmjumpserverTemplateEmailContent'] = vm.environment.bpmjumpserverTemplateEmailContent;
+            vm.save( emailDetail )
+        };
+//
 
         vm.save = function (data) {
             $http.post('/api/job/environment',data).success(function(data){

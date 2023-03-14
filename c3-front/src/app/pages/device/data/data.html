@@ -104,7 +104,10 @@
                             <a ng-click="devicedata.showdetail( m.uuid, m.type, m.subtype )" style="cursor:pointer;color: #339094;" >{{m.subtype}}</a>
                         </td>
                         <td data-title="'C3T.基本信息'|translate">{{m.baseinfo}}</td>
-                        <td data-title="'C3T.基本信息'|translate">{{m.system}}</td>
+                        <td data-title="'C3T.系统信息'|translate">
+                            <a ng-if="m.match=='2'" style="color: green;" >{{m.system}}</a>
+                            <a ng-if="m.match!='2'" >{{m.system}}</a>
+                        </td>
                         <td data-title="'C3T.联系信息'|translate"><a uib-tooltip="{{m.contact}}" >{{m.contact |cut61}}</a></td>
                         <td data-title="'C3T.资源操作'|translate">
                             <div ng-repeat="c in m.control">

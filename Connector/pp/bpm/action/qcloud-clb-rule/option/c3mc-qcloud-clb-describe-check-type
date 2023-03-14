@@ -1,0 +1,23 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+
+
+def describe_check_type_list(forward_type):
+    return ["TCP", "HTTPS"] if forward_type == "HTTPS" else ["TCP", "HTTP"]
+
+
+def main(params):
+    data_list = describe_check_type_list(params['forward_type'])
+    for item in data_list:
+        print(item)
+
+
+if __name__ == '__main__':
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
+
+    main(json.loads(l[0]))

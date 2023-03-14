@@ -1,0 +1,96 @@
+#!/opt/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use JSON;
+use YAML::XS;
+use MYDan::Util::OptConf;
+use File::Basename;
+
+=head1 SYNOPSIS
+
+ $0 --node 10.10.10.10
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( node=s ) )->dump();
+        $option->assert(qw( node ));
+
+my $node = $o{node};
+
+delete $ENV{MYDanPATH};
+
+my $temppath = "/data/open-c3-data/c3-migrate-temp";
+mkdir $temppath unless -d $temppath;
+
+my $succpath = "$temppath/succ";
+mkdir $succpath unless -d $succpath;
+
+my %nozip = ( logs => 1 );
+
+sub migrate
+{
+    my ( $node, $name ) = @_;
+
+    print "#" x 30, " [ $name ] ", '#' x 30,  "\n";
+
+    my $distname = $name;
+    $distname =~ s/\//-/g;
+    my $zip = $nozip{$name} ? "" : "z";
+
+    my $succfile = "$succpath/sync-open-c3-data-$distname";
+    if( -f $succfile )
+    {
+        print "skip.\n";
+        return;
+    }
+    system "cd $temppath && tar --warning=no-file-changed -${zip}cf $distname.tar.gz  /data/open-c3-data/$name";
+    my $stat = $? >> 8;
+    if( $stat == 0 )
+    {
+        print "Successful termination.\n";
+    }
+    elsif( $stat == 1 )
+    {
+        print "Some files differ.\n";
+    }
+    else
+    {
+        die "tar $name fail: $!";
+    }
+
+    my $x = `/opt/mydan/dan/tools/rcall --timeout 86400 --verbose -r '$node' dump /data/open-c3-data/c3-migrate-temp/$distname.tar.gz`;
+    die "call $node fail" if $?;
+    ( $x && $x =~ /:ok/ ) ? print "dump success\n" : die "dump fail: $x";
+
+    $x = `/opt/mydan/dan/tools/rcall --timeout 86400 --verbose -r '$node' exec 'tar -${zip}xf /data/open-c3-data/c3-migrate-temp/$distname.tar.gz -C / && echo success' 2>&1`;
+    die "call $node fail" if $?;
+    ( $x && $x =~ /success/ ) ? print "untar success\n" : die "untar fail: $x";
+    die "unlink fail" if system "rm /data/open-c3-data/c3-migrate-temp/$distname.tar.gz";
+    die "touch $succfile fail: $!" if system "touch '$succfile'";
+}
+
+sub run
+{
+    my ( $p, @skip ) = @_;
+    my %skip = map{ $_ => 1 }@skip, '.', '..';
+
+    my $dir = sprintf "/data/open-c3-data/%s", $p || '';
+    for my $path ( `cd $dir && ls -a` )
+    {
+        chomp $path;
+        my $name = basename $path;
+        next if $skip{$name};
+        die "name format error: $name" unless $name && $name =~ /^\.{0,1}[a-zA-Z0-9][a-zA-Z0-9\.\-_]+$/;
+        migrate( $node, $p ? "$p/$name": $name );
+     }
+}
+
+run( undef, qw( mysql-data c3-migrate-temp glusterfs prometheus-data ) );
+run( 'glusterfs' , qw( ci_repo ) );
+run( 'glusterfs/ci_repo' );
+
+print "sync open-c3-data done.\n";

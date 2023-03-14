@@ -12,8 +12,8 @@
     CMDB 添加连接mongodb的的账号管理
 
     授权
-        mkdir /data/open-c3-data/device/auth/mongodb.auth
-        touch /data/open-c3-data/device/auth/mongodb.auth/open-c3
+        mkdir /data/open-c3-data/device/curr/auth/mongodb.auth
+        touch /data/open-c3-data/device/curr/auth/mongodb.auth/open-c3
 
     CMDB 可以编辑mongodb账号
         /data/open-c3/c3-front/src/app/pages/device/data/detail.html

@@ -35,11 +35,28 @@ if( @x )
     @x = ( join "\n", @x ) if $c->{'_sys_multi_'};
 }
 
-for( @x )
+my $path = "/data/Software/mydan/JOB/bpm/task/$bpmuuid.data/succ";
+system "mkdir -p '$path'" unless -d $path;
+
+for my $x ( @x )
 {
+    my @stepuuid;
+    for( split /\n/, $x )
+    {
+         my $c = eval{ JSON::from_json $_ };
+         die "load json fail: $@" if $@;
+         push @stepuuid, $c->{_step_uuid_};
+    }
+
+    map{ next if -f "$path/$_" }@stepuuid;
+
     my ( $TEMP, $tempfile ) = File::Temp::tempfile();
-    print $TEMP $_;
+    print $TEMP $x;
     close $TEMP;
     
     die "err" if OPENC3::PP::Pipe::system( "cat '$tempfile' | c3mc-bpm-action-$action | $RealBin/logrecord --bpmuuid '$bpmuuid' --step '$idx[0]'" );
+
+    map{
+        die "touch file fail: $@" if system "date >> $path/$_";
+    }@stepuuid;
 }

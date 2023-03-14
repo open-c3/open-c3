@@ -3,6 +3,7 @@ package BPM::Task::Config;
 use warnings;
 use strict;
 use POSIX;
+use JSON;
 
 my $base = "/data/Software/mydan/JOB/bpm/task";
 sub new
@@ -61,7 +62,13 @@ sub get
     my $file = "$base/$uuid";
     my $efile = "$base/$uuid.data/data.yaml";
     $file = $efile if -f $efile;
-    my $var = eval{ YAML::XS::LoadFile $file };
+
+    # C3TODO 230313 BPM表单，面对数字类型的数据load方式优化
+    # 用YAML::XS 直接load会导致数字类型加载进来后，在接口上得到的是字符串类型，这样会导致前端的显示异常
+    # 这里使用了yaml2json进行转换，看是否有其它更好的方式
+
+    #my $var = eval{ YAML::XS::LoadFile $file };
+    my $var = eval{ my $xx = `cat '$file'|yaml2json`; die "cat err" if $?; JSON::decode_json ( $xx // '' ) };
     die "load $file fail: $@" if $@;
     my $varfile = "$base/$uuid.data/var";
     if( -f $varfile )
@@ -79,15 +86,6 @@ sub get
         map{ $var->{"var.$_"} = join ",", @{$var{$_}}; }keys %var;
     }
 
-    #BPM TODO: 处理YAML中的数字类型,数字类型在API返回后变成了字符串类型，这里做了特殊处理。
-    # 不应该进行特殊处理，应该能识别出数字类型。
-    for my $k ( keys %$var )
-    {
-        if( $k =~ /(_count|_size)$/ && defined $var->{$k} && $var->{$k} =~ /^\d+$/ )
-        {
-             $var->{$k} += 0;
-        }
-    }
     return $var;
 }
 
