@@ -22,6 +22,7 @@ def main():
     parser.add_argument('--username', type=str, required=True, help='用户账户名')
     parser.add_argument('--email', type=str, required=True, help='用户邮箱')
     parser.add_argument('--ip', type=str, required=True, help='目标IP')
+    parser.add_argument('--instance_id', type=str, required=True, help='目标IP对应的实例Id')
     parser.add_argument('--sudo_hours', type=int,
                         required=True, help='sudo权限小时数, 申请普通权限时该参数传0')
     args = parser.parse_args()
@@ -37,6 +38,7 @@ def main():
             "username": args.username,
             "email": args.email,
             "ip": args.ip,
+            "instance_id": args.instance_id,
             "sudo_hours": args.sudo_hours,
         }),
     }
