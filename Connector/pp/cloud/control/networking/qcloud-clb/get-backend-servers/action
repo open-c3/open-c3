@@ -4,8 +4,6 @@
 import sys
 import json
 import subprocess
-import yaml
-from pathlib import Path
 
 from tencentcloud.common import credential
 from tencentcloud.common.profile.client_profile import ClientProfile
@@ -14,11 +12,11 @@ from tencentcloud.clb.v20180317 import clb_client, models
 
 
 class ClbBackendServers:
-    def __init__(self, access_id, access_key, region, load_balancer_name):
+    def __init__(self, access_id, access_key, region, data):
         self.access_id = access_id
         self.access_key = access_key
         self.region = region
-        self.load_balancer_name = load_balancer_name
+        self.data = data
         self.client = self.create_client()
 
     def create_client(self):
@@ -29,8 +27,7 @@ class ClbBackendServers:
 
         clientProfile = ClientProfile()
         clientProfile.httpProfile = httpProfile
-        client = clb_client.ClbClient(cred, self.region, clientProfile)
-        return client
+        return clb_client.ClbClient(cred, self.region, clientProfile)
 
     def describe_target(self, load_balancer_id):
         req = models.DescribeTargetsRequest()
@@ -49,26 +46,23 @@ class ClbBackendServers:
         req.from_json_string(json.dumps(params))
         return self.client.DescribeClassicalLBTargets(req)
 
-    def get_clb_info(self):
-        output = subprocess.getoutput(
-            "c3mc-cloud-qcloud-clb-by-name {} {} {} {}".format(
-                self.access_id, self.access_key, self.region, self.load_balancer_name))
-        return output
-
     def get_backend_server_info(self):
+        id_field_name = subprocess.getoutput(
+            "c3mc-cloud-get-real-field networking qcloud-clb LoadBalancerId ")
+        forward_field_name = subprocess.getoutput(
+            "c3mc-cloud-get-real-field networking qcloud-clb Forward ")
+
         result = []
         m = {}
-
-        clb_info = json.loads(self.get_clb_info())
-        if clb_info["Forward"] == 0:
-            target_info = self.describe_classic_target(clb_info["LoadBalancerId"])
+        if self.data[forward_field_name] == "0":
+            target_info = self.describe_classic_target(self.data[id_field_name])
             for target in target_info.Targets:
                 if target.InstanceId in m:
                     continue
                 m[target.InstanceId] = {}
                 result.append(target)
         else:
-            target_info = self.describe_target(clb_info["LoadBalancerId"])
+            target_info = self.describe_target(self.data[id_field_name])
             for listener in target_info.Listeners:
                 for rule in listener.Rules:
                     for target in rule.Targets:
@@ -76,16 +70,16 @@ class ClbBackendServers:
                             continue
                         m[target.InstanceId] = {}
                         result.append(target)
-        
+
         return result
 
     def show(self):
         result = self.get_backend_server_info()
-        print(str(result))
+        print(result)
 
 
-def main(access_id, access_key, region, load_balancer_name):
-    ClbBackendServers(access_id, access_key, region, load_balancer_name).show()
+def main(access_id, access_key, region, data):
+    ClbBackendServers(access_id, access_key, region, data).show()
 
 
 if __name__ == '__main__':
@@ -95,8 +89,4 @@ if __name__ == '__main__':
     if len(l) == 0 or len(l) > 1:
         raise Exception("数据格式错误, 需要一行json数据")
 
-    field_name = subprocess.getoutput(
-        "c3mc-cloud-get-real-field networking qcloud-clb LoadBalancerName ")
-
-    data = json.loads(l[0])
-    main(sys.argv[2], sys.argv[3], sys.argv[4], data[field_name])
+    main(sys.argv[2], sys.argv[3], sys.argv[4], json.loads(l[0]))
