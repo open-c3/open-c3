@@ -615,6 +615,16 @@
                                 $scope.jobVar = vm.vartemp;
 
                             }
+
+                            //hide
+                            angular.forEach($scope.jobVar, function (data, index) {
+                                if(data['show'] )
+                                {
+                                    vm.selectxhide[data.name] = '1';
+                                    data.value = "_openc3_hide_";
+                                } 
+                            });
+
                             vm.loadover = true;
                         }else {
                             toastr.error( "获取变量信息失败："+response.data.info )
