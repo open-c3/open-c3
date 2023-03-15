@@ -1,0 +1,43 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+
+use YAML::XS;
+use POSIX;
+use uuid;
+use Encode;
+use JSON;
+use utf8;
+use File::Temp;
+
+$| ++;
+
+local $/ = undef;
+my $data = JSON::from_json( Encode::encode('utf8', <STDIN> ) );
+local $/ = "\n";
+
+die "node data" unless $data;
+map { $data->{$_} = Encode::decode( 'utf8', $data->{$_} ) }keys %$data;
+my ( $cluster, $template ) = @$data{qw( cluster template )};
+
+die "nofind cluster" unless $cluster && $cluster =~ /^\d+$/;
+die "nofind template" unless $template && $template =~ /^[a-zA-Z0-9][a-zA-Z0-9\_\-]*[a-zA-Z0-9]$/;
+
+my $kubectl = `c3mc-k8s-kubectl-get -i $cluster`;
+die "get kubectl fail: $!" if $?;
+chomp $kubectl;
+
+my $conf = `cat '/data/Software/mydan/Connector/pp/bpm/action/kubernetes-apply/template/$template'`;
+die "read template fail: $!" if $?;
+
+for my $k ( keys %$data )
+{
+    $conf =~ s/\$var\{$k\}/$data->{$k}/g;
+}
+
+my $fh = File::Temp->new( UNLINK => 0, SUFFIX => '.yaml' );
+print $fh $conf;
+close $fh;
+
+my $filename = $fh->filename;
+die "apply fail: $!" if system "$kubectl apply -f '$filename'";
