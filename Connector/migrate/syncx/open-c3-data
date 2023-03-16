@@ -84,7 +84,7 @@ sub run
         chomp $path;
         my $name = basename $path;
         next if $skip{$name};
-        die "name format error: $name" unless $name && $name =~ /^\.{0,1}[a-zA-Z0-9][a-zA-Z0-9\.\-_]+$/;
+        die "name format error: $name" unless defined $name && $name =~ /^\.{0,1}[a-zA-Z0-9][a-zA-Z0-9\.\-_]*$/;
         migrate( $node, $p ? "$p/$name": $name );
      }
 }
