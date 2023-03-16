@@ -1,0 +1,38 @@
+<div class="row block">
+    <h2>{{'C3T.BPM应用模版管理'|translate}}</h2>
+    <hr class="mv20 clear">
+
+    <div>
+        <div style="float: right;">
+            <form class="form-inline" name="myForm" novalidate>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="k8sapptpl.create()"><i class="fa fa-plusecircle fa-lg" aria-hidden="true"></i> {{'C3T.添加'|translate}}</button>
+            </form>
+        </div>
+        <div style="clear: both;">&nbsp;</div>
+    </div>
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="k8sapptpl.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!k8sapptpl.loadover}" ></i></button>
+            </span>
+            <h5>{{'C3T.模版'|translate}}</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="pt20" style="overflow: auto;">
+                <table ng-table="k8sapptpl.dataTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
+                    <tr ng-repeat="m in $data">
+                        <td data-title="'C3T.名称'|translate"     width="80" filter="{ name: 'text'}"      sortable="'name'">     {{m.name}}     </td>
+                        <td data-title="'C3T.类型'|translate"     width="80" filter="{ type: 'text'}"      sortable="'type'">     {{m.type}}     </td>
+                        <td style="width: 10%" data-title="'C3T.操作'|translate">
+                            <button class="btn btn-primary btn-sm" ng-click="k8sapptpl.create(m.name)">{{'C3T.编辑'|translate}}</button>
+                            <button class="btn btn-danger btn-sm" ng-disabled="m.type=='buildin'" ng-click="k8sapptpl.delete(m.name)">{{'C3T.删除'|translate}}</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+</div>
