@@ -43,6 +43,19 @@ for my $var ( @var )
         type     => 'input',
         show     => [ +{ template => [ keys %{$var->{v}} ] }]
     };
+
+    if( $var->{k} eq 'namespace' )
+    {
+        $opt = +{
+            name     => $var->{k},
+            describe => $var->{k},
+            type     => 'selectx',
+            show     => [ +{ template => [ keys %{$var->{v}} ] }],
+            command  => 'c3mc-bpm-kubernetes-apply-namespace',
+            rely     => [ 'cluster' ]
+        };
+    }
+
     push @{$srcc->{option}}, $opt;
 
     $srcc->{template_argv}{$var->{k}} = "\${$var->{k}}";
