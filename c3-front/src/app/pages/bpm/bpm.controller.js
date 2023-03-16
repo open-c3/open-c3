@@ -12,12 +12,21 @@
         vm.bpmuuid = $state.params.bpmuuid;
         vm.jobid = $state.params.jobid;
 
-        vm.optionx = {};
-        vm.valias = {};
+        vm.dinit = function() {
+            vm.optionx = {};
+            vm.valias = {};
+            vm.selectxloading = {};
+            vm.selectxrely = {};
+            vm.selectxhide = {};
+        };
+
+        vm.dinit();
 
         var toastr = toastr || $injector.get('toastr');
 
         vm.bpmname = $location.search()['name'];
+        vm.debug = $location.search()['debug'];
+
         $scope.jobVar = [];         // 保存作业中需要填写的变量
         $scope.choiceJob = null;    // 已选择的作业数据
         $scope.taskData = {
@@ -182,10 +191,6 @@
             });
         };
  
-        vm.selectxloading = {};
-        vm.selectxrely = {};
-        vm.selectxhide = {};
-
         vm.extname = function( stepname )
         {
                 var stepnames = stepname.split(".")
@@ -597,6 +602,8 @@
             if($scope.choiceJob){
                 $scope.taskData.jobname = $scope.choiceJob.name;
                 $scope.taskData.group = null
+
+                vm.dinit();
 
                 vm.loadover = false;
                 $http.get('/api/job/bpm/variable/' + $scope.choiceJob.name ).then(
