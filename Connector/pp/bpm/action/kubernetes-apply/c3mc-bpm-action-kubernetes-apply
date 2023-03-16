@@ -27,7 +27,7 @@ my $kubectl = `c3mc-k8s-kubectl-get -i $cluster`;
 die "get kubectl fail: $!" if $?;
 chomp $kubectl;
 
-my $conf = `cat '/data/Software/mydan/Connector/pp/bpm/action/kubernetes-apply/template/$template'`;
+my $conf = `cat '/data/open-c3-data/bpm/kubernetes-apply-template/$template'`;
 die "read template fail: $!" if $?;
 
 for my $k ( keys %$data )

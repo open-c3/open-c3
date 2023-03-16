@@ -14,16 +14,21 @@ BPM/管理/获取k8s应用模版列表
 
 =cut
 
-my $dir = '/data/Software/mydan/Connector/pp/bpm/action/kubernetes-apply/template';
+my $builddir = '/data/Software/mydan/Connector/pp/bpm/action/kubernetes-apply/template';
+my $dir = '/data/open-c3-data/bpm/kubernetes-apply-template';
 
 get '/bpm/k8sapptpl' => sub {
     my $pmscheck = api::pmscheck( 'openc3_agent_root' ); return $pmscheck if $pmscheck;
     my $conf = [];
+    my @t = `cd $builddir && ls`;
+    chomp @t;
+    my %t;
+    map{ $t{$_} ++ }@t;
     my @x = `cd $dir && ls`;
     chomp @x;
     for( @x )
     {
-        push @$conf, +{ name => $_, type => $_ =~ /demo$/ ? 'buildin': 'custom' };
+        push @$conf, +{ name => $_, type => $t{$_} ? 'buildin': 'custom' };
     }
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $conf };
 };

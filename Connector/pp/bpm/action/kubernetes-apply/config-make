@@ -9,6 +9,11 @@ $| ++;
 
 my ( $src, $dst, $template ) =  map{ "/data/Software/mydan/Connector/pp/bpm/action/kubernetes-apply/$_" }qw( tpl.yaml data.yaml template );
 
+my $dsttemplate = "/data/open-c3-data/bpm/kubernetes-apply-template";
+system "mkdir -p $dsttemplate" unless -d $dsttemplate;
+die "sync fail: $!" if system "rsync -av $template/ $dsttemplate/";
+$template = $dsttemplate;
+
 my $srcc = eval{ YAML::XS::LoadFile $src; };
 die "load $src fail: $@" if $@;
 
