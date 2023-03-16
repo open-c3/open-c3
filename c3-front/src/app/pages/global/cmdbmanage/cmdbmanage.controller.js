@@ -59,8 +59,7 @@
             }, function(){
                 $http.post('/api/agent/cmdbmanage', { "name": name } ).success(function(data){
                     if(data.stat == true) {
-                        vm.cancel();
-                        reload();
+                        vm.reload();
                     } else { swal({ title: "操作失败!", text: data.info, type:'error' }); }
 
                 });
