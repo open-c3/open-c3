@@ -13,6 +13,8 @@
         vm.jobid = $state.params.jobid;
 
         vm.optionx = {};
+        vm.valias = {};
+
         var toastr = toastr || $injector.get('toastr');
 
         vm.bpmname = $location.search()['name'];
@@ -164,6 +166,7 @@
                     if( data.data['_sys_opt_'] )
                     {
                         vm.optionx      = data.data['_sys_opt_']['optionx'];
+                        vm.valias       = data.data['_sys_opt_']['valias'];
                         vm.selectxrely  = data.data['_sys_opt_']['selectxrely'];
                         vm.selectxhide  = data.data['_sys_opt_']['selectxhide'];
                         $scope.jobVar   = data.data['_sys_opt_']['variable'];
@@ -201,8 +204,18 @@
                 return [ prefix, rawname ];
         }
 
-        vm.optionxchange = function( stepname, stepvalue )
+        vm.optionxchange = function( stepname, stepvalue, stepoption )
         {
+             if( stepoption != undefined )
+             {
+                  angular.forEach(stepoption, function (data, index) {
+                      if( data.name == stepvalue )
+                      {
+                          vm.valias[stepname] = data.alias;
+                      }
+                  });
+             }
+
              var ename = vm.extname( stepname );
              //clear
              angular.forEach($scope.jobVar, function (data, index) {
@@ -481,6 +494,12 @@
 
         vm.runTask = function(){
             var varDict = {};
+
+            angular.forEach(vm.valias, function (data, index) {
+                var aliasname = index + "__alias";
+                varDict[aliasname] = data;
+            });
+ 
             angular.forEach($scope.jobVar, function (data, index) {
                 varDict[data.name] = data.value;
             });
@@ -488,6 +507,7 @@
 
             $scope.taskData.variable['_sys_opt_'] = {};
             $scope.taskData.variable['_sys_opt_']['optionx']      = vm.optionx;
+            $scope.taskData.variable['_sys_opt_']['valias']       = vm.valias;
             $scope.taskData.variable['_sys_opt_']['selectxrely']  = vm.selectxrely;
             $scope.taskData.variable['_sys_opt_']['selectxhide']  = vm.selectxhide;
             $scope.taskData.variable['_sys_opt_']['variable']     = $scope.jobVar;
@@ -504,6 +524,12 @@
 
         vm.reSave = function(){
             var varDict = {};
+
+            angular.forEach(vm.valias, function (data, index) {
+                var aliasname = index + "__alias";
+                varDict[aliasname] = data;
+            });
+ 
             angular.forEach($scope.jobVar, function (data, index) {
                 varDict[data.name] = data.value;
             });
@@ -511,6 +537,7 @@
 
             $scope.taskData.variable['_sys_opt_'] = {};
             $scope.taskData.variable['_sys_opt_']['optionx']      = vm.optionx;
+            $scope.taskData.variable['_sys_opt_']['valias']       = vm.valias;
             $scope.taskData.variable['_sys_opt_']['selectxrely']  = vm.selectxrely;
             $scope.taskData.variable['_sys_opt_']['selectxhide']  = vm.selectxhide;
             $scope.taskData.variable['_sys_opt_']['variable']     = $scope.jobVar;
