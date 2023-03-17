@@ -29,9 +29,21 @@ sub syncimage
 {
     my ( $node, $imageid ) = @_;
 
+    print "#" x 30, " [ docker-image: $imageid ] ", '#' x 30,  "\n";
+
     my $temppath = "/data/open-c3-data/c3-migrate-temp";
     mkdir $temppath unless -d $temppath;
 
+    my $succpath = "$temppath/succ";
+    mkdir $succpath unless -d $succpath;
+
+    my $succfile = "$succpath/sync-docker-image-$imageid";
+    if( -f $succfile )
+    {
+        print "skip.\n";
+        return;
+    }
+ 
     my $file = "$temppath/sync-docker-image-$imageid.tar";
     die "save image fail: $!" if system "docker save $imageid -o $file";
 
@@ -46,12 +58,15 @@ sub syncimage
         my ($name, $version, $currimageid ) = split /\s+/, $_;
 
         next unless $currimageid &&  $currimageid eq  $imageid;
+        next if $version eq '<none>';
+        print "sync image: $name:$version $imageid\n";
         $x = `/opt/mydan/dan/tools/rcall --timeout 86400 --verbose -r '$node' exec 'docker exec openc3-server /data/Software/mydan/CI/bin/docker-load --file $file --name '$name:$version' && echo success' 2>&1`;
         die "call $node fail" if $?;
         ( $x && $x =~ /success/ ) ? print "untar success\n" : die "untar fail: $x";
     }
 
     die "unlink fail" if system "rm $file";
+    die "touch $succfile fail: $!" if system "touch '$succfile'";
 }
 
 syncimage( $node, $imageid );
