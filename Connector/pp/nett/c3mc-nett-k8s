@@ -1,0 +1,24 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my    @x = `c3mc-base-db-get -t openc3_ci_ticket id name create_user -f "type='KubeConfig'"`;
+chomp @x;
+
+for( @x )
+{
+    my ( $id, $name, $owner ) = split /;/, $_;
+    print "=" x 60, "\n";
+    print "id: $id name: $name owner: $owner\n";
+    print "=" x 60, "\n";
+
+    system "c3mc-k8s-kubectl-get -id $id version|grep -v '^Client Version'";
+}
