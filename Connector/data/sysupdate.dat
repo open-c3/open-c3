@@ -700,3 +700,14 @@ ALTER TABLE openc3_ci_project ADD `notifyci` varchar(200) DEFAULT NULL COMMENT '
 
 # v2.6.0 sql openc3_ci_project add notifycd
 ALTER TABLE openc3_ci_project ADD `notifycd` varchar(200) DEFAULT NULL COMMENT 'CD消息通知的用户';
+
+# v2.6.0 sql openc3_connector_userleader create
+create table if not exists `openc3_connector_userleader`(
+`id` int(16) unsigned not null primary key auto_increment comment 'id',
+`user`    VARCHAR(200) comment '用户',
+`leader1` VARCHAR(200) comment '第一层领导',
+`leader2` VARCHAR(200) comment '第二层领导',
+`time`    TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '时间',
+UNIQUE KEY `uniq_uuid` (`user`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='用户领导信息';
+

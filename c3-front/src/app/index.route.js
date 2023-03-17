@@ -527,6 +527,12 @@
                 controller: 'ConnectorUserinfoController',
                 controllerAs: 'connectoruserinfo'
             })
+            .state('home.connector.userleader', {
+                url: 'userleader/:treeid',
+                templateUrl: 'app/pages/connector/userleader/userleader.html',
+                controller: 'ConnectorUserleaderController',
+                controllerAs: 'connectoruserleader'
+            })
             .state('home.connector.userauth', {
                 url: 'userauth/:treeid',
                 templateUrl: 'app/pages/connector/userauth/userauth.html',
