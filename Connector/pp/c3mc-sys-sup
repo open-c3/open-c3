@@ -35,7 +35,8 @@ mkdir -p /data/open-c3-data/glusterfs/bpm/task
 
 /data/Software/mydan/Connector/pp/dbfix/approval-template-update
 
-/data/Software/mydan/JOB/bpm/bin/jobinit
+# 必须先执行config-make然后在执行jobinit。否则第一次使用的时候可能因为没有data.yaml导致执行错误
 /data/Software/mydan/Connector/pp/bpm/action/kubernetes-apply/config-make
+/data/Software/mydan/JOB/bpm/bin/jobinit
 
 curl -L http://openc3-srv-docker/api/scripts/installAgent.sh |OPEN_C3_ADDR=http://openc3-srv-docker bash
