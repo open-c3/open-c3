@@ -297,6 +297,12 @@
                 controller: 'K8sAppTplController',
                 controllerAs: 'k8sapptpl'
             })
+            .state('home.global.jumpserverexipsite', {
+                url: 'jumpserverexipsite/:treeid',
+                templateUrl: 'app/pages/global/jumpserverexipsite/jumpserverexipsite.html',
+                controller: 'JumpserverExipSiteController',
+                controllerAs: 'jumpserverexipsite'
+            })
             .state('home.global.adminapproval', {
                 url: 'adminapproval/:treeid',
                 templateUrl: 'app/pages/global/adminapproval/adminapproval.html',

@@ -42,4 +42,12 @@ die "migrate open-c3-data fail: $!"  if system "$RealBin/syncx/open-c3-data --no
 die "migrate open-c3 fail: $!"       if system "$RealBin/syncx/open-c3      --node '$node'";
 die "migrate open-c3 db fail: $!"    if system "$RealBin/syncx/db           --node '$node'";
 
+my @imageid = `docker images|grep -v openc3|grep -v open-c3|grep -v '^<none>'|awk '{print \$3}'|sort|uniq|grep -v IMAGE`;
+chomp @imageid;
+
+for( @imageid )
+{
+    die "migrate open-c3-data fail: $!"  if system "$RealBin/syncx/docker-image --node '$node' --imageid '$_'";
+}
+
 print "sync done.\n";
