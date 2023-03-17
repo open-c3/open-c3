@@ -101,4 +101,4 @@ else
 }
 
 $cmd = "/data/Software/mydan/Connector/pp/cloud/control/$cmd/action" if $cmd =~ /\//;
-system "c3mc-device-cat curr $data->{type} $data->{subtype} $o{uuid}|c3mc-base-tab2json|head -n 1|c3mc-cloud-control-add -f '$ctrlfile'|$cmd $aksk";
+exec "c3mc-device-cat curr $data->{type} $data->{subtype} $o{uuid}|c3mc-base-tab2json|head -n 1|c3mc-cloud-control-add -f '$ctrlfile'|$cmd $aksk";

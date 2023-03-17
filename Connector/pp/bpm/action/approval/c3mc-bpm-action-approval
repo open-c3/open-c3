@@ -50,18 +50,53 @@ sub getapprover
         }split /,/, $users;
         return keys %res;
     }
+    if( $str =~ /sudoer\(\s*sudo_(\d+)\s*,\s*(.+)\s*\)/ )
+    {
+        my ( $sudo, $users ) = ( $1, $2 );
+        my $sudoer = $sudo ? 1 : 0;
+        my $file = "/data/open-c3-data/bpm/sudoer$sudoer.conf";
+        return unless -f $file;
+        my $leader = eval{ YAML::XS::LoadFile $file };
+        die "load $file fail: $@" if $@;
+        map{
+            if( $leader->{$_} )
+            {
+                $res{ $leader->{$_} } = 1;
+                print "LOG.sudo $sudoer, $_ leader = $leader->{$_}\n";
+            }
+        }split /,/, $users;
+        return keys %res;
+    }
     if ( $str =~ /ipowner\(\s*(.+)\s*\)/ )
     {
-        my $ips = $1;
-        my $x = `c3mc-device-api-jumpserver --ips '$ips'`;
-        die "get ip owner fail: $!" if $?;
-        my $d = eval{ YAML::XS::Load $x };
-        die "load fail: $@" if $@;
-        map{
-            $res{ $_->{product_owner} } ++;
-            print "LOG.$_->{ip} product_owner = $_->{product_owner}\n";
-        }@$d;
+        for my $ip ( grep{ $_ } split /,/, $1 )
+        {
+            my $x = `c3mc-device-api-jumpserver --ips '$ip'`;
+            die "get $ip owner fail: $!" if $?;
+            my $d = eval{ YAML::XS::Load $x };
+            die "load fail: $@" if $@;
+            die "nofind $ip in jumpserver\n" unless @$d;
+            map{
+                $res{ $_->{product_owner} } ++;
+                print "LOG.$ip product_owner = $_->{product_owner}\n";
+            }@$d;
+        }
+        return keys %res;
+    }
 
+    if ( $str =~ /k8sowner\(\s*(.+)\s*\)/ )
+    {
+        for my $id ( grep{ $_ } split /,/, $1 )
+        {
+            my @x = `c3mc-base-db-get  create_user -t openc3_ci_ticket -f 'id=$id'`;
+            die "get cluster $id owner fail: $!" if $?;
+            die "nofind owner in kubernetes\n" unless @x;
+            chomp @x;
+            map{
+                $res{ $_ } ++;
+                print "LOG.kubernetes $id owner = $_\n";
+            }@x;
+        }
         return keys %res;
     }
 

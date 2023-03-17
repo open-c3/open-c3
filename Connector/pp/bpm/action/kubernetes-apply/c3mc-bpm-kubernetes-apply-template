@@ -1,0 +1,9 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$| ++;
+
+my @x = `cd /data/open-c3-data/bpm/kubernetes-apply-template && ls`;
+chomp @x;
+map{ print "$_\n"; }sort @x;

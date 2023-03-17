@@ -1,0 +1,70 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+use YAML::XS;
+use File::Basename;
+
+$| ++;
+
+my ( $src, $dst, $template ) =  map{ "/data/Software/mydan/Connector/pp/bpm/action/kubernetes-apply/$_" }qw( tpl.yaml data.yaml template );
+
+my $dsttemplate = "/data/open-c3-data/bpm/kubernetes-apply-template";
+system "mkdir -p $dsttemplate" unless -d $dsttemplate;
+die "sync fail: $!" if system "rsync -av $template/ $dsttemplate/";
+$template = $dsttemplate;
+
+my $srcc = eval{ YAML::XS::LoadFile $src; };
+die "load $src fail: $@" if $@;
+
+sub getVar
+{
+    my ( $path, @res, %res ) = shift @_;
+    # 尽量保持顺序, @res是有序的
+    my ( @xx, %xx );
+    for my $file ( glob "$path/*" )
+    {
+        my $name = basename $file;
+        my $cont = `cat '$file'`;
+        die "read $file fail: $!" if $?;
+        my @x = $cont =~ /\$var\{([a-zA-Z][a-zA-Z0-9_\-]*[a-zA-Z0-9])\}/g;
+        map{
+            push @xx, $_;
+            $xx{$_}{$name}++;
+        }@x;
+    }
+
+    map{ push @res, { k => $_, v => $xx{$_} } unless $res{$_}++ }@xx;
+    return @res;
+}
+
+my @var = getVar( $template );
+
+for my $var ( @var )
+{
+    my $opt = +{
+        name     => $var->{k},
+        describe => $var->{k},
+        type     => 'input',
+        show     => [ +{ template => [ keys %{$var->{v}} ] }]
+    };
+
+    if( $var->{k} eq 'namespace' )
+    {
+        $opt = +{
+            name     => $var->{k},
+            describe => $var->{k},
+            type     => 'selectx',
+            show     => [ +{ template => [ keys %{$var->{v}} ] }],
+            command  => 'c3mc-bpm-kubernetes-apply-namespace',
+            rely     => [ 'cluster' ]
+        };
+    }
+
+    push @{$srcc->{option}}, $opt;
+
+    $srcc->{template_argv}{$var->{k}} = "\${$var->{k}}";
+}
+
+eval{ YAML::XS::DumpFile $dst, $srcc; };
+die "dump to $dst fail: $@" if $@;

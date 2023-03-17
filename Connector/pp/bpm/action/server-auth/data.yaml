@@ -1,38 +1,30 @@
 ---
 name: 申请服务器访问权限
-fromops: 1
 option:
-  - name: account
-    describe: 登陆账号
-    extra_desc: 用户的登录账号, 由系统生成, 比如根据账号 zhangsan@zxcf.com 提取登陆账号为 zhangsan
-    type: input
-
   - name: auth_type
     describe: 权限类型
-    option: ["登陆权限", "sudo权限"]
+    option: 
+    - alias: "登陆权限" 
+      name: "sudo_0"
+    - alias: "sudo权限 8小时" 
+      name: "sudo_8"
+    - alias: "sudo权限 1天" 
+      name: "sudo_24"
+    - alias: "sudo权限 3天" 
+      name: "sudo_72"
+    - alias: "sudo权限 7天" 
+      name: "sudo_168"
     type: select
     value: ""
   
-  - name: sudo_hours
-    describe: sudo权限小时数
-    option: ["8", "12", "24", "48", "72", "168"]
-    type: select
-    value: ""
-    show: ["auth_type", "sudo权限"]
-
   - name: ip_list
-    describe: 服务器IP列表
+    describe: IP列表 (多个用英文逗号连接)
     extra_desc: 多个IP用英文逗号分割
     type: input
 
 template_argv:
-  # 账号
-  account: ${account}
-  # 用户邮箱
-  email: ${email}
+  email: '${_user_}'
   # 权限类型
   auth_type: ${auth_type}
   # 服务器IP列表
   ip_list: ${ip_list}
-  # sudo权限小时数
-  sudo_hours: ${sudo_hours}

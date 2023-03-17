@@ -1,0 +1,85 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/CI/lib
+use strict;
+use warnings;
+use Temp;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my    @x = `c3mc-base-db-get last_findtags,ticketid,addr -t openc3_ci_project`;
+chomp @x;
+
+my $tempdir = "/data/open-c3-data/c3mc-nett-git";
+system "mkdir -p $tempdir" unless -d $tempdir;
+chdir $tempdir or die "chdir to $tempdir fail";
+
+my %repo;
+for( @x )
+{
+    my ( $last_findtags, $tid, $addr ) = split /;/, $_, 3;
+    my $gitaddr;
+    next unless $addr && $addr =~ /git/;
+
+    $gitaddr = $1 if $addr =~ m#^(https{0,1}://[^/]+)#;
+    $gitaddr = $1 if $addr =~ m#^(git\@[^:]+):#;
+
+    next unless $gitaddr;
+
+    push @{$repo{$gitaddr}},  +{ tid => $tid, addr => $addr, gitaddr => $gitaddr, last_findtags => $last_findtags };
+}
+
+print "#" x 60, "\n";
+map{ printf "%s:\t%s\n", scalar( @{$repo{$_}} ), $_; } sort keys %repo;
+print "#" x 60, "\n\n";
+
+sub testspeed
+{
+    my ( $addr, $tid ) = @_;
+    print "repo: $addr ticketid: $tid ";
+
+    my $ssh_key;
+
+    if( $tid )
+    {
+        my $x = `c3mc-base-db-get -t openc3_ci_ticket ticket --filter "id='$tid' and type='SSHKey'"`;
+        chomp $x;
+        $ssh_key = $x if $x;
+    }
+
+    my $tempname = sprintf "c3mc-nett-git-temp.%s.%s", time, $$;
+    my $ctrl = $ssh_key ? "c3mc-base-git -i " . Temp->new( chmod => 0600 )->dump( $ssh_key ) : 'git';
+    my $time = time;
+    if ( system "$ctrl clone '$addr' $tempname 2>/dev/null" )
+    {
+        print "error\n";
+        return;
+    }
+
+    my $size = `du -s $tempname|awk '{print \$1}'`;
+    chomp $size;
+
+    my $due = time - $time;
+    $due = 1 if $due < 0;
+
+    printf "speed: %d k/s\n", $size / $due;
+}
+
+for my $addr ( sort keys %repo )
+{
+    print "\n\n", "=" x 60, "\n";
+
+    my ( $i, %uniq ) = ( 0 );
+    for ( sort{ $b->{last_findtags} cmp $a->{last_findtags} } @{$repo{$addr}}  )
+    {
+        my $uuid = join ':', $_->{addr}, $_->{tid};
+        next if $uniq{$uuid} ++ > 0;
+        testspeed( $_->{addr}, $_->{tid} );
+
+        last if ++ $i >= 3;
+    }   
+}

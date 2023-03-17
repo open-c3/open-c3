@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -46,29 +47,70 @@ func NewRunCmdOnFile(commandDir, scanDir string) *RunCmdOnFile {
 	}
 }
 
-func (r RunCmdOnFile) Run() error {
+func (r RunCmdOnFile) Run() {
 	for {
+		time.Sleep(scanInterval * time.Second)
+
 		filePathList, err := r.listFilesOfDir(r.ScanDir)
 		if err != nil {
-			return fmt.Errorf("Run.listFilesOfDir.error\n\t\t %v", err)
+			fmt.Printf("Run.listFilesOfDir.err: %v", err)
+			continue
 		}
+
+		grouped := make(map[string][]string)
+
 		for _, filePath := range filePathList {
-			base := filepath.Base(filePath)
-			ok, err := r.ifOkRunCmd(strings.Split(base, "-")[0])
-			if err != nil {
-				return fmt.Errorf("Run.ifOkRunCmd.err: %v", err)
-			}
-			if !ok {
-				continue
-			}
-			err = r.runCmdOnFile(filePath)
-			if err != nil {
-				return fmt.Errorf("Run.runCmdOnFile.error\n\t\t %v", err)
+			parts := strings.Split(filePath, "-")
+			groupKey := parts[1]
+			grouped[groupKey] = append(grouped[groupKey], filePath)
+		}
+
+		for _, group := range grouped {
+			sort.Slice(group, func(i, j int) bool {
+				return group[i] < group[j]
+			})
+		}
+
+		for _, filePathListOfSameHash := range grouped {
+			if len(filePathListOfSameHash) == 1 {
+				err = r.cleanFileIfNeed(filePathListOfSameHash[0])
+				if err != nil {
+					fmt.Printf("Run.checkFile1.err: %v", err)
+					continue
+				}
+			} else {
+				for _, filePath := range filePathListOfSameHash[:len(filePathListOfSameHash)-1] {
+					err = os.Remove(filePath)
+					if err != nil {
+						fmt.Printf("Run.Remove.err: %v", err)
+						continue
+					}
+				}
+				err = r.cleanFileIfNeed(filePathListOfSameHash[len(filePathListOfSameHash)-1])
+				if err != nil {
+					fmt.Printf("Run.checkFile2.err: %v", err)
+					continue
+				}
 			}
 		}
+
 		logrus.Info("完成扫描!")
-		time.Sleep(scanInterval * time.Second)
 	}
+}
+
+func (r RunCmdOnFile) cleanFileIfNeed(filePath string) error {
+	base := filepath.Base(filePath)
+	ok, err := r.ifOkRunCmd(strings.Split(base, "-")[0])
+	if err != nil {
+		return fmt.Errorf("cleanFileIfNeed.ifOkRunCmd.err: %v", err)
+	}
+	if ok {
+		err = r.runCmdOnFile(filePath)
+		if err != nil {
+			return fmt.Errorf("cleanFileIfNeed.runCmdOnFile.err: %v", err)
+		}
+	}
+	return nil
 }
 
 func (r RunCmdOnFile) runCmdOnFile(filePath string) error {

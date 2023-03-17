@@ -1,0 +1,12 @@
+#!/bin/bash
+
+TEMPFILE=/tmp/c3mc-agent-network-show.temp.$RANDOM.$$
+
+c3mc-base-db-get ip -t openc3_agent_proxy|sort|uniq|grep ^[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*$|xargs -P 10 -i{} c3mc-agent-network-check-once {} show |tee $TEMPFILE
+
+echo ============================================================
+echo TEMPFILE: $TEMPFILE
+echo "cat $TEMPFILE | column -t"
+echo ============================================================
+
+cat $TEMPFILE | column -t

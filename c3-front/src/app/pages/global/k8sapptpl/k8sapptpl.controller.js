@@ -3,10 +3,10 @@
 
     angular
         .module('openc3')
-        .controller('CmdbManageController', CmdbManageController);
+        .controller('K8sAppTplController', K8sAppTplController);
 
     /** @ngInject */
-    function CmdbManageController( $state, $http, $scope, $uibModal, ngTableParams ) {
+    function K8sAppTplController( $state, $http, $scope, $uibModal, ngTableParams ) {
 
         var vm = this;
         vm.treeid = $state.params.treeid;
@@ -14,7 +14,7 @@
         vm.mem = {};
         vm.reload = function () {
             vm.loadover = false
-            $http.get('/api/agent/cmdbmanage').then(
+            $http.get('/api/job/bpm/k8sapptpl').then(
                 function successCallback(response) {
                     if (response.data.stat){
                         vm.dataTable   = new ngTableParams({count:20}, {counts:[],data:response.data.data});
@@ -32,9 +32,9 @@
 
         vm.create = function (name) {
             $uibModal.open({
-                templateUrl: 'app/pages/global/cmdbmanage/create.html',
-                controller: 'CmdbManageCreateController',
-                controllerAs: 'cmdbmanagecreate',
+                templateUrl: 'app/pages/global/k8sapptpl/create.html',
+                controller: 'K8sAppTplCreateController',
+                controllerAs: 'k8sapptplcreate',
                 backdrop: 'static',
                 size: 'lg',
                 keyboard: false,
@@ -57,7 +57,7 @@
                 confirmButtonText: "确定",
                 closeOnConfirm: true
             }, function(){
-                $http.post('/api/agent/cmdbmanage', { "name": name } ).success(function(data){
+                $http.post('/api/job/bpm/k8sapptpl', { "name": name } ).success(function(data){
                     if(data.stat == true) {
                         vm.reload();
                     } else { swal({ title: "操作失败!", text: data.info, type:'error' }); }

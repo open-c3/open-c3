@@ -13,6 +13,6 @@ option:
     value: 
 
 template_argv:
-  approver: "leader(${_user_}) or ipowner(${x.ip_list})"
+  approver: "sudoer(${x.auth_type},${_user_}) or ipowner(${x.ip_list})"
   title:    "BPM/${_bpmuuid_}/申请服务器权限"
-  content:  "\n申请人:${_user_}\n登录账号:${x.account}\n服务器ip列表:${x.ip_list}\nBPM单号:${_bpmuuid_}\n申请理由:${x.note}"
+  content:  "\n申请人:${_user_}\n权限类型:${x.auth_type__alias}\n服务器ip列表:${x.ip_list}\nBPM单号:${_bpmuuid_}\n申请理由:${x.note}"

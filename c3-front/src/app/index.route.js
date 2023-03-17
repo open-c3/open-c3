@@ -291,6 +291,12 @@
                 controller: 'CmdbManageController',
                 controllerAs: 'cmdbmanage'
             })
+            .state('home.global.k8sapptpl', {
+                url: 'k8sapptpl/:treeid',
+                templateUrl: 'app/pages/global/k8sapptpl/k8sapptpl.html',
+                controller: 'K8sAppTplController',
+                controllerAs: 'k8sapptpl'
+            })
             .state('home.global.adminapproval', {
                 url: 'adminapproval/:treeid',
                 templateUrl: 'app/pages/global/adminapproval/adminapproval.html',

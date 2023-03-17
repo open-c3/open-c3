@@ -1,0 +1,18 @@
+---
+name: kubernetes集群owner审批
+option:
+#  - describe: 运维审批人
+#    name: opapprover
+#    type: selectx
+#    value: ""
+#    command: "c3mc-bpm-optionx-opapprover"
+
+  - describe: 申请理由
+    name: note
+    type: text
+    value: 
+
+template_argv:
+  approver: "k8sowner(${x.cluster})"
+  title:    "BPM/${_bpmuuid_}/申请在K8S集群中创建应用"
+  content:  "\n申请人:${_user_}\n集群ID:${x.cluster}\n集群名称:${x.cluster__alias}\n应用模版:${x.template}\nBPM单号:${_bpmuuid_}\n申请理由:${x.note}"

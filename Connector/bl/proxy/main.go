@@ -84,7 +84,6 @@ func main() {
 			return
 		}
 
-
 		if *appName != "" && *appName != c.GetHeader("app_name") {
 			c.JSON(http.StatusBadRequest, gin.H{"stat": 0, "info": "app name验证失败"})
 			return
@@ -113,8 +112,7 @@ func main() {
 		}
 
 		cmdStr := filepath.Join(*commandDir, data.Command)
-		log.Println("cmdStr = ", cmdStr)
-		log.Println("args = ", argsStr)
+		log.Printf("cmd = %v %v", cmdStr, strings.Join(argsStr, " "))
 
 		cmd := exec.Command(cmdStr, argsStr...)
 		output, err := cmd.CombinedOutput()
@@ -128,10 +126,7 @@ func main() {
 
 	go func() {
 		r := src.NewRunCmdOnFile(*commandDir, *scanDir)
-		err := r.Run()
-		if err != nil {
-			log.Println(err)
-		}
+		r.Run()
 	}()
 
 	err = r.Run(fmt.Sprintf("0.0.0.0:%d", port))

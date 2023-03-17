@@ -1,0 +1,23 @@
+---
+name: 创建kubernetes应用
+action: c3mc-bpm-action-kubernetes-apply
+option:
+  - describe: 集群
+    name: cluster
+    type: selectx
+    command: c3mc-bpm-kubernetes-apply-cluster
+
+  - describe: 模版
+    name: template
+    type: selectx
+    command: c3mc-bpm-kubernetes-apply-template
+
+#  - name: version
+#    describe: version
+#    type: input
+#    show: 
+#      - template: ["nginxVersion"]
+
+template_argv:
+  cluster: ${cluster}
+  template: ${template}

@@ -7,7 +7,7 @@ $|++;
 use MYDB;
 use Time::HiRes qw( time );
 
-my $ip = shift @ARGV;
+my ( $ip, $show ) = @ARGV;
 die "ip err" unless $ip && $ip =~ /^\d+\.\d+\.\d+\.\d+$/;
 
 sub call
@@ -63,6 +63,13 @@ sub run
 }
 
 my $x = run();
+
+if( $show )
+{
+    map{ $x->{$_} =~ s/\s/_/g; $x->{$_} =~ s/\n/\\n/g; }keys %$x;
+    print "$ip: tcp_error:$x->{tcp_error} tcp_speed_push:$x->{tcp_speed_push}k/s tcp_speed_pull:$x->{tcp_speed_pull}k/s udp_error:$x->{udp_error} udp_speed:$x->{udp_speed}k/s\n";
+    exit;
+}
 
 my $db = MYDB->new( "/data/Software/mydan/AGENT/conf/conn", delayedconnection => 1 );
 eval{
