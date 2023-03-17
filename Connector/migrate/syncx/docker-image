@@ -1,0 +1,59 @@
+#!/opt/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use JSON;
+use YAML::XS;
+use MYDan::Util::OptConf;
+use FindBin qw( $RealBin );
+
+=head1 SYNOPSIS
+
+ $0 --node 10.10.10.10 --imageid xxx
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( node=s imageid=s ) )->dump();
+        $option->assert(qw( node imageid ));
+
+my ( $node, $imageid ) = @o{qw( node  imageid ) };
+
+die "imageid format error" unless $imageid =~ /^[a-zA-Z0-9]{12}$/;
+
+delete $ENV{MYDanPATH};
+
+sub syncimage
+{
+    my ( $node, $imageid ) = @_;
+
+    my $temppath = "/data/open-c3-data/c3-migrate-temp";
+    mkdir $temppath unless -d $temppath;
+
+    my $file = "$temppath/sync-docker-image-$imageid.tar";
+    die "save image fail: $!" if system "docker save $imageid -o $file";
+
+    my $x = `/opt/mydan/dan/tools/rcall --timeout 86400 --verbose -r '$node' dump $file`;
+    die "call $node fail" if $?;
+    ( $x && $x =~ /:ok/ ) ? print "dump success\n" : die "dump fail: $x";
+
+    my    @name = `docker images|grep $imageid`;
+    chomp @name;
+    for( @name )
+    {
+        my ($name, $version, $currimageid ) = split /\s+/, $_;
+
+        next unless $currimageid &&  $currimageid eq  $imageid;
+        $x = `/opt/mydan/dan/tools/rcall --timeout 86400 --verbose -r '$node' exec 'docker exec openc3-server /data/Software/mydan/CI/bin/docker-load --file $file --name '$name:$version' && echo success' 2>&1`;
+        die "call $node fail" if $?;
+        ( $x && $x =~ /success/ ) ? print "untar success\n" : die "untar fail: $x";
+    }
+
+    die "unlink fail" if system "rm $file";
+}
+
+syncimage( $node, $imageid );
+
+print "sync done.\n";
