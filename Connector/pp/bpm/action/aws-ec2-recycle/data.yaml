@@ -1,0 +1,17 @@
+---
+uuid: c3mc-bpm-action-aws-ec2-recycle
+name: 回收aws ec2
+action: c3mc-bpm-action-aws-ec2-recycle
+option:
+  - name: recycle_type
+    describe: 回收类型
+    command: c3mc-ec2recycle-recycle-type | c3mc-bpm-display-field-values id,desc
+    type: selectx
+
+  - name: instance_ids
+    describe: 实例id列表 (多个用英文逗号分隔)
+    type: text
+
+template_argv:
+  recycle_type: ${recycle_type}
+  instance_ids: ${instance_ids}

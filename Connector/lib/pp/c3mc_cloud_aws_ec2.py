@@ -73,3 +73,15 @@ class LIB_EC2:
         查询ec2实例详情
         """
         return self.client.describe_instances(InstanceIds=instance_ids)
+
+    def disassociate_address(self, association_id):
+        """
+        解绑eip
+        """
+        return self.client.disassociate_address(AssociationId=association_id)
+
+    def release_address(self, eip_allocation_id):
+        """
+        释放eip
+        """
+        return self.client.release_address(AllocationId=eip_allocation_id)
