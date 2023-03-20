@@ -76,7 +76,7 @@ class Ec2:
         return json.loads(data)
 
     def get_bool_value(self, arg):
-        return arg == "T"
+        return arg == "是"
 
     def get_base64_encoding_str(self, original_string):
         string_bytes = original_string.encode('utf-8')
@@ -105,7 +105,7 @@ class Ec2:
         create_ec2_params["BlockDeviceMappings"].append(root_volume)
 
         # 配置数据盘
-        if self.instance_params["if_need_data_volume"] == "T":
+        if self.instance_params["if_need_data_volume"] == "是":
             data_volume_type = self.instance_params["data_volume_type"]
             data_volume = {
                 "DeviceName": "/dev/sdb",

@@ -105,7 +105,7 @@ option:
     type: select
     value: ""
     show:
-      - if_need_public_ip: ["T"]
+      - if_need_public_ip: ["是"]
 
   - name: root_volume_type
     describe: 根分区存储卷类型
@@ -140,7 +140,7 @@ option:
     command: c3mc-ec2create-describe-ebs-volume-types | c3mc-bpm-display-field-values id,desc
     type: selectx
     show:
-      - if_need_data_volume: ["T"]
+      - if_need_data_volume: ["是"]
 
   - name: data_volume_max_iops
     describe: 数据盘最大IOPS
@@ -160,7 +160,7 @@ option:
     # 需要在前端限制用户输入的数值大小
     type: number
     show:
-      - if_need_data_volume: ["T"]
+      - if_need_data_volume: ["是"]
 
   - name: delete_data_volume_on_termination
     describe: 删除ec2时删除数据盘
