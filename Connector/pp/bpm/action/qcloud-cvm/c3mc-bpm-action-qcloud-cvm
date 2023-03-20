@@ -27,8 +27,7 @@ class Cvm:
 
         clientProfile = ClientProfile()
         clientProfile.httpProfile = httpProfile
-        client = cvm_client.CvmClient(cred, self.region, clientProfile)
-        return client
+        return cvm_client.CvmClient(cred, self.region, clientProfile)
     
     def get_request(self):
         req = models.RunInstancesRequest()
@@ -93,24 +92,24 @@ class Cvm:
     
     def create_cvm(self):
         req = self.get_request()
-        print("创建cvm, 请求参数为: {}".format(req))
+        print(f"创建cvm, 请求参数为: {req}")
 
         if subprocess.getoutput("c3mc-sys-ctl sys.bpm.fake.run") == "1":
             # bpm虚假运行
             print("创建cvm, 响应为: xxxxxx")
             print("LOG. instance_id:xxxxxx")
             print("VAR. instance_id:xxxxxx")
-            print("VAR. extinstance_id:{}.{}.xxxxx".format(self.params["account"], self.params["region"]))
+            print(f'VAR. extinstance_id:{self.params["account"]}.{self.params["region"]}.xxxxx')
         else:
             try:
                 resp = self.client.RunInstances(req)
 
-                print("创建cvm, 响应为: {}".format(resp.to_json_string()))
-                print("LOG. instance_id:{}".format(resp.InstanceIdSet[0]))
-                print("VAR. instance_id:{}".format(resp.InstanceIdSet[0]))
-                print("VAR. extinstance_id:{}.{}.{}".format(self.params["account"], self.params["region"], resp.InstanceIdSet[0]))
+                print(f"创建cvm, 响应为: {resp.to_json_string()}")
+                print(f"LOG. instance_id:{resp.InstanceIdSet[0]}")
+                print(f"VAR. instance_id:{resp.InstanceIdSet[0]}")
+                print(f'VAR. extinstance_id:{self.params["account"]}.{self.params["region"]}.{resp.InstanceIdSet[0]}')
             except Exception as e:
-                print("创建腾讯云cvm出错, err: {}".format(e), file=sys.stderr)
+                print(f"创建腾讯云cvm出错, err: {e}", file=sys.stderr)
                 exit(1)
 
 
@@ -118,18 +117,15 @@ def main(params):
     account = params["account"]
     region = params["region"]
 
-    key_info = json.loads(subprocess.getoutput(
-        "c3mc-get-account-info qcloud {}".format(account)))
-
-    Cvm(key_info["access_id"],
-                   key_info["access_key"], region, params).create_cvm()
+    key_info = json.loads(
+        subprocess.getoutput(f"c3mc-get-account-info qcloud {account}")
+    )
+    Cvm(key_info["access_id"], key_info["access_key"], region, params).create_cvm()
 
 
 if __name__ == '__main__':
-    l = []
-    for line in sys.stdin:
-        l.append(line)
-    if len(l) == 0 or len(l) > 1:
-        raise Exception("数据格式不对, 需要一行json字符串")
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
 
     main(json.loads(l[0]))
