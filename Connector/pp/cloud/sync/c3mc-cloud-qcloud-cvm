@@ -80,7 +80,7 @@ class Cvm:
                 vpc_ids.append(item["VirtualPrivateCloud"]["VpcId"])
 
         
-        vpc_info_d = vpc_client.show_vpcs(vpc_ids)
+        vpc_info_d = vpc_client.show_vpcs_dict(vpc_ids)
         for item in result:
             if item["VirtualPrivateCloud"]["VpcId"] is not None:
                 item["VpcId"] = item["VirtualPrivateCloud"]["VpcId"]
