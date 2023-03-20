@@ -1,0 +1,256 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+from distutils.errors import LibError
+import sys
+import json
+import subprocess
+import json
+import time
+import base64
+
+import boto3
+
+
+must_set_iops_for_volume_types = [
+    "io1",
+    "io2"
+]
+
+
+class Ec2:
+    def __init__(self, access_id, access_key, region, params):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.region = region
+        self.instance_params = params
+        self.client = self.create_client()
+
+    def create_client(self):
+        client = boto3.client(
+            "ec2",
+            aws_access_key_id=self.access_id,
+            aws_secret_access_key=self.access_key,
+            region_name=self.region,
+        )
+        return client
+
+    def run_cmd(self, cmd, arg):
+        cmd_parts = [
+            cmd,
+            self.access_id,
+            self.access_key,
+            self.region,
+            arg,
+        ]
+        result = subprocess.run(cmd_parts, capture_output=True, text=True)
+        if result.returncode != 0:
+            raise RuntimeError(f"执行命令 {cmd} 出错. err: {result.stderr}")
+        return result.stdout
+
+    def create_iam_or_profile_if_need(self, create_cmd_name):
+        try:
+            self.run_cmd(
+                create_cmd_name, self.instance_params['iam_role_name'])
+        except Exception as e:
+            if "already exists" in str(e):
+                return
+
+        # C3TODO 230317 等待aws控制台创建完成。是否要通过命令查询？
+        time.sleep(25)
+
+    def add_role_to_instance_profile(self):
+        create_cmd_parts = [
+            'c3mc-ec2create-add-role-to-instance-profile',
+            self.access_id, self.access_key, self.region,
+            self.instance_params["iam_role_name"],
+            self.instance_params["iam_role_name"]
+        ]
+        output = subprocess.run(
+            create_cmd_parts, capture_output=True, text=True)
+        if output.returncode != 0:
+            raise RuntimeError(f"关联角色和实例配置文件失败. err: {output.stderr}")
+
+    def get_image_info(self, image_id):
+        data = self.run_cmd('c3mc-ec2create-describe-image-get', image_id)
+        return json.loads(data)
+
+    def get_bool_value(self, arg):
+        return arg == "T"
+
+    def get_base64_encoding_str(self, original_string):
+        string_bytes = original_string.encode('utf-8')
+        base64_bytes = base64.b64encode(string_bytes)
+        return base64_bytes.decode('utf-8')
+
+    def assemble_create_ec2_api_args(self):
+        """
+        组装创建ec2的参数
+        """
+        image_info = self.get_image_info(self.instance_params["image_id"])
+
+        create_ec2_params = {"BlockDeviceMappings": []}
+
+        # 配置根分区
+        root_volume = {
+            "DeviceName": image_info["RootDeviceName"],
+            "Ebs": {
+                "VolumeType": self.instance_params["root_volume_type"],
+                "VolumeSize": int(self.instance_params["root_volume_size"])
+            }
+        }
+        if self.instance_params["root_volume_type"] in must_set_iops_for_volume_types:
+            root_volume["Ebs"]["Iops"] = int(
+                self.instance_params["root_volume_max_iops"])
+        create_ec2_params["BlockDeviceMappings"].append(root_volume)
+
+        # 配置数据盘
+        if self.instance_params["if_need_data_volume"] == "T":
+            data_volume_type = self.instance_params["data_volume_type"]
+            data_volume = {
+                "DeviceName": "/dev/sdb",
+                "Ebs": {
+                    "DeleteOnTermination": self.get_bool_value(self.instance_params["delete_data_volume_on_termination"]),
+                    "VolumeSize": int(self.instance_params["data_volume_size"]),
+                    "VolumeType": data_volume_type,
+                }
+            }
+            if data_volume_type in must_set_iops_for_volume_types:
+                data_volume["Ebs"]["Iops"] = int(
+                    self.instance_params["data_volume_max_iops"])
+
+            create_ec2_params["BlockDeviceMappings"].append(data_volume)
+
+        # 配置网卡
+        networkInterfaceConfig = {
+            'AssociatePublicIpAddress': self.get_bool_value(self.instance_params["if_need_public_ip"]),
+            'DeleteOnTermination': True,
+            'DeviceIndex': 0,  # 固定
+            'Groups': self.instance_params["security_group_ids"].split(","),
+            'SubnetId': self.instance_params["subnet_id"],
+        }
+        create_ec2_params["NetworkInterfaces"] = [networkInterfaceConfig]
+
+        create_ec2_params["InstanceInitiatedShutdownBehavior"] = "stop"
+        create_ec2_params["DisableApiTermination"] = False
+        create_ec2_params["ImageId"] = self.instance_params["image_id"]
+        create_ec2_params["EbsOptimized"] = False
+        create_ec2_params["InstanceType"] = self.instance_params["instance_type"]
+        if self.instance_params["user_data"] not in [None, ""]:
+            create_ec2_params["UserData"] = self.get_base64_encoding_str(
+                self.instance_params["user_data"])
+        create_ec2_params["Monitoring"] = {
+            "Enabled": self.get_bool_value(self.instance_params["enable_monitor"])
+        }
+        create_ec2_params["Placement"] = {
+            "AvailabilityZone": self.instance_params["availability_zone"]
+        }
+        create_ec2_params["IamInstanceProfile"] = {
+            "Name": self.instance_params["iam_role_name"]
+        }
+        create_ec2_params["MinCount"] = 1
+        create_ec2_params["MaxCount"] = 1
+
+        tags = []
+        if self.instance_params["tag"] not in [None, ""]:
+            tag_list = json.loads(self.instance_params["tag"])
+            tags.extend(
+                {"Key": params_tag["key"], "Value": params_tag["value"]}
+                for params_tag in tag_list
+            )
+            tags.append({"Key": "Name", "Value": self.instance_params["name"]})
+        instance_tag = {"ResourceType": "instance", "Tags": tags}
+        volume_tag = {"ResourceType": "volume", "Tags": tags}
+        create_ec2_params["TagSpecifications"] = [instance_tag, volume_tag]
+        return create_ec2_params
+
+    def bind_eip_to_ec2(self, instance_id, tags):
+        sys.path.append("/data/Software/mydan/Connector/lib/pp")
+        from c3mc_cloud_aws_ec2 import LIB_EC2
+        lib_ec2 = LIB_EC2(self.access_id, self.access_key, self.region)
+        eip_info_list = lib_ec2.describe_addresses()["Addresses"]
+
+        print(f"eip列表: {json.dumps(eip_info_list)}")
+
+        # eip的唯一标识符。请注意，AllocationId仅适用于VPC中的弹性IP地址
+        allocationId = ""
+
+        # 尝试从已有的eip列表中查找一个未绑定实例的eip
+        for eip_item in eip_info_list:
+            if eip_item["Domain"] != "vpc":
+                continue
+            if "InstanceId" not in eip_item or eip_item["InstanceId"] == "":
+                continue
+            allocationId = eip_item["AllocationId"]
+        
+        # 如果没找到未绑定的eip则创建一个eip
+        if allocationId == "":
+            response = lib_ec2.allocate_address()
+            allocationId = response["AllocationId"]
+            print(f"创建eip结果: {json.dumps(response)}")
+        
+        if allocationId == "":
+            raise RuntimeError("寻找空闲或创建eip失败")
+        
+        while True:
+            instance_info = lib_ec2.describe_instances([instance_id])["Reservations"][0]["Instances"][0]
+            if instance_info["State"]["Name"].lower() == "running":
+                break
+            # 等待实例状态正常，否则绑定eip出错
+            time.sleep(3)
+
+        # eip绑定ec2实例
+        response = lib_ec2.associate_address(allocationId, instance_id)
+        print(f"绑定eip和ec2实例结果: {json.dumps(response)}")
+
+        # 为eip添加ec2的标签
+        response = lib_ec2.set_tags_for_eip(allocationId, tags)
+        print(f"为eip添加标签结果: {json.dumps(response)}")
+
+    def run_instance(self):
+        self.create_iam_or_profile_if_need('c3mc-ec2create-role-create')
+        self.create_iam_or_profile_if_need(
+            'c3mc-ec2create-instance-profile-create')
+        self.add_role_to_instance_profile()
+
+        create_ec2_params = self.assemble_create_ec2_api_args()
+
+        print("DEBUG1, create ec2 create_ec2_params: ", json.dumps(create_ec2_params))
+
+        response = self.client.run_instances(**create_ec2_params)
+        instance_id = response["Instances"][0]["InstanceId"]
+
+        self.bind_eip_to_ec2(instance_id, create_ec2_params["TagSpecifications"][0]["Tags"])
+
+        print(f"创建aws ec2, 响应为: {response}")
+
+        print(f'LOG. instance_id:{instance_id}')
+        print(f'VAR. instance_id:{instance_id}')
+        print(f'VAR. extinstance_id:{self.instance_params["account"]}.{self.instance_params["region"]}.{instance_id}')
+
+
+def main(params):
+    print("params = ", json.dumps(params), file=sys.stderr)
+
+    if subprocess.getoutput("c3mc-sys-ctl sys.bpm.fake.run") == "1":
+        # bpm虚假运行
+        print("创建cvm, 响应为: xxxxxx")
+        print("LOG. instance_id:xxxxxx")
+        print("VAR. instance_id:xxxxxx")
+        print(f'VAR. extinstance_id:{params["account"]}.{params["region"]}.xxxxx')
+    else:
+        account = params["account"]
+        region = params["region"]
+        key_info = json.loads(subprocess.getoutput(
+            f"c3mc-get-account-info aws {account}"))
+
+        Ec2(key_info["access_id"], key_info["access_key"],
+            region, params).run_instance()
+
+
+if __name__ == '__main__':
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
+
+    main(json.loads(l[0]))

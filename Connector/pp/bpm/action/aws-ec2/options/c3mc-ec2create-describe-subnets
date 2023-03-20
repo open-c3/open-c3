@@ -21,7 +21,7 @@ def describe_subnets(access_id, access_key, region, availability_zone, vpc_id):
 
     page_size = 100
 
-    filter = [
+    filter_list = [
         {
             "Name": "availability-zone",
             "Values": [availability_zone]
@@ -33,25 +33,19 @@ def describe_subnets(access_id, access_key, region, availability_zone, vpc_id):
     ]
 
     result = []
-    response = client.describe_subnets(MaxResults=page_size, Filters=filter)
+    response = client.describe_subnets(MaxResults=page_size, Filters=filter_list)
     result.extend(response["Subnets"])
-    marker = ""
-    if "NextToken" in response:
-        marker = response["NextToken"]
-
+    marker = response["NextToken"] if "NextToken" in response else ""
     while marker != "":
         response = client.describe_subnets(
-            MaxResults=page_size, NextToken=marker, Filters=filter)
+            MaxResults=page_size, NextToken=marker, Filters=filter_list)
         result.extend(response["Subnets"])
 
-        marker = ""
-        if "NextToken" in response:
-            marker = response["NextToken"]
-
-    for i in range(len(result)):
-        for tag in result[i]["Tags"]:
+        marker = response["NextToken"] if "NextToken" in response else ""
+    for item in result:
+        for tag in item["Tags"]:
             if tag["Key"] == "Name":
-                result[i]["Name"] = tag["Value"]
+                item["Name"] = tag["Value"]
                 break
 
     return result
@@ -61,10 +55,11 @@ def main(params):
     account = params["account"]
     region = params["region"]
     az = params["az"]
-    vpc_id = params["vpc"]
+    vpc_id = params["vpc_id"]
 
-    key_info = json.loads(subprocess.getoutput(
-        "c3mc-get-account-info aws {}".format(account)))
+    key_info = json.loads(
+        subprocess.getoutput(f"c3mc-get-account-info aws {account}")
+    )
 
     subnet_list = describe_subnets(
         key_info["access_id"], key_info["access_key"], region, az, vpc_id)
@@ -73,10 +68,8 @@ def main(params):
 
 
 if __name__ == '__main__':
-    l = []
-    for line in sys.stdin:
-        l.append(line)
-    if len(l) == 0 or len(l) > 1:
-        raise Exception("数据格式不对, 需要一行json字符串")
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
 
     main(json.loads(l[0]))
