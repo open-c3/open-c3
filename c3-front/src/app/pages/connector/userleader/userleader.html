@@ -1,0 +1,44 @@
+<div>
+    <div>
+        <div style="float: right;">
+            <form class="form-inline" name="myForm" novalidate>
+                <div class="form-group" ng-init="username=''">
+                    <input type="text" class="form-control" ng-model="user"  placeholder="user" required>
+                </div>
+                <div class="form-group" ng-init="username=''">
+                    <input type="text" class="form-control" ng-model="leader1"  placeholder="leader1" required>
+                </div>
+                 <div class="form-group" ng-init="username=''">
+                    <input type="text" class="form-control" ng-model="leader2"  placeholder="leader2">
+                </div>
+ 
+                <button type="submit" ng-disabled="myForm.$invalid" class="btn btn-primary" ng-click="connectoruserleader.addUser(user,leader1,leader2)"><i class="fa fa-user-circle-o fa-lg" aria-hidden="true"></i>{{'C3T.添加用户'|translate}}</button>
+            </form>
+        </div>
+        <div style="clear: both;">&nbsp;</div>
+    </div>
+    <div class="panel panel-primary">
+
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="connectoruserleader.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!connectoruserleader.loadover}" ></i></button>
+            </span>
+            <h5>{{'C3T.用户领导信息'|translate}}</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="panel-tabs">
+                <table ng-table="connectoruserleader.userTable" class="table table-hover text-center table-condensed" show-filter="true">
+                    <tr ng-repeat="user in $data">
+                        <td style="width: 10%" data-title="'C3T.用户'|translate" filter="{ user: 'text'}" sortable="'user'">{{user.user}}</td>
+                        <td style="width: 10%" data-title="'leader1'" filter="{ leader1: 'text'}" sortable="'leader1'">{{user.leader1}}</td>
+                        <td style="width: 10%" data-title="'leader2'" filter="{ leader2: 'text'}" sortable="'leader2'">{{user.leader2}}</td>
+                        <td style="width: 10%" data-title="'C3T.操作'|translate">
+                            <button class="btn btn-danger btn-md" ng-click="connectoruserleader.delete(user.user)">{{'C3T.删除'|translate}}</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

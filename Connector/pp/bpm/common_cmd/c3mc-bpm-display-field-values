@@ -47,11 +47,14 @@ def find_value(d, key):
         1
 
     """
-    keys = key.split('[')
-    for k in keys:
-        if k.endswith(']'):
-            k = k[:-1]
-        d = d[k]
+    try:
+        keys = key.split('[')
+        for k in keys:
+            if k.endswith(']'):
+                k = k[:-1]
+            d = d[k]
+    except KeyError as e:
+        return ""
     return d
 
 

@@ -1,0 +1,107 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+import threading
+
+# 如果标签 key 以如下数组中任意元素开头，就直接被跳过处理
+ignored_key_prefix = [
+    "acs:",   # 这是阿里云打在资源上的系统标签，更新或者删除系统标签都会报错
+]
+
+# 如果标签 value 以如下数组中任意元素开头，就直接被跳过处理
+ignored_value_prefix = [
+    "空",
+]
+
+
+def is_prefix_match(prefix, string_list):
+    return any(s.startswith(prefix) for s in string_list)
+
+
+def update_instance_tag(semaphore, instance_id, key, value):
+    with semaphore:
+        cmd_parts = []
+        if value == "":
+            cmd_parts = [
+                "c3mc-cloud-control",
+                "--uuid", instance_id,
+                "--ctrl", "tag-delete", key
+            ]
+        else:
+            cmd_parts = [
+                "c3mc-cloud-control",
+                "--uuid", instance_id,
+                "--ctrl", "tag-add", key, value
+            ]
+
+        output = subprocess.run(cmd_parts, capture_output=True, text=True)
+        if output.returncode != 0:
+            print(f"运行的命令是: {' '.join(cmd_parts)}")
+            print(f"标签更新失败, 实例ID: {instance_id}",
+                  output.stderr, file=sys.stderr)
+            exit(1)
+
+        print(f"成功更新实例 {instance_id} 的标签, 标签键: {key}, 标签值:{value}\n")
+
+
+def update_tags(filepath):
+    try:
+        result = subprocess.run(
+            # f"tail -n +2 {filepath} |c3mc-parse-tsv-tag-file --idindex 0 --tagindex 1",
+            f"cat {filepath} | c3mc-parse-tsv-tag-file --idindex 0 --tagindex 1",
+            shell=True,
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+    except subprocess.CalledProcessError as error:
+        raise type('ExceptionForCallParseTsv', (Exception,), {})(
+            "获取标签列表出错.") from error
+
+    data_list = result.stdout.decode().split("\n")
+
+    # 最大并发线程数
+    max_concurrent_threads = int(subprocess.getoutput("c3mc-sys-ctl cmdb.tags.sync.max_concurrent"))
+    semaphore = threading.Semaphore(max_concurrent_threads)
+
+    threads = []
+    for item in data_list:
+        if item == "":
+            continue
+        parts = item.split("\t")
+        instance_id = parts[0]
+
+        key = parts[1]
+        value = parts[2]
+
+        if is_prefix_match(key, ignored_key_prefix):
+            continue
+        if is_prefix_match(value, ignored_value_prefix):
+            continue
+
+        t = threading.Thread(target=update_instance_tag,
+                             args=(semaphore, instance_id, key, value))
+        t.start()
+        threads.append(t)
+
+    # 等待所有线程结束
+    for t in threads:
+        t.join()
+
+    print(f"成功更新 {len(data_list)} 个的标签数据")
+
+
+def main(params):
+    filepath = params["filepath"]
+    update_tags(filepath)
+
+
+if __name__ == '__main__':
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
+
+    main(json.loads(l[0]))
