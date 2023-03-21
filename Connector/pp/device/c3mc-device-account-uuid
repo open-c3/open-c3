@@ -2,17 +2,20 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import re
 
 
 def get_account_by_uuid(account_uuid):
     """
         根据accountuuid查询账号信息
     """
-    filename, line_index = account_uuid.rsplit(".", 1)
-    account_file = "/data/Software/mydan/AGENT/device/conf/account/{}".format(filename)
+    filename = re.sub(r"\.\d+$", "", account_uuid)
+    account_file = f"/data/Software/mydan/AGENT/device/conf/account/{filename}"
+
+    line_index = int(account_uuid.split(".")[-1])
 
     f = open(account_file)
-    return f.readlines()[int(line_index) - 1]
+    return f.readlines()[line_index - 1]
 
 
 def main(account_uuid):

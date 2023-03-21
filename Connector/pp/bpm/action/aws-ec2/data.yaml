@@ -1,0 +1,225 @@
+---
+name: 创建aws ec2
+multi: 1
+option:
+  - name: account
+    describe: 账号
+    command: c3mc-display-cloud-account-list aws
+    type: selectx
+
+  - name: region
+    describe: 区域
+    rely:
+      - account
+    command: c3mc-ec2-describe-regions | c3mc-bpm-display-field-values RegionName,RegionName
+    type: selectx
+
+  - name: name
+    describe: 实例名称
+    type: input
+
+  - name: az
+    describe: 可用区
+    rely:
+      - account
+      - region
+    command: c3mc-ec2create-describe-availability-zones | c3mc-bpm-display-field-values ZoneName
+    type: selectx
+
+  - name: architecture
+    describe: 系统架构
+    option: ["arm64", "x86_64"]
+    type: select
+    value: ""
+
+  - name: instance_type
+    describe: 实例类型
+    rely:
+      - account
+      - region
+      - az
+      - architecture
+    command: c3mc-ec2create-describe-instance-type-offerings | c3mc-bpm-display-field-values InstanceType,InstanceType
+    type: selectx
+
+  - name: vpc_id
+    describe: vpc
+    rely:
+      - account
+      - region
+    command: c3mc-ec2create-describe-vpcs | c3mc-bpm-display-field-values VpcId,Name,CidrBlock
+    type: selectx
+
+  - name: subnet_id
+    describe: subnet
+    rely:
+      - account
+      - region
+      - az
+      - vpc_id
+    command: c3mc-ec2create-describe-subnets | c3mc-bpm-display-field-values SubnetId,Name,CidrBlock,AvailableIpAddressCount
+    type: selectx
+
+  - name: image_id
+    describe: 镜像
+    rely:
+      - account
+      - region
+      - architecture
+    command: c3mc-ec2create-describe-images-all | c3mc-bpm-display-field-values ImageId,Name
+    type: selectx
+
+  - name: iam_role_name
+    describe: iam角色
+    rely:
+      - account
+      - region
+    command: c3mc-ec2create-describe-role-list | c3mc-bpm-display-field-values RoleName
+    # C3TODO 230316
+    # 这里可能需要既能选择又能填写的框类型. 目前先用下拉框测试
+    # type: selectx
+    type: input
+
+  - name: security_group_ids
+    describe: 安全组 (支持多选)
+    rely:
+      - account
+      - region
+      - vpc_id
+    command: c3mc-ec2create-describe-security-groups | c3mc-bpm-display-field-values GroupId,GroupName
+    type: selectxm
+
+  - name: enable_monitor
+    describe: 是否启用监控
+    command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
+    type: selectx
+
+  - name: if_need_public_ip
+    describe: 是否需要公网IP
+    command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
+    type: selectx
+
+  - name: public_ip_type
+    describe: 公网ip类型
+    option: ["普通公网ip", "弹性公网ip"]
+    type: select
+    value: ""
+    show:
+      - if_need_public_ip: ["是"]
+
+  - name: root_volume_type
+    describe: 根分区存储卷类型
+    command: c3mc-ec2create-describe-ebs-volume-types | c3mc-bpm-display-field-values id,desc
+    type: selectx
+
+  - name: root_volume_size
+    describe: 根盘大小 (单位GB)
+    rely:
+      - root_volume_type
+    command: c3mc-ec2create-describe-ebs-volume-size-range
+    # C3TODO 230316
+    # 需要在前端限制用户输入的数值大小
+    type: number
+
+  - name: root_volume_max_iops
+    describe: 根盘最大IOPS
+    rely:
+      - root_volume_type
+    command: c3mc-ec2create-describe-ebs-volume-max-iops
+    type: number
+    show:
+      - root_volume_type: ["io1", "io2"]
+
+  - name: if_need_data_volume
+    describe: 是否需要数据盘
+    command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
+    type: selectx
+
+  - name: data_volume_type
+    describe: 数据盘类型
+    command: c3mc-ec2create-describe-ebs-volume-types | c3mc-bpm-display-field-values id,desc
+    type: selectx
+    show:
+      - if_need_data_volume: ["是"]
+
+  - name: data_volume_max_iops
+    describe: 数据盘最大IOPS
+    rely:
+      - data_volume_type
+    command: c3mc-ec2create-describe-ebs-volume-max-iops
+    type: number
+    show:
+      - data_volume_type: ["io1", "io2"]
+
+  - name: data_volume_size
+    describe: 数据盘大小 (单位GB)
+    rely:
+      - data_volume_type
+    command: c3mc-ec2create-describe-ebs-volume-size-range
+    # C3TODO 230316
+    # 需要在前端限制用户输入的数值大小
+    type: number
+    show:
+      - if_need_data_volume: ["是"]
+
+  - name: delete_data_volume_on_termination
+    describe: 删除ec2时删除数据盘
+    command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
+    type: selectx
+
+  - name: tag
+    describe: 机器标签
+    # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
+    type: kvarray
+
+  - name: user_data
+    describe: 系统初始化执行脚本(不超过16K大小)
+    type: input
+    required: false
+
+template_argv:
+  account: ${account}
+  # 实例名称
+  name: ${name}
+  region: ${region}
+  availability_zone: ${az}
+  # 系统架构
+  architecture: ${architecture}
+
+  # 数据盘相关设置
+  #
+  # 如果不需要数据盘，会忽略下面的字段
+  if_need_data_volume: ${if_need_data_volume}
+  delete_data_volume_on_termination: ${delete_data_volume_on_termination}
+  # 如果VolumeType不是io1和io2, 会忽略Iops字段。
+  # 如果是io1或io2, Iops/VolumeSize 不能超过50,
+  # 否则aws接口报错
+  data_volume_max_iops: ${data_volume_max_iops}
+  data_volume_size: ${data_volume_size}
+  data_volume_type: ${data_volume_type}
+
+  # iam角色名称，用于对机器可访问的服务的权限进行配置
+  iam_role_name: ${iam_role_name}
+  # 是否需要公网地址
+  if_need_public_ip: ${if_need_public_ip}
+  # 公网ip类型
+  public_ip_type: ${public_ip_type}
+  # 根盘存储卷类型
+  root_volume_type: ${root_volume_type}
+  # 根盘大小
+  root_volume_size: ${root_volume_size}
+  # 根盘最大iops
+  root_volume_max_iops: ${root_volume_max_iops}
+  # 是否启用监控
+  enable_monitor: ${enable_monitor}
+  # 镜像
+  image_id: ${image_id}
+  instance_type: ${instance_type}
+  # 支持多个安全组, 用英文逗号分隔
+  security_group_ids: ${security_group_ids}
+  subnet_id: ${subnet_id}
+  # base64编码的用户脚本
+  user_data: ${user_data}
+  # 标签
+  # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
+  tag: ${tag}

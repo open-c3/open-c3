@@ -27,7 +27,7 @@ def ec2_describe_ebs_volume_size_range(ebs_volume_type):
     elif ebs_volume_type == "sc1":
         return [125, 16000]
     else:
-        raise Exception("错误的 ebs_volume_type 类型: {}".format(ebs_volume_type))
+        raise type('NotSupportedEbsVolumeType', (Exception,), {})(f"错误的 ebs_volume_type 类型: {ebs_volume_type}")
 
 
 def main(params):
@@ -40,10 +40,8 @@ def main(params):
 
 
 if __name__ == '__main__':
-    l = []
-    for line in sys.stdin:
-        l.append(line)
-    if len(l) == 0 or len(l) > 1:
-        raise Exception("数据格式不对, 需要一行json字符串")
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
 
-    main(sys.argv[1])
+    main(json.loads(l[0]))

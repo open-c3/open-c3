@@ -1,180 +1,160 @@
 ---
-uuid: c3mc-bpm-action-qcloud-cvm
 name: 创建腾讯云cvm
-action: c3mc-bpm-action-qcloud-cvm
+multi: 1
 option:
-  - name: 账号
-    desc: 选择账号
+  - name: account
+    describe: 云账号
     command: c3mc-display-cloud-account-list qcloud
-    type: select
-    variable_name: account
-    required: true
+    type: selectx
+    value: ""
 
-  - name: 区域
-    desc: 查询区域列表
-    command_input:
+  - name: region
+    describe: 区域
+    rely:
       - account
     command: c3mc-qcloud-cvm-describe-regions | c3mc-bpm-display-field-values Region,RegionName,RegionState
-    type: select
-    variable_name: region
-    required: true
+    type: selectx
+    value: ""
 
-  - name: 可用区
-    desc: 查询可用区列表
-    command_input:
+  - name: zone
+    describe: 可用区
+    rely:
       - account
       - region
     command: c3mc-qcloud-cvm-describe-zones | c3mc-bpm-display-field-values Zone,ZoneName,ZoneState
-    variable_name: zone
-    type: select
-    required: true
+    type: selectx
+    value: ""
 
-  - name: 项目
-    desc: 查询项目列表
-    command_input:
+  - name: project_id
+    describe: 项目
+    rely:
       - account
       - region
     command: c3mc-qcloud-cvm-describe-projects | c3mc-bpm-display-field-values ProjectId,Name
-    variable_name: project_id
-    type: select
-    required: true
+    type: selectx
+    value: ""
 
-  - name: 机型
-    desc: 查询机型列表
-    command_input:
+  - name: charge_type
+    describe: 付费方式
+    type: select
+    option: [ 'PREPAID' ]
+    value: "PREPAID"
+
+  - name: instance_config
+    describe: 机型
+    rely:
       - account
       - region
       - zone
       - charge_type
     command: c3mc-qcloud-cvm-describe-instance-configs | c3mc-bpm-display-field-values InstanceType,Cpu,Memory,Status,Gpu
-    variable_name: instance_config
-    type: select
-    required: true
+    type: selectx
+    value: ""
 
-  - name: 镜像
-    desc: 查询镜像列表
-    command_input:
+  - name: image_id
+    describe: 镜像
+    rely:
       - account
       - region
     command: c3mc-qcloud-cvm-describe-images | c3mc-bpm-display-field-values ImageId,ImageName,ImageType
-    variable_name: image_id
-    type: select
-    required: true
+    type: selectx
+    value: ""
 
-  - name: 系统盘类型
-    desc: 查询支持的系统盘类型列表
+  - name: system_disk_type
+    describe: 查询支持的系统盘类型列表
     command: c3mc-qcloud-cvm-describe-system-disk-type-list | c3mc-bpm-display-field-values id,name,size_range
-    variable_name: system_disk_type
-    type: select
-    required: true
+    type: selectx
+    value: ""
 
-  - name: 系统盘大小
-    desc: 输入系统盘大小, 单位GB
-    variable_name: system_disk_size
-    type: input
+  - name: system_disk_size
+    describe: 系统盘大小(GB)
+    type: number
     required: true
+    value: ""
 
-  - name: 是否需要数据盘
-    desc: 是否需要数据盘
+  - name: if_need_data_volume
+    describe: 是否需要数据盘
     command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
-    variable_name: if_need_data_volume
-    type: select
-    required: true
+    type: selectx
+    value: ""
 
-  - name: 数据盘类型
-    desc: 查询支持的数据盘类型列表
+  - name: data_disk_type
+    describe: 数据盘类型
     command: c3mc-qcloud-cvm-describe-data-disk-type-list | c3mc-bpm-display-field-values id,name,size_range
-    variable_name: data_disk_type
-    type: select
-    required: true
-
-  - name: 数据盘大小
-    desc: 输入数据盘大小, 单位GB
+    type: selectx
+    value: ""
+    show: [ 'if_need_data_volume', 'T' ]
+ 
+  - name: data_disk_size
+    describe: 数据盘大小(GB)
     variable_name: data_disk_size
-    type: input
-    required: true
+    type: number
+    value: ""
+    show: [ 'if_need_data_volume', 'T' ]
 
-  - name: vpc
-    desc: 查询vpc列表
-    command_input:
+  - name: vpc_id
+    describe: VPC
+    rely:
       - account
       - region
     command: c3mc-qcloud-cvm-describe-vpcs | c3mc-bpm-display-field-values VpcId,VpcName
-    variable_name: vpc_id
-    type: select
-    required: true
+    type: selectx
+    value: ""
 
-  - name: subnet
-    desc: 查询子网列表
-    command_input:
+  - name: subnet_id
+    describe: 子网
+    rely:
       - account
       - region
       - vpc_id
       - zone
     command: c3mc-qcloud-cvm-describe-subnets | c3mc-bpm-display-field-values SubnetId,SubnetName,AvailableIpAddressCount
-    variable_name: subnet_id
-    type: select
-    required: true
+    type: selectx
+    value: ""
 
-  - name: 安全组
-    desc: 根据选择的区域选择安全组
-    command_input:
+  - name: security_group_ids
+    describe: 安全组
+    rely:
       - account
       - region
       - project_id
     command: c3mc-qcloud-cvm-describe-security-groups | c3mc-bpm-display-field-values SecurityGroupId,SecurityGroupName
-    variable_name: security_group_ids
-    type: multiple_select
-    required: true
+    type: selectxm
+    value: ""
 
-  - name: 标签
-    desc: 机器标签
+  - name: tag
+    describe: 机器标签
     # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
-    variable_name: tag
-    type: input_array
-    required: false
+    type: kvarray
+    value: "[]"
 
-  - name: 实例付费方式
-    desc: 实例付费方式
-    variable_name: instance_charge_type
-    command: c3mc-qcloud-cvm-describe-instance-charge-type-list | c3mc-bpm-display-field-values id,name
-    type: select
-    required: true
+  - name: instance_charge_count
+    describe: "购买时长(月)"
+    type: number
+    value: ""
 
-  - name: 购买时长
-    desc: "购买实例的时长, 单位:月。取值范围: 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 24, 36, 48, 60。"
-    variable_name: instance_charge_count
-    exist_when: instance_charge_type == PREPAID
-    type: input
-    value_type: number
-    required: true
-
-  - name: 自动续费方式
-    desc: 自动续费方式
-    variable_name: renew_flag
-    exist_when: instance_charge_type == PREPAID
+  - name: renew_flag
+    describe: 自动续费方式
     command: c3mc-qcloud-cvm-describe-renew-flag-list | c3mc-bpm-display-field-values id,name
-    type: select
-    required: true
+    type: selectx
+    value: ""
 
-  - name: 实例名称
-    desc: 实例名称
-    variable_name: instance_name
+  - name: instance_name
+    describe: 实例名称
     type: input
-    required: true
+    value: ""
 
-  - name: 网络计费类型
-    desc: 网络计费类型
-    variable_name: internet_charge_type
+  - name: internet_charge_type
+    describe: 网络计费类型
     command: c3mc-qcloud-cvm-describe-internet-charge-type-list | c3mc-bpm-display-field-values id,name
-    type: select
-    required: true
+    type: selectx
+    value: ""
 
-  - name: 公网出带宽上限
-    desc: "公网出带宽上限, 单位: Mbps。默认值: 0Mbps。"
+  - name: internet_max_bandwidth_out
+    describe: "公网出带宽上限(兆)"
     variable_name: internet_max_bandwidth_out
     type: input
-    required: false
+    value: ""
 
 template_argv:
   # 账号
@@ -209,7 +189,7 @@ template_argv:
   # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
   tag: ${tag}
   # 实例付费方式
-  instance_charge_type: ${instance_charge_type}
+  instance_charge_type: ${charge_type}
   # 购买时长
   instance_charge_count: ${instance_charge_count}
   # 自动续费标识

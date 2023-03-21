@@ -21,7 +21,7 @@ def describe_image(access_id, access_key, region, image_id):
 
     response = client.describe_images(ImageIds=[image_id])
     if len(response["Images"]) == 0:
-        raise Exception("根据 image_id: {} 未找到镜像".format(image_id))
+        raise type('CannotFindImage', (Exception,), {})(f"根据 image_id: {image_id} 未找到镜像")
     return response["Images"][0]
 
 
