@@ -83,14 +83,15 @@ option:
     command: c3mc-qcloud-cvm-describe-data-disk-type-list | c3mc-bpm-display-field-values id,name,size_range
     type: selectx
     value: ""
-    show: [ 'if_need_data_volume', 'T' ]
+    show: 
+      - if_need_data_volume: ['是']
  
   - name: data_disk_size
     describe: 数据盘大小(GB)
     variable_name: data_disk_size
     type: number
     value: ""
-    show: [ 'if_need_data_volume', 'T' ]
+    show: [ 'if_need_data_volume', '是' ]
 
   - name: vpc_id
     describe: VPC
