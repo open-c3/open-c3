@@ -148,8 +148,8 @@ class Ec2:
         create_ec2_params["IamInstanceProfile"] = {
             "Name": self.instance_params["iam_role_name"]
         }
-        create_ec2_params["MinCount"] = 1
-        create_ec2_params["MaxCount"] = 1
+        create_ec2_params["MinCount"] = int(self.instance_params["count"])
+        create_ec2_params["MaxCount"] = int(self.instance_params["count"])
 
         tags = []
         if self.instance_params["tag"] not in [None, ""]:
@@ -158,56 +158,106 @@ class Ec2:
                 {"Key": params_tag["key"], "Value": params_tag["value"]}
                 for params_tag in tag_list
             )
-            tags.append({"Key": "Name", "Value": self.instance_params["name"]})
+            # tags.append({"Key": "Name", "Value": self.instance_params["name"]})
         instance_tag = {"ResourceType": "instance", "Tags": tags}
         volume_tag = {"ResourceType": "volume", "Tags": tags}
         create_ec2_params["TagSpecifications"] = [instance_tag, volume_tag]
         return create_ec2_params
 
-    def bind_eip_to_ec2(self, instance_id, tags):
+    def bind_eip_to_ec2(self, instance_info_list, tags):
         sys.path.append("/data/Software/mydan/Connector/lib/pp")
         from c3mc_cloud_aws_ec2 import LIB_EC2
         lib_ec2 = LIB_EC2(self.access_id, self.access_key, self.region)
-        eip_info_list = lib_ec2.describe_addresses()["Addresses"]
 
-        print(f"eip列表: {json.dumps(eip_info_list)}")
+        for instance_info in instance_info_list:
+            instance_id = instance_info["InstanceId"]
+            eip_info_list = lib_ec2.describe_addresses()["Addresses"]
 
-        # eip的唯一标识符。请注意，AllocationId仅适用于VPC中的弹性IP地址
-        allocationId = ""
+            print(f"eip列表: {json.dumps(eip_info_list)}")
 
-        # 尝试从已有的eip列表中查找一个未绑定实例的eip
-        for eip_item in eip_info_list:
-            if eip_item["Domain"] != "vpc":
-                continue
-            if "InstanceId" not in eip_item or eip_item["InstanceId"] == "":
-                continue
-            allocationId = eip_item["AllocationId"]
-        
-        # 如果没找到未绑定的eip则创建一个eip
-        if allocationId == "":
-            response = lib_ec2.allocate_address()
-            allocationId = response["AllocationId"]
-            print(f"创建eip结果: {json.dumps(response)}")
-        
-        if allocationId == "":
-            raise RuntimeError("寻找空闲或创建eip失败")
-        
-        while True:
-            instance_info = lib_ec2.describe_instances([instance_id])["Reservations"][0]["Instances"][0]
-            if instance_info["State"]["Name"].lower() == "running":
-                break
-            # 等待实例状态正常，否则绑定eip出错
-            time.sleep(3)
+            # eip的唯一标识符。请注意，AllocationId仅适用于VPC中的弹性IP地址
+            allocationId = ""
 
-        # eip绑定ec2实例
-        response = lib_ec2.associate_address(allocationId, instance_id)
-        print(f"绑定eip和ec2实例结果: {json.dumps(response)}")
+            # 尝试从已有的eip列表中查找一个未绑定实例的eip
+            for eip_item in eip_info_list:
+                if eip_item["Domain"] != "vpc":
+                    continue
+                if "InstanceId" in eip_item and eip_item["InstanceId"] != "":
+                    continue
+                allocationId = eip_item["AllocationId"]
+            
+            # 如果没找到未绑定的eip则创建一个eip
+            if allocationId == "":
+                response = lib_ec2.allocate_address()
+                allocationId = response["AllocationId"]
+                print(f"创建eip结果: {json.dumps(response)}")
+            
+            if allocationId == "":
+                raise RuntimeError("寻找空闲或创建eip失败")
+            
+            while True:
+                instance_info = lib_ec2.describe_instances([instance_id])["Reservations"][0]["Instances"][0]
+                if instance_info["State"]["Name"].lower() == "running":
+                    break
+                # 等待实例状态正常，否则绑定eip出错
+                time.sleep(3)
 
-        # 为eip添加ec2的标签
-        response = lib_ec2.set_tags_for_eip(allocationId, tags)
-        print(f"为eip添加标签结果: {json.dumps(response)}")
+            # eip绑定ec2实例
+            response = lib_ec2.associate_address(allocationId, instance_id)
+            print(f"绑定eip和ec2, instance_id: {instance_id}, allocationId: {allocationId}, 结果: {json.dumps(response)}")
+
+            # 为eip添加ec2的标签
+            response = lib_ec2.set_tags_for_eip(allocationId, tags)
+            print(f"为eip添加标签, allocationId: {allocationId}, 结果: {json.dumps(response)}")
+
+    
+    def add_name_tag_to_instances(self, instance_info_list, name_prefix, name_suffix_start):
+        """给ec2实例设置名称
+
+        Args:
+            instance_info_list (list):  创建完后接口返回的ec2实例信息列表
+            name_prefix (str):          用户填写的实例名称前缀
+            name_suffix_start (number): 用户填写的实例名称前缀开始的数字
+        """
+        if name_prefix[len(name_prefix) - 1] not in ["-", "_"]:
+            name_prefix += "-"
+        name_suffix_start = int(name_suffix_start)
+
+        for idx, instance in enumerate(instance_info_list):
+            instance_id = instance["InstanceId"]
+            res = self.client.create_tags(
+                Resources=[instance_id],
+                Tags=[
+                    {
+                        "Key": "Name",
+                        "Value": f"{name_prefix}{str(name_suffix_start + idx)}",
+                    }
+                ],
+            )
+            print(f"添加实例名称标签. instance_id: {instance_id}, 结果: {json.dumps(res)}")
+    
+    def add_tags_to_instance_volume(self, instance_info_list):
+        """将每个ec2的所有标签都打在关联的所有volume上
+
+        Args:
+            instance_info_list (list): ec2实例信息列表
+        """
+        for instance in instance_info_list:
+            instance_id = instance['InstanceId']
+            tags = instance['Tags']
+
+            response = self.client.describe_volumes(Filters=[{'Name': 'attachment.instance-id', 'Values': [instance_id]}])
+            volumes = response['Volumes']
+
+            for volume in volumes:
+                volume_id = volume['VolumeId']
+                res = self.client.create_tags(Resources=[volume_id], Tags=tags)
+                print(f"对volume打标签. instance_id: {instance_id}, volume_id: {volume_id}, 结果: {json.dumps(res)}")
+    
 
     def run_instance(self):
+        """创建一个或多个ec2实例
+        """
         self.create_iam_or_profile_if_need('c3mc-ec2create-role-create')
         self.create_iam_or_profile_if_need(
             'c3mc-ec2create-instance-profile-create')
@@ -218,15 +268,25 @@ class Ec2:
         print("DEBUG1, create ec2 create_ec2_params: ", json.dumps(create_ec2_params))
 
         response = self.client.run_instances(**create_ec2_params)
-        instance_id = response["Instances"][0]["InstanceId"]
 
-        self.bind_eip_to_ec2(instance_id, create_ec2_params["TagSpecifications"][0]["Tags"])
+        # 绑定eip
+        self.bind_eip_to_ec2(response["Instances"], create_ec2_params["TagSpecifications"][0]["Tags"])
 
-        print(f"创建aws ec2, 响应为: {response}")
+        # 对实例添加名称标签
+        self.add_name_tag_to_instances(response["Instances"], self.instance_params["name_prefix"], self.instance_params["name_suffix_start_number"])
 
-        print(f'LOG. instance_id:{instance_id}')
-        print(f'VAR. instance_id:{instance_id}')
-        print(f'VAR. extinstance_id:{self.instance_params["account"]}.{self.instance_params["region"]}.{instance_id}')
+        # 对每个ec2关联的volume添加标签
+        self.add_tags_to_instance_volume(response["Instances"])
+
+        print(f"创建aws ec2, 响应为: {json.dumps(response, default=str)}")
+
+
+        for instance in response["Instances"]:
+            instance_id = instance['InstanceId']
+
+            print(f'LOG. instance_id:{instance_id}')
+            print(f'VAR. instance_id:{instance_id}')
+            print(f'VAR. extinstance_id:{self.instance_params["account"]}.{self.instance_params["region"]}.{instance_id}')
 
 
 def main(params):
