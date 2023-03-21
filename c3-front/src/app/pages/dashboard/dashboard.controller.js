@@ -60,7 +60,7 @@
 
         vm.taskdatetime = [];
         vm.seftime = genericService.seftime
-        vm.statuszh = { "": "等待执行", "success": "执行成功", "fail": "执行失败", "decision": "执行失败", "running": "执行中", "ignore": "忽略", "waiting": "等待中" }
+        vm.statuszh = { "": "Init", "success": "Success", "fail": "Fail", "decision": "Fail", "running": "Running", "ignore": "Ignore", "waiting": "Waiting" }
         vm.tasksuccess = [];
         vm.taskall = [];
         vm.runminites = [];
@@ -166,21 +166,21 @@
                         vm.allruntime = response.data.data;
                         angular.forEach(vm.allruntime, function (value, key) {
                             if(key == "0-1"){
-                                vm.runminites.push(['0-1分钟', parseFloat(value)])
+                                vm.runminites.push(['0-1Min', parseFloat(value)])
                             }else if(key == "1-3"){
-                                vm.runminites.push(['1-3分钟', parseFloat(value)])
+                                vm.runminites.push(['1-3Min', parseFloat(value)])
                             }
                             else if(key == "3-5"){
-                                vm.runminites.push(['3-5分钟', parseFloat(value)])
+                                vm.runminites.push(['3-5Min', parseFloat(value)])
                             }
                             else if(key == "5-10"){
-                                vm.runminites.push(['5-10分钟', parseFloat(value)])
+                                vm.runminites.push(['5-10Min', parseFloat(value)])
                             }
                             else if(key == "10-30"){
-                                vm.runminites.push(['10-30分钟', parseFloat(value)])
+                                vm.runminites.push(['10-30Min', parseFloat(value)])
                             }
                             else if(key == "30+"){
-                                vm.runminites.push(['30+分钟', parseFloat(value)])
+                                vm.runminites.push(['30+Min', parseFloat(value)])
                             }
 
                         }); 
@@ -254,13 +254,13 @@
                     }
                 },
                 series: [{
-                    name: '执行成功（个）',
+                    name: 'Success',
                     marker: {
                         symbol: 'square'
                     },
                     data: okcounts
                 }, {
-                    name: '总数',
+                    name: 'Total',
                     marker: {
                         symbol: 'diamond'
                     },
