@@ -31,6 +31,13 @@ class Cvm:
     
     def get_request(self):
         req = models.RunInstancesRequest()
+
+        name_prefix = self.params["name_prefix"]
+        if name_prefix[len(name_prefix) - 1] not in ["-", "_"]:
+            name_prefix += "-"
+        suffix_number = int(self.params["name_suffix_start_number"])
+        instance_name = f"{name_prefix}{{R:{suffix_number}}}"
+
         api_params = {
             "InstanceChargeType": self.params["instance_charge_type"],
             "Placement": {
@@ -50,8 +57,8 @@ class Cvm:
             "InternetAccessible": {
                 "InternetChargeType": self.params["internet_charge_type"]
             },
-            "InstanceCount": 1,
-            "InstanceName": self.params["instance_name"],
+            "InstanceCount": int(self.params["count"]),
+            "InstanceName": instance_name,
             "SecurityGroupIds": self.params["security_group_ids"].split(",")
         }
 
@@ -65,14 +72,7 @@ class Cvm:
                 "RenewFlag": self.params["renew_flag"]
             }
 
-        if self.params["if_need_data_volume"] == "是":
-            api_params["DataDisks"] = [
-                {
-                    "DiskType": self.params["data_disk_type"],
-                    "DiskSize": int(self.params["data_disk_size"])
-                }
-            ]
-
+        cvm_tags = []
         if "tag" in self.params:
             tag_list = json.loads(self.params["tag"])
             if len(tag_list) > 0:
@@ -82,11 +82,21 @@ class Cvm:
                         "Tags": []
                     }
                 ]
-                for tag in tag_list:
-                    api_params["TagSpecification"][0]["Tags"].append({
-                        "Key": tag['key'],
-                        "Value": tag['value']
-                    })
+                cvm_tags.extend(
+                    {"Key": tag['key'], "Value": tag['value']} for tag in tag_list
+                )
+                api_params["TagSpecification"][0]["Tags"] = cvm_tags
+
+
+        if self.params["if_need_data_volume"] == "是":
+            api_params["DataDisks"] = [
+                {
+                    "DiskType": self.params["data_disk_type"],
+                    "DiskSize": int(self.params["data_disk_size"]),
+                    "Tag": cvm_tags
+                }
+            ]
+
         req.from_json_string(json.dumps(api_params))
         return req
     
@@ -102,12 +112,15 @@ class Cvm:
             print(f'VAR. extinstance_id:{self.params["account"]}.{self.params["region"]}.xxxxx')
         else:
             try:
+
                 resp = self.client.RunInstances(req)
 
                 print(f"创建cvm, 响应为: {resp.to_json_string()}")
-                print(f"LOG. instance_id:{resp.InstanceIdSet[0]}")
-                print(f"VAR. instance_id:{resp.InstanceIdSet[0]}")
-                print(f'VAR. extinstance_id:{self.params["account"]}.{self.params["region"]}.{resp.InstanceIdSet[0]}')
+
+                for instance_id in resp.InstanceIdSet:
+                    print(f"LOG. instance_id:{instance_id}")
+                    print(f"VAR. instance_id:{instance_id}")
+                    print(f'VAR. extinstance_id:{self.params["account"]}.{self.params["region"]}.{instance_id}')
             except Exception as e:
                 print(f"创建腾讯云cvm出错, err: {e}", file=sys.stderr)
                 exit(1)

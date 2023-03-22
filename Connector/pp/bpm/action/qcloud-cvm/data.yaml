@@ -25,6 +25,18 @@ option:
     type: selectx
     value: ""
 
+  - name: count
+    describe: 机器数目
+    type: number
+
+  - name: name_prefix
+    describe: 实例名称前缀
+    type: input
+
+  - name: name_suffix_start_number
+    describe: 实例名称后缀起始数字
+    type: number
+
   - name: project_id
     describe: 项目
     rely:
@@ -37,7 +49,7 @@ option:
   - name: charge_type
     describe: 付费方式
     type: select
-    option: [ 'PREPAID' ]
+    option: ["PREPAID"]
     value: "PREPAID"
 
   - name: instance_config
@@ -83,15 +95,15 @@ option:
     command: c3mc-qcloud-cvm-describe-data-disk-type-list | c3mc-bpm-display-field-values id,name,size_range
     type: selectx
     value: ""
-    show: 
-      - if_need_data_volume: ['是']
- 
+    show:
+      - if_need_data_volume: ["是"]
+
   - name: data_disk_size
     describe: 数据盘大小(GB)
     variable_name: data_disk_size
     type: number
     value: ""
-    show: [ 'if_need_data_volume', '是' ]
+    show: ["if_need_data_volume", "是"]
 
   - name: vpc_id
     describe: VPC
@@ -138,11 +150,6 @@ option:
     describe: 自动续费方式
     command: c3mc-qcloud-cvm-describe-renew-flag-list | c3mc-bpm-display-field-values id,name
     type: selectx
-    value: ""
-
-  - name: instance_name
-    describe: 实例名称
-    type: input
     value: ""
 
   - name: internet_charge_type
@@ -195,9 +202,14 @@ template_argv:
   instance_charge_count: ${instance_charge_count}
   # 自动续费标识
   renew_flag: ${renew_flag}
-  # 实例名称
-  instance_name: ${instance_name}
   # 网络计费类型
   internet_charge_type: ${internet_charge_type}
   # 公网出带宽上限
   internet_max_bandwidth_out: ${internet_max_bandwidth_out}
+
+  # 数目
+  count: ${count}
+  # 实例名称
+  name_prefix: ${name_prefix}
+  # 实例名称后缀起始数字
+  name_suffix_start_number: ${name_suffix_start_number}
