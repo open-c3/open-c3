@@ -28,15 +28,24 @@ class Cvm:
         clientProfile = ClientProfile()
         clientProfile.httpProfile = httpProfile
         return cvm_client.CvmClient(cred, self.region, clientProfile)
-    
+
+    def get_bool_value(self, text_bool):
+        return text_bool == "是"
+
+    def get_r_format_str(self, prefix, suffix_number):
+        """组装腾讯云 "server{R:3}" 格式的字符串
+
+        Args:
+            prefix        (string):   前缀
+            suffix_number (int):      后缀起始数字
+        """
+        if prefix[len(prefix) - 1] not in ["-", "_"]:
+            prefix += "-"
+        suffix_number = suffix_number
+        return f"{prefix}{{R:{suffix_number}}}"
+
     def get_request(self):
         req = models.RunInstancesRequest()
-
-        name_prefix = self.params["name_prefix"]
-        if name_prefix[len(name_prefix) - 1] not in ["-", "_"]:
-            name_prefix += "-"
-        suffix_number = int(self.params["name_suffix_start_number"])
-        instance_name = f"{name_prefix}{{R:{suffix_number}}}"
 
         api_params = {
             "InstanceChargeType": self.params["instance_charge_type"],
@@ -55,11 +64,20 @@ class Cvm:
                 "SubnetId": self.params["subnet_id"]
             },
             "InternetAccessible": {
-                "InternetChargeType": self.params["internet_charge_type"]
+                "InternetChargeType": self.params["internet_charge_type"],
+                "PublicIpAssigned": self.get_bool_value(self.params["if_need_public_ip"])
             },
             "InstanceCount": int(self.params["count"]),
-            "InstanceName": instance_name,
-            "SecurityGroupIds": self.params["security_group_ids"].split(",")
+            "InstanceName": self.get_r_format_str(self.params["name_prefix"], self.params["name_suffix_start_number"]),
+            "SecurityGroupIds": self.params["security_group_ids"].split(","),
+            "EnhancedService": {
+                "MonitorService": {
+                    "Enabled": self.get_bool_value(self.params["enable_monitor"])
+                }
+            },
+            # 用于保证请求幂等性
+            "ClientToken": self.params["bpm_uuid"],
+            "HostName": self.get_r_format_str(self.params["hostname_prefix"], self.params["hostname_suffix_start_number"]),
         }
 
         if "internet_max_bandwidth_out" in self.params:
@@ -87,7 +105,6 @@ class Cvm:
                 )
                 api_params["TagSpecification"][0]["Tags"] = cvm_tags
 
-
         if self.params["if_need_data_volume"] == "是":
             api_params["DataDisks"] = [
                 {
@@ -99,7 +116,7 @@ class Cvm:
 
         req.from_json_string(json.dumps(api_params))
         return req
-    
+
     def create_cvm(self):
         req = self.get_request()
         print(f"创建cvm, 请求参数为: {req}")
@@ -112,7 +129,6 @@ class Cvm:
             print(f'VAR. extinstance_id:{self.params["account"]}.{self.params["region"]}.xxxxx')
         else:
             try:
-
                 resp = self.client.RunInstances(req)
 
                 print(f"创建cvm, 响应为: {resp.to_json_string()}")
