@@ -37,16 +37,12 @@ sub getapprover
     if( $str =~ /leader\(\s*(.+)\s*\)/ )
     {
         my $users = $1;
-        my $file = '/data/open-c3-data/bpm/leader.conf';
-        return unless -f $file;
-        my $leader = eval{ YAML::XS::LoadFile $file };
-        die "load $file fail: $@" if $@;
         map{
-            if( $leader->{$_} )
-            {
-                $res{ $leader->{$_} } = 1;
-                print "LOG.$_ leader = $leader->{$_}\n";
-            }
+            my    @x = `c3mc-base-userleader --user '$_'`;
+            chomp @x;
+            die "not find $_ leader" unless @x;
+            $res{ $x[0] } = 1;
+            print "LOG.$_ leader = $x[0]\n";
         }split /,/, $users;
         return keys %res;
     }
