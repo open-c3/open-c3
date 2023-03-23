@@ -1,0 +1,25 @@
+#!/opt/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use JSON;
+use YAML::XS;
+use MYDan::Util::OptConf;
+use FindBin qw( $RealBin );
+
+=head1 SYNOPSIS
+
+ $0 --node 10.10.10.10 --day 7
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( node=s day=i ) )->dump();
+        $option->assert(qw( node day ));
+
+delete $ENV{MYDanPATH};
+
+die "migrate open-c3-data fail: $!"  if system "$RealBin/syncx/open-c3-data --node '$o{node}' --day $o{day}";
+die "migrate open-c3 db fail: $!"    if system "$RealBin/syncx/db           --node '$o{node}'";
