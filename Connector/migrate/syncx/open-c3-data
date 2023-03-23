@@ -8,15 +8,17 @@ use JSON;
 use YAML::XS;
 use MYDan::Util::OptConf;
 use File::Basename;
+use POSIX;
 
 =head1 SYNOPSIS
 
  $0 --node 10.10.10.10
+ $0 --node 10.10.10.10 --day 7
 
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->get( qw( node=s ) )->dump();
+my %o = $option->get( qw( node=s day=i ) )->dump();
         $option->assert(qw( node ));
 
 my $node = $o{node};
@@ -42,12 +44,23 @@ sub migrate
     my $zip = $nozip{$name} ? "" : "z";
 
     my $succfile = "$succpath/sync-open-c3-data-$distname";
+    my $neweropt = '';
+    if( $o{day} )
+    {
+        my $t = POSIX::strftime( "%Y-%m-%d 00:00:00", localtime( time - 86400 * $o{day} ) );
+        $neweropt = "--newer '$t'";
+        $succfile .= "-patch-$t";
+        return unless index( $name, "glusterfs/ci_repo/" ) == 0 || $name eq "logs";
+    }
+
+
     if( -f $succfile )
     {
         print "skip.\n";
         return;
     }
-    system "cd $temppath && tar --warning=no-file-changed -${zip}cf $distname.tar.gz  /data/open-c3-data/$name";
+
+    system "cd $temppath && tar $neweropt --warning=no-file-changed -${zip}cf $distname.tar.gz  /data/open-c3-data/$name";
     my $stat = $? >> 8;
     if( $stat == 0 )
     {
