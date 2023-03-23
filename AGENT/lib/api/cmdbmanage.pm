@@ -35,11 +35,11 @@ get '/cmdbmanage/:name' => sub {
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
     my $pmscheck = api::pmscheck( 'openc3_agent_root' ); return $pmscheck if $pmscheck;
 
-    my $dpath = "/data/Software/mydan/AGENT/device/conf/account/$param->{name}";
+    my $dpath = "/data/Software/mydan/AGENT/device/conf/account/$param->{name} /data/Software/mydan/AGENT/device/conf/accountx/$param->{name}x";
     $dpath = "/data/open-c3-data/device/curr/compute/idc-node/data.tsv" if $param->{name} eq 'idc-node';
     $dpath = "/data/open-c3-data/device/curr/database/$param->{name}/data.tsv" if grep{ $param->{name} eq "idc-$_" }qw( mysql redis mongodb );
 
-    my $x = `cat '$dpath'`;
+    my $x = `cat $dpath`;
     utf8::decode($x);
     return +{ stat => $JSON::true, data => +{ config => $x } };
 };
@@ -66,18 +66,35 @@ post '/cmdbmanage' => sub {
     eval{ $api::auditlog->run( user => $user, title => "EDIT CMDBMANAGE", content => "name:$param->{name}" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
-    my $dpath = "/data/Software/mydan/AGENT/device/conf/account/$param->{name}";
+    my $dpath = "/data/Software/mydan/AGENT/device/conf/account/$param->{name} /data/Software/mydan/AGENT/device/conf/accountx/$param->{name}x";
     $dpath = "/data/open-c3-data/device/curr/compute/idc-node/data.tsv" if $param->{name} eq 'idc-node';
     $dpath = "/data/open-c3-data/device/curr/database/$param->{name}/data.tsv" if grep{ $param->{name} eq "idc-$_" }qw( mysql redis mongodb );
 
     eval{
         if( $param->{config} )
         {
-            $param->{config} .= "\n" unless $param->{config} =~ /\n$/;
-            my $fh;
-            open( $fh, ">", $dpath ) or die "Can't open file: $!";
-            print $fh $param->{config};
-            close $fh;
+            my @config = split /\n/, $param->{config};
+
+            my @dpath = split /\s+/, $dpath;
+
+            if( @dpath > 1 )
+            {
+                my ( $fh1, $fh2 );
+                open( $fh1, ">", $dpath[0] ) or die "Can't open file: $!";
+                open( $fh2, ">", $dpath[1] ) or die "Can't open file: $!";
+                map{ print $fh1 "$_\n"; }grep{ $_ !~ /\*/ }@config;
+                map{ print $fh2 "$_\n"; }grep{ $_ =~ /\*/ }@config;
+                close $fh1;
+                close $fh2;
+ 
+            }
+            else
+            {
+                my $fh;
+                open( $fh, ">", $dpath ) or die "Can't open file: $!";
+                map{ print $fh "$_\n"; }@config;
+                close $fh;
+            }
         }
         else
         {
@@ -87,7 +104,7 @@ post '/cmdbmanage' => sub {
             }
             else
             {
-                system "rm '$dpath'";
+                system "rm $dpath";
             }
         }
     };
