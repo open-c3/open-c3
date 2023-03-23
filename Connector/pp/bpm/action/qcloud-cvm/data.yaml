@@ -25,6 +25,26 @@ option:
     type: selectx
     value: ""
 
+  - name: count
+    describe: 机器数目
+    type: number
+
+  - name: name_prefix
+    describe: 实例名称前缀
+    type: input
+
+  - name: name_suffix_start_number
+    describe: 实例名称后缀起始数字
+    type: number
+
+  - name: hostname_prefix
+    describe: 主机名前缀
+    type: input
+
+  - name: hostname_suffix_start_number
+    describe: 主机名后缀起始数字
+    type: number
+
   - name: project_id
     describe: 项目
     rely:
@@ -36,9 +56,24 @@ option:
 
   - name: charge_type
     describe: 付费方式
-    type: select
-    option: [ 'PREPAID' ]
-    value: "PREPAID"
+    command: c3mc-qcloud-cvm-describe-instance-charge-type-list | c3mc-bpm-display-field-values id,name
+    type: selectx
+    value: ""
+
+  - name: instance_charge_count
+    describe: "购买时长(月)"
+    type: number
+    value: ""
+    show: 
+      - charge_type: ["PREPAID"]
+
+  - name: renew_flag
+    describe: 自动续费方式
+    command: c3mc-qcloud-cvm-describe-renew-flag-list | c3mc-bpm-display-field-values id,name
+    type: selectx
+    value: ""
+    show: 
+      - charge_type: ["PREPAID"]
 
   - name: instance_config
     describe: 机型
@@ -61,7 +96,7 @@ option:
     value: ""
 
   - name: system_disk_type
-    describe: 查询支持的系统盘类型列表
+    describe: 系统盘类型
     command: c3mc-qcloud-cvm-describe-system-disk-type-list | c3mc-bpm-display-field-values id,name,size_range
     type: selectx
     value: ""
@@ -83,14 +118,15 @@ option:
     command: c3mc-qcloud-cvm-describe-data-disk-type-list | c3mc-bpm-display-field-values id,name,size_range
     type: selectx
     value: ""
-    show: [ 'if_need_data_volume', 'T' ]
- 
+    show:
+      - if_need_data_volume: ["是"]
+
   - name: data_disk_size
     describe: 数据盘大小(GB)
     variable_name: data_disk_size
     type: number
     value: ""
-    show: [ 'if_need_data_volume', 'T' ]
+    show: ["if_need_data_volume", "是"]
 
   - name: vpc_id
     describe: VPC
@@ -121,6 +157,7 @@ option:
     command: c3mc-qcloud-cvm-describe-security-groups | c3mc-bpm-display-field-values SecurityGroupId,SecurityGroupName
     type: selectxm
     value: ""
+    formation: "安全组和账号、区域、项目有关，如果没有安全组可以选择，请确认项目是否选择正确。"
 
   - name: tag
     describe: 机器标签
@@ -128,22 +165,8 @@ option:
     type: kvarray
     value: "[]"
 
-  - name: instance_charge_count
-    describe: "购买时长(月)"
-    type: number
-    value: ""
 
-  - name: renew_flag
-    describe: 自动续费方式
-    command: c3mc-qcloud-cvm-describe-renew-flag-list | c3mc-bpm-display-field-values id,name
-    type: selectx
-    value: ""
-
-  - name: instance_name
-    describe: 实例名称
-    type: input
-    value: ""
-
+  # 网络配置--------------------------
   - name: internet_charge_type
     describe: 网络计费类型
     command: c3mc-qcloud-cvm-describe-internet-charge-type-list | c3mc-bpm-display-field-values id,name
@@ -154,9 +177,30 @@ option:
     describe: "公网出带宽上限(兆)"
     variable_name: internet_max_bandwidth_out
     type: input
+
+  - name: if_need_public_ip
+    describe: 是否需要公网ip
+    command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
+    type: selectx
+    value: ""
+    information: "当公网带宽为0, 则不允许分配公网IP。此时忽略该选项的值"
+  # --------------------------------
+
+  - name: enable_monitor
+    describe: 开启监控服务
+    command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
+    type: selectx
+    value: ""
+
+  - name: disable_api_termination
+    describe: 实例销毁保护
+    command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
+    type: selectx
     value: ""
 
 template_argv:
+  # bpm单号
+  bpm_uuid: ${_bpmuuid_}
   # 账号
   account: ${account}
   # 区域
@@ -194,9 +238,26 @@ template_argv:
   instance_charge_count: ${instance_charge_count}
   # 自动续费标识
   renew_flag: ${renew_flag}
-  # 实例名称
-  instance_name: ${instance_name}
+
+  # 网络配置-----------------------------------------
   # 网络计费类型
   internet_charge_type: ${internet_charge_type}
   # 公网出带宽上限
   internet_max_bandwidth_out: ${internet_max_bandwidth_out}
+  # 是否需要公网ip
+  if_need_public_ip: ${if_need_public_ip}
+
+  # 开启监控服务
+  enable_monitor: ${enable_monitor}
+
+  # 数目
+  count: ${count}
+  # 实例名称前缀
+  name_prefix: ${name_prefix}
+  # 实例名称后缀起始数字
+  name_suffix_start_number: ${name_suffix_start_number}
+
+  # 主机名前缀
+  hostname_prefix: ${hostname_prefix}
+  # 主机名后缀起始数字
+  hostname_suffix_start_number: ${hostname_suffix_start_number}

@@ -28,9 +28,25 @@ class Cvm:
         clientProfile = ClientProfile()
         clientProfile.httpProfile = httpProfile
         return cvm_client.CvmClient(cred, self.region, clientProfile)
-    
+
+    def get_bool_value(self, text_bool):
+        return text_bool == "是"
+
+    def get_r_format_str(self, prefix, suffix_number):
+        """组装腾讯云 "server{R:3}" 格式的字符串
+
+        Args:
+            prefix        (string):   前缀
+            suffix_number (int):      后缀起始数字
+        """
+        if prefix[len(prefix) - 1] not in ["-", "_"]:
+            prefix += "-"
+        suffix_number = suffix_number
+        return f"{prefix}{{R:{suffix_number}}}"
+
     def get_request(self):
         req = models.RunInstancesRequest()
+
         api_params = {
             "InstanceChargeType": self.params["instance_charge_type"],
             "Placement": {
@@ -48,11 +64,20 @@ class Cvm:
                 "SubnetId": self.params["subnet_id"]
             },
             "InternetAccessible": {
-                "InternetChargeType": self.params["internet_charge_type"]
+                "InternetChargeType": self.params["internet_charge_type"],
+                "PublicIpAssigned": self.get_bool_value(self.params["if_need_public_ip"])
             },
-            "InstanceCount": 1,
-            "InstanceName": self.params["instance_name"],
-            "SecurityGroupIds": self.params["security_group_ids"].split(",")
+            "InstanceCount": int(self.params["count"]),
+            "InstanceName": self.get_r_format_str(self.params["name_prefix"], self.params["name_suffix_start_number"]),
+            "SecurityGroupIds": self.params["security_group_ids"].split(","),
+            "EnhancedService": {
+                "MonitorService": {
+                    "Enabled": self.get_bool_value(self.params["enable_monitor"])
+                }
+            },
+            # 用于保证请求幂等性
+            "ClientToken": self.params["bpm_uuid"],
+            "HostName": self.get_r_format_str(self.params["hostname_prefix"], self.params["hostname_suffix_start_number"]),
         }
 
         if "internet_max_bandwidth_out" in self.params:
@@ -65,14 +90,7 @@ class Cvm:
                 "RenewFlag": self.params["renew_flag"]
             }
 
-        if self.params["if_need_data_volume"] == "是":
-            api_params["DataDisks"] = [
-                {
-                    "DiskType": self.params["data_disk_type"],
-                    "DiskSize": int(self.params["data_disk_size"])
-                }
-            ]
-
+        cvm_tags = []
         if "tag" in self.params:
             tag_list = json.loads(self.params["tag"])
             if len(tag_list) > 0:
@@ -82,14 +100,23 @@ class Cvm:
                         "Tags": []
                     }
                 ]
-                for tag in tag_list:
-                    api_params["TagSpecification"][0]["Tags"].append({
-                        "Key": tag['key'],
-                        "Value": tag['value']
-                    })
+                cvm_tags.extend(
+                    {"Key": tag['key'], "Value": tag['value']} for tag in tag_list
+                )
+                api_params["TagSpecification"][0]["Tags"] = cvm_tags
+
+        if self.params["if_need_data_volume"] == "是":
+            api_params["DataDisks"] = [
+                {
+                    "DiskType": self.params["data_disk_type"],
+                    "DiskSize": int(self.params["data_disk_size"]),
+                    "Tag": cvm_tags
+                }
+            ]
+
         req.from_json_string(json.dumps(api_params))
         return req
-    
+
     def create_cvm(self):
         req = self.get_request()
         print(f"创建cvm, 请求参数为: {req}")
@@ -105,15 +132,19 @@ class Cvm:
                 resp = self.client.RunInstances(req)
 
                 print(f"创建cvm, 响应为: {resp.to_json_string()}")
-                print(f"LOG. instance_id:{resp.InstanceIdSet[0]}")
-                print(f"VAR. instance_id:{resp.InstanceIdSet[0]}")
-                print(f'VAR. extinstance_id:{self.params["account"]}.{self.params["region"]}.{resp.InstanceIdSet[0]}')
+
+                for instance_id in resp.InstanceIdSet:
+                    print(f"LOG. instance_id:{instance_id}")
+                    print(f"VAR. instance_id:{instance_id}")
+                    print(f'VAR. extinstance_id:{self.params["account"]}.{self.params["region"]}.{instance_id}')
             except Exception as e:
                 print(f"创建腾讯云cvm出错, err: {e}", file=sys.stderr)
                 exit(1)
 
 
 def main(params):
+    print(f"params = {json.dumps(params)}")
+
     account = params["account"]
     region = params["region"]
 

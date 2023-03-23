@@ -14,9 +14,17 @@ option:
     command: c3mc-ec2-describe-regions | c3mc-bpm-display-field-values RegionName,RegionName
     type: selectx
 
-  - name: name
-    describe: 实例名称
+  - name: count
+    describe: 机器数目
+    type: number
+
+  - name: name_prefix
+    describe: 实例名称前缀
     type: input
+
+  - name: name_suffix_start_number
+    describe: 实例名称后缀起始数字
+    type: number
 
   - name: az
     describe: 可用区
@@ -166,6 +174,7 @@ option:
     describe: 删除ec2时删除数据盘
     command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
     type: selectx
+  
 
   - name: tag
     describe: 机器标签
@@ -174,13 +183,15 @@ option:
 
   - name: user_data
     describe: 系统初始化执行脚本(不超过16K大小)
-    type: input
+    type: text
     required: false
 
 template_argv:
   account: ${account}
   # 实例名称
-  name: ${name}
+  name_prefix: ${name_prefix}
+  # 实例名称后缀起始数字
+  name_suffix_start_number: ${name_suffix_start_number}
   region: ${region}
   availability_zone: ${az}
   # 系统架构
@@ -220,6 +231,8 @@ template_argv:
   subnet_id: ${subnet_id}
   # base64编码的用户脚本
   user_data: ${user_data}
+  # 数目
+  count: ${count}
   # 标签
   # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
   tag: ${tag}

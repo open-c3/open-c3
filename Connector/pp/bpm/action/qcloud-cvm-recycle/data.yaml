@@ -1,0 +1,42 @@
+---
+name: 回收腾讯云cvm
+option:
+  - name: recycle_type
+    describe: 回收类型
+    command: c3mc-ec2recycle-recycle-type | c3mc-bpm-display-field-values id,desc
+    type: selectx
+
+  - name: stop_type
+    describe: 实例的关闭模式
+    command: c3mc-cvm-recycle-stop-type | c3mc-bpm-display-field-values id,desc
+    type: selectx
+    show:
+      - recycle_type: ["stop"]
+
+  - name: stopped_mode
+    describe: 实例关机收费模式 (针对按量计费机器)
+    command: c3mc-cvm-recycle-stopped-mode | c3mc-bpm-display-field-values id,desc
+    type: selectx
+    show:
+      - recycle_type: ["stop"]
+    information: "关机停止收费模式下, 实例的公网IP会被释放。当您再次启动实例时, 可能会分配到一个新的公网IP地址。对于包年包月机器, 该选项不生效"
+
+  - name: delete_disk_snapshot
+    describe: 销毁数据盘时删除关联的非永久保留快照
+    command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
+    type: selectx
+    value: ""
+    show:
+      - recycle_type: ["terminate"]
+
+  - name: instance_ids
+    describe: 实例id列表 (多个用英文逗号分隔)
+    type: text
+
+template_argv:
+  # 回收类型
+  recycle_type: ${recycle_type}
+  # cvm实例列表
+  instance_ids: ${instance_ids}
+  # 回收数据盘时是否回收非永久类型快照
+  delete_disk_snapshot: ${delete_disk_snapshot}
