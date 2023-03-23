@@ -9,17 +9,28 @@ import hashlib
 
 
 # 这种情况直接把 line 和 regin 拼接在一起
+#
+# 适用于 aliyun aws ksyun gcp
 def create_ak_line_v1(line, region_list):
-    return [f"{line} {region}" for region in region_list]
+    parts = line.split()
+    parts = [word.strip() for word in parts]
+
+    if parts[-1] != "*":
+        # 如果最后一位不是星号忽略该配置
+        return []
+
+    prefix = " ".join(parts[:-1])
+
+    return [f"{prefix} {region}" for region in region_list]
 
 # 这种情况是 line 最后有账号配置，而 region 应该配置在账号前面
+#
+# 适用于 qcloud huawei
 def create_ak_line_v2(line, region_list):
-    result = []
-    for region in region_list:
-        items = line.split()
-        items[-2] += f"  {region}"
-        result.append(" ".join(items))
-    return result
+    parts = line.split()
+    ext_info = parts[-1]
+    l = create_ak_line_v1(" ".join(parts[:-1]), region_list)
+    return [f"{item} {ext_info}" for item in l]
 
 def get_file_lines(file_path):
     if not os.path.exists(file_path):
@@ -67,6 +78,7 @@ def get_ak_line_list(ext_account_path, cloud):
             if output.returncode != 0:
                 print(output.stderr, file=sys.stderr)
                 exit(1)
+            
             region_list = output.stdout.split("\n")
             region_list = list(filter(lambda x: x != "", region_list))
 
@@ -116,7 +128,7 @@ def create_cloud_ak_lines():
             dst_file = os.path.join(dir_path, filename)
             shutil.move(src_file, dst_file)
     except Exception as e:
-        raise Exception(e)
+        raise RuntimeError(f"同步云账号出错, err: {e}") from e
     finally:
         shutil.rmtree(tmp_dir_path)
     

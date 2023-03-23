@@ -21,6 +21,52 @@ exit unless -f $config;
 my $conf = eval{ YAML::XS::LoadFile $config };
 die "load confg fail: $@" if $@;
 
+my $config_copytreecol = "$RealBin/../conf/config.copytreecol";
+$config_copytreecol = "$config_copytreecol.private" if -f "$config_copytreecol.private";
+
+if( -f $config_copytreecol )
+{
+    my $conf_copytreecol = eval{ YAML::XS::LoadFile $config_copytreecol };
+    die "load $config_copytreecol fail: $@" if $@;
+    for my $x ( @{$conf->{download}} )
+    {
+        my $name = $x->{template};
+        my $newcopytreecol;
+
+        if( $name =~ /\-volume$/ )
+        {
+            $newcopytreecol = $conf_copytreecol->{'default-volume'} if $conf_copytreecol->{'default-volume'};
+        }
+        else
+        {
+            $newcopytreecol = $conf_copytreecol->{'default'       } if $conf_copytreecol->{'default'       };
+        }
+
+        $newcopytreecol = $conf_copytreecol->{$name} if $conf_copytreecol->{$name};
+        
+        $x->{copytreecol} = [ @$newcopytreecol ] if $newcopytreecol;
+    }
+}
+
+my $config_defaulttree = "$RealBin/../conf/config.defaulttree";
+$config_defaulttree = "$config_defaulttree.private" if -f "$config_defaulttree.private";
+
+if( -f $config_defaulttree )
+{
+    my $conf_defaulttree = eval{ YAML::XS::LoadFile $config_defaulttree };
+    die "load $config_defaulttree fail: $@" if $@;
+    for my $x ( @{$conf->{download}} )
+    {
+        my $name = $x->{template};
+        my $newdefaulttree;
+
+        $newdefaulttree = $conf_defaulttree->{'default'}  if $conf_defaulttree->{'default'};
+        $newdefaulttree = $conf_defaulttree->{$name    }  if $conf_defaulttree->{$name    };
+        
+        $x->{defaulttree} = $newdefaulttree if $newdefaulttree;
+    }
+}
+
 my $runpath = "$RealBin/../run/download";
 system "mkdir -p $runpath" unless -d $runpath;
 
