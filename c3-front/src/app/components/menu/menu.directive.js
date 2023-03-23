@@ -100,6 +100,9 @@
                                 || sName == 'home.monreport'
                                 || sName == 'home.device.menu'
                                 || sName == 'home.device.data'
+                                || sName == 'home.global.k8sapptpl'
+                                || sName == 'home.global.jumpserverexipsite'
+                                || sName == 'home.connector.userleader'
                              ){
                                 $state.go(sName, {treeid:treeNode.id});
                             }else{
