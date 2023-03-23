@@ -16,7 +16,7 @@
   ```
 ### 华为云
   ```
-  账号(或者别名, 这个信息将会在资源详情中展示) ak sk 区域编码(比如 cn-east-2) iam_user_id(华为云iam用户id,询价的时候要用)
+  账号(或者别名, 这个信息将会在资源详情中展示) ak sk 项目ID 区域编码(比如 cn-east-2) iam_user_id(华为云iam用户id,询价的时候要用)
   ```
 ### 金山云
   ```
@@ -84,7 +84,7 @@
 * `/data/Software/mydan/AGENT/device/conf/account/huawei`
   文件内容格式为:
   ```
-  账号(或者别名, 这个信息将会在资源详情中展示) ak sk 区域编码(比如 cn-east-2) iam_user_id(华为云iam用户id,询价的时候要用)
+  账号(或者别名, 这个信息将会在资源详情中展示) ak sk 项目ID 区域编码(比如 cn-east-2) iam_user_id(华为云iam用户id,询价的时候要用)
   ```
 * `/data/Software/mydan/AGENT/device/conf/account/huaweix`
   文件内容格式为:
