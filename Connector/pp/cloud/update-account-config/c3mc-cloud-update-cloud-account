@@ -6,6 +6,7 @@ import shutil
 import subprocess
 import sys
 import hashlib
+import fnmatch
 
 
 # 这种情况直接把 line 和 regin 拼接在一起
@@ -32,32 +33,43 @@ def create_ak_line_v2(line, region_list):
     l = create_ak_line_v1(" ".join(parts[:-1]), region_list)
     return [f"{item} {ext_info}" for item in l]
 
+
 def get_file_lines(file_path):
     if not os.path.exists(file_path):
         return []
     result = []
     with open(file_path, "r") as file:
-        result.extend(line.rstrip('\n') for line in file)
+        result.extend(line.rstrip("\n") for line in file)
     return result
+
+
+def is_file_empty(file_path):
+    with open(file_path, "r") as f:
+        for line in f:
+            if line.strip():
+                return False
+    return True
+
 
 def append_to_account_file(file_path, strings_list):
     if not os.path.exists(file_path):
         open(file_path, "w").close()
 
-    with open(file_path, 'a') as file:
+    with open(file_path, "a") as file:
         for line in strings_list:
-            file.write(line + '\n')
+            file.write(line + "\n")
+
 
 def save_account_file_with_md5(dir_path, strings_list):
     for element in strings_list:
-        md5 = hashlib.md5(element.encode('utf-8')).hexdigest()
-        
+        md5 = hashlib.md5(element.encode("utf-8")).hexdigest()
+
         file_path = os.path.join(dir_path, md5)
         if os.path.exists(file_path):
             continue
-        
+
         os.makedirs(file_path)
-        with open(os.path.join(file_path, 'data'), 'w') as f:
+        with open(os.path.join(file_path, "data"), "w") as f:
             f.write(element)
 
 
@@ -69,6 +81,8 @@ def get_ak_line_list(ext_account_path, cloud):
     ).split("\n")
     for resource_code in resource_codes:
         for ext_account_line in ext_account_line_list:
+            if not ext_account_line.strip():
+                continue
             region_list = []
             cmd_parts = [f"c3mc-cloud-{cloud}-region-list"]
             cmd_parts.extend(ext_account_line.split()[1:])
@@ -110,7 +124,13 @@ def create_cloud_ak_lines():
     try:
         for cloud in ["aliyun", "aws", "google", "huawei", "ksyun", "qcloud"]:
             ext_account_path = os.path.join(ext_dir_path, f"{cloud}x")
-            if not os.path.exists(ext_account_path):
+            if not os.path.exists(ext_account_path) or is_file_empty(ext_account_path):
+                # 如果找不到x配置文件，删除所有为该云生成的扩展账号文件
+                files = os.listdir(dir_path)
+                for file in files:
+                    if fnmatch.fnmatch(file, f"{cloud}.*"):
+                        file_path = os.path.join(dir_path, file)
+                        os.remove(file_path)
                 continue
 
             data = get_ak_line_list(ext_account_path, cloud)
