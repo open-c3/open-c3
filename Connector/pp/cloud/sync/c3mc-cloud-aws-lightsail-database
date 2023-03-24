@@ -6,11 +6,30 @@ import json
 
 import boto3
 
+# 目前lightsail只支持如下区域
+lightsail_support_regions = [
+    "us-east-2",
+    "us-east-1",
+    "us-west-2",
+    "ap-south-1",
+    "ap-northeast-2",
+    "ap-southeast-1",
+    "ap-southeast-2",
+    "ap-northeast-1",
+    "ca-central-1",
+    "eu-central-1",
+    "eu-west-1",
+    "eu-west-2",
+    "eu-west-3",
+    "eu-north-1",
+]
+
 
 class LightsailDatabase:
     """
     同步lightsail的关系型数据库资源
     """
+
     def __init__(self, access_id, access_key, region):
         self.access_id = access_id
         self.access_key = access_key
@@ -52,8 +71,10 @@ class LightsailDatabase:
 
 
 def main(access_id, access_key, region):
+    if region not in lightsail_support_regions:
+        return
     LightsailDatabase(access_id, access_key, region).show()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3])
