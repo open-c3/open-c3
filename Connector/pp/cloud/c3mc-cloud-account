@@ -14,11 +14,12 @@ use POSIX;
  $0 --plugin c3mc-cloud-huawei-rds --account huawei
  $0 --plugin c3mc-cloud-huawei-rds --account huawei --raw # use account line
  $0 --plugin c3mc-cloud-huawei-rds --account huawei --aksk
+ $0 --plugin c3mc-cloud-huawei-rds --account huawei --cloudaccount huawei-acount-name-001
 
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o      = $option->get(    qw( plugin=s account=s raw aksk ) )->dump();
+my %o      = $option->get(    qw( plugin=s account=s raw aksk cloudaccount=s ) )->dump();
              $option->assert( qw( plugin ) );
 
 my $id;
@@ -28,6 +29,9 @@ sub sync
     my ( $d, $accounttype ) = @_;
     my ( $account, $argv ) = split /\s+/, $d, 2;
     $argv = $d if $o{raw};
+
+    return if $o{cloudaccount} && $o{cloudaccount} ne $account;
+
     my @x = `$o{plugin} $argv`;
     die "Error" if $?;
     chomp @x;

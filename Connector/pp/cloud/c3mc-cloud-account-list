@@ -1,0 +1,33 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 --type huawei-rds
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o      = $option->get(    qw( type=s ) )->dump();
+             $option->assert( qw( type ) );
+
+
+my ( $account, $subname )  = split /\-/, $o{type}, 2;
+
+my %account;
+for ( ( $account, "$account.$subname" ) )
+{
+    my $file = "/data/Software/mydan/AGENT/device/conf/account/$_";
+    next unless -f $file;
+
+    my    @x = `cat $file`;
+    chomp @x;
+    map{ $account{ ( split /\s+/, $_ )[0] } ++; }@x;
+}
+
+map{ print "$_\n" }keys %account;
