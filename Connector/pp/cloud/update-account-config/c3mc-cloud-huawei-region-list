@@ -73,7 +73,10 @@ class Huawei:
         elif self.resource_type == "nosql":
             regions = self.list_regions("云数据库 GaussDB NoSQL")
         elif self.resource_type == "obs":
-            regions = self.list_regions("对象存储服务 OBS")
+            # obs属于全局资源，通过每个区域都可以拉取到所有其他区域的obs资源
+            # 为了避免重复拉取资源，下面regions数组只保留一个元素
+            # regions = self.list_regions("对象存储服务 OBS")
+            regions = ["cn-north-4"]
         elif self.resource_type == "rds":
             regions = self.list_regions("云数据库 RDS")
         elif self.resource_type == "redis":
