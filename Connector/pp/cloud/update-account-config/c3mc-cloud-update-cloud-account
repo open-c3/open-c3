@@ -81,6 +81,8 @@ def get_ak_line_list(ext_account_path, cloud):
     ).split("\n")
     for resource_code in resource_codes:
         for ext_account_line in ext_account_line_list:
+            if not ext_account_line.strip():
+                continue
             region_list = []
             cmd_parts = [f"c3mc-cloud-{cloud}-region-list"]
             cmd_parts.extend(ext_account_line.split()[1:])
