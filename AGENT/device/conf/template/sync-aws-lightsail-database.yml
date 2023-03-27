@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aws-lightsail-database --account aws | c3mc-cloud-tag-v2 --tagfield tags --key key --value value | c3mc-base-json2tab "
+  - url: "cmd:c3mc-cloud-account-list --type aws-lightsail-database |xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-aws-lightsail-database --account aws --cloudaccount {} | c3mc-cloud-tag-v2 --tagfield tags --key key --value value | c3mc-base-json2tab "
     datatype: tsv
     type: database
     subtype: aws-lightsail-database

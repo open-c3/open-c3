@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-clb --account qcloud | c3mc-cloud-tag-v2 --tagfield Tags --key TagKey --value TagValue | c3mc-base-json2tab "
+  - url: "cmd:c3mc-cloud-account-list --type qcloud-clb |xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-qcloud-clb --account qcloud --cloudaccount {} | c3mc-cloud-tag-v2 --tagfield Tags --key TagKey --value TagValue | c3mc-base-json2tab "
     datatype: tsv
     type: networking
     subtype: qcloud-clb

@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-qcloud-cos --account qcloud | c3mc-cloud-tag-v2 --tagfield tags --key Key --value Value | c3mc-base-json2tab "
+  - url: "cmd:c3mc-cloud-account-list --type qcloud-cos |xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-qcloud-cos --account qcloud --cloudaccount {} | c3mc-cloud-tag-v2 --tagfield tags --key Key --value Value | c3mc-base-json2tab "
     datatype: tsv
     type: storage
     subtype: qcloud-cos
