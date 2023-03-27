@@ -47,12 +47,16 @@ class Kcs:
         return response_data
 
     def get_server_count(self):
-        response_data = self.get_response()
-        return response_data["Data"]["total"]
+        try: 
+            response_data = self.get_response()
+        except Exception as e:
+            if "由于未知错误" in str(e):
+                print(f"同步金山云redis资源出现错误, 可能是区域配置错误问题. ak = {self.access_id}, region = {self.region}", file=sys.stderr)
+                return 0
+        return 0 if response_data["Data"] is None else response_data["Data"]["total"]
 
     def list_instance(self):
         response_data = self.get_response()
-
         result = []
         for instance in response_data["Data"]["list"]:
             if "status" in instance and isinstance(instance["status"], int):
