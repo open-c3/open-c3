@@ -4,7 +4,18 @@
 import sys
 import json
 
+import threading
 import boto3
+
+
+class ThreadSafeArray:
+    def __init__(self):
+        self._array = []
+        self._lock = threading.Lock()
+
+    def append(self, value):
+        with self._lock:
+            self._array.append(value)
 
 
 class S3:
@@ -24,26 +35,44 @@ class S3:
         )
         return client
 
+    def add_tag_info_to_bucket(self, semaphore, array, bucket_info):
+        semaphore.acquire()
+        tags = self.list_tag(
+            self.access_id, self.access_key, self.region, bucket_info["Name"]
+        )
+        bucket = {
+            "UUID": "{}-{}-{}".format(self.account, self.region, bucket_info["Name"]),
+            "BucketName": bucket_info["Name"],
+            "CreationDate": bucket_info["CreationDate"],
+            "RegionId": self.region,
+            "Tags": tags,
+        }
+        array.append(bucket)
+        semaphore.release()
+
     def list_buckets(self):
         response = self.client.list_buckets()
-        bucket_list = []
-        for bucket_info in response["Buckets"]:
-            tags = self.list_tag(
-                self.access_id, self.access_key, self.region, bucket_info["Name"])
-            bucket = {
-                "UUID": "{}-{}-{}".format(self.account, self.region, bucket_info["Name"]),
-                "BucketName": bucket_info["Name"],
-                "CreationDate": bucket_info["CreationDate"],
-                "RegionId": self.region,
-                "Tags": tags
-            }
-            bucket_list.append(bucket)
 
-        return bucket_list
+        array = ThreadSafeArray()
+        semaphore = threading.Semaphore(20)
+        threads = []
+        for bucket_info in response["Buckets"]:
+            t = threading.Thread(
+                target=self.add_tag_info_to_bucket,
+                args=(semaphore, array, bucket_info),
+            )
+            threads.append(t)
+            t.start()
+
+        for t in threads:
+            t.join()
+
+        return array._array
 
     def list_tag(self, access_id, access_key, region, bucket_name):
         sys.path.append("/data/Software/mydan/Connector/lib/pp")
         from c3mc_cloud_aws_s3_get_tag import GetTag
+
         return GetTag(access_id, access_key, region, bucket_name).list_tag()
 
     def show(self):
@@ -56,5 +85,5 @@ def main(account, access_id, access_key, region):
     S3(account, access_id, access_key, region).show()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
