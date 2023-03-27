@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-huawei-nosql --account huawei | c3mc-base-json2tab "
+  - url: "cmd:c3mc-cloud-account-list --type huawei-nosql|xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-huawei-nosql --account huawei --cloudaccount {} | c3mc-base-json2tab "
     datatype: tsv
     type: database
     subtype: huawei-nosql

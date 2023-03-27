@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-aliyun-ecs --account aliyun | c3mc-cloud-tag-v2 --tagfield Tag --key TagKey --value TagValue | c3mc-base-json2tab "
+  - url: "cmd:c3mc-cloud-account-list --type aliyun-ecs|xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-aliyun-ecs --account aliyun --cloudaccount {} | c3mc-cloud-tag-v2 --tagfield Tag --key TagKey --value TagValue | c3mc-base-json2tab "
     datatype: tsv # 固定值。表示url中命令最终输出的文件格式
     type: compute # 资源类型。cmdb页面中的分类
     subtype: aliyun-ecs # 上面资源类型的子类型。

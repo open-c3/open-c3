@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account -p c3mc-cloud-ksyun-ks3 --account ksyun | c3mc-base-json2tab "
+  - url: "cmd:c3mc-cloud-account-list --type ksyun-ks3 |xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-ksyun-ks3 --account ksyun --cloudaccount {} | c3mc-base-json2tab "
     datatype: tsv
     type: storage
     subtype: ksyun-ks3
