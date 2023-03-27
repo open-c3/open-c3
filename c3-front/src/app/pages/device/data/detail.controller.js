@@ -203,12 +203,12 @@
  
         vm.chpasswd = function( data, dbaddrcolname, dbtype, password ){
             vm.dbaddr = '';
-                angular.forEach(data, function (value) {
-                    if( value[0] == dbaddrcolname )
-                    {
-                        vm.dbaddr = value[1];
-                    }
-                });
+            angular.forEach(data, function (value) {
+                if( value[0] == dbaddrcolname )
+                {
+                    vm.dbaddr = value[1];
+                }
+            });
 
             swal({
                 title: '修改账号',

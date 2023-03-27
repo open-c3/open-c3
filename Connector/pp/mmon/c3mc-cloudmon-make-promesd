@@ -32,12 +32,16 @@ if( @id )
 sub dumpfile
 {
     my ( $dist, $data ) = @_;
-    my $tmp = File::Temp->new( SUFFIX => ".cloudmon_tmp", UNLINK => 0 );
+
+    my $dir = "/data/Software/mydan/prometheus/config/tmp";
+    mkdir $dir unless -d $dir;
+
+    my $tmp = File::Temp->new( SUFFIX => ".cloudmon_tmp", UNLINK => 0, DIR => $dir );
     print $tmp $data;
     close $tmp;
-    system "rm -rf '$dist'" if -d $dist;
+
+    chmod 0644, $tmp->filename;
     system sprintf "mv '%s' '$dist'",$tmp->filename;
-    system "chmod a+r '$dist'";
 }
 sub srv
 {
