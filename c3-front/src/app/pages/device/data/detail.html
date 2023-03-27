@@ -138,8 +138,7 @@
                 <div ng-if="infoItems.operationFlag" class="detail-card" ng-show="devicedatadetail">
                   <div class="detail-card-content">
                     <div class="row" ng-repeat="item in infoItems.otherinfo">
-                      <div 
-                      >
+                      <div>
                         <div ng-if="devicedatadetail.treenamecol===item[0]" class="label-content">
                           <label class="col-md-4  control-label fwbold" >全量服务树</label>
                           <label class="col-md-8 control-label fwbold" >
@@ -170,19 +169,19 @@
                         <div ng-if="'_mysqlauth_'==item[0]">
                           <label class="col-md-4  control-label fwbold" >{{item[0]}}</label>
                           <div class="col-md-6"> <input class="form-control" ng-model="item[1]" /> </div>
-                          <a ng-show="devicedatadetail.selectedtimemachine =='curr'" class="btn btn-system" ng-click="devicedatadetail.chpasswd( data, '_mysqladdr_', 'mysql', item[1])">修改Mysql密码</a>
+                          <a ng-show="devicedatadetail.selectedtimemachine =='curr'" class="btn btn-system" ng-click="devicedatadetail.chpasswd( infoItems.otherinfo, '_mysqladdr_', 'mysql', item[1])">修改Mysql密码</a>
                         </div>
 
                         <div ng-if="'_redisauth_'==item[0]">
                           <label class="col-md-4  control-label fwbold" >{{item[0]}}</label>
                           <div class="col-md-6"> <input class="form-control" ng-model="item[1]" /> </div>
-                          <a ng-show="devicedatadetail.selectedtimemachine =='curr'" class="btn btn-system" ng-click="devicedatadetail.chpasswd( data, '_redisaddr_', 'redis', item[1])">修改Redis密码</a>
+                          <a ng-show="devicedatadetail.selectedtimemachine =='curr'" class="btn btn-system" ng-click="devicedatadetail.chpasswd( infoItems.otherinfo, '_redisaddr_', 'redis', item[1])">修改Redis密码</a>
                         </div>
 
                         <div ng-if="'_mongodbauth_'==item[0]">
                           <label class="col-md-4  control-label fwbold" >{{item[0]}}</label>
                           <div class="col-md-6"> <input class="form-control" ng-model="item[1]" /> </div>
-                          <a ng-show="devicedatadetail.selectedtimemachine =='curr'" class="btn btn-system" ng-click="devicedatadetail.chpasswd( data, '_mongodbaddr_', 'mongodb', item[1])">修改MongoDB密码</a>
+                          <a ng-show="devicedatadetail.selectedtimemachine =='curr'" class="btn btn-system" ng-click="devicedatadetail.chpasswd( infoItems.otherinfo, '_mongodbaddr_', 'mongodb', item[1])">修改MongoDB密码</a>
                         </div>
 
                         <div ng-if="'_auth_'==item[0]">
