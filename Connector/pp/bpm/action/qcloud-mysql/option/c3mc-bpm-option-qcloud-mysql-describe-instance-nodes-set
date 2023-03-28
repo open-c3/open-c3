@@ -1,0 +1,37 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import json
+import sys
+
+
+def get_data_list(engine_type):
+    item1 = {
+        "id": 1,
+        "name": "单节点"
+    }
+    item2 = {
+        "id": 2,
+        "name": "双节点"
+    }
+    item3 = {
+        "id": 3,
+        "name": "三节点"
+    }
+    return [item2] if engine_type == "RocksDB" else [item1, item2, item3]
+
+
+def main(params):
+    """查询架构配置选项
+    """
+    data_list = get_data_list(params["engine_type"])
+    for item in data_list:
+        print(json.dumps(item))
+
+
+if __name__ == '__main__':
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
+
+    main(json.loads(l[0]))

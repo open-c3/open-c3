@@ -1,0 +1,153 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import json
+import sys
+
+
+def get_data_list(charset_type):
+    return {
+        "GBK": [
+            "GBK_CHINESE_CI",
+            "GBK_BIN"
+        ],
+        "UTF8": [
+            "UTF8_GENERAL_CI",
+            "UTF8_BIN",
+            "UTF8_CROATIAN_CI",
+            "UTF8_CZECH_CI",
+            "UTF8_DANISH_CI",
+            "UTF8_ESPERANTO_CI",
+            "UTF8_ESTONIAN_CI",
+            "UTF8_GENERAL_MYSQL500_CI",
+            "UTF8_GERMAN2_CI",
+            "UTF8_HUNGARIAN_CI",
+            "UTF8_ICELANDIC_CI",
+            "UTF8_LATVIAN_CI",
+            "UTF8_LITHUANIAN_CI",
+            "UTF8_PERSIAN_CI",
+            "UTF8_POLISH_CI",
+            "UTF8_ROMAN_CI",
+            "UTF8_ROMANIAN_CI",
+            "UTF8_SINHALA_CI",
+            "UTF8_SLOVAK_CI",
+            "UTF8_SLOVENIAN_CI",
+            "UTF8_SPANISH2_CI",
+            "UTF8_SPANISH_CI",
+            "UTF8_SWEDISH_CI",
+            "UTF8_TOLOWER_CI",
+            "UTF8_TURKISH_CI",
+            "UTF8_UNICODE_520_CI",
+            "UTF8_UNICODE_CI",
+            "UTF8_VIETNAMESE_CI"
+        ],
+        "UTF8MB4": [
+            "UTF8MB4_GENERAL_CI",
+            "UTF8MB4_0900_AI_CI",
+            "UTF8MB4_0900_AS_CI",
+            "UTF8MB4_0900_AS_CS",
+            "UTF8MB4_0900_BIN",
+            "UTF8MB4_BIN",
+            "UTF8MB4_CROATIAN_CI",
+            "UTF8MB4_CS_0900_AI_CI",
+            "UTF8MB4_CS_0900_AS_CS",
+            "UTF8MB4_CZECH_CI",
+            "UTF8MB4_DA_0900_AI_CI",
+            "UTF8MB4_DA_0900_AS_CS",
+            "UTF8MB4_DANISH_CI",
+            "UTF8MB4_DE_PB_0900_AI_CI",
+            "UTF8MB4_DE_PB_0900_AS_CS",
+            "UTF8MB4_EO_0900_AI_CI",
+            "UTF8MB4_EO_0900_AS_CS",
+            "UTF8MB4_ES_0900_AI_CI",
+            "UTF8MB4_ES_0900_AS_CS",
+            "UTF8MB4_ES_TRAD_0900_AI_CI",
+            "UTF8MB4_ES_TRAD_0900_AS_CS",
+            "UTF8MB4_ESPERANTO_CI",
+            "UTF8MB4_ESTONIAN_CI",
+            "UTF8MB4_ET_0900_AI_CI",
+            "UTF8MB4_ET_0900_AS_CS",
+            "UTF8MB4_GERMAN2_CI",
+            "UTF8MB4_HR_0900_AI_CI",
+            "UTF8MB4_HR_0900_AS_CS",
+            "UTF8MB4_HU_0900_AI_CI",
+            "UTF8MB4_HU_0900_AS_CS",
+            "UTF8MB4_HUNGARIAN_CI",
+            "UTF8MB4_ICELANDIC_CI",
+            "UTF8MB4_IS_0900_AI_CI",
+            "UTF8MB4_IS_0900_AS_CS",
+            "UTF8MB4_JA_0900_AS_CS",
+            "UTF8MB4_JA_0900_AS_CS_KS",
+            "UTF8MB4_LA_0900_AI_CI",
+            "UTF8MB4_LA_0900_AS_CS",
+            "UTF8MB4_LATVIAN_CI",
+            "UTF8MB4_LITHUANIAN_CI",
+            "UTF8MB4_LT_0900_AI_CI",
+            "UTF8MB4_LT_0900_AS_CS",
+            "UTF8MB4_LV_0900_AI_CI",
+            "UTF8MB4_LV_0900_AS_CS",
+            "UTF8MB4_PERSIAN_CI",
+            "UTF8MB4_PL_0900_AI_CI",
+            "UTF8MB4_PL_0900_AS_CS",
+            "UTF8MB4_POLISH_CI",
+            "UTF8MB4_RO_0900_AI_CI",
+            "UTF8MB4_RO_0900_AS_CS",
+            "UTF8MB4_ROMAN_CI",
+            "UTF8MB4_ROMANIAN_CI",
+            "UTF8MB4_RU_0900_AI_CI",
+            "UTF8MB4_RU_0900_AS_CS",
+            "UTF8MB4_SINHALA_CI",
+            "UTF8MB4_SK_0900_AI_CI",
+            "UTF8MB4_SK_0900_AS_CS",
+            "UTF8MB4_SL_0900_AI_CI",
+            "UTF8MB4_SL_0900_AS_CS",
+            "UTF8MB4_SLOVAK_CI",
+            "UTF8MB4_SLOVENIAN_CI",
+            "UTF8MB4_SPANISH2_CI",
+            "UTF8MB4_SPANISH_CI",
+            "UTF8MB4_SV_0900_AI_CI",
+            "UTF8MB4_SV_0900_AS_CS",
+            "UTF8MB4_SWEDISH_CI",
+            "UTF8MB4_TR_0900_AI_CI",
+            "UTF8MB4_TR_0900_AS_CS",
+            "UTF8MB4_TURKISH_CI",
+            "UTF8MB4_UNICODE_520_CI",
+            "UTF8MB4_UNICODE_CI",
+            "UTF8MB4_VI_0900_AI_CI",
+            "UTF8MB4_VI_0900_AS_CS",
+            "UTF8MB4_VIETNAMESE_CI",
+            "UTF8MB4_ZH_0900_AS_CS"
+        ],
+        "LATIN1": [
+            "LATIN1_SWEDISH_CI",
+            "LATIN1_BIN",
+            "LATIN1_DANISH_CI",
+            "LATIN1_GENERAL_CI",
+            "LATIN1_GENERAL_CS",
+            "LATIN1_GERMAN1_CI",
+            "LATIN1_GERMAN2_CI",
+            "LATIN1_SPANISH_CI"
+        ]
+    }[charset_type]
+
+
+def main(params):
+    """查询字符集排序规则列表
+
+    注意: 2022-03-27 DescribeAvailableCollation
+    目前这些数据官方尚未提供sdk方法
+    """
+    data_list = get_data_list(params["charset_type"])
+    for item in data_list:
+        print(json.dumps({
+            "id": item,
+            "name": item
+        }))
+
+
+if __name__ == '__main__':
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
+
+    main(json.loads(l[0]))
