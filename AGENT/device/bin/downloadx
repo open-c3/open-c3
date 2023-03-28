@@ -1,3 +1,9 @@
 #!/bin/bash
 
+starttime=`date +%s`
+
 cat /data/Software/mydan/AGENT/device/conf/config.yml|grep '^  \- template: sync-'|awk -F'-' '{print $3}'|sort|uniq|xargs -P 10 -i{} /data/Software/mydan/AGENT/device/bin/download {}
+
+finishtime=`date +%s`
+usetime=`expr $finishtime - $starttime`
+echo "c3_cmdb_sync_usetime_total $usetime"
