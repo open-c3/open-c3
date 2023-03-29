@@ -1,0 +1,348 @@
+---
+name: 创建腾讯云mysql
+option:
+  - name: account
+    describe: 云账号
+    command: c3mc-display-cloud-account-list qcloud
+    type: selectx
+    value: ""
+
+  - name: charge_type
+    describe: 付费方式
+    option: ["包年包月", "按量计费"]
+    type: select
+    value: ""
+
+  - name: instance_charge_count
+    describe: "购买时长(月)"
+    type: number
+    value: ""
+    show:
+      - charge_type: ["包年包月"]
+
+  - name: auto_renew_flag
+    describe: 自动续费标记
+    type: select
+    option:
+      - name: 0
+        alias: 不自动续费
+      - name: 1
+        alias: 自动续费
+    show:
+      - charge_type: ["包年包月"]
+
+  - name: region
+    describe: 区域
+    rely:
+      - account
+    command: c3mc-bpm-option-qcloud-mysql-describe-regions | c3mc-bpm-display-field-values id,name
+    type: selectx
+    value: ""
+
+  - name: zone
+    describe: 主可用区
+    rely:
+      - account
+      - region
+    command: c3mc-bpm-option-qcloud-mysql-describe-zones | c3mc-bpm-display-field-values zone,zone_name,status
+    type: selectx
+    value: ""
+
+  - name: cdb_sell_type
+    describe: 售卖实例类型
+    rely:
+      - account
+      - region
+      - zone
+      - charge_type
+    command: c3mc-bpm-option-qcloud-mysql-describe-cdb-sell-type-list | c3mc-bpm-display-field-values id,desc
+    type: selectx
+
+  - name: engine_version
+    describe: 数据库版本
+    rely:
+      - account
+      - region
+      - zone
+      - charge_type
+      - cdb_sell_type
+    command: c3mc-bpm-option-qcloud-mysql-describe-engine-version-list | c3mc-bpm-display-field-values id,name
+    type: selectx
+
+  - name: engine_type
+    describe: 引擎类型
+    rely:
+      - account
+      - region
+      - zone
+      - charge_type
+      - charge_type
+    command: c3mc-bpm-option-qcloud-mysql-describe-engine-type-list | c3mc-bpm-display-field-values id,name
+    type: selectx
+
+  - name: instance_nodes
+    describe: 架构
+    rely:
+      - engine_type
+    command: c3mc-bpm-option-qcloud-mysql-describe-instance-nodes-set | c3mc-bpm-display-field-values id,name
+    type: selectx
+    value: ""
+
+  - name: backup_zone1
+    describe: 备可用区
+    rely:
+      - account
+      - region
+      - zone
+    command: c3mc-bpm-option-qcloud-mysql-describe-backup-zones | c3mc-bpm-display-field-values id,name
+    type: selectx
+    value: ""
+    show:
+      - instance_nodes: [3, 2]
+
+  - name: backup_zone2
+    describe: 备可用区
+    rely:
+      - account
+      - region
+      - zone
+    command: c3mc-bpm-option-qcloud-mysql-describe-backup-zones | c3mc-bpm-display-field-values id,name
+    type: selectx
+    value: ""
+    show:
+      - instance_nodes: [3]
+
+  # - name: instance_role
+  #   describe: 实例类型
+  #   type: select
+  #   option:
+  #     - name: master
+  #       alias: 主实例
+  #     - name: dr
+  #       alias: 灾备实例
+  #     - name: ro
+  #       alias: 只读实例
+
+  - name: device_type
+    describe: 实例隔离类型
+    type: select
+    option:
+      - name: UNIVERSAL
+        alias: 通用型实例点(官方默认)
+      - name: EXCLUSIVE
+        alias: 独享型实例
+      - name: BASIC
+        alias: 基础版实例
+
+  - name: instance_config
+    describe: 实例配置
+    rely:
+      - account
+      - region
+      - zone
+      - charge_type
+      - cdb_sell_type
+      - device_type
+      - engine_type
+    command: c3mc-bpm-option-qcloud-mysql-describe-instance-config-list | c3mc-bpm-display-field-values Memory,Cpu,Memory,Iops,VolumeMax
+    type: selectx
+    value: ""
+    information: '如果实例配置下拉列表为空, 可能是无法筛选到符合条件的数据。请尝试修改 "账号"、"可用区"、"付费方式"、"售卖实例类型"、"实例隔离类型"、"引擎类型" 中的任意条件后再次尝试。'
+
+  - name: disk_size
+    describe: 硬盘
+    type: number
+    information: "单位GB. 最小: 25, 最大: 3000. 必须是5的倍数"
+
+  - name: vpc_id
+    describe: VPC
+    rely:
+      - account
+      - region
+    command: c3mc-qcloud-cvm-describe-vpcs | c3mc-bpm-display-field-values VpcId,VpcName
+    type: selectx
+    value: ""
+
+  - name: subnet_id
+    describe: 子网
+    rely:
+      - account
+      - region
+      - vpc_id
+      - zone
+    command: c3mc-qcloud-cvm-describe-subnets | c3mc-bpm-display-field-values SubnetId,SubnetName,AvailableIpAddressCount
+    type: selectx
+    value: ""
+
+  - name: port
+    describe: 自定义端口
+    type: number
+    information: "端口取值范围: 1024 - 65535"
+
+  - name: project_id
+    describe: 项目
+    rely:
+      - account
+      - region
+    command: c3mc-qcloud-cvm-describe-projects | c3mc-bpm-display-field-values ProjectId,Name
+    type: selectx
+    value: ""
+
+  - name: security_group_ids
+    describe: 安全组
+    rely:
+      - account
+      - region
+      - project_id
+    command: c3mc-qcloud-cvm-describe-security-groups | c3mc-bpm-display-field-values SecurityGroupId,SecurityGroupName
+    type: selectxm
+    value: ""
+    formation: "安全组和账号、区域、项目有关，如果没有安全组可以选择，请确认项目是否选择正确。"
+
+  - name: tag
+    describe: 标签
+    # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
+    type: kvarray
+    value: "[]"
+
+  - name: alarm_policies
+    describe: 告警策略
+    rely:
+      - account
+      - region
+      - project_id
+    command: c3mc-bpm-option-qcloud-mysql-describe-alarm-policies-list | c3mc-bpm-display-field-values PolicyId,PolicyName,NamespaceShowName
+    type: selectxm
+    value: ""
+
+  - name: instance_name
+    describe: 实例名称前缀
+    type: input
+    information: "实例名称。一次购买多个实例命名会用后缀数字区分, 例如instnaceName=db,goodsNum=3, 实例命名分别为db1,db2,db3。"
+
+  - name: count
+    describe: 数目
+    type: number
+
+  - name: protect_mode
+    describe: 数据复制方式
+    rely:
+      - instance_nodes
+    command: c3mc-bpm-option-qcloud-mysql-describe-protect-mode-list | c3mc-bpm-display-field-values id,name
+    type: selectx
+    value: ""
+    show:
+      - instance_nodes: [3, 2]
+    information: "单节点架构不允许选择数据复制方式"
+
+  - name: param_template_id
+    describe: 参数模板
+    rely:
+      - account
+      - engine_version
+      - engine_type
+    command: c3mc-bpm-option-qcloud-mysql-describe-param-templates | c3mc-bpm-display-field-values TemplateId,Name,TemplateType,Description
+    type: selectx
+    value: ""
+    information: '如果下拉列表为空，请尝试修改账号、引擎版本、引擎类型等条件'
+
+  # - name: charset_type
+  #   describe: 字符集
+  #   type: select
+  #   option: ["LATIN1", "UTF8", "GBK", "UTF8MB4"]
+  #   value: ""
+
+  # - name: charset_sort_type
+  #   describe: 排序规则
+  #   rely:
+  #     - charset_type
+  #   command: c3mc-bpm-option-qcloud-mysql-describe-available-collation | c3mc-bpm-display-field-values id,name
+  #   type: selectx
+  #   value: ""
+  #   information: "若字符集设置不当会导致写数据或者导入数据出现乱码"
+
+  # - name: lower_case_table_names
+  #   describe: 表名大小写敏感
+  #   type: select
+  #   option:
+  #     - name: 0
+  #       alias: 开启
+  #     - name: 1
+  #       alias: 关闭
+
+  - name: password
+    describe: 密码
+    type: input
+    information: "至少包含字母、数字和字符（_+-&=!@#$%^*()）中的两种，长度为8-64个字符"
+
+  - name: if_need_open_wan
+    describe: 是否需要开通公网访问
+    command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
+    type: selectx
+    value: ""
+
+template_argv:
+  # bpm单号
+  bpm_uuid: ${_bpmuuid_}
+  # 账号
+  account: ${account}
+  # 付费方式
+  charge_type: ${charge_type}
+  # 购买时长。针对包年包月付费方式
+  instance_charge_count: ${instance_charge_count}
+  # 自动续费标记
+  auto_renew_flag: ${auto_renew_flag}
+  # 区域
+  region: ${region}
+  # 售卖实例类型
+  cdb_sell_type: ${cdb_sell_type}
+  # 数据库版本
+  engine_version: ${engine_version}
+  # 引擎类型
+  engine_type: ${engine_type}
+  # 架构
+  instance_nodes: ${instance_nodes}
+  # 主可用区
+  zone: ${zone}
+  # 备可用区
+  backup_zone1: ${backup_zone1}
+  # 备可用区
+  backup_zone2: ${backup_zone2}
+  # 实例配置
+  instance_config: ${instance_config}
+  # 硬盘
+  disk_size: ${disk_size}
+  # VPC
+  vpc_id: ${vpc_id}
+  # 子网
+  subnet_id: ${subnet_id}
+  # # 实例类型
+  # instance_role: ${instance_role}
+  # 自定义端口
+  port: ${port}
+  # 安全组
+  security_group_ids: ${security_group_ids}
+  # 项目
+  project_id: ${project_id}
+  # 标签
+  tag: ${tag}
+  # 告警策略
+  alarm_policies: ${alarm_policies}
+  # 实例名称前缀
+  instance_name: ${instance_name}
+  # 数目
+  count: ${count}
+  # 数据复制方式
+  protect_mode: ${protect_mode}
+  # 参数模板
+  param_template_id: ${param_template_id}
+  # 字符集
+  # charset_type: ${charset_type}
+  # # 排序规则
+  # charset_sort_type: ${charset_sort_type}
+  # # 表名大小写敏感
+  # lower_case_table_names: ${lower_case_table_names}
+  # 密码
+  password: ${password}
+  # 是否需要开通公网访问
+  if_need_open_wan: ${if_need_open_wan}
