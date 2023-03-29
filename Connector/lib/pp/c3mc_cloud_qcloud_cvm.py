@@ -83,6 +83,10 @@ class Cvm:
         req = cvm_models.DescribeInstancesRequest()
         req.InstanceIds = [instance_id]
         resp = self.cvm_client.DescribeInstances(req)
+        if len(resp.InstanceSet) == 0:
+            print(f"实例: {instance_id} 的详情未查询到，可能在工单其他操作时间段资源已被释放")
+            return
+
         instance = resp.InstanceSet[0]
         data_disk_ids = []
         for disk in instance.DataDisks:

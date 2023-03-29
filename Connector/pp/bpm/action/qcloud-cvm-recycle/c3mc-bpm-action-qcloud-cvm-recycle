@@ -70,6 +70,9 @@ def main(params):
         query_cmd = f"c3mc-device-cat curr compute qcloud-cvm {instance_identifier} | c3mc-base-tab2json"
         print(f"实例信息, uuid: {instance_identifier}, 查询命令: {query_cmd}")
         resource_info_str = subprocess.getoutput(query_cmd)
+        if resource_info_str.strip() == "":
+            # 可能工单中途有错误，某些资源在云端已被删除，并且本地经过同步后也删除了相关实例
+            continue
 
         resource_info = json.loads(resource_info_str.split("\n")[0])
 
