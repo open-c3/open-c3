@@ -359,7 +359,8 @@ post '/task/:projectid/job/byname' => sub {
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
-    my $pmscheck = api::pmscheck( 'openc3_job_write', $param->{projectid} ); return $pmscheck if $pmscheck;
+    my $point = ( $param->{projectid} == 0 && $param->{jobname} =~ /^bpm-/ ) ? 'openc3_job_read' : 'openc3_job_write';
+    my $pmscheck = api::pmscheck( $point, $param->{projectid} ); return $pmscheck if $pmscheck;
 
     my $slave = eval{ $param->{slave} || keepalive->new( $api::mysql )->slave() };
     return  +{ stat => $JSON::false, info => "get slave fail: $@" } if $@;
