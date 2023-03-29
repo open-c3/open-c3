@@ -87,7 +87,7 @@ get '/default/tree' => sub {
 post '/default/tree' => sub {
     my $param = params();
     my $error = Format->new( 
-        name => qr/^[a-zA-Z][a-zA-Z0-9_]*$/, 1,
+        name => qr/^[a-zA-Z][a-zA-Z0-9_\-]*$/, 1,
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
@@ -118,7 +118,7 @@ post '/default/tree/:projectid' => sub {
     my $param = params();
     my $error = Format->new( 
         projectid => qr/^\d+$/, 1,
-        name => qr/^[a-zA-Z][a-zA-Z0-9_]*$/, 1,
+        name => qr/^[a-zA-Z][a-zA-Z0-9_\-]*$/, 1,
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
