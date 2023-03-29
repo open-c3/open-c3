@@ -252,7 +252,7 @@ post '/bpm/optionx' => sub {
     print $TEMP $json;
     close $TEMP;
 
-    my @x = `cat '$tempfile'|$command`;
+    my @x = `set -o pipefail;cat '$tempfile'|$command`;
     if( $? )
     {
         return +{ stat => $JSON::false, info => \@x };
