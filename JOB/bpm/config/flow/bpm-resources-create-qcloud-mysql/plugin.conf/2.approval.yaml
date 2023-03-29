@@ -1,0 +1,17 @@
+---
+name: '业务负责人审批'
+option:
+  - describe: 业务审批人
+    name: oaapprover
+    type: input
+    value: ""
+
+  - describe: 申请理由
+    name: note
+    type: text
+    value: ""
+
+template_argv:
+  approver: ${oaapprover}
+  title:    "BPM/${_bpmuuid_}/资源申请/腾讯云/Mysql"
+  content:  "\n申请人:${_user_}\nBPM单号:${_bpmuuid_}\n申请理由:${x.note}"

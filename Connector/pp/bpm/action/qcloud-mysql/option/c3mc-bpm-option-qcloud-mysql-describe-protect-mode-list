@@ -1,0 +1,42 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import json
+import sys
+
+
+def get_data_list(instance_nodes):
+    item1 = {
+        "id": 0,
+        "name": "异步复制"
+    }
+    item2 = {
+        "id": 1,
+        "name": "半同步复制"
+    }
+    item3 = {
+        "id": 2,
+        "name": "强同步复制"
+    }
+    if instance_nodes == 1:
+        return []
+    elif instance_nodes == 2:
+        return [item1, item2]
+    else:
+        return [item1, item2, item3]
+
+
+def main(params):
+    """获取数据复制方式列表
+    """
+    data_list = get_data_list(int(params["instance_nodes"]))
+    for item in data_list:
+        print(json.dumps(item))
+
+
+if __name__ == '__main__':
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
+
+    main(json.loads(l[0]))

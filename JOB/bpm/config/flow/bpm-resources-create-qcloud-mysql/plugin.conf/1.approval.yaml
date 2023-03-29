@@ -1,0 +1,13 @@
+---
+name: 运维审批
+option:
+  - describe: 运维审批人
+    name: opapprover
+    type: selectx
+    value: ""
+    command: "c3mc-bpm-optionx-opapprover"
+
+template_argv:
+  approver: ${opapprover}
+  title:    "BPM/${_bpmuuid_}/资源申请/腾讯云/Mysql"
+  content:  "\n申请人:${_user_}\nBPM单号:${_bpmuuid_}\n申请理由:${x.note}"

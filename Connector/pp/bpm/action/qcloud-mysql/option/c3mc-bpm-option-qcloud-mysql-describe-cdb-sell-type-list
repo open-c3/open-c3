@@ -1,0 +1,68 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import json
+import sys
+import subprocess
+
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+
+information = {
+    "Z3": "腾讯云的自主可控云数据库 TDSQL-Z3",
+    "TKE": "基于腾讯云的弹性容器服务 TKE",
+    "CVM": "基于腾讯云的云服务器 CVM",
+}
+
+
+def get_data_list(access_id, access_key, region, zone, charge_type):
+    from c3mc_cloud_qcloud_cdb import QcloudCdb
+
+    res = QcloudCdb(access_id, access_key, region).DescribeCdbZoneConfig()
+
+    result = []
+    for region_item in res["DataResult"]["Regions"]:
+        if region_item["Region"] != region:
+            continue
+        for zone_item in region_item["RegionConfig"]:
+            if zone_item["Zone"] != zone:
+                continue
+            if charge_type not in zone_item["PayType"]:
+                return []
+
+            result.extend(
+                sell_type_item["TypeName"]
+                for sell_type_item in zone_item["SellType"]
+            )
+        break
+    return sorted(list(result), reverse=True)
+
+
+def main(params):
+    """查询数据库实例的销售类型列表
+    """
+    account = params["account"]
+    region = params["region"]
+    zone = params["zone"]
+    charge_type_str = params["charge_type"]
+
+    charge_type = "1" if charge_type_str == "按量计费" else "0"
+
+    key_info = json.loads(
+        subprocess.getoutput(f"c3mc-get-account-info qcloud {account}")
+    )
+    data_list = get_data_list(
+        key_info["access_id"], key_info["access_key"], region, zone, charge_type)
+    for item in data_list:
+        print(json.dumps({
+            "id": item,
+            "desc": information[item]
+        }))
+
+
+if __name__ == '__main__':
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
+
+    main(json.loads(l[0]))
