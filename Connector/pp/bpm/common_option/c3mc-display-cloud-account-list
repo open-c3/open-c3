@@ -28,6 +28,9 @@ def display_cloud_account_list(cloud):
     if os.path.exists(default_account_file):
         f = open(default_account_file)
         for line in f:
+            if line.strip() == "":
+                # 忽略空行
+                continue
             account_d[line.split()[0]] = {}
 
     ext_account_file_list = find_files_with_pattern(default_account_file)
