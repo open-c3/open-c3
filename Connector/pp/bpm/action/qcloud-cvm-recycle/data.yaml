@@ -8,15 +8,25 @@ option:
 
   - name: stop_type
     describe: 实例的关闭模式
-    command: c3mc-cvm-recycle-stop-type | c3mc-bpm-display-field-values id,desc
-    type: selectx
+    type: select
+    option:
+    - name: HARD
+      alias: 直接强制关闭
+    - name: SOFT
+      alias: 仅软关机
+    value: ""
     show:
       - recycle_type: ["stop"]
 
   - name: stopped_mode
     describe: 实例关机收费模式 (针对按量计费机器)
-    command: c3mc-cvm-recycle-stopped-mode | c3mc-bpm-display-field-values id,desc
-    type: selectx
+    type: select
+    option:
+    - name: KEEP_CHARGING
+      alias: 关机继续收费
+    - name: STOP_CHARGING
+      alias: 关机停止收费
+    value: ""
     show:
       - recycle_type: ["stop"]
     information: "关机停止收费模式下, 实例的公网IP会被释放。当您再次启动实例时, 可能会分配到一个新的公网IP地址。对于包年包月机器, 该选项不生效"
