@@ -47,7 +47,7 @@ class ZoneInstanceConfig:
         }
         req.from_json_string(json.dumps(params))
         resp = json.loads(self.client.DescribeZoneInstanceConfigInfos(req).to_json_string())
-        return resp["InstanceTypeQuotaSet"]
+        return sorted(resp["InstanceTypeQuotaSet"], key=lambda x: (x['Cpu'], x['Memory']))
     
     def show(self, zone, instance_charge_type):
         data_list = self.describe_zone_instance_config_infos(zone, instance_charge_type)

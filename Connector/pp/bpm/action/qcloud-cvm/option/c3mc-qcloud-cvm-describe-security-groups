@@ -43,46 +43,36 @@ class SecurityGroups:
             "Offset": str((self.page_number - 1) * self.page_size)
         }
         req.from_json_string(json.dumps(params))
-        return self.client.DescribeSecurityGroups(req)
+        return self.client.DescribeSecurityGroups(req).SecurityGroupSet
     
-    def get_total_count(self):
-        response_data = self.describe_security_groups()
-        return response_data.TotalCount
-
     def show(self):
-        response_data = self.describe_security_groups()
-        data_list = response_data.SecurityGroupSet
-        for item in data_list:
-            print(item.to_json_string())
+        result = []
+        for i in range(1, sys.maxsize):
+            self.page_number = i
+            data = self.describe_security_groups()
+            if len(data) == 0:
+                break
+            result.extend(data)
 
-    def page(self):
-        count = self.get_total_count()
-        mod = count % self.page_size
-        if mod:
-            total_page_number = int(count / self.page_size) + 1
-        else:
-            total_page_number = int(count / self.page_size)
+        for item in result:
+            print(item)
 
-        for cur_page_number in range(1, total_page_number + 1):
-            self.page_number = cur_page_number
-            self.show()
-    
 
 def main(params):
     account = params["account"]
     region = params["region"]
     project_id = params["project_id"]
 
-    key_info = json.loads(subprocess.getoutput(
-        "c3mc-get-account-info qcloud {}".format(account)))
-    SecurityGroups(key_info["access_id"], key_info["access_key"], region, project_id).page()
+    key_info = json.loads(
+        subprocess.getoutput(f"c3mc-get-account-info qcloud {account}")
+    )
+    SecurityGroups(key_info["access_id"], key_info["access_key"], region, project_id).show()
 
 
 if __name__ == '__main__':
-    l = []
-    for line in sys.stdin:
-        l.append(line)
-    if len(l) == 0 or len(l) > 1:
-        raise Exception("数据格式不对, 需要一行json字符串")
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
 
     main(json.loads(l[0]))
+
