@@ -1,6 +1,6 @@
 ---
 name: 创建aws ec2
-multi: 1
+# multi: 1
 option:
   - name: account
     describe: 账号
@@ -49,6 +49,7 @@ option:
       - architecture
     command: c3mc-ec2create-describe-instance-type-offerings | c3mc-bpm-display-field-values InstanceType,InstanceType
     type: selectx
+    information: "数据量较大, 可能需要20秒左右响应时间"
 
   - name: vpc_id
     describe: vpc
@@ -117,8 +118,22 @@ option:
 
   - name: root_volume_type
     describe: 根分区存储卷类型
-    command: c3mc-ec2create-describe-ebs-volume-types | c3mc-bpm-display-field-values id,desc
-    type: selectx
+    type: select
+    option:
+    - name: standard
+      alias: standard
+    - name: io2
+      alias: "EBS Provisioned IOPS SSD (io2)"
+    - name: io1
+      alias: "EBS Provisioned IOPS SSD (io1)"
+    - name: gp3
+      alias: "EBS General Purpose SSD (gp3)"
+    - name: gp2
+      alias: "EBS General Purpose SSD (gp2)"
+    - name: st1
+      alias: "Throughput Optimized HDD (st1)"
+    - name: sc1
+      alias: "Cold HDD (sc1)"
 
   - name: root_volume_size
     describe: 根盘大小 (单位GB)
@@ -145,8 +160,22 @@ option:
 
   - name: data_volume_type
     describe: 数据盘类型
-    command: c3mc-ec2create-describe-ebs-volume-types | c3mc-bpm-display-field-values id,desc
-    type: selectx
+    type: select
+    option:
+    - name: standard
+      alias: standard
+    - name: io2
+      alias: "EBS Provisioned IOPS SSD (io2)"
+    - name: io1
+      alias: "EBS Provisioned IOPS SSD (io1)"
+    - name: gp3
+      alias: "EBS General Purpose SSD (gp3)"
+    - name: gp2
+      alias: "EBS General Purpose SSD (gp2)"
+    - name: st1
+      alias: "Throughput Optimized HDD (st1)"
+    - name: sc1
+      alias: "Cold HDD (sc1)"
     show:
       - if_need_data_volume: ["是"]
 
@@ -187,6 +216,8 @@ option:
     required: false
 
 template_argv:
+  # bpm单号
+  bpm_uuid: ${_bpmuuid_}
   account: ${account}
   # 实例名称
   name_prefix: ${name_prefix}

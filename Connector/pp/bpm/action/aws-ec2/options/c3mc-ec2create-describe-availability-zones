@@ -30,7 +30,7 @@ def describe_availability_zones(access_id, access_key, region):
         ],
         AllAvailabilityZones=False
     )
-    return response["AvailabilityZones"]
+    return sorted(response["AvailabilityZones"], key=lambda x: x['ZoneName'], reverse=False)
 
 
 def main(params):
