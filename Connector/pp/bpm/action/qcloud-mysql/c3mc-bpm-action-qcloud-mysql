@@ -71,8 +71,10 @@ class Mysql:
             "Volume": int(self.params["disk_size"]),
             # 可用区
             "Zone": self.params["zone"],
-            # # 实例类型
+            # 实例类型
             # "InstanceRole": self.params["instance_role"],
+            # 购买灾备实例和只读实例会导致参数过于复杂，目前只支持创建主实例，后需有需求在考虑增加只读或者灾备实例
+            "InstanceRole": "master",
             # 自定义端口
             "Port": int(self.params["port"]),
             # 设置 root 帐号密码
@@ -102,17 +104,10 @@ class Mysql:
             "EngineType": self.params["engine_type"],
             # 用于保证请求幂等性的字符串
             "ClientToken": self.params["bpm_uuid"],
-            # 数据复制方式
-            "ProtectMode": int(self.params["protect_mode"]),
             # 参数模板
             "ParamTemplateId": int(self.params["param_template_id"]),
         }
 
-        instance_name_prefix = self.params["instance_name"]
-        if instance_name_prefix[-1] not in ["_", "-"]:
-            instance_name_prefix += "_"
-        # 实例名称前缀
-        api_params["InstanceName"] = instance_name_prefix
 
         if "tag" in self.params:
             tag_list = json.loads(self.params["tag"])
@@ -129,8 +124,11 @@ class Mysql:
         if api_params["InstanceNodes"] == 3:
             api_params["SlaveZone"] = self.params["backup_zone1"]
             api_params["BackupZone"] = self.params["backup_zone2"]
-
+        
+        instance_name_prefix = self.params["instance_name"]
         if api_params["InstanceNodes"] > 1:
+            # 数据复制方式
+            api_params["ProtectMode"] = int(self.params["protect_mode"])
             # 如果多实例时并且可用区不一致，需要加上多可用区参数
             s = {
                 self.params["zone"],
@@ -139,6 +137,13 @@ class Mysql:
             }
             if len(s) > 1:
                 api_params["DeployMode"] = 1
+
+            # 只创建一台实例时不会增加数字后缀
+            if instance_name_prefix[-1] not in ["_", "-"]:
+                instance_name_prefix += "_"
+        
+        # 实例名称前缀
+        api_params["InstanceName"] = instance_name_prefix
 
         if self.params["charge_type"] == "包年包月":
             # 购买时长
