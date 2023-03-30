@@ -1,0 +1,51 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0 'id;treename' 'id;foo.bar'
+
+ echo 'id;treename' |./$0
+
+=cut
+
+my @argv;
+
+if( @ARGV )
+{
+    @argv = @ARGV;
+}
+else
+{
+    while(<STDIN>){ chomp; push @argv, $_; }
+}
+
+my    @curr = `c3mc-base-tree-dump`;
+chomp @curr;
+
+my %curr;
+for ( @curr )
+{
+    my ( $id, $name ) = split /;/, $_;
+    $curr{$id} = $name;
+}
+
+sub update
+{
+    my ( $id, $name ) = @_;
+    my $len = split /\./, $name;
+    print "$id;$name\n";
+    die "update fail" if system "c3mc-base-db-set --table openc3_connector_tree --col id $id --set \"len=$len,name='$name'\" > /dev/null";
+}
+
+for ( @argv )
+{
+    my ( $id, $name ) = split /;/, $_;
+    die "id format error: $id" unless $id && $id =~ /^\d+$/;
+    die "name format error: $name" unless $name && $name =~ /^[a-zA-Z][a-zA-z0-9\.\-\_]*$/;
+    next if $name eq $curr{$id};
+    update( $id, $name );
+}
