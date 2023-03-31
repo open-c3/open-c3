@@ -60,6 +60,7 @@
             }
         }
 
+        vm.pointout = '';
         vm.reload = function () {
             vm.loadover = false;
             $http.post('/api/agent/device/data/' + vm.type + '/' + vm.subtype + '/' + vm.treeid, { "grepdata": vm.grepdata, "timemachine": vm.selectedtimemachine } ).success(function(data){
@@ -67,6 +68,14 @@
                     vm.dataTable = new ngTableParams({count:25}, {counts:[],data:data.data});
                     vm.filter = data.filter;
                     vm.filterdata = data.filterdata;
+                    if( data.pointout == undefined || data.pointout == '' )
+                    {
+                        vm.pointout = '';
+                    }
+                    else
+                    {
+                        vm.pointout = data.pointout;
+                    }
                     vm.grepfilter();
                     vm.loadover = true;
                 }else {
