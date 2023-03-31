@@ -1,6 +1,6 @@
 ---
 name: 创建腾讯云cvm
-multi: 1
+# multi: 1
 option:
   - name: account
     describe: 云账号
@@ -40,6 +40,9 @@ option:
   - name: hostname_prefix
     describe: 主机名前缀
     type: input
+    information: '点号（.）和短横线（-）不能作为 HostName 的首尾字符，不能连续使用。
+Windows 实例名字符长度为[2, 15]，允许字母（不限制大小写）、数字和短横线（-）组成，不支持点号（.），不能全是数字。
+其他类型（Linux 等）实例：字符长度为[2, 60]，允许支持多个点号，点之间为一段，每段允许字母（不限制大小写）、数字和短横线（-）组成。'
 
   - name: hostname_suffix_start_number
     describe: 主机名后缀起始数字
@@ -56,8 +59,12 @@ option:
 
   - name: charge_type
     describe: 付费方式
-    command: c3mc-qcloud-cvm-describe-instance-charge-type-list | c3mc-bpm-display-field-values id,name
-    type: selectx
+    type: select
+    option:
+      - name: PREPAID
+        alias: 预付费
+      - name: POSTPAID_BY_HOUR
+        alias: 按小时后付费
     value: ""
 
   - name: instance_charge_count
@@ -69,8 +76,14 @@ option:
 
   - name: renew_flag
     describe: 自动续费方式
-    command: c3mc-qcloud-cvm-describe-renew-flag-list | c3mc-bpm-display-field-values id,name
-    type: selectx
+    type: select
+    option:
+      - name: NOTIFY_AND_AUTO_RENEW
+        alias: 通知过期且自动续费
+      - name: NOTIFY_AND_MANUAL_RENEW
+        alias: 通知过期不自动续费
+      - name: DISABLE_NOTIFY_AND_MANUAL_RENEW
+        alias: 不通知过期不自动续费
     value: ""
     show: 
       - charge_type: ["PREPAID"]
@@ -165,12 +178,19 @@ option:
     type: kvarray
     value: "[]"
 
-
   # 网络配置--------------------------
   - name: internet_charge_type
     describe: 网络计费类型
-    command: c3mc-qcloud-cvm-describe-internet-charge-type-list | c3mc-bpm-display-field-values id,name
-    type: selectx
+    type: select
+    option:
+    - name: BANDWIDTH_PREPAID
+      alias: 预付费按带宽结算
+    - name: TRAFFIC_POSTPAID_BY_HOUR
+      alias: 流量按小时后付费
+    - name: BANDWIDTH_POSTPAID_BY_HOUR
+      alias: 带宽按小时后付费
+    - name: BANDWIDTH_PACKAGE
+      alias: 带宽包用户
     value: ""
 
   - name: internet_max_bandwidth_out

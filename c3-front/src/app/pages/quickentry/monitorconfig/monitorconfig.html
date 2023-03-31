@@ -49,7 +49,7 @@
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="monitorconfig.activeNodeinfoTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="ss in $data">
-                            <td style="width: 15%" data-title="'C3T.机器名称'|translate"> {{ss.name}} </td>
+                            <td style="width: 15%" data-title="'C3T.机器名称'|translate" filter="{ name: 'text'}" > {{ss.name}} </td>
                             <td style="width: 5%" data-title="'C3T.类型'|translate" filter="{ type: 'text'}">{{ss.type}}</td>
                             <td style="width: 15%" data-title="'C3T.内网IP'|translate" filter="{ inip: 'text'}"><input id="{{ss.inip}}" ng-if="ss.inip" type="checkbox" name="selected"  ng-checked="isSelected(ss.inip)" ng-click="inipUpdateSelection($event, ss.id, ss.inip)" style="zoom: 125%"/>
                                 <a style="cursor: pointer;" title="打开终端" ng-click="openOneTab(ss.inip)">{{ss.inip}}</a>
@@ -190,12 +190,12 @@
                 <table ng-table="monitorconfig.activeRuleTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
                         <td data-title="'C3T.编号'|translate" sortable="'id'">{{m.id}}</td>
-                        <td data-title="'C3T.名称'|translate" sortable="'alert'">{{m.alert}}</td>
-                        <td data-title="'C3T.子组'|translate" sortable="'alert'">{{m.subgroup}}</td>
-                        <td data-title="'C3T.表达式'|translate" sortable="'expr'"><a uib-tooltip="{{m.expr}}" >{{m.expr|cut60}} </a></td>
-                        <td data-title="'C3T.告警级别'|translate" sortable="'severity'">{{m.severity}}</td>
-                        <td data-title="'C3T.概要'|translate" sortable="'summary'">{{m.summary}}</td>
-                        <td data-title="'C3T.编辑者'|translate" sortable="'edit_user'">{{m.edit_user}}</td>
+                        <td data-title="'C3T.名称'|translate" sortable="'alert'" filter="{ alert: 'text'}" >{{m.alert}}</td>
+                        <td data-title="'C3T.子组'|translate" sortable="'alert'" filter="{ subgroup: 'text'}" >{{m.subgroup}}</td>
+                        <td data-title="'C3T.表达式'|translate" sortable="'expr'" filter="{ expr: 'text'}" ><a uib-tooltip="{{m.expr}}" >{{m.expr|cut60}} </a></td>
+                        <td data-title="'C3T.告警级别'|translate" sortable="'severity'" filter="{ severity: 'text'}" >{{m.severity}}</td>
+                        <td data-title="'C3T.概要'|translate" sortable="'summary'" filter="{ summary: 'text'}" >{{m.summary}}</td>
+                        <td data-title="'C3T.编辑者'|translate" sortable="'edit_user'" filter="{ edit_user: 'text'}" >{{m.edit_user}}</td>
                         <td data-title="'C3T.编辑时间'|translate" sortable="'edit_time'">{{m.edit_time}}</td>
                         <td class="textcenter"  data-title="'C3T.操作'|translate">
                             <nobr>

@@ -121,6 +121,7 @@ any '/device/data/:type/:subtype/:treeid' => sub {
  
     my $search = $grepdata && $grepdata->{_search_} ? delete $grepdata->{_search_} : undef;
 
+    my ( %ipmatch, %isip );
     for my $data ( @data )
     {
         utf8::decode($data);
@@ -132,7 +133,12 @@ any '/device/data/:type/:subtype/:treeid' => sub {
                 $m = 1 if $m == 0 && index( $data, $_ ) >= 0;
                 if( $_ =~ /^(\d+)\.(\d+)\.(\d+)\.(\d+)$/ )
                 {
-                    $m = 2 if $data =~ /\D$1\.$2\.$3\.$4\D/;
+                    $isip{ $_ } ++;
+                    if( $data =~ /\D$1\.$2\.$3\.$4\D/)
+                    {
+                        $m = 2;
+                        $ipmatch{ $_ } ++;
+                    }
                 }
             }split /\s+/, $search;
 
@@ -209,7 +215,16 @@ any '/device/data/:type/:subtype/:treeid' => sub {
         $_->{control} = ( $_->{type} && $_->{subtype} && $control->{$_->{type}} && $control->{$_->{type}}{$_->{subtype}} ) ? $control->{$_->{type}}{$_->{subtype}} : [];
     }@re;
 
-    return +{ stat => $JSON::true, data => \@re, debug => \@debug, filter => $filter, filterdata => $filterdata  };
+    my $pointout = '';
+    my @nofindip;
+    for ( keys %isip )
+    {
+        push( @nofindip, $_ ) unless $ipmatch{$_};
+    }
+
+    $pointout = sprintf( "nofind: %s", join ',', @nofindip ) if @nofindip;
+
+    return +{ stat => $JSON::true, data => \@re, debug => \@debug, filter => $filter, filterdata => $filterdata, pointout => $pointout  };
 };
 
 =pod

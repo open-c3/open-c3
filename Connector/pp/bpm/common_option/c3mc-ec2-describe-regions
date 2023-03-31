@@ -20,19 +20,19 @@ def describe_regions(access_id, access_key):
                 aws_secret_access_key=access_key,
                 region_name=region
             )
-
             response = client.describe_regions(AllRegions=True)
-            return response["Regions"]
+            return sorted(response["Regions"], key=lambda x: x['RegionName'], reverse=False)
         except Exception:
             continue
-    raise Exception("未查询到区域列表")
+    raise RuntimeError("未查询到区域列表")
 
 
 def main(params):
     account = params["account"]
 
-    key_info = json.loads(subprocess.getoutput(
-        "c3mc-get-account-info aws {}".format(account)))
+    key_info = json.loads(
+        subprocess.getoutput(f"c3mc-get-account-info aws {account}")
+    )
 
     region_list = describe_regions(
         key_info["access_id"], key_info["access_key"])
@@ -41,10 +41,8 @@ def main(params):
 
 
 if __name__ == '__main__':
-    l = []
-    for line in sys.stdin:
-        l.append(line)
-    if len(l) == 0 or len(l) > 1:
-        raise Exception("数据格式不对, 需要一行json字符串")
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
 
     main(json.loads(l[0]))
