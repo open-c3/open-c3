@@ -1,6 +1,8 @@
 #!/bin/bash
 
-cd /data/Software/mydan/Connector/local && /data/Software/mydan/AGENT/device/bin/downloadx > devicesynctime.txt.temp && mv devicesynctime.txt.temp devicesynctime.txt
+mkdir -p mkdir /data/open-c3-data/logs/cmdb
+
+cd /data/Software/mydan/Connector/local && /data/Software/mydan/AGENT/device/bin/downloadx > devicesynctime.txt.temp 2>/data/open-c3-data/logs/cmdb/sync.error.log && mv devicesynctime.txt.temp devicesynctime.txt
 
 SAVETREE=$(c3mc-sys-ctl sys.device.sync.tree)
 if [ "X$SAVETREE" == "X1" ];then
