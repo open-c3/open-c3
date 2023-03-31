@@ -1,0 +1,155 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+
+$|++;
+
+use YAML::XS;
+use JSON;
+use BPM::Flow;
+use File::Temp;
+use Encode qw(encode);
+
+=head1 SYNOPSIS
+
+ cat param.yml| $0
+
+=cut
+
+local $/ = undef;
+my @p = YAML::XS::Load( my $x = <STDIN> );
+local $/ = "\n";
+
+my $param = $p[0];
+
+my $step = eval{ YAML::XS::LoadFile "/data/Software/mydan/JOB/bpm/config/flow/$param->{jobname}/plugin" };
+die "load step fail:$@" if $@;
+
+my ( $stepindex, $varname ) = split /\./, $param->{stepname}, 2;
+my $grp = '';
+if( $varname =~ /^(\d+)\./)
+{
+    ( $grp, $varname ) = split /\./, $varname, 2;
+}
+
+my $pluginname = $step->[$stepindex-1];
+die "nofind plugin name" unless $pluginname;
+
+my $config = BPM::Flow->new()->subvariable( $param->{jobname}, $stepindex, $pluginname );
+
+my $stepconfig;
+for ( @{ $config->{option}} )
+{
+    $stepconfig = $_ if $_->{name} eq $varname;
+}
+
+die "nofind stepconfig: $varname" unless $stepconfig;
+
+my $command = $stepconfig->{command};
+die "nofind command" unless $command;
+
+my $currvar = $param->{bpm_variable};
+my %var;
+
+my %rely;
+if( $stepconfig->{rely} )
+{
+    map{ $rely{$1} = 1 if $_ =~ /^x\.(.+)/; }@{$stepconfig->{rely}};
+}
+#BPM TODO, 传入的数据过多，这个是把所有插件的数据压扁传入选项命令中.
+#其后会有一层覆盖，用本插件本步骤的进行覆盖，极端情况下可能会有子步骤变量缺失，
+#但是确用了全局变量，需要明确是外部变量，格式如 x.var
+for my $k ( keys %$currvar )
+{
+    my $tk = $k;
+    $tk =~ s/^\d+\.//;
+    $tk =~ s/^\d+\.//;
+    next unless $rely{$tk};
+    $var{$tk} = $currvar->{$k};
+}
+
+for my $k ( keys %$currvar )
+{
+    my ( $ti, $tk ) = split /\./, $k, 2;
+    next unless $ti eq $stepindex;
+    if( $grp )
+    {
+        my $tgrp;
+        ( $tgrp, $tk ) = split /\./, $tk, 2;
+        next unless $tgrp eq $grp;
+    }
+    $var{$tk} = $currvar->{$k};
+}
+
+if( ref $command eq 'ARRAY' )
+{
+    my @data;
+    if( $command->[0] eq 'list' && $command->[1] )
+    {
+        my %uniq;
+        for my $k ( sort keys %$currvar )
+        {
+            my $tk = $k;
+            $tk =~ s/^\d+\.//;
+            $tk =~ s/^\d+\.//;
+            if( $tk eq $command->[1] )
+            {
+                next if $uniq{$currvar->{$k}} ++;
+                push @data, +{ name => $currvar->{$k}, alias => $currvar->{$k} };
+            }
+        }
+    }
+    if( $command->[0] eq 'point' && $command->[1] && $command->[2] )
+    {
+        #$command->[1] 要匹配的字段
+        #$command->[2] 要赋值给自己的字段
+        #
+        #$stepindex, $grp, $varname  # 如果是multi形式的话,grp是子组的id，否则为""
+        #$currvar 为原始hash数据
+        #%var 是正常给command的json数据
+
+        my $prefix = $grp ? "$stepindex.$grp": $stepindex;
+        my $selected = $currvar->{"$prefix.$command->[1]"};
+
+        # 查找其他组里面匹配的字段，赋值给自己这个组
+        my $point;
+        for my $k ( keys %$currvar )
+        {
+            $k =~ /^([\d][.\d]+)\.([a-z].+)$/;
+            my ( $p, $n ) = ($1, $2);
+            next if $n ne $command->[1];
+            next if $p eq $prefix;
+            next if $currvar->{$k} ne $selected;
+            $point = $currvar->{"$p.$command->[2]"};
+        }
+
+        push @data, +{ name => $point, alias => $point } if $point;
+    }
+ 
+    print YAML::XS::Dump \@data;
+    exit;
+}
+
+my $json = eval{JSON::to_json \%var };
+die "var to json fail: $@" if $@;
+
+my ( $TEMP, $tempfile ) = File::Temp::tempfile();
+print $TEMP $json;
+close $TEMP;
+
+my @x = `set -o pipefail;cat '$tempfile'|$command`;
+die "run cmd fail: @x" if $?;
+chomp @x;
+my @data;
+for ( @x )
+{
+    my $name =  Encode::decode('utf8', $_ );
+    my $alias = $name;
+    if( $name =~ /;/ )
+    {
+        ( $name, $alias ) = split /;/, $name, 2;
+    }
+    push @data, +{ name => $name, alias => $alias };
+}
+ 
+print YAML::XS::Dump \@data;
