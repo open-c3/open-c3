@@ -9,30 +9,60 @@
 
 ### 腾讯云
 
+请创建一个自定义策略，在该策略中分配如下权限，可以直接复制如下配置创建自定义策略。
 ```json
 {
     "version": "2.0",
-    "statement": [
+    "statement":
+    [
         {
             "effect": "allow",
-            "action": [
+            "action":
+            [
+                "cam:ListMaskedSubAccounts",
+                "cam:ListAttachedUserAllPolicies",
+                "cam:GetPolicy",
+                "cam:CreatePolicyVersion",
+                "cam:DeletePolicyVersion",
+                "finance:*",
+                "cvm:StopInstances",
+                "cvm:DetachCbsStorages",
+                "cvm:TerminateCbsStorages",
+                "cvm:TerminateInstances",
+                "cvm:RunInstances",
+                "cvm:DescribeSecurityGroups",
+                "cvm:DescribeInstances",
+                "cvm:DescribeCbsStorages",
+                "cvm:DescribeImages",
+                "dcdb:DescribeProjects",
                 "cdb:DescribeDBInstances",
+                "cdb:ModifyInstanceTag",
+                "cdb:CreateDBInstanceHour",
+                "cdb:CreateDBInstance",
+                "cdb:DescribeParamTemplates",
+                "cdb:IsolateDBInstance",
+                "cdb:OfflineIsolatedInstances",
+                "cdb:OpenWanService",
                 "ckafka:DescribeInstances",
                 "clb:DescribeLoadBalancers",
-                "cvm:DescribeInstances",
+                "clb:CreateLoadBalancer",
+                "clb:CreateListener",
+                "clb:CreateRule",
+                "clb:RegisterTargets",
+                "clb:DeleteLoadBalancer",
                 "redis:DescribeInstances",
                 "vpc:DescribeVpcEx",
-                "cos:GetService",
-                "cvm:DescribeCbsStorages",
                 "vpc:DescribeSubnetEx",
+                "cos:GetService",
                 "mongodb:DescribeDBInstances",
-                "sqlserver:DescribeDBInstances",
                 "mongodb:DescribeDBInstanceNodeProperty",
+                "sqlserver:DescribeDBInstances",
                 "tag:TagResources",
-                "cdb:ModifyInstanceTag",
-                "tag:UnTagResources"
+                "tag:UnTagResources",
+                "monitor:*"
             ],
-            "resource": [
+            "resource":
+            [
                 "*"
             ]
         }
@@ -40,52 +70,89 @@
 }
 ```
 
+在上面的策略中，
+```json
+[
+  "cam:ListMaskedSubAccounts",
+  "cam:ListAttachedUserAllPolicies",
+  "cam:GetPolicy",
+  "cam:DeletePolicyVersion",
+]
+```
+这四项是不需要的，但是没这四项会导致在腾讯云控制台无法查看、编辑、更新策略。为了方便管理，默认加上了。
+
 ---
 
 ### aws
 
 ```json
 {
-  "Version": "2012-10-17",
-  "Statement": [
-    {
-      "Sid": "VisualEditor0",
-      "Effect": "Allow",
-      "Action": [
-        "elasticache:RemoveTagsFromResource",
-        "elasticache:DescribeCacheClusters",
-        "elasticache:AddTagsToResource",
-        "dynamodb:UntagResource",
-        "dynamodb:ListTables",
-        "dynamodb:TagResource",
-        "pricing:GetProducts",
-        "elasticloadbalancing:DescribeTags",
-        "elasticloadbalancing:AddTags",
-        "elasticloadbalancing:DescribeLoadBalancers",
-        "elasticloadbalancing:RemoveTags",
-        "ec2:CreateTags",
-        "ec2:DeleteTags",
-        "ec2:DescribeVpcs",
-        "ec2:DescribeInstances",
-        "ec2:DescribeVolumes",
-        "ec2:DescribeRegions",
-        "ec2:RunInstances",
-        "rds:DescribeDBInstances",
-        "rds:RemoveTagsFromResource",
-        "rds:AddTagsToResource",
-        "kafka:ListClustersV2",
-        "lightsail:GetInstances",
-        "lightsail:GetLoadBalancers",
-        "lightsail:GetRelationalDatabases",
-        "iam:ListRoles",
-        "iam:CreateInstanceProfile",
-        "iam:AddRoleToInstanceProfile",
-        "iam:CreateRole",
-        "s3:ListAllMyBuckets"
-      ],
-      "Resource": "*"
-    }
-  ]
+    "Version": "2012-10-17",
+    "Statement":
+    [
+        {
+            "Sid": "VisualEditor0",
+            "Effect": "Allow",
+            "Action":
+            [
+                "ec2:DescribeInstances",
+                "ec2:DescribeVolumes",
+                "ec2:DescribeInstanceTypes",
+                "ec2:DescribeAddresses",
+                "ec2:DeleteTags",
+                "ec2:DescribeInstanceTypeOfferings",
+                "ec2:DescribeAvailabilityZones",
+                "ec2:DescribeSubnets",
+                "ec2:RunInstances",
+                "ec2:DescribeRegions",
+                "ec2:AssociateAddress",
+                "ec2:CreateTags",
+                "ec2:DescribeVpcs",
+                "ec2:DescribeImages",
+                "ec2:DescribeSecurityGroups",
+                "ec2:StopInstances",
+                "ec2:AllocateAddress",
+                "ec2:DisassociateAddress",
+                "ec2:ReleaseAddress",
+                "ec2:TerminateInstances",
+                "iam:CreateRole",
+                "iam:AddRoleToInstanceProfile",
+                "iam:DetachUserPolicy",
+                "iam:ListPolicies",
+                "iam:GetPolicy",
+                "iam:ListGroupsForUser",
+                "iam:CreateInstanceProfile",
+                "iam:PassRole",
+                "iam:ListAttachedUserPolicies",
+                "iam:CreatePolicyVersion",
+                "iam:ListRoles",
+                "iam:ListUserPolicies",
+                "iam:GetPolicyVersion",
+                "iam:ListPolicyVersions",
+                "iam:DeletePolicyVersion",
+                "elasticloadbalancing:DescribeLoadBalancers",
+                "elasticloadbalancing:AddTags",
+                "elasticloadbalancing:RemoveTags",
+                "elasticloadbalancing:DescribeTags",
+                "lightsail:GetInstances",
+                "lightsail:GetLoadBalancers",
+                "lightsail:GetRelationalDatabases",
+                "kafka:ListClustersV2",
+                "rds:RemoveTagsFromResource",
+                "rds:DescribeDBInstances",
+                "rds:AddTagsToResource",
+                "dynamodb:ListTables",
+                "dynamodb:TagResource",
+                "dynamodb:UntagResource",
+                "pricing:GetProducts",
+                "s3:ListAllMyBuckets",
+                "elasticache:RemoveTagsFromResource",
+                "elasticache:AddTagsToResource",
+                "elasticache:DescribeCacheClusters"
+            ],
+            "Resource": "*"
+        }
+    ]
 }
 ```
 

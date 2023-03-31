@@ -5,8 +5,17 @@ import sys
 import json
 import subprocess
 import operator
+import concurrent.futures
+import threading
 
 import boto3
+
+
+def fetch_instance_types(client, parts, data, lock):
+    instance_types = client.describe_instance_types(InstanceTypes=parts)
+    if instance_types["InstanceTypes"]:
+        with lock:
+            data.extend(instance_types["InstanceTypes"])
 
 
 def filter_by_architecture(client, architecture, instance_type_list):
@@ -15,12 +24,17 @@ def filter_by_architecture(client, architecture, instance_type_list):
     """
     data = []
     step_length = 100
-    for i in range(0, len(instance_type_list), step_length):
-        # describe_instance_types 接口允许一次最多查询100个
-        parts = instance_type_list[i:i+step_length]
-        instance_types = client.describe_instance_types(InstanceTypes=parts)
-        if instance_types["InstanceTypes"]:
-            data.extend(instance_types["InstanceTypes"])
+    max_workers = 100  # 最大并发数
+    lock = threading.Lock()
+
+    with concurrent.futures.ThreadPoolExecutor(max_workers=max_workers) as executor:
+        futures = []
+        for i in range(0, len(instance_type_list), step_length):
+            parts = instance_type_list[i:i+step_length]
+            futures.append(executor.submit(fetch_instance_types, client, parts, data, lock))
+        
+        # 等待所有任务完成
+        concurrent.futures.wait(futures)
 
     result = set()
     for instance_type_info in data:

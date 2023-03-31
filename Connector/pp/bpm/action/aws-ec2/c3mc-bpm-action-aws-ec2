@@ -1,7 +1,6 @@
 #!/usr/bin/env /data/Software/mydan/python3/bin/python3
 # -*- coding: utf-8 -*-
 
-from distutils.errors import LibError
 import sys
 import json
 import subprocess
@@ -131,6 +130,7 @@ class Ec2:
         }
         create_ec2_params["NetworkInterfaces"] = [networkInterfaceConfig]
 
+        create_ec2_params["ClientToken"] = self.instance_params["bpm_uuid"]
         create_ec2_params["InstanceInitiatedShutdownBehavior"] = "stop"
         create_ec2_params["DisableApiTermination"] = False
         create_ec2_params["ImageId"] = self.instance_params["image_id"]
@@ -164,7 +164,7 @@ class Ec2:
         create_ec2_params["TagSpecifications"] = [instance_tag, volume_tag]
         return create_ec2_params
 
-    def bind_eip_to_ec2(self, instance_info_list, tags):
+    def bind_eip_to_ec2(self, instance_info_list, tags, name_info_m):
         sys.path.append("/data/Software/mydan/Connector/lib/pp")
         from c3mc_cloud_aws_ec2 import LIB_EC2
         lib_ec2 = LIB_EC2(self.access_id, self.access_key, self.region)
@@ -174,6 +174,10 @@ class Ec2:
             eip_info_list = lib_ec2.describe_addresses()["Addresses"]
 
             print(f"eip列表: {json.dumps(eip_info_list)}")
+
+            tags.append(
+                {"Key": "Name", "Value": name_info_m[instance_id]}
+            )
 
             # eip的唯一标识符。请注意，AllocationId仅适用于VPC中的弹性IP地址
             allocationId = ""
@@ -223,18 +227,23 @@ class Ec2:
             name_prefix += "-"
         name_suffix_start = int(name_suffix_start)
 
+        name_info_m = {}
+
         for idx, instance in enumerate(instance_info_list):
             instance_id = instance["InstanceId"]
+            name_value = f"{name_prefix}{str(name_suffix_start + idx)}"
             res = self.client.create_tags(
                 Resources=[instance_id],
                 Tags=[
                     {
                         "Key": "Name",
-                        "Value": f"{name_prefix}{str(name_suffix_start + idx)}",
+                        "Value": name_value,
                     }
                 ],
             )
+            name_info_m[instance_id] = name_value
             print(f"添加实例名称标签. instance_id: {instance_id}, 结果: {json.dumps(res)}")
+        return name_info_m
     
     def add_tags_to_instance_volume(self, instance_info_list):
         """将每个ec2的所有标签都打在关联的所有volume上
@@ -269,11 +278,11 @@ class Ec2:
 
         response = self.client.run_instances(**create_ec2_params)
 
-        # 绑定eip
-        self.bind_eip_to_ec2(response["Instances"], create_ec2_params["TagSpecifications"][0]["Tags"])
-
         # 对实例添加名称标签
-        self.add_name_tag_to_instances(response["Instances"], self.instance_params["name_prefix"], self.instance_params["name_suffix_start_number"])
+        name_info_m = self.add_name_tag_to_instances(response["Instances"], self.instance_params["name_prefix"], self.instance_params["name_suffix_start_number"])
+
+        # 绑定eip
+        self.bind_eip_to_ec2(response["Instances"], create_ec2_params["TagSpecifications"][0]["Tags"], name_info_m)
 
         # 对每个ec2关联的volume添加标签
         self.add_tags_to_instance_volume(response["Instances"])
