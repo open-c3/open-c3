@@ -431,7 +431,7 @@
             }
  
             vm.selectxloading[stepname] = true;
-            $http.post( '/api/job/bpm/optionx', { "bpm_variable": varDict, "stepname": stepname, "jobname":$scope.choiceJob.name } ).success(function(data){
+            $http.post( '/api/ci/v2/c3mc/bpm/optionx', { "bpm_variable": varDict, "stepname": stepname, "jobname":$scope.choiceJob.name } ).success(function(data){
                 if (data.stat){
                     vm.selectxloading[stepname] = false;
                     if( selectIndex == 0 && tempvalue == undefined )
