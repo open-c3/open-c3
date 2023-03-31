@@ -477,6 +477,9 @@
                             $scope.choiceJob = data
                         }
                     });
+
+                    vm.updateJobDescribe();
+
                 }else {
                     swal({ title:'获取BPM菜单失败', text: data.info, type:'error' });
                 }
@@ -591,6 +594,24 @@
             );
         };
 
+
+        vm.jobdescribe = '';
+        vm.updateJobDescribe = function() {
+            angular.forEach(vm.menu, function (data, index) {
+                if( data.name == $scope.choiceJob.name )
+                {
+                    if( data.describe == undefined )
+                    {
+                         vm.jobdescribe = '';
+                    }
+                    else
+                    {
+                        vm.jobdescribe = data.describe;
+                    }
+                }
+            });
+        };
+
         vm.loadover = false;
         $scope.$watch('choiceJob', function () {
             if( vm.bpmuuid != "0" )
@@ -602,6 +623,8 @@
             if($scope.choiceJob){
                 $scope.taskData.jobname = $scope.choiceJob.name;
                 $scope.taskData.group = null
+
+                vm.updateJobDescribe();
 
                 vm.dinit();
 
