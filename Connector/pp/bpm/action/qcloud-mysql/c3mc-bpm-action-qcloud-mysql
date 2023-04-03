@@ -103,7 +103,7 @@ class Mysql:
             # 实例引擎类型
             "EngineType": self.params["engine_type"],
             # 用于保证请求幂等性的字符串
-            "ClientToken": self.params["bpm_uuid"],
+            "ClientToken": self.params["bpm_uuid"] + self.params["_step_uuid_"],
             # 参数模板
             "ParamTemplateId": int(self.params["param_template_id"]),
         }
