@@ -130,7 +130,7 @@ class Ec2:
         }
         create_ec2_params["NetworkInterfaces"] = [networkInterfaceConfig]
 
-        create_ec2_params["ClientToken"] = self.instance_params["bpm_uuid"]
+        create_ec2_params["ClientToken"] = self.instance_params["bpm_uuid"] + self.instance_params["_step_uuid_"]
         create_ec2_params["InstanceInitiatedShutdownBehavior"] = "stop"
         create_ec2_params["DisableApiTermination"] = False
         create_ec2_params["ImageId"] = self.instance_params["image_id"]

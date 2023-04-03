@@ -76,7 +76,7 @@ class Cvm:
                 }
             },
             # 用于保证请求幂等性
-            "ClientToken": self.params["bpm_uuid"],
+            "ClientToken": self.params["bpm_uuid"] + self.params["_step_uuid_"],
             "HostName": self.get_r_format_str(self.params["hostname_prefix"], self.params["hostname_suffix_start_number"]),
         }
 
