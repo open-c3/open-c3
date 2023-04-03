@@ -26,6 +26,12 @@ def get_resource_type_from_extaccount(cloud):
         if filename.startswith(prefix)
     ]
 
+def gen_md5_for_account():
+    cmd_parts = ["c3mc-cloud-gen-md5-for-account"]
+    output = subprocess.run(cmd_parts, capture_output=True, text=True)
+    if output.returncode != 0:
+        print(output.stderr, file=sys.stderr)
+        exit(1)
 
 def update_accounts():
     current_unix_seconds = str(int(time.time()))
@@ -64,7 +70,10 @@ def update_accounts():
 
 
 def main():
+    # 账号生成
     update_accounts()
+    # 对账号行计算md5并保存相关信息
+    gen_md5_for_account()
 
 
 if __name__ == '__main__':
