@@ -40,18 +40,21 @@ def update_accounts():
 
         # 检查是否有新增资源类型需要创建对应扩展账号文件
         template_resource_type_list = get_resource_type_from_template(cloud)
-        extaccount_resource_type_list = get_resource_type_from_extaccount(
-            cloud)
+        extaccount_resource_type_list = get_resource_type_from_extaccount(cloud)
         for item in extaccount_resource_type_list:
             if item in template_resource_type_list:
                 template_resource_type_list.remove(item)
         if len(template_resource_type_list) > 0:
             ok = True
 
-        # 检查是否最近有修改原始账号文件
-        filepath = f'/data/Software/mydan/AGENT/device/conf/accountx/{cloud}x'
-        if time.time() - os.path.getmtime(filepath) < 600:
-            ok = True
+        if not ok:
+            # 检查是否最近有修改原始账号文件
+            filepath = f'/data/Software/mydan/AGENT/device/conf/accountx/{cloud}x'
+            if not os.path.isfile(filepath):
+                continue
+
+            if time.time() - os.path.getmtime(filepath) < 600:
+                ok = True
 
         if ok:
             os.system('/usr/bin/c3mc-cloud-update-cloud-account')
