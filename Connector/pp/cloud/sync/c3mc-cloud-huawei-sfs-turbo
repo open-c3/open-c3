@@ -1,0 +1,70 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+
+from huaweicloudsdkcore.auth.credentials import BasicCredentials
+from huaweicloudsdksfsturbo.v1.region.sfsturbo_region import SFSTurboRegion
+from huaweicloudsdksfsturbo.v1 import *
+
+
+# C3TODO 230404 
+# 下面代码应该可以正常获取sfs turbo实例
+# 获取sfs的标签需要单独调其他接口，
+# 测试ak没有sfs butbo资源，暂时先不做了
+
+
+
+class SfsTurbo:
+    def __init__(self, access_id, access_key, project_id, region):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.project_id = None if project_id == "None" else project_id.strip()
+        self.region = region
+
+        self.client = self.create_client()
+
+    def create_client(self):
+        credentials = BasicCredentials(
+            self.access_id, self.access_key, self.project_id)
+        return (
+            SFSTurboClient.new_builder()
+            .with_credentials(credentials)
+            .with_region(SFSTurboRegion.value_of(self.region))
+            .build()
+        )
+
+    def list_shares(self):
+        result = []
+        for i in range(sys.maxsize):
+            request = ListSharesRequest()
+            request.limit = 200
+            request.offset = i * request.limit
+            response = self.client.list_shares(request)
+            data = response.shares
+            if len(data) == 0:
+                break
+            result.extend(data)
+        return result
+
+    def show(self):
+        data_list = self.list_shares()
+        for item in data_list:
+            print(item)
+
+
+# project_id 可以命令行传 None
+def main(access_id, access_key, project_id, region):
+    """同步华为云sfs turbo资源
+
+    Args:
+        access_id (str): ak
+        access_key (str): sk
+        project_id (str): 项目id
+        region (str): 区域
+    """
+    SfsTurbo(access_id, access_key, project_id, region).show()
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
