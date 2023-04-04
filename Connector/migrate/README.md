@@ -28,8 +28,39 @@ open-c3部署后，会使用本地的两个目录: /data/open-c3 (程序目录) 
 
 ```
 
-## TODO
+## 需要确认
 ```
 keycloak 还能用吗？
-本地的好多已经缓存的docker镜像也同步过去，这样下次构建就快了。
+serverless 发布添加白名单，账号ip白名单允许新机器发布.
+迁移完后 stop， start服务，然后upgrade一下， 因为依赖模块没有解压到容器中，比如perl的依赖模块，导致它启动不去来。
+云监控的部分，DB同步后，可能开启两个,需要注意关闭旧C3的云监控。
+```
+
+## 迁移详细步骤
+
+```
+# 锁住新C3，设置成维护状态
+
+touch /data/open-c3/Connector/c3.maintain /data/open-c3/Connector/c3.maintain.mon /data/open-c3/Connector/c3.maintain.flow 
+c3-restart
+
+# 执行迁移操作
+
+/data/open-c3/Connector/migrate/sync --node C3的ip
+
+# 确认新c3数据库
+到新c3上看一下新发现的tag，是不是都是“reason: sys@app c3.maintain”
+use ci;
+select * from openc3_ci_version order by id desc  limit 10\G;
+
+# 确认配置是否有需要修改的
+检查链接器配置，比如消息出口的ip地址是不是要更换。
+系统参数中，比如系统备份的地址是不是要更换。
+
+# 追加数据
+需要追加同步的是， ci_repo 和 logs日志，这几天构建出来的包和构建日志
+/data/open-c3/Connector/migrate/patch --node C3的ip --day 7
+
+# 用网络c3mc中的网络测试工具测试新旧网络
+测试网络差异，包括主机代理, git 等。
 ```
