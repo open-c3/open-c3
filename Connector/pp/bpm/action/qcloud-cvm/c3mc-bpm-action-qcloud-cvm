@@ -78,6 +78,7 @@ class Cvm:
             # 用于保证请求幂等性
             "ClientToken": self.params["bpm_uuid"] + self.params["_step_uuid_"],
             "HostName": self.get_r_format_str(self.params["hostname_prefix"], self.params["hostname_suffix_start_number"]),
+            "DisableApiTermination": self.get_bool_value(self.params["disable_api_termination"]),
         }
 
         if "internet_max_bandwidth_out" in self.params:
