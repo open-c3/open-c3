@@ -95,7 +95,8 @@ Windows 实例名字符长度为[2, 15]，允许字母（不限制大小写）�
       - region
       - zone
       - charge_type
-    command: c3mc-qcloud-cvm-describe-instance-configs | c3mc-bpm-display-field-values InstanceType,Cpu,Memory,Status,Gpu
+    command: c3mc-qcloud-cvm-describe-instance-configs | c3mc-bpm-display-field-values "{InstanceType};{TypeName}, 实例类型:{InstanceType}, Cpu:{Cpu}核, 内存:{Memory}GB"
+
     type: selectx
     value: ""
 
@@ -210,13 +211,13 @@ Windows 实例名字符长度为[2, 15]，允许字母（不限制大小写）�
     describe: 开启监控服务
     command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
     type: selectx
-    value: ""
+    value: "是"
 
   - name: disable_api_termination
     describe: 实例销毁保护
     command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
     type: selectx
-    value: ""
+    value: "否"
 
 template_argv:
   # bpm单号
