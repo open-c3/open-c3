@@ -51,6 +51,7 @@ class ZoneInstanceConfig:
     
     def show(self, zone, instance_charge_type):
         data_list = self.describe_zone_instance_config_infos(zone, instance_charge_type)
+        data_list = sorted(data_list, key=lambda x: (x['InstanceType'], x['Cpu'], x['Memory']), reverse=False)
         for item in data_list:
             print(json.dumps(item))
 
