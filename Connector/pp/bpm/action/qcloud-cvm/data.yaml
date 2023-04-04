@@ -213,11 +213,11 @@ Windows 实例名字符长度为[2, 15]，允许字母（不限制大小写）�
     type: selectx
     value: "是"
 
-  - name: disable_api_termination
-    describe: 实例销毁保护
-    command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
-    type: selectx
-    value: "否"
+  # - name: disable_api_termination
+  #   describe: 实例销毁保护
+  #   command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
+  #   type: selectx
+  #   value: "否"
 
 template_argv:
   # bpm单号
@@ -270,6 +270,11 @@ template_argv:
 
   # 开启监控服务
   enable_monitor: ${enable_monitor}
+
+  # 实例销毁保护标志，表示是否允许通过api接口删除实例。取值范围：
+  # 是：表示开启实例保护，不允许通过api接口删除实例
+  # 否：表示关闭实例保护，允许通过api接口删除实例
+  disable_api_termination: "否"
 
   # 数目
   count: ${count}
