@@ -1,0 +1,66 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import os
+import hashlib
+
+
+def save_account_file_with_md5(dir_path, strings_list):
+    for element in strings_list:
+        md5 = hashlib.md5(element.encode("utf-8")).hexdigest()
+
+        file_path = os.path.join(dir_path, md5)
+        if os.path.exists(file_path):
+            continue
+
+        os.makedirs(file_path)
+        with open(os.path.join(file_path, "data"), "w") as f:
+            f.write(element)
+
+
+def read_file_lines(file_path):
+    with open(file_path, "r", encoding="utf-8") as file:
+        # 读取所有行，去除前后空白字符，并过滤空白行
+        lines = [line.strip() for line in file.readlines() if line.strip()]
+    return lines
+
+
+def filter_files_with_prefix(dir_path, prefix):
+    all_files = os.listdir(dir_path)
+    filtered_files = [file for file in all_files if file.startswith(prefix)]
+    return [os.path.join(dir_path, file) for file in filtered_files]
+
+
+def get_account_lines(dir_path, cloud):
+    cloud_account_files = filter_files_with_prefix(dir_path, cloud)
+    
+    data = []
+    for file_path in cloud_account_files:
+        account_file_lines = read_file_lines(file_path)
+        data.extend(account_file_lines)
+    return data
+
+
+def create_cloud_ak_lines():
+    dir_path = "/data/Software/mydan/AGENT/device/conf/account"
+    account_uuid_dir_path = "/data/Software/mydan/AGENT/device/conf/accountuuid"
+
+    if not os.path.exists(account_uuid_dir_path):
+        os.mkdir(account_uuid_dir_path)
+
+    try:
+        for cloud in ["aliyun", "aws", "google", "huawei", "ksyun", "qcloud"]:
+            account_lines = get_account_lines(dir_path, cloud)
+            save_account_file_with_md5(account_uuid_dir_path, account_lines)
+    except Exception as e:
+        raise RuntimeError(f"生成账号md5信息出错, err: {e}") from e
+    
+
+def main():
+    """对account目录下的所有云账号生成md5目录
+    """
+    create_cloud_ak_lines()
+
+
+if __name__ == '__main__':
+    main()

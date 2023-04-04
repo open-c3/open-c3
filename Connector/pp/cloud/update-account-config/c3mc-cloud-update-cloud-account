@@ -5,7 +5,6 @@ import os
 import shutil
 import subprocess
 import sys
-import hashlib
 import fnmatch
 
 
@@ -60,19 +59,6 @@ def append_to_account_file(file_path, strings_list):
             file.write(line + "\n")
 
 
-def save_account_file_with_md5(dir_path, strings_list):
-    for element in strings_list:
-        md5 = hashlib.md5(element.encode("utf-8")).hexdigest()
-
-        file_path = os.path.join(dir_path, md5)
-        if os.path.exists(file_path):
-            continue
-
-        os.makedirs(file_path)
-        with open(os.path.join(file_path, "data"), "w") as f:
-            f.write(element)
-
-
 def get_ak_line_list(ext_account_path, cloud):
     result = {}
     ext_account_line_list = get_file_lines(ext_account_path)
@@ -112,15 +98,10 @@ def create_cloud_ak_lines():
     ext_dir_path = "/data/Software/mydan/AGENT/device/conf/accountx"
     tmp_dir_path = "/data/Software/mydan/AGENT/device/conf/account/.tmp"
 
-    account_uuid_dir_path = "/data/Software/mydan/AGENT/device/conf/accountuuid"
-
     if os.path.exists(tmp_dir_path):
         shutil.rmtree(tmp_dir_path)
     os.mkdir(tmp_dir_path)
-
-    if not os.path.exists(account_uuid_dir_path):
-        os.mkdir(account_uuid_dir_path)
-
+    
     try:
         for cloud in ["aliyun", "aws", "google", "huawei", "ksyun", "qcloud"]:
             ext_account_path = os.path.join(ext_dir_path, f"{cloud}x")
@@ -140,8 +121,6 @@ def create_cloud_ak_lines():
                     os.path.join(tmp_dir_path, f"{cloud}.{resource_code}"),
                     lines_list,
                 )
-                # 以md5为名称保存ak账号信息
-                save_account_file_with_md5(account_uuid_dir_path, lines_list)
 
         for filename in os.listdir(tmp_dir_path):
             src_file = os.path.join(tmp_dir_path, filename)

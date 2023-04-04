@@ -26,6 +26,12 @@ def get_resource_type_from_extaccount(cloud):
         if filename.startswith(prefix)
     ]
 
+def gen_md5_for_account():
+    cmd_parts = ["c3mc-cloud-gen-md5-for-account"]
+    output = subprocess.run(cmd_parts, capture_output=True, text=True)
+    if output.returncode != 0:
+        print(output.stderr, file=sys.stderr)
+        exit(1)
 
 def update_accounts():
     current_unix_seconds = str(int(time.time()))
@@ -40,18 +46,21 @@ def update_accounts():
 
         # 检查是否有新增资源类型需要创建对应扩展账号文件
         template_resource_type_list = get_resource_type_from_template(cloud)
-        extaccount_resource_type_list = get_resource_type_from_extaccount(
-            cloud)
+        extaccount_resource_type_list = get_resource_type_from_extaccount(cloud)
         for item in extaccount_resource_type_list:
             if item in template_resource_type_list:
                 template_resource_type_list.remove(item)
         if len(template_resource_type_list) > 0:
             ok = True
 
-        # 检查是否最近有修改原始账号文件
-        filepath = f'/data/Software/mydan/AGENT/device/conf/accountx/{cloud}x'
-        if time.time() - os.path.getmtime(filepath) < 600:
-            ok = True
+        if not ok:
+            # 检查是否最近有修改原始账号文件
+            filepath = f'/data/Software/mydan/AGENT/device/conf/accountx/{cloud}x'
+            if not os.path.isfile(filepath):
+                continue
+
+            if time.time() - os.path.getmtime(filepath) < 600:
+                ok = True
 
         if ok:
             os.system('/usr/bin/c3mc-cloud-update-cloud-account')
@@ -61,7 +70,10 @@ def update_accounts():
 
 
 def main():
+    # 账号生成
     update_accounts()
+    # 对账号行计算md5并保存相关信息
+    gen_md5_for_account()
 
 
 if __name__ == '__main__':
