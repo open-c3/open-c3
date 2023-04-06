@@ -18,43 +18,59 @@ class ThreadSafeArray:
             self._array.append(value)
 
 
+# 并发处理每个存储桶的最大线程数
+max_concurrent_number = 20
+
+
 class S3:
     def __init__(self, account, access_id, access_key, region):
         self.account = account
         self.access_id = access_id
         self.access_key = access_key
-        self.region = region
+        self.filter_region = region
         self.client = self.create_client()
 
     def create_client(self):
-        client = boto3.client(
-            "s3",
-            aws_access_key_id=self.access_id,
-            aws_secret_access_key=self.access_key,
-            region_name=self.region,
-        )
-        return client
+        for region in ["us-east-1", "cn-north-1"]:
+            try:
+                client = boto3.client(
+                    "s3",
+                    aws_access_key_id=self.access_id,
+                    aws_secret_access_key=self.access_key,
+                    region_name=region
+                )
+                return client
+            except Exception:
+                continue
 
     def add_tag_info_to_bucket(self, semaphore, array, bucket_info):
         semaphore.acquire()
-        tags = self.list_tag(
-            self.access_id, self.access_key, self.region, bucket_info["Name"]
+
+        bucketLocationResp = self.client.get_bucket_location(
+            Bucket=bucket_info["Name"],
         )
-        bucket = {
-            "UUID": "{}-{}-{}".format(self.account, self.region, bucket_info["Name"]),
-            "BucketName": bucket_info["Name"],
-            "CreationDate": bucket_info["CreationDate"],
-            "RegionId": self.region,
-            "Tags": tags,
-        }
-        array.append(bucket)
+
+        bucket_real_location = bucketLocationResp["LocationConstraint"]
+        if bucket_real_location == self.filter_region:
+            tags = self.list_tag(
+                self.access_id, self.access_key, bucket_real_location, bucket_info["Name"]
+            )
+
+            bucket = {
+                "UUID": f'{self.account}-{bucket_real_location}-{bucket_info["Name"]}',
+                "BucketName": bucket_info["Name"],
+                "CreationDate": bucket_info["CreationDate"],
+                "RegionId": bucket_real_location,
+                "Tags": tags,
+            }
+            array.append(bucket)
         semaphore.release()
 
     def list_buckets(self):
         response = self.client.list_buckets()
 
         array = ThreadSafeArray()
-        semaphore = threading.Semaphore(20)
+        semaphore = threading.Semaphore(max_concurrent_number)
         threads = []
         for bucket_info in response["Buckets"]:
             t = threading.Thread(
