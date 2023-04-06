@@ -16,6 +16,20 @@ fi
 
 cd "$MYDanPATH/dan" || exit 1
 
+if [ "X$OPENC3_ZONE" == "XCN" ];then
+
+    if [ -f /root/.cpan/CPAN/MyConfig.pm ] && [ ! -f /root/.cpan/CPAN/MyConfig.pm.c3.bak ] ; then
+        cp /root/.cpan/CPAN/MyConfig.pm /root/.cpan/CPAN/MyConfig.pm.c3.bak
+    fi
+
+    sed -i "s/'urllist' => \[q\[http:\/\/www\.cpan\.org\/\]\],/'urllist' => \[q[http:\/\/mirrors.163.com\/cpan\/]\],/" /root/.cpan/CPAN/MyConfig.pm
+
+else
+    if [ -f /root/.cpan/CPAN/MyConfig.pm ] && [ -f /root/.cpan/CPAN/MyConfig.pm.c3.bak ] ; then
+        cp /root/.cpan/CPAN/MyConfig.pm.c3.bak /root/.cpan/CPAN/MyConfig.pm
+    fi
+fi
+
 /opt/mydan/perl/bin/cpan install AnyEvent::HTTP </dev/null
 
 wget $OPEN_C3_ADDR/api/scripts/agent.mon.tar.gz -O $MYDanPATH/dan/agent.mon.tar.gz
