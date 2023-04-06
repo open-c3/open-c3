@@ -1,0 +1,120 @@
+download:
+  - url: "cmd:c3mc-cloud-account-list --type huawei-kafka | xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-huawei-kafka --account huawei --cloudaccount {} | c3mc-cloud-tag-v2 --tagfield tags --key key --value value | c3mc-base-json2tab "
+    datatype: tsv
+    type: storage
+    subtype: huawei-kafka
+    treeinfo:
+      treename: "服务树"
+      treeinfo:
+        - ["实例ID", "instance"]
+    check:
+      col: ["实例ID"]
+      min: 0
+    util:
+      defaulttree: defaulttree.pool
+      extcol:
+        - name: audit
+          alias: 审计
+          select: ["YES", "NO"]
+        - name: remarks
+          alias: 备注
+        - name: _ingestion_
+          alias: 摄取
+          select: ["YES", "NO"]
+      grpcol:
+        baseinfo:
+          - name: 名称
+          - name: 实例ID
+          - name: account
+            color: red
+          - name: 状态
+            success:
+              - RUNNING
+          - name: 引擎
+          - name: 版本
+          - name: 付费模式
+          - name: 实例描述
+          - name: 实例规格
+          - name: 区域
+          - name: 部门
+          - name: 业务负责人
+          - name: 运维负责人
+        system:
+          - name: 消息存储空间
+            tail: (GB)
+          - name: 已使用的消息存储空间
+            tail: (GB)
+          - name: Kafka实例的分区数量
+          - name: 实例连接IP地址
+          - name: 实例连接端口
+          - prefix: tag.
+          - name: vpc_id
+          - name: vpc_name
+          - name: subnet_name
+          - name: subnet_cidr
+          - name: user_id
+          - name: user_name
+          - name: access_user
+    colmap:
+      treename: "服务树"
+      uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
+    alias:
+      name: 名称
+      instance_id: 实例ID
+      engine: 引擎
+      region: 区域
+      engine_version: 版本
+      charging_mode: 付费模式
+      description: 实例描述
+      specification: 实例规格
+      storage_space: 消息存储空间
+      partition_num: Kafka实例的分区数量
+      used_storage_space: 已使用的消息存储空间
+      connect_address: 实例连接IP地址
+      port: 实例连接端口
+      status: 状态
+      _product_owner_: "业务负责人"
+      _ops_owner_: "运维负责人"
+      _department_: "部门"
+    filter:
+      - name: "account"
+        alias: 账号
+      - name: "区域"
+        alias: 区域
+      - name: "状态"
+        alias: 状态
+      - name: "实例规格"
+        alias: 实例规格
+      - name: "引擎"
+        alias: 引擎
+      - name: "版本"
+        alias: 版本
+      - name: "业务负责人"
+        alias: 业务负责人
+      - name: "运维负责人"
+        alias: 运维负责人
+      - name: "部门"
+        alias: 部门
+      - name: "audit"
+        alias: 审计
+      - name: "_ingestion_"
+        alias: 摄取
+    outline:
+      uuid:
+        - "实例ID"
+      baseinfo:
+        - "account"
+        - "实例ID"
+        - "名称"
+        - "区域"
+      system:
+        - "引擎"
+        - "引擎版本"
+        - "实例规格"
+        - "实例连接IP地址"
+        - "实例连接端口"
+      contact:
+        - "部门"
+        - "业务负责人"
+        - "运维负责人"
+        - "服务树"
