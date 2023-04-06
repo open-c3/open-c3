@@ -146,6 +146,7 @@
                 "dynamodb:UntagResource",
                 "pricing:GetProducts",
                 "s3:ListAllMyBuckets",
+                "s3:GetBucketLocation",
                 "elasticache:RemoveTagsFromResource",
                 "elasticache:AddTagsToResource",
                 "elasticache:DescribeCacheClusters"
