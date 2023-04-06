@@ -27,5 +27,8 @@ class GetTag:
                 Bucket=self.bucket_name,
             )
         except Exception as e:
-            return []
+            if "The TagSet does not exist" in str(e):
+                return []
+            else: 
+                raise RuntimeError(f"获取s3标签出错. bucket_name: {self.bucket_name}") from e
         return response["TagSet"]
