@@ -46,4 +46,6 @@ mkdir -p /data/open-c3-data/glusterfs/bpm/task
 /data/Software/mydan/Connector/pp/bpm/action/kubernetes-apply/config-make
 /data/Software/mydan/JOB/bpm/bin/jobinit
 
+# 安装mydan需要cd /tmp，否则上面的步骤如果cd到另一个本地mydan路径，会安装失败
+cd /tmp
 curl -L http://openc3-srv-docker/api/scripts/installAgent.sh |OPEN_C3_ADDR=http://openc3-srv-docker bash
