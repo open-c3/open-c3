@@ -70,7 +70,6 @@ template_argv:
 在某些企业中，申请资源sudo权限有一个特殊的映射关系，如果存在下面两个文件，说明有sudo审批人的映射关系.
 其中sudo0是普通的机器权限，sudo1是申请机器的sudo权限。
 
-cat: /data/open-c3-data/bpm/sudoer2.conf: 没有那个文件或目录
 [root@bogon approval]# cat /data/open-c3-data/bpm/sudoer0.conf 
 open-c3: user001
 [root@bogon approval]# cat /data/open-c3-data/bpm/sudoer1.conf 
