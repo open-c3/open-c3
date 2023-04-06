@@ -31,17 +31,13 @@ class S3:
         self.client = self.create_client()
 
     def create_client(self):
-        for region in ["us-east-1", "cn-north-1"]:
-            try:
-                client = boto3.client(
-                    "s3",
-                    aws_access_key_id=self.access_id,
-                    aws_secret_access_key=self.access_key,
-                    region_name=region
-                )
-                return client
-            except Exception:
-                continue
+        region = "cn-north-1" if self.filter_region.startswith("cn") else "us-east-1"
+        return boto3.client(
+            "s3",
+            aws_access_key_id=self.access_id,
+            aws_secret_access_key=self.access_key,
+            region_name=region
+        )
 
     def add_tag_info_to_bucket(self, semaphore, array, bucket_info):
         semaphore.acquire()
