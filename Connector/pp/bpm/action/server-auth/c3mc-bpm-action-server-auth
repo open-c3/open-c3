@@ -103,10 +103,8 @@ def process_element(index, results, ip, instance_id, grant_auth_type, account, e
 
 def grant_server_auth(account, email, ip_list, grant_auth_type, grant_sudo_hours):
     # 添加目标服务器的权限
-    # cmd_parts = ["c3mc-device-api-jumpserver",
-    #              "--json", "--cache", "--ips", ",".join(ip_list)]
     cmd_parts = ["c3mc-device-api-jumpserver",
-                 "--json", "--ips", ",".join(ip_list)]
+                 "--json", "--cache", "--ips", ",".join(ip_list)]
     output = subprocess.run(cmd_parts, capture_output=True, text=True)
     if output.returncode != 0:
         print(output.stderr, file=sys.stderr)

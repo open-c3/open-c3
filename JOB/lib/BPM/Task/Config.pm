@@ -18,6 +18,7 @@ sub save
 
     my $bpmuuid = sprintf "BPM%s%04d", POSIX::strftime( "%Y%m%d%H%M%S", localtime ), int rand 10000;
     $config->{_user_   } = $user;
+    $config->{_editor_ } = $user;
     $config->{_jobname_} = $jobname;
     $config->{_bpmuuid_} = $bpmuuid;
     eval{ YAML::XS::DumpFile "$base/$bpmuuid", $config };
@@ -35,7 +36,8 @@ sub resave
     mkdir $path unless -f $path;
 
     my $tempuuid = sprintf "%s%04d", POSIX::strftime( "%Y%m%d%H%M%S", localtime ), int rand 10000;
-    $config->{_user_   } = $user;
+    $config->{_user_   } = $var->{_user_};
+    $config->{_editor_ } = $user;
     $config->{_jobname_} = $var->{_jobname_};
     $config->{_bpmuuid_} = $uuid;
  

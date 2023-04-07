@@ -23,7 +23,7 @@ my %o = $option->get( qw( uuid=s ip=s uuids=s ips=s cache json ) )->dump();
 
 my $ua = LWP::UserAgent->new();
 $ua->agent('Mozilla/9 [en] (Centos; Linux)');
-$ua->timeout( 15 );
+$ua->timeout( 120 );
 
 my @param;
 map{ push @param, "$_=$o{$_}" if $o{$_}; }qw( uuid uuids ip ips );
