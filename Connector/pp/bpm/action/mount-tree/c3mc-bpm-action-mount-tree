@@ -64,9 +64,8 @@ def mount_tree(params):
             }
 
             resp = requests.post(url = api_endpoint, headers = header, json=data)
-            resp = resp.json()
-            if resp["code"] == 400:
-                msg = f'外部挂树失败, instance_id: {instance_id}, tree_path: {tree_path}, err: {resp["msg"]}',
+            if resp.status_code != 200:
+                msg = f'外部挂树失败, instance_id: {instance_id}, tree_path: {tree_path}, resp: {json.dumps(resp)}',
                 raise RuntimeError(msg)
 
 
