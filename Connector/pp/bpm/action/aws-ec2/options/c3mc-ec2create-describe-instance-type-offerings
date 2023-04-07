@@ -4,7 +4,6 @@
 import sys
 import json
 import subprocess
-import operator
 import concurrent.futures
 import threading
 
@@ -36,14 +35,18 @@ def filter_by_architecture(client, architecture, instance_type_list):
         # 等待所有任务完成
         concurrent.futures.wait(futures)
 
-    result = set()
+    result = {}
     for instance_type_info in data:
         if not instance_type_info['ProcessorInfo'] or not instance_type_info['ProcessorInfo']['SupportedArchitectures']:
             continue
 
         if architecture in instance_type_info['ProcessorInfo']['SupportedArchitectures']:
-            result.add(instance_type_info['InstanceType'])
-    return result
+            result[instance_type_info['InstanceType']] = {
+                "instance_type": instance_type_info['InstanceType'],
+                "cpu": instance_type_info["VCpuInfo"]["DefaultCores"],
+                "memory": int(instance_type_info["MemoryInfo"]["SizeInMiB"] / 1024),
+            }
+    return list(result.values())
 
 
 def describe_instance_type_offerings(access_id, access_key, region, availability_zone, architecture):
@@ -88,13 +91,13 @@ def describe_instance_type_offerings(access_id, access_key, region, availability
 
         next_token = response["NextToken"] if "NextToken" in response else ""
     instance_type_list = [item["InstanceType"] for item in data]
-    filtered_instance_type_dict = filter_by_architecture(client, architecture, instance_type_list)
+    return filter_by_architecture(client, architecture, instance_type_list)
 
-    return [
-        item
-        for item in data
-        if item["InstanceType"] in filtered_instance_type_dict
-    ]
+
+def sort_instance_type_list(item):
+    parts = item["instance_type"].split(".")
+    instance_type_sort_key = parts[0]
+    return (instance_type_sort_key, item["cpu"], item["memory"])
 
 
 def main(params):
@@ -109,7 +112,8 @@ def main(params):
 
     instance_type_list = describe_instance_type_offerings(
         key_info["access_id"], key_info["access_key"], region, availability_zone, architecture)
-    instance_type_list.sort(key=operator.itemgetter('InstanceType'))
+
+    instance_type_list = sorted(instance_type_list, key=sort_instance_type_list)
     for instance_type in instance_type_list:
         print(json.dumps(instance_type, default=str))
 
