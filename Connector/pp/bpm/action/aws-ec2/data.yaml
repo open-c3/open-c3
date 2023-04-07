@@ -21,10 +21,12 @@ option:
   - name: name_prefix
     describe: 实例名称前缀
     type: input
+    fromops: 1
 
   - name: name_suffix_start_number
     describe: 实例名称后缀起始数字
     type: number
+    fromops: 1
 
   - name: az
     describe: 可用区
@@ -47,7 +49,7 @@ option:
       - region
       - az
       - architecture
-    command: c3mc-ec2create-describe-instance-type-offerings | c3mc-bpm-display-field-values InstanceType,InstanceType
+    command: c3mc-ec2create-describe-instance-type-offerings | c3mc-bpm-display-field-values "{instance_type};实例类型:{instance_type}, Cpu:{cpu}核, 内存:{memory}GB"
     type: selectx
     information: "数据量较大, 可能需要20秒左右响应时间"
 
@@ -58,6 +60,7 @@ option:
       - region
     command: c3mc-ec2create-describe-vpcs | c3mc-bpm-display-field-values VpcId,Name,CidrBlock
     type: selectx
+    fromops: 1
 
   - name: subnet_id
     describe: subnet
@@ -68,6 +71,7 @@ option:
       - vpc_id
     command: c3mc-ec2create-describe-subnets | c3mc-bpm-display-field-values SubnetId,Name,CidrBlock,AvailableIpAddressCount
     type: selectx
+    fromops: 1
 
   - name: image_id
     describe: 镜像
@@ -77,6 +81,7 @@ option:
       - architecture
     command: c3mc-ec2create-describe-images-all | c3mc-bpm-display-field-values ImageId,Name
     type: selectx
+    fromops: 1
 
   - name: iam_role_name
     describe: iam角色
@@ -88,6 +93,7 @@ option:
     # 这里可能需要既能选择又能填写的框类型. 目前先用下拉框测试
     # type: selectx
     type: input
+    fromops: 1
 
   - name: security_group_ids
     describe: 安全组 (支持多选)
@@ -97,11 +103,13 @@ option:
       - vpc_id
     command: c3mc-ec2create-describe-security-groups | c3mc-bpm-display-field-values GroupId,GroupName
     type: selectxm
+    fromops: 1
 
   - name: enable_monitor
     describe: 是否启用监控
     command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
     type: selectx
+    fromops: 1
 
   - name: if_need_public_ip
     describe: 是否需要公网IP
@@ -134,6 +142,7 @@ option:
       alias: "Throughput Optimized HDD (st1)"
     - name: sc1
       alias: "Cold HDD (sc1)"
+    fromops: 1
 
   - name: root_volume_size
     describe: 根盘大小 (单位GB)
@@ -143,6 +152,7 @@ option:
     # C3TODO 230316
     # 需要在前端限制用户输入的数值大小
     type: number
+    fromops: 1
 
   - name: root_volume_max_iops
     describe: 根盘最大IOPS
@@ -152,6 +162,7 @@ option:
     type: number
     show:
       - root_volume_type: ["io1", "io2"]
+    fromops: 1
 
   - name: if_need_data_volume
     describe: 是否需要数据盘
@@ -178,6 +189,7 @@ option:
       alias: "Cold HDD (sc1)"
     show:
       - if_need_data_volume: ["是"]
+    fromops: 1
 
   - name: data_volume_max_iops
     describe: 数据盘最大IOPS
@@ -187,6 +199,7 @@ option:
     type: number
     show:
       - data_volume_type: ["io1", "io2"]
+    fromops: 1
 
   - name: data_volume_size
     describe: 数据盘大小 (单位GB)
@@ -203,17 +216,20 @@ option:
     describe: 删除ec2时删除数据盘
     command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
     type: selectx
+    fromops: 1
   
 
   - name: tag
     describe: 机器标签
     # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
     type: kvarray
+    fromops: 1
 
   - name: user_data
     describe: 系统初始化执行脚本(不超过16K大小)
     type: text
     required: false
+    fromops: 1
 
 template_argv:
   # bpm单号
