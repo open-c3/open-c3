@@ -68,7 +68,7 @@ class Cvm:
                 "PublicIpAssigned": self.get_bool_value(self.params["if_need_public_ip"])
             },
             "InstanceCount": int(self.params["count"]),
-            "InstanceName": self.get_r_format_str(self.params["hostname_prefix"], self.params["hostname_suffix_start_number"]),
+            "InstanceName": self.get_r_format_str(self.params["name_prefix"], self.params["name_suffix_start_number"]),
             "SecurityGroupIds": self.params["security_group_ids"].split(","),
             "EnhancedService": {
                 "MonitorService": {
