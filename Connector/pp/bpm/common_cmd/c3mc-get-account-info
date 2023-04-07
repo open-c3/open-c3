@@ -30,10 +30,15 @@ def describe_account_info(cloud, account):
     if account_line is None:
         raise type('DataNotFound', (Exception,), {})('无法找到账号信息')
     parts = account_line.split()
-    return {
-        "access_id": parts[1].strip(),
-        "access_key": parts[2].strip(),
-    }
+    if cloud == "google":
+        return {
+            "cred_path": parts[1]
+        }
+    else:
+        return {
+            "access_id": parts[1].strip(),
+            "access_key": parts[2].strip(),
+        }
 
 
 def main(cloud, account):
