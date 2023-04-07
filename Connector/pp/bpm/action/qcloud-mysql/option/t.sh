@@ -29,7 +29,7 @@ echo '{"account": "opencetest", "region": "ap-beijing", "zone": "ap-beijing-1", 
 
 
 # 实例配置
-echo '{"account": "opencetest", "region": "ap-beijing", "zone": "ap-beijing-3", "charge_type": "按量计费", "cdb_sell_type": "Z3", "device_type": "UNIVERSAL", "engine_type": "InnoDB"}' | c3mc-bpm-option-qcloud-mysql-describe-instance-config-list | c3mc-bpm-display-field-values Id,Cpu,Memory,Iops,VolumeMax
+echo '{"account": "opencetest", "region": "ap-beijing", "zone": "ap-beijing-3", "charge_type": "按量计费", "cdb_sell_type": "Z3", "device_type": "UNIVERSAL", "engine_type": "InnoDB"}' | c3mc-bpm-option-qcloud-mysql-describe-instance-config-list | c3mc-bpm-display-field-values c3mc-bpm-display-field-values "{Id};Cpu:{Cpu}核, 内存:{Memory}MB, IOPS:{Iops}, 最小磁盘:{VolumeMin}GB, 最大磁盘: {VolumeMax}GB"
 
 
 # vpc

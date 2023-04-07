@@ -29,14 +29,6 @@ option:
     describe: 机器数目
     type: number
 
-  - name: name_prefix
-    describe: 实例名称前缀
-    type: input
-
-  - name: name_suffix_start_number
-    describe: 实例名称后缀起始数字
-    type: number
-
   - name: hostname_prefix
     describe: 主机名前缀
     type: input
@@ -105,6 +97,7 @@ option:
       - region
     command: c3mc-qcloud-cvm-describe-images | c3mc-bpm-display-field-values ImageId,ImageName,ImageType
     type: selectx
+    fromops: 1
     value: ""
 
   - name: system_disk_type
@@ -117,6 +110,7 @@ option:
     describe: 系统盘大小(GB)
     type: number
     required: true
+    fromops: 1
     value: ""
 
   - name: if_need_data_volume
@@ -132,6 +126,7 @@ option:
     value: ""
     show:
       - if_need_data_volume: ["是"]
+    fromops: 1
 
   - name: data_disk_size
     describe: 数据盘大小(GB)
@@ -147,6 +142,7 @@ option:
       - region
     command: c3mc-qcloud-cvm-describe-vpcs | c3mc-bpm-display-field-values VpcId,VpcName
     type: selectx
+    fromops: 1
     value: ""
 
   - name: subnet_id
@@ -158,6 +154,7 @@ option:
       - zone
     command: c3mc-qcloud-cvm-describe-subnets | c3mc-bpm-display-field-values SubnetId,SubnetName,AvailableIpAddressCount
     type: selectx
+    fromops: 1
     value: ""
 
   - name: security_group_ids
@@ -168,13 +165,15 @@ option:
       - project_id
     command: c3mc-qcloud-cvm-describe-security-groups | c3mc-bpm-display-field-values SecurityGroupId,SecurityGroupName
     type: selectxm
+    fromops: 1
     value: ""
-    formation: "安全组和账号、区域、项目有关，如果没有安全组可以选择，请确认项目是否选择正确。"
+    information: "安全组和账号、区域、项目有关，如果没有安全组可以选择，请确认项目是否选择正确。"
 
   - name: tag
     describe: 机器标签
     # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
     type: kvarray
+    fromops: 1
     value: "[]"
 
   # 网络配置--------------------------
@@ -191,11 +190,13 @@ option:
     - name: BANDWIDTH_PACKAGE
       alias: 带宽包用户
     value: ""
+    fromops: 1
 
   - name: internet_max_bandwidth_out
     describe: "公网出带宽上限(兆)"
     variable_name: internet_max_bandwidth_out
     type: input
+    fromops: 1
 
   - name: if_need_public_ip
     describe: 是否需要公网ip
@@ -203,6 +204,7 @@ option:
     type: selectx
     value: ""
     information: "当公网带宽为0, 则不允许分配公网IP。此时忽略该选项的值"
+    fromops: 1
   # --------------------------------
 
   - name: enable_monitor
@@ -210,6 +212,7 @@ option:
     command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
     type: selectx
     value: "是"
+    fromops: 1
 
   # - name: disable_api_termination
   #   describe: 实例销毁保护
@@ -276,10 +279,6 @@ template_argv:
 
   # 数目
   count: ${count}
-  # 实例名称前缀
-  name_prefix: ${name_prefix}
-  # 实例名称后缀起始数字
-  name_suffix_start_number: ${name_suffix_start_number}
 
   # 主机名前缀
   hostname_prefix: ${hostname_prefix}
