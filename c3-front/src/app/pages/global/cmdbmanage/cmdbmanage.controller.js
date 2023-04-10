@@ -47,6 +47,23 @@
             });
         };
 
+        vm.editaws = function (name) {
+            $uibModal.open({
+                templateUrl: 'app/pages/global/cmdbmanage/aws/aws.html',
+                controller: 'CmdbManageAWSController',
+                controllerAs: 'cmdbmanageaws',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () { return vm.treeid},
+                    reload: function () { return vm.reload},
+                    name: function () { return name}
+                }
+            });
+        };
+
         vm.edithuawei = function (name) {
             $uibModal.open({
                 templateUrl: 'app/pages/global/cmdbmanage/huawei/huawei.html',
