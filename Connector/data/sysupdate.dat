@@ -711,3 +711,17 @@ create table if not exists `openc3_connector_userleader`(
 UNIQUE KEY `uniq_uuid` (`user`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='用户领导信息';
 
+# v2.6.0 sql openc3_device_account_huawei create
+create table if not exists `openc3_device_account_huawei`(
+`id`          int(16) unsigned not null primary key auto_increment comment 'id',
+`accountname` VARCHAR(200) comment '账号名称',
+`accesskey`   VARCHAR(400) comment 'ak',
+`secretkey`   VARCHAR(400) comment 'sk',
+`project`     VARCHAR(200) comment '项目',
+`region`      VARCHAR(200) comment '区域',
+`iamid`       VARCHAR(200) comment '华为云iam用户id',
+`note`        VARCHAR(200) comment '备注',
+`edit_user`   VARCHAR(200) comment '编辑人',
+`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '最后编辑时间'
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='华为云账号';
+

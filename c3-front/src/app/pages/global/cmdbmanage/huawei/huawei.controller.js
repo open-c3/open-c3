@@ -3,18 +3,19 @@
 
     angular
         .module('openc3')
-        .controller('CmdbManageController', CmdbManageController);
+        .controller('CmdbManageHuaweiController', CmdbManageHuaweiController);
 
     /** @ngInject */
-    function CmdbManageController( $state, $http, $scope, $uibModal, ngTableParams ) {
+    function CmdbManageHuaweiController( $state, $http, $scope, $uibModal, ngTableParams, $uibModalInstance ) {
 
         var vm = this;
         vm.treeid = $state.params.treeid;
 
-        vm.mem = {};
+        vm.cancel = function(){ $uibModalInstance.dismiss()};
+
         vm.reload = function () {
             vm.loadover = false
-            $http.get('/api/agent/cmdbmanage').then(
+            $http.get('/api/agent/cmdbmanage/account/huawei').then(
                 function successCallback(response) {
                     if (response.data.stat){
                         vm.dataTable   = new ngTableParams({count:20}, {counts:[],data:response.data.data});
@@ -30,11 +31,11 @@
 
         vm.reload()
 
-        vm.create = function (name) {
+        vm.create = function (id) {
             $uibModal.open({
-                templateUrl: 'app/pages/global/cmdbmanage/create.html',
-                controller: 'CmdbManageCreateController',
-                controllerAs: 'cmdbmanagecreate',
+                templateUrl: 'app/pages/global/cmdbmanage/huawei/create.html',
+                controller: 'CmdbManageHuaweiCreateController',
+                controllerAs: 'cmdbmanagehuaweicreate',
                 backdrop: 'static',
                 size: 'lg',
                 keyboard: false,
@@ -42,29 +43,12 @@
                 resolve: {
                     treeid: function () { return vm.treeid},
                     reload: function () { return vm.reload},
-                    name: function () { return name}
+                    id: function () { return id}
                 }
             });
         };
 
-        vm.edithuawei = function (name) {
-            $uibModal.open({
-                templateUrl: 'app/pages/global/cmdbmanage/huawei/huawei.html',
-                controller: 'CmdbManageHuaweiController',
-                controllerAs: 'cmdbmanagehuawei',
-                backdrop: 'static',
-                size: 'lg',
-                keyboard: false,
-                bindToController: true,
-                resolve: {
-                    treeid: function () { return vm.treeid},
-                    reload: function () { return vm.reload},
-                    name: function () { return name}
-                }
-            });
-        };
-
-        vm.delete = function(name){
+        vm.delete = function(id){
             swal({
                 title: "删除",
                 type: "warning",
@@ -74,7 +58,7 @@
                 confirmButtonText: "确定",
                 closeOnConfirm: true
             }, function(){
-                $http.post('/api/agent/cmdbmanage', { "name": name } ).success(function(data){
+                $http.delete('/api/agent/cmdbmanage/account/huawei/' + id ).success(function(data){
                     if(data.stat == true) {
                         vm.reload();
                     } else { swal({ title: "操作失败!", text: data.info, type:'error' }); }
