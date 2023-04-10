@@ -29,6 +29,14 @@ option:
     describe: 机器数目
     type: number
 
+  # - name: name_prefix
+  #   describe: 实例名称前缀
+  #   type: input
+
+  # - name: name_suffix_start_number
+  #   describe: 实例名称后缀起始数字
+  #   type: number
+
   - name: hostname_prefix
     describe: 主机名前缀
     type: input
@@ -279,6 +287,22 @@ template_argv:
 
   # 数目
   count: ${count}
+
+  # ---------------------------------------------------
+
+  # name_prefix name_suffix_start_number 这俩参数和下面的主机名配置相比有些多余，
+  # 虽然在云上属于不同的参数, 暂时使用主机名相关参数作为实例名称
+
+  # # 实例名称前缀
+  # name_prefix: ${name_prefix}
+  # # 实例名称后缀起始数字
+  # name_suffix_start_number: ${name_suffix_start_number}
+  # 实例名称前缀
+
+  name_prefix: ${hostname_prefix}
+  # 实例名称后缀起始数字
+  name_suffix_start_number: ${hostname_suffix_start_number}
+  # ---------------------------------------------------
 
   # 主机名前缀
   hostname_prefix: ${hostname_prefix}
