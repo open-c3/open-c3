@@ -105,11 +105,11 @@ option:
     type: selectxm
     fromops: 1
 
-  - name: enable_monitor
-    describe: 是否启用监控
-    command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
-    type: selectx
-    fromops: 1
+  # - name: enable_monitor
+  #   describe: 是否启用监控
+  #   command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
+  #   type: selectx
+  #   fromops: 1
 
   - name: if_need_public_ip
     describe: 是否需要公网IP
@@ -269,7 +269,7 @@ template_argv:
   # 根盘最大iops
   root_volume_max_iops: ${root_volume_max_iops}
   # 是否启用监控
-  enable_monitor: ${enable_monitor}
+  enable_monitor: "否"
   # 镜像
   image_id: ${image_id}
   instance_type: ${instance_type}
