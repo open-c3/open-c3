@@ -41,7 +41,11 @@ any '/device/chpassword' => sub {
     eval{ $api::auditlog->run( user => $user, title => 'CHANGE DB PASSWD', content => "TYPE:$param->{dbtype} ADDR:$param->{dbaddr}" ); };
 
     my $dbpath = "/data/open-c3-data/device/curr/auth/$param->{dbtype}";
-    return  +{ stat => $JSON::false, info => "noauth to change $param->{dbtype} passwd" } if ! -f "$dbpath.auth/$user";
+
+    my @dbtype = split /\-/, $param->{dbtype}, 2;
+    my $dbpathT = sprintf "/data/open-c3-data/device/curr/auth/%s", @dbtype == 2 ? $dbtype[0] : $param->{dbtype};
+    
+    return  +{ stat => $JSON::false, info => "noauth to change $param->{dbtype} passwd" } if ( ! -f "$dbpath.auth/$user" ) && ( ! "$dbpathT.auth/$user" );
 
     system( "mkdir -p $dbpath" ) unless -d $dbpath;
 

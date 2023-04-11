@@ -368,7 +368,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
         } @title;
         my @x = map{ [ $_ => $r->{$_} ] } grep{ ! ( $_ =~ /\./ && $r->{$_} eq "" ) }@title;
 
-        if( -f "$datapathx/auth/$param->{type}-$param->{subtype}.auth/$user" )
+        if( -f "$datapathx/auth/$param->{type}-$param->{subtype}.auth/$user" || -f "$datapathx/auth/$param->{type}.auth/$user" )
         {
             my $passfile = "$datapathx/auth/$param->{type}-$param->{subtype}/$r->{$uuidcol}";
             my $passcont = '';
