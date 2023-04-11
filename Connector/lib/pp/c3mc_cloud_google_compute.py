@@ -20,6 +20,11 @@ class GoogleCompute:
     
     def create_service(self):
         return discovery.build('compute', 'v1', credentials=self.credentials)
+    
+    def get_project_id(self):
+        """获取当前凭证的project_id
+        """
+        return self.credentials.project_id
 
     def get_os(self, disk_source):
         if disk_source is None:
@@ -70,6 +75,45 @@ class GoogleCompute:
         project_id = self.credentials.project_id
         return self.service.instances().get(project=project_id, zone=zone, instance=instance_name).execute()
 
+    def list_zone_instances(self, zone):
+        """查询可用区下的虚拟机列表
+
+        Args:
+            zone (string): 可用区
+
+        Returns:
+            list: 可用区下的实例列表
+        """
+        project_id = self.credentials.project_id
+        request = self.service.instances().list(project=project_id, zone=zone, maxResults=500)
+        instances = []
+
+        while request is not None:
+            response = request.execute()
+            if 'items' in response:
+                instances.extend(response['items'])
+            request = self.service.instances().list_next(previous_request=request, previous_response=response)
+
+        return instances
+    
+    def list_region_instances(self, region):
+        """查询区域的虚拟机列表
+
+        Args:
+            region (string): 区域
+
+        Returns:
+            list: 区域下的实例列表
+        """
+        region_zones = self.list_zones_of_region(region)
+        instances = []
+
+        for zone in region_zones:
+            zone_instances = self.list_zone_instances(zone['name'])
+            instances.extend(zone_instances)
+
+        return instances
+
     def create_vm(self, zone, instance_config):
         """创建虚拟机
 
@@ -94,17 +138,32 @@ class GoogleCompute:
         return data
 
     def list_zones(self):
-        """查询可用区详情列表
+        """查询所有可用区详情列表
         """
-        data = []
-        request = self.service.zones().list(project=self.credentials.project_id, maxResults=500)
+        data = self._list_all_zones()
+        return sorted(data, key=lambda x: x['name'], reverse=False)
+
+    def list_zones_of_region(self, region):
+        """查询所有可用区详情列表
+        """
+        data = self._list_all_zones()
+        result = [
+            item for item in data if item["name"].startswith(region)
+        ]
+        return sorted(result, key=lambda x: x['name'], reverse=False)
+
+    def _list_all_zones(self):
+        result = []
+        request = self.service.zones().list(
+            project=self.credentials.project_id, maxResults=500
+        )
         while request is not None:
             response = request.execute()
-
-            data.extend(response['items'])
-
-            request = self.service.zones().list_next(previous_request=request, previous_response=response)
-        return sorted(data, key=lambda x: x['name'], reverse=False)
+            result.extend(response['items'])
+            request = self.service.zones().list_next(
+                previous_request=request, previous_response=response
+            )
+        return result
 
     def list_machine_types(self, zone):
         """查询虚拟机机器类型列表

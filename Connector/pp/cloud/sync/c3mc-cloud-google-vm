@@ -3,77 +3,67 @@
 
 import sys
 import json
-import re
-
-from google.oauth2 import service_account
-from google.cloud import compute_v1
-from google.protobuf.json_format import MessageToJson, MessageToDict
-
-sys.path.append("/data/Software/mydan/Connector/lib/pp")
-from c3mc_cloud_google_compute import GoogleCompute
 
 
 class VM:
-    def __init__(self, cred_json_path):
+    def __init__(self, cred_json_path, region):
         self.cred_json_path = cred_json_path
-        self.credentials = self.create_credentials()
-        self.lib_google_client = GoogleCompute(cred_json_path)
-        self.page_size = 500
+        self.region = region
+        self.lib_client = self.create_lib_client()
 
-    def create_credentials(self):
-        return service_account.Credentials.from_service_account_file(self.cred_json_path)
+    def create_lib_client(self):
+        sys.path.append("/data/Software/mydan/Connector/lib/pp")
+        from c3mc_cloud_google_compute import GoogleCompute
+        return GoogleCompute(self.cred_json_path)
 
     def list_instance(self):
-        compute_client = compute_v1.InstancesClient(credentials=self.credentials)
-        results = []
-        for _, instances in compute_client.aggregated_list(request={"project": self.credentials.project_id, "max_results": self.page_size}):
-            for instance in instances.instances:
-                try:
-                    item = MessageToDict(instance)
-                except:
-                    item = MessageToDict(instance._pb)
+        instance_list = self.lib_client.list_region_instances(self.region)
+        result = []
+        for instance in instance_list:
+            network_config = instance["networkInterfaces"][0]
+            vpc_network_url = network_config['network']
+            instance["vpcName"] = vpc_network_url.rsplit('/', 1)[-1]
 
-                network_config = item["networkInterfaces"][0]
-                vpc_network_url = network_config['network']
-                item["vpcName"] = vpc_network_url.rsplit('/', 1)[-1]
+            disk_source = next(
+                (
+                    disk_item["source"]
+                    for disk_item in instance["disks"]
+                    if disk_item["boot"] == True
+                ),
+                None,
+            )
+            instance["os"] = self.lib_client.get_os(disk_source)
 
-                disk_source = None
-                for disk_item in item["disks"]:
-                    if disk_item["boot"] == True:
-                        disk_source = disk_item["source"] 
-                        break
-                item["os"] = self.lib_google_client.get_os(disk_source)
+            instance["zone"] = instance["zone"].split("/")[-1]
+            instance["regionId"] = instance["zone"].split("/")[-1][:-2]
+            instance["metadata"].pop("items", None)
+            instance["projectId"] = self.lib_client.get_project_id()
+            instance.pop("tags", None)
 
-                item["zone"] = item["zone"].split("/")[-1]
-                item["regionId"] = item["zone"].split("/")[-1][:-2]
-                item["metadata"].pop("items", None)
-                item["projectId"] = self.credentials.project_id
-                item.pop("tags", None)
+            private_ip = None
+            public_ip = None
+            for netInterface in instance["networkInterfaces"]:
+                private_ip = netInterface["networkIP"]
 
-                private_ip = None
-                public_ip = None
-                for netInterface in item["networkInterfaces"]:
-                    private_ip = netInterface["networkIP"]
+                if "accessConfigs" in netInterface:
+                    for configItem in netInterface["accessConfigs"]:
+                        if "natIP" in configItem:
+                            public_ip = configItem["natIP"]
+            if private_ip is not None:
+                instance["private_ip"] = private_ip
+            if public_ip is not None:
+                instance["public_ip"] = public_ip
 
-                    if "accessConfigs" in netInterface:
-                        for configItem in netInterface["accessConfigs"]:
-                            if "natIP" in configItem:
-                                public_ip = configItem["natIP"]
-                if private_ip is not None:
-                    item["private_ip"] = private_ip
-                if public_ip is not None:
-                    item["public_ip"] = public_ip
+            instance["tags_list"] = []
+            if "labels" in instance:
+                for key, value in instance["labels"].items():
+                    instance["tags_list"].append({
+                        "Key": key,
+                        "Value": value
+                    })
 
-                item["tags_list"] = []
-                if "labels" in item:
-                    for key, value in item["labels"].items():
-                        item["tags_list"].append({
-                            "Key": key,
-                            "Value": value
-                        })
-
-                results.append(item)
-        return results
+            result.append(instance)
+        return result
 
     def show(self):
         instance_list = self.list_instance()
@@ -81,10 +71,9 @@ class VM:
             print(json.dumps(instance))
 
 
-def main(cred_json_path):
-    vm = VM(cred_json_path)
-    vm.show()
+def main(cred_json_path, region):
+    VM(cred_json_path, region).show()
 
 
 if __name__ == '__main__':
-    main(sys.argv[1])
+    main(sys.argv[1], sys.argv[2])
