@@ -132,6 +132,23 @@
             });
         };
 
+        vm.editgoogle = function (name) {
+            $uibModal.open({
+                templateUrl: 'app/pages/global/cmdbmanage/google/google.html',
+                controller: 'CmdbManageGoogleController',
+                controllerAs: 'cmdbmanagegoogle',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () { return vm.treeid},
+                    reload: function () { return vm.reload},
+                    name: function () { return name}
+                }
+            });
+        };
+
         vm.delete = function(name){
             swal({
                 title: "删除",
