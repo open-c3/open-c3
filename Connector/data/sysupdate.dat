@@ -749,3 +749,16 @@ create table if not exists `openc3_device_account_aliyun`(
 `edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '最后编辑时间'
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='阿里云账号';
 
+# v2.6.0 sql openc3_device_account_qcloud create
+create table if not exists `openc3_device_account_qcloud`(
+`id`          int(16) unsigned not null primary key auto_increment comment 'id',
+`accountname` VARCHAR(200) comment '账号名称',
+`accesskey`   VARCHAR(400) comment 'ak',
+`secretkey`   VARCHAR(400) comment 'sk',
+`region`      VARCHAR(200) comment '区域',
+`accountid`   VARCHAR(200) comment '账号ID',
+`note`        VARCHAR(200) comment '备注',
+`edit_user`   VARCHAR(200) comment '编辑人',
+`edit_time` TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '最后编辑时间'
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='腾讯云账号';
+

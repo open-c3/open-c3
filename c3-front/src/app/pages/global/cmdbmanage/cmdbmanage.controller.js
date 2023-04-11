@@ -81,6 +81,23 @@
             });
         };
  
+        vm.editqcloud = function (name) {
+            $uibModal.open({
+                templateUrl: 'app/pages/global/cmdbmanage/qcloud/qcloud.html',
+                controller: 'CmdbManageQcloudController',
+                controllerAs: 'cmdbmanageqcloud',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () { return vm.treeid},
+                    reload: function () { return vm.reload},
+                    name: function () { return name}
+                }
+            });
+        };
+ 
         vm.editaliyun = function (name) {
             $uibModal.open({
                 templateUrl: 'app/pages/global/cmdbmanage/aliyun/aliyun.html',
