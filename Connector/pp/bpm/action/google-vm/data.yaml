@@ -1,0 +1,216 @@
+---
+name: 创建谷歌云虚拟机
+multi: 1
+option:
+  - name: account
+    describe: 云账号
+    command: c3mc-display-cloud-account-list google
+    type: selectx
+    value: ""
+
+  - name: region
+    describe: 区域
+    rely:
+      - account
+    command: c3mc-bpm-option-google-compute-list-regions | c3mc-bpm-display-field-values "{name};区域描述:{description}, 状态:{status}"
+    type: selectx
+    value: ""
+
+  - name: zone
+    describe: 可用区
+    rely:
+      - account
+      - region
+    command: c3mc-bpm-option-google-compute-list-region-zones
+    type: selectx
+    value: ""
+
+  - name: count
+    describe: 机器数目
+    type: number
+
+  - name: name_prefix
+    describe: 实例名称前缀
+    type: input
+    information: "如果只创建一台机器，会忽略 '实例名称后缀起始数字' 选项的值, 并且实例名称必须满足正则表达式 '(?:[a-z](?:[-a-z0-9]{0,61}[a-z0-9])?)'"
+
+  - name: name_suffix_start_number
+    describe: 实例名称后缀起始数字
+    type: number
+
+  - name: instance_config
+    describe: 机型
+    rely:
+      - account
+      - zone
+      - architecture
+    command: c3mc-bpm-option-google-compute-list-machine-types | c3mc-bpm-display-field-values "{name};实例类型:{name}, Cpu:{guestCpus}核, 内存:{memoryGB}GB"
+    type: selectx
+    value: ""
+
+  - name: image_type
+    describe: 镜像类型
+    type: select
+    option:
+    - name: public
+      alias: 公共镜像
+    - name: private
+      alias: 自定义镜像
+    fromops: 1
+    value: ""
+
+  - name: public_image_id
+    describe: 公共镜像
+    rely:
+      - account
+    command: c3mc-bpm-option-google-compute-list-public-images | c3mc-bpm-display-field-values selfLink,name
+    type: selectx
+    value: ""
+    show: 
+     - image_type: ["public"]
+    fromops: 1
+
+  - name: private_image_id
+    describe: 自定义镜像
+    rely:
+      - account
+    command: c3mc-bpm-option-google-compute-list-custom-images | c3mc-bpm-display-field-values selfLink,name
+    type: selectx
+    value: ""
+    show: 
+     - image_type: ["private"]
+    fromops: 1
+
+  - name: system_disk_type
+    describe: 系统盘类型列表
+    command: c3mc-bpm-option-google-compute-list-disk-types | c3mc-bpm-display-field-values name,description
+    type: selectx
+    value: ""
+    fromops: 1
+
+  - name: system_disk_size
+    describe: 系统盘大小(GB)
+    type: number
+    required: true
+    value: ""
+    fromops: 1
+
+  - name: if_need_data_volume
+    describe: 是否需要数据盘
+    command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
+    type: selectx
+    value: ""
+
+  - name: data_disk_type
+    describe: 数据盘类型
+    command: c3mc-bpm-option-google-compute-list-disk-types | c3mc-bpm-display-field-values name,description
+    type: selectx
+    value: ""
+    show:
+      - if_need_data_volume: ["是"]
+    fromops: 1
+
+  - name: data_disk_size
+    describe: 数据盘大小(GB)
+    variable_name: data_disk_size
+    type: number
+    value: ""
+    show: ["if_need_data_volume", "是"]
+
+  - name: network
+    describe: 网络列表
+    rely:
+      - account
+    command: c3mc-bpm-option-google-compute-list-networks | c3mc-bpm-display-field-values name,name
+    type: selectx
+    value: ""
+    fromops: 1
+
+  - name: subnetwork
+    describe: 子网列表
+    rely:
+      - account
+      - region
+    command: c3mc-bpm-option-google-compute-list-subnetworks | c3mc-bpm-display-field-values name,name
+    type: selectx
+    value: ""
+    fromops: 1
+
+  - name: tag
+    describe: 机器标签
+    # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
+    type: kvarray
+    value: "[]"
+    fromops: 1
+
+  - name: if_need_public_ip
+    describe: 是否需要公网ip
+    command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
+    type: selectx
+    value: ""
+    information: "当公网带宽为0, 则不允许分配公网IP。此时忽略该选项的值"
+    fromops: 1
+
+  - name: public_ip_type
+    describe: 公网ip类型
+    option: ["普通公网ip", "弹性公网ip"]
+    type: select
+    value: ""
+    show:
+      - if_need_public_ip: ["是"]
+    fromops: 1
+
+  - name: enable_display
+    describe: 是否开启显示设备
+    command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
+    type: selectx
+    value: ""
+    information: 指在创建谷歌云虚拟机时, 是否为该虚拟机分配一个虚拟的图形处理器(GPU), 以便能够支持图形显示和远程桌面访问。
+    fromops: 1
+
+template_argv:
+  # bpm单号
+  bpm_uuid: ${_bpmuuid_}
+  # 账号
+  account: ${account}
+  # 区域
+  region: ${region}
+  # 可用区
+  zone: ${zone}
+  # 数目
+  count: ${count}
+  # 实例名称前缀
+  name_prefix: ${name_prefix}
+  # 实例名称后缀起始数字
+  name_suffix_start_number: ${name_suffix_start_number}
+  # 机型型号
+  instance_config: ${instance_config}
+  # 镜像类型
+  image_type: ${image_type}
+  # 自定义镜像id
+  public_image_id: ${public_image_id}
+  # 公共镜像id
+  private_image_id: ${private_image_id}
+  # 系统盘类型
+  system_disk_type: ${system_disk_type}
+  # 系统盘大小
+  system_disk_size: ${system_disk_size}
+  # 是否需要数据盘
+  if_need_data_volume: ${if_need_data_volume}
+  # 公网ip类型
+  public_ip_type: ${public_ip_type}
+  # 数据盘类型
+  data_disk_type: ${data_disk_type}
+  # 数据盘大小
+  data_disk_size: ${data_disk_size}
+  # 网络
+  network: ${network}
+  # 子网
+  subnetwork: ${subnetwork}
+  # 是否需要公网ip 
+  if_need_public_ip: ${if_need_public_ip}
+  # 标签
+  # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
+  tag: ${tag}
+  # 开启显示设备
+  enable_display: ${enable_display}

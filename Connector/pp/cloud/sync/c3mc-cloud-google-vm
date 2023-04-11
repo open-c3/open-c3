@@ -10,14 +10,14 @@ from google.cloud import compute_v1
 from google.protobuf.json_format import MessageToJson, MessageToDict
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
-from c3mc_cloud_google import Google
+from c3mc_cloud_google_compute import GoogleCompute
 
 
 class VM:
     def __init__(self, cred_json_path):
         self.cred_json_path = cred_json_path
         self.credentials = self.create_credentials()
-        self.lib_google_client = Google(cred_json_path)
+        self.lib_google_client = GoogleCompute(cred_json_path)
         self.page_size = 500
 
     def create_credentials(self):
