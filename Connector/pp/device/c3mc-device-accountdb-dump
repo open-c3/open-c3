@@ -1,0 +1,22 @@
+#!/bin/bash
+
+set -e
+set -o pipefail
+
+DISTPATH=/data/Software/mydan/AGENT/device/conf/accountdb
+TEMPPATH=/data/Software/mydan/AGENT/device/conf/accountdb.temp/$$
+mkdir -p $DISTPATH
+mkdir -p $TEMPPATH
+
+c3mc-base-db-get accountname accesskey secretkey region --table openc3_device_account_aws   |sed 's/;/ /g' > $TEMPPATH/aws.db
+c3mc-base-db-get accountname accesskey secretkey region --table openc3_device_account_aliyun|sed 's/;/ /g' > $TEMPPATH/aliyun.db
+c3mc-base-db-get accountname accesskey secretkey region --table openc3_device_account_ksyun |sed 's/;/ /g' > $TEMPPATH/ksyun.db
+
+c3mc-base-db-get accountname accesskey secretkey region accountid     --table openc3_device_account_qcloud|sed 's/;/ /g' > $TEMPPATH/qcloud.db
+c3mc-base-db-get accountname accesskey secretkey project region iamid --table openc3_device_account_huawei|sed 's/;/ /g' > $TEMPPATH/huawei.db
+
+c3mc-device-accountdb-dump-google > $TEMPPATH/google.db
+
+mv $TEMPPATH/*db $DISTPATH/
+
+rm -rf $TEMPPATH
