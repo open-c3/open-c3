@@ -1,0 +1,81 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use YAML::XS;
+use MYDan::Util::OptConf;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ 把数据导入到CMDB的扩展字段中。
+
+ 有如下两种方式:
+
+ 1.包含详细资源类型
+
+ $0 echo 'database;qcloud-cdb;cdb-flib88fj;remarks;sms' | ./$0
+
+
+ 2.没有具体类型，只有uuid，脚本会在CMDB中查询资源的类型,补充成第一种情况后导入。
+
+ $0 echo 'cdb-flib88fj;remarks;sms' | ./$0
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get()->dump();
+
+my %type;
+
+sub gettype
+{
+    my $uuid = shift @_;
+    unless( %type )
+    {
+        my @x = `c3mc-device-cat-all --col type,subtype,uuid`;
+        chomp @x;
+
+        for( @x )
+        {
+            my ( $type, $subtype, $uuid ) = split /\t/, $_;
+            $type{$uuid} = +{ type => $type, subtype => $subtype};
+        }
+
+    }
+    return $type{$uuid};
+}
+
+sub load
+{
+    my $x = shift @_;
+    my @x = split /;/, $x;
+
+    my ( $type, $subtype, $uuid, $name, $data );
+
+    if( @x == 3 )
+    {
+        ( $uuid, $name, $data ) = @x;
+        my $mytype = gettype( $uuid );
+        unless( $mytype )
+        {
+            warn "nofind type on cmdb: $x";
+            return;
+        }
+        ( $type, $subtype ) = ( $mytype->{type}, $mytype->{subtype} );
+    }
+    else
+    {
+        ( $type, $subtype, $uuid, $name, $data ) = @x;
+    }
+
+    if( defined $data && $data =~ /'/ )
+    {
+        warn "data format error: $x";
+        $data =~ s/'/"/g;
+    }
+
+    system "c3mc-base-db-ins -t openc3_device_extcol type '$type' subtype '$subtype' uuid '$uuid' name '$name' data '$data'";
+}
+
+if( @ARGV ) { map{ load( $_ ) }@ARGV; } else { while(<STDIN>){ chomp; load($_); } }
