@@ -47,7 +47,7 @@ get '/cmdbmanage/account/aliyun/:id' => sub {
         $api::mysql->query( 
             sprintf( "select %s from openc3_device_account_aliyun where id='$param->{id}'", join( ',', map{"`$_`"}@col)), \@col )};
 
-    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r->[0] };
 };
 
 =pod
