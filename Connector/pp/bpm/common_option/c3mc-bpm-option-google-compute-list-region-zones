@@ -1,0 +1,41 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import json
+import sys
+import subprocess
+
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+
+
+def list_zones(cred_json_path):
+    from c3mc_cloud_google_compute import GoogleCompute
+    return GoogleCompute(cred_json_path).list_zones()
+
+
+def main(params):
+    """查询谷歌云区域的可用区列表
+    """
+    account = params["account"]
+    region = params["region"]
+
+    key_info = json.loads(
+        subprocess.getoutput(f"c3mc-get-account-info google {account}")
+    )
+
+    data_list = list_zones(key_info["cred_path"])
+
+    result = [
+        item["name"] for item in data_list if item["name"].startswith(region)
+    ]
+    for item in result:
+        print(item)
+
+
+if __name__ == '__main__':
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
+
+    main(json.loads(l[0]))

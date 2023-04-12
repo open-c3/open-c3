@@ -1,0 +1,250 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+from googleapiclient import discovery
+from google.oauth2 import service_account
+
+
+class Google:
+    def __init__(self, cred_json_path, region, params):
+        self.region = region
+        self.cred_json_path = cred_json_path
+        self.params = params
+        self.credentials = self.create_credentials()
+        self.service = self.create_service()
+        self.lib_client = self.create_lib_client()
+
+    def create_credentials(self):
+        return service_account.Credentials.from_service_account_file(self.cred_json_path)
+    
+    def create_service(self):
+        return discovery.build('compute', 'v1', credentials=self.credentials)
+
+    def create_lib_client(self):
+        sys.path.append("/data/Software/mydan/Connector/lib/pp")
+        from c3mc_cloud_google_compute import GoogleCompute
+        return GoogleCompute(self.cred_json_path)
+
+    def get_bool_value(self, text_bool):
+        return text_bool == "是"
+
+    def associate_elastic_ip(self, instance_name, elastic_ip):
+        """绑定虚拟机和eip
+
+        Args:
+            instance_name (string): 虚拟机名称
+            elastic_ip (string): 弹性ip
+        """
+        access_config_body = {
+            "kind": "compute#accessConfig",
+            "name": "External NAT",
+            "type": "ONE_TO_ONE_NAT",
+            "natIP": elastic_ip,
+        }
+
+        request = self.service.instances().addAccessConfig(
+            project=self.credentials.project_id,
+            zone=self.params["zone"],
+            instance=instance_name,
+            networkInterface="nic0",
+            body=access_config_body,
+        )
+
+        response = request.execute()
+        print(f"关联弹性 IP {elastic_ip} 到实例 {instance_name}. 结果: {json.dumps(response)}")
+    
+    def get_instance_config(self, request_id, instance_name):
+        instance_config = {
+            "canIpForward": False,
+            "confidentialInstanceConfig": {
+                "enableConfidentialCompute": False
+            },
+            "deletionProtection": False,
+            "description": "",
+
+            "displayDevice": {
+                "enableDisplay": self.get_bool_value(self.params["enable_display"])
+            },
+            "guestAccelerators": [],
+            "keyRevocationActionType": "NONE",
+            "machineType": f"projects/{self.credentials.project_id}/zones/{self.params['zone']}/machineTypes/{self.params['instance_config']}",
+            "metadata": {
+                "items": []
+            },
+            "clientOperationId": request_id,
+            "name": instance_name,
+
+            "networkInterfaces": [
+                {
+                    "stackType": "IPV4_ONLY",
+                    "subnetwork": f"projects/{self.credentials.project_id}/regions/{self.params['region']}/subnetworks/{self.params['subnetwork']}",
+                }
+            ],
+            "params": {
+                "resourceManagerTags": {}
+            },
+            "scheduling": {
+                "automaticRestart": False,
+            },
+            "serviceAccounts": [],
+            "tags": {
+                "items": [
+                    "http-server",
+                    "https-server"
+                ]
+            },
+            "zone": f"projects/${self.credentials.project_id}/zones/{self.params['zone']}",
+            "labels": {
+                # 谷歌云控制台自动给添加了该标签，它表示记录创建实例的方式，这里的值表示通过rest api创建
+                "ec-src": "vm_add-rest"
+            },
+            "disks": []
+        }
+
+        if "tag" in self.params:
+            tag_list = json.loads(self.params["tag"])
+            if len(tag_list) > 0:
+                for item in tag_list:
+                    instance_config["labels"][item["key"]] = item["value"]
+
+        image_id = self.params["public_image_id"]
+        if self.params["image_type"] == "private":
+            image_id = self.params["private_image_id"]
+
+        # 系统盘配置
+        instance_config["disks"].append({
+            "autoDelete": True,
+            "boot": True,
+            "deviceName": instance_name,
+            "diskEncryptionKey": {},
+            "initializeParams": {
+                "diskSizeGb": self.params["system_disk_size"],
+                "diskType": f"projects/{self.credentials.project_id}/zones/{self.params['zone']}/diskTypes/{self.params['system_disk_type']}",
+                "labels": {},
+                "sourceImage": image_id.split("/v1/")[1]
+            },
+            "mode": "READ_WRITE",
+            "type": "PERSISTENT"
+        })
+
+        # 数据盘配置
+        if self.get_bool_value(self.params["if_need_data_volume"]):
+            instance_config["disks"].append({
+                "autoDelete": True,
+                # 目前只支持了创建一个数据盘,后续有需求再修改
+                "deviceName": f"{instance_name}-data-disk-1",
+                "diskEncryptionKey": {},
+                "initializeParams": {
+                    "description": "",
+                    "diskName": f"{instance_name}-data-disk-1",
+                    "diskSizeGb": self.params["data_disk_size"],
+                    "diskType": f"projects/{self.credentials.project_id}/zones/{self.params['zone']}/diskTypes/{self.params['data_disk_type']}"
+                },
+                "mode": "READ_WRITE",
+                "type": "PERSISTENT"
+            })
+
+        if (
+           self.get_bool_value(self.params["if_need_public_ip"])
+            and self.params["public_ip_type"] == "普通公网ip"
+        ):
+            instance_config["networkInterfaces"][0]["accessConfigs"] = [
+                    {
+                        "name": "External NAT",
+                        "type": "ONE_TO_ONE_NAT"
+                    }
+                ]
+
+        return instance_config
+
+    def fake_create(self):
+        count = int(self.params["count"])
+        for _ in range(count):
+            # bpm虚假运行
+            print("创建cvm, 响应为: xxxxxx")
+            print("LOG. instance_id:xxxxxx")
+            print("VAR. instance_id:xxxxxx")
+            print(f'VAR. extinstance_id:{self.params["account"]}.{self.params["region"]}.xxxxx')
+    
+    def find_or_create_eip(self, instance_name):
+        """从当前项目指定区域下寻找空闲的eip, 如果没有找到则创建一个区域性的弹性ip
+        """
+        eip_list = self.lib_client.list_elastic_ips(self.params["region"], "RESERVED")
+        if len(eip_list) > 0:
+            return eip_list[0]["address"]
+        
+        return self.lib_client.create_elastic_ip(self.params["region"], instance_name)
+    
+    def create(self):
+        project_id = self.credentials.project_id
+        zone = self.params["zone"]
+        count = int(self.params["count"])
+        suffix_number = int(self.params["name_suffix_start_number"])
+
+        name_prefix = self.params["name_prefix"]
+        if count > 1 and name_prefix[len(name_prefix) - 1] != "-":
+            name_prefix += "-"
+
+        for index in range(count):
+            suffix = ""
+            if count > 1:
+                suffix = str(int(suffix_number + index))
+            instance_name = f"{name_prefix}{suffix}"
+            request_id = f"{self.params['bpm_uuid']}{str(index)}"
+            instance_config = self.get_instance_config(request_id, instance_name)
+
+            operation = self.lib_client.create_vm(zone, instance_config)
+            self.wait_for_operation(project_id, zone, operation["name"])
+            # 在谷歌云平台（GCP）中，虚拟机实例名称在同一项目的同一区域内必须是唯一的。
+            # 这意味着，在同一个项目和区域内，你不能创建两个具有相同名称的虚拟机实例。
+            self.print_instance_details(zone, instance_name)
+
+            if self.get_bool_value(self.params["if_need_public_ip"]) and self.params["public_ip_type"] == "弹性公网ip":
+                eip = self.find_or_create_eip(instance_name)
+                self.associate_elastic_ip(instance_name, eip)
+
+    def create_instance(self):
+        if subprocess.getoutput("c3mc-sys-ctl sys.bpm.fake.run") == "1":
+            self.fake_create()
+        else:
+            self.create()
+
+        
+    def wait_for_operation(self, project_id, zone, operation_name):
+        print('等待虚拟机创建结束...')
+        while True:
+                result = self.service.zoneOperations().get(project=project_id, zone=zone, operation=operation_name).execute()
+                if result["status"] == 'DONE':
+                    print("虚拟机创建结束.")
+                    break
+
+    def print_instance_details(self, zone, instance_name):
+        instance = self.lib_client.get_vm_info(zone, instance_name)
+        instance_id = instance['id']
+        print(f"LOG. instance_id:{instance_id}")
+        print(f"VAR. instance_id:{instance_id}")
+        print(f"VAR. extinstance_id:{self.params['account']}.{self.params['region']}.{instance_id}")
+
+
+
+def main(params):
+    print(f"params = {json.dumps(params)}")
+
+    account = params["account"]
+    region = params["region"]
+
+    key_info = json.loads(
+        subprocess.getoutput(f"c3mc-get-account-info google {account}")
+    )
+    Google(key_info["cred_path"], region, params).create_instance()
+
+if __name__ == '__main__':
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
+
+    main(json.loads(l[0]))
