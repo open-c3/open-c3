@@ -3,9 +3,11 @@
 
 import re
 import json
+import time
 
 from googleapiclient import discovery
 from google.oauth2 import service_account
+from googleapiclient.errors import HttpError
 
 
 
@@ -45,6 +47,25 @@ class GoogleCompute:
             )
         else:
             return "Other"
+
+    def _wait_for_zone_operation(self, zone, operation):
+        """等待可用区操作结束
+        """
+        project_id = self.credentials.project_id
+        while True:
+            result = self.service.zoneOperations().get(
+                project=project_id,
+                zone=zone,
+                operation=operation
+            ).execute()
+
+            if result['status'] == 'DONE':
+                if 'error' in result:
+                    raise RuntimeError(result['error'])
+                return result
+
+            time.sleep(2)
+
 
     def get_disk_info(self, disk_source):
         result = re.search(r'projects/(.*?)/', disk_source)
@@ -123,6 +144,56 @@ class GoogleCompute:
         """
         project_id = self.credentials.project_id
         return self.service.instances().insert(project=project_id, zone=zone, body=instance_config).execute()
+
+    def stop_vm(self, zone, instance_name):
+        """停止虚拟机实例
+        """
+        project_id = self.credentials.project_id
+        return self.service.instances().stop(
+                    project=project_id,
+                    zone=zone,
+                    instance=instance_name
+                ).execute()
+
+    def delete_vm(self, zone, instance_name):
+        """销毁虚拟机实例(注意：只是销毁实例，没有清理关联的数据盘和弹性ip, 
+        如果要删除相关资源，请使用下面的delete_vm_with_related_resource)
+        """
+        project_id = self.credentials.project_id
+        return self.service.instances().delete(
+                    project=project_id,
+                    zone=zone,
+                    instance=instance_name
+                ).execute()
+
+    def delete_vm_with_related_resource(self, region, zone, instance_name):
+        elastic_ips = self.list_elastic_ips(region, including_global=True)
+
+        m = {item["address"]: item["name"] for item in elastic_ips}
+        vm_info = self.get_vm_info(zone, instance_name)
+
+        delete_operation = self.delete_vm(zone, vm_info["name"])
+        self._wait_for_zone_operation(zone, delete_operation["name"])
+
+        # 删除关联的数据盘
+        for disk in vm_info['disks']:
+            if not disk['boot']:
+                try:
+                    # 数据盘可以设置为随实例删除而删除，如果数据盘被提前删掉了，下面直接忽略not found错误
+                    self.delete_disk(zone, disk["deviceName"])
+                    print(f"成功回收磁盘 {disk['deviceName']}")
+                except HttpError as e:
+                    if e.resp.status != 404:
+                        raise
+
+        # 如果关联了弹性ip则释放弹性ip
+        for network_interface in vm_info.get("networkInterfaces", []):
+            for access_config in network_interface.get("accessConfigs", []):
+                if "natIP" in access_config and access_config["natIP"] in m:
+                    nat_ip = access_config["natIP"]
+                    ok = self.release_elastic_ip(region, m[nat_ip])
+                    if not ok:
+                        raise RuntimeError(f"回收弹性ip {nat_ip} 失败.")
 
     def list_regions(self):
         """查询区域详情列表
@@ -210,9 +281,7 @@ class GoogleCompute:
         return sorted(data, key=lambda x: x['name'], reverse=True)
 
     def list_disk_types(self, zone):
-        """查询可用的启动磁盘列表。
-
-        创建虚拟机选择启动磁盘时会用到该数据列表
+        """查询磁盘类型列表
         """
         data = []
         project_id = self.credentials.project_id
@@ -250,7 +319,7 @@ class GoogleCompute:
 
         return data
 
-    def list_elastic_ips(self, region, filter_status=None):
+    def list_elastic_ips(self, region, filter_status=None, including_global=False):
         """查询弹性ip列表
 
         谷歌云的弹性ip和区域关联, 不能在一个虚拟机上关联其他区域的ip
@@ -262,6 +331,7 @@ class GoogleCompute:
                     IN_USE: 表示 IP 地址已经关联了一个资源,比如一个vm
                     RESERVED: 表示 IP 地址目前没有关联任何资源
                     None: 不过滤
+            including_global: 结果中包含全球范围的弹性ip
         """
         data = []
         project_id = self.credentials.project_id
@@ -273,10 +343,19 @@ class GoogleCompute:
                 data.extend(response['items'])
             request = self.service.addresses().list_next(previous_request=request, previous_response=response)
         
+        if including_global:
+            global_request = self.service.globalAddresses().list(project=project_id)
+            while global_request is not None:
+                global_response = global_request.execute()
+                if 'items' in global_response:
+                    data.extend(global_response['items'])
+                global_request = self.service.globalAddresses().list_next(previous_request=global_request, previous_response=global_response)
+
         if filter_status is None:
             return data
-        
+
         return [item for item in data if item["status"] == filter_status]
+
 
     def create_elastic_ip(self, region, ip_name):
         """在指定的区域创建弹性 IP 地址"""
@@ -304,3 +383,59 @@ class GoogleCompute:
         elastic_ip = self.service.addresses().get(project=project_id, region=region, address=ip_name).execute()
         print(f"区域性弹性 IP 创建成功: {elastic_ip['address']}")
         return elastic_ip['address']
+
+    def release_elastic_ip(self, region, address_name):
+        """释放弹性ip
+
+        同时尝试回收全球性弹性ip和区域性弹性ip
+
+        Args:
+            region (string): 区域
+            address_name (string): 弹性ip地址名称
+        """
+        global_error = None
+        regional_error = None
+        project_id = self.credentials.project_id
+
+        try:
+            self.service.globalAddresses().delete(
+                project=project_id,
+                address=address_name
+            ).execute()
+        except HttpError as e:
+            if e.resp.status == 404:
+                global_error = e
+            else:
+                print(f"删除全球性 IP '{address_name}' 时发生错误: {e}")
+
+        try:
+            self.service.addresses().delete(
+                project=project_id,
+                region=region,
+                address=address_name
+            ).execute()
+        except HttpError as e:
+            if e.resp.status == 404:
+                regional_error = e
+            else:
+                print(f"删除区域性 IP '{address_name}' 时发生错误: {e}")
+
+        if global_error and regional_error:
+            print(f"IP '{address_name}' 不存在（全球性和区域性弹性 IP 都不存在）。")
+            return None
+
+        print(f"成功删除 IP '{address_name}'。")
+        return True
+
+    def delete_disk(self, zone, disk_name):
+        """删除数据盘
+        Args:
+            region (string): 区域
+            disk_name (string): 磁盘名称
+        """
+        project_id = self.credentials.project_id
+        return self.service.disks().delete(
+                    project=project_id,
+                    zone=zone,
+                    disk=disk_name
+                ).execute()

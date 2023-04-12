@@ -83,17 +83,17 @@ option:
     type: selectx
     fromops: 1
 
-  - name: iam_role_name
-    describe: iam角色
-    rely:
-      - account
-      - region
-    command: c3mc-ec2create-describe-role-list | c3mc-bpm-display-field-values RoleName
-    # C3TODO 230316
-    # 这里可能需要既能选择又能填写的框类型. 目前先用下拉框测试
-    # type: selectx
-    type: input
-    fromops: 1
+  # - name: iam_role_name
+  #   describe: iam角色
+  #   rely:
+  #     - account
+  #     - region
+  #   command: c3mc-ec2create-describe-role-list | c3mc-bpm-display-field-values RoleName
+  #   # C3TODO 230316
+  #   # 这里可能需要既能选择又能填写的框类型. 目前先用下拉框测试
+  #   # type: selectx
+  #   type: input
+  #   fromops: 1
 
   - name: security_group_ids
     describe: 安全组 (支持多选)
@@ -105,11 +105,11 @@ option:
     type: selectxm
     fromops: 1
 
-  - name: enable_monitor
-    describe: 是否启用监控
-    command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
-    type: selectx
-    fromops: 1
+  # - name: enable_monitor
+  #   describe: 是否启用监控
+  #   command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
+  #   type: selectx
+  #   fromops: 1
 
   - name: if_need_public_ip
     describe: 是否需要公网IP
@@ -256,8 +256,8 @@ template_argv:
   data_volume_size: ${data_volume_size}
   data_volume_type: ${data_volume_type}
 
-  # iam角色名称，用于对机器可访问的服务的权限进行配置
-  iam_role_name: ${iam_role_name}
+  # # iam角色名称，用于对机器可访问的服务的权限进行配置
+  # iam_role_name: ${iam_role_name}
   # 是否需要公网地址
   if_need_public_ip: ${if_need_public_ip}
   # 公网ip类型
@@ -269,7 +269,7 @@ template_argv:
   # 根盘最大iops
   root_volume_max_iops: ${root_volume_max_iops}
   # 是否启用监控
-  enable_monitor: ${enable_monitor}
+  enable_monitor: "否"
   # 镜像
   image_id: ${image_id}
   instance_type: ${instance_type}

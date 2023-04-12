@@ -43,7 +43,7 @@ def filter_by_architecture(client, architecture, instance_type_list):
         if architecture in instance_type_info['ProcessorInfo']['SupportedArchitectures']:
             result[instance_type_info['InstanceType']] = {
                 "instance_type": instance_type_info['InstanceType'],
-                "cpu": instance_type_info["VCpuInfo"]["DefaultCores"],
+                "cpu": instance_type_info["VCpuInfo"]["DefaultVCpus"],
                 "memory": int(instance_type_info["MemoryInfo"]["SizeInMiB"] / 1024),
             }
     return list(result.values())

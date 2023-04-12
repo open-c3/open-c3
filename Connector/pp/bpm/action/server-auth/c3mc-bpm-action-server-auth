@@ -159,8 +159,8 @@ def grant_server_auth(account, email, ip_list, grant_auth_type, grant_sudo_hours
         if ip is None or ip not in ip_m:
             continue
         related_ip = ip_m[ip]
-        del ip_m[ip]
-        del ip_m[related_ip]
+        ip_m.pop(ip, None)
+        ip_m.pop(related_ip, None)
 
     for ip in ip_m:
         print(f"LOG. 服务器 {ip} 权限申请失败。", file=sys.stderr)
