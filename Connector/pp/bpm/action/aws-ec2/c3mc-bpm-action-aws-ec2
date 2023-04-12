@@ -47,28 +47,28 @@ class Ec2:
             raise RuntimeError(f"执行命令 {cmd} 出错. err: {result.stderr}")
         return result.stdout
 
-    def create_iam_or_profile_if_need(self, create_cmd_name):
-        try:
-            self.run_cmd(
-                create_cmd_name, self.instance_params['iam_role_name'])
-        except Exception as e:
-            if "already exists" in str(e):
-                return
+    # def create_iam_or_profile_if_need(self, create_cmd_name):
+    #     try:
+    #         self.run_cmd(
+    #             create_cmd_name, self.instance_params['iam_role_name'])
+    #     except Exception as e:
+    #         if "already exists" in str(e):
+    #             return
 
-        # C3TODO 230317 等待aws控制台创建完成。是否要通过命令查询？
-        time.sleep(25)
+        # # C3TODO 230317 等待aws控制台创建完成。是否要通过命令查询？
+        # time.sleep(25)
 
-    def add_role_to_instance_profile(self):
-        create_cmd_parts = [
-            'c3mc-ec2create-add-role-to-instance-profile',
-            self.access_id, self.access_key, self.region,
-            self.instance_params["iam_role_name"],
-            self.instance_params["iam_role_name"]
-        ]
-        output = subprocess.run(
-            create_cmd_parts, capture_output=True, text=True)
-        if output.returncode != 0:
-            raise RuntimeError(f"关联角色和实例配置文件失败. err: {output.stderr}")
+    # def add_role_to_instance_profile(self):
+    #     create_cmd_parts = [
+    #         'c3mc-ec2create-add-role-to-instance-profile',
+    #         self.access_id, self.access_key, self.region,
+    #         self.instance_params["iam_role_name"],
+    #         self.instance_params["iam_role_name"]
+    #     ]
+    #     output = subprocess.run(
+    #         create_cmd_parts, capture_output=True, text=True)
+    #     if output.returncode != 0:
+    #         raise RuntimeError(f"关联角色和实例配置文件失败. err: {output.stderr}")
 
     def get_image_info(self, image_id):
         data = self.run_cmd('c3mc-ec2create-describe-image-get', image_id)
@@ -145,9 +145,9 @@ class Ec2:
         create_ec2_params["Placement"] = {
             "AvailabilityZone": self.instance_params["availability_zone"]
         }
-        create_ec2_params["IamInstanceProfile"] = {
-            "Name": self.instance_params["iam_role_name"]
-        }
+        # create_ec2_params["IamInstanceProfile"] = {
+        #     "Name": self.instance_params["iam_role_name"]
+        # }
         create_ec2_params["MinCount"] = int(self.instance_params["count"])
         create_ec2_params["MaxCount"] = int(self.instance_params["count"])
 
@@ -267,10 +267,10 @@ class Ec2:
     def run_instance(self):
         """创建一个或多个ec2实例
         """
-        self.create_iam_or_profile_if_need('c3mc-ec2create-role-create')
-        self.create_iam_or_profile_if_need(
-            'c3mc-ec2create-instance-profile-create')
-        self.add_role_to_instance_profile()
+        # self.create_iam_or_profile_if_need('c3mc-ec2create-role-create')
+        # self.create_iam_or_profile_if_need(
+        #     'c3mc-ec2create-instance-profile-create')
+        # self.add_role_to_instance_profile()
 
         create_ec2_params = self.assemble_create_ec2_api_args()
 
