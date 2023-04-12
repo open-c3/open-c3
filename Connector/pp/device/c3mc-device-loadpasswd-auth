@@ -1,0 +1,69 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use YAML::XS;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0 echo 'f28cfb10-93e8-4d1d-919c-cb8012ac;root/123456' | ./$0
+
+=cut
+
+my $basepath = '/data/open-c3-data/device/curr/auth';
+
+my %type;
+
+sub gettype
+{
+    my $uuid = shift @_;
+    unless( %type )
+    {
+        my @x = `c3mc-device-cat-all --col type,subtype,uuid`;
+        chomp @x;
+
+        for( @x )
+        {
+            my ( $type, $subtype, $uuid ) = split /\t/, $_;
+            $type{$uuid} = +{ type => $type, subtype => $subtype};
+        }
+
+    }
+    return $type{$uuid};
+}
+
+sub _save
+{
+    my ( $subpath, $uuid, $passwd ) = @_;
+    my $path = "$basepath/$subpath";
+    system "mkdir -p $path" unless -d $path;
+    eval{ YAML::XS::DumpFile "$path/$uuid", $passwd };
+    warn "save passwd $uuid fail: $@" if $@;
+}
+
+sub _clean
+{
+    my ( $subpath, $uuid ) = @_;
+    my $path = "$basepath/$subpath";
+    return unless -f "$path/$uuid";
+    unlink "$path/$uuid" or warn "clean passwd $uuid fail: $!";
+}
+
+sub load
+{
+    my $x = shift @_;
+    my ( $uuid, $passwd ) = split /;/, $x, 2;
+
+    my $mytype = gettype( $uuid );
+    unless( $mytype )
+    {
+        warn "nofind type on cmdb: $x";
+        return;
+    }
+    my $subpath = join '-',$mytype->{type}, $mytype->{subtype};
+ 
+    $passwd ? _save( $subpath, $uuid, $passwd ) : _clean( $subpath, $uuid );
+}
+
+if( @ARGV ) { map{ load( $_ ) }@ARGV; } else { while(<STDIN>){ chomp; load($_); } }
