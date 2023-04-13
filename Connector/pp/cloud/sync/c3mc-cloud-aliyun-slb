@@ -35,7 +35,12 @@ class Slb:
         return response_data
 
     def get_server_count(self):
-        response_data = self.get_response()
+        try:
+            response_data = self.get_response()
+        except Exception as e:
+            if "The specified RegionId does not exist" in str(e):
+                return 0
+            raise RuntimeError("获取阿里云slb资源出错") from e
         return response_data['TotalCount']
 
     def show(self):
