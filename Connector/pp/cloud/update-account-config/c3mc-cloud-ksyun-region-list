@@ -21,11 +21,11 @@ class Ksyun:
         try:
             response = client.describe_regions()
         except Exception as e:
-            raise RuntimeError("拉取区域列表出错, ak: {}, resource_type: {}".format(self.access_id, self.resource_type)) from e
+            raise RuntimeError(
+                f"拉取区域列表出错, ak: {self.access_id}, resource_type: {self.resource_type}"
+            ) from e
 
-        result = []
-        for item in response["RegionSet"]:
-            result.append(item["Region"])
+        result = [item["Region"] for item in response["RegionSet"]]
         return sorted(result)
 
     def display(self):
