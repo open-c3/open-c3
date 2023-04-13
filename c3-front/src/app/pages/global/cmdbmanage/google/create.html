@@ -1,0 +1,52 @@
+<div class="modal-header">
+    <h4  class="modal-title">{{'C3T.谷歌云账号'|translate}}</h4>
+</div>
+<div class="modal-body">
+    <form class="form-horizontal" name="myForm" role="form">
+        <div class="row">
+            <div class="col-sm-12 form-group">
+                <label class="col-sm-1 control-label">{{'C3T.账号名称'|translate}}</label>
+                <div class="col-sm-11">
+                    <input type="text" class="form-control" ng-model="cmdbmanagegooglecreate.postdata.accountname" />
+                </div>
+            </div>
+        </div>
+
+         <div class="row">
+            <div class="col-sm-12 form-group">
+                <label class="col-sm-1 control-label">{{'C3T.凭证'|translate}}</label>
+                <div class="col-sm-11">
+                    <textarea type="text" rows="30" cols="100" class="form-control" name="adduser" placeholder="{{'C3T.凭证'|translate}}" ng-model="cmdbmanagegooglecreate.postdata.credentials" required></textarea>
+                </div>
+            </div>
+        </div>
+
+         <div class="row">
+            <div class="col-sm-12 form-group">
+                <label class="col-sm-1 control-label">{{'C3T.区域'|translate}}</label>
+                <div class="col-sm-11">
+                    <input type="text" class="form-control" ng-model="cmdbmanagegooglecreate.postdata.region" />
+                </div>
+            </div>
+        </div>
+ 
+        <div class="row">
+            <div class="col-sm-12 form-group">
+                <label class="col-sm-1 control-label">{{'C3T.备注'|translate}}</label>
+                <div class="col-sm-11">
+                    <input type="text" class="form-control" ng-model="cmdbmanagegooglecreate.postdata.note" />
+                </div>
+            </div>
+        </div>
+
+ 
+        <div class="row">
+            <div class="col-sm-5 form-group pull-right">
+                <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="cmdbmanagegooglecreate.add()">{{'C3T.确认'|translate}}</button>
+                <button class="btn btn-warning" ng-click="cmdbmanagegooglecreate.cancel()">{{'C3T.取消'|translate}}</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<style>.modal-dialog {width: 80%;} </style>

@@ -1,0 +1,53 @@
+<div class="row block">
+    <h2>{{'C3T.华为云账号'|translate}}</h2>
+    <hr class="mv20 clear">
+
+    <div>
+        <div style="float: right;">
+            <form class="form-inline" name="myForm" novalidate>
+                <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="cmdbmanagehuawei.create()"><i class="fa fa-plusecircle fa-lg" aria-hidden="true"></i> {{'C3T.添加'|translate}}</button>
+            </form>
+        </div>
+        <div style="clear: both;">&nbsp;</div>
+    </div>
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="cmdbmanagehuawei.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!cmdbmanagehuawei.loadover}" ></i></button>
+            </span>
+            <h5>{{'C3T.华为云账号'|translate}}</h5>
+        </div>
+
+        <div class="panel-body">
+            <div class="pt20" style="overflow: auto;">
+                <table ng-table="cmdbmanagehuawei.dataTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
+                    <tr ng-repeat="m in $data">
+                        <td data-title="'ID'"                        width="80" filter="{ id: 'text'}"           sortable="'id'">            {{m.id}}            </td>
+                        <td data-title="'C3T.账号名称'|translate"    width="80" filter="{ accountname: 'text'}"  sortable="'accountname'">   {{m.accountname}}   </td>
+                        <td data-title="'accesskey'"                 width="80" filter="{ accesskey: 'text'}"    sortable="'accesskey'">     {{m.accesskey}}     </td>
+                        <td data-title="'C3T.项目'|translate"        width="80" filter="{ project: 'text'}"      sortable="'project'">       {{m.project}}       </td>
+                        <td data-title="'C3T.区域'|translate"        width="80" filter="{ region: 'text'}"       sortable="'region'">        {{m.region}}        </td>
+                        <td data-title="'C3T.iam用户id'|translate"   width="80" filter="{ iamid: 'text'}"        sortable="'iamid'">         {{m.iamid}}         </td>
+                        <td data-title="'C3T.备注'|translate"        width="80" filter="{ note: 'text'}"         sortable="'note'">          {{m.note}}          </td>
+                        <td data-title="'C3T.编辑人'|translate"      width="80" filter="{ edit_user: 'text'}"    sortable="'edit_user'">     {{m.edit_user}}     </td>
+                        <td data-title="'C3T.编辑时间'|translate"    width="80" filter="{ edit_time: 'text'}"    sortable="'edit_time'">     {{m.edit_time}}     </td>
+                        <td style="width: 10%" data-title="'C3T.操作'|translate">
+                            <button class="btn btn-primary btn-sm" ng-click="cmdbmanagehuawei.create(m.id)">{{'C3T.编辑'|translate}}</button>
+                            <button class="btn btn-danger btn-sm"  ng-click="cmdbmanagehuawei.delete(m.id)">{{'C3T.删除'|translate}}</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+       <div class="row">
+            <div class="col-sm-5 form-group pull-right">
+                <button class="btn btn-warning" ng-click="cmdbmanagehuawei.cancel()">{{'C3T.取消'|translate}}</button>
+            </div>
+        </div>
+  
+    </div>
+
+</div>
+
+<style>.modal-dialog {width: 80%;} </style>

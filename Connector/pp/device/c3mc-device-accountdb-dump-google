@@ -1,0 +1,67 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib
+use strict;
+use warnings;
+
+$|++;
+
+use MYDB;
+use MYDan::Util::OptConf;
+use MIME::Base64;
+use Digest::MD5;
+
+use Encode qw(decode encode);
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get()->dump();
+
+my $db = MYDB->new( "/data/Software/mydan/AGENT/conf/conn" );
+
+my @col = qw( accountname credentials region ); 
+my $r = eval{ $db->query( sprintf( "select %s from openc3_device_account_google", join( ",", map{"`$_`"}@col) ), \@col ); };   
+die "get info fail" unless $r && ref $r eq 'ARRAY';
+
+map{ $_->{credentials} = decode_base64( $_->{credentials} ) }@$r;
+
+my $distpath = "/data/Software/mydan/AGENT/device/conf/accountdb/google.credentials";
+my $temppath = "/data/Software/mydan/AGENT/device/conf/accountdb.temp/$$";
+
+unless( -d $distpath )
+{
+    die "mkdir $distpath fail: $!" if system "mkdir -p $distpath";
+}
+
+unless( -d $temppath )
+{
+    die "mkdir $temppath fail: $!" if system "mkdir -p $temppath";
+}
+
+sub makedb
+{
+    my $data = shift @_;
+    my $md5 = Digest::MD5->new->add( $data->{credentials} )->hexdigest;
+    my $credentialsFileName  = "$md5.credentials";
+    my $credentialsFile = "$distpath/$credentialsFileName";
+    unless( -f $credentialsFile )
+    {
+        my $tempfile = "$temppath/$credentialsFileName";
+        my $H;
+        open($H, ">$tempfile") || die "open file err $!";
+        print $H $data->{credentials}, "\n";
+        close $H;
+        die "rename fail" if system "mv $tempfile $credentialsFile";
+    }
+    printf "%s\n", join " ", map{ encode("UTF-8", $_ ) }( $data->{accountname}, $credentialsFile, $data->{region} );
+}
+
+map{ makedb( $_ ); }@$r;
+
+system "rm -rf '$temppath'";
+
+exit;
+
