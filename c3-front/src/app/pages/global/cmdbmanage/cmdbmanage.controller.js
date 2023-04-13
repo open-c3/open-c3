@@ -115,6 +115,24 @@
             });
         };
 
+        vm.editibm = function (name) {
+            $uibModal.open({
+                templateUrl: 'app/pages/global/cmdbmanage/ibm/ibm.html',
+                controller: 'CmdbManageIBMController',
+                controllerAs: 'cmdbmanageibm',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                    treeid: function () { return vm.treeid},
+                    reload: function () { return vm.reload},
+                    name: function () { return name}
+                }
+            });
+        };
+
+ 
         vm.editksyun = function (name) {
             $uibModal.open({
                 templateUrl: 'app/pages/global/cmdbmanage/ksyun/ksyun.html',
