@@ -1,11 +1,23 @@
 #!/usr/bin/env /data/Software/mydan/python3/bin/python3
 # -*- coding: utf-8 -*-
 
+from concurrent.futures import thread
 import os
 import shutil
 import subprocess
 import sys
-import fnmatch
+import threading
+
+# 支持云账号处理的云厂商列表
+SUPPORTED_CLOUD_LIST = ["aliyun", "aws", "google", "huawei", "ksyun", "qcloud"]
+# 旧的accountx这种方式很块会被停掉
+OLD_EXT_DIR_PATH = "/data/Software/mydan/AGENT/device/conf/accountx"
+NEW_EXT_DIR_PATH = "/data/Software/mydan/AGENT/device/conf/accountdb"
+
+# 生成的账号存储的目录
+DIR_PATH = "/data/Software/mydan/AGENT/device/conf/account"
+# 临时目录, 只有账号生成成功才会在DIR_PATH覆盖旧的文件
+TMP_DIR_PATH = "/data/Software/mydan/AGENT/device/conf/account/.tmp"
 
 
 # 这种情况直接把 line 和 regin 拼接在一起
@@ -31,6 +43,19 @@ def create_ak_line_v2(line, region_list):
     ext_info = parts[-1]
     l = create_ak_line_v1(" ".join(parts[:-1]), region_list)
     return [f"{item} {ext_info}" for item in l]
+
+
+def get_region_from_old_account_line(cloud, account_line):
+    """从旧的账号文件格式中获取区域信息
+    """
+    account_line = account_line.strip()
+    if cloud in ["huawei", "qcloud"]:
+        return account_line.split()[-2]
+    
+    # 以前有些旧的账号配置后添加了区分海外还是国内aws的标志
+    if account_line.endswith("aws") or account_line.endswith("aws-cn"):
+        return account_line.split()[-2]
+    return account_line.split()[-1]
 
 
 def get_file_lines(file_path):
@@ -59,81 +84,173 @@ def append_to_account_file(file_path, strings_list):
             file.write(line + "\n")
 
 
-def get_ak_line_list(ext_account_path, cloud):
-    result = {}
-    ext_account_line_list = get_file_lines(ext_account_path)
-    resource_codes = subprocess.getoutput(
+def clear_and_copy(source_dir, dest_dir):
+    # 删除 dest_dir 目录下的所有文件
+    for file_name in os.listdir(dest_dir):
+        file_path = os.path.join(dest_dir, file_name)
+        # 按条件保留的旧处理类型的账号文件
+        if os.path.isfile(file_path) and "." in file_name and file_name != ".gitkeep":
+            os.remove(file_path)
+        elif os.path.isdir(file_path) and file_name != ".tmp":
+            shutil.rmtree(file_path)
+
+    # 将 source_dir 目录下的所有文件复制到 dest_dir 目录下
+    for file_name in os.listdir(source_dir):
+        source_path = os.path.join(source_dir, file_name)
+        dest_path = os.path.join(dest_dir, file_name)
+        if os.path.isfile(source_path):
+            shutil.copy2(source_path, dest_path)
+        elif os.path.isdir(source_path):
+            shutil.copytree(source_path, dest_path)
+
+
+def get_region_list(cloud, account_line, resource_code):
+    region_list = []
+    cmd_parts = [f"c3mc-cloud-{cloud}-region-list"]
+    cmd_parts.extend(account_line.split()[1:])
+    cmd_parts.append(resource_code)
+
+    output = subprocess.run(cmd_parts, capture_output=True, text=True)
+    if output.returncode != 0:
+        print(output.stderr, file=sys.stderr)
+        exit(1)
+
+    region_list = output.stdout.split("\n")
+    return list(filter(lambda x: x != "", region_list))
+
+
+def remove_duplicates(data):
+    """在使用了旧的{cloud}x文件和新的{cloud}.db时可能导致最后生成的信息重复
+    这里对数据去重
+    """
+    unique_set = set()
+    result = []
+    for s in data:
+        stripped = s.replace(" ", "")
+        if stripped not in unique_set:
+            unique_set.add(stripped)
+            result.append(s)
+    return result
+
+def get_ak_line_list_from_x(account_x_path_list):
+    data = []
+    for account_x_path in account_x_path_list:
+        account_x_line_list = get_file_lines(account_x_path)
+        data.extend(
+            account_x_line
+            for account_x_line in account_x_line_list
+            if account_x_line.strip()
+        )
+    return data
+
+def get_account_x_file_list(cloud):
+    """获取旧的{cloud}x文件和新的{cloud}.db文件路径
+    如果{cloud}x这种方式需要停用, 直接删除accountx目录就行
+    """
+    result = []
+
+    filepath = os.path.join(OLD_EXT_DIR_PATH, f"{cloud}x")
+    if os.path.exists(filepath):
+        result.append(filepath)
+
+    filepath = os.path.join(NEW_EXT_DIR_PATH, f"{cloud}.db")
+    if os.path.exists(filepath):
+        result.append(filepath)
+    return result
+
+def get_account_lines_from_old(cloud):
+    """从旧的比如account/aws文件中获取行列表
+    """
+    filepath = os.path.join(DIR_PATH, cloud)
+    return get_file_lines(filepath) if os.path.isfile(filepath) else []    
+
+
+def create_final_ak_line(cloud, ak_line, region_list):
+    if cloud in ["qcloud", "huawei"]:
+        return create_ak_line_v2(ak_line, region_list) 
+    return create_ak_line_v1(ak_line, region_list)
+
+
+def process_for_resource_code(cloud, resource_code, new_line_list, old_line_list):
+    final_ak_line_list = []
+    lock = threading.Lock()
+
+    def add_item(new_line):
+        with lock:
+            if "*" in new_line:
+                region_list = get_region_list(cloud, new_line, resource_code)
+                l = create_final_ak_line(cloud, new_line, region_list)
+                final_ak_line_list.extend(l)
+            else:
+                final_ak_line_list.append(new_line)
+
+    threads = []
+    for new_line in new_line_list:
+        t = threading.Thread(target=add_item, args=(new_line,))
+        threads.append(t)
+        t.start()
+    
+    for t in threads:
+        t.join()
+
+    final_ak_line_list.extend(old_line_list)
+    final_ak_line_list = remove_duplicates(final_ak_line_list)
+
+    ext_filepath = os.path.join(TMP_DIR_PATH, f"{cloud}.{resource_code}")
+    append_to_account_file(
+        ext_filepath,
+        final_ak_line_list,
+    )
+
+# 处理单个云的账号
+def process_cloud(cloud):
+    resource_code_list = subprocess.getoutput(
         f"c3mc-cloud-get-resource-type-list {cloud}"
     ).split("\n")
-    for resource_code in resource_codes:
-        for ext_account_line in ext_account_line_list:
-            if not ext_account_line.strip():
-                continue
-            region_list = []
-            cmd_parts = [f"c3mc-cloud-{cloud}-region-list"]
-            cmd_parts.extend(ext_account_line.split()[1:])
-            cmd_parts.append(resource_code)
+    account_x_path_list = get_account_x_file_list(cloud)
 
-            output = subprocess.run(cmd_parts, capture_output=True, text=True)
-            if output.returncode != 0:
-                print(output.stderr, file=sys.stderr)
-                exit(1)
-            
-            region_list = output.stdout.split("\n")
-            region_list = list(filter(lambda x: x != "", region_list))
+    outer_threads = []
 
-            ak_list = []
-            if cloud in ["qcloud", "huawei"]:
-                ak_list = create_ak_line_v2(ext_account_line, region_list)
-            else:
-                ak_list = create_ak_line_v1(ext_account_line, region_list)
-            if len(ak_list) > 0:
-                if resource_code not in result:
-                    result[resource_code] = []
-                result[resource_code].extend(ak_list)
-    return result 
+    new_line_list = get_ak_line_list_from_x(account_x_path_list)
+    old_line_list = get_account_lines_from_old(cloud)
 
-def create_cloud_ak_lines():
-    dir_path = "/data/Software/mydan/AGENT/device/conf/account"
-    ext_dir_path = "/data/Software/mydan/AGENT/device/conf/accountx"
-    tmp_dir_path = "/data/Software/mydan/AGENT/device/conf/account/.tmp"
+    for resource_code in resource_code_list:
+        t = threading.Thread(target=process_for_resource_code, args=(cloud, resource_code, new_line_list, old_line_list))
+        outer_threads.append(t)
+        t.start()
 
-    if os.path.exists(tmp_dir_path):
-        shutil.rmtree(tmp_dir_path)
-    os.mkdir(tmp_dir_path)
-    
+    for t in outer_threads:
+        t.join()
+
+
+def run():
+    """根据扩展账号文件生成每个类型资源对应的账号文件
+    """
+    if os.path.exists(TMP_DIR_PATH):
+        shutil.rmtree(TMP_DIR_PATH)
+    os.mkdir(TMP_DIR_PATH)
+
     try:
-        for cloud in ["aliyun", "aws", "google", "huawei", "ksyun", "qcloud"]:
-            ext_account_path = os.path.join(ext_dir_path, f"{cloud}x")
-            if not os.path.exists(ext_account_path) or is_file_empty(ext_account_path):
-                # 如果找不到x配置文件，删除所有为该云生成的扩展账号文件
-                files = os.listdir(dir_path)
-                for file in files:
-                    if fnmatch.fnmatch(file, f"{cloud}.*"):
-                        file_path = os.path.join(dir_path, file)
-                        os.remove(file_path)
-                continue
+        thread_pool = []
+        for cloud in SUPPORTED_CLOUD_LIST:
+            t = threading.Thread(target=process_cloud, args=(cloud,))
+            thread_pool.append(t)
+            t.start()
 
-            data = get_ak_line_list(ext_account_path, cloud)
-            for resource_code in data:
-                lines_list = data[resource_code]
-                append_to_account_file(
-                    os.path.join(tmp_dir_path, f"{cloud}.{resource_code}"),
-                    lines_list,
-                )
+        # 等待所有线程运行完毕
+        for t in thread_pool:
+            t.join()
 
-        for filename in os.listdir(tmp_dir_path):
-            src_file = os.path.join(tmp_dir_path, filename)
-            dst_file = os.path.join(dir_path, filename)
-            shutil.move(src_file, dst_file)
+        clear_and_copy(TMP_DIR_PATH, DIR_PATH)
     except Exception as e:
         raise RuntimeError(f"同步云账号出错, err: {e}") from e
     finally:
-        shutil.rmtree(tmp_dir_path)
+        if os.path.exists(TMP_DIR_PATH):
+            shutil.rmtree(TMP_DIR_PATH)
     
 
 def main():
-    create_cloud_ak_lines()
+    run()
 
 
 if __name__ == '__main__':

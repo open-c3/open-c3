@@ -4,7 +4,6 @@
 import sys
 import requests
 from bs4 import BeautifulSoup
-import json
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
 
@@ -15,7 +14,16 @@ class Huawei:
         self.access_key = access_key
         self.iam_user_id = iam_user_id
         self.resource_type = resource_type
+        self.huawei_webpage = self.get_huawei_webpage()
         self.project_region_list = self.get_project_region_list()
+    
+
+    def get_huawei_webpage(self):
+        # 华为云目前没有可以直接查询区域列表的接口, 这里使用爬虫从华为云官网文档获取区域
+        url = 'https://developer.huaweicloud.com/endpoint?all'
+        response = requests.get(url)
+        return response.text
+
 
     def get_project_region_list(self):
         from c3mc_cloud_huawei_iam import HuaweiIam
@@ -34,12 +42,7 @@ class Huawei:
         return project_region_list
 
     def list_webpage_regions(self, title):
-        # 华为云目前没有可以直接查询区域列表的接口, 这里使用爬虫从华为云官网文档获取区域
-        url = 'https://developer.huaweicloud.com/endpoint?all'
-        response = requests.get(url)
-        html_content = response.text
-
-        soup = BeautifulSoup(html_content, 'html.parser')
+        soup = BeautifulSoup(self.huawei_webpage, 'html.parser')
         target_div = soup.find('div', string=title)
         parent = target_div.find_parent()
         target_table = parent.find('table')
@@ -85,7 +88,7 @@ class Huawei:
             regions = self.list_regions("分布式消息服务 DMS")
         else:
             raise RuntimeError("不支持的资源类型")
-
+        
         for region in regions:
             print(region)
 
