@@ -22,6 +22,21 @@ template_argv:
 
 其中template_argv下的approver是审批人
 
+## 字段描述
+```
+template_argv字段描述:
+
+  approver: 审批人
+  title:    审批的标题
+  content:  审批的内容
+
+  everyone: 1 # 可选，为1时说明每个人都需要审批，没有配置或者为0时，说明只要审批列表中的一个人进行审批即可。
+  relaxed:  1 # 可选，如果发起人和审批人是同一个人时，跳过这个人的审批。
+
+  submitter: sys@app # 可选，默认不写的情况下发起人是sys@app
+  timeout:   86400   # 可选，默认是86400秒
+```
+
 ## 扩展
 为了满足不同的需求，对approver进行了扩展，扩展函数如下:
 
