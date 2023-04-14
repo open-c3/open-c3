@@ -41,10 +41,10 @@ return sub
         starttimems='$stimems',status='running' where uuid='$uuid' and pid is null" );
     $logs->die( "task $uuid Already running" ) unless $x && $x eq 1;
 
-    $x = $db->query( "select `projectid`,`name`,`group`,`variable` from openc3_jobx_task where uuid='$uuid'" );
+    $x = $db->query( "select `projectid`,`name`,`group`,`variable`,`user` from openc3_jobx_task where uuid='$uuid'" );
     $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
     $logs->die( "task uuid null: $uuid" ) unless @$x;
-    my ( $projectid, $name, $group, $variable ) = @{$x->[0]};
+    my ( $projectid, $name, $group, $variable, $user ) = @{$x->[0]};
 
     my $clusterVersionTag;
 
@@ -74,6 +74,55 @@ return sub
             my $ruuid =  uuid::get_rollback_uuid( $uuid );
             eval{ $db->execute( "insert into openc3_jobx_task (`projectid`,`uuid`,`name`,`group`,`user`,`slave`,`status`,`calltype`,`variable`) values('$projectid','$ruuid','_skip_','_null_','sys','_null_', 'success','sys','')" ); };
             $logs->die( "write _null_ task fail:$@" ) if $@;
+        }
+    }
+
+    # 检查是否符合审计要求
+    # 审计要求在审计范围内的发布，发起人、测试人、审批人 为三个不一样的人
+    if( $variable && $name =~ /^_ci_(\d+)_$/ && uuid::get_role( $uuid ) eq 'deploy' )
+    {
+        my $flowlineid = $1;
+        my $audit_level = `c3mc-base-db-get audit_level --table openc3_ci_project --filter 'id=$flowlineid'`;
+        chomp $audit_level;
+
+        print "audit_level: $audit_level\n";
+        if( $audit_level )
+        {
+            print "check audit ...\n";
+            my $submitter = $user;
+            my $var  = eval{ YAML::XS::Load decode_base64( $variable ) };
+            $submitter = $var->{tagger} if $var->{tagger};
+            print "submitter: $submitter\n";
+
+            my $uuids = `c3mc-base-db-get uuids --table openc3_job_jobs --filter "name='_ci_${flowlineid}_'"`;
+            chomp $uuids;
+            my %approver;
+            for ( split /,/, $uuids )
+            {
+                my ( $pluginname, $uuid ) = split /_/, $_;
+
+                last if $pluginname ne 'approval';
+
+                my $approvers = `c3mc-base-db-get approver --table openc3_job_plugin_approval --filter "uuid='$uuid'"`;
+                chomp $approvers;
+
+                for my $x ( split /,/, $approvers )
+                {
+                    if( $x =~ /^\$(.+)$/ )
+                    {
+                        $x = $var->{$1} if $var->{$1};
+                    }
+                    $approver{ $x } ++;
+                }
+            }
+            print "approver\n";
+            map{ print "usr: $_\n" }keys %approver;
+
+            $approver{ $submitter } = 1;
+
+            my $count = keys %approver;
+            print "Number of people involved: $count\n";
+            $logs->die( "Not meeting audit requirements\n" ) unless $count >= 3;
         }
     }
 
