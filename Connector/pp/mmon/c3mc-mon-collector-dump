@@ -1,0 +1,28 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use MYDB;
+use YAML::XS;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 --treeid id
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get(    qw( treeid=i ) )->dump();
+        $option->assert( qw( treeid   ) );
+
+my $db = MYDB->new(  "/data/Software/mydan/AGENT/conf/conn", delayedconnection => 1 );
+my @col = qw( type subtype content1 content2 edit_user edit_time );
+my $x  = $db->query(
+    sprintf("select %s from openc3_monitor_config_collector where projectid='$o{treeid}'", join ',',map{"`$_`"}@col ),
+    \@col
+);
+
+print YAML::XS::Dump @$x;
