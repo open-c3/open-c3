@@ -17,8 +17,10 @@ NEW_EXT_DIR_PATH = "/data/Software/mydan/AGENT/device/conf/accountdb"
 # 生成的账号存储的目录
 DIR_PATH = "/data/Software/mydan/AGENT/device/conf/account"
 # 临时目录, 只有账号生成成功才会在DIR_PATH覆盖旧的文件
-TMP_DIR_PATH = "/data/Software/mydan/AGENT/device/conf/account/.tmp"
+TMP_DIR_PATH = "/data/open-c3/AGENT/device/conf/accountdb.temp/"
 
+# 脚本本次处理的临时目录
+PID_TMP_DIR = ""
 
 # 这种情况直接把 line 和 regin 拼接在一起
 #
@@ -158,20 +160,13 @@ def get_account_x_file_list(cloud):
         result.append(filepath)
     return result
 
-def get_account_lines_from_old(cloud):
-    """从旧的比如account/aws文件中获取行列表
-    """
-    filepath = os.path.join(DIR_PATH, cloud)
-    return get_file_lines(filepath) if os.path.isfile(filepath) else []    
-
-
 def create_final_ak_line(cloud, ak_line, region_list):
     if cloud in ["qcloud", "huawei"]:
         return create_ak_line_v2(ak_line, region_list) 
     return create_ak_line_v1(ak_line, region_list)
 
 
-def process_for_resource_code(cloud, resource_code, new_line_list, old_line_list):
+def process_for_resource_code(cloud, resource_code, new_line_list):
     final_ak_line_list = []
     lock = threading.Lock()
 
@@ -193,10 +188,9 @@ def process_for_resource_code(cloud, resource_code, new_line_list, old_line_list
     for t in threads:
         t.join()
 
-    final_ak_line_list.extend(old_line_list)
     final_ak_line_list = remove_duplicates(final_ak_line_list)
 
-    ext_filepath = os.path.join(TMP_DIR_PATH, f"{cloud}.{resource_code}")
+    ext_filepath = os.path.join(PID_TMP_DIR, f"{cloud}.{resource_code}")
     append_to_account_file(
         ext_filepath,
         final_ak_line_list,
@@ -212,23 +206,33 @@ def process_cloud(cloud):
     outer_threads = []
 
     new_line_list = get_ak_line_list_from_x(account_x_path_list)
-    old_line_list = get_account_lines_from_old(cloud)
 
     for resource_code in resource_code_list:
-        t = threading.Thread(target=process_for_resource_code, args=(cloud, resource_code, new_line_list, old_line_list))
+        t = threading.Thread(target=process_for_resource_code, args=(cloud, resource_code, new_line_list))
         outer_threads.append(t)
         t.start()
 
     for t in outer_threads:
         t.join()
 
+def mkdir_tmp_dir():
+    pid_tmp_dir = os.path.join(TMP_DIR_PATH, f"{os.getpid()}")
+    if os.path.exists(pid_tmp_dir):
+        raise RuntimeError(f"存在没有清理的进程id目录: {pid_tmp_dir}")
+    os.makedirs(pid_tmp_dir)
+
+    def clean_tmp_dir_func():
+        shutil.rmtree(pid_tmp_dir)
+
+    return pid_tmp_dir, clean_tmp_dir_func
+
 
 def run():
     """根据扩展账号文件生成每个类型资源对应的账号文件
     """
-    if os.path.exists(TMP_DIR_PATH):
-        shutil.rmtree(TMP_DIR_PATH)
-    os.mkdir(TMP_DIR_PATH)
+    pid_tmp_dir, clean_tmp_dir_func = mkdir_tmp_dir()
+    global PID_TMP_DIR
+    PID_TMP_DIR = pid_tmp_dir
 
     try:
         thread_pool = []
@@ -241,12 +245,12 @@ def run():
         for t in thread_pool:
             t.join()
 
-        clear_and_copy(TMP_DIR_PATH, DIR_PATH)
+        clear_and_copy(PID_TMP_DIR, DIR_PATH)
     except Exception as e:
         raise RuntimeError(f"同步云账号出错, err: {e}") from e
     finally:
-        if os.path.exists(TMP_DIR_PATH):
-            shutil.rmtree(TMP_DIR_PATH)
+        clean_tmp_dir_func()
+
     
 
 def main():
