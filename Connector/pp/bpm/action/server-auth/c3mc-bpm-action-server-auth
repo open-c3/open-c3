@@ -7,6 +7,17 @@ import re
 import subprocess
 import threading
 
+# 添加权限时最大的并发线程数
+MAX_CONCURRENT_NUMBER = 20
+
+class ThreadSafeSet:
+    def __init__(self):
+        self.data = set()
+        self._lock = threading.Lock()
+
+    def update(self, value):
+        with self._lock:
+            self.data.add(value)
 
 def is_valid_email(email):
     """
@@ -84,7 +95,7 @@ def create_user_if_need(account, email):
 
 
 # 专门针对单个ip添加权限的线程处理函数
-def process_element(index, results, ip, instance_id, grant_auth_type, account, email, grant_sudo_hours):
+def process_element(semaphore, thread_safe_array, ip, instance_id, grant_auth_type, account, email, grant_sudo_hours):
     cmd_parts = [
         "c3mc-bl-permission",
         "--add_type", str(grant_auth_type),
@@ -97,7 +108,11 @@ def process_element(index, results, ip, instance_id, grant_auth_type, account, e
 
     output = subprocess.run(cmd_parts, capture_output=True, text=True)
     if output.returncode == 0:
-        results[index] = ip
+
+        semaphore.acquire()
+        thread_safe_array.update(ip)
+        semaphore.release()
+
         print(f"LOG. 服务器 {ip} 权限申请成功")
 
 
@@ -125,39 +140,35 @@ def grant_server_auth(account, email, ip_list, grant_auth_type, grant_sudo_hours
 
         ip_info_m[in_ip] = data
         ip_info_m[ex_ip] = data
-
-    # 线程池
-    thread_pool = []
-    # 结果数组, 里面存放成功添加权限的ip
-    results = [None] * len(ip_m)
-
-    index = 0
-    for ip in ip_m:
-        if ip == "":
-            continue
-
-        t = threading.Thread(target=process_element, args=(
-            index, results, ip, ip_info_m[ip]["instanceId"], grant_auth_type, account, email, grant_sudo_hours
-        ), name=f"Thread-{ip}")
-        thread_pool.append(t)
-        t.start()
-
-        index += 1
-
-    # 等待所有线程运行完毕
-    for t in thread_pool:
-        t.join()
-
+    
     # 判断是否有ip从c3中无法查到
     for ip in ip_list:
         if ip not in ip_m:
             print(f"LOG. 服务器 {ip} 权限申请失败。原因: ip在c3中无法找到", file=sys.stderr)
             exit(1)
+    
+    # 线程池
+    thread_pool = []
 
-    for ip in results:
-        # 删除ip时会删除关联ip
-        if ip is None or ip not in ip_m:
+    # 结果数组, 里面存放成功添加权限的ip
+    thread_safe_set = ThreadSafeSet()
+    semaphore = threading.Semaphore(MAX_CONCURRENT_NUMBER)
+
+    for ip in ip_m:
+        if ip == "":
             continue
+
+        t = threading.Thread(target=process_element, args=(
+            semaphore, thread_safe_set, ip, ip_info_m[ip]["instanceId"], grant_auth_type, account, email, grant_sudo_hours
+        ), name=f"Thread-{ip}")
+        thread_pool.append(t)
+        t.start()
+
+    # 等待所有线程运行完毕
+    for t in thread_pool:
+        t.join()
+
+    for ip in thread_safe_set.data:
         related_ip = ip_m[ip]
         ip_m.pop(ip, None)
         ip_m.pop(related_ip, None)
@@ -198,6 +209,6 @@ def main(params):
 if __name__ == '__main__':
     l = list(sys.stdin)
     if not l or len(l) > 1:
-        raise Exception("数据格式不对, 需要一行json字符串")
+        raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
 
     main(json.loads(l[0]))

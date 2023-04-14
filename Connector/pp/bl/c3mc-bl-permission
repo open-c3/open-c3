@@ -6,8 +6,17 @@ import argparse
 import json
 import sys
 import requests
+import random
+import string
 from urllib.parse import urljoin
 
+MAX_LENGTH_OF_PASSWORD = 15
+
+def generate_password():
+    """使用大写字母、小写字母、数字，创建指定长度的密码
+    """
+    char_types = string.ascii_uppercase + string.ascii_lowercase + string.digits
+    return ''.join(random.choice(char_types) for _ in range(MAX_LENGTH_OF_PASSWORD))
 
 def main():
     bl_mode = subprocess.getoutput("c3mc-sys-ctl sys.bl.mode").strip()
@@ -31,6 +40,8 @@ def main():
     app_name = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.app_name").strip()
     app_key = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.app_key").strip()
 
+    random_password = generate_password()
+
     request_data = {
         "command": f"{bl_mode}-bastion",
         "arguments": json.dumps({
@@ -40,6 +51,7 @@ def main():
             "ip": args.ip,
             "instance_id": args.instance_id,
             "sudo_hours": args.sudo_hours,
+            "password": random_password,
         }),
     }
 
