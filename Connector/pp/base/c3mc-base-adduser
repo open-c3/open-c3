@@ -1,0 +1,42 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use YAML::XS;
+use MYDan::Util::OptConf;
+use Digest::MD5;
+
+=head1 SYNOPSIS
+
+ $0 --user foo
+ $0 --user foo@openc3.com
+
+ $0 --user foo --password 123456
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( user=s password=s ) )->dump();
+$option->assert( 'user' );
+
+sub getpassword
+{
+    my @chars = ('a'..'z', 'A'..'Z', '0'..'9');
+    my $password = '';
+    for (1..18) {
+        $password .= $chars[int(rand(scalar(@chars)))];
+    }
+    return $password;
+}
+
+my $password = $o{password} // getpassword();
+print "user: $o{user} password: $password\n";
+
+my $md5 = Digest::MD5->new->add( $password )->hexdigest;
+exec "c3mc-base-db-ins -t openc3_connector_userinfo name '$o{user}' pass '$md5'";
