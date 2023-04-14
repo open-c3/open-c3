@@ -67,11 +67,15 @@ sub getapprover
     {
         for my $ip ( grep{ $_ } split /,/, $1 )
         {
-            my $x = `c3mc-device-api-jumpserver --ips '$ip'`;
+            my $x = `c3mc-device-api-jumpserver --ips '$ip' --cache`;
             die "get $ip owner fail: $!" if $?;
             my $d = eval{ YAML::XS::Load $x };
             die "load fail: $@" if $@;
-            die "nofind $ip in jumpserver\n" unless @$d;
+            unless( @$d )
+            {
+                warn "[Warn] nofind $ip in jumpserver\n";
+                next;
+            }
             map{
                 $res{ $_->{product_owner} } ++;
                 print "LOG.$ip product_owner = $_->{product_owner}\n";

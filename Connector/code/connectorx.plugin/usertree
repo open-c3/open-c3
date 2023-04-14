@@ -29,12 +29,41 @@ BEGIN{
 return sub
 {
     my ( %param  ) = @_;
-    my ( $cookie ) = @param{qw(cookie)};
+    my ( $cookie, $db, $user ) = @param{qw( cookie db user )};
 
     unless( $usertree )
     {
         my $treemap = eval{ $treemapcode->run( cookie => $cookie ) };
         die "get treemap fail: $@" if $@;
+
+        my $x = eval{ $db->query( "select * from openc3_connector_userauth where name='$user'" ); };
+        die "get data from openc3_connector_userauth fail: $@" if $@;
+        unless( @$x )
+        {
+
+            my $tx = eval{ $db->query( "select tree from openc3_connector_userauthtree where name='$user'" ); };
+            die "get data from openc3_connector_userauthtree fail: $@" if $@;
+
+            my %treeid = map{ $_->[0] => 1 }@$tx;
+
+            my @treename;
+            map{ push @treename, $_->{name} if $treeid{$_->{id}} }@$treemap;
+
+            my %treeNameParentAndMe;
+            for( @treename )
+            {
+                my @name = split /\./, $_;
+                while( @name )
+                {
+                    my $x = join '.', @name;
+                    $treeNameParentAndMe{ $x } ++;
+                    pop @name;
+                }
+            }
+
+            $treemap = [ grep{ my $x = $_; $treeNameParentAndMe{$x->{name}} || 0 < scalar grep{ index($x->{name}, "$_." ) == 0 }@treename }@$treemap ];
+        }
+
         return TreeMap::map2tree( $treemap );
     }
 
