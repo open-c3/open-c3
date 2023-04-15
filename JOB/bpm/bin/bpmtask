@@ -38,6 +38,8 @@ if( @x )
 my $path = "/data/Software/mydan/JOB/bpm/task/$bpmuuid.data/succ";
 system "mkdir -p '$path'" unless -d $path;
 
+$ENV{C3BPMUUID} = $bpmuuid;
+
 for my $x ( @x )
 {
     my @stepuuid;
@@ -60,3 +62,5 @@ for my $x ( @x )
         die "touch file fail: $@" if system "date >> $path/$_";
     }@stepuuid;
 }
+
+system "c3mc-bpm-user-record";

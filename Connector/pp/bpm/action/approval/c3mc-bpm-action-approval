@@ -140,6 +140,8 @@ if( $approvelip )
 
 my $db = MYDB->new( "/data/Software/mydan/JOB/conf/conn", delayedconnection => 1 );
 
+system sprintf "c3mc-bpm-user-record %s", join ' ', grep{ /^[a-zA-Z0-9\.\@_\-]+$/ }@approver;
+
 for my $user ( @approver )
 {
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
