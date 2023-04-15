@@ -143,9 +143,40 @@
         <li ng-if="nav.user.menu['其它工具'] == 1" class="nav-padding">
             <a ui-sref="home.thirdparty({treeid: nav.state.params.treeid})" class="p15 lh30"> <span>{{'C3T.其它工具'|translate}}</span> </a>
         </li>
-        <li ng-if="nav.user.menu['BPM'] == 1" class="nav-padding">
-            <a ui-sref="home.bpm({treeid: nav.state.params.treeid, bpmuuid: 0})" > <span>BPM</span> </a>
+        <li ng-if="nav.user.menu['BPM'] == 1" class="dropdown nav-padding" uib-dropdown>
+            <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple" uib-dropdown-toggle>
+                <span>BPM</span>
+                <span class="caret caret-tp hidden-xs"></span>
+            </a>
+            <ul class="dropdown-menu-right list-group dropdown-persist w250" uib-dropdown-menu>
+                <li class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">{{'C3T.新建'|translate}}</div> </li>
+                <li ng-if="nav.user.menu['BPM.发起新任务'] == 1" class="list-group-item">
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.bpm({treeid: nav.state.params.treeid, bpmuuid: 0})" class="animated animated-short fadeInUp" > <span>{{'C3T.发起新任务'|translate}}</span> </a>
+                </li>
+
+                <li class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">{{'C3T.我的'|translate}}</div> </li>
+
+                <li ng-if="nav.user.menu['BPM.我的待办任务'] == 1" class="list-group-item">
+                    <a style="padding: 8px 9px 8px 37px;" href="/#/history/bpm/0?mytask=1" target="_blank" class="animated animated-short fadeInUp" > <span>{{'C3T.我的待办任务'|translate}}</span> </a>
+                </li>
+                <li ng-if="nav.user.menu['BPM.处理过的任务'] == 1" class="list-group-item">
+                    <a style="padding: 8px 9px 8px 37px;" href="/#/history/bpm/0?mylink=1" target="_blank" class="animated animated-short fadeInUp" > <span>{{'C3T.处理过的任务'|translate}}</span> </a>
+                </li>
+                <li ng-if="nav.user.menu['BPM.我发起的任务'] == 1" class="list-group-item">
+                    <a style="padding: 8px 9px 8px 37px;" href="/#/history/bpm/0?myflow=1" target="_blank" class="animated animated-short fadeInUp"> <span>{{'C3T.我发起的任务'|translate}}</span> </a>
+                </li>
+
+                <li class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">{{'C3T.全局'|translate}}</div> </li>
+
+                <li ng-if="nav.user.menu['BPM.全部流程列表'] == 1" class="list-group-item">
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.history.bpm({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.全部流程列表'|translate}}</span> </a>
+                </li>
+ 
+ 
+            </ul>
+
         </li>
+ 
     </ul>
 
     <ul class="nav navbar-nav navbar-right">
@@ -165,7 +196,6 @@
                 <li class="list-group-item">
                     <a ng-if="nav.user.menu['执行历史.分组任务'] == 1" ui-sref="home.history.jobx({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span>{{'C3T.分组任务'|translate}}</span> </a>
                     <a ng-if="nav.user.menu['执行历史.作业任务'] == 1" ui-sref="home.history.job({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span>{{'C3T.作业任务'|translate}}</span> </a>
-                    <a ng-if="nav.user.menu['执行历史.BPM任务'] == 1" ui-sref="home.history.bpm({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span>{{'C3T.BPM任务'|translate}}</span> </a>
                     <a ng-if="nav.user.menu['执行历史.虚拟终端'] == 1" ui-sref="home.history.terminal({treeid: nav.state.params.treeid})"  class="animated animated-short fadeInUp" > <span>{{'C3T.虚拟终端'|translate}}</span> </a>
                 </li>
                 </ul>
