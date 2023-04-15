@@ -31,6 +31,8 @@ $timeout   ||= '86400';
 my $puuid = uuid->new()->create_str;
 my @approver;
 
+my %approvelip;
+
 sub getapprover
 {
     my ( $str, %res ) = shift @_;
@@ -74,6 +76,7 @@ sub getapprover
             unless( @$d )
             {
                 warn "[Warn] nofind $ip in jumpserver\n";
+                delete $approvelip{$ip};
                 next;
             }
             map{
@@ -103,6 +106,13 @@ sub getapprover
     return split /,/, $str;
 }
 
+my $approvelip;
+if( $approver =~ /ipowner\(\s*(.+)\s*\)/ )
+{
+    map{ $approvelip{$_} = 1 }split /,/, $1;
+    $approvelip = 1;
+}
+
 if( $approver =~ /\s+or\s+/ )
 {
     my @x = split /\s+or\s+/, $approver;
@@ -119,6 +129,13 @@ if( $approver =~ /\s+or\s+/ )
 else
 {
     @approver = getapprover( $approver );
+}
+
+if( $approvelip )
+{
+    $approvelip = %approvelip ? join ',', keys %approvelip : 'NULL';
+    print "LOG. approvelip:$approvelip\n";
+    print "VAR. approvelip:$approvelip\n";
 }
 
 my $db = MYDB->new( "/data/Software/mydan/JOB/conf/conn", delayedconnection => 1 );
