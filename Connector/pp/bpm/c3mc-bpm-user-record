@@ -1,0 +1,27 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use POSIX;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 user1 user2 user3 # bpmuuid in ENV{C3BPMUUID}
+ $0 --bpmuuid xxx user1 user2 user3
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o      = $option->get( qw( bpmuuid=s ) )->dump();
+
+my $bpmuuid = $o{bpmuuid} // $ENV{C3BPMUUID};
+$option->assert() unless $bpmuuid;
+
+system "c3mc-base-db-set --table openc3_job_bpm_usr --set 'curr=0' --col bpmuuid '$bpmuuid'";
+
+map{
+    system "c3mc-base-db-ins --table openc3_job_bpm_usr bpmuuid '$bpmuuid' user '$_' curr 1";
+}@ARGV;
