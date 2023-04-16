@@ -86,7 +86,7 @@
         vm.reload = function () {
             var get_data = {};
             if (vm.taskname){
-                get_data.name=vm.taskname
+                get_data.alias=vm.taskname
             }
             if(vm.startuser){
                 get_data.user=vm.startuser

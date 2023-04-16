@@ -43,6 +43,21 @@ get '/task/:projectid' => sub {
     my @where;
     push @where, "name like '%$param->{name}%'" if defined $param->{name};
 
+    my $menu;
+    if( defined $param->{bpmonly} )
+    {
+        $menu = eval{ YAML::XS::LoadFile "/data/Software/mydan/JOB/bpm/config/menu"; };
+        return +{ stat => $JSON::false, info => $@ } if $@;
+    }   
+
+    if( defined $param->{bpmonly} && $param->{alias} )
+    {
+        my %realname = map{ $_->{alias} => $_->{name} }@$menu;
+        my $realname = $realname{ $param->{alias} } // $param->{alias};
+
+        push @where, "name='$realname'";
+    }
+
     map{ push @where, "$_='$param->{$_}'" if defined $param->{$_}; }qw( user status taskuuid );
 
     push @where, "starttime>='$param->{time_start} 00:00:00'" if defined $param->{time_start};
@@ -64,6 +79,12 @@ get '/task/:projectid' => sub {
         $api::mysql->query( 
             sprintf( "select %s from openc3_job_task
                 where projectid='$projectid' %s", join( ',', @col ), @where ? ' and '.join( ' and ', @where ):'' ), \@col )};
+
+    if( defined $param->{bpmonly} )
+    {
+        my %menu = map{ $_->{name} => $_->{alias} // $_->{name} }@$menu;
+        map{ $_->{alias} = $menu{ $_->{name} } // $_->{name} }@$r;
+    }
 
     map{
         eval{ $_->{variable} = YAML::XS::Dump YAML::XS::Load decode("UTF-8", decode_base64( $_->{variable} ) ) } if defined $_->{variable};
