@@ -35,6 +35,8 @@ template_argv字段描述:
 
   submitter: sys@app # 可选，默认不写的情况下发起人是sys@app
   timeout:   86400   # 可选，默认是86400秒
+
+  record: 1 # 可选，默认为0， 当为1是，说明该审批人是当前流程的处理人
 ```
 
 ## 扩展

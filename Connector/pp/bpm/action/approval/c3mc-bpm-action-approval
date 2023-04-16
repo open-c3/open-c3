@@ -18,8 +18,8 @@ local $/ = "\n";
 
 die "node data" unless $data;
 map { $data->{$_} = Encode::decode( 'utf8', $data->{$_} ) }keys %$data;
-my ( $submitter, $approver, $approvalname, $cont, $timeout, $everyone, $relaxed )
-  = @$data{qw( submitter approver title content timeout everyone relaxed )};
+my ( $submitter, $approver, $approvalname, $cont, $timeout, $everyone, $relaxed, $record )
+  = @$data{qw( submitter approver title content timeout everyone relaxed record )};
 
 die "approver undef" unless $approver;
 die "title undef"    unless $approvalname;
@@ -140,7 +140,7 @@ if( $approvelip )
 
 my $db = MYDB->new( "/data/Software/mydan/JOB/conf/conn", delayedconnection => 1 );
 
-system sprintf "c3mc-bpm-user-record %s", join ' ', grep{ /^[a-zA-Z0-9\.\@_\-]+$/ }@approver;
+system( sprintf "c3mc-bpm-user-record %s", join ' ', grep{ /^[a-zA-Z0-9\.\@_\-]+$/ }@approver ) if $record;
 
 for my $user ( @approver )
 {
