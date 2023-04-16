@@ -4,15 +4,20 @@
     angular
         .module('openc3')
         .controller('HistoryBpmController', HistoryBpmController);
-    function HistoryBpmController($filter, $timeout, $state, $http, $scope, ngTableParams, genericService) {
+    function HistoryBpmController($filter, $timeout, $state, $http, $scope, ngTableParams, genericService, $location ) {
 
         var vm = this;
 
         vm.seftime = genericService.seftime
+        vm.myflow = $location.search()['myflow'];
+        vm.mytask = $location.search()['mytask'];
+        vm.mylink = $location.search()['mylink'];
 
         vm.statuszh = { "": "等待执行", "success": "执行成功", "fail": "执行失败", "refuse": "审批拒绝", "decision": "执行失败", "running": "执行中", "ignore": "忽略", "waiting": "等待中" }
 
-        var nowTime = $filter('date')(new Date, "yyyy-MM-dd");
+        var today = new Date();
+        var thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+        var nowTime = $filter('date')(thirtyDaysAgo, "yyyy-MM-dd");
         vm.starttime = nowTime;
         vm.treeid = $state.params.treeid;
         $scope.searchStatus = "";
@@ -81,7 +86,7 @@
         vm.reload = function () {
             var get_data = {};
             if (vm.taskname){
-                get_data.name=vm.taskname
+                get_data.alias=vm.taskname
             }
             if(vm.startuser){
                 get_data.user=vm.startuser
@@ -97,6 +102,19 @@
             }
             if(vm.taskuuid){
                 get_data.taskuuid=vm.taskuuid
+            }
+
+            if( vm.myflow )
+            {
+                get_data.myflow=1;
+            }
+            if( vm.mytask )
+            {
+                get_data.mytask=1;
+            }
+            if( vm.mylink )
+            {
+                get_data.mylink=1;
             }
             get_data.bpmonly = 1;
             vm.loadover = false;

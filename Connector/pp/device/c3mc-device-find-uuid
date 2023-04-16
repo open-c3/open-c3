@@ -1,0 +1,69 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+use Encode;
+use YAML::XS;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0
+ $0 grepuuid
+ $0 --timemachine time
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->set( timemachine => 'curr' )->get( qw( timemachine=s ) )->dump();
+
+my $grepuuid = shift @ARGV;
+
+my $path = sprintf "/data/open-c3-data/device/%s", $o{timemachine} ne 'curr' ? "timemachine/$o{timemachine}" : 'curr';
+
+my $allcolmap = YAML::XS::LoadFile "$path/colmap.yml";
+map{ die "undef" unless $allcolmap->{$_} }qw( treename uuid );
+
+my $count = 0;
+for ( glob "$path/*/*/data.tsv" )
+{
+    my ( undef, $subtype, $type ) = reverse split /\//, $_;
+    next unless my @data = `c3mc-device-cat $o{timemachine} $type $subtype`;
+    chomp @data;
+    my $title = shift @data;
+    next unless @data;
+    my @title = split /\t/, $title;
+
+    my $colmap = YAML::XS::LoadFile "$path/$type/$subtype/colmap.yml";
+    map{ die "undef" unless $colmap->{$_} }qw( treename uuid );
+
+    my $util = YAML::XS::LoadFile "$path/$type/$subtype/util.yml";
+    my $vuuid = $util->{vuuid};
+    my @vuuid = ( $vuuid && @$vuuid ) ? ( $colmap->{ uuid }, @$vuuid ) : ( $colmap->{ uuid } );
+
+    map{ $_ = [ $_ ] unless ref $_ eq 'ARRAY' }@vuuid;
+    map{ map{ $_ = Encode::encode('utf8', $_ )  }@$_ }@vuuid;
+
+    for my $data ( @data )
+    {
+        my @dat = split /\t/, $data;
+        my %data = map{ $title[$_] => $dat[$_] }0 .. $#title;
+
+        my @vvalue = map{ join ':', map{ $data{ $_ } }@$_; }@vuuid;;
+
+        if( $grepuuid )
+        {
+            if( grep { $grepuuid eq $_ }@vvalue )
+            {
+                $count ++;
+                print "$vvalue[0]\n";
+            }
+        }
+        else
+        {
+            printf "%s\n", join "\t", @vvalue;
+        }
+    }
+}
+
+exit 1 unless $count == 1;

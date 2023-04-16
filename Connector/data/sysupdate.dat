@@ -800,3 +800,13 @@ create table if not exists `openc3_device_account_ibm`(
 # v2.6.0 sql openc3_job_approval modify cont to 20000
 ALTER TABLE openc3_job_approval modify `cont` varchar(20000) DEFAULT NULL COMMENT '审批内容';
 
+# v2.6.0 sql openc3_job_bpm_usr create
+create table if not exists `openc3_job_bpm_usr`(
+`id` int(16) unsigned not null primary key auto_increment comment 'id',
+`bpmuuid` VARCHAR(50) comment 'uuid',
+`user`    VARCHAR(400) comment '用户',
+`curr`    int(1) unsigned DEFAULT 0 COMMENT '是否是当前处理人',
+`time`    TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '时间',
+UNIQUE KEY `uniq_bpmuuid_user` (`bpmuuid`,`user`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='BPM处理人';
+

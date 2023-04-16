@@ -30,6 +30,9 @@ get '/task/:projectid' => sub {
         taskuuid => qr/^[a-zA-Z0-9]+$/, 0,
         time_start => qr/^\d{4}\-\d{2}\-\d{2}$/, 0,
         time_end => qr/^\d{4}\-\d{2}\-\d{2}$/, 0,
+        myflow => [ 'mismatch', qr/'/ ], 0, #我发起的任务
+        mytask => [ 'mismatch', qr/'/ ], 0, #我的待办任务
+        mylink => [ 'mismatch', qr/'/ ], 0, #我处理过的任务
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
@@ -40,17 +43,48 @@ get '/task/:projectid' => sub {
     my @where;
     push @where, "name like '%$param->{name}%'" if defined $param->{name};
 
+    my $menu;
+    if( defined $param->{bpmonly} )
+    {
+        $menu = eval{ YAML::XS::LoadFile "/data/Software/mydan/JOB/bpm/config/menu"; };
+        return +{ stat => $JSON::false, info => $@ } if $@;
+    }   
+
+    if( defined $param->{bpmonly} && $param->{alias} )
+    {
+        my %realname = map{ $_->{alias} => $_->{name} }@$menu;
+        my $realname = $realname{ $param->{alias} } // $param->{alias};
+
+        push @where, "name='$realname'";
+    }
+
     map{ push @where, "$_='$param->{$_}'" if defined $param->{$_}; }qw( user status taskuuid );
 
     push @where, "starttime>='$param->{time_start} 00:00:00'" if defined $param->{time_start};
     push @where, "starttime<='$param->{time_end} 23:59:59'" if defined $param->{time_end};
 
     push @where, "extid like 'BPM%'" if defined $param->{bpmonly};
+
+    if( $param->{mylink} || $param->{mytask} || $param->{myflow} )
+    {
+         my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+
+         push @where, "extid in ( select bpmuuid from openc3_job_bpm_usr where user='$user' and curr=0 )" if $param->{mylink};
+         push @where, "extid in ( select bpmuuid from openc3_job_bpm_usr where user='$user' and curr=1 )" if $param->{mytask};
+         push @where, "user='$user'"                                                                      if $param->{myflow};
+    }
+
     my @col = qw( id uuid name user slave status starttime finishtime calltype jobtype jobuuid runtime reason variable extid );
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_job_task
                 where projectid='$projectid' %s", join( ',', @col ), @where ? ' and '.join( ' and ', @where ):'' ), \@col )};
+
+    if( defined $param->{bpmonly} )
+    {
+        my %menu = map{ $_->{name} => $_->{alias} // $_->{name} }@$menu;
+        map{ $_->{alias} = $menu{ $_->{name} } // $_->{name} }@$r;
+    }
 
     map{
         eval{ $_->{variable} = YAML::XS::Dump YAML::XS::Load decode("UTF-8", decode_base64( $_->{variable} ) ) } if defined $_->{variable};
