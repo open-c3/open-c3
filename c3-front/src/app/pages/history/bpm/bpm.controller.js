@@ -15,7 +15,9 @@
 
         vm.statuszh = { "": "等待执行", "success": "执行成功", "fail": "执行失败", "refuse": "审批拒绝", "decision": "执行失败", "running": "执行中", "ignore": "忽略", "waiting": "等待中" }
 
-        var nowTime = $filter('date')(new Date, "yyyy-MM-dd");
+        var today = new Date();
+        var thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
+        var nowTime = $filter('date')(thirtyDaysAgo, "yyyy-MM-dd");
         vm.starttime = nowTime;
         vm.treeid = $state.params.treeid;
         $scope.searchStatus = "";
