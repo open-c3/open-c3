@@ -77,17 +77,20 @@
 
             var curr = obj['tempvalue'][index];
 
-            var repeat = 0;
-            angular.forEach(obj['tempvalue'], function (data, idx) {
-                if( data.value == curr.value )
-                {
-                    repeat = repeat + 1;
-                }
-            });
-
-            if( repeat >= 2 )
+            if( curr != undefined )
             {
-                curr.value = '';
+                var repeat = 0;
+                angular.forEach(obj['tempvalue'], function (data, idx) {
+                    if( data.value == curr.value )
+                    {
+                        repeat = repeat + 1;
+                    }
+                });
+
+                if( repeat >= 2 )
+                {
+                    curr.value = '';
+                }
             }
 
             var temp = [];
@@ -600,6 +603,11 @@
 
         vm.jobdescribe = '';
         vm.updateJobDescribe = function() {
+            if( $scope.choiceJob == null )
+            {
+                vm.jobdescribe = '';
+                return;
+            }
             angular.forEach(vm.menu, function (data, index) {
                 if( data.name == $scope.choiceJob.name )
                 {
