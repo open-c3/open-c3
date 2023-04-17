@@ -682,6 +682,12 @@
                                 } 
                             });
 
+
+                            if( vm.showfromops == '1' )
+                            {
+                                vm.fromops(1);
+                            }
+
                             vm.loadover = true;
                         }else {
                             toastr.error( "获取变量信息失败："+response.data.info )
