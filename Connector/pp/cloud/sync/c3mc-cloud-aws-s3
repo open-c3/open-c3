@@ -6,6 +6,7 @@ import json
 
 import threading
 import boto3
+import time
 
 
 class ThreadSafeArray:
@@ -19,7 +20,7 @@ class ThreadSafeArray:
 
 
 # 并发处理所有存储桶的最大线程数
-max_concurrent_number = 20
+MAX_CONCURRENT_NUMBER = 20
 
 
 class S3:
@@ -30,6 +31,11 @@ class S3:
         self.filter_region = region
         self.client = self.create_client()
 
+        self.record_sync_error = {
+            "lock": threading.Lock(),
+            "error": None
+        }
+
     def create_client(self):
         region = "cn-north-1" if self.filter_region.startswith("cn") else "us-east-1"
         return boto3.client(
@@ -38,46 +44,55 @@ class S3:
             aws_secret_access_key=self.access_key,
             region_name=region
         )
+    
+    def update_sync_error(self, error):
+        with self.record_sync_error["lock"]:
+            self.record_sync_error["error"] = error
 
-    def add_tag_info_to_bucket(self, semaphore, array, bucket_info):
-        semaphore.acquire()
-
-        bucketLocationResp = self.client.get_bucket_location(
-            Bucket=bucket_info["Name"],
-        )
-
-        bucket_real_location = bucketLocationResp["LocationConstraint"]
-        if bucket_real_location == self.filter_region:
-            tags = self.list_tag(
-                self.access_id, self.access_key, bucket_real_location, bucket_info["Name"]
+    def add_tag_info_to_bucket(self, array, bucket_info):
+        try:
+            bucketLocationResp = self.client.get_bucket_location(
+                Bucket=bucket_info["Name"],
             )
 
-            bucket = {
-                "UUID": f'{self.account}-{bucket_real_location}-{bucket_info["Name"]}',
-                "BucketName": bucket_info["Name"],
-                "CreationDate": bucket_info["CreationDate"],
-                "RegionId": bucket_real_location,
-                "Tags": tags,
-            }
-            array.append(bucket)
-        semaphore.release()
+            bucket_real_location = bucketLocationResp["LocationConstraint"]
+            if bucket_real_location == self.filter_region:
+                tags = self.list_tag(
+                    self.access_id, self.access_key, bucket_real_location, bucket_info["Name"]
+                )
+
+                bucket = {
+                    "UUID": f'{self.account}-{bucket_real_location}-{bucket_info["Name"]}',
+                    "BucketName": bucket_info["Name"],
+                    "CreationDate": bucket_info["CreationDate"],
+                    "RegionId": bucket_real_location,
+                    "Tags": tags,
+                }
+                array.append(bucket)
+        except Exception as e:
+            self.update_sync_error(e)
 
     def list_buckets(self):
         response = self.client.list_buckets()
 
         array = ThreadSafeArray()
-        semaphore = threading.Semaphore(max_concurrent_number)
         threads = []
         for bucket_info in response["Buckets"]:
+            if threading.active_count() > MAX_CONCURRENT_NUMBER:
+                time.sleep(0.3)
+
             t = threading.Thread(
                 target=self.add_tag_info_to_bucket,
-                args=(semaphore, array, bucket_info),
+                args=(array, bucket_info),
             )
             threads.append(t)
             t.start()
 
         for t in threads:
             t.join()
+        
+        if self.record_sync_error["error"] is not None:
+            raise RuntimeError(f"同步s3时出现错误. ak: {self.access_id}") from self.record_sync_error["error"]
 
         return array._array
 
