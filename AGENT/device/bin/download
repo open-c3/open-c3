@@ -11,6 +11,7 @@ use OPENC3::PP::Pipe;
 
  $0
  $0 refresh
+ $0 onlyconfig
  $0 regex # example: aws , aws-ec2 , sync-aws-ec2, huawei-ecs$
 
 =cut
@@ -72,7 +73,9 @@ system "mkdir -p $runpath" unless -d $runpath;
 
 chdir $runpath or die "chdir fail";
 
-my $refresh = @ARGV && $ARGV[0] eq 'refresh' ? 1 : 0;
+my $refresh    = @ARGV && $ARGV[0] eq 'refresh'    ? 1 : 0;
+my $onlyconfig = @ARGV && $ARGV[0] eq 'onlyconfig' ? 1 : 0;
+
 if( $conf->{cookie} && $conf->{cookie}{cmd} && ! $refresh )
 {
     system $conf->{cookie}{cmd};
@@ -80,7 +83,7 @@ if( $conf->{cookie} && $conf->{cookie}{cmd} && ! $refresh )
 
 #system "rm -rf temp; mkdir temp" unless $refresh;
 
-my %sync = map{ $_ => 1 }grep{ $_ ne 'refresh' }@ARGV;
+my %sync = map{ $_ => 1 }grep{ $_ ne 'refresh' && $_ ne 'onlyconfig' }@ARGV;
 
 my $pid = $$;
 
@@ -110,7 +113,8 @@ sub download
         {
             $cmd = sprintf "$cmd %s", join ' ', map{ "$_ $alias->{$_}" }keys %$alias;
         }
-        die "run cmd: $cmd fail: $!" if OPENC3::PP::Pipe::system( "$cmd > $temppath/data.tsv" );
+        die "run cmd: $cmd fail: $!" if OPENC3::PP::Pipe::system( $onlyconfig ? "cp $distpath/data.tsv $temppath/data.tsv" : "$cmd > $temppath/data.tsv" );
+    
     }
     else
     {
