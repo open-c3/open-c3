@@ -6,9 +6,10 @@ import json
 import re
 import subprocess
 import threading
+import time
 
 # 添加权限时最大的并发线程数
-MAX_CONCURRENT_NUMBER = 20
+MAX_CONCURRENT_NUMBER = 13
 
 class ThreadSafeSet:
     def __init__(self):
@@ -95,7 +96,7 @@ def create_user_if_need(account, email):
 
 
 # 专门针对单个ip添加权限的线程处理函数
-def process_element(semaphore, thread_safe_array, ip, instance_id, grant_auth_type, account, email, grant_sudo_hours):
+def process_element(thread_safe_set, ip, instance_id, grant_auth_type, account, email, grant_sudo_hours):
     cmd_parts = [
         "c3mc-bl-permission",
         "--add_type", str(grant_auth_type),
@@ -108,10 +109,7 @@ def process_element(semaphore, thread_safe_array, ip, instance_id, grant_auth_ty
 
     output = subprocess.run(cmd_parts, capture_output=True, text=True)
     if output.returncode == 0:
-
-        semaphore.acquire()
-        thread_safe_array.update(ip)
-        semaphore.release()
+        thread_safe_set.update(ip)
 
         print(f"LOG. 服务器 {ip} 权限申请成功")
 
@@ -152,14 +150,16 @@ def grant_server_auth(account, email, ip_list, grant_auth_type, grant_sudo_hours
 
     # 结果数组, 里面存放成功添加权限的ip
     thread_safe_set = ThreadSafeSet()
-    semaphore = threading.Semaphore(MAX_CONCURRENT_NUMBER)
 
     for ip in ip_m:
         if ip == "":
             continue
 
+        while threading.active_count() > MAX_CONCURRENT_NUMBER:
+            time.sleep(0.3)
+
         t = threading.Thread(target=process_element, args=(
-            semaphore, thread_safe_set, ip, ip_info_m[ip]["instanceId"], grant_auth_type, account, email, grant_sudo_hours
+            thread_safe_set, ip, ip_info_m[ip]["instanceId"], grant_auth_type, account, email, grant_sudo_hours
         ), name=f"Thread-{ip}")
         thread_pool.append(t)
         t.start()
@@ -167,11 +167,13 @@ def grant_server_auth(account, email, ip_list, grant_auth_type, grant_sudo_hours
     # 等待所有线程运行完毕
     for t in thread_pool:
         t.join()
-
+    
     for ip in thread_safe_set.data:
-        related_ip = ip_m[ip]
-        ip_m.pop(ip, None)
-        ip_m.pop(related_ip, None)
+        if ip in ip_m:
+            related_ip = ip_m[ip]
+            ip_m.pop(ip, None)
+            if related_ip in ip_m:
+                ip_m.pop(related_ip, None)
 
     for ip in ip_m:
         print(f"LOG. 服务器 {ip} 权限申请失败。", file=sys.stderr)
@@ -184,6 +186,11 @@ def main(params):
     auth_type = params["auth_type"]
     ip_list = extract_ips(params["ip_list"])
     sudo_hours = int(auth_type.split("_")[1])
+
+    if len(ip_list) == 0:
+        print("没有查询到有效的ip, ip_list为空", file=sys.stderr)
+        exit(1)
+
     # add_type 参数取值说明
     # 1: 添加普通权限; 2: 删除权限; 3: 添加sudo权限; 4: 删除sudo权限(保留账户)
     add_type = 3 if sudo_hours > 0 else 1
