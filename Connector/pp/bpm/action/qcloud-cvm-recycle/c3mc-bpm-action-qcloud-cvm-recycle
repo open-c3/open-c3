@@ -48,6 +48,12 @@ class CvmRecycle:
                 instance_identifier, delete_disk_snapshot)
 
 
+def get_instance_uuid(instance_maybe_identifier):
+    command = f"c3mc-device-find-uuid {instance_maybe_identifier}"
+    result = subprocess.check_output(command, shell=True)
+    return result.decode("utf-8").strip()
+
+
 def main(params):
     print("params = ", json.dumps(params))
 
@@ -67,8 +73,10 @@ def main(params):
         if instance_identifier == "":
             continue
 
-        query_cmd = f"c3mc-device-cat curr compute qcloud-cvm {instance_identifier} | c3mc-base-tab2json"
-        print(f"实例信息, uuid: {instance_identifier}, 查询命令: {query_cmd}")
+        instance_real_uuid = get_instance_uuid(instance_identifier)
+
+        query_cmd = f"c3mc-device-cat curr compute qcloud-cvm {instance_real_uuid} | c3mc-base-tab2json"
+        print(f"实例信息, uuid: {instance_real_uuid}, 查询命令: {query_cmd}")
         resource_info_str = subprocess.getoutput(query_cmd)
         if resource_info_str.strip() == "":
             # 可能工单中途有错误，某些资源在云端已被删除，并且本地经过同步后也删除了相关实例
