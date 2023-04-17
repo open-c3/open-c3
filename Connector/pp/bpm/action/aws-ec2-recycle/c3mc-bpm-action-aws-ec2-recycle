@@ -61,7 +61,11 @@ class Ec2Recycle:
 def get_instance_uuid(instance_maybe_identifier):
     command = f"c3mc-device-find-uuid {instance_maybe_identifier}"
     result = subprocess.check_output(command, shell=True)
-    return result.decode("utf-8").strip()
+    parts = result.decode("utf-8").strip().split()
+    if len(parts) > 1:
+        print(f"通过命令 {command} 查询到了多个uuid {parts}", file=sys.stderr)
+        exit(1)
+    return parts[0]
 
 
 def main(params):

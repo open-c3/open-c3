@@ -123,11 +123,18 @@ def grant_server_auth(account, email, ip_list, grant_auth_type, grant_sudo_hours
         print(output.stderr, file=sys.stderr)
         exit(1)
 
+    data_list = json.loads(output.stdout)
+
+    if len(data_list) > len(ip_list):
+        print(f"通过命令c3mc-device-api-jumpserver查询到的结果条目数为: {len(data_list)}, len(ip_list): {len(ip_list)}", file=sys.stderr)
+        print("补充信息, data_list = ", json.dumps(data_list), file=sys.stderr)
+        print("补充信息, ip_list = ", json.dumps(ip_list), file=sys.stderr)
+        exit(1)
+
     # 记录从c3mc-device-api-jumpserver查出的机器的内外网ip
     ip_m = {}
     ip_info_m = {}
 
-    data_list = json.loads(output.stdout)
 
     for data in data_list:
         in_ip = data["inIP"].strip()
