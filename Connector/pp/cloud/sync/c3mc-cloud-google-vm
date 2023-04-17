@@ -61,6 +61,9 @@ class VM:
                         "Key": key,
                         "Value": value
                     })
+            
+            # projectId的值全球唯一，id不唯一，拼在一起形成自定义的实例id
+            instance["customInstanceId"] = f"{instance['projectId']}-{instance['id']}"
 
             result.append(instance)
         return result
