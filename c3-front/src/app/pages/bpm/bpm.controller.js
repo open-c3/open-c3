@@ -248,6 +248,7 @@
                         if( name == ename[1] )
                         {
                             data.value= "";
+                            vm.optionx[data.name] = undefined; //清空下拉列表
                             vm.chtempclear(data);
                         }
                     });
@@ -446,16 +447,19 @@
                 }
             }
  
-            vm.selectxloading[stepname] = true;
-            $http.post( '/api/ci/v2/c3mc/bpm/optionx', { "bpm_variable": varDict, "stepname": stepname, "jobname":$scope.choiceJob.name } ).success(function(data){
-                if (data.stat){
-                    vm.selectxloading[stepname] = false;
-                    vm.optionx[stepname] = data.data
-                }else {
-                    swal({ title: '获取选项失败', text: data.info, type:'error' });
-                }
-            });
+            if( vm.optionx[stepname] == undefined )
+            {
+                vm.selectxloading[stepname] = true;
+                $http.post( '/api/ci/v2/c3mc/bpm/optionx', { "bpm_variable": varDict, "stepname": stepname, "jobname":$scope.choiceJob.name } ).success(function(data){
+                    if (data.stat){
+                        vm.selectxloading[stepname] = false;
+                        vm.optionx[stepname] = data.data
+                    }else {
+                        swal({ title: '获取选项失败', text: data.info, type:'error' });
+                    }
+                });
  
+            }
         }
 
         vm.jobsloadover = true;
