@@ -1,0 +1,24 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use POSIX;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 --eventname google-vm-recycle vuuid1 vuuid2 vuuid3 # bpmuuid in ENV{C3BPMUUID}
+ $0 --eventname google-vm-recycle --bpmuuid xxx vuuid1 vuuid2 vuuid3
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o      = $option->set( eventname => 'default' )->get( qw( bpmuuid=s eventname=s ) )->dump();
+
+my $bpmuuid = $o{bpmuuid} // $ENV{C3BPMUUID};
+$option->assert() unless $bpmuuid;
+
+
+print "ok\n";
