@@ -44,7 +44,6 @@ sub countlimit
             chomp $x;
 
             my ( $stat, $operator ) = split /;/, $x;
-            print "stat: $stat\n";
 
             if( $stat eq 'agree' )
             {
@@ -52,7 +51,12 @@ sub countlimit
                 last;
             }
 
-            die "refuse by: $operator\n" if $stat eq 'refuse';
+            if( $stat eq 'refuse' )
+            {
+                print "_openc3_sys_pluginstatus_sys_openc3_:refuse\n";
+                warn "refuse by: $operator\n";
+                exit 254;
+            }
         }
     }
 
