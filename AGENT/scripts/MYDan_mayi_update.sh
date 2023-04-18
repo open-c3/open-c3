@@ -68,7 +68,7 @@ fi
 #if [ "X$localversion" == "X$version" ] && [ "X$localperl" == "X#!$PERL" ]; then
 if [ "X$localversion" == "X$version" ]; then
     echo "This is the latest version of Mayi";
-    exit 1
+    exit
 fi
 
 LOCALINSTALLER=$(mktemp mayi.XXXXXX)

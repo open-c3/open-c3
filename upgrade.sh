@@ -10,3 +10,5 @@ fi
 
 /data/open-c3/open-c3.sh sup
 /data/open-c3/open-c3.sh dup
+
+echo "upgrade done. !!!"
