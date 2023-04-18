@@ -6,6 +6,8 @@ import json
 import subprocess
 
 import boto3
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import check_if_params_safe_in_recycle
 
 
 supported_recycle_types = [
@@ -39,7 +41,6 @@ class Ec2Recycle:
 
         # 删除实例
         else:
-            sys.path.append("/data/Software/mydan/Connector/lib/pp")
             from c3mc_cloud_aws_ec2 import LIB_EC2
             lib_ec2 = LIB_EC2(self.access_id, self.access_key, self.region)
             eip_info_list = lib_ec2.describe_addresses(Filters=[
@@ -81,7 +82,10 @@ def main(params):
         "c3mc-cloud-get-real-field compute aws-ec2 InstanceId account RegionId"
     ).split()
 
-    for instance_identifier in params["instance_ids"].split(","):
+    instance_identifier_list = params["instance_ids"].split(",")
+    check_if_params_safe_in_recycle(instance_identifier_list, params["bpm_uuid"], "aws-ec2-recycle")
+
+    for instance_identifier in instance_identifier_list:
         instance_identifier = instance_identifier.strip()
         if instance_identifier == "":
             continue

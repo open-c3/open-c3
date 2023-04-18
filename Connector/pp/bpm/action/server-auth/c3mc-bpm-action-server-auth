@@ -8,6 +8,9 @@ import subprocess
 import threading
 import time
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import check_if_params_safe_in_recycle
+
 # 添加权限时最大的并发线程数
 MAX_CONCURRENT_NUMBER = 13
 
@@ -197,6 +200,8 @@ def main(params):
     if len(ip_list) == 0:
         print("没有查询到有效的ip, ip_list为空", file=sys.stderr)
         exit(1)
+    
+    check_if_params_safe_in_recycle(ip_list, params["bpm_uuid"], "server-auth")
 
     # add_type 参数取值说明
     # 1: 添加普通权限; 2: 删除权限; 3: 添加sudo权限; 4: 删除sudo权限(保留账户)
