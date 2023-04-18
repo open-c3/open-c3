@@ -1,0 +1,102 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use MYDan::Util::OptConf;
+use YAML::XS;
+use JSON;
+use BPM::Task::Config;
+
+=head1 SYNOPSIS
+
+ $0 --bpmuuid xxx
+ $0 --bpmuuid xxx --json
+ $0 --bpmuuid xxx stepid1 stepid2 ..
+ $0 --bpmuuid xxx stepname1 stepname2 ..
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o      = $option->get( qw( bpmuuid=s json ) )->dump();
+
+my $bpmuuid = $o{bpmuuid} // $ENV{C3BPMUUID};
+$option->assert() unless $bpmuuid;
+
+die "bpmuuid err" unless $bpmuuid && $bpmuuid =~ /^BPM\d+$/;
+my @stepid = @ARGV;
+
+my $var = eval{ BPM::Task::Config->new()->get( $bpmuuid ) };
+die "load var fail: $@" if $@;
+
+my $plugin = eval{ YAML::XS::LoadFile "/data/Software/mydan/JOB/bpm/config/flow/$var->{_jobname_}/plugin" };
+die "load plugin config fail: $@" if $@;
+
+my ( %pluginname, %pluginid, %plugincount );
+
+map{
+    my $id   = $_ + 1;
+    my $name = $plugin->[$_];
+
+    $plugincount{ $name } ++;
+    $pluginname{  $id   } = $name;
+    $pluginid{    $name } = $id;
+
+}0 .. @$plugin -1;
+
+
+my %data;
+
+for my $key ( keys  %$var )
+{
+    my $val = $var->{$key};
+    next if $key =~ /__alias$/;
+    if( $key =~ /^(\d+)\.(\d+)\.(.+)/ )
+    {
+        my ( $grp, $idx, $name ) = ( $1, $2, $3 );
+        $data{$grp}       ||= +{};
+        $data{$grp}{$idx} ||= +{};
+        $data{$grp}{$idx}{$name} = $val;
+    }
+    elsif( $key =~ /^(\d+)\.(.+)/)
+    {
+        my ( $grp, $name ) = ( $1, $2 );
+        $data{$grp} ||= +{};
+        $data{$grp}{$name} = $val;
+    }
+}
+
+sub toarray
+{
+    my $data = shift @_;
+    return [ map{ $data->{$_} }sort{ $a <=> $b }keys %$data ];
+};
+
+
+@stepid = keys %data unless @stepid;
+
+my %res;
+for my $stepid ( @stepid )
+{
+    my $name = $stepid;
+    unless( $stepid =~ /^\d+$/ )
+    {
+        die "nofind plugin $stepid" unless $pluginid{ $stepid };
+        die "$stepid repeat config in plungin" if $plugincount{ $stepid } > 1;
+        $stepid = $pluginid{ $stepid };
+    }
+
+    my $v = $data{$stepid};
+    my ( $subv ) = values %{ $data{$stepid}};
+    my $vv = $subv && ref $subv eq 'HASH' ? toarray( $v ) : $v;
+
+    $res{$name} = $vv;
+}
+
+if( $o{json} )
+{
+    my $json = eval{JSON::encode_json \%res };
+    print $json, "\n";
+    exit;
+}
+
+print YAML::XS::Dump \%res;
+
