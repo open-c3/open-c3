@@ -263,6 +263,7 @@
                         vm.bpmuuid = task_msg.extid;
 
                         vm.loadbpmlog();
+                        vm.loadbpmprotect();
                         if ($scope.status == "fail" || $scope.status == "success"){
                             $interval.cancel(reRun);
                         }
@@ -289,6 +290,44 @@
 
             };
 
+        vm.bpmprotect = {};
+        vm.loadbpmprotect =  function () {
+            $http.get('/api/job/bpm/protect/' + vm.bpmuuid ).then(
+                function successCallback(response) {
+                    if (response.data.stat){
+                        vm.bpmprotect = response.data.data
+                    }else {
+                        swal('获取信息失败', response.data.info, 'error' );
+                    }
+                },
+                function errorCallback (response){
+                    swal('获取信息失败', response.status, 'error' );
+                });
+        };
+ 
+        vm.setProtect = function (opt) {
+            var d = {
+                "opinion": opt,
+            };
+            swal({
+                title: "对保护进行判断:" + opt,
+                type: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                cancelButtonText: "取消",
+                confirmButtonText: "确定",
+                closeOnConfirm: true
+            }, function(){
+                $http.post( '/api/job/bpm/protect/' + vm.bpmuuid, d ).success(function(data){
+                    if (data.stat){
+                        vm.reload();
+                    }else {
+                        toastr.error("操作失败"+data.info);
+                    }
+                });
+              });
+  
+        };
 
         vm.loadbpmlog =  function () {
             $http.get('/api/job/bpm/log/' + vm.bpmuuid ).then(

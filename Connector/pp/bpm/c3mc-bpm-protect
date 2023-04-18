@@ -20,5 +20,43 @@ my %o      = $option->set( eventname => 'default' )->get( qw( bpmuuid=s eventnam
 my $bpmuuid = $o{bpmuuid} // $ENV{C3BPMUUID};
 $option->assert() unless $bpmuuid;
 
+my @uuid = @ARGV;
+unless( @uuid )
+{
+    @uuid = <STDIN>;
+    chomp @uuid;
+}
 
-print "ok\n";
+sub countlimit
+{
+    my ( $limit, $info ) = @_;
+    if( @uuid > $limit )
+    {
+        die "ins fail" if system "c3mc-base-db-ins --table openc3_job_bpm_protect bpmuuid '$bpmuuid' stat danger info '$info'";
+
+        print "[Warn] $info\n";
+
+        while(1)
+        {
+            sleep 6;
+
+            my    $x = `c3mc-base-db-get stat,operator --table openc3_job_bpm_protect  --filter "bpmuuid='$bpmuuid'"`;
+            chomp $x;
+
+            my ( $stat, $operator ) = split /;/, $x;
+            print "stat: $stat\n";
+
+            if( $stat eq 'agree' )
+            {
+                print "agree by: $operator\n";
+                last;
+            }
+
+            die "refuse by: $operator\n" if $stat eq 'refuse';
+        }
+    }
+
+}
+
+countlimit( 4, "recycle limit: count <= 4" ) if $o{eventname} =~ /recycle/;
+countlimit( 20, "auth limit: count <= 20"  ) if $o{eventname} =~ /auth/;
