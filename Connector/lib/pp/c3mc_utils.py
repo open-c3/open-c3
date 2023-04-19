@@ -74,3 +74,31 @@ def sleep_time_for_limiting(max_frequency_one_second):
 def get_frequency_factor():
     output = subprocess.getoutput("c3mc-sys-ctl sys.device.sync.frequency.factor")
     return output
+
+
+def check_if_params_safe_in_recycle(user_commited_instance_ids, bpm_uuid, bpm_action_type):
+    """检查资源回收中涉及的参数是否合法
+    """
+    cmd_parts = ["c3mc-bpm-protect", "--eventname", bpm_action_type, "--bpmuuid", bpm_uuid]
+
+    proc = subprocess.Popen(cmd_parts, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+
+    for instance_id in user_commited_instance_ids:
+        proc.stdin.write(instance_id.encode())
+        proc.stdin.write(b"\n")
+        proc.stdin.flush()
+
+    output, errors = proc.communicate()
+    if output is not None:
+        print(f"命令 c3mc-bpm-protect 执行结果: {output.decode()}")
+    if errors is not None:
+        print(f"命令 c3mc-bpm-protect 执行出现错误: {errors.decode()}", file=sys.stderr)
+
+    if proc.returncode == 1:
+        print("命令 c3mc-bpm-protect 执行出现错误, 直接退出", file=sys.stderr)
+        exit(1)
+
+    if proc.returncode == 254:
+        # 用户拒绝继续操作，直接退出程序
+        print("用户拒绝继续操作，直接退出程序")
+        exit(0)

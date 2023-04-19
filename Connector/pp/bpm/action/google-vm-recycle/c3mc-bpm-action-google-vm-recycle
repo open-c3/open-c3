@@ -5,6 +5,11 @@ import sys
 import json
 import subprocess
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import check_if_params_safe_in_recycle
+from c3mc_cloud_google_compute import GoogleCompute
+
+
 SUPPORTED_RECYCLE_TYPES = [
     "stop",
     "terminate"
@@ -20,8 +25,6 @@ class VmRecycler:
         self.lib_client = self.create_lib_client()
 
     def create_lib_client(self):
-        sys.path.append("/data/Software/mydan/Connector/lib/pp")
-        from c3mc_cloud_google_compute import GoogleCompute
         return GoogleCompute(self.cred_path)
 
     def recycle_instance(self, instance_name):
@@ -68,7 +71,10 @@ def main(params):
 
     account_field, name_field, region_id_field, zone_field = get_field_names()
 
-    for instance_identifier in params["instance_ids"].split(","):
+    instance_identifier_list = params["instance_ids"].split(",")
+    check_if_params_safe_in_recycle(instance_identifier_list, params["bpm_uuid"], "google-vm-recycle")
+
+    for instance_identifier in instance_identifier_list:
         instance_identifier = instance_identifier.strip()
         if instance_identifier == "":
             continue
