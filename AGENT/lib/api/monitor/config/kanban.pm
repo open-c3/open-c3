@@ -44,14 +44,22 @@ get '/monitor/config/kanban/:projectid' => sub {
         }
     }
 
+
+    my $x = `c3mc-base-treemap cache|grep "^$param->{projectid};"`;
+    chomp $x;
+    my $treename = $x ?         ( split /;/, $x, 2      )[1] : 'unkown';
+    my $treenode = $treename ?  ( split /\./, $treename )[-1] :  'unkown';
+
     my @x = `cat cat /data/Software/mydan/AGENT/lib/api/monitor/config/kanban.default`;
     chomp @x;
-    
+
     for( @x )
     {
         my ( $id, $name, $url ) = split /;/, $_, 3;
         utf8::decode($name);
         $url =~ s/\{\{treeid\}\}/$param->{projectid}/g;
+        $url =~ s/\{\{treename\}\}/$treename/g;
+        $url =~ s/\{\{treenode\}\}/$treenode/g;
         push @r, +{
             projectid => $param->{projectid},
             id => $id,
