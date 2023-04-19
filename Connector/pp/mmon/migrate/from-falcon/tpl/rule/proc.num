@@ -1,0 +1,16 @@
+---
+alert: 进程Down
+bindtreesql: ''
+description: Node节点 {{$labels.instance}} 的进程  {{$labels.name}} 挂了
+edit_time: 2023-04-14 10:32:20
+edit_user: open-c3
+expr: node_process_count{treeid_c3montreeid!="",job="openc3"} < $VAR{right_value}
+for: '$VAR{for}'
+job: openc3
+method: <
+metrics: node_process_count
+model: simple
+severity: level$VAR{priority}
+summary: 进程告警
+threshold: '$VAR{right_value}'
+value: '{{$value}}'

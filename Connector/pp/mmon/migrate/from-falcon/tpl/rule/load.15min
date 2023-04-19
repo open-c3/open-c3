@@ -1,0 +1,16 @@
+---
+alert: Load大于$VAR{right_value}
+bindtreesql: $VAR{right_value} < sum(node_load15) by(instance)
+description: '服务器负载过高, load 大于 $VAR{right_value}，当前load是: {{ $value }}'
+edit_time: 2023-04-12 17:01:16
+edit_user: open-c3
+expr: $VAR{right_value} < sum(node_load15) by(instance) and  ( sum(treeinfo{tid="c3montreeid"}) by(instance))
+for: '$VAR{for}'
+job: ''
+method: ''
+metrics: ''
+model: bindtree
+severity: level$VAR{priority}
+summary: 服务器load过高
+threshold: ''
+value: '{{ $value }}'
