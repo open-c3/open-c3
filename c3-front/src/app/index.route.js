@@ -642,6 +642,12 @@
                 controller: 'AuditLogController',
                 controllerAs: 'auditlog'
             })
+            .state('home.global.loginaudit', {
+                url: 'loginaudit/:treeid',
+                templateUrl: 'app/pages/global/loginaudit/loginaudit.html',
+                controller: 'LoginAuditController',
+                controllerAs: 'loginaudit'
+            })
             .state('home.global.template', {
                 url: 'template/:treeid',
                 templateUrl: 'app/pages/global/template/template.html',

@@ -444,6 +444,37 @@ get '/connectorx/auditlog' => sub {
 
 =pod
 
+连接器/登录登出日志/获取
+
+=cut
+
+get '/connectorx/loginaudit' => sub {
+    my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
+    my $param = params();
+    my $error = Format->new(
+        time   => qr/^[0-9: \-]+$/, 0,
+        user   => qr/^[a-zA-Z0-9\@_\.\-]+$/, 0,
+        action => [ 'mismatch', qr/'/ ], 0,
+        ip     => [ 'mismatch', qr/'/ ], 0,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my @where;
+    push @where, "user='$param->{user}'"            if $param->{user};
+    push @where, "time like '$param->{time}%'"      if $param->{time};
+    push @where, "action like '%$param->{action}%'" if $param->{action};
+    push @where, "ip like '%$param->{ip}%'"         if $param->{ip};
+
+    my $where = @where ? sprintf( "where %s", join ' and ', @where ) : '';
+
+    my $mesg = eval{ $api::mysql->query( "select time,user,action,ip from `openc3_connector_user_login_audit` $where order by time desc limit 1000", [ 'time', 'user', 'action', 'ip' ] ) };
+
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $mesg };
+};
+
+=pod
+
 连接器/设置cookie
 
 =cut
