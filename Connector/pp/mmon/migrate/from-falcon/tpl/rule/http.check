@@ -1,0 +1,35 @@
+---
+alert: HTTP返回码不是200
+bindtreesql: ''
+description: Node节点 {{$labels.instance}} 的  {{$labels.url}} 返回码异常
+edit_time: 2023-04-13 18:55:42
+edit_user: open-c3
+expr: node_http_code{treeid_c3montreeid!="",job="openc3"} != 200
+for: '$VAR{for}'
+job: openc3
+method: ==
+metrics: node_http_code
+model: simple
+severity: level$VAR{priority}
+summary: HTTP服务异常
+threshold: '0'
+value: '{{$value}}'
+
+---
+alert: HTTP返回内容异常
+bindtreesql: ''
+description: Node节点 {{$labels.instance}} 的  {{$labels.url}} 返回内容异常
+edit_time: 2023-04-13 18:55:42
+edit_user: open-c3
+expr: node_http_content_check{treeid_c3montreeid!="",job="openc3"} != 1
+for: '$VAR{for}'
+job: openc3
+method: ==
+metrics: node_http_content_check
+model: simple
+severity: level$VAR{priority}
+summary: HTTP服务异常
+threshold: '0'
+value: '{{$value}}'
+
+

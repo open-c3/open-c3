@@ -52,6 +52,56 @@ sub makedata_collector_filecheck
     close $H;
 }
 
+sub makedata_collector_httpcheck
+{
+    #falcon的格式
+    #http.check url=/ping,host=xx.xx.net,code=200,grep=pong
+    #
+    #Open-C3的格式
+    #Host:xx.xx.com;http://127.0.0.1/api/forecasts?abc=11
+
+    my $data = shift @_;
+    my $tpl_file = "$RealBin/tpl/collector/$data->{metric}";
+
+    my $tpl = `cat '$tpl_file'`;
+
+    my %tags;
+    for( split /,/, $data->{tags} )
+    {
+        my @x = split /=/, $_, 2;
+        $tags{$x[0]} = $x[1];
+    }
+
+    my %effectiveTags = map{ $_ => 1 } qw( url code grep host );
+    if( grep{ ! $effectiveTags{ $_ } }keys %tags || !( $tags{url} && $tags{url} =~ /^\// ) || !( $tags{code} && $tags{code} eq '200' ))
+    {
+        warn "unkown http.check tags: $data->{tags}\n";
+        return;
+    }
+
+    my %var;
+    $var{url } = "http://127.0.0.1$tags{url}";
+    $var{url } = "Host:$tags{host};$var{url}"if $tags{host};
+    $var{grep} = $tags{grep} // '';
+    $var{type} = 'GET';
+
+    for my $k ( qw( url type grep ) )
+    {
+        my $v = $var{$k};
+        $tpl =~ s/\$VAR\{$k\}/$v/g;
+    }
+
+    my $path = "$dist/collector/$data->{treeid}";
+    system "mkdir -p '$path'" unless -d $path;
+    my $file = "$path/$data->{tpl_name}";
+    print "make collector: $data->{metric} $file\n";
+    my $H;
+    open($H, ">$file" ) || die "open $file $!";
+    print $H $tpl;
+    close $H;
+}
+
+
 sub makedata_collector_netportlisten
 {
     my $data = shift @_;
@@ -206,6 +256,7 @@ for ( @x )
 
     makedata_rule( $d );
     makedata_collector_filecheck(     $d ) if $d->{metric} eq 'file.check';
+    makedata_collector_httpcheck(     $d ) if $d->{metric} eq 'http.check';
     makedata_collector_procnum(       $d ) if $d->{metric} eq 'proc.num';
     makedata_collector_netportlisten( $d ) if $d->{metric} eq 'net.port.listen';
 }
