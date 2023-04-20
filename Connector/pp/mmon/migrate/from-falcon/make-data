@@ -52,6 +52,40 @@ sub makedata_collector_filecheck
     close $H;
 }
 
+sub makedata_collector_netportlisten
+{
+    my $data = shift @_;
+    my $tpl_file = "$RealBin/tpl/collector/$data->{metric}";
+
+    my $tpl = `cat '$tpl_file'`;
+
+    my %var;
+    if( $data->{tags} =~ /port=(\d+)$/ )
+    {
+        %var = ( port => $1, type => 'tcp' );
+    }
+    else
+    {
+        warn "err";
+        return;
+    }
+
+    for my $k ( qw( port type ) )
+    {
+        my $v = $var{$k};
+        $tpl =~ s/\$VAR\{$k\}/$v/g;
+    }
+
+    my $path = "$dist/collector/$data->{treeid}";
+    system "mkdir -p '$path'" unless -d $path;
+    my $file = "$path/$data->{tpl_name}";
+    print "make collector: $data->{metric} $file\n";
+    my $H;
+    open($H, ">$file" ) || die "open $file $!";
+    print $H $tpl;
+    close $H;
+}
+
 sub makedata_collector_procnum
 {
     my $data = shift @_;
@@ -107,7 +141,7 @@ sub makedata_rule
 
     unless( -f $tpl_file )
     {
-        warn "[ERROR] nofind rule tpl: $data->{metric}\n";
+        warn "[ERROR] nofind rule tpl: $data->{metric} $data->{tags}\n";
         return;
     }
     my $tpl = `cat '$tpl_file'`;
@@ -171,6 +205,7 @@ for ( @x )
     }
 
     makedata_rule( $d );
-    makedata_collector_filecheck( $d ) if $d->{metric} eq 'file.check';
-    makedata_collector_procnum(   $d ) if $d->{metric} eq 'proc.num';
+    makedata_collector_filecheck(     $d ) if $d->{metric} eq 'file.check';
+    makedata_collector_procnum(       $d ) if $d->{metric} eq 'proc.num';
+    makedata_collector_netportlisten( $d ) if $d->{metric} eq 'net.port.listen';
 }

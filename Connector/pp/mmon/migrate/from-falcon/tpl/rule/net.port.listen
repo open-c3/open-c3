@@ -1,0 +1,16 @@
+---
+alert: 端口异常
+bindtreesql: ''
+description: Node节点 {{$labels.instance}} 的端口  {{$labels.port}} 异常
+edit_time: 2023-04-13 18:55:42
+edit_user: open-c3
+expr: node_port{treeid_c3montreeid!="",job="openc3"} == 0
+for: '$VAR{for}'
+job: openc3
+method: ==
+metrics: node_port
+model: simple
+severity: level$VAR{priority}
+summary: 端口异常
+threshold: '0'
+value: '{{$value}}'
