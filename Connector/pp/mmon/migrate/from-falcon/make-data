@@ -5,6 +5,7 @@ use FindBin qw( $RealBin );
 use Data::Dumper;
 use LWP::UserAgent;
 use YAML::XS;
+use Digest::MD5;
 
 my @x = <STDIN>;
 chomp @x;
@@ -119,7 +120,10 @@ sub makedata_rule
 
     my $path = "$dist/rule/$data->{treeid}";
     system "mkdir -p '$path'" unless -d $path;
-    my $file = "$path/$data->{tpl_name}";
+
+    my $md5 = Digest::MD5->new->add( $tpl )->hexdigest;
+
+    my $file = "$path/$data->{tpl_name}.$md5";
     print "make: $data->{metric} $file\n";
 
     my $H;
