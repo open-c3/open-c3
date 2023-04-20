@@ -1,0 +1,21 @@
+---
+name: 负载均衡器基本信息
+fromops: 1
+option:
+  - name: account
+    describe: 云账号
+    command: c3mc-display-cloud-account-list google
+    type: selectx
+    value: ""
+
+  - name: load_balancer_name
+    describe: 负载均衡器名称 
+    type: input
+
+template_argv:
+  # bpm单号
+  bpm_uuid: ${_bpmuuid_}
+  # 账号
+  account: ${account}
+  # 负载均衡器名称 
+  load_balancer_name: ${load_balancer_name}

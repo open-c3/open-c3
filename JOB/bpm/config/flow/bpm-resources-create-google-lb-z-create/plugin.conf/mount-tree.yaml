@@ -1,0 +1,14 @@
+---
+name: 挂树
+option:
+  - name:     tree_path
+    describe: 服务树
+    type:     input
+    value:    ""
+
+template_argv:
+  tree_path:        ${tree_path}
+  instance_ids:     ${var.instance_id}
+  type:             'networking'
+  subtype:          "google-lb"
+  extinstance_ids:  ${var.extinstance_id} 

@@ -1,0 +1,13 @@
+---
+name: 负载均衡器转发规则默认后端
+fromops: 1
+option:
+  - name: default_rule_backend
+    describe: 默认后端
+    type: selectx
+    command: ["list", "backend_name"]
+    information: "未匹配到的主机和路径将由该默认后端服务进行处理"
+
+template_argv:
+  # 处理转发规则的默认后端
+  default_rule_backend: ${default_rule_backend}
