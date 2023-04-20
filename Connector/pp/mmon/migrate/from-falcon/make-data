@@ -32,7 +32,7 @@ sub makedata_collector_filecheck
     }
     else
     {
-        warn "err";
+        warn "[ERROR] unkown file.check tags: $data->{tags}\n";
         return;
     }
 
@@ -72,15 +72,35 @@ sub makedata_collector_httpcheck
         $tags{$x[0]} = $x[1];
     }
 
-    my %effectiveTags = map{ $_ => 1 } qw( url code grep host );
-    if( grep{ ! $effectiveTags{ $_ } }keys %tags || !( $tags{url} && $tags{url} =~ /^\// ) || !( $tags{code} && $tags{code} eq '200' ))
+    my %effectiveTags = map{ $_ => 1 } qw( url code grep host port method );
+    if( grep{ ! $effectiveTags{ $_ } }keys %tags )
     {
-        warn "unkown http.check tags: $data->{tags}\n";
+        warn "[ERROR] unkown http.check tags, effectiveTags: $data->{tags}\n";
+        return;
+    }
+
+    unless( $tags{url} && $tags{url} =~ /^\// )
+    {
+        warn "[ERROR] unkown http.check tags, no url: $data->{tags}\n";
+        return;
+    }
+
+    unless( $tags{code} && $tags{code} eq '200' )
+    {
+        warn "[ERROR] unkown http.check tags, code no 200: $data->{tags}\n";
+        return;
+    }
+
+    if( $tags{method} && $tags{method} ne 'get' )
+    {
+        warn "[ERROR] unkown http.check tags, method no get: $data->{tags}\n";
         return;
     }
 
     my %var;
-    $var{url } = "http://127.0.0.1$tags{url}";
+    $var{url } = "http://127.0.0.1";
+    $var{url } = "$var{url}:$tags{port}" if $tags{port};
+    $var{url } = "$var{url}$tags{url}";
     $var{url } = "Host:$tags{host};$var{url}"if $tags{host};
     $var{grep} = $tags{grep} // '';
     $var{type} = 'GET';
@@ -116,7 +136,7 @@ sub makedata_collector_netportlisten
     }
     else
     {
-        warn "err";
+        warn "[ERROR] unkown net.port.listen tags: $data->{tags}\n";
         return;
     }
 
@@ -148,14 +168,15 @@ sub makedata_collector_procnum
     {
         ( $type, $name ) = ( 'name', $1 );
     }
-    elsif( $data->{tags} =~ m#cmdline=([a-zA-Z0-9\-\.]+)# )
+    elsif( $data->{tags} =~ m#cmdline=([a-zA-Z0-9\-\.\/]+)# )
     {
         ( $type, $name ) = ( 'cmdline', $1 );
     }
  
     else
     {
-        warn "err";
+        warn "[ERROR] unkown proc.num tags: $data->{tags}\n";
+        map{ warn sprintf "[ERROR] [DEBUG] unkown proc.num tags: $data->{tags} %s\n", $_ } split /\n/, YAML::XS::Dump $data if $ENV{C3_DEBUG};
         return;
     }
 
