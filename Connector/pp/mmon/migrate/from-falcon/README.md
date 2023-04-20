@@ -28,6 +28,7 @@ priority    # 监控级别
 func:       # 处理函数，会生成普罗米修斯的for字段
 right_value # 阈值
 
+op:         # 比较, 比如 < , > , <= , >= , ==
 
 tags: file.check # tag
 ```

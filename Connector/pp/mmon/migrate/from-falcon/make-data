@@ -112,7 +112,23 @@ sub makedata_rule
     }
     my $tpl = `cat '$tpl_file'`;
 
-    for my $k ( qw( priority for right_value ) )
+    #all
+    #max
+    #min
+    #sum
+    #avg
+    #diff
+    #pdiff
+    #lookup
+
+    $d->{func2c3} = 'sum' if $d->{func2c3} eq 'all';
+    if( $tpl =~ /\$VAR\{func2c3\}/ && ! grep{ $data->{func2c3} eq $_ }qw( max min sum avg ) )
+    {
+        warn "[ERROR] unkown func: $data->{func} $data->{metric}\n";
+        next;
+    }
+
+    for my $k ( qw( priority for right_value op func2c3 ) )
     {
         my $v = $data->{$k};
         $tpl =~ s/\$VAR\{$k\}/$v/g;
@@ -139,9 +155,12 @@ for ( @x )
     my $d = +{ map{ $title[$_] => $t[$_] }0..@title -1};
     $d->{for} = '';
 
-    if( $d->{func} && $d->{func} =~ /^[a-z]+\(#(\d+)\)$/ )
+    $d->{func2c3} = 'avg';
+
+    if( $d->{func} && $d->{func} =~ /^([a-z]+)\(#(\d+)\)$/ )
     {
-        $d->{for} = "$1m";
+        $d->{func2c3} = $1;
+        $d->{for    } = "$2m";
     }
 
     if( index( $d->{metric}, 'proc.num/name=' ) == 0 && $d->{tags} eq 'NULL' )
