@@ -1,0 +1,29 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+
+my    @x = `cd $RealBin/dist/rule && ls`;
+chomp @x;
+
+my @treeid = grep{ /^\d+$/ }@x;
+
+sub load
+{
+    my $treeid = shift @_;
+    for my $rulefile ( glob "$RealBin/dist/rule/$treeid/*" )
+    {
+        print "treeid: $treeid, rule: $rulefile\n";
+        system "cat '$rulefile' | c3mc-mon-rule-load --treeid $treeid --user 'openc3-migrate\@sys'";
+    }
+
+    for my $rulefile ( glob "$RealBin/dist/collector/$treeid/*" )
+    {
+        print "treeid: $treeid, collector: $rulefile\n";
+        system "cat '$rulefile' | c3mc-mon-collector-load --treeid $treeid --user 'openc3-migrate\@sys'";
+    }
+
+}
+
+map{ load($_) }@treeid;
+
