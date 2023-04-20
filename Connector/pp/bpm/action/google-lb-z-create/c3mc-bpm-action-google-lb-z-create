@@ -1,0 +1,280 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import json
+import subprocess
+import sys
+
+
+class GoogleLB:
+    def __init__(self, params):
+        self.param_base_info = params["google-lb-1"]
+        self.param_frontend = params["google-lb-2-frontend"]
+        self.param_backend = params["google-lb-3-backend"]
+        self.param_routing_rules = params["google-lb-4-routing-rules"]
+        self.param_routing_rule_default_backend = params[
+            "google-lb-5-routing-rules-default-backend"
+        ]
+
+        key_info = json.loads(
+            subprocess.getoutput(
+                f"c3mc-get-account-info google {self.param_base_info['account']}"
+            )
+        )
+        self.cred_path = key_info["cred_path"]
+
+        self.lib_client = self.create_lib_client()
+        self.project_id = self.lib_client.get_project_id()
+        # 包含项目下所有实例组信息，方便后续使用。格式: 实例组名 -> 实例组详情
+        self.instance_group_m = self.get_instance_info()
+
+    def create_lib_client(self):
+        sys.path.append("/data/Software/mydan/Connector/lib/pp")
+        from c3mc_cloud_google_compute import GoogleCompute
+
+        return GoogleCompute(self.cred_path)
+
+    def get_instance_info(self):
+        m = {}
+        region_list = self.lib_client.list_regions()
+        for region in region_list:
+            instance_group_list = self.lib_client.list_instance_groups(region["name"])
+            for instance_group in instance_group_list:
+                m[instance_group["name"]] = instance_group
+        return m
+
+    def get_bool_value(self, value):
+        return value == "是"
+
+    def set_named_ports(self):
+        """设置命名端口"""
+        for item in self.param_backend:
+            named_ports = {
+                "namedPorts": {
+                    "name": item["named_port"],
+                    "port": item["port"],
+                }
+            }
+            zone = self.instance_group_m[item["instance_group"]]["zone"].split("/")[-1]
+
+            response = self.lib_client.set_named_ports(
+                zone,
+                self.instance_group_m[item["instance_group"]]["name"],
+                named_ports,
+            )
+            print(f"设置命名端口, 响应: {json.dumps(response)}")
+
+    def set_backend_services(self):
+        """设置后端服务"""
+        for item in self.param_backend:
+            zone = self.instance_group_m[item["instance_group"]]["zone"].split("/")[-1]
+            backend_service_name = item["backend_name"]
+            instance_group_name = self.instance_group_m[item["instance_group"]]["name"]
+            health_check_name = item["health_check"]
+            named_port = item["named_port"]
+            balancing_mode = item["balancing_mode"].upper()
+            scope = item["scope"]
+            capacity_scaler = float(item["capacity"]) / 100
+            enable_cdn = self.get_bool_value(item["enable_cloud_cdn"])
+            timeout_seconds = int(item["timeout"])
+
+            # 指定backend服务使用的instance group
+            backend_group = f"projects/{self.project_id}/zones/{zone}/instanceGroups/{instance_group_name}"
+            backend = {
+                "group": backend_group,
+                "balancingMode": balancing_mode,
+                "capacityScaler": capacity_scaler,
+            }
+            if balancing_mode == "UTILIZATION":
+                backend["maxUtilization"] = (
+                    float(item["maximum_backend_utilization"]) / 100
+                )
+            elif scope == "per_instance":
+                backend["maxRatePerInstance"] = int(item["max_rps"])
+            elif scope == "per_group":
+                backend["maxRatePerGroup"] = int(item["max_rps"])
+
+            # 指定CDN策略
+            cdn_policy = {
+                "cacheMode": "CACHE_ALL_STATIC",
+                "clientTtl": 3600,
+                "defaultTtl": 3600,
+                "maxTtl": 86400,
+                "negativeCaching": False,
+                "serveWhileStale": 0,
+                "cacheKeyPolicy": {
+                    "includeHost": True,
+                    "includeProtocol": True,
+                    "includeQueryString": True,
+                },
+            }
+
+            # 指定连接关闭的draining timeout
+            connection_draining = {"drainingTimeoutSec": 300}
+
+            # 指定Backend服务的基本信息
+            request_body = {
+                "name": backend_service_name,
+                "backends": [backend],
+                "healthChecks": [
+                    f"projects/{self.project_id}/global/healthChecks/{health_check_name}"
+                ],
+                "portName": named_port,
+                "protocol": "HTTP",
+                "timeoutSec": timeout_seconds,
+                "connectionDraining": connection_draining,
+                "cdnPolicy": cdn_policy,
+                "enableCDN": enable_cdn,
+                "loadBalancingScheme": "EXTERNAL_MANAGED",
+                "sessionAffinity": "NONE",
+                "localityLbPolicy": "ROUND_ROBIN",
+                "logConfig": {"enable": False},
+                "description": "",
+            }
+
+            response = self.lib_client.create_backend_service(request_body)
+            print(f"设置后端服务, 响应: {json.dumps(response)}")
+
+    def set_url_maps(self):
+        """设置转发规则"""
+        default_backend_name = self.param_routing_rule_default_backend[0][
+            "default_rule_backend"
+        ]
+
+        default_service = (
+            f"projects/{self.project_id}/global/backendServices/{default_backend_name}"
+        )
+        request_body = {
+            "defaultService": default_service,
+            "name": self.param_base_info["load_balancer_name"],
+            "hostRules": [],
+            "pathMatchers": [],
+        }
+        for i in range(len(self.param_routing_rules)):
+            item = self.param_routing_rules[i]
+
+            path_matcher_name = f"path-matcher-{i+1}"
+            request_body["hostRules"].append(
+                {
+                    "hosts": [
+                        item.strip()
+                        for item in item["host"].split(",")
+                        if item.strip() != ""
+                    ],
+                    "pathMatcher": path_matcher_name,
+                }
+            )
+            request_body["pathMatchers"].append(
+                {
+                    "defaultService": default_service,
+                    "name": path_matcher_name,
+                    "pathRules": [
+                        {
+                            "paths": [
+                                item.strip()
+                                for item in item["path"].split(",")
+                                if item.strip() != ""
+                            ],
+                            "service": f"projects/{self.project_id}/global/backendServices/{item['related_backend']}",
+                        }
+                    ],
+                }
+            )
+        response = self.lib_client.set_url_maps(request_body)
+        print(f"设置转发规则, 响应: {json.dumps(response)}")
+
+    def set_frontend(self):
+        """设置前端"""
+        for i in range(len(self.param_frontend)):
+            item = self.param_frontend[i]
+
+            name = f"{self.param_base_info['load_balancer_name']}-target-proxy"
+            if i > 0:
+                name = f"{name}-{i+1}"
+
+            target_proxy_body = {
+                "name": name,
+                "urlMap": f"projects/{self.project_id}/global/urlMaps/{self.param_base_info['load_balancer_name']}",
+            }
+            if item["protocol"] == "https":
+                target_proxy_body["sslCertificates"] = [
+                    f"projects/{self.project_id}/global/sslCertificates/{item['cert_name']}"
+                ]
+                target_proxy_body["quicOverride"] = "NONE"
+                response = self.lib_client.create_target_https_proxy(target_proxy_body)
+            else:
+                response = self.lib_client.create_target_http_proxy(target_proxy_body)
+            print(f"创建目标代理, 响应: {json.dumps(response)}")
+
+            # ---------------------------
+            proxy = "targetHttpProxies"
+            if item["protocol"] == "https":
+                proxy = "targetHttpsProxies"
+            forwarding_rule_body = {
+                "IPProtocol": "TCP",
+                "ipVersion": "IPV4",
+                "loadBalancingScheme": "EXTERNAL_MANAGED",
+                "name": item["name"],
+                "networkTier": "PREMIUM",
+                "portRange": item["frontend_port"],
+                "target": f"projects/{self.project_id}/global/{proxy}/{name}",
+            }
+            response = self.lib_client.create_global_forwarding_rule(
+                forwarding_rule_body
+            )
+            print(f"创建转发规则, 响应: {json.dumps(response)}")
+
+    def run(self):
+        if subprocess.getoutput("c3mc-sys-ctl sys.bpm.fake.run") == "1":
+            # bpm虚假运行
+            print("LOG. instance_id:xxxxxx")
+            print("VAR. instance_id:xxxxxx")
+            print("VAR. extinstance_id:xxxxxx.xxxxxx.xxxxx")
+        else:
+            self.set_named_ports()
+            self.set_backend_services()
+            self.set_url_maps()
+            self.set_frontend()
+
+            instance_id = f'{self.project_id}-lb-{self.param_base_info["load_balancer_name"]}',
+            
+            print(f"LOG. instance_id:{instance_id}")
+            print(f"VAR. instance_id:{instance_id}")
+            print(
+                f'VAR. extinstance_id:{self.param_base_info["account"]}.global.{instance_id}'
+            )
+
+
+def main(params):
+    print(f"params = {json.dumps(params)}")
+
+    cmd_parts = [
+        "c3mc-bpm-get-var",
+        "--bpmuuid",
+        params["bpm_uuid"],
+        "google-lb-1",
+        "google-lb-2-frontend",
+        "google-lb-3-backend",
+        "google-lb-4-routing-rules",
+        "google-lb-5-routing-rules-default-backend",
+        "google-lb-z-create",
+        "--json",
+    ]
+    output = subprocess.run(cmd_parts, capture_output=True, text=True)
+    if output.returncode != 0:
+        print(output.stderr, file=sys.stderr)
+        exit(1)
+
+    print("工单参数: ", output.stdout)
+
+    params = json.loads(output.stdout)
+
+    GoogleLB(params).run()
+
+
+if __name__ == "__main__":
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise type("WrongInputData", (Exception,), {})('数据格式不对, 需要一行json字符串"')
+
+    main(json.loads(l[0]))

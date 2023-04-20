@@ -1,0 +1,81 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import json
+import sys
+import subprocess
+import threading
+import time
+
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_google_compute import GoogleCompute
+
+
+def list_instance_groups(cred_json_path, region):
+    return GoogleCompute(cred_json_path).list_instance_groups(region)
+
+
+def list_regions(cred_json_path):
+    return GoogleCompute(cred_json_path).list_regions()
+
+
+def process_region(result, cred_path, region):
+    data_list = list_instance_groups(cred_path, region)
+    result.extend(data_list)
+
+
+class ThreadSafeArray:
+    def __init__(self):
+        self._array = []
+        self._lock = threading.Lock()
+
+    def extend(self, value):
+        with self._lock:
+            self._array.extend(value)
+
+
+def main(params):
+    """查询谷歌云实例组列表列表"""
+
+    account = params["account"]
+
+    key_info = json.loads(
+        subprocess.getoutput(f"c3mc-get-account-info google {account}")
+    )
+
+    max_threads = 20
+    thread_pool = []
+
+    result = ThreadSafeArray()
+
+    regions_info_list = list_regions(key_info["cred_path"])
+    for region_info in regions_info_list:
+        while threading.active_count() >= max_threads:
+            time.sleep(0.2)
+
+        t = threading.Thread(
+            target=process_region,
+            args=(
+                result,
+                key_info["cred_path"],
+                region_info["name"]
+            ),
+        )
+        thread_pool.append(t)
+        t.start()
+
+    for t in thread_pool:
+        t.join()
+
+    result._array = sorted(result._array, key=lambda x: (x['name']))
+    for item in result._array:
+        print(json.dumps(item))
+
+
+if __name__ == "__main__":
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise type("WrongInputData", (Exception,), {})('数据格式不对, 需要一行json字符串"')
+
+    main(json.loads(l[0]))
