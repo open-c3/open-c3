@@ -1,7 +1,7 @@
 ---
 alert: Load $VAR{op} $VAR{right_value}
 bindtreesql: sum(node_load1) by(instance) $VAR{op} $VAR{right_value}
-description: '服务器负载 load $VAR{op} $VAR{right_value}，当前load是: {{ $value }}'
+description: '服务器负载 load $VAR{op} $VAR{right_value}，告警时load是: {{ $value }}'
 edit_time: 2023-04-12 17:01:16
 edit_user: open-c3
 expr: $VAR{func2c3}(node_load1) by(instance) $VAR{op} $VAR{right_value} and  ( sum(treeinfo{tid="c3montreeid"}) by(instance))

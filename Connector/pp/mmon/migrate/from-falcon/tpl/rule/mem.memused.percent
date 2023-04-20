@@ -1,14 +1,10 @@
 ---
-alert: Node节点内存使用率大于$VAR{right_value}%
-bindtreesql: round(sum((node_memory_MemTotal_bytes - (node_memory_MemFree_bytes +
-  node_memory_Buffers_bytes + node_memory_Cached_bytes)) / node_memory_MemTotal_bytes
-  * 100) by (instance)) > $VAR{right_value}
-description: 'Node节点 {{$labels.instance}} 内存使用超过$VAR{right_value}%当前Node节点内存使用率: {{ $value }}%'
+alert: Node节点内存使用率 $VAR{op} $VAR{right_value}%
+bindtreesql: round(sum((node_memory_MemTotal_bytes - (node_memory_MemFree_bytes + node_memory_Buffers_bytes + node_memory_Cached_bytes)) / node_memory_MemTotal_bytes * 100) by (instance)) $VAR{op} $VAR{right_value}
+description: 'Node节点 {{$labels.instance}} 内存使用 $VAR{op} $VAR{right_value}% 告警时使用率为: {{ $value }}%'
 edit_time: 2023-04-12 17:41:52
 edit_user: open-c3
-expr: round(sum((node_memory_MemTotal_bytes - (node_memory_MemFree_bytes + node_memory_Buffers_bytes
-  + node_memory_Cached_bytes)) / node_memory_MemTotal_bytes * 100) by (instance))
-  > $VAR{right_value} and  ( sum(treeinfo{tid="c3montreeid"}) by(instance))
+expr: round(sum((node_memory_MemTotal_bytes - (node_memory_MemFree_bytes + node_memory_Buffers_bytes + node_memory_Cached_bytes)) / node_memory_MemTotal_bytes * 100) by (instance)) $VAR{op} $VAR{right_value} and  ( sum(treeinfo{tid="c3montreeid"}) by(instance))
 for: '$VAR{for}'
 job: ''
 method: ''

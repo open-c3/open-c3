@@ -121,7 +121,7 @@ sub makedata_rule
     #pdiff
     #lookup
 
-    $d->{func2c3} = 'sum' if $d->{func2c3} eq 'all';
+    $data->{func2c3} = 'sum' if $data->{func2c3} eq 'all';
     if( $tpl =~ /\$VAR\{func2c3\}/ && ! grep{ $data->{func2c3} eq $_ }qw( max min sum avg ) )
     {
         warn "[ERROR] unkown func: $data->{func} $data->{metric}\n";
