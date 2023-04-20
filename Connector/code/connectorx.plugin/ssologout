@@ -33,6 +33,7 @@ return sub
     return $ssologoutaddr if $ssologoutaddr;
 
     my $ua = LWP::UserAgent->new;
+    $ua->default_header( X_FORWARDED_FOR => $param{ip} // '0.0.0.0' );
     my $res = $ua->get( "$ssologoutapi$param{cookie}" );
 
     $logs->say( YAML::XS::Dump $res ) if $debug;

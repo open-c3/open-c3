@@ -279,7 +279,7 @@ any '/connectorx/sso/chpasswdredirect' => sub {
 
 any '/connectorx/ssologout' => sub {
     my $param = params();
-    my $redirect = eval{ $api::ssologout->run( cookie => cookie( $api::cookiekey ) ) };
+    my $redirect = eval{ $api::ssologout->run( ip => request->env->{HTTP_X_FORWARDED_FOR}, cookie => cookie( $api::cookiekey ) ) };
     $redirect =~ s/\$\{siteaddr\}/$param->{siteaddr}/g if $redirect && $param->{siteaddr};
 
     my $domain = $param->{siteaddr};
