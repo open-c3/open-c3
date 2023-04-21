@@ -11,10 +11,25 @@ our %declare = ();
 
 our $collectorname = 'node_exporter_prome'; #TODO
 
+my $promeip;
+
+BEGIN{
+    $promeip = '127.0.0.1';
+    my @x = `netstat -nlpt|grep :9100|grep node_exporter`;
+    chomp @x;
+    for ( @x )
+    {
+        if( $_ =~ /\s+(\d+\.\d+\.\d+\.\d+):9100\s+/ )
+        {
+            $promeip = $1 unless $1 eq '0.0.0.0';
+        }
+    }
+};
+
 sub co
 {
     http_request
-    'GET' => 'http://127.0.0.1:9100/metrics',
+    'GET' => "http://$promeip:9100/metrics",
     headers => { "user-agent" => "MYDan Monitor" },
     timeout => 10,
     sub {
