@@ -11,10 +11,14 @@ use uuid;
 use Format;
 use Digest::MD5;
 
-my $ssocookie;
+my ( $ssocookie, $passwordperiod );
 BEGIN{
     $ssocookie = `c3mc-sys-ctl sys.sso.cookie`;
     chomp $ssocookie;
+
+    $passwordperiod = `c3mc-sys-ctl sys.login.util.passwordperiod`;
+    chomp $passwordperiod;
+    $passwordperiod = 90 unless $passwordperiod && $passwordperiod =~ /^\d+$/;
 };
 
 =pod
@@ -257,6 +261,13 @@ any '/default/user/login' => sub {
 
         eval{ $api::mysql->execute( "insert into openc3_connector_user_login_audit( `user`,`uuid`,`action`,`ip`,`t` ) values('$user','$uuid','login','$ip','$time')" ); };
         return +{ stat => $JSON::false, info => $@ } if $@;
+
+        my $f = eval{ $api::mysql->query( "select t from `openc3_connector_user_login_audit` where user='$user' and uuid='$uuid' and action='login' order by id limit 1" ) };
+        return +{ stat => $JSON::false, info => $@ } if $@;
+
+        my $ftime = $f && @$f ? $f->[0][0] : time - 60;
+
+        return +{ stat => $JSON::false, info => "Error. password period." } if $ftime + $passwordperiod * 86400 < time;
 
         return +{ stat => $JSON::true, info => 'ok' };
     }

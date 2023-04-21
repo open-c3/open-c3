@@ -28,12 +28,12 @@
                             window.open(vm.callback, '_self')
                         }
                     }else {
-                        toastr.error('登录失败!');
+                        toastr.error('Login Fail!!!' + response.data.info);
                     }
                     vm.logining = 0;
                 },
                 function errorCallback (response){
-                    toastr.error('接口错误!');
+                    toastr.error('API Error!');
                     vm.logining = 0;
                 }
             );
