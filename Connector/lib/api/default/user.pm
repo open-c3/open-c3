@@ -267,9 +267,11 @@ any '/default/user/login' => sub {
 
         my $ftime = $f && @$f ? $f->[0][0] : time - 60;
 
-        return +{ stat => $JSON::false, info => "Error. password period." } if $ftime + $passwordperiod * 86400 < time;
+        my $pwperiod = int ( $passwordperiod -  (( time - $ftime ) / 86400 ) );
 
-        return +{ stat => $JSON::true, info => 'ok' };
+        return +{ stat => $JSON::false, info => "Error. password period." } if $pwperiod < 0;
+
+        return +{ stat => $JSON::true, info => 'ok', pwperiod => $pwperiod };
     }
     else
     {
