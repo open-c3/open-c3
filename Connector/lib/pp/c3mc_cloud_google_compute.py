@@ -603,6 +603,24 @@ class GoogleCompute:
         self._wait_for_global_operation(response["name"])
         return response
 
+    def get_global_forwarding_rule(self, forwarding_rule_name):
+        """查询单个转发规则
+        """
+        project_id = self.credentials.project_id
+        return (
+            self.service.globalForwardingRules()
+            .get(project=project_id, forwardingRule=forwarding_rule_name)
+            .execute()
+        )
+
+    def set_labels_for_global_forwarding_rule(self, resource_name, labels):
+        """对转发规则添加标签
+        """
+        project_id = self.credentials.project_id
+        response = self.service.globalForwardingRules().setLabels(project=project_id, resource=resource_name , body=labels).execute()
+        self._wait_for_global_operation(response["name"])
+        return response
+
     def list_url_maps(self):
         """查询全局性url映射列表
         """
@@ -627,4 +645,30 @@ class GoogleCompute:
             if 'items' in response:
                 data.extend(response['items'])
             request = self.service.regionUrlMaps().list_next(previous_request=request, previous_response=response)
+        return data
+
+    def list_forwarding_rules(self):
+        """查询全局性转发规则列表
+        """
+        data = []
+        project_id = self.credentials.project_id
+        request = self.service.globalForwardingRules().list(project=project_id)
+        while request is not None:
+            response = request.execute()
+            if 'items' in response:
+                data.extend(response['items'])
+            request = self.service.globalForwardingRules().list_next(previous_request=request, previous_response=response)
+        return data
+
+    def list_region_forwarding_rules(self, region):
+        """查询区域性转发规则列表
+        """
+        data = []
+        project_id = self.credentials.project_id
+        request = self.service.forwardingRules().list(project=project_id, region=region)
+        while request is not None:
+            response = request.execute()
+            if 'items' in response:
+                data.extend(response['items'])
+            request = self.service.forwardingRules().list_next(previous_request=request, previous_response=response)
         return data

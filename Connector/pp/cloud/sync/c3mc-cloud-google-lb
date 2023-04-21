@@ -16,18 +16,54 @@ class LB:
         from c3mc_cloud_google_compute import GoogleCompute
         return GoogleCompute(self.cred_json_path)
 
+    def get_lb_name(self, target_str):
+        target_str = target_str.strip()
+        if target_str == "":
+            return ""
+        if target_str[-1].isdigit():
+            parts = target_str.split("-")[:-3]
+        else:
+            parts = target_str.split("-")[:-2]
+
+        return "-".join(parts)
+    
     def list_instances(self):
         project_id = self.lib_client.get_project_id()
         # C3TODO 230421 谷歌云lb同步可能需要扩展这里查询到的信息
         # 谷歌云LB没有一个可以一次性查到lb所有信息的接口，目前看urlMap的
         # list方法获取的结果里包含了lb名称，其他接口查到的都是lb的其他相关信息
         # 但是这个方法查询到的信息较少，可能需要扩展
-        data = self.lib_client.list_url_maps() if self.region == "global" else self.lib_client.list_region_url_maps(self.region)
-        for i in range(len(data)):
-            data[i]["customInstanceId"] = f"{project_id}-{self.region}-{data[i]['name']}"
-            data[i]["region"] = self.region
-            data[i]["project_id"] = project_id
-        return data
+        url_map_list = self.lib_client.list_url_maps() if self.region == "global" else self.lib_client.list_region_url_maps(self.region)
+        forwarding_rules_list = self.lib_client.list_forwarding_rules() if self.region == "global" else self.lib_client.list_region_forwarding_rules(self.region)
+
+        m_labels = {}
+        m_forwarding_rule_list = {}
+
+        for item in forwarding_rules_list:
+            target = item["target"].split("/")[-1]
+            lb_name = self.get_lb_name(target)
+            if "labels" in item:
+                m_labels[lb_name] = item["labels"]
+
+            if lb_name not in m_forwarding_rule_list:
+                m_forwarding_rule_list[lb_name] = []
+            m_forwarding_rule_list[lb_name].append(item)  
+
+        for i in range(len(url_map_list)):
+            name = url_map_list[i]['name']
+            url_map_list[i]["customInstanceId"] = f"{project_id}-{self.region}-{name}"
+            url_map_list[i]["region"] = self.region
+            url_map_list[i]["project_id"] = project_id
+            url_map_list[i]["forwarding_rules"] = m_forwarding_rule_list[name]
+            url_map_list[i]["tags_list"] = []
+            if name in m_labels:
+                for key, value in m_labels[name].items():
+                    url_map_list[i]["tags_list"].append({
+                        "Key": key,
+                        "Value": value
+                    })
+
+        return url_map_list
 
     def show(self):
         instance_list = self.list_instances()
