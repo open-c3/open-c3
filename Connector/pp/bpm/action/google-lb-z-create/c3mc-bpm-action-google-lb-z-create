@@ -137,9 +137,7 @@ class GoogleLB:
 
     def set_url_maps(self):
         """设置转发规则"""
-        default_backend_name = self.param_routing_rule_default_backend[0][
-            "default_rule_backend"
-        ]
+        default_backend_name = self.param_routing_rule_default_backend["default_rule_backend"]
 
         default_service = (
             f"projects/{self.project_id}/global/backendServices/{default_backend_name}"
@@ -207,6 +205,14 @@ class GoogleLB:
             print(f"创建目标代理, 响应: {json.dumps(response)}")
 
             # ---------------------------
+            tags = {}
+            for tag in json.loads(self.param_base_info["tag"]):
+                key = tag["key"].strip() 
+                value = tag["value"].strip() 
+                if key == "" or value == "":
+                    continue
+                tags[key] = value
+
             proxy = "targetHttpProxies"
             if item["protocol"] == "https":
                 proxy = "targetHttpsProxies"
@@ -219,10 +225,20 @@ class GoogleLB:
                 "portRange": item["frontend_port"],
                 "target": f"projects/{self.project_id}/global/{proxy}/{name}",
             }
-            response = self.lib_client.create_global_forwarding_rule(
-                forwarding_rule_body
-            )
+            response = self.lib_client.create_global_forwarding_rule(forwarding_rule_body)
             print(f"创建转发规则, 响应: {json.dumps(response)}")
+
+            forwarding_rule = self.lib_client.get_global_forwarding_rule(item["name"])
+            set_labels_request_body = {
+                "labels": tags,
+                "labelFingerprint": forwarding_rule["labelFingerprint"]
+            }
+            # 本来可以在创建转发规则时添加labels字段，但是一直添加不成功，接口也不报错
+            # 测试单独调用添加标签的接口是可以的，应该是因为创建的时候也要传labelFingerprint参数
+            # 但是不清楚第一次如何设置该参数值
+            response = self.lib_client.set_labels_for_global_forwarding_rule(item["name"], set_labels_request_body)
+            print(f"添加标签, 响应: {json.dumps(response)}")
+    
 
     def run(self):
         if subprocess.getoutput("c3mc-sys-ctl sys.bpm.fake.run") == "1":
@@ -236,13 +252,11 @@ class GoogleLB:
             self.set_url_maps()
             self.set_frontend()
 
-            instance_id = f'{self.project_id}-lb-{self.param_base_info["load_balancer_name"]}',
+            instance_id = f'{self.project_id}-lb-{self.param_base_info["load_balancer_name"]}'
             
             print(f"LOG. instance_id:{instance_id}")
             print(f"VAR. instance_id:{instance_id}")
-            print(
-                f'VAR. extinstance_id:{self.param_base_info["account"]}.global.{instance_id}'
-            )
+            print(f'VAR. extinstance_id:{self.param_base_info["account"]}.global.{instance_id}')
 
 
 def main(params):
