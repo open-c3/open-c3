@@ -602,3 +602,29 @@ class GoogleCompute:
         response = self.service.globalForwardingRules().insert(project=project_id, body=request_body).execute()
         self._wait_for_global_operation(response["name"])
         return response
+
+    def list_url_maps(self):
+        """查询全局性url映射列表
+        """
+        data = []
+        project_id = self.credentials.project_id
+        request = self.service.urlMaps().list(project=project_id)
+        while request is not None:
+            response = request.execute()
+            if 'items' in response:
+                data.extend(response['items'])
+            request = self.service.urlMaps().list_next(previous_request=request, previous_response=response)
+        return data
+
+    def list_region_url_maps(self, region):
+        """查询区域性url映射列表
+        """
+        data = []
+        project_id = self.credentials.project_id
+        request = self.service.regionUrlMaps().list(project=project_id, region=region)
+        while request is not None:
+            response = request.execute()
+            if 'items' in response:
+                data.extend(response['items'])
+            request = self.service.regionUrlMaps().list_next(previous_request=request, previous_response=response)
+        return data
