@@ -42,6 +42,9 @@ cd /data/Software/mydan/JOBX/tools  && ./$CTRL
 
 /data/Software/mydan/web-shell/tools/start
 
+mkdir -p /data/open-c3-data/nginx.conf
+touch    /data/open-c3-data/nginx.conf/allow.conf
+
 cp /data/Software/mydan/c3-front/nginx.conf /etc/nginx/nginx.conf 
 cp /data/Software/mydan/c3-front/nginxconf/* /etc/nginx/conf.d/
 
