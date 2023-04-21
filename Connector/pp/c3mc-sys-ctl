@@ -4,6 +4,7 @@ use warnings;
 
 $|++;
 
+use Encode;
 use YAML::XS;
 use OPENC3::SysCtl;
 
@@ -18,7 +19,8 @@ my $conf = OPENC3::SysCtl->new()->dump();
 
 if( my $k = shift @ARGV )
 {
-    print $conf->{$k}, "\n";
+    $k = Encode::decode('utf8', $k );
+    print Encode::encode('utf8', $conf->{$k} ), "\n";
     exit;
 }
-map{ print "$_: $conf->{$_}\n"; }keys %$conf;
+map{ print Encode::encode('utf8', "$_: $conf->{$_}" ), "\n"; }keys %$conf;
