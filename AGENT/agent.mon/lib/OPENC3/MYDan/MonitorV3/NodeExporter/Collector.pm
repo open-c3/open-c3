@@ -37,7 +37,7 @@ sub new
     }
 
     $prom = $this{prom} = OPENC3::MYDan::MonitorV3::Prometheus::Tiny->new;
-    my @task = qw( DiskBlocks DiskInodes Uptime PortTcp PortUdp Process Http Path PromeNodeExporter Sar );
+    my @task = qw( DiskBlocks DiskInodes Uptime PortTcp PortUdp Process Http Path PromeNodeExporter Sar MYDanAgent );
 
     my $i = 0;
     for my $type ( @task )
@@ -136,7 +136,7 @@ sub new
         after => 1, 
         interval => 15,
         cb => sub { 
-            $this{prom}->set( 'node_exporter_version', 22 );
+            $this{prom}->set( 'node_exporter_version', 23 );
             $this{prom}->set( 'node_collector_error', $promeerror, +{ collector => 'node_exporter_prome' } ) if defined $promeerror;
             $promeerror = undef;           
         }

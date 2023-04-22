@@ -52,7 +52,8 @@
 版本22:
    主机如果已经安装了node_exporter，并且监听在一个具体的ip上，监控agent会尝试找到这个ip。
    避免已经安装了node_exporter的情况下采集不到原生的node_exporter数据。
-
+版本23:
+   采集agent中的公钥列表，用于后续公钥定期替换。
 ```
 
 node_collector_error 错误码
