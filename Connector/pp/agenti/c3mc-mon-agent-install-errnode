@@ -15,7 +15,7 @@ use LWP::UserAgent;
 
 my $ua = LWP::UserAgent->new;
 $ua->timeout( 30 );
-my $res = $ua->get( 'http://openc3-prometheus:9090/api/v1/query?query=up+%3D%3D+0' );
+my $res = $ua->get( 'http://openc3-prometheus:9090/api/v1/query?query=up%7Bjob%3D"openc3"%7D+%3D%3D+0' );
 
 die "call prometheus fail" unless $res->is_success;
 
