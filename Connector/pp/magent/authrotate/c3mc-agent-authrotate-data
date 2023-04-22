@@ -1,0 +1,38 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use JSON;
+use LWP::UserAgent;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $ua = LWP::UserAgent->new;
+$ua->timeout( 30 );
+#sum(node_mydan_agent_65111_pub)by(instance,name)
+my $res = $ua->get( 'http://openc3-prometheus:9090/api/v1/query?query=sum%28node_mydan_agent_65111_pub%29by%28instance%2Cname%29' );
+
+die "call prometheus fail" unless $res->is_success;
+
+my $cont = $res->decoded_content;
+
+my $v = eval{JSON::decode_json $res->decoded_content};
+die "load json fail: $@" if $@;
+die "call fail" unless $v->{status} && $v->{status} eq 'success';
+
+my @data = @{$v->{data}{result}};
+
+for my $data ( @data )
+{
+    next unless $data->{metric};
+    my ( $instance, $name ) = map{ $data->{metric}{$_} }qw( instance name );
+    next unless $instance && $instance =~ /^\d+\.\d+\.\d+\.\d+$/;
+    next unless $name     && $name     =~ /^[a-zA-Z\d]+[a-zA-Z\d_\-\.]*[a-zA-Z\d]+$/;
+    print "$instance: $name\n";
+}

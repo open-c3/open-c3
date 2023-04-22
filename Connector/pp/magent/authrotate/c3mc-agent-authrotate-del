@@ -1,0 +1,52 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my    $cluster = `c3mc-sys-ctl agent.authrotate.cluster`;
+my    $version = `c3mc-sys-ctl agent.authrotate.version`;
+my    $keepbak = `c3mc-sys-ctl agent.authrotate.keepbak`;
+chomp $cluster;
+chomp $version;
+chomp $keepbak;
+
+die "cluster format error" unless $cluster && $cluster =~ /^[a-zA-Z\d]+[a-zA-Z\d_\-\.]*[a-zA-Z\d]+$/;
+die "version format error" unless $version && $version =~ /^\d+$/;
+die "keepbak format error" unless $keepbak && $keepbak =~ /^\d+$/;
+
+my $name  = "${cluster}_${version}";
+
+my    @x = `c3mc-agent-authrotate-data`;
+chomp @x;
+my %data;
+
+for( @x )
+{
+    next unless $_ =~ /^(\d+\.\d+\.\d+\.\d+):\s+([a-zA-Z\d]+[a-zA-Z\d_\-\.]*[a-zA-Z\d]+)$/;
+    $data{ $1 } { $2 } = 1;
+}
+
+for my $ip ( keys %data )
+{
+    delete $data{ $ip }{ "c3_$name" };
+
+    my %tmp;
+    for my $x (keys %{ $data{ $ip } } )
+    {
+        next unless $x =~/^c3_${cluster}_(\d+)$/;
+        $tmp{ $1 } = 1;
+    }
+
+    my @tmp = sort{ $a <=> $b } keys %tmp;
+    next if @tmp <= $keepbak;
+
+    my $del = join ' ', map{ "'c3_${cluster}_$_.pub'" } splice @tmp, 0, @tmp - $keepbak;
+    system "/data/Software/mydan/dan/tools/rcall -r '$ip' exec \"cd /opt/mydan/etc/agent/auth && rm $del\"";
+}

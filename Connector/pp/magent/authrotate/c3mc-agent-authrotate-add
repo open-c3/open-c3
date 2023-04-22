@@ -1,0 +1,54 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my    $cluster = `c3mc-sys-ctl agent.authrotate.cluster`;
+my    $version = `c3mc-sys-ctl agent.authrotate.version`;
+chomp $cluster;
+chomp $version;
+
+die "cluster format error" unless $cluster && $cluster =~ /^[a-zA-Z\d]+[a-zA-Z\d_\-\.]*[a-zA-Z\d]+$/;
+die "version format error" unless $version && $version =~ /^\d+$/;
+
+my $name  = "${cluster}_${version}";
+
+my $authrotatepath = "/data/open-c3-data/authrotate";
+mkdir $authrotatepath unless -d $authrotatepath;
+
+unless( -f "$authrotatepath/c3_$name.key" || -f "$authrotatepath/c3_$name.pub"  )
+{
+    die "error" if system "cd '$authrotatepath' && ssh-keygen -f c3_$name -P \"\" && mv c3_$name c3_$name.key";
+}
+
+die "file error" unless -f "$authrotatepath/c3_$name.key" && -f "$authrotatepath/c3_$name.pub";
+
+for my $x ( qw( key pub ) )
+{
+    my $dist = "/data/open-c3-data/auth/c3_$name.$x";
+    system "cp $authrotatepath/c3_$name.$x $dist" unless -f $dist;
+    die "error file $dist" unless -f $dist;
+}
+
+my    @x = `c3mc-agent-authrotate-data`;
+chomp @x;
+my %data;
+
+for( @x )
+{
+    next unless $_ =~ /^(\d+\.\d+\.\d+\.\d+):\s+([a-zA-Z\d]+[a-zA-Z\d_\-\.]*[a-zA-Z\d]+)$/;
+    $data{ $1 } { $2 } = 1;
+}
+
+for my $ip ( keys %data )
+{
+    next if $data{ $ip }{ "c3_$name" };
+    system "/data/Software/mydan/dan/tools/rcall  -r '$ip' dump /data/open-c3-data/authrotate/c3_$name.pub --path /opt/mydan/etc/agent/auth/c3_$name.pub"
+}
