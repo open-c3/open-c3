@@ -33,6 +33,30 @@ while(<STDIN>)
    $ip{ $ip }{ $treeid }++;
 }
 
+my @include;
+my $includetodo = 0;
+my $inclidefile = "/data/open-c3-data/monitor-config/include.tree.txt";
+
+if( -f $inclidefile )
+{
+    $includetodo = 1;
+    @include = `cat '$inclidefile'`;
+    chomp @include;
+    die "include null" unless @include; # 防止获取内容失败
+}
+
+
+# 判断服务树是否包含在include.tree.txt文件中描述的范围内.
+# 主机可能挂载在多个服务树节点中，只要其中一个服务树是 include 中描述的服务树，或者是它的子树即可.
+sub grepInclude
+{
+    for my $treename ( @_ )
+    {
+        map{ return 1 if $treename eq $_ || index( $treename, "$_." ) == 0; }@include;
+    }
+    return 0;
+}
+
 # treemap: treeid => treename
 my    @treemap = `c3mc-base-treemap`;
 die if $?;
@@ -51,6 +75,8 @@ my @target;
 for my $ip ( keys %ip )
 {
     my %lables = ( instance => $ip, "__metrics_path__" => "/api/agent/v3/node/metrics/$ip", treeid => 1 );
+
+    next if $includetodo && ! grepInclude( map{ $treemap{$_} // "" }keys %{$ip{$ip}} );
 
     map{
         $lables{"treeid_$_"} = $treemap{$_} || "1";
