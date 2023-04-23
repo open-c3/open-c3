@@ -31,9 +31,9 @@ if [[ -d $MYDanPATH/etc/agent/auth/ && ! -f $MYDanPATH/etc/agent/auth/c3_[[:envn
     wget $OPEN_C3_ADDR/api/scripts/c3_[[:envname:]].pub -O $MYDanPATH/etc/agent/auth/c3_[[:envname:]].pub
 fi
 
-extendenvname=[[:extendenvname:]]
-if [[ -d $MYDanPATH/etc/agent/auth/ && ! -f $MYDanPATH/etc/agent/auth/c3_${extendenvname}.pub ]]; then
-    wget $OPEN_C3_ADDR/api/scripts/c3_${extendenvname}.pub -O $MYDanPATH/etc/agent/auth/c3_${extendenvname}.pub
+rotatekey=$(curl -L $OPEN_C3_ADDR/api/scripts/agent_key_uuid 2>/dev/null | head -n 1 | grep -E "^c[0-9]_[a-zA-Z][-_a-zA-Z0-9]*[a-zA-Z]_[0-9]{6,}$" )
+if [[ -d $MYDanPATH/etc/agent/auth/ && ! -f $MYDanPATH/etc/agent/auth/c3_${rotatekey}.pub ]]; then
+    wget $OPEN_C3_ADDR/api/scripts/c3_${rotatekey}.pub -O $MYDanPATH/etc/agent/auth/c3_${rotatekey}.pub
 fi
 
 if [[ -d $MYDanPATH/etc && ! -f $MYDanPATH/etc/iamproxy ]];then
@@ -53,8 +53,8 @@ if [ -f /opt/mydan/dan/.success ]; then
         wget $OPEN_C3_ADDR/api/scripts/c3_[[:envname:]].pub -O $MYDanPATH/etc/agent/auth/c3_[[:envname:]].pub
     fi
 
-    if [[ -d $MYDanPATH/etc/agent/auth/ && ! -f $MYDanPATH/etc/agent/auth/c3_${extendenvname}.pub ]]; then
-        wget $OPEN_C3_ADDR/api/scripts/c3_${extendenvname}.pub -O $MYDanPATH/etc/agent/auth/c3_${extendenvname}.pub
+    if [[ -d $MYDanPATH/etc/agent/auth/ && ! -f $MYDanPATH/etc/agent/auth/c3_${rotatekey}.pub ]]; then
+        wget $OPEN_C3_ADDR/api/scripts/c3_${rotatekey}.pub -O $MYDanPATH/etc/agent/auth/c3_${rotatekey}.pub
     fi
 
     echo "UPDATE OPEN-C3 PROXY: SUCCESS!!!"
@@ -81,9 +81,7 @@ else
 fi
 
 wget $OPEN_C3_ADDR/api/scripts/c3_[[:envname:]].pub -O $MYDanPATH/etc/agent/auth/c3_[[:envname:]].pub
-if [[ "X$extendenvname" != "X[[:envname:]]" ]];then
-    wget $OPEN_C3_ADDR/api/scripts/c3_${extendenvname}.pub -O $MYDanPATH/etc/agent/auth/c3_${extendenvname}.pub
-fi
+wget $OPEN_C3_ADDR/api/scripts/c3_${rotatekey}.pub -O $MYDanPATH/etc/agent/auth/c3_${rotatekey}.pub
 
 touch $MYDanPATH/etc/iamproxy
 

@@ -37,4 +37,8 @@ for my $x ( qw( key pub ) )
     die "error file $dist" unless -f $dist;
 }
 
+my $webpath = "/data/Software/mydan/AGENT/scripts/c3_$name.pub";
+system "cp $authrotatepath/c3_$name.pub $webpath" unless -f $webpath;
+die "error file $webpath" unless -f $webpath;
+
 system "echo 'c3_$name' > /data/Software/mydan/AGENT/scripts/agent_key_uuid";
