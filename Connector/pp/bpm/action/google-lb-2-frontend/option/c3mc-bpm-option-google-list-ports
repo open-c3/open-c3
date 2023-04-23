@@ -1,0 +1,24 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import json
+import sys
+
+
+def main(params):
+    """查询端口列表
+    """
+    
+    protocol = params["protocol"]
+
+    ports = [443] if protocol == "https" else [80, 8080]
+    for item in ports:
+        print(item)
+
+
+if __name__ == '__main__':
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
+
+    main(json.loads(l[0]))

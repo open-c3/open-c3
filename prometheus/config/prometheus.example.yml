@@ -54,8 +54,9 @@ scrape_configs:
       - files:
         - openc3_cloudmon_sd.yml
     metric_relabel_configs:
-    - source_labels: [ 'instanceid', 'cache_cluster_id', 'dbinstance_identifier', 'dataVip', 'privateIp', 'ip' ]
+    - source_labels: [ 'instanceid', 'cache_cluster_id', 'dbinstance_identifier', 'dataVip', 'privateIp', 'ip', 'instanceName' ]
       #'dataVip', 'privateIp', 'ip' to huawei
+      #instanceName to huawei kafka
       separator: ';'
       target_label: instance
       regex: ";*([^;]+).*"

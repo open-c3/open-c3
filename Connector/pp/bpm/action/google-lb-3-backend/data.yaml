@@ -1,0 +1,117 @@
+---
+name: 负载均衡器后端配置
+multi: 1
+fromops: 1
+option:
+  - name: backend_name
+    describe: 名称
+    type: input
+
+  - name: protocol
+    describe: 协议
+    type: select
+    option: ["http", "https", "http2"]
+
+  - name: timeout
+    describe: 超时时间
+    type: number
+
+  # 后端配置 ----------------------------------------------
+  - name: instance_group
+    describe: 实例组
+    rely: 
+      - x.account
+    command: c3mc-bpm-option-google-list-intance-groups | c3mc-bpm-display-field-values "{name};名称:{name}"
+    type: selectx
+    value: ""
+
+  - name: named_port
+    describe: 端口命名
+    type: input
+    information: "一个后端服务通过一个命名端口向其后端发送流量。端口名称映射到每个实例组中的端口号"
+
+  - name: port
+    describe: 后端端口
+    type: number
+
+  - name: balancing_mode
+    describe: 负载均衡模式
+    type: select
+    option:
+    - name: UTILIZATION
+      alias: 使用率
+    - name: RATE
+      alias: 速率
+    information: "如果多个后端服务引用了相同的实例组，那么这些后端服务必须使用相同的负载均衡模式，否则谷歌云接口出错"
+  
+  - name: maximum_backend_utilization
+    describe: 最大后端使用率
+    type: number
+    show:
+      - balancing_mode: ["UTILIZATION"]
+    information: "0到100之间"
+  
+  - name: max_rps
+    describe: 最大rps
+    type: number
+    show:
+      - balancing_mode: ["RATE"]
+
+  - name: scope
+    describe: 范围
+    type: select
+    option:
+    - name: per_instance
+      alias: 每个实例
+    - name: per_group
+      alias: 每个组
+    show:
+      - balancing_mode: ["RATE"]
+
+  - name: capacity
+    describe: 容量
+    type: number
+    information: "0到100之间。用于管理后端资源利用率或每秒请求量的最大值。如果您希望实例的后端资源利用率最高不超过80%，可以将负载均衡器的平衡模式设置为80%的最大后端利用率，同时将容量设置为100%。如果您想将实例的利用率降低一半，可以将平衡模式设置为80%的最大后端利用率，同时将容量设置为50%。这个控制方法可以帮助您管理后端资源的使用，避免过度负载和性能下降的问题。"
+
+  - name: enable_cloud_cdn
+    describe: 是否启用云cdn
+    command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
+    type: selectx
+    value: ""
+    information: "启用cdn需要额外付费"
+
+  - name: health_check
+    describe: 健康检查
+    rely: 
+      - x.account
+    command: c3mc-bpm-option-google-list-healthchecks | c3mc-bpm-display-field-values "{name};名称:{name}"
+    type: selectx
+    value: ""
+
+template_argv:
+  # bpm单号
+  bpm_uuid: ${_bpmuuid_}
+  # 账号
+  account: ${account}
+  # 名称
+  backend_name: ${backend_name}
+  # 协议
+  protocol: ${protocol}
+  # 超时时间
+  timeout: ${timeout}
+  # 实例组
+  instance_group: ${instance_group}
+  # 后段端口
+  backend_port: ${backend_port}
+  # 负载均衡模式
+  balancing_mode: ${balancing_mode}
+  # max_rps
+  max_rps: ${max_rps}
+  # 范围
+  scope: ${scope}
+  # 容量
+  capacity: ${capacity}
+  # 是否启用云cdn
+  enable_cloud_cdn: ${enable_cloud_cdn}
+  # 健康检查
+  health_check: ${health_check}

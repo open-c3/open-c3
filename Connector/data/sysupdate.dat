@@ -810,3 +810,25 @@ create table if not exists `openc3_job_bpm_usr`(
 UNIQUE KEY `uniq_bpmuuid_user` (`bpmuuid`,`user`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='BPM处理人';
 
+# v2.6.0 sql openc3_job_bpm_protect create
+create table if not exists `openc3_job_bpm_protect`(
+`id` int(16) unsigned not null primary key auto_increment comment 'id',
+`bpmuuid`  VARCHAR(50)   comment 'uuid',
+`stat`     VARCHAR(10)   comment '状态，danger、refuse、agree',
+`info`     VARCHAR(2000) comment '流程保护的提示信息',
+`operator` VARCHAR(200)  comment '操作人',
+`time`    TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '时间',
+UNIQUE KEY `uniq_bpmuuid` (`bpmuuid`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='BPM流程保护';
+
+# v2.6.0 sql openc3_connector_user_login_audit create
+create table if not exists `openc3_connector_user_login_audit`(
+`id` int(16) unsigned not null primary key auto_increment comment 'id',
+`user`    VARCHAR(100)   comment 'user',
+`uuid`    VARCHAR(50)    comment 'uuid',
+`action`  VARCHAR(10)    comment '动作',
+`ip`      VARCHAR(100)   comment 'ip',
+`t`       VARCHAR(30)    comment '时间秒数',
+`time`    TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '时间'
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='用户登录审计';
+

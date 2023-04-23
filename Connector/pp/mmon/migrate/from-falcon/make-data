@@ -1,0 +1,283 @@
+#!/opt/mydan/perl/bin/perl
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use Data::Dumper;
+use LWP::UserAgent;
+use YAML::XS;
+use Digest::MD5;
+
+my @x = <STDIN>;
+chomp @x;
+
+my $title = shift @x;
+my @title = split /\t/, $title;
+
+my %mark = map{ $_ => 1 }@ARGV;
+
+my %count;
+my $dist = "$RealBin/dist";
+
+sub makedata_collector_filecheck
+{
+    my $data = shift @_;
+    my $tpl_file = "$RealBin/tpl/collector/$data->{metric}";
+
+    my $tpl = `cat '$tpl_file'`;
+
+    my %var;
+    if( $data->{tags} =~ m#path=([\/a-zA-Z0-9\-\.]+),type=([a-z]+)# )
+    {
+        %var = ( path => $1, type => $2 );
+    }
+    else
+    {
+        warn "[ERROR] unkown file.check tags: $data->{tags}\n";
+        return;
+    }
+
+    for my $k ( qw( path type ) )
+    {
+        my $v = $var{$k};
+        $tpl =~ s/\$VAR\{$k\}/$v/g;
+    }
+
+    my $path = "$dist/collector/$data->{treeid}";
+    system "mkdir -p '$path'" unless -d $path;
+    my $file = "$path/$data->{tpl_name}";
+    print "make collector: $data->{metric} $file\n";
+    my $H;
+    open($H, ">$file" ) || die "open $file $!";
+    print $H $tpl;
+    close $H;
+}
+
+sub makedata_collector_httpcheck
+{
+    #falcon的格式
+    #http.check url=/ping,host=xx.xx.net,code=200,grep=pong
+    #
+    #Open-C3的格式
+    #Host:xx.xx.com;http://127.0.0.1/api/forecasts?abc=11
+
+    my $data = shift @_;
+    my $tpl_file = "$RealBin/tpl/collector/$data->{metric}";
+
+    my $tpl = `cat '$tpl_file'`;
+
+    my %tags;
+    for( split /,/, $data->{tags} )
+    {
+        my @x = split /=/, $_, 2;
+        $tags{$x[0]} = $x[1];
+    }
+
+    my %effectiveTags = map{ $_ => 1 } qw( url code grep host port method );
+    if( grep{ ! $effectiveTags{ $_ } }keys %tags )
+    {
+        warn "[ERROR] unkown http.check tags, effectiveTags: $data->{tags}\n";
+        return;
+    }
+
+    unless( $tags{url} && $tags{url} =~ /^\// )
+    {
+        warn "[ERROR] unkown http.check tags, no url: $data->{tags}\n";
+        return;
+    }
+
+    unless( $tags{code} && $tags{code} eq '200' )
+    {
+        warn "[ERROR] unkown http.check tags, code no 200: $data->{tags}\n";
+        return;
+    }
+
+    if( $tags{method} && $tags{method} ne 'get' )
+    {
+        warn "[ERROR] unkown http.check tags, method no get: $data->{tags}\n";
+        return;
+    }
+
+    my %var;
+    $var{url } = "http://127.0.0.1";
+    $var{url } = "$var{url}:$tags{port}" if $tags{port};
+    $var{url } = "$var{url}$tags{url}";
+    $var{url } = "Host:$tags{host};$var{url}"if $tags{host};
+    $var{grep} = $tags{grep} // '';
+    $var{type} = 'GET';
+
+    for my $k ( qw( url type grep ) )
+    {
+        my $v = $var{$k};
+        $tpl =~ s/\$VAR\{$k\}/$v/g;
+    }
+
+    my $path = "$dist/collector/$data->{treeid}";
+    system "mkdir -p '$path'" unless -d $path;
+    my $file = "$path/$data->{tpl_name}";
+    print "make collector: $data->{metric} $file\n";
+    my $H;
+    open($H, ">$file" ) || die "open $file $!";
+    print $H $tpl;
+    close $H;
+}
+
+
+sub makedata_collector_netportlisten
+{
+    my $data = shift @_;
+    my $tpl_file = "$RealBin/tpl/collector/$data->{metric}";
+
+    my $tpl = `cat '$tpl_file'`;
+
+    my %var;
+    if( $data->{tags} =~ /port=(\d+)$/ )
+    {
+        %var = ( port => $1, type => 'tcp' );
+    }
+    else
+    {
+        warn "[ERROR] unkown net.port.listen tags: $data->{tags}\n";
+        return;
+    }
+
+    for my $k ( qw( port type ) )
+    {
+        my $v = $var{$k};
+        $tpl =~ s/\$VAR\{$k\}/$v/g;
+    }
+
+    my $path = "$dist/collector/$data->{treeid}";
+    system "mkdir -p '$path'" unless -d $path;
+    my $file = "$path/$data->{tpl_name}";
+    print "make collector: $data->{metric} $file\n";
+    my $H;
+    open($H, ">$file" ) || die "open $file $!";
+    print $H $tpl;
+    close $H;
+}
+
+sub makedata_collector_procnum
+{
+    my $data = shift @_;
+    my $tpl_file = "$RealBin/tpl/collector/$data->{metric}";
+
+    my $tpl = `cat '$tpl_file'`;
+
+    my ( $type, $name );
+    if( $data->{tags} =~ m#name=([a-zA-Z0-9\-\.]+)# )
+    {
+        ( $type, $name ) = ( 'name', $1 );
+    }
+    elsif( $data->{tags} =~ m#cmdline=([a-zA-Z0-9\-\.\/]+)# )
+    {
+        ( $type, $name ) = ( 'cmdline', $1 );
+    }
+ 
+    else
+    {
+        warn "[ERROR] unkown proc.num tags: $data->{tags}\n";
+        map{ warn sprintf "[ERROR] [DEBUG] unkown proc.num tags: $data->{tags} %s\n", $_ } split /\n/, YAML::XS::Dump $data if $ENV{C3_DEBUG};
+        return;
+    }
+
+    my %var = ( type => $type, name => $name );
+
+    for my $k ( qw( type name ) )
+    {
+        my $v = $var{$k};
+        $tpl =~ s/\$VAR\{$k\}/$v/g;
+    }
+
+    my $path = "$dist/collector/$data->{treeid}";
+    system "mkdir -p '$path'" unless -d $path;
+    my $file = "$path/$data->{tpl_name}";
+    print "make collector: $data->{metric} $file\n";
+
+    my $H;
+    open($H, ">$file" ) || die "open $file $!";
+    print $H $tpl;
+    close $H;
+}
+
+sub makedata_rule
+{
+    my $data = shift @_;
+    my $tpl_file = "$RealBin/tpl/rule/$data->{metric}";
+
+    if( $data->{metric} eq 'sys.disk.rw' )
+    {
+        print "skip $data->{metric}\n";
+        return;
+    }
+
+    unless( -f $tpl_file )
+    {
+        warn "[ERROR] nofind rule tpl: $data->{metric} $data->{tags}\n";
+        return;
+    }
+    my $tpl = `cat '$tpl_file'`;
+
+    #all
+    #max
+    #min
+    #sum
+    #avg
+    #diff
+    #pdiff
+    #lookup
+
+    $data->{func2c3} = 'sum' if $data->{func2c3} eq 'all';
+    if( $tpl =~ /\$VAR\{func2c3\}/ && ! grep{ $data->{func2c3} eq $_ }qw( max min sum avg ) )
+    {
+        warn "[ERROR] unkown func: $data->{func} $data->{metric}\n";
+        next;
+    }
+
+    for my $k ( qw( priority for right_value op func2c3 ) )
+    {
+        my $v = $data->{$k};
+        $tpl =~ s/\$VAR\{$k\}/$v/g;
+    }
+
+    my $path = "$dist/rule/$data->{treeid}";
+    system "mkdir -p '$path'" unless -d $path;
+
+    my $md5 = Digest::MD5->new->add( $tpl )->hexdigest;
+
+    my $file = "$path/$data->{tpl_name}.$md5";
+    print "make: $data->{metric} $file\n";
+
+    my $H;
+    open($H, ">$file" ) || die "open $file $!";
+    print $H $tpl;
+    close $H;
+}
+
+for ( @x )
+{
+    my @t = split /\t/, $_;
+
+    my $d = +{ map{ $title[$_] => $t[$_] }0..@title -1};
+    $d->{for} = '';
+
+    $d->{func2c3} = 'avg';
+
+    if( $d->{func} && $d->{func} =~ /^([a-z]+)\(#(\d+)\)$/ )
+    {
+        $d->{func2c3} = $1;
+        $d->{for    } = "$2m";
+    }
+
+    if( index( $d->{metric}, 'proc.num/name=' ) == 0 && $d->{tags} eq 'NULL' )
+    {
+        $d->{metric} =~ /^proc.num\/(name=.+)$/;
+        $d->{tags} = $1;
+        $d->{metric} =  'proc.num';
+    }
+
+    makedata_rule( $d );
+    makedata_collector_filecheck(     $d ) if $d->{metric} eq 'file.check';
+    makedata_collector_httpcheck(     $d ) if $d->{metric} eq 'http.check';
+    makedata_collector_procnum(       $d ) if $d->{metric} eq 'proc.num';
+    makedata_collector_netportlisten( $d ) if $d->{metric} eq 'net.port.listen';
+}

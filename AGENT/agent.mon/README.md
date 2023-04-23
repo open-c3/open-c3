@@ -49,7 +49,11 @@
    进程监控添加了debug日志，方便定位在报进程重启时无法找到当时匹配到的进程。
 版本21:
    进程监控支持字符":", 有的进程名会包含有冒号，如: "nginx: master process nginx"
-
+版本22:
+   主机如果已经安装了node_exporter，并且监听在一个具体的ip上，监控agent会尝试找到这个ip。
+   避免已经安装了node_exporter的情况下采集不到原生的node_exporter数据。
+版本23:
+   采集agent中的公钥列表，用于后续公钥定期替换。
 ```
 
 node_collector_error 错误码

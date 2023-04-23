@@ -1,0 +1,16 @@
+---
+alert: 主机存活检查
+bindtreesql: sum(up) by(instance) == 0
+description: Node节点 {{$labels.instance}} 已宕机
+edit_time: 2023-04-12 15:31:55
+edit_user: open-c3
+expr: up{job="openc3"} == 0
+for: '$VAR{for}'
+job: openc3
+method: ==
+metrics: up
+model: custom
+severity: level$VAR{priority}
+summary: 主机已宕机
+threshold: '0'
+value: '{{ $value }}'

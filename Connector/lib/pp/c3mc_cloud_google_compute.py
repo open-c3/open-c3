@@ -2,7 +2,6 @@
 # -*- coding: utf-8 -*-
 
 import re
-import json
 import time
 
 from googleapiclient import discovery
@@ -48,7 +47,44 @@ class GoogleCompute:
         else:
             return "Other"
 
-    def _wait_for_zone_operation(self, zone, operation):
+    def _wait_for_global_operation(self, operation_name):
+        """等待全局操作结束
+        """
+        project_id = self.credentials.project_id
+        while True:
+            result = self.service.globalOperations().get(
+                project=project_id,
+                operation=operation_name
+            ).execute()
+
+            if result['status'] == 'DONE':
+                if 'error' in result:
+                    raise RuntimeError(result['error'])
+                return result
+
+            time.sleep(2)
+
+
+    def _wait_for_region_operation(self, region, operation_name):
+        """等待区域操作结束
+        """
+        project_id = self.credentials.project_id
+        while True:
+            result = self.service.regionOperations().get(
+                project=project_id,
+                region=region,
+                operation=operation_name
+            ).execute()
+
+            if result['status'] == 'DONE':
+                if 'error' in result:
+                    raise RuntimeError(result['error'])
+                return result
+
+            time.sleep(2)
+
+
+    def _wait_for_zone_operation(self, zone, operation_name):
         """等待可用区操作结束
         """
         project_id = self.credentials.project_id
@@ -56,7 +92,7 @@ class GoogleCompute:
             result = self.service.zoneOperations().get(
                 project=project_id,
                 zone=zone,
-                operation=operation
+                operation=operation_name
             ).execute()
 
             if result['status'] == 'DONE':
@@ -194,6 +230,23 @@ class GoogleCompute:
                     ok = self.release_elastic_ip(region, m[nat_ip])
                     if not ok:
                         raise RuntimeError(f"回收弹性ip {nat_ip} 失败.")
+
+
+    def list_instance_groups(self, region):
+        """查询instance group列表
+        """
+        data = []
+        project_id = self.credentials.project_id
+        region_zones = self.list_zones_of_region(region)
+        for zone in region_zones:
+            instance_group_request = self.service.instanceGroups().list(project=project_id, zone=zone['name'])
+            while instance_group_request is not None:
+                instance_group_response = instance_group_request.execute()
+                if 'items' in instance_group_response:
+                    data.extend(instance_group_response['items'])
+                instance_group_request = self.service.instanceGroups().list_next(previous_request=instance_group_request, previous_response=instance_group_response)
+        return data
+
 
     def list_regions(self):
         """查询区域详情列表
@@ -356,6 +409,19 @@ class GoogleCompute:
 
         return [item for item in data if item["status"] == filter_status]
 
+    def list_global_elastic_ips(self):
+        """查询全球性弹性ip列表
+        """
+        data = []
+        project_id = self.credentials.project_id
+        global_request = self.service.globalAddresses().list(project=project_id)
+        while global_request is not None:
+            global_response = global_request.execute()
+            if 'items' in global_response:
+                data.extend(global_response['items'])
+            global_request = self.service.globalAddresses().list_next(previous_request=global_request, previous_response=global_response)
+        return data
+    
 
     def create_elastic_ip(self, region, ip_name):
         """在指定的区域创建弹性 IP 地址"""
@@ -439,3 +505,170 @@ class GoogleCompute:
                     zone=zone,
                     disk=disk_name
                 ).execute()
+
+    def list_health_checks(self):
+        """查询Health checks列表
+        """
+        data = []
+        project_id = self.credentials.project_id
+        health_check_request = self.service.healthChecks().list(project=project_id)
+        while health_check_request is not None:
+            health_check_response = health_check_request.execute()
+            if 'items' in health_check_response:
+                data.extend(health_check_response['items'])
+            health_check_request = self.service.healthChecks().list_next(previous_request=health_check_request, previous_response=health_check_response)
+        return data
+    
+
+    def list_ssl_certificates(self):
+        """查询 SSL 证书列表"""
+        data = []
+        project_id = self.credentials.project_id
+        ssl_certificate_request = self.service.sslCertificates().list(project=project_id)
+        while ssl_certificate_request is not None:
+            ssl_certificate_response = ssl_certificate_request.execute()
+            if 'items' in ssl_certificate_response:
+                data.extend(ssl_certificate_response['items'])
+            ssl_certificate_request = self.service.sslCertificates().list_next(previous_request=ssl_certificate_request, previous_response=ssl_certificate_response)
+        return data
+
+
+    def set_named_ports(self, zone, instance_group_name, named_ports):
+        """设置命名端口
+
+        Args:
+            zone(string): 可用区
+            instance_group_name(string): 实例组名称
+            named_ports (dict): 命名端口参数列表。格式如下:
+                {
+                    "namedPorts": [
+                        {
+                            "name": "http",
+                            "port": 1000
+                        },
+                        {
+                            "name": "http2",
+                            "port": 2000
+                        }
+                    ]
+                }
+        """
+        project_id = self.credentials.project_id
+        response = self.service.instanceGroups().setNamedPorts(
+                project=project_id, 
+                zone=zone, 
+                instanceGroup=instance_group_name, 
+                body=named_ports
+            ).execute()
+        self._wait_for_zone_operation(zone, response["name"])
+        return response
+
+    def create_backend_service(self, request_body):
+        """创建后端服务(backendServices)
+        """
+        project_id = self.credentials.project_id
+        response = self.service.backendServices().insert(project=project_id, body=request_body).execute()
+        self._wait_for_global_operation(response["name"])
+        return response
+
+    def set_url_maps(self, request_body):
+        """创建用于负载均衡的url映射
+        """
+        project_id = self.credentials.project_id
+        response = self.service.urlMaps().insert(project=project_id, body=request_body).execute()
+        self._wait_for_global_operation(response["name"])
+        return response
+
+    def create_target_http_proxy(self, request_body):
+        """创建用于负载均衡的http类型目标代理
+        """
+        project_id = self.credentials.project_id
+        response = self.service.targetHttpProxies().insert(project=project_id, body=request_body).execute()
+        self._wait_for_global_operation(response["name"])
+        return response
+
+    def create_target_https_proxy(self, request_body):
+        """创建用于负载均衡的https类型目标代理
+        """
+        project_id = self.credentials.project_id
+        response = self.service.targetHttpsProxies().insert(project=project_id, body=request_body).execute()
+        self._wait_for_global_operation(response["name"])
+        return response
+
+    def create_global_forwarding_rule(self, request_body):
+        """创建转发规则
+        """
+        project_id = self.credentials.project_id
+        response = self.service.globalForwardingRules().insert(project=project_id, body=request_body).execute()
+        self._wait_for_global_operation(response["name"])
+        return response
+
+    def get_global_forwarding_rule(self, forwarding_rule_name):
+        """查询单个转发规则
+        """
+        project_id = self.credentials.project_id
+        return (
+            self.service.globalForwardingRules()
+            .get(project=project_id, forwardingRule=forwarding_rule_name)
+            .execute()
+        )
+
+    def set_labels_for_global_forwarding_rule(self, resource_name, labels):
+        """对转发规则添加标签
+        """
+        project_id = self.credentials.project_id
+        response = self.service.globalForwardingRules().setLabels(project=project_id, resource=resource_name , body=labels).execute()
+        self._wait_for_global_operation(response["name"])
+        return response
+
+    def list_url_maps(self):
+        """查询全局性url映射列表
+        """
+        data = []
+        project_id = self.credentials.project_id
+        request = self.service.urlMaps().list(project=project_id)
+        while request is not None:
+            response = request.execute()
+            if 'items' in response:
+                data.extend(response['items'])
+            request = self.service.urlMaps().list_next(previous_request=request, previous_response=response)
+        return data
+
+    def list_region_url_maps(self, region):
+        """查询区域性url映射列表
+        """
+        data = []
+        project_id = self.credentials.project_id
+        request = self.service.regionUrlMaps().list(project=project_id, region=region)
+        while request is not None:
+            response = request.execute()
+            if 'items' in response:
+                data.extend(response['items'])
+            request = self.service.regionUrlMaps().list_next(previous_request=request, previous_response=response)
+        return data
+
+    def list_forwarding_rules(self):
+        """查询全局性转发规则列表
+        """
+        data = []
+        project_id = self.credentials.project_id
+        request = self.service.globalForwardingRules().list(project=project_id)
+        while request is not None:
+            response = request.execute()
+            if 'items' in response:
+                data.extend(response['items'])
+            request = self.service.globalForwardingRules().list_next(previous_request=request, previous_response=response)
+        return data
+
+    def list_region_forwarding_rules(self, region):
+        """查询区域性转发规则列表
+        """
+        data = []
+        project_id = self.credentials.project_id
+        request = self.service.forwardingRules().list(project=project_id, region=region)
+        while request is not None:
+            response = request.execute()
+            if 'items' in response:
+                data.extend(response['items'])
+            request = self.service.forwardingRules().list_next(previous_request=request, previous_response=response)
+        return data

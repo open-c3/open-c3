@@ -1,0 +1,18 @@
+treename	treeid	mark	region	falcon	hostcount	from_parent	parent_name	parent_id	tpl_name	tpl_create_user	uic	run_begin	run_end	metric	func	op	right_value	priority	max_step	tags	note
+open-c3	2362	simplemetric	china	Yes	56	No	tpl.machine.base_china_test	11743	machine@2362@基础监控	zhangsan	Open-c3运维组,open-c3_ops	00:00	24:00	proc.num	all(#3)	<=	0	2	1	cmdline=syslogd	syslogd进程未发现
+open-c3	2362	simplemetric	china	Yes	56	No	tpl.machine.base_china_test	11743	machine@2362@基础监控	zhangsan	Open-c3运维组,open-c3_ops	00:00	24:00	mem.memused.percent	all(#3)	==	-1	4	1	NULL	agent配置错误
+open-c3	2362	simplemetric	china	Yes	56	Yes	tpl.machine.base_china_test	11743	machine@2362@基础监控	zhangsan	Open-c3运维组,open-c3_ops	NULL	NULL	df.bytes.used.percent	all(#3)	>	88	3	1	fstype=ext3	disk usage > 88%
+open-c3	2362	simplemetric	china	Yes	56	Yes	tpl.machine.base_china_test	11743	machine@2362@基础监控	zhangsan	Open-c3运维组,open-c3_ops	NULL	NULL	agent.alive	all(#10)	<	0	2	1	NULL	machine is down
+open-c3	2362	simplemetric	china	Yes	56	Yes	tpl.machine.base_china_test	11743	machine@2362@基础监控	zhangsan	Open-c3运维组,open-c3_ops	NULL	NULL	cpu.idle	avg(#10)	<	15	4	1	NULL	cpu idle <15%
+open-c3	2362	simplemetric	china	Yes	56	Yes	tpl.machine.base_china_test	11743	machine@2362@基础监控	zhangsan	Open-c3运维组,open-c3_ops	NULL	NULL	cpu.iowait	avg(#5)	>	50	4	1	NULL	cpu.iowait wait
+open-c3	2362	simplemetric	china	Yes	56	Yes	tpl.machine.base_china_test	11743	machine@2362@基础监控	zhangsan	Open-c3运维组,open-c3_ops	NULL	NULL	mem.swapused.percent	max(#10)	>	80	3	1	NULL	swap usage > 80%
+open-c3	2362	simplemetric	china	Yes	56	Yes	tpl.machine.base_china_test	11743	machine@2362@基础监控	zhangsan	Open-c3运维组,open-c3_ops	NULL	NULL	host.uptime	diff(#3)	<	0	3	1	NULL	system reboot
+open-c3	2362	simplemetric	china	Yes	56	Yes	tpl.machine.base_china_test	11743	machine@2362@基础监控	zhangsan	Open-c3运维组,open-c3_ops	NULL	NULL	df.inodes.used.percent	all(#3)	>=	95	2	1	fstype=ext3	disk inode usage > 95%
+open-c3.open-c3.frontend.sv	2376	simplemetric	abroad	No	4	No	NULL	0	machine@2376@abroad_base	root	open-c3_frontend,ops_service_open-c3,bigdata_hadoop	NULL	NULL	file.check	all(#3)	<	1	2	1	path=/etc/rc.local,type=link	NULL
+open-c3.open-c3.data.elizabeth	2384	simplemetric	abroad	No	4	Yes	tpl.machine.base_bigdata	4337	machine@2384@base_monitor	lisi	ops_service,bigdata_hadoop	NULL	NULL	proc.num/name=crond	all(#3)	<	0	2	1	NULL	crond down
+open-c3.open-c3.data.elizabeth	2384	simplemetric	abroad	Yes	4	Yes	tpl.machine.base_bigdata	4337	machine@2384@base_monitor	lisi	ops_service,bigdata_hadoop	NULL	NULL	sys.disk.rw	all(#3)	!=	0	3	1	NULL	sys.disk.rw!=0
+open-c3.open-c3.im.proxy	5417	simplemetric	abroad	Yes	25	No	NULL	0	machine@5417@open-c3_im_proxy	wangwu	open-c3_im_proxy	00:00	24:00	net.if.in.bytes	all(#10)	<	1	3	1	NULL	network in < 1M
+open-c3.open-c3.im.proxy	5417	simplemetric	abroad	Yes	25	No	NULL	0	machine@5417@open-c3_im_proxy	wangwu	open-c3_im_proxy	00:00	24:00	net.if.out.bytes	all(#10)	<	2	3	1	NULL	network out < 2M
+open-c3.open-c3.data.es_kv.es_kv_master	45097	simplemetric	abroad	Yes	2	No	NULL	0	machine@45097@es_monitor	wangwu	bigdata_hadoop,open-c3_madecang@c3.com	00:00	24:00	load.1min	all(#3)	>	50	3	1	NULL	1min级别负载超过50
+open-c3.open-c3.data.es_kv.es_kv_data	45098	simplemetric	abroad	Yes	8	No	tpl.machine.base_abroad	2880	machine@45098@default_name	wangwu	bigdata_hadoop,open-c3_madecang@c3.com	00:00	24:00	load.15min	all(#5)	>	50	3	1	NULL	15min级别负载超过50
+open-c3.link.eks_logs.es	46211	simplemetric	abroad	Yes	3	Yes	tpl.machine.base_bigdata_es	6784	machine@46211@default_name	zhaoliu	bigdata_hadoop	NULL	NULL	cpu.busy	all(#3)	>	90	3	3	NULL	cpu > 90%

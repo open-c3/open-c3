@@ -19,21 +19,61 @@
             $http.post('/api/connector/default/user/login', vm.post ).then(
                 function successCallback(response) {
                     if (response.data.stat){
-                        if( vm.callback == undefined )
+
+                        if( response.data.pwperiod < 15 )
                         {
-                            $state.go('home.dashboard', {treeid:-1});
-                        }
-                        else
-                        {
-                            window.open(vm.callback, '_self')
-                        }
+                            swal({
+                                 title: "Change Password",
+                                 text: 'Your password is valid for ' + response.data.pwperiod  + ' days, please change it in a timely manner',
+                                 type: "warning",
+                                 showCancelButton: true,
+                                 confirmButtonColor: "green",
+                                 confirmButtonText: "Modify now",
+                                 cancelButtonText: "skip",
+                                 closeOnConfirm: false,
+                                 showLoaderOnConfirm: true
+                            }, function( result ){
+
+                                if( result )
+                                {
+                                    window.open('/#/connector/chpasswd', '_self');
+                                }
+                                else
+                                {
+                                    if( vm.callback == undefined )
+                                    {
+                                        $state.go('home.dashboard', {treeid:-1});
+                                    }
+                                    else
+                                    {
+                                        window.open(vm.callback, '_self')
+                                    }
+                                 }
+                                 swal.close();
+                           });
+                       }
+                       else
+                       {
+
+                            if( vm.callback == undefined )
+                            {
+                                $state.go('home.dashboard', {treeid:-1});
+                            }
+                            else
+                            {
+                                window.open(vm.callback, '_self')
+                            }
+
+                       }
+
+
                     }else {
-                        toastr.error('登录失败!');
+                        toastr.error('Login Fail!!!' + response.data.info);
                     }
                     vm.logining = 0;
                 },
                 function errorCallback (response){
-                    toastr.error('接口错误!');
+                    toastr.error('API Error!');
                     vm.logining = 0;
                 }
             );

@@ -50,6 +50,17 @@
                                 <span style="font-size: 15px">{{historybpmdetail.seftime(starttime,finishtime)}}</span>
                             </div>
                         </div>
+                        <div class="row" style="padding: 5px;">
+                            <div class="form-group" style="padding: 0">
+                                <label style="line-height: 34px;min-width: 90px;text-align: right;">{{'C3T.流程保护'|translate}}：</label>
+                                <label style="line-height: 34px;min-width: 90px;text-align: right;">{{historybpmdetail.bpmprotect.stat}}</label>
+                                <button ng-show="historybpmdetail.bpmprotect.stat=='danger'" class="btn btn-primary btn-sm" ng-click="historybpmdetail.setProtect('agree')">{{'C3T.同意'|translate}}</button>
+                                <button ng-show="historybpmdetail.bpmprotect.stat=='danger'" class="btn btn-primary btn-sm" ng-click="historybpmdetail.setProtect('refuse')">{{'C3T.拒绝'|translate}}</button>
+                                <span ng-show="historybpmdetail.bpmprotect.info" style="color: red;margin-left: 10px">{{'C3T.警告'|translate}}: &nbsp; {{historybpmdetail.bpmprotect.info}}</span>
+                                <span ng-show="historybpmdetail.bpmprotect.operator" style="color: red;margin-left: 10px">operator: {{historybpmdetail.bpmprotect.operator}}</span>
+                            </div>
+                        </div>
+ 
                         <div ng-show="historybpmdetail.taskuuid && historybpmdetail.advancedinfo == 1" class="row" style="padding: 5px;">
                             <div class="form-group" style="padding: 0">
                                 <label style="line-height: 34px;min-width: 90px;text-align: right;">{{'C3T.任务日志'|translate}}：</label>

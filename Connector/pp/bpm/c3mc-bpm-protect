@@ -1,0 +1,66 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use POSIX;
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 --eventname google-vm-recycle vuuid1 vuuid2 vuuid3 # bpmuuid in ENV{C3BPMUUID}
+ $0 --eventname google-vm-recycle --bpmuuid xxx vuuid1 vuuid2 vuuid3
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o      = $option->set( eventname => 'default' )->get( qw( bpmuuid=s eventname=s ) )->dump();
+
+my $bpmuuid = $o{bpmuuid} // $ENV{C3BPMUUID};
+$option->assert() unless $bpmuuid;
+
+my @uuid = @ARGV;
+unless( @uuid )
+{
+    @uuid = <STDIN>;
+    chomp @uuid;
+}
+
+sub countlimit
+{
+    my ( $limit, $info ) = @_;
+    if( @uuid > $limit )
+    {
+        die "ins fail" if system "c3mc-base-db-ins --table openc3_job_bpm_protect bpmuuid '$bpmuuid' stat danger info '$info'";
+
+        print "[Warn] $info\n";
+
+        while(1)
+        {
+            sleep 6;
+
+            my    $x = `c3mc-base-db-get stat,operator --table openc3_job_bpm_protect  --filter "bpmuuid='$bpmuuid'"`;
+            chomp $x;
+
+            my ( $stat, $operator ) = split /;/, $x;
+
+            if( $stat eq 'agree' )
+            {
+                print "agree by: $operator\n";
+                last;
+            }
+
+            if( $stat eq 'refuse' )
+            {
+                print "_openc3_sys_pluginstatus_sys_openc3_:refuse\n";
+                warn "refuse by: $operator\n";
+                exit 254;
+            }
+        }
+    }
+
+}
+
+countlimit( 4, "recycle limit: count <= 4" ) if $o{eventname} =~ /recycle/;
+countlimit( 20, "auth limit: count <= 20"  ) if $o{eventname} =~ /auth/;

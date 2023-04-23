@@ -1,0 +1,16 @@
+---
+alert: 磁盘Inode使用率 $VAR{op} $VAR{right_value}%
+bindtreesql: max(round (100 - (node_filesystem_files_free{fstype=~"ext.?|xfs",mountpoint !~".*pod.*"} / node_filesystem_files{fstype=~"ext.?|xfs",mountpoint !~".*pod.*"}) * 100))by(instance) $VAR{op} $VAR{right_value}
+description: '磁盘Inode使用超过$VAR{right_value}%当前主机根盘使用百分比: {{ $value }}%'
+edit_time: 2023-04-13 17:12:54
+edit_user: open-c3
+expr: max(round (100 - (node_filesystem_files_free{fstype=~"ext.?|xfs",mountpoint !~".*pod.*"} / node_filesystem_files{fstype=~"ext.?|xfs",mountpoint !~".*pod.*"}) * 100))by(instance) $VAR{op} $VAR{right_value} and  ( sum(treeinfo{tid="c3montreeid"}) by(instance))
+for: '$VAR{for}'
+job: ''
+method: ''
+metrics: ''
+model: bindtree
+severity: level$VAR{priority}
+summary: 磁盘报警
+threshold: ''
+value: '{{ $value }}%'

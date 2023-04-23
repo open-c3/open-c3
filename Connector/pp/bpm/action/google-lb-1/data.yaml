@@ -1,0 +1,32 @@
+---
+name: 负载均衡器基本信息
+fromops: 1
+option:
+  - name: account
+    describe: 云账号
+    command: c3mc-display-cloud-account-list google
+    type: selectx
+    value: ""
+
+  - name: load_balancer_name
+    describe: 负载均衡器名称 
+    type: input
+  
+  - name: tag
+    describe: 标签
+    # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
+    type: kvarray
+    fromops: 1
+    value: "[]"
+    information: "标签只能包含小写字母、数字、下划线和短横线。该值最多可以有63个字符长度。国际字符是允许的。"
+
+template_argv:
+  # bpm单号
+  bpm_uuid: ${_bpmuuid_}
+  # 账号
+  account: ${account}
+  # 负载均衡器名称 
+  load_balancer_name: ${load_balancer_name}
+  # 标签
+  # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
+  tag: ${tag}

@@ -11,10 +11,14 @@ use uuid;
 use Format;
 use Digest::MD5;
 
-my $ssocookie;
+my ( $ssocookie, $passwordperiod );
 BEGIN{
     $ssocookie = `c3mc-sys-ctl sys.sso.cookie`;
     chomp $ssocookie;
+
+    $passwordperiod = `c3mc-sys-ctl sys.login.util.passwordperiod`;
+    chomp $passwordperiod;
+    $passwordperiod = 90 unless $passwordperiod && $passwordperiod =~ /^\d+$/;
 };
 
 =pod
@@ -181,9 +185,26 @@ any '/default/user/logout' => sub {
 
     return +{ stat => $JSON::true, info => 'ok' } unless $sid;
     return +{ stat => $JSON::false, info => 'sid format err' } unless $sid =~ /^[a-zA-Z0-9]{64}$/;
-    eval{ $api::mysql->execute( "update openc3_connector_userinfo set expire=0,sid='' where sid='$sid'" ); };
     
+    my $ip = '0.0.0.0';
+    my $time = time;
+
+    for( qw( HTTP_X_FORWARDED_FOR HTTP_X_REAL_IP REMOTE_ADDR ) )
+    {
+        my $x = request->env->{$_};
+        if( $x && $x =~ /^\s*(\d+\.\d+\.\d+\.\d+)\b/ )
+        {
+            $ip = $1;
+            last;
+        }
+    }
+
+    eval{ $api::mysql->execute( "insert into openc3_connector_user_login_audit( `user`,`uuid`,`action`,`ip`,`t` ) ( select name, '','logout','$ip','$time' from openc3_connector_userinfo where sid='$sid' )" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
+
+    eval{ $api::mysql->execute( "update openc3_connector_userinfo set expire=0,sid='' where sid='$sid'" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     return +{ stat => $JSON::true, info => 'ok' };
 };
 
@@ -223,7 +244,34 @@ any '/default/user/login' => sub {
         }
 
         set_cookie( $api::cookiekey => $keys, http_only => 0, expires => time + 8 * 3600, %domain );
-        return +{ stat => $JSON::true, info => 'ok' };
+
+        my $ip = '0.0.0.0';
+        my $time = time;
+
+        for( qw( HTTP_X_FORWARDED_FOR HTTP_X_REAL_IP REMOTE_ADDR ) )
+        {
+            my $x = request->env->{$_};
+            if( $x && $x =~ /^\s*(\d+\.\d+\.\d+\.\d+)\b/ )
+            {
+                $ip = $1;
+                last;
+            }
+        }
+        my $uuid = Digest::MD5->new->add($pass)->hexdigest;
+
+        eval{ $api::mysql->execute( "insert into openc3_connector_user_login_audit( `user`,`uuid`,`action`,`ip`,`t` ) values('$user','$uuid','login','$ip','$time')" ); };
+        return +{ stat => $JSON::false, info => $@ } if $@;
+
+        my $f = eval{ $api::mysql->query( "select t from `openc3_connector_user_login_audit` where user='$user' and uuid='$uuid' and action='login' order by id limit 1" ) };
+        return +{ stat => $JSON::false, info => $@ } if $@;
+
+        my $ftime = $f && @$f ? $f->[0][0] : time - 60;
+
+        my $pwperiod = int ( $passwordperiod -  (( time - $ftime ) / 86400 ) );
+
+        return +{ stat => $JSON::false, info => "Error. password period." } if $pwperiod < 0;
+
+        return +{ stat => $JSON::true, info => 'ok', pwperiod => $pwperiod };
     }
     else
     {

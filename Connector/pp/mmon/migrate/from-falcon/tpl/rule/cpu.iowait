@@ -1,0 +1,16 @@
+---
+alert: Node节点 cpu.iowait $VAR{op} $VAR{right_value}%
+bindtreesql: ceil( ((sum(increase(node_cpu_seconds_total{mode="iowait"}[5m]))by(instance))/(sum(increase(node_cpu_seconds_total[5m]))by(instance))) * 100 ) $VAR{op} $VAR{right_value}
+description: 'Node节点 {{$labels.instance}} CPU空闲小于$VAR{right_value}%当前Node节点CPU空闲率: {{ $value }}%'
+edit_time: 2023-04-12 17:33:54
+edit_user: open-c3
+expr: ceil( ((sum(increase(node_cpu_seconds_total{mode="iowait"}[5m]))by(instance))/(sum(increase(node_cpu_seconds_total[5m]))by(instance))) * 100 ) $VAR{op} $VAR{right_value} and  ( sum(treeinfo{tid="c3montreeid"}) by(instance))
+for: '$VAR{for}'
+job: ''
+method: ''
+metrics: ''
+model: bindtree
+severity: level$VAR{priority}
+summary: CPU报警
+threshold: ''
+value: '{{ $value }}%'

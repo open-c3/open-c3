@@ -1,0 +1,16 @@
+---
+alert: 文件缺失告警
+bindtreesql: ''
+description: Node节点 {{$labels.instance}} 的文件  {{$labels.path}} 缺失，文件类型为 Node节点 {{$labels.type}}
+edit_time: 2023-04-13 18:55:42
+edit_user: open-c3
+expr: node_path{treeid_c3montreeid!="",job="openc3"} == 0
+for: '$VAR{for}'
+job: openc3
+method: ==
+metrics: node_path
+model: simple
+severity: level$VAR{priority}
+summary: 文件缺失
+threshold: '0'
+value: '{{$value}}'

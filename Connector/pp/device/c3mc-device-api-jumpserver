@@ -21,6 +21,8 @@ use LWP::UserAgent;
 my $option = MYDan::Util::OptConf->load();
 my %o = $option->get( qw( uuid=s ip=s uuids=s ips=s cache json ) )->dump();
 
+map{ $option->assert() if defined $o{$_} && ! $o{$_}; }qw(uuid ip uuids ips );
+
 my $ua = LWP::UserAgent->new();
 $ua->agent('Mozilla/9 [en] (Centos; Linux)');
 $ua->timeout( 120 );

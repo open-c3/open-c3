@@ -82,6 +82,16 @@ get '/task/:projectid' => sub {
 
     if( defined $param->{bpmonly} )
     {
+        my @colx = qw( bpmuuid user );
+        my $rx = eval{ 
+            $api::mysql->query( sprintf( "select %s from openc3_job_bpm_usr where curr=1", join ',', @colx ), \@colx )};
+
+        my %bpmuser;
+        map{ $bpmuser{$_->{bpmuuid}}{$_->{user}} ++; }@$rx;
+        map{ $bpmuser{ $_ } = join ',', sort keys %{ $bpmuser{$_}}; }keys %bpmuser;
+
+        map{ $_->{handler} = $bpmuser{ $_->{extid} } // '' }@$r;
+
         my %menu = map{ $_->{name} => $_->{alias} // $_->{name} }@$menu;
         map{ $_->{alias} = $menu{ $_->{name} } // $_->{name} }@$r;
     }

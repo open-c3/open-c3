@@ -73,7 +73,26 @@
             }
         };
 
-        vm.chSelectxm = function ( obj ) {
+        vm.chSelectxm = function ( obj, index ) {
+
+            var curr = obj['tempvalue'][index];
+
+            if( curr != undefined )
+            {
+                var repeat = 0;
+                angular.forEach(obj['tempvalue'], function (data, idx) {
+                    if( data.value == curr.value )
+                    {
+                        repeat = repeat + 1;
+                    }
+                });
+
+                if( repeat >= 2 )
+                {
+                    curr.value = '';
+                }
+            }
+
             var temp = [];
             angular.forEach(obj['tempvalue'], function (data, idx) {
                 temp.push(data.value)
@@ -232,6 +251,7 @@
                         if( name == ename[1] )
                         {
                             data.value= "";
+                            vm.optionx[data.name] = undefined; //清空下拉列表
                             vm.chtempclear(data);
                         }
                     });
@@ -390,7 +410,7 @@
             });
         }
 
-        vm.optionxclick = function( stepname , selectIndex, tempvalue, myvalue )
+        vm.optionxclick = function( stepname , selectIndex )
         {
             vm.selectIndex = selectIndex
             var varDict = {};
@@ -430,33 +450,19 @@
                 }
             }
  
-            vm.selectxloading[stepname] = true;
-            $http.post( '/api/ci/v2/c3mc/bpm/optionx', { "bpm_variable": varDict, "stepname": stepname, "jobname":$scope.choiceJob.name } ).success(function(data){
-                if (data.stat){
-                    vm.selectxloading[stepname] = false;
-                    if( selectIndex == 0 && tempvalue == undefined )
-                    {
+            if( vm.optionx[stepname] == undefined )
+            {
+                vm.selectxloading[stepname] = true;
+                $http.post( '/api/ci/v2/c3mc/bpm/optionx', { "bpm_variable": varDict, "stepname": stepname, "jobname":$scope.choiceJob.name } ).success(function(data){
+                    if (data.stat){
+                        vm.selectxloading[stepname] = false;
                         vm.optionx[stepname] = data.data
+                    }else {
+                        swal({ title: '获取选项失败', text: data.info, type:'error' });
                     }
-                    else
-                    {
-                        var temp = {};
-                        angular.forEach(tempvalue, function (data, index) {
-                            temp[data.value] = 1;
-                        });
-                        delete temp[myvalue];
-                        
-                        if( vm.optionx[stepname] ==  undefined )
-                        {
-                            vm.optionx[stepname] = {};
-                        }
-                        vm.optionx[stepname][selectIndex] =  data.data.filter(cItem => temp[cItem.name] != 1  );
-                    }
-                }else {
-                    swal({ title: '获取选项失败', text: data.info, type:'error' });
-                }
-            });
+                });
  
+            }
         }
 
         vm.jobsloadover = true;
@@ -597,6 +603,11 @@
 
         vm.jobdescribe = '';
         vm.updateJobDescribe = function() {
+            if( $scope.choiceJob == null )
+            {
+                vm.jobdescribe = '';
+                return;
+            }
             angular.forEach(vm.menu, function (data, index) {
                 if( data.name == $scope.choiceJob.name )
                 {

@@ -36,6 +36,13 @@ sub replace
     $s =~ s/.\[1m.\[32m/<font color="#00FF00">/g;
     $s =~ s/\[31m.\[42m/<font color="#0000FF">/g;
     $s =~ s/\[0m.\[0m/<\/font>/g;
+
+    # C3TODO 230419 作业模块日志HTML解析问题
+    # 日志显示的时候会解析HTML的标签。这样导致的结果是，如果输出的日志内容里面有html的标签
+    # 可能会解析失败，比如gcp的sdk报错的时候会使用HttpError的标签
+    # 但是默认没有这个标签，这样在日志那里就看不到这个错误的信息。
+    $s =~ s/googleapiclient.errors.HttpError: <HttpError /googleapiclient.errors.HttpError: HttpError /g;
+
     $s =~ s/\n/<br>/g;
     return $s;
 }

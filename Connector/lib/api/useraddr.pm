@@ -53,10 +53,12 @@ post '/useraddr' => sub {
     my $error = Format->new( 
         user      => qr/^[a-zA-Z0-9\.\@_\-]+$/, 1,
         email     => qr/^[a-zA-Z0-9\.\@_\-]+$/, 1,
-        phone     => qr/^[a-zA-Z0-9:\.\@_\-]+$/, 1,
+        phone     => qr/^[a-zA-Z0-9:\.\@_\-\/]+$/, 1,
         voicemail => qr/^[a-zA-Z0-9\.\@_\-]+$/, 0,
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    $param->{phone} = "feishu-bot:$1" if $param->{phone} =~ /^https:\/\/open.feishu.cn\/open-apis\/bot\/v2\/hook\/([a-z\d][a-z\d\-]+[a-z\d])$/;
 
     $param->{voicemail} ||= '';
     eval{ $api::mysql->execute( "insert into openc3_connector_auditlog (`user`,`title`,`content`) values('$ssouser','CREATE USERADDR','USER:$param->{user} EMAIL:$param->{email} PHONE:$param->{phone} VOICEMAIL:$param->{voicemail}')" ); };

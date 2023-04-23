@@ -1,0 +1,16 @@
+---
+alert: 服务器重启了
+bindtreesql: ''
+description: 服务器在$VAR{right_value}秒内被重启过
+edit_time: 2023-04-13 15:00:31
+edit_user: open-c3
+expr: node_system_uptime{treeid_c3montreeid!="",job="openc3"} < $VAR{right_value}
+for: '$VAR{for}'
+job: openc3
+method: <
+metrics: node_system_uptime
+model: simple
+severity: level$VAR{priority}
+summary: 主机重启
+threshold: '$VAR{right_value}'
+value: '{{ $value }}'

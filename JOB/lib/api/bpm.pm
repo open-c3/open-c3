@@ -120,4 +120,49 @@ post '/bpm/var/:bpmuuid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
 
+=pod
+
+BPM/获取bpm流程保护信息
+
+=cut
+
+get '/bpm/protect/:bpmuuid' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        bpmuuid => qr/^[a-zA-Z\d]+$/, 1,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $pmscheck = api::pmscheck( 'openc3_job_read', 0 ); return $pmscheck if $pmscheck;
+
+    my @col = qw( stat info operator );
+    my $r = eval{ $api::mysql->query( sprintf( "select %s from openc3_job_bpm_protect where bpmuuid='$param->{bpmuuid}'", join ",", @col ), \@col )}; 
+
+    return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => @$r ? $r->[0] : +{ stat => 'safe' } };
+};
+
+=pod
+
+BPM/BPM流程保护审批意见
+
+=cut
+
+post '/bpm/protect/:bpmuuid' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        bpmuuid => qr/^[a-zA-Z\d]+$/, 1,
+        opinion => [ 'in', 'agree', 'refuse' ], 1,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $pmscheck = api::pmscheck( 'openc3_job_root' ); return $pmscheck if $pmscheck;
+
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+    return +{ stat => $JSON::false, info => "nofind user" } unless $user;
+
+    eval{ $api::mysql->execute( "update openc3_job_bpm_protect set stat='$param->{opinion}',operator='$user' where bpmuuid='$param->{bpmuuid}' and stat='danger'" )};
+
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
+};
+
 true;

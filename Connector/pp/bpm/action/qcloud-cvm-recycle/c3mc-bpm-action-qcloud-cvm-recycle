@@ -11,6 +11,8 @@ from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.cvm.v20170312 import cvm_client
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import check_if_params_safe_in_recycle
+from c3mc_cloud_qcloud_cvm import Cvm
 
 supported_recycle_types = [
     "stop",
@@ -35,7 +37,6 @@ class CvmRecycle:
         return cvm_client.CvmClient(cred, self.region, clientProfile)
 
     def run(self, recycle_type, instance_identifier, delete_disk_snapshot):
-        from c3mc_cloud_qcloud_cvm import Cvm
         # 停止实例
         if recycle_type.lower() == "stop":
             lib_cvm = Cvm(self.access_id, self.access_key, self.region)
@@ -46,6 +47,16 @@ class CvmRecycle:
             lib_cvm = Cvm(self.access_id, self.access_key, self.region)
             lib_cvm.terminate_instances(
                 instance_identifier, delete_disk_snapshot)
+
+
+def get_instance_uuid(instance_maybe_identifier):
+    command = f"c3mc-device-find-uuid {instance_maybe_identifier}"
+    result = subprocess.check_output(command, shell=True)
+    parts = result.decode("utf-8").strip().split()
+    if len(parts) > 1:
+        print(f"通过命令 {command} 查询到了多个uuid {parts}", file=sys.stderr)
+        exit(1)
+    return parts[0]
 
 
 def main(params):
@@ -62,13 +73,18 @@ def main(params):
         "c3mc-cloud-get-real-field compute qcloud-cvm InstanceId account RegionId"
     ).split()
 
-    for instance_identifier in params["instance_ids"].split(","):
+    instance_identifier_list = params["instance_ids"].split(",")
+    check_if_params_safe_in_recycle(instance_identifier_list, params["bpm_uuid"], "qcloud-cvm-recycle")
+
+    for instance_identifier in instance_identifier_list:
         instance_identifier = instance_identifier.strip()
         if instance_identifier == "":
             continue
 
-        query_cmd = f"c3mc-device-cat curr compute qcloud-cvm {instance_identifier} | c3mc-base-tab2json"
-        print(f"实例信息, uuid: {instance_identifier}, 查询命令: {query_cmd}")
+        instance_real_uuid = get_instance_uuid(instance_identifier)
+
+        query_cmd = f"c3mc-device-cat curr compute qcloud-cvm {instance_real_uuid} | c3mc-base-tab2json"
+        print(f"实例信息, uuid: {instance_real_uuid}, 查询命令: {query_cmd}")
         resource_info_str = subprocess.getoutput(query_cmd)
         if resource_info_str.strip() == "":
             # 可能工单中途有错误，某些资源在云端已被删除，并且本地经过同步后也删除了相关实例

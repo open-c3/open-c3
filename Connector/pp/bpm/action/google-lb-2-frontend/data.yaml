@@ -1,0 +1,67 @@
+---
+name: 负载均衡器前端配置
+multi: 1
+fromops: 1
+option:
+  - name: name
+    describe: 名称
+    type: input
+
+  - name: protocol
+    describe: 协议
+    type: select
+    option: ["http", "https"]
+
+  - name: cert_name
+    describe: 证书
+    rely: 
+      - x.account
+    command: c3mc-bpm-option-google-list-ssl-certificate | c3mc-bpm-display-field-values "{name};名称:{name}"
+    type: selectx
+    value: ""
+    show: 
+      - protocol: ["https"]
+
+  - name: ip_type
+    describe: ip地址类型
+    type: select
+    option:
+    - name: ephemeral_ip
+      alias: 临时IP
+    - name: static_ip
+      alias: 静态IP
+
+  - name: static_ip
+    describe: 静态ip
+    rely: 
+      - x.account
+    command: c3mc-bpm-option-google-list-global-elastic-ips | c3mc-bpm-display-field-values "{address};名称:{name}, 地址:{address}"
+    type: selectx
+    value: ""
+    show: 
+      - ip_type: ["static_ip"]
+    information: "只展示未绑定的全局性静态IP"
+
+  - name: frontend_port
+    describe: 端口
+    type: selectx
+    rely:
+      - protocol
+    command: c3mc-bpm-option-google-list-ports
+
+
+template_argv:
+  # bpm单号
+  bpm_uuid: ${_bpmuuid_}
+  # 账号
+  account: ${x.account}
+  # 名称
+  name: ${name}
+  # 协议
+  protocol: ${protocol}
+  # 证书
+  cert_name: ${cert_name}
+  # ip地址类型
+  ip_type: ${ip_type}
+  # 端口
+  frontend_port: ${frontend_port}
