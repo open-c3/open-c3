@@ -258,6 +258,9 @@ for ( @x )
     my @t = split /\t/, $_;
 
     my $d = +{ map{ $title[$_] => $t[$_] }0..@title -1};
+
+    next if %mark && ! ( $d->{mark} && $mark{ $d->{mark} } );
+
     $d->{for} = '';
 
     $d->{func2c3} = 'avg';

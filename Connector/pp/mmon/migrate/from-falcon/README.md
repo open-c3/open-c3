@@ -41,3 +41,11 @@ tags: file.check # tag
 3. 修改导出的策略，用变量替换上需要替换的位置，可以参考load.1min模版中的变量，在里面搜索一下VAR即可看出。
 
 ```
+
+# 注
+```
+导出时候可以根据mark标记只导出部分的数据。 格式为 cat debug.csv |./make-data grep1 grep2 ... grepn
+
+如： 只导出 simplemetric 的策略
+cat debug.csv |./make-data simplemetric
+```
