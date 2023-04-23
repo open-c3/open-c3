@@ -276,7 +276,7 @@ def main(params):
     ]
     output = subprocess.run(cmd_parts, capture_output=True, text=True)
     if output.returncode != 0:
-        print(output.stderr, file=sys.stderr)
+        print("c3mc-bpm-get-var 命令运行出错：", output.stderr, file=sys.stderr)
         exit(1)
 
     print("工单参数: ", output.stdout)
