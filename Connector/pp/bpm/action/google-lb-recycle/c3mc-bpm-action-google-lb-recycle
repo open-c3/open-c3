@@ -1,0 +1,188 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import check_if_params_safe_in_recycle
+from c3mc_cloud_google_compute import GoogleCompute
+
+
+class LbRecycler:
+    def __init__(self, cred_path, region):
+        self.cred_path = cred_path
+        self.region = region
+        self.lib_client = self.create_lib_client()
+        self.project_id = self.lib_client.get_project_id()
+
+    def create_lib_client(self):
+        return GoogleCompute(self.cred_path)
+    
+
+    def get_url_map(self, instance_name):
+        url_map_list = self.lib_client.list_url_maps()
+        return next(
+            (item for item in url_map_list if item["name"] == instance_name), None
+        )
+    
+    def delete_related_url_map(self, url_map_name):
+        self.lib_client.delete_url_map(url_map_name)
+    
+
+    def get_related_forwarding_rules(self, lb_name):
+        forwarding_rule_list = self.lib_client.list_forwarding_rules()
+        return [
+            item
+            for item in forwarding_rule_list
+            if item["target"].split("/")[-1].split("-target-proxy")[0] == lb_name
+        ]
+
+    def delete_related_forwarding_rules(self, forwarding_rule_list):
+        for item in forwarding_rule_list:
+            self.lib_client.delete_forwarding_rule(item["name"])
+    
+
+    def get_related_backend_services(self, url_map):
+        backend_service_list = self.lib_client.list_backend_service()
+
+        names = set()
+        for path_matcher in url_map["pathMatchers"]:
+            names.add(path_matcher["defaultService"].split("/")[-1])
+            for path_rule in path_matcher["pathRules"]:
+                names.add(path_rule["service"].split("/")[-1])
+        names.add(url_map["defaultService"].split("/")[-1])
+        
+        return [
+            item 
+            for item in backend_service_list 
+            if item["name"] in names
+        ]
+
+    def delete_related_backend_services(self, backend_service_list):
+        for item in backend_service_list:
+            self.lib_client.delete_backend_service(item["name"])
+        
+
+    def get_related_http_proxies(self, forwarding_rules):
+        http_proxies = self.lib_client.list_target_http_proxies()
+
+        names = {item["target"].split("/")[-1] for item in forwarding_rules}
+        return [
+            item 
+            for item in http_proxies
+            if item["name"] in names
+        ]
+
+    def delete_related_http_proxies(self, http_proxies_list):
+        for item in http_proxies_list:
+            self.lib_client.delete_target_http_proxy(item["name"])
+
+
+    def get_related_https_proxies(self, forwarding_rules):
+        https_proxies = self.lib_client.list_target_https_proxies()
+
+        names = {item["target"].split("/")[-1] for item in forwarding_rules}
+        return [
+            item 
+            for item in https_proxies
+            if item["name"] in names
+        ]
+
+    def delete_related_https_proxies(self, https_proxies_list):
+        for item in https_proxies_list:
+            self.lib_client.delete_target_https_proxy(item["name"])
+    
+    def run(self, instance_name):
+        """回收谷歌云负载均衡器
+
+           注意：回收的时候没有删除和负载均衡器绑定的证书、健康检查条目、静态IP等等，后面有需要可以加
+                并且这里的回收只回收全局性负载均衡器
+        """
+        url_map = self.get_url_map(instance_name) 
+        if url_map is None: 
+            print("无法查询到lb实例的url_map信息。project_id: {}, 区域: {}, lb名称: {}", file=sys.stderr)
+            exit(1)
+
+        forwarding_rule_list = self.get_related_forwarding_rules(instance_name)
+        print("related forwarding list = ", json.dumps(forwarding_rule_list))
+
+        # 这里存在一个问题。假如用户在控制台创建了多个backendService实例，但是在urlMap绑定里漏掉了某个backendSerevice
+        # 这种漏掉的并且是和当前负载均衡实例关联起来的backendService目前没找到合适的办法筛选出来。
+        # 虽然可以拿到所有的urlMap和backendService然后筛选没有绑定urlMap的backendService，但是为了防止误删没有这样做
+        backend_service_list = self.get_related_backend_services(url_map)
+        print("related backend service list = ", json.dumps(backend_service_list))
+
+        target_http_proxy_list = self.get_related_http_proxies(forwarding_rule_list)
+        print("related target http proxy list = ", json.dumps(target_http_proxy_list))
+
+        target_https_proxy_list = self.get_related_https_proxies(forwarding_rule_list)
+        print("related target https proxy list = ", json.dumps(target_https_proxy_list))
+
+        # 如下删除顺序是必须的，否则谷歌云接口会出错
+        self.delete_related_forwarding_rules(forwarding_rule_list)
+        self.delete_related_http_proxies(target_http_proxy_list)
+        self.delete_related_https_proxies(target_https_proxy_list)
+        self.delete_related_url_map(url_map["name"])
+        self.delete_related_backend_services(backend_service_list)
+
+        print(f"成功删除负载均衡器实例: {instance_name}")
+
+            
+
+def get_field_names():
+    return subprocess.getoutput(
+        "c3mc-cloud-get-real-field networking google-lb account name region"
+    ).split()
+
+def get_key_info(account):
+    return json.loads(subprocess.getoutput(f"c3mc-get-account-info google {account}"))
+
+
+def get_instance_uuid(instance_maybe_identifier):
+    command = f"c3mc-device-find-uuid {instance_maybe_identifier}"
+    result = subprocess.check_output(command, shell=True)
+    parts = result.decode("utf-8").strip().split()
+    if len(parts) > 1:
+        print(f"通过命令 {command} 查询到了多个uuid {parts}", file=sys.stderr)
+        exit(1)
+    return parts[0]
+
+def get_resource_info(instance_identifier):
+    instance_real_uuid = get_instance_uuid(instance_identifier)
+    query_cmd = f"c3mc-device-cat curr networking google-lb {instance_real_uuid} | c3mc-base-tab2json"
+    print(f"查询实例信息, uuid: {instance_real_uuid}, 查询命令: {query_cmd}")
+    resource_info_str = subprocess.getoutput(query_cmd)
+    if resource_info_str.strip() == "":
+        return None
+    return json.loads(resource_info_str.split("\n")[0])
+
+
+def main(params):
+    print("params = ", json.dumps(params))
+
+    account_field, name_field, region_field = get_field_names()
+
+    instance_identifier_list = params["instance_ids"].split(",")
+    check_if_params_safe_in_recycle(instance_identifier_list, params["bpm_uuid"], "google-lb-recycle")
+
+    for instance_identifier in instance_identifier_list:
+        instance_identifier = instance_identifier.strip()
+        if instance_identifier == "":
+            continue
+
+        resource_info = get_resource_info(instance_identifier)
+        if resource_info is None:
+            continue
+
+        key_info = get_key_info(resource_info[account_field])
+        LbRecycler(key_info["cred_path"], resource_info[region_field]).run(resource_info[name_field])
+
+
+if __name__ == '__main__':
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
+    
+    main(json.loads(l[0]))
