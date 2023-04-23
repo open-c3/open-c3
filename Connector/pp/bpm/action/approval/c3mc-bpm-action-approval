@@ -32,6 +32,7 @@ my $puuid = uuid->new()->create_str;
 my @approver;
 
 my %approvelip;
+my %approvelvuuid;
 
 sub getapprover
 {
@@ -87,6 +88,37 @@ sub getapprover
         return keys %res;
     }
 
+    if ( $str =~ /vuuidowner\(\s*(.+)\s*\)/ )
+    {
+        for my $vuuid ( grep{ $_ } split /,/, $1 )
+        {
+            die "vuuid $vuuid format error" unless $vuuid && $vuuid =~ /^[a-zA-Z0-9][a-zA-Z0-9\.\-_]*[a-zA-Z0-9]$/;
+            my @uuid = `c3mc-device-find-uuid '$vuuid'`;
+            die "get $vuuid uuid fail: $!" if $?;
+            chomp @uuid;
+            if( @uuid != 1 )
+            {
+                warn "[Warn] nofind $vuuid uuid in cmdb\n";
+                delete $approvelvuuid{$vuuid};
+                next;
+            }
+
+            my $uuid = $uuid[0];
+            my @x = `c3mc-device-cat-all '$uuid' --col '业务负责人'`;
+            die "get $vuuid owner fail: $!" if $?;
+            chomp @x;
+            if( @x < 2  )
+            {
+                warn "[Warn] nofind $uuid owner in cmdb\n";
+                delete $approvelvuuid{$vuuid};
+                next;
+            }
+            $res{ $x[1] } ++;
+            print "LOG.$vuuid product_owner = $x[1]\n";
+        }
+        return keys %res;
+    }
+
     if ( $str =~ /k8sowner\(\s*(.+)\s*\)/ )
     {
         for my $id ( grep{ $_ } split /,/, $1 )
@@ -107,11 +139,19 @@ sub getapprover
 }
 
 my $approvelip;
+my $approvelvuuid;
 if( $approver =~ /ipowner\(\s*(.+)\s*\)/ )
 {
     map{ $approvelip{$_} = 1 }split /,/, $1;
     $approvelip = 1;
 }
+
+if( $approver =~ /vuuidowner\(\s*(.+)\s*\)/ )
+{
+    map{ $approvelvuuid{$_} = 1 }split /,/, $1;
+    $approvelvuuid = 1;
+}
+
 
 if( $approver =~ /\s+or\s+/ )
 {
@@ -137,6 +177,14 @@ if( $approvelip )
     print "LOG. approvelip:$approvelip\n";
     print "VAR. approvelip:$approvelip\n";
 }
+
+if( $approvelvuuid )
+{
+    $approvelvuuid = %approvelvuuid ? join ',', keys %approvelvuuid : 'NULL';
+    print "LOG. approvelvuuid:$approvelvuuid\n";
+    print "VAR. approvelvuuid:$approvelvuuid\n";
+}
+
 
 my $db = MYDB->new( "/data/Software/mydan/JOB/conf/conn", delayedconnection => 1 );
 
