@@ -20,22 +20,7 @@ die "version format error" unless $version && $version =~ /^\d+$/;
 
 my $name  = "${cluster}_${version}";
 
-my $authrotatepath = "/data/open-c3-data/authrotate";
-mkdir $authrotatepath unless -d $authrotatepath;
-
-unless( -f "$authrotatepath/c3_$name.key" || -f "$authrotatepath/c3_$name.pub"  )
-{
-    die "error" if system "cd '$authrotatepath' && ssh-keygen -f c3_$name -P \"\" && mv c3_$name c3_$name.key";
-}
-
-die "file error" unless -f "$authrotatepath/c3_$name.key" && -f "$authrotatepath/c3_$name.pub";
-
-for my $x ( qw( key pub ) )
-{
-    my $dist = "/data/open-c3-data/auth/c3_$name.$x";
-    system "cp $authrotatepath/c3_$name.$x $dist" unless -f $dist;
-    die "error file $dist" unless -f $dist;
-}
+die "make key err" if system "c3mc-agent-authrotate-make-key";
 
 my    @x = `c3mc-agent-authrotate-data`;
 chomp @x;

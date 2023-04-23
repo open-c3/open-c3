@@ -1,0 +1,40 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my    $cluster = `c3mc-sys-ctl agent.authrotate.cluster`;
+my    $version = `c3mc-sys-ctl agent.authrotate.version`;
+chomp $cluster;
+chomp $version;
+
+die "cluster format error" unless $cluster && $cluster =~ /^[a-zA-Z\d]+[a-zA-Z\d_\-\.]*[a-zA-Z\d]+$/;
+die "version format error" unless $version && $version =~ /^\d+$/;
+
+my $name  = "${cluster}_${version}";
+
+my $authrotatepath = "/data/open-c3-data/authrotate";
+mkdir $authrotatepath unless -d $authrotatepath;
+
+unless( -f "$authrotatepath/c3_$name.key" || -f "$authrotatepath/c3_$name.pub"  )
+{
+    die "error" if system "cd '$authrotatepath' && ssh-keygen -f c3_$name -P \"\" && mv c3_$name c3_$name.key";
+}
+
+die "file error" unless -f "$authrotatepath/c3_$name.key" && -f "$authrotatepath/c3_$name.pub";
+
+for my $x ( qw( key pub ) )
+{
+    my $dist = "/data/open-c3-data/auth/c3_$name.$x";
+    system "cp $authrotatepath/c3_$name.$x $dist" unless -f $dist;
+    die "error file $dist" unless -f $dist;
+}
+
+system "echo 'c3_$name' > /data/Software/mydan/AGENT/scripts/agent_key_uuid";
