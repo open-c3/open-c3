@@ -73,22 +73,6 @@
           })
         }
 
-        vm.showctrlLog = function(t){
-            $uibModal.open({
-                templateUrl: 'app/pages/business/agent/detail/log.html',
-                controller: 'AgentCtrlLogController',
-                controllerAs: 'agentctrlLog', 
-                backdrop: 'static', 
-                size: 'lg', 
-                keyboard: false,
-                bindToController: true,
-                resolve: {
-                    nodeStr: function () { return vm.nodeStr },
-                }
-            });
-        };
-
- 
         vm.addregion = function(t){
             $uibModal.open({
                 templateUrl: 'app/pages/business/agent/detail/region.html',
