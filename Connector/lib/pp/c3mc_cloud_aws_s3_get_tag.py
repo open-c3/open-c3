@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import boto3
+from botocore.config import Config
 
 
 class GetTag:
@@ -13,11 +14,15 @@ class GetTag:
         self.client = self.create_client()
 
     def create_client(self):
+        config = Config(
+            s3={'addressing_style': 'path'},
+            region_name=self.region
+        )
         client = boto3.client(
             "s3",
             aws_access_key_id=self.access_id,
             aws_secret_access_key=self.access_key,
-            region_name=self.region,
+            config=config
         )
         return client
 

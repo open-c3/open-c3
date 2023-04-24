@@ -85,3 +85,25 @@ class LIB_EC2:
         释放eip
         """
         return self.client.release_address(AllocationId=eip_allocation_id)
+
+    def describe_instance_status(self):
+        """
+        查询ec2状态信息列表
+        """
+        events = []
+        next_token = None
+        while True:
+            if next_token:
+                response = self.client.describe_instance_status(IncludeAllInstances=True, NextToken=next_token)
+            else:
+                response = self.client.describe_instance_status(IncludeAllInstances=True)
+
+            events.extend(response['InstanceStatuses'])
+
+            # 检查是否有更多分页
+            if 'NextToken' in response:
+                next_token = response['NextToken']
+            else:
+                break
+
+        return events
