@@ -27,9 +27,9 @@ ln -snf /data/mydan /opt/mydan
 
 MYDanPATH=/data/mydan
 
-if [[ -d $MYDanPATH/etc/agent/auth/ && ! -f $MYDanPATH/etc/agent/auth/c3_[[:envname:]].pub ]]; then
-    wget $OPEN_C3_ADDR/api/scripts/c3_[[:envname:]].pub -O $MYDanPATH/etc/agent/auth/c3_[[:envname:]].pub
-fi
+#if [[ -d $MYDanPATH/etc/agent/auth/ && ! -f $MYDanPATH/etc/agent/auth/c3_[[:envname:]].pub ]]; then
+#    wget $OPEN_C3_ADDR/api/scripts/c3_[[:envname:]].pub -O $MYDanPATH/etc/agent/auth/c3_[[:envname:]].pub
+#fi
 
 rotatekey=$(curl -L $OPEN_C3_ADDR/api/scripts/agent_key_uuid 2>/dev/null | head -n 1 | grep -E "^c[0-9]_[a-zA-Z][-_a-zA-Z0-9]*[a-zA-Z]_[0-9]{6,}$" )
 if [[ -d $MYDanPATH/etc/agent/auth/ && ! -f $MYDanPATH/etc/agent/auth/${rotatekey}.pub ]]; then
@@ -49,9 +49,9 @@ curl --connect-timeout 5 -m 5 myip.ipip.net 2>/dev/null|awk '{print $2}'|awk -Fï
 
 if [ -f /opt/mydan/dan/.success ]; then
 
-    if [[ -d $MYDanPATH/etc/agent/auth/ && ! -f $MYDanPATH/etc/agent/auth/c3_[[:envname:]].pub ]]; then
-        wget $OPEN_C3_ADDR/api/scripts/c3_[[:envname:]].pub -O $MYDanPATH/etc/agent/auth/c3_[[:envname:]].pub
-    fi
+#    if [[ -d $MYDanPATH/etc/agent/auth/ && ! -f $MYDanPATH/etc/agent/auth/c3_[[:envname:]].pub ]]; then
+#        wget $OPEN_C3_ADDR/api/scripts/c3_[[:envname:]].pub -O $MYDanPATH/etc/agent/auth/c3_[[:envname:]].pub
+#    fi
 
     if [[ -d $MYDanPATH/etc/agent/auth/ && ! -f $MYDanPATH/etc/agent/auth/${rotatekey}.pub ]]; then
         wget $OPEN_C3_ADDR/api/scripts/${rotatekey}.pub -O $MYDanPATH/etc/agent/auth/${rotatekey}.pub
@@ -80,7 +80,7 @@ else
     $MYDanPATH/dan/bootstrap/bin/bootstrap --restart $OPEN_C3_AGENT_USER
 fi
 
-wget $OPEN_C3_ADDR/api/scripts/c3_[[:envname:]].pub -O $MYDanPATH/etc/agent/auth/c3_[[:envname:]].pub
+#wget $OPEN_C3_ADDR/api/scripts/c3_[[:envname:]].pub -O $MYDanPATH/etc/agent/auth/c3_[[:envname:]].pub
 wget $OPEN_C3_ADDR/api/scripts/${rotatekey}.pub -O $MYDanPATH/etc/agent/auth/${rotatekey}.pub
 
 touch $MYDanPATH/etc/iamproxy
