@@ -22,11 +22,7 @@ return sub
 
     die "envinfo config undef" unless $Config->{envinfo};
 
-    my $extendenvname = `cat '/etc/openc3.agent.extendenvname' 2>/dev/null`;
-    chomp $extendenvname;
-    $extendenvname = $envname unless $extendenvname && $extendenvname =~ /^[a-zA-Z0-9]+$/;
-
-    my %macro = ( %{$Config->{envinfo}}, envname => $envname, extendenvname => $extendenvname );
+    my %macro = ( %{$Config->{envinfo}}, envname => $envname );
 
     die "config/installAgent.sh.Template null" unless my $conf = `cat $RealBin/../config/installAgent.sh.Template`;
 

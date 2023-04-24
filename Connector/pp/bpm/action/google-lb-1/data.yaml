@@ -11,14 +11,15 @@ option:
   - name: load_balancer_name
     describe: 负载均衡器名称 
     type: input
-  
+    information: "名称必须以小写字母开头, 后跟最多62个小写字母、数字或-，并且不能以-结尾。"
+
   - name: tag
     describe: 标签
     # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
     type: kvarray
     fromops: 1
     value: "[]"
-    information: "标签只能包含小写字母、数字、下划线和短横线。该值最多可以有63个字符长度。国际字符是允许的。"
+    information: "由于谷歌云不支持在标签中写入某些特殊字符, 比如 '@', 因此如果标签中有特殊字符, 平台会统一对这些特殊字符进行转码再存到云端。谷歌云对标签中允许的字符的规定是: 标签只能包含小写字母、数字、下划线和短横线。该值最多可以有63个字符长度。国际字符是允许的。"
 
 template_argv:
   # bpm单号

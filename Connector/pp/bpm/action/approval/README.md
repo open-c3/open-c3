@@ -111,3 +111,9 @@ template_argv:
   title:    "BPM/${_bpmuuid_}/申请在K8S集群中创建应用"
   content:  "\n申请人:${_user_}\n集群ID:${x.cluster}\n集群名称:${x.cluster__alias}\n应用模版:${x.template}\nBPM单号:${_bpmuuid_}\n申请理由:${x.note}"
 ```
+
+### vuuidowner
+
+```
+和ipowner的用法类似，区别在于这里是vuuid的资源owner进行审批。
+```

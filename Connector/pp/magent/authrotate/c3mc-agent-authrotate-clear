@@ -18,9 +18,9 @@ chomp $version;
 die "cluster format error" unless $cluster && $cluster =~ /^[a-zA-Z\d]+[a-zA-Z\d_\-\.]*[a-zA-Z\d]+$/;
 die "version format error" unless $version && $version =~ /^\d+$/;
 
-my $name  = "${cluster}_${version}";
+die "not allow: test" if $cluster eq 'test';
 
-die "make key err" if system "c3mc-agent-authrotate-make-key";
+my $name  = "${cluster}_${version}";
 
 my    @x = `c3mc-agent-authrotate-data`;
 chomp @x;
@@ -34,6 +34,15 @@ for( @x )
 
 for my $ip ( keys %data )
 {
-    next if $data{ $ip }{ "c3_$name" };
-    system "/data/Software/mydan/dan/tools/rcall  -r '$ip' dump /data/open-c3-data/authrotate/c3_$name.pub --path /opt/mydan/etc/agent/auth/c3_$name.pub"
+    my %tmp;
+    for my $x (keys %{ $data{ $ip } } )
+    {
+        next unless $x eq 'c3_test' || $x =~/^c3_test_(\d+)$/;
+        $tmp{ $x } = 1;
+    }
+
+    next unless keys %tmp;
+
+    my $del = join ' ', map{ "'$_.pub'" } keys %tmp;
+    system "/data/Software/mydan/dan/tools/rcall -r '$ip' exec \"cd /opt/mydan/etc/agent/auth && rm $del\"";
 }

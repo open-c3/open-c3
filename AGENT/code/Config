@@ -21,6 +21,8 @@ return sub
     die "load config fail: $@" if $@;
 
     die "envnaem $envname undef in config/Config" unless $Config->{$envname};
+
+    system "c3mc-agent-authrotate-make-key";
     
     for( qw( conn envinfo api.agent.x.x.conf installAgent.sh installProxy.sh cookiekey ) )
     {
