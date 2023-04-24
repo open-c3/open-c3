@@ -6,13 +6,10 @@ import json
 import subprocess
 
 
-def domain(params):
+def create_tt(params):
     content = params["content"]
 
-    submit_user = "sys@app"
-    if 'submit_user' in params:
-        submit_user = params['submit_user']
-
+    submit_user = params['submit_user'] if 'submit_user' in params else "sys@app"
     ext_tt = subprocess.getoutput("c3mc-sys-ctl sys.bpm.tt.type")
 
     resp = subprocess.run([
@@ -27,12 +24,12 @@ def domain(params):
     )
     if resp.returncode != 0:
         err = resp.stderr.decode('utf-8').rstrip()
-        print("LOG. 创建tt出错: {}".format(err))
-        raise Exception(err)
+        print(f"LOG. 创建tt出错: {err}", file=sys.stderr)
+        exit(1)
 
     tt_number = resp.stdout.decode('utf-8').rstrip()
 
-    print("LOG. tt单号: {}".format(tt_number), flush=True)
+    print(f"LOG. tt单号: {tt_number}", flush=True)
 
     resp = subprocess.run([
         "c3mc-wait-ticket-status-change",
@@ -44,21 +41,20 @@ def domain(params):
     )
     if resp.returncode != 0:
         err = resp.stderr.decode('utf-8').rstrip()
-        print("LOG. 等待tt结束出错: {}".format(err))
-        raise Exception(err)
+        print(f"LOG. 等待tt结束出错: {err}")
+        exit(1)
 
     tt_status_txt = resp.stdout.decode('utf-8').rstrip()
-    print("LOG. tt结束, 单号: {}, 状态: {}".format(tt_number, tt_status_txt))
-
-    return
+    print(f"LOG. tt结束, 单号: {tt_number}, 状态: {tt_status_txt}")
 
 
 def main(params):
-    domain(params)
+    create_tt(params)
     
 
 if __name__ == '__main__':
-    l = []
-    for line in sys.stdin:
-        l.append(line)
-    main(json.loads(''.join(l)))
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
+    
+    main(json.loads(l[0]))
