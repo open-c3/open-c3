@@ -672,3 +672,120 @@ class GoogleCompute:
                 data.extend(response['items'])
             request = self.service.forwardingRules().list_next(previous_request=request, previous_response=response)
         return data
+
+    def list_backend_service(self):
+        """查询全局性后端服务列表
+        """
+        data = []
+        project_id = self.credentials.project_id
+        request = self.service.backendServices().list(project=project_id)
+        while request is not None:
+            response = request.execute()
+            if 'items' in response:
+                data.extend(response['items'])
+            request = self.service.backendServices().list_next(previous_request=request, previous_response=response)
+        return data
+
+    def list_region_backend_service(self, region):
+        """查询区域性后端服务列表
+        """
+        data = []
+        project_id = self.credentials.project_id
+        request = self.service.regionBackendServices().list(project=project_id, region=region)
+        while request is not None:
+            response = request.execute()
+            if 'items' in response:
+                data.extend(response['items'])
+            request = self.service.regionBackendServices().list_next(previous_request=request, previous_response=response)
+        return data
+
+    def list_target_http_proxies(self):
+        """查询全局性http代理列表
+        """
+        data = []
+        project_id = self.credentials.project_id
+        request = self.service.targetHttpProxies().list(project=project_id)
+        while request is not None:
+            response = request.execute()
+            if 'items' in response:
+                data.extend(response['items'])
+            request = self.service.targetHttpProxies().list_next(previous_request=request, previous_response=response)
+        return data
+
+    def list_region_target_http_proxies(self, region):
+        """查询区域性http代理列表
+        """
+        data = []
+        project_id = self.credentials.project_id
+        request = self.service.regionTargetHttpProxies().list(project=project_id, region=region)
+        while request is not None:
+            response = request.execute()
+            if 'items' in response:
+                data.extend(response['items'])
+            request = self.service.regionTargetHttpProxies().list_next(previous_request=request, previous_response=response)
+        return data
+
+    def list_target_https_proxies(self):
+        """查询全局性https代理列表
+        """
+        data = []
+        project_id = self.credentials.project_id
+        request = self.service.targetHttpsProxies().list(project=project_id)
+        while request is not None:
+            response = request.execute()
+            if 'items' in response:
+                data.extend(response['items'])
+            request = self.service.targetHttpsProxies().list_next(previous_request=request, previous_response=response)
+        return data
+
+    def list_region_target_https_proxies(self, region):
+        """查询区域性https代理列表
+        """
+        data = []
+        project_id = self.credentials.project_id
+        request = self.service.regionTargetHttpsProxies().list(project=project_id, region=region)
+        while request is not None:
+            response = request.execute()
+            if 'items' in response:
+                data.extend(response['items'])
+            request = self.service.regionTargetHttpsProxies().list_next(previous_request=request, previous_response=response)
+        return data
+
+
+    def delete_forwarding_rule(self, forwarding_rule):
+        project_id = self.credentials.project_id
+        response = self.service.globalForwardingRules().delete(
+            project=project_id,
+            forwardingRule=forwarding_rule).execute()
+        self._wait_for_global_operation(response["name"])
+
+
+    def delete_target_http_proxy(self, proxy_name):
+        project_id = self.credentials.project_id
+        response = self.service.targetHttpProxies().delete(
+            project=project_id,
+            targetHttpProxy=proxy_name).execute()
+        self._wait_for_global_operation(response["name"])
+
+    def delete_target_https_proxy(self, proxy_name):
+        project_id = self.credentials.project_id
+        response = self.service.targetHttpsProxies().delete(
+            project=project_id,
+            targetHttpsProxy=proxy_name).execute()
+        self._wait_for_global_operation(response["name"])
+
+    def delete_url_map(self, url_map):
+        project_id = self.credentials.project_id
+        response = self.service.urlMaps().delete(
+            project=project_id,
+            urlMap=url_map).execute()
+        self._wait_for_global_operation(response["name"])
+
+
+    def delete_backend_service(self, backend_service):
+        project_id = self.credentials.project_id
+        response = self.service.backendServices().delete(
+            project=project_id,
+            backendService=backend_service).execute()
+        self._wait_for_global_operation(response["name"])
+
