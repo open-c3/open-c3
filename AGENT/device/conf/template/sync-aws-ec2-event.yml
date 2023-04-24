@@ -1,0 +1,69 @@
+download:
+  # - url: "cmd:c3mc-cloud-account-list --type aws-ec2-event |xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-aws-ec2-event --account aws --cloudaccount {} | c3mc-cloud-tag-v2 --tagfield Tags --key Key --value Value | c3mc-base-json2tab "
+  - url: "cmd:c3mc-cloud-account-list --type aws-ec2-event |xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-aws-ec2-event --account aws --cloudaccount {} |  c3mc-base-json2tab "
+    datatype: tsv # 固定值。表示url中命令最终输出的文件格式
+    type: others # 资源类型。cmdb页面中的分类
+    subtype: aws-ec2-event # 上面资源类型的子类型。
+    treeinfo:
+      treename: "服务树" # 指明哪一列对应服务树。这一列没有对应列，页面显示的值为空
+      treeinfo:
+        - ["实例ID", "instance"] # 和监控相关 。 指标是 treeinfo
+    check:
+      col: ["实例ID"] # 打印出的数据必须有的字段
+      min: 0 # url中明林执行后最少一行输出，否则认为出错
+    util:
+      defaulttree: defaulttree.pool # 默认的服务树，资源归还后被放到这里
+      extcol:
+        - name: audit
+          alias: 审计
+          select: ["YES", "NO"]
+        - name: remarks
+          alias: 备注
+        - name: _ingestion_
+          alias: 摄取
+          select: ["YES", "NO"]
+      grpcol:
+        baseinfo:
+          - name: "account"
+          - name: "实例ID"
+          - name: "区域"
+          - name: "状态"
+          - name: "关联Ec2 ID"
+          - name: "事件码"
+        system:
+          - name: "不得早于"
+          - name: "不得晚于"
+    colmap:
+      treename: "服务树"
+      uuid: "实例ID" # 指明哪一列作为uuid列
+    alias:
+      InstanceEventId: "实例ID"
+      InstanceId: "关联Ec2ID"
+      Code: "事件码"
+      Description: "事件描述"
+      NotBefore: "不得早于"
+      NotAfter: "不得晚于"
+      Status: "状态"
+      Region: "区域"
+    filter:
+      - name: "account"
+        alias: 账号
+      - name: "区域"
+        alias: 区域
+      - name: "状态"
+        alias: 状态
+    outline:
+      uuid:
+        - "实例ID"
+      baseinfo:
+        - "account"
+        - "区域"
+        - "实例ID"
+        - "事件码"
+      system:
+        - "关联Ec2 ID"
+        - "状态"
+        - "不得早于"
+        - "不得晚于"
+      contact:
+        - "服务树"
