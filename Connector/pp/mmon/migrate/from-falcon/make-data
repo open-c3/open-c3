@@ -233,7 +233,9 @@ sub makedata_rule
         next;
     }
 
-    for my $k ( qw( priority for right_value op func2c3 ) )
+    $data->{right_value_k} = int ( $data->{right_value} =~ /000$/ ? $data->{right_value} / 1000 : $data->{right_value} / 1024 );
+
+    for my $k ( qw( priority for right_value right_value_k op func2c3 ) )
     {
         my $v = $data->{$k};
         $tpl =~ s/\$VAR\{$k\}/$v/g;
