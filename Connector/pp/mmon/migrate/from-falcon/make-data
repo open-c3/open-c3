@@ -42,9 +42,10 @@ sub makedata_collector_filecheck
         $tpl =~ s/\$VAR\{$k\}/$v/g;
     }
 
+    my $md5 = Digest::MD5->new->add( $tpl )->hexdigest;
     my $path = "$dist/collector/$data->{treeid}";
     system "mkdir -p '$path'" unless -d $path;
-    my $file = "$path/$data->{tpl_name}";
+    my $file = "$path/$data->{tpl_name}.$md5";
     print "make collector: $data->{metric} $file\n";
     my $H;
     open($H, ">$file" ) || die "open $file $!";
@@ -111,9 +112,10 @@ sub makedata_collector_httpcheck
         $tpl =~ s/\$VAR\{$k\}/$v/g;
     }
 
+    my $md5 = Digest::MD5->new->add( $tpl )->hexdigest;
     my $path = "$dist/collector/$data->{treeid}";
     system "mkdir -p '$path'" unless -d $path;
-    my $file = "$path/$data->{tpl_name}";
+    my $file = "$path/$data->{tpl_name}.$md5";
     print "make collector: $data->{metric} $file\n";
     my $H;
     open($H, ">$file" ) || die "open $file $!";
@@ -146,9 +148,10 @@ sub makedata_collector_netportlisten
         $tpl =~ s/\$VAR\{$k\}/$v/g;
     }
 
+    my $md5 = Digest::MD5->new->add( $tpl )->hexdigest;
     my $path = "$dist/collector/$data->{treeid}";
     system "mkdir -p '$path'" unless -d $path;
-    my $file = "$path/$data->{tpl_name}";
+    my $file = "$path/$data->{tpl_name}.$md5";
     print "make collector: $data->{metric} $file\n";
     my $H;
     open($H, ">$file" ) || die "open $file $!";
@@ -164,11 +167,11 @@ sub makedata_collector_procnum
     my $tpl = `cat '$tpl_file'`;
 
     my ( $type, $name );
-    if( $data->{tags} =~ m#name=([a-zA-Z0-9\-\.]+)# )
+    if( $data->{tags} =~ m#name=([a-zA-Z0-9][a-zA-Z0-9\-\.\_]+)# )
     {
         ( $type, $name ) = ( 'name', $1 );
     }
-    elsif( $data->{tags} =~ m#cmdline=([a-zA-Z0-9\-\.\/]+)# )
+    elsif( $data->{tags} =~ m#cmdline=([a-zA-Z0-9][a-zA-Z0-9\-\.\/\_]+)# )
     {
         ( $type, $name ) = ( 'cmdline', $1 );
     }
@@ -188,9 +191,10 @@ sub makedata_collector_procnum
         $tpl =~ s/\$VAR\{$k\}/$v/g;
     }
 
+    my $md5 = Digest::MD5->new->add( $tpl )->hexdigest;
     my $path = "$dist/collector/$data->{treeid}";
     system "mkdir -p '$path'" unless -d $path;
-    my $file = "$path/$data->{tpl_name}";
+    my $file = "$path/$data->{tpl_name}.$md5";
     print "make collector: $data->{metric} $file\n";
 
     my $H;
@@ -233,7 +237,9 @@ sub makedata_rule
         next;
     }
 
-    for my $k ( qw( priority for right_value op func2c3 ) )
+    $data->{right_value_k} = int ( $data->{right_value} =~ /000$/ ? $data->{right_value} / 1000 : $data->{right_value} / 1024 );
+
+    for my $k ( qw( priority for right_value right_value_k op func2c3 ) )
     {
         my $v = $data->{$k};
         $tpl =~ s/\$VAR\{$k\}/$v/g;

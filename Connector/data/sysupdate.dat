@@ -832,3 +832,5 @@ create table if not exists `openc3_connector_user_login_audit`(
 `time`    TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '时间'
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='用户登录审计';
 
+# v2.6.0 sql openc3_ci_project modify tag_regex to 100
+ALTER TABLE openc3_ci_project modify `tag_regex` varchar(100) DEFAULT NULL COMMENT '正则表达式';
