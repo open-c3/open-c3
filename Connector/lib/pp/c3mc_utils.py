@@ -102,3 +102,38 @@ def check_if_params_safe_in_recycle(user_commited_instance_ids, bpm_uuid, bpm_ac
         # 用户拒绝继续操作，直接退出程序
         print("用户拒绝继续操作，直接退出程序")
         exit(0)
+
+# 下面的 decode_for_special_symbol 和 encode_for_special_symbol 
+# 用于实现 bpm目录下 `special_encoding.md` 文件中编码规则的编码和解码
+# 
+# 下面代码仅处理 ASCII 中的特殊字符（非字母数字字符），而不处理其他 Unicode 字符
+def decode_for_special_symbol(encoded_str):
+    decoded_str = ''
+    i = 0
+    while i < len(encoded_str):
+        if encoded_str[i] == 'E':
+            temp = ''
+            i += 1
+            while i < len(encoded_str) and encoded_str[i] != 'E':
+                temp += encoded_str[i]
+                i += 1
+            if i < len(encoded_str) and encoded_str[i] == 'E':
+                if temp.isdigit() and 0 <= int(temp) < 128:
+                    decoded_str += chr(int(temp))
+                    i += 1
+                else:
+                    decoded_str += f'E{temp}'
+            else:
+                decoded_str += f'E{temp}'
+        else:
+            decoded_str += encoded_str[i]
+            i += 1
+
+    return decoded_str
+
+
+def encode_for_special_symbol(decoded_str):
+    return ''.join(
+        char if char.isalnum() or ord(char) >= 128 else f'E{ord(char)}E' for char in decoded_str
+    )
+

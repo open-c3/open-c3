@@ -5,6 +5,12 @@ import json
 import subprocess
 import sys
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_google_compute import GoogleCompute
+from c3mc_utils import decode_for_special_symbol
+
+
+
 
 class GoogleLB:
     def __init__(self, params):
@@ -29,9 +35,6 @@ class GoogleLB:
         self.instance_group_m = self.get_instance_info()
 
     def create_lib_client(self):
-        sys.path.append("/data/Software/mydan/Connector/lib/pp")
-        from c3mc_cloud_google_compute import GoogleCompute
-
         return GoogleCompute(self.cred_path)
 
     def get_instance_info(self):
@@ -211,7 +214,7 @@ class GoogleLB:
                 value = tag["value"].strip() 
                 if key == "" or value == "":
                     continue
-                tags[key] = value
+                tags[decode_for_special_symbol(key)] = decode_for_special_symbol(value)
 
             proxy = "targetHttpProxies"
             if item["protocol"] == "https":

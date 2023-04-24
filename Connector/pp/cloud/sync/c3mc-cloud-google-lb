@@ -4,6 +4,10 @@
 import sys
 import json
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_google_compute import GoogleCompute
+from c3mc_utils import encode_for_special_symbol
+
 
 class LB:
     def __init__(self, cred_json_path, region):
@@ -12,8 +16,6 @@ class LB:
         self.lib_client = self.create_lib_client()
 
     def create_lib_client(self):
-        sys.path.append("/data/Software/mydan/Connector/lib/pp")
-        from c3mc_cloud_google_compute import GoogleCompute
         return GoogleCompute(self.cred_json_path)
 
     def get_lb_name(self, target_str):
@@ -59,8 +61,8 @@ class LB:
             if name in m_labels:
                 for key, value in m_labels[name].items():
                     url_map_list[i]["tags_list"].append({
-                        "Key": key,
-                        "Value": value
+                        "Key": encode_for_special_symbol(key),
+                        "Value": encode_for_special_symbol(value)
                     })
 
         return url_map_list
