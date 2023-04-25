@@ -69,6 +69,8 @@ def main():
         res = requests.request(
             "POST", api_addr, headers=headers, data=json.dumps(request_data))
 
+        print(f"处理ip {args.ip}, 请求{api_addr}, 响应: {res.text}")
+
         data = json.loads(res.text)
         # 通过一个代理执行成功后直接退出
         if data["stat"] == 1:

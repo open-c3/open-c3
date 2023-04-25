@@ -111,10 +111,12 @@ def process_element(thread_safe_set, ip, instance_id, grant_auth_type, account, 
     ]
 
     output = subprocess.run(cmd_parts, capture_output=True, text=True)
+    print(f"\n\n执行c3mc-bl-permission, 输出:  {output}")
     if output.returncode == 0:
         thread_safe_set.update(ip)
-
         print(f"LOG. 服务器 {ip} 权限申请成功")
+    else:
+        print(f"LOG. 服务器 {ip} 权限添加失败")
 
 
 def grant_server_auth(account, email, ip_list, grant_auth_type, grant_sudo_hours):
