@@ -165,4 +165,25 @@ post '/bpm/protect/:bpmuuid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
 
+=pod
+
+BPM/获取BPM任务的UUID
+
+=cut
+
+get '/bpm/taskuuid/:bpmuuid' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        bpmuuid => qr/^[a-zA-Z\d]+$/, 1,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $pmscheck = api::pmscheck( 'openc3_agent_read' ); return $pmscheck if $pmscheck;
+
+    my $r = eval{ $api::mysql->query( "select uuid from openc3_job_task where extid='$param->{bpmuuid}'" )}; 
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    return +{ stat => $JSON::false, info => "nofind bpm taskuuid" } unless $r && @$r > 0;
+    return +{ stat => $JSON::true, data => $r->[0][0] };
+};
+
 true;
