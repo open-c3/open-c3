@@ -9,8 +9,34 @@ import requests
 import random
 import string
 from urllib.parse import urljoin
+import socket
+from urllib.parse import urlparse
 
 MAX_LENGTH_OF_PASSWORD = 15
+
+
+def test_connection(ip, port):
+    try:
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock.settimeout(3)
+        sock.connect((ip, port))
+        return True
+    except socket.error as e:
+        return False
+    finally:
+        sock.close()
+
+def extract_ip_port(url_str):
+    if not url_str.startswith("http://") and not url_str.startswith("https://"):
+        url_str = f"http://{url_str}"
+
+    url = urlparse(url_str)
+
+    if not url.hostname or not url.port:
+        raise ValueError("Invalid URL format")
+
+    return url.hostname, url.port
+
 
 def generate_password():
     """使用大写字母、小写字母、数字，创建指定长度的密码
@@ -65,11 +91,19 @@ def main():
 
     ok = False
     for proxy_addr in proxy_addr_list:
+        ip, port = extract_ip_port(proxy_addr)
+        connection_ok = test_connection(ip, port)
+
+        print(f"测试代理服务连通性 {proxy_addr}, 结果 {'成功' if connection_ok else '失败'}")
+        
         api_addr = urljoin(proxy_addr.strip(), "/run")
         res = requests.request(
             "POST", api_addr, headers=headers, data=json.dumps(request_data))
-
-        print(f"处理ip {args.ip}, 请求{api_addr}, 响应: {res.text}")
+        
+        print(f"处理ip {args.ip}")
+        print(f"请求代理地址 {proxy_addr}")
+        print(f"请求代理时, 调用的参数为: {json.dumps(request_data)}")
+        print(f"响应: {res.text}")
 
         data = json.loads(res.text)
         # 通过一个代理执行成功后直接退出
@@ -77,7 +111,6 @@ def main():
             ok = True
             break
     if not ok:
-        print(f"权限添加失败: {args.ip}")
         exit(1)
 
 

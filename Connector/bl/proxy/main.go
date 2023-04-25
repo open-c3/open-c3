@@ -18,6 +18,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+type outputLog struct {
+	Cmd string `json:"cmd"`
+	Output string `json:"output"`
+	Error string `json:"error"`
+}
+
 func main() {
 	logrus.SetFormatter(&logrus.TextFormatter{
 		FullTimestamp: true,
@@ -114,15 +120,21 @@ func main() {
 		cmdStr := filepath.Join(*commandDir, data.Command)
 		log.Printf("cmd = %v %v", cmdStr, strings.Join(argsStr, " "))
 
-
 		cmd := exec.Command(cmdStr, argsStr...)
 		output, err := cmd.CombinedOutput()
+
+		var o outputLog
+		o.Cmd = data.Command
+		o.Output = string(output)
+
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"stat": 0, "info": fmt.Sprintf("命令:  %v 执行失败, 错误: %v, 输出: %v", data.Command, err, string(output))})
+			o.Error = err.Error()
+			bo, _ := json.Marshal(o)
+			c.JSON(http.StatusBadRequest, gin.H{"stat": 0, "info":  string(bo)})
 			return
 		}
 
-		c.JSON(http.StatusOK, gin.H{"stat": 1, "info": fmt.Sprintf("命令:  %v 执行成功, 输出: %v", data.Command, string(output))})
+		c.JSON(http.StatusOK, gin.H{"stat": 1, "data": strings.TrimSpace(string(output))})
 	})
 
 	go func() {

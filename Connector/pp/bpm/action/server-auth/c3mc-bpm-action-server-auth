@@ -99,24 +99,43 @@ def create_user_if_need(account, email):
 
 
 # 专门针对单个ip添加权限的线程处理函数
-def process_element(thread_safe_set, ip, instance_id, grant_auth_type, account, email, grant_sudo_hours):
-    cmd_parts = [
-        "c3mc-bl-permission",
-        "--add_type", str(grant_auth_type),
-        "--username", account,
-        "--email", email,
-        "--ip", ip,
-        "--instance_id", instance_id,
-        "--sudo_hours", str(grant_sudo_hours)
-    ]
+def process_element(thread_safe_set, ip_info, grant_auth_type, account, email, grant_sudo_hours):
+    log_msg_list = [f"对实例ID {ip_info['instanceId']} 添加权限. "]
+    def add_auth_for_ip(ip):
+        cmd_parts = [
+            "c3mc-bl-permission",
+            "--add_type", str(grant_auth_type),
+            "--username", account,
+            "--email", email,
+            "--ip", ip,
+            "--instance_id", ip_info["instanceId"],
+            "--sudo_hours", str(grant_sudo_hours)
+        ]
 
-    output = subprocess.run(cmd_parts, capture_output=True, text=True)
-    print(f"\n\n执行c3mc-bl-permission, 输出:  {output}")
-    if output.returncode == 0:
-        thread_safe_set.update(ip)
-        print(f"LOG. 服务器 {ip} 权限申请成功")
-    else:
-        print(f"LOG. 服务器 {ip} 权限添加失败")
+        output = subprocess.run(cmd_parts, capture_output=True, text=True)
+        
+        log_msg_list.append(f"尝试使用对 ip {ip} 添加权限")
+        log_msg_list.append(f"执行的命令为: {' '.join(output.args)}")
+        log_msg_list.append(f"状态码: {output.returncode}")
+        log_msg_list.append(f"输出日志: \n{output.stdout}")
+        if not output.stderr and str(output.stderr).strip() != "":
+            log_msg_list.append(f"错误日志: {output.stderr}")
+
+        if output.returncode == 0:
+            log_msg_list.append(f"LOG. 服务器 {ip} 权限申请成功")
+            log_msg_list.append("====================")
+            thread_safe_set.update(ip)
+            return True
+        log_msg_list.append(f"LOG. 服务器 {ip} 权限申请失败")
+        log_msg_list.append("====================")
+        return False
+
+    for ip in [ip_info["inIP"], ip_info["exIP"]]:
+        if add_auth_for_ip(ip):
+            break
+
+    print("-----------------------------------------------------------------")
+    print("\n\n".join(log_msg_list))
 
 
 def grant_server_auth(account, email, ip_list, grant_auth_type, grant_sudo_hours):
@@ -136,42 +155,28 @@ def grant_server_auth(account, email, ip_list, grant_auth_type, grant_sudo_hours
         print("补充信息, ip_list = ", json.dumps(ip_list), file=sys.stderr)
         exit(1)
 
-    # 记录从c3mc-device-api-jumpserver查出的机器的内外网ip
-    ip_m = {}
-    ip_info_m = {}
-
-
-    for data in data_list:
-        in_ip = data["inIP"].strip()
-        ex_ip = data["exIP"].strip()
-
-        ip_m[in_ip] = ex_ip
-        ip_m[ex_ip] = in_ip
-
-        ip_info_m[in_ip] = data
-        ip_info_m[ex_ip] = data
-    
     # 判断是否有ip从c3中无法查到
     for ip in ip_list:
-        if ip not in ip_m:
+        found = any(
+            ip_info["inIP"] == ip or ip_info["exIP"] == ip
+            for ip_info in data_list
+        )
+        if not found:
             print(f"LOG. 服务器 {ip} 权限申请失败。原因: ip在c3中无法找到", file=sys.stderr)
             exit(1)
-    
+
     # 线程池
     thread_pool = []
 
     # 结果数组, 里面存放成功添加权限的ip
     thread_safe_set = ThreadSafeSet()
 
-    for ip in ip_m:
-        if ip == "":
-            continue
-
+    for ip_info in data_list:
         while threading.active_count() > MAX_CONCURRENT_NUMBER:
             time.sleep(0.3)
 
         t = threading.Thread(target=process_element, args=(
-            thread_safe_set, ip, ip_info_m[ip]["instanceId"], grant_auth_type, account, email, grant_sudo_hours
+            thread_safe_set, ip_info, grant_auth_type, account, email, grant_sudo_hours
         ), name=f"Thread-{ip}")
         thread_pool.append(t)
         t.start()
@@ -179,17 +184,14 @@ def grant_server_auth(account, email, ip_list, grant_auth_type, grant_sudo_hours
     # 等待所有线程运行完毕
     for t in thread_pool:
         t.join()
-    
-    for ip in thread_safe_set.data:
-        if ip in ip_m:
-            related_ip = ip_m[ip]
-            ip_m.pop(ip, None)
-            if related_ip in ip_m:
-                ip_m.pop(related_ip, None)
 
-    for ip in ip_m:
-        print(f"LOG. 服务器 {ip} 权限申请失败。", file=sys.stderr)
-    if ip_m:
+    for ip in thread_safe_set.data:
+        data_list = [ip_info for ip_info in data_list if ip_info["inIP"] != ip and ip_info["exIP"] != ip]
+
+    for ip_info in data_list:
+        print(f"LOG. 服务器权限申请失败, 内网ip: {ip_info.inIP}, 外网ip: {ip_info.exIP}", file=sys.stderr)
+
+    if data_list:
         exit(1)
 
 
