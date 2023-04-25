@@ -16,7 +16,7 @@
                 function successCallback(response) {
                     if (response.data.stat){
                         vm.loadover = true
-                        $state.go('home.history.jobdetail', {treeid: '0',taskuuid: response.data.data,jobuuid:'jobuuid', jobtype:'type'});
+                        $state.go('home.history.bpmdetail', {treeid: '0',taskuuid: response.data.data,jobuuid:'jobuuid', jobtype:'type'});
                     }else {
                         swal('获取任务编号失败', response.data.info, 'error' );
                     }
