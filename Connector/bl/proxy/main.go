@@ -18,6 +18,12 @@ import (
 	"github.com/sirupsen/logrus"
 )
 
+type outputLog struct {
+	Cmd string `json:"cmd"`
+	Output string `json:"output"`
+	Error string `json:"error"`
+}
+
 func main() {
 	logrus.SetFormatter(&logrus.TextFormatter{
 		FullTimestamp: true,
@@ -116,8 +122,15 @@ func main() {
 
 		cmd := exec.Command(cmdStr, argsStr...)
 		output, err := cmd.CombinedOutput()
+
+		var o outputLog
+		o.Cmd = data.Command
+		o.Output = string(output)
+
 		if err != nil {
-			c.JSON(http.StatusBadRequest, gin.H{"stat": 0, "info": fmt.Sprintf("%v. %v", err, string(output))})
+			o.Error = err.Error()
+			bo, _ := json.Marshal(o)
+			c.JSON(http.StatusBadRequest, gin.H{"stat": 0, "info":  string(bo)})
 			return
 		}
 
