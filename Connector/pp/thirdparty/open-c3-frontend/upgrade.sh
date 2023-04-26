@@ -1,4 +1,13 @@
 #!/bin/bash
 set -e
 cd /data/open-c3/Installer/C3/pkg
- ./extract-module.sh  open-c3-frontend
+
+VERSION=`cat open-c3-frontend/version`;
+if [ "X$VERSION" == "X" ];then
+    echo nofind VERSION
+    exit 1
+fi
+
+docker push openc3/pkg-open-c3-frontend:$VERSION
+
+./extract-module.sh  open-c3-frontend
