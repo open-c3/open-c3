@@ -4,11 +4,16 @@
 import sys
 import json
 import subprocess
+import time
 
 from tencentcloud.common import credential
 from tencentcloud.common.profile.client_profile import ClientProfile
 from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.cvm.v20170312 import cvm_client, models
+
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_qcloud_cvm import Cvm as LIB_CVM
 
 
 class Cvm:
@@ -18,6 +23,7 @@ class Cvm:
         self.region = region
         self.params = params
         self.client = self.create_client()
+        self.lib_client = self.create_lib_client()
 
     def create_client(self):
         cred = credential.Credential(
@@ -28,6 +34,9 @@ class Cvm:
         clientProfile = ClientProfile()
         clientProfile.httpProfile = httpProfile
         return cvm_client.CvmClient(cred, self.region, clientProfile)
+    
+    def create_lib_client(self):
+        return LIB_CVM(self.access_id, self.access_key, self.region)
 
     def get_bool_value(self, text_bool):
         return text_bool == "是"
@@ -118,6 +127,20 @@ class Cvm:
         req.from_json_string(json.dumps(api_params))
         return req
 
+    def wait_for_get_instance_uuid(self, instance_id, timeout=600):
+        """
+        获取实例uuid, 超时时间默认为10分钟
+        """
+        start_time = time.time()
+        while True:
+            instance_info = self.lib_client.show_cvm(instance_id)
+            if instance_info['Uuid'] != "":
+                return instance_info['Uuid']
+            if time.time() - start_time > timeout:
+                return ""
+            else:
+                time.sleep(5)
+
     def create_cvm(self):
         req = self.get_request()
         print(f"创建cvm, 请求参数为: {req}")
@@ -135,9 +158,13 @@ class Cvm:
                 print(f"创建cvm, 响应为: {resp.to_json_string()}")
 
                 for instance_id in resp.InstanceIdSet:
-                    print(f"LOG. instance_id:{instance_id}")
-                    print(f"VAR. instance_id:{instance_id}")
-                    print(f'VAR. extinstance_id:{self.params["account"]}.{self.params["region"]}.{instance_id}')
+                    instance_uuid = self.wait_for_get_instance_uuid(instance_id)
+                    if instance_uuid == "":
+                        print(f"无法在10分钟内获取实例的uuid字段的有效值, instance_id: {instance_id}")
+
+                    print(f"LOG. instance_id:{instance_uuid}")
+                    print(f"VAR. instance_id:{instance_uuid}")
+                    print(f'VAR. extinstance_id:{self.params["account"]}.{self.params["region"]}.{instance_uuid}')
             except Exception as e:
                 print(f"创建腾讯云cvm出错, err: {e}", file=sys.stderr)
                 exit(1)
