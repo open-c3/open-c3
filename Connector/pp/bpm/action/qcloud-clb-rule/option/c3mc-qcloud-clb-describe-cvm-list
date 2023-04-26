@@ -51,7 +51,7 @@ class Cvm:
             item["PublicIp"] = ""
             if len(item["PrivateIpAddresses"]) > 0:
                 item["PrivateIp"] = item["PrivateIpAddresses"][0]
-            if len(item["PublicIpAddresses"]) > 0:
+            if "PublicIpAddresses" in item and item["PublicIpAddresses"] is not None:
                 item["PublicIp"] = item["PublicIpAddresses"][0]
             print(json.dumps(item, default=str))
 
