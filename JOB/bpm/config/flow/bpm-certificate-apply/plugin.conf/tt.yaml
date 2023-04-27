@@ -1,0 +1,74 @@
+---
+name: SQL操作
+option:
+  - name: apply_type
+    describe: 申请类型
+    type: select
+    option: ["商业证书购买申请", "免费证书申请"]
+    value: ""
+    information: "备注: 国内云仅支持单域名，aws支持泛域名，且国内云厂商每个账号仅能申请20个免费证书 仅支持DV型证书，仅对域名所有权进行验证，快速颁发、可信度低"
+
+  - name: target
+    describe: 使用对象
+    type: select
+    option: 
+      - AWS
+      - 腾讯云
+      - 阿里云
+      - 金山云
+      - 谷歌云
+      - 华为云
+      - 百度云
+      - 其他云厂商
+      - 多云
+      - 其他
+    value: ""
+
+  - name: years
+    describe: 购买年限
+    type: number
+    value: ""
+
+  - name: product_name
+    describe: 产品名称
+    type: input
+    value: ""
+
+  - name: company_name
+    describe: 公司主体名称
+    type: input
+    value: ""
+
+  - name: domain
+    describe: 域名
+    type: input
+    value: ""
+
+  - name: ops_owner
+    describe: 运维负责人
+    type: input
+    value: ""
+
+  - name: product_owner
+    describe: 业务负责人
+    type: input
+    value: ""
+
+  - name: note
+    describe: 申请理由
+    type: text
+    value: ""
+
+template_argv:
+  title:    "BPM/公有云证书申请"
+  content:  |
+    申请类型: ${apply_type}
+    证书类型: "SSL证书(域名)"
+    使用对象: ${target}
+    购买年限: ${years}
+    产品名称: ${product_name}
+    公司主体名称: ${company_name}
+    域名: ${domain}
+    运维负责人: ${ops_owner}
+    业务负责人: ${product_owner}
+    申请理由: ${note}

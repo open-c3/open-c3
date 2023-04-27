@@ -1,0 +1,51 @@
+---
+name: 变更CDN服务
+option:
+  - name: domain
+    describe: 域名
+    type: input
+    value: ""
+
+  - name: buffer_rule
+    describe: 缓冲规则
+    type: input
+    value: ""
+
+  - name: bandwidth
+    describe: 预计带宽(G)
+    type: number
+    value: ""
+
+  - name: support_gzip
+    describe: 支持gzip
+    type: select
+    option: ["是", "否"]
+    value: ""
+
+  - name: support_http2
+    describe: 支持http2
+    type: select
+    option: ["是", "否"]
+    value: ""
+
+  - name: immediate_to_cdn
+    describe: 配置完成直接指向CDN
+    type: select
+    option: ["是", "否"]
+    value: ""
+
+  - name: note
+    describe: 申请理由
+    type: text
+    value: ""
+
+template_argv:
+  title:    "BPM/变更CDN服务"
+  content:  |
+    域名: ${domain}
+    缓冲规则: ${buffer_rule}
+    预计带宽(G): ${bandwidth}
+    支持gzip: ${support_gzip}
+    支持http2: ${support_http2}
+    配置完成直接指向CDN: ${immediate_to_cdn}
+    申请理由: ${note}
