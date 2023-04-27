@@ -1,0 +1,45 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_aws_ec2 import LIB_EC2
+
+
+class Ec2Event:
+    def __init__(self, access_id, access_key, region):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.region = region
+        self.lib_client = self.create_lib_client()
+
+    def create_lib_client(self):
+        return LIB_EC2(self.access_id, self.access_key, self.region)
+
+    def list_events(self):
+        scheduled_events = []
+        instance_status_list = self.lib_client.describe_instance_status()
+        for instance_status in instance_status_list:
+            if "Events" in instance_status:
+                for item in instance_status["Events"]:
+                    item["InstanceId"] = instance_status["InstanceId"]
+                    item["Status"] = "Completed" if "Completed" in item["Description"] else "Unknown"
+                    item["Region"] = self.region
+                    scheduled_events.append(item)
+        return scheduled_events
+
+    def show(self):
+        events_list = self.list_events()
+        for event in events_list:
+            print(json.dumps(event, default=str))
+
+
+def main(access_id, access_key, region):
+    Ec2Event(access_id, access_key, region).show()
+
+
+if __name__ == "__main__":
+    main(sys.argv[1], sys.argv[2], sys.argv[3])

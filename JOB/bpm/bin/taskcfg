@@ -51,6 +51,9 @@ if( $conf->{multi} )
     @grp = map{ "$_." }keys %grp;
 }
 
+my $c3webaddr = `c3mc-sys-ctl sys.c3webaddr`;
+chomp $c3webaddr;
+
 for my $grp ( sort @grp )
 {
     my $uuid = "$idx[0].$grp"; $uuid =~ s/\.$//;
@@ -84,6 +87,8 @@ for my $grp ( sort @grp )
         next unless $tk =~ s/^\d+\.\d+\./x./;
         $var{$tk} = $var->{$k};
     }
+
+    $var{_caseurl_} = "$c3webaddr/#/bpmcase/\${_bpmuuid_}";
 
    # 这里var进行两次替换，因为这里可能有变量嵌套
     for( 1.. 2 )

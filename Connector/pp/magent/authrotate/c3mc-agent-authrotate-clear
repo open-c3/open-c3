@@ -44,5 +44,5 @@ for my $ip ( keys %data )
     next unless keys %tmp;
 
     my $del = join ' ', map{ "'$_.pub'" } keys %tmp;
-    system "/data/Software/mydan/dan/tools/rcall -r '$ip' exec \"cd /opt/mydan/etc/agent/auth && rm $del\"";
+    system "MYDan_Agent_KEY_PATH=/data/open-c3-data/authrotate/c3_$name /data/Software/mydan/dan/tools/rcall -r '$ip' exec \"cd /opt/mydan/etc/agent/auth && rm $del\"";
 }

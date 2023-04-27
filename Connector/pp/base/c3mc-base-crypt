@@ -10,12 +10,44 @@ use MYDan::Util::OptConf;
 =head1 SYNOPSIS
 
  $0 mesg --encode || --decode
+ cat mesg.file| $0 --encode || --decode
+
+ # 如果要处理的数据是用分号分隔的多个列，可以通过--col指定要处理的列
+ # 比如要处理第一和第二列，可以添加参数 --col 1,2
+
+ $0 mesg --col 1,2  --encode || --decode
+ cat mesg.file| $0 --col 1,2  --encode || --decode
 
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o      = $option->get(    qw( encode decode ) )->dump();
-$option->assert() unless @ARGV;
+my %o      = $option->get( qw( encode decode col=s ) )->dump();
 
 my $c = OPENC3::Crypt->new();
-printf "%s\n", $o{decode} ? $c->decode( $ARGV[0] ) : $c->encode( $ARGV[0] );
+
+my @col = $o{col} ? grep{ $_ && $_ =~ /^\d+$/ }split /,/, $o{col} : ();
+my %col = map{ $_ - 1 => 1 }@col;
+
+sub c
+{
+    my $x = shift @_;
+    if( @col )
+    {
+        my @x = split /;/, $_;
+        printf "%s\n", join ";", map{ $col{$_} ? $o{decode} ? $c->decode( $x[$_] ) : $c->encode( $x[$_] ) : $x[$_] }0 .. @x -1;
+    }
+    else
+    {
+        printf "%s\n", $o{decode} ? $c->decode( $x ) : $c->encode( $x );
+    }
+}
+
+if( @ARGV )
+{
+    map{ c( $_ ) }@ARGV;
+}
+else
+{
+    while( <STDIN> ) { chomp; c( $_ ); }
+}
+
