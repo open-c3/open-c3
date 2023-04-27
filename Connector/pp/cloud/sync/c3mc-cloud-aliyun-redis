@@ -5,7 +5,9 @@ import sys
 import json
 
 from aliyunsdkcore.client import AcsClient
-from aliyunsdkr_kvstore.request.v20150101.DescribeInstancesRequest import DescribeInstancesRequest
+from aliyunsdkr_kvstore.request.v20150101.DescribeInstancesRequest import (
+    DescribeInstancesRequest,
+)
 
 
 class REDIS:
@@ -16,12 +18,11 @@ class REDIS:
         self.client = self.create_client()
 
     def create_client(self):
-        client = AcsClient(self.access_id, self.access_key, self.region)
-        return client
+        return AcsClient(self.access_id, self.access_key, self.region)
 
     def get_region_redis(self, page_number=1, page_size=50):
         request = DescribeInstancesRequest()
-        request.set_accept_format('json')
+        request.set_accept_format("json")
         request.set_PageNumber(page_number)
         request.set_PageSize(page_size)
         response = self.client.do_action_with_exception(request)
@@ -32,10 +33,10 @@ class REDIS:
         page_num = 1
         while True:
             data = self.get_region_redis(page_num)
-            if not data or 'Instances' not in data:
+            if not data or "Instances" not in data:
                 break
             page_num += 1
-            instance_list = data['Instances']['KVStoreInstance']
+            instance_list = data["Instances"]["KVStoreInstance"]
             if not instance_list:
                 break
             for instance in instance_list:
@@ -51,9 +52,12 @@ class REDIS:
 
 
 def main(access_id, access_key, region):
-    obj = REDIS(access_id, access_key, region)
-    obj.show()
+    try:
+        REDIS(access_id, access_key, region).show()
+    except Exception as e:
+        print(f"同步阿里云redis资源出错. access_id: {access_id}, region: {region}", file=sys.stderr)
+        raise e
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3])

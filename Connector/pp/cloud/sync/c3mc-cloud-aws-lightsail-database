@@ -56,12 +56,12 @@ class LightsailDatabase:
         while True:
             params = {}
             if next_page_token:
-                params['pageToken'] = next_page_token
+                params["pageToken"] = next_page_token
             response = self.client.get_relational_databases(**params)
             instances += self.get_data_from_response(response)
-            if 'nextPageToken' not in response:
+            if "nextPageToken" not in response:
                 break
-            next_page_token = response['nextPageToken']
+            next_page_token = response["nextPageToken"]
         return instances
 
     def show(self):
@@ -73,7 +73,11 @@ class LightsailDatabase:
 def main(access_id, access_key, region):
     if region not in lightsail_support_regions:
         return
-    LightsailDatabase(access_id, access_key, region).show()
+    try:
+        LightsailDatabase(access_id, access_key, region).show()
+    except Exception as e:
+        print(f"同步aws lightsail database资源出错. access_id: {access_id}, region: {region}", file=sys.stderr)
+        raise e
 
 
 if __name__ == "__main__":

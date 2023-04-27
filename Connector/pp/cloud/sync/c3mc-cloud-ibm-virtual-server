@@ -63,10 +63,12 @@ class IBMVirtualServer:
 
 
 def main(username, password, raw_vpc_name):
-    vpc_name = None
-    if raw_vpc_name.lower() != "none":
-        vpc_name = raw_vpc_name
-    IBMVirtualServer(username, password, vpc_name).display()
+    try:
+        vpc_name = raw_vpc_name if raw_vpc_name.lower().strip() != "none" else None
+        IBMVirtualServer(username, password, vpc_name).display()
+    except Exception as e:
+        print(f"同步ibm virtual server资源出错. access_id: {username}", file=sys.stderr)
+        raise e
 
 
 if __name__ == '__main__':

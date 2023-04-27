@@ -1,0 +1,37 @@
+---
+name: 数据库权限
+option:
+  - name: account
+    describe: 账户名称
+    type: input
+    value: ""
+  - name: source_ip
+    describe: 访问源IP
+    type: input
+    value: ""
+  - name: database_addr
+    describe: 数据库地址
+    type: input
+    value: ""
+  - name: database_name
+    describe: 数据库名称
+    type: input
+    value: ""
+
+  - name: auth_type
+    describe: 权限类型(必选)
+    type: select
+    option: ["增加", "删除", "修改", "查看"]
+
+  - name: database_owner
+    describe: 数据库所属人
+    type: input
+    value: ""
+  - name: note
+    describe: 申请理由
+    type: text
+    value: ""
+
+template_argv:
+  title:    "BPM/数据库权限"
+  content:  "账户名称: ${account}\n访问源IP: ${source_ip}\n数据库地址: ${database_addr}\n数据库名称: ${database_name}\n权限类型: ${auth_type}\n数据库所属人: ${database_owner}\n申请理由: ${note}"

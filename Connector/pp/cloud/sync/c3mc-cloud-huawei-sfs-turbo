@@ -14,7 +14,6 @@ from huaweicloudsdksfsturbo.v1 import *
 # 测试ak没有sfs butbo资源，暂时先不做了
 
 
-
 class SfsTurbo:
     def __init__(self, access_id, access_key, project_id, region):
         self.access_id = access_id
@@ -25,8 +24,7 @@ class SfsTurbo:
         self.client = self.create_client()
 
     def create_client(self):
-        credentials = BasicCredentials(
-            self.access_id, self.access_key, self.project_id)
+        credentials = BasicCredentials(self.access_id, self.access_key, self.project_id)
         return (
             SFSTurboClient.new_builder()
             .with_credentials(credentials)
@@ -63,8 +61,12 @@ def main(access_id, access_key, project_id, region):
         project_id (str): 项目id
         region (str): 区域
     """
-    SfsTurbo(access_id, access_key, project_id, region).show()
+    try:
+        SfsTurbo(access_id, access_key, project_id, region).show()
+    except Exception as e:
+        print(f"同步华为云sfs turbo资源出错. access_id: {access_id}, region: {region}", file=sys.stderr)
+        raise e
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])

@@ -1,0 +1,118 @@
+---
+name: 新申请CDN服务
+option:
+  - name: domain
+    describe: 域名
+    type: input
+    value: ""
+
+  - name: platform
+    describe: 业务使用平台
+    type: select
+    option: ["PC端", "移动端", "PC端&移动端"]
+    value: ""
+
+  - name: cdn_type
+    describe: CDN类型
+    type: select
+    option: ["页面", "下载"]
+    value: ""
+
+  - name: loop_pattern
+    describe: 回源方式
+    type: select
+    option: ["IP回源", "域名回源"]
+    value: ""
+
+  - name: loop_address
+    describe: 回源的IP或域名
+    type: input
+    value: ""
+
+  - name: buffer_rule
+    describe: 缓冲规则
+    type: input
+    value: ""
+
+  - name: bandwidth
+    describe: 预计带宽(G)
+    type: number
+    value: ""
+
+  - name: accelerate_region
+    describe: 加速区域
+    type: select
+    option: ["国内", "海外", "国内&海外"]
+    value: ""
+
+  - name: is_profit_web
+    describe: 是否经营性网站(必选)
+    type: select
+    option: ["是", "否"]
+    value: ""
+
+  - name: product_name
+    describe: 业务名称
+    type: input
+    value: ""
+
+  - name: support_https
+    describe: 支持https
+    type: select
+    option: ["是", "否"]
+    value: ""
+
+  - name: source_port
+    describe: 回源端口
+    type: select
+    option: ["80", "443", "遵循请求"]
+    value: ""
+
+  - name: check_url
+    describe: 上线验证URL
+    type: input
+    value: ""
+
+  - name: support_gzip
+    describe: 支持gzip
+    type: select
+    option: ["是", "否"]
+    value: ""
+
+  - name: support_http2
+    describe: 支持http2
+    type: select
+    option: ["是", "否"]
+    value: ""
+
+  - name: immediate_to_cdn
+    describe: 配置完成直接指向CDN
+    type: select
+    option: ["是", "否"]
+    value: ""
+
+  - name: note
+    describe: 申请理由
+    type: text
+    value: ""
+
+template_argv:
+  title:    "BPM/新申请CDN服务"
+  content:  |
+    域名: ${domain}
+    业务使用平台: ${platform}
+    CDN类型: ${cdn_type}
+    回源方式: ${loop_pattern}
+    回源的IP或域名: ${loop_address}
+    缓冲规则: ${buffer_rule}
+    预计带宽(G): ${bandwidth}
+    加速区域: ${accelerate_region}
+    是否经营性网站(必选): ${is_profit_web}
+    业务名称: ${product_name}
+    支持https: ${support_https}
+    回源端口: ${source_port}
+    上线验证URL: ${check_url}
+    支持gzip: ${support_gzip}
+    支持http2: ${support_http2}
+    配置完成直接指向CDN: ${immediate_to_cdn}
+    申请理由: ${note}

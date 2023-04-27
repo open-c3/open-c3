@@ -74,7 +74,11 @@ class LB:
 
 
 def main(cred_json_path, region):
-    LB(cred_json_path, region).show()
+    try:
+        LB(cred_json_path, region).show()
+    except Exception as e:
+        print(f"同步谷歌云LB资源出错. region: {region}", file=sys.stderr)
+        raise e
 
 
 if __name__ == '__main__':

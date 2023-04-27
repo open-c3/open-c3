@@ -4,48 +4,40 @@
 import sys
 import json
 
-from google.oauth2 import service_account
-from googleapiclient import discovery
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_google_mysql import GoogleMysql
 
 
 class Mysql:
-    def __init__(self, cred_json_path):
+    def __init__(self, cred_json_path, region):
         self.cred_json_path = cred_json_path
-        self.credentials = self.create_credentials()
-        self.page_size = 500
+        self.region = region
+        self.lib_client = self.create_lib_client()
 
-    def create_credentials(self):
-        return service_account.Credentials.from_service_account_file(self.cred_json_path)
+    def create_lib_client(self):
+        return GoogleMysql(self.cred_json_path)
 
     def list_instance(self):
-        results = []
-        service = discovery.build(
-            'sqladmin', 'v1', credentials=self.credentials)
+        instance_list = self.lib_client.list_mysql_instances(self.region)
 
-        request = service.instances().list(project=self.credentials.project_id)
-        while request is not None:
-            response = request.execute()
-
-            for instance in response['items']:
-                instance.pop("serverCaCert", None)
-                if "ipAddresses" in instance:
-                    for item in instance["ipAddresses"]:
-                        if item["type"] == "PRIVATE":
-                            instance["private_ip"] = item["ipAddress"]
-                            break
-                instance["tags_list"] = []
-                if "userLabels" in instance["settings"]:
-                    for key, value in instance["settings"]["userLabels"].items():
-                        instance["tags_list"].append({
-                            "Key": key,
-                            "Value": value
-                        })
-                instance["id"] = "{}-{}-{}".format(instance["project"], instance["region"], instance["name"])
-                results.append(instance)
-
-            request = service.instances().list_next(
-                previous_request=request, previous_response=response)
-        return results
+        result = []
+        for instance in instance_list:
+            instance.pop("serverCaCert", None)
+            if "ipAddresses" in instance:
+                for item in instance["ipAddresses"]:
+                    if item["type"] == "PRIVATE":
+                        instance["private_ip"] = item["ipAddress"]
+                        break
+            instance["tags_list"] = []
+            if "userLabels" in instance["settings"]:
+                for key, value in instance["settings"]["userLabels"].items():
+                    instance["tags_list"].append({
+                        "Key": key,
+                        "Value": value
+                    })
+            instance["id"] = f'{instance["project"]}-{instance["region"]}-{instance["name"]}'
+            result.append(instance)
+        return result
 
     def show(self):
         instance_list = self.list_instance()
@@ -53,10 +45,13 @@ class Mysql:
             print(json.dumps(instance))
 
 
-def main(cred_json_path):
-    mysql = Mysql(cred_json_path)
-    mysql.show()
+def main(cred_json_path, region):
+    try:
+        Mysql(cred_json_path, region).show()
+    except Exception as e:
+        print(f"同步谷歌云rds资源出错. region: {region}", file=sys.stderr)
+        raise e
 
 
 if __name__ == '__main__':
-    main(sys.argv[1])
+    main(sys.argv[1], sys.argv[2])

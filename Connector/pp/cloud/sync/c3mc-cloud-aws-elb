@@ -6,6 +6,9 @@ import json
 
 import boto3
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_aws_elb_get_tag import GetTag
+
 
 class Elb:
     def __init__(self, access_id, access_key, region):
@@ -36,16 +39,18 @@ class Elb:
 
         res = self.get_data("")
         if res["name_tag_dict"] is not None:
-            name_tag_dict = dict(list(name_tag_dict.items()) +
-                                 list(res["name_tag_dict"].items()))
+            name_tag_dict = dict(
+                list(name_tag_dict.items()) + list(res["name_tag_dict"].items())
+            )
         result.extend(res["data_list"])
         next_marker = res["next_marker"]
 
         while next_marker != "":
             res = self.get_data(next_marker)
             if res["name_tag_dict"] is not None:
-                name_tag_dict = dict(list(name_tag_dict.items()) +
-                                     list(res["name_tag_dict"].items()))
+                name_tag_dict = dict(
+                    list(name_tag_dict.items()) + list(res["name_tag_dict"].items())
+                )
             result.extend(res["data_list"])
             next_marker = res["next_marker"]
 
@@ -57,31 +62,23 @@ class Elb:
     def get_data(self, next_marker=""):
         response = None
         if next_marker == "":
-            response = self.client.describe_load_balancers(
-                PageSize=self.page_size)
+            response = self.client.describe_load_balancers(PageSize=self.page_size)
         else:
             response = self.client.describe_load_balancers(
-                PageSize=self.page_size, Marker=next_marker)
-        loadBalancerNames = []
+                PageSize=self.page_size, Marker=next_marker
+            )
         data_list = self.get_instances_from_response(response)
-        for instance in data_list:
-            loadBalancerNames.append(instance["LoadBalancerName"])
-
+        loadBalancerNames = [instance["LoadBalancerName"] for instance in data_list]
         d = self.list_tag(
-            self.access_id, self.access_key, self.region, loadBalancerNames)
+            self.access_id, self.access_key, self.region, loadBalancerNames
+        )
 
-        res = {
-            "next_marker": "",
-            "data_list": data_list,
-            "name_tag_dict": d
-        }
+        res = {"next_marker": "", "data_list": data_list, "name_tag_dict": d}
         if "NextMarker" in response:
             res["next_marker"] = response["NextMarker"]
         return res
 
     def list_tag(self, access_id, access_key, region, loadBalancerNames):
-        sys.path.append("/data/Software/mydan/Connector/lib/pp")
-        from c3mc_cloud_aws_elb_get_tag import GetTag
         return GetTag(access_id, access_key, region).list_tag(loadBalancerNames)
 
     def show(self):
@@ -91,8 +88,12 @@ class Elb:
 
 
 def main(access_id, access_key, region):
-    Elb(access_id, access_key, region).show()
+    try:
+        Elb(access_id, access_key, region).show()
+    except Exception as e:
+        print(f"同步aws elb资源出错. access_id: {access_id}, region: {region}", file=sys.stderr)
+        raise e
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3])

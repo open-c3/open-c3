@@ -5,8 +5,11 @@ import sys
 import json
 
 from kscore.session import get_session
+
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
 from c3mc_cloud_ksyun_vpc import Vpc
+from c3mc_cloud_ksyun_get_tag import GetTag
+
 
 class Epc:
     def __init__(self, access_id, access_key, region):
@@ -18,9 +21,12 @@ class Epc:
 
     def create_client(self):
         s = get_session()
-        client = s.create_client(
-            "epc", ks_access_key_id=self.access_id, ks_secret_access_key=self.access_key, region_name=self.region)
-        return client
+        return s.create_client(
+            "epc",
+            ks_access_key_id=self.access_id,
+            ks_secret_access_key=self.access_key,
+            region_name=self.region,
+        )
 
     def get_instances_from_response(self, response_data):
         results = []
@@ -34,11 +40,10 @@ class Epc:
 
         response = self.client.describe_epcs(MaxResults=self.page_size)
         results = self.get_instances_from_response(response)
-        while "NextToken" in response:
-            if response["NextToken"] is None:
-                break
+        while "NextToken" in response and response["NextToken"] is not None:
             response = self.client.describe_epcs(
-                MaxResults=self.page_size, NextToken=response["NextToken"])
+                MaxResults=self.page_size, NextToken=response["NextToken"]
+            )
             results.extend(self.get_instances_from_response(response))
 
         tag_dict = self.list_tag()
@@ -49,22 +54,29 @@ class Epc:
 
             if instance["HostId"] in tag_dict:
                 instance["Tag"] = tag_dict[instance["HostId"]]
-            
-            if 'OsName' in instance:
-                instance["os"] = "Windows" if instance["OsName"].lower().find("window") != -1 else "Linux"
+
+            if "OsName" in instance:
+                instance["os"] = (
+                    "Windows"
+                    if instance["OsName"].lower().find("window") != -1
+                    else "Linux"
+                )
             else:
                 instance["os"] = "Other"
 
             print(json.dumps(instance, default=str))
 
     def list_tag(self):
-        from c3mc_cloud_ksyun_get_tag import GetTag
         return GetTag(self.access_id, self.access_key, self.region).get_tag_dict()
 
 
 def main(access_id, access_key, region):
-    Epc(access_id, access_key, region).show()
+    try:
+        Epc(access_id, access_key, region).show()
+    except Exception as e:
+        print(f"同步金山云epc资源出错. access_id: {access_id}, region: {region}", file=sys.stderr)
+        raise e
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3])

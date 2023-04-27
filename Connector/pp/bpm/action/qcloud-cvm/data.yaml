@@ -216,12 +216,12 @@ option:
     fromops: 1
   # --------------------------------
 
-  - name: enable_monitor
-    describe: 开启监控服务
-    command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
-    type: selectx
-    value: "是"
-    fromops: 1
+  # - name: enable_monitor
+  #   describe: 开启监控服务
+  #   command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
+  #   type: selectx
+  #   value: "是"
+  #   fromops: 1
 
   # - name: disable_api_termination
   #   describe: 实例销毁保护
@@ -279,7 +279,7 @@ template_argv:
   if_need_public_ip: ${if_need_public_ip}
 
   # 开启监控服务
-  enable_monitor: ${enable_monitor}
+  enable_monitor: "否"
 
   # 实例销毁保护标志，表示是否允许通过api接口删除实例。取值范围：
   # 是：表示开启实例保护，不允许通过api接口删除实例

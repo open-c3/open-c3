@@ -5,7 +5,9 @@ import sys
 import json
 
 from aliyunsdkcore.client import AcsClient
-from aliyunsdkslb.request.v20140515.DescribeLoadBalancersRequest import DescribeLoadBalancersRequest
+from aliyunsdkslb.request.v20140515.DescribeLoadBalancersRequest import (
+    DescribeLoadBalancersRequest,
+)
 
 
 class Slb:
@@ -18,12 +20,11 @@ class Slb:
         self.page_size = 25
 
     def create_client(self):
-        client = AcsClient(self.access_id, self.access_key, self.region)
-        return client
+        return AcsClient(self.access_id, self.access_key, self.region)
 
     def set_request(self):
         request = DescribeLoadBalancersRequest()
-        request.set_accept_format('json')
+        request.set_accept_format("json")
         request.set_PageNumber(self.page_number)
         request.set_PageSize(self.page_size)
         return request
@@ -31,8 +32,7 @@ class Slb:
     def get_response(self):
         request = self.set_request()
         response = self.client.do_action_with_exception(request)
-        response_data = json.loads(response)
-        return response_data
+        return json.loads(response)
 
     def get_server_count(self):
         try:
@@ -41,11 +41,11 @@ class Slb:
             if "The specified RegionId does not exist" in str(e):
                 return 0
             raise RuntimeError("获取阿里云slb资源出错") from e
-        return response_data['TotalCount']
+        return response_data["TotalCount"]
 
     def show(self):
         response_data = self.get_response()
-        instances = response_data['LoadBalancers']['LoadBalancer']
+        instances = response_data["LoadBalancers"]["LoadBalancer"]
         for instance in instances:
             if "Tags" in instance and "Tag" in instance["Tags"]:
                 instance["Tag"] = instance["Tags"]["Tag"]
@@ -54,8 +54,7 @@ class Slb:
 
     def page(self):
         count = self.get_server_count()
-        mod = count % self.page_size
-        if mod:
+        if count % self.page_size:
             total_page_number = int(count / self.page_size) + 1
         else:
             total_page_number = int(count / self.page_size)
@@ -66,8 +65,12 @@ class Slb:
 
 
 def main(access_id, access_key, region):
-    Slb(access_id, access_key, region).page()
+    try:
+        Slb(access_id, access_key, region).page()
+    except Exception as e:
+        print(f"同步阿里云slb资源出错. access_id: {access_id}, region: {region}", file=sys.stderr)
+        raise e
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3])

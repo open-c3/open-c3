@@ -9,9 +9,12 @@ from tencentcloud.common.profile.client_profile import ClientProfile
 from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.ckafka.v20190819 import ckafka_client, models
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import sleep_time_for_limiting
 
 # DescribeInstancesDetail() 的接口请求频率限制
 max_times_describe_instances_detail = 20
+
 
 class Ckafka:
     def __init__(self, access_id, access_key, region):
@@ -23,29 +26,26 @@ class Ckafka:
         self.client = self.create_client()
 
     def create_client(self):
-        cred = credential.Credential(
-            self.access_id, self.access_key)
+        cred = credential.Credential(self.access_id, self.access_key)
         httpProfile = HttpProfile()
         httpProfile.endpoint = "ckafka.tencentcloudapi.com"
 
         clientProfile = ClientProfile()
         clientProfile.httpProfile = httpProfile
-        client = ckafka_client.CkafkaClient(cred, self.region, clientProfile)
-        return client
+        return ckafka_client.CkafkaClient(cred, self.region, clientProfile)
 
     def set_request(self):
         req = models.DescribeInstancesDetailRequest()
         params = {
             "Limit": self.page_size,
-            "Offset": (self.page_number - 1) * self.page_size
+            "Offset": (self.page_number - 1) * self.page_size,
         }
         req.from_json_string(json.dumps(params))
         return req
 
     def get_response(self):
         req = self.set_request()
-        response_data = self.client.DescribeInstancesDetail(req)
-        return response_data
+        return self.client.DescribeInstancesDetail(req)
 
     def get_server_count(self):
         response_data = self.get_response()
@@ -54,7 +54,9 @@ class Ckafka:
     def list_instances(self):
         result = []
         response_data = self.get_response()
-        for instance in json.loads(response_data.to_json_string())["Result"]["InstanceList"]:
+        for instance in json.loads(response_data.to_json_string())["Result"][
+            "InstanceList"
+        ]:
             instance["RegionId"] = self.region
             result.append(instance)
         return result
@@ -65,15 +67,12 @@ class Ckafka:
             print(json.dumps(instance, default=str))
 
     def sleep(self):
-        sys.path.append("/data/Software/mydan/Connector/lib/pp")
-        from c3mc_utils import sleep_time_for_limiting
         sleep_time_for_limiting(max_times_describe_instances_detail)
 
     def page(self):
         try:
             count = self.get_server_count()
-            mod = count % self.page_size
-            if mod:
+            if count % self.page_size:
                 total_page_number = int(count / self.page_size) + 1
             else:
                 total_page_number = int(count / self.page_size)
@@ -85,13 +84,17 @@ class Ckafka:
         except Exception as e:
             if "该接口不支持此地域访问" in str(e):
                 return
-            else: 
-                raise Exception(e)
+            else:
+                raise e
 
 
 def main(access_id, access_key, region):
-    Ckafka(access_id, access_key, region).page()
+    try:
+        Ckafka(access_id, access_key, region).page()
+    except Exception as e:
+        print(f"同步腾讯云ckafka资源出错. access_id: {access_id}, region: {region}", file=sys.stderr)
+        raise e
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3])

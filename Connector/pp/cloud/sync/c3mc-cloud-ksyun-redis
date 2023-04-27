@@ -35,23 +35,28 @@ class Kcs:
 
     def create_client(self):
         s = get_session()
-        client = s.create_client(
-            "kcs", ks_access_key_id=self.access_id, ks_secret_access_key=self.access_key, region_name=self.region)
-        return client
+        return s.create_client(
+            "kcs",
+            ks_access_key_id=self.access_id,
+            ks_secret_access_key=self.access_key,
+            region_name=self.region,
+        )
 
     def get_response(self):
-        response_data = self.client.describe_cache_clusters(
+        return self.client.describe_cache_clusters(
             Offset=(self.page_number - 1) * self.page_size,
             Limit=self.page_size,
         )
-        return response_data
 
     def get_server_count(self):
-        try: 
+        try:
             response_data = self.get_response()
         except Exception as e:
             if "由于未知错误" in str(e):
-                print(f"同步金山云redis资源出现错误, 可能是区域配置错误问题. ak = {self.access_id}, region = {self.region}", file=sys.stderr)
+                print(
+                    f"同步金山云redis资源出现错误, 可能是区域配置错误问题. ak = {self.access_id}, region = {self.region}",
+                    file=sys.stderr,
+                )
                 return 0
         return 0 if response_data["Data"] is None else response_data["Data"]["total"]
 
@@ -72,8 +77,7 @@ class Kcs:
 
     def page(self):
         count = self.get_server_count()
-        mod = count % self.page_size
-        if mod:
+        if count % self.page_size:
             total_page_number = int(count / self.page_size) + 1
         else:
             total_page_number = int(count / self.page_size)
@@ -84,8 +88,12 @@ class Kcs:
 
 
 def main(access_id, access_key, region):
-    Kcs(access_id, access_key, region).page()
+    try:
+        Kcs(access_id, access_key, region).page()
+    except Exception as e:
+        print(f"同步金山云redis资源出错. access_id: {access_id}, region: {region}", file=sys.stderr)
+        raise e
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3])

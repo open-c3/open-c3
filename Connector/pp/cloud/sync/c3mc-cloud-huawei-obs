@@ -18,7 +18,7 @@ class Obs:
         return ObsClient(
             access_key_id=self.access_id,
             secret_access_key=self.access_key,
-            server="https://obs.{}.myhuaweicloud.com/".format(self.region)
+            server=f"https://obs.{self.region}.myhuaweicloud.com/",
         )
 
     def list_buckets(self):
@@ -26,7 +26,7 @@ class Obs:
         resp = self.client.listBuckets(isQueryLocation=True)
         for bucket in resp.body.buckets:
             item = {
-                "uuid": "obs-{}-{}".format(bucket.location, bucket.name),
+                "uuid": f"obs-{bucket.location}-{bucket.name}",
                 "name": bucket.name,
                 "create_date": bucket.create_date,
                 "location": bucket.location,
@@ -35,10 +35,12 @@ class Obs:
             tag_res = self.client.getBucketTagging(bucket.name)
             if tag_res.status == 200:
                 for tag_item in tag_res.body.tagSet:
-                    item["tags"].append({
-                        "key": tag_item.key,
-                        "value": tag_item.value,
-                    })
+                    item["tags"].append(
+                        {
+                            "key": tag_item.key,
+                            "value": tag_item.value,
+                        }
+                    )
             result.append(item)
         return result
 
@@ -49,8 +51,12 @@ class Obs:
 
 
 def main(access_id, access_key, region):
-    Obs(access_id, access_key, region).show()
+    try:
+        Obs(access_id, access_key, region).show()
+    except Exception as e:
+        print(f"同步华为云obs资源出错. access_id: {access_id}, region: {region}", file=sys.stderr)
+        raise e
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[4])

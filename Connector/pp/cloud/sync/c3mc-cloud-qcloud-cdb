@@ -3,15 +3,18 @@
 
 import sys
 import json
-import subprocess
 
 from tencentcloud.common import credential
 from tencentcloud.common.profile.client_profile import ClientProfile
 from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.cdb.v20170320 import cdb_client, models
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import sleep_time_for_limiting
+
 # DescribeDBInstances() 的接口请求频率限制
 max_times_describe_db_instances = 100
+
 
 class Cdb:
     def __init__(self, access_id, access_key, region):
@@ -29,16 +32,13 @@ class Cdb:
         }
 
     def create_client(self):
-        cred = credential.Credential(
-            self.access_id, self.access_key)
+        cred = credential.Credential(self.access_id, self.access_key)
         httpProfile = HttpProfile()
         httpProfile.endpoint = "cdb.tencentcloudapi.com"
 
         clientProfile = ClientProfile()
         clientProfile.httpProfile = httpProfile
-        client = cdb_client.CdbClient(cred, self.region, clientProfile)
-        return client
-
+        return cdb_client.CdbClient(cred, self.region, clientProfile)
 
     def set_request(self):
         req = models.DescribeDBInstancesRequest()
@@ -48,8 +48,7 @@ class Cdb:
 
     def get_response(self):
         request = self.set_request()
-        response_data = self.client.DescribeDBInstances(request)
-        return response_data
+        return self.client.DescribeDBInstances(request)
 
     def get_server_count(self):
         response_data = self.get_response()
@@ -70,15 +69,12 @@ class Cdb:
             print(json.dumps(instance, default=str))
 
     def sleep(self):
-        sys.path.append("/data/Software/mydan/Connector/lib/pp")
-        from c3mc_utils import sleep_time_for_limiting
         sleep_time_for_limiting(max_times_describe_db_instances)
 
     def page(self):
         try:
             count = self.get_server_count()
-            mod = count % self.page_size
-            if mod:
+            if count % self.page_size:
                 total_page_number = int(count / self.page_size) + 1
             else:
                 total_page_number = int(count / self.page_size)
@@ -90,14 +86,17 @@ class Cdb:
         except Exception as e:
             if "该接口不支持此地域访问" in str(e):
                 return []
-            else: 
-                raise Exception(e)
+            else:
+                raise e
 
 
 def main(access_id, access_key, region):
-    cdb = Cdb(access_id, access_key, region)
-    cdb.page()
+    try:
+        Cdb(access_id, access_key, region).page()
+    except Exception as e:
+        print(f"同步腾讯云cdb资源出错. access_id: {access_id}, region: {region}", file=sys.stderr)
+        raise e
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3])
