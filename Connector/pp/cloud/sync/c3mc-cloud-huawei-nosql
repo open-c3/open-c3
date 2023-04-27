@@ -5,7 +5,9 @@ import sys
 import json
 
 from huaweicloudsdkcore.auth.credentials import BasicCredentials
-from huaweicloudsdkgaussdbfornosql.v3.region.gaussdbfornosql_region import GaussDBforNoSQLRegion
+from huaweicloudsdkgaussdbfornosql.v3.region.gaussdbfornosql_region import (
+    GaussDBforNoSQLRegion,
+)
 from huaweicloudsdkgaussdbfornosql.v3 import *
 
 
@@ -13,10 +15,7 @@ class GaussDbForNoSql:
     def __init__(self, access_id, access_key, project_id, region):
         self.access_id = access_id
         self.access_key = access_key
-        if project_id == "None":
-            self.project_id = None
-        else:
-            self.project_id = project_id.strip()
+        self.project_id = None if project_id == "None" else project_id.strip()
         self.region = region
         self.offset = 0
         self.page_size = 25
@@ -24,24 +23,21 @@ class GaussDbForNoSql:
         self.client = self.create_client()
 
     def create_client(self):
-        credentials = BasicCredentials(
-            self.access_id, self.access_key, self.project_id)
-        client = GaussDBforNoSQLClient.new_builder() \
-            .with_credentials(credentials) \
-            .with_region(GaussDBforNoSQLRegion.value_of(self.region)) \
+        credentials = BasicCredentials(self.access_id, self.access_key, self.project_id)
+        return (
+            GaussDBforNoSQLClient.new_builder()
+            .with_credentials(credentials)
+            .with_region(GaussDBforNoSQLRegion.value_of(self.region))
             .build()
-        return client
+        )
 
     def set_request(self):
-        request = ListInstancesRequest(
-            offset=self.offset, limit=self.page_size)
-        return request
+        return ListInstancesRequest(offset=self.offset, limit=self.page_size)
 
     def get_response(self):
         request = self.set_request()
         response = self.client.list_instances(request)
-        response_data = json.loads(str(response))
-        return response_data
+        return json.loads(str(response))
 
     def get_server_count(self):
         response_data = self.get_response()
@@ -55,21 +51,24 @@ class GaussDbForNoSql:
 
     def page(self):
         count = self.get_server_count()
-        mod = count % self.page_size
-        if mod:
+        if count % self.page_size:
             total_page_number = int(count / self.page_size) + 1
         else:
             total_page_number = int(count / self.page_size)
 
-        for cur_page_number in range(0, total_page_number + 1):
+        for cur_page_number in range(total_page_number + 1):
             self.offset = cur_page_number * self.page_size
             self.show()
 
 
 # project_id 可以命令行传 None
 def main(access_id, access_key, project_id, region):
-    GaussDbForNoSql(access_id, access_key, project_id, region).page()
+    try:
+        GaussDbForNoSql(access_id, access_key, project_id, region).page()
+    except Exception as e:
+        print(f"同步华为云nosql资源出错. access_id: {access_id}, region: {region}", file=sys.stderr)
+        raise e
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])

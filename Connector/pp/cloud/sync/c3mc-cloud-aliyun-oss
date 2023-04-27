@@ -6,6 +6,9 @@ import json
 
 import oss2
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_aliyun_oss_get_tag import GetTag
+
 
 class Oss:
     def __init__(self, access_id, access_key, region):
@@ -16,7 +19,7 @@ class Oss:
         self.client = self.create_client()
 
     def create_client(self):
-        endpoint = 'https://oss-{}.aliyuncs.com'.format(self.region)
+        endpoint = f"https://oss-{self.region}.aliyuncs.com"
         auth = oss2.Auth(self.access_id, self.access_key)
         return oss2.Service(auth, endpoint)
 
@@ -30,10 +33,10 @@ class Oss:
                 "extranet_endpoint": bucket.extranet_endpoint,
                 "intranet_endpoint": bucket.intranet_endpoint,
                 "storage_class": bucket.storage_class,
+                "tags": self.list_tag(
+                    self.access_id, self.access_key, bucket.location, bucket.name
+                ),
             }
-            item["tags"] = self.list_tag(
-                self.access_id, self.access_key, bucket.location, bucket.name)
-
             bucket_list.append(item)
         return bucket_list
 
@@ -42,13 +45,12 @@ class Oss:
         results = self.get_buckets_from_response(response)
         while response.next_marker != "":
             response = self.client.list_buckets(
-                max_keys=self.page_size, marker=response.next_marker)
+                max_keys=self.page_size, marker=response.next_marker
+            )
             results.extend(self.get_buckets_from_response(response))
         return results
 
     def list_tag(self, access_id, access_key, location, bucket_name):
-        sys.path.append("/data/Software/mydan/Connector/lib/pp")
-        from c3mc_cloud_aliyun_oss_get_tag import GetTag
         return GetTag(access_id, access_key, location, bucket_name).list_tag()
 
     def show(self):
@@ -58,8 +60,12 @@ class Oss:
 
 
 def main(access_id, access_key, region):
-    Oss(access_id, access_key, region).show()
+    try:
+        Oss(access_id, access_key, region).show()
+    except Exception as e:
+        print(f"同步阿里云oss资源出错. access_id: {access_id}, region: {region}", file=sys.stderr)
+        raise e
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3])

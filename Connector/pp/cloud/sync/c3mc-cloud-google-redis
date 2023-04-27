@@ -23,9 +23,8 @@ class Redis:
         client = redis_v1.CloudRedisClient(credentials=self.credentials)
 
         request = redis_v1.ListInstancesRequest(
-            parent="projects/{}/locations/{}".format(
-                self.credentials.project_id, self.region),
-            page_size=self.page_size
+            parent=f"projects/{self.credentials.project_id}/locations/{self.region}",
+            page_size=self.page_size,
         )
 
         page_result = client.list_instances(request=request)
@@ -34,9 +33,10 @@ class Redis:
         for response in page_result:
             try:
                 item = MessageToDict(response)
-            except:
+            except Exception as e:
                 item = MessageToDict(response._pb)
-            item["uuid"] = "{}-{}".format(self.credentials.project_id, item["host"])
+
+            item["uuid"] = f'{self.credentials.project_id}-{item["host"]}'
             item["region"] = self.region
             item["project"] = self.credentials.project_id
             item["tags_list"] = []
@@ -56,7 +56,11 @@ class Redis:
 
 
 def main(cred_json_path, region):
-    Redis(cred_json_path, region).show()
+    try:
+        Redis(cred_json_path, region).show()
+    except Exception as e:
+        print(f"同步谷歌云redis资源出错. region: {region}", file=sys.stderr)
+        raise e
 
 
 if __name__ == '__main__':

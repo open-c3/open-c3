@@ -9,9 +9,22 @@ from tencentcloud.common.profile.client_profile import ClientProfile
 from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.cbs.v20170312 import cbs_client, models
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import sleep_time_for_limiting
+
 
 # DescribeDisks() 的接口请求频率限制
 max_times_describe_disks = 100
+
+
+def get_volume_item(item, unique_disk_id_m, cvm_m):
+    item["RegionId"] = item["Placement"]["Zone"][:-2]
+    item["ZoneId"] = item["Placement"]["Zone"]
+    item["account"] = unique_disk_id_m[item["DiskId"]]["account"]
+    item["accountuuid"] = unique_disk_id_m[item["DiskId"]]["accountuuid"]
+    if "InstanceId" in item and item["InstanceId"] in cvm_m:
+        item["_vmuuid_"] = cvm_m[item["InstanceId"]]
+    return item
 
 
 def get_volume(data_list):
@@ -42,7 +55,7 @@ def get_volume(data_list):
             if not disk_item["DiskId"].startswith("l"):
                 unique_disk_id_m[disk_item["DiskId"]] = {
                     "account": data["account"],
-                    "accountuuid": data["accountuuid"]
+                    "accountuuid": data["accountuuid"],
                 }
 
     disk_id_list = list(unique_disk_id_m.keys())
@@ -52,30 +65,21 @@ def get_volume(data_list):
         params = {
             "DiskIds": disk_id_list,
             "Limit": page_size,
-            "Offset": (cur_page_number - 1) * page_size
+            "Offset": (cur_page_number - 1) * page_size,
         }
         req.from_json_string(json.dumps(params))
         resp = client.DescribeDisks(req)
         resp = json.loads(resp.to_json_string())
 
         for item in resp["DiskSet"]:
-            item["RegionId"] = item["Placement"]["Zone"][:-2]
-            item["ZoneId"] = item["Placement"]["Zone"]
-            item["account"] = unique_disk_id_m[item["DiskId"]]["account"]
-            item["accountuuid"] = unique_disk_id_m[item["DiskId"]]["accountuuid"]
-            if "InstanceId" in item and item["InstanceId"] in cvm_m:
-                item["_vmuuid_"] = cvm_m[item["InstanceId"]]
+            item = get_volume_item(item, unique_disk_id_m, cvm_m)
             result.append(item)
-
         if len(resp["DiskSet"]) < page_size:
             break
-
     return result
 
 
 def sleep():
-    sys.path.append("/data/Software/mydan/Connector/lib/pp")
-    from c3mc_utils import sleep_time_for_limiting
     sleep_time_for_limiting(max_times_describe_disks)
 
 
@@ -87,9 +91,6 @@ def main(data_list):
         print(json.dumps(item, default=str))
 
 
-if __name__ == '__main__':
-    _data_list = []
-    for line in sys.stdin:
-        _data_list.append(json.loads(line))
-
+if __name__ == "__main__":
+    _data_list = [json.loads(line) for line in sys.stdin]
     main(_data_list)

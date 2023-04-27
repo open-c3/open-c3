@@ -5,8 +5,10 @@ import sys
 import json
 
 from kscore.session import get_session
+
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
 from c3mc_cloud_ksyun_vpc import Vpc
+from c3mc_cloud_ksyun_get_tag import GetTag
 
 
 class Kec:
@@ -19,17 +21,24 @@ class Kec:
 
     def create_client(self):
         s = get_session()
-        client = s.create_client(
-            "kec", ks_access_key_id=self.access_id, ks_secret_access_key=self.access_key, region_name=self.region)
-        return client
+        return s.create_client(
+            "kec",
+            ks_access_key_id=self.access_id,
+            ks_secret_access_key=self.access_key,
+            region_name=self.region,
+        )
 
     def get_instances_from_response(self, response_data):
         results = []
         for instance in response_data["InstancesSet"]:
             instance["RegionId"] = instance["AvailabilityZone"][:-1]
 
-            if 'Platform' in instance:
-                instance["os"] = "Windows" if instance["Platform"].lower().find("window") != -1 else "Linux"
+            if "Platform" in instance:
+                instance["os"] = (
+                    "Windows"
+                    if instance["Platform"].lower().find("window") != -1
+                    else "Linux"
+                )
             else:
                 instance["os"] = "Other"
 
@@ -41,11 +50,14 @@ class Kec:
 
         response = self.client.describe_instances(MaxResults=self.page_size)
         results = self.get_instances_from_response(response)
-        while "Marker" in response:
-            if response["Marker"] is None or response["Marker"] == 0:
-                break
+        while (
+            "Marker" in response
+            and response["Marker"] is not None
+            and response["Marker"] != 0
+        ):
             response = self.client.describe_instances(
-                MaxResults=self.page_size, Marker=response["Marker"])
+                MaxResults=self.page_size, Marker=response["Marker"]
+            )
             results.extend(self.get_instances_from_response(response))
 
         tag_dict = self.list_tag()
@@ -58,18 +70,23 @@ class Kec:
                 instance["VpcName"] = vpc_client.show_vpc(instance["VpcId"])["VpcName"]
 
                 if "PublicIp" in instance["NetworkInterfaceSet"][0]:
-                    instance["PublicIp"] = instance["NetworkInterfaceSet"][0]["PublicIp"]
+                    instance["PublicIp"] = instance["NetworkInterfaceSet"][0][
+                        "PublicIp"
+                    ]
 
             print(json.dumps(instance, default=str))
 
     def list_tag(self):
-        from c3mc_cloud_ksyun_get_tag import GetTag
         return GetTag(self.access_id, self.access_key, self.region).get_tag_dict()
 
 
 def main(access_id, access_key, region):
-    Kec(access_id, access_key, region).show()
+    try:
+        Kec(access_id, access_key, region).show()
+    except Exception as e:
+        print(f"同步金山云kec资源出错. access_id: {access_id}, region: {region}", file=sys.stderr)
+        raise e
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3])

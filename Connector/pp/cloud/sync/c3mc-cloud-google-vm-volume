@@ -63,8 +63,5 @@ def main(data_list):
 
 
 if __name__ == '__main__':
-    data_list = []
-    for line in sys.stdin:
-        data_list.append(json.loads(line))
-
+    data_list = [json.loads(line) for line in sys.stdin]
     main(data_list)

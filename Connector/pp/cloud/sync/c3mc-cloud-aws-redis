@@ -4,13 +4,16 @@
 import sys
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_aws_elasticache import Elasticache
 
 
 def main(access_id, access_key, region):
-    from c3mc_cloud_aws_elasticache import Elasticache
-    client = Elasticache("redis", access_id, access_key, region)
-    client.show()
+    try:
+        Elasticache("redis", access_id, access_key, region).show()
+    except Exception as e:
+        print(f"同步aws redis资源出错. access_id: {access_id}, region: {region}", file=sys.stderr)
+        raise e
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3])

@@ -6,6 +6,9 @@ import json
 
 import boto3
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_aws_dynamodb_get_tag import GetTag
+
 
 class Dynamodb:
     def __init__(self, access_id, access_key, region):
@@ -31,10 +34,7 @@ class Dynamodb:
             table_info = self.client.describe_table(TableName=table_name)
             table_arn = table_info["Table"]["TableArn"]
 
-            item = {}
-            for key, value in table_info["Table"].items():
-                item[key] = value
-
+            item = dict(table_info["Table"].items())
             item["RegionId"] = self.region
             item["Tag"] = self.list_tag(
                 self.access_id, self.access_key, self.region, table_arn)
@@ -42,8 +42,6 @@ class Dynamodb:
         return instance_list
 
     def list_tag(self, access_id, access_key, region, arn):
-        sys.path.append("/data/Software/mydan/Connector/lib/pp")
-        from c3mc_cloud_aws_dynamodb_get_tag import GetTag
         return GetTag(access_id, access_key, region, arn).list_tag()
 
     def show(self):
@@ -53,7 +51,11 @@ class Dynamodb:
 
 
 def main(access_id, access_key, region):
-    Dynamodb(access_id, access_key, region).show()
+    try:
+        Dynamodb(access_id, access_key, region).show()
+    except Exception as e:
+        print(f"同步aws dynamodb资源出错. access_id: {access_id}, region: {region}", file=sys.stderr)
+        raise e
 
 
 if __name__ == '__main__':

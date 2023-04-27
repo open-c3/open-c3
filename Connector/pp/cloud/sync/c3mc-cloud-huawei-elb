@@ -13,25 +13,21 @@ class Elb:
     def __init__(self, access_id, access_key, project_id, region):
         self.access_id = access_id
         self.access_key = access_key
-        if project_id == "None":
-            self.project_id = None
-        else:
-            self.project_id = project_id.strip()
+        self.project_id = None if project_id == "None" else project_id.strip()
         self.region = region
         self.client = self.create_client()
 
     def create_client(self):
-        credentials = BasicCredentials(
-            self.access_id, self.access_key, self.project_id)
-        client = ElbClient.new_builder() \
-            .with_credentials(credentials) \
-            .with_region(ElbRegion.value_of(self.region)) \
+        credentials = BasicCredentials(self.access_id, self.access_key, self.project_id)
+        return (
+            ElbClient.new_builder()
+            .with_credentials(credentials)
+            .with_region(ElbRegion.value_of(self.region))
             .build()
-        return client
+        )
 
     def set_request(self, marker):
-        request = ListLoadBalancersRequest()
-        return request
+        return ListLoadBalancersRequest()
 
     def get_instances_from_response(self, response):
         result = []
@@ -52,8 +48,12 @@ class Elb:
 
 # project_id 可以命令行传 None
 def main(access_id, access_key, project_id, region):
-    Elb(access_id, access_key, project_id, region).show()
+    try:
+        Elb(access_id, access_key, project_id, region).show()
+    except Exception as e:
+        print(f"同步华为云elb资源出错. access_id: {access_id}, region: {region}", file=sys.stderr)
+        raise e
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])

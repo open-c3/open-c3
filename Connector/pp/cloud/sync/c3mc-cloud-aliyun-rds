@@ -5,8 +5,15 @@ import json
 import sys
 
 from aliyunsdkcore.client import AcsClient
-from aliyunsdkrds.request.v20140815.DescribeDBInstancesRequest import DescribeDBInstancesRequest
-from aliyunsdkrds.request.v20140815.DescribeDBInstanceAttributeRequest import DescribeDBInstanceAttributeRequest
+from aliyunsdkrds.request.v20140815.DescribeDBInstancesRequest import (
+    DescribeDBInstancesRequest,
+)
+from aliyunsdkrds.request.v20140815.DescribeDBInstanceAttributeRequest import (
+    DescribeDBInstanceAttributeRequest,
+)
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_aliyun_rds_get_tag import GetTag
 
 
 class RDS:
@@ -19,12 +26,11 @@ class RDS:
         self.client = self.create_client()
 
     def create_client(self):
-        client = AcsClient(self.access_id, self.access_key, self.region)
-        return client
+        return AcsClient(self.access_id, self.access_key, self.region)
 
     def set_desc_request(self):
         request = DescribeDBInstancesRequest()
-        request.set_accept_format('json')
+        request.set_accept_format("json")
         request.set_PageNumber(self.page_number)
         request.set_PageSize(self.page_size)
         return request
@@ -32,39 +38,33 @@ class RDS:
     def get_desc_response(self):
         request = self.set_desc_request()
         response = self.client.do_action_with_exception(request)
-        response_data = json.loads(response)
-        return response_data
+        return json.loads(response)
 
     def get_rds_count(self):
         response_data = self.get_desc_response()
-        return response_data['TotalRecordCount']
+        return response_data["TotalRecordCount"]
 
     def get_db_instance_id(self):
         response_data = self.get_desc_response()
-        rds_data = response_data['Items']['DBInstance']
-        db_instance_id_list = []
-        for i in rds_data:
-            db_instance_id_list.append(i.get('DBInstanceId'))
-        return db_instance_id_list
+        rds_data = response_data["Items"]["DBInstance"]
+        return [i.get("DBInstanceId") for i in rds_data]
 
     def get_attribute_response(self):
         instance_id_list = self.get_db_instance_id()
         rds_attribute_data_list = []
         request = DescribeDBInstanceAttributeRequest()
-        request.set_accept_format('json')
+        request.set_accept_format("json")
         for instance_id in instance_id_list:
             request.set_DBInstanceId(instance_id)
             response = self.client.do_action_with_exception(request)
-            rds_attribute_data = json.loads(
-                response)['Items']['DBInstanceAttribute'][0]
+            rds_attribute_data = json.loads(response)["Items"]["DBInstanceAttribute"][0]
             rds_attribute_data["Tag"] = self.list_tag(
-                self.access_id, self.access_key, self.region, instance_id)
+                self.access_id, self.access_key, self.region, instance_id
+            )
             rds_attribute_data_list.append(rds_attribute_data)
         return rds_attribute_data_list
 
     def list_tag(self, access_id, access_key, region, instance_id):
-        sys.path.append("/data/Software/mydan/Connector/lib/pp")
-        from c3mc_cloud_aliyun_rds_get_tag import GetTag
         return GetTag(access_id, access_key, region, instance_id).list_tag()
 
     def show(self):
@@ -74,20 +74,23 @@ class RDS:
 
     def page(self):
         count = self.get_rds_count()
-        mod = count % self.page_size
-        if mod:
+        if count % self.page_size:
             total_page_number = int(count / self.page_size) + 1
         else:
             total_page_number = int(count / self.page_size)
+
         for cur_page_number in range(1, total_page_number + 1):
             self.page_number = cur_page_number
             self.show()
 
 
 def main(access_id, access_key, region):
-    obj = RDS(access_id, access_key, region)
-    obj.page()
+    try:
+        RDS(access_id, access_key, region).page()
+    except Exception as e:
+        print(f"同步阿里云rds资源出错. access_id: {access_id}, region: {region}", file=sys.stderr)
+        raise e
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3])

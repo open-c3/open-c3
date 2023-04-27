@@ -9,6 +9,10 @@ from tencentcloud.common.profile.client_profile import ClientProfile
 from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.vpc.v20170312 import vpc_client, models
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import sleep_time_for_limiting
+
+
 # DescribeVpcs() 的接口请求频率限制
 max_times_describe_vpcs = 100
 
@@ -23,15 +27,13 @@ class Vpc:
         self.client = self.create_client()
 
     def create_client(self):
-        cred = credential.Credential(
-            self.access_id, self.access_key)
+        cred = credential.Credential(self.access_id, self.access_key)
         http_profile = HttpProfile()
         http_profile.endpoint = "vpc.tencentcloudapi.com"
 
         client_profile = ClientProfile()
         client_profile.httpProfile = http_profile
-        client = vpc_client.VpcClient(cred, self.region, client_profile)
-        return client
+        return vpc_client.VpcClient(cred, self.region, client_profile)
 
     def set_request(self):
         req = models.DescribeVpcsRequest()
@@ -41,8 +43,7 @@ class Vpc:
 
     def get_response(self):
         request = self.set_request()
-        response_data = self.client.DescribeVpcs(request)
-        return response_data
+        return self.client.DescribeVpcs(request)
 
     def get_server_count(self):
         response_data = self.get_response()
@@ -64,14 +65,11 @@ class Vpc:
             print(json.dumps(instance, default=str))
 
     def sleep(self):
-        sys.path.append("/data/Software/mydan/Connector/lib/pp")
-        from c3mc_utils import sleep_time_for_limiting
         sleep_time_for_limiting(max_times_describe_vpcs)
 
     def page(self):
         count = self.get_server_count()
-        mod = count % self.page_size
-        if mod:
+        if count % self.page_size:
             total_page_number = int(count / self.page_size) + 1
         else:
             total_page_number = int(count / self.page_size)
@@ -83,8 +81,12 @@ class Vpc:
 
 
 def main(access_id, access_key, region):
-    Vpc(access_id, access_key, region).page()
+    try:
+        Vpc(access_id, access_key, region).page()
+    except Exception as e:
+        print(f"同步腾讯云vpc资源出错. access_id: {access_id}, region: {region}", file=sys.stderr)
+        raise e
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3])

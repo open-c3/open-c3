@@ -7,6 +7,10 @@ import json
 from qcloud_cos import CosConfig
 from qcloud_cos import CosS3Client
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import sleep_time_for_limiting
+from c3mc_cloud_qcloud_cos_get_tag import GetTag
+
 
 # 查询cos标签的接口请求频率限制
 max_times_list_cos_tags = 5
@@ -20,15 +24,18 @@ class Cos:
         self.client = self.create_client()
 
     def create_client(self):
-        service_domain = 'cos.{}.myqcloud.com'.format(self.region)
-        config = CosConfig(Region=self.region, SecretId=self.access_id,
-                           SecretKey=self.access_key, Token=None, Scheme="https", ServiceDomain=service_domain)
-        client = CosS3Client(config)
-        return client
+        service_domain = f"cos.{self.region}.myqcloud.com"
+        config = CosConfig(
+            Region=self.region,
+            SecretId=self.access_id,
+            SecretKey=self.access_key,
+            Token=None,
+            Scheme="https",
+            ServiceDomain=service_domain,
+        )
+        return CosS3Client(config)
 
     def sleep(self):
-        sys.path.append("/data/Software/mydan/Connector/lib/pp")
-        from c3mc_utils import sleep_time_for_limiting
         sleep_time_for_limiting(max_times_list_cos_tags)
 
     def list_buckets(self):
@@ -37,8 +44,8 @@ class Cos:
         except Exception as e:
             if "Failed to establish a new connection" in str(e):
                 return []
-            else: 
-                raise Exception(e)
+            else:
+                raise e
 
         result = []
         if response["Buckets"] is None:
@@ -49,10 +56,7 @@ class Cos:
             result.append(bucket)
         return result
 
-
     def list_tag(self, region, bucket_name):
-        sys.path.append("/data/Software/mydan/Connector/lib/pp")
-        from c3mc_cloud_qcloud_cos_get_tag import GetTag
         return GetTag(self.access_id, self.access_key, region, bucket_name).list_tag()
 
     def show(self):
@@ -62,8 +66,12 @@ class Cos:
 
 
 def main(access_id, access_key, region):
-    Cos(access_id, access_key, region).show()
+    try:
+        Cos(access_id, access_key, region).show()
+    except Exception as e:
+        print(f"同步腾讯云cos资源出错. access_id: {access_id}, region: {region}", file=sys.stderr) 
+        raise e
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3])

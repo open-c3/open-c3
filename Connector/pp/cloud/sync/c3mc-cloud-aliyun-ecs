@@ -21,8 +21,7 @@ class Ecs:
         self.page_size = 100
 
     def create_client(self):
-        client = AcsClient(self.access_id, self.access_key, self.region)
-        return client
+        return AcsClient(self.access_id, self.access_key, self.region)
 
     def set_request(self):
         request = DescribeInstancesRequest.DescribeInstancesRequest()
@@ -33,18 +32,17 @@ class Ecs:
     def get_response(self):
         request = self.set_request()
         response = self.client.do_action_with_exception(request)
-        response_data = json.loads(response)
-        return response_data
+        return json.loads(response)
 
     def get_server_count(self):
         response_data = self.get_response()
-        return response_data['TotalCount']
+        return response_data["TotalCount"]
 
     def show(self):
         vpc_client = Vpc(self.access_id, self.access_key, self.region)
 
         response_data = self.get_response()
-        instances = response_data['Instances']['Instance']
+        instances = response_data["Instances"]["Instance"]
         for instance in instances:
             if "Tags" in instance and "Tag" in instance["Tags"]:
                 instance["Tag"] = instance["Tags"]["Tag"]
@@ -52,11 +50,15 @@ class Ecs:
             instance["VpcId"] = instance["VpcAttributes"]["VpcId"]
             instance["VpcName"] = vpc_client.show_vpc(instance["VpcId"])["VpcName"]
 
-            if 'OSName' in instance:
-                instance["os"] = "Windows" if instance["OSName"].lower().find("window") != -1 else "Linux"
+            if "OSName" in instance:
+                instance["os"] = (
+                    "Windows"
+                    if instance["OSName"].lower().find("window") != -1
+                    else "Linux"
+                )
             else:
                 instance["os"] = "Other"
-            
+
             public_ip = ""
             if len(instance["PublicIpAddress"]["IpAddress"]) > 0:
                 public_ip = instance["PublicIpAddress"]["IpAddress"][0]
@@ -69,8 +71,7 @@ class Ecs:
     def page(self):
         count = self.get_server_count()
         self.page_size = 100
-        mod = count % self.page_size
-        if mod:
+        if count % self.page_size:
             total_page_number = int(count / self.page_size) + 1
         else:
             total_page_number = int(count / self.page_size)
@@ -81,10 +82,12 @@ class Ecs:
 
 
 def main(access_id, access_key, region):
-    ecs = Ecs(access_id, access_key, region)
-    return ecs.page()
+    try:
+        Ecs(access_id, access_key, region).page()
+    except Exception as e:
+        print(f"同步阿里云ecs资源出错. access_id: {access_id}, region: {region}", file=sys.stderr)
+        raise e
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3])
-

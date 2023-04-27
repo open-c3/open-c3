@@ -26,7 +26,9 @@ class Ec2Event:
             if "Events" in instance_status:
                 for item in instance_status["Events"]:
                     item["InstanceId"] = instance_status["InstanceId"]
-                    item["Status"] = "Completed" if "Completed" in item["Description"] else "Unknown"
+                    item["Status"] = (
+                        "Completed" if "Completed" in item["Description"] else "Unknown"
+                    )
                     item["Region"] = self.region
                     scheduled_events.append(item)
         return scheduled_events
@@ -38,7 +40,11 @@ class Ec2Event:
 
 
 def main(access_id, access_key, region):
-    Ec2Event(access_id, access_key, region).show()
+    try:
+        Ec2Event(access_id, access_key, region).show()
+    except Exception as e:
+        print(f"同步aws ec2 event资源出错. access_id: {access_id}, region: {region}",file=sys.stderr)
+        raise e
 
 
 if __name__ == "__main__":
