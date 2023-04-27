@@ -8,6 +8,13 @@ import threading
 import boto3
 import time
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_aws_s3_get_tag import GetTag
+
+
+# 并发处理所有存储桶的最大线程数
+MAX_CONCURRENT_NUMBER = 20
+
 
 class ThreadSafeArray:
     def __init__(self):
@@ -19,10 +26,6 @@ class ThreadSafeArray:
             self._array.append(value)
 
 
-# 并发处理所有存储桶的最大线程数
-MAX_CONCURRENT_NUMBER = 20
-
-
 class S3:
     def __init__(self, account, access_id, access_key, region):
         self.account = account
@@ -31,10 +34,7 @@ class S3:
         self.filter_region = region
         self.client = self.create_client()
 
-        self.record_sync_error = {
-            "lock": threading.Lock(),
-            "error": None
-        }
+        self.record_sync_error = {"lock": threading.Lock(), "error": None}
 
     def create_client(self):
         region = "cn-north-1" if self.filter_region.startswith("cn") else "us-east-1"
@@ -42,9 +42,9 @@ class S3:
             "s3",
             aws_access_key_id=self.access_id,
             aws_secret_access_key=self.access_key,
-            region_name=region
+            region_name=region,
         )
-    
+
     def update_sync_error(self, error):
         with self.record_sync_error["lock"]:
             self.record_sync_error["error"] = error
@@ -58,7 +58,10 @@ class S3:
             bucket_real_location = bucketLocationResp["LocationConstraint"]
             if bucket_real_location == self.filter_region:
                 tags = self.list_tag(
-                    self.access_id, self.access_key, bucket_real_location, bucket_info["Name"]
+                    self.access_id,
+                    self.access_key,
+                    bucket_real_location,
+                    bucket_info["Name"],
                 )
 
                 bucket = {
@@ -90,16 +93,15 @@ class S3:
 
         for t in threads:
             t.join()
-        
+
         if self.record_sync_error["error"] is not None:
-            raise RuntimeError(f"同步s3时出现错误. ak: {self.access_id}") from self.record_sync_error["error"]
+            raise RuntimeError(
+                f"同步s3时出现错误. ak: {self.access_id}"
+            ) from self.record_sync_error["error"]
 
         return array._array
 
     def list_tag(self, access_id, access_key, region, bucket_name):
-        sys.path.append("/data/Software/mydan/Connector/lib/pp")
-        from c3mc_cloud_aws_s3_get_tag import GetTag
-
         return GetTag(access_id, access_key, region, bucket_name).list_tag()
 
     def show(self):
@@ -109,7 +111,11 @@ class S3:
 
 
 def main(account, access_id, access_key, region):
-    S3(account, access_id, access_key, region).show()
+    try:
+        S3(account, access_id, access_key, region).show()
+    except Exception as e:
+        print(f"同步aws s3资源出错. access_id: {access_id}, region: {region}", file=sys.stderr) 
+        raise e
 
 
 if __name__ == "__main__":

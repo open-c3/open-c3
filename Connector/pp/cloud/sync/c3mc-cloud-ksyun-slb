@@ -5,7 +5,9 @@ import sys
 import json
 
 from kscore.session import get_session
+
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_ksyun_get_tag import GetTag
 
 
 class Slb:
@@ -17,9 +19,12 @@ class Slb:
 
     def create_client(self):
         s = get_session()
-        client = s.create_client(
-            "slb", ks_access_key_id=self.access_id, ks_secret_access_key=self.access_key, region_name=self.region)
-        return client
+        return s.create_client(
+            "slb",
+            ks_access_key_id=self.access_id,
+            ks_secret_access_key=self.access_key,
+            region_name=self.region,
+        )
 
     def get_instances_from_response(self, response_data):
         return response_data["LoadBalancerDescriptions"]
@@ -36,7 +41,6 @@ class Slb:
         return instance_list
 
     def list_tag(self):
-        from c3mc_cloud_ksyun_get_tag import GetTag
         return GetTag(self.access_id, self.access_key, self.region).get_tag_dict()
 
     def show(self):
@@ -46,8 +50,12 @@ class Slb:
 
 
 def main(access_id, access_key, region):
-    Slb(access_id, access_key, region).show()
+    try:
+        Slb(access_id, access_key, region).show()
+    except Exception as e:
+        print(f"同步金山云slb资源出错. access_id: {access_id}, region: {region}", file=sys.stderr)
+        raise e
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3])

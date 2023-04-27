@@ -11,6 +11,7 @@ from huaweicloudsdkecs.v2 import *
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
 from c3mc_cloud_huawei_vpc import Vpc
 from c3mc_cloud_huawei_flavors import Flavors
+from c3mc_utils import sleep_time_for_limiting
 
 
 max_times_for_get_ecs = 20
@@ -21,10 +22,7 @@ class Ecs:
     def __init__(self, access_id, access_key, project_id, region):
         self.access_id = access_id
         self.access_key = access_key
-        if project_id == "None":
-            self.project_id = None
-        else:
-            self.project_id = project_id.strip()
+        self.project_id = None if project_id == "None" else project_id.strip()
         self.region = region
         self.page_number = 1
         self.page_size = 25
@@ -32,77 +30,78 @@ class Ecs:
         self.client = self.create_client()
 
     def create_client(self):
-        credentials = BasicCredentials(
-            self.access_id, self.access_key, self.project_id)
-        client = EcsClient.new_builder() \
-            .with_credentials(credentials) \
-            .with_region(EcsRegion.value_of(self.region)) \
+        credentials = BasicCredentials(self.access_id, self.access_key, self.project_id)
+        return (
+            EcsClient.new_builder()
+            .with_credentials(credentials)
+            .with_region(EcsRegion.value_of(self.region))
             .build()
-        return client
+        )
 
     def set_request(self):
-        request = ListServersDetailsRequest(
-            offset=self.page_number, limit=self.page_size)
-        return request
+        return ListServersDetailsRequest(offset=self.page_number, limit=self.page_size)
 
     def get_response(self):
         request = self.set_request()
         response = self.client.list_servers_details(request)
-        response_data = json.loads(str(response))
-        return response_data
+        return json.loads(str(response))
 
     def get_server_count(self):
         response_data = self.get_response()
-        return response_data['count']
-    
+        return response_data["count"]
+
     def list_flavors(self):
-        return Flavors(self.access_id, self.access_key, self.project_id, self.region).list_flavors()
+        return Flavors(
+            self.access_id, self.access_key, self.project_id, self.region
+        ).list_flavors()
 
     def show(self):
         huawei_vpc = Vpc(self.access_id, self.access_key, self.project_id, self.region)
         response_data = self.get_response()
-        servers = response_data['servers']
+        servers = response_data["servers"]
         for server in servers:
-            for key in server['addresses']:
-                for item in server['addresses'][key]:
+            for key in server["addresses"]:
+                for item in server["addresses"][key]:
                     if item["OS-EXT-IPS:type"] == "fixed":
-                        server['private_ip'] = item['addr']
+                        server["private_ip"] = item["addr"]
                     else:
-                        server['public_ip'] = item['addr']
+                        server["public_ip"] = item["addr"]
 
-            server['os'] = server['metadata']['os_type']
-            server['flaver_id'] = server['flavor']['id']
-            server['zone_id'] = server['OS-EXT-AZ:availability_zone']
-            server['region_id'] = self.region
-            server.pop('metadata', None)
-            server.pop('OS-EXT-SRV-ATTR:user_data', None)
+            server["os"] = server["metadata"]["os_type"]
+            server["flaver_id"] = server["flavor"]["id"]
+            server["zone_id"] = server["OS-EXT-AZ:availability_zone"]
+            server["region_id"] = self.region
+            server.pop("metadata", None)
+            server.pop("OS-EXT-SRV-ATTR:user_data", None)
 
-            server["quota_min_rate"] = self.flavors_dict[server["flaver_id"]]["os_extra_specs"]["quota:min_rate"]
-            server["quota_max_rate"] = self.flavors_dict[server["flaver_id"]]["os_extra_specs"]["quota:max_rate"]
+            server["quota_min_rate"] = self.flavors_dict[server["flaver_id"]][
+                "os_extra_specs"
+            ]["quota:min_rate"]
+            server["quota_max_rate"] = self.flavors_dict[server["flaver_id"]][
+                "os_extra_specs"
+            ]["quota:max_rate"]
 
             # 默认内网ip
-            server['_default_ip_kind_'] = "inip"
+            server["_default_ip_kind_"] = "inip"
             if list(server["addresses"]):
                 vpc_id = list(server["addresses"])[0]
                 vpc_info = huawei_vpc.show_vpc(vpc_id)
 
-                server['_default_ip_kind_'] = huawei_vpc.check_vpc_internet(vpc_id)
+                server["_default_ip_kind_"] = huawei_vpc.check_vpc_internet(vpc_id)
 
-                server['vpc_id'] = vpc_id
-                server['vpc_name'] = vpc_info["name"]
+                server["vpc_id"] = vpc_id
+                server["vpc_name"] = vpc_info["name"]
 
                 self.sleep(max_times_for_get_vpc)
 
             print(json.dumps(server))
 
     def sleep(self, seconds):
-        from c3mc_utils import sleep_time_for_limiting
         sleep_time_for_limiting(seconds)
 
     def page(self):
         count = self.get_server_count()
-        mod = count % self.page_size
-        if mod:
+        if count % self.page_size:
             total_page_number = int(count / self.page_size) + 1
         else:
             total_page_number = int(count / self.page_size)
@@ -111,7 +110,7 @@ class Ecs:
             self.page_number = cur_page_number
             self.show()
             self.sleep(max_times_for_get_ecs)
-        
+
     def display(self):
         flavors_list = self.list_flavors()
         self.flavors_dict = {}
@@ -122,9 +121,12 @@ class Ecs:
 
 # project_id 可以命令行传 None
 def main(access_id, access_key, project_id, region):
-    Ecs(access_id, access_key, project_id, region).display()
+    try:
+        Ecs(access_id, access_key, project_id, region).display()
+    except Exception as e:
+        print(f"同步华为云ecs资源出错. access_id: {access_id}, region: {region}", file=sys.stderr)
+        raise e
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
-

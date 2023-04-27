@@ -7,6 +7,9 @@ import subprocess
 
 import boto3
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_aws_china_get_price_data import get_rds_instance_type_info_m
+
 
 class Rds:
     def __init__(self, access_id, access_key, region):
@@ -17,10 +20,9 @@ class Rds:
         self.page_size = 20
 
     def create_client(self):
-        endpoint_url = "https://rds.{}.amazonaws.com".format(self.region)
+        endpoint_url = f"https://rds.{self.region}.amazonaws.com"
         if self.region.startswith("cn"):
-            endpoint_url = "https://rds.{}.amazonaws.com.cn".format(
-                self.region)
+            endpoint_url = f"https://rds.{self.region}.amazonaws.com.cn"
 
         client = boto3.client(
             "rds",
@@ -39,15 +41,17 @@ class Rds:
         return results
 
     def get_cpu_and_memory(self, instance_type):
-        return subprocess.getoutput("c3mc-query-aws-rds-instance-type-info {} {} {} {}".format(
-            self.access_id, self.access_key, self.region, instance_type))
+        return subprocess.getoutput(
+            f"c3mc-query-aws-rds-instance-type-info {self.access_id} {self.access_key} {self.region} {instance_type}"
+        )
 
     def list_instance(self):
         response = self.client.describe_db_instances(MaxRecords=self.page_size)
         results = self.get_instances_from_response(response)
         while "Marker" in response:
             response = self.client.describe_db_instances(
-                MaxRecords=self.page_size, Marker=response["Marker"])
+                MaxRecords=self.page_size, Marker=response["Marker"]
+            )
             results.extend(self.get_instances_from_response(response))
 
         aws_instance_info_m = {}
@@ -58,25 +62,19 @@ class Rds:
             if instance_type not in instance_type_m:
                 if self.region.startswith("cn-"):
                     if len(aws_instance_info_m) == 0:
-                        sys.path.append("/data/Software/mydan/Connector/lib/pp")
-                        from c3mc_cloud_aws_china_get_price_data import get_rds_instance_type_info_m
                         aws_instance_info_m = get_rds_instance_type_info_m(self.region)
 
                     deploy_mode = ""
-                    if results[i]["MultiAZ"]:
-                        deploy_mode = "Multi-AZ"
-                    else:
-                        deploy_mode = "Single-AZ"
-                    
+                    deploy_mode = "Multi-AZ" if results[i]["MultiAZ"] else "Single-AZ"
                     attr = aws_instance_info_m[self.region][instance_type][deploy_mode]
-                    attr["memory"] = attr["memory"][:-len(" GiB")]
+                    attr["memory"] = attr["memory"][: -len(" GiB")]
                     instance_type_m[instance_type] = attr
                 else:
                     try:
                         res = self.get_cpu_and_memory(instance_type)
                         instance_type_m[instance_type] = json.loads(res)
                     except Exception as e:
-                        raise Exception(res)
+                        raise RuntimeError() from e
 
             results[i]["_cpu_"] = instance_type_m[instance_type]["vcpu"]
             results[i]["_memory_"] = instance_type_m[instance_type]["memory"]
@@ -89,9 +87,12 @@ class Rds:
 
 
 def main(access_id, access_key, region):
-    rds = Rds(access_id, access_key, region)
-    rds.show()
+    try:
+        Rds(access_id, access_key, region).show()
+    except Exception as e:
+        print(f"同步aws rds资源出错. access_id: {access_id}, region: {region}", file=sys.stderr) 
+        raise e
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3])

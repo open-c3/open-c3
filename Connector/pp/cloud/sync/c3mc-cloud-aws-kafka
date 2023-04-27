@@ -3,7 +3,6 @@
 
 import sys
 import json
-import subprocess
 
 import boto3
 
@@ -17,10 +16,9 @@ class Kafka:
         self.page_size = 100
 
     def create_client(self):
-        endpoint_url = "https://kafka.{}.amazonaws.com".format(self.region)
+        endpoint_url = f"https://kafka.{self.region}.amazonaws.com"
         if self.region.startswith("cn"):
-            endpoint_url = "https://kafka.{}.amazonaws.com.cn".format(
-                self.region)
+            endpoint_url = f"https://kafka.{self.region}.amazonaws.com.cn"
 
         client = boto3.client(
             "kafka",
@@ -43,7 +41,8 @@ class Kafka:
         results = self.get_instances_from_response(response)
         while "NextToken" in response:
             response = self.client.list_clusters_v2(
-                MaxResults=self.page_size, NextToken=response["NextToken"])
+                MaxResults=self.page_size, NextToken=response["NextToken"]
+            )
             results.extend(self.get_instances_from_response(response))
 
         return results
@@ -55,8 +54,12 @@ class Kafka:
 
 
 def main(access_id, access_key, region):
-    Kafka(access_id, access_key, region).show()
+    try:
+        Kafka(access_id, access_key, region).show()
+    except Exception as e:
+        print(f"同步aws kafka资源出错. access_id: {access_id}, region: {region}", file=sys.stderr)
+        raise e
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3])

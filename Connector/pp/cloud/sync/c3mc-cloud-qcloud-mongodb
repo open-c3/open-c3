@@ -11,9 +11,13 @@ from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.mongodb.v20190725 import mongodb_client, models
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_qcloud_mongodb import MongodbInfo
+from c3mc_utils import sleep_time_for_limiting
+
 
 # describe_db_instance_node_property() 的频率限制
 max_times_of_get_node_property = 3
+
 
 class Mongodb:
     def __init__(self, access_id, access_key, region):
@@ -25,16 +29,13 @@ class Mongodb:
         self.client = self.create_client()
 
     def create_client(self):
-        cred = credential.Credential(
-            self.access_id, self.access_key)
+        cred = credential.Credential(self.access_id, self.access_key)
         httpProfile = HttpProfile()
         httpProfile.endpoint = "mongodb.tencentcloudapi.com"
 
         clientProfile = ClientProfile()
         clientProfile.httpProfile = httpProfile
-        client = mongodb_client.MongodbClient(
-            cred, self.region, clientProfile)
-        return client
+        return mongodb_client.MongodbClient(cred, self.region, clientProfile)
 
     def set_request(self):
         req = models.DescribeDBInstancesRequest()
@@ -44,17 +45,16 @@ class Mongodb:
 
     def get_response(self):
         request = self.set_request()
-        response_data = self.client.DescribeDBInstances(request)
-        return response_data
+        return self.client.DescribeDBInstances(request)
 
     def get_server_count(self):
         response_data = self.get_response()
         return response_data.TotalCount
-    
+
     def describe_db_instance_node_property(self, instance_id):
-        from c3mc_cloud_qcloud_mongodb import MongodbInfo
-        node_property = MongodbInfo(self.access_id, self.access_key, self.region).describe_db_instance_node_property(instance_id)
-        return node_property
+        return MongodbInfo(
+            self.access_id, self.access_key, self.region
+        ).describe_db_instance_node_property(instance_id)
 
     def list_instance(self):
         result = []
@@ -67,8 +67,14 @@ class Mongodb:
             # 腾讯describe_db_instance_node_property()方法的请求频率只有每秒最高频率3次
             # 因为该方法的频率远低于DescribeDBInstances(), 所以只要在这里加频率限制就可以了
             self.sleep()
-            node_property_info = self.describe_db_instance_node_property(item["InstanceId"])
-            item["NodeNum"] = len(json.loads(node_property_info.to_json_string())["ReplicateSets"][0]["Nodes"])
+            node_property_info = self.describe_db_instance_node_property(
+                item["InstanceId"]
+            )
+            item["NodeNum"] = len(
+                json.loads(node_property_info.to_json_string())["ReplicateSets"][0][
+                    "Nodes"
+                ]
+            )
             result.append(item)
         return result
 
@@ -78,15 +84,12 @@ class Mongodb:
             print(json.dumps(instance, default=str))
 
     def sleep(self):
-        sys.path.append("/data/Software/mydan/Connector/lib/pp")
-        from c3mc_utils import sleep_time_for_limiting
         sleep_time_for_limiting(max_times_of_get_node_property)
 
     def page(self):
         try:
             count = self.get_server_count()
-            mod = count % self.page_size
-            if mod:
+            if count % self.page_size:
                 total_page_number = int(count / self.page_size) + 1
             else:
                 total_page_number = int(count / self.page_size)
@@ -97,13 +100,17 @@ class Mongodb:
         except Exception as e:
             if "该接口不支持此地域访问" in str(e):
                 return []
-            else: 
-                raise Exception(e)
+            else:
+                raise e
 
 
 def main(access_id, access_key, region):
-    Mongodb(access_id, access_key, region).page()
+    try:
+        Mongodb(access_id, access_key, region).page()
+    except Exception as e:
+        print(f"同步腾讯云mongodb资源出错. access_id: {access_id}, region: {region}", file=sys.stderr)
+        raise e
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3])

@@ -74,10 +74,12 @@ class IBMBareMetalServer():
 
 
 def main(username, password, raw_vpc_name):
-    vpc_name = None
-    if raw_vpc_name.lower() != "none":
-        vpc_name = raw_vpc_name
-    IBMBareMetalServer(username, password, vpc_name).display()
+    try:
+        vpc_name = raw_vpc_name if raw_vpc_name.lower().strip() != "none" else None
+        IBMBareMetalServer(username, password, vpc_name).display()
+    except Exception as e:
+        print(f"同步ibm bare metal server资源出错. access_id: {username}", file=sys.stderr)
+        raise e
 
 
 if __name__ == '__main__':

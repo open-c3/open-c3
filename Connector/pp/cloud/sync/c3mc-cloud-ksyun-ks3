@@ -39,15 +39,15 @@ class Ks3:
         )
 
     def list_instances(self):
-        results = []
         buckets = self.client.get_all_buckets()
-        for ksyun_bucket in buckets:
-            results.append({
+        return [
+            {
                 "name": ksyun_bucket.name,
                 "region_id": self.region,
-                "creation_date": ksyun_bucket.creation_date
-            })
-        return results
+                "creation_date": ksyun_bucket.creation_date,
+            }
+            for ksyun_bucket in buckets
+        ]
 
     def show(self):
         instance_list = self.list_instances()
@@ -58,8 +58,13 @@ class Ks3:
 def main(access_id, access_key, region):
     if region not in region_to_endpoint:
         return
-    Ks3(access_id, access_key, region).show()
+
+    try:
+        Ks3(access_id, access_key, region).show()
+    except Exception as e:
+        print(f"同步金山云ks3资源出错. access_id: {access_id}, region: {region}", file=sys.stderr)
+        raise e
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2], sys.argv[3])
