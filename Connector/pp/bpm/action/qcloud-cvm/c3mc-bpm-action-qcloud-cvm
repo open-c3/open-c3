@@ -127,15 +127,29 @@ class Cvm:
         req.from_json_string(json.dumps(api_params))
         return req
 
-    def wait_for_get_instance_uuid(self, instance_id, timeout=600):
+    def wait_for_get_instance_info(self, instance_id, timeout=600):
         """
-        获取实例uuid, 超时时间默认为10分钟
+        获取实例uuid、内网ip、公网ip, 超时时间默认为10分钟
         """
         start_time = time.time()
         while True:
             instance_info = self.lib_client.show_cvm(instance_id)
             if instance_info['Uuid'] != "":
-                return instance_info['Uuid']
+                private_ip = ""
+                public_ip = ""
+
+                if (
+                    instance_info["PrivateIpAddresses"] is not None
+                    and len(instance_info["PrivateIpAddresses"]) > 0
+                ):
+                    private_ip = instance_info["PrivateIpAddresses"][0]
+                if (
+                    instance_info["PublicIpAddresses"] is not None
+                    and len(instance_info["PublicIpAddresses"]) > 0
+                ):
+                    public_ip = instance_info["PublicIpAddresses"][0]
+
+                return instance_info['Uuid'], private_ip, public_ip
             if time.time() - start_time > timeout:
                 return ""
             else:
@@ -158,11 +172,13 @@ class Cvm:
                 print(f"创建cvm, 响应为: {resp.to_json_string()}")
 
                 for instance_id in resp.InstanceIdSet:
-                    instance_uuid = self.wait_for_get_instance_uuid(instance_id)
+                    instance_uuid, private_ip, public_ip = self.wait_for_get_instance_info(instance_id)
                     if instance_uuid == "":
                         print(f"无法在10分钟内获取实例的uuid字段的有效值, instance_id: {instance_id}")
 
                     print(f"LOG. instance_id:{instance_uuid}")
+                    print(f"LOG. 内网ip:    {private_ip}")
+                    print(f"LOG. 公网ip:    {public_ip}")
                     print(f"VAR. instance_id:{instance_uuid}")
                     print(f'VAR. extinstance_id:{self.params["account"]}.{self.params["region"]}.{instance_uuid}')
             except Exception as e:
