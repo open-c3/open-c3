@@ -54,6 +54,9 @@
    避免已经安装了node_exporter的情况下采集不到原生的node_exporter数据。
 版本23:
    采集agent中的公钥列表，用于后续公钥定期替换。
+版本24:
+   HTTP监控，post请求，支持配置简单的数据post到接口中.
+   HTTP监控返回内容匹配，匹配的内容可能有特殊的字符，支持通过base64进行编码
 ```
 
 node_collector_error 错误码
