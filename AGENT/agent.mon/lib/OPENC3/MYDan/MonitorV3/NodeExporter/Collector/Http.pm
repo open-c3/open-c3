@@ -7,6 +7,7 @@ use POSIX;
 use AnyEvent::HTTP;
 use Time::HiRes;
 use OPENC3::MYDan::MonitorV3::NodeExporter::Collector;
+use MIME::Base64;
 
 our %declare = (
     node_http_code => 'http code',
@@ -41,14 +42,27 @@ sub co
             next;
         }
 
-        if( @check >= 3 && $check[2] !~ /^[a-zA-Z0-9 \.\-_@]+$/ )
+        if( @check >= 3 && $check[2] !~ /^[a-zA-Z0-9 \.\-_@=\+\/:]+$/ )
         {
             warn "monitor http $check[2]";
             $error = 1;
             next;
         }
 
+        if( $check[2] =~ /^__base64__:(.+)$/ )
+        {
+            $check[2] = MIME::Base64::decode_base64( $1 );
+            chomp $check[2];
+        }
+
         my %Header = ( "user-agent" => "MYDan Monitor" );
+
+        my %data;
+        if( $check[1] =~ s/^Data:([^;]+);// )
+        {
+            %data = ( body => $1 );
+        }
+
         my $url = $check[1];
 
         if( $check[1] =~ /^Host:([^;]+);(http.+)$/ )
@@ -59,6 +73,7 @@ sub co
         my $time = Time::HiRes::time;
         http_request
         $check[0] => $url,
+        %data,
         headers => \%Header,
         timeout => 10,
         sub {
