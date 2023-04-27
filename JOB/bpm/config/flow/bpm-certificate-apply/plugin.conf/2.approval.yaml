@@ -1,0 +1,12 @@
+---
+name: 业务负责人审批
+option:
+  - describe: 业务审批人
+    name: oaapprover
+    type: input
+    value: ""
+
+template_argv:
+  approver: ${oaapprover}
+  title:    "BPM/${_bpmuuid_}/公有云证书申请"
+  content:  "\n申请人:${_user_}\nBPM单号:${_bpmuuid_}\nURL:${_caseurl_}\n申请理由:${x.note}"
