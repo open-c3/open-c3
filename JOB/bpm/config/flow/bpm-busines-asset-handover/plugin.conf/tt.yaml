@@ -1,0 +1,67 @@
+---
+name: 业务资产交接
+option:
+  - name: source_business_asset
+    describe: 交接资产信息
+    type: text
+    value: ""
+
+  - name: source_owner
+    describe: 交接人
+    type: input
+    value: ""
+
+  - name: source_department
+    describe: 交接方部门
+    type: input
+    value: ""
+
+  - name: source_department_leader
+    describe: 交接方部门负责人
+    type: input
+    value: ""
+
+  - name: target_owner
+    describe: 接收人
+    type: input
+    value: ""
+
+  - name: target_department
+    describe: 接收方部门
+    type: input
+    value: ""
+
+  - name: target_department_leader
+    describe: 接收方部门负责人
+    type: input
+    value: ""
+  
+  - name: ops_owner
+    describe: 运维对接人员
+    type: input
+    value: ""
+
+  - name: if_need_delete_source_account
+    describe: 是否删除交接方账号
+    type: select
+    option: ["是", "否"]
+    value: ""
+
+  - name: note
+    describe: 申请理由
+    type: text
+    value: ""
+
+template_argv:
+  title:    "BPM/业务资产交接"
+  content:  |
+    交接资产信息: ${source_business_asset}
+    交接人: ${source_owner}
+    交接方部门: ${source_department}
+    交接方部门负责人: ${source_department_leader}
+    接收人: ${target_owner}
+    接收方部门: ${target_department}
+    接收方部门负责人: ${target_department_leader}
+    运维对接人员: ${ops_owner}
+    是否删除交接方账号: ${if_need_delete_source_account}
+    申请理由: ${note}
