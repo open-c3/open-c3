@@ -1,0 +1,43 @@
+---
+name: 大数据账号权限
+option:
+  - name: auth_type
+    describe: 权限类型
+    type: select
+    option: ["Hive", "Hue", "申请大数据集群Launcher登录权限"]
+    value: ""
+
+  - name: account
+    describe: 账号
+    type: input
+    value: ""
+
+  - name: cluster_name
+    describe: 集群名称
+    type: input
+    value: ""
+
+  - name: database_name
+    describe: 数据库名称
+    type: input
+    value: ""
+
+  - name: table_name
+    describe: 表名称
+    type: input
+    value: ""
+
+  - name: note
+    describe: 申请理由
+    type: text
+    value: ""
+
+template_argv:
+  title:    "BPM/大数据账号权限"
+  content:  |
+    权限类型: ${auth_type}
+    账号: ${account}
+    集群名称: ${cluster_name}
+    数据库名称: ${database_name}
+    表名称: ${table_name}
+    申请理由: ${note}
