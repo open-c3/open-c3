@@ -1,0 +1,45 @@
+---
+name: SQL操作
+option:
+  - name: account
+    describe: 账号
+    command: c3mc-display-cloud-account-list aws
+    type: selectx
+
+  - name: region
+    describe: 区域
+    rely:
+      - account
+    command: c3mc-ec2-describe-regions | c3mc-bpm-display-field-values RegionName,RegionName
+    type: selectx
+
+  - name: sqs_name
+    describe: SQS名称
+    type: input
+    value: ""
+
+  - name: sqs_type
+    describe: SQS类型
+    type: select
+    option: ["Standard Queue"]
+    value: ""
+
+  - name: tag
+    describe: 机器标签
+    # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
+    type: kvarray
+    fromops: 1
+
+  - name: note
+    describe: 申请理由
+    type: text
+    value: ""
+
+template_argv:
+  title:    "BPM/AWS SQS"
+  content: |
+    账号: ${account}
+    区域: ${region}
+    sqs名称: ${sqs_name}
+    sqs类型: ${sqs_type}
+    标签: ${tag}
