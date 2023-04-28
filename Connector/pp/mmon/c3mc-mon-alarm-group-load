@@ -1,0 +1,64 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use YAML::XS;
+use MYDan::Util::OptConf;
+use MYDB;
+use Encode;
+
+=head1 SYNOPSIS
+
+ $0 'groupname;user1,user2..usern;remark'
+ $0 'groupname;user1,user2..usern;remark' --user foo@xx.com
+ echo 'groupname;user1,user2..usern;remark' | ./$0 --user foo@xx.com
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->set( user=> 'sys@app' )->get( qw( user=s ) )->dump();
+
+my $db = MYDB->new(  "/data/Software/mydan/AGENT/conf/conn", delayedconnection => 1 );
+
+my %name;
+sub getgroup{
+    my $x = $db->query( "select name,id from `openc3_monitor_config_group`" );
+    return map{@$_}@$x;
+}
+
+sub addgroup
+{
+    my ( $name, $user, $remark ) = split /;/, $_, 3;
+    my $x = Encode::decode('utf8',$name);
+    return if $name{$x} ++;
+    
+    $remark =~ s/'/"/;
+    $db->execute( "insert into openc3_monitor_config_group (name,description,edit_user)values('$name','$remark','$o{user}')");
+}
+
+sub adduser
+{
+    my ( $name, $user, $remark ) = split /;/, $_, 3;
+
+    my $x = Encode::decode('utf8',$name);
+
+    my $groupid = $name{$x};
+    return unless $groupid;
+
+    my $u = eval{ $db->query( "select user from `openc3_monitor_config_groupuser` where groupid='$groupid'" ) };
+    my %user = map{ $_->[0] => 1 }@$u;
+    for my $xx ( split /,/, $user )
+    {
+        next if $xx eq 'NULL';
+        next if $user{$xx} ++;
+        $db->execute( "insert into openc3_monitor_config_groupuser (groupid,user,edit_user)values('$groupid','$xx','$o{user}')");
+    }
+}
+
+my    @data = @ARGV ? @ARGV : <STDIN>;
+chomp @data;
+
+%name = getgroup(); map{addgroup($_)}@data;
+%name = getgroup(); map{adduser( $_)}@data;
