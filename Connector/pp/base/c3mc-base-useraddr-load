@@ -1,0 +1,41 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use YAML::XS;
+use MYDan::Util::OptConf;
+use MYDB;
+
+=head1 SYNOPSIS
+
+ $0 'user;user1@xx.com;137xxx;137xxx'
+ $0 'user;user1@xx.com;137xxx;137xxx' --user foo@xx.com
+ echo 'user;user1@xx.com;137xxx;137xxx' | ./$0 --user foo@xx.com
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->set( user=> 'sys@app' )->get( qw( user=s ) )->dump();
+
+my $db = MYDB->new(  "/data/Software/mydan/Connector/conf/conn", delayedconnection => 1 );
+
+my %name;
+sub getuser{
+    my $x = $db->query( "select user from `openc3_connector_useraddr`" );
+    return map{ $_ => 1 }map{@$_}@$x;
+}
+
+sub addaddr
+{
+    my ( $user, $email, $phone, $voicemail ) = split /;/, $_, 4;
+    return if $name{$user} ++;
+    $voicemail //= '';
+    $db->execute( "insert into openc3_connector_useraddr (user,email,phone,voicemail,edit_user)values('$user','$email','$phone','$voicemail','$o{user}')");
+}
+
+my    @data = @ARGV ? @ARGV : <STDIN>;
+chomp @data;
+
+%name = getuser(); map{addaddr( $_)}@data;
