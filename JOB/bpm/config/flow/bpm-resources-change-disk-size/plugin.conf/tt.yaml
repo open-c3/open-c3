@@ -1,0 +1,32 @@
+---
+name: 新增磁盘或磁盘扩容
+option:
+  - name: apply_type
+    describe: 申请分类
+    type: select
+    option: ["新增磁盘申请", "磁盘扩容申请"]
+    value: ""
+
+  - name: instance_id
+    describe: 实例ID 
+    type: text
+    value: ""
+    information: "多个用英文逗号分隔"
+
+  - name: disk_size
+    describe: 磁盘大小(单位GB)
+    type: number
+    value: ""
+
+  - name: note
+    describe: 申请理由
+    type: text
+    value: ""
+
+template_argv:
+  title:    "BPM/新增磁盘或磁盘扩容"
+  content:  |
+    申请分类: ${apply_type}
+    实例ID: ${instance_id}
+    磁盘大小(单位GB): ${disk_size}
+    申请理由: ${note}
