@@ -48,12 +48,24 @@
         };
  
         // 获取申请人基础信息/OA信息
+        vm.useroainfoloadover = false;
         vm.getApplyUserOa = function( user ){
             $http.get('/api/tt/base/get_user_info?user=' + user).success(function(data){
                 vm.useroainfo = data.data;
+                vm.useroainfoloadover = true;
             });
         };
 
+        // 获取申请人领导信息
+        vm.userleaderinfoloadover = false;
+        vm.getApplyUserLeader = function( user ){
+            $http.get('/api/ci/c3mc/base/userleader?user=' + user).success(function(data){
+                vm.userleaderinfo = data.data;
+                vm.userleaderinfoloadover = true;
+            });
+        };
+
+ 
         vm.showfromops = '0';
         vm.fromopsdefault = '0';
         vm.vfromops = {};
@@ -214,6 +226,7 @@
                 if (data.stat){
                     vm.bpmvar = data.data;
                     vm.getApplyUserOa(data.data._user_);
+                    vm.getApplyUserLeader(data.data._user_);
                     if( data.data['_sys_opt_'] )
                     {
                         vm.optionx      = data.data['_sys_opt_']['optionx'];
