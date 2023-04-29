@@ -26,7 +26,14 @@
                 });
 
             };
-        vm.reload();
+
+
+        vm.editBpmForm = function(uuid){
+            window.open('/#/bpm/0/' + uuid, '_self')
+        };
+
+        vm.editBpmForm( vm.bpmuuid );
+        //vm.reload();
 
     }
 
