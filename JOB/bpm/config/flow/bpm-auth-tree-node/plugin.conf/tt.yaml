@@ -1,0 +1,38 @@
+---
+name: 业务节点权限申请
+option:
+  - name: role
+    describe: 角色
+    type: select
+    option: ["研发", "运维", "管理员"]
+    value: ""
+
+  - name: apply_type
+    describe: 申请方式
+    type: select
+    option: ["服务树节点权限", "按照指定账号的服务树权限列表申请"]
+    value: ""
+
+  - name: tree_node
+    describe: 服务树节点
+    type: input
+    value: "空"
+
+  - name: template_account
+    describe: 模板账号
+    type: input
+    value: "空"
+
+  - name: note
+    describe: 申请理由
+    type: text
+    value: ""
+
+template_argv:
+  title:    "BPM/业务节点权限申请"
+  content:  |
+    角色: ${role}
+    申请方式: ${apply_type}
+    服务树节点: ${tree_node}
+    模板账号: ${template_account}
+    申请理由: ${note}
