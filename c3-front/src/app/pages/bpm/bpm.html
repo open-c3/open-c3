@@ -9,6 +9,18 @@
                         <div class="col-sm-10 form-group">
                         </div>
                     </div>
+
+                    <div ng-if="bpm.bpmuuid != '0'" class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">{{'C3T.申请人'|translate}}: &nbsp;
+                                <i ng-if="!bpm.jobsloadover" class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!bpm.jobsloadover}" ></i>
+                            </label>
+                            <div class="col-sm-6">
+                                {{bpm.useroainfo.sybDeptName}}-{{bpm.useroainfo.oneDeptName}}-{{bpm.useroainfo.twoDeptName}} | {{bpm.useroainfo.accountId}} - {{bpm.useroainfo.accountName}}-{{bpm.useroainfo.mobile}}
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="row">
                         <div class="col-sm-10 form-group">
                             <label class="col-sm-3 control-label">{{'C3T.名称'|translate}}: &nbsp;

@@ -47,6 +47,13 @@
             }
         };
  
+        // 获取申请人基础信息/OA信息
+        vm.getApplyUserOa = function( user ){
+            $http.get('/api/tt/base/get_user_info?user=' + user).success(function(data){
+                vm.useroainfo = data.data;
+            });
+        };
+
         vm.showfromops = '0';
         vm.fromopsdefault = '0';
         vm.vfromops = {};
@@ -191,6 +198,7 @@
             $http.get('/api/job/bpm/var/' + vm.bpmuuid ).success(function(data){
                 if (data.stat){
                     vm.bpmvar = data.data;
+                    vm.getApplyUserOa(data.data._user_);
                     if( data.data['_sys_opt_'] )
                     {
                         vm.optionx      = data.data['_sys_opt_']['optionx'];
