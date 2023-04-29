@@ -239,6 +239,27 @@
                         </div>
                     </div>
                 </form>
+
+                <div class="row" ng-repeat="ss in jobVar">
+                    <div ng-if="ss.idx == 0 && ss.actionname != ''" class="col-sm-10 form-group">
+                        <div class="panel panel-info">
+                            <div class="panel-heading" style="height: 33px">
+                                <h5>{{ss.actionname}}</h5>
+                            </div>
+                            <div class="panel-tabs">
+                                <table class="table table-hover text-center table-condensed" style="margin-bottom: 0">
+                                    <tbody>
+                                        <tr ng-repeat="item in bpm.bpmlog[ss.stepid+1]" style="cursor: pointer">
+                                            <td>{{item.time}}</td>
+                                            <td>{{item.info}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>

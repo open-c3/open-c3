@@ -193,6 +193,21 @@
             });
         };
 
+        vm.loadbpmlog =  function () {
+            $http.get('/api/job/bpm/log/' + vm.bpmuuid ).then(
+                function successCallback(response) {
+                    if (response.data.stat){
+                        vm.bpmlog = response.data.data
+                    }else {
+                        swal('获取信息失败', response.data.info, 'error' );
+                    }
+                },
+                function errorCallback (response){
+                    swal('获取信息失败', response.status, 'error' );
+                });
+        };
+        vm.bpmlog = {};
+ 
         vm.bpmvar = {};
         vm.loadbpmvar = function () {
             $http.get('/api/job/bpm/var/' + vm.bpmuuid ).success(function(data){
@@ -504,6 +519,7 @@
         if( vm.bpmuuid != "0" )
         {
             vm.loadbpmvar();
+            vm.loadbpmlog();
         }
         else
         {
