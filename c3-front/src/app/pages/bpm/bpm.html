@@ -234,7 +234,7 @@
                         <div class="col-sm-3 form-group" style="margin-left: 40%;">
                             <button ng-if="!bpm.loadover" class="btn btn-primary" ng-disabled="1" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!bpm.loadover}" ></i>{{'C3T.加载中'|translate}}...</button>
                             <button ng-if="bpm.loadover && bpm.bpmuuid=='0'"  class="btn btn-primary" ng-disabled="bpmForm.$invalid" ng-click="bpm.runTask()">{{'C3T.确认'|translate}}</button>
-                            <button ng-if="bpm.loadover && bpm.bpmuuid!='0'"  class="btn btn-danger" ng-disabled="bpmForm.$invalid" ng-click="bpm.runTask()">{{'C3T.重新发起一个新的BPM流程'|translate}}</button>
+                            <button ng-if="bpm.loadover && bpm.bpmuuid!='0' && bpm.debug==1"  class="btn btn-danger" ng-disabled="bpmForm.$invalid" ng-click="bpm.runTask()">{{'C3T.重新发起一个新的BPM流程'|translate}}</button>
                             <button ng-if="bpm.loadover && bpm.bpmuuid!='0'"  class="btn btn-primary" ng-disabled="bpmForm.$invalid" ng-click="bpm.reSave()">{{'C3T.重新保存'|translate}}</button>
                         </div>
                     </div>
