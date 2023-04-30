@@ -834,3 +834,13 @@ create table if not exists `openc3_connector_user_login_audit`(
 
 # v2.6.0 sql openc3_ci_project modify tag_regex to 100
 ALTER TABLE openc3_ci_project modify `tag_regex` varchar(100) DEFAULT NULL COMMENT '正则表达式';
+
+# v2.6.0 sql openc3_job_bpm_deal create
+create table if not exists `openc3_job_bpm_deal`(
+`id` int(16) unsigned not null primary key auto_increment comment 'id',
+`bpmuuid`  VARCHAR(50)   comment 'uuid',
+`dealer`   VARCHAR(100)  comment 'dealer',
+`status`   VARCHAR(20)   comment 'status',
+`time`     TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '时间',
+UNIQUE KEY `uniq_bpmuuid` (`bpmuuid`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='BPM处理设置';
