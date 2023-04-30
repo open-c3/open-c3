@@ -188,6 +188,28 @@ get '/bpm/taskuuid/:bpmuuid' => sub {
 
 =pod
 
+BPM/通过任务UUID获取BPMUUID
+
+=cut
+
+get '/bpm/bpmuuid/:taskuuid' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        taskuuid => qr/^[a-zA-Z\d]+$/, 1,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $pmscheck = api::pmscheck( 'openc3_agent_read' ); return $pmscheck if $pmscheck;
+
+    my $r = eval{ $api::mysql->query( "select extid from openc3_job_task where uuid='$param->{taskuuid}'" )}; 
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    return +{ stat => $JSON::false, info => "nofind bpm uuid" } unless $r && @$r > 0;
+    return +{ stat => $JSON::true, data => $r->[0][0] };
+};
+
+
+=pod
+
 BPM/查询这个流程是不是当前需要我处理的
 
 =cut
