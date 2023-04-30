@@ -19,11 +19,13 @@
         $httpProvider.interceptors.push('authInterceptor');
 
         // translate
+        var openc3DefaultLang="en"; // en or zh_CN
         $translateProvider
             .useCookieStorage()
             .useLoader('langAsyncLoader')
             .useSanitizeValueStrategy('escape')
-            .fallbackLanguage('zh_CN')
+            .fallbackLanguage(openc3DefaultLang)
+             .preferredLanguage(openc3DefaultLang)
             .registerAvailableLanguageKeys(['en', 'zh_CN'], {
                 'en_*': 'en',
                 'zh_*': 'zh_CN'
