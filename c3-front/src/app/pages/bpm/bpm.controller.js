@@ -587,10 +587,11 @@
             $scope.taskData.variable['_sys_opt_']['variable']     = $scope.jobVar;
             $scope.taskData.variable['_sys_opt_']['multitempidx'] = vm.multitempidx;
 
-            resoureceService.work.runJobByName(vm.defaulttreeid, {"jobname":$scope.choiceJob.name, "bpm_variable": $scope.taskData.variable, "variable": {} })
+            resoureceService.work.runJobByName2Bpm(vm.defaulttreeid, {"jobname":$scope.choiceJob.name, "bpm_variable": $scope.taskData.variable, "variable": {} })
                 .then(function (repo) {
                     if (repo.stat){
-                        $state.go('home.history.bpmdetail', {treeid:vm.defaulttreeid,taskuuid:repo.uuid});
+                        //$state.go('home.history.bpmdetail', {treeid:vm.defaulttreeid,taskuuid:repo.uuid});
+                        $state.go('home.bpmcase', {bpmuuid:repo.uuid});
                     }
 
                  }, function (repo) { });
