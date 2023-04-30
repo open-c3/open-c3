@@ -253,6 +253,8 @@
                             <button ng-if="bpm.loadover && bpm.bpmuuid=='0'"  class="btn btn-primary" ng-disabled="bpmForm.$invalid" ng-click="bpm.runTask()">{{'C3T.确认'|translate}}</button>
                             <button ng-if="bpm.loadover && bpm.bpmuuid!='0' && bpm.debug==1"  class="btn btn-danger" ng-disabled="bpmForm.$invalid" ng-click="bpm.runTask()">{{'C3T.重新发起一个新的BPM流程'|translate}}</button>
                             <button ng-if="bpm.loadover && bpm.bpmuuid!='0'"  class="btn btn-primary" ng-disabled="bpmForm.$invalid" ng-click="bpm.reSave()">{{'C3T.重新保存'|translate}}</button>
+                            <button ng-if="bpm.ideal == '1'" class="btn btn-primary" ng-disabled="bpmForm.$invalid" ng-click="bpm.deal('agree')">{{'C3T.同意'|translate}}</button>
+                            <button ng-if="bpm.ideal == '1'" class="btn btn-primary" ng-disabled="bpmForm.$invalid" ng-click="bpm.deal('refuse')">{{'C3T.拒绝'|translate}}</button>
                         </div>
                     </div>
                 </form>

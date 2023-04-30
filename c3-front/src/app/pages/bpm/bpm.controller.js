@@ -66,6 +66,28 @@
         };
 
  
+        vm.ideal = 0;
+        vm.idealloadover = false;
+        vm.getDeal = function(){
+            $http.get('/api/job/bpm/deal/' + vm.bpmuuid ).success(function(data){
+                vm.ideal = data.data;
+                vm.idealloadover = true;
+            });
+        };
+
+        vm.deal = function( opinion ){
+            swal({
+                title: "处理:" + opinion,
+                text: 'deal',
+                showCancelButton: true,
+                showLoaderOnConfirm: true
+             }, function( result ){
+                $http.post('/api/job/bpm/deal/' + vm.bpmuuid, { "opinion": opinion } ).success(function(data){
+                    vm.idealloadover = true;
+                });
+            });
+        };
+
         vm.showfromops = '0';
         vm.fromopsdefault = '0';
         vm.vfromops = {};
@@ -533,6 +555,7 @@
         {
             vm.loadbpmvar();
             vm.loadbpmlog();
+            vm.getDeal();
         }
         else
         {
