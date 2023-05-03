@@ -1,0 +1,34 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use MYDB;
+use MYDan::Util::OptConf;
+use Auth::GoogleAuth;
+
+=head1 SYNOPSIS
+
+ $0 --user user1
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( user=s ) )->dump();
+$option->assert(qw( user ));
+
+my $db = MYDB->new( "/data/Software/mydan/Connector/conf/conn" );
+my $x  = $db->query( "select secret from openc3_connector_mfa_google where user='$o{user}'" );
+if( $x && @$x )
+{
+    print "$x->[0][0]\n";
+    exit;
+}
+
+my $auth = Auth::GoogleAuth->new;
+my $secret = $auth->generate_secret32;
+
+$db->execute( "replace into openc3_connector_mfa_google(user,secret) value('$o{user}','$secret')" );
+
+print "$secret\n";

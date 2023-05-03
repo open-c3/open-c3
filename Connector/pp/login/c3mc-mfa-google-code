@@ -1,0 +1,22 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use MYDan::Util::OptConf;
+use Auth::GoogleAuth;
+
+=head1 SYNOPSIS
+
+ $0 --secret xt37ss4kjo3z4ipv
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( secret=s ) )->dump();
+$option->assert(qw( secret ));
+
+my $auth = Auth::GoogleAuth->new;
+my $code = $auth->code( $o{secret}, time, 30 );
+print "$code\n";

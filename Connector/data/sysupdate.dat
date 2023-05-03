@@ -844,3 +844,20 @@ create table if not exists `openc3_job_bpm_deal`(
 `time`     TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '时间',
 UNIQUE KEY `uniq_bpmuuid` (`bpmuuid`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='BPM处理设置';
+
+# v2.6.0 sql openc3_connector_mfa create
+create table if not exists `openc3_connector_mfa`(
+`id` int(16) unsigned not null primary key auto_increment comment 'id',
+`user`     VARCHAR(100)  comment 'user',
+`type`     VARCHAR(50)   comment 'type',
+`status`   VARCHAR(20)   comment 'status',
+UNIQUE KEY `uniq_user` (`user`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='MFA 二次验证';
+
+# v2.6.0 sql openc3_connector_mfa_google create
+create table if not exists `openc3_connector_mfa_google`(
+`id` int(16) unsigned not null primary key auto_increment comment 'id',
+`user`     VARCHAR(100)  comment 'user',
+`secret`   VARCHAR(100)  comment 'secret',
+UNIQUE KEY `uniq_user` (`user`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='MFA 二次验证,Google';
