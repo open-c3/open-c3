@@ -32,8 +32,8 @@ def get(data, access_id, access_key, region):
 
 def list_tag(access_id, access_key, region, bucket_name):
     sys.path.append("/data/Software/mydan/Connector/lib/pp")
-    from c3mc_cloud_aws_s3_get_tag import GetTag
-    return GetTag(access_id, access_key, region, bucket_name).list_tag()
+    from c3mc_cloud_aws_s3 import AWS_S3
+    return AWS_S3(access_id, access_key, region, bucket_name).list_tag()
 
 
 def main(data, access_id, access_key, region):

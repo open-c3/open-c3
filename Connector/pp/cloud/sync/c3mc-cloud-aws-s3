@@ -9,7 +9,7 @@ import boto3
 import time
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
-from c3mc_cloud_aws_s3_get_tag import GetTag
+from c3mc_cloud_aws_s3 import AWS_S3
 
 
 # 并发处理所有存储桶的最大线程数
@@ -102,7 +102,7 @@ class S3:
         return array._array
 
     def list_tag(self, access_id, access_key, region, bucket_name):
-        return GetTag(access_id, access_key, region, bucket_name).list_tag()
+        return AWS_S3(access_id, access_key, region, bucket_name).list_tag()
 
     def show(self):
         bucket_list = self.list_buckets()
