@@ -861,3 +861,14 @@ create table if not exists `openc3_connector_mfa_google`(
 `secret`   VARCHAR(100)  comment 'secret',
 UNIQUE KEY `uniq_user` (`user`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='MFA 二次验证,Google';
+
+# v2.6.0 sql openc3_connector_mfakey create
+create table if not exists `openc3_connector_mfakey`(
+`id` int(16) unsigned not null primary key auto_increment comment 'id',
+`user`     VARCHAR(100)  comment 'user',
+`keys`     VARCHAR(100)  comment 'type',
+`pwmd5`    VARCHAR(50)   comment 'passwordMd5',
+`time`     VARCHAR(20)   comment 'time',
+UNIQUE KEY `uniq_keys` (`keys`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='MFA 二次验证,用于映射用户';
+

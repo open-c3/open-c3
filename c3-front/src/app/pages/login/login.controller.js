@@ -12,13 +12,36 @@
         vm.callback = $location.search()['callback'];
         vm.post
         vm.logining
-        vm.login = function()
+        vm.mfakey = '';
+        vm.mfa    = '';
+
+        vm.login = function(mfa)
         {
             vm.logining = 1;
             vm.post.domain = window.location.host;
-            $http.post('/api/connector/default/user/login', vm.post ).then(
+            vm.type = 'login';
+            if(mfa)
+            {
+                vm.post.keys = vm.mfakey;
+                vm.type = 'mfa';
+            }
+
+            $http.post('/api/connector/default/user/' + vm.type , vm.post ).then(
                 function successCallback(response) {
+
+                    vm.mfakey    = '';
+                    vm.mfa       = '';
+                    vm.post.keys = '';
+                    vm.post.code = '';
+
                     if (response.data.stat){
+                        if( response.data.mfa != undefined )
+                        {
+                            vm.mfa      = response.data.mfa;
+                            vm.mfakey   = response.data.mfakey;
+                            vm.logining = 0;
+                            return;
+                        }
 
                         if( response.data.pwperiod < 15 )
                         {
