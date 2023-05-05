@@ -261,9 +261,9 @@
 
                 <div ng-if="bpm.bpmuuid != '0'" class="row" ng-repeat="ss in jobVar">
                     <div ng-if="ss.idx == 0 && ss.actionname != ''" class="col-sm-10 form-group">
-                        <div class="panel panel-info" ng-if="bpm.bpmlog[ss.stepid]" >
+                        <div class="panel panel-info" ng-if="bpm.bpmlog[ss.stepid]|| bpm.allRuningData[ss.stepid-1].status != undefined" >
                             <div class="panel-heading" style="height: 33px">
-                                <h5>{{ss.actionname}}</h5>
+                                <h5>{{ss.actionname}} / {{bpm.allRuningData[ss.stepid-1].status}}</h5>
                             </div>
                             <div class="panel-tabs">
                                 <table class="table table-hover text-center table-condensed" style="margin-bottom: 0">

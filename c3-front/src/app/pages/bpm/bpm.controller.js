@@ -88,6 +88,36 @@
             });
         };
 
+        vm.getsubTaskDetails =  function () {
+            $http.get('/api/job/bpm/taskuuid/' + vm.bpmuuid).then(
+                function successCallback(response) {
+                    if (response.data.stat){
+                        vm.taskuuid = response.data.data;
+
+                        $http.get('/api/job/subtask/' + 0 + "/" + vm.taskuuid).then(
+                            function successCallback(response) {
+                                if (response.data.stat){
+                                    vm.allRuningData = response.data.data;
+                                }else {
+                                    swal('获取信息失败', response.data.info, 'error' );
+                                }
+                            },
+                            function errorCallback (response){
+                                swal('获取信息失败', response.status, 'error' );
+                            });
+
+
+
+                    }else {
+                        swal('获取任务编号失败', response.data.info, 'error' );
+                    }
+                },
+                function errorCallback (response){
+                    swal('获取任务编号失败', response.status, 'error' );
+                });
+
+            };
+
         vm.showfromops = '0';
         vm.fromopsdefault = '0';
         vm.vfromops = {};
@@ -556,6 +586,7 @@
             vm.loadbpmvar();
             vm.loadbpmlog();
             vm.getDeal();
+            vm.getsubTaskDetails();
         }
         else
         {
