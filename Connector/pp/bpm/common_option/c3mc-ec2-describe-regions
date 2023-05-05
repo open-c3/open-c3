@@ -2,17 +2,65 @@
 # -*- coding: utf-8 -*-
 
 import sys
-import json
 import subprocess
+import requests
+from bs4 import BeautifulSoup
+import json
 
 import boto3
+
+
+
+def get_region_code_name_dict(region):
+    def _get_aws_global_regions():
+        url = "https://docs.aws.amazon.com/zh_cn/AWSEC2/latest/UserGuide/using-regions-availability-zones.html"
+        response = requests.get(url)
+        response.raise_for_status()
+
+        # 显式设置响应编码为 'utf-8'
+        response.encoding = 'utf-8'
+
+        soup = BeautifulSoup(response.text, "html.parser")
+        table = soup.find("table")
+
+        if not table:
+            return {}
+
+        region_info = {}
+        rows = table.find_all("tr")
+
+        for row in rows:
+            cols = row.find_all("td")
+            if len(cols) >= 2:
+                region_code = cols[0].get_text(strip=True)
+                region_name = cols[1].get_text(strip=True)
+                region_info[region_code] = region_name
+        return region_info
+
+    def _get_aws_cn_regions():
+        # 没找到aws官方关于中国区域的表格无法使用爬虫
+        return {
+            "cn-north-1": "中国 (北京)",
+            "cn-northwest-1": "中国 (宁夏)"
+        }
+
+    try:
+        if region.startswith("cn-"):
+            return _get_aws_cn_regions()
+        return _get_aws_global_regions()
+    except Exception as e:
+        print(f"获取网站内容失败: {e}", file=sys.stderr)
+        return {}
 
 
 def describe_regions(access_id, access_key):
     """
         查询aws区域列表
     """
+
+    result = []
     for region in ["us-east-1", "cn-north-1"]:
+        code_to_name_dict = get_region_code_name_dict(region)
         try:
             client = boto3.client(
                 "ec2",
@@ -21,7 +69,15 @@ def describe_regions(access_id, access_key):
                 region_name=region
             )
             response = client.describe_regions(AllRegions=True)
-            return sorted(response["Regions"], key=lambda x: x['RegionName'], reverse=False)
+            sorted_regions = sorted(response["Regions"], key=lambda x: x['RegionName'], reverse=False)
+            result.extend(
+                {
+                    "name": code_to_name_dict[region["RegionName"]] if region["RegionName"] in code_to_name_dict else region["RegionName"],
+                    "code": region["RegionName"],
+                }
+                for region in sorted_regions
+            )
+            return result
         except Exception:
             continue
     raise RuntimeError("未查询到区域列表")
