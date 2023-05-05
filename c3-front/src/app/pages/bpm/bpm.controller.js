@@ -27,6 +27,17 @@
         vm.bpmname = $location.search()['name'];
         vm.debug = $location.search()['debug'];
 
+        vm.debugswitch = function() {
+            if( vm.debug == 0 || vm.debug == undefined )
+            {
+                vm.debug = 1;
+            }
+            else
+            {
+                vm.debug = 0;
+            }
+        };
+
         $scope.jobVar = [];         // 保存作业中需要填写的变量
         $scope.choiceJob = null;    // 已选择的作业数据
         $scope.taskData = {
