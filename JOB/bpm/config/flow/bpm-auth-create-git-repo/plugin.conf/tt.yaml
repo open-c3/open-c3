@@ -1,0 +1,31 @@
+---
+name: 新建git仓库
+option:
+  - name: repository_group_addr
+    describe: git仓库组地址
+    type: input
+    value: ""
+
+  - name: repository_name
+    describe: 仓库名称
+    type: input
+    value: ""
+
+  - name: role
+    describe: 角色
+    type: select
+    option: ["Guest", "Reporter", "Developer", "Maintainer", "Owner", "Minimal Access"]
+    value: ""
+
+  - name: note
+    describe: 申请理由
+    type: text
+    value: ""
+
+template_argv:
+  title:    "BPM/新建git仓库"
+  content:  |
+    git仓库组地址: ${repository_group_addr}
+    仓库名称: ${repository_name}
+    角色: ${note}
+    申请理由: ${note}
