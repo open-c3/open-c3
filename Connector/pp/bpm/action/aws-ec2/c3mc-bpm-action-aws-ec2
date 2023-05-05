@@ -10,6 +10,10 @@ import base64
 
 import boto3
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_aws_ec2 import LIB_EC2
+from c3mc_utils import bpm_merge_user_input_tags
+
 
 must_set_iops_for_volume_types = [
     "io1",
@@ -165,8 +169,6 @@ class Ec2:
         return create_ec2_params
 
     def bind_eip_to_ec2(self, instance_info_list, tags, name_info_m):
-        sys.path.append("/data/Software/mydan/Connector/lib/pp")
-        from c3mc_cloud_aws_ec2 import LIB_EC2
         lib_ec2 = LIB_EC2(self.access_id, self.access_key, self.region)
 
         for instance_info in instance_info_list:
@@ -263,7 +265,6 @@ class Ec2:
                 res = self.client.create_tags(Resources=[volume_id], Tags=tags)
                 print(f"对volume打标签. instance_id: {instance_id}, volume_id: {volume_id}, 结果: {json.dumps(res)}")
     
-
     def run_instance(self):
         """创建一个或多个ec2实例
         """
@@ -271,6 +272,16 @@ class Ec2:
         # self.create_iam_or_profile_if_need(
         #     'c3mc-ec2create-instance-profile-create')
         # self.add_role_to_instance_profile()
+
+        self.instance_params = bpm_merge_user_input_tags(
+            self.instance_params,
+            "tag",
+            "product_owner_tag",
+            "ops_owner_tag",
+            "department_tag",
+            "key",
+            "value"
+        )
 
         create_ec2_params = self.assemble_create_ec2_api_args()
 
