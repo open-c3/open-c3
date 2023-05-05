@@ -20,15 +20,17 @@ $option->assert(qw( user ));
 
 my $db = MYDB->new( "/data/Software/mydan/Connector/conf/conn" );
 my $x  = $db->query( "select secret from openc3_connector_mfa_google where user='$o{user}'" );
+my $auth = Auth::GoogleAuth->new;
 if( $x && @$x )
 {
     print "$x->[0][0]\n";
+    printf "%s\n", my $url = $auth->qr_code( $x->[0][0], $o{user}, 'OpenC3' );
     exit;
 }
 
-my $auth = Auth::GoogleAuth->new;
 my $secret = $auth->generate_secret32;
 
 $db->execute( "replace into openc3_connector_mfa_google(user,secret) value('$o{user}','$secret')" );
 
 print "$secret\n";
+printf "%s\n", my $url = $auth->qr_code( $secret, $o{user}, 'OpenC3' );

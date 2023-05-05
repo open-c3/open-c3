@@ -593,6 +593,13 @@
                 controllerAs: 'connectorchpasswd'
             })
  
+             .state('home.connector.settings', {
+                url: 'settings',
+                templateUrl: 'app/pages/connector/settings/settings.html',
+                controller: 'ConnectorSettingsController',
+                controllerAs: 'connectorsettings'
+            })
+ 
              .state('home.connector.mesg', {
                 url: 'mesg/:treeid',
                 templateUrl: 'app/pages/connector/mesg/mesg.html',
