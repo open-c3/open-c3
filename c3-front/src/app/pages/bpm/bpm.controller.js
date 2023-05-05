@@ -88,6 +88,11 @@
             });
         };
 
+        vm.taskDetail = function(){
+            var url = $state.href('home.history.bpmdetail', {treeid: '0',taskuuid:vm.taskuuid});
+            window.open( url, '_blank' );
+        };
+
         vm.getsubTaskDetails =  function () {
             $http.get('/api/job/bpm/taskuuid/' + vm.bpmuuid).then(
                 function successCallback(response) {
