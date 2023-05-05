@@ -292,8 +292,9 @@ class Ec2:
         # 对实例添加名称标签
         name_info_m = self.add_name_tag_to_instances(response["Instances"], self.instance_params["name_prefix"], self.instance_params["name_suffix_start_number"])
 
-        # 绑定eip
-        self.bind_eip_to_ec2(response["Instances"], create_ec2_params["TagSpecifications"][0]["Tags"], name_info_m)
+        if self.instance_params["public_ip_type"] == "弹性公网ip":
+            # 绑定eip
+            self.bind_eip_to_ec2(response["Instances"], create_ec2_params["TagSpecifications"][0]["Tags"], name_info_m)
 
         # 对每个ec2关联的volume添加标签
         self.add_tags_to_instance_volume(response["Instances"])
