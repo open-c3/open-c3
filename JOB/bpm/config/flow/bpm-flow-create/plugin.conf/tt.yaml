@@ -1,0 +1,74 @@
+---
+name: 创建发布服务
+option:
+  - name: production_server_ip
+    describe: 线上发布IP
+    type: input
+    value: ""
+
+  - name: prepare_server_ip
+    describe: 预发布IP
+    type: input
+    value: ""
+
+  - name: repository_addr
+    describe: 仓库地址
+    type: input
+    value: ""
+
+  - name: tag_rule
+    describe: 仓库标签规则
+    type: input
+    value: ""
+
+  - name: if_need_build
+    describe: 是否需要编译
+    type: select
+    option: ["是", "否"]
+    value: ""
+
+  - name: build_script
+    describe: 编译脚本
+    type: input
+    value: ""
+
+  - name: release_server_dir
+    describe: 发布目录
+    type: input
+    value: ""
+
+  - name: approve_person_for_release
+    describe: 发布审批人
+    type: input
+    value: ""
+
+  - name: run_commands_after_release
+    describe: 发布后执行命令
+    type: text
+    value: ""
+
+  - name: is_for_production
+    describe: 是否为线上环境
+    type: select
+    option: ["是", "否"]
+    value: ""
+
+  - name: note
+    describe: 申请理由
+    type: text
+    value: ""
+
+template_argv:
+  title:    "BPM/创建发布服务"
+  content:  |
+    线上发布IP: ${production_server_ip}
+    预发布IP: ${prepare_server_ip}
+    仓库地址: ${repository_addr}
+    仓库标签规则: ${tag_rule}
+    是否需要编译: ${if_need_build}
+    编译脚本: ${build_script}
+    发布目录: ${release_server_dir}
+    发布审批人: ${approve_person_for_release}
+    发布后执行命令: ${run_commands_after_release}
+    是否为线上环境: ${is_for_production}
+    申请理由: ${note}

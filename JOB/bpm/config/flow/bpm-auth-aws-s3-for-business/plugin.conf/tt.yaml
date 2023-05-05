@@ -1,0 +1,31 @@
+---
+name: 申请业务s3账户
+option:
+  - name: bucket_addr
+    describe: 存储桶地址
+    type: input
+    value: ""
+
+  - name: auth_type
+    describe: 权限类型
+    type: select
+    option: ["只读", "只写", "读写"]
+    value: ""
+
+  - name: auth_path
+    describe: 权限路径
+    type: input
+    value: ""
+
+  - name: note
+    describe: 申请理由
+    type: text
+    value: ""
+
+template_argv:
+  title:    "BPM/申请业务s3账户"
+  content:  |
+    存储桶地址: ${bucket_addr}
+    权限类型: ${auth_type}
+    权限路径: ${auth_path}
+    申请理由: ${note}
