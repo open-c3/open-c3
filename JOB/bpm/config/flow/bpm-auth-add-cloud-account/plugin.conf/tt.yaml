@@ -1,0 +1,37 @@
+---
+name: 添加云账号
+option:
+  - name: cloud
+    describe: 云厂商
+    type: select
+    option: ["AWS", "腾讯云", "阿里云", "谷歌云", "金山云", "百度云"]
+    value: ""
+
+  - name: account
+    describe: 账户
+    type: input
+    value: ""
+
+  - name: email
+    describe: 邮箱
+    type: input
+    value: ""
+
+  - name: phone
+    describe: 手机号
+    type: input
+    value: ""
+
+  - name: note
+    describe: 申请理由
+    type: text
+    value: ""
+
+template_argv:
+  title:    "BPM/添加云账号"
+  content:  |
+    云厂商: ${cloud}
+    账户: ${account}
+    邮箱: ${email}
+    手机号: ${phone}
+    申请理由: ${note}
