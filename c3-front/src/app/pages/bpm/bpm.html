@@ -263,7 +263,8 @@
                     <div ng-if="ss.idx == 0 && ss.actionname != ''" class="col-sm-10 form-group">
                         <div class="panel panel-info" ng-if="bpm.bpmlog[ss.stepid]|| bpm.allRuningData[ss.stepid-1].status != undefined" >
                             <div class="panel-heading" style="height: 33px">
-                                <h5>{{ss.actionname}} / {{bpm.allRuningData[ss.stepid-1].status}}</h5>
+                                <h5 ng-if="bpm.allRuningData[ss.stepid-1].status != undefined && !( bpm.allRuningData[ss.stepid-1].status=='success' || bpm.allRuningData[ss.stepid-1].status=='running')" style="background-color: red" >{{ss.actionname}} / {{bpm.allRuningData[ss.stepid-1].status}}</h5>
+                                <h5 ng-if="( bpm.allRuningData[ss.stepid-1].status=='success' || bpm.allRuningData[ss.stepid-1].status=='running' )" >{{ss.actionname}} / {{bpm.allRuningData[ss.stepid-1].status}}</h5>
                             </div>
                             <div class="panel-tabs">
                                 <table class="table table-hover text-center table-condensed" style="margin-bottom: 0">
