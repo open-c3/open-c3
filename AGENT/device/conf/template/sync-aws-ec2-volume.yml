@@ -18,6 +18,23 @@ download:
           select: ["YES", "NO"]
         - name: remarks
           alias: 备注
+      grpcol:
+        baseinfo:
+        - name: 业务负责人
+        - name: 运维负责人
+        - name: 状态
+          success:
+          - in-use
+        - name: 部门
+        - name: 实例ID
+        - name: 容量
+        - name: 名称
+        - name: 类型
+        - name: 区域
+        - name: 所在可用区
+        system:
+        - prefix: tag.
+ 
     metrics:
       - name: 'openc3_cmdb_resource_price{account="%s",instanceid="%s",type="storage",subtype="aws-ec2-volume",unit="%s",status="%s"} %f'
         value: ["account", "uuid", "_priceunit_", "状态", "_price_"]

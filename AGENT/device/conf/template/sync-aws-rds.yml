@@ -39,6 +39,22 @@ download:
         - name: _ingestion_
           alias: 摄取
           select: ["YES", "NO"]
+      grpcol:
+        baseinfo:
+        - name: 业务负责人
+        - name: 运维负责人
+        - name: 状态
+          success:
+          - available
+        - name: 部门
+        - name: 实例ID
+        - name: 引擎
+        - name: 区域
+        - name: 所在可用区
+        - name: 实例类型
+        system:
+        - prefix: tag.
+ 
     check:
       col: ["实例ID"]
       min: 0
