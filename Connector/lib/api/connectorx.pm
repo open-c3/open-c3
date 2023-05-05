@@ -525,6 +525,10 @@ post '/connectorx/mfa' => sub {
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
+
+    my $domain = $param->{sitehost} // 'open-c3';
+    $domain = 'open-c3' unless $domain =~ /^[a-zA-Z0-9][a-zA-Z0-9\.\-\_]+[a-zA-Z0-9]$/;
+
     my @x = '';
     eval{
         if( $param->{type} eq 'null' )
@@ -534,7 +538,8 @@ post '/connectorx/mfa' => sub {
         else
         {
             $api::mysql->execute( "replace into openc3_connector_mfa (`user`,`type`,`status`)values('$ssouser','$param->{type}','on')" );
-            @x = `c3mc-mfa-$param->{type}-make  -u '$ssouser'`;
+            @x = `c3mc-mfa-$param->{type}-make  --domain '$domain' -u '$ssouser'`;
+            die "$param->{type}-make fail: $?" if $?;
             chomp @x;
         }
     };
