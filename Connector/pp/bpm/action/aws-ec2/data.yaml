@@ -218,22 +218,26 @@ option:
     command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
     type: selectx
     fromops: 1
+    show:
+      - if_need_data_volume: ["是"]
   
   - name: product_owner_tag
     describe: 业务负责人标签
     type: input
     fromops: 1
-    information: "申请服务器登录权限的时候会使用这里配置的业务负责人作为审批人, 如果这里未配置则其他人无法对该服务器申请访问权限"
+    information: "申请服务器登录权限的时候会使用这里配置的业务负责人作为审批人, 如果这里未配置则其他人无法对该服务器申请访问权限。这里只需要配置标签值"
 
   - name: ops_owner_tag
     describe: 运维负责人标签
     type: input
     fromops: 1
+    information: "这里只需要配置标签值"
 
   - name: department_tag
     describe: 部门标签
     type: input
     fromops: 1
+    information: "这里只需要配置标签值"
 
   - name: tag
     describe: 其他标签
@@ -241,10 +245,17 @@ option:
     type: kvarray
     fromops: 1
 
+  - name: if_need_set_user_data
+    describe: 是否配置系统初始化脚本
+    command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
+    type: selectx
+
   - name: user_data
     describe: 系统初始化执行脚本(不超过16K大小)
     type: text
     required: false
+    show:
+      - if_need_set_user_data: ["是"]
     fromops: 1
 
 template_argv:
@@ -305,3 +316,6 @@ template_argv:
   # 标签
   # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
   tag: ${tag}
+
+  # 是否配置系统初始化脚本
+  if_need_set_user_data: ${if_need_set_user_data}

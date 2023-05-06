@@ -140,9 +140,11 @@ class Ec2:
         create_ec2_params["ImageId"] = self.instance_params["image_id"]
         create_ec2_params["EbsOptimized"] = False
         create_ec2_params["InstanceType"] = self.instance_params["instance_type"]
-        if self.instance_params["user_data"] not in [None, ""]:
+
+        if self.get_bool_value(self.instance_params["if_need_set_user_data"]):
             create_ec2_params["UserData"] = self.get_base64_encoding_str(
                 self.instance_params["user_data"])
+
         create_ec2_params["Monitoring"] = {
             "Enabled": self.get_bool_value(self.instance_params["enable_monitor"])
         }
@@ -156,12 +158,17 @@ class Ec2:
         create_ec2_params["MaxCount"] = int(self.instance_params["count"])
 
         tags = []
-        if self.instance_params["tag"] not in [None, ""]:
-            tag_list = json.loads(self.instance_params["tag"])
-            tags.extend(
-                {"Key": params_tag["key"], "Value": params_tag["value"]}
-                for params_tag in tag_list
-            )
+        user_tag_list = []
+        try:
+            # 如果用户没有配置标签，则instance_params["tag"]不是一个合法的json字符串
+            user_tag_list = json.loads(self.instance_params["tag"])
+        except json.JSONDecodeError:
+            pass
+
+        tags.extend(
+            {"Key": params_tag["key"], "Value": params_tag["value"]}
+            for params_tag in user_tag_list
+        )
             # tags.append({"Key": "Name", "Value": self.instance_params["name"]})
         instance_tag = {"ResourceType": "instance", "Tags": tags}
         volume_tag = {"ResourceType": "volume", "Tags": tags}
