@@ -396,6 +396,15 @@
                 controllerAs: 'historybpmdetail',
                 params:{"taskuuid":null, "jobtype":null, "jobuuid":null}
             })
+
+            .state('home.ttcase', {
+                url: 'tt/show/:ttuuid',
+                templateUrl: 'app/pages/history/tt/goto/goto.html',
+                controller: 'HistoryTtGotoController',
+                controllerAs: 'historyttgoto',
+            })
+
+
  
             // 这个页面正常的地址应该是:  /#/history/bpmgoto/BPMXXX
             // 因为在发送邮件消息或者工单中要出现这个地址，所以进来进行简洁处理,修改成: /#/bpmcase/BPMXXX
@@ -403,7 +412,7 @@
                 url: 'bpmcase/:bpmuuid',
                 templateUrl: 'app/pages/history/bpm/goto/goto.html',
                 controller: 'HistoryBpmGotoController',
-                controllerAs: 'historybpmdgoto',
+                controllerAs: 'historybpmgoto',
             })
 
             // flow

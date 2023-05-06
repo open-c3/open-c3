@@ -13,17 +13,17 @@ def get_cloud_resource_code_list(cloud):
     目前是从/data/Software/mydan/AGENT/device/conf/template
     目录下的配置文件名称中提取
     """
-    flag = "sync-{}".format(cloud)
+    flag = f"sync-{cloud}"
 
     results = []
-    regex = r"sync-{}-(\w+(?:-\w+)*)\.ya?ml".format(cloud)
+    regex = f"sync-{cloud}-(\w+(?:-\w+)*)\.ya?ml$"
     for file in os.listdir("/data/Software/mydan/AGENT/device/conf/template"):
         if not file.startswith(flag):
             continue
         match = re.search(regex, file)
         if match:
-            results.append(match.group(1))
-    return results
+            results.append(match[1])
+    return list(set(results))
 
 def main(cloud):
     resource_type_list = get_cloud_resource_code_list(cloud)
