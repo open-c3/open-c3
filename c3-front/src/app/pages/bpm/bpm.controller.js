@@ -744,6 +744,11 @@
         };
 
         vm.loadover = false;
+
+        vm.choiceJobChange = function (value) {
+          $scope.choiceJob = value
+        }
+
         $scope.$watch('choiceJob', function () {
             if( vm.bpmuuid != "0" )
             {
