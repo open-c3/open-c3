@@ -151,9 +151,11 @@ def bpm_merge_user_input_tags(
     """将用户填写的业务负责人、运维负责人和其他标签合并在一起
     """
     tag_list = []
-    # 检查用户是否配置了标签
-    if instance_params[tag_field_name] not in [None, ""]:
+    try:
+        # 如果用户没有配置标签，则instance_params[tag_field_name]不是一个合法的json字符串
         tag_list = json.loads(instance_params[tag_field_name])
+    except json.JSONDecodeError:
+        tag_list = []
 
     tag_name_dict = { tag[tag_key_field].lower() for tag in tag_list }
     product_owner_env_vlaue = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.ProductOwner")
