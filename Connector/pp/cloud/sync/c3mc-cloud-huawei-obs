@@ -4,7 +4,9 @@
 import sys
 import json
 
-from obs import ObsClient
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_huawei_obs import HuaweiObs
 
 
 class Obs:
@@ -12,37 +14,13 @@ class Obs:
         self.access_id = access_id
         self.access_key = access_key
         self.region = region
-        self.client = self.create_client()
+        self.lib_client = self.create_lib_client()
 
-    def create_client(self):
-        return ObsClient(
-            access_key_id=self.access_id,
-            secret_access_key=self.access_key,
-            server=f"https://obs.{self.region}.myhuaweicloud.com/",
-        )
+    def create_lib_client(self):
+        return HuaweiObs(self.access_id, self.access_key, self.region)
 
     def list_buckets(self):
-        result = []
-        resp = self.client.listBuckets(isQueryLocation=True)
-        for bucket in resp.body.buckets:
-            item = {
-                "uuid": f"obs-{bucket.location}-{bucket.name}",
-                "name": bucket.name,
-                "create_date": bucket.create_date,
-                "location": bucket.location,
-                "tags": [],
-            }
-            tag_res = self.client.getBucketTagging(bucket.name)
-            if tag_res.status == 200:
-                for tag_item in tag_res.body.tagSet:
-                    item["tags"].append(
-                        {
-                            "key": tag_item.key,
-                            "value": tag_item.value,
-                        }
-                    )
-            result.append(item)
-        return result
+        return self.lib_client.list_buckets()
 
     def show(self):
         bucket_list = self.list_buckets()
