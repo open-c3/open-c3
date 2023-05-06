@@ -1,6 +1,3 @@
-    <div class="row" style="padding: 10px 20px 0px;">
-        <nodestr></nodestr>
-    </div>
     <div class="panel panel-primary" style="width: 100%">
         <div class="panel-body">
             <div class="form-horizontal">
@@ -9,6 +6,42 @@
                         <div class="col-sm-10 form-group">
                         </div>
                     </div>
+
+                    <div style="position: fixed; top: 80px; right: 10px; display: flex; flex-direction: column; align-items: flex-end; z-index: 9999;">
+                        <button ng-click="bpm.debugswitch()" style="width: 50px; height: 50px; border-radius: 50%; background-color: #FF6633; color: white;">debug</button>
+                   </div> 
+
+                    <div ng-if="bpm.bpmuuid != '0'" class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">{{'C3T.申请人'|translate}}: &nbsp;
+                                <i ng-if="!bpm.useroainfoloadover" class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!bpm.useroainfoloadover}" ></i>
+                            </label>
+                            <div class="col-sm-3">
+                                {{bpm.useroainfo.accountId}} - {{bpm.useroainfo.accountName}} - {{bpm.useroainfo.mobile}}
+                            </div>
+                            <label class="col-sm-3 control-label">{{'C3T.领导'|translate}}: &nbsp;
+                                <i ng-if="!bpm.userleaderinfoloadover" class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!bpm.userleaderinfoloadover}" ></i>
+                            </label>
+                            <div class="col-sm-3">
+                                {{bpm.userleaderinfo.leader1}}
+                            </div>
+ 
+                        </div>
+                    </div>
+                    <div ng-if="bpm.bpmuuid != '0'" class="row">
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-3 control-label">{{'C3T.部门'|translate}}: &nbsp;
+                                <i ng-if="!bpm.useroainfoloadover" class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!bpm.useroainfoloadover}" ></i>
+                            </label>
+                            <div class="col-sm-3">
+                                {{bpm.useroainfo.sybDeptName}} - {{bpm.useroainfo.oneDeptName}} - {{bpm.useroainfo.twoDeptName}}
+                            </div>
+ 
+                        </div>
+                    </div>
+
+<hr>
+
                     <div class="row">
                         <div class="col-sm-10 form-group">
                             <label class="col-sm-3 control-label">{{'C3T.名称'|translate}}: &nbsp;
@@ -222,11 +255,36 @@
                         <div class="col-sm-3 form-group" style="margin-left: 40%;">
                             <button ng-if="!bpm.loadover" class="btn btn-primary" ng-disabled="1" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!bpm.loadover}" ></i>{{'C3T.加载中'|translate}}...</button>
                             <button ng-if="bpm.loadover && bpm.bpmuuid=='0'"  class="btn btn-primary" ng-disabled="bpmForm.$invalid" ng-click="bpm.runTask()">{{'C3T.确认'|translate}}</button>
-                            <button ng-if="bpm.loadover && bpm.bpmuuid!='0'"  class="btn btn-danger" ng-disabled="bpmForm.$invalid" ng-click="bpm.runTask()">{{'C3T.重新发起一个新的BPM流程'|translate}}</button>
+                            <button ng-if="bpm.loadover && bpm.bpmuuid!='0' && bpm.debug==1"  class="btn btn-danger" ng-disabled="bpmForm.$invalid" ng-click="bpm.runTask()">{{'C3T.重新发起一个新的BPM流程'|translate}}</button>
+                            <button ng-if="bpm.loadover && bpm.bpmuuid!='0' && bpm.debug==1"  class="btn btn-info" ng-disabled="bpmForm.$invalid" ng-click="bpm.taskDetail()">{{'C3T.详情'|translate}}</button>
                             <button ng-if="bpm.loadover && bpm.bpmuuid!='0'"  class="btn btn-primary" ng-disabled="bpmForm.$invalid" ng-click="bpm.reSave()">{{'C3T.重新保存'|translate}}</button>
+                            <button ng-if="bpm.ideal == '1'" class="btn btn-primary" ng-disabled="bpmForm.$invalid" ng-click="bpm.deal('agree')">{{'C3T.同意'|translate}}</button>
+                            <button ng-if="bpm.ideal == '1'" class="btn btn-primary" ng-disabled="bpmForm.$invalid" ng-click="bpm.deal('refuse')">{{'C3T.拒绝'|translate}}</button>
                         </div>
                     </div>
                 </form>
+
+                <div ng-if="bpm.bpmuuid != '0'" class="row" ng-repeat="ss in jobVar">
+                    <div ng-if="ss.idx == 0 && ss.actionname != ''" class="col-sm-10 form-group">
+                        <div class="panel panel-info" ng-if="bpm.bpmlog[ss.stepid]|| bpm.allRuningData[ss.stepid-1].status != undefined" >
+                            <div class="panel-heading" style="height: 33px">
+                                <h5 ng-if="bpm.allRuningData[ss.stepid-1].status != undefined && !( bpm.allRuningData[ss.stepid-1].status=='success' || bpm.allRuningData[ss.stepid-1].status=='running')" style="background-color: red" >{{ss.actionname}} / {{bpm.allRuningData[ss.stepid-1].status}}</h5>
+                                <h5 ng-if="( bpm.allRuningData[ss.stepid-1].status=='success' || bpm.allRuningData[ss.stepid-1].status=='running' )" >{{ss.actionname}} / {{bpm.allRuningData[ss.stepid-1].status}}</h5>
+                            </div>
+                            <div class="panel-tabs">
+                                <table class="table table-hover text-center table-condensed" style="margin-bottom: 0">
+                                    <tbody>
+                                        <tr ng-repeat="item in bpm.bpmlog[ss.stepid]" style="cursor: pointer">
+                                            <td>{{item.time}}</td>
+                                            <td>{{item.info}}</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                           </div>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>

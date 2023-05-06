@@ -18,6 +18,23 @@ download:
           select: ["YES", "NO"]
         - name: remarks
           alias: 备注
+      grpcol:
+        baseinfo:
+        - name: 业务负责人
+        - name: 运维负责人
+        - name: 状态
+          success:
+          - ATTACHED
+        - name: 部门
+        - name: 实例ID
+        - name: 容量
+        - name: 关联的实例ID
+        - name: 区域
+        - name: 所在可用区
+        - name: 名称
+        system:
+        - prefix: tag.
+ 
     metrics:
       - name: 'openc3_cmdb_resource_price{account="%s",instanceid="%s",type="storage",subtype="qcloud-cvm-volume",unit="%s",status="%s"} %f'
         value: ["account", "uuid", "_priceunit_", "状态", "_price_"]

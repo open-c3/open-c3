@@ -6,6 +6,7 @@ import sys
 import time
 import urllib.request
 import subprocess
+import json
 
 
 def print_c3debug1_log(msg):
@@ -137,3 +138,42 @@ def encode_for_special_symbol(decoded_str):
         char if char.isalnum() or ord(char) >= 128 else f'E{ord(char)}E' for char in decoded_str
     )
 
+
+def bpm_merge_user_input_tags(
+        instance_params, 
+        tag_field_name, 
+        product_owner_key_name, 
+        ops_owner_key_name, 
+        department_key_name,
+        tag_key_field,
+        tag_value_field,
+    ):
+    """将用户填写的业务负责人、运维负责人和其他标签合并在一起
+    """
+    tag_list = []
+    # 检查用户是否配置了标签
+    if instance_params[tag_field_name] not in [None, ""]:
+        tag_list = json.loads(instance_params[tag_field_name])
+
+    tag_name_dict = { tag[tag_key_field].lower() for tag in tag_list }
+    product_owner_env_vlaue = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.ProductOwner")
+    ops_owner_env_value = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.OpsOwner")
+    department_env_value = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.Department")
+
+    if product_owner_env_vlaue.lower() not in tag_name_dict:
+        tag_list.append({
+            tag_key_field: product_owner_env_vlaue,
+            tag_value_field: instance_params[product_owner_key_name]
+        })
+    if ops_owner_env_value.lower() not in tag_name_dict:
+        tag_list.append({
+            tag_key_field: ops_owner_env_value,
+            tag_value_field: instance_params[ops_owner_key_name]
+        })
+    if department_env_value.lower() not in tag_name_dict:
+        tag_list.append({
+            tag_key_field: department_env_value,
+            tag_value_field: instance_params[department_key_name]
+        })
+    instance_params[tag_field_name] = json.dumps(tag_list)
+    return instance_params

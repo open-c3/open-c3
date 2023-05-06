@@ -186,4 +186,75 @@ get '/bpm/taskuuid/:bpmuuid' => sub {
     return +{ stat => $JSON::true, data => $r->[0][0] };
 };
 
+=pod
+
+BPM/通过任务UUID获取BPMUUID
+
+=cut
+
+get '/bpm/bpmuuid/:taskuuid' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        taskuuid => qr/^[a-zA-Z\d]+$/, 1,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $pmscheck = api::pmscheck( 'openc3_agent_read' ); return $pmscheck if $pmscheck;
+
+    my $r = eval{ $api::mysql->query( "select extid from openc3_job_task where uuid='$param->{taskuuid}'" )}; 
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    return +{ stat => $JSON::false, info => "nofind bpm uuid" } unless $r && @$r > 0;
+    return +{ stat => $JSON::true, data => $r->[0][0] };
+};
+
+
+=pod
+
+BPM/查询这个流程是不是当前需要我处理的
+
+=cut
+
+get '/bpm/deal/:bpmuuid' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        bpmuuid => qr/^[a-zA-Z\d]+$/, 1,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $pmscheck = api::pmscheck( 'openc3_agent_read' ); return $pmscheck if $pmscheck;
+
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+    return +{ stat => $JSON::false, info => "nofind user" } unless $user;
+
+    my $r = eval{ $api::mysql->query( "select status from openc3_job_bpm_deal where bpmuuid='$param->{bpmuuid}' and dealer='$user' and status='wait'" )}; 
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
+    return +{ stat => $JSON::true, data => ( $r && @$r ) ? 1 : 0 };
+};
+
+=pod
+
+BPM/设置流程处理状态
+
+=cut
+
+post '/bpm/deal/:bpmuuid' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        bpmuuid => qr/^[a-zA-Z\d]+$/, 1,
+        opinion => [ 'in', 'agree', 'refuse' ], 1,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $pmscheck = api::pmscheck( 'openc3_agent_read' ); return $pmscheck if $pmscheck;
+
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+    return +{ stat => $JSON::false, info => "nofind user" } unless $user;
+
+    my $r = eval{ $api::mysql->execute( "update openc3_job_bpm_deal set status='$param->{opinion}' where bpmuuid='$param->{bpmuuid}' and dealer='$user' and status='wait'" )};
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
+    return +{ stat => $JSON::true, data => $r };
+};
+
 true;

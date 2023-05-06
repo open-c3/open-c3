@@ -258,6 +258,20 @@ any '/default/user/login' => sub {
     {
         my @chars = ( "A" .. "Z", "a" .. "z", 0 .. 9 );
         my $keys = join("", @chars[ map { rand @chars } ( 1 .. 64 ) ]);
+
+        my $uuid = Digest::MD5->new->add($pass)->hexdigest;
+
+        my $mfa = eval{ $api::mysql->query( "select type from `openc3_connector_mfa` where user='$user' and status='on'" ) };
+        return +{ stat => $JSON::false, info => "get mfa fail:$@" } if $@;
+
+        eval{ $api::mysql->execute(  "insert into openc3_connector_mfakey(`user`,`keys`,`pwmd5`,`time`)values('$user','$keys','$uuid','$time')" ); };
+        return +{ stat => $JSON::false, info => $@ } if $@;
+
+        if( $mfa && @$mfa && $mfa->[0][0] ne '' )
+        {
+            return +{ stat => $JSON::true, mfa => 'google', mfakey => $keys };
+        }
+
         eval{ $api::mysql->execute( sprintf "update openc3_connector_userinfo set expire=%d,sid='%s' where name='%s'", time + 7 * 86400, $keys, $user ); };
         return +{ stat => $JSON::false, info => $@ } if $@;
 
@@ -269,8 +283,6 @@ any '/default/user/login' => sub {
         }
 
         set_cookie( $api::cookiekey => $keys, http_only => 0, expires => time + 8 * 3600, %domain );
-
-        my $uuid = Digest::MD5->new->add($pass)->hexdigest;
 
         eval{ $api::mysql->execute( "insert into openc3_connector_user_login_audit( `user`,`uuid`,`action`,`ip`,`t` ) values('$user','$uuid','login','$ip','$time')" ); };
         return +{ stat => $JSON::false, info => $@ } if $@;
@@ -289,6 +301,93 @@ any '/default/user/login' => sub {
     else
     {
         eval{ $api::mysql->execute( "insert into openc3_connector_user_login_audit( `user`,`uuid`,`action`,`ip`,`t` ) values('$user','','pwErr','$ip','$time')" ); };
+        return +{ stat => $JSON::false, info => $@ } if $@;
+        return +{ stat => $JSON::false, info => "Error. " . $x };
+    }
+
+};
+
+=pod
+
+系统内置/用户/二次验证
+
+=cut
+
+any '/default/user/mfa' => sub {
+    my $param = params();
+    my $error = Format->new(
+        keys => qr/^[a-zA-Z0-9\@_\.\-]+$/, 1,
+        code => qr/^[a-zA-Z0-9\@_\.\-]+$/, 1,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my ( $keys, $code, $domain, $err ) = @$param{qw( keys code domain )};
+
+    return +{ stat => $JSON::false, info => 'keys or code undef' }
+        unless defined $keys & defined $code;
+
+    my $ip = '0.0.0.0';
+    my $time = time;
+
+    for( qw( HTTP_X_FORWARDED_FOR HTTP_X_REAL_IP REMOTE_ADDR ) )
+    {
+        my $x = request->env->{$_};
+        if( $x && $x =~ /^\s*(\d+\.\d+\.\d+\.\d+)\b/ )
+        {
+            $ip = $1;
+            last;
+        }
+    }
+
+    my $pwErr = eval{ $api::mysql->query( "select user,pwmd5,time from openc3_connector_mfakey where `keys`='$keys'" ) };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    return +{ stat => $JSON::false, info => "mfa keys error" } unless $pwErr && @$pwErr;
+    my $user  = $pwErr->[0][0];
+    my $pwmd5 = $pwErr->[0][1];
+
+    return +{ stat => $JSON::false, info => "The operation has expired, please login again" } if $pwErr->[0][2] + 300 < time;
+
+    eval{ $api::mysql->execute( "delete from openc3_connector_mfakey where `keys`='$keys'" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
+    my $x = `c3mc-mfa --user '$user' --code '$code'`;
+    chomp $x;
+
+    if( $x eq 'ok' )
+    {
+        my @chars = ( "A" .. "Z", "a" .. "z", 0 .. 9 );
+        my $keys = join("", @chars[ map { rand @chars } ( 1 .. 64 ) ]);
+
+        my $uuid = $pwmd5;
+        eval{ $api::mysql->execute( sprintf "update openc3_connector_userinfo set expire=%d,sid='%s' where name='%s'", time + 7 * 86400, $keys, $user ); };
+        return +{ stat => $JSON::false, info => $@ } if $@;
+
+        my %domain;
+        if( $ssocookie && $domain && $domain =~ /[a-z]/ )
+        {
+            my @x = reverse split /\./, $domain;
+            %domain = ( domain => ".$x[1].$x[0]") if @x >= 3;
+        }
+
+        set_cookie( $api::cookiekey => $keys, http_only => 0, expires => time + 8 * 3600, %domain );
+
+        eval{ $api::mysql->execute( "insert into openc3_connector_user_login_audit( `user`,`uuid`,`action`,`ip`,`t` ) values('$user','$uuid','login','$ip','$time')" ); };
+        return +{ stat => $JSON::false, info => $@ } if $@;
+
+        my $f = eval{ $api::mysql->query( "select t from `openc3_connector_user_login_audit` where user='$user' and uuid='$uuid' and action='login' order by id limit 1" ) };
+        return +{ stat => $JSON::false, info => $@ } if $@;
+
+        my $ftime = $f && @$f ? $f->[0][0] : time - 60;
+
+        my $pwperiod = int ( $passwordperiod -  (( time - $ftime ) / 86400 ) );
+
+        return +{ stat => $JSON::false, info => "Error. password period." } if $pwperiod < 0;
+
+        return +{ stat => $JSON::true, info => 'ok', pwperiod => $pwperiod };
+    }
+    else
+    {
+        eval{ $api::mysql->execute( "insert into openc3_connector_user_login_audit( `user`,`uuid`,`action`,`ip`,`t` ) values('$user','','mfaErr','$ip','$time')" ); };
         return +{ stat => $JSON::false, info => $@ } if $@;
         return +{ stat => $JSON::false, info => "Error. " . $x };
     }

@@ -1,0 +1,64 @@
+---
+name: 申请aws s3权限
+option:
+  - name: account
+    describe: 账号
+    command: c3mc-display-cloud-account-list aws
+    type: selectx
+
+  - name: auth_type
+    describe: 权限类型
+    type: select
+    option: ["只读", "读写"]
+    value: ""
+
+  - name: bucket_name
+    describe: 存储桶名称
+    rely:
+      - account
+    command: c3mc-aws-list-s3-bucket-names
+    type: selectx
+
+  - name: key_or_role
+    describe: 授权方式
+    type: select
+    option: ["key", "role"]
+    value: ""
+
+  - name: iam_account
+    describe: key所属iam账号
+    type: input
+    value: "空"
+
+  - name: role_account
+    describe: role所属用户
+    type: input
+    value: "空"
+
+  - name: s3_addr
+    describe: s3路径
+    type: input
+    value: ""
+
+  - name: public_ip
+    describe: 公网ip
+    type: input
+    value: ""
+
+  - name: note
+    describe: 申请理由
+    type: text
+    value: ""
+
+template_argv:
+  title:    "BPM/申请aws s3权限"
+  content:  |
+    账号: ${account}
+    权限类型: ${auth_type}
+    存储桶名称: ${bucket_name}
+    授权方式: ${key_or_role}
+    key所属iam账号: ${iam_account}
+    role所属用户: ${role_account}
+    s3路径: ${s3_addr}
+    公网ip: ${public_ip}
+    申请理由: ${note}

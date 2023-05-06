@@ -43,10 +43,11 @@ def describe_subnets(access_id, access_key, region, availability_zone, vpc_id):
 
         marker = response["NextToken"] if "NextToken" in response else ""
     for item in result:
-        for tag in item["Tags"]:
-            if tag["Key"] == "Name":
-                item["Name"] = tag["Value"]
-                break
+        if "Tags" in item:
+            for tag in item["Tags"]:
+                if tag["Key"] == "Name":
+                    item["Name"] = tag["Value"]
+                    break
 
     return result
 

@@ -10,6 +10,7 @@ use MIME::Base64;
 use Digest::MD5;
 
 use Encode qw(decode encode);
+use OPENC3::Crypt;
 
 =head1 SYNOPSIS
 
@@ -25,6 +26,10 @@ my $db = MYDB->new( "/data/Software/mydan/AGENT/conf/conn" );
 my @col = qw( accountname credentials region ); 
 my $r = eval{ $db->query( sprintf( "select %s from openc3_device_account_google", join( ",", map{"`$_`"}@col) ), \@col ); };   
 die "get info fail" unless $r && ref $r eq 'ARRAY';
+
+my @cryptcol = qw( credentials );
+my $crypt = OPENC3::Crypt->new();
+for my $x ( @$r ) { map{ $x->{$_} = $crypt->decode( $x->{$_} ) if $x->{$_} }@cryptcol; }
 
 map{ $_->{credentials} = decode_base64( $_->{credentials} ) }@$r;
 

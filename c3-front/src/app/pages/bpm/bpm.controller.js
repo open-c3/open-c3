@@ -27,6 +27,17 @@
         vm.bpmname = $location.search()['name'];
         vm.debug = $location.search()['debug'];
 
+        vm.debugswitch = function() {
+            if( vm.debug == 0 || vm.debug == undefined )
+            {
+                vm.debug = 1;
+            }
+            else
+            {
+                vm.debug = 0;
+            }
+        };
+
         $scope.jobVar = [];         // 保存作业中需要填写的变量
         $scope.choiceJob = null;    // 已选择的作业数据
         $scope.taskData = {
@@ -47,6 +58,82 @@
             }
         };
  
+        // 获取申请人基础信息/OA信息
+        vm.useroainfoloadover = false;
+        vm.getApplyUserOa = function( user ){
+            $http.get('/api/tt/base/get_user_info?user=' + user).success(function(data){
+                vm.useroainfo = data.data;
+                vm.useroainfoloadover = true;
+            });
+        };
+
+        // 获取申请人领导信息
+        vm.userleaderinfoloadover = false;
+        vm.getApplyUserLeader = function( user ){
+            $http.get('/api/ci/c3mc/base/userleader?user=' + user).success(function(data){
+                vm.userleaderinfo = data.data;
+                vm.userleaderinfoloadover = true;
+            });
+        };
+
+ 
+        vm.ideal = 0;
+        vm.idealloadover = false;
+        vm.getDeal = function(){
+            $http.get('/api/job/bpm/deal/' + vm.bpmuuid ).success(function(data){
+                vm.ideal = data.data;
+                vm.idealloadover = true;
+            });
+        };
+
+        vm.deal = function( opinion ){
+            swal({
+                title: "处理:" + opinion,
+                text: 'deal',
+                showCancelButton: true,
+                showLoaderOnConfirm: true
+             }, function( result ){
+                $http.post('/api/job/bpm/deal/' + vm.bpmuuid, { "opinion": opinion } ).success(function(data){
+                    vm.idealloadover = true;
+                });
+            });
+        };
+
+        vm.taskDetail = function(){
+            var url = $state.href('home.history.bpmdetail', {treeid: '0',taskuuid:vm.taskuuid});
+            window.open( url, '_blank' );
+        };
+
+        vm.getsubTaskDetails =  function () {
+            $http.get('/api/job/bpm/taskuuid/' + vm.bpmuuid).then(
+                function successCallback(response) {
+                    if (response.data.stat){
+                        vm.taskuuid = response.data.data;
+
+                        $http.get('/api/job/subtask/' + 0 + "/" + vm.taskuuid).then(
+                            function successCallback(response) {
+                                if (response.data.stat){
+                                    vm.allRuningData = response.data.data;
+                                }else {
+                                    swal('获取信息失败', response.data.info, 'error' );
+                                }
+                            },
+                            function errorCallback (response){
+                                swal('获取信息失败', response.status, 'error' );
+                            });
+
+
+
+                    }else {
+                        swal('获取任务编号失败', response.data.info, 'error' );
+                    }
+                },
+                function errorCallback (response){
+                    swal('获取任务编号失败', response.status, 'error' );
+                });
+
+            };
+
         vm.showfromops = '0';
         vm.fromopsdefault = '0';
         vm.vfromops = {};
@@ -186,11 +273,28 @@
             });
         };
 
+        vm.loadbpmlog =  function () {
+            $http.get('/api/job/bpm/log/' + vm.bpmuuid ).then(
+                function successCallback(response) {
+                    if (response.data.stat){
+                        vm.bpmlog = response.data.data
+                    }else {
+                        swal('获取信息失败', response.data.info, 'error' );
+                    }
+                },
+                function errorCallback (response){
+                    swal('获取信息失败', response.status, 'error' );
+                });
+        };
+        vm.bpmlog = {};
+ 
         vm.bpmvar = {};
         vm.loadbpmvar = function () {
             $http.get('/api/job/bpm/var/' + vm.bpmuuid ).success(function(data){
                 if (data.stat){
                     vm.bpmvar = data.data;
+                    vm.getApplyUserOa(data.data._user_);
+                    vm.getApplyUserLeader(data.data._user_);
                     if( data.data['_sys_opt_'] )
                     {
                         vm.optionx      = data.data['_sys_opt_']['optionx'];
@@ -496,6 +600,9 @@
         if( vm.bpmuuid != "0" )
         {
             vm.loadbpmvar();
+            vm.loadbpmlog();
+            vm.getDeal();
+            vm.getsubTaskDetails();
         }
         else
         {
@@ -527,10 +634,11 @@
             $scope.taskData.variable['_sys_opt_']['variable']     = $scope.jobVar;
             $scope.taskData.variable['_sys_opt_']['multitempidx'] = vm.multitempidx;
 
-            resoureceService.work.runJobByName(vm.defaulttreeid, {"jobname":$scope.choiceJob.name, "bpm_variable": $scope.taskData.variable, "variable": {} })
+            resoureceService.work.runJobByName2Bpm(vm.defaulttreeid, {"jobname":$scope.choiceJob.name, "bpm_variable": $scope.taskData.variable, "variable": {} })
                 .then(function (repo) {
                     if (repo.stat){
-                        $state.go('home.history.bpmdetail', {treeid:vm.defaulttreeid,taskuuid:repo.uuid});
+                        //$state.go('home.history.bpmdetail', {treeid:vm.defaulttreeid,taskuuid:repo.uuid});
+                        $state.go('home.bpmcase', {bpmuuid:repo.uuid});
                     }
 
                  }, function (repo) { });

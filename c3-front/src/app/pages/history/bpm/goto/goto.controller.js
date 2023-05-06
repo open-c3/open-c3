@@ -26,7 +26,37 @@
                 });
 
             };
-        vm.reload();
+
+        vm.gotobytaskuuid =  function () {
+            vm.loadover = false
+            $http.get('/api/job/bpm/bpmuuid/' + vm.bpmuuid).then(
+                function successCallback(response) {
+                    if (response.data.stat){
+                        vm.loadover = true
+                         window.open('/#/bpm/0/' + response.data.data, '_self');
+                    }else {
+                        swal('获取BPMUUID失败', response.data.info, 'error' );
+                    }
+                },
+                function errorCallback (response){
+                    swal('获取BPMUUID失败', response.status, 'error' );
+                });
+
+            };
+
+
+        vm.editBpmForm = function(uuid){
+            window.open('/#/bpm/0/' + uuid, '_self');
+        };
+
+        if( vm.bpmuuid.startsWith("BPM") )
+        {
+            vm.editBpmForm( vm.bpmuuid );
+        }
+        else
+        {
+            vm.gotobytaskuuid();
+        }
 
     }
 

@@ -31,6 +31,22 @@ download:
         - name: _ingestion_
           alias: 摄取
           select: ["YES", "NO"]
+      grpcol:
+        baseinfo:
+        - name: 业务负责人
+        - name: 运维负责人
+        - name: DBInstanceStatus
+          success:
+          - Running
+        - name: 部门
+        - name: 实例ID
+        - name: 所在可用区
+        - name: 区域
+        - name: ConnectionString
+        - name: Port
+        system:
+        - prefix: tag.
+ 
     colmap:
       treename: "服务树"
       uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据

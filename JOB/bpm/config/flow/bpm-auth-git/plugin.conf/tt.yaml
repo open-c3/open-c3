@@ -1,0 +1,25 @@
+---
+name: 申请git仓库权限
+option:
+  - name: repository_addr
+    describe: 仓库地址
+    type: input
+    value: ""
+
+  - name: role
+    describe: 角色
+    type: select
+    option: ["Guest", "Reporter", "Developer", "Maintainer", "Owner", "Minimal Access"]
+    value: ""
+
+  - name: note
+    describe: 申请理由
+    type: text
+    value: ""
+
+template_argv:
+  title:    "BPM/申请git仓库权限"
+  content:  |
+    仓库地址: ${repository_addr}
+    角色: ${role}
+    申请理由: ${note}

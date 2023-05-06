@@ -79,14 +79,14 @@
             <span class="panel-controls">
                 <button class="btn btn-dark" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="historybpm.reload()" ><i class="fa fa-refresh fa-fw" style="" ng-class="{'fa-spin':!historybpm.loadover}" ></i></button>
             </span>
-            <h5>{{'C3T.任务列表'|translate}}</h5>
+            <h5>{{'C3T.列表'|translate}}</h5>
         </div>
 
         <div class="panel-body" ng-init='openc3_job_system_only=0'>
             <div class="panel-tabs" ng-init='calltype = { "page":"C3T.页面", "api":"API", "crontab":"C3T.计划任务" }'>
                 <table ng-table="historybpm.data_Table" class="table table-hover text-center table-condensed">
                     <tr ng-repeat="ss in $data">
-                        <td data-title="'C3T.BPM单号'|translate">{{ss.extid}}</td>
+                        <td data-title="'C3T.BPM单号'|translate"><a style="cursor: pointer" ng-click="historybpm.taskDetail(ss.uuid)" >{{ss.extid}}</a></td>
                         <td data-title="'C3T.任务名称'|translate">{{ss.alias}}</td>
                         <td data-title="'C3T.发起人'|translate">{{ss.user}}</td>
                         <td data-title="'C3T.处理人'|translate">{{ss.handler}}</td>
@@ -95,8 +95,7 @@
                         <td data-title="'C3T.结束时间'|translate">{{ss.finishtime}}</td>
                         <td data-title="'C3T.耗时'|translate">{{historybpm.seftime(ss.starttime,ss.finishtime)}}</td>
                         <td data-title="'C3T.操作'|translate">
-                            <button ng-if="ss.jobtype =='jobs'" class="btn btn-warning btn-sm" ng-click="historybpm.taskDetail(ss.uuid)">{{'C3T.执行详情'|translate}}</button>
-                            <button ng-if="ss.jobtype =='plugin_scp' || ss.jobtype =='plugin_cmd' || ss.jobtype =='plugin_approval'" class="btn btn-warning btn-sm" ng-click="historybpm.quickTaskDetail(ss.jobuuid,ss.uuid, ss.jobtype)">{{'C3T.执行详情'|translate}}</button>
+                            <button ng-if="ss.jobtype =='jobs'" class="btn btn-warning btn-sm" ng-click="historybpm.editBpmForm(ss.extid)">{{'C3T.详情'|translate}}</button>
                         </td>
                     </tr>
                 </table>

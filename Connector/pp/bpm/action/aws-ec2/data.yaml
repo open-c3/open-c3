@@ -12,7 +12,7 @@ option:
     describe: 区域
     rely:
       - account
-    command: c3mc-ec2-describe-regions | c3mc-bpm-display-field-values RegionName,RegionName
+    command: c3mc-ec2-describe-regions | c3mc-bpm-display-field-values "{code}; 名称:{name}, 区域码:{code}"
     type: selectx
 
   - name: count
@@ -219,9 +219,24 @@ option:
     type: selectx
     fromops: 1
   
+  - name: product_owner_tag
+    describe: 业务负责人标签
+    type: input
+    fromops: 1
+    information: "申请服务器登录权限的时候会使用这里配置的业务负责人作为审批人, 如果这里未配置则其他人无法对该服务器申请访问权限"
+
+  - name: ops_owner_tag
+    describe: 运维负责人标签
+    type: input
+    fromops: 1
+
+  - name: department_tag
+    describe: 部门标签
+    type: input
+    fromops: 1
 
   - name: tag
-    describe: 机器标签
+    describe: 其他标签
     # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
     type: kvarray
     fromops: 1
@@ -281,6 +296,12 @@ template_argv:
   user_data: ${user_data}
   # 数目
   count: ${count}
+
+  # 需要用户必须配置的标签
+  product_owner_tag: ${product_owner_tag}
+  ops_owner_tag: ${ops_owner_tag}
+  department_tag: ${department_tag}
+
   # 标签
   # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
   tag: ${tag}

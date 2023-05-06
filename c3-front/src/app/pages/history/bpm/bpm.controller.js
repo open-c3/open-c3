@@ -40,6 +40,10 @@
             $scope.$apply();
         });
 
+        vm.editBpmForm = function(uuid){
+            window.open('/#/bpm/0/' + uuid, '_blank')
+        };
+
         vm.taskDetail = function(taskuuid){
             $state.go('home.history.bpmdetail', {treeid: '0',taskuuid:taskuuid});
         };

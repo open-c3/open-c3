@@ -495,4 +495,57 @@ any '/connectorx/setcookie' => sub {
     }
 };
 
+=pod
+
+连接器/获取mfa状态
+
+=cut
+
+get '/connectorx/mfa' => sub {
+    my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
+    my $param = params();
+
+    my $x = eval{ $api::mysql->query( "select type from `openc3_connector_mfa` where user='$ssouser' and status='on'" ) };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
+    return +{ stat => $JSON::true, data => ( $x && @$x ) ? $x->[0][0] : 'null' };
+};
+
+=pod
+
+连接器/设置mfa
+
+=cut
+
+post '/connectorx/mfa' => sub {
+    my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
+    my $param = params();
+    my $error = Format->new(
+        type => qr/^[a-zA-Z0-9]+$/, 1,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+
+    my $domain = $param->{sitehost} // 'open-c3';
+    $domain = 'open-c3' unless $domain =~ /^[a-zA-Z0-9][a-zA-Z0-9\.\-\_]+[a-zA-Z0-9]$/;
+
+    my @x = '';
+    eval{
+        if( $param->{type} eq 'null' )
+        {
+            $api::mysql->execute( "update openc3_connector_mfa set status='off',type='' where user='$ssouser'" );
+        }
+        else
+        {
+            $api::mysql->execute( "replace into openc3_connector_mfa (`user`,`type`,`status`)values('$ssouser','$param->{type}','on')" );
+            @x = `c3mc-mfa-$param->{type}-make  --domain '$domain' -u '$ssouser'`;
+            die "$param->{type}-make fail: $?" if $?;
+            chomp @x;
+        }
+    };
+
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    return +{ stat => $JSON::true, data => @x ? $x[0] : '', link => @x>=2 ? $x[1] : '' };
+};
+
 true;

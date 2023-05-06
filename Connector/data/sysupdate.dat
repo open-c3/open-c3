@@ -834,3 +834,41 @@ create table if not exists `openc3_connector_user_login_audit`(
 
 # v2.6.0 sql openc3_ci_project modify tag_regex to 100
 ALTER TABLE openc3_ci_project modify `tag_regex` varchar(100) DEFAULT NULL COMMENT '正则表达式';
+
+# v2.6.0 sql openc3_job_bpm_deal create
+create table if not exists `openc3_job_bpm_deal`(
+`id` int(16) unsigned not null primary key auto_increment comment 'id',
+`bpmuuid`  VARCHAR(50)   comment 'uuid',
+`dealer`   VARCHAR(100)  comment 'dealer',
+`status`   VARCHAR(20)   comment 'status',
+`time`     TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '时间',
+UNIQUE KEY `uniq_bpmuuid` (`bpmuuid`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='BPM处理设置';
+
+# v2.6.0 sql openc3_connector_mfa create
+create table if not exists `openc3_connector_mfa`(
+`id` int(16) unsigned not null primary key auto_increment comment 'id',
+`user`     VARCHAR(100)  comment 'user',
+`type`     VARCHAR(50)   comment 'type',
+`status`   VARCHAR(20)   comment 'status',
+UNIQUE KEY `uniq_user` (`user`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='MFA 二次验证';
+
+# v2.6.0 sql openc3_connector_mfa_google create
+create table if not exists `openc3_connector_mfa_google`(
+`id` int(16) unsigned not null primary key auto_increment comment 'id',
+`user`     VARCHAR(100)  comment 'user',
+`secret`   VARCHAR(100)  comment 'secret',
+UNIQUE KEY `uniq_user` (`user`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='MFA 二次验证,Google';
+
+# v2.6.0 sql openc3_connector_mfakey create
+create table if not exists `openc3_connector_mfakey`(
+`id` int(16) unsigned not null primary key auto_increment comment 'id',
+`user`     VARCHAR(100)  comment 'user',
+`keys`     VARCHAR(100)  comment 'type',
+`pwmd5`    VARCHAR(50)   comment 'passwordMd5',
+`time`     VARCHAR(20)   comment 'time',
+UNIQUE KEY `uniq_keys` (`keys`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='MFA 二次验证,用于映射用户';
+

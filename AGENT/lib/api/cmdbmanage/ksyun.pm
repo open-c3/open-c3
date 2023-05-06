@@ -9,6 +9,10 @@ use MIME::Base64;
 use api;
 use Format;
 use Encode qw(decode encode);
+use OPENC3::Crypt;
+
+my @cryptcol = qw( secretkey );
+my $crypt; BEGIN{ $crypt = OPENC3::Crypt->new(); };
 
 =pod
 
@@ -23,6 +27,8 @@ get '/cmdbmanage/account/ksyun' => sub {
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_device_account_ksyun", join( ',', map{"`$_`"}@col)), \@col )};
+
+    for my $x ( @$r ) { map{ $x->{$_} = $crypt->decode( $x->{$_} ) if $x->{$_} }@cryptcol; }
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };
@@ -46,6 +52,9 @@ get '/cmdbmanage/account/ksyun/:id' => sub {
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_device_account_ksyun where id='$param->{id}'", join( ',', map{"`$_`"}@col)), \@col )};
+
+
+    for my $x ( @$r ) { map{ $x->{$_} = $crypt->decode( $x->{$_} ) if $x->{$_} }@cryptcol; }
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r->[0] };
 };
@@ -77,7 +86,7 @@ post '/cmdbmanage/account/ksyun' => sub {
     eval{ $api::auditlog->run( user => $user, title => "$title CMDB Account Ksyun", content => "name:$param->{name}" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
-    my $config = encode_base64( encode('UTF-8', $param->{config}) );
+    map{ $param->{$_} = $crypt->encode( $param->{$_} ) if $param->{$_} }@cryptcol;
 
     my $r = eval{ 
         $api::mysql->execute(

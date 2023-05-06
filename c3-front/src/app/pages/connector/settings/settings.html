@@ -1,0 +1,50 @@
+<div>
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <h5>{{'C3T.二次验证'|translate}}</h5>
+        </div>
+    </div>
+
+    <div>
+      <form name="myForm" novalidate>
+       <div class="row">
+            <div class="col-sm-12 form-group">
+                <div class="col-sm-3">
+                   <div class="col-sm-9" ng-init="list = ['null','google']" >
+                        <select id="selecteddataval" class="form-control"  ng-model="connectorsettings.type" style="width: 80%" >
+                            <option ng-repeat="x in list" value="{{x}}">{{x}}</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+       <div class="row">
+            <div class="col-sm-12 form-group">
+                <div class="col-sm-3">
+                    <button type="submit" class="btn btn-primary" style="padding: 10px 25px" ng-click="connectorsettings.settings()"><i class="fa fa-save fa-lg" aria-hidden="true"></i>{{'C3T.设置'|translate}}</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="createerr" style="padding: 10px;color: red;font-weight: bold" class="form-inline">
+            {{errmsg}}
+        </div>
+        <div id="createok" style="padding: 10px;color: green;font-weight: bold" class="form-inline">
+            {{okmsg}}
+        </div>
+
+        <div ng-if="connectorsettings.data !=''" id="createlink" style="padding: 10px;color: green;font-weight: bold" class="form-inline">
+            UUID: {{connectorsettings.data}}
+        </div>
+
+        <div ng-if="connectorsettings.link !=''" id="createlink" style="padding: 10px;color: green;font-weight: bold" class="form-inline">
+            {{'C3T.点击链接进行绑定'|translate}}
+            <a target='_blank' ng-href="{{connectorsettings.link}}" >{{connectorsettings.link}}</a>
+        </div>
+
+
+        <div style="clear: both;">&nbsp;</div>
+       </form>
+    </div>
+</div>

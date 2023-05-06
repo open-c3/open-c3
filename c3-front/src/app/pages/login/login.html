@@ -18,7 +18,7 @@
                 
             </div>
 
-            <form onsubmit="return false;">
+            <form ng-if="login.mfa==''" onsubmit="return false;">
 
                 <div class="wrapper-login">
 
@@ -35,12 +35,32 @@
 
                 </div>
 
-                <button type="submit" class="login-button" ng-click="login.login()"  cmlang="login_login">{{'C3T.登录'|translate}}</button>
+                <button type="submit" class="login-button" ng-click="login.login(false)"  cmlang="login_login">{{'C3T.登录'|translate}}</button>
                 <p style="text-align:center;padding-top:5px;color:#fff;" ng-if="login.logining" id="logining">
                     <span>{{'C3T.登录中'|translate}}...</span>
                 </p>
 
             </form>
+
+            <form ng-if="login.mfa!=''" onsubmit="return false;">
+
+                <div class="wrapper-login">
+
+                    <span class="input-icon">
+                        <i class="glyphicon glyphicon-globe"></i>
+                        <span class="glyphicon glyphicon-alert text-danger hide"></span>
+                        <input type="text" class="user" placeholder="{{login.mfa}} code" cmlang="login_code" ng-model="login.post.code" name="username"/>
+                    </span>
+
+                </div>
+
+                <button type="submit" class="login-button" ng-click="login.login(true)"  cmlang="login_login">{{'C3T.二次验证'|translate}}</button>
+                <p style="text-align:center;padding-top:5px;color:#fff;" ng-if="login.logining" id="logining">
+                    <span>{{'C3T.验证中'|translate}}...</span>
+                </p>
+
+            </form>
+ 
             <span> 
                 <a href="https://oa.openc3.com/" cmlang="login_find_pwd"></a>
             </span>
