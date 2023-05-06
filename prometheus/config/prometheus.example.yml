@@ -149,3 +149,20 @@ scrape_configs:
       - target_label: __address__
         replacement: openc3-blackbox_exporter:9115  # The blackbox exporter's real hostname:port.
 
+  - job_name: 'blackbox-tcp'
+    scrape_interval: 5s
+    metrics_path: /probe
+    params:
+      module: [tcp_connect]  # Look for a HTTP 200 response.
+    file_sd_configs:
+    - refresh_interval: 2m
+      files:
+      - targets/blackbox-exporter-tcp.yml
+    relabel_configs:
+      - source_labels: [__address__]
+        target_label: __param_target
+      - source_labels: [__param_target]
+        target_label: instance
+      - target_label: __address__
+        replacement: openc3-blackbox_exporter:9115  # The blackbox exporter's real hostname:port.
+

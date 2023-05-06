@@ -37,3 +37,15 @@ cat  /data/open-c3/prometheus/config/targets/blackbox-exporter-http.yml
 要监控的url临时先通过修改文件的方式进行配置，后续会在前端上添加页面管理要监控的url。
 
 ```
+
+## 其他
+
+```
+如果是tcp监控，请按照上面http的方式编辑如下文件
+
+cat /data/open-c3/prometheus/config/targets/blackbox-exporter-tcp.yml 
+- targets:
+  - 172.10.10.1:2181
+  - 172.10.10.2:2181
+
+```
