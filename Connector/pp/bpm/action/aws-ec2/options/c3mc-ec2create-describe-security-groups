@@ -53,6 +53,9 @@ def main(params):
 
     security_groups_list = describe_security_groups(
         key_info["access_id"], key_info["access_key"], region, vpc_id)
+
+    security_groups_list = sorted(security_groups_list, key=lambda x: (x['GroupName']), reverse=False)
+
     for security_group in security_groups_list:
         print(json.dumps(security_group, default=str))
 
