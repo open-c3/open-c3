@@ -1,0 +1,72 @@
+<div>
+    <div class="row" style="padding: 0 20px 0;">
+        <nodestr></nodestr>
+    </div>
+
+    <hr class="mv10 clear">
+
+    <div class="panel panel-primary">
+
+        <div class="panel-heading">
+            <h5>{{'C3T.查询条件'|translate}}</h5>
+        </div>
+
+        <div class="panel-body">
+
+            <div class="form-horizontal">
+
+                <form class="form-inline" name="searchForm" novalidate>
+                    <div class="container-fluid">
+                        <div class="row">
+                            <div class="form-group col-sm-4" style="padding: 0">
+                                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;">{{'C3T.名称'|translate}}：</label>
+                                <input type="text" class="form-control"  ng-model="businessbpm.bpmname">
+                            </div>
+                        </div>
+                    </div>
+
+                </form>
+
+                <hr class="mv20 clear" style="margin-top: 30px!important;">
+                <div class="col-md-10">
+                    <button class="btn btn-primary" ng-click="businessbpm.reload()">
+                        <i class="fa fa-search fa-fw"></i>{{'C3T.查询'|translate}}
+                    </button>
+                    <button class="btn btn-success" ng-click="businessbpm.Reset()">
+                        <i class="fa fa-refresh fa-fw"></i>{{'C3T.重置'|translate}}
+                    </button>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="panel panel-dark">
+
+        <div class="panel-heading">
+            <span class="panel-controls">
+                <button class="btn btn-dark" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="businessbpm.reload()" ><i class="fa fa-refresh fa-fw" style="" ng-class="{'fa-spin':!businessbpm.loadover}" ></i></button>
+            </span>
+            <h5>{{'C3T.列表'|translate}}</h5>
+        </div>
+
+        <div class="panel-body" ng-init='openc3_job_system_only=0'>
+            <div class="panel-tabs">
+                <table ng-table="businessbpm.dataTable" class="table table-hover text-center table-condensed">
+                <tr ng-repeat="ss in $data">
+                    <td data-title="'C3T.名称'|translate">{{ss.name}}</td>
+                    <td data-title="'C3T.别名'|translate">{{ss.alias}}</td>
+                    <td data-title="'C3T.类型'|translate">{{ss.type}}</td>
+                    <td data-title="'C3T.显示'|translate">{{ss.show}}</td>
+                    <td data-title="'C3T.操作'|translate">
+                        <button class="btn btn-warning btn-sm" ng-click="businessbpm.editBpm(ss.name)">{{'C3T.编辑'|translate}}</button>
+                        <button class="btn btn-danger btn-sm" ng-click="businessbpm.deleteBpm(ss.name)">{{'C3T.删除'|translate}}</button>
+                    </td>
+                </tr>
+            </table>
+            </div>
+        </div>
+    </div>
+
+</div>

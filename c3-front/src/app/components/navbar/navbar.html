@@ -172,6 +172,12 @@
                     <a style="padding: 8px 9px 8px 37px;" ui-sref="home.history.bpm({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.全部流程列表'|translate}}</span> </a>
                 </li>
  
+                <li class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">{{'C3T.管理'|translate}}</div> </li>
+
+                <li ng-if="nav.user.menu['BPM.流程管理'] == 1" class="list-group-item">
+                    <a ng-if="nav.user.menu['BPM.流程管理'] == 1" ui-sref="home.business.bpm({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><span class="fa fa-check-square-o"></span> <span>{{'C3T.流程管理'|translate}}</span> </a>
+                </li>
+ 
  
             </ul>
 

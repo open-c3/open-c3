@@ -355,6 +355,13 @@
                 controller: 'DistributeController',
                 controllerAs: 'distribute'
             })
+            .state('home.business.bpm', {
+                url: 'bpmmanage/:treeid',
+                templateUrl: 'app/pages/business/bpm/bpm.html',
+                controller: 'BusinessBpmController',
+                controllerAs: 'businessbpm'
+            })
+ 
             .state('home.business.job', {
                 url: 'job/:treeid',
                 templateUrl: 'app/pages/business/job/job.html',
