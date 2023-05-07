@@ -416,4 +416,35 @@ del '/bpm/manage/conf/:bpmname' => sub {
     return +{ stat => $JSON::true, data => $r };
 };
 
+=pod
+
+BPM/管理/获取插件列表
+
+=cut
+
+get '/bpm/manage/plugin/list' => sub {
+    my @x = `ls /data/Software/mydan/Connector/pp/bpm/action`;
+    chomp @x;
+    return +{ stat => $JSON::true, data =>\@x };
+};
+
+=pod
+
+BPM/管理/获取插件列表
+
+=cut
+
+get '/bpm/manage/plugin/conf/:name' => sub {
+    my $param = params();
+    my $error = Format->new(
+        name => qr/^[a-zA-Z\d][a-zA-Z\d\-]+$/, 1,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+ 
+    my $pmscheck = api::pmscheck( 'openc3_agent_read' ); return $pmscheck if $pmscheck;
+
+    my $x = `cat /data/Software/mydan/Connector/pp/bpm/action/$param->{name}/data.yaml `;
+    return +{ stat => $JSON::true, data => Encode::decode("utf8", $x ) };
+};
+
 true;
