@@ -447,4 +447,26 @@ get '/bpm/manage/plugin/conf/:name' => sub {
     return +{ stat => $JSON::true, data => Encode::decode("utf8", $x ) };
 };
 
+=pod
+
+BPM/管理/修改BPM显示开关
+
+=cut
+
+any '/bpm/manage/show/:name/:show' => sub {
+    my $param = params();
+    my $error = Format->new(
+        name => qr/^[a-zA-Z\d][a-zA-Z\d\-]+$/, 1,
+        show => qr/^\d+$/, 1,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+ 
+    my $pmscheck = api::pmscheck( 'openc3_agent_root' ); return $pmscheck if $pmscheck;
+
+    eval{ $api::mysql->execute( "update openc3_job_bpm_menu set `show`='$param->{show}' where name='$param->{name}'" )};
+    return +{ stat => $JSON::false, info => "update bpm show status fail:$@" } if $@;
+
+    return +{ stat => $JSON::true };
+};
+
 true;
