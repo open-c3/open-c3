@@ -1,0 +1,57 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use AnyEvent::HTTP;
+use YAML::XS;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my %conf = (
+    '/data/Software/mydan/AGENT/conf/openc3_proxy.yml'          => 65110,
+    '/data/Software/mydan/AGENT/conf/openc3_mysql_proxy.yml'    => 65113,
+    '/data/Software/mydan/AGENT/conf/openc3_redis_proxy.yml'    => 65114,
+    '/data/Software/mydan/AGENT/conf/openc3_mongodb_proxy.yml'  => 65115,
+);
+
+my $timeout = 15;
+my %data;
+
+for my $file ( keys %conf )
+{
+    my $port = $conf{$file};
+    my $c = eval{ YAML::XS::LoadFile $file };
+    die "load $file fail; $@" if $@;
+    for my $x ( keys %$c )
+    {
+        my $proxy = $c->{$x};
+        next unless $proxy;
+        $data{"$proxy:$port"}{$x} = 1;
+    }
+}
+
+my $cv = AnyEvent->condvar;
+
+for my $proxy (keys %data ) {
+  http_get("http://$proxy", timeout => $timeout, sub {
+    my ($body, $headers) = @_;
+
+    my $status = ( $body && $body =~ /OPEN-C3/ ) ? 1 : 0;
+    for my $instance ( keys %{$data{$proxy}} )
+    {
+        print "proxy_up{instance=\"$instance\", proxy=\"$proxy\"} $status\n";
+    }
+
+    delete $data{$proxy};
+    $cv->send unless keys %data;
+  });
+}
+
+$cv->recv;
+
+printf "proxy_up_last_time %s\n", time;
