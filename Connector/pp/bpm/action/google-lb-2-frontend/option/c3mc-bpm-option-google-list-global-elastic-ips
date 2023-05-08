@@ -26,7 +26,7 @@ def main(params):
     )
 
     ip_info_list = list_global_elastic_ips(key_info["cred_path"])
-    ip_info_list = sorted(ip_info_list, key=lambda x: (x['address']), reverse=False)
+    ip_info_list = sorted(ip_info_list, key=lambda x: (x['name'].lower()), reverse=False)
 
     for ip_info in ip_info_list:
         print(json.dumps(ip_info))
