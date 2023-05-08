@@ -13,18 +13,20 @@ option:
     describe: 区域
     rely:
       - account
-    command: c3mc-qcloud-cvm-describe-regions | c3mc-bpm-display-field-values Region,RegionName,RegionState
+    command: c3mc-qcloud-cvm-describe-regions | c3mc-bpm-display-field-values "{Region}; 名称:{RegionName}, 状态:{RegionState}, 代码:{Region}"
     type: selectx
     value: ""
+    information: "请不要选择状态为 无效 的区域"
 
   - name: zone
     describe: 可用区
     rely:
       - account
       - region
-    command: c3mc-qcloud-cvm-describe-zones | c3mc-bpm-display-field-values Zone,ZoneName,ZoneState
+    command: c3mc-qcloud-cvm-describe-zones | c3mc-bpm-display-field-values "{Zone}; 名称:{ZoneName}, 状态:{ZoneState}, 代码:{Zone}"
     type: selectx
     value: ""
+    information: "请不要选择状态为 无效 的可用区"
 
   - name: count
     describe: 机器数目
@@ -52,7 +54,7 @@ option:
     rely:
       - account
       - region
-    command: c3mc-qcloud-cvm-describe-projects | c3mc-bpm-display-field-values ProjectId,Name
+    command: c3mc-qcloud-cvm-describe-projects | c3mc-bpm-display-field-values "{ProjectId}; 项目名称:{Name}, 项目id:{ProjectId}"
     type: selectx
     value: ""
 
@@ -104,14 +106,14 @@ option:
     rely:
       - account
       - region
-    command: c3mc-qcloud-cvm-describe-images | c3mc-bpm-display-field-values ImageId,ImageName,ImageType
+    command: c3mc-qcloud-cvm-describe-images | c3mc-bpm-display-field-values "{ImageId}; 名称:{ImageName}, 类型:{ImageType}, id:{ImageId}"
     type: selectx
     fromops: 1
     value: ""
 
   - name: system_disk_type
     describe: 系统盘类型
-    command: c3mc-qcloud-cvm-describe-system-disk-type-list | c3mc-bpm-display-field-values id,name,size_range
+    command: c3mc-qcloud-cvm-describe-system-disk-type-list | c3mc-bpm-display-field-values "{id}; 类型:{name}, 磁盘大小范围:{size_range}"
     type: selectx
     value: ""
 
@@ -124,13 +126,13 @@ option:
 
   - name: if_need_data_volume
     describe: 是否需要数据盘
-    command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
-    type: selectx
+    type: select
+    option: ["是", "否"]
     value: ""
 
   - name: data_disk_type
     describe: 数据盘类型
-    command: c3mc-qcloud-cvm-describe-data-disk-type-list | c3mc-bpm-display-field-values id,name,size_range
+    command: c3mc-qcloud-cvm-describe-data-disk-type-list | c3mc-bpm-display-field-values "{id}; 类型:{name}, 磁盘大小范围:{size_range}"
     type: selectx
     value: ""
     show:
@@ -149,7 +151,7 @@ option:
     rely:
       - account
       - region
-    command: c3mc-qcloud-cvm-describe-vpcs | c3mc-bpm-display-field-values VpcId,VpcName
+    command: c3mc-qcloud-cvm-describe-vpcs | c3mc-bpm-display-field-values "{VpcId}; vpc名称:{VpcName}, vpcid:{VpcId}"
     type: selectx
     fromops: 1
     value: ""
@@ -161,7 +163,7 @@ option:
       - region
       - vpc_id
       - zone
-    command: c3mc-qcloud-cvm-describe-subnets | c3mc-bpm-display-field-values SubnetId,SubnetName,AvailableIpAddressCount
+    command: c3mc-qcloud-cvm-describe-subnets | c3mc-bpm-display-field-values "{SubnetId}; 子网名称:{SubnetName}, 有效地址数:{AvailableIpAddressCount}, 子网id:{SubnetId}"
     type: selectx
     fromops: 1
     value: ""
@@ -172,7 +174,7 @@ option:
       - account
       - region
       - project_id
-    command: c3mc-qcloud-cvm-describe-security-groups | c3mc-bpm-display-field-values SecurityGroupId,SecurityGroupName
+    command: c3mc-qcloud-cvm-describe-security-groups | c3mc-bpm-display-field-values "{SecurityGroupId}; 安全组名称:{SecurityGroupName}, 安全组id:{SecurityGroupId}"
     type: selectxm
     fromops: 1
     value: ""
@@ -209,8 +211,8 @@ option:
 
   - name: if_need_public_ip
     describe: 是否需要公网ip
-    command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
-    type: selectx
+    type: select
+    option: ["是", "否"]
     value: ""
     information: "当公网带宽为0, 则不允许分配公网IP。此时忽略该选项的值"
     fromops: 1
