@@ -37,8 +37,8 @@ option:
 
   - name: delete_disk_snapshot
     describe: 销毁数据盘时删除关联的非永久保留快照
-    command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
-    type: selectx
+    type: select
+    option: ["是", "否"]
     value: ""
     show:
       - recycle_type: ["terminate"]
