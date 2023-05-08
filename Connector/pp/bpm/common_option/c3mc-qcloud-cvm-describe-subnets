@@ -5,93 +5,43 @@ import json
 import sys
 import subprocess
 
-from tencentcloud.common import credential
-from tencentcloud.common.profile.client_profile import ClientProfile
-from tencentcloud.common.profile.http_profile import HttpProfile
-from tencentcloud.vpc.v20170312 import vpc_client, models
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_qcloud_vpc import QcloudVpc
 
 
 class Subnets:
-    def __init__(self, access_id, access_key, region, vpc_id, zone):
+    def __init__(self, access_id, access_key, region):
         self.access_id = access_id
         self.access_key = access_key
         self.region = region
-        self.client = self.create_client()
-        self.page_number = 1
-        self.page_size = 100
-        self.vpc_id = vpc_id
-        self.zone = zone
+        self.lib_client = self.create_lib_client()
 
-    def create_client(self):
-        cred = credential.Credential(self.access_id, self.access_key)
-        httpProfile = HttpProfile()
-        httpProfile.endpoint = "vpc.tencentcloudapi.com"
-
-        clientProfile = ClientProfile()
-        clientProfile.httpProfile = httpProfile
-        return vpc_client.VpcClient(cred, self.region, clientProfile)
+    def create_lib_client(self):
+        return QcloudVpc(self.access_id, self.access_key, self.region)
     
-    def describe_subnets(self):
-        req = models.DescribeSubnetsRequest()
-        params = {
-            "Filters": [
-                {
-                    "Name": "vpc-id",
-                    "Values": [ self.vpc_id ]
-                }
-            ],
-            "Limit": str(self.page_size),
-            "Offset": str((self.page_number - 1) * self.page_size)
-        }
-        if self.zone is not None:
-            params["Filters"].append({
-                "Name": "zone",
-                "Values": [ self.zone ]
-            })
-        req.from_json_string(json.dumps(params))
-        return self.client.DescribeSubnets(req)
-    
-    def get_total_count(self):
-        response_data = self.describe_subnets()
-        return response_data.TotalCount
-
-    def show(self):
-        response_data = self.describe_subnets()
-        data_list = response_data.SubnetSet
+    def show(self, vpcId, zone):
+        data_list = self.lib_client.list_subnets_of_vpc(vpcId, zone)
+        data_list = sorted(data_list, key=lambda x: (x['SubnetName'].lower()), reverse=False)
         for item in data_list:
-            print(item.to_json_string())
+            print(json.dumps(item))
 
-    def page(self):
-        count = self.get_total_count()
-        mod = count % self.page_size
-        if mod:
-            total_page_number = int(count / self.page_size) + 1
-        else:
-            total_page_number = int(count / self.page_size)
-
-        for cur_page_number in range(1, total_page_number + 1):
-            self.page_number = cur_page_number
-            self.show()
-    
 
 def main(params):
     account = params["account"]
     region = params["region"]
-    zone = None
-    if "zone" in params:
-        zone = params["zone"]
-    vpc_id = params["vpc_id"]
+    zone = params["zone"] if "zone" in params else None
+    vpcId = params["vpc_id"]
 
-    key_info = json.loads(subprocess.getoutput(
-        "c3mc-get-account-info qcloud {}".format(account)))
-    Subnets(key_info["access_id"], key_info["access_key"], region, vpc_id, zone).page()
+    keyInfo = json.loads(
+        subprocess.getoutput(f"c3mc-get-account-info qcloud {account}")
+    )
+    Subnets(keyInfo["access_id"], keyInfo["access_key"], region).show(vpcId, zone)
 
 
 if __name__ == '__main__':
-    l = []
-    for line in sys.stdin:
-        l.append(line)
-    if len(l) == 0 or len(l) > 1:
-        raise Exception("数据格式不对, 需要一行json字符串")
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
 
     main(json.loads(l[0]))

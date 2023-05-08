@@ -39,7 +39,7 @@ def display_cloud_account_list(cloud):
         for line in f:
             account_d[line.split()[0]] = {}
 
-    return list(account_d)
+    return sorted(list(account_d), key=lambda s: s.lower())
 
 
 def main(cloud):

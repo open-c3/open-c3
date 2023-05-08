@@ -31,7 +31,18 @@ class Regions:
         params = {}
         req.from_json_string(json.dumps(params))
         resp = json.loads(self.client.DescribeRegions(req).to_json_string())
-        return sorted(resp["RegionSet"], key=lambda x: x['RegionName'], reverse=True)
+
+        state_map = {
+            "AVAILABLE": "有效",
+            "UNAVAILABLE": "无效"
+        }
+
+        region_list = []
+        for region_info in resp["RegionSet"]:
+            region_info["RegionState"] = state_map[region_info["RegionState"]]
+            region_list.append(region_info)
+
+        return sorted(region_list, key=lambda x: x['Region'], reverse=False)
     
     def show(self):
         data_list = self.describe_regions()

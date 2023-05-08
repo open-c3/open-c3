@@ -13,7 +13,7 @@ def display(access_id, access_key):
     for region in ["us-east-1", "cn-north-1"]:
         try:
             names = AWS_S3(access_id, access_key, region).list_bucket_names()
-            for name in names:
+            for name in sorted(names):
                 print(name)
             break
         except Exception as e:

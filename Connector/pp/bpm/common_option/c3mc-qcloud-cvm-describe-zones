@@ -32,7 +32,18 @@ class Zones:
         params = {}
         req.from_json_string(json.dumps(params))
         resp = json.loads(self.client.DescribeZones(req).to_json_string())
-        return resp["ZoneSet"]
+
+        state_map = {
+            "AVAILABLE": "有效",
+            "UNAVAILABLE": "无效"
+        }
+
+        zone_list = []
+        for zone_info in resp["ZoneSet"]:
+            zone_info["ZoneState"] = state_map[zone_info["ZoneState"]]
+            zone_list.append(zone_info)
+
+        return sorted(zone_list, key=lambda x: x['Zone'], reverse=False)
     
     def show(self):
         data_list = self.describe_regions()
