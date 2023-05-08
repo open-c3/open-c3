@@ -106,6 +106,6 @@ def main(params):
 if __name__ == '__main__':
     l = list(sys.stdin)
     if not l or len(l) > 1:
-        raise Exception("数据格式不对, 需要一行json字符串")
+        raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
 
-    main(json.loads(l[0].strip()))
+    main(json.loads(l[0]))

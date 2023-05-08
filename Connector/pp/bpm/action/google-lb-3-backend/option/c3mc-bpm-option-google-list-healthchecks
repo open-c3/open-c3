@@ -26,6 +26,7 @@ def main(params):
 
     data_list = list_health_checks(key_info["cred_path"])
 
+    data_list = sorted(data_list, key=lambda x: (x['name'].lower()), reverse=False)
     for item in data_list:
         print(json.dumps(item))
 

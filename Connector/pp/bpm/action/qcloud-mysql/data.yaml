@@ -37,7 +37,7 @@ option:
     describe: 区域
     rely:
       - account
-    command: c3mc-bpm-option-qcloud-mysql-describe-regions | c3mc-bpm-display-field-values id,name
+    command: c3mc-bpm-option-qcloud-mysql-describe-regions | c3mc-bpm-display-field-values "{id}; {name}"
     type: selectx
     value: ""
 
@@ -46,7 +46,7 @@ option:
     rely:
       - account
       - region
-    command: c3mc-bpm-option-qcloud-mysql-describe-zones | c3mc-bpm-display-field-values zone,zone_name,status
+    command: c3mc-bpm-option-qcloud-mysql-describe-zones | c3mc-bpm-display-field-values "{zone}; 名称:{zone_name}, 状态:{status}"
     type: selectx
     value: ""
 
@@ -57,7 +57,7 @@ option:
       - region
       - zone
       - charge_type
-    command: c3mc-bpm-option-qcloud-mysql-describe-cdb-sell-type-list | c3mc-bpm-display-field-values id,desc
+    command: c3mc-bpm-option-qcloud-mysql-describe-cdb-sell-type-list | c3mc-bpm-display-field-values "{id}; 类型描述:{desc}"
     type: selectx
 
   - name: engine_version
@@ -68,7 +68,7 @@ option:
       - zone
       - charge_type
       - cdb_sell_type
-    command: c3mc-bpm-option-qcloud-mysql-describe-engine-version-list | c3mc-bpm-display-field-values id,name
+    command: c3mc-bpm-option-qcloud-mysql-describe-engine-version-list | c3mc-bpm-display-field-values "{id}; 名称:{name}"
     type: selectx
 
   - name: engine_type
@@ -79,14 +79,14 @@ option:
       - zone
       - charge_type
       - charge_type
-    command: c3mc-bpm-option-qcloud-mysql-describe-engine-type-list | c3mc-bpm-display-field-values id,name
+    command: c3mc-bpm-option-qcloud-mysql-describe-engine-type-list | c3mc-bpm-display-field-values "{id}; 名称:{name}"
     type: selectx
 
   - name: instance_nodes
     describe: 架构
     rely:
       - engine_type
-    command: c3mc-bpm-option-qcloud-mysql-describe-instance-nodes-set | c3mc-bpm-display-field-values id,name
+    command: c3mc-bpm-option-qcloud-mysql-describe-instance-nodes-set | c3mc-bpm-display-field-values "{id}; 名称:{name}"
     type: selectx
     value: ""
     fromops: 1
@@ -97,7 +97,7 @@ option:
       - account
       - region
       - zone
-    command: c3mc-bpm-option-qcloud-mysql-describe-backup-zones | c3mc-bpm-display-field-values id,name
+    command: c3mc-bpm-option-qcloud-mysql-describe-backup-zones | c3mc-bpm-display-field-values "{id}; 名称:{name}"
     type: selectx
     value: ""
     show:
@@ -109,7 +109,7 @@ option:
       - account
       - region
       - zone
-    command: c3mc-bpm-option-qcloud-mysql-describe-backup-zones | c3mc-bpm-display-field-values id,name
+    command: c3mc-bpm-option-qcloud-mysql-describe-backup-zones | c3mc-bpm-display-field-values "{id}; 名称:{name}"
     type: selectx
     value: ""
     show:
@@ -162,7 +162,7 @@ option:
     rely:
       - account
       - region
-    command: c3mc-qcloud-cvm-describe-vpcs | c3mc-bpm-display-field-values VpcId,VpcName
+    command: c3mc-qcloud-cvm-describe-vpcs | c3mc-bpm-display-field-values "{VpcId}; 名称:{VpcName}"
     type: selectx
     value: ""
     fromops: 1
@@ -174,7 +174,7 @@ option:
       - region
       - vpc_id
       - zone
-    command: c3mc-qcloud-cvm-describe-subnets | c3mc-bpm-display-field-values SubnetId,SubnetName,AvailableIpAddressCount
+    command: c3mc-qcloud-cvm-describe-subnets | c3mc-bpm-display-field-values "{SubnetId}; 名称:{SubnetName}, 有效IP数:{AvailableIpAddressCount}"
     type: selectx
     value: ""
     fromops: 1
@@ -189,7 +189,7 @@ option:
     rely:
       - account
       - region
-    command: c3mc-qcloud-cvm-describe-projects | c3mc-bpm-display-field-values ProjectId,Name
+    command: c3mc-qcloud-cvm-describe-projects | c3mc-bpm-display-field-values "{ProjectId}; 名称:{Name}"
     type: selectx
     value: ""
 
@@ -199,7 +199,7 @@ option:
       - account
       - region
       - project_id
-    command: c3mc-qcloud-cvm-describe-security-groups | c3mc-bpm-display-field-values SecurityGroupId,SecurityGroupName
+    command: c3mc-qcloud-cvm-describe-security-groups | c3mc-bpm-display-field-values "{SecurityGroupId}; 名称:{SecurityGroupName}"
     type: selectxm
     value: ""
     formation: "安全组和账号、区域、项目有关，如果没有安全组可以选择，请确认项目是否选择正确。"
@@ -218,7 +218,7 @@ option:
       - account
       - region
       - project_id
-    command: c3mc-bpm-option-qcloud-mysql-describe-alarm-policies-list | c3mc-bpm-display-field-values PolicyId,PolicyName,NamespaceShowName
+    command: c3mc-bpm-option-qcloud-mysql-describe-alarm-policies-list | c3mc-bpm-display-field-values "{PolicyId}; 名称:{PolicyName}, 命名空间名称:{NamespaceShowName}"
     type: selectxm
     value: ""
     fromops: 1
@@ -236,7 +236,7 @@ option:
     describe: 数据复制方式
     rely:
       - instance_nodes
-    command: c3mc-bpm-option-qcloud-mysql-describe-protect-mode-list | c3mc-bpm-display-field-values id,name
+    command: c3mc-bpm-option-qcloud-mysql-describe-protect-mode-list | c3mc-bpm-display-field-values "{id}; 名称:{name}"
     type: selectx
     value: ""
     show:
@@ -250,7 +250,7 @@ option:
       - account
       - engine_version
       - engine_type
-    command: c3mc-bpm-option-qcloud-mysql-describe-param-templates | c3mc-bpm-display-field-values TemplateId,Name,TemplateType,Description
+    command: c3mc-bpm-option-qcloud-mysql-describe-param-templates | c3mc-bpm-display-field-values "{TemplateId}; 名称:{Name}, 类型:{TemplateType}, 描述:{Description}"
     type: selectx
     value: ""
     information: '如果下拉列表为空，请尝试修改账号、引擎版本、引擎类型等条件'
@@ -288,8 +288,8 @@ option:
 
   - name: if_need_open_wan
     describe: 是否需要开通公网访问
-    command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
-    type: selectx
+    type: select
+    option: ["是", "否"]
     value: ""
     fromops: 1
 

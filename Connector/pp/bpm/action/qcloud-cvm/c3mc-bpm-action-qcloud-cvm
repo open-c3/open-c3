@@ -13,7 +13,7 @@ from tencentcloud.cvm.v20170312 import cvm_client, models
 
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
-from c3mc_cloud_qcloud_cvm import Cvm as LIB_CVM
+from c3mc_cloud_qcloud_cvm import QcloudCvm
 
 
 class Cvm:
@@ -36,7 +36,7 @@ class Cvm:
         return cvm_client.CvmClient(cred, self.region, clientProfile)
     
     def create_lib_client(self):
-        return LIB_CVM(self.access_id, self.access_key, self.region)
+        return QcloudCvm(self.access_id, self.access_key, self.region)
 
     def get_bool_value(self, text_bool):
         return text_bool == "是"

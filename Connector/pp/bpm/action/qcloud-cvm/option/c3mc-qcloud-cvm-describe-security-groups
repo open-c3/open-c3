@@ -54,6 +54,7 @@ class SecurityGroups:
                 break
             result.extend(data)
 
+        result = sorted(result, key=lambda x: (x.SecurityGroupName.lower()), reverse=False)
         for item in result:
             print(item)
 
