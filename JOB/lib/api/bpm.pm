@@ -8,6 +8,7 @@ use POSIX;
 use api;
 use Format;
 use LWP::UserAgent;
+use File::Basename;
 
 use POSIX;
 use Time::Local;
@@ -23,7 +24,9 @@ BPM/获取bpm列表
 get '/bpm/menu' => sub {
     my $pmscheck = api::pmscheck( 'openc3_agent_read' ); return $pmscheck if $pmscheck;
 
-    my $conf = eval{ BPM::Flow->new()->menu() };
+#    my $conf = eval{ BPM::Flow->new()->menu() };
+    my @col = qw( name alias describe );
+    my $conf = eval{ $api::mysql->query( sprintf( "select %s from openc3_job_bpm_menu where `show`='1'", join ",", map{"`$_`"}@col ), \@col )}; 
 
     return $@ ? +{ stat => $JSON::false, info => "get menu fail:$@" } : +{ stat => $JSON::true, data => $conf };
 };
@@ -255,6 +258,215 @@ post '/bpm/deal/:bpmuuid' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     return +{ stat => $JSON::true, data => $r };
+};
+
+=pod
+
+BPM/管理/获取bpm列表详情
+
+=cut
+
+get '/bpm/manage/menu' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        name => [ 'mismatch', qr/'/ ], 0,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $where = '';
+    $where = "where name like '%$param->{name}%'" if defined $param->{name};
+ 
+    my $pmscheck = api::pmscheck( 'openc3_agent_read' ); return $pmscheck if $pmscheck;
+
+    my @col = qw( name alias describe show type );
+    my $conf = eval{ $api::mysql->query( sprintf( "select %s from openc3_job_bpm_menu %s", join( ",", map{"`$_`"}@col ), $where), \@col )}; 
+
+    return $@ ? +{ stat => $JSON::false, info => "get menu fail:$@" } : +{ stat => $JSON::true, data => $conf };
+};
+
+=pod
+
+BPM/管理/获取详情
+
+=cut
+
+get '/bpm/manage/conf/:bpmname' => sub {
+    my $param = params();
+    my $error = Format->new(
+        bpmname => qr/^[a-zA-Z\d][a-zA-Z\d\-]+$/, 1,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+ 
+    my $pmscheck = api::pmscheck( 'openc3_agent_root' ); return $pmscheck if $pmscheck;
+
+    my $name = $param->{bpmname};
+    my @col = qw( name alias describe show type );
+    my $conf = eval{ $api::mysql->query( sprintf( "select %s from openc3_job_bpm_menu where `name`='$name'", join ",", map{"`$_`"}@col ), \@col )}; 
+    return +{ stat => $JSON::false, info => "get menu fail:$@" } if $@;
+
+    my $step = eval{ YAML::XS::LoadFile "/data/Software/mydan/JOB/bpm/config/flow/$name/plugin" };
+    return +{ stat => $JSON::false, info => "get step list fail:$@" } if $@;
+
+    my ( @step, $index );
+    for my $stepname ( @$step )
+    {
+        $index ++;
+        my @conffile = (
+            "/data/Software/mydan/JOB/bpm/config/flow/$name/plugin.conf/$index.$stepname.yaml",
+            "/data/Software/mydan/JOB/bpm/config/flow/$name/plugin.conf/$stepname.yaml",
+            "/data/Software/mydan/Connector/pp/bpm/action/$stepname/data.yaml"
+        );
+
+        my $type = '';
+        my $conf = '';
+        for my $conffile ( @conffile )
+        {
+            next unless -f $conffile;
+            $conf = `cat $conffile`;
+            $type = File::Basename::basename $conffile;
+            last;
+        }
+        push @step, +{ name => $stepname, conf => Encode::decode("utf8", $conf ), type => $type };
+    }
+
+    return +{ stat => $JSON::true, data => +{ base => $conf->[0], step => \@step } };
+};
+
+
+=pod
+
+BPM/管理/创建或编辑
+
+=cut
+
+post '/bpm/manage/conf/:bpmname' => sub {
+    my $param = params();
+    my $error = Format->new(
+        bpmname => qr/^[a-zA-Z\d][a-zA-Z\d\-]+$/, 1,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+ 
+    my $pmscheck = api::pmscheck( 'openc3_agent_root' ); return $pmscheck if $pmscheck;
+
+
+    my ( $base, $step ) = @$param{qw( base step )};
+    my $name = $param->{bpmname};
+    my @col = qw( name alias describe show type );
+    my $conf = eval{ $api::mysql->query( sprintf( "select %s from openc3_job_bpm_menu where `name`='$name'", join ",", map{"`$_`"}@col ), \@col )}; 
+    return +{ stat => $JSON::false, info => "get menu fail:$@" } if $@;
+
+    if( @$conf )
+    {
+        eval{ $api::mysql->execute( "update openc3_job_bpm_menu set `alias`='$base->{alias}',`describe`='$base->{describe}' where name='$param->{bpmname}'" )};
+        return +{ stat => $JSON::false, info => "update menu fail:$@" } if $@;
+    }
+    else
+    {
+
+        eval{ $api::mysql->execute( "insert into openc3_job_bpm_menu(`name`,`alias`,`describe`,`show`,`type`)values('$param->{bpmname}','$base->{alias}','$base->{describe}','1','diy')" ) };
+        return +{ stat => $JSON::false, info => "insert menu fail:$@" } if $@;
+    }
+
+    my @step = map{ $_->{name} }@$step;
+
+    my $path1 = "/data/Software/mydan/JOB/bpm/config/flow/$name";
+    system "mkdir -p '$path1'" unless -d $path1;
+
+    eval{ YAML::XS::DumpFile "$path1/plugin", \@step; };
+    return +{ stat => $JSON::false, info => "save plugin step fail:$@" } if $@;
+
+    my $path2 = "/data/Software/mydan/JOB/bpm/config/flow/$name/plugin.conf";
+    system "mkdir -p '$path2'" unless -d $path2;
+
+    my $index;
+    for my $x ( @$step )
+    {
+        $index ++;
+        my $p = "$path2/$index.$x->{name}.yaml";
+
+        my ( $TEMP, $tempfile ) = File::Temp::tempfile();
+        print $TEMP $x->{conf};
+        close $TEMP;
+        system "mv '$tempfile' '$p'";
+
+        return +{ stat => $JSON::false, info => "save plugin step fail:$@" } if $@;
+    }
+
+    return +{ stat => $JSON::true };
+};
+
+=pod
+
+BPM/管理/删除
+
+=cut
+
+del '/bpm/manage/conf/:bpmname' => sub {
+    my $param = params();
+    my $error = Format->new(
+        bpmname => qr/^[a-zA-Z\d][a-zA-Z\d\-]+$/, 1,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+ 
+    my $pmscheck = api::pmscheck( 'openc3_agent_root' ); return $pmscheck if $pmscheck;
+
+    my $r = eval{ $api::mysql->execute( "delete from openc3_job_bpm_menu where name='$param->{bpmname}'" )};
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
+    return +{ stat => $JSON::true, data => $r };
+};
+
+=pod
+
+BPM/管理/获取插件列表
+
+=cut
+
+get '/bpm/manage/plugin/list' => sub {
+    my @x = `ls /data/Software/mydan/Connector/pp/bpm/action`;
+    chomp @x;
+    return +{ stat => $JSON::true, data =>\@x };
+};
+
+=pod
+
+BPM/管理/获取插件列表
+
+=cut
+
+get '/bpm/manage/plugin/conf/:name' => sub {
+    my $param = params();
+    my $error = Format->new(
+        name => qr/^[a-zA-Z\d][a-zA-Z\d\-]+$/, 1,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+ 
+    my $pmscheck = api::pmscheck( 'openc3_agent_read' ); return $pmscheck if $pmscheck;
+
+    my $x = `cat /data/Software/mydan/Connector/pp/bpm/action/$param->{name}/data.yaml `;
+    return +{ stat => $JSON::true, data => Encode::decode("utf8", $x ) };
+};
+
+=pod
+
+BPM/管理/修改BPM显示开关
+
+=cut
+
+any '/bpm/manage/show/:name/:show' => sub {
+    my $param = params();
+    my $error = Format->new(
+        name => qr/^[a-zA-Z\d][a-zA-Z\d\-]+$/, 1,
+        show => qr/^\d+$/, 1,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+ 
+    my $pmscheck = api::pmscheck( 'openc3_agent_root' ); return $pmscheck if $pmscheck;
+
+    eval{ $api::mysql->execute( "update openc3_job_bpm_menu set `show`='$param->{show}' where name='$param->{name}'" )};
+    return +{ stat => $JSON::false, info => "update bpm show status fail:$@" } if $@;
+
+    return +{ stat => $JSON::true };
 };
 
 true;

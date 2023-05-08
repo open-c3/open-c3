@@ -1,0 +1,42 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+use YAML::XS;
+use FindBin qw( $RealBin );
+use BPM::Flow;
+use MYDB;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $menu = eval{ BPM::Flow->new()->menu(); };
+die "load menu fail: $@" if $@;
+
+
+my $db = MYDB->new( "/data/Software/mydan/JOB/conf/conn" );
+
+my $uuid = time;
+my @col = qw( name show ); 
+my $r = eval{ $db->query( sprintf( "select %s from openc3_job_bpm_menu", join( ",", map{"`$_`"}@col) ), \@col ); };   
+die "get data from db fail: $@" if $@;
+
+my %show;
+map{ $show{$_->{name}} = $_->{show} }@$r;
+
+sub init
+{
+    my $m = shift @_;
+    
+    my $show = $show{ $m->{name}} // '1';
+
+    eval{ $db->execute( sprintf "replace into openc3_job_bpm_menu (`type`,`show`,`uuid`,`name`,`alias`,`describe`) value('sys','$show','$uuid','%s', '%s', '%s')", map{ $m->{$_}//""}qw(name alias describe ) ); };
+    die "insert fail: $@" if $@;
+}
+
+map{ init( $_ ) }@$menu;
+
+eval{ $db->execute("delete from openc3_job_bpm_menu where type='sys' and uuid!='$uuid'")};
+die "clean data fail: $@" if $@;

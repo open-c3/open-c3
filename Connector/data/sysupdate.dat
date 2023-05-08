@@ -872,3 +872,15 @@ create table if not exists `openc3_connector_mfakey`(
 UNIQUE KEY `uniq_keys` (`keys`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='MFA 二次验证,用于映射用户';
 
+# v2.6.0 sql openc3_job_bpm_menu create
+create table if not exists `openc3_job_bpm_menu`(
+`id` int(16) unsigned not null primary key auto_increment comment 'id',
+`name`      VARCHAR(200)  comment '名称',
+`alias`     VARCHAR(200)  comment '中文别名',
+`describe`  VARCHAR(2000) comment '描述',
+`show`      VARCHAR(10)   DEFAULT '1'  comment '是否显示',
+`type`      VARCHAR(20)   comment '类型',
+`uuid`      VARCHAR(20)   comment '操作编号',
+`time`    TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '时间',
+UNIQUE KEY `uniq_name` (`name`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='BPM菜单';
