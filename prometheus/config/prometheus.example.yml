@@ -166,3 +166,11 @@ scrape_configs:
       - target_label: __address__
         replacement: openc3-blackbox_exporter:9115  # The blackbox exporter's real hostname:port.
 
+  - job_name: 'openc3-proxy'
+    scrape_interval: 15s
+    scrape_timeout: 15s
+    metrics_path: /c3proxy.txt
+    honor_labels: true
+    static_configs:
+    - targets: ['OPENC3_SERVER_IP:38080']
+
