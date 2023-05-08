@@ -12,7 +12,7 @@ option:
     describe: 区域
     rely:
       - account
-    command: c3mc-ec2-describe-regions | c3mc-bpm-display-field-values "{code}; 名称:{name}, 区域码:{code}"
+    command: c3mc-ec2-describe-regions | c3mc-bpm-display-field-values "{code}; 名称:{name}, 区域代码:{code}"
     type: selectx
 
   - name: count
@@ -59,7 +59,7 @@ option:
     rely:
       - account
       - region
-    command: c3mc-ec2create-describe-vpcs | c3mc-bpm-display-field-values VpcId,Name,CidrBlock
+    command: c3mc-ec2create-describe-vpcs | c3mc-bpm-display-field-values "{VpcId};名称:{Name}, vpcid:{VpcId}, cidr块:{CidrBlock}"
     type: selectx
     fromops: 1
 
@@ -70,7 +70,7 @@ option:
       - region
       - az
       - vpc_id
-    command: c3mc-ec2create-describe-subnets | c3mc-bpm-display-field-values SubnetId,Name,CidrBlock,AvailableIpAddressCount
+    command: c3mc-ec2create-describe-subnets | c3mc-bpm-display-field-values "{SubnetId}; 名称:{Name}, cidr块:{CidrBlock}, 子网id:{SubnetId}, 有效IP数:{AvailableIpAddressCount}"
     type: selectx
     fromops: 1
 
@@ -80,7 +80,7 @@ option:
       - account
       - region
       - architecture
-    command: c3mc-ec2create-describe-images-all | c3mc-bpm-display-field-values ImageId,Name
+    command: c3mc-ec2create-describe-images-all | c3mc-bpm-display-field-values "{ImageId}; 镜像名称:{Name}"
     type: selectx
     fromops: 1
 
@@ -114,8 +114,9 @@ option:
 
   - name: if_need_public_ip
     describe: 是否需要公网IP
-    command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
-    type: selectx
+    type: select
+    option: ["是", "否"]
+    value: ""
 
   - name: public_ip_type
     describe: 公网ip类型
@@ -167,8 +168,9 @@ option:
 
   - name: if_need_data_volume
     describe: 是否需要数据盘
-    command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
-    type: selectx
+    type: select
+    option: ["是", "否"]
+    value: ""
 
   - name: data_volume_type
     describe: 数据盘类型
@@ -247,8 +249,9 @@ option:
 
   - name: if_need_set_user_data
     describe: 是否配置系统初始化脚本
-    command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
-    type: selectx
+    type: select
+    option: ["是", "否"]
+    value: ""
 
   - name: user_data
     describe: 系统初始化执行脚本(不超过16K大小)

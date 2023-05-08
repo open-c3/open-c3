@@ -53,6 +53,9 @@ def main(params):
 
     image_list = describe_images(
         key_info["access_id"], key_info["access_key"], region, architecture)
+    
+    sorted(image_list, key=lambda x: (x['Name']), reverse=False)
+
     for image in image_list:
         print(json.dumps(image, default=str))
 
