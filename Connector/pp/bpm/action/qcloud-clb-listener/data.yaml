@@ -25,7 +25,7 @@ option:
     describe: 证书
     rely:
       - x.account
-    command: c3mc-qcloud-clb-describe-cert-list | c3mc-bpm-display-field-values CertificateId,Domain
+    command: c3mc-qcloud-clb-describe-cert-list | c3mc-bpm-display-field-values "{CertificateId}; 域名:{Domain}, 证书id:{CertificateId}"
     type: selectx
     value: ""
     show: 
@@ -93,7 +93,7 @@ option:
 
   - name: health_check_http_codes
     describe: 健康检查http状态码
-    command: c3mc-qcloud-health-check-http-code | c3mc-bpm-display-field-values value,name
+    command: c3mc-qcloud-health-check-http-code | c3mc-bpm-display-field-values "{value}; 名称:{name}, 值:{value}"
     type: selectxm
     value: ""
     show:
