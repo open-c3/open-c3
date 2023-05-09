@@ -6,7 +6,6 @@
     .controller('manageStepController', manageStepController);
 
   function manageStepController ($scope, $state, $http, $uibModal, $uibModalInstance, $timeout, $injector, treeId, editData, seq) {
-    console.log('editdata', editData)
     var vm = this;
     var toastr = toastr || $injector.get('toastr');
     vm.treeid = treeId;
