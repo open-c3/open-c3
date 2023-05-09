@@ -93,9 +93,7 @@
                 showCancelButton: true,
                 showLoaderOnConfirm: true
              }, function( result ){
-                $http.post('/api/job/bpm/deal/' + vm.bpmuuid, { "opinion": opinion } ).success(function(data){
-                    vm.idealloadover = true;
-                });
+                vm.reSave( opinion );
             });
         };
 
@@ -649,7 +647,7 @@
                  }, function (repo) { });
         };
 
-        vm.reSave = function(){
+        vm.reSave = function(dealoption){
             var varDict = {};
 
             angular.forEach(vm.valias, function (data, index) {
@@ -672,7 +670,16 @@
 
             $http.post( '/api/job/bpm/var/' + vm.bpmuuid, { "bpm_variable": $scope.taskData.variable } ).success(function(data){
                 if (data.stat){
-                    swal({ title: '保存成功', type:'success' });
+                    if( dealoption == undefined )
+                    {
+                        swal({ title: '保存成功', type:'success' });
+                    }
+                    else
+                    {
+                        $http.post('/api/job/bpm/deal/' + vm.bpmuuid, { "opinion": dealoption } ).success(function(data){
+                            vm.idealloadover = true;
+                        });
+                    }
                 }else {
                     swal({ title: '保存失败', text: data.info, type:'error' });
                 }
