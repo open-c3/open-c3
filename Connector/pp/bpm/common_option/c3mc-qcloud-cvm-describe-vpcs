@@ -5,10 +5,9 @@ import json
 import sys
 import subprocess
 
-from tencentcloud.common import credential
-from tencentcloud.common.profile.client_profile import ClientProfile
-from tencentcloud.common.profile.http_profile import HttpProfile
-from tencentcloud.vpc.v20170312 import vpc_client, models
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_qcloud_vpc import QcloudVpc
 
 
 class Vpcs:
@@ -16,65 +15,31 @@ class Vpcs:
         self.access_id = access_id
         self.access_key = access_key
         self.region = region
-        self.client = self.create_client()
-        self.page_number = 1
-        self.page_size = 100
+        self.lib_client = self.create_lib_client()
 
-    def create_client(self):
-        cred = credential.Credential(self.access_id, self.access_key)
-        httpProfile = HttpProfile()
-        httpProfile.endpoint = "vpc.tencentcloudapi.com"
-
-        clientProfile = ClientProfile()
-        clientProfile.httpProfile = httpProfile
-        return vpc_client.VpcClient(cred, self.region, clientProfile)
+    def create_lib_client(self):
+        return QcloudVpc(self.access_id, self.access_key, self.region)
     
-    def describe_vpcs(self):
-        req = models.DescribeVpcsRequest()
-        params = {
-            "Limit": str(self.page_size),
-            "Offset": str((self.page_number - 1) * self.page_size)
-        }
-        req.from_json_string(json.dumps(params))
-        return self.client.DescribeVpcs(req)
-    
-    def get_total_count(self):
-        response_data = self.describe_vpcs()
-        return response_data.TotalCount
-
     def show(self):
-        response_data = self.describe_vpcs()
-        data_list = response_data.VpcSet
+        data_list = self.lib_client.list_vpcs()
+        data_list = sorted(data_list, key=lambda x: (x['VpcName'].lower()), reverse=False)
         for item in data_list:
-            print(item.to_json_string())
+            print(json.dumps(item))
 
-    def page(self):
-        count = self.get_total_count()
-        mod = count % self.page_size
-        if mod:
-            total_page_number = int(count / self.page_size) + 1
-        else:
-            total_page_number = int(count / self.page_size)
-
-        for cur_page_number in range(1, total_page_number + 1):
-            self.page_number = cur_page_number
-            self.show()
-    
 
 def main(params):
     account = params["account"]
     region = params["region"]
 
-    key_info = json.loads(subprocess.getoutput(
-        "c3mc-get-account-info qcloud {}".format(account)))
-    Vpcs(key_info["access_id"], key_info["access_key"], region).page()
+    key_info = json.loads(
+        subprocess.getoutput(f"c3mc-get-account-info qcloud {account}")
+    )
+    Vpcs(key_info["access_id"], key_info["access_key"], region).show()
 
 
 if __name__ == '__main__':
-    l = []
-    for line in sys.stdin:
-        l.append(line)
-    if len(l) == 0 or len(l) > 1:
-        raise Exception("数据格式不对, 需要一行json字符串")
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
 
     main(json.loads(l[0]))

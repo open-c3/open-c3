@@ -11,7 +11,7 @@ from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.cvm.v20170312 import cvm_client, models
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
-from c3mc_cloud_qcloud_vpc import Vpc
+from c3mc_cloud_qcloud_vpc import QcloudVpc
 
 
 def get(data, access_id, access_key, region):
@@ -30,7 +30,7 @@ def get(data, access_id, access_key, region):
         "c3mc-cloud-get-real-field compute qcloud-cvm InstanceId")
 
 
-    vpc_client = Vpc(access_id, access_key, region)
+    vpc_client = QcloudVpc(access_id, access_key, region)
 
     req = models.DescribeInstancesRequest()
     params = {

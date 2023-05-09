@@ -27,6 +27,8 @@ def main(params):
     )
     data_list = get_data_list(
         key_info["access_id"], key_info["access_key"], region, int(project_id))
+
+    data_list = sorted(data_list, key=lambda x: (x['PolicyName'].lower()), reverse=False)
     for item in data_list:
         print(json.dumps(item))
 

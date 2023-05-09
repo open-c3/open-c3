@@ -10,7 +10,7 @@ from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.cvm.v20170312 import cvm_client, models
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
-from c3mc_cloud_qcloud_vpc import Vpc
+from c3mc_cloud_qcloud_vpc import QcloudVpc
 from c3mc_cloud_qcloud_project import Project
 from c3mc_utils import sleep_time_for_limiting
 
@@ -55,7 +55,7 @@ class Cvm:
         sleep_time_for_limiting(seconds)
 
     def list_page_instances(self):
-        vpc_client = Vpc(self.access_id, self.access_key, self.region)
+        vpc_client = QcloudVpc(self.access_id, self.access_key, self.region)
 
         response_data = self.get_response()
 

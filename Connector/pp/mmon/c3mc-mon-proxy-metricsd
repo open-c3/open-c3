@@ -1,0 +1,17 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+chdir "/data/Software/mydan/Connector/local" or die "chdir fail: $!";
+my $c;
+while(1)
+{
+    $c ++;
+    my $time = time;
+
+    system "c3mc-mon-proxy-metrics > c3proxy.txt.$$.temp && mv c3proxy.txt.$$.temp c3proxy.txt";
+
+    my $due = 15 - (time - $time);
+    last if $c >= ( 4 * 60 + 3 );
+    sleep $due if $due > 0;
+}

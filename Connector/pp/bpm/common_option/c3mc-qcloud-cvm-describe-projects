@@ -32,7 +32,8 @@ class Projects:
         params = {}
         req.from_json_string(json.dumps(params))
         resp = json.loads(self.client.DescribeProjects(req).to_json_string())
-        return resp["Projects"]
+
+        return sorted(resp["Projects"], key=lambda x: (x['Name'].lower()), reverse=False)
     
     def show(self):
         data_list = self.describe_projects()
@@ -44,16 +45,15 @@ def main(params):
     account = params["account"]
     region = params["region"]
 
-    key_info = json.loads(subprocess.getoutput(
-        "c3mc-get-account-info qcloud {}".format(account)))
+    key_info = json.loads(
+        subprocess.getoutput(f"c3mc-get-account-info qcloud {account}")
+    )
     Projects(key_info["access_id"], key_info["access_key"], region).show()
 
 
 if __name__ == '__main__':
-    l = []
-    for line in sys.stdin:
-        l.append(line)
-    if len(l) == 0 or len(l) > 1:
-        raise Exception("数据格式不对, 需要一行json字符串")
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
 
     main(json.loads(l[0]))

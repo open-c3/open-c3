@@ -50,7 +50,7 @@ class Images:
             self.page_number += 1
         result = [json.loads(item.to_json_string()) for item in result]
         result.sort(key=operator.itemgetter('ImageType')) 
-        return sorted(result, key=lambda x: x['ImageName'], reverse=True)
+        return sorted(result, key=lambda x: x['ImageName'].lower(), reverse=False)
 
     def show(self):
         data_list = self.get_data()

@@ -26,6 +26,8 @@ def main(params):
 
     data_list = list_disk_types(key_info["cred_path"], zone)
 
+    data_list = sorted(data_list, key=lambda x: (x['description'].lower()), reverse=False)
+
     for item in data_list:
         print(json.dumps(item))
 

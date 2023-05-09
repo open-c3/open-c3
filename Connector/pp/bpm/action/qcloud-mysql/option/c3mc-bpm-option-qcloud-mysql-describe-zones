@@ -30,7 +30,7 @@ def get_data_list(access_id, access_key, region):
                     "zone_name": zone_item["ZoneName"],
                     "status": status_text,
                 })
-    return sorted(result, key=lambda x: x['zone'], reverse=False)
+    return sorted(result, key=lambda x: x['zone'].lower(), reverse=False)
 
 
 def main(params):

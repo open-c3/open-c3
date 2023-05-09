@@ -69,6 +69,9 @@ def main(params):
         t.join()
 
     result._array = sorted(result._array, key=lambda x: (x['name']))
+
+    result._array = sorted(result._array, key=lambda x: (x['name'].lower()), reverse=False)
+
     for item in result._array:
         print(json.dumps(item))
 

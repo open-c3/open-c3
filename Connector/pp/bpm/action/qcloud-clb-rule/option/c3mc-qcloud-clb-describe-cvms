@@ -7,10 +7,10 @@ import subprocess
 
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
-from c3mc_cloud_qcloud_vpc import QcloudVpc
+from c3mc_cloud_qcloud_cvm import QcloudCvm
 
 
-class Subnets:
+class Cvm:
     def __init__(self, access_id, access_key, region):
         self.access_id = access_id
         self.access_key = access_key
@@ -18,11 +18,11 @@ class Subnets:
         self.lib_client = self.create_lib_client()
 
     def create_lib_client(self):
-        return QcloudVpc(self.access_id, self.access_key, self.region)
+        return QcloudCvm(self.access_id, self.access_key, self.region)
     
-    def show(self, vpcId, zone):
-        data_list = self.lib_client.list_subnets_of_vpc(vpcId, zone)
-        data_list = sorted(data_list, key=lambda x: (x['SubnetName'].lower()), reverse=False)
+    def show(self):
+        data_list = self.lib_client.list_cvms()
+        data_list = sorted(data_list, key=lambda x: (x['InstanceName'].lower()), reverse=False)
         for item in data_list:
             print(json.dumps(item))
 
@@ -30,13 +30,11 @@ class Subnets:
 def main(params):
     account = params["account"]
     region = params["region"]
-    zone = params["zone"] if "zone" in params else None
-    vpcId = params["vpc_id"]
 
-    keyInfo = json.loads(
+    key_info = json.loads(
         subprocess.getoutput(f"c3mc-get-account-info qcloud {account}")
     )
-    Subnets(keyInfo["access_id"], keyInfo["access_key"], region).show(vpcId, zone)
+    Cvm(key_info["access_id"], key_info["access_key"], region).show()
 
 
 if __name__ == '__main__':

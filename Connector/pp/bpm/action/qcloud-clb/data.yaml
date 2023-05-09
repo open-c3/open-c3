@@ -12,7 +12,7 @@ option:
     describe: 区域
     rely:
       - account
-    command: c3mc-qcloud-cvm-describe-regions | c3mc-bpm-display-field-values Region,RegionName,RegionState
+    command: c3mc-qcloud-cvm-describe-regions | c3mc-bpm-display-field-values "{Region}; 名称:{RegionName}, 状态:{RegionState}, 代码:{Region}"
     type: selectx
     value: ""
 
@@ -31,7 +31,7 @@ option:
     rely:
       - account
       - region
-    command: c3mc-qcloud-cvm-describe-projects | c3mc-bpm-display-field-values ProjectId,Name
+    command: c3mc-qcloud-cvm-describe-projects | c3mc-bpm-display-field-values "{ProjectId}; 项目名称:{Name}, 项目id:{ProjectId}"
     type: selectx
     value: ""
 

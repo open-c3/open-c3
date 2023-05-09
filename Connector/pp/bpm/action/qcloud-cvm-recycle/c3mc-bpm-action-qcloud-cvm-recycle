@@ -12,7 +12,7 @@ from tencentcloud.cvm.v20170312 import cvm_client
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
 from c3mc_utils import check_if_params_safe_in_recycle
-from c3mc_cloud_qcloud_cvm import Cvm
+from c3mc_cloud_qcloud_cvm import QcloudCvm
 
 supported_recycle_types = [
     "stop",
@@ -39,14 +39,16 @@ class CvmRecycle:
     def run(self, recycle_type, instance_identifier, delete_disk_snapshot):
         # 停止实例
         if recycle_type.lower() == "stop":
-            lib_cvm = Cvm(self.access_id, self.access_key, self.region)
+            lib_cvm = QcloudCvm(self.access_id, self.access_key, self.region)
             lib_cvm.stop_instances(instance_identifier)
+            print(f"LOG. 成功停止实例: {instance_identifier}")
 
         # 删除实例
         else:
-            lib_cvm = Cvm(self.access_id, self.access_key, self.region)
+            lib_cvm = QcloudCvm(self.access_id, self.access_key, self.region)
             lib_cvm.terminate_instances(
                 instance_identifier, delete_disk_snapshot)
+            print(f"LOG. 成功删除实例: {instance_identifier}")
 
 
 def get_instance_uuid(instance_maybe_identifier):

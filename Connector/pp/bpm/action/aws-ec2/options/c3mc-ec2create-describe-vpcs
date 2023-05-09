@@ -33,11 +33,11 @@ def describe_vpcs(access_id, access_key, region):
     for item in result:
         if "Tags" in item:
             for tag in item["Tags"]:
-                if tag["Key"] == "Name":
+                if tag["Key"].lower() == "name":
                     item["Name"] = tag["Value"]
                     break
 
-    return result
+    return sorted(result, key=lambda x: (x.get("Name", "")), reverse=False)
 
 
 def main(params):

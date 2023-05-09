@@ -64,7 +64,7 @@ option:
     describe: 公共镜像
     rely:
       - account
-    command: c3mc-bpm-option-google-compute-list-public-images | c3mc-bpm-display-field-values selfLink,name
+    command: c3mc-bpm-option-google-compute-list-public-images | c3mc-bpm-display-field-values "{selfLink}; 名称:{name}"
     type: selectx
     value: ""
     show: 
@@ -75,7 +75,7 @@ option:
     describe: 自定义镜像
     rely:
       - account
-    command: c3mc-bpm-option-google-compute-list-custom-images | c3mc-bpm-display-field-values selfLink,name
+    command: c3mc-bpm-option-google-compute-list-custom-images | c3mc-bpm-display-field-values "{selfLink}; 名称:{name}"
     type: selectx
     value: ""
     show: 
@@ -84,7 +84,7 @@ option:
 
   - name: system_disk_type
     describe: 系统盘类型列表
-    command: c3mc-bpm-option-google-compute-list-disk-types | c3mc-bpm-display-field-values name,description
+    command: c3mc-bpm-option-google-compute-list-disk-types | c3mc-bpm-display-field-values "{name}; 类型描述:{description}"
     type: selectx
     value: ""
     fromops: 1
@@ -98,13 +98,13 @@ option:
 
   - name: if_need_data_volume
     describe: 是否需要数据盘
-    command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
-    type: selectx
+    type: select
+    option: ["是", "否"]
     value: ""
 
   - name: data_disk_type
     describe: 数据盘类型
-    command: c3mc-bpm-option-google-compute-list-disk-types | c3mc-bpm-display-field-values name,description
+    command: c3mc-bpm-option-google-compute-list-disk-types | c3mc-bpm-display-field-values "{name}; 类型描述:{description}"
     type: selectx
     value: ""
     show:
@@ -122,7 +122,7 @@ option:
     describe: 网络列表
     rely:
       - account
-    command: c3mc-bpm-option-google-compute-list-networks | c3mc-bpm-display-field-values name,name
+    command: c3mc-bpm-option-google-compute-list-networks | c3mc-bpm-display-field-values "{name}; 名称:{name}"
     type: selectx
     value: ""
     fromops: 1
@@ -132,7 +132,7 @@ option:
     rely:
       - account
       - region
-    command: c3mc-bpm-option-google-compute-list-subnetworks | c3mc-bpm-display-field-values name,name
+    command: c3mc-bpm-option-google-compute-list-subnetworks | c3mc-bpm-display-field-values "{name}; 名称:{name}"
     type: selectx
     value: ""
     fromops: 1
@@ -146,8 +146,8 @@ option:
 
   - name: if_need_public_ip
     describe: 是否需要公网ip
-    command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
-    type: selectx
+    type: select
+    option: ["是", "否"]
     value: ""
     information: "当公网带宽为0, 则不允许分配公网IP。此时忽略该选项的值"
     fromops: 1
@@ -163,8 +163,8 @@ option:
 
   - name: enable_display
     describe: 是否开启显示设备
-    command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
-    type: selectx
+    type: select
+    option: ["是", "否"]
     value: ""
     information: 指在创建谷歌云虚拟机时, 是否为该虚拟机分配一个虚拟的图形处理器(GPU), 以便能够支持图形显示和远程桌面访问。
     fromops: 1

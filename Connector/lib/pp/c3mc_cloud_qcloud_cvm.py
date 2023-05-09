@@ -12,7 +12,7 @@ from tencentcloud.cvm.v20170312 import cvm_client, models as cvm_models
 from tencentcloud.cbs.v20170312 import cbs_client, models as cbs_models
 
 
-class Cvm:
+class QcloudCvm:
     def __init__(self, access_id, access_key, region):
         self.access_id = access_id
         self.access_key = access_key
@@ -122,3 +122,34 @@ class Cvm:
         res = self.cvm_client.TerminateInstances(req)
         print(f"回收cvm实例: {instance_id}, 结果: {res.to_json_string()}")
         return res
+
+    def list_cvms(self):
+        """查询区域下的cvm列表
+        """
+        def get_refined_cvm_list(cvm_list):
+            for i in range(len(cvm_list)):
+                cvm_list[i]["PrivateIp"] = ""
+                cvm_list[i]["PublicIp"] = ""
+                if len(cvm_list[i]["PrivateIpAddresses"]) > 0:
+                    cvm_list[i]["PrivateIp"] = cvm_list[i]["PrivateIpAddresses"][0]
+                if "PublicIpAddresses" in cvm_list[i] and cvm_list[i]["PublicIpAddresses"] is not None:
+                    cvm_list[i]["PublicIp"] = cvm_list[i]["PublicIpAddresses"][0]
+            return cvm_list
+
+        result = []
+        req = cvm_models.DescribeInstancesRequest()
+        for i in range(1, sys.maxsize):
+            params = {
+                "Limit": 100,
+                "Offset": (i - 1) * 100
+            }
+            req.from_json_string(json.dumps(params))
+
+            resp = self.cvm_client.DescribeInstances(req)
+
+            cvm_list = json.loads(resp.to_json_string())["InstanceSet"]
+
+            if len(cvm_list) == 0:
+                break
+            result.extend(get_refined_cvm_list(cvm_list))
+        return result
