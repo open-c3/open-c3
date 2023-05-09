@@ -65,6 +65,34 @@
 
         vm.reload();
 
+        vm.addBpm = function () {
+          $state.go('home.business.bpmcreate', { treeid: vm.treeid } );
+        }
+
+        vm.runBpm = function (name, show) {
+          swal({
+            title: `${show === '0'? '确定显示？': '确定隐藏？'}`,
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            cancelButtonText: "取消",
+            confirmButtonText: "确定",
+            closeOnConfirm: true
+          }, function(){
+            $http.post(`/api/job/bpm/manage/show/${name}/${Number(!+show)}`).success(function(data){
+              if (data.stat){
+                vm.reload();
+                swal({ title: '删除成功', type: 'success' });
+              }else {
+                swal({ title:'执行失败', text: data.info, type:'error' });
+              }
+            });
+          });
+        }
+
+        vm.editBpm = function (name) {
+          $state.go('home.business.bpmedit', {treeid: vm.treeid, name})
+        }
     }
 
 })();
