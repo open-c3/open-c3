@@ -3,11 +3,12 @@ package handler
 import (
 	"fmt"
 	"net/http"
-	"openc3.org/trouble-ticketing/model"
-	"openc3.org/trouble-ticketing/util"
 	"os"
 	"os/exec"
 	"strings"
+
+	"openc3.org/trouble-ticketing/model"
+	"openc3.org/trouble-ticketing/util"
 
 	"github.com/gin-gonic/gin"
 	"openc3.org/trouble-ticketing/config"
@@ -65,6 +66,19 @@ func PublicPostTicket(c *gin.Context) {
 	obj.EmailList = req.EmailList
 	obj.SubmitUser = req.SubmitUser
 	obj.ApplyUser = req.ApplyUser
+
+	if obj.Impact == 0 {
+		obj.Impact = 5
+	}
+	if obj.Category == 0 {
+		obj.Category = 1
+	}
+	if obj.Type == 0 {
+		obj.Type = 1
+	}
+	if obj.Item == 0 {
+		obj.Item = 13
+	}
 
 	err = orm.Db.Create(&obj).Error
 	if err != nil {
