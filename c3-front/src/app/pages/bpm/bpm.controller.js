@@ -554,6 +554,11 @@
                 }
             }
  
+            if( vm.debug == 1 )
+            {
+                vm.optionx[stepname] = undefined;
+            }
+
             if( vm.optionx[stepname] == undefined )
             {
                 vm.selectxloading[stepname] = true;
