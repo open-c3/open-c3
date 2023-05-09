@@ -33,7 +33,7 @@ sub record
 sub savevar
 {
     my $row = shift @_;
-    return unless $row =~ /^VAR\.\s*([a-zA-Z0-9][a-zA-Z0-9\-\._]+):\s*([a-zA-Z0-9][a-zA-Z0-9\-\._,]+)$/;
+    return unless $row =~ /^VAR\.\s*([a-zA-Z0-9][a-zA-Z0-9\-\._]+):\s*([a-zA-Z0-9][a-zA-Z0-9\-\._,\/:]+)$/;
     my ( $k, $v ) = ( $1, $2 );
     BPM::Task::Config->new()->savevar( $o{bpmuuid}, $k, $v );
 }

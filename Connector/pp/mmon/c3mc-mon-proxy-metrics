@@ -35,23 +35,26 @@ for my $file ( keys %conf )
     }
 }
 
-my $cv = AnyEvent->condvar;
+if( %data )
+{
+    my $cv = AnyEvent->condvar;
 
-for my $proxy (keys %data ) {
-  http_get("http://$proxy", timeout => $timeout, sub {
-    my ($body, $headers) = @_;
+    for my $proxy (keys %data ) {
+      http_get("http://$proxy", timeout => $timeout, sub {
+        my ($body, $headers) = @_;
 
-    my $status = ( $body && $body =~ /OPEN-C3/ ) ? 1 : 0;
-    for my $instance ( keys %{$data{$proxy}} )
-    {
-        print "proxy_up{instance=\"$instance\", proxy=\"$proxy\"} $status\n";
+        my $status = ( $body && $body =~ /OPEN-C3/ ) ? 1 : 0;
+        for my $instance ( keys %{$data{$proxy}} )
+        {
+            print "proxy_up{instance=\"$instance\", proxy=\"$proxy\"} $status\n";
+        }
+
+        delete $data{$proxy};
+        $cv->send unless keys %data;
+      });
     }
 
-    delete $data{$proxy};
-    $cv->send unless keys %data;
-  });
+    $cv->recv;
 }
-
-$cv->recv;
 
 printf "proxy_up_last_time %s\n", time;
