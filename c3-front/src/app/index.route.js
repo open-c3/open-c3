@@ -368,6 +368,13 @@
               controller: 'BusinessBpmCreateController',
               controllerAs: 'businessbpmcreate'
           })
+            .state('home.business.bpmedit', {
+              url: 'bpmedit/:treeid',
+              templateUrl: 'app/pages/business/bpm/edit.html',
+              controller: 'BusinessBpmEditController',
+              controllerAs: 'businessbpmedit',
+              params: {name: ''}
+            })
             .state('home.business.job', {
                 url: 'job/:treeid',
                 templateUrl: 'app/pages/business/job/job.html',
