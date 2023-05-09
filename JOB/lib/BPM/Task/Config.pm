@@ -80,7 +80,7 @@ sub get
         my ( %tmp, %var );
         for( @x )
         {
-            next unless $_ =~ /^\s*([a-zA-Z0-9][a-zA-Z0-9\-\._]+):\s*([a-zA-Z0-9][a-zA-Z0-9\-\._,]+)$/;
+            next unless $_ =~ /^\s*([a-zA-Z0-9][a-zA-Z0-9\-\._]+):\s*([a-zA-Z0-9][a-zA-Z0-9\-\._,\/:]+)$/;
             my ( $k, $v ) = ( $1, $2 );
             $var{$k} ||= [];
             push( @{$var{$k}}, $v ) unless $tmp{$k}{$v} ++;
