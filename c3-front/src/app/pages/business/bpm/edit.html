@@ -1,0 +1,124 @@
+<div>
+
+  <div class="row" style="padding: 0 20px 0;">
+    <nodestr></nodestr>
+  </div>
+
+  <hr class="mv10 clear">
+
+  <div class="panel" ng-hide="saveHide">
+    <div class="panel-heading">
+      <h5 ng-if="!businessbpmedit.copyjob">{{'C3T.编辑流程'|translate}}</h5>
+    </div>
+
+    <div class="panel-body">
+      <div class="form-horizontal">
+        <form class="form-inline" name="searchForm" novalidate>
+          <div class="container-fluid">
+            <div class="row">
+              <div class="form-group col-sm-10" style="margin: 10px 0">
+                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;" for="bpmName">
+                  {{'C3T.名称'|translate}}：
+                </label>
+                <input type="text" id="bpmName" class="form-control" style="width: 50%"
+                  ng-model="businessbpmedit.bpmManageName" required>
+              </div>
+
+              <div class="form-group col-sm-10" style="margin: 10px 0">
+                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;" for="bpmAlias">
+                  {{'C3T.别名'|translate}}：
+                </label>
+                <input type="text" id="bpmAlias" class="form-control" style="width: 50%"
+                  ng-model="businessbpmedit.bpmManageAlias">
+              </div>
+
+              <div class="form-group col-sm-10" style="margin: 10px 0">
+                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;" for="bpmType">
+                  {{'C3T.类型'|translate}}：
+                </label>
+                <div style="margin-top: 8px;">
+                  <div id="bpmType" ng-if="businessbpmedit.bpmManageType=='sys'">{{'C3T.系统内置'| translate}}</div>
+                  <div id="bpmType" ng-if="businessbpmedit.bpmManageType=='diy'">{{'C3T.自定义'| translate}}</div>
+                </div>
+              </div>
+
+              <div class="form-group col-sm-10" style="margin: 10px 0">
+                <label style="float: left;line-height: 34px;min-width: 90px;text-align: right;" for="bpmDescribe">
+                  {{'C3T.描述'|translate}}：
+                </label>
+                <input type="text" id="bpmDescribe" class="form-control" style="width: 50%"
+                  ng-model="businessbpmedit.bpmManageDescribe">
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-bottom: 15px;" ng-hide="saveHide">
+    <button class="btn btn-success " ng-click="businessbpmedit.createManageStep()">
+      <i class="glyphicon glyphicon-copy"></i> {{'C3T.添加步骤'|translate}}
+    </button>
+  </div>
+
+  <div ng-repeat="item in businessbpmedit.allNewStep">
+    <div class="panel panel-success">
+      <div style="padding: 2px">
+        <strong style="font-size: 15px">{{'C3T.步骤'|translate}}.{{$index+1}}</strong>
+        <button class="btn btn-success btn-xs" ng-click="businessbpmedit.createScriptStep($index)" ng-hide="saveHide">
+          <i class="fa fa-plus"></i> {{'C3T.步骤'|translate}}
+        </button>
+      </div>
+      <div class="panel-body" style="padding: 10px">
+        <div class="panel-tabs">
+          <table class="table table-hover text-center table-condensed" style="margin-bottom: 0">
+            <thead>
+              <tr>
+                <th style="text-align: center;">{{'C3T.插件名称'|translate}}</th>
+                <th style="text-align: center;width: 20%;">{{'C3T.操作'|translate}}</th>
+              </tr>
+            </thead>
+            <tr>
+              <td width="200" class="line-feed">{{item.name}}</td>
+              <td width="200" class="line-feed" style="width: 20%;">
+                <button class="btn btn-info btn-sm" ng-hide="saveHide" ng-click="businessbpmedit.copyBpm($index)">
+                  {{'C3T.复制'|translate}}
+                </button>
+                <button class="btn btn-warning btn-sm" ng-hide="saveHide" ng-click="businessbpmedit.editBpm($index)">
+                  {{'C3T.编辑'|translate}}
+                </button>
+                <button class="btn btn-danger btn-sm" ng-hide="saveHide" ng-click="businessbpmedit.delBpmData($index)">
+                  {{'C3T.删除'|translate}}
+                </button>
+                <button class="btn btn-danger btn-sm" ng-hide="saveHide" ng-click="businessbpmedit.up($index)">
+                  <i class="fa fa-arrow-up"></i>
+                </button>
+                <button class="btn btn-danger btn-sm" ng-hide="saveHide" ng-click="businessbpmedit.down($index)">
+                  <i class="fa fa-arrow-down"></i>
+                </button>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="mv10 clear">
+  <div style="margin-bottom: 15px">
+    <div style="margin-left: 40%">
+      <button ng-if="!businessbpmedit.copyjob" class="btn btn-warning" ng-hide="saveHide" ng-click="businessbpmedit.saveCreateData()">
+        {{'C3T.保存流程'|translate}}
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<style>
+  .line-feed {
+    word-break: break-all;
+    overflow-y: auto;
+  }
+</style>

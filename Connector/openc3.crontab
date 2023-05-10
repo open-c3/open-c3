@@ -10,7 +10,7 @@ TZ=Asia/Shanghai
 
 */3 * * * * root /usr/bin/c3mc-device-accountdb-dump > /tmp/c3mc-device-accountdb-dump.log 2>&1
 
-*/10 * * * * root flock -n /tmp/c3mc-cloud-update-cloud-account-caller.lock /usr/bin/c3mc-cloud-update-cloud-account-caller > /tmp/c3mc-cloud-update-cloud-account-caller.log 2>&1
+*/5 * * * * root flock -n /tmp/c3mc-cloud-update-cloud-account.lock /usr/bin/c3mc-cloud-update-cloud-account > /tmp/c3mc-cloud-update-cloud-account.log 2>&1
 
 */5 * * * * root /usr/bin/c3mc-device-bind-info-cache set > /tmp/c3mc-device-bind-info-cache.log 2>&1
 */5 * * * * root /usr/bin/c3mc-device-cat-all-cache   set > /tmp/c3mc-device-cat-all-cache.log 2>&1
