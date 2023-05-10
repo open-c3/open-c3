@@ -203,3 +203,37 @@ func PublicGetTicketInfo(c *gin.Context) {
 		c.JSON(http.StatusOK, status_200_v2(resp))
 	}
 }
+
+
+// 获取事件基础信息　批量
+//
+func PublicBatchGetTicketInfo(c *gin.Context) {
+
+	type request struct {
+		No string `json:"no" binding:"required"` // 逗号分隔多个事件no/id
+	}
+
+	type ticket struct {
+		ID           int64  `json:"id"`
+		No           string `json:"no"`
+		Status       string `json:"status"`
+		ResponseCost int64  `json:"response_cost"`
+		ResolveCost  int64  `json:"resolve_cost"`
+	}
+
+	obj := make([]ticket, 0)
+	var req request
+
+	if c.BindJSON(&req) == nil {
+
+		no_arr := strings.Split(req.No, ",")
+
+		if err := orm.Db.Table("openc3_tt_ticket").Where("id in (?)", no_arr).Or("no in (?)", no_arr).Select("id, no, response_cost, resolve_cost, status").Find(&obj).Error; err != nil {
+			c.JSON(http.StatusOK, status_400(err.Error()))
+		} else {
+			c.JSON(http.StatusOK, status_200(obj))
+		}
+
+	}
+
+}
