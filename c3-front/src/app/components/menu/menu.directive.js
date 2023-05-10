@@ -25,9 +25,9 @@
             var toastr = toastr || $injector.get('toastr');
 
             // tree height auto
-            angular.element('.scroller').css('height', $window.innerHeight-95);
+            angular.element('.scroller').css('height', $window.innerHeight-140);
             angular.element($window).bind('resize', function(){
-                angular.element('.scroller').css('height', $window.innerHeight-95);
+                angular.element('.scroller').css('height', $window.innerHeight-140);
             });
 
             treeService.sync.then(function(){
