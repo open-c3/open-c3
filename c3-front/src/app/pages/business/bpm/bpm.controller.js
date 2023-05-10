@@ -82,7 +82,7 @@
             $http.post(`/api/job/bpm/manage/show/${name}/${Number(!+show)}`).success(function(data){
               if (data.stat){
                 vm.reload();
-                swal({ title: '删除成功', type: 'success' });
+                swal({ title: '执行成功', type: 'success' });
               }else {
                 swal({ title:'执行失败', text: data.info, type:'error' });
               }

@@ -22,7 +22,8 @@
     vm.reload = function () {
       $http.get(`/api/job/bpm/manage/conf/${vm.bpmManageName}`).success(function (data) {
         if (data.stat) {
-          const { base, step } = data.data
+          const base = data.data.base
+          const step = data.data.step
           vm.bpmManageAlias = base.alias
           vm.bpmManageDescribe = base.describe
           vm.allNewStep = step
