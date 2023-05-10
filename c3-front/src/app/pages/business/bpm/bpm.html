@@ -41,6 +41,14 @@
 
         </div>
     </div>
+    <div>
+      <div style="float: right;">
+          <form class="form-inline" name="myForm" novalidate>
+              <button type="submit" ng-disabled="myForm.$invalid" class="btn btn-primary" ng-click="businessbpm.addBpm()"><i class="fa fa-cube fa-lg" aria-hidden="true"></i> {{'C3T.新建流程'|translate}}</button>
+          </form>
+      </div>
+      <div style="clear: both;">&nbsp;</div>
+  </div>
 
     <div class="panel panel-dark">
 
@@ -57,11 +65,21 @@
                 <tr ng-repeat="ss in $data">
                     <td data-title="'C3T.名称'|translate">{{ss.name}}</td>
                     <td data-title="'C3T.别名'|translate">{{ss.alias}}</td>
-                    <td data-title="'C3T.类型'|translate">{{ss.type}}</td>
-                    <td data-title="'C3T.显示'|translate">{{ss.show}}</td>
+                    <td data-title="'C3T.类型'|translate">
+                      <div ng-if="ss.type=='sys'">{{'C3T.系统内置'| translate}}</div>
+                      <div ng-if="ss.type=='diy'">{{'C3T.自定义'| translate}}</div>
+                    </td>
+                    <td data-title="'C3T.显示'|translate">
+                      <div ng-if="ss.show==1">{{'C3T.是'| translate}}</div>
+                      <div ng-if="ss.show==0">{{'C3T.否'| translate}}</div>
+                    </td>
                     <td data-title="'C3T.操作'|translate">
-                        <button class="btn btn-warning btn-sm" ng-click="businessbpm.editBpm(ss.name)">{{'C3T.编辑'|translate}}</button>
-                        <button class="btn btn-danger btn-sm" ng-click="businessbpm.deleteBpm(ss.name)">{{'C3T.删除'|translate}}</button>
+                        <button class="btn btn-primary btn-sm" ng-click="businessbpm.runBpm(ss.name, ss.show)">
+                          <span ng-if="ss.show==1">{{'C3T.隐藏'| translate}}</span>
+                          <span ng-if="ss.show==0">{{'C3T.显示'| translate}}</span>
+                        </button>
+                        <button ng-show="ss.type === 'diy'" class="btn btn-warning btn-sm" ng-click="businessbpm.editBpm(ss.name)">{{'C3T.编辑'|translate}}</button>
+                        <button ng-show="ss.type === 'diy'" class="btn btn-danger btn-sm" ng-click="businessbpm.deleteBpm(ss.name)">{{'C3T.删除'|translate}}</button>
                     </td>
                 </tr>
             </table>
