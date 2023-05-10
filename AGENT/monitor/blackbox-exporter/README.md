@@ -48,4 +48,11 @@ cat /data/open-c3/prometheus/config/targets/blackbox-exporter-tcp.yml
   - 172.10.10.1:2181
   - 172.10.10.2:2181
 
+
+如果是icmp监控，请按照上面http的方式编辑如下文件
+
+cat /data/open-c3/prometheus/config/targets/blackbox-exporter-icmp.yml 
+- targets:
+  - 114.114.114.114
+
 ```
