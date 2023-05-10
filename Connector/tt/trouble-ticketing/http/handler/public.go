@@ -28,7 +28,7 @@ func PublicPostTicket(c *gin.Context) {
 		I      int64 `json:"i"`
 
 		SubmitUser string `json:"submit_user"`
-		ApplyUser  string `json:"apply_user"`
+		ApplyUser  string `json:"apply_user" binding:"required"`
 	}
 
 	var req reqT
@@ -43,14 +43,10 @@ func PublicPostTicket(c *gin.Context) {
 		workGroupId *int64
 		groupUserId *int64
 	)
+
 	workGroupId, groupUserId = findGroupIdAndUserId(req.Title)
 	if workGroupId == nil {
 		c.JSON(http.StatusOK, status_400_v2("没有找到默认的组和处理用户, 工单名称: "+req.Title))
-		return
-	}
-
-	if strings.TrimSpace(req.ApplyUser) == "" {
-		c.JSON(http.StatusOK, status_400_v2("apply user reqiured"))
 		return
 	}
 

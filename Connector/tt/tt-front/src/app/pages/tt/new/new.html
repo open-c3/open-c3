@@ -87,9 +87,9 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label class="col-md-3 control-label"><span translate="D.Base.group_user"></span>&nbsp;<span class="text-danger">&nbsp;</span></label>
+                        <label class="col-md-3 control-label"><span translate="D.Base.group_user"></span>&nbsp;<span class="text-danger">&nbsp;*</span></label>
                         <div class="col-md-9">
-                            <select class="form-control" size="1" ng-model="ttnew.ticket.group_user" convert-to-number>
+                            <select class="form-control" size="1" ng-model="ttnew.ticket.group_user" convert-to-number required>
                                 <option value=""></option>
                                 <option ng-repeat="v in ttnew.baseData.group_user track by $index" value="{{v.id}}" ng-if="v.group_id == ttnew.ticket.workgroup && v.disabled==0">{{v.priority}} - {{v.email}}</option>
                             </select>
