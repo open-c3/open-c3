@@ -351,19 +351,21 @@ post '/bpm/manage/conf/:bpmname' => sub {
 
     my ( $base, $step ) = @$param{qw( base step )};
     my $name = $param->{bpmname};
+    $name = "bpm-$name" unless $name =~ /^bpm-/;
+
     my @col = qw( name alias describe show type );
     my $conf = eval{ $api::mysql->query( sprintf( "select %s from openc3_job_bpm_menu where `name`='$name'", join ",", map{"`$_`"}@col ), \@col )}; 
     return +{ stat => $JSON::false, info => "get menu fail:$@" } if $@;
 
     if( @$conf )
     {
-        eval{ $api::mysql->execute( "update openc3_job_bpm_menu set `alias`='$base->{alias}',`describe`='$base->{describe}' where name='$param->{bpmname}'" )};
+        eval{ $api::mysql->execute( "update openc3_job_bpm_menu set `alias`='$base->{alias}',`describe`='$base->{describe}' where name='$name'" )};
         return +{ stat => $JSON::false, info => "update menu fail:$@" } if $@;
     }
     else
     {
 
-        eval{ $api::mysql->execute( "insert into openc3_job_bpm_menu(`name`,`alias`,`describe`,`show`,`type`)values('$param->{bpmname}','$base->{alias}','$base->{describe}','1','diy')" ) };
+        eval{ $api::mysql->execute( "insert into openc3_job_bpm_menu(`name`,`alias`,`describe`,`show`,`type`)values('$name','$base->{alias}','$base->{describe}','1','diy')" ) };
         return +{ stat => $JSON::false, info => "insert menu fail:$@" } if $@;
     }
 
@@ -392,7 +394,8 @@ post '/bpm/manage/conf/:bpmname' => sub {
         return +{ stat => $JSON::false, info => "save plugin step fail:$@" } if $@;
     }
 
-    return +{ stat => $JSON::true };
+    my $x = `/data/Software/mydan/JOB/bpm/bin/jobinit '$name'`;
+    return $? ? +{ stat => $JSON::false, info => "jobinit fail:$x" } : +{ stat => $JSON::true };
 };
 
 =pod
