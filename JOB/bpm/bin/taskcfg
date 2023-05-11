@@ -6,6 +6,8 @@ use YAML::XS;
 use JSON;
 use BPM::Flow;
 use BPM::Task::Config;
+use MIME::Base64;
+use Encode qw(encode);
 
 binmode STDOUT, ':utf8';
 
@@ -89,6 +91,13 @@ for my $grp ( sort @grp )
     }
 
     $var{_caseurl_} = "$c3webaddr/#/bpmcase/\${_bpmuuid_}";
+
+    for my $k ( keys %var )
+    {
+        next unless $var{$k} && ! ref $var{$k};
+        $var{"${k}__base64"} = encode_base64( encode('UTF-8',$var{$k}) );
+        chomp $var{"${k}__base64"};
+    }
 
    # 这里var进行两次替换，因为这里可能有变量嵌套
     for( 1.. 2 )
