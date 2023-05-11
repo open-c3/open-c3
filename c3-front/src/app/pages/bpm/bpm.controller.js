@@ -12,6 +12,10 @@
         vm.bpmuuid = $state.params.bpmuuid;
         vm.jobid = $state.params.jobid;
 
+        vm.emailReg = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
+        vm.inputValueType = ['email']
+        vm.inputValueTypeMap = {email: '邮箱'}
+
         vm.dinit = function() {
             vm.optionx = {};
             vm.valias = {};
@@ -58,6 +62,18 @@
             }
         };
  
+        vm.isEmailReg = function (item) {
+          if (item.value_type && vm.inputValueType.includes(item.value_type)) {
+            if (item.value === ''|| item.value === undefined) {
+              return true
+            } else if (item.value && vm.emailReg.test(item.value)) {
+              return true
+            }
+            return false
+          }
+          return true
+        }
+
         // 获取申请人基础信息/OA信息
         vm.useroainfoloadover = false;
         vm.getApplyUserOa = function( user ){
@@ -619,6 +635,7 @@
         vm.runTask = function(){
             var varDict = {};
 
+            const hasValueType = []
             angular.forEach(vm.valias, function (data, index) {
                 var aliasname = index + "__alias";
                 varDict[aliasname] = data;
@@ -626,6 +643,9 @@
  
             angular.forEach($scope.jobVar, function (data, index) {
                 varDict[data.name] = data.value;
+                if (data.value_type && vm.inputValueType.includes(data.value_type)) {
+                  hasValueType.push(data)
+                }
             });
             $scope.taskData.variable = varDict;
 
@@ -637,6 +657,13 @@
             $scope.taskData.variable['_sys_opt_']['variable']     = $scope.jobVar;
             $scope.taskData.variable['_sys_opt_']['multitempidx'] = vm.multitempidx;
 
+            const filterValue = hasValueType.filter(item => !vm.isEmailReg(item))
+            if (vm.fromopsdefault === '0' && filterValue.length > 0) {
+              const text = filterValue.map(item=> item.describe).join('、')
+              const textType = Array.from(new Set(filterValue.map(item=> vm.inputValueTypeMap[item.value_type]))).join('、')
+              swal({ title:'格式错误', text: `${text}需要填写${textType}格式`, type:'error' });
+              return
+            }
             resoureceService.work.runJobByName2Bpm(vm.defaulttreeid, {"jobname":$scope.choiceJob.name, "bpm_variable": $scope.taskData.variable, "variable": {} })
                 .then(function (repo) {
                     if (repo.stat){
@@ -744,6 +771,11 @@
         };
 
         vm.loadover = false;
+
+        vm.choiceJobChange = function (value) {
+          $scope.choiceJob = value
+        }
+
         $scope.$watch('choiceJob', function () {
             if( vm.bpmuuid != "0" )
             {
