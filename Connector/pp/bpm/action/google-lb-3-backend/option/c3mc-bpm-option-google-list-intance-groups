@@ -70,6 +70,7 @@ def main(params):
 
     result._array = sorted(result._array, key=lambda x: (x['name'].lower()), reverse=False)
 
+    print(json.dumps({"name": "智能选择 (编排时使用)"}, default=str))
     for item in result._array:
         print(json.dumps(item))
 

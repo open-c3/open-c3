@@ -1,0 +1,29 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib
+use strict;
+use warnings;
+
+$|++;
+
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+
+chdir "/data/Software/mydan/AGENT/conf" or die "chdir fail: $!";
+die "monitorbyexip fail: $!" if system "c3mc-device-monitorbyexip > openc3_uexip2.yml.temp.$$ && mv openc3_uexip2.yml.temp.$$ openc3_uexip2.yml";
+
+my %conf;
+for my $file ( qw( openc3_uexip1.yml openc3_uexip2.yml ) )
+{
+    next unless -f $file;
+    my $conf = eval{ YAML::XS::LoadFile $file };
+    die "load $file fail: $@" if $@;
+    next unless $conf;
+    %conf = ( %conf, %$conf );   
+}
+
+print YAML::XS::Dump \%conf;

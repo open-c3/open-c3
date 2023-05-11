@@ -11,8 +11,24 @@ use BPM::Flow;
 
 =cut
 
-my $menu = eval{ BPM::Flow->new()->menu(); };
-die "load menu fail: $@" if $@;
+my $grepjob = @ARGV ? $ARGV[0] : undef;
+my $menu;
+
+if( $grepjob )
+{
+    my @x = `c3mc-base-db-get '\`name\`' '\`alias\`' '\`describe\`' --table openc3_job_bpm_menu --filter 'name="$grepjob"'`;
+    chomp @x;
+    exit unless @x;
+
+    my @xx = split /;/,$x[0], 3;
+    $menu = [ +{ name => $xx[0], alias => $xx[1], describe => $xx[2] } ];
+
+}
+else
+{
+    $menu = eval{ BPM::Flow->new()->menu(); };
+    die "load menu fail: $@" if $@;
+}
 
 sub init
 {

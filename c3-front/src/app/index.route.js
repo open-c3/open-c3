@@ -623,10 +623,11 @@
             })
  
              .state('home.connector.settings', {
-                url: 'settings',
+                url: 'settings/:treeid',
                 templateUrl: 'app/pages/connector/settings/settings.html',
                 controller: 'ConnectorSettingsController',
-                controllerAs: 'connectorsettings'
+                controllerAs: 'connectorsettings',
+                params: {treeid: '4000000000'}
             })
  
              .state('home.connector.mesg', {

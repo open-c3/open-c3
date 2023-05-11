@@ -149,7 +149,7 @@ post '/proxy/:projectid/:regionid' => sub {
     my $r = eval{ 
         map{
         $api::mysql->execute(
-            "replace into openc3_agent_proxy(`regionid`,`ip`,`status`,`version`,`projectid`) 
+            "insert into openc3_agent_proxy(`regionid`,`ip`,`status`,`version`,`projectid`) 
                  values( '$param->{regionid}', '$_', 'success', '1.0.0', '$param->{projectid}' )" 
         )
         }@node;

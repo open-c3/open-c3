@@ -1,0 +1,33 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib
+use strict;
+use warnings;
+
+$|++;
+
+use File::Basename;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+for my $dir ( glob "/data/open-c3-data/device/curr/compute/*" )
+{
+    next unless -d $dir;
+    my $name = basename $dir;
+    next unless $name =~ /^[a-zA-Z\d][a-zA-Z\d\-]+[a-zA-Z\d]$/;
+
+    my @x = `c3mc-device-data-get curr compute '$name' _monitorbyexip_ 内网IP 公网IP`;
+    die "get $name _monitorbyexip_ fail: $?" if $?;
+    chomp @x;
+
+    for ( @x )
+    {
+        my ( $stat, $inip, $exip ) = split /\t/, $_;
+        next unless $stat && $stat eq 'yes';
+        next unless $inip && $inip =~ /^\d+\.\d+\.\d+\.\d+$/;
+        next unless $exip && $exip =~ /^\d+\.\d+\.\d+\.\d+$/;
+        print "$inip: $exip\n";
+    }
+}

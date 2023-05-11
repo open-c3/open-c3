@@ -71,7 +71,7 @@
             };
 
             vm.state = $state;
-            vm.state.params.treeid = vm.state.params.treeid ? vm.state.params.treeid : -1;
+            vm.state.params.treeid = vm.state.params.treeid ? vm.state.params.treeid : 4000000000;
 
             // get user
             $http.get('/api/connector/connectorx/sso/userinfo').success(function(data){
