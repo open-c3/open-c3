@@ -789,3 +789,37 @@ class GoogleCompute:
             backendService=backend_service).execute()
         self._wait_for_global_operation(response["name"])
 
+
+    def create_instance_group(self, zone, instance_group_name, self_link_list):
+        """创建实例组
+        Args:
+            zone (string): 区域
+            instance_group_name (string): 实例组名称
+            instance_details (list): Google Cloud 虚拟机详情数组
+        """
+        project_id = self.credentials.project_id
+
+        # 创建实例组
+        instance_group_body = {
+            "name": instance_group_name,
+            "description": "Instance group created using provided instance details",
+        }
+
+        instance_group = (
+            self.service.instanceGroups()
+            .insert(project=project_id, zone=zone, body=instance_group_body)
+            .execute()
+        )
+
+        # 将虚拟机添加到实例组
+        add_instance_body = {"instances": [{"instance": item} for item in self_link_list]}
+
+        response = self.service.instanceGroups().addInstances(
+            project=project_id,
+            zone=zone,
+            instanceGroup=instance_group_name,
+            body=add_instance_body,
+        ).execute()
+        self._wait_for_zone_operation(zone, response["name"])
+
+        return instance_group
