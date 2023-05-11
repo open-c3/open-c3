@@ -7,6 +7,7 @@ import time
 import urllib.request
 import subprocess
 import json
+import hashlib
 
 
 def print_c3debug1_log(msg):
@@ -179,3 +180,9 @@ def bpm_merge_user_input_tags(
         })
     instance_params[tag_field_name] = json.dumps(tag_list)
     return instance_params
+
+
+def cal_md5_on_dict(data):
+    json_data = json.dumps(data, sort_keys=True, ensure_ascii=False)
+    return hashlib.md5(json_data.encode('utf-8')).hexdigest()
+

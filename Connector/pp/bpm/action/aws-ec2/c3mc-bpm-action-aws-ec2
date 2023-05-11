@@ -1,6 +1,7 @@
 #!/usr/bin/env /data/Software/mydan/python3/bin/python3
 # -*- coding: utf-8 -*-
 
+import contextlib
 import sys
 import json
 import subprocess
@@ -12,7 +13,7 @@ import boto3
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
 from c3mc_cloud_aws_ec2 import LIB_EC2
-from c3mc_utils import bpm_merge_user_input_tags
+from c3mc_utils import bpm_merge_user_input_tags, cal_md5_on_dict
 
 
 must_set_iops_for_volume_types = [
@@ -134,7 +135,6 @@ class Ec2:
         }
         create_ec2_params["NetworkInterfaces"] = [networkInterfaceConfig]
 
-        create_ec2_params["ClientToken"] = self.instance_params["bpm_uuid"] + self.instance_params["_step_uuid_"]
         create_ec2_params["InstanceInitiatedShutdownBehavior"] = "stop"
         create_ec2_params["DisableApiTermination"] = False
         create_ec2_params["ImageId"] = self.instance_params["image_id"]
@@ -159,20 +159,19 @@ class Ec2:
 
         tags = []
         user_tag_list = []
-        try:
+        with contextlib.suppress(json.JSONDecodeError):
             # 如果用户没有配置标签，则instance_params["tag"]不是一个合法的json字符串
             user_tag_list = json.loads(self.instance_params["tag"])
-        except json.JSONDecodeError:
-            pass
-
         tags.extend(
             {"Key": params_tag["key"], "Value": params_tag["value"]}
             for params_tag in user_tag_list
         )
-            # tags.append({"Key": "Name", "Value": self.instance_params["name"]})
         instance_tag = {"ResourceType": "instance", "Tags": tags}
         volume_tag = {"ResourceType": "volume", "Tags": tags}
         create_ec2_params["TagSpecifications"] = [instance_tag, volume_tag]
+
+        # 使用当前参数计算clienttoken
+        create_ec2_params["ClientToken"] = cal_md5_on_dict(create_ec2_params)
         return create_ec2_params
 
     def bind_eip_to_ec2(self, instance_info_list, tags, name_info_m):
@@ -191,13 +190,16 @@ class Ec2:
             # eip的唯一标识符。请注意，AllocationId仅适用于VPC中的弹性IP地址
             allocationId = ""
 
-            # 尝试从已有的eip列表中查找一个未绑定实例的eip
-            for eip_item in eip_info_list:
-                if eip_item["Domain"] != "vpc":
-                    continue
-                if "InstanceId" in eip_item and eip_item["InstanceId"] != "":
-                    continue
-                allocationId = eip_item["AllocationId"]
+            # 暂时不再从旧的eip中使用空闲的eip，以后每次新建ec2都创建新的eip
+            # 这样可以避免绑定某些eip出现的错误
+            # 
+            # # 尝试从已有的eip列表中查找一个未绑定实例的eip
+            # for eip_item in eip_info_list:
+            #     if eip_item["Domain"] != "vpc":
+            #         continue
+            #     if "InstanceId" in eip_item and eip_item["InstanceId"] != "":
+            #         continue
+            #     allocationId = eip_item["AllocationId"]
             
             # 如果没找到未绑定的eip则创建一个eip
             if allocationId == "":
@@ -209,6 +211,7 @@ class Ec2:
                 raise RuntimeError("寻找空闲或创建eip失败")
             
             while True:
+                print(f"等待实例处于running状态, instance_id: {instance_id}")
                 instance_info = lib_ec2.describe_instances([instance_id])["Reservations"][0]["Instances"][0]
                 if instance_info["State"]["Name"].lower() == "running":
                     break
