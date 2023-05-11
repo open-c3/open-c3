@@ -252,7 +252,10 @@
                                 <div>
                                     <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;<a ng-if="ss.value == '' || ss.value == undefined" style="color: red" >*</a></label>
                                     <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;<a ng-if="ss.value == '' || ss.value == undefined" style="color: red" >*</a></label>
-                                    <div class="col-sm-6"> <input type="text" class="form-control" ng-change="bpm.optionxchange(ss.name, ss.value)" ng-model="ss.value" placeholder="{{'C3T.填写任务变量'|translate}}" required> </div>
+                                    <div class="col-sm-6 bpm-form-flex"> 
+                                      <input type="text" class="form-control" ng-change="bpm.optionxchange( ss.name, ss.value)" ng-model="ss.value" placeholder="{{'C3T.填写任务变量'|translate}}" required> 
+                                      <label class="col-sm-3 label-text-color bpm-label-text" ng-if="!bpm.isEmailReg(ss)">{{'C3T.请输入邮箱格式' | translate}}</label>
+                                    </div>
                                     <label class="col-sm-3 label-text-color" >{{ss.name}}</label>
                                 </div>
                             </div>
@@ -318,5 +321,16 @@
     <style>
       .label-text-color {
         color: #fff;
+      }
+      .bpm-form-flex {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      .bpm-label-text {
+        color: red;
+        margin-top: 5px;
+        width: 100%;
       }
     </style>
