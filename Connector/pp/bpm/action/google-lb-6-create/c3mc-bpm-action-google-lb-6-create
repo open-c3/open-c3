@@ -4,6 +4,7 @@
 import json
 import subprocess
 import sys
+import time
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
 from c3mc_cloud_google_compute import GoogleCompute
@@ -13,7 +14,7 @@ from c3mc_utils import decode_for_special_symbol
 
 
 class GoogleLB:
-    def __init__(self, params):
+    def __init__(self, params, self_links, vm_zone):
         self.param_base_info = params["google-lb-1"]
         self.param_frontend = params["google-lb-2-frontend"]
         self.param_backend = params["google-lb-3-backend"]
@@ -31,6 +32,14 @@ class GoogleLB:
 
         self.lib_client = self.create_lib_client()
         self.project_id = self.lib_client.get_project_id()
+
+        # 判断当前工单是否是编排中的工单
+        if "$" not in vm_zone:
+            # 编排工单中创建的实例组的名字
+            orch_instance_group_name = self.create_instance_group_in_orchestration(self_links, vm_zone)
+            for i in range(len(self.param_backend)):
+                self.param_backend[i]["instance_group"] = orch_instance_group_name
+        
         # 包含项目下所有实例组信息，方便后续使用。格式: 实例组名 -> 实例组详情
         self.instance_group_m = self.get_instance_info()
 
@@ -207,7 +216,6 @@ class GoogleLB:
                 response = self.lib_client.create_target_http_proxy(target_proxy_body)
             print(f"创建目标代理, 响应: {json.dumps(response)}")
 
-            # ---------------------------
             tags = {}
             for tag in json.loads(self.param_base_info["tag"]):
                 key = tag["key"].strip() 
@@ -260,10 +268,24 @@ class GoogleLB:
             print(f"LOG. instance_id:{instance_id}")
             print(f"VAR. instance_id:{instance_id}")
             print(f'VAR. extinstance_id:{self.param_base_info["account"]}.global.{instance_id}')
+    
+
+    def create_instance_group_in_orchestration(self, vm_self_links, vm_zone):
+        """当lb工单和其他工单编排使用时。目前只支持和vm工单编排使用
+        lb工单获取到vm工单输出的信息后创建实例组
+        """
+        if not vm_self_links:
+            return ""
+        
+        instance_group_name = f"orchestration-{int(time.time())}"
+        self.lib_client.create_instance_group(vm_zone, instance_group_name, vm_self_links)
+        return instance_group_name
 
 
 def main(params):
     print(f"params = {json.dumps(params)}")
+    self_links = params["self_link"].split(",")
+    vm_zone = params["vm_zone"]
 
     cmd_parts = [
         "c3mc-bpm-get-var",
@@ -286,7 +308,8 @@ def main(params):
 
     params = json.loads(output.stdout)
 
-    GoogleLB(params).run()
+
+    GoogleLB(params, self_links, vm_zone).run()
 
 
 if __name__ == "__main__":

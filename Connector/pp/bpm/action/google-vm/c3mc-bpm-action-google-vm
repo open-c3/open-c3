@@ -225,8 +225,10 @@ class Google:
     def print_instance_details(self, zone, instance_name):
         instance = self.lib_client.get_vm_info(zone, instance_name)
         instance_id = instance['id']
+        selfLink = instance['selfLink']
         print(f"LOG. instance_id:{instance_id}")
         print(f"VAR. instance_id:{instance_id}")
+        print(f"VAR. selfLink:{selfLink}")
         print(f"VAR. extinstance_id:{self.params['account']}.{self.params['region']}.{instance_id}")
 
 
