@@ -283,7 +283,7 @@ if( $name eq 'carry' )
     )->run(
         "cat $AGENT/conf/promesd.temp |                          c3mc-mon-carry --output $AGENT/conf/openc3_carry.yml",
         "cat $AGENT/conf/promesd.temp | awk -F';' '{print \$2}'| c3mc-mon-proxy --output $AGENT/conf/openc3_proxy.yml",
-        "cat $AGENT/conf/promesd.temp | awk -F';' '{print \$2}'| sort | uniq | c3mc-base-ipfilter -f '$uexip' | c3mc-base-uexip --output $AGENT/conf/openc3_uexip.yml",
+        "cat $AGENT/conf/promesd.temp | awk -F';' '{print \$2}'| sort | uniq | c3mc-base-ipfilter -f '$uexip' | c3mc-base-uexip --output $AGENT/conf/openc3_uexip1.yml",
         "c3mc-mon-treeinfo > /data/Software/mydan/Connector/local/treeinfo.txt.temp && mv /data/Software/mydan/Connector/local/treeinfo.txt.temp /data/Software/mydan/Connector/local/treeinfo.txt",
 #mysql
         "cat $AGENT/conf/promesdmysql.temp   | awk -F';' '{print \$2}'| c3mc-mon-proxy-port    --output $AGENT/conf/openc3_mysql_proxy.yml",
