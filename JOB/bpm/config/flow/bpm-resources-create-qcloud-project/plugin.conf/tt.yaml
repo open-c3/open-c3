@@ -1,0 +1,44 @@
+---
+name: 添加腾讯云项目
+option:
+  - name: project_name
+    describe: 项目名称
+    type: input
+    value: ""
+
+  - name: project_description
+    describe: 项目描述
+    type: input
+    value: ""
+
+  - name: department
+    describe: 项目所属部门
+    type: input
+    value: ""
+
+  - name: product_owner
+    describe: 业务负责人
+    type: input
+    value: ""
+    value_type: "email"
+
+  - name: ops_owner
+    describe: 运维负责人
+    type: input
+    value: ""
+    value_type: "email"
+
+  - name: note
+    describe: 申请理由
+    type: text
+    value: ""
+
+template_argv:
+  title:    "BPM/添加腾讯云项目"
+  content:  |
+    项目名称: ${project_name}
+    项目描述: ${project_description}
+    项目所属部门: ${department}
+    业务负责人: ${product_owner}
+    运维负责人: ${ops_owner}
+    申请理由: ${note}

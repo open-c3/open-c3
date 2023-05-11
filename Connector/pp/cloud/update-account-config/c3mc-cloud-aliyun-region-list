@@ -25,16 +25,26 @@ class Aliyun:
         try:
             response = client.do_action_with_exception(request)
         except Exception as e:
-            raise RuntimeError("拉取区域列表出错, ak: {}, resource_type: {}".format(self.access_id, self.resource_type)) from e
+            raise RuntimeError(
+                f"拉取区域列表出错, ak: {self.access_id}, resource_type: {self.resource_type}"
+            ) from e
 
-        result = []
-        for item in json.loads(str(response, encoding='utf-8'))["Regions"]["Region"]:
-            result.append(item["RegionId"])
+        result = [
+            item["RegionId"]
+            for item in json.loads(str(response, encoding='utf-8'))["Regions"][
+                "Region"
+            ]
+        ]
         return sorted(result)
 
     def display(self):
-        # 目前没有遇到不同资源区域不一致的问题
-        regions = self.list_ecs_regions()
+        regions = []
+
+        if self.resource_type == "oss":
+            regions = ["cn-beijing"]
+        else:
+            regions = self.list_ecs_regions()
+
         for region in regions:
             print(region)
 
@@ -44,4 +54,4 @@ def main(access_id, access_key, resource_type):
 
 
 if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2], sys.argv[3])
+    main(sys.argv[1], sys.argv[2], sys.argv[4])
