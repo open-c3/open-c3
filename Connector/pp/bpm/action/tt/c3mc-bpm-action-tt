@@ -4,10 +4,28 @@
 import sys
 import json
 import subprocess
+import re
+import base64
+
+
+def replace_base64_substring(long_string):
+    base64_regex = r'base64__\s*([\s\S]*?)__base64'
+    matches = re.findall(base64_regex, long_string)
+
+    for match in matches:
+        base64_string = match
+        decoded_bytes = base64.b64decode(base64_string)
+        decoded_string = decoded_bytes.decode('utf-8')
+        string_with_colon = f': {decoded_string}'
+        long_string = long_string.replace(f'base64__{match}__base64', string_with_colon)
+
+    return long_string
 
 
 def create_tt(params):
     content = params["content"]
+
+    content = replace_base64_substring(content)
 
     submit_user = params['submit_user'] if 'submit_user' in params else "sys@app"
     ext_tt = subprocess.getoutput("c3mc-sys-ctl sys.bpm.tt.type")
