@@ -60,10 +60,11 @@ sub call
         header => [
             From    => $conf{from},
             To      => $user,
-            Subject => $subject,
+            Subject => encode("gb2312", decode("utf8", $subject)),
 
             'Content-Type' => 'text/plain',
-            'charset'      => 'UTF-8',
+            'charset'      => 'GB2312',
+            #'charset'      => 'UTF-8',
         ],
         body => $content,
     );

@@ -47,7 +47,9 @@ my $cont = $approver =~ /encode=1/
     : JSON::encode_json( +{ submitter => $o{submitter}, approver => $o{approver}, content => $content } );
 my $res = $ua->post( $approver, Content => $cont, 'Content-Type' => 'application/json' );
 
-my $err = sprintf "call approver fail: $approver\n%s\n", YAML::XS::Dump $res;
+my $error = Encode::decode( 'utf8', $res->content // '' ) . Encode::decode( 'utf8', YAML::XS::Dump $res );
+
+my $err = sprintf "call approver fail: $approver\n%s\n", $error;
 $err =~ s/appkey:\s+['"]?[a-zA-Z0-9]{32}['"]?\b/appkey: ******/g;
 
 die sprintf( "$err: code %s", $res->code ) unless $res->is_success;
