@@ -68,7 +68,7 @@ def describe_regions(access_id, access_key):
                 aws_secret_access_key=access_key,
                 region_name=region
             )
-            response = client.describe_regions(AllRegions=True)
+            response = client.describe_regions(AllRegions=False)
             sorted_regions = sorted(response["Regions"], key=lambda x: x['RegionName'], reverse=False)
             result.extend(
                 {
