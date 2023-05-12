@@ -1,0 +1,30 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import json
+import sys
+
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_aliyun_vpc import LibVpc
+
+
+class VPC:
+    def __init__(self, access_id, access_key, region):
+        self.lib_client = LibVpc(access_id, access_key, region)
+
+    def list_vpcs_with_tags(self):
+        return self.lib_client.list_vpcs_with_tags()
+
+    def show(self):
+        data_list = self.list_vpcs_with_tags()
+        for item in data_list:
+            print(json.dumps(item, default=str))
+
+
+def main(access_id, access_key, region):
+    VPC(access_id, access_key, region).show()
+
+
+if __name__ == "__main__":
+    main(sys.argv[1], sys.argv[2], sys.argv[3])
