@@ -456,10 +456,11 @@
                 controllerAs: 'historyjob',
             })
             .state('home.history.bpm', {
-                url: 'bpm/:treeid',
+                url: 'bpm/:treeid/:type',
                 templateUrl: 'app/pages/history/bpm/bpm.html',
                 controller: 'HistoryBpmController',
                 controllerAs: 'historybpm',
+                params: {treeid: '4000000000', type: 'all'}
             })
 
             // business

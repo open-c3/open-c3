@@ -157,19 +157,19 @@
                 <li class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">{{'C3T.我的'|translate}}</div> </li>
 
                 <li ng-if="nav.user.menu['BPM.我的待办任务'] == 1" class="list-group-item">
-                    <a style="padding: 8px 9px 8px 37px;" href="/#/history/bpm/0?mytask=1" target="_blank" class="animated animated-short fadeInUp" > <span>{{'C3T.我的待办任务'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.history.bpm({treeid: nav.state.params.treeid, type: 'mytask' })"   class="animated animated-short fadeInUp" > <span>{{'C3T.我的待办任务'|translate}}</span> </a>
                 </li>
                 <li ng-if="nav.user.menu['BPM.处理过的任务'] == 1" class="list-group-item">
-                    <a style="padding: 8px 9px 8px 37px;" href="/#/history/bpm/0?mylink=1" target="_blank" class="animated animated-short fadeInUp" > <span>{{'C3T.处理过的任务'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.history.bpm({treeid: nav.state.params.treeid, type: 'mylink' })"   class="animated animated-short fadeInUp" > <span>{{'C3T.处理过的任务'|translate}}</span> </a>
                 </li>
                 <li ng-if="nav.user.menu['BPM.我发起的任务'] == 1" class="list-group-item">
-                    <a style="padding: 8px 9px 8px 37px;" href="/#/history/bpm/0?myflow=1" target="_blank" class="animated animated-short fadeInUp"> <span>{{'C3T.我发起的任务'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.history.bpm({treeid: nav.state.params.treeid, type: 'myflow' })"   class="animated animated-short fadeInUp"> <span>{{'C3T.我发起的任务'|translate}}</span> </a>
                 </li>
 
                 <li class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">{{'C3T.全局'|translate}}</div> </li>
 
                 <li ng-if="nav.user.menu['BPM.全部流程列表'] == 1" class="list-group-item">
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.history.bpm({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.全部流程列表'|translate}}</span> </a>
+                  <a style="padding: 8px 9px 8px 37px;" ui-sref="home.history.bpm({treeid: nav.state.params.treeid, type: 'all'})" class="animated animated-short fadeInUp" > <span>{{'C3T.全部流程列表'|translate}}</span> </a>
                 </li>
  
                 <li class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">{{'C3T.管理'|translate}}</div> </li>
