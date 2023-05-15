@@ -18,7 +18,7 @@ local $/ = "\n";
 
 die "node data" unless $data;
 map { $data->{$_} = Encode::decode( 'utf8', $data->{$_} ) }keys %$data;
-my ( $temp ) = @$data{qw( leader )};
+my ( $caseurl, $submitter ) = @$data{qw( caseurl submitter )};
 
 my $db = MYDB->new( "/data/Software/mydan/JOB/conf/conn", delayedconnection => 1 );
 
@@ -35,6 +35,9 @@ sub leaderwait
     die "replace error: $@" if $@;
 
     system "c3mc-bpm-user-record '$user'";
+
+    system "echo -n '$caseurl'|c3mc-base-sendmail '$user' --subject '$submitter 提交了一个BPM需要您处理'";
+    system "echo -n '$submitter 提交了一个BPM需要您处理: $caseurl'|c3mc-base-sendmesg '$user'";
     
     print "LOG. Waiting for user $user to process\n";
 

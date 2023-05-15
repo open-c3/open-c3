@@ -35,12 +35,12 @@ while(<STDIN>)
 
 my @include;
 my $includetodo = 0;
-my $inclidefile = "/data/open-c3-data/monitor-config/include.tree.txt";
+my $includefile = "/data/open-c3-data/monitor-config/include.tree.txt";
 
-if( -f $inclidefile )
+if( -f $includefile )
 {
     $includetodo = 1;
-    @include = `cat '$inclidefile'`;
+    @include = `cat '$includefile'`;
     chomp @include;
     die "include null" unless @include; # 防止获取内容失败
 }
@@ -55,6 +55,28 @@ sub grepInclude
         map{ return 1 if $treename eq $_ || index( $treename, "$_." ) == 0; }@include;
     }
     return 0;
+}
+
+my @exclude;
+my $excludetodo = 0;
+my $excludefile = "/data/open-c3-data/monitor-config/exclude.tree.txt";
+
+if( -f $excludefile )
+{
+    $excludetodo = 1;
+    @exclude = `cat '$excludefile'`;
+    chomp @exclude;
+    die "exclude null" unless @exclude; # 防止获取内容失败
+}
+
+
+my %excludenode;
+my $excludenodefile = "/data/open-c3-data/monitor-config/exclude.node.txt";
+if( -f $excludenodefile )
+{
+    my @x = `cat '$excludenodefile'`;
+    chomp @x;
+    map{ $excludenode{$_} ++ }@x;
 }
 
 # treemap: treeid => treename
@@ -77,6 +99,9 @@ for my $ip ( keys %ip )
     my %lables = ( instance => $ip, "__metrics_path__" => "/api/agent/v3/node/metrics/$ip", treeid => 1 );
 
     next if $includetodo && ! grepInclude( map{ $treemap{$_} // "" }keys %{$ip{$ip}} );
+    next if $excludetodo &&   grepInclude( map{ $treemap{$_} // "" }keys %{$ip{$ip}} );
+
+    next if $excludenode{$ip};
 
     map{
         $lables{"treeid_$_"} = $treemap{$_} || "1";

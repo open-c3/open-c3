@@ -1,0 +1,40 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import json
+import sys
+import subprocess
+
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_aws_ec2 import LIB_EC2
+
+
+def list_all_instances_of_region(access_id, access_key, region):
+    return LIB_EC2(access_id, access_key, region).describe_all_instances_of_region()
+
+
+def main(params):
+    """查询aws区域下的ec2列表
+    """
+    
+    account = params["account"]
+    region = params["region"]
+
+    key_info = json.loads(
+        subprocess.getoutput(f"c3mc-get-account-info aws {account}")
+    )
+
+    data_list = list_all_instances_of_region(key_info["access_id"], key_info["access_key"], region)
+    data_list = sorted(data_list, key=lambda x: (x['InstanceId'].lower()), reverse=False)
+
+    for item in data_list:
+        print(json.dumps(item, default=str))
+
+
+if __name__ == '__main__':
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
+
+    main(json.loads(l[0]))

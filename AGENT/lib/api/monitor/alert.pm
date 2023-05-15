@@ -107,7 +107,7 @@ post '/monitor/alert/tott/:projectid' => sub {
         my $title = "监控事件:" . Encode::encode("utf8",$param->{labels}{alertname} ). '['.Encode::encode("utf8",$param->{labels}{instance} ). ']';
         $title =~ s/'//g;
         my $x = `cat '$file'|c3mc-create-ticket --title '$title' $ext_tt 2>&1`;
-        die "err: $x" if $?;
+        die sprintf( "err: %s", Encode::decode("utf8", $x ) )if $?;
         $x =~ s/\n//g;
         die "create tt fail" unless $x && $x =~ /^[A-Z][A-Z0-9]+$/;
         my $uuid = $param->{uuid};
