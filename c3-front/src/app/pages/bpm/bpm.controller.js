@@ -12,6 +12,7 @@
         vm.bpmuuid = $state.params.bpmuuid;
         vm.jobid = $state.params.jobid;
 
+        vm.queryChoiceFlag = false;
         vm.emailReg = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
         vm.inputValueType = ['email']
         vm.inputValueTypeMap = {email: '邮箱'}
@@ -50,6 +51,11 @@
             'variable':{},
             'uuid':null,
         };
+
+        if ($state.params.choicejob) {
+          vm.queryChoiceFlag = true
+          $scope.choiceJob = $state.params.choicejob
+        }
 
         vm.isstring = function ( obj ) {
             if( typeof obj === 'string')

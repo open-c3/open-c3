@@ -1,0 +1,32 @@
+<div class="panel panel-primary modal-search-content" style="width: 100%">
+
+  <div class="panel-body modal-search-content-div">
+    <div class="panel panel-dark menu-panel-searchs">
+      <div class="menu-panel-searchs-box">
+        <div class="panel-body menu-panel-search-content">
+          <i class="fa fa-search fa-lg menu-panel-search-content-icon" aria-hidden="true"></i>
+          <input type="text" class="menu-panel-search-content-input" ng-model="search.choiceSearch"
+            placeholder="{{'C3T.输入进行搜索' | translate}}" ng-change="search.inputChange()">
+            <span class="append-icon right fs18 pointer" ng-click="search.handleClear()" ng-show="search.choiceSearch && search.choiceSearch !== ''">
+              <i class="fa fa-times"></i>
+            </span>
+        </div>
+      </div>
+      <div class="panel panel-dark menu-panel-card">
+        <div ng-if="search.cardMenu.length === 0">
+          {{'C3T.暂无匹配结果'| translate}}
+        </div>
+        <div ng-if="search.cardMenu.length !== 0" ng-repeat="item in search.cardMenu" class="menu-panel-card-items"
+          ng-click="search.handleCardClick(item)">
+          <div class="menu-panel-card-items-icon">
+            <img src="{{!item.icon ? '/assets/images/bpm.png': item.icon}}" />
+          </div>
+          <div class="menu-panel-card-items-content">
+            <div title="{{item.alias}}" class="menu-panel-card-items-content-title">{{item.alias}}</div>
+            <div title="{{item.describe}}" class="menu-panel-card-items-content-describe">{{item.describe}}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
