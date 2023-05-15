@@ -564,9 +564,9 @@ func mergeEmailBody(bodyContent string, md metadataType) (string, error) {
 	//content := fmt.Sprintf("{{template \"header\"}}%s{{template \"footer\"}}", bodyContent)
 	bodyParse := template.New("body")
 	bodyT, err := bodyParse.Funcs(template.FuncMap{
-		"html": func(value interface{}) template.HTML {
-			return template.HTML(fmt.Sprint(value))
-		},
+		// "html": func(value interface{}) template.HTML {
+		// 	return template.HTML(fmt.Sprint(value))
+		// },
 		"timeformat": func(t time.Time) template.HTML {
 			return template.HTML(t.Format("2006-01-02 15:04:05"))
 		},
@@ -577,9 +577,9 @@ func mergeEmailBody(bodyContent string, md metadataType) (string, error) {
 				return template.HTML("未超时")
 			}
 		},
-		"emailparse": func(e string) template.HTML {
-			return template.HTML(fmt.Sprintf("<a rel='nofollow' style='text-decoration:none;'>%s</a>", e))
-		},
+		// "emailparse": func(e string) template.HTML {
+		// 	return template.HTML(fmt.Sprintf("<a rel='nofollow' style='text-decoration:none;'>%s</a>", e))
+		// },
 	}).Parse(bodyContent)
 	fmt.Println("parse err:", err)
 	if err != nil {

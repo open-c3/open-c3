@@ -109,10 +109,18 @@
             $window.open(url);
         };
 
+        vm.deepClone = function(obj){
+            return JSON.parse(JSON.stringify(obj));
+        }
+
         // submit
         vm.submit = function(){
+            var new_ticket = vm.deepClone(vm.ticket)
 
-            if (angular.equals(vm.ticket, vm.oldTicket)){
+            var regex = new RegExp("<br/>", "g");
+            new_ticket.content = vm.ticket.content.replace(regex, "\n")
+
+            if (angular.equals(new_ticket, vm.oldTicket)){
                 toastr.warning("Nothing to update.");
                 return;
             }
@@ -211,8 +219,15 @@
                 }
                 if (data.code == 200){
                     vm.ticket = data.data;
+
+                    const regex = new RegExp("\n", "g");
+                    var new_content = vm.ticket.content.replace(regex, "<br/>")
+                    vm.ticket.content = new_content;
+
                     vm.oldTicket = {};
                     angular.copy(data.data,vm.oldTicket);
+                    vm.oldTicket.content = new_content;
+
                     vm.uploader.url = '/api/tt/attachment/upload/' + vm.ticket.id;
                     vm.uploader.queueLimit = 5-vm.ticket.attachment.length;
 
