@@ -1,0 +1,59 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+import json
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_aws_ec2 import LIB_EC2
+
+
+class ModifyEc2:
+    def __init__(self, access_id, access_key, region):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.region = region
+        self.lib_client = self.create_lib_client()
+
+    def create_lib_client(self):
+        return LIB_EC2(self.access_id, self.access_key, self.region)
+    
+    def run(self, instance_id, new_instance_type):
+        self.lib_client.stop_instances([instance_id])
+        self.lib_client.wait_until_stopped(instance_id)
+        self.lib_client.modify_instance_attribute({
+            "InstanceId": instance_id,
+            "InstanceType": {
+                'Value': new_instance_type
+            },
+        })
+        self.lib_client.start_instances([instance_id])
+
+
+def main(params):
+    print("params = ", json.dumps(params), file=sys.stderr)
+
+    if subprocess.getoutput("c3mc-sys-ctl sys.bpm.fake.run") == "1":
+        # bpm虚假运行
+        print("成功修改aws ec2实例类型, 响应为: xxxxxx")
+        print("LOG. instance_id:xxxxxx")
+        print("VAR. instance_id:xxxxxx")
+    else:
+        account = params["account"]
+        region = params["region"]
+        key_info = json.loads(subprocess.getoutput(
+            f"c3mc-get-account-info aws {account}"))
+
+        client = ModifyEc2(key_info["access_id"], key_info["access_key"], region)
+        client.run(params["instance_id"], params["instance_type"])
+        print(f"VAR. 成功修改aws ec2实例类型")
+
+
+if __name__ == '__main__':
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
+
+    main(json.loads(l[0]))

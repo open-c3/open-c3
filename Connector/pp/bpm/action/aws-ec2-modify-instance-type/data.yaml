@@ -1,0 +1,59 @@
+---
+name: 修改AWS EC2机器类型
+multi: 1
+fromops: 1
+option:
+  - name: account
+    describe: 账号
+    command: c3mc-display-cloud-account-list aws
+    type: selectx
+
+  - name: region
+    describe: 区域
+    rely:
+      - account
+    command: c3mc-ec2-describe-regions | c3mc-bpm-display-field-values "{code}; 名称:{name}, 区域代码:{code}"
+    type: selectx
+    information: "如果区域列表缺少某些区域，原因是你的账户未启用对应区域"
+
+  - name: az
+    describe: 可用区
+    rely:
+      - account
+      - region
+    command: c3mc-ec2create-describe-availability-zones | c3mc-bpm-display-field-values ZoneName
+    type: selectx
+
+  - name: instance_id
+    describe: 实例ID
+    rely:
+      - account
+      - region
+    command: c3mc-ec2modify-describe-ec2-instances | c3mc-bpm-display-field-values "{InstanceId}; 实例ID:{InstanceId}, 内网IP:{PrivateIpAddress}, 公网IP:{PublicIpAddress}, 原系统架构:{Architecture}, 原实例类型:{InstanceType}"
+    type: selectx
+
+  - name: architecture
+    describe: 新系统架构
+    option: ["arm64", "x86_64"]
+    type: select
+    value: ""
+
+  - name: instance_type
+    describe: 新实例类型
+    rely:
+      - account
+      - region
+      - az
+      - architecture
+    command: c3mc-ec2create-describe-instance-type-offerings | c3mc-bpm-display-field-values "{instance_type};实例类型:{instance_type}, Cpu:{cpu}核, 内存:{memory}GB"
+    type: selectx
+    information: "数据量较大, 可能需要20秒左右响应时间"
+
+template_argv:
+  bpm_uuid: ${_bpmuuid_}
+
+  account: ${account}
+  region: ${region}
+
+  instance_id: ${instance_id}
+  instance_type: ${instance_type}

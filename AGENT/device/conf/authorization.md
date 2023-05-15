@@ -111,10 +111,12 @@
                 "ec2:DescribeImages",
                 "ec2:DescribeSecurityGroups",
                 "ec2:StopInstances",
+                "ec2:StartInstances",
                 "ec2:AllocateAddress",
                 "ec2:DisassociateAddress",
                 "ec2:ReleaseAddress",
                 "ec2:TerminateInstances",
+                "ec2:ModifyInstanceAttribute",
                 "iam:CreateRole",
                 "iam:AddRoleToInstanceProfile",
                 "iam:DetachUserPolicy",
@@ -153,7 +155,8 @@
                 "s3:GetBucketTagging",
                 "elasticache:RemoveTagsFromResource",
                 "elasticache:AddTagsToResource",
-                "elasticache:DescribeCacheClusters"
+                "elasticache:DescribeCacheClusters",
+                "sts:DecodeAuthorizationMessage"
             ],
             "Resource": "*"
         }
