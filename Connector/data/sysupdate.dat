@@ -884,3 +884,14 @@ create table if not exists `openc3_job_bpm_menu`(
 `time`    TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '时间',
 UNIQUE KEY `uniq_name` (`name`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='BPM菜单';
+
+# v2.6.0 sql openc3_connector_navigation create
+create table if not exists `openc3_connector_navigation`(
+`id` int(16) unsigned not null primary key auto_increment comment 'id',
+`name`      VARCHAR(200)  comment '名称',
+`describe`  VARCHAR(2000) comment '描述',
+`url`       VARCHAR(2000) comment 'url',
+`show`      VARCHAR(10)   DEFAULT '1'  comment '是否显示',
+`time`    TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '时间',
+UNIQUE KEY `uniq_name` (`name`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='网址导航';
