@@ -89,7 +89,7 @@
             }
 
             vm.openCI = function (idx, next_name) {
-                var ciurl = $scope.ciUrls[$scope.envir][idx].url + "/#/dashboard/" + vm.state.params.treeid;
+                var ciurl = $scope.ciUrls[$scope.envir][idx].url + "/#/search/" + vm.state.params.treeid;
                 if ($scope.envir == "test"){
                     window.open(ciurl, '_blank');
                     return

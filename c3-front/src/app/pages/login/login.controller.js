@@ -65,7 +65,7 @@
                                 {
                                     if( vm.callback == undefined )
                                     {
-                                        $state.go('home.dashboard', {treeid:-1});
+                                        $state.go('home.search', {treeid:4000000000});
                                     }
                                     else
                                     {
@@ -80,7 +80,7 @@
 
                             if( vm.callback == undefined )
                             {
-                                $state.go('home.dashboard', {treeid:-1});
+                                $state.go('home.search', {treeid:4000000000});
                             }
                             else
                             {

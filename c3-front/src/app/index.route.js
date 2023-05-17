@@ -540,7 +540,8 @@
                 url: 'bpm/:treeid/:bpmuuid',
                 templateUrl: 'app/pages/bpm/bpm.html',
                 controller: 'BpmController',
-                controllerAs: 'bpm'
+                controllerAs: 'bpm',
+                params: {treeid: '4000000000', bpmuuid: '0', choicejob: null}
             })
             .state('home.assignment', {
                 url: 'assignment/:treeid',
@@ -782,6 +783,13 @@
                 url:'error/500',
                 templateUrl: 'app/pages/others/500.html'
             })
+            .state('home.search', {
+              url: 'search/:treeid',
+              templateUrl: 'app/pages/search/search.html',
+              controller: 'SearchPageController',
+              controllerAs: 'search',
+              params: {treeid: '4000000000'}
+          })
 
             .state('log', {
                 url: '/api/log/:id',
@@ -791,7 +799,7 @@
             });
 
 
-        $urlRouterProvider.otherwise('/dashboard/4000000000');
+        $urlRouterProvider.otherwise('/search/4000000000');
     }
 
 })();
