@@ -106,7 +106,7 @@
                              ){
                                 $state.go(sName, {treeid:treeNode.id});
                             }else{
-                                $state.go('home.dashboard', {treeid:treeNode.id});
+                                $state.go('home.search', {treeid:treeNode.id});
                             }
 
                             if( sName == 'home.kubernetesmanage' )

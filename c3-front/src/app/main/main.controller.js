@@ -6,7 +6,7 @@
         .controller('MainController', MainController);
 
     /** @ngInject */
-    function MainController($rootScope, $uibModal, $state) {
+    function MainController($rootScope, $uibModal, $state, $location) {
         $rootScope.back = function() {
             $window.history.back();
         };
@@ -40,6 +40,12 @@
         vm.handleModalIsOpen = function () {
           vm.modalIsOpen = modalInstance && modalInstance.closed !== true;
         }
+
+        // 监听路由变化
+        $rootScope.$watch(function() { return $location.path(); }, function(newPath) {
+          vm.selectLocation = newPath.includes('/search')
+          vm.isShowSearch = !vm.selectLocation
+        });
     }
 
 })();

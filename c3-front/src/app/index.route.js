@@ -784,10 +784,11 @@
                 templateUrl: 'app/pages/others/500.html'
             })
             .state('home.search', {
-              url: 'search',
+              url: 'search/:treeid',
               templateUrl: 'app/pages/search/search.html',
               controller: 'SearchPageController',
-              controllerAs: 'search'
+              controllerAs: 'search',
+              params: {treeid: '4000000000'}
           })
 
             .state('log', {
@@ -798,7 +799,7 @@
             });
 
 
-        $urlRouterProvider.otherwise('/dashboard/4000000000');
+        $urlRouterProvider.otherwise('/search/4000000000');
     }
 
 })();
