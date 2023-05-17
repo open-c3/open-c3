@@ -12,15 +12,20 @@
     vm.cardMenu = [];
     vm.defaultSearchArr = []
     vm.choiceSearch = null
+    vm.iconMap = {
+      bpm: '/assets/images/bpm.png',
+      navigation: '/assets/images/navigation.png',
+    }
 
     vm.reload = function () {
       vm.searchloadover = true;
-      $http.get('/api/job/bpm/menu').success(function (data) {
+      $http.get('/api/connector/navigation/menu').success(function (data) {
         vm.searchloadover = false;
         if (data.stat) {
           vm.cardMenu = data.data;
           vm.defaultSearchArr = data.data
         } else {
+          vm.searchloadover = false;
           swal({ title: '获取菜单失败', text: data.info, type: 'error' });
           vm.cardMenu = []
         }
@@ -29,8 +34,8 @@
     vm.reload();
 
     vm.handleCardClick = function (items) {
-      $state.go('home.bpm', { treeid: vm.treeid, bpmuuid: 0, choicejob: items })
-      vm.cancel();
+      if (!items.url) return
+      window.open(items.url)
     }
 
     vm.buttonSubmit = function () {
@@ -39,7 +44,7 @@
         vm.cardMenu = defaultArr;
         return;
       }
-      vm.cardMenu = defaultArr.filter(item => item.alias.includes(vm.choiceSearch));
+      vm.cardMenu = defaultArr.filter(item => item.name.includes(vm.choiceSearch));
     }
 
     vm.handleClear = function () {
