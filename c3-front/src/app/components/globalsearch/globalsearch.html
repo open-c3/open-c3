@@ -22,7 +22,7 @@
         </div>
       </div>
       <div class="panel panel-dark menu-panel-card">
-        <div ng-if="globalsearch.cardMenu.length === 0">
+        <div ng-if="!globalsearch.searchloadover && globalsearch.cardMenu.length === 0">
           {{'C3T.暂无匹配结果'| translate}}
         </div>
         <div ng-if="globalsearch.cardMenu.length !== 0" ng-repeat="item in globalsearch.cardMenu" class="{{item.url === ''? 'menu-panel-card-disable-items': 'menu-panel-card-items'}}"
