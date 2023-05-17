@@ -27,8 +27,7 @@
 
     <ul class="nav navbar-nav navbar-left">
       <li class="nav-padding">
-        <!-- ng-if="nav.user.menu['搜索'] == 1" -->
-        <a  ui-sref="home.search({treeid: nav.state.params.treeid})" > <span>{{'C3T.搜索'|translate}}</span> </a>
+        <a ng-if="nav.user.menu['导航'] == 1" ui-sref="home.search({treeid: nav.state.params.treeid})" > <span>{{'C3T.导航'|translate}}</span> </a>
     </li>
     </ul>
 
@@ -112,7 +111,7 @@
                 <a ng-if="nav.user.menu['业务管理.定时作业'] == 1" ui-sref="home.business.crontab({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-clock-o"></span><span>{{'C3T.定时作业'|translate}}</span> </a>
                 <a ng-if="nav.user.menu['业务管理.代理设置'] == 1" ui-sref="home.business.agent({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-gg"></span><span>{{'C3T.代理设置(AGENT安装)'|translate}}</span> </a> 
                 <a ng-if="nav.user.menu['业务管理.变量查看'] == 1" ui-sref="home.business.variate({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-list-ul"></span> <span>{{'C3T.变量查看'|translate}}</span> </a> 
-                <a ng-if="nav.user.menu['仪表盘'] == 1" ui-sref="home.dashboard({treeid: nav.state.params.treeid})" > <span>{{'C3T.仪表盘'|translate}}</span> </a>
+                <a ng-if="nav.user.menu['业务管理.仪表盘'] == 1" ui-sref="home.dashboard({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-dashboard"></span><span>{{'C3T.仪表盘'|translate}}</span> </a>
               </li>
             </ul>
         </li>
