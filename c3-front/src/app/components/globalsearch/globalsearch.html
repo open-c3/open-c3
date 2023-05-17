@@ -1,3 +1,4 @@
+<div><cmloading ng-if="globalsearch.searchloadover"></cmloading></div>
 <div class="panel panel-primary modal-search-content" style="width: 100%">
   <div class="panel-heading">
     <span class="panel-controls">
@@ -24,13 +25,14 @@
         <div ng-if="globalsearch.cardMenu.length === 0">
           {{'C3T.暂无匹配结果'| translate}}
         </div>
-        <div ng-if="globalsearch.cardMenu.length !== 0" ng-repeat="item in globalsearch.cardMenu" class="menu-panel-card-items"
+        <div ng-if="globalsearch.cardMenu.length !== 0" ng-repeat="item in globalsearch.cardMenu" class="{{item.url === ''? 'menu-panel-card-disable-items': 'menu-panel-card-items'}}"
           ng-click="globalsearch.handleCardClick(item)">
           <div class="menu-panel-card-items-icon">
-            <img src="{{!item.icon ? '/assets/images/bpm.png': item.icon}}" />
+            <img src="{{!globalsearch.iconMap[item.icon] ? globalsearch.iconMap['bpm']: globalsearch.iconMap[item.icon]}}" />
+
           </div>
           <div class="menu-panel-card-items-content">
-            <div title="{{item.alias}}" class="menu-panel-card-items-content-title">{{item.alias}}</div>
+            <div title="{{item.name}}" class="menu-panel-card-items-content-title">{{item.name}}</div>
             <div title="{{item.describe}}" class="menu-panel-card-items-content-describe">{{item.describe}}</div>
           </div>
         </div>
