@@ -48,7 +48,7 @@
                                 <i ng-if="!bpm.jobsloadover" class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!bpm.jobsloadover}" ></i>
                             </label>
                             <div class="col-sm-6">
-                              <ui-select style="font-size: 15px;height: 42px; box-shadow: none;" ng-model="choiceJob" ng-change="bpm.choiceJobChange($select.selected)" ng-disabled="bpm.bpmuuid!='0' || bpm.bpmname" required>
+                              <ui-select style="font-size: 15px;height: 42px; box-shadow: none;" ng-model="choiceJob" ng-change="bpm.choiceJobChange($select.selected)" ng-disabled="bpm.bpmuuid!='0'" required>
                                 <ui-select-match> <span class="item-label">{{$select.selected.alias}}</span></ui-select-match>
                                 <ui-select-choices repeat="item in bpm.menu | filter: $select.search">
                                   <div ng-bind-html="item.alias | highlight: bpm.optionx[ss.name]"></div>
