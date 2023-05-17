@@ -42,7 +42,7 @@ sub save
     my ( $type, $subtype, $uuid, $tree ) = split /;/, $row, 4;
     return unless $tree;
 
-    die "uuid err[$uuid]" unless $uuid && $uuid =~ /^[a-zA-Z0-9][a-zA-Z0-9\.\-_]*[a-zA-Z0-9]$/;
+    die "uuid err[$uuid]" unless $uuid && $uuid =~ /^[a-zA-Z0-9][a-zA-Z0-9\.\-_:]*[a-zA-Z0-9]$/;
     checktree( $tree );
     $tree = OPENC3::Tree::compress( $tree );
 

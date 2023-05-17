@@ -9,7 +9,7 @@ from aliyunsdkcore.client import AcsClient
 from aliyunsdkecs.request.v20140526.DescribeInstancesRequest import DescribeInstancesRequest
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
-from c3mc_cloud_aliyun_vpc import Vpc
+from c3mc_cloud_aliyun_vpc import LibVpc
 
 
 
@@ -27,7 +27,7 @@ def get(data, access_id, access_key, region):
     request.set_accept_format('json')
     request.set_InstanceIds([instance_id])
 
-    vpc_client = Vpc(access_id, access_key, region)
+    vpc_client = LibVpc(access_id, access_key, region)
 
     response = client.do_action_with_exception(request)
     response = json.loads(response)

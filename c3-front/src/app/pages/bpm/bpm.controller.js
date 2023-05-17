@@ -4,7 +4,7 @@
         .module('openc3')
         .controller('BpmController', BpmController);
 
-    function BpmController($state, $uibModal,$http, $scope, ngTableParams,resoureceService, $injector, $location ) {
+    function BpmController($state, $uibModal,$http, $scope, ngTableParams,resoureceService, $injector, $location, $window ) {
 
         var vm = this;
         vm.treeid = $state.params.treeid;
@@ -12,6 +12,7 @@
         vm.bpmuuid = $state.params.bpmuuid;
         vm.jobid = $state.params.jobid;
 
+        vm.queryChoiceFlag = false;
         vm.emailReg = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
         vm.inputValueType = ['email']
         vm.inputValueTypeMap = {email: '邮箱'}
@@ -50,6 +51,11 @@
             'variable':{},
             'uuid':null,
         };
+
+        if ($state.params.choicejob) {
+          vm.queryChoiceFlag = true
+          $scope.choiceJob = $state.params.choicejob
+        }
 
         vm.isstring = function ( obj ) {
             if( typeof obj === 'string')
@@ -110,6 +116,9 @@
                 showLoaderOnConfirm: true
              }, function( result ){
                 vm.reSave( opinion );
+                setTimeout(function () {
+                  $window.location.reload()
+                }, 2000)
             });
         };
 

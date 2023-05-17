@@ -29,10 +29,13 @@ class AWS_S3:
         try:
             response = self.client.get_bucket_tagging(Bucket=bucket_name)
         except Exception as e:
-            if "The TagSet does not exist" in str(e):
-                return []
-            else: 
-                raise RuntimeError(f"获取s3标签出错. bucket_name: {self.bucket_name}") from e
+            # 这里发生异常可能是因为
+            # 1. ak权限不足
+            # 2. 标签列表为空
+            # 3. 存储桶策略里禁止了外部获取s3的标签
+            # 
+            # 为了避免这里处理过于复杂，这里直接返回空数组
+            return []
         return response["TagSet"]
 
     def list_bucket_names(self):

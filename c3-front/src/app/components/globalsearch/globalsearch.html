@@ -1,0 +1,43 @@
+<div><cmloading ng-if="globalsearch.searchloadover"></cmloading></div>
+<div class="panel panel-primary modal-search-content" style="width: 100%">
+  <div class="panel-heading">
+    <span class="panel-controls">
+      <button class="btn btn-primary" uib-tooltip="{{'C3T.关闭'|translate}}" ng-click="globalsearch.cancel()">
+        <i class="fa fa-times" aria-hidden="true"></i>
+      </button>
+    </span>
+    <h5>{{'C3T.导航'| translate }}</h5>
+  </div>
+
+  <div class="panel-body">
+    <div class="panel panel-dark menu-panel-searchs">
+      <div class="menu-panel-searchs-box">
+        <div class="panel-body menu-panel-search-content">
+          <i class="fa fa-search fa-lg menu-panel-search-content-icon" aria-hidden="true"></i>
+          <input type="text" class="menu-panel-search-content-input" ng-model="globalsearch.choiceSearch"
+            placeholder="{{'C3T.输入进行搜索' | translate}}" ng-change="globalsearch.inputChange()">
+            <span class="append-icon right fs18 pointer" ng-click="globalsearch.handleClear()" ng-show="globalsearch.choiceSearch && globalsearch.choiceSearch !== ''">
+              <i class="fa fa-times"></i>
+            </span>
+        </div>
+      </div>
+      <div class="panel panel-dark menu-panel-card">
+        <div ng-if="!globalsearch.searchloadover && globalsearch.cardMenu.length === 0">
+          {{'C3T.暂无匹配结果'| translate}}
+        </div>
+        <div ng-if="globalsearch.cardMenu.length !== 0" ng-repeat="item in globalsearch.cardMenu" class="{{item.url === ''? 'menu-panel-card-disable-items': 'menu-panel-card-items'}}"
+          ng-click="globalsearch.handleCardClick(item)">
+          <div class="menu-panel-card-items-icon">
+            <img src="{{!globalsearch.iconMap[item.icon] ? globalsearch.iconMap['bpm']: globalsearch.iconMap[item.icon]}}" />
+
+          </div>
+          <div class="menu-panel-card-items-content">
+            <div title="{{item.name}}" class="menu-panel-card-items-content-title">{{item.name}}</div>
+            <div title="{{item.describe}}" class="menu-panel-card-items-content-describe">{{item.describe}}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<style>.modal-dialog {width: 90%;} </style>
