@@ -4,7 +4,7 @@
         .module('openc3')
         .controller('BpmController', BpmController);
 
-    function BpmController($state, $uibModal,$http, $scope, ngTableParams,resoureceService, $injector, $location ) {
+    function BpmController($state, $uibModal,$http, $scope, ngTableParams,resoureceService, $injector, $location, $window ) {
 
         var vm = this;
         vm.treeid = $state.params.treeid;
@@ -110,6 +110,9 @@
                 showLoaderOnConfirm: true
              }, function( result ){
                 vm.reSave( opinion );
+                setTimeout(function () {
+                  $window.location.reload()
+                }, 2000)
             });
         };
 
