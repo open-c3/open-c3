@@ -33,7 +33,6 @@ class S3:
         self.access_key = access_key
         self.filter_region = region
         self.client = self.create_client()
-
         self.record_sync_error = {"lock": threading.Lock(), "error": None}
 
     def create_client(self):
@@ -102,7 +101,7 @@ class S3:
         return array._array
 
     def list_tag(self, access_id, access_key, region, bucket_name):
-        return AWS_S3(access_id, access_key, region, bucket_name).list_tag()
+        return AWS_S3(access_id, access_key, region).list_tag(bucket_name)
 
     def show(self):
         bucket_list = self.list_buckets()

@@ -8,7 +8,7 @@ from aliyunsdkcore.client import AcsClient
 from aliyunsdkecs.request.v20140526 import DescribeInstancesRequest
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
-from c3mc_cloud_aliyun_vpc import Vpc
+from c3mc_cloud_aliyun_vpc import LibVpc
 
 
 class Ecs:
@@ -39,7 +39,7 @@ class Ecs:
         return response_data["TotalCount"]
 
     def show(self):
-        vpc_client = Vpc(self.access_id, self.access_key, self.region)
+        vpc_client = LibVpc(self.access_id, self.access_key, self.region)
 
         response_data = self.get_response()
         instances = response_data["Instances"]["Instance"]
