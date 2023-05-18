@@ -27,9 +27,10 @@
         </div>
         <div ng-if="globalsearch.cardMenu.length !== 0" ng-repeat="item in globalsearch.cardMenu" class="{{item.url === ''? 'menu-panel-card-disable-items': 'menu-panel-card-items'}}"
           ng-click="globalsearch.handleCardClick(item)">
-          <div class="menu-panel-card-items-icon">
-            <img src="{{!globalsearch.iconMap[item.icon] ? globalsearch.iconMap['bpm']: globalsearch.iconMap[item.icon]}}" />
-
+          <div class="menu-panel-card-items-left">
+            <div class="menu-panel-card-items-icon">
+              <img src="{{!globalsearch.iconMap[item.icon] ? globalsearch.iconMap['bpm']: globalsearch.iconMap[item.icon]}}" />
+            </div>
           </div>
           <div class="menu-panel-card-items-content">
             <div title="{{item.name}}" class="menu-panel-card-items-content-title">{{item.name}}</div>
