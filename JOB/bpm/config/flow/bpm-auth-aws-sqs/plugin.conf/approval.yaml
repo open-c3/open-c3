@@ -9,6 +9,12 @@ option:
 template_argv:
   approver: ${oaapprover}
   title:    "BPM/${_bpmuuid_}/SQS权限"
-  content:  "\n申请人:${_user_}\nBPM单号:${_bpmuuid_}\nURL:${_caseurl_}\n申请理由:${x.note}"
+  content:  |
+    BPM标题: SQS权限
+    BPM地址: ${_caseurl_}
+
+    申请人:${_user_}
+    申请理由:${x.note}
   record: 1
   relaxed: 1
+  submitter: '${_user_}'
