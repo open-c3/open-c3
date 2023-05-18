@@ -1,0 +1,74 @@
+<div class="row block">
+  <h2>{{'C3T.导航管理'|translate}}</h2>
+  <hr class="mv20 clear">
+
+  <div>
+    <div style="float: right;">
+      <form class="form-inline" name="myForm" novalidate>
+        <button type="submit" class="btn btn-primary" style="padding: 10px 25px"
+          ng-click="navigation.navigationOperate('create', '')"><i class="fa fa-plusecircle fa-lg" aria-hidden="true"></i>
+          {{'C3T.添加导航'|translate}}</button>
+      </form>
+    </div>
+    <div style="clear: both;">&nbsp;</div>
+  </div>
+
+  <div class="panel panel-primary">
+    <div class="panel-heading">
+      <span class="panel-controls">
+        <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="navigation.reload()"><i
+            class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!navigation.loadover}"></i></button>
+      </span>
+      <h5>{{'C3T.导航'|translate}}</h5>
+    </div>
+
+    <div class="panel-body">
+      <div class="pt20" style="overflow: auto;">
+        <table ng-table="navigation.dataTable" class="table table-scroll table-hover text-center table-condensed"
+          show-filter="true">
+
+          <tr ng-repeat="item in $data">
+            <td data-title="'ID'" width="60" sortable="'id'">{{item.id}}</td>
+            <td data-title="'C3T.图标'|translate" width="60">
+              <div class="navigation-table-icon">
+                <div class="navigation-table-icon-content">
+                  <img
+                    src="{{!navigation.iconMap[item.icon] ? navigation.iconMap['bpm'] : navigation.iconMap[item.icon]}}" />
+                </div>
+              </div>
+            </td>
+            <td width="60" class="textcenter" data-title="'名称'" filter="{ name: 'text'}">
+              {{item.name || '-'}}
+            </td>
+
+            <td data-title="'C3T.描述'|translate" width="200" filter="{ describe: 'text'}">
+              <div class="line-feed" title="{{item.describe}}">
+                {{item.describe || '-'}}
+              </div>
+            </td>
+
+            <td data-title="'C3T.跳转地址'|translate" width="80" filter="{ url: 'text'}">
+              <div title="{{item.url}}">
+                {{item.url || '-'}}
+              </div>
+            </td>
+
+            <td data-title="'C3T.当前是否展示'|translate" width="80" sortable="'show'">
+              {{navigation.showMap[item.show]|| '-'}}
+            </td>
+
+            <td data-title="'C3T.创建时间'|translate" width="80" sortable="'time'"> {{item.time}} </td>
+
+            <td data-title="'C3T.操作'|translate" width="80">
+              <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="navigation.navigationOperate('edit', item.id)"
+                uib-tooltip="{{'C3T.编辑'|translate}}" style="cursor:pointer;color: #339094;"></i>
+
+              <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="navigation.deleteNavigation(item.id)"
+                uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: red;"></i>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
