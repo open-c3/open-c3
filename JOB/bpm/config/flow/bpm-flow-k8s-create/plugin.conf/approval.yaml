@@ -1,0 +1,20 @@
+---
+name: 业务负责人审批
+option:
+  - describe: 业务审批人
+    name: oaapprover
+    type: input
+    value: ""
+
+template_argv:
+  approver: ${oaapprover}
+  title:    "BPM/${_bpmuuid_}/创建k8s发布服务"
+  content:  |
+    BPM标题: 创建k8s发布服务
+    BPM地址: ${_caseurl_}
+
+    申请人:${_user_}
+    申请理由:${x.note}
+  record: 1
+  relaxed: 1
+  submitter: '${_user_}'

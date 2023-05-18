@@ -1,0 +1,82 @@
+---
+name: 创建k8s发布服务
+option:
+  - name: k8s_cluster_name
+    describe: k8s集群名称
+    type: input
+    value: ""
+
+  - name: namespace
+    describe: namespace
+    type: input
+    value: ""
+
+  - name: deployment
+    describe: deployment
+    type: input
+    value: ""
+
+  - name: dockerfile_path
+    describe: dockerfile路径
+    type: input
+    value: ""
+
+  - name: repo_addr
+    describe: 仓库地址
+    type: input
+    value: ""
+
+  - name: repo_tag_rule
+    describe: 仓库标签规则
+    type: input
+    value: ""
+
+  - name: if_public
+    describe: 是否外部访问
+    type: select
+    option: ["是", "否"]
+    value: ""
+
+  - name: domain
+    describe: 域名
+    type: input
+    value: ""
+
+  - name: port
+    describe: 端口
+    type: number
+    value: ""
+
+  - name: approver
+    describe: 发布审批人
+    type: input
+    value: ""
+
+  - name: additional_note
+    describe: 备注
+    type: text
+    value: "空"
+
+  - name: note
+    describe: 申请理由
+    type: text
+    value: ""
+
+template_argv:
+  title:    "BPM/${_bpmuuid_}/创建k8s发布服务"
+  content:  |
+    BPM标题: 创建k8s发布服务
+    BPM地址: ${_caseurl_}
+
+    k8s集群名称: ${k8s_cluster_name}
+    namespace: ${namespace}
+    deployment: ${deployment}
+    dockerfile路径: ${dockerfile_path}
+    仓库地址: ${repo_addr}
+    仓库标签规则: ${repo_tag_rule}
+    是否外部访问: ${if_public}
+    域名: ${domain}
+    端口: ${port}
+    发布审批人: ${approver}
+    备注: ${additional_note}
+    申请理由: ${note}
