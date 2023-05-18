@@ -59,6 +59,7 @@
                 "sqlserver:DescribeDBInstances",
                 "tag:TagResources",
                 "tag:UnTagResources",
+                "cynosdb:DescribeInstances",
                 "monitor:*"
             ],
             "resource":
