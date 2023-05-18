@@ -9,6 +9,12 @@ option:
 template_argv:
   approver: ${oaapprover}
   title:    "BPM/${_bpmuuid_}/申请idc服务器"
-  content:  "\n申请人:${_user_}\nBPM单号:${_bpmuuid_}\nURL:${_caseurl_}\n申请理由:${x.note}"
+  content:  |
+    BPM标题: 申请idc服务器
+    BPM地址: ${_caseurl_}
+
+    申请人:${_user_}
+    申请理由:${x.note}
   record: 1
   relaxed: 1
+  submitter: '${_user_}'
