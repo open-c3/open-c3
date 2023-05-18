@@ -28,6 +28,9 @@
           swal({ title: '获取菜单失败', text: data.info, type: 'error' });
           vm.cardMenu = []
         }
+      }).catch(err => {
+        vm.searchloadover = false;
+        console.error(err)
       });
     };
     vm.reload();
