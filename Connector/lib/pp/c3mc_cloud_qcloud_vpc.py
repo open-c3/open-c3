@@ -9,6 +9,11 @@ from tencentcloud.common.profile.client_profile import ClientProfile
 from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.vpc.v20170312 import vpc_client, models
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import sleep_time_for_limiting
+
+max_times_describe_vpcs = 100
+
 
 class QcloudVpc:
     def __init__(self, access_id, access_key, region):
@@ -67,6 +72,7 @@ class QcloudVpc:
             if len(vpc_list) == 0:
                 break
             result.extend(vpc_list)
+            sleep_time_for_limiting(max_times_describe_vpcs)
         return result
 
     def list_subnets_of_vpc(self, vpcId, zone=None):
@@ -99,4 +105,6 @@ class QcloudVpc:
             if len(subnet_list) == 0:
                 break
             result.extend(subnet_list)
+
+            sleep_time_for_limiting(max_times_describe_vpcs)
         return result
