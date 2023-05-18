@@ -8,7 +8,13 @@ option:
 
 template_argv:
   approver: ${oaapprover}
-  title:    "BPM/${_bpmuuid_}/申请git权限"
-  content:  "\n申请人:${_user_}\nBPM单号:${_bpmuuid_}\nURL:${_caseurl_}\n申请理由:${x.note}"
+  title:    "BPM/${_bpmuuid_}/申请git仓库权限"
+  content:  |
+    BPM标题: 申请git仓库权限
+    BPM地址: ${_caseurl_}
+
+    申请人:${_user_}
+    申请理由:${x.note}
   record: 1
   relaxed: 1
+  submitter: '${_user_}'
