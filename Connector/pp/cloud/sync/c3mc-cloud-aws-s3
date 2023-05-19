@@ -55,6 +55,10 @@ class S3:
             )
 
             bucket_real_location = bucketLocationResp["LocationConstraint"]
+
+            if bucket_real_location is None:
+                bucket_real_location = "us-east-1"
+
             if bucket_real_location == self.filter_region:
                 tags = self.list_tag(
                     self.access_id,
