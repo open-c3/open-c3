@@ -19,8 +19,10 @@
         </div>
         <div ng-if="!search.searchloadover && search.cardMenu.length !== 0" ng-repeat="item in search.cardMenu" class="{{item.url === ''? 'menu-panel-card-disable-items': 'menu-panel-card-items'}}"
           ng-click="search.handleCardClick(item)">
-          <div class="menu-panel-card-items-icon">
-            <img src="{{!search.iconMap[item.icon] ? globalsearch.iconMap['bpm'] : search.iconMap[item.icon]}}" />
+          <div class="menu-panel-card-items-left">
+            <div class="menu-panel-card-items-icon">
+              <img src="{{!search.iconMap[item.icon] ? search.iconMap['bpm'] : search.iconMap[item.icon]}}" />
+            </div>
           </div>
           <div class="menu-panel-card-items-content">
             <div title="{{item.name}}" class="menu-panel-card-items-content-title">{{item.name}}</div>

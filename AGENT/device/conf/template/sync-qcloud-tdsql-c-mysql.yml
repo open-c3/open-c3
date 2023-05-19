@@ -1,0 +1,134 @@
+download:
+  - url: "cmd:c3mc-cloud-account-list --type qcloud-tdsql-c-mysql |xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-qcloud-tdsql-c-mysql --account qcloud --cloudaccount {} | c3mc-cloud-tag-v2  --tagfield ResourceTags --key TagKey --value TagValue |  c3mc-base-json2tab "
+    datatype: tsv
+    type: database
+    subtype: qcloud-tdsql-c-mysql
+    treeinfo:
+      treename: "服务树"
+      treeinfo:
+        - ["实例ID", "instance"]
+    ingestion-mysql:
+      addr: [ 'Vip', 'Vport' ]
+      authpath: /data/open-c3-data/device/curr/auth/mysql
+      tree: '服务树'
+      type: qcloud-tdsql-c-mysql
+      exclude:
+        "Status": ["deleted", "offlined"]
+        "_ingestion_": ["NO"]
+    instancealias:
+      - name:  ['uuid']
+        value: ["Vip",'Vport']
+    check:
+      col: ["实例ID"]
+      min: 0
+    util:
+      vuuid:
+        - [ 'Vip', 'Vport' ]
+        - Vip
+      defaulttree: defaulttree.pool
+      extcol:
+        - name: audit
+          alias: 审计
+          select: ["YES", "NO"]
+        - name: remarks
+          alias: 备注
+        - name: _ingestion_
+          alias: 摄取
+          select: ["YES", "NO"]
+      grpcol:
+        baseinfo:
+        - name: 名称
+        - name: 实例ID
+        - name: 状态
+          success:
+          - 运行中
+        - name: 区域
+        - name: 所在可用区
+        - name: account
+          color: red
+        - name: 部门
+        - name: 业务负责人
+        - name: 运维负责人
+        - name: 公网IP
+        - name: 内网IP
+        system:
+        - name: 数据库类型
+        - name: 数据库版本
+        - name: 集群ID
+        - name: 集群名
+        - name: cpu核数
+          tail: (核) 
+        - name: 内存
+          tail: (Gb)
+        - name: 存储容量
+          tail: (Gb)
+        - name: 实例类型
+        - name: 实例角色
+        - prefix: tag.
+ 
+    colmap:
+      treename: "服务树"
+      uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
+    alias:
+      InstanceName: "名称"
+      InstanceId: "实例ID"
+      Zone: "所在可用区"
+      Region: "区域"
+      StatusDesc: "状态"
+      DbType: "数据库类型"
+      DbVersion: "数据库版本"
+      ClusterId: "集群ID"
+      ClusterName: "集群名"
+      Cpu: cpu核数
+      Memory: 内存
+      Storage: 存储容量
+      InstanceType: 实例类型
+      InstanceRole: 实例角色
+      _product_owner_: "业务负责人"
+      _ops_owner_: "运维负责人"
+      _department_: "部门"
+    filter:
+      - name: "account"
+        alias: 账号
+      - name: "区域"
+        alias: 区域
+      - name: "状态"
+        alias: "状态"
+      - name: "所在可用区"
+        alias: "所在可用区"
+      - name: "数据库类型"
+        alias: "数据库类型"
+      - name: "数据库版本"
+        alias: "数据库版本"
+      - name: "集群名"
+        alias: "集群名"
+      - name: "实例类型"
+        alias: "实例类型"
+      - name: "业务负责人"
+        alias: 业务负责人
+      - name: "运维负责人"
+        alias: 运维负责人
+      - name: "部门"
+        alias: 部门
+      - name: "_ingestion_"
+        alias: 摄取
+    outline:
+      uuid:
+        - "实例ID"
+      baseinfo:
+        - "account"
+        - "实例ID"
+        - "名称"
+        - "区域"
+      system:
+        - "状态"
+        - "所在可用区"
+        - "Vip"
+        - "Vport"
+        - "数据库类型"
+        - "数据库版本"
+      contact:
+        - "部门"
+        - "业务负责人"
+        - "运维负责人"
+        - "服务树"

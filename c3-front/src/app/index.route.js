@@ -791,6 +791,13 @@
               params: {treeid: '4000000000'}
           })
 
+          .state('home.global.navigation', {
+            url: 'navigation/:treeid',
+            templateUrl: 'app/pages/global/navigation/navigation.html',
+            controller: 'NavigationController',
+            controllerAs: 'navigation'
+        })
+
             .state('log', {
                 url: '/api/log/:id',
                 templateUrl: 'app/api/log.html',

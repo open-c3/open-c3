@@ -1,0 +1,36 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import json
+import sys
+
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_qcloud_tdsql_c_mysql import LibQcloudTdSqlCMysql
+
+
+class QcloudTdSqlCMysql:
+    def __init__(self, access_id, access_key, region):
+        self.lib_client = LibQcloudTdSqlCMysql(access_id, access_key, region)
+
+    def list_instances(self):
+        return self.lib_client.list_instances()
+
+    def show(self):
+        data_list = self.list_instances()
+        for item in data_list:
+            print(json.dumps(item, default=str))
+
+
+def main(access_id, access_key, region):
+    try:
+        QcloudTdSqlCMysql(access_id, access_key, region).show()
+    except Exception as e:
+        if "该接口不支持此地域访问" in str(e):
+            return 
+        print(f"同步腾讯云tdsql-c-mysql资源出错. access_id: {access_id}, region: {region}", file=sys.stderr)
+        raise e
+
+
+if __name__ == "__main__":
+    main(sys.argv[1], sys.argv[2], sys.argv[3])
