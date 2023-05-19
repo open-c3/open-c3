@@ -76,7 +76,11 @@ class LibVpc:
         request.add_query_param('RegionId', region_id)
 
         response = self.client.do_action(request)
-        return json.loads(str(response, encoding = 'utf-8'))["TagResources"]["TagResource"]
+        response = json.loads(str(response, encoding = 'utf-8'))
+        if "TagResources" in response and "TagResource" in response["TagResources"]:
+            return response["TagResources"]["TagResource"]
+        return []
+        
     
     def list_vpcs_with_tags(self):
         safe_array = ThreadSafeArray()
