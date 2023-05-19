@@ -1,0 +1,40 @@
+download:
+  - 
+    url:     fileserver:7:capital-online-server.xlsx
+    type:    compute
+    subtype: capital-online-server
+    check:
+      col: [ '实例ID', '名称', '内网IP','公网IP', '区域' ]
+      min: 1
+    ingestion-node:
+      name: '名称'
+      inip: '内网IP'
+      exip: '公网IP'
+      tree: '服务树'
+      type: capital-online-server
+    util:
+      defaulttree: defaulttree.pool
+    colmap:
+      treename: '服务树'
+      uuid:     '实例ID' #没有这个可能导致单个资源详情打开无数据
+    filter:
+      -
+        name: '区域'
+        alias: 区域
+      -
+        name: '付费类型'
+        alias: 付费类型
+      -
+        name: '实例规格'
+        alias: 实例规格
+    outline:
+      uuid:
+       - '实例ID'
+      baseinfo:
+       - '区域'
+      system:
+       - '名称'
+       - '内网IP'
+       - '公网IP'
+      contact:
+       - '服务树'
