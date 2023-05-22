@@ -47,7 +47,7 @@
         vm.cardMenu = defaultArr;
         return;
       }
-      vm.cardMenu = defaultArr.filter(item => item.name.includes(vm.choiceSearch));
+      vm.cardMenu = defaultArr.filter(item => item.name.toLowerCase().includes(vm.choiceSearch.toLowerCase()));
     }
 
     vm.handleClear = function () {
