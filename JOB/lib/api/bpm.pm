@@ -74,6 +74,7 @@ get '/bpm/log/:bpmuuid' => sub {
     {
         my $step = $_->{step};
         $res{$step} ||= [];
+        $_->{info} =~ s/(TT00\d{8})/<a href="\/tt\/#\/tt\/show\/$1" target='_blank'>$1<\/a>/;
         push @{ $res{$step} }, $_;
     }
     return +{ stat => $JSON::true, data => \%res };
