@@ -1,0 +1,19 @@
+---
+name: 运维审批
+option:
+  - describe: 运维审批人
+    name: opapprover
+    type: selectx
+    value: ""
+    command: "c3mc-bpm-optionx-opapprover"
+
+template_argv:
+  approver: ${opapprover}
+  title:    "BPM/${_bpmuuid_}/资源回收/腾讯云/CLB"
+  content:  |
+    BPM标题: 资源回收/腾讯云/CLB
+    BPM地址: ${_caseurl_}
+
+    申请人:${_user_}
+    申请理由:${x.note}
+  record: 1

@@ -1,0 +1,75 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import check_if_params_safe_in_recycle
+from c3mc_cloud_qcloud_clb import QcloudClb
+
+
+class ClbRecycle:
+    def __init__(self, access_id, access_key, region):
+        self.lib_client = self.create_lib_client(access_id, access_key, region)
+
+    def create_lib_client(self, access_id, access_key, region):
+        return QcloudClb(access_id, access_key, region)
+
+    def run(self, load_balancer_id):
+        self.lib_client.delete_load_balancer([load_balancer_id])
+        print(f"LOG. 成功删除实例: {load_balancer_id}")
+
+
+def get_instance_uuid(instance_maybe_identifier):
+    command = f"c3mc-device-find-uuid {instance_maybe_identifier}"
+    result = subprocess.check_output(command, shell=True)
+    parts = result.decode("utf-8").strip().split()
+    if len(parts) > 1:
+        print(f"通过命令 {command} 查询到了多个uuid {parts}", file=sys.stderr)
+        exit(1)
+    return parts[0]
+
+
+def main(params):
+    print("params = ", json.dumps(params))
+
+    field_name_list = subprocess.getoutput(
+        "c3mc-cloud-get-real-field networking qcloud-clb LoadBalancerId account RegionId"
+    ).split()
+
+    instance_identifier_list = params["instance_ids"].split(",")
+    check_if_params_safe_in_recycle(instance_identifier_list, params["bpm_uuid"], "qcloud-clb-recycle")
+
+    
+    for instance_identifier in instance_identifier_list:
+        instance_identifier = instance_identifier.strip()
+        if instance_identifier == "":
+            continue
+
+        instance_real_uuid = get_instance_uuid(instance_identifier)
+
+        query_cmd = f"c3mc-device-cat curr networking qcloud-clb {instance_real_uuid} | c3mc-base-tab2json"
+        print(f"实例信息, uuid: {instance_real_uuid}, 查询命令: {query_cmd}")
+        resource_info_str = subprocess.getoutput(query_cmd)
+        if resource_info_str.strip() == "":
+            # 可能工单中途有错误，某些资源在云端已被删除，并且本地经过同步后也删除了相关实例
+            continue
+
+        resource_info = json.loads(resource_info_str.split("\n")[0])
+
+        key_info = json.loads(subprocess.getoutput(
+            f"c3mc-get-account-info qcloud {resource_info[field_name_list[1]]}"))
+
+        ClbRecycle(key_info["access_id"], key_info["access_key"], resource_info[field_name_list[2]]) \
+            .run(instance_real_uuid)
+
+
+if __name__ == '__main__':
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
+
+    main(json.loads(l[0]))
