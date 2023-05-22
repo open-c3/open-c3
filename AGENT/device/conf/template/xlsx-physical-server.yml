@@ -4,12 +4,10 @@ download:
     type:    compute
     subtype: physical-server
     check:
-      col: [ '实例ID', '名称', '内网IP', '区域' ]
+      col: [ '实例ID', '类型' ]
       min: 1
     ingestion-node:
       name: '名称'
-      inip: '内网IP'
-      exip: '公网IP'
       tree: '服务树'
       type: physical-server
     util:
@@ -19,17 +17,17 @@ download:
       uuid:     '实例ID' #没有这个可能导致单个资源详情打开无数据
     filter:
       -
-        name: '区域'
-        alias: 区域
+        name: '类型'
+        alias: 类型
     outline:
       uuid:
        - '实例ID'
+       - 'IP详情'
       baseinfo:
-       - '区域'
+       - '服务器名'
       system:
-       - '内网IP'
-       - '公网IP'
+       - '内存详情'
        - 'SN'
-       - '资产编号'
+       - '资产编号(新)'
       contact:
        - '服务树'
