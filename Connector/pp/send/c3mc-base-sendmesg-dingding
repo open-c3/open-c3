@@ -85,7 +85,7 @@ sub getToken
     {
         my $data = eval{JSON::from_json $res->content};
         die sprintf( "res from json fail: %s", $res->content ) if $@;
-        die "resp error: $res->content" unless defined $data && defined $data->{errcode} && $data->{errcode} eq '0';
+        die "resp error: " . Encode::decode('utf8', $res->content ) unless defined $data && defined $data->{errcode} && $data->{errcode} eq '0';
         return setTokenCache( $data->{access_token} );
     }
 
@@ -119,7 +119,7 @@ sub getUserIds
     {
         my $data = eval{JSON::from_json $res->content};
         die sprintf( "res from json fail: %s", $res->content ) if $@;
-        die "resp error: $res->content" unless defined $data && defined $data->{errcode} && $data->{errcode} eq '0';
+        die "resp error: " . Encode::decode('utf8', $res->content ) unless defined $data && defined $data->{errcode} && $data->{errcode} eq '0';
         my @userid = @{ $data->{result}{data_list} };
 
         my $offset = $data->{result}{next_cursor};
@@ -177,7 +177,7 @@ sub getUserId
         {
             my $data = eval{JSON::from_json $res->content};
             die sprintf( "res from json fail: %s", $res->content ) if $@;
-            die "resp error: $res->content" unless defined $data && defined $data->{errcode} && $data->{errcode} eq '0';
+            die "resp error: " . Encode::decode('utf8', $res->content ) unless defined $data && defined $data->{errcode} && $data->{errcode} eq '0';
 
             for my $user ( @{ $data->{result} } )
             {
@@ -226,7 +226,7 @@ sub call
     {
         my $data = eval{JSON::from_json $res->content};
         die sprintf( "res from json fail: %s", $res->content ) if $@;
-        die "resp error: $res->content" unless defined $data && defined $data->{errcode} && $data->{errcode} eq '0';
+        die "resp error: " . Encode::decode('utf8', $res->content ) unless defined $data && defined $data->{errcode} && $data->{errcode} eq '0';
         return 1;
     }
     die sprintf "http call error code: %s", $res->code;
