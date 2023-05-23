@@ -1,0 +1,23 @@
+#!/opt/mydan/perl/bin/perl -I/opt/mydan/dan/agent.mon/lib
+
+=head1 SYNOPSIS
+
+ $0 [--port num]
+
+=cut
+use strict;
+use warnings;
+
+use OPENC3::MYDan::MonitorV3::FalconMigrate;
+use MYDan::Util::OptConf;
+
+$| ++;
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->set( port => 1988 )->get( qw( port=i ) )->dump();
+
+$0 = 'mydan.falcon_migrate.'.$o{port};
+
+my @server = ( "localhost:1987", "localhost:65110" ); 
+
+OPENC3::MYDan::MonitorV3::FalconMigrate->new( %o, server => \@server )->run();

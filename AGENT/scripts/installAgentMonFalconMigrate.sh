@@ -1,0 +1,31 @@
+#!/bin/bash
+
+set -e 
+
+MYDanPATH=/opt/mydan
+
+if [ ! -d "$MYDanPATH/dan" ]; then
+    echo "nofind mydan path: $MYDanPATH/dan"
+    exit
+fi
+
+if [ ! -f "$MYDanPATH/dan/bootstrap/exec/mydan.node_exporter.65110" ]; then
+    echo "nofind mydan 65110: install mon agent first"
+    exit
+fi
+
+cd "$MYDanPATH/dan" || exit 1
+
+cp /opt/mydan/dan/agent.mon/exec.config/mydan.falcon_migrate.1988 /opt/mydan/dan/bootstrap/exec/
+chmod +x /opt/mydan/dan/bootstrap/exec/mydan.falcon_migrate.1988
+
+if [ -f /data/Software/open-falcon/agent/cfg.json.c3.bak ];then
+    cp /data/Software/open-falcon/agent/cfg.json /data/Software/open-falcon/agent/cfg.json.c3.bak
+fi
+sed -i 's/"listen": ":1988"/"listen": ":1987"/' /data/Software/open-falcon/agent/cfg.json
+
+lsof -i:1988|tail -n 1|awk '{print $2}'|xargs -i{} kill {}
+
+/data/Software/open-falcon/agent/control restart
+
+echo "INSTALL OPEN-C3 MONITOR AGENT falcon_migrate: SUCCESS!!!"
