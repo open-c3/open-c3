@@ -186,3 +186,13 @@ def cal_md5_on_dict(data):
     json_data = json.dumps(data, sort_keys=True, ensure_ascii=False)
     return hashlib.md5(json_data.encode('utf-8')).hexdigest()
 
+
+
+def calculate_md5(input_string):
+    # 创建 MD5 对象
+    md5_hash = hashlib.md5()
+
+    # 将字符串编码为字节流并计算 MD5
+    md5_hash.update(input_string.encode('utf-8'))
+
+    return md5_hash.hexdigest()

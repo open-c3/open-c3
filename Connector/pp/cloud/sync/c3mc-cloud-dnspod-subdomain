@@ -1,0 +1,31 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import json
+import sys
+
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_dnspod import DnspodSubdomain
+
+
+class SubDomains:
+    def __init__(self):
+        self.lib_client = DnspodSubdomain()
+
+    def display(self):
+        data_list = self.lib_client.get_subdomains()
+        for item in data_list:
+            print(json.dumps(item, default=str))
+        
+
+def main():
+    try:
+        SubDomains().display()
+    except Exception as e:
+        print(f"同步dnspod子域名列表出错. error: {str(e)}", file=sys.stderr)
+        raise e
+
+
+if __name__ == "__main__":
+    main()
