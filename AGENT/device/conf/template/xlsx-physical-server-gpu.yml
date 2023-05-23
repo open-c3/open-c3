@@ -1,15 +1,14 @@
 download:
   - 
-    url:     fileserver:0:physical-server.xlsx
+    url:     fileserver:0:physical-server-gpu.xlsx
     type:    compute
-    subtype: physical-server
+    subtype: physical-server-gpu
     check:
-      col: [ '实例ID', '类型' ]
+      col: [ '实例ID', '站点' ]
       min: 1
     ingestion-node:
-      name: '名称'
       tree: '服务树'
-      type: physical-server
+      type: physical-server-gpu
     util:
       defaulttree: defaulttree.pool
     colmap:
@@ -22,9 +21,9 @@ download:
     outline:
       uuid:
        - '实例ID'
-       - 'IP详情'
       baseinfo:
        - '服务器名'
+       - 'IP详情'
       system:
        - '内存详情'
        - 'SN'
