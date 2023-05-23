@@ -31,6 +31,7 @@
 
         vm.bpmname = $location.search()['name'];
         vm.debug = $location.search()['debug'];
+        vm.stepconfs = [];
 
         vm.debugswitch = function() {
             if( vm.debug == 0 || vm.debug == undefined )
@@ -542,6 +543,10 @@
             vm.selectIndex = selectIndex
             var varDict = {};
             var stepconf;
+            var lastvarnames = stepname.split(".")
+            var stepconfsLength = vm.stepconfs.length
+            vm.newstepconfs = []
+            vm.stepconfs = []
             angular.forEach($scope.jobVar, function (data, index) {
                 varDict[data.name] = data.value;
                 vm.selectxrely[data.name] = '0';
@@ -549,7 +554,13 @@
                 {
                     stepconf = data;
                 }
+                if (data.name.includes(lastvarnames[2])) {
+                  if (vm.stepconfs.filter(item => item.name !== data.name)) {
+                    vm.stepconfs.push(data)
+                  }
+                }
             });
+            vm.newstepconfs = Array.from(new Set(vm.stepconfs))
 
             if( stepconf['rely'] )
             {
@@ -582,7 +593,7 @@
                 vm.optionx[stepname] = undefined;
             }
 
-            if( vm.optionx[stepname] == undefined )
+            if( vm.optionx[stepname] == undefined || vm.newstepconfs.length !== stepconfsLength )
             {
                 vm.selectxloading[stepname] = true;
                 $http.post( '/api/ci/v2/c3mc/bpm/optionx', { "bpm_variable": varDict, "stepname": stepname, "jobname":$scope.choiceJob.name } ).success(function(data){
