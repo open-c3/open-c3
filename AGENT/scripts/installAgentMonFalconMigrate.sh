@@ -14,6 +14,16 @@ if [ ! -f "$MYDanPATH/dan/bootstrap/exec/mydan.node_exporter.65110" ]; then
     exit
 fi
 
+if [ ! -f "/data/Software/open-falcon/agent/control" ]; then
+    echo "nofind falcon control"
+    exit
+fi
+
+if [ ! -f "/data/Software/open-falcon/agent/cfg.json" ]; then
+    echo "nofind falcon cfg.json"
+    exit
+fi
+
 cd "$MYDanPATH/dan" || exit 1
 
 cp /opt/mydan/dan/agent.mon/exec.config/mydan.falcon_migrate.1988 /opt/mydan/dan/bootstrap/exec/
