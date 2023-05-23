@@ -7,40 +7,44 @@ import boto3
 
 class Aws:
     def __init__(self, access_id, access_key, resource_type):
-        self.access_id = access_id
-        self.access_key = access_key
         self.resource_type = resource_type
-
-    def list_ec2_regions(self):
-        result = []
-
+        self.client = self.create_client(access_id, access_key)
+    
+    def create_client(self, access_id, access_key):
         error_list = []
         for region in ["us-east-1", "cn-north-1"]:
             try:
                 client = boto3.client(
                     "ec2",
-                    aws_access_key_id=self.access_id,
-                    aws_secret_access_key=self.access_key,
+                    aws_access_key_id=access_id,
+                    aws_secret_access_key=access_key,
                     region_name=region
                 )
 
-                response = client.describe_regions(AllRegions=False)
-                result.extend(item["RegionName"] for item in response["Regions"])
+                # 通过尝试获取资源了来判断该账号属于全球账号还是中国区账号
+                client.describe_regions(AllRegions=False)
+                self.region = region
+                return client
             except Exception as e:
                 error_list.append(e)
                 continue
-        if not result and len(error_list) == 2:
-            raise RuntimeError(
-                f"无法成功获取区域列表, ak: {self.access_id}, resource_type: {self.resource_type}, 错误: {error_list}"
-            )
+        raise RuntimeError(f"无法创建sdk客户端, error_list: {error_list}")
+
+    def list_ec2_regions(self):
+        result = []
+
+        response = self.client.describe_regions(AllRegions=False)
+        result.extend(item["RegionName"] for item in response["Regions"])
         return sorted(result)
 
     def display(self):
-        # 目前没有遇到不同资源区域不一致的问题
-        # 注意: 只获取用户开通了的区域列表
-        regions = self.list_ec2_regions()
-        for region in regions:
-            print(region)
+        if self.resource_type == "subdomain":
+            # aws route53属于全局资源，输出一个区域进行查询
+            print(self.region)
+        else:
+            regions = self.list_ec2_regions()
+            for region in regions:
+                print(region)
 
 
 def main(access_id, access_key, resource_type):
@@ -48,4 +52,4 @@ def main(access_id, access_key, resource_type):
 
 
 if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2], sys.argv[3])
+    main(sys.argv[1], sys.argv[2], sys.argv[4])

@@ -63,6 +63,7 @@ class Ec2Recycle:
                 lib_ec2.disassociate_address(eip_info["AssociationId"])
                 lib_ec2.release_address(eip_info["AllocationId"])
         # 最多尝试5次
+        attempt = 0
         while attempt < 5:
             try:
                 self.client.terminate_instances(InstanceIds=[instance_id])
