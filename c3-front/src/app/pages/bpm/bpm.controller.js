@@ -33,6 +33,7 @@
 
         vm.bpmname = $location.search()['name'];
         vm.debug = $location.search()['debug'];
+        vm.stepconfs = [];
 
         vm.debugswitch = function() {
             if( vm.debug == 0 || vm.debug == undefined )
@@ -546,12 +547,17 @@
             vm.selectIndex = selectIndex
             var varDict = {};
             var stepconf;
+            vm.stepconfs = []
+            var middleAttrConf = $scope.jobVar.filter(item => item['command'] && typeof item['command'] === 'object' && item['command'][0] == 'list' && item.name === stepname)[0]
             angular.forEach($scope.jobVar, function (data, index) {
                 varDict[data.name] = data.value;
                 vm.selectxrely[data.name] = '0';
                 if( data.name == stepname )
                 {
                     stepconf = data;
+                }
+                if (data.name.includes(middleAttrConf.command[1])) {
+                  vm.stepconfs.push(data.value)
                 }
             });
 
@@ -580,25 +586,10 @@
                     return;
                 }
             }
- 
-            if( vm.debug == 1 )
-            {
-                vm.optionx[stepname] = undefined;
-            }
-
-            if( vm.optionx[stepname] == undefined )
-            {
-                vm.selectxloading[stepname] = true;
-                $http.post( '/api/ci/v2/c3mc/bpm/optionx', { "bpm_variable": varDict, "stepname": stepname, "jobname":$scope.choiceJob.name } ).success(function(data){
-                    if (data.stat){
-                        vm.selectxloading[stepname] = false;
-                        vm.optionx[stepname] = data.data
-                    }else {
-                        swal({ title: '获取选项失败', text: data.info, type:'error' });
-                    }
-                });
- 
-            }
+            if(stepconf['command'] && typeof stepconf['command'] === 'object' && stepconf['command'][0] == 'list') {
+              const newData = [...new Set(vm.stepconfs)].map(item => {return {name: item, alias:item}})
+              vm.optionx[stepname] = newData
+            } 
         }
 
         vm.jobsloadover = true;
