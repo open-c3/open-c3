@@ -18,3 +18,5 @@ TZ=Asia/Shanghai
 * * * * * root flock -n /tmp/c3mc-mon-proxy-metricsd.lock /usr/bin/c3mc-mon-proxy-metricsd > /tmp/c3mc-mon-proxy-metricsd.log 2>&1
 
 */5 * * * * root /usr/bin/c3mc-mon-make-uexip > /data/Software/mydan/AGENT/conf/openc3_uexip.yml.temp.$$ && mv /data/Software/mydan/AGENT/conf/openc3_uexip.yml.temp.$$ /data/Software/mydan/AGENT/conf/openc3_uexip.yml
+
+*/5 * * * * root flock -n /tmp/c3mc-device-account-proxyd.lock  /usr/bin/c3mc-device-account-proxyd > /tmp/c3mc-device-account-proxyd.log 2>&1

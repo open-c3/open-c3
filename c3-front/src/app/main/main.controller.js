@@ -36,6 +36,9 @@
             vm.modalIsOpen = false
           });
         }
+        vm.handleOpen = function () {
+          window.open('https://github.com/open-c3/open-c3/issues')
+        }
 
         vm.handleModalIsOpen = function () {
           vm.modalIsOpen = modalInstance && modalInstance.closed !== true;

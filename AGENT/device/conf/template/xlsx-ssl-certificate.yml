@@ -1,0 +1,28 @@
+download:
+  - 
+    url:     fileserver:0:ssl-certificate.xlsx
+    type:    others
+    subtype: ssl-certificate
+    check:
+      col: [ '实例ID' ]
+      min: 1
+    util:
+      defaulttree: defaulttree.pool
+    colmap:
+      treename: '服务树'
+      uuid:     '实例ID'
+    filter:
+      -
+        name: 'Brand'
+        alias: Brand
+    outline:
+      uuid:
+       - '实例ID'
+      baseinfo:
+       - 'RelationInfo'
+      system:
+       - 'Brand'
+       - 'SslType'
+       - 'ExpiredTime'
+      contact:
+       - '服务树'

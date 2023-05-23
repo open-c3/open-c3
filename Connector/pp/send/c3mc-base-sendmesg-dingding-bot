@@ -52,7 +52,7 @@ sub call
     {
         my $data = eval{JSON::from_json $res->content};
         die sprintf( "res from json fail: %s", $res->content ) if $@;
-        die "resp error: $res->content" unless defined $data && defined $data->{errcode} && $data->{errcode} eq '0';
+        die "resp error: " . Encode::decode('utf8', $res->content ) unless defined $data && defined $data->{errcode} && $data->{errcode} eq '0';
         return 1;
     }
     die sprintf "http error: %s", YAML::XS::Dump $res;

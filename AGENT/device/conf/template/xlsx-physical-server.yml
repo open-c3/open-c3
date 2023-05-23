@@ -1,0 +1,33 @@
+download:
+  - 
+    url:     fileserver:0:physical-server.xlsx
+    type:    compute
+    subtype: physical-server
+    check:
+      col: [ '实例ID', '类型' ]
+      min: 1
+    ingestion-node:
+      name: '名称'
+      tree: '服务树'
+      type: physical-server
+    util:
+      defaulttree: defaulttree.pool
+    colmap:
+      treename: '服务树'
+      uuid:     '实例ID' #没有这个可能导致单个资源详情打开无数据
+    filter:
+      -
+        name: '类型'
+        alias: 类型
+    outline:
+      uuid:
+       - '实例ID'
+       - 'IP详情'
+      baseinfo:
+       - '服务器名'
+      system:
+       - '内存详情'
+       - 'SN'
+       - '资产编号(新)'
+      contact:
+       - '服务树'

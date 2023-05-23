@@ -14,7 +14,8 @@ echo namespace: $namespace
 labels=$(kubectl_v1.15.5 get deployment $deployment -n $namespace -o jsonpath='{.spec.selector.matchLabels}')
 echo labels: $labels
 
-pairs=$(echo $labels | cut -d"[" -f2 | cut -d"]" -f1 | sed 's/:/=/g' | sed 's/ /,/g')
+#pairs=$(echo $labels | cut -d"[" -f2 | cut -d"]" -f1 | sed 's/:/=/g' | sed 's/ /,/g')
+pairs=$(echo $labels | json2yaml |sed 's/: /=/g'|xargs -n 100|sed 's/ /,/g')
 echo pairs: $pairs
 
 desiredNum=$(kubectl_v1.15.5 get deployment $deployment -n $namespace -o jsonpath='{.spec.replicas}')

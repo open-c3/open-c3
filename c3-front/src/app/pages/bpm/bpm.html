@@ -147,7 +147,7 @@
                                       </ui-select>
                                       <ui-select ng-model="ss.value" ng-change="bpm.optionxchange(ss.name, ss.value, ss.option)" ng-show="!bpm.isstring(ss.option[0])" style="font-size: 15px;height: 42px" >
                                         <ui-select-match><span class="item-label">{{$select.selected.alias}}</span></ui-select-match>
-                                        <ui-select-choices repeat="item.name as item in ss.option | filter: $select.search">
+                                        <ui-select-choices repeat="item.name as item in ss.option | filter: {alias: $select.search}">
                                             <div ng-bind-html="item.alias | highlight: ss.option"></div>
                                         </ui-select-choices>
                                       </ui-select>
@@ -174,7 +174,7 @@
                                         <ui-select-match>
                                           <span class="item-label">{{$select.selected.alias}}</span>
                                         </ui-select-match>
-                                        <ui-select-choices repeat="item.name as item in bpm.optionx[ss.name] | filter: {name:$select.search}">
+                                        <ui-select-choices repeat="item.name as item in bpm.optionx[ss.name] | filter: {alias:$select.search}">
                                             <div ng-bind-html="item.alias | highlight: $select.search"></div>
                                         </ui-select-choices>
                                       </ui-select>
@@ -304,7 +304,7 @@
                                     <tbody>
                                         <tr ng-repeat="item in bpm.bpmlog[$index+1]" style="cursor: pointer">
                                             <td>{{item.time}}</td>
-                                            <td>{{item.info}}</td>
+                                            <td ng-bind-html="item.info"></td>
                                         </tr>
                                     </tbody>
                                 </table>

@@ -1,0 +1,49 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $file = '/data/open-c3-data/c3mc-device-account-proxy.yml';
+
+# file content demo
+# ===========================
+# aliyun-ecs:
+#  ingest:
+#    inip: 1
+#    exip: 1
+#  proxy:
+#    0780172: 10.10.10.1
+#    7715695: 10.10.10.1
+#    7195488: 10.10.10.2
+#    7811780: 10.10.10.2
+
+exit unless -f $file;
+
+my $config = YAML::XS::LoadFile $file;
+
+my $count = 0;
+for my $type ( keys %$config )
+{
+    my @x  = `c3mc-device-data-get curr compute '$type' account 内网IP 公网IP`;
+    chomp @x;
+    for( @x )
+    {
+        my ( $account, $inip, $exip ) = split /\s+/, $_;
+        my $proxyip = $config->{$type}{proxy}{$account};
+        next unless $proxyip && $proxyip =~ /^\d+\.\d+\.\d+\.\d+$/;
+
+        if( $config->{$type}{ingest}{inip} && $inip =~ /^\d+\.\d+\.\d+\.\d+$/ && $inip ne $proxyip ){ print "$inip/32: $proxyip\n"; $count ++; }
+        if( $config->{$type}{ingest}{exip} && $exip =~ /^\d+\.\d+\.\d+\.\d+$/ && $exip ne $proxyip ){ print "$exip/32: $proxyip\n"; $count ++; };
+    }
+}
+
+die "no proxy" unless $count;
