@@ -1,0 +1,20 @@
+---
+name: '业务审批人'
+option:
+  - describe: 申请理由
+    name: note
+    type: text
+    value: ""
+
+template_argv:
+  approver: "vuuidowner(${x.instance_ids})"
+  title:    "BPM/${_bpmuuid_}/资源操作/AWS/EC2"
+  content:  |
+    BPM标题: 资源操作/AWS/EC2
+    BPM地址: ${_caseurl_}
+
+    申请人:${_user_}
+    申请理由:${x.note}
+  record: 1
+  relaxed: 1
+  submitter: '${_user_}'

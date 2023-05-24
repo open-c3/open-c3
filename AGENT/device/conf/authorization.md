@@ -157,6 +157,9 @@
                 "elasticache:RemoveTagsFromResource",
                 "elasticache:AddTagsToResource",
                 "elasticache:DescribeCacheClusters",
+                "route53:ListHostedZones",
+                "route53:ListTagsForResources",
+                "route53:ListResourceRecordSets",
                 "sts:DecodeAuthorizationMessage"
             ],
             "Resource": "*"
