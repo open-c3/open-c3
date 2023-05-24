@@ -1,0 +1,16 @@
+---
+name: 管理管理EC2实例集合总列表
+option:
+  - name: operation_type
+    describe: 操作类型
+    type: select
+    option: ["新增", "移除"]
+    value: ""
+
+  - name: instance_ids
+    describe: 实例id列表 (多个用英文逗号分隔)
+    type: text
+
+template_argv:
+  operation_type: ${operation_type}
+  instance_ids: ${instance_ids}
