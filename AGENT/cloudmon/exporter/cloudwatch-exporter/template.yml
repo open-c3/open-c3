@@ -1,0 +1,34 @@
+---
+ak: "${ak}"
+sk: "${sk}"
+region: "${region}"
+metrics:
+ - aws_namespace: AWS/RDS
+   aws_metric_name: DatabaseConnections
+   aws_dimensions: [ DBInstanceIdentifier]
+   aws_statistics: [Maximum]
+
+ - aws_namespace: AWS/RDS
+   aws_metric_name: FreeableMemory
+   aws_dimensions: [ DBInstanceIdentifier]
+   aws_statistics: [Maximum]
+
+ - aws_namespace: AWS/RDS
+   aws_metric_name: CPUUtilization
+   aws_dimensions: [ DBInstanceIdentifier]
+   aws_statistics: [Maximum]
+
+ - aws_namespace: AWS/RDS
+   aws_metric_name: FreeStorageSpace
+   aws_dimensions: [ DBInstanceIdentifier]
+   aws_statistics: [Maximum]
+
+ - aws_namespace: AWS/ElastiCache
+   aws_metric_name: EngineCPUUtilization
+   aws_dimensions: [ CacheClusterId]
+   aws_statistics: [Maximum]
+
+ - aws_namespace: AWS/ElastiCache
+   aws_metric_name: DatabaseMemoryUsagePercentage
+   aws_dimensions: [ CacheClusterId]
+   aws_statistics: [Maximum]
