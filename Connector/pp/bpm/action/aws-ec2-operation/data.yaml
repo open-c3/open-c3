@@ -1,0 +1,20 @@
+---
+name: 操作aws ec2
+option:
+  - name: operation_type
+    describe: 操作类型
+    type: select
+    option:
+    - name: start
+      alias: "启动"
+    - name: stop
+      alias: "停机"
+    value: ""
+
+  - name: instance_ids
+    describe: 实例id列表 (多个用英文逗号分隔)
+    type: text
+
+template_argv:
+  operation_type: ${operation_type}
+  instance_ids: ${instance_ids}

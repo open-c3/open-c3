@@ -22,7 +22,7 @@ class ModifyEc2:
     
     def run(self, instance_id, new_instance_type):
         self.lib_client.stop_instances([instance_id])
-        self.lib_client.wait_until_stopped(instance_id)
+        self.lib_client.wait_until_status(instance_id, "stopped")
         self.lib_client.modify_instance_attribute({
             "InstanceId": instance_id,
             "InstanceType": {

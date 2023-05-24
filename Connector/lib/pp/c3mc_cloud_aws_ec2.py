@@ -190,9 +190,8 @@ class LIB_EC2:
             else:
                 print(f"ClientError: {e}")
     
-
-    def wait_until_stopped(self, instance_id, timeout=600):
-        """等待ec2实例进入stopped状态
+    def wait_until_status(self, instance_id, target_status, timeout=600):
+        """等待ec2实例进入目标状态
 
         Args:
             instance_id (string): ec2实例ID
@@ -201,7 +200,7 @@ class LIB_EC2:
         start_time = time.time()
         while True:
             instance_info = self.describe_instances([instance_id])["Reservations"][0]["Instances"][0]
-            if instance_info["State"]["Name"] == "stopped":
+            if instance_info["State"]["Name"] == target_status:
                 return True
             elif time.time() - start_time > timeout:
                 return False
