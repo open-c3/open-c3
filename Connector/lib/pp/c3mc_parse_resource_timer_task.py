@@ -4,6 +4,7 @@
 import os
 import shutil
 
+
 # 每一行的格式是
 
 # action_type;hour/crontab format;instance_uuid;editor;valid_start_timestamp;valid_end_timestamp
@@ -151,6 +152,8 @@ class OperateTimeTaskFile:
 
             if instance_uuid not in data:
                 data[instance_uuid] = {action_type: line_info}
+            else:
+                data[instance_uuid][action_type] = line_info
 
         self.data = data
 
@@ -206,6 +209,19 @@ class OperateTimeTaskFile:
                 })
 
         return result
+    
+
+    def update_valid_end_timestamp(
+        self,
+        action_type,
+        instance_uuid,
+        valid_end_timestamp
+    ):
+        if instance_uuid not in self.data or action_type not in self.data[instance_uuid]:
+            raise RuntimeError(f"无法找到指定的定时任务, instance_uuid: {instance_uuid}, action_type: {action_type}")
+
+        self.data[instance_uuid][action_type].set_valid_end_timestamp(valid_end_timestamp)
+
 
     def save(self):
         str_data_list = []
