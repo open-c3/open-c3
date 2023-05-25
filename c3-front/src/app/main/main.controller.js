@@ -40,6 +40,10 @@
           window.open('https://github.com/open-c3/open-c3/issues')
         }
 
+        vm.handleDosc = function () {
+          window.open('/book/index.html')
+        }
+
         vm.handleModalIsOpen = function () {
           vm.modalIsOpen = modalInstance && modalInstance.closed !== true;
         }

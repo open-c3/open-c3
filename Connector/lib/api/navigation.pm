@@ -26,7 +26,7 @@ get '/navigation/menu' => sub {
         $api::mysql->query( 
             sprintf( "select %s from openc3_connector_navigation where `show`=1", join( ',', map{"`$_`"}@col ) ), \@col )};
 
-    map{$_->{url} = decode_base64( $_->{url} ); $_->{icon} = 'navigation' }@$r;
+    map{$_->{url} = decode_base64( $_->{url} ); $_->{icon} = 'navigation'; $_->{type} = 'website' }@$r;
 
     my @x = `c3mc-base-db-get --table openc3_job_bpm_menu name alias '\`describe\`' --filter '\`show\`=1'`;
     chomp @x;
@@ -34,7 +34,7 @@ get '/navigation/menu' => sub {
     {
         utf8::decode( $_ );
         my ( $url, $name, $describe ) = split /;/, $_, 3;
-        push @$r, +{ name => $name, describe => $describe, url => "/#/bpm/4000000000/0?name=$url", icon => 'bpm' };
+        push @$r, +{ name => $name, describe => $describe, url => "/#/bpm/4000000000/0?name=$url", icon => 'bpm', type => $name =~ /^(\S+)\s+/ ? $1 : 'default' };
     }
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };

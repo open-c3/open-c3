@@ -1,0 +1,50 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use File::Temp;
+use Digest::MD5;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my @x = `cat /data/open-c3-data/bpm/crontask.txt`;
+chomp @x;
+
+my %data;
+for( @x )
+{
+    my ( undef, $cron ) = split /;/, $_;
+    $cron = "0 $cron * * *" if $cron =~ /^\d+$/;
+    unless( $cron =~ /^[\d\s\*\/\-,]+$/ )
+    {
+        warn "cron format error: $_";
+        next;
+    }
+    $data{$cron} ++;
+}
+
+my @cron = keys %data;
+
+my @cont = ( "CRON_TZ=Asia/Shanghai", "TZ=Asia/Shanghai");
+
+map{ push @cont, "$_ root /data/Software/mydan/Connector/pp/crontask/cron-run '$_' >> /tmp/crontask.log 2>&1" }sort @cron;
+
+my $cronfile = '/etc/cron.d/openc3.crontask.crontab';
+
+my $oldconf = `cat $cronfile`;
+my $oldmd5 = Digest::MD5->new->add( $oldconf )->hexdigest;
+
+my $newconf = join "", map{ "$_\n" }@cont;
+my $newmd5 = Digest::MD5->new->add( $newconf )->hexdigest;
+
+exit if $oldmd5 eq $newmd5;
+
+my ( $TEMP, $tempfile ) = File::Temp::tempfile();
+print $TEMP $newconf;
+system "mv '$tempfile' '$cronfile'";

@@ -473,4 +473,34 @@ any '/bpm/manage/show/:name/:show' => sub {
     return +{ stat => $JSON::true };
 };
 
+=pod
+
+BPM/获取bpm定时任务列表
+
+=cut
+
+get '/bpm/crontask' => sub {
+    my $pmscheck = api::pmscheck( 'openc3_agent_read' ); return $pmscheck if $pmscheck;
+
+    my @res;
+    my $file = "/data/open-c3-data/bpm/crontask.txt";
+    if( -f $file )
+    {
+        my @x = `cat $file`;
+        chomp @x;
+        for( @x )
+        {
+            my ( $action, $crontab, $node, $editor, $start, $end ) = split /;/, $_;
+            $crontab = "0 $crontab * * *" if $crontab =~ /^\d+$/;
+            my $startstat = $start < time ? 1 : 0;
+            my $endstat   = time < $end   ? 1 : 0;
+            $start   = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime($start) );
+            $end     = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime($end  ) );
+            push @res, +{ action => $action, crontab => $crontab, node => $node, editor => $editor, start => $start, startstat => $startstat, end => $end, endstat => $endstat };
+        }
+    }
+
+    return +{ stat => $JSON::true, data => \@res };
+};
+
 true;

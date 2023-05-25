@@ -803,7 +803,13 @@
                 templateUrl: 'app/api/log.html',
                 controller: 'ApiLogController',
                 controllerAs: 'log'
-            });
+            })
+          .state('home.history.timetask', {
+            url: 'timetask/:treeid',
+            templateUrl: 'app/pages/history/timetask/timetask.html',
+            controller: 'HistoryTimeTaskController',
+            controllerAs: 'historytimetask',
+          });
 
 
         $urlRouterProvider.otherwise('/search/4000000000');
