@@ -8,8 +8,18 @@
         <div ui-view>
             <cmindex></cmindex>
         </div>
-        <button ng-show="main.isShowSearch"  ng-disabled="main.modalIsOpen" class="global-search" ng-click="main.handleClick()"><i class="fa fa-search fa-lg" aria-hidden="true" style="line-height: 0;"></i></button>
-        <button ng-show="main.isShowSearch"  ng-disabled="main.modalIsOpen" class="global-issue" ng-click="main.handleOpen()"><i class="fa fa-pencil-square-o" aria-hidden="true" style="line-height: 0;"></i></button>
+        <button ng-show="main.isShowSearch"  ng-disabled="main.modalIsOpen" class="global-button global-search" ng-click="main.handleClick()">
+          <i class="fa fa-search fa-lg" aria-hidden="true" style="line-height: 0;font-size: 16px; margin-top: 8px;"></i>
+          <div class="global-div-text">{{'C3T.搜索'| translate}} </div>
+        </button>
+        <button class="global-button global-dosc" ng-click="main.handleDosc()">
+          <i class="fa fa-book" aria-hidden="true" style="line-height: 0; font-size: 16px;margin-top: 8px;"></i>
+          <div class="global-div-text">{{'C3T.文档'| translate}}</div>
+        </button>
+        <button class="global-button global-issue" ng-click="main.handleOpen()">
+          <i class="fa fa-pencil-square-o" aria-hidden="true" style="line-height: 0;font-size: 16px;margin-top: 8px;"></i>
+          <div class="global-div-text">{{'C3T.问题'| translate}}</div>
+        </button>
     </div>
 
     <cmfooter></cmfooter>
