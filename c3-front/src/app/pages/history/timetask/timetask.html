@@ -21,8 +21,12 @@
             <td data-title="'C3T.crontab时间格式'|translate">{{ss.crontab}}</td>
             <td data-title="'C3T.执行节点'|translate">{{ss.node}}</td>
             <td data-title="'C3T.编辑人'|translate">{{ss.editor}}</td>
-            <td data-title="'C3T.开始时间'|translate">{{ss.start}}</td>
-            <td data-title="'C3T.结束时间'|translate">{{ss.end}}</td>
+            <td data-title="'C3T.开始时间'|translate">
+              <div ng-class="{'success': ss.startstat, 'error': !ss.startstat}">{{ss.start}}</div>
+            </td>
+            <td data-title="'C3T.结束时间'|translate">
+              <div ng-class="{'success': ss.endstat, 'error': !ss.endstat}">{{ss.end}}</div>
+            </td>
           </tr>
         </table>
       </div>
