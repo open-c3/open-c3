@@ -1,0 +1,64 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+import time
+
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_parse_resource_timer_task import OperateTimeTaskFile
+
+
+def get_instance_uuid(instance_maybe_identifier):
+    command = f"c3mc-device-find-uuid {instance_maybe_identifier}"
+    result = subprocess.check_output(command, shell=True)
+    parts = result.decode("utf-8").strip().split()
+    if len(parts) > 1:
+        print(f"通过命令 {command} 查询到了多个uuid {parts}", file=sys.stderr)
+        exit(1)
+    return parts[0]
+
+
+def main(params):
+    print("params = ", json.dumps(params))
+
+    instance_identifier_list = [
+        item.strip() for item in params["instance_ids"].split(",") if item.strip() != ""
+    ]
+
+    ot = OperateTimeTaskFile()
+
+    action_type = params["action_type"]
+    editor = params["editor"]
+    timer = (
+        params["selected_hour"]
+        if params["timer_format"] == "hour"
+        else params["crontab"]
+    )
+
+    valid_start_timestamp = int(time.time())
+    valid_end_timestamp = valid_start_timestamp + 10 * 365 * 24 * 3600
+
+    for instance_identifier in instance_identifier_list:
+        instance_uuid = get_instance_uuid(instance_identifier)
+
+        ot.add(
+            action_type.strip(),
+            instance_uuid.strip(),
+            timer.strip(),
+            editor.strip(),
+            valid_start_timestamp,
+            valid_end_timestamp,
+        )
+
+    ot.save()
+
+
+if __name__ == "__main__":
+    input_list = list(sys.stdin)
+    if not input_list or len(input_list) > 1:
+        raise type("WrongInputData", (Exception,), {})('数据格式不对, 需要一行json字符串"')
+
+    main(json.loads(input_list[0]))

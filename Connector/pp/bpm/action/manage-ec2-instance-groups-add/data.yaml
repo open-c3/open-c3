@@ -1,0 +1,60 @@
+---
+name: 定时操作EC2实例增加实例
+option:
+  - name: action_type
+    describe: 操作类型
+    type: selectx
+    command: c3mc-bo-manage-ec2-instance-groups-list-actions
+
+  - name: account
+    describe: 账号
+    command: c3mc-display-cloud-account-list aws
+    type: selectx
+
+  - name: region
+    describe: 区域
+    rely:
+      - account
+    command: c3mc-ec2-describe-regions | c3mc-bpm-display-field-values "{code}; 名称:{name}, 区域代码:{code}"
+    type: selectx
+    information: "如果区域列表缺少某些区域，原因是你的账户未启用对应区域"
+
+  - name: instance_ids
+    describe: EC2实例列表
+    rely:
+      - account
+      - region
+    command: c3mc-bo-manage-ec2-instance-groups-list-ec2 | c3mc-bpm-display-field-values "{InstanceId}; 实例ID:{InstanceId}; 内网IP:{PrivateIpAddress}, 公网IP:{PublicIpAddress}"
+    type: selectxm
+
+  - name: timer_format
+    describe: 操作时刻类型
+    type: select
+    option:
+      - name: hour
+        alias: "24小时制"
+      - name: crontab
+        alias: "crontab格式"
+
+  - name: selected_hour
+    describe: 24小时制
+    type: select
+    option: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+    value: ""
+    show:
+      - timer_format: [hour]
+
+  - name: crontab
+    describe: crontab格式
+    type: input
+    value: ""
+    show:
+      - timer_format: [crontab]
+
+template_argv:
+  editor: ${_user_}
+  action_type: ${action_type}
+  instance_ids: ${instance_ids}
+  timer_format: ${timer_format}
+  selected_hour: ${selected_hour}
+  crontab: ${crontab}
