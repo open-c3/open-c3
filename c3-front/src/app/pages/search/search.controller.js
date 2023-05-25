@@ -16,6 +16,16 @@
       bpm: '/assets/images/bpm.png',
       navigation: '/assets/images/navigation.png',
     }
+    vm.searchTypeObject = {};
+
+    vm.converArray = function (arr) {
+      const searchTypeArr = [...new Set(arr.map(item => item.type))].map(item => { return { type: item } });
+      const searchTypeObj = {};
+      angular.forEach(searchTypeArr, function (item, index) {
+        searchTypeObj[item.type] = { type: item.type === 'website' ? '网址导航' : item.type, content: arr.filter(cItem => cItem.type === item.type) }
+      })
+      return searchTypeObj;
+    }
 
     vm.reload = function () {
       vm.searchloadover = true;
@@ -24,6 +34,7 @@
         if (data.stat) {
           vm.cardMenu = data.data;
           vm.defaultSearchArr = data.data
+          vm.searchTypeObject = vm.converArray(data.data);
         } else {
           vm.searchloadover = false;
           swal({ title: '获取菜单失败', text: data.info, type: 'error' });
@@ -45,9 +56,11 @@
       const defaultArr = JSON.parse(JSON.stringify(vm.defaultSearchArr))
       if (vm.choiceSearch === '') {
         vm.cardMenu = defaultArr;
+        vm.searchTypeObject = vm.converArray(vm.cardMenu);
         return;
       }
       vm.cardMenu = defaultArr.filter(item => item.name.toLowerCase().includes(vm.choiceSearch.toLowerCase()));
+      vm.searchTypeObject = vm.converArray(vm.cardMenu);
     }
 
     vm.handleClear = function () {
