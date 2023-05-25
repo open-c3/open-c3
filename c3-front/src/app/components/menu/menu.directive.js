@@ -103,6 +103,7 @@
                                 || sName == 'home.global.k8sapptpl'
                                 || sName == 'home.global.jumpserverexipsite'
                                 || sName == 'home.connector.userleader'
+                                || sName == 'home.history.timetask'
                              ){
                                 $state.go(sName, {treeid:treeNode.id});
                             }else{
