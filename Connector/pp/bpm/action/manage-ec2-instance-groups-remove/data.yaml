@@ -1,0 +1,18 @@
+---
+name: 定时操作EC2实例删除实例
+option:
+  - name: instance_ids
+    describe: 当前管理的实例列表
+    type: selectxm
+    command: c3mc-bo-manage-ec2-instance-groups-list-current-managed-ec2 | c3mc-bpm-display-field-values "{instance_uuid}; {str_data}"
+
+  - name: action_type
+    describe: 操作类型
+    type: selectx
+    rely:
+      - account
+    command: c3mc-bo-manage-ec2-instance-groups-list-actions
+
+template_argv:
+  instance_ids: ${instance_ids}
+  action_type: ${action_type}
