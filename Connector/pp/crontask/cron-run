@@ -1,0 +1,41 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0 '* * * * *'
+
+=cut
+
+my $cronstr = shift @ARGV;
+die "cron undef" unless $cronstr;
+
+
+my @x = `cat /data/open-c3-data/crontask`;
+chomp @x;
+
+my %data;
+for( @x )
+{
+    my ( $action, $cron, $node, $owner, $start, $end ) = split /;/, $_;
+    $start //= 0;
+    $end   //= time + ( 10 * 360 * 86400 );
+
+    $cron = "0 $cron * * *" if $cron =~ /^\d+$/;
+
+    next unless  $cron eq $cronstr;
+    next unless $start < time && time < $end;
+
+    push @{$data{$action}}, $node;
+}
+
+for my $action ( keys %data )
+{
+    my $node = join ',', @{$data{$action}};
+    my $cmd = "/data/Software/mydan/Connector/pp/crontask/action/$action '$node' 2>&1 | c3mc-base-sendmesg crontask-bot";
+    print "cmd: $cmd\n";
+    system $cmd;
+}

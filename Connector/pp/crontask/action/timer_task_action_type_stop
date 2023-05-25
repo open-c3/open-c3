@@ -1,0 +1,10 @@
+#!/bin/bash
+
+NODE=$1
+
+if [ "X$NODE" == "X" ];then
+    echo NODE undef
+    exit 1
+fi
+
+echo "{\"operation_type\": \"stop\", \"instance_ids\": \"$NODE\"}" | c3mc-bpm-action-aws-ec2-operation
