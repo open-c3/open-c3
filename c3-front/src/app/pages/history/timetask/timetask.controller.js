@@ -13,9 +13,9 @@
       vm.loadover = false;
 
       vm.jumpLinkMap = {
-        add: '/#/bpm/0/0?name=manage-ec2-instance-groups-add',
-        del: '/#/bpm/0/0?name=manage-ec2-instance-groups-remove',
-        shield: '/#/bpm/0/0?name=manage-ec2-instance-groups-config-special'
+        add: '/#/bpm/0/0?name=bpm-resources-group-ec2-add',
+        del: '/#/bpm/0/0?name=bpm-resources-group-ec2-remove',
+        shield: '/#/bpm/0/0?name=bpm-resources-group-ec2-config-special'
       }
       vm.reload = function () {
         $http.get('/api/job/bpm/crontask').success(function (data) {
