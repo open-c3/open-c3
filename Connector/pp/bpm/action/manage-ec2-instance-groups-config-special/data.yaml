@@ -1,0 +1,38 @@
+---
+name: 定时操作EC2实例更新有效时间段
+option:
+  - name: instance_ids
+    describe: 当前管理的实例列表
+    type: selectxm
+    command: c3mc-bo-manage-ec2-instance-groups-list-current-managed-ec2 | c3mc-bpm-display-field-values "{instance_uuid}; {str_data}"
+
+  - name: action_type
+    describe: 操作类型
+    type: selectx
+    rely:
+      - account
+    command: c3mc-bo-manage-ec2-instance-groups-list-actions
+
+  - name: days
+    describe: 更新生效时间段
+    type: select
+    option:
+      - name: 1
+        alias: "未来 1 天"
+      - name: 2
+        alias: "未来 2 天"
+      - name: 3
+        alias: "未来 3 天"
+      - name: 4
+        alias: "未来 4 天"
+      - name: 5
+        alias: "未来 5 天"
+      - name: 6
+        alias: "未来 6 天"
+      - name: 7
+        alias: "未来 7 天"
+
+template_argv:
+  instance_ids: ${instance_ids}
+  action_type: ${action_type}
+  days: ${days}

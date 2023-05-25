@@ -6,6 +6,17 @@
   <hr class="mv10 clear">
 
   <div class="panel panel-primary">
+    <div class="panel-time-task">
+      <el-button class="btn btn-info panel-time-task-button" type="submit" ng-click="historytimetask.handleOpen('add')">
+        {{'C3T.添加定时任务' |translate}}
+      </el-button>
+      <el-button class="btn btn-info panel-time-task-button" type="submit" ng-click="historytimetask.handleOpen('del')">
+        {{'C3T.删除定时任务' | translate}}
+      </el-button>
+      <el-button class="btn btn-info panel-time-task-button" type="submit" ng-click="historytimetask.handleOpen('shield')">
+        {{'C3T.临时屏蔽' | translate}}
+      </el-button>
+    </div>
     <div class="panel-heading">
       <span class="panel-controls">
         <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="historytimetask.reload()"><i
@@ -20,9 +31,13 @@
             <td data-title="'C3T.操作类型'|translate">{{ss.action}}</td>
             <td data-title="'C3T.crontab时间格式'|translate">{{ss.crontab}}</td>
             <td data-title="'C3T.执行节点'|translate">{{ss.node}}</td>
-            <td data-title="'C3T.处理人'|translate">{{ss.editor}}</td>
-            <td data-title="'C3T.开始时间'|translate">{{ss.start}}</td>
-            <td data-title="'C3T.结束时间'|translate">{{ss.end}}</td>
+            <td data-title="'C3T.编辑人'|translate">{{ss.editor}}</td>
+            <td data-title="'C3T.开始时间'|translate">
+              <div ng-class="{'success': ss.startstat, 'error': !ss.startstat}">{{ss.start}}</div>
+            </td>
+            <td data-title="'C3T.结束时间'|translate">
+              <div ng-class="{'success': ss.endstat, 'error': !ss.endstat}">{{ss.end}}</div>
+            </td>
           </tr>
         </table>
       </div>
