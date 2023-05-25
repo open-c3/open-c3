@@ -12,6 +12,11 @@
       $scope.nowTime = $filter('date')(new Date, "yyyy-MM-dd");
       vm.loadover = false;
 
+      vm.jumpLinkMap = {
+        add: '/#/bpm/0/0?name=manage-ec2-instance-groups-add',
+        del: '/#/bpm/0/0?name=manage-ec2-instance-groups-remove',
+        shield: '/#/bpm/0/0?name=manage-ec2-instance-groups-config-special'
+      }
       vm.reload = function () {
         $http.get('/api/job/bpm/crontask').success(function (data) {
           vm.loadover = true;
@@ -26,6 +31,10 @@
       };
 
       vm.reload();
+
+      vm.handleOpen = function (type) {
+        window.open(vm.jumpLinkMap[type]);
+      };
   }
 
 })();
