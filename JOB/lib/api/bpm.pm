@@ -483,7 +483,6 @@ get '/bpm/crontask' => sub {
     my $pmscheck = api::pmscheck( 'openc3_agent_read' ); return $pmscheck if $pmscheck;
 
     my @res;
-    my @col = qw( action crontab node owner start end );
     my $file = "/data/open-c3-data/bpm/crontask.txt";
     if( -f $file )
     {
@@ -491,11 +490,11 @@ get '/bpm/crontask' => sub {
         chomp @x;
         for( @x )
         {
-            my ( $action, $crontab, $node, $owner, $start, $end ) = split /;/, $_;
+            my ( $action, $crontab, $node, $editor, $start, $end ) = split /;/, $_;
             $crontab = "0 $crontab * * *" if $crontab =~ /^\d+$/;
             $start   = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime($start) );
             $end     = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime($end  ) );
-            push @res, +{ action => $action, crontab => $crontab, node => $node, owner => $owner, start => $start, end => $end };
+            push @res, +{ action => $action, crontab => $crontab, node => $node, editor => $editor, start => $start, end => $end };
         }
     }
 
