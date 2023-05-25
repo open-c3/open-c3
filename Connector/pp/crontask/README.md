@@ -1,7 +1,7 @@
 # 系统CronTask
 
 ```
-由文件/data/open-c3-data/crontask控制
+由文件/data/open-c3-data/bpm/crontask.txt控制
 文件格式:
    动作;执行时间;操作对象;操作对象的owner暂时没用到);作用开始时间;作用结束时间
 如
