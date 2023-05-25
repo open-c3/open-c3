@@ -14,7 +14,7 @@
       vm.reload = function () {
         $http.get('/api/job/bpm/crontask').success(function (data) {
           if (data.stat) {
-            vm.data_Table = new ngTableParams({count:10}, {counts:[],data:data.data.reverse()});
+            vm.data_Table = new ngTableParams({count:20}, {counts:[],data:data.data.reverse()});
           }else {
             swal('获取列表失败', data.info, 'error');
           }
