@@ -492,9 +492,11 @@ get '/bpm/crontask' => sub {
         {
             my ( $action, $crontab, $node, $editor, $start, $end ) = split /;/, $_;
             $crontab = "0 $crontab * * *" if $crontab =~ /^\d+$/;
+            my $startstat = $start < time ? 1 : 0;
+            my $endstat   = time < $end   ? 1 : 0;
             $start   = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime($start) );
             $end     = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime($end  ) );
-            push @res, +{ action => $action, crontab => $crontab, node => $node, editor => $editor, start => $start, end => $end };
+            push @res, +{ action => $action, crontab => $crontab, node => $node, editor => $editor, start => $start, startstat => $startstat, end => $end, endstat => $endstat };
         }
     }
 
