@@ -26,16 +26,16 @@
     </div>
     <div class="panel-body" ng-init='openc3_job_system_only=0'>
       <div class="panel-tabs" ng-init='calltype = { "page":"C3T.页面", "api":"API", "crontab":"C3T.计划任务" }'>
-        <table ng-table="historytimetask.data_Table" class="table table-hover text-center table-condensed">
+        <table ng-table="historytimetask.data_Table" class="table table-hover text-center table-condensed"  show-filter="true">
           <tr ng-repeat="ss in $data">
-            <td data-title="'C3T.操作类型'|translate">{{ss.action}}</td>
-            <td data-title="'C3T.crontab时间格式'|translate">{{ss.crontab}}</td>
-            <td data-title="'C3T.执行节点'|translate">{{ss.node}}</td>
-            <td data-title="'C3T.编辑人'|translate">{{ss.editor}}</td>
-            <td data-title="'C3T.开始时间'|translate">
+            <td data-title="'C3T.操作类型'|translate" filter="{ action: 'text'}">{{ss.action}}</td>
+            <td data-title="'C3T.crontab时间格式'|translate" filter="{ crontab: 'text'}">{{ss.crontab}}</td>
+            <td data-title="'C3T.执行节点'|translate" filter="{ node: 'text'}">{{ss.node}}</td>
+            <td data-title="'C3T.编辑人'|translate" filter="{ editor: 'text'}">{{ss.editor}}</td>
+            <td data-title="'C3T.开始时间'|translate" filter="{ start: 'text'}">
               <div ng-class="{'success': ss.startstat, 'error': !ss.startstat}">{{ss.start}}</div>
             </td>
-            <td data-title="'C3T.结束时间'|translate">
+            <td data-title="'C3T.结束时间'|translate" filter="{ end: 'text'}">
               <div ng-class="{'success': ss.endstat, 'error': !ss.endstat}">{{ss.end}}</div>
             </td>
           </tr>
