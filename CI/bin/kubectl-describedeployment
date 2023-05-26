@@ -27,4 +27,6 @@ for( @pod )
     push @{$re{newpod}}, \%tmp if $re{"NewReplicaSet"}  && $tmp{NAME} =~ /^$re{"NewReplicaSet"}/;
 }
 
+$re{selector} = $re{describe} =~ /\nSelector:\s+(.+)\n/ ? $1 : "";
+
 print YAML::XS::Dump \%re;

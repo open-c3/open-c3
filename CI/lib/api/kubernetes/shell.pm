@@ -11,12 +11,13 @@ K8S/虚拟终端/进入POD
 
 any '/kubernetes/pod/shell' => sub {
     my $param = params();
-    my ( $namespace, $name, $clusterid, $type, $siteaddr ) = @$param{qw( namespace name clusterid type siteaddr )};
+    my ( $namespace, $name, $clusterid, $type, $siteaddr, $grep ) = @$param{qw( namespace name clusterid type siteaddr grep )};
 
+    my $grepstr = length $grep > 0 ? "&grep=$grep" : '';
     return "params undef" unless $namespace && $name && $clusterid && $type;
     return "no cookie" unless my $u = cookie( $api::cookiekey );
 
-    redirect "$siteaddr/webshell/index.html?u=$u&clusterid=$clusterid&namespace=$namespace&name=$name&type=$type";
+    redirect "$siteaddr/webshell/index.html?u=$u&clusterid=$clusterid&namespace=$namespace&name=$name&type=$type$grepstr";
 };
 
 =pod
