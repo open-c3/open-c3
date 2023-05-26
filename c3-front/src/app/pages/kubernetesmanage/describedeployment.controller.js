@@ -17,6 +17,7 @@
             vm.nodeStr = treeService.selectname();
         });
 
+        vm.grep = '';
         vm.selector = '';
         vm.reload = function(){
             vm.loadover = false;
@@ -54,9 +55,9 @@
             });
         };
 
-        vm.openOneTab = function (NAME, type) {
+        vm.openOneTab = function (NAME, type, grep) {
             var terminalAddr = window.location.protocol + "//" + window.location.host+"/api/ci/kubernetes/pod/shell";
-            var s = "?namespace=" + namespace + '&name=' + NAME + '&clusterid=' + ticketid + '&type=' + type + '&siteaddr=' + window.location.protocol + "//" + window.location.host;
+            var s = "?namespace=" + namespace + '&name=' + NAME + '&clusterid=' + ticketid + '&type=' + type + '&siteaddr=' + window.location.protocol + "//" + window.location.host + "&grep=" + grep;
             window.open(terminalAddr+s, '_blank')
         };
     }

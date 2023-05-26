@@ -8,13 +8,18 @@ use api::kubernetes;
 
 exit unless my $argv = shift;
 
-my ( $u, $clusterid, $namespace, $name, $type );
+my ( $u, $clusterid, $namespace, $name, $type, $grep );
 
 eval{
     if( $argv =~ /^\?u=(.+)&clusterid=(.+)&namespace=(.+)&name=(.+)&type=(sh|bash|log)$/ )
     {
         ( $u, $clusterid, $namespace, $name, $type ) = ( $1, $2, $3, $4, $5 );
     }
+    elsif( $argv =~ /^\?u=(.+)&clusterid=(.+)&namespace=(.+)&name=(.+)&type=(sh|bash|log)&grep=(.+)$/ )
+    {
+        ( $u, $clusterid, $namespace, $name, $type, $grep ) = ( $1, $2, $3, $4, $5, $6 );
+    }
+ 
     else { die "param error\n"; }
     
     my $db = MYDB->new( "$RealBin/../conf/conn" );
@@ -40,7 +45,15 @@ eval{
     {
         if( $name =~ /=/ )
         {
-            system "$kubectl -n '$namespace' logs -f -l '$name' --tail=3000 --timestamps=true --prefix=true";
+            if( $grep )
+            {
+                $grep =~ s/'//;
+                system "$kubectl -n '$namespace' logs -f -l '$name' --tail=3000 --timestamps=true --prefix=true| grep '$grep' --color";
+            }
+            else
+            {
+                system "$kubectl -n '$namespace' logs -f -l '$name' --tail=3000 --timestamps=true --prefix=true";
+            }
         }
         else
         {
