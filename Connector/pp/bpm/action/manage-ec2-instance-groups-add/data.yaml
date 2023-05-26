@@ -24,7 +24,7 @@ option:
     rely:
       - account
       - region
-    command: c3mc-bo-manage-ec2-instance-groups-list-ec2 | c3mc-bpm-display-field-values "{InstanceId}; 实例ID:{InstanceId}; 内网IP:{PrivateIpAddress}, 公网IP:{PublicIpAddress}"
+    command: c3mc-bo-manage-ec2-instance-groups-list-ec2 | c3mc-bpm-display-field-values "{PrivateIpAddress}; 实例ID:{InstanceId}; 内网IP:{PrivateIpAddress}, 公网IP:{PublicIpAddress}"
     type: selectxm
 
   - name: timer_format
@@ -39,7 +39,7 @@ option:
   - name: selected_hour
     describe: 24小时制
     type: select
-    option: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
+    option: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23]
     value: ""
     show:
       - timer_format: [hour]

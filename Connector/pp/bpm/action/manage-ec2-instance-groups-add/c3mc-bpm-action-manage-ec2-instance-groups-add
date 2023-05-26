@@ -42,16 +42,18 @@ def main(params):
     valid_end_timestamp = valid_start_timestamp + 10 * 365 * 24 * 3600
 
     for instance_identifier in instance_identifier_list:
-        instance_uuid = get_instance_uuid(instance_identifier)
+        # 这里只判断是否可以根据用户输入的信息成功查询指定实例id
+        get_instance_uuid(instance_identifier)
 
         ot.add(
             action_type.strip(),
-            instance_uuid.strip(),
+            instance_identifier.strip(),
             timer.strip(),
             editor.strip(),
             valid_start_timestamp,
             valid_end_timestamp,
         )
+        print(f"LOG. 定时操作EC2实例增加实例: {instance_identifier}")
 
     ot.save()
 

@@ -35,13 +35,21 @@ def main(params):
     ot = OperateTimeTaskFile()
 
     for instance_identifier in instance_identifier_list:
-        instance_uuid = get_instance_uuid(instance_identifier)
+        # 这里只判断是否可以根据用户输入的信息成功查询指定实例id
+        get_instance_uuid(instance_identifier)
 
-        ot.update_valid_end_timestamp(
-            action_type.strip(),
-            instance_uuid.strip(),
-            int(time.time()) + days * 24 * 3600
-        )
+        try:
+            ot.update_valid_start_timestamp(
+                action_type.strip(),
+                instance_identifier.strip(),
+                int(time.time()) + days * 24 * 3600
+            )
+            print(f"LOG. 定时操作EC2实例更新有效时间段: {instance_identifier}")
+        except Exception as e:
+            if "无法找到相关定时任务" in str(e):
+                print(f"LOG. {str(e)}")
+            else:
+                raise e
 
     ot.save()
 

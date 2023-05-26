@@ -4,7 +4,7 @@ option:
   - name: instance_ids
     describe: 当前管理的实例列表
     type: selectxm
-    command: c3mc-bo-manage-ec2-instance-groups-list-current-managed-ec2 | c3mc-bpm-display-field-values "{instance_uuid}; {str_data}"
+    command: c3mc-bo-manage-ec2-instance-groups-list-current-managed-ec2
 
   - name: action_type
     describe: 操作类型
@@ -18,19 +18,19 @@ option:
     type: select
     option:
       - name: 1
-        alias: "未来 1 天"
-      - name: 2
-        alias: "未来 2 天"
+        alias: "1 天后生效"
+      - name:
+        alias: "2 天后生效"
       - name: 3
-        alias: "未来 3 天"
+        alias: "3 天后生效"
       - name: 4
-        alias: "未来 4 天"
+        alias: "4 天后生效"
       - name: 5
-        alias: "未来 5 天"
+        alias: "5 天后生效"
       - name: 6
-        alias: "未来 6 天"
+        alias: "6 天后生效"
       - name: 7
-        alias: "未来 7 天"
+        alias: "7 天后生效"
 
 template_argv:
   instance_ids: ${instance_ids}

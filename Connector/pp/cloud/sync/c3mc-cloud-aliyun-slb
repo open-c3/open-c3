@@ -3,11 +3,18 @@
 
 import sys
 import json
+import random
+import time
 
 from aliyunsdkcore.client import AcsClient
 from aliyunsdkslb.request.v20140515.DescribeLoadBalancersRequest import (
     DescribeLoadBalancersRequest,
 )
+
+
+def exponential_backoff(attempt, max_delay):
+    delay = min(max_delay, (2**attempt) + random.uniform(0, 1))
+    time.sleep(delay)
 
 
 class Slb:
@@ -31,8 +38,20 @@ class Slb:
 
     def get_response(self):
         request = self.set_request()
-        response = self.client.do_action_with_exception(request)
-        return json.loads(response)
+
+        # 最多尝试5次
+        attempt = 0
+        while attempt < 5:
+            try:
+                response = self.client.do_action_with_exception(request)
+                return json.loads(response)
+            except Exception as e:
+                if "Failed to establish a new connection" not in str(e):
+                    raise e
+                print("请求获取数据出现网络错误, 等待重试...", file=sys.stderr)
+                exponential_backoff(attempt, 10)
+                attempt += 1
+                
 
     def get_server_count(self):
         try:
