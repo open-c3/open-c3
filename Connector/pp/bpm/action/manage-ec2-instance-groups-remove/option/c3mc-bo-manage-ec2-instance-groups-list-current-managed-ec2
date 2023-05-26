@@ -11,9 +11,9 @@ from c3mc_parse_resource_timer_task import OperateTimeTaskFile
 
 def main():
     data_list = OperateTimeTaskFile().get_all()
-
+    data_list = sorted(list({ item["instance_uuid"] for item in data_list }))
     for item in data_list:
-        print(json.dumps(item, default=str))
+        print(item)
 
 
 if __name__ == '__main__':
