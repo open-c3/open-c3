@@ -8,6 +8,19 @@
             <h5>deployment describe {{'C3T.信息'|translate}}</h5>
         </div>
 
+        <div ng-if="kubernetesdescribedeployment.selector" class="panel-body">
+            <div class="pt20">
+                <div>
+ 
+                    {{ kubernetesdescribedeployment.selector}}
+                    <i class="fa fa-file-text-o fa-2x" aria-hidden="true" ng-click="kubernetesdescribedeployment.openOneTab(kubernetesdescribedeployment.selector,'log')" uib-tooltip="{{'C3T.查看所有Pod日志'|translate}}" style="cursor:pointer;color: #339094;" >{{'C3T.查看所有Pod日志'|translate}}</i>
+
+                </div>
+
+            </div>
+        </div>
+
+
         <div class="panel-body">
             <div class="pt20">
                 <div>
@@ -28,8 +41,8 @@
                                     <td data-title="'AGE'" width="80">{{m.AGE}}</td>
                                     <td data-title="'C3T.操作'|translate" width="80" >
                                         <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesdescribedeployment.describexx('pod',m.NAME)" uib-tooltip="{{'C3T.查看'|translate}}" style="cursor:pointer;color: #339094;" ></i>
-                                        <i class="fa fa-television fa-2x" aria-hidden="true" ng-click="kubernetesdescribedeployment.openOneTab(m,'sh')" uib-tooltip="{{'C3T.进入POD虚拟终端'|translate}}" style="cursor:pointer;color: #339094;" ></i>
-                                        <i class="fa fa-file-text-o fa-2x" aria-hidden="true" ng-click="kubernetesdescribedeployment.openOneTab(m,'log')" uib-tooltip="{{'C3T.查看POD日志'|translate}}" style="cursor:pointer;color: #339094;" ></i>
+                                        <i class="fa fa-television fa-2x" aria-hidden="true" ng-click="kubernetesdescribedeployment.openOneTab(m.NAME,'sh')" uib-tooltip="{{'C3T.进入POD虚拟终端'|translate}}" style="cursor:pointer;color: #339094;" ></i>
+                                        <i class="fa fa-file-text-o fa-2x" aria-hidden="true" ng-click="kubernetesdescribedeployment.openOneTab(m.NAME,'log')" uib-tooltip="{{'C3T.查看POD日志'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                                     </td> 
                                 </tr>
                             </table>
@@ -52,8 +65,8 @@
                                     <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
                                     <td data-title="'C3T.操作'|translate" width="80" >
                                         <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesdescribedeployment.describexx('pod',m.NAME)" uib-tooltip="{{'C3T.查看'|translate}}" style="cursor:pointer;color: #339094;" ></i>
-                                        <i class="fa fa-television fa-2x" aria-hidden="true" ng-click="kubernetesdescribedeployment.openOneTab(m,'sh')" uib-tooltip="{{'C3T.进入POD虚拟终端'|translate}}" style="cursor:pointer;color: #339094;" ></i>
-                                        <i class="fa fa-file-text-o fa-2x" aria-hidden="true" ng-click="kubernetesdescribedeployment.openOneTab(m,'log')" uib-tooltip="{{'C3T.查看POD日志'|translate}}" style="cursor:pointer;color: #339094;" ></i>
+                                        <i class="fa fa-television fa-2x" aria-hidden="true" ng-click="kubernetesdescribedeployment.openOneTab(m.NAME,'sh')" uib-tooltip="{{'C3T.进入POD虚拟终端'|translate}}" style="cursor:pointer;color: #339094;" ></i>
+                                        <i class="fa fa-file-text-o fa-2x" aria-hidden="true" ng-click="kubernetesdescribedeployment.openOneTab(m.NAME,'log')" uib-tooltip="{{'C3T.查看POD日志'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                                     </td> 
                                 </tr>
                             </table>

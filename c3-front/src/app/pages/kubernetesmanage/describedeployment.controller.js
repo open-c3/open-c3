@@ -17,12 +17,14 @@
             vm.nodeStr = treeService.selectname();
         });
 
+        vm.selector = '';
         vm.reload = function(){
             vm.loadover = false;
             $http.get("/api/ci/v2/kubernetes/app/describe/deployment?ticketid=" + ticketid + '&type=' + type + '&name=' + name + '&namespace=' + namespace  ).success(function(data){
                 if(data.stat == true) 
                 { 
                     vm.describe = data.data.describe;
+                    vm.selector = data.data.selector;
                     vm.oldpodTable = new ngTableParams({count:10}, {counts:[],data:data.data.oldpod});
                     vm.newpodTable = new ngTableParams({count:10}, {counts:[],data:data.data.newpod});
                     vm.loadover = true;
@@ -52,9 +54,9 @@
             });
         };
 
-        vm.openOneTab = function (pod, type) {
+        vm.openOneTab = function (NAME, type) {
             var terminalAddr = window.location.protocol + "//" + window.location.host+"/api/ci/kubernetes/pod/shell";
-            var s = "?namespace=" + namespace + '&name=' + pod.NAME + '&clusterid=' + ticketid + '&type=' + type + '&siteaddr=' + window.location.protocol + "//" + window.location.host;
+            var s = "?namespace=" + namespace + '&name=' + NAME + '&clusterid=' + ticketid + '&type=' + type + '&siteaddr=' + window.location.protocol + "//" + window.location.host;
             window.open(terminalAddr+s, '_blank')
         };
     }

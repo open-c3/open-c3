@@ -32,7 +32,21 @@ eval{
     die "get kubectl fail: $@" if $@;
     die "no auth\n" if @ns && ! grep{ $_ eq $namespace }@ns;
 
-    system $type =~ /sh/ ? "$kubectl -n '$namespace' exec -it '$name' -- sh" : "$kubectl -n '$namespace' logs -f '$name' --tail=3000";
+    if( $type =~ /sh/ )
+    {
+        system "$kubectl -n '$namespace' exec -it '$name' -- sh";
+    }
+    else
+    {
+        if( $name =~ /=/ )
+        {
+            system "$kubectl -n '$namespace' logs -f -l '$name' --tail=3000 --timestamps=true --prefix=true";
+        }
+        else
+        {
+            system "$kubectl -n '$namespace' logs -f '$name' --tail=3000 --timestamps=true";
+        }
+    }
 };
 
 print $@ if $@;
