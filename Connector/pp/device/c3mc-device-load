@@ -5,7 +5,10 @@ rsync -a /data/Software/mydan/AGENT/device/conf/ /data/open-c3-data/device/curr/
 
 mkdir -p mkdir /data/open-c3-data/logs/cmdb
 
-cd /data/Software/mydan/Connector/local && /data/Software/mydan/AGENT/device/bin/downloadx > devicesynctime.txt.temp 2>/data/open-c3-data/logs/cmdb/sync.error.log && mv devicesynctime.txt.temp devicesynctime.txt
+cd /data/Software/mydan/Connector/local && /data/Software/mydan/AGENT/device/bin/downloadx > devicesynctime.txt.temp 2>/data/open-c3-data/logs/cmdb/sync.error.curr.log && mv devicesynctime.txt.temp devicesynctime.txt
+
+cp  /data/open-c3-data/logs/cmdb/sync.error.curr.log    /data/open-c3-data/logs/cmdb/sync.error.last.log
+cat /data/open-c3-data/logs/cmdb/sync.error.curr.log >> /data/open-c3-data/logs/cmdb/sync.error.log
 
 SAVETREE=$(c3mc-sys-ctl sys.device.sync.tree)
 if [ "X$SAVETREE" == "X1" ];then
