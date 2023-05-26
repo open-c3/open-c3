@@ -5,6 +5,7 @@ use FindBin qw( $RealBin );
 use MYDB;
 use Code;
 use api::kubernetes;
+use URI::Escape;
 
 exit unless my $argv = shift;
 
@@ -48,6 +49,7 @@ eval{
             if( $grep )
             {
                 $grep =~ s/'//;
+                $grep = uri_unescape( $grep );
                 system "$kubectl -n '$namespace' logs -f -l '$name' --tail=3000 --timestamps=true --prefix=true| grep '$grep' --color";
             }
             else
