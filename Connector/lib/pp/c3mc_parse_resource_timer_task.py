@@ -190,11 +190,8 @@ class OperateTimeTaskFile:
 
 
     def remove(self, action_type, instance_uuid):
-        if (
-            instance_uuid not in self.data
-            or action_type not in self.data[instance_uuid]
-        ):
-            return
+        if instance_uuid not in self.data or action_type not in self.data[instance_uuid]:
+            raise RuntimeError(f"无法找到相关定时任务, 实例: {instance_uuid}, 操作类型: {action_type}")
 
         self.data[instance_uuid].pop(action_type, None)
 
@@ -204,23 +201,27 @@ class OperateTimeTaskFile:
             for action_type in self.data[instance_uuid]:
                 line_info = self.data[instance_uuid][action_type]
                 result.append({
+                    "action_type": line_info.get_action_type(),
                     "instance_uuid": line_info.get_instance_uuid(),
-                    "str_data": str(line_info)
+                    "timer": line_info.get_timer(),
+                    "editor": line_info.get_editor(),
+                    "valid_start_timestamp": line_info.get_valid_start_timestamp(),
+                    "valid_end_timestamp": line_info.get_valid_end_timestamp(),
                 })
 
         return result
     
 
-    def update_valid_end_timestamp(
+    def update_valid_start_timestamp(
         self,
         action_type,
         instance_uuid,
-        valid_end_timestamp
+        valid_start_timestamp
     ):
         if instance_uuid not in self.data or action_type not in self.data[instance_uuid]:
-            raise RuntimeError(f"无法找到指定的定时任务, instance_uuid: {instance_uuid}, action_type: {action_type}")
+            raise RuntimeError(f"无法找到相关定时任务, 实例: {instance_uuid}, 操作类型: {action_type}")
 
-        self.data[instance_uuid][action_type].set_valid_end_timestamp(valid_end_timestamp)
+        self.data[instance_uuid][action_type].set_valid_start_timestamp(valid_start_timestamp)
 
 
     def save(self):
