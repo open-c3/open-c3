@@ -8,25 +8,32 @@
           <i class="fa fa-search fa-lg menu-panel-search-content-icon" aria-hidden="true"></i>
           <input type="text" class="menu-panel-search-content-input" ng-model="search.choiceSearch"
             placeholder="{{'C3T.输入进行搜索' | translate}}" ng-change="search.inputChange()">
-            <span class="append-icon right fs18 pointer" ng-click="search.handleClear()" ng-show="search.choiceSearch && search.choiceSearch !== ''">
-              <i class="fa fa-times"></i>
-            </span>
+            <span class="append-icon right fs18 pointer" ng-click="search.handleClear()"
+              ng-show="search.choiceSearch && search.choiceSearch !== ''">
+            <i class="fa fa-times"></i>
+           </span>
         </div>
       </div>
-      <div class="panel panel-dark menu-panel-card">
-        <div ng-if="!search.searchloadover && search.cardMenu.length === 0">
+      <div class="content-cards">
+        <div ng-if="!search.searchloadover && search.cardMenu.length === 0" class="card-empty-text">
           {{'C3T.暂无匹配结果'| translate}}
         </div>
-        <div ng-if="!search.searchloadover && search.cardMenu.length !== 0" ng-repeat="item in search.cardMenu" class="{{item.url === ''? 'menu-panel-card-disable-items': 'menu-panel-card-items'}}"
-          ng-click="search.handleCardClick(item)">
-          <div class="menu-panel-card-items-left">
-            <div class="menu-panel-card-items-icon">
-              <img src="{{!search.iconMap[item.icon] ? search.iconMap['bpm'] : search.iconMap[item.icon]}}" />
+        <div ng-if="!search.searchloadover && search.cardMenu.length !== 0" ng-repeat="data in search.searchTypeObject" class="card-repeat">
+          <div class="menu-panel-card-text">{{data.type}}</div>
+          <div class="menu-panel-card">
+            <div ng-repeat="item in data.content"
+              class="{{item.url === ''? 'menu-panel-card-disable-items': 'menu-panel-card-items'}}"
+              ng-click="search.handleCardClick(item)">
+              <div class="menu-panel-card-items-left">
+                <div class="menu-panel-card-items-icon">
+                  <img src="{{!search.iconMap[item.icon] ? search.iconMap['bpm'] : search.iconMap[item.icon]}}" />
+                </div>
+              </div>
+              <div class="menu-panel-card-items-content">
+                <div title="{{item.name}}" class="menu-panel-card-items-content-title">{{item.name}}</div>
+                <div title="{{item.describe}}" class="menu-panel-card-items-content-describe">{{item.describe}}</div>
+              </div>
             </div>
-          </div>
-          <div class="menu-panel-card-items-content">
-            <div title="{{item.name}}" class="menu-panel-card-items-content-title">{{item.name}}</div>
-            <div title="{{item.describe}}" class="menu-panel-card-items-content-describe">{{item.describe}}</div>
           </div>
         </div>
       </div>
