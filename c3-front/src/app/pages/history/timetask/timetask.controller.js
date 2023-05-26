@@ -15,7 +15,8 @@
       vm.jumpLinkMap = {
         add: '/#/bpm/0/0?name=bpm-resources-group-ec2-add',
         del: '/#/bpm/0/0?name=bpm-resources-group-ec2-remove',
-        shield: '/#/bpm/0/0?name=bpm-resources-group-ec2-config-special'
+        shield: '/#/bpm/0/0?name=bpm-resources-group-ec2-config-special',
+        switch: '/#/bpm/4000000000/0?name=bpm-resources-operate-aws-ec2'
       }
       vm.reload = function () {
         $http.get('/api/job/bpm/crontask').success(function (data) {
