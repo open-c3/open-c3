@@ -15,6 +15,8 @@ cd /data/Software/mydan/Connector/pp/agenti  # 进入该目录下执行，安装
 
 批量升级监控Agent,执行命令 c3mc-mon-agent-update 。 升级的列表是Agent版本号小于 .version 中标记的版本。
 
+批量安装falcon兼容程序, 执行命令c3mc-mon-agent-falconmigrate 。升级的列表是程序版本小于 .versionfalconmigrate 的机器。
+
 ```
 
 ## 在堡垒机上批量安装发布和监控的Agent

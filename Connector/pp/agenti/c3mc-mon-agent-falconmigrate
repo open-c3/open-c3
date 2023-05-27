@@ -1,0 +1,18 @@
+#!/bin/bash
+
+#domain=$(c3mc-sys-ctl sys.cluster.domain)
+
+addr=$(cat .addr)
+
+if [ "X" == "X$addr" ];then
+    echo nofind .addr
+    exit 1
+fi
+
+export MYDan_Agent_Proxy_Addr=$addr/api/agent/proxy/0
+export MYDan_Agent_Proxy_Header="appname:job,appkey:${OPEN_C3_RANDOM}"
+
+c3mc-mon-agent-install-errfalconmigrate \
+| sort  -R    \
+| head  -n 10 \
+| xargs -P 2 -i{} /data/Software/mydan/dan/tools/rcall -r {} --timeout 300 exec "curl -L $addr/api/scripts/installAgentMonFalconMigrate.sh | OPEN_C3_ADDR=$addr bash"
