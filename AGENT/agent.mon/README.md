@@ -64,6 +64,8 @@
 版本26:
    采集FalconMigrate(falcon兼容程序)的状态数据，包括版本、错误数量等。
    处理Http插件body为空时日志中的警告。
+版本27:
+   bootstrap中没有falcon_migrate的启动文件的情况下，不请求1988端口采集数据，直接返回-1。避免无效的http请求。
 ```
 
 node_collector_error 错误码
