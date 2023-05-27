@@ -85,6 +85,13 @@ sub run
                        $index{$idx} .= $_[1];
                        return unless $index{$idx} =~ /\r\n\r\n/;
 
+                       if( $index{$idx} =~ /Content-Length: (\d+)/ )
+                       {
+                           my $len = $1;
+                           return unless $index{$idx} =~ /\r\n\r\n(.+)$/;
+                           return if $len ne length $1;
+                       }
+
                        my $data = $index{$idx};
                        if( $data =~ m#/proxy_([\d+\.\d+\.\d+\.\d+]+)_proxy# )
                        {
@@ -165,8 +172,14 @@ sub run
                            }
                            else
                            {
-                               for my $val ( @$v )
+                               for my $valt ( @$v )
                                {
+                                   my $val = +{};
+                                   map{ $val->{lc $_} = $valt->{$_}; }keys %$valt;
+                                   
+                                   $val->{metric} =~ s/\./_/g if $val->{metric};
+                                   $val->{metric} =~ s/\-/_/g if $val->{metric};
+ 
                                    if ( $val->{metric} && $val->{metric} =~ /^[a-zA-Z0-9\.\-_]+$/ 
                                      && defined $val->{value} && ( $val->{value} =~ /^[-+]?\d+$/ || $val->{value} =~ /^[-+]?\d+\.\d+$/ )
                                      && ( ( ! $val->{tags} ) || ( $val->{tags} && $val->{tags} =~ /^[a-zA-Z0-9\.\-_=,]+$/ ) )
@@ -175,7 +188,7 @@ sub run
                                    {
                                        my %tags = ( source => 'apipush' );
                                        $tags{endpoint} = $val->{endpoint} if $val->{endpoint};
-                                       map{ my @x = split /=/, $_, 2; $tags{$x[0]} = $x[1]; }
+                                       map{ my @x = split /=/, $_, 2; $tags{$x[0]} = $x[1] if defined $x[0] && defined $x[1]; }
                                            split( /,/, $val->{tags} )
                                                if $val->{tags};
 

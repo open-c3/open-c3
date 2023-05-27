@@ -57,6 +57,15 @@
 版本24:
    HTTP监控，post请求，支持配置简单的数据post到接口中.
    HTTP监控返回内容匹配，匹配的内容可能有特殊的字符，支持通过base64进行编码
+版本25:
+   为了兼容普罗米修斯的格式，把通过push上来的数据指标名中的“.”和“-“字符修改成“_”,
+   通过Content-Length字段来判定http数据完整，有的push请求，一次push上来很多数据，一次读取不完，需要等待Content-Length长度，
+   否则因为数据不全时把数据转换成json失败，导致push失败，最终数据没有上传到普罗米修斯中。
+版本26:
+   采集FalconMigrate(falcon兼容程序)的状态数据，包括版本、错误数量等。
+   处理Http插件body为空时日志中的警告。
+版本27:
+   bootstrap中没有falcon_migrate的启动文件的情况下，不请求1988端口采集数据，直接返回-1。避免无效的http请求。
 ```
 
 node_collector_error 错误码

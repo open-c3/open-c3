@@ -86,7 +86,7 @@ sub co
                     set( 'node_http_time', int( 1000 * ( Time::HiRes::time - $time) ), +{ method => $check[0], url => $check[1] } );
  
                 $OPENC3::MYDan::MonitorV3::NodeExporter::Collector::prom->
-                    set( 'node_http_content_check', index( $body, $check[2] ) < 0 ? 0 : 1 , +{ method => $check[0], url => $check[1], check => $check[2] } )
+                    set( 'node_http_content_check', ( defined $body && index( $body, $check[2] ) >= 0 ) ? 1 : 0 , +{ method => $check[0], url => $check[1], check => $check[2] } )
                         if defined $check[2];
         };
     }
