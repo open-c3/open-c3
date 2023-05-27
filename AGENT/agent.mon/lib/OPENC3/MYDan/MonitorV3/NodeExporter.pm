@@ -162,6 +162,7 @@ sub run
                        {
                            my $mesg = "success";
 
+                           $OPENC3::MYDan::MonitorV3::NodeExporter::Collector::agent_push_metric_count ++;
                            my $d = ( split /\n/, $data)[-1];
                            my $v = eval{JSON::decode_json $d};
 
@@ -169,11 +170,13 @@ sub run
                            {
                                warn "error: $@" if $@;
                                $mesg = "error: $@\n";
+                               $OPENC3::MYDan::MonitorV3::NodeExporter::Collector::agent_push_metric_error ++;
                            }
                            else
                            {
                                for my $valt ( @$v )
                                {
+                                   $OPENC3::MYDan::MonitorV3::NodeExporter::Collector::agent_push_metric_data ++;
                                    my $val = +{};
                                    map{ $val->{lc $_} = $valt->{$_}; }keys %$valt;
                                    
