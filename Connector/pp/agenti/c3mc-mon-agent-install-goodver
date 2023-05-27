@@ -14,14 +14,14 @@ use LWP::UserAgent;
 
 =cut
 
-my $version = `cat .versionfalconmigrate`;
+my $version = `cat .version`;
 chomp $version;
 
-die "nofind version in .versionfalconmigrate" unless $version && $version =~ /^\d+$/;
+die "nofind version in .version" unless $version && $version =~ /^\d+$/;
 
 my $ua = LWP::UserAgent->new;
 $ua->timeout( 30 );
-my $res = $ua->get( 'http://openc3-prometheus:9090/api/v1/query?query=falcon_migrate_version' );
+my $res = $ua->get( 'http://openc3-prometheus:9090/api/v1/query?query=node_exporter_version>%3D'. $version );
 
 die "call prometheus fail" unless $res->is_success;
 
@@ -33,17 +33,10 @@ die "call fail" unless $v->{status} && $v->{status} eq 'success';
 
 my @data = @{$v->{data}{result}};
 
-my @allnode = `c3mc-mon-agent-install-goodver`;
-chomp @allnode;
-my %allnode = map{ $_ => 1 }@allnode;
-
 for my $data ( @data )
 {
     next unless $data->{metric};
     my $instance = $data->{metric}{instance};
     next unless $instance && $instance =~ /^\d+\.\d+\.\d+\.\d+$/;
-    delete $allnode{$instance};
-    print "$instance\n" if $data->{value}[-1] < $version;
+    print "$instance\n";
 }
-
-map{ print "$_\n" }keys %allnode;
