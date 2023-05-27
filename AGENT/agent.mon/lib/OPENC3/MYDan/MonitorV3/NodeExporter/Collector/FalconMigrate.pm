@@ -18,6 +18,14 @@ our $collectorname = 'falcon_migrate';
 
 sub co
 {
+    unless( -f '/opt/mydan/dan/bootstrap/exec/mydan.falcon_migrate.1988' )
+    {
+        $OPENC3::MYDan::MonitorV3::NodeExporter::Collector::prom->set( 'falcon_migrate_version', -1 );
+        $OPENC3::MYDan::MonitorV3::NodeExporter::Collector::prom->set( 'falcon_migrate_accepts', -1 );
+        $OPENC3::MYDan::MonitorV3::NodeExporter::Collector::prom->set( 'falcon_migrate_error',   -1   );
+        return ( +{ name => 'node_collector_error', value => 0, lable => +{ collector => $collectorname } } );
+    }
+
     http_request
         'GET' => 'http://127.0.0.1:1988/status/',
         timeout => 10,
