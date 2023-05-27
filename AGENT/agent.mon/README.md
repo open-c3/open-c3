@@ -66,6 +66,8 @@
    处理Http插件body为空时日志中的警告。
 版本27:
    bootstrap中没有falcon_migrate的启动文件的情况下，不请求1988端口采集数据，直接返回-1。避免无效的http请求。
+版本28:
+   添加统计指标，统计通过push方式上传的数据数量和错误数量。
 ```
 
 node_collector_error 错误码

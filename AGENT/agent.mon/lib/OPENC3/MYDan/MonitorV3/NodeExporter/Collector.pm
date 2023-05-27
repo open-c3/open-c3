@@ -19,6 +19,9 @@ my %proc;
 our $prom;
 our $promelocal;
 our $promeerror = 0;
+our $agent_push_metric_count = 0;
+our $agent_push_metric_error = 0;
+our $agent_push_metric_data  = 0;
 
 our $extendedMonitor = +{};
 
@@ -136,7 +139,10 @@ sub new
         after => 1, 
         interval => 15,
         cb => sub { 
-            $this{prom}->set( 'node_exporter_version', 27 );
+            $this{prom}->set( 'node_exporter_version', 28 );
+            $this{prom}->set( 'agent_push_metric_count', $agent_push_metric_count );
+            $this{prom}->set( 'agent_push_metric_error', $agent_push_metric_error );
+            $this{prom}->set( 'agent_push_metric_data',  $agent_push_metric_data );
             $this{prom}->set( 'node_collector_error', $promeerror, +{ collector => 'node_exporter_prome' } ) if defined $promeerror;
             $promeerror = undef;           
         }
