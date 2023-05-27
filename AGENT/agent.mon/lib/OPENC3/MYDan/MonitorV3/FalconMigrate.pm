@@ -9,13 +9,16 @@ use AnyEvent;
 use AnyEvent::Socket;
 use AnyEvent::Handle;
 
-my ( $i, %index ) = ( 0 );
+my ( $i, $error, %index ) = ( 0, 0 );
+my $version;
 
 sub new
 {
     my ( $class, %this ) = @_;
 
     $this{port} ||= 9999;
+
+    $version = 1 * 10 + ( 2 - scalar @{$this{server}} );
 
     bless \%this, ref $class || $class;
 }
@@ -144,6 +147,18 @@ sub _allocate
     return 1;
 }
 
+sub getHtml
+{
+    my $content = shift;
+    my $length = length $content;
+    my @h = (
+        "HTTP/1.0 200 OK",
+        "Content-Length: $length",
+        "Content-Type: text/plain",
+    );
+
+    return join "\n",@h, "", $content;
+}
 
 sub run
 {
@@ -176,6 +191,16 @@ sub run
                $self->push_read (
                    chunk => $len,
                    sub { 
+
+
+                       if( $_[1] =~ m#GET /status/ HTTP/# )
+                       {
+                           $handle->push_write(getHtml("version: $version\nerror: $error\naccepts: $i\n"));
+                           $handle->push_shutdown();
+                           $handle->destroy();
+                           return;
+                       }
+
                        $index{$index}{handle_c_data} .= $_[1];
 
                        for my $id ( 1 .. @{$this->{server}} )
@@ -188,6 +213,7 @@ sub run
            },
            on_error => sub {
 
+               $error ++;
                for my $id ( 1 .. @{$this->{server}} )
                {
                    $index{$index}{handle_s}{$id}->destroy() if $index{$index}{handle_s}{$id} && ! $index{$index}{handle_s}{$id}->destroyed();
