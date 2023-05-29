@@ -20,6 +20,15 @@
               <i class="fa fa-times"></i>
             </span>
         </div>
+        <div class="menu-panel-search-frequent">
+          <span>
+            {{'C3T.常用搜索'}}：
+          </span>
+          <div class="menu-panel-search-frequent-content">
+            <div class="menu-panel-search-frequent-content-items" ng-repeat="frequentItem in globalsearch.frequentArray"
+              ng-click="globalsearch.handleFrequentClick(frequentItem)" ng-class="{'is-active': frequentItem === globalsearch.choiceSearch}">{{frequentItem}}</div>
+          </div>
+        </div>
       </div>
       <div class="panel panel-dark menu-panel-card">
         <div ng-if="!globalsearch.searchloadover && globalsearch.cardMenu.length === 0">
