@@ -40,4 +40,6 @@ lsof -i:1988|tail -n 1|awk '{print $2}'|xargs -i{} kill {}
 
 /data/Software/open-falcon/agent/control restart
 
+ps -ef|grep mydan.falcon_migrate.1988|grep -v grep|awk '{print $2}'|xargs -i{} kill {}
+
 echo "INSTALL OPEN-C3 MONITOR AGENT falcon_migrate: SUCCESS!!!"
