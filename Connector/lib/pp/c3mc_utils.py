@@ -8,6 +8,7 @@ import urllib.request
 import subprocess
 import json
 import hashlib
+import random
 
 
 def print_c3debug1_log(msg):
@@ -196,3 +197,30 @@ def calculate_md5(input_string):
     md5_hash.update(input_string.encode('utf-8'))
 
     return md5_hash.hexdigest()
+
+
+def retry_network_request(func, arg):
+    """执行网络操作请求, 当出现网络错误时，可以进行重试
+
+    Args:
+        func (function): 要执行的函数
+        arg (tuple): 函数参数, 元组类型
+    """
+    def exponential_backoff(attempt, max_delay):
+        delay = min(max_delay, (2**attempt) + random.uniform(0, 1))
+        time.sleep(delay)
+
+    # 每次最长等待10秒
+    max_delay = 10
+
+    # 最多尝试5次
+    attempt = 0
+    while attempt < 5:
+        try:
+            return func(*arg)
+        except Exception as e:
+            if "Connection timed out" not in str(e):
+                raise
+            print("请求速率限制已达到，使用 Exponential Backoff 等待后重试...", file=sys.stderr)
+            exponential_backoff(attempt, max_delay)
+            attempt += 1
