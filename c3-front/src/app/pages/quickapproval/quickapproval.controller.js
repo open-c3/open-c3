@@ -5,7 +5,7 @@
         .module('openc3')
         .controller('QuickApprovalController', QuickApprovalController);
 
-    function QuickApprovalController($state, $http, $injector, ngTableParams, genericService ) {
+    function QuickApprovalController($state, $http, $injector, ngTableParams, genericService, $uibModal ) {
         var vm = this;
         var toastr = toastr || $injector.get('toastr');
         var uuid = $state.params.uuid;
@@ -53,14 +53,32 @@
         };
 
         vm.edit = function (opinion) {
-            $http.post( '/api/job/approval/control', { uuid: uuid, opinion: opinion} ).success(function(data){
-                if (data.stat){
-                    vm.reload();
-                }else {
-                    swal({ title: '操作失败', text: data.info, type:'error' });
-                }
+          if (vm.stat.checkcode && vm.stat.opinion === 'unconfirmed') {
+            $uibModal.open({
+              templateUrl: 'app/pages/quickapproval/dialog/SecondConfirm.html',
+              controller: 'SecondConfirmController',
+              controllerAs: 'secondConfirm',
+              backdrop: 'static',
+              size: 'lg',
+              keyboard: false,
+              bindToController: true,
+              resolve: {
+                opinion: function () { return opinion },
+                stat: function () { return vm.stat },
+                projectName: function () {return vm.data?.name || '-'},
+                dialogReload: function () {return vm.reload}
+              }
+            })
+          } else {
+            $http.post('/api/job/approval/control', { uuid:uuid, opinion: opinion }).success(function (data) {
+              if (data.stat) {
+                vm.reload();
+              } else {
+                swal({ title: '操作失败', text: data.info, type: 'error' });
+              }
             });
-        };
+          }
+        }
 
         vm.reload();
 
