@@ -18,7 +18,7 @@ sub new
 
     $this{port} ||= 9999;
 
-    $version = 1 * 10 + ( 2 - scalar @{$this{server}} );
+    $version = 2 * 10 + ( 2 - scalar @{$this{server}} );
 
     bless \%this, ref $class || $class;
 }

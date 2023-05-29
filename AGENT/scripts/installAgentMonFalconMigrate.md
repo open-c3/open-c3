@@ -16,3 +16,13 @@ curl -L http://your_openc3_addr/api/scripts/installAgentMonFalconMigrate.sh |sud
 
 该脚本安装后，会把原来falcon 1988端口改成1987，然后在1988端口上启动一个服务，当有数据请求1988端口时，会把数据同时提供给1987和65110.
 ```
+
+# 版本
+
+```
+版本包含两个信息: 个位表示状态（0: 数据提供给falcon和open-c3; 1: 数据只给一方，比如只给open-c3） 十位以上表示代码版本
+
+10+: 最开始的版本
+20+: 执行/opt/mydan/dan/agent.mon/bin/falcon_migrate_ecs_tag,把ecs监控容器中的标签提取到本地，监控agent处理push数据时追加标签。
+
+```
