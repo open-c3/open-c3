@@ -68,6 +68,8 @@
    bootstrap中没有falcon_migrate的启动文件的情况下，不请求1988端口采集数据，直接返回-1。避免无效的http请求。
 版本28:
    添加统计指标，统计通过push方式上传的数据数量和错误数量。
+版本29:
+   支持通过/opt/mydan/dan/agent.mon/exttag.yml文件，给通过push上传的数据追加额外的标签。
 ```
 
 node_collector_error 错误码
