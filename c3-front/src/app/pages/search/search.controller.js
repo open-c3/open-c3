@@ -17,6 +17,7 @@
       navigation: '/assets/images/navigation.png',
     }
     vm.searchTypeObject = {};
+    vm.frequentArray = ['腾讯云', 'AWS', 'Google', '权限', '域名', 'CDN', '资源申请', '资源回收'];
 
     vm.converArray = function (arr) {
       const searchTypeArr = [...new Set(arr.map(item => item.type))].map(item => { return { type: item } });
@@ -73,6 +74,18 @@
       vm.buttonSubmit();
     }
 
+    vm.handleFrequentClick = function (selectedItems) {
+      if (!vm.choiceSearch) {
+        vm.choiceSearch = selectedItems
+      } else {
+        if (selectedItems.length > vm.choiceSearch.length && selectedItems.includes(vm.choiceSearch)) {
+          vm.choiceSearch = selectedItems
+        }else {
+          vm.choiceSearch = ''
+        }
+      }
+      vm.buttonSubmit();
+    }
   }
 
 })();
