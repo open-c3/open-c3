@@ -26,7 +26,7 @@ fi
 
 cd "$MYDanPATH/dan" || exit 1
 
-/opt/mydan/dan/agent.mon/bin/falcon_migrate_ecs_tag
+/opt/mydan/dan/agent.mon/bin/falcon_migrate_ecs_tag_v2.install.sh
 
 cp /opt/mydan/dan/agent.mon/exec.config/mydan.falcon_migrate.1988 /opt/mydan/dan/bootstrap/exec/
 chmod +x /opt/mydan/dan/bootstrap/exec/mydan.falcon_migrate.1988
