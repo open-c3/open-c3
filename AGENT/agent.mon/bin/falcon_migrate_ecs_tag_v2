@@ -53,7 +53,7 @@ sub savelabel
     my $temp = "$dist.temp.$$";
 
     eval{ YAML::XS::DumpFile $temp, \%data; };
-    die "dump file $temp fail: $@";
+    die "dump file $temp fail: $@" if $@;
     
     die "rename fail: $dist" if system "mv '$temp' '$dist'";
 }
