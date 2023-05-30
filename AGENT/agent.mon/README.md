@@ -58,7 +58,7 @@
    HTTP监控，post请求，支持配置简单的数据post到接口中.
    HTTP监控返回内容匹配，匹配的内容可能有特殊的字符，支持通过base64进行编码
 版本25:
-   为了兼容普罗米修斯的格式，把通过push上来的数据指标名中的“.”和“-“字符修改成“_”,
+   为了兼容普罗米修斯的格式，把通过push上来的数据指标名中的“.”和“-“字符修改成下划线.
    通过Content-Length字段来判定http数据完整，有的push请求，一次push上来很多数据，一次读取不完，需要等待Content-Length长度，
    否则因为数据不全时把数据转换成json失败，导致push失败，最终数据没有上传到普罗米修斯中。
 版本26:
@@ -70,6 +70,9 @@
    添加统计指标，统计通过push方式上传的数据数量和错误数量。
 版本29:
    支持通过/opt/mydan/dan/agent.mon/exttag.yml文件，给通过push上传的数据追加额外的标签。
+版本30:
+   支持通过/opt/mydan/dan/agent.mon/exttag_by_endpoint/**.yml文件，给通过push上传的数据，针对endpoint数据追加标签。
+   其中/opt/mydan/dan/agent.mon/exttag_by_endpoint/下面的文件名是endpoint的名字。
 ```
 
 node_collector_error 错误码
