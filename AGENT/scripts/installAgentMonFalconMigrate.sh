@@ -26,6 +26,8 @@ fi
 
 cd "$MYDanPATH/dan" || exit 1
 
+/opt/mydan/dan/agent.mon/bin/falcon_migrate_ecs_tag_v2.install.sh
+
 cp /opt/mydan/dan/agent.mon/exec.config/mydan.falcon_migrate.1988 /opt/mydan/dan/bootstrap/exec/
 chmod +x /opt/mydan/dan/bootstrap/exec/mydan.falcon_migrate.1988
 
@@ -37,5 +39,7 @@ sed -i 's/"listen": ":1988"/"listen": ":1987"/' /data/Software/open-falcon/agent
 lsof -i:1988|tail -n 1|awk '{print $2}'|xargs -i{} kill {}
 
 /data/Software/open-falcon/agent/control restart
+
+ps -ef|grep mydan.falcon_migrate.1988|grep -v grep|awk '{print $2}'|xargs -i{} kill {}
 
 echo "INSTALL OPEN-C3 MONITOR AGENT falcon_migrate: SUCCESS!!!"

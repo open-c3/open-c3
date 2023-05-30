@@ -42,8 +42,7 @@ for my $data ( @data )
     next unless $data->{metric};
     my $instance = $data->{metric}{instance};
     next unless $instance && $instance =~ /^\d+\.\d+\.\d+\.\d+$/;
-    delete $allnode{$instance};
-    print "$instance\n" if $data->{value}[-1] < $version;
+    delete $allnode{$instance} if $data->{value}[-1] >= $version;
 }
 
 map{ print "$_\n" }keys %allnode;

@@ -12,6 +12,10 @@ from aliyunsdkvpc.request.v20160428.DescribeVpcAttributeRequest import DescribeV
 from aliyunsdkvpc.request.v20160428.DescribeVpcsRequest import DescribeVpcsRequest
 
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import retry_network_request
+
+
 class ThreadSafeArray:
     def __init__(self):
         self._array = []
@@ -53,7 +57,7 @@ class LibVpc:
             # 接口支持最大值为50
             request.set_PageSize(50)
 
-            response = self.client.do_action_with_exception(request)
+            response = retry_network_request(self.client.do_action_with_exception, (request,))
 
             vpc_list = json.loads(str(response, encoding='utf-8'))["Vpcs"]["Vpc"]
 

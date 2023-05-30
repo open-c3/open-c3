@@ -1,0 +1,81 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use YAML::XS;
+use FindBin qw( $RealBin );
+use MYDan::Util::OptConf;
+use Data::Dumper;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( alias=s ) )->dump();
+
+my @x = `c3mc-base-treemap`;
+chomp @x;
+
+my %treeid2name;
+
+for( @x )
+{
+    my ( $treeid, $treename ) = split /;/, $_;
+    $treeid2name{ $treeid } = $treename;
+}
+
+
+my $alias = YAML::XS::LoadFile 'alias.yml';
+
+
+@x = `cat treebind.txt`;
+chomp @x;
+
+my %data;
+for( @x )
+{
+    my ( $uuid, $treeid ) = split /\s+/, $_;
+    my $treename = $treeid2name{ $treeid };
+    next unless $treename;
+    my $uuidalias = $alias->{$uuid};
+    next unless $uuidalias;
+    $data{ $uuidalias }{$treename} ++;
+}
+
+if( -f 'oldtree.yml' )
+{
+    my $oldtree = YAML::XS::LoadFile 'oldtree.yml';
+
+    for my $uuid ( keys %$oldtree )
+    {
+        $data{ $uuid }{$oldtree->{$uuid}} ++;
+    }
+
+}
+
+@x = `c3mc-device-cat-all --col uuid,type,subtype`;
+chomp @x;
+
+my %type;
+for ( @x )
+{
+    my ( $uuid, $type, $subtype ) = split /\s+/, $_;
+    $type{ $uuid } = [ $type, $subtype ];
+}
+
+for my $uuid ( keys %data )
+{
+    my $treestr = join ',', sort keys %{$data{$uuid}};
+    my $type = $type{$uuid};
+    next unless $type;
+    print "$type->[0];$type->[1];$uuid;$treestr\n";
+}

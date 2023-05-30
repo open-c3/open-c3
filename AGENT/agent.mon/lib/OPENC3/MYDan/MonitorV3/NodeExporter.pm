@@ -15,6 +15,8 @@ use Sys::Hostname;
 
 use OPENC3::MYDan::MonitorV3::NodeExporter::Collector;
 
+my %extTag = ( data => +{}, time => 0 );
+
 sub new
 {
     my ( $class, %this ) = @_;
@@ -174,6 +176,46 @@ sub run
                            }
                            else
                            {
+
+                               if( $extTag{time} + 300 < time )
+                               {
+                                   my $extTagFile = "/opt/mydan/dan/agent.mon/exttag.yml";
+                                   if( -f $extTagFile )
+                                   {
+                                       my $exttagtemp = eval{ YAML::XS::LoadFile $extTagFile };
+                                       if( $@ )
+                                       {
+                                           warn "[Warn] load extTagFile $extTagFile fail: $@";
+                                       }
+                                       else
+                                       {
+                                           if( ref $exttagtemp eq 'HASH' )
+                                           {
+                                               my %x;
+                                               for my $k ( keys %$exttagtemp )
+                                               {
+                                                   my $newname = $k;
+                                                   next unless $k && $exttagtemp->{$k};
+                                                   $newname =~ s/\./_/g;
+                                                   $newname =~ s/\-/_/g;
+                                                   $x{ $newname } = $exttagtemp->{$k};
+                                               }
+                                               $extTag{data} = \%x;
+                                           }
+                                           else
+                                           {
+                                               warn "[Warn] load extTagFile $extTagFile not HASH";
+                                           }
+                                       }
+                                   }
+                                   else
+                                   {
+                                       $extTag{data} = +{};
+                                   }
+                                   $extTag{time} = time;
+                               }
+
+                               my %etag = %{$extTag{data}};
                                for my $valt ( @$v )
                                {
                                    $OPENC3::MYDan::MonitorV3::NodeExporter::Collector::agent_push_metric_data ++;
@@ -182,14 +224,32 @@ sub run
                                    
                                    $val->{metric} =~ s/\./_/g if $val->{metric};
                                    $val->{metric} =~ s/\-/_/g if $val->{metric};
- 
+
+                                   my $extbyendpointfile = "/opt/mydan/dan/agent.mon/exttag_by_endpoint/$val->{endpoint}.yml";
+                                   if( -f $extbyendpointfile )
+                                   {
+                                       my $tmp = eval{ YAML::XS::LoadFile $extbyendpointfile};
+                                       if( ! $@ && ref $tmp eq 'HASH' )
+                                       {
+                                           for my $k ( keys %$tmp )
+                                           {
+                                               my $newname = $k;
+                                               next unless $k && $tmp->{$k};
+                                               $newname =~ s/\./_/g;
+                                               $newname =~ s/\-/_/g;
+                                               $etag{ $newname } = $tmp->{$k};
+                                           }
+                                       }
+                                       
+                                   }
+
                                    if ( $val->{metric} && $val->{metric} =~ /^[a-zA-Z0-9\.\-_]+$/ 
                                      && defined $val->{value} && ( $val->{value} =~ /^[-+]?\d+$/ || $val->{value} =~ /^[-+]?\d+\.\d+$/ )
                                      && ( ( ! $val->{tags} ) || ( $val->{tags} && $val->{tags} =~ /^[a-zA-Z0-9\.\-_=,]+$/ ) )
                                      && ( ( ! $val->{endpoint} ) || ( $val->{endpoint} && $val->{endpoint} =~ /^[a-zA-Z0-9\.\-_=,]+$/ ) )
                                    )
                                    {
-                                       my %tags = ( source => 'apipush' );
+                                       my %tags = ( %etag, source => 'apipush' );
                                        $tags{endpoint} = $val->{endpoint} if $val->{endpoint};
                                        map{ my @x = split /=/, $_, 2; $tags{$x[0]} = $x[1] if defined $x[0] && defined $x[1]; }
                                            split( /,/, $val->{tags} )

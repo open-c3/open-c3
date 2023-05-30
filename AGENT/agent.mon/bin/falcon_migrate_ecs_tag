@@ -1,0 +1,36 @@
+#!/opt/mydan/perl/bin/perl
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+use strict;
+use warnings;
+use YAML::XS;
+
+
+my $x = `docker ps |grep amazonaws.com/liveme-falcon-micadvisor-open|awk '{print \$1}'|head -n 1|xargs -i{} docker inspect {}`;
+
+exit unless $x =~ /Config/;
+
+my $xx = YAML::XS::Load $x;
+
+my %labels = %{ $xx->[0]{Config}{Labels} };
+
+my %data;
+
+for my $k ( qw( com.amazonaws.ecs.cluster com.amazonaws.ecs.task-definition-family com.amazonaws.ecs.task-definition-version ) )
+{
+    my $v = $labels{$k};
+    next unless $v;
+    $data{$k} = $v;
+}
+
+exit unless %data;
+
+my $dist = '/opt/mydan/dan/agent.mon/exttag.yml';
+my $temp = "$dist.temp.$$";
+
+YAML::XS::DumpFile $temp, \%data;
+system "mv '$temp' '$dist'";

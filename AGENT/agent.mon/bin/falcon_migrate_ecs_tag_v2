@@ -1,0 +1,69 @@
+#!/opt/mydan/perl/bin/perl
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+use strict;
+use warnings;
+use YAML::XS;
+use Sys::Hostname;
+
+sub savelabel
+{
+    my $id = shift @_;
+
+    my $x = `docker inspect '$id'`;
+
+    return unless $x =~ /Config/;
+
+    my $xx = eval{ YAML::XS::Load $x };
+    die "[Warn]load docker inspect fail: $@" if $@;
+
+    return unless $xx && ref $xx eq 'ARRAY' && @$xx && $xx->[0]{Config} && $xx->[0]{Config}{Labels};
+
+    my %labels = %{ $xx->[0]{Config}{Labels} };
+
+     my %data;
+
+    for my $k ( qw( com.amazonaws.ecs.cluster com.amazonaws.ecs.task-definition-family com.amazonaws.ecs.task-definition-version ) )
+    {
+        my $v = $labels{$k};
+        return unless $v;
+        $data{$k} = $v;
+    }
+
+    my $taskarn = $labels{'com.amazonaws.ecs.task-arn'};
+    return unless $taskarn;
+
+    return unless $taskarn =~ /\/([a-z\d]+)$/;
+    my $extid = $1;
+
+    return unless %data;
+
+    my $hostname = Sys::Hostname::hostname;
+
+    my $sid = substr $id, 0, 7;
+    my $myid = "${hostname}_${extid}_${sid}";
+
+    my $distpath = "/opt/mydan/dan/agent.mon/exttag_by_endpoint";
+    system "mkdir -p '$distpath'" unless -d $distpath;
+    my $dist = "$distpath/$myid.yml";
+    my $temp = "$dist.temp.$$";
+
+    eval{ YAML::XS::DumpFile $temp, \%data; };
+    die "dump file $temp fail: $@" if $@;
+    
+    die "rename fail: $dist" if system "mv '$temp' '$dist'";
+}
+
+my @dockerid = `docker ps|awk '{print \$1}'|sed 1d`;
+chomp @dockerid;
+
+for my $id ( @dockerid )
+{
+    next unless $id && $id =~ /^[a-z\d]+$/;
+    eval{ savelabel( $id ); };
+    warn "[Warn] save label fail: $@" if $@;
+}
