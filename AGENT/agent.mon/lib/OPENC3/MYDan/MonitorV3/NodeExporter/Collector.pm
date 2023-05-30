@@ -139,7 +139,7 @@ sub new
         after => 1, 
         interval => 15,
         cb => sub { 
-            $this{prom}->set( 'node_exporter_version', 29 );
+            $this{prom}->set( 'node_exporter_version', 30 );
             $this{prom}->set( 'agent_push_metric_count', $agent_push_metric_count );
             $this{prom}->set( 'agent_push_metric_error', $agent_push_metric_error );
             $this{prom}->set( 'agent_push_metric_data',  $agent_push_metric_data );

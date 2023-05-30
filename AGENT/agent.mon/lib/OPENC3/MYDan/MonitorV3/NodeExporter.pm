@@ -224,7 +224,25 @@ sub run
                                    
                                    $val->{metric} =~ s/\./_/g if $val->{metric};
                                    $val->{metric} =~ s/\-/_/g if $val->{metric};
- 
+
+                                   my $extbyendpointfile = "/opt/mydan/dan/agent.mon/exttag_by_endpoint/$val->{endpoint}.yml";
+                                   if( -f $extbyendpointfile )
+                                   {
+                                       my $tmp = eval{ YAML::XS::LoadFile $extbyendpointfile};
+                                       if( ! $@ && ref $tmp eq 'HASH' )
+                                       {
+                                           for my $k ( keys %$tmp )
+                                           {
+                                               my $newname = $k;
+                                               next unless $k && $tmp->{$k};
+                                               $newname =~ s/\./_/g;
+                                               $newname =~ s/\-/_/g;
+                                               $etag{ $newname } = $tmp->{$k};
+                                           }
+                                       }
+                                       
+                                   }
+
                                    if ( $val->{metric} && $val->{metric} =~ /^[a-zA-Z0-9\.\-_]+$/ 
                                      && defined $val->{value} && ( $val->{value} =~ /^[-+]?\d+$/ || $val->{value} =~ /^[-+]?\d+\.\d+$/ )
                                      && ( ( ! $val->{tags} ) || ( $val->{tags} && $val->{tags} =~ /^[a-zA-Z0-9\.\-_=,]+$/ ) )
