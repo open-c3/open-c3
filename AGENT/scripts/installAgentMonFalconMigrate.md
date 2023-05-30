@@ -25,5 +25,6 @@ curl -L http://your_openc3_addr/api/scripts/installAgentMonFalconMigrate.sh |sud
 10+: 最开始的版本
 20+: 执行/opt/mydan/dan/agent.mon/bin/falcon_migrate_ecs_tag,把ecs监控容器中的标签提取到本地，监控agent处理push数据时追加标签。
 30+: 安装兼容程序时，脚本默认启动ecs标签处理的定时任务，5分钟执行一次。
+40+: ecs容器的id字符串允许有减号，否则可能很多ecs容器的tag无法识别。
 
 ```

@@ -37,7 +37,7 @@ sub savelabel
     my $taskarn = $labels{'com.amazonaws.ecs.task-arn'};
     return unless $taskarn;
 
-    return unless $taskarn =~ /\/([a-z\d]+)$/;
+    return unless $taskarn =~ /\/([a-z\d][a-z\d\-]+[a-z\d])$/;
     my $extid = $1;
 
     return unless %data;
