@@ -14,8 +14,8 @@ fi
 
 docker pull $IMAGE
 
-docker stop $NAME
-docker rm   $NAME
+docker stop $NAME 2>/dev/null
+docker rm   $NAME 2>/dev/null
 
 docker run -d \
   -v /bin/docker:/bin/docker \
