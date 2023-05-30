@@ -73,6 +73,8 @@
 版本30:
    支持通过/opt/mydan/dan/agent.mon/exttag_by_endpoint/**.yml文件，给通过push上传的数据，针对endpoint数据追加标签。
    其中/opt/mydan/dan/agent.mon/exttag_by_endpoint/下面的文件名是endpoint的名字。
+版本31:
+   携带数据，让falcon兼容程序，识别ecs的时候，实例id中允许有减号。
 ```
 
 node_collector_error 错误码
