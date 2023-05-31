@@ -48,8 +48,8 @@
         </div> -->
 
         <div ng-if="quickapproval.stat.opinion == 'unconfirmed'" class="panel-footer text-right">
-            <button class="btn btn-success confirm-margin" ng-click="quickapproval.edit('agree')">{{'C3T.同意'|translate}}</button>
-            <button class="btn btn-danger" ng-click="quickapproval.edit('refuse')">{{'C3T.拒绝'|translate}}</button>
+            <button ng-disabled="quickapproval.stat.checkcode" class="btn btn-success confirm-margin" ng-click="quickapproval.edit('agree')">{{'C3T.同意'|translate}}</button>
+            <button ng-disabled="quickapproval.stat.checkcode" class="btn btn-danger" ng-click="quickapproval.edit('refuse')">{{'C3T.拒绝'|translate}}</button>
         </div>
 
     </div>
