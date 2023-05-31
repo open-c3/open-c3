@@ -22,6 +22,7 @@
         vm.treeid = $state.params.treeid;
 
         vm.selecteClusterId = $state.params.clusterid;
+        $scope.choiceClusterObj = {}
         vm.selecteCluster = {};
         if( vm.selecteClusterId == undefined )
         {
@@ -93,8 +94,14 @@
             $http.get('/api/ci/ticket/KubeConfig?treeid=' + vm.treeid ).then(
                 function successCallback(response) {
                     if (response.data.stat){
-                        vm.clusterlist = response.data.data; 
+                        const newOptions = response.data.data.map(item => {
+                          item.label = `${item.name} 详情:${item.describe} 操作权限:${item.auth}`
+                          return item
+                        })
+                        const defaultChhoice = $scope.choiceClusterId;
+                        vm.clusterlist = newOptions; 
                         $scope.clusterCount = vm.clusterlist.length;
+                        $scope.choiceClusterObj =  newOptions.filter(item => String(item.id) === defaultChhoice)[0]
 
                         if( vm.selecteClusterId > 0 ){
                             angular.forEach(vm.clusterlist, function (value, key) {
@@ -986,7 +993,10 @@ vm.replicasets = [];
             }
         }
 
-
+        vm.handleKuberChange = function (value) {
+          $scope.choiceClusterId = value.id
+          $scope.choiceClusterObj = value
+        }
     }
 
 })();

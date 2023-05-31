@@ -23,9 +23,14 @@
                             <img ng-if="!( kubernetesmanage.selecteCluster.subtype==='AWS' || kubernetesmanage.selecteCluster.subtype==='QCloud')" src="/assets/images/kubernetes.jpeg" style="width: 31px;"/>
                         </label>
                         <div class="col-sm-4" ng-show="searchcluster===0">
-                            <select id="selecteddataval" class="form-control"  ng-model="choiceClusterId" >
-                                 <option ng-repeat="x in kubernetesmanage.clusterlist" value="{{x.id}}">{{x.name}} {{'C3T.详情'|translate}}: {{x.describe}} {{'C3T.操作权限'|translate}}: {{x.auth}}</option>
-                            </select>
+                          <ui-select ng-model="choiceClusterObj" ng-change="kubernetesmanage.handleKuberChange($select.selected)">
+                            <ui-select-match>
+                              <span> {{$select.selected.name}}{{'C3T.详情'|translate}}: {{$select.selected.describe}} {{'C3T.操作权限'|translate}}: {{$select.selected.auth}}</span>
+                            </ui-select-match>
+                            <ui-select-choices repeat="item.name as item in kubernetesmanage.clusterlist | filter: $select.search">
+                              <div ng-bind-html="item.label | highlight: $select.search"></div>
+                            </ui-select-choices>
+                          </ui-select>
                         </div>
 
                         <div class="col-sm-4" ng-show="searchcluster===1">
@@ -38,8 +43,6 @@
                         </div>
 
                         <div class="col-sm-3">
-                            <button ng-show="searchcluster===0" class="btn btn-info" uib-tooltip="{{'C3T.搜索集群'|translate}}" ng-click="searchcluster=1"><i class="fa fa-search" aria-hidden="true">{{'C3T.搜索'|translate}}</i></button>
-                            <button ng-show="searchcluster===1" class="btn btn-info" uib-tooltip="{{'C3T.取消搜索'|translate}}" ng-click="searchcluster=0"><i class="fa fa-close" aria-hidden="true">{{'C3T.不搜索'|translate}}</i></button>
                             <button class="btn btn-info" uib-tooltip="{{'C3T.添加集群'|translate}}" ng-click="kubernetesmanage.addCluster()"><i class="fa fa-plus" aria-hidden="true">{{'C3T.添加'|translate}}</i></button>
                             <button class="btn btn-info" uib-tooltip="{{'C3T.关联集群'|translate}}" ng-click="kubernetesmanage.k8sTree()"><i class="fa fa-plus" aria-hidden="true">{{'C3T.关联服务树'|translate}}</i></button>
                         </div>
@@ -663,3 +666,13 @@
 
 
 </div>
+
+<style>
+  .ui-select-bootstrap > .ui-select-choices, .ui-select-bootstrap > .ui-select-no-choice {
+  width: 100%;
+  height: auto;
+  overflow-x: hidden;
+  margin-top: -1px;
+  max-height: 400px!important;
+}
+</style>
