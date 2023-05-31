@@ -16,6 +16,8 @@
         vm.emailReg = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
         vm.inputValueType = ['email']
         vm.inputValueTypeMap = {email: '邮箱'}
+        vm.bpmInfoApplicant = ''
+        vm.bpmInfoDepartment = ''
 
         vm.dinit = function() {
             vm.optionx = {};
@@ -86,6 +88,8 @@
             $http.get('/api/tt/base/get_user_info?user=' + user).success(function(data){
                 vm.useroainfo = data.data;
                 vm.useroainfoloadover = true;
+                vm.bpmInfoApplicant = `${data.data.accountId}${data.data.accountName? '-':''}${data.data.accountName}${data.data.mobile? '-':''}${data.data.mobile}`
+                vm.bpmInfoDepartment = `${data.data.sybDeptName}${data.data.oneDeptName? '-':''}${data.data.oneDeptName}${data.data.twoDeptName? '-':''}${data.data.twoDeptName}`
             });
         };
 

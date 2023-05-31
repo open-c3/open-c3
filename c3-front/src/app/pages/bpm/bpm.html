@@ -11,37 +11,6 @@
                         <button ng-click="bpm.debugswitch()" style="width: 50px; height: 50px; border-radius: 50%; background-color: #FF6633; color: white;">debug</button>
                    </div> 
 
-                    <div ng-if="bpm.bpmuuid != '0'" class="row">
-                        <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">{{'C3T.申请人'|translate}}: &nbsp;
-                                <i ng-if="!bpm.useroainfoloadover" class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!bpm.useroainfoloadover}" ></i>
-                            </label>
-                            <div class="col-sm-3">
-                                {{bpm.useroainfo.accountId}} - {{bpm.useroainfo.accountName}} - {{bpm.useroainfo.mobile}}
-                            </div>
-                            <label class="col-sm-3 control-label">{{'C3T.领导'|translate}}: &nbsp;
-                                <i ng-if="!bpm.userleaderinfoloadover" class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!bpm.userleaderinfoloadover}" ></i>
-                            </label>
-                            <div class="col-sm-3">
-                                {{bpm.userleaderinfo.leader1}}
-                            </div>
- 
-                        </div>
-                    </div>
-                    <div ng-if="bpm.bpmuuid != '0'" class="row">
-                        <div class="col-sm-10 form-group">
-                            <label class="col-sm-3 control-label">{{'C3T.部门'|translate}}: &nbsp;
-                                <i ng-if="!bpm.useroainfoloadover" class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!bpm.useroainfoloadover}" ></i>
-                            </label>
-                            <div class="col-sm-3">
-                                {{bpm.useroainfo.sybDeptName}} - {{bpm.useroainfo.oneDeptName}} - {{bpm.useroainfo.twoDeptName}}
-                            </div>
- 
-                        </div>
-                    </div>
-
-<hr>
-
                     <div class="row">
                         <div class="col-sm-10 form-group">
                             <label class="col-sm-3 control-label">{{'C3T.名称'|translate}}: &nbsp;
@@ -56,6 +25,37 @@
                               </ui-select>
                             </div>
                         </div>
+                    </div>
+                  <hr>
+                    <div ng-if="bpm.bpmuuid != '0'" class="row">
+                      <div>
+                        <label class="col-sm-12">{{'C3T.流程信息' | translate}}</label>
+                      </div>
+                      <div class="col-sm-10 form-group">
+                        <label class="col-sm-3 control-label label-common-style">{{'C3T.申请人'|translate}}: &nbsp;
+                          <i ng-if="!bpm.useroainfoloadover" class="fa fa-refresh fa-fw"
+                            ng-class="{'fa-spin':!bpm.useroainfoloadover}"></i>
+                        </label>
+                        <div class="col-sm-3">
+                          {{bpm.bpmInfoApplicant || '-'}}
+                        </div>
+                        <label class="col-sm-3 control-label label-common-style">{{'C3T.领导'|translate}}: &nbsp;
+                          <i ng-if="!bpm.userleaderinfoloadover" class="fa fa-refresh fa-fw"
+                            ng-class="{'fa-spin':!bpm.userleaderinfoloadover}"></i>
+                        </label>
+                        <div class="col-sm-3">
+                          {{bpm.userleaderinfo.leader1 || '-'}}
+                        </div>
+                      </div>
+                      <div class="col-sm-10 form-group">
+                        <label class="col-sm-3 control-label label-common-style">{{'C3T.部门'|translate}}: &nbsp;
+                          <i ng-if="!bpm.useroainfoloadover" class="fa fa-refresh fa-fw"
+                            ng-class="{'fa-spin':!bpm.useroainfoloadover}"></i>
+                        </label>
+                        <div class="col-sm-3">
+                          {{bpm.bpmInfoDepartment || '-'}}
+                        </div>
+                      </div>
                     </div>
 
                     <div class="row" ng-if="bpm.jobdescribe!=''" >
@@ -339,5 +339,8 @@
         overflow-x: hidden;
         margin-top: -1px;
         max-height: 400px!important;
+      }
+      .label-common-style {
+        padding-top: 0!important;
       }
     </style>
