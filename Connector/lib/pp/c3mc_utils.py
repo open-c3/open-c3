@@ -210,6 +210,18 @@ def retry_network_request(func, arg):
         delay = min(max_delay, (2**attempt) + random.uniform(0, 1))
         time.sleep(delay)
 
+    def check_not_in(string_list, target_string):
+        all_not_in = True
+        for string in string_list:
+            if string in target_string:
+                all_not_in = False 
+        return all_not_in
+    
+    conditions = [
+        "Connection timed out",
+        "Insufficient capacity",
+    ]
+
     # 每次最长等待10秒
     max_delay = 10
 
@@ -219,8 +231,8 @@ def retry_network_request(func, arg):
         try:
             return func(*arg)
         except Exception as e:
-            if "Connection timed out" not in str(e):
-                raise
-            print("请求速率限制已达到，使用 Exponential Backoff 等待后重试...", file=sys.stderr)
+            if check_not_in(conditions, str(e)):
+                raise e
+            print("使用 Exponential Backoff 等待后重试...", file=sys.stderr)
             exponential_backoff(attempt, max_delay)
             attempt += 1
