@@ -108,6 +108,12 @@
                 ) 
               }
               const newOtherinfo = dataItems.filter(item => !newGrpcol.find(cItem => cItem === item[0]))
+              newOtherinfo.map(gItem => {
+                if (gItem[0] === '_tree_' && gItem[1]!==null) {
+                  gItem[2] = [gItem[1]]
+                }
+                return gItem
+              });
               disposeGrpcol.push ({
                 index:dataIndex,
                 system: vm.formatArr(newSystem),
@@ -165,7 +171,7 @@
                 confirmButtonText: "确定",
                 closeOnConfirm: true
             }, function(){
-                $http.get('/api/agent/device/tree/bind/' + type + '/' + subtype +'/' + vm.uuid + '/' + newtree ).success(function(data){
+                $http.get('/api/agent/device/tree/bind/' + type + '/' + subtype +'/' + vm.uuid + '/' + newtree.join(',') ).success(function(data){
                     if(data.stat == true) 
                     { 
                         toastr.success("操作完成");
@@ -267,6 +273,7 @@
 
             });
          };
+         vm.search_init()
 
     }
 })();
