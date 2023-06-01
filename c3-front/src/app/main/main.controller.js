@@ -14,6 +14,8 @@
         vm.treeid = $state.params.treeid;
         vm.modalIsOpen = false
         vm.isShowSearch = true
+        vm.isNotShow = false
+        vm.isClose = false
         var modalInstance
 
         vm.handleClick = function () {
@@ -46,6 +48,14 @@
 
         vm.handleModalIsOpen = function () {
           vm.modalIsOpen = modalInstance && modalInstance.closed !== true;
+        }
+
+        vm.handleVisible = function () {
+          vm.isNotShow = !vm.isNotShow
+        }
+
+        vm.handleClose = function () {
+          vm.isClose = true
         }
 
         // 监听路由变化
