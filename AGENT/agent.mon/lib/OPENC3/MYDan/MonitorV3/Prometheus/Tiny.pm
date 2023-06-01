@@ -34,12 +34,16 @@ sub _format_labels {
 }
 
 sub set {
-  my ($self, $name, $value, $labels, $timestamp) = @_;
+  my ($self, $name, $value, $labels, $timestamp, $step ) = @_;
+   
+  $step //= 60;
   my $f_label = $self->_format_labels($labels);
   $self->{metrics}{$name}{$f_label} = [ $value, $timestamp ];
 
   #用于清理过期的数据
-  $self->_cleartimeout( $self->{time}{$name}{$f_label} = time );
+
+  $self->{time}{$name}{$f_label} = time + $step + 15;
+  $self->_cleartimeout( time );
 
   return;
 }
@@ -56,7 +60,7 @@ sub _cleartimeout {
       for my $label ( keys %{$self->{time}{$name}} )
       {
           my $t = $self->{time}{$name}{$label};
-          if( $t + 75 < $time )
+          if( $t < $time )
           {
               if( $name eq 'node_collector_error' )
               {
