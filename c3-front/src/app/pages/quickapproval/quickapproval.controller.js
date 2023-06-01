@@ -16,6 +16,8 @@
         vm.stat = {}
         vm.loadoverA = false;
         vm.loadoverB = false;
+        vm.data = {};
+  
         vm.reload = function () {
             vm.loadoverA = false;
             vm.loadoverB = false;
@@ -65,7 +67,7 @@
               resolve: {
                 opinion: function () { return opinion },
                 stat: function () { return vm.stat },
-                projectName: function () {return vm.data?.name || '-'},
+                projectName: function () {return vm.data.name || '-'},
                 dialogReload: function () {return vm.reload}
               }
             })
