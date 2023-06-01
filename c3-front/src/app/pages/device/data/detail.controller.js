@@ -27,6 +27,7 @@
 
         vm.extcol = {};
         vm.grpcol = {};
+        vm.irregularArr = [null, undefined, '',NaN, ' ']
         
         var toastr = toastr || $injector.get('toastr');
 
@@ -108,6 +109,16 @@
                 ) 
               }
               const newOtherinfo = dataItems.filter(item => !newGrpcol.find(cItem => cItem === item[0]))
+              newOtherinfo.map(gItem => {
+                if (gItem[0] === '_tree_') {
+                  if (vm.irregularArr.includes(gItem[1])) {
+                    gItem[2] = []
+                  }else {
+                    gItem[2] = gItem[1].split(',')
+                  }
+                }
+                return gItem
+              });
               disposeGrpcol.push ({
                 index:dataIndex,
                 system: vm.formatArr(newSystem),
@@ -156,6 +167,8 @@
         }
 
         vm.bindtree = function( newtree, title ){
+          if (Array.isArray(newtree) && newtree.length === 0) return
+          const dealTree = Array.isArray(newtree)?  newtree.join(','): newtree
             swal({
                 title: title,
                 type: "warning",
@@ -165,7 +178,7 @@
                 confirmButtonText: "确定",
                 closeOnConfirm: true
             }, function(){
-                $http.get('/api/agent/device/tree/bind/' + type + '/' + subtype +'/' + vm.uuid + '/' + newtree ).success(function(data){
+                $http.get('/api/agent/device/tree/bind/' + type + '/' + subtype +'/' + vm.uuid + '/' + dealTree ).success(function(data){
                     if(data.stat == true) 
                     { 
                         toastr.success("操作完成");
@@ -267,6 +280,7 @@
 
             });
          };
+         vm.search_init()
 
     }
 })();

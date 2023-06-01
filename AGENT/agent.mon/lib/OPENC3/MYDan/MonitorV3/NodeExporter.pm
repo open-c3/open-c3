@@ -255,7 +255,12 @@ sub run
                                            split( /,/, $val->{tags} )
                                                if $val->{tags};
 
-                                       $this->{collector}->set( $val->{metric}, $val->{value} , \%tags );
+                                       my $step      = $val->{ step      } && $val->{ step      } =~ /^\d+$/ ? $val->{ step      }        : undef;
+                                       #my $timestamp = $val->{ timestamp } && $val->{ timestamp } =~ /^\d+$/ ? $val->{ timestamp } * 1000 : undef;
+                                       my $timestamp = undef;
+                                       # 这里先忽略timestamp 这个数据。如果加上这个时间，当数据停止采集的时候，在普罗米修斯上看到的数据5分钟后才断开。
+                                       # 这是普罗米修斯的机制决定的
+                                       $this->{collector}->set( $val->{metric}, $val->{value} , \%tags, $timestamp, $step );
                                    }
                                    else { $mesg = "error"; }
                                }

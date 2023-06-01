@@ -1,0 +1,43 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDB;
+use FindBin qw( $RealBin );
+use MYDan::Util::OptConf;
+use YAML::XS;
+use Encode;
+
+=head1 SYNOPSIS
+
+ $0 --table foo --file out.sql
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->set( file => 'out.sql' )->get( qw( table=s file=s ) )->dump();
+$option->assert('table','file');
+
+my $module = ( split /_/, $o{table} )[1];
+my %table = (
+    ci        => 'ci',
+    job       => 'jobs',
+    jobx      => 'jobx',
+    agent     => 'agent',
+    connector => 'connector',
+    monitor   => 'agent',
+    device    => 'agent',
+    tt        => 'connector',
+);
+
+die "table $o{table} undef" unless $module && $table{$module};
+print "db: $table{$module} table: $o{table} file: $o{file}\n";
+
+#system "docker exec -i openc3-mysql mysql -h127.0.0.1 -uroot -popenc3123456^! -e \"TRUNCATE TABLE $o{table}\" $table{$module}";
+system "docker exec -i openc3-mysql mysql -h127.0.0.1 -uroot -popenc3123456^! $table{$module} < $o{file}";

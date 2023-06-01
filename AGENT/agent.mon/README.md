@@ -75,6 +75,11 @@
    其中/opt/mydan/dan/agent.mon/exttag_by_endpoint/下面的文件名是endpoint的名字。
 版本31:
    携带数据，让falcon兼容程序，识别ecs的时候，实例id中允许有减号。
+版本32:
+   处理通过push上来的数据中的step标记。
+   有的数据5分钟push一次，step为300。如果不处理step，会导致因为数据不是1分钟push异常会被判定为过期数据而删除掉。
+版本33:
+   添加linux的ss命令的监控采集。
 ```
 
 node_collector_error 错误码
