@@ -76,10 +76,14 @@
     <div class="panel panel-dark">
 
         <div class="panel-heading">
-            <span class="panel-controls">
-                <button class="btn btn-dark" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="historybpm.reload()" ><i class="fa fa-refresh fa-fw" style="" ng-class="{'fa-spin':!historybpm.loadover}" ></i></button>
-            </span>
-            <h5>{{'C3T.列表'|translate}}</h5>
+          <span class="panel-controls">
+            <button ng-disabled="historybpm.tableData.length === 0" class="btn btn-dark" uib-tooltip="{{'C3T.导出'|translate}}" 
+              ng-click="historybpm.exportDownload(historybpm.exportDownloadStr, historybpm.tableData)">
+                <i class="fa fa-download fa-1x" aria-hidden="true"></i></i>
+            </button>
+            <button class="btn btn-dark" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="historybpm.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!historybpm.loadover}" ></i></button>
+          </span>
+          <h5>{{'C3T.列表'|translate}}</h5>
         </div>
 
         <div class="panel-body" ng-init='openc3_job_system_only=0'>
