@@ -63,19 +63,15 @@
 
     <div class="panel panel-border top">
 
-        <div class="panel-heading">
-
-            <span class="panel-title">Total: {{devicedata.dataTable.total()}}</span>
-
-            <span class="panel-controls">
-                <a ng-click="devicedata.reload()">
-                    <i class="fa fa-refresh" ng-class="{'fa-spin': !devicedata.loadover}"></i>
-                </a>
-            </span>
+        <div class="panel-heading panel-device-heading">
+          <span class="panel-title">Total: {{devicedata.dataTable.total()}}</span>
+          <div>
+            <span class="panel-controls"><a ng-click="devicedata.reload()"><i class="fa fa-refresh" ng-class="{'fa-spin': !devicedata.loadover}"></i></a></span>
             <button ng-disabled="devicedata.tableData.length === 0" class="device-export" uib-tooltip="{{'C3T.导出'|translate}}" 
               ng-click="devicedata.exportDownload(devicedata.exportDownloadStr, devicedata.tableData)" >
                 <i class="fa fa-download fa-1x" aria-hidden="true"></i></i>
-          </button>
+            </button>
+          </div>
         </div>
 
         <div class="panel-body">
@@ -138,5 +134,10 @@
     background-color: transparent;
     line-height: normal;
     border-color: transparent;
+  }
+  .panel-device-heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
   }
 </style>
