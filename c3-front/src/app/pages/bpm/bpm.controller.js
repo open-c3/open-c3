@@ -546,6 +546,8 @@
             vm.selectIndex = selectIndex
             var varDict = {};
             var stepconf;
+            vm.stepconfs = []
+            var middleAttrConf = $scope.jobVar.filter(item => item['command'] && typeof item['command'] === 'object' && item['command'][0] == 'list' && item.name === stepname)[0]
             angular.forEach($scope.jobVar, function (data, index) {
                 varDict[data.name] = data.value;
                 vm.selectxrely[data.name] = '0';
@@ -581,6 +583,18 @@
                 }
             }
  
+            angular.forEach($scope.jobVar, function (data, index) {
+              if (middleAttrConf && middleAttrConf.command && Array.isArray(middleAttrConf.command) && middleAttrConf.command[0] == 'list' && data.name.includes(middleAttrConf.command[1])) {
+                vm.stepconfs.push(data.value)
+              }
+            })
+
+            if(stepconf['command'] && typeof stepconf['command'] === 'object' && stepconf['command'][0] == 'list') {
+              const newData = [...new Set(vm.stepconfs)].map(item => {return {name: item, alias:item}})
+              vm.optionx[stepname] = newData
+              return 
+            }
+
             if( vm.debug == 1 )
             {
                 vm.optionx[stepname] = undefined;
