@@ -1,0 +1,32 @@
+download:
+  - 
+    url:     fileserver:0:storage-resource.xlsx
+    type:    storage
+    subtype: storage-resource
+    check:
+      col: [ 'UUID' ]
+      min: 1
+    util:
+      defaulttree: defaulttree.pool
+    colmap:
+      treename: '服务树'
+      uuid:     'UUID'
+    filter:
+      - name: '品牌'
+        alias: 品牌
+      - name: '型号'
+        alias: 型号
+      - name: '状态'
+        alias: 状态
+    outline:
+      uuid:
+       - 'UUID'
+      baseinfo:
+       - 'SN'
+       - '新资产号'
+       - '品牌'
+      system:
+       - '型号'
+       - '状态'
+      contact:
+       - '服务树'
