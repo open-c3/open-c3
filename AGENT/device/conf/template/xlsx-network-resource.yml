@@ -1,0 +1,32 @@
+download:
+  - 
+    url:     fileserver:0:network-resource.xlsx
+    type:    networking
+    subtype: network-resource
+    check:
+      col: [ 'UUID' ]
+      min: 1
+    util:
+      defaulttree: defaulttree.pool
+    colmap:
+      treename: '服务树'
+      uuid:     'UUID' #没有这个可能导致单个资源详情打开无数据
+    filter:
+      - name: '子类'
+        alias: 子类
+      - name: '品牌'
+        alias: 品牌
+      - name: '状态'
+        alias: 状态
+    outline:
+      uuid:
+       - 'UUID'
+      baseinfo:
+       - 'SN'
+       - '新资产编号'
+       - '品牌'
+      system:
+       - '型号'
+       - '状态'
+      contact:
+       - '服务树'

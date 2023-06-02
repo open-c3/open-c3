@@ -15,9 +15,11 @@
             }
         });
 
-    function DeviceDataController($state, $http, $scope, ngTableParams, $uibModal, treeService ) {
+    function DeviceDataController($state, $http, $scope, ngTableParams, $uibModal, treeService, genericService) {
         var vm = this;
 
+        vm.exportDownload = genericService.exportDownload
+        vm.tableData = []
         treeService.sync.then(function(){      // when the tree was success.
             vm.nodeStr = treeService.selectname();  // get tree name
         });
@@ -39,6 +41,7 @@
         vm.filter = [];
         vm.filtergrep = [];
         vm.filterdata = {};
+        vm.tableData = [];
 
         vm.grepdata._search_= sessionStorage.getItem('globalSearch')
         sessionStorage.removeItem('globalSearch')
@@ -65,6 +68,7 @@
             vm.loadover = false;
             $http.post('/api/agent/device/data/' + vm.type + '/' + vm.subtype + '/' + vm.treeid, { "grepdata": vm.grepdata, "timemachine": vm.selectedtimemachine } ).success(function(data){
                 if (data.stat){
+                    vm.dealWithData(data.data);
                     vm.dataTable = new ngTableParams({count:25}, {counts:[],data:data.data});
                     vm.filter = data.filter;
                     vm.filterdata = data.filterdata;
@@ -137,5 +141,16 @@
             }
         };
 
+        vm.dealWithData = function (data) {
+          vm.exportDownloadStr = `<tr><td>资源类型</td><td>基本信息</td><td>系统信息</td><td>联系信息</td></tr>`
+          data.forEach(items => {
+            vm.tableData.push({
+              subtype: items.subtype || '',
+              baseinfo: items.baseinfo || '',
+              system: items.system || '',
+              contact: items.contact || '',
+            })
+          })
+        }
     }
 })();

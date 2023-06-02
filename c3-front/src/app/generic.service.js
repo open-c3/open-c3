@@ -45,6 +45,37 @@
             return time.split(" ")[0]
         }
 
+        // 前端导出
+
+        fun.exportDownload = function (str, data) {
+          let newStr = str;
+          data.forEach((items,i) => {
+            let newItem = items
+            newStr += '<tr>'
+            for (let item in Object.assign({}, newItem)) {
+              if (item !== '$$hashKey') {
+                let cellvalue = newItem[item] || ''
+                newStr += `<td style="mso-number-format:'\@';">${cellvalue}</td>`
+              }
+            }
+            newStr += '</tr>'
+          })
+          const worksheet = '导出结果'
+          const uri = 'data:application/vnd.ms-excel;base64,'
+          const template = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
+            xmlns:x="urn:schemas-microsoft-com:office:excel"
+            xmlns="http://www.w3.org/TR/REC-html40">
+            <head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>
+            <x:Name>${worksheet}</x:Name>
+            <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet>
+            </x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
+            </head><body><table>${newStr}</table></body></html>`
+          function base64(s) {
+            return window.btoa(unescape(encodeURIComponent(s)))
+          }
+          window.location.href = uri + base64(template)
+        }
+
    return fun
 
   }
