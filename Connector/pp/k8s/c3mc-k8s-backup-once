@@ -37,6 +37,7 @@ for ns in "${NS_NAME[@]}";do
     INGRESSROUTETCP_NAME=( `bash -c "$kubectl -n $ns get ingressroutetcp -o custom-columns='NAME:metadata.name' --no-headers" 2>/dev/null`)
     INGRESSCLASS_NAME=(    `bash -c "$kubectl -n $ns get ingressclass    -o custom-columns='NAME:metadata.name' --no-headers"`)
     MIDDLEWARE_NAME=(      `bash -c "$kubectl -n $ns get Middleware      -o custom-columns='NAME:metadata.name' --no-headers"`)
+    TRAEFIKSERVICE_NAME=(  `bash -c "$kubectl -n $ns get TraefikService  -o custom-columns='NAME:metadata.name' --no-headers"`)
 
     for n in ${DEPLOY_NAME[@]};do
         bash -c "$kubectl -n $ns get deploy          $n -o yaml > $DISTPATH/$ns/deployment-$n.yaml"
@@ -71,6 +72,10 @@ for ns in "${NS_NAME[@]}";do
     for n in ${MIDDLEWARE_NAME[@]};do
         bash -c "$kubectl -n $ns get Middleware      $n -o yaml > $DISTPATH/$ns/Middleware-$n.yaml"
     done
+    for n in ${TRAEFIKSERVICE_NAME[@]};do
+        bash -c "$kubectl -n $ns get TraefikService  $n -o yaml > $DISTPATH/$ns/TraefikService-$n.yaml"
+    done
+
 done
 
 archive=/data/glusterfs/kerbunetes_backup/$TICKETID
