@@ -1,111 +1,156 @@
 ---
 - name: bpm-resources-create-qcloud-cvm
   alias: '资源申请  腾讯云  CVM'
+  describe: "创建腾讯云CVM资源;资源申请,腾讯云,服务器"
 - name: bpm-resources-create-qcloud-clb
   alias: '资源申请  腾讯云  CLB'
+  describe: "创建腾讯云CLB资源;资源申请,腾讯云,负载均衡器"
 - name: bpm-resources-create-qcloud-mysql
   alias: '资源申请  腾讯云  Mysql'
+  describe: "创建腾讯云Mysql资源;资源申请,腾讯云,数据库"
 - name: bpm-resources-create-qcloud-project
   alias: '资源申请  腾讯云  项目'
+  describe: "创建腾讯云项目;资源申请,腾讯云,新建项目"
 - name: bpm-resources-create-aws-ec2
   alias: '资源申请  AWS   EC2'
+  describe: "创建AWS EC2资源;资源申请,AWS,服务器"
 - name: bpm-resources-create-aws-sqs
   alias: '资源申请  AWS   SQS'
+  describe: "创建AWS SQS资源;资源申请,AWS,消息队列"
 - name: bpm-resources-create-google-vm
   alias: '资源申请  Google  VM'
+  describe: "创建Google VM资源;资源申请,Google,服务器"
 - name: bpm-resources-create-google-lb-create
   alias: '资源申请  Google  LB'
+  describe: "创建Google LB资源;资源申请,Google,负载均衡器"
 - name: bpm-resources-create-idc-server
   alias: '资源申请  IDC  服务器'
+  describe: "创建IDC 服务器资源;资源申请,IDC,服务器"
 - name: bpm-kubernetes-apply
-  alias: '资源申请  K8s  应用创建'
-- name: bpm-resources-change-disk-size
-  alias: '资源申请  磁盘  扩容或缩容'
+  alias: '资源申请  K8S  应用创建'
+  describe: "创建K8S应用;资源申请,K8S"
 
+- name: bpm-resources-change-disk-size
+  alias: '资源修改  磁盘  扩容或缩容'
+  describe: "磁盘扩缩容;资源修改,磁盘,修改磁盘容量"
 - name: bpm-resources-modify-aws-ec2-instance-type
   alias: '资源修改  AWS  修改EC2实例类型'
+  describe: "修改EC2实例类型;资源修改,AWS,EC2,修改EC2实例类型"
 
 - name: bpm-resources-operate-aws-ec2
   alias: '资源操作  AWS  操作EC2资源'
-  information: "包含了ec2实例的开关机操作等等"
+  describe: "包含了ec2实例的开关机操作等等;资源操作,AWS,EC2操作"
 - name: bpm-resources-group-ec2-add
   alias: '资源操作  AWS  定时操作EC2实例 增加实例'
+  describe: "定时操作EC2实例;资源操作,AWS,定时操作EC2实例,增加定时操作EC2实例"
 - name: bpm-resources-group-ec2-remove
   alias: '资源操作  AWS  定时操作EC2实例 删除实例'
+  describe: "定时操作EC2实例;资源操作,AWS,定时操作EC2实例,删除定时操作EC2实例"
 - name: bpm-resources-group-ec2-config-special
   alias: '资源操作  AWS  定时操作EC2实例 更新有效时间段'
-  information: "对ec2实例配置定时任务后, 默认有效时间段为未来10年, 通过该工单更新有效时间段"
+  describe: "对ec2实例配置定时任务后, 默认有效时间段为未来10年, 通过该工单更新有效时间段;资源操作,AWS,定时操作EC2实例,更新定时操作EC2实例有效时间段"
 
 - name: bpm-auth-server
   alias: '权限  服务器权限'
+  describe: "申请服务器权限;权限申请,服务器权限"
 - name: bpm-auth-aws-sqs
   alias: '权限  AWS SQS'
+  describe: "申请AWS SQS权限;权限申请,AWS,SQS"
 - name: bpm-auth-aws-key-for-person
   alias: '权限  AWS 个人控制台权限'
+  describe: "申请AWS个人控制台权限;权限申请,AWS,个人控制台"
 - name: bpm-auth-aws-s3-for-business
   alias: '权限  AWS 业务S3账户'
+  describe: "申请AWS业务S3账户;权限申请,AWS,业务S3账户"
 - name: bpm-auth-aws-ses-for-business
   alias: '权限  AWS 业务SES账户'
+  describe: "申请AWS业务SES账户;权限申请,AWS,业务SES账户"
 - name: bpm-auth-aws-emr-for-business
   alias: '权限  AWS 业务EMR账户'
+  describe: "申请AWS业务EMR账户;权限申请,AWS,业务EMR账户"
 - name: bpm-auth-aws-s3
   alias: '权限  AWS S3'
+  describe: "申请AWS S3权限;权限申请,AWS,S3"
 - name: bpm-auth-create-git-repo
   alias: '权限  GIT 新建仓库'
+  describe: "申请AWS GIT新建仓库权限;权限申请,AWS,GIT"
 - name: bpm-auth-git
   alias: '权限  GIT 仓库权限'
+  describe: "申请AWS GIT仓库权限;权限申请,AWS,GIT"
 - name: bpm-auth-add-cdn-account
   alias: '权限  账号 新增CDN平台账号'
+  describe: "申请新增CDN平台账号;权限申请,CDN;账号"
 - name: bpm-auth-add-ftp-account
   alias: '权限  账号 新增FTP平台账号'
+  describe: "申请新增FTP平台账号;权限申请,FTP,账号"
 - name: bpm-auth-add-cloud-account
   alias: '权限  账号 新增云账号'
+  describe: "申请新增云账号;权限申请,账号"
 - name: bpm-auth-bigdata
   alias: '权限  账号 申请大数据账号权限'
+  describe: "申请大数据账号权限;权限申请,账号"
 - name: bpm-database-auth
   alias: '权限  数据库  数据库权限'
+  describe: "申请数据库权限;权限申请,数据库权限"
 - name: bpm-auth-tree-node
   alias: '权限  其他  业务节点权限申请'
+  describe: "申请业务节点权限;权限申请,其他"
 
 
 - name: bpm-resources-recycle-aws-ec2
   alias: '资源回收  AWS   EC2'
+  describe: "申请回收AWS EC2;资源回收,AWS,服务器"
 - name: bpm-resources-recycle-qcloud-cvm
   alias: '资源回收  腾讯云  CVM'
-  describe: 'cvm实例和关联的数据盘在删除后会被移入回收站, 7天后自动释放资源'
+  describe: 'cvm实例和关联的数据盘在删除后会被移入回收站, 7天后自动释放资源;资源回收,腾讯云,服务器'
 - name: bpm-resources-recycle-qcloud-clb
   alias: '资源回收  腾讯云  CLB'
+  describe: "申请回收腾讯云 CLB;资源回收,腾讯云,负载均衡器"
 - name: bpm-resources-recycle-google-vm
   alias: '资源回收  Google  VM'
+  describe: "申请回收谷歌云 VM;资源回收,谷歌云,服务器"
 - name: bpm-resources-recycle-google-lb
   alias: '资源回收  Google  LB'
+  describe: "申请回收谷歌云 LB;资源回收,谷歌云,负载均衡器"
 - name: bpm-resources-recycle-database
   alias: '资源回收  数据库  回收数据库资源'
+  describe: "申请回收数据库资源;资源回收,数据库"
 
 
 - name: bpm-cdn-create
   alias: '服务  CDN 新申请CDN服务'
+  describe: "新申请CDN服务;CDN"
 - name: bpm-cdn-change
   alias: '服务  CDN 变更CDN服务'
-  describe: '1: 回源的ip或域名不能与服务域名相同. 2: 经营性网站指是否涉及充值等交易行为，海外业务请忽略. 3: 已上线业务配置CDN,需业务测试无误后改解析到CDN. 4: 已处理工单，如果3日内没有反馈结果，则视为无异议'
+  describe: '1: 回源的ip或域名不能与服务域名相同. 2: 经营性网站指是否涉及充值等交易行为，海外业务请忽略. 3: 已上线业务配置CDN,需业务测试无误后改解析到CDN. 4: 已处理工单，如果3日内没有反馈结果，则视为无异议;CDN'
 - name: bpm-domain-register
   alias: '服务  域名  注册域名'
+  describe: "注册域名;域名,注册"
 - name: bpm-domain-config-new
   alias: '服务  域名  申请域名解析'
+  describe: "申请域名解析;域名,域名解析"
 - name: bpm-domain-config-edit
   alias: '服务  域名  修改域名解析'
+  describe: "修改域名解析;域名,修改域名解析"
 - name: bpm-domain-config-del
   alias: '服务  域名  删除域名解析'
+  describe: "删除域名解析;域名,删除域名解析"
 - name: bpm-certificate-apply
   alias: '服务  证书  申请证书'
+  describe: "申请证书;证书,申请证书"
 
 - name: bpm-sql
   alias: '操作  数据库  SQL操作'
+  describe: "使用SQL操作数据库;数据库,SQL"
 - name: bpm-busines-asset-handover
   alias: '操作  其他  业务资产交接'
+  describe: "业务资产交接;业务资产,其他"
 - name: bpm-reset-bastion-two-factor-authentication
   alias: '操作  其他  重置堡垒机二次认证'
+  describe: "重置堡垒机二次认证;堡垒机二次认证,其他"
 - name: bpm-flow-create
   alias: '操作  其他  创建发布服务'
+  describe: "创建发布服务;发布服务,其他"
 - name: bpm-flow-k8s-create
   alias: '操作  其他  创建k8s发布服务'
+  describe: "创建k8s发布服务;发布服务,其他"
