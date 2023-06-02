@@ -72,6 +72,10 @@
                     <i class="fa fa-refresh" ng-class="{'fa-spin': !devicedata.loadover}"></i>
                 </a>
             </span>
+            <button ng-disabled="devicedata.tableData.length === 0" class="device-export" uib-tooltip="{{'C3T.导出'|translate}}" 
+              ng-click="devicedata.exportDownload(devicedata.exportDownloadStr, devicedata.tableData)" >
+                <i class="fa fa-download fa-1x" aria-hidden="true"></i></i>
+          </button>
         </div>
 
         <div class="panel-body">
@@ -124,3 +128,15 @@
     </div>
 
 </div>
+
+<style lang="scss">
+  .device-header {
+    width: 100%;
+  }
+  .device-export {
+    text-align: right;
+    background-color: transparent;
+    line-height: normal;
+    border-color: transparent;
+  }
+</style>
