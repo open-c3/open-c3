@@ -40,18 +40,24 @@
         </div>
 
 
-        <div ng-if="quickapproval.stat.checkcode && quickapproval.stat.opinion == 'unconfirmed'" class="panel-footer text-right">
+        <!-- <div ng-if="quickapproval.stat.checkcode && quickapproval.stat.opinion == 'unconfirmed'" class="panel-footer text-right">
             <div class="row" >
                 <label class="col-md-6 control-label fwbold">{{quickapproval.stat.checkaction}} to {{quickapproval.stat.checkversion}}, {{'C3T.请输入版本后几位数字确认码'|translate}}({{quickapproval.stat.checkcode}})</label>
                 <div class="col-sm-6"> <input type="text" class="form-control" placeholder="" ng-model="quickapproval.inputcheckout" required> </div>
             </div>
-        </div>
+        </div> -->
 
         <div ng-if="quickapproval.stat.opinion == 'unconfirmed'" class="panel-footer text-right">
-            <button class="btn btn-success" ng-disabled="quickapproval.stat.checkcode && quickapproval.inputcheckout != quickapproval.stat.checkcode" ng-click="quickapproval.edit('agree')">{{'C3T.同意'|translate}}</button>
-            <button class="btn btn-danger"  ng-disabled="quickapproval.stat.checkcode && quickapproval.inputcheckout != quickapproval.stat.checkcode" ng-click="quickapproval.edit('refuse')">{{'C3T.拒绝'|translate}}</button>
+            <button class="btn btn-success confirm-margin" ng-click="quickapproval.edit('agree')">{{'C3T.同意'|translate}}</button>
+            <button class="btn btn-danger" ng-click="quickapproval.edit('refuse')">{{'C3T.拒绝'|translate}}</button>
         </div>
 
     </div>
 
 </div>
+
+<style>
+  .confirm-margin {
+    margin-right: 20px;
+  }
+</style>

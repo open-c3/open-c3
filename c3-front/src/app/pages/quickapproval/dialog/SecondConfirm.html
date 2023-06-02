@@ -1,0 +1,58 @@
+<div class="modal-header">
+  <h4 class="modal-title">{{'C3T.您正在进行上线操作，请确认' | translate}}</h4>
+</div>
+<div class="panel panel-primary">
+
+  <div class="panel-body">
+    <div class="form-horizontal">
+      <div class="form-confirm-info">
+          <div class="row">
+            <div class="col-sm-10 form-group form-confirm-info-project">
+              <label class="col-sm-3 control-label">{{'C3T.项目'|translate}}：</label>
+              <div class="col-sm-6"> {{secondConfirm.flowlineName}}</div>
+            </div>
+            <div class="col-sm-10 form-group form-confirm-info-project">
+              <label class="col-sm-3 control-label"> {{'C3T.版本'|translate}}：</label>
+              <div class="col-sm-6">{{secondConfirm.stat.checkversion}}</div>
+            </div>
+            <div class="col-sm-10 form-group form-confirm-info-project">
+              <label class="col-sm-3 control-label"> {{'C3T.数字确认码'|translate}}：</label>
+              <div class="col-sm-6">{{secondConfirm.stat.checkcode}}</div>
+            </div>
+          </div>
+      </div>
+      <form class="form-horizontal" name="scriptForm" role="form" novalidate>
+        <div class="row">
+          <div class="col-sm-10 form-group">
+            <label class="col-sm-3 control-label">
+              {{'C3T.数字确认码'|translate}} <span style="color: red">*</span>
+            </label>
+            <div class="col-sm-6">
+              <input type="text" class="form-control" placeholder="{{'C3T.请输入数字确认码' | translate}}"
+                ng-model="secondConfirm.inputcheckout"
+                ng-change="secondConfirm.handleVersionCode(secondConfirm.inputcheckout)" required>
+              <div ng-if="secondConfirm.inputMessage" class="form-input-message">{{'C3T.输入与数字确认码不一致' | translate}}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-sm-3 form-group" style="margin-left: 40%;">
+            <button class="btn btn-success" ng-disabled="scriptForm.$invalid || secondConfirm.inputMessage" ng-click="secondConfirm.returnSave()">
+              {{'C3T.确认' | translate}}
+            </button>
+            <button class="btn btn-warning" ng-click="secondConfirm.cancel()">
+              {{'C3T.取消' | translate}}
+            </button>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<style>
+  .line-heed {
+    word-break: break-all;
+  }
+</style>

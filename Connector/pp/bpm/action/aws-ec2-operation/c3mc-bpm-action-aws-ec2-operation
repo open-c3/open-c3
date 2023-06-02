@@ -9,6 +9,7 @@ import time
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
 from c3mc_cloud_aws_ec2 import LIB_EC2
+from c3mc_utils import retry_network_request
 
 
 def exponential_backoff(attempt, max_delay):
@@ -21,14 +22,32 @@ class OperateEc2:
         self.lib_client = LIB_EC2(access_id, access_key, region)
 
     def run(self, operation_type, instance_id):
+        instance_info = self.lib_client.describe_instances([instance_id])["Reservations"][0]["Instances"][0]
+
         if operation_type == "start":
-            self.lib_client.start_instances([instance_id])
-            self.lib_client.wait_until_status(instance_id, "running")
+            if instance_info["State"]["Name"] == "running":
+                print(f"LOG. ec2实例: {instance_id} 已经处于 running 状态, 跳过操作")
+                return
+
+            retry_network_request(self.lib_client.start_instances, ([instance_id],))
+            if not self.lib_client.wait_until_status(instance_id, "running"):
+                print(f"LOG. 等待机器启动超时: {instance_id}")
+                exit(1)
             print(f"LOG. 成功启动ec2实例: {instance_id}")
+
         elif operation_type == "stop":
-            self.lib_client.stop_instances([instance_id])
-            self.lib_client.wait_until_status(instance_id, "stopped")
+            if instance_info["State"]["Name"] == "stopped":
+                print(f"LOG. ec2实例: {instance_id} 已经处于 stopped 状态, 跳过操作")
+                return
+            retry_network_request(self.lib_client.stop_instances, ([instance_id],))
+            if not self.lib_client.wait_until_status(instance_id, "stopped"):
+                print(f"LOG. 等待机器关机超时: {instance_id}")
+                exit(1)
             print(f"LOG. 成功停止ec2实例: {instance_id}")
+
+        else: 
+            print(f"LOG. 不支持的操作类型: {operation_type}")
+            exit(1)
 
 
 def get_instance_uuid(instance_maybe_identifier):
