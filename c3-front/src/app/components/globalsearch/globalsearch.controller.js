@@ -63,15 +63,10 @@
     }
 
     vm.handleFrequentClick = function (selectedItems) {
-      if (!vm.choiceSearch) {
-        vm.choiceSearch = selectedItems
-      } else {
-        if (selectedItems.length > vm.choiceSearch.length && selectedItems.includes(vm.choiceSearch)) {
-          vm.choiceSearch = selectedItems
-        }else {
-          vm.choiceSearch = ''
-        }
+      if (vm.choiceSearch === selectedItems) {
+        return
       }
+      vm.choiceSearch = selectedItems
       vm.buttonSubmit();
     }
 
