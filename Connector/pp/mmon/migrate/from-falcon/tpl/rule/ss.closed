@@ -1,0 +1,16 @@
+---
+alert: ss.closed $VAR{op} $VAR{right_value}
+bindtreesql: ''
+description: Node节点 ss.closed $VAR{op} $VAR{right_value}, 告警时候的值为 {{ $value }}
+edit_time: 2023-06-05 15:45:19
+edit_user: open-c3
+expr: node_ss_closed{treeid_c3montreeid!="",job="openc3"} $VAR{op} $VAR{right_value}
+for: '$VAR{for}'
+job: openc3
+method: '$VAR{op}'
+metrics: node_ss_closed
+model: simple
+severity: level$VAR{priority}
+summary: ss.closed告警
+threshold: '$VAR{right_value}'
+value: '{{ $value }}'
