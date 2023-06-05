@@ -46,6 +46,11 @@ wget $OPEN_C3_ADDR/api/scripts/agent.mon.tar.gz -O $MYDanPATH/dan/agent.mon.tar.
 
 tar -zxvf agent.mon.tar.gz
 
+Proc=`ps -ef|grep mydan.node_exporter.65110|grep -v grep|wc -l`
+if [ "X$Proc" == "X1" ]; then
+    killall mydan.node_exporter.65110 2>/dev/null
+fi
+
 cp /opt/mydan/dan/agent.mon/exec.config/mydan.node_exporter.65110 /opt/mydan/dan/bootstrap/exec/
 chmod +x /opt/mydan/dan/bootstrap/exec/mydan.node_exporter.65110
 
@@ -66,6 +71,10 @@ if [ "X$NodeExport" == "X0"  ];then
     chmod +x /opt/mydan/dan/bootstrap/exec/prometheus.node_exporter.9100
 fi
 
-killall mydan.node_exporter.65110 2>/dev/null
+Proc=`ps -ef|grep mydan.node_exporter.65110|grep -v grep|wc -l`
+if [ "X$Proc" != "X1" ]; then
+    echo "INSTALL OPEN-C3 MONITOR AGENT: Done!!!"
+    exit
+fi
 
 echo "INSTALL OPEN-C3 MONITOR AGENT: SUCCESS!!!"
