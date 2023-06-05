@@ -284,6 +284,32 @@ sub makedata_rule
     my $data = shift @_;
     my $tpl_file = "$RealBin/tpl/rule/$data->{metric}";
 
+
+    my %extvar = ();
+
+    if( !-f $tpl_file )
+    {
+        my @tags = grep{ /=/ }split /,/, $data->{tags};
+        my $new_tpl_file = sprintf "$RealBin/tpl/rule/data.by.agent.push.tags%d", scalar @tags;
+        if( -f $new_tpl_file )
+        {
+            $extvar{metricformat} = $data->{metric};
+            $extvar{metricformat} =~ s/\./_/g;
+            $extvar{metricformat} =~ s/\-/_/g;
+
+            my $id = 0;
+            for( @tags )
+            {
+                my ( $name, $value ) = split /=/, $_, 2;
+                $id ++;
+                $extvar{"tagsname$id" } = $name;
+                $extvar{"tagsvalue$id"} = $value;
+            }
+
+            $tpl_file = $new_tpl_file;
+        }
+    }
+
     if( $data->{metric} eq 'sys.disk.rw' )
     {
         print "skip $data->{metric}\n";
@@ -318,6 +344,12 @@ sub makedata_rule
     for my $k ( qw( priority for right_value right_value_k op func2c3 ) )
     {
         my $v = $data->{$k};
+        $tpl =~ s/\$VAR\{$k\}/$v/g;
+    }
+
+    for my $k ( keys %extvar )
+    {
+        my $v = $extvar{$k};
         $tpl =~ s/\$VAR\{$k\}/$v/g;
     }
 
