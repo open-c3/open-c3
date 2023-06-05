@@ -1,0 +1,16 @@
+---
+alert: ping丢包率 $VAR{op} $VAR{right_value}%
+bindtreesql: ''
+description: Node节点 {{$labels.instance}} ping {{$labels.host}}丢包率 $VAR{op} $VAR{right_value}%
+edit_time: 2023-06-05 15:02:41
+edit_user: open-c3
+expr: node_ping_loss{treeid_c3montreeid!="",job="openc3"} $VAR{op} $VAR{right_value}
+for: '$VAR{for}'
+job: openc3
+method: '>'
+metrics: node_ping_loss
+model: simple
+severity: level$VAR{priority}
+summary: 网络告警
+threshold: '$VAR{right_value}'
+value: '{{ $value }}%'
