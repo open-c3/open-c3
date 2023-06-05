@@ -80,6 +80,8 @@
    有的数据5分钟push一次，step为300。如果不处理step，会导致因为数据不是1分钟push异常会被判定为过期数据而删除掉。
 版本33:
    添加linux的ss命令的监控采集。
+版本34:
+   添加ping监控的功能。
 ```
 
 node_collector_error 错误码

@@ -40,7 +40,7 @@ sub new
     }
 
     $prom = $this{prom} = OPENC3::MYDan::MonitorV3::Prometheus::Tiny->new;
-    my @task = qw( DiskBlocks DiskInodes Uptime PortTcp PortUdp Process Http Path PromeNodeExporter Sar MYDanAgent FalconMigrate Ss );
+    my @task = qw( DiskBlocks DiskInodes Uptime PortTcp PortUdp Process Http Path PromeNodeExporter Sar MYDanAgent FalconMigrate Ss Ping );
 
     my $i = 0;
     for my $type ( @task )
@@ -133,13 +133,13 @@ sub new
 
     #强制定义，避免模块异常，漏掉 
     map{ $this{prom}->set( 'node_collector_error', -1, +{ collector => $_ } ); }
-        qw( node_carry node_disk_blocks node_disk_inodes node_exporter_prome node_http node_port_tcp node_port_udp node_sar node_system_uptime node_process falcon_migrate node_ss );
+        qw( node_carry node_disk_blocks node_disk_inodes node_exporter_prome node_http node_port_tcp node_port_udp node_sar node_system_uptime node_process falcon_migrate node_ss node_ping );
 
     $this{timer}{refresh} = AnyEvent->timer(
         after => 1, 
         interval => 15,
         cb => sub { 
-            $this{prom}->set( 'node_exporter_version', 33 );
+            $this{prom}->set( 'node_exporter_version', 34 );
             $this{prom}->set( 'agent_push_metric_count', $agent_push_metric_count );
             $this{prom}->set( 'agent_push_metric_error', $agent_push_metric_error );
             $this{prom}->set( 'agent_push_metric_data',  $agent_push_metric_data );

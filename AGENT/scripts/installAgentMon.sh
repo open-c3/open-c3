@@ -1,6 +1,6 @@
 #!/bin/bash
 
-/opt/mydan/perl/bin/perl -MAnyEvent::HTTP -e 1
+/opt/mydan/perl/bin/perl -MAnyEvent::HTTP -MAnyEvent::Ping -e 1
 checkPerlModule=$?
 
 set -e 
@@ -28,7 +28,7 @@ if [ $checkPerlModule -ne 0 ];then
             cp /root/.cpan/CPAN/MyConfig.pm /root/.cpan/CPAN/MyConfig.pm.c3.bak
         fi
 
-        /opt/mydan/dan/tools/alarm 10 "/opt/mydan/perl/bin/cpan install AnyEvent::HTTP </dev/null" || echo skip www.cpan.org
+        /opt/mydan/dan/tools/alarm 10 "/opt/mydan/perl/bin/cpan install AnyEvent::HTTP AnyEvent::Ping </dev/null" || echo skip www.cpan.org
 
         sed -i "s/'urllist' => \[q\[http:\/\/www\.cpan\.org\/\]\],/'urllist' => \[q[http:\/\/mirrors.163.com\/cpan\/]\],/" /root/.cpan/CPAN/MyConfig.pm
 
@@ -38,7 +38,7 @@ if [ $checkPerlModule -ne 0 ];then
         fi
     fi
 
-    /opt/mydan/perl/bin/cpan install AnyEvent::HTTP </dev/null
+    /opt/mydan/perl/bin/cpan install AnyEvent::HTTP AnyEvent::Ping </dev/null
 
 fi
 

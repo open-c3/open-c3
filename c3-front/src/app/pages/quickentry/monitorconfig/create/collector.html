@@ -23,6 +23,10 @@
                              <span class="radio" style="padding-top: 0;min-height: 0"></span>HTTP
                         </label>
                         <label class="option option-primary">
+                             <input type="radio" ng-model="createMonitorConfig.postData.type" ng-change="createMonitorConfig.changeType('ping')" value="ping" >
+                             <span class="radio" style="padding-top: 0;min-height: 0"></span>Ping
+                        </label>
+                        <label class="option option-primary">
                              <input type="radio" ng-model="createMonitorConfig.postData.type" ng-change="createMonitorConfig.changeType('file')" value="path" >
                              <span class="radio" style="padding-top: 0;min-height: 0"></span>{{'C3T.路径'|translate}}
                         </label>
@@ -273,6 +277,56 @@ node_http_time{method="GET",url="http://127.0.0.1"} 2
 node_http_time{method="GET",url="https://www.baidu.com"} 52
 
 node_http_content_check{check="baidu",method="GET",url="https://www.baidu.com"} 1
+                    </textarea>
+                </div>
+            </div>
+        </div>
+ 
+
+    </form>
+</div>
+
+
+<div ng-if="createMonitorConfig.postData.type=='ping'">
+    <form class="form-horizontal" name="myForm" role="form">
+
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">Host</label>
+                <div class="col-sm-9">
+                    <input type="text" class="form-control" placeholder="{{'C3T.内容'|translate}}" ng-model="createMonitorConfig.postData.content1" required>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-5 form-group pull-right">
+                <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="createMonitorConfig.add()">{{'C3T.确认'|translate}}</button>
+                <button class="btn btn-warning" ng-click="createMonitorConfig.cancel()">{{'C3T.取消'|translate}}</button>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">{{'C3T.帮助'|translate}}</label>
+                <div class="col-sm-9">
+
+                    <textarea style="height: 450px" class="fluid-width" readonly>
+{{'C3T.用途'|translate}}：{{'C3T.ping监控'|translate}}
+{{'C3T.指标'|translate}}：
+
+node_ping_delay: {{'C3T.ping延迟，单位为毫秒'|translate}}
+node_ping_loss: {{'C3T.ping丢包率'|translate}}
+
+
+{{'C3T.例如'|translate}}：
+
+node_ping_delay{host="127.0.0.1"} 10
+node_ping_delay{host="www.baidu.com"} 10
+
+node_ping_loss{host="127.0.0.1"} 0
+node_ping_loss{host="www.baidu.com"} 10
+
                     </textarea>
                 </div>
             </div>
