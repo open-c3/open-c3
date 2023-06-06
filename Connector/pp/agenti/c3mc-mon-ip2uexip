@@ -1,0 +1,25 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ echo 10.10.10.10| $0
+
+=cut
+
+my $file = '/data/Software/mydan/AGENT/conf/openc3_uexip.yml';
+my $conf = +{};
+if( -f $file )
+{
+    $conf = eval{ YAML::XS::LoadFile $file};
+    die "load file $file error: $@" if $@;
+}
+while(<STDIN>){
+    chomp;
+    printf "%s\n", $conf->{$_} || $_;
+}

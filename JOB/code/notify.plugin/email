@@ -47,7 +47,7 @@ return sub
     my $pipe = "c3mc-base-send";
     my $pid = IPC::Open3::open3( my $chld_in, '>&STDOUT', '>&STDERR', $pipe);
     print $chld_in YAML::XS::Dump +{
-        title   => $data{"$param{notifytype}TemplateEmailTitle"},
+        title   => ( split /\n/, $data{"$param{notifytype}TemplateEmailTitle"} )[0],
         content => $data{"$param{notifytype}TemplateEmailContent"},
         to      => $param{to}
     };

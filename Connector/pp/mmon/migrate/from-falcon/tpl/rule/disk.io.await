@@ -1,0 +1,16 @@
+---
+alert: 基础监控 disk.io.await $VAR{op} $VAR{right_value}
+bindtreesql: ''
+description: Node节点 disk.io.await $VAR{op} $VAR{right_value}, 告警时候的值为 {{ $value }}
+edit_time: 2023-06-05 16:10:44
+edit_user: open-c3
+expr: node_dev_await{treeid_c3montreeid!="",job="openc3"} $VAR{op} $VAR{right_value}
+for: '$VAR{for}'
+job: openc3
+method: '$VAR{op}'
+metrics: node_dev_await
+model: simple
+severity: level$VAR{priority}
+summary: 磁盘监控
+threshold: '$VAR{right_value}'
+value: '{{ $value }}'

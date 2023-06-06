@@ -159,6 +159,82 @@ sub makedata_collector_netportlisten
     close $H;
 }
 
+sub makedata_collector_pingdelay
+{
+    my $data = shift @_;
+    my $tpl_file = "$RealBin/tpl/collector/$data->{metric}";
+
+    my $tpl = `cat '$tpl_file'`;
+
+    my %var;
+    if( $data->{tags} =~ /path=([\d\.]+)$/ )
+    {
+        %var = ( host => $1 );
+    }
+    else
+    {
+        warn "[ERROR] unkown ping.delay tags: $data->{tags}\n";
+        return;
+    }
+
+    for my $k ( qw( host ) )
+    {
+        my $v = $var{$k};
+        $tpl =~ s/\$VAR\{$k\}/$v/g;
+    }
+
+    my $md5 = Digest::MD5->new->add( $tpl )->hexdigest;
+    my $path = "$dist/collector/$data->{treeid}";
+    system "mkdir -p '$path'" unless -d $path;
+#    my $file = "$path/$data->{tpl_name}.$md5";
+#    ping delay和ping loss用同一个采集，所以文件名这里用host去重
+#    ping delay和ping loss可以合并的，先不合并
+    my $file = "$path/ping.$var{host}";
+    print "make collector: $data->{metric} $file\n";
+    my $H;
+    open($H, ">$file" ) || die "open $file $!";
+    print $H $tpl;
+    close $H;
+}
+
+sub makedata_collector_pingloss
+{
+    my $data = shift @_;
+    my $tpl_file = "$RealBin/tpl/collector/$data->{metric}";
+
+    my $tpl = `cat '$tpl_file'`;
+
+    my %var;
+    if( $data->{tags} =~ /path=([\d\.]+)$/ )
+    {
+        %var = ( host => $1 );
+    }
+    else
+    {
+        warn "[ERROR] unkown ping.loss tags: $data->{tags}\n";
+        return;
+    }
+
+    for my $k ( qw( host ) )
+    {
+        my $v = $var{$k};
+        $tpl =~ s/\$VAR\{$k\}/$v/g;
+    }
+
+    my $md5 = Digest::MD5->new->add( $tpl )->hexdigest;
+    my $path = "$dist/collector/$data->{treeid}";
+    system "mkdir -p '$path'" unless -d $path;
+#    my $file = "$path/$data->{tpl_name}.$md5";
+#    ping delay和ping loss用同一个采集，所以文件名这里用host去重
+#    ping delay和ping loss可以合并的，先不合并
+    my $file = "$path/ping.$var{host}";
+    print "make collector: $data->{metric} $file\n";
+    my $H;
+    open($H, ">$file" ) || die "open $file $!";
+    print $H $tpl;
+    close $H;
+}
+
 sub makedata_collector_procnum
 {
     my $data = shift @_;
@@ -171,11 +247,10 @@ sub makedata_collector_procnum
     {
         ( $type, $name ) = ( 'name', $1 );
     }
-    elsif( $data->{tags} =~ m#cmdline=([a-zA-Z0-9][a-zA-Z0-9\-\.\/\_]+)# )
+    elsif( $data->{tags} =~ m#cmdline=([a-zA-Z0-9: \.\-_@\/]+)# )
     {
         ( $type, $name ) = ( 'cmdline', $1 );
     }
- 
     else
     {
         warn "[ERROR] unkown proc.num tags: $data->{tags}\n";
@@ -207,6 +282,32 @@ sub makedata_rule
 {
     my $data = shift @_;
     my $tpl_file = "$RealBin/tpl/rule/$data->{metric}";
+
+
+    my %extvar = ();
+
+    if( !-f $tpl_file )
+    {
+        my @tags = grep{ /=/ }split /,/, $data->{tags};
+        my $new_tpl_file = sprintf "$RealBin/tpl/rule/data.by.agent.push.tags%d", scalar @tags;
+        if( -f $new_tpl_file )
+        {
+            $extvar{metricformat} = $data->{metric};
+            $extvar{metricformat} =~ s/\./_/g;
+            $extvar{metricformat} =~ s/\-/_/g;
+
+            my $id = 0;
+            for( @tags )
+            {
+                my ( $name, $value ) = split /=/, $_, 2;
+                $id ++;
+                $extvar{"tagsname$id" } = $name;
+                $extvar{"tagsvalue$id"} = $value;
+            }
+
+            $tpl_file = $new_tpl_file;
+        }
+    }
 
     if( $data->{metric} eq 'sys.disk.rw' )
     {
@@ -242,6 +343,12 @@ sub makedata_rule
     for my $k ( qw( priority for right_value right_value_k op func2c3 ) )
     {
         my $v = $data->{$k};
+        $tpl =~ s/\$VAR\{$k\}/$v/g;
+    }
+
+    for my $k ( keys %extvar )
+    {
+        my $v = $extvar{$k};
         $tpl =~ s/\$VAR\{$k\}/$v/g;
     }
 
@@ -289,4 +396,6 @@ for ( @x )
     makedata_collector_httpcheck(     $d ) if $d->{metric} eq 'http.check';
     makedata_collector_procnum(       $d ) if $d->{metric} eq 'proc.num';
     makedata_collector_netportlisten( $d ) if $d->{metric} eq 'net.port.listen';
+    makedata_collector_pingdelay(     $d ) if $d->{metric} eq 'ping.delay';
+    makedata_collector_pingloss(      $d ) if $d->{metric} eq 'ping.loss';
 }

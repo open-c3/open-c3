@@ -1,0 +1,17 @@
+---
+alert: "自定义 $VAR{metricformat}/$VAR{tagsname1}=$VAR{tagsvalue1} $VAR{op} $VAR{right_value}"
+bindtreesql: round(avg($VAR{metricformat}{$VAR{tagsname1}="$VAR{tagsvalue1}"}) by (instance)) $VAR{op} $VAR{right_value}
+description: Node节点 {{$labels.instance}} $VAR{metricformat}/$VAR{tagsname1}=$VAR{tagsvalue1} $VAR{op} $VAR{right_value}
+edit_time: 2023-06-05 16:53:27
+edit_user: open-c3
+expr: round(avg($VAR{metricformat}{$VAR{tagsname1}="$VAR{tagsvalue1}"}) by (instance)) $VAR{op} $VAR{right_value} and  ( sum(treeinfo{tid="c3montreeid"})
+  by(instance))
+for: '$VAR{for}'
+job: ''
+method: ''
+metrics: ''
+model: bindtree
+severity: level$VAR{priority}
+summary: $VAR{metricformat}/$VAR{tagsname1}=$VAR{tagsvalue1}报警
+threshold: ''
+value: '{{ $value }}'

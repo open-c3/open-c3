@@ -1,5 +1,5 @@
 ---
-alert: Node节点内存使用率 $VAR{op} $VAR{right_value}%
+alert: 基础监控 Node节点内存使用率 $VAR{op} $VAR{right_value}%
 bindtreesql: round(sum((node_memory_MemTotal_bytes - (node_memory_MemFree_bytes + node_memory_Buffers_bytes + node_memory_Cached_bytes)) / node_memory_MemTotal_bytes * 100) by (instance)) $VAR{op} $VAR{right_value}
 description: 'Node节点 {{$labels.instance}} 内存使用 $VAR{op} $VAR{right_value}% 告警时使用率为: {{ $value }}%'
 edit_time: 2023-04-12 17:41:52

@@ -56,6 +56,7 @@
 
         vm.edit = function (opinion) {
           if (vm.stat.checkcode && vm.stat.opinion === 'unconfirmed') {
+          if (opinion === 'agree') {
             $uibModal.open({
               templateUrl: 'app/pages/quickapproval/dialog/SecondConfirm.html',
               controller: 'SecondConfirmController',
@@ -71,6 +72,25 @@
                 dialogReload: function () {return vm.reload}
               }
             })
+          } else if (opinion === 'refuse') {
+            swal({
+              title: '是否拒绝发布线上',
+              type: "warning",
+              showCancelButton: true,
+              confirmButtonColor: "#DD6B55",
+              cancelButtonText: "取消",
+              confirmButtonText: "确定",
+              closeOnConfirm: true
+            }, function () {
+              $http.post('/api/job/approval/control', { uuid: uuid, opinion: opinion }).success(function (data) {
+                if (data.stat) {
+                  vm.reload();
+                } else {
+                  swal({ title: '操作失败', text: data.info, type: 'error' });
+                }
+              });
+            });
+          }
           } else {
             $http.post('/api/job/approval/control', { uuid:uuid, opinion: opinion }).success(function (data) {
               if (data.stat) {

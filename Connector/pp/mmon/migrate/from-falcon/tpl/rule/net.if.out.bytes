@@ -1,5 +1,5 @@
 ---
-alert: 上传带宽 $VAR{op} $VAR{right_value_k}K/s
+alert: 基础监控 上传带宽 $VAR{op} $VAR{right_value_k}K/s
 bindtreesql: max(rate(node_network_transmit_bytes_total[5m]) / 1024) by (instance)  $VAR{op} $VAR{right_value_k}
 description: 上传带宽大于$VAR{right_value_k}K/s，当前为 {{ $value }} K/s
 edit_time: 2023-04-13 17:30:49

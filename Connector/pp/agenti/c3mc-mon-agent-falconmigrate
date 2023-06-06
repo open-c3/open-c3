@@ -13,6 +13,7 @@ export MYDan_Agent_Proxy_Addr=$addr/api/agent/proxy/0
 export MYDan_Agent_Proxy_Header="appname:job,appkey:${OPEN_C3_RANDOM}"
 
 c3mc-mon-agent-install-errfalconmigrate \
+| c3mc-mon-ip2uexip \
 | sort  -R    \
 | head  -n 10 \
 | xargs -P 2 -i{} /data/Software/mydan/dan/tools/rcall -r {} --timeout 300 exec "curl -L $addr/api/scripts/installAgentMonFalconMigrate.sh | OPEN_C3_ADDR=$addr bash"

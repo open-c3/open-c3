@@ -1,6 +1,6 @@
 #!/bin/bash
 
-/opt/mydan/perl/bin/perl -MAnyEvent::HTTP -e 1
+/opt/mydan/perl/bin/perl -MAnyEvent::HTTP -MAnyEvent::Ping -e 1
 checkPerlModule=$?
 
 set -e 
@@ -28,7 +28,7 @@ if [ $checkPerlModule -ne 0 ];then
             cp /root/.cpan/CPAN/MyConfig.pm /root/.cpan/CPAN/MyConfig.pm.c3.bak
         fi
 
-        /opt/mydan/dan/tools/alarm 10 "/opt/mydan/perl/bin/cpan install AnyEvent::HTTP </dev/null" || echo skip www.cpan.org
+        /opt/mydan/dan/tools/alarm 10 "/opt/mydan/perl/bin/cpan install AnyEvent::HTTP AnyEvent::Ping </dev/null" || echo skip www.cpan.org
 
         sed -i "s/'urllist' => \[q\[http:\/\/www\.cpan\.org\/\]\],/'urllist' => \[q[http:\/\/mirrors.163.com\/cpan\/]\],/" /root/.cpan/CPAN/MyConfig.pm
 
@@ -38,13 +38,18 @@ if [ $checkPerlModule -ne 0 ];then
         fi
     fi
 
-    /opt/mydan/perl/bin/cpan install AnyEvent::HTTP </dev/null
+    /opt/mydan/perl/bin/cpan install AnyEvent::HTTP AnyEvent::Ping </dev/null
 
 fi
 
 wget $OPEN_C3_ADDR/api/scripts/agent.mon.tar.gz -O $MYDanPATH/dan/agent.mon.tar.gz
 
 tar -zxvf agent.mon.tar.gz
+
+Proc=`ps -ef|grep mydan.node_exporter.65110|grep -v grep|wc -l`
+if [ "X$Proc" == "X1" ]; then
+    killall mydan.node_exporter.65110 2>/dev/null
+fi
 
 cp /opt/mydan/dan/agent.mon/exec.config/mydan.node_exporter.65110 /opt/mydan/dan/bootstrap/exec/
 chmod +x /opt/mydan/dan/bootstrap/exec/mydan.node_exporter.65110
@@ -66,6 +71,10 @@ if [ "X$NodeExport" == "X0"  ];then
     chmod +x /opt/mydan/dan/bootstrap/exec/prometheus.node_exporter.9100
 fi
 
-killall mydan.node_exporter.65110 2>/dev/null
+Proc=`ps -ef|grep mydan.node_exporter.65110|grep -v grep|wc -l`
+if [ "X$Proc" != "X1" ]; then
+    echo "INSTALL OPEN-C3 MONITOR AGENT: Done!!!"
+    exit
+fi
 
 echo "INSTALL OPEN-C3 MONITOR AGENT: SUCCESS!!!"

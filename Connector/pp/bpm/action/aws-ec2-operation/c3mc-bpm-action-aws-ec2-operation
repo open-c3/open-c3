@@ -35,6 +35,9 @@ class OperateEc2:
                 exit(1)
             print(f"LOG. 成功启动ec2实例: {instance_id}")
 
+            # 启动完一个实例后休眠一段时间，尝试避免aws接口出现资源容量不足的错误
+            time.sleep(20)
+
         elif operation_type == "stop":
             if instance_info["State"]["Name"] == "stopped":
                 print(f"LOG. ec2实例: {instance_id} 已经处于 stopped 状态, 跳过操作")
