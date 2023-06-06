@@ -1,15 +1,15 @@
 ---
 alert: 基础监控 主机存活检查
-bindtreesql: sum(up) by(instance) == 0
+bindtreesql: ''
 description: Node节点 {{$labels.instance}} 已宕机
-edit_time: 2023-04-12 15:31:55
+edit_time: 2023-06-06 16:08:08
 edit_user: open-c3
-expr: up{job="openc3"} == 0
+expr: up{treeid_c3montreeid!="",job="openc3"} == 0
 for: '$VAR{for}'
 job: openc3
 method: ==
 metrics: up
-model: custom
+model: simple
 severity: level$VAR{priority}
 summary: 主机已宕机
 threshold: '0'
