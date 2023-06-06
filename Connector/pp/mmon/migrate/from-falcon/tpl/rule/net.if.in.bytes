@@ -1,5 +1,5 @@
 ---
-alert: 下载带宽 $VAR{op} $VAR{right_value_k}K/s
+alert: 基础监控 下载带宽 $VAR{op} $VAR{right_value_k}K/s
 bindtreesql: max(rate(node_network_receive_bytes_total[5m]) / 1024) by (instance)  $VAR{op} $VAR{right_value_k}
 description: 下载带宽 $VAR{op} $VAR{right_value}K/s，当前为 {{ $value }} K/s
 edit_time: 2023-04-13 17:30:49
