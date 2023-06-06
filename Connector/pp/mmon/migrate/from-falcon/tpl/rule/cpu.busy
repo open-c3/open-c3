@@ -1,5 +1,5 @@
 ---
-alert: Node节点cpu.busy $VAR{op} $VAR{right_value}%
+alert: 基础监控 Node节点cpu.busy $VAR{op} $VAR{right_value}%
 bindtreesql: 100 - ceil( ((sum(increase(node_cpu_seconds_total{mode="idle"}[5m]))by(instance))/(sum(increase(node_cpu_seconds_total[5m]))by(instance))) * 100 ) $VAR{op} $VAR{right_value}
 description: 'Node节点 {{$labels.instance}} CPU使用大于$VAR{right_value}%当前Node节点CPU使用率: {{ $value }}%'
 edit_time: 2023-04-12 17:33:54
