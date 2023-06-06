@@ -247,11 +247,10 @@ sub makedata_collector_procnum
     {
         ( $type, $name ) = ( 'name', $1 );
     }
-    elsif( $data->{tags} =~ m#cmdline=([a-zA-Z0-9][a-zA-Z0-9\-\.\/\_]+)# )
+    elsif( $data->{tags} =~ m#cmdline=([a-zA-Z0-9: \.\-_@\/]+)# )
     {
         ( $type, $name ) = ( 'cmdline', $1 );
     }
- 
     else
     {
         warn "[ERROR] unkown proc.num tags: $data->{tags}\n";
