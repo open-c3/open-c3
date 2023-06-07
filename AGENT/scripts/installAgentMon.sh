@@ -1,8 +1,5 @@
 #!/bin/bash
 
-/opt/mydan/perl/bin/perl -MAnyEvent::HTTP -MAnyEvent::Ping -e 1
-checkPerlModule=$?
-
 set -e 
 
 if [ "X$OPEN_C3_ADDR" == "X" ]; then
@@ -19,6 +16,17 @@ fi
 
 cd "$MYDanPATH/dan" || exit 1
 
+wget $OPEN_C3_ADDR/api/scripts/agent.mon.tar.gz -O $MYDanPATH/dan/agent.mon.tar.gz
+
+tar -zxvf agent.mon.tar.gz
+
+# 为了避免连接公网下载依赖包，临时把部分依赖包放这里了。
+rsync -av /opt/mydan/dan/agent.mon/perl_patch/perl/ /opt/mydan/perl/
+
+set +e
+/opt/mydan/perl/bin/perl -MAnyEvent::HTTP -MAnyEvent::Ping -e 1
+checkPerlModule=$?
+set -e
 
 if [ $checkPerlModule -ne 0 ];then
 
@@ -41,10 +49,6 @@ if [ $checkPerlModule -ne 0 ];then
     /opt/mydan/perl/bin/cpan install AnyEvent::HTTP AnyEvent::Ping </dev/null
 
 fi
-
-wget $OPEN_C3_ADDR/api/scripts/agent.mon.tar.gz -O $MYDanPATH/dan/agent.mon.tar.gz
-
-tar -zxvf agent.mon.tar.gz
 
 Proc=`ps -ef|grep mydan.node_exporter.65110|grep -v grep|wc -l`
 if [ "X$Proc" == "X1" ]; then
