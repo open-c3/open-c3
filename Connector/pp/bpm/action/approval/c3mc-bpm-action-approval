@@ -25,6 +25,15 @@ die "approver undef" unless $approver;
 die "title undef"    unless $approvalname;
 die "content undef"  unless $cont;
 
+if($cont =~ /_buildin_code_find_tree\(([\s\d\.,]+)\)/ )
+{
+    my $ip = $1;
+    my $x = `c3mc-device-find-tree $ip`;
+    $x = $ip if $?;
+    chomp $x;
+    $cont =~ s/_buildin_code_find_tree\(\d[\s\d\.,]+\)/$x/;
+}
+
 $submitter ||= 'sys@app';
 $timeout   ||= '86400';
 

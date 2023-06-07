@@ -92,7 +92,7 @@
                 <label class="col-sm-3 control-label">{{'C3T.帮助'|translate}}</label>
                 <div class="col-sm-9">
 
-                    <textarea style="height: 550px" class="fluid-width" readonly>
+                    <textarea style="height: 550px" class="fluid-width textarea-div-style" readonly>
 {{'C3T.用途'|translate}}：{{'C3T.监控端口死活, 监控端口是否对外开放。'|translate}}
 {{'C3T.指标'|translate}}：
 
@@ -171,7 +171,7 @@ node_port{port="8080",protocol="tcp"} 0
                 <label class="col-sm-3 control-label">{{'C3T.帮助'|translate}}</label>
                 <div class="col-sm-9">
 
-                    <textarea style="height: 450px" class="fluid-width" readonly>
+                    <textarea style="height: 450px" class="fluid-width textarea-div-style" readonly>
 {{'C3T.用途'|translate}}：{{'C3T.进程死活监控，进程重启监控。'|translate}}
 {{'C3T.指标'|translate}}：
 
@@ -259,7 +259,7 @@ node_process_etime{cmdline="openc3.node_query.65110",pid="24137"} 2294903
                 <label class="col-sm-3 control-label">{{'C3T.帮助'|translate}}</label>
                 <div class="col-sm-9">
 
-                    <textarea style="height: 450px" class="fluid-width" readonly>
+                    <textarea style="height: 450px" class="fluid-width textarea-div-style" readonly>
 {{'C3T.用途'|translate}}：{{'C3T.监控HTTP服务。'|translate}}
 {{'C3T.指标'|translate}}：
 
@@ -311,7 +311,7 @@ node_http_content_check{check="baidu",method="GET",url="https://www.baidu.com"} 
                 <label class="col-sm-3 control-label">{{'C3T.帮助'|translate}}</label>
                 <div class="col-sm-9">
 
-                    <textarea style="height: 450px" class="fluid-width" readonly>
+                    <textarea style="height: 450px" class="fluid-width textarea-div-style" readonly>
 {{'C3T.用途'|translate}}：{{'C3T.ping监控'|translate}}
 {{'C3T.指标'|translate}}：
 
@@ -394,7 +394,7 @@ node_ping_loss{host="www.baidu.com"} 10
                 <label class="col-sm-3 control-label">{{'C3T.帮助'|translate}}</label>
                 <div class="col-sm-9">
 
-                    <textarea style="height: 450px" class="fluid-width" readonly>
+                    <textarea style="height: 450px" class="fluid-width textarea-div-style" readonly>
 {{'C3T.用途'|translate}}：{{'C3T.判断文件或者目录是否存在。判断软链接是否存在，判断软链接的内容是否匹配。'|translate}}
 {{'C3T.指标'|translate}}：
 
@@ -442,7 +442,7 @@ node_path_check{check="v2.2.3",type="link",path="/tmp/bar.txt"} 1
                 <label class="col-sm-3 control-label">{{'C3T.帮助'|translate}}</label>
                 <div class="col-sm-9">
 
-                    <textarea style="height: 450px" class="fluid-width" readonly>
+                    <textarea style="height: 450px" class="fluid-width textarea-div-style" readonly>
 {{'C3T.用途'|translate}}：{{'C3T.采集主机上其他服务的metrics'|translate}}
 
 {{'C3T.例如'|translate}}：
@@ -459,13 +459,17 @@ node_path_check{check="v2.2.3",type="link",path="/tmp/bar.txt"} 1
 
 <div ng-if="createMonitorConfig.postData.type=='push'">
     <form class="form-horizontal" name="myForm" role="form">
-
+      <div class="row">
+        <div class="col-sm-5 form-group pull-right">
+            <button class="btn btn-warning" ng-click="createMonitorConfig.cancel()">{{'C3T.取消'|translate}}</button>
+        </div>
+    </div>
         <div class="row">
             <div class="col-sm-10 form-group">
                 <label class="col-sm-3 control-label">{{'C3T.帮助'|translate}}</label>
                 <div class="col-sm-9">
 
-                    <textarea style="height: 700px" class="fluid-width" readonly>
+                    <textarea style="height: 700px" class="fluid-width textarea-div-style" readonly>
 {{'C3T.用途'|translate}}：{{'C3T.收集用户自己上报的指标。'|translate}}
 
 {{'C3T.用法'|translate}}：
@@ -502,3 +506,10 @@ curl -X POST -d "[{\"metric\": \"test_metric\", \"endpoint\": \"test-endpoint\",
 </div>
 
 </div>
+
+<style>
+  .textarea-div-style {
+    border: none;
+    outline: none;
+  }
+</style>
