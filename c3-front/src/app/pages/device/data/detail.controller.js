@@ -280,7 +280,10 @@
 
             });
          };
+
+         setTimeout(() => {
          vm.search_init()
+         }, 100)
 
     }
 })();
