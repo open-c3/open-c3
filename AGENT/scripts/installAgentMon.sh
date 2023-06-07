@@ -52,7 +52,8 @@ fi
 
 Proc=`ps -ef|grep mydan.node_exporter.65110|grep -v grep|wc -l`
 if [ "X$Proc" == "X1" ]; then
-    killall mydan.node_exporter.65110 2>/dev/null
+    #killall mydan.node_exporter.65110 2>/dev/null
+    ps -ef|grep mydan.node_exporter.65110|grep -v grep|awk '{print $2}'|xargs -i{} kill {}
 fi
 
 cp /opt/mydan/dan/agent.mon/exec.config/mydan.node_exporter.65110 /opt/mydan/dan/bootstrap/exec/
