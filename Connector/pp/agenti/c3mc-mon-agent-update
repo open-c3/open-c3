@@ -16,4 +16,4 @@ c3mc-mon-agent-install-errver \
 | c3mc-mon-ip2uexip \
 | sort  -R    \
 | head  -n 10 \
-| xargs -P 2 -i{} /data/Software/mydan/dan/tools/rcall -r {} --timeout 300 exec "curl -L $addr/api/scripts/installAgentMon.sh | OPEN_C3_ADDR=$addr bash"
+| xargs -P 2 -i{} bash -c "/data/Software/mydan/dan/tools/rcall -r {} --verbose  dump /data/Software/mydan/AGENT/scripts/agent.mon.tar.gz  --path /opt/mydan/dan/agent.mon.tar.gz|grep :ok && /data/Software/mydan/dan/tools/rcall -r {} --timeout 300 --env OPEN_C3_ADDR=local scripts /data/Software/mydan/AGENT/scripts/installAgentMon.sh"

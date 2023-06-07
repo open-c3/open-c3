@@ -9,14 +9,16 @@ fi
 
 MYDanPATH=/opt/mydan
 
-if [ ! -d "$MYDanPATH/dan" ]; then
+if [ ! -d "$MYDanPATH/dan/tools" ]; then
     echo "nofind mydan path: $MYDanPATH/dan"
     exit
 fi
 
 cd "$MYDanPATH/dan" || exit 1
 
-wget $OPEN_C3_ADDR/api/scripts/agent.mon.tar.gz -O $MYDanPATH/dan/agent.mon.tar.gz
+if [ "X$OPEN_C3_ADDR" != "Xlocal" ]; then
+    wget $OPEN_C3_ADDR/api/scripts/agent.mon.tar.gz -O $MYDanPATH/dan/agent.mon.tar.gz
+fi
 
 tar -zxvf agent.mon.tar.gz
 
