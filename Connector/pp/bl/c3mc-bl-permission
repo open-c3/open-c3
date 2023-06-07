@@ -6,13 +6,9 @@ import argparse
 import json
 import sys
 import requests
-import random
-import string
 from urllib.parse import urljoin
 import socket
 from urllib.parse import urlparse
-
-MAX_LENGTH_OF_PASSWORD = 15
 
 
 def test_connection(ip, port):
@@ -37,13 +33,6 @@ def extract_ip_port(url_str):
 
     return url.hostname, url.port
 
-
-def generate_password():
-    """使用大写字母、小写字母、数字，创建指定长度的密码
-    """
-    char_types = string.ascii_uppercase + string.ascii_lowercase + string.digits
-    return ''.join(random.choice(char_types) for _ in range(MAX_LENGTH_OF_PASSWORD))
-
 def main():
     bl_mode = subprocess.getoutput("c3mc-sys-ctl sys.bl.mode").strip()
     if bl_mode in ['']:
@@ -58,15 +47,13 @@ def main():
     parser.add_argument('--email', type=str, required=True, help='用户邮箱')
     parser.add_argument('--ip', type=str, required=True, help='目标IP')
     parser.add_argument('--instance_id', type=str, required=True, help='目标IP对应的实例Id')
-    parser.add_argument('--sudo_hours', type=int,
-                        required=True, help='sudo权限小时数, 申请普通权限时该参数传0')
+    parser.add_argument('--sudo_hours', type=int, required=True, help='sudo权限小时数, 申请普通权限时该参数传0')
+    parser.add_argument('--password', type=str, required=True, help='用户登录目标IP的系统密码长度')
     args = parser.parse_args()
 
     proxy_addr_list = subprocess.getoutput(f"c3mc-sys-ctl sys.bl.sync.{bl_mode}.proxy_addr_list").strip().split(",")
     app_name = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.app_name").strip()
     app_key = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.app_key").strip()
-
-    random_password = generate_password()
 
     request_data = {
         "command": f"{bl_mode}-bastion",
@@ -77,7 +64,7 @@ def main():
             "ip": args.ip,
             "instance_id": args.instance_id,
             "sudo_hours": args.sudo_hours,
-            "password": random_password,
+            "password": args.password,
         }),
     }
 

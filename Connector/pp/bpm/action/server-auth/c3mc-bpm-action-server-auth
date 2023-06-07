@@ -7,12 +7,24 @@ import re
 import subprocess
 import threading
 import time
+import random
+import string
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
 from c3mc_utils import check_if_params_safe_in_recycle
 
 # 添加权限时最大的并发线程数
 MAX_CONCURRENT_NUMBER = 13
+
+# 用户登录堡垒机的系统密码长度(用户不可见)
+MAX_LENGTH_OF_PASSWORD = 15
+
+def generate_password():
+    """使用大写字母、小写字母、数字，创建指定长度的密码
+    """
+    char_types = string.ascii_uppercase + string.ascii_lowercase + string.digits
+    return ''.join(random.choice(char_types) for _ in range(MAX_LENGTH_OF_PASSWORD))
+
 
 class ThreadSafeSet:
     def __init__(self):
@@ -102,6 +114,8 @@ def create_user_if_need(account, email):
 def process_element(thread_safe_set, ip_info, grant_auth_type, account, email, grant_sudo_hours):
     log_msg_list = [f"对实例ID {ip_info['instanceId']} 添加权限. "]
     def add_auth_for_ip(ip):
+        random_password = generate_password()
+
         cmd_parts = [
             "c3mc-bl-permission",
             "--add_type", str(grant_auth_type),
@@ -109,7 +123,8 @@ def process_element(thread_safe_set, ip_info, grant_auth_type, account, email, g
             "--email", email,
             "--ip", ip,
             "--instance_id", ip_info["instanceId"],
-            "--sudo_hours", str(grant_sudo_hours)
+            "--sudo_hours", str(grant_sudo_hours),
+            "--password", random_password,
         ]
 
         output = subprocess.run(cmd_parts, capture_output=True, text=True)
