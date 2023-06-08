@@ -62,6 +62,8 @@ class Ksyun:
         regions = []
         if self.resource_type == "redis":
             regions = self.list_redis_regions()
+        if self.resource_type == "ks3":
+            regions = ["cn-beijing-6"]
         else:
             regions = self.list_kec_regions()
 
