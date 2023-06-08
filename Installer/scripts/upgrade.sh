@@ -42,17 +42,17 @@ function upgradeSelf() {
         exit 1
     fi
 
-    echo =================================================================
-    echo "[INFO]install-cache pull ..."
-
-    cd Installer/install-cache && git pull
-
-    if [ $? = 0 ]; then
-        echo "[SUCC]git pull success."
-    else
-        echo "[FAIL]git pull fail."
-        exit 1
-    fi
+#    echo =================================================================
+#    echo "[INFO]install-cache pull ..."
+#
+#    cd Installer/install-cache && git pull
+#
+#    if [ $? = 0 ]; then
+#        echo "[SUCC]git pull success."
+#    else
+#        echo "[FAIL]git pull fail."
+#        exit 1
+#    fi
 
     cd $BASE_PATH || exit 1
 
