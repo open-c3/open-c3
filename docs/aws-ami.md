@@ -19,6 +19,9 @@ curl https://raw.githubusercontent.com/open-c3/open-c3/v2.6.1/Installer/scripts/
 
 iptables -t nat -A PREROUTING -p tcp --dport 8090 -j REDIRECT --to-port 80
 
+# 注: 正常情况下net转发是打开的，如果端口访问不正常，可以用这个命令打开一下：sysctl net.ipv4.ip_forward=1
+
+
 #新启动的镜像，可以通过下面命令添加用户用于登录
 
 docker exec openc3-server  c3mc-base-adduser --user open-c3
