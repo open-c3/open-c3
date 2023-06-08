@@ -45,10 +45,18 @@
 
             <form class="form-inline"> 
                 <div class="form-group" ng-repeat="f in devicedata.filtergrep"  style="padding-right: 10px;" >
-                    <select class="form-control" ng-disabled="!devicedata.loadover" ng-change="devicedata.reload()"  ng-model="devicedata.grepdata[f.name]" >
-                        <option value="">{{f.alias}}</option>
-                        <option ng-repeat="v in devicedata.filterdata[f.name]" value="{{v.name}}"> {{v.name}}({{v.count}})</option>
-                    </select>
+                    <div class="form-filter-select">
+                      <ui-select appendToBody="true" ng-model="devicedata.grepdata[f.name]" ng-change="devicedata.reload()"  ng-disabled="!devicedata.loadover">
+                        <ui-select-match>
+                           <span ng-if="$select.selected.count !== f.name" class="item-label"> {{($select.selected.name + '(' + $select.selected.count + ')') || f.alias }}</span>
+                           <span ng-if="$select.selected.count === f.name" class="item-label">{{f.alias}}</span>
+                          </ui-select-match>
+                        <ui-select-choices repeat="item.name as item in devicedata.filterdata[f.name] | filter: $select.search">
+                          <div ng-if="item.count !== f.name" ng-bind-html="item.name + '(' + item.count + ')'| highlight: devicedata.filterdata[f.name]"></div>
+                          <div ng-if="item.count === f.name" ng-bind-html="f.alias | highlight: devicedata.filterdata[f.name]"></div>
+                        </ui-select-choices>
+                      </ui-select>
+                    </div>
                 </div>
 
                 <div class="form-group"  style="padding-right: 10px;" >
@@ -139,5 +147,22 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+  }
+  .form-filter-select {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    margin: 10px 0;
+  }
+  .ui-select-bootstrap > .ui-select-choices, .ui-select-bootstrap > .ui-select-no-choice {
+    width: 100%;
+    height: auto;
+    overflow-x: hidden;
+    margin-top: -1px;
+    max-height: 400px!important;
+  }
+  .ui-select-bootstrap  >  .ui-select-match > .form-control {
+    width: 100%;
+    min-width: 100px;
   }
 </style>
