@@ -66,11 +66,24 @@
         vm.pointout = '';
         vm.reload = function () {
             vm.loadover = false;
-            $http.post('/api/agent/device/data/' + vm.type + '/' + vm.subtype + '/' + vm.treeid, { "grepdata": vm.grepdata, "timemachine": vm.selectedtimemachine } ).success(function(data){
+            const grepDataJSON = JSON.parse(JSON.stringify(vm.grepdata));
+            const newGrepdata = {};
+            angular.forEach(grepDataJSON, function (value, key) {
+              if (value !== '') {
+                newGrepdata[key] = value
+              }
+            });
+            $http.post('/api/agent/device/data/' + vm.type + '/' + vm.subtype + '/' + vm.treeid, { "grepdata": newGrepdata, "timemachine": vm.selectedtimemachine } ).success(function(data){
                 if (data.stat){
                     vm.dealWithData(data.data);
                     vm.dataTable = new ngTableParams({count:25}, {counts:[],data:data.data});
                     vm.filter = data.filter;
+                    angular.forEach(data.filterdata, function (value, key) {
+                      value.unshift({name: '', count: key})
+                      if (!vm.grepdata[key]) {
+                        vm.grepdata[key] = ''
+                      }
+                    });
                     vm.filterdata = data.filterdata;
                     if( data.pointout == undefined || data.pointout == '' )
                     {

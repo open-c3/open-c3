@@ -46,11 +46,14 @@
             <form class="form-inline"> 
                 <div class="form-group" ng-repeat="f in devicedata.filtergrep"  style="padding-right: 10px;" >
                     <div class="form-filter-select">
-                      <span>{{f.alias}}：</span>
-                      <ui-select  ng-model="devicedata.grepdata[f.name]" ng-change="devicedata.reload()"  ng-disabled="!devicedata.loadover">
-                        <ui-select-match> <span class="item-label">{{$select.selected.name}}({{$select.selected.count}})</span></ui-select-match>
+                      <ui-select appendToBody="true" ng-model="devicedata.grepdata[f.name]" ng-change="devicedata.reload()"  ng-disabled="!devicedata.loadover">
+                        <ui-select-match>
+                           <span ng-if="$select.selected.count !== f.name" class="item-label"> {{($select.selected.name + '(' + $select.selected.count + ')') || f.alias }}</span>
+                           <span ng-if="$select.selected.count === f.name" class="item-label">{{f.alias}}</span>
+                          </ui-select-match>
                         <ui-select-choices repeat="item.name as item in devicedata.filterdata[f.name] | filter: $select.search">
-                          <div ng-bind-html="item.name + '(' + item.count + ')'| highlight: devicedata.filterdata[f.name]"></div>
+                          <div ng-if="item.count !== f.name" ng-bind-html="item.name + '(' + item.count + ')'| highlight: devicedata.filterdata[f.name]"></div>
+                          <div ng-if="item.count === f.name" ng-bind-html="f.alias | highlight: devicedata.filterdata[f.name]"></div>
                         </ui-select-choices>
                       </ui-select>
                     </div>
