@@ -28,7 +28,28 @@ get '/nodelow/:projectid' => sub {
     my $pmscheck = api::pmscheck( 'openc3_agent_read', $param->{projectid} ); return $pmscheck if $pmscheck;
 
     my @node = eval{ $nodelow->run( db => $api::mysql, id => $param->{projectid} ) };
-    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@node };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
+    my $ips = join ' ', grep{ $_ &&  $_ =~ /^\d+\.\d+\.\d+\.\d+$/ }map{ $_->{ip} }@node;
+
+    if( $ips )
+    {
+        for my $type ( qw( owner instancetype hostname ))
+        {
+            my @x = `c3mc-device-find-$type $ips`;
+            chomp @x;
+            my %x;
+            for ( @x )
+            {
+                my ( $k, $v ) = split /:/, $_, 2;
+                $v =~ s/\s//g;
+                $x{$k} = $v;
+            }
+            map{ $_->{$type} = $x{$_->{ip}} // '' if $_->{ip} }@node;
+        }
+    }
+
+    return +{ stat => $JSON::true, data => \@node  };
 };
 
 =pod

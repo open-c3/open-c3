@@ -29,7 +29,9 @@
 
         vm.allData = [];
 
+        vm.stat = '';
         vm.dataGrep = function( stat ){
+            vm.stat = stat;
             vm.tempdata = [];
             angular.forEach(vm.allData, function (data, index) {
                if( data.status == stat )
@@ -84,12 +86,20 @@
         vm.reload();
 
         vm.download = function () {
-          let str = `<tr><td>编号</td><td>主机名</td><td>内网IP</td><td>外网IP</td><td>资源类型</td><td>状态</td><td>低利用率天数/14天</td><td>CPU(%)</td><td>内存(%)</td><td>下载带宽</td><td>上传带宽</td><td>最后统计日期</td></tr>`
-          const jsonData = vm.allData
+          let str = `<tr><td>编号</td><td>主机名</td><td>名称</td><td>Owner</td><td>资源类型</td><td>内网IP</td><td>外网IP</td><td>资源类型</td><td>状态</td><td>低利用率天数/14天</td><td>CPU(%)</td><td>内存(%)</td><td>下载带宽</td><td>上传带宽</td><td>最后统计日期</td></tr>`
+          var jsonData = vm.allData;
+          if( vm.stat != '' )
+          {
+              jsonData = vm.tempdata;
+          }
+
           jsonData.forEach((items,i) => {
             let newItem = {
               id: items.id || '',
               name: items.name || '',
+              hostname: items.hostname || '',
+              owner: items.owner || '',
+              instancetype: items.instancetype || '',
               inip: items.inip || '',
               exip: items.exip || '',
               type: items.type || '',
