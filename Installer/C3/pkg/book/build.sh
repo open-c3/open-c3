@@ -1,6 +1,10 @@
 #!/bin/bash
 set -ex
 
+if [ -x /data/open-c3-book/run ]; then
+    /data/open-c3-book/run
+fi
+
 cd /data/open-c3/Installer/C3/pkg/book || exit
 
 rm -rf book
