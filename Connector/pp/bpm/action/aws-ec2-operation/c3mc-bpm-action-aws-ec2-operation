@@ -23,6 +23,7 @@ class OperateEc2:
 
     def run(self, operation_type, instance_id):
         instance_info = self.lib_client.describe_instances([instance_id])["Reservations"][0]["Instances"][0]
+        timeout = 900
 
         if operation_type == "start":
             if instance_info["State"]["Name"] == "running":
@@ -30,9 +31,8 @@ class OperateEc2:
                 return
 
             retry_network_request(self.lib_client.start_instances, ([instance_id],))
-            if not self.lib_client.wait_until_status(instance_id, "running"):
-                print(f"LOG. 等待机器启动超时: {instance_id}")
-                exit(1)
+            if not self.lib_client.wait_until_status(instance_id, "running", timeout):
+                raise RuntimeError(f"LOG. 等待机器启动超时: {instance_id}, 超时时间: {timeout} 秒")
             print(f"LOG. 成功启动ec2实例: {instance_id}")
 
             # 启动完一个实例后休眠一段时间，尝试避免aws接口出现资源容量不足的错误
@@ -43,14 +43,12 @@ class OperateEc2:
                 print(f"LOG. ec2实例: {instance_id} 已经处于 stopped 状态, 跳过操作")
                 return
             retry_network_request(self.lib_client.stop_instances, ([instance_id],))
-            if not self.lib_client.wait_until_status(instance_id, "stopped"):
-                print(f"LOG. 等待机器关机超时: {instance_id}")
-                exit(1)
+            if not self.lib_client.wait_until_status(instance_id, "stopped", timeout):
+                raise RuntimeError(f"LOG. 等待机器关机超时: {instance_id}, 超时时间: {timeout} 秒")
             print(f"LOG. 成功停止ec2实例: {instance_id}")
 
         else: 
-            print(f"LOG. 不支持的操作类型: {operation_type}")
-            exit(1)
+            raise RuntimeError(f"LOG. 不支持的操作类型: {operation_type}")
 
 
 def get_instance_uuid(instance_maybe_identifier):
