@@ -905,3 +905,22 @@ create table if not exists `openc3_monitor_node_low_mark`(
 `mark`      VARCHAR(2000) comment '描述',
 UNIQUE KEY `uniq_ip` (`ip` )
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='主机低利用率-标记';
+
+# v2.6.0 sql openc3_connector_vtree create
+create table if not exists `openc3_connector_vtree`(
+`id`        int(16) unsigned not null primary key auto_increment comment 'id',
+`treeid`    int(16) unsigned comment '真实的服务树ID',
+`name`      VARCHAR(200)     comment '名称',
+UNIQUE KEY `uniq_treeid_name` (`treeid`,`name`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='虚拟服务树';
+
+# v2.6.0 sql openc3_connector_vnode create
+create table if not exists `openc3_connector_vnode`(
+`id` int(16) unsigned not null primary key auto_increment comment 'id',
+`vtreeid`   int(16) unsigned comment '虚拟服务树id',
+`name`      VARCHAR(200)     comment '主机名',
+UNIQUE KEY `uniq_name` (`vtreeid`,`name`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='虚拟服务树下面的主机';
+
+# v2.6.0 sql openc3_connector_vtree init
+insert into openc3_connector_vtree(`id`) value(3000000000);
