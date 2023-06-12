@@ -197,7 +197,7 @@
             $http.post( `api/agent/nodelow/mark/${vm.treeid}/${nodelowItems.ip}`).success(function (data) {
               if (data.stat) {
                 swal('操作成功!' , 'success');
-                vm.reload();
+                vm.markHashReload();
               } else {
                 swal({ title: '操作失败', text: data.info, type: 'error' });
               }
