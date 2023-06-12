@@ -49,6 +49,11 @@ get '/nodelow/:projectid' => sub {
         }
     }
 
+    my $r = eval{ $api::mysql->query( sprintf( "select ip from openc3_monitor_node_low_mark where expires<'%d'", time) )}; 
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    my %mark = map{ $_->[0] => 1 }@$r;
+    map{ $_->{marktime} = $_->{ip} && $mark{$_->{ip}} ? $mark{$_->{ip}} : '' }@node;
+
     return +{ stat => $JSON::true, data => \@node  };
 };
 
@@ -76,6 +81,38 @@ get '/nodelow/detail/:projectid/:ip' => sub {
                 where ip='$param->{ip}' order by date", join( ',', @col)), \@col )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
+};
+
+=pod
+
+监控系统/资源低负载/标记单个资源
+
+=cut
+
+any '/nodelow/mark/:projectid/:ip' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        projectid => qr/^\d+$/, 1,
+        ip        => qr/^[\d\.]+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $pmscheck = api::pmscheck( 'openc3_agent_write', $param->{projectid} ); return $pmscheck if $pmscheck;
+
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+
+    my    $owner = `c3mc-device-find-owner $param->{ip} |awk '{print \$2}'|head -n 1`;
+    chomp $owner;
+
+    return +{ stat => $JSON::false, info => "not authorized ,the ip $param->{ip} owner is $owner, and your current login account $user " } if $user ne $owner;
+    eval{ $api::auditlog->run( user => $user, title => 'ADD NodeLowMark', content => "TREEID:$param->{projectid} IP:$param->{ip}" ); };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
+    my $expires = time + 31 * 86400;
+    eval{ $api::mysql->execute( "insert into openc3_monitor_node_low_mark(`ip`,`operator`,`expires`) values( '$param->{ip}', '$user', '$expires' )") };
+
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
 
 true;
