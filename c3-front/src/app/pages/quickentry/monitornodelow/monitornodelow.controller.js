@@ -11,6 +11,7 @@
         vm.treeid = $state.params.treeid;
         var toastr = toastr || $injector.get('toastr');
 
+        vm.userInfo = {}
         treeService.sync.then(function(){
             vm.nodeStr = treeService.selectname();
         });
@@ -168,5 +169,32 @@
             });
         };
 
+        vm.getUserInfo = function () {
+          $http.get('/api/connector/connectorx/sso/userinfo').success(function (data) {
+            vm.userInfo = data
+          });
+        }
+        vm.getUserInfo();
+
+        vm.handleMark = function (nodelowItems) {
+          swal({
+            title: '是否进行标记',
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#DD6B55',
+            cancelButtonText: '取消',
+            confirmButtonText: '确定',
+            closeOnConfirm: true
+          }, function () {
+            $http.post( `api/agent/nodelow/mark/${vm.treeid}/${nodelowItems.ip}`).success(function (data) {
+              if (data.stat) {
+                swal('操作成功!' , 'success');
+                vm.reload();
+              } else {
+                swal({ title: '操作失败', text: data.info, type: 'error' });
+              }
+            });
+          });
+        }
     }
 })();
