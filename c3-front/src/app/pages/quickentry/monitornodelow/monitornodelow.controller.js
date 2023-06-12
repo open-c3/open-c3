@@ -12,6 +12,13 @@
         var toastr = toastr || $injector.get('toastr');
 
         vm.userInfo = {}
+        vm.markSelected = 'all'
+        vm.markSelectOption = [
+          {value: 'all', label: '全部'},
+          {value: 'computed', label: '已标记'},
+          {value: 'undone', label: '未标记'},
+        ]
+        vm.hashMarkData = []
         treeService.sync.then(function(){
             vm.nodeStr = treeService.selectname();
         });
@@ -56,6 +63,7 @@
                 if(data.stat == true) 
                 { 
                     vm.dataTable = new ngTableParams({count:20}, {counts:[],data:data.data.reverse()});
+                    vm.selectData = data.data
                     vm.allData = data.data;
 
                     angular.forEach(data.data, function (data, index) {
@@ -195,6 +203,29 @@
               }
             });
           });
+        }
+
+        vm.markHashReload = function ()  {
+          $http.get(`/api/agent/nodelow/mark/${vm.treeid}` ).success(function(data){
+            if (data.stat) {
+              vm.hashMarkData = Object.keys(data.data)
+            }
+          })
+        }
+        vm.markHashReload()
+
+        vm.handleChange = function () {
+          const selectData = JSON.parse(JSON.stringify(vm.selectData))
+          if (vm.markSelected === 'all') {
+            vm.dataTable = new ngTableParams({count:20}, {counts:[],data:selectData.reverse()});
+          } else if (vm.markSelected === 'computed') {
+            const computedData = selectData.filter(item => vm.hashMarkData.includes(item.ip))
+            console.log('computedData', computedData)
+            vm.dataTable = new ngTableParams({count:20}, {counts:[],data:computedData.reverse()});
+          } else if (vm.markSelected === 'undone') {
+            const undonedData = selectData.filter(item => !vm.hashMarkData.includes(item.ip))
+            vm.dataTable = new ngTableParams({count:20}, {counts:[],data:undonedData.reverse()});
+          }
         }
     }
 })();
