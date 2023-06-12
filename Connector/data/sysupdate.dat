@@ -895,3 +895,13 @@ create table if not exists `openc3_connector_navigation`(
 `time`    TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP comment '时间',
 UNIQUE KEY `uniq_name` (`name`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='网址导航';
+
+# v2.6.0 sql openc3_monitor_node_low_mark create
+create table if not exists `openc3_monitor_node_low_mark`(
+`id`        int(16) unsigned not null primary key auto_increment comment 'id',
+`ip`        VARCHAR(40)   comment 'ip',
+`operator`  VARCHAR(80)   comment '操作人',
+`expires`   VARCHAR(20)   comment '过期时间，秒数',
+`mark`      VARCHAR(2000) comment '描述',
+UNIQUE KEY `uniq_ip` (`ip` )
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='主机低利用率-标记';

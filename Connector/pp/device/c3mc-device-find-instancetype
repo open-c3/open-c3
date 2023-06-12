@@ -1,0 +1,50 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+use YAML::XS;
+use Encode;
+use utf8;
+
+$| ++;
+
+my @ip = split /,/, join ',', @ARGV;
+@ip = <STDIN> unless @ip;
+chomp @ip;
+
+my    @data = `c3mc-device-cat-all-cache get`;
+chomp @data;
+
+my @title = split /\t/, shift @data;
+die "unfind title" unless @title;
+
+my %title = map{ $title[$_] => $_ } 0 .. $#title;
+
+my ( %res, %cnt );
+for( @data )
+{
+    my @d = split /\t/, $_;
+
+    my $uuid = join ',', map{ $d[$title{$_}] }map{ Encode::encode( 'utf8', $_ )}qw( 实例ID  );
+    my $data = join ' ', map{ $d[$title{$_}] }map{ Encode::encode( 'utf8', $_ )}qw( system  );
+    my $cont = join ' ', map{ $d[$title{$_}] }map{ Encode::encode( 'utf8', $_ )}qw( system  );
+    
+    my $instancetype = 'unkown';
+
+    my @cont = split /\|/, $cont;
+    if( @cont >= 2 )
+    {
+        $instancetype = $cont[1] if $cont[1] && $cont[1] =~ /\./ && $cont[1] =~ /^\s*[a-zA-Z]/;
+	$instancetype =~ s/^\s*//;
+        $instancetype =~ s/\s*$//;
+    }
+
+    my @tmpid = grep{ $_ =~ /^\d+\.\d+\.\d+\.\d+$/ }split /\s/, $data;
+    push @tmpid, $uuid;
+    map{ $res{$_} = $instancetype; $cnt{$_} ++ } @tmpid;
+}
+
+for my $x ( @ip )
+{
+    printf "$x: %s\n", $cnt{$x} && $cnt{$x} eq 1 ? $res{$x} : "unkown";
+}

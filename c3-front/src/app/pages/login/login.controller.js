@@ -8,8 +8,7 @@
     function LoginController($scope, $state, $http, $injector, $location ) {
         var vm = this;
         var toastr = toastr || $injector.get('toastr');
-
-        vm.callback = $location.search()['callback'];
+        vm.callback = sessionStorage.getItem('logoutRouter') ? sessionStorage.getItem('logoutRouter') : $location.search()['callback'];
         vm.post
         vm.logining
         vm.mfakey = '';
