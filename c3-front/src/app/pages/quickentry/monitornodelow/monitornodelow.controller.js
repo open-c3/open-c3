@@ -118,17 +118,17 @@
               mem: items.mem || '',
               netin: items.netin? 
                       1048576 < items.netin? 
-                        `${items.netin / 1048576}Mb/s` :
+                        `${(items.netin / 1048576).toFixed(2)}Mb/s` :
                           1024 < items.netin && items.netin <= 1048576 ? 
-                            `${items.netin / 1024}Kb/s` :
+                            `${(items.netin / 1024).toFixed(2)}Kb/s` :
                             items.netin <= 1024? 
                               `${items.netin}b/s`: ''
                       :'',
                netout: items.netout? 
                       1048576 < items.netout? 
-                        `${items.netout / 1048576}Mb/s` :
+                        `${(items.netout / 1048576).toFixed(2)}Mb/s` :
                           1024 < items.netout && items.netout <= 1048576 ? 
-                            `${items.netout / 1024}Kbs` :
+                            `${(items.netout / 1024).toFixed(2)}Kbs` :
                             items.netout <= 1024? 
                               `${items.netout}b/s`: ''
                       :'',
