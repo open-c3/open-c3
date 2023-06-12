@@ -11,6 +11,16 @@
         vm.treeid = $state.params.treeid;
         var toastr = toastr || $injector.get('toastr');
 
+        vm.userInfo = {}
+        vm.markSelected = 'all'
+        vm.markSelectOption = [
+          {value: 'all', label: '全部'},
+          {value: 'computed', label: '已标记'},
+          {value: 'undone', label: '未标记'},
+        ]
+        vm.hashMarkData = []
+        vm.tableData = [];
+        vm.exportDownload = genericService.exportDownload
         treeService.sync.then(function(){
             vm.nodeStr = treeService.selectname();
         });
@@ -54,7 +64,9 @@
             $http.get('/api/agent/nodelow/' + vm.treeid ).success(function(data){
                 if(data.stat == true) 
                 { 
+                    vm.dealWithData(data.data.slice().reverse())
                     vm.dataTable = new ngTableParams({count:20}, {counts:[],data:data.data.reverse()});
+                    vm.selectData = data.data
                     vm.allData = data.data;
 
                     angular.forEach(data.data, function (data, index) {
@@ -85,16 +97,27 @@
 
         vm.reload();
 
-        vm.download = function () {
-          let str = `<tr><td>编号</td><td>主机名</td><td>名称</td><td>Owner</td><td>资源类型</td><td>内网IP</td><td>外网IP</td><td>资源类型</td><td>状态</td><td>低利用率天数/14天</td><td>CPU(%)</td><td>内存(%)</td><td>下载带宽</td><td>上传带宽</td><td>最后统计日期</td></tr>`
-          var jsonData = vm.allData;
-          if( vm.stat != '' )
-          {
-              jsonData = vm.tempdata;
+        vm.keepDecimal = function (number) {
+          if (!number || number === '') {
+            return number;
+          };
+          const num = Number(number);
+          const mbUnit = 1024 * 1024;
+          const kbUnit = 1024;
+          if (num >= mbUnit) {
+            return `${(num/mbUnit).toFixed(2)}Mb/s`;
+          } else if (num >= kbUnit && num < mbUnit) {
+            return `${(num/kbUnit).toFixed(2)}Kb/s`;
+          } else if (num >= 0 && num < kbUnit) {
+            return `${num}b/s`;
           }
 
-          jsonData.forEach((items,i) => {
-            let newItem = {
+        }
+
+        vm.dealWithData = function (data) {
+          vm.exportDownloadStr = `<tr><td>编号</td><td>主机名</td><td>名称</td><td>Owner</td><td>资源类型</td><td>内网IP</td><td>外网IP</td><td>资源类型</td><td>状态</td><td>低利用率天数/14天</td><td>CPU(%)</td><td>内存(%)</td><td>下载带宽</td><td>上传带宽</td><td>最后统计日期</td></tr>`
+          data.forEach(items => {
+            vm.tableData.push({
               id: items.id || '',
               name: items.name || '',
               hostname: items.hostname || '',
@@ -107,48 +130,11 @@
               lowcnt: items.lowcnt || '',
               cpu: items.cpu || '',
               mem: items.mem || '',
-              netin: items.netin? 
-                      1048576 < items.netin? 
-                        `${items.netin / 1048576}Mb/s` :
-                          1024 < items.netin && items.netin <= 1048576 ? 
-                            `${items.netin / 1024}Kb/s` :
-                            items.netin <= 1024? 
-                              `${items.netin}b/s`: ''
-                      :'',
-               netout: items.netout? 
-                      1048576 < items.netout? 
-                        `${items.netout / 1048576}Mb/s` :
-                          1024 < items.netout && items.netout <= 1048576 ? 
-                            `${items.netout / 1024}Kbs` :
-                            items.netout <= 1024? 
-                              `${items.netout}b/s`: ''
-                      :'',
+              netin: vm.keepDecimal(items.netin),
+              netout: vm.keepDecimal(items.netout),
               date: items.date || ''
-            }
-            str += '<tr>'
-            for (let item in Object.assign({}, newItem)) {
-              if (item !== '$$hashKey') {
-                let cellvalue = newItem[item] || ''
-                str += `<td style="mso-number-format:'\@';">${cellvalue}</td>`
-                // str+=`<td>${cellvalue}</td>`;
-              }
-            }
-            str += '</tr>'
+            })
           })
-          const worksheet = '导出结果'
-          const uri = 'data:application/vnd.ms-excel;base64,'
-          const template = `<html xmlns:o="urn:schemas-microsoft-com:office:office"
-            xmlns:x="urn:schemas-microsoft-com:office:excel"
-            xmlns="http://www.w3.org/TR/REC-html40">
-            <head><!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet>
-            <x:Name>${worksheet}</x:Name>
-            <x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet>
-            </x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
-            </head><body><table>${str}</table></body></html>`
-          function base64(s) {
-            return window.btoa(unescape(encodeURIComponent(s)))
-          }
-          window.location.href = uri + base64(template)
         }
 
         vm.showDetail = function (ip) {
@@ -168,5 +154,55 @@
             });
         };
 
+        vm.getUserInfo = function () {
+          $http.get('/api/connector/connectorx/sso/userinfo').success(function (data) {
+            vm.userInfo = data
+          });
+        }
+        vm.getUserInfo();
+
+        vm.handleMark = function (nodelowItems) {
+          swal({
+            title: '是否进行标记',
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#DD6B55',
+            cancelButtonText: '取消',
+            confirmButtonText: '确定',
+            closeOnConfirm: true
+          }, function () {
+            $http.post( `api/agent/nodelow/mark/${vm.treeid}/${nodelowItems.ip}`).success(function (data) {
+              if (data.stat) {
+                swal('操作成功!' , 'success');
+                vm.markHashReload();
+              } else {
+                swal({ title: '操作失败', text: data.info, type: 'error' });
+              }
+            });
+          });
+        }
+
+        vm.markHashReload = function ()  {
+          $http.get(`/api/agent/nodelow/mark/${vm.treeid}` ).success(function(data){
+            if (data.stat) {
+              vm.hashMarkData = Object.keys(data.data)
+            }
+          })
+        }
+        vm.markHashReload()
+
+        vm.handleChange = function () {
+          const selectData = JSON.parse(JSON.stringify(vm.selectData))
+          if (vm.markSelected === 'all') {
+            vm.dataTable = new ngTableParams({count:20}, {counts:[],data:selectData.reverse()});
+          } else if (vm.markSelected === 'computed') {
+            const computedData = selectData.filter(item => vm.hashMarkData.includes(item.ip))
+            console.log('computedData', computedData)
+            vm.dataTable = new ngTableParams({count:20}, {counts:[],data:computedData.reverse()});
+          } else if (vm.markSelected === 'undone') {
+            const undonedData = selectData.filter(item => !vm.hashMarkData.includes(item.ip))
+            vm.dataTable = new ngTableParams({count:20}, {counts:[],data:undonedData.reverse()});
+          }
+        }
     }
 })();
