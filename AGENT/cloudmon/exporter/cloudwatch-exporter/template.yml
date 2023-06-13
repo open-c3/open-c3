@@ -32,3 +32,34 @@ metrics:
    aws_metric_name: DatabaseMemoryUsagePercentage
    aws_dimensions: [ CacheClusterId]
    aws_statistics: [Maximum]
+
+ - aws_namespace: AWS/ApplicationELB
+   aws_metric_name: HealthyHostCount 
+   aws_dimensions: ['LoadBalancer','TargetGroup']
+   aws_statistics: ['Maximum']
+
+ - aws_namespace: AWS/ApplicationELB
+   aws_metric_name: ActiveConnectionCount
+   aws_dimensions: ['LoadBalancer']
+   aws_statistics: ['Sum']
+ 
+ - aws_namespace: AWS/ELB
+   aws_metric_name: HealthyHostCount
+   aws_dimensions: ['LoadBalancerName']
+   aws_statistics: ['Maximum']
+ 
+ - aws_namespace: AWS/ELB
+   aws_metric_name: EstimatedALBActiveConnectionCount
+   aws_dimensions: ['LoadBalancerName']
+   aws_statistics: ['Maximum']
+ 
+
+ - aws_namespace: AWS/NetworkELB
+   aws_metric_name: ActiveFlowCount
+   aws_dimensions: ['LoadBalancer']
+   aws_statistics: ['Maximum']
+
+ - aws_namespace: AWS/NetworkELB
+   aws_metric_name: HealthyHostCount
+   aws_dimensions: ['LoadBalancer','TargetGroup']
+   aws_statistics: ['Maximum']

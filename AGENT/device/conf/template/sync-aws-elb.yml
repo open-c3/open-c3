@@ -7,6 +7,13 @@ download:
       treename: "服务树"
       treeinfo:
         - ["实例ID", "instance"]
+    metrics:
+      - name: 'aws_elb_healthy_host_count_maximum{cloudmonname="cmdb-aws-%s-%s",load_balancer_name="%s"} 0'
+        value: [ 'account', '区域', '名称' ]
+
+      - name: 'aws_elb_estimated_albactive_connection_count_maximum{cloudmonname="cmdb-aws-%s-%s",load_balancer_name="%s"} 0'
+        value: [ 'account', '区域', '名称' ]
+ 
     util:
       defaulttree: defaulttree.pool
       extcol:

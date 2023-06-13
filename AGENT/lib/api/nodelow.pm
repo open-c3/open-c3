@@ -49,11 +49,6 @@ get '/nodelow/:projectid' => sub {
         }
     }
 
-    my $r = eval{ $api::mysql->query( sprintf( "select ip from openc3_monitor_node_low_mark where expires<'%d'", time) )}; 
-    return +{ stat => $JSON::false, info => $@ } if $@;
-    my %mark = map{ $_->[0] => 1 }@$r;
-    map{ $_->{marktime} = $_->{ip} && $mark{$_->{ip}} ? $mark{$_->{ip}} : '' }@node;
-
     return +{ stat => $JSON::true, data => \@node  };
 };
 
@@ -110,9 +105,30 @@ any '/nodelow/mark/:projectid/:ip' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $expires = time + 31 * 86400;
-    eval{ $api::mysql->execute( "insert into openc3_monitor_node_low_mark(`ip`,`operator`,`expires`) values( '$param->{ip}', '$user', '$expires' )") };
+    eval{ $api::mysql->execute( "replace into openc3_monitor_node_low_mark(`ip`,`operator`,`expires`) values( '$param->{ip}', '$user', '$expires' )") };
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
+};
+
+=pod
+
+监控系统/资源低负载/获取标记MAP
+
+=cut
+
+get '/nodelow/mark/:projectid' => sub {
+    my $param = params();
+    my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my $pmscheck = api::pmscheck( 'openc3_agent_read', $param->{projectid} ); return $pmscheck if $pmscheck;
+
+    my $r = eval{ $api::mysql->query( sprintf( "select ip from openc3_monitor_node_low_mark where expires>'%d'", time) )}; 
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    my %mark = map{ $_->[0] => 1 }@$r;
+
+    return +{ stat => $JSON::true, data => \%mark };
 };
 
 true;
