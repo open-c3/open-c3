@@ -50,6 +50,7 @@
                }
            });
 
+           vm.dealWithData(vm.tempdata.slice().reverse())
            vm.dataTable = new ngTableParams({count:20}, {counts:[],data:vm.tempdata.reverse()});
         }
 
@@ -115,6 +116,7 @@
         }
 
         vm.dealWithData = function (data) {
+          vm.tableData = []
           vm.exportDownloadStr = `<tr><td>编号</td><td>主机名</td><td>名称</td><td>Owner</td><td>资源类型</td><td>内网IP</td><td>外网IP</td><td>资源类型</td><td>状态</td><td>低利用率天数/14天</td><td>CPU(%)</td><td>内存(%)</td><td>下载带宽</td><td>上传带宽</td><td>最后统计日期</td></tr>`
           data.forEach(items => {
             vm.tableData.push({
@@ -194,13 +196,15 @@
         vm.handleChange = function () {
           const selectData = JSON.parse(JSON.stringify(vm.selectData))
           if (vm.markSelected === 'all') {
+            vm.dealWithData(selectData.slice().reverse())
             vm.dataTable = new ngTableParams({count:20}, {counts:[],data:selectData.reverse()});
           } else if (vm.markSelected === 'computed') {
             const computedData = selectData.filter(item => vm.hashMarkData.includes(item.ip))
-            console.log('computedData', computedData)
+            vm.dealWithData(computedData.slice().reverse())
             vm.dataTable = new ngTableParams({count:20}, {counts:[],data:computedData.reverse()});
           } else if (vm.markSelected === 'undone') {
             const undonedData = selectData.filter(item => !vm.hashMarkData.includes(item.ip))
+            vm.dealWithData(undonedData.slice().reverse())
             vm.dataTable = new ngTableParams({count:20}, {counts:[],data:undonedData.reverse()});
           }
         }
