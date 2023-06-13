@@ -1,13 +1,13 @@
 ---
 name: 业务负责人审批
 option:
-  - describe: 业务审批人
-    name: oaapprover
-    type: input
-    value: ""
+  # - describe: 业务审批人
+  #   name: oaapprover
+  #   type: input
+  #   value: ""
 
 template_argv:
-  approver: ${oaapprover}
+  approver: "sudoer(1,${_user_}) or leader(${_user_})"
   title:    "BPM/${_bpmuuid_}/SQL操作"
   content:  |
     BPM标题: SQL操作
