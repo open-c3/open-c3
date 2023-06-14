@@ -104,6 +104,7 @@
                                 || sName == 'home.global.jumpserverexipsite'
                                 || sName == 'home.connector.userleader'
                                 || sName == 'home.history.timetask'
+                                || sName == 'home.business.virtual'
                              ){
                                 $state.go(sName, {treeid:treeNode.id});
                             }else{

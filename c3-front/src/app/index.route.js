@@ -488,6 +488,12 @@
                 controller: 'ScriptsController',
                 controllerAs: 'scripts'
             })
+            .state('home.business.virtual', {
+              url: 'virtual/:treeid',
+              templateUrl: 'app/pages/business/virtual/virtual.html',
+              controller: 'VirtualController',
+              controllerAs: 'virtual'
+            })
             .state('home.business.nodegroup', {
                 url: 'nodegroup/:treeid',
                 templateUrl: 'app/pages/business/nodegroup/nodegroup.html',
