@@ -19,21 +19,21 @@ class IBMBareMetalServer():
         client = SoftLayer.create_client_from_env(username=self.api_key, api_key=self.api_secret)
 
         mask = 'id,hostname,primaryIpAddress,datacenter,fullyQualifiedDomainName,operatingSystem,' \
-                    'hardwareChassis.manufacturer,' \
-                    'hardwareChassis.name,hardwareChassis.version,networkComponents' \
-                    '.primaryIpAddress,processorCount,datacenter.name,' \
-                    'primaryBackendIpAddress,motherboard.hardwareComponentModel' \
-                    '.longDescription,processors.hardwareComponentModel.longDescription,' \
-                    'memory.hardwareComponentModel.longDescription,' \
-                    'memory.hardwareComponentModel.capacity,raidControllers' \
-                    '.hardwareComponentModel.longDescription,hardDrives' \
-                    '.hardwareComponentModel.longDescription,tagReferences,hardwareStatus'
+               'hardwareChassis.manufacturer,' \
+               'hardwareChassis.name,hardwareChassis.version,networkComponents' \
+               '.primaryIpAddress,processorCount,datacenter.name,' \
+               'primaryBackendIpAddress,motherboard.hardwareComponentModel' \
+               '.longDescription,processors.hardwareComponentModel.longDescription,' \
+               'memory.hardwareComponentModel.longDescription,' \
+               'memory.hardwareComponentModel.capacity,raidControllers' \
+               '.hardwareComponentModel.longDescription,hardDrives' \
+               '.hardwareComponentModel.longDescription,tagReferences,hardwareStatus'
         limit = 50
         offset = 0
         while has_items:
             items = client['SoftLayer_Account'].getHardware(mask=mask,
-                                                                    limit=limit,
-                                                                    offset=offset)
+                                                            limit=limit,
+                                                            offset=offset)
             data = []
             for item in items:
                 if "fullyQualifiedDomainName" not in item or item["fullyQualifiedDomainName"].strip() == "":
@@ -70,6 +70,18 @@ class IBMBareMetalServer():
         server_list = self.get_server_list()
 
         for server in server_list:
+            cpu_cores = server.get("processorCount", "N/A")
+
+            memory_size = sum(
+                int(item["hardwareComponentModel"]["capacity"])
+                for item in server.get("memory", [])
+            )
+            server["cpuCores"] = cpu_cores
+            server["memorySize"] = memory_size
+
+            if isinstance(cpu_cores, int) and isinstance(memory_size, int):
+                server["flavor"] = f"H.{cpu_cores}C.{memory_size}GB" 
+
             print(json.dumps(server))
 
 
