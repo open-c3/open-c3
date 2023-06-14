@@ -25,9 +25,12 @@ die "approver undef" unless $approver;
 die "title undef"    unless $approvalname;
 die "content undef"  unless $cont;
 
+$approver =~ s/\n/ /g;
+
 if($cont =~ /_buildin_code_find_tree\(([\s\d\.,]+)\)/ )
 {
     my $ip = $1;
+    $ip =~ s/\n/ /g;
     my $x = `c3mc-device-find-tree $ip`;
     $x = $ip if $?;
     chomp $x;
@@ -79,6 +82,8 @@ sub getapprover
     {
         for my $ip ( grep{ $_ } split /,/, $1 )
         {
+            $ip =~ s/\s//g;
+            die "ip format error" unless $ip && $ip =~ /[a-zA-Z0-9]/;
             my $x = `c3mc-device-api-jumpserver --ips '$ip' --cache`;
             die "get $ip owner fail: $!" if $?;
             my $d = eval{ YAML::XS::Load $x };
