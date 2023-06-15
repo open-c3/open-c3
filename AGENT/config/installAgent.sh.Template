@@ -15,17 +15,21 @@ if [ "X$OPEN_C3_ADDR" == "X" ]; then
     exit 1
 fi
 
-if [[ -d /opt/mydan && ! -L /opt/mydan ]]; then
-    if [[ -d /data/mydan ]]; then
-        rm -rf /data/mydan
+if [ "X$TOOPT" == "X1" ]; then
+    MYDanPATH=/opt/mydan
+else
+    if [[ -d /opt/mydan && ! -L /opt/mydan ]]; then
+        if [[ -d /data/mydan ]]; then
+            rm -rf /data/mydan
+        fi
+        mv /opt/mydan /data/
     fi
-    mv /opt/mydan /data/
+
+    mkdir -p /data/mydan
+    ln -snf /data/mydan /opt/mydan
+
+    MYDanPATH=/data/mydan
 fi
-
-mkdir -p /data/mydan
-ln -snf /data/mydan /opt/mydan
-
-MYDanPATH=/data/mydan
 
 #MYDAN_REPO_PRIVATE
 #export MYDAN_REPO_PRIVATE="http://10.10.10.10:9999"
