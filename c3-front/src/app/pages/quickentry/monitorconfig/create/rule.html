@@ -187,6 +187,20 @@
         </div>
 
         <div class="row">
+            <div class="col-sm-10 form-group">
+                <label class="col-sm-3 control-label">{{'C3T.虚拟服务树'|translate}}</label>
+                <div class="col-sm-9">
+                    <select class="form-control"  ng-model="createMonitorConfigRule.postData.vtreeid" >
+                         <option value="">{{'C3T.当前服务树'|translate}}</option>
+                         <option ng-repeat="x in createMonitorConfigRule.vtreeList" value="{{x.id}}">{{x.name}}</option>
+                    </select>
+
+                </div>
+            </div>
+        </div>
+
+
+        <div class="row">
             <div class="col-sm-5 form-group pull-right">
                 <button class="btn btn-primary" ng-disabled="myForm.$invalid" ng-click="createMonitorConfigRule.add()">{{'C3T.确认'|translate}}</button>
                 <button class="btn btn-warning" ng-click="createMonitorConfigRule.cancel()">{{'C3T.取消'|translate}}</button>
