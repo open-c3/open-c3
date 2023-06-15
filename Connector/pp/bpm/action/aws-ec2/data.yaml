@@ -1,7 +1,6 @@
 ---
 name: 创建aws ec2
 multi: 1
-fromops: 1
 option:
   - name: account
     describe: 账号
@@ -227,14 +226,12 @@ option:
   - name: product_owner_tag
     describe: 业务负责人标签
     type: input
-    fromops: 1
     information: "申请服务器登录权限的时候会使用这里配置的业务负责人作为审批人, 如果这里未配置则其他人无法对该服务器申请访问权限。这里只需要配置标签值"
     value_type: "email"
 
   - name: ops_owner_tag
     describe: 运维负责人标签
     type: input
-    fromops: 1
     value_type: "email"
 
   - name: department_tag
@@ -263,6 +260,7 @@ option:
     type: select
     option: ["是", "否"]
     value: ""
+    fromops: 1
 
   - name: user_data
     describe: 系统初始化执行脚本(不超过16K大小)
