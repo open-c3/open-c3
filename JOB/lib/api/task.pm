@@ -400,11 +400,17 @@ post '/task/:projectid/job/byname' => sub {
         jobname => [ 'mismatch', qr/'/ ], 1,
         uuid => qr/^[a-zA-Z0-9]{12}$/, 0,
         slave => qr/^[a-zA-Z0-9\-\.]+$/, 0,
+        pointuser => [ 'mismatch', qr/'/ ], 0,
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
     my $point = ( $param->{projectid} == 0 && $param->{jobname} =~ /^bpm-/ ) ? 'openc3_job_read' : 'openc3_job_write';
     my $pmscheck = api::pmscheck( $point, $param->{projectid} ); return $pmscheck if $pmscheck;
+
+    if( $param->{pointuser} )
+    {
+        my $pmscheck = api::pmscheck( 'openc3_job_root' ); return $pmscheck if $pmscheck;
+    }
 
     my $slave = eval{ $param->{slave} || keepalive->new( $api::mysql )->slave() };
     return  +{ stat => $JSON::false, info => "get slave fail: $@" } if $@;
@@ -437,9 +443,10 @@ post '/task/:projectid/job/byname' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     my $extid = '';
+    my $pointuser = $param->{pointuser} ? $param->{pointuser} : $user;
     if( $param->{bpm_variable} )
     {
-        my $bpmuuid = eval{ BPM::Task::Config->new()->save( $param->{bpm_variable}, $user, $param->{jobname} ); };
+        my $bpmuuid = eval{ BPM::Task::Config->new()->save( $param->{bpm_variable}, $pointuser, $param->{jobname} ); };
         return +{ stat => $JSON::false, info => $@ } if $@;
         $param->{variable} = +{ BPMUUID => $bpmuuid };
         $extid = $bpmuuid;
@@ -449,7 +456,7 @@ post '/task/:projectid/job/byname' => sub {
 
     my $r = eval{ 
         $api::mysql->execute( "insert into openc3_job_task (`projectid`,`uuid`,`name`,`user`,`slave`,`status`,`calltype`,`jobtype`,`jobuuid`,`mutex`,`variable`,`extid`) 
-            values('$param->{projectid}','$uuid','$param->{jobname}','$user','$slave', 'init','$calltype','jobs','$jobuuid','','$variable','$extid')" )};
+            values('$param->{projectid}','$uuid','$param->{jobname}','$pointuser','$slave', 'init','$calltype','jobs','$jobuuid','','$variable','$extid')" )};
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, uuid => $uuid, data => $r };
 };

@@ -316,6 +316,7 @@
         vm.bpmlog = {};
  
         vm.bpmvar = {};
+        vm.oldcaseuser = '';
         vm.loadbpmvar = function () {
             $http.get('/api/job/bpm/var/' + vm.bpmuuid ).success(function(data){
                 if (data.stat){
@@ -333,6 +334,7 @@
                         // 这里的multitempidx存入时是一个数字，存入后重新获取，变成了一个字符串
                         // 现在通过Number进行转换，应该处理一下接口让其返回数字类型
                         vm.multitempidx = Number(data.data['_sys_opt_']['multitempidx']);
+                        vm.oldcaseuser = data.data['_user_'];
                     }
                     vm.reload();
                 }else {
@@ -659,7 +661,7 @@
 
         vm.varsvalue = {};
 
-        vm.runTask = function(){
+        vm.runTask = function( pointuser ){
             var varDict = {};
 
             const hasValueType = []
@@ -691,7 +693,7 @@
               swal({ title:'格式错误', text: `${text}需要填写${textType}格式`, type:'error' });
               return
             }
-            resoureceService.work.runJobByName2Bpm(vm.defaulttreeid, {"jobname":$scope.choiceJob.name, "bpm_variable": $scope.taskData.variable, "variable": {} })
+            resoureceService.work.runJobByName2Bpm(vm.defaulttreeid, {"pointuser": pointuser, "jobname":$scope.choiceJob.name, "bpm_variable": $scope.taskData.variable, "variable": {} })
                 .then(function (repo) {
                     if (repo.stat){
                         //$state.go('home.history.bpmdetail', {treeid:vm.defaulttreeid,taskuuid:repo.uuid});
