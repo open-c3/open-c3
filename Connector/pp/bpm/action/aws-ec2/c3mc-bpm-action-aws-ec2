@@ -21,6 +21,10 @@ must_set_iops_for_volume_types = [
     "io2"
 ]
 
+def decode_base64(base64_string):
+    decoded_bytes = base64.b64decode(base64_string)
+    return decoded_bytes.decode('utf-8')
+
 
 class Ec2:
     def __init__(self, access_id, access_key, region, params):
@@ -142,8 +146,7 @@ class Ec2:
         create_ec2_params["InstanceType"] = self.instance_params["instance_type"]
 
         if self.get_bool_value(self.instance_params["if_need_set_user_data"]):
-            create_ec2_params["UserData"] = self.get_base64_encoding_str(
-                self.instance_params["user_data"])
+            create_ec2_params["UserData"] = decode_base64(self.instance_params["user_data"])
 
         create_ec2_params["Monitoring"] = {
             "Enabled": self.get_bool_value(self.instance_params["enable_monitor"])
@@ -200,16 +203,16 @@ class Ec2:
             #     if "InstanceId" in eip_item and eip_item["InstanceId"] != "":
             #         continue
             #     allocationId = eip_item["AllocationId"]
-            
+
             # 如果没找到未绑定的eip则创建一个eip
-            if allocationId == "":
+            if not allocationId:
                 response = lib_ec2.allocate_address()
                 allocationId = response["AllocationId"]
                 print(f"创建eip结果: {json.dumps(response)}")
-            
+
             if allocationId == "":
                 raise RuntimeError("寻找空闲或创建eip失败")
-            
+
             while True:
                 print(f"等待实例处于running状态, instance_id: {instance_id}")
                 instance_info = lib_ec2.describe_instances([instance_id])["Reservations"][0]["Instances"][0]
@@ -289,6 +292,8 @@ class Ec2:
             "product_owner_tag",
             "ops_owner_tag",
             "department_tag",
+            "product_tag",
+            "project_tag",
             "key",
             "value"
         )
