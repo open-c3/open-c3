@@ -281,6 +281,21 @@ sub makedata_collector_procnum
 sub makedata_rule
 {
     my $data = shift @_;
+
+    if( $data->{metric} =~ /\// )
+    {
+        my ( $tempmetric, $temptags ) = split /\//, $data->{metric}, 2;
+        $data->{metric} = $tempmetric;
+        if( ( !$data->{tags} ) || ( $data->{tags} eq 'NULL' ) )
+        {
+            $data->{tags} = $temptags;
+        }
+        else
+        {
+            $data->{tags} = "$data->{tags},$temptags";
+        }
+    }
+
     my $tpl_file = "$RealBin/tpl/rule/$data->{metric}";
 
 
