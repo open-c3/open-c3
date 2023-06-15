@@ -1,0 +1,27 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+
+FILE_PATH = "/data/open-c3-data/bpm/department-tag-list.txt"
+
+
+def read_file_lines(file_path):
+    lines = []
+    with open(file_path, 'r') as file:
+        for line in file:
+            # 去除每一行前后的空格和换行符
+            line = line.strip()
+            lines.append(line)
+    return lines
+
+
+def main():
+    data_list = read_file_lines(FILE_PATH)
+    if not data_list:
+        data_list = ["default"]
+    for item in data_list:
+        print(item)
+
+
+if __name__ == '__main__':
+    main()
