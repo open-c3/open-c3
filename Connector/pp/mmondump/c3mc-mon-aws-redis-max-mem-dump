@@ -1,0 +1,33 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use LWP::UserAgent;
+use JSON;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $ua = LWP::UserAgent->new;
+$ua->timeout( 15 );
+
+#max by(instance)(max_over_time(aws_elasticache_database_memory_usage_percentage_maximum[1w]))
+my $url = 'http://openc3-prometheus:9090/api/v1/query?query=max+by%28instance%29%28max_over_time%28aws_elasticache_database_memory_usage_percentage_maximum%5B1w%5D%29%29';
+
+my $res = $ua->get( $url );
+
+die sprintf( "http code %s", $res->code ) unless $res->is_success;
+
+my $v = eval{ JSON::decode_json $res->decoded_content };
+die "data no JSON: $@"  if $@;
+die "status no success" unless $v->{status} && $v->{status} eq 'success';
+
+for my $x ( @{$v->{data}{result} })
+{
+    printf "$x->{metric}{instance}\t%0.2f\n", $x->{value}[1];
+}

@@ -10,12 +10,12 @@ $|++;
 
 =cut
 
-my @col = qw( 实例ID 名称 业务负责人 实例类型 );
+my @col = qw( 实例ID 名称 业务负责人 实例类型 AllocatedStorage );
 my $col = join " ", @col;
 my @x = `c3mc-device-data-get curr database aws-rds $col`;
 chomp @x;
 
-my @mon = qw( avg-cpu avg-disk );
+my @mon = qw( avg-cpu max-cpu avg-disk max-disk );
 
 my %mon;
 for my $mon ( @mon )
