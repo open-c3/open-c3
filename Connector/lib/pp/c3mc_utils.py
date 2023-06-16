@@ -170,7 +170,6 @@ def bpm_merge_user_input_tags(instance_params, tag_field_name="tag", tag_key_fie
     add_tag_if_missing(tag_list, get_env_value("OpsOwner"), kwargs.get("ops_owner_key_name", ""), tag_name_dict)
     add_tag_if_missing(tag_list, get_env_value("Department"), kwargs.get("department_key_name", ""), tag_name_dict)
     add_tag_if_missing(tag_list, get_env_value("Product"), kwargs.get("product_key_name", ""), tag_name_dict)
-    add_tag_if_missing(tag_list, get_env_value("Project"), kwargs.get("project_key_name", ""), tag_name_dict)
     add_tag_if_missing(tag_list, get_env_value("HostName"), kwargs.get("hostname_key_name", ""), tag_name_dict)
     add_tag_if_missing(tag_list, get_env_value("Name"), kwargs.get("name_key_name", ""), tag_name_dict)
 

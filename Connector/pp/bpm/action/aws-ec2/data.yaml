@@ -223,11 +223,19 @@ option:
     show:
       - if_need_data_volume: ["是"]
   
+# 标签相关 ------------------------------------------------------------
+
   - name: product_owner_tag
     describe: 业务负责人标签
     type: input
-    information: "申请服务器登录权限的时候会使用这里配置的业务负责人作为审批人, 如果这里未配置则其他人无法对该服务器申请访问权限。这里只需要配置标签值"
+    information: "如果申请创建的是服务器资源, 这里的负责人后面将是处理该服务器权限审批的人员"
     value_type: "email"
+
+  - name: owners_tag
+    describe: 研发负责人标签
+    type: input
+    # value_type: "email"
+    information: "可以填一个或多个账户, 多个用英文逗号分隔"
 
   - name: ops_owner_tag
     describe: 运维负责人标签
@@ -239,21 +247,28 @@ option:
     type: selectx
     command: c3mc-bpm-get-department-tag-list
 
-  - name: project_tag
-    describe: 项目标签
-    type: selectx
-    command: c3mc-bpm-get-project-tag-list
-
   - name: product_tag
     describe: 产品标签
     type: selectx
     command: c3mc-bpm-get-product-tag-list
+
+  - name: hostname_tag
+    describe: 主机名标签
+    type: input
+    value: ""
+
+  - name: name_tag
+    describe: 名称标签
+    type: input
+    value: ""
 
   - name: tag
     describe: 其他标签
     # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
     type: kvarray
     fromops: 1
+
+# -----------------------------------------------------------------
 
   - name: if_need_set_user_data
     describe: 是否配置系统初始化脚本
@@ -322,10 +337,12 @@ template_argv:
 
   # 需要用户必须配置的标签
   product_owner_tag: ${product_owner_tag}
+  owners_tag: ${owners_tag}
   ops_owner_tag: ${ops_owner_tag}
   department_tag: ${department_tag}
-  project_tag: ${project_tag}
   product_tag: ${product_tag}
+  hostname_tag: ${hostname_tag}
+  name_tag: ${name_tag}
 
   # 标签
   # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"

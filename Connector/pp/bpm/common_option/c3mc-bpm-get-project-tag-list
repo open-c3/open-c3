@@ -1,17 +1,23 @@
 #!/usr/bin/env /data/Software/mydan/python3/bin/python3
 # -*- coding: utf-8 -*-
 
+import os
+
 
 FILE_PATH = "/data/open-c3-data/bpm/project-tag-list.txt"
 
 
 def read_file_lines(file_path):
+    if not os.path.exists(file_path):
+        return []  # 文件路径不存在，直接返回空列表
+
     lines = []
     with open(file_path, 'r') as file:
         for line in file:
             # 去除每一行前后的空格和换行符
             line = line.strip()
             lines.append(line)
+
     return lines
 
 
