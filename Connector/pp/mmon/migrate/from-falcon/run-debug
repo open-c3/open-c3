@@ -1,0 +1,20 @@
+#!/opt/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+my ( $from, $to, $file ) = @ARGV;
+
+die "form error" unless defined $from && $from =~ /^\d+$/;
+die "to   error" unless defined $to   && $to   =~ /^\d+$/;
+
+die "file error" unless $file &&  -f $file;
+
+my $temp = "$file.temp.$$";
+die "headfail: $!" if system "head -n 1 $file > $temp";
+
+die "sed fail" if system "sed -n '$from,${to}p' $file >> $temp";
+
+system "rm -rf dist";
+
+system "cat $temp|./make-data";
+system "./load-data";
