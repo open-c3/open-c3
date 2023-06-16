@@ -30,6 +30,8 @@
             vm.postData.nocall = postData.nocall
             vm.postData.nomesg = postData.nomesg
             vm.postData.nomail = postData.nomail
+
+            vm.postData.vtreeid = postData.vtreeid
         }
 
         vm.cancel = function(){ $uibModalInstance.dismiss()};
@@ -42,6 +44,19 @@
                 } else { swal({ title: "添加监控指标采集失败!", text: data.info, type:'error' }); }
             });
         };
+
+        vm.getVirtualTreeList = function () {
+            $http.get(`/api/connector/vtree/${treeid}`).success(function (data) {
+              if (data.stat == true) {
+                  vm.vtreeList = data.data;
+              } else {
+                  toastr.error("加载失败:" + data.info);
+              }
+            });
+        };
+
+         vm.getVirtualTreeList();
+
     }
 })();
 

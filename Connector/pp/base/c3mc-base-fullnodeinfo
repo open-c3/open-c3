@@ -21,24 +21,106 @@ use MYDan::Util::OptConf;
 my $option = MYDan::Util::OptConf->load();
 my %o = $option->set( col => 'name,inip' )->get( qw( col=s ) )->dump();
 
-my $db = MYDB->new( "/data/Software/mydan/JOB/conf/conn", delayedconnection => 1 );
+my $dbj = MYDB->new( "/data/Software/mydan/JOB/conf/conn",       delayedconnection => 1 );
+my $dbc = MYDB->new( "/data/Software/mydan/Connector/conf/conn", delayedconnection => 1 );
 
 my $ingestion = OPENC3::SysCtl->new()->get( 'sys.device.ingestion.node' );
+
+my $insertname = 0;
+if( $o{col} !~ /name/ )
+{
+    $o{col} = "name,$o{col}";
+    $insertname = 1;
+}
+
+my @col = split /,/, $o{col};
+my ( $namecol, $idx, @projectcol ) = ( 0, 0 );
+
+for ( @col )
+{
+    if( $_ eq 'name' )
+    {
+        $namecol = $idx;
+    }
+
+    if( $_ eq 'projectid' )
+    {
+        push @projectcol, $idx;
+    }
+    $idx ++;
+}
+
+sub rnodeinfo
+{
+    my $id = shift @_;
+    die unless $id =~ /^\d+$/;
+
+    my @node;
+    my @x1 = `c3mc-base-nodeinfo $id --col $o{col}`;
+    die "c3mc-base-nodeinfo fail: $!" if $?;
+    chomp @x1;
+    push @node, @x1;
+
+    if( $ingestion )
+    {
+        my @x2 =`c3mc-device-nodeinfo $id --col $o{col}`;
+        die "c3mc-device-nodeinfo fail: $!" if $?;
+        chomp @x2;
+        push @node, @x2;
+    }
+
+    my $x = eval{ $dbj->query( "select $o{col} from openc3_job_nodelist where projectid in ( '$id', '0' ) and status='available'" ); };
+    die $@ if $@;
+    map{ push @node, join ';', @$_ }@$x;
+
+    return @node;
+}
+
+sub vnodeinfo
+{
+    my $id = shift @_;
+    my $x = eval{ $dbc->query( "select treeid from openc3_connector_vtree where id='$id'" ); };
+    die $@ if $@;
+    return () unless $x && @$x;
+
+    my $xx = eval{ $dbc->query( "select name from openc3_connector_vnode where vtreeid='$id'" ); };
+    die $@ if $@;
+    return () unless $xx && @$xx;
+
+    my %name = map{ $_->[0] => 1 }@$xx;
+
+    my @node;
+    my @tnode = rnodeinfo( $x->[0][0] );
+
+    if( @projectcol )
+    {
+        @tnode = map{ my @x = split /;/, $_; map{ $x[$_] = $id;}@projectcol; join ';', @x }@tnode;
+    }
+
+    for my $t ( @tnode )
+    {
+        my @t = split /;/, $t;
+        push @node, $t if $name{$t[$namecol] };
+    }
+
+    return @node;
+}
 
 sub nodeinfo
 {
     my $id = shift @_;
     die unless $id =~ /^\d+$/;
 
-    die if system "c3mc-base-nodeinfo $id --col $o{col}";
-    if( $ingestion )
+    my @node = $id > 3000000000 ? vnodeinfo( $id ): rnodeinfo( $id );
+
+    if( $insertname )
     {
-        die if system "c3mc-device-nodeinfo $id --col $o{col}"
+        map{ printf "%s\n",( split /;/, $_, 2 )[1]; }@node;
     }
-    my $x = eval{ $db->query( "select $o{col} from openc3_job_nodelist where projectid in ( '$id', '0' ) and status='available'" ); };
-    die $@ if $@;
-    map{ printf "%s\n", join ';', @$_ }@$x;
-    return;
+    else
+    {
+        map{ print "$_\n"; }@node;
+    }
 }
 
 if( @ARGV )

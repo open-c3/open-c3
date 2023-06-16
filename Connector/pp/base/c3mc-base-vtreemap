@@ -1,0 +1,42 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDB;
+
+=head1 SYNOPSIS
+
+ $0
+
+ $0 cache
+
+=cut
+
+my $usecache = @ARGV && $ARGV[0] eq 'cache' ? 'cache' : '';
+
+my $db = MYDB->new( "/data/Software/mydan/Connector/conf/conn" );
+my @col = qw( id treeid name );
+my $x = eval{ $db->query( sprintf( "select %s from openc3_connector_vtree where id > 3000000000", join ',',@col ), \@col); };
+die "get data from vtree fail: $@"if $@;
+
+my %vtree;
+map{ push @{$vtree{$_->{treeid}}}, $_; }@$x;
+
+my @x = `c3mc-base-treemap $usecache`;
+die "get treemap fail: $!" if $?;
+
+chomp @x;
+
+for ( @x )
+{
+    my ( $id, $name ) = split /;/, $_, 2;
+    print "$id;$name\n";
+    next unless $vtree{$id};
+    map{ print "$_->{id};$name.$_->{name}\n"; }@{$vtree{$id}};
+}

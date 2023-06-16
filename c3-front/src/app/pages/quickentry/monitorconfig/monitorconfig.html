@@ -146,6 +146,7 @@
                             <div ng-if="m.content2" >{{m.content1}}【{{'C3T.匹配'|translate}}:{{m.content2}}】</div>
                             <div ng-if="!m.content2" >{{m.content1}}</div>
                         </td>
+                        <td data-title="'C3T.虚拟服务树'|translate" sortable="'vtreeid'" filter="{ vtreeid: 'text'}" >{{m.vtreeid}}</td>
                         <td data-title="'C3T.编辑者'|translate" sortable="'edit_user'">{{m.edit_user}}</td>
                         <td data-title="'C3T.编辑时间'|translate" sortable="'edit_time'">{{m.edit_time}}</td>
                         <td class="textcenter"  data-title="'C3T.操作'|translate">
@@ -191,7 +192,8 @@
                     <tr ng-repeat="m in $data">
                         <td data-title="'C3T.编号'|translate" sortable="'id'">{{m.id}}</td>
                         <td data-title="'C3T.名称'|translate" sortable="'alert'" filter="{ alert: 'text'}" >{{m.alert}}</td>
-                        <td data-title="'C3T.子组'|translate" sortable="'alert'" filter="{ subgroup: 'text'}" >{{m.subgroup}}</td>
+                        <td data-title="'C3T.子组'|translate" sortable="'subgroup'" filter="{ subgroup: 'text'}" >{{m.subgroup}}</td>
+                        <td data-title="'C3T.虚拟服务树'|translate" sortable="'vtreeid'" filter="{ vtreeid: 'text'}" >{{m.vtreeid}}</td>
                         <td data-title="'C3T.表达式'|translate" sortable="'expr'" filter="{ expr: 'text'}" ><a uib-tooltip="{{m.expr}}" >{{m.expr|cut60}} </a></td>
                         <td data-title="'C3T.告警级别'|translate" sortable="'severity'" filter="{ severity: 'text'}" >{{m.severity}}</td>
                         <td data-title="'C3T.概要'|translate" sortable="'summary'" filter="{ summary: 'text'}" >{{m.summary}}</td>

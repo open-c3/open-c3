@@ -24,7 +24,7 @@ get '/monitor/config/collector/:projectid' => sub {
 
     my $projectid = $param->{projectid};
 
-    my @col = qw( id type subtype content1 content2 edit_user edit_time );
+    my @col = qw( id type subtype content1 content2 edit_user edit_time vtreeid );
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_monitor_config_collector
@@ -52,7 +52,7 @@ get '/monitor/config/collector/:projectid/:id' => sub {
 
     my $projectid = $param->{projectid};
 
-    my @col = qw( id type subtype content1 content2 edit_user edit_time );
+    my @col = qw( id type subtype content1 content2 edit_user edit_time vtreeid );
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_monitor_config_collector where projectid='$projectid' and id='$param->{id}'", join( ',', @col)), \@col )};
@@ -75,6 +75,8 @@ post '/monitor/config/collector/:projectid' => sub {
         subtype => qr/^[a-zA-Z0-9]+$/, 1,
         content1 => [ 'mismatch', qr/'/ ], 1,
         content2 => [ 'mismatch', qr/'/ ], 0,
+
+        vtreeid => qr/^[a-zA-Z0-9]*$/, 0,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -94,20 +96,22 @@ post '/monitor/config/collector/:projectid' => sub {
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
-    my ( $id, $projectid, $type, $subtype, $content1, $content2 ) = @$param{qw( id projectid type subtype content1 content2 )};
+    my ( $id, $projectid, $type, $subtype, $content1, $content2, $vtreeid ) = @$param{qw( id projectid type subtype content1 content2 vtreeid )};
     $content2 = '' unless defined $content2;
+
+    $vtreeid = '' unless $vtreeid && $vtreeid =~ /^\d+$/;
 
     eval{
         my $title = $id ? "UPDATE" : "ADD";
-        $api::auditlog->run( user => $user, title => "$title MONITOR CONFIG COLLECTOR", content => "TREEID:$projectid TYPE:$type SUBTYPE:$subtype CONTENT1:$content1 CONTENT2:$content2" );
+        $api::auditlog->run( user => $user, title => "$title MONITOR CONFIG COLLECTOR", content => "TREEID:$projectid TYPE:$type SUBTYPE:$subtype CONTENT1:$content1 CONTENT2:$content2 VTREE:$vtreeid" );
         if( $param->{id} )
         {
-            $api::mysql->execute( "update openc3_monitor_config_collector set type='$type',subtype='$subtype',content1='$content1',content2='$content2',edit_user='$user' where projectid='$projectid' and id='$id'" );
+            $api::mysql->execute( "update openc3_monitor_config_collector set type='$type',subtype='$subtype',content1='$content1',content2='$content2',vtreeid='$vtreeid',edit_user='$user' where projectid='$projectid' and id='$id'" );
         }
         else
         {
-            $api::mysql->execute( "insert into openc3_monitor_config_collector (`projectid`,`type`,`subtype`,`content1`,`content2`,`edit_user`)
-                values('$projectid','$type','$subtype','$content1','$content2','$user')" );
+            $api::mysql->execute( "insert into openc3_monitor_config_collector (`projectid`,`type`,`subtype`,`content1`,`content2`,`edit_user`,`vtreeid`)
+                values('$projectid','$type','$subtype','$content1','$content2','$user','$vtreeid')" );
         }
     };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
