@@ -46,6 +46,21 @@
     </div>
 </form>
 
+<form class="form-horizontal" >
+    <div class="row">
+        <div class="col-sm-10 form-group">
+            <label class="col-sm-3 control-label">{{'C3T.虚拟服务树'|translate}}</label>
+            <div class="col-sm-9">
+                <select class="form-control"  ng-model="createMonitorConfig.postData.vtreeid" >
+                     <option value="">{{'C3T.当前服务树'|translate}}</option>
+                     <option ng-repeat="x in createMonitorConfig.vtreeList" value="{{x.id}}">{{x.name}}</option>
+                </select>
+            </div>
+
+        </div>
+    </div>
+</form>
+
 <div ng-if="createMonitorConfig.postData.type=='port'">
     <form class="form-horizontal" name="myForm" role="form">
 

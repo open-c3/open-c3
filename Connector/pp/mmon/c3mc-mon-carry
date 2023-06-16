@@ -34,7 +34,7 @@ while(<STDIN>){
 #rawcarry: projectid => +{ uuid => \%data }
 my $db = MYDB->new( "/data/Software/mydan/AGENT/conf/conn" );
 
-my @col = qw( projectid type subtype content1 content2 );
+my @col = qw( projectid type subtype content1 content2 vtreeid );
 my $x = eval{ $db->query( sprintf("select %s from `openc3_monitor_config_collector`", join ',',@col), \@col ) };
 
 my %rawcarry;
@@ -42,13 +42,16 @@ for my $tmp ( @$x )
 {
 
     my $k = "$tmp->{type}:$tmp->{subtype}:$tmp->{content2}";
+
+    my $vprojectid = $tmp->{vtreeid} && $tmp->{vtreeid} =~ /^\d+$/ ? $tmp->{vtreeid} : $tmp->{projectid};
+
     if( $tmp->{type} eq 'port' )
     {
-        map{ $rawcarry{$tmp->{projectid}}{"$k:$_"} = +{ %$tmp, content1 => $_ } if $_ =~ /^\d+$/ || $_ =~ /^\d+;[a-zA-Z0-9][a-zA-Z0-9\.\-_]+$/ }split /,/, $tmp->{content1};
+        map{ $rawcarry{$vprojectid}{"$k:$_"} = +{ %$tmp, content1 => $_ } if $_ =~ /^\d+$/ || $_ =~ /^\d+;[a-zA-Z0-9][a-zA-Z0-9\.\-_]+$/ }split /,/, $tmp->{content1};
     }
     else
     {
-        $rawcarry{$tmp->{projectid}}{"$k:$tmp->{content1}"} = $tmp;
+        $rawcarry{$vprojectid}{"$k:$tmp->{content1}"} = $tmp;
     }
 }
 
