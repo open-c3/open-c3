@@ -1,0 +1,60 @@
+#!/opt/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+my @x = <STDIN>;
+chomp @x;
+
+my $title = shift @x;
+my @title = split /\t/, $title;
+
+my %res;
+sub run
+{
+    my $data = shift @_;
+    my ( $treeid, $uic ) = @$data{qw( treeid uic )};
+    unless( $treeid && $treeid =~ /^\d+$/ )
+    {
+        warn "[Warn] treeid error";
+        return;
+    }
+    return unless $uic && $uic ne 'NULL';
+
+    map{ $res{$treeid}{$_}++ } grep{ $_ ne "" }split /,/, $uic;
+}
+
+for ( @x )
+{
+    my @t = split /\t/, $_;
+
+    my $d = +{ map{ $title[$_] => $t[$_] }0..@title -1};
+
+    run( $d );
+}
+
+my    @g = `c3mc-base-db-get name -t openc3_monitor_config_group`;
+chomp @g;
+my %group = map{ $_ => 1 }@g;
+
+my    @u = `c3mc-base-db-get user -t openc3_connector_useraddr`;
+chomp @u;
+my %user = map{ $_ => 1 }@u;
+
+for my $treeid ( keys %res )
+{
+    for my $user ( keys %{$res{$treeid}} )
+    {
+        if( $group{$user} )
+        {
+            print "$treeid;\@$user\n";
+        }
+        elsif( $user{$user} )
+        {
+            print "$treeid;$user\n";
+        }
+        else
+        {
+            warn "[Warn] nofind user: $treeid;$user\n";
+        }
+    }
+}

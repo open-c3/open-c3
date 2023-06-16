@@ -49,3 +49,10 @@ tags: file.check # tag
 如： 只导出 simplemetric 的策略
 cat debug.csv |./make-data simplemetric
 ```
+
+# 迁移操作
+```
+#迁移过程中，如果策略很多，普罗米修斯可能会顶不住，可以缓慢导入。
+./run-debug  2   100 debug.csv # 导入第二行到100行， 第一行是标题
+./run-debug  101 200 debug.csv # 导入第100行到200行
+```

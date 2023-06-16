@@ -81,6 +81,11 @@ sub zipdata
             $res->{http} = [] unless $res->{http};
             push @{$res->{http}}, "$v->{subtype}|$v->{content1}|$v->{content2}";
         }
+        elsif( $v->{type} eq 'ping' )
+        {
+            $res->{ping} = [] unless $res->{ping};
+            push @{$res->{ping}}, $v->{content1};
+        }
         elsif( $v->{type} eq 'path' )
         {
             $res->{path} = [] unless $res->{path};

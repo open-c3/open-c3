@@ -1,0 +1,42 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib
+use strict;
+use warnings;
+
+$|++;
+
+use YAML::XS;
+use MYDan::Util::OptConf;
+use MYDB;
+
+=head1 SYNOPSIS
+
+ $0   'treeid;user1@xx.com'
+ $0   'treeid;user1@xx.com' --user foo@xx.com
+ echo 'treeid;user1@xx.com' | ./$0 --user foo@xx.com
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->set( user=> 'sys@app' )->get( qw( user=s ) )->dump();
+
+my $db = MYDB->new(  "/data/Software/mydan/AGENT/conf/conn", delayedconnection => 1 );
+
+my %name;
+sub getuser{
+    my $x = $db->query( "select projectid,user from `openc3_monitor_config_user`" );
+    my %x;
+    map{ $x{$_->[0]}{$_->[1]} = 1 }@$x;
+    return %x;
+}
+
+sub addaddr
+{
+    my ( $projectid, $user ) = split /;/, $_, 2;
+    return if $name{$projectid}{$user} ++;
+    $db->execute( "insert into openc3_monitor_config_user (projectid,user,edit_user)values('$projectid','$user','$o{user}')");
+}
+
+my    @data = @ARGV ? @ARGV : <STDIN>;
+chomp @data;
+
+%name = getuser(); map{addaddr( $_)}@data;

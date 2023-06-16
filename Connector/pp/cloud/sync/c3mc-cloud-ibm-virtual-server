@@ -59,6 +59,13 @@ class IBMVirtualServer:
         server_list = self.get_server_list()
 
         for server in server_list:
+
+            cpu_cores = server["maxCpu"]
+            memory_size = int(server["maxMemory"] / 1024)
+
+            if isinstance(cpu_cores, int) and isinstance(memory_size, int):
+                server["flavor"] = f"V.{cpu_cores}C.{memory_size}GB" 
+
             print(json.dumps(server))
 
 

@@ -147,6 +147,8 @@ def bpm_merge_user_input_tags(
         product_owner_key_name, 
         ops_owner_key_name, 
         department_key_name,
+        product_key_name,
+        project_key_name,
         tag_key_field,
         tag_value_field,
     ):
@@ -163,21 +165,33 @@ def bpm_merge_user_input_tags(
     product_owner_env_vlaue = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.ProductOwner")
     ops_owner_env_value = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.OpsOwner")
     department_env_value = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.Department")
+    product_env_value = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.Product")
+    project_env_value = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.Project")
 
-    if product_owner_env_vlaue.lower() not in tag_name_dict:
+    if product_owner_key_name != "" and product_owner_env_vlaue.lower() not in tag_name_dict:
         tag_list.append({
             tag_key_field: product_owner_env_vlaue,
             tag_value_field: instance_params[product_owner_key_name]
         })
-    if ops_owner_env_value.lower() not in tag_name_dict:
+    if ops_owner_key_name != "" and ops_owner_env_value.lower() not in tag_name_dict:
         tag_list.append({
             tag_key_field: ops_owner_env_value,
             tag_value_field: instance_params[ops_owner_key_name]
         })
-    if department_env_value.lower() not in tag_name_dict:
+    if department_key_name != "" and department_env_value.lower() not in tag_name_dict:
         tag_list.append({
             tag_key_field: department_env_value,
             tag_value_field: instance_params[department_key_name]
+        })
+    if product_key_name != "" and product_env_value.lower() not in tag_name_dict:
+        tag_list.append({
+            tag_key_field: product_env_value,
+            tag_value_field: instance_params[product_key_name]
+        })
+    if project_key_name != "" and project_env_value.lower() not in tag_name_dict:
+        tag_list.append({
+            tag_key_field: project_env_value,
+            tag_value_field: instance_params[project_key_name]
         })
     instance_params[tag_field_name] = json.dumps(tag_list)
     return instance_params
