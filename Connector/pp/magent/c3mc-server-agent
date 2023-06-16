@@ -76,7 +76,7 @@ if( $name eq 'promesd' )
             pipefail => 1,
         )->run(
            [
-               "c3mc-base-treemap",
+               "c3mc-base-vtreemap",
                #grep -E ';app.|;ops.'
                $greptree ? sprintf( "grep -E '%s'", join '|', map{ ";$_" }split /,/, $greptree ) : undef,
                "awk -F';' '{print \$1}'",
@@ -89,7 +89,7 @@ if( $name eq 'promesd' )
            "mv $tempfile $nodetemp && mv $openc3_node_sd.temp $openc3_node_sd",
 #mysql
            [
-               "c3mc-base-treemap",
+               "c3mc-base-vtreemap",
                $greptree ? sprintf( "grep -E '%s'", join '|', map{ ";$_" }split /,/, $greptree ) : undef,
                "awk -F';' '{print \$1}'",
                "c3mc-device-ingestion-mysql -c projectid,addr,auth",
@@ -101,7 +101,7 @@ if( $name eq 'promesd' )
            "mv $mysqltmp $mysqltemp && mv $openc3_mysql_sd.temp $openc3_mysql_sd",
 #redis
            [
-               "c3mc-base-treemap",
+               "c3mc-base-vtreemap",
                $greptree ? sprintf( "grep -E '%s'", join '|', map{ ";$_" }split /,/, $greptree ) : undef,
                "awk -F';' '{print \$1}'",
                "c3mc-device-ingestion-redis -c projectid,addr,auth",
@@ -113,7 +113,7 @@ if( $name eq 'promesd' )
            "mv $redistmp $redistemp && mv $openc3_redis_sd.temp $openc3_redis_sd",
 #mongodb
            [
-               "c3mc-base-treemap",
+               "c3mc-base-vtreemap",
                $greptree ? sprintf( "grep -E '%s'", join '|', map{ ";$_" }split /,/, $greptree ) : undef,
                "awk -F';' '{print \$1}'",
                "c3mc-device-ingestion-mongodb -c projectid,addr,auth",
@@ -147,7 +147,7 @@ if( $name eq 'promesd' )
             pipefail => 1,
         )->run(
            [
-               "c3mc-base-treemap",
+               "c3mc-base-vtreemap",
                $greptree ? sprintf( "grep -E '%s'", join '|', map{ ";$_" }split /,/, $greptree ) : undef,
                "awk -F';' '{print \$1}'",
                "c3mc-base-fullnodeinfo -c projectid,inip",
@@ -168,7 +168,7 @@ if( $name eq 'promesd' )
             pipefail => 1,
         )->run(
            [
-               "c3mc-base-treemap",
+               "c3mc-base-vtreemap",
                $greptree ? sprintf( "grep -E '%s'", join '|', map{ ";$_" }split /,/, $greptree ) : undef,
                "awk -F';' '{print \$1}'",
                "c3mc-base-fullnodeinfo -c projectid,inip",
