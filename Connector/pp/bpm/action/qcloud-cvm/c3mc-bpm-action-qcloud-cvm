@@ -14,6 +14,7 @@ from tencentcloud.cvm.v20170312 import cvm_client, models
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
 from c3mc_cloud_qcloud_cvm import QcloudCvm
+from c3mc_utils import bpm_merge_user_input_tags
 
 
 class Cvm:
@@ -156,6 +157,18 @@ class Cvm:
                 time.sleep(5)
 
     def create_cvm(self):
+
+        self.params = bpm_merge_user_input_tags(
+            instance_params=self.params,
+            product_owner_key_name="product_owner_tag",
+            owners_key_name="owners_tag",
+            ops_owner_key_name="ops_owner_tag",
+            department_key_name="department_tag",
+            product_key_name="product_tag",
+            hostname_key_name="hostname_tag",
+            name_key_name="name_tag"
+        )
+
         req = self.get_request()
         print(f"创建cvm, 请求参数为: {req}")
 
