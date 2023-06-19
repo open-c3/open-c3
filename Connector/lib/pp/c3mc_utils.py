@@ -10,6 +10,7 @@ import subprocess
 import json
 import hashlib
 import random
+import base64
 
 
 def print_c3debug1_log(msg):
@@ -153,34 +154,37 @@ def bpm_merge_user_input_tags(instance_params, tag_field_name="tag", tag_key_fie
     def get_env_value(tag_name):
         return subprocess.getoutput(f"c3mc-sys-ctl cmdb.tags.{tag_name}")
 
-    def add_tag_if_missing(tag_list, tag_name, tag_key_name, tag_name_dict):
-        if tag_key_name != "" and tag_name.lower() not in tag_name_dict:
-            tag_list.append({
-                tag_key_field: tag_name,
-                tag_value_field: instance_params[tag_key_name]
-            })
+    def add_tag_if_missing(tag_list, tag_name, key_name):
+        if key_name == "":
+            return tag_list
+
+        # 去掉已存在的旧标签
+        tag_list = [tag for tag in tag_list if tag[tag_key_field] != tag_name]
+        tag_list.append({
+            tag_key_field: tag_name,
+            tag_value_field: instance_params[key_name]
+        })
+        return tag_list
 
     tag_list = []
     with contextlib.suppress(json.JSONDecodeError):
         tag_list = json.loads(instance_params[tag_field_name])
-    tag_name_dict = {tag[tag_key_field].lower() for tag in tag_list}
 
-    add_tag_if_missing(tag_list, get_env_value("ProductOwner"), kwargs.get("product_owner_key_name", ""), tag_name_dict)
-    add_tag_if_missing(tag_list, get_env_value("Owners"), kwargs.get("owners_key_name", ""), tag_name_dict)
-    add_tag_if_missing(tag_list, get_env_value("OpsOwner"), kwargs.get("ops_owner_key_name", ""), tag_name_dict)
-    add_tag_if_missing(tag_list, get_env_value("Department"), kwargs.get("department_key_name", ""), tag_name_dict)
-    add_tag_if_missing(tag_list, get_env_value("Product"), kwargs.get("product_key_name", ""), tag_name_dict)
-    add_tag_if_missing(tag_list, get_env_value("HostName"), kwargs.get("hostname_key_name", ""), tag_name_dict)
-    add_tag_if_missing(tag_list, get_env_value("Name"), kwargs.get("name_key_name", ""), tag_name_dict)
+    tag_list = add_tag_if_missing(tag_list, get_env_value("ProductOwner"), kwargs.get("product_owner_key_name", ""))
+    tag_list = add_tag_if_missing(tag_list, get_env_value("Owners"), kwargs.get("owners_key_name", ""))
+    tag_list = add_tag_if_missing(tag_list, get_env_value("OpsOwner"), kwargs.get("ops_owner_key_name", ""))
+    tag_list = add_tag_if_missing(tag_list, get_env_value("Department"), kwargs.get("department_key_name", ""))
+    tag_list = add_tag_if_missing(tag_list, get_env_value("Product"), kwargs.get("product_key_name", ""))
+    tag_list = add_tag_if_missing(tag_list, get_env_value("HostName"), kwargs.get("hostname_key_name", ""))
+    tag_list = add_tag_if_missing(tag_list, get_env_value("Name"), kwargs.get("name_key_name", ""))
 
     instance_params[tag_field_name] = json.dumps(tag_list)
     return instance_params
 
 
-def cal_md5_on_dict(data):
-    json_data = json.dumps(data, sort_keys=True, ensure_ascii=False)
-    return hashlib.md5(json_data.encode('utf-8')).hexdigest()
-
+def decode_base64(base64_string):
+    decoded_bytes = base64.b64decode(base64_string)
+    return decoded_bytes.decode('utf-8')
 
 
 def calculate_md5(input_string):
@@ -193,6 +197,11 @@ def calculate_md5(input_string):
     return md5_hash.hexdigest()
 
 
+def exponential_backoff(attempt, max_delay):
+    delay = min(max_delay, (2**attempt) + random.uniform(0, 1))
+    time.sleep(delay)
+
+
 def retry_network_request(func, arg):
     """执行网络操作请求, 当出现网络错误时，可以进行重试
 
@@ -200,10 +209,6 @@ def retry_network_request(func, arg):
         func (function): 要执行的函数
         arg (tuple): 函数参数, 元组类型
     """
-    def exponential_backoff(attempt, max_delay):
-        delay = min(max_delay, (2**attempt) + random.uniform(0, 1))
-        time.sleep(delay)
-
     def check_not_in(string_list, target_string):
         all_not_in = True
         for string in string_list:

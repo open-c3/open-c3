@@ -215,14 +215,6 @@ option:
     show:
       - if_need_data_volume: ["是"]
 
-  - name: delete_data_volume_on_termination
-    describe: 删除ec2时删除数据盘
-    command: c3mc-yes-and-no | c3mc-bpm-display-field-values id,name
-    type: selectx
-    fromops: 1
-    show:
-      - if_need_data_volume: ["是"]
-  
 # 标签相关 ------------------------------------------------------------
 
   - name: product_owner_tag
@@ -241,6 +233,7 @@ option:
     describe: 运维负责人标签
     type: input
     value_type: "email"
+    fromops: 1
 
   - name: department_tag
     describe: 部门标签
@@ -252,11 +245,6 @@ option:
     type: selectx
     command: c3mc-bpm-get-product-tag-list
 
-  - name: hostname_tag
-    describe: 主机名标签
-    type: input
-    value: ""
-
   - name: name_tag
     describe: 名称标签
     type: input
@@ -266,23 +254,6 @@ option:
     describe: 其他标签
     # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
     type: kvarray
-    fromops: 1
-
-# -----------------------------------------------------------------
-
-  - name: if_need_set_user_data
-    describe: 是否配置系统初始化脚本
-    type: select
-    option: ["是", "否"]
-    value: ""
-    fromops: 1
-
-  - name: user_data
-    describe: 系统初始化执行脚本(不超过16K大小)
-    type: text
-    required: false
-    show:
-      - if_need_set_user_data: ["是"]
     fromops: 1
 
 template_argv:
@@ -302,7 +273,6 @@ template_argv:
   #
   # 如果不需要数据盘，会忽略下面的字段
   if_need_data_volume: ${if_need_data_volume}
-  delete_data_volume_on_termination: ${delete_data_volume_on_termination}
   # 如果VolumeType不是io1和io2, 会忽略Iops字段。
   # 如果是io1或io2, Iops/VolumeSize 不能超过50,
   # 否则aws接口报错
@@ -330,8 +300,6 @@ template_argv:
   # 支持多个安全组, 用英文逗号分隔
   security_group_ids: ${security_group_ids}
   subnet_id: ${subnet_id}
-  # base64编码的用户脚本
-  user_data: ${user_data__base64}
   # 数目
   count: ${count}
 
@@ -341,12 +309,8 @@ template_argv:
   ops_owner_tag: ${ops_owner_tag}
   department_tag: ${department_tag}
   product_tag: ${product_tag}
-  hostname_tag: ${hostname_tag}
   name_tag: ${name_tag}
 
   # 标签
   # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
   tag: ${tag}
-
-  # 是否配置系统初始化脚本
-  if_need_set_user_data: ${if_need_set_user_data}
