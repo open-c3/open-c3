@@ -6,10 +6,7 @@ import json
 import subprocess
 import time
 
-from tencentcloud.common import credential
-from tencentcloud.common.profile.client_profile import ClientProfile
-from tencentcloud.common.profile.http_profile import HttpProfile
-from tencentcloud.cvm.v20170312 import cvm_client, models
+from tencentcloud.cvm.v20170312 import models
 
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
@@ -19,43 +16,16 @@ from c3mc_utils import bpm_merge_user_input_tags
 
 class Cvm:
     def __init__(self, access_id, access_key, region, params):
-        self.access_id = access_id
-        self.access_key = access_key
-        self.region = region
         self.params = params
-        self.client = self.create_client()
-        self.lib_client = self.create_lib_client()
-
-    def create_client(self):
-        cred = credential.Credential(
-            self.access_id, self.access_key)
-        httpProfile = HttpProfile()
-        httpProfile.endpoint = "cvm.tencentcloudapi.com"
-
-        clientProfile = ClientProfile()
-        clientProfile.httpProfile = httpProfile
-        return cvm_client.CvmClient(cred, self.region, clientProfile)
-    
-    def create_lib_client(self):
-        return QcloudCvm(self.access_id, self.access_key, self.region)
+        self.lib_client = QcloudCvm(access_id, access_key, region)
 
     def get_bool_value(self, text_bool):
         return text_bool == "是"
 
-    def get_r_format_str(self, prefix, suffix_number):
-        """组装腾讯云 "server{R:3}" 格式的字符串
-
-        Args:
-            prefix        (string):   前缀
-            suffix_number (int):      后缀起始数字
-        """
-        if prefix[len(prefix) - 1] not in ["-", "_"]:
-            prefix += "-"
-        suffix_number = suffix_number
-        return f"{prefix}{{R:{suffix_number}}}"
-
     def get_request(self):
         req = models.RunInstancesRequest()
+
+        hostname = f"{self.params['name_prefix']}{{R:{self.params['name_suffix_start_number']}}}"
 
         api_params = {
             "InstanceChargeType": self.params["instance_charge_type"],
@@ -78,16 +48,14 @@ class Cvm:
                 "PublicIpAssigned": self.get_bool_value(self.params["if_need_public_ip"])
             },
             "InstanceCount": int(self.params["count"]),
-            "InstanceName": self.get_r_format_str(self.params["name_prefix"], self.params["name_suffix_start_number"]),
+            "InstanceName": hostname,
             "SecurityGroupIds": self.params["security_group_ids"].split(","),
             "EnhancedService": {
                 "MonitorService": {
                     "Enabled": self.get_bool_value(self.params["enable_monitor"])
                 }
             },
-            # 用于保证请求幂等性
-            "ClientToken": self.params["bpm_uuid"] + self.params["_step_uuid_"],
-            "HostName": self.get_r_format_str(self.params["hostname_prefix"], self.params["hostname_suffix_start_number"]),
+            "HostName": hostname,
             "DisableApiTermination": self.get_bool_value(self.params["disable_api_termination"]),
         }
 
@@ -165,8 +133,6 @@ class Cvm:
             ops_owner_key_name="ops_owner_tag",
             department_key_name="department_tag",
             product_key_name="product_tag",
-            hostname_key_name="hostname_tag",
-            name_key_name="name_tag"
         )
 
         req = self.get_request()
@@ -180,7 +146,7 @@ class Cvm:
             print(f'VAR. extinstance_id:{self.params["account"]}.{self.params["region"]}.xxxxx')
         else:
             try:
-                resp = self.client.RunInstances(req)
+                resp = self.lib_client.run_instances(req)
 
                 print(f"创建cvm, 响应为: {resp.to_json_string()}")
 

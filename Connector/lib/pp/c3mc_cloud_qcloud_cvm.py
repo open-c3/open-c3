@@ -47,6 +47,9 @@ class QcloudCvm:
         resp = self.cvm_client.DescribeInstances(req)
         return json.loads(resp.to_json_string())["InstanceSet"][0]
 
+    def run_instances(self, request):
+        return self.cvm_client.RunInstances(request)
+
     def stop_instances(self, instance_id):
         req = cvm_models.StopInstancesRequest()
         params = {

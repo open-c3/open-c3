@@ -237,6 +237,7 @@ option:
     describe: 运维负责人标签
     type: input
     value_type: "email"
+    fromops: 1
 
   - name: department_tag
     describe: 部门标签
@@ -247,16 +248,6 @@ option:
     describe: 产品标签
     type: selectx
     command: c3mc-bpm-get-product-tag-list
-
-  - name: hostname_tag
-    describe: 主机名标签
-    type: input
-    value: ""
-
-  - name: name_tag
-    describe: 名称标签
-    type: input
-    value: ""
 
 # -----------------------------------------------------------------
 
@@ -343,7 +334,6 @@ template_argv:
   ops_owner_tag: ${ops_owner_tag}
   department_tag: ${department_tag}
   product_tag: ${product_tag}
-  hostname_tag: ${hostname_tag}
   name_tag: ${name_tag}
 
   # ---------------------------------------------------
