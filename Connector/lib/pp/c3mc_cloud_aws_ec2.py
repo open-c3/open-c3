@@ -335,6 +335,7 @@ class LIB_EC2:
                 ]
             )["Addresses"]
             for eip_info in eip_info_list:
+                print(f"准备释放ec2实例的eip, instance_id: {instance_id}, public_ip: {eip_info['PublicIp']}")
                 # 先解绑eip再释放eip
                 self.disassociate_address(eip_info["AssociationId"])
                 self.release_address(eip_info["AllocationId"])
@@ -354,6 +355,7 @@ class LIB_EC2:
                     # 跳过root volume
                     continue  
                 volume_id = volume["VolumeId"]
+                print(f"准备删除ec2实例的volume, instance_id: {instance_id}, volume_id: {volume_id}")
                 self.client.detach_volume(
                     InstanceId=instance_id,
                     VolumeId=volume_id,
