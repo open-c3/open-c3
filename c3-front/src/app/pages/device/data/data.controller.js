@@ -42,6 +42,12 @@
         vm.filtergrep = [];
         vm.filterdata = {};
 
+        vm.checkDataList = [];
+        vm.checkboxes = {
+          checked: false,
+          items: {},
+        };
+
         vm.grepdata._search_= sessionStorage.getItem('globalSearch')
         sessionStorage.removeItem('globalSearch')
 
@@ -75,6 +81,7 @@
             $http.post('/api/agent/device/data/' + vm.type + '/' + vm.subtype + '/' + vm.treeid, { "grepdata": newGrepdata, "timemachine": vm.selectedtimemachine } ).success(function(data){
                 if (data.stat){
                     vm.dealWithData(data.data);
+                    vm.checkDataList = data.data
                     vm.dataTable = new ngTableParams({count:25}, {counts:[],data:data.data});
                     vm.filter = data.filter;
                     angular.forEach(data.filterdata, function (value, key) {
@@ -165,5 +172,80 @@
             })
           })
         }
+
+    vm.handleServiceTree = function (type) {
+      const selectResourceArr = []
+      angular.forEach(vm.checkboxes.items, function (value, key) {
+        if (value) {
+          selectResourceArr.push(key)
+        }
+      });
+      const selectResDetail = vm.checkDataList.filter(item => selectResourceArr.find(cItem => cItem === item.uuid));
+
+      if (type !== 'x') {
+        $uibModal.open({
+          templateUrl: 'app/pages/device/data/dialog/serviceTree.html',
+          controller: 'ServiceTreeController',
+          controllerAs: 'serviceTree',
+          backdrop: 'static',
+          size: 'md',
+          keyboard: false,
+          bindToController: true,
+          resolve: {
+            type: function () { return type },
+            treeid: function () { return vm.treeid },
+            selectResDetail: function () { return selectResDetail},
+          }
+        });
+      } else {
+        swal({
+          title: '归还资源到资源池',
+          type: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#DD6B55",
+          cancelButtonText: "取消",
+          confirmButtonText: "确定",
+          closeOnConfirm: true
+        }, function () {
+          angular.forEach(selectResDetail, function (item) {
+            $http.post(`/api/agent/device/tree/bind/${item.type}/${item.subtype}/${item.uuid}/${type}`).success(function (data) {
+              if (data.stat == true) {
+                toastr.success("操作完成");
+                vm.cancel();
+                vm.reload();
+              } else {
+                toastr.error("操作失败:" + data.info)
+              }
+            });
+          })
+        });
+      }
+    }
+
+    // 监听全选checkbox
+    $scope.$watch(function () {return vm.checkboxes.checked }, function (value) {
+      angular.forEach(vm.checkDataList, function (item, index, array) {
+        vm.checkboxes.items[[array[index].uuid]] = value
+      });
+      vm.checkboxes.itemsNumber = Object.values(vm.checkboxes.items).filter(item => item === true).length
+      let nodeList = []
+      for (let key in vm.checkboxes.items) {
+        nodeList.push(String(key))
+      }
+    }, true);
+
+    // 监听单个列表项的checkbox
+    $scope.$watch(function () { return vm.checkboxes.items }, function (value) {
+        var checked = 0, unchecked = 0
+        angular.forEach(vm.checkDataList, function (item, index, array) {
+          checked += (vm.checkboxes.items[array[index].uuid]) || 0;
+          unchecked += (!vm.checkboxes.items[array[index].uuid]) || 0;
+        });
+        if (vm.checkDataList.length > 0 && ((unchecked == 0) || (checked == 0))) {
+          vm.checkboxes.checked = (checked == vm.checkDataList.length);
+        }
+        vm.checkboxes.itemsNumber = checked
+        angular.element(document.getElementsByClassName("select-all")).prop("indeterminate", (checked != 0 && unchecked != 0));
+      }, true);
     }
 })();

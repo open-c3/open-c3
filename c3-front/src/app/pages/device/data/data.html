@@ -68,6 +68,11 @@
     </div>
 
     <a ng-if="devicedata.pointout!=''" style="color: red">{{devicedata.pointout}}<a>
+    <div class="service-tree-button-style" ng-if="devicedata.checkboxes.itemsNumber !== 0 ">
+      <button class="btn btn-primary" uib-tooltip="{{'C3T.复制到服务树'|translate}}" ng-click="devicedata.handleServiceTree('copy')">{{'C3T.复制到'| translate}}</button>
+      <button class="btn btn-primary" uib-tooltip="{{'C3T.移动到服务树'|translate}}"  ng-click="devicedata.handleServiceTree('move')">{{'C3T.移动到'| translate}}</button>
+      <button class="btn btn-danger" uib-tooltip="{{'C3T.归还资源到资源池'|translate}}"  ng-click="devicedata.handleServiceTree('x')">{{'C3T.归还'| translate}}</button>
+    </div>
 
     <div class="panel panel-border top">
 
@@ -104,6 +109,9 @@
             <div class="table-scroll" ng-if="devicedata.loadover">
                 <table ng-table="devicedata.dataTable" class="table table-hover text-center table-condensed va-m">
                     <tr ng-repeat="m in $data" toggle-class="info">
+                      <td header="'headerCheckbox.html'" data-title="">
+                        <input type="checkbox" name="selected" ng-model="devicedata.checkboxes.items[m.uuid]" />
+                      </td>
                         <td data-title="'#'">
                             <span>
                                 {{ (devicedata.dataTable.page() - 1)*devicedata.dataTable.count() + $index + 1 }}
@@ -132,6 +140,10 @@
     </div>
 
 </div>
+
+<script type="text/ng-template" id="headerCheckbox.html">
+  <input type="checkbox" ng-model="devicedata.checkboxes.checked"  class="select-all"/>
+</script>
 
 <style lang="scss">
   .device-header {
@@ -165,5 +177,9 @@
   .ui-select-bootstrap  >  .ui-select-match > .form-control {
     width: 100%;
     min-width: 100px;
+  }
+  .service-tree-button-style {
+    display: inline-block;
+    margin: 20px;
   }
 </style>
