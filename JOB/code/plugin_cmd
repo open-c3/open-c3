@@ -192,6 +192,7 @@ return sub
 
     my ( $flowid, $version, $buildininfoget ) = ( 0, 0, 1 );
     my $subtasksrefuse = '';
+    my $subtasksfail   = '';
     while(1)
     {
         delete $query{auth};
@@ -232,6 +233,7 @@ return sub
                 @node
             )->run( %o, query => \%query, jobuuid => $fromjob, taskuuid => $taskuuid, db => $db, treeid => $projectid, flowid => $flowid, version => $version, deployenv => $xxcc->{deployenv} );
             $subtasksrefuse = 1 if delete $result{_openc3_sys_pluginrefuse_sys_openc3_};
+            $subtasksfail   = 1 if delete $result{_openc3_sys_pluginfail_sys_openc3_  };
         }
         else
         {
@@ -310,6 +312,7 @@ return sub
     }
 
     $subtaskstatus = 'refuse' if $subtasksrefuse && $subtaskstatus eq 'success';
+    $subtaskstatus = 'fail'   if $subtasksfail   && $subtaskstatus eq 'success';
     print "substatus = $subtaskstatus\n";
 
     if( $taskuuid && $fromjob )
