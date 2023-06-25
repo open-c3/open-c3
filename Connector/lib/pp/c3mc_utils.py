@@ -1,6 +1,7 @@
 #!/usr/bin/env /data/Software/mydan/python3/bin/python3
 # -*- coding: utf-8 -*-
 
+import contextlib
 import os
 import sys
 import time
@@ -9,6 +10,7 @@ import subprocess
 import json
 import hashlib
 import random
+import base64
 
 
 def print_c3debug1_log(msg):
@@ -140,67 +142,49 @@ def encode_for_special_symbol(decoded_str):
         char if char.isalnum() or ord(char) >= 128 else f'E{ord(char)}E' for char in decoded_str
     )
 
+def bpm_merge_user_input_tags(instance_params, tag_field_name="tag", tag_key_field="key", tag_value_field="value", **kwargs):
+    """将用户bpm工单中用户配置的普通标签和命名标签合并在一起
 
-def bpm_merge_user_input_tags(
-        instance_params, 
-        tag_field_name, 
-        product_owner_key_name, 
-        ops_owner_key_name, 
-        department_key_name,
-        product_key_name,
-        project_key_name,
-        tag_key_field,
-        tag_value_field,
-    ):
-    """将用户填写的业务负责人、运维负责人和其他标签合并在一起
+    Args:
+        instance_params (dict): 工单参数
+        tag_field_name (str, optional): 工单参数中标签列表字段的名称, 默认为 "tag".
+        tag_key_field (str, optional): 工单参数中标签键的名称
+        tag_value_field (str, optional): 工单参数中标签值的名称
     """
+    def get_env_value(tag_name):
+        return subprocess.getoutput(f"c3mc-sys-ctl cmdb.tags.{tag_name}")
+
+    def add_tag_if_missing(tag_list, tag_name, key_name):
+        if key_name == "":
+            return tag_list
+
+        # 去掉已存在的旧标签
+        tag_list = [tag for tag in tag_list if tag[tag_key_field] != tag_name]
+        tag_list.append({
+            tag_key_field: tag_name,
+            tag_value_field: instance_params[key_name]
+        })
+        return tag_list
+
     tag_list = []
-    try:
-        # 如果用户没有配置标签，则instance_params[tag_field_name]不是一个合法的json字符串
+    with contextlib.suppress(json.JSONDecodeError):
         tag_list = json.loads(instance_params[tag_field_name])
-    except json.JSONDecodeError:
-        tag_list = []
 
-    tag_name_dict = { tag[tag_key_field].lower() for tag in tag_list }
-    product_owner_env_vlaue = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.ProductOwner")
-    ops_owner_env_value = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.OpsOwner")
-    department_env_value = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.Department")
-    product_env_value = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.Product")
-    project_env_value = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.Project")
+    tag_list = add_tag_if_missing(tag_list, get_env_value("ProductOwner"), kwargs.get("product_owner_key_name", ""))
+    tag_list = add_tag_if_missing(tag_list, get_env_value("Owners"), kwargs.get("owners_key_name", ""))
+    tag_list = add_tag_if_missing(tag_list, get_env_value("OpsOwner"), kwargs.get("ops_owner_key_name", ""))
+    tag_list = add_tag_if_missing(tag_list, get_env_value("Department"), kwargs.get("department_key_name", ""))
+    tag_list = add_tag_if_missing(tag_list, get_env_value("Product"), kwargs.get("product_key_name", ""))
+    tag_list = add_tag_if_missing(tag_list, get_env_value("HostName"), kwargs.get("hostname_key_name", ""))
+    tag_list = add_tag_if_missing(tag_list, get_env_value("Name"), kwargs.get("name_key_name", ""))
 
-    if product_owner_key_name != "" and product_owner_env_vlaue.lower() not in tag_name_dict:
-        tag_list.append({
-            tag_key_field: product_owner_env_vlaue,
-            tag_value_field: instance_params[product_owner_key_name]
-        })
-    if ops_owner_key_name != "" and ops_owner_env_value.lower() not in tag_name_dict:
-        tag_list.append({
-            tag_key_field: ops_owner_env_value,
-            tag_value_field: instance_params[ops_owner_key_name]
-        })
-    if department_key_name != "" and department_env_value.lower() not in tag_name_dict:
-        tag_list.append({
-            tag_key_field: department_env_value,
-            tag_value_field: instance_params[department_key_name]
-        })
-    if product_key_name != "" and product_env_value.lower() not in tag_name_dict:
-        tag_list.append({
-            tag_key_field: product_env_value,
-            tag_value_field: instance_params[product_key_name]
-        })
-    if project_key_name != "" and project_env_value.lower() not in tag_name_dict:
-        tag_list.append({
-            tag_key_field: project_env_value,
-            tag_value_field: instance_params[project_key_name]
-        })
     instance_params[tag_field_name] = json.dumps(tag_list)
     return instance_params
 
 
-def cal_md5_on_dict(data):
-    json_data = json.dumps(data, sort_keys=True, ensure_ascii=False)
-    return hashlib.md5(json_data.encode('utf-8')).hexdigest()
-
+def decode_base64(base64_string):
+    decoded_bytes = base64.b64decode(base64_string)
+    return decoded_bytes.decode('utf-8')
 
 
 def calculate_md5(input_string):
@@ -213,6 +197,11 @@ def calculate_md5(input_string):
     return md5_hash.hexdigest()
 
 
+def exponential_backoff(attempt, max_delay):
+    delay = min(max_delay, (2**attempt) + random.uniform(0, 1))
+    time.sleep(delay)
+
+
 def retry_network_request(func, arg):
     """执行网络操作请求, 当出现网络错误时，可以进行重试
 
@@ -220,10 +209,6 @@ def retry_network_request(func, arg):
         func (function): 要执行的函数
         arg (tuple): 函数参数, 元组类型
     """
-    def exponential_backoff(attempt, max_delay):
-        delay = min(max_delay, (2**attempt) + random.uniform(0, 1))
-        time.sleep(delay)
-
     def check_not_in(string_list, target_string):
         all_not_in = True
         for string in string_list:

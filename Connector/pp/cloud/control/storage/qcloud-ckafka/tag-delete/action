@@ -23,7 +23,7 @@ def tag_delete(data, access_id, access_key, region, uin):
     id_field_name = subprocess.getoutput(
         "c3mc-cloud-get-real-field storage qcloud-ckafka InstanceId")
     region_field_name = subprocess.getoutput(
-        "c3mc-cloud-get-real-field storage qcloud-ckafka Region")
+        "c3mc-cloud-get-real-field storage qcloud-ckafka RegionId")
 
     rid = "qcs::ckafka:{}:uin/{}:ckafkaId/{}".format(
         data[region_field_name], uin, data[id_field_name])

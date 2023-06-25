@@ -1,0 +1,69 @@
+#!/data/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$| ++;
+
+=head1 SYNOPSIS
+
+ $0
+ $0 300
+ $0 60 3
+
+ #检测进程的cpu和内存使用
+ #输出字段为: 平均内存使用率 平均CPU使用率 平均进程数量 最大内存使用率 最大cpu使用率 最大的进程数量 进程名称
+
+=cut
+
+my ( $time, $interval ) = @ARGV;
+$time    = 10 unless $time     && $time     =~ /^\d+$/;
+$interval = 5 unless $interval && $interval =~ /^\d+$/;
+
+my %res;
+
+my $count = int ($time / 5 );
+$count = 1 unless $count;
+
+for my $id ( reverse 1.. $count )
+{
+    my    @x = `ps -e -o %cpu,%mem,cmd --no-headers`;
+    chomp @x;
+
+    for my $name ( keys %res )
+    {
+        for my $type ( qw( cpu mem cnt ) )
+        {
+            $res{$name}{"tmp_$type"} = 0;
+        }
+    }
+ 
+    for( @x )
+    {
+        $_ =~ s/^\s+//;
+        my ( $cpu, $mem, $name ) = split /\s+/, $_, 3;
+        $name =~ s/\d\d\d+/xxx/g;
+        $res{$name}{cpu} += $cpu;
+        $res{$name}{mem} += $mem;
+        $res{$name}{cnt} += 1;
+
+        $res{$name}{tmp_cpu} += $cpu;
+        $res{$name}{tmp_mem} += $mem;
+        $res{$name}{tmp_cnt} += 1;
+ 
+    }
+
+    for my $name ( keys %res )
+    {
+
+        for my $type ( qw( cpu mem cnt ) )
+        {
+            $res{$name}{"max_$type"} = $res{$name}{"tmp_$type"} if (! $res{$name}{"max_$type"} ) || ( $res{$name}{"tmp_$type"} > $res{$name}{"max_$type"} );
+        }
+    }
+    sleep 5 if $id ne 1;
+}
+
+for my $x ( keys %res )
+{
+    printf "%s\n", join "\t",( map{ sprintf "%.2f", $res{$x}{$_} / $count }qw(cpu mem cnt) ), ( map{ sprintf "%.2f", $res{$x}{"max_$_"} }qw(cpu mem cnt) ), $x;
+}
