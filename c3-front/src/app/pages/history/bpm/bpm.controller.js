@@ -149,6 +149,7 @@
         vm.reload();
 
         vm.dealWithData = function (data) {
+          vm.tableData = []
           vm.exportDownloadStr = `<tr><td>BPM单号</td><td>任务名称</td><td>发起人</td><td>处理人</td><td>状态</td><td>发起时间</td><td>结束时间</td><td>耗时</td></tr>`
           data.forEach(items => {
             vm.tableData.push({
