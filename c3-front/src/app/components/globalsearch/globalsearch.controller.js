@@ -17,6 +17,9 @@
       navigation: '/assets/images/navigation.png',
     }
     vm.frequentArray = ['腾讯云', 'AWS', 'Google', '权限', '域名', 'CDN', '资源申请', '资源回收'];
+    const ipReg = /(\d{1,3}\.){3}\d{1,3}/
+    const bpmReg = /^BPM\d{18}/i
+    const ttReg = /^tt\d{10}/i
 
     vm.reload = function () {
       vm.searchloadover = true;
@@ -60,6 +63,21 @@
 
     vm.inputChange = function () {
       vm.buttonSubmit();
+    }
+
+    vm.inputKeyUp = function (event) {
+      if (event.keyCode === 13) {
+        const orderId = (vm.choiceSearch || '').toUpperCase()
+        if (ipReg.test(vm.choiceSearch)) {
+          sessionStorage.setItem('globalSearch', vm.choiceSearch || '')
+          $state.go('home.device.data', { treeid: vm.treeid, timemachine: 'curr', type: 'all', subtype: 'all' });
+        } else if (bpmReg.test(vm.choiceSearch)) {
+          window.open(`/#/bpm/0/${orderId}`, '_blank')
+        } else if (ttReg.test(vm.choiceSearch)) {
+          window.open(`/#/tt/show/${orderId}`, '_blank')
+        }
+        vm.cancel();
+      }
     }
 
     vm.handleFrequentClick = function (selectedItems) {
