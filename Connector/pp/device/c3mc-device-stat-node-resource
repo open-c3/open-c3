@@ -1,0 +1,117 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+
+import os
+import glob
+import yaml
+import subprocess
+import sys
+
+
+TEMPLATE_DIR_PATH = "/data/Software/mydan/AGENT/device/conf/template"
+
+
+def get_resource_type_dict():
+    if not os.path.exists(TEMPLATE_DIR_PATH):
+        return []
+
+    yaml_files = glob.glob(os.path.join(TEMPLATE_DIR_PATH, "*.yaml")) + glob.glob(
+        os.path.join(TEMPLATE_DIR_PATH, "*.yml")
+    )
+
+    data = {}
+
+    for file_path in yaml_files:
+        with open(file_path, "r") as file:
+            try:
+                yaml_content = yaml.safe_load(file)
+                for item in yaml_content["download"]:
+                    type_name= item.get("type")
+                    subtype_name = item.get("subtype")
+                    if type_name and subtype_name:
+                        data[subtype_name] = type_name
+            except yaml.YAMLError as error:
+                raise RuntimeError(f"解析 YAML 文件出错 {file_path}") from error
+
+    return data
+
+
+def stat_subtype_tree_node_list(type_name, subtype_name):
+    cmd_parts = ["c3mc-device-data-get", "curr", type_name, subtype_name, "_tree_"]
+    output = subprocess.run(cmd_parts, capture_output=True, text=True)
+    if output.returncode != 0:
+        if "no data at" in str(output.stderr):
+            return []
+        raise RuntimeError(
+            f"Run c3mc-device-data-get got error. type_name: {type_name}, subtype_name: {subtype_name}, error: {output.stderr}"
+        )
+    output = output.stdout
+
+    data = [item.strip() for item in output.split("\n") if item.strip() != ""]
+
+    result = []
+    for item in data:
+        result.extend(item.split(","))
+    return result
+
+
+def count_tree_node(tree_node_list):
+    data = {}
+    for tree_node in tree_node_list:
+        if tree_node not in data:
+            data[tree_node] = 0
+        
+        data[tree_node] += 1
+    return data
+
+
+def stat_node_resource(search_tree_node_list):
+    type_dict = get_resource_type_dict()
+
+    cache_dict = {}
+    for subtype_name, type_name in type_dict.items():
+        resource_tree_node_list = stat_subtype_tree_node_list(type_name, subtype_name)
+        stat_tree_node = count_tree_node(resource_tree_node_list)
+        for tree_node, count in stat_tree_node.items():
+            if tree_node not in cache_dict:
+                cache_dict[tree_node] = {}
+            cache_dict[tree_node][subtype_name] = count
+
+    return {
+        search_tree_node: cache_dict[search_tree_node]
+        for search_tree_node in search_tree_node_list
+        if search_tree_node in cache_dict
+    }
+
+def convert_dict_to_str(data):
+    if not data:
+        return ""
+
+    res = "".join(f"{key}:{value}," for key, value in data.items())
+    return res[:-1]
+
+
+def main(tree_node_list):
+    """根据节点层级统计资源使用情况
+    输出格式如下：
+    root.xxx    aws-rds:2,aws-elb:3
+    root.www    aws-rds:1,aws-elb:2
+    """
+    tree_node_list = [item.strip() for item in tree_node_list]
+    data = stat_node_resource(tree_node_list)
+    for tree_node in tree_node_list:
+        info = convert_dict_to_str(data[tree_node])
+        print(f"{tree_node}\t{info}")
+
+
+if __name__ == "__main__":
+    """按照树节点列表维度导出资源的数量统计
+    资源类型从/data/Software/mydan/AGENT/device/conf/template目录下的文件中解析
+
+    支持两种传参方式:
+    1. 通过标准输入。
+    2. 通过命令行。例如c3mc-stat-node-resource  root.xxx root.yyy
+    """
+    tree_node_list = sys.argv[1:] if len(sys.argv) > 1 else list(sys.stdin)
+    main(tree_node_list)
