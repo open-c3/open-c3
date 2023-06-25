@@ -10,7 +10,7 @@ from qcloud_cos import CosS3Client
 
 
 def tag_add(data, access_id, access_key, region):
-    service_domain = 'cos.{}.myqcloud.com'.format(region)
+    service_domain = f'cos.{region}.myqcloud.com'
     config = CosConfig(Region=region, SecretId=access_id,
                        SecretKey=access_key, ServiceDomain=service_domain)  # 获取配置对象
     client = CosS3Client(config)
@@ -18,10 +18,14 @@ def tag_add(data, access_id, access_key, region):
     field_name = subprocess.getoutput(
         "c3mc-cloud-get-real-field storage qcloud-cos Name")
 
-    response = client.get_bucket_tagging(Bucket=data[field_name])
     tag_list = []
-    if "TagSet" in response and "Tag" in response["TagSet"]:
-        tag_list = response["TagSet"]["Tag"]
+    try:
+        response = client.get_bucket_tagging(Bucket=data[field_name])
+        if "TagSet" in response and "Tag" in response["TagSet"]:
+            tag_list = response["TagSet"]["Tag"]
+    except Exception as e:
+        if "NoSuchTagSet" not in str(e):
+            raise e
 
     need_add_key = data["_control_"]["tag-add"]["key"]
     need_add_value = data["_control_"]["tag-add"]["value"]
@@ -37,7 +41,7 @@ def tag_add(data, access_id, access_key, region):
             'Key': data["_control_"]["tag-add"]["key"],
             'Value': data["_control_"]["tag-add"]["value"]
         })
-
+    
     client.put_bucket_tagging(
         Bucket=data[field_name],
         Tagging={

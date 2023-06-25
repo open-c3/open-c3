@@ -1,7 +1,6 @@
 ---
 name: 创建腾讯云cvm
 multi: 1
-fromops: 1
 option:
   - name: account
     describe: 云账号
@@ -44,10 +43,12 @@ option:
     describe: 主机名前缀
     type: input
     information: '点号（.）和短横线（-）不能作为 HostName 的首尾字符，不能连续使用。 Windows 实例名字符长度为[2, 15]，允许字母（不限制大小写）、数字和短横线（-）组成，不支持点号（.），不能全是数字。 其他类型（Linux 等）实例：字符长度为[2, 60]，允许支持多个点号，点之间为一段，每段允许字母（不限制大小写）、数字和短横线（-）组成。'
+    fromops: 1
 
   - name: hostname_suffix_start_number
     describe: 主机名后缀起始数字
     type: number
+    fromops: 1
 
   - name: project_id
     describe: 项目
@@ -117,6 +118,7 @@ option:
     command: c3mc-qcloud-cvm-describe-system-disk-type-list | c3mc-bpm-display-field-values "{id}; 类型:{name}, 磁盘大小范围:{size_range}"
     type: selectx
     value: ""
+    fromops: 1
 
   - name: system_disk_size
     describe: 系统盘大小(GB)
@@ -217,6 +219,38 @@ option:
     value: ""
     information: "当公网带宽为0, 则不允许分配公网IP。此时忽略该选项的值"
     fromops: 1
+
+# 标签相关 ------------------------------------------------------------
+  - name: product_owner_tag
+    describe: 业务负责人标签
+    type: input
+    information: "如果申请创建的是服务器资源, 这里的负责人后面将是处理该服务器权限审批的人员"
+    value_type: "email"
+
+  - name: owners_tag
+    describe: 研发负责人标签
+    type: input
+    # value_type: "email"
+    information: "可以填一个或多个账户, 多个用英文逗号分隔"
+
+  - name: ops_owner_tag
+    describe: 运维负责人标签
+    type: input
+    value_type: "email"
+    fromops: 1
+
+  - name: department_tag
+    describe: 部门标签
+    type: selectx
+    command: c3mc-bpm-get-department-tag-list
+
+  - name: product_tag
+    describe: 产品标签
+    type: selectx
+    command: c3mc-bpm-get-product-tag-list
+
+# -----------------------------------------------------------------
+
   # --------------------------------
 
   # - name: enable_monitor
@@ -263,9 +297,6 @@ template_argv:
   subnet_id: ${subnet_id}
   # 安全组id列表，多个安全组id用英文逗号分隔
   security_group_ids: ${security_group_ids}
-  # 标签
-  # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
-  tag: ${tag}
   # 实例付费方式
   instance_charge_type: ${charge_type}
   # 购买时长
@@ -291,6 +322,19 @@ template_argv:
 
   # 数目
   count: ${count}
+
+  # ---------------------------------------------------
+  # 标签
+  # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
+  tag: ${tag}
+
+  # 用户必须配置的标签
+  product_owner_tag: ${product_owner_tag}
+  owners_tag: ${owners_tag}
+  ops_owner_tag: ${ops_owner_tag}
+  department_tag: ${department_tag}
+  product_tag: ${product_tag}
+  name_tag: ${name_tag}
 
   # ---------------------------------------------------
 

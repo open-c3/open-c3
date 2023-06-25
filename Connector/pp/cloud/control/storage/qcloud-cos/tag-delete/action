@@ -18,10 +18,14 @@ def tag_delete(data, access_id, access_key, region):
     field_name = subprocess.getoutput(
         "c3mc-cloud-get-real-field storage qcloud-cos Name")
 
-    response = client.get_bucket_tagging(Bucket=data[field_name])
     tag_list = []
-    if "TagSet" in response and "Tag" in response["TagSet"]:
-        tag_list = response["TagSet"]["Tag"]
+    try:
+        response = client.get_bucket_tagging(Bucket=data[field_name])
+        if "TagSet" in response and "Tag" in response["TagSet"]:
+            tag_list = response["TagSet"]["Tag"]
+    except Exception as e:
+        if "NoSuchTagSet" not in str(e):
+            raise e
 
     need_delete_key = data["_control_"]["tag-delete"]["key"]
 
