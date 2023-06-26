@@ -700,7 +700,7 @@
               swal({ title:'格式错误', text: `${text}需要填写${textType}格式`, type:'error' });
               return
             }
-            if ($scope.choiceJob.name === 'bpm-auth-server' && filterIpValue.length > 0) {
+            if (filterIpValue.length > 0) {
               swal({ title:'格式错误', text: '请填写正确的IP格式，并用英文逗号隔开', type:'error' });
               return
             }
