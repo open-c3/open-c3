@@ -67,6 +67,28 @@ if( -f $excludefile )
     die "exclude null" unless @exclude; # 防止获取内容失败
 }
 
+sub grepExclude
+{
+    for my $treename ( @_ )
+    {
+        map{ return 1 if $treename eq $_ || index( $treename, "$_." ) == 0; }@exclude;
+    }
+
+    # exclude文件中可以写服务树后缀，如 pool$ 或者 unmonitor$
+    for my $treename ( @_ )
+    {
+        map{
+            if( $_ =~ /^(.+)\$$/ )
+            {
+                my $tail = $1;
+                my $index = index( $treename, $tail );
+                return 1 if $index != -1 && $index == length( $treename ) - length( $tail );
+            }
+        }@exclude;
+    }
+ 
+    return 0;
+}
 
 my %excludenode;
 my $excludenodefile = "/data/open-c3-data/monitor-config/mongodb.exclude.node.txt";
@@ -97,7 +119,7 @@ for my $ip ( keys %ip )
     my %lables = ( instance => $ip, "__metrics_path__" => "/api/agent/v3/mongodb/metrics/$ip", treeid => 1 );
 
     next if $includetodo && ! grepInclude( map{ $treemap{$_} // "" }keys %{$ip{$ip}} );
-    next if $excludetodo &&   grepInclude( map{ $treemap{$_} // "" }keys %{$ip{$ip}} );
+    next if $excludetodo &&   grepExclude( map{ $treemap{$_} // "" }keys %{$ip{$ip}} );
 
     next if $excludenode{$ip};
 
