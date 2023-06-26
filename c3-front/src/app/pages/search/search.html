@@ -7,7 +7,7 @@
         <div class="panel-body menu-panel-search-content">
           <i class="fa fa-search fa-lg menu-panel-search-content-icon" aria-hidden="true"></i>
           <input type="text" class="menu-panel-search-content-input" ng-model="search.choiceSearch"
-            placeholder="{{'C3T.输入进行搜索' | translate}}" ng-change="search.inputChange()">
+            placeholder="{{'C3T.输入进行搜索' | translate}}" ng-change="search.inputChange()" ng-keyup="search.inputKeyUp($event)">
             <span class="append-icon right fs18 pointer" ng-click="search.handleClear()"
               ng-show="search.choiceSearch && search.choiceSearch !== ''">
             <i class="fa fa-times"></i>
