@@ -123,7 +123,7 @@
         closeOnConfirm: true
       }, function () {
         angular.forEach(vm.selectResDetail, function (item) {
-          const targetTree = vm.type === 'move'? `/${vm.nodeStr.replace('ROOT.', '')}/${vm.cloneNodeName}`: `/${vm.cloneNodeName}`
+          const targetTree = vm.type === 'move'? `/${vm.nodeStr.replace(/^ROOT\./, '')}/${vm.cloneNodeName}`: `/${vm.cloneNodeName}`
           $http.post(`/api/agent/device/tree/${vm.type}/${item.type}/${item.subtype}/${item.uuid}${targetTree}`).success(function (data) {
             if (data.stat == true) {
               toastr.success("操作完成");
