@@ -17,6 +17,7 @@
         vm.selectedtimemachine = 'curr';
         vm.timemachine = [];
 
+        vm.cloudList = ['qcloud','aws', 'aliyun','ksyun','google','huawei','ibm', 'idc']
         vm.totalResources = {
           compute: 0,
           networking: 0,

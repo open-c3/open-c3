@@ -27,3 +27,22 @@ iptables -t nat -A PREROUTING -p tcp --dport 8090 -j REDIRECT --to-port 80
 docker exec openc3-server  c3mc-base-adduser --user open-c3
 
 ```
+
+## 使用指南
+```
+1.通过镜像启动产品
+2.使用Web浏览器访问http://<EC2_Instance_Public_DNS>上的应用程序
+3.在通过镜像创建机器之后，使用以下命令创建帐户密码：
+sudo docker exec openc3-server c3mc-base-adduser --user open-c3
+user: open-c3
+password: Example "VSfjZDw8qrScgwWgKI"
+
+
+•  登录系统后，在右上角的“管理”菜单中输入“系统监视器”，即可检查系统的健康状况。
+•  关于编程系统凭据和加密密钥的轮换，默认情况下，用户的登录帐户密码有效期为90天，并且在密码有效期剩余15天时，系统会提醒用户更改密码。
+•  敏感信息存储位置：
+     /data/open-c3-data/auth: 代理的公钥和私钥
+     /data/open-c3-data/device/curr/auth: 授权查看资源管理中账户的用户授权文件
+     /data/open-c3-data/sysctl.conf: 系统参数配置文件
+     /data/open-c3/Connector/config.ini: 系统连接器配置文件
+```
