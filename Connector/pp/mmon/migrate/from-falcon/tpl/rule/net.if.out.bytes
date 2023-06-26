@@ -4,12 +4,12 @@ bindtreesql: max(rate(node_network_transmit_bytes_total[5m]) / 1024) by (instanc
 description: 上传带宽大于$VAR{right_value_k}K/s，当前为 {{ $value }} K/s
 edit_time: 2023-04-13 17:30:49
 edit_user: open-c3
-expr: max(rate(node_network_transmit_bytes_total[5m]) / 1024) by (instance)  $VAR{op} $VAR{right_value_k} and  ( sum(treeinfo{tid="c3montreeid"}) by(instance))
+expr: max(rate(node_network_transmit_bytes_total[5m]) / 1024) by (instance)  $VAR{op} $VAR{right_value_k} and  ( sum(treeinfo{eid="c3montreeid"}) by(instance))
 for: '$VAR{for}'
 job: ''
 method: ''
 metrics: ''
-model: bindtree
+model: bindetree
 severity: level$VAR{priority}
 summary: 网络告警
 threshold: ''

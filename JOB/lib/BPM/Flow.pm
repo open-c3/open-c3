@@ -40,6 +40,7 @@ sub variable
                 for my $opt ( @{$config->{option}} )
                 {
                     $opt->{value} //= "";
+                    $opt->{rawvalue} = $opt->{value};
                     push @$conf, +{ %$opt, stepid => $index + 0, name => "$index.$multimark".$opt->{name}, multi => $multi ? 1 : 0,  fromops => $opt->{fromops} // $fromops, ridx => $ridx --, idx => $idx ++, actionname => $config->{name} // $name };
                 }
             }

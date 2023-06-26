@@ -1,0 +1,26 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+
+my    @x = `c3mc-base-treemap`;
+chomp @x;
+
+my    @treeid = `c3mc-base-db-get --table openc3_monitor_config_treeunbind treeid`;
+chomp @treeid;
+my    %treeid = map{ $_ => 1 }@treeid;
+
+sub unmonitor
+{
+    my $treeid = shift @_;
+    return if $treeid{$treeid};
+    system "c3mc-base-db-ins --table openc3_monitor_config_treeunbind treeid $treeid status 1 edit_user openc3-migrate\@sys";
+}
+
+for( @x )
+{
+    my ( $treeid, $treename ) = split /;/, $_;
+    next unless $treeid && $treeid =~ /^\d+$/;
+    unmonitor( $treeid ) if $treename =~ /\.unmonitor$/ || $treename =~ /\.pool$/;
+}
+
