@@ -15,6 +15,8 @@
         vm.queryChoiceFlag = false;
         vm.emailReg = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
         vm.inputValueType = ['email']
+        vm.ipReg = /^(\d{1,3}\.){3}\d{1,3}(,\s*(\d{1,3}\.){3}\d{1,3})*$/
+        vm.ipValueType = ['ip_comma_str']
         vm.inputValueTypeMap = {email: '邮箱'}
         vm.bpmInfoApplicant = ''
         vm.bpmInfoDepartment = ''
@@ -70,11 +72,11 @@
             }
         };
  
-        vm.isEmailReg = function (item) {
-          if (item.value_type && vm.inputValueType.includes(item.value_type)) {
+        vm.isExtraReg = function (item, arr, reg) {
+          if (item.value_type && arr.includes(item.value_type)) {
             if (item.value === ''|| item.value === undefined) {
               return true
-            } else if (item.value && vm.emailReg.test(item.value)) {
+            } else if (item.value && reg.test(item.value)) {
               return true
             }
             return false
@@ -667,6 +669,7 @@
             var varDict = {};
 
             const hasValueType = []
+            const hasIpValueType = []
             angular.forEach(vm.valias, function (data, index) {
                 var aliasname = index + "__alias";
                 varDict[aliasname] = data;
@@ -676,6 +679,9 @@
                 varDict[data.name] = data.value;
                 if (data.value_type && vm.inputValueType.includes(data.value_type)) {
                   hasValueType.push(data)
+                }
+                if (data.value_type && vm.ipValueType.includes(data.value_type)) {
+                  hasIpValueType.push(data)
                 }
             });
             $scope.taskData.variable = varDict;
@@ -688,13 +694,19 @@
             $scope.taskData.variable['_sys_opt_']['variable']     = $scope.jobVar;
             $scope.taskData.variable['_sys_opt_']['multitempidx'] = vm.multitempidx;
 
-            const filterValue = hasValueType.filter(item => !vm.isEmailReg(item))
+            const filterValue = hasValueType.filter(item => !vm.isExtraReg(item, vm.inputValueType,vm.emailReg))
+            const filterIpValue = hasIpValueType.filter(item => !vm.isExtraReg(item, vm.ipValueType, vm.ipReg))
             if (vm.fromopsdefault === '0' && filterValue.length > 0) {
               const text = filterValue.map(item=> item.describe).join('、')
               const textType = Array.from(new Set(filterValue.map(item=> vm.inputValueTypeMap[item.value_type]))).join('、')
               swal({ title:'格式错误', text: `${text}需要填写${textType}格式`, type:'error' });
               return
             }
+            if (filterIpValue.length > 0) {
+              swal({ title:'格式错误', text: '请填写正确的IP格式，并用英文逗号隔开', type:'error' });
+              return
+            }
+
             resoureceService.work.runJobByName2Bpm(vm.defaulttreeid, {"pointuser": pointuser, "jobname":$scope.choiceJob.name, "bpm_variable": $scope.taskData.variable, "variable": {} })
                 .then(function (repo) {
                     if (repo.stat){
