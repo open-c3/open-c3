@@ -14,6 +14,7 @@ use File::Temp;
 use POSIX;
 use Email::Sender::Simple qw(sendmail);
 use Email::Sender::Transport::SMTPS;
+use MIME::Words qw(encode_mimewords);
 
 =head1 SYNOPSIS
 
@@ -60,11 +61,10 @@ sub call
         header => [
             From    => $conf{from},
             To      => $user,
-            Subject => encode("gb2312", decode("utf8", $subject)),
+            Subject => encode_mimewords($subject, Charset => 'UTF-8', Encoding => 'Q'),
 
-            'Content-Type' => 'text/plain',
-            'charset'      => 'GB2312',
-            #'charset'      => 'UTF-8',
+            'Content-Type' => 'text/plain; charset=UTF-8',
+            'charset'      => 'UTF-8',
         ],
         body => $content,
     );
