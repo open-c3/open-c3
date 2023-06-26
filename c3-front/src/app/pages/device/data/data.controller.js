@@ -15,8 +15,9 @@
             }
         });
 
-    function DeviceDataController($state, $http, $scope, ngTableParams, $uibModal, treeService, genericService) {
+    function DeviceDataController($state, $http, $scope, $injector, ngTableParams, $uibModal, treeService, genericService) {
         var vm = this;
+        var toastr = toastr || $injector.get('toastr');
 
         vm.exportDownload = genericService.exportDownload
         vm.tableData = []

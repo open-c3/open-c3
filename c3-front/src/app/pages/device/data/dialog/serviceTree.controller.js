@@ -14,13 +14,14 @@
       }
     });
 
-  function ServiceTreeController ($uibModalInstance, $window, $state, $http, $scope, treeService, type, treeid, selectResDetail) {
+  function ServiceTreeController ($uibModalInstance, $window, $state, $http, $scope, $injector, treeService, type, treeid, selectResDetail) {
 
     var vm = this;
     vm.treeid = treeid;
     vm.type = type;
     vm.selectResDetail = selectResDetail;
-  
+    var toastr = toastr || $injector.get('toastr');
+
     treeService.sync.then(function () { 
       vm.nodeStr = treeService.selectname() || '';
     });
@@ -122,7 +123,7 @@
         closeOnConfirm: true
       }, function () {
         angular.forEach(vm.selectResDetail, function (item) {
-          const targetTree = vm.type === 'move'? `/${vm.nodeStr}/${vm.cloneNodeName}`: `/${vm.cloneNodeName}`
+          const targetTree = vm.type === 'move'? `/${vm.nodeStr.replace('ROOT.', '')}/${vm.cloneNodeName}`: `/${vm.cloneNodeName}`
           $http.post(`/api/agent/device/tree/${vm.type}/${item.type}/${item.subtype}/${item.uuid}${targetTree}`).success(function (data) {
             if (data.stat == true) {
               toastr.success("操作完成");
