@@ -7,7 +7,7 @@ edit_user: open-c3
 expr: node_ping_loss{treeid_c3montreeid!="",job="openc3"} $VAR{op} $VAR{right_value}
 for: '$VAR{for}'
 job: openc3
-method: '>'
+method: '$VAR{op}'
 metrics: node_ping_loss
 model: simple
 severity: level$VAR{priority}
