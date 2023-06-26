@@ -4,7 +4,7 @@ bindtreesql: sum(up{ job="openc3"}) by (instance) == 0
 description: Node节点 {{$labels.instance}} 已宕机
 edit_time: 2023-06-06 16:08:08
 edit_user: open-c3
-expr: sum(up{ job="openc3"}) by (instance) == 0 and  ( sum(treeinfo{eid="354"}) by(instance))
+expr: sum(up{ job="openc3"}) by (instance) == 0 and  ( sum(treeinfo{eid="c3montreeid"}) by(instance))
 for: '$VAR{for}'
 job: ''
 method: ''
