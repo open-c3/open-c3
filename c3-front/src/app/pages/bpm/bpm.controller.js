@@ -419,6 +419,7 @@
                           if( otherlinkkey !== mylinkkey && otherlinkkeyItem != undefined && mylinkkeyItem != undefined  && otherlinkkeyItem.value == mylinkkeyItem.value )
                           {
                                data.value = "";
+                               vm.optionx[data.name] = undefined
                           }
                       }
                  } 
@@ -454,6 +455,7 @@
                           if( match == 0 )
                           {
                               data.value = "";
+                              vm.optionx[data.name] = undefined
                           }
                       }
                  } 
