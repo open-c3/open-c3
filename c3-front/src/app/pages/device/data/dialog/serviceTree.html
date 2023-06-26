@@ -1,0 +1,22 @@
+<div class="row block">
+  <div class="select-service-tree">
+    <div class="select-service-tree-source">
+      <div class="select-service-tree-source-label">{{'C3T.所在节点'| translate }}：</div>
+      <div class="select-service-tree-source-text label label-primary ng-binding">{{serviceTree.nodeStr}}</div>
+    </div>
+    <div class="select-service-tree-target">
+      <div class="select-service-tree-source-label" ng-if="serviceTree.type === 'copy'">{{'C3T.复制到'| translate }}：</div>
+      <div class="select-service-tree-source-label" ng-if="serviceTree.type === 'move'">{{'C3T.移动到'| translate }}：</div>
+      <div class="select-service-tree-source-text label label-primary ng-binding">{{serviceTree.cloneNodeName}}</div>
+    </div>
+  </div>
+  <div class="panel-body prn" style="padding: 0">
+    <perfect-scrollbar class="scroller">
+      <ul class="ztree" id="openc3treecopy"></ul>
+    </perfect-scrollbar>
+  </div>
+  <div class="confirm-btn text-right">
+    <button class="btn btn-primary" ng-click="serviceTree.confirm()" ng-disabled="serviceTree.cloneNodeName === ''">{{'C3T.确定'| translate }}</button>
+    <button class="btn btn-warning" ng-click="serviceTree.cancel()">{{'C3T.关闭'| translate }}</button>
+  </div>
+</div>
