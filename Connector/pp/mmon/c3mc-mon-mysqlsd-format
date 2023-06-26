@@ -73,6 +73,20 @@ sub grepExclude
     {
         map{ return 1 if $treename eq $_ || index( $treename, "$_." ) == 0; }@exclude;
     }
+
+    # exclude文件中可以写服务树后缀，如 pool$ 或者 unmonitor$
+    for my $treename ( @_ )
+    {
+        map{
+            if( $_ =~ /^(.+)\$$/ )
+            {
+                my $tail = $1;
+                my $index = index( $treename, $tail );
+                return 1 if $index != -1 && $index == length( $treename ) - length( $tail );
+            }
+        }@exclude;
+    }
+ 
     return 0;
 }
 
