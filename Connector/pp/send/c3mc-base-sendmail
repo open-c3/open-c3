@@ -72,6 +72,8 @@ sub sendmail
     my $x = $db->query( sprintf "select `email` from openc3_connector_useraddr where user='$user'" );
     $user = $crypt->decode( $x->[0][0] ) if @$x;
 
+    return if $user eq 'x';
+
     my    $mailtype = `c3mc-sys-ctl sys.notify.mail.type`;
     chomp $mailtype;
 
