@@ -4,12 +4,15 @@
 import sys
 import json
 import subprocess
-import time
 
 from tencentcloud.common import credential
 from tencentcloud.common.profile.client_profile import ClientProfile
 from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.clb.v20180317 import clb_client, models
+
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import bpm_merge_user_input_tags
 
 
 class Clb:
@@ -75,9 +78,18 @@ def main(params):
         subprocess.getoutput(f"c3mc-get-account-info qcloud {account}")
     )
 
+    params = bpm_merge_user_input_tags(
+        instance_params=params,
+        product_owner_key_name="product_owner_tag",
+        owners_key_name="owners_tag",
+        ops_owner_key_name="ops_owner_tag",
+        department_key_name="department_tag",
+        product_key_name="product_tag",
+    )
+
     clb = Clb(key_info["access_id"],
               key_info["access_key"], region, params)
-
+    
     req = clb.get_request()
     print(f"创建clb, 请求参数为: {req}")
 
