@@ -14,6 +14,7 @@ from tencentcloud.cdb.v20170320 import cdb_client, models
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
 from c3mc_cloud_qcloud_cdb import QcloudCdb
+from c3mc_utils import bpm_merge_user_input_tags
 
 
 password_dir = "/data/open-c3-data/device/curr/auth"
@@ -102,8 +103,6 @@ class Mysql:
             "SecurityGroup": self.params["security_group_ids"].split(","),
             # 实例引擎类型
             "EngineType": self.params["engine_type"],
-            # 用于保证请求幂等性的字符串
-            "ClientToken": self.params["bpm_uuid"] + self.params["_step_uuid_"],
             # 参数模板
             "ParamTemplateId": int(self.params["param_template_id"]),
         }
@@ -185,6 +184,15 @@ class Mysql:
 
 
     def create(self):
+        self.params = bpm_merge_user_input_tags(
+            instance_params=self.params,
+            product_owner_key_name="product_owner_tag",
+            owners_key_name="owners_tag",
+            ops_owner_key_name="ops_owner_tag",
+            department_key_name="department_tag",
+            product_key_name="product_tag",
+        )
+
         req = self.get_request()
         print(f"创建cdb, 请求参数为: {req}")
 
@@ -196,16 +204,20 @@ class Mysql:
             print(f'VAR. extinstance_id:{self.params["account"]}.{self.params["region"]}.xxxxx')
             return 
 
-        try:
+        try: 
             if self.params["charge_type"] == "按量计费":
                 # 创建按量计费实例
                 resp = self.client.CreateDBInstanceHour(req)
             else:
                 # 创建包年包月实例
                 resp = self.client.CreateDBInstance(req)
+        except Exception as e:
+            print(f"创建cdb实例出错, err: {e}", file=sys.stderr)
+            exit(1)
 
-            print(f"创建cdb, 响应为: {resp.to_json_string()}")
+        print(f"创建cdb, 响应为: {resp.to_json_string()}")
 
+        try: 
             for instance_id in resp.InstanceIds:
                 print(f"LOG. instance_id:{instance_id}")
                 print(f"VAR. instance_id:{instance_id}")
@@ -214,9 +226,10 @@ class Mysql:
 
                 if self.params["if_need_open_wan"] == "是":
                     self.open_wan_service(instance_id)
-
         except Exception as e:
-            print(f"创建腾讯云cdb出错, err: {e}", file=sys.stderr)
+            # 如果出现任何异常，则立即删除所有已创建的cdb实例
+            self.lib_qcloud_cdb.delete_cdb_instance(resp.InstanceIds)
+            print(f"处理cdb实例出错, err: {e}", file=sys.stderr)
             exit(1)
 
 
