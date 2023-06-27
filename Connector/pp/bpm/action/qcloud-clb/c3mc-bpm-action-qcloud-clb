@@ -13,6 +13,7 @@ from tencentcloud.clb.v20180317 import clb_client, models
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
 from c3mc_utils import bpm_merge_user_input_tags
+from c3mc_cloud_qcloud_clb import QcloudClb
 
 
 class Clb:
@@ -22,6 +23,7 @@ class Clb:
         self.region = region
         self.params = params
         self.client = self.create_client()
+        self.lib_client = QcloudClb(access_id, access_key, region)
 
     def create_client(self):
         cred = credential.Credential(
@@ -89,7 +91,7 @@ def main(params):
 
     clb = Clb(key_info["access_id"],
               key_info["access_key"], region, params)
-    
+
     req = clb.get_request()
     print(f"创建clb, 请求参数为: {req}")
 
@@ -102,15 +104,21 @@ def main(params):
     else:
         try:
             resp = clb.create_clb(req)
-            print("创建clb, 响应为: {}".format(json.dumps(resp)))
+            print(f"创建clb, 响应为: {json.dumps(resp)}")
 
             clb_id = resp["LoadBalancerIds"][0]
 
-            print("LOG. clb_id:{}".format(clb_id))
-            print("VAR. clb_id:{}".format(clb_id))
-            print("VAR. extinstance_id:{}.{}.{}".format(
-                params["account"], params["region"], clb_id))
+            vip_list = clb.lib_client.get_vip_of_load_balancer(clb_id)
+            vip_str = ",".join(vip_list)
+
+            print(f"LOG. clb_id:{clb_id}")
+            print(f"LOG. clb_vip:{vip_str}")
+            print(f"VAR. clb_id:{clb_id}")
+            print(f'VAR. extinstance_id:{params["account"]}.{params["region"]}.{clb_id}')
         except Exception as e:
+            if clb_id:
+                # 如果出现出错，清理已经创建的clb资源
+                clb.lib_client.delete_load_balancer(load_balancer_id_list=[clb_id])
             print(f"创建腾讯云clb出错, err: {e}", file=sys.stderr)
             exit(1)
 

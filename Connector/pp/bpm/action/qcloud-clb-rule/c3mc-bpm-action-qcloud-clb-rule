@@ -11,6 +11,9 @@ from tencentcloud.common.profile.client_profile import ClientProfile
 from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.clb.v20180317 import clb_client, models
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_qcloud_clb import QcloudClb
+
 
 # 规则的请求转发方式
 rule_hash = {
@@ -32,6 +35,7 @@ class Rule:
         self.region = region
         self.params = params
         self.client = self.create_client()
+        self.lib_client = QcloudClb(access_id, access_key, region)
 
     def create_client(self):
         cred = credential.Credential(
@@ -124,6 +128,7 @@ def main(params):
 
     account = params["account"]
     region = params["region"]
+    clb_id = params["clb_id"]
 
     key_info = json.loads(
         subprocess.getoutput(f"c3mc-get-account-info qcloud {account}")
@@ -162,6 +167,7 @@ def main(params):
                     if "maybe some tasks are being processed" in str(e) or "Pls wait for the task to complete and try again" in str(e):
                         time.sleep(5)
                         continue
+                    rule.lib_client.delete_load_balancer(load_balancer_id_list=[clb_id])
                     print(f"创建clb转发规则出错, err: {e}", file=sys.stderr)
                     exit(1)
 
@@ -181,13 +187,14 @@ def main(params):
                 if "maybe some tasks are being processed" in str(e) or "wait for the task to complete" in str(e):
                     time.sleep(5)
                     continue
+                rule.lib_client.delete_load_balancer(load_balancer_id_list=[clb_id])
                 print(f"绑定后端机器到监听器, err: {e}", file=sys.stderr)
                 exit(1)
 
 
 if __name__ == '__main__':
     l = list(sys.stdin)
-    if len(l) == 0:
-        raise Exception("数据格式不对")
+    if not l:
+        raise RuntimeError("数据格式不对")
 
     main(json.loads(l[0].strip()))
