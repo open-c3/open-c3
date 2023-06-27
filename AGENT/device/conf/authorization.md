@@ -145,6 +145,7 @@
                 "rds:RemoveTagsFromResource",
                 "rds:DescribeDBInstances",
                 "rds:AddTagsToResource",
+                "rds:DescribeDBSnapshots",
                 "dynamodb:ListTables",
                 "dynamodb:TagResource",
                 "dynamodb:UntagResource",
