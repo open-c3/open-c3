@@ -14,15 +14,14 @@ from tencentcloud.clb.v20180317 import clb_client, models
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
 from c3mc_cloud_qcloud_clb import QcloudClb
 
-
-# 规则的请求转发方式
-rule_hash = {
+# 全局配置
+RULE_HASH = {
     "按权重轮询": "WRR",
     "最小连接数": "LEAST_CONN",
     "按IP哈希": "IP_HASH",
 }
 
-suppored_forward_type_list = [
+SUPPORTED_FORWARD_TYPE_LIST = [
     "HTTP",
     "HTTPS"
 ]
@@ -38,8 +37,7 @@ class Rule:
         self.lib_client = QcloudClb(access_id, access_key, region)
 
     def create_client(self):
-        cred = credential.Credential(
-            self.access_id, self.access_key)
+        cred = credential.Credential(self.access_id, self.access_key)
         httpProfile = HttpProfile()
         httpProfile.endpoint = "clb.tencentcloudapi.com"
 
@@ -47,15 +45,41 @@ class Rule:
         clientProfile.httpProfile = httpProfile
         return clb_client.ClbClient(cred, self.region, clientProfile)
 
-    def get_request_for_create_rule(self):
-        req = models.CreateRuleRequest()
+    def get_request(self, api_params, model):
+        req = model()
+        req.from_json_string(json.dumps(api_params))
+        return req
 
+    def execute_request(self, req, method):
+        while True:
+            try:
+                resp = getattr(self.client, method)(req)
+                return json.loads(resp.to_json_string())
+            except Exception as e:
+                if "maybe some tasks are being processed" in str(e) or "wait for the task to complete" in str(e):
+                    time.sleep(5)
+                    continue
+                self.lib_client.delete_load_balancer(load_balancer_id_list=[self.params["clb_id"]])
+                print(f"执行请求出错, err: {e}", file=sys.stderr)
+                exit(1)
+
+    def create_rule(self):
+        rule = self.construct_rule()
+        api_params = {
+            "LoadBalancerId": self.params["clb_id"],
+            "ListenerId": self.params["listener_id"],
+            "Rules": [rule],
+        }
+        req = self.get_request(api_params, models.CreateRuleRequest)
+        return self.execute_request(req, 'CreateRule')
+
+    def construct_rule(self):
         rule = {
             "Domain": self.params["domain"],
             "Url": self.params["url"],
-            "Scheduler": rule_hash[self.params["scheduler"]]
+            "Scheduler": RULE_HASH[self.params["scheduler"]]
         }
-        if self.params["forward_type"] in suppored_forward_type_list:
+        if self.params["forward_type"] in SUPPORTED_FORWARD_TYPE_LIST:
             rule["ForwardType"] = self.params["forward_type"]
 
         if self.params["enable_sni"] in ["是"]:
@@ -65,62 +89,53 @@ class Rule:
             }
 
         # 配置健康检查
-        if self.params["enable_health_check"] == "是":
-            if self.params["health_check_type"] == "TCP":
-                rule["HealthCheck"] = {
-                    "HealthSwitch": 1,
-                    "CheckType": self.params["health_check_type"]
-                }
-            if self.params["health_check_type"] in ["HTTP", "HTTPS"]:
-                rule["HealthCheck"] = {
-                    "HealthSwitch": 1,
-                    "HttpCode": sum(map(int, self.params["health_check_http_codes"].split(","))),
-                    "HttpCheckPath": self.params["http_check_path"],
-                    "HttpCheckDomain": self.params["http_check_domain"],
-                    "HttpCheckMethod": self.params["http_check_method"],
-                    "CheckType": self.params["health_check_type"]
-                }
-        else:
-            rule["HealthCheck"] = {
+        rule["HealthCheck"] = self.construct_health_check()
+
+        return rule
+
+    def construct_health_check(self):
+        if self.params["enable_health_check"] != "是":
+            return {
                 "HealthSwitch": 0,
             }
+        if self.params["health_check_type"] == "TCP":
+            return {
+                "HealthSwitch": 1,
+                "CheckType": self.params["health_check_type"]
+            }
+        if self.params["health_check_type"] in ["HTTP", "HTTPS"]:
+            return {
+                "HealthSwitch": 1,
+                "HttpCode": sum(map(int, self.params["health_check_http_codes"].split(","))),
+                "HttpCheckPath": self.params["http_check_path"],
+                "HttpCheckDomain": self.params["http_check_domain"],
+                "HttpCheckMethod": self.params["http_check_method"],
+                "CheckType": self.params["health_check_type"]
+            }
 
+    def register_targets(self, location_id):
         api_params = {
             "LoadBalancerId": self.params["clb_id"],
             "ListenerId": self.params["listener_id"],
-            "Rules": [rule],
-        }
-
-        req.from_json_string(json.dumps(api_params))
-        return req
-
-    def create_rule(self, req):
-        resp = self.client.CreateRule(req)
-        return json.loads(resp.to_json_string())
-
-    def get_request_for_register_target(self, location_id):
-        req = models.RegisterTargetsRequest()
-
-        api_params = {
-            "LoadBalancerId": self.params["clb_id"],
-            "ListenerId": self.params["listener_id"],
-            "Targets": []
+            "Targets": self.construct_targets()
         }
         if location_id is not None:
             api_params["LocationId"] = location_id
-        for instance_id in self.params["instance_ids"].split(","):
-            api_params["Targets"].append({
+        
+        print(f"api_params = {api_params}")
+
+        req = self.get_request(api_params, models.RegisterTargetsRequest)
+        return self.execute_request(req, 'RegisterTargets')
+
+    def construct_targets(self):
+        return [
+            {
                 "Type": "CVM",
                 "InstanceId": instance_id,
                 "Port": int(self.params["port"]),
-            })
-
-        req.from_json_string(json.dumps(api_params))
-        return req
-
-    def register_targets(self, req):
-        resp = self.client.RegisterTargets(req)
-        return json.loads(resp.to_json_string())
+            }
+            for instance_id in self.params["instance_ids"].split(",")
+        ]
 
 
 def main(params):
@@ -138,58 +153,19 @@ def main(params):
                 key_info["access_key"], region, params)
 
     # 监听器使用的协议
-    # udp和tcp协议时，不需要创建转发规则
     listener_protocol = params["protocol"]
 
     location_id = None
-
     if listener_protocol in ["HTTP", "HTTPS"]:
-        req_for_create_rule = rule.get_request_for_create_rule()
-        print(f"创建clb转发规则, 请求参数为: {req_for_create_rule}")
-        if subprocess.getoutput("c3mc-sys-ctl sys.bpm.fake.run") == "1":
-            # bpm虚假运行
-            print("创建clb转发规则, 响应为: xxxxxx")
-            print("LOG. location_id:xxxxxx")
-            print("VAR. location_id:xxxxxx")
-        else:
-            while True:
-                try:
-                    resp = rule.create_rule(req_for_create_rule)
-                    print(f"创建clb转发规则, 响应为: {json.dumps(resp)}")
+        resp = rule.create_rule()
+        print(f"创建clb转发规则, 响应为: {json.dumps(resp)}")
 
-                    location_id = resp["LocationIds"][0]
+        location_id = resp["LocationIds"][0]
+        print(f"LOG. location_id:{location_id}")
+        print(f"VAR. location_id:{location_id}")
 
-                    print(f"LOG. location_id:{location_id}")
-                    print(f"VAR. location_id:{location_id}")
-
-                    break
-                except Exception as e:
-                    if "maybe some tasks are being processed" in str(e) or "Pls wait for the task to complete and try again" in str(e):
-                        time.sleep(5)
-                        continue
-                    rule.lib_client.delete_load_balancer(load_balancer_id_list=[clb_id])
-                    print(f"创建clb转发规则出错, err: {e}", file=sys.stderr)
-                    exit(1)
-
-    req_for_register_target = rule.get_request_for_register_target(location_id)
-    print(f"绑定后端机器到监听器, 请求参数为: {req_for_register_target}")
-    if subprocess.getoutput("c3mc-sys-ctl sys.bpm.fake.run") == "1":
-        # bpm虚假运行
-        print("绑定后端机器到监听器, 响应为: xxxxxx")
-    else:
-        while True:
-            try:
-                resp = rule.register_targets(req_for_register_target)
-                print(f"绑定后端机器到监听器, 响应为: {json.dumps(resp)}")
-
-                break
-            except Exception as e:
-                if "maybe some tasks are being processed" in str(e) or "wait for the task to complete" in str(e):
-                    time.sleep(5)
-                    continue
-                rule.lib_client.delete_load_balancer(load_balancer_id_list=[clb_id])
-                print(f"绑定后端机器到监听器, err: {e}", file=sys.stderr)
-                exit(1)
+    resp = rule.register_targets(location_id)
+    print(f"绑定后端机器到监听器, 响应为: {json.dumps(resp)}")
 
 
 if __name__ == '__main__':

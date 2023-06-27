@@ -10,10 +10,10 @@ from tencentcloud.common.profile.client_profile import ClientProfile
 from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.clb.v20180317 import clb_client, models
 
-
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
 from c3mc_utils import bpm_merge_user_input_tags
 from c3mc_cloud_qcloud_clb import QcloudClb
+from c3mc_cloud_qcloud_cvm import QcloudCvm
 
 
 class Clb:
@@ -24,28 +24,21 @@ class Clb:
         self.params = params
         self.client = self.create_client()
         self.lib_client = QcloudClb(access_id, access_key, region)
+        self.lib_cvm_client = QcloudCvm(access_id, access_key, region)
 
     def create_client(self):
-        cred = credential.Credential(
-            self.access_id, self.access_key)
+        cred = credential.Credential(self.access_id, self.access_key)
         httpProfile = HttpProfile()
         httpProfile.endpoint = "clb.tencentcloudapi.com"
-
         clientProfile = ClientProfile()
         clientProfile.httpProfile = httpProfile
         return clb_client.ClbClient(cred, self.region, clientProfile)
 
-    def get_request(self):
-        req = models.CreateLoadBalancerRequest()
+    def get_cvm_info(self):
+        return self.lib_cvm_client.show_cvm(self.params["instance_ids"].split(",")[0])
 
-        cmd_parts = ["c3mc-cloud-qcloud-get-cvm", self.params["account"],
-                     self.params["instance_ids"].split(",")[0], self.region]
-        output = subprocess.run(cmd_parts, capture_output=True, text=True)
-        if output.returncode != 0:
-            print(output.stderr, file=sys.stderr)
-            exit(1)
-        cvmInfo = json.loads(output.stdout)
-
+    def create_clb(self):
+        cvmInfo = self.get_cvm_info()
         network_type = "INTERNAL" if self.params["network_type"] == "内网" else "OPEN"
         api_params = {
             "LoadBalancerType": network_type,
@@ -57,29 +50,24 @@ class Clb:
         }
         if network_type == "INTERNAL":
             api_params["SubnetId"] = cvmInfo["VirtualPrivateCloud"]["SubnetId"]
-        if "tag" in self.params:
-            tag_list = json.loads(self.params["tag"])
-            if len(tag_list) > 0:
-                api_params["Tags"] = [
-                    {"TagKey": tag['key'], "TagValue": tag['value']}
-                    for tag in tag_list
-                ]
+        if "tag" in self.params and len(json.loads(self.params["tag"])) > 0:
+            api_params["Tags"] = [{"TagKey": tag['key'], "TagValue": tag['value']} for tag in json.loads(self.params["tag"])]
+
+        req = models.CreateLoadBalancerRequest()
         req.from_json_string(json.dumps(api_params))
-        return req
 
-    def create_clb(self, req):
+        print(f"创建clb, 接口请求参数为: {json.dumps(api_params)}")
+
         resp = self.client.CreateLoadBalancer(req)
-        return json.loads(resp.to_json_string())
 
+        print(f"创建clb, 响应为: {resp.to_json_string()}")
+
+        return json.loads(resp.to_json_string())
 
 def main(params):
     account = params["account"]
     region = params["region"]
-
-    key_info = json.loads(
-        subprocess.getoutput(f"c3mc-get-account-info qcloud {account}")
-    )
-
+    key_info = json.loads(subprocess.getoutput(f"c3mc-get-account-info qcloud {account}"))
     params = bpm_merge_user_input_tags(
         instance_params=params,
         product_owner_key_name="product_owner_tag",
@@ -88,26 +76,18 @@ def main(params):
         department_key_name="department_tag",
         product_key_name="product_tag",
     )
+    print(f"创建clb, 工单请求参数为: {json.dumps(params)}")
 
-    clb = Clb(key_info["access_id"],
-              key_info["access_key"], region, params)
-
-    req = clb.get_request()
-    print(f"创建clb, 请求参数为: {req}")
-
+    clb = Clb(key_info["access_id"], key_info["access_key"], region, params)
     if subprocess.getoutput("c3mc-sys-ctl sys.bpm.fake.run") == "1":
-        # bpm虚假运行
         print("创建clb, 响应为: xxxxxx")
         print("LOG. clb_id:xxxxxx")
         print("VAR. clb_id:xxxxxx")
         print("VAR. extinstance_id:xx.cc.vv")
     else:
         try:
-            resp = clb.create_clb(req)
-            print(f"创建clb, 响应为: {json.dumps(resp)}")
-
+            resp = clb.create_clb()
             clb_id = resp["LoadBalancerIds"][0]
-
             vip_list = clb.lib_client.get_vip_of_load_balancer(clb_id)
             vip_str = ",".join(vip_list)
 
@@ -116,16 +96,13 @@ def main(params):
             print(f"VAR. clb_id:{clb_id}")
             print(f'VAR. extinstance_id:{params["account"]}.{params["region"]}.{clb_id}')
         except Exception as e:
-            if clb_id:
-                # 如果出现出错，清理已经创建的clb资源
+            if 'clb_id' in locals():
                 clb.lib_client.delete_load_balancer(load_balancer_id_list=[clb_id])
             print(f"创建腾讯云clb出错, err: {e}", file=sys.stderr)
             exit(1)
-
 
 if __name__ == '__main__':
     l = list(sys.stdin)
     if not l or len(l) > 1:
         raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
-
     main(json.loads(l[0]))
