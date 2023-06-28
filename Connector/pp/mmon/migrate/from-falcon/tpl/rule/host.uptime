@@ -1,16 +1,16 @@
 ---
 alert: 基础监控 服务器重启了
-bindtreesql: ''
-description: 服务器在$VAR{right_value}秒内被重启过
-edit_time: 2023-04-13 15:00:31
+bindtreesql: sum(node_system_uptime{ job="openc3"}) by (instance) < 300
+description: 服务器在300秒内被重启过
+edit_time: 2023-06-06 16:08:08
 edit_user: open-c3
-expr: node_system_uptime{treeid_c3montreeid!="",job="openc3"} < $VAR{right_value}
+expr: sum(node_system_uptime{ job="openc3"}) by (instance) < 300 and  ( sum(treeinfo{eid="c3montreeid"}) by(instance))
 for: '$VAR{for}'
-job: openc3
-method: <
-metrics: node_system_uptime
-model: simple
+job: ''
+method: ''
+metrics: ''
+model: bindetree
 severity: level$VAR{priority}
 summary: 主机重启
-threshold: '$VAR{right_value}'
+threshold: ''
 value: '{{ $value }}'
