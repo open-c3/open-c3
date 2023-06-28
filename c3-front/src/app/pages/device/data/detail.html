@@ -170,7 +170,7 @@
                                   <option ng-repeat="t in devicedatadetail.extcol[item[0]].select" value="{{t}}">{{t}}</option>
                               </select>
                           </div>
-                          <a ng-show="devicedatadetail.selectedtimemachine =='curr'" class="btn btn-system" ng-click="devicedatadetail.saveextcol( item[0], item[1])">保存</a>
+                          <a ng-show="devicedatadetail.selectedtimemachine =='curr' && ! devicedatadetail.extcol[item[0]].readonly" class="btn btn-system" ng-click="devicedatadetail.saveextcol( item[0], item[1])">保存</a>
                         </div>
 
                         <div ng-if="'_mysqlauth_'==item[0]">
