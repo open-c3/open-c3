@@ -3,6 +3,7 @@
 
 import json
 import time
+import sys
 
 from tencentcloud.common import credential
 from tencentcloud.common.profile.client_profile import ClientProfile
@@ -26,6 +27,45 @@ class QcloudClb:
         clientProfile = ClientProfile()
         clientProfile.httpProfile = httpProfile
         return clb_client.ClbClient(cred, self.region, clientProfile)
+    
+    def describe_load_balancers(self, load_balancer_id_list=None):
+        """查询负载均衡器列表列表
+        如果指定了负载均衡器id列表, 则专门查询列表中负载均衡器的详情。否则查询所有实例
+        """
+        result = []
+        req = models.DescribeLoadBalancersRequest()
+        for i in range(sys.maxsize):
+            params = {
+                "Offset": i * 100,
+                "Limit": 100
+            }
+            if load_balancer_id_list:
+                params["LoadBalancerIds"] = load_balancer_id_list
+
+            req.from_json_string(json.dumps(params))
+
+            resp = self.client.DescribeLoadBalancers(req)
+
+            instance_list = json.loads(resp.to_json_string())["LoadBalancerSet"]
+
+            if len(instance_list) == 0:
+                break
+            result.extend(instance_list)
+        return result
+    
+    def get_vip_of_load_balancer(self, load_balancer_id, timeout=600):
+        """
+        获取指定负载均衡器的vip列表
+        """
+        start_time = time.time()
+        while True:
+            clb_info = self.describe_load_balancers([load_balancer_id])[0]
+            if clb_info["LoadBalancerVips"]:
+                return clb_info["LoadBalancerVips"]
+            elif time.time() - start_time > timeout:
+                raise RuntimeError(f"等待 {timeout} 秒后依然无法获取 vip 列表")
+            else:
+                time.sleep(5)
 
     def delete_load_balancer(self, load_balancer_id_list):
         """使用腾讯云接口回收一个或多个负载均衡器实例

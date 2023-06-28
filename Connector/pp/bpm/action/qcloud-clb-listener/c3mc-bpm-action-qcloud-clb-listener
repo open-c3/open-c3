@@ -11,6 +11,8 @@ from tencentcloud.common.profile.client_profile import ClientProfile
 from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.clb.v20180317 import clb_client, models
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_qcloud_clb import QcloudClb
 
 class Listener:
     def __init__(self, access_id, access_key, region, params):
@@ -19,16 +21,31 @@ class Listener:
         self.region = region
         self.params = params
         self.client = self.create_client()
+        self.lib_client = QcloudClb(access_id, access_key, region)
 
     def create_client(self):
-        cred = credential.Credential(
-            self.access_id, self.access_key)
+        cred = credential.Credential(self.access_id, self.access_key)
         httpProfile = HttpProfile()
         httpProfile.endpoint = "clb.tencentcloudapi.com"
-
         clientProfile = ClientProfile()
         clientProfile.httpProfile = httpProfile
         return clb_client.ClbClient(cred, self.region, clientProfile)
+
+    def get_health_check(self):
+        health_switch = 1 if self.params["enable_health_check"] == "是" else 0
+        health_check = {"HealthSwitch": health_switch}
+        if health_switch:
+            health_check["CheckType"] = self.params["health_check_type"]
+            if self.params["health_check_type"] == "HTTP":
+                health_check |= {
+                    "HttpCode": sum(
+                        map(int, self.params["health_check_http_codes"].split(","))
+                    ),
+                    "HttpCheckPath": self.params["http_check_path"],
+                    "HttpCheckDomain": self.params["http_check_domain"],
+                    "HttpCheckMethod": self.params["http_check_method"],
+                }
+        return health_check
 
     def get_request(self):
         req = models.CreateListenerRequest()
@@ -50,27 +67,9 @@ class Listener:
                 "按权重轮询": "WRR",
                 "最小连接数": "LEAST_CONN"
             }[self.params["balancer_type"]]
+        api_params["HealthCheck"] = self.get_health_check()
 
-        # 配置健康检查
-        if self.params["protocol"] in ["UDP", "TCP", "TCP_SSL", "QUIC"]:
-            if self.params["enable_health_check"] == "是":
-                if self.params["health_check_type"] == "TCP":
-                    api_params["HealthCheck"] = {
-                        "HealthSwitch": 1,
-                    }
-                if self.params["health_check_type"] == "HTTP":
-                    api_params["HealthCheck"] = {
-                        "HealthSwitch": 1,
-                        "HttpCode": sum(map(int, self.params["health_check_http_codes"].split(","))),
-                        "HttpCheckPath": self.params["http_check_path"],
-                        "HttpCheckDomain": self.params["http_check_domain"],
-                        "HttpCheckMethod": self.params["http_check_method"],
-                        "CheckType": self.params["health_check_type"]
-                    }
-            else:
-                api_params["HealthCheck"] = {
-                    "HealthSwitch": 0,
-                }
+        print(f"api_params = {json.dumps(api_params)}")
 
         req.from_json_string(json.dumps(api_params))
         return req
@@ -79,20 +78,15 @@ class Listener:
         resp = self.client.CreateListener(req)
         return json.loads(resp.to_json_string())
 
-
 def main(params):
     print("输入的参数为: ", json.dumps(params))
 
     account = params["account"]
     region = params["region"]
+    clb_id = params["clb_id"]
+    key_info = json.loads(subprocess.getoutput(f"c3mc-get-account-info qcloud {account}"))
 
-    key_info = json.loads(
-        subprocess.getoutput(f"c3mc-get-account-info qcloud {account}")
-    )
-
-    listener = Listener(key_info["access_id"],
-                        key_info["access_key"], region, params)
-
+    listener = Listener(key_info["access_id"], key_info["access_key"], region, params)
     req = listener.get_request()
     print(f"创建listener, 请求参数为: {req}")
 
@@ -108,21 +102,18 @@ def main(params):
             try:
                 resp = listener.create_listener(req)
                 print(f"创建listener, 响应为: {json.dumps(resp)}")
-
                 listener_id = resp["ListenerIds"][0]
-
-                print(f'LOG. listener_id_{params["listener_name"]}:{listener_id}')
-                print(f'LOG. protocol_{params["listener_name"]}:{params["protocol"]}')
-                print(f'VAR. listener_id_{params["listener_name"]}:{listener_id}')
-                print(f'VAR. protocol_{params["listener_name"]}:{params["protocol"]}')
-
+                listener_name = params["listener_name"]
+                print(f'LOG. listener_id_{listener_name}:{listener_id}')
+                print(f'LOG. protocol_{listener_name}:{params["protocol"]}')
+                print(f'VAR. listener_id_{listener_name}:{listener_id}')
+                print(f'VAR. protocol_{listener_name}:{params["protocol"]}')
                 break
             except Exception as e:
-                if "Loadbalancer is not in normal status" in str(e) or \
-                    "maybe some tasks are being processed" in str(e) or \
-                    "wait for the task to complete and try again" in str(e):
+                if any(word in str(e) for word in ["Loadbalancer is not in normal status", "maybe some tasks are being processed", "wait for the task to complete and try again"]):
                     time.sleep(5)
                     continue
+                listener.lib_client.delete_load_balancer(load_balancer_id_list=[clb_id])
                 print(f"创建腾讯云监听器出错, err: {e}", file=sys.stderr)
                 exit(1)
 
@@ -131,5 +122,4 @@ if __name__ == '__main__':
     l = list(sys.stdin)
     if not l or len(l) > 1:
         raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
-
     main(json.loads(l[0].strip()))
