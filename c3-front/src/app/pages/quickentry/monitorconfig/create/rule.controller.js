@@ -4,10 +4,18 @@
         .module('openc3')
         .controller('CreateMonitorConfigRuleController', CreateMonitorConfigRuleController);
 
-    function CreateMonitorConfigRuleController( $state, $http, ngTableParams, $uibModalInstance, $scope, resoureceService, treeid, reload, postData, title) {
+    function CreateMonitorConfigRuleController($http, $uibModal, $uibModalInstance, $scope, treeService, treeid, reload, postData, title) {
 
         var vm = this;
         vm.title = title
+        vm.treeid = treeid;
+        vm.nodeStr = '';
+        vm.monitorOperate = title.includes('克隆');
+        $scope.cloneNodeData = {cloneNodeId: null, cloneNodeName: ''}
+        treeService.sync.then(function () { 
+          vm.nodeStr = treeService.selectname() || '';
+        });
+
         vm.postData = { 'severity': 'level2', 'model': 'bindtree' }
         if( postData.id )
         {
@@ -36,8 +44,35 @@
 
         vm.cancel = function(){ $uibModalInstance.dismiss()};
 
+        vm.handleSelectTree = function () {
+          const selectTreeModal = $uibModal.open({
+            templateUrl: 'app/pages/quickentry/monitorconfig/create/servicetree.html',
+            controller: 'SelectServiceTreeController',
+            controllerAs: 'selectServicetree',
+            backdrop: 'static',
+            size: 'md',
+            keyboard: false,
+            bindToController: true,
+            resolve: {
+              treeid: function () { return vm.treeid },
+              cloneNodeData: function () {
+                return {
+                  cloneNodeId: $scope.cloneNodeData.cloneNodeId,
+                  cloneNodeName: $scope.cloneNodeData.cloneNodeName
+                }
+              }
+            }
+          });
+    
+          selectTreeModal.result.then(function (cloneNodeData) {
+            $scope.cloneNodeData = cloneNodeData;
+          });
+        };
+
         vm.add = function(){
-            $http.post('/api/agent/monitor/config/rule/' + treeid , vm.postData ).success(function(data){
+          const targetTreeId = $scope.cloneNodeData.cloneNodeId ? $scope.cloneNodeData.cloneNodeId : treeid
+          if (vm.monitorOperate) delete vm.postData.id
+            $http.post(`/api/agent/monitor/config/rule/${targetTreeId}`,  vm.postData ).success(function(data){
                 if(data.stat == true) {
                     vm.cancel();
                     reload();
