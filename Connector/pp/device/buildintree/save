@@ -1,0 +1,69 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/AGENT/lib
+use strict;
+use warnings;
+use uuid;
+use POSIX;
+use OPENC3::Tree;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDB;
+
+=head1 SYNOPSIS
+
+ $0 data1 data2 ... datan
+
+=cut
+
+my $db = MYDB->new( "/data/Software/mydan/AGENT/conf/conn", delayedconnection => 1 );
+
+my @x = `c3mc-base-db-get -t openc3_device_extcol type subtype uuid data -f "name='_buildintree_'"`;
+chomp @x;
+my %x;
+map{ $x{$_} = 1 }@x;
+
+sub checktree
+{
+    for my $tree ( split /,/, shift @_ )
+    {
+        die "tree format error: [$tree]" unless $tree =~ /^[a-zA-Z][a-zA-Z0-9\.\-_]*[a-zA-Z0-9]$/ && $tree !~ /\.\./;
+    }
+}
+
+sub save
+{
+    my $row = shift @_;
+    return if $x{$row};
+
+    my ( $type, $subtype, $uuid, $tree ) = split /;/, $row, 4;
+    return unless $tree;
+
+    die "uuid err[$uuid]" unless $uuid && $uuid =~ /^[a-zA-Z0-9][a-zA-Z0-9\.\-_:]*[a-zA-Z0-9]$/;
+    checktree( $tree );
+    $tree = OPENC3::Tree::compress( $tree );
+
+    eval{ $db->execute( "replace into openc3_device_extcol (`type`,`subtype`,`uuid`,`name`,`data`) value('$type','$subtype','$uuid','_buildintree_','$tree')" ); };
+    die "update fail:$@"  if $@;
+
+    $x{$row} ++;
+}
+
+if( @ARGV )
+{
+    map{
+        eval{ save( $_ ); };
+        warn "err $@" if $@;
+    }@ARGV;
+}
+else
+{
+    while(<STDIN>){
+        chomp;
+        eval{ save($_); };
+        warn "err $@" if $@;
+    }
+}

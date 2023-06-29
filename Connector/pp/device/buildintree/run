@@ -1,0 +1,22 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use FindBin qw( $RealBin );
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+chdir $RealBin or die "chdir fail";
+
+for my $v ( qw( v1 v2 ) )
+{
+    my $file = "/data/open-c3-data/buildintree/$v.yml";
+    next unless $file;
+    system "./$v | ./save";
+}

@@ -4,15 +4,16 @@
 
 ```
 cat /data/open-c3/AGENT/device/conf/config.copytreecol
-sync-huawei-dds: [ 'tag.tree', '_tree_' ]
-default: [ 'tag.tree', '_tree_' ]
-default-volume: [ 'tag.tree', '_vmtree_', '_tree_' ]
+sync-huawei-dds: [ 'tag.tree', '_tree_', '_buildintree_' ]
+default: [ 'tag.tree', '_tree_', '_buildintree_' ]
+default-volume: [ 'tag.tree', '_vmtree_', '_tree_', '_buildintree_' ]
 
 可以通过上述文件配置默认的服务树来源字段，该文件由c3代码进行维护。
 如果想自己定义请写到路径/data/open-c3/AGENT/device/conf/config.copytreecol.private
 
 默认情况下，服务树的来源为云上资源的tag（tag.tree）和 内部服务树(_tree_)
 磁盘资源服务树来源 云上tag(tag.tree) + 磁盘主机的服务树信息(_vmtree_) + 内部服务树(_tree_)
+内置服务树 _buildintree_ ,在系统内可能有其他组件会对资源挂树进行自动调整，这部分为内置服务树。
 
 ```
 

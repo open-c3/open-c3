@@ -1,6 +1,5 @@
 ---
 name: 创建腾讯云应用型clb
-fromops: 1
 option:
   - name: account
     describe: 云账号
@@ -35,6 +34,34 @@ option:
     type: selectx
     value: ""
 
+# 标签相关 ------------------------------------------------------------
+  - name: product_owner_tag
+    describe: 业务负责人标签
+    type: input
+    value_type: "email"
+
+  - name: owners_tag
+    describe: 研发负责人标签
+    type: input
+    # value_type: "email"
+    information: "可以填一个或多个账户, 多个账户使用空格连接, 使用其他特殊字符可能会导致接口出错"
+
+  - name: ops_owner_tag
+    describe: 运维负责人标签
+    type: input
+    value_type: "email"
+    fromops: 1
+
+  - name: department_tag
+    describe: 部门标签
+    type: selectx
+    command: c3mc-bpm-get-department-tag-list
+
+  - name: product_tag
+    describe: 产品标签
+    type: selectx
+    command: c3mc-bpm-get-product-tag-list
+
   - name: tag
     describe: 标签
     # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
@@ -55,6 +82,13 @@ template_argv:
   # 标签
   # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
   tag: ${tag}
+  # 用户配置命名标签。最终会合并到上面的tag中
+  product_owner_tag: ${product_owner_tag}
+  owners_tag: ${owners_tag}
+  ops_owner_tag: ${ops_owner_tag}
+  department_tag: ${department_tag}
+  product_tag: ${product_tag}
+
   # 创建转发规则时绑定的机器
   # 之所以要这样做是因为要在机器所在vpc创建clb
   instance_ids: ${x.instance_ids}

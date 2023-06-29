@@ -31,6 +31,7 @@ for my $xx ( @data )
     $xx->{projectid} = $o{treeid};
     $xx->{expr} =~ s/treeid_c3montreeid!/treeid_$o{treeid}!/g;
     $xx->{expr} =~ s/treeinfo\{tid="c3montreeid"\}/treeinfo{tid="$o{treeid}"}/g;
+    $xx->{expr} =~ s/treeinfo\{eid="c3montreeid"\}/treeinfo{eid="$o{treeid}"}/g;
 
     $xx->{edit_user} = $o{user} if $o{user};
 

@@ -530,6 +530,9 @@
                         if(itemKeysResults.map(item => item.match).filter(cItem => cItem === true ).length > 0) {
                             vm.selectxhide[data.name] = '0';
                             data.value = "";
+                            if (data.rawvalue) {
+                              data.value = data.rawvalue
+                            }
                         } else {
                             vm.selectxhide[data.name] = '1';
                             data.value = "_openc3_hide_";

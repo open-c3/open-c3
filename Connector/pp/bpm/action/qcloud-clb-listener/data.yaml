@@ -1,7 +1,6 @@
 ---
 name: 创建腾讯云应用型clb监听器
 multi: 1
-fromops: 1
 option:
   - name: listener_name
     describe: 监听器名称
@@ -18,6 +17,7 @@ option:
     option: ["是", "否"]
     type: select
     value: ""
+    fromops: 1
     show: 
       - protocol: ["HTTPS"]
 
@@ -28,6 +28,7 @@ option:
     command: c3mc-qcloud-clb-describe-cert-list | c3mc-bpm-display-field-values "{CertificateId}; 域名:{Domain}, 证书id:{CertificateId}"
     type: selectx
     value: ""
+    fromops: 1
     show: 
       - protocol: ["HTTPS"]
         enable_sni: ["否"]

@@ -1,0 +1,38 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $file = '/data/open-c3-data/buildintree/v1.yml';
+
+# file content demo
+# ===========================
+# database:
+#   huawei-rds: open-c3.database.mysql.huawei-rds
+
+
+exit unless -f $file;
+
+my $config = YAML::XS::LoadFile $file;
+
+sub run
+{
+    my ( $type, $subtype, $tree ) = @_;
+    my @x  = `c3mc-device-data-get curr '$type' '$subtype' uuid`;
+    chomp @x;
+    map{ print "$type;$subtype;$_;$tree\n"; }@x;
+}
+
+for my $type ( keys %$config )
+{
+    map{ run( $type, $_, $config->{$type}{$_} ); }keys %{$config->{$type}};
+}

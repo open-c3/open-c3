@@ -1,7 +1,6 @@
 ---
 name: 创建腾讯云应用型clb转发规则
 multi: 1
-fromops: 1
 option:
   - name: listener_name
     describe: 监听器名字
@@ -17,12 +16,13 @@ option:
     value: ""
 
   - name: enable_sni
-    describe: 是否启用了SNI
+    describe: 是否启用SNI
     rely:
       - listener_name
     command: ["point", "listener_name", "enable_sni"]
     type: selectx
     value: ""
+    fromops: 1
     show: ["protocol", "HTTPS"]
 
   - name: instance_ids
@@ -66,6 +66,7 @@ option:
     command: c3mc-qcloud-clb-describe-cert-list | c3mc-bpm-display-field-values "{CertificateId}; 域名:{Domain}, 证书id:{CertificateId}"
     type: selectx
     value: ""
+    fromops: 1
     show:
       - protocol: ["HTTP", "HTTPS"]
         enable_sni: ["是"]
@@ -78,7 +79,7 @@ option:
     describe: 是否开启健康检查
     option: ["是", "否"]
     type: select
-    value: ""
+    value: "是"
     show:
       - protocol: ["HTTP", "HTTPS"]
 
