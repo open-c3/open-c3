@@ -1,0 +1,126 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use YAML::XS;
+use Data::Dumper;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $file = '/data/open-c3-data/buildintree/v2.yml';
+
+# file content demo
+# ===========================
+# database:
+#   huawei-rds:
+#    - tree: open-c3.database.mysql.huawei-rds1
+#      match:
+#       - [ 'account', '/./' ]
+#       - [ 'private_ips.0', '/10.213.1/' ]
+# 
+#    - tree: open-c3.database.mysql.huawei-rds2
+#      match:
+#       - [ 'account', '/./', '/./' ]
+#       - [ 'private_ips.0', '^10' ]
+# 
+#    - tree: open-c3.database.mysql.huawei-rds3
+#      match:
+#       - [ 'account', '/./' ]
+#       - [ 'private_ips.0', '/10/' ]
+#    - tree: open-c3.database.mysql.huawei-rds4
+
+exit unless -f $file;
+
+my $config = YAML::XS::LoadFile $file;
+
+my %res;
+
+sub match
+{
+    my ( $data, $regex ) = @_;
+
+    return 0 unless defined $data && length $data > 0;
+
+    if( $regex =~ /^\/(.+)\/$/ )
+    {
+        my $reg = $1;
+        return $data =~ /$reg/ ? 1 : 0;
+    }
+    elsif( $regex =~ /^\^(.+)$/ )
+    {
+        my $head = $1;
+        return index( $data, $head ) == 0 ? 1 : 0;
+    }
+    else
+    {
+        return $data eq $regex ? 1 : 0;
+    }
+   
+    return 0;
+}
+
+
+sub checkonce
+{
+    my ( $data, $regex ) = @_;
+    my    @check = @$regex;
+    shift @check;
+
+    for my $check ( @check )
+    {
+        return 1 if match( $data, $check );
+    }
+
+    return 0;
+}
+
+sub check
+{
+    my ( $data, $regex ) = @_;
+    for my $id ( 0 .. @$regex -1 )
+    {
+        return 0 unless checkonce( $data->[$id], $regex->[$id] );
+    }
+    return 1;
+}
+
+sub run
+{
+    my ( $type, $subtype, $conf ) = @_;
+    my ( $tree, $match ) = @$conf{qw( tree match )};
+
+    my @col = map{ $_->[0] }@$match;
+    my @x = `c3mc-device-data-get curr '$type' '$subtype' uuid @col`;
+    chomp @x;
+
+    for ( @x )
+    {
+        my @xx   = split /\t/, $_;
+        my $uuid = shift @xx;
+        
+        next unless check( \@xx, $match );
+
+        my $key = join ';', $type, $subtype, $uuid;
+
+        $res{$key} = $tree unless $res{$key};
+    }
+}
+
+for my $type ( keys %$config )
+{
+    for my $subtype ( keys %{$config->{$type}} )
+    {
+        for my $conf ( @{$config->{$type}{$subtype}} )
+        {
+            run( $type, $subtype, $conf );
+        }
+    }
+}
+
+map{ print "$_;$res{$_}\n"; }keys %res;
