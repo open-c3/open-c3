@@ -23,7 +23,7 @@ database:
       - [ 'account', '/./', '/./' ]
       - [ 'private_ips.0', '^10' ]
 
-   - tree: open-c3.database.mysql.huawei-rds3
+   - tree: x
      match:
       - [ 'account', '/./' ]
       - [ 'private_ips.0', '/10/' ]
@@ -39,4 +39,6 @@ database:
        1. 正则： 写法 /xxx/, 在斜杠中间的部分是正则。 比如可以写 '/^1\.1\.1/' 或者 /\d+/
        2. 匹配开头: 写法 ^xxx , 以^开头的字符串表示匹配开头， 如 ^abc.d 表示匹配 abc.d开头的字符串。
        3. 相等， 除了上面两种情况就是完全匹配  如 [ 'account', 'foo', 'bar' ] 是比较 account 是不是等于foo或者bar。
+
+   服务树为“x”的时候表示忽略。比如 如果想某个网段的资源不想自动绑定服务树，可以让它匹配上名为 “x” 的服务树。
 ```
