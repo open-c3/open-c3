@@ -51,10 +51,42 @@ sub todb
     }
 }
 
+my $ctrlfile  = "$RealBin/control.conf";
+my $ctrlconf;
+
+if( -f $ctrlfile )
+{
+    $ctrlconf = eval{ YAML::XS::LoadFile $ctrlfile };
+    die "load $ctrlfile fail: $@" if $@;
+
+    die "$ctrlfile error" unless $ctrlconf && ref $ctrlconf && ( $ctrlconf->{include} || $ctrlconf->{exclude} );
+}
+
+sub igrep
+{
+    my ( $name, $region ) = @_;
+    return 1 unless $ctrlconf;
+
+    if( $ctrlconf->{include} )
+    {
+        return 0 unless $ctrlconf->{include}{$name}{$region} || $ctrlconf->{include}{$name}{'*'};
+    }
+
+    if( $ctrlconf->{exclude} )
+    {
+        return 0 if     $ctrlconf->{exclude}{$name}{$region} || $ctrlconf->{exclude}{$name}{'*'};
+    }
+
+    return 1;
+}
+
 sub sync
 {
     my @x = split /\s+/, shift @_;
     my %data = ( name => $x[0], ak => $x[1], sk => $x[2], region => $x[3] );
+
+    return unless igrep( $x[0], $x[3] );
+
     my $tpl = $template;
 
     for my $k ( keys %data )

@@ -62,3 +62,14 @@ AWS_ACCESS_KEY_ID='ak' AWS_SECRET_ACCESS_KEY='sk' aws cloudwatch list-metrics --
 # 生成某类资源的配置
 ./cloudmon/exporter/cloudwatch-exporter/config-make  --ak yourak --sk yoursk --region ap-southeast-1 --namespace AWS/Kafka
 ```
+
+# 云监控账号生成控制
+
+```
+默认情况下，程序会把所有CMDB中的账号的所有资源的区域都生成云监控配置。
+
+但是有的情况下，可能需要控制只监控部分账号或部分区域。 或者不监控部分账号的部分区域。
+
+需要在本地放置配置文件 control.conf ， 可以参考配置文件 control.conf.example
+
+```
