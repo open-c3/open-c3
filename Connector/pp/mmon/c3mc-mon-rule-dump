@@ -29,5 +29,6 @@ for my $xx ( @$x )
 {
     $xx->{expr} =~ s/treeid_\d+!/treeid_c3montreeid!/g;
     $xx->{expr} =~ s/treeinfo\{tid="\d+"\}/treeinfo{tid="c3montreeid"}/g;
+    $xx->{expr} =~ s/treeinfo\{eid="\d+"\}/treeinfo{tid="c3montreeid"}/g;
     print YAML::XS::Dump $xx;
 }
