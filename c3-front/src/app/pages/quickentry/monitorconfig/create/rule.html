@@ -6,6 +6,14 @@
     <form class="form-horizontal" name="myForm" role="form">
 
         <div class="row">
+          <div ng-if="createMonitorConfigRule.monitorOperate" class="col-sm-10 form-group">
+            <label class="col-sm-3 control-label">{{'C3T.目标服务树'|translate}}</label>
+            <div class="col-sm-9">
+              <span ng-if="!cloneNodeData.cloneNodeId || cloneNodeData.cloneNodeId === createMonitorConfigRule.treeid">{{'C3T.当前服务树'| translate}}({{createMonitorConfigRule.nodeStr}})</span>
+              <span ng-if="cloneNodeData.cloneNodeId">ROOT.{{cloneNodeData.cloneNodeName}}</span>
+              <button class="btn btn-primary select-tree" ng-click="createMonitorConfigRule.handleSelectTree()">{{'C3T.选择服务树节点'| translate}}</button>
+          </div>
+          </div>
             <div class="col-sm-10 form-group">
                 <label class="col-sm-3 control-label">{{'C3T.监控名称'|translate}}<a style="color: red;">*</a></label>
                 <div class="col-sm-9">
@@ -209,3 +217,10 @@
     </form>
 
 </div>
+
+
+<style lang="scss">
+  .select-tree {
+    margin-left: 10px;
+  }
+</style>
