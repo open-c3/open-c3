@@ -227,20 +227,28 @@
         </div>
         <div style="float: right;" ng-show="monitorconfig.usersign==='@'">
            <form class="form-inline" name="myFormGroup" novalidate>
-                <div class="form-group">
-                    <select class="form-control" style="width: 250px" ng-model="newUser"  ng-options="o.name as o.name for o in monitorconfig.monitorgroup"> </select>
-                    <input type="text" style="width: 250px" class="form-control" ng-model="monitorconfig.subgroup"  placeholder="{{'C3T.子组'|translate}}">
-                </div>
-                <button type="submit" ng-disabled="myFormGroup.$invalid" class="btn btn-primary" ng-click="monitorconfig.createUser()"><i class="fa fa-user fa-lg" aria-hidden="true"></i>{{'C3T.添加报警组'|translate}}</button>
-            </form>
+              <ui-select class="form-group" ng-model="newUser" style="width: 250px;" ng-change="monitorconfig.handleUserChange($select.selected.name)">
+                <ui-select-match ><span class="item-label">{{$select.selected.name}}</span></ui-select-match>
+                <ui-select-choices
+                  repeat="item.name as item in monitorconfig.monitorgroup | filter: $select.search">
+                  <div ng-bind-html="item.name | highlight: monitorconfig.monitorgroup"></div>
+                </ui-select-choices>
+              </ui-select>
+            <input type="text" style="width: 250px" class="form-control" ng-model="monitorconfig.subgroup"  placeholder="{{'C3T.子组'|translate}}">
+            <button type="submit" ng-disabled="myFormGroup.$invalid" class="btn btn-primary" ng-click="monitorconfig.createUser()"><i class="fa fa-user fa-lg" aria-hidden="true"></i>{{'C3T.添加报警组'|translate}}</button>
+          </form>
         </div>
         <div style="float: right;" ng-show="monitorconfig.usersign==='%'">
            <form class="form-inline" name="myFormOncall" novalidate>
-                <div class="form-group">
-                    <select class="form-control" style="width: 250px" ng-model="newUser"  ng-options="o.name as o.name for o in monitorconfig.monitoroncall"> </select>
-                    <input type="text" style="width: 250px" class="form-control" ng-model="monitorconfig.subgroup"  placeholder="{{'C3T.子组'|translate}}">
-                </div>
-                <button type="submit" ng-disabled="myFormOncall.$invalid" class="btn btn-primary" ng-click="monitorconfig.createUser()"><i class="fa fa-user fa-lg" aria-hidden="true"></i>{{'C3T.添加轮班组'|translate}}</button>
+              <ui-select class="form-group" ng-model="newUser" style="width: 250px;" ng-change="monitorconfig.handleUserChange($select.selected.name)">
+                <ui-select-match style="width: 250px"><span class="item-label">{{$select.selected.name}}</span></ui-select-match>
+                <ui-select-choices style="width: 250px"
+                  repeat="item.name as item in monitorconfig.monitoroncall | filter: $select.search">
+                  <div ng-bind-html="item.name | highlight: monitorconfig.monitoroncall"></div>
+                </ui-select-choices>
+              </ui-select>
+              <input type="text" style="width: 250px" class="form-control" ng-model="monitorconfig.subgroup"  placeholder="{{'C3T.子组'|translate}}">
+              <button type="submit" ng-disabled="myFormOncall.$invalid" class="btn btn-primary" ng-click="monitorconfig.createUser()"><i class="fa fa-user fa-lg" aria-hidden="true"></i>{{'C3T.添加轮班组'|translate}}</button>
             </form>
        </div>
 
@@ -296,3 +304,23 @@
     </div>
 
 </div>
+
+<style>
+
+  .ui-select-bootstrap>.ui-select-choices,
+  .ui-select-bootstrap>.ui-select-no-choice {
+    width: 100%;
+    height: auto;
+    overflow-x: hidden;
+    margin-top: -1px;
+    max-height: 400px !important;
+  }
+  .ui-select-bootstrap>.ui-select-search {
+    width: 100%;
+  }
+
+  .ui-select-bootstrap>.ui-select-match>.form-control {
+    width: 100%;
+    min-width: 100px;
+  }
+</style>

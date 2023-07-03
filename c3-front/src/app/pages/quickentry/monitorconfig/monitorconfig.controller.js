@@ -489,5 +489,8 @@
           })
         }
 
+        vm.handleUserChange = function (value)  {
+          $scope.newUser = value
+        }
     }
 })();
