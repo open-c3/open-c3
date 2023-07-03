@@ -45,6 +45,11 @@
           },
 
         ]
+        vm.checkboxes = {
+          checked: false,
+          items: {},
+        };
+        vm.checkDataList = []
         vm.userInfo = {}
         vm.markSelected = 'all'
         vm.markSelectOption = [
@@ -91,6 +96,7 @@
                     vm.dataTable = new ngTableParams({count:20}, {counts:[],data:data.data.reverse()});
                     vm.selectData = data.data
                     vm.allData = data.data;
+                    vm.checkDataList = data.data
                     vm.monitorDataCardList.map(item => item.count = data.data.filter(cItem => cItem.status === item.status).length)
                     vm.loadover = true;
                 } else { 
@@ -213,9 +219,57 @@
         }
 
         vm.handleTabChange =function (value) {
-          console.log('value', value)
           $scope.selectTab = value
-          // vm.reload();
         }
+
+    // 编辑状态
+    vm.handleEditStatus = function () {
+      const selectResourceArr = []
+      angular.forEach(vm.checkboxes.items, function (value, key) {
+        if (value) {
+          selectResourceArr.push(key)
+        }
+      });
+      const selectResDetail = vm.checkDataList.filter(item => selectResourceArr.find(cItem => cItem === item.name));
+      $uibModal.open({
+        templateUrl: 'app/pages/quickentry/monitornodelow/dialog/editStatus.html',
+        controller: 'EditStatusController',
+        controllerAs: 'editStatus',
+        backdrop: 'static',
+        size: 'md',
+        keyboard: false,
+        bindToController: true,
+        resolve: {
+          treeid: function () { return vm.treeid },
+          selectResDetail: function () { return selectResDetail},
+        }
+      });
+    }
+
+    // 监听全选checkbox
+    $scope.$watch(function () { return vm.checkboxes.checked }, function (value) {
+      angular.forEach(vm.checkDataList, function (item, index, array) {
+        vm.checkboxes.items[[array[index].name]] = value
+      });
+      vm.checkboxes.itemsNumber = Object.values(vm.checkboxes.items).filter(item => item === true).length
+      let nodeList = []
+      for (let key in vm.checkboxes.items) {
+        nodeList.push(String(key))
+      }
+    }, true);
+
+    // 监听单个列表项的checkbox
+    $scope.$watch(function () { return vm.checkboxes.items }, function (value) {
+      var checked = 0, unchecked = 0
+      angular.forEach(vm.checkDataList, function (item, index, array) {
+        checked += (vm.checkboxes.items[array[index].name]) || 0;
+        unchecked += (!vm.checkboxes.items[array[index].name]) || 0;
+      });
+      if (vm.checkDataList.length > 0 && ((unchecked == 0) || (checked == 0))) {
+        vm.checkboxes.checked = (checked == vm.checkDataList.length);
+      }
+      vm.checkboxes.itemsNumber = checked
+      angular.element(document.getElementsByClassName("select-all")).prop("indeterminate", (checked != 0 && unchecked != 0));
+    }, true);
     }
 })();
