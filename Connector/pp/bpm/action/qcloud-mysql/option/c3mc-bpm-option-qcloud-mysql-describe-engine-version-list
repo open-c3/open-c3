@@ -12,7 +12,7 @@ sys.path.append("/data/Software/mydan/Connector/lib/pp")
 def get_data_list(access_id, access_key, region, zone, charge_type, cdb_sell_type):
     from c3mc_cloud_qcloud_cdb import QcloudCdb
 
-    res = QcloudCdb(access_id, access_key, region).DescribeCdbZoneConfig()
+    res = QcloudCdb(access_id, access_key, region).describe_cdb_zone_config()
 
     for region_item in res["DataResult"]["Regions"]:
         if region_item["Region"] != region:
