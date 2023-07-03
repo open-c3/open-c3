@@ -4,6 +4,7 @@ use warnings;
 use uuid;
 use POSIX;
 use OPENC3::Tree;
+use MYDan::Util::OptConf;
 
 binmode STDIN,  ':utf8';
 binmode STDOUT, ':utf8';
@@ -19,12 +20,19 @@ use MYDB;
 
 =cut
 
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->get( qw( increment ) )->dump();
+
 my $db = MYDB->new( "/data/Software/mydan/AGENT/conf/conn", delayedconnection => 1 );
 
 my @x = `c3mc-base-db-get -t openc3_device_bindtree type subtype uuid tree`;
 chomp @x;
 my %x;
-map{ $x{$_} = 1 }@x;
+map{
+    $x{$_} = 1;
+    $_ =~ s/;[^;]*$/;/g;
+    $x{$_} = 1;
+}@x;
 
 sub checktree
 {
@@ -37,7 +45,11 @@ sub checktree
 sub save
 {
     my $row = shift @_;
-    return if $x{$row};
+
+    my $chk = $row;
+    $chk =~ s/;[^;]*$/;/g if $o{increment};
+
+    return if $x{$chk};
 
     my ( $type, $subtype, $uuid, $tree ) = split /;/, $row, 4;
     return unless $tree;
