@@ -11,6 +11,40 @@
         vm.treeid = $state.params.treeid;
         var toastr = toastr || $injector.get('toastr');
 
+        vm.lowUtilizationList = [   // 低利用率Tab列表
+          {
+            id: 'host',
+            name: '主机低利用率'
+          },
+        ]
+        $scope.selectTab = vm.lowUtilizationList[0];
+        vm.monitorDataCardList = [
+          {
+            name: 'C3T.利用率低',
+            status: 'low',
+            count: 0,
+            color: 'red'
+          },
+          {
+            name: 'C3T.警告',
+            status: 'warn',
+            count: 0,
+            color: '#f6bb42'
+          },
+          {
+            name: 'C3T.正常',
+            status: 'normal',
+            count: 0,
+            color: 'green'
+          },
+          {
+            name: 'C3T.利用率低',
+            status: 'unkown',
+            count: 0,
+            color: '#000'
+          },
+
+        ]
         vm.userInfo = {}
         vm.markSelected = 'all'
         vm.markSelectOption = [
@@ -24,12 +58,6 @@
         treeService.sync.then(function(){
             vm.nodeStr = treeService.selectname();
         });
-
-
-        $scope.count1 = 0;
-        $scope.count2 = 0;
-        $scope.count3 = 0;
-        $scope.count4 = 0;
 
         vm.openNewWindow = function( ip )
         {
@@ -56,12 +84,6 @@
 
         vm.reload = function(){
             vm.loadover = false;
-
-            $scope.count1 = 0;
-            $scope.count2 = 0;
-            $scope.count3 = 0;
-            $scope.count4 = 0;
-
             $http.get('/api/agent/nodelow/' + vm.treeid ).success(function(data){
                 if(data.stat == true) 
                 { 
@@ -69,26 +91,7 @@
                     vm.dataTable = new ngTableParams({count:20}, {counts:[],data:data.data.reverse()});
                     vm.selectData = data.data
                     vm.allData = data.data;
-
-                    angular.forEach(data.data, function (data, index) {
-                        if( data.status == 'low' )
-                        {
-                            $scope.count1 = $scope.count1 + 1
-                        }
-                        if( data.status == 'warn' )
-                        {
-                            $scope.count2 = $scope.count2 + 1
-                        }
-                        if( data.status == 'normal' )
-                        {
-                            $scope.count3 = $scope.count3 + 1
-                        }
-                        if( data.status == 'unkown' )
-                        {
-                            $scope.count4 = $scope.count4 + 1
-                        }
-                    });
-
+                    vm.monitorDataCardList.map(item => item.count = data.data.filter(cItem => cItem.status === item.status).length)
                     vm.loadover = true;
                 } else { 
                     toastr.error( "加载数据失败:" + data.info )

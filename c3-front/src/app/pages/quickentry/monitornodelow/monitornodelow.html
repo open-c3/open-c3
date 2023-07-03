@@ -1,55 +1,18 @@
 <cmloading ng-if="!monitornodelow.loadover"></cmloading>
 <div class="row block">
-
-    <div class="col-lg-3 col-xs-12 ml0 pl0" style="padding-left: 0">
-        <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
-            <div class="panel-heading">
-                <h4 class="kb_title">{{'C3T.利用率低'|translate}}: low</h4>
-            </div>
-            <div class="panel-body">
-                <div style="font-size: 45px;font-weight: bold;text-align: center;height: 115px;cursor:pointer; color: red">
-                    <span ng-click="monitornodelow.dataGrep('low')" >{{count1}}</span>
-                </div>
-            </div>
+  <div class="col-lg-3 col-xs-12 ml0 pl0 monitor-panel monitor-panel"
+    ng-repeat="item in monitornodelow.monitorDataCardList">
+    <div class="panel panel-default monitor-nodeflow-card">
+      <div class="panel-heading">
+        <h4 class="kb_title">{{item.name |translate}}: {{item.status}}</h4>
+      </div>
+      <div class="panel-body">
+        <div class="monitor-nodeflow-common-body" ng-style="{color: item.color}">
+          <span ng-click="monitornodelow.dataGrep('low')">{{item.count}}</span>
         </div>
+      </div>
     </div>
-    <div class="col-lg-3 col-xs-12 ml0 pl0" style="padding-left: 0">
-        <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
-            <div class="panel-heading">
-                <h4 style="font-weight: bold;color: #337ab7">{{'C3T.警告'|translate}}: warn</h4>
-            </div>
-            <div class="panel-body">
-                <div style="font-size: 45px;font-weight: bold;text-align: center;height: 115px;cursor:pointer;color: #f6bb42">
-                    <span ng-click="monitornodelow.dataGrep('warn')" >{{count2}}</span>
-                </div>
-
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-xs-12 ml0 pl0" style="padding-left: 0">
-        <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
-            <div class="panel-heading">
-                <h4 style="font-weight: bold;color: #337ab7">{{'C3T.正常'|translate}}: normal</h4>
-            </div>
-            <div class="panel-body" >
-                <div style="font-size: 45px;font-weight: bold;text-align: center;height: 115px;cursor:pointer;color: green">
-                    <span ng-click="monitornodelow.dataGrep('normal')" >{{count3}}</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-xs-12 ml0 pl0" style="padding-left: 0">
-        <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
-            <div class="panel-heading">
-                <h4 style="font-weight: bold;color: #337ab7">{{'C3T.未知'|translate}}: unkown</h4>
-            </div>
-            <div class="panel-body">
-                <div style="font-size: 45px;font-weight: bold;text-align: center;height: 115px;cursor:pointer;">
-                    <span ng-click="monitornodelow.dataGrep('unkown')" >{{count4}}</span>
-                </div>
-            </div>
-        </div>
-    </div>
+  </div>
 
 
     <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0">
