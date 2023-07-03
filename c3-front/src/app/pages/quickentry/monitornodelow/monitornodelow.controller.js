@@ -211,5 +211,11 @@
             vm.dataTable = new ngTableParams({count:20}, {counts:[],data:undonedData.reverse()});
           }
         }
+
+        vm.handleTabChange =function (value) {
+          console.log('value', value)
+          $scope.selectTab = value
+          // vm.reload();
+        }
     }
 })();

@@ -1,4 +1,10 @@
 <cmloading ng-if="!monitornodelow.loadover"></cmloading>
+<uib-tabset class="tab-set" active="selectTab">
+  <uib-tab ng-repeat="tab in monitornodelow.lowUtilizationList" ng-click="monitornodelow.handleTabChange(tab)">
+    <uib-tab-heading class="tab-heading">
+      <span class="tab-heading-text">{{tab.name}}</span>
+    </uib-tab-heading>
+    <uib-tab-content class="tab-content">
 <div class="row block">
   <div class="col-lg-3 col-xs-12 ml0 pl0 monitor-panel monitor-panel"
     ng-repeat="item in monitornodelow.monitorDataCardList">
@@ -14,10 +20,7 @@
     </div>
   </div>
 
-
-    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0">
-
-
+    <div class="col-lg-12 col-xs-12 ml0 pl0 monitor-panel">
     <div class="panel panel-primary">
         <div class="panel-heading">
             <span class="panel-controls">
@@ -94,62 +97,5 @@
   </div>
 
 </div>
-
-<style>
-  .mark-color {
-    background-color: green!important;
-    color: #FFFFFF;
-  }
-
-  .mark-icon-color {
-    color: #FFFFFF!important;
-    cursor:pointer
-  }
-
-  .owner-mark {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .owner-text {
-    min-width: 80px;
-  }
-
-  .owner-mark-button {
-    margin-left: 5px;
-    font-size: 12px;
-    padding: 3px;
-  }
-
-  .owner-mark-button:active {
-    outline: none!important;
-    box-shadow: none!important;
-  }
-
-  .owner-mark-button:focus {
-    outline: none!important;
-  }
-
-  .owner-mark-button:focus-visible  {
-    outline: none!important;
-  }
-
-  .mark-select {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-  }
-
-  .ui-select-bootstrap > .ui-select-choices, .ui-select-bootstrap > .ui-select-no-choice {
-    width: 100%;
-    height: auto;
-    overflow-x: hidden;
-    margin-top: -1px;
-    max-height: 400px!important;
-  }
-  .ui-select-bootstrap  >  .ui-select-match > .form-control {
-    width: 100%;
-    min-width: 100px;
-  }
-</style>
+    </uib-tab-content>
+  </uib-tab>
