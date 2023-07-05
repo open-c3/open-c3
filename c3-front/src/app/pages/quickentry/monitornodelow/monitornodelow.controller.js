@@ -14,7 +14,7 @@
         vm.lowUtilizationList = [   // 低利用率Tab列表
           {
             id: 'compute',
-            name: '主机低利用率'
+            name: '主机'
           },
         ]
         $scope.selectTab = vm.lowUtilizationList[0];
