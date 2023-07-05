@@ -130,6 +130,11 @@
         }
         vm.downloadReload();
 
+        vm.handleReloadChange = function () {
+          vm.reload();
+          vm.downloadReload()
+        }
+
         sessionStorage.removeItem('globalSearch');
 
         vm.reloadtimemachine = function () {
