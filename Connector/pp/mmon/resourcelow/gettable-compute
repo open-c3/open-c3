@@ -1,0 +1,49 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my    @x = `c3mc-base-db-get -t openc3_monitor_node_low ip  mem cpu -f 'status="low"'`;
+chomp @x;
+
+my ( @res, %ip );
+for( @x )
+{
+    my @xx = split /;/, $_;
+    push @res, +{ ip => $xx[0], mem => $xx[1], cpu => $xx[2], lowstatus => 'low' };
+    $ip{$xx[0]} ++; 
+}
+
+if( %ip )
+{
+    my $ips = join ' ', keys %ip;
+    for my $type ( qw( owner instancetype hostname ))
+    {
+        my @x = `c3mc-device-find-$type $ips`;
+        chomp @x;
+        my %x;
+        for ( @x )
+        {
+            my ( $k, $v ) = split /:/, $_, 2;
+            $v =~ s/\s//g;
+            $x{$k} = $v;
+        }
+        map{ $_->{$type} = $x{$_->{ip}} // '' if $_->{ip} }@res;
+    }
+}
+
+my @title = ( 'ip', '业务负责人', 'instancetype', 'hostname', 'mem', 'cpu', 'lowstatus' );
+printf "%s\n", join ";", @title;
+
+for my $x ( @res )
+{
+    $x->{'业务负责人'} = $x->{owner};
+    printf "%s\n", join ';', map{ $x->{$_}//'' }@title;
+}
