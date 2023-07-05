@@ -40,7 +40,7 @@
             color: 'green'
           },
           {
-            name: 'C3T.利用率低',
+            name: 'C3T.未知',
             status: 'unkown',
             count: 0,
             color: '#000'
@@ -384,7 +384,7 @@
             color: 'green'
           },
           {
-            name: 'C3T.利用率低',
+            name: 'C3T.未知',
             status: 'unkown',
             count: 0,
             color: '#000'
