@@ -339,7 +339,7 @@
         }
     // 编辑状态
     vm.handleEditStatus = function () {
-      if (vm.checkboxes.itemsNumber || vm.checkboxes.itemsNumber === 0) {
+      if (!vm.checkboxes.itemsNumber || vm.checkboxes.itemsNumber === 0) {
         toastr.error("请先勾选实例！")
         return false
       }
