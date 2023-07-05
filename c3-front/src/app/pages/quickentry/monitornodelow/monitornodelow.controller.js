@@ -46,6 +46,12 @@
             color: '#000'
           },
         ]
+        vm.statusColorMap = {
+          low: 'red',
+          warn: '#f6bb42',
+          normal: 'green',
+          unkown: '#000',
+        }
 
         vm.checkboxes = {
           checked: false,
@@ -167,11 +173,11 @@
                 angular.forEach(data.data, function (value) {
                   value.name = value['名称']
                   if (remarkMap.filter(item => item.key === value['实例ID']).length > 0) {
-                    value['备注'] = remarkMap.filter(item => item.key === value['实例ID'])[0].mark
-                    value['状态'] = remarkMap.filter(item => item.key === value['实例ID'])[0].status
+                    value['处理备注'] = remarkMap.filter(item => item.key === value['实例ID'])[0].mark
+                    value['处理状态'] = remarkMap.filter(item => item.key === value['实例ID'])[0].status
                   }else {
-                    value['备注']  = '-'
-                    value['状态'] = '-'
+                    value['处理备注']  = '-'
+                    value['处理状态'] = '-'
                   }
                   newData.push(value)
                 })
