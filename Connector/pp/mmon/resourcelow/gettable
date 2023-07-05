@@ -21,6 +21,8 @@ die "treeid error" unless defined $treeid && $treeid =~ /^\d+$/;
 sub gettreename
 {
     my $treeid = shift @_;
+    return "temp.tree.f75ac56606f352273f7eaa4d3572e4f9" if $treeid > 4000000000;
+    # 上面的服务树随意，就是想让个人的服务树节点，不要匹配到任何信息
     my @x = `c3mc-base-treemap cache| grep "^$treeid;"|awk -F';'  '{print \$2}'`;
     chomp @x;
     die "get treename by id: $treeid fail" unless @x;
@@ -40,7 +42,7 @@ utf8::decode($title);
 my @title = split /\t/, $title;
 my @node;
 
-my $greptreename = $treeid == 0 ? undef : eval{ gettreename( $treeid ) };
+my $greptreename = ( $treeid == 0 || $treeid == 4000000000 ) ? undef : eval{ gettreename( $treeid ) };
 die "get treename fail: $@" if $@;
 
 my $treecol = Encode::decode( 'utf8', '服务树' );
