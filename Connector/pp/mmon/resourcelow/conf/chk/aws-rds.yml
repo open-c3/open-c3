@@ -1,3 +1,6 @@
-low: '$d{"avg-cpu"} < 2'
-warn: '$d{"avg-cpu"} < 10'
-normal: 'defined $d{"avg-cpu"}'
+low: '( $d{"实例类型"} !~ /^db.t/ && ( $d{"max-cpu"} < 20 || (   defined $d{"AllocatedStorage"} && $d{"AllocatedStorage"} =~ /^\d/ && $d{"AllocatedStorage"} > 500 &&   defined $d{"max-disk"} && $d{"max-disk"} =~ /^\d/ && $d{"max-disk"} < 15 ) ) ) || ( $d{"实例类型"} =~ /^db.t/ && ( ( defined $d{"AllocatedStorage"} && $d{"AllocatedStorage"} =~ /^\d/ && $d{"AllocatedStorage"} > 500 &&  defined $d{"max-disk"} && $d{"max-disk"} =~ /^\d/ && $d{"max-disk"} < 15 ) ) )'
+#warn: '$d{"avg-cpu"} < 10'
+normal: 'defined $d{"max-cpu"}'
+
+PolicyDescription:
+  low: '一周内 ( cpu 最大值小于 20% ) 或者 ( 磁盘大于 500 的情况下使用率小于15 %) ，t系列的忽略cpu' 

@@ -49,6 +49,12 @@ get '/resourcelow/data/:type/:projectid' => sub {
 
     my $pmscheck = api::pmscheck( 'openc3_agent_read', $param->{projectid} ); return $pmscheck if $pmscheck;
 
+    my ( $chkfile ) = grep{ -f } ( "/data/open-c3-data/resourcelow/$param->{type}.yml", "/data/Software/mydan/Connector/pp/mmon/resourcelow/conf/chk/$param->{type}.yml" );
+
+    my $chk = eval{ YAML::XS::LoadFile $chkfile };
+    return +{ stat => $JSON::false, info => "load chk $chkfile fail: $@" } if $@;
+    my $PolicyDescription = $chk->{PolicyDescription} && ref $chk->{PolicyDescription} eq 'HASH' ? $chk->{PolicyDescription} : +{};
+
     my @x = `/data/Software/mydan/Connector/pp/mmon/resourcelow/gettable '$param->{type}' '$param->{projectid}' 2>&1`;
     return +{ stat => $JSON::false, info => "get data fail:". join ';', @x } if $?;
     chomp @x;
@@ -65,7 +71,7 @@ get '/resourcelow/data/:type/:projectid' => sub {
         push @node, \%d;
     }
 
-    return +{ stat => $JSON::true, data => \@node, title => \@title };
+    return +{ stat => $JSON::true, data => \@node, title => \@title, PolicyDescription => $PolicyDescription };
 };
 
 =pod

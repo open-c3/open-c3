@@ -1,3 +1,6 @@
-low: '$d{"avg-cpu"} < 2'
-warn: '$d{"avg-cpu"} < 10'
-normal: 'defined $d{"avg-cpu"}'
+low: '$d{"实例类型"} !~ /^cache.t/ &&  $d{"max-mem"} < 25'
+#warn: '$d{"avg-cpu"} < 10'
+normal: 'defined $d{"max-mem"}'
+
+PolicyDescription:
+  low: '一周内 ( 内存最大值小于25%， 忽略t系列 )' 
