@@ -333,6 +333,10 @@
         }
     // 编辑状态
     vm.handleEditStatus = function () {
+      if (vm.checkboxes.itemsNumber || vm.checkboxes.itemsNumber === 0) {
+        toastr.error("请先勾选实例！")
+        return false
+      }
       const selectResourceArr = []
       angular.forEach(vm.checkboxes.items, function (value, key) {
         if (value) {
@@ -359,6 +363,7 @@
 
     $scope.$watch('selectTab', function () {
       if ($scope.selectTab && $scope.selectTab.id) {
+        vm.markSelected = 'all'
         vm.checkboxes = {
           checked: false,
           items: {},
