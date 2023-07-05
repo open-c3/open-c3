@@ -49,7 +49,14 @@ get '/nodelow/:projectid' => sub {
         }
     }
 
-    return +{ stat => $JSON::true, data => \@node  };
+    my ( $chkfile ) = grep{ -f } ( "/data/open-c3-data/resourcelow/compute.yml", "/data/Software/mydan/Connector/pp/mmon/resourcelow/conf/chk/compute.yml" );
+
+    my $chk = eval{ YAML::XS::LoadFile $chkfile };
+    return +{ stat => $JSON::false, info => "load chk $chkfile fail: $@" } if $@;
+    my $PolicyDescription = $chk->{PolicyDescription} && ref $chk->{PolicyDescription} eq 'HASH' ? $chk->{PolicyDescription} : +{};
+
+
+    return +{ stat => $JSON::true, data => \@node, PolicyDescription => $PolicyDescription };
 };
 
 =pod
