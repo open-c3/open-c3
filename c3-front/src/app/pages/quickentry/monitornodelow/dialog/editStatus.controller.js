@@ -14,35 +14,20 @@
       }
     });
 
-  function EditStatusController ($uibModalInstance, $http, $injector, type, treeid, selectResDetail, tableReload) {
+  function EditStatusController ($uibModalInstance, $http, $injector, type, treeid, selectResDetail, tableReload, dialogStatusList) {
 
     var vm = this;
     vm.type = type
     vm.treeid = treeid;
     vm.selectResDetail = selectResDetail;
     var toastr = toastr || $injector.get('toastr');
-    vm.statusList = []
+    vm.statusList = dialogStatusList
     vm.remarkRequired = {}
     vm.markSelected = ''
     vm.postdata = {
       status: '',
       remark: ''
     }
-
-    // 获取状态列表
-    vm.getStatusList = function () {
-      vm.loadover = false;
-      $http.get('/api/agent/resourcelow/status').success(function (data) {
-        vm.loadover = true
-        if (data.stat == true) {
-          vm.statusList = data.data
-        } else {
-          toastr.error("加载数据失败:" + data.info)
-        }
-      });
-    }
-
-    vm.getStatusList()
 
     // 切换状态
     vm.handleChange = function () {

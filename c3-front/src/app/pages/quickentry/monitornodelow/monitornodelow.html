@@ -13,10 +13,11 @@
             <div class="panel-heading">
               <h4 class="kb_title">{{item.name |translate}}: {{item.status}}</h4>
             </div>
-            <div class="panel-body">
+            <div class="panel-body" style="height: 100%;">
               <div class="monitor-nodeflow-common-body" ng-style="{color: item.color}">
                 <span ng-click="monitornodelow.dataGrep(item.status)">{{item.count}}</span>
               </div>
+              <div class="monitor-nodeflow-card-description" ng-style="{color: item.color}">{{item.description || ''}}</div>
             </div>
           </div>
         </div>
@@ -32,9 +33,9 @@
         </div>
 
         <div class="panel-body flowline">
-            <div>
+            <div style="overflow-x: auto; overflow-y: auto;">
               <div class="mark-select col-sm-6 form-group">
-                <label class="col-sm-2 control-label">{{'C3T.标记类型'| translate}}</label>
+                <label class="col-sm-2 control-label">{{'C3T.处理状态'| translate}}</label>
                 <div class="col-sm-3">
                   <ui-select  ng-model="monitornodelow.markSelected" ng-change="monitornodelow.handleChange()"
                     ng-disabled="!monitornodelow.loadover">
@@ -47,9 +48,9 @@
                     </ui-select-choices>
                   </ui-select>
                 </div>
-                <div>
-                  <button class="btn btn-primary"  uib-tooltip="{{'C3T.编辑'| translate}}" ng-click="monitornodelow.handleEditStatus()">{{'C3T.编辑'| translate}}</button>
-                </div>
+              </div>
+              <div style="text-align: right;">
+                <button class="btn btn-primary"  uib-tooltip="{{'C3T.编辑'| translate}}" ng-click="monitornodelow.handleEditStatus()">{{'C3T.编辑'| translate}}</button>
               </div>
               <div ng-if="selectTab.id === 'compute'">
                 <table ng-table="monitornodelow.dataTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
