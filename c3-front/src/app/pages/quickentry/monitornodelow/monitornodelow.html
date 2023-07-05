@@ -32,9 +32,9 @@
         </div>
 
         <div class="panel-body flowline">
-            <div style="overflow: auto;">
+            <div>
               <div class="mark-select col-sm-6 form-group">
-                <!-- <label class="col-sm-2 control-label">{{'C3T.标记类型'| translate}}</label>
+                <label class="col-sm-2 control-label">{{'C3T.标记类型'| translate}}</label>
                 <div class="col-sm-3">
                   <ui-select  ng-model="monitornodelow.markSelected" ng-change="monitornodelow.handleChange()"
                     ng-disabled="!monitornodelow.loadover">
@@ -42,11 +42,11 @@
                       <span class="item-label"> {{$select.selected.label}}</span>
                     </ui-select-match>
                     <ui-select-choices
-                      repeat="item.value as item in monitornodelow.markSelectOption | filter: $select.search.value">
-                      <div ng-bind-html="item.label | highlight: monitornodelow.markSelectOption"></div>
+                      repeat="item.value as item in monitornodelow.markStatusOption | filter: $select.search.value">
+                      <div ng-bind-html="item.label | highlight: monitornodelow.markStatusOption"></div>
                     </ui-select-choices>
                   </ui-select>
-                </div> -->
+                </div>
                 <div ng-if="monitornodelow.checkboxes.itemsNumber && monitornodelow.checkboxes.itemsNumber !== 0">
                   <button class="btn btn-primary"  uib-tooltip="{{'C3T.编辑'| translate}}" ng-click="monitornodelow.handleEditStatus()">{{'C3T.编辑'| translate}}</button>
                 </div>
