@@ -25,25 +25,29 @@
             name: 'C3T.利用率低',
             status: 'low',
             count: 0,
-            color: 'red'
+            color: 'red',
+            description: ''
           },
           {
             name: 'C3T.警告',
             status: 'warn',
             count: 0,
-            color: '#f6bb42'
+            color: '#f6bb42',
+            description: ''
           },
           {
             name: 'C3T.正常',
             status: 'normal',
             count: 0,
-            color: 'green'
+            color: 'green',
+            description: ''
           },
           {
             name: 'C3T.未知',
             status: 'unkown',
             count: 0,
-            color: '#000'
+            color: '#000',
+            description: ''
           },
         ]
         vm.statusColorMap = {
@@ -168,6 +172,7 @@
                 vm.allData = data.data;
                 vm.checkDataList = newArr
                 vm.monitorDataCardList.map(item => item.count = newArr.filter(cItem => cItem.status === item.status).length)
+                vm.monitorDataCardList.map(item => item.description = data.PolicyDescription[item.status])
                 vm.loadover = true;
               } else {
                 toastr.error("加载数据失败:" + data.info)
@@ -198,6 +203,7 @@
                 vm.allData = data.data;
                 vm.checkDataList = newData
                 vm.monitorDataCardList.map(item => item.count = data.data.filter(cItem => cItem.lowstatus === item.status).length)
+                vm.monitorDataCardList.map(item => item.description = data.PolicyDescription[item.status])
                 vm.loadover = true;
               } else {
                 toastr.error("加载数据失败:" + data.info)

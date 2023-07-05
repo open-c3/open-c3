@@ -13,10 +13,11 @@
             <div class="panel-heading">
               <h4 class="kb_title">{{item.name |translate}}: {{item.status}}</h4>
             </div>
-            <div class="panel-body">
+            <div class="panel-body" style="height: 100%;">
               <div class="monitor-nodeflow-common-body" ng-style="{color: item.color}">
                 <span ng-click="monitornodelow.dataGrep(item.status)">{{item.count}}</span>
               </div>
+              <div class="monitor-nodeflow-card-description" ng-style="{color: item.color}">{{item.description || ''}}</div>
             </div>
           </div>
         </div>
@@ -32,7 +33,7 @@
         </div>
 
         <div class="panel-body flowline">
-            <div>
+            <div style="overflow-x: auto; overflow-y: auto;">
               <div class="mark-select col-sm-6 form-group">
                 <label class="col-sm-2 control-label">{{'C3T.标记类型'| translate}}</label>
                 <div class="col-sm-3">
