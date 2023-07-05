@@ -81,10 +81,17 @@
             vm.stat = stat;
             vm.tempdata = [];
             angular.forEach(vm.allData, function (data, index) {
-               if( data.status == stat )
-               {
-                   vm.tempdata.push( data );
-               }
+              if ($scope.selectTab.id === 'compute') {
+                if( data.status == stat)
+                {
+                    vm.tempdata.push( data );
+                }
+              } else {
+                if( data.lowstatus == stat)
+                {
+                    vm.tempdata.push( data );
+                }
+              }
            });
 
            vm.dealWithData(vm.tempdata.slice().reverse(), $scope.selectTab.id)
