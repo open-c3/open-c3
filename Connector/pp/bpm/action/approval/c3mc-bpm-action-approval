@@ -75,6 +75,11 @@ sub getapprover
                 $res{ $leader->{$_} } = 1;
                 print "LOG.sudo $sudoer, $_ leader = $leader->{$_}\n";
             }
+            if( $leader->{'*'} )
+            {
+                $res{ $leader->{'*'} } = 1;
+                print "LOG.sudo $sudoer, $_ leader = $leader->{'*'}\n";
+            }
         }split /,/, $users;
         return keys %res;
     }
