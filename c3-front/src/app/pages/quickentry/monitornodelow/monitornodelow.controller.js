@@ -46,6 +46,12 @@
             color: '#000'
           },
         ]
+        vm.statusColorMap = {
+          low: 'red',
+          warn: '#f6bb42',
+          normal: 'green',
+          unkown: '#000',
+        }
 
         vm.checkboxes = {
           checked: false,
@@ -56,12 +62,20 @@
 
         vm.userInfo = {}
         vm.markSelected = 'all'
-        vm.markSelectOption = [
+        vm.markStatusOption = [
           {value: 'all', label: '全部'},
-          {value: 'computed', label: '已标记'},
-          {value: 'undone', label: '未标记'},
+          {value: 'shutdown', label: '规划关机'},
+          {value: 'recycle', label: '规划回收'},
+          {value: 'downgrade', label: '规划降配'},
+          {value: 'initial', label: '暂不处理'},
         ]
-        vm.hashMarkData = []
+        vm.remarkStatusMap = {
+          all : '全部',
+          shutdown : '规划关机',
+          recycle : '规划回收',
+          downgrade : '规划降配',
+          initial : '暂不处理',
+        }
         vm.tableData = [];
         vm.exportDownload = genericService.exportDownload
         treeService.sync.then(function(){
@@ -163,15 +177,15 @@
             $http.get(`/api/agent/resourcelow/data/${$scope.selectTab.id}/${vm.treeid}`).success(function (data) {
               if (data.stat == true) {
                 const newData = []
-                let elementsToAdd = ['状态', '备注'];
+                let elementsToAdd = ['处理状态', '处理备注'];
                 angular.forEach(data.data, function (value) {
                   value.name = value['名称']
                   if (remarkMap.filter(item => item.key === value['实例ID']).length > 0) {
-                    value['备注'] = remarkMap.filter(item => item.key === value['实例ID'])[0].mark
-                    value['状态'] = remarkMap.filter(item => item.key === value['实例ID'])[0].status
+                    value['处理备注'] = remarkMap.filter(item => item.key === value['实例ID'])[0].mark
+                    value['处理状态'] = remarkMap.filter(item => item.key === value['实例ID'])[0].status
                   }else {
-                    value['备注']  = '-'
-                    value['状态'] = '-'
+                    value['处理备注']  = '-'
+                    value['处理状态'] = '-'
                   }
                   newData.push(value)
                 })
@@ -284,7 +298,7 @@
             $http.post( `api/agent/nodelow/mark/${vm.treeid}/${nodelowItems.ip}`).success(function (data) {
               if (data.stat) {
                 swal('操作成功!' , 'success');
-                vm.markHashReload();
+                // vm.markHashReload();
               } else {
                 swal({ title: '操作失败', text: data.info, type: 'error' });
               }
@@ -292,38 +306,16 @@
           });
         }
 
-        vm.markHashReload = function ()  {
-          $http.get(`/api/agent/nodelow/mark/${vm.treeid}` ).success(function(data){
-            if (data.stat) {
-              vm.hashMarkData = Object.keys(data.data)
-            }
-          })
-        }
-        vm.markHashReload()
-
         vm.handleChange = function () {
           const selectData = JSON.parse(JSON.stringify(vm.selectData))
-          if (vm.markSelected === 'all') {
-            vm.dealWithData(selectData.slice().reverse(), $scope.selectTab.id)
-            vm.dataTable = new ngTableParams({count:20}, {counts:[],data:selectData.reverse()});
-          } else if (vm.markSelected === 'computed') {
-            let computedData = []
-            if ($scope.selectTab.id === 'compute') {
-              computedData = selectData.filter(item => vm.hashMarkData.includes(item.ip))
-            }else {
-              computedData = selectData.filter(item => vm.hashMarkData.includes(item['实例ID']))
-            }
-            vm.dealWithData(computedData.slice().reverse(), $scope.selectTab.id)
-            vm.dataTable = new ngTableParams({count:20}, {counts:[],data:computedData.reverse()});
-          } else if (vm.markSelected === 'undone') {
-            let undonedData = []
-            if ($scope.selectTab.id === 'compute') {
-              undonedData = selectData.filter(item => vm.hashMarkData.includes(item.ip))
-            }else {
-              undonedData = selectData.filter(item => vm.hashMarkData.includes(item['实例ID']))
-            }
-            vm.dealWithData(undonedData.slice().reverse(), $scope.selectTab.id)
-            vm.dataTable = new ngTableParams({count:20}, {counts:[],data:undonedData.reverse()});
+          if ($scope.selectTab.id === 'compute') {
+            const statusSelectData = selectData.filter(item => vm.markSelected === 'all'? item : item.remarkStatus === vm.remarkStatusMap[vm.markSelected])
+            vm.dealWithData(statusSelectData.slice().reverse(), $scope.selectTab.id)
+            vm.dataTable = new ngTableParams({count:20}, {counts:[],data:statusSelectData});
+          } else {
+            const otherStatusSelectData = selectData.filter(item => vm.markSelected === 'all'? item : item['处理状态'] === vm.remarkStatusMap[vm.markSelected])
+            vm.dealWithData(otherStatusSelectData.slice().reverse(), $scope.selectTab.id)
+            vm.dataTable = new ngTableParams({count:20}, {counts:[],data:otherStatusSelectData.reverse()});
           }
         }
 
@@ -341,6 +333,10 @@
         }
     // 编辑状态
     vm.handleEditStatus = function () {
+      if (vm.checkboxes.itemsNumber || vm.checkboxes.itemsNumber === 0) {
+        toastr.error("请先勾选实例！")
+        return false
+      }
       const selectResourceArr = []
       angular.forEach(vm.checkboxes.items, function (value, key) {
         if (value) {
@@ -367,6 +363,7 @@
 
     $scope.$watch('selectTab', function () {
       if ($scope.selectTab && $scope.selectTab.id) {
+        vm.markSelected = 'all'
         vm.checkboxes = {
           checked: false,
           items: {},
