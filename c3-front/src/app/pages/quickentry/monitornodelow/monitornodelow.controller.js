@@ -14,7 +14,7 @@
         vm.lowUtilizationList = [   // 低利用率Tab列表
           {
             id: 'compute',
-            name: '主机低利用率'
+            name: '主机'
           },
         ]
         $scope.selectTab = vm.lowUtilizationList[0];
@@ -40,7 +40,7 @@
             color: 'green'
           },
           {
-            name: 'C3T.利用率低',
+            name: 'C3T.未知',
             status: 'unkown',
             count: 0,
             color: '#000'
@@ -81,10 +81,17 @@
             vm.stat = stat;
             vm.tempdata = [];
             angular.forEach(vm.allData, function (data, index) {
-               if( data.status == stat )
-               {
-                   vm.tempdata.push( data );
-               }
+              if ($scope.selectTab.id === 'compute') {
+                if( data.status == stat)
+                {
+                    vm.tempdata.push( data );
+                }
+              } else {
+                if( data.lowstatus == stat)
+                {
+                    vm.tempdata.push( data );
+                }
+              }
            });
 
            vm.dealWithData(vm.tempdata.slice().reverse(), $scope.selectTab.id)
@@ -384,7 +391,7 @@
             color: 'green'
           },
           {
-            name: 'C3T.利用率低',
+            name: 'C3T.未知',
             status: 'unkown',
             count: 0,
             color: '#000'

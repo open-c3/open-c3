@@ -15,7 +15,7 @@
             </div>
             <div class="panel-body">
               <div class="monitor-nodeflow-common-body" ng-style="{color: item.color}">
-                <span ng-click="monitornodelow.dataGrep('low')">{{item.count}}</span>
+                <span ng-click="monitornodelow.dataGrep(item.status)">{{item.count}}</span>
               </div>
             </div>
           </div>
@@ -34,7 +34,7 @@
         <div class="panel-body flowline">
             <div style="overflow: auto;">
               <div class="mark-select col-sm-6 form-group">
-                <label class="col-sm-2 control-label">{{'C3T.标记类型'| translate}}</label>
+                <!-- <label class="col-sm-2 control-label">{{'C3T.标记类型'| translate}}</label>
                 <div class="col-sm-3">
                   <ui-select  ng-model="monitornodelow.markSelected" ng-change="monitornodelow.handleChange()"
                     ng-disabled="!monitornodelow.loadover">
@@ -46,7 +46,7 @@
                       <div ng-bind-html="item.label | highlight: monitornodelow.markSelectOption"></div>
                     </ui-select-choices>
                   </ui-select>
-                </div>
+                </div> -->
                 <div ng-if="monitornodelow.checkboxes.itemsNumber && monitornodelow.checkboxes.itemsNumber !== 0">
                   <button class="btn btn-primary"  uib-tooltip="{{'C3T.编辑'| translate}}" ng-click="monitornodelow.handleEditStatus()">{{'C3T.编辑'| translate}}</button>
                 </div>
@@ -55,7 +55,7 @@
                 <table ng-table="monitornodelow.dataTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data" ng-class="{'mark-color': monitornodelow.hashMarkData.includes(m.ip)}" >
                       <td data-title="">
-                        <input type="checkbox" name="selected" ng-model="monitornodelow.checkboxes.items[m.name]" />
+                        <input type="checkbox" name="selected" ng-model="monitornodelow.checkboxes.items[m.name]"  ng-disabled="m.owner !== monitornodelow.userInfo.email"/>
                       </td>
                         <td data-title="'C3T.编号'|translate"   sortable="'id'"    >{{m.id}}</td>
                         <td data-title="'C3T.主机名'|translate" sortable="'name'" filter="{ name: 'text'}" >{{m.name}}</td>
@@ -113,7 +113,7 @@
                     </tr>
                     <tr ng-repeat="m in $data" ng-class="{'mark-color': monitornodelow.hashMarkData.includes(m.ip)}">
                       <td ng-if="monitornodelow.headerList.length > 0">
-                        <input type="checkbox" name="selected" ng-model="monitornodelow.checkboxes.items[m.name]" />
+                        <input type="checkbox" name="selected" ng-model="monitornodelow.checkboxes.items[m.name]" ng-disabled="m['业务负责人'] !== monitornodelow.userInfo.email"/>
                       </td>
                       <td ng-repeat="item in monitornodelow.headerList| filter:searchText" data-title="item" sortable="item">{{m[item]}}</td>
                     </tr>
