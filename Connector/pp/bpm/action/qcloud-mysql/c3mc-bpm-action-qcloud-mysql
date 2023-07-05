@@ -162,7 +162,7 @@ class Mysql:
         """
         start_time = time.time()
         while True:
-            cdb_info = self.lib_qcloud_cdb.DescribeDBInstances(instance_id)
+            cdb_info = self.lib_qcloud_cdb.describe_db_instances(instance_id)
             if cdb_info["Status"] == 1:
                 return True
             elif time.time() - start_time > timeout:
@@ -175,11 +175,11 @@ class Mysql:
         if not self.wait_for_cdb_running(instance_id):
             raise RuntimeError(f"开通外网访问失败. instance_id: {instance_id}, 原因: 等待实例变为运行状态超时, 超时时间30分钟")
 
-        cdb_info = self.lib_qcloud_cdb.DescribeDBInstances(instance_id)
+        cdb_info = self.lib_qcloud_cdb.describe_db_instances(instance_id)
         # 假如工单中途出错，可能部分实例已经成功开通了外网访问
         if cdb_info["WanStatus"] == 1:
             return 
-        res = self.lib_qcloud_cdb.OpenWanService(instance_id)
+        res = self.lib_qcloud_cdb.open_wan_service(instance_id)
         print(f"开通外网访问成功. instance_id: {instance_id}, 结果: {json.dumps(res, default=str)}")
 
 
@@ -228,7 +228,7 @@ class Mysql:
                     self.open_wan_service(instance_id)
         except Exception as e:
             # 如果出现任何异常，则立即删除所有已创建的cdb实例
-            self.lib_qcloud_cdb.delete_cdb_instance(resp.InstanceIds)
+            self.lib_qcloud_cdb.delete_cdb_instance(resp.InstanceIds, False)
             print(f"处理cdb实例出错, err: {e}", file=sys.stderr)
             exit(1)
 

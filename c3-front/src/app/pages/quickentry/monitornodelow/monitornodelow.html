@@ -1,71 +1,38 @@
 <cmloading ng-if="!monitornodelow.loadover"></cmloading>
-<div class="row block">
+<uib-tabset class="tab-set" active="selectTab">
+  <uib-tab ng-repeat="tab in monitornodelow.lowUtilizationList" ng-click="monitornodelow.handleTabChange(tab)">
+    <uib-tab-heading class="tab-heading">
+      <span class="tab-heading-text">{{tab.name}}</span>
+    </uib-tab-heading>
 
-    <div class="col-lg-3 col-xs-12 ml0 pl0" style="padding-left: 0">
-        <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
+    <uib-tab-content class="tab-content">
+      <div class="row block">
+        <div class="col-lg-3 col-xs-12 ml0 pl0 monitor-panel monitor-panel"
+          ng-repeat="item in monitornodelow.monitorDataCardList">
+          <div class="panel panel-default monitor-nodeflow-card">
             <div class="panel-heading">
-                <h4 class="kb_title">{{'C3T.利用率低'|translate}}: low</h4>
+              <h4 class="kb_title">{{item.name |translate}}: {{item.status}}</h4>
             </div>
             <div class="panel-body">
-                <div style="font-size: 45px;font-weight: bold;text-align: center;height: 115px;cursor:pointer; color: red">
-                    <span ng-click="monitornodelow.dataGrep('low')" >{{count1}}</span>
-                </div>
+              <div class="monitor-nodeflow-common-body" ng-style="{color: item.color}">
+                <span ng-click="monitornodelow.dataGrep(item.status)">{{item.count}}</span>
+              </div>
             </div>
+          </div>
         </div>
-    </div>
-    <div class="col-lg-3 col-xs-12 ml0 pl0" style="padding-left: 0">
-        <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
-            <div class="panel-heading">
-                <h4 style="font-weight: bold;color: #337ab7">{{'C3T.警告'|translate}}: warn</h4>
-            </div>
-            <div class="panel-body">
-                <div style="font-size: 45px;font-weight: bold;text-align: center;height: 115px;cursor:pointer;color: #f6bb42">
-                    <span ng-click="monitornodelow.dataGrep('warn')" >{{count2}}</span>
-                </div>
 
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-xs-12 ml0 pl0" style="padding-left: 0">
-        <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
-            <div class="panel-heading">
-                <h4 style="font-weight: bold;color: #337ab7">{{'C3T.正常'|translate}}: normal</h4>
-            </div>
-            <div class="panel-body" >
-                <div style="font-size: 45px;font-weight: bold;text-align: center;height: 115px;cursor:pointer;color: green">
-                    <span ng-click="monitornodelow.dataGrep('normal')" >{{count3}}</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="col-lg-3 col-xs-12 ml0 pl0" style="padding-left: 0">
-        <div class="panel panel-default" style="box-shadow: -2px 0 10px 3px rgba(0,0,0,.1);">
-            <div class="panel-heading">
-                <h4 style="font-weight: bold;color: #337ab7">{{'C3T.未知'|translate}}: unkown</h4>
-            </div>
-            <div class="panel-body">
-                <div style="font-size: 45px;font-weight: bold;text-align: center;height: 115px;cursor:pointer;">
-                    <span ng-click="monitornodelow.dataGrep('unkown')" >{{count4}}</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-
-    <div class="col-lg-12 col-xs-12 ml0 pl0" style="padding-left: 0">
-
-
+    <div class="col-lg-12 col-xs-12 ml0 pl0 monitor-panel">
     <div class="panel panel-primary">
         <div class="panel-heading">
             <span class="panel-controls">
                 <button ng-disabled="monitornodelow.allData.length === 0" class="btn btn-primary" uib-tooltip="{{'C3T.导出'|translate}}" ng-click="monitornodelow.exportDownload(monitornodelow.exportDownloadStr, monitornodelow.tableData)" ><i class="fa fa-download fa-1x" aria-hidden="true"></i></i></button>
-                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="monitornodelow.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!monitornodelow.loadover}" ></i></button>
+                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="monitornodelow.getMarkData()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!monitornodelow.loadover}" ></i></button>
             </span>
             <h5>{{'C3T.资源利用率低'|translate}}</h5>
         </div>
 
         <div class="panel-body flowline">
-            <div style="overflow: auto;">
+            <div>
               <div class="mark-select col-sm-6 form-group">
                 <label class="col-sm-2 control-label">{{'C3T.标记类型'| translate}}</label>
                 <div class="col-sm-3">
@@ -75,33 +42,39 @@
                       <span class="item-label"> {{$select.selected.label}}</span>
                     </ui-select-match>
                     <ui-select-choices
-                      repeat="item.value as item in monitornodelow.markSelectOption | filter: $select.search.value">
-                      <div ng-bind-html="item.label | highlight: monitornodelow.markSelectOption"></div>
+                      repeat="item.value as item in monitornodelow.markStatusOption | filter: $select.search.value">
+                      <div ng-bind-html="item.label | highlight: monitornodelow.markStatusOption"></div>
                     </ui-select-choices>
                   </ui-select>
                 </div>
+                <div>
+                  <button class="btn btn-primary"  uib-tooltip="{{'C3T.编辑'| translate}}" ng-click="monitornodelow.handleEditStatus()">{{'C3T.编辑'| translate}}</button>
+                </div>
               </div>
+              <div ng-if="selectTab.id === 'compute'">
                 <table ng-table="monitornodelow.dataTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
-                    <tr ng-repeat="m in $data" ng-class="{'mark-color': monitornodelow.hashMarkData.includes(m.ip)}">
+                    <tr ng-repeat="m in $data" ng-class="{'mark-color': monitornodelow.hashMarkData.includes(m.ip)}" >
+                      <td data-title="">
+                        <input type="checkbox" name="selected" ng-model="monitornodelow.checkboxes.items[m.name]"  ng-disabled="m.owner !== monitornodelow.userInfo.email"/>
+                      </td>
                         <td data-title="'C3T.编号'|translate"   sortable="'id'"    >{{m.id}}</td>
                         <td data-title="'C3T.主机名'|translate" sortable="'name'" filter="{ name: 'text'}" >{{m.name}}</td>
                         <td data-title="'C3T.名称'|translate" sortable="'hostname'" filter="{ hostname: 'text'}" >{{m.hostname}}</td>
                         <td data-title="'Owner'" sortable="'owner'" filter="{ owner: 'text'}" >
                           <div class="owner-mark">
                             <div class="owner-text">{{m.owner || '-'}}</div>
-                            <button class="btn btn-primary owner-mark-button" ng-if="!monitornodelow.hashMarkData.includes(m.ip)" 
-                            ng-disabled="m.owner !== monitornodelow.userInfo.name.toLowerCase()" ng-click="monitornodelow.handleMark(m)">{{'C3T.标记' | translate}}</button>
+                            <!-- <button class="btn btn-primary owner-mark-button" ng-if="!monitornodelow.hashMarkData.includes(m.ip)" 
+                            ng-disabled="m.owner !== monitornodelow.userInfo.name.toLowerCase()" ng-click="monitornodelow.handleMark(m)">{{'C3T.标记' | translate}}</button> -->
                           </div>
                         </td>
+                        <td data-title="'C3T.处理状态'|translate" sortable="'remarkStatus'" filter="{ remarkStatus: 'text'}" >{{m.remarkStatus}}</td>
+                        <td data-title="'C3T.处理备注'|translate" sortable="'remark'" filter="{ remark: 'text'}">{{m.remark}}</td>
                         <td data-title="'C3T.实例类型'|translate" sortable="'instancetype'" filter="{ instancetype: 'text'}" >{{m.instancetype}}</td>
                         <td data-title="'C3T.内网IP'|translate" sortable="'inip'" filter="{ inip: 'text'}" >{{m.inip}}</td>
                         <td data-title="'C3T.外网IP'|translate" sortable="'exip'" filter="{ exip: 'text'}" >{{m.exip}}</td>
                         <td data-title="'C3T.资源类型'|translate" sortable="'type'">{{m.type}}</td>
                         <td data-title="'C3T.状态'|translate" sortable="'status'" filter="{ status: 'text'}" >
-                            <a ng-if="m.status=='low'"    ng-class="{'mark-icon-color': monitornodelow.hashMarkData.includes(m.ip)}" style="color: red"     >{{m.status}}<a>
-                            <a ng-if="m.status=='warn'"   ng-class="{'mark-icon-color': monitornodelow.hashMarkData.includes(m.ip)}" style="color: #f6bb42" >{{m.status}}<a>
-                            <a ng-if="m.status=='normal'" ng-class="{'mark-icon-color': monitornodelow.hashMarkData.includes(m.ip)}" style="color: green"   >{{m.status}}<a>
-                            <a ng-if="m.status=='unkown'" ng-class="{'mark-icon-color': monitornodelow.hashMarkData.includes(m.ip)}">{{m.status}}<a>
+                          <a ng-style="{'color': monitornodelow.statusColorMap[m.status]}">{{m.status}}</a>
                         </td>
                         <td data-title="'C3T.低利用率天数/14天'|translate" sortable="'lowcnt'">{{m.lowcnt}}</td>
                         <td data-title="'CPU(%)'"            sortable="'cpu'"   >{{m.cpu}}</td>
@@ -119,74 +92,42 @@
                         <td data-title="'C3T.最后统计日期'|translate"      sortable="'date'"  >{{m.date}}</td>
                         <td class="textcenter"  data-title="'C3T.操作'|translate">
                             <nobr>
-                                <i class="fa fa-search fa-2x" ng-class="{'mark-icon-color': monitornodelow.hashMarkData.includes(m.ip)}" aria-hidden="true" ng-click="monitornodelow.showDetail(m.inip)" uib-tooltip="{{'C3T.详情'|translate}}" style="cursor:pointer;color: #339094;" ></i>
-                                <i class="fa fa-tachometer fa-2x" ng-class="{'mark-icon-color': monitornodelow.hashMarkData.includes(m.ip)}" aria-hidden="true" ng-click="monitornodelow.openNewWindow(m.inip)" uib-tooltip="{{'C3T.图表'|translate}}" style="cursor:pointer;color: #339094;" ></i>
+                                <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="monitornodelow.showDetail(m.inip)" uib-tooltip="{{'C3T.详情'|translate}}" style="cursor:pointer;color: #339094;" ></i>
+                                <i class="fa fa-tachometer fa-2x" aria-hidden="true" ng-click="monitornodelow.openNewWindow(m.inip)" uib-tooltip="{{'C3T.图表'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                             </nobr>
                         </td>
                     </tr>
                 </table>
+              </div>
+                <!-- 其他利用率 -->
+                <div ng-if="selectTab.id !== 'compute'">
+                  <table ng-table="monitornodelow.dataTable"
+                    class="table table-scroll table-hover text-center table-condensed" show-filter="true"
+                    >
+                    <tr ng-if="monitornodelow.headerList.length > 0">
+                      <th></th>
+                      <th ng-repeat="item in monitornodelow.headerList">{{item}}</th>
+                    </tr>
+                    <tr ng-repeat="m in $data">
+                      <td ng-if="monitornodelow.headerList.length > 0">
+                        <input type="checkbox" name="selected" ng-model="monitornodelow.checkboxes.items[m.name]" ng-disabled="m['业务负责人'] !== monitornodelow.userInfo.email"/>
+                      </td>
+                      <td ng-repeat="item in monitornodelow.headerList| filter:searchText" data-title="item" sortable="item">
+                        <div ng-if="item === 'lowstatus'"><a ng-style="{'color': monitornodelow.statusColorMap[m[item]]}">{{m[item]}}<a></div>
+                        <div ng-if="item !== 'lowstatus'">{{m[item]}}</div>
+                      </td>
+                    </tr>
+                  </table>
+                </div>
             </div>
         </div>
     </div>
   </div>
 
 </div>
+    </uib-tab-content>
+  </uib-tab>
 
-<style>
-  .mark-color {
-    background-color: green!important;
-    color: #FFFFFF;
-  }
-
-  .mark-icon-color {
-    color: #FFFFFF!important;
-    cursor:pointer
-  }
-
-  .owner-mark {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .owner-text {
-    min-width: 80px;
-  }
-
-  .owner-mark-button {
-    margin-left: 5px;
-    font-size: 12px;
-    padding: 3px;
-  }
-
-  .owner-mark-button:active {
-    outline: none!important;
-    box-shadow: none!important;
-  }
-
-  .owner-mark-button:focus {
-    outline: none!important;
-  }
-
-  .owner-mark-button:focus-visible  {
-    outline: none!important;
-  }
-
-  .mark-select {
-    display: flex;
-    justify-content: flex-start;
-    align-items: center;
-  }
-
-  .ui-select-bootstrap > .ui-select-choices, .ui-select-bootstrap > .ui-select-no-choice {
-    width: 100%;
-    height: auto;
-    overflow-x: hidden;
-    margin-top: -1px;
-    max-height: 400px!important;
-  }
-  .ui-select-bootstrap  >  .ui-select-match > .form-control {
-    width: 100%;
-    min-width: 100px;
-  }
-</style>
+  <script type="text/ng-template" id="headerCheckbox.html">
+    <input type="checkbox" ng-model="monitornodelow.checkboxes.checked"  class="select-all"/>
+  </script>

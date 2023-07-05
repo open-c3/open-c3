@@ -1,0 +1,36 @@
+---
+name: 操作腾讯云mysql
+option:
+  - name: operate_type
+    describe: 操作类型
+    type: select
+    option:
+    - name: isolate
+      alias: 隔离数据库 (可以从回收站恢复)
+    - name: release_isolate
+      alias: 解除隔离数据库 (用于恢复已隔离云数据库实例)
+    - name: terminate
+      alias: 立即下线数据库实例 (不可恢复)
+
+  - name: if_delete_backup
+    describe: 是否删除云数据库备份 (只支持删除手动发起的备份)
+    type: select
+    option: ["是", "否"]
+    value: ""
+    information: "腾讯删除云数据库备份的接口只支持删除手动发起的备份"
+    show:
+      - operate_type: ["terminate"]
+
+  - name: cdb_instance_ids
+    describe: cdb实例id列表 (多个用英文逗号分隔)
+    type: text
+
+template_argv:
+  # bpm单号
+  bpm_uuid: ${_bpmuuid_}
+  # 操作类型
+  operate_type: ${operate_type}
+  # 删除数据库时是否删除云数据库备份
+  if_delete_backup: ${if_delete_backup}
+  # cdb实例列表
+  cdb_instance_ids: ${cdb_instance_ids}

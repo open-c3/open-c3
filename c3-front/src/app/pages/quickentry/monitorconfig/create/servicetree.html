@@ -1,0 +1,25 @@
+<div class="modal-header">
+  <h4 class="modal-title">{{'C3T.选择目标服务树'|translate}}</h4>
+</div>
+<div class="modal-body">
+  <div class="select-service-tree">
+    <div class="select-service-tree-source">
+      <div class="select-service-tree-source-label">{{'C3T.所在节点'| translate }}：</div>
+      <div class="select-service-tree-source-text label label-primary ng-binding">{{selectServicetree.nodeStr}}</div>
+    </div>
+    <div class="select-service-tree-target">
+      <div class="select-service-tree-source-label">{{'C3T.目标节点'| translate }}：</div>
+      <div class="select-service-tree-source-text label label-primary ng-binding">{{selectServicetree.cloneNodeData.cloneNodeName === ''? '': 'ROOT.'}}{{selectServicetree.cloneNodeData.cloneNodeName}}</div>
+    </div>
+  </div>
+  <div class="panel-body prn" style="padding: 0">
+    <perfect-scrollbar class="scroller">
+      <ul class="ztree" id="openc3treecopy"></ul>
+    </perfect-scrollbar>
+  </div>
+  <div class="confirm-btn text-right">
+    <button class="btn btn-primary" ng-click="selectServicetree.confirm()"
+      ng-disabled="!selectServicetree.cloneNodeData.cloneNodeName">{{'C3T.确定'| translate }}</button>
+    <button class="btn btn-warning" ng-click="selectServicetree.cancel()">{{'C3T.关闭'| translate }}</button>
+  </div>
+</div>

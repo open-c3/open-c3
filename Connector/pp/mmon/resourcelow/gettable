@@ -1,0 +1,92 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use Encode;
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ $0 type treeid
+
+=cut
+
+
+my ( $type, $treeid ) = @ARGV;
+die "type eror" unless $type && $type =~ /^[a-z][a-z\-]*[a-z]$/;
+die "treeid error" unless defined $treeid && $treeid =~ /^\d+$/;
+
+sub gettreename
+{
+    my $treeid = shift @_;
+    return "temp.tree.f75ac56606f352273f7eaa4d3572e4f9" if $treeid > 4000000000;
+    # 上面的服务树随意，就是想让个人的服务树节点，不要匹配到任何信息
+    my @x = `c3mc-base-treemap cache| grep "^$treeid;"|awk -F';'  '{print \$2}'`;
+    chomp @x;
+    die "get treename by id: $treeid fail" unless @x;
+    return $x[0];
+};
+
+my ( $chkfile ) = grep{ -f } ( "/data/open-c3-data/resourcelow/$type.yml", "/data/Software/mydan/Connector/pp/mmon/resourcelow/conf/chk/$type.yml" );
+
+my $chk = eval{ YAML::XS::LoadFile $chkfile };
+die "load chk $chkfile fail: $@" if $@;
+
+my @x = `cat /data/open-c3-data/resourcelow/$type.txt`;
+chomp @x;
+my $title = shift @x;
+utf8::decode($title);
+
+my @title = split /\t/, $title;
+my @node;
+
+my $greptreename = ( $treeid == 0 || $treeid == 4000000000 ) ? undef : eval{ gettreename( $treeid ) };
+die "get treename fail: $@" if $@;
+
+my $treecol = Encode::decode( 'utf8', '服务树' );
+for my $x ( @x )
+{
+    utf8::decode($x);
+    my @d = split /\t/, $x;
+    my %d = map{ $title[$_] => $d[$_] } 0 .. $#title;
+    my $match = 0;
+
+    if( $greptreename )
+    {
+        if( $d{$treecol} )
+        {
+            for  my $treename ( grep{ length $_ > 0 } split /,/, $d{$treecol}  )
+            {
+                $match = 1 if index( $treename, "$greptreename." ) == 0 || $treename eq $greptreename;
+            }
+        }
+    }
+    else
+    {
+        $match = 1;
+    }
+
+    next unless $match;
+
+    $d{lowstatus} = 'unkown';
+    for my $type ( qw( low warn normal ) )
+    {
+        if( $d{lowstatus} eq 'unkown' && $chk->{$type} )
+        {
+            $d{lowstatus} = $type if eval $chk->{$type};
+        }
+
+    }
+    push @node, \%d;
+
+}
+
+push @title, 'lowstatus';
+
+printf "%s\n", join ';', map{ Encode::encode( 'utf8', $_ ) }@title;
+for my $x ( @node )
+{
+    printf "%s\n", join ';', map{$x->{$_}//''}@title;
+}

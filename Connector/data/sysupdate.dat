@@ -930,3 +930,16 @@ ALTER TABLE openc3_monitor_config_rule ADD `vtreeid` VARCHAR(20) comment '虚拟
 
 # v2.6.0 sql openc3_monitor_config_collector add vtreeid
 ALTER TABLE openc3_monitor_config_collector ADD `vtreeid` VARCHAR(20) comment '虚拟服务树id';
+
+# v2.6.0 sql openc3_monitor_resource_low_mark create
+create table if not exists `openc3_monitor_resource_low_mark`(
+`id`        int(16) unsigned not null primary key auto_increment comment 'id',
+`type`      VARCHAR(200)   comment '资源类型',
+`uuid`      VARCHAR(200)   comment '资源uuid',
+`operator`  VARCHAR(80)    comment '操作人',
+`expires`   VARCHAR(20)    comment '过期时间，秒数',
+`status`    VARCHAR(50)    comment '状态',
+`mark`      VARCHAR(2000)  comment '描述',
+UNIQUE KEY `uniq_type_uuid` (`type`,`uuid` )
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='资源低利用率-标记';
+

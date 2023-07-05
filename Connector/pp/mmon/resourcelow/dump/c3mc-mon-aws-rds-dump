@@ -10,17 +10,17 @@ $|++;
 
 =cut
 
-my @col = qw( 实例ID 名称 业务负责人 实例类型 );
+my @col = qw( 实例ID 服务树 名称 业务负责人 实例类型 AllocatedStorage );
 my $col = join " ", @col;
-my @x = `c3mc-device-data-get curr database aws-redis $col`;
+my @x = `c3mc-device-data-get curr database aws-rds $col`;
 chomp @x;
 
-my @mon = qw( avg-cpu max-cpu avg-mem max-mem );
+my @mon = qw( avg-cpu max-cpu avg-disk max-disk );
 
 my %mon;
 for my $mon ( @mon )
 {
-    my @xx = `c3mc-mon-aws-redis-${mon}-dump`;
+    my @xx = `c3mc-mon-aws-rds-${mon}-dump`;
     chomp @xx;
     for ( @xx )
     {
@@ -33,6 +33,6 @@ printf "%s\n", join "\t", @col, @mon;
 for my $x ( @x )
 {
     my ( $instance ) = split /\t/, $x;
-    $instance =~ s/.*:cluster://;
+    $instance =~ s/.*:db://;
     printf "%s\n", join "\t", $x, map{ $mon{$_} && defined $mon{$_}{$instance} ? $mon{$_}{$instance} : 'unkown' }@mon;
 }

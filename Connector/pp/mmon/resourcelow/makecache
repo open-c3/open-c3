@@ -1,0 +1,27 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use YAML::XS;
+use FindBin qw( $RealBin );
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+
+my $type = eval{ YAML::XS::LoadFile "$RealBin/conf/type.yml" };
+die "load conf $@" if $@;
+
+my $path = "/data/open-c3-data/resourcelow";
+
+system( "mkdir -p $path" ) unless -d $path;
+
+for my $x ( @$type )
+{
+    system "c3mc-mon-$x-dump > $path/$x.temp.$$ && mv $path/$x.temp.$$ $path/$x.txt";
+}

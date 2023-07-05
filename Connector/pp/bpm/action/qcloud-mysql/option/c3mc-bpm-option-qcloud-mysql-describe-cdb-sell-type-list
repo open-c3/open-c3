@@ -18,7 +18,7 @@ information = {
 def get_data_list(access_id, access_key, region, zone, charge_type):
     from c3mc_cloud_qcloud_cdb import QcloudCdb
 
-    res = QcloudCdb(access_id, access_key, region).DescribeCdbZoneConfig()
+    res = QcloudCdb(access_id, access_key, region).describe_cdb_zone_config()
 
     result = []
     for region_item in res["DataResult"]["Regions"]:

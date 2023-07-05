@@ -16,15 +16,23 @@ use MYDan::Util::OptConf;
 
  $0 col1 col2 .. col2 [ --col name,inip [id|name|type|inip|exip|projectid] ]
 
+ --force_ingestion_cmdb
+ --skip_ingestion_api
+
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o = $option->set( col => 'name,inip' )->get( qw( col=s ) )->dump();
+my %o = $option->set( col => 'name,inip' )->get( qw( col=s force_ingestion_cmdb skip_ingestion_api ) )->dump();
 
 my $dbj = MYDB->new( "/data/Software/mydan/JOB/conf/conn",       delayedconnection => 1 );
 my $dbc = MYDB->new( "/data/Software/mydan/Connector/conf/conn", delayedconnection => 1 );
 
 my $ingestion = OPENC3::SysCtl->new()->get( 'sys.device.ingestion.node' );
+my $ingestionapi = 1;
+
+$ingestion    = 1 if $o{force_ingestion_cmdb};
+$ingestionapi = 0 if $o{skip_ingestion_api  };
+ 
 
 my $insertname = 0;
 if( $o{col} !~ /name/ )
@@ -56,10 +64,14 @@ sub rnodeinfo
     die unless $id =~ /^\d+$/;
 
     my @node;
-    my @x1 = `c3mc-base-nodeinfo $id --col $o{col}`;
-    die "c3mc-base-nodeinfo fail: $!" if $?;
-    chomp @x1;
-    push @node, @x1;
+
+    if( $ingestionapi )
+    {
+        my @x1 = `c3mc-base-nodeinfo $id --col $o{col}`;
+        die "c3mc-base-nodeinfo fail: $!" if $?;
+        chomp @x1;
+        push @node, @x1;
+    }
 
     if( $ingestion )
     {

@@ -1,13 +1,18 @@
 ---
-name: 业务负责人审批
+name: '提交人的领导审批'
 option:
-  - describe: 业务审批人
-    name: oaapprover
-    type: input
+#  - describe: 业务审批人
+#    name: oaapprover
+#    type: input
+#    value: ""
+
+  - describe: 申请理由
+    name: note
+    type: text
     value: ""
 
 template_argv:
-  approver: ${oaapprover}
+  approver: "sudoer(sudo_8,${_user_}) or leader(${_user_})"
   title:    "BPM/${_bpmuuid_}/AWS SQS"
   content:  |
     BPM标题: 资源申请/AWS/SQS
