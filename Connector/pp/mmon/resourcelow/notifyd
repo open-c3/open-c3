@@ -1,0 +1,139 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use YAML::XS;
+use FindBin qw( $RealBin );
+use Encode;
+use File::Temp;
+use POSIX;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+
+my $type = eval{ YAML::XS::LoadFile "$RealBin/conf/type.yml" };
+die "load conf $@" if $@;
+
+my $path = "/data/open-c3-data/resourcelow";
+
+system( "mkdir -p $path" ) unless -d $path;
+
+my %res;
+my %title;
+
+sub run
+{
+    my $t = shift @_;
+    my @x = `$RealBin/gettable '$t' 0`;
+    chomp @x;
+
+
+    my $title = shift @x;
+    utf8::decode($title);
+    my @title = split /;/, $title;
+    $title{$t} = \@title;
+
+    my @node;
+    for my $x ( @x )
+    {
+        utf8::decode($x);
+        my @d = split /;/, $x;
+        my %d = map{ $title[$_] => $d[$_] } 0 .. $#title;
+
+        my ( $owner, $lowstatus ) = map{ $d{$_} } map{ Encode::decode( 'utf8', $_ ); }qw( 业务负责人 lowstatus );
+        next unless $lowstatus eq 'low';
+
+        $res{$owner} //= +{};
+        $res{$owner}{$t} //= [];
+        push @{$res{$owner}{$t}}, \%d;
+
+    }
+}
+
+map{ run($_) }@$type;
+
+sub getcontent
+{
+    my ( $title, @data ) = @_;
+    my @res;
+    push @res, join ';', @$title;
+
+    my ( $len, $more ) = ( 5, 0 );
+    for my $x ( @data )
+    {
+        if( $len -- > 0  )
+        {
+            push @res, join ';', map{ $x->{$_}  }@$title;;
+        }
+        else
+        {
+            $more ++;
+        }
+    }
+
+    push @res, sprintf "more(%s)", $more if $more;
+
+    return @res;
+}
+
+my    $c3webaddr = `c3mc-sys-ctl sys.c3webaddr`;
+chomp $c3webaddr;
+
+sub sendmail
+{
+    my ( $user, @content ) = @_;
+
+    my $head = `cat /data/Software/mydan//Connector/pp/mmon/resourcelow/conf/mail.head.txt`;
+    my $tail = `cat /data/Software/mydan//Connector/pp/mmon/resourcelow/conf/mail.tail.txt`;
+
+    $head =~ s/\{c3webaddr\}/$c3webaddr/g;
+    $tail =~ s/\{c3webaddr\}/$c3webaddr/g;
+
+    my $dir = sprintf "/data/open-c3-data/resourcelow/send/%s", POSIX::strftime( "%Y-%m-%d", localtime );;
+
+    return if -f "$dir/$user.ok";
+
+    system "mkdir -p $dir" unless -d $dir;
+
+    my ( $TEMP, $tempfile ) = File::Temp::tempfile();
+
+    print $TEMP $head;
+    print $TEMP Encode::encode( 'utf8', join "\n", @content );
+    print $TEMP $tail;
+    close $TEMP;
+
+    system "mv $tempfile $dir/$user.todo";
+
+    return if $user =~ /'/;
+
+    system "cat $dir/$user.todo | c3mc-base-sendmail '$user' --subject '资源利用率低通知'";
+    system "mv $dir/$user.todo $dir/$user.ok";
+}
+
+sub notify
+{
+    my ( $owner, $data ) = @_;
+
+    my @content;
+
+    for my $x ( @$type )
+    {
+        next unless $data->{$x};
+        push @content, "$x:";
+        push @content, getcontent( $title{$x},@{$data->{$x}} );
+    }
+
+    sendmail( $owner, @content );
+}
+
+for my $owner ( keys %res )
+{
+    notify( $owner, $res{$owner});
+}
+
