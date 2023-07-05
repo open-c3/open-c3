@@ -38,6 +38,7 @@
         vm.grepdata = {};
         vm.selectedtimemachine = $state.params.timemachine;
         vm.timemachine = [];
+        vm.downloadTitle = [];
 
         vm.filter = [];
         vm.filtergrep = [];
@@ -81,7 +82,7 @@
             });
             $http.post('/api/agent/device/data/' + vm.type + '/' + vm.subtype + '/' + vm.treeid, { "grepdata": newGrepdata, "timemachine": vm.selectedtimemachine } ).success(function(data){
                 if (data.stat){
-                    vm.dealWithData(data.data);
+                    // vm.dealWithData(data.data);
                     vm.checkDataList = data.data
                     vm.dataTable = new ngTableParams({count:25}, {counts:[],data:data.data});
                     vm.filter = data.filter;
@@ -108,6 +109,27 @@
             });
         };
         vm.reload();
+
+        vm.downloadReload = function () {
+          vm.loadover = false;
+          const grepDataJSON = JSON.parse(JSON.stringify(vm.grepdata));
+          const newGrepdata = {};
+          angular.forEach(grepDataJSON, function (value, key) {
+            if (value !== '') {
+              newGrepdata[key] = value
+            }
+          });
+          $http.post('/api/agent/device/data/' + vm.type + '/' + vm.subtype + '/' + vm.treeid, { "grepdata": newGrepdata, "timemachine": vm.selectedtimemachine, "toxlsx": 1 } ).success(function(data){
+              if (data.stat){
+                vm.downloadTitle = data.toxlsxtitle
+                vm.dealWithData(data.data);
+              }else {
+                  swal({ title:'获取数据失败', text: data.info, type:'error' });
+              }
+          });
+        }
+        vm.downloadReload();
+
         sessionStorage.removeItem('globalSearch');
 
         vm.reloadtimemachine = function () {
@@ -124,6 +146,7 @@
         vm.reset = function () {
             vm.grepdata = {};
             vm.reload();
+            vm.downloadReload()
         };
 
         vm.showdetail = function (uuid, type, subtype ) {
@@ -163,14 +186,14 @@
 
         vm.dealWithData = function (data) {
           vm.tableData = []
-          vm.exportDownloadStr = `<tr><td>资源类型</td><td>基本信息</td><td>系统信息</td><td>联系信息</td></tr>`
-          data.forEach(items => {
-            vm.tableData.push({
-              subtype: items.subtype || '',
-              baseinfo: items.baseinfo || '',
-              system: items.system || '',
-              contact: items.contact || '',
+          const trElements = vm.downloadTitle.map(item => `<td>${item}</td>`);
+          vm.exportDownloadStr = `<tr>${trElements.join('')}</tr>`
+          data.forEach(item => {
+            const newData = {}
+            vm.downloadTitle.forEach(cItem => {
+              newData[cItem] = item[cItem]
             })
+            vm.tableData.push(newData)
           })
         }
 
