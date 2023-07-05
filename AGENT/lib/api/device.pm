@@ -44,6 +44,7 @@ any '/device/data/:type/:subtype/:treeid' => sub {
         treeid       => qr/^\d+$/, 1,
         timemachine  => qr/^[a-z0-9][a-z0-9\-]+[a-z0-9]$/, 1,
 #       grepdata
+        toxlsx       => qr/^\d+$/, 0,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -224,7 +225,33 @@ any '/device/data/:type/:subtype/:treeid' => sub {
 
     $pointout = sprintf( "nofind: %s", join ',', @nofindip ) if @nofindip;
 
-    return +{ stat => $JSON::true, data => \@re, debug => \@debug, filter => $filter, filterdata => $filterdata, pointout => $pointout  };
+    my @toxlsxtitle = ();
+    if( $param->{toxlsx} )
+    {
+        my %len = map{ $_ => 1 }qw( subtype baseinfo system contact );
+        for my $x ( @re )
+        {
+            for my $col ( qw( subtype baseinfo system contact ) )
+            {
+                next unless defined $x->{$col};
+                $x->{$col} =~ s/ //g;
+                my @ddd = split /\|/, $x->{$col};
+                delete $x->{$col};
+                $len{$col} = scalar @ddd if @ddd > $len{$col};
+                for my $id ( 0 .. $#ddd )
+                {
+                    my $tid = $id + 1;
+                    $x->{"$col$tid"} = $ddd[$id];
+                }
+            }
+        }
+        for my $col ( qw( subtype baseinfo system contact ) )
+        {
+            map{ push @toxlsxtitle, "$col$_" } 1 .. $len{$col};
+        }
+    }
+
+    return +{ stat => $JSON::true, data => \@re, debug => \@debug, filter => $filter, filterdata => $filterdata, pointout => $pointout, toxlsxtitle => \@toxlsxtitle  };
 };
 
 =pod
