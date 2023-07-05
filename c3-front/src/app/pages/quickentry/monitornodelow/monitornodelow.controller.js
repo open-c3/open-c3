@@ -66,20 +66,8 @@
 
         vm.userInfo = {}
         vm.markSelected = 'all'
-        vm.markStatusOption = [
-          {value: 'all', label: '全部'},
-          {value: 'shutdown', label: '规划关机'},
-          {value: 'recycle', label: '规划回收'},
-          {value: 'downgrade', label: '规划降配'},
-          {value: 'initial', label: '暂不处理'},
-        ]
-        vm.remarkStatusMap = {
-          all : '全部',
-          shutdown : '规划关机',
-          recycle : '规划回收',
-          downgrade : '规划降配',
-          initial : '暂不处理',
-        }
+        vm.markStatusOption = [{value: 'all', label: '全部'}]
+        vm.dialogStatusList = []
         vm.tableData = [];
         vm.exportDownload = genericService.exportDownload
         treeService.sync.then(function(){
@@ -146,6 +134,24 @@
             }
           });
         }
+
+        // 获取状态列表
+        vm.getStatusList = function () {
+          vm.loadover = false;
+          $http.get('/api/agent/resourcelow/status').success(function (data) {
+            vm.loadover = true
+            if (data.stat == true) {
+              vm.dialogStatusList = data.data
+              vm.markStatusOption.push(...data.data.map(item => {
+                return {value: item.name, label: item.name}
+              }))
+            } else {
+              toastr.error("加载数据失败:" + data.info)
+            }
+          });
+        }
+
+        vm.getStatusList();
 
         vm.reload = function () {
           let remarkMap = []
@@ -315,11 +321,11 @@
         vm.handleChange = function () {
           const selectData = JSON.parse(JSON.stringify(vm.selectData))
           if ($scope.selectTab.id === 'compute') {
-            const statusSelectData = selectData.filter(item => vm.markSelected === 'all'? item : item.remarkStatus === vm.remarkStatusMap[vm.markSelected])
+            const statusSelectData = selectData.filter(item => vm.markSelected === 'all'? item : item.remarkStatus === vm.markSelected)
             vm.dealWithData(statusSelectData.slice().reverse(), $scope.selectTab.id)
             vm.dataTable = new ngTableParams({count:20}, {counts:[],data:statusSelectData});
           } else {
-            const otherStatusSelectData = selectData.filter(item => vm.markSelected === 'all'? item : item['处理状态'] === vm.remarkStatusMap[vm.markSelected])
+            const otherStatusSelectData = selectData.filter(item => vm.markSelected === 'all'? item : item['处理状态'] === vm.markSelected)
             vm.dealWithData(otherStatusSelectData.slice().reverse(), $scope.selectTab.id)
             vm.dataTable = new ngTableParams({count:20}, {counts:[],data:otherStatusSelectData.reverse()});
           }
@@ -362,7 +368,8 @@
           type: function () { return $scope.selectTab.id },
           treeid: function () { return vm.treeid },
           selectResDetail: function () { return selectResDetail},
-          tableReload: function () { return vm.tableReload }
+          tableReload: function () { return vm.tableReload },
+          dialogStatusList: function () { return vm.dialogStatusList },
         }
       });
     }
@@ -379,25 +386,29 @@
             name: 'C3T.利用率低',
             status: 'low',
             count: 0,
-            color: 'red'
+            color: 'red',
+            description: ''
           },
           {
             name: 'C3T.警告',
             status: 'warn',
             count: 0,
-            color: '#f6bb42'
+            color: '#f6bb42',
+            description: ''
           },
           {
             name: 'C3T.正常',
             status: 'normal',
             count: 0,
-            color: 'green'
+            color: 'green',
+            description: ''
           },
           {
             name: 'C3T.未知',
             status: 'unkown',
             count: 0,
-            color: '#000'
+            color: '#000',
+            description: ''
           },
         ]
         vm.getMarkData();
