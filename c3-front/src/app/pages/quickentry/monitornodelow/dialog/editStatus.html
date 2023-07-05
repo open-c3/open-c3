@@ -1,0 +1,37 @@
+<div class="modal-header">
+  <h4 class="modal-title">{{'C3T.编辑状态'| translate}}</h4>
+</div>
+<div class="modal-body">
+  <form class="form-horizontal" name="tabform" role="form">
+    <div class="row">
+      <div class="col-sm-10 form-group">
+        <label class="col-sm-3 control-label">{{'C3T.状态'|translate}}</label>
+        <div class="col-sm-9">
+          <ui-select ng-model="editStatus.markSelected" ng-change="editStatus.handleChange()"
+            ng-disabled="!editStatus.loadover">
+            <ui-select-match>
+              <span class="item-label"> {{$select.selected.name}}</span>
+            </ui-select-match>
+            <ui-select-choices repeat="item.name as item in editStatus.statusList | filter: $select.search">
+              <div ng-bind-html="item.name | highlight: editStatus.statusList"></div>
+            </ui-select-choices>
+          </ui-select>
+        </div>
+      </div>
+      <div class="col-sm-10 form-group">
+        <label class="col-sm-3 control-label">{{'C3T.备注'|translate}}&nbsp;<a ng-if="editStatus.postdata.remark === '' && editStatus.remarkRequired && editStatus.remarkRequired.requiredmark === '1'" style="color: red" >*</a></label>
+        <div class="col-sm-9">
+          <input name="remark" type="text" class="form-control" placeholder="{{'C3T.备注'|translate}}"
+            ng-model="editStatus.postdata.remark">
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-sm-5 form-group pull-right">
+        <button class="btn btn-primary" ng-disabled="tabform.$invalid || editStatus.isConfirmDisabled()"
+          ng-click="editStatus.confirm()">{{'C3T.确认'|translate}}</button>
+        <button class="btn btn-warning" ng-click="editStatus.cancel()">{{'C3T.取消'|translate}}</button>
+      </div>
+    </div>
+  </form>
+</div>
