@@ -8,14 +8,14 @@
     <uib-tab-content class="tab-content">
       <div class="row block">
         <div class="col-lg-3 col-xs-12 ml0 pl0 monitor-panel monitor-panel"
-          ng-repeat="item in monitornodelow.monitorDataCardList">
-          <div class="panel panel-default monitor-nodeflow-card">
+          ng-repeat="item in monitornodelow.monitorDataCardList" ng-click="monitornodelow.dataGrep(item.status)">
+          <div class="panel panel-default monitor-nodeflow-card" ng-class="{'card-active-class': monitornodelow.activedStatus === item.status}">
             <div class="panel-heading">
               <h4 class="kb_title">{{item.name |translate}}: {{item.status}}</h4>
             </div>
-            <div class="panel-body" style="height: 100%;">
+            <div class="panel-body" style="height: 100%;border: none;">
               <div class="monitor-nodeflow-common-body" ng-style="{color: item.color}">
-                <span ng-click="monitornodelow.dataGrep(item.status)">{{item.count}}</span>
+                <span>{{item.count}}</span>
               </div>
               <div class="monitor-nodeflow-card-description" ng-style="{color: item.color}">{{item.description || ''}}</div>
             </div>
@@ -34,9 +34,9 @@
 
         <div class="panel-body flowline">
             <div style="overflow-x: auto; overflow-y: auto;">
-              <div class="mark-select col-sm-6 form-group">
-                <label class="col-sm-2 control-label">{{'C3T.处理状态'| translate}}</label>
-                <div class="col-sm-3">
+              <div class="mark-select col-sm-3 form-group">
+                <label class="col-sm-6 control-label">{{'C3T.处理状态'| translate}}</label>
+                <div class="col-sm-12">
                   <ui-select  ng-model="monitornodelow.markSelected" ng-change="monitornodelow.handleChange()"
                     ng-disabled="!monitornodelow.loadover">
                     <ui-select-match>
@@ -47,6 +47,18 @@
                       <div ng-bind-html="item.label | highlight: monitornodelow.markStatusOption"></div>
                     </ui-select-choices>
                   </ui-select>
+                </div>
+              </div>
+              <div class="mark-select col-sm-3 form-group" ng-if="selectTab.id !=='compute'">
+                <label class="col-sm-8 control-label">{{'C3T.实例ID'| translate}}</label>
+                <div class="col-sm-12">
+                  <input type="text" class="form-control" ng-model="monitornodelow.tableInstanceId" ng-change="monitornodelow.handleInstanceChange()">
+                </div>
+              </div>
+              <div class="mark-select col-sm-3 form-group" ng-if="selectTab.id !=='compute'">
+                <label class="col-sm-8 control-label">{{'C3T.业务负责人'| translate}}</label>
+                <div class="col-sm-12">
+                  <input type="text" class="form-control" ng-model="monitornodelow.tableBusinessOwner" ng-change="monitornodelow.handleBusinessChange()">
                 </div>
               </div>
               <div style="text-align: right;">

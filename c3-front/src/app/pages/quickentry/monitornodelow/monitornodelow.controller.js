@@ -20,6 +20,7 @@
         $scope.selectTab = vm.lowUtilizationList[0];
         vm.headerList = []
         vm.downloadTitle  = []
+        vm.activedStatus = ''
         vm.monitorDataCardList = [
           {
             name: 'C3T.利用率低',
@@ -66,6 +67,8 @@
 
         vm.userInfo = {}
         vm.markSelected = 'all'
+        vm.tableInstanceId = ''
+        vm.tableBusinessOwner = ''
         vm.markStatusOption = [{value: 'all', label: '全部'}]
         vm.dialogStatusList = []
         vm.tableData = [];
@@ -84,6 +87,7 @@
 
         vm.stat = '';
         vm.dataGrep = function( stat ){
+            vm.activedStatus = stat
             vm.stat = stat;
             vm.tempdata = [];
             angular.forEach(vm.allData, function (data, index) {
@@ -137,9 +141,7 @@
 
         // 获取状态列表
         vm.getStatusList = function () {
-          vm.loadover = false;
           $http.get('/api/agent/resourcelow/status').success(function (data) {
-            vm.loadover = true
             if (data.stat == true) {
               vm.dialogStatusList = data.data
               vm.markStatusOption.push(...data.data.map(item => {
@@ -159,8 +161,10 @@
           angular.forEach(vm.selectRemark, function (value, key) {
             remarkMap.push({key, status:value.status, mark: value.mark})
           })
+          vm.loadover = false;
           if ($scope.selectTab.id === 'compute') {
             $http.get(`/api/agent/nodelow/${vm.treeid}`).success(function (data) {
+              vm.loadover = true;
               if (data.stat == true) {
                 angular.forEach(data.data, function (value) {
                   if (remarkMap.filter(item => item.key === value.ip).length > 0) {
@@ -179,13 +183,13 @@
                 vm.checkDataList = newArr
                 vm.monitorDataCardList.map(item => item.count = newArr.filter(cItem => cItem.status === item.status).length)
                 vm.monitorDataCardList.map(item => item.description = data.PolicyDescription[item.status])
-                vm.loadover = true;
               } else {
                 toastr.error("加载数据失败:" + data.info)
               }
             });
           } else {
             $http.get(`/api/agent/resourcelow/data/${$scope.selectTab.id}/${vm.treeid}`).success(function (data) {
+              vm.loadover = true;
               if (data.stat == true) {
                 const newData = []
                 let elementsToAdd = ['处理状态', '处理备注'];
@@ -210,7 +214,6 @@
                 vm.checkDataList = newData
                 vm.monitorDataCardList.map(item => item.count = data.data.filter(cItem => cItem.lowstatus === item.status).length)
                 vm.monitorDataCardList.map(item => item.description = data.PolicyDescription[item.status])
-                vm.loadover = true;
               } else {
                 toastr.error("加载数据失败:" + data.info)
               }
@@ -325,11 +328,38 @@
             vm.dealWithData(statusSelectData.slice().reverse(), $scope.selectTab.id)
             vm.dataTable = new ngTableParams({count:20}, {counts:[],data:statusSelectData});
           } else {
-            const otherStatusSelectData = selectData.filter(item => vm.markSelected === 'all'? item : item['处理状态'] === vm.markSelected)
+            const otherStatusSelectData = selectData.filter(item => {
+              return (vm.markSelected === 'all'? item : item['处理状态'] === vm.markSelected) && 
+              (item['实例ID'].includes(vm.tableInstanceId)) && 
+              (item['业务负责人'].includes(vm.tableBusinessOwner))
+            })
             vm.dealWithData(otherStatusSelectData.slice().reverse(), $scope.selectTab.id)
             vm.dataTable = new ngTableParams({count:20}, {counts:[],data:otherStatusSelectData.reverse()});
           }
         }
+
+        vm.handleInstanceChange = function () {
+          const selectData = JSON.parse(JSON.stringify(vm.selectData))
+          const instanceIdtData = selectData.filter(item => {
+            return (vm.markSelected === 'all'? item : item['处理状态'] === vm.markSelected) && 
+            (item['实例ID'].includes(vm.tableInstanceId)) && 
+            (item['业务负责人'].includes(vm.tableBusinessOwner))
+          })
+          vm.dealWithData(instanceIdtData.slice().reverse(), $scope.selectTab.id)
+          vm.dataTable = new ngTableParams({count:20}, {counts:[],data:instanceIdtData});
+        }
+
+        vm.handleBusinessChange = function () {
+            const selectData = JSON.parse(JSON.stringify(vm.selectData))
+            const businesstData = selectData.filter(item => {
+              return (vm.markSelected === 'all'? item : item['处理状态'] === vm.markSelected) && 
+              (item['实例ID'].includes(vm.tableInstanceId)) && 
+              (item['业务负责人'].includes(vm.tableBusinessOwner))
+            })
+            vm.dealWithData(businesstData.slice().reverse(), $scope.selectTab.id)
+            vm.dataTable = new ngTableParams({count:20}, {counts:[],data:businesstData});
+          }
+        
 
         vm.handleTabChange =function (value) {
           $scope.selectTab = value
@@ -411,6 +441,8 @@
             description: ''
           },
         ]
+        vm.tableInstanceId = ''
+        vm.tableBusinessOwner = ''
         vm.getMarkData();
       }
     })

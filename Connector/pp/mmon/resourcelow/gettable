@@ -6,6 +6,7 @@ $|++;
 
 use Encode;
 use YAML::XS;
+use FindBin qw( $RealBin );
 
 =head1 SYNOPSIS
 
@@ -18,6 +19,7 @@ my ( $type, $treeid ) = @ARGV;
 die "type eror" unless $type && $type =~ /^[a-z][a-z\-]*[a-z]$/;
 die "treeid error" unless defined $treeid && $treeid =~ /^\d+$/;
 
+exec "$RealBin/gettable-compute" if $type eq 'compute';
 sub gettreename
 {
     my $treeid = shift @_;
