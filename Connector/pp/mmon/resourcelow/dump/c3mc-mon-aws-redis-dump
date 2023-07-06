@@ -13,6 +13,7 @@ $|++;
 my @col = qw( 实例ID 服务树 名称 业务负责人 实例类型 );
 my $col = join " ", @col;
 my @x = `c3mc-device-data-get curr database aws-redis $col`;
+die "get data fail" if $?;
 chomp @x;
 
 my @mon = qw( avg-cpu max-cpu avg-mem max-mem );
@@ -21,6 +22,7 @@ my %mon;
 for my $mon ( @mon )
 {
     my @xx = `c3mc-mon-aws-redis-${mon}-dump`;
+    die "get aws-redis $mon fail" if $?;
     chomp @xx;
     for ( @xx )
     {
