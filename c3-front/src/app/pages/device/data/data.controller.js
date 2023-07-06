@@ -15,12 +15,10 @@
             }
         });
 
-    function DeviceDataController($state, $http, $scope, $injector, ngTableParams, $uibModal, treeService, genericService) {
+    function DeviceDataController($state, $http, $scope, $injector, ngTableParams, $uibModal, treeService) {
         var vm = this;
         var toastr = toastr || $injector.get('toastr');
 
-        vm.exportDownload = genericService.exportDownload
-        vm.tableData = []
         treeService.sync.then(function(){      // when the tree was success.
             vm.nodeStr = treeService.selectname();  // get tree name
         });
@@ -39,6 +37,7 @@
         vm.selectedtimemachine = $state.params.timemachine;
         vm.timemachine = [];
         vm.downloadTitle = [];
+        vm.downloadData = [];
 
         vm.filter = [];
         vm.filtergrep = [];
@@ -85,7 +84,7 @@
             $http.post('/api/agent/device/data/' + vm.type + '/' + vm.subtype + '/' + vm.treeid, { "grepdata": newGrepdata, "timemachine": vm.selectedtimemachine, "toxlsx": 1 } ).success(function(data){
                 if (data.stat){
                     vm.downloadTitle = data.toxlsxtitle
-                    vm.dealWithData(data.data);
+                    vm.downloadData = data.data
                     vm.checkDataList = data.data
                     vm.dataTable = new ngTableParams({count:25}, {counts:vm.pageSizeOption,data:data.data});
                     vm.filter = data.filter;
@@ -184,22 +183,6 @@
             }
         };
 
-        vm.dealWithData = function (data) {
-          vm.tableData = []
-          if (!vm.downloadTitle) {
-            vm.downloadTitle = []
-          }
-          const trElements = vm.downloadTitle.map(item => `<td>${item}</td>`);
-          vm.exportDownloadStr = `<tr>${trElements.join('')}</tr>`
-          data.forEach(item => {
-            const newData = {}
-            vm.downloadTitle.forEach(cItem => {
-              newData[cItem] = item[cItem]
-            })
-            vm.tableData.push(newData)
-          })
-        }
-
     vm.handleServiceTree = function (type) {
       const selectResourceArr = []
       angular.forEach(vm.checkboxes.items, function (value, key) {
@@ -247,6 +230,28 @@
           })
         });
       }
+    }
+
+    vm.downloadFunc = function (fileName) {
+      if (!vm.downloadTitle) {
+        vm.downloadTitle = []
+      };
+      const downLoadArr = [];
+      vm.downloadData.forEach(item => {
+        const newData = {};
+        if (!vm.downloadTitle.length) {
+          downLoadArr.push(item)
+          return
+        };
+        vm.downloadTitle.forEach(cItem => { newData[cItem] = item[cItem] });
+        downLoadArr.push(newData);
+      });
+      const workbook = XLSX.utils.book_new();
+      const worksheet = XLSX.utils.json_to_sheet(downLoadArr);
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+      const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'array', stream: true });
+      const blob = new Blob([wbout], { type: 'application/octet-stream' });
+      saveAs(blob, fileName);
     }
 
     // 监听全选checkbox
