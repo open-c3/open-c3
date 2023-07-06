@@ -20,6 +20,7 @@
         $scope.selectTab = vm.lowUtilizationList[0];
         vm.headerList = []
         vm.downloadTitle  = []
+        vm.activedStatus = ''
         vm.monitorDataCardList = [
           {
             name: 'C3T.利用率低',
@@ -86,6 +87,7 @@
 
         vm.stat = '';
         vm.dataGrep = function( stat ){
+            vm.activedStatus = stat
             vm.stat = stat;
             vm.tempdata = [];
             angular.forEach(vm.allData, function (data, index) {
