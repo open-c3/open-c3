@@ -24,6 +24,13 @@
         vm.activedStatus = ''
         vm.monitorDataCardList = [
           {
+            name: 'C3T.资源数量',
+            status: '',
+            count: 0,
+            color: '#339094',
+            description: ''
+          },
+          {
             name: 'C3T.利用率低',
             status: 'low',
             count: 0,
@@ -92,6 +99,9 @@
             vm.stat = stat;
             vm.tempdata = [];
             angular.forEach(vm.allData, function (data, index) {
+              if(stat === '') {
+                vm.tempdata = vm.allData
+              }
               if ($scope.selectTab.id === 'compute') {
                 if( data.status == stat)
                 {
@@ -184,6 +194,8 @@
                 vm.checkDataList = newArr
                 vm.monitorDataCardList.map(item => item.count = newArr.filter(cItem => cItem.status === item.status).length)
                 vm.monitorDataCardList.map(item => item.description = data.PolicyDescription[item.status])
+                vm.monitorDataCardList[0].count = data.data.length
+                vm.monitorDataCardList[0].description = ''
               } else {
                 toastr.error("加载数据失败:" + data.info)
               }
@@ -215,6 +227,8 @@
                 vm.checkDataList = newData
                 vm.monitorDataCardList.map(item => item.count = data.data.filter(cItem => cItem.lowstatus === item.status).length)
                 vm.monitorDataCardList.map(item => item.description = data.PolicyDescription[item.status])
+                vm.monitorDataCardList[0].count = data.data.length
+                vm.monitorDataCardList[0].description = ''
               } else {
                 toastr.error("加载数据失败:" + data.info)
               }
@@ -413,6 +427,13 @@
           items: {},
         };
         vm.monitorDataCardList = [
+          {
+            name: 'C3T.资源数量',
+            status: '',
+            count: 0,
+            color: '#339094',
+            description: ''
+          },
           {
             name: 'C3T.利用率低',
             status: 'low',
