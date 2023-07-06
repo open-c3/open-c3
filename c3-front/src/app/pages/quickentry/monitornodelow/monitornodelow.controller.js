@@ -137,9 +137,7 @@
 
         // 获取状态列表
         vm.getStatusList = function () {
-          vm.loadover = false;
           $http.get('/api/agent/resourcelow/status').success(function (data) {
-            vm.loadover = true
             if (data.stat == true) {
               vm.dialogStatusList = data.data
               vm.markStatusOption.push(...data.data.map(item => {
@@ -159,8 +157,10 @@
           angular.forEach(vm.selectRemark, function (value, key) {
             remarkMap.push({key, status:value.status, mark: value.mark})
           })
+          vm.loadover = false;
           if ($scope.selectTab.id === 'compute') {
             $http.get(`/api/agent/nodelow/${vm.treeid}`).success(function (data) {
+              vm.loadover = true;
               if (data.stat == true) {
                 angular.forEach(data.data, function (value) {
                   if (remarkMap.filter(item => item.key === value.ip).length > 0) {
@@ -179,13 +179,13 @@
                 vm.checkDataList = newArr
                 vm.monitorDataCardList.map(item => item.count = newArr.filter(cItem => cItem.status === item.status).length)
                 vm.monitorDataCardList.map(item => item.description = data.PolicyDescription[item.status])
-                vm.loadover = true;
               } else {
                 toastr.error("加载数据失败:" + data.info)
               }
             });
           } else {
             $http.get(`/api/agent/resourcelow/data/${$scope.selectTab.id}/${vm.treeid}`).success(function (data) {
+              vm.loadover = true;
               if (data.stat == true) {
                 const newData = []
                 let elementsToAdd = ['处理状态', '处理备注'];
@@ -210,7 +210,6 @@
                 vm.checkDataList = newData
                 vm.monitorDataCardList.map(item => item.count = data.data.filter(cItem => cItem.lowstatus === item.status).length)
                 vm.monitorDataCardList.map(item => item.description = data.PolicyDescription[item.status])
-                vm.loadover = true;
               } else {
                 toastr.error("加载数据失败:" + data.info)
               }
