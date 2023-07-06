@@ -61,6 +61,25 @@ template_argv:
   content:  "\n申请人:${_user_}\nBPM单号:${_bpmuuid_}\n申请理由:${x.note}"
 ```
 
+### boss 老板审批
+
+如下是资源审批时，提交人老板审批的例子
+
+```
+---
+name: '提交人的领导审批'
+option:
+  - describe: 申请理由
+    name: note
+    type: text
+    value: ""
+
+template_argv:
+  approver: "boss(${_user_})"
+  title:    "BPM/${_bpmuuid_}/资源申请/腾讯云/CVM"
+  content:  "\n申请人:${_user_}\nBPM单号:${_bpmuuid_}\n申请理由:${x.note}"
+```
+
 ### sudoer & ipowner & or
 
 sudoer人审批

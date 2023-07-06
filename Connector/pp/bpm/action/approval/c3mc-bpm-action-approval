@@ -49,6 +49,32 @@ my %approvelvuuid;
 sub getapprover
 {
     my ( $str, %res ) = shift @_;
+
+    if( $str =~ /boss\(\s*(.+)\s*\)/ )
+    {
+        my $users = $1;
+        my $file = '/data/open-c3-data/bpm/boss.conf';
+
+        return unless -f $file;
+
+        my $leader = eval{ YAML::XS::LoadFile $file };
+        die "load $file fail: $@" if $@;
+
+        map{
+            if( $leader->{$_} )
+            {
+                $res{ $leader->{$_} } = 1;
+                print "LOG.get $_ boss = $leader->{$_}\n";
+            }
+            if( $leader->{'*'} )
+            {
+                $res{ $leader->{'*'} } = 1;
+                print "LOG.get $_ boss = $leader->{'*'}\n";
+            }
+        }split /,/, $users;
+        return keys %res;
+    }
+ 
     if( $str =~ /leader\(\s*(.+)\s*\)/ )
     {
         my $users = $1;
