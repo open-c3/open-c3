@@ -55,8 +55,8 @@ get '/resourcelow/data/:type/:projectid' => sub {
     return +{ stat => $JSON::false, info => "load chk $chkfile fail: $@" } if $@;
     my $PolicyDescription = $chk->{PolicyDescription} && ref $chk->{PolicyDescription} eq 'HASH' ? $chk->{PolicyDescription} : +{};
 
-    my @x = `/data/Software/mydan/Connector/pp/mmon/resourcelow/gettable '$param->{type}' '$param->{projectid}' 2>&1`;
-    return +{ stat => $JSON::false, info => "get data fail:". join ';', @x } if $?;
+    my @x = `/data/Software/mydan/Connector/pp/mmon/resourcelow/gettable '$param->{type}' '$param->{projectid}'`;
+    return +{ stat => $JSON::false, info => "get data fail:" } if $?;
     chomp @x;
     my $title = shift @x;
     utf8::decode($title);
