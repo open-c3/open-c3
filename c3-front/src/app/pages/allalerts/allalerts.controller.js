@@ -10,7 +10,8 @@
         vm.seftime = genericService.seftime
 
         vm.siteaddr = window.location.protocol + '//' + window.location.host;
-
+        vm.checknewstatus=false;
+        vm.defaultData = []
         vm.reload = function () {
             vm.reloadA();
             vm.reloadB();
@@ -19,7 +20,9 @@
             vm.loadAover = false;
             $http.get('/api/agent/monitor/alert/0?siteaddr=' + vm.siteaddr).success(function(data){
                 if (data.stat){
-                    vm.dataTable = new ngTableParams({count:25}, {counts:[],data:data.data});
+                    vm.defaultData = data.data;
+                    const unCheckedData = data.data.filter(item => item.status.state !== 'suppressed')
+                    vm.dataTable = new ngTableParams({count:25}, {counts:[],data:unCheckedData});
                     vm.loadAover = true;
                 }else {
                     swal({ title:'获取列表失败', text: data.info, type:'error' });
@@ -106,5 +109,16 @@
             window.open(url, '_blank')
         };
 
+        // 保存新状态
+        vm.handleSaveStatusChange = function () {
+          const selectData = JSON.parse(JSON.stringify(vm.defaultData))
+          if (vm.checknewstatus) {
+            const checkedData = selectData.filter(item => item)
+            vm.dataTable = new ngTableParams({count:25}, {counts:[],data:checkedData});
+          } else {
+            const unCheckedData = selectData.filter(item => item.status.state !== 'suppressed')
+            vm.dataTable = new ngTableParams({count:25}, {counts:[],data:unCheckedData});
+          }
+        }
     }
 })();
