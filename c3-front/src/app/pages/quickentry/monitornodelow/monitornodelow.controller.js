@@ -17,6 +17,7 @@
             name: '主机'
           },
         ]
+        $scope.countOptions = [20, 30,50, 100, 500]
         $scope.selectTab = vm.lowUtilizationList[0];
         vm.headerList = []
         vm.downloadTitle  = []
@@ -105,7 +106,7 @@
            });
 
            vm.dealWithData(vm.tempdata.slice().reverse(), $scope.selectTab.id)
-           vm.dataTable = new ngTableParams({count:20}, {counts:[],data:vm.tempdata.reverse()});
+           vm.dataTable = new ngTableParams({count:20}, {counts:$scope.countOptions,data:vm.tempdata.reverse()});
         }
 
         // 获取主机低利用率Tab列表
@@ -177,7 +178,7 @@
                   newArr.push(value)
                 })
                 vm.dealWithData(data.data.slice().reverse(), $scope.selectTab.id)
-                vm.dataTable = new ngTableParams({ count: 20 }, { counts: [], data: newArr.reverse() });
+                vm.dataTable = new ngTableParams({ count: 20 }, { counts: $scope.countOptions, data: newArr.reverse() });
                 vm.selectData = newArr
                 vm.allData = data.data;
                 vm.checkDataList = newArr
@@ -208,7 +209,7 @@
                 vm.downloadTitle = data.title
                 vm.headerList.splice(1, 0, ...elementsToAdd)
                 vm.dealWithData(data.data.slice().reverse(), $scope.selectTab.id)
-                vm.dataTable = new ngTableParams({ count: 20 }, { counts: [], data: newData.reverse() });
+                vm.dataTable = new ngTableParams({ count: 20 }, { counts: $scope.countOptions, data: newData.reverse() });
                 vm.selectData = newData
                 vm.allData = data.data;
                 vm.checkDataList = newData
@@ -326,7 +327,7 @@
           if ($scope.selectTab.id === 'compute') {
             const statusSelectData = selectData.filter(item => vm.markSelected === 'all'? item : item.remarkStatus === vm.markSelected)
             vm.dealWithData(statusSelectData.slice().reverse(), $scope.selectTab.id)
-            vm.dataTable = new ngTableParams({count:20}, {counts:[],data:statusSelectData});
+            vm.dataTable = new ngTableParams({count:20}, {counts:$scope.countOptions,data:statusSelectData});
           } else {
             const otherStatusSelectData = selectData.filter(item => {
               return (vm.markSelected === 'all'? item : item['处理状态'] === vm.markSelected) && 
@@ -334,7 +335,7 @@
               (item['业务负责人'].includes(vm.tableBusinessOwner))
             })
             vm.dealWithData(otherStatusSelectData.slice().reverse(), $scope.selectTab.id)
-            vm.dataTable = new ngTableParams({count:20}, {counts:[],data:otherStatusSelectData.reverse()});
+            vm.dataTable = new ngTableParams({count:20}, {counts:$scope.countOptions,data:otherStatusSelectData.reverse()});
           }
         }
 
@@ -346,7 +347,7 @@
             (item['业务负责人'].includes(vm.tableBusinessOwner))
           })
           vm.dealWithData(instanceIdtData.slice().reverse(), $scope.selectTab.id)
-          vm.dataTable = new ngTableParams({count:20}, {counts:[],data:instanceIdtData});
+          vm.dataTable = new ngTableParams({count:20}, {counts:$scope.countOptions,data:instanceIdtData});
         }
 
         vm.handleBusinessChange = function () {
@@ -357,7 +358,7 @@
               (item['业务负责人'].includes(vm.tableBusinessOwner))
             })
             vm.dealWithData(businesstData.slice().reverse(), $scope.selectTab.id)
-            vm.dataTable = new ngTableParams({count:20}, {counts:[],data:businesstData});
+            vm.dataTable = new ngTableParams({count:20}, {counts:$scope.countOptions,data:businesstData});
           }
         
 
