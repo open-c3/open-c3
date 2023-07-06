@@ -66,6 +66,8 @@
 
         vm.userInfo = {}
         vm.markSelected = 'all'
+        vm.tableInstanceId = ''
+        vm.tableBusinessOwner = ''
         vm.markStatusOption = [{value: 'all', label: '全部'}]
         vm.dialogStatusList = []
         vm.tableData = [];
@@ -324,11 +326,38 @@
             vm.dealWithData(statusSelectData.slice().reverse(), $scope.selectTab.id)
             vm.dataTable = new ngTableParams({count:20}, {counts:[],data:statusSelectData});
           } else {
-            const otherStatusSelectData = selectData.filter(item => vm.markSelected === 'all'? item : item['处理状态'] === vm.markSelected)
+            const otherStatusSelectData = selectData.filter(item => {
+              return (vm.markSelected === 'all'? item : item['处理状态'] === vm.markSelected) && 
+              (item['实例ID'].includes(vm.tableInstanceId)) && 
+              (item['业务负责人'].includes(vm.tableBusinessOwner))
+            })
             vm.dealWithData(otherStatusSelectData.slice().reverse(), $scope.selectTab.id)
             vm.dataTable = new ngTableParams({count:20}, {counts:[],data:otherStatusSelectData.reverse()});
           }
         }
+
+        vm.handleInstanceChange = function () {
+          const selectData = JSON.parse(JSON.stringify(vm.selectData))
+          const instanceIdtData = selectData.filter(item => {
+            return (vm.markSelected === 'all'? item : item['处理状态'] === vm.markSelected) && 
+            (item['实例ID'].includes(vm.tableInstanceId)) && 
+            (item['业务负责人'].includes(vm.tableBusinessOwner))
+          })
+          vm.dealWithData(instanceIdtData.slice().reverse(), $scope.selectTab.id)
+          vm.dataTable = new ngTableParams({count:20}, {counts:[],data:instanceIdtData});
+        }
+
+        vm.handleBusinessChange = function () {
+            const selectData = JSON.parse(JSON.stringify(vm.selectData))
+            const businesstData = selectData.filter(item => {
+              return (vm.markSelected === 'all'? item : item['处理状态'] === vm.markSelected) && 
+              (item['实例ID'].includes(vm.tableInstanceId)) && 
+              (item['业务负责人'].includes(vm.tableBusinessOwner))
+            })
+            vm.dealWithData(businesstData.slice().reverse(), $scope.selectTab.id)
+            vm.dataTable = new ngTableParams({count:20}, {counts:[],data:businesstData});
+          }
+        
 
         vm.handleTabChange =function (value) {
           $scope.selectTab = value
@@ -410,6 +439,8 @@
             description: ''
           },
         ]
+        vm.tableInstanceId = ''
+        vm.tableBusinessOwner = ''
         vm.getMarkData();
       }
     })
