@@ -1,11 +1,24 @@
 .monitor-panel {
   padding-left: 0;
 }
+.monitor-flex {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex: 1;
+}
+.monitor-item-class {
+  width: 200px;
+  min-width: 180px;
+  max-width: 220px;
+}
 
 .monitor-nodeflow-card {
-  height: 260px;
+  height: 200px;
   box-shadow: -2px 0 10px 3px rgba(0, 0, 0, .1);
+  cursor: pointer;
   &-description {
+    font-size: 12px;
     text-indent: 5px;
     display: flex;
     align-items: center;
@@ -13,15 +26,26 @@
   }
 }
 
-.monitor-nodeflow-common-body {
-  font-size: 45px;
-  font-weight: bold;
-  text-align: center;
-  height: 115px;cursor:pointer; 
+.monitor-nodeflow-common {
   display: flex;
+  justify-content: flex-start;
   align-items: center;
-  justify-content: center;
+  flex-direction: column;
+  &-body {
+    font-size: 30px;
+    font-weight: bold;
+    text-align: center;
+    cursor:pointer; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    span {
+      line-height: normal;
+      margin-bottom: 20px;
+    }
+  }
 }
+
 
 .mark-color {
   background-color: green !important;

@@ -13,6 +13,7 @@ $|++;
 my @col = qw( LoadBalancerArn 服务树 实例ID 业务负责人 );
 my $col = join " ", @col;
 my @x = `c3mc-device-data-get curr networking aws-alb $col`;
+die "get data fail" if $?;
 chomp @x;
 
 my @mon = qw( last-hostcount avg-active );
@@ -21,6 +22,7 @@ my %mon;
 for my $mon ( @mon )
 {
     my @xx = `c3mc-mon-aws-alb-${mon}-dump`;
+    die "get aws-alb $mon fail" if $?;
     chomp @xx;
     for ( @xx )
     {

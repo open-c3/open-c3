@@ -7,13 +7,14 @@
 
     <uib-tab-content class="tab-content">
       <div class="row block">
-        <div class="col-lg-3 col-xs-12 ml0 pl0 monitor-panel monitor-panel"
+        <div class="monitor-flex  col-lg-12 col-xs-12 ml0 pl0 monitor-panel">
+          <div class="monitor-panel monitor-item-class"
           ng-repeat="item in monitornodelow.monitorDataCardList" ng-click="monitornodelow.dataGrep(item.status)">
           <div class="panel panel-default monitor-nodeflow-card" ng-class="{'card-active-class': monitornodelow.activedStatus === item.status}">
             <div class="panel-heading">
-              <h4 class="kb_title">{{item.name |translate}}: {{item.status}}</h4>
+              <h4 class="kb_title">{{item.name |translate}}{{item.status === ''? '': ':'}} {{item.status}}</h4>
             </div>
-            <div class="panel-body" style="height: 100%;border: none;">
+            <div class="panel-body monitor-nodeflow-common" style="height: 100%;border: none;">
               <div class="monitor-nodeflow-common-body" ng-style="{color: item.color}">
                 <span>{{item.count}}</span>
               </div>
@@ -21,6 +22,7 @@
             </div>
           </div>
         </div>
+      </div>
 
     <div class="col-lg-12 col-xs-12 ml0 pl0 monitor-panel">
     <div class="panel panel-primary">

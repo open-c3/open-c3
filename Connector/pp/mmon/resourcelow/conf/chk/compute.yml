@@ -1,5 +1,6 @@
 PolicyDescription:
-  low: '14天内有4天或者4天以上资源资源利用率低。一天内资源利用率低的定义是: avg-cpu < 30% && avg-mem < 30% max-net-in < 5M && max-net-out < 5M && ( max-net-in + max-net-out ) < 10M' 
+  #low: '14天内有4天或者4天以上资源资源利用率低。一天内资源利用率低的定义是: avg-cpu < 30% && avg-mem < 30% max-net-in < 5G/s && max-net-out < 5G/s && ( max-net-in + max-net-out ) < 10G/s' 
+  low: '14天内有4天或者4天以上资源资源利用率低。一天内资源利用率低的定义是: 平均cpu使用率小于30% 并且 平均内存使用率小于 30%' 
   warn: '14天内有资源利用率低的，但是不够四天' 
   normal: '不满足low和warn的状态但是数据14天内都采集了' 
   unkown: '不满足low和warn的状态但是数据14天内有数据采集异常，可能agent新安装的采集天数不够' 

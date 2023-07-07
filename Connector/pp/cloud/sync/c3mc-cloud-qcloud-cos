@@ -9,7 +9,7 @@ from qcloud_cos import CosS3Client
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
 from c3mc_utils import sleep_time_for_limiting
-from c3mc_cloud_qcloud_cos_get_tag import GetTag
+from c3mc_cloud_qcloud_cos import QcloudCos
 
 
 # 查询cos标签的接口请求频率限制
@@ -22,6 +22,7 @@ class Cos:
         self.access_key = access_key
         self.region = region
         self.client = self.create_client()
+        self.lib_client = QcloudCos(access_id, access_key, region)
 
     def create_client(self):
         service_domain = f"cos.{self.region}.myqcloud.com"
@@ -52,12 +53,9 @@ class Cos:
             return []
         for bucket in response["Buckets"]["Bucket"]:
             self.sleep()
-            bucket["tags"] = self.list_tag(bucket["Location"], bucket["Name"])
+            bucket["tags"] = self.lib_client.list_tag(bucket["Name"], bucket["Location"])
             result.append(bucket)
         return result
-
-    def list_tag(self, region, bucket_name):
-        return GetTag(self.access_id, self.access_key, region, bucket_name).list_tag()
 
     def show(self):
         buckets = self.list_buckets()
