@@ -143,7 +143,7 @@
                           <label class="col-md-4  control-label fwbold" >全量服务树</label>
                           <label class="col-md-8 control-label fwbold" >
                             <div class="service-standard-tags" ng-repeat="cItem in item[1].split(',')">
-                              {{cItem}}
+                              <div ng-class="{'full-amount-tree': cItem !== '_null_'}" ng-click="devicedatadetail.handlePageJump(cItem,$index)">{{cItem}}</div>
                             </div>
                           </label>
                         </div>

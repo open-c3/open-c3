@@ -25,6 +25,7 @@
         vm.uuid = uuid;
         vm.treenamecol = '';
 
+        vm.treeArr = [];
         vm.extcol = {};
         vm.grpcol = {};
         vm.irregularArr = [null, undefined, '',NaN, ' ']
@@ -45,6 +46,17 @@
           }
           return [...map.values()];
         }
+
+        //获取服务树列表
+        vm.getServiceTree = function () {
+          $http.get('/api/connector/connectorx/usertree').success(function (data) {
+            if (data.stat) {
+              vm.treeArr = data.data;
+            }
+          })
+        };
+        
+        vm.getServiceTree();
 
         vm.reload = function(){
             vm.loadover = false;
@@ -282,5 +294,34 @@
          };
          vm.search_init()
 
+         vm.recursionTreeId = function (nodes, name) {
+          for (const node of nodes) {
+            if (node.name === name) {
+              return node.id;
+            }
+            if (node.children) {
+              const result = vm.recursionTreeId(node.children, name);
+              if (result !== null) {
+                return result;
+              }
+            }
+          }
+          return null;
+        }
+    
+
+         vm.handlePageJump = function (value, $index) {
+          if (value === '_null_') {
+            return false
+          }
+          if (value.toLowerCase() === 'root') {
+            window.open('#/device/menu/0')
+          }
+          const newValueArr = value.split('.')
+          const resultId = vm.recursionTreeId(vm.treeArr, newValueArr[newValueArr.length - 1])
+          if (resultId) {
+            window.open(`#/device/menu/${resultId}`)
+          }
+        }
     }
 })();
