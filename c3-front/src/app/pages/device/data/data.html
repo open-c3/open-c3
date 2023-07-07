@@ -2,7 +2,7 @@
     <div class="topbar-left">
         <ol class="breadcrumb">
             <li>
-                <select class="form-control" ng-change="devicedata.handleReloadChange()" ng-model="devicedata.selectedtimemachine" >
+                <select class="form-control" ng-change="devicedata.reload()" ng-model="devicedata.selectedtimemachine" >
                     <option value="curr">current</option>
                     <option ng-repeat="t in devicedata.timemachine" value="{{t}}">{{t}}</option>
                 </select>
@@ -29,7 +29,7 @@
         </div>
 
         <div class="panel-body">
-             <form ng-submit="devicedata.handleReloadChange()">
+             <form ng-submit="devicedata.reload()">
                   <div class="input-group input-hero input-hero-sm">
                       <span class="input-group-addon" style="padding-top: 4px">
                           <input  type="button"  ng-click="devicedata.chshowfilter(1)" value="{{'C3T.显示更多过滤器'|translate}}" class="btn-gradient red"   style="font-size: 12px;padding-top: 10px;padding-bottom: 10px" ng-hide="devicedata.showfilter">
