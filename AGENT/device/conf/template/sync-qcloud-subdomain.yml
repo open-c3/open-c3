@@ -1,8 +1,8 @@
 download:
-  - url: "cmd:c3mc-cloud-dnspod-subdomain | c3mc-base-json2tab "
+  - url: "cmd:c3mc-cloud-account-list --type qcloud-subnet |xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-qcloud-subdomain --account qcloud --cloudaccount {} | c3mc-cloud-tag-v2 --tagfield TagSet --key Key --value Value | c3mc-base-json2tab "
     datatype: tsv
     type: domain
-    subtype: dnspod-subdomain
+    subtype: qcloud-subdomain
     treeinfo:
       treename: "服务树"
       treeinfo:
@@ -28,9 +28,10 @@ download:
           - active
         - name: 部门
         - name: 实例ID
-        - name: sld_name
-        - name: host_name
-        - name: host_domain_name
+        - name: 域名
+        - name: 状态
+        - name: 记录值
+        - name: 线路
         system:
         - prefix: tag.
  
@@ -41,13 +42,15 @@ download:
       treename: "服务树"
       uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
     alias:
-      uuid: "实例ID"
+      RecordId: "实例ID"
+      Value: "记录值"
+      Status: "状态"
+      Name: "域名"
+      Line: "线路"
       _product_owner_: "业务负责人"
       _ops_owner_: "运维负责人"
       _department_: "部门"
     filter:
-      - name: "account"
-        alias: 账号
       - name: "状态"
         alias: 状态
       - name: "业务负责人"
@@ -61,11 +64,11 @@ download:
         - "实例ID"
       baseinfo:
         - "实例ID"
-        - "host_domain_name"
+        - "域名"
       system:
-        - "host_name"
-        - "sld_name"
-        - "xns_sld_id"
+        - "状态"
+        - "记录值"
+        - "线路"
       contact:
         - "部门"
         - "业务负责人"
