@@ -324,11 +324,21 @@ option:
     describe: 部门标签
     type: selectx
     command: c3mc-bpm-get-department-tag-list
+    information: "如果不存在指定标签, 请联系管理员添加"
 
   - name: product_tag
     describe: 产品标签
     type: selectx
     command: c3mc-bpm-get-product-tag-list
+    information: "如果不存在指定标签, 请联系管理员添加"
+
+
+  - name: tree_tag
+    describe: 树节点标签
+    type: selectx
+    command: c3mc-bpm-get-tree-tag-list
+    information: "树节点标签"
+    fromops: 1
 
   - name: tag
     describe: 标签
@@ -389,6 +399,7 @@ template_argv:
   ops_owner_tag: ${ops_owner_tag}
   department_tag: ${department_tag}
   product_tag: ${product_tag}
+  tree_tag: ${tree_tag}
 
   # 告警策略
   alarm_policies: ${alarm_policies}
