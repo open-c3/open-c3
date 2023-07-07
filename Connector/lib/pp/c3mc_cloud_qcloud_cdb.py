@@ -4,11 +4,18 @@
 import json
 import time
 import sys
+import subprocess
 
 from tencentcloud.common import credential
 from tencentcloud.common.profile.client_profile import ClientProfile
 from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.cdb.v20170320 import cdb_client, models
+
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import sleep_time_for_limiting
+
+max_times_describe_tags = 20
 
 
 class QcloudCdb:
@@ -208,7 +215,3 @@ class QcloudCdb:
 
         # 立即下线隔离状态的cdb实例
         self.offline_isolated_instances(instance_id_list)
-
-
-
-

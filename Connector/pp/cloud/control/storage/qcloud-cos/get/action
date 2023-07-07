@@ -9,10 +9,16 @@ from qcloud_cos import CosConfig
 from qcloud_cos import CosS3Client
 
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_qcloud_cos import QcloudCos
+
+
 def get(data, access_id, access_key, region):
     """
         输出 qcloud cos 的详情(json格式)
     """
+    lib_client = QcloudCos(access_id, access_key, region)
+
     config = CosConfig(Region=region, SecretId=access_id,
                        SecretKey=access_key)  # 获取配置对象
     client = CosS3Client(config)
@@ -23,17 +29,9 @@ def get(data, access_id, access_key, region):
     response = client.list_buckets()
     for bucket in response["Buckets"]["Bucket"]:
         if bucket["Name"] == data[field_name]:
-            bucket["tags"] = list_tag(
-                access_id, access_key, region, data[field_name])
+            bucket["tags"] = lib_client.list_tag(data[field_name])
             return bucket
-    raise Exception(
-        "根据 bucket_name {} 未找到 qcloud cos".format(data[field_name]))
-
-
-def list_tag(access_id, access_key, region, bucket_name):
-    sys.path.append("/data/Software/mydan/Connector/lib/pp")
-    from c3mc_cloud_qcloud_cos_get_tag import GetTag
-    return GetTag(access_id, access_key, region, bucket_name).list_tag()
+    raise RuntimeError(f"根据 bucket_name {data[field_name]} 未找到 qcloud cos")
 
 
 def main(data, access_id, access_key, region):
@@ -42,10 +40,8 @@ def main(data, access_id, access_key, region):
 
 
 if __name__ == '__main__':
-    l = []
-    for line in sys.stdin:
-        l.append(line)
-    if len(l) == 0 or len(l) > 1:
-        raise Exception("数据格式不对, 需要一行json字符串")
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise RuntimeError("数据格式不对, 需要一行json字符串")
 
     main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4])
