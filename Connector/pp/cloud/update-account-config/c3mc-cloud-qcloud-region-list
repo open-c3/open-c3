@@ -42,8 +42,14 @@ class Qcloud:
         return sorted(result)
 
     def display(self):
-        # 目前没有遇到不同资源区域不一致的问题
-        regions = self.list_cvm_regions()
+        regions = []
+
+        if self.resource_type == "subdomain":
+            # 域名属于全局资源，只需要查询一次，查询的时候也不需要区域信息
+            regions = ["ap-beijing"]
+        else:
+            regions = self.list_cvm_regions()
+
         for region in regions:
             print(region)
 
@@ -53,4 +59,4 @@ def main(access_id, access_key, cloud_account_id, resource_type):
 
 
 if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[-1])

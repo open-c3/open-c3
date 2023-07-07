@@ -80,9 +80,10 @@
                 newGrepdata[key] = value
               }
             });
-            $http.post('/api/agent/device/data/' + vm.type + '/' + vm.subtype + '/' + vm.treeid, { "grepdata": newGrepdata, "timemachine": vm.selectedtimemachine } ).success(function(data){
+            $http.post('/api/agent/device/data/' + vm.type + '/' + vm.subtype + '/' + vm.treeid, { "grepdata": newGrepdata, "timemachine": vm.selectedtimemachine, "toxlsx": 1 } ).success(function(data){
                 if (data.stat){
-                    // vm.dealWithData(data.data);
+                    vm.downloadTitle = data.toxlsxtitle
+                    vm.dealWithData(data.data);
                     vm.checkDataList = data.data
                     vm.dataTable = new ngTableParams({count:25}, {counts:[],data:data.data});
                     vm.filter = data.filter;
@@ -110,31 +111,6 @@
         };
         vm.reload();
 
-        vm.downloadReload = function () {
-          vm.loadover = false;
-          const grepDataJSON = JSON.parse(JSON.stringify(vm.grepdata));
-          const newGrepdata = {};
-          angular.forEach(grepDataJSON, function (value, key) {
-            if (value !== '') {
-              newGrepdata[key] = value
-            }
-          });
-          $http.post('/api/agent/device/data/' + vm.type + '/' + vm.subtype + '/' + vm.treeid, { "grepdata": newGrepdata, "timemachine": vm.selectedtimemachine, "toxlsx": 1 } ).success(function(data){
-              if (data.stat){
-                vm.downloadTitle = data.toxlsxtitle
-                vm.dealWithData(data.data);
-              }else {
-                  swal({ title:'获取数据失败', text: data.info, type:'error' });
-              }
-          });
-        }
-        vm.downloadReload();
-
-        vm.handleReloadChange = function () {
-          vm.reload();
-          vm.downloadReload()
-        }
-
         sessionStorage.removeItem('globalSearch');
 
         vm.reloadtimemachine = function () {
@@ -151,7 +127,6 @@
         vm.reset = function () {
             vm.grepdata = {};
             vm.reload();
-            vm.downloadReload()
         };
 
         vm.showdetail = function (uuid, type, subtype ) {
