@@ -254,6 +254,13 @@ option:
     command: c3mc-bpm-get-aws-name-tag-list
     information: "如果不存在指定标签, 请联系管理员添加"
 
+  - name: tree_tag
+    describe: 树节点标签
+    type: selectx
+    command: c3mc-bpm-get-tree-tag-list
+    information: "树节点标签"
+    fromops: 1
+
   - name: tag
     describe: 其他标签
     # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
@@ -314,6 +321,7 @@ template_argv:
   department_tag: ${department_tag}
   product_tag: ${product_tag}
   name_tag: ${name_tag}
+  tree_tag: ${tree_tag}
 
   # 标签
   # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
