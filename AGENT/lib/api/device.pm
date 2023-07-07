@@ -236,7 +236,8 @@ any '/device/data/:type/:subtype/:treeid' => sub {
                 next unless defined $x->{$col};
                 $x->{$col} =~ s/ //g;
                 my @ddd = split /\|/, $x->{$col};
-                delete $x->{$col};
+# C3TODO 230316 前端请求了两次，会导致系统变慢，这里临时让toxlsx的时候返回全量的数据
+#                delete $x->{$col};
                 $len{$col} = scalar @ddd if @ddd > $len{$col};
                 for my $id ( 0 .. $#ddd )
                 {
