@@ -3,14 +3,18 @@
 }
 .monitor-flex {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
-  flex: 1;
 }
 .monitor-item-class {
-  width: 200px;
-  min-width: 180px;
-  max-width: 220px;
+  flex-basis: 20%; /* 将每个项的基础宽度设置为 20% */
+  margin: 0 10px;
+  &:first-child {
+    margin-left: 0; /* 第一个元素的左边距为 0 */
+  }
+  &:last-child {
+    margin-right: 0; /* 最后一个元素的右边距为 0 */
+  }
 }
 
 .monitor-nodeflow-card {
