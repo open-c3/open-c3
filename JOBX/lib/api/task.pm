@@ -174,6 +174,10 @@ post '/task/:projectid/job/byname' => sub {
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
+    my $xto = `c3mc-sys-ctl cd.task.open.to.user`;
+    chomp $xto;
+    return +{ stat => $JSON::false, info => "The system has been temporarily shut down. Please contact the administrator" } unless $xto && $xto eq '1';
+
     if( $param->{variable} && $param->{variable}{_nodebatch_} )
     {
         return  +{ stat => $JSON::false, info => "_nodebatch_ format error_" } if $param->{variable}{_nodebatch_} =~ /'/;

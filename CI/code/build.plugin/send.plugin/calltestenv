@@ -23,6 +23,10 @@ return sub
 
     $logs = Logs->new( 'code.build.send.calltestenv' ) unless $logs;
 
+    my $xto = `c3mc-sys-ctl cd.task.open.to.ci.test`;
+    chomp $xto;
+    $logs->die( "The system has been temporarily shut down. Please contact the administrator\n" ) unless $xto && $xto eq '1';
+
     #HTTP::Message content must be bytes at
     my ( $jobname, $jobgroup ) = ( '_ci_' . $projectid . '_', '_ci_test_' . $projectid . '_');
 

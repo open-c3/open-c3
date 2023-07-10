@@ -80,8 +80,63 @@
                             <label class="col-sm-4 control-label">{{'C3T.需要reload服务后生效'|translate}}</label>
                         </div>
 
+
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">{{'C3T.允许触发构建'|translate}}</label>
+                            <div class="col-sm-2" >
+                                <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['ci.task.open']" >
+                                    <option ng-repeat="x in [0,1]" value="{{x}}">{{x}}</option>
+                                </select>
+                            </div>
+                            <label class="col-sm-4 control-label">{{'C3T.默认是1。如果是0时，系统禁止构建任务执行。'|translate}}({{'C3T.实时生效'|translate}})</label>
+                        </div>
+
+
                     </div>
                 </div>
+
+
+<hr>
+
+
+                <div class="container-fluid">
+                  <h4>CD({{'C3T.发布任务'|translate}})</h4>
+                    <div class="row">
+
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">{{'C3T.允许用户触发'|translate}}</label>
+                            <div class="col-sm-2" >
+                                <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['cd.task.open.to.user']" >
+                                    <option ng-repeat="x in [0,1]" value="{{x}}">{{x}}</option>
+                                </select>
+                            </div>
+                            <label class="col-sm-4 control-label">{{'C3T.默认是1。如果是0时，系统禁止用户点击进行发布。'|translate}}({{'C3T.实时生效'|translate}})</label>
+                        </div>
+
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">{{'C3T.允许CI触发测试环境'|translate}}</label>
+                            <div class="col-sm-2" >
+                                <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['cd.task.open.to.ci.test']" >
+                                    <option ng-repeat="x in [0,1]" value="{{x}}">{{x}}</option>
+                                </select>
+                            </div>
+                            <label class="col-sm-4 control-label">{{'C3T.默认是1。如果是0时，系统禁止CI系统自动触发测试环境的发布。'|translate}}({{'C3T.实时生效'|translate}})</label>
+                        </div>
+
+                        <div class="col-sm-10 form-group">
+                            <label class="col-sm-2 control-label">{{'C3T.允许CI触发线上环境'|translate}}</label>
+                            <div class="col-sm-2" >
+                                <select id="selecteddataval" class="form-control"  ng-model="sysctl.sysctl['cd.task.open.to.ci.online']" >
+                                    <option ng-repeat="x in [0,1]" value="{{x}}">{{x}}</option>
+                                </select>
+                            </div>
+                            <label class="col-sm-4 control-label">{{'C3T.默认是1。如果是0时，系统禁止CI系统自动触发线上环境的发布。'|translate}}({{'C3T.实时生效'|translate}})</label>
+                        </div>
+
+
+                    </div>
+                </div>
+
 
 <hr>
 
