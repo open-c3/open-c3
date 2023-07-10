@@ -1,0 +1,27 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import subprocess
+import sys
+
+
+def list_tree_nodes():
+    cmd_parts = ["c3mc-base-treemap"]
+    output = subprocess.run(cmd_parts, capture_output=True, text=True)
+    if output.returncode != 0:
+        print(output.stderr, file=sys.stderr)
+        exit(1)
+    output = output.stdout
+    lines = output.split("\n")
+
+    return [item.strip().split(";")[1] for item in lines if item.strip() != ""]
+
+
+def main():
+    tree_nodes_list = list_tree_nodes()
+    for tree_node in tree_nodes_list:
+        print(tree_node)
+
+
+if __name__ == '__main__':
+    main()

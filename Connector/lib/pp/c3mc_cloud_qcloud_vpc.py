@@ -108,3 +108,26 @@ class QcloudVpc:
 
             sleep_time_for_limiting(max_times_describe_vpcs)
         return result
+
+    def list_security_groups(self):
+        """查询安全组列表
+        """
+        def describe_security_groups(limit, offset):
+            req = models.DescribeSecurityGroupsRequest()
+            params = {
+                "Limit": str(limit),
+                "Offset": str(offset)
+            }
+            req.from_json_string(json.dumps(params))
+            return self.client.DescribeSecurityGroups(req).SecurityGroupSet
+    
+        data = []
+        limit = 100
+        for i in range(sys.maxsize):
+            page_data = describe_security_groups(limit, i * limit)
+            if not page_data:
+                break
+
+            data.extend(page_data)
+
+        return sorted(data, key=lambda x: (x.SecurityGroupName.lower()), reverse=False)

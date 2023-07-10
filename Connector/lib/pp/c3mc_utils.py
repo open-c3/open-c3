@@ -177,6 +177,7 @@ def bpm_merge_user_input_tags(instance_params, tag_field_name="tag", tag_key_fie
     tag_list = add_tag_if_missing(tag_list, get_env_value("Product"), kwargs.get("product_key_name", ""))
     tag_list = add_tag_if_missing(tag_list, get_env_value("HostName"), kwargs.get("hostname_key_name", ""))
     tag_list = add_tag_if_missing(tag_list, get_env_value("Name"), kwargs.get("name_key_name", ""))
+    tag_list = add_tag_if_missing(tag_list, get_env_value("Tree"), kwargs.get("tree_key_name", ""))
 
     instance_params[tag_field_name] = json.dumps(tag_list)
     return instance_params

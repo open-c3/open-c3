@@ -311,16 +311,13 @@
     
 
          vm.handlePageJump = function (value, $index) {
-          if (value === '_null_') {
-            return false
-          }
-          if (value.toLowerCase() === 'root') {
-            window.open('#/device/menu/0')
-          }
           const newValueArr = value.split('.')
           const resultId = vm.recursionTreeId(vm.treeArr, newValueArr[newValueArr.length - 1])
           if (resultId) {
             window.open(`#/device/menu/${resultId}`)
+          } else {
+            toastr.error("未找到对应服务树")
+            return false
           }
         }
     }

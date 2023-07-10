@@ -40,7 +40,10 @@ sub run
     $conf->{password} =~ s/:/%3a/g if defined $conf->{password};
 
     system "docker rm $name >/dev/null 2>&1";
-    system "docker run -d -e DATA_SOURCE_NAME='$conf->{user}:$conf->{password}@($conf->{ip}:$conf->{port})/' --network c3_JobNet --name $name prom/mysqld-exporter";
+    system "docker run -d -e DATA_SOURCE_NAME='$conf->{user}:$conf->{password}@($conf->{ip}:$conf->{port})/' --network c3_JobNet --name $name prom/mysqld-exporter:v0.14.0";
+    # C3TODO 230710 prom/mysqld-exporter使用最新版本报错
+    # C3一直使用的v0.14.0版本，但是现在mysqld-exporter升级到v0.15.0版本后采集报错。
+    # 固定使用v0.14.0版本。
     $has->{$name} = 1;
 }
 

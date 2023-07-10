@@ -49,7 +49,11 @@ post '/vtree/:projectid' => sub {
     eval{ $api::mysql->execute( "insert into openc3_connector_auditlog (`user`,`title`,`content`) values('$ssouser','CREATE VTREE','PROJECTID:$param->{projectid} NAME:$param->{name}')" ); };
  
     eval{ $api::mysql->execute( "insert into openc3_connector_vtree (`treeid`,`name`) values('$param->{projectid}', '$param->{name}')" ); };
-    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, info => 'ok' };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
+    my $x = eval{ $api::mysql->query( sprintf( "select id from `openc3_connector_vtree` where treeid='$param->{projectid}' and name='$param->{name}'" ) ) };
+
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $x && @$x > 0 ? $x->[0][0] : undef };
 };
 
 =pod

@@ -9,6 +9,7 @@ use MIME::Base64;
 use api;
 use Code;
 use Format;
+use OPENC3::DancerRun3;
 
 =pod
 
@@ -55,9 +56,8 @@ get '/resourcelow/data/:type/:projectid' => sub {
     return +{ stat => $JSON::false, info => "load chk $chkfile fail: $@" } if $@;
     my $PolicyDescription = $chk->{PolicyDescription} && ref $chk->{PolicyDescription} eq 'HASH' ? $chk->{PolicyDescription} : +{};
 
-    my @x = `/data/Software/mydan/Connector/pp/mmon/resourcelow/gettable '$param->{type}' '$param->{projectid}'`;
-    return +{ stat => $JSON::false, info => "get data fail:" } if $?;
-    chomp @x;
+    my ( $exit, $stderr, @x ) = OPENC3::DancerRun3::run3( "/data/Software/mydan/Connector/pp/mmon/resourcelow/gettable '$param->{type}' '$param->{projectid}'" );
+    return +{ stat => $JSON::false, info => "get data fail:$stderr" } if $exit;
     my $title = shift @x;
     utf8::decode($title);
     my @title = split /;/, $title;

@@ -279,6 +279,9 @@
               })
             })
           } else {
+            if (!vm.downloadTitle) {
+              vm.downloadTitle = []
+            }
             const trElements = vm.downloadTitle.map(item => `<td>${item}</td>`);
             vm.exportDownloadStr = `<tr>${trElements.join('')}</tr>`
             data.forEach(item => {
