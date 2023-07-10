@@ -48,7 +48,7 @@ get '/vnode/:vtreeid' => sub {
 post '/vnode/:vtreeid' => sub {
     my $param = params();
     my $error = Format->new( 
-        name      => qr/^[a-zA-Z0-9][a-zA-Z0-9_\-\.]*[a-zA-Z0-9]$/, 1,
+        name      => qr/^[a-zA-Z0-9][a-zA-Z0-9_\-\.,]*[a-zA-Z0-9]$/, 1,
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
@@ -64,7 +64,7 @@ post '/vnode/:vtreeid' => sub {
 
     eval{ $api::mysql->execute( "insert into openc3_connector_auditlog (`user`,`title`,`content`) values('$ssouser','ADD VNODE','PROJECTID:$param->{projectid} NAME:$param->{name}')" ); };
  
-    eval{ $api::mysql->execute( "insert into openc3_connector_vnode (`name`,`vtreeid`) values('$param->{name}','$param->{vtreeid}')" ); };
+    eval{ map{ $api::mysql->execute( "insert into openc3_connector_vnode (`name`,`vtreeid`) values('$_','$param->{vtreeid}')" ); } grep{ /^[a-zA-Z0-9]/ }split /,/, $param->{name} };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, info => 'ok' };
 };
 
@@ -77,7 +77,7 @@ post '/vnode/:vtreeid' => sub {
 del '/vnode/:vtreeid' => sub {
     my $param = params();
     my $error = Format->new( 
-        name      => qr/^[a-zA-Z0-9][a-zA-Z0-9_\-\.]*[a-zA-Z0-9]$/, 1,
+        name      => qr/^[a-zA-Z0-9][a-zA-Z0-9_\-\.,]*[a-zA-Z0-9]$/, 1,
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
@@ -93,7 +93,7 @@ del '/vnode/:vtreeid' => sub {
 
     eval{ $api::mysql->execute( "insert into openc3_connector_auditlog (`user`,`title`,`content`) values('$ssouser','DEL VNODE','PROJECTID:$param->{projectid} NAME:$param->{name}')" ); };
 
-    eval{ $api::mysql->execute( "delete from openc3_connector_vnode where vtreeid='$param->{vtreeid}' and name='$param->{name}'" ); };
+    eval{ map{ $api::mysql->execute( "delete from openc3_connector_vnode where vtreeid='$param->{vtreeid}' and name='$_'" ); } grep{ /^[a-zA-Z0-9]/ }split /,/, $param->{name} };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, info => 'ok' };
 };
 
