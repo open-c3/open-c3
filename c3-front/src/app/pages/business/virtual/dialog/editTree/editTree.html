@@ -1,3 +1,6 @@
+<div>
+  <cmloading ng-if="!editVirtual.editLoadover"></cmloading>
+</div>
 <div class="modal-header">
   <h4 ng-if="editVirtual.type === 'add'" class="modal-title">{{'C3T.新增机器'| translate}}</h4>
   <h4 ng-if="editVirtual.type === 'delete'"  class="modal-title">{{'C3T.删除机器'| translate}}</h4>
@@ -7,6 +10,9 @@
   <div class="panel panel-dark">
     <div class="panel-heading">
       <span class="panel-controls">
+        <button class="btn btn-dark" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="editVirtual.getTabledata()">
+          <i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!editVirtual.editLoadover}"></i>
+        </button>
       </span>
       <h5>{{'C3T.总数'|translate}}: {{editVirtual.nodecount}}</h5>
     </div>

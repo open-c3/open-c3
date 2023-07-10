@@ -7,10 +7,8 @@
 
   <div>
     <button class="btn btn-primary" ng-click="virtual.createTab()">{{'C3T.添加虚拟服务树节点'| translate }}</button>
-
-    <uib-tabset class="tab-set" active="selectTab" ng-if="virtual.tabsList.length !== 0">
+    <uib-tabset class="tab-set" ng-if="virtual.tabsList.length !== 0">
       <uib-tab ng-repeat="tab in virtual.tabsList" ng-click="virtual.handleTabChange(tab)">
-
         <uib-tab-heading class="tab-heading">
           <span class="tab-heading-text">{{tab.name}}</span>
           <i class="fa fa-times tab-heading-icon" aria-hidden="true" ng-click="virtual.removeTab(tab)"
@@ -19,7 +17,7 @@
 
         <uib-tab-content class="tab-content">
           <div class="virtual-operate">
-            <button uib-tooltip="{{'C3T.新增机器'|translate}}" class="btn btn-primary" ng-disabled="!virtual.tabsLoadover" ng-click="virtual.handleEdit('add')">{{'C3T.新增'| translate}}</button>
+            <button uib-tooltip="{{'C3T.新增机器'|translate}}" class="btn btn-primary" ng-disabled="!virtual.tabsLoadover" ng-click="virtual.handleEdit('create')">{{'C3T.新增'| translate}}</button>
             <button uib-tooltip="{{'C3T.删除机器'|translate}}" class="btn btn-danger" ng-disabled="!virtual.tabsLoadover" ng-click="virtual.handleEdit('delete')">{{'C3T.删除'| translate}}</button>
           </div>
           <div class="panel panel-dark">

@@ -17,7 +17,9 @@
     vm.create = function () {
       $http.post(`/api/connector/vtree/${vm.treeid}`, vm.postdata).success(function (data) {
         if (data.stat == true) {
-          swal({ title: '新建成功', type: 'success' });
+          // swal({ title: '新建成功', type: 'success' });
+          toastr.success('新建成功');
+          $uibModalInstance.close({id: data.data})
           vm.cancel();
           reload();
         } else {

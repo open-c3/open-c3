@@ -17,15 +17,15 @@
     $scope.selectTab = {};
     vm.nodecount = 0;
     $scope.selectedData = [];
-    vm.dialogData = [];
-    vm.dialogSelectData = [];
 
     // 获取虚拟服务树节点列表（Tabs选项卡）
     vm.getVirtualTreeList = function () {
       $http.get(`/api/connector/vtree/${vm.treeid}`).success(function (data) {
         if (data.stat == true) {
           vm.tabsList = data.data;
-          $scope.selectTab = data.data[0];
+          if (!($scope.selectTab && $scope.selectTab.id)) {
+            $scope.selectTab = data.data[0]
+          }
         } else {
           toastr.error("加载失败:" + data.info);
         }
@@ -38,7 +38,6 @@
       $http.get(`/api/agent/nodeinfo/${vm.treeid}`).success(function (data) {
         vm.tabsLoadover = true;
         if (data.stat) {
-          vm.dialogData = data.data
           const newData = data.data.filter(item => $scope.selectedData.find(cItem => cItem === item.name))
           vm.nodecount = newData.length;
           vm.machineTableList = new ngTableParams({ count: 10 }, { counts: [], data: newData.reverse() });
@@ -53,7 +52,6 @@
       vm.tabsLoadover = false;
       $http.get(`/api/connector/vnode/${id}`).success(function (data) {
         if (data.stat) {
-          vm.dialogSelectData = data.data
           $scope.selectedData = Object.keys(data.data);
           vm.getTabledata();
         } else {
@@ -70,7 +68,7 @@
 
     // 创建虚拟服务树节点 (新增Tab弹窗)
     vm.createTab = function () {
-      $uibModal.open({
+      const modalInstance = $uibModal.open({
         templateUrl: 'app/pages/business/virtual/dialog/createTabs/createTabs.html',
         controller: 'CreateTabsController',
         controllerAs: 'createTabs',
@@ -83,10 +81,13 @@
           reload: function () { return vm.reload }
         }
       });
+      modalInstance.result.then(function (result) {
+        vm.handleEdit('create', result.id)
+      })
     };
 
     // 编辑操作
-    vm.handleEdit = function (type) {
+    vm.handleEdit = function (type, id) {
       $uibModal.open({
         templateUrl: 'app/pages/business/virtual/dialog/editTree/editTree.html',
         controller: 'VirtualTreeController',
@@ -96,11 +97,10 @@
         keyboard: false,
         bindToController: true,
         resolve: {
-          type: function () {return type},
+          type: function () { return type },
           reload: function () { return vm.reload },
-          tabId: function () { return $scope.selectTab.id || '' },
-          dialogData: function () { return vm.dialogData || '' },
-          dialogSelectData: function () { return vm.dialogSelectData || '' },
+          tabId: function () { return id || '' },
+          currentId: function () { return $scope.selectTab.id || '' },
         }
       });
     }
