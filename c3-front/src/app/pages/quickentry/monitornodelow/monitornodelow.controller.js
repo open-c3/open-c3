@@ -380,6 +380,7 @@
         
 
         vm.handleTabChange =function (value) {
+          vm.activedStatus = ''
           $scope.selectTab = value
         }
 
