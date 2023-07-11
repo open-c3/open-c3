@@ -23,6 +23,20 @@
         vm.starttime = nowTime;
         vm.treeid = $state.params.treeid;
         $scope.searchStatus = "";
+        vm.statusOption = [
+          { status: null, name: "C3T.全部" },
+          { status: "fail", name: "C3T.失败" },
+          { status: "success", name: "C3T.成功" },
+          { status: "refuse", name: "C3T.审批拒绝" },
+          { status: "running", name: "C3T.执行中" },
+          { status: "waiting", name: "C3T.等待" }
+        ];
+        vm.choiceJob = [];
+        vm.taskname = '';
+        vm.keyword = ''
+        vm.bpmuuid = ''
+        vm.selectedStatus = ''
+        vm.selectTaskname = '';
 
         $('#starttime').datetimepicker({
             format: 'YYYY-MM-DD',
@@ -86,13 +100,34 @@
             vm.finishtime = "";
             vm.searchStatus = "";
             vm.taskuuid = "";
+            vm.bpmuuid = ''
+            vm.selectTaskname = ''
+            vm.keyword = ''
+            vm.selectedStatus = ''
             vm.reload()
         };
 
+        vm.getHobNameData = function () {
+          $http.get('/api/job/bpm/menu' ).success(function(data){
+            if (data.stat) {
+              vm.choiceJob = data.data
+            }
+          })
+        }
+
+        vm.getHobNameData();
+
+        vm.handleJobChange = function (value) {
+          vm.selectTaskname = value
+        }
+        vm.handleStatusChange = function (value) {
+          vm.searchStatus = value
+        }
+
         vm.reload = function () {
             var get_data = {};
-            if (vm.taskname){
-                get_data.alias=vm.taskname
+            if (vm.selectTaskname){
+                get_data.alias=vm.selectTaskname
             }
             if(vm.startuser){
                 get_data.user=vm.startuser
@@ -108,6 +143,12 @@
             }
             if(vm.taskuuid){
                 get_data.taskuuid=vm.taskuuid
+            }
+            if(vm.bpmuuid){
+              get_data.bpmuuid=vm.bpmuuid
+            }
+            if(vm.keyword){
+              get_data.keyword=vm.keyword
             }
 
             if( vm.myflow !== -1 )
