@@ -26,6 +26,7 @@
                         vm.casedata = response.data.data
                         vm.caseinfo = response.data.caseinfo
                         vm.caseuuid = response.data.caseuuid
+                        vm.currentTreeId = response.data.data.find(item => item.name === 'labels.fromtreeid') || {value: '', name: 'labels.fromtreeid'}
                         vm.loadover = true;
                     }else{
                         toastr.error("获取信息失败:"+response.data.info)
