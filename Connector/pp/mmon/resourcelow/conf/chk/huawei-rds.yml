@@ -1,0 +1,9 @@
+low:  '$d{"max-cpu"} < 20 || $d{"max-disk"} < 15'
+warn: '$d{"max-cpu"} < 40 || $d{"max-disk"} < 30'
+normal: 'defined $d{"max-cpu"}'
+
+PolicyDescription:
+  low:  '一周内 ( cpu 最大值小于 20% ) 或者 ( 磁盘使用率小于15 %)' 
+  warn: '一周内 ( cpu 最大值小于 40% ) 或者 ( 磁盘使用率小于30 %)' 
+  normal: '健康'
+  unkown: '数据缺失'
