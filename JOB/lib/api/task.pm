@@ -30,9 +30,11 @@ get '/task/:projectid' => sub {
         taskuuid => qr/^[a-zA-Z0-9]+$/, 0,
         time_start => qr/^\d{4}\-\d{2}\-\d{2}$/, 0,
         time_end => qr/^\d{4}\-\d{2}\-\d{2}$/, 0,
-        myflow => [ 'mismatch', qr/'/ ], 0, #我发起的任务
-        mytask => [ 'mismatch', qr/'/ ], 0, #我的待办任务
-        mylink => [ 'mismatch', qr/'/ ], 0, #我处理过的任务
+        myflow  => [ 'mismatch', qr/'/ ], 0, #我发起的任务
+        mytask  => [ 'mismatch', qr/'/ ], 0, #我的待办任务
+        mylink  => [ 'mismatch', qr/'/ ], 0, #我处理过的任务
+        keyword => [ 'mismatch', qr/'/ ], 0, #根据bpm中的关键字进行查找，只对bpm流程生效
+        bpmuuid => qr/^[a-zA-Z0-9]+$/,    0, #查询bpm的uuid进行查找
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
@@ -73,6 +75,9 @@ get '/task/:projectid' => sub {
          push @where, "extid in ( select bpmuuid from openc3_job_bpm_usr where user='$user' and curr=1 )" if $param->{mytask};
          push @where, "user='$user'"                                                                      if $param->{myflow};
     }
+
+    push @where, "extid in ( select bpmuuid from openc3_job_bpm_log where info like \"%$param->{keyword}%\" )" if $param->{keyword};
+    push @where, "extid='$param->{bpmuuid}'" if $param->{bpmuuid};
 
     my @col = qw( id uuid name user slave status starttime finishtime calltype jobtype jobuuid runtime reason variable extid );
     my $r = eval{ 
