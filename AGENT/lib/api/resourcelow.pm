@@ -42,7 +42,7 @@ get '/resourcelow/status' => sub {
 get '/resourcelow/data/:type/:projectid' => sub {
     my $param = params();
     my $error = Format->new(
-        type      => qr/^[a-z][a-z\-]*[a-z]$/, 1,
+        type      => qr/^[a-z][a-z\d\-]*[a-z\d]$/, 1,
         projectid => qr/^\d+$/, 1,
     )->check( %$param );
 

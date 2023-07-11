@@ -16,7 +16,7 @@ use FindBin qw( $RealBin );
 
 
 my ( $type, $treeid ) = @ARGV;
-die "type eror" unless $type && $type =~ /^[a-z][a-z\-]*[a-z]$/;
+die "type eror" unless $type && $type =~ /^[a-z][a-z\d\-]*[a-z\d]$/;
 die "treeid error" unless defined $treeid && $treeid =~ /^\d+$/;
 
 exec "$RealBin/gettable-compute" if $type eq 'compute';

@@ -80,6 +80,7 @@ sub getcontent
     }
 
     push @res, sprintf "more(%s)", $more if $more;
+    push @res, '','';
 
     return @res;
 }
@@ -96,6 +97,7 @@ sub sendmail
 
     $head =~ s/\{c3webaddr\}/$c3webaddr/g;
     $tail =~ s/\{c3webaddr\}/$c3webaddr/g;
+    $head =~ s/\{user\}/$user/g;
 
     my $dir = sprintf "/data/open-c3-data/resourcelow/send/%s", POSIX::strftime( "%Y-%m-%d", localtime );;
 
