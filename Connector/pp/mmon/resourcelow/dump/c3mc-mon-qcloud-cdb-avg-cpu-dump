@@ -1,0 +1,33 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use LWP::UserAgent;
+use JSON;
+use URI::Escape;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $ua = LWP::UserAgent->new;
+$ua->timeout( 15 );
+
+my $url = sprintf "http://openc3-prometheus:9090/api/v1/query?query=%s", URI::Escape::uri_escape( 'avg by(instance)(avg_over_time(qce_cdb_cpuuserate_max[1w]))' );
+
+my $res = $ua->get( $url );
+
+die sprintf( "http code %s", $res->code ) unless $res->is_success;
+
+my $v = eval{ JSON::decode_json $res->decoded_content };
+die "data no JSON: $@"  if $@;
+die "status no success" unless $v->{status} && $v->{status} eq 'success';
+
+for my $x ( @{$v->{data}{result} })
+{
+    printf "$x->{metric}{instance}\t%0.2f\n", $x->{value}[1];
+}
