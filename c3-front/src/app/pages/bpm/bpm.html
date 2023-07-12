@@ -138,13 +138,13 @@
                                     <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;<a ng-if="ss.value == '' || ss.value == undefined" style="color: red" >*</a></label>
                                     <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;<a ng-if="ss.value == '' || ss.value == undefined" style="color: red" >*</a></label>
                                     <div class="col-sm-6">
-                                      <ui-select ng-model="ss.value" ng-change="bpm.optionxchange(ss.name, ss.value, ss.option)" ng-show="bpm.isstring(ss.option[0])" style="font-size: 15px;height: 42px" >
+                                      <ui-select ng-model="ss.value" ng-change="bpm.optionxchange(ss.name, ss.value, ss.option)" ng-show="bpm.isstring(ss.option[0])" style="font-size: 15px;height: 42px" required>
                                         <ui-select-match><span class="item-label">{{$select.selected}}</span></ui-select-match>
                                         <ui-select-choices repeat="item as item in ss.option | filter: $select.search">
                                             <div ng-bind-html="item | highlight: ss.option"></div>
                                         </ui-select-choices>
                                       </ui-select>
-                                      <ui-select ng-model="ss.value" ng-change="bpm.optionxchange(ss.name, ss.value, ss.option)" ng-show="!bpm.isstring(ss.option[0])" style="font-size: 15px;height: 42px" >
+                                      <ui-select ng-model="ss.value" ng-change="bpm.optionxchange(ss.name, ss.value, ss.option)" ng-show="!bpm.isstring(ss.option[0])" style="font-size: 15px;height: 42px" required>
                                         <ui-select-match><span class="item-label">{{$select.selected.alias}}</span></ui-select-match>
                                         <ui-select-choices repeat="item.name as item in ss.option | filter: {alias: $select.search}">
                                             <div ng-bind-html="item.alias | highlight: ss.option"></div>
@@ -169,7 +169,7 @@
                                     <label ng-if="bpm.selectxrely[ss.name] == '1'" style="color: red"  class="col-sm-3 control-label">{{ss.describe}}: &nbsp;<a ng-if="ss.value == '' || ss.value == undefined" style="color: red" >*</a></label>
                                     <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}: &nbsp;<a ng-if="ss.value == '' || ss.value == undefined" style="color: red" >*</a></label>
                                     <div class="col-sm-6">
-                                      <ui-select ng-model="ss.value" ng-change="bpm.optionxchange(ss.name, ss.value, bpm.optionx[ss.name])" ng-click="bpm.optionxclick(ss.name, 0)">
+                                      <ui-select ng-model="ss.value" ng-change="bpm.optionxchange(ss.name, ss.value, bpm.optionx[ss.name])" ng-click="bpm.optionxclick(ss.name, 0)" required>
                                         <ui-select-match>
                                           <span class="item-label">{{$select.selected.alias}}</span>
                                         </ui-select-match>
@@ -206,7 +206,7 @@
                             <div ng-repeat="x in ss.tempvalue" class="col-sm-10 form-group" >
                                 <label class="col-sm-3 control-label"></label>
                                 <div class="col-sm-6">
-                                    <ui-select ng-model="x.value" ng-change="bpm.chSelectxm(ss,$index)" ng-click="bpm.optionxclick(ss.name, $index)" style="font-size: 15px;height: 42px"  >
+                                    <ui-select ng-model="x.value" ng-change="bpm.chSelectxm(ss,$index)" ng-click="bpm.optionxclick(ss.name, $index)" style="font-size: 15px;height: 42px"  required>
                                       <ui-select-match><span class="item-label">{{$select.selected.alias}}</span></ui-select-match>
                                       <ui-select-choices repeat="item.name as item in bpm.optionx[ss.name] | filter: $select.search">
                                           <div ng-bind-html="item.alias | highlight: bpm.optionx[ss.name]"></div>
