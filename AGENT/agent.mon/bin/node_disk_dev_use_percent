@@ -1,0 +1,56 @@
+#!/opt/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+my @lsblk = `LANG=en lsblk --output NAME,MOUNTPOINT,SIZE -b -a`;
+die "lsblk fail" if $?;
+chomp @lsblk;
+my $title = shift @lsblk;
+
+die "title format error" unless $title && $title =~ /^NAME\s+MOUNTPOINT\s+SIZE$/;
+
+my ( $cname, %point, %size );
+
+for( @lsblk )
+{
+    my @x = split /\s+/, $_;
+    my ( $name, $point, $size ) = ( $x[0], $x[-2], $x[-1] );
+    if( $name =~ /^[a-z]/ )
+    {
+        $cname = $name;
+        $size{$cname} = $size / 1024;
+    }
+
+    next unless $point =~ /^\//;
+    $point{$point} = $cname;
+}
+
+my @df = `LANG=en df -P`;
+die "df fail" if $?;
+chomp @df;
+$title = shift @df;
+
+die "df format unkown" unless $title =~ /^Filesystem\s+1024-blocks\s+Used\s+Available\s+Capacity\s+Mounted on$/;
+
+my %use;
+for ( @df )
+{
+    my ( $filesystem, $total, $use, $free, $use_percent, $mountpoint ) = split /\s+/, $_, 6;
+    next unless my $dev = $point{$mountpoint};
+    $use{$dev} += $use;
+}
+
+my %dev;
+for my $dev ( keys %use )
+{
+    my $p = sprintf "%0.2f", 100 * $use{$dev} /$size{$dev};
+    $dev{$dev} = $p;
+    print "/dev/$dev /dev/$dev $p\n";
+}
+
+for my $x ( grep{ -l }glob "/dev/*" )
+{
+    my $alias = readlink $x;
+    next unless defined $dev{$alias};
+    printf "$x /dev/$alias $dev{$alias}\n";
+}
