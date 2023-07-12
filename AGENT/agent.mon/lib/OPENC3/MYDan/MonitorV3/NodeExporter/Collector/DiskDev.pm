@@ -19,13 +19,13 @@ sub co
     eval{
         for ( @df )
         {
-            my ( $dev, $realname, $percent ) = split /\s+/, $_, 3;
+            my ( $dev, $percent ) = split /\s+/, $_, 2;
             next unless $percent =~ m#^\d[\d\.]*#;
 
             push @stat, +{
                 name => 'node_disk_dev_use_percent',
                 value => $percent,
-                lable => +{ dev => $dev, realname => $realname },
+                lable => +{ dev => $dev },
             };
         }
     };
