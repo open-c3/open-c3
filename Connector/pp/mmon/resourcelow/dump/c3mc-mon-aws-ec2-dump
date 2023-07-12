@@ -1,0 +1,39 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my @col = qw( 实例ID 服务树 主机名 业务负责人 实例类型 状态 内网IP );
+my $col = join " ", @col;
+my @x = `c3mc-device-data-get curr compute aws-ec2 $col`;
+die "get data fail" if $?;
+chomp @x;
+
+my @mon = qw( avg-cpu avg-mem );
+
+my %mon;
+for my $mon ( @mon )
+{
+    my @xx = `c3mc-mon-aws-ec2-${mon}-dump`;
+    die "get aws-ec2 $mon fail" if $?;
+    chomp @xx;
+    for ( @xx )
+    {
+        my ( $instance, $val ) = split /\t/, $_;
+        $mon{$mon}{$instance} = $val;
+    }
+}
+
+printf "%s\n", join "\t", @col, @mon;
+for my $x ( @x )
+{
+    my ( $instance ) = reverse split /\t/, $x, scalar @col;
+    printf "%s\n", join "\t", $x, map{ $mon{$_} && defined $mon{$_}{$instance} ? $mon{$_}{$instance} : 'unkown' }@mon;
+}

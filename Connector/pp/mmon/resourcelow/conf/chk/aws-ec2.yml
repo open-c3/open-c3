@@ -1,0 +1,9 @@
+low: 'defined  $d{"状态"} && $d{"状态"} ne "running"'
+warn: '( defined $d{"avg-cpu"} &&  $d{"avg-cpu"} =~ /^\d/ &&  $d{"avg-cpu"} < 30 ) || ( defined $d{"avg-mem"} &&  $d{"avg-mem"} =~ /^\d/ &&  $d{"avg-mem"} < 30 )'
+normal: ' defined $d{"avg-cpu"} &&  $d{"avg-cpu"} =~ /^\d/ && defined $d{"avg-mem"} &&  $d{"avg-mem"} =~ /^\d/'
+
+PolicyDescription:
+  low:  '主机状态不是running' 
+  warn: '一小时内 ( cpu 平均使用率小于 30% ) 或者 ( 内存平均使用率小于 30% )' 
+  normal: '健康'
+  unkown: '数据缺失'
