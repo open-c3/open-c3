@@ -40,7 +40,7 @@ sub new
     }
 
     $prom = $this{prom} = OPENC3::MYDan::MonitorV3::Prometheus::Tiny->new;
-    my @task = qw( DiskBlocks DiskInodes Uptime PortTcp PortUdp Process Http Path PromeNodeExporter Sar MYDanAgent FalconMigrate Ss Ping );
+    my @task = qw( DiskBlocks DiskInodes DiskDev Uptime PortTcp PortUdp Process Http Path PromeNodeExporter Sar MYDanAgent FalconMigrate Ss Ping );
 
     my $i = 0;
     for my $type ( @task )
@@ -139,7 +139,7 @@ sub new
         after => 1, 
         interval => 15,
         cb => sub { 
-            $this{prom}->set( 'node_exporter_version', 35 );
+            $this{prom}->set( 'node_exporter_version', 36 );
             $this{prom}->set( 'agent_push_metric_count', $agent_push_metric_count );
             $this{prom}->set( 'agent_push_metric_error', $agent_push_metric_error );
             $this{prom}->set( 'agent_push_metric_data',  $agent_push_metric_data );
