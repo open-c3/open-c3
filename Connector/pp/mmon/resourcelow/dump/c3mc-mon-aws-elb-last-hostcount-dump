@@ -6,6 +6,7 @@ $|++;
 
 use LWP::UserAgent;
 use JSON;
+use URI::Escape;
 
 =head1 SYNOPSIS
 
@@ -16,8 +17,7 @@ use JSON;
 my $ua = LWP::UserAgent->new;
 $ua->timeout( 15 );
 
-#sum(aws_elb_healthy_host_count_maximum offset 20m)by(load_balancer_name)
-my $url = 'http://openc3-prometheus:9090/api/v1/query?query=sum%28aws_elb_healthy_host_count_maximum+offset+20m%29by%28load_balancer_name%29';
+my $url = sprintf "http://openc3-prometheus:9090/api/v1/query?query=%s", URI::Escape::uri_escape( 'sum(aws_elb_healthy_host_count_maximum{datasource!="cmdb"} offset 20m)by(load_balancer_name)' );
 
 my $res = $ua->get( $url );
 

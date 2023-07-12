@@ -1,6 +1,6 @@
-low:  '$d{"max-cpu"} < 20 || $d{"max-disk"} < 15'
-warn: '$d{"max-cpu"} < 40 || $d{"max-disk"} < 30'
-normal: 'defined $d{"max-cpu"}'
+low:  'defined $d{"max-cpu"} && $d{"max-cpu"} =~ /^d/ && ( $d{"max-cpu"} < 20 || $d{"max-disk"} < 15 )'
+warn: 'defined $d{"max-cpu"} && $d{"max-cpu"} =~ /^d/ && ( $d{"max-cpu"} < 40 || $d{"max-disk"} < 30 )'
+normal: 'defined $d{"max-cpu"} && $d{"max-cpu"} =~ /^d/'
 
 PolicyDescription:
   low:  '一周内 ( cpu 最大值小于 20% ) 或者 ( 磁盘使用率小于15 %)' 

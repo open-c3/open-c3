@@ -1,9 +1,9 @@
-low: '$d{"实例类型"} !~ /^cache.t/ &&  $d{"max-mem"} < 25'
-warn: '$d{"实例类型"} !~ /^cache.t/ &&  $d{"max-mem"} < 50'
-normal: 'defined $d{"max-mem"}'
+low:  'defined $d{"max-mem"} && $d{"max-mem"} =~ /^\d/ && $d{"实例类型"} !~ /^cache.t/ &&  $d{"max-mem"} < 25'
+warn: 'defined $d{"max-mem"} && $d{"max-mem"} =~ /^\d/ && $d{"实例类型"} !~ /^cache.t/ &&  $d{"max-mem"} < 50'
+normal: 'defined $d{"max-mem"} && $d{"max-mem"} =~ /^\d/'
 
 PolicyDescription:
-  low: '一周内 ( 内存最大值小于25%， 忽略t系列 )' 
+  low:  '一周内 ( 内存最大值小于25%， 忽略t系列 )' 
   warn: '一周内 ( 内存最大值小于50%， 忽略t系列 )' 
   normal: '健康'
   unkown: '数据缺失'

@@ -1,6 +1,6 @@
-low: '$d{"last-hostcount"} <= 0'
-warn: '$d{"avg-active"} <= 0'
-normal: 'defined $d{"last-hostcount"}'
+low:  'defined $d{"last-hostcount"} && $d{"last-hostcount"} =~ /^\d/ && $d{"last-hostcount"} <= 0'
+warn: 'defined $d{"avg-active"}     && $d{"avg-active"}     =~ /^\d/ && $d{"avg-active"}     <= 0'
+normal: 'defined $d{"last-hostcount"} && $d{"last-hostcount"} =~ /^\d/ && defined $d{"avg-active"} && $d{"avg-active"} =~ /^\d/'
 
 PolicyDescription:
   low: 'LB后端无机器' 

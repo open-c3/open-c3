@@ -1,6 +1,6 @@
-low: '$d{"max-mem"} < 25'
-warn: '$d{"max-mem"} < 50'
-normal: 'defined $d{"max-mem"}'
+low:  'defined $d{"max-mem"} && $d{"max-mem"} =~ /^\d/ && $d{"max-mem"} < 25'
+warn: 'defined $d{"max-mem"} && $d{"max-mem"} =~ /^\d/ && $d{"max-mem"} < 50'
+normal: 'defined $d{"max-mem"} && $d{"max-mem"} =~ /^\d/'
 
 PolicyDescription:
   low: '一周内 ( 内存最大值小于25% )' 
