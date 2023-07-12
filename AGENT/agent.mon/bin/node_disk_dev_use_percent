@@ -40,17 +40,7 @@ for ( @df )
     $use{$dev} += $use;
 }
 
-my %dev;
 for my $dev ( keys %use )
 {
-    my $p = sprintf "%0.2f", 100 * $use{$dev} /$size{$dev};
-    $dev{$dev} = $p;
-    print "/dev/$dev /dev/$dev $p\n";
-}
-
-for my $x ( grep{ -l }glob "/dev/*" )
-{
-    my $alias = readlink $x;
-    next unless defined $dev{$alias};
-    printf "$x /dev/$alias $dev{$alias}\n";
+    printf "/dev/$dev %0.2f\n", 100 * $use{$dev} /$size{$dev};
 }
