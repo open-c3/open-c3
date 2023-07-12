@@ -82,12 +82,12 @@
             </a>
             <ul class="dropdown-menu list-group dropdown-persist w250" uib-dropdown-menu>
                 <li class="list-group-item">
-                    <a ng-if="nav.user.menu['快速执行.启动任务'] == 1" ui-sref="home.quickentry.runtask({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span>{{'C3T.启动任务'|translate}}</span> </a>
-                    <a ng-if="nav.user.menu['快速执行.脚本执行'] == 1" ui-sref="home.quickentry.cmd({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span>{{'C3T.脚本执行'|translate}}</span> </a>
-                    <a ng-if="nav.user.menu['快速执行.分发文件'] == 1" ui-sref="home.quickentry.scp({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span>{{'C3T.分发文件'|translate}}</span> </a>
-                    <a ng-if="nav.user.menu['快速执行.发起审批'] == 1" ui-sref="home.quickentry.approval({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span>{{'C3T.发起审批'|translate}}</span> </a>
-                    <a ng-if="nav.user.menu['快速执行.虚拟终端'] == 1" ui-sref="home.quickentry.terminal({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.虚拟终端'|translate}}</span> </a>
-                    <a ng-if="nav.user.menu['快速执行.文件发送'] == 1" ui-sref="home.quickentry.sendfile({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.文件发送'|translate}}</span> </a>
+                    <a ng-if="nav.user.menu['快速执行.启动任务'] == 1" ui-sref="home.quickentry.runtask({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><i class="fa fa-play-circle-o" aria-hidden="true"></i> <span>{{'C3T.启动任务'|translate}}</span> </a>
+                    <a ng-if="nav.user.menu['快速执行.脚本执行'] == 1" ui-sref="home.quickentry.cmd({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><i class="fa fa-code" aria-hidden="true"></i> <span>{{'C3T.脚本执行'|translate}}</span> </a>
+                    <a ng-if="nav.user.menu['快速执行.分发文件'] == 1" ui-sref="home.quickentry.scp({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><i class="fa fa-files-o" aria-hidden="true"></i>                      <span>{{'C3T.分发文件'|translate}}</span> </a>
+                    <a ng-if="nav.user.menu['快速执行.发起审批'] == 1" ui-sref="home.quickentry.approval({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><i class="fa fa-calendar-check-o" aria-hidden="true"></i> <span>{{'C3T.发起审批'|translate}}</span> </a>
+                    <a ng-if="nav.user.menu['快速执行.虚拟终端'] == 1" ui-sref="home.quickentry.terminal({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-terminal" aria-hidden="true"></i> <span>{{'C3T.虚拟终端'|translate}}</span> </a>
+                    <a ng-if="nav.user.menu['快速执行.文件发送'] == 1" ui-sref="home.quickentry.sendfile({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-send-o" aria-hidden="true"></i> <span>{{'C3T.文件发送'|translate}}</span> </a>
                 </li>
             </ul>
         </li>
@@ -130,11 +130,11 @@
             <ul class="dropdown-menu-right list-group dropdown-persist w250" uib-dropdown-menu>
                 <li ng-if="nav.user.menu['容器集群.kubernetes.应用管理'] == 1" class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">kubernetes</div> </li>
                 <li ng-if="nav.user.menu['容器集群.kubernetes.应用管理'] == 1" class="list-group-item">
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.kubernetesmanage({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.应用管理'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.kubernetesmanage({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-cube" aria-hidden="true"></i>  <span>{{'C3T.应用管理'|translate}}</span> </a>
                 </li>
                 <li ng-if="nav.user.menu['容器集群.AWSECS.应用管理'] == 1" class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">AWS ECS</div> </li>
                 <li ng-if="nav.user.menu['容器集群.AWSECS.应用管理'] == 1" class="list-group-item">
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.awsecsmanage({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.应用管理'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.awsecsmanage({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-cube" aria-hidden="true"></i>  <span>{{'C3T.应用管理'|translate}}</span> </a>
                 </li>
             </ul>
 
@@ -153,32 +153,32 @@
             <ul class="dropdown-menu-right list-group dropdown-persist w250" uib-dropdown-menu>
                 <li class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">{{'C3T.新建'|translate}}</div> </li>
                 <li ng-if="nav.user.menu['BPM.发起新任务'] == 1" class="list-group-item">
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.bpm({treeid: nav.state.params.treeid, bpmuuid: 0})" class="animated animated-short fadeInUp" > <span>{{'C3T.发起新任务'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.bpm({treeid: nav.state.params.treeid, bpmuuid: 0})" class="animated animated-short fadeInUp" ><i class="fa fa-tasks" aria-hidden="true"></i> <span>{{'C3T.发起新任务'|translate}}</span> </a>
                 </li>
 
                 <li class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">{{'C3T.我的'|translate}}</div> </li>
 
                 <li ng-if="nav.user.menu['BPM.我的待办任务'] == 1" class="list-group-item">
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.history.bpm({treeid: nav.state.params.treeid, type: 'mytask' })"   class="animated animated-short fadeInUp" > <span>{{'C3T.我的待办任务'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.history.bpm({treeid: nav.state.params.treeid, type: 'mytask' })"   class="animated animated-short fadeInUp" ><i class="fa fa-tasks" aria-hidden="true"></i> <span>{{'C3T.我的待办任务'|translate}}</span> </a>
                 </li>
                 <li ng-if="nav.user.menu['BPM.处理过的任务'] == 1" class="list-group-item">
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.history.bpm({treeid: nav.state.params.treeid, type: 'mylink' })"   class="animated animated-short fadeInUp" > <span>{{'C3T.处理过的任务'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.history.bpm({treeid: nav.state.params.treeid, type: 'mylink' })"   class="animated animated-short fadeInUp" ><i class="fa fa-tasks" aria-hidden="true"></i> <span>{{'C3T.处理过的任务'|translate}}</span> </a>
                 </li>
                 <li ng-if="nav.user.menu['BPM.我发起的任务'] == 1" class="list-group-item">
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.history.bpm({treeid: nav.state.params.treeid, type: 'myflow' })"   class="animated animated-short fadeInUp"> <span>{{'C3T.我发起的任务'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.history.bpm({treeid: nav.state.params.treeid, type: 'myflow' })"   class="animated animated-short fadeInUp"><i class="fa fa-tasks" aria-hidden="true"></i> <span>{{'C3T.我发起的任务'|translate}}</span> </a>
                 </li>
 
                 <li class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">{{'C3T.全局'|translate}}</div> </li>
 
                 <li ng-if="nav.user.menu['BPM.全部流程列表'] == 1" class="list-group-item">
-                  <a style="padding: 8px 9px 8px 37px;" ui-sref="home.history.bpm({treeid: nav.state.params.treeid, type: 'all'})" class="animated animated-short fadeInUp" > <span>{{'C3T.全部流程列表'|translate}}</span> </a>
+                  <a style="padding: 8px 9px 8px 37px;" ui-sref="home.history.bpm({treeid: nav.state.params.treeid, type: 'all'})" class="animated animated-short fadeInUp" ><i class="fa fa-list-ul" aria-hidden="true"></i> <span>{{'C3T.全部流程列表'|translate}}</span> </a>
                 </li>
  
                 <li class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">{{'C3T.管理'|translate}}</div> </li>
 
                 <li ng-if="nav.user.menu['BPM.流程管理'] == 1 || nav.user.menu['BPM.定时任务列表'] == 1" class="list-group-item">
-                    <a ng-if="nav.user.menu['BPM.定时任务列表'] == 1" ui-sref="home.history.timetask({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <i class="fa fa-clock-o" aria-hidden="true"></i><span>{{'C3T.定时任务列表'|translate}}</span> </a>
-                    <a ng-if="nav.user.menu['BPM.流程管理'] == 1" ui-sref="home.business.bpm({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><span class="fa fa-check-square-o"></span> <span>{{'C3T.流程管理'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ng-if="nav.user.menu['BPM.定时任务列表'] == 1" ui-sref="home.history.timetask({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <i class="fa fa-clock-o" aria-hidden="true"></i><span>{{'C3T.定时任务列表'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ng-if="nav.user.menu['BPM.流程管理'] == 1" ui-sref="home.business.bpm({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><span class="fa fa-check-square-o"></span> <span>{{'C3T.流程管理'|translate}}</span> </a>
                 </li>
  
  
@@ -203,9 +203,9 @@
             </a>
             <ul class="dropdown-menu list-group dropdown-persist w250" uib-dropdown-menu>
                 <li class="list-group-item">
-                    <a ng-if="nav.user.menu['执行历史.分组任务'] == 1" ui-sref="home.history.jobx({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span>{{'C3T.分组任务'|translate}}</span> </a>
-                    <a ng-if="nav.user.menu['执行历史.作业任务'] == 1" ui-sref="home.history.job({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span>{{'C3T.作业任务'|translate}}</span> </a>
-                    <a ng-if="nav.user.menu['执行历史.虚拟终端'] == 1" ui-sref="home.history.terminal({treeid: nav.state.params.treeid})"  class="animated animated-short fadeInUp" > <span>{{'C3T.虚拟终端'|translate}}</span> </a>
+                    <a ng-if="nav.user.menu['执行历史.分组任务'] == 1" ui-sref="home.history.jobx({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><i class="fa fa-tasks" aria-hidden="true"></i> <span>{{'C3T.分组任务'|translate}}</span> </a>
+                    <a ng-if="nav.user.menu['执行历史.作业任务'] == 1" ui-sref="home.history.job({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> <span>{{'C3T.作业任务'|translate}}</span> </a>
+                    <a ng-if="nav.user.menu['执行历史.虚拟终端'] == 1" ui-sref="home.history.terminal({treeid: nav.state.params.treeid})"  class="animated animated-short fadeInUp" ><i class="fa fa-terminal" aria-hidden="true"></i> <span>{{'C3T.虚拟终端'|translate}}</span> </a>
                 </li>
                 </ul>
         </li>
@@ -231,37 +231,37 @@
             <ul class="dropdown-menu list-group dropdown-persist w250 navbar-scroll" uib-dropdown-menu>
                 <li class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">{{'C3T.全局信息'|translate}}</div> </li>
                 <li class="list-group-item">
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.notify({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.通知管理'|translate}}</span> </a>
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.template({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.模板管理'|translate}}</span> </a>
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.sysctl({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.系统参数'|translate}}</span> </a>
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.monitor({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.监控信息'|translate}}</span> </a>
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.auditlog({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.审计日志'|translate}}</span> </a>
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.loginaudit({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.登录审计'|translate}}</span> </a>
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.quickentry.smallapplicationedit({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.轻应用配置'|translate}}</span> </a>
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.useraddr({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.地址簿管理'|translate}}</span> </a>
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.allack({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.ACK管理'|translate}}</span> </a>
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.monitortreeunbind({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.监控系统-服务树继承解除'|translate}}</span> </a>
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.userdepartment({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.用户部门关系绑定'|translate}}</span> </a>
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.private({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.私有节点管理'|translate}}</span> </a>
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.ciwatcher({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.CI任务监视器'|translate}}</span> </a>
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.networkmonitor({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.网络监视器'|translate}}</span> </a>
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.adminapproval({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.管理员审批管理'|translate}}</span> </a>
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.cloudmon({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.云监控'|translate}}</span> </a>
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.cmdbmanage({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.CMDB'|translate}}</span> </a>
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.k8sapptpl({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.BPM应用模版管理'|translate}}</span> </a>
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.jumpserverexipsite({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.跳板机网络管理'|translate}}</span> </a>
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.navigation({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.导航管理'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.notify({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-envelope-o" aria-hidden="true"></i> <span>{{'C3T.通知管理'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.template({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-file-code-o" aria-hidden="true"></i><span>{{'C3T.模板管理'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.sysctl({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <i class="fa fa-gears" aria-hidden="true"></i><span>{{'C3T.系统参数'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.monitor({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <i class="fa fa-line-chart" aria-hidden="true"></i><span>{{'C3T.监控信息'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.auditlog({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-calendar-minus-o" aria-hidden="true"></i> <span>{{'C3T.审计日志'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.loginaudit({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-sign-in" aria-hidden="true"></i><span>{{'C3T.登录审计'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.quickentry.smallapplicationedit({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-cube" aria-hidden="true"></i> <span>{{'C3T.轻应用配置'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.useraddr({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-address-book-o" aria-hidden="true"></i> <span>{{'C3T.地址簿管理'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.allack({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-sliders" aria-hidden="true"></i>  <span>{{'C3T.ACK管理'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.monitortreeunbind({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-bar-chart" aria-hidden="true"></i> <span>{{'C3T.监控系统-服务树继承解除'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.userdepartment({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-handshake-o" aria-hidden="true"></i> <span>{{'C3T.用户部门关系绑定'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.private({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-object-ungroup" aria-hidden="true"></i> <span>{{'C3T.私有节点管理'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.ciwatcher({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-television" aria-hidden="true"></i> <span>{{'C3T.CI任务监视器'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.networkmonitor({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-desktop" aria-hidden="true"></i> <span>{{'C3T.网络监视器'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.adminapproval({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-calendar-check-o" aria-hidden="true"></i> <span>{{'C3T.管理员审批管理'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.cloudmon({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-mixcloud" aria-hidden="true"></i> <span>{{'C3T.云监控'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.cmdbmanage({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-database" aria-hidden="true"></i> <span>{{'C3T.CMDB'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.k8sapptpl({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-cube" aria-hidden="true"></i> <span>{{'C3T.BPM应用模版管理'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.jumpserverexipsite({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-server" aria-hidden="true"></i> <span>{{'C3T.跳板机网络管理'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.global.navigation({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-navicon" aria-hidden="true"></i> <span>{{'C3T.导航管理'|translate}}</span> </a>
                 </li>
                 <li ng-if="nav.user.showconnector==1" class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">{{'C3T.连接器'|translate}}</div> </li>
                 <li ng-if="nav.user.showconnector==1" class="list-group-item">
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.config({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.设置连接器'|translate}}</span> </a>
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.userinfo({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.用户管理'|translate}}</span> </a>
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.userauth({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.权限管理'|translate}}</span> </a>
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.tree({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.编辑服务树节点'|translate}}</span> </a>
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.node({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.编辑服务树资源'|translate}}</span> </a>
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.mail({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.给我的邮件'|translate}}</span> </a>
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.mesg({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.给我的短信'|translate}}</span> </a>
-                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.userleader({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span>{{'C3T.用户领导管理'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.config({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-paperclip" aria-hidden="true"></i> <span>{{'C3T.设置连接器'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.userinfo({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-user-plus" aria-hidden="true"></i> <span>{{'C3T.用户管理'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.userauth({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-key" aria-hidden="true"></i> <span>{{'C3T.权限管理'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.tree({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-sitemap" aria-hidden="true"></i> <span>{{'C3T.编辑服务树节点'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.node({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-folder-o" aria-hidden="true"></i> <span>{{'C3T.编辑服务树资源'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.mail({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-envelope-open-o" aria-hidden="true"></i> <span>{{'C3T.给我的邮件'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.mesg({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-envelope-square" aria-hidden="true"></i> <span>{{'C3T.给我的短信'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ui-sref="home.connector.userleader({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-user-circle-o" aria-hidden="true"></i> <span>{{'C3T.用户领导管理'|translate}}</span> </a>
                 </li>
             </ul>
 
