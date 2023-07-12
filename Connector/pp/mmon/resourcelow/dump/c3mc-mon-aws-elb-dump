@@ -34,7 +34,7 @@ for my $mon ( @mon )
 printf "%s\n", join "\t", @col, @mon;
 for my $x ( @x )
 {
-    my ( $instance, @tmp ) = split /\t/, $x;
+    my ( $instance, @tmp ) = split /\t/, $x, scalar @col;
 #    $instance =~ s/^.+:loadbalancer\///g;
     printf "%s\n", join "\t", $instance, @tmp, map{ $mon{$_} && defined $mon{$_}{$instance} ? $mon{$_}{$instance} : 'unkown' }@mon;
 }

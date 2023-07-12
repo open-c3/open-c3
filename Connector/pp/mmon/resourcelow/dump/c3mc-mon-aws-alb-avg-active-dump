@@ -6,6 +6,7 @@ $|++;
 
 use LWP::UserAgent;
 use JSON;
+use URI::Escape;
 
 =head1 SYNOPSIS
 
@@ -16,8 +17,7 @@ use JSON;
 my $ua = LWP::UserAgent->new;
 $ua->timeout( 15 );
 
-#sum(avg_over_time(aws_applicationelb_active_connection_count_sum [1w]) )by(load_balancer)
-my $url = 'http://openc3-prometheus:9090/api/v1/query?query=sum%28avg_over_time%28aws_applicationelb_active_connection_count_sum+%5B1w%5D%29+%29by%28load_balancer%29';
+my $url = sprintf "http://openc3-prometheus:9090/api/v1/query?query=%s", URI::Escape::uri_escape( 'sum(avg_over_time(aws_applicationelb_active_connection_count_sum{datasource!="cmdb"} [1w]) )by(load_balancer)' );
 
 my $res = $ua->get( $url );
 

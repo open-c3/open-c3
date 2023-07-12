@@ -8,10 +8,10 @@ download:
       treeinfo:
         - ["实例ID", "instance"]
     metrics:
-      - name: 'aws_applicationelb_healthy_host_count_maximum{cloudmonname="cmdb-aws-%s-%s",load_balancer="%s",target_group="x"} 0'
+      - name: 'aws_applicationelb_healthy_host_count_maximum{cloudmonname="cmdb-aws-%s-%s",load_balancer="%s",target_group="x",datasource="cmdb"} 0'
         value: [ 'account', 'DNSName', 'LoadBalancerArn' ]
         regex: [ '', 's/^.*\.([a-zA-Z0-9\-]+)\.elb.amazonaws.com$/$1/g', 's/^.+:loadbalancer\///g' ]
-      - name: 'aws_applicationelb_active_connection_count_sum{cloudmonname="cmdb-aws-%s-%s",load_balancer="%s"} 0'
+      - name: 'aws_applicationelb_active_connection_count_sum{cloudmonname="cmdb-aws-%s-%s",load_balancer="%s",datasource="cmdb"} 0'
         value: [ 'account', 'DNSName', 'LoadBalancerArn' ]
         regex: [ '', 's/^.*\.([a-zA-Z0-9\-]+)\.elb.amazonaws.com$/$1/g', 's/^.+:loadbalancer\///g' ]
  
