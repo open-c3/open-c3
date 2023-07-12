@@ -10,7 +10,18 @@ $|++;
 
 =cut
 
-my @col = qw( 实例ID 服务树 业务负责人 容量 类型 _vmuuid_ );
+my    @id2ip = `c3mc-device-data-get curr  compute aws-ec2 实例ID 内网IP`;
+chomp @id2ip;
+
+my %id2ip;
+for ( @id2ip )
+{
+    my @xx = split /\t/, $_;
+    $id2ip{$xx[0]} = $xx[1];
+}
+
+# Attachments.0.Device _vmuuid_ 必须放在最后。脚本后面会通过它来查找资源主机uuid和dev
+my @col = qw( 实例ID 服务树 业务负责人 容量 类型 Attachments.0.Device _vmuuid_ );
 my $col = join " ", @col;
 my @x = `c3mc-device-data-get curr storage aws-ec2-volume $col`;
 die "get data fail" if $?;
@@ -31,10 +42,63 @@ for my $mon ( @mon )
     }
 }
 
-printf "%s\n", join "\t", @col, @mon;
+my @use = `c3mc-mon-aws-ec2-volume-dev-max-dump`;
+chomp @use;
+my %use;
+for( @use )
+{
+    my ($ip, $dev, $use ) = split /\t/, $_;
+    $use{$ip}{$dev} = $use;
+
+    if( $dev =~ m#/dev/nvme(\d+)# )
+    {
+        $use{$ip}{$1} = $use;
+    }
+    $use{$ip}{0} = $use if $dev eq '/dev/xvda';
+    $use{$ip}{1} = $use if $dev eq '/dev/xvdb';
+}
+
+
+sub getdevuse
+{
+    my ( $ip, $dev ) = @_;
+    my $stat = 'unkown';
+
+    return $stat unless $ip && $dev;
+
+    my $devalias;
+    $devalias = 0 if $dev =~ /sda/;
+    $devalias = 1 if $dev =~ /sdb/;
+    $devalias = 2 if $dev =~ /sdc/;
+    $devalias = 0 if $dev =~ /xvda/;
+    $devalias = 1 if $dev =~ /xvdb/;
+    $devalias = 2 if $dev =~ /xvdc/;
+    if( defined $use{$ip} && defined $use{$ip}{$dev} )
+    {
+        return $use{$ip}{$dev};
+    }
+    elsif( defined $devalias && defined $use{$ip} && defined $use{$ip}{$devalias} )
+    {
+        return $use{$ip}{$devalias};
+    }
+    elsif( $use{$ip} )
+    {
+        warn sprintf "ERRRO: match dev fail: ip:$ip dev:$dev host dev:%s\n", join ',', sort keys %{$use{$ip}};
+    }
+    return $stat;
+}
+
+printf "%s\n", join "\t", @col, @mon, 'vmip', 'dev_use';
 for my $x ( @x )
 {
-    my ( $instance ) = split /\t/, $x;
+    my @t = split /\t/, $x, scalar @col;
+    my $instance = $t[0];
     $instance =~ s/.*:db://;
-    printf "%s\n", join "\t", $x, map{ $mon{$_} && defined $mon{$_}{$instance} ? $mon{$_}{$instance} : 'unkown' }@mon;
+
+    my $ip = $id2ip{$t[-1]} //= '';
+    my $dev = $t[-2] //= '';
+
+    my $devuse = getdevuse( $ip, $dev );
+
+    printf "%s\n", join "\t", $x, $ip, $devuse, map{ $mon{$_} && defined $mon{$_}{$instance} ? $mon{$_}{$instance} : 'unkown' }@mon;
 }

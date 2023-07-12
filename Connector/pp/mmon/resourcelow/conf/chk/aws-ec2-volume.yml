@@ -1,8 +1,8 @@
-low: '$d{"_vmuuid_"} !~ /^[a-z]/'
-normal: 'defined $d{"_vmuuid_"}'
+low: '$d{"_vmuuid_"} !~ /^[a-z]/ || (  defined $d{"容量"} && $d{"容量"} =~ /^\d/ && $d{"容量"} > 200 &&  defined $d{"dev_use"} && $d{"dev_use"} =~ /^\d/ && $d{"dev_use"} < 20 )'
+normal: 'defined $d{"_vmuuid_"} && defined $d{"dev_use"} && $d{"dev_use"} =~ /^\d/ '
 
 PolicyDescription:
-  low: '磁盘没挂载到主机上' 
+  low: '磁盘没挂载到主机上 或者 ( 容量大于 200G 并且 使用率小于 20% )' 
   warn: ''
   normal: '健康'
   unkown: '数据缺失'
