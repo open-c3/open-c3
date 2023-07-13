@@ -98,9 +98,11 @@ def main(params):
             print(f'VAR. extinstance_id:{params["account"]}.{params["region"]}.{clb_id}')
         except Exception as e:
             if 'clb_id' in locals():
-                clb.lib_client.delete_load_balancer(load_balancer_id_list=[clb_id])
-            print(f"创建腾讯云clb出错, err: {e}", file=sys.stderr)
-            exit(1)
+                resp = clb.lib_client.delete_load_balancer(load_balancer_id_list=[clb_id])
+                timeout = 900
+                if not clb.lib_client.wait_until_task_finish(resp["RequestId"], timeout):
+                    print(f"创建clb成功了, 但是在后续处理时出错, 为了便于下一次重试, 这里会清理创建的clb, 但是在清理clb时等待腾讯云出现超时错误, 超时时间 {timeout} 秒", file=sys.stderr)
+            raise RuntimeError("处理出错.") from e
 
 if __name__ == '__main__':
     l = list(sys.stdin)

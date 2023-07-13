@@ -14,12 +14,12 @@ def tag_add(data, access_id, access_key, region, uin):
     lib_client = QcloudTag(access_id, access_key, region)
 
     field_name_list = subprocess.getoutput(
-        "c3mc-cloud-get-real-field database qcloud-cdb Region InstanceId")
+        "c3mc-cloud-get-real-field database qcloud-cdb Region InstanceId").split()
 
     rid = f"qcs::cdb:{data[field_name_list[0]]}:uin/{uin}:instanceId/{data[field_name_list[1]]}"
 
     tags_list = []
-    for item in data["_control_"]["tags"].split(","):
+    for item in data["_control_"]["tag-add"]["tags"].split(","):
         parts = item.split("=")
         if len(parts) != 2:
             continue
@@ -31,8 +31,8 @@ def tag_add(data, access_id, access_key, region, uin):
     lib_client.add_tag_by_replace(rid, tags_list)
 
 
-def main(data, access_id, access_key, region):
-    tag_add(data, access_id, access_key, region)
+def main(data, access_id, access_key, region, uin):
+    tag_add(data, access_id, access_key, region, uin)
 
 
 if __name__ == '__main__':
@@ -40,4 +40,4 @@ if __name__ == '__main__':
     if not l or len(l) > 1:
         raise RuntimeError("数据格式不对, 需要一行json字符串")
 
-    main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4])
+    main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])

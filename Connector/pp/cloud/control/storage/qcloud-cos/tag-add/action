@@ -7,19 +7,21 @@ import subprocess
 
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
-from c3mc_cloud_qcloud_cos import QcloudCos
+from c3mc_cloud_qcloud_tag import QcloudTag
 
 
 def tag_add(data, access_id, access_key, region, uin):
-    lib_client = QcloudCos(access_id, access_key, region)
+    lib_client = QcloudTag(access_id, access_key, region)
 
     field_name_list = subprocess.getoutput(
-        "c3mc-cloud-get-real-field storage qcloud-cos Location Name")
+        "c3mc-cloud-get-real-field storage qcloud-cos Location Name").split()
     
-    rid = f"qcs::cos:${data[field_name_list[0]]}:uid/${uin}:${data[field_name_list[1]]}/*"
+    name_parts = data[field_name_list[1]].split("-")
     
+    rid = f"qcs::cos:{data[field_name_list[0]]}:uid/{name_parts[-1]}:prefix/{name_parts[-1]}/{'-'.join(name_parts[:-1])}/*"
+
     tags_list = []
-    for item in data["_control_"]["tags"].split(","):
+    for item in data["_control_"]["tag-add"]["tags"].split(","):
         parts = item.split("=")
         if len(parts) != 2:
             continue
@@ -31,8 +33,8 @@ def tag_add(data, access_id, access_key, region, uin):
     lib_client.add_tag_by_replace(rid, tags_list)
 
 
-def main(data, access_id, access_key, region):
-    tag_add(data, access_id, access_key, region)
+def main(data, access_id, access_key, region, uin):
+    tag_add(data, access_id, access_key, region, uin)
 
 
 if __name__ == '__main__':
@@ -40,4 +42,4 @@ if __name__ == '__main__':
     if not l or len(l) > 1:
         raise RuntimeError("数据格式不对, 需要一行json字符串")
 
-    main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4])
+    main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])

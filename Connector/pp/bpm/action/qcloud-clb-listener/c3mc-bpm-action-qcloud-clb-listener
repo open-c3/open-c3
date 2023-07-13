@@ -102,20 +102,25 @@ def main(params):
             try:
                 resp = listener.create_listener(req)
                 print(f"创建listener, 响应为: {json.dumps(resp)}")
+
                 listener_id = resp["ListenerIds"][0]
                 listener_name = params["listener_name"]
+
                 print(f'LOG. listener_id_{listener_name}:{listener_id}')
                 print(f'LOG. protocol_{listener_name}:{params["protocol"]}')
                 print(f'VAR. listener_id_{listener_name}:{listener_id}')
                 print(f'VAR. protocol_{listener_name}:{params["protocol"]}')
                 break
+
             except Exception as e:
                 if any(word in str(e) for word in ["Loadbalancer is not in normal status", "maybe some tasks are being processed", "wait for the task to complete and try again"]):
                     time.sleep(5)
                     continue
-                listener.lib_client.delete_load_balancer(load_balancer_id_list=[clb_id])
-                print(f"创建腾讯云监听器出错, err: {e}", file=sys.stderr)
-                exit(1)
+
+                if listener_id:
+                    r = listener.lib_client.delete_listeners(clb_id, [ listener_id ])
+                    print(f"监听器创建成功了, 但是在后续处理时出错。这里会清理创建的监听器, 响应为: {json.dumps(r)}", file=sys.stderr)
+                raise RuntimeError("处理出错") from e
 
 
 if __name__ == '__main__':

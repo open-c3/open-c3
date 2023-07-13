@@ -10,6 +10,7 @@ sys.path.append("/data/Software/mydan/Connector/lib/pp")
 from c3mc_cloud_qcloud_tag import QcloudTag
 
 
+
 def tag_add(data, access_id, access_key, region, uin):
     lib_client = QcloudTag(access_id, access_key, region)
 
@@ -17,6 +18,7 @@ def tag_add(data, access_id, access_key, region, uin):
         "c3mc-cloud-get-real-field compute qcloud-cvm RegionId InstanceId").split()
     
     rid = f"qcs::cvm:{data[field_name_list[0]]}:uin/{uin}:instance/{data[field_name_list[1]]}"
+
 
     tags_list = []
     for item in data["_control_"]["tag-add"]["tags"].split(","):
