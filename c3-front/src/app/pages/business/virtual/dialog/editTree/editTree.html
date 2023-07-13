@@ -1,0 +1,42 @@
+<div>
+  <cmloading ng-if="!editVirtual.editLoadover"></cmloading>
+</div>
+<div class="modal-header">
+  <h4 ng-if="editVirtual.type === 'add'" class="modal-title">{{'C3T.新增机器'| translate}}</h4>
+  <h4 ng-if="editVirtual.type === 'delete'"  class="modal-title">{{'C3T.删除机器'| translate}}</h4>
+</div>
+
+<div class="modal-body">
+  <div class="panel panel-dark">
+    <div class="panel-heading">
+      <span class="panel-controls">
+        <button class="btn btn-dark" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="editVirtual.getTabledata()">
+          <i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!editVirtual.editLoadover}"></i>
+        </button>
+      </span>
+      <h5>{{'C3T.总数'|translate}}: {{editVirtual.nodecount}}</h5>
+    </div>
+    <div class="panel-body">
+      <table ng-table="editVirtual.machineTableList" class="table table-hover text-center table-condensed"
+        show-filter="true">
+        <tr ng-repeat="ss in $data">
+          <td header="'headerCheckbox.html'" data-title="">
+            <input type="checkbox" name="selected" ng-model="editVirtual.checkboxes.items[ss.name]" />
+          </td>
+          <td style="width: 15%" data-title="'C3T.机器名称'| translate" filter="{ name: 'text'}">{{ss.name}}</td>
+          <td data-title="'C3T.类型'|translate" filter="{ type: 'text'}">{{ss.type}}</td>
+          <td data-title="'C3T.内网IP'|translate" filter="{ inip: 'text'}">{{ss.inip}}</td>
+          <td data-title="'C3T.外网IP'|translate" filter="{ exip: 'text'}">{{ss.exip}}</td>
+        </tr>
+      </table>
+    </div>
+  </div>
+</div>
+<div  class="confirm-btn text-center">
+  <button class="btn btn-primary confirm-btn-primary" ng-click="editVirtual.confirm()">{{'C3T.确定'| translate}}</button>
+  <button class="btn btn-warning" ng-click="editVirtual.cancel()">{{'C3T.取消'| translate}}</button>
+</div>
+
+<script type="text/ng-template" id="headerCheckbox.html">
+  <input type="checkbox" ng-model="editVirtual.checkboxes.checked"  class="select-all"/>
+</script>
