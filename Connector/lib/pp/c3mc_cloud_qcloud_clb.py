@@ -81,11 +81,57 @@ class QcloudClb:
 
         # 返回的resp是一个DeleteLoadBalancerResponse的实例，与请求对象对应
         resp = self.client.DeleteLoadBalancer(req)
+        return json.loads(resp.to_json_string())
 
-        self._wait_until_task_finish(resp.RequestId)
+    def delete_listeners(self, load_balancer_id, listener_id_list):
+        """删除监听器
 
+        Args:
+            load_balancer_id (str): 负载均衡器实例id
+            listener_id_list (list): 监听器id列表
+        """
+        req = models.DeleteLoadBalancerListenersRequest()
+        params = {
+            "LoadBalancerId": load_balancer_id,
+            "ListenerIds": listener_id_list
+        }
+        req.from_json_string(json.dumps(params))
 
-    def _wait_until_task_finish(self, request_id, timeout=600):
+        resp = self.client.DeleteLoadBalancerListeners(req)
+        return json.loads(resp.to_json_string())
+
+    def delete_rules(self, load_balancer_id, listener_id, location_id_list):
+        """删除负载均衡七层监听器的转发规则
+
+        Args:
+            load_balancer_id (str): 负载均衡器实例id
+            listener_id (str): 监听器id
+            location_id_list (list): 七层监听器转发规则的id列表
+        """
+        req = models.DeleteRuleRequest()
+        params = {
+            "LoadBalancerId": load_balancer_id,
+            "ListenerId": listener_id,
+            "LocationIds": location_id_list
+        }
+        req.from_json_string(json.dumps(params))
+
+        timeout = 900
+
+        begin = time.time()
+        while True:
+            try:
+                resp = self.client.DeleteRule(req)
+                return json.loads(resp.to_json_string())
+            except Exception as e:
+                if time.time() - begin > timeout:
+                    raise RuntimeError(f"等待 {timeout} 秒后仍旧无法创建转发规则") from e
+
+                if "Your task is working" in str(e):
+                    time.sleep(5)
+                    continue
+    
+    def wait_until_task_finish(self, request_id, timeout=600):
         """
         根据request_id查询并等待异步任务结束
         """
