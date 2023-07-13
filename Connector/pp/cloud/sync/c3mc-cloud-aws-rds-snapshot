@@ -3,17 +3,46 @@
 
 import sys
 import json
+import subprocess
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
 from c3mc_cloud_aws_rds import LibRds
 
 
 class RdsSnapshot:
-    def __init__(self, access_id, access_key, region):
+    def __init__(self, account, access_id, access_key, region):
+        self.account = account
         self.lib_client = LibRds(access_id, access_key, region)
+    
+
+    def query_rds_uuids(self):
+        cmd_parts = ["c3mc-device-data-get", "curr", "database", "aws-rds", "uuid", "account"]
+        output = subprocess.run(cmd_parts, capture_output=True, text=True)
+        if output.returncode != 0:
+            print(output.stderr, file=sys.stderr)
+            exit(1)
+        output = output.stdout
+        return [line.strip() for line in output.split("\n")]
 
     def list_db_snapshot(self):
-        return self.lib_client.list_db_snapshot()
+        rds_uuid_lines = self.query_rds_uuids()
+        data = {}
+        for line in rds_uuid_lines:
+            parts = line.split()
+            if len(parts) != 2:
+                continue
+            rds_arn = parts[0]
+            rds_name = rds_arn.split(":")[-1]
+            if parts[1] != self.account:
+                continue
+            
+            data[rds_name] = rds_arn
+
+        snapshot_list = self.lib_client.list_db_snapshot()
+        for index, snapshot in enumerate(snapshot_list):
+            if snapshot["DBInstanceIdentifier"] in data:
+                snapshot_list[index]["_dbuuid_"] = data[snapshot["DBInstanceIdentifier"]]
+        return snapshot_list
 
     def show(self):
         instance_list = self.list_db_snapshot()
@@ -21,13 +50,14 @@ class RdsSnapshot:
             print(json.dumps(instance, default=str))
 
 
-def main(access_id, access_key, region):
+def main(account, access_id, access_key, region):
     try:
-        RdsSnapshot(access_id, access_key, region).show()
+        RdsSnapshot(account, access_id, access_key, region).show()
     except Exception as e:
         print(f"同步aws rds snapshot资源出错. access_id: {access_id}, region: {region}", file=sys.stderr) 
         raise e
 
 
 if __name__ == "__main__":
-    main(sys.argv[1], sys.argv[2], sys.argv[3])
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
+
