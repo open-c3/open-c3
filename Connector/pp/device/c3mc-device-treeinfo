@@ -76,21 +76,18 @@ for my $data ( @data )
     my @d = split /\t/, $data;
     my %d = map{ $title[ $_ ] => $d[ $_ ] } 0 .. @title - 1;
 
-    my %res;
-    for ( @{$conf->{treeinfo}} )
-    {
-        my ( $colname, $tagname ) = @$_;
-        $res{ $tagname } = $d{ $colname };
-    }
-
     my $treename = $d{ $conf->{treename} };
     my @tid = treename2tid( $treename );
-    for ( @tid )
+    for my $id ( @tid )
     {
-        my %x = ( %res, type => 'device' );
-        my $x = join ',', map{ "$_=\"$x{$_}\"" } sort keys %x;
-        printf "treeinfo{%s,tid=>\"$_\"} 1\n", $x;
-        $node{ $_ }{ $x } = 1;
+        for( @{$conf->{treeinfo}} )
+        {
+            my ( $colname, $k ) = @$_;
+            my $v = $d{ $colname };
+            my $uuid = "$k=\"$v\",type=\"device\"";
+            printf "treeinfo{$uuid,tid=\"$id\"} 1\n";
+            $node{ $id }{ $uuid } = 1;
+        }
     }
 }
 
