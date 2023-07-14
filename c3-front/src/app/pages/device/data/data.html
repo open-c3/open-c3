@@ -46,7 +46,7 @@
             <form class="form-inline"> 
                 <div class="form-group" ng-repeat="f in devicedata.filtergrep"  style="padding-right: 10px;" >
                     <div class="form-filter-select">
-                      <ui-select appendToBody="true" ng-model="devicedata.grepdata[f.name]" ng-change="devicedata.handleReloadChange()"  ng-disabled="!devicedata.loadover">
+                      <ui-select appendToBody="true" ng-model="devicedata.grepdata[f.name]" ng-change="devicedata.reload()"  ng-disabled="!devicedata.loadover">
                         <ui-select-match>
                            <span ng-if="$select.selected.count !== f.name" class="item-label"> {{($select.selected.name + '(' + $select.selected.count + ')') || f.alias }}</span>
                            <span ng-if="$select.selected.count === f.name" class="item-label">{{f.alias}}</span>
