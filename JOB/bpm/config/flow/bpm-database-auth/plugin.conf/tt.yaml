@@ -21,9 +21,8 @@ option:
   - name: auth_type
     describe: 权限类型(必选)
     type: selectxm
-    # option: ["增加", "删除", "修改", "查看"]
     value: ""
-    command: c3mc-bpm-database-auth | c3mc-bpm-display-field-values "{value};{value}"
+    command: "head -n  1|awk '{print \"增加 删除 修改 查看\"}'|xargs -n 1"
 
   - name: database_owner
     describe: 数据库所属人
