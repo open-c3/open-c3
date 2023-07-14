@@ -19,11 +19,12 @@
     $scope.selectedData = [];
 
     // 获取虚拟服务树节点列表（Tabs选项卡）
-    vm.getVirtualTreeList = function () {
+    vm.getVirtualTreeList = function (type) {
       $http.get(`/api/connector/vtree/${vm.treeid}`).success(function (data) {
+        vm.tabsLoadover = true
         if (data.stat == true) {
           vm.tabsList = data.data;
-          if (!($scope.selectTab && $scope.selectTab.id)) {
+          if (!($scope.selectTab && $scope.selectTab.id) || type) {
             $scope.selectTab = data.data[0]
           }
         } else {
@@ -100,7 +101,7 @@
           type: function () { return type },
           reload: function () { return vm.reload },
           tabId: function () { return id || '' },
-          currentId: function () { return $scope.selectTab.id || '' },
+          currentId: function () { return $scope.selectTab && $scope.selectTab.id || '' },
         }
       });
     }
@@ -125,7 +126,7 @@
         $http.delete(`/api/connector/vtree/${vm.treeid}/${item.id}`).success(function (data) {
           if (data.stat == true) {
             swal({ title: "删除成功!", type: 'success' });
-            vm.reload();
+            vm.getVirtualTreeList('delete')
           } else {
             swal({ title: "删除失败!", text: data.info, type: 'error' });
           }

@@ -77,7 +77,7 @@
       });
     };
 
-    vm.getCheckVnode(vm.tabId);
+    vm.getCheckVnode(vm.tabId || vm.currentId);
 
     // 编辑机器请求
     vm.machineCheckOperate = function (type, params) {
