@@ -96,25 +96,21 @@
         closeOnConfirm: true
       }, function () {
         if (type === 'create') {
-          $http.post(`/api/connector/vnode/${vm.tabId}`, params).success(function (data) {
+          $http.post(`/api/connector/vnode/${vm.tabId|| vm.currentId}`, params).success(function (data) {
             vm.cancel();
             if (data.stat === true) {
               toastr.success('操作成功');
-              if (vm.currentId === vm.tabId) {
-                reload()
-              }
+              reload()
             }else {
               swal({ title: "操作失败!", text: data.info, type: 'error' });
             }
           })
         } else {
-          $http.delete(`/api/connector/vnode/${vm.tabId}`, { params }).success(function (data) {
+          $http.delete(`/api/connector/vnode/${vm.tabId|| vm.currentId}`, { params }).success(function (data) {
             vm.cancel();
             if (data.stat === true) {
               toastr.success('操作成功');
-              if (vm.currentId === vm.tabId) {
-                reload()
-              }
+              reload()
             }else {
               swal({ title: "操作失败!", text: data.info, type: 'error' });
             }
