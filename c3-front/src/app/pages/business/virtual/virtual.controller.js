@@ -37,12 +37,13 @@
     vm.getTabledata = function () {
       vm.tabsLoadover = false;
       $http.get(`/api/agent/nodeinfo/${vm.treeid}`).success(function (data) {
-        vm.tabsLoadover = true;
         if (data.stat) {
+          vm.tabsLoadover = true;
           const newData = data.data.filter(item => $scope.selectedData.find(cItem => cItem === item.name))
           vm.nodecount = newData.length;
           vm.machineTableList = new ngTableParams({ count: 10 }, { counts: [], data: newData.reverse() });
         } else {
+          vm.tabsLoadover = true;
           toastr.error("获取机器列表失败：" + response.data.info);
         };
       });
@@ -60,9 +61,12 @@
         };
       });
     };
-
+    vm.getVirtualTreeList();
+  
     vm.reload = function () {
-      vm.getVirtualTreeList();
+      if ($scope.selectTab && $scope.selectTab.id) {
+        vm.getCheckVnode($scope.selectTab.id)
+      }
     };
 
     vm.reload();
@@ -83,6 +87,7 @@
         }
       });
       modalInstance.result.then(function (result) {
+        vm.getVirtualTreeList('create')
         vm.handleEdit('create', result.id)
       })
     };
