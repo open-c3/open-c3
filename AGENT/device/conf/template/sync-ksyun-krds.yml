@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account-list --type ksyun-krds |xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-ksyun-krds --account ksyun --cloudaccount {} | c3mc-cloud-tag-v2 --tagfield Tags --key TagKey --value TagValue |  c3mc-base-json2tab "
+  - url: "cmd:c3mc-cloud-account-list --type ksyun-krds |xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-ksyun-krds --account ksyun --cloudaccount {} | c3mc-cloud-tag-v2 --tagfield Tags --key TagKey --value TagValue | c3mc-cloud-attach-department-info |  c3mc-base-json2tab "
     datatype: tsv
     type: database
     subtype: ksyun-krds
@@ -36,6 +36,8 @@ download:
         baseinfo:
         - name: 业务负责人
         - name: 运维负责人
+        - name: 一级部门
+        - name: 二级部门
         - name: 状态
           success:
           - ACTIVE
@@ -63,7 +65,9 @@ download:
       DBInstanceStatus: "状态"
       EngineVersion: "引擎版本"
       Engine: "引擎"
-      _product_owner_: "业务负责人"
+      _oneDeptName_: 一级部门
+      _sybDeptName_: 二级部门
+      _product_owner_: 业务负责人
       _ops_owner_: "运维负责人"
       _department_: "部门"
     check:
@@ -88,6 +92,10 @@ download:
         alias: 运维负责人
       - name: "部门"
         alias: 部门
+      - name: "一级部门"
+        alias: 一级部门
+      - name: "二级部门"
+        alias: 二级部门
       - name: "_ingestion_"
         alias: 摄取
     outline:

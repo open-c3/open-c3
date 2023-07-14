@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account-list --type qcloud-redis |xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-qcloud-redis --account qcloud --cloudaccount {} | c3mc-cloud-tag-v2 --tagfield InstanceTags --key TagKey --value TagValue | c3mc-price-fetch qcloud-redis 'Region;ZoneId;Type;Size;RedisShardNum;RedisReplicasNum' | c3mc-base-json2tab "
+  - url: "cmd:c3mc-cloud-account-list --type qcloud-redis |xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-qcloud-redis --account qcloud --cloudaccount {} | c3mc-cloud-tag-v2 --tagfield InstanceTags --key TagKey --value TagValue | c3mc-price-fetch qcloud-redis 'Region;ZoneId;Type;Size;RedisShardNum;RedisReplicasNum' | c3mc-cloud-attach-department-info  | c3mc-base-json2tab "
     datatype: tsv
     type: database
     subtype: qcloud-redis
@@ -45,6 +45,8 @@ download:
         baseinfo:
         - name: 业务负责人
         - name: 运维负责人
+        - name: 一级部门
+        - name: 二级部门
         - name: 状态
           success:
           - 运行中
@@ -66,7 +68,9 @@ download:
       ZoneId: "所在可用区"
       Region: "区域"
       InstanceTitle: "状态"
-      _product_owner_: "业务负责人"
+      _oneDeptName_: 一级部门
+      _sybDeptName_: 二级部门
+      _product_owner_: 业务负责人
       _ops_owner_: "运维负责人"
       _department_: "部门"
     filter:
@@ -84,6 +88,10 @@ download:
         alias: 运维负责人
       - name: "部门"
         alias: 部门
+      - name: "一级部门"
+        alias: 一级部门
+      - name: "二级部门"
+        alias: 二级部门
       - name: "_ingestion_"
         alias: 摄取
     outline:

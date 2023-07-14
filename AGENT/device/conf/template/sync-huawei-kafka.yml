@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account-list --type huawei-kafka | xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-huawei-kafka --account huawei --cloudaccount {} | c3mc-cloud-tag-v2 --tagfield tags --key key --value value | c3mc-base-json2tab "
+  - url: "cmd:c3mc-cloud-account-list --type huawei-kafka | xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-huawei-kafka --account huawei --cloudaccount {} | c3mc-cloud-tag-v2 --tagfield tags --key key --value value | c3mc-cloud-attach-department-info  | c3mc-base-json2tab "
     datatype: tsv
     type: storage
     subtype: huawei-kafka
@@ -43,6 +43,8 @@ download:
           - name: 部门
           - name: 业务负责人
           - name: 运维负责人
+          - name: 一级部门
+          - name: 二级部门
         system:
           - name: 消息存储空间
             tail: (GB)
@@ -77,7 +79,9 @@ download:
       connect_address: 实例连接IP地址
       port: 实例连接端口
       status: 状态
-      _product_owner_: "业务负责人"
+      _oneDeptName_: 一级部门
+      _sybDeptName_: 二级部门
+      _product_owner_: 业务负责人
       _ops_owner_: "运维负责人"
       _department_: "部门"
     filter:
@@ -99,6 +103,10 @@ download:
         alias: 运维负责人
       - name: "部门"
         alias: 部门
+      - name: "一级部门"
+        alias: 一级部门
+      - name: "二级部门"
+        alias: 二级部门
       - name: "audit"
         alias: 审计
       - name: "_ingestion_"

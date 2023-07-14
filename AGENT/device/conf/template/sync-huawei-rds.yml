@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account-list --type huawei-rds|xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-huawei-rds --account huawei --cloudaccount {} | c3mc-cloud-tag-v2 --tagfield tags --key key --value value | c3mc-price-fetch huawei-rds 'region;flavor_ref' | c3mc-base-json2tab "
+  - url: "cmd:c3mc-cloud-account-list --type huawei-rds|xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-huawei-rds --account huawei --cloudaccount {} | c3mc-cloud-tag-v2 --tagfield tags --key key --value value | c3mc-price-fetch huawei-rds 'region;flavor_ref' | c3mc-cloud-attach-department-info  | c3mc-base-json2tab "
     datatype: tsv
     type: database
     subtype: huawei-rds
@@ -42,6 +42,8 @@ download:
         baseinfo:
         - name: 业务负责人
         - name: 运维负责人
+        - name: 一级部门
+        - name: 二级部门
         - name: 状态
           success:
           - ACTIVE
@@ -62,7 +64,9 @@ download:
       name: "名称"
       status: "状态"
       flavor_ref: "实例规格"
-      _product_owner_: "业务负责人"
+      _oneDeptName_: 一级部门
+      _sybDeptName_: 二级部门
+      _product_owner_: 业务负责人
       _ops_owner_: "运维负责人"
       _department_: "部门"
     filter:
@@ -80,6 +84,10 @@ download:
         alias: 运维负责人
       - name: "部门"
         alias: 部门
+      - name: "一级部门"
+        alias: 一级部门
+      - name: "二级部门"
+        alias: 二级部门
       - name: "audit"
         alias: 审计
       - name: "_ingestion_"

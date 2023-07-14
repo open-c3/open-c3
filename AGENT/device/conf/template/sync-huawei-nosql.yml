@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account-list --type huawei-nosql|xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-huawei-nosql --account huawei --cloudaccount {} | c3mc-base-json2tab "
+  - url: "cmd:c3mc-cloud-account-list --type huawei-nosql|xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-huawei-nosql --account huawei --cloudaccount {} | c3mc-cloud-attach-department-info  | c3mc-base-json2tab "
     datatype: tsv
     type: database
     subtype: huawei-nosql
@@ -34,7 +34,9 @@ download:
       status: "状态"
       region: "区域"
       engine: "引擎"
-      _product_owner_: "业务负责人"
+      _oneDeptName_: 一级部门
+      _sybDeptName_: 二级部门
+      _product_owner_: 业务负责人
       _ops_owner_: "运维负责人"
       _department_: "部门"
     filter:
@@ -48,6 +50,10 @@ download:
         alias: 运维负责人
       - name: "部门"
         alias: 部门
+      - name: "一级部门"
+        alias: 一级部门
+      - name: "二级部门"
+        alias: 二级部门
       - name: "audit"
         alias: 审计
       - name: "_ingestion_"
