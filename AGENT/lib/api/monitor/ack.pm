@@ -279,7 +279,7 @@ post '/monitor/ack/:uuid' => sub {
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } unless $user && $user =~ /^[a-zA-Z0-9][a-zA-Z0-9@\.\-_\/]+[a-zA-Z0-9]$/;
 
-    my $time = time + 86400;
+    my $time = time + ( 7 * 86400 );
     my $type = $param->{type} && $param->{type} eq 'P' ? 'P' : 'G';
 
     if( $type eq 'G' && $ctrl ne 'ackam' )
