@@ -17,6 +17,7 @@
             name: '主机'
           },
         ]
+        vm.tabThead = ['lowstatus', '服务树'];
         $scope.countOptions = [20, 30,50, 100, 500]
         $scope.selectTab = vm.lowUtilizationList[0];
         vm.headerList = []
