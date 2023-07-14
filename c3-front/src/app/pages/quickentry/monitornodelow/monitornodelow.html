@@ -129,7 +129,8 @@
                       </td>
                       <td ng-repeat="item in monitornodelow.headerList| filter:searchText" data-title="item" sortable="item">
                         <div ng-if="item === 'lowstatus'"><a ng-style="{'color': monitornodelow.statusColorMap[m[item]]}">{{m[item]}}<a></div>
-                        <div ng-if="item !== 'lowstatus'">{{m[item]}}</div>
+                        <div ng-if="item === '服务树'" class="service-tree-text" uib-tooltip="{{m[item]}}">{{m[item]}}<a></div>
+                        <div ng-if="!monitornodelow.tabThead.includes(item)">{{m[item]}}</div>
                       </td>
                     </tr>
                   </table>
