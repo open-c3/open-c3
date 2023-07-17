@@ -131,3 +131,15 @@ class QcloudVpc:
             data.extend(page_data)
 
         return sorted(data, key=lambda x: (x.SecurityGroupName.lower()), reverse=False)
+    
+    def check_if_bandwidth_package_user(self):
+        """判断当前用户是否是带宽包用户
+        """
+        req = models.DescribeBandwidthPackagesRequest()
+        params = {
+            "Offset": 1,
+            "Limit": 1
+        }
+        req.from_json_string(json.dumps(params))
+        resp = self.client.DescribeBandwidthPackages(req)
+        return len(resp.BandwidthPackageSet) > 0
