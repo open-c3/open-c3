@@ -25,7 +25,7 @@
 
         vm.dashboarnuuid1 = 'dUrNraOn1';
         vm.dashboarnuuid2 = 'dUrNraOnz';
-
+        vm.pageSizeOption = [10, 20, 30, 50, 100]
         vm.alias = { 'port': 'C3T.端口', 'process': 'C3T.进程', 'http': 'HTTP', 'tcp': 'TCP','udp': 'UDP', 'path': 'C3T.路径', 'nodeext': 'C3T.外部数据' }
         vm.locked = 0;
         treeService.sync.then(function(){
@@ -112,7 +112,7 @@
             $http.get('/api/agent/monitor/config/collector/' + vm.treeid ).success(function(data){
                 if(data.stat == true) 
                 { 
-                    vm.activeRegionTable = new ngTableParams({count:10}, {counts:[],data:data.data.reverse()});
+                    vm.activeRegionTable = new ngTableParams({count:10}, {counts:vm.pageSizeOption,data:data.data.reverse()});
                     vm.loadover = true;
                 } else { 
                     toastr.error( "加载采集列表失败:" + data.info )
@@ -127,7 +127,7 @@
             $http.get('/api/agent/monitor/config/rule/' + vm.treeid ).success(function(data){
                 if(data.stat == true) 
                 { 
-                    vm.activeRuleTable = new ngTableParams({count:10}, {counts:[],data:data.data.reverse()});
+                    vm.activeRuleTable = new ngTableParams({count:10}, {counts:vm.pageSizeOption,data:data.data.reverse()});
                     vm.loadoverRule = true;
                 } else { 
                     toastr.error( "加载监控策略失败:" + data.info )
@@ -142,7 +142,7 @@
             $http.get('/api/agent/nodeinfo/' + vm.treeid ).success(function(data){
                 if(data.stat == true) 
                 { 
-                    vm.activeNodeinfoTable = new ngTableParams({count:10}, {counts:[],data:data.data.reverse()});
+                    vm.activeNodeinfoTable = new ngTableParams({count:10}, {counts:vm.pageSizeOption,data:data.data.reverse()});
                     vm.loadoverNodeinfo = true;
                 } else { 
                     toastr.error( "加载Nodeinfo失败:" + data.info )
@@ -157,7 +157,7 @@
             $http.get('/api/agent/monitor/alert/' + vm.treeid + "?siteaddr=" + vm.siteaddr ).success(function(data){
                 if(data.stat == true) 
                 { 
-                    vm.activeAlertTable = new ngTableParams({count:10}, {counts:[],data:data.data.reverse()});
+                    vm.activeAlertTable = new ngTableParams({count:10}, {counts:vm.pageSizeOption,data:data.data.reverse()});
                     vm.loadoverAlert = true;
                 } else { 
                     toastr.error( "加载当前告警失败:" + data.info )
@@ -176,7 +176,7 @@
             $http.get('/api/agent/monitor/config/user/' + vm.treeid ).success(function(data){
                 if(data.stat == true) 
                 { 
-                    vm.activeUserTable = new ngTableParams({count:10}, {counts:[],data:data.data.reverse()});
+                    vm.activeUserTable = new ngTableParams({count:10}, {counts:vm.pageSizeOption,data:data.data.reverse()});
                     vm.loadoverUser = true;
                 } else { 
                     toastr.error( "加载报警接收人失败:" + data.info )
