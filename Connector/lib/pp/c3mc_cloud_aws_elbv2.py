@@ -1,18 +1,14 @@
 #!/usr/bin/env /data/Software/mydan/python3/bin/python3
 # -*- coding: utf-8 -*-
 
-import sys
-import json
-
 import boto3
 
 
 class ELBV2:
-    def __init__(self, access_id, access_key, region, resource_type):
+    def __init__(self, access_id, access_key, region):
         self.access_id = access_id
         self.access_key = access_key
         self.region = region
-        self.resource_type = resource_type
         self.client = self.create_client()
         # 查询标签时，为了提高速度，使用了批量查询
         # 但是批量查询一次最多只能查20个，所以这里使用了
@@ -48,8 +44,7 @@ class ELBV2:
             for instance in data_list:
                 arn_list.append(instance["LoadBalancerArn"])
 
-            d = self.list_tag(
-                self.access_id, self.access_key, self.region, arn_list)
+            d = self.list_tags(arn_list)
 
             res["data_list"] = data_list
             res["arn_tag_dict"] = d
@@ -82,17 +77,23 @@ class ELBV2:
                 result[i]["Tag"] = arn_tag_dict[s["LoadBalancerArn"]]
         return result
 
+    def list_tags(self, arn_list):
+        """查询标签
 
-    def list_tag(self, access_id, access_key, region, arn_list):
-        sys.path.append("/data/Software/mydan/Connector/lib/pp")
-        from c3mc_cloud_aws_alb_get_tag import GetTag
-        return GetTag(access_id, access_key, region).list_tag(arn_list)
+        Args:
+            arn_list (list): arn列表
+        """
+        tag_resp = self.client.describe_tags(ResourceArns=arn_list)
+        return {
+            instance_tag["ResourceArn"]: instance_tag["Tags"]
+            for instance_tag in tag_resp["TagDescriptions"]
+        }
 
-    def get_instance_list(self):
+    def get_instance_list(self, resource_type):
         instance_list = self.list_instances()
 
         return [
             instance
             for instance in instance_list
-            if instance["Type"] == self.resource_type
+            if instance["Type"] == resource_type
         ]

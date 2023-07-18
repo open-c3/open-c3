@@ -10,9 +10,8 @@ from c3mc_cloud_aws_elbv2 import ELBV2
 
 def main(access_id, access_key, region):
     try:
-        instance_list = ELBV2(
-            access_id, access_key, region, "application"
-        ).get_instance_list()
+        instance_list = ELBV2(access_id, access_key, region).get_instance_list("application")
+
         for instance in instance_list:
             print(json.dumps(instance, default=str))
     except Exception as e:
