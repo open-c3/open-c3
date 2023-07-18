@@ -34,6 +34,8 @@
                 "cvm:DescribeInstances",
                 "cvm:DescribeCbsStorages",
                 "cvm:DescribeImages",
+                "cvm:StartInstances",
+                "cvm:ResetInstancesType",
                 "dcdb:DescribeProjects",
                 "cdb:DescribeDBInstances",
                 "cdb:ModifyInstanceTag",
