@@ -7,7 +7,7 @@ import json
 import boto3
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
-from c3mc_cloud_aws_elb_get_tag import GetTag
+from c3mc_cloud_aws_elb import LibElb
 
 
 class Elb:
@@ -16,6 +16,7 @@ class Elb:
         self.access_key = access_key
         self.region = region
         self.client = self.create_client()
+        self.lib_client = LibElb(access_id, access_key, region)
         self.page_size = 20
 
     def create_client(self):
@@ -69,17 +70,12 @@ class Elb:
             )
         data_list = self.get_instances_from_response(response)
         loadBalancerNames = [instance["LoadBalancerName"] for instance in data_list]
-        d = self.list_tag(
-            self.access_id, self.access_key, self.region, loadBalancerNames
-        )
+        d = self.lib_client.list_tag(loadBalancerNames)
 
         res = {"next_marker": "", "data_list": data_list, "name_tag_dict": d}
         if "NextMarker" in response:
             res["next_marker"] = response["NextMarker"]
         return res
-
-    def list_tag(self, access_id, access_key, region, loadBalancerNames):
-        return GetTag(access_id, access_key, region).list_tag(loadBalancerNames)
 
     def show(self):
         instance_list = self.list_instances()

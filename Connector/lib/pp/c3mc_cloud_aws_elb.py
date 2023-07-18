@@ -5,7 +5,7 @@ import sys
 import boto3
 
 
-class GetTag:
+class LibElb:
     def __init__(self, access_id, access_key, region):
         self.access_id = access_id
         self.access_key = access_key
@@ -32,7 +32,7 @@ class GetTag:
                           ] = instance_tag["Tags"]
         return name_tag_dict
 
-    def list_tag_for_loadBalancerName(self, loadBalancerName):
+    def list_tag_for_load_balancer_name(self, loadBalancerName):
         tag_resp = self.client.describe_tags(
             LoadBalancerNames=[loadBalancerName])
         if len(tag_resp["TagDescriptions"]) == 0:
