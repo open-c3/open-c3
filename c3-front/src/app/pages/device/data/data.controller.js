@@ -50,6 +50,8 @@
           items: {},
         };
 
+        vm.pageSizeOption = [20, 30, 50, 100, 200];
+
         vm.grepdata._search_= sessionStorage.getItem('globalSearch')
         sessionStorage.removeItem('globalSearch')
 
@@ -85,7 +87,7 @@
                     vm.downloadTitle = data.toxlsxtitle
                     vm.dealWithData(data.data);
                     vm.checkDataList = data.data
-                    vm.dataTable = new ngTableParams({count:25}, {counts:[],data:data.data});
+                    vm.dataTable = new ngTableParams({count:25}, {counts:vm.pageSizeOption,data:data.data});
                     vm.filter = data.filter;
                     angular.forEach(data.filterdata, function (value, key) {
                       value.unshift({name: '', count: key})
