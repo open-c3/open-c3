@@ -143,3 +143,16 @@ class QcloudVpc:
         req.from_json_string(json.dumps(params))
         resp = self.client.DescribeBandwidthPackages(req)
         return len(resp.BandwidthPackageSet) > 0
+    
+    def check_if_standard_network_account(self):
+        """判断用户在网络侧的用户类型，如标准（带宽上移），传统（非上移）。
+
+        标准账号和传统账号在创建资源的时候, 某些选项会有一些差异
+        """
+        req = models.DescribeNetworkAccountTypeRequest()
+        params = {
+
+        }
+        req.from_json_string(json.dumps(params))
+        resp = self.client.DescribeNetworkAccountType(req)
+        return resp.NetworkAccountType == "STANDARD"

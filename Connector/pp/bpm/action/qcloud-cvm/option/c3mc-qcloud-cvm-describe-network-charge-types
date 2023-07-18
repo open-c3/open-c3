@@ -11,26 +11,42 @@ from c3mc_cloud_qcloud_vpc import QcloudVpc
 
 
 def list_network_charge_types(instance_charge_type, access_id, access_key, region):
-    if_bandwidth_package_user = QcloudVpc(access_id, access_key, region).check_if_bandwidth_package_user()
-    if if_bandwidth_package_user:
-        return [
-            {
-                "value": "BANDWIDTH_PACKAGE",
-                "name": "共享带宽包"
-            }
-        ]
+    print(f"list_network_charge_types. instance_charge_type={instance_charge_type}, region={region}")
 
-    return (
-        [
-            {"value": "BANDWIDTH_PREPAID", "name": "包月带宽"},
-            {"value": "TRAFFIC_POSTPAID_BY_HOUR", "name": "按流量计费"},
-        ]
-        if instance_charge_type == "PREPAID"
-        else [
+    bandwith_package_charge_type = {
+        "value": "BANDWIDTH_PACKAGE",
+        "name": "共享带宽包"
+    }
+    if region.endswith("-ec"):
+        return [ bandwith_package_charge_type ]
+
+    lib_client = QcloudVpc(access_id, access_key, region)
+    if_bandwidth_package_user = lib_client.check_if_bandwidth_package_user()
+    if_standard_network_account = lib_client.check_if_standard_network_account()
+
+    network_charge_type_list = []
+    if instance_charge_type == "PREPAID":
+        network_charge_type_list = [
+                {"value": "BANDWIDTH_PREPAID", "name": "包月带宽"},
+                {"value": "TRAFFIC_POSTPAID_BY_HOUR", "name": "按流量计费"},
+            ]
+
+    elif instance_charge_type == "POSTPAID_BY_HOUR":
+        network_charge_type_list = [
             {"value": "BANDWIDTH_POSTPAID_BY_HOUR", "name": "按小时带宽"},
             {"value": "TRAFFIC_POSTPAID_BY_HOUR", "name": "按流量计费"},
         ]
-    )
+
+    else:
+        raise RuntimeError("实例付费类型错误")
+    
+    if if_bandwidth_package_user:
+        if if_standard_network_account:
+            network_charge_type_list.append(bandwith_package_charge_type)
+        else:
+            network_charge_type_list = [ bandwith_package_charge_type ]
+    
+    return network_charge_type_list
 
 
 def main(params):
