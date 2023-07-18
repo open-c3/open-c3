@@ -32,11 +32,37 @@ class ELBV2:
         return response_data["LoadBalancers"]
 
     def list_instances(self):
+        def get_data(next_marker):
+            res = {
+                "next_marker": "",
+                "data_list": [],
+                "arn_tag_dict": {}
+            }
+            response = self.client.describe_load_balancers(
+                PageSize=self.page_size, Marker=next_marker)
+            arn_list = []
+            data_list = self.get_instances_from_response(response)
+            if len(data_list) == 0:
+                return res
+
+            for instance in data_list:
+                arn_list.append(instance["LoadBalancerArn"])
+
+            d = self.list_tag(
+                self.access_id, self.access_key, self.region, arn_list)
+
+            res["data_list"] = data_list
+            res["arn_tag_dict"] = d
+
+            if "NextMarker" in response:
+                res["next_marker"] = response["NextMarker"]
+            return res
+
         arn_tag_dict = {}
         next_marker = ""
         result = []
 
-        res = self.get_data("")
+        res = get_data("")
         if res["arn_tag_dict"] is not None:
             arn_tag_dict = dict(list(arn_tag_dict.items()) +
                                 list(res["arn_tag_dict"].items()))
@@ -44,7 +70,7 @@ class ELBV2:
         next_marker = res["next_marker"]
 
         while next_marker != "":
-            res = self.get_data(next_marker)
+            res = get_data(next_marker)
             if res["arn_tag_dict"] is not None:
                 arn_tag_dict = dict(list(arn_tag_dict.items()) +
                                     list(res["arn_tag_dict"].items()))
@@ -56,31 +82,6 @@ class ELBV2:
                 result[i]["Tag"] = arn_tag_dict[s["LoadBalancerArn"]]
         return result
 
-    def get_data(self, next_marker):
-        res = {
-            "next_marker": "",
-            "data_list": [],
-            "arn_tag_dict": {}
-        }
-        response = self.client.describe_load_balancers(
-            PageSize=self.page_size, Marker=next_marker)
-        arn_list = []
-        data_list = self.get_instances_from_response(response)
-        if len(data_list) == 0:
-            return res
-
-        for instance in data_list:
-            arn_list.append(instance["LoadBalancerArn"])
-
-        d = self.list_tag(
-            self.access_id, self.access_key, self.region, arn_list)
-
-        res["data_list"] = data_list
-        res["arn_tag_dict"] = d
-
-        if "NextMarker" in response:
-            res["next_marker"] = response["NextMarker"]
-        return res
 
     def list_tag(self, access_id, access_key, region, arn_list):
         sys.path.append("/data/Software/mydan/Connector/lib/pp")
@@ -90,8 +91,8 @@ class ELBV2:
     def get_instance_list(self):
         instance_list = self.list_instances()
 
-        result = []
-        for instance in instance_list:
-            if instance["Type"] == self.resource_type:
-                result.append(instance)
-        return result
+        return [
+            instance
+            for instance in instance_list
+            if instance["Type"] == self.resource_type
+        ]
