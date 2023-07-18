@@ -162,6 +162,24 @@
                     }
                 });
             }
+            else if (config['type'] === 'modal') {
+              $uibModal.open({
+                templateUrl: 'app/pages/device/data/dialog/resourceDetail/resourceDetail.html',
+                controller: 'ResourceDetailController',
+                controllerAs: 'resourceDetail',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                  config: function () {return config},
+                  uuid: function () {return uuid},
+                  type: function () {return type},
+                  subtype: function () {return subtype},
+                  treeid: function () {return vm.treeid},
+                }
+              })
+            }
         };
 
         vm.dealWithData = function (data) {
