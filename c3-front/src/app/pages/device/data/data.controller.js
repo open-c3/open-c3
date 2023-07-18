@@ -211,7 +211,7 @@
 
       if (type !== 'x') {
         $uibModal.open({
-          templateUrl: 'app/pages/device/data/dialog/serviceTree.html',
+          templateUrl: 'app/pages/device/data/dialog/serviceTree/serviceTree.html',
           controller: 'ServiceTreeController',
           controllerAs: 'serviceTree',
           backdrop: 'static',
