@@ -8,6 +8,7 @@ use MYDB;
 use MYDan::Util::OptConf;
 use YAML::XS;
 use Encode;
+use MIME::Base64;
 
 =head1 SYNOPSIS
 
@@ -77,7 +78,11 @@ sub zipdata
             my $subtype = $v->{subtype};
             next unless $subtype eq 'name' || $subtype eq 'exe' || $subtype eq 'cmdline';
             $res->{process}{$subtype} = [] unless $res->{process}{$subtype};
-            push @{$res->{process}{$subtype}}, $v->{content1};
+
+            my $x = $v->{content1} =~ /^__base64__:(.+)$/ ? MIME::Base64::decode_base64( $1 ) : $v->{content1};
+            chomp $x;
+
+            push @{$res->{process}{$subtype}}, $x;
         }
         elsif( $v->{type} eq 'http' )
         {
