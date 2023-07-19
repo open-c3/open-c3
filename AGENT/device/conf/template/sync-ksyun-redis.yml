@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account-list --type ksyun-redis |xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-ksyun-redis --account ksyun --cloudaccount {} | c3mc-cloud-tag-v2 --tagfield tags --key tagKey --value tagValue | c3mc-base-json2tab "
+  - url: "cmd:c3mc-cloud-account-list --type ksyun-redis |xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-ksyun-redis --account ksyun --cloudaccount {} | c3mc-cloud-tag-v2 --tagfield tags --key tagKey --value tagValue | c3mc-cloud-attach-department-info  | c3mc-base-json2tab "
     datatype: tsv
     type: database
     subtype: ksyun-redis
@@ -60,7 +60,9 @@ download:
       region: "区域"
       status_zh_desc: "状态描述"
       protocol: "引擎版本"
-      _product_owner_: "业务负责人"
+      _oneDeptName_: 一级部门
+      _sybDeptName_: 二级部门
+      _product_owner_: 业务负责人
       _ops_owner_: "运维负责人"
       _department_: "部门"
     check:
@@ -81,6 +83,10 @@ download:
         alias: 运维负责人
       - name: "部门"
         alias: 部门
+      - name: "一级部门"
+        alias: 一级部门
+      - name: "二级部门"
+        alias: 二级部门
       - name: "_ingestion_"
         alias: 摄取
     outline:

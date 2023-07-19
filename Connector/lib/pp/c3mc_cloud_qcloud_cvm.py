@@ -51,6 +51,11 @@ class QcloudCvm:
         return self.cvm_client.RunInstances(request)
 
     def stop_instances(self, instance_id):
+        """停止实例
+
+        Args:
+            instance_id (str): cvm实例id
+        """
         req = cvm_models.StopInstancesRequest()
         params = {
             "InstanceIds": [instance_id]
@@ -60,6 +65,39 @@ class QcloudCvm:
         res = self.cvm_client.StopInstances(req)
         print(f"停止实例: {instance_id}, 响应: {res.to_json_string()}")
         return res
+
+    def start_instances(self, instance_id):
+        """启动实例
+
+        Args:
+            instance_id (str): cvm实例id
+        """
+        req = cvm_models.StartInstancesRequest()
+        params = {
+            "InstanceIds": [instance_id]
+        }
+        req.from_json_string(json.dumps(params))
+
+        res = self.cvm_client.StartInstances(req)
+        print(f"启动实例: {instance_id}, 响应: {res.to_json_string()}")
+        return res
+    
+    def reset_instances_type(self, instance_ids, instance_type):
+        """本接口 (ResetInstancesType) 用于调整实例的机型。
+
+        Args:
+            instance_ids (list): cvm实例id列表
+            instance_type (str): 实例类型
+        """
+        req = cvm_models.ResetInstancesTypeRequest()
+        params = {
+            "InstanceIds": instance_ids,
+            "InstanceType": instance_type
+        }
+        req.from_json_string(json.dumps(params))
+
+        resp = self.cvm_client.ResetInstancesType(req)
+        return json.loads(resp.to_json_string())
 
     def terminate_instances(self, instance_id, delete_disk_snapshot):
         """
@@ -156,3 +194,59 @@ class QcloudCvm:
                 break
             result.extend(get_refined_cvm_list(cvm_list))
         return result
+    
+    def list_instance_types(self, zone, instance_charge_type):
+        """列出cvm实例类型列表
+
+        Args:
+            zone (str): 可用区
+            instance_charge_type (str): PREPAID: 表示预付费，即包年包月
+                                        POSTPAID_BY_HOUR: 表示后付费, 即按量计费
+        """
+        req = cvm_models.DescribeZoneInstanceConfigInfosRequest()
+        params = {
+            "Filters": [
+                {
+                    "Name": "zone",
+                    "Values": [ zone ]
+                },
+                {
+                    "Name": "instance-charge-type",
+                    "Values": [ instance_charge_type ]
+                }
+            ]
+        }
+        req.from_json_string(json.dumps(params))
+        resp = json.loads(self.cvm_client.DescribeZoneInstanceConfigInfos(req).to_json_string())
+        return sorted(resp["InstanceTypeQuotaSet"], key=lambda x: (x['InstanceType'], x['Cpu'], x['Memory']), reverse=False)
+
+
+    def wait_cvm_until_status(self, instance_id, target_status, timeout=900):
+        """等待cvm实例进入目标状态
+
+        Args:
+            instance_id (string): cvm实例ID
+            target_status: (string)。cvm的目标状态。
+                                    取值范围：
+                                        PENDING：表示创建中
+                                        LAUNCH_FAILED：表示创建失败
+                                        RUNNING：表示运行中
+                                        STOPPED：表示关机
+                                        STARTING：表示开机中
+                                        STOPPING：表示关机中
+                                        REBOOTING：表示重启中
+                                        SHUTDOWN：表示停止待销毁
+                                        TERMINATING：表示销毁中。
+            timeout (int, optional): 超时时间, 单位秒
+        """
+        start_time = time.time()
+        while True:
+            print(f"等待实例处于 {target_status} 状态, instance_id: {instance_id}")
+            instance_info = self.show_cvm(instance_id)
+
+            if instance_info["InstanceState"] == target_status:
+                return
+            elif time.time() - start_time > timeout:
+                raise RuntimeError(f"等待实例 {instance_id} 变为 {target_status} 状态，但是超时了，超时时间为: {timeout}")
+            else:
+                time.sleep(5)

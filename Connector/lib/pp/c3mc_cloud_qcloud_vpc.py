@@ -131,3 +131,28 @@ class QcloudVpc:
             data.extend(page_data)
 
         return sorted(data, key=lambda x: (x.SecurityGroupName.lower()), reverse=False)
+    
+    def check_if_bandwidth_package_user(self):
+        """判断当前用户是否是带宽包用户
+        """
+        req = models.DescribeBandwidthPackagesRequest()
+        params = {
+            "Offset": 1,
+            "Limit": 1
+        }
+        req.from_json_string(json.dumps(params))
+        resp = self.client.DescribeBandwidthPackages(req)
+        return len(resp.BandwidthPackageSet) > 0
+    
+    def check_if_standard_network_account(self):
+        """判断用户在网络侧的用户类型，如标准（带宽上移），传统（非上移）。
+
+        标准账号和传统账号在创建资源的时候, 某些选项会有一些差异
+        """
+        req = models.DescribeNetworkAccountTypeRequest()
+        params = {
+
+        }
+        req.from_json_string(json.dumps(params))
+        resp = self.client.DescribeNetworkAccountType(req)
+        return resp.NetworkAccountType == "STANDARD"

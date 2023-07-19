@@ -1,0 +1,45 @@
+---
+name: 修改腾讯云 cvm机器类型
+multi: 1
+option:
+  - name: account
+    describe: 云账号
+    command: c3mc-display-cloud-account-list qcloud
+    type: selectx
+    value: ""
+
+  - name: region
+    describe: 区域
+    rely:
+      - account
+    command: c3mc-qcloud-cvm-describe-regions | c3mc-bpm-display-field-values "{Region}; 名称:{RegionName}, 状态:{RegionState}, 代码:{Region}"
+    type: selectx
+    value: ""
+    information: "请不要选择状态为 无效 的区域"
+
+  - name: instance_id
+    describe: 实例ID
+    rely:
+      - account
+      - region
+    command: c3mc-qcloud-cvm-describe-instances | c3mc-bpm-display-field-values "{InstanceId}; 实例ID:{InstanceId}, 内网IP:{PrivateIp}, 公网IP:{PublicIp}, 原实例类型:{InstanceType}"
+    type: selectx
+
+  - name: instance_type
+    describe: 机型
+    rely:
+      - account
+      - region
+      - instance_id
+    command: c3mc-qcloud-cvm-describe-instance-configs-v2 | c3mc-bpm-display-field-values "{InstanceType};{TypeName}, 实例类型:{InstanceType}, Cpu:{Cpu}核, 内存:{Memory}GB"
+    type: selectx
+    value: ""
+
+template_argv:
+  bpm_uuid: ${_bpmuuid_}
+
+  account: ${account}
+  region: ${region}
+
+  instance_id: ${instance_id}
+  instance_type: ${instance_type}

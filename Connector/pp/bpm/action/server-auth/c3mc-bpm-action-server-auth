@@ -217,7 +217,7 @@ def main(params):
     sudo_hours = int(auth_type.split("_")[1])
 
     if len(ip_list) == 0:
-        print("没有查询到有效的ip, ip_list为空", file=sys.stderr)
+        print(f"没有查询到有效的ip, ip_list为空, ip_list原始参数为: {params['ip_list']}", file=sys.stderr)
         exit(1)
     
     check_if_params_safe_in_recycle(ip_list, params["bpm_uuid"], "server-auth")

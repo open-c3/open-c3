@@ -192,16 +192,12 @@ option:
   # 网络配置--------------------------
   - name: internet_charge_type
     describe: 网络计费类型
-    type: select
-    option:
-    - name: BANDWIDTH_PREPAID
-      alias: 预付费按带宽结算
-    - name: TRAFFIC_POSTPAID_BY_HOUR
-      alias: 流量按小时后付费
-    - name: BANDWIDTH_POSTPAID_BY_HOUR
-      alias: 带宽按小时后付费
-    - name: BANDWIDTH_PACKAGE
-      alias: 带宽包用户
+    rely:
+      - account
+      - region
+      - charge_type
+    type: selectx
+    command: c3mc-qcloud-cvm-describe-network-charge-types | c3mc-bpm-display-field-values "{value}; {name}"
     value: ""
     fromops: 1
 
