@@ -9,14 +9,12 @@
         var vm = this;
 
         vm.seftime = genericService.seftime
-        vm.exportDownload = genericService.exportDownload
         vm.myflow = $state.params.type.indexOf('myflow')
         vm.mytask = $state.params.type.indexOf('mytask')
         vm.mylink = $state.params.type.indexOf('mylink')
 
         vm.statuszh = { "": "等待执行", "success": "执行成功", "fail": "执行失败", "refuse": "审批拒绝", "decision": "执行失败", "running": "执行中", "ignore": "忽略", "waiting": "等待中" }
 
-        vm.tableData = [];
         var today = new Date();
         var thirtyDaysAgo = new Date(today.getTime() - (30 * 24 * 60 * 60 * 1000));
         var nowTime = $filter('date')(thirtyDaysAgo, "yyyy-MM-dd");
@@ -37,6 +35,16 @@
         vm.bpmuuid = ''
         vm.selectedStatus = ''
         vm.selectTaskname = '';
+        vm.downloadTitleMap = {
+          extid: 'BPM单号',
+          alias: '任务名称',
+          user: '发起人',
+          handler: '处理人',
+          status: '状态',
+          starttime: '发起时间',
+          finishtime: '结束时间',
+          seftime: '耗时',
+        };
 
         $('#starttime').datetimepicker({
             format: 'YYYY-MM-DD',
@@ -174,7 +182,7 @@
                     function successCallback(response) {
                         vm.loadover = true;
                         if (response.data.stat){
-                            vm.dealWithData(response.data.data.slice().reverse())
+                            vm.downloadData = response.data.data
                             vm.data_Table = new ngTableParams({count:10}, {counts:[],data:response.data.data.reverse()});
                         }else {
                             swal('获取列表失败', response.data.info, 'error');
@@ -189,21 +197,21 @@
 
         vm.reload();
 
-        vm.dealWithData = function (data) {
-          vm.tableData = []
-          vm.exportDownloadStr = `<tr><td>BPM单号</td><td>任务名称</td><td>发起人</td><td>处理人</td><td>状态</td><td>发起时间</td><td>结束时间</td><td>耗时</td></tr>`
-          data.forEach(items => {
-            vm.tableData.push({
-              extid: items.extid || '',
-              alias: items.alias || '',
-              user: items.user || '',
-              handler: items.handler || '',
-              status: vm.statuszh[items.status] || '',
-              starttime: items.starttime || '',
-              finishtime: items.finishtime || '',
-              seftime: vm.seftime(items.starttime,items.finishtime) || '',
-            })
-          })
+        vm.downloadFunc = function (fileName) {
+          const downLoadArr = [];
+          vm.downloadData.map(item => {
+            item.status = vm.statuszh[item.status]|| '';
+            item.seftime =  vm.seftime(item.starttime,item.finishtime) || '';
+            const newData = {};
+            angular.forEach(vm.downloadTitleMap, function (key,value) { newData[key] = item[value]})  
+            downLoadArr.push(newData)
+          });
+          const workbook = XLSX.utils.book_new();
+          const worksheet = XLSX.utils.json_to_sheet(downLoadArr);
+          XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+          const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'array', stream: true });
+          const blob = new Blob([wbout], { type: 'application/octet-stream' });
+          saveAs(blob, fileName);
         }
     }
 })();
