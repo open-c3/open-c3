@@ -137,6 +137,7 @@
                 "iam:ListPolicyVersions",
                 "iam:DeletePolicyVersion",
                 "elasticloadbalancing:DescribeLoadBalancers",
+                "elasticloadbalancing:DeleteLoadBalancer",
                 "elasticloadbalancing:AddTags",
                 "elasticloadbalancing:RemoveTags",
                 "elasticloadbalancing:DescribeTags",

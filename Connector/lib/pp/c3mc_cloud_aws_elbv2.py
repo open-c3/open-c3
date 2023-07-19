@@ -26,6 +26,18 @@ class ELBV2:
 
     def get_instances_from_response(self, response_data):
         return response_data["LoadBalancers"]
+    
+    def show_lb_info(self, load_balancer_arn):
+        """查询elbv2详情。如果不存在则返回None
+
+        Args:
+            load_balancer_name (str): elb名称
+        """
+        resp = self.client.describe_load_balancers(LoadBalancerArns=[load_balancer_arn])
+        if 'LoadBalancers' not in resp or not len(resp['LoadBalancers']):
+            return None
+        
+        return resp['LoadBalancers'][0]
 
     def list_instances(self):
         def get_data(next_marker):
@@ -90,6 +102,11 @@ class ELBV2:
         }
 
     def get_instance_list(self, resource_type):
+        """查询elbv2实例列表
+
+        Args:
+            resource_type (str): 类型，可选值为: application、network
+        """
         instance_list = self.list_instances()
 
         return [
@@ -97,3 +114,13 @@ class ELBV2:
             for instance in instance_list
             if instance["Type"] == resource_type
         ]
+    
+    def delete_load_balancer(self, load_balancer_arn):
+        """删除elbv2
+
+        Args:
+            load_balancer_arn (str): elbv2的arn
+        """
+        return self.client.delete_load_balancer(
+            LoadBalancerArn=load_balancer_arn
+        )

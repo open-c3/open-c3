@@ -13,6 +13,7 @@ def main(access_id, access_key, region):
         instance_list = ELBV2(access_id, access_key, region).get_instance_list("network")
 
         for instance in instance_list:
+            instance["RegionId"] = region
             print(json.dumps(instance, default=str))
     except Exception as e:
         print(f"同步aws nlb资源出错. access_id: {access_id}, region: {region}", file=sys.stderr) 
