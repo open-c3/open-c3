@@ -284,7 +284,7 @@
                             <button ng-if="bpm.loadover && bpm.bpmuuid!='0' && bpm.debug==1"  class="btn btn-danger" ng-disabled="bpmForm.$invalid" ng-click="bpm.runTask()">{{'C3T.重新发起一个新的BPM流程'|translate}}</button>
                             <button ng-if="bpm.loadover && bpm.bpmuuid!='0' && bpm.debug==1 && bpm.oldcaseuser!=''"  class="btn btn-danger" ng-disabled="bpmForm.$invalid" ng-click="bpm.runTask(bpm.oldcaseuser)">{{'C3T.重新发起一个新的BPM流程'|translate}}({{'C3T.保持原有发起人'|translate}})</button>
                             <button ng-if="bpm.loadover && bpm.bpmuuid!='0' && bpm.debug==1"  class="btn btn-info" ng-disabled="bpmForm.$invalid" ng-click="bpm.taskDetail()">{{'C3T.详情'|translate}}</button>
-                            <button ng-if="bpm.loadover && bpm.bpmuuid!='0'"  class="btn btn-primary" ng-disabled="bpmForm.$invalid" ng-click="bpm.reSave()">{{'C3T.重新保存'|translate}}</button>
+                            <button ng-if="bpm.loadover && bpm.bpmuuid!='0'"  class="btn btn-primary" ng-disabled="bpmForm.$invalid ? bpm.debug === 1 ? false : bpmForm.$invalid : false" ng-click="bpm.reSave()">{{'C3T.重新保存'|translate}}</button>
                             <button ng-if="bpm.ideal == '1'" class="btn btn-primary" ng-disabled="bpmForm.$invalid" ng-click="bpm.deal('agree')">{{'C3T.同意'|translate}}</button>
                             <button ng-if="bpm.ideal == '1'" class="btn btn-primary" ng-click="bpm.deal('refuse')">{{'C3T.拒绝'|translate}}</button>
                         </div>
