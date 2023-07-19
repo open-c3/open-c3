@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account-list --type ksyun-ks3 |xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-ksyun-ks3 --account ksyun --cloudaccount {} | c3mc-base-json2tab "
+  - url: "cmd:c3mc-cloud-account-list --type ksyun-ks3 |xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-ksyun-ks3 --account ksyun --cloudaccount {} | c3mc-cloud-attach-department-info  | c3mc-base-json2tab "
     datatype: tsv
     type: storage
     subtype: ksyun-ks3
@@ -23,6 +23,8 @@ download:
         baseinfo:
         - name: 业务负责人
         - name: 运维负责人
+        - name: 一级部门
+        - name: 二级部门
         - name: 状态
         - name: 部门
         - name: 实例ID
@@ -39,11 +41,26 @@ download:
     alias:
       name: "实例ID"
       region_id: "区域"
+      _oneDeptName_: 一级部门
+      _sybDeptName_: 二级部门
+      _product_owner_: 业务负责人
+      _ops_owner_: 运维负责人
+      _department_: 部门
     filter:
       - name: "account"
         alias: 账号
       - name: "区域"
         alias: "区域"
+      - name: "业务负责人"
+        alias: 业务负责人
+      - name: "运维负责人"
+        alias: 运维负责人
+      - name: "部门"
+        alias: 部门
+      - name: "一级部门"
+        alias: 一级部门
+      - name: "二级部门"
+        alias: 二级部门
     outline:
       uuid:
         - "实例ID"
@@ -54,4 +71,7 @@ download:
       system:
         - "none"
       contact:
+        - "部门"
+        - "业务负责人"
+        - "运维负责人"
         - "服务树"

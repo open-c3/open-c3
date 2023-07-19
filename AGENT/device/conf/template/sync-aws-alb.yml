@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account-list --type aws-alb |xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-aws-alb --account aws --cloudaccount {} | c3mc-cloud-tag-v2 --tagfield Tag --key Key --value Value | c3mc-base-json2tab "
+  - url: "cmd:c3mc-cloud-account-list --type aws-alb |xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-aws-alb --account aws --cloudaccount {} | c3mc-cloud-tag-v2 --tagfield Tag --key Key --value Value | c3mc-cloud-attach-department-info  | c3mc-base-json2tab "
     datatype: tsv
     type: networking
     subtype: aws-alb
@@ -16,6 +16,8 @@ download:
         regex: [ '', 's/^.*\.([a-zA-Z0-9\-]+)\.elb.amazonaws.com$/$1/g', 's/^.+:loadbalancer\///g' ]
  
     util:
+      vuuid:
+        - DNSName
       defaulttree: defaulttree.pool
       extcol:
         - name: audit
@@ -31,6 +33,8 @@ download:
         baseinfo:
         - name: 业务负责人
         - name: 运维负责人
+        - name: 一级部门
+        - name: 二级部门
         - name: 状态
           success:
           - active
@@ -48,7 +52,10 @@ download:
     alias:
       LoadBalancerName: "实例ID"
       State.Code: "状态"
-      _product_owner_: "业务负责人"
+      RegionId: "区域"
+      _oneDeptName_: 一级部门
+      _sybDeptName_: 二级部门
+      _product_owner_: 业务负责人
       _ops_owner_: "运维负责人"
       _department_: "部门"
     filter:
@@ -56,18 +63,25 @@ download:
         alias: 账号
       - name: "状态"
         alias: 状态
+      - name: "区域"
+        alias: 区域
       - name: "业务负责人"
         alias: 业务负责人
       - name: "运维负责人"
         alias: 运维负责人
       - name: "部门"
         alias: 部门
+      - name: "一级部门"
+        alias: 一级部门
+      - name: "二级部门"
+        alias: 二级部门
     outline:
       uuid:
         - "实例ID"
       baseinfo:
         - "account"
         - "实例ID"
+        - "区域"
       system:
         - "Scheme"
         - "状态"

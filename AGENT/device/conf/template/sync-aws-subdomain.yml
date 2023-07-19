@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account-list --type aws-subdomain |xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-aws-subdomain --account aws --cloudaccount {} | c3mc-cloud-tag-v2 --tagfield Tag --key Key --value Value | c3mc-base-json2tab "
+  - url: "cmd:c3mc-cloud-account-list --type aws-subdomain |xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-aws-subdomain --account aws --cloudaccount {} | c3mc-cloud-tag-v2 --tagfield Tag --key Key --value Value | c3mc-cloud-attach-department-info  | c3mc-base-json2tab "
     datatype: tsv
     type: domain
     subtype: aws-subdomain
@@ -23,6 +23,8 @@ download:
         baseinfo:
         - name: 业务负责人
         - name: 运维负责人
+        - name: 一级部门
+        - name: 二级部门
         - name: 状态
           success:
           - active
@@ -41,7 +43,9 @@ download:
     alias:
       uuid: "实例ID"
       xns_sld_id: "HostedZoneID"
-      _product_owner_: "业务负责人"
+      _oneDeptName_: 一级部门
+      _sybDeptName_: 二级部门
+      _product_owner_: 业务负责人
       _ops_owner_: "运维负责人"
       _department_: "部门"
     filter:
@@ -55,6 +59,10 @@ download:
         alias: 运维负责人
       - name: "部门"
         alias: 部门
+      - name: "一级部门"
+        alias: 一级部门
+      - name: "二级部门"
+        alias: 二级部门
     outline:
       uuid:
         - "实例ID"

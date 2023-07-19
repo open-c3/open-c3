@@ -8,6 +8,10 @@ import subprocess
 import boto3
 
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_aws_elbv2 import ELBV2
+
+
 def get(data, access_id, access_key, region):
     """
         输出 aws alb 的详情(json格式)
@@ -26,19 +30,13 @@ def get(data, access_id, access_key, region):
         Names=[data[field_name]],
     )
 
+    lib_client = ELBV2(access_id, access_key, region)
+
     for instance in response["LoadBalancers"]:
         if instance["LoadBalancerName"] == data[field_name]:
-            instance["Tag"] = list_tag(
-                access_id, access_key, region, instance["LoadBalancerArn"])
+            instance["Tag"] = lib_client.list_tags(instance["LoadBalancerArn"])[instance["LoadBalancerArn"]]
             return instance
-    raise Exception(
-        "根据 LoadBalancerName {} 未找到 aws alb".format(data[field_name]))
-
-
-def list_tag(access_id, access_key, region, arn):
-    sys.path.append("/data/Software/mydan/Connector/lib/pp")
-    from c3mc_cloud_aws_alb_get_tag import GetTag
-    return GetTag(access_id, access_key, region).list_tag_for_arn(arn)
+    raise RuntimeError(f"根据 LoadBalancerName {data[field_name]} 未找到 aws alb")
 
 
 def main(data, access_id, access_key, region):
@@ -47,10 +45,8 @@ def main(data, access_id, access_key, region):
 
 
 if __name__ == '__main__':
-    l = []
-    for line in sys.stdin:
-        l.append(line)
-    if len(l) == 0 or len(l) > 1:
-        raise Exception("数据格式不对, 需要一行json字符串")
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise RuntimeError("数据格式不对, 需要一行json字符串")
 
     main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4])
