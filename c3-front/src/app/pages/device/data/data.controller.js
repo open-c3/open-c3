@@ -50,6 +50,8 @@
           items: {},
         };
 
+        vm.pageSizeOption = [20, 30, 50, 100, 200];
+
         vm.grepdata._search_= sessionStorage.getItem('globalSearch')
         sessionStorage.removeItem('globalSearch')
 
@@ -85,7 +87,7 @@
                     vm.downloadTitle = data.toxlsxtitle
                     vm.dealWithData(data.data);
                     vm.checkDataList = data.data
-                    vm.dataTable = new ngTableParams({count:25}, {counts:[],data:data.data});
+                    vm.dataTable = new ngTableParams({count:25}, {counts:vm.pageSizeOption,data:data.data});
                     vm.filter = data.filter;
                     angular.forEach(data.filterdata, function (value, key) {
                       value.unshift({name: '', count: key})
@@ -162,6 +164,24 @@
                     }
                 });
             }
+            else if (config['type'] === 'modal') {
+              $uibModal.open({
+                templateUrl: 'app/pages/device/data/dialog/resourceDetail/resourceDetail.html',
+                controller: 'ResourceDetailController',
+                controllerAs: 'resourceDetail',
+                backdrop: 'static',
+                size: 'lg',
+                keyboard: false,
+                bindToController: true,
+                resolve: {
+                  config: function () {return config},
+                  uuid: function () {return uuid},
+                  type: function () {return type},
+                  subtype: function () {return subtype},
+                  treeid: function () {return vm.treeid},
+                }
+              })
+            }
         };
 
         vm.dealWithData = function (data) {
@@ -191,7 +211,7 @@
 
       if (type !== 'x') {
         $uibModal.open({
-          templateUrl: 'app/pages/device/data/dialog/serviceTree.html',
+          templateUrl: 'app/pages/device/data/dialog/serviceTree/serviceTree.html',
           controller: 'ServiceTreeController',
           controllerAs: 'serviceTree',
           backdrop: 'static',
