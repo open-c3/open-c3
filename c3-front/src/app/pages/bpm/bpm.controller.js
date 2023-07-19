@@ -13,11 +13,14 @@
         vm.jobid = $state.params.jobid;
 
         vm.queryChoiceFlag = false;
-        vm.emailReg = /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
         vm.inputValueType = ['email']
-        vm.ipReg = /^(\d{1,3}\.){3}\d{1,3}(,\s*(\d{1,3}\.){3}\d{1,3})*$/
-        vm.ipValueType = ['ip_comma_str']
+        vm.ipValueType = ['comma_seprate', 'forbit_whitespace']
         vm.inputValueTypeMap = {email: '邮箱'}
+        vm.checkRegMap = {
+          email: /^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/,
+          comma_seprate: /^(\d{1,3}\.){3}\d{1,3}(,\s*(\d{1,3}\.){3}\d{1,3})*$/,
+          forbit_whitespace:  /^\S+\S$/
+        }
         vm.bpmInfoApplicant = ''
         vm.bpmInfoDepartment = ''
 
@@ -73,13 +76,15 @@
         };
  
         vm.isExtraReg = function (item, arr, reg) {
-          if (item.value_type && arr.includes(item.value_type)) {
+          if (item.value_type && typeof item.value_type === 'string' && arr.includes(item.value_type)) {
             if (item.value === ''|| item.value === undefined) {
               return true
-            } else if (item.value && reg.test(item.value)) {
+            } else if (item.value && reg[0].test(item.value)) {
               return true
             }
             return false
+          } else if (item.value_type && Array.isArray(item.value_type)) {
+            return reg.every(matched => matched.test(String(item.value)))
           }
           return true
         }
@@ -683,7 +688,7 @@
                 if (data.value_type && vm.inputValueType.includes(data.value_type)) {
                   hasValueType.push(data)
                 }
-                if (data.value_type && vm.ipValueType.includes(data.value_type)) {
+                if (data.value_type && Array.isArray(data.value_type)) {
                   hasIpValueType.push(data)
                 }
             });
@@ -696,9 +701,8 @@
             $scope.taskData.variable['_sys_opt_']['selectxhide']  = vm.selectxhide;
             $scope.taskData.variable['_sys_opt_']['variable']     = $scope.jobVar;
             $scope.taskData.variable['_sys_opt_']['multitempidx'] = vm.multitempidx;
-
-            const filterValue = hasValueType.filter(item => !vm.isExtraReg(item, vm.inputValueType,vm.emailReg))
-            const filterIpValue = hasIpValueType.filter(item => !vm.isExtraReg(item, vm.ipValueType, vm.ipReg))
+            const filterValue = hasValueType.filter(item => !vm.isExtraReg(item, vm.inputValueType,[vm.checkRegMap['email']]))
+            const filterIpValue = hasIpValueType.filter(item => !vm.isExtraReg(item, vm.ipValueType, item.value_type.map(cItem=> { return vm.checkRegMap[cItem]})))
             if (vm.fromopsdefault === '0' && filterValue.length > 0) {
               const text = filterValue.map(item=> item.describe).join('、')
               const textType = Array.from(new Set(filterValue.map(item=> vm.inputValueTypeMap[item.value_type]))).join('、')
@@ -706,7 +710,7 @@
               return
             }
             if (filterIpValue.length > 0) {
-              swal({ title:'格式错误', text: '请填写正确的IP格式，并用英文逗号隔开', type:'error' });
+              swal({ title:'格式错误', text: '请填写正确的IP格式，不允许有任何形式的空格、换行符,并用英文逗号隔开', type:'error' });
               return
             }
 
