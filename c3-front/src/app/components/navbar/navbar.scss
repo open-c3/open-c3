@@ -1952,3 +1952,142 @@ body.sb-l-m .navbar-brand {
   height: 80vh;
   overflow-y: auto;
 }
+
+.nav-menu-style {
+  cursor: pointer;
+}
+
+.nav-dashboard-card {
+  width: 90vw;
+  height: 89vh;
+  left: -240px;
+  overflow: auto;
+  position: absolute;
+  top: 60px;
+  background-color: #fff;
+  border: 1px solid #ddd;
+  box-shadow: 0 0 24px rgba(81, 87, 103, .16);
+  border-radius: 4px;
+  box-sizing: border-box;
+  z-index: 10;
+  padding: 25px 40px;
+  cursor: pointer;
+
+  &::-webkit-scrollbar {
+    /* 滚动条宽度 */
+    width: 0.5em;
+    /* 背景颜色 */
+    background-color: transparent;
+  }
+
+  /* 滚动条拖动手柄颜色 */
+  &::-webkit-scrollbar-thumb {
+    background-color: transparent;
+  }
+
+  /* 滚动条轨道颜色 */
+  &::-webkit-scrollbar-track {
+    background-color: transparent;
+  }
+
+  &-scroll {
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+
+    &-option {
+      height: 100%;
+      &:first-child {
+        flex: 3;
+        margin-right: 20px;
+      }
+      &:last-child {
+        flex: 2;
+        margin-left: 30px;
+      }
+      &-title {
+        line-height: 20px;
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 10px;
+      }
+      &-map {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: column;
+        flex: 1;
+      }
+    }
+  }
+
+  &-item {
+    margin-bottom: 10px;
+
+    &-header {
+      font-size: 16px;
+      margin-top: 20px;
+      font-weight: 600;
+      color: #FF6633;
+      text-decoration: none;
+      user-select: none;
+    }
+
+    &-content {
+      &-item {
+        user-select: none;
+        margin: 3px 0;
+        display: inline-block;
+        outline: none;
+      }
+    }
+  }
+}
+
+/*base code*/
+.animated {
+  -webkit-animation-duration: 0.3s;
+  animation-duration: 0.3s;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+
+/*the animation definition*/
+@-webkit-keyframes bounce {
+  0% {
+    -webkit-transform: translate3d(0, -100%, 0);
+    transform: translate3d(0, -100%, 0);
+    visibility: visible
+  }
+
+  100% {
+    -webkit-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0)
+  }
+}
+
+@keyframes bounce {
+  0% {
+    -webkit-transform: translate3d(0, -100%, 0);
+    -ms-transform: translate3d(0, -100%, 0);
+    transform: translate3d(0, -100%, 0);
+    visibility: visible
+  }
+
+  100% {
+    -webkit-transform: translate3d(0, 0, 0);
+    -ms-transform: translate3d(0, 0, 0);
+    transform: translate3d(0, 0, 0)
+  }
+}
+
+.bounce {
+  -webkit-animation-name: bounce;
+  animation-name: bounce
+}
+
+.menu-none {
+  display: none;
+}

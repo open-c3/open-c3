@@ -24,20 +24,65 @@
       </li>
     </ul>
 -->
+<ul class="nav navbar-nav navbar-left" ng-mouseenter="nav.toggleCard()" ng-mouseleave="nav.toggleCard()">
+  <li class="nav-padding nav-menu-style">
+    <a> <span>{{'C3T.模块'|translate}}</span> </a>
+</li>
+  <div class="nav-dashboard-card bounce animated" ng-if="nav.isHovered">
+    <div class="nav-dashboard-card-scroll">
+      <div class="nav-dashboard-card-scroll-option" ng-repeat="data in nav.menuOption" 
+        ng-class="{'menu-none': !nav.handleCondition(nav.user, data.condition)}">
+        <div ng-if="nav.handleCondition(nav.user, data.condition)" class="nav-dashboard-card-scroll-option-title">{{data.menu | translate }}</div>
+        <div class="nav-dashboard-card-scroll-option-map">
+          <div ng-repeat="item in data.options">
+            <div ng-if="!item.condition">
+              <div ng-if="nav.user.menu[item.label] == 1" class="nav-dashboard-card-item-header"
+                ng-click="nav.handleStateGo(item)">{{item.title | translate}}</div>
+              <div ng-if="item.list && item.list.length > 0" class="nav-dashboard-card-item-content">
+                <div ng-repeat="cItem in item.list">
+                  <a ng-if="nav.user.menu[cItem.label] == 1" class="nav-dashboard-card-item-content-item"
+                    ng-click="nav.handleStateGo(cItem)">
+                    <span ng-if="cItem.icon" class="{{cItem.icon}}"></span>
+                    <img ng-if="!cItem.icon" src="{{cItem.image}}" alt="" style="width: 16px;height: 16px;">
+                    {{cItem.title | translate}}
+                  </a>
+                </div>
+              </div>
+            </div>
+            <div ng-if="item.condition && item.condition.length !== 0">
+              <a ng-if="nav.handleCondition(nav.user, item.condition)" class="nav-dashboard-card-item-header"
+                ng-click="nav.handleStateGo(item)">{{item.title | translate}}</a>
+              <div ng-if="item.list && item.list.length > 0" class="nav-dashboard-card-item-content">
+                <div ng-repeat="cItem in item.list">
+                  <a class="nav-dashboard-card-item-content-item" ng-click="nav.handleStateGo(cItem)" ng-if="nav.handleCondition(nav.user, item.condition)">
+                    <span class="{{cItem.icon}}"></span>
+                    {{cItem.title | translate}}
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</ul>
 
+    <!-- 导航 -->
     <ul class="nav navbar-nav navbar-left">
       <li class="nav-padding">
         <a ng-if="nav.user.menu['导航'] == 1" ui-sref="home.search({treeid: nav.state.params.treeid})" > <span>{{'C3T.导航'|translate}}</span> </a>
     </li>
     </ul>
 
+    <!-- CMDB -->
     <ul class="nav navbar-nav navbar-left">
         <li class="nav-padding">
           <a ng-if="nav.user.menu['CMDB'] == 1" ui-sref="home.device.menu({treeid: nav.state.params.treeid})" class="p15 lh30"> <span>CMDB</span> </a>
         </li>
     </ul>
-
-    <ul class="nav navbar-nav navbar-left">
+    <!-- 监控 -->
+    <!-- <ul class="nav navbar-nav navbar-left">
         <li ng-if="nav.user.menu['监控'] == 1" class="dropdown nav-padding" uib-dropdown>
             <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple " uib-dropdown-toggle>
                 <span>{{'C3T.监控'|translate}}</span>
@@ -66,15 +111,17 @@
                 </li>
             </ul>
         </li>
-    </ul>
+    </ul> -->
 
-    <ul class="nav navbar-nav navbar-left">
+    <!-- 流水线 -->
+    <!-- <ul class="nav navbar-nav navbar-left">
         <li class="nav-padding">
             <a ng-if="nav.user.menu['流水线'] == 1" ui-sref="home.quickentry.flowline({treeid: nav.state.params.treeid})" class="p15 lh30"> <span>{{'C3T.流水线'|translate}}</span> </a>
         </li>
-    </ul>
+    </ul> -->
 
-    <ul class="nav navbar-nav navbar-left">
+    <!-- 快速执行 -->
+    <!-- <ul class="nav navbar-nav navbar-left">
         <li ng-if="nav.user.menu['快速执行'] == 1" class="dropdown nav-padding" uib-dropdown>
             <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple " uib-dropdown-toggle>
                 <span>{{'C3T.快速执行'|translate}}</span>
@@ -91,8 +138,10 @@
                 </li>
             </ul>
         </li>
-    </ul>
-    <ul class="nav navbar-nav navbar-left">
+    </ul> -->
+
+    <!-- 业务管理 -->
+    <!-- <ul class="nav navbar-nav navbar-left">
         <li ng-if="nav.user.menu['业务管理'] == 1" class="dropdown nav-padding" uib-dropdown>
         <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple" uib-dropdown-toggle>
             <span>{{'C3T.业务管理'|translate}}</span>
@@ -116,13 +165,16 @@
               </li>
             </ul>
         </li>
-    </ul>
-    <ul class="nav navbar-nav navbar-left">
-        <li class="nav-padding">
-            <a ng-if="nav.user.menu['轻应用'] == 1" ui-sref="home.quickentry.smallapplication({treeid: nav.state.params.treeid})" class="p15 lh30"> <span>{{'C3T.轻应用'|translate}}</span> </a>
-        </li>
+    </ul> -->
 
-        <li ng-if="nav.user.menu['容器集群'] == 1" class="dropdown nav-padding" uib-dropdown>
+    <ul class="nav navbar-nav navbar-left">
+      <!-- 轻应用 -->
+        <!-- <li class="nav-padding">
+            <a ng-if="nav.user.menu['轻应用'] == 1" ui-sref="home.quickentry.smallapplication({treeid: nav.state.params.treeid})" class="p15 lh30"> <span>{{'C3T.轻应用'|translate}}</span> </a>
+        </li> -->
+
+        <!-- 容器集群 -->
+        <!-- <li ng-if="nav.user.menu['容器集群'] == 1" class="dropdown nav-padding" uib-dropdown>
             <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple" uib-dropdown-toggle>
                 <span>{{'C3T.容器集群'|translate}}</span>
                 <span class="caret caret-tp hidden-xs"></span>
@@ -137,14 +189,19 @@
                     <a style="padding: 8px 9px 8px 37px;" ui-sref="home.awsecsmanage({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-cube" aria-hidden="true"></i>  <span>{{'C3T.应用管理'|translate}}</span> </a>
                 </li>
             </ul>
+        </li> -->
 
-        </li>
-         <li ng-if="nav.user.menu['工单'] == 1" class="nav-padding">
+        <!-- 工单 -->
+         <!-- <li ng-if="nav.user.menu['工单'] == 1" class="nav-padding">
             <a href="/tt/" target="_blank" > <span>{{'C3T.工单'|translate}}</span> </a>
-        </li>
-        <li ng-if="nav.user.menu['其它工具'] == 1" class="nav-padding">
+        </li> -->
+
+        <!-- 其他工具 -->
+        <!-- <li ng-if="nav.user.menu['其它工具'] == 1" class="nav-padding">
             <a ui-sref="home.thirdparty({treeid: nav.state.params.treeid})" class="p15 lh30"> <span>{{'C3T.其它工具'|translate}}</span> </a>
-        </li>
+        </li> -->
+
+        <!-- BPM -->
         <li ng-if="nav.user.menu['BPM'] == 1" class="dropdown nav-padding" uib-dropdown>
             <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple" uib-dropdown-toggle>
                 <span>BPM</span>
@@ -196,7 +253,8 @@
             <a href="/book/index.html" target="_blank" class="p15 lh30"> <span>{{'C3T.文档'|translate}}</span> </a>
         </li> -->
 
-        <li ng-if="nav.user.menu['执行历史'] == 1" class="dropdown nav-padding" uib-dropdown>
+        <!-- 执行历史 -->
+        <!-- <li ng-if="nav.user.menu['执行历史'] == 1" class="dropdown nav-padding" uib-dropdown>
             <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple" uib-dropdown-toggle>
                 <span>{{'C3T.执行历史'|translate}}</span>
                 <span class="caret caret-tp hidden-xs"></span>
@@ -208,8 +266,10 @@
                     <a ng-if="nav.user.menu['执行历史.虚拟终端'] == 1" ui-sref="home.history.terminal({treeid: nav.state.params.treeid})"  class="animated animated-short fadeInUp" ><i class="fa fa-terminal" aria-hidden="true"></i> <span>{{'C3T.虚拟终端'|translate}}</span> </a>
                 </li>
                 </ul>
-        </li>
-        <li ng-if="nav.user.menu['报告'] == 1" class="dropdown nav-padding" uib-dropdown>
+        </li> -->
+
+        <!-- 报告 -->
+        <!-- <li ng-if="nav.user.menu['报告'] == 1" class="dropdown nav-padding" uib-dropdown>
             <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple " uib-dropdown-toggle>
                 <span>{{'C3T.报告'|translate}}</span>
                 <span class="caret caret-tp hidden-xs"></span>
@@ -221,9 +281,10 @@
                     <a ng-if="nav.user.menu['报告.监控告警'] == 1" ui-sref="home.monreport({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><span class="fa fa-bell"></span> <span>{{'C3T.监控告警'|translate}}</span> </a>
                 </li>
             </ul>
-        </li>
+        </li> -->
 
-        <li ng-if="nav.user.admin==1" class="dropdown nav-padding" uib-dropdown>
+        <!-- 管理与连接器 -->
+        <!-- <li ng-if="nav.user.admin==1" class="dropdown nav-padding" uib-dropdown>
             <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple" uib-dropdown-toggle>
                 <span>{{'C3T.管理'|translate}}</span>
                 <span class="caret caret-tp hidden-xs"></span>
@@ -265,7 +326,7 @@
                 </li>
             </ul>
 
-        </li>
+        </li> -->
 
 
         <li class="dropdown nav-padding" uib-dropdown>
