@@ -186,6 +186,15 @@
             vm.save( callDetail )
         };
 
+        vm.serialcallMonitorSet = function () {
+            vm.environment.monitorTemplateSerialCallContent = "您有 ${count} 条告警需要处理";
+        };
+        vm.serialcallMonitorSave = function () {
+            var callDetail = {};
+            callDetail['monitorTemplateSerialCallContent'] = vm.environment.monitorTemplateSerialCallContent;
+            vm.save( callDetail )
+        };
+
 //
 //Mailmon
         vm.emailMailmonSet = function () {

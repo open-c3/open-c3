@@ -39,6 +39,8 @@
             vm.postData.nomesg = postData.nomesg
             vm.postData.nomail = postData.nomail
 
+            vm.postData.serialcall = postData.serialcall
+
             vm.postData.vtreeid = postData.vtreeid
         }
 

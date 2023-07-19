@@ -245,6 +245,11 @@ get '/monitor/ack/:uuid' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
 
     $acked{tott} = $r && @$r ? 1 : 0;
+
+    my $acksc = eval{ $api::mysql->query( "select count(*) from openc3_monitor_serialcall_data where user='$user'" ) };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    $acked{acksc} = $acksc->[0][0] == 0 ? 1 : 0;
+
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@res, acked => \%acked, caseinfo => $caseinfo, caseuuid => $caseuuid };
 };
 
@@ -258,7 +263,7 @@ post '/monitor/ack/:uuid' => sub {
     my $param = params();
     my $error = Format->new( 
         uuid => qr/^[a-zA-Z0-9]+$/, 1,
-        ctrl => [ 'in', 'ack', 'ackcase', 'ackam' ], 1,
+        ctrl => [ 'in', 'ack', 'ackcase', 'ackam', 'acksc' ], 1,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -297,6 +302,9 @@ post '/monitor/ack/:uuid' => sub {
     }
 
     eval{
+
+        $api::mysql->execute( "delete from openc3_monitor_serialcall_data where user='$user'" );
+
         if( $ctrl eq 'ackcase' )
         {
             $api::mysql->execute( "insert into openc3_monitor_ack_active ( uuid,type,treeid,edit_user,expire,ackuuid ) select `caseuuid`,'$type',treeid,'$user','$time','$uuid' from openc3_monitor_ack_table  where ackuuid='$uuid'" );

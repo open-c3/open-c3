@@ -1,0 +1,40 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use MYDB;
+use MYDan::Util::OptConf;
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ $0 --write user1 user2 .. usern
+ $0 --clean user1 user2 .. usern
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o      = $option->get( qw( write clean ) )->dump();
+
+my @user = @ARGV;
+$option->assert() unless ( $o{write} || $o{clean} ) && @user;
+
+my $db = MYDB->new( "/data/Software/mydan/AGENT/conf/conn" );
+
+if( $o{write} )
+{
+    my $time = time;
+    map{
+        eval{$db->execute( "insert into openc3_monitor_serialcall_data(`user`,`time`) value('$_','$time')" ); };
+    }@user;
+}
+
+if( $o{clean} )
+{
+    my $time = time;
+    map{
+        eval{$db->execute( "delete from openc3_monitor_serialcall_data where user='$_'" ); };
+    }@user;
+}

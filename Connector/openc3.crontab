@@ -24,3 +24,4 @@ TZ=Asia/Shanghai
 */5 * * * * root /data/Software/mydan/Connector/pp/crontask/cron-make > /tmp/cron-make.log 2>&1
 
 1 * * * * root /data/Software/mydan/Connector/pp/mmon/resourcelow/makecache >/tmp/resourcelow-makecache.loc 2>&1
+* * * * * root flock -n /tmp/serialcall.lock /data/Software/mydan/Connector/pp/mmon/serialcall/run.sh > /tmp/serialcall.log 2>&1
