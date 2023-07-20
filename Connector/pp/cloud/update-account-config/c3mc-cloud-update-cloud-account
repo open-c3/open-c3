@@ -78,6 +78,9 @@ def is_file_empty(file_path):
 
 
 def append_to_account_file(file_path, strings_list):
+    if not strings_list:
+        return
+
     if not os.path.exists(file_path):
         open(file_path, "w").close()
 
@@ -87,14 +90,14 @@ def append_to_account_file(file_path, strings_list):
 
 
 def clear_and_copy(source_dir, dest_dir):
-    # 删除 dest_dir 目录下的所有文件
-    for file_name in os.listdir(dest_dir):
-        file_path = os.path.join(dest_dir, file_name)
-        # 按条件保留的旧处理类型的账号文件
-        if os.path.isfile(file_path) and "." in file_name and file_name != ".gitkeep":
-            os.remove(file_path)
-        elif os.path.isdir(file_path) and file_name != ".tmp":
-            shutil.rmtree(file_path)
+    # # 删除 dest_dir 目录下的所有文件
+    # for file_name in os.listdir(dest_dir):
+    #     file_path = os.path.join(dest_dir, file_name)
+    #     # 按条件保留的旧处理类型的账号文件
+    #     if os.path.isfile(file_path) and "." in file_name and file_name != ".gitkeep":
+    #         os.remove(file_path)
+    #     elif os.path.isdir(file_path) and file_name != ".tmp":
+    #         shutil.rmtree(file_path)
 
     # 将 source_dir 目录下的所有文件复制到 dest_dir 目录下
     for file_name in os.listdir(source_dir):
