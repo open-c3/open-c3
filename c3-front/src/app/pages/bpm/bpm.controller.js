@@ -127,9 +127,6 @@
                 showLoaderOnConfirm: true
              }, function( result ){
                 vm.reSave( opinion );
-                setTimeout(function () {
-                  $window.location.reload()
-                }, 2000)
             });
         };
 
@@ -755,6 +752,9 @@
                     {
                         $http.post('/api/job/bpm/deal/' + vm.bpmuuid, { "opinion": dealoption } ).success(function(data){
                             vm.idealloadover = true;
+                            setTimeout(function () {
+                              $window.location.reload()
+                            }, 2000)
                         });
                     }
                 }else {
