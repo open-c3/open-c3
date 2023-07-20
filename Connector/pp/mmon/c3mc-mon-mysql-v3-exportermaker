@@ -15,11 +15,14 @@ use YAML::XS;
 my @file = <STDIN>;
 chomp @file;
 
+my %alias;
+
 sub get
 {
     my %has;
     my @ps = `docker ps`;
     chomp @ps;
+    map{ my @x = split /\s+/, $_; $alias{$x[-1]} = $x[0]; }@ps;
     my @name = map{ my ( $x )= reverse split /\s+/, $_;$x }@ps;
     map{ $has{$_} = 1 if /^openc3-mysqld-exporter-v3-([a-z0-9\.\-]+-\d+)$/; }@name;
     return %has;
@@ -58,3 +61,5 @@ map{
     exit if $max <= keys %has;
     run( $_, \%has );
 } @file;
+
+YAML::XS::DumpFile "/etc/openc3.mysql-v3-exporter.alias.yml", \%alias;
