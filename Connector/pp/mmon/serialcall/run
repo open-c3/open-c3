@@ -1,0 +1,60 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use MYDB;
+use MYDan::Util::OptConf;
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $db = MYDB->new( "/data/Software/mydan/AGENT/conf/conn" );
+
+my ( %count, %time , %call);
+my $x = eval{ $db->query( "select user,count(*),MIN(time) from openc3_monitor_serialcall_data group by user" ) };
+map
+{
+    $count{ $_->[0] } = $_->[1];
+    $time{  $_->[0] } = $_->[2];
+}@$x;
+
+
+$x = eval{ $db->query( "select user,time from openc3_monitor_serialcall_lastcall" ) };
+map{ $call{$_->[0]} = $_->[1]; }@$x;
+
+my $tpl = 'You have ${count} alarms to handle';
+
+my @x = qx(c3mc-base-db-get  -t openc3_job_environment value -f '`key`="monitorTemplateSerialCallContent"');
+
+if( @x && $x[0] !~ /'/ )
+{
+    $tpl = $x[0];
+    chomp $tpl;
+}
+
+my $interval = 300;
+
+for my $user ( keys %count )
+{
+    my $realtime  = $call{$user} || 0;
+    my $caselastttime = $time{$user} || 0;
+
+    next unless ( $realtime + $interval < time ) && ( $caselastttime + $interval < time );
+
+    print "send to $user ...\n";
+    my $t = time;
+    eval{
+        $db->execute( "replace into openc3_monitor_serialcall_lastcall(`user`,`time`) value('$user','$t')" );
+        my $cont = $tpl;
+        $cont =~ s/\$\{count\}/$count{$user}/g;
+        my $cmd = "echo '$cont'|c3mc-base-sendcall '$user'";
+        print "cmd: $cmd\n";
+        system "$cmd";
+    };
+}

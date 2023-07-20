@@ -68,26 +68,84 @@ my $title = shift @data;
 utf8::decode( $title );
 my @title = split /\t/, $title;
 
+my %node;
+
 for my $data ( @data )
 {
     utf8::decode( $data );
     my @d = split /\t/, $data;
     my %d = map{ $title[ $_ ] => $d[ $_ ] } 0 .. @title - 1;
 
-    my %res;
-    for ( @{$conf->{treeinfo}} )
-    {
-        my ( $colname, $tagname ) = @$_;
-        $res{ $tagname } = $d{ $colname };
-    }
-
     my $treename = $d{ $conf->{treename} };
     my @tid = treename2tid( $treename );
-    for ( @tid )
+    for my $id ( @tid )
     {
-        my %x = ( %res, tid => $_, type => 'device' );
-        my $x = join ',', map{ "$_=\"$x{$_}\"" } keys %x;
-        printf "treeinfo{%s} 1\n", $x;
+        for( @{$conf->{treeinfo}} )
+        {
+            my ( $colname, $k ) = @$_;
+            my $v = $d{ $colname };
+            my $uuid = "$k=\"$v\",type=\"device\"";
+            printf "treeinfo{$uuid,tid=\"$id\"} 1\n";
+            $node{ $id }{ $uuid } = 1;
+        }
     }
 }
 
+my    @unbind = `c3mc-base-db-get treeid --table openc3_monitor_config_treeunbind -f status=1`;
+chomp @unbind;
+
+#my    @treemap = `c3mc-base-treemap`;
+#chomp @treemap;
+
+my ( %id2name, %name2id );
+
+for(@treemap)
+{
+    my ( $id, $name ) = split /;/, $_;
+    next unless $name;
+    $id2name{ $id   } = $name;
+    $name2id{ $name } = $id;
+}
+
+sub findparentids
+{
+    my $id = shift @_;
+    my @id;
+    die "nofind" unless my $treename = $id2name{ $id };
+    my @tree = split /\./, $treename;
+    while( @tree )
+    {
+        pop @tree;
+        last unless @tree;
+        my $name = join '.', @tree;
+        push @id, $name2id{ $name };
+    }
+    return @id;
+}
+
+for my $treeid ( @unbind )
+{
+    my @node;
+    @node = keys %{ $node{ $treeid }} if $node{ $treeid } ;
+    next unless @node;
+
+    my @parentid = eval{ findparentids( $treeid ) };
+    if( $@ )
+    {
+        warn "get treeid $treeid parent fail: $@";
+        next;
+    }
+
+    next unless @parentid;
+
+    for my $parentid  ( @parentid )
+    {
+        next unless $node{ $parentid };
+        map{ delete $node{ $parentid }{ $_ } }@node;
+    }
+}
+
+for my $id ( keys %node )
+{
+    map{ printf "treeinfo{%s,eid=\"%d\"} 1\n", $_, $id; }keys %{ $node{ $id }};
+}

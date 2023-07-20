@@ -60,6 +60,12 @@ class Cdb:
         for instance in response_data.Items:
             item = json.loads(instance.to_json_string())
             item["StatusZhDesc"] = self.status_code_m[item["Status"]]
+
+            cpu_cores = item["Cpu"]
+            # 实例信息中内存字段值都是1000的整数倍
+            memory_size = int(item["Memory"] / 1000)
+            item["Flavor"] = f"V.{cpu_cores}C.{memory_size}GB" 
+
             result.append(item)
         return result
 

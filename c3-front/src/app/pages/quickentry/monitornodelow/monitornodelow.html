@@ -28,7 +28,7 @@
     <div class="panel panel-primary">
         <div class="panel-heading">
             <span class="panel-controls">
-                <button ng-disabled="monitornodelow.allData.length === 0" class="btn btn-primary" uib-tooltip="{{'C3T.导出'|translate}}" ng-click="monitornodelow.exportDownload(monitornodelow.exportDownloadStr, monitornodelow.tableData)" ><i class="fa fa-download fa-1x" aria-hidden="true"></i></i></button>
+                <button ng-disabled="monitornodelow.allData.length === 0" class="btn btn-primary" uib-tooltip="{{'C3T.导出'|translate}}" ng-click="monitornodelow.downloadFunc(tab.name + '低利用率.xlsx')"><i class="fa fa-download fa-1x" aria-hidden="true"></i></i></button>
                 <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="monitornodelow.getMarkData()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!monitornodelow.loadover}" ></i></button>
             </span>
             <h5>{{'C3T.资源利用率低'|translate}}</h5>
@@ -129,7 +129,8 @@
                       </td>
                       <td ng-repeat="item in monitornodelow.headerList| filter:searchText" data-title="item" sortable="item">
                         <div ng-if="item === 'lowstatus'"><a ng-style="{'color': monitornodelow.statusColorMap[m[item]]}">{{m[item]}}<a></div>
-                        <div ng-if="item !== 'lowstatus'">{{m[item]}}</div>
+                        <div ng-if="item === '服务树'" class="service-tree-text" uib-tooltip="{{m[item]}}">{{m[item]}}<a></div>
+                        <div ng-if="!monitornodelow.tabThead.includes(item)">{{m[item]}}</div>
                       </td>
                     </tr>
                   </table>

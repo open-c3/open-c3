@@ -35,7 +35,7 @@ class LibRds:
 
         def get_data(marker=""):
             response = self.client.describe_db_snapshots(
-                MaxRecords=self.page_size, Marker=marker, IncludeShared=True, IncludePublic=True)
+                MaxRecords=self.page_size, Marker=marker, IncludeShared=True, IncludePublic=False)
             data = get_instances_from_response(response)
 
             res = {

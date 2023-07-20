@@ -943,3 +943,21 @@ create table if not exists `openc3_monitor_resource_low_mark`(
 UNIQUE KEY `uniq_type_uuid` (`type`,`uuid` )
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='资源低利用率-标记';
 
+# v2.6.0 sql openc3_monitor_config_rule add serialcall
+ALTER TABLE openc3_monitor_config_rule ADD `serialcall` VARCHAR(2) DEFAULT '0' comment '连环Call';
+
+# v2.6.0 sql openc3_monitor_serialcall_data create
+create table if not exists `openc3_monitor_serialcall_data`(
+`id`        int(16) unsigned not null primary key auto_increment comment 'id',
+`user`      VARCHAR(200)   comment '用户',
+`time`      VARCHAR(20)    comment '时间秒数'
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='告警通知连环Call,需要通知的消息';
+
+# v2.6.0 sql openc3_monitor_serialcall_lastcall create
+create table if not exists `openc3_monitor_serialcall_lastcall`(
+`id`        int(16) unsigned not null primary key auto_increment comment 'id',
+`user`      VARCHAR(200)   comment '用户',
+`time`      VARCHAR(20)    comment '时间秒数',
+UNIQUE KEY `uniq_user` (`user`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='告警通知连环Call,最近通知用户的时间';
+

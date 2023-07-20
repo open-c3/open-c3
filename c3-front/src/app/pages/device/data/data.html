@@ -46,7 +46,7 @@
             <form class="form-inline"> 
                 <div class="form-group" ng-repeat="f in devicedata.filtergrep"  style="padding-right: 10px;" >
                     <div class="form-filter-select">
-                      <ui-select appendToBody="true" ng-model="devicedata.grepdata[f.name]" ng-change="devicedata.handleReloadChange()"  ng-disabled="!devicedata.loadover">
+                      <ui-select appendToBody="true" ng-model="devicedata.grepdata[f.name]" ng-change="devicedata.reload()"  ng-disabled="!devicedata.loadover">
                         <ui-select-match>
                            <span ng-if="$select.selected.count !== f.name" class="item-label"> {{($select.selected.name + '(' + $select.selected.count + ')') || f.alias }}</span>
                            <span ng-if="$select.selected.count === f.name" class="item-label">{{f.alias}}</span>
@@ -79,9 +79,9 @@
         <div class="panel-heading panel-device-heading">
           <span class="panel-title">Total: {{devicedata.dataTable.total()}}</span>
           <div>
-            <span class="panel-controls"><a ng-click="devicedata.handleReloadChange()"><i class="fa fa-refresh" ng-class="{'fa-spin': !devicedata.loadover}"></i></a></span>
+            <span class="panel-controls"><a ng-click="devicedata.reload()"><i class="fa fa-refresh" ng-class="{'fa-spin': !devicedata.loadover}"></i></a></span>
             <button ng-disabled="devicedata.tableData.length === 0" class="device-export" uib-tooltip="{{'C3T.导出'|translate}}" 
-              ng-click="devicedata.exportDownload(devicedata.exportDownloadStr, devicedata.tableData)" >
+             ng-click="devicedata.downloadFunc(devicedata.type + '-' + devicedata.subtype + '-' + 'resource.xlsx')">
                 <i class="fa fa-download fa-1x" aria-hidden="true"></i></i>
             </button>
           </div>

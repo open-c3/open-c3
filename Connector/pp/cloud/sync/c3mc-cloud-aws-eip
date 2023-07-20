@@ -1,0 +1,45 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import json
+import sys
+
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_aws_ec2 import LIB_EC2
+
+
+class AwsEc2Address:
+    def __init__(self, access_id, access_key, region):
+        self.region = region
+        self.lib_client = LIB_EC2(access_id, access_key, region)
+
+    def list_addresses(self):
+        resp = self.lib_client.describe_addresses()
+        addresses = resp["Addresses"]
+        for index, address in enumerate(addresses):
+            addresses[index]["Region"] = self.region
+
+            if "Tags" in address:
+                for tag in address["Tags"]:
+                    if tag["Key"].lower() == "name":
+                        addresses[index]["Name"] = tag["Value"]
+                        break
+        return addresses
+
+    def show(self):
+        address_list = self.list_addresses()
+        for address in address_list:
+            print(json.dumps(address))
+
+
+def main(access_id, access_key, region):
+    try:
+        AwsEc2Address(access_id, access_key, region).show()
+    except Exception as e:
+        print(f"同步aws ec2 eip资源出错. access_id: {access_id}, region: {region}", file=sys.stderr)
+        raise e
+
+
+if __name__ == "__main__":
+    main(sys.argv[1], sys.argv[2], sys.argv[3])

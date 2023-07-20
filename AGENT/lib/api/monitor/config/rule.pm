@@ -26,7 +26,7 @@ get '/monitor/config/rule/:projectid' => sub {
     my $projectid = $param->{projectid};
 
     my $where = $projectid ? " where projectid='$projectid'" : "";
-    my @col = qw( id alert expr for severity summary description value model metrics method threshold edit_user edit_time bindtreesql job subgroup nocall nomesg nomail vtreeid );
+    my @col = qw( id alert expr for severity summary description value model metrics method threshold edit_user edit_time bindtreesql job subgroup nocall nomesg nomail serialcall vtreeid );
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_monitor_config_rule
@@ -54,7 +54,7 @@ get '/monitor/config/rule/:projectid/:id' => sub {
 
     my $projectid = $param->{projectid};
 
-    my @col = qw( id alert expr for severity summary description value model metrics method threshold edit_user edit_time bindtreesql job subgroup nocall nomesg nomail vtreeid );
+    my @col = qw( id alert expr for severity summary description value model metrics method threshold edit_user edit_time bindtreesql job subgroup nocall nomesg nomail serialcall vtreeid );
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_monitor_config_rule where projectid='$projectid' and id='$param->{id}'", join( ',', @col)), \@col )};
@@ -91,6 +91,8 @@ post '/monitor/config/rule/:projectid' => sub {
         nocall => qr/^\d*$/, 0,
         nomesg => qr/^\d*$/, 0,
         nomail => qr/^\d*$/, 0,
+
+        serialcall => qr/^\d*$/, 0,
 
         vtreeid => qr/^[a-zA-Z0-9]*$/, 0,
     )->check( %$param );
@@ -131,12 +133,14 @@ post '/monitor/config/rule/:projectid' => sub {
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     map{ $param->{$_} = '' unless defined $param->{$_}; }qw( for summary description value );
 
-    my ( $id, $projectid, $alert, $expr, $for, $severity, $summary, $description, $value, $model, $metrics, $method, $threshold, $bindtreesql, $job, $subgroup, $nocall, $nomesg, $nomail, $vtreeid )
-        = @$param{qw( id projectid alert expr for severity summary description value model metrics method threshold bindtreesql job subgroup nocall nomesg nomail vtreeid )};
+    my ( $id, $projectid, $alert, $expr, $for, $severity, $summary, $description, $value, $model, $metrics, $method, $threshold, $bindtreesql, $job, $subgroup, $nocall, $nomesg, $nomail, $serialcall, $vtreeid )
+        = @$param{qw( id projectid alert expr for severity summary description value model metrics method threshold bindtreesql job subgroup nocall nomesg nomail serialcall vtreeid )};
 
     $nocall = $nocall && $nocall eq '1' ? 1 : 0;
     $nomesg = $nomesg && $nomesg eq '1' ? 1 : 0;
     $nomail = $nomail && $nomail eq '1' ? 1 : 0;
+
+    $serialcall = $serialcall && $serialcall eq '1' ? 1 : 0;
 
     $vtreeid = '' unless $vtreeid && $vtreeid =~ /^\d+$/;
 
@@ -145,12 +149,12 @@ post '/monitor/config/rule/:projectid' => sub {
         $api::auditlog->run( user => $user, title => "$title MONITOR CONFIG RULE", content => "TREEID:$projectid ALERT:$alert EXPR:$expr FOR:$for SEVERITY:$severity SUMMARY:$summary DESCRIPTION:$description VALUE:$value JOB:$job" );
         if( $param->{id} )
         {
-            $api::mysql->execute( "update openc3_monitor_config_rule set `alert`='$alert',`expr`='$expr',`for`='$for',`severity`='$severity',summary='$summary',description='$description',`value`='$value',edit_user='$user',model='$model',metrics='$metrics',method='$method',threshold='$threshold',bindtreesql='$bindtreesql',job='$job',subgroup='$subgroup',nocall='$nocall',nomesg='$nomesg',nomail='$nomail',vtreeid='$vtreeid' where projectid='$projectid' and id='$id'" );
+            $api::mysql->execute( "update openc3_monitor_config_rule set `alert`='$alert',`expr`='$expr',`for`='$for',`severity`='$severity',summary='$summary',description='$description',`value`='$value',edit_user='$user',model='$model',metrics='$metrics',method='$method',threshold='$threshold',bindtreesql='$bindtreesql',job='$job',subgroup='$subgroup',nocall='$nocall',nomesg='$nomesg',nomail='$nomail',serialcall='$serialcall',vtreeid='$vtreeid' where projectid='$projectid' and id='$id'" );
         }
         else
         {
-            $api::mysql->execute( "insert into openc3_monitor_config_rule (`projectid`,`alert`,`expr`,`for`,`severity`,`summary`,`description`,`value`,`edit_user`,`model`,`metrics`,`method`,`threshold`,`bindtreesql`,`job`,`subgroup`,`nocall`,`nomesg`,`nomail`,`vtreeid`)
-                values('$projectid','$alert','$expr','$for','$severity','$summary','$description','$value','$user','$model','$metrics','$method','$threshold','$bindtreesql','$job','$subgroup','$nocall','$nomesg','$nomail','$vtreeid')" );
+            $api::mysql->execute( "insert into openc3_monitor_config_rule (`projectid`,`alert`,`expr`,`for`,`severity`,`summary`,`description`,`value`,`edit_user`,`model`,`metrics`,`method`,`threshold`,`bindtreesql`,`job`,`subgroup`,`nocall`,`nomesg`,`nomail`,`serialcall`,`vtreeid`)
+                values('$projectid','$alert','$expr','$for','$severity','$summary','$description','$value','$user','$model','$metrics','$method','$threshold','$bindtreesql','$job','$subgroup','$nocall','$nomesg','$nomail','$serialcall','$vtreeid')" );
         }
     };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };

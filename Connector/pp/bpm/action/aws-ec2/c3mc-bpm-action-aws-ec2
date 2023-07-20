@@ -172,9 +172,7 @@ class Ec2:
                 # 对每个ec2关联的volume添加标签
                 self.lib_ec2.copy_tags_of_instance_to_volume(instance_ids)
 
-                for instance in response["Instances"]:
-                    instance_id = instance["InstanceId"]
-
+                for instance_id in instance_ids:
                     print(f"LOG. instance_id:{instance_id}")
                     print(f"VAR. instance_id:{instance_id}")
                     print(f'VAR. extinstance_id:{self.instance_params["account"]}.{self.instance_params["region"]}.{instance_id}')

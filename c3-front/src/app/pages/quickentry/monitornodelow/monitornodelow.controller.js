@@ -5,7 +5,7 @@
         .module('openc3')
         .controller('MonitorNodeLowController', MonitorNodeLowController);
 
-    function MonitorNodeLowController($location, $anchorScroll, $state, $http, $uibModal, treeService, ngTableParams, resoureceService, $websocket, genericService, $scope, $injector, $sce ) {
+    function MonitorNodeLowController($state, $http, $uibModal, treeService, ngTableParams, $scope, $injector) {
 
         var vm = this;
         vm.treeid = $state.params.treeid;
@@ -17,6 +17,7 @@
             name: '主机'
           },
         ]
+        vm.tabThead = ['lowstatus', '服务树'];
         $scope.countOptions = [20, 30,50, 100, 500]
         $scope.selectTab = vm.lowUtilizationList[0];
         vm.headerList = []
@@ -79,11 +80,28 @@
         vm.tableBusinessOwner = ''
         vm.markStatusOption = [{value: 'all', label: '全部'}]
         vm.dialogStatusList = []
-        vm.tableData = [];
-        vm.exportDownload = genericService.exportDownload
         treeService.sync.then(function(){
             vm.nodeStr = treeService.selectname();
         });
+
+        vm.downloadData = [];
+        vm.computeDownloadTitleMap = {
+          id: '编号',
+          name: '主机名',
+          hostname: '名称',
+          owner: 'Owner',
+          instancetype: '实例类型',
+          inip: '内网IP',
+          exip: '外网IP',
+          type: '资源类型',
+          status: '状态',
+          lowcnt: '低利用率天数/14天',
+          cpu: 'CPU(%)',
+          mem:'内存(%)',
+          netin: '下载带宽',
+          netout: '上传带宽',
+          date: '最后统计日期',
+        };
 
         vm.openNewWindow = function( ip )
         {
@@ -114,8 +132,7 @@
                 }
               }
            });
-
-           vm.dealWithData(vm.tempdata.slice().reverse(), $scope.selectTab.id)
+           vm.downloadData = vm.tempdata.slice().reverse()
            vm.dataTable = new ngTableParams({count:20}, {counts:$scope.countOptions,data:vm.tempdata.reverse()});
         }
 
@@ -187,7 +204,7 @@
                   }
                   newArr.push(value)
                 })
-                vm.dealWithData(data.data.slice().reverse(), $scope.selectTab.id)
+                vm.downloadData = data.data.slice().reverse()
                 vm.dataTable = new ngTableParams({ count: 20 }, { counts: $scope.countOptions, data: newArr.reverse() });
                 vm.selectData = newArr
                 vm.allData = data.data;
@@ -220,7 +237,7 @@
                 vm.headerList = data.title
                 vm.downloadTitle = data.title
                 vm.headerList.splice(1, 0, ...elementsToAdd)
-                vm.dealWithData(data.data.slice().reverse(), $scope.selectTab.id)
+                vm.downloadData = data.data.slice().reverse()
                 vm.dataTable = new ngTableParams({ count: 20 }, { counts: $scope.countOptions, data: newData.reverse() });
                 vm.selectData = newData
                 vm.allData = data.data;
@@ -255,43 +272,36 @@
 
         }
 
-        vm.dealWithData = function (data, type) {
-          vm.tableData = []
-          if (type === 'compute') {
-            vm.exportDownloadStr = `<tr><td>编号</td><td>主机名</td><td>名称</td><td>Owner</td><td>资源类型</td><td>内网IP</td><td>外网IP</td><td>资源类型</td><td>状态</td><td>低利用率天数/14天</td><td>CPU(%)</td><td>内存(%)</td><td>下载带宽</td><td>上传带宽</td><td>最后统计日期</td></tr>`
-            data.forEach(items => {
-              vm.tableData.push({
-                id: items.id || '',
-                name: items.name || '',
-                hostname: items.hostname || '',
-                owner: items.owner || '',
-                instancetype: items.instancetype || '',
-                inip: items.inip || '',
-                exip: items.exip || '',
-                type: items.type || '',
-                status: items.status || '',
-                lowcnt: items.lowcnt || '',
-                cpu: items.cpu || '',
-                mem: items.mem || '',
-                netin: vm.keepDecimal(items.netin),
-                netout: vm.keepDecimal(items.netout),
-                date: items.date || ''
-              })
-            })
+        vm.downloadFunc = function (fileName) {
+          const downLoadArr = [];
+          if ($scope.selectTab && $scope.selectTab.id === 'compute') {         
+            vm.downloadData.map(item => {
+              item.netin = vm.keepDecimal(item.netin)||'';
+              item.netout =  vm.keepDecimal(item.netout) || '';
+              const newData = {};
+              angular.forEach(vm.computeDownloadTitleMap, function (key,value) { 
+                newData[key] = item[value]
+              })  
+              downLoadArr.push(newData)
+            });
           } else {
             if (!vm.downloadTitle) {
               vm.downloadTitle = []
             }
-            const trElements = vm.downloadTitle.map(item => `<td>${item}</td>`);
-            vm.exportDownloadStr = `<tr>${trElements.join('')}</tr>`
-            data.forEach(item => {
+            vm.downloadData.forEach(item => {
               const newData = {}
               vm.downloadTitle.forEach(cItem => {
                 newData[cItem] = item[cItem]
               })
-              vm.tableData.push(newData)
+              downLoadArr.push(newData)
             })
           }
+          const workbook = XLSX.utils.book_new();
+          const worksheet = XLSX.utils.json_to_sheet(downLoadArr);
+          XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+          const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'array', stream: true });
+          const blob = new Blob([wbout], { type: 'application/octet-stream' });
+          saveAs(blob, fileName);
         }
 
         vm.showDetail = function (ip) {
@@ -343,7 +353,7 @@
           const selectData = JSON.parse(JSON.stringify(vm.selectData))
           if ($scope.selectTab.id === 'compute') {
             const statusSelectData = selectData.filter(item => vm.markSelected === 'all'? item : item.remarkStatus === vm.markSelected)
-            vm.dealWithData(statusSelectData.slice().reverse(), $scope.selectTab.id)
+            vm.downloadData = statusSelectData.slice().reverse()
             vm.dataTable = new ngTableParams({count:20}, {counts:$scope.countOptions,data:statusSelectData});
           } else {
             const otherStatusSelectData = selectData.filter(item => {
@@ -351,7 +361,7 @@
               (item['实例ID'].includes(vm.tableInstanceId)) && 
               (item['业务负责人'].includes(vm.tableBusinessOwner))
             })
-            vm.dealWithData(otherStatusSelectData.slice().reverse(), $scope.selectTab.id)
+            vm.downloadData = otherStatusSelectData.slice().reverse()
             vm.dataTable = new ngTableParams({count:20}, {counts:$scope.countOptions,data:otherStatusSelectData.reverse()});
           }
         }
@@ -363,7 +373,7 @@
             (item['实例ID'].includes(vm.tableInstanceId)) && 
             (item['业务负责人'].includes(vm.tableBusinessOwner))
           })
-          vm.dealWithData(instanceIdtData.slice().reverse(), $scope.selectTab.id)
+          vm.downloadData = instanceIdtData.slice().reverse()
           vm.dataTable = new ngTableParams({count:20}, {counts:$scope.countOptions,data:instanceIdtData});
         }
 
@@ -374,7 +384,7 @@
               (item['实例ID'].includes(vm.tableInstanceId)) && 
               (item['业务负责人'].includes(vm.tableBusinessOwner))
             })
-            vm.dealWithData(businesstData.slice().reverse(), $scope.selectTab.id)
+            vm.downloadData = businesstData.slice().reverse()
             vm.dataTable = new ngTableParams({count:20}, {counts:$scope.countOptions,data:businesstData});
           }
         

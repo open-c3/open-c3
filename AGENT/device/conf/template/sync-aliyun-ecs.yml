@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account-list --type aliyun-ecs|xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-aliyun-ecs --account aliyun --cloudaccount {} | c3mc-cloud-tag-v2 --tagfield Tag --key TagKey --value TagValue | c3mc-base-json2tab "
+  - url: "cmd:c3mc-cloud-account-list --type aliyun-ecs|xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-aliyun-ecs --account aliyun --cloudaccount {} | c3mc-cloud-tag-v2 --tagfield Tag --key TagKey --value TagValue | c3mc-cloud-attach-department-info | c3mc-base-json2tab "
     datatype: tsv # 固定值。表示url中命令最终输出的文件格式
     type: compute # 资源类型。cmdb页面中的分类
     subtype: aliyun-ecs # 上面资源类型的子类型。
@@ -108,7 +108,9 @@ download:
       InstanceType: "实例类型"
       Status: "状态"
       OSName: "操作系统"
-      _product_owner_: "业务负责人"
+      _oneDeptName_: 一级部门
+      _sybDeptName_: 二级部门
+      _product_owner_: 业务负责人
       _ops_owner_: "运维负责人"
       _department_: "部门"
     filter:
@@ -122,6 +124,10 @@ download:
         alias: 运维负责人
       - name: "部门"
         alias: 部门
+      - name: "一级部门"
+        alias: 一级部门
+      - name: "二级部门"
+        alias: 二级部门
       - name: "所在可用区"
         alias: 可用区
       - name: "实例类型"

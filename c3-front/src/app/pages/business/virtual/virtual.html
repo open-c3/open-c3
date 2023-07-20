@@ -1,5 +1,5 @@
 <div>
-  <cmloading ng-if="virtual.tabsLoadover"></cmloading>
+  <cmloading ng-if="!virtual.tabsLoadover"></cmloading>
 </div>
 <div class="row block virtual-block">
   <nodestr></nodestr>
@@ -7,10 +7,8 @@
 
   <div>
     <button class="btn btn-primary" ng-click="virtual.createTab()">{{'C3T.添加虚拟服务树节点'| translate }}</button>
-
-    <uib-tabset class="tab-set" active="selectTab" ng-if="virtual.tabsList.length !== 0">
+    <uib-tabset class="tab-set" ng-if="virtual.tabsList.length !== 0">
       <uib-tab ng-repeat="tab in virtual.tabsList" ng-click="virtual.handleTabChange(tab)">
-
         <uib-tab-heading class="tab-heading">
           <span class="tab-heading-text">{{tab.name}}</span>
           <i class="fa fa-times tab-heading-icon" aria-hidden="true" ng-click="virtual.removeTab(tab)"
@@ -18,11 +16,15 @@
         </uib-tab-heading>
 
         <uib-tab-content class="tab-content">
+          <div class="virtual-operate">
+            <button uib-tooltip="{{'C3T.新增机器'|translate}}" class="btn btn-primary" ng-disabled="!virtual.tabsLoadover" ng-click="virtual.handleEdit('create')">{{'C3T.新增'| translate}}</button>
+            <button uib-tooltip="{{'C3T.删除机器'|translate}}" class="btn btn-danger" ng-disabled="!virtual.tabsLoadover" ng-click="virtual.handleEdit('delete')">{{'C3T.删除'| translate}}</button>
+          </div>
           <div class="panel panel-dark">
             <div class="panel-heading">
               <span class="panel-controls">
-                <button class="btn btn-dark" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="virtual.getTabledata()">
-                  <i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!virtual.loadover}"></i>
+                <button class="btn btn-dark" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="virtual.reload()">
+                  <i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!virtual.tabsLoadover}"></i>
                 </button>
               </span>
               <h5>{{'C3T.总数'|translate}}: {{virtual.nodecount}}</h5>
@@ -31,10 +33,6 @@
               <table ng-table="virtual.machineTableList" class="table table-hover text-center table-condensed"
                 show-filter="true">
                 <tr ng-repeat="ss in $data">
-                  <td style="width: 80px" data-title="">
-                    <input id="{{ss.name}}" type="checkbox" name="selected" ng-checked="hadleIsChecked(ss.name)"
-                      ng-click="nameUpdateSelection($event, ss.name)" style="zoom: 125%" />
-                  </td>
                   <td style="width: 15%" data-title="'机器名称'" filter="{ name: 'text'}">{{ss.name}}</td>
                   <td data-title="'C3T.类型'|translate" filter="{ type: 'text'}">{{ss.type}}</td>
                   <td data-title="'C3T.内网IP'|translate" filter="{ inip: 'text'}">{{ss.inip}}</td>

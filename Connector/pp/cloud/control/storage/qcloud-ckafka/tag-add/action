@@ -14,12 +14,12 @@ def tag_add(data, access_id, access_key, region, uin):
     lib_client = QcloudTag(access_id, access_key, region)
 
     field_name_list = subprocess.getoutput(
-        "c3mc-cloud-get-real-field storage qcloud-ckafka RegionId InstanceId")
+        "c3mc-cloud-get-real-field storage qcloud-ckafka RegionId InstanceId").split()
 
     rid = f"qcs::ckafka:{data[field_name_list[0]]}:uin/{uin}:ckafkaId/{data[field_name_list[1]]}"
 
     tags_list = []
-    for item in data["_control_"]["tags"].split(","):
+    for item in data["_control_"]["tag-add"]["tags"].split(","):
         parts = item.split("=")
         if len(parts) != 2:
             continue

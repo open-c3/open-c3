@@ -53,19 +53,24 @@ class QcloudTag:
         resp = get_page_tags()
 
         token = resp["PaginationToken"]
-        tag_list = resp["ResourceTagMappingList"][0]["Tags"]
-        data.extend(tag_list)
+        if resp["ResourceTagMappingList"]:
+            tag_list = resp["ResourceTagMappingList"][0]["Tags"]
+            data.extend(tag_list)
 
-        if token == "" or len(tag_list) == 0:
-           return data
+            if token == "" or not tag_list:
+                return data
        
         while token != "":
             resp = get_page_tags()
             token = resp["PaginationToken"]
+
+            if not resp["ResourceTagMappingList"]:
+                break
+
             tag_list = resp["ResourceTagMappingList"][0]["Tags"]
             data.extend(tag_list)
 
-            if token == "" or len(tag_list) == 0:
+            if token == "" or not tag_list:
                 break
         
         return data

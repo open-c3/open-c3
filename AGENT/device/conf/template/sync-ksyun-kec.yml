@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account-list --type ksyun-kec |xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-ksyun-kec --account ksyun --cloudaccount {} | c3mc-cloud-tag-v2 --tagfield Tag --key Key --value Value | c3mc-base-json2tab "
+  - url: "cmd:c3mc-cloud-account-list --type ksyun-kec |xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-ksyun-kec --account ksyun --cloudaccount {} | c3mc-cloud-tag-v2 --tagfield Tag --key Key --value Value | c3mc-cloud-attach-department-info  | c3mc-base-json2tab "
     datatype: tsv # 固定值。表示url中命令最终输出的文件格式
     type: compute # 资源类型。cmdb页面中的分类
     subtype: ksyun-kec # 上面资源类型的子类型。
@@ -100,7 +100,9 @@ download:
       InstanceState.Name: "状态"
       Platform: "操作系统"
       HostName: "主机名"
-      _product_owner_: "业务负责人"
+      _oneDeptName_: 一级部门
+      _sybDeptName_: 二级部门
+      _product_owner_: 业务负责人
       _ops_owner_: "运维负责人"
       _department_: "部门"
     filter:
@@ -122,6 +124,10 @@ download:
         alias: 运维负责人
       - name: "部门"
         alias: 部门
+      - name: "一级部门"
+        alias: 一级部门
+      - name: "二级部门"
+        alias: 二级部门
       - name: "_ingestion_"
         alias: 摄取
     outline:
