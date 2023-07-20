@@ -18,7 +18,7 @@ BEGIN
     $cmc = 1 if $ENV{C3_RedisQuery_Container};
 };
 
-my ( %proxy, %carry );
+my ( %proxy, %carry, %alias );
 
 sub new
 {
@@ -181,7 +181,9 @@ sub run
                            }
                            else
                            {
-                               $url = "http://openc3-redis-exporter-v3-$ip-$port:9121/metrics";
+                               my $dockername = "openc3-redis-exporter-v3-$ip-$port";
+                               $dockername = $alias{$dockername} if $alias{$dockername};
+                               $url = "http://$dockername:9121/metrics";
                                eval{
                                    YAML::XS::DumpFile "/data/open-c3-data/redis-exporter-v3/cache/$addr", \%exp;
                                };
@@ -212,6 +214,19 @@ sub run
            },
         );
     };
+
+    my $aliasUpdate = AnyEvent->timer(
+        after    => 6,
+        interval => 60,
+        cb       => sub {
+            my $alias = eval{ YAML::XS::LoadFile "/etc/openc3.redis-v3-exporter.alias.yml" };
+
+            if ( $@ ) { warn "load alias file fail: $@"; return; }
+            unless( $alias && ref $alias eq 'HASH' ) { warn "load alias file no HASH"; return; }
+
+            %alias = %$alias;
+        }
+    );
 
     $cv->recv;
 }
