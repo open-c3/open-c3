@@ -29,6 +29,8 @@ for( @data )
     my $data = join ' ', map{ $d[$title{$_}] }map{ Encode::encode( 'utf8', $_ )}qw( system  );
     my $tree = join ',', map{ $d[$title{$_}] }map{ Encode::encode( 'utf8', $_ )}qw( 服务树  );
 
+    next if $tree eq '_null_';
+
     my @tmpid = grep{ $_ =~ /^\d+\.\d+\.\d+\.\d+$/ }split /\s/, $data;
     push @tmpid, $uuid;
     map{ $res{$_} = $tree; $cnt{$_} ++ } @tmpid;
