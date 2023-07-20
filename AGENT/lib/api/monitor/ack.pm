@@ -309,6 +309,10 @@ post '/monitor/ack/:uuid' => sub {
         {
             $api::mysql->execute( "insert into openc3_monitor_ack_active ( uuid,type,treeid,edit_user,expire,ackuuid ) select `caseuuid`,'$type',treeid,'$user','$time','$uuid' from openc3_monitor_ack_table  where ackuuid='$uuid'" );
         }
+        elsif( $ctrl eq 'acksc' )
+        {
+            #skip
+        }
         elsif( $ctrl eq 'ackam' )
         {
             my $x = $api::mysql->query( "select labels,id from openc3_monitor_ack_table where ackuuid='$uuid'" );
