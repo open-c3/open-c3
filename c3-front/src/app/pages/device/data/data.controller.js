@@ -125,7 +125,6 @@
         vm.reload();
 
         vm.pageSizeChange = function (value) {
-          vm.grepdata['pageSize'] = value
           vm.tablePageSize = value
           vm.reload()
         }
