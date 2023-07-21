@@ -111,11 +111,14 @@ sub getapprover
     }
     if ( $str =~ /ipowner\(\s*(.+)\s*\)/ )
     {
-        for my $ip ( grep{ $_ } split /,/, $1 )
+        my @ip = grep{ $_ } split /,/, $1;
+        my $cache = @ip > 10 ? '--cache' : '';
+
+        for my $ip ( @ip )
         {
             $ip =~ s/\s//g;
             die "ip format error" unless $ip && $ip =~ /[a-zA-Z0-9]/;
-            my $x = `c3mc-device-api-jumpserver --ips '$ip' --cache`;
+            my $x = `c3mc-device-api-jumpserver --ips '$ip' $cache`;
             die "get $ip owner fail: $!" if $?;
             my $d = eval{ YAML::XS::Load $x };
             die "load fail: $@" if $@;
