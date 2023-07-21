@@ -44,6 +44,13 @@
             </form>
 
             <form class="form-inline"> 
+              <ui-select class="form-group" appendToBody="true" ng-model="devicedata.tablePageSize"
+              ng-change="devicedata.pageSizeChange($select.selected.value)" ng-disabled="!devicedata.loadover">
+              <ui-select-match><span class="item-label">{{$select.selected.label}}</span></ui-select-match>
+              <ui-select-choices repeat="item.value as item in devicedata.tablePageSizeOption | filter: $select.search">
+                <div ng-bind-html="item.label | highlight: devicedata.tablePageSizeOption"></div>
+              </ui-select-choices>
+                </ui-select>
                 <div class="form-group" ng-repeat="f in devicedata.filtergrep"  style="padding-right: 10px;" >
                     <div class="form-filter-select">
                       <ui-select appendToBody="true" ng-model="devicedata.grepdata[f.name]" ng-change="devicedata.reload()"  ng-disabled="!devicedata.loadover">
