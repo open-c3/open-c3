@@ -33,7 +33,7 @@
         vm.treeid  = $state.params.treeid;
         vm.type    = $state.params.type;
         vm.subtype = $state.params.subtype;
-        vm.grepdata = {pageSize:200};
+        vm.grepdata = {};
         vm.selectedtimemachine = $state.params.timemachine;
         vm.timemachine = [];
         vm.downloadTitle = [];
@@ -51,12 +51,12 @@
 
         vm.tablePageSizeOption = [
           {
-            label: '全部页长',
+            label: '全部',
             value: ''
           },
           {
             value: 200,
-            label: '200'
+            label: '200条'
           }
         ]
         vm.tablePageSize = 200
@@ -93,7 +93,7 @@
                 newGrepdata[key] = value
               }
             });
-            $http.post('/api/agent/device/data/' + vm.type + '/' + vm.subtype + '/' + vm.treeid, { "grepdata": newGrepdata, "timemachine": vm.selectedtimemachine, "toxlsx": 1 } ).success(function(data){
+            $http.post('/api/agent/device/data/' + vm.type + '/' + vm.subtype + '/' + vm.treeid, { "grepdata": newGrepdata, "timemachine": vm.selectedtimemachine, "toxlsx": 1, pageSize: vm.tablePageSize } ).success(function(data){
                 if (data.stat){
                     vm.downloadTitle = data.toxlsxtitle
                     vm.downloadData = data.data
@@ -144,7 +144,8 @@
         vm.reloadtimemachine();
 
         vm.reset = function () {
-            vm.grepdata = {pageSize:200};
+            vm.grepdata = {};
+            vm.tablePageSize = 200
             vm.reload();
         };
 
