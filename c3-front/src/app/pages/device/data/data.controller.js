@@ -33,7 +33,7 @@
         vm.treeid  = $state.params.treeid;
         vm.type    = $state.params.type;
         vm.subtype = $state.params.subtype;
-        vm.grepdata = {};
+        vm.grepdata = {pageSize:200};
         vm.selectedtimemachine = $state.params.timemachine;
         vm.timemachine = [];
         vm.downloadTitle = [];
@@ -48,6 +48,18 @@
           checked: false,
           items: {},
         };
+
+        vm.tablePageSizeOption = [
+          {
+            label: '全部页长',
+            value: ''
+          },
+          {
+            value: 200,
+            label: '200'
+          }
+        ]
+        vm.tablePageSize = 200
 
         vm.pageSizeOption = [20, 30, 50, 100, 200];
 
@@ -112,6 +124,12 @@
         };
         vm.reload();
 
+        vm.pageSizeChange = function (value) {
+          vm.grepdata['pageSize'] = value
+          vm.tablePageSize = value
+          vm.reload()
+        }
+
         sessionStorage.removeItem('globalSearch');
 
         vm.reloadtimemachine = function () {
@@ -126,7 +144,7 @@
         vm.reloadtimemachine();
 
         vm.reset = function () {
-            vm.grepdata = {};
+            vm.grepdata = {pageSize:200};
             vm.reload();
         };
 
