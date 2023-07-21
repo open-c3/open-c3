@@ -73,7 +73,7 @@ option:
   - name: instance_charge_count
     describe: "购买时长(月)"
     type: number
-    value: ""
+    value: 1
     show: 
       - charge_type: ["PREPAID"]
 
@@ -182,12 +182,6 @@ option:
     value: ""
     information: "安全组和账号、区域、项目有关，如果没有安全组可以选择，请确认项目是否选择正确。"
 
-  - name: tag
-    describe: 机器标签
-    # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
-    type: kvarray
-    fromops: 1
-    value: "[]"
 
   # 网络配置--------------------------
   - name: internet_charge_type
@@ -219,39 +213,50 @@ option:
   - name: product_owner_tag
     describe: 业务负责人标签
     type: input
-    information: "如果申请创建的是服务器资源, 这里的负责人后面将是处理该服务器权限审批的人员"
+    information: "如果申请创建的是服务器资源, 这里的负责人后面将是处理该服务器权限审批的人员。标签值规则: 1-255个英文字母、数字、空格或汉字，支持 +、-、=、.、_、:、/、@、()、[]、（）、【】，用于表示具体的标签内容。"
     value_type: "email"
 
   - name: owners_tag
     describe: 研发负责人标签
     type: input
     # value_type: "email"
-    information: "可以填一个或多个账户, 多个账户使用空格连接, 使用其他特殊字符可能会导致接口出错"
+    information: "可以填一个或多个账户, 多个账户使用空格连接, 使用其他特殊字符可能会导致接口出错。标签值规则: 1-255个英文字母、数字、空格或汉字，支持 +、-、=、.、_、:、/、@、()、[]、（）、【】，用于表示具体的标签内容。"
+    value_type: "tencent_tag_value_type"
+
 
   - name: ops_owner_tag
     describe: 运维负责人标签
     type: input
     value_type: "email"
     fromops: 1
+    information: "标签值规则: 1-255个英文字母、数字、空格或汉字，支持 +、-、=、.、_、:、/、@、()、[]、（）、【】，用于表示具体的标签内容。"
 
   - name: department_tag
     describe: 部门标签
     type: selectx
     command: c3mc-bpm-get-department-tag-list
-    information: "如果不存在指定标签, 请联系管理员添加"
+    information: "如果不存在指定标签, 请联系管理员添加。标签值规则: 1-255个英文字母、数字、空格或汉字，支持 +、-、=、.、_、:、/、@、()、[]、（）、【】，用于表示具体的标签内容。"
 
   - name: product_tag
     describe: 产品标签
     type: selectx
     command: c3mc-bpm-get-product-tag-list
-    information: "如果不存在指定标签, 请联系管理员添加"
+    information: "如果不存在指定标签, 请联系管理员添加。标签值规则: 1-255个英文字母、数字、空格或汉字，支持 +、-、=、.、_、:、/、@、()、[]、（）、【】，用于表示具体的标签内容。"
 
   - name: tree_tag
     describe: 树节点标签
     type: selectx
     command: c3mc-bpm-get-tree-tag-list
-    information: "树节点标签"
+    information: "树节点标签。标签值规则: 1-255个英文字母、数字、空格或汉字，支持 +、-、=、.、_、:、/、@、()、[]、（）、【】，用于表示具体的标签内容。"
     fromops: 1
+
+  - name: tag
+    describe: 机器标签
+    # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
+    type: kvarray
+    fromops: 1
+    value: "[]"
+    information: "标签键和值的规则为: 1-255个英文字母、数字、空格或汉字，支持 +、-、=、.、_、:、/、@、()、[]、（）、【】，用于表示具体的标签内容。"
 
 # -----------------------------------------------------------------
 

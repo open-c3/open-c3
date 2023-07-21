@@ -149,14 +149,16 @@ class Cvm:
             try:
                 resp = self.lib_client.run_instances(req)
 
-                print(f"创建cvm, 响应为: {resp.to_json_string()}")
+                # 添加换行符，防止创建多个实例时，不好区分日志 
+                print(f"创建cvm, 响应为: {resp.to_json_string()}\n\n")
 
                 for instance_id in resp.InstanceIdSet:
                     instance_uuid, private_ip, public_ip = self.wait_for_get_instance_info(instance_id)
                     if instance_uuid == "":
                         print(f"无法在10分钟内获取实例的uuid字段的有效值, instance_id: {instance_id}")
 
-                    print(f"LOG. instance_id:{instance_uuid}")
+                    print(f"LOG. 腾讯云实例UUID: {instance_uuid}")
+                    print(f"LOG. 腾讯云实例ID: {instance_id}")
                     print(f"LOG. 内网ip:    {private_ip}")
                     print(f"LOG. 公网ip:    {public_ip}")
                     print(f"VAR. instance_id:{instance_uuid}")

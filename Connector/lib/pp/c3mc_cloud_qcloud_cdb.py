@@ -215,3 +215,61 @@ class QcloudCdb:
 
         # 立即下线隔离状态的cdb实例
         self.offline_isolated_instances(instance_id_list)
+    
+
+    def create_accounts(self, instance_id, user, host, password):
+        """创建数据库账号
+
+        Args:
+            instance_id (str): 数据库实例的id
+            user (str): 新账户的名称
+            host (str): 新账户的域名
+            password (str): 密码
+        """
+        req = models.CreateAccountsRequest()
+        params = {
+            "InstanceId": instance_id,
+            "Accounts": [
+                {
+                    "User": user,
+                    "Host": host
+                }
+            ],
+            "Password": password
+        }
+        req.from_json_string(json.dumps(params))
+
+        resp = self.client.CreateAccounts(req)
+        return json.loads(resp.to_json_string())
+
+    
+    def modify_account_privileges(self, instance_id, user, host, global_privileges):
+        """本接口用于修改云数据库的账户的权限信息。
+
+        Args:
+            instance_id (str): 数据库实例的id
+            user (str): 数据库的账号
+            host (str): 新账户的域名
+            global_privileges (list): 全局权限列表。可选值为：
+                                "SELECT","INSERT","UPDATE","DELETE","CREATE", 
+                                "PROCESS", "DROP","REFERENCES","INDEX","ALTER",
+                                "SHOW DATABASES","CREATE TEMPORARY TABLES",
+                                "LOCK TABLES","EXECUTE","CREATE VIEW","SHOW VIEW",
+                                "CREATE ROUTINE","ALTER ROUTINE","EVENT",
+                                "TRIGGER","CREATE USER","RELOAD","REPLICATION CLIENT","REPLICATION SLAVE"。
+        """
+        req = models.ModifyAccountPrivilegesRequest()
+        params = {
+            "InstanceId": instance_id,
+            "Accounts": [
+                {
+                    "User": user,
+                    "Host": host
+                }
+            ],
+            "GlobalPrivileges": global_privileges
+        }
+        req.from_json_string(json.dumps(params))
+
+        resp = self.client.ModifyAccountPrivileges(req)
+        return json.loads(resp.to_json_string())
