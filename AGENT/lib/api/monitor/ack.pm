@@ -246,7 +246,8 @@ get '/monitor/ack/:uuid' => sub {
 
     $acked{tott} = $r && @$r ? 1 : 0;
 
-    my $acksc = eval{ $api::mysql->query( "select count(*) from openc3_monitor_serialcall_data where user='$user'" ) };
+    my $u = (split /\//, $user )[0];
+    my $acksc = eval{ $api::mysql->query( "select count(*) from openc3_monitor_serialcall_data where user='$u'" ) };
     return +{ stat => $JSON::false, info => $@ } if $@;
     $acked{acksc} = $acksc->[0][0] == 0 ? 1 : 0;
 
@@ -303,7 +304,8 @@ post '/monitor/ack/:uuid' => sub {
 
     eval{
 
-        $api::mysql->execute( "delete from openc3_monitor_serialcall_data where user='$user'" );
+        my $u = (split /\//, $user )[0];
+        $api::mysql->execute( "delete from openc3_monitor_serialcall_data where user='$u'" );
 
         if( $ctrl eq 'ackcase' )
         {
