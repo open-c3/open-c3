@@ -137,7 +137,7 @@ class QcloudVpc:
         """
         req = models.DescribeBandwidthPackagesRequest()
         params = {
-            "Offset": 1,
+            "Offset": 0,
             "Limit": 1
         }
         req.from_json_string(json.dumps(params))

@@ -88,7 +88,6 @@ option:
     command: c3mc-bpm-option-qcloud-mysql-describe-instance-nodes-set | c3mc-bpm-display-field-values "{id}; 名称:{name}"
     type: selectx
     value: ""
-    fromops: 1
 
   - name: param_template_id
     describe: 参数模板
@@ -205,6 +204,13 @@ option:
     type: selectx
     value: ""
 
+  - name: if_set_security_group
+    describe: 是否需要配置安全组
+    option: ["是", "否"]
+    type: select
+    value: "否"
+    fromops: 1
+
   - name: security_group_ids
     describe: 安全组
     rely:
@@ -215,8 +221,16 @@ option:
     type: selectxm
     value: ""
     information: "安全组和账号、区域、项目有关，如果没有安全组可以选择，请确认项目是否选择正确。"
+    show: 
+      - if_set_security_group: ["是"]
     fromops: 1
 
+  - name: if_set_alarm_policies
+    describe: 是否需要配置告警策略
+    option: ["是", "否"]
+    type: select
+    value: "否"
+    fromops: 1
 
   - name: alarm_policies
     describe: 告警策略
@@ -227,6 +241,8 @@ option:
     command: c3mc-bpm-option-qcloud-mysql-describe-alarm-policies-list | c3mc-bpm-display-field-values "{PolicyId}; 名称:{PolicyName}, 命名空间名称:{NamespaceShowName}"
     type: selectxm
     value: ""
+    show: 
+      - if_set_alarm_policies: ["是"]
     fromops: 1
 
   - name: instance_name
@@ -274,8 +290,9 @@ option:
   #     - name: 1
   #       alias: 关闭
 
+
   - name: password
-    describe: 密码
+    describe: root密码
     type: input
     information: "至少包含字母、数字和字符（_+-&=!@#$%^*()）中的两种，长度为8-64个字符"
     fromops: 1
@@ -426,3 +443,8 @@ template_argv:
   enable_config_auth_ip: ${enable_config_auth_ip}
   # 授权ip地址
   auth_ip: ${auth_ip}
+
+  # 是否配置安全组
+  if_set_security_group: ${if_set_security_group}
+  # 是否需要配置告警策略
+  if_set_alarm_policies: ${if_set_alarm_policies}
