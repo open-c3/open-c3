@@ -1,0 +1,37 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use utf8;
+use YAML::XS;
+use File::Basename;
+
+=head1 SYNOPSIS
+
+ $0 90
+
+=cut
+
+my $percent = shift @ARGV;
+die "percent undef" unless $percent;
+
+my $file = "/data/open-c3-data/device/protect.yml";
+my $base = "/data/open-c3-data/device/curr/";
+
+my %res;
+
+for my $type ( qw( compute networking database storage others ) )
+{
+    for ( glob "$base/$type/*" )
+    {
+        my $subtype = File::Basename::basename $_;
+        my $datafile = "$base/$type/$subtype/data.tsv";
+        next unless -f $datafile;
+        my $x = `wc -l $datafile`;
+        chomp $x;
+        my $len = ( split /\s+/, $x )[0];
+        next unless $len && $len =~ /^\d+$/;
+        $res{"$type.$subtype"} = int ( $len * $percent / 100 ) - 1;
+    }
+}
+
+YAML::XS::DumpFile "/data/open-c3-data/device/protect.yml", \%res;
