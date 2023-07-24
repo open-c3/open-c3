@@ -97,15 +97,19 @@ class Mysql:
             #         "Value": self.params["lower_case_table_names"]
             #     }
             # ],
-            # 告警策略名数组
-            "AlarmPolicyIdList": self.params["alarm_policies"].split(","),
-            # 安全组
-            "SecurityGroup": self.params["security_group_ids"].split(","),
             # 实例引擎类型
             "EngineType": self.params["engine_type"],
             # 参数模板
             "ParamTemplateId": int(self.params["param_template_id"]),
         }
+
+        # 配置安全组
+        if self.get_bool_value(self.params["if_set_security_group"]):
+            api_params["SecurityGroup"] = self.params["security_group_ids"].split(",")
+
+        # 配置告警策略名数组
+        if self.get_bool_value(self.params["if_set_alarm_policies"]):
+            api_params["AlarmPolicyIdList"] = self.params["alarm_policies"].split(",")
 
 
         if "tag" in self.params:

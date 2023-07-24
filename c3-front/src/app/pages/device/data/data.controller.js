@@ -49,6 +49,18 @@
           items: {},
         };
 
+        vm.tablePageSizeOption = [
+          {
+            label: '全部',
+            value: ''
+          },
+          {
+            value: 200,
+            label: '200条'
+          }
+        ]
+        vm.tablePageSize = 200
+
         vm.pageSizeOption = [20, 30, 50, 100, 200];
 
         vm.grepdata._search_= sessionStorage.getItem('globalSearch')
@@ -81,7 +93,7 @@
                 newGrepdata[key] = value
               }
             });
-            $http.post('/api/agent/device/data/' + vm.type + '/' + vm.subtype + '/' + vm.treeid, { "grepdata": newGrepdata, "timemachine": vm.selectedtimemachine, "toxlsx": 1 } ).success(function(data){
+            $http.post('/api/agent/device/data/' + vm.type + '/' + vm.subtype + '/' + vm.treeid, { "grepdata": newGrepdata, "timemachine": vm.selectedtimemachine, "toxlsx": 1, pageSize: vm.tablePageSize } ).success(function(data){
                 if (data.stat){
                     vm.downloadTitle = data.toxlsxtitle
                     vm.downloadData = data.data
@@ -112,6 +124,11 @@
         };
         vm.reload();
 
+        vm.pageSizeChange = function (value) {
+          vm.tablePageSize = value
+          vm.reload()
+        }
+
         sessionStorage.removeItem('globalSearch');
 
         vm.reloadtimemachine = function () {
@@ -127,6 +144,7 @@
 
         vm.reset = function () {
             vm.grepdata = {};
+            vm.tablePageSize = 200
             vm.reload();
         };
 

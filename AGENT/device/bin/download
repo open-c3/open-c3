@@ -19,6 +19,15 @@ use OPENC3::PP::Pipe;
 my $config = "$RealBin/../conf/config.yml";
 exit unless -f $config;
 
+my $protect = "/data/open-c3-data/device/protect.yml";
+my %protect;
+if( -f $protect )
+{
+    my $x = eval{ YAML::XS::LoadFile $protect; };
+    die "load $protect fail: $@" if $@;
+    %protect = %$x;
+}
+
 my $conf = eval{ YAML::XS::LoadFile $config };
 die "load confg fail: $@" if $@;
 
@@ -153,6 +162,11 @@ sub download
         die "$type $subtype chk min err: len=$line min=$check->{min}" unless $line >= $check->{min};
     }
 
+#check protect
+    if( my $protectcount = $protect{"$type.$subtype"} )
+    {
+        die "$type $subtype chk protect err: len=$line protect=$protectcount" unless $line >= $protectcount;
+    }
 #tagsfilter
     my $title = `head -n 1 $temppath/data.tsv`;
     chomp $title;

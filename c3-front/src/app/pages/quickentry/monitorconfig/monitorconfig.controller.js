@@ -26,6 +26,10 @@
         vm.dashboarnuuid1 = 'dUrNraOn1';
         vm.dashboarnuuid2 = 'dUrNraOnz';
         vm.pageSizeOption = [10, 20, 30, 50, 100]
+        vm.serialcallMap = {
+          0:'否',
+          1: '是'
+        }
         vm.alias = { 'port': 'C3T.端口', 'process': 'C3T.进程', 'http': 'HTTP', 'tcp': 'TCP','udp': 'UDP', 'path': 'C3T.路径', 'nodeext': 'C3T.外部数据' }
         vm.locked = 0;
         treeService.sync.then(function(){

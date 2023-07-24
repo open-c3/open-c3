@@ -246,7 +246,7 @@ get '/monitor/ack/:uuid' => sub {
 
     $acked{tott} = $r && @$r ? 1 : 0;
 
-    my $acksc = eval{ $api::mysql->query( "select count(*) from openc3_monitor_serialcall_data where user='$user'" ) };
+    my $acksc = eval{ $api::mysql->query( "select count(*) from openc3_monitor_serialcall_data where user='$u'" ) };
     return +{ stat => $JSON::false, info => $@ } if $@;
     $acked{acksc} = $acksc->[0][0] == 0 ? 1 : 0;
 
@@ -290,20 +290,21 @@ post '/monitor/ack/:uuid' => sub {
     if( $type eq 'G' && $ctrl ne 'ackam' )
     {
         my $u = (split /\//, $user )[0];
-        my @auth = `c3mc-base-db-get name -t openc3_connector_userauth --filter "name='$u' and level >=2"`;
+        my @auth = `c3mc-base-db-get name -t openc3_connector_userauth --filter "( name='$u' or name like '$u@%' ) and level >=2"`;
         return  +{ stat => $JSON::false, info => "no auth" } unless @auth;
     }
 
     if( $ctrl eq 'ackam' )
     {
         my $u = (split /\//, $user )[0];
-        my @auth = `c3mc-base-db-get name -t openc3_connector_userauth --filter "name='$u' and level >=3"`;
+        my @auth = `c3mc-base-db-get name -t openc3_connector_userauth --filter "( name='$u' or name like '$u@%' ) and level >=3"`;
         return  +{ stat => $JSON::false, info => "no auth" } unless @auth;
     }
 
     eval{
 
-        $api::mysql->execute( "delete from openc3_monitor_serialcall_data where user='$user'" );
+        my $u = (split /\//, $user )[0];
+        $api::mysql->execute( "delete from openc3_monitor_serialcall_data where user='$u'" );
 
         if( $ctrl eq 'ackcase' )
         {

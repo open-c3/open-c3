@@ -252,6 +252,8 @@ any '/device/data/:type/:subtype/:treeid' => sub {
         }
     }
 
+    @re = @re[0..$param->{pageSize}-1] if $param->{pageSize} && $param->{pageSize} =~ /^\d+$/ && @re > $param->{pageSize};
+
     return +{ stat => $JSON::true, data => \@re, debug => \@debug, filter => $filter, filterdata => $filterdata, pointout => $pointout, toxlsxtitle => \@toxlsxtitle  };
 };
 
