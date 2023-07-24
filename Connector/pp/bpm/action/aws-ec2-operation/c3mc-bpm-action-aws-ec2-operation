@@ -31,8 +31,7 @@ class OperateEc2:
                 return
 
             retry_network_request(self.lib_client.start_instances, ([instance_id],))
-            if not self.lib_client.wait_ec2_until_status(instance_id, "running", timeout):
-                raise RuntimeError(f"LOG. 等待机器启动超时: {instance_id}, 超时时间: {timeout} 秒")
+            self.lib_client.wait_ec2_until_status(instance_id, "running", timeout)
             print(f"LOG. 成功启动ec2实例: {instance_id}")
 
             # 启动完一个实例后休眠一段时间，尝试避免aws接口出现资源容量不足的错误
@@ -43,8 +42,7 @@ class OperateEc2:
                 print(f"LOG. ec2实例: {instance_id} 已经处于 stopped 状态, 跳过操作")
                 return
             retry_network_request(self.lib_client.stop_instances, ([instance_id],))
-            if not self.lib_client.wait_ec2_until_status(instance_id, "stopped", timeout):
-                raise RuntimeError(f"LOG. 等待机器关机超时: {instance_id}, 超时时间: {timeout} 秒")
+            self.lib_client.wait_ec2_until_status(instance_id, "stopped", timeout)
             print(f"LOG. 成功停止ec2实例: {instance_id}")
 
         else: 
