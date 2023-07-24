@@ -4,17 +4,42 @@
 
 import sys
 import json
-import subprocess
 import yaml
+import time
+
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import safe_run_command
+
+
+def get_cmdb_sync_interval():
+    interval_str = safe_run_command(["c3mc-sys-ctl", "sys.device.sync.interval"])
+
+    if interval_str.isdigit():
+        return int(interval_str)  # The string represents an integer
+
+    try:
+        return float(interval_str)  # The string represents a float
+    except Exception as e:
+        raise RuntimeError(f"参数类型错误，无法转换为数字类型: {interval_str}") from e
 
 
 def get_department_info(user_email):
-    try:
-        output = subprocess.getoutput(f"c3mc-base-userinfo -u {user_email}")
-        return yaml.safe_load(output)
-    except Exception as e:
-        print(f"无法获取账号 {user_email} 的部门信息", file=sys.stderr)
-        return None
+    sync_interval = get_cmdb_sync_interval()
+
+    now = time.time()
+
+    while True:
+        if time.time() - now > sync_interval:
+            exit(1)
+        try:
+            output = safe_run_command(["c3mc-base-userinfo", "-u", user_email])
+            return yaml.safe_load(output)
+        except Exception as e:
+            print(f"无法获取账号 {user_email} 的部门信息, err: {str(e)}", file=sys.stderr)
+            # 如果获取用户部门信息时出现错误，在cmdb本次同步周期内持续查询
+            time.sleep(5)
+            continue
 
 
 def run(data_list):
