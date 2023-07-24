@@ -236,3 +236,19 @@ def retry_network_request(func, arg):
             print("使用 Exponential Backoff 等待后重试...", file=sys.stderr)
             exponential_backoff(attempt, max_delay)
             attempt += 1
+
+
+def safe_run_command(cmd_parts):
+    """安全的运行命令。
+    
+    如果成功, 则返回命令输出。
+    如果出错, 则将错误打印到标准错误, 同时退出码为1
+
+    Args:
+        cmd_parts (list): 数组格式的命令。例如要运行命令 "ls -alh"，则传递 ["ls", "-alh"]
+    """
+    output = subprocess.run(cmd_parts, capture_output=True, text=True)
+    if output.returncode != 0:
+        print(output.stderr, file=sys.stderr)
+        exit(1)
+    return output.stdout
