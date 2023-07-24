@@ -548,4 +548,19 @@ post '/connectorx/mfa' => sub {
     return +{ stat => $JSON::true, data => @x ? $x[0] : '', link => @x>=2 ? $x[1] : '' };
 };
 
+=pod
+
+连接器/获取部门服务树
+
+=cut
+
+get '/connectorx/depttree' => sub {
+    my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
+
+    my $file = "/data/open-c3-data/device/DeptTree.yml";
+    return +{ stat => $JSON::true, data => [] } unless -f $file;
+    my $tree = eval{ YAML::XS::LoadFile $file };
+    return $@ ? +{ stat => $JSON::false, info => $@ } :  +{ stat => $JSON::true, data => $tree };
+};
+
 true;

@@ -1,0 +1,9 @@
+#!/bin/bash
+
+set -o pipefail
+set -e 
+
+cd /data/Software/mydan/AGENT/device/bin
+
+./depttree_map | ./depttree_yml > /tmp/DeptTree.yml.temp.$$
+mv /tmp/DeptTree.yml.temp.$$ /data/open-c3-data/device/DeptTree.yml
