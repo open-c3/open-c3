@@ -290,14 +290,14 @@ post '/monitor/ack/:uuid' => sub {
     if( $type eq 'G' && $ctrl ne 'ackam' )
     {
         my $u = (split /\//, $user )[0];
-        my @auth = `c3mc-base-db-get name -t openc3_connector_userauth --filter "name='$u' and level >=2"`;
+        my @auth = `c3mc-base-db-get name -t openc3_connector_userauth --filter "( name='$u' or name like '$u@%' ) and level >=2"`;
         return  +{ stat => $JSON::false, info => "no auth" } unless @auth;
     }
 
     if( $ctrl eq 'ackam' )
     {
         my $u = (split /\//, $user )[0];
-        my @auth = `c3mc-base-db-get name -t openc3_connector_userauth --filter "name='$u' and level >=3"`;
+        my @auth = `c3mc-base-db-get name -t openc3_connector_userauth --filter "( name='$u' or name like '$u@%' ) and level >=3"`;
         return  +{ stat => $JSON::false, info => "no auth" } unless @auth;
     }
 
