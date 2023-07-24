@@ -11,6 +11,7 @@ import json
 import hashlib
 import random
 import base64
+import string
 
 
 def print_c3debug1_log(msg):
@@ -182,6 +183,10 @@ def bpm_merge_user_input_tags(instance_params, tag_field_name="tag", tag_key_fie
     instance_params[tag_field_name] = json.dumps(tag_list)
     return instance_params
 
+def encode_base64(string):
+    s_bytes = string.encode("utf-8")
+    base64_bytes = base64.b64encode(s_bytes)
+    return base64_bytes.decode("utf-8")
 
 def decode_base64(base64_string):
     decoded_bytes = base64.b64decode(base64_string)
@@ -236,6 +241,38 @@ def retry_network_request(func, arg):
             print("使用 Exponential Backoff 等待后重试...", file=sys.stderr)
             exponential_backoff(attempt, max_delay)
             attempt += 1
+
+
+def generate_password(length):
+    """生成指定长度的密码
+
+    Args:
+        length (int): 指定密码长度
+    """
+    pwd_chars = string.ascii_letters + string.digits + '!@#%^()'
+    random.seed(time.time_ns())
+    return ''.join(random.choice(pwd_chars) for _ in range(length))
+
+
+def flatten_dict(d, parent_key='', sep='.'):
+    """把一个嵌套的字典 "展平" 到一层
+
+    Args:
+        d (_type_): _description_
+        parent_key (str, optional): _description_. Defaults to ''.
+        sep (str, optional): _description_. Defaults to '.'.
+
+    Returns:
+        _type_: _description_
+    """
+    items = []
+    for k, v in d.items():
+        new_key = f"{parent_key}{sep}{k}" if parent_key else k
+        if isinstance(v, dict):
+            items.extend(flatten_dict(v, new_key, sep=sep).items())
+        else:
+            items.append((new_key, v))
+    return dict(items)
 
 
 def safe_run_command(cmd_parts):
