@@ -177,7 +177,7 @@ return sub
 
         my $flowname = `c3mc-base-db-get name --table openc3_ci_project --filter 'id=$flow_id'`;
         chomp $flowname;
-        $var_map{"flowname"} = $flowname // 'unkown';
+        $var_map{"flowname"} = $flowname // 'unknown';
 
         my $x = `c3mc-base-db-get create_time tagger taginfo --table openc3_ci_version --filter "projectid='$flow_id' and name='$variable->{version}'"`;
         chomp $x;
@@ -300,7 +300,7 @@ return sub
                 delete $approver{$user};
                 %approver = () unless $everyone;
             }
-            else { $logs->die("unkown opinion: $opinion"); }
+            else { $logs->die("unknown opinion: $opinion"); }
         }
         if( $subtaskstatus eq 'fail' || $subtaskstatus eq 'refuse' ){
             last;

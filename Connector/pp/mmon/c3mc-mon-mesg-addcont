@@ -48,7 +48,7 @@ sub gettime
 sub gettreename
 {
     my ( $ip, $labels ) = @_;
-    return 'unkown' unless $labels && ref $labels eq 'HASH';
+    return 'unknown' unless $labels && ref $labels eq 'HASH';
 
     my $treename = '';
     for my $k ( keys %$labels )
@@ -63,7 +63,7 @@ sub gettreename
         chomp $treename;
     }
 
-    return $treename || 'unkown';
+    return $treename || 'unknown';
 }
 
 sub gethostname
@@ -74,18 +74,18 @@ sub gethostname
         my $hostname = `c3mc-mon-nodename-get $ip`;
         chomp $hostname;
     
-        return $hostname || 'unkown';
+        return $hostname || 'unknown';
     }
     elsif( $ip =~ /^[a-zA-Z0-9][a-zA-Z0-9\-\._:@]+[a-zA-Z0-9]$/ )
     {
         my $x = `c3mc-mon-instancealias '$ip'`;
         chomp $x;
-        return $x || 'unkown';
+        return $x || 'unknown';
     }
     else
     {
-        return 'unkown' unless $labels && ref $labels eq 'HASH';
-        return $labels->{'labels.addr'} || 'unkown';
+        return 'unknown' unless $labels && ref $labels eq 'HASH';
+        return $labels->{'labels.addr'} || 'unknown';
     }
 }
 
@@ -120,7 +120,7 @@ sub addcont
     
     for my $x ( qw( cloudmonname ) )
     {
-        $data->{instancealias} = $data->{"labels.$x"} if $data->{instancealias} eq 'unkown' && $data->{"labels.$x"};
+        $data->{instancealias} = $data->{"labels.$x"} if $data->{instancealias} eq 'unknown' && $data->{"labels.$x"};
     }
 
     my $skip = `c3mc-base-configx monitor.sender.skip_resolved_mesg`;

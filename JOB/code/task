@@ -85,7 +85,7 @@ return sub
             $logs->die( sprintf( "task mutex from: %s", join ',', grep{ defined $_ }map{ @$_ }@$x ) ) if @$x;
         }
 
-        $logs->die( "jobtype unkown" ) unless grep{ $_ eq $jobtype }qw( jobs plugin_cmd plugin_scp plugin_approval );
+        $logs->die( "jobtype unknown" ) unless grep{ $_ eq $jobtype }qw( jobs plugin_cmd plugin_scp plugin_approval );
 
 
         $status = Code->new( $jobtype )->run( 

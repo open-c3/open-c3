@@ -63,7 +63,7 @@ for ( @x )
     my ( $date, $ip, $status, $cpu, $mem, $netin, $netout, $lowcnt ) = split /;/, $_;
 
     my $newlowcnt = $lowcnt{$ip} || 0;
-    my $newstatus = $newlowcnt >= $threshold{ lowcnt } ? 'low' : $newlowcnt > 0 ? 'warn': $nodata{ $ip } ? 'unkown' : 'normal';
+    my $newstatus = $newlowcnt >= $threshold{ lowcnt } ? 'low' : $newlowcnt > 0 ? 'warn': $nodata{ $ip } ? 'unknown' : 'normal';
 
     next unless $status ne $newstatus || $lowcnt ne $newlowcnt;
 

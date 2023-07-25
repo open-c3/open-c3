@@ -108,7 +108,7 @@ return sub
             my ( $runtime, $finishtime, $finishtimems ) = ( sprintf( "%0.3f", $time - $starttimems ), POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime( int $time ) ), $time );
 
             eval{
-                $db->execute( "update openc3_jobx_task set reason='unkown error exit' where id=$id and reason is null" );
+                $db->execute( "update openc3_jobx_task set reason='unknown error exit' where id=$id and reason is null" );
                 $db->execute( "update openc3_jobx_task set status='fail',runtime='$runtime', finishtime='$finishtime',finishtimems='$finishtimems' where id=$id" );
             };
             $logs->err( "update task status fail: id=$id :$@" ) if $@;

@@ -22,7 +22,7 @@ die "no file" unless $filename && -f $filename;
 my @x = `cat '$filename'`;
 my $email = Email::MIME->new( join "", @x );
 
-my %re = ( 'labels.account' => basename( $filename ) =~ /^([a-zA-Z0-9][a-zA-Z0-9\.\-_]*)\.\d{14}\.\d+\.wait$/ ? $1 : 'unkown' );
+my %re = ( 'labels.account' => basename( $filename ) =~ /^([a-zA-Z0-9][a-zA-Z0-9\.\-_]*)\.\d{14}\.\d+\.wait$/ ? $1 : 'unknown' );
 
 for my $part ( $email->parts )
 {

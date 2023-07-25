@@ -33,7 +33,7 @@ return sub
     unless( $tagger && $tagger =~ /^[a-zA-Z0-9][a-zA-Z0-9\-\._@]*[a-zA-Z0-9]$/ )
     {
         print "Warn: error tagger format: $tagger\n";
-        $tagger = 'unkown';
+        $tagger = 'unknown';
     }
 
     my $uuid = `c3mc-jobx-task-run $groupid $jobname $jobgroup --user ci\@app --variablekv version=$version,_jobtype_=test,_exit_=1,tagger=$tagger`;

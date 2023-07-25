@@ -36,5 +36,5 @@ for my $x ( @x )
 {
     my ( $instance ) = split /\t/, $x, scalar @col;
     $instance =~ s/.*:db://;
-    printf "%s\n", join "\t", $x, map{ $mon{$_} && defined $mon{$_}{$instance} ? $mon{$_}{$instance} : 'unkown' }@mon;
+    printf "%s\n", join "\t", $x, map{ $mon{$_} && defined $mon{$_}{$instance} ? $mon{$_}{$instance} : 'unknown' }@mon;
 }

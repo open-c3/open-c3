@@ -57,7 +57,7 @@ get '/gitreport/:groupid/report' => sub {
 
         $user{$name} ++;
 
-        my $projectname = $url =~ /\/([a-zA-Z0-9\-\._]+)\/commit\// ? $1 : 'unkown';
+        my $projectname = $url =~ /\/([a-zA-Z0-9\-\._]+)\/commit\// ? $1 : 'unknown';
         $project{$projectname} ++;
         next if $param->{user} && $param->{user} ne $name;
         next if $param->{project} && $param->{project} ne $projectname;

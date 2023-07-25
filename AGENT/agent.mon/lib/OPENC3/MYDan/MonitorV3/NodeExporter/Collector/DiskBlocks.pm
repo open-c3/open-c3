@@ -23,7 +23,7 @@ sub co
     my ( $error, @stat ) = ( 0 );
     eval{
         my $title = shift @df;
-        die "df format unkown" unless $title =~ /^Filesystem\s+Type\s+1024-blocks\s+Used\s+Available\s+Capacity\s+Mounted on$/;
+        die "df format unknown" unless $title =~ /^Filesystem\s+Type\s+1024-blocks\s+Used\s+Available\s+Capacity\s+Mounted on$/;
         for ( @df )
         {
             my ( $filesystem, $type, $total, $use, $free, $use_percent, $mountpoint ) = split /\s+/, $_, 7;

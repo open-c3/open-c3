@@ -243,7 +243,7 @@ post '/jobs/:projectid/copy/byname' => sub {
         }
         else
         {
-            return +{ stat => $JSON::false, info => 'unkown plugin' };
+            return +{ stat => $JSON::false, info => 'unknown plugin' };
         }
     }
 

@@ -58,7 +58,7 @@ sub die
     {
         my $reason = join ',', @_;
         $reason =~ s/'//g;
-        $reason ||= 'die, unkown';
+        $reason ||= 'die, unknown';
         $reason = substr $reason, 0, 100 if length $reason > 100;
         eval{ $this->{db}->execute( "update openc3_job_task set reason='$reason' where uuid='$this->{uuid}' and reason is null" );};
 #        error( "jobsys update task $this->{uuid} reason fail:$@" ) if $@;

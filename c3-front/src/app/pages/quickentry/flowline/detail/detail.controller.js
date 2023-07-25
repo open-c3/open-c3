@@ -403,7 +403,7 @@
                                     {
                                         var reg = /task-definition:(.*)\b/;
                                         var cnt = reg.exec(d.scripts_cont )
-                                        var ecsname = 'unkown';
+                                        var ecsname = 'unknown';
                                         if( cnt && cnt.length > 1 )
                                         {
                                             ecsname = cnt[1].trim()

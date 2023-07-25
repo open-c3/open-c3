@@ -50,7 +50,7 @@ sub srv
 
     unless( -d $pluginDir )
     {
-        warn "unkown cloudmon plugin in id: $x->{id}";
+        warn "unknown cloudmon plugin in id: $x->{id}";
         return;
     }
 
@@ -58,7 +58,7 @@ sub srv
 
     my $tpl  =  `cat $pluginDir/openc3_cloudmon_sd.tpl.yml`;
     $tpl     =~ s/\$\{cloudmonid\}/$x->{id}/g;
-    my $name =  $x->{name} =~ /^[a-zA-Z0-9][a-zA-Z0-9\.\-_]+$/ ? $x->{name} : 'unkown';
+    my $name =  $x->{name} =~ /^[a-zA-Z0-9][a-zA-Z0-9\.\-_]+$/ ? $x->{name} : 'unknown';
     $tpl     =~ s/\$\{cloudmonname\}/$name/g;
 
     if( $tpl =~ /\$\{c3var\.[a-zA-Z0-9]+\}/ )

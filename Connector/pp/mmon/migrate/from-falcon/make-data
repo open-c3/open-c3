@@ -32,7 +32,7 @@ sub makedata_collector_filecheck
     }
     else
     {
-        warn "[ERROR] unkown file.check tags: $data->{tags}\n";
+        warn "[ERROR] unknown file.check tags: $data->{tags}\n";
         return;
     }
 
@@ -76,25 +76,25 @@ sub makedata_collector_httpcheck
     my %effectiveTags = map{ $_ => 1 } qw( url code grep host port method );
     if( grep{ ! $effectiveTags{ $_ } }keys %tags )
     {
-        warn "[ERROR] unkown http.check tags, effectiveTags: $data->{tags}\n";
+        warn "[ERROR] unknown http.check tags, effectiveTags: $data->{tags}\n";
         return;
     }
 
     unless( $tags{url} && $tags{url} =~ /^\// )
     {
-        warn "[ERROR] unkown http.check tags, no url: $data->{tags}\n";
+        warn "[ERROR] unknown http.check tags, no url: $data->{tags}\n";
         return;
     }
 
     unless( $tags{code} && $tags{code} eq '200' )
     {
-        warn "[ERROR] unkown http.check tags, code no 200: $data->{tags}\n";
+        warn "[ERROR] unknown http.check tags, code no 200: $data->{tags}\n";
         return;
     }
 
     if( $tags{method} && $tags{method} ne 'get' )
     {
-        warn "[ERROR] unkown http.check tags, method no get: $data->{tags}\n";
+        warn "[ERROR] unknown http.check tags, method no get: $data->{tags}\n";
         return;
     }
 
@@ -138,7 +138,7 @@ sub makedata_collector_netportlisten
     }
     else
     {
-        warn "[ERROR] unkown net.port.listen tags: $data->{tags}\n";
+        warn "[ERROR] unknown net.port.listen tags: $data->{tags}\n";
         return;
     }
 
@@ -173,7 +173,7 @@ sub makedata_collector_pingdelay
     }
     else
     {
-        warn "[ERROR] unkown ping.delay tags: $data->{tags}\n";
+        warn "[ERROR] unknown ping.delay tags: $data->{tags}\n";
         return;
     }
 
@@ -211,7 +211,7 @@ sub makedata_collector_pingloss
     }
     else
     {
-        warn "[ERROR] unkown ping.loss tags: $data->{tags}\n";
+        warn "[ERROR] unknown ping.loss tags: $data->{tags}\n";
         return;
     }
 
@@ -253,8 +253,8 @@ sub makedata_collector_procnum
     }
     else
     {
-        warn "[ERROR] unkown proc.num tags: $data->{tags}\n";
-        map{ warn sprintf "[ERROR] [DEBUG] unkown proc.num tags: $data->{tags} %s\n", $_ } split /\n/, YAML::XS::Dump $data if $ENV{C3_DEBUG};
+        warn "[ERROR] unknown proc.num tags: $data->{tags}\n";
+        map{ warn sprintf "[ERROR] [DEBUG] unknown proc.num tags: $data->{tags} %s\n", $_ } split /\n/, YAML::XS::Dump $data if $ENV{C3_DEBUG};
         return;
     }
 
@@ -349,7 +349,7 @@ sub makedata_rule
     $data->{func2c3} = 'sum' if $data->{func2c3} eq 'all';
     if( $tpl =~ /\$VAR\{func2c3\}/ && ! grep{ $data->{func2c3} eq $_ }qw( max min sum avg ) )
     {
-        warn "[ERROR] unkown func: $data->{func} $data->{metric}\n";
+        warn "[ERROR] unknown func: $data->{func} $data->{metric}\n";
         next;
     }
 

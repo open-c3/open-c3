@@ -54,7 +54,7 @@ die "targetgroup > 1"    if     @targetgroup > 1;
 my $TargetGroupArn = $targetgroup[0]->TargetGroupArn;
 die "TargetGroupArn  format error: $TargetGroupArn" unless $TargetGroupArn && $TargetGroupArn =~ /^[a-zA-Z\d:\-\/]+$/;
 
-my %status = map{ $_ => 'unkown'}keys %ip;
+my %status = map{ $_ => 'unknown'}keys %ip;
 
 sub offline
 {
