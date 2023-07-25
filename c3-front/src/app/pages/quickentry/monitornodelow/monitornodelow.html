@@ -1,4 +1,13 @@
 <cmloading ng-if="!monitornodelow.loadover"></cmloading>
+<div class="admin-form row">
+  <label class="col-sm-2 control-label fwbold" style="padding: 8px 15px;">{{'C3T.只查看我名下的资源'|translate}}</label>
+  <div class="col-sm-2" style="padding: 0;">
+      <label class="switch switch-system mt5">
+          <input type="checkbox" id="check_status" ng-model="monitornodelow.checkOwnerStatus" ng-change="monitornodelow.handleOwnerStatus()">
+          <label for="check_status" data-on="ON" data-off="OFF"></label>
+      </label>
+  </div>
+</div>
 <uib-tabset class="tab-set" active="selectTab">
   <uib-tab ng-repeat="tab in monitornodelow.lowUtilizationList" ng-click="monitornodelow.handleTabChange(tab)">
     <uib-tab-heading class="tab-heading">
@@ -52,7 +61,7 @@
                 </div>
               </div>
               <div  class="mark-select col-sm-3 form-group">
-                <label class="col-sm-6 control-label">{{'C3T.业务负责人'| translate}}</label>
+                <label class="col-sm-12 control-label">{{'C3T.业务负责人'| translate}}</label>
                 <div class="col-sm-12">
                   <input type="text" class="form-control" ng-model="monitornodelow.tableBusinessOwner" ng-change="monitornodelow.handleBusinessChange()">
                 </div>

@@ -76,6 +76,7 @@
             // get user
             $http.get('/api/connector/connectorx/sso/userinfo').success(function(data){
                 vm.user = data;
+                sessionStorage.setItem('userInfo', JSON.stringify(data))
             });
 
             var hash = $location.host();
