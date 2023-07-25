@@ -18,6 +18,7 @@
           },
         ]
         vm.tabThead = ['lowstatus', '服务树'];
+        vm.checkOwnerStatus = true
         $scope.countOptions = [20, 30,50, 100, 500]
         $scope.selectTab = vm.lowUtilizationList[0];
         vm.headerList = []
@@ -74,7 +75,7 @@
         vm.checkDataList = []
         vm.checkOtherDataList = []
 
-        vm.userInfo = {}
+        vm.userInfo = sessionStorage.getItem('userInfo')? JSON.parse(sessionStorage.getItem('userInfo')): {}
         vm.markSelected = 'all'
         vm.tableInstanceId = ''
         vm.tableBusinessOwner = ''
@@ -184,6 +185,10 @@
 
         vm.getStatusList();
 
+        vm.handleOwnerStatus = function () {
+          vm.getMarkData()
+        }
+
         vm.reload = function () {
           let remarkMap = []
           const newArr = []
@@ -192,7 +197,7 @@
           })
           vm.loadover = false;
           if ($scope.selectTab.id === 'compute') {
-            $http.get(`/api/agent/nodelow/${vm.treeid}`).success(function (data) {
+            $http.get(`/api/agent/nodelow/${vm.treeid}${vm.checkOwnerStatus === true? `?owner=${vm.userInfo.email}`: ''}`).success(function (data) {
               vm.loadover = true;
               if (data.stat == true) {
                 angular.forEach(data.data, function (value) {
@@ -220,7 +225,7 @@
               }
             });
           } else {
-            $http.get(`/api/agent/resourcelow/data/${$scope.selectTab.id}/${vm.treeid}`).success(function (data) {
+            $http.get(`/api/agent/resourcelow/data/${$scope.selectTab.id}/${vm.treeid}${vm.checkOwnerStatus === true? `?owner=${vm.userInfo.email}`: ''}`).success(function (data) {
               vm.loadover = true;
               if (data.stat == true) {
                 const newData = []
@@ -323,13 +328,6 @@
                 }
             });
         };
-
-        vm.getUserInfo = function () {
-          $http.get('/api/connector/connectorx/sso/userinfo').success(function (data) {
-            vm.userInfo = data
-          });
-        }
-        vm.getUserInfo();
 
         vm.handleMark = function (nodelowItems) {
           swal({
