@@ -605,7 +605,8 @@
                 url: 'menu/:treeid',
                 templateUrl: 'app/pages/device/menu/menu.html',
                 controller: 'DeviceMenuController',
-                controllerAs: 'devicemenu'
+                controllerAs: 'devicemenu',
+                // params: {treeid: '4000000000'}
             })
 
              .state('home.device.data', {
