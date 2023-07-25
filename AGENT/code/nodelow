@@ -29,7 +29,7 @@ return sub
     if( $id == 0 || $id == 4000000000 )
     {
         $data = +{ stat => 1, data => [] };
-        my @x = `c3mc-device-nodeinfo-allnode`;
+        my @x = `c3mc-device-nodeinfo-allnode-cache get`;
         chomp @x;
         my $idx == 0;
         for( @x )
