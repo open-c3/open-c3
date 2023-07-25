@@ -15,7 +15,7 @@
             }
         });
 
-    function DeviceDataController($state, $http, $scope, $injector, ngTableParams, $uibModal, treeService) {
+    function DeviceDataController($state, $http, $scope, $injector, ngTableParams, $uibModal, treeService, $rootScope) {
         var vm = this;
         var toastr = toastr || $injector.get('toastr');
 
@@ -93,7 +93,7 @@
                 newGrepdata[key] = value
               }
             });
-            $http.post('/api/agent/device/data/' + vm.type + '/' + vm.subtype + '/' + vm.treeid, { "grepdata": newGrepdata, "timemachine": vm.selectedtimemachine, "toxlsx": 1, pageSize: vm.tablePageSize } ).success(function(data){
+            $http.post('/api/agent/device/data/' + vm.type + '/' + vm.subtype + '/' + `${vm.deptFilter ? 0: vm.treeid}`, { "grepdata": newGrepdata, "timemachine": vm.selectedtimemachine, "toxlsx": 1, pageSize: vm.tablePageSize } ).success(function(data){
                 if (data.stat){
                     vm.downloadTitle = data.toxlsxtitle
                     vm.downloadData = data.data
@@ -297,5 +297,17 @@
         vm.checkboxes.itemsNumber = checked
         angular.element(document.getElementsByClassName("select-all")).prop("indeterminate", (checked != 0 && unchecked != 0));
       }, true);
+
+      $scope.$watch(function () {return $rootScope.deptTreeNode}, function (value) {
+        if (value && Object.keys(value).length !== 0) {
+          vm.deptFilter = value
+          angular.forEach(vm.deptFilter, function (value, key) {
+            if (value !== '') {
+              vm.grepdata[key] = value
+            }
+          });
+          vm.reload()
+        }
+      })
     }
 })();

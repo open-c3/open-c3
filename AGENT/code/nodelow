@@ -26,7 +26,7 @@ return sub
     $logs->die( "id not a number" ) unless $id =~ /^\d+$/;
 
     my $data;
-    if( $id == 0 || $id == 4000000000 )
+    if( $id == 0 || $id >= 4000000000 )
     {
         $data = +{ stat => 1, data => [] };
         my @x = `c3mc-device-nodeinfo-allnode-cache get`;
@@ -60,6 +60,7 @@ return sub
         }
     }
 
+    map{ $_->{ip} = $_->{inip} }@{$data->{data}};
     my @col = qw( ip lowcnt status mem cpu netin netout edit_time date );
     my $x   = $db->query( sprintf( "select %s from openc3_monitor_node_low", join ',', @col ), \@col );
     $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
