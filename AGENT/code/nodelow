@@ -31,11 +31,13 @@ return sub
         $data = +{ stat => 1, data => [] };
         my @x = `c3mc-device-nodeinfo-allnode`;
         chomp @x;
+        my $idx == 0;
         for( @x )
         {
             $_ = Encode::decode( 'utf8', $_ );
             my @xx = split /;/, $_;
-            push @{$data->{data}}, +{ id => $id, type => $xx[0], name => $xx[1], inip => $xx[2], exip => $xx[3] };
+            $idx ++;
+            push @{$data->{data}}, +{ id => $idx, type => $xx[0], name => $xx[1], inip => $xx[2], exip => $xx[3] };
         }
     }
     else
