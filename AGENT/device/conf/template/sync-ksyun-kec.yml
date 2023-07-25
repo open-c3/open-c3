@@ -20,16 +20,16 @@ download:
         "状态": ["stopped", "deleted"]
         "_ingestion_": ["NO"]
     ingestion-jumpserver:
-      uuid: '实例ID'
-      instanceId: '实例ID'
-      hostName: '名称'
-      ip: '内网IP'
-      inIP: '内网IP'
-      exIP: '公网IP'
-      os: 'os'
-      site: [ '{KSC}', 'VpcName' ]
-      vpc_id:   'VpcId'
-      vpc_name: 'VpcName'
+      uuid: "实例ID"
+      instanceId: "实例ID"
+      hostName: "名称"
+      ip: "内网IP"
+      inIP: "内网IP"
+      exIP: "公网IP"
+      os: "os"
+      site: ["{KSC}", "VpcName"]
+      vpc_id: "VpcId"
+      vpc_name: "VpcName"
       product_owner: "业务负责人"
       ops_owner: "运维负责人"
       department: "部门"
@@ -56,36 +56,36 @@ download:
         - name: _buildintree_
           alias: 内置服务树
           readonly: 1
- 
+
       grpcol:
         baseinfo:
-        - name: 名称
-        - name: 实例ID
-        - name: 主机名
-        - name: 区域
-        - name: 状态
-          success:
-          - active
-        - name: os
-        - name: account
-          color: red
-        - name: 所在可用区
-        - name: 部门
-        - name: 业务负责人
-        - name: 运维负责人
-        - name: 公网IP
-        - name: 内网IP
+          - name: 名称
+          - name: 实例ID
+          - name: 主机名
+          - name: 区域
+          - name: 状态
+            success:
+              - active
+          - name: os
+          - name: account
+            color: red
+          - name: 所在可用区
+          - name: 部门
+          - name: 业务负责人
+          - name: 运维负责人
+          - name: 公网IP
+          - name: 内网IP
         system:
-        - name: 操作系统
-        - name: 实例类型
-        - name: VpcName
-        - name: ChargeType
-        - name: InstanceConfigure.VCPU
-          tail: (核) 
-        - name: InstanceConfigure.MemoryGb
-          tail: (Gb)
-        - prefix: InstanceConfigure.
-        - prefix: tag.
+          - name: 操作系统
+          - name: 实例类型
+          - name: VpcName
+          - name: ChargeType
+          - name: InstanceConfigure.VCPU
+            tail: (核)
+          - name: InstanceConfigure.MemoryGb
+            tail: (Gb)
+          - prefix: InstanceConfigure.
+          - prefix: tag.
     colmap:
       treename: "服务树"
       uuid: "实例ID" # 指明哪一列作为uuid列。没有这个字段会导致单个资源详情打开无数据
@@ -101,7 +101,8 @@ download:
       Platform: "操作系统"
       HostName: "主机名"
       _oneDeptName_: 一级部门
-      _sybDeptName_: 二级部门
+      _twoDeptName_: 二级部门
+      _sybDeptName_: 产品线
       _product_owner_: 业务负责人
       _ops_owner_: "运维负责人"
       _department_: "部门"
@@ -128,6 +129,8 @@ download:
         alias: 一级部门
       - name: "二级部门"
         alias: 二级部门
+      - name: "产品线"
+        alias: 产品线
       - name: "_ingestion_"
         alias: 摄取
     outline:

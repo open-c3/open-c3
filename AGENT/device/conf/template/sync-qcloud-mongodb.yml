@@ -8,9 +8,9 @@ download:
       treeinfo:
         - ["实例ID", "instance"]
     ingestion-mongodb:
-      addr: [ 'IP', 'Vport' ]
+      addr: ["IP", "Vport"]
       authpath: /data/open-c3-data/device/curr/auth/mongodb
-      tree: '服务树'
+      tree: "服务树"
       type: qcloud-mongodb
       exclude:
         "_ingestion_": ["NO"]
@@ -18,11 +18,11 @@ download:
       - name: 'openc3_cmdb_resource_price{account="%s",instanceid="%s",type="database",subtype="qcloud-mongodb",unit="%s",status="%s"} %f'
         value: ["account", "uuid", "_priceunit_", "状态", "_price_"]
     instancealias:
-      - name:  ['uuid']
-        value: ["IP",'Vport']
+      - name: ["uuid"]
+        value: ["IP", "Vport"]
     util:
       vuuid:
-        - [ 'IP', 'Vport' ]
+        - ["IP", "Vport"]
         - IP
       defaulttree: defaulttree.pool
       extcol:
@@ -40,23 +40,23 @@ download:
 
       grpcol:
         baseinfo:
-        - name: 业务负责人
-        - name: 运维负责人
-        - name: 状态
-          success:
-          - 运行中
-        - name: 部门
-        - name: 实例ID
-        - name: 所在可用区
-        - name: 区域
-        - name: 引擎版本
-        - name: 实例类型
-        - name: 名称
-        - name: IP
-        - name: Vip
+          - name: 业务负责人
+          - name: 运维负责人
+          - name: 状态
+            success:
+              - 运行中
+          - name: 部门
+          - name: 实例ID
+          - name: 所在可用区
+          - name: 区域
+          - name: 引擎版本
+          - name: 实例类型
+          - name: 名称
+          - name: IP
+          - name: Vip
         system:
-        - prefix: tag.
- 
+          - prefix: tag.
+
     colmap:
       treename: "服务树"
       uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
@@ -69,7 +69,8 @@ download:
       MongoVersion: "引擎版本"
       MachineType: "实例类型"
       _oneDeptName_: 一级部门
-      _sybDeptName_: 二级部门
+      _twoDeptName_: 二级部门
+      _sybDeptName_: 产品线
       _product_owner_: 业务负责人
       _ops_owner_: "运维负责人"
       _department_: "部门"
@@ -99,6 +100,8 @@ download:
         alias: 一级部门
       - name: "二级部门"
         alias: 二级部门
+      - name: "产品线"
+        alias: 产品线
       - name: "_ingestion_"
         alias: 摄取
     outline:

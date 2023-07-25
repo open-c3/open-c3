@@ -21,20 +21,20 @@ download:
 
       grpcol:
         baseinfo:
-        - name: 实例ID
-        - name: 名称
-        - name: 区域
-        - name: 业务负责人
-        - name: 运维负责人
-        - name: 区域
-        - name: 部门
+          - name: 实例ID
+          - name: 名称
+          - name: 区域
+          - name: 业务负责人
+          - name: 运维负责人
+          - name: 区域
+          - name: 部门
         system:
-        - name: "关联的EC2实例ID" 
-        - name: "公网IP"
-        - name: "内网IP"
-        - name: 
-        - prefix: tag.
- 
+          - name: "关联的EC2实例ID"
+          - name: "公网IP"
+          - name: "内网IP"
+          - name:
+          - prefix: tag.
+
     check:
       col: ["实例ID"]
       min: 0
@@ -45,11 +45,12 @@ download:
       AllocationId: "实例ID"
       Name: "名称"
       Region: "区域"
-      InstanceId: "关联的EC2实例ID" 
+      InstanceId: "关联的EC2实例ID"
       PublicIp: "公网IP"
       PrivateIpAddress: "内网IP"
       _oneDeptName_: 一级部门
-      _sybDeptName_: 二级部门
+      _twoDeptName_: 二级部门
+      _sybDeptName_: 产品线
       _product_owner_: 业务负责人
       _ops_owner_: "运维负责人"
       _department_: "部门"
@@ -68,6 +69,8 @@ download:
         alias: 一级部门
       - name: "二级部门"
         alias: 二级部门
+      - name: "产品线"
+        alias: 产品线
     outline:
       uuid:
         - "实例ID"
@@ -79,7 +82,7 @@ download:
       system:
         - "公网IP"
         - "内网IP"
-        - "关联的EC2实例ID" 
+        - "关联的EC2实例ID"
       contact:
         - "部门"
         - "业务负责人"

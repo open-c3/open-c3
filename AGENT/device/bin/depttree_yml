@@ -1,0 +1,94 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use utf8;
+use YAML::XS;
+use Encode;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my %res;
+
+my    @x = <STDIN>;
+chomp @x;
+map{ $res{$_} ++; }map{ Encode::decode( 'utf8', $_ ); }@x;
+
+sub _formatusertree
+{
+    my ( $len, $filter, $parentname,  %map ) = @_;
+    return [] unless %map;
+    my ( @res, @currid, %submap );
+    for my $id ( keys %map )
+    {
+        my @names = split /;/, $map{$id};
+
+        if( @names == 1 )
+        {
+            push @currid, $id;
+        }
+        else
+        {
+            my ( $head, @name ) = @names;
+            $submap{$head}{$id} = join ';', @name;
+        }
+    }
+
+    for my $id ( sort{ $map{$a} cmp $map{$b} }@currid )
+    {
+        my $name = $map{$id};
+        my %len = ( 1 => '产品线', 2 => '一级部门', 3 => '二级部门' );
+        if( $len{$len} )
+        {
+            $filter->{$len{$len}} = $name if $name ne 'unkown';
+        }
+
+        if( $len == 5 )
+        {
+            $filter->{$parentname} = $name;
+        }
+
+        if( $submap{$name} )
+        {
+            push @res, +{ id => 0, name => $name, filter => +{%$filter}, children => _formatusertree( $len + 1, +{%$filter}, $name, %{$submap{$name}}) };
+        }
+        else
+        {
+            push @res, +{ id => 0, name => $name, filter => +{%$filter}  };
+        }
+    }
+
+    return \@res;
+};
+
+my ( %map, $idx, %data );
+
+for( keys %res )
+{
+    my @x = split /;/, $_;
+    for( 0 .. 2 )
+    {
+        my $uuid = join ';', @x[0..$_];
+        $data{$uuid} ++;
+    }
+    my $tuuid = join ';', @x[0..2];
+    my $dev = '研发负责人';
+    my $ops = '运维负责人';
+
+    $data{"$tuuid;$dev"}++;
+    $data{"$tuuid;$dev;$x[3]"}++;
+    $data{"$tuuid;$ops"}++;
+    $data{"$tuuid;$ops;$x[4]"}++;
+     
+}
+
+for ( keys %data )
+{
+    $idx++;
+    $map{$idx} = $_;
+}
+
+print YAML::XS::Dump _formatusertree( 1, +{}, '', %map );

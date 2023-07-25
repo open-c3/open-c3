@@ -141,6 +141,8 @@
                 "elasticloadbalancing:AddTags",
                 "elasticloadbalancing:RemoveTags",
                 "elasticloadbalancing:DescribeTags",
+                "elasticloadbalancing:DescribeTargetGroups",
+                "elasticloadbalancing:DeleteTargetGroup",
                 "lightsail:GetInstances",
                 "lightsail:GetLoadBalancers",
                 "lightsail:GetRelationalDatabases",

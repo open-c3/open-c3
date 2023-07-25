@@ -8,22 +8,22 @@ download:
       treeinfo:
         - ["实例ID", "instance"]
     ingestion-mysql:
-      addr: [ 'Vip', 'Vport' ]
+      addr: ["Vip", "Vport"]
       authpath: /data/open-c3-data/device/curr/auth/mysql
-      tree: '服务树'
+      tree: "服务树"
       type: qcloud-tdsql-c-mysql
       exclude:
         "Status": ["deleted", "offlined"]
         "_ingestion_": ["NO"]
     instancealias:
-      - name:  ['uuid']
-        value: ["Vip",'Vport']
+      - name: ["uuid"]
+        value: ["Vip", "Vport"]
     check:
       col: ["实例ID"]
       min: 0
     util:
       vuuid:
-        - [ 'Vip', 'Vport' ]
+        - ["Vip", "Vport"]
         - Vip
       defaulttree: defaulttree.pool
       extcol:
@@ -41,35 +41,35 @@ download:
 
       grpcol:
         baseinfo:
-        - name: 名称
-        - name: 实例ID
-        - name: 状态
-          success:
-          - 运行中
-        - name: 区域
-        - name: 所在可用区
-        - name: account
-          color: red
-        - name: 部门
-        - name: 业务负责人
-        - name: 运维负责人
-        - name: 公网IP
-        - name: 内网IP
+          - name: 名称
+          - name: 实例ID
+          - name: 状态
+            success:
+              - 运行中
+          - name: 区域
+          - name: 所在可用区
+          - name: account
+            color: red
+          - name: 部门
+          - name: 业务负责人
+          - name: 运维负责人
+          - name: 公网IP
+          - name: 内网IP
         system:
-        - name: 数据库类型
-        - name: 数据库版本
-        - name: 集群ID
-        - name: 集群名
-        - name: cpu核数
-          tail: (核) 
-        - name: 内存
-          tail: (Gb)
-        - name: 存储容量
-          tail: (Gb)
-        - name: 实例类型
-        - name: 实例角色
-        - prefix: tag.
- 
+          - name: 数据库类型
+          - name: 数据库版本
+          - name: 集群ID
+          - name: 集群名
+          - name: cpu核数
+            tail: (核)
+          - name: 内存
+            tail: (Gb)
+          - name: 存储容量
+            tail: (Gb)
+          - name: 实例类型
+          - name: 实例角色
+          - prefix: tag.
+
     colmap:
       treename: "服务树"
       uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
@@ -89,7 +89,8 @@ download:
       InstanceType: 实例类型
       InstanceRole: 实例角色
       _oneDeptName_: 一级部门
-      _sybDeptName_: 二级部门
+      _twoDeptName_: 二级部门
+      _sybDeptName_: 产品线
       _product_owner_: 业务负责人
       _ops_owner_: "运维负责人"
       _department_: "部门"
@@ -120,6 +121,8 @@ download:
         alias: 一级部门
       - name: "二级部门"
         alias: 二级部门
+      - name: "产品线"
+        alias: 产品线
       - name: "_ingestion_"
         alias: 摄取
     outline:

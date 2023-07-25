@@ -224,14 +224,27 @@ class LIB_EC2:
             target_status: (string)。ec2的目标状态。可选值为: pending | running | shutting-down | terminated | stopping | stopped
             timeout (int, optional): 超时时间, 单位秒
         """
+        error_str = ""
+
         start_time = time.time()
         while True:
-            print(f"等待实例处于 {target_status} 状态, instance_id: {instance_id}")
-            instance_info = self.describe_instances([instance_id])["Reservations"][0]["Instances"][0]
+            print(f"等待实例处于 {target_status} 状态, instance_id: {instance_id}, region: {self.region}, 超时时间: {timeout}")
+
+            try:
+                instance_info = self.describe_instances([instance_id])["Reservations"][0]["Instances"][0]
+            except ClientError as e:
+                if "does not exist" in e:
+                    # 刚创建完ec2后查询资源似乎有时候查不到
+                    continue
+                raise RuntimeError("查询ec2实例信息时出现异常") from e
+
             if instance_info["State"]["Name"] == target_status:
-                return True
+                return
             elif time.time() - start_time > timeout:
-                return False
+                if error_str:
+                    raise RuntimeError(error_str)
+
+                raise RuntimeError(f"等待实例处于 {target_status} 状态, instance_id: {instance_id}, 出现超时错误, timeout: {timeout}") 
             else:
                 time.sleep(5)
 
@@ -291,9 +304,7 @@ class LIB_EC2:
             allocation_id = allocation_ids[index]
 
             # 等待实例状态正常，否则绑定eip出错
-            timeout = 600
-            if not self.wait_ec2_until_status(instance_id, "running", timeout):
-                raise RuntimeError(f"等待实例处于 running 状态超时, instance_id: {instance_id}, 超时时间: {timeout} 秒")
+            self.wait_ec2_until_status(instance_id, "running", 600)
 
             # eip绑定ec2实例
             response = self.associate_address(allocation_id, instance_id)

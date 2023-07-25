@@ -62,28 +62,28 @@ download:
 
       grpcol:
         baseinfo:
-        - name: 名称
-        - name: 实例ID
-        - name: 状态
-          success:
-          - ACTIVE
-        - name: account
-          color: red
-        - name: 所在可用区
-        - name: 部门
-        - name: 业务负责人
-        - name: 运维负责人
-        - name: 公网IP
-        - name: 内网IP
+          - name: 名称
+          - name: 实例ID
+          - name: 状态
+            success:
+              - ACTIVE
+          - name: account
+            color: red
+          - name: 所在可用区
+          - name: 部门
+          - name: 业务负责人
+          - name: 运维负责人
+          - name: 公网IP
+          - name: 内网IP
         system:
-        - name: 操作系统
-        - name: 实例类型
-        - name: flavor.vcpus
-          tail: (核) 
-        - name: 内存
-          tail: (兆)
-        - prefix: tag.
-        - prefix: security_groups.
+          - name: 操作系统
+          - name: 实例类型
+          - name: flavor.vcpus
+            tail: (核)
+          - name: 内存
+            tail: (兆)
+          - prefix: tag.
+          - prefix: security_groups.
 
     colmap:
       treename: "服务树"
@@ -104,7 +104,8 @@ download:
       quota_min_rate: "基准带宽Mbps"
       quota_max_rate: "最大带宽Mbps"
       _oneDeptName_: 一级部门
-      _sybDeptName_: 二级部门
+      _twoDeptName_: 二级部门
+      _sybDeptName_: 产品线
       _product_owner_: 业务负责人
       _ops_owner_: "运维负责人"
       _department_: "部门"
@@ -131,6 +132,8 @@ download:
         alias: 一级部门
       - name: "二级部门"
         alias: 二级部门
+      - name: "产品线"
+        alias: 产品线
       - name: "基准带宽Mbps"
         alias: 基准带宽Mbps
       - name: "最大带宽Mbps"

@@ -1,0 +1,175 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use YAML::XS;
+use JSON;
+use Encode;
+
+=head1 SYNOPSIS
+
+ $0 treeid timemachine colid colval
+
+=cut
+
+my ( $treeid, $timemachine, $colid, $colval ) = @ARGV;
+die unless $timemachine;
+die unless $colval;
+
+my $realcolid = $colid - 1;
+
+$colval = Encode::decode( 'utf8', $colval );
+
+sub gettreename
+{
+    my $treeid = shift @_;
+    my @x = `c3mc-base-treemap cache| grep "^$treeid;"|awk -F';'  '{print \$2}'`;
+    chomp @x;
+    die "get treename by id: $treeid fail" unless @x;
+    return $x[0];
+};
+
+sub getmenu
+{
+    my %param = @_;
+    my $param = \%param;
+
+    $param->{treeid} = 0 if $param->{treeid} eq 4000000000;
+
+    my %re = map{ $_ => [] }qw( compute database domain networking others storage );
+    return \%re if $param->{treeid} >= 4000000000;
+
+    my $greptreename = $param->{treeid} == 0 ? undef : eval{ gettreename( $param->{treeid} ) };;
+    die "gettreename fail: $@" if $@;
+
+    my %tmpre;
+    my @x = `c3mc-device-base-info-cache get '$param->{timemachine}'`;
+    chomp @x;
+    for ( @x )
+    {
+        $_ = Encode::decode( 'utf8', $_ );
+        my @tx = split /;/, $_;
+        my ( $type, $subtype, $uuid, $treename ) = @tx;
+        if( $greptreename )
+        {
+            my @treename = split /,/, $treename;
+            my $match = 0;
+            map{
+                $match = 1 if $_ eq $greptreename || index( $_, "$greptreename.") == 0;
+            }@treename;
+            next unless $match;
+        }
+
+        next unless $tx[$realcolid] && $tx[$realcolid] eq $colval;
+
+        $tmpre{$type}{$subtype} ++;
+    }
+
+    delete $tmpre{type}; # 第一行的title就叫type,删除
+
+    for my $type ( keys %tmpre )
+    {
+
+        for my $subtype ( keys %{$tmpre{$type}} )
+        {
+            push @{$re{$type}}, [ $subtype, $tmpre{$type}{$subtype} ];
+        }
+
+    }
+
+    # %re 把资源按照 type分类，变成一个数组用于前端展示
+    # 展示成一个数组不美观，继续进行转换
+    my ( %re2, %subtypecount, %max );
+
+    for my $type (  keys %re )
+    {
+        $re2{$type} = +{};
+        for my $subtype ( @{ $re{$type} } )
+        {
+            my ( $name, $count ) = @{ $subtype };
+            my ( $g, @alias ) = split /-/, $name;
+            $subtypecount{$type}{$g} += 100000000; # 资源种类计数，资源种类优先级排序
+            $subtypecount{$type}{$g} += $count*10; # 资源数量排序
+            $re2{$type}{$g} ||= [];
+            push @{ $re2{$type}{$g}}, [ $g, @$subtype, join "-", @alias ];
+            $max{$type} ||= 0;
+            $max{$type} = @{ $re2{$type}{$g}} - 1 if $max{$type} < @{ $re2{$type}{$g}} - 1;
+        }
+    }
+
+    #按照字母排序
+    for my $type ( keys %subtypecount )
+    {
+        my @k = sort keys %{$subtypecount{$type}};
+        map{ $subtypecount{$type}{$k[$_]} += $_ } 0 .. @k -1;
+    }
+
+    # 一个云厂商的资源在内部进行排序，比如AWS的数据库如果已经确定了全局的位置，
+    # 那么dynamodb、memcached、rds、redis等排序是固定的,避免用户查看时抖动
+    for my $type ( keys %re2 )
+    {
+        for my $subtype ( keys %{$re2{$type} })
+        {
+            $re2{$type}{$subtype} = [ sort{ $a->[1] cmp $b->[1] } @{ $re2{$type}{$subtype} } ];
+        }
+    }
+
+    #排序结果
+    #同步的资源种类多的在前面
+    #资源种类一样多的情况下资源数量多的在前面
+    #资源数量也一样多的情况下，按照字母排序
+    for my $type (  keys %re )
+    {
+        for my $group ( keys %{ $re2{ $type  } } )
+        {
+            for ( 1.. 15 )
+            {
+                next unless @{ $re2{ $type  }{ $group }} <= $max{$type};
+                push @{ $re2{ $type  }{ $group }}, [];
+            }
+        }
+    }
+    #%re2 按照资源分类，云分类。如下
+    #
+    #'networking' => {
+    #  'qcloud' => [
+    #      [
+    #         'qcloud',
+    #         'qcloud-clb',
+    #          1,
+    #         'clb'
+    #       ]
+    #   ],
+    #  'huawei' => [
+    #      [
+    #         'huawei',
+    #         'huawei-elb',
+    #         16,
+    #         'elb'
+    #      ]
+    #   ]
+
+
+    my %re3;
+    for my $type ( keys %re2 )
+    {
+        $re3{ $type } = [];
+        for my $group ( sort{ $subtypecount{$type}{$b} <=> $subtypecount{$type}{$a} }keys %{ $re2{ $type } } )
+        {
+            my @x = @{ $re2{ $type }{ $group } };
+            map{ push @{ $re3{ $type }[ $_] }, $x[$_]  } 0 .. @x -1;
+        }
+    }
+
+    #%re3 二维表格，就是前端展示的二维表，其中每个元素又是一个单独的小数组，整体是三维表格
+    return data => \%re3;
+};
+
+my $x = getmenu( treeid => $treeid, timemachine => $timemachine );
+print YAML::XS::Dump $x;

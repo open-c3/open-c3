@@ -1,0 +1,37 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use utf8;
+use YAML::XS;
+use File::Basename;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my %res;
+
+my $base = "/data/open-c3-data/device/curr/";
+for my $type ( qw( compute networking database storage others ) )
+{
+    for ( glob "$base/$type/*" )
+    {
+        my $subtype = File::Basename::basename $_;
+        my $datafile = "$base/$type/$subtype/data.tsv";
+        next unless -f $datafile;
+        my @x = `c3mc-device-data-get curr '$type' '$subtype' 产品线 一级部门  二级部门 业务负责人  运维负责人`;
+        chomp @x;
+        for( @x )
+        {
+             my @xx = split /\t/, $_, 5;
+
+             @xx = map{ $_ || 'unkown' }@xx;
+             my $uuid = join ";", @xx;
+             $res{$uuid}++;
+         }
+    }
+}
+
+map{ print "$_\n" }keys %res;
