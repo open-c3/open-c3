@@ -10,6 +10,7 @@ use api;
 use Code;
 use Format;
 use OPENC3::DancerRun3;
+use Encode;
 
 =pod
 
@@ -74,7 +75,8 @@ get '/resourcelow/data/:type/:projectid' => sub {
 
     if( $param->{owner} )
     {
-        @node = grep{ $_->{'业务负责人'} && $_->{'业务负责人'} eq $param->{owner} }@node;
+        my $o = Encode::decode( 'utf8', '业务负责人' );
+        @node = grep{ $_->{$o} && $_->{$o} eq $param->{owner} }@node;
     }
 
     return +{ stat => $JSON::true, data => \@node, title => \@title, PolicyDescription => $PolicyDescription };
