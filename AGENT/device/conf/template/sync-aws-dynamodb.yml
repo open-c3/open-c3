@@ -21,21 +21,21 @@ download:
 
       grpcol:
         baseinfo:
-        - name: 业务负责人
-        - name: 运维负责人
-        - name: 状态
-          success:
-          - ACTIVE
-        - name: 部门
-        - name: 实例ID
-        - name: 字节长度
-        - name: 名称
-        - name: 条目数
-        - name: 区域
-        - name: 创建时间
+          - name: 业务负责人
+          - name: 运维负责人
+          - name: 状态
+            success:
+              - ACTIVE
+          - name: 部门
+          - name: 实例ID
+          - name: 字节长度
+          - name: 名称
+          - name: 条目数
+          - name: 区域
+          - name: 创建时间
         system:
-        - prefix: tag.
- 
+          - prefix: tag.
+
     check:
       col: ["实例ID"]
       min: 0
@@ -51,7 +51,8 @@ download:
       TableSizeBytes: "字节长度"
       ItemCount: "条目数"
       _oneDeptName_: 一级部门
-      _sybDeptName_: 二级部门
+      _twoDeptName_: 二级部门
+      _sybDeptName_: 产品线
       _product_owner_: 业务负责人
       _ops_owner_: "运维负责人"
       _department_: "部门"
@@ -70,6 +71,8 @@ download:
         alias: 一级部门
       - name: "二级部门"
         alias: 二级部门
+      - name: "产品线"
+        alias: 产品线
     outline:
       uuid:
         - "实例ID"

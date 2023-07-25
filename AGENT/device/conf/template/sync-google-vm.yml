@@ -25,7 +25,7 @@ download:
       os: "os"
       site: ["{Google}", "vpcName"]
       vpc_id: "vpcName"
-      vpc_name: 'vpcName'
+      vpc_name: "vpcName"
       product_owner: "业务负责人"
       ops_owner: "运维负责人"
       department: "部门"
@@ -52,27 +52,27 @@ download:
 
       grpcol:
         baseinfo:
-        - name: 名称
-        - name: 实例ID
-        - name: 状态
-          success:
-          - ACTIVE
-        - name: 项目
-        - name: account
-          color: red
-        - name: 所在可用区
-        - name: 部门
-        - name: 业务负责人
-        - name: 运维负责人
-        - name: 公网IP
-        - name: 内网IP
+          - name: 名称
+          - name: 实例ID
+          - name: 状态
+            success:
+              - ACTIVE
+          - name: 项目
+          - name: account
+            color: red
+          - name: 所在可用区
+          - name: 部门
+          - name: 业务负责人
+          - name: 运维负责人
+          - name: 公网IP
+          - name: 内网IP
         system:
-        - name: os
-        - name: 实例类型
-        - name: cpuPlatform
-        - name: vpcName
-        - prefix: tag.
-        - prefix: disks.
+          - name: os
+          - name: 实例类型
+          - name: cpuPlatform
+          - name: vpcName
+          - prefix: tag.
+          - prefix: disks.
     check:
       col: ["实例ID"]
       min: 0
@@ -89,7 +89,8 @@ download:
       zone: "所在可用区"
       status: "状态"
       _oneDeptName_: 一级部门
-      _sybDeptName_: 二级部门
+      _twoDeptName_: 二级部门
+      _sybDeptName_: 产品线
       _product_owner_: 业务负责人
       _ops_owner_: "运维负责人"
       _department_: "部门"
@@ -114,6 +115,8 @@ download:
         alias: 一级部门
       - name: "二级部门"
         alias: 二级部门
+      - name: "产品线"
+        alias: 产品线
       - name: "_ingestion_"
         alias: 摄取
     outline:

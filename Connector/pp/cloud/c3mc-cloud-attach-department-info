@@ -27,40 +27,51 @@ def get_cmdb_sync_interval():
 def get_department_info(user_email):
     sync_interval = get_cmdb_sync_interval()
 
-    now = time.time()
+    data = None
 
+    now = time.time()
     while True:
         if time.time() - now > sync_interval:
             exit(1)
         try:
             output = safe_run_command(["c3mc-base-userinfo", "-u", user_email])
-            return yaml.safe_load(output)
+            data = yaml.safe_load(output)
+            break
         except Exception as e:
             print(f"无法获取账号 {user_email} 的部门信息, err: {str(e)}", file=sys.stderr)
             # 如果获取用户部门信息时出现错误，在cmdb本次同步周期内持续查询
             time.sleep(5)
             continue
+    
+    if "oneDeptName" not in data or not data["oneDeptName"].strip():
+        data["oneDeptName"] = "unknow"
+
+    if "twoDeptName" not in data or not data["twoDeptName"].strip():
+        data["twoDeptName"] = "unknow"
+
+    if "sybDeptName" not in data or not data["sybDeptName"].strip():
+        data["sybDeptName"] = "unknow"
+    
+    return data
 
 
 def run(data_list):
     m = {}
     for index, item in enumerate(data_list):
         if "_product_owner_" not in item:
-            continue
+            data_list[index]["_oneDeptName_"] = "unknow"
+            data_list[index]["_twoDeptName_"] = "unknow"
+            data_list[index]["_sybDeptName_"] = "unknow"
+        
+        else:
+            product_owner = item["_product_owner_"]
 
-        product_owner = item["_product_owner_"]
+            if product_owner not in m:
+                m[product_owner] = get_department_info(product_owner)
 
-        if product_owner not in m:
-            department_info = get_department_info(product_owner)
-            if department_info:
-                m[product_owner] = department_info
-
-        if product_owner in m:
-            if "oneDeptName" in m[product_owner]:
-                data_list[index]["_oneDeptName_"] = m[product_owner]["oneDeptName"]
-
-            if "sybDeptName" in m[product_owner]:
-                data_list[index]["_sybDeptName_"] = m[product_owner]["sybDeptName"]
+            data_list[index]["_oneDeptName_"] = m[product_owner]["oneDeptName"]
+            data_list[index]["_twoDeptName_"] = m[product_owner]["twoDeptName"]
+            data_list[index]["_sybDeptName_"] = m[product_owner]["sybDeptName"]
 
     return data_list
 

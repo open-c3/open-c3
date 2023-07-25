@@ -21,28 +21,28 @@ download:
 
       grpcol:
         baseinfo:
-        - name: 业务负责人
-        - name: 运维负责人
-        - name: 状态
-          success:
-          - available
-        - name: 部门
-        - name: 实例ID
-        - name: 引擎
-        - name: 引擎类型
-        - name: Iops
-        - name: 区域
-        - name: 可用区
-        - name: 快照标识符
-        - name: 实例标识
+          - name: 业务负责人
+          - name: 运维负责人
+          - name: 状态
+            success:
+              - available
+          - name: 部门
+          - name: 实例ID
+          - name: 引擎
+          - name: 引擎类型
+          - name: Iops
+          - name: 区域
+          - name: 可用区
+          - name: 快照标识符
+          - name: 实例标识
         system:
-        - name: 快照创建时
-        - name: 实例创建时
-        - name: Master用户名称
-        - name: 操作组名称
-        - name: 初始快照创建时间
-        - prefix: tag.
- 
+          - name: 快照创建时
+          - name: 实例创建时
+          - name: Master用户名称
+          - name: 操作组名称
+          - name: 初始快照创建时间
+          - prefix: tag.
+
     check:
       col: ["实例ID"]
       min: 0
@@ -64,11 +64,12 @@ download:
       Port: "端口"
       MasterUsername: "Master用户名称"
       OptionGroupName: "操作组名称"
-      StorageType: "存储类型" 
+      StorageType: "存储类型"
       OriginalSnapshotCreateTime: "初始快照创建时间"
 
       _oneDeptName_: 一级部门
-      _sybDeptName_: 二级部门
+      _twoDeptName_: 二级部门
+      _sybDeptName_: 产品线
       _product_owner_: 业务负责人
       _ops_owner_: "运维负责人"
       _department_: "部门"
@@ -101,6 +102,8 @@ download:
         alias: 一级部门
       - name: "二级部门"
         alias: 二级部门
+      - name: "产品线"
+        alias: 产品线
       - name: "_ingestion_"
         alias: 摄取
     outline:
