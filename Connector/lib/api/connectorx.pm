@@ -563,7 +563,7 @@ get '/connectorx/depttree' => sub {
         +{
             id     => 0,
             name   => Encode::decode('utf8', '我负责的资源' ),
-            filter => +{ Encode::decode('utf8', '研发负责人' ) => $ssouser }
+            filter => +{ Encode::decode('utf8', '业务负责人' ) => $ssouser }
         },
         +{
             id     => 0,
