@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import boto3
+import time
 
 
 class ELBV2:
@@ -33,9 +34,14 @@ class ELBV2:
         Args:
             load_balancer_name (str): elb名称
         """
-        resp = self.client.describe_load_balancers(LoadBalancerArns=[load_balancer_arn])
-        if 'LoadBalancers' not in resp or not len(resp['LoadBalancers']):
-            return None
+        try:
+            resp = self.client.describe_load_balancers(LoadBalancerArns=[load_balancer_arn])
+            if 'LoadBalancers' not in resp or not len(resp['LoadBalancers']):
+                return None
+        except Exception as e:
+            if "One or more load balancers not found" in str(e):
+                return None
+            raise e
         
         return resp['LoadBalancers'][0]
 
@@ -115,12 +121,75 @@ class ELBV2:
             if instance["Type"] == resource_type
         ]
     
+    def describe_target_groups(self, load_balancer_arn):
+        """
+        查询elb的target groups列表
+        """
+        if not load_balancer_arn:
+            raise RuntimeError("不允许 load_balancer_arn 参数为空")
+
+        target_groups = []
+        next_token = None
+
+        while True:
+            if next_token:
+                response = self.client.describe_target_groups(LoadBalancerArn=load_balancer_arn, Marker=next_token)
+            else:
+                response = self.client.describe_target_groups(LoadBalancerArn=load_balancer_arn)
+
+            target_groups.extend(response['TargetGroups'])
+
+            # 检查是否有更多分页
+            if 'NextMarker' in response:
+                next_token = response['NextMarker']
+            else:
+                break
+
+        return target_groups
+    
+    def delete_target_group(self, target_group_arn):
+        """删除指定的target group
+
+        Args:
+            target_group_arn (str): target group的arn
+        """
+        return self.client.delete_target_group(
+            TargetGroupArn=target_group_arn
+        )
+
+    
     def delete_load_balancer(self, load_balancer_arn):
         """删除elbv2
 
         Args:
             load_balancer_arn (str): elbv2的arn
         """
-        return self.client.delete_load_balancer(
+        target_group_list = self.describe_target_groups(load_balancer_arn)
+        for target_group in target_group_list:
+            # 打印出target group的arn，防止后续出错找不到关联的target group arn
+            print(f"关联的target group arn: {target_group['TargetGroupArn']}")
+
+        self.client.delete_load_balancer(
             LoadBalancerArn=load_balancer_arn
         )
+
+        # 等待云端删掉 alb
+        now = time.time()
+        timeout = 900
+        while True:
+            if time.time() - now > timeout:
+                raise RuntimeError(f"等待 {timeout} 秒后云端依然没有删掉 alb {load_balancer_arn}") 
+            
+            if not self.show_lb_info(load_balancer_arn):
+                break
+
+            time.sleep(5)
+        
+        # C3TODO 20230725 测试发现删除lb后马上删除target group会有异常
+        # 没找到其他合适的办法，这里先临时休眠一阵子。假如休眠
+        # 时间不足，则执行下面的操作会出错
+        time.sleep(100)
+
+        for target_group in target_group_list:
+            self.delete_target_group(target_group["TargetGroupArn"])
+
