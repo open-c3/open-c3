@@ -107,6 +107,24 @@ get '/c3mc/cmdb/menu' => sub {
     return $pmscheck if $pmscheck;  
 
     my $cmd = "c3mc-device-menu '$param->{treeid}' '$param->{timemachine}'";
+
+    my %filter = (
+        5 => '产品线',
+        6 => '一级部门',
+        7 => '二级部门',
+        8 => '业务负责人',
+        9 => '运维负责人',
+    );
+
+    for my $id ( sort{$a <=>$b} keys %filter )
+    {
+        if( $param->{$filter{$id}} )
+        {
+            return  +{ stat => $JSON::false, info => "$filter{$id} format error: $param->{$filter{$id}}" } if $param->{$filter{$id}} =~ /'/;
+            $cmd = "c3mc-device-menu-by-baseinfo '$param->{treeid}' '$param->{timemachine}' $id '$param->{$filter{$id}}'";
+        }
+    }
+
     my $handle = 'cmdb_menu';
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $? ); 
