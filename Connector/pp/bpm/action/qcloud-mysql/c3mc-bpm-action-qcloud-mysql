@@ -6,6 +6,7 @@ import json
 import subprocess
 import os
 import time
+import yaml
 
 from tencentcloud.common import credential
 from tencentcloud.common.profile.client_profile import ClientProfile
@@ -14,7 +15,7 @@ from tencentcloud.cdb.v20170320 import cdb_client, models
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
 from c3mc_cloud_qcloud_cdb import QcloudCdb
-from c3mc_utils import bpm_merge_user_input_tags
+from c3mc_utils import bpm_merge_user_input_tags, generate_password, flatten_dict
 
 
 password_dir = "/data/open-c3-data/device/curr/auth"
@@ -50,7 +51,7 @@ class Mysql:
     def get_bool_value(self, text_bool):
         return text_bool == "是"
 
-    def get_request(self):
+    def get_request(self, root_password):
         req = models.CreateDBInstanceHourRequest()
         if self.params["charge_type"] == "包年包月":
             req = models.CreateDBInstanceRequest()
@@ -79,7 +80,7 @@ class Mysql:
             # 自定义端口
             "Port": int(self.params["port"]),
             # 设置 root 帐号密码
-            "Password": self.params["password"],
+            "Password": root_password,
             # "ParamList": [
             #     {
             #         # 字符集
@@ -185,8 +186,107 @@ class Mysql:
             return 
         res = self.lib_qcloud_cdb.open_wan_service(instance_id)
         print(f"开通外网访问成功. instance_id: {instance_id}, 结果: {json.dumps(res, default=str)}")
+    
+    def get_root_account_password(self):
+        root_password = ""
+        root_password_source_type = self.params["root_password_source_type"]
 
+        if root_password_source_type == "default":
+            root_password = subprocess.getoutput("c3mc-sys-ctl sys.resource.create.qcloud_cdb.root_account_password")
+        elif root_password_source_type == "random": 
+            root_password = generate_password(16)
+        else:
+            root_password = self.params["root_password"]
+        
+        root_password = root_password.strip()
+        if root_password == "":
+            raise RuntimeError("root密码不允许为空")
+        
+        return root_password
+    
+    def get_monitor_account_and_password(self):
+        monitor_account = subprocess.getoutput("c3mc-sys-ctl sys.resource.create.qcloud_cdb.monitor_account_name").strip()
+        if not monitor_account:
+            raise RuntimeError("监控账号不允许为空")
+    
+        monitor_password = ""
 
+        monitor_password_source_type = self.params["monitor_password_source_type"]
+        if monitor_password_source_type == "default":
+            monitor_password = subprocess.getoutput("c3mc-sys-ctl sys.resource.create.qcloud_cdb.monitor_account_password")
+        elif monitor_password_source_type == "random": 
+            monitor_password = generate_password(16)
+        else:
+            monitor_password = self.params["monitor_password"]
+    
+        monitor_password = monitor_password.strip()
+        if monitor_password == "":
+            raise RuntimeError("监控账号密码不允许为空")
+        
+        return monitor_account, monitor_password
+
+    def loadpasswd(self, password_str, command):
+        """将数据库的账号密码信息写入到cmdb
+
+        Args:
+            password_str (str): 拼接起来的数据库地址账号密码字符串
+            command (str): 保存密码的命令
+        """
+        args = [password_str]
+        proc = subprocess.Popen([command], stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+
+        for arg in args:
+            proc.stdin.write(arg.encode())
+            proc.stdin.write(b"\n")
+            proc.stdin.flush()
+
+        _, errors = proc.communicate()
+        if proc.returncode != 0:
+            print(f"Command failed with error: {errors.decode()}")
+            exit(1)
+
+    def create_monitor_account(self, instance_id, monitor_account, monitor_password):
+        """创建监控账号
+
+        Args:
+            instance_id (str): 数据库实例id
+            monitor_account (str): 数据库监控账号
+            monitor_password (str): 数据库监控账号密码
+        """
+        self.lib_qcloud_cdb.create_accounts(instance_id, monitor_account, "%", monitor_password)
+
+        data = subprocess.getoutput("c3mc-sys-ctl sys.resource.create.qcloud_cdb.monitor_account_global_privileges").strip()
+        if not data:
+            raise RuntimeError("监控账号的权限不允许为空")
+        self.lib_qcloud_cdb.modify_account_privileges(instance_id, monitor_account, "%", data.split(","))
+
+    def get_template_ingestion_addr(self):
+        """获取cmdb同步配置文件里的摄取地址配置
+        """
+        cdb_template_file = "/data/Software/mydan/AGENT/device/conf/template/sync-qcloud-cdb.yml"
+        with open(cdb_template_file, 'r') as file:
+            data = yaml.safe_load(file)
+            addr = data["download"][0]["ingestion-mysql"]["addr"]
+            if len(addr) != 2:
+                raise RuntimeError("从cmdb配置文件提取字段出错")
+
+            return addr[0], addr[1]
+    
+    def save_account_and_pass_to_cmdb(self, instance_id, addr_field, port_field, account, password, command):
+        """将数据库实例的账号密码保存到cmdb
+
+        Args:
+            instance_id (str): 数据库实例的id
+            addr_field (str): 摄取地址字段的名称(cdb详情中的某个地址字段)
+            port_field (str): 摄取端口字段的名称(cdb详情中的某个端口字段)
+            account (str): 账号
+            password (str): 密码
+            command (str): 保存密码的命令
+        """
+        cdb_info = self.lib_qcloud_cdb.describe_db_instances(instance_id)
+        self.loadpasswd(f"{cdb_info[addr_field]}:{cdb_info[port_field]};{account};{password}", command)
+
+    
     def create(self):
         self.params = bpm_merge_user_input_tags(
             instance_params=self.params,
@@ -198,7 +298,8 @@ class Mysql:
             tree_key_name="tree_tag",
         )
 
-        req = self.get_request()
+        root_password = self.get_root_account_password()
+        req = self.get_request(root_password)
         print(f"创建cdb, 请求参数为: {req}")
 
         if subprocess.getoutput("c3mc-sys-ctl sys.bpm.fake.run") == "1":
@@ -223,19 +324,38 @@ class Mysql:
         print(f"创建cdb, 响应为: {resp.to_json_string()}")
 
         try: 
+            cdb_addr_field, cdb_pord_field = self.get_template_ingestion_addr()
+
             for instance_id in resp.InstanceIds:
-                print(f"LOG. instance_id:{instance_id}")
-                print(f"VAR. instance_id:{instance_id}")
-                print(f'VAR. extinstance_id:{self.params["account"]}.{self.params["region"]}.{instance_id}')
-                record_cdb_password(f'{instance_id}:{self.params["port"]}', self.params["password"])
+                password_data = {
+                    "root": root_password,
+                }
+                if self.get_bool_value(self.params["if_create_monitor_account"]):
+                    # 等待实例从创建中变为运行中状态
+                    self.lib_qcloud_cdb.wait_cdb_until_status(instance_id, 1, 900)
+
+                    monitor_account, monitor_password = self.get_monitor_account_and_password()
+                    self.create_monitor_account(instance_id, monitor_account, monitor_password)
+
+                    password_data[monitor_account] = monitor_password
+                    self.save_account_and_pass_to_cmdb(instance_id, cdb_addr_field, cdb_pord_field, monitor_account, monitor_password, "/usr/bin/c3mc-device-loadpasswd-mysql")
+
+                # 将数据库账号密码信息保存到cmdb
+                self.save_account_and_pass_to_cmdb(instance_id, cdb_addr_field, cdb_pord_field, "root", root_password, "/usr/bin/c3mc-device-loadpasswd-mysql-v2")
+
+                # 将账号密码信息记录到目录 /data/open-c3-data/device/curr/auth
+                record_cdb_password(f'{instance_id}:{self.params["port"]}', json.dumps(password_data))
 
                 if self.params["if_need_open_wan"] == "是":
                     self.open_wan_service(instance_id)
+                
+                print(f"LOG. instance_id:{instance_id}")
+                print(f"VAR. instance_id:{instance_id}")
+                print(f'VAR. extinstance_id:{self.params["account"]}.{self.params["region"]}.{instance_id}')
         except Exception as e:
             # 如果出现任何异常，则立即删除所有已创建的cdb实例
             self.lib_qcloud_cdb.delete_cdb_instance(resp.InstanceIds, False)
-            print(f"处理cdb实例出错, err: {e}", file=sys.stderr)
-            exit(1)
+            raise RuntimeError("处理cdb实例出错") from e
 
 
 def main(params):

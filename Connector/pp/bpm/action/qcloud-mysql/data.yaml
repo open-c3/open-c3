@@ -58,6 +58,7 @@ option:
       - charge_type
     command: c3mc-bpm-option-qcloud-mysql-describe-cdb-sell-type-list | c3mc-bpm-display-field-values "{id}; 类型描述:{desc}"
     type: selectx
+    information: "售卖实例类型。Z3是高可用类型对应规格中的DeviceType包含UNIVERSAL,EXCLUSIVE；CVM是基础版类型对应规格中的DeviceType是BASIC；TKE是基础型v2类型对应规格中的DeviceType是BASIC_V2。"
 
   - name: engine_version
     describe: 数据库版本
@@ -76,7 +77,6 @@ option:
       - account
       - region
       - zone
-      - charge_type
       - charge_type
     command: c3mc-bpm-option-qcloud-mysql-describe-engine-type-list | c3mc-bpm-display-field-values "{id}; 名称:{name}"
     type: selectx
@@ -290,12 +290,58 @@ option:
   #     - name: 1
   #       alias: 关闭
 
+  - name: root_password_source_type
+    describe: root账号密码来源类型
+    type: select
+    option:
+      - name: "default"
+        alias: 默认密码(在openc3系统参数中配置)
+      - name: "random"
+        alias: 随机密码(自动生成,开通机器后在工单日志中查看)
+      - name: "input"
+        alias: 用户填写
+    value: "random"
+    fromops: 1
 
-  - name: password
-    describe: root密码
+  - name: root_password
+    describe: root账号密码
     type: input
     information: "至少包含字母、数字和字符（_+-&=!@#$%^*()）中的两种，长度为8-64个字符"
+    show:
+      - root_password_source_type: ["input"]
     fromops: 1
+  
+  - name: if_create_monitor_account
+    describe: 是否配置直连监控账号
+    type: select
+    option: ["是", "否"]
+    value: "是"
+    fromops: 1
+
+  - name: monitor_password_source_type
+    describe: 监控账号密码来源类型
+    type: select
+    option:
+      - name: "default"
+        alias: 默认密码(在openc3系统参数中配置)
+      - name: "random"
+        alias: 随机密码(自动生成)
+      - name: "input"
+        alias: 用户填写
+    show:
+      - if_create_monitor_account: ["是"]
+    value: "random"
+    fromops: 1
+
+  - name: monitor_password
+    describe: 监控账号密码
+    type: input
+    information: "至少包含字母、数字和字符（_+-&=!@#$%^*()）中的两种，长度为8-64个字符"
+    show:
+      - monitor_password_source_type: ["input"]
+        if_create_monitor_account: ["是"]
+    fromops: 1
+
 
   - name: if_need_open_wan
     describe: 是否需要开通公网访问
@@ -358,7 +404,7 @@ option:
     fromops: 1
 
   - name: tag
-    describe: 标签
+    describe: 其他标签
     # 格式: "[{\"key\": \"key1\", \"value\": \"value1\"}, {\"key\": \"key2\", \"value\": \"value2\"}]"
     type: kvarray
     value: "[]"
@@ -434,8 +480,7 @@ template_argv:
   # charset_sort_type: ${charset_sort_type}
   # # 表名大小写敏感
   # lower_case_table_names: ${lower_case_table_names}
-  # 密码
-  password: ${password}
+
   # 是否需要开通公网访问
   if_need_open_wan: ${if_need_open_wan}
 
@@ -448,3 +493,15 @@ template_argv:
   if_set_security_group: ${if_set_security_group}
   # 是否需要配置告警策略
   if_set_alarm_policies: ${if_set_alarm_policies}
+
+  # root账号密码来源类型
+  root_password_source_type: ${root_password_source_type}
+  # root账号密码
+  root_password: ${root_password}
+
+  # 是否配置监控账号
+  if_create_monitor_account: ${if_create_monitor_account}
+  # 监控账号密码类型
+  monitor_password_source_type: ${monitor_password_source_type}
+  # 监控账号密码
+  monitor_password: ${monitor_password}

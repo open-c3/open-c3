@@ -9,12 +9,22 @@ download:
         - ["实例ID", "instance"]
     metrics:
       - name: 'aws_applicationelb_healthy_host_count_maximum{cloudmonname="cmdb-aws-%s-%s",load_balancer="%s",target_group="x",datasource="cmdb"} 0'
-        value: [ 'account', 'DNSName', 'LoadBalancerArn' ]
-        regex: [ '', 's/^.*\.([a-zA-Z0-9\-]+)\.elb.amazonaws.com$/$1/g', 's/^.+:loadbalancer\///g' ]
+        value: ["account", "DNSName", "LoadBalancerArn"]
+        regex:
+          [
+            "",
+            's/^.*\.([a-zA-Z0-9\-]+)\.elb.amazonaws.com$/$1/g',
+            's/^.+:loadbalancer\///g',
+          ]
       - name: 'aws_applicationelb_active_connection_count_sum{cloudmonname="cmdb-aws-%s-%s",load_balancer="%s",datasource="cmdb"} 0'
-        value: [ 'account', 'DNSName', 'LoadBalancerArn' ]
-        regex: [ '', 's/^.*\.([a-zA-Z0-9\-]+)\.elb.amazonaws.com$/$1/g', 's/^.+:loadbalancer\///g' ]
- 
+        value: ["account", "DNSName", "LoadBalancerArn"]
+        regex:
+          [
+            "",
+            's/^.*\.([a-zA-Z0-9\-]+)\.elb.amazonaws.com$/$1/g',
+            's/^.+:loadbalancer\///g',
+          ]
+
     util:
       vuuid:
         - DNSName
@@ -31,16 +41,16 @@ download:
 
       grpcol:
         baseinfo:
-        - name: 业务负责人
-        - name: 运维负责人
-        - name: 状态
-          success:
-          - active
-        - name: 部门
-        - name: 实例ID
+          - name: 业务负责人
+          - name: 运维负责人
+          - name: 状态
+            success:
+              - active
+          - name: 部门
+          - name: 实例ID
         system:
-        - prefix: tag.
- 
+          - prefix: tag.
+
     check:
       col: ["实例ID"]
       min: 0
@@ -52,7 +62,8 @@ download:
       State.Code: "状态"
       RegionId: "区域"
       _oneDeptName_: 一级部门
-      _sybDeptName_: 二级部门
+      _twoDeptName_: 二级部门
+      _sybDeptName_: 产品线
       _product_owner_: 业务负责人
       _ops_owner_: "运维负责人"
       _department_: "部门"
@@ -73,6 +84,8 @@ download:
         alias: 一级部门
       - name: "二级部门"
         alias: 二级部门
+      - name: "产品线"
+        alias: 产品线
     outline:
       uuid:
         - "实例ID"

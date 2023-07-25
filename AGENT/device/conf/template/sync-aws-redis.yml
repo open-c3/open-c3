@@ -8,9 +8,9 @@ download:
       treeinfo:
         - ["实例ID", "instance"]
     ingestion-redis:
-      addr: [ 'EndpointAddress', 'EndpointPort' ]
+      addr: ["EndpointAddress", "EndpointPort"]
       authpath: /data/open-c3-data/device/curr/auth/redis
-      tree: '服务树'
+      tree: "服务树"
       type: aws-redis
       exclude:
         "_ingestion_": ["NO"]
@@ -18,14 +18,14 @@ download:
       - name: 'openc3_cmdb_resource_price{account="%s",instanceid="%s",type="database",subtype="aws-redis",unit="%s",status="%s"} %f'
         value: ["account", "uuid", "_priceunit_", "状态", "_price_"]
     instancealias:
-      - name:  ['uuid']
-        value: ["EndpointAddress",'EndpointPort']
+      - name: ["uuid"]
+        value: ["EndpointAddress", "EndpointPort"]
     check:
       col: ["实例ID"]
       min: 0
     util:
       vuuid:
-        - [ 'EndpointAddress', 'EndpointPort' ]
+        - ["EndpointAddress", "EndpointPort"]
         - EndpointAddress
       olduuid:
         - "CacheClusterId"
@@ -45,22 +45,22 @@ download:
 
       grpcol:
         baseinfo:
-        - name: 业务负责人
-        - name: 运维负责人
-        - name: 状态
-          success:
-          - available
-        - name: 部门
-        - name: 实例ID
-        - name: 区域
-        - name: 名称
-        - name: 所在可用区
-        - name: 实例类型
-        - name: EndpointAddress
-        - name: EndpointPort
+          - name: 业务负责人
+          - name: 运维负责人
+          - name: 状态
+            success:
+              - available
+          - name: 部门
+          - name: 实例ID
+          - name: 区域
+          - name: 名称
+          - name: 所在可用区
+          - name: 实例类型
+          - name: EndpointAddress
+          - name: EndpointPort
         system:
-        - prefix: tag.
- 
+          - prefix: tag.
+
     colmap:
       treename: "服务树"
       uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
@@ -75,7 +75,8 @@ download:
       CacheNodes.0.Endpoint.Port: "EndpointPort"
       # _name_: "名称"
       _oneDeptName_: 一级部门
-      _sybDeptName_: 二级部门
+      _twoDeptName_: 二级部门
+      _sybDeptName_: 产品线
       _product_owner_: 业务负责人
       _ops_owner_: "运维负责人"
       _department_: "部门"
@@ -98,6 +99,8 @@ download:
         alias: 一级部门
       - name: "二级部门"
         alias: 二级部门
+      - name: "产品线"
+        alias: 产品线
       - name: "_ingestion_"
         alias: 摄取
     outline:

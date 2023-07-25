@@ -21,20 +21,20 @@ download:
 
       grpcol:
         baseinfo:
-        - name: 业务负责人
-        - name: 运维负责人
-        - name: 状态
-          success:
-          - active
-        - name: 部门
-        - name: 实例ID
-        - name: 域名
-        - name: 状态
-        - name: 记录值
-        - name: 线路
+          - name: 业务负责人
+          - name: 运维负责人
+          - name: 状态
+            success:
+              - active
+          - name: 部门
+          - name: 实例ID
+          - name: 域名
+          - name: 状态
+          - name: 记录值
+          - name: 线路
         system:
-        - prefix: tag.
- 
+          - prefix: tag.
+
     check:
       col: ["实例ID"]
       min: 0
@@ -48,7 +48,8 @@ download:
       Name: "域名"
       Line: "线路"
       _oneDeptName_: 一级部门
-      _sybDeptName_: 二级部门
+      _twoDeptName_: 二级部门
+      _sybDeptName_: 产品线
       _product_owner_: 业务负责人
       _ops_owner_: "运维负责人"
       _department_: "部门"
@@ -65,6 +66,8 @@ download:
         alias: 一级部门
       - name: "二级部门"
         alias: 二级部门
+      - name: "产品线"
+        alias: 产品线
     outline:
       uuid:
         - "实例ID"
