@@ -21,8 +21,10 @@ BEGIN { ( $nodelow ) = map{ Code->new( $_ ) }qw( nodelow ); };
 
 get '/nodelow/:projectid' => sub {
     my $param = params();
-    my $error = Format->new( projectid => qr/^\d+$/, 1 )->check( %$param );
-
+    my $error = Format->new(
+        projectid => qr/^\d+$/, 1,
+        owner     => [ 'mismatch', qr/'/ ], 0,
+    )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
     my $pmscheck = api::pmscheck( 'openc3_agent_read', $param->{projectid} ); return $pmscheck if $pmscheck;
@@ -55,6 +57,10 @@ get '/nodelow/:projectid' => sub {
     return +{ stat => $JSON::false, info => "load chk $chkfile fail: $@" } if $@;
     my $PolicyDescription = $chk->{PolicyDescription} && ref $chk->{PolicyDescription} eq 'HASH' ? $chk->{PolicyDescription} : +{};
 
+    if( $param->{owner} )
+    {
+        @node = grep{ $_->{owner} && $_->{owner} eq $param->{owner} }@node;
+    }
 
     return +{ stat => $JSON::true, data => \@node, PolicyDescription => $PolicyDescription };
 };

@@ -44,6 +44,7 @@ get '/resourcelow/data/:type/:projectid' => sub {
     my $error = Format->new(
         type      => qr/^[a-z][a-z\d\-]*[a-z\d]$/, 1,
         projectid => qr/^\d+$/, 1,
+        owner     => [ 'mismatch', qr/'/ ], 0,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -69,6 +70,11 @@ get '/resourcelow/data/:type/:projectid' => sub {
         my @d = split /;/, $x;
         my %d = map{ $title[$_] => $d[$_] } 0 .. $#title;
         push @node, \%d;
+    }
+
+    if( $param->{owner} )
+    {
+        @node = grep{ $_->{'业务负责人'} && $_->{'业务负责人'} eq $param->{owner} }@node;
     }
 
     return +{ stat => $JSON::true, data => \@node, title => \@title, PolicyDescription => $PolicyDescription };
