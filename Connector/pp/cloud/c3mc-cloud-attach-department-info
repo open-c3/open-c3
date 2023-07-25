@@ -44,13 +44,13 @@ def get_department_info(user_email):
             continue
     
     if "oneDeptName" not in data or not data["oneDeptName"] or not data["oneDeptName"].strip():
-        data["oneDeptName"] = "unknow"
+        data["oneDeptName"] = "unknown"
 
     if "twoDeptName" not in data or not data["twoDeptName"] or not data["twoDeptName"].strip():
-        data["twoDeptName"] = "unknow"
+        data["twoDeptName"] = "unknown"
 
     if "sybDeptName" not in data or not data["sybDeptName"] or not data["sybDeptName"].strip():
-        data["sybDeptName"] = "unknow"
+        data["sybDeptName"] = "unknown"
     
     return data
 
@@ -59,9 +59,9 @@ def run(data_list):
     m = {}
     for index, item in enumerate(data_list):
         if "_product_owner_" not in item:
-            data_list[index]["_oneDeptName_"] = "unknow"
-            data_list[index]["_twoDeptName_"] = "unknow"
-            data_list[index]["_sybDeptName_"] = "unknow"
+            data_list[index]["_oneDeptName_"] = "unknown"
+            data_list[index]["_twoDeptName_"] = "unknown"
+            data_list[index]["_sybDeptName_"] = "unknown"
         
         else:
             product_owner = item["_product_owner_"]

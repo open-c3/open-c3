@@ -82,7 +82,7 @@ post '/group/:projectid/copy/byname' => sub {
     }
     else
     {
-        return +{ stat => $JSON::false, info => 'unkown plugin' };
+        return +{ stat => $JSON::false, info => 'unknown plugin' };
     }
 
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );

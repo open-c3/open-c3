@@ -30,7 +30,7 @@ die "df fail" if $?;
 chomp @df;
 $title = shift @df;
 
-die "df format unkown" unless $title =~ /^Filesystem\s+1024-blocks\s+Used\s+Available\s+Capacity\s+Mounted on$/;
+die "df format unknown" unless $title =~ /^Filesystem\s+1024-blocks\s+Used\s+Available\s+Capacity\s+Mounted on$/;
 
 my %use;
 for ( @df )

@@ -559,8 +559,20 @@ get '/connectorx/depttree' => sub {
 
     my $file = "/data/open-c3-data/device/DeptTree.yml";
     return +{ stat => $JSON::true, data => [] } unless -f $file;
+    my @private = (
+        +{
+            id     => 0,
+            name   => Encode::decode('utf8', '我负责的资源' ),
+            filter => +{ Encode::decode('utf8', '研发负责人' ) => $ssouser }
+        },
+        +{
+            id     => 0,
+            name   => Encode::decode('utf8', '我运维的资源' ),
+            filter => +{ Encode::decode('utf8', '运维负责人' ) => $ssouser }
+        }
+    );
     my $tree = eval{ YAML::XS::LoadFile $file };
-    return $@ ? +{ stat => $JSON::false, info => $@ } :  +{ stat => $JSON::true, data => $tree };
+    return $@ ? +{ stat => $JSON::false, info => $@ } :  +{ stat => $JSON::true, data => [ @private, @$tree ] };
 };
 
 true;

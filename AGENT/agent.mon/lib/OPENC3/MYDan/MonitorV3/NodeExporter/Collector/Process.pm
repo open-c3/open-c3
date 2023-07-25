@@ -59,7 +59,7 @@ sub co
 
     eval{
         my $title = shift @ps;
-        die "$cmd format unkown" unless $title =~ /^\s*PPID\s+PID\s+STAT\s+ELAPSED\s+COMMAND\s+CMD\s*$/;
+        die "$cmd format unknown" unless $title =~ /^\s*PPID\s+PID\s+STAT\s+ELAPSED\s+COMMAND\s+CMD\s*$/;
         my $psdump;
         for ( @ps )
         {

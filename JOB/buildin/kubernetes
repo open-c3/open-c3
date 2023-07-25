@@ -56,7 +56,7 @@ if( $ENV{CONFIGPATH} && -f $ENV{CONFIGPATH} )
     my %key = map{ $_ => 1 }qw( namespace name container );
     for my $key ( keys %$config )
     {
-        die "unkown key in config" unless $key{$key};
+        die "unknown key in config" unless $key{$key};
         $data{"ci_type_$key"} = $config->{$key};
     }
 }
@@ -175,6 +175,6 @@ elsif( $ARGV[0] && $ARGV[0] eq 'check' )
         warn "check done.\n";
     }
 }
-else { die "argv unkown"; }
+else { die "argv unknown"; }
 
 success();

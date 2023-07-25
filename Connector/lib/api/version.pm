@@ -35,7 +35,7 @@ get '/version/name' => sub {
     {
         my    $xx = `cat '$RealBin/../.version$x'`;
         chomp $xx;
-        $version{ $x } = $xx || 'unkown';
+        $version{ $x } = $xx || 'unknown';
     }
 
     return +{ stat => $JSON::true, data => \%version };

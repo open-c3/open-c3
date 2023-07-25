@@ -21,7 +21,7 @@ my $conf = eval{ YAML::XS::LoadFile "/data/Software/mydan/prometheus/config/open
 sub gettreename
 {
     my $labels = shift @_;
-    return 'unkown' unless $labels && ref $labels eq 'HASH';
+    return 'unknown' unless $labels && ref $labels eq 'HASH';
 
     my $treename = '';
     for my $k ( keys %$labels )
@@ -30,7 +30,7 @@ sub gettreename
         $treename = $labels->{$k} if length( $labels->{$k} ) > length( $treename );
     }
 
-    return $treename || 'unkown';
+    return $treename || 'unknown';
 }
 
 for my $c ( @$conf )

@@ -62,7 +62,7 @@ for( @use )
 sub getdevuse
 {
     my ( $ip, $dev ) = @_;
-    my $stat = 'unkown';
+    my $stat = 'unknown';
 
     return $stat unless $ip && $dev;
 
@@ -100,5 +100,5 @@ for my $x ( @x )
 
     my $devuse = getdevuse( $ip, $dev );
 
-    printf "%s\n", join "\t", $x, $ip, $devuse, map{ $mon{$_} && defined $mon{$_}{$instance} ? $mon{$_}{$instance} : 'unkown' }@mon;
+    printf "%s\n", join "\t", $x, $ip, $devuse, map{ $mon{$_} && defined $mon{$_}{$instance} ? $mon{$_}{$instance} : 'unknown' }@mon;
 }

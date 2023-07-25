@@ -29,7 +29,7 @@ for( @data )
     my $data = join ' ', map{ $d[$title{$_}] }map{ Encode::encode( 'utf8', $_ )}qw( system  );
     my $cont = join ' ', map{ $d[$title{$_}] }map{ Encode::encode( 'utf8', $_ )}qw( system  );
     
-    my $instancetype = 'unkown';
+    my $instancetype = 'unknown';
 
     my @cont = split /\|/, $cont;
     if( @cont >= 3 )
@@ -46,5 +46,5 @@ for( @data )
 
 for my $x ( @ip )
 {
-    printf "$x: %s\n", $cnt{$x} && $cnt{$x} eq 1 ? $res{$x} : "unkown";
+    printf "$x: %s\n", $cnt{$x} && $cnt{$x} eq 1 ? $res{$x} : "unknown";
 }

@@ -33,10 +33,10 @@ for my $f ( @zsucc, @zfail )
             if (! $data->{$_}) && $cont->{commonLabels} && $cont->{commonLabels}{$_};
     }
 
-    $data->{severity  } ||= 'unkown';
-    $data->{alertname } ||= 'unkown';
-    $data->{instance  } ||= 'unkown';
-    $data->{fromtreeid} ||= 'unkown';
+    $data->{severity  } ||= 'unknown';
+    $data->{alertname } ||= 'unknown';
+    $data->{instance  } ||= 'unknown';
+    $data->{fromtreeid} ||= 'unknown';
     $data->{time      }   = $time;
     print Encode::encode('utf8', "$data->{time};$data->{fromtreeid};$data->{severity  };$data->{instance  };$data->{alertname }" ), "\n";
 }

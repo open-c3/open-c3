@@ -55,7 +55,7 @@
           },
           {
             name: 'C3T.未知',
-            status: 'unkown',
+            status: 'unknown',
             count: 0,
             color: '#000',
             description: ''
@@ -65,7 +65,7 @@
           low: 'red',
           warn: '#f6bb42',
           normal: 'green',
-          unkown: '#000',
+          unknown: '#000',
         }
 
         vm.checkboxes = {
@@ -482,7 +482,7 @@
           },
           {
             name: 'C3T.未知',
-            status: 'unkown',
+            status: 'unknown',
             count: 0,
             color: '#000',
             description: ''

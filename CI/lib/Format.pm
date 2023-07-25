@@ -38,7 +38,7 @@ sub check
             }
             else
             {
-                return "$k opetation unkown";
+                return "$k opetation unknown";
             }
         }
         else

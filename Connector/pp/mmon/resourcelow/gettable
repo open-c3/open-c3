@@ -72,10 +72,10 @@ for my $x ( @x )
 
     next unless $match;
 
-    $d{lowstatus} = 'unkown';
+    $d{lowstatus} = 'unknown';
     for my $type ( qw( low warn normal ) )
     {
-        if( $d{lowstatus} eq 'unkown' && $chk->{$type} )
+        if( $d{lowstatus} eq 'unknown' && $chk->{$type} )
         {
             $d{lowstatus} = $type if eval $chk->{$type};
         }

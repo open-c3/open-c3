@@ -35,5 +35,5 @@ printf "%s\n", join "\t", @col, @mon;
 for my $x ( @x )
 {
     my ( $instance ) = reverse split /\t/, $x, scalar @col;
-    printf "%s\n", join "\t", $x, map{ $mon{$_} && defined $mon{$_}{$instance} ? $mon{$_}{$instance} : 'unkown' }@mon;
+    printf "%s\n", join "\t", $x, map{ $mon{$_} && defined $mon{$_}{$instance} ? $mon{$_}{$instance} : 'unknown' }@mon;
 }

@@ -27,7 +27,7 @@ sub co
     my ( $error, @stat ) = ( 0 );
     eval{
         my $title = shift @ss;
-        die "ss format unkown" unless $title =~ /^State\s+Recv-Q\s+Send-Q\s+Local Address:Port\s+Peer Address:Port/;
+        die "ss format unknown" unless $title =~ /^State\s+Recv-Q\s+Send-Q\s+Local Address:Port\s+Peer Address:Port/;
         my %port;
 
         for ( @ss )
