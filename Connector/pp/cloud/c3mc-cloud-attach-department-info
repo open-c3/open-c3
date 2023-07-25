@@ -43,13 +43,13 @@ def get_department_info(user_email):
             time.sleep(5)
             continue
     
-    if "oneDeptName" not in data or not data["oneDeptName"].strip():
+    if "oneDeptName" not in data or not data["oneDeptName"] or not data["oneDeptName"].strip():
         data["oneDeptName"] = "unknow"
 
-    if "twoDeptName" not in data or not data["twoDeptName"].strip():
+    if "twoDeptName" not in data or not data["twoDeptName"] or not data["twoDeptName"].strip():
         data["twoDeptName"] = "unknow"
 
-    if "sybDeptName" not in data or not data["sybDeptName"].strip():
+    if "sybDeptName" not in data or not data["sybDeptName"] or not data["sybDeptName"].strip():
         data["sybDeptName"] = "unknow"
     
     return data

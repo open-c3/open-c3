@@ -382,6 +382,11 @@ class LIB_EC2:
         Args:
             instance_ids (list): ec2 id列表
         """
+
+        self.stop_instances(instance_ids) 
+        for instance_id in instance_ids:
+            self.wait_ec2_until_status(instance_id, "stopped", 900)
+
         self.release_address_of_ec2(instance_ids)
         # 目前c3创建ec2默认开启了删除ec2时自动删除数据盘
         # 这里显式的删除数据盘是为了防止有人在其他地方开ec2在这里回收
