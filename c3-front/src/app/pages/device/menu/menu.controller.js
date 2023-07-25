@@ -5,7 +5,7 @@
         .module('openc3')
         .controller('DeviceMenuController', DeviceMenuController);
 
-    function DeviceMenuController($state, $http, $scope, ngTableParams, treeService ) {
+    function DeviceMenuController($state, $http, $scope, treeService, $rootScope ) {
         var vm = this;
         vm.treeid = $state.params.treeid;
 
@@ -29,7 +29,14 @@
         vm.grepdata = {};
         vm.reload = function () {
             vm.loadover = false;
-            $http.get( '/api/ci/v2/c3mc/cmdb/menu?treeid=' + vm.treeid + '&timemachine=' + vm.selectedtimemachine ).success(function(data){
+            const queryFilter = convertToQueryParams(vm.deptFilter)
+            let newQuery = ''
+            if (vm.deptFilter) {
+              newQuery = `/api/ci/v2/c3mc/cmdb/menu?treeid=${0}&timemachine=${vm.selectedtimemachine}${queryFilter}`
+            }else {
+              newQuery = `/api/ci/v2/c3mc/cmdb/menu?treeid=${vm.treeid}&timemachine=${vm.selectedtimemachine}`
+            }
+            $http.get(newQuery).success(function(data){
                 if (data.stat){
                     vm.menu = data.data;
                     vm.loadover = true;
@@ -71,5 +78,25 @@
             var newurl = '/third-party/monitor/prometheus/graph?g0.expr=' + metrics + '&g0.tab=' + tab + '&g0.stacked=0&g0.show_exemplars=0&g0.range_input=3h';
             window.open( newurl, '_blank')
         }
+
+        $scope.$watch(function () {return $rootScope.deptTreeNode}, function (value) {
+          if (value && Object.keys(value).length !== 0) {
+            vm.deptFilter = value
+            vm.reload()
+          }
+        })
+
+        function convertToQueryParams (obj) {
+          var queryParams = [];
+          for (var key in obj) {
+            if (obj.hasOwnProperty(key)) {
+              var encodedKey = encodeURIComponent(key);
+              var encodedValue = encodeURIComponent(obj[key]);
+              queryParams.push(encodedKey + '=' + encodedValue);
+            }
+          }
+          return '&' + queryParams.join('&');
+        }
+
     }
 })();
