@@ -1,0 +1,70 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDan::Util::OptConf;
+
+=head1 SYNOPSIS
+
+ $0 col1 col2 .. col2 [ --col name,inip [name|type|inip|exip] ]
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->set( col => 'type,name,inip,exip' )->get( qw( col=s ) )->dump();
+
+my @col = split /,/, $o{col};
+
+my %data;
+for my $ingestion ( glob "/data/open-c3-data/device/curr/compute/*/ingestion-node.yml" )
+{
+    my $datafile = $ingestion;
+    $datafile =~ s/ingestion-node\.yml$/data\.tsv/;
+    my $colmap = eval{ YAML::XS::LoadFile $ingestion };
+    die "load $ingestion fail: $@" if $@;
+    map{ die "err" unless $colmap->{$_} }qw( name inip exip tree type );
+
+    my $exclude = $colmap->{exclude} && ref $colmap->{exclude} eq 'HASH' ? $colmap->{exclude} : undef;
+
+    my ( undef, $subtype, $type ) = reverse split /\//, $datafile;
+    my    @data  = `c3mc-device-cat curr $type $subtype`;
+    chomp @data;
+
+    next unless @data > 1;
+
+    my $title = shift @data;
+
+    utf8::decode( $title );
+    my @title = split /\t/, $title;
+
+    for my $data ( @data )
+    {
+         utf8::decode( $data );
+         my @d = split /\t/, $data;
+         my %d = map{ $title[ $_ ] => $d[ $_ ] } 0 .. @title - 1;
+
+         if( $exclude )
+         {
+             my $skip = 0;
+             for my $col ( keys %$exclude )
+             {
+                 map{ $skip = 1 if defined $d{ $col } && $_ eq $d{ $col } }@{ $exclude->{ $col } };
+             }
+             next if $skip;
+         }
+         my %tmp = (
+             name => $d{ $colmap->{name} },
+             inip => $d{ $colmap->{inip} },
+             exip => $d{ $colmap->{exip} },
+             type =>     $colmap->{type},
+         );
+         printf "%s\n", join ";", map{ $tmp{$_} }@col;
+    }
+}
+

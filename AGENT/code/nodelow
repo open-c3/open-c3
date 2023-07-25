@@ -5,6 +5,7 @@ use Logs;
 use Util;
 use JSON;
 use LWP::UserAgent;
+use Encode;
 
 $| ++;
 
@@ -24,23 +25,39 @@ return sub
 
     $logs->die( "id not a number" ) unless $id =~ /^\d+$/;
 
-    my %env = Util::envinfo( qw( appname appkey ) );
-    my $ua = LWP::UserAgent->new;
-    $ua->default_header( %env );
-    my $res = $ua->get( "http://api.job.open-c3.org/nodeinfo/$id" );
-
-    unless( $res->is_success )
+    my $data;
+    if( $id == 0 || $id == 4000000000 )
     {
-#TODO 确认上层调用是否捕获这个die
-        die "call nodeinfo fail";
+        $data = +{ stat => 1, data => [] };
+        my @x = `c3mc-device-nodeinfo-allnode`;
+        chomp @x;
+        for( @x )
+        {
+            $_ = Encode::decode( 'utf8', $_ );
+            my @xx = split /;/, $_;
+            push @{$data->{data}}, +{ id => $id, type => $xx[0], name => $xx[1], inip => $xx[2], exip => $xx[3] };
+        }
+    }
+    else
+    {
+        my %env = Util::envinfo( qw( appname appkey ) );
+        my $ua = LWP::UserAgent->new;
+        $ua->default_header( %env );
+        my $res = $ua->get( "http://api.job.open-c3.org/nodeinfo/$id" );
+
+        unless( $res->is_success )
+        {
+            #TODO 确认上层调用是否捕获这个die
+            die "call nodeinfo fail";
+        }
+
+        $data = eval{ JSON::from_json $res->content, { utf8 => 1 } };
+        unless ( $data->{stat} ) {
+            #TODO 确认上层调用是否捕获这个die
+            die "call nodeinfo result". $data->{info} || '';
+        }
     }
 
-    my $data = eval{ JSON::from_json $res->content, { utf8 => 1 } };
-    unless ( $data->{stat} ) {
-#TODO 确认上层调用是否捕获这个die
-        die "call nodeinfo result". $data->{info} || '';
-    }
- 
     my @col = qw( ip lowcnt status mem cpu netin netout edit_time date );
     my $x   = $db->query( sprintf( "select %s from openc3_monitor_node_low", join ',', @col ), \@col );
     $logs->die( "get data error from db" ) unless defined $x && ref $x eq 'ARRAY';
