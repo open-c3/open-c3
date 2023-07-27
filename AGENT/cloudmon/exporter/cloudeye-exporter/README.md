@@ -14,5 +14,5 @@ auth:
   region: "cn-north-4"
 
 metric: simple # simple or full
-services: SYS.RDS,SYS,ECS
+services: SYS.RDS,SYS.ECS,SYS.DCS
 ```
