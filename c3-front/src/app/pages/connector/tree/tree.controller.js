@@ -63,8 +63,8 @@
                             vm.canAddNode = false;
                             vm.canDelNode = false;
                             vm.canEditNode = false;
-                            if (vm.currentNode.level < 5){
-                                vm.canAddNode = true;
+                            if (vm.currentNode.level < 100){
+                              vm.canAddNode = true;
                             }
                             if (!vm.currentNode.isParent){
                                 vm.canDelNode = true;
