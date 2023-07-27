@@ -36,25 +36,6 @@ class Ec2:
             for instance in reservation["Instances"]:
                 instance["RegionId"] = self.region
 
-                private_ip = ""
-                for network_interface in instance["NetworkInterfaces"]:
-                    found = False
-                    for private_addr_info in network_interface["PrivateIpAddresses"]:
-                        if private_addr_info["Primary"]:
-                            private_ip = private_addr_info["PrivateIpAddress"]
-                            found = True
-                            break
-                    if found:
-                        break
-                # 优先使用primary内网ip作为实例的内网ip
-                # 如果找不到primary内网ip则使用默认的PrivateIpAddress
-                if private_ip:
-                    instance["SelectedPrivateIp"] = private_ip
-                elif "PrivateIpAddress" in instance:
-                    instance["SelectedPrivateIp"] = instance["PrivateIpAddress"]
-                else:
-                    instance["SelectedPrivateIp"] = ""
-
                 if "window" in instance["PlatformDetails"].lower():
                     instance["os"] = "Windows"
                 else:
