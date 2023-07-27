@@ -963,3 +963,12 @@ UNIQUE KEY `uniq_user` (`user`)
 
 # v2.5.4 sql openc3_monitor_serialcall_data add caseuuid
 ALTER TABLE openc3_monitor_serialcall_data ADD `caseuuid` VARCHAR(100) default 'x' comment '事件ID';
+
+# v2.6.0 sql openc3_monitor_serialcall_deal create
+create table if not exists `openc3_monitor_serialcall_deal`(
+`id`        int(16) unsigned not null primary key auto_increment comment 'id',
+`user`      VARCHAR(200)   comment '用户',
+`caseuuid`  VARCHAR(100)   comment '事件ID',
+UNIQUE KEY `uniq_user_caseuuid` (`user`,`caseuuid`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='事件处理人';
+
