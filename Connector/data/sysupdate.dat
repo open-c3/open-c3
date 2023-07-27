@@ -961,3 +961,5 @@ create table if not exists `openc3_monitor_serialcall_lastcall`(
 UNIQUE KEY `uniq_user` (`user`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='告警通知连环Call,最近通知用户的时间';
 
+# v2.5.4 sql openc3_monitor_serialcall_data add caseuuid
+ALTER TABLE openc3_monitor_serialcall_data ADD `caseuuid` VARCHAR(100) default 'x' comment '事件ID';

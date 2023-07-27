@@ -177,7 +177,8 @@ sub addcont
     )
     {
 
-        system( sprintf "c3mc-mon-serialcall-ctrl --write %s", join ' ', map{"'$_'"}@{$data->{to}} ) if $data->{to} && ref $data->{to} eq 'ARRAY' && @{$data->{to}};
+        my $c3monitormsguuid = $data->{c3monitormsguuid} || 'x';
+        system( sprintf "c3mc-mon-serialcall-ctrl --caseuuid '$c3monitormsguuid' --write %s", join ' ', map{"'$_'"}@{$data->{to}} ) if $data->{to} && ref $data->{to} eq 'ARRAY' && @{$data->{to}};
     }
 
     for my $t ( qw( title content mesg call ) )

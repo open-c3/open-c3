@@ -11,12 +11,13 @@ use YAML::XS;
 =head1 SYNOPSIS
 
  $0 --write user1 user2 .. usern
+ $0 --write user1 user2 .. usern --caseuuid xxx.xxx.xxx
  $0 --clean user1 user2 .. usern
 
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o      = $option->get( qw( write clean ) )->dump();
+my %o      = $option->set( caseuuid => 'x' )->get( qw( write clean caseuuid=s ) )->dump();
 
 my @user = @ARGV;
 $option->assert() unless ( $o{write} || $o{clean} ) && @user;
@@ -27,7 +28,7 @@ if( $o{write} )
 {
     my $time = time;
     map{
-        eval{$db->execute( "insert into openc3_monitor_serialcall_data(`user`,`time`) value('$_','$time')" ); };
+        eval{$db->execute( "insert into openc3_monitor_serialcall_data(`user`,`time`,`caseuuid`) value('$_','$time','$o{caseuuid}')" ); };
     }@user;
 }
 
