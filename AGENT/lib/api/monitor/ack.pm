@@ -258,6 +258,12 @@ get '/monitor/ack/:uuid' => sub {
     return +{ stat => $JSON::false, info => $@ } if $@;
     $acked{ackscC} = $ackscC->[0][0] == 0 ? 1 : 0;
 
+    my $ackdeal = eval{ $api::mysql->query( "select user from openc3_monitor_serialcall_deal where caseuuid='$caseuuid'" ) };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    $acked{ackdeal} = @$ackdeal > 0 ? 1 : 0;
+
+    $acked{ackdealuser} = @$ackdeal > 0 ? $ackdeal->[0][0] : '';
+
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@res, acked => \%acked, caseinfo => $caseinfo, caseuuid => $caseuuid };
 };
 
@@ -271,7 +277,7 @@ post '/monitor/ack/:uuid' => sub {
     my $param = params();
     my $error = Format->new( 
         uuid => qr/^[a-zA-Z0-9]+$/, 1,
-        ctrl => [ 'in', 'ack', 'ackcase', 'ackam', 'ackscA', 'ackscP', 'ackscC' ], 1,
+        ctrl => [ 'in', 'ack', 'ackcase', 'ackam', 'ackscA', 'ackscP', 'ackscC', 'ackdeal' ], 1,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -317,9 +323,10 @@ post '/monitor/ack/:uuid' => sub {
         {
             $api::mysql->execute( "insert into openc3_monitor_ack_active ( uuid,type,treeid,edit_user,expire,ackuuid ) select `caseuuid`,'$type',treeid,'$user','$time','$uuid' from openc3_monitor_ack_table  where ackuuid='$uuid'" );
         }
-        elsif( $ctrl eq 'acksc' )
+        elsif( $ctrl eq 'ackdeal' )
         {
-            #skip
+            $api::mysql->execute( "replace into openc3_monitor_serialcall_deal ( user,caseuuid ) select '$user',`caseuuid` from openc3_monitor_ack_table  where ackuuid='$uuid'" );
+            $api::mysql->execute( "delete from openc3_monitor_serialcall_data where caseuuid in ( select caseuuid from openc3_monitor_ack_table where ackuuid='$uuid' )" );
         }
         elsif( $ctrl eq 'ackam' )
         {
