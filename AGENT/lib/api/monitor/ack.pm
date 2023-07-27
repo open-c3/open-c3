@@ -246,9 +246,17 @@ get '/monitor/ack/:uuid' => sub {
 
     $acked{tott} = $r && @$r ? 1 : 0;
 
-    my $acksc = eval{ $api::mysql->query( "select count(*) from openc3_monitor_serialcall_data where user='$u'" ) };
+    my $ackscA = eval{ $api::mysql->query( "select count(*) from openc3_monitor_serialcall_data where user='$u'" ) };
     return +{ stat => $JSON::false, info => $@ } if $@;
-    $acked{acksc} = $acksc->[0][0] == 0 ? 1 : 0;
+    $acked{ackscA} = $ackscA->[0][0] == 0 ? 1 : 0;
+
+    my $ackscP = eval{ $api::mysql->query( "select count(*) from openc3_monitor_serialcall_data where user='$u' and caseuuid='$caseuuid'" ) };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    $acked{ackscP} = $ackscP->[0][0] == 0 ? 1 : 0;
+
+    my $ackscC = eval{ $api::mysql->query( "select count(*) from openc3_monitor_serialcall_data where caseuuid='$caseuuid'" ) };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    $acked{ackscC} = $ackscC->[0][0] == 0 ? 1 : 0;
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@res, acked => \%acked, caseinfo => $caseinfo, caseuuid => $caseuuid };
 };
@@ -263,7 +271,7 @@ post '/monitor/ack/:uuid' => sub {
     my $param = params();
     my $error = Format->new( 
         uuid => qr/^[a-zA-Z0-9]+$/, 1,
-        ctrl => [ 'in', 'ack', 'ackcase', 'ackam', 'acksc' ], 1,
+        ctrl => [ 'in', 'ack', 'ackcase', 'ackam', 'ackscA', 'ackscP', 'ackscC' ], 1,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -304,7 +312,6 @@ post '/monitor/ack/:uuid' => sub {
     eval{
 
         my $u = (split /\//, $user )[0];
-        $api::mysql->execute( "delete from openc3_monitor_serialcall_data where user='$u'" );
 
         if( $ctrl eq 'ackcase' )
         {
@@ -334,6 +341,18 @@ post '/monitor/ack/:uuid' => sub {
             my $cmd = sprintf "c3mc-mon-alertmanager-silence -c 'by-c3-ack-($md5)' -u '$user' %s", join ' ', map{ "'$_'" }@x;
             my $xxx = `$cmd 2>&1`;
             die "alertmanager-silence err: $xxx\n" if $?;
+        }
+        elsif( $ctrl eq 'ackscA' )
+        {
+            $api::mysql->execute( "delete from openc3_monitor_serialcall_data where user='$u'" );
+        }
+        elsif( $ctrl eq 'ackscP' )
+        {
+            $api::mysql->execute( "delete from openc3_monitor_serialcall_data where user='$u' and  caseuuid in ( select caseuuid from openc3_monitor_ack_table where ackuuid='$uuid' )" );
+        }
+        elsif( $ctrl eq 'ackscC' )
+        {
+            $api::mysql->execute( "delete from openc3_monitor_serialcall_data where caseuuid in ( select caseuuid from openc3_monitor_ack_table where ackuuid='$uuid' )" );
         }
         else
         {
