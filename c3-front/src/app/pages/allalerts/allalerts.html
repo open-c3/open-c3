@@ -4,33 +4,43 @@
 <div>
 
   <div class="admin-form row filter-switch">
-    <label class="col-md-2 control-label fwbold"
-      style="padding-left: 27px;padding-right: 27px;padding-top: 6px;">{{'C3T.显示已抑制的告警'|translate}}</label>
-    <div class="col-md-1" style="padding: 0;">
-      <label class="switch switch-system mt5">
-        <input type="checkbox" id="check_status" ng-model="allalerts.checknewstatus" ng-change="allalerts.handleSaveStatusChange()">
-        <label for="check_status" data-on="ON" data-off="OFF"></label>
-      </label>
-    </div>
-    <label class="col-md-2 control-label fwbold"
-    style="padding-left: 27px;padding-right: 27px;padding-top: 6px;">{{'C3T.显示已认领'|translate}}</label>
-    <div class="col-md-1" style="padding: 0;">
-      <label class="switch switch-system mt5">
-        <input type="checkbox" id="claim_status" ng-model="allalerts.claimStatus"
-          ng-change="allalerts.handleSaveStatusChange()">
-        <label for="claim_status" data-on="ON" data-off="OFF"></label>
-      </label>
+    <div class="filter-switch-items">
+      <div class="filter-switch-items-label control-label fwbold">{{'C3T.显示已抑制的告警'|translate}}：</div>
+      <div class="filter-switch-items-context">
+        <label class="switch switch-system filter-switch-items-context-label">
+          <input type="checkbox" id="check_status" ng-model="allalerts.checknewstatus" ng-change="allalerts.handleSaveStatusChange()">
+          <label for="check_status" data-on="ON" data-off="OFF"></label>
+        </label>
+      </div>
     </div>
 
-    <label class="col-md-2 control-label fwbold"
-    style="padding-left: 27px;padding-right: 27px;padding-top: 6px;">{{'C3T.告警级别'|translate}}</label>
-    <ui-select class="" ng-model="allalerts.alarmLevel" placeholder="{{'C3T.告警级别'|translate}}" ng-change="allalerts.handleAlarmChange($select.selected.value)">
-      <ui-select-match placeholder="{{'C3T.告警级别'| translate}}"><span class="item-label">{{$select.selected.label}}</span></ui-select-match>
-      <ui-select-choices repeat="item.value as item in allalerts.levelOption | filter: $select.search"><div ng-bind-html="item.label | highlight: $select.search"></div></ui-select-choices>
-    </ui-select>
+    <div class="filter-switch-items">
+      <div class="filter-switch-items-label control-label fwbold">{{'C3T.显示已认领'|translate}}：</div>
+      <div class="filter-switch-items-context">
+        <label class="switch switch-system  filter-switch-items-context-label">
+          <input type="checkbox" id="claim_status" ng-model="allalerts.claimStatus" ng-change="allalerts.handleSaveStatusChange()">
+          <label for="claim_status" data-on="ON" data-off="OFF"></label>
+        </label>
+    </div>
+    </div>
 
-    <button class="btn btn-success interval-button-style" ng-disabled="allalerts.isInterval" uib-tooltip="{{'C3T.开启定时刷新'|translate}}" ng-click="allalerts.handleOpenChange('open')">{{'C3T.开启'| translate}}</button>
-    <button class="btn btn-danger interval-button-style" ng-disabled="!allalerts.isInterval" uib-tooltip="{{'C3T.暂定定时刷新'|translate}}" ng-click="allalerts.handleOpenChange('close')">{{'C3T.暂停'| translate}}</button>
+    <div class="filter-switch-items">
+      <div class="filter-switch-items-label control-label fwbold">{{'C3T.告警级别'|translate}}：</div>
+      <div class="filter-switch-items-context">
+        <ui-select class="" ng-model="allalerts.alarmLevel" placeholder="{{'C3T.告警级别'|translate}}" ng-change="allalerts.handleAlarmChange($select.selected.value)">
+          <ui-select-match placeholder="{{'C3T.告警级别'| translate}}"><span class="item-label">{{$select.selected.label}}</span></ui-select-match>
+          <ui-select-choices repeat="item.value as item in allalerts.levelOption | filter: $select.search"><div ng-bind-html="item.label | highlight: $select.search"></div></ui-select-choices>
+        </ui-select>
+      </div>
+    </div>
+    
+    <div class="filter-switch-items">
+      <div class="filter-switch-items-label control-label fwbold">{{'C3T.定时刷新'| translate}}：</div>
+      <div class="filter-switch-items-context">
+        <button class="btn btn-success interval-button-style" ng-disabled="allalerts.isInterval" uib-tooltip="{{'C3T.开启定时刷新'|translate}}" ng-click="allalerts.handleOpenChange('open')">{{'C3T.开启'| translate}}</button>
+        <button class="btn btn-danger interval-button-style" ng-disabled="!allalerts.isInterval" uib-tooltip="{{'C3T.暂定定时刷新'|translate}}" ng-click="allalerts.handleOpenChange('close')">{{'C3T.暂停'| translate}}</button>
+      </div>
+    </div>
   </div>
 
     <div class="panel panel-primary">
@@ -87,7 +97,29 @@
     display: flex;
     justify-content: flex-start;
     align-items: center;
-    padding: 10px 0;
+    padding: 10px 15px;
+    flex:1
+  }
+
+  .filter-switch-items {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    margin-right: 20px;
+  }
+
+  .filter-switch-items-label {
+    margin-right: 5px;
+  }
+
+  .filter-switch-items-context {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .filter-switch-items-context-label {
+    margin-bottom: 0!important;
   }
 
   .first-almost {
