@@ -10,6 +10,7 @@
         var toastr = toastr || $injector.get('toastr');
         var uuid = $state.params.uuid;
 
+        vm.professional = 0;
         vm.seftime = genericService.seftime
         vm.loadover = false;
         vm.acked = {};
