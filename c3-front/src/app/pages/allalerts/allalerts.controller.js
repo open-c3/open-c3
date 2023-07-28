@@ -5,7 +5,7 @@
         .module('openc3')
         .controller('AllalertsController', AllalertsController);
 
-    function AllalertsController($http, ngTableParams, $uibModal, genericService) {
+    function AllalertsController($http, ngTableParams, $uibModal, genericService, $interval) {
         var vm = this;
         vm.seftime = genericService.seftime
 
@@ -21,6 +21,7 @@
           { label: 'level4', value: 'level4' },
         ];
 
+        vm.isInterval = false;
         vm.defaultData = []
         vm.reload = function () {
             vm.reloadB();
@@ -166,6 +167,29 @@
         vm.handleAlarmChange = function (value) {
           vm.alarmLevel = value
           vm.handleSaveStatusChange()
+        }
+
+        // 定时任务开关
+        vm.handleOpenChange = function (type) {
+          swal({
+            title: `${!vm.isInterval ? '开启定时刷新？' : '暂停定时刷新？'}`,
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            cancelButtonText: "取消",
+            confirmButtonText: "确定",
+            closeOnConfirm: true
+          }, function () {
+            vm.isInterval = !vm.isInterval
+            let timer = $interval(function () {
+              if (vm.isInterval) {
+                vm.reload();
+              }
+            }, 15000);
+            if (type === 'close') {
+              $interval.cancel(timer)
+            }
+          });
         }
 
         // 保存新状态

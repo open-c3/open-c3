@@ -28,6 +28,9 @@
       <ui-select-match placeholder="{{'C3T.告警级别'| translate}}"><span class="item-label">{{$select.selected.label}}</span></ui-select-match>
       <ui-select-choices repeat="item.value as item in allalerts.levelOption | filter: $select.search"><div ng-bind-html="item.label | highlight: $select.search"></div></ui-select-choices>
     </ui-select>
+
+    <button class="btn btn-success interval-button-style" ng-disabled="allalerts.isInterval" uib-tooltip="{{'C3T.开启定时刷新'|translate}}" ng-click="allalerts.handleOpenChange('open')">{{'C3T.开启'| translate}}</button>
+    <button class="btn btn-danger interval-button-style" ng-disabled="!allalerts.isInterval" uib-tooltip="{{'C3T.暂定定时刷新'|translate}}" ng-click="allalerts.handleOpenChange('close')">{{'C3T.暂停'| translate}}</button>
   </div>
 
     <div class="panel panel-primary">
@@ -97,5 +100,9 @@
 
   .forth-almost {
     background-color: #d9edf7!important;
+  }
+
+  .interval-button-style {
+    margin:0 10px!important;
   }
 </style>
