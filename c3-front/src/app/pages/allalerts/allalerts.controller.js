@@ -15,6 +15,7 @@
         vm.reload = function () {
             vm.reloadA();
             vm.reloadB();
+            vm.reloadC();
         };
         vm.reloadA = function () {
             vm.loadAover = false;
@@ -42,6 +43,20 @@
                 }
             });
         };
+
+        vm.dealinfo = {};
+        vm.reloadC = function () {
+            vm.loadCover = false;
+            $http.get('/api/agent/monitor/ack/deal/info').success(function(data){
+                if (data.stat){
+                    vm.dealinfo = data.data;
+                    vm.loadCover = true;
+                }else {
+                    swal({ title:'获取列表失败', text: data.info, type:'error' });
+                }
+            });
+        };
+ 
         vm.reload();
 
         vm.getinstancename = function( labels ) {
@@ -92,6 +107,35 @@
 
             });
         };
+
+        vm.deal = function(d){
+            swal({
+                title: "认领告警",
+                text: '我来处理这个告警',
+                type: "info",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                cancelButtonText: "取消",
+                confirmButtonText: "确定",
+                closeOnConfirm: true
+
+            }, function(){
+                vm.loadover = false;
+                $http.post("/api/agent//monitor/ack/deal/info", { "uuid": d.uuid }  ).success(function(data){
+                    if(data.stat == true)
+                    {
+                       vm.loadover = true;
+                       vm.reloadC();
+                       swal({ title:'提交成功', text: data.info, type:'success' });
+                    } else {
+                       swal({ title:'提交失败', text: data.info, type:'error' });
+                    }
+                });
+
+            });
+        };
+
+
 
         vm.openTT = function (uuid, caseuuid) {
             vm.loadover = false;

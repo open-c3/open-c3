@@ -246,9 +246,23 @@ get '/monitor/ack/:uuid' => sub {
 
     $acked{tott} = $r && @$r ? 1 : 0;
 
-    my $acksc = eval{ $api::mysql->query( "select count(*) from openc3_monitor_serialcall_data where user='$u'" ) };
+    my $ackscA = eval{ $api::mysql->query( "select count(*) from openc3_monitor_serialcall_data where user='$u'" ) };
     return +{ stat => $JSON::false, info => $@ } if $@;
-    $acked{acksc} = $acksc->[0][0] == 0 ? 1 : 0;
+    $acked{ackscA} = $ackscA->[0][0] == 0 ? 1 : 0;
+
+    my $ackscP = eval{ $api::mysql->query( "select count(*) from openc3_monitor_serialcall_data where user='$u' and caseuuid='$caseuuid'" ) };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    $acked{ackscP} = $ackscP->[0][0] == 0 ? 1 : 0;
+
+    my $ackscC = eval{ $api::mysql->query( "select count(*) from openc3_monitor_serialcall_data where caseuuid='$caseuuid'" ) };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    $acked{ackscC} = $ackscC->[0][0] == 0 ? 1 : 0;
+
+    my $ackdeal = eval{ $api::mysql->query( "select user from openc3_monitor_serialcall_deal where caseuuid='$caseuuid'" ) };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+    $acked{ackdeal} = @$ackdeal > 0 ? 1 : 0;
+
+    $acked{ackdealuser} = @$ackdeal > 0 ? $ackdeal->[0][0] : '';
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@res, acked => \%acked, caseinfo => $caseinfo, caseuuid => $caseuuid };
 };
@@ -263,7 +277,7 @@ post '/monitor/ack/:uuid' => sub {
     my $param = params();
     my $error = Format->new( 
         uuid => qr/^[a-zA-Z0-9]+$/, 1,
-        ctrl => [ 'in', 'ack', 'ackcase', 'ackam', 'acksc' ], 1,
+        ctrl => [ 'in', 'ack', 'ackcase', 'ackam', 'ackscA', 'ackscP', 'ackscC', 'ackdeal' ], 1,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -304,15 +318,15 @@ post '/monitor/ack/:uuid' => sub {
     eval{
 
         my $u = (split /\//, $user )[0];
-        $api::mysql->execute( "delete from openc3_monitor_serialcall_data where user='$u'" );
 
         if( $ctrl eq 'ackcase' )
         {
             $api::mysql->execute( "insert into openc3_monitor_ack_active ( uuid,type,treeid,edit_user,expire,ackuuid ) select `caseuuid`,'$type',treeid,'$user','$time','$uuid' from openc3_monitor_ack_table  where ackuuid='$uuid'" );
         }
-        elsif( $ctrl eq 'acksc' )
+        elsif( $ctrl eq 'ackdeal' )
         {
-            #skip
+            $api::mysql->execute( "replace into openc3_monitor_serialcall_deal ( user,caseuuid ) select '$user',`caseuuid` from openc3_monitor_ack_table  where ackuuid='$uuid'" );
+            $api::mysql->execute( "delete from openc3_monitor_serialcall_data where caseuuid in ( select caseuuid from openc3_monitor_ack_table where ackuuid='$uuid' )" );
         }
         elsif( $ctrl eq 'ackam' )
         {
@@ -334,6 +348,18 @@ post '/monitor/ack/:uuid' => sub {
             my $cmd = sprintf "c3mc-mon-alertmanager-silence -c 'by-c3-ack-($md5)' -u '$user' %s", join ' ', map{ "'$_'" }@x;
             my $xxx = `$cmd 2>&1`;
             die "alertmanager-silence err: $xxx\n" if $?;
+        }
+        elsif( $ctrl eq 'ackscA' )
+        {
+            $api::mysql->execute( "delete from openc3_monitor_serialcall_data where user='$u'" );
+        }
+        elsif( $ctrl eq 'ackscP' )
+        {
+            $api::mysql->execute( "delete from openc3_monitor_serialcall_data where user='$u' and  caseuuid in ( select caseuuid from openc3_monitor_ack_table where ackuuid='$uuid' )" );
+        }
+        elsif( $ctrl eq 'ackscC' )
+        {
+            $api::mysql->execute( "delete from openc3_monitor_serialcall_data where caseuuid in ( select caseuuid from openc3_monitor_ack_table where ackuuid='$uuid' )" );
         }
         else
         {
@@ -420,6 +446,43 @@ post '/monitor/ack/tott/:uuid' => sub {
     };
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $file };
+};
+
+=pod
+
+监控系统/ACK/获取告警的处理人信息
+
+=cut
+
+get '/monitor/ack/deal/info' => sub {
+    my @col = qw( caseuuid user );
+
+    my $r = eval{ $api::mysql->query( sprintf( "select %s from openc3_monitor_serialcall_deal", join( ',', @col)), \@col )}; 
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
+    my %res;
+    for( @$r ) { $res{$_->{caseuuid}} = $_->{user}; }
+    return +{ stat => $JSON::true, data => \%res };
+};
+
+=pod
+
+监控系统/ACK/告警认领
+
+=cut
+
+post '/monitor/ack/deal/info' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        uuid => qr/^[a-zA-Z0-9:\.T\-]+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+ 
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+
+    eval{ $api::mysql->execute( "replace into openc3_monitor_serialcall_deal ( user,caseuuid ) values('$user','$param->{uuid}')" ); };
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
 
 true;

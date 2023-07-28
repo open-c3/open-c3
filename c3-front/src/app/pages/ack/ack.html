@@ -35,13 +35,31 @@
         </div>
 
         <div class="panel-footer text-right">
+            <button ng-if="ack.acked.ackdealuser==''" class="btn btn-primary" ng-disabled="ack.acked.ackdeal" ng-click="ack.edit('ackdeal', '')">监控认领</button>
+            <button ng-if="ack.acked.ackdealuser!=''" class="btn btn-success" ng-disabled="1" >{{ack.acked.ackdealuser}} 已认领</button>
+            <button ng-if="ack.professional==0" class="btn btn-info" ng-click="ack.professional=1" >展示更多</button>
+            <button ng-if="ack.professional==1" class="btn btn-info" ng-click="ack.professional=0" >隐藏更多</button>
+        </div>
+ 
+        <div ng-if="ack.professional==1"class="panel-footer text-right">
             <button class="btn btn-success" ng-disabled="ack.acked.ackcaseP" ng-click="ack.edit('ackcase', 'P')">事件屏蔽(我个人)</button>
             <button class="btn btn-success" ng-disabled="ack.acked.ackP"     ng-click="ack.edit('ack',     'P')">监控屏蔽(我个人)</button>
             <button class="btn btn-danger"  ng-disabled="ack.acked.ackcaseG" ng-click="ack.edit('ackcase', '' )">事件屏蔽(所有人)</button>
             <button class="btn btn-danger"  ng-disabled="ack.acked.ackG"     ng-click="ack.edit('ack',     '' )">监控屏蔽(所有人)</button>
+        </div>
+
+        <div ng-if="ack.professional==1"class="panel-footer text-right">
             <button class="btn btn-danger"  ng-disabled="ack.acked.ackam"    ng-click="ack.edit('ackam',   '' )">AM屏蔽</button>
+        </div>
+
+        <div ng-if="ack.professional==1"class="panel-footer text-right">
+            <button class="btn btn-primary" ng-disabled="ack.acked.ackscA"   ng-click="ack.edit('ackscA',   '' )">消息确认(所有我的)</button>
+            <button class="btn btn-primary" ng-disabled="ack.acked.ackscP"   ng-click="ack.edit('ackscP',   '' )">消息确认(我个人)</button>
+            <button class="btn btn-primary" ng-disabled="ack.acked.ackscC"   ng-click="ack.edit('ackscC',   '' )">消息确认(所有人)</button>
+        </div>
+
+        <div ng-if="ack.professional==1"class="panel-footer text-right">
             <button class="btn btn-info"    ng-disabled="ack.acked.tott"     ng-click="ack.tott()"              >转工单</button>
-            <button class="btn btn-primary" ng-disabled="ack.acked.acksc"    ng-click="ack.edit('acksc',   '' )">消息确认</button>
         </div>
 
     </div>

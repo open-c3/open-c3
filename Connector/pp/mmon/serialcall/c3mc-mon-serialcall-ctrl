@@ -11,15 +11,17 @@ use YAML::XS;
 =head1 SYNOPSIS
 
  $0 --write user1 user2 .. usern
+ $0 --write user1 user2 .. usern --caseuuid xxx.xxx.xxx
  $0 --clean user1 user2 .. usern
+ $0 --cleancase xxx.xxx.xxx1 xxx.xxx.xxx2 .. xxx.xxx.xxxn
 
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o      = $option->get( qw( write clean ) )->dump();
+my %o      = $option->set( caseuuid => 'x' )->get( qw( write clean caseuuid=s cleancase ) )->dump();
 
-my @user = @ARGV;
-$option->assert() unless ( $o{write} || $o{clean} ) && @user;
+my @argv = @ARGV;
+$option->assert() unless ( $o{write} || $o{clean} || $o{cleancase} ) && @argv;
 
 my $db = MYDB->new( "/data/Software/mydan/AGENT/conf/conn" );
 
@@ -27,8 +29,8 @@ if( $o{write} )
 {
     my $time = time;
     map{
-        eval{$db->execute( "insert into openc3_monitor_serialcall_data(`user`,`time`) value('$_','$time')" ); };
-    }@user;
+        eval{$db->execute( "insert into openc3_monitor_serialcall_data(`user`,`time`,`caseuuid`) value('$_','$time','$o{caseuuid}')" ); };
+    }@argv;
 }
 
 if( $o{clean} )
@@ -36,5 +38,13 @@ if( $o{clean} )
     my $time = time;
     map{
         eval{$db->execute( "delete from openc3_monitor_serialcall_data where user='$_'" ); };
-    }@user;
+    }@argv;
+}
+
+if( $o{cleancase} )
+{
+    my $time = time;
+    map{
+        eval{$db->execute( "delete from openc3_monitor_serialcall_data where caseuuid='$_'" ); };
+    }@argv;
 }
