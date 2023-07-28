@@ -21,6 +21,13 @@
         <label for="claim_status" data-on="ON" data-off="OFF"></label>
       </label>
     </div>
+
+    <label class="col-md-2 control-label fwbold"
+    style="padding-left: 27px;padding-right: 27px;padding-top: 6px;">{{'C3T.告警级别'|translate}}</label>
+    <ui-select class="" ng-model="allalerts.alarmLevel" placeholder="{{'C3T.告警级别'|translate}}" ng-change="allalerts.handleAlarmChange($select.selected.value)">
+      <ui-select-match placeholder="{{'C3T.告警级别'| translate}}"><span class="item-label">{{$select.selected.label}}</span></ui-select-match>
+      <ui-select-choices repeat="item.value as item in allalerts.levelOption | filter: $select.search"><div ng-bind-html="item.label | highlight: $select.search"></div></ui-select-choices>
+    </ui-select>
   </div>
 
     <div class="panel panel-primary">

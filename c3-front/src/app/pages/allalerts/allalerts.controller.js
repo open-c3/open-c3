@@ -12,6 +12,15 @@
         vm.siteaddr = window.location.protocol + '//' + window.location.host;
         vm.checknewstatus=false;
         vm.claimStatus = false;
+        vm.alarmLevel = '';
+        vm.levelOption = [
+          { label: '全部级别', value: '' },
+          { label: 'level1', value: 'level1' },
+          { label: 'level2', value: 'level2' },
+          { label: 'level3', value: 'level3', },
+          { label: 'level4', value: 'level4' },
+        ];
+
         vm.defaultData = []
         vm.reload = function () {
             vm.reloadB();
@@ -154,12 +163,18 @@
             window.open(url, '_blank')
         };
 
+        vm.handleAlarmChange = function (value) {
+          vm.alarmLevel = value
+          vm.handleSaveStatusChange()
+        }
+
         // 保存新状态
         vm.handleSaveStatusChange = function () {
           const selectData = JSON.parse(JSON.stringify(vm.defaultData))
           const checkedData = selectData.filter(item => 
             (vm.checknewstatus ? item : item.status.state !== 'suppressed') && 
-            (vm.claimStatus ? item : !vm.dealinfo[item.uuid])
+            (vm.claimStatus ? item : !vm.dealinfo[item.uuid]) && 
+            (vm.alarmLevel === '' ? item :  item.labels.severity === vm.alarmLevel)
           )
           vm.dataTable = new ngTableParams({count:25}, {counts:[],data:checkedData});
         }
