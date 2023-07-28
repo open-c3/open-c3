@@ -22,6 +22,21 @@
         ];
 
         vm.isInterval = false;
+
+        vm.downloadTitleMap = {
+          startsAt: '开始时间',
+          labelsAlertname: '名称',
+          labelsObj: '监控对象',
+          owner: 'Owner',
+          hostname: '资源别名',
+          statueState: '状态',
+          labelsSeverity: '告警级别',
+          annotationsSummary: '概要',
+          annotationsValue: '值',
+          uuid: '认领人',
+          toBindUuid: '关联工单'
+        };
+
         vm.defaultData = []
         vm.reload = function () {
             vm.reloadB();
@@ -33,6 +48,7 @@
                 if (data.stat){
                     vm.defaultData = data.data;
                     const unCheckedData = data.data.filter(item => item.status.state !== 'suppressed' && !vm.dealinfo[item.uuid])
+                    vm.downloadData = unCheckedData
                     vm.dataTable = new ngTableParams({count:25}, {counts:[],data:unCheckedData});
                     vm.loadAover = true;
                 }else {
@@ -201,6 +217,33 @@
             (vm.alarmLevel === '' ? item :  item.labels.severity === vm.alarmLevel)
           )
           vm.dataTable = new ngTableParams({count:25}, {counts:[],data:checkedData});
+          vm.downloadData = checkedData
+        }
+
+        // 导出函数
+        vm.downloadFunc = function (fileName) {
+          const downLoadArr = []
+          vm.downloadData.map(item => {
+            item.labelsAlertname = item.labels.alertname
+            item.labelsObj = vm.getinstancename(item.labels)
+            item.statueState = item.status.state
+            item.labelsSeverity = item.labels.severity
+            item.annotationsSummary = item.annotations.summary
+            item.annotationsValue = item.annotations.value
+            item.uuid = vm.dealinfo[item.uuid]
+            item.toBindUuid = vm.tottbind[item.uuid]? vm.tottbind[item.uuid].join(','): ''
+            const newData = {};
+            angular.forEach(vm.downloadTitleMap, function (key, value) {
+              newData[key] = item[value]
+            })
+            downLoadArr.push(newData)
+          });
+          const workbook = XLSX.utils.book_new();
+          const worksheet = XLSX.utils.json_to_sheet(downLoadArr);
+          XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+          const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'array', stream: true });
+          const blob = new Blob([wbout], { type: 'application/octet-stream' });
+          saveAs(blob, fileName);
         }
     }
 })();

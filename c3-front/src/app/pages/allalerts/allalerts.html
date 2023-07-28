@@ -37,7 +37,11 @@
 
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="allalerts.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!allalerts.loadAover || !allalerts.loadBover || !allalerts.loadCover}" ></i></button>
+                <button ng-disabled="allalerts.dataTable.length === 0" class="device-export" uib-tooltip="{{'C3T.导出'|translate}}" 
+                ng-click="allalerts.downloadFunc('当前告警.xlsx')">
+                   <i class="fa fa-download fa-1x" aria-hidden="true"></i></i>
+                </button>
+                <button class="btn btn-primary refresh-style" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="allalerts.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!allalerts.loadAover || !allalerts.loadBover || !allalerts.loadCover}" ></i></button>
             </span>
             <h5>{{'C3T.当前告警'|translate}}</h5>
         </div>
@@ -104,5 +108,17 @@
 
   .interval-button-style {
     margin:0 10px!important;
+  }
+
+  .device-export {
+    text-align: right;
+    background-color: transparent;
+    line-height: normal;
+    border-color: transparent;
+    padding: 12px;
+  }
+  .refresh-style {
+    margin-top: -10px;
+    padding-bottom: 3px;
   }
 </style>
