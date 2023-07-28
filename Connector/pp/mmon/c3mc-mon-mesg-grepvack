@@ -49,6 +49,9 @@ sub adduser
     my @acked = `c3mc-base-db-get id --table openc3_monitor_ack_active --filter "(uuid='$data->{fingerprint}' or uuid='$caseuuid' ) and type='G' and expire>$time"`;
     return if @acked;
 
+    my @dealed = `c3mc-base-db-get id --table openc3_monitor_serialcall_deal --filter "caseuuid='$caseuuid'"`;
+    return if @dealed;
+
     $data->{ack} = $uuid;
     $data->{c3monitormsguuid} = $caseuuid;
 
