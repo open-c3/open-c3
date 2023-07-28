@@ -301,11 +301,19 @@
       $scope.$watch(function () {return $rootScope.deptTreeNode}, function (value) {
         if (value && Object.keys(value).length !== 0) {
           vm.deptFilter = value
+          vm.grepdata = {}
           angular.forEach(vm.deptFilter, function (value, key) {
             if (value !== '') {
               vm.grepdata[key] = value
             }
           });
+          vm.reload()
+        }
+      })
+
+      $scope.$watch(function () {return $rootScope.deptTreeId}, function (value) {
+        if (value && value === 'root') {
+          vm.grepdata = {}
           vm.reload()
         }
       })

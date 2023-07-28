@@ -69,6 +69,26 @@ get '/monitor/alert/:projectid' => sub {
 
     return +{ stat => $JSON::true, data => +{ map{ $_->{uuid} => 1 } @res } } if $param->{uuidonly};
 
+
+    my $ips = join ' ', grep{ $_ &&  $_ =~ /^\d+\.\d+\.\d+\.\d+$/ }map{ $_->{labels}{instance} }@res;
+
+    if( $ips )
+    {
+        for my $type ( qw( owner hostname ))
+        {
+            my @x = `c3mc-device-find-$type $ips`;
+            chomp @x;
+            my %x;
+            for ( @x )
+            {
+                my ( $k, $v ) = split /:/, $_, 2;
+                $v =~ s/\s//g;
+                $x{$k} = $v;
+            }
+            map{ $_->{$type} = $x{$_->{labels}{instance}} // '' if $_->{labels}{instance} }@res;
+        }
+    }
+
     @res = sort{ $b->{startsAt} cmp $a->{startsAt} }@res;
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@res };
 };
