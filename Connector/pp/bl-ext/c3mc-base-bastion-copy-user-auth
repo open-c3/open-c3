@@ -1,0 +1,84 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import safe_run_command
+
+
+def get_user_ips(email):
+    output = safe_run_command([
+        "c3mc-base-bastion",
+        "--operate_type", "getlist",
+        "--email", email,
+    ])
+    return [ ip.strip() for ip in output.split("\n") if ip.strip() != "" ]
+
+def create_user_if_need(email):
+    """
+    创建堡垒机用户
+    """
+    account = email.split("@")[0]
+    cmd_parts = [
+        "c3mc-base-bastion",
+        "--operate_type", "adduser",
+        "--username", account, 
+        "--email", email, 
+    ]
+    output = subprocess.run(cmd_parts, capture_output=True, text=True)
+    if output.returncode != 0:
+        print(output.stderr, file=sys.stderr)
+        exit(1)
+    create_user_resp = json.loads(output.stdout)
+    if create_user_resp["stat"] == 0:
+        print(
+            f'堡垒机用户创建失败. info: "{create_user_resp["info"].strip()}"', file=sys.stderr)
+        exit(1)
+
+    if create_user_resp["stat"] == 1 and create_user_resp["data"].strip() != "":
+        return create_user_resp["data"].strip()
+    return ""
+
+def send_new_user_email(email, password):
+    safe_run_command([
+        "c3mc-base-bastion-send-new-user-email",
+        email,
+        password,
+    ])
+
+def add_servers_auth(email, ip_str):
+    safe_run_command([
+        "c3mc-base-bastion-add-server-auth",
+        email,
+        "sudo_0",
+        ip_str,
+    ])
+
+def run(old_email, new_email):
+    # 创建堡垒机用户
+    new_user_pass = create_user_if_need(new_email)
+    if isinstance(new_user_pass, str) and len(new_user_pass) > 0:
+        # 发送邮件
+        send_new_user_email(new_email, new_user_pass)
+    
+    ip_list = get_user_ips(old_email)
+
+    add_servers_auth(new_email, ",".join(ip_list))
+
+
+def main(old_email, new_email):
+    """拷贝指定邮箱账号的权限列表到新的账号，如果新账号不存在则自动创建，同时给新账号发送堡垒机登录密码
+
+    Args:
+        old_email (str): 旧账号的邮箱
+        new_email (str): 新账号的邮箱
+    """
+    run(old_email, new_email)
+
+
+if __name__ == '__main__':
+    main(sys.argv[1], sys.argv[2])
