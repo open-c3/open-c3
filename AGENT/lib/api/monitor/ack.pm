@@ -448,4 +448,22 @@ post '/monitor/ack/tott/:uuid' => sub {
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $file };
 };
 
+=pod
+
+监控系统/ACK/获取告警的处理人信息
+
+=cut
+
+get '/monitor/ack/deal/info' => sub {
+    my @col = qw( caseuuid user );
+
+    my $r = eval{ $api::mysql->query( sprintf( "select %s from openc3_monitor_serialcall_deal", join( ',', @col)), \@col )}; 
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
+    my %res;
+    for( @$r ) { $res{$_->{caseuuid}} = $_->{user}; }
+    return +{ stat => $JSON::true, data => \%res };
+};
+
+
 true;

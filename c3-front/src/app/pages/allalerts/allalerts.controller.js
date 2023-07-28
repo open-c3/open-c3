@@ -15,6 +15,7 @@
         vm.reload = function () {
             vm.reloadA();
             vm.reloadB();
+            vm.reloadC();
         };
         vm.reloadA = function () {
             vm.loadAover = false;
@@ -42,6 +43,20 @@
                 }
             });
         };
+
+        vm.dealinfo = {};
+        vm.reloadC = function () {
+            vm.loadCover = false;
+            $http.get('/api/agent/monitor/ack/deal/info').success(function(data){
+                if (data.stat){
+                    vm.dealinfo = data.data;
+                    vm.loadCover = true;
+                }else {
+                    swal({ title:'获取列表失败', text: data.info, type:'error' });
+                }
+            });
+        };
+ 
         vm.reload();
 
         vm.getinstancename = function( labels ) {
