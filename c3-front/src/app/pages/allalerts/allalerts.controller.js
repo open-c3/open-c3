@@ -11,9 +11,9 @@
 
         vm.siteaddr = window.location.protocol + '//' + window.location.host;
         vm.checknewstatus=false;
+        vm.claimStatus = false;
         vm.defaultData = []
         vm.reload = function () {
-            vm.reloadA();
             vm.reloadB();
             vm.reloadC();
         };
@@ -22,7 +22,7 @@
             $http.get('/api/agent/monitor/alert/0?siteaddr=' + vm.siteaddr).success(function(data){
                 if (data.stat){
                     vm.defaultData = data.data;
-                    const unCheckedData = data.data.filter(item => item.status.state !== 'suppressed')
+                    const unCheckedData = data.data.filter(item => item.status.state !== 'suppressed' && !vm.dealinfo[item.uuid])
                     vm.dataTable = new ngTableParams({count:25}, {counts:[],data:unCheckedData});
                     vm.loadAover = true;
                 }else {
@@ -50,6 +50,7 @@
             $http.get('/api/agent/monitor/ack/deal/info').success(function(data){
                 if (data.stat){
                     vm.dealinfo = data.data;
+                    vm.reloadA()
                     vm.loadCover = true;
                 }else {
                     swal({ title:'获取列表失败', text: data.info, type:'error' });
@@ -156,13 +157,11 @@
         // 保存新状态
         vm.handleSaveStatusChange = function () {
           const selectData = JSON.parse(JSON.stringify(vm.defaultData))
-          if (vm.checknewstatus) {
-            const checkedData = selectData.filter(item => item)
-            vm.dataTable = new ngTableParams({count:25}, {counts:[],data:checkedData});
-          } else {
-            const unCheckedData = selectData.filter(item => item.status.state !== 'suppressed')
-            vm.dataTable = new ngTableParams({count:25}, {counts:[],data:unCheckedData});
-          }
+          const checkedData = selectData.filter(item => 
+            (vm.checknewstatus ? item : item.status.state !== 'suppressed') && 
+            (vm.claimStatus ? item : !vm.dealinfo[item.uuid])
+          )
+          vm.dataTable = new ngTableParams({count:25}, {counts:[],data:checkedData});
         }
     }
 })();
