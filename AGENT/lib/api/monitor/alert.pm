@@ -69,6 +69,7 @@ get '/monitor/alert/:projectid' => sub {
 
     return +{ stat => $JSON::true, data => +{ map{ $_->{uuid} => 1 } @res } } if $param->{uuidonly};
 
+    @res = sort{ $b->{startsAt} cmp $a->{startsAt} }@res;
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@res };
 };
 
