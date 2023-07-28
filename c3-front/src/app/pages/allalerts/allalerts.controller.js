@@ -108,6 +108,35 @@
             });
         };
 
+        vm.deal = function(d){
+            swal({
+                title: "认领告警",
+                text: '我来处理这个告警',
+                type: "info",
+                showCancelButton: true,
+                confirmButtonColor: "#DD6B55",
+                cancelButtonText: "取消",
+                confirmButtonText: "确定",
+                closeOnConfirm: true
+
+            }, function(){
+                vm.loadover = false;
+                $http.post("/api/agent//monitor/ack/deal/info", { "uuid": d.uuid }  ).success(function(data){
+                    if(data.stat == true)
+                    {
+                       vm.loadover = true;
+                       vm.reloadC();
+                       swal({ title:'提交成功', text: data.info, type:'success' });
+                    } else {
+                       swal({ title:'提交失败', text: data.info, type:'error' });
+                    }
+                });
+
+            });
+        };
+
+
+
         vm.openTT = function (uuid, caseuuid) {
             vm.loadover = false;
             $http.get('/api/agent/monitor/alert/gotocase/0?uuid=' + uuid + '&caseuuid=' + caseuuid ).success(function(data){

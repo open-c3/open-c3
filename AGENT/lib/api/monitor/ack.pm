@@ -465,5 +465,24 @@ get '/monitor/ack/deal/info' => sub {
     return +{ stat => $JSON::true, data => \%res };
 };
 
+=pod
+
+监控系统/ACK/告警认领
+
+=cut
+
+post '/monitor/ack/deal/info' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        uuid => qr/^[a-zA-Z0-9:\.T\-]+$/, 1,
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+ 
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
+
+    eval{ $api::mysql->execute( "replace into openc3_monitor_serialcall_deal ( user,caseuuid ) values('$user','$param->{uuid}')" ); };
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
+};
 
 true;
