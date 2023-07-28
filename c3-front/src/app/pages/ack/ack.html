@@ -35,7 +35,7 @@
         </div>
 
         <div class="panel-footer text-right">
-            <button ng-if="ack.acked.ackdealuser==''" class="btn btn-primary" ng-disabled="ack.acked.ackdeal" ng-click="ack.edit('ackdeal', '')">监控认领</button>
+            <button ng-if="ack.acked.ackdealuser==''" class="btn btn-primary" ng-disabled="ack.acked.ackdeal" ng-click="ack.edit('ackdeal', 'P')">监控认领</button>
             <button ng-if="ack.acked.ackdealuser!=''" class="btn btn-success" ng-disabled="1" >{{ack.acked.ackdealuser}} 已认领</button>
             <button ng-if="ack.professional==0" class="btn btn-info" ng-click="ack.professional=1" >展示更多</button>
             <button ng-if="ack.professional==1" class="btn btn-info" ng-click="ack.professional=0" >隐藏更多</button>
@@ -53,9 +53,9 @@
         </div>
 
         <div ng-if="ack.professional==1"class="panel-footer text-right">
-            <button class="btn btn-primary" ng-disabled="ack.acked.ackscA"   ng-click="ack.edit('ackscA',   '' )">消息确认(所有我的)</button>
-            <button class="btn btn-primary" ng-disabled="ack.acked.ackscP"   ng-click="ack.edit('ackscP',   '' )">消息确认(我个人)</button>
-            <button class="btn btn-primary" ng-disabled="ack.acked.ackscC"   ng-click="ack.edit('ackscC',   '' )">消息确认(所有人)</button>
+            <button class="btn btn-primary" ng-disabled="ack.acked.ackscA"   ng-click="ack.edit('ackscA',   'P' )">消息确认(所有我的)</button>
+            <button class="btn btn-primary" ng-disabled="ack.acked.ackscP"   ng-click="ack.edit('ackscP',   'P' )">消息确认(我个人)</button>
+            <button class="btn btn-primary" ng-disabled="ack.acked.ackscC"   ng-click="ack.edit('ackscC',   'G' )">消息确认(所有人)</button>
         </div>
 
         <div ng-if="ack.professional==1"class="panel-footer text-right">
