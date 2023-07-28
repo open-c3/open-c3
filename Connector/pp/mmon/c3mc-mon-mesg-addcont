@@ -182,14 +182,14 @@ sub addcont
     }
 
 
-    if(
-        ( $environment->{isMonitorSuccessCall} && $environment->{isMonitorSuccessCall} eq 'true' ) &&
-        ( $data->{'labels.serialcall'} )  &&
-        ( ( $data->{status} eq 'resolved' ) )
-    )
-    {
-        system(  "c3mc-mon-serialcall-ctrl --cleancase '$data->{c3monitormsguuid}'" ) if $data->{c3monitormsguuid};
-    }
+#    if(
+#        ( $environment->{isMonitorSuccessCall} && $environment->{isMonitorSuccessCall} eq 'true' ) &&
+#        ( $data->{'labels.serialcall'} )  &&
+#        ( ( $data->{status} eq 'resolved' ) )
+#    )
+#    {
+#        system(  "c3mc-mon-serialcall-ctrl --cleancase '$data->{c3monitormsguuid}'" ) if $data->{c3monitormsguuid};
+#    }
 
     for my $t ( qw( title content mesg call ) )
     {

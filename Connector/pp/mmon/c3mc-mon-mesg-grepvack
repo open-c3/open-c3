@@ -46,6 +46,14 @@ sub adduser
     my $uuid     = uuid->new()->create_str;
     my $time     = time;
 
+    if(
+        ( $data->{'labels.serialcall'} )  &&
+        ( ( $data->{status} eq 'resolved' ) )
+    )
+    {
+        system( "c3mc-mon-serialcall-ctrl --cleancase '$caseuuid'" );
+    }
+
     my @acked = `c3mc-base-db-get id --table openc3_monitor_ack_active --filter "(uuid='$data->{fingerprint}' or uuid='$caseuuid' ) and type='G' and expire>$time"`;
     return if @acked;
 
