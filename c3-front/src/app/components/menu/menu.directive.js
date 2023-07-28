@@ -103,7 +103,11 @@
 
             // expand/collapse tree
             vm.expandAll = function(flag){
+              if (vm.isActive === 'tree') {
                 vm.zTree.expandAll(flag);
+              } else if (vm.isActive === 'department') {
+                vm.expandDeptAll(flag)
+              }
             };
 
             vm.focusDeptCurrent = function () {
@@ -116,16 +120,24 @@
               vm.deptTree.expandAll(flag);
             };
 
+            vm.focusTreeCurrent = function () {
+              if(vm.isActive === 'tree') {
+                vm.focusCurrent()
+              } else if (vm.isActive === 'department') {
+                vm.focusDeptCurrent()
+              }
+            }
+
             // tree refresh
             vm.refresh = function(){
-              if(value === 'tree') {
+              if(vm.isActive === 'tree') {
                 angular.element('.treeFresh').addClass('fa-spin');
                 $http.get('/api/connector/connectorx/usertree').success(function(nodes) {
                     $.fn.zTree.init(angular.element('#openc3tree'), vm.zTree.setting, nodes.data);
                     angular.element('.treeFresh').removeClass('fa-spin');
                     vm.focusCurrent();
                 });
-              } else if (value === 'department') {
+              } else if (vm.isActive === 'department') {
                 angular.element('.treeFresh').addClass('fa-spin');
                 $http.get('/api/connector/connectorx/depttree').success(function(nodes) {
                   $.fn.zTree.init(angular.element('#departmentTree'), vm.deptTree.setting, nodes.data);
@@ -143,6 +155,7 @@
                 if (treeNode.hasOwnProperty('id')) {
                   const newFilter = treeNode.filter
                   $rootScope.deptTreeNode = newFilter
+                  $rootScope.deptTreeId = treeNode.id
                   $scope.$apply();
                 } else {
                   toastr.error("没有节点权限");
@@ -163,6 +176,7 @@
 
             vm.select_map = {};
             vm.search_init = function () {
+              if (vm.isActive === 'tree') {
                 vm.names = [];
                 $http.get('/api/connector/connectorx/treemap').success(function (data) {
                   vm.name = data.data;
@@ -171,36 +185,75 @@
                     vm.select_map[value.name] = value.id;
                   });
                 });
+              } else if (vm.isActive === 'department') {
+                vm.names = [];
+                vm.deptArr = [vm.deptTree.getNodeByParam('id', 'root')]
+                const flatArr =  flattenTree(vm.deptArr)
+                vm.names = flatArr.map(item => item.name)
+                angular.forEach(flatArr, function (value) {
+                  vm.select_map[value.name] = value.tId;
+                });
+              }
             };
       
             vm.searchNode = function (item, model, label, event){
-              var node = vm.zTree.getNodeByParam("id", vm.select_map[item]);
-              vm.zTree.selectNode(node);
-              vm.zTree.expandNode(node);
-              vm.search_init(event)
+              if (vm.isActive === 'tree') {
+                var node = vm.zTree.getNodeByParam("id", vm.select_map[item]);
+                vm.zTree.selectNode(node);
+                vm.zTree.expandNode(node);
+                vm.search_init(event)
+              }else if (vm.isActive === 'department') {
+                var nodes = vm.deptTree.getNodeByParam("tId", vm.select_map[item]);
+                vm.deptTree.selectNode(nodes);
+                vm.deptTree.expandNode(nodes);
+                vm.search_init(event)
+                const newFilter = nodes.filter
+                $rootScope.deptTreeNode = newFilter
+              }
             };
+
             vm.handleTreeChange = function (value) {
               vm.isActive = value
+              vm.select_map = {}
+              $scope.selected = ''
               if (value === 'tree') {
                 $rootScope.deptTreeNode = null
                 var currentsNode = vm.deptTree.getNodeByParam('id', 'root');
                 vm.deptTree.selectNode(currentsNode);
               }else if (value === 'department') {
-                
+                var currentNode = vm.zTree.getNodeByParam("id", $state.params.treeid);
+                vm.zTree.selectNode(currentNode);
               }
             }
+        
+            function flattenTree(tree) {
+              var result = [];
+              function flatten(node) {
+                result.push(node);
+                if (node.children) {
+                  node.children.forEach(function(child) {
+                    flatten(child);
+                  });
+                }
+              }
+              tree.forEach(function(node) {
+                flatten(node);
+              });
+              return result;
+            }
+            
 
             $scope.$watch(function () { return $state.current.name; }, function (newName) {
               if (newName === 'home.device.menu'|| newName === 'home.device.data') {
                 vm.isShow = true
                 vm.isDepartment = true
-                angular.element('#sidebar_left').addClass('show-unfold')
-                angular.element('#content_wrapper').addClass('show-wrapper')
+                angular.element('#sidebar_left').addClass('show-device-unfold')
+                angular.element('#content_wrapper').addClass('show-device-wrapper')
               } else {
                 vm.isShow = false
                 vm.isDepartment = false
-                angular.element('#sidebar_left').removeClass('show-unfold')
-                angular.element('#content_wrapper').removeClass('show-wrapper')
+                angular.element('#sidebar_left').removeClass('show-device-unfold')
+                angular.element('#content_wrapper').removeClass('show-device-wrapper')
               }
             });
         }
