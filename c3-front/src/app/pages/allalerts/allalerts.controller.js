@@ -33,7 +33,7 @@
           labelsSeverity: '告警级别',
           annotationsSummary: '概要',
           annotationsValue: '值',
-          uuid: '认领人',
+          claimUuid: '认领人',
           toBindUuid: '关联工单'
         };
 
@@ -46,8 +46,18 @@
             vm.loadAover = false;
             $http.get('/api/agent/monitor/alert/0?siteaddr=' + vm.siteaddr).success(function(data){
                 if (data.stat){
-                    vm.defaultData = data.data;
-                    const unCheckedData = data.data.filter(item => item.status.state !== 'suppressed' && !vm.dealinfo[item.uuid])
+                    const newData = data.data.map(item => {
+                      item.labelsAlertname = item.labels.alertname
+                      item.labelsObj = vm.getinstancename(item.labels)
+                      item.statueState = item.status.state
+                      item.labelsSeverity = item.labels.severity
+                      item.annotationsSummary = item.annotations.summary
+                      item.annotationsValue = item.annotations.value
+                      item.claimUuid = vm.dealinfo[item.uuid]
+                      return item
+                    })
+                    vm.defaultData = newData;
+                    const unCheckedData = newData.filter(item => item.status.state !== 'suppressed' && !vm.dealinfo[item.uuid])
                     vm.downloadData = unCheckedData
                     vm.dataTable = new ngTableParams({count:25}, {counts:[],data:unCheckedData});
                     vm.loadAover = true;
@@ -230,7 +240,7 @@
             item.labelsSeverity = item.labels.severity
             item.annotationsSummary = item.annotations.summary
             item.annotationsValue = item.annotations.value
-            item.uuid = vm.dealinfo[item.uuid]
+            item.claimUuid = vm.dealinfo[item.uuid]
             item.toBindUuid = vm.tottbind[item.uuid]? vm.tottbind[item.uuid].join(','): ''
             const newData = {};
             angular.forEach(vm.downloadTitleMap, function (key, value) {
