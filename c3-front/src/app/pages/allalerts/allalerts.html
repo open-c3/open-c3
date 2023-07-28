@@ -26,7 +26,7 @@
         <div class="panel-body">
             <div class="panel-tabs">
                 <table ng-table="allalerts.dataTable" class="table table-hover text-center table-condensed" show-filter="true">
-                    <tr ng-repeat="m in $data">
+                    <tr ng-repeat="m in $data" ng-class="{'first-almost': m.labels.severity === 'level1','second-almost': m.labels.severity === 'level2','third-almost': m.labels.severity === 'level3','forth-almost': m.labels.severity === 'level4'}">
                         <td data-title="'C3T.开始时间'|translate" sortable="'startsAt'">{{m.startsAt}}</td>
                         <td data-title="'C3T.名称'|translate" sortable="'labels.alertname'">{{m.labels.alertname}}</td>
                         <td data-title="'C3T.监控对象'|translate" sortable="'labels.instance'">{{allalerts.getinstancename(m.labels)}}</td>
@@ -65,5 +65,21 @@
     justify-content: flex-start;
     align-items: center;
     padding: 10px 0;
+  }
+
+  .first-almost {
+    background-color: #f5a2a2!important;
+  }
+
+  .second-almost {
+    background-color: #ebcccc!important;
+  }
+
+  .third-almost {
+    background-color: #faf2cc!important;
+  }
+
+  .forth-almost {
+    background-color: #d9edf7!important;
   }
 </style>
