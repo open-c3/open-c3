@@ -1,0 +1,103 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import requests
+import subprocess
+import sys
+from urllib.parse import urljoin
+
+
+
+class CheckUserIps:
+    """查询指定邮箱用户可以登录堡垒机的ip列表
+    """
+    def __init__(self):
+        self.domain = self._get_domain()
+        self.token = self._get_token()
+    
+    def _get_cred_account(self):
+        account = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.qizhi.account")
+        password = subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.qizhi.password")
+        return account, password
+
+    def _get_domain(self):
+        return subprocess.getoutput("c3mc-sys-ctl sys.bl.sync.qizhi.domain")
+    
+    def _get_url(self, api_path):
+        return str(urljoin(self.domain, api_path))
+
+    def _get_token(self):
+        account, password = self._get_cred_account()
+
+        url = self._get_url("/shterm/api/authenticate")
+
+        data = {"username": account, "password": password}
+        response = requests.post(url, json=data)
+        if response.status_code != 200:
+            raise RuntimeError(response)
+        return response.json()["ST_AUTH_TOKEN"]
+
+    def check_user_ips(self, email):
+        user_info = self._get_user(email)
+        user_view_list = self._get_user_view_list(user_info["id"])
+
+        ip_set = set()
+        for user_view in user_view_list["content"]:
+            if "servSysList" not in user_view:
+                continue
+
+            for serv_sys in user_view["servSysList"]:
+                for dev in serv_sys["devList"]:
+                    ip_set.add(dev["ip"])
+        
+        return list(ip_set)
+
+    def _get_user(self, email) -> bool:
+        """获取用户详情
+        """
+        url = self._get_url(f"/shterm/api/user?email={email}")
+
+        params = {
+            "email": email,
+        }
+
+        headers = {
+            "st-auth-token": self.token,
+        }
+
+        response = requests.get(url, headers=headers, params=params)
+        data = response.json()
+        if len(data["content"]) == 0:
+            raise RuntimeError(f"无法从堡垒机查到用户 {email}")
+        
+        return data["content"][0]
+
+    def _get_user_view_list(self, user_id) -> bool:
+        """获取指定用户可以登录的所有设备列表
+        """
+        url = self._get_url(f"/shterm/api/dev/userViewList/{user_id}")
+
+        params = {
+            "page": 0,
+            "size": 10000000,
+        }
+
+        headers = {
+            "st-auth-token": self.token,
+        }
+
+        response = requests.get(url, headers=headers, params=params)
+        return response.json()
+    
+    def display(self, email):
+        ip_list = self.check_user_ips(email)
+        for ip in ip_list:
+            print(ip)
+
+
+def main(email):
+    CheckUserIps().display(email)
+
+
+if __name__ == '__main__':
+    main(sys.argv[1])

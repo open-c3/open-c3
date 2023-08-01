@@ -250,3 +250,26 @@ class QcloudCvm:
                 raise RuntimeError(f"等待实例 {instance_id} 变为 {target_status} 状态，但是超时了，超时时间为: {timeout}")
             else:
                 time.sleep(5)
+
+    def wait_until_cvm_instance_type(self, instance_id, target_instance_type, timeout=1800):
+        """等待实例的机器类型变为目标机器类型
+
+        调用修改cvm实例类型的接口后，需要等待异步操作结束。官方给出的方法是持续调用该接口查询机器类型
+
+        Args:
+            instance_id (string): cvm实例ID
+            target_instance_type (string): 目标机器类型。机器类型的值请参考官方，格式类似于: S5.2xLarge
+            timeout (int, optional): 超时时间, 单位秒
+        """
+        start_time = time.time()
+        while True:
+            print(f"等待实例类型变为 {target_instance_type}, instance_id: {instance_id}")
+            instance_info = self.show_cvm(instance_id)
+
+            if instance_info["InstanceType"] == target_instance_type and instance_info["LatestOperationState"] == "SUCCESS":
+                print(f"实例类型成功变为 {target_instance_type}, instance_id: {instance_id}")
+                return
+            elif time.time() - start_time > timeout:
+                raise RuntimeError(f"等待实例类型变为 {target_instance_type}，但是超时了，超时时间为: {timeout}")
+            else:
+                time.sleep(5)

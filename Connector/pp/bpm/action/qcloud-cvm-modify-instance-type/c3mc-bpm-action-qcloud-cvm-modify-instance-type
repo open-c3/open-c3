@@ -28,6 +28,7 @@ class ModifyCvm:
             self.lib_client.wait_cvm_until_status(instance_id, stopped_status, 900)
 
         resp = self.lib_client.reset_instances_type([instance_id], new_instance_type)
+        self.lib_client.wait_until_cvm_instance_type(instance_id, new_instance_type)
         self.lib_client.start_instances(instance_id)
         self.lib_client.wait_cvm_until_status(instance_id, running_status, 900)
 

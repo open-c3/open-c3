@@ -1,0 +1,61 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import argparse
+import sys
+import subprocess
+
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import safe_run_command
+
+
+def main():
+    parser = argparse.ArgumentParser(description="执行堡垒机相关的操作")
+    parser.add_argument('--operate_type', type=str, required=True,
+                        help='''操作类型。可选值: 
+                            getlist: 检查指定用户可访问的ip列表
+                            addauth: 给指定用户添加服务器权限
+                            adduser: 在堡垒机创建用户
+                        ''')
+
+    parser.add_argument('--auth_add_type', type=str, required=False,
+                        help='权限处理类型。1: 添加普通权限; 2: 删除权限; 3: 添加sudo权限; 4: 删除sudo权限(保留账户)')
+    parser.add_argument('--email', type=str, required=False, help='用户邮箱')
+    parser.add_argument('--username', type=str, required=False, help='用户账户名')
+    parser.add_argument('--ip', type=str, required=False, help='目标IP')
+    parser.add_argument('--password', type=str, required=False, help='用户登录堡垒机的密码')
+    parser.add_argument('--sudo_hours', type=int, required=False, help='sudo权限小时数, 申请普通权限时该参数传0')
+    args = parser.parse_args()
+
+    bl_mode = subprocess.getoutput("c3mc-sys-ctl sys.bl.mode").strip()
+
+    if args.operate_type == "getlist":
+        output = safe_run_command([
+            f"c3mc-base-bastion-getlist-{bl_mode}",
+            args.email
+        ])
+        print(output)
+
+    elif args.operate_type == "addauth":
+        output = safe_run_command([
+            f"c3mc-base-bastion-addauth-{bl_mode}",
+            args.auth_add_type,
+            args.username,
+            args.email,
+            args.ip,
+            str(args.sudo_hours),
+        ])
+        print(output)
+    
+    elif args.operate_type == "adduser":
+        output = safe_run_command([
+            f"c3mc-base-bastion-adduser-{bl_mode}",
+            args.username,
+            args.email,
+        ])
+        print(output)
+
+
+if __name__ == '__main__':
+    main()
