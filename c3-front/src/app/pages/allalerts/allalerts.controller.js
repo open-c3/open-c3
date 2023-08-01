@@ -5,15 +5,40 @@
         .module('openc3')
         .controller('AllalertsController', AllalertsController);
 
-    function AllalertsController($http, ngTableParams, $uibModal, genericService) {
+    function AllalertsController($http, ngTableParams, $uibModal, genericService, $interval) {
         var vm = this;
         vm.seftime = genericService.seftime
 
         vm.siteaddr = window.location.protocol + '//' + window.location.host;
         vm.checknewstatus=false;
+        vm.claimStatus = false;
+        vm.alarmLevel = '';
+        vm.levelOption = [
+          { label: '全部级别', value: '' },
+          { label: 'level1', value: 'level1' },
+          { label: 'level2', value: 'level2' },
+          { label: 'level3', value: 'level3', },
+          { label: 'level4', value: 'level4' },
+        ];
+
+        vm.isInterval = false;
+
+        vm.downloadTitleMap = {
+          startsAt: '开始时间',
+          labelsAlertname: '名称',
+          labelsObj: '监控对象',
+          owner: 'Owner',
+          hostname: '资源别名',
+          statueState: '状态',
+          labelsSeverity: '告警级别',
+          annotationsSummary: '概要',
+          annotationsValue: '值',
+          claimUuid: '认领人',
+          toBindUuid: '关联工单'
+        };
+
         vm.defaultData = []
         vm.reload = function () {
-            vm.reloadA();
             vm.reloadB();
             vm.reloadC();
         };
@@ -21,8 +46,19 @@
             vm.loadAover = false;
             $http.get('/api/agent/monitor/alert/0?siteaddr=' + vm.siteaddr).success(function(data){
                 if (data.stat){
-                    vm.defaultData = data.data;
-                    const unCheckedData = data.data.filter(item => item.status.state !== 'suppressed')
+                    const newData = data.data.map(item => {
+                      item.labelsAlertname = item.labels.alertname
+                      item.labelsObj = vm.getinstancename(item.labels)
+                      item.statueState = item.status.state
+                      item.labelsSeverity = item.labels.severity
+                      item.annotationsSummary = item.annotations.summary
+                      item.annotationsValue = item.annotations.value
+                      item.claimUuid = vm.dealinfo[item.uuid]
+                      return item
+                    })
+                    vm.defaultData = newData;
+                    const unCheckedData = newData.filter(item => item.status.state !== 'suppressed' && !vm.dealinfo[item.uuid])
+                    vm.downloadData = unCheckedData
                     vm.dataTable = new ngTableParams({count:25}, {counts:[],data:unCheckedData});
                     vm.loadAover = true;
                 }else {
@@ -50,6 +86,7 @@
             $http.get('/api/agent/monitor/ack/deal/info').success(function(data){
                 if (data.stat){
                     vm.dealinfo = data.data;
+                    vm.reloadA()
                     vm.loadCover = true;
                 }else {
                     swal({ title:'获取列表失败', text: data.info, type:'error' });
@@ -153,16 +190,70 @@
             window.open(url, '_blank')
         };
 
+        vm.handleAlarmChange = function (value) {
+          vm.alarmLevel = value
+          vm.handleSaveStatusChange()
+        }
+
+        // 定时任务开关
+        vm.handleOpenChange = function (type) {
+          swal({
+            title: `${!vm.isInterval ? '开启定时刷新？' : '暂停定时刷新？'}`,
+            type: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#DD6B55",
+            cancelButtonText: "取消",
+            confirmButtonText: "确定",
+            closeOnConfirm: true
+          }, function () {
+            vm.isInterval = !vm.isInterval
+            let timer = $interval(function () {
+              if (vm.isInterval) {
+                vm.reload();
+              }
+            }, 15000);
+            if (type === 'close') {
+              $interval.cancel(timer)
+            }
+          });
+        }
+
         // 保存新状态
         vm.handleSaveStatusChange = function () {
           const selectData = JSON.parse(JSON.stringify(vm.defaultData))
-          if (vm.checknewstatus) {
-            const checkedData = selectData.filter(item => item)
-            vm.dataTable = new ngTableParams({count:25}, {counts:[],data:checkedData});
-          } else {
-            const unCheckedData = selectData.filter(item => item.status.state !== 'suppressed')
-            vm.dataTable = new ngTableParams({count:25}, {counts:[],data:unCheckedData});
-          }
+          const checkedData = selectData.filter(item => 
+            (vm.checknewstatus ? item : item.status.state !== 'suppressed') && 
+            (vm.claimStatus ? item : !vm.dealinfo[item.uuid]) && 
+            (vm.alarmLevel === '' ? item :  item.labels.severity === vm.alarmLevel)
+          )
+          vm.dataTable = new ngTableParams({count:25}, {counts:[],data:checkedData});
+          vm.downloadData = checkedData
+        }
+
+        // 导出函数
+        vm.downloadFunc = function (fileName) {
+          const downLoadArr = []
+          vm.downloadData.map(item => {
+            item.labelsAlertname = item.labels.alertname
+            item.labelsObj = vm.getinstancename(item.labels)
+            item.statueState = item.status.state
+            item.labelsSeverity = item.labels.severity
+            item.annotationsSummary = item.annotations.summary
+            item.annotationsValue = item.annotations.value
+            item.claimUuid = vm.dealinfo[item.uuid]
+            item.toBindUuid = vm.tottbind[item.uuid]? vm.tottbind[item.uuid].join(','): ''
+            const newData = {};
+            angular.forEach(vm.downloadTitleMap, function (key, value) {
+              newData[key] = item[value]
+            })
+            downLoadArr.push(newData)
+          });
+          const workbook = XLSX.utils.book_new();
+          const worksheet = XLSX.utils.json_to_sheet(downLoadArr);
+          XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+          const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'array', stream: true });
+          const blob = new Blob([wbout], { type: 'application/octet-stream' });
+          saveAs(blob, fileName);
         }
     }
 })();

@@ -189,7 +189,7 @@ any '/device/data/:type/:subtype/:treeid' => sub {
             subtype => $csubtype,
             match   => $searchmatch,
             map{
-                $_ => join( ' | ', map{ $d{ $_ } || '' }@{ $outline->{ $_ } } )
+                $_ => join( ' | ', map{ $_ =~ s/@.*//; $_ }map{ $d{ $_ } || '' }@{ $outline->{ $_ } } )
             }qw( uuid baseinfo system contact )
         };
 
@@ -234,8 +234,9 @@ any '/device/data/:type/:subtype/:treeid' => sub {
             for my $col ( qw( subtype baseinfo system contact ) )
             {
                 next unless defined $x->{$col};
-                $x->{$col} =~ s/ //g;
-                my @ddd = split /\|/, $x->{$col};
+                my $tmp = $x->{$col};
+                $tmp =~ s/ //g;
+                my @ddd = split /\|/, $tmp;
 # C3TODO 230316 前端请求了两次，会导致系统变慢，这里临时让toxlsx的时候返回全量的数据
 #                delete $x->{$col};
                 $len{$col} = scalar @ddd if @ddd > $len{$col};
