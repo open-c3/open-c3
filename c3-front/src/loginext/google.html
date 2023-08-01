@@ -1,0 +1,101 @@
+<html>
+
+<body>
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+    }
+
+    .login {
+      background: #f63;
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      width: 100%;
+    }
+
+    .login-image {
+      padding: 20px 0;
+      text-align: center;
+    }
+
+    .login-reload {
+      background: #f63;
+      margin: 100px auto 0;
+      padding: 0;
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .toastr_error {
+      color: #fff;
+      margin: 100px auto 0;
+      text-align: center;
+      font-size: 16px;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .active {
+      display: flex;
+    }
+
+    .none {
+      display: none;
+    }
+  </style>
+  <div class="login">
+    <div class="login-image">
+      <img src="../assets/images/open-c3-logo-v2.jpeg" width="234" />
+
+    </div>
+    <div class="login-reload" id="login-reload">
+      <div id="g_id_onload" data-client_id="1082053348820-9c073famajlb1iqdnok5m6q0ij2qobs5.apps.googleusercontent.com"
+        data-ux_mode="redirect" data-login_uri="https://cc.cmcloud.org/api/connector/loginext/google">
+      </div>
+      <div class="g_id_signin" data-type="standard"></div>
+    </div>
+    <div class="toastr_error" id="toastr_error"></div>
+  </div>
+</body>
+
+<script>
+  function getQueryParams () {
+    const cloudId = document.getElementById('g_id_onload')
+    const loginReloadId = document.getElementById('login-reload')
+    const errorId = document.getElementById('toastr_error')
+
+    const locationSearch = window.location.search
+    const params = {}
+    if (locationSearch) {
+      const queryParam = locationSearch.replace(/([^?&=]+)(=([^&]*))?/g, function (_, key, _, value) {
+        params[decodeURIComponent(key)] = decodeURIComponent(value);
+      });
+      if (params['client_id']) {
+        cloudId.setAttribute('data-client_id', params['client_id'])
+        errorId.classList.add('none');
+        loginReloadId.classList.add('active');
+      }
+      if (params['domain']) {
+        const newDomain = `${params['domain']}/api/connector/loginext/google?callback=${params['callback']}`
+        cloudId.setAttribute('data-login_uri', newDomain)
+        errorId.classList.add('none');
+        loginReloadId.classList.add('active');
+      }
+      if (params['toastrError']) {
+        loginReloadId.classList.remove('active');
+        errorId.classList.remove('none');
+        loginReloadId.classList.add('none');
+        errorId.classList.add('active');
+        errorId.innerHTML = params['toastrError']
+      }
+    }
+  }
+  getQueryParams()
+</script>
+
+</html>
