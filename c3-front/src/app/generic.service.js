@@ -45,6 +45,18 @@
             return time.split(" ")[0]
         }
 
+        fun.convertToQueryParams = function (firstSymbol, obj) {
+          var queryParams = [];
+          for (var key in obj) {
+            if (obj.hasOwnProperty(key)) {
+              var encodedKey = encodeURIComponent(key);
+              var encodedValue = encodeURIComponent(obj[key]);
+              queryParams.push(encodedKey + '=' + encodedValue);
+            }
+          }
+          return `${firstSymbol}${queryParams.join('&')}`;
+        }
+
    return fun
 
   }
