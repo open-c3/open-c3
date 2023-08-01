@@ -21,7 +21,7 @@
                               $log.debug('data   ', res.data);
                               var currentUrl = $window.location.href;
                               var siteaddr = window.location.protocol + '//' + window.location.host;
-                              sessionStorage.setItem('logoutRouter', `${siteaddr}${window.location.hash}`)
+                              sessionStorage.setItem('logoutRouter', `${siteaddr}/${window.location.hash}`)
                               $window.location.href=ssoService.login + '?siteaddr=' + siteaddr + '&callback=' + currentUrl;
                               return null;
                           }

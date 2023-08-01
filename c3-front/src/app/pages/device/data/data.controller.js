@@ -95,8 +95,6 @@
             });
             $http.post('/api/agent/device/data/' + vm.type + '/' + vm.subtype + '/' + `${vm.deptFilter ? 0: vm.treeid}`, { "grepdata": newGrepdata, "timemachine": vm.selectedtimemachine, "toxlsx": 1, pageSize: vm.tablePageSize } ).success(function(data){
                 if (data.stat){
-                    vm.downloadTitle = data.toxlsxtitle
-                    vm.downloadData = data.data
                     vm.checkDataList = data.data
                     vm.dataTable = new ngTableParams({count:25}, {counts:vm.pageSizeOption,data:data.data});
                     vm.filter = data.filter;
@@ -251,25 +249,45 @@
     }
 
     vm.downloadFunc = function (fileName) {
-      if (!vm.downloadTitle) {
-        vm.downloadTitle = []
-      };
-      const downLoadArr = [];
-      vm.downloadData.forEach(item => {
-        const newData = {};
-        if (!vm.downloadTitle.length) {
-          downLoadArr.push(item)
-          return
-        };
-        vm.downloadTitle.forEach(cItem => { newData[cItem] = item[cItem] });
-        downLoadArr.push(newData);
+      vm.exportloadover = true
+      const grepDataJSON = JSON.parse(JSON.stringify(vm.grepdata));
+      const newGrepdata = {};
+      angular.forEach(grepDataJSON, function (value, key) {
+        if (value !== '') {
+          newGrepdata[key] = value
+        }
       });
-      const workbook = XLSX.utils.book_new();
-      const worksheet = XLSX.utils.json_to_sheet(downLoadArr);
-      XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-      const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'array', stream: true });
-      const blob = new Blob([wbout], { type: 'application/octet-stream' });
-      saveAs(blob, fileName);
+      const params = { grepdata: newGrepdata, timemachine: vm.selectedtimemachine, toxlsx: 1, pageSize: '' }
+      $http.post(`/api/agent/device/data/${vm.type}/${vm.subtype}/${vm.deptFilter ? 0: vm.treeid}`, params).success(function(data){
+        vm.exportloadover = false
+          if (data.stat){
+              vm.downloadTitle = data.toxlsxtitle;
+              vm.downloadData = data.data;
+              if (!vm.downloadTitle) {
+                vm.downloadTitle = []
+              };
+              const downLoadArr = [];
+              vm.downloadData.forEach(item => {
+                const newData = {};
+                if (!vm.downloadTitle.length) {
+                  downLoadArr.push(item)
+                  return
+                };
+                vm.downloadTitle.forEach(cItem => { newData[cItem] = item[cItem] });
+                downLoadArr.push(newData);
+              });
+              const workbook = XLSX.utils.book_new();
+              const worksheet = XLSX.utils.json_to_sheet(downLoadArr);
+              XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+              const wbout = XLSX.write(workbook, { bookType: 'xlsx', type: 'array', stream: true });
+              const blob = new Blob([wbout], { type: 'application/octet-stream' });
+              saveAs(blob, fileName);
+          }else {
+            vm.downloadTitle = []
+            vm.downloadData = []
+              swal({ title:'获取数据失败', text: data.info, type:'error' });
+          }
+      });
     }
 
     // 监听全选checkbox

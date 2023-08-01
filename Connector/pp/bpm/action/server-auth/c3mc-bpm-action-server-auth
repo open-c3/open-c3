@@ -4,43 +4,10 @@
 import sys
 import json
 import re
-import subprocess
-import threading
-import time
-import random
-import string
+
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
-from c3mc_utils import check_if_params_safe_in_recycle
-
-# 添加权限时最大的并发线程数
-MAX_CONCURRENT_NUMBER = 13
-
-# 用户登录堡垒机的系统密码长度(用户不可见)
-MAX_LENGTH_OF_PASSWORD = 15
-
-def generate_password():
-    """使用大写字母、小写字母、数字，创建指定长度的密码
-    """
-    char_types = string.ascii_uppercase + string.ascii_lowercase + string.digits
-    return ''.join(random.choice(char_types) for _ in range(MAX_LENGTH_OF_PASSWORD))
-
-
-class ThreadSafeSet:
-    def __init__(self):
-        self.data = set()
-        self._lock = threading.Lock()
-
-    def update(self, value):
-        with self._lock:
-            self.data.add(value)
-
-def is_valid_email(email):
-    """
-    检查邮箱格式是否合法
-    """
-    email_regex = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-    return bool(re.match(email_regex, email))
+from c3mc_utils import check_if_params_safe_in_recycle, safe_run_command
 
 
 def extract_ips(text):
@@ -57,193 +24,20 @@ def extract_ips(text):
     return valid_ips
 
 
-def send_new_user_email(email, password):
-    cmd_parts = ["c3mc-base-db-get", "value",  "--table", "openc3_job_environment",
-                 "--filter", '`key`="bpmjumpserverTemplateEmailTitle"']
-    output = subprocess.run(cmd_parts, capture_output=True, text=True)
-    if output.returncode != 0:
-        print(output.stderr, file=sys.stderr)
-        exit(1)
-    title = output.stdout
-
-    cmd_parts = ["c3mc-base-db-get", "value",  "--table", "openc3_job_environment",
-                 "--filter", '`key`="bpmjumpserverTemplateEmailContent"']
-    output = subprocess.run(cmd_parts, capture_output=True, text=True)
-    if output.returncode != 0:
-        print(output.stderr, file=sys.stderr)
-        exit(1)
-    content = output.stdout.format(password)
-
-    resp = subprocess.run([
-        "c3mc-base-sendmail",
-        email,
-        "--subject", title,
-    ],
-        input=content.encode(),
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-    if resp.returncode != 0:
-        err = resp.stderr.decode('utf-8').rstrip()
-        print(f"发送邮件出错: {err}")
-        exit(1)
-
-
-def create_user_if_need(account, email):
-    """
-    创建堡垒机用户
-    """
-    cmd_parts = ["c3mc-bl-create-user",
-                 "--username", account, "--email", email]
-    output = subprocess.run(cmd_parts, capture_output=True, text=True)
-    if output.returncode != 0:
-        print(output.stderr, file=sys.stderr)
-        exit(1)
-    create_user_resp = json.loads(output.stdout)
-    if create_user_resp["stat"] == 0:
-        print(
-            f'堡垒机用户创建失败. info: "{create_user_resp["info"].strip()}"', file=sys.stderr)
-        exit(1)
-
-    if create_user_resp["stat"] == 1 and create_user_resp["data"].strip() != "":
-        return create_user_resp["data"].strip()
-    return ""
-
-
-# 专门针对单个ip添加权限的线程处理函数
-def process_element(thread_safe_set, ip_info, grant_auth_type, account, email, grant_sudo_hours):
-    log_msg_list = [f"对实例ID {ip_info['instanceId']} 添加权限. "]
-    def add_auth_for_ip(ip):
-        random_password = generate_password()
-
-        cmd_parts = [
-            "c3mc-bl-permission",
-            "--add_type", str(grant_auth_type),
-            "--username", account,
-            "--email", email,
-            "--ip", ip,
-            "--instance_id", ip_info["instanceId"],
-            "--sudo_hours", str(grant_sudo_hours),
-            "--password", random_password,
-        ]
-
-        output = subprocess.run(cmd_parts, capture_output=True, text=True)
-        
-        log_msg_list.append(f"尝试使用对 ip {ip} 添加权限")
-        log_msg_list.append(f"执行的命令为: {' '.join(output.args)}")
-        log_msg_list.append(f"状态码: {output.returncode}")
-        log_msg_list.append(f"输出日志: \n{output.stdout}")
-        if not output.stderr and str(output.stderr).strip() != "":
-            log_msg_list.append(f"错误日志: {output.stderr}")
-
-        if output.returncode == 0:
-            log_msg_list.append(f"LOG. 服务器 {ip} 权限申请成功")
-            log_msg_list.append("====================")
-            thread_safe_set.update(ip)
-            return True
-        log_msg_list.append(f"LOG. 服务器 {ip} 权限申请失败")
-        log_msg_list.append("====================")
-        return False
-
-    for ip in [ip_info["inIP"], ip_info["exIP"]]:
-        if add_auth_for_ip(ip):
-            break
-
-    print("-----------------------------------------------------------------")
-    print("\n\n".join(log_msg_list))
-
-
-def grant_server_auth(account, email, ip_list, grant_auth_type, grant_sudo_hours):
-    # 添加目标服务器的权限
-    # cmd_parts = ["c3mc-device-api-jumpserver",
-    #              "--json", "--cache", "--ips", ",".join(ip_list)]
-    cmd_parts = ["c3mc-device-api-jumpserver",
-                 "--json", "--ips", ",".join(ip_list)]
-    output = subprocess.run(cmd_parts, capture_output=True, text=True)
-    if output.returncode != 0:
-        print(output.stderr, file=sys.stderr)
-        exit(1)
-
-    data_list = json.loads(output.stdout)
-
-    if len(data_list) > len(ip_list):
-        print(f"通过命令c3mc-device-api-jumpserver查询到的结果条目数为: {len(data_list)}, len(ip_list): {len(ip_list)}", file=sys.stderr)
-        print("补充信息, data_list = ", json.dumps(data_list), file=sys.stderr)
-        print("补充信息, ip_list = ", json.dumps(ip_list), file=sys.stderr)
-        exit(1)
-
-    # 判断是否有ip从c3中无法查到
-    for ip in ip_list:
-        found = any(
-            ip_info["inIP"] == ip or ip_info["exIP"] == ip
-            for ip_info in data_list
-        )
-        if not found:
-            print(f"LOG. 服务器 {ip} 权限申请失败。原因: ip在c3中无法找到", file=sys.stderr)
-            exit(1)
-
-    # 线程池
-    thread_pool = []
-
-    # 结果数组, 里面存放成功添加权限的ip
-    thread_safe_set = ThreadSafeSet()
-
-    for ip_info in data_list:
-        while threading.active_count() > MAX_CONCURRENT_NUMBER:
-            time.sleep(0.3)
-
-        t = threading.Thread(target=process_element, args=(
-            thread_safe_set, ip_info, grant_auth_type, account, email, grant_sudo_hours
-        ), name=f"Thread-{ip}")
-        thread_pool.append(t)
-        t.start()
-
-    # 等待所有线程运行完毕
-    for t in thread_pool:
-        t.join()
-
-    for ip in thread_safe_set.data:
-        data_list = [ip_info for ip_info in data_list if ip_info["inIP"] != ip and ip_info["exIP"] != ip]
-
-    for ip_info in data_list:
-        print(f"LOG. 服务器权限申请失败, 内网ip: {ip_info.inIP}, 外网ip: {ip_info.exIP}", file=sys.stderr)
-
-    if data_list:
-        exit(1)
-
-
 def main(params):
     email = params["email"]
     auth_type = params["auth_type"]
     ip_list = extract_ips(params["ip_list"])
-    sudo_hours = int(auth_type.split("_")[1])
 
-    if len(ip_list) == 0:
-        print(f"没有查询到有效的ip, ip_list为空, ip_list原始参数为: {params['ip_list']}", file=sys.stderr)
-        exit(1)
-    
     check_if_params_safe_in_recycle(ip_list, params["bpm_uuid"], "server-auth")
 
-    # add_type 参数取值说明
-    # 1: 添加普通权限; 2: 删除权限; 3: 添加sudo权限; 4: 删除sudo权限(保留账户)
-    add_type = 3 if sudo_hours > 0 else 1
-
-    account = email.split("@")[0]
-
-    if not is_valid_email(email):
-        print("账号不是合法邮箱格式", file=sys.stderr)
-        exit(1)
-
-    # 创建堡垒机用户
-    new_user_pass = create_user_if_need(account, email)
-    if isinstance(new_user_pass, str) and len(new_user_pass) > 0:
-        # 发送邮件
-        send_new_user_email(email, new_user_pass)
-
-    # 添加服务器权限
-    grant_server_auth(account, email, ip_list, add_type, sudo_hours)
-
-    print("LOG. 权限添加结束")
+    safe_run_command([
+        "c3mc-base-bastion-add-server-auth",
+        email,
+        auth_type,
+        params["ip_list"],
+        params["bpm_uuid"],
+    ])
 
 
 if __name__ == '__main__':

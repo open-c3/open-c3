@@ -12,6 +12,7 @@ import hashlib
 import random
 import base64
 import string
+import re
 
 
 def print_c3debug1_log(msg):
@@ -243,13 +244,17 @@ def retry_network_request(func, arg):
             attempt += 1
 
 
-def generate_password(length):
+def generate_password(length, with_special_symbol=True):
     """生成指定长度的密码
 
     Args:
         length (int): 指定密码长度
+        with_special_symbol(bool): 是否包含特殊字符。默认是
     """
     pwd_chars = string.ascii_letters + string.digits + '!@#%^()'
+    if not with_special_symbol:
+        pwd_chars = string.ascii_letters + string.digits
+
     random.seed(time.time_ns())
     return ''.join(random.choice(pwd_chars) for _ in range(length))
 
@@ -286,6 +291,33 @@ def safe_run_command(cmd_parts):
     """
     output = subprocess.run(cmd_parts, capture_output=True, text=True)
     if output.returncode != 0:
-        print(output.stderr, file=sys.stderr)
-        exit(1)
+        raise RuntimeError(output.stderr)
+
     return output.stdout
+
+def is_valid_email(email) -> bool:
+    """检查邮箱格式是否合法
+
+    Args:
+        email (str): 邮箱地址
+    """
+    email_regex = re.compile(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b')
+    return bool(email_regex.match(email))
+
+def get_instance_info_list(ip_list):
+    """查询指定ip列表的资源详情
+
+    Args:
+        ip_list (list): ip列表
+    """
+    output = safe_run_command([
+        "c3mc-device-api-jumpserver",
+        "--json", 
+        "--ips", 
+        ",".join(ip_list) 
+    ])
+    data_list = json.loads(output)
+    if len(data_list) != len(ip_list):
+        raise RuntimeError(f"无法从c3查询到指定数量ip的详情, ip_list: {ip_list}")
+    
+    return data_list
