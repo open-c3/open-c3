@@ -29,12 +29,16 @@ post '/loginext/google' => sub {
     my $param = params();
     my $error = Format->new(
         credential => qr/^[a-zA-Z0-9\@_\.\-_]+$/, 1,
+        callback => qr/./, 0,
     )->check( %$param );
 
     my $makeErrUrl = sub
     {
         my $err = shift @_;
-        return sprintf "%s/loginext/google.html?toastrError=$err&%s", $api::loginext::data{'google'}{'domain'}, join '&', map{ "$_=$api::loginext::data{'google'}{$_}" }keys %{$api::loginext::data{'google'}};
+        return sprintf "%s/loginext/google.html?toastrError=$err&callback=%s&%s",
+            $api::loginext::data{'google'}{'domain'},
+            $param->{callback} || '',
+            join '&', map{ "$_=$api::loginext::data{'google'}{$_}" }keys %{$api::loginext::data{'google'}};
     };
 
     return redirect &$makeErrUrl( "check format fail $error" ) if $error;
@@ -99,7 +103,19 @@ post '/loginext/google' => sub {
     eval{ $api::mysql->execute( "insert into openc3_connector_user_login_audit( `user`,`uuid`,`action`,`ip`,`t` ) values('$user','$uuid','login','$ip','$time')" ); };
     return redirect &$makeErrUrl( "Err: $@" ) if $@;
 
-    redirect $api::loginext::data{'google'}{'domain'};
+    my $redirect = $api::loginext::data{'google'}{'domain'};
+    if( $param->{callback} )
+    {
+        if( $param->{callback} =~ s/https{0,1}:\/\/// )
+        {
+            $redirect = $param->{callback};
+        }
+        else
+        {
+            $redirect = $param->{callback} =~ /^\// ? "$redirect$param->{callback}" : "$redirect/$param->{callback}";
+        }
+    }
+    redirect $redirect;
 };
 
 true;
