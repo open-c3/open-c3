@@ -5,7 +5,7 @@
         .module('openc3')
         .controller('LoginController', LoginController);
 
-    function LoginController($scope, $state, $http, $injector, $location ) {
+    function LoginController($scope, $state, $http, $injector, $location, genericService ) {
         var vm = this;
         var toastr = toastr || $injector.get('toastr');
         vm.callback = sessionStorage.getItem('logoutRouter') ? sessionStorage.getItem('logoutRouter') : $location.search()['callback'];
@@ -13,6 +13,48 @@
         vm.logining
         vm.mfakey = '';
         vm.mfa    = '';
+        vm.iconMap = {
+          google: '/assets/images/google-logo.png',
+        };
+        vm.disableIconMap = {
+          google: '/assets/images/google-disable-logo.png',
+        };
+        vm.thirdPartyLoading = true;
+        vm.thirdPartyWay = [];
+        vm.queryParamsArr = {};
+        vm.convertToQueryParams = genericService.convertToQueryParams
+
+        vm.thirdPartyLogin = function () {
+          $http.get('/api/connector/loginext').success(function (data) {
+            if (data.stat) {
+              vm.thirdPartyData = data.data
+              angular.forEach(vm.thirdPartyData, function (value, key) {
+                if (key !== 'default') {
+                  vm.thirdPartyWay.push({key, value})
+                }
+              })
+              if (vm.thirdPartyData.default) {
+                const newDefault = vm.thirdPartyData.default
+                vm.handleJumpClick(vm.thirdPartyWay.filter(item=> item.key === newDefault)[0])
+              } else {
+                vm.thirdPartyLoading = false
+              }
+            }else {
+              vm.thirdPartyLoading = false
+              toastr.error('API Error!');
+            }
+          }).error(function (data) {
+            vm.thirdPartyLoading = false
+            toastr.error('API Error!');
+          })
+        };
+        vm.thirdPartyLogin();
+
+        vm.handleJumpClick = function (info) {
+          angular.forEach(info.value, function (value, key) { if (key !== 'on') vm.queryParamsArr[key] = value })
+          vm.queryParamsArr['callback'] = vm.callback
+          window.location.href = `${window.location.origin}/loginext/${info.key}.html${vm.convertToQueryParams('?', vm.queryParamsArr)}`
+        }
 
         vm.login = function(mfa)
         {

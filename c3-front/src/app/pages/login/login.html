@@ -10,7 +10,15 @@
             <span>OPEN-C3</span>
         </p>
     </h1>
+    <div class="spinner" ng-if="login.thirdPartyLoading">
+      <div class="rect1"></div>
+      <div class="rect2"></div>
+      <div class="rect3"></div>
+      <div class="rect4"></div>
+      <div class="rect5"></div>
+    </div>
 
+    <div ng-if="!login.thirdPartyLoading">
     <div>
         <div id="login">
 
@@ -60,10 +68,27 @@
                 </p>
 
             </form>
- 
+  
             <span> 
                 <a href="https://oa.openc3.com/" cmlang="login_find_pwd"></a>
             </span>
         </div>
+    </div>
+
+    <!-- 其他登录方式 -->
+    <div ng-if="login.thirdPartyWay && login.thirdPartyWay.length > 0" class="other-third-party-way">
+      <!-- 第三方登录方式 -->
+      <div class="other-third-party-way-select">
+        <span>{{'C3T.其他登录方式'| translate}}:</span>
+        <div ng-repeat="item in login.thirdPartyWay" class="other-third-party-way-select-arr">
+          <div ng-if="item.value.on && item.value.on === '1'" class="other-third-party-way-select-logo">
+            <img src="{{login.iconMap[item.key]}}" alt="item.key" ng-click="login.handleJumpClick(item)">
+          </div>
+          <div ng-if="!item.value.on" class="other-third-party-way-select-disable-logo">
+            <img src="{{login.disableIconMap[item.key]}}" alt="item.key">
+          </div>
+        </div>
+      </div>
+    </div>
     </div>
 </div>
