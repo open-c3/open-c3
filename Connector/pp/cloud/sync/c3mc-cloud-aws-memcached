@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 import sys
+import json
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
 from c3mc_cloud_aws_elasticache import Elasticache
@@ -9,7 +10,9 @@ from c3mc_cloud_aws_elasticache import Elasticache
 
 def main(access_id, access_key, region):
     try:
-        Elasticache("memcached", access_id, access_key, region).show()
+        instance_list = Elasticache(access_id, access_key, region).list_instances("memcached")
+        for instance in instance_list:
+            print(json.dumps(instance, default=str))
     except Exception as e:
         print(f"同步aws memcached资源出错. access_id: {access_id}, region: {region}", file=sys.stderr) 
         raise e

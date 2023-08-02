@@ -18,7 +18,14 @@ def tag_delete(data, access_id, access_key, region, uin):
     
     rid = f"qcs::cvm:{data[field_name_list[0]]}:uin/{uin}:instance/{data[field_name_list[1]]}"
 
-    lib_client.tag_delete(rid, [data["_control_"]["tag-delete"]["key"]])
+    tag_key_list = []
+    for item in data["_control_"]["tag-delete"]["tags"].split(","):
+        parts = item.split("=")
+        if len(parts) != 2:
+            continue
+        tag_key_list.append(parts[0])
+
+    lib_client.tag_delete(rid, tag_key_list)
 
 
 def main(data, access_id, access_key, region, uin):

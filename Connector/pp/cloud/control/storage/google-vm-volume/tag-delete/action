@@ -23,13 +23,18 @@ def tag_delete(data, cred_json_path):
 
     service = discovery.build('compute', 'v1', credentials=credentials)
 
-    need_delete_key = data["_control_"]["tag-delete"]["key"]
+    need_delete_key_set = set()
+    for item in data["_control_"]["tag-delete"]["tags"].split(","):
+        parts = item.split("=")
+        if len(parts) != 2:
+            continue
+        need_delete_key_set.add(parts[0])
 
-    labels = {}
-    for label in instance["tags_list"]:
-        if label["Key"] != need_delete_key:
-            labels[label["Key"]] = label["Value"]
-
+    labels = {
+        label["Key"]: label["Value"]
+        for label in instance["tags_list"]
+        if label["Key"] not in need_delete_key_set
+    }
     request_body = {
         "labels": labels,
         "labelFingerprint": instance["labelFingerprint"]

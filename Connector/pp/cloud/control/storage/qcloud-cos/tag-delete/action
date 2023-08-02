@@ -20,7 +20,14 @@ def tag_add(data, access_id, access_key, region, uin):
     
     rid = f"qcs::cos:{data[field_name_list[0]]}:uid/{name_parts[-1]}:prefix/{name_parts[-1]}/{'-'.join(name_parts[:-1])}/*"
 
-    lib_client.tag_delete(rid, [data["_control_"]["tag-delete"]["key"]])
+    need_delete_key_set = set()
+    for item in data["_control_"]["tag-delete"]["tags"].split(","):
+        parts = item.split("=")
+        if len(parts) != 2:
+            continue
+        need_delete_key_set.add(parts[0])
+
+    lib_client.tag_delete(rid, list(need_delete_key_set))
 
 
 def main(data, access_id, access_key, region, uin):

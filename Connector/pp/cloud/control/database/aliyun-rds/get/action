@@ -7,38 +7,37 @@ import subprocess
 
 from aliyunsdkcore.client import AcsClient
 from aliyunsdkcore.auth.credentials import AccessKeyCredential
-from aliyunsdkrds.request.v20140815.DescribeDBInstanceAttributeRequest import DescribeDBInstanceAttributeRequest
+from aliyunsdkrds.request.v20140815.DescribeDBInstanceAttributeRequest import (
+    DescribeDBInstanceAttributeRequest,
+)
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_aliyun_rds import LibAliyunRds
 
 
 def get(data, access_id, access_key, region):
     """
-        输出 aliyun rds 的详情(json格式)
+    输出 aliyun rds 的详情(json格式)
     """
-    credentials = AccessKeyCredential(
-        access_id, access_key)
+    lib_client = LibAliyunRds(access_id, access_key, region)
+
+    credentials = AccessKeyCredential(access_id, access_key)
     client = AcsClient(region_id=region, credential=credentials)
 
     field_name = subprocess.getoutput(
-        "c3mc-cloud-get-real-field database aliyun-rds DBInstanceId")
+        "c3mc-cloud-get-real-field database aliyun-rds DBInstanceId"
+    )
 
     request = DescribeDBInstanceAttributeRequest()
-    request.set_accept_format('json')
+    request.set_accept_format("json")
     request.set_DBInstanceId(data[field_name])
 
     response = client.do_action_with_exception(request)
     for instance in json.loads(response)["Items"]["DBInstanceAttribute"]:
         if instance["DBInstanceId"] == data[field_name]:
-            instance["Tag"] = list_tag(
-                access_id, access_key, region, instance["DBInstanceId"])
+            instance["Tag"] = lib_client.list_tag(instance["DBInstanceId"])
             return instance
-    raise Exception(
-        "根据 DBInstanceId {} 未找到 aliyun rds".format(data[field_name]))
-
-
-def list_tag(access_id, access_key, region, instance_id):
-    sys.path.append("/data/Software/mydan/Connector/lib/pp")
-    from c3mc_cloud_aliyun_rds_get_tag import GetTag
-    return GetTag(access_id, access_key, region, instance_id).list_tag()
+    raise RuntimeError(f"根据 DBInstanceId {data[field_name]} 未找到 aliyun rds")
 
 
 def main(data, access_id, access_key, region):
@@ -46,11 +45,9 @@ def main(data, access_id, access_key, region):
     print(json.dumps(data, default=str))
 
 
-if __name__ == '__main__':
-    l = []
-    for line in sys.stdin:
-        l.append(line)
-    if len(l) == 0 or len(l) > 1:
-        raise Exception("数据格式不对, 需要一行json字符串")
+if __name__ == "__main__":
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise RuntimeError("数据格式不对, 需要一行json字符串")
 
     main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4])

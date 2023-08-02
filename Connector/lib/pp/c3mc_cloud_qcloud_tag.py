@@ -27,7 +27,7 @@ class QcloudTag:
         clientProfile = ClientProfile()
         clientProfile.httpProfile = httpProfile
         return tag_client.TagClient(cred, self.region, clientProfile)
-    
+
     def tag_query(self, rid):
         """使用腾讯云资源六段式表示法获取标签列表
 
@@ -38,7 +38,7 @@ class QcloudTag:
             # 实例化一个请求对象,每个接口都会对应一个request对象
             req = models.GetResourcesRequest()
             params = {
-                "ResourceList": [ rid ],
+                "ResourceList": [rid],
                 "MaxResults": 200
             }
             if pagination_token is not None:
@@ -47,7 +47,7 @@ class QcloudTag:
             req.from_json_string(json.dumps(params))
             resp = self.client.GetResources(req)
             return json.loads(resp.to_json_string())
-         
+
         data = []
 
         resp = get_page_tags()
@@ -59,7 +59,7 @@ class QcloudTag:
 
             if token == "" or not tag_list:
                 return data
-       
+
         while token != "":
             resp = get_page_tags()
             token = resp["PaginationToken"]
@@ -72,9 +72,8 @@ class QcloudTag:
 
             if token == "" or not tag_list:
                 break
-        
-        return data
 
+        return data
 
     def tag_add(self, rid, tag_list):
         """增加标签
@@ -90,14 +89,14 @@ class QcloudTag:
         }
         req.from_json_string(json.dumps(params))
 
-        self.client.TagResources(req)
-    
+        return self.client.TagResources(req)
+
     def tag_delete(self, rid, key_list):
         """删除指定的标签
 
         Args:
             rid (str): rid
-            tag_key (list): 要删除的标签键列表
+            key_list (list): 要删除的标签键列表
         """
         req = models.UnTagResourcesRequest()
         params = {
@@ -107,11 +106,12 @@ class QcloudTag:
         req.from_json_string(json.dumps(params))
 
         self.client.UnTagResources(req)
-    
+
     def add_tag_by_replace(self, rid, tag_list):
         """添加标签。但是会删除在忽略大小写的情况下旧的标签
         比如, 现在实例已经有了标签键 test, 要添加的标签里有 TEST 标签键。则会删除 test 标签并添加 TEST 标签
         """
+
         def split_tag_list(curr_tag_list):
             need_delete_keys = []
 
@@ -123,7 +123,7 @@ class QcloudTag:
                     and tag["key"] != curr_tag["TagKey"]
                 )
             return need_delete_keys
-        
+
         def check_if_ok():
             curr_tag_list = self.tag_query(rid)
 
@@ -143,6 +143,7 @@ class QcloudTag:
             if need_delete_keys:
                 # 删除大小写同名的旧标签
                 self.tag_delete(rid, need_delete_keys)
+
         run()
 
         # 检查新标签是否添加成功
@@ -151,7 +152,3 @@ class QcloudTag:
             ok = check_if_ok()
             time.sleep(5)
             run()
-
-
-
-

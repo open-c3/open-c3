@@ -14,7 +14,7 @@ from c3mc_cloud_aws_elbv2 import ELBV2
 
 def get(data, access_id, access_key, region):
     """
-        输出 aws alb 的详情(json格式)
+    输出 aws alb 的详情(json格式)
     """
     client = boto3.client(
         "elbv2",
@@ -22,21 +22,21 @@ def get(data, access_id, access_key, region):
         aws_secret_access_key=access_key,
         region_name=region,
     )
-
-    field_name = subprocess.getoutput(
-        "c3mc-cloud-get-real-field networking aws-alb LoadBalancerName")
-
-    response = client.describe_load_balancers(
-        Names=[data[field_name]],
-    )
-
     lib_client = ELBV2(access_id, access_key, region)
 
-    for instance in response["LoadBalancers"]:
-        if instance["LoadBalancerName"] == data[field_name]:
-            instance["Tag"] = lib_client.list_tags(instance["LoadBalancerArn"])[instance["LoadBalancerArn"]]
-            return instance
-    raise RuntimeError(f"根据 LoadBalancerName {data[field_name]} 未找到 aws alb")
+    arn_field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field networking aws-alb LoadBalancerArn"
+    )
+
+    response = client.describe_load_balancers(
+        LoadBalancerArns=[data[arn_field_name]],
+    )
+
+    lb_instance = response["LoadBalancers"][0]
+    lb_instance["Tag"] = lib_client.list_tags([lb_instance["LoadBalancerArn"]])[
+        lb_instance["LoadBalancerArn"]
+    ]
+    return lb_instance
 
 
 def main(data, access_id, access_key, region):
@@ -44,7 +44,7 @@ def main(data, access_id, access_key, region):
     print(json.dumps(data, default=str))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     l = list(sys.stdin)
     if not l or len(l) > 1:
         raise RuntimeError("数据格式不对, 需要一行json字符串")

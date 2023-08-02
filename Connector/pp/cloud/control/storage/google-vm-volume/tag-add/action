@@ -27,8 +27,12 @@ def tag_add(data, cred_json_path):
     for label in instance["tags_list"]:
         labels[label["Key"]] = label["Value"]
 
-    labels[data["_control_"]["tag-add"]["key"]
-           ] = data["_control_"]["tag-add"]["value"]
+    for item in data["_control_"]["tag-add"]["tags"].split(","):
+        parts = item.split("=")
+        if len(parts) != 2:
+            continue
+
+        labels[parts[0]] = parts[1]
 
     request_body = {
         "labels": labels,
