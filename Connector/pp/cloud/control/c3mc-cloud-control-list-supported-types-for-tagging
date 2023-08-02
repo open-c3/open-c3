@@ -1,0 +1,48 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import os
+
+EXCLUDE_CLOUD = ["google"]
+EXCLUDE_RESOURCE = []
+
+CONTRL_PATH = "/data/Software/mydan/Connector/pp/cloud/control"
+
+
+def find_matching_directories(dir_path, target_dir_name):
+    return [
+        os.path.join(root, target_dir_name)
+        for root, dirs, files in os.walk(dir_path)
+        if target_dir_name in dirs
+    ]
+
+
+def run():
+    # 如果有该目录明，说明该资源类型支持标签修改
+    target_dir_name = "tag-add"
+
+    data = []
+    
+    dir_list = find_matching_directories(CONTRL_PATH, target_dir_name)
+    for item in dir_list:
+        parts = item.split("/")
+
+        resource_type = parts[-2]
+        cloud = resource_type.split("-")[0]
+        if cloud in EXCLUDE_CLOUD:
+            continue
+        if resource_type in EXCLUDE_RESOURCE:
+            continue
+
+        data.append(f"{parts[-3]};{resource_type}")
+    
+    return data
+
+def main():
+    data = run()
+    for item in data:
+        print(item)
+
+
+if __name__ == '__main__':
+    main()

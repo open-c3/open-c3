@@ -43,3 +43,16 @@ class AWS_S3:
 
         names = [bucket_info["Name"] for bucket_info in response["Buckets"]]
         return sorted(names, reverse=False)
+
+    def update_tags(self, bucket_name, tag_list):
+        """给实例更新标签
+
+        Args:
+            bucket_name: 存储桶名称
+            tag_list (list): 要更新的标签列表。格式为 [{"Key": "key1", "Value": "value1"}, {"Key": "key2", "Value": "value2"}]
+        """
+        return self.client.put_bucket_tagging(
+            Bucket=bucket_name,
+            Tagging={"TagSet": tag_list},
+        )
+

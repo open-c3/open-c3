@@ -1,6 +1,5 @@
 #!/usr/bin/env /data/Software/mydan/python3/bin/python3
 # -*- coding: utf-8 -*-
-
 from qcloud_cos import CosConfig
 from qcloud_cos import CosS3Client
 

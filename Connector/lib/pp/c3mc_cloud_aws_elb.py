@@ -84,3 +84,27 @@ class LibElb:
         return self.client.delete_load_balancer(
             LoadBalancerName=load_balancer_name
         )
+
+    def add_tags(self, load_balancer_name, tag_list):
+        """给实例添加一个或多个标签
+
+        Args:
+            load_balancer_name: elb名称
+            tag_list (list): 要添加的标签列表。格式为 [{"Key": "key1", "Value": "value1"}, {"Key": "key2", "Value": "value2"}]
+        """
+        return self.client.add_tags(
+            LoadBalancerNames=[load_balancer_name],
+            Tags=tag_list
+        )
+
+    def remove_tags(self, load_balancer_name, need_delete_list):
+        """给实例删除一个或多个标签
+
+        Args:
+            load_balancer_name: elb名称
+            need_delete_list (list): 要删除的标签key列表。格式为 [{"Key": "key1"}, {"Key": "key2"}]
+        """
+        return self.client.remove_tags(
+            LoadBalancerNames=[load_balancer_name],
+            Tags=need_delete_list
+        )

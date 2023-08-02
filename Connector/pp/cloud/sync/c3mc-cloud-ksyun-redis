@@ -54,7 +54,7 @@ class Kcs:
         except Exception as e:
             if "由于未知错误" in str(e):
                 print(
-                    f"同步金山云redis资源出现错误, 可能是区域配置错误问题. ak = {self.access_id}, region = {self.region}",
+                    f"同步金山云redis资源出现错误, 可能是区域配置错误问题. ak = {self.access_id}, region = {self.region}, err = {str(e)}",
                     file=sys.stderr,
                 )
                 return 0

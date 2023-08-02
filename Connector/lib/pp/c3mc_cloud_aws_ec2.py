@@ -3,14 +3,9 @@
 
 import json
 import time
-import sys
 
 import boto3
 from botocore.exceptions import ClientError
-
-
-sys.path.append("/data/Software/mydan/Connector/lib/pp")
-from c3mc_utils import exponential_backoff
 
 
 class LIB_EC2:
@@ -73,7 +68,6 @@ class LIB_EC2:
         """
         return self.client.associate_address(AllocationId=eip_allocation_id, InstanceId=instance_id)
 
-
     def describe_instances(self, instance_ids):
         """
         查询ec2实例详情
@@ -86,7 +80,7 @@ class LIB_EC2:
         Args:
             instance_ids (list): 要停止的ec2实例id列表
         """
-        return self.client.stop_instances(InstanceIds=instance_ids)
+        return self.client.stop_instances(InstanceIds=instance_ids, Force=True)
 
     def start_instances(self, instance_ids):
         """启动ec2实例
@@ -151,7 +145,6 @@ class LIB_EC2:
                 break
 
         return events
-    
 
     def describe_all_instances_of_region(self):
         """
@@ -177,12 +170,11 @@ class LIB_EC2:
 
         return instances
 
-
     def decode_auth_failure_message(self, region, access_key, secret_key, encoded_msg):
         sts = boto3.client('sts',
-                        region_name=region,
-                        aws_access_key_id=access_key,
-                        aws_secret_access_key=secret_key)
+                           region_name=region,
+                           aws_access_key_id=access_key,
+                           aws_secret_access_key=secret_key)
 
         try:
             response = sts.decode_authorization_message(
@@ -192,7 +184,6 @@ class LIB_EC2:
         except ClientError as e:
             print(f"解码错误: {e}")
             return None
-
 
     def modify_instance_attribute(self, attribute):
         """修改ec2实例的属性信息
@@ -209,13 +200,15 @@ class LIB_EC2:
         except ClientError as e:
             if e.response['Error']['Code'] == 'UnauthorizedOperation':
                 error_msg = e.response['Error']['Message']
-                encoded_msg_start = error_msg.find('Encoded authorization failure message: ') + len('Encoded authorization failure message: ')
+                encoded_msg_start = error_msg.find('Encoded authorization failure message: ') + len(
+                    'Encoded authorization failure message: ')
                 encoded_msg = error_msg[encoded_msg_start:]
-                decoded_msg = self.decode_auth_failure_message(self.region, self.access_id, self.access_key, encoded_msg)
+                decoded_msg = self.decode_auth_failure_message(self.region, self.access_id, self.access_key,
+                                                               encoded_msg)
                 print(f"解码的授权失败消息: {decoded_msg}")
             else:
                 print(f"ClientError: {e}")
-    
+
     def wait_ec2_until_status(self, instance_id, target_status, timeout=600):
         """等待ec2实例进入目标状态
 
@@ -228,7 +221,8 @@ class LIB_EC2:
 
         start_time = time.time()
         while True:
-            print(f"等待实例处于 {target_status} 状态, instance_id: {instance_id}, region: {self.region}, 超时时间: {timeout}")
+            print(
+                f"等待实例处于 {target_status} 状态, instance_id: {instance_id}, region: {self.region}, 超时时间: {timeout}")
 
             try:
                 instance_info = self.describe_instances([instance_id])["Reservations"][0]["Instances"][0]
@@ -244,7 +238,8 @@ class LIB_EC2:
                 if error_str:
                     raise RuntimeError(error_str)
 
-                raise RuntimeError(f"等待实例处于 {target_status} 状态, instance_id: {instance_id}, 出现超时错误, timeout: {timeout}") 
+                raise RuntimeError(
+                    f"等待实例处于 {target_status} 状态, instance_id: {instance_id}, 出现超时错误, timeout: {timeout}")
             else:
                 time.sleep(5)
 
@@ -266,7 +261,7 @@ class LIB_EC2:
                 return False
             else:
                 time.sleep(5)
-    
+
     def allocate_address(self, number, tags=None):
         """创建指定个数的eip(用于后续绑定eip)
 
@@ -289,7 +284,6 @@ class LIB_EC2:
 
         return allocation_ids
 
-
     def bind_eip_to_ec2(self, instance_ids, allocation_ids):
         """给ec2绑定eip。instance_ids的长度和allocation_ids必须相等
 
@@ -298,8 +292,9 @@ class LIB_EC2:
             tags (list, optional): 要给eip绑定的标签列表(这里标签列表一般使用ec2的标签列表)。
         """
         if len(instance_ids) != len(allocation_ids):
-            raise RuntimeError(f"传入的实例id数目和要绑定的eip的数目不等, instance_ids: {instance_ids}, allocation_ids: {allocation_ids}")
-        
+            raise RuntimeError(
+                f"传入的实例id数目和要绑定的eip的数目不等, instance_ids: {instance_ids}, allocation_ids: {allocation_ids}")
+
         for index, instance_id in enumerate(instance_ids):
             allocation_id = allocation_ids[index]
 
@@ -308,15 +303,19 @@ class LIB_EC2:
 
             # eip绑定ec2实例
             response = self.associate_address(allocation_id, instance_id)
-            print(f"绑定eip和ec2, instance_id: {instance_id}, allocationId: {allocation_id}, 结果: {json.dumps(response)}")
+            print(
+                f"绑定eip和ec2, instance_id: {instance_id}, allocationId: {allocation_id}, 结果: {json.dumps(response)}")
 
-    
     def copy_tags_of_instance_to_volume(self, instance_ids):
         """将ec2的标签都打在关联的所有volume上
 
         Args:
             instance_ids (list): ec2实例id列表
         """
+        # C3TODO 230801  这里添加休眠是因为在开ec2的时候，有时在下面调用describe_instances的时候会出现查找不到实例的错误
+        # 但是这个时候实例已经创建出来了。这里尝试休眠一段时间发现可以避免问题，后面需要找到更好的解决方案
+        time.sleep(60)
+
         for instance_id in instance_ids:
             instance_info = self.describe_instances([instance_id])["Reservations"][0]["Instances"][0]
             tags = instance_info['Tags']
@@ -327,7 +326,7 @@ class LIB_EC2:
                 volume_id = volume['VolumeId']
                 res = self.client.create_tags(Resources=[volume_id], Tags=tags)
                 print(f"对volume打标签. instance_id: {instance_id}, volume_id: {volume_id}, 结果: {json.dumps(res)}")
-    
+
     def release_address_of_ec2(self, instance_ids):
         """释放ec2实例的弹性ip列表
 
@@ -364,7 +363,7 @@ class LIB_EC2:
             for volume in volumes:
                 if is_root_volume(volume):
                     # 跳过root volume
-                    continue  
+                    continue
                 volume_id = volume["VolumeId"]
                 print(f"准备删除ec2实例的volume, instance_id: {instance_id}, volume_id: {volume_id}")
                 self.client.detach_volume(
@@ -373,7 +372,8 @@ class LIB_EC2:
                 )
                 timeout = 600
                 if not self.wait_volume_until_status(volume_id, "available", timeout):
-                    raise RuntimeError(f"等待volume处于 available 状态超时, volume_id: {volume_id}, 超时时间: {timeout} 秒")
+                    raise RuntimeError(
+                        f"等待volume处于 available 状态超时, volume_id: {volume_id}, 超时时间: {timeout} 秒")
                 self.client.delete_volume(VolumeId=volume_id)
 
     def delete_ec2(self, instance_ids):
@@ -383,7 +383,7 @@ class LIB_EC2:
             instance_ids (list): ec2 id列表
         """
 
-        self.stop_instances(instance_ids) 
+        self.stop_instances(instance_ids)
         for instance_id in instance_ids:
             self.wait_ec2_until_status(instance_id, "stopped", 900)
 
@@ -392,3 +392,27 @@ class LIB_EC2:
         # 这里显式的删除数据盘是为了防止有人在其他地方开ec2在这里回收
         self.delete_volumes_of_ec2(instance_ids)
         self.terminate_instances(instance_ids)
+
+    def add_tags(self, instance_id, tag_list):
+        """给实例添加一个或多个标签
+
+        Args:
+            instance_id (str): 实例id
+            tag_list (list): 要添加的标签列表。格式为 [{"Key": "key1", "Value": "value1"}, {"Key": "key2", "Value": "value2"}]
+        """
+        return self.client.create_tags(
+            Resources=[instance_id],
+            Tags=tag_list
+        )
+
+    def remove_tags(self, instance_id, tag_list):
+        """给实例添加一个或多个标签
+
+        Args:
+            instance_id (str): 实例id
+            tag_list (list): 要删除的标签列表。格式为 [{"Key": "key1", "Value": "value1"}, {"Key": "key2", "Value": "value2"}]
+        """
+        return self.client.delete_tags(
+            Resources=[instance_id],
+            Tags=tag_list
+        )

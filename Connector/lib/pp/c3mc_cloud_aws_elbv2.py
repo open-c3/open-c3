@@ -27,7 +27,7 @@ class ELBV2:
 
     def get_instances_from_response(self, response_data):
         return response_data["LoadBalancers"]
-    
+
     def show_lb_info(self, load_balancer_arn):
         """查询elbv2详情。如果不存在则返回None
 
@@ -42,7 +42,7 @@ class ELBV2:
             if "One or more load balancers not found" in str(e):
                 return None
             raise e
-        
+
         return resp['LoadBalancers'][0]
 
     def list_instances(self):
@@ -120,7 +120,7 @@ class ELBV2:
             for instance in instance_list
             if instance["Type"] == resource_type
         ]
-    
+
     def describe_target_groups(self, load_balancer_arn):
         """
         查询elb的target groups列表
@@ -146,7 +146,7 @@ class ELBV2:
                 break
 
         return target_groups
-    
+
     def delete_target_group(self, target_group_arn):
         """删除指定的target group
 
@@ -157,7 +157,6 @@ class ELBV2:
             TargetGroupArn=target_group_arn
         )
 
-    
     def delete_load_balancer(self, load_balancer_arn):
         """删除elbv2
 
@@ -178,13 +177,13 @@ class ELBV2:
         timeout = 900
         while True:
             if time.time() - now > timeout:
-                raise RuntimeError(f"等待 {timeout} 秒后云端依然没有删掉 alb {load_balancer_arn}") 
-            
+                raise RuntimeError(f"等待 {timeout} 秒后云端依然没有删掉 alb {load_balancer_arn}")
+
             if not self.show_lb_info(load_balancer_arn):
                 break
 
             time.sleep(5)
-        
+
         # C3TODO 20230725 测试发现删除lb后马上删除target group会有异常
         # 没找到其他合适的办法，这里先临时休眠一阵子。假如休眠
         # 时间不足，则执行下面的操作会出错
@@ -193,3 +192,26 @@ class ELBV2:
         for target_group in target_group_list:
             self.delete_target_group(target_group["TargetGroupArn"])
 
+    def add_tags(self, arn, tag_list):
+        """给实例添加一个或多个标签
+
+        Args:
+            arn: 资源arn
+            tag_list (list): 要添加的标签列表。格式为 [{"Key": "key1", "Value": "value1"}, {"Key": "key2", "Value": "value2"}]
+        """
+        return self.client.add_tags(
+            ResourceArns=[arn],
+            Tags=tag_list
+        )
+
+    def remove_tags(self, arn, need_delete_list):
+        """给实例删除一个或多个标签
+
+        Args:
+            arn: 资源arn
+            need_delete_list (list): 要删除的标签key列表。格式为 ["key1", "key2"]
+        """
+        return self.client.remove_tags(
+            ResourceArns=[arn],
+            TagKeys=need_delete_list
+        )

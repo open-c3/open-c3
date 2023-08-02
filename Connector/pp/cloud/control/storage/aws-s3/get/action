@@ -8,17 +8,21 @@ import subprocess
 
 def get(data, access_id, access_key, region):
     """
-        输出 aws s3 的详情(json格式)
+    输出 aws s3 的详情(json格式)
     """
 
     name_field_name = subprocess.getoutput(
-        "c3mc-cloud-get-real-field storage aws-s3 BucketName")
+        "c3mc-cloud-get-real-field storage aws-s3 BucketName"
+    )
     create_field_name = subprocess.getoutput(
-        "c3mc-cloud-get-real-field storage aws-s3 CreationDate")
+        "c3mc-cloud-get-real-field storage aws-s3 CreationDate"
+    )
     region_field_name = subprocess.getoutput(
-        "c3mc-cloud-get-real-field storage aws-s3 RegionId")
+        "c3mc-cloud-get-real-field storage aws-s3 RegionId"
+    )
     uuid_field_name = subprocess.getoutput(
-        "c3mc-cloud-get-real-field storage aws-s3 UUID")
+        "c3mc-cloud-get-real-field storage aws-s3 UUID"
+    )
 
     # 目前s3的详情都是拼出来的，唯一可能发生变化的是标签
     return {
@@ -26,14 +30,15 @@ def get(data, access_id, access_key, region):
         "BucketName": data[name_field_name],
         "CreationDate": data[create_field_name],
         "RegionId": data[region_field_name],
-        "Tags": list_tag(access_id, access_key, region, data[name_field_name])
+        "Tags": list_tag(access_id, access_key, region, data[name_field_name]),
     }
 
 
 def list_tag(access_id, access_key, region, bucket_name):
     sys.path.append("/data/Software/mydan/Connector/lib/pp")
     from c3mc_cloud_aws_s3 import AWS_S3
-    return AWS_S3(access_id, access_key, region, bucket_name).list_tag()
+
+    return AWS_S3(access_id, access_key, region).list_tag(bucket_name)
 
 
 def main(data, access_id, access_key, region):
@@ -41,11 +46,9 @@ def main(data, access_id, access_key, region):
     print(json.dumps(data, default=str))
 
 
-if __name__ == '__main__':
-    l = []
-    for line in sys.stdin:
-        l.append(line)
-    if len(l) == 0 or len(l) > 1:
-        raise Exception("数据格式不对, 需要一行json字符串")
+if __name__ == "__main__":
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise RuntimeError("数据格式不对, 需要一行json字符串")
 
     main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4])

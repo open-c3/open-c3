@@ -13,7 +13,7 @@ from aliyunsdkrds.request.v20140815.DescribeDBInstanceAttributeRequest import (
 )
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
-from c3mc_cloud_aliyun_rds_get_tag import GetTag
+from c3mc_cloud_aliyun_rds import LibAliyunRds
 
 
 class RDS:
@@ -24,6 +24,7 @@ class RDS:
         self.page_number = 1
         self.page_size = 50
         self.client = self.create_client()
+        self.lib_client = LibAliyunRds(access_id, access_key, region)
 
     def create_client(self):
         return AcsClient(self.access_id, self.access_key, self.region)
@@ -58,14 +59,9 @@ class RDS:
             request.set_DBInstanceId(instance_id)
             response = self.client.do_action_with_exception(request)
             rds_attribute_data = json.loads(response)["Items"]["DBInstanceAttribute"][0]
-            rds_attribute_data["Tag"] = self.list_tag(
-                self.access_id, self.access_key, self.region, instance_id
-            )
+            rds_attribute_data["Tag"] = self.lib_client.list_tag(instance_id)
             rds_attribute_data_list.append(rds_attribute_data)
         return rds_attribute_data_list
-
-    def list_tag(self, access_id, access_key, region, instance_id):
-        return GetTag(access_id, access_key, region, instance_id).list_tag()
 
     def show(self):
         rds_attribute_data_list = self.get_attribute_response()

@@ -14,25 +14,31 @@ from huaweicloudsdkevs.v2 import *
 
 def get(data, access_id, access_key, project_id, region):
     """
-        输出huawei ecs volume的详情(json格式)
+    输出huawei ecs volume的详情(json格式)
     """
     if project_id == "None":
         project_id = None
     credentials = BasicCredentials(access_id, access_key, project_id)
 
-    ecs_client = EcsClient.new_builder() \
-        .with_credentials(credentials) \
-        .with_region(EcsRegion.value_of(region)) \
+    ecs_client = (
+        EcsClient.new_builder()
+        .with_credentials(credentials)
+        .with_region(EcsRegion.value_of(region))
         .build()
-    evs_client = EvsClient.new_builder() \
-        .with_credentials(credentials) \
-        .with_region(EvsRegion.value_of(region)) \
+    )
+    evs_client = (
+        EvsClient.new_builder()
+        .with_credentials(credentials)
+        .with_region(EvsRegion.value_of(region))
         .build()
+    )
 
     id_field_name = subprocess.getoutput(
-        "c3mc-cloud-get-real-field storage huawei-ecs-volume id")
+        "c3mc-cloud-get-real-field storage huawei-ecs-volume id"
+    )
     server_field_name = subprocess.getoutput(
-        "c3mc-cloud-get-real-field storage huawei-ecs-volume server_id")
+        "c3mc-cloud-get-real-field storage huawei-ecs-volume server_id"
+    )
 
     request = ShowServerBlockDeviceRequest()
     request.volume_id = data[id_field_name]
@@ -59,11 +65,9 @@ def main(data, access_id, access_key, project_id, region):
     print(json.dumps(data, default=str))
 
 
-if __name__ == '__main__':
-    l = []
-    for line in sys.stdin:
-        l.append(line)
-    if len(l) == 0 or len(l) > 1:
-        raise Exception("数据格式不对, 需要一行json字符串")
+if __name__ == "__main__":
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise RuntimeError("数据格式不对, 需要一行json字符串")
 
     main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])

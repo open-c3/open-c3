@@ -15,19 +15,19 @@ from c3mc_cloud_huawei_vpc import Vpc
 
 def get(data, access_id, access_key, project_id, region):
     """
-        输出huawei ecs的详情(json格式)
+    输出huawei ecs的详情(json格式)
     """
     if project_id == "None":
         project_id = None
-    credentials = BasicCredentials(access_id, access_key, project_id) \
-
-    client = EcsClient.new_builder() \
-        .with_credentials(credentials) \
-        .with_region(EcsRegion.value_of(region)) \
+    credentials = BasicCredentials(access_id, access_key, project_id)
+    client = (
+        EcsClient.new_builder()
+        .with_credentials(credentials)
+        .with_region(EcsRegion.value_of(region))
         .build()
+    )
 
-    field_name = subprocess.getoutput(
-        "c3mc-cloud-get-real-field compute huawei-ecs id")
+    field_name = subprocess.getoutput("c3mc-cloud-get-real-field compute huawei-ecs id")
 
     request = ShowServerRequest()
     request.server_id = data[field_name]
@@ -36,26 +36,26 @@ def get(data, access_id, access_key, project_id, region):
 
     instance = response["server"]
 
-    for key in instance['addresses']:
-        for item in instance['addresses'][key]:
+    for key in instance["addresses"]:
+        for item in instance["addresses"][key]:
             if item["OS-EXT-IPS:type"] == "fixed":
-                instance['private_ip'] = item['addr']
+                instance["private_ip"] = item["addr"]
             else:
-                instance['public_ip'] = item['addr']
+                instance["public_ip"] = item["addr"]
 
-    instance['os'] = instance['metadata']['os_type']
-    instance['flaver_id'] = instance['flavor']['id']
-    instance['zone_id'] = instance['OS-EXT-AZ:availability_zone']
-    instance['region_id'] = region
-    instance.pop('metadata', None)
-    instance.pop('OS-EXT-SRV-ATTR:user_data', None)
+    instance["os"] = instance["metadata"]["os_type"]
+    instance["flaver_id"] = instance["flavor"]["id"]
+    instance["zone_id"] = instance["OS-EXT-AZ:availability_zone"]
+    instance["region_id"] = region
+    instance.pop("metadata", None)
+    instance.pop("OS-EXT-SRV-ATTR:user_data", None)
 
     huawei_vpc = Vpc(access_id, access_key, project_id, region)
     if len(list(instance["addresses"])) > 0:
         vpc_id = list(instance["addresses"])[0]
         vpc_info = huawei_vpc.show_vpc(vpc_id)
-        instance['vpc_id'] = vpc_id
-        instance['vpc_name'] = vpc_info["name"]
+        instance["vpc_id"] = vpc_id
+        instance["vpc_name"] = vpc_info["name"]
 
     return instance
 
@@ -65,11 +65,9 @@ def main(data, access_id, access_key, project_id, region):
     print(json.dumps(data, default=str))
 
 
-if __name__ == '__main__':
-    l = []
-    for line in sys.stdin:
-        l.append(line)
-    if len(l) == 0 or len(l) > 1:
-        raise Exception("数据格式不对, 需要一行json字符串")
+if __name__ == "__main__":
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise RuntimeError("数据格式不对, 需要一行json字符串")
 
     main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])

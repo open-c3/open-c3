@@ -13,7 +13,7 @@ class Flavors:
         self.access_id = access_id
         self.access_key = access_key
         self.region = region
-        if project_id == None:
+        if project_id in [None, "None"]:
             self.project_id = None
         else:
             self.project_id = project_id.strip()
