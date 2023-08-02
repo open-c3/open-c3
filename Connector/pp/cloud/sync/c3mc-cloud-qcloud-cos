@@ -52,6 +52,11 @@ class Cos:
         if response["Buckets"] is None:
             return []
         for bucket in response["Buckets"]["Bucket"]:
+            if "Type" in bucket and bucket["Type"] == "tcb":
+                # 忽略tcb类型的数据, tcb看着也不是存储桶
+                # 并且这种数据在后续处理中可能会出错
+                continue
+
             self.sleep()
             bucket["tags"] = self.lib_client.list_tag(bucket["Name"], bucket["Location"])
             result.append(bucket)
