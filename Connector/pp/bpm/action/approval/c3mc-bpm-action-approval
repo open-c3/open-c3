@@ -244,6 +244,12 @@ for my $user ( @approver )
     my $muuid = uuid->new()->create_str;
     print "LOG. Send mesg to $user, wait for his confirmation\n";
     my $tempeo = $everyone ? 'YES' :'NO';
+
+    if( length( $cont ) >= 20000 )
+    {
+        $cont = substr( $cont, 0, 19980 ) . "\n.. more ..";
+    }
+
     if( $relaxed && $user eq $submitter )
     {
         eval{ $db->execute( 
