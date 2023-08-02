@@ -312,6 +312,10 @@ class LIB_EC2:
         Args:
             instance_ids (list): ec2实例id列表
         """
+        # C3TODO 230801  这里添加休眠是因为在开ec2的时候，有时在下面调用describe_instances的时候会出现查找不到实例的错误
+        # 但是这个时候实例已经创建出来了。这里尝试休眠一段时间发现可以避免问题，后面需要找到更好的解决方案
+        time.sleep(60)
+
         for instance_id in instance_ids:
             instance_info = self.describe_instances([instance_id])["Reservations"][0]["Instances"][0]
             tags = instance_info['Tags']
