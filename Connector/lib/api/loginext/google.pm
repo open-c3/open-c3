@@ -76,6 +76,8 @@ post '/loginext/google' => sub {
 
     my $user = $dat->{email};
     return redirect &$makeErrUrl( "call www.googleapis.com nofind user" ) unless $user;
+    return redirect &$makeErrUrl( "call www.googleapis.com,$user email not verified" ) unless $dat->{email_verified} && $dat->{email_verified} eq 'true';
+    return redirect &$makeErrUrl( "call www.googleapis.com,$user email not verified" ) unless $dat->{azp} && $dat->{azp} eq $api::loginext::data{'google'}{'client_id'};
 
     my @chars = ( "A" .. "Z", "a" .. "z", 0 .. 9 );
     my $keys = join("", @chars[ map { rand @chars } ( 1 .. 64 ) ]);
@@ -103,19 +105,22 @@ post '/loginext/google' => sub {
     eval{ $api::mysql->execute( "insert into openc3_connector_user_login_audit( `user`,`uuid`,`action`,`ip`,`t` ) values('$user','$uuid','login','$ip','$time')" ); };
     return redirect &$makeErrUrl( "Err: $@" ) if $@;
 
-    my $redirect = $api::loginext::data{'google'}{'domain'};
-    if( $param->{callback} )
-    {
-        if( $param->{callback} =~ s/https{0,1}:\/\/// )
-        {
-            $redirect = $param->{callback};
-        }
-        else
-        {
-            $redirect = $param->{callback} =~ /^\// ? "$redirect$param->{callback}" : "$redirect/$param->{callback}";
-        }
-    }
-    redirect $redirect;
+## callback 功能临时屏蔽，传递进来的callback没有协议头
+#    my $redirect = $api::loginext::data{'google'}{'domain'};
+#    if( $param->{callback} )
+#    {
+#        if( $param->{callback} =~ s/https{0,1}:\/\/// )
+#        {
+#            $redirect = $param->{callback};
+#        }
+#        else
+#        {
+#            $redirect = $param->{callback} =~ /^\// ? "$redirect$param->{callback}" : "$redirect/$param->{callback}";
+#        }
+#    }
+
+    redirect $api::loginext::data{'google'}{'domain'};
+#    redirect $redirect;
 };
 
 true;
