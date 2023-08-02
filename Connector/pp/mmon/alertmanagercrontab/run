@@ -1,0 +1,97 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use LWP::UserAgent;
+use JSON;
+use Time::Piece;
+use Data::Dumper;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $ua = LWP::UserAgent->new;
+$ua->timeout( 15 );
+my $res = $ua->get( "http://openc3-alertmanager:9093/api/v2/silences?silenced=false&inhibited=false&active=true" );
+
+die sprintf( "http code %s", $res->code ) unless $res->is_success;
+
+my $v = eval{ JSON::decode_json $res->decoded_content };
+die "data no JSON: $@"  if $@;
+
+my ( %task , %skip );
+
+for my $x ( @$v )
+{
+    next if $x->{status}{state} eq 'expired';
+    if( $x->{comment} eq 'crontab.by.' )
+    {
+        $task{$x->{id}} = $x;
+    }
+    elsif( $x->{comment} =~ /crontab\.by\.([a-zA-Z0-9\-]+)\b/ )
+    {
+        $skip{$1} ++;
+    }
+}
+
+sub timeadd
+{
+    my ( $time, $addtime ) = @_;
+    die unless $time =~ /^(.+)(\.\d{3}Z)$/;
+    my ( $t, $tail ) = ( $1, $2 );
+    my $dt = Time::Piece->strptime($t, "%Y-%m-%dT%H:%M:%S");
+    $dt += $addtime;
+    return sprintf "%s$tail",  $dt->strftime("%Y-%m-%dT%H:%M:%S");
+}
+
+sub diffday
+{
+    my ( $time ) = @_;
+    die unless $time =~ /^(.+)(\.\d{3}Z)$/;
+    my ( $t, $tail ) = ( $1, $2 );
+    my $dt = Time::Piece->strptime($t, "%Y-%m-%dT%H:%M:%S");
+    my $unixTimestamp = $dt->epoch;
+    return int( ( $unixTimestamp - time ) / 86400 );
+}
+
+sub add
+{
+    my $data = shift @_;
+    my %post;
+    $post{comment  } = "crontab.by.$data->{id}";
+    $post{createdBy} = "openc3.am.crontab";
+    $post{matchers } = $data->{matchers};
+
+    my $day = diffday( $data->{startsAt} );
+    return unless $day > 0;
+
+    $post{startsAt} = timeadd( $data->{startsAt}, - ( 86400 * $day));
+    $post{endsAt  } = timeadd( $data->{endsAt  }, - ( 86400 * $day));
+
+    my $ua = LWP::UserAgent->new();
+    $ua->agent('Mozilla/9 [en] (Centos; Linux)');
+
+    $ua->timeout( 15 );
+    $ua->default_header ( 'Cache-control' => 'no-cache', 'Pragma' => 'no-cache' );
+
+    my $url = "http://openc3-alertmanager:9093/api/v2/silences";
+
+    my $res = $ua->post( "http://openc3-alertmanager:9093/api/v2/silences",
+        Content        => JSON::encode_json( \%post ),
+        'Content-Type' => 'application/json'
+    );
+
+    printf "%s\n", JSON::encode_json( \%post );
+    die sprintf( "http code %s", $res->code ) unless $res->is_success;
+}
+
+for my $uuid ( keys %task )
+{
+    next if $skip{$uuid};
+    add( $task{$uuid});
+}
+
