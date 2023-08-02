@@ -1,0 +1,197 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+"""
+该脚本主要用来给飞书用户发送消息
+
+注意: 飞书发送消息的接口频率限制是 1000 次/分钟、50 次/秒
+"""
+
+
+import json
+import requests
+import re
+import os
+import sys
+import traceback
+import subprocess
+from datetime import datetime
+
+
+def is_valid_email(email):
+    email_regex = r"[^@]+@[^@]+\.[^@]+"
+    return re.match(email_regex, email) is not None
+
+
+def generate_time_str_v1():
+    """
+    生成日志文件名中使用的时间戳。格式是: 20230802165521.369
+    """
+    now = datetime.now()
+    datetime_str = now.strftime("%Y%m%d%H%M%S")
+    millisecond_str = str(now.microsecond // 1000).zfill(3)  # 微秒转毫秒并补零
+    return f'{datetime_str}.{millisecond_str}'
+
+
+def generate_time_str_v2():
+    """
+    生成目录名中使用的时间戳。格式是: 2023-08-02
+    """
+    now = datetime.now()
+    return now.strftime("%Y-%m-%d")
+
+class Logger:
+    def __init__(self, log_path) -> None:
+        os.makedirs(os.path.dirname(log_path), exist_ok=True)
+        self.log_path = log_path
+
+    def log(self, message):
+        self.log_file = open(self.log_path, 'a')
+        self.log_file.write(message + '\n')
+        self.log_file.flush()
+
+    def close_log(self):
+        self.log_file.close()
+    
+    def rename_file(self, if_success):
+        """外部操作是否成功对文件重命名。调用完[close_log]后再执行[rename_file]，否则文件无法关闭
+        """
+        if if_success:
+            os.rename(self.log_path, f"{self.log_path}.ok")
+        else:
+            os.rename(self.log_path, f"{self.log_path}.fail")
+
+
+class FeiShu:
+    def __init__(self, ):
+        self.tenant_access_token = self.get_tenant_access_token()
+
+    def get_tenant_access_token(self):
+        url = 'https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal'
+
+        app_id = subprocess.getoutput("c3mc-sys-ctl sys.send.feishu.app_id").strip()
+        app_secret = subprocess.getoutput("c3mc-sys-ctl sys.send.feishu.app_secret").strip()
+        if app_id == "" or app_secret == "":
+            raise RuntimeError("请填写飞书应用的应用凭证信息")
+        
+        data = {
+            'app_id': app_id,
+            'app_secret': app_secret
+        }
+        response = requests.post(url, data=data)
+        return json.loads(response.text)["tenant_access_token"]
+
+    def get_user_id_dict(self, user_email_or_phone_list):
+        """通过手机号或邮箱获取用户 ID
+
+        Args:
+            user_email_or_phone_list: 用户邮箱或者手机号列表。不要对同一个用户同时输入邮箱和手机号
+
+        Returns:
+            {
+                "example_email@xxx.com": "ou_xxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                "187888888888": "ou_yyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy",
+            }
+
+        """
+        url = 'https://open.feishu.cn/open-apis/contact/v3/users/batch_get_id'
+
+        headers = {
+            'Authorization': f"Bearer {self.tenant_access_token}",
+            'Content-Type': "application/json; charset=utf-8"
+        }
+        data = {
+            "emails": [],
+            "mobiles": []
+        }
+        for item in user_email_or_phone_list:
+            if is_valid_email(item):
+                data["emails"].append(item)
+            else:
+                data["mobiles"].append(item)
+
+        result = {}
+
+        response = requests.post(url, headers=headers, json=data)
+        resp_data = json.loads(response.text)
+        for item in resp_data["data"]["user_list"]:
+            if "email" in item:
+                result[item["email"]] = item["user_id"]
+            else:
+                result[item["mobile"]] = item["user_id"]
+
+        return result
+
+    def send_message(self, receive_id, message):
+        """给指定用户发送消息
+
+        Args:
+            receive_id: 接收者id
+            message: 消息
+        """
+        url = 'https://open.feishu.cn/open-apis/im/v1/messages'
+
+        headers = {
+            'Authorization': f"Bearer {self.tenant_access_token}",
+            'Content-Type': "application/json; charset=utf-8"
+        }
+        params = {
+            'receive_id_type': 'open_id'
+        }
+        post_body = {
+            "receive_id": receive_id,
+            "msg_type": "text",
+            "content": json.dumps({
+                "text": message
+            })
+        }
+
+        response = requests.post(url, headers=headers, params=params, json=post_body)
+        return json.loads(response.text), params, post_body
+
+    def send_message_to_users(self, user_email_or_phone_list, message):
+        """给指定列表的用户发送消息
+
+        Args:
+            user_email_or_phone_list (list): 用户列表，可以用邮箱或者手机号指定用户。一个用户只能指定一次否则会多次发送相同消息
+            message (str): 消息内容
+        """
+        user_id_dict = self.get_user_id_dict(user_email_or_phone_list)
+
+        for user_identifier, user_id in user_id_dict.items():
+            try:
+                resp, params, post_body = self.send_message(user_id, message)
+
+                if_success = True
+                if resp["code"] != 0:
+                    if_success = False
+
+                log_path = self.generate_log_file_name(user_identifier)
+                log = Logger(log_path)
+                log.log(f"消息内容: {message}")
+                log.log(f"查询参数: {json.dumps(params)}")
+                log.log(f"请求体: {json.dumps(post_body)}")
+                log.log(f"接口响应: {json.dumps(resp)}")
+                log.close_log()
+
+                log.rename_file(if_success)
+            except Exception as e:
+                error_info = traceback.format_exc()
+                log.log(f"发送消息时程序出错, 异常信息为: {str(e)}, 错误栈为: \n${error_info}")
+                log.rename_file(False)
+                raise RuntimeError(f"消息发送失败, user: {user_identifier}, err: {str(e)}, message: {message}") from e
+
+    def generate_log_file_name(self, user_identifier):
+        return f"/data/open-c3-data/send/{generate_time_str_v2()}/feishu/{generate_time_str_v1()}.{user_identifier}"
+
+
+def main(message):
+    FeiShu().send_message_to_users(sys.argv[1:], message.strip())
+
+
+if __name__ == "__main__":
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise RuntimeError("数据格式不对, 需要一条消息数据")
+
+    main(l[0])
