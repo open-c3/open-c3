@@ -176,7 +176,7 @@ get '/monitor/ack/:uuid' => sub {
         $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
     }
 
-    return  +{ stat => $JSON::false, info => "check format fail $error" } unless $user && $user =~ /^[a-zA-Z0-9][a-zA-Z0-9@\.\-_\/]+[a-zA-Z0-9]$/;
+    return  +{ stat => $JSON::false, info => "user error" } unless $user && $user =~ /^[a-zA-Z0-9][a-zA-Z0-9@\.\-_\/]+[a-zA-Z0-9]$/;
     my $u = ( split /\//, $user )[0];
 
     my @col = qw( id labels fingerprint caseuuid );
