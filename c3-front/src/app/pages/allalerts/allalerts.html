@@ -2,7 +2,9 @@
 <div class="row block" >
 
 <div>
-
+  <div style="position: fixed; top: 80px; right: 10px; display: flex; flex-direction: column; align-items: flex-end; z-index: 9999;">
+    <button ng-click="allalerts.debugswitch()" style="width: 50px; height: 50px; border-radius: 50%; background-color: #FF6633; color: white;">debug</button>
+</div> 
   <div class="admin-form row filter-switch">
     <div class="filter-switch-items">
       <div class="filter-switch-items-label control-label fwbold">{{'C3T.显示已抑制的告警'|translate}}：</div>
@@ -60,6 +62,7 @@
             <div class="panel-tabs">
                 <table ng-table="allalerts.dataTable" class="table table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data" ng-class="{'first-almost': m.labels.severity === 'level1','second-almost': m.labels.severity === 'level2','third-almost': m.labels.severity === 'level3','forth-almost': m.labels.severity === 'level4'}">
+                        <td data-title="'uuid'"  filter="{uuid: 'text'}" ng-if="allalerts.hasDebugStatus">{{m.uuid}}</td>  
                         <td data-title="'C3T.开始时间'|translate" sortable="'startsAt'" filter="{startsAt: 'text'}">{{m.startsAt}}</td>
                         <td data-title="'C3T.名称'|translate" sortable="'labels.alertname'" filter="{labelsAlertname: 'text'}">{{m.labels.alertname}}</td>
                         <td data-title="'C3T.监控对象'|translate" sortable="'labels.instance'" filter="{labelsObj: 'text'}">{{allalerts.getinstancename(m.labels)}}</td>
