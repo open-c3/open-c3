@@ -341,6 +341,7 @@ post '/monitor/ack/:uuid' => sub {
         {
             # 事件屏蔽
             $api::mysql->execute( "insert into openc3_monitor_ack_active ( uuid,type,treeid,edit_user,expire,ackuuid ) select `caseuuid`,'$type',treeid,'$user','$time','$uuid' from openc3_monitor_ack_table  where ackuuid='$uuid'" );
+            $type eq 'P' ? &$ackscP() : &$ackscC();
         }
         elsif( $ctrl eq 'ackdeal' )
         {
@@ -369,6 +370,7 @@ post '/monitor/ack/:uuid' => sub {
             my $cmd = sprintf "c3mc-mon-alertmanager-silence -c 'by-c3-ack-($md5)' -u '$user' %s", join ' ', map{ "'$_'" }@x;
             my $xxx = `$cmd 2>&1`;
             die "alertmanager-silence err: $xxx\n" if $?;
+            &$ackscC();
         }
         elsif( $ctrl eq 'ackscA' )
         {
@@ -389,6 +391,7 @@ post '/monitor/ack/:uuid' => sub {
         {
             # 监控屏蔽
             $api::mysql->execute( "insert into openc3_monitor_ack_active ( uuid,type,treeid,edit_user,expire,ackuuid ) select `fingerprint`,'$type',treeid,'$user','$time','$uuid' from openc3_monitor_ack_table  where ackuuid='$uuid'" );
+            $type eq 'P' ? &$ackscP() : &$ackscC();
         }
     };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
