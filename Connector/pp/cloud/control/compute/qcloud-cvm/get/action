@@ -16,7 +16,7 @@ from c3mc_cloud_qcloud_vpc import QcloudVpc
 
 def get(data, access_id, access_key, region):
     """
-        输出 qcloud cvm 的详情(json格式)
+    输出 qcloud cvm 的详情(json格式)
     """
     cred = credential.Credential(access_id, access_key)
     httpProfile = HttpProfile()
@@ -27,15 +27,13 @@ def get(data, access_id, access_key, region):
     client = cvm_client.CvmClient(cred, region, clientProfile)
 
     field_name = subprocess.getoutput(
-        "c3mc-cloud-get-real-field compute qcloud-cvm InstanceId")
-
+        "c3mc-cloud-get-real-field compute qcloud-cvm InstanceId"
+    )
 
     vpc_client = QcloudVpc(access_id, access_key, region)
 
     req = models.DescribeInstancesRequest()
-    params = {
-        "InstanceIds": [data[field_name]]
-    }
+    params = {"InstanceIds": [data[field_name]]}
     req.from_json_string(json.dumps(params))
 
     resp = client.DescribeInstances(req)
@@ -43,18 +41,23 @@ def get(data, access_id, access_key, region):
         if instance.InstanceId == data[field_name]:
             item = json.loads(str(instance))
             item["RegionId"] = region
-            if item["PrivateIpAddresses"] is not None and len(item["PrivateIpAddresses"]) > 0:
+            if (
+                item["PrivateIpAddresses"] is not None
+                and len(item["PrivateIpAddresses"]) > 0
+            ):
                 item["PrivateIP"] = item["PrivateIpAddresses"][0]
-            if item["PublicIpAddresses"] is not None and len(item["PublicIpAddresses"]) > 0:
+            if (
+                item["PublicIpAddresses"] is not None
+                and len(item["PublicIpAddresses"]) > 0
+            ):
                 item["PublicIP"] = item["PublicIpAddresses"][0]
 
             if item["VirtualPrivateCloud"]["VpcId"] is not None:
                 item["VpcId"] = item["VirtualPrivateCloud"]["VpcId"]
-                item["VpcName"] =  vpc_client.show_vpc(item["VpcId"])["VpcName"]
+                item["VpcName"] = vpc_client.show_vpc(item["VpcId"])["VpcName"]
 
             return item
-    raise Exception(
-        "根据 InstanceId {} 未找到 qcloud cvm".format(data[field_name]))
+    raise Exception("根据 InstanceId {} 未找到 qcloud cvm".format(data[field_name]))
 
 
 def main(data, access_id, access_key, region):
@@ -62,11 +65,9 @@ def main(data, access_id, access_key, region):
     print(json.dumps(data, default=str))
 
 
-if __name__ == '__main__':
-    l = []
-    for line in sys.stdin:
-        l.append(line)
-    if len(l) == 0 or len(l) > 1:
-        raise Exception("数据格式不对, 需要一行json字符串")
+if __name__ == "__main__":
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise RuntimeError("数据格式不对, 需要一行json字符串")
 
     main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4])

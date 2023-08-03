@@ -13,7 +13,7 @@ from tencentcloud.clb.v20180317 import clb_client, models
 
 def get(data, access_id, access_key, region):
     """
-        输出 qcloud clb 的详情(json格式)
+    输出 qcloud clb 的详情(json格式)
     """
     cred = credential.Credential(access_id, access_key)
     httpProfile = HttpProfile()
@@ -24,7 +24,8 @@ def get(data, access_id, access_key, region):
     client = clb_client.ClbClient(cred, region, clientProfile)
 
     field_name = subprocess.getoutput(
-        "c3mc-cloud-get-real-field networking qcloud-clb LoadBalancerId")
+        "c3mc-cloud-get-real-field networking qcloud-clb LoadBalancerId"
+    )
 
     status_code_m = {
         0: "创建中",
@@ -32,9 +33,7 @@ def get(data, access_id, access_key, region):
     }
 
     req = models.DescribeLoadBalancersRequest()
-    params = {
-        "LoadBalancerIds": [data[field_name]]
-    }
+    params = {"LoadBalancerIds": [data[field_name]]}
     req.from_json_string(json.dumps(params))
 
     resp = client.DescribeLoadBalancers(req)
@@ -46,8 +45,7 @@ def get(data, access_id, access_key, region):
             if "Status" in data and isinstance(data["Status"], int):
                 data["StatusZhDesc"] = status_code_m[data["Status"]]
             return data
-    raise Exception(
-        "根据 LoadBalancerId {} 未找到 qcloud clb".format(data[field_name]))
+    raise Exception("根据 LoadBalancerId {} 未找到 qcloud clb".format(data[field_name]))
 
 
 def main(data, access_id, access_key, region):
@@ -55,11 +53,9 @@ def main(data, access_id, access_key, region):
     print(json.dumps(data, default=str))
 
 
-if __name__ == '__main__':
-    l = []
-    for line in sys.stdin:
-        l.append(line)
-    if len(l) == 0 or len(l) > 1:
-        raise Exception("数据格式不对, 需要一行json字符串")
+if __name__ == "__main__":
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise RuntimeError("数据格式不对, 需要一行json字符串")
 
     main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4])

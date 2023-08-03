@@ -6,25 +6,27 @@ import json
 import subprocess
 
 from aliyunsdkcore.client import AcsClient
-from aliyunsdkecs.request.v20140526.DescribeInstancesRequest import DescribeInstancesRequest
+from aliyunsdkecs.request.v20140526.DescribeInstancesRequest import (
+    DescribeInstancesRequest,
+)
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
 from c3mc_cloud_aliyun_vpc import LibVpc
 
 
-
 def get(data, access_id, access_key, region):
     """
-        输出 aliyun ecs 的详情(json格式)
+    输出 aliyun ecs 的详情(json格式)
     """
     client = AcsClient(access_id, access_key, region)
 
     field_name = subprocess.getoutput(
-        "c3mc-cloud-get-real-field compute aliyun-ecs InstanceId")
+        "c3mc-cloud-get-real-field compute aliyun-ecs InstanceId"
+    )
     instance_id = data[field_name]
 
     request = DescribeInstancesRequest()
-    request.set_accept_format('json')
+    request.set_accept_format("json")
     request.set_InstanceIds([instance_id])
 
     vpc_client = LibVpc(access_id, access_key, region)
@@ -47,11 +49,9 @@ def main(data, access_id, access_key, region):
     print(json.dumps(data, default=str))
 
 
-if __name__ == '__main__':
-    l = []
-    for line in sys.stdin:
-        l.append(line)
-    if len(l) == 0 or len(l) > 1:
-        raise Exception("数据格式不对, 需要一行json字符串")
+if __name__ == "__main__":
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise RuntimeError("数据格式不对, 需要一行json字符串")
 
     main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4])

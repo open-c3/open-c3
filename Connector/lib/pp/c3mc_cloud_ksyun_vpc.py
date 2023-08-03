@@ -14,9 +14,12 @@ class Vpc:
 
     def create_client(self):
         s = get_session()
-        client = s.create_client(
-            "vpc", ks_access_key_id=self.access_id, ks_secret_access_key=self.access_key, region_name=self.region)
-        return client
+        return s.create_client(
+            "vpc",
+            ks_access_key_id=self.access_id,
+            ks_secret_access_key=self.access_key,
+            region_name=self.region,
+        )
 
     def show_vpc(self, vpc_id):
         response = self.client.describe_vpcs(**{'VpcId.1': vpc_id})

@@ -7,7 +7,7 @@ import json
 import oss2
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
-from c3mc_cloud_aliyun_oss_get_tag import GetTag
+from c3mc_cloud_aliyun_oss import LibAliyunOss
 
 
 class Oss:
@@ -51,7 +51,7 @@ class Oss:
         return results
 
     def list_tag(self, access_id, access_key, location, bucket_name):
-        return GetTag(access_id, access_key, location, bucket_name).list_tag()
+        return LibAliyunOss(access_id, access_key, location, bucket_name).list_tag()
 
     def show(self):
         buckets = self.list_buckets()

@@ -7,22 +7,24 @@ import subprocess
 
 from aliyunsdkcore.client import AcsClient
 from aliyunsdkcore.auth.credentials import AccessKeyCredential
-from aliyunsdkr_kvstore.request.v20150101.DescribeInstanceAttributeRequest import DescribeInstanceAttributeRequest
+from aliyunsdkr_kvstore.request.v20150101.DescribeInstanceAttributeRequest import (
+    DescribeInstanceAttributeRequest,
+)
 
 
 def get(data, access_id, access_key, region):
     """
-        输出 aliyun redis 的详情(json格式)
+    输出 aliyun redis 的详情(json格式)
     """
-    credentials = AccessKeyCredential(
-        access_id, access_key)
+    credentials = AccessKeyCredential(access_id, access_key)
     client = AcsClient(region_id=region, credential=credentials)
 
     field_name = subprocess.getoutput(
-        "c3mc-cloud-get-real-field database aliyun-redis InstanceId")
+        "c3mc-cloud-get-real-field database aliyun-redis InstanceId"
+    )
 
     request = DescribeInstanceAttributeRequest()
-    request.set_accept_format('json')
+    request.set_accept_format("json")
     request.set_InstanceId(data[field_name])
 
     response = client.do_action_with_exception(request)
@@ -31,8 +33,7 @@ def get(data, access_id, access_key, region):
             instance["Tag"] = instance["Tags"]["Tag"]
             instance.pop("Tags", None)
             return instance
-    raise Exception(
-        "根据 DBInstanceId {} 未找到 aliyun redis".format(data[field_name]))
+    raise Exception("根据 DBInstanceId {} 未找到 aliyun redis".format(data[field_name]))
 
 
 def main(data, access_id, access_key, region):
@@ -40,11 +41,9 @@ def main(data, access_id, access_key, region):
     print(json.dumps(data, default=str))
 
 
-if __name__ == '__main__':
-    l = []
-    for line in sys.stdin:
-        l.append(line)
-    if len(l) == 0 or len(l) > 1:
-        raise Exception("数据格式不对, 需要一行json字符串")
+if __name__ == "__main__":
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise RuntimeError("数据格式不对, 需要一行json字符串")
 
     main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4])

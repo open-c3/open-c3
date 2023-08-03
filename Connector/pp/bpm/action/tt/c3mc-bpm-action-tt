@@ -6,6 +6,7 @@ import json
 import subprocess
 import re
 import base64
+import os
 
 
 def replace_base64_substring(long_string):
@@ -48,6 +49,12 @@ def create_tt(params):
     tt_number = resp.stdout.decode('utf-8').rstrip()
 
     print(f"LOG. tt单号: {tt_number}", flush=True)
+
+    notify = params.get("notify")
+    if not notify:
+        notify = "@bpm_notify"
+
+    os.system( "echo 有工单需要处理, [ " + params["title"]  + " ] $(c3mc-sys-ctl sys.c3webaddr)/tt/#/tt/show/" + tt_number + "|c3mc-base-sendmesg $(c3mc-app-usrext bpm_notify @bpm_notify " + notify + "|xargs -n 10000)" )
 
     resp = subprocess.run([
         "c3mc-wait-ticket-status-change",

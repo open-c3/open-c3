@@ -32,5 +32,4 @@ class MongodbInfo:
         }
         req.from_json_string(json.dumps(params))
 
-        resp = self.client.DescribeDBInstanceNodeProperty(req)
-        return resp
+        return self.client.DescribeDBInstanceNodeProperty(req)

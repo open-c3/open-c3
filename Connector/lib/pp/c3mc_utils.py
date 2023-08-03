@@ -50,19 +50,13 @@ def sleep_time_for_limiting(max_frequency_one_second):
         该接口的作用是根据频率限制因子限制频率
     """
     frequency_factor = float(get_frequency_factor())
-    if frequency_factor < 0:
-        frequency_factor = 0
-    if frequency_factor > 1:
-        frequency_factor = 1
-    
+    frequency_factor = max(frequency_factor, 0)
+    frequency_factor = min(frequency_factor, 1)
     sleep_second = 0
-    
+
     # 取0表示按照max_frequency_one_second的频率执行
     if frequency_factor == 0:
-        # 因为没法预知一个接口请求一次花的时间, 并且如果请求海外服务
-        # 响应会更慢, 这里只能预估一个响应时间, 假设一次请求往返消耗0.08秒
-        assume_resp_time = 0.08
-        all_resp_time = assume_resp_time * max_frequency_one_second
+        all_resp_time = 0.08 * max_frequency_one_second
         if all_resp_time > 1:
             # 预估的时间肯定不准确, 但还是要保证能休眠一小段时间
             all_resp_time = 0.8
@@ -71,7 +65,7 @@ def sleep_time_for_limiting(max_frequency_one_second):
         sleep_second = (max_frequency_one_second - 1) / max_frequency_one_second
     else:
         sleep_second = frequency_factor
-    
+
     time.sleep(sleep_second)
     return
 
@@ -79,8 +73,7 @@ def sleep_time_for_limiting(max_frequency_one_second):
 # 获取同步频率限制因子
 # 改因子最小为0，最大为1
 def get_frequency_factor():
-    output = subprocess.getoutput("c3mc-sys-ctl sys.device.sync.frequency.factor")
-    return output
+    return subprocess.getoutput("c3mc-sys-ctl sys.device.sync.frequency.factor")
 
 
 def check_if_params_safe_in_recycle(user_commited_instance_ids, bpm_uuid, bpm_action_type):

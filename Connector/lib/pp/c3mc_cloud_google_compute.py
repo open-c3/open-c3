@@ -9,7 +9,6 @@ from google.oauth2 import service_account
 from googleapiclient.errors import HttpError
 
 
-
 class GoogleCompute:
     def __init__(self, cred_json_path):
         self.cred_json_path = cred_json_path
@@ -18,10 +17,10 @@ class GoogleCompute:
 
     def create_credentials(self):
         return service_account.Credentials.from_service_account_file(self.cred_json_path)
-    
+
     def create_service(self):
         return discovery.build('compute', 'v1', credentials=self.credentials)
-    
+
     def get_project_id(self):
         """获取当前凭证的project_id
         """
@@ -64,7 +63,6 @@ class GoogleCompute:
 
             time.sleep(2)
 
-
     def _wait_for_region_operation(self, region, operation_name):
         """等待区域操作结束
         """
@@ -82,7 +80,6 @@ class GoogleCompute:
                 return result
 
             time.sleep(2)
-
 
     def _wait_for_zone_operation(self, zone, operation_name):
         """等待可用区操作结束
@@ -102,7 +99,6 @@ class GoogleCompute:
 
             time.sleep(2)
 
-
     def get_disk_info(self, disk_source):
         result = re.search(r'projects/(.*?)/', disk_source)
         project = result[1]
@@ -116,7 +112,6 @@ class GoogleCompute:
         request = self.service.disks().get(project=project, zone=zone, disk=disk)
         return request.execute()
 
-    
     def get_image_info(self, image_source):
         result = re.search(r'projects/(.*?)/', image_source)
         project = result[1]
@@ -152,7 +147,7 @@ class GoogleCompute:
             request = self.service.instances().list_next(previous_request=request, previous_response=response)
 
         return instances
-    
+
     def list_region_instances(self, region):
         """查询区域的虚拟机列表
 
@@ -186,10 +181,10 @@ class GoogleCompute:
         """
         project_id = self.credentials.project_id
         return self.service.instances().stop(
-                    project=project_id,
-                    zone=zone,
-                    instance=instance_name
-                ).execute()
+            project=project_id,
+            zone=zone,
+            instance=instance_name
+        ).execute()
 
     def delete_vm(self, zone, instance_name):
         """销毁虚拟机实例(注意：只是销毁实例，没有清理关联的数据盘和弹性ip, 
@@ -197,10 +192,10 @@ class GoogleCompute:
         """
         project_id = self.credentials.project_id
         return self.service.instances().delete(
-                    project=project_id,
-                    zone=zone,
-                    instance=instance_name
-                ).execute()
+            project=project_id,
+            zone=zone,
+            instance=instance_name
+        ).execute()
 
     def delete_vm_with_related_resource(self, region, zone, instance_name):
         elastic_ips = self.list_elastic_ips(region, including_global=True)
@@ -231,7 +226,6 @@ class GoogleCompute:
                     if not ok:
                         raise RuntimeError(f"回收弹性ip {nat_ip} 失败.")
 
-
     def list_instance_groups(self, region):
         """查询instance group列表
         """
@@ -244,9 +238,9 @@ class GoogleCompute:
                 instance_group_response = instance_group_request.execute()
                 if 'items' in instance_group_response:
                     data.extend(instance_group_response['items'])
-                instance_group_request = self.service.instanceGroups().list_next(previous_request=instance_group_request, previous_response=instance_group_response)
+                instance_group_request = self.service.instanceGroups().list_next(
+                    previous_request=instance_group_request, previous_response=instance_group_response)
         return data
-
 
     def list_regions(self):
         """查询区域详情列表
@@ -300,17 +294,19 @@ class GoogleCompute:
             data.extend(response['items'])
 
             request = self.service.machineTypes().list_next(previous_request=request, previous_response=response)
-        
+
         return sorted(data, key=lambda x: x['name'], reverse=False)
 
     def list_public_images(self):
         """查询公共镜像列表
         """
         data = []
-        public_image_project_list = ['centos-cloud', 'debian-cloud', 'rhel-cloud', 'suse-cloud', 'ubuntu-os-cloud', 'windows-cloud']
+        public_image_project_list = ['centos-cloud', 'debian-cloud', 'rhel-cloud', 'suse-cloud', 'ubuntu-os-cloud',
+                                     'windows-cloud']
 
         for project in public_image_project_list:
-            request = self.service.images().list(project=project, fields="items(name,family,selfLink),nextPageToken", maxResults=500)
+            request = self.service.images().list(project=project, fields="items(name,family,selfLink),nextPageToken",
+                                                 maxResults=500)
             while request is not None:
                 response = request.execute()
                 data.extend(response['items'])
@@ -322,7 +318,8 @@ class GoogleCompute:
         """
         data = []
 
-        request = self.service.images().list(project=self.credentials.project_id, fields="items(name,description,family),nextPageToken", maxResults=500)
+        request = self.service.images().list(project=self.credentials.project_id,
+                                             fields="items(name,description,family),nextPageToken", maxResults=500)
         while request is not None:
             response = request.execute()
             if not response:
@@ -395,14 +392,15 @@ class GoogleCompute:
             if 'items' in response:
                 data.extend(response['items'])
             request = self.service.addresses().list_next(previous_request=request, previous_response=response)
-        
+
         if including_global:
             global_request = self.service.globalAddresses().list(project=project_id)
             while global_request is not None:
                 global_response = global_request.execute()
                 if 'items' in global_response:
                     data.extend(global_response['items'])
-                global_request = self.service.globalAddresses().list_next(previous_request=global_request, previous_response=global_response)
+                global_request = self.service.globalAddresses().list_next(previous_request=global_request,
+                                                                          previous_response=global_response)
 
         if filter_status is None:
             return data
@@ -419,16 +417,18 @@ class GoogleCompute:
             global_response = global_request.execute()
             if 'items' in global_response:
                 data.extend(global_response['items'])
-            global_request = self.service.globalAddresses().list_next(previous_request=global_request, previous_response=global_response)
+            global_request = self.service.globalAddresses().list_next(previous_request=global_request,
+                                                                      previous_response=global_response)
         return data
-    
 
     def create_elastic_ip(self, region, ip_name):
         """在指定的区域创建弹性 IP 地址"""
+
         def wait_for_operation(project_id, operation_name):
             print('等待操作结束...')
             while True:
-                result = self.service.regionOperations().get(project=project_id, region=region, operation=operation_name).execute()
+                result = self.service.regionOperations().get(project=project_id, region=region,
+                                                             operation=operation_name).execute()
                 if result["status"] == 'DONE':
                     print("操作结束.")
                     break
@@ -501,10 +501,10 @@ class GoogleCompute:
         """
         project_id = self.credentials.project_id
         return self.service.disks().delete(
-                    project=project_id,
-                    zone=zone,
-                    disk=disk_name
-                ).execute()
+            project=project_id,
+            zone=zone,
+            disk=disk_name
+        ).execute()
 
     def list_health_checks(self):
         """查询Health checks列表
@@ -516,9 +516,9 @@ class GoogleCompute:
             health_check_response = health_check_request.execute()
             if 'items' in health_check_response:
                 data.extend(health_check_response['items'])
-            health_check_request = self.service.healthChecks().list_next(previous_request=health_check_request, previous_response=health_check_response)
+            health_check_request = self.service.healthChecks().list_next(previous_request=health_check_request,
+                                                                         previous_response=health_check_response)
         return data
-    
 
     def list_ssl_certificates(self):
         """查询 SSL 证书列表"""
@@ -529,9 +529,9 @@ class GoogleCompute:
             ssl_certificate_response = ssl_certificate_request.execute()
             if 'items' in ssl_certificate_response:
                 data.extend(ssl_certificate_response['items'])
-            ssl_certificate_request = self.service.sslCertificates().list_next(previous_request=ssl_certificate_request, previous_response=ssl_certificate_response)
+            ssl_certificate_request = self.service.sslCertificates().list_next(previous_request=ssl_certificate_request,
+                                                                               previous_response=ssl_certificate_response)
         return data
-
 
     def set_named_ports(self, zone, instance_group_name, named_ports):
         """设置命名端口
@@ -555,11 +555,11 @@ class GoogleCompute:
         """
         project_id = self.credentials.project_id
         response = self.service.instanceGroups().setNamedPorts(
-                project=project_id, 
-                zone=zone, 
-                instanceGroup=instance_group_name, 
-                body=named_ports
-            ).execute()
+            project=project_id,
+            zone=zone,
+            instanceGroup=instance_group_name,
+            body=named_ports
+        ).execute()
         self._wait_for_zone_operation(zone, response["name"])
         return response
 
@@ -617,7 +617,8 @@ class GoogleCompute:
         """对转发规则添加标签
         """
         project_id = self.credentials.project_id
-        response = self.service.globalForwardingRules().setLabels(project=project_id, resource=resource_name , body=labels).execute()
+        response = self.service.globalForwardingRules().setLabels(project=project_id, resource=resource_name,
+                                                                  body=labels).execute()
         self._wait_for_global_operation(response["name"])
         return response
 
@@ -657,7 +658,8 @@ class GoogleCompute:
             response = request.execute()
             if 'items' in response:
                 data.extend(response['items'])
-            request = self.service.globalForwardingRules().list_next(previous_request=request, previous_response=response)
+            request = self.service.globalForwardingRules().list_next(previous_request=request,
+                                                                     previous_response=response)
         return data
 
     def list_region_forwarding_rules(self, region):
@@ -696,7 +698,8 @@ class GoogleCompute:
             response = request.execute()
             if 'items' in response:
                 data.extend(response['items'])
-            request = self.service.regionBackendServices().list_next(previous_request=request, previous_response=response)
+            request = self.service.regionBackendServices().list_next(previous_request=request,
+                                                                     previous_response=response)
         return data
 
     def list_target_http_proxies(self):
@@ -722,7 +725,8 @@ class GoogleCompute:
             response = request.execute()
             if 'items' in response:
                 data.extend(response['items'])
-            request = self.service.regionTargetHttpProxies().list_next(previous_request=request, previous_response=response)
+            request = self.service.regionTargetHttpProxies().list_next(previous_request=request,
+                                                                       previous_response=response)
         return data
 
     def list_target_https_proxies(self):
@@ -748,9 +752,9 @@ class GoogleCompute:
             response = request.execute()
             if 'items' in response:
                 data.extend(response['items'])
-            request = self.service.regionTargetHttpsProxies().list_next(previous_request=request, previous_response=response)
+            request = self.service.regionTargetHttpsProxies().list_next(previous_request=request,
+                                                                        previous_response=response)
         return data
-
 
     def delete_forwarding_rule(self, forwarding_rule):
         project_id = self.credentials.project_id
@@ -758,7 +762,6 @@ class GoogleCompute:
             project=project_id,
             forwardingRule=forwarding_rule).execute()
         self._wait_for_global_operation(response["name"])
-
 
     def delete_target_http_proxy(self, proxy_name):
         project_id = self.credentials.project_id
@@ -781,14 +784,12 @@ class GoogleCompute:
             urlMap=url_map).execute()
         self._wait_for_global_operation(response["name"])
 
-
     def delete_backend_service(self, backend_service):
         project_id = self.credentials.project_id
         response = self.service.backendServices().delete(
             project=project_id,
             backendService=backend_service).execute()
         self._wait_for_global_operation(response["name"])
-
 
     def create_instance_group(self, zone, instance_group_name, self_link_list):
         """创建实例组
@@ -823,3 +824,26 @@ class GoogleCompute:
         self._wait_for_zone_operation(zone, response["name"])
 
         return instance_group
+
+    def update_tags(self, instance_name, zone, labels, label_finger_print):
+        """给实例更新标签
+
+        Args:
+            instance_name (str): 实例名称
+            zone (str): 可用区
+            labels (list): _description_
+            label_finger_print (str): 标签指纹信息
+
+        Returns:
+            _type_: _description_
+        """
+        request_body = {
+            "labels": labels,
+            "labelFingerprint": label_finger_print
+        }
+
+        project_id = self.credentials.project_id
+        request = self.service.instances().setLabels(project=project_id,
+                                                     zone=zone, instance=instance_name,
+                                                     body=request_body)
+        return request.execute()

@@ -56,12 +56,14 @@
                 "vpc:DescribeVpcEx",
                 "vpc:DescribeSubnetEx",
                 "cos:GetService",
+                "cos:GetBucketTagging",
                 "mongodb:DescribeDBInstances",
                 "mongodb:DescribeDBInstanceNodeProperty",
                 "sqlserver:DescribeDBInstances",
                 "tag:TagResources",
                 "tag:UnTagResources",
                 "cynosdb:DescribeInstances",
+                "dnspod:DescribeDomainList",
                 "monitor:*"
             ],
             "resource":

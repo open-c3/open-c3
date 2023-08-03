@@ -5,49 +5,42 @@ import sys
 import json
 import subprocess
 
-import boto3
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_aws_s3 import AWS_S3
 
 
 def tag_delete(data, access_id, access_key, region):
-    client = boto3.client(
-        "s3",
-        aws_access_key_id=access_id,
-        aws_secret_access_key=access_key,
-        region_name=region,
-    )
+    lib_client = AWS_S3(access_id, access_key, region)
 
     field_name = subprocess.getoutput(
-        "c3mc-cloud-get-real-field storage aws-s3 BucketName")
-
-    response = client.get_bucket_tagging(
-        Bucket=data[field_name],
+        "c3mc-cloud-get-real-field storage aws-s3 BucketName"
     )
-    tag_list = response["TagSet"]
+
+    tag_list = lib_client.list_tag(data[field_name])
     new_tag_list = []
 
-    need_delete_key = data["_control_"]["tag-delete"]["key"]
-    for tag in tag_list:
-        if tag['Key'] == need_delete_key:
+    need_delete_key_set = set()
+    for item in data["_control_"]["tag-delete"]["tags"].split(","):
+        parts = item.split("=")
+        if len(parts) != 2:
             continue
-        new_tag_list.append(tag)
+        need_delete_key_set.add(parts[0])
 
-    client.put_bucket_tagging(
-        Bucket=data[field_name],
-        Tagging={
-            'TagSet': new_tag_list
-        },
+    new_tag_list.extend(
+        tag for tag in tag_list if tag["Key"] not in need_delete_key_set
     )
+
+    lib_client.update_tags(data[field_name], new_tag_list)
 
 
 def main(data, access_id, access_key, region):
     tag_delete(data, access_id, access_key, region)
 
 
-if __name__ == '__main__':
-    l = []
-    for line in sys.stdin:
-        l.append(line)
-    if len(l) == 0 or len(l) > 1:
-        raise Exception("数据格式不对, 需要一行json字符串")
+if __name__ == "__main__":
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise RuntimeError("数据格式不对, 需要一行json字符串")
 
     main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4])

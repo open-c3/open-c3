@@ -7,9 +7,8 @@ import boto3
 
 
 class Elasticache:
-    def __init__(self, resource_type, access_id, access_key, region):
-        # resource_type可以取值 memcached 或者 redis
-        self.resource_type = resource_type
+    def __init__(self, access_id, access_key, region):
+        self.resource_type = None
         self.access_id = access_id
         self.access_key = access_key
         self.region = region
@@ -53,8 +52,7 @@ class Elasticache:
         data_list = self.get_instances_from_response(response)
         for instance in data_list:
             try:
-                tag_list = self.list_tag(
-                    self.resource_type, self.access_id, self.access_key, self.region, instance["ARN"])
+                tag_list = self.list_tag(instance["ARN"])
             except Exception as e:
                 continue
 
@@ -69,11 +67,36 @@ class Elasticache:
             res["marker"] = response["Marker"]
         return res
 
-    def list_tag(self, resource_type, access_id, access_key, region, arn):
-        from c3mc_cloud_aws_elasticache_get_tag import GetTag
-        return GetTag(resource_type, access_id, access_key, region, arn).list_tag()
+    def list_tag(self, arn):
+        response = self.client.list_tags_for_resource(
+            ResourceName=arn
+        )
+        return response["TagList"]
 
-    def show(self):
-        instance_list = self.get_response()
-        for instance in instance_list:
-            print(json.dumps(instance, default=str))
+    def list_instances(self, resource_type):
+        self.resource_type = resource_type
+        return self.get_response()
+
+    def add_tags(self, arn, tag_list):
+        """给实例添加一个或多个标签
+
+        Args:
+            arn: 资源arn
+            tag_list (list): 要添加的标签列表。格式为 [{"Key": "key1", "Value": "value1"}, {"Key": "key2", "Value": "value2"}]
+        """
+        return self.client.add_tags_to_resource(
+            ResourceName=arn,
+            Tags=tag_list
+        )
+
+    def remove_tags(self, arn, need_delete_list):
+        """给实例删除一个或多个标签
+
+        Args:
+            arn: 资源arn
+            need_delete_list (list): 要删除的标签key列表。格式为 ["key1", "key2"]
+        """
+        return self.client.remove_tags_from_resource(
+            ResourceName=arn,
+            TagKeys=need_delete_list
+        )
