@@ -319,17 +319,38 @@ post '/monitor/ack/:uuid' => sub {
 
         my $u = (split /\//, $user )[0];
 
+        my $ackscA = sub
+        {
+            # 消息确认(所有我的)
+            $api::mysql->execute( "delete from openc3_monitor_serialcall_data where user='$u'" );
+        };
+
+        my $ackscP = sub
+        {
+            # 消息确认(我个人)
+            $api::mysql->execute( "delete from openc3_monitor_serialcall_data where user='$u' and  caseuuid in ( select caseuuid from openc3_monitor_ack_table where ackuuid='$uuid' )" );
+        };
+
+        my $ackscC = sub
+        {
+            # 消息确认(所有人)
+            $api::mysql->execute( "delete from openc3_monitor_serialcall_data where caseuuid in ( select caseuuid from openc3_monitor_ack_table where ackuuid='$uuid' )" );
+        };
+
         if( $ctrl eq 'ackcase' )
         {
+            # 事件屏蔽
             $api::mysql->execute( "insert into openc3_monitor_ack_active ( uuid,type,treeid,edit_user,expire,ackuuid ) select `caseuuid`,'$type',treeid,'$user','$time','$uuid' from openc3_monitor_ack_table  where ackuuid='$uuid'" );
         }
         elsif( $ctrl eq 'ackdeal' )
         {
+            # 监控认领
             $api::mysql->execute( "replace into openc3_monitor_serialcall_deal ( user,caseuuid ) select '$user',`caseuuid` from openc3_monitor_ack_table  where ackuuid='$uuid'" );
             $api::mysql->execute( "delete from openc3_monitor_serialcall_data where caseuuid in ( select caseuuid from openc3_monitor_ack_table where ackuuid='$uuid' )" );
         }
         elsif( $ctrl eq 'ackam' )
         {
+            # AM 屏蔽
             my $x = $api::mysql->query( "select labels,id from openc3_monitor_ack_table where ackuuid='$uuid'" );
             die "nofind your ackuuid" unless $x && @$x > 0;
             my @x;
@@ -351,18 +372,22 @@ post '/monitor/ack/:uuid' => sub {
         }
         elsif( $ctrl eq 'ackscA' )
         {
-            $api::mysql->execute( "delete from openc3_monitor_serialcall_data where user='$u'" );
+            # 消息确认(所有我的)
+            &$ackscA();
         }
         elsif( $ctrl eq 'ackscP' )
         {
-            $api::mysql->execute( "delete from openc3_monitor_serialcall_data where user='$u' and  caseuuid in ( select caseuuid from openc3_monitor_ack_table where ackuuid='$uuid' )" );
+            # 消息确认(我个人)
+            &$ackscP();
         }
         elsif( $ctrl eq 'ackscC' )
         {
-            $api::mysql->execute( "delete from openc3_monitor_serialcall_data where caseuuid in ( select caseuuid from openc3_monitor_ack_table where ackuuid='$uuid' )" );
+            # 消息确认(所有人)
+            &$ackscC();
         }
         else
         {
+            # 监控屏蔽
             $api::mysql->execute( "insert into openc3_monitor_ack_active ( uuid,type,treeid,edit_user,expire,ackuuid ) select `fingerprint`,'$type',treeid,'$user','$time','$uuid' from openc3_monitor_ack_table  where ackuuid='$uuid'" );
         }
     };
