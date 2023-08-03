@@ -98,11 +98,15 @@ def process_element(thread_safe_set, ip_info, grant_auth_type, account, email, g
         print(f"LOG. 对实例ID {ip_info['instanceId']} 添加权限. 日志: {output}")
 
         thread_safe_set.update(ip)
-        return True
 
     for ip in [ip_info["inIP"], ip_info["exIP"]]:
-        if add_auth_for_ip(ip):
+        try:
+            add_auth_for_ip(ip)
+            # 尝试对内网ip和公网ip添加权限
+            # 如果执行成功则退出
             break
+        except Exception as e:
+            continue
 
 def grant_server_auth(email, ip_list, grant_auth_type, grant_sudo_hours):
     account = email.split("@")[0]

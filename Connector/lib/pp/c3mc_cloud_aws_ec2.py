@@ -382,16 +382,33 @@ class LIB_EC2:
         Args:
             instance_ids (list): ec2 id列表
         """
+        # 过滤掉已经被删除的实例
+        filtered_instance_ids = []
 
-        self.stop_instances(instance_ids)
         for instance_id in instance_ids:
+            instance_list = self.describe_instances([instance_id])["Reservations"][0]["Instances"]
+            if not instance_list:
+                continue
+            print(f"ec2_info: {json.dumps(instance_list[0], default=str)}")
+            if instance_list[0]["State"]["Name"] == "terminated":
+                print(f"实例 {instance_list[0]['InstanceId']} 已经被删除，跳过删除操作 ")
+                continue
+
+            filtered_instance_ids.append(instance_list[0]["InstanceId"])
+        
+        if not filtered_instance_ids:
+            return
+
+        self.stop_instances(filtered_instance_ids)
+
+        for instance_id in filtered_instance_ids:
             self.wait_ec2_until_status(instance_id, "stopped", 900)
 
-        self.release_address_of_ec2(instance_ids)
+        self.release_address_of_ec2(filtered_instance_ids)
         # 目前c3创建ec2默认开启了删除ec2时自动删除数据盘
         # 这里显式的删除数据盘是为了防止有人在其他地方开ec2在这里回收
-        self.delete_volumes_of_ec2(instance_ids)
-        self.terminate_instances(instance_ids)
+        self.delete_volumes_of_ec2(filtered_instance_ids)
+        self.terminate_instances(filtered_instance_ids)
 
     def add_tags(self, instance_id, tag_list):
         """给实例添加一个或多个标签
