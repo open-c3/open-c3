@@ -114,7 +114,7 @@
             </div>
 
             <div class="table-scroll" ng-if="devicedata.loadover">
-                <table ng-table="devicedata.dataTable" class="table table-hover text-center table-condensed va-m">
+                <table ng-table="devicedata.dataTable" class="table table-hover text-center table-condensed va-m" show-filter="true">
                     <tr ng-repeat="m in $data" toggle-class="info">
                       <td header="'headerCheckbox.html'" data-title="">
                         <input type="checkbox" name="selected" ng-model="devicedata.checkboxes.items[m.uuid]" />
@@ -124,15 +124,15 @@
                                 {{ (devicedata.dataTable.page() - 1)*devicedata.dataTable.count() + $index + 1 }}
                             </span>
                         </td>
-                        <td data-title="'C3T.资源类型'|translate">
+                        <td filter="{subtype: 'text'}" data-title="'C3T.资源类型'|translate">
                             <a ng-click="devicedata.showdetail( m.uuid, m.type, m.subtype )" style="cursor:pointer;color: #339094;" >{{m.subtype}}</a>
                         </td>
-                        <td data-title="'C3T.基本信息'|translate">{{m.baseinfo}}</td>
-                        <td data-title="'C3T.系统信息'|translate">
+                        <td filter="{baseinfo: 'text'}" data-title="'C3T.基本信息'|translate">{{m.baseinfo}}</td>
+                        <td filter="{system: 'text'}" data-title="'C3T.系统信息'|translate">
                             <div ng-if="m.match=='2'" style="color: green;" >{{m.system}}</div>
                             <div ng-if="m.match!='2'" >{{m.system}}</div>
                         </td>
-                        <td data-title="'C3T.联系信息'|translate"><div uib-tooltip="{{m.contact}}" >{{m.contact |cut61}}</div></td>
+                        <td filter="{contact: 'text'}" data-title="'C3T.联系信息'|translate"><div uib-tooltip="{{m.contact}}" >{{m.contact |cut61}}</div></td>
                         <td data-title="'C3T.资源操作'|translate">
                             <div ng-repeat="c in m.control">
                                 <a style="cursor:pointer;color: #339094;" ng-click="devicedata.show( m.uuid, m.type, m.subtype, c)" >{{'C3T.' + c.name|translate}} </a>
