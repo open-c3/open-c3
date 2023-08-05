@@ -38,6 +38,12 @@
         };
 
         vm.defaultData = []
+        vm.hasDebugStatus = false;
+
+        vm.debugswitch = function() {
+          vm.hasDebugStatus = !vm.hasDebugStatus
+        }
+        
         vm.reload = function () {
             vm.reloadB();
             vm.reloadC();

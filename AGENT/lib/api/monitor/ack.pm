@@ -264,7 +264,7 @@ get '/monitor/ack/:uuid' => sub {
 
     $acked{ackdealuser} = @$ackdeal > 0 ? $ackdeal->[0][0] : '';
 
-    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@res, acked => \%acked, caseinfo => $caseinfo, caseuuid => $caseuuid };
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@res, acked => \%acked, caseinfo => $caseinfo, caseuuid => $caseuuid, myname => $user };
 };
 
 =pod

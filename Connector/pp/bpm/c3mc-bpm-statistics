@@ -1,0 +1,64 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use MYDan::Util::OptConf;
+use YAML::XS;
+use Encode;
+
+=head1 SYNOPSIS
+
+ $0 --start 2023-07-01 --end 2023-08-01
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o      = $option->get( qw( start=s end=s ) )->dump();
+map{ die "--$_ error" unless $o{$_} && $o{$_} =~ /^\d+\-\d+\-\d+$/; }qw( start end );
+
+my    @user = `c3mc-base-db-get -t openc3_job_task user -f 'extid like "BPM%" and starttime >= "$o{start} 00:00:00" and starttime<="$o{end} 00:00:00"'`;
+chomp @user;
+
+my %cache;
+sub userinfo
+{
+    my $u = shift @_;
+    die "user format error" unless $u && $u !~ /'/;
+
+    return $cache{$u} if defined $cache{$u};
+
+    my $x = `c3mc-base-userinfo -u '$u'`;
+    if( $? )
+    {
+        warn "get user $u info fail\n";
+        $cache{$u} = +{};
+    }
+
+    my $info = eval{ YAML::XS::Load $x };
+
+    if( $@ )
+    {
+        warn "get user $u info fail: $@";
+        $cache{$u} = +{};
+    }
+
+    $cache{$u} = $info;
+    return $cache{$u};
+}
+
+my %res;
+
+for my $u( @user )
+{
+    my $info = userinfo( $u );
+    my $sybDeptName = $info->{sybDeptName} || 'unknown';
+    my $oneDeptName = $info->{oneDeptName} || 'unknown';
+    $res{$sybDeptName}{$oneDeptName} ++;
+}
+
+for my $sybDeptName ( keys %res )
+{
+    for my $oneDeptName ( keys %{$res{$sybDeptName}} )
+    {
+        printf "%s\n", Encode::encode('utf8', join ";", $sybDeptName, $oneDeptName, $res{$sybDeptName}{$oneDeptName} );
+    }
+}

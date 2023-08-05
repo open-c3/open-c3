@@ -17,6 +17,7 @@
         vm.caseinfo = {};
         vm.casedata = []
         vm.caseuuid = '';
+        vm.myname = '';
         vm.reload = function () {
             vm.loadover = false;
             $http.get('/api/agent/monitor/ack/' + uuid).then(
@@ -27,6 +28,7 @@
                         vm.casedata = response.data.data
                         vm.caseinfo = response.data.caseinfo
                         vm.caseuuid = response.data.caseuuid
+                        vm.myname   = response.data.myname
                         vm.currentTreeId = response.data.data.find(item => item.name === 'labels.fromtreeid') || {value: '', name: 'labels.fromtreeid'}
                         vm.loadover = true;
                     }else{

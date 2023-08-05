@@ -74,6 +74,13 @@ sub gethostname
         my $hostname = `c3mc-mon-nodename-get $ip`;
         chomp $hostname;
     
+        unless( $hostname )
+        {
+            my @x = `c3mc-device-find-hostname $ip | awk '{print \$2}'`;
+            chomp @x;
+            $hostname = $x[0] if @x;
+        }
+
         return $hostname || 'unknown';
     }
     elsif( $ip =~ /^[a-zA-Z0-9][a-zA-Z0-9\-\._:@]+[a-zA-Z0-9]$/ )
@@ -86,6 +93,21 @@ sub gethostname
     {
         return 'unknown' unless $labels && ref $labels eq 'HASH';
         return $labels->{'labels.addr'} || 'unknown';
+    }
+}
+
+sub getowner
+{
+    my ( $ip, $labels ) = @_;
+    if( $ip && $ip =~ /^\d+\.\d+\.\d+\.\d+$/ )
+    {
+        my @x = `c3mc-device-find-owner $ip | awk '{print \$2}'`;
+        chomp @x;
+        return @x ? $x[0] : 'unknown';
+    }
+    else
+    {
+        return 'unknown';
     }
 }
 
@@ -117,6 +139,8 @@ sub addcont
 
     $data->{hostname} = gethostname( $data->{'instancename'}, $data );
     $data->{instancealias} = $data->{hostname};
+
+    $data->{instanceowner} = getowner( $data->{'instancename'}, $data );
     
     for my $x ( qw( cloudmonname ) )
     {
