@@ -74,6 +74,13 @@ sub gethostname
         my $hostname = `c3mc-mon-nodename-get $ip`;
         chomp $hostname;
     
+        unless( $hostname )
+        {
+            my @x = `c3mc-device-find-hostname $ip | awk '{print \$2}'`;
+            chomp @x;
+            $hostname = $x[0] if @x;
+        }
+
         return $hostname || 'unknown';
     }
     elsif( $ip =~ /^[a-zA-Z0-9][a-zA-Z0-9\-\._:@]+[a-zA-Z0-9]$/ )
