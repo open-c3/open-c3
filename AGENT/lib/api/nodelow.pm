@@ -36,7 +36,7 @@ get '/nodelow/:projectid' => sub {
 
     if( $ips )
     {
-        for my $type ( qw( owner instancetype hostname ))
+        for my $type ( qw( owner instancetype hostname name ))
         {
             my @x = `c3mc-device-find-$type $ips`;
             chomp @x;
