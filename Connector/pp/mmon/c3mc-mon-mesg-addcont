@@ -96,6 +96,21 @@ sub gethostname
     }
 }
 
+sub getowner
+{
+    my ( $ip, $labels ) = @_;
+    if( $ip && $ip =~ /^\d+\.\d+\.\d+\.\d+$/ )
+    {
+        my @x = `c3mc-device-find-owner $ip | awk '{print \$2}'`;
+        chomp @x;
+        return @x ? $x[0] : 'unknown';
+    }
+    else
+    {
+        return 'unknown';
+    }
+}
+
 my @out;
 sub addcont
 {
@@ -124,6 +139,8 @@ sub addcont
 
     $data->{hostname} = gethostname( $data->{'instancename'}, $data );
     $data->{instancealias} = $data->{hostname};
+
+    $data->{instanceowner} = getowner( $data->{'instancename'}, $data );
     
     for my $x ( qw( cloudmonname ) )
     {
