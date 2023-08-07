@@ -13,6 +13,7 @@ import random
 import base64
 import string
 import re
+from ipaddress import ip_network, ip_address
 
 
 def print_c3debug1_log(msg):
@@ -314,3 +315,41 @@ def get_instance_info_list(ip_list):
         raise RuntimeError(f"无法从c3查询到指定数量ip的详情, ip_list: {ip_list}")
     
     return data_list
+
+
+def extract_ips(text):
+    """从字符串中提取ip列表
+
+    Args:
+        text (str): 包含ip地址的字符串
+    """
+    pattern = r'\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b'
+
+    matches = re.findall(pattern, text)
+
+    valid_ips = []
+    for ip in matches:
+        octets = ip.split('.')
+        if len(octets) == 4 and all(0 <= int(octet) <= 255 for octet in octets):
+            valid_ips.append(ip)
+
+    return valid_ips
+
+
+def is_ip_in_networks(network_list, target_ip) -> bool:
+    """检查ip是否包含在指定网络列表
+
+    Args:
+        network_list (list): 网络列表, 可以包含网段和ip
+        target_ip (str): 目标ip
+    """
+    target_ip = ip_address(target_ip)
+    for ip in network_list:
+        # 如果列表中的项是单个IP，则直接与目标IP进行比较
+        if '/' in ip:
+            network = ip_network(ip, strict=False)
+            if target_ip in network:
+                return True
+        elif target_ip == ip_address(ip):
+            return True
+    return False

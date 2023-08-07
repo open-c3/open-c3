@@ -1,0 +1,96 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import json
+import sys
+import yaml
+import os
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import safe_run_command, extract_ips, is_ip_in_networks, is_valid_email
+
+
+"""
+使用配置文件检查工单参数填写是否合法
+配置文件位置为: /data/open-c3-data/bpm/server_auth_config.yaml
+格式如下:
+
+---
+- uuid: "xxxxxx"
+  email_suffix: "superatomfin.com"
+  auth_type: "sudo_forever"
+  permit_ip_list:
+    - 10.22.0.0/16
+  forbidden_ip_list:
+    - 10.33.0.0/16
+"""
+
+
+def load_rules(config_path):
+    with open(config_path, 'r') as file:
+        return yaml.safe_load(file)
+
+
+def check_ip_list_in_cmdb(ip_list):
+    output = safe_run_command(["c3mc-device-api-jumpserver", "--json", "--ips", ",".join(ip_list)])
+    data_list = json.loads(output)
+    ip_list_set = {item["inIP"] for item in data_list} | {
+        item["exIP"] for item in data_list
+    }
+
+    missing_ips = [ip for ip in ip_list if ip not in ip_list_set]
+    if missing_ips:
+        print(f"无法从cmdb找到ip: {' '.join(missing_ips)}", file=sys.stderr)
+        exit(1)
+
+
+def check_email(email):
+    if not is_valid_email(email):
+        raise RuntimeError(f"用户邮箱格式不合法, email: {email}")
+
+
+def check_ips_for_sudo_forever(ip_list, rule):
+    non_matching_forbidden_ips = [ip for ip in ip_list if is_ip_in_networks(rule["forbidden_ip_list"], ip)]
+    if non_matching_forbidden_ips:
+        print(f"规则uuid: {rule['uuid']}校验失败, 如下ip的相关网段被禁止申请永久权限: {' '.join(non_matching_forbidden_ips)}", file=sys.stderr)
+        exit(1)
+
+    non_matching_permit_ips = [ip for ip in ip_list if not is_ip_in_networks(rule["permit_ip_list"], ip)]
+    if non_matching_permit_ips:
+        print(f"规则uuid: {rule['uuid']}校验失败, 不允许其他网段的ip申请永久权限: {' '.join(non_matching_permit_ips)}", file=sys.stderr)
+        exit(1)
+
+
+def check(params):
+    email = params["email"]
+    auth_type = params["auth_type"]
+    ip_list = extract_ips(params["ip_list"])
+
+    # 检查是否存在无法从cmdb找到的ip
+    check_ip_list_in_cmdb(ip_list)
+    check_email(email)
+
+
+    # 检查申请sudo永久权限时的规则配置
+    check_ip_list_in_cmdb(ip_list)
+    config_path = "/data/open-c3-data/bpm/server_auth_config.yaml"
+    if os.path.exists(config_path):
+
+        if auth_type == "sudo_876000":  # 永久sudo权限
+            rules_list = load_rules(config_path)
+            email_suffix = email.split("@")[1]
+            for rule in rules_list:
+                if rule["email_suffix"] == email_suffix and rule["auth_type"] == "sudo_forever":
+                    check_ips_for_sudo_forever(ip_list, rule)
+
+
+def main(params):
+    check(params)
+
+
+if __name__ == '__main__':
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
+
+    main(json.loads(l[0]))
