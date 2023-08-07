@@ -56,7 +56,7 @@
 
                 <hr class="mv20 clear" style="margin-top: 30px!important;">
                 <div class="col-md-10">
-                        <button class="btn btn-primary" ng-click="historyjobx.reload()">
+                        <button class="btn btn-primary" ng-click="historyjobx.getCiGroup()">
                             <i class="fa fa-search fa-fw"></i>{{'C3T.查询'|translate}}
                         </button>
                         <button class="btn btn-success" ng-click="historyjobx.Reset()">
@@ -72,7 +72,7 @@
 
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-dark" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="historyjobx.reload()" ><i class="fa fa-refresh fa-fw" style="" ng-class="{'fa-spin':!historyjobx.loadover}" ></i></button>
+                <button class="btn btn-dark" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="historyjobx.getCiGroup()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!historyjobx.loadover}" ></i></button>
             </span>
             <h5>{{'C3T.执行历史'|translate}}</h5>
         </div>
@@ -80,20 +80,20 @@
         <div class="panel-body">
             <div class="panel-tabs" ng-init='calltype = { "page":"C3T.页面", "api":"API", "crontab":"C3T.计划任务" }'>
 
-            <table ng-table="historyjobx.task_Table" class="table table-hover text-center table-condensed">
+            <table ng-table="historyjobx.task_Table" class="table table-hover text-center table-condensed" show-filter="true">
                 <tr ng-repeat="ss in $data">
-                    <td data-title="'C3T.任务名称'|translate" >{{ss.name}}</td>
-                    <td data-title="'C3T.关联流水线'|translate" >{{historyjobx.ciinfo[ss.name]}}</td>
-                    <td data-title="'C3T.是回滚流程'|translate" >{{historyjobx.showRollback(ss)}}</td>
-                    <td data-title="'C3T.创建人'|translate">{{ss.user}}</td>
-                    <td data-title="'C3T.任务状态'|translate">{{historyjobx.statuszh[ss.status]}}</td>
-                    <td data-title="'C3T.开始时间'|translate">{{ss.starttime}}</td>
-                    <td data-title="'C3T.结束时间'|translate">{{ss.finishtime}}</td>
-                    <td data-title="'C3T.耗时'|translate">{{historyjobx.seftime(ss.starttime,ss.finishtime)}}</td>
-                    <td data-title="'C3T.启动方式'|translate">{{calltype[ss.calltype]|translate}}</td>
-                    <td data-title="'uuid'">{{ss.uuid}}</td>
-                    <td data-title="'version'">{{ss.variable | showversion}}</td>
-                    <td data-title="'C3T.操作'|translate">
+                    <td data-title="'C3T.任务名称'|translate" filter="{name: 'text'}">{{ss.name}}</td>
+                    <td data-title="'C3T.关联流水线'|translate" filter="{ciInfoName: 'text'}">{{historyjobx.ciinfo[ss.name]}}</td>
+                    <td data-title="'C3T.是回滚流程'|translate" filter="{isShowRollback: 'text'}">{{historyjobx.showRollback(ss)}}</td>
+                    <td data-title="'C3T.创建人'|translate" filter="{user: 'text'}">{{ss.user}}</td>
+                    <td data-title="'C3T.任务状态'|translate" filter="{jobxStatusMap: 'text'}">{{historyjobx.statuszh[ss.status]}}</td>
+                    <td data-title="'C3T.开始时间'|translate" filter="{starttime: 'text'}">{{ss.starttime}}</td>
+                    <td data-title="'C3T.结束时间'|translate" filter="{finishtime: 'text'}">{{ss.finishtime}}</td>
+                    <td data-title="'C3T.耗时'|translate" filter="{seftimeCount: 'text'}">{{historyjobx.seftime(ss.starttime,ss.finishtime)}}</td>
+                    <td data-title="'C3T.启动方式'|translate" filter="{callTypeStatus: 'text'}">{{calltype[ss.calltype]|translate}}</td>
+                    <td data-title="'uuid'" filter="{uuid: 'text'}">{{ss.uuid}}</td>
+                    <td data-title="'version'" filter="{variable: 'text'}">{{ss.variable | showversion}}</td>
+                    <td data-title="'C3T.操作'|translate" width="200">
                         <button class="btn btn-info btn-sm" ng-click="historyjobx.taskDetail(ss.uuid)">{{'C3T.执行详情'|translate}}</button>
                     </td>
                 </tr>

@@ -60,7 +60,7 @@
 
                 <hr class="mv20 clear" style="margin-top: 30px!important;">
                 <div class="col-md-10">
-                    <button class="btn btn-primary" ng-click="historyjob.reload()">
+                    <button class="btn btn-primary" ng-click="historyjob.getCiGroup()">
                         <i class="fa fa-search fa-fw"></i>{{'C3T.查询'|translate}}
                     </button>
                     <button class="btn btn-success" ng-click="historyjob.Reset()">
@@ -77,24 +77,24 @@
 
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-dark" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="historyjob.reload()" ><i class="fa fa-refresh fa-fw" style="" ng-class="{'fa-spin':!historyjob.loadover}" ></i></button>
+                <button class="btn btn-dark" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="historyjob.getCiGroup()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!historyjob.loadover}" ></i></button>
             </span>
             <h5>{{'C3T.执行历史'|translate}}</h5>
         </div>
 
         <div class="panel-body" ng-init='openc3_job_system_only=0'>
             <div class="panel-tabs" ng-init='calltype = { "page":"C3T.页面", "api":"API", "crontab":"C3T.计划任务" }'>
-                <table ng-table="historyjob.data_Table" class="table table-hover text-center table-condensed">
+                <table ng-table="historyjob.data_Table" class="table table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="ss in $data">
-                        <td data-title="'C3T.任务名称'|translate">{{ss.name}}</td>
-                        <td ng-if="openc3_job_system_only==0" data-title="'C3T.关联流水线'|translate">{{historyjob.ciinfo[ss.name]}}</td>
-                        <td data-title="'C3T.启动人'|translate">{{ss.user}}</td>
-                        <td data-title="'C3T.任务状态'|translate">{{historyjob.statuszh[ss.status]}}</td>
-                        <td data-title="'C3T.开始时间'|translate">{{ss.starttime}}</td>
-                        <td data-title="'C3T.结束时间'|translate">{{ss.finishtime}}</td>
-                        <td data-title="'C3T.启动方式'|translate">{{calltype[ss.calltype]|translate}}</td>
-                        <td data-title="'C3T.耗时'|translate">{{historyjob.seftime(ss.starttime,ss.finishtime)}}</td>
-                        <td ng-if="openc3_job_system_only==0" data-title="'version'">{{ss.variable| showversion}}</td>
+                        <td data-title="'C3T.任务名称'|translate" filter="{name: 'text'}">{{ss.name}}</td>
+                        <td ng-if="openc3_job_system_only==0" data-title="'C3T.关联流水线'|translate" filter="{ciInfoName: 'text'}">{{historyjob.ciinfo[ss.name]}}</td>
+                        <td data-title="'C3T.启动人'|translate" filter="{user: 'text'}">{{ss.user}}</td>
+                        <td data-title="'C3T.任务状态'|translate" filter="{jobStatusMap: 'text'}">{{historyjob.statuszh[ss.status]}}</td>
+                        <td data-title="'C3T.开始时间'|translate" filter="{starttime: 'text'}">{{ss.starttime}}</td>
+                        <td data-title="'C3T.结束时间'|translate" filter="{finishtime: 'text'}">{{ss.finishtime}}</td>
+                        <td data-title="'C3T.启动方式'|translate" filter="{callTypeStatus: 'text'}">{{calltype[ss.calltype]|translate}}</td>
+                        <td data-title="'C3T.耗时'|translate" filter="{seftimeCount: 'text'}">{{historyjob.seftime(ss.starttime,ss.finishtime)}}</td>
+                        <td ng-if="openc3_job_system_only==0" data-title="'version'" filter="{variable: 'text'}">{{ss.variable| showversion}}</td>
                         <td data-title="'C3T.操作'|translate">
                             <button ng-if="ss.jobtype =='jobs'" class="btn btn-warning btn-sm" ng-click="historyjob.taskDetail(ss.uuid)">{{'C3T.执行详情'|translate}}</button>
                             <button ng-if="ss.jobtype =='plugin_scp' || ss.jobtype =='plugin_cmd' || ss.jobtype =='plugin_approval'" class="btn btn-warning btn-sm" ng-click="historyjob.quickTaskDetail(ss.jobuuid,ss.uuid, ss.jobtype)">{{'C3T.执行详情'|translate}}</button>
