@@ -185,15 +185,15 @@
 
             <div class="panel-body">
                 <div class="panel-tabs">
-                    <table ng-table="gitreport.data_Table" class="table table-hover text-center table-condensed">
+                    <table ng-table="gitreport.data_Table" class="table table-hover text-center table-condensed" show-filter="true">
                         <tr ng-repeat="ss in $data" style="height: 35px;">
-                            <td data-title="'C3T.提交时间'|translate">{{ss.time}}</td>
-                            <td data-title="'C3T.提交编号'|translate">{{ss.uuid}}</td>
-                            <td data-title="'C3T.有效提交'|translate">{{ss.effective}}</td>
-                            <td data-title="'C3T.提交人'|translate">{{ss.user}}</td>
-                            <td data-title="'C3T.添加行数'|translate">{{ss.add}}</td>
-                            <td data-title="'C3T.删除行数'|translate">{{ss.del}}</td>
-                            <td data-title="'C3T.提交地址'|translate"><a target='_blank' ng-href="{{ss.url}}">{{ss.url}}</a></td>
+                            <td data-title="'C3T.提交时间'|translate" filter="{time: 'text'}">{{ss.time}}</td>
+                            <td data-title="'C3T.提交编号'|translate" filter="{uuid: 'text'}">{{ss.uuid}}</td>
+                            <td data-title="'C3T.有效提交'|translate" filter="{effective: 'text'}">{{ss.effective}}</td>
+                            <td data-title="'C3T.提交人'|translate" filter="{user: 'text'}">{{ss.user}}</td>
+                            <td data-title="'C3T.添加行数'|translate" filter="{add: 'text'}">{{ss.add}}</td>
+                            <td data-title="'C3T.删除行数'|translate" filter="{del: 'text'}">{{ss.del}}</td>
+                            <td data-title="'C3T.提交地址'|translate" filter="{url: 'text'}"><a target='_blank' ng-href="{{ss.url}}">{{ss.url}}</a></td>
                         </tr>
                     </table>
                 </div>
