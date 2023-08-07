@@ -31,13 +31,17 @@ def main(params):
 
     check_if_params_safe_in_recycle(ip_list, params["bpm_uuid"], "server-auth")
 
-    safe_run_command([
+
+    print(f"开始处理用户: {email}, auth_type: {auth_type}, ip_list: {' '.join(ip_list)} 的权限申请")
+
+    output = safe_run_command([
         "c3mc-base-bastion-add-server-auth",
         email,
         auth_type,
         params["ip_list"],
         params["bpm_uuid"],
     ])
+    print(output)
 
 
 if __name__ == '__main__':
