@@ -27,7 +27,7 @@ BEGIN{
 
 =cut
 
-get '/to3part/user/department' => sub {
+get '/to3part/v1/user/department' => sub {
     my $param = params();
     my $error = Format->new(
         email => qr/^[a-zA-Z0-9\.\-_@]+$/, 1,
@@ -57,6 +57,24 @@ get '/to3part/user/department' => sub {
     $data{ sybLeaderId } = $data{ oneLeaderId } = $data{ twoLeaderId } = $leader[0] if @leader >= 1;
 
     return $@ ? +{ stat => $JSON::false, info => $@, code => 1, msg => $@ } :  +{ stat => $JSON::true, data => \%data, code => 0, msg => 'ok' };
+};
+
+=pod
+
+第三方接口/获取用户信息
+
+=cut
+
+get '/to3part/v1/user/userinfo' => sub {
+    my $co = request->headers->{token};
+
+    my ( $user, $company, $admin, $showconnector )= eval{ $api::sso->run( cookie => $co ) };
+    return( +{ stat => $JSON::false, info => "sso code error:$@" } ) if $@;
+    return( +{ stat => $JSON::false, code => 10000 } ) unless $user;
+    my $name = $user;
+    $name =~ s/@.*//;
+
+    return +{ name => uc( $name ), email => $user, company => $company, admin => $admin, showconnector => $showconnector };
 };
 
 true;
