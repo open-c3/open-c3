@@ -231,7 +231,7 @@
                 const newData = []
                 let elementsToAdd = ['处理状态', '处理备注'];
                 angular.forEach(data.data, function (value) {
-                  value.name = value['名称']
+                  value.ip = value['实例ID']
                   if (remarkMap.filter(item => item.key === value['实例ID']).length > 0) {
                     value['处理备注'] = remarkMap.filter(item => item.key === value['实例ID'])[0].mark
                     value['处理状态'] = remarkMap.filter(item => item.key === value['实例ID'])[0].status
@@ -425,7 +425,7 @@
           selectResourceArr.push(key)
         }
       });
-      const selectResDetail = vm.checkDataList.filter(item => selectResourceArr.find(cItem => cItem === item.name));
+      const selectResDetail = vm.checkDataList.filter(item => selectResourceArr.find(cItem => cItem == item.ip));
       $uibModal.open({
         templateUrl: 'app/pages/quickentry/monitornodelow/dialog/editStatus.html',
         controller: 'EditStatusController',
@@ -497,7 +497,7 @@
     // 监听全选checkbox
     $scope.$watch(function () { return vm.checkboxes.checked }, function (value) {
       angular.forEach(vm.checkDataList, function (item, index, array) {
-        vm.checkboxes.items[[array[index].name]] = value
+        vm.checkboxes.items[[array[index].id]] = value
       });
       vm.checkboxes.itemsNumber = Object.values(vm.checkboxes.items).filter(item => item === true).length
       let nodeList = []
@@ -510,8 +510,8 @@
     $scope.$watch(function () { return vm.checkboxes.items }, function (value) {
       var checked = 0, unchecked = 0
       angular.forEach(vm.checkDataList, function (item, index, array) {
-        checked += (vm.checkboxes.items[array[index].name]) || 0;
-        unchecked += (!vm.checkboxes.items[array[index].name]) || 0;
+        checked += (vm.checkboxes.items[array[index].ip]) || 0;
+        unchecked += (!vm.checkboxes.items[array[index].ip]) || 0;
       });
       if (vm.checkDataList.length > 0 && ((unchecked == 0) || (checked == 0))) {
         vm.checkboxes.checked = (checked == vm.checkDataList.length);

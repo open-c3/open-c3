@@ -79,7 +79,7 @@
                 <table ng-table="monitornodelow.dataTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data" ng-class="{'mark-color': monitornodelow.hashMarkData.includes(m.ip)}" >
                       <td data-title="">
-                        <input type="checkbox" name="selected" ng-model="monitornodelow.checkboxes.items[m.name]"  ng-disabled="m.owner !== monitornodelow.userInfo.email"/>
+                        <input type="checkbox" name="selected" ng-model="monitornodelow.checkboxes.items[m.ip]"  ng-disabled="m.owner !== monitornodelow.userInfo.email"/>
                       </td>
                         <td data-title="'C3T.编号'|translate"   sortable="'id'"    >{{m.id}}</td>
                         <td data-title="'C3T.名称'|translate" sortable="'name'" filter="{ name: 'text'}" >{{m.name}}</td>
@@ -134,7 +134,7 @@
                     </tr>
                     <tr ng-repeat="m in $data">
                       <td ng-if="monitornodelow.headerList.length > 0">
-                        <input type="checkbox" name="selected" ng-model="monitornodelow.checkboxes.items[m.name]" ng-disabled="m['业务负责人'] !== monitornodelow.userInfo.email"/>
+                        <input type="checkbox" name="selected" ng-model="monitornodelow.checkboxes.items[m.ip]" ng-disabled="m['业务负责人'] !== monitornodelow.userInfo.email"/>
                       </td>
                       <td ng-repeat="item in monitornodelow.headerList| filter:searchText" data-title="item" sortable="item">
                         <div ng-if="item === 'lowstatus'"><a ng-style="{'color': monitornodelow.statusColorMap[m[item]]}">{{m[item]}}<a></div>
