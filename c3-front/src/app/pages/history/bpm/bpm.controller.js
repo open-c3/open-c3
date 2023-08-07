@@ -183,7 +183,12 @@
                         vm.loadover = true;
                         if (response.data.stat){
                             vm.downloadData = response.data.data
-                            vm.data_Table = new ngTableParams({count:10}, {counts:[],data:response.data.data.reverse()});
+                            const hasfilterData = response.data.data.map(item => {
+                              item['statuszhMap'] = vm.statuszh[item.status]|| '';
+                              item['seftimeCount'] = vm.seftime(item.starttime,item.finishtime) || '';
+                              return item
+                            })
+                            vm.data_Table = new ngTableParams({count:10}, {counts:[],data:hasfilterData.reverse()});
                         }else {
                             swal('获取列表失败', response.data.info, 'error');
                         }

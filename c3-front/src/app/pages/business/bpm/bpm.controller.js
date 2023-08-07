@@ -11,6 +11,15 @@
         vm.treeid = $state.params.treeid;
         var toastr = toastr || $injector.get('toastr');
 
+        vm.bpmTypeMap = {
+          sys: '系统内置',
+          diy: '自定义'
+        }
+        vm.bpmShowMap = {
+          0: '否',
+          1: '是'
+        };
+
         vm.deleteBpm = function(name){
             swal({
                 title: "删除",
@@ -51,7 +60,13 @@
                 function successCallback(response) {
                     if (response.data.stat){
                         vm.loadover = true
-                        vm.dataTable = new ngTableParams({count:10}, {counts:[],data:response.data.data});
+                        const hasFilterData = response.data.data.map(item => {
+                          item['bpmTypeStatus'] = vm.bpmTypeMap[item.type]
+                          item['bpmShowStatus'] = vm.bpmShowMap[item.show]
+
+                          return item
+                        })
+                        vm.dataTable = new ngTableParams({count:10}, {counts:[],data:hasFilterData});
                     }else {
                         swal('获取列表失败', response.data.info, 'error');
                     }

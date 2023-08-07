@@ -54,22 +54,22 @@
 
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-dark" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="businessbpm.reload()" ><i class="fa fa-refresh fa-fw" style="" ng-class="{'fa-spin':!businessbpm.loadover}" ></i></button>
+                <button class="btn btn-dark" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="businessbpm.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!businessbpm.loadover}" ></i></button>
             </span>
             <h5>{{'C3T.列表'|translate}}</h5>
         </div>
 
         <div class="panel-body" ng-init='openc3_job_system_only=0'>
             <div class="panel-tabs">
-                <table ng-table="businessbpm.dataTable" class="table table-hover text-center table-condensed">
+                <table ng-table="businessbpm.dataTable" class="table table-hover text-center table-condensed" show-filter="true">
                 <tr ng-repeat="ss in $data">
-                    <td data-title="'C3T.名称'|translate">{{ss.name}}</td>
-                    <td data-title="'C3T.别名'|translate">{{ss.alias}}</td>
-                    <td data-title="'C3T.类型'|translate">
+                    <td data-title="'C3T.名称'|translate" filter="{name: 'text'}">{{ss.name}}</td>
+                    <td data-title="'C3T.别名'|translate" filter="{alias: 'text'}">{{ss.alias}}</td>
+                    <td data-title="'C3T.类型'|translate" filter="{bpmTypeStatus: 'text'}">
                       <div ng-if="ss.type=='sys'">{{'C3T.系统内置'| translate}}</div>
                       <div ng-if="ss.type=='diy'">{{'C3T.自定义'| translate}}</div>
                     </td>
-                    <td data-title="'C3T.显示'|translate">
+                    <td data-title="'C3T.显示'|translate" filter="{bpmShowStatus: 'text'}">
                       <div ng-if="ss.show==1">{{'C3T.是'| translate}}</div>
                       <div ng-if="ss.show==0">{{'C3T.否'| translate}}</div>
                     </td>
