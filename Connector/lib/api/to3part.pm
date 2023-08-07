@@ -10,12 +10,6 @@ use api;
 use Code;
 use Format;
 
-=pod
-
-第三方接口/获取用户部门信息
-
-=cut
-
 my %key;
 BEGIN{
     my $f = '/data/open-c3-data/to3part.yml';
@@ -26,6 +20,12 @@ BEGIN{
         %key = %$c if $c && ref $c eq 'HASH';
     }
 };
+
+=pod
+
+第三方接口/获取用户部门信息
+
+=cut
 
 get '/to3part/user/department' => sub {
     my $param = params();
