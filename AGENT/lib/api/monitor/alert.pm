@@ -70,19 +70,19 @@ get '/monitor/alert/:projectid' => sub {
     return +{ stat => $JSON::true, data => +{ map{ $_->{uuid} => 1 } @res } } if $param->{uuidonly};
 
 
-    my $ips = join ' ', grep{ $_ &&  $_ =~ /^\d+\.\d+\.\d+\.\d+$/ }map{ $_->{labels}{instance} }@res;
+    my $ips = join ' ', grep{ $_ &&  $_ =~ /^[a-zA-Z0-9][a-zA-Z0-9\.\-_:]+$/ }map{ $_->{labels}{instance} }@res;
 
     if( $ips )
     {
-        for my $type ( qw( owner hostname ))
+        for my $type ( qw( owner alias ))
         {
-            my @x = `c3mc-device-find-$type $ips`;
+            my @x = `c3mc-device-find-v2-$type $ips`;
             chomp @x;
             my %x;
             for ( @x )
             {
-                my ( $k, $v ) = split /:/, $_, 2;
-                $v =~ s/\s//g;
+                my ( $k, $v ) = split / /, $_, 2;
+                $k =~ s/:$//g;
                 $x{$k} = $v;
             }
             map{ $_->{$type} = $x{$_->{labels}{instance}} // '' if $_->{labels}{instance} }@res;

@@ -28,7 +28,7 @@
           labelsAlertname: '名称',
           labelsObj: '监控对象',
           owner: 'Owner',
-          hostname: '资源别名',
+          alias: '资源别名',
           statueState: '状态',
           labelsSeverity: '告警级别',
           annotationsSummary: '概要',
