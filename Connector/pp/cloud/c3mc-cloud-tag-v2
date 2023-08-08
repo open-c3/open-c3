@@ -25,6 +25,7 @@ class HandleTag:
         ops_owner_env_value_list = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.OpsOwner").lower().split(",")[::-1]
         department_env_value_list = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.Department").lower().split(",")[::-1]
         name_env_value_list = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.Name").lower().split(",")[::-1]
+        hostname_env_value_list = subprocess.getoutput("c3mc-sys-ctl cmdb.tags.HostName").lower().split(",")[::-1]
 
         pre_names = [
             {"pre_name": item, "pre_value": "_product_owner_"}
@@ -41,6 +42,10 @@ class HandleTag:
         pre_names.extend(
             {"pre_name": item, "pre_value": "_name_"}
             for item in name_env_value_list
+        )
+        pre_names.extend(
+            {"pre_name": item, "pre_value": "_hostname_"}
+            for item in hostname_env_value_list
         )
         return pre_names
 

@@ -3,25 +3,10 @@
 
 import sys
 import json
-import re
 
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
-from c3mc_utils import check_if_params_safe_in_recycle, safe_run_command
-
-
-def extract_ips(text):
-    pattern = r'\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b'
-
-    matches = re.findall(pattern, text)
-
-    valid_ips = []
-    for ip in matches:
-        octets = ip.split('.')
-        if len(octets) == 4 and all(0 <= int(octet) <= 255 for octet in octets):
-            valid_ips.append(ip)
-
-    return valid_ips
+from c3mc_utils import check_if_params_safe_in_recycle, safe_run_command, extract_ips
 
 
 def main(params):
@@ -31,13 +16,17 @@ def main(params):
 
     check_if_params_safe_in_recycle(ip_list, params["bpm_uuid"], "server-auth")
 
-    safe_run_command([
+
+    print(f"开始处理用户: {email}, auth_type: {auth_type}, ip_list: {' '.join(ip_list)} 的权限申请")
+
+    output = safe_run_command([
         "c3mc-base-bastion-add-server-auth",
         email,
         auth_type,
         params["ip_list"],
         params["bpm_uuid"],
     ])
+    print(output)
 
 
 if __name__ == '__main__':

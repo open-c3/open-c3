@@ -68,19 +68,24 @@ class FeiShu:
         self.tenant_access_token = self.get_tenant_access_token()
 
     def get_tenant_access_token(self):
-        url = 'https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal'
+        try:
+            url = f'https://{self.api_domain}/open-apis/auth/v3/tenant_access_token/internal'
 
-        app_id = subprocess.getoutput("c3mc-sys-ctl sys.send.feishu.app_id").strip()
-        app_secret = subprocess.getoutput("c3mc-sys-ctl sys.send.feishu.app_secret").strip()
-        if app_id == "" or app_secret == "":
-            raise RuntimeError("请填写飞书应用的应用凭证信息")
-        
-        data = {
-            'app_id': app_id,
-            'app_secret': app_secret
-        }
-        response = requests.post(url, data=data)
-        return json.loads(response.text)["tenant_access_token"]
+            app_id = subprocess.getoutput("c3mc-sys-ctl sys.send.feishu.app_id").strip()
+            app_secret = subprocess.getoutput("c3mc-sys-ctl sys.send.feishu.app_secret").strip()
+            if app_id == "" or app_secret == "":
+                raise RuntimeError("请填写 Lark 应用的应用凭证信息")
+            
+            data = {
+                'app_id': app_id,
+                'app_secret': app_secret
+            }
+            response = requests.post(url, data=data)
+            return json.loads(response.text)["tenant_access_token"]
+
+        except Exception as e: 
+            print(f"获取token出错, api_url: {url}, data: {json.dumps(data)}, response.text: {response.text}, response.status_code: {response.status_code}", file=sys.stderr)
+            raise RuntimeError("获取token出错") from e
 
     def get_user_id_dict(self, user_email_or_phone_list):
         """通过手机号或邮箱获取用户 ID
@@ -95,7 +100,7 @@ class FeiShu:
             }
 
         """
-        url = 'https://open.feishu.cn/open-apis/contact/v3/users/batch_get_id'
+        url = f'https://{self.api_domain}/open-apis/contact/v3/users/batch_get_id'
 
         headers = {
             'Authorization': f"Bearer {self.tenant_access_token}",
@@ -113,15 +118,19 @@ class FeiShu:
 
         result = {}
 
-        response = requests.post(url, headers=headers, json=data)
-        resp_data = json.loads(response.text)
-        for item in resp_data["data"]["user_list"]:
-            if "email" in item:
-                result[item["email"]] = item["user_id"]
-            else:
-                result[item["mobile"]] = item["user_id"]
+        try:
+            response = requests.post(url, headers=headers, json=data)
+            resp_data = json.loads(response.text)
+            for item in resp_data["data"]["user_list"]:
+                if "email" in item:
+                    result[item["email"]] = item["user_id"]
+                else:
+                    result[item["mobile"]] = item["user_id"]
+            return result
 
-        return result
+        except Exception as e: 
+            print(f"获取用户信息出错, api_url: {url}, headers: {json.dumps(headers)}, data: {json.dumps(data)}, response.text: {response.text}, response.status_code: {response.status_code}", file=sys.stderr)
+            raise RuntimeError("获取用户信息出错") from e
 
     def send_message(self, receive_id, message):
         """给指定用户发送消息
@@ -130,7 +139,7 @@ class FeiShu:
             receive_id: 接收者id
             message: 消息
         """
-        url = 'https://open.feishu.cn/open-apis/im/v1/messages'
+        url = f'https://{self.api_domain}/open-apis/im/v1/messages'
 
         headers = {
             'Authorization': f"Bearer {self.tenant_access_token}",
@@ -148,7 +157,7 @@ class FeiShu:
         }
 
         response = requests.post(url, headers=headers, params=params, json=post_body)
-        return json.loads(response.text), params, post_body
+        return json.loads(response.text), response.status_code, params, post_body
 
     def send_message_to_users(self, user_email_or_phone_list, message):
         """给指定列表的用户发送消息
@@ -161,7 +170,7 @@ class FeiShu:
 
         for user_identifier, user_id in user_id_dict.items():
             try:
-                resp, params, post_body = self.send_message(user_id, message)
+                resp, http_status_code, params, post_body = self.send_message(user_id, message)
 
                 if_success = True
                 if resp["code"] != 0:
@@ -169,6 +178,7 @@ class FeiShu:
 
                 log_path = self.generate_log_file_name(user_identifier)
                 log = Logger(log_path)
+                log.log(f"http状态码: {http_status_code}")
                 log.log(f"消息内容: {message}")
                 log.log(f"查询参数: {json.dumps(params)}")
                 log.log(f"请求体: {json.dumps(post_body)}")
