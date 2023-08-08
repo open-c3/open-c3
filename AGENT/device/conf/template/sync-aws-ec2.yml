@@ -11,7 +11,7 @@ download:
       col: ["实例ID"] # 打印出的数据必须有的字段
       min: 0 # url中明林执行后最少一行输出，否则认为出错
     ingestion-node: # 控制资源在发布时的可见行，但是cmdb里一直可以看见
-      name: "主机名"
+      name: "tag.hostname"
       inip: "内网IP"
       exip: "公网IP"
       tree: "服务树"
@@ -90,7 +90,6 @@ download:
       uuid: "实例ID" # 指明哪一列作为uuid列
     alias:
       InstanceId: "实例ID"
-      Name: "名称"
       RegionId: "区域"
       PrivateIpAddress: "内网IP"
       PublicIpAddress: "公网IP"
@@ -104,7 +103,8 @@ download:
       _product_owner_: 业务负责人
       _ops_owner_: "运维负责人"
       _department_: "部门"
-      _name_: "主机名"
+      _hostname_: "主机名"
+      _name_: "名称"
     filter:
       - name: "account"
         alias: 账号
@@ -145,6 +145,7 @@ download:
         - "状态"
         - "实例类型"
         - "主机名"
+        - "名称"
         - "内网IP"
         - "公网IP"
       contact:

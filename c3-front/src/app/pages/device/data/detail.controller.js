@@ -28,6 +28,7 @@
         vm.treeArr = [];
         vm.extcol = {};
         vm.grpcol = {};
+        vm.treeMap = [];
         vm.irregularArr = [null, undefined, '',NaN, ' ']
         
         var toastr = toastr || $injector.get('toastr');
@@ -286,6 +287,7 @@
         vm.search_init = function () {
             $http.get('/api/connector/connectorx/treemap').success(function (data) {
                 vm.names = [];
+                vm.treeMap = data.data
                 angular.forEach(data.data, function (value) {
                     vm.names.push(value.name);
                 });
@@ -293,31 +295,18 @@
             });
          };
          vm.search_init()
-
-         vm.recursionTreeId = function (nodes, name) {
-          for (const node of nodes) {
-            if (node.name === name) {
-              return node.id;
-            }
-            if (node.children) {
-              const result = vm.recursionTreeId(node.children, name);
-              if (result !== null) {
-                return result;
-              }
-            }
-          }
-          return null;
-        }
     
-
-         vm.handlePageJump = function (value, $index) {
-          const newValueArr = value.split('.')
-          const resultId = vm.recursionTreeId(vm.treeArr, newValueArr[newValueArr.length - 1])
-          if (resultId) {
-            window.open(`#/device/menu/${resultId}`)
-          } else {
+         vm.handlePageJump = function (value) {
+          try {
+            const resultId = vm.treeMap.filter(item => item.name === value)[0].id;
+            if (resultId) {
+              window.open(`#/device/menu/${resultId}`)
+            } else {
+              toastr.error("未找到对应服务树")
+              return false
+            }
+          } catch (error) {
             toastr.error("未找到对应服务树")
-            return false
           }
         }
     }

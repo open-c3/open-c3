@@ -59,13 +59,14 @@
         confirmButtonText: "确定",
         closeOnConfirm: true
       }, function () {
-        const uuidStr = vm.type === 'compute' ? vm.selectResDetail.map(item => item.ip).join(',') : vm.selectResDetail.map(item => item['实例ID']).join(',')
+        const uuidStr = vm.type === 'compute' ? vm.selectResDetail.map(item => item.ip) : vm.selectResDetail.map(item => item['实例ID'])
+        const dedupUuidStr = [...new Set(uuidStr)].join(',')
         const params = {
           projectid: vm.treeid,
           status: vm.postdata.status,
           mark: vm.postdata.remark,
           type: vm.type,
-          uuids: uuidStr
+          uuids: dedupUuidStr
         }
         $http.post(`/api/agent/resourcelow/mark/${vm.type}/${vm.treeid}`, params).success(function (data) {
           if (data.stat) {

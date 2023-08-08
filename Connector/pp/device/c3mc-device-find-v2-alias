@@ -1,0 +1,57 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+use YAML::XS;
+use Encode;
+use utf8;
+
+$| ++;
+
+my @node = split /,/, join ',', @ARGV;
+@node = <STDIN> unless @node;
+chomp @node;
+
+my    @data = `c3mc-device-cat-all-cache get`;
+chomp @data;
+
+my @title = split /\t/, shift @data;
+die "unfind title" unless @title;
+
+my %title = map{ $title[$_] => $_ } 0 .. $#title;
+
+my %node = map{ $_ => 1 }@node;
+
+my ( %res, %cnt );
+for( @data )
+{
+    my @d = split /\t/, $_;
+
+    my $uuid = join ',', map{ $d[$title{$_}] }map{ Encode::encode( 'utf8', $_ )}qw( 实例ID  );
+    my $data = join ' ', map{ $d[$title{$_}] }map{ Encode::encode( 'utf8', $_ )}qw( system  );
+    
+    $data =~ s/\s//g;
+    my @data = split /\|/, $data;
+    my ( undef, undef, $name, @vuuid ) = @data;
+    next unless defined $name;
+
+    my $name2 = @vuuid ? $vuuid[0] : $name;
+
+    if( @vuuid >= 2 && $vuuid[-1] =~ /^\d+$/ )
+    {
+        $vuuid[-1] = "$vuuid[-2]:$vuuid[-1]";
+    }
+
+    my %uuid = ( $uuid => 1, $name => 1 );
+    map{ $uuid{$_} ++}@vuuid;
+
+    my @euuid = grep{ $node{$_} }keys %uuid;
+    next unless @euuid;
+    map{ $_ eq $name  ? $res{$_}{$name2} ++ : $res{$_}{$name} ++ }@euuid;
+}
+
+for my $x ( @node )
+{
+    my @alias = keys %{$res{$x}};
+    printf "$x: %s\n", ( @alias == 1 ) ? $alias[0] : "unknown";
+}

@@ -117,7 +117,14 @@ post '/resourcelow/mark/:type/:projectid' => sub {
 
     $param->{mark} ||= '';
 
+    my $status = eval{ YAML::XS::LoadFile '/data/Software/mydan/Connector/pp/mmon/resourcelow/conf/status.yml' };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my $expires = time + 31 * 86400;
+    for my $x ( @$status )
+    {
+        $expires = time + 86400 * $x->{expires} if $x->{name} eq $param->{status} && $x->{expires} && $x->{expires} =~ /^\d+$/;
+    }
 
     eval{
         map{
