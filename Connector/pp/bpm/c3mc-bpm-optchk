@@ -83,6 +83,7 @@ for my $k ( keys %$currvar )
 
 $command = [ $command ] unless ref $command eq 'ARRAY';
 
+$var{_user_} = $param->{_user_};
 
 my $json = eval{JSON::to_json \%var };
 die "var to json fail: $@" if $@;

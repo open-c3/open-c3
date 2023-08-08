@@ -65,9 +65,15 @@ post '/c3mc/bpm/optchk' => sub {
     )->check( %$param );
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
+    my ( $user, $company )= $api::sso->run( cookie => cookie( $api::cookiekey ),
+        map{ $_ => request->headers->{$_} }qw( appkey appname ));
+
+    my %data = %$param;
+    $data{_user_} = $user;
+
     my $pmscheck = api::pmscheck( 'openc3_job_read', 0 ); return $pmscheck if $pmscheck;
     my ( $TEMP, $file ) = File::Temp::tempfile();
-    print $TEMP YAML::XS::Dump $param;
+    print $TEMP YAML::XS::Dump \%data;
     close $TEMP;
 
     my $cmd = "cat '$file'|c3mc-bpm-optchk 2>&1";
