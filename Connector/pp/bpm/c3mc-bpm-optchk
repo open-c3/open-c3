@@ -1,0 +1,97 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/JOB/lib -I/data/Software/mydan/JOB/private/lib
+use strict;
+use warnings;
+
+$|++;
+
+use YAML::XS;
+use JSON;
+use BPM::Flow;
+use File::Temp;
+use Encode qw(encode);
+
+=head1 SYNOPSIS
+
+ cat param.yml| $0
+
+=cut
+
+local $/ = undef;
+my @p = YAML::XS::Load( my $x = <STDIN> );
+local $/ = "\n";
+
+my $param = $p[0];
+
+my $step = eval{ YAML::XS::LoadFile "/data/Software/mydan/JOB/bpm/config/flow/$param->{jobname}/plugin" };
+die "load step fail:$@" if $@;
+
+my ( $stepindex, $varname ) = split /\./, $param->{stepname}, 2;
+my $grp = '';
+if( $varname =~ /^(\d+)\./)
+{
+    ( $grp, $varname ) = split /\./, $varname, 2;
+}
+
+my $pluginname = $step->[$stepindex-1];
+die "nofind plugin name" unless $pluginname;
+
+my $config = BPM::Flow->new()->subvariable( $param->{jobname}, $stepindex, $pluginname );
+
+my $stepconfig;
+for ( @{ $config->{option}} )
+{
+    $stepconfig = $_ if $_->{name} eq $varname;
+}
+
+die "nofind stepconfig: $varname" unless $stepconfig;
+
+my $command = $stepconfig->{optchk};
+die "nofind command" unless $command;
+
+my $currvar = $param->{bpm_variable};
+my %var;
+
+my %rely;
+if( $stepconfig->{rely} )
+{
+    map{ $rely{$1} = 1 if $_ =~ /^x\.(.+)/; }@{$stepconfig->{rely}};
+}
+#BPM TODO, 传入的数据过多，这个是把所有插件的数据压扁传入选项命令中.
+#其后会有一层覆盖，用本插件本步骤的进行覆盖，极端情况下可能会有子步骤变量缺失，
+#但是确用了全局变量，需要明确是外部变量，格式如 x.var
+for my $k ( keys %$currvar )
+{
+    my $tk = $k;
+    $tk =~ s/^\d+\.//;
+    $tk =~ s/^\d+\.//;
+    next unless $rely{$tk};
+    $var{$tk} = $currvar->{$k};
+}
+
+for my $k ( keys %$currvar )
+{
+    my ( $ti, $tk ) = split /\./, $k, 2;
+    next unless $ti eq $stepindex;
+    if( $grp )
+    {
+        my $tgrp;
+        ( $tgrp, $tk ) = split /\./, $tk, 2;
+        next unless $tgrp eq $grp;
+    }
+    $var{$tk} = $currvar->{$k};
+}
+
+$command = [ $command ] unless ref $command eq 'ARRAY';
+
+
+my $json = eval{JSON::to_json \%var };
+die "var to json fail: $@" if $@;
+
+my ( $TEMP, $tempfile ) = File::Temp::tempfile();
+print $TEMP $json;
+close $TEMP;
+
+for my $cmd ( @$command )
+{
+    die "optchk $cmd fail: $!" if system "set -o pipefail;cat '$tempfile'|$cmd";
+}
