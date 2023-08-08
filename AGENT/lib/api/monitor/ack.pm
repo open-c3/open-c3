@@ -509,7 +509,12 @@ post '/monitor/ack/deal/info' => sub {
  
     my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
-    eval{ map{ $api::mysql->execute( "replace into openc3_monitor_serialcall_deal ( user,caseuuid ) values('$user','$_')" ); }grep{ $_ }split /,/, $param->{uuid} };
+    eval{
+        map{
+            $api::mysql->execute( "replace into openc3_monitor_serialcall_deal ( user,caseuuid ) values('$user','$_')" );
+            $api::mysql->execute( "delete from openc3_monitor_serialcall_data where caseuuid='$_'" );
+        }grep{ $_ }split /,/, $param->{uuid};
+     };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true };
 };
 
