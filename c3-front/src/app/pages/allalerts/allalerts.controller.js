@@ -5,7 +5,7 @@
         .module('openc3')
         .controller('AllalertsController', AllalertsController);
 
-    function AllalertsController($http, ngTableParams, $uibModal, genericService, $interval) {
+    function AllalertsController($http, ngTableParams, $uibModal, genericService, $interval, $scope) {
         var vm = this;
         vm.seftime = genericService.seftime
 
@@ -39,6 +39,12 @@
 
         vm.defaultData = []
         vm.hasDebugStatus = false;
+        vm.checkDataList = [];
+        vm.selectedClaims = [];
+        vm.checkboxes = {
+          checked: false,
+          items: {},
+        };
 
         vm.debugswitch = function() {
           vm.hasDebugStatus = !vm.hasDebugStatus
@@ -65,6 +71,7 @@
                     vm.defaultData = newData;
                     const unCheckedData = newData.filter(item => item.status.state !== 'suppressed' && !vm.dealinfo[item.uuid])
                     vm.downloadData = unCheckedData
+                    vm.checkDataList = unCheckedData
                     vm.dataTable = new ngTableParams({count:25}, {counts:[],data:unCheckedData});
                     vm.loadAover = true;
                 }else {
@@ -151,10 +158,10 @@
             });
         };
 
-        vm.deal = function(d){
+        vm.deal = function(d, selected = []){
             swal({
-                title: "认领告警",
-                text: '我来处理这个告警',
+                title: `${selected.length > 0 ? '批量认领告警' : '认领告警'}`,
+                text: `${selected.length > 0 ? '我来批量处理这些告警' : '我来处理这个告警'}`,
                 type: "info",
                 showCancelButton: true,
                 confirmButtonColor: "#DD6B55",
@@ -164,7 +171,8 @@
 
             }, function(){
                 vm.loadover = false;
-                $http.post("/api/agent//monitor/ack/deal/info", { "uuid": d.uuid }  ).success(function(data){
+                const checkedUuid = selected.length > 0 ? selected.join(',') : d.uuid
+                $http.post("/api/agent//monitor/ack/deal/info", { "uuid": checkedUuid }  ).success(function(data){
                     if(data.stat == true)
                     {
                        vm.loadover = true;
@@ -179,6 +187,13 @@
         };
 
 
+        vm.handleBatchClaim = function () {
+          vm.selectedClaims = []
+          angular.forEach(vm.checkboxes.items, function (value, key) {
+            if (value) vm.selectedClaims.push(key)
+          })
+          vm.deal({ uuid: '' }, Array.from(new Set(vm.selectedClaims)))
+        }
 
         vm.openTT = function (uuid, caseuuid) {
             vm.loadover = false;
@@ -226,6 +241,11 @@
 
         // 保存新状态
         vm.handleSaveStatusChange = function () {
+          vm.checkboxes = {
+            checked: false,
+            items: {},
+            itemsNumber: 0
+          };
           const selectData = JSON.parse(JSON.stringify(vm.defaultData))
           const checkedData = selectData.filter(item => 
             (vm.checknewstatus ? item : item.status.state !== 'suppressed') && 
@@ -234,6 +254,7 @@
           )
           vm.dataTable = new ngTableParams({count:25}, {counts:[],data:checkedData});
           vm.downloadData = checkedData
+          vm.checkDataList = checkedData
         }
 
         // 导出函数
@@ -261,5 +282,31 @@
           const blob = new Blob([wbout], { type: 'application/octet-stream' });
           saveAs(blob, fileName);
         }
+
+        // 监听全选checkbox
+        $scope.$watch(function () { return vm.checkboxes.checked }, function (value) {
+          angular.forEach(vm.checkDataList, function (item, index, array) {
+            vm.checkboxes.items[[array[index].uuid]] = value
+          });
+          vm.checkboxes.itemsNumber = Object.values(vm.checkboxes.items).filter(item => item === true).length
+          let nodeList = []
+          for (let key in vm.checkboxes.items) {
+            nodeList.push(String(key))
+          }
+        }, true);
+
+        // 监听单个列表项的checkbox
+        $scope.$watch(function () { return vm.checkboxes.items }, function (value) {
+          var checked = 0, unchecked = 0
+          angular.forEach(vm.checkDataList, function (item, index, array) {
+            checked += (vm.checkboxes.items[array[index].uuid]) || 0;
+            unchecked += (!vm.checkboxes.items[array[index].uuid]) || 0;
+          });
+          if (vm.checkDataList.length > 0 && ((unchecked == 0) || (checked == 0))) {
+            vm.checkboxes.checked = (checked == vm.checkDataList.length);
+          }
+          vm.checkboxes.itemsNumber = checked
+          angular.element(document.getElementsByClassName("select-all")).prop("indeterminate", (checked != 0 && unchecked != 0));
+        }, true);
     }
 })();

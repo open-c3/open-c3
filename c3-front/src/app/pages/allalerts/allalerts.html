@@ -7,6 +7,9 @@
 </div> 
   <div class="admin-form row filter-switch">
     <div class="filter-switch-items">
+      <button class="btn btn-primary interval-button-style" ng-disabled="allalerts.checkboxes.itemsNumber === 0 " uib-tooltip="{{'C3T.批量认领'|translate}}" ng-click="allalerts.handleBatchClaim()">{{'C3T.批量认领'| translate}}</button>
+    </div>
+    <div class="filter-switch-items">
       <div class="filter-switch-items-label control-label fwbold">{{'C3T.显示已抑制的告警'|translate}}：</div>
       <div class="filter-switch-items-context">
         <label class="switch switch-system filter-switch-items-context-label">
@@ -62,6 +65,9 @@
             <div class="panel-tabs">
                 <table ng-table="allalerts.dataTable" class="table table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data" ng-class="{'first-almost': m.labels.severity === 'level1','second-almost': m.labels.severity === 'level2','third-almost': m.labels.severity === 'level3','forth-almost': m.labels.severity === 'level4'}">
+                        <td header="'headerCheckbox.html'" data-title="">
+                          <input type="checkbox" name="selected" ng-model="allalerts.checkboxes.items[m.uuid]" />
+                        </td>  
                         <td data-title="'uuid'"  filter="{uuid: 'text'}" ng-if="allalerts.hasDebugStatus">{{m.uuid}}</td>  
                         <td data-title="'C3T.开始时间'|translate" sortable="'startsAt'" filter="{startsAt: 'text'}">{{m.startsAt}}</td>
                         <td data-title="'C3T.名称'|translate" sortable="'labels.alertname'" filter="{labelsAlertname: 'text'}">{{m.labels.alertname}}</td>
@@ -82,7 +88,7 @@
                         <td class="textcenter"  data-title="'C3T.操作'|translate" width="200">
                            <button class="btn btn-primary btn-sm" ng-click="allalerts.openOneTab(m.generatorURL)">{{'C3T.查看图表'|translate}}</button>
                            <button class="btn btn-primary btn-sm" ng-click="allalerts.tott(m)">{{'C3T.转工单'|translate}}</button>
-                           <button class="btn btn-primary btn-sm" ng-click="allalerts.deal(m)">{{'C3T.认领'|translate}}</button>
+                           <button class="btn btn-primary btn-sm" ng-click="allalerts.deal(m, [])">{{'C3T.认领'|translate}}</button>
                         </td>
                     </tr>
                 </table>
@@ -91,7 +97,9 @@
     </div>
 </div>
 
-
+<script type="text/ng-template" id="headerCheckbox.html">
+  <input type="checkbox" ng-model="allalerts.checkboxes.checked"  class="select-all"/>
+</script>
 
 </div>
 
