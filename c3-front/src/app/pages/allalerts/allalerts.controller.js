@@ -158,10 +158,10 @@
             });
         };
 
-        vm.deal = function(d, selected = []){
+        vm.deal = function(d, types, selected){
             swal({
-                title: `${selected.length > 0 ? '批量认领告警' : '认领告警'}`,
-                text: `${selected.length > 0 ? '我来批量处理这些告警' : '我来处理这个告警'}`,
+                title: `${types === 'batch' ? '批量认领告警' : '认领告警'}`,
+                text: `${types === 'batch'  ? '我来批量处理这些告警' : '我来处理这个告警'}`,
                 type: "info",
                 showCancelButton: true,
                 confirmButtonColor: "#DD6B55",
@@ -171,7 +171,7 @@
 
             }, function(){
                 vm.loadover = false;
-                const checkedUuid = selected.length > 0 ? selected.join(',') : d.uuid
+                const checkedUuid = types === 'batch' ? selected.join(',') : d.uuid
                 $http.post("/api/agent//monitor/ack/deal/info", { "uuid": checkedUuid }  ).success(function(data){
                     if(data.stat == true)
                     {
@@ -192,7 +192,7 @@
           angular.forEach(vm.checkboxes.items, function (value, key) {
             if (value) vm.selectedClaims.push(key)
           })
-          vm.deal({ uuid: '' }, Array.from(new Set(vm.selectedClaims)))
+          vm.deal({ uuid: '' }, 'batch', Array.from(new Set(vm.selectedClaims)))
         }
 
         vm.openTT = function (uuid, caseuuid) {
