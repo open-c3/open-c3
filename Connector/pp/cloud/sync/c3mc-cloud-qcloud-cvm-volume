@@ -3,90 +3,73 @@
 
 import sys
 import json
+import subprocess
 
-from tencentcloud.common import credential
-from tencentcloud.common.profile.client_profile import ClientProfile
-from tencentcloud.common.profile.http_profile import HttpProfile
-from tencentcloud.cbs.v20170312 import cbs_client, models
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
-from c3mc_utils import sleep_time_for_limiting
+from c3mc_cloud_qcloud_cbs import LibQcloudCbs
 
 
-# DescribeDisks() 的接口请求频率限制
-max_times_describe_disks = 100
-
-
-def get_volume_item(item, unique_disk_id_m, cvm_m):
+def get_volume_item(item, account, accountuuid, cvm_instance_id):
     item["RegionId"] = item["Placement"]["Zone"][:-2]
     item["ZoneId"] = item["Placement"]["Zone"]
-    item["account"] = unique_disk_id_m[item["DiskId"]]["account"]
-    item["accountuuid"] = unique_disk_id_m[item["DiskId"]]["accountuuid"]
-    if "InstanceId" in item and item["InstanceId"] in cvm_m:
-        item["_vmuuid_"] = cvm_m[item["InstanceId"]]
+    item["account"] = account
+    item["accountuuid"] = accountuuid
+    item["_vmuuid_"] = cvm_instance_id
     return item
 
 
-def get_volume(data_list):
-    result = []
-    client = None
-    unique_disk_id_m = {}
-    page_size = 20
+def get_disk_ids(data_list):
+    # account -> region -> {disk_id}
+    data = {}
+    # disk_id -> { account, accountuuid, cvm_instance_id }
+    record_cvm_info = {}
 
-    cvm_m = {}
-    for data in data_list:
-        if "_aksk_" not in data:
-            continue
-
-        cvm_m[data["InstanceId"]] = data["Uuid"]
-
-        if client is None:
-            parts = data["_aksk_"].split()
-
-            cred = credential.Credential(parts[1], parts[2])
-            httpProfile = HttpProfile()
-            httpProfile.endpoint = "cbs.tencentcloudapi.com"
-
-            clientProfile = ClientProfile()
-            clientProfile.httpProfile = httpProfile
-            client = cbs_client.CbsClient(cred, parts[3], clientProfile)
-
-        for disk_item in data["DataDisks"]:
+    for cvm_instance in data_list:
+        for disk_item in cvm_instance["DataDisks"]:
             if not disk_item["DiskId"].startswith("l"):
-                unique_disk_id_m[disk_item["DiskId"]] = {
-                    "account": data["account"],
-                    "accountuuid": data["accountuuid"],
+                if cvm_instance["account"] not in data:
+                    data[cvm_instance["account"]] = {}
+                
+                if cvm_instance["RegionId"] not in data[cvm_instance["account"]]:
+                    data[cvm_instance["account"]][cvm_instance["RegionId"]] = set()
+                
+                data[cvm_instance["account"]][cvm_instance["RegionId"]].add(disk_item["DiskId"])
+
+                record_cvm_info[disk_item["DiskId"]] = {
+                    "account": cvm_instance["account"],
+                    "accountuuid": cvm_instance["accountuuid"],
+                    "cvm_instance_id": cvm_instance["InstanceId"] 
                 }
 
-    disk_id_list = list(unique_disk_id_m.keys())
-    for cur_page_number in range(1, sys.maxsize):
-        sleep()
-        req = models.DescribeDisksRequest()
-        params = {
-            "DiskIds": disk_id_list,
-            "Limit": page_size,
-            "Offset": (cur_page_number - 1) * page_size,
-        }
-        req.from_json_string(json.dumps(params))
-        resp = client.DescribeDisks(req)
-        resp = json.loads(resp.to_json_string())
-
-        for item in resp["DiskSet"]:
-            item = get_volume_item(item, unique_disk_id_m, cvm_m)
-            result.append(item)
-        if len(resp["DiskSet"]) < page_size:
-            break
-    return result
+    return data, record_cvm_info
 
 
-def sleep():
-    sleep_time_for_limiting(max_times_describe_disks)
+def run(data_list):
+    data = []
+
+    disk_account_to_ids, record_cvm_info = get_disk_ids(data_list)
+
+    for account, region_disk_ids in disk_account_to_ids.items():
+        for region, disk_ids in region_disk_ids.items():
+            key_info = json.loads(
+                subprocess.getoutput(f"c3mc-get-account-info qcloud {account}")
+            )
+            data_list = LibQcloudCbs(key_info["access_id"], key_info["access_key"], region).describe_disks_for_ids(list(disk_ids))
+
+            for item in data_list:
+                account = record_cvm_info[item["DiskId"]]["account"]
+                accountuuid = record_cvm_info[item["DiskId"]]["accountuuid"]
+                cvm_instance_id = record_cvm_info[item["DiskId"]]["cvm_instance_id"]
+                data.append(get_volume_item(item, account, accountuuid, cvm_instance_id))
+    return data
 
 
 def main(data_list):
     if len(data_list) == 0:
         return
-    result = get_volume(data_list)
+    result = run(data_list)
+
     for item in result:
         print(json.dumps(item, default=str))
 

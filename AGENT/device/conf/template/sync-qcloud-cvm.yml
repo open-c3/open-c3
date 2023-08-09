@@ -1,5 +1,5 @@
 download:
-  - url: "cmd:c3mc-cloud-account-list --type qcloud-cvm |xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-qcloud-cvm --account qcloud --cloudaccount {} | c3mc-cloud-tag-v2 --tagfield Tags --key Key --value Value | c3mc-price-fetch qcloud-cvm 'RegionId;Placement.Zone;InstanceType' | c3mc-cloud-attach-department-info  | c3mc-base-json2tab "
+  - url: "cmd:c3mc-cloud-account-list --type qcloud-cvm |xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-qcloud-cvm --account qcloud --cloudaccount {} | c3mc-cloud-tag-v2 --tagfield Tags --key Key --value Value | c3mc-price-fetch qcloud-cvm 'RegionId;Placement.Zone;InstanceType' | c3mc-base-json2tab "
     datatype: tsv # 固定值。表示url中命令最终输出的文件格式
     type: compute # 资源类型。cmdb页面中的分类
     subtype: qcloud-cvm # 上面资源类型的子类型。
@@ -124,14 +124,14 @@ download:
         alias: 业务负责人
       - name: "运维负责人"
         alias: 运维负责人
-      - name: "部门"
-        alias: 部门
+      - name: "产品线"
+        alias: 产品线
       - name: "一级部门"
         alias: 一级部门
       - name: "二级部门"
         alias: 二级部门
-      - name: "产品线"
-        alias: 产品线
+      - name: "部门"
+        alias: 部门
       - name: "_ingestion_"
         alias: 摄取
     outline:
