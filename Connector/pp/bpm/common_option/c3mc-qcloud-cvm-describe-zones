@@ -33,16 +33,11 @@ class Zones:
         req.from_json_string(json.dumps(params))
         resp = json.loads(self.client.DescribeZones(req).to_json_string())
 
-        state_map = {
-            "AVAILABLE": "有效",
-            "UNAVAILABLE": "无效"
-        }
-
-        zone_list = []
-        for zone_info in resp["ZoneSet"]:
-            zone_info["ZoneState"] = state_map[zone_info["ZoneState"]]
-            zone_list.append(zone_info)
-
+        zone_list = [
+            zone_info
+            for zone_info in resp["ZoneSet"]
+            if zone_info["ZoneState"] == "AVAILABLE"
+        ]
         return sorted(zone_list, key=lambda x: x['Zone'], reverse=False)
     
     def show(self):

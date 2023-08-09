@@ -11,7 +11,7 @@ option:
     describe: 区域
     rely:
       - account
-    command: c3mc-qcloud-cvm-describe-regions | c3mc-bpm-display-field-values "{Region}; 名称:{RegionName}, 状态:{RegionState}, 代码:{Region}"
+    command: c3mc-qcloud-cvm-describe-regions | c3mc-bpm-display-field-values "{Region}; {RegionName} ({Region})"
     type: selectx
     value: ""
 
@@ -39,12 +39,6 @@ option:
     describe: 业务负责人标签
     type: input
     value_type: "email"
-
-  - name: owners_tag
-    describe: 业务负责人标签
-    type: input
-    # value_type: "email"
-    information: "可以填一个或多个账户, 多个账户使用空格连接, 使用其他特殊字符可能会导致接口出错"
 
   - name: ops_owner_tag
     describe: 运维负责人标签
@@ -93,7 +87,6 @@ template_argv:
   tag: ${tag}
   # 用户配置命名标签。最终会合并到上面的tag中
   product_owner_tag: ${product_owner_tag}
-  owners_tag: ${owners_tag}
   ops_owner_tag: ${ops_owner_tag}
   department_tag: ${department_tag}
   product_tag: ${product_tag}

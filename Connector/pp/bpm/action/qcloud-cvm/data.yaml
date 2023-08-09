@@ -12,20 +12,21 @@ option:
     describe: 区域
     rely:
       - account
-    command: c3mc-qcloud-cvm-describe-regions | c3mc-bpm-display-field-values "{Region}; 名称:{RegionName}, 状态:{RegionState}, 代码:{Region}"
+    command: c3mc-qcloud-cvm-describe-regions | c3mc-bpm-display-field-values "{Region}; {RegionName} ({Region})"
     type: selectx
     value: ""
-    information: "请不要选择状态为 无效 的区域"
+    information: "状态为 \"无效\" 的区域已被过滤不在列表中显示"
 
   - name: zone
     describe: 可用区
     rely:
       - account
       - region
-    command: c3mc-qcloud-cvm-describe-zones | c3mc-bpm-display-field-values "{Zone}; 名称:{ZoneName}, 状态:{ZoneState}, 代码:{Zone}"
+    command: c3mc-qcloud-cvm-describe-zones | c3mc-bpm-display-field-values "{Zone}; {ZoneName} ({Zone})"
     type: selectx
     value: ""
-    information: "请不要选择状态为 无效 的可用区"
+    information: "状态为 \"无效\" 的可用区已被过滤不在列表中显示"
+    fromops: 1
 
   - name: count
     describe: 机器数目
@@ -64,32 +65,32 @@ option:
     type: select
     option:
       - name: PREPAID
-        alias: 预付费
+        alias: 包年包月
       - name: POSTPAID_BY_HOUR
         alias: 按小时后付费
     value: ""
     information: "国际用户不可以选择包年包月, 否则腾讯云接口出错"
 
-  - name: instance_charge_count
-    describe: "购买时长(月)"
-    type: number
-    value: 1
-    show: 
-      - charge_type: ["PREPAID"]
+  # - name: instance_charge_count
+  #   describe: "购买时长(月)"
+  #   type: number
+  #   value: 1
+  #   show: 
+  #     - charge_type: ["PREPAID"]
 
-  - name: renew_flag
-    describe: 自动续费方式
-    type: select
-    option:
-      - name: NOTIFY_AND_AUTO_RENEW
-        alias: 通知过期且自动续费
-      - name: NOTIFY_AND_MANUAL_RENEW
-        alias: 通知过期不自动续费
-      - name: DISABLE_NOTIFY_AND_MANUAL_RENEW
-        alias: 不通知过期不自动续费
-    value: ""
-    show: 
-      - charge_type: ["PREPAID"]
+  # - name: renew_flag
+  #   describe: 自动续费方式
+  #   type: select
+  #   option:
+  #     - name: NOTIFY_AND_AUTO_RENEW
+  #       alias: 通知过期且自动续费
+  #     - name: NOTIFY_AND_MANUAL_RENEW
+  #       alias: 通知过期不自动续费
+  #     - name: DISABLE_NOTIFY_AND_MANUAL_RENEW
+  #       alias: 不通知过期不自动续费
+  #   value: ""
+  #   show: 
+  #     - charge_type: ["PREPAID"]
 
   - name: instance_config
     describe: 机型
@@ -199,6 +200,7 @@ option:
     describe: "公网出带宽上限(兆)"
     variable_name: internet_max_bandwidth_out
     type: input
+    value: 50
     fromops: 1
 
   - name: if_need_public_ip
@@ -215,14 +217,6 @@ option:
     type: input
     information: "如果申请创建的是服务器资源, 这里的负责人后面将是处理该服务器权限审批的人员。标签值规则: 1-255个英文字母、数字、空格或汉字，支持 +、-、=、.、_、:、/、@、()、[]、（）、【】，用于表示具体的标签内容。"
     value_type: "email"
-
-  - name: owners_tag
-    describe: 业务负责人标签
-    type: input
-    # value_type: "email"
-    information: "可以填一个或多个账户, 多个账户使用空格连接, 使用其他特殊字符可能会导致接口出错。标签值规则: 1-255个英文字母、数字、空格或汉字，支持 +、-、=、.、_、:、/、@、()、[]、（）、【】，用于表示具体的标签内容。"
-    value_type: "tencent_tag_value_type"
-
 
   - name: ops_owner_tag
     describe: 运维负责人标签
@@ -339,7 +333,6 @@ template_argv:
 
   # 用户必须配置的标签
   product_owner_tag: ${product_owner_tag}
-  owners_tag: ${owners_tag}
   ops_owner_tag: ${ops_owner_tag}
   department_tag: ${department_tag}
   product_tag: ${product_tag}
