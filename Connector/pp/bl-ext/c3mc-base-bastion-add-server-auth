@@ -151,6 +151,7 @@ def grant_server_auth(email, ip_list, grant_auth_type, grant_sudo_hours, is_audi
         t.join()
 
 
+    has_not_found_error = False
     # 判断是否有ip从c3中无法查到
     for ip in ip_list:
         found = any(
@@ -158,8 +159,9 @@ def grant_server_auth(email, ip_list, grant_auth_type, grant_sudo_hours, is_audi
             for ip_info in data_list
         )
         if not found:
+            if not has_not_found_error:
+                has_not_found_error = True
             print(f"LOG. 服务器 {ip} 权限申请失败。原因: ip在c3中无法找到", file=sys.stderr)
-            exit(1)
 
     for ip in thread_safe_set.data:
         data_list = [ip_info for ip_info in data_list if ip_info["inIP"] != ip and ip_info["exIP"] != ip]
@@ -168,6 +170,9 @@ def grant_server_auth(email, ip_list, grant_auth_type, grant_sudo_hours, is_audi
         print(f"LOG. 服务器权限申请失败, 内网ip: {ip_info['inIP']}, 外网ip: {ip_info['exIP']}", file=sys.stderr)
 
     if data_list:
+        exit(1)
+    
+    if has_not_found_error:
         exit(1)
     
 
