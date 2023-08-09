@@ -11,7 +11,7 @@ from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.cvm.v20170312 import cvm_client
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
-from c3mc_utils import check_if_params_safe_in_recycle
+from c3mc_utils import check_if_resources_safe_for_operation
 from c3mc_cloud_qcloud_cvm import QcloudCvm
 
 supported_recycle_types = [
@@ -76,7 +76,9 @@ def main(params):
     ).split()
 
     instance_identifier_list = params["instance_ids"].split(",")
-    check_if_params_safe_in_recycle(instance_identifier_list, params["bpm_uuid"], "qcloud-cvm-recycle")
+    check_if_resources_safe_for_operation(
+        instance_identifier_list, params["bpm_uuid"], "qcloud-cvm-recycle"
+    )
 
     for instance_identifier in instance_identifier_list:
         instance_identifier = instance_identifier.strip()
