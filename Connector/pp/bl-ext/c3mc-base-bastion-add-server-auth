@@ -83,9 +83,9 @@ def create_user_if_need(email):
 
 
 # 专门针对单个ip添加权限的线程处理函数
-def process_element(thread_safe_set, ip_info, grant_auth_type, account, email, grant_sudo_hours):
+def process_element(thread_safe_set, ip_info, grant_auth_type, account, email, grant_sudo_hours, is_audit):
     def add_auth_for_ip(ip):
-        output = safe_run_command([
+        safe_run_command([
             "c3mc-base-bastion",
             "--operate_type", "addauth",
             "--auth_add_type", str(grant_auth_type),
@@ -93,22 +93,26 @@ def process_element(thread_safe_set, ip_info, grant_auth_type, account, email, g
             "--email", email,
             "--ip", ip,
             "--sudo_hours", str(grant_sudo_hours),
+            "--is_audit", is_audit,
         ])
-
-        print(f"LOG. 对实例ID {ip_info['instanceId']} 添加权限. 日志: {output}")
 
         thread_safe_set.update(ip)
 
+    done = False
     for ip in [ip_info["inIP"], ip_info["exIP"]]:
         try:
             add_auth_for_ip(ip)
             # 尝试对内网ip和公网ip添加权限
             # 如果执行成功则退出
+            done = True
             break
         except Exception as e:
             continue
+    
+    if not done:
+        print(f"资源 {ip_info['instanceId']} 的权限未添加成功, 内网ip: {ip_info['inIP']}, 公网ip: {ip_info['exIP']}", file=sys.stderr)
 
-def grant_server_auth(email, ip_list, grant_auth_type, grant_sudo_hours):
+def grant_server_auth(email, ip_list, grant_auth_type, grant_sudo_hours, is_audit):
     account = email.split("@")[0]
     cmd_parts = ["c3mc-device-api-jumpserver",
                  "--json", "--ips", ",".join(ip_list)]
@@ -137,7 +141,7 @@ def grant_server_auth(email, ip_list, grant_auth_type, grant_sudo_hours):
             time.sleep(0.3)
 
         t = threading.Thread(target=process_element, args=(
-            thread_safe_set, ip_info, grant_auth_type, account, email, grant_sudo_hours
+            thread_safe_set, ip_info, grant_auth_type, account, email, grant_sudo_hours, is_audit
         ))
         thread_pool.append(t)
         t.start()
@@ -157,7 +161,6 @@ def grant_server_auth(email, ip_list, grant_auth_type, grant_sudo_hours):
             print(f"LOG. 服务器 {ip} 权限申请失败。原因: ip在c3中无法找到", file=sys.stderr)
             exit(1)
 
-
     for ip in thread_safe_set.data:
         data_list = [ip_info for ip_info in data_list if ip_info["inIP"] != ip and ip_info["exIP"] != ip]
 
@@ -168,7 +171,7 @@ def grant_server_auth(email, ip_list, grant_auth_type, grant_sudo_hours):
         exit(1)
     
 
-def main(email, auth_type, ip_str):
+def main(email, auth_type, ip_str, is_audit='0'):
     """添加服务器权限
 
     Args:
@@ -198,7 +201,7 @@ def main(email, auth_type, ip_str):
         send_new_user_email(email, new_user_pass)
 
     # 添加服务器权限
-    grant_server_auth(email, ip_list, add_type, sudo_hours)
+    grant_server_auth(email, ip_list, add_type, sudo_hours, is_audit)
 
     print("LOG. 权限添加结束")
 

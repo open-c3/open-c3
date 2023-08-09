@@ -1,0 +1,31 @@
+---
+name: 领导审批或者资源owner审批
+option:
+#  - describe: 运维审批人
+#    name: opapprover
+#    type: selectx
+#    value: ""
+#    command: "c3mc-bpm-optionx-opapprover"
+
+  - describe: 申请理由
+    name: note
+    type: text
+    value: 
+
+template_argv:
+  approver: "bpm_audit"
+  title:    "BPM/${_bpmuuid_}/申请审计服务器权限"
+  content:  |
+    BPM标题: 申请审计服务器权限
+    BPM地址: ${_caseurl_}
+
+    申请人:${_user_}
+    权限类型:${x.auth_type__alias}
+    服务器ip列表:
+    _buildin_code_find_tree(${x.ip_list})
+    BPM单号:${_bpmuuid_}
+    申请理由:${x.note}
+  submitter: '${_user_}'
+  relaxed:  1
+  everyone: 1
+  record: 1
