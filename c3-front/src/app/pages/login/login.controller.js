@@ -15,14 +15,18 @@
         vm.mfa    = '';
         vm.iconMap = {
           google: '/assets/images/google-logo.png',
+          loginOa: '/assets/images/oa-login.png',
         };
         vm.disableIconMap = {
           google: '/assets/images/google-disable-logo.png',
+          loginOa: '/assets/images/oa-disable-login.png',
         };
         vm.thirdPartyLoading = true;
         vm.thirdPartyWay = [];
         vm.queryParamsArr = {};
         vm.convertToQueryParams = genericService.convertToQueryParams
+
+        vm.hasOALogin = window.location.hash.indexOf('oaaddr') > -1
 
         vm.thirdPartyLogin = function () {
           $http.get('/api/connector/loginext').success(function (data) {
@@ -54,6 +58,21 @@
           angular.forEach(info.value, function (value, key) { if (key !== 'on') vm.queryParamsArr[key] = value })
           vm.queryParamsArr['callback'] = vm.callback
           window.location.href = `${window.location.origin}/loginext/${info.key}.html${vm.convertToQueryParams('?', vm.queryParamsArr)}`
+        }
+
+        vm.handleOAClick = function () {
+          if (vm.hasOALogin) {
+            const params = {};
+            const str = window.location.hash;
+            const queryString = str.substring(str.indexOf('?') + 1);
+            queryString.split('&').forEach(function(item) {
+              const parts = item.split('=');
+              const key = parts[0];
+              const value = decodeURIComponent(parts[1]);
+              params[key] = value;
+            });
+            window.location.href = `${params['oaaddr']}${params['callback']?  `?callback=${params['callback']}`: ''}`
+          }
         }
 
         vm.login = function(mfa)

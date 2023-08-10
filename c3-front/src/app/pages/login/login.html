@@ -76,16 +76,27 @@
     </div>
 
     <!-- 其他登录方式 -->
-    <div ng-if="login.thirdPartyWay && login.thirdPartyWay.length > 0" class="other-third-party-way">
+    <div class="other-third-party-way">
       <!-- 第三方登录方式 -->
       <div class="other-third-party-way-select">
         <span class="other-third-party-way-select-text">{{'C3T.其他登录方式'| translate}}:</span>
-        <div ng-repeat="item in login.thirdPartyWay" class="other-third-party-way-select-arr">
+        <!--接口请求第三方登录 -->
+        <div ng-if="login.thirdPartyWay && login.thirdPartyWay.length > 0" ng-repeat="item in login.thirdPartyWay"
+          class="other-third-party-way-select-arr" style="margin-left: 10px;">
           <div ng-if="item.value.on && item.value.on === '1'" class="other-third-party-way-select-logo">
             <img src="{{login.iconMap[item.key]}}" alt="item.key" ng-click="login.handleJumpClick(item)">
           </div>
           <div ng-if="!item.value.on || item.value.on === '0'" class="other-third-party-way-select-disable-logo">
             <img src="{{login.disableIconMap[item.key]}}" alt="item.key">
+          </div>
+        </div>
+        <!-- 跳转OA登录 -->
+        <div class="other-third-party-way-select-arr">
+          <div ng-if="login.hasOALogin" class="other-third-party-way-select-logo">
+            <img src="{{login.iconMap.loginOa}}" ng-click="login.handleOAClick()">
+          </div>
+          <div ng-if="!login.hasOALogin" class="other-third-party-way-select-disable-logo">
+            <img src="{{login.disableIconMap.loginOa}}">
           </div>
         </div>
       </div>
