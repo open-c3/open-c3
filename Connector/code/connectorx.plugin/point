@@ -19,7 +19,7 @@ $| ++;
 
 =cut
 
-my ( $pmspoint, @eid, %env, $ssocode, %app );
+my ( $pmspoint, @eid, %env, $ssocode, %app, $inside_active, $inside_addr );
 BEGIN{
     use Configini;
     $pmspoint = Configini::get( 'pmspoint'    );
@@ -43,6 +43,12 @@ BEGIN{
             ? $ENV{OPEN_C3_RANDOM}
             : $key;
     }
+
+    my $x = `c3mc-sys-ctl connector.inside.active.point`;
+    chomp $x;
+    $inside_active = $x ? 1 : 0;
+
+    $inside_addr = 'http://api.connector.open-c3.org/default/auth/point';
 
 };
 
@@ -77,12 +83,14 @@ return sub
         return $match && @$match > 0 ? 1 : 0;
     }
 
+    my $pointapi = ( $inside_active && length( $cookie ) == 64 ) ? $inside_addr : $pmspoint;
+    my $use_inside = ( $inside_active && length( $cookie ) == 64 ) ? 1 : 0;
     my $treestr = '';
     if( defined $treeid )
     {
         if( $treeid )
         {
-            if( @eid )
+            if( @eid && ( ! $use_inside ) )
             {
                 unless( $eid[0] <= $treeid && $treeid <= $eid[1] )
                 {
@@ -116,7 +124,8 @@ return sub
         }
     }
 
-    my $md5       = Digest::MD5->new->add( "$pmspoint?point=$point$treestr&cookie=$cookie" )->hexdigest;
+
+    my $md5       = Digest::MD5->new->add( "$pointapi?point=$point$treestr&cookie=$cookie" )->hexdigest;
     my $cache     = "/data/open-c3-data/cache/point/point-$md5";
     my $cachetime =  OPENC3::SysCtl->new()->getint( 'sys.cache.point.timeout', 0, 86400 * 365, 60 );
 
@@ -151,9 +160,9 @@ return sub
     my ( $res, $err );
     for my $i ( reverse 1 .. 3 )
     {
-        $res = $ua->get( "$pmspoint?point=$point$treestr&cookie=$cookie" );
+        $res = $ua->get( "$pointapi?point=$point$treestr&cookie=$cookie" );
 
-        $err = sprintf "get point fail: $pmspoint?point=$point$treestr&cookie=$cookie: %s", YAML::XS::Dump $res;
+        $err = sprintf "get point fail: $pointapi?point=$point$treestr&cookie=$cookie: %s", YAML::XS::Dump $res;
         $err =~ s/appkey:\s+['"]?[a-zA-Z0-9]{32}['"]?\b/appkey: ******/g;
 
         last if $res->is_success;

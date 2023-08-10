@@ -17,13 +17,17 @@ $| ++;
 
 =cut
 
-my ( $usertree, %env, $treemapcode );
+my ( $usertree, %env, $treemapcode, $inside_active );
 BEGIN{
     use Configini;
     $usertree = Configini::get( 'usertree'    );
     %env      = Configini::env( 'usertreeenv' );
 
     $treemapcode = Code->new( "connectorx.plugin/treemap" );
+
+    my $x = `c3mc-sys-ctl connector.inside.active.point`;
+    chomp $x;
+    $inside_active = $x ? 1 : 0;
 };
 
 return sub
@@ -33,12 +37,17 @@ return sub
 
     unless( $usertree )
     {
+
+        my $use_inside = ( $inside_active && length( $cookie ) == 64 ) ? 1 : 0;
+
         my $treemap = eval{ $treemapcode->run( cookie => $cookie ) };
         die "get treemap fail: $@" if $@;
 
         my $x = eval{ $db->query( "select * from openc3_connector_userauth where name='$user'" ); };
         die "get data from openc3_connector_userauth fail: $@" if $@;
-        unless( @$x )
+        my $has_all_tree = @$x ? 1 : 0;
+        $has_all_tree = 1 unless $use_inside;
+        unless( $has_all_tree )
         {
 
             my $tx = eval{ $db->query( "select tree from openc3_connector_userauthtree where name='$user'" ); };
