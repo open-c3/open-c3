@@ -12,6 +12,10 @@ from tencentcloud.cvm.v20170312 import cvm_client, models as cvm_models
 from tencentcloud.cbs.v20170312 import cbs_client, models as cbs_models
 
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import safe_run_command
+
+
 class QcloudCvm:
     def __init__(self, access_id, access_key, region):
         self.access_id = access_id
@@ -273,3 +277,34 @@ class QcloudCvm:
                 raise RuntimeError(f"等待实例类型变为 {target_instance_type}，但是超时了，超时时间为: {timeout}")
             else:
                 time.sleep(5)
+
+    def fuzzy_query_instance_list_v1(self, keyword):
+        """模糊查询cvm列表 
+
+        该版本的接口从openc3数据库查询数据, 这样做的好处是查询会很快
+        将来有需要可以实现v2版本从云上查询
+        """
+        output = safe_run_command(["c3mc-device-data-get", "curr", "compute", "qcloud-cvm", "名称", "所在可用区", "ProjectName", "InstanceId"])
+
+        data = []
+        for line in output.split("\n"):
+            line = line.strip()
+            if line == "":
+                continue
+
+            parts = line.split()
+
+            if len(parts) != 4:
+                continue
+
+            if keyword not in parts[0] and keyword not in parts[2]:
+                continue
+
+            data.append({
+                "name": parts[0],
+                "zone": parts[1],
+                "project_name": parts[2],
+                "instance_id": parts[3],
+            })
+
+        return data

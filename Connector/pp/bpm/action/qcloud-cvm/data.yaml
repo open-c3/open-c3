@@ -17,6 +17,39 @@ option:
     value: ""
     information: "状态为 \"无效\" 的区域已被过滤不在列表中显示"
 
+  - name: if_need_query_related_resources
+    describe: 是否参考已有主机和项目
+    type: select
+    option:
+      - name: 是
+        alias: 是
+      - name: 否
+        alias: 否
+    value: "否"
+    information: "开启该选项并输入查询关键字，下面的列表会列出区域下所有根据主机名和项目名匹配到的机器列表，用户可以据此进行参考, 用来配置后续的可用区，或者是机器编号等选项"
+
+  - name: query_related_resources_keyword
+    describe: 主机名或项目名查询关键字
+    type: input
+    show:
+      - if_need_query_related_resources: ["是"]
+    information: "输入查询关键字，用来查询区域下所有根据主机名和项目名匹配到的机器列表"
+    required: false
+
+  - name: related_resources
+    describe: 参考资源列表
+    rely:
+      - account
+      - region
+      - query_related_resources_keyword
+    command: c3mc-qcloud-cvm-list-instances-by-keyword | c3mc-bpm-display-field-values "{instancee_id}; 名称:{name}, 可用区:{zone}, 项目名称:{project_name} "
+    type: selectx
+    value: ""
+    show:
+      - if_need_query_related_resources: ["是"]
+    information: "这个列表的资源是使用查询关键字从区域下实例列表过滤而来的。用作参考，方便配置后续相关选项"
+    required: false
+
   - name: zone
     describe: 可用区
     rely:

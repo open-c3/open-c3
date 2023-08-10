@@ -1,0 +1,33 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import json
+import sys
+import subprocess
+
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_qcloud_cvm import QcloudCvm
+
+
+def main(params):
+    account = params["account"]
+    region = params["region"]
+    keyword = params["query_related_resources_keyword"]
+
+    key_info = json.loads(
+        subprocess.getoutput(f"c3mc-get-account-info qcloud {account}")
+    )
+    filtered_instance_list = QcloudCvm(
+        key_info["access_id"], key_info["access_key"], region
+    ).fuzzy_query_instance_list_v1(keyword)
+    for instance in filtered_instance_list:
+        print(json.dumps(instance))
+
+
+if __name__ == "__main__":
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise RuntimeError('数据格式不对, 需要一行json字符串"')
+    
+    main(json.loads(l[0]))
