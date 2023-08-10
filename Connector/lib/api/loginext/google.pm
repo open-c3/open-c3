@@ -13,10 +13,14 @@ use Digest::MD5;
 use point;
 use api::loginext;
 
-my ( $ssocookie );
+my ( $ssocookie, %allow );
 BEGIN{
     $ssocookie = `c3mc-sys-ctl sys.sso.cookie`;
     chomp $ssocookie;
+
+    my @x = `cat /data/open-c3-data/login/google.txt`;
+    chomp @x;
+    map{ $allow{$_} ++ }@x;
 };
 
 =pod
@@ -78,6 +82,8 @@ post '/loginext/google' => sub {
     return redirect &$makeErrUrl( "call www.googleapis.com nofind user" ) unless $user;
     return redirect &$makeErrUrl( "call www.googleapis.com,$user email not verified" ) unless $dat->{email_verified} && $dat->{email_verified} eq 'true';
     return redirect &$makeErrUrl( "call www.googleapis.com,$user email not verified" ) unless $dat->{azp} && $dat->{azp} eq $api::loginext::data{'google'}{'client_id'};
+
+    return redirect &$makeErrUrl( "user $user not allow" ) unless $user && $user =~ /(@.+)$/ && ( $allow{$1} || $allow{$user} ); 
 
     my @chars = ( "A" .. "Z", "a" .. "z", 0 .. 9 );
     my $keys = join("", @chars[ map { rand @chars } ( 1 .. 64 ) ]);
