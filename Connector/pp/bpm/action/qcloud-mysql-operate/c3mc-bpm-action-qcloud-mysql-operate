@@ -7,7 +7,7 @@ import subprocess
 
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
-from c3mc_utils import check_if_params_safe_in_recycle
+from c3mc_utils import check_if_resources_safe_for_operation
 from c3mc_cloud_qcloud_cdb import QcloudCdb
 
 supported_operate_types = [
@@ -83,7 +83,9 @@ def main(params):
 
     instance_identifier_list = params["cdb_instance_ids"].split(",")
     if operate_type in ["release_isolate", "terminate"]:
-        check_if_params_safe_in_recycle(instance_identifier_list, params["bpm_uuid"], "qcloud-cdb-recycle")
+        check_if_resources_safe_for_operation(
+            instance_identifier_list, params["bpm_uuid"], "qcloud-cdb-recycle"
+        )
 
     for instance_identifier in instance_identifier_list:
         instance_identifier = instance_identifier.strip()

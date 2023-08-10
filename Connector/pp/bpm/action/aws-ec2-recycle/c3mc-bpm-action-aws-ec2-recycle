@@ -11,7 +11,7 @@ from botocore.exceptions import ClientError
 import boto3
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
-from c3mc_utils import check_if_params_safe_in_recycle
+from c3mc_utils import check_if_resources_safe_for_operation
 from c3mc_cloud_aws_ec2 import LIB_EC2
 
 
@@ -49,7 +49,7 @@ def main(params):
     ).split()
 
     instance_identifier_list = params["instance_ids"].split(",")
-    check_if_params_safe_in_recycle(
+    check_if_resources_safe_for_operation(
         instance_identifier_list, params["bpm_uuid"], "aws-ec2-recycle"
     )
 

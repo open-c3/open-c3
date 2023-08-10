@@ -26,6 +26,7 @@ def main():
     parser.add_argument('--ip', type=str, required=False, help='目标IP')
     parser.add_argument('--password', type=str, required=False, help='用户登录堡垒机的密码')
     parser.add_argument('--sudo_hours', type=int, required=False, help='sudo权限小时数, 申请普通权限时该参数传0')
+    parser.add_argument('--is_audit', type=str, required=False, help='是否为审计ip。1: 是; 0: 否')
     args = parser.parse_args()
 
     bl_mode = subprocess.getoutput("c3mc-sys-ctl sys.bl.mode").strip()
@@ -45,6 +46,7 @@ def main():
             args.email,
             args.ip,
             str(args.sudo_hours),
+            args.is_audit
         ])
         print(output)
     

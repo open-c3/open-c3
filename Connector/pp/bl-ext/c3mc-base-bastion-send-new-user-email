@@ -12,33 +12,52 @@ def send_new_user_email(email, password):
         email (str): 用户邮箱
         password (str): 堡垒机登录密码
     """
-    cmd_parts = ["c3mc-base-db-get", "value",  "--table", "openc3_job_environment",
-                 "--filter", '`key`="bpmjumpserverTemplateEmailTitle"']
+    cmd_parts = [
+        "c3mc-base-db-get",
+        "value",
+        "--table",
+        "openc3_job_environment",
+        "--filter",
+        '`key`="bpmjumpserverTemplateEmailTitle"',
+    ]
+
     output = subprocess.run(cmd_parts, capture_output=True, text=True)
     if output.returncode != 0:
         print(output.stderr, file=sys.stderr)
         exit(1)
-    title = output.stdout
+    title = output.stdout.strip()
 
-    cmd_parts = ["c3mc-base-db-get", "value",  "--table", "openc3_job_environment",
-                 "--filter", '`key`="bpmjumpserverTemplateEmailContent"']
+    if not title:
+        raise RuntimeError("标题为空, 无法发送邮件, 请检查堡垒机邮件模板是否未配置")
+
+    cmd_parts = [
+        "c3mc-base-db-get",
+        "value",
+        "--table",
+        "openc3_job_environment",
+        "--filter",
+        '`key`="bpmjumpserverTemplateEmailContent"',
+    ]
+
     output = subprocess.run(cmd_parts, capture_output=True, text=True)
     if output.returncode != 0:
         print(output.stderr, file=sys.stderr)
         exit(1)
     content = output.stdout.format(password)
 
-    resp = subprocess.run([
-        "c3mc-base-sendmail",
-        email,
-        "--subject", title,
-    ],
+    resp = subprocess.run(
+        [
+            "c3mc-base-sendmail",
+            email,
+            "--subject",
+            title,
+        ],
         input=content.encode(),
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
     if resp.returncode != 0:
-        err = resp.stderr.decode('utf-8').rstrip()
+        err = resp.stderr.decode("utf-8").rstrip()
         print(f"发送邮件出错: {err}")
         exit(1)
 
@@ -47,5 +66,5 @@ def main(email, password):
     send_new_user_email(email, password)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main(sys.argv[1], sys.argv[2])

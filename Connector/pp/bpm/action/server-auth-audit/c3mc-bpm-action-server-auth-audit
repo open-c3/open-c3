@@ -6,7 +6,11 @@ import json
 
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
-from c3mc_utils import check_if_params_safe_in_recycle, safe_run_command, extract_ips
+from c3mc_utils import (
+    check_if_resources_safe_for_operation,
+    safe_run_command,
+    extract_ips,
+)
 
 
 def main(params):
@@ -14,8 +18,7 @@ def main(params):
     auth_type = params["auth_type"]
     ip_list = extract_ips(params["ip_list"])
 
-    check_if_params_safe_in_recycle(ip_list, params["bpm_uuid"], "server-auth")
-
+    check_if_resources_safe_for_operation(ip_list, params["bpm_uuid"], "server-auth")
 
     print(f"开始处理用户: {email}, auth_type: {auth_type}, ip_list: {' '.join(ip_list)} 的权限申请")
 
@@ -24,7 +27,7 @@ def main(params):
         email,
         auth_type,
         params["ip_list"],
-        "0",
+        "1"
     ])
     print(output)
 

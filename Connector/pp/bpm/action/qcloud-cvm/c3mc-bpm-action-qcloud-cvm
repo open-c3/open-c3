@@ -65,8 +65,8 @@ class Cvm:
         # 包年包月时，需要配置购买时长和自动续费方式
         if api_params["InstanceChargeType"] == "PREPAID":
             api_params["InstanceChargePrepaid"] = {
-                "Period": int(self.params["instance_charge_count"]),
-                "RenewFlag": self.params["renew_flag"]
+                "Period": 1,
+                "RenewFlag": "NOTIFY_AND_AUTO_RENEW"
             }
 
         cvm_tags = []
@@ -129,7 +129,6 @@ class Cvm:
         self.params = bpm_merge_user_input_tags(
             instance_params=self.params,
             product_owner_key_name="product_owner_tag",
-            owners_key_name="owners_tag",
             ops_owner_key_name="ops_owner_tag",
             department_key_name="department_tag",
             product_key_name="product_tag",

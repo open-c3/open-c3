@@ -44,28 +44,36 @@ def create_user_if_need(email):
     return ""
 
 def send_new_user_email(email, password):
-    safe_run_command([
+    output = safe_run_command([
         "c3mc-base-bastion-send-new-user-email",
         email,
         password,
     ])
+    print(output)
 
 def add_servers_auth(email, ip_str):
-    safe_run_command([
+    output = safe_run_command([
         "c3mc-base-bastion-add-server-auth",
         email,
         "sudo_0",
         ip_str,
     ])
+    print(output)
 
 def run(old_email, new_email):
     # 创建堡垒机用户
     new_user_pass = create_user_if_need(new_email)
-    if isinstance(new_user_pass, str) and len(new_user_pass) > 0:
+
+    need_create_user = isinstance(new_user_pass, str) and len(new_user_pass) > 0
+    print(f"检查是否需要创建用户: {need_create_user}")
+
+    if need_create_user:
         # 发送邮件
         send_new_user_email(new_email, new_user_pass)
+        print("创建堡垒机用户，并发送邮件")
     
     ip_list = get_user_ips(old_email)
+    print(f"新用户需要添加的ip列表: {' '.join(ip_list)}")
 
     add_servers_auth(new_email, ",".join(ip_list))
 
