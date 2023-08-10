@@ -77,8 +77,10 @@ def get_frequency_factor():
     return subprocess.getoutput("c3mc-sys-ctl sys.device.sync.frequency.factor")
 
 
-def check_if_params_safe_in_recycle(user_commited_instance_ids, bpm_uuid, bpm_action_type):
-    """检查资源回收中涉及的参数是否合法
+def check_if_resources_safe_for_operation(user_commited_instance_ids, bpm_uuid, bpm_action_type):
+    """资源保护检查
+
+    确定用户提交的资源根据 [bpm_action_type] 判断是否可以安全进行后续处理，由用户决定是否继续操作
     """
     cmd_parts = ["c3mc-bpm-protect", "--eventname", bpm_action_type, "--bpmuuid", bpm_uuid]
 
@@ -283,6 +285,9 @@ def safe_run_command(cmd_parts):
     Args:
         cmd_parts (list): 数组格式的命令。例如要运行命令 "ls -alh"，则传递 ["ls", "-alh"]
     """
+
+    # print("debug, safe_run_command: ", " ".join(cmd_parts), file=sys.stderr)
+
     output = subprocess.run(cmd_parts, capture_output=True, text=True)
     if output.returncode != 0:
         raise RuntimeError(output.stderr)

@@ -10,7 +10,7 @@ import time
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
 from c3mc_cloud_aws_elb import LibElb
-from c3mc_utils import check_if_params_safe_in_recycle
+from c3mc_utils import check_if_resources_safe_for_operation
 
 
 class ElbRecycle:
@@ -45,7 +45,7 @@ def main(params):
     ).split()
 
     instance_identifier_list = params["instance_ids"].split(",")
-    check_if_params_safe_in_recycle(
+    check_if_resources_safe_for_operation(
         instance_identifier_list, params["bpm_uuid"], "aws-elb-recycle"
     )
 

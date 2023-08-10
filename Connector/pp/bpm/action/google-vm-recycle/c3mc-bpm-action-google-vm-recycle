@@ -6,7 +6,7 @@ import json
 import subprocess
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
-from c3mc_utils import check_if_params_safe_in_recycle
+from c3mc_utils import check_if_resources_safe_for_operation
 from c3mc_cloud_google_compute import GoogleCompute
 
 
@@ -72,7 +72,9 @@ def main(params):
     account_field, name_field, region_id_field, zone_field = get_field_names()
 
     instance_identifier_list = params["instance_ids"].split(",")
-    check_if_params_safe_in_recycle(instance_identifier_list, params["bpm_uuid"], "google-vm-recycle")
+    check_if_resources_safe_for_operation(
+        instance_identifier_list, params["bpm_uuid"], "google-vm-recycle"
+    )
 
     for instance_identifier in instance_identifier_list:
         instance_identifier = instance_identifier.strip()

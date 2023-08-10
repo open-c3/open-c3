@@ -1,0 +1,31 @@
+---
+name: 申请审计服务器访问权限
+option:
+  - name: auth_type
+    describe: 权限类型
+    option: 
+    - alias: "登陆权限 1天" 
+      name: "sudo_0"
+    - alias: "sudo权限 1天" 
+      name: "sudo_24"
+    type: select
+    value: ""
+  
+  - name: ip_list
+    describe: IP列表 (多个用英文逗号连接)
+    extra_desc: 多个IP用英文逗号分割
+    type: text
+    value_type: 
+      - comma_seprate
+      - forbit_whitespace
+    information: "填写ip列表时, 不允许有任何形式的空格、换行符"
+
+template_argv:
+  # bpm单号
+  bpm_uuid: ${_bpmuuid_}
+  email: '${_user_}'
+  # 权限类型
+  auth_type: ${auth_type}
+  # 服务器IP列表
+  ip_list: ${var.approvelip}
+#  ip_list: ${ip_list}

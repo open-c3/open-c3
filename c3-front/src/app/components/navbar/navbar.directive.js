@@ -46,6 +46,16 @@
               vm.search_init(event)
             };
 
+            vm.clearAllCookies = function() {
+              const cookies = document.cookie.split(";");
+              for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i];
+                const eqPos = cookie.indexOf("=");
+                const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
+                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+              }
+            }
+
             $scope.envir = 'test';
             $scope.allUrls = [ ];
             $scope.nextUrls = { };
@@ -54,6 +64,7 @@
             vm.logout = function(){
                 var siteaddr = window.location.protocol + '//' + window.location.host;
                 $http.get('/api/connector/connectorx/ssologout?siteaddr=' + siteaddr ).success(function(data){
+                    vm.clearAllCookies()
                     if(data.data)
                     {
                         $window.location.href=data.data

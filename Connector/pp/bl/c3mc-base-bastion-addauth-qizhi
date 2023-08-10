@@ -36,7 +36,7 @@ def extract_ip_port(url_str):
     return url.hostname, url.port
 
 
-def main(add_type, username, email, ip, sudo_hours):
+def main(add_type, username, email, ip, sudo_hours, is_audit):
     """添加服务器权限
 
     Args:
@@ -54,16 +54,18 @@ def main(add_type, username, email, ip, sudo_hours):
 
     request_data = {
         "command": "qizhi-bastion",
-        "arguments": json.dumps({
-            "add_type": add_type,
-            "username": username,
-            "email": email,
-            "ip": ip,
-            "instance_id": instance_info_list[0]["instanceId"],
-            "sudo_hours": sudo_hours,
-            # 齐治堡垒机系统密码里不能包含某些特殊字符
-            "password": generate_password(15, False),
-        }),
+        "arguments": json.dumps(
+            {
+                "add_type": add_type,
+                "username": username,
+                "email": email,
+                "ip": ip,
+                "instance_id": instance_info_list[0]["instanceId"],
+                "sudo_hours": sudo_hours,
+                "password": generate_password(15, False),
+                "is_audit": is_audit,
+            }
+        ),
     }
 
     headers = {
@@ -100,4 +102,4 @@ def main(add_type, username, email, ip, sudo_hours):
 
 
 if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5])
+    main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4], sys.argv[5], sys.argv[6])

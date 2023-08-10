@@ -33,7 +33,7 @@
 
     .toastr_error {
       color: #fff;
-      margin: 100px auto 0;
+      margin: 20px auto 0;
       text-align: center;
       font-size: 16px;
       justify-content: center;
@@ -75,19 +75,15 @@
       });
       if (params['client_id']) {
         cloudId.setAttribute('data-client_id', params['client_id'])
-        errorId.classList.add('none');
         loginReloadId.classList.add('active');
       }
       if (params['domain']) {
         const newDomain = `${params['domain']}/api/connector/loginext/google?callback=${params['callback']}`
         cloudId.setAttribute('data-login_uri', newDomain)
-        errorId.classList.add('none');
         loginReloadId.classList.add('active');
       }
       if (params['toastrError']) {
         loginReloadId.classList.remove('active');
-        errorId.classList.remove('none');
-        loginReloadId.classList.add('none');
         errorId.classList.add('active');
         errorId.innerHTML = params['toastrError']
       }
