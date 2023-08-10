@@ -16,7 +16,7 @@ option:
     describe: 启用SNI
     option: ["是", "否"]
     type: select
-    value: ""
+    value: "是"
     fromops: 1
     show: 
       - protocol: ["HTTPS"]
@@ -42,7 +42,7 @@ option:
     describe: 负载均衡方式
     option: ["按权重轮询", "最小连接数"]
     type: select
-    value: ""
+    value: "按权重轮询"
     show: 
       - protocol: ["UDP", "TCP", "TCP_SSL", "QUIC"]
 
@@ -50,7 +50,7 @@ option:
     describe: 是否开启健康检查
     option: ["是", "否"]
     type: select
-    value: ""
+    value: "是"
     show: 
       - protocol: ["UDP", "TCP", "TCP_SSL", "QUIC"]
 
@@ -58,7 +58,7 @@ option:
     describe: 健康检查协议
     option: ["TCP", "HTTP"]
     type: select
-    value: ""
+    value: "HTTP"
     show:
       - enable_health_check: ["是"]
         # UDP 协议的监听器没有健康检查协议选项
@@ -75,6 +75,7 @@ option:
   - name: http_check_path
     describe: 健康检查路径
     type: input
+    value: "/"
     show:
       - enable_health_check: ["是"]
         health_check_type: ["HTTP"]
@@ -85,7 +86,7 @@ option:
     describe: HTTP请求方式
     option: ["GET", "HEAD"]
     type: select
-    value: ""
+    value: "GET"
     show:
       - enable_health_check: ["是"]
         health_check_type: ["HTTP"]

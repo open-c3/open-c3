@@ -89,7 +89,7 @@ option:
       - forward_type
     command: c3mc-qcloud-clb-describe-check-type
     type: selectx
-    value: ""
+    value: "HTTP"
     show:
       - enable_health_check: ["是"]
         protocol: ["HTTP", "HTTPS"]
@@ -105,6 +105,7 @@ option:
   - name: http_check_path
     describe: 健康检查路径
     type: input
+    value: "/"
     show:
       - enable_health_check: ["是"]
         health_check_type: ["HTTP", "HTTPS"]
@@ -114,7 +115,7 @@ option:
     describe: HTTP请求方式
     option: ["GET", "HEAD"]
     type: select
-    value: ""
+    value: "GET"
     show:
       - enable_health_check: ["是"]
         health_check_type: ["HTTP", "HTTPS"]
