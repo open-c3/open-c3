@@ -286,7 +286,7 @@ def safe_run_command(cmd_parts):
         cmd_parts (list): 数组格式的命令。例如要运行命令 "ls -alh"，则传递 ["ls", "-alh"]
     """
 
-    print("debug, safe_run_command: ", " ".join(cmd_parts), file=sys.stderr)
+    # print("debug, safe_run_command: ", " ".join(cmd_parts), file=sys.stderr)
 
     output = subprocess.run(cmd_parts, capture_output=True, text=True)
     if output.returncode != 0:
