@@ -1,0 +1,55 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my @src =
+(
+    [ qw( compute    aws-ec2                 实例ID   主机名   内网IP                   公网IP                       业务负责人 运维负责人 _过期时间_ ) ],
+    [ qw( compute    aws-lightsail-instance  实例ID   _主机名_ 内网IP                   公网IP                       业务负责人 运维负责人 _过期时间_ ) ],
+    [ qw( compute    physical-server         实例ID   服务器名 IP详情                   IP详情                       业务负责人 运维负责人 _过期时间_ ) ],
+    [ qw( compute    physical-server-gpu     实例ID   服务器名 IP详情                   IP详情                       业务负责人 运维负责人 _过期时间_ ) ],
+    [ qw( compute    ibm-bare-metal-server   实例ID   主机名   内网IP                   公网IP                       业务负责人 运维负责人 _过期时间_ ) ],
+    [ qw( compute    ibm-virtual-server      实例ID   主机名   内网IP                   公网IP                       业务负责人 运维负责人 _过期时间_ ) ],
+    [ qw( compute    qcloud-cvm              实例ID   名称     内网IP                   公网IP                       业务负责人 运维负责人 _过期时间_ ) ],
+    [ qw( compute    ksyun-kec               实例ID   主机名   内网IP                   公网IP                       业务负责人 运维负责人 _过期时间_ ) ],
+    [ qw( compute    huawei-ecs              实例ID   名称     内网IP                   公网IP                       业务负责人 运维负责人 _过期时间_ ) ],
+    [ qw( compute    aliyun-ecs              实例ID   名称     内网IP                   公网IP                       业务负责人 运维负责人 _过期时间_ ) ],
+    [ qw( compute    capital-online-server   实例ID   名称     内网IP                   公网IP                       业务人员   运维人员   _过期时间_ ) ],
+    [ qw( networking aws-alb                 实例ID   实例ID   DNSName                  DNSName                      业务负责人 运维负责人 _过期时间_ ) ],
+    [ qw( networking aws-elb                 实例ID   名称     CanonicalHostedZoneName  CanonicalHostedZoneName      业务负责人 运维负责人 _过期时间_ ) ],
+    [ qw( networking aws-nlb                 实例ID   实例ID   DNSName                  DNSName                      业务负责人 运维负责人 _过期时间_ ) ],
+    [ qw( networking qcloud-clb              实例ID   名称     LoadBalancerVips.0       LoadBalancerVips.0           业务负责人 运维负责人 _过期时间_ ) ],
+    [ qw( networking aliyun-slb              实例ID   名称     IP                       IP                           业务负责人 运维负责人 _过期时间_ ) ],
+    [ qw( networking huawei-elb              实例ID   名称     vip_address              publicips.0.publicip_address 业务负责人 运维负责人 _过期时间_ ) ],
+    [ qw( domain     qcloud-subdomain        实例ID   名称     _域名_                   域名                         业务负责人 运维负责人 _过期时间_ ) ],
+    [ qw( domain     aws-subdomain           实例ID   名称     _host_domain_name_       host_domain_name             业务负责人 运维负责人 _过期时间_ ) ],
+);
+
+my @res;
+
+for my $src ( @src )
+{
+    next unless -f "/data/open-c3-data/device/curr/$src->[0]/$src->[1]/data.tsv";
+
+    my @x = `c3mc-device-data-get curr @$src`;
+    die "run @$src fail: $!" if $?;
+    chomp @x;
+    for( @x )
+    {
+        my @xx = split /\t/, $_, 7;
+        if( $src->[1] eq 'physical-server' || $src->[1] eq 'physical-server-gpu' )
+        {
+            $xx[3] = $xx[3] =~ /internalIP:(\d+\.\d+\.\d+\.\d+)\b/ ? $1 : "";
+            $xx[4] = $xx[4] =~ /externalIP:(\d+\.\d+\.\d+\.\d+)\b/ ? $1 : "";
+        }
+        printf "%s\n", join ";", "$src->[0].$src->[1]", @xx;
+    }
+}
