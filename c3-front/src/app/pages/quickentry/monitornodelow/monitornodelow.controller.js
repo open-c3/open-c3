@@ -5,7 +5,7 @@
         .module('openc3')
         .controller('MonitorNodeLowController', MonitorNodeLowController);
 
-    function MonitorNodeLowController($state, $http, $uibModal, treeService, ngTableParams, $scope, $injector) {
+    function MonitorNodeLowController($state, $http, $uibModal, treeService, ngTableParams, $scope, $injector, $timeout) {
 
         var vm = this;
         vm.treeid = $state.params.treeid;
@@ -103,6 +103,11 @@
           netout: '上传带宽',
           date: '最后统计日期',
         };
+        vm.filterData = []
+        vm.reverseName = ''
+        vm.reverseHosttName = ''
+        vm.reverseOwner = ''
+        vm.isShowFilter = false
 
         vm.openNewWindow = function( ip )
         {
@@ -126,6 +131,7 @@
                 {
                     vm.tempdata.push( data );
                 }
+                vm.filterData = vm.tempdata
               } else {
                 if( data.lowstatus == stat)
                 {
@@ -187,6 +193,57 @@
 
         vm.handleOwnerStatus = function () {
           vm.getMarkData()
+        }
+
+        // 防抖函数
+       let timeout = null
+       vm.debounce = function (fn, delay) {
+        if (timeout) {
+          $timeout.cancel(timeout)
+        }
+        timeout = $timeout(function () { fn() }, delay)
+       }
+
+        // 反选change事件
+        vm.handleReverseChange = function () {
+          vm.debounce(function () {
+            const selectData = JSON.parse(JSON.stringify(vm.filterData))
+            const tableFilterObj = JSON.parse(JSON.stringify(vm.dataTable.filter()))
+            const reverseFilter = function (item) {
+              return (vm.reverseName === ''? item.name: !item.name.includes(vm.reverseName)) && 
+              (vm.reverseHosttName === ''? item.hostname: !item.hostname.includes(vm.reverseHosttName)) && 
+              (vm.reverseOwner === ''? item.owner:!item.owner.includes(vm.reverseOwner))
+            }
+            if ($scope.selectTab.id === 'compute') {
+              if (Object.values(tableFilterObj).join('').length === 0) {
+                const checkFilterData = selectData.filter(item => reverseFilter(item))
+                vm.dataTable = new ngTableParams({count:20}, {counts:$scope.countOptions,data:checkFilterData});
+              } else {
+                const hasFilterData = selectData.filter(item => {
+                  for (let key in item) {
+                    if (item.hasOwnProperty(key) && String(item[key]).includes(tableFilterObj[key])) {
+                      return true;
+                    }
+                  }
+                  return false;
+                })
+                const checkFilterData = hasFilterData.filter(item => reverseFilter(item))
+                  // 重新设置表格的数据
+                  var tableSettings = vm.dataTable.settings();
+                  if (tableSettings) {
+                    tableSettings.data = checkFilterData
+                  }
+                  vm.dataTable.reload();
+              }
+            }
+          }, 800)
+        }
+
+        vm.handleIsShowFilter = function () {
+          vm.isShowFilter = !vm.isShowFilter
+          vm.reverseName = ''
+          vm.reverseHosttName = ''
+          vm.reverseOwner = ''
         }
 
         vm.reload = function () {
@@ -351,9 +408,11 @@
         }
 
         vm.handleChange = function () {
+         vm.debounce(function () {
           const selectData = JSON.parse(JSON.stringify(vm.selectData))
           if ($scope.selectTab.id === 'compute') {
             const statusSelectData = selectData.filter(item => vm.markSelected === 'all'? item : item.remarkStatus === vm.markSelected)
+            vm.filterData = statusSelectData
             vm.downloadData = statusSelectData.slice().reverse()
             vm.dataTable = new ngTableParams({count:20}, {counts:$scope.countOptions,data:statusSelectData});
           } else {
@@ -365,9 +424,11 @@
             vm.downloadData = otherStatusSelectData.slice().reverse()
             vm.dataTable = new ngTableParams({count:20}, {counts:$scope.countOptions,data:otherStatusSelectData.reverse()});
           }
+         },800)
         }
 
         vm.handleInstanceChange = function () {
+         vm.debounce(function () {
           const selectData = JSON.parse(JSON.stringify(vm.selectData))
           const instanceIdtData = selectData.filter(item => {
             return (vm.markSelected === 'all'? item : item['处理状态'] === vm.markSelected) && 
@@ -376,15 +437,18 @@
           })
           vm.downloadData = instanceIdtData.slice().reverse()
           vm.dataTable = new ngTableParams({count:20}, {counts:$scope.countOptions,data:instanceIdtData});
+         },800)
         }
 
         vm.handleBusinessChange = function () {
+         vm.debounce(function () {
           const selectData = JSON.parse(JSON.stringify(vm.selectData))
           if ($scope.selectTab.id === 'compute') {
             const businesstData = selectData.filter(item => {
               return (vm.markSelected === 'all' ? item : (item['remarkStatus']|| '') === vm.markSelected) &&
               ((item['owner']|| '').includes(vm.tableBusinessOwner))
             })
+            vm.filterData = businesstData
             vm.downloadData = businesstData.slice().reverse()
             vm.dataTable = new ngTableParams({ count: 20 }, { counts: $scope.countOptions, data: businesstData });
           } else {
@@ -396,6 +460,7 @@
             vm.downloadData = businesstData.slice().reverse()
             vm.dataTable = new ngTableParams({ count: 20 }, { counts: $scope.countOptions, data: businesstData });
           }
+         }, 800)
         }
         
 
@@ -403,6 +468,9 @@
           vm.activedStatus = ''
           vm.tableBusinessOwner = ''
           $scope.selectTab = value
+          vm.reverseName = ''
+          vm.reverseHosttName = ''
+          vm.reverseOwner = ''
         }
 
         // 更新视图
