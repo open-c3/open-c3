@@ -3,6 +3,7 @@
 
 import json
 import sys
+import os
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
 from c3mc_utils import extract_ips
@@ -18,6 +19,9 @@ def check(params):
     ip_list = extract_ips(params["ip_list"])
 
     audit_file_path = "/data/open-c3-data/bpm/audit_ip_list.txt"
+
+    if not os.path.exists(audit_file_path):
+        return
 
     with open(audit_file_path, 'r') as file:
         lines = file.readlines()

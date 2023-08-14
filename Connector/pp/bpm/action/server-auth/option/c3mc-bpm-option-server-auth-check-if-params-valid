@@ -75,14 +75,16 @@ def check(params):
     # 检查申请sudo永久权限时的规则配置
     check_ip_list_in_cmdb(ip_list)
     config_path = "/data/open-c3-data/bpm/server_auth_config.yaml"
-    if os.path.exists(config_path):
 
-        if auth_type == "sudo_876000":  # 永久sudo权限
-            rules_list = load_rules(config_path)
-            email_suffix = email.split("@")[1]
-            for rule in rules_list:
-                if rule["email_suffix"] == email_suffix and rule["auth_type"] == "sudo_forever":
-                    check_ips_for_sudo_forever(ip_list, rule)
+    if not os.path.exists(config_path):
+        return
+
+    if auth_type == "sudo_876000":  # 永久sudo权限
+        rules_list = load_rules(config_path)
+        email_suffix = email.split("@")[1]
+        for rule in rules_list:
+            if rule["email_suffix"] == email_suffix and rule["auth_type"] == "sudo_forever":
+                check_ips_for_sudo_forever(ip_list, rule)
 
 
 def main(params):
