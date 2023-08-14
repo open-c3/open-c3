@@ -120,7 +120,6 @@
                 }
             });
         };
-        vm.reload();
 
         vm.pageSizeChange = function (value) {
           vm.tablePageSize = value
@@ -332,6 +331,12 @@
       $scope.$watch(function () {return $rootScope.deptTreeId}, function (value) {
         if (value && value === 'root') {
           vm.grepdata = {}
+          vm.reload()
+        }
+      })
+
+      $scope.$watch(function () {return $rootScope.selectTeeName}, function (value) {
+        if (value && value === 'tree') {
           vm.reload()
         }
       })
