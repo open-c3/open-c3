@@ -39,6 +39,7 @@ hook 'before' => sub {
            || $uri =~ m{^/webhooks}
            || $uri =~ m{^/images/\d+/sshkey\.pub}
            || $uri =~ m{^/reload}
+           || $uri =~ m{^/to3part}
            || $uri =~ m{^/demo/};
 
     halt( +{ stat => $JSON::false, code => 10000 } ) 
