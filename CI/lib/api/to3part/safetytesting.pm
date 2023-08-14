@@ -52,7 +52,7 @@ $handle{safetytesting} = sub
     my ( $x, $status, $filter ) = @_;
     return +{ stat => $JSON::false, info => $x } if $status;
     my @res;
-    my @col = qw( cloudtype uuid instance_name lanip lanip yewu_owner yunwei_owner expire );
+    my @col = qw( cloudtype uuid instance_name lanip wanip yewu_owner yunwei_owner expire );
     for( split /\n/, $x )
     {
         my @x = split /;/, $_;
