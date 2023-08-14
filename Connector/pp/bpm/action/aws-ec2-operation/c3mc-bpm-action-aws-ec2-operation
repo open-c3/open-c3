@@ -35,7 +35,7 @@ class OperateEc2:
             self.lib_client.wait_ec2_until_status(instance_id, "running", timeout)
             print(f"LOG. 成功启动ec2实例: {instance_id}")
 
-            # 启动完一个实例后休眠一段时间，尝试避免aws接口出现资源容量不足的错误
+            # C3TODO 230814 启动完一个实例后休眠一段时间，尝试避免aws接口出现资源容量不足的错误
             time.sleep(20)
 
         elif operation_type == "stop":
