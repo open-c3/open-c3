@@ -3,9 +3,14 @@
 
 import json
 import time
+import sys
 
 import boto3
 from botocore.exceptions import ClientError
+
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import safe_run_command
 
 
 class LIB_EC2:
@@ -451,3 +456,33 @@ class LIB_EC2:
             Resources=[instance_id],
             Tags=tag_list
         )
+
+    def get_local_instance_list_v1(self, account, region):
+        """根据账号和区域查询ec2列表
+
+        该版本的接口从c3本地查询数据, 这样查询会很快
+        """
+        output = safe_run_command(["c3mc-device-data-get", "curr", "compute", "aws-ec2", "account", "区域", "实例ID", "内网IP", "Architecture", "实例类型"])
+
+        data = []
+        for line in output.split("\n"):
+            line = line.strip()
+            if line == "":
+                continue
+
+            parts = line.split()
+
+            if len(parts) != 6:
+                continue
+
+            if parts[0] != account or parts[1] != region:
+                continue
+
+            data.append({
+                "InstanceId": parts[2],
+                "PrivateIpAddress": parts[3],
+                "Architecture": parts[4],
+                "InstanceType": parts[5],
+            })
+
+        return sorted(data, key=lambda x: (x['InstanceId'].lower()), reverse=False)
