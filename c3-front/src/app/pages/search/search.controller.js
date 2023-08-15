@@ -17,7 +17,7 @@
       navigation: '/assets/images/navigation.png',
     }
     vm.searchTypeObject = {};
-    vm.frequentArray = ['腾讯云', 'AWS', 'Google', '权限', '域名', 'CDN', '资源申请', '资源回收'];
+    vm.frequentArray = ['C3T.腾讯云', 'AWS', 'Google', 'C3T.权限', 'C3T.域名', 'CDN', 'C3T.资源申请', 'C3T.资源回收'];
     const ipReg = /(\d{1,3}\.){3}\d{1,3}/
     const bpmReg = /^BPM\d{18}/i
     const ttReg = /^tt\d{10}/i
@@ -26,7 +26,7 @@
       const searchTypeArr = [...new Set(arr.map(item => item.type))].map(item => { return { type: item } });
       const searchTypeObj = {};
       angular.forEach(searchTypeArr, function (item, index) {
-        searchTypeObj[item.type] = { type: item.type === 'website' ? '网址导航' : item.type, content: arr.filter(cItem => cItem.type === item.type) }
+        searchTypeObj[item.type] = { type: item.type === 'website' ? 'C3T.网址导航' : `C3T.${item.type}`, content: arr.filter(cItem => cItem.type === item.type) }
       })
       return searchTypeObj;
     }

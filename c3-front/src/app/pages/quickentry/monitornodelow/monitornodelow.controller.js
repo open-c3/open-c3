@@ -14,7 +14,7 @@
         vm.lowUtilizationList = [   // 低利用率Tab列表
           {
             id: 'compute',
-            name: '主机'
+            name: 'C3T.主机'
           },
         ]
         vm.tabThead = ['lowstatus', '服务树'];
