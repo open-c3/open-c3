@@ -11,6 +11,16 @@ from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.mongodb.v20190725 import mongodb_client, models
 
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_qcloud_mongodb import MongodbInfo
+
+
+def describe_db_instance_node_property(access_id, access_key, region, instance_id):
+    return MongodbInfo(
+        access_id, access_key, region
+    ).describe_db_instance_node_property(instance_id)
+
+
 def get(data, access_id, access_key, region):
     """
     输出 qcloud mongodb 的详情(json格式)
@@ -36,8 +46,18 @@ def get(data, access_id, access_key, region):
         if instance.InstanceId == data[field_name]:
             item = json.loads(str(instance))
             item["IP"] = item["Vip"].split(";")[0]
+
+            node_property_info = describe_db_instance_node_property(
+                access_id, access_key, region, item["InstanceId"]
+            )
+            item["NodeNum"] = len(
+                json.loads(node_property_info.to_json_string())["ReplicateSets"][0][
+                    "Nodes"
+                ]
+            )
+
             return item
-    raise Exception("根据 InstanceId {} 未找到 qcloud mongodb".format(data[field_name]))
+    raise RuntimeError(f"根据 InstanceId {data[field_name]} 未找到 qcloud mongodb")
 
 
 def main(data, access_id, access_key, region):

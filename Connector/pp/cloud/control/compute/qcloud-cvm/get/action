@@ -10,8 +10,17 @@ from tencentcloud.common.profile.client_profile import ClientProfile
 from tencentcloud.common.profile.http_profile import HttpProfile
 from tencentcloud.cvm.v20170312 import cvm_client, models
 
+
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
 from c3mc_cloud_qcloud_vpc import QcloudVpc
+from c3mc_cloud_qcloud_project import Project
+
+
+def get_project_dict(access_id, access_key, region):
+    project_list = Project(
+        access_id, access_key, region
+    ).show_projects()
+    return {project["ProjectId"]: project for project in project_list}
 
 
 def get(data, access_id, access_key, region):
@@ -36,10 +45,13 @@ def get(data, access_id, access_key, region):
     params = {"InstanceIds": [data[field_name]]}
     req.from_json_string(json.dumps(params))
 
+    project_dict = get_project_dict(access_id, access_key, region)
+
     resp = client.DescribeInstances(req)
     for instance in resp.InstanceSet:
         if instance.InstanceId == data[field_name]:
             item = json.loads(str(instance))
+
             item["RegionId"] = region
             if (
                 item["PrivateIpAddresses"] is not None
@@ -51,13 +63,23 @@ def get(data, access_id, access_key, region):
                 and len(item["PublicIpAddresses"]) > 0
             ):
                 item["PublicIP"] = item["PublicIpAddresses"][0]
+            item["ProjectName"] = project_dict[item["Placement"]["ProjectId"]]["Name"]
+
+            if "OsName" in item:
+                item["os"] = (
+                    "Windows"
+                    if item["OsName"].lower().find("window") != -1
+                    else "Linux"
+                )
+            else:
+                item["os"] = "Other"
 
             if item["VirtualPrivateCloud"]["VpcId"] is not None:
                 item["VpcId"] = item["VirtualPrivateCloud"]["VpcId"]
                 item["VpcName"] = vpc_client.show_vpc(item["VpcId"])["VpcName"]
 
             return item
-    raise Exception("根据 InstanceId {} 未找到 qcloud cvm".format(data[field_name]))
+    raise RuntimeError(f"根据 InstanceId {data[field_name]} 未找到 qcloud cvm")
 
 
 def main(data, access_id, access_key, region):
