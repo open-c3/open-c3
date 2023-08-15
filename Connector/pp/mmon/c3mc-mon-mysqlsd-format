@@ -118,6 +118,8 @@ for my $ip ( keys %ip )
 {
     my %lables = ( instance => $ip, "__metrics_path__" => "/api/agent/v3/mysql/metrics/$ip", treeid => 1 );
 
+    next unless $ip && $ip =~ /.+:\d+$/;
+
     next if $includetodo && ! grepInclude( map{ $treemap{$_} // "" }keys %{$ip{$ip}} );
     next if $excludetodo &&   grepExclude( map{ $treemap{$_} // "" }keys %{$ip{$ip}} );
 
