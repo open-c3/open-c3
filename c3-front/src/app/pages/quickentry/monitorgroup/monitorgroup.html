@@ -22,11 +22,11 @@
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="monitorgroup.groupTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'C3T.编号'|translate" sortable="'id'">{{m.id}}</td>
-                        <td data-title="'C3T.名称'|translate" sortable="'name'">{{m.name}}</td>
-                        <td data-title="'C3T.描述'|translate" sortable="'summary'">{{m.description}}</td>
-                        <td data-title="'C3T.编辑者'|translate" sortable="'edit_user'">{{m.edit_user}}</td>
-                        <td data-title="'C3T.编辑时间'|translate" sortable="'edit_time'">{{m.edit_time}}</td>
+                        <td data-title="'C3T.编号'|translate" sortable="'id'" filter="{id: 'text'}">{{m.id}}</td>
+                        <td data-title="'C3T.名称'|translate" sortable="'name'" filter="{name: 'text'}">{{m.name}}</td>
+                        <td data-title="'C3T.描述'|translate" sortable="'summary'" filter="{description: 'text'}">{{m.description}}</td>
+                        <td data-title="'C3T.编辑者'|translate" sortable="'edit_user'" filter="{edit_user: 'text'}">{{m.edit_user}}</td>
+                        <td data-title="'C3T.编辑时间'|translate" sortable="'edit_time'" filter="{edit_time: 'text'}">{{m.edit_time}}</td>
                         <td class="textcenter"  data-title="'C3T.操作'|translate">
                             <nobr>
                                 <i class="fa fa-user fa-2x" aria-hidden="true" ng-click="monitorgroup.editGroupUser(m.id)" uib-tooltip="{{'C3T.编辑组成员'|translate}}" style="cursor:pointer;color: #339094;" ></i>

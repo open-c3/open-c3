@@ -33,7 +33,7 @@
       <div class="filter-switch-items-label control-label fwbold">{{'C3T.告警级别'|translate}}：</div>
       <div class="filter-switch-items-context">
         <ui-select class="" ng-model="allalerts.alarmLevel" placeholder="{{'C3T.告警级别'|translate}}" ng-change="allalerts.handleAlarmChange($select.selected.value)">
-          <ui-select-match placeholder="{{'C3T.告警级别'| translate}}"><span class="item-label">{{$select.selected.label}}</span></ui-select-match>
+          <ui-select-match placeholder="{{'C3T.告警级别'| translate}}"><span class="item-label">{{$select.selected.label| translate}}</span></ui-select-match>
           <ui-select-choices repeat="item.value as item in allalerts.levelOption | filter: $select.search"><div ng-bind-html="item.label | highlight: $select.search"></div></ui-select-choices>
         </ui-select>
       </div>

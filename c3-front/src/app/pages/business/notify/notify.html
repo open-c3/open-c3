@@ -62,11 +62,11 @@
         <div class="panel-body">
             <div class="panel-tabs">
 
-            <table ng-table="notify.notify_Table" class="table table-hover text-center table-condensed">
+            <table ng-table="notify.notify_Table" class="table table-hover text-center table-condensed" show-filter="true">
                 <tr ng-repeat="ss in $data">
-                    <td data-title="'C3T.账户名'|translate" >{{ss.user}}</td>
-                    <td data-title="'C3T.创建人'|translate">{{ss.create_user}}</td>
-                    <td data-title="'C3T.创建时间'|translate">{{ss.create_time}}</td>
+                    <td data-title="'C3T.账户名'|translate" filter="{user: 'text'}">{{ss.user}}</td>
+                    <td data-title="'C3T.创建人'|translate" filter="{create_user: 'text'}">{{ss.create_user}}</td>
+                    <td data-title="'C3T.创建时间'|translate" filter="{create_time: 'text'}">{{ss.create_time}}</td>
                     <td data-title="'C3T.操作'|translate">
                         <button class="btn btn-primary btn-sm" ng-click="notify.delete(ss.id)">{{'C3T.删除'|translate}}</button>
                     </td>

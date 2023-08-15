@@ -81,20 +81,20 @@
 
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-dark" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="historyterminal.reload()" ><i class="fa fa-refresh fa-fw" style="" ng-class="{'fa-spin':!historyterminal.loadover}" ></i></button>
+                <button class="btn btn-dark" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="historyterminal.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!historyterminal.loadover}" ></i></button>
             </span>
             <h5>{{'C3T.命令执行日志'|translate}}</h5>
         </div>
 
         <div class="panel-body">
             <div class="panel-tabs">
-                <table ng-table="historyterminal.data_Table" class="table table-hover text-center table-condensed">
+                <table ng-table="historyterminal.data_Table" class="table table-hover text-center table-condensed" show-filter="true">
                 <tr ng-repeat="ss in $data">
-                    <td data-title="'C3T.时间'|translate">{{ss.time}}</td>
-                    <td data-title="'C3T.执行命令'|translate">{{ss.cmd}}</td>
-                    <td data-title="'C3T.用户'|translate">{{ss.usr}}</td>
-                    <td data-title="'C3T.执行节点'|translate">{{ss.node}}</td>
-                    <td data-title="'C3T.启动人'|translate">{{ss.user}}</td>
+                    <td data-title="'C3T.时间'|translate" filter="{time: 'text'}">{{ss.time}}</td>
+                    <td data-title="'C3T.执行命令'|translate" filter="{cmd: 'text'}">{{ss.cmd}}</td>
+                    <td data-title="'C3T.用户'|translate" filter="{usr: 'text'}">{{ss.usr}}</td>
+                    <td data-title="'C3T.执行节点'|translate" filter="{node: 'text'}">{{ss.node}}</td>
+                    <td data-title="'C3T.启动人'|translate" filter="{user: 'text'}">{{ss.user}}</td>
                 </tr>
             </table>
             </div>

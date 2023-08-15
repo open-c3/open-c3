@@ -11,6 +11,10 @@
         vm.treeid = $state.params.treeid;
         var toastr = toastr || $injector.get('toastr');
 
+        vm.hasVariableMap = {
+          '0': '无',
+          '1': '有'
+        };
         $('#createstart').datetimepicker({
             format: 'YYYY-MM-DD',
             locale: moment.locale('zh-cn')
@@ -273,7 +277,12 @@
                 function successCallback(response) {
                     if (response.data.stat){
                         vm.loadover = true
-                        vm.dataTable = new ngTableParams({count:10}, {counts:[],data:response.data.data});
+                        const hasFilterData = response.data.data.map(item => {
+                          item['ciInfoName'] = vm.ciinfo[item.name]
+                          item['hasVariableMap'] = vm.hasVariableMap[item.hasvariable]
+                          return item
+                        })
+                        vm.dataTable = new ngTableParams({count:10}, {counts:[],data:hasFilterData});
                     }else {
                         swal('获取列表失败', response.data.info, 'error');
                     }
@@ -281,25 +290,24 @@
                 function errorCallback(response) {
                     swal('获取列表失败', response.status, 'error');
                 }
-            );
-
-            $http.get('/api/ci/group/' + vm.treeid).success(function(data){
-                if(data.stat)
-                {
-                    angular.forEach(data.data, function (value, key) {
-                        vm.ciinfo['_ci_'+value.id+'_'] = value.name
-                    });
-                }
-                else
-                {
-                    toastr.error( "加载流水线名称失败:" + data.info )
-                }
-            });
- 
+            ); 
         };
 
-        vm.reload();
+        vm.getCiGroup = function () {
+          $http.get('/api/ci/group/' + vm.treeid).success(function (data) {
+            if (data.stat) {
+              angular.forEach(data.data, function (value, key) {
+                vm.ciinfo[`_ci_${value.id}_`] = value.name
+              });
+              vm.reload();
+            }
+            else {
+              toastr.error("加载流水线名称失败:" + data.info)
+            }
+          });
+        };
 
+        vm.getCiGroup();
     }
 
 })();

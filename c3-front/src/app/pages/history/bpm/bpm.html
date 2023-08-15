@@ -102,16 +102,16 @@
 
         <div class="panel-body" ng-init='openc3_job_system_only=0'>
             <div class="panel-tabs" ng-init='calltype = { "page":"C3T.页面", "api":"API", "crontab":"C3T.计划任务" }'>
-                <table ng-table="historybpm.data_Table" class="table table-hover text-center table-condensed">
+                <table ng-table="historybpm.data_Table" class="table table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="ss in $data">
-                        <td data-title="'C3T.BPM单号'|translate">{{ss.extid}}</td>
-                        <td data-title="'C3T.任务名称'|translate">{{ss.alias}}</td>
-                        <td data-title="'C3T.申请人'|translate">{{ss.user}}</td>
-                        <td data-title="'C3T.处理人'|translate">{{ss.handler}}</td>
-                        <td data-title="'C3T.状态'|translate">{{historybpm.statuszh[ss.status]}}</td>
-                        <td data-title="'C3T.发起时间'|translate">{{ss.starttime}}</td>
-                        <td data-title="'C3T.结束时间'|translate">{{ss.finishtime}}</td>
-                        <td data-title="'C3T.耗时'|translate">{{historybpm.seftime(ss.starttime,ss.finishtime)}}</td>
+                        <td data-title="'C3T.BPM单号'|translate" filter="{extid: 'text'}">{{ss.extid}}</td>
+                        <td data-title="'C3T.任务名称'|translate" filter="{alias: 'text'}">{{ss.alias}}</td>
+                        <td data-title="'C3T.申请人'|translate" filter="{user: 'text'}">{{ss.user}}</td>
+                        <td data-title="'C3T.处理人'|translate" filter="{handler: 'text'}">{{ss.handler}}</td>
+                        <td data-title="'C3T.状态'|translate" filter="{statuszhMap: 'text'}">{{historybpm.statuszh[ss.status]}}</td>
+                        <td data-title="'C3T.发起时间'|translate" filter="{starttime: 'text'}">{{ss.starttime}}</td>
+                        <td data-title="'C3T.结束时间'|translate" filter="{finishtime: 'text'}">{{ss.finishtime}}</td>
+                        <td data-title="'C3T.耗时'|translate" filter="{seftimeCount: 'text'}">{{historybpm.seftime(ss.starttime,ss.finishtime)}}</td>
                         <td data-title="'C3T.操作'|translate">
                             <button ng-if="ss.jobtype =='jobs'" class="btn btn-warning btn-sm" ng-click="historybpm.editBpmForm(ss.extid)">{{'C3T.详情'|translate}}</button>
                         </td>

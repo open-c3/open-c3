@@ -79,7 +79,7 @@
 
                 <hr class="mv20 clear" style="margin-top: 30px!important;">
                 <div class="col-md-10">
-                    <button class="btn btn-primary" ng-click="businessjob.reload()">
+                    <button class="btn btn-primary" ng-click="businessjob.getCiGroup()">
                         <i class="fa fa-search fa-fw"></i>{{'C3T.查询'|translate}}
                     </button>
                     <button class="btn btn-success" ng-click="businessjob.Reset()">
@@ -106,23 +106,23 @@
 
         <div class="panel-heading">
             <span class="panel-controls">
-                <button class="btn btn-dark" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="businessjob.reload()" ><i class="fa fa-refresh fa-fw" style="" ng-class="{'fa-spin':!businessjob.loadover}" ></i></button>
+                <button class="btn btn-dark" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="businessjob.getCiGroup()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!businessjob.loadover}" ></i></button>
             </span>
             <h5>{{'C3T.作业列表'|translate}}</h5>
         </div>
 
         <div class="panel-body" ng-init='openc3_job_system_only=0'>
             <div class="panel-tabs" ng-init='hasvariable = { "0":"C3T.无", "1":"C3T.有" }'>
-                <table ng-table="businessjob.dataTable" class="table table-hover text-center table-condensed">
+                <table ng-table="businessjob.dataTable" class="table table-hover text-center table-condensed" show-filter="true">
                 <tr ng-repeat="ss in $data">
-                    <td data-title="'C3T.作业名称'|translate">{{ss.name}}</td>
-                    <td ng-if="openc3_job_system_only==0" data-title="'C3T.关联流水线'|translate">{{businessjob.ciinfo[ss.name]}}</td>
-                    <td data-title="'C3T.步骤'|translate">{{ss.stepcount}}</td>
-                    <td data-title="'C3T.变量'|translate">{{hasvariable[ss.hasvariable]|translate}}</td>
-                    <td data-title="'C3T.创建用户'|translate">{{ss.create_user}}</td>
-                    <td data-title="'C3T.创建时间'|translate">{{ss.create_time}}</td>
-                    <td data-title="'C3T.修改用户'|translate">{{ss.edit_user}}</td>
-                    <td data-title="'C3T.最后修改时间'|translate">{{ss.edit_time}}</td>
+                    <td data-title="'C3T.作业名称'|translate" filter="{name: 'text'}">{{ss.name}}</td>
+                    <td ng-if="openc3_job_system_only==0" data-title="'C3T.关联流水线'|translate" filter="{ciInfoName: 'text'}">{{businessjob.ciinfo[ss.name]}}</td>
+                    <td data-title="'C3T.步骤'|translate" filter="{stepcount: 'text'}">{{ss.stepcount}}</td>
+                    <td data-title="'C3T.变量'|translate" filter="{hasVariableMap: 'text'}">{{hasvariable[ss.hasvariable]|translate}}</td>
+                    <td data-title="'C3T.创建用户'|translate" filter="{create_user: 'text'}">{{ss.create_user}}</td>
+                    <td data-title="'C3T.创建时间'|translate" filter="{create_time: 'text'}">{{ss.create_time}}</td>
+                    <td data-title="'C3T.修改用户'|translate" filter="{edit_user: 'text'}">{{ss.edit_user}}</td>
+                    <td data-title="'C3T.最后修改时间'|translate" filter="{edit_time: 'text'}">{{ss.edit_time}}</td>
                     <td data-title="'C3T.操作'|translate">
                         <button class="btn btn-primary btn-sm" ng-click="businessjob.runJob(ss.uuid)">{{'C3T.执行'|translate}}</button>
                         <!-- <button class="btn btn-primary btn-sm" ng-click="businessjob.saveCron(ss)">定时启动</button> -->

@@ -92,7 +92,11 @@
                 function successCallback(response) {
                     if (response.data.stat){
                         vm.loadover = true
-                        vm.group_Table = new ngTableParams({count:10}, {counts:[],data:response.data.data});
+                        const hasFilterData = response.data.data.map(item => {
+                          item['ciInfoName'] = vm.ciinfo[item.name]
+                          return item
+                        })
+                        vm.group_Table = new ngTableParams({count:10}, {counts:[],data:hasFilterData});
                     }else {
                         toastr.error( "获取分组信息失败："+response.data.info)
                     }
@@ -100,23 +104,23 @@
                 function errorCallback (response){
                     toastr.error( "获取分组信息失败："+response.status)
                 });
-
-            $http.get('/api/ci/group/' + vm.treeid).success(function(data){
-                if(data.stat)
-                {
-                    angular.forEach(data.data, function (value, key) {
-                        vm.ciinfo['_ci_test_'+value.id+'_'] = value.name
-                        vm.ciinfo['_ci_online_'+value.id+'_'] = value.name
-                    });
-                }
-                else
-                {
-                    toastr.error( "加载流水线名称失败:" + data.info )
-                }
-            });
- 
         };
-        vm.reload();
+
+        vm.getCiGroup = function () {
+          $http.get(`/api/ci/group/${vm.treeid}`).success(function (data) {
+            if (data.stat) {
+              angular.forEach(data.data, function (value, key) {
+                vm.ciinfo[`_ci_test${value.id}_`] = value.name
+                vm.ciinfo[`_ci_online_${value.id}_`] = value.name
+              });
+              vm.reload();
+            }
+            else {
+              toastr.error("加载流水线名称失败:" + data.info)
+            }
+          });
+        };
+        vm.getCiGroup();
     }
 
 })();
