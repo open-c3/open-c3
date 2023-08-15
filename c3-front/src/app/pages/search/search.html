@@ -19,7 +19,7 @@
           </span>
           <div class="menu-panel-search-frequent-content">
             <div class="menu-panel-search-frequent-content-items" ng-repeat="frequentItem in search.frequentArray"
-              ng-click="search.handleFrequentClick(frequentItem)" ng-class="{'is-active': frequentItem === search.choiceSearch}">{{frequentItem}}</div>
+              ng-click="search.handleFrequentClick(frequentItem)" ng-class="{'is-active': frequentItem === search.choiceSearch}">{{frequentItem | translate}}</div>
           </div>
         </div>
       </div>
@@ -28,7 +28,7 @@
           {{'C3T.暂无匹配结果'| translate}}
         </div>
         <div ng-if="!search.searchloadover && search.cardMenu.length !== 0" ng-repeat="data in search.searchTypeObject" class="card-repeat">
-          <div class="menu-panel-card-text">{{data.type}}</div>
+          <div class="menu-panel-card-text">{{data.type | translate}}</div>
           <div class="menu-panel-card">
             <div ng-repeat="item in data.content"
               class="{{item.url === ''? 'menu-panel-card-disable-items': 'menu-panel-card-items'}}"
