@@ -128,12 +128,12 @@
         <div class="panel-body">
             <div class="panel-tabs">
 
-            <table ng-table="group.group_Table" class="table table-hover text-center table-condensed">
+            <table ng-table="group.group_Table" class="table table-hover text-center table-condensed" show-filter="true">
                 <tr ng-repeat="ss in $data">
-                    <td data-title="'C3T.分组名称'|translate" >{{ss.name}}</td>
-                    <td data-title="'C3T.创建人'|translate">{{ss.create_user}}</td>
-                    <td data-title="'plugin'">{{ss.plugin}}</td>
-                    <td data-title="'C3T.创建时间'|translate">{{ss.create_time}}</td>
+                    <td data-title="'C3T.分组名称'|translate" filter="{name: 'text'}">{{ss.name}}</td>
+                    <td data-title="'C3T.创建人'|translate" filter="{create_user: 'text'}">{{ss.create_user}}</td>
+                    <td data-title="'plugin'" filter="{plugin: 'text'}">{{ss.plugin}}</td>
+                    <td data-title="'C3T.创建时间'|translate" filter="{create_time: 'text'}">{{ss.create_time}}</td>
                     <td data-title="'C3T.操作'|translate">
                         <button class="btn btn-primary btn-sm" ng-click="group.edit(ss.id)">{{'C3T.编辑'|translate}}</button>
                         <button class="btn btn-danger btn-sm" ng-click="group.delete(ss.id)">{{'C3T.删除'|translate}}</button>

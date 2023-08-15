@@ -161,7 +161,17 @@
             $http.get('/api/agent/monitor/alert/' + vm.treeid + "?siteaddr=" + vm.siteaddr ).success(function(data){
                 if(data.stat == true) 
                 { 
-                    vm.activeAlertTable = new ngTableParams({count:10}, {counts:vm.pageSizeOption,data:data.data.reverse()});
+                  const newData = data.data.map(item => {
+                    item.labelsAlertname = item.labels.alertname
+                    item.labelsObj = vm.getinstancename(item.labels)
+                    item.statueState = item.status.state
+                    item.labelsSeverity = item.labels.severity
+                    item.annotationsSummary = item.annotations.summary
+                    item.annotationsValue = item.annotations.value
+                    item.claimUuid = vm.dealinfo[item.uuid]
+                    return item
+                  })
+                    vm.activeAlertTable = new ngTableParams({count:10}, {counts:vm.pageSizeOption,data:newData.reverse()});
                     vm.loadoverAlert = true;
                 } else { 
                     toastr.error( "加载当前告警失败:" + data.info )

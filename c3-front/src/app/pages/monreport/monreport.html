@@ -146,13 +146,13 @@
 
             <div class="panel-body">
                 <div class="panel-tabs">
-                    <table ng-table="monreport.data_Table" class="table table-hover text-center table-condensed">
+                    <table ng-table="monreport.data_Table" class="table table-hover text-center table-condensed" show-filter="true">
                         <tr ng-repeat="ss in $data" style="height: 35px;">
-                            <td data-title="'C3T.时间'|translate">{{ss.time}}</td>
-                            <td data-title="'C3T.服务树ID'|translate">{{ss.fromtreeid}}</td>
-                            <td data-title="'C3T.告警级别'|translate">{{ss.severity}}</td>
-                            <td data-title="'C3T.实例'|translate">{{ss.instance}}</td>
-                            <td data-title="'C3T.告警名称'|translate">{{ss.alertname}}</td>
+                            <td data-title="'C3T.时间'|translate" filter="{time: 'text'}">{{ss.time}}</td>
+                            <td data-title="'C3T.服务树ID'|translate" filter="{fromtreeid: 'text'}">{{ss.fromtreeid}}</td>
+                            <td data-title="'C3T.告警级别'|translate" filter="{severity: 'text'}">{{ss.severity}}</td>
+                            <td data-title="'C3T.实例'|translate" filter="{instance: 'text'}">{{ss.instance}}</td>
+                            <td data-title="'C3T.告警名称'|translate" filter="{alertname: 'text'}">{{ss.alertname}}</td>
                         </tr>
                     </table>
                 </div>

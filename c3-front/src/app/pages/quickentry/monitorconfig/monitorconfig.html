@@ -99,12 +99,12 @@
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="monitorconfig.activeAlertTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'C3T.开始时间'|translate" sortable="'startsAt'">{{m.startsAt}}</td>
-                        <td data-title="'C3T.名称'|translate" sortable="'labels.alertname'">{{m.labels.alertname}}</td>
-                        <td data-title="'C3T.监控对象'|translate" sortable="'labels.instance'">{{monitorconfig.getinstancename(m.labels)}}</td>
-                        <td data-title="'C3T.状态'|translate" sortable="'status.state'">{{m.status.state}}</td>
-                        <td data-title="'C3T.概要'|translate" sortable="'annotations.summary'">{{m.annotations.summary}}</td>
-                        <td data-title="'C3T.值'|translate" sortable="'annotations.value'">{{m.annotations.value}}</td>
+                        <td data-title="'C3T.开始时间'|translate" filter="{startsAt: 'text'}" sortable="'startsAt'">{{m.startsAt}}</td>
+                        <td data-title="'C3T.名称'|translate" filter="{labelsAlertname: 'text'}" sortable="'labels.alertname'">{{m.labels.alertname}}</td>
+                        <td data-title="'C3T.监控对象'|translate" filter="{labelsObj: 'text'}" sortable="'labels.instance'">{{monitorconfig.getinstancename(m.labels)}}</td>
+                        <td data-title="'C3T.状态'|translate" filter="{statueState: 'text'}" sortable="'status.state'">{{m.status.state}}</td>
+                        <td data-title="'C3T.概要'|translate" filter="{annotationsSummary: 'text'}" sortable="'annotations.summary'">{{m.annotations.summary}}</td>
+                        <td data-title="'C3T.值'|translate"  filter="{annotationsValue: 'text'}" sortable="'annotations.value'">{{m.annotations.value}}</td>
                         <td class="textcenter"  data-title="'C3T.操作'|translate">
                             <nobr>
                                 <a style="font-size: 10px;font-weight: bold" class="btn btn-primary" href="{{m.generatorURL}}" target="_blank">{{'C3T.查看图表'|translate}}</a>
@@ -286,12 +286,12 @@
         <div class="panel-body">
             <div class="panel-tabs">
 
-            <table ng-table="monitorconfig.activeUserTable" class="table table-hover text-center table-condensed">
+            <table ng-table="monitorconfig.activeUserTable" class="table table-hover text-center table-condensed" show-filter="true">
                 <tr ng-repeat="ss in $data">
-                    <td data-title="'C3T.账户名'|translate" >{{ss.user}}</td>
-                    <td data-title="'C3T.子组'|translate" >{{ss.subgroup}}</td>
-                    <td data-title="'C3T.创建人'|translate">{{ss.edit_user}}</td>
-                    <td data-title="'C3T.创建时间'|translate">{{ss.edit_time}}</td>
+                    <td data-title="'C3T.账户名'|translate" filter="{user: 'text'}">{{ss.user}}</td>
+                    <td data-title="'C3T.子组'|translate" filter="{subgroup: 'text'}">{{ss.subgroup}}</td>
+                    <td data-title="'C3T.创建人'|translate" filter="{edit_user: 'text'}">{{ss.edit_user}}</td>
+                    <td data-title="'C3T.创建时间'|translate" filter="{edit_time: 'text'}">{{ss.edit_time}}</td>
                     <td data-title="'C3T.操作'|translate">
                         <button class="btn btn-primary btn-sm" ng-click="monitorconfig.deleteUser(ss.id)">{{'C3T.删除'|translate}}</button>
                         <button class="btn btn-primary btn-sm" ng-click="monitorconfig.testsend(ss.user)">{{'C3T.测试消息通道'|translate}}</button>

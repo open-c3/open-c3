@@ -113,14 +113,14 @@
 
         <div class="panel-body">
             <div class="panel-tabs">
-                <table ng-table="businesscrontab.data_Table" class="table table-hover text-center table-condensed">
+                <table ng-table="businesscrontab.data_Table" class="table table-hover text-center table-condensed" show-filter="true">
                 <tr ng-repeat="ss in $data">
-                    <td data-title="'C3T.定时任务'|translate">{{ss.name}}</td>
-                    <td data-title="'C3T.规则'|translate">{{ss.cron}}</td>
-                    <td data-title="'C3T.创建用户'|translate">{{ss.create_user}}</td>
-                    <td data-title="'C3T.创建时间'|translate">{{ss.create_time}}</td>
-                    <td data-title="'C3T.修改用户'|translate">{{ss.edit_user}}</td>
-                    <td data-title="'C3T.最后修改时间'|translate">{{ss.edit_time}}</td>
+                    <td data-title="'C3T.定时任务'|translate" filter="{name: 'text'}">{{ss.name}}</td>
+                    <td data-title="'C3T.规则'|translate" filter="{cron: 'text'}">{{ss.cron}}</td>
+                    <td data-title="'C3T.创建用户'|translate" filter="{create_user: 'text'}">{{ss.create_user}}</td>
+                    <td data-title="'C3T.创建时间'|translate" filter="{create_time: 'text'}">{{ss.create_time}}</td>
+                    <td data-title="'C3T.修改用户'|translate" filter="{edit_user: 'text'}">{{ss.edit_user}}</td>
+                    <td data-title="'C3T.最后修改时间'|translate" filter="{edit_time: 'text'}">{{ss.edit_time}}</td>
                     <td data-title="'C3T.操作'|translate">
                         <button ng-if="ss.status == 'unavailable'" class="btn btn-primary btn-sm" ng-click="businesscrontab.runCronJob(ss.id)">{{'C3T.开始'|translate}}</button>
                         <button ng-if="ss.status == 'available'" class="btn btn-primary btn-sm" ng-click="businesscrontab.stopCronJob(ss.id)">{{'C3T.暂停'|translate}}</button>

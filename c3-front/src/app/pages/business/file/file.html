@@ -86,14 +86,14 @@
         <div class="panel-body">
             <div class="panel-tabs">
 
-            <table ng-table="file.file_Table" class="table table-hover text-center table-condensed">
+            <table ng-table="file.file_Table" class="table table-hover text-center table-condensed" show-filter="true">
                 <tr ng-repeat="ss in $data">
-                    <td data-title="'C3T.文件名'|translate" >{{ss.name}}</td>
-                    <td data-title="'C3T.创建人'|translate">{{ss.create_user}}</td>
-                    <td data-title="'C3T.创建时间'|translate">{{ss.create_time}}</td>
+                    <td data-title="'C3T.文件名'|translate" filter="{name: 'text'}">{{ss.name}}</td>
+                    <td data-title="'C3T.创建人'|translate"  filter="{create_user: 'text'}">{{ss.create_user}}</td>
+                    <td data-title="'C3T.创建时间'|translate"  filter="{create_time: 'text'}">{{ss.create_time}}</td>
                     <td data-title="'C3T.大小'|translate">{{file.bytesToSize(ss.size)}}</td>
-                    <td data-title="'C3T.修改用户'|translate">{{ss.edit_user}}</td>
-                    <td data-title="'C3T.修改时间'|translate">{{ss.edit_time}}</td>
+                    <td data-title="'C3T.修改用户'|translate"  filter="{edit_user: 'text'}">{{ss.edit_user}}</td>
+                    <td data-title="'C3T.修改时间'|translate"  filter="{edit_time: 'text'}">{{ss.edit_time}}</td>
                     <td data-title="'C3T.操作'|translate">
                         <button class="btn btn-primary btn-sm" ng-click="file.downloadFile(ss.name)">{{'C3T.下载'|translate}}</button>
                         <button class="btn btn-danger btn-sm" ng-click="file.deleteFile(ss.id)">{{'C3T.删除'|translate}}</button>
