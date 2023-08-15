@@ -47,12 +47,16 @@
             };
 
             vm.clearAllCookies = function() {
-              const cookies = document.cookie.split(";");
-              for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i];
-                const eqPos = cookie.indexOf("=");
-                const name = eqPos > -1 ? cookie.substr(0, eqPos) : cookie;
-                document.cookie = name + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/";
+              let date = new Date();
+              date.setTime(date.getTime() - 10000);
+              const keys = document.cookie.match(/[^ =;]+(?=\=)/g);
+              const clearDomainArr = [window.location.hostname, '.cmcloud.org']
+              for (let j = 0; j <clearDomainArr.length; j++) {
+                if (keys) {
+                  for (let i = keys.length; i--;) {
+                    document.cookie = `${keys[i]}=0; expires=${date.toGMTString()}; path=/; domain=${clearDomainArr[j]}`;
+                  }
+                }
               }
             }
 
