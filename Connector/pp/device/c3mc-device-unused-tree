@@ -1,0 +1,61 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my @x = `c3mc-device-cat-all --col treename|sort|uniq`;
+die "get data fail" if $?;
+chomp @x;
+
+my %used;
+for( @x )
+{
+    map{ $used{$_} ++} grep{ $_ }split /,/, $_;
+}
+
+my ( %tree, %id2name );
+my @xx = `c3mc-base-treemap`;
+die "get treemap fail" if $?;
+chomp @xx;
+for( @xx )
+{
+    my ( $id, $name ) = split /;/, $_, 2;
+    $tree{$name } = $id;
+    $id2name{$id} = $name;
+}
+
+my %skip;
+sub iskip
+{
+    my $cmd = shift @_;
+    my @x = `$cmd`;
+    die "$cmd fail" if $?;
+    chomp @x;
+    map{$skip{$_}++}@x;
+}
+iskip( "c3mc-base-db-get -t openc3_job_nodelist projectid  -f 'status=\"available\"'|sort|uniq" );
+iskip( "c3mc-base-db-get -t openc3_ci_project groupid|sort|uniq" );
+
+map{  $used{ $id2name{$_} } ++ if $id2name{$_} }keys %skip;
+
+for my $treename ( keys %used )
+{
+    my @treename = split /\./, $treename;
+    while( @treename )
+    {
+        my $name = join '.', @treename;
+        delete $tree{$name};
+        pop @treename;
+    }
+}
+
+for my $name ( keys %tree )
+{
+    my $id = $tree{$name};
+    printf "%s\n", join ';', $id, $name;
+}
