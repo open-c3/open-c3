@@ -300,7 +300,9 @@
           
                 ]
 
-            vm.handleStateGo = function (item) {
+            vm.handleStateGo = function (event, item) {
+              event.stopPropagation();
+              
               if (item && item.external) {
                 window.open(item.external)
               }
@@ -419,7 +421,10 @@
           };
 
 
-          vm.toggleCard = function () {
+          vm.toggleCard = function (type) {
+            if (type) {
+              vm.isHovered = type
+            }
             vm.isHovered = !vm.isHovered
           }
         }

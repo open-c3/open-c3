@@ -24,10 +24,11 @@
       </li>
     </ul>
 -->
-<ul class="nav navbar-nav navbar-left" ng-mouseenter="nav.toggleCard()" ng-mouseleave="nav.toggleCard()">
+<ul class="nav navbar-nav navbar-left" ng-click="nav.toggleCard()">
   <li class="nav-padding nav-menu-style">
     <a> <span>{{'C3T.模块'|translate}}</span> </a>
 </li>
+  <div ng-if="nav.isHovered" class="nav-dashboard-card-background"></div>
   <div class="nav-dashboard-card bounce animated" ng-if="nav.isHovered">
     <div class="nav-dashboard-card-scroll">
       <div class="nav-dashboard-card-scroll-option" ng-repeat="data in nav.menuOption" 
@@ -37,11 +38,11 @@
           <div ng-repeat="item in data.options">
             <div ng-if="!item.condition">
               <div ng-if="nav.user.menu[item.label] == 1" class="nav-dashboard-card-item-header"
-                ng-click="nav.handleStateGo(item)">{{item.title | translate}}</div>
+                ng-click="nav.handleStateGo($event,item)">{{item.title | translate}}</div>
               <div ng-if="item.list && item.list.length > 0" class="nav-dashboard-card-item-content">
                 <div ng-repeat="cItem in item.list">
                   <a ng-if="nav.user.menu[cItem.label] == 1" class="nav-dashboard-card-item-content-item"
-                    ng-click="nav.handleStateGo(cItem)">
+                    ng-click="nav.handleStateGo($event,cItem)">
                     <span ng-if="cItem.icon" class="{{cItem.icon}}"></span>
                     <img ng-if="!cItem.icon" src="{{cItem.image}}" alt="" style="width: 16px;height: 16px;">
                     {{cItem.title | translate}}
@@ -51,10 +52,10 @@
             </div>
             <div ng-if="item.condition && item.condition.length !== 0">
               <a ng-if="nav.handleCondition(nav.user, item.condition)" class="nav-dashboard-card-item-header"
-                ng-click="nav.handleStateGo(item)">{{item.title | translate}}</a>
+                ng-click="nav.handleStateGo($event,item)">{{item.title | translate}}</a>
               <div ng-if="item.list && item.list.length > 0" class="nav-dashboard-card-item-content">
                 <div ng-repeat="cItem in item.list">
-                  <a class="nav-dashboard-card-item-content-item" ng-click="nav.handleStateGo(cItem)" ng-if="nav.handleCondition(nav.user, item.condition)">
+                  <a class="nav-dashboard-card-item-content-item" ng-click="nav.handleStateGo($event,cItem)" ng-if="nav.handleCondition(nav.user, item.condition)">
                     <span class="{{cItem.icon}}"></span>
                     {{cItem.title | translate}}
                   </a>
@@ -69,14 +70,14 @@
 </ul>
 
     <!-- 导航 -->
-    <ul class="nav navbar-nav navbar-left">
+    <!-- <ul class="nav navbar-nav navbar-left">
       <li class="nav-padding">
         <a ng-if="nav.user.menu['导航'] == 1" ui-sref="home.search({treeid: nav.state.params.treeid})" > <span>{{'C3T.导航'|translate}}</span> </a>
     </li>
-    </ul>
+    </ul> -->
 
     <!-- CMDB -->
-    <ul class="nav navbar-nav navbar-left">
+    <ul class="nav navbar-nav navbar-left" ng-click="nav.toggleCard(false)">
         <li class="nav-padding">
           <a ng-if="nav.user.menu['CMDB'] == 1" ui-sref="home.device.menu({treeid: nav.state.params.treeid})" class="p15 lh30"> <span>CMDB</span> </a>
         </li>
@@ -202,7 +203,7 @@
         </li> -->
 
         <!-- BPM -->
-        <li ng-if="nav.user.menu['BPM'] == 1" class="dropdown nav-padding" uib-dropdown>
+        <!-- <li ng-if="nav.user.menu['BPM'] == 1" class="dropdown nav-padding" uib-dropdown>
             <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple" uib-dropdown-toggle>
                 <span>BPM</span>
                 <span class="caret caret-tp hidden-xs"></span>
@@ -241,7 +242,7 @@
  
             </ul>
 
-        </li>
+        </li> -->
  
     </ul>
 

@@ -1955,12 +1955,15 @@ body.sb-l-m .navbar-brand {
 
 .nav-menu-style {
   cursor: pointer;
+  user-select: none;
 }
 
 .nav-dashboard-card {
-  width: 90vw;
-  height: 89vh;
-  left: -240px;
+  // width: 90vw;
+  // height: 89vh;
+  width: 1200px;
+  height: 607px;
+  left: -220px;
   overflow: auto;
   position: absolute;
   top: 60px;
@@ -1971,7 +1974,6 @@ body.sb-l-m .navbar-brand {
   box-sizing: border-box;
   z-index: 10;
   padding: 25px 40px;
-  cursor: pointer;
 
   &::-webkit-scrollbar {
     /* 滚动条宽度 */
@@ -1988,6 +1990,16 @@ body.sb-l-m .navbar-brand {
   /* 滚动条轨道颜色 */
   &::-webkit-scrollbar-track {
     background-color: transparent;
+  }
+  &-background {
+    position: absolute;
+    top:60px;
+    left: -240px;
+    z-index: 9;
+    width: 100vw;
+    height: 100vh;
+    background-color: #000;
+    opacity: 0.5;
   }
 
   &-scroll {
@@ -2037,6 +2049,7 @@ body.sb-l-m .navbar-brand {
 
     &-content {
       &-item {
+        cursor: pointer;
         user-select: none;
         margin: 3px 0;
         display: inline-block;
