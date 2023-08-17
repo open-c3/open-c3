@@ -142,18 +142,16 @@ class Mysql:
             if len(s) > 1:
                 api_params["DeployMode"] = 1
 
-            # 只创建一台实例时不会增加数字后缀
-            if instance_name_prefix[-1] not in ["_", "-"]:
-                instance_name_prefix += "_"
-        
         # 实例名称前缀
         api_params["InstanceName"] = instance_name_prefix
 
         if self.params["charge_type"] == "包年包月":
             # 购买时长
-            api_params["Period"] = int(self.params["instance_charge_count"])
+            # api_params["Period"] = int(self.params["instance_charge_count"])
+            api_params["Period"] = 1
             # 自动续费标记
-            api_params["AutoRenewFlag"] = int(self.params["auto_renew_flag"])
+            # api_params["AutoRenewFlag"] = int(self.params["auto_renew_flag"])
+            api_params["AutoRenewFlag"] = 1
 
         req.from_json_string(json.dumps(api_params))
         return req

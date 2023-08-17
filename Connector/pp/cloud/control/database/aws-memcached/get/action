@@ -25,7 +25,7 @@ def get(data, access_id, access_key, region):
     )
 
     field_name = subprocess.getoutput(
-        "c3mc-cloud-get-real-field database aws-redis CacheClusterId"
+        "c3mc-cloud-get-real-field database aws-memcached CacheClusterId"
     )
 
     response = client.describe_cache_clusters(

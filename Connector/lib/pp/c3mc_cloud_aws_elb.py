@@ -80,7 +80,6 @@ class LibElb:
         Args:
             load_balancer_name (str): elb的名称
         """
-        self.show_lb_info
         return self.client.delete_load_balancer(
             LoadBalancerName=load_balancer_name
         )
