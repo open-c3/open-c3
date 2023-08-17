@@ -36,7 +36,12 @@ def main(params):
     region = params["region"]
     zone = params["zone"]
     charge_type_str = params["charge_type"]
-    cdb_sell_type = params["cdb_sell_type"]
+    instance_nodes = params["instance_nodes"]
+
+    # tke和 cvm 是新版和旧版单节点 z3 是高可用
+    # 查看腾讯云可用区实例配置接口数据发现，目前所有可用区下cvm类型下都没有可用的实例配置
+    # 所以这里直接忽略cvm类型
+    cdb_sell_type = "Z3" if instance_nodes != "1" else "TKE"
 
     charge_type = "1" if charge_type_str == "按量计费" else "0"
 

@@ -4,7 +4,7 @@
         .module('openc3')
         .controller('BpmController', BpmController);
 
-    function BpmController($state, $uibModal,$http, $scope, ngTableParams,resoureceService, $injector, $location, $window ) {
+    function BpmController($state, $uibModal,$http, $scope, $timeout,resoureceService, $injector, $location, $window ) {
 
         var vm = this;
         vm.treeid = $state.params.treeid;
@@ -30,6 +30,7 @@
             vm.selectxloading = {};
             vm.selectxrely = {};
             vm.selectxhide = {};
+            vm.textareaLoading = {};
         };
 
         vm.dinit();
@@ -38,6 +39,8 @@
 
         vm.bpmname = $location.search()['name'];
         vm.debug = $location.search()['debug'];
+        vm.errorResult = '';
+        vm.errorResultLabel = '';
 
         vm.debugswitch = function() {
             if( vm.debug == 0 || vm.debug == undefined )
@@ -75,20 +78,20 @@
             }
         };
  
-        vm.isExtraReg = function (item, arr, reg) {
-          if (item.value_type && typeof item.value_type === 'string' && arr.includes(item.value_type)) {
-            if (item.value === ''|| item.value === undefined) {
+        // false 代表不通过 true代表通过
+        vm.conformExtraReg = function (info) {
+          if (!info.value) {
+            return true
+          } else {
+            if (!info.value_type) {
               return true
-            } else if (item.value && reg[0].test(item.value)) {
-              return true
+            } else if (typeof info.value_type === 'string' ) {
+              return vm.checkRegMap[info.value_type].test(String(info.value))
+            }else if (Array.isArray(info.value_type)) {
+              return info.value_type.every(matched => vm.checkRegMap[matched].test(String(info.value)))
             }
-            return false
-          } else if (item.value_type && Array.isArray(item.value_type)) {
-            return reg.every(matched => matched.test(String(item.value)))
           }
-          return true
         }
-
         // 获取申请人基础信息/OA信息
         vm.useroainfoloadover = false;
         vm.getApplyUserOa = function( user ){
@@ -217,7 +220,7 @@
             });
             obj['value'] = temp.join(',');
  
-            vm.optionxchange( obj.name, obj.value )
+            vm.optionxchange('clear', obj,  obj.name, obj.value )
         };
 
         vm.addSelectxm = function ( obj ) {
@@ -287,6 +290,9 @@
                     newdata.name = names.join('.')
                     newdata['byaddvar'] = true;
                     $scope.jobVar.splice(index + tempidx, 0, newdata);
+                    if (vm.vfromops[data.name]) {
+                      vm.vfromops[newdata.name] = vm.vfromops[data.name]
+                    }
                     if( vm.optionx[data.name] )
                     {
                         vm.optionx[newdata.name] = vm.optionx[data.name];
@@ -365,8 +371,90 @@
                 return [ prefix, rawname ];
         }
 
-        vm.optionxchange = function( stepname, stepvalue, stepoption )
-        {
+        let timeout = null;
+        vm.changeDebounce = function (varDict, stepinfo, stepname) {
+          if (timeout) {
+            $timeout.cancel(timeout);
+          }
+          vm.textareaLoading[stepname] = true
+          if (vm.conformExtraReg(stepinfo)) {
+            timeout = $timeout(function () {
+              if (stepinfo.value && stepinfo.optchk && stepinfo.optchk.length > 0) {
+                vm.errorResultLabel = stepinfo.describe
+                const params = {
+                  bpm_variable: varDict,
+                  stepname: stepinfo.name,
+                  jobname: $scope.choiceJob.name
+                }
+                $http.post('/api/ci/v2/c3mc/bpm/optchk', params).success(function (data) {
+                  if (data.stat) {
+                    vm.textareaLoading[stepname] = false
+                    vm.errorResult = data.data
+                    stepinfo['errorCheckingInformation'] = data.data
+                  } else {
+                    vm.textareaLoading[stepname] = false
+                    vm.errorResult = data.info
+                    swal({ title: '获取选项失败', text: data.info, type: 'error' });
+                  }
+                });
+              } else {
+                vm.textareaLoading[stepname] = false
+                stepinfo['errorCheckingInformation'] = ''
+                vm.errorResult = ''
+              }
+            }, 800)
+          } else {
+            const isChekFlag = vm.ipValueType.every(item => stepinfo.value_type.includes(item))
+            if (stepinfo.value_type && Array.isArray(stepinfo.value_type) && isChekFlag) {
+              vm.errorResultLabel = stepinfo.describe
+              vm.errorResult = '请填写正确的IP格式，不允许有任何形式的空格、换行符,并用英文逗号隔开'
+            }
+            if (stepinfo.value_type && vm.inputValueType.includes(stepinfo.value_type)) {
+              vm.errorResultLabel = stepinfo.describe
+              vm.errorResult = `请填写${vm.inputValueTypeMap[stepinfo.value_type]}格式`
+            }
+            stepinfo['errorCheckingInformation'] = vm.errorResult
+            vm.textareaLoading[stepname] = false
+          }
+        }
+
+        //  校验逻辑
+        vm.checkOptchk = function (sameLevelArr, stepname) {
+          const varDict = {}
+          angular.forEach($scope.jobVar, function (data, index) {
+            varDict[data.name] = data.value;
+          });
+          angular.forEach(sameLevelArr, function (item, index) {
+            try {
+              vm.changeDebounce(varDict, item, item.name)
+            } catch (error) {
+              vm.textareaLoading[stepname] = false
+            }
+          })
+        }
+
+        vm.optionxchange = function (type, stepinfo, stepname, stepvalue, stepoption) {
+          // optcheck字段调用接口校验逻辑
+          if (type !== 'clear') {
+            vm.errorResult = '加载中';
+            const tempName = vm.extname( stepname );
+            const sameLevelArr = []
+            const varDict = {}
+            angular.forEach($scope.jobVar, function (data, index) {
+              varDict[data.name] = data.value;
+              // 获取与当前操作框同级的变量(包含本身)
+              if (vm.extname(data.name)[0] === tempName[0] && vm.extname(data.name)[1] !== tempName[1]) {
+                sameLevelArr.push(data)
+              }
+            });
+            if (stepinfo.value_type || stepinfo.optchk) {
+              vm.changeDebounce(varDict, stepinfo, stepname)
+            }
+            const hasOptChkArr = sameLevelArr.filter(item => item.value_type || item.optchk)
+            if (hasOptChkArr.length > 0) {
+              vm.checkOptchk(sameLevelArr, stepname)
+            }
+          }
              if( stepoption != undefined )
              {
                   angular.forEach(stepoption, function (data, index) {
@@ -698,20 +786,16 @@
             $scope.taskData.variable['_sys_opt_']['selectxhide']  = vm.selectxhide;
             $scope.taskData.variable['_sys_opt_']['variable']     = $scope.jobVar;
             $scope.taskData.variable['_sys_opt_']['multitempidx'] = vm.multitempidx;
-            const filterValue = hasValueType.filter(item => !vm.isExtraReg(item, vm.inputValueType,[vm.checkRegMap['email']]))
-            const filterIpValue = hasIpValueType.filter(item => !vm.isExtraReg(item, vm.ipValueType, item.value_type.map(cItem=> { return vm.checkRegMap[cItem]})))
-            if (vm.fromopsdefault === '0' && filterValue.length > 0) {
-              const text = filterValue.map(item=> item.describe).join('、')
-              const textType = Array.from(new Set(filterValue.map(item=> vm.inputValueTypeMap[item.value_type]))).join('、')
-              swal({ title:'格式错误', text: `${text}需要填写${textType}格式`, type:'error' });
+            const newValible = JSON.parse(JSON.stringify($scope.taskData.variable))
+            angular.forEach(newValible['_sys_opt_']['variable'], function (data, index) {
+              delete data.errorCheckingInformation
+            })
+            vm.textareaLoading = {}
+            if (vm.errorResult && vm.errorResult!=='') {
+              swal({ title:'格式错误', text: `${vm.errorResultLabel}:${vm.errorResult}`, type:'error' });
               return
             }
-            if (filterIpValue.length > 0) {
-              swal({ title:'格式错误', text: '请填写正确的IP格式，不允许有任何形式的空格、换行符,并用英文逗号隔开', type:'error' });
-              return
-            }
-
-            resoureceService.work.runJobByName2Bpm(vm.defaulttreeid, {"pointuser": pointuser, "jobname":$scope.choiceJob.name, "bpm_variable": $scope.taskData.variable, "variable": {} })
+            resoureceService.work.runJobByName2Bpm(vm.defaulttreeid, {"pointuser": pointuser, "jobname":$scope.choiceJob.name, "bpm_variable": newValible, "variable": {} })
                 .then(function (repo) {
                     if (repo.stat){
                         //$state.go('home.history.bpmdetail', {treeid:vm.defaulttreeid,taskuuid:repo.uuid});
@@ -741,8 +825,15 @@
             $scope.taskData.variable['_sys_opt_']['selectxhide']  = vm.selectxhide;
             $scope.taskData.variable['_sys_opt_']['variable']     = $scope.jobVar;
             $scope.taskData.variable['_sys_opt_']['multitempidx'] = vm.multitempidx;
-
-            $http.post( '/api/job/bpm/var/' + vm.bpmuuid, { "bpm_variable": $scope.taskData.variable } ).success(function(data){
+            const newValible = JSON.parse(JSON.stringify($scope.taskData.variable))
+            angular.forEach(newValible['_sys_opt_']['variable'], function (data, index) {
+              delete data.errorCheckingInformation
+            })
+            if (vm.errorResult && vm.errorResult!=='') {
+              swal({ title:'格式错误', text: `${vm.errorResultLabel}:${vm.errorResult}`, type:'error' });
+              return
+            }
+            $http.post( '/api/job/bpm/var/' + vm.bpmuuid, { "bpm_variable": newValible } ).success(function(data){
                 if (data.stat){
                     if( dealoption == undefined )
                     {
