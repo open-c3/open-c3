@@ -226,6 +226,7 @@ any '/default/user/login' => sub {
     return +{ stat => $JSON::false, info => 'user or pass undef' }
         unless defined $user & defined $pass;
 
+    my $defaultPassword = $pass && $pass eq 'changeme' ? 1 : 0;
     $pass = encode_base64( $pass );
 
     my $ip = '0.0.0.0';
@@ -256,6 +257,26 @@ any '/default/user/login' => sub {
 
     if( $x eq 'ok' )
     {
+        if( $defaultPassword && ! $param->{newPassword} )
+        {
+            return +{ stat => $JSON::true, defaultPassword => 1 };
+        }
+
+        if( $param->{newPassword} )
+        {
+            my $newmd5 = Digest::MD5->new->add($param->{newPassword})->hexdigest;
+            my $oldmd5 = Digest::MD5->new->add('changeme'           )->hexdigest;
+
+            eval{ $api::mysql->execute( "insert into openc3_connector_auditlog (`user`,`title`,`content`) values('$user','CHANGE PASSWD','-')" ); };
+
+            eval{ $api::mysql->execute( "update openc3_connector_userinfo set pass='$newmd5' where name='$user' and pass='$oldmd5'" ); };
+            return +{ stat => $JSON::false, info => $@ } if $@;
+
+            my $ch = eval{ $api::mysql->query( "select id from openc3_connector_userinfo where name='$user' and pass='$newmd5'" ); };
+            return +{ stat => $JSON::false, info => $@ } if $@;
+            return +{ stat => $JSON::false, info => "chpassword error" } unless $ch && @$ch;
+        }
+
         my @chars = ( "A" .. "Z", "a" .. "z", 0 .. 9 );
         my $keys = join("", @chars[ map { rand @chars } ( 1 .. 64 ) ]);
 

@@ -1,0 +1,51 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import json
+import sys
+import os
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import extract_ips
+
+
+"""
+检查用户填写的IP列表中是否存在审计IP
+配置文件位置为: /data/open-c3-data/bpm/audit_ip_list.txt
+"""
+
+
+def check(params):
+    ip_list = extract_ips(params["ip_list"])
+
+    audit_file_path = "/data/open-c3-data/bpm/audit_ip_list.txt"
+
+    if not os.path.exists(audit_file_path):
+        return
+
+    with open(audit_file_path, 'r') as file:
+        lines = file.readlines()
+        lines = [line.strip() for line in lines if line.strip() != '']
+    
+    ip_set = set(lines)
+
+    audit_ip_list = []
+
+    for ip in ip_list:
+        if ip in ip_set:
+            audit_ip_list.append(ip)
+    
+    if audit_ip_list:
+        print(f"普通服务器权限工单不允许申请审计ips: ({' '.join(audit_ip_list)}) 的权限, 请在 \"审计服务器权限工单\"中申请权限")
+        exit(0)
+
+def main(params):
+    check(params)
+
+
+if __name__ == '__main__':
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
+
+    main(json.loads(l[0]))

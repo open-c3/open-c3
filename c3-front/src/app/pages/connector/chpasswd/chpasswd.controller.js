@@ -12,8 +12,27 @@
 
         vm.chpasswd = {};
         vm.new2err = 0;
+        vm.isPasswordReg = false
+
+        vm.passwordNum = function (value) {
+          let n = 0
+          n += /[a-z]/.test(value)
+          n += /[A-Z]/.test(value)
+          n += /[0-9]/.test(value)
+          return n
+        }
+        
         vm.change = function()
         {
+            if (vm.chpasswd.new1) {
+              if (!(vm.passwordNum(vm.chpasswd.new1) >= 3 && vm.chpasswd.new1.length>=6)) {
+                vm.isPasswordReg = true
+              }else {
+                vm.isPasswordReg = false
+              }
+            } else {
+              vm.isPasswordReg = true
+            }
             if( vm.chpasswd.new1 && vm.chpasswd.new2 && vm.chpasswd.new1 != vm.chpasswd.new2 )
             {
                 vm.new2err = 1;

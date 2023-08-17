@@ -24,6 +24,11 @@
                 <div class="col-sm-3">
                     <input type="password" class="form-control"  ng-model="connectorchpasswd.chpasswd.new1" ng-change="connectorchpasswd.change()" required>
                 </div>
+                <label class="col-sm-3 control-label" ng-if="connectorchpasswd.isPasswordReg" style="color: red;" >{{'C3T.请输入正确格式'|translate}}</label>
+            </div>
+            <div class="col-sm-12 form-group">
+              <label class="col-sm-1"></label>
+              <label class="col-sm-6 control-label">{{'C3T.请输入包含大写字母、小写字母和数字组成的新密码，并且长度不少于6个字符'| translate}}</label>
             </div>
         </div>
 
@@ -40,7 +45,7 @@
        <div class="row">
             <div class="col-sm-12 form-group">
                 <div class="col-sm-3">
-                    <button type="submit" ng-disabled="myForm.$invalid || connectorchpasswd.new2err" class="btn btn-primary" style="padding: 10px 25px" ng-click="connectorchpasswd.changepasswd()"><i class="fa fa-key fa-lg" aria-hidden="true"></i>{{'C3T.修改密码'|translate}}</button>
+                    <button type="submit" ng-disabled="myForm.$invalid || connectorchpasswd.new2err || connectorchpasswd.isPasswordReg" class="btn btn-primary" style="padding: 10px 25px" ng-click="connectorchpasswd.changepasswd()"><i class="fa fa-key fa-lg" aria-hidden="true"></i>{{'C3T.修改密码'|translate}}</button>
                 </div>
             </div>
         </div>
