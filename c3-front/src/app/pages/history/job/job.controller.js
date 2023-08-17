@@ -109,7 +109,14 @@
                     function successCallback(response) {
                         vm.loadover = true;
                         if (response.data.stat){
-                            vm.data_Table = new ngTableParams({count:10}, {counts:[],data:response.data.data.reverse()});
+                          const hasFilterData = response.data.data.map(item => {
+                            item['ciInfoName'] = vm.ciinfo[item.name]
+                            item['jobStatusMap'] = vm.statuszh[item.status]
+                            item['seftimeCount'] = vm.seftime(item.starttime, item.finishtime)
+                            item['callTypeStatus'] = vm.callTypeMap[item.calltype]
+                            return item
+                          })
+                            vm.data_Table = new ngTableParams({count:10}, {counts:[],data:hasFilterData.reverse()});
                         }else {
                             swal('获取列表失败', response.data.info, 'error');
                         }
@@ -118,21 +125,22 @@
                         swal('获取列表失败', response.status, 'error');
                     }
                 );}
-
-            $http.get('/api/ci/group/' + vm.treeid).success(function(data){
-                if(data.stat)
-                {
-                    angular.forEach(data.data, function (value, key) {
-                        vm.ciinfo['_ci_'+value.id+'_'] = value.name
-                    });
-                }
-                else
-                {
-                    toastr.error( "加载流水线名称失败:" + data.info )
-                }
-            });
         };
 
-        vm.reload();
+        vm.getCiGroup = function () {
+          $http.get(`/api/ci/group/${vm.treeid}`).success(function (data) {
+            if (data.stat) {
+              angular.forEach(data.data, function (value, key) {
+                vm.ciinfo[`_ci_${value.id}_`] = value.name
+              });
+              vm.reload();
+            }
+            else {
+              toastr.error("加载流水线名称失败:" + data.info)
+            }
+          });
+        };
+
+        vm.getCiGroup()
     }
 })();

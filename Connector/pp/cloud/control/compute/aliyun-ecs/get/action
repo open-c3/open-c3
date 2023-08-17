@@ -35,13 +35,33 @@ def get(data, access_id, access_key, region):
     response = json.loads(response)
     for instance in response["Instances"]["Instance"]:
         if instance["InstanceId"] == instance_id:
-            if "Tags" in instance and "Tag" in instance["Tags"]:
-                instance["Tag"] = instance["Tags"]["Tag"]
-                instance.pop("Tags", None)
-            instance["VpcId"] = instance["VpcAttributes"]["VpcId"]
-            instance["VpcName"] = vpc_client.show_vpc(instance["VpcId"])["VpcName"]
-            return instance
+            return get_modified_instance(instance, vpc_client)
     raise Exception("根据 instance_id {} 未找到 aliyun ecs".format(instance_id))
+
+
+def get_modified_instance(instance, vpc_client):
+    if "Tags" in instance and "Tag" in instance["Tags"]:
+        instance["Tag"] = instance["Tags"]["Tag"]
+        instance.pop("Tags", None)
+    instance["VpcId"] = instance["VpcAttributes"]["VpcId"]
+    instance["VpcName"] = vpc_client.show_vpc(instance["VpcId"])["VpcName"]
+
+    if "OSName" in instance:
+        instance["os"] = (
+            "Windows"
+            if instance["OSName"].lower().find("window") != -1
+            else "Linux"
+        )
+    else:
+        instance["os"] = "Other"
+
+    public_ip = ""
+    if len(instance["PublicIpAddress"]["IpAddress"]) > 0:
+        public_ip = instance["PublicIpAddress"]["IpAddress"][0]
+    if instance["EipAddress"]["IpAddress"] != "":
+        public_ip = instance["EipAddress"]["IpAddress"]
+    instance["PublicIp"] = public_ip
+    return instance
 
 
 def main(data, access_id, access_key, region):

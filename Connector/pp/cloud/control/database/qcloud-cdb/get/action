@@ -43,6 +43,12 @@ def get(data, access_id, access_key, region):
         if instance.InstanceId == data[field_name]:
             instance = json.loads(instance.to_json_string())
             instance["StatusZhDesc"] = status_code_m[instance["Status"]]
+
+            cpu_cores = instance["Cpu"]
+            # 实例信息中内存字段值都是1000的整数倍
+            memory_size = int(instance["Memory"] / 1000)
+            instance["Flavor"] = f"V.{cpu_cores}C.{memory_size}GB" 
+
             return instance
     raise Exception("根据 InstanceId {} 未找到 qcloud cdb".format(data[field_name]))
 

@@ -110,15 +110,15 @@
 
         <div class="panel-body">
             <div class="panel-tabs">
-                <table ng-table="scripts.data_Table" class="table table-hover text-center table-condensed">
+                <table ng-table="scripts.data_Table" class="table table-hover text-center table-condensed" show-filter="true">
                 <tr ng-repeat="ss in $data">
-                    <td data-title="'C3T.脚本名称'|translate">{{ss.name}}</td>
-                    <td data-title="'C3T.类型'|translate">{{ss.type}}</td>
-                    <td data-title="'C3T.创建用户'|translate">{{ss.create_user}}</td>
-                    <td data-title="'C3T.创建时间'|translate">{{ss.create_time}}</td>
-                    <td data-title="'C3T.修改用户'|translate">{{ss.edit_user}}</td>
-                    <td data-title="'C3T.最后修改时间'|translate">{{ss.edit_time}}</td>
-                    <td data-title="'C3T.关联作业'|translate">{{ss.jobname}}</td>
+                    <td data-title="'C3T.脚本名称'|translate" filter="{name: 'text'}">{{ss.name}}</td>
+                    <td data-title="'C3T.类型'|translate" filter="{type: 'text'}">{{ss.type}}</td>
+                    <td data-title="'C3T.创建用户'|translate" filter="{create_user: 'text'}">{{ss.create_user}}</td>
+                    <td data-title="'C3T.创建时间'|translate" filter="{create_time: 'text'}">{{ss.create_time}}</td>
+                    <td data-title="'C3T.修改用户'|translate" filter="{edit_user: 'text'}">{{ss.edit_user}}</td>
+                    <td data-title="'C3T.最后修改时间'|translate" filter="{edit_time: 'text'}">{{ss.edit_time}}</td>
+                    <td data-title="'C3T.关联作业'|translate" filter="{jobname: 'text'}">{{ss.jobname}}</td>
                     <td data-title="'C3T.操作'|translate">
                         <button ng-if="ss.projectid == scripts.treeid" class="btn btn-warning btn-sm" ng-click="scripts.editScript(ss.id)">{{'C3T.编辑'|translate}}</button>
                         <button class="btn btn-primary btn-sm" ng-click="scripts.runScript(ss.id)">{{'C3T.执行'|translate}}</button>

@@ -28,6 +28,49 @@
 
         vm.hasOALogin = window.location.hash.indexOf('oaaddr') > -1
 
+        vm.handleHashParams = function (str) {
+          if (!str) {
+            return {}
+          }
+          const params = {};
+          const queryString = str.substring(str.indexOf('?') + 1);
+          queryString.split('&').forEach(function(item) {
+            const parts = item.split('=');
+            const key = parts[0];
+            const value = decodeURIComponent(parts[1]);
+            params[key] = value;
+          });
+          return params
+        }
+
+        // 判断地址栏包含callback 先查询登录态 已登录直接跳转 未登录执行登录逻辑
+        vm.hasCallbackLogin = function () {
+          const str = window.location.hash;
+          const params = vm.handleHashParams(str)
+          if (params['callback']) {
+            fetch(window.location.origin + "/api/connector/connectorx/sso/userinfo")
+            .then(function (response) {
+              if (response.ok) {
+                return response.json();
+              }
+              throw new Error("Network response was not ok.");
+            })
+            .then(function (data) {
+              if (data.code !== 10000) {
+                window.location.href = params['callback']
+              }else {
+                return false
+              }
+            })
+            .catch(function (error) {
+              console.error(error)
+              return false
+            });
+          }
+        }
+
+        vm.hasCallbackLogin();
+
         vm.thirdPartyLogin = function () {
           $http.get('/api/connector/loginext').success(function (data) {
             if (data.stat) {
@@ -62,15 +105,8 @@
 
         vm.handleOAClick = function () {
           if (vm.hasOALogin) {
-            const params = {};
             const str = window.location.hash;
-            const queryString = str.substring(str.indexOf('?') + 1);
-            queryString.split('&').forEach(function(item) {
-              const parts = item.split('=');
-              const key = parts[0];
-              const value = decodeURIComponent(parts[1]);
-              params[key] = value;
-            });
+            const params = vm.handleHashParams(str)
             window.location.href = `${params['oaaddr']}${params['callback']?  `?callback=${params['callback']}`: ''}`
           }
         }

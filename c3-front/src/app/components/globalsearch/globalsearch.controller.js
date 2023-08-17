@@ -16,7 +16,7 @@
       bpm: '/assets/images/bpm.png',
       navigation: '/assets/images/navigation.png',
     }
-    vm.frequentArray = ['腾讯云', 'AWS', 'Google', '权限', '域名', 'CDN', '资源申请', '资源回收'];
+    vm.frequentArray = ['C3T.腾讯云', 'AWS', 'Google', 'C3T.权限', 'C3T.域名', 'CDN', 'C3T.资源申请', 'C3T.资源回收'];
     const ipReg = /(\d{1,3}\.){3}\d{1,3}/
     const bpmReg = /^BPM\d{18}/i
     const ttReg = /^tt\d{10}/i

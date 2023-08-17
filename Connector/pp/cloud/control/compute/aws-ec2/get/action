@@ -36,6 +36,11 @@ def get(data, access_id, access_key, region):
         if instance["InstanceId"] == data[field_name]:
             instance["RegionId"] = region
 
+            if "window" in instance["PlatformDetails"].lower():
+                instance["os"] = "Windows"
+            else:
+                instance["os"] = "Linux"
+
             if "VpcId" in instance:
                 vpc_info = vpc_client.show_vpc(instance["VpcId"])
                 for tag in vpc_info["Tags"]:

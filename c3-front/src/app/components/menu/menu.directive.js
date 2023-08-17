@@ -39,6 +39,7 @@
             'home.monreport','home.device.menu','home.device.data','home.global.k8sapptpl','home.global.jumpserverexipsite','home.connector.userleader',
             'home.history.timetask','home.business.virtual'
           ]
+            $rootScope.selectTeeName = 'tree'
             // tree height auto
             angular.element('.scroller').css('height', $window.innerHeight-140);
             angular.element($window).bind('resize', function(){
@@ -216,6 +217,7 @@
               vm.isActive = value
               vm.select_map = {}
               $scope.selected = ''
+              $rootScope.selectTeeName = value
               if (value === 'tree') {
                 $rootScope.deptTreeNode = null
                 var currentsNode = vm.deptTree.getNodeByParam('id', 'root');
