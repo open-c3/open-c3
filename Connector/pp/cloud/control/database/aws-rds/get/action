@@ -8,39 +8,86 @@ import subprocess
 import boto3
 
 
-def get(data, access_id, access_key, region):
-    """
-    输出 aws rds 的详情(json格式)
-    """
-    endpoint_url = "https://rds.{}.amazonaws.com".format(region)
-    if region.startswith("cn"):
-        endpoint_url = "https://rds.{}.amazonaws.com.cn".format(region)
-    client = boto3.client(
-        "rds",
-        endpoint_url=endpoint_url,
-        aws_access_key_id=access_id,
-        aws_secret_access_key=access_key,
-        region_name=region,
-    )
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_aws_china_get_price_data import get_rds_instance_type_info_m
 
-    field_name = subprocess.getoutput(
-        "c3mc-cloud-get-real-field database aws-rds DBInstanceIdentifier"
-    )
 
-    response = client.describe_db_instances(
-        DBInstanceIdentifier=data[field_name],
-    )
+class RDS:
+    def __init__(self, access_id, access_key, region):
+        self.access_id = access_id
+        self.access_key = access_key
+        self.region = region
+        self.client = self.create_client()
+    
+    def create_client(self):
+        endpoint_url = f"https://rds.{self.region}.amazonaws.com"
+        if self.region.startswith("cn"):
+            endpoint_url = f"https://rds.{self.region}.amazonaws.com.cn"
 
-    for instance in response["DBInstances"]:
-        if instance["DBInstanceIdentifier"] == data[field_name]:
-            instance["RegionId"] = region
+        client = boto3.client(
+            "rds",
+            endpoint_url=endpoint_url,
+            aws_access_key_id=self.access_id,
+            aws_secret_access_key=self.access_key,
+            region_name=self.region,
+        )
+        return client
+
+    def get_cpu_and_memory(self, instance_type):
+        return subprocess.getoutput(
+            f"c3mc-query-aws-rds-instance-type-info {self.access_id} {self.access_key} {self.region} {instance_type}"
+        )
+
+
+    def get(self, old_data):
+        """
+        输出 aws rds 的详情(json格式)
+        """
+
+        field_name = subprocess.getoutput(
+            "c3mc-cloud-get-real-field database aws-rds DBInstanceIdentifier"
+        )
+
+        response = self.client.describe_db_instances(
+            DBInstanceIdentifier=old_data[field_name],
+        )
+
+        for instance in response["DBInstances"]:
+            if instance["DBInstanceIdentifier"] != old_data[field_name]:
+                continue
+
+            instance["RegionId"] = self.region
+
+
+            instance_type = instance["DBInstanceClass"]
+            instance_type_info = {}
+
+            if self.region.startswith("cn-"):
+                if len(aws_instance_info_m) == 0:
+                    aws_instance_info_m = get_rds_instance_type_info_m(self.region)
+
+                deploy_mode = ""
+                deploy_mode = "Multi-AZ" if instance["MultiAZ"] else "Single-AZ"
+                instance_type_info = aws_instance_info_m[self.region][instance_type][deploy_mode]
+                instance_type_info["memory"] = instance_type_info["memory"][: -len(" GiB")]
+            else:
+                try:
+                    instance_type_info = self.get_cpu_and_memory(instance_type)
+                    instance_type_info = json.loads(instance_type_info)
+                except Exception as e:
+                    raise RuntimeError("查询cpu和内存信息时出错") from e
+            
+            instance["_cpu_"] = instance_type_info["vcpu"]
+            instance["_memory_"] = instance_type_info["memory"]
+
             return instance
-    raise Exception("根据 DBInstanceIdentifier {} 未找到 aws rds".format(data[field_name]))
+
+        raise RuntimeError(f"根据 DBInstanceIdentifier {old_data[field_name]} 未找到 aws rds")
 
 
 def main(data, access_id, access_key, region):
-    data = get(data, access_id, access_key, region)
-    print(json.dumps(data, default=str))
+    info = RDS(access_id, access_key, region).get(data)
+    print(json.dumps(info, default=str))
 
 
 if __name__ == "__main__":

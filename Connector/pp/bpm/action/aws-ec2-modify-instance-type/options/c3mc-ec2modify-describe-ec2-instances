@@ -25,11 +25,15 @@ def main(params):
         subprocess.getoutput(f"c3mc-get-account-info aws {account}")
     )
 
-    data_list = list_all_instances_of_region(key_info["access_id"], key_info["access_key"], region)
-    data_list = sorted(data_list, key=lambda x: (x['InstanceId'].lower()), reverse=False)
-
-    for item in data_list:
-        print(json.dumps(item, default=str))
+    try:
+        data = LIB_EC2(key_info["access_id"], key_info["access_key"], region).get_local_instance_list_v1(account, region)
+        for item in data:
+            print(json.dumps(item))
+    except Exception as e:
+        if "no data" in str(e):
+            return 
+        raise RuntimeError("获取实例列表失败") from e
+    
 
 
 if __name__ == '__main__':

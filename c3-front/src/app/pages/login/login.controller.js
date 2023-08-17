@@ -27,6 +27,22 @@
         vm.convertToQueryParams = genericService.convertToQueryParams
 
         vm.hasOALogin = window.location.hash.indexOf('oaaddr') > -1
+        // 重置密码
+        vm.modifyPwd = false
+        // 密码规则校验开关
+        vm.isPasswordReg = false
+        // 第二次确认密码提示开关
+        vm.resetConfirmPwd = false
+        vm.resetpass =  ''
+        vm.resetConfirmpass = ''
+
+        vm.passwordNum = function (value) {
+          let n = 0
+          n += /[a-z]/.test(value)
+          n += /[A-Z]/.test(value)
+          n += /[0-9]/.test(value)
+          return n
+        }
 
         vm.handleHashParams = function (str) {
           if (!str) {
@@ -41,6 +57,27 @@
             params[key] = value;
           });
           return params
+        }
+
+        // 重置密码校验
+        vm.checkPassword = function () {
+          if (vm.resetpass) {
+            if (!(vm.passwordNum(vm.resetpass) >= 3 && vm.resetpass.length>=6)) {
+              vm.isPasswordReg = true
+            }else {
+              vm.isPasswordReg = false
+            }
+          } else {
+            vm.isPasswordReg = true
+          }
+          if( vm.resetpass && vm.resetConfirmpass && vm.resetpass != vm.resetConfirmpass )
+          {
+              vm.resetConfirmPwd = true;
+          }
+          else
+          {
+              vm.resetConfirmPwd = false;
+          }
         }
 
         // 判断地址栏包含callback 先查询登录态 已登录直接跳转 未登录执行登录逻辑
@@ -111,18 +148,57 @@
           }
         }
 
-        vm.login = function(mfa)
+        // 重置密码登录
+        vm.resetLogin = function (mfa) {
+          vm.logining = 1;
+          vm.post.domain = window.location.host;
+          vm.type = 'login';
+          $http.post('/api/connector/default/user/' + vm.type , vm.post ).then(
+            function successCallback(response) {
+              if (response.data.stat) {
+                if (response.data.defaultPassword && response.data.defaultPassword == 1) {
+                  vm.modifyPwd = true
+                  vm.logining = 0;
+                }  else {
+                  vm.logining = 0;
+                  vm.login(mfa, 'default');
+                }
+              } else {
+                toastr.error('Login Fail!!!' + response.data.info);
+                vm.logining = 0;
+              }
+            }, 
+            function errorCallback (error){
+              toastr.error('API Error!' +  error);
+            }
+          )
+        }
+
+        vm.login = function(mfa, type)
         {
-            vm.logining = 1;
-            vm.post.domain = window.location.host;
-            vm.type = 'login';
-            if(mfa)
+          vm.logining = 0
+          vm.post.domain = window.location.host;
+          vm.type = 'login';
+          const newParams = Object.assign({}, vm.post)
+          if (type !=='default') {
+            if (!(vm.resetpass && vm.resetConfirmpass && vm.resetpass == vm.resetConfirmpass)) {
+              toastr.error(`${vm.resetpass ? 
+                vm.resetConfirmpass ? 
+                vm.resetpass == vm.resetConfirmpass ? 
+                '': '两次密码不一致': 
+                '请输入确认新密码': 
+                '请输入新密码'}`);
+              return
+            }
+            newParams['newPassword'] = vm.resetpass
+          }
+          if(mfa)
             {
                 vm.post.keys = vm.mfakey;
                 vm.type = 'mfa';
             }
 
-            $http.post('/api/connector/default/user/' + vm.type , vm.post ).then(
+            $http.post('/api/connector/default/user/' + vm.type , newParams ).then(
                 function successCallback(response) {
 
                     vm.mfakey    = '';

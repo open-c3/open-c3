@@ -25,6 +25,11 @@ def get_data_list(access_id, access_key, region):
                 else:
                     # "不显示" 状态的可用区不进行显示
                     continue
+            
+                if zone_item["Status"] == 3:
+                    # 不显示已停售的可用区
+                    continue
+
                 result.append({
                     "zone": zone_item["Zone"],
                     "zone_name": zone_item["ZoneName"],

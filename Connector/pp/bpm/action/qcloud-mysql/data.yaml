@@ -14,23 +14,23 @@ option:
     type: select
     value: ""
 
-  - name: instance_charge_count
-    describe: "购买时长(月)"
-    type: number
-    value: ""
-    show:
-      - charge_type: ["包年包月"]
+  # - name: instance_charge_count
+  #   describe: "购买时长(月)"
+  #   type: number
+  #   value: ""
+  #   show:
+  #     - charge_type: ["包年包月"]
 
-  - name: auto_renew_flag
-    describe: 自动续费标记
-    type: select
-    option:
-      - name: 0
-        alias: 不自动续费
-      - name: 1
-        alias: 自动续费
-    show:
-      - charge_type: ["包年包月"]
+  # - name: auto_renew_flag
+  #   describe: 自动续费标记
+  #   type: select
+  #   option:
+  #     - name: 0
+  #       alias: 不自动续费
+  #     - name: 1
+  #       alias: 自动续费
+  #   show:
+  #     - charge_type: ["包年包月"]
 
   - name: region
     describe: 区域
@@ -47,29 +47,7 @@ option:
       - region
     command: c3mc-bpm-option-qcloud-mysql-describe-zones | c3mc-bpm-display-field-values "{zone}; 名称:{zone_name}, 状态:{status}"
     type: selectx
-    value: ""
-
-  - name: cdb_sell_type
-    describe: 售卖实例类型
-    rely:
-      - account
-      - region
-      - zone
-      - charge_type
-    command: c3mc-bpm-option-qcloud-mysql-describe-cdb-sell-type-list | c3mc-bpm-display-field-values "{id}; 类型描述:{desc}"
-    type: selectx
-    information: "售卖实例类型。Z3是高可用类型对应规格中的DeviceType包含UNIVERSAL,EXCLUSIVE；CVM是基础版类型对应规格中的DeviceType是BASIC；TKE是基础型v2类型对应规格中的DeviceType是BASIC_V2。"
-
-  - name: engine_version
-    describe: 数据库版本
-    rely:
-      - account
-      - region
-      - zone
-      - charge_type
-      - cdb_sell_type
-    command: c3mc-bpm-option-qcloud-mysql-describe-engine-version-list | c3mc-bpm-display-field-values "{id}; 名称:{name}"
-    type: selectx
+    value: "列表里只显示了购买资源的可用区, 如果没有显示某个可用区, 是因为该可用区已停售"
 
   - name: engine_type
     describe: 引擎类型
@@ -88,6 +66,17 @@ option:
     command: c3mc-bpm-option-qcloud-mysql-describe-instance-nodes-set | c3mc-bpm-display-field-values "{id}; 名称:{name}"
     type: selectx
     value: ""
+
+  - name: engine_version
+    describe: 数据库版本
+    rely:
+      - account
+      - region
+      - zone
+      - charge_type
+      - instance_nodes
+    command: c3mc-bpm-option-qcloud-mysql-describe-engine-version-list | c3mc-bpm-display-field-values "{id}; 名称:{name}"
+    type: selectx
 
   - name: param_template_id
     describe: 参数模板
@@ -136,17 +125,6 @@ option:
   #     - name: ro
   #       alias: 只读实例
 
-  - name: device_type
-    describe: 实例隔离类型
-    type: select
-    option:
-      - name: UNIVERSAL
-        alias: 通用型实例点(官方默认)
-      - name: EXCLUSIVE
-        alias: 独享型实例
-      - name: BASIC
-        alias: 基础版实例
-
   - name: instance_config
     describe: 实例配置
     rely:
@@ -154,10 +132,9 @@ option:
       - region
       - zone
       - charge_type
-      - cdb_sell_type
-      - device_type
+      - instance_nodes
       - engine_type
-    command: c3mc-bpm-option-qcloud-mysql-describe-instance-config-list | c3mc-bpm-display-field-values "{Memory};Cpu:{Cpu}核, 内存:{Memory}MB, IOPS:{Iops}, 最小磁盘:{VolumeMin}GB, 最大磁盘:{VolumeMax}GB"
+    command: c3mc-bpm-option-qcloud-mysql-describe-instance-config-list | c3mc-bpm-display-field-values "{Memory};类型:{DeviceType}, Cpu:{Cpu}核, 内存:{Memory}MB, IOPS:{Iops}, 最小磁盘:{VolumeMin}GB, 最大磁盘:{VolumeMax}GB"
     type: selectx
     value: ""
     information: '如果实例配置下拉列表为空, 可能是无法筛选到符合条件的数据。请尝试修改 "账号"、"可用区"、"付费方式"、"售卖实例类型"、"实例隔离类型"、"引擎类型" 中的任意条件后再次尝试。'
@@ -246,7 +223,7 @@ option:
     fromops: 1
 
   - name: instance_name
-    describe: 实例名称前缀
+    describe: 实例名称
     type: input
     information: "实例名称。一次购买多个实例命名会用后缀数字区分, 例如instnaceName=db,goodsNum=3, 实例命名分别为db1,db2,db3。"
 
@@ -413,14 +390,12 @@ template_argv:
   account: ${account}
   # 付费方式
   charge_type: ${charge_type}
-  # 购买时长。针对包年包月付费方式
-  instance_charge_count: ${instance_charge_count}
-  # 自动续费标记
-  auto_renew_flag: ${auto_renew_flag}
+  # # 购买时长。针对包年包月付费方式
+  # instance_charge_count: ${instance_charge_count}
+  # # 自动续费标记
+  # auto_renew_flag: ${auto_renew_flag}
   # 区域
   region: ${region}
-  # 售卖实例类型
-  cdb_sell_type: ${cdb_sell_type}
   # 数据库版本
   engine_version: ${engine_version}
   # 引擎类型

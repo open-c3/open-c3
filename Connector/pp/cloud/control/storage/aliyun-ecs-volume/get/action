@@ -32,6 +32,7 @@ def get(data, access_id, access_key, region):
                 disk["_vmuuid_"] = data["InstanceId"]
             disk["account"] = data["account"]
             disk["accountuuid"] = data["accountuuid"]
+            disk["_vmuuid_"] = data["InstanceId"]
             disk["Tag"] = disk["Tags"]["Tag"]
             disk.pop("Tags", None)
             return disk

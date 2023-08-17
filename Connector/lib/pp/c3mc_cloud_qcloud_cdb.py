@@ -95,7 +95,7 @@ class QcloudCdb:
 
         resp = self.client.DescribeDBInstances(req)
         return json.loads(resp.to_json_string())["Items"][0]
-    
+
     def isolate_db_instance(self, instance_id):
         """隔离cdb实例
         """
@@ -107,6 +107,35 @@ class QcloudCdb:
 
         resp = self.client.IsolateDBInstance(req)
         return json.loads(resp.to_json_string())
+
+    def isolate_db_instance_with_tries(self, instance_id, max_tries=100, every_wait_time=5):
+        """隔离cdb实例
+
+        注意：刚创建完的实例即使变成了运行中的状态，如果马上执行隔离操作可能会出现如下错误
+
+        "找不到资源 cdb-xxxxx 对应的订单，请确认是否有订单存在或有订单待更新"
+        因此这里对该错误添加个重试。腾讯的人建议最好5分钟后再执行隔离操作
+
+        Args:
+            instance_id (str): cdb实例id
+            max_tries (int, optional): 最大重试次数. Defaults to 100.
+            every_wait_time (int, optional): 每次重试前的等待时间, 单位秒. Defaults to 5.
+        """
+
+        fail_times = 0
+
+        while True:
+            if fail_times > max_tries:
+                raise RuntimeError(f"执行隔离操作失败, instance_id: {instance_id}, max_tries: {max_tries}, every_wait_time: {every_wait_time}")
+
+            try:
+                return self.isolate_db_instance(instance_id)
+            except Exception as e:
+                if "请确认是否有订单存在或有订单待更新" in str(e):
+                    fail_times += 1
+                    time.sleep(every_wait_time)
+                    continue
+                raise RuntimeError("执行隔离操作出错") from e
 
     def release_isolate_db_instance(self, instance_id_list):
         """解除隔离cdb实例
@@ -197,18 +226,15 @@ class QcloudCdb:
 
     def delete_cdb_instance(self, instance_id_list, if_delete_backup=False):
         for instance_id in instance_id_list:
+            self.wait_cdb_until_status(instance_id, 1, 900)
+
             if if_delete_backup:
                 # 删除手动备份
                 # 只有运行中的数据库实例才能操作删除备份
                 self.delete_buckups_of_cdb(instance_id)
 
-            cdb_info = self.describe_db_instances(instance_id)
-            if cdb_info["Status"] == 0:
-                # 等待cdb实例变为运行状态，创建中的实例直接隔离会出错
-                self.wait_cdb_until_status(instance_id, 1, 900)
-
             # 官方已不建议使用返回结果中的AsyncRequestId查询处理结果            
-            self.isolate_db_instance(instance_id)
+            self.isolate_db_instance_with_tries(instance_id)
 
             # 等待cdb实例变为隔离状态
             self.wait_cdb_until_status(instance_id, 5, 900)
