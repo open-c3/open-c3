@@ -73,9 +73,25 @@
                 </div>
               </div>
               <div style="text-align: right;">
+                <button ng-if="selectTab.id === 'compute' && !monitornodelow.isShowFilter" ng-click="monitornodelow.handleIsShowFilter()" class="btn btn-primary" uib-tooltip="{{'C3T.显示更多过滤器'| translate}}">{{'C3T.显示更多过滤器'| translate}}</button>
+                <button ng-if="selectTab.id === 'compute' && monitornodelow.isShowFilter" ng-click="monitornodelow.handleIsShowFilter()" class="btn btn-primary" uib-tooltip="{{'C3T.隐藏过滤器'| translate}}">{{'C3T.隐藏过滤器'| translate}}</button>
                 <button class="btn btn-primary"  uib-tooltip="{{'C3T.编辑'| translate}}" ng-click="monitornodelow.handleEditStatus()">{{'C3T.编辑'| translate}}</button>
               </div>
               <div ng-if="selectTab.id === 'compute'">
+                <div class="reverse-election-filter" ng-if="monitornodelow.isShowFilter">
+                  <div class="reverse-election-filter-name">
+                    <div class="reverse-election-filter-name-label control-label fwbold">{{'C3T.需要屏蔽的名称'}}</div>
+                    <input type="text" class="form-control" ng-model="monitornodelow.reverseName" ng-change="monitornodelow.handleReverseChange()">
+                  </div>
+                  <div class="reverse-election-filter-hostname">
+                    <div class="reverse-election-filter-hostname-label control-label fwbold">{{'C3T.需要屏蔽的主机名'}}</div>
+                    <input type="text" class="form-control" ng-model="monitornodelow.reverseHosttName" ng-change="monitornodelow.handleReverseChange()">
+                  </div>
+                  <div class="reverse-election-filter-owner">
+                    <div class="reverse-election-filter-owner-label control-label fwbold">{{'C3T.需要屏蔽的Owner'}}</div>
+                    <input type="text" class="form-control" ng-model="monitornodelow.reverseOwner" ng-change="monitornodelow.handleReverseChange()">
+                  </div>
+                </div>
                 <table ng-table="monitornodelow.dataTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data" ng-class="{'mark-color': monitornodelow.hashMarkData.includes(m.ip)}" >
                       <td data-title="">
