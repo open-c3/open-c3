@@ -290,6 +290,9 @@
                     newdata.name = names.join('.')
                     newdata['byaddvar'] = true;
                     $scope.jobVar.splice(index + tempidx, 0, newdata);
+                    if (vm.vfromops[data.name]) {
+                      vm.vfromops[newdata.name] = vm.vfromops[data.name]
+                    }
                     if( vm.optionx[data.name] )
                     {
                         vm.optionx[newdata.name] = vm.optionx[data.name];
