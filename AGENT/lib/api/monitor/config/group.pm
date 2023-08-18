@@ -20,7 +20,7 @@ get '/monitor/config/group' => sub {
     my @col = qw( id name description edit_user edit_time share );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from openc3_monitor_config_group", join( ',', map{ "`$_`" }@col)), \@col )};
+            sprintf( "select %s from openc3_monitor_config_group where edit_user!='xdelete'", join( ',', map{ "`$_`" }@col)), \@col )};
 
     return +{ stat => $JSON::false, info => $@ } if $@;
 
