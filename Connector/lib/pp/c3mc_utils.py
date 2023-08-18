@@ -292,7 +292,11 @@ def safe_run_command(cmd_parts):
     if output.returncode != 0:
         raise RuntimeError(output.stderr)
 
-    return output.stdout
+    output = output.stdout
+    if output:
+        output = output.strip()
+    
+    return output
 
 def is_valid_email(email) -> bool:
     """检查邮箱格式是否合法
