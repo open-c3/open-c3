@@ -47,7 +47,7 @@ for( @data )
 
     my @euuid = grep{ $node{$_} }keys %uuid;
     next unless @euuid;
-    map{ $_ eq $name  ? $res{$_}{$name2} ++ : $res{$_}{$name} ++ }@euuid;
+    map{ ( ( $_ eq $name ) || ( $name eq '' && $name2 ) ) ? $res{$_}{$name2} ++ : $res{$_}{$name} ++ }@euuid;
 }
 
 for my $x ( @node )
