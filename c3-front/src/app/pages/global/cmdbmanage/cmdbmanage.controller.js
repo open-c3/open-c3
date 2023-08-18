@@ -12,6 +12,11 @@
         vm.treeid = $state.params.treeid;
 
         vm.mem = {};
+
+        vm.illustrateLink = function () {
+          window.open(' https://open-c3.github.io/open-c3-code/AGENT/device/conf/authorization.html')
+        };
+
         vm.reload = function () {
             vm.loadover = false
             $http.get('/api/agent/cmdbmanage').then(
