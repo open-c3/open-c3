@@ -436,7 +436,6 @@
         vm.optionxchange = function (type, stepinfo, stepname, stepvalue, stepoption) {
           // optcheck字段调用接口校验逻辑
           if (type !== 'clear') {
-            vm.errorResult = '加载中';
             const tempName = vm.extname( stepname );
             const sameLevelArr = []
             const varDict = {}
@@ -448,6 +447,7 @@
               }
             });
             if (stepinfo.value_type || stepinfo.optchk) {
+              vm.errorResult = '加载中';
               vm.changeDebounce(varDict, stepinfo, stepname)
             }
             const hasOptChkArr = sameLevelArr.filter(item => item.value_type || item.optchk)
