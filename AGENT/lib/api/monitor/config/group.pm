@@ -20,7 +20,62 @@ get '/monitor/config/group' => sub {
     my @col = qw( id name description edit_user edit_time share );
     my $r = eval{ 
         $api::mysql->query( 
-            sprintf( "select %s from openc3_monitor_config_group", join( ',', map{ "`$_`" }@col)), \@col )};
+            sprintf( "select %s from openc3_monitor_config_group where edit_user!='xdelete'", join( ',', map{ "`$_`" }@col)), \@col )};
+
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
+    #treestr
+    my $project = eval{ 
+        $api::mysql->query( "select projectid,SUBSTRING(user, 2) from openc3_monitor_config_user where user like '@%'" )};
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
+    my @treemap = `c3mc-base-treemap cache`;
+    chomp @treemap;
+    my %treemap;
+    for ( @treemap )
+    {
+        my ( $id, $name ) = split /;/, $_, 2;
+        $treemap{$id} = $name;
+    }
+
+    my %project;
+    for( @$project )
+    {
+         my ( $projectid, $groupname ) = @$_;
+         my $treename = $treemap{$projectid} // "treeid.$projectid";
+         $project{$groupname}{$treename} ++;
+    }
+    my %projectstr;
+    for( keys %project )
+    {
+        $projectstr{$_} = join ',', keys %{$project{$_}};
+    }
+
+    #userstr
+    my $groupuser = eval{ 
+        $api::mysql->query( "select groupid,user from openc3_monitor_config_groupuser" )};
+
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
+    my %groupuser;
+    for( @$groupuser )
+    {
+        my ( $groupid, $user ) = @$_;
+        $groupuser{$groupid}{$user} ++;
+    }
+
+    my %groupuserstr;
+    for( keys %groupuser )
+    {
+        $groupuserstr{$_} = join ',', keys %{$groupuser{$_}};
+    }
+
+
+    for my $x ( @$r )
+    {
+        $x->{treestr} = $projectstr{ $x->{name} } // '';
+        $x->{userstr} = $groupuserstr{ $x->{id} } // '';
+    }
 
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $r };
 };

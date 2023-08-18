@@ -15,7 +15,7 @@
             <span class="panel-controls">
                 <button class="btn btn-primary" uib-tooltip="{{'C3T.刷新'|translate}}" ng-click="monitorgroup.reload()" ><i class="fa fa-refresh fa-fw" ng-class="{'fa-spin':!monitorgroup.loadover}" ></i></button>
             </span>
-            <h5>{{'C3T.监控组成员'|translate}}</h5>
+            <h5>{{'C3T.监控组列表'|translate}}</h5>
         </div>
 
         <div class="panel-body flowline">
@@ -27,6 +27,17 @@
                         <td data-title="'C3T.描述'|translate" sortable="'summary'" filter="{description: 'text'}">{{m.description}}</td>
                         <td data-title="'C3T.编辑者'|translate" sortable="'edit_user'" filter="{edit_user: 'text'}">{{m.edit_user}}</td>
                         <td data-title="'C3T.编辑时间'|translate" sortable="'edit_time'" filter="{edit_time: 'text'}">{{m.edit_time}}</td>
+                        <td width="300" data-title="'C3T.服务树'|translate" sortable="'treestr'" filter="{treestr: 'text'}">
+                          <div class="monitor-tag-content">
+                            <div ng-class="{'monitor-treestr-tags': data!==''}" ng-repeat="data in m.treestr.split(',')">{{data}}</div>
+                          </div>
+                        </td>
+                        <td width="300" data-title="'C3T.成员'|translate" sortable="'userstr'" filter="{userstr: 'text'}">
+                          <div class="monitor-tag-content">
+                            <div ng-class="{'monitor-treestr-tags': data!==''}" ng-repeat="data in m.userstr.split(',')">{{data}}</div>
+                          </div>
+                        </td>
+
                         <td class="textcenter"  data-title="'C3T.操作'|translate">
                             <nobr>
                                 <i class="fa fa-user fa-2x" aria-hidden="true" ng-click="monitorgroup.editGroupUser(m.id)" uib-tooltip="{{'C3T.编辑组成员'|translate}}" style="cursor:pointer;color: #339094;" ></i>
@@ -41,3 +52,23 @@
     </div>
 
 </div>
+
+<style>
+  .monitor-tag-content {
+    max-width: 300px;
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .monitor-treestr-tags {
+    display: inline-block;
+    border: 1px solid #e7e6e3;
+    padding: 4px;
+    border-radius: 4px;
+    background-color: #000;
+    opacity: 0.6;
+    margin: 4px 4px 4px 0;
+    font-size: 12px;
+    color: #fff;
+  }
+</style>

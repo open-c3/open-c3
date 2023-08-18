@@ -140,7 +140,7 @@ sub getapprover
     {
         for my $vuuid ( grep{ $_ } split /,/, $1 )
         {
-            die "vuuid $vuuid format error" unless $vuuid && $vuuid =~ /^[a-zA-Z0-9][a-zA-Z0-9\.\-_]*[a-zA-Z0-9]$/;
+            die "vuuid $vuuid format error" unless $vuuid && $vuuid =~ /^[a-zA-Z0-9][a-zA-Z0-9\.\-_:]*[a-zA-Z0-9]$/;
             my @uuid = `c3mc-device-find-uuid '$vuuid'`;
             die "get $vuuid uuid fail: $!" if $?;
             chomp @uuid;
