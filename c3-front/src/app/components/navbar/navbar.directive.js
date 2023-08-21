@@ -147,7 +147,7 @@
                           { title: 'C3T.报警通知', label: '业务管理.报警通知', icon: 'fa fa-sliders', params: {}, router: 'home.business.notify' },
                           { title: 'C3T.定时作业', label: '业务管理.定时作业', icon: 'fa fa-clock-o', params: {}, router: 'home.business.crontab' },
                           { title: 'C3T.虚拟服务树管理', label: '业务管理.虚拟服务树管理', icon: 'fa fa-sitemap', params: {}, router: 'home.business.virtual' },
-                          { title: 'C3T.代理设置', label: '业务管理.代理设置(AGENT安装)', icon: 'fa fa-gg', params: {}, router: 'home.business.agent' },
+                          { title: 'C3T.代理设置(AGENT安装)', label: '业务管理.代理设置', icon: 'fa fa-gg', params: {}, router: 'home.business.agent' },
                           { title: 'C3T.变量查看', label: '业务管理.变量查看', icon: 'fa fa-list-ul', params: {}, router: 'home.business.variate' },
                           { title: 'C3T.仪表盘', label: '业务管理.仪表盘', icon: 'fa fa-dashboard', params: {}, router: 'home.dashboard' },
                         ]
@@ -422,8 +422,9 @@
 
 
           vm.toggleCard = function (type) {
-            if (type) {
+            if (type  === false) {
               vm.isHovered = type
+              return
             }
             vm.isHovered = !vm.isHovered
           }
