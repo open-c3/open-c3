@@ -189,7 +189,7 @@ any '/device/data/:type/:subtype/:treeid' => sub {
             subtype => $csubtype,
             match   => $searchmatch,
             map{
-                $_ => join( ' | ', map{ $_ =~ s/@.*//; $_ }map{ $d{ $_ } || '' }@{ $outline->{ $_ } } )
+                $_ => join( ' | ', map{ $_ =~ s/@[a-z0-9]+\.[a-z0-9]+//g; $_ }map{ $d{ $_ } || '' }@{ $outline->{ $_ } } )
             }qw( uuid baseinfo system contact )
         };
 
