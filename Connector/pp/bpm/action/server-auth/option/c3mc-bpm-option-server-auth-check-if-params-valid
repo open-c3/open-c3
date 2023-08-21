@@ -32,7 +32,7 @@ def load_rules(config_path):
 
 
 def check_ip_list_in_cmdb(ip_list):
-    output = safe_run_command(["c3mc-device-api-jumpserver", "--json", "--ips", ",".join(ip_list)])
+    output = safe_run_command(["c3mc-device-api-jumpserver", "--cache", "--json", "--ips", ",".join(ip_list)])
     data_list = json.loads(output)
     ip_list_set = {item["inIP"] for item in data_list} | {
         item["exIP"] for item in data_list
