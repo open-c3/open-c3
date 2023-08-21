@@ -422,8 +422,9 @@
 
 
           vm.toggleCard = function (type) {
-            if (type) {
+            if (type  === false) {
               vm.isHovered = type
+              return
             }
             vm.isHovered = !vm.isHovered
           }
