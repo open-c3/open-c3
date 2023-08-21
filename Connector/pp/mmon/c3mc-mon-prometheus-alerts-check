@@ -1,0 +1,53 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+$|++;
+
+use LWP::UserAgent;
+use JSON;
+use Encode;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my ( $fromtreeid, $instance, $alertname ) = @ARGV;
+
+die "argv err" unless defined $fromtreeid && defined $instance && defined $alertname;
+
+my $ua = LWP::UserAgent->new;
+$ua->timeout( 15 );
+
+my $url = "http://openc3-prometheus:9090/api/v1/alerts";
+
+my $res = $ua->get( $url );
+
+die sprintf( "http code %s", $res->code ) unless $res->is_success;
+
+my $v = eval{ JSON::decode_json $res->decoded_content };
+die "data no JSON: $@"  if $@;
+die "status no success" unless $v->{status} && $v->{status} eq 'success';
+
+$alertname = Encode::decode( 'utf8', $alertname );
+
+for my $x ( @{$v->{data}{alerts} })
+{
+    if(    defined $x->{labels}
+        && defined $x->{labels}{fromtreeid}
+        && defined $x->{labels}{instance  }
+        && defined $x->{labels}{alertname }
+        &&         $x->{labels}{fromtreeid} eq $fromtreeid
+        &&         $x->{labels}{instance  } eq $instance
+        &&         $x->{labels}{alertname } eq $alertname
+    )
+    {
+        print "1\n";
+        exit;
+    }
+}
+
+print "0\n";
+exit;

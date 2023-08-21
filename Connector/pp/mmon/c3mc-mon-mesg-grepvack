@@ -63,6 +63,21 @@ sub adduser
         return if @dealed;
     }
 
+    if( $data->{status} eq 'resolved' && defined $data->{'labels.fromtreeid'} && defined $data->{'labels.instance'} && defined $data->{'labels.alertname'}
+        && $data->{'labels.fromtreeid'} !~ /'/ && $data->{'labels.instance'} !~ /'/ && $data->{'labels.alertname'} !~ /'/
+    )
+    {
+        my $x = `c3mc-mon-prometheus-alerts-check '$data->{'labels.fromtreeid'}' '$data->{'labels.instance'}' '$data->{'labels.alertname'}'`;
+        chomp $x;
+        if( $x && $x eq '1' )
+        {
+            my $tmpdir = "/data/open-c3-data/monitor-debug";
+            system "mkdir -p '$tmpdir'" unless -d $tmpdir;
+            eval{ YAML::XS::DumpFile( sprintf( "$tmpdir/%s.%04d", time, int rand 10000 ), $data ) };
+            return;
+        }
+    }
+
     $data->{ack} = $uuid;
     $data->{c3monitormsguuid} = $caseuuid;
 
