@@ -251,7 +251,7 @@ sub run
                                    {
                                        my %tags = ( %etag, source => 'apipush' );
                                        $tags{endpoint} = $val->{endpoint} if $val->{endpoint};
-                                       map{ my @x = split /=/, $_, 2; $tags{$x[0]} = $x[1] if defined $x[0] && defined $x[1]; }
+                                       map{ my @x = split /=/, $_, 2; $x[0] =~ s/\./_/g; $x[0] =~ s/\-/_/g; $tags{$x[0]} = $x[1] if defined $x[0] && defined $x[1]; }
                                            split( /,/, $val->{tags} )
                                                if $val->{tags};
 
