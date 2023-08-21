@@ -28,7 +28,7 @@
 
             <form ng-if="login.mfa==''" onsubmit="return false;">
 
-                <div class="wrapper-login">
+                <div class="wrapper-login" ng-if="!login.modifyPwd">
 
                     <span class="input-icon">
                         <i class="glyphicon glyphicon-user"></i>
@@ -43,7 +43,31 @@
 
                 </div>
 
-                <button type="submit" class="login-button" ng-click="login.login(false)"  cmlang="login_login">{{'C3T.登录'|translate}}</button>
+                <div ng-if="login.modifyPwd">
+                  <div class="reset-new-password wrapper-login">
+                    <span>{{'C3T.新密码'| translate}}</span>
+                    <span class="input-icon">
+                      <i class="glyphicon glyphicon-lock"></i>
+                      <input type="password" placeholder="password" cmlang="login_password" ng-model="login.resetpass" ng-change="login.checkPassword()"
+                        name="password" />
+                    </span>
+                    <span class="reset-new-password-error-label" ng-if="login.isPasswordReg">{{'C3T.请输入正确格式'| translate}}</span>
+                  </div>
+      
+                  <div class="reset-new-password wrapper-login">
+                    <span>{{'C3T.重复新密码' | translate}}</span>
+                    <span class="input-icon">
+                      <i class="glyphicon glyphicon-lock"></i>
+                      <input type="password" placeholder="password" cmlang="login_password" ng-model="login.resetConfirmpass"  ng-change="login.checkPassword()"
+                        name="password" />
+                    </span>
+                    <span class="reset-new-password-error-label" ng-if="login.resetConfirmPwd">{{'C3T.两个新密码不一致'|translate}}</span>
+                  </div>
+                </div>
+
+                <button ng-if="!login.modifyPwd" type="submit" class="login-button" ng-click="login.resetLogin(false)"  cmlang="login_login">{{'C3T.登录'|translate}}</button>
+                <button ng-if="login.modifyPwd" type="submit" class="login-button" ng-click="login.login(false, 'reset')"  cmlang="login_login">{{'C3T.登录'|translate}}</button>
+
                 <p style="text-align:center;padding-top:5px;color:#fff;" ng-if="login.logining" id="logining">
                     <span>{{'C3T.登录中'|translate}}...</span>
                 </p>
@@ -62,7 +86,7 @@
 
                 </div>
 
-                <button type="submit" class="login-button" ng-click="login.login(true)"  cmlang="login_login">{{'C3T.二次验证'|translate}}</button>
+                <button type="submit" class="login-button" ng-click="login.resetLogin(true)"  cmlang="login_login">{{'C3T.二次验证'|translate}}</button>
                 <p style="text-align:center;padding-top:5px;color:#fff;" ng-if="login.logining" id="logining">
                     <span>{{'C3T.验证中'|translate}}...</span>
                 </p>

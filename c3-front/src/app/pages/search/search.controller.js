@@ -92,10 +92,11 @@
     }
 
     vm.handleFrequentClick = function (selectedItems) {
-      if (vm.choiceSearch === selectedItems) {
+      const newSelectedItem = selectedItems.replace(/C3T./g, '');
+      if (vm.choiceSearch === newSelectedItem) {
         return
       }
-      vm.choiceSearch = selectedItems
+      vm.choiceSearch = newSelectedItem
       vm.buttonSubmit();
     }
   }

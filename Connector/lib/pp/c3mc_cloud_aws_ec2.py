@@ -3,9 +3,14 @@
 
 import json
 import time
+import sys
 
 import boto3
 from botocore.exceptions import ClientError
+
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import safe_run_command
 
 
 class LIB_EC2:
@@ -73,6 +78,28 @@ class LIB_EC2:
         查询ec2实例详情
         """
         return self.client.describe_instances(InstanceIds=instance_ids)
+
+    def describe_instance_with_tries(self, instance_id, max_tries=50, every_wait_time=5):
+        """查询ec2实例详情。如果查询失败会重试
+
+        Args:
+            instance_id (str): ec2实例id
+            max_tries (int, optional): 最大重试次数. Defaults to 50.
+            every_wait_time (int, optional): 每次重试前的等待时间, 单位秒. Defaults to 5.
+        """
+        fail_times = 0
+
+        while True:
+            if fail_times > max_tries:
+                raise RuntimeError(f"查询ec2实例信息失败, instance_id: {instance_id}, max_tries: {max_tries}, every_wait_time: {every_wait_time}")
+            
+            if not self.describe_instances([instance_id])["Reservations"][0]["Instances"]:
+                fail_times += 1
+                time.sleep(every_wait_time)
+                continue
+
+            return self.describe_instances([instance_id])["Reservations"][0]["Instances"][0]
+            
 
     def stop_instances(self, instance_ids):
         """停止ec2实例
@@ -312,12 +339,8 @@ class LIB_EC2:
         Args:
             instance_ids (list): ec2实例id列表
         """
-        # C3TODO 230801  这里添加休眠是因为在开ec2的时候，有时在下面调用describe_instances的时候会出现查找不到实例的错误
-        # 但是这个时候实例已经创建出来了。这里尝试休眠一段时间发现可以避免问题，后面需要找到更好的解决方案
-        time.sleep(60)
-
         for instance_id in instance_ids:
-            instance_info = self.describe_instances([instance_id])["Reservations"][0]["Instances"][0]
+            instance_info = self.describe_instance_with_tries(instance_id)
             tags = instance_info['Tags']
 
             volumes = self.describe_volumes_by_instance_id(instance_id)
@@ -433,3 +456,33 @@ class LIB_EC2:
             Resources=[instance_id],
             Tags=tag_list
         )
+
+    def get_local_instance_list_v1(self, account, region):
+        """根据账号和区域查询ec2列表
+
+        该版本的接口从c3本地查询数据, 这样查询会很快
+        """
+        output = safe_run_command(["c3mc-device-data-get", "curr", "compute", "aws-ec2", "account", "区域", "实例ID", "内网IP", "Architecture", "实例类型"])
+
+        data = []
+        for line in output.split("\n"):
+            line = line.strip()
+            if line == "":
+                continue
+
+            parts = line.split()
+
+            if len(parts) != 6:
+                continue
+
+            if parts[0] != account or parts[1] != region:
+                continue
+
+            data.append({
+                "InstanceId": parts[2],
+                "PrivateIpAddress": parts[3],
+                "Architecture": parts[4],
+                "InstanceType": parts[5],
+            })
+
+        return sorted(data, key=lambda x: (x['InstanceId'].lower()), reverse=False)

@@ -13,7 +13,7 @@ option:
     value: 
 
 template_argv:
-  approver: "bpm_audit"
+  approver: "sudoer(${x.auth_type},${_user_}) or ipowner(${x.ip_list})"
   title:    "BPM/${_bpmuuid_}/申请审计服务器权限"
   content:  |
     BPM标题: 申请审计服务器权限
@@ -29,3 +29,4 @@ template_argv:
   relaxed:  1
   everyone: 1
   record: 1
+  upgradeto: "bpm_audit"

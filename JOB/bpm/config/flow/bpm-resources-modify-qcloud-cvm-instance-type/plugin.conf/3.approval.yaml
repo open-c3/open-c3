@@ -1,14 +1,9 @@
 ---
 name: 运维审批
-option:
-  - describe: 运维审批人
-    name: opapprover
-    type: selectx
-    value: ""
-    command: "c3mc-bpm-optionx-opapprover"
+option: []
 
 template_argv:
-  approver: ${opapprover}
+  approver: "${x.dealer}"
   title:    "BPM/${_bpmuuid_}/资源修改/腾讯云/修改CVM机器类型"
   content:  |
     BPM标题: 资源修改/腾讯云/修改CVM机器类型
@@ -17,3 +12,4 @@ template_argv:
     申请人:${_user_}
     申请理由:${x.note}
   record: 1
+  submitter: '${_user_}'

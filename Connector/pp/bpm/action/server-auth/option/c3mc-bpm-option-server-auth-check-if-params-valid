@@ -32,7 +32,7 @@ def load_rules(config_path):
 
 
 def check_ip_list_in_cmdb(ip_list):
-    output = safe_run_command(["c3mc-device-api-jumpserver", "--json", "--ips", ",".join(ip_list)])
+    output = safe_run_command(["c3mc-device-api-jumpserver", "--cache", "--json", "--ips", ",".join(ip_list)])
     data_list = json.loads(output)
     ip_list_set = {item["inIP"] for item in data_list} | {
         item["exIP"] for item in data_list
@@ -40,29 +40,30 @@ def check_ip_list_in_cmdb(ip_list):
 
     missing_ips = [ip for ip in ip_list if ip not in ip_list_set]
     if missing_ips:
-        print(f"无法从cmdb找到ip: {' '.join(missing_ips)}", file=sys.stderr)
-        exit(1)
+        print(f"无法从cmdb找到ip: {' '.join(missing_ips)}")
+        exit(0)
 
 
 def check_email(email):
     if not is_valid_email(email):
-        raise RuntimeError(f"用户邮箱格式不合法, email: {email}")
+        print(f"用户邮箱格式不合法, email: {email}")
+        exit(0)
 
 
 def check_ips_for_sudo_forever(ip_list, rule):
     non_matching_forbidden_ips = [ip for ip in ip_list if is_ip_in_networks(rule["forbidden_ip_list"], ip)]
     if non_matching_forbidden_ips:
-        print(f"规则uuid: {rule['uuid']}校验失败, 如下ip的相关网段被禁止申请永久权限: {' '.join(non_matching_forbidden_ips)}", file=sys.stderr)
-        exit(1)
+        print(f"规则uuid: {rule['uuid']}校验失败, 如下ip的相关网段被禁止申请永久权限: {' '.join(non_matching_forbidden_ips)}")
+        exit(0)
 
     non_matching_permit_ips = [ip for ip in ip_list if not is_ip_in_networks(rule["permit_ip_list"], ip)]
     if non_matching_permit_ips:
-        print(f"规则uuid: {rule['uuid']}校验失败, 不允许其他网段的ip申请永久权限: {' '.join(non_matching_permit_ips)}", file=sys.stderr)
-        exit(1)
+        print(f"规则uuid: {rule['uuid']}校验失败, 不允许其他网段的ip申请永久权限: {' '.join(non_matching_permit_ips)}")
+        exit(0)
 
 
 def check(params):
-    email = params["email"]
+    email = params["_user_"]
     auth_type = params["auth_type"]
     ip_list = extract_ips(params["ip_list"])
 
@@ -74,14 +75,16 @@ def check(params):
     # 检查申请sudo永久权限时的规则配置
     check_ip_list_in_cmdb(ip_list)
     config_path = "/data/open-c3-data/bpm/server_auth_config.yaml"
-    if os.path.exists(config_path):
 
-        if auth_type == "sudo_876000":  # 永久sudo权限
-            rules_list = load_rules(config_path)
-            email_suffix = email.split("@")[1]
-            for rule in rules_list:
-                if rule["email_suffix"] == email_suffix and rule["auth_type"] == "sudo_forever":
-                    check_ips_for_sudo_forever(ip_list, rule)
+    if not os.path.exists(config_path):
+        return
+
+    if auth_type == "sudo_876000":  # 永久sudo权限
+        rules_list = load_rules(config_path)
+        email_suffix = email.split("@")[1]
+        for rule in rules_list:
+            if rule["email_suffix"] == email_suffix and rule["auth_type"] == "sudo_forever":
+                check_ips_for_sudo_forever(ip_list, rule)
 
 
 def main(params):

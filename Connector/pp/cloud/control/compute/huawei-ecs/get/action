@@ -11,6 +11,17 @@ from huaweicloudsdkecs.v2 import *
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
 from c3mc_cloud_huawei_vpc import Vpc
+from c3mc_cloud_huawei_flavors import Flavors
+
+
+
+def get_flavor(access_id, access_key, project_id, region, flavor_id):
+    flavor_list = Flavors(
+        access_id, access_key, project_id, region
+    ).list_flavors()
+    for item in flavor_list:
+        if item["id"] == flavor_id:
+            return item
 
 
 def get(data, access_id, access_key, project_id, region):
@@ -28,6 +39,7 @@ def get(data, access_id, access_key, project_id, region):
     )
 
     field_name = subprocess.getoutput("c3mc-cloud-get-real-field compute huawei-ecs id")
+    huawei_vpc = Vpc(access_id, access_key, project_id, region)
 
     request = ShowServerRequest()
     request.server_id = data[field_name]
@@ -50,10 +62,19 @@ def get(data, access_id, access_key, project_id, region):
     instance.pop("metadata", None)
     instance.pop("OS-EXT-SRV-ATTR:user_data", None)
 
-    huawei_vpc = Vpc(access_id, access_key, project_id, region)
-    if len(list(instance["addresses"])) > 0:
+    flavor = get_flavor(access_id, access_key, project_id, region, instance["flaver_id"])
+
+    instance["quota_min_rate"] = flavor["os_extra_specs"]["quota:min_rate"]
+    instance["quota_max_rate"] = flavor["os_extra_specs"]["quota:max_rate"]
+
+    # 默认内网ip
+    instance["_default_ip_kind_"] = "inip"
+    if list(instance["addresses"]):
         vpc_id = list(instance["addresses"])[0]
         vpc_info = huawei_vpc.show_vpc(vpc_id)
+
+        instance["_default_ip_kind_"] = huawei_vpc.check_vpc_internet(vpc_id)
+
         instance["vpc_id"] = vpc_id
         instance["vpc_name"] = vpc_info["name"]
 

@@ -36,6 +36,7 @@ def get(data, access_id, access_key, region):
     for cache_cluster in response["CacheClusters"]:
         if cache_cluster["CacheClusterId"] == data[field_name]:
             cache_cluster["Tag"] = lib_client.list_tag(cache_cluster["ARN"])
+            cache_cluster["RegionId"] = region
             return cache_cluster
     raise RuntimeError(f"根据 CacheClusterId {data[field_name]} 未找到 aws redis")
 
