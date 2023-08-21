@@ -50,9 +50,9 @@ def extract_ips(text):
 
 def send_new_user_email(email, password):
     safe_run_command([
-        "c3mc-base-bastion",
-        "--email", email,
-        "--password", password,
+        "c3mc-base-bastion-send-new-user-email",
+        email,
+        password,
     ])
 
 def create_user_if_need(email):
