@@ -6,17 +6,19 @@
         .controller('UseraddrController', UseraddrController);
 
     /** @ngInject */
-    function UseraddrController( $state, $http, $scope, $uibModal, ngTableParams ) {
+    function UseraddrController( $state, $http, $uibModal, ngTableParams, $injector ) {
 
         var vm = this;
         vm.treeid = $state.params.treeid;
+        var toastr = toastr || $injector.get('toastr');
+        vm.loadover = true
 
         vm.reload = function () {
             vm.loadover = false
             $http.get('/api/connector/useraddr').then(
                 function successCallback(response) {
                     if (response.data.stat){
-                        vm.dataTable = new ngTableParams({count:100}, {counts:[],data:response.data.data});
+                        vm.dataTable = new ngTableParams({count:100}, {counts:[],data:response.data.data.reverse()});
                         vm.loadover = true
                     }else {
                         swal('获取信息失败', response.data.info, 'error' );
@@ -39,6 +41,7 @@
                 keyboard: false,
                 bindToController: true,
                 resolve: {
+                    infoId: function () { return null},
                     treeid: function () { return vm.treeid},
                     reload : function () { return vm.reload}
                 }
@@ -80,6 +83,24 @@
                 }
             });
           });
+        }
+
+        // 编辑地址簿信息
+        vm.editUseraddr = function (info) {
+          $uibModal.open({
+            templateUrl: 'app/pages/global/useraddr/create.html',
+            controller: 'UseraddrCreateController',
+            controllerAs: 'useraddrcreate',
+            backdrop: 'static',
+            size: 'lg',
+            keyboard: false,
+            bindToController: true,
+            resolve: {
+                infoId: function () { return info.id},
+                treeid: function () { return vm.treeid},
+                reload : function () { return vm.reload}
+            }
+        });
         }
 
     }
