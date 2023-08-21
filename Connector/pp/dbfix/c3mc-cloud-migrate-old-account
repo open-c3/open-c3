@@ -1,0 +1,730 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+
+import sys
+import os
+import shutil
+from datetime import datetime
+
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import safe_run_command, encode_base64
+
+
+"""该脚本用于将如下两个路径中配置的账号迁移到accountdb方式
+这也是目前支持的最新账号配置方式
+
+/data/Software/mydan/AGENT/device/conf/account/{cloud}
+/data/Software/mydan/AGENT/device/conf/accountx/{cloud}x
+"""
+
+def backup_old_account_data():
+    """备份旧账号数据，并返回备份目录列表
+    """
+    def backup(src_path):
+        current_date = datetime.now().strftime("%Y%m%d")
+        dest_path = f'{src_path}.bak_{current_date}'
+        try:
+            shutil.copytree(src_path, dest_path)
+            print(f'目录已拷贝到: {dest_path}')
+        except FileExistsError:
+            print(f'目标路径已存在: {dest_path}')
+        except FileNotFoundError:
+            print(f'源目录不存在: {src_path}')
+        except Exception as e:
+            print(f'拷贝时发生错误: {e}')
+        
+        return dest_path
+        
+    
+    dest_path_list = []
+    account_dest_path = backup("/data/Software/mydan/AGENT/device/conf/account")
+    dest_path_list.append(account_dest_path)
+
+    accountx_dest_path = backup("/data/Software/mydan/AGENT/device/conf/accountx")
+    dest_path_list.append(accountx_dest_path)
+
+    return dest_path_list
+
+
+class Base:
+    def __init__(self, cloud) -> None:
+        self.account_path = f"/data/Software/mydan/AGENT/device/conf/account/{cloud}"
+        self.accountx_path = f"/data/Software/mydan/AGENT/device/conf/accountx/{cloud}x"
+
+    def get_file_lines(self, file_path):
+        if not os.path.exists(file_path):
+            return []
+        result = []
+        with open(file_path, "r") as file:
+            result.extend(line.rstrip("\n") for line in file)
+        return result
+    
+    def read_file_content(self, file_path):
+        with open(file_path, 'r') as file:
+            content = file.read()
+        return content
+    
+    def clean_file_content(self):
+        """在账号迁移完后清空旧的账号文件内容
+        """
+        with open(self.account_path, 'w'):
+            pass
+        with open(self.accountx_path, 'w'):
+            pass
+    
+    def encode(self, data):
+        return safe_run_command([
+            "c3mc-base-crypt",
+            "--encode", data
+        ])
+
+    def decode(self, data):
+        return safe_run_command([
+            "c3mc-base-crypt",
+            "--decode", data
+        ])
+
+
+
+class Aws(Base):
+    def __init__(self) -> None:
+        super().__init__("aws")
+    
+    def _get_from_file_path(self, file_path):
+        result = []
+        for line in self.get_file_lines(file_path):
+            parts = line.split()
+            if len(parts) != 4:
+                raise RuntimeError(f"aws 账号配置文件格式错误, line: {line}")
+
+            result.append({
+                "account_name": parts[0],
+                "ak": parts[1],
+                "sk": self.encode(parts[2]),
+                "region": parts[3],
+            })
+        return result
+    
+    def get_all_accounts(self):
+        result = self._get_from_file_path(self.account_path)
+        result.extend(self._get_from_file_path(self.accountx_path))
+        return result
+    
+    def _get_from_account(self):
+        output = safe_run_command([
+            "c3mc-base-db-get", 
+            "accountname", 
+            "accesskey", 
+            "secretkey", 
+            "region", 
+            "--table", 
+            "openc3_device_account_aws"
+        ])
+        lines = output.split("\n")
+
+        result = []
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+
+            parts = line.split(";")
+            if len(parts) != 4:
+                raise RuntimeError(f"accountdb账号配置格式错误, 无法提取到足够的字段信息, line: {line}")
+            result.append({
+                "account_name": parts[0],
+                "ak": parts[1],
+                "sk": parts[2],
+                "region": parts[3],
+            })
+        return result
+
+    def get_filtered_account(self):
+        """获取过滤的账号列表, 这些账号是需要被添加到accountdb的
+        """
+        all_accounts = self.get_all_accounts()
+        accountdb_accounts = self._get_from_account()
+
+        return [
+            account
+            for account in all_accounts
+            if account not in accountdb_accounts
+        ]
+    
+    def insert_accountdb(self, account_info):
+        safe_run_command([
+            "c3mc-base-db-ins",
+            "--table", "openc3_device_account_aws",
+            "accountname", account_info["account_name"],
+            "accesskey", account_info["ak"], 
+            "secretkey", account_info["sk"], 
+            "region", account_info["region"],
+        ])
+    
+    def migrate(self):
+        filtered_account_list = self.get_filtered_account()
+        for account in filtered_account_list:
+            self.insert_accountdb(account)
+        
+        self.clean_file_content()
+
+
+class Aliyun(Base):
+    def __init__(self) -> None:
+        super().__init__("aliyun")
+    
+    def _get_from_file_path(self, file_path):
+        result = []
+        for line in self.get_file_lines(file_path):
+            parts = line.split()
+            if len(parts) != 4:
+                raise RuntimeError(f"aliyun 账号配置文件格式错误, line: {line}")
+
+            result.append({
+                "account_name": parts[0],
+                "ak": parts[1],
+                "sk": self.encode(parts[2]),
+                "region": parts[3],
+            })
+        return result
+    
+    def get_all_accounts(self):
+        result = self._get_from_file_path(self.account_path)
+        result.extend(self._get_from_file_path(self.accountx_path))
+        return result
+    
+    def _get_from_account(self):
+        output = safe_run_command([
+            "c3mc-base-db-get", 
+            "accountname", 
+            "accesskey", 
+            "secretkey", 
+            "region", 
+            "--table", 
+            "openc3_device_account_aliyun"
+        ])
+        lines = output.split("\n")
+
+        result = []
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+
+            parts = line.split(";")
+            if len(parts) != 4:
+                raise RuntimeError(f"accountdb账号配置格式错误, 无法提取到足够的字段信息, line: {line}")
+            result.append({
+                "account_name": parts[0],
+                "ak": parts[1],
+                "sk": parts[2],
+                "region": parts[3],
+            })
+        return result
+
+    def get_filtered_account(self):
+        """获取过滤的账号列表, 这些账号是需要被添加到accountdb的
+        """
+        all_accounts = self.get_all_accounts()
+        accountdb_accounts = self._get_from_account()
+
+        return [
+            account
+            for account in all_accounts
+            if account not in accountdb_accounts
+        ]
+
+    def insert_accountdb(self, account_info):
+        safe_run_command([
+            "c3mc-base-db-ins",
+            "--table", "openc3_device_account_aliyun",
+            "accountname", account_info["account_name"],
+            "accesskey", account_info["ak"], 
+            "secretkey", account_info["sk"], 
+            "region", account_info["region"],
+        ])
+
+    def migrate(self):
+        filtered_account_list = self.get_filtered_account()
+        for account in filtered_account_list:
+            self.insert_accountdb(account)
+        
+        self.clean_file_content()
+
+
+class Ksyun(Base):
+    def __init__(self) -> None:
+        super().__init__("ksyun")
+    
+    def _get_from_file_path(self, file_path):
+        result = []
+        for line in self.get_file_lines(file_path):
+            parts = line.split()
+            if len(parts) != 4:
+                raise RuntimeError(f"ksyun 账号配置文件格式错误, line: {line}")
+
+            result.append({
+                "account_name": parts[0],
+                "ak": parts[1],
+                "sk": self.encode(parts[2]),
+                "region": parts[3],
+            })
+        return result
+    
+    def get_all_accounts(self):
+        result = self._get_from_file_path(self.account_path)
+        result.extend(self._get_from_file_path(self.accountx_path))
+        return result
+    
+    def _get_from_account(self):
+        output = safe_run_command([
+            "c3mc-base-db-get", 
+            "accountname", 
+            "accesskey", 
+            "secretkey", 
+            "region", 
+            "--table", 
+            "openc3_device_account_ksyun"
+        ])
+        lines = output.split("\n")
+
+        result = []
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+
+            parts = line.split(";")
+            if len(parts) != 4:
+                raise RuntimeError(f"accountdb账号配置格式错误, 无法提取到足够的字段信息, line: {line}")
+            result.append({
+                "account_name": parts[0],
+                "ak": parts[1],
+                "sk": parts[2],
+                "region": parts[3],
+            })
+        return result
+
+    def get_filtered_account(self):
+        """获取过滤的账号列表, 这些账号是需要被添加到accountdb的
+        """
+        all_accounts = self.get_all_accounts()
+        accountdb_accounts = self._get_from_account()
+
+        return [
+            account
+            for account in all_accounts
+            if account not in accountdb_accounts
+        ]
+
+    def insert_accountdb(self, account_info):
+        safe_run_command([
+            "c3mc-base-db-ins",
+            "--table", "openc3_device_account_ksyun",
+            "accountname", account_info["account_name"],
+            "accesskey", account_info["ak"], 
+            "secretkey", account_info["sk"], 
+            "region", account_info["region"],
+        ])
+
+
+    def migrate(self):
+        filtered_account_list = self.get_filtered_account()
+        for account in filtered_account_list:
+            self.insert_accountdb(account)
+        
+        self.clean_file_content()
+
+
+class Qcloud(Base):
+    def __init__(self) -> None:
+        super().__init__("qcloud")
+    
+    def _get_from_file_path(self, file_path):
+        result = []
+        for line in self.get_file_lines(file_path):
+            parts = line.split()
+            if len(parts) != 5:
+                raise RuntimeError(f"qcloud 账号配置文件格式错误, line: {line}")
+
+            result.append({
+                "account_name": parts[0],
+                "ak": parts[1],
+                "sk": self.encode(parts[2]),
+                "region": parts[3],
+                "cloud_account_id": parts[4],
+            })
+        return result
+    
+    def get_all_accounts(self):
+        result = self._get_from_file_path(self.account_path)
+        result.extend(self._get_from_file_path(self.accountx_path))
+        return result
+    
+    def _get_from_account(self):
+        output = safe_run_command([
+            "c3mc-base-db-get", 
+            "accountname", 
+            "accesskey", 
+            "secretkey", 
+            "region", 
+            "accountid",
+            "--table", 
+            "openc3_device_account_qcloud"
+        ])
+        lines = output.split("\n")
+
+        result = []
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+
+            parts = line.split(";")
+            if len(parts) != 5:
+                raise RuntimeError(f"accountdb账号配置格式错误, 无法提取到足够的字段信息, line: {line}")
+            result.append({
+                "account_name": parts[0],
+                "ak": parts[1],
+                "sk": parts[2],
+                "region": parts[3],
+                "cloud_account_id": parts[4],
+            })
+        return result
+
+    def get_filtered_account(self):
+        """获取过滤的账号列表, 这些账号是需要被添加到accountdb的
+        """
+        all_accounts = self.get_all_accounts()
+        accountdb_accounts = self._get_from_account()
+
+        return [
+            account
+            for account in all_accounts
+            if account not in accountdb_accounts
+        ]
+    
+    def insert_accountdb(self, account_info):
+        safe_run_command([
+            "c3mc-base-db-ins",
+            "--table", "openc3_device_account_qcloud",
+            "accountname", account_info["account_name"],
+            "accesskey", account_info["ak"], 
+            "secretkey", account_info["sk"], 
+            "region", account_info["region"],
+            "accountid", account_info["cloud_account_id"]
+        ])
+
+    def migrate(self):
+        filtered_account_list = self.get_filtered_account()
+        for account in filtered_account_list:
+            self.insert_accountdb(account)
+        
+        self.clean_file_content()
+
+
+class Huawei(Base):
+    def __init__(self) -> None:
+        super().__init__("huawei")
+    
+    def _get_from_file_path(self, file_path):
+        result = []
+        for line in self.get_file_lines(file_path):
+            parts = line.split()
+            if len(parts) != 6:
+                raise RuntimeError(f"huawei 账号配置文件格式错误, line: {line}")
+
+            result.append({
+                "account_name": parts[0],
+                "ak": parts[1],
+                "sk": self.encode(parts[2]),
+                "project_id": parts[3],
+                "region": parts[4],
+                "iam_user_id": parts[5],
+            })
+        return result
+    
+    def get_all_accounts(self):
+        result = self._get_from_file_path(self.account_path)
+        result.extend(self._get_from_file_path(self.accountx_path))
+        return result
+    
+    def _get_from_account(self):
+        output = safe_run_command([
+            "c3mc-base-db-get", 
+            "accountname", 
+            "accesskey", 
+            "secretkey", 
+            "project",
+            "region", 
+            "iamid",
+            "--table", 
+            "openc3_device_account_huawei"
+        ])
+        lines = output.split("\n")
+
+        result = []
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+
+            parts = line.split(";")
+            if len(parts) != 6:
+                raise RuntimeError(f"accountdb账号配置格式错误, 无法提取到足够的字段信息, line: {line}")
+            result.append({
+                "account_name": parts[0],
+                "ak": parts[1],
+                "sk": parts[2],
+                "project_id": parts[3],
+                "region": parts[4],
+                "iam_user_id": parts[5],
+            })
+        return result
+
+    def get_filtered_account(self):
+        """获取过滤的账号列表, 这些账号是需要被添加到accountdb的
+        """
+        all_accounts = self.get_all_accounts()
+        accountdb_accounts = self._get_from_account()
+
+        return [
+            account
+            for account in all_accounts
+            if account not in accountdb_accounts
+        ]
+
+    def insert_accountdb(self, account_info):
+        safe_run_command([
+            "c3mc-base-db-ins",
+            "--table", "openc3_device_account_huawei",
+            "accountname", account_info["account_name"],
+            "accesskey", account_info["ak"], 
+            "secretkey", account_info["sk"], 
+            "project", account_info["project_id"], 
+            "region", account_info["region"],
+            "iamid", account_info["iam_user_id"]
+        ])
+
+
+    def migrate(self):
+        filtered_account_list = self.get_filtered_account()
+        for account in filtered_account_list:
+            self.insert_accountdb(account)
+        
+        self.clean_file_content()
+
+
+class Google(Base):
+    def __init__(self) -> None:
+        super().__init__("google")
+    
+    def _get_from_file_path(self, file_path):
+        result = []
+        for line in self.get_file_lines(file_path):
+            parts = line.split()
+            if len(parts) != 3:
+                raise RuntimeError(f"google 账号配置文件格式错误, line: {line}")
+
+            result.append({
+                "account_name": parts[0],
+                "cred_path": parts[1],
+                "region": parts[2],
+            })
+        return result
+    
+    def get_all_accounts(self):
+        result = self._get_from_file_path(self.account_path)
+        result.extend(self._get_from_file_path(self.accountx_path))
+        return result
+    
+    def _get_from_account(self):
+        output = safe_run_command([
+            "c3mc-base-db-get", 
+            "accountname", 
+            "region", 
+            "--table", 
+            "openc3_device_account_google"
+        ])
+        lines = output.split("\n")
+
+        result = []
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+
+            parts = line.split(";")
+            if len(parts) != 2:
+                raise RuntimeError(f"accountdb账号配置格式错误, 无法提取到足够的字段信息, line: {line}")
+            result.append({
+                "account_name": parts[0],
+                "region": parts[1],
+            })
+        return result
+
+    def get_filtered_account(self):
+        """获取过滤的账号列表, 这些账号是需要被添加到accountdb的
+        """
+        all_accounts = self.get_all_accounts()
+        accountdb_accounts = self._get_from_account()
+
+        result = []
+
+        for file_account in all_accounts:
+            found = any(
+                file_account["account_name"] == db_account["account_name"]
+                and file_account["region"] == db_account["region"]
+                for db_account in accountdb_accounts
+            )
+            if not found:
+                result.append(file_account)
+        return result
+
+    def insert_accountdb(self, account_info):
+        safe_run_command([
+            "c3mc-base-db-ins",
+            "--table", "openc3_device_account_google",
+            "accountname", account_info["account_name"],
+            "credentials", self.encode(encode_base64(self.read_file_content(account_info["cred_path"]))),
+            "region", account_info["region"],
+        ])
+
+    def migrate(self):
+        filtered_account_list = self.get_filtered_account()
+        for account in filtered_account_list:
+            self.insert_accountdb(account)
+        
+        self.clean_file_content()
+
+
+class Ibm(Base):
+    def __init__(self) -> None:
+        super().__init__("ibm")
+    
+    def _get_from_file_path(self, file_path):
+        result = []
+        for line in self.get_file_lines(file_path):
+            parts = line.split()
+            if len(parts) < 3:
+                raise RuntimeError(f"ibm 账号配置文件格式错误, line: {line}")
+
+            item = {
+                "account_name": parts[0],
+                "username": parts[1],
+                "api_key": self.encode(parts[2]),
+            }
+            if len(parts) > 3:
+                item["vpc_name"] = parts[2]
+            
+            result.append(item)
+
+        return result
+    
+    def get_all_accounts(self):
+        result = self._get_from_file_path(self.account_path)
+        result.extend(self._get_from_file_path(self.accountx_path))
+        return result
+    
+    def _get_from_account(self):
+        output = safe_run_command([
+            "c3mc-base-db-get", 
+            "accountname", 
+            "username", 
+            "api_key", 
+            "--table", 
+            "openc3_device_account_ibm"
+        ])
+        lines = output.split("\n")
+
+        result = []
+        for line in lines:
+            line = line.strip()
+            if not line:
+                continue
+
+            parts = line.split(";")
+            if len(parts) != 3:
+                raise RuntimeError(f"accountdb账号配置格式错误, 无法提取到足够的字段信息, line: {line}")
+            result.append({
+                "account_name": parts[0],
+                "username": parts[1],
+                "api_key": parts[2],
+            })
+        return result
+
+    def get_filtered_account(self):
+        """获取过滤的账号列表, 这些账号是需要被添加到accountdb的
+        """
+        all_accounts = self.get_all_accounts()
+        accountdb_accounts = self._get_from_account()
+
+        result = []
+
+        for file_account in all_accounts:
+            found = any(
+                file_account["account_name"] == db_account["account_name"]
+                and file_account["username"] == db_account["username"]
+                for db_account in accountdb_accounts
+            )
+            if not found:
+                result.append(file_account)
+        
+        return result
+
+    def insert_accountdb(self, account_info):
+        cmd_path = [
+            "c3mc-base-db-ins",
+            "--table", "openc3_device_account_ibm",
+            "accountname", account_info["account_name"],
+            "username", account_info["username"], 
+            "api_key", account_info["api_key"], 
+        ]
+        if len(account_info) > 3:
+            cmd_path.extend([
+                "vpc_name", account_info["vpc_name"]
+            ])
+        safe_run_command(cmd_path)
+
+    def migrate(self):
+        filtered_account_list = self.get_filtered_account()
+        for account in filtered_account_list:
+            self.insert_accountdb(account)
+        
+        self.clean_file_content()
+    
+
+def run():
+    # 备份旧账户数据 
+    backup_dir_list = backup_old_account_data()
+    print(f"旧账号数据备份完成, 备份目录列表为: {' '.join(backup_dir_list)}")
+
+    Aws().migrate()
+    print("aws账号迁移完成")
+
+    Aliyun().migrate()
+    print("aliyun账号迁移完成")
+
+    Ksyun().migrate()
+    print("ksyun账号迁移完成")
+
+    Qcloud().migrate()
+    print("qcloud账号迁移完成")
+
+    Huawei().migrate()
+    print("huawei账号迁移完成")
+
+    Google().migrate()
+    print("google账号迁移完成")
+
+    Ibm().migrate()
+    print("ibm账号迁移完成")
+
+def main():
+    run()
+
+
+if __name__ == '__main__':
+    main()
