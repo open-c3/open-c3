@@ -306,12 +306,30 @@
               
               if (item && item.external) {
                 window.open(item.external)
+                vm.isHovered = false
               }
               if (!item.router) {
                 return
               }
               $state.go(item.router, Object.assign({treeid:$state.params.treeid}, item.params))
               vm.isHovered = false
+            }
+
+            vm.handleMarkOperate = function (info, fInfo) {
+              $http.post(`/api/connector/menufavorites?menu=${info.label}&stat=${vm.user.menu[info.label] === '1'? '2': '1'}`).success(function (data) {
+                if (data.stat) {
+                  vm.user.menu[info.label] = vm.user.menu[info.label] === '1'? '2': '1'
+                  if(fInfo && fInfo.label) {
+                    if (fInfo.list.some(item => vm.user.menu[item.label] === '2')) {
+                      vm.user.menu[fInfo.label] = '2'
+                    } else {
+                      vm.user.menu[fInfo.label] = '1'
+                    }
+                  }
+                } else {
+                  swal({ title: "操作失败", text: data.info,  type: "error" })
+                }
+              })
             }
 
             vm.handleCondition = function (userInfo, value) {
