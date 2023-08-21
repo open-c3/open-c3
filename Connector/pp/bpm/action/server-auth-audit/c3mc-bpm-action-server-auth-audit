@@ -19,7 +19,7 @@ def main(params):
     auth_type = params["auth_type"]
     ip_list = extract_ips(params["ip_list"])
 
-    check_if_resources_safe_for_operation(ip_list, params["bpm_uuid"], "server-auth")
+    check_if_resources_safe_for_operation(ip_list, params["bpm_uuid"], "server-auth-audit")
 
     print(f"开始处理用户: {email}, auth_type: {auth_type}, ip_list: {' '.join(ip_list)} 的权限申请")
 
