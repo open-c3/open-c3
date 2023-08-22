@@ -1,0 +1,20 @@
+#!/bin/bash
+
+if [ "X$1" == "Xinstall" ];then
+    echo '* * * * * root /opt/mydan/dan/agent.mon/bin/watchmen >/dev/null 2>&1' > /etc/cron.d/mydan_bootstrap_cron_watchmen
+    echo install done.
+    exit
+fi
+
+if [ "X$1" == "Xuninstall" ];then
+    rm /etc/cron.d/mydan_bootstrap_cron_watchmen
+    echo uninstall done.
+    exit
+fi
+
+active=$(ps -ef|grep mydan.bootstrap.master|grep -v grep|wc -l)
+if [ "X$active" == "X0" ];then
+    /opt/mydan/dan/bootstrap/bin/bootstrap --start
+fi
+
+ps -ef|egrep 'mydan.tcpserver.65111|mydan.node_exporter.65110|/opt/mydan/dan/agent.mon/data/node_exporter'|grep -v grep|awk '{if($3==1){print $2} }'|xargs -i{} kill {}

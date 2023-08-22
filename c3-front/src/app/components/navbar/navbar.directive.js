@@ -290,6 +290,7 @@
                           { title: 'C3T.用户管理', label: '用户管理', icon: 'fa fa-user-plus', params: {}, router: 'home.connector.userinfo' },
                           { title: 'C3T.权限管理', label: '权限管理', icon: 'fa fa-key', params: {}, router: 'home.connector.userauth' },
                           { title: 'C3T.编辑服务树节点', label: '编辑服务树节点', icon: 'fa fa-sitemap', params: {}, router: 'home.connector.tree' },
+                          { title: 'C3T.编辑服务树资源', label: '编辑服务树资源', icon: 'fa fa-folder-o', params: {}, router: 'home.connector.node' },
                           { title: 'C3T.给我的邮件', label: '给我的邮件', icon: 'fa fa-envelope-open-o', params: {}, router: 'home.connector.mail' },
                           { title: 'C3T.给我的短信', label: '给我的短信', icon: 'fa fa-envelope-square', params: {}, router: 'home.connector.mesg' },
                           { title: 'C3T.用户领导管理', label: '用户领导管理', icon: 'fa fa-user-circle-o ', params: {}, router: 'home.connector.userleader' },

@@ -38,6 +38,8 @@ sub getnodeinfo
     my ( %param )= @_;
     my ( $id, $logs, $nodeinfo, $env ) = @param{qw(id logs nodeinfo env )};
 
+    return () if $nodeinfo eq 'x';
+
     $logs = Logs->new( 'code.nodeinfo' ) unless $logs;
 
     $logs->die( "id not a number" ) unless $id =~ /^\d+$/;
