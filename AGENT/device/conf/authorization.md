@@ -153,6 +153,7 @@
                 "rds:DescribeDBInstances",
                 "rds:AddTagsToResource",
                 "rds:DescribeDBSnapshots",
+                "rds:DescribeDBClusters",
                 "dynamodb:ListTables",
                 "dynamodb:TagResource",
                 "dynamodb:UntagResource",

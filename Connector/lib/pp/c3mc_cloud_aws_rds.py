@@ -80,3 +80,27 @@ class LibRds:
             ResourceName=arn,
             TagKeys=need_delete_list
         )
+    def describe_db_clusters_v2(self):
+        """查询rds集群列表
+        """
+        db_cluster_list = []
+        next_marker = None
+
+        while True:
+            if next_marker:
+                response = self.client.describe_db_clusters(Marker=next_marker, MaxRecords=100)
+            else:
+                response = self.client.describe_db_clusters(MaxRecords=100)
+
+            db_cluster_list.extend(response['DBClusters'])
+
+            # 检查是否有更多分页
+            if 'Marker' in response:
+                next_marker = response['Marker']
+            else:
+                break
+        
+        for i in range(len(db_cluster_list)):
+            db_cluster_list[i]["RegionId"] = self.region
+
+        return db_cluster_list
