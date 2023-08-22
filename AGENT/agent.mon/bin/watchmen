@@ -23,7 +23,7 @@ killall mydan.node_exporter.65110
 killall mydan.tcpserver.65111
 
 if [ -f /opt/mydan/dan/bootstrap/exec/prometheus.node_exporter.9100 ];then
-    lsof -i:9100|grep LISTEN|awk '{print $2}'|xargs -i{} kill {}
+    /usr/sbin/lsof -i:9100|grep LISTEN|awk '{print $2}'|xargs -i{} kill {}
 fi
 
 /opt/mydan/dan/bootstrap/bin/bootstrap --start
