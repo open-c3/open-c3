@@ -13,17 +13,8 @@ if [ "X$1" == "Xuninstall" ];then
 fi
 
 active=$(ps -ef|grep mydan.bootstrap.master|grep -v grep|wc -l)
-
-if [ "X$active" == "X1" ];then
-    echo mydan.bootstrap.master active
-    exit
+if [ "X$active" == "X0" ];then
+    /opt/mydan/dan/bootstrap/bin/bootstrap --start
 fi
 
-killall mydan.node_exporter.65110
-killall mydan.tcpserver.65111
-
-if [ -f /opt/mydan/dan/bootstrap/exec/prometheus.node_exporter.9100 ];then
-    /usr/sbin/lsof -i:9100|grep LISTEN|awk '{print $2}'|xargs -i{} kill {}
-fi
-
-/opt/mydan/dan/bootstrap/bin/bootstrap --start
+ps -ef|egrep 'mydan.tcpserver.65111|mydan.node_exporter.65110|/opt/mydan/dan/agent.mon/data/node_exporter'|grep -v grep|awk '{if($3==1){print $2} }'|xargs -i{} kill {}
