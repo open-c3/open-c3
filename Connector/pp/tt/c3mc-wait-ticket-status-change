@@ -8,13 +8,22 @@ import argparse
 import time
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import *
 
 
 def check_tt_status(
     tt_number,
     ext_tt,
 ):
-    API_ENDPOINT = "http://localhost:88/api/tt/public/ticket?no={}".format(tt_number)
+    status_txt = ""
+
+    host = "localhost"
+    port = 88
+
+    if not test_if_port_can_connected(host, port):
+        return status_txt
+
+    API_ENDPOINT = f"http://{host}:{port}/api/tt/public/ticket?no={tt_number}"
 
     header = {
         "Content-Type": "application/json",
@@ -23,7 +32,7 @@ def check_tt_status(
     if ext_tt == "1":
         API_ENDPOINT = subprocess.getoutput("c3mc-sys-ctl sys.tt.external_api_endpoint")
         if API_ENDPOINT == "":
-            raise Exception("使用外部tt时, 外部tt的接口地址不允许为空")
+            raise RuntimeError("使用外部tt时, 外部tt的接口地址不允许为空")
         app_name = subprocess.getoutput("c3mc-sys-ctl sys.tt.external_api_endpoint.env.appname")
         app_key = subprocess.getoutput("c3mc-sys-ctl sys.tt.external_api_endpoint.env.appkey")
         if app_name != "" and app_key != "":
@@ -32,22 +41,21 @@ def check_tt_status(
 
     resp = requests.get(url = API_ENDPOINT, headers = header)
 
-    from c3mc_utils import print_c3debug1_log
     print_c3debug1_log(
-        "DEBUG1: {}, check_tt_status, call tt. request tt number: {}, response: {}".format(sys.argv[0], tt_number, resp))
-    
+        f"DEBUG1: {sys.argv[0]}, check_tt_status, call tt. request tt number: {tt_number}, response: {resp}"
+    )
+
     resp = resp.json()
 
     if resp["stat"] == 0:
         print(resp["info"], file=sys.stderr)
         exit(1)
 
-    status_txt = ""
     status = resp["data"]["status"]
-    if status == "resolved":
-        status_txt = "已解决"
     if status == "closed":
         status_txt = "已关闭"
+    elif status == "resolved":
+        status_txt = "已解决"
     return status_txt
 
 
@@ -56,7 +64,7 @@ def main(
     ext_tt,
 ):
     status_txt = ""
-    while status_txt == "":
+    while not status_txt:
         status_txt = check_tt_status(
             tt_number,
             ext_tt,
@@ -73,10 +81,7 @@ if __name__ == '__main__':
     parser.add_argument('--ext_tt', type=str, required=False, help='是否使用外部tt, 1: 使用外部tt, 0: 使用内部tt')
     args = parser.parse_args()
 
-    ext_tt = "0"
-    if args.ext_tt != None and args.ext_tt != "0":
-        ext_tt = "1"
-
+    ext_tt = "1" if args.ext_tt not in [None, "0"] else "0"
     main(
         args.number,
         ext_tt
