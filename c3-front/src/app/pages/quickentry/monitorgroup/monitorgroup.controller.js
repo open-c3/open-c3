@@ -18,6 +18,11 @@
 
         vm.siteaddr = window.location.protocol + '//' + window.location.host;
 
+        vm.isExpandedMap = {
+          treestr:{},
+          userstr:{},
+        };
+
         vm.reload = function(){
             vm.loadover = false;
             $http.get('/api/agent/monitor/config/group' ).success(function(data){
@@ -32,6 +37,19 @@
         };
 
         vm.reload();
+        
+
+        vm.handleShowOperate = function  (event, index,type) {
+          vm.isExpandedMap[type][index] = !vm.isExpandedMap[type][index];
+          const tabElement = event.target.parentNode.querySelector('#monitorTag');
+          if (vm.isExpandedMap[type][index]) {
+            tabElement.style.maxHeight = 'none';
+            tabElement.style.overflow = 'visible';
+          } else {
+            tabElement.style.maxHeight = '170px';
+            tabElement.style.overflow = 'hidden';
+          }
+        }
 
         vm.createGroup = function (postData, title) {
             $uibModal.open({
