@@ -86,7 +86,7 @@ sub tree2map
 get '/connectorx/usertree/treemap' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
 
-    my $tree = eval{ $usertree->run( cookie => request->params->{cookie} || cookie( $api::cookiekey ) ) };
+    my $tree = eval{ $usertree->run( cookie => request->params->{cookie} || cookie( $api::cookiekey ), db => $api::mysql, user => $ssouser ) };
     my %map = tree2map( $tree );
     return $@ ? +{ stat => $JSON::false, info => $@ } :  +{ stat => $JSON::true, data => \%map };
 };

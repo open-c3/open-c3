@@ -28,14 +28,30 @@
                         <td data-title="'C3T.编辑者'|translate" sortable="'edit_user'" filter="{edit_user: 'text'}">{{m.edit_user}}</td>
                         <td data-title="'C3T.编辑时间'|translate" sortable="'edit_time'" filter="{edit_time: 'text'}">{{m.edit_time}}</td>
                         <td width="300" data-title="'C3T.服务树'|translate" sortable="'treestr'" filter="{treestr: 'text'}">
-                          <div class="monitor-tag-content">
+                          <div class="monitor-tag-content blur-border" id="monitorTag">
                             <div ng-class="{'monitor-treestr-tags': data!==''}" ng-repeat="data in m.treestr.split(',')">{{data}}</div>
                           </div>
+                            <button ng-if="m.treestr.split(',').length > 5 && !monitorgroup.isExpandedMap['treestr'][$index]" class="btn btn-link expand-button" ng-click="monitorgroup.handleShowOperate($event ,$index, 'treestr')">
+                              {{'C3T.展开'| translate}}
+                              <i class="fa fa-angle-double-down" aria-hidden="true"></i>
+                            </button>
+                            <button ng-if="m.treestr.split(',').length > 5 && monitorgroup.isExpandedMap['treestr'][$index]" class="btn btn-link expand-button" ng-click="monitorgroup.handleShowOperate($event, $index, 'treestr')">
+                              {{'C3T.收起'| translate}}
+                              <i class="fa fa-angle-double-up" aria-hidden="true"></i>
+                            </button>
                         </td>
                         <td width="300" data-title="'C3T.成员'|translate" sortable="'userstr'" filter="{userstr: 'text'}">
-                          <div class="monitor-tag-content">
+                          <div class="monitor-tag-content blur-border " id="monitorTag">
                             <div ng-class="{'monitor-treestr-tags': data!==''}" ng-repeat="data in m.userstr.split(',')">{{data}}</div>
                           </div>
+                          <button ng-if="m.userstr.split(',').length > 5 && !monitorgroup.isExpandedMap['userstr'][$index]" class="btn btn-link expand-button" ng-click="monitorgroup.handleShowOperate($event, $index, 'userstr')">
+                            {{'C3T.展开'| translate}}
+                            <i class="fa fa-angle-double-down" aria-hidden="true"></i>
+                          </button>
+                          <button ng-if="m.userstr.split(',').length > 5 && monitorgroup.isExpandedMap['userstr'][$index]" class="btn btn-link expand-button" ng-click="monitorgroup.handleShowOperate($event, $index, 'userstr')">
+                            {{'C3T.收起'| translate}}
+                            <i class="fa fa-angle-double-up" aria-hidden="true"></i>
+                          </button>
                         </td>
 
                         <td class="textcenter"  data-title="'C3T.操作'|translate">
@@ -58,6 +74,8 @@
     max-width: 300px;
     display: flex;
     flex-wrap: wrap;
+    max-height: 170px;
+    overflow: hidden;
   }
 
   .monitor-treestr-tags {
@@ -70,5 +88,15 @@
     margin: 4px 4px 4px 0;
     font-size: 12px;
     color: #fff;
+    word-break: break-all;
+    white-space: pre-wrap;
+    text-align: left;
+  }
+  .expand-button:active {
+    outline: none!important;
+    box-shadow: none!important;
+  }
+  .expand-button:focus, .expand-button:active:focus {
+    outline: none!important;
   }
 </style>
