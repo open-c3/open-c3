@@ -13,6 +13,7 @@ import random
 import base64
 import string
 import re
+import socket
 from ipaddress import ip_network, ip_address
 
 
@@ -402,3 +403,20 @@ def get_instance_real_uuid(instance_maybe_identifier):
         exit(1)
     return parts[0]
 
+def test_if_port_can_connected(host, port):
+    """检测ip端口是否可以联通
+
+    Args:
+        host (str): 主机地址
+        port (number): 端口号
+
+    Returns:
+        Boolean: 
+            True 可以联通
+            False 不可以联通
+    """
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(1)
+    result = sock.connect_ex((host, port))
+    sock.close()
+    return result == 0
