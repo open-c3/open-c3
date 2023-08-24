@@ -1,0 +1,80 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import os
+
+def get_user_addr():
+    x = os.popen('c3mc-base-db-get -t openc3_connector_useraddr user')
+    user = {}
+    for u in x.readlines():
+        user[u.rstrip()] = 1
+    return user
+
+def check_group_user(addr):
+    x = os.popen('c3mc-base-db-get -t openc3_monitor_config_groupuser user | sort | uniq')
+    for u in x.readlines():
+        user = u.rstrip()
+        if user in addr:
+            continue
+        print( f"Err: 监控告警组用户不在地址簿中: user={user}" )
+
+def check_config_user(addr):
+    x = os.popen('c3mc-base-db-get -t openc3_monitor_config_user user projectid')
+    for u in x.readlines():
+        user, treeid = u.rstrip().split(';')
+
+        if user.startswith('@') or user.startswith('%') :
+            continue
+        if user in addr:
+            continue
+        print( f"Err: 监控订阅人不在地址簿中: user={user} treeid={treeid}" )
+
+def get_approval_user(uuid):
+    x = os.popen("c3mc-base-db-get -t openc3_job_plugin_approval approver -f 'uuid=\"" + uuid + "\"'")
+    for u in x.readlines():
+        return u.rstrip()
+    return "unkown"
+
+def get_variable_value(jobuuid,name):
+    x = os.popen("c3mc-base-db-get -t openc3_job_variable value -f 'jobuuid=\"" + jobuuid + "\" and name=\"" + name + "\"'")
+    for u in x.readlines():
+        return u.rstrip()
+    return "unkown"
+
+def check_job_approval(addr):
+    x = os.popen("c3mc-base-db-get -t openc3_job_jobs projectid uuid uuids name -f 'status=\"permanent\"'")
+    for u in x.readlines():
+        treeid, jobuuid, stepuuids, jobname = u.rstrip().split(';')
+
+        for index, uuid in enumerate(stepuuids.split(',')):
+            stepidx = index + 1
+
+            steptype, stepuuid = uuid.split('_')
+            if steptype != "approval":
+                continue
+
+            for approval in get_approval_user(stepuuid).split(','):
+                if approval.startswith('$'):
+
+                    for realname in get_variable_value( jobuuid, approval[1:] ).split(','):
+                        if realname == "" :
+                            pass
+                        elif realname.startswith('@'):
+                            pass
+                        else:
+                            if realname not in addr:
+                                print( f"Err: 作业中审批步骤的变量的用户不在地址簿中: variable={approval}  treeid={treeid} jobname={jobname} stepid={stepidx} user={realname}" )
+                elif approval.startswith('@'):
+                    pass
+                else:
+                    if approval not in addr:
+                        print( f"Err: 作业中审批步骤的用户不在地址簿中: treeid={treeid} jobname={jobname} stepid={stepidx} user={approval}" )
+
+def main():
+    addr = get_user_addr()
+    check_config_user(  addr )
+    check_group_user(   addr )
+    check_job_approval( addr )
+
+if __name__ == '__main__':
+    main()
