@@ -6,7 +6,7 @@ require (
 	github.com/denisenkom/go-mssqldb v0.12.3 // indirect
 	github.com/erikstmartin/go-testdb v0.0.0-20160219214506-8d10e4a1bae5 // indirect
 	github.com/gin-contrib/pprof v1.4.0
-	github.com/gin-gonic/gin v1.8.1
+	github.com/gin-gonic/gin v1.9.1
 	github.com/go-sql-driver/mysql v1.2.1-0.20160411075031-7ebe0a500653 // indirect
 	github.com/gorilla/securecookie v0.0.0-20160422134519-667fe4e3466a
 	github.com/jinzhu/gorm v0.0.0-20161110013315-066abcef408f
