@@ -182,6 +182,20 @@ get '/connectorx/sso/userinfo' => sub {
         $menu{$1} = $conf->{$_} if $_ =~ /^sys.c3-front.menu.(.+)$/;
     }
 
+    my $mymenu = eval{ $api::mysql->query( "select menu from openc3_connector_menu_favorites where user='$user'" ) };
+    return( +{ stat => $JSON::false, info => "get menu error:$@" } ) if $@;
+
+    for( @$mymenu )
+    {
+        my @n = split /\./, $_->[0];
+        while( @n )
+        {
+            my $n = join '.', @n;
+            $menu{$n} = "2" if $menu{$n};
+            pop @n;
+        }
+    }
+
     return +{ name => uc( $name ), email => $user, company => $company, admin => $admin, showconnector => $showconnector, menu => \%menu };
 };
 
