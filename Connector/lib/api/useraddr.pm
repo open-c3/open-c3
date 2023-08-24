@@ -41,6 +41,33 @@ get '/useraddr' => sub {
 
 =pod
 
+管理/地址簿/获取某个用户的地址簿
+
+=cut
+
+get '/useraddr/:id' => sub {
+    my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
+    my $pmscheck = api::pmscheck( 'openc3_connector_root' ); return $pmscheck if $pmscheck;
+
+    my $param = params();
+    my $error = Format->new( 
+        id        => qr/^\d+$/, 0,
+    )->check( %$param );
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+    my @col = qw( id user email phone edit_user edit_time voicemail );
+    my $addr = eval{ $api::mysql->query( sprintf( "select %s from `openc3_connector_useraddr` where id=$param->{id}", join( ',', @col ) ), \@col ) };
+
+    for my $u ( @$addr )
+    {
+        map{ $u->{$_} = $crypt->decode( $u->{$_} ) if $u->{$_} }qw( email phone voicemail );
+    }
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => @$addr ? $addr->[0] : +{} };
+};
+
+
+=pod
+
 管理/地址簿/提交新地址簿
 
 =cut
@@ -51,6 +78,7 @@ post '/useraddr' => sub {
 
     my $param = params();
     my $error = Format->new( 
+        id        => qr/^\d+$/, 0,
         user      => qr/^[a-zA-Z0-9\.\@_\-]+$/, 1,
         email     => qr/^[a-zA-Z0-9\.\@_\-]+$/, 1,
         phone     => qr/^[a-zA-Z0-9:\.\@_\-\/]+$/, 1,
@@ -61,11 +89,22 @@ post '/useraddr' => sub {
     $param->{phone} = "feishu-bot:$1" if $param->{phone} =~ /^https:\/\/open.feishu.cn\/open-apis\/bot\/v2\/hook\/([a-z\d][a-z\d\-]+[a-z\d])$/;
 
     $param->{voicemail} ||= '';
-    eval{ $api::mysql->execute( "insert into openc3_connector_auditlog (`user`,`title`,`content`) values('$ssouser','CREATE USERADDR','USER:$param->{user} EMAIL:$param->{email} PHONE:$param->{phone} VOICEMAIL:$param->{voicemail}')" ); };
+
+    my $action = $param->{id} ? 'EDIT' : 'CREATE';
+    eval{ $api::mysql->execute( "insert into openc3_connector_auditlog (`user`,`title`,`content`) values('$ssouser','$action USERADDR','USER:$param->{user} EMAIL:$param->{email} PHONE:$param->{phone} VOICEMAIL:$param->{voicemail}')" ); };
 
     map{ $param->{$_} = $crypt->encode( $param->{$_} ) if $param->{$_} }qw( email phone voicemail );
  
-    eval{ $api::mysql->execute( "replace into openc3_connector_useraddr (`user`,`email`,`phone`,`voicemail`,`edit_user`) values('$param->{user}','$param->{email}','$param->{phone}','$param->{voicemail}', '$ssouser')" ); };
+    eval{
+        if( $param->{id} )
+        {
+            $api::mysql->execute( "update openc3_connector_useraddr set user='$param->{user}',email='$param->{email}',phone='$param->{phone}',voicemail='$param->{voicemail}',edit_user='$ssouser' where id=$param->{id}" );
+        }
+        else
+        {
+            $api::mysql->execute( "insert into openc3_connector_useraddr (`user`,`email`,`phone`,`voicemail`,`edit_user`) values('$param->{user}','$param->{email}','$param->{phone}','$param->{voicemail}', '$ssouser')" );
+        }
+     };
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, info => 'ok' };
 };
 
