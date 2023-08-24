@@ -298,6 +298,30 @@ def safe_run_command(cmd_parts):
     
     return output
 
+
+def safe_run_pipe_command(commands):
+    """运行管道命令
+
+    Args:
+        commands ([][]str): 二维数组格式的命令。例如要运行命令 "ls -alh | grep test"，则传递 [["ls", "-alh"], ["grep", "test"]]
+    """
+    prev_process = None
+    
+    for cmd in commands:
+        process = subprocess.Popen(cmd, stdin=(prev_process.stdout if prev_process else None), stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        
+        if prev_process:
+            prev_process.stdout.close()
+            
+        prev_process = process
+
+    stdout, stderr = prev_process.communicate()
+    
+    if prev_process.returncode != 0:
+        raise RuntimeError(stderr.decode())
+    
+    return stdout.decode().strip()
+
 def is_valid_email(email) -> bool:
     """检查邮箱格式是否合法
 
@@ -362,3 +386,19 @@ def is_ip_in_networks(network_list, target_ip) -> bool:
         elif target_ip == ip_address(ip):
             return True
     return False
+
+
+def get_instance_real_uuid(instance_maybe_identifier):
+    """根据实力的标识符查询实例的uuid
+
+    Args:
+        instance_maybe_identifier (str): 实例标识符。可能不是实例真实uuid，比如可以是ip，实例名称等，具体可以使用哪些值取决于cmdb同步配置文件中的配置
+    """
+    command = f"c3mc-device-find-uuid {instance_maybe_identifier}"
+    result = subprocess.check_output(command, shell=True)
+    parts = result.decode("utf-8").strip().split()
+    if len(parts) > 1:
+        print(f"通过命令 {command} 查询到了多个uuid {parts}", file=sys.stderr)
+        exit(1)
+    return parts[0]
+

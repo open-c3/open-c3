@@ -1,0 +1,139 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import *
+from c3mc_cloud_aws_rds import LibRds
+
+
+def check(instance_uuid, bpm_uuid):
+    check_if_resources_safe_for_operation([instance_uuid], bpm_uuid, "aws-rds-recycle")
+
+
+def get_account_info(account):
+    return json.loads(safe_run_command(["c3mc-get-account-info", "aws", account]))
+
+
+def delete_rds(
+    lib_client, arn, resource_type, if_create_final_snapshot
+):
+    identifier = None
+
+    if resource_type == "cluster":
+        resource_info = json.loads(
+            safe_run_pipe_command(
+                [
+                    [
+                        "c3mc-device-cat",
+                        "curr",
+                        "database",
+                        "aws-rds-cluster",
+                        arn,
+                    ],
+                    ["c3mc-base-tab2json"],
+                ]
+            )
+        )
+        field_name = subprocess.getoutput(
+            "c3mc-cloud-get-real-field database aws-rds-cluster DBClusterIdentifier"
+        )
+        identifier = resource_info[field_name]
+
+        snapshot_name = f"{resource_info[field_name]}-final"
+        lib_client.delete_db_cluster(
+            arn, if_create_final_snapshot == "否", snapshot_name
+        )
+
+    elif resource_type == "node":
+        resource_info = json.loads(
+            safe_run_pipe_command(
+                [
+                    [
+                        "c3mc-device-cat",
+                        "curr",
+                        "database",
+                        "aws-rds",
+                        arn,
+                    ],
+                    ["c3mc-base-tab2json"],
+                ]
+            )
+        )
+        field_name_list = subprocess.getoutput(
+            "c3mc-cloud-get-real-field database aws-rds DBInstanceIdentifier DBClusterIdentifier"
+        ).split()
+        identifier = resource_info[field_name_list[0]]
+
+        snapshot_name = f"{resource_info[field_name_list[0]]}-final"
+
+        lib_client.delete_db_instance(
+            resource_info[field_name_list[0]], if_create_final_snapshot == "否", snapshot_name
+        )
+
+        cluster_identifier = resource_info[field_name_list[1]].strip()
+
+        if cluster_identifier:
+            # 如果删除节点后集群没有节点了, 那么就删除集群
+            node_list = lib_client.describe_db_instance_list_of_cluster(cluster_identifier)
+            if not node_list:
+                print("删除节点后，集群没有节点了，执行删除集群操作...")
+                lib_client.delete_db_cluster(
+                    cluster_identifier, if_create_final_snapshot == "否", snapshot_name
+                )
+                print("删除集群成功!")
+
+    else:
+        raise RuntimeError(f"resource_type参数不对, 只能是cluster或node, 你传的是: {resource_type}")
+
+    if if_create_final_snapshot == "是":
+        print(f"LOG. 成功删除: {identifier}, 并创建了最终快照: {snapshot_name}")
+    else:
+        print(f"LOG. 成功删除: {identifier}")
+
+
+def main(params):
+    print("params = ", json.dumps(params))
+
+    account = params["account"]
+    region = params["region"]
+    resource_type = params["resource_type"]
+    arn = (
+        params["instance_arn"] if resource_type == "node" else params["cluster_arn"]
+    )
+
+    account_info = get_account_info(account)
+    lib_client = LibRds(account_info["access_id"], account_info["access_key"], region)
+
+    # 假设回收时出现不能创建最终快照的情况, 那么就不创建最终快照并进行回收
+    has_tried = False
+    while True:
+        try:
+            delete_rds(
+                lib_client,
+                arn,
+                resource_type,
+                params["if_create_final_snapshot"],
+            )
+            return
+        except Exception as e:
+            if has_tried:
+                raise e
+
+            if "FinalDBSnapshotIdentifier can not be specified" not in str(e):
+                raise e
+
+            print("无法创建快照，将不创建最终快照并进行回收")
+            params["if_create_final_snapshot"] = "否"
+            has_tried = True
+
+
+if __name__ == "__main__":
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise type("WrongInputData", (Exception,), {})('数据格式不对, 需要一行json字符串"')
+    main(json.loads(l[0]))

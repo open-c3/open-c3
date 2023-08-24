@@ -1,0 +1,34 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import json
+import sys
+import subprocess
+
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_aws_rds import LibRds
+
+
+def main(params):
+    """查询aws区域下的rds集群列表
+    """
+    
+    account = params["account"]
+    region = params["region"]
+
+    key_info = json.loads(
+        subprocess.getoutput(f"c3mc-get-account-info aws {account}")
+    )
+
+    data = LibRds(key_info["access_id"], key_info["access_key"], region).get_local_cluster_list_v1(account, region)
+    for item in data:
+        print(json.dumps(item, default=str))
+
+
+if __name__ == '__main__':
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise RuntimeError('数据格式不对, 需要一行json字符串"')
+
+    main(json.loads(l[0]))

@@ -11,6 +11,13 @@ sys.path.append("/data/Software/mydan/Connector/lib/pp")
 from c3mc_cloud_aws_china_get_price_data import get_rds_instance_type_info_m
 
 
+"""同步rds节点列表
+
+注意: aws rds资源类型有节点类型和集群类型, 这里只同步节点类型的资源
+    集群类型的资源在 c3mc-cloud-aws-rds-cluster 中同步
+"""
+
+
 class Rds:
     def __init__(self, access_id, access_key, region):
         self.access_id = access_id

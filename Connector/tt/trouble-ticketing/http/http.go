@@ -9,6 +9,8 @@ import (
 	"openc3.org/trouble-ticketing/orm"
 
 	"github.com/gin-gonic/gin"
+
+	"github.com/gin-contrib/pprof"
 )
 
 func Start() {
@@ -29,6 +31,7 @@ func httpStart() {
 		gin.SetMode(gin.ReleaseMode)
 	}
 	g := gin.Default()
+	pprof.Register(g)
 
 	g.Use(middleware.Auth())
 	routers.ConfigRouter(&g.RouterGroup)
