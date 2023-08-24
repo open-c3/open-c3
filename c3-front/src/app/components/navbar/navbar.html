@@ -28,7 +28,9 @@
   <li class="nav-padding nav-menu-style">
     <a> <span>{{'C3T.模块'|translate}}</span> </a>
 </li>
-  <div ng-if="nav.isHovered" class="nav-dashboard-card-background"></div>
+</ul>
+<div>
+  <div ng-if="nav.isHovered" class="nav-dashboard-card-background" ng-click="nav.toggleCard()"></div>
   <div class="nav-dashboard-card bounce animated" ng-if="nav.isHovered">
     <div class="nav-dashboard-card-scroll">
       <div class="nav-dashboard-card-scroll-option" ng-repeat="data in nav.menuOption" 
@@ -37,11 +39,13 @@
         <div class="nav-dashboard-card-scroll-option-map">
           <div ng-repeat="item in data.options">
             <div ng-if="!item.condition">
-              <div ng-if="nav.user.menu[item.label] == 1" class="nav-dashboard-card-item-header"
+              <div ng-if="nav.user.menu[item.label] == 1 || nav.user.menu[item.label] == 2" class="nav-dashboard-card-item-header"
                 ng-click="nav.handleStateGo($event,item)">{{item.title | translate}}</div>
               <div ng-if="item.list && item.list.length > 0" class="nav-dashboard-card-item-content">
                 <div ng-repeat="cItem in item.list">
-                  <a ng-if="nav.user.menu[cItem.label] == 1" class="nav-dashboard-card-item-content-item"
+                  <i ng-if="cItem.label !== '导航' && nav.user.menu[cItem.label] == 1" class="fa fa-star-o" aria-hidden="true" uib-tooltip="{{'C3T.点击收藏'| translate}}" ng-click="nav.handleMarkOperate(cItem, item)"></i>
+                  <i ng-if="cItem.label !== '导航' && nav.user.menu[cItem.label] == 2" class="fa fa-star" aria-hidden="true" uib-tooltip="{{'C3T.取消收藏'| translate}}" ng-click="nav.handleMarkOperate(cItem, item)"></i>
+                  <a ng-if="nav.user.menu[cItem.label] == 1 || nav.user.menu[cItem.label] == 2" class="nav-dashboard-card-item-content-item"
                     ng-click="nav.handleStateGo($event,cItem)">
                     <span ng-if="cItem.icon" class="{{cItem.icon}}"></span>
                     <img ng-if="!cItem.icon" ng-src="{{cItem.image}}" alt="image" style="width: 12px;height: 12px;">
@@ -67,182 +71,185 @@
       </div>
     </div>
   </div>
-</ul>
+</div>
 
     <!-- 导航 -->
     <!-- <ul class="nav navbar-nav navbar-left">
       <li class="nav-padding">
-        <a ng-if="nav.user.menu['导航'] == 1" ui-sref="home.search({treeid: nav.state.params.treeid})" > <span>{{'C3T.导航'|translate}}</span> </a>
+        <a ng-if="nav.user.menu['导航'] == 2" ui-sref="home.search({treeid: nav.state.params.treeid})" > <span>{{'C3T.导航'|translate}}</span> </a>
     </li>
     </ul> -->
 
     <!-- CMDB -->
     <ul class="nav navbar-nav navbar-left" ng-click="nav.toggleCard(false)">
         <li class="nav-padding">
-          <a ng-if="nav.user.menu['CMDB'] == 1" ui-sref="home.device.menu({treeid: nav.state.params.treeid})" class="p15 lh30"> <span>CMDB</span> </a>
+          <a ng-if="nav.user.menu['CMDB'] == 2" ui-sref="home.device.menu({treeid: nav.state.params.treeid})" class="p15 lh30"> <span>CMDB</span> </a>
         </li>
     </ul>
     <!-- 监控 -->
-    <!-- <ul class="nav navbar-nav navbar-left">
-        <li ng-if="nav.user.menu['监控'] == 1" class="dropdown nav-padding" uib-dropdown>
+    <ul class="nav navbar-nav navbar-left" ng-click="nav.toggleCard(false)">
+        <li ng-if="nav.user.menu['监控'] == 2" class="dropdown nav-padding" uib-dropdown>
             <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple " uib-dropdown-toggle>
                 <span>{{'C3T.监控'|translate}}</span>
                 <span class="caret caret-tp hidden-xs"></span>
             </a>
             <ul class="dropdown-menu list-group dropdown-persist w250" uib-dropdown-menu>
                 <li class="list-group-item">
-                    <a ng-if="nav.user.menu['监控.监控看板'] == 1" ui-sref="home.quickentry.monitorkanban({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><span class="fa fa-bar-chart"></span><span>{{'C3T.监控看板'|translate}}</span> </a>
-                    <a ng-if="nav.user.menu['监控.当前告警'] == 1" ui-sref="home.allalerts({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><span class="fa fa-bolt"></span><span>{{'C3T.当前告警'|translate}}</span> </a>
-                    <a ng-if="nav.user.menu['监控.监控事件'] == 1" ui-sref="home.allcase({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><span class="fa fa-envelope"></span><span>{{'C3T.监控事件'|translate}}</span> </a>
-                    <a ng-if="nav.user.menu['监控.监控配置'] == 1" ui-sref="home.quickentry.monitorconfig({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-cog"></span><span>{{'C3T.监控配置'|translate}}</span> </a>
+                    <a ng-if="nav.user.menu['监控.监控看板'] == 2" ui-sref="home.quickentry.monitorkanban({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><span class="fa fa-bar-chart"></span><span>{{'C3T.监控看板'|translate}}</span> </a>
+                    <a ng-if="nav.user.menu['监控.当前告警'] == 2" ui-sref="home.allalerts({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><span class="fa fa-bolt"></span><span>{{'C3T.当前告警'|translate}}</span> </a>
+                    <a ng-if="nav.user.menu['监控.监控事件'] == 2" ui-sref="home.allcase({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><span class="fa fa-envelope"></span><span>{{'C3T.监控事件'|translate}}</span> </a>
+                    <a ng-if="nav.user.menu['监控.监控配置'] == 2" ui-sref="home.quickentry.monitorconfig({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-cog"></span><span>{{'C3T.监控配置'|translate}}</span> </a>
                 </li>
                 <li class="list-group-item">
-                    <a ng-if="nav.user.menu['监控.报警组管理'] == 1" ui-sref="home.quickentry.monitorgroup({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-users"></span><span>{{'C3T.报警组管理'|translate}}</span> </a>
-                    <a ng-if="nav.user.menu['监控.值班管理'] == 1" ui-sref="home.quickentry.monitoroncall({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-calendar"></span><span>{{'C3T.值班管理'|translate}}</span> </a>
+                    <a ng-if="nav.user.menu['监控.报警组管理'] == 2" ui-sref="home.quickentry.monitorgroup({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-users"></span><span>{{'C3T.报警组管理'|translate}}</span> </a>
+                    <a ng-if="nav.user.menu['监控.值班管理'] == 2" ui-sref="home.quickentry.monitoroncall({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-calendar"></span><span>{{'C3T.值班管理'|translate}}</span> </a>
                 </li>
                 <li class="list-group-item">
-                    <a ng-if="nav.user.menu['监控.监控告警报告'] == 1" ui-sref="home.monreport({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-bell"></span> <span>{{'C3T.监控告警报告'|translate}}</span> </a>
-                    <a ng-if="nav.user.menu['监控.低利用率'] == 1" ui-sref="home.quickentry.monitornodelow({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-stethoscope"></span><span>{{'C3T.低利用率'|translate}}</span> </a>
+                    <a ng-if="nav.user.menu['监控.监控告警报告'] == 2" ui-sref="home.monreport({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-bell"></span> <span>{{'C3T.监控告警报告'|translate}}</span> </a>
+                    <a ng-if="nav.user.menu['监控.低利用率'] == 2" ui-sref="home.quickentry.monitornodelow({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-stethoscope"></span><span>{{'C3T.低利用率'|translate}}</span> </a>
                 </li>
                 <li class="list-group-item">
-                    <a ng-if="nav.user.menu['监控.邮件监控'] == 1" ui-sref="home.quickentry.monitormailmon({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-mixcloud"></span><span>{{'C3T.邮件监控'|translate}}</span> </a>
+                    <a ng-if="nav.user.menu['监控.邮件监控'] == 2" ui-sref="home.quickentry.monitormailmon({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-mixcloud"></span><span>{{'C3T.邮件监控'|translate}}</span> </a>
                 </li>
                 <li class="list-group-item">
-                    <a ng-if="nav.user.menu['监控.故障自愈'] == 1" ui-sref="home.quickentry.selfhealingconfig({treeid: nav.state.params.treeid})" > <span class="fa fa-wheelchair-alt"></span><span>{{'C3T.故障自愈'|translate}}</span> </a>
+                    <a ng-if="nav.user.menu['监控.故障自愈'] == 2" ui-sref="home.quickentry.selfhealingconfig({treeid: nav.state.params.treeid})" > <span class="fa fa-wheelchair-alt"></span><span>{{'C3T.故障自愈'|translate}}</span> </a>
                 </li>
             </ul>
         </li>
-    </ul> -->
+    </ul>
 
     <!-- 流水线 -->
-    <!-- <ul class="nav navbar-nav navbar-left">
+    <ul class="nav navbar-nav navbar-left" ng-click="nav.toggleCard(false)">
         <li class="nav-padding">
-            <a ng-if="nav.user.menu['流水线'] == 1" ui-sref="home.quickentry.flowline({treeid: nav.state.params.treeid})" class="p15 lh30"> <span>{{'C3T.流水线'|translate}}</span> </a>
+            <a ng-if="nav.user.menu['流水线'] == 2" ui-sref="home.quickentry.flowline({treeid: nav.state.params.treeid})" class="p15 lh30"> <span>{{'C3T.流水线'|translate}}</span> </a>
         </li>
-    </ul> -->
+    </ul>
 
     <!-- 快速执行 -->
-    <!-- <ul class="nav navbar-nav navbar-left">
-        <li ng-if="nav.user.menu['快速执行'] == 1" class="dropdown nav-padding" uib-dropdown>
+    <ul class="nav navbar-nav navbar-left" ng-click="nav.toggleCard(false)">
+        <li ng-if="nav.user.menu['快速执行'] == 2" class="dropdown nav-padding" uib-dropdown>
             <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple " uib-dropdown-toggle>
                 <span>{{'C3T.快速执行'|translate}}</span>
                 <span class="caret caret-tp hidden-xs"></span>
             </a>
             <ul class="dropdown-menu list-group dropdown-persist w250" uib-dropdown-menu>
                 <li class="list-group-item">
-                    <a ng-if="nav.user.menu['快速执行.启动任务'] == 1" ui-sref="home.quickentry.runtask({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><i class="fa fa-play-circle-o" aria-hidden="true"></i> <span>{{'C3T.启动任务'|translate}}</span> </a>
-                    <a ng-if="nav.user.menu['快速执行.脚本执行'] == 1" ui-sref="home.quickentry.cmd({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><i class="fa fa-code" aria-hidden="true"></i> <span>{{'C3T.脚本执行'|translate}}</span> </a>
-                    <a ng-if="nav.user.menu['快速执行.分发文件'] == 1" ui-sref="home.quickentry.scp({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><i class="fa fa-files-o" aria-hidden="true"></i>                      <span>{{'C3T.分发文件'|translate}}</span> </a>
-                    <a ng-if="nav.user.menu['快速执行.发起审批'] == 1" ui-sref="home.quickentry.approval({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><i class="fa fa-calendar-check-o" aria-hidden="true"></i> <span>{{'C3T.发起审批'|translate}}</span> </a>
-                    <a ng-if="nav.user.menu['快速执行.虚拟终端'] == 1" ui-sref="home.quickentry.terminal({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-terminal" aria-hidden="true"></i> <span>{{'C3T.虚拟终端'|translate}}</span> </a>
-                    <a ng-if="nav.user.menu['快速执行.文件发送'] == 1" ui-sref="home.quickentry.sendfile({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-send-o" aria-hidden="true"></i> <span>{{'C3T.文件发送'|translate}}</span> </a>
+                    <a ng-if="nav.user.menu['快速执行.启动任务'] == 2" ui-sref="home.quickentry.runtask({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><i class="fa fa-play-circle-o" aria-hidden="true"></i> <span>{{'C3T.启动任务'|translate}}</span> </a>
+                    <a ng-if="nav.user.menu['快速执行.脚本执行'] == 2" ui-sref="home.quickentry.cmd({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><i class="fa fa-code" aria-hidden="true"></i> <span>{{'C3T.脚本执行'|translate}}</span> </a>
+                    <a ng-if="nav.user.menu['快速执行.分发文件'] == 2" ui-sref="home.quickentry.scp({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><i class="fa fa-files-o" aria-hidden="true"></i>                      <span>{{'C3T.分发文件'|translate}}</span> </a>
+                    <a ng-if="nav.user.menu['快速执行.发起审批'] == 2" ui-sref="home.quickentry.approval({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><i class="fa fa-calendar-check-o" aria-hidden="true"></i> <span>{{'C3T.发起审批'|translate}}</span> </a>
+                    <a ng-if="nav.user.menu['快速执行.虚拟终端'] == 2" ui-sref="home.quickentry.terminal({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-terminal" aria-hidden="true"></i> <span>{{'C3T.虚拟终端'|translate}}</span> </a>
+                    <a ng-if="nav.user.menu['快速执行.文件发送'] == 2" ui-sref="home.quickentry.sendfile({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-send-o" aria-hidden="true"></i> <span>{{'C3T.文件发送'|translate}}</span> </a>
                 </li>
             </ul>
         </li>
-    </ul> -->
+    </ul>
 
     <!-- 业务管理 -->
-    <!-- <ul class="nav navbar-nav navbar-left">
-        <li ng-if="nav.user.menu['业务管理'] == 1" class="dropdown nav-padding" uib-dropdown>
+    <ul class="nav navbar-nav navbar-left" ng-click="nav.toggleCard(false)">
+        <li ng-if="nav.user.menu['业务管理'] == 2" class="dropdown nav-padding" uib-dropdown>
         <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple" uib-dropdown-toggle>
             <span>{{'C3T.业务管理'|translate}}</span>
             <span class="caret caret-tp hidden-xs"></span>
         </a>
         <ul class="dropdown-menu list-group dropdown-persist w250" uib-dropdown-menu>
             <li class="list-group-item">
-                <a ng-if="nav.user.menu['业务管理.作业管理'] == 1" ui-sref="home.business.job({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><span class="fa fa-check-square-o"></span> <span>{{'C3T.作业管理'|translate}}</span> </a>
-                <a ng-if="nav.user.menu['业务管理.账户管理'] == 1" ui-sref="home.business.user({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span class="fa fa-sliders"></span><span>{{'C3T.账户管理'|translate}}</span> </a>
-                <a ng-if="nav.user.menu['业务管理.文件管理'] == 1" ui-sref="home.business.file({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span class="fa fa-sliders"></span><span>{{'C3T.文件管理'|translate}}</span> </a>
-                <a ng-if="nav.user.menu['业务管理.脚本管理'] == 1" ui-sref="home.business.scripts({treeid: nav.state.params.treeid})"  class="animated animated-short fadeInUp" > <span class="fa fa-sliders"></span><span>{{'C3T.脚本管理'|translate}}</span> </a>
-                <a ng-if="nav.user.menu['业务管理.机器分组'] == 1" ui-sref="home.business.nodegroup({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span class="fa fa-sliders"></span><span>{{'C3T.机器分组'|translate}}</span> </a>
-                <a ng-if="nav.user.menu['业务管理.机器分批'] == 1" ui-sref="home.business.nodebatch({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><span class="fa fa-sliders"></span> <span>{{'C3T.机器分批'|translate}}</span> </a>
-                <a ng-if="nav.user.menu['业务管理.机器管理'] == 1" ui-sref="home.business.machine({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><span class="fa fa-sliders"></span> <span>{{'C3T.机器管理'|translate}}</span> </a>
-                <a ng-if="nav.user.menu['业务管理.报警通知'] == 1" ui-sref="home.business.notify({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><span class="fa fa-sliders"></span> <span>{{'C3T.报警通知'|translate}}</span> </a>
-                <a ng-if="nav.user.menu['业务管理.定时作业'] == 1" ui-sref="home.business.crontab({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-clock-o"></span><span>{{'C3T.定时作业'|translate}}</span> </a>
-                <a ng-if="nav.user.menu['业务管理.虚拟服务树管理'] == 1"  ui-sref="home.business.virtual({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-sitemap"></span><span>{{'C3T.虚拟服务树管理'|translate}}</span> </a> 
-                <a ng-if="nav.user.menu['业务管理.代理设置'] == 1" ui-sref="home.business.agent({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-gg"></span><span>{{'C3T.代理设置(AGENT安装)'|translate}}</span> </a> 
-                <a ng-if="nav.user.menu['业务管理.变量查看'] == 1" ui-sref="home.business.variate({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-list-ul"></span> <span>{{'C3T.变量查看'|translate}}</span> </a> 
-                <a ng-if="nav.user.menu['业务管理.仪表盘'] == 1" ui-sref="home.dashboard({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-dashboard"></span><span>{{'C3T.仪表盘'|translate}}</span> </a>
+                <a ng-if="nav.user.menu['业务管理.作业管理'] == 2" ui-sref="home.business.job({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><span class="fa fa-check-square-o"></span> <span>{{'C3T.作业管理'|translate}}</span> </a>
+                <a ng-if="nav.user.menu['业务管理.账户管理'] == 2" ui-sref="home.business.user({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span class="fa fa-sliders"></span><span>{{'C3T.账户管理'|translate}}</span> </a>
+                <a ng-if="nav.user.menu['业务管理.文件管理'] == 2" ui-sref="home.business.file({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span class="fa fa-sliders"></span><span>{{'C3T.文件管理'|translate}}</span> </a>
+                <a ng-if="nav.user.menu['业务管理.脚本管理'] == 2" ui-sref="home.business.scripts({treeid: nav.state.params.treeid})"  class="animated animated-short fadeInUp" > <span class="fa fa-sliders"></span><span>{{'C3T.脚本管理'|translate}}</span> </a>
+                <a ng-if="nav.user.menu['业务管理.机器分组'] == 2" ui-sref="home.business.nodegroup({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <span class="fa fa-sliders"></span><span>{{'C3T.机器分组'|translate}}</span> </a>
+                <a ng-if="nav.user.menu['业务管理.机器分批'] == 2" ui-sref="home.business.nodebatch({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><span class="fa fa-sliders"></span> <span>{{'C3T.机器分批'|translate}}</span> </a>
+                <a ng-if="nav.user.menu['业务管理.机器管理'] == 2" ui-sref="home.business.machine({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><span class="fa fa-sliders"></span> <span>{{'C3T.机器管理'|translate}}</span> </a>
+                <a ng-if="nav.user.menu['业务管理.报警通知'] == 2" ui-sref="home.business.notify({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><span class="fa fa-sliders"></span> <span>{{'C3T.报警通知'|translate}}</span> </a>
+                <a ng-if="nav.user.menu['业务管理.定时作业'] == 2" ui-sref="home.business.crontab({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-clock-o"></span><span>{{'C3T.定时作业'|translate}}</span> </a>
+                <a ng-if="nav.user.menu['业务管理.虚拟服务树管理'] == 2"  ui-sref="home.business.virtual({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-sitemap"></span><span>{{'C3T.虚拟服务树管理'|translate}}</span> </a> 
+                <a ng-if="nav.user.menu['业务管理.代理设置'] == 2" ui-sref="home.business.agent({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-gg"></span><span>{{'C3T.代理设置(AGENT安装)'|translate}}</span> </a> 
+                <a ng-if="nav.user.menu['业务管理.变量查看'] == 2" ui-sref="home.business.variate({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-list-ul"></span> <span>{{'C3T.变量查看'|translate}}</span> </a> 
+                <a ng-if="nav.user.menu['业务管理.仪表盘'] == 2" ui-sref="home.dashboard({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-dashboard"></span><span>{{'C3T.仪表盘'|translate}}</span> </a>
               </li>
             </ul>
         </li>
-    </ul> -->
+    </ul>
 
-    <ul class="nav navbar-nav navbar-left">
+    <ul class="nav navbar-nav navbar-left" ng-click="nav.toggleCard(false)">
       <!-- 轻应用 -->
-        <!-- <li class="nav-padding">
-            <a ng-if="nav.user.menu['轻应用'] == 1" ui-sref="home.quickentry.smallapplication({treeid: nav.state.params.treeid})" class="p15 lh30"> <span>{{'C3T.轻应用'|translate}}</span> </a>
-        </li> -->
+        <li class="nav-padding">
+            <a ng-if="nav.user.menu['轻应用'] == 2" ui-sref="home.quickentry.smallapplication({treeid: nav.state.params.treeid})" class="p15 lh30"> <span>{{'C3T.轻应用'|translate}}</span> </a>
+        </li>
 
         <!-- 容器集群 -->
-        <!-- <li ng-if="nav.user.menu['容器集群'] == 1" class="dropdown nav-padding" uib-dropdown>
+        <li ng-if="nav.user.menu['容器集群'] == 2" class="dropdown nav-padding" uib-dropdown>
             <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple" uib-dropdown-toggle>
                 <span>{{'C3T.容器集群'|translate}}</span>
                 <span class="caret caret-tp hidden-xs"></span>
             </a>
             <ul class="dropdown-menu-right list-group dropdown-persist w250" uib-dropdown-menu>
-                <li ng-if="nav.user.menu['容器集群.kubernetes.应用管理'] == 1" class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">kubernetes</div> </li>
-                <li ng-if="nav.user.menu['容器集群.kubernetes.应用管理'] == 1" class="list-group-item">
+                <li ng-if="nav.user.menu['容器集群.kubernetes.应用管理'] == 2" class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">kubernetes</div> </li>
+                <li ng-if="nav.user.menu['容器集群.kubernetes.应用管理'] == 2" class="list-group-item">
                     <a style="padding: 8px 9px 8px 37px;" ui-sref="home.kubernetesmanage({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-cube" aria-hidden="true"></i>  <span>{{'C3T.应用管理'|translate}}</span> </a>
                 </li>
-                <li ng-if="nav.user.menu['容器集群.AWSECS.应用管理'] == 1" class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">AWS ECS</div> </li>
-                <li ng-if="nav.user.menu['容器集群.AWSECS.应用管理'] == 1" class="list-group-item">
+                <li ng-if="nav.user.menu['容器集群.AWSECS.应用管理'] == 2" class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">AWS ECS</div> </li>
+                <li ng-if="nav.user.menu['容器集群.AWSECS.应用管理'] == 2" class="list-group-item">
                     <a style="padding: 8px 9px 8px 37px;" ui-sref="home.awsecsmanage({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" ><i class="fa fa-cube" aria-hidden="true"></i>  <span>{{'C3T.应用管理'|translate}}</span> </a>
                 </li>
             </ul>
-        </li> -->
+        </li>
 
         <!-- 工单 -->
-         <!-- <li ng-if="nav.user.menu['工单'] == 1" class="nav-padding">
+         <li ng-if="nav.user.menu['工单'] == 2" class="nav-padding" ng-click="nav.toggleCard(false)">
             <a href="/tt/" target="_blank" > <span>{{'C3T.工单'|translate}}</span> </a>
-        </li> -->
+        </li>
 
         <!-- 其他工具 -->
-        <!-- <li ng-if="nav.user.menu['其它工具'] == 1" class="nav-padding">
+        <li ng-if="nav.user.menu['其它工具'] == 2" class="nav-padding" ng-click="nav.toggleCard(false)">
             <a ui-sref="home.thirdparty({treeid: nav.state.params.treeid})" class="p15 lh30"> <span>{{'C3T.其它工具'|translate}}</span> </a>
-        </li> -->
+        </li>
 
         <!-- BPM -->
-        <!-- <li ng-if="nav.user.menu['BPM'] == 1" class="dropdown nav-padding" uib-dropdown>
+        <li ng-if="nav.user.menu['BPM'] == 2" class="dropdown nav-padding" uib-dropdown ng-click="nav.toggleCard(false)">
             <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple" uib-dropdown-toggle>
                 <span>BPM</span>
                 <span class="caret caret-tp hidden-xs"></span>
             </a>
             <ul class="dropdown-menu-right list-group dropdown-persist w250" uib-dropdown-menu>
                 <li class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">{{'C3T.新建'|translate}}</div> </li>
-                <li ng-if="nav.user.menu['BPM.发起新任务'] == 1" class="list-group-item">
+                <li ng-if="nav.user.menu['BPM.发起新任务'] == 2" class="list-group-item">
                     <a style="padding: 8px 9px 8px 37px;" ui-sref="home.bpm({treeid: nav.state.params.treeid, bpmuuid: 0})" class="animated animated-short fadeInUp" ><i class="fa fa-tasks" aria-hidden="true"></i> <span>{{'C3T.发起新任务'|translate}}</span> </a>
                 </li>
 
-                <li class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">{{'C3T.我的'|translate}}</div> </li>
+                <li ng-if="nav.user.menu['BPM.我的待办任务'] == 2|| nav.user.menu['BPM.处理过的任务'] == 2 || nav.user.menu['BPM.我发起的任务'] == 2" 
+                class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">{{'C3T.我的'|translate}}</div> </li>
 
-                <li ng-if="nav.user.menu['BPM.我的待办任务'] == 1" class="list-group-item">
+                <li ng-if="nav.user.menu['BPM.我的待办任务'] == 2" class="list-group-item">
                     <a style="padding: 8px 9px 8px 37px;" ui-sref="home.history.bpm({treeid: nav.state.params.treeid, type: 'mytask' })"   class="animated animated-short fadeInUp" ><i class="fa fa-tasks" aria-hidden="true"></i> <span>{{'C3T.我的待办任务'|translate}}</span> </a>
                 </li>
-                <li ng-if="nav.user.menu['BPM.处理过的任务'] == 1" class="list-group-item">
+                <li ng-if="nav.user.menu['BPM.处理过的任务'] == 2" class="list-group-item">
                     <a style="padding: 8px 9px 8px 37px;" ui-sref="home.history.bpm({treeid: nav.state.params.treeid, type: 'mylink' })"   class="animated animated-short fadeInUp" ><i class="fa fa-tasks" aria-hidden="true"></i> <span>{{'C3T.处理过的任务'|translate}}</span> </a>
                 </li>
-                <li ng-if="nav.user.menu['BPM.我发起的任务'] == 1" class="list-group-item">
+                <li ng-if="nav.user.menu['BPM.我发起的任务'] == 2" class="list-group-item">
                     <a style="padding: 8px 9px 8px 37px;" ui-sref="home.history.bpm({treeid: nav.state.params.treeid, type: 'myflow' })"   class="animated animated-short fadeInUp"><i class="fa fa-tasks" aria-hidden="true"></i> <span>{{'C3T.我发起的任务'|translate}}</span> </a>
                 </li>
 
-                <li class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">{{'C3T.全局'|translate}}</div> </li>
+                <li ng-if="nav.user.menu['BPM.全部流程列表'] == 2" 
+                class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">{{'C3T.全局'|translate}}</div> </li>
 
-                <li ng-if="nav.user.menu['BPM.全部流程列表'] == 1" class="list-group-item">
+                <li ng-if="nav.user.menu['BPM.全部流程列表'] == 2" class="list-group-item">
                   <a style="padding: 8px 9px 8px 37px;" ui-sref="home.history.bpm({treeid: nav.state.params.treeid, type: 'all'})" class="animated animated-short fadeInUp" ><i class="fa fa-list-ul" aria-hidden="true"></i> <span>{{'C3T.全部流程列表'|translate}}</span> </a>
                 </li>
  
-                <li class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">{{'C3T.管理'|translate}}</div> </li>
+                <li ng-if="nav.user.menu['BPM.流程管理'] == 2 || nav.user.menu['BPM.定时任务列表'] == 2" 
+                class="dropdown-header clearfix" style="border: 0"> <div class="pull-left ml10">{{'C3T.管理'|translate}}</div> </li>
 
-                <li ng-if="nav.user.menu['BPM.流程管理'] == 1 || nav.user.menu['BPM.定时任务列表'] == 1" class="list-group-item">
-                    <a style="padding: 8px 9px 8px 37px;" ng-if="nav.user.menu['BPM.定时任务列表'] == 1" ui-sref="home.history.timetask({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <i class="fa fa-clock-o" aria-hidden="true"></i><span>{{'C3T.定时任务列表'|translate}}</span> </a>
-                    <a style="padding: 8px 9px 8px 37px;" ng-if="nav.user.menu['BPM.流程管理'] == 1" ui-sref="home.business.bpm({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><span class="fa fa-check-square-o"></span> <span>{{'C3T.流程管理'|translate}}</span> </a>
+                <li ng-if="nav.user.menu['BPM.流程管理'] == 2 || nav.user.menu['BPM.定时任务列表'] == 2" class="list-group-item">
+                    <a style="padding: 8px 9px 8px 37px;" ng-if="nav.user.menu['BPM.定时任务列表'] == 2" ui-sref="home.history.timetask({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp" > <i class="fa fa-clock-o" aria-hidden="true"></i><span>{{'C3T.定时任务列表'|translate}}</span> </a>
+                    <a style="padding: 8px 9px 8px 37px;" ng-if="nav.user.menu['BPM.流程管理'] == 2" ui-sref="home.business.bpm({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><span class="fa fa-check-square-o"></span> <span>{{'C3T.流程管理'|translate}}</span> </a>
                 </li>
  
  
             </ul>
 
-        </li> -->
+        </li>
  
     </ul>
 
@@ -255,37 +262,37 @@
         </li> -->
 
         <!-- 执行历史 -->
-        <!-- <li ng-if="nav.user.menu['执行历史'] == 1" class="dropdown nav-padding" uib-dropdown>
+        <li ng-if="nav.user.menu['执行历史'] == 2" class="dropdown nav-padding" uib-dropdown ng-click="nav.toggleCard(false)">
             <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple" uib-dropdown-toggle>
                 <span>{{'C3T.执行历史'|translate}}</span>
                 <span class="caret caret-tp hidden-xs"></span>
             </a>
-            <ul class="dropdown-menu list-group dropdown-persist w250" uib-dropdown-menu>
+            <ul class="dropdown-menu list-group dropdown-persist w250" uib-dropdown-menu ng-click="nav.toggleCard(false)">
                 <li class="list-group-item">
-                    <a ng-if="nav.user.menu['执行历史.分组任务'] == 1" ui-sref="home.history.jobx({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><i class="fa fa-tasks" aria-hidden="true"></i> <span>{{'C3T.分组任务'|translate}}</span> </a>
-                    <a ng-if="nav.user.menu['执行历史.作业任务'] == 1" ui-sref="home.history.job({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> <span>{{'C3T.作业任务'|translate}}</span> </a>
-                    <a ng-if="nav.user.menu['执行历史.虚拟终端'] == 1" ui-sref="home.history.terminal({treeid: nav.state.params.treeid})"  class="animated animated-short fadeInUp" ><i class="fa fa-terminal" aria-hidden="true"></i> <span>{{'C3T.虚拟终端'|translate}}</span> </a>
+                    <a ng-if="nav.user.menu['执行历史.分组任务'] == 2" ui-sref="home.history.jobx({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><i class="fa fa-tasks" aria-hidden="true"></i> <span>{{'C3T.分组任务'|translate}}</span> </a>
+                    <a ng-if="nav.user.menu['执行历史.作业任务'] == 2" ui-sref="home.history.job({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><i class="fa fa-pencil-square-o" aria-hidden="true"></i> <span>{{'C3T.作业任务'|translate}}</span> </a>
+                    <a ng-if="nav.user.menu['执行历史.虚拟终端'] == 2" ui-sref="home.history.terminal({treeid: nav.state.params.treeid})"  class="animated animated-short fadeInUp" ><i class="fa fa-terminal" aria-hidden="true"></i> <span>{{'C3T.虚拟终端'|translate}}</span> </a>
                 </li>
                 </ul>
-        </li> -->
+        </li>
 
         <!-- 报告 -->
-        <!-- <li ng-if="nav.user.menu['报告'] == 1" class="dropdown nav-padding" uib-dropdown>
+        <li ng-if="nav.user.menu['报告'] == 2" class="dropdown nav-padding" uib-dropdown ng-click="nav.toggleCard(false)">
             <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple " uib-dropdown-toggle>
                 <span>{{'C3T.报告'|translate}}</span>
                 <span class="caret caret-tp hidden-xs"></span>
             </a>
             <ul class="dropdown-menu list-group dropdown-persist w250" uib-dropdown-menu>
                 <li class="list-group-item">
-                    <a ng-if="nav.user.menu['报告.GIT'] == 1" ui-sref="home.gitreport({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-gitlab"></span><span>GIT</span> </a>
-                    <a ng-if="nav.user.menu['报告.流水线'] == 1" ui-sref="home.flowreport({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-code-fork"></span><span>{{'C3T.流水线'|translate}}</span> </a>
-                    <a ng-if="nav.user.menu['报告.监控告警'] == 1" ui-sref="home.monreport({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><span class="fa fa-bell"></span> <span>{{'C3T.监控告警'|translate}}</span> </a>
+                    <a ng-if="nav.user.menu['报告.GIT'] == 2" ui-sref="home.gitreport({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-gitlab"></span><span>GIT</span> </a>
+                    <a ng-if="nav.user.menu['报告.流水线'] == 2" ui-sref="home.flowreport({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"> <span class="fa fa-code-fork"></span><span>{{'C3T.流水线'|translate}}</span> </a>
+                    <a ng-if="nav.user.menu['报告.监控告警'] == 2" ui-sref="home.monreport({treeid: nav.state.params.treeid})" class="animated animated-short fadeInUp"><span class="fa fa-bell"></span> <span>{{'C3T.监控告警'|translate}}</span> </a>
                 </li>
             </ul>
-        </li> -->
+        </li>
 
         <!-- 管理与连接器 -->
-        <!-- <li ng-if="nav.user.admin==1" class="dropdown nav-padding" uib-dropdown>
+        <li ng-if="nav.user.admin==1" class="dropdown nav-padding" uib-dropdown>
             <a href="javascript:void(0)" class="dropdown-toggle fw600 p15 lh30 ripple" uib-dropdown-toggle>
                 <span>{{'C3T.管理'|translate}}</span>
                 <span class="caret caret-tp hidden-xs"></span>
@@ -327,7 +334,7 @@
                 </li>
             </ul>
 
-        </li> -->
+        </li>
 
 
         <li class="dropdown nav-padding" uib-dropdown ng-click="nav.toggleCard(false)">
