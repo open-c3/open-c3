@@ -36,6 +36,13 @@ class Ec2:
             for instance in reservation["Instances"]:
                 instance["RegionId"] = self.region
 
+                if "PublicIpAddress" not in instance or not instance["PublicIpAddress"]:
+                    for network_interface in instance["NetworkInterfaces"]:
+                        if "Association" in network_interface:
+                            # 如果实例没有公网IP，但是有弹性IP，则使用弹性IP作为公网IP
+                            instance["PublicIpAddress"] = network_interface["Association"]["CarrierIp"]
+                            break
+
                 if "window" in instance["PlatformDetails"].lower():
                     instance["os"] = "Windows"
                 else:
