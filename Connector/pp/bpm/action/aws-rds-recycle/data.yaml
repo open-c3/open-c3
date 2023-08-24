@@ -1,0 +1,64 @@
+---
+name: 回收aws rds
+multi: 1
+option:
+  - name: account
+    describe: 账号
+    command: c3mc-display-cloud-account-list aws
+    type: selectx
+
+  - name: region
+    describe: 区域
+    rely:
+      - account
+    command: c3mc-ec2-describe-regions | c3mc-bpm-display-field-values "{code}; 名称:{name}, 区域代码:{code}"
+    type: selectx
+    information: "如果区域列表缺少某些区域，原因是你的账户未启用对应区域"
+
+  - name: resource_type
+    describe: 资源类型
+    type: select
+    value: "node"
+    option:
+    - name: cluster
+      alias: 数据库集群
+    - name: node
+      alias: 数据库节点
+
+  - name: cluster_arn
+    describe: 选择rds集群
+    rely:
+      - account
+      - region
+    command: c3mc-recycleawsrds-describe-rds-clusters | c3mc-bpm-display-field-values "{Arn}; 名称:{Name}, 状态:{Status}"    
+    type: selectx
+    show:
+      - resource_type: ["cluster"]
+
+  - name: instance_arn
+    describe: 选择rds节点
+    rely:
+      - account
+      - region
+    command: c3mc-recycleawsrds-describe-rds-instances | c3mc-bpm-display-field-values "{Arn}; Arn:{Arn}, 名称:{Name}, 状态:{Status}"    
+    type: selectx
+    show:
+      - resource_type: ["node"]
+
+  - name: if_create_final_snapshot
+    describe: 是否创建最终快照
+    type: select
+    option: ["是", "否"]
+    value: "否"
+    information: "Aurora MySQL集群因为存储是共享的, 所以无法创建最终快照(这里的选项参数将被忽略)! 最终快照用于备份 集群/节点 数据，会有一定的费用产生，请谨慎确认是否创建快照!"
+
+template_argv:
+  bpm_uuid: ${_bpmuuid_}
+
+  account: ${account}
+  region: ${region}
+
+  resource_type: ${resource_type}
+  cluster_arn: ${cluster_arn}
+  instance_arn: ${instance_arn}
+  if_create_final_snapshot: ${if_create_final_snapshot}

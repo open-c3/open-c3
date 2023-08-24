@@ -50,6 +50,13 @@ post '/loginext/google' => sub {
     return redirect &$makeErrUrl( "Google login not on,Please have the admin open it" ) unless $api::loginext::data{'google'}{'on'};
 
     my ( $domain, $err ) = @$param{qw( domain )};
+    unless( $domain )
+    {
+        $domain = $api::loginext::data{'google'}{'domain'};
+        $domain =~ s/^https{0,1}:\/\///;
+        $domain =~ s/:.*//;
+        $domain =~ s/\/.*//;
+    }
 
     my $ip = '0.0.0.0';
     my $time = time;
