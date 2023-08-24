@@ -19,6 +19,7 @@
         ]
         vm.tabThead = ['lowstatus', '服务树'];
         vm.checkOwnerStatus = true
+        sessionStorage.setItem('tableFilter', JSON.stringify({}))
         $scope.countOptions = [20, 30,50, 100, 500]
         $scope.selectTab = vm.lowUtilizationList[0];
         vm.headerList = []
@@ -218,6 +219,7 @@
               if (Object.values(tableFilterObj).join('').length === 0) {
                 const checkFilterData = selectData.filter(item => reverseFilter(item))
                 vm.dataTable = new ngTableParams({count:20}, {counts:$scope.countOptions,data:checkFilterData});
+                vm.dataTable.filter(JSON.parse(sessionStorage.getItem('tableFilter'))) 
               } else {
                 const hasFilterData = selectData.filter(item => {
                   for (let key in item) {
@@ -451,6 +453,7 @@
             vm.filterData = businesstData
             vm.downloadData = businesstData.slice().reverse()
             vm.dataTable = new ngTableParams({ count: 20 }, { counts: $scope.countOptions, data: businesstData });
+            vm.dataTable.filter(JSON.parse(sessionStorage.getItem('tableFilter'))) 
           } else {
             const businesstData = selectData.filter(item => {
               return (vm.markSelected === 'all' ? item : item['处理状态'] === vm.markSelected) &&
@@ -471,6 +474,9 @@
           vm.reverseName = ''
           vm.reverseHosttName = ''
           vm.reverseOwner = ''
+          if (Object.values(sessionStorage.getItem('tableFilter')).length > 0) {
+            sessionStorage.removeItem('tableFilter')
+          }
         }
 
         // 更新视图
@@ -586,6 +592,19 @@
       }
       vm.checkboxes.itemsNumber = checked
       angular.element(document.getElementsByClassName("select-all")).prop("indeterminate", (checked != 0 && unchecked != 0));
+    }, true);
+
+    // 监听页面刷新
+    window.onbeforeunload = function() {
+      sessionStorage.removeItem('tableFilter')
+    };
+    
+    //监听表格过滤条件
+    $scope.$watch(function () { return vm.dataTable.filter() }, function (value) {
+      if  (value && Object.values(value).length > 0) {
+        sessionStorage.setItem('tableFilter', JSON.stringify(value))
+        vm.handleReverseChange()
+      }
     }, true);
     }
 })();
