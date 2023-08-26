@@ -84,7 +84,7 @@ sub sendmesg
         }
     }
 
-    die sprintf( "$err: code %s", $res->code ) unless $res->is_success;
+    die sprintf( "%s: code %s", $err, $res->code ) unless $res->is_success;
 
     my $v = eval{JSON::decode_json $res->decoded_content};
     die "$err: data no JSON: $@" if $@;

@@ -78,6 +78,7 @@ def main(add_type, username, email, ip, sudo_hours, is_audit):
 
     ok = False
     for proxy_addr in proxy_addr_list:
+        print("使用代理地址........................................")
         ip, port = extract_ip_port(proxy_addr)
         connection_ok = test_connection(ip, port)
 
@@ -89,7 +90,15 @@ def main(add_type, username, email, ip, sudo_hours, is_audit):
         
         print(f"请求代理地址 {proxy_addr}")
         print(f"请求代理时, 调用的参数为: {json.dumps(request_data)}")
-        print(f"响应: {res.text}")
+
+        # 下面解析中使用的诸如 info、output、data等字段是在 Connector/pp/bl/proxy/main.go 中定义的
+        try:
+            # 命令调用成功时的响应 
+            print(f"响应: {json.loads(res.text)['data']}")
+        except Exception as e:
+            # 命令调用失败时的响应 
+            print(f"响应: {json.loads(json.loads(res.text)['info'])['output']}")
+
         print("\n\n")
 
         data = json.loads(res.text)
@@ -97,6 +106,7 @@ def main(add_type, username, email, ip, sudo_hours, is_audit):
         if data["stat"] == 1:
             ok = True
             break
+            
     if not ok:
         exit(1)
 

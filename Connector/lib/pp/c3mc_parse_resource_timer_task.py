@@ -55,8 +55,8 @@ def lock_file():
     执行之前请确保锁文件不存在，否则出错
     """
     try:
-        with open(CRON_TASK_LOCK_PATH, 'x'):
-            print(f'锁文件已创建: {CRON_TASK_LOCK_PATH}')
+        open(CRON_TASK_LOCK_PATH, 'x')
+        # print(f'锁文件已创建: {CRON_TASK_LOCK_PATH}')
     except FileExistsError as e:
         raise RuntimeError(f'锁文件已存在: {CRON_TASK_LOCK_PATH}') from e
 
@@ -65,7 +65,7 @@ def unlock_file():
     """
     if os.path.exists(CRON_TASK_LOCK_PATH):
         os.remove(CRON_TASK_LOCK_PATH)
-        print(f'锁文件已删除: {CRON_TASK_LOCK_PATH}')
+        # print(f'锁文件已删除: {CRON_TASK_LOCK_PATH}')
 
 
 class Line:

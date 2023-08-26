@@ -102,7 +102,7 @@ sub xsend
         }
     }
 
-    die sprintf( "$err: status %s", $status ) unless $status eq 'ok';
+    die sprintf( "%s: status %s", $err, $status ) unless $status eq 'ok';
 }
 
 map{ xsend( $_, $o{subject}, $content ) }@ARGV;

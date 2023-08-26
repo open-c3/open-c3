@@ -81,7 +81,7 @@ sub sendmesg
         }
     }
 
-    die sprintf( "$err: status %s", $status ) unless $status eq 'ok';
+    die sprintf( "%s: status %s", $err, $status ) unless $status eq 'ok';
 }
 
 map{ sendmesg( $_, $mesg ) }@ARGV;
