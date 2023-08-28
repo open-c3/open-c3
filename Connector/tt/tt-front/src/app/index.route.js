@@ -126,6 +126,12 @@
                 controller: 'EmailtplController',
                 controllerAs: 'emailtpl'
             })
+            .state('home.system.configuration', {
+              url: 'configuration',
+              templateUrl: 'app/pages/system/configuration/configuration.html',
+              controller: 'ConfigurationController',
+              controllerAs: 'configuration'
+            })
 
         /** error page **/
             .state('home.e401', {
