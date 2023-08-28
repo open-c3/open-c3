@@ -31,6 +31,8 @@ for my $mon ( @mon )
     }
 }
 
+map{ $mon{'last-hostcount'}{$_} = 0 if defined $mon{'avg-active'}{$_} && ! defined $mon{'last-hostcount'}{$_} }keys %{$mon{'avg-active'}};
+
 printf "%s\n", join "\t", @col, @mon;
 for my $x ( @x )
 {
