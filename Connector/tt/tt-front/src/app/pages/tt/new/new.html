@@ -16,8 +16,31 @@
 
     <form name="newtt_form" class="form-horizontal newtt" onsubmit="return false;" novalidate>
 
+      <div class="col-md-12">
+        <!-- 选择账号 -->
+        <div class="panel panel-alert panel-border top">
+          <div class="panel-heading">
+            <h5 translate="D.Base.work_order_classification"></h5>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label class="col-md-3 control-label">
+                <span translate="D.Base.select_person_number"></span>
+                &nbsp;
+                <span class="text-danger">*</span>
+              </label>
+              <div class="col-md-9">
+                <select class="form-control" size="1" ng-model="ttnew.personSelect" ng-change="ttnew.handlePersonChange()"
+                  required>
+                  <option ng-repeat="v in ttnew.personOption" value="{{v.target_user}}">{{v.target_user || 'D.Base.default_config_text'}}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
         <!--left-->
-        <div class="col-md-5">
+        <div class="col-md-5" ng-if="ttnew.personSelect !== '默认配置'">
             <!--事件影响-->
             <div class="panel panel-danger panel-border top">
                 <div class="panel-heading">
@@ -120,7 +143,7 @@
         </div>
 
         <!--right-->
-        <div class="col-md-7">
+        <div class="col-md-7" ng-class="{'col-md-12': ttnew.personSelect === '默认配置'}">
             <!--事件描述-->
             <div class="panel panel-primary panel-border top">
                 <div class="panel-heading">

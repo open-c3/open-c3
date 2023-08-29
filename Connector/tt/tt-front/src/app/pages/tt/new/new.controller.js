@@ -5,11 +5,12 @@
         .controller('TTNewController', TTNewController);
 
     /** @ngInject */
-    function TTNewController($state, $log, $http, $window, $uibModal, baseService, oauserService, FileUploader) {
+    function TTNewController($state, $log, $http, $window, $uibModal, baseService, oauserService, FileUploader, toastr) {
 
 
         var vm = this;
         var swal = $window.swal;
+        vm.personSelect = '默认配置';
         vm.ticket = {
             "impact": 5
         };
@@ -134,6 +135,61 @@
                 vm.item_change();
             }
         };
+
+        vm.setTicket = function (obj) {
+          vm.ticket.impact = obj.impact;
+          vm.ticket.category = obj.category;
+          vm.ticket.group_user = obj.group_user;
+          vm.ticket.workgroup = obj.work_group;
+          vm.ticket.type = obj.type;
+          vm.ticket.item = obj.item;
+          vm.ticket.title = ''
+          vm.ticket.content = ''
+          vm.ticket.email_list = ''
+        }
+
+        // 获取用户列表
+        vm.getUserList = function () {
+          $http.get('/api/tt/person/list').success(function (data) {
+            if (data.code === 200) {
+              vm.personOption = data.data.map(function (item) {
+                if (item.target_user === '') {
+                  item.target_user = '默认配置'
+                }
+                return item
+              })
+              vm.personOption.unshift({
+                target_user: '自定义配置', 
+                id: -1, 
+                impact:5, 
+                category:0,
+                type:0,
+                item:0,
+                work_group:0,
+                group_user:0,
+                edit_user:''
+              })
+              var itemToMove = vm.personOption.find(function(item) { return item.target_user === '默认配置' });
+              vm.setTicket(itemToMove)
+              if (itemToMove) {
+                var index = vm.personOption.indexOf(itemToMove)
+                if (index > -1) {
+                  vm.personOption.splice(index, 1);
+                  vm.personOption.unshift(itemToMove);
+                }
+              }
+            }
+          }).error(function (data) {
+            toastr.error('获取数据失败！');
+          });
+        }
+        vm.getUserList();
+
+        // 选择账号
+        vm.handlePersonChange = function () {
+          var selectItems = vm.personOption.find(function(item) { return item.target_user === vm.personSelect })
+          vm.setTicket(selectItems)
+        }
 
         // submit
         vm.submit = function () {
