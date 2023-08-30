@@ -1,0 +1,153 @@
+definitions:
+  handler.CreatePersonParamsArgs:
+    properties:
+      category:
+        description: 总类
+        type: integer
+      group_user:
+        description: 组员
+        type: integer
+      impact:
+        description: 影响级别
+        type: integer
+      item:
+        description: 名目
+        type: integer
+      target_user:
+        description: 目标用户。可以为空。如果为空，在前端为"默认系统配置"
+        type: string
+      type:
+        description: 子类
+        type: integer
+      work_group:
+        description: 工作组
+        type: integer
+    required:
+    - category
+    - group_user
+    - impact
+    - item
+    - type
+    - work_group
+    type: object
+  handler.CreatePersonParamsByCopyArgs:
+    properties:
+      target_user:
+        type: string
+      template_user:
+        type: string
+    required:
+    - target_user
+    - template_user
+    type: object
+  model.PersonPreConfigParams:
+    properties:
+      category:
+        description: 总类
+        type: integer
+      edit_user:
+        type: string
+      group_user:
+        description: 组员
+        type: integer
+      id:
+        type: integer
+      impact:
+        description: 影响级别
+        type: integer
+      item:
+        description: 名目
+        type: integer
+      target_user:
+        description: 目标用户。可以为空。如果为空，在前端为"默认系统配置"
+        type: string
+      type:
+        description: 子类
+        type: integer
+      work_group:
+        description: 工作组
+        type: integer
+    required:
+    - category
+    - group_user
+    - impact
+    - item
+    - type
+    - work_group
+    type: object
+info:
+  contact: {}
+paths:
+  /person/create:
+    post:
+      consumes:
+      - application/json
+      description: 创建运维人员预配置
+      parameters:
+      - description: 请求体
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreatePersonParamsArgs'
+      responses:
+        "200":
+          description: OK
+      summary: 创建运维人员预配置
+      tags:
+      - 运维预配置
+  /person/create/by_copy:
+    post:
+      consumes:
+      - application/json
+      description: 通过复制账号创建运维人员预配置
+      parameters:
+      - description: 请求体
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/handler.CreatePersonParamsByCopyArgs'
+      responses:
+        "200":
+          description: OK
+      summary: 通过复制账号创建运维人员预配置
+      tags:
+      - 运维预配置
+  /person/delete/:id:
+    delete:
+      description: 根据TargetUser的id删除指定的账号
+      responses:
+        "200":
+          description: OK
+      summary: 根据TargetUser的id删除指定的账号
+      tags:
+      - 运维预配置
+  /person/list:
+    get:
+      consumes:
+      - application/json
+      description: 获取所有运维人员预配置
+      responses: {}
+      summary: 获取所有运维人员预配置
+      tags:
+      - 运维预配置
+  /person/update:
+    post:
+      consumes:
+      - application/json
+      description: 更新运维预配置
+      parameters:
+      - description: 请求体
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/model.PersonPreConfigParams'
+      responses:
+        "200":
+          description: OK
+      summary: 更新运维预配置
+      tags:
+      - 运维预配置
+swagger: "2.0"

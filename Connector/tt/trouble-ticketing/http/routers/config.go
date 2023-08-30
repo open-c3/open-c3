@@ -14,6 +14,7 @@ func ConfigRouter(r *gin.RouterGroup) {
 	report_route(r.Group("/report")) // 报表类接口
 	public_route(r.Group("/public")) // 公共接口，第三方系统调用
 	self_route(r.Group("/self"))     // TT自身
+	PersonParams(r.Group("/person"))
 }
 
 func base_route(r *gin.RouterGroup) {
@@ -140,9 +141,18 @@ func public_route(r *gin.RouterGroup) {
 	r.GET("/ticket/status/:id", handler.PublicGetTicketStatus) // 获取事件状态
 	r.GET("/ticket", handler.PublicGetTicketInfo)              // 获取事件基础信息
 
-	r.POST("/ticket/info", handler.PublicBatchGetTicketInfo)   // 批量获取事件基础信息
+	r.POST("/ticket/info", handler.PublicBatchGetTicketInfo) // 批量获取事件基础信息
 }
 
 func self_route(r *gin.RouterGroup) {
 	r.GET("/version", handler.SelfVersion)
 }
+
+func PersonParams(r *gin.RouterGroup) {
+	r.POST("/create", handler.CreatePersonParams)
+	r.POST("/create/by_copy", handler.CreatePersonParamsByCopy)
+	r.POST("/update", handler.UpdatePersonByTargetUser)
+	r.GET("/list", handler.GetAllPersonParams)
+	r.DELETE("/delete/:id", handler.DeletePersonByTargetUser)
+}
+

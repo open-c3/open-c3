@@ -980,3 +980,24 @@ create table if not exists `openc3_connector_menu_favorites`(
 UNIQUE KEY `uniq_user_menu` (`user`,`menu`)
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='用户菜单收藏夹';
 
+# v2.6.0 sql openc3_tt_person_pre_config_params create
+CREATE TABLE IF NOT EXISTS openc3_tt_person_pre_config_params (
+    `id`            BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY COMMENT 'id',
+    `target_user`   VARCHAR(255) NOT NULL COMMENT '目标用户。没有要求格式，可以是邮箱或者普通用户名',
+    `impact`        int(11) unsigned NOT NULL default 1 COMMENT '事件影响',
+    `category`      int(11) unsigned NOT NULL default 1 COMMENT 'C',
+    `type`          int(11) unsigned NOT NULL default 1 COMMENT 'T',
+    `item`          int(11) unsigned NOT NULL default 1 COMMENT 'I',
+    `work_group`    int(11) unsigned NOT NULL default 1 COMMENT '工作组',
+    `group_user`    int(11) unsigned COMMENT '指派人',
+    `edit_user`     VARCHAR(255) COMMENT '编辑人',
+    `edit_time`     TIMESTAMP NOT NULL ON UPDATE CURRENT_TIMESTAMP DEFAULT CURRENT_TIMESTAMP COMMENT '最后编辑时间',
+    UNIQUE KEY `uniq_target_user` (`target_user`),
+    FOREIGN KEY (`impact`)      REFERENCES openc3_tt_base_impact(`id`),
+    FOREIGN KEY (`category`)    REFERENCES openc3_tt_base_category(`id`),
+    FOREIGN KEY (`type`)        REFERENCES openc3_tt_base_type(`id`),
+    FOREIGN KEY (`item`)        REFERENCES openc3_tt_base_item(`id`),
+    FOREIGN KEY (`work_group`)  REFERENCES openc3_tt_base_group(`id`),
+    FOREIGN KEY (`group_user`)  REFERENCES openc3_tt_base_group_user(`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='预配置的运维人员参数';
+
