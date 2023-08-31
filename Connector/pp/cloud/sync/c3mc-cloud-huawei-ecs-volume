@@ -11,6 +11,13 @@ from huaweicloudsdkecs.v2 import *
 from huaweicloudsdkevs.v2 import *
 
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import sleep_time_for_limiting
+
+# 假设list_server_block_devices每秒最高频率限制24次
+# 这个频率在华为云官网没查到，问华为的人频率是多少，他们说是保密...
+assume_frequency = 24
+
 def get_volume(data_list):
     result = []
     m = {}
@@ -36,6 +43,8 @@ def get_volume(data_list):
         request = ListServerBlockDevicesRequest()
         request.server_id = data["id"]
         block_response = volume_client.list_server_block_devices(request)
+
+        sleep_time_for_limiting(assume_frequency)
 
         for volume in block_response.to_dict()["volume_attachments"]:
             if volume['id'] in m:
