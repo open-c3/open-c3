@@ -126,6 +126,224 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/statistics/get_todo_tts": {
+            "get": {
+                "description": "获取待办tt列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tt统计"
+                ],
+                "summary": "获取待办tt列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "起始时间戳. 秒数",
+                        "name": "start",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "结束时间戳. 秒数",
+                        "name": "end",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "是否获取所有待办. 1: 获取所有待办;  0: 获取个人待办",
+                        "name": "all",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Ticket"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/statistics/get_tts": {
+            "get": {
+                "description": "获取tt列表",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tt统计"
+                ],
+                "summary": "获取tt列表",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "起始时间戳. 秒数",
+                        "name": "start",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "结束时间戳. 秒数",
+                        "name": "end",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Ticket"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/statistics/get_user_accounts": {
+            "get": {
+                "description": "获取所有运维人员预配置",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tt统计"
+                ],
+                "summary": "获取所有运维人员预配置",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "起始时间戳. 秒数",
+                        "name": "start",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "结束时间戳. 秒数",
+                        "name": "end",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/statistics/work_order_summary": {
+            "get": {
+                "description": "获取工单按类别统计",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tt统计"
+                ],
+                "summary": "获取工单按类别统计",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "起始时间戳. 秒数",
+                        "name": "start",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "结束时间戳. 秒数",
+                        "name": "end",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/statistics/work_order_summary/by_apply_user": {
+            "get": {
+                "description": "获取工单按申请人统计(只返回前10)",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tt统计"
+                ],
+                "summary": "获取工单按申请人统计(只返回前10)",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "起始时间戳. 秒数",
+                        "name": "start",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "结束时间戳. 秒数",
+                        "name": "end",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
+        },
+        "/statistics/work_order_summary/by_status": {
+            "get": {
+                "description": "获取工单按 待办/完成 统计(只返回前10)",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tt统计"
+                ],
+                "summary": "获取工单按 待办/完成 统计(只返回前10)",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "起始时间戳. 秒数",
+                        "name": "start",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "结束时间戳. 秒数",
+                        "name": "end",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "是否结束。1: 完成的工单; 0: 未完成工单",
+                        "name": "status",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {}
+            }
         }
     },
     "definitions": {
@@ -228,6 +446,86 @@ const docTemplate = `{
                 },
                 "work_group": {
                     "description": "工作组",
+                    "type": "integer"
+                }
+            }
+        },
+        "model.Ticket": {
+            "type": "object",
+            "properties": {
+                "apply_user": {
+                    "type": "string"
+                },
+                "category": {
+                    "type": "integer"
+                },
+                "closed_time": {
+                    "type": "string"
+                },
+                "content": {
+                    "type": "string"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "email_list": {
+                    "type": "string"
+                },
+                "group_user": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "impact": {
+                    "type": "integer"
+                },
+                "item": {
+                    "type": "integer"
+                },
+                "no": {
+                    "type": "string"
+                },
+                "one_time_resolve_rate": {
+                    "type": "integer"
+                },
+                "resolve_cost": {
+                    "type": "integer"
+                },
+                "resolve_time": {
+                    "type": "string"
+                },
+                "resolve_timeout_sent": {
+                    "type": "integer"
+                },
+                "response_cost": {
+                    "type": "integer"
+                },
+                "response_time": {
+                    "type": "string"
+                },
+                "response_timeout_sent": {
+                    "type": "integer"
+                },
+                "root_cause": {
+                    "type": "string"
+                },
+                "solution": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "submit_user": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "type": {
+                    "type": "integer"
+                },
+                "workgroup": {
                     "type": "integer"
                 }
             }

@@ -75,6 +75,59 @@ definitions:
     - type
     - work_group
     type: object
+  model.Ticket:
+    properties:
+      apply_user:
+        type: string
+      category:
+        type: integer
+      closed_time:
+        type: string
+      content:
+        type: string
+      created_at:
+        type: string
+      email_list:
+        type: string
+      group_user:
+        type: integer
+      id:
+        type: integer
+      impact:
+        type: integer
+      item:
+        type: integer
+      "no":
+        type: string
+      one_time_resolve_rate:
+        type: integer
+      resolve_cost:
+        type: integer
+      resolve_time:
+        type: string
+      resolve_timeout_sent:
+        type: integer
+      response_cost:
+        type: integer
+      response_time:
+        type: string
+      response_timeout_sent:
+        type: integer
+      root_cause:
+        type: string
+      solution:
+        type: string
+      status:
+        type: string
+      submit_user:
+        type: string
+      title:
+        type: string
+      type:
+        type: integer
+      workgroup:
+        type: integer
+    type: object
 info:
   contact: {}
 paths:
@@ -150,4 +203,152 @@ paths:
       summary: 更新运维预配置
       tags:
       - 运维预配置
+  /statistics/get_todo_tts:
+    get:
+      consumes:
+      - application/json
+      description: 获取待办tt列表
+      parameters:
+      - description: 起始时间戳. 秒数
+        in: query
+        name: start
+        required: true
+        type: integer
+      - description: 结束时间戳. 秒数
+        in: query
+        name: end
+        required: true
+        type: integer
+      - description: '是否获取所有待办. 1: 获取所有待办;  0: 获取个人待办'
+        in: query
+        name: all
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Ticket'
+            type: array
+      summary: 获取待办tt列表
+      tags:
+      - tt统计
+  /statistics/get_tts:
+    get:
+      consumes:
+      - application/json
+      description: 获取tt列表
+      parameters:
+      - description: 起始时间戳. 秒数
+        in: path
+        name: start
+        required: true
+        type: integer
+      - description: 结束时间戳. 秒数
+        in: path
+        name: end
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.Ticket'
+            type: array
+      summary: 获取tt列表
+      tags:
+      - tt统计
+  /statistics/get_user_accounts:
+    get:
+      consumes:
+      - application/json
+      description: 获取所有运维人员预配置
+      parameters:
+      - description: 起始时间戳. 秒数
+        in: path
+        name: start
+        required: true
+        type: integer
+      - description: 结束时间戳. 秒数
+        in: path
+        name: end
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              type: string
+            type: array
+      summary: 获取所有运维人员预配置
+      tags:
+      - tt统计
+  /statistics/work_order_summary:
+    get:
+      consumes:
+      - application/json
+      description: 获取工单按类别统计
+      parameters:
+      - description: 起始时间戳. 秒数
+        in: query
+        name: start
+        required: true
+        type: integer
+      - description: 结束时间戳. 秒数
+        in: query
+        name: end
+        required: true
+        type: integer
+      responses: {}
+      summary: 获取工单按类别统计
+      tags:
+      - tt统计
+  /statistics/work_order_summary/by_apply_user:
+    get:
+      consumes:
+      - application/json
+      description: 获取工单按申请人统计(只返回前10)
+      parameters:
+      - description: 起始时间戳. 秒数
+        in: query
+        name: start
+        required: true
+        type: integer
+      - description: 结束时间戳. 秒数
+        in: query
+        name: end
+        required: true
+        type: integer
+      responses: {}
+      summary: 获取工单按申请人统计(只返回前10)
+      tags:
+      - tt统计
+  /statistics/work_order_summary/by_status:
+    get:
+      consumes:
+      - application/json
+      description: 获取工单按 待办/完成 统计(只返回前10)
+      parameters:
+      - description: 起始时间戳. 秒数
+        in: query
+        name: start
+        required: true
+        type: integer
+      - description: 结束时间戳. 秒数
+        in: query
+        name: end
+        required: true
+        type: integer
+      - description: '是否结束。1: 完成的工单; 0: 未完成工单'
+        in: query
+        name: status
+        required: true
+        type: integer
+      responses: {}
+      summary: 获取工单按 待办/完成 统计(只返回前10)
+      tags:
+      - tt统计
 swagger: "2.0"

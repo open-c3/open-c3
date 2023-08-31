@@ -15,6 +15,7 @@ func ConfigRouter(r *gin.RouterGroup) {
 	public_route(r.Group("/public")) // 公共接口，第三方系统调用
 	self_route(r.Group("/self"))     // TT自身
 	PersonParams(r.Group("/person"))
+	Statistics(r.Group("/statistics"))
 }
 
 func base_route(r *gin.RouterGroup) {
@@ -156,3 +157,11 @@ func PersonParams(r *gin.RouterGroup) {
 	r.DELETE("/delete/:id", handler.DeletePersonByTargetUser)
 }
 
+func Statistics(r *gin.RouterGroup) {
+	r.GET("/get_user_accounts", handler.GetUserAccounts)
+	r.GET("/get_tts", handler.GetTickets)
+	r.GET("/get_todo_tts", handler.GetTodoTickets)
+	r.GET("/work_order_summary", handler.GetWorkOrderSummary)
+	r.GET("/work_order_summary/by_apply_user", handler.GetWorkOrderByApplyUserSummary)
+	r.GET("/work_order_summary/by_status", handler.GetWorkOrderByStatusSummary)
+}
