@@ -167,35 +167,55 @@
             });
         };
 
+        vm.showTypeOperate = {
+          blank: function (uuid, type, subtype, config) {
+            $http.post(`/api/agent/device/detail/${type}/${subtype}/${vm.treeid}/${uuid}?timemachine=${vm.selectedtimemachine}`, { 'exturl': config['url'] }).success(function (data) {
+              if (data.stat) {
+                window.open(data.data, '_blank')
+              } else {
+                swal({ title: '获取URL地址失败', text: data.info, type: 'error' });
+              }
+            });
+          },
+          modal: function (uuid, type, subtype, config) {
+            $uibModal.open({
+              templateUrl: 'app/pages/device/data/dialog/resourceDetail/resourceDetail.html',
+              controller: 'ResourceDetailController',
+              controllerAs: 'resourceDetail',
+              backdrop: 'static',
+              size: 'lg',
+              keyboard: false,
+              bindToController: true,
+              resolve: {
+                config: function () {return config},
+                uuid: function () {return uuid},
+                type: function () {return type},
+                subtype: function () {return subtype},
+                treeid: function () {return vm.treeid},
+              }
+            })
+          },
+          tags: function (uuid, type, subtype, config) {
+            $uibModal.open({
+              templateUrl: 'app/pages/device/data/dialog/tags/tags.html',
+              controller: 'TagsController',
+              controllerAs: 'tags',
+              backdrop: 'static',
+              size: 'lg',
+              keyboard: false,
+              bindToController: true,
+              resolve: {
+                config: function () {return config},
+                uuid: function () {return uuid},
+                type: function () {return type},
+                subtype: function () {return subtype},
+                treeid: function () {return vm.treeid},
+            }
+            })
+          }}
+
         vm.show = function ( uuid, type, subtype, config ) {
-            if( config['type'] == 'blank' )
-            {
-                $http.post('/api/agent/device/detail/' + type+ '/' + subtype + '/' + vm.treeid +'/' + uuid + '?timemachine=' + vm.selectedtimemachine , { 'exturl': config['url'] }).success(function(data){
-                    if (data.stat){
-                        window.open(data.data, '_blank')
-                    }else {
-                        swal({ title:'获取URL地址失败', text: data.info, type:'error' });
-                    }
-                });
-            }
-            else if (config['type'] === 'modal') {
-              $uibModal.open({
-                templateUrl: 'app/pages/device/data/dialog/resourceDetail/resourceDetail.html',
-                controller: 'ResourceDetailController',
-                controllerAs: 'resourceDetail',
-                backdrop: 'static',
-                size: 'lg',
-                keyboard: false,
-                bindToController: true,
-                resolve: {
-                  config: function () {return config},
-                  uuid: function () {return uuid},
-                  type: function () {return type},
-                  subtype: function () {return subtype},
-                  treeid: function () {return vm.treeid},
-                }
-              })
-            }
+            return vm.showTypeOperate[config['type']](uuid, type, subtype, config)
         };
 
     vm.handleServiceTree = function (type) {
