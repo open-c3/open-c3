@@ -59,9 +59,7 @@ class Rule:
                 if "maybe some tasks are being processed" in str(e) or "wait for the task to complete" in str(e):
                     time.sleep(5)
                     continue
-                self.lib_client.delete_load_balancer(load_balancer_id_list=[self.params["clb_id"]])
-                print(f"执行请求出错, err: {e}", file=sys.stderr)
-                exit(1)
+                raise e
 
     def create_rule(self):
         rule = self.construct_rule()
