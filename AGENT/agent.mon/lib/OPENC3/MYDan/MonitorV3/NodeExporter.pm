@@ -224,6 +224,7 @@ sub run
                                    
                                    $val->{metric} =~ s/\./_/g if $val->{metric};
                                    $val->{metric} =~ s/\-/_/g if $val->{metric};
+                                   $val->{metric} =~ s/\s/_/g if $val->{metric};
 
                                    my $extbyendpointfile = "/opt/mydan/dan/agent.mon/exttag_by_endpoint/$val->{endpoint}.yml";
                                    if( -f $extbyendpointfile )
