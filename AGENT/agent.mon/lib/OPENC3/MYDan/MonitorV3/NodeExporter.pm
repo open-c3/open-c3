@@ -245,8 +245,8 @@ sub run
 
                                    if ( $val->{metric} && $val->{metric} =~ /^[a-zA-Z0-9\.\-_]+$/ 
                                      && defined $val->{value} && ( $val->{value} =~ /^[-+]?\d+$/ || $val->{value} =~ /^[-+]?\d+\.\d+$/ )
-                                     && ( ( ! $val->{tags} ) || ( $val->{tags} && $val->{tags} =~ /^[a-zA-Z0-9\.\-_=,]+$/ ) )
-                                     && ( ( ! $val->{endpoint} ) || ( $val->{endpoint} && $val->{endpoint} =~ /^[a-zA-Z0-9\.\-_=,]+$/ ) )
+                                     && ( ( ! $val->{tags} ) || ( $val->{tags} && $val->{tags} =~ /^[a-zA-Z0-9\.\-_=,:\/]+$/ ) )
+                                     && ( ( ! $val->{endpoint} ) || ( $val->{endpoint} && $val->{endpoint} =~ /^[a-zA-Z0-9\.\-_=,:\/]+$/ ) )
                                    )
                                    {
                                        my %tags = ( %etag, source => 'apipush' );
@@ -262,7 +262,11 @@ sub run
                                        # 这是普罗米修斯的机制决定的
                                        $this->{collector}->set( $val->{metric}, $val->{value} , \%tags, $timestamp, $step );
                                    }
-                                   else { $mesg = "error"; }
+                                   else
+                                   {
+                                       $mesg = "error";
+                                       warn sprintf "NodeExporter push error: %s", YAML::XS::Dump $val;
+                                   }
                                }
                            }
 

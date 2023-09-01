@@ -18,7 +18,7 @@ sub new
 
     $this{port} ||= 9999;
 
-    $version = 40 + ( 2 - scalar @{$this{server}} );
+    $version = 50 + ( 2 - scalar @{$this{server}} );
 
     bless \%this, ref $class || $class;
 }
@@ -135,7 +135,15 @@ sub _allocate
             on_error => sub {
 
                delete $index{$index}{handle_s}{$sid};
-               delete $index{$index}{m}{$sid};
+
+               # C3TODO 230831 falcon兼容程序失败重连问题
+               # 后端服务网络失败后，原先的设计是重连重试，所以使用的delete操作让连接重建
+               # 但是使用过程中会导致tcp释放不干净导致内存泄漏。
+               #
+               # 这里改成失败后当做失败处理，不在重连，失败状态是2.
+
+               #delete $index{$index}{m}{$sid};
+               $index{$index}{m}{$sid} = 2;
 
                $this->allocate();
              },
