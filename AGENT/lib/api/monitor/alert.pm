@@ -83,7 +83,7 @@ get '/monitor/alert/:projectid' => sub {
             {
                 my ( $k, $v ) = split / /, $_, 2;
                 $k =~ s/:$//g;
-                $x{$k} = $v;
+                $x{$k} = Encode::decode( 'utf8', $v );
             }
             map{ $_->{$type} = $x{$_->{labels}{instance}} // '' if $_->{labels}{instance} }@res;
         }
