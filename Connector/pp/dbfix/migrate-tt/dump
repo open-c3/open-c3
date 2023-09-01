@@ -1,0 +1,23 @@
+#!/bin/bash
+
+set -e
+
+output_name="data.sql"
+
+docker exec openc3-mysql mysqldump -uroot -popenc3123456^! connector \
+                            openc3_tt_base_category  \
+                            openc3_tt_base_email_templates \
+                            openc3_tt_base_group \
+                            openc3_tt_base_group_user \
+                            openc3_tt_base_impact \
+                            openc3_tt_base_item  \
+                            openc3_tt_base_item_group_map \
+                            openc3_tt_base_type  \
+                            openc3_tt_common_lang  \
+                            openc3_tt_common_reply_log  \
+                            openc3_tt_common_sys_log  \
+                            openc3_tt_common_work_log  \
+                            openc3_tt_ticket  \
+                            openc3_tt_ticket_attachment > $output_name
+
+echo "导出完成, 文件名: $output_name"

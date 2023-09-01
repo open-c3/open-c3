@@ -46,7 +46,8 @@ class SSL:
         response_data = json.loads(response_data.to_json_string())
         data_list = response_data["Certificates"]
         for item in data_list:
-            print(json.dumps(item, default=str))
+            if item["StatusName"] != "已过期":
+                print(json.dumps(item, default=str))
 
     def page(self):
         count = self.get_total_count()
