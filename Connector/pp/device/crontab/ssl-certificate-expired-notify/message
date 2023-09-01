@@ -1,0 +1,59 @@
+#!/data/Software/mydan/python3/bin/python3
+
+import re
+import subprocess;
+import datetime
+
+date2 = datetime.date.today()
+date2_datetime = datetime.datetime(date2.year, date2.month, date2.day)
+
+( status, output ) = subprocess.getstatusoutput( "c3mc-device-data-get curr others ssl-certificate uuid ExpiredTime RelationInfo" );
+if status != 0:
+    raise Exception("err")
+
+notify = {}
+
+for x in output.split("\n"):
+    ( uuid, date, info ) = x.split("\t", 2)
+
+    if not uuid or len(uuid) == 0:
+        continue
+
+    if not date or len(date) == 0:
+        error = "ExpiredTime unknown"
+        if not notify.get(error):
+            notify[error] = {}
+
+        notify[error][uuid] = { "date": "unknown", "info": "unkown"  }
+        continue
+
+    x = re.match(r"(\d+)\-(\d+)\-(\d+)",date)
+
+    if not x:
+        error = "ExpiredTime format error"
+        if not notify.get(error):
+            notify[error] = {}
+
+        notify[error][uuid] = { "date": date, "info": info }
+        continue
+
+    date1 = datetime.datetime(int(x.group(3)) + 2000, int(x.group(1)), int(x.group(2)))
+
+    date_difference = date1 - date2_datetime
+
+    if date_difference.days <= 30:
+
+        error = "ExpiredTime <= 30 day"
+        if not notify.get(error):
+            notify[error] = {}
+
+        notify[error][uuid] = { "date": date, "info": info  }
+
+for err, data in notify.items():
+
+    if len(data) == 0:
+        continue
+
+    print("error:{}".format(err))
+    for k, v in data.items():
+        print("    {} {} {}".format( k, v["date"], v["info"] ) )
