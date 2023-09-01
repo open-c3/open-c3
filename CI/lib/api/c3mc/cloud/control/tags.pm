@@ -64,4 +64,76 @@ $handle{cloud_tags_get} = sub
     return +{ stat => $JSON::true, data => $tag };
 };
 
+=pod
+
+云资源/控制/Tags/添加或者编辑资源tag
+
+=cut
+
+post '/c3mc/cloud/control/tags/add/:type/:subtype/:uuid' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        type        => qr/^[a-zA-Z0-9][a-zA-Z0-9\-]+$/,  1,
+        subtype     => qr/^[a-zA-Z0-9][a-zA-Z0-9\-]+$/,  1,
+        uuid        => qr/^[a-zA-Z0-9][a-zA-Z0-9\-_]+$/, 1,
+        tagkey      => qr/^[a-zA-Z0-9][a-zA-Z0-9\-_]+$/, 1,
+        tagvalue    => qr/^[a-zA-Z0-9][a-zA-Z0-9\-_]+$/, 1,
+
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+ 
+    my $pmscheck = api::pmscheck( 'openc3_ci_root' ); return $pmscheck if $pmscheck;
+
+    my $filter = +{};
+
+    my $cmd = "c3mc-cloud-control --type '$param->{type}' --subtype '$param->{subtype}' --uuid '$param->{uuid}' --ctrl tag-add '$param->{tagkey}=$param->{tagname}' 2>&1";
+    my $handle = 'cloud_tags_add';
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle, filter => $filter }} if request->headers->{"openc3event"};
+    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $?, $filter ); 
+};
+
+$handle{cloud_tags_add} = sub
+{
+    my ( $x, $status, $filter ) = @_;
+    return +{ stat => $JSON::false, info => $x } if $status;
+    return +{ stat => $JSON::true, data => 'ok' };
+};
+
+=pod
+
+云资源/控制/Tags/删除资源tag
+
+=cut
+
+post '/c3mc/cloud/control/tags/del/:type/:subtype/:uuid' => sub {
+    my $param = params();
+    my $error = Format->new( 
+        type        => qr/^[a-zA-Z0-9][a-zA-Z0-9\-]+$/,  1,
+        subtype     => qr/^[a-zA-Z0-9][a-zA-Z0-9\-]+$/,  1,
+        uuid        => qr/^[a-zA-Z0-9][a-zA-Z0-9\-_]+$/, 1,
+        tagkey      => qr/^[a-zA-Z0-9][a-zA-Z0-9\-_]+$/, 1,
+        tagvalue    => qr/^[a-zA-Z0-9][a-zA-Z0-9\-_]+$/, 1,
+
+    )->check( %$param );
+
+    return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+ 
+    my $pmscheck = api::pmscheck( 'openc3_ci_root' ); return $pmscheck if $pmscheck;
+
+    my $filter = +{};
+
+    my $cmd = "c3mc-cloud-control --type '$param->{type}' --subtype '$param->{subtype}' --uuid '$param->{uuid}' --ctrl tag-delete '$param->{tagkey}=$param->{tagname}' 2>&1";
+    my $handle = 'cloud_tags_del';
+    return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle, filter => $filter }} if request->headers->{"openc3event"};
+    return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $?, $filter ); 
+};
+
+$handle{cloud_tags_del} = sub
+{
+    my ( $x, $status, $filter ) = @_;
+    return +{ stat => $JSON::false, info => $x } if $status;
+    return +{ stat => $JSON::true, data => 'ok' };
+};
+
 true;
