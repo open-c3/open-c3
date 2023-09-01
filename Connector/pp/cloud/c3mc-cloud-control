@@ -16,13 +16,16 @@ use uuid;
  $0 --uuid uuid --ctrl tag_add --file /your/contrl/conf.yml
  $0 --uuid uuid --ctrl tag_add argv1 argv2 ... argvn
 
+ $0 --type xx --subtype xx --uuid uuid --ctrl tag_add argv1 argv2 ... argvn
+
 =cut
 
 my $option = MYDan::Util::OptConf->load();
-my %o      = $option->get(    qw( uuid=s ctrl=s file=s) )->dump();
+my %o      = $option->get(    qw( type=s subtype=s uuid=s ctrl=s file=s) )->dump();
              $option->assert( qw( uuid ) );
 
-my @x = `c3mc-device-cat-all '$o{uuid}'`;
+my @x = ( $o{type} && $o{subtype} ) ? `c3mc-device-cat curr '$o{type}' '$o{subtype}' '$o{uuid}'` : `c3mc-device-cat-all '$o{uuid}'`;
+
 chomp @x;
 exit unless @x;
 
@@ -40,6 +43,8 @@ die "nofind uuid in CMDB" unless @data;
 
 warn "data > 1" if @data > 1;
 my $data = shift @data;
+
+( $data->{type}, $data->{subtype} ) = ( $o{type}, $o{subtype} ) if $o{type} && $o{subtype};
 
 my $config = YAML::XS::LoadFile "/data/Software/mydan/Connector/pp/cloud/control/conf.yml";
 
