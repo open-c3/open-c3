@@ -1,0 +1,77 @@
+#!/bin/bash
+
+set -e
+
+display_usage() {
+    echo -e "\nUsage: $0 -p <path>"
+    echo "导入tt相关的表."
+    echo -e "\nOptions:"
+    echo "  -h, --help  导入tt相关的表."
+    echo "  -p          指定导入的文件路径."
+}
+
+path=""
+while getopts ":hp:" opt; do
+    case $opt in
+        h)
+            display_usage
+            exit 0
+            ;;
+        p)
+            path="$OPTARG"
+            ;;
+        \?)
+            echo "无效的选项: -$OPTARG" >&2
+            display_usage
+            exit 1
+            ;;
+        :)
+            echo "选项 -$OPTARG 需要一个参数." >&2
+            display_usage
+            exit 1
+            ;;
+    esac
+done
+
+if [[ -z $path ]]; then
+    echo "必须指定一个路径."
+    display_usage
+    exit 1
+fi
+
+if [[ ! -e $path ]]; then
+    echo "$path 路径不存在."
+    exit 1
+fi
+
+filename=$(basename $path)
+
+docker exec openc3-mysql mysql -uroot -popenc3123456^! connector -e "
+    SET foreign_key_checks = 0;
+
+    DELETE FROM openc3_tt_ticket_attachment;
+    DELETE FROM openc3_tt_common_reply_log;
+    DELETE FROM openc3_tt_common_work_log;
+    DELETE FROM openc3_tt_ticket;
+    DELETE FROM openc3_tt_common_sys_log;
+    DELETE FROM openc3_tt_common_lang;
+    DELETE FROM openc3_tt_base_item_group_map;
+    DELETE FROM openc3_tt_base_group_user;
+    DELETE FROM openc3_tt_base_group;
+    DELETE FROM openc3_tt_base_item;
+    DELETE FROM openc3_tt_base_email_templates;
+    DELETE FROM openc3_tt_base_type;
+    DELETE FROM openc3_tt_base_impact;
+    DELETE FROM openc3_tt_base_category;
+
+    SET foreign_key_checks = 1;
+"
+echo "清理原有表的数据"
+
+docker cp $path openc3-mysql:/tmp/$filename
+
+docker exec openc3-mysql mysql -uroot -popenc3123456^! connector -e "source /tmp/$filename"
+
+docker exec openc3-mysql rm -f /tmp/$filename
+
+echo "导入完成"
