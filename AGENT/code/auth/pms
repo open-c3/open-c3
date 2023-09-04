@@ -39,17 +39,7 @@ return sub
 
     if( $param{appname} && $param{appkey} )
     {
-        if( $key{$param{appname}} )
-        {
-            if( $key{$param{appname}} eq $param{appkey} )
-            {
-                return $param{point} && $param{point} =~ /read/ ? 1 : 0;
-            }
-            else
-            {
-                return 0;
-            }
-        }
+        return 1 if $key{$param{appname}} && $key{$param{appname}} eq $param{appkey} && $param{point} && $param{point} =~ /read/;
 
         my $res = $ua->get( "http://api.connector.open-c3.org/connectorx/username?appname=$param{appname}&appkey=$param{appkey}" );
         unless( $res->is_success )
@@ -60,8 +50,8 @@ return sub
         unless ( $data->{stat} ) {
             die "call username result". $data->{info} || '';
         }
- 
-        return $data->{data} ? 1 : 0;
+
+        return ( $data->{data} && $data->{data}{user} ) ? 1 : 0;
     }
     elsif( $param{cookie} )
     {
