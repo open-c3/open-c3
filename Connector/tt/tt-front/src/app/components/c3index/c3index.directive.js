@@ -15,7 +15,7 @@
     return directive;
 
     /** @ngInject */
-    function c3indexController ($state, $http, $scope, $filter,toastr) {
+    function c3indexController ($state, $http, $scope, $filter, $q, toastr) {
       if ($state.current.name == "home") {
         var vm = this;
 
@@ -23,18 +23,20 @@
         vm.orderEnd = new Date();
         vm.isFirstLoad = true;
         vm.isEndFirstLoad = true;
+        vm.loading = false;
         vm.cardList = [
           {
             name: 'S.TT.create_order',
             icon: '/assets/images/tt-order-create-2x.png',
             type: 'create',
             color: '#2f875a',
+            self: '/#/tt/new',
             count: 0,
           },
           {
             name: 'S.TT.user_total',
             icon: '/assets/images/tt-order-user-2x.png',
-            type: 'user',
+            type: 'user_count',
             color: '#3ece85',
             count: 0,
           },
@@ -42,24 +44,33 @@
             name: 'S.TT.order_total',
             icon: '/assets/images/tt-order-count-2x.png',
             color: '#467CFD',
-            type: 'order',
+            type: 'tt_count',
+            self: '/#/tt/ordertotal',
             count: 0,
           },
           {
             name: 'S.TT.todo_total',
             icon: '/assets/images/tt-order-upcoming-2x.png',
-            type: 'upcoming',
+            type: 'related_group_toto_count',
             color: '#ef537b',
+            self: '/#/tt/todototal',
             count: 0,
           },
           {
             name: 'S.TT.personal_todo',
             icon: '/assets/images/tt-order-personal-2x.png',
-            type: 'personal',
+            type: 'self_todo_count',
             color: '#ff6633',
+            self: '/#/tt/personaltodo',
             count: 0,
           },
         ];
+        vm.countTypeMap = {
+          related_group_toto_count: 0,
+          self_todo_count: 0,
+          tt_count: 0,
+          user_count: 0,
+        }
 
         vm.handleTimeRange = function (type) {
           var currentDate = new Date();
@@ -78,20 +89,22 @@
 
         //点击卡片跳转
         vm.handleJump = function (item) {
-          console.log(item)
-          if (item.type === 'user') {
+          if(item.type === 'user_count') {
             return
           }
-          window.location.href = item.self
+          window.location.href = `${item.self}?start=${vm.orderStart.getTime()/ 1000 }&end=${vm.orderEnd.getTime()/1000}`
         };
 
-        // 获取用户总数数据
-        vm.getUserData = function () {
+        // 获取符合条件的工单数量
+        vm.getInfoData = function () {
           var start = Math.trunc(vm.orderStart.getTime() / 1000)
-          var end = Math.trunc(vm.orderEnd.getTime() / 1000)
-          $http.get('/api/tt/statistics/get_user_accounts' + '?start=' + start + '&end=' + end).success(function (data) {
+          var end = Math.trunc((vm.orderEnd ? vm.orderEnd: new Date()).getTime() / 1000)
+          return $http.get('/api/tt/statistics/work_order_summary/summary' + '?start=' + start + '&end=' + end).success(function (data) {
             if (data.code === 200) {
-              vm.cardList.find(function (item) { return item.type === 'user' }).count = data.data.length
+              vm.cardList.map(function (item) {
+                item.count = data.data[item.type] || 0
+                return item
+              })
             } else {
               toastr.error('获取数据失败')
             }
@@ -99,61 +112,13 @@
             toastr.error('获取数据失败' + data)
             console.error(data)
           })
-        };
-
-        // 获取工单总数数据
-        vm.getCountData = function () {
-          var start = Math.trunc(vm.orderStart.getTime() / 1000)
-          var end = Math.trunc(vm.orderEnd.getTime() / 1000)
-          $http.get('/api/tt/statistics/get_tts' + '?start=' + start + '&end=' + end).success(function (data) {
-            if (data.code === 200) {
-              vm.cardList.find(function (item) { return item.type === 'order' }).count = data.data.length
-            } else {
-              toastr.error('获取数据失败')
-            }
-          }).error(function (data) {
-            toastr.error('获取数据失败' + data)
-            console.error(data)
-          })
-        };
-
-        // 获取待办数据
-        vm.getUpcomingData = function () {
-          var start = Math.trunc(vm.orderStart.getTime() / 1000)
-          var end = Math.trunc(vm.orderEnd.getTime() / 1000)
-          $http.get('/api/tt/statistics/get_todo_tts' + '?start=' + start + '&end=' + end + '&all=' + 1).success(function (data) {
-            if (data.code === 200) {
-              vm.cardList.find(function (item) { return item.type === 'upcoming' }).count = data.data.length
-            } else {
-              toastr.error('获取数据失败')
-            }
-          }).error(function (data) {
-            toastr.error('获取数据失败' + data)
-            console.error(data)
-          })
-        };
-
-        // 获取个人待办数据
-        vm.getPersonalData = function () {
-          var start = Math.trunc(vm.orderStart.getTime() / 1000)
-          var end = Math.trunc(vm.orderEnd.getTime() / 1000)
-          $http.get('/api/tt/statistics/get_todo_tts' + '?start=' + start + '&end=' + end + '&all=' + 0).success(function (data) {
-            if (data.code === 200) {
-              vm.cardList.find(function (item) { return item.type === 'personal' }).count = data.data.length
-            } else {
-              toastr.error('获取数据失败')
-            }
-          }).error(function (data) {
-            toastr.error('获取数据失败' + data)
-            console.error(data)
-          })
-        };
+        }
 
         // 获取本周工单统计
         vm.getWeekData = function () {
           var start = Math.trunc(vm.orderStart.getTime() / 1000)
           var end = Math.trunc(vm.orderEnd.getTime() / 1000)
-          $http.get('/api/tt/statistics/work_order_summary' + '?start=' + start + '&end=' + end).success(function (data) {
+          return $http.get('/api/tt/statistics/work_order_summary' + '?start=' + start + '&end=' + end).success(function (data) {
             if (data.code === 200) {
               vm.weekData = data.data
               var xAxisArr = vm.weekData.map(function (item) { return item.date });
@@ -179,7 +144,7 @@
         vm.getSubmitData = function () {
           var start = Math.trunc(vm.orderStart.getTime() / 1000)
           var end = Math.trunc(vm.orderEnd.getTime() / 1000)
-          $http.get('/api/tt/statistics/work_order_summary/by_apply_user' + '?start=' + start + '&end=' + end).success(function (data) {
+          return $http.get('/api/tt/statistics/work_order_summary/by_apply_user' + '?start=' + start + '&end=' + end).success(function (data) {
             if (data.code === 200) {
               vm.submitData = data.data
               var xAxisArr = vm.submitData.map(function (item) { return item.key });
@@ -198,7 +163,7 @@
         vm.getUpComingData = function () {
           var start = Math.trunc(vm.orderStart.getTime() / 1000)
           var end = Math.trunc(vm.orderEnd.getTime() / 1000)
-          $http.get('/api/tt/statistics/work_order_summary/by_status' + '?start=' + start + '&end=' + end + '&status=' + 0).success(function (data) {
+          return $http.get('/api/tt/statistics/work_order_summary/by_status' + '?start=' + start + '&end=' + end + '&status=' + 0).success(function (data) {
             if (data.code === 200) {
               vm.upcomingData = data.data
               var xAxisArr = vm.upcomingData.map(function (item) { return item.key });
@@ -217,7 +182,7 @@
         vm.getFinishData = function () {
           var start = Math.trunc(vm.orderStart.getTime() / 1000)
           var end = Math.trunc(vm.orderEnd.getTime() / 1000)
-          $http.get('/api/tt/statistics/work_order_summary/by_status' + '?start=' + start + '&end=' + end + '&status=' + 1).success(function (data) {
+          return $http.get('/api/tt/statistics/work_order_summary/by_status' + '?start=' + start + '&end=' + end + '&status=' + 1).success(function (data) {
             if (data.code === 200) {
               vm.finishData = data.data
               var xAxisArr = vm.finishData.map(function (item) { return item.key });
@@ -234,14 +199,23 @@
 
         vm.getData = function () {
           try {
-            vm.getUserData();
-            vm.getUpcomingData();
-            vm.getPersonalData();
-            vm.getCountData();
-            vm.getWeekData();
-            vm.getSubmitData();
-            vm.getUpComingData();
-            vm.getFinishData();
+            vm.loading = true
+            var promiseArr =  [
+              vm.getInfoData(),
+              vm.getWeekData(),
+              vm.getSubmitData(),
+              vm.getUpComingData(),
+              vm.getFinishData(),
+            ]
+            return $q.all(promiseArr)
+            .then(function(results) {
+              console.log(results)
+              vm.loading = false
+            })
+            .catch(function(error) {
+              vm.loading = false
+              console.error('获取数据失败'+ error);
+            });
           } catch (error) {
             toastr.error('获取数据失败' + error);
             console.error(error);
