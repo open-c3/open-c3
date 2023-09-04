@@ -13,15 +13,29 @@ import (
 // 根据时间戳范围查询有效的tt列表
 //
 // 如果工单已结束，使用解决时间进行筛选；如果工单未结束，则使用工单创建时间进行筛选
-func getValidTicketList(startTimestamp, endTimestamp int64) []model.Ticket {
+func getValidTicketList(startTimestamp, endTimestamp int64, searchKeyword string) []STicket {
 	startTime := time.Unix(startTimestamp, 0)
 	endTime := time.Unix(endTimestamp, 0)
 
-	var tickets []model.Ticket
+	var tickets []STicket
 
-	orm.Db.Table("openc3_tt_ticket").Where("(CASE WHEN resolve_time IS NOT NULL THEN resolve_time ELSE created_at END) BETWEEN ? AND ?", startTime, endTime).Find(&tickets)
+	query := orm.Db.Table("openc3_tt_ticket").
+		Where(`
+        (CASE 
+            WHEN resolve_time IS NOT NULL THEN resolve_time 
+            ELSE created_at 
+        END) BETWEEN ? AND ?`, startTime, endTime)
 
-	return tickets
+	if searchKeyword != "" {
+		query = query.Where("title LIKE ? OR content LIKE ? OR no = ?",
+			"%"+searchKeyword+"%",
+			"%"+searchKeyword+"%",
+			searchKeyword)
+	}
+
+	query.Find(&tickets)
+
+	return GetTicketsRemain(tickets)
 }
 
 func getUserGroupIdsMap(userAccount string) map[int64]struct{} {
@@ -68,6 +82,46 @@ func sortAndGetTenItems(data map[string]int) []pair {
 	return result
 }
 
+// 根据输入的tt列表获取所有的申请人
+func getUserList(ticketList []STicket) []string {
+	data := make(map[string]struct{})
+	for _, item := range ticketList {
+		if item.ApplyUser == "" {
+			continue
+		}
+		data[item.ApplyUser] = struct{}{}
+	}
+
+	result := make([]string, 0)
+
+	for item, _ := range data {
+		result = append(result, item)
+	}
+	return result
+}
+
+// 获取个人代码tt还是组待办tt
+func getTodoTicketList(ticketList []STicket, account string, all string) []STicket {
+	result := make([]STicket, 0)
+
+	groupIdsMap := getUserGroupIdsMap(account)
+
+	for _, item := range ticketList {
+		if all == "0" {
+			var groupUser model.BaseGroupUser
+			orm.Db.Table("openc3_tt_base_group_user").Where("id = ?", item.GroupUser).Find(&groupUser)
+			if groupUser.Email == account {
+				result = append(result, item)
+			}
+		} else {
+			if _, ok := groupIdsMap[item.Workgroup]; ok {
+				result = append(result, item)
+			}
+		}
+	}
+	return result
+}
+
 // GetUserAccounts 获取用户列表
 //
 // @Summary 获取所有运维人员预配置
@@ -93,22 +147,9 @@ func GetUserAccounts(c *gin.Context) {
 		return
 	}
 
-	data := make(map[string]struct{})
+	ticketList := getValidTicketList(startTimestamp, endTimestamp, "")
 
-	ticketList := getValidTicketList(startTimestamp, endTimestamp)
-
-	for _, item := range ticketList {
-		if item.SubmitUser == "" {
-			continue
-		}
-		data[item.SubmitUser] = struct{}{}
-	}
-
-	result := make([]string, 0)
-
-	for item, _ := range data {
-		result = append(result, item)
-	}
+	result := getUserList(ticketList)
 
 	c.JSON(http.StatusOK, status_200(result))
 }
@@ -121,11 +162,13 @@ func GetUserAccounts(c *gin.Context) {
 // @Accept json
 // @Param start path int true "起始时间戳. 秒数"
 // @Param end path int true "结束时间戳. 秒数"
+// @Param keyword path string false "搜索关键字"
 // @Success 200 {array} model.Ticket
 // @Router /statistics/get_tts [get]
 func GetTickets(c *gin.Context) {
 	start := c.Query("start")
 	end := c.Query("end")
+	keyword := c.Query("keyword")
 
 	startTimestamp, err := strconv.ParseInt(start, 10, 64)
 	if err != nil {
@@ -138,7 +181,7 @@ func GetTickets(c *gin.Context) {
 		return
 	}
 
-	ticketList := getValidTicketList(startTimestamp, endTimestamp)
+	ticketList := getValidTicketList(startTimestamp, endTimestamp, keyword)
 
 	c.JSON(http.StatusOK, status_200(ticketList))
 }
@@ -152,12 +195,14 @@ func GetTickets(c *gin.Context) {
 // @Param start query int true "起始时间戳. 秒数"
 // @Param end query int true "结束时间戳. 秒数"
 // @Param all query int true "是否获取所有待办. 1: 获取所有待办;  0: 获取个人待办"
+// @Param keyword path string false "搜索关键字"
 // @Success 200 {array} model.Ticket
 // @Router /statistics/get_todo_tts [get]
 func GetTodoTickets(c *gin.Context) {
 	start := c.Query("start")
 	end := c.Query("end")
 	all := c.Query("all")
+	keyword := c.Query("keyword")
 
 	if start == "" || end == "" || all == "" {
 		c.JSON(http.StatusOK, status_400("缺少必填参数"))
@@ -175,30 +220,14 @@ func GetTodoTickets(c *gin.Context) {
 		return
 	}
 
-	ticketList := getValidTicketList(startTimestamp, endTimestamp)
+	ticketList := getValidTicketList(startTimestamp, endTimestamp, keyword)
 
 	oaUser, _ := c.Get("oauser")
 	account := oaUser.(string)
 
-	data := make([]model.Ticket, 0)
+	result := getTodoTicketList(ticketList, account, all)
 
-	groupIdsMap := getUserGroupIdsMap(account)
-
-	for _, item := range ticketList {
-		if all == "0" {
-			var groupUser model.BaseGroupUser
-			orm.Db.Table("openc3_tt_base_group_user").Where("id = ?", item.GroupUser).Find(&groupUser)
-			if groupUser.Email == account {
-				data = append(data, item)
-			}
-		} else {
-			if _, ok := groupIdsMap[item.Workgroup]; ok {
-				data = append(data, item)
-			}
-		}
-	}
-
-	c.JSON(http.StatusOK, status_200(data))
+	c.JSON(http.StatusOK, status_200(result))
 }
 
 // GetWorkOrderSummary 获取工单按类别统计
@@ -230,7 +259,7 @@ func GetWorkOrderSummary(c *gin.Context) {
 		return
 	}
 
-	ticketList := getValidTicketList(startTimestamp, endTimestamp)
+	ticketList := getValidTicketList(startTimestamp, endTimestamp, "")
 
 	data := make(map[string]map[string]int)
 
@@ -319,7 +348,7 @@ func GetWorkOrderByApplyUserSummary(c *gin.Context) {
 		return
 	}
 
-	ticketList := getValidTicketList(startTimestamp, endTimestamp)
+	ticketList := getValidTicketList(startTimestamp, endTimestamp, "")
 
 	data := make(map[string]int)
 
@@ -363,7 +392,7 @@ func GetWorkOrderByStatusSummary(c *gin.Context) {
 		return
 	}
 
-	ticketList := getValidTicketList(startTimestamp, endTimestamp)
+	ticketList := getValidTicketList(startTimestamp, endTimestamp, "")
 
 	data := make(map[int64]int)
 
@@ -390,4 +419,64 @@ func GetWorkOrderByStatusSummary(c *gin.Context) {
 	result := sortAndGetTenItems(data1)
 
 	c.JSON(http.StatusOK, status_200(result))
+}
+
+type Summary struct {
+	// 用户总数
+	UserCount int `json:"user_count"`
+	// 工单总数
+	TtCount int `json:"tt_count"`
+	// 个人待办总数
+	SelfTodoCount int `json:"self_todo_count"`
+	// 待办总数
+	RelatedGroupTotoCount int `json:"related_group_toto_count"`
+}
+
+// GetStatisticsSummary 获取简要的统计信息。目前只包含了用户总数、工单总数、待办总数、个人待办总数
+//
+// @Summary 获取简要的统计信息。目前只包含了用户总数、工单总数、待办总数、个人待办总数
+// @Description 获取简要的统计信息。目前只包含了用户总数、工单总数、待办总数、个人待办总数
+// @Tags tt统计
+// @Accept json
+// @Param start query int true "起始时间戳. 秒数"
+// @Param end query int true "结束时间戳. 秒数"
+// @Success 200 {object} Summary
+// @Router /statistics/work_order_summary/summary [get]
+func GetStatisticsSummary(c *gin.Context) {
+	start := c.Query("start")
+	end := c.Query("end")
+
+	if start == "" || end == "" {
+		c.JSON(http.StatusOK, status_400("缺少必填参数"))
+		return
+	}
+
+	startTimestamp, err := strconv.ParseInt(start, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusOK, status_400("start格式错误"))
+		return
+	}
+	endTimestamp, err := strconv.ParseInt(end, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusOK, status_400("end格式错误"))
+		return
+	}
+
+	oaUser, _ := c.Get("oauser")
+	account := oaUser.(string)
+
+	ticketList := getValidTicketList(startTimestamp, endTimestamp, "")
+
+	userList := getUserList(ticketList)
+	selfTodoList := getTodoTicketList(ticketList, account, "0")
+	relatedGroupTotoList := getTodoTicketList(ticketList, account, "1")
+
+	s := Summary{
+		UserCount:             len(userList),
+		TtCount:               len(ticketList),
+		SelfTodoCount:         len(selfTodoList),
+		RelatedGroupTotoCount: len(relatedGroupTotoList),
+	}
+
+	c.JSON(http.StatusOK, status_200(s))
 }

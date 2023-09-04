@@ -158,6 +158,12 @@ const docTemplate = `{
                         "name": "all",
                         "in": "query",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "搜索关键字",
+                        "name": "keyword",
+                        "in": "path"
                     }
                 ],
                 "responses": {
@@ -197,6 +203,12 @@ const docTemplate = `{
                         "name": "end",
                         "in": "path",
                         "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "搜索关键字",
+                        "name": "keyword",
+                        "in": "path"
                     }
                 ],
                 "responses": {
@@ -344,6 +356,42 @@ const docTemplate = `{
                 ],
                 "responses": {}
             }
+        },
+        "/statistics/work_order_summary/summary": {
+            "get": {
+                "description": "获取简要的统计信息。目前只包含了用户总数、工单总数、待办总数、个人待办总数",
+                "consumes": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tt统计"
+                ],
+                "summary": "获取简要的统计信息。目前只包含了用户总数、工单总数、待办总数、个人待办总数",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "起始时间戳. 秒数",
+                        "name": "start",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "结束时间戳. 秒数",
+                        "name": "end",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.Summary"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -400,6 +448,27 @@ const docTemplate = `{
                 },
                 "template_user": {
                     "type": "string"
+                }
+            }
+        },
+        "handler.Summary": {
+            "type": "object",
+            "properties": {
+                "related_group_toto_count": {
+                    "description": "待办总数",
+                    "type": "integer"
+                },
+                "self_todo_count": {
+                    "description": "个人待办总数",
+                    "type": "integer"
+                },
+                "tt_count": {
+                    "description": "工单总数",
+                    "type": "integer"
+                },
+                "user_count": {
+                    "description": "用户总数",
+                    "type": "integer"
                 }
             }
         },

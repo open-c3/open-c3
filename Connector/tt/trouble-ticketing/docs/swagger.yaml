@@ -40,6 +40,21 @@ definitions:
     - target_user
     - template_user
     type: object
+  handler.Summary:
+    properties:
+      related_group_toto_count:
+        description: 待办总数
+        type: integer
+      self_todo_count:
+        description: 个人待办总数
+        type: integer
+      tt_count:
+        description: 工单总数
+        type: integer
+      user_count:
+        description: 用户总数
+        type: integer
+    type: object
   model.PersonPreConfigParams:
     properties:
       category:
@@ -224,6 +239,10 @@ paths:
         name: all
         required: true
         type: integer
+      - description: 搜索关键字
+        in: path
+        name: keyword
+        type: string
       responses:
         "200":
           description: OK
@@ -250,6 +269,10 @@ paths:
         name: end
         required: true
         type: integer
+      - description: 搜索关键字
+        in: path
+        name: keyword
+        type: string
       responses:
         "200":
           description: OK
@@ -349,6 +372,30 @@ paths:
         type: integer
       responses: {}
       summary: 获取工单按 待办/完成 统计(只返回前10)
+      tags:
+      - tt统计
+  /statistics/work_order_summary/summary:
+    get:
+      consumes:
+      - application/json
+      description: 获取简要的统计信息。目前只包含了用户总数、工单总数、待办总数、个人待办总数
+      parameters:
+      - description: 起始时间戳. 秒数
+        in: query
+        name: start
+        required: true
+        type: integer
+      - description: 结束时间戳. 秒数
+        in: query
+        name: end
+        required: true
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.Summary'
+      summary: 获取简要的统计信息。目前只包含了用户总数、工单总数、待办总数、个人待办总数
       tags:
       - tt统计
 swagger: "2.0"

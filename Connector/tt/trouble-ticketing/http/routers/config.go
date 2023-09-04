@@ -164,4 +164,5 @@ func Statistics(r *gin.RouterGroup) {
 	r.GET("/work_order_summary", handler.GetWorkOrderSummary)
 	r.GET("/work_order_summary/by_apply_user", handler.GetWorkOrderByApplyUserSummary)
 	r.GET("/work_order_summary/by_status", handler.GetWorkOrderByStatusSummary)
+	r.GET("/work_order_summary/summary", handler.GetStatisticsSummary)
 }
