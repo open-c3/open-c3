@@ -19,6 +19,17 @@ $| ++;
     return 1 if ok
 =cut
 
+my %key;
+BEGIN{
+    my $f = '/data/open-c3-data/to3part.yml';
+    if( -f $f )
+    {
+        my $c = eval{ YAML::XS::LoadFile $f };
+        warn "load $f err: $@" if $@;
+        %key = %$c if $c && ref $c eq 'HASH';
+    }
+};
+
 return sub
 {
     my %param = @_;
@@ -28,6 +39,18 @@ return sub
 
     if( $param{appname} && $param{appkey} )
     {
+        if( $key{$param{appname}} )
+        {
+            if( $key{$param{appname}} eq $param{appkey} )
+            {
+                return $param{point} && $param{point} =~ /read/ ? 1 : 0;
+            }
+            else
+            {
+                return 0;
+            }
+        }
+
         my $res = $ua->get( "http://api.connector.open-c3.org/connectorx/username?appname=$param{appname}&appkey=$param{appkey}" );
         unless( $res->is_success )
         {
