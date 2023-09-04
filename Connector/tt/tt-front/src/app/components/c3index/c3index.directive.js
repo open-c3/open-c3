@@ -92,7 +92,7 @@
           if(item.type === 'user_count') {
             return
           }
-          window.location.href = `${item.self}?start=${vm.orderStart.getTime()/ 1000 }&end=${vm.orderEnd.getTime()/1000}`
+          window.location.href = item.self + '?start=' + vm.orderStart.getTime()/ 1000 + '&end=' + vm.orderEnd.getTime()/1000
         };
 
         // 获取符合条件的工单数量
@@ -209,7 +209,6 @@
             ]
             return $q.all(promiseArr)
             .then(function(results) {
-              console.log(results)
               vm.loading = false
             })
             .catch(function(error) {

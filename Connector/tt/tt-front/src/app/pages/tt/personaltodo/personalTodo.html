@@ -1,0 +1,140 @@
+<div id="topbar">
+  <div class="topbar-left">
+    <ol class="breadcrumb">
+      <li class="fs16" translate='S.TT.personal_todo'></li>
+    </ol>
+  </div>
+  <div class="topbar-right">
+    <ol class="breadcrumb">
+      <li>Trouble Ticketing</li>
+      <li>Search</li>
+    </ol>
+  </div>
+</div>
+
+<!-- search: start -->
+
+<div class="block" id="search">
+  <div class="panel panel-dark">
+    <div class="panel-heading">
+      <span class="panel-title" translate="S.Index.search"></span>
+    </div>
+    <div class="panel-body">
+      <form class="form-inline">
+        <div class="widget-content">
+          <div class="row">
+            <div class="form-group col-md-3">
+              <div class="input-group fluid-width">
+                <input type="text" class="form-control" placeholder="起始（from）" uib-datepicker-popup="yyyy-MM-dd"
+                  ng-model="personalTodo.order_start" is-open="personalTodo.dateOpen" close-text="Close" />
+                <span class="input-group-btn">
+                  <button type="button" class="btn btn-default fluid-width" ng-click="personalTodo.dateOpen=1"><i
+                      class="glyphicon glyphicon-calendar"></i></button>
+                </span>
+              </div>
+            </div>
+
+            <div class="form-group col-md-3">
+              <div class="input-group fluid-width">
+                <input type="text" class="form-control" placeholder="结束（to）" uib-datepicker-popup="yyyy-MM-dd"
+                  ng-model="personalTodo.order_end" is-open="personalTodo.dateOpen2" close-text="Close" />
+                <span class="input-group-btn">
+                  <button type="button" class="btn btn-default fluid-width" ng-click="personalTodo.dateOpen2=1"><i
+                      class="glyphicon glyphicon-calendar"></i></button>
+                </span>
+              </div>
+            </div>
+
+            <div class="form-group col-md-3">
+              <input class="form-control" placeholder="keyword" ng-model="personalTodo.tableFilter.keyword"
+                style="width:100%">
+            </div>
+
+          </div>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-4 col-md-offset-4 text-center" style="margin-bottom:20px;">
+      <div class="col-md-6">
+        <button class="btn btn-block btn-primary" ng-click="personalTodo.search()">
+          <i class="fa fa-search fa-fw"></i>
+          <span translate="S.Index.search"></span>
+        </button>
+      </div>
+      <div class="col-md-6">
+        <button class="btn btn-block btn-primary" ng-click="personalTodo.resetFilter()">
+          <i class="fa fa-repeat fa-fw"></i>
+          <span translate="S.Index.reset"></span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- search: end -->
+
+<div class="block" ng-if="personalTodo.searched">
+
+  <div class="panel panel-primary">
+
+    <div class="panel-heading">
+      <span class="panel-controls">
+        <c3download data="personalTodo.tickets"></c3download>
+      </span>
+      <span class="panel-title">Total: {{personalTodo.tableParams.total()}}</span>
+    </div>
+
+    <div class="panel-body">
+
+      <cmloading ng-if="personalTodo.loading"></cmloading>
+
+      <div class="table-scroll" ng-if="!personalTodo.loading">
+        <table ng-table="personalTodo.tableParams" class="table table-hover text-center table-condensed va-m">
+          <tbody>
+            <tr ng-repeat="m in $data" ng-class="{danger:m.response_timeout || m.resolve_timeout}">
+              <td data-title="'#'">
+                <span>
+                  {{ (personalTodo.tableParams.page() - 1)*personalTodo.tableParams.count() + $index + 1 }}
+                </span>
+              </td>
+              <td data-title="'D.Base.ttno'|translate">
+                <a href ui-sref="home.tt.show({id:m.no})" target="_blank">{{m.no}}</a>
+              </td>
+              <td data-title="'D.Base.impact'|translate">{{m.impact}}-{{'D.Impact.level' + m.impact | translate}}</td>
+              <td data-title="'D.Base.status'|translate">{{'D.Status.' + m.status | translate}}</td>
+              <td data-title="'C.T.I.'">{{m.category | baseDataMap:personalTodo.baseData:'category'}}.{{m.type |
+                baseDataMap:personalTodo.baseData:'type'}}.{{m.item | baseDataMap:personalTodo.baseData:'item'}}.</td>
+              <td data-title="'D.Base.title'|translate">{{m.title}}</td>
+              <td data-title="'D.Base.workgroup'|translate">{{m.workgroup |
+                baseDataMap:personalTodo.baseData:'group':'group_name'}}</td>
+              <td data-title="'D.Base.group_user'|translate">{{m.group_user |
+                baseDataMap:personalTodo.baseData:'group_user':'email'}}</td>
+              <td data-title="'D.Base.submit_user'|translate">{{m.submit_user}}</td>
+              <td data-title="'D.Base.apply_user'|translate">{{m.apply_user}}</td>
+              <td data-title="'D.Base.create_time'|translate">{{m.created_at | amDateFormat:'YYYY-MM-DD HH:mm:ss'}}</td>
+              <td data-title="'D.Base.response_time'|translate"><span
+                  ng-if="(m.response_time | date:'yyyy')>'0001'">{{m.response_time | amDateFormat:'YYYY-MM-DD HH:mm:ss'}}</span></td>
+              <td data-title="'D.Base.resolved_time'|translate"><span
+                  ng-if="m.status=='resolved' || m.status=='closed'">{{m.resolve_time | amDateFormat:'YYYY-MM-DD HH:mm:ss'}}</span></td>
+              <td data-title="'D.Base.response_sla'|translate">
+                <span class="label label-danger" ng-if="m.response_timeout" translate="S.TT.timeout"></span>
+                <span class="label label-info" ng-if="!m.response_timeout" translate="S.TT.no_timeout"></span>
+              </td>
+              <td data-title="'D.Base.resolve_sla'|translate">
+                <span class="label label-danger" ng-if="m.resolve_timeout" translate="S.TT.timeout"></span>
+                <span class="label label-info" ng-if="!m.resolve_timeout" translate="S.TT.no_timeout"></span>
+              </td>
+              <td data-title="'S.TT.resolve_deadline'|translate">{{m.resolve_deadline | amDateFormat:'YYYY-MM-DD HH:mm:ss'}}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
