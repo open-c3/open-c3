@@ -87,7 +87,7 @@ post '/c3mc/cloud/control/tags/add/:type/:subtype/:uuid' => sub {
 
     my $filter = +{};
 
-    my $cmd = "c3mc-cloud-control --type '$param->{type}' --subtype '$param->{subtype}' --uuid '$param->{uuid}' --ctrl tag-add '$param->{tagkey}=$param->{tagname}' 2>&1";
+    my $cmd = "c3mc-cloud-control --type '$param->{type}' --subtype '$param->{subtype}' --uuid '$param->{uuid}' --ctrl tag-add '$param->{tagkey}=$param->{tagvalue}' 2>&1";
     my $handle = 'cloud_tags_add';
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle, filter => $filter }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $?, $filter ); 
@@ -123,7 +123,7 @@ post '/c3mc/cloud/control/tags/del/:type/:subtype/:uuid' => sub {
 
     my $filter = +{};
 
-    my $cmd = "c3mc-cloud-control --type '$param->{type}' --subtype '$param->{subtype}' --uuid '$param->{uuid}' --ctrl tag-delete '$param->{tagkey}=$param->{tagname}' 2>&1";
+    my $cmd = "c3mc-cloud-control --type '$param->{type}' --subtype '$param->{subtype}' --uuid '$param->{uuid}' --ctrl tag-delete '$param->{tagkey}=$param->{tagvalue}' 2>&1";
     my $handle = 'cloud_tags_del';
     return +{ stat => $JSON::true, data => +{ kubecmd => $cmd, handle => $handle, filter => $filter }} if request->headers->{"openc3event"};
     return &{$handle{$handle}}( Encode::decode_utf8(`$cmd`//''), $?, $filter ); 
