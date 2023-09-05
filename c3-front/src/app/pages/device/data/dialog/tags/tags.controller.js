@@ -67,7 +67,7 @@
           tagvalue: item.value
         }
         const defaultParams = vm.defaultTagsArr.find(items => items.key === item.key)
-        if (params.tagvalue === defaultParams.value) {
+        if (defaultParams && params.tagvalue === defaultParams.value) {
           item.status = !item.status
           return
         }
