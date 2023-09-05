@@ -488,7 +488,7 @@ get '/bpm/crontask' => sub {
     {
         my @x = `cat $file`;
         chomp @x;
-        for( @x )
+        for( sort @x )
         {
             my ( $action, $crontab, $node, $editor, $start, $end ) = split /;/, $_;
             $crontab = "0 $crontab * * *" if $crontab =~ /^\d+$/;
