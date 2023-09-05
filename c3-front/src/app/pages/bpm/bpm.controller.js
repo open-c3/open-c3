@@ -12,6 +12,8 @@
         vm.bpmuuid = $state.params.bpmuuid;
         vm.jobid = $state.params.jobid;
 
+        vm.isFileUploaded = false;
+
         vm.queryChoiceFlag = false;
         vm.inputValueType = ['email']
         vm.ipValueType = ['comma_seprate', 'forbit_whitespace']
@@ -714,6 +716,43 @@
             }
         }
 
+        // 文件上传
+        vm.clickImport = function (option) {
+          document.getElementById("bpm-choicefiles").click();
+          vm.fileOption = option;
+        };
+
+        $scope.upForm = function () {
+          var form = new FormData();
+          var file = document.getElementById("bpm-choicefiles").files[0];
+          form.append('file', file);
+          $http({
+            method: 'POST',
+            url: '/api/job/bpm/attachments',
+            data: form,
+            headers: { 'Content-Type': undefined },
+            transformRequest: angular.identity
+          }).success(function (data) {
+            if (data.stat) {
+              vm.isFileUploaded  = false
+             $scope.jobVar.forEach(item => {
+              if (item.name === vm.fileOption.name) {
+                const valueArr = []
+                angular.forEach(data.data, function (value, key) {
+                  valueArr.push(`${key}:${value}`)
+                })
+                item.value = valueArr.join(',')
+              }
+            })
+            }
+            else {
+              toastr.error("上传失败:" + data.info)
+            }
+          }).error(function (data) {
+            toastr.error("上传失败:" + data)
+          })
+        };
+
         vm.jobsloadover = true;
         vm.menu = [];
         vm.reload = function () {
@@ -939,6 +978,9 @@
                         if (response.data.stat){
                             vm.vartemp = [];
                             vm.showfromops = '0';
+                            if (response.data.data.find(item => item.type === 'file')) {
+                              vm.isFileUploaded = true
+                            }
                             angular.forEach(response.data.data, function (value, key) {
                                 if( value.name )
                                 {
