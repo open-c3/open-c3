@@ -123,6 +123,8 @@ class QcloudCvm:
                     return False
                 else:
                     time.sleep(5)
+        
+        self.stop_instances(instance_id)
 
         # 获取实例磁盘信息
         req = cvm_models.DescribeInstancesRequest()
