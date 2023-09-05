@@ -23,7 +23,7 @@ BEGIN{
         %key = %$c if $c && ref $c eq 'HASH';
     }
 
-    $key{openc3} = $ENV{OPEN_C3_RANDOM} if $ENV{OPEN_C3_RANDOM};
+    $key{jobx} = $ENV{OPEN_C3_RANDOM} if $ENV{OPEN_C3_RANDOM};
 };
 
 =pod
