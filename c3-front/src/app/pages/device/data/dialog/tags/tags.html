@@ -13,10 +13,20 @@
       </div>
     </div>
   </div>
-  <div ng-if="!tags.tagLoading">
+  <div ng-if="!tags.tagLoading" class="modal-tags-box">
+    <div class="tags-saving" ng-if="tags.saveLoading">
+      <div class="modal-tags-list-loading">
+        <div class="modal-tags-loading">
+          <div class="loading-l1"><div></div></div>
+          <div class="loading-l2"><div></div></div>
+          <div class="loading-l3"><div></div></div>
+          <div class="loading-l4"><div></div> </div>
+        </div>
+      </div>
+    </div>
     <div ng-repeat="item in tags.tagsArr">
       <div class="tags-item-content">
-        <label class="col-md-2 control-label fwbold tags-item-content-key">
+        <label class="col-md-4 control-label fwbold tags-item-content-key">
           <input ng-disabled="!item.isCreate" class="form-control" ng-model="item.key" />
         </label>
         <label class="col-md-6 tags-item-content-value">
@@ -31,7 +41,7 @@
     <a class="btn btn-primary tags-item-content-button-create" ng-click="tags.addTags()">新建</a>
   </div>
 </div>
-</div>
+
 <div class="confirm-modal-button text-center">
   <button class="btn btn-warning" ng-click="tags.cancel()">{{'C3T.关闭'| translate }}</button>
 </div>
