@@ -7,6 +7,11 @@ import subprocess
 import re
 import base64
 import os
+import shutil
+
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import safe_run_command
 
 
 def replace_base64_substring(long_string):
@@ -23,10 +28,21 @@ def replace_base64_substring(long_string):
     return long_string
 
 
+def upload_attach(tt_number, target_file_path):
+    output = safe_run_command([
+        "c3mc-upload-attach-for-ticket",
+        "--tt_id", tt_number.lstrip("T").lstrip("0"),
+        "--file_path", target_file_path,
+    ])
+
+
 def create_tt(params):
     content = params["content"]
 
-    content = replace_base64_substring(content)
+    if params["sql_input_type"] == "上传附件":
+        content = '\n'.join([line for line in content.split('\n') if not line.startswith("SQL语句")])
+    else:
+        content = replace_base64_substring(content)
 
     submit_user = params['submit_user'] if 'submit_user' in params else "sys@app"
     ext_tt = subprocess.getoutput("c3mc-sys-ctl sys.bpm.tt.type")
@@ -48,13 +64,22 @@ def create_tt(params):
 
     tt_number = resp.stdout.decode('utf-8').rstrip()
 
-    print(f"LOG. tt单号: {tt_number}", flush=True)
+    print(f"LOG. tt单号: {tt_number}")
+
+    if params["sql_input_type"] == "上传附件":
+        md5_file_path = f"/data/open-c3-data/bpm/attachments/{params['sql_file'].split(':')[0]}"
+        target_file_path = f"/data/open-c3-data/bpm/attachments/{params['sql_file'].split(':')[1]}"
+        shutil.copy2(md5_file_path, target_file_path)
+        upload_attach(tt_number, target_file_path)
+        os.remove(target_file_path)
 
     notify = params.get("notify")
     if not notify:
         notify = "@bpm_notify"
 
     os.system( "echo 有工单需要处理, [ " + params["title"]  + " ] $(c3mc-sys-ctl sys.c3webaddr)/tt/#/tt/show/" + tt_number + "|c3mc-base-sendmesg $(c3mc-app-usrext bpm_notify @bpm_notify " + notify + "|xargs -n 10000)" )
+
+    print(flush=True)
 
     resp = subprocess.run([
         "c3mc-wait-ticket-status-change",
