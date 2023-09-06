@@ -12,8 +12,6 @@
         vm.bpmuuid = $state.params.bpmuuid;
         vm.jobid = $state.params.jobid;
 
-        vm.isFileUploaded = false;
-
         vm.queryChoiceFlag = false;
         vm.inputValueType = ['email']
         vm.ipValueType = ['comma_seprate', 'forbit_whitespace']
@@ -734,7 +732,6 @@
             transformRequest: angular.identity
           }).success(function (data) {
             if (data.stat) {
-              vm.isFileUploaded  = false
              $scope.jobVar.forEach(item => {
               if (item.name === vm.fileOption.name) {
                 const valueArr = []
@@ -978,9 +975,6 @@
                         if (response.data.stat){
                             vm.vartemp = [];
                             vm.showfromops = '0';
-                            if (response.data.data.find(item => item.type === 'file')) {
-                              vm.isFileUploaded = true
-                            }
                             angular.forEach(response.data.data, function (value, key) {
                                 if( value.name )
                                 {
