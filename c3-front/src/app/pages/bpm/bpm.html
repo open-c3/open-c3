@@ -294,6 +294,37 @@
                             </div>
                         </div>
 
+                        <!-- 添加附件 -->
+                        <div ng-if="( bpm.selectxhide[ss.name] != '1' ) && (bpm.vfromops[ss.name] != '1') && ( ( ! ss.type ) || ss.type=='file' )">
+                          <div class="col-sm-10 form-group">
+                            <div>
+                              <label ng-if="bpm.selectxrely[ss.name] != '1'" class="col-sm-3 control-label">{{ss.describe}}:</label>
+                                <div class="col-sm-6 bpm-form-flex"> 
+                                  <input type="file" id="bpm-choicefiles" style="display: none" onchange="angular.element(this).scope().upForm()" multiple="multiple"/>
+                                  <button class="btn btn-primary" ng-click="bpm.clickImport(ss)">
+                                      <span class="glyphicon glyphicon-upload" style="padding: 0 3px;"></span>{{'C3T.上传附件'|translate}}
+                                  </button>
+                                </div>
+                                <label class="col-sm-3 label-text-color" >{{ss.name}}</label>
+                                <i ng-if="bpm.textareaLoading[ss.name]" class="fa fa-refresh fa-fw" ng-class="{'fa-spin':bpm.textareaLoading[ss.name]}" ></i>
+                            </div>
+                        </div>
+                        <div class="col-sm-10 form-group" ng-if="ss.value">
+                          <label class="col-sm-3 control-label"></label>
+                          <div class="bpm-file-text col-sm-6">{{ss.value}}</div>
+                        </div>
+                        <div class="col-sm-10 form-group" ng-if="ss.errorCheckingInformation && ss.errorCheckingInformation!==''">
+                          <label class="col-sm-3 control-label"></label>
+                          <label class="bpm-label-text col-sm-6">{{ss.errorCheckingInformation}}</label>
+                        </div>
+                        <div ng-if="!(ss.information==undefined || ss.information=='')" class="col-sm-10 form-group">
+                            <div>
+                                <label class="col-sm-3 control-label"></label>
+                                <label class="col-sm-6 control-label" style="color: #999">{{ss.information}}</label>
+                            </div>
+                        </div>
+                        </div>
+
                         <div ng-if="ss.ridx == 0 && ss.multi==1 && bpm.vfromops[ss.name] != '1'" class="col-sm-10 form-group">
                             <div>
                                 <label class="col-sm-3 control-label"></label>
@@ -357,6 +388,10 @@
       }
       .bpm-label-text {
         color: red;
+        margin-top: 5px;
+      }
+      .bpm-file-text {
+        color:#000;
         margin-top: 5px;
       }
       .ui-select-bootstrap > .ui-select-choices, .ui-select-bootstrap > .ui-select-no-choice {
