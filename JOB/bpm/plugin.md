@@ -419,3 +419,10 @@ option:
 template_argv:
   domain: ${domain}
 ```
+
+### 其他字段说明
+
+```
+source_type_list: 如果下拉框选项中添加了这个字段为true，那边页面上会允许切换成手动写入
+
+```
