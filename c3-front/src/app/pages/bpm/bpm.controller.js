@@ -800,8 +800,11 @@
             const hasValueType = []
             const hasIpValueType = []
             angular.forEach(vm.valias, function (data, index) {
+              const isExist = $scope.jobVar.some(item => item.name === index)
+              if (isExist) {
                 var aliasname = index + "__alias";
                 varDict[aliasname] = data;
+              }
             });
  
             angular.forEach($scope.jobVar, function (data, index) {
@@ -845,8 +848,11 @@
             var varDict = {};
 
             angular.forEach(vm.valias, function (data, index) {
+              const isExist = $scope.jobVar.some(item => item.name === index)
+              if (isExist) {
                 var aliasname = index + "__alias";
                 varDict[aliasname] = data;
+              }
             });
  
             angular.forEach($scope.jobVar, function (data, index) {
