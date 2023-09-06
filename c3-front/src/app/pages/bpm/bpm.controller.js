@@ -12,6 +12,8 @@
         vm.bpmuuid = $state.params.bpmuuid;
         vm.jobid = $state.params.jobid;
 
+        vm.checkTypeMap = {}
+
         vm.queryChoiceFlag = false;
         vm.inputValueType = ['email']
         vm.ipValueType = ['comma_seprate', 'forbit_whitespace']
@@ -449,6 +451,7 @@
             if (stepinfo.value_type || stepinfo.optchk) {
               vm.errorResult = '加载中';
               vm.changeDebounce(varDict, stepinfo, stepname)
+              return
             }
             const hasOptChkArr = sameLevelArr.filter(item => item.value_type || item.optchk)
             if (hasOptChkArr.length > 0) {
@@ -640,6 +643,11 @@
             });
         }
 
+        vm.switchMultiple = function (option, type) {
+          vm.checkTypeMap[option.name] = !type;
+          option.value = '';
+        }
+
         vm.optionxclick = function( stepname , selectIndex )
         {
             vm.selectIndex = selectIndex
@@ -714,6 +722,42 @@
             }
         }
 
+        // 文件上传
+        vm.clickImport = function (option) {
+          document.getElementById("bpm-choicefiles").click();
+          vm.fileOption = option;
+        };
+
+        $scope.upForm = function () {
+          var form = new FormData();
+          var file = document.getElementById("bpm-choicefiles").files[0];
+          form.append('file', file);
+          $http({
+            method: 'POST',
+            url: '/api/job/bpm/attachments',
+            data: form,
+            headers: { 'Content-Type': undefined },
+            transformRequest: angular.identity
+          }).success(function (data) {
+            if (data.stat) {
+             $scope.jobVar.forEach(item => {
+              if (item.name === vm.fileOption.name) {
+                const valueArr = []
+                angular.forEach(data.data, function (value, key) {
+                  valueArr.push(`${key}:${value}`)
+                })
+                item.value = valueArr.join(',')
+              }
+            })
+            }
+            else {
+              toastr.error("上传失败:" + data.info)
+            }
+          }).error(function (data) {
+            toastr.error("上传失败:" + data)
+          })
+        };
+
         vm.jobsloadover = true;
         vm.menu = [];
         vm.reload = function () {
@@ -764,8 +808,11 @@
             const hasValueType = []
             const hasIpValueType = []
             angular.forEach(vm.valias, function (data, index) {
+              const isExist = $scope.jobVar.some(item => item.name === index)
+              if (isExist) {
                 var aliasname = index + "__alias";
                 varDict[aliasname] = data;
+              }
             });
  
             angular.forEach($scope.jobVar, function (data, index) {
@@ -809,8 +856,11 @@
             var varDict = {};
 
             angular.forEach(vm.valias, function (data, index) {
+              const isExist = $scope.jobVar.some(item => item.name === index)
+              if (isExist) {
                 var aliasname = index + "__alias";
                 varDict[aliasname] = data;
+              }
             });
  
             angular.forEach($scope.jobVar, function (data, index) {
