@@ -12,6 +12,8 @@
         vm.bpmuuid = $state.params.bpmuuid;
         vm.jobid = $state.params.jobid;
 
+        vm.checkTypeMap = {}
+
         vm.queryChoiceFlag = false;
         vm.inputValueType = ['email']
         vm.ipValueType = ['comma_seprate', 'forbit_whitespace']
@@ -449,6 +451,7 @@
             if (stepinfo.value_type || stepinfo.optchk) {
               vm.errorResult = '加载中';
               vm.changeDebounce(varDict, stepinfo, stepname)
+              return
             }
             const hasOptChkArr = sameLevelArr.filter(item => item.value_type || item.optchk)
             if (hasOptChkArr.length > 0) {
@@ -638,6 +641,11 @@
 
                 }
             });
+        }
+
+        vm.switchMultiple = function (option, type) {
+          vm.checkTypeMap[option.name] = !type;
+          option.value = '';
         }
 
         vm.optionxclick = function( stepname , selectIndex )
