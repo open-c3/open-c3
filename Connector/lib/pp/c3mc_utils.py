@@ -14,6 +14,8 @@ import base64
 import string
 import re
 import socket
+import uuid
+import shutil
 from ipaddress import ip_network, ip_address
 
 
@@ -447,3 +449,30 @@ def test_if_port_can_connected(host, port):
 
 def doulbe_new_line(content):
     return "\n\n".join(content.split("\n"))
+
+
+def duplicate_file(source_file_path, target_file_name):
+    """创建文件副本
+    
+    该函数会在/tmp/目录下创建一个随机目录, 并在该目录下创建一个文件副本
+
+    Args:
+        source_file_path (str): 源文件绝对路径
+        target_file_name (str): 目标文件名称
+
+    Returns:
+        tuple: (目标文件绝对路径, 清理函数)
+    """
+    random_dir_name = str(uuid.uuid4())
+    target_dir_path = os.path.join("/tmp", random_dir_name)
+    os.makedirs(target_dir_path, exist_ok=True)
+    
+    target_file_path = os.path.join(target_dir_path, target_file_name)
+    
+    shutil.copy2(source_file_path, target_file_path)
+
+    def clean_file():
+        os.remove(target_file_path)
+        os.rmdir(target_dir_path)
+
+    return target_file_path, clean_file

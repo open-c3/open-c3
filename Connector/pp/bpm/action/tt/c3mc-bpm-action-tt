@@ -8,10 +8,11 @@ import re
 import base64
 import os
 import shutil
+import uuid
 
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
-from c3mc_utils import safe_run_command
+from c3mc_utils import safe_run_command, duplicate_file
 
 
 def replace_base64_substring(long_string):
@@ -67,11 +68,12 @@ def create_tt(params):
     print(f"LOG. tt单号: {tt_number}")
 
     if params["sql_input_type"] == "上传附件":
-        md5_file_path = f"/data/open-c3-data/bpm/attachments/{params['sql_file'].split(':')[0]}"
-        target_file_path = f"/data/open-c3-data/bpm/attachments/{params['sql_file'].split(':')[1]}"
-        shutil.copy2(md5_file_path, target_file_path)
+        target_file_path, clean_file = duplicate_file(
+            f"/data/open-c3-data/bpm/attachments/{params['sql_file'].split(':')[0]}", 
+            f"/data/open-c3-data/bpm/attachments/{params['sql_file'].split(':')[1]}"
+        )
         upload_attach(tt_number, target_file_path)
-        os.remove(target_file_path)
+        clean_file()
 
     notify = params.get("notify")
     if not notify:
