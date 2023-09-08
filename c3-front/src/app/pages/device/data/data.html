@@ -128,15 +128,25 @@
                             <a ng-click="devicedata.showdetail( m.uuid, m.type, m.subtype )" style="cursor:pointer;color: #339094;" >{{m.subtype}}</a>
                         </td>
                         <td width="360" class="line-feed" filter="{baseinfo: 'text'}" data-title="'C3T.基本信息'|translate">{{m.baseinfo}}</td>
-                        <td width="360" class="line-feed" filter="{system: 'text'}" data-title="'C3T.系统信息'|translate">
+                        <td width="360" filter="{system: 'text'}" data-title="'C3T.系统信息'|translate">
                             <div ng-if="m.match=='2'" style="color: green;" >{{m.system}}</div>
                             <div ng-if="m.match!='2'" >{{m.system}}</div>
                         </td>
                         <td width="360" class="line-feed" filter="{contact: 'text'}" data-title="'C3T.联系信息'|translate"><div uib-tooltip="{{m.contact}}" >{{m.contact |cut61}}</div></td>
                         <td data-title="'C3T.资源操作'|translate">
-                            <div ng-repeat="c in m.control">
-                                <button class="btn btn-primary btn-sm operate-button" ng-click="devicedata.show( m.uuid, m.type, m.subtype, c)" >{{'C3T.' + c.name|translate}} </button>
+                          <div class="cmdb-control-flex">
+                            <div ng-repeat="c in m.control" class="cmdb-control-repeat">
+                              <div ng-if="devicedata.operateMap[c.type]" class="cmdb-control-icon" uib-tooltip="{{'C3T.' + c.name|translate}}"   ng-click="devicedata.show( m.uuid, m.type, m.subtype, c)">
+                                <img ng-src="{{devicedata.operateMap[c.type]}}" ng-alt="{{'C3T.' + c.name|translate}}"
+                                  class="cmdb-control-icon-image">
+                              </div>
+                              <div ng-if="!devicedata.operateMap[c.type]">
+                                <button class="btn btn-primary btn-sm operate-button"
+                                  ng-click="devicedata.show( m.uuid, m.type, m.subtype, c)">{{'C3T.' + c.name|translate}}
+                                </button>
+                              </div>
                             </div>
+                          </div>
                         </td>
                     </tr>
                 </table>
@@ -202,5 +212,29 @@
 
   .operate-button {
     margin: 5px;
+  }
+
+  .cmdb-control-flex {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .cmdb-control-repeat {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .cmdb-control-icon {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin: 5px;
+    cursor: pointer;
+  }
+  .cmdb-control-icon-image {
+    width: 100%;
+    height: 100%;
   }
 </style>

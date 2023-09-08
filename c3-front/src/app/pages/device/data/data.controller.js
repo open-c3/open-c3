@@ -59,6 +59,12 @@
             label: '200条'
           }
         ]
+
+        vm.operateMap = {
+          blank: '/assets/images/cmdb-monitor.png',
+          tags: '/assets/images/cmdb-tags.png',
+          modal: '/assets/images/cmdb-detail.png',
+        }
         vm.tablePageSize = 200
 
         vm.pageSizeOption = [20, 30, 50, 100, 200];
