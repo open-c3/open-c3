@@ -43,7 +43,10 @@ def getTime():
     current_time -= timedelta(hours=8)
 
     time_40_minutes_ago = current_time - timedelta(minutes=40)
-    time_10_minutes_ago = current_time - timedelta(minutes=10)
+    # time_10_minutes_ago 先改成获取当前时间，根据返回接口，当前时间是可以获取的
+    # 监控策略那边用了offset 10m，所以这里要保证10分钟之前的数据肯定是完整的
+    # 所以改成获取当前时间而不是十分钟之前
+    time_10_minutes_ago = current_time - timedelta(minutes=0)
 
     time_format = "%Y-%m-%dT%H:%M:00.000Z"
     time_string_40_minutes_ago = time_40_minutes_ago.strftime(time_format)

@@ -71,6 +71,7 @@ option:
       - enable_health_check: ["是"]
         health_check_type: ["HTTP"]
         protocol: ["TCP", "TCP_SSL", "QUIC"]
+    information: "健康检查域名 (仅适用于HTTP/HTTPS监听器和TCP监听器的HTTP健康检查方式。针对TCP监听器, 当使用HTTP健康检查方式时, 该参数为必填项)。 示例值 www.xxxx.com"
 
   - name: http_check_path
     describe: 健康检查路径
@@ -80,6 +81,7 @@ option:
       - enable_health_check: ["是"]
         health_check_type: ["HTTP"]
         protocol: ["TCP", "TCP_SSL", "QUIC"]
+    information: "健康检查路径 (仅适用于HTTP/HTTPS转发规则、TCP监听器的HTTP健康检查方式)。 示例值 /xxx"
 
 
   - name: http_check_method

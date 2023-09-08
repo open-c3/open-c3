@@ -1031,8 +1031,34 @@
                             angular.forEach($scope.jobVar, function (data, index) {
                                 if(data['show'] )
                                 {
-                                    vm.selectxhide[data.name] = '1';
-                                    data.value = "_openc3_hide_";
+                                  // show为字符串数组
+                                  if (typeof data['show'][0]  === 'string') {
+                                    const showCondition = $scope.jobVar.find(item => item.name.includes(data['show']))
+                                    if (data['show'].includes(showCondition.value)) {
+                                      vm.selectxhide[data.name] = '1';
+                                      data.value = "_openc3_hide_";
+                                    }
+                                  }  else {
+                                    // show为对象数组
+                                    const showKeys = []
+                                    data['show'].forEach(item => {
+                                      if (!showKeys.includes(Object.keys(item))) {
+                                        showKeys.push({
+                                          key: Object.keys(item)[0],
+                                          value: item[Object.keys(item)[0]]
+                                        }) 
+                                      }
+                                    })
+                                    showKeys.forEach(item => {
+                                      const showValues = $scope.jobVar.filter(cItem => cItem.name.includes(item.key))
+                                      item.value.forEach(cItem => {
+                                        if (!showValues.every(dItem => dItem.value === cItem)) {
+                                          vm.selectxhide[data.name] = '1';
+                                          data.value = "_openc3_hide_";
+                                        }
+                                      })
+                                    })
+                                  }
                                 } 
                             });
 
