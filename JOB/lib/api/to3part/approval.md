@@ -53,6 +53,7 @@ curl --location --request GET 'http://YOUR_OPENC3_IP/api/job/to3part/v1/approval
 
 返回:
 actionname有三种状态：待办、同意、不同意
+user_id: 审批人账号
 
 {
    "stat" : true,
@@ -62,7 +63,8 @@ actionname有三种状态：待办、同意、不同意
       "isend" : 0,
       "data" : [
          {
-            "actionname" : "待办"
+            "actionname" : "待办",
+            "user_id" : "user001"
          }
       ]
    }
