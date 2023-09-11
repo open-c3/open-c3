@@ -141,7 +141,18 @@ class LIB_EC2:
         """
         创建ec2实例
         """
-        return self.client.run_instances(**request)
+        max_times = 3
+
+        while True:
+            try:
+                return self.client.run_instances(**request)
+            except Exception as e:
+                if max_times <= 0:
+                    raise e
+                if "We currently do not have sufficient" in str(e):
+                    time.sleep(5)
+                    max_times -= 1
+                    continue
 
     def describe_volumes_by_instance_id(self, instance_id):
         response = self.client.describe_volumes(Filters=[{'Name': 'attachment.instance-id', 'Values': [instance_id]}])
