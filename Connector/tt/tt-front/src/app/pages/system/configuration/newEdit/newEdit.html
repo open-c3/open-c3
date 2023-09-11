@@ -1,0 +1,148 @@
+<div class="row block">
+  <div class="panel panel-primary">
+    <div class="panel-heading config-model-title">
+      <!-- 编辑配置 -->
+      <div ng-if="newEdit.itemDetail.impact">
+        <div ng-if="!newEdit.types">{{'D.Base.edit_default_config' | translate}}</div>
+        <div ng-if="newEdit.types">{{'D.Base.edit_empty_config'| translate}}</div>
+      </div>
+      <!-- 新建配置 -->
+      <div ng-if="!newEdit.itemDetail.impact">
+        <div ng-if="!newEdit.types">{{'D.Base.default_config' | translate}}</div>
+        <div ng-if="newEdit.types">{{'D.Base.empty_config'| translate}}</div>
+      </div>
+      <span class="panel-controls">
+        <button class="btn btn-primary" uib-tooltip="{{'S.Index.close'|translate}}" ng-click="newEdit.cancel()">
+          <i class="fa fa-times" aria-hidden="true"></i></button>
+      </span>
+    </div>
+
+    <form name="newtt_form" class="form-horizontal newtt" onsubmit="return false;" novalidate>
+      <div class="col-md-12">
+        <!--联系人-->
+        <div ng-if="newEdit.types" class="panel panel-info panel-border top">
+          <div class="panel-heading">
+            <h5 translate="D.Base.copy_user_config"></h5>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label class="col-md-3 control-label"><span translate="D.Base.target_user"></span>&nbsp;<span
+                  class="text-danger">*</span></label>
+              <div class="col-md-9">
+                <input class="form-control" ng-model="newEdit.ticket.target_user" required />
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--事件影响-->
+        <div class="panel panel-danger panel-border top">
+          <div class="panel-heading">
+            <h5 translate="S.TT.effect"></h5>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label class="col-md-3 control-label"><span translate="D.Base.impact"></span>&nbsp;<span
+                  class="text-danger">*</span></label>
+              <div class="col-md-8">
+                <select class="form-control" size="1" ng-model="newEdit.ticket.impact" convert-to-number required>
+                  <option ng-repeat="v in newEdit.baseData.impact track by $index" value="{{v.id}}">{{v.level}} -
+                    {{'D.Impact.level' + v.level | translate}}</option>
+                </select>
+              </div>
+              <div class="col-md-1" style="line-height:30px;padding:3px;">
+                <a href="https://open-c3.github.io" target="_blank"><i class="fa fa-question-circle-o fa-lg"></i></a>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--C.T.I-->
+        <div class="panel panel-warning panel-border top">
+          <div class="panel-heading">
+            <h5 class="pull-left">C.T.I.</h5>
+            <span class="pull-right">
+              <input type="text" style="padding:3px 10px;height:36px;" class="form-control" placeholder="Search(搜索)"
+                ng-model="newEdit.cti_search_w" ng-keyup="$event.keyCode == 13 ? newEdit.cti_search() : null" />
+            </span>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label class="col-md-3 control-label"><span translate="D.Base.category"></span>&nbsp;<span
+                  class="text-danger">*</span></label>
+              <div class="col-md-9">
+                <select class="form-control" size="1" ng-model="newEdit.ticket.category" convert-to-number required>
+                  <option ng-repeat="v in newEdit.baseData.category track by $index" value="{{v.id}}">{{v.name}}
+                  </option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label"><span translate="D.Base.type"></span>&nbsp;<span
+                  class="text-danger">*</span></label>
+              <div class="col-md-9">
+                <select class="form-control" size="1" ng-model="newEdit.ticket.type" convert-to-number required>
+                  <option ng-repeat="v in newEdit.baseData.type track by $index" value="{{v.id}}"
+                    ng-if="v.category_id == newEdit.ticket.category">{{v.name}}</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label"><span translate="D.Base.item"></span>&nbsp;<span
+                  class="text-danger">*</span></label>
+              <div class="col-md-9">
+                <select class="form-control" size="1" ng-model="newEdit.ticket.item" ng-change="newEdit.item_change()"
+                  convert-to-number required>
+                  <option ng-repeat="v in newEdit.baseData.item track by $index" value="{{v.id}}"
+                    ng-if="v.type_id == newEdit.ticket.type">{{v.name}}</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+        <!--指派-->
+        <div class="panel panel-system panel-border top">
+          <div class="panel-heading">
+            <h5 translate="S.TT.assign"></h5>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label class="col-md-3 control-label"><span translate="D.Base.workgroup"></span>&nbsp;<span
+                  class="text-danger">*</span></label>
+              <div class="col-md-9">
+                <select class="form-control" size="1" ng-model="newEdit.ticket.work_group"
+                  ng-change="newEdit.group_change()" convert-to-number required>
+                  <option ng-repeat="v in newEdit.item_groups track by $index" value="{{v.id}}">{{v.priority}}
+                    {{v.group_name}}</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label"><span translate="D.Base.group_user"></span>&nbsp;<span
+                  class="text-danger">&nbsp;*</span></label>
+              <div class="col-md-9">
+                <select class="form-control" size="1" ng-model="newEdit.ticket.group_user" convert-to-number required>
+                  <option value=""></option>
+                  <option ng-repeat="v in newEdit.baseData.group_user track by $index" value="{{v.id}}"
+                    ng-if="v.group_id == newEdit.ticket.work_group && v.disabled==0">{{v.priority}} - {{v.email}}
+                  </option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group text-right">
+        <div class="col-md-9 col-md-offset-3 panel">
+          <button ng-disabled="newtt_form.$invalid" class="btn btn-primary" ng-click="newEdit.submit()">
+            <i class="fa fa-send fa-fw"></i>
+            <span translate="S.Index.submit"></span>
+          </button>
+          <button class="btn btn-warning" ng-click="newEdit.cancel()">
+            <span translate="S.Index.cancel"></span>
+          </button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</div>

@@ -1,0 +1,14 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use POSIX;
+
+$|++;
+
+while(<>)
+{
+    map{
+        my ( $time, $cont ) = split /\s/, $_, 2;
+        printf "%s %s\n", POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime($time) ), $cont;
+    }split /\r|\n/, $_;
+}

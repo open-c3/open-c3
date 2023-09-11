@@ -13,10 +13,27 @@ option:
     describe: 数据库所属人
     type: input
     value: ""
-  - name: sql
+
+  - name: sql_input_type
+    describe: sql输入方式
+    option: ["手动填写", "上传附件"]
+    type: select
+    value: "上传附件"
+
+  - name: sql_code
     describe: SQL语句
     type: text
     value: ""
+    show:
+      - sql_input_type: [ "手动填写" ]
+
+  - name: sql_file
+    describe: SQL附件
+    type: file
+    value: ""
+    show:
+      - sql_input_type: [ "上传附件" ]
+
   - name: note
     describe: 申请理由
     type: text
@@ -25,6 +42,9 @@ option:
 template_argv:
   notify: '@bpm_notify_dba'
   title:    "BPM/${_bpmuuid_}/SQL操作"
+  sql_input_type: ${sql_input_type}
+  sql_file: ${sql_file}
+  apply_user: '${_user_}'
   content:  |
     BPM标题: SQL操作
     BPM地址: ${_caseurl_}
@@ -32,5 +52,5 @@ template_argv:
     数据库地址: ${database_addr}
     数据库名称: ${database_name}
     数据库所属人: ${database_owner}
-    SQL语句: base64__${sql__base64}__base64
+    SQL语句: base64__${sql_code__base64}__base64
     申请理由: ${note}

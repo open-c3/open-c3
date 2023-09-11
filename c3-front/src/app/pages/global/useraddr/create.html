@@ -16,8 +16,17 @@
         <div class="row">
             <div class="col-sm-10 form-group">
                 <label class="col-sm-3 control-label">{{'C3T.邮箱地址'|translate}}</label>
-                <div class="col-sm-9">
-                    <input type="text" class="form-control" name="adduser" placeholder="{{'C3T.邮箱地址'|translate}}" ng-model="useraddrcreate.postdata.email" required>
+                <div class="col-sm-5">
+                    <input type="text" class="form-control" name="adduser" ng-disabled="!useraddrcreate.emailStatus" placeholder="{{'C3T.邮箱地址'|translate}}" ng-model="useraddrcreate.postdata.email" ng-required="useraddrcreate.emailStatus">
+                </div>
+                <div class="admin-form row">
+                  <label class="col-sm-2 control-label fwbold" style="padding:8px 5px;">{{'C3T.是否需要'|translate}}</label>
+                  <div style="padding: 0;">
+                      <label class="switch switch-system mt5">
+                          <input type="checkbox" id="check_email_status" ng-model="useraddrcreate.emailStatus" ng-change="useraddrcreate.switchChange('email')">
+                          <label for="check_email_status" data-on="ON" data-off="OFF"></label>
+                      </label>
+                  </div>
                 </div>
             </div>
         </div>
@@ -25,16 +34,51 @@
             <div class="col-sm-10 form-group">
                 <label class="col-sm-3 control-label">{{'C3T.手机号'|translate}}</label>
                 <div class="col-sm-9">
-                    <input type="text" class="form-control" name="adduser" placeholder="{{'C3T.手机号'|translate}}" ng-model="useraddrcreate.postdata.phone" required>
+                  <div class="col-sm-2">
+                    <i class="fa fa-plus-circle fa-2x mobile-multiple-add-icon" aria-hidden="true" ng-click="useraddrcreate.addKvArray()" uib-tooltip="{{'C3T.添加'|translate}}"></i>
+                  </div>
+                  <div class="admin-form row">
+                    <label class="col-sm-3 control-label fwbold" style="padding:8px 5px;">{{'C3T.是否需要'|translate}}</label>
+                    <div style="padding: 0;">
+                        <label class="switch switch-system mt5">
+                            <input type="checkbox" id="check_phoneStatus_status" ng-model="useraddrcreate.phoneStatus" ng-change="useraddrcreate.switchChange('phone')">
+                            <label for="check_phoneStatus_status" data-on="ON" data-off="OFF"></label>
+                        </label>
+                    </div>
+                  </div>
+                  <div class="mobile-multiple-add" ng-repeat="item in useraddrcreate.postdata.mobileType">
+                    <ui-select class="form-group mobile-multiple-add-select" appendToBody="true" ng-model="item.type"
+                      ng-disabled="!useraddrcreate.phoneStatus"
+                      ng-change="useraddrcreate.mobileTypeChange($select.selected.value, $index)">
+                      <ui-select-match><span class="item-label">{{$select.selected.label| translate}}</span></ui-select-match>
+                      <ui-select-choices
+                        repeat="item.value as item in useraddrcreate.mobileTypeOption | filter: $select.search">
+                        <div ng-bind-html="(item.label | highlight: useraddrcreate.mobileTypeOption)| translate"></div>
+                      </ui-select-choices>
+                    </ui-select>
+                    <input type="text" ng-disabled="!useraddrcreate.phoneStatus" class="form-control mobile-multiple-add-input" placeholder="{{'C3T.手机号'|translate}}"
+                      ng-model="item.phone" ng-required="useraddrcreate.phoneStatus">
+                      <i class="fa fa-minus-circle fa-2x mobile-multiple-remove-icon" aria-hidden="true" 
+                      ng-click="useraddrcreate.deleteKvArray($index)" uib-tooltip="{{'C3T.删除'|translate}}"></i>
+                  </div>
                 </div>
             </div>
         </div>
         <div class="row">
             <div class="col-sm-10 form-group">
                 <label class="col-sm-3 control-label">{{'C3T.语音信箱'|translate}}</label>
-                <div class="col-sm-9">
-                    <input type="text" class="form-control" name="adduser" placeholder="{{'C3T.语音信箱,为空时为和手机号一致'|translate}}" ng-model="useraddrcreate.postdata.voicemail">
-                </div>
+                <div class="col-sm-5">
+                    <input type="text" class="form-control" name="adduser" ng-disabled="!useraddrcreate.voicemailStatus" placeholder="{{'C3T.语音信箱,为空时为和手机号一致'|translate}}" ng-model="useraddrcreate.postdata.voicemail" ng-required="useraddrcreate.voicemailStatus">
+                  </div>
+                  <div class="admin-form row">
+                    <label class="col-sm-2 control-label fwbold" style="padding:8px 5px;">{{'C3T.是否需要'|translate}}</label>
+                    <div style="padding: 0;">
+                        <label class="switch switch-system mt5">
+                            <input type="checkbox" id="check_voicemail_status" ng-model="useraddrcreate.voicemailStatus" ng-change="useraddrcreate.switchChange('voicemail')">
+                            <label for="check_voicemail_status" data-on="ON" data-off="OFF"></label>
+                        </label>
+                    </div>
+                  </div>
             </div>
         </div>
         <div class="row">
@@ -45,4 +89,30 @@
         </div>
     </form>
 </div>
+
+<style>
+  .mobile-multiple-add {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex: center;
+  }
+  .mobile-multiple-add-select {
+    flex: 1;
+    margin: 0 10px 10px 0!important;
+  }
+  .mobile-multiple-add-input {
+    flex: 2;
+    margin: 0 10px 10px 0!important;
+  }
+  .mobile-multiple-add-icon {
+    cursor:pointer;
+    color: green;
+  }
+  .mobile-multiple-remove-icon {
+    margin-left: 10px;
+    cursor:pointer;
+    color: #f63;
+  }
+</style>
 
