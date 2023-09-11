@@ -81,7 +81,7 @@ get '/to3part/v1/approval' => sub {
 
     return  +{ stat => $JSON::false, info => "key err", code => 1, msg => "key err" } unless $appkey && $appname && $key{$appname} && $key{$appname} eq $appkey;
 
-    my $x = eval{ $api::mysql->query( "select opinion from openc3_job_approval where taskuuid='$param->{djbh}'" ) };
+    my $x = eval{ $api::mysql->query( "select opinion,user from openc3_job_approval where taskuuid='$param->{djbh}'" ) };
 
     return +{ stat => $JSON::false, info => $@, code => 1, msg => $@ } if $@;
 
@@ -92,7 +92,7 @@ get '/to3part/v1/approval' => sub {
     my $actionname = Encode::decode( 'utf8', "待办"   );
        $actionname = Encode::decode( 'utf8', "同意"   ) if $opinion eq 'agree';
        $actionname = Encode::decode( 'utf8', "不同意" ) if $opinion eq 'refuse';
-    return +{ stat => $JSON::true, code => 0, msg => 'ok', data => +{ isend => $isend, data => [ { actionname => $actionname } ]} }
+    return +{ stat => $JSON::true, code => 0, msg => 'ok', data => +{ isend => $isend, data => [ { actionname => $actionname, user_id => $x->[0][1] } ]} }
 };
 
 true;
