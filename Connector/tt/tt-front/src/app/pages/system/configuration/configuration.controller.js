@@ -76,7 +76,6 @@
 
     // 创建配置
     vm.handleCreate = function (type) {
-      if (vm.tableData.length) {
         $uibModal.open({
           templateUrl: 'app/pages/system/configuration/newEdit/newEdit.html',
           controller: 'NewEditController',
@@ -91,7 +90,6 @@
             reload: function () { return vm.tableReload },
           }
         })
-      }
     }
 
     // delete
