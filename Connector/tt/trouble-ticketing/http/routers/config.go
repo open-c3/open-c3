@@ -138,7 +138,9 @@ func report_route(r *gin.RouterGroup) {
 }
 
 func public_route(r *gin.RouterGroup) {
-	r.POST("/ticket", handler.PublicPostTicket)                // 第三方系统添加事件
+	r.POST("/ticket", handler.PublicPostTicket)                           // 第三方系统添加事件
+	r.POST("/ticket/attachment/upload/:ticketid", handler.PostAttachment) // 上传附件
+
 	r.GET("/ticket/status/:id", handler.PublicGetTicketStatus) // 获取事件状态
 	r.GET("/ticket", handler.PublicGetTicketInfo)              // 获取事件基础信息
 

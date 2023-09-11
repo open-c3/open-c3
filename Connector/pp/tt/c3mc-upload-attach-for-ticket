@@ -1,0 +1,35 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import requests
+import argparse
+
+
+def upload_attach(tt_id, file_path):
+    API_ENDPOINT = f"http://localhost:88/api/tt/public/ticket/attachment/upload/{tt_id}"
+
+    with open(file_path, 'rb') as f:
+        files = {'upload': f}
+
+        resp = requests.post(url=API_ENDPOINT, files=files)
+
+    return resp.json()
+
+
+def main(tt_id, file_path):
+    upload_attach(tt_id, file_path)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description="为工单创建附件，请")
+    parser.add_argument('--tt_id', type=str, required=True, help='标题')
+    parser.add_argument('--file_path', type=str, required=False, help='邮箱列表,多个邮箱用英文逗号分隔')
+    args = parser.parse_args()
+
+    tt_id = args.tt_id
+    file_path = args.file_path
+
+    main(
+        tt_id, 
+        file_path,
+    )
