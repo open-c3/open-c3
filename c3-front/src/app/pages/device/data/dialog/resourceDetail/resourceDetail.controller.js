@@ -28,7 +28,6 @@
     vm.getData = function () {
       $http.get(vm.config['url']).success(function (data) {
         if (data.stat) {
-          console.log(data.data)
           vm.showData = data.data
         }
       })

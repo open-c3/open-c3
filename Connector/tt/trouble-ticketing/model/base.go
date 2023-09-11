@@ -59,3 +59,22 @@ type BaseEmailTemplates struct {
 	Description string `json:"description"`
 	Content     string `json:"content"`
 }
+
+type PersonPreConfigParams struct {
+	ID int64 `json:"id"`
+	// 目标用户。可以为空。如果为空，在前端为"默认系统配置"
+	TargetUser string `json:"target_user"`
+	// 影响级别
+	Impact int64 `json:"impact" binding:"required"`
+	// 总类
+	Category int64 `json:"category" binding:"required"`
+	// 子类
+	Type int64 `json:"type" binding:"required"`
+	// 名目
+	Item int64 `json:"item" binding:"required"`
+	// 工作组
+	WorkGroup int64 `json:"work_group" binding:"required"`
+	// 组员
+	GroupUser int64  `json:"group_user" binding:"required"`
+	EditUser  string `json:"edit_user"`
+}

@@ -39,6 +39,24 @@
                 controller: 'TTShowController',
                 controllerAs: 'ttshow'
             })
+            .state('home.tt.ordertotal', {
+              url:'ordertotal',
+              templateUrl: 'app/pages/tt/ordertotal/orderTotal.html',
+              controller: 'OrderTotalController',
+              controllerAs: 'orderTotal',
+            })
+            .state('home.tt.todototal', {
+              url:'todototal',
+              templateUrl: 'app/pages/tt/todototal/todoTotal.html',
+              controller: 'TodoTotalController',
+              controllerAs: 'todoTotal'
+            })
+            .state('home.tt.personaltodo', {
+              url:'personaltodo',
+              templateUrl: 'app/pages/tt/personaltodo/personalTodo.html',
+              controller: 'PersonalTodoController',
+              controllerAs: 'personalTodo'
+            })
             .state('home.tt.search', {
                 url:'search',
                 templateUrl: 'app/pages/tt/search/search.html',
@@ -125,6 +143,12 @@
                 templateUrl: 'app/pages/system/email_tpl/email_tpl.html',
                 controller: 'EmailtplController',
                 controllerAs: 'emailtpl'
+            })
+            .state('home.system.configuration', {
+              url: 'configuration',
+              templateUrl: 'app/pages/system/configuration/configuration.html',
+              controller: 'ConfigurationController',
+              controllerAs: 'configuration'
             })
 
         /** error page **/

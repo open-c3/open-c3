@@ -77,7 +77,7 @@ post '/c3mc/cloud/control/tags/add/:type/:subtype/:uuid' => sub {
         subtype     => qr/^[a-zA-Z0-9][a-zA-Z0-9\-]+$/,  1,
         uuid        => qr/^[a-zA-Z0-9][a-zA-Z0-9\-_]+$/, 1,
         tagkey      => qr/^[a-zA-Z0-9][a-zA-Z0-9\-_]+$/, 1,
-        tagvalue    => qr/^[a-zA-Z0-9][a-zA-Z0-9\-_]+$/, 1,
+        tagvalue    => qr/^[a-zA-Z0-9][a-zA-Z0-9\-_@\.]+$/, 1,
 
     )->check( %$param );
 
@@ -113,7 +113,7 @@ post '/c3mc/cloud/control/tags/del/:type/:subtype/:uuid' => sub {
         subtype     => qr/^[a-zA-Z0-9][a-zA-Z0-9\-]+$/,  1,
         uuid        => qr/^[a-zA-Z0-9][a-zA-Z0-9\-_]+$/, 1,
         tagkey      => qr/^[a-zA-Z0-9][a-zA-Z0-9\-_]+$/, 1,
-        tagvalue    => qr/^[a-zA-Z0-9][a-zA-Z0-9\-_]+$/, 1,
+        tagvalue    => qr/^[a-zA-Z0-9][a-zA-Z0-9\-_@\.]+$/, 1,
 
     )->check( %$param );
 

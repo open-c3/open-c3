@@ -1,0 +1,76 @@
+<div id="topbar">
+  <div class="topbar-left">
+    <ol class="breadcrumb">
+      <li class="fs16" translate="S.Menu.configuration"></li>
+    </ol>
+  </div>
+</div>
+
+<div class="block">
+  <button ng-disabled="configuration.createType" uib-tooltip="{{configuration.createType ? '默认只能有一个默认配置': '新建默认配置'}}"
+    class="btn btn-primary configuration-create-button" ng-click="configuration.handleCreate('default')">
+    {{'D.Base.default_config' | translate}}
+  </button>
+  <button class="btn btn-primary configuration-create-button" uib-tooltip="新建空白配置"
+    ng-click="configuration.handleCreate('empty')">{{'D.Base.empty_config' | translate}}</button>
+
+  <div class="panel panel-primary">
+
+    <div class="panel-heading">
+      <span class="block-options pull-right">
+        <button class="btn btn-primary" ng-click="configuration.tableReload($event)"><i
+            class="fa fa-refresh tableFresh"></i></button>
+      </span>
+      <span>Total：{{ configuration.configTotal || 0 }}</span>
+    </div>
+
+    <div class="panel-body">
+
+      <div class="loading-container hide">
+        <div class="loading">
+          <div class="l1">
+            <div></div>
+          </div>
+          <div class="l2">
+            <div></div>
+          </div>
+          <div class="l3">
+            <div></div>
+          </div>
+          <div class="l4">
+            <div></div>
+          </div>
+        </div>
+      </div>
+      <table ng-table="configuration.configTable" class="table text-center vertical-center configuration-table-style">
+        <tr ng-repeat="m in $data" ng-class="{'default-style': !m.target_user}">
+          <td data-title="'ID'">{{m.id}} </td>
+          <td data-title="'影响级别'">
+            {{m.impact}} - {{'D.Impact.level' + m.impact | translate}}
+          </td>
+          <td data-title="'总类'"> {{configuration.baseDataMap['category'][m.category]}} </td>
+          <td data-title="'子类'">{{configuration.baseDataMap['type'][m.type]}}</td>
+          <td data-title="'名目'">{{configuration.baseDataMap['item'][m.item]}}</td>
+          <td data-title="'工作组'">{{configuration.baseDataMap['group'][m.work_group]}}</td>
+          <td data-title="'组员'">{{configuration.baseDataMap['group_user'][m.group_user]}}</td>
+          <td data-title="'运维账号'">{{m.target_user || ('D.Base.default_config_text'| translate)}}</td>
+          <td data-title="'编辑人'">{{m.edit_user || '-'}}</td>
+
+          <td data-title="'操作'">
+            <button class="btn btn-link" ng-click="configuration.updateConfig(m)" uib-tooltip="编辑">
+              <i class="fa fa-edit" aria-hidden="true"></i>
+            </button>
+            <button class="btn btn-link" ng-click="configuration.copyConfig(m)" uib-tooltip="复制">
+              <i class="fa fa-copy" aria-hidden="true"></i>
+            </button>
+            <button class="btn btn-link" ng-click="configuration.deleteConfig(m)" uib-tooltip="删除">
+              <i class="fa fa-times-circle operate-delete-danger" aria-hidden="true" ></i>
+            </button>
+          </td>
+        </tr>
+      </table>
+
+    </div>
+
+  </div>
+</div>

@@ -12,6 +12,7 @@ sys.path.append("/data/Software/mydan/Connector/lib/pp")
 
 def create_ticket(
     submit_user, 
+    apply_user,
     title, 
     content, 
     email_list,
@@ -47,7 +48,7 @@ def create_ticket(
         "t": t,
         "i": i,
         "submit_user": submit_user,
-        "apply_user": submit_user
+        "apply_user": apply_user
     }
     
     resp = requests.post(url = API_ENDPOINT, headers = header, json=data)
@@ -61,6 +62,7 @@ def create_ticket(
 
 def main(    
     submit_user, 
+    apply_user,
     title, 
     content, 
     email_list, 
@@ -68,6 +70,7 @@ def main(
 ):
     data = create_ticket(
         submit_user, 
+        apply_user,
         title, 
         content, 
         email_list, 
@@ -94,10 +97,12 @@ if __name__ == '__main__':
     parser.add_argument('--title', type=str, required=True, help='标题')
     parser.add_argument('--email_list', type=str, required=False, help='邮箱列表,多个邮箱用英文逗号分隔')
     parser.add_argument('--submit_user', type=str, required=False, help='提交人账号')
+    parser.add_argument('--apply_user', type=str, required=True, help='申请人账号')
     parser.add_argument('--ext_tt', type=str, required=False, help='是否使用外部tt, 1: 使用外部tt, 0: 使用内部tt')
     args = parser.parse_args()
 
     title = args.title
+    apply_user = args.apply_user
 
     email_list = ""
     if args.email_list != None and args.email_list != "":
@@ -113,6 +118,7 @@ if __name__ == '__main__':
 
     main(
         submit_user, 
+        apply_user,
         title, 
         content,
         email_list, 

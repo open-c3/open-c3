@@ -12,6 +12,8 @@
         vm.bpmuuid = $state.params.bpmuuid;
         vm.jobid = $state.params.jobid;
 
+        vm.checkTypeMap = {}
+
         vm.queryChoiceFlag = false;
         vm.inputValueType = ['email']
         vm.ipValueType = ['comma_seprate', 'forbit_whitespace']
@@ -449,6 +451,7 @@
             if (stepinfo.value_type || stepinfo.optchk) {
               vm.errorResult = '加载中';
               vm.changeDebounce(varDict, stepinfo, stepname)
+              return
             }
             const hasOptChkArr = sameLevelArr.filter(item => item.value_type || item.optchk)
             if (hasOptChkArr.length > 0) {
@@ -640,6 +643,11 @@
             });
         }
 
+        vm.switchMultiple = function (option, type) {
+          vm.checkTypeMap[option.name] = !type;
+          option.value = '';
+        }
+
         vm.optionxclick = function( stepname , selectIndex )
         {
             vm.selectIndex = selectIndex
@@ -800,8 +808,11 @@
             const hasValueType = []
             const hasIpValueType = []
             angular.forEach(vm.valias, function (data, index) {
+              const isExist = $scope.jobVar.some(item => item.name === index)
+              if (isExist) {
                 var aliasname = index + "__alias";
                 varDict[aliasname] = data;
+              }
             });
  
             angular.forEach($scope.jobVar, function (data, index) {
@@ -845,8 +856,11 @@
             var varDict = {};
 
             angular.forEach(vm.valias, function (data, index) {
+              const isExist = $scope.jobVar.some(item => item.name === index)
+              if (isExist) {
                 var aliasname = index + "__alias";
                 varDict[aliasname] = data;
+              }
             });
  
             angular.forEach($scope.jobVar, function (data, index) {
@@ -1017,8 +1031,34 @@
                             angular.forEach($scope.jobVar, function (data, index) {
                                 if(data['show'] )
                                 {
-                                    vm.selectxhide[data.name] = '1';
-                                    data.value = "_openc3_hide_";
+                                  // show为字符串数组
+                                  if (typeof data['show'][0]  === 'string') {
+                                    const showCondition = $scope.jobVar.find(item => item.name.includes(data['show']))
+                                    if (data['show'].includes(showCondition.value)) {
+                                      vm.selectxhide[data.name] = '1';
+                                      data.value = "_openc3_hide_";
+                                    }
+                                  }  else {
+                                    // show为对象数组
+                                    const showKeys = []
+                                    data['show'].forEach(item => {
+                                      if (!showKeys.includes(Object.keys(item))) {
+                                        showKeys.push({
+                                          key: Object.keys(item)[0],
+                                          value: item[Object.keys(item)[0]]
+                                        }) 
+                                      }
+                                    })
+                                    showKeys.forEach(item => {
+                                      const showValues = $scope.jobVar.filter(cItem => cItem.name.includes(item.key))
+                                      item.value.forEach(cItem => {
+                                        if (!showValues.every(dItem => dItem.value === cItem)) {
+                                          vm.selectxhide[data.name] = '1';
+                                          data.value = "_openc3_hide_";
+                                        }
+                                      })
+                                    })
+                                  }
                                 } 
                             });
 

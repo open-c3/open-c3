@@ -38,11 +38,13 @@ option:
     describe: 域名
     type: input
     show: ["protocol", "HTTP", "HTTPS"]
+    information: "转发规则的域名。 示例值 www.xxxx.com"
 
   - name: url
     describe: url
     type: input
     show: ["protocol", "HTTP", "HTTPS"]
+    information: "转发规则的路径。长度限制为: 1~200。 示例值 /xxxx"
 
   - name: scheduler
     describe: 规则请求转发方式
@@ -58,6 +60,7 @@ option:
     type: select
     value: "HTTP"
     show: ["protocol", "HTTPS"]
+    information: "负载均衡与后端服务之间的转发协议, 默认HTTP。 示例值 HTTP"
 
   - name: cert_id
     describe: 证书
@@ -101,6 +104,7 @@ option:
       - enable_health_check: ["是"]
         health_check_type: ["HTTP", "HTTPS"]
         protocol: ["protocol", "HTTP", "HTTPS"]
+    information: "健康检查域名 (仅适用于HTTP/HTTPS监听器和TCP监听器的HTTP健康检查方式。针对TCP监听器, 当使用HTTP健康检查方式时, 该参数为必填项)。 示例值 www.xxxx.com"
 
   - name: http_check_path
     describe: 健康检查路径
@@ -110,6 +114,7 @@ option:
       - enable_health_check: ["是"]
         health_check_type: ["HTTP", "HTTPS"]
         protocol: ["protocol", "HTTP", "HTTPS"]
+    information: "健康检查路径 (仅适用于HTTP/HTTPS转发规则、TCP监听器的HTTP健康检查方式)。 示例值 /xxx"
 
   - name: http_check_method
     describe: HTTP请求方式

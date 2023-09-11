@@ -25,6 +25,7 @@
     vm.tagsArr = []
     vm.defaultTagsArr = []
     vm.tagLoading = false
+    vm.saveLoading = false
     vm.cancel = function () { $uibModalInstance.dismiss() };
 
     // 删除标签
@@ -42,12 +43,17 @@
         confirmButtonText: "确定",
         closeOnConfirm: true
       }, function () {
+        vm.saveLoading = true
         $http.post(`/api/ci/v2/c3mc/cloud/control/tags/del/${vm.type}/${vm.subtype}/${vm.uuid}`, params).success(function (data) {
+          vm.saveLoading = false
           if (data.stat) {
             vm.tagsArr.splice(index, 1)
             toastr.success('删除成功')
-          }
+          } else {
+              toastr.error('删除失败' + data.info)
+            }
         }).error(function (error) {
+          vm.saveLoading = false
           toastr.error('删除失败' + error)
           console.error(error)
         })
@@ -80,13 +86,18 @@
           confirmButtonText: "确定",
           closeOnConfirm: true
         }, function () {
+          vm.saveLoading = true
           $http.post(`/api/ci/v2/c3mc/cloud/control/tags/add/${vm.type}/${vm.subtype}/${vm.uuid}`, params).success(function (data) {
+            vm.saveLoading =  false
             if (data.stat) {
               item.status = !item.status
               toastr.success('保存成功')
               item.isCreate = false
+            }else {
+              toastr.error('保存失败' + data.info)
             }
           }).error(function (error) {
+            vm.saveLoading = false
             toastr.error('保存失败' + error)
             console.error(error)
           })
@@ -118,6 +129,8 @@
             item.isCreate = false
             return item
           })
+        } else {
+          toastr.error('获取标签失败' + data.info)
         }
       }).error(function (error) {
         toastr.error('获取标签失败' + error)

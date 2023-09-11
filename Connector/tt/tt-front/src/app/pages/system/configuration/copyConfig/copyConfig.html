@@ -1,0 +1,52 @@
+<div class="row block">
+  <div class="panel panel-primary">
+    <div class="panel-heading config-model-title">
+      <div ng-if="!copyConfig.types">{{'D.Base.copy_default_config' | translate}}</div>
+      <div ng-if="copyConfig.types">{{'D.Base.copy_empty_config'| translate}}</div>
+      <span class="panel-controls">
+        <button class="btn btn-primary" uib-tooltip="{{'S.Index.close'|translate}}" ng-click="copyConfig.cancel()">
+          <i class="fa fa-times" aria-hidden="true"></i></button>
+      </span>
+    </div>
+
+    <form name="newtt_form" class="form-horizontal newtt" onsubmit="return false;" novalidate>
+      <div class="col-md-12">
+        <!--复制账号-->
+        <div class="panel panel-info panel-border top">
+          <div class="panel-heading">
+            <h5 translate="D.Base.copy_user_config"></h5>
+          </div>
+          <div class="panel-body">
+            <div class="form-group">
+              <label class="col-md-3 control-label"><span translate="D.Base.target_user"></span>&nbsp;<span
+                  class="text-danger">*</span></label>
+              <div class="col-md-9">
+                <p class="form-control-static">{{ copyConfig.items.target_user|| ('D.Base.default_config_text'| translate) }}</p>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="col-md-3 control-label"><span translate="D.Base.template_user"></span>&nbsp;<span
+                  class="text-danger">*</span></label>
+              <div class="col-md-9">
+                <input class="form-control" ng-model="copyConfig.ticket.target_user" required />
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group text-right">
+        <div class="col-md-9 col-md-offset-3 panel">
+          <button ng-disabled="newtt_form.$invalid" class="btn btn-primary" ng-click="copyConfig.submit()">
+            <i class="fa fa-send fa-fw"></i>
+            <span translate="S.Index.submit"></span>
+          </button>
+          <button class="btn btn-warning" ng-click="copyConfig.cancel()">
+            <span translate="S.Index.cancel"></span>
+          </button>
+        </div>
+      </div>
+
+    </form>
+  </div>
+</div>

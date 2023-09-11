@@ -1,0 +1,136 @@
+download:
+  - url: "cmd:c3mc-cloud-account-list --type qcloud-postgres |xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-qcloud-postgres --account qcloud --cloudaccount {} | c3mc-cloud-tag-v2  --tagfield TagList --key TagKey --value TagValue | c3mc-base-json2tab "
+    datatype: tsv
+    type: database
+    subtype: qcloud-postgres
+    treeinfo:
+      treename: "服务树"
+      treeinfo:
+        - ["实例ID", "instance"]
+    check:
+      col: ["实例ID"]
+      min: 0
+    util:
+      defaulttree: defaulttree.pool
+      extcol:
+        - name: audit
+          alias: 审计
+          select: ["YES", "NO"]
+        - name: remarks
+          alias: 备注
+        - name: _ingestion_
+          alias: 摄取
+          select: ["YES", "NO"]
+        - name: _buildintree_
+          alias: 内置服务树
+          readonly: 1
+
+      grpcol:
+        baseinfo:
+          - name: 业务负责人
+          - name: 运维负责人
+          - name: 运行状态
+            success:
+              - 运行中
+          - name: 实例类型
+          - name: 售卖规格ID
+          - name: 计费模式
+          - name: 部门
+          - name: 实例ID
+          - name: 引擎
+          - name: 名称
+          - name: 所在可用区
+          - name: 区域
+          - name: PostgreSQL版本号
+        system:
+          - prefix: tag.
+          - name: 内存(GB)
+          - name: 磁盘(GB)
+          - name: CPU数量
+          - name: PostgreSQL大版本号
+          - name: PostgreSQL内核版本号
+
+    colmap:
+      treename: "服务树"
+      uuid: "实例ID" #没有这个可能导致单个资源详情打开无数据
+    alias:
+      Region: "区域"
+      Zone: "所在可用区"
+      DBInstanceStatus: "运行状态"
+      DBInstanceId: "实例ID"
+      DBInstanceName: "名称"
+      DBInstanceMemory: "内存GB"
+      DBInstanceStorage: "磁盘GB"
+      DBInstanceCpu: "CPU数量"
+      DBInstanceClass: "售卖规格ID"
+      DBMajorVersion: "PostgreSQL大版本号"
+      DBVersion: "PostgreSQL版本号"
+      DBKernelVersion: "PostgreSQL内核版本号"
+      DBInstanceType: "实例类别"
+      DBInstanceVersion: "实例版本"
+      DBCharset: "实例字符集"
+      CreateTime: "实例创建时间"
+      UpdateTime: "最后一次更新时间"
+      ExpireTime: "实例到期时间"
+      IsolatedTime: "实例隔离时间"
+      PayType: "计费模式"
+      AutoRenew: "是否自动续费"
+      DBInstanceNetInfo: "实例网络连接信息"
+      Type: "机器类型"
+      MasterDBInstanceId: "主实例信息"
+      ReadOnlyInstanceNum: "只读实例数量"
+      DBNodeSet: "实例的节点信息"
+      IsSupportTDE: "实例是否支持TDE数据加密"
+      DBEngine: "引擎"
+      DBEngineConfig: "引擎的配置信息"
+      SupportIpv6: "实例是否支持Ipv6"
+      _oneDeptName_: 一级部门
+      _twoDeptName_: 二级部门
+      _sybDeptName_: 产品线
+      _product_owner_: 业务负责人
+      _ops_owner_: "运维负责人"
+      _department_: "部门"
+    filter:
+      - name: "account"
+        alias: 账号
+      - name: "区域"
+        alias: 区域
+      - name: "运行状态"
+        alias: "运行状态"
+      - name: "引擎"
+        alias: 引擎
+      - name: "业务负责人"
+        alias: 业务负责人
+      - name: "运维负责人"
+        alias: 运维负责人
+      - name: "产品线"
+        alias: 产品线
+      - name: "一级部门"
+        alias: 一级部门
+      - name: "二级部门"
+        alias: 二级部门
+      - name: "部门"
+        alias: 部门
+      - name: "_ingestion_"
+        alias: 摄取
+    outline:
+      uuid:
+        - "实例ID"
+      baseinfo:
+        - "account"
+        - "实例ID"
+        - "区域"
+        - "引擎"
+        - "计费模式"
+        - "所在可用区"
+      system:
+        - "运行状态"
+        - "售卖规格ID"
+        - "名称"
+        - "DBInstanceNetInfo.0.Ip"
+        - "DBInstanceNetInfo.0.Port"
+      contact:
+        - "部门"
+        - "业务负责人"
+        - "运维负责人"
+        - "服务树"

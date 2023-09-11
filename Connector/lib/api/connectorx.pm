@@ -52,6 +52,7 @@ get '/connectorx/usertree' => sub {
     my ( $ssocheck, $ssouser ) = api::ssocheck(); return $ssocheck if $ssocheck;
 
     my $tree = eval{ $usertree->run( db => $api::mysql, user => $ssouser, cookie => cookie( $api::cookiekey ) ) };
+    return +{ stat => $JSON::false, info => $@ } if $@;
 
     $ssouser =~ s/\./_/g;
     my $private = eval{ $api::mysql->query( "select id,user from `openc3_connector_private` where user='$ssouser'", [ qw( id name ) ] ) };
