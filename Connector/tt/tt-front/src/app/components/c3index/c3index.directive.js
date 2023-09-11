@@ -30,7 +30,7 @@
             icon: '/assets/images/tt-order-create-2x.png',
             type: 'create',
             color: '#2f875a',
-            self: '/#/tt/new',
+            self: 'tt/new',
             count: 0,
           },
           {
@@ -45,7 +45,7 @@
             icon: '/assets/images/tt-order-count-2x.png',
             color: '#467CFD',
             type: 'tt_count',
-            self: '/#/tt/ordertotal',
+            self: 'tt/ordertotal',
             count: 0,
           },
           {
@@ -53,7 +53,7 @@
             icon: '/assets/images/tt-order-upcoming-2x.png',
             type: 'related_group_toto_count',
             color: '#ef537b',
-            self: '/#/tt/todototal',
+            self: 'tt/todototal',
             count: 0,
           },
           {
@@ -61,7 +61,7 @@
             icon: '/assets/images/tt-order-personal-2x.png',
             type: 'self_todo_count',
             color: '#ff6633',
-            self: '/#/tt/personaltodo',
+            self: 'tt/personaltodo',
             count: 0,
           },
         ];
@@ -92,7 +92,11 @@
           if(item.type === 'user_count') {
             return
           }
-          window.location.href = item.self + '?start=' + vm.orderStart.getTime()/ 1000 + '&end=' + vm.orderEnd.getTime()/1000
+          var query = ''
+          if (item.type !== 'create') {
+            query = '?start=' + vm.orderStart.getTime()/ 1000 + '&end=' + vm.orderEnd.getTime()/1000
+          }
+          window.location.href = window.location.href + item.self + query
         };
 
         // 获取符合条件的工单数量
