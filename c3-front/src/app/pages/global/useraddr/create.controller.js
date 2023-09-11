@@ -22,7 +22,7 @@
           { label: 'C3T.钉钉', value: 'dingding' },
           { label: 'C3T.钉钉机器人', value: 'dingding-bot' },
           { label: 'C3T.飞书', value: 'feishu' },
-          { label: 'C3T.飞书机器人', value: 'feishu-bot ' },
+          { label: 'C3T.飞书机器人', value: 'feishu-bot' },
           { label: 'lark', value: 'lark' },
         ]
 
