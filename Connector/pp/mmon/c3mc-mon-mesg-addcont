@@ -85,7 +85,7 @@ sub gethostname
     }
     elsif( $ip =~ /^[a-zA-Z0-9][a-zA-Z0-9\-\._:@]+[a-zA-Z0-9]$/ )
     {
-        my $x = `c3mc-mon-instancealias '$ip'`;
+        my $x = `c3mc-device-find-v2-alias '$ip'|tail -n 1 |awk '{print \$2}'`;
         chomp $x;
         return $x || 'unknown';
     }
@@ -99,9 +99,9 @@ sub gethostname
 sub getowner
 {
     my ( $ip, $labels ) = @_;
-    if( $ip && $ip =~ /^\d+\.\d+\.\d+\.\d+$/ )
+    if( $ip && ( $ip =~ /^\d+\.\d+\.\d+\.\d+$/ || $ip =~ /^[a-zA-Z0-9][a-zA-Z0-9\-\._:@]+[a-zA-Z0-9]$/ ) )
     {
-        my @x = `c3mc-device-find-owner $ip | awk '{print \$2}'`;
+        my @x = `c3mc-device-find-v2-owner '$ip'|tail -n 1 | awk '{print \$2}'`;
         chomp @x;
         return @x ? $x[0] : 'unknown';
     }

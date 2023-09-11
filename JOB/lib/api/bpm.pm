@@ -488,7 +488,7 @@ get '/bpm/crontask' => sub {
     {
         my @x = `cat $file`;
         chomp @x;
-        for( @x )
+        for( sort @x )
         {
             my ( $action, $crontab, $node, $editor, $start, $end ) = split /;/, $_;
             $crontab = "0 $crontab * * *" if $crontab =~ /^\d+$/;
@@ -504,6 +504,45 @@ get '/bpm/crontask' => sub {
     }
 
     return +{ stat => $JSON::true, data => \@res };
+};
+
+=pod
+
+BPM/上传附件
+
+=cut
+
+post '/bpm/attachments' => sub {
+    my $pmscheck = api::pmscheck( 'openc3_agent_read' ); return $pmscheck if $pmscheck;
+
+    my $upload = request->uploads;
+    return  +{ stat => $JSON::false, info => 'upload undef' } unless $upload && ref $upload eq 'HASH';
+
+    my $path = "/data/open-c3-data/bpm/attachments";
+    system( "mkdir -p  $path" ) unless -d $path;
+
+    my %res;
+    for my $info ( values %$upload )
+    {
+        my $error = Format->new( 
+            filename => [ 'mismatch', qr/'/ ], 1,
+            tempname => [ 'mismatch', qr/'/ ], 1,
+            size => qr/^\d+$/, 1,
+        )->check( %$info );
+        return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
+
+        my ( $filename, $tempname, $size ) = @$info{qw( filename tempname size )};
+
+        open my $fh, "<$tempname" or return +{ stat => $JSON::false, info => 'open file fail' };
+        my $md5 = Digest::MD5->new()->addfile( $fh )->hexdigest;
+        close $fh;
+
+        return  +{ stat => $JSON::false, info => 'rename fail' } if system "mv '$tempname' '$path/$md5' && chmod a+r '$path/$md5'";
+
+        $res{$md5} = $filename;
+    }
+
+    return  +{ stat => $JSON::true, data => \%res };
 };
 
 true;

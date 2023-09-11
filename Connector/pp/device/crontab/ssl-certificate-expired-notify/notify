@@ -1,0 +1,28 @@
+#!/data/Software/mydan/python3/bin/python3
+
+import subprocess;
+import sys
+import warnings
+
+
+user = sys.argv[1:]
+
+if len(user) == 0:
+    warnings.warn("no user")
+    exit()
+
+( status, output ) = subprocess.getstatusoutput( "./message" );
+if status != 0:
+    raise Exception("err")
+
+
+if len(output) == 0:
+    exit()
+
+
+process = subprocess.Popen( [ "c3mc-base-sendmail", "-s", "证书过期提醒" ] + user, stdin=subprocess.PIPE )
+process.stdin.write(output.encode())
+process.stdin.close()
+
+process.communicate()
+

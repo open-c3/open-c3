@@ -1,0 +1,47 @@
+<div class="modal-header">
+  <h4 class="modal-title">{{'C3T.标签管理'|translate}}</h4>
+</div>
+
+<div class="modal-body modal-tags-list-content">
+  <div class="modal-tags-loading-content" ng-if="tags.tagLoading">
+    <div class="modal-tags-list-loading">
+      <div class="modal-tags-loading">
+        <div class="loading-l1"><div></div></div>
+        <div class="loading-l2"><div></div></div>
+        <div class="loading-l3"><div></div></div>
+        <div class="loading-l4"><div></div> </div>
+      </div>
+    </div>
+  </div>
+  <div ng-if="!tags.tagLoading" class="modal-tags-box">
+    <div class="tags-saving" ng-if="tags.saveLoading">
+      <div class="modal-tags-list-loading">
+        <div class="modal-tags-loading">
+          <div class="loading-l1"><div></div></div>
+          <div class="loading-l2"><div></div></div>
+          <div class="loading-l3"><div></div></div>
+          <div class="loading-l4"><div></div> </div>
+        </div>
+      </div>
+    </div>
+    <div ng-repeat="item in tags.tagsArr">
+      <div class="tags-item-content">
+        <label class="col-md-4 control-label fwbold tags-item-content-key">
+          <input ng-disabled="!item.isCreate" class="form-control" ng-model="item.key" />
+        </label>
+        <label class="col-md-6 tags-item-content-value">
+          <input ng-disabled="!item.status" class="form-control" ng-model="item.value" />
+        </label>
+        <a ng-if="!item.status" class="btn btn-system tags-item-content-button" ng-click="tags.editTags(item)">编辑</a>
+        <a ng-if="item.status" ng-disabled="!item.key || !item.value" class="btn btn-system tags-item-content-button"
+          ng-click="tags.saveTags(item)">保存</a>
+        <a class="btn btn-danger tags-item-content-button" ng-click="tags.deleteTags(item, $index)">删除</a>
+      </div>
+    </div>
+    <a class="btn btn-primary tags-item-content-button-create" ng-click="tags.addTags()">新建</a>
+  </div>
+</div>
+
+<div class="confirm-modal-button text-center">
+  <button class="btn btn-warning" ng-click="tags.cancel()">{{'C3T.关闭'| translate }}</button>
+</div>

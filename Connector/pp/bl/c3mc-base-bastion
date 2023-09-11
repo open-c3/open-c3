@@ -7,7 +7,7 @@ import subprocess
 
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
-from c3mc_utils import safe_run_command
+from c3mc_utils import safe_run_command, safe_run_command_v2
 
 
 def main():
@@ -39,7 +39,7 @@ def main():
         print(output)
 
     elif args.operate_type == "addauth":
-        output = safe_run_command([
+        code, output, err = safe_run_command_v2([
             f"c3mc-base-bastion-addauth-{bl_mode}",
             args.auth_add_type,
             args.username,
@@ -49,6 +49,8 @@ def main():
             args.is_audit
         ])
         print(output)
+        if code != 0:
+            exit(1)
     
     elif args.operate_type == "adduser":
         output = safe_run_command([

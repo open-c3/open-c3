@@ -24,4 +24,5 @@ docker tag prom/prometheus-linux-amd64:main openc3/prometheus:v1  # 修改成当
 ```
 openc3/prometheus:v1 # 消息超时10年
 openc3/prometheus:v2 # 消息超时10倍
+openc3/prometheus:v3 # debug日志中显示往alertmanager发送的数据
 ```

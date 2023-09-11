@@ -17,6 +17,17 @@ BEGIN{
 
     $control = eval{ YAML::XS::LoadFile '/data/Software/mydan/AGENT/device/conf/control.yml' };
     die "load control fail: $@" if $@;
+
+    my @x = `c3mc-cloud-control-list-supported-types-for-tagging`;
+    chomp @x;
+
+    for ( @x )
+    {
+        my ( $type, $subtype ) = split /;/, $_, 2;
+        $control->{$type} = +{} unless $control->{$type};
+        $control->{$type}{$subtype} = [] unless $control->{$type}{$subtype};
+        push @{$control->{$type}{$subtype}}, +{ type => 'tags', name => Encode::decode( 'utf8', 'Tag编辑'), url => '' };
+    }
 };
 
 my $database = '/data/open-c3-data/device';

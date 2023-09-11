@@ -10,7 +10,7 @@ import time
 
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
-from c3mc_utils import safe_run_command
+from c3mc_utils import safe_run_command, safe_run_command_v2, doulbe_new_line
 
 
 
@@ -84,8 +84,11 @@ def create_user_if_need(email):
 
 # 专门针对单个ip添加权限的线程处理函数
 def process_element(thread_safe_set, ip_info, grant_auth_type, account, email, grant_sudo_hours, is_audit):
+    logs = [
+        "======================================================================================================="
+    ]
     def add_auth_for_ip(ip):
-        safe_run_command([
+        code, output, err = safe_run_command_v2([
             "c3mc-base-bastion",
             "--operate_type", "addauth",
             "--auth_add_type", str(grant_auth_type),
@@ -95,22 +98,28 @@ def process_element(thread_safe_set, ip_info, grant_auth_type, account, email, g
             "--sudo_hours", str(grant_sudo_hours),
             "--is_audit", is_audit,
         ])
+        logs.append("------------------------------------------")
+        logs.append(f"使用ip: {ip} 添加权限, code: {code}")
+        logs.append(f"使用ip: {ip} 添加权限, output: \n{doulbe_new_line(output)}")
+        logs.append(f"使用ip: {ip} 添加权限, err: {err}")
+        logs.append("\n\n")
 
-        thread_safe_set.update(ip)
+        done = code == 0
 
-    done = False
+        if done:
+            thread_safe_set.update(ip)
+
+        return done
+
     for ip in [ip_info["inIP"], ip_info["exIP"]]:
         try:
-            add_auth_for_ip(ip)
-            # 尝试对内网ip和公网ip添加权限
-            # 如果执行成功则退出
-            done = True
-            break
+            if add_auth_for_ip(ip):
+                break
         except Exception as e:
             continue
     
-    if not done:
-        print(f"资源 {ip_info['instanceId']} 的权限未添加成功, 内网ip: {ip_info['inIP']}, 公网ip: {ip_info['exIP']}", file=sys.stderr)
+    for item in logs:
+        print(item)
 
 def grant_server_auth(email, ip_list, grant_auth_type, grant_sudo_hours, is_audit):
     account = email.split("@")[0]
@@ -166,6 +175,7 @@ def grant_server_auth(email, ip_list, grant_auth_type, grant_sudo_hours, is_audi
     for ip in thread_safe_set.data:
         data_list = [ip_info for ip_info in data_list if ip_info["inIP"] != ip and ip_info["exIP"] != ip]
 
+    print("******************************************************************************************************")
     for ip_info in data_list:
         print(f"LOG. 服务器权限申请失败, 内网ip: {ip_info['inIP']}, 外网ip: {ip_info['exIP']}", file=sys.stderr)
 
@@ -174,6 +184,8 @@ def grant_server_auth(email, ip_list, grant_auth_type, grant_sudo_hours, is_audi
     
     if has_not_found_error:
         exit(1)
+
+    print("LOG. 权限添加结束成功")
     
 
 def main(email, auth_type, ip_str, is_audit='0'):
@@ -208,7 +220,6 @@ def main(email, auth_type, ip_str, is_audit='0'):
     # 添加服务器权限
     grant_server_auth(email, ip_list, add_type, sudo_hours, is_audit)
 
-    print("LOG. 权限添加结束")
 
 
 if __name__ == '__main__':

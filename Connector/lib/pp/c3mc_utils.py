@@ -13,6 +13,7 @@ import random
 import base64
 import string
 import re
+import socket
 from ipaddress import ip_network, ip_address
 
 
@@ -278,6 +279,7 @@ def flatten_dict(d, parent_key='', sep='.'):
 
 def safe_run_command(cmd_parts):
     """安全的运行命令。
+    命令执行出错会抛出异常
     
     如果成功, 则返回命令输出。
     如果出错, 则将错误打印到标准错误, 同时退出码为1
@@ -285,10 +287,8 @@ def safe_run_command(cmd_parts):
     Args:
         cmd_parts (list): 数组格式的命令。例如要运行命令 "ls -alh"，则传递 ["ls", "-alh"]
     """
-
-    # print("debug, safe_run_command: ", " ".join(cmd_parts), file=sys.stderr)
-
     output = subprocess.run(cmd_parts, capture_output=True, text=True)
+
     if output.returncode != 0:
         raise RuntimeError(output.stderr)
 
@@ -297,6 +297,24 @@ def safe_run_command(cmd_parts):
         output = output.strip()
     
     return output
+
+def safe_run_command_v2(cmd_parts):
+    """安全的运行命令v2版本。
+    命令执行出错不会抛出异常, 而是返回相关信息给调用者
+    
+    输出: (状态码, 输出，错误)
+    """
+
+    output = subprocess.run(cmd_parts, capture_output=True, text=True)
+
+    code = output.returncode
+
+    err = output.stderr if output.returncode != 0 else None
+    output = output.stdout
+    if output:
+        output = output.strip()
+
+    return code, output, err
 
 
 def safe_run_pipe_command(commands):
@@ -394,11 +412,38 @@ def get_instance_real_uuid(instance_maybe_identifier):
     Args:
         instance_maybe_identifier (str): 实例标识符。可能不是实例真实uuid，比如可以是ip，实例名称等，具体可以使用哪些值取决于cmdb同步配置文件中的配置
     """
-    command = f"c3mc-device-find-uuid {instance_maybe_identifier}"
-    result = subprocess.check_output(command, shell=True)
-    parts = result.decode("utf-8").strip().split()
+    output = subprocess.run(["c3mc-device-find-uuid", instance_maybe_identifier], capture_output=True, text=True)
+    if output.returncode != 0:
+        if output.returncode == 1:
+            raise RuntimeError(f"无法找到相关实例或者找到了多个实例: {instance_maybe_identifier}")
+        else:
+            raise RuntimeError(f"命令c3mc-device-find-uuid出现其他异常: {output.stderr}")
+    
+    # c3mc-device-find-uuid 命令保证了只会查到一个uuid
+    parts = output.stdout.decode("utf-8").strip().split()
     if len(parts) > 1:
-        print(f"通过命令 {command} 查询到了多个uuid {parts}", file=sys.stderr)
+        print(f"通过命令 c3mc-device-find-uuid 查询到了多个uuid {parts}", file=sys.stderr)
         exit(1)
     return parts[0]
 
+def test_if_port_can_connected(host, port):
+    """检测ip端口是否可以联通
+
+    Args:
+        host (str): 主机地址
+        port (number): 端口号
+
+    Returns:
+        Boolean: 
+            True 可以联通
+            False 不可以联通
+    """
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(1)
+    result = sock.connect_ex((host, port))
+    sock.close()
+    return result == 0
+
+
+def doulbe_new_line(content):
+    return "\n\n".join(content.split("\n"))

@@ -19,14 +19,28 @@ $| ++;
     return 1 if ok
 =cut
 
+my %key;
+BEGIN{
+    my $f = '/data/open-c3-data/to3part.yml';
+    if( -f $f )
+    {
+        my $c = eval{ YAML::XS::LoadFile $f };
+        warn "load $f err: $@" if $@;
+        %key = %$c if $c && ref $c eq 'HASH';
+    }
+};
+
 return sub
 {
     my %param = @_;
 
     my $ua = LWP::UserAgent->new;
 
+
     if( $param{appname} && $param{appkey} )
     {
+        return 1 if $key{$param{appname}} && $key{$param{appname}} eq $param{appkey} && $param{point} && $param{point} =~ /read/;
+
         my $res = $ua->get( "http://api.connector.open-c3.org/connectorx/username?appname=$param{appname}&appkey=$param{appkey}" );
         unless( $res->is_success )
         {
@@ -36,8 +50,8 @@ return sub
         unless ( $data->{stat} ) {
             die "call username result". $data->{info} || '';
         }
- 
-        return $data->{data} ? 1 : 0;
+
+        return ( $data->{data} && $data->{data}{user} ) ? 1 : 0;
     }
     elsif( $param{cookie} )
     {

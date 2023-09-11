@@ -74,7 +74,7 @@ get '/monitor/alert/:projectid' => sub {
 
     if( $ips )
     {
-        for my $type ( qw( owner alias ))
+        for my $type ( qw( owner alias opsowner ))
         {
             my @x = `c3mc-device-find-v2-$type $ips`;
             chomp @x;
@@ -83,7 +83,7 @@ get '/monitor/alert/:projectid' => sub {
             {
                 my ( $k, $v ) = split / /, $_, 2;
                 $k =~ s/:$//g;
-                $x{$k} = $v;
+                $x{$k} = Encode::decode( 'utf8', $v );
             }
             map{ $_->{$type} = $x{$_->{labels}{instance}} // '' if $_->{labels}{instance} }@res;
         }
