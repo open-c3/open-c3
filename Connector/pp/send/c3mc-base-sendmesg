@@ -65,8 +65,25 @@ sub sendmesg
     my $x = $db->query( sprintf "select `phone` from openc3_connector_useraddr where user='$user'" );
     $user = $crypt->decode( $x->[0][0] ) if @$x;
 
-    return if $user eq 'x';
+    my $err;
+    for my $u ( split /,/, $user )
+    {
+        eval{ sendone( $u, $mesg ) };
+        if( $@ )
+        {
+            warn "Warn send err: $@";
+            $err = $@;
+        }
+    }
 
+    die "Err: $err" if $err;
+
+}
+
+sub sendone
+{
+    my ( $user, $mesg ) = @_;
+    return if $user eq 'x';
     if( $user =~ /^([a-z][a-z\-]*[a-z]):(.+)$/ )
     {
         my ( $extc, $extu ) = ( $1, $2 );
