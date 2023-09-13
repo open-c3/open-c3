@@ -20,6 +20,7 @@ my $option = MYDan::Util::OptConf->load();
 my %o = $option->set(
     port  => 65216,
     proxy => "$RealBin/../conf/openc3_proxy.yml",
+    uexip => "$RealBin/../conf/openc3_uexip.yml",
 )->get( qw( port=i proxy=s carry=s ) )->dump();
 
 $0 = 'agent_server_nodeext2query';
