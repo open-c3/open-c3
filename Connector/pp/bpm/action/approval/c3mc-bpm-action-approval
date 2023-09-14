@@ -186,6 +186,22 @@ sub getapprover
         return keys %res;
     }
 
+    if ( $str =~ /mongroup\(\s*(.+)\s*\)/ )
+    {
+        for my $groupname ( grep{ $_ } split /,/, $1 )
+        {
+            my @x = `c3mc-app-usrext \@$groupname`;
+            die "get mon group $groupname member fail: $!" if $?;
+            die "nofind member in mon group\n" unless @x;
+            chomp @x;
+            map{
+                $res{ $_ } ++;
+                print "LOG.mon group $groupname member = $_\n";
+            }@x;
+        }
+        return keys %res;
+    }
+
     return split /,/, $str;
 }
 
