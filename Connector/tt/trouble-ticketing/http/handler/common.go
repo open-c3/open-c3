@@ -1,8 +1,11 @@
 package handler
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
+	"os"
+	"path/filepath"
 	"strings"
 	"time"
 
@@ -137,11 +140,95 @@ func addCommonSysLog(ticket model.Ticket, operuser, opertype, opercolumn, conten
 
 // -------- i18n --------
 
+func mergeMaps(a, b map[string]interface{}) {
+	for k, v := range b {
+		if _, exists := a[k]; !exists {
+			a[k] = v
+		} else {
+			switch v.(type) {
+			case map[string]interface{}:
+				mergeMaps(a[k].(map[string]interface{}), v.(map[string]interface{}))
+			default:
+			}
+		}
+	}
+}
+
 func GetCommonI18n(c *gin.Context) {
-	orm.Db.SingularTable(true)
-	obj := make([]model.CommonLang, 0)
-	orm.Db.Table("openc3_tt_common_lang").Find(&obj)
-	c.JSON(http.StatusOK, status_200(obj))
+	getLanFromDb := func() []model.CommonLang {
+		orm.Db.SingularTable(true)
+		langList := make([]model.CommonLang, 0)
+		orm.Db.Table("openc3_tt_common_lang").Find(&langList)
+		return langList
+	}
+
+	getLanFromFile := func() (map[string]string, error) {
+		var (
+			dirPath = "/data/Software/mydan/Connector/tt/tt-front/src"
+			prefix  = "i18n."
+			result  = make(map[string]string)
+		)
+
+		files, err := os.ReadDir(dirPath)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, file := range files {
+			if strings.HasPrefix(file.Name(), prefix) {
+				fullPath := filepath.Join(dirPath, file.Name())
+				content, err := os.ReadFile(fullPath)
+				if err != nil {
+					return nil, err
+				}
+				langKey := strings.Split(file.Name(), ".")[1]
+				result[langKey] = string(content)
+			}
+		}
+		return result, nil
+	}
+
+	langListFromDb := getLanFromDb()
+	langDataListFromFile, err := getLanFromFile()
+	if err != nil {
+		c.JSON(http.StatusOK, status_400(err.Error()))
+		return
+	}
+
+	for langKey, itemDataFromFile := range langDataListFromFile {
+		var (
+			found       bool
+			dbItemIndex int
+		)
+		for i, itemFromDb := range langListFromDb {
+			if langKey == itemFromDb.Langkey {
+				found = true
+				dbItemIndex = i
+				break
+			}
+		}
+
+		if found {
+			var a, b map[string]interface{}
+
+			err := json.Unmarshal([]byte(langListFromDb[dbItemIndex].Data), &a)
+			if err != nil {
+				fmt.Println("Error unmarshalling a:", err)
+				return
+			}
+
+			err = json.Unmarshal([]byte(itemDataFromFile), &b)
+			if err != nil {
+				fmt.Println("Error unmarshalling b:", err)
+				return
+			}
+			mergeMaps(a, b)
+			ba, _ := json.Marshal(a)
+			langListFromDb[dbItemIndex].Data = string(ba)
+		}
+	}
+
+	c.JSON(http.StatusOK, status_200(langListFromDb))
 }
 
 func PutCommonI18n(c *gin.Context) {
