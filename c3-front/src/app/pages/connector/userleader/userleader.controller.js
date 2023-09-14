@@ -8,7 +8,9 @@
     function ConnectorUserleaderController($http, ngTableParams) {
         var vm = this;
         vm.addUser = function (user, leader1, leader2 ) {
-            $http.post('/api/connector/default/leader', {'user': user, 'leader1': leader1, 'leader2': leader2 } ).success(function(data){
+            const params = { user,leader1 };
+            if (leader2) { params.leader2 = leader2 };
+            $http.post('/api/connector/default/leader', params).success(function(data){
                 if (data.stat){
                     swal({ title: '添加成功', type:'success' });
                     vm.reload();
