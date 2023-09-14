@@ -259,7 +259,19 @@ system( sprintf "c3mc-bpm-user-record %s", join ' ', grep{ /^[a-zA-Z0-9\.\@_\-]+
 
 for my $user ( @approver )
 {
-    $user = $upgradeto if $upgradeto && $submitter eq $user;
+    if( $upgradeto && $submitter eq $user )
+    {
+        if( $upgradeto =~ /^@.+/ )
+        {
+            my @x = `c3mc-app-usrext $upgradeto`;
+            chomp @x;
+            $user = $x[0] if @x;
+        }
+        else
+        {
+            $user = $upgradeto
+        }
+    }
 
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     my $muuid = uuid->new()->create_str;
