@@ -9,12 +9,15 @@ use File::Basename;
 =head1 SYNOPSIS
 
  $0
+ $0 exipdump
 
 =cut
 
+my $exipdump = @ARGV && $ARGV[0] eq 'exipdump' ? 1 : 0;
+
 for my $dir ( glob "/data/open-c3-data/device/curr/compute/*" )
 {
-    next unless -d $dir;
+    next unless -f "$dir/data.tsv";
     my $name = basename $dir;
     next unless $name =~ /^[a-zA-Z\d][a-zA-Z\d\-]+[a-zA-Z\d]$/;
 
@@ -25,9 +28,10 @@ for my $dir ( glob "/data/open-c3-data/device/curr/compute/*" )
     for ( @x )
     {
         my ( $stat, $inip, $exip ) = split /\t/, $_;
-        next unless $stat && $stat eq 'yes';
         next unless $inip && $inip =~ /^\d+\.\d+\.\d+\.\d+$/;
         next unless $exip && $exip =~ /^\d+\.\d+\.\d+\.\d+$/;
+        print "$exip: $inip\n" if $exipdump && !( $stat && $stat eq 'yes' );
+        next unless $stat && $stat eq 'yes';
         print "$inip: $exip\n";
     }
 }

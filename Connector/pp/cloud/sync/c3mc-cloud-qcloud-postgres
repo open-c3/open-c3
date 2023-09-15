@@ -17,7 +17,13 @@ class PostGres:
         return self.lib_client.describe_db_instances()
 
     def show(self):
-        instance_list = self.list_instances()
+        try:
+            instance_list = self.list_instances()
+        except Exception as e:
+            if "UnsupportedRegion" in str(e):
+                return
+            raise e
+
         for instance in instance_list:
             print(json.dumps(instance, default=str))
 

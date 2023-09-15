@@ -66,7 +66,7 @@ sub getapprover
                 $res{ $leader->{$_} } = 1;
                 print "LOG.get $_ boss = $leader->{$_}\n";
             }
-            if( $leader->{'*'} )
+            elsif( $leader->{'*'} )
             {
                 $res{ $leader->{'*'} } = 1;
                 print "LOG.get $_ boss = $leader->{'*'}\n";
@@ -101,7 +101,7 @@ sub getapprover
                 $res{ $leader->{$_} } = 1;
                 print "LOG.sudo $sudoer, $_ leader = $leader->{$_}\n";
             }
-            if( $leader->{'*'} )
+            elsif( $leader->{'*'} )
             {
                 $res{ $leader->{'*'} } = 1;
                 print "LOG.sudo $sudoer, $_ leader = $leader->{'*'}\n";
@@ -186,6 +186,22 @@ sub getapprover
         return keys %res;
     }
 
+    if ( $str =~ /mongroup\(\s*(.+)\s*\)/ )
+    {
+        for my $groupname ( grep{ $_ } split /,/, $1 )
+        {
+            my @x = `c3mc-app-usrext \@$groupname`;
+            die "get mon group $groupname member fail: $!" if $?;
+            die "nofind member in mon group\n" unless @x;
+            chomp @x;
+            map{
+                $res{ $_ } ++;
+                print "LOG.mon group $groupname member = $_\n";
+            }@x;
+        }
+        return keys %res;
+    }
+
     return split /,/, $str;
 }
 
@@ -243,7 +259,19 @@ system( sprintf "c3mc-bpm-user-record %s", join ' ', grep{ /^[a-zA-Z0-9\.\@_\-]+
 
 for my $user ( @approver )
 {
-    $user = $upgradeto if $upgradeto && $submitter eq $user;
+    if( $upgradeto && $submitter eq $user )
+    {
+        if( $upgradeto =~ /^@.+/ )
+        {
+            my @x = `c3mc-app-usrext $upgradeto`;
+            chomp @x;
+            $user = $x[0] if @x;
+        }
+        else
+        {
+            $user = $upgradeto
+        }
+    }
 
     my $time = POSIX::strftime( "%Y-%m-%d %H:%M:%S", localtime );
     my $muuid = uuid->new()->create_str;

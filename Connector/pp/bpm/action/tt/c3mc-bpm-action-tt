@@ -37,13 +37,32 @@ def upload_attach(tt_number, target_file_path):
     ])
 
 
-def create_tt(params):
+def get_tt_content(params):
+    """不同工单的内容可能不一样，这里在发起tt工单之前对content字段做必要的修改
+    """
     content = params["content"]
-
-    if params["sql_input_type"] == "上传附件":
+    if "SQL操作" in params["title"] and params["sql_input_type"] == "上传附件":
         content = '\n'.join([line for line in content.split('\n') if not line.startswith("SQL语句")])
     else:
         content = replace_base64_substring(content)
+    
+    return content
+
+
+def upload_attach_if_need(tt_number, params):
+    if "SQL操作" in params["title"] and params["sql_input_type"] == "上传附件":
+        target_file_path, clean_file = duplicate_file(
+            f"/data/open-c3-data/bpm/attachments/{params['sql_file'].split(':')[0]}", 
+            f"/data/open-c3-data/bpm/attachments/{params['sql_file'].split(':')[1]}"
+        )
+        upload_attach(tt_number, target_file_path)
+        clean_file()
+
+
+def create_tt(params):
+    print("params = ", json.dumps(params))
+
+    content = get_tt_content(params)
 
     submit_user = params['submit_user'] if 'submit_user' in params else "sys@app"
     ext_tt = subprocess.getoutput("c3mc-sys-ctl sys.bpm.tt.type")
@@ -68,13 +87,7 @@ def create_tt(params):
 
     print(f"LOG. tt单号: {tt_number}")
 
-    if params["sql_input_type"] == "上传附件":
-        target_file_path, clean_file = duplicate_file(
-            f"/data/open-c3-data/bpm/attachments/{params['sql_file'].split(':')[0]}", 
-            f"/data/open-c3-data/bpm/attachments/{params['sql_file'].split(':')[1]}"
-        )
-        upload_attach(tt_number, target_file_path)
-        clean_file()
+    upload_attach_if_need(tt_number, params)
 
     notify = params.get("notify")
     if not notify:

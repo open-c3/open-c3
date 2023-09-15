@@ -11,7 +11,7 @@ use AnyEvent::Handle;
 use AnyEvent::HTTP;
 use MIME::Base64;
 
-my %proxy;
+my ( %proxy, %uexip );
 
 sub new
 {
@@ -109,6 +109,8 @@ sub run
                        if( $data =~ m#/query_([0-9a-z\.\-:]+)/([0-9a-z\.\-:\/]+)_query# )
                        {
                            my ( $ip, $uu ) = ( $1, $2 );
+                           $ip = $uexip{$ip} if $uexip{$ip};
+
                            my $debug = $data =~ /debug=1/ ? "debug=1" : "";
 
                            my $url = $proxy{$ip}
@@ -150,6 +152,20 @@ sub run
             %proxy = %$proxy;
         }
     ) if $this->{proxy}; 
+
+    my $uexipUpdate = AnyEvent->timer(
+        after    => 7, 
+        interval => 6,
+        cb       => sub { 
+            my $uexip = eval{ YAML::XS::LoadFile $this->{uexip} };
+
+            if ( $@ ) { warn "load uexip file fail: $@"; return; }
+            unless( $uexip && ref $uexip eq 'HASH' ) { warn "load uexip file no HASH"; return; }
+
+            %uexip = %$uexip;
+        }
+    ) if $this->{uexip}; 
+
 
     $cv->recv;
 }

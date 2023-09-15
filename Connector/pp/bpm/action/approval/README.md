@@ -138,3 +138,23 @@ template_argv:
 ```
 和ipowner的用法类似，区别在于这里是vuuid的资源owner进行审批。
 ```
+
+### mongroup
+
+审批人指定监控告警组
+
+```
+---
+name: kubernetes集群owner审批
+option:
+  - describe: 申请理由
+    name: note
+    type: text
+    value: 
+
+template_argv:
+  approver: "mongroup(your-group-name)"
+  title:    "title..."
+  content:  "content..."
+```
+
