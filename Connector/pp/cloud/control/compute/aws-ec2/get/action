@@ -36,6 +36,13 @@ def get(data, access_id, access_key, region):
         if instance["InstanceId"] == data[field_name]:
             instance["RegionId"] = region
 
+            if "PublicIpAddress" not in instance or not instance["PublicIpAddress"]:
+                for network_interface in instance["NetworkInterfaces"]:
+                    if "Association" in network_interface:
+                        # 如果实例没有公网IP，但是有弹性IP，则使用弹性IP作为公网IP
+                        instance["PublicIpAddress"] = network_interface["Association"]["CarrierIp"]
+                        break
+
             if "window" in instance["PlatformDetails"].lower():
                 instance["os"] = "Windows"
             else:
@@ -43,11 +50,13 @@ def get(data, access_id, access_key, region):
 
             if "VpcId" in instance:
                 vpc_info = vpc_client.show_vpc(instance["VpcId"])
-                for tag in vpc_info["Tags"]:
-                    if tag["Key"].lower() == "name":
-                        instance["VpcName"] = tag["Value"]
+
+                if "Tags" in vpc_info:
+                    for tag in vpc_info["Tags"]:
+                        if tag["Key"].lower() == "name":
+                            instance["VpcName"] = tag["Value"]
             return instance
-    raise Exception("根据 InstanceId {} 未找到 aws ec2".format(data[field_name]))
+    raise RuntimeError(f"根据 InstanceId {data[field_name]} 未找到 aws ec2")
 
 
 def main(data, access_id, access_key, region):
