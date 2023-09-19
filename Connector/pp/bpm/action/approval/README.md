@@ -82,6 +82,11 @@ template_argv:
   content:  "\n申请人:${_user_}\nBPM单号:${_bpmuuid_}\n申请理由:${x.note}"
 ```
 
+
+### accountowner 云账号归属人审批
+
+和boss类似
+
 ### sudoer & ipowner & or
 
 sudoer人审批
