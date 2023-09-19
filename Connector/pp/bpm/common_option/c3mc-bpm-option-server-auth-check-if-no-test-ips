@@ -1,0 +1,45 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import json
+import sys
+import os
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import extract_ips, is_ip_in_networks, read_file_lines
+
+
+"""
+检查输入的ip列表是否属于非测试网段的ip
+"""
+
+def get_test_ip_list():
+    """查询测试网段的ip列表
+    """
+    file_path = "/data/open-c3-data/bpm/test_ip_list.txt"
+
+    return [] if not os.path.exists(file_path) else read_file_lines(file_path)
+
+
+def check(ip_list):
+    """检查输入的所有ip是否属于测试网段
+    """
+
+    test_ip_list = get_test_ip_list()
+
+    return [ip for ip in ip_list if is_ip_in_networks(test_ip_list, ip)]
+
+
+def main(params):
+    ip_list = extract_ips(params["ip_list"])
+    fail_list = check(ip_list)
+    if fail_list:
+        print(f"如下ip属于测试网段, 不允许在此工单中申请权限: {' '.join(fail_list)}")
+
+
+if __name__ == '__main__':
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise type('WrongInputData', (Exception,), {})('数据格式不对, 需要一行json字符串"')
+
+    main(json.loads(l[0]))
