@@ -282,7 +282,7 @@
               gridLineWidth: 0
             },
             tooltip: {
-              valueSuffix: ' millions'
+              valueSuffix: ''
             },
             plotOptions: {
               bar: {
@@ -332,7 +332,7 @@
               gridLineWidth: 0
             },
             tooltip: {
-              valueSuffix: ' millions'
+              valueSuffix: ''
             },
             plotOptions: {
               bar: {
@@ -382,7 +382,7 @@
               gridLineWidth: 0
             },
             tooltip: {
-              valueSuffix: ' millions'
+              valueSuffix: ''
             },
             plotOptions: {
               bar: {
