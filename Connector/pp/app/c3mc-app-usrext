@@ -33,10 +33,10 @@ my ( $dba, $dbc ) = map{ MYDB->new( "/data/Software/mydan/$_/conf/conn", delayed
 sub resolve
 {
     my ( $user ) = @_;
-    return unless $user && $user =~ /^[a-zA-Z0-9\.\-_@%:]+$/;
 
     if( $user =~ s/^@// )
     {
+        return unless $user && $user !~ /'/;
         my $x = eval{ $dba->query( "select user from openc3_monitor_config_groupuser where groupid in (select id from openc3_monitor_config_group where name='$user')" ); };
         die "$0 get data fail: $@" if $@;
         return map{ @$_ } @$x;
@@ -44,6 +44,7 @@ sub resolve
 
     if( $user =~ s/^%// )
     {
+        return unless $user && $user =~ /^[a-zA-Z0-9\.\-_@%:]+$/;
         my $level = $user =~ s/:(\d+)$// ? $1 : 1;
         my @x = `c3mc-oncall-now '$user' -l $level`;
         chomp @x;
@@ -52,11 +53,13 @@ sub resolve
 
     if( $user =~ s/^:// )
     {
+        return unless $user && $user =~ /^[a-zA-Z0-9\.\-_@%:]+$/;
         my $x = eval{ $dbc->query( "select user from openc3_connector_userdepartment where department='$user'" ); };
         die "$0 get data fail: $@" if $@;
         return map{ @$_ } @$x;
     }
 
+    return unless $user && $user =~ /^[a-zA-Z0-9\.\-_@%:]+$/;
     return $user;   
 }
 

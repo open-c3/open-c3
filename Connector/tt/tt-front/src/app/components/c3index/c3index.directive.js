@@ -18,8 +18,8 @@
     function c3indexController ($state, $http, $scope, $filter, $q, toastr) {
       if ($state.current.name == "home") {
         var vm = this;
-
-        vm.orderStart = new Date();
+        vm.currentsDate = new Date()
+        vm.orderStart = new Date(vm.currentsDate.setDate(vm.currentsDate.getDate() - vm.currentsDate.getDay() + 1));
         vm.orderEnd = new Date();
         vm.isFirstLoad = true;
         vm.isEndFirstLoad = true;
