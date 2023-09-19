@@ -7,8 +7,6 @@ import subprocess
 import re
 import base64
 import os
-import shutil
-import uuid
 
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
@@ -41,12 +39,17 @@ def get_tt_content(params):
     """不同工单的内容可能不一样，这里在发起tt工单之前对content字段做必要的修改
     """
     content = params["content"]
-    if "SQL操作" in params["title"] and params["sql_input_type"] == "上传附件":
-        content = '\n'.join([line for line in content.split('\n') if not line.startswith("SQL语句")])
-    else:
-        content = replace_base64_substring(content)
-    
-    return content
+    return (
+        '\n'.join(
+            [
+                line
+                for line in content.split('\n')
+                if not line.startswith("SQL语句")
+            ]
+        )
+        if "SQL操作" in params["title"] and params["sql_input_type"] == "上传附件"
+        else replace_base64_substring(content)
+    )
 
 
 def upload_attach_if_need(tt_number, params):
@@ -59,7 +62,40 @@ def upload_attach_if_need(tt_number, params):
         clean_file()
 
 
-def create_tt(params):
+def create_tt_ticket(apply_user, submit_user, title, content, ext_tt):
+    try:
+        resp_bytes = subprocess.check_output(
+            [
+                "c3mc-create-ticket", 
+                "--submit_user", submit_user, 
+                "--apply_user", apply_user, 
+                "--title", title, 
+                "--ext_tt", ext_tt,
+            ], 
+            input=content.encode(), 
+            stderr=subprocess.STDOUT  # 将标准错误输出合并到标准输出
+        )
+
+        tt_number = resp_bytes.decode('utf-8').rstrip()
+        print(f"创建tt命令输出: {tt_number}")
+        return tt_number
+
+    except subprocess.CalledProcessError as e:
+        print(f"创建tt命令出错, 返回码: {e.returncode}")
+        print(f"错误输出: {e.output.decode('utf-8').rstrip()}", file=sys.stderr)
+        raise RuntimeError("创建tt出错") from e
+
+
+def wait_tt_finish(tt_number, ext_tt):
+    output = safe_run_command([
+        "c3mc-wait-ticket-status-change",
+        "--number", tt_number,
+        "--ext_tt", ext_tt,
+    ])
+    print(f"LOG. tt结束, 单号: {tt_number}, 状态: {output}")
+
+
+def run(params):
     print("params = ", json.dumps(params))
 
     content = get_tt_content(params)
@@ -67,23 +103,7 @@ def create_tt(params):
     submit_user = params['submit_user'] if 'submit_user' in params else "sys@app"
     ext_tt = subprocess.getoutput("c3mc-sys-ctl sys.bpm.tt.type")
 
-    resp = subprocess.run([
-            "c3mc-create-ticket", 
-            "--submit_user", submit_user, 
-            "--apply_user", params["apply_user"], 
-            "--title", params["title"], 
-            "--ext_tt", ext_tt,
-        ], 
-        input=content.encode(), 
-        stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-    )
-    if resp.returncode != 0:
-        err = resp.stderr.decode('utf-8').rstrip()
-        print(f"LOG. 创建tt出错: {err}", file=sys.stderr)
-        exit(1)
-
-    tt_number = resp.stdout.decode('utf-8').rstrip()
+    tt_number = create_tt_ticket(params["apply_user"], submit_user, params["title"], content, ext_tt)
 
     print(f"LOG. tt单号: {tt_number}")
 
@@ -97,25 +117,11 @@ def create_tt(params):
 
     print(flush=True)
 
-    resp = subprocess.run([
-        "c3mc-wait-ticket-status-change",
-        "--number", tt_number,
-        "--ext_tt", ext_tt,
-        ], 
-        input=content.encode(), 
-        stdout=subprocess.PIPE,
-    )
-    if resp.returncode != 0:
-        err = resp.stderr.decode('utf-8').rstrip()
-        print(f"LOG. 等待tt结束出错: {err}")
-        exit(1)
-
-    tt_status_txt = resp.stdout.decode('utf-8').rstrip()
-    print(f"LOG. tt结束, 单号: {tt_number}, 状态: {tt_status_txt}")
+    wait_tt_finish(tt_number, ext_tt)
 
 
 def main(params):
-    create_tt(params)
+    run(params)
     
 
 if __name__ == '__main__':

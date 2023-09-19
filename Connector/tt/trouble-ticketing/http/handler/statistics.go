@@ -10,10 +10,8 @@ import (
 	"time"
 )
 
-// 根据时间戳范围查询有效的tt列表
-//
-// 如果工单已结束，使用解决时间进行筛选；如果工单未结束，则使用工单创建时间进行筛选
-func getValidTicketList(startTimestamp, endTimestamp int64, searchKeyword string) []STicket {
+// 获取指定时间段内已经结束的工单
+func getFinishedTicketList(startTimestamp, endTimestamp int64, searchKeyword string) []STicket {
 	startTime := time.Unix(startTimestamp, 0)
 	endTime := time.Unix(endTimestamp, 0)
 
@@ -21,10 +19,56 @@ func getValidTicketList(startTimestamp, endTimestamp int64, searchKeyword string
 
 	query := orm.Db.Table("openc3_tt_ticket").
 		Where(`
-        (CASE 
-            WHEN resolve_time IS NOT NULL THEN resolve_time 
-            ELSE created_at 
-        END) BETWEEN ? AND ?`, startTime, endTime)
+        (resolve_time IS NOT NULL AND resolve_time BETWEEN ? AND ?) OR 
+        (closed_time IS NOT NULL AND closed_time BETWEEN ? AND ?)`, startTime, endTime, startTime, endTime)
+
+	if searchKeyword != "" {
+		query = query.Where("title LIKE ? OR content LIKE ? OR no = ?",
+			"%"+searchKeyword+"%",
+			"%"+searchKeyword+"%",
+			searchKeyword)
+	}
+
+	query.Find(&tickets)
+
+	return GetTicketsRemain(tickets)
+}
+
+// 获取指定时间段内未结束的工单
+func getNotFinishedTicketList(startTimestamp, endTimestamp int64, searchKeyword string) []STicket {
+	startTime := time.Unix(startTimestamp, 0)
+	endTime := time.Unix(endTimestamp, 0)
+
+	var tickets []STicket
+
+	query := orm.Db.Table("openc3_tt_ticket").
+		Where("resolve_time IS NULL AND closed_time IS NULL AND created_at BETWEEN ? AND ?", startTime, endTime)
+
+	if searchKeyword != "" {
+		query = query.Where("title LIKE ? OR content LIKE ? OR no = ?",
+			"%"+searchKeyword+"%",
+			"%"+searchKeyword+"%",
+			searchKeyword)
+	}
+
+	query.Find(&tickets)
+
+	return GetTicketsRemain(tickets)
+}
+
+// 获取指定时间段内的所有工单。即resolve_time、closed_time、created_at任何一个不为NULL并且处于startTime和endTime之间的数据
+func getAnyTimestampTicketList(startTimestamp, endTimestamp int64, searchKeyword string) []STicket {
+	startTime := time.Unix(startTimestamp, 0)
+	endTime := time.Unix(endTimestamp, 0)
+
+	var tickets []STicket
+
+	query := orm.Db.Table("openc3_tt_ticket").
+		Where(`
+		(resolve_time IS NOT NULL AND resolve_time BETWEEN ? AND ?) OR 
+		(closed_time IS NOT NULL AND closed_time BETWEEN ? AND ?) OR 
+		(created_at IS NOT NULL AND created_at BETWEEN ? AND ?)`,
+			startTime, endTime, startTime, endTime, startTime, endTime)
 
 	if searchKeyword != "" {
 		query = query.Where("title LIKE ? OR content LIKE ? OR no = ?",
@@ -119,7 +163,19 @@ func getTodoTicketList(ticketList []STicket, account string, all string) []STick
 			}
 		}
 	}
+
 	return result
+}
+
+func getDayStartAndEndTimestamp(originalStart int64, originalEnd int64) (int64, int64) {
+	startDay := time.Unix(originalStart, 0)
+	endDay := time.Unix(originalEnd, 0)
+
+	loc, _ := time.LoadLocation("Local")
+	startTimestamp := time.Date(startDay.Year(), startDay.Month(), startDay.Day(), 0, 0, 0, 0, loc).Unix()
+	endTimestamp := time.Date(endDay.Year(), endDay.Month(), endDay.Day(), 23, 59, 59, 0, loc).Unix()
+
+	return startTimestamp, endTimestamp
 }
 
 // GetUserAccounts 获取用户列表
@@ -147,7 +203,9 @@ func GetUserAccounts(c *gin.Context) {
 		return
 	}
 
-	ticketList := getValidTicketList(startTimestamp, endTimestamp, "")
+	startTimestamp, endTimestamp = getDayStartAndEndTimestamp(startTimestamp, endTimestamp)
+
+	ticketList := getAnyTimestampTicketList(startTimestamp, endTimestamp, "")
 
 	result := getUserList(ticketList)
 
@@ -180,8 +238,9 @@ func GetTickets(c *gin.Context) {
 		c.JSON(http.StatusOK, status_400("end格式错误"))
 		return
 	}
+	startTimestamp, endTimestamp = getDayStartAndEndTimestamp(startTimestamp, endTimestamp)
 
-	ticketList := getValidTicketList(startTimestamp, endTimestamp, keyword)
+	ticketList := getAnyTimestampTicketList(startTimestamp, endTimestamp, keyword)
 
 	c.JSON(http.StatusOK, status_200(ticketList))
 }
@@ -219,8 +278,9 @@ func GetTodoTickets(c *gin.Context) {
 		c.JSON(http.StatusOK, status_400("end格式错误"))
 		return
 	}
+	startTimestamp, endTimestamp = getDayStartAndEndTimestamp(startTimestamp, endTimestamp)
 
-	ticketList := getValidTicketList(startTimestamp, endTimestamp, keyword)
+	ticketList := getNotFinishedTicketList(startTimestamp, endTimestamp, keyword)
 
 	oaUser, _ := c.Get("oauser")
 	account := oaUser.(string)
@@ -258,8 +318,9 @@ func GetWorkOrderSummary(c *gin.Context) {
 		c.JSON(http.StatusOK, status_400("end格式错误"))
 		return
 	}
+	startTimestamp, endTimestamp = getDayStartAndEndTimestamp(startTimestamp, endTimestamp)
 
-	ticketList := getValidTicketList(startTimestamp, endTimestamp, "")
+	ticketList := getAnyTimestampTicketList(startTimestamp, endTimestamp, "")
 
 	data := make(map[string]map[string]int)
 
@@ -300,15 +361,30 @@ func GetWorkOrderSummary(c *gin.Context) {
 
 	result := make([]itemType, 0)
 
-	for timeStr, value := range data {
+	timeStrList := make([]string, 0)
+	for timeStr, _ := range data {
+		timeStrList = append(timeStrList, timeStr)
+	}
+	sort.Strings(timeStrList)
+
+	for _, timeStr := range timeStrList {
+
 		item := itemType{
 			Date: timeStr,
 			Data: make(map[string]int),
 		}
 		for key, _ := range allKeys {
-			if count, ok := value[key]; ok {
-				item.Data[key] = count
-			} else {
+			ok := false
+
+			value, ok1 := data[timeStr]
+			if ok1 {
+				count, ok2 := value[key]
+				if ok2 {
+					item.Data[key] = count
+					ok = true
+				}
+			}
+			if !ok {
 				item.Data[key] = 0
 			}
 		}
@@ -347,8 +423,9 @@ func GetWorkOrderByApplyUserSummary(c *gin.Context) {
 		c.JSON(http.StatusOK, status_400("end格式错误"))
 		return
 	}
+	startTimestamp, endTimestamp = getDayStartAndEndTimestamp(startTimestamp, endTimestamp)
 
-	ticketList := getValidTicketList(startTimestamp, endTimestamp, "")
+	ticketList := getAnyTimestampTicketList(startTimestamp, endTimestamp, "")
 
 	data := make(map[string]int)
 
@@ -391,21 +468,20 @@ func GetWorkOrderByStatusSummary(c *gin.Context) {
 		c.JSON(http.StatusOK, status_400("end格式错误"))
 		return
 	}
-
-	ticketList := getValidTicketList(startTimestamp, endTimestamp, "")
+	startTimestamp, endTimestamp = getDayStartAndEndTimestamp(startTimestamp, endTimestamp)
 
 	data := make(map[int64]int)
 
+	var ticketList []STicket
+
+	if status == "1" {
+		ticketList = getFinishedTicketList(startTimestamp, endTimestamp, "")
+	} else {
+		ticketList = getNotFinishedTicketList(startTimestamp, endTimestamp, "")
+	}
+
 	for _, item := range ticketList {
-		if status == "1" {
-			if !item.ResolveTime.IsZero() {
-				data[item.GroupUser] = data[item.GroupUser] + 1
-			}
-		} else {
-			if item.ResolveTime.IsZero() {
-				data[item.GroupUser] = data[item.GroupUser] + 1
-			}
-		}
+		data[item.GroupUser] = data[item.GroupUser] + 1
 	}
 
 	data1 := make(map[string]int)
@@ -461,15 +537,17 @@ func GetStatisticsSummary(c *gin.Context) {
 		c.JSON(http.StatusOK, status_400("end格式错误"))
 		return
 	}
+	startTimestamp, endTimestamp = getDayStartAndEndTimestamp(startTimestamp, endTimestamp)
 
 	oaUser, _ := c.Get("oauser")
 	account := oaUser.(string)
 
-	ticketList := getValidTicketList(startTimestamp, endTimestamp, "")
-
+	ticketList := getAnyTimestampTicketList(startTimestamp, endTimestamp, "")
 	userList := getUserList(ticketList)
-	selfTodoList := getTodoTicketList(ticketList, account, "0")
-	relatedGroupTotoList := getTodoTicketList(ticketList, account, "1")
+
+	todoList := getNotFinishedTicketList(startTimestamp, endTimestamp, "")
+	selfTodoList := getTodoTicketList(todoList, account, "0")
+	relatedGroupTotoList := getTodoTicketList(todoList, account, "1")
 
 	s := Summary{
 		UserCount:             len(userList),
