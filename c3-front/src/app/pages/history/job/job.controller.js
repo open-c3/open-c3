@@ -15,6 +15,11 @@
         var nowTime = $filter('date')(new Date, "yyyy-MM-dd");
         vm.starttime = nowTime;
         vm.treeid = $state.params.treeid;
+        vm.callTypeMap = {
+          page: '页面',
+          api: 'API',
+          crontab: '计划任务'
+        }
         $scope.searchStatus = "";
 
         $('#starttime').datetimepicker({
