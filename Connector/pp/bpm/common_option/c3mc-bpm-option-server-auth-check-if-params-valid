@@ -1,0 +1,89 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import json
+import sys
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import safe_run_command, extract_ips, is_valid_email
+
+
+"""
+检查是否可以从cmdb查到所有ip, 以及所有ip的机器是否都是运行状态
+"""
+
+
+def check_ip_list_in_cmdb(ip_list):
+    output = safe_run_command(["c3mc-device-api-jumpserver", "--cache", "--json", "--ips", ",".join(ip_list)])
+    data_list = json.loads(output)
+    ip_list_set = {item["inIP"] for item in data_list} | {
+        item["exIP"] for item in data_list
+    }
+
+    missing_ips = [ip for ip in ip_list if ip not in ip_list_set]
+    if missing_ips:
+        print(f"无法从cmdb找到ip: {' '.join(missing_ips)}")
+        exit(0)
+
+
+def check_email(email):
+    if not is_valid_email(email):
+        print(f"用户邮箱格式不合法, email: {email}")
+        exit(0)
+
+
+def check_if_all_running(ip_list):
+    args = ["c3mc-device-find-v2-status"]
+    args.extend(ip_list)
+
+    posibile_stop_status = {
+        "stopped",
+        "terminated",
+        "stop",
+        "stopping",
+        "termination",
+        "shutdown",
+        "shutoff",
+    }
+
+    output = safe_run_command(args)
+
+    for line in output.split("\n"):
+        line = line.strip()
+        if not line:
+            continue
+        parts = line.split()
+
+        if len(parts) == 1:
+            print(f"无法找到 {parts[0]} 的状态")
+            exit(0)
+
+        if parts[1].lower() in posibile_stop_status:
+            print(f"{parts[0].rstrip(':')} 处于停机状态, 无法申请权限")
+            exit(0)
+
+
+def check(params):
+    email = params["_user_"]
+    ip_list = extract_ips(params["ip_list"])
+
+    # 检查是否存在无法从cmdb找到的ip
+    check_ip_list_in_cmdb(ip_list)
+
+    # 检查用户邮箱是否合法
+    check_email(email)
+
+    # 检查是否所有机器都是运行状态
+    check_if_all_running(ip_list)
+
+
+def main(params):
+    check(params)
+
+
+if __name__ == '__main__':
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise RuntimeError('数据格式不对, 需要一行json字符串"')
+
+    main(json.loads(l[0]))

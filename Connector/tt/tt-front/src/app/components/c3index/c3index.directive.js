@@ -19,7 +19,7 @@
       if ($state.current.name == "home") {
         var vm = this;
         vm.currentsDate = new Date()
-        vm.orderStart = new Date(vm.currentsDate.setDate(vm.currentsDate.getDate() - vm.currentsDate.getDay() + 1));
+        vm.orderStart = new Date(vm.currentsDate.setMonth(vm.currentsDate.getMonth() - 1 ));
         vm.orderEnd = new Date();
         vm.isFirstLoad = true;
         vm.isEndFirstLoad = true;
@@ -282,7 +282,7 @@
               gridLineWidth: 0
             },
             tooltip: {
-              valueSuffix: ' millions'
+              valueSuffix: ''
             },
             plotOptions: {
               bar: {
@@ -332,7 +332,7 @@
               gridLineWidth: 0
             },
             tooltip: {
-              valueSuffix: ' millions'
+              valueSuffix: ''
             },
             plotOptions: {
               bar: {
@@ -382,7 +382,7 @@
               gridLineWidth: 0
             },
             tooltip: {
-              valueSuffix: ' millions'
+              valueSuffix: ''
             },
             plotOptions: {
               bar: {

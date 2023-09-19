@@ -476,3 +476,20 @@ def duplicate_file(source_file_path, target_file_name):
         os.rmdir(target_dir_path)
 
     return target_file_path, clean_file
+
+def read_file_lines(file_path, remove_empty_line=True):
+    """读取文件内容行
+
+    Args:
+        file_path (str): 文件路径
+    """
+    data_list = []
+
+    if os.path.exists(file_path):
+        with open(file_path, "r") as file:
+            data_list.extend(line.strip() for line in file)
+    
+    if remove_empty_line:
+        return [line for line in data_list if line != ""]
+    else:
+        return data_list

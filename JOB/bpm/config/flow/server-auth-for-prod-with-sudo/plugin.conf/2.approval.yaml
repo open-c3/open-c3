@@ -1,0 +1,25 @@
+---
+name: 领导审批
+option:
+  - describe: 申请理由
+    name: note
+    type: text
+    value: 
+
+template_argv:
+  approver: "mongroup(server_auth_for_final_leader)"
+  title:    "BPM/${_bpmuuid_}/申请 生产网段 服务器sudo访问权限"
+  content:  |
+    BPM标题: 申请 生产网段 服务器sudo访问权限
+    BPM地址: ${_caseurl_}
+
+    申请人:${_user_}
+    权限类型:${x.auth_type__alias}
+    服务器ip列表:
+    _buildin_code_find_tree(${x.ip_list})
+    BPM单号:${_bpmuuid_}
+    申请理由:${x.note}
+  submitter: '${_user_}'
+  relaxed:  1
+  everyone: 1
+  record: 1
