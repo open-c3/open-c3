@@ -52,6 +52,9 @@ if [ $checkPerlModule -ne 0 ];then
 
 fi
 
+#touch /opt/mydan/dan/agent.mon/plugin.ProcListen
+#touch /opt/mydan/dan/agent.mon/plugin.ServiceDiscovery
+
 Proc=`ps -ef|grep mydan.node_exporter.65110|grep -v grep|wc -l`
 if [ "X$Proc" == "X1" ]; then
     #killall mydan.node_exporter.65110 2>/dev/null
