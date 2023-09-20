@@ -42,7 +42,7 @@ sub new
     $prom = $this{prom} = OPENC3::MYDan::MonitorV3::Prometheus::Tiny->new;
     my @task = qw( DiskBlocks DiskInodes DiskDev Uptime PortTcp PortUdp Process Http Path PromeNodeExporter Sar MYDanAgent FalconMigrate Ss Ping );
 
-    push @task, 'ProcListen' if -f "/opt/mydan/dan/agent.mon/plugin.ProcListen";
+    map{ push @task, $_ if "/opt/mydan/dan/agent.mon/plugin.$_" }qw( ProcListen ServiceDiscovery );
 
     my $i = 0;
     for my $type ( @task )
@@ -141,7 +141,7 @@ sub new
         after => 1, 
         interval => 15,
         cb => sub { 
-            $this{prom}->set( 'node_exporter_version', 43 );
+            $this{prom}->set( 'node_exporter_version', 44 );
             $this{prom}->set( 'agent_push_metric_count', $agent_push_metric_count );
             $this{prom}->set( 'agent_push_metric_error', $agent_push_metric_error );
             $this{prom}->set( 'agent_push_metric_data',  $agent_push_metric_data );
