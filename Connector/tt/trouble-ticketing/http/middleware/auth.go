@@ -14,7 +14,7 @@ func Auth() gin.HandlerFunc {
 
 	// 忽略用户登陆认证的url 前缀
 	skip := map[string]bool{
-		"/public/ticket": true,
+		"/public": true,
 	}
 
 	return func(c *gin.Context) {
