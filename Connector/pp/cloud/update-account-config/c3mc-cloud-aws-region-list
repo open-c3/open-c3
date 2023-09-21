@@ -28,7 +28,7 @@ class Aws:
             except Exception as e:
                 error_list.append(e)
                 continue
-        raise RuntimeError(f"无法创建sdk客户端, error_list: {error_list}")
+        raise RuntimeError(f"无法创建sdk客户端, ak: {access_id}, error_list: {error_list}")
 
     def list_ec2_regions(self):
         result = []
