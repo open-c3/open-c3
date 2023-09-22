@@ -12,22 +12,26 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type searchFilter struct {
+	Category       int64     `json:"category"`
+	Impact         int64     `json:"impact"`
+	Item           int64     `json:"item"`
+	Status         string    `json:"status"`
+	Type           int64     `json:"type"`
+	Workgroup      int64     `json:"workgroup"`
+	GroupUser      string    `json:"group_user" gorm:"-"`
+	Keyword        string    `json:"keyword" gorm:"-"`
+	CreateStart    time.Time `json:"create_start" gorm:"-"`
+	CreateEnd      time.Time `json:"create_end" gorm:"-"`
+	ProcessingTime string    `json:"processing_time" gorm:"-"`
+}
+
+func (filter searchFilter) TableName() string {
+	return "openc3_tt_ticket"
+}
+
 // 搜索
 func SearchList(c *gin.Context) {
-
-	type searchFilter struct {
-		Category    int64     `json:"category"`
-		Impact      int64     `json:"impact"`
-		Item        int64     `json:"item"`
-		Status      string    `json:"status"`
-		Type        int64     `json:"type"`
-		Workgroup   int64     `json:"workgroup"`
-		GroupUser   string    `json:"group_user" gorm:"-"`
-		Keyword     string    `json:"keyword" gorm:"-"`
-		CreateStart time.Time `json:"create_start" gorm:"-"`
-		CreateEnd   time.Time `json:"create_end" gorm:"-"`
-		ProcessingTime	string	`json:"processing_time" gorm:"-"`
-	}
 
 	var obj searchFilter
 	var blank searchFilter
