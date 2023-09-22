@@ -144,6 +144,9 @@ func public_route(r *gin.RouterGroup) {
 	r.GET("/ticket/status/:id", handler.PublicGetTicketStatus) // 获取事件状态
 	r.GET("/ticket", handler.PublicGetTicketInfo)              // 获取事件基础信息
 
+	r.GET("/base/all", handler.GetBaseAll)     // 获取基础配置信息
+	r.POST("/search/list", handler.SearchList) // 搜索tt列表
+
 	r.POST("/ticket/info", handler.PublicBatchGetTicketInfo) // 批量获取事件基础信息
 }
 
