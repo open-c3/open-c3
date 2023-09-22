@@ -7,10 +7,11 @@ import subprocess
 import re
 import base64
 import os
+import time
 
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
-from c3mc_utils import safe_run_command, duplicate_file
+from c3mc_utils import safe_run_command, duplicate_file, safe_run_command_v2
 
 
 def replace_base64_substring(long_string):
@@ -87,12 +88,17 @@ def create_tt_ticket(apply_user, submit_user, title, content, ext_tt):
 
 
 def wait_tt_finish(tt_number, ext_tt):
-    output = safe_run_command([
-        "c3mc-wait-ticket-status-change",
-        "--number", tt_number,
-        "--ext_tt", ext_tt,
-    ])
-    print(f"LOG. tt结束, 单号: {tt_number}, 状态: {output}")
+    while True:
+        code, output, err = safe_run_command_v2([
+            "c3mc-wait-ticket-status-change",
+            "--number", tt_number,
+            "--ext_tt", ext_tt,
+        ])
+        print(f"LOG. tt结束, 单号: {tt_number}, 状态: {output}")
+        if code == 0:
+            break
+        else:
+            time.sleep(5)
 
 
 def run(params):
