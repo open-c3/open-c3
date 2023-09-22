@@ -463,7 +463,7 @@ post '/monitor/ack/tott/:uuid' => sub {
         close $tmp;
         $file = $tmp->filename;
         $title =~ s/'//g;
-        my $x = `cat '$file'|c3mc-create-ticket --title '$title' $ext_tt 2>&1`;
+        my $x = `cat '$file'|c3mc-create-ticket --title '$title' $ext_tt --apply_user '$user' 2>&1`;
         die "err: $x" if $?;
         $x =~ s/\n//g;
         die "create tt fail" unless $x && $x =~ /^[A-Z][A-Z0-9]+$/;

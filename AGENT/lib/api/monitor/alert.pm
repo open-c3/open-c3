@@ -106,6 +106,7 @@ post '/monitor/alert/tott/:projectid' => sub {
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
 
     my $pmscheck = api::pmscheck( 'openc3_agent_read', $param->{projectid} ); return $pmscheck if $pmscheck;
+    my $user = $api::sso->run( cookie => cookie( $api::cookiekey ), map{ $_ => request->headers->{$_} }qw( appkey appname ) );
 
     my @cont = ( '从监控系统转过来的工单' );
     push @cont, "监控名称: " . Encode::encode("utf8", $param->{labels}{alertname}        );
@@ -127,7 +128,7 @@ post '/monitor/alert/tott/:projectid' => sub {
         $file = $tmp->filename;
         my $title = "监控事件:" . Encode::encode("utf8",$param->{labels}{alertname} ). '['.Encode::encode("utf8",$param->{labels}{instance} ). ']';
         $title =~ s/'//g;
-        my $x = `cat '$file'|c3mc-create-ticket --title '$title' $ext_tt 2>&1`;
+        my $x = `cat '$file'|c3mc-create-ticket --title '$title' $ext_tt --apply_user '$user' 2>&1`;
         die sprintf( "err: %s", Encode::decode("utf8", $x ) )if $?;
         $x =~ s/\n//g;
         die "create tt fail" unless $x && $x =~ /^[A-Z][A-Z0-9]+$/;
