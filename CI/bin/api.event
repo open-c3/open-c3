@@ -41,6 +41,8 @@ use api::c3mc::base;
 use api::c3mc::cloud::control::tags;
 use api::to3part::safetytesting;
 
+use api::c3mc::cislave;
+
 my $cookiekey;
 BEGIN{
     use FindBin qw( $RealBin );
@@ -74,6 +76,8 @@ my ( %handle, %index, $index ) = (
     %api::c3mc::base::handle,
     %api::c3mc::cloud::control::tags::handle,
     %api::to3part::safetytesting::handle,
+
+    %api::c3mc::cislave::handle,
 );
 
 my $port = $ENV{CI_API_EVENT_PORT} // '8080';
