@@ -1001,3 +1001,5 @@ CREATE TABLE IF NOT EXISTS openc3_tt_person_pre_config_params (
     FOREIGN KEY (`group_user`)  REFERENCES openc3_tt_base_group_user(`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='预配置的运维人员参数';
 
+# v2.6.0 sql openc3_ci_project add cislave
+ALTER TABLE openc3_ci_project ADD `cislave` VARCHAR(20) DEFAULT 'master' comment 'ci执行的slave';

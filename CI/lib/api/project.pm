@@ -75,6 +75,7 @@ get '/project/:groupid/:projectid' => sub {
         saveasdir gitclonebycache
         nomail nomesg
         notifyci notifycd
+        cislave
         );
     my $r = eval{ 
         $api::mysql->query( 
@@ -127,6 +128,7 @@ post '/project/:groupid/:projectid' => sub {
         notify => [ 'mismatch', qr/'/ ], 0,
         notifyci => [ 'mismatch', qr/'/ ], 0,
         notifycd => [ 'mismatch', qr/'/ ], 0,
+        cislave => [ 'mismatch', qr/'/ ], 0,
         tag_regex => [ 'mismatch', qr/'/ ], 0,
         autofindtags => qr/^\d+$/, 1,
         callonlineenv => qr/^\d+$/, 1,
@@ -187,6 +189,7 @@ post '/project/:groupid/:projectid' => sub {
         saveasdir gitclonebycache
         nomail nomesg
         notifyci notifycd
+        cislave
     );
     eval{ 
         $api::mysql->execute(
