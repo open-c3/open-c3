@@ -278,7 +278,7 @@ return sub
     my $subtaskstatus = 'success'; #runnigs,fail,success,decision,ignore,refuse
     for( 1 .. $rtime )
     {
-        my $stat = eval{ $db->query( "select opinion,user,remarks from openc3_job_approval where taskuuid='$puuid'" );};
+        my $stat = eval{ $db->query( "select opinion,user,remarks from openc3_job_approval where taskuuid='$puuid' and remarks not like \"_close_by_sys_%\"" );};
         if( $@ )
         {
             $logs->err("get approval stat err: $@");
