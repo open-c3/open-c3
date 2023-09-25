@@ -57,7 +57,7 @@ post '/adminapproval' => sub {
     eval{
         $api::mysql->execute( "update openc3_job_approval set opinion='$param->{opinion}',finishtime='$time',assist='$user' where id='$param->{id}' and opinion='unconfirmed'");
         my $x = $api::mysql->query( "select taskuuid,user from openc3_job_approval where id='$param->{id}' and everyone='NO'" );
-        $api::mysql->execute( "update openc3_job_approval set opinion='$param->{opinion}',finishtime='$time',remarks='sysadmin $user' where opinion='unconfirmed' and taskuuid='$x->[0][0]'") if @$x > 0;
+        $api::mysql->execute( "update openc3_job_approval set opinion='$param->{opinion}',finishtime='$time',remarks='_close_by_sys_ not.everyone $user' where opinion='unconfirmed' and taskuuid='$x->[0][0]'") if @$x > 0;
     };
 
     return $@ ?  +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => 1 };

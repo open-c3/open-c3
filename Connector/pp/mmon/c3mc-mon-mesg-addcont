@@ -111,6 +111,21 @@ sub getowner
     }
 }
 
+sub getsysteminfo
+{
+    my ( $ip, $labels ) = @_;
+    if( $ip && ( $ip =~ /^\d+\.\d+\.\d+\.\d+$/ || $ip =~ /^[a-zA-Z0-9][a-zA-Z0-9\-\._:@]+[a-zA-Z0-9]$/ ) )
+    {
+        my @x = `c3mc-device-find-v2-systeminfo '$ip'|tail -n 1 | awk '{print \$2}'`;
+        chomp @x;
+        return @x ? $x[0] : 'unknown';
+    }
+    else
+    {
+        return 'unknown';
+    }
+}
+
 my @out;
 sub addcont
 {
@@ -141,6 +156,7 @@ sub addcont
     $data->{instancealias} = $data->{hostname};
 
     $data->{instanceowner} = getowner( $data->{'instancename'}, $data );
+    $data->{instancesysteminfo} = Encode::decode( 'utf8', getsysteminfo( $data->{'instancename'}, $data ));
     
     for my $x ( qw( cloudmonname ) )
     {
