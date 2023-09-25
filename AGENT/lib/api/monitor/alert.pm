@@ -133,12 +133,12 @@ post '/monitor/alert/tott/:projectid' => sub {
         $x =~ s/\n//g;
         die "create tt fail" unless $x && $x =~ /^[A-Z][A-Z0-9]+$/;
         my $uuid = $param->{uuid};
-        die "uuid err" unless $uuid && $uuid =~ /^[a-zA-Z0-9\.\-:]+$/;
+        die "uuid err: $uuid" unless $uuid && $uuid =~ /^[a-zA-Z0-9\.\-:]+$/;
         my $ctype = $type ? '1' : '0';
         $api::mysql->execute( "insert into openc3_monitor_tott ( uuid,type,caseuuid ) value('$uuid','$ctype','$x')" );
     };
 
-    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $file };
+    return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => $param->{uuid} };
 };
 
 =pod
