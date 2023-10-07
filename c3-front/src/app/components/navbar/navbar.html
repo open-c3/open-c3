@@ -45,7 +45,7 @@
                 <div ng-repeat="cItem in item.list">
                   <i ng-if="cItem.label !== '导航' && nav.user.menu[cItem.label] == 1" class="fa fa-star-o" aria-hidden="true" uib-tooltip="{{'C3T.点击收藏'| translate}}" ng-click="nav.handleMarkOperate(cItem, item)"></i>
                   <i ng-if="cItem.label !== '导航' && nav.user.menu[cItem.label] == 2" class="fa fa-star" aria-hidden="true" uib-tooltip="{{'C3T.取消收藏'| translate}}" ng-click="nav.handleMarkOperate(cItem, item)"></i>
-                  <a ng-if="nav.user.menu[cItem.label] == 1 || nav.user.menu[cItem.label] == 2" class="nav-dashboard-card-item-content-item"
+                  <a ng-if="cItem.label === 'link' || nav.user.menu[cItem.label] == 1 || nav.user.menu[cItem.label] == 2" class="nav-dashboard-card-item-content-item"
                     ng-click="nav.handleStateGo($event,cItem)">
                     <span ng-if="cItem.icon" class="{{cItem.icon}}"></span>
                     <img ng-if="!cItem.icon" ng-src="{{cItem.image}}" alt="image" style="width: 12px;height: 12px;">

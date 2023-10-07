@@ -180,6 +180,7 @@ class Ec2:
             try:
                 # 数据盘不需要显式删除，因为在创建数据盘的时候指定了参数DeleteOnTermination为True
                 if all_instance_ids:
+                    print(f"创建ec2过程出现错误, 删除ec2实例: {json.dumps(all_instance_ids)}", file=sys.stderr)
                     self.lib_ec2.terminate_instances(all_instance_ids)
                 if all_allocation_ids:
                     for allocation_id in all_allocation_ids:
