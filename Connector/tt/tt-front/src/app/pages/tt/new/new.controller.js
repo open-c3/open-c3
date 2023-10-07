@@ -188,7 +188,9 @@
         // 选择账号
         vm.handlePersonChange = function () {
           var selectItems = vm.personOption.find(function(item) { return item.target_user === vm.personSelect })
-          vm.setTicket(selectItems)
+           if (vm.personSelect !=='自定义配置') {
+             vm.setTicket(selectItems)
+           }
         }
 
         // submit

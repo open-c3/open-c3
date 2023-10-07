@@ -23,6 +23,11 @@
 
             var vm = this;
             vm.zTree = '';
+            vm.treeid = $state.params.treeid;
+            vm.siteaddr = `${window.location.protocol}//${window.location.host}`
+            vm.prometheusurl = `${vm.siteaddr}/third-party/monitor/prometheus/alerts`.replace(/&kiosk$/g,'');
+            vm.alertmanagerurl = `${vm.siteaddr}/third-party/monitor/alertmanager/#/alerts?silenced=false&inhibited=false&active=true&filter=%7Bfromtreeid%3D"${vm.treeid}"%7D`.replace(/&kiosk$/g,'');
+            vm.grafanaurl = `${vm.siteaddr}/third-party/monitor/grafana/`.replace(/&kiosk$/g,'');
             vm.isHovered = false
             treeService.sync.then(function(data) {
       
@@ -100,6 +105,9 @@
                           { title: 'C3T.低利用率', icon: 'fa fa-stethoscope', label: '监控.低利用率', params: {}, router: 'home.quickentry.monitornodelow' },
                           { title: 'C3T.邮件监控', icon: 'fa fa-mixcloud', label: '监控.邮件监控', params: {}, router: 'home.quickentry.monitormailmon' },
                           { title: 'C3T.故障自愈', icon: 'fa fa-wheelchair-alt', label: '监控.故障自愈', params: {}, router: 'home.quickentry.selfhealingconfig' },
+                          { title: 'Grafana', icon: 'glyphicon glyphicon-share', external: vm.grafanaurl, label: 'link', router: '', params: {} },
+                          { title: 'Prometheus', icon: 'glyphicon glyphicon-share', external: vm.prometheusurl, label: 'link', router: '', params: {} },
+                          { title: 'Alertmanager', icon: 'glyphicon glyphicon-share', external: vm.alertmanagerurl, label: 'link', router: '', params: {} },
                         ]
                       },
                       // 流水线
@@ -195,7 +203,7 @@
                         router: '',
                         params: {},
                         list: [
-                          { title: 'C3T.其它工具', icon: 'fa fa-wrench', label: '其它工具', router: 'home.thirdparty', params: {} }
+                          { title: 'keycloak', icon: 'fa fa-wrench', label: '其它工具', router: 'home.thirdparty', params: {} }
                         ]
                       },
                       // BPM
