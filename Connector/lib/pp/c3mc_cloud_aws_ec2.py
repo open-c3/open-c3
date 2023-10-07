@@ -93,13 +93,15 @@ class LIB_EC2:
             if fail_times > max_tries:
                 raise RuntimeError(f"查询ec2实例信息失败, instance_id: {instance_id}, max_tries: {max_tries}, every_wait_time: {every_wait_time}")
             
-            if not self.describe_instances([instance_id])["Reservations"][0]["Instances"]:
-                fail_times += 1
-                time.sleep(every_wait_time)
-                continue
-
-            return self.describe_instances([instance_id])["Reservations"][0]["Instances"][0]
-            
+            try:
+                resp = self.describe_instances([instance_id])
+                return resp["Reservations"][0]["Instances"][0]
+            except Exception as e:
+                if "NotFound" in str(e):
+                    fail_times += 1
+                    time.sleep(every_wait_time)
+                    continue
+                raise e
 
     def stop_instances(self, instance_ids):
         """停止ec2实例
