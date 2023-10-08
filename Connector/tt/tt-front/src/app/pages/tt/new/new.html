@@ -31,11 +31,12 @@
                   <span class="text-danger">*</span>
                 </label>
                 <div class="col-md-9">
-                  <select class="form-control" size="1" ng-model="ttnew.personSelect"
-                    ng-change="ttnew.handlePersonChange()" required>
-                    <option ng-repeat="v in ttnew.personOption" value="{{v.target_user}}">{{v.target_user ||
-                      'D.Base.default_config_text'}}</option>
-                  </select>
+                  <ui-select ng-model="ttnew.personSelect" ng-change="ttnew.handlePersonChange($select.selected.target_user)" required>
+                    <ui-select-match> <span class="item-label">{{$select.selected.target_user}}</span></ui-select-match>
+                    <ui-select-choices repeat="item.target_user as item in ttnew.personOption | filter: $select.search">
+                      <div ng-bind-html="item.target_user | highlight: ttnew.personOption"></div>
+                    </ui-select-choices>
+                  </ui-select>
                 </div>
               </div>
             </div>
@@ -66,7 +67,7 @@
         </div>
       </div>
         <!--left-->
-        <div class="col-md-5" ng-if="ttnew.personSelect === '自定义配置'">
+        <div class="col-md-5" ng-if="ttnew.personSelect === '自定义'">
             <!--事件影响-->
             <div class="panel panel-danger panel-border top">
                 <div class="panel-heading">
@@ -169,7 +170,7 @@
         </div>
 
         <!--right-->
-        <div class="col-md-7" ng-class="{'col-md-12': ttnew.personSelect !== '自定义配置'}">
+        <div class="col-md-7" ng-class="{'col-md-12': ttnew.personSelect !== '自定义'}">
             <!--事件描述-->
             <div class="panel panel-primary panel-border top">
                 <div class="panel-heading">
