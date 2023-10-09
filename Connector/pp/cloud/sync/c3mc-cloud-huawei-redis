@@ -8,6 +8,12 @@ from huaweicloudsdkcore.auth.credentials import BasicCredentials
 from huaweicloudsdkdcs.v2.region.dcs_region import DcsRegion
 from huaweicloudsdkdcs.v2 import *
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_utils import sleep_time_for_limiting
+
+
+max_times_for_get_redis = 16
+
 
 class Redis:
     def __init__(self, access_id, access_key, project_id, region):
@@ -58,6 +64,7 @@ class Redis:
         for cur_page_number in range(total_page_number + 1):
             self.offset = cur_page_number * self.page_size
             self.show()
+            sleep_time_for_limiting(max_times_for_get_redis)
 
 
 # project_id 可以命令行传 None
