@@ -64,6 +64,7 @@
           blank: '/assets/images/cmdb-monitor.png',
           tags: '/assets/images/cmdb-tags.png',
           modal: '/assets/images/cmdb-detail.png',
+          table: '/assets/images/cmdb-table.png',
         }
         vm.tablePageSize = 200
 
@@ -219,7 +220,28 @@
                 treeid: function () {return vm.treeid},
             }
             })
-          }}
+          },
+          table: function (uuid, type, subtype, config) {
+            $uibModal.open({
+              templateUrl: 'app/pages/device/data/dialog/table/table.html',
+              controller: 'TableController',
+              controllerAs: 'table',
+              backdrop: 'static',
+              size: 'lg',
+              keyboard: false,
+              bindToController: true,
+              resolve: {
+                name: function () {return name},
+                config: function () {return config},
+                uuid: function () {return uuid},
+                type: function () {return type},
+                subtype: function () {return subtype},
+                treeid: function () {return vm.treeid},
+                selectedtimemachine: function () {return vm.selectedtimemachine},
+              }
+            })
+          }
+        }
 
         vm.show = function ( uuid, type, subtype, config ) {
             return vm.showTypeOperate[config['type']](uuid, type, subtype, config)
