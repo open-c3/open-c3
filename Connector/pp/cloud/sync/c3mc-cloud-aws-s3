@@ -50,9 +50,13 @@ class S3:
 
     def add_tag_info_to_bucket(self, array, bucket_info):
         try:
-            bucketLocationResp = self.client.get_bucket_location(
-                Bucket=bucket_info["Name"],
-            )
+            try:
+                bucketLocationResp = self.client.get_bucket_location(
+                    Bucket=bucket_info["Name"],
+                )
+            except Exception as error:
+                if "The specified bucket does not exist" in str(error):
+                    return
 
             bucket_real_location = bucketLocationResp["LocationConstraint"]
 

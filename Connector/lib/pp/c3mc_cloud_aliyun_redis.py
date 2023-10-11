@@ -1,11 +1,13 @@
 #!/usr/bin/env /data/Software/mydan/python3/bin/python3
 # -*- coding: utf-8 -*-
 
+import json
 
 from aliyunsdkcore.client import AcsClient
 from aliyunsdkrds.request.v20140815.TagResourcesRequest import TagResourcesRequest
 from aliyunsdkr_kvstore.request.v20150101.TagResourcesRequest import TagResourcesRequest
 from aliyunsdkr_kvstore.request.v20150101.UntagResourcesRequest import UntagResourcesRequest
+from aliyunsdkr_kvstore.request.v20150101.DescribeRegionsRequest import DescribeRegionsRequest
 
 
 class LibAliyunRedis:
@@ -26,7 +28,7 @@ class LibAliyunRedis:
             tag_list (list): 要添加的标签列表。格式为 [{"Key": "key1", "Value": "value1"}, {"Key": "key2", "Value": "value2"}]
         """
         request = TagResourcesRequest()
-        request.set_accept_format('json')
+        request.set_accept_format("json")
         request.set_ResourceIds([instance_id])
         request.set_ResourceType("INSTANCE")
         request.set_Tags(tag_list)
@@ -40,8 +42,21 @@ class LibAliyunRedis:
             need_delete_list (list): 要删除的标签key列表。格式为 ["key1", "key2"]
         """
         request = UntagResourcesRequest()
-        request.set_accept_format('json')
+        request.set_accept_format("json")
         request.set_ResourceType("INSTANCE")
         request.set_ResourceIds([instance_id])
         request.set_TagKeys(need_delete_list)
         return self.client.do_action_with_exception(request)
+
+    def describe_regions(self):
+        """查询可用的区域列表
+        """
+        request = DescribeRegionsRequest()
+        request.set_accept_format("json")
+        request.set_AcceptLanguage("zh-CN")
+        response = self.client.do_action_with_exception(request)
+
+        return list({
+            region_item["RegionId"]
+            for region_item in json.loads(str(response, encoding='utf-8'))["RegionIds"]["KVStoreRegion"]
+        })
