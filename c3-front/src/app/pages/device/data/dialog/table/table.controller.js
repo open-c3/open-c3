@@ -14,7 +14,7 @@
       }
     });
 
-  function TableController ($uibModalInstance, ngTableParams, $http, type, treeid, subtype, selectedtimemachine, uuid, config, $sce) {
+  function TableController ($uibModalInstance, ngTableParams, $http, type, treeid, subtype, selectedtimemachine, uuid, config) {
 
     var vm = this;
     vm.treeid = treeid;
@@ -38,6 +38,8 @@
             if (data.stat) {
               vm.showTitle = data.title;
               vm.dataTable = new ngTableParams({ count: 20 }, { counts: vm.countOptions, data: data.data.reverse() });
+            } else {
+              swal({ title: '获取信息失败', text: data.info, type: 'error' });
             }
           })
         } else {
