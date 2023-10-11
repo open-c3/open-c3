@@ -38,7 +38,11 @@
         if (data.stat) {
           $http.get(data.data).success(function (data) {
             if (data.stat) {
-              vm.showData = data.data
+              if (typeof data.data === 'string') {
+                vm.showData = data.data
+              }else {
+                vm.showData = JSON.stringify(data.data)
+              }
             }
           })
         } else {
