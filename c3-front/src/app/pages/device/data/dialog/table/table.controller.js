@@ -25,6 +25,7 @@
     vm.tableLoading = false
     vm.selectedtimemachine = selectedtimemachine
     vm.countOptions = [20, 30,50, 100, 500]
+    vm.modalTitle = 'C3T.'+ vm.config['name']
     vm.cancel = function () { $uibModalInstance.dismiss() };
 
     // 请求资源列表返回的接口

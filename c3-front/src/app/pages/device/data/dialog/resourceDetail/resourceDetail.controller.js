@@ -22,6 +22,7 @@
     vm.subtype = subtype;
     vm.config = config;
     vm.uuid = uuid;
+    vm.modalTitle = 'C3T.'+ vm.config['name']
     vm.selectedtimemachine = selectedtimemachine
 
     vm.cancel = function () { $uibModalInstance.dismiss() };
