@@ -14,23 +14,32 @@
       }
     });
 
-  function ResourceDetailController ($uibModalInstance, $http, type, treeid, subtype, config) {
+  function ResourceDetailController ($uibModalInstance, $http, type, treeid, subtype, selectedtimemachine, uuid,  config) {
 
     var vm = this;
     vm.treeid = treeid;
     vm.type = type;
     vm.subtype = subtype;
     vm.config = config;
+    vm.uuid = uuid;
+    vm.selectedtimemachine = selectedtimemachine
 
     vm.cancel = function () { $uibModalInstance.dismiss() };
 
     // 请求资源列表返回的接口
     vm.getData = function () {
-      $http.get(vm.config['url']).success(function (data) {
+        //uuid, type, subtype, config
+      $http.post(`/api/agent/device/detail/${vm.type}/${vm.subtype}/${vm.treeid}/${vm.uuid}?timemachine=${vm.selectedtimemachine}`, { 'exturl': vm.config['url'] }).success(function (data) {
         if (data.stat) {
-          vm.showData = data.data
+          $http.get(data.data).success(function (data) {
+            if (data.stat) {
+              vm.showData = data.data
+            }
+          })
+        } else {
+          swal({ title: '获取URL地址失败', text: data.info, type: 'error' });
         }
-      })
+      });
     }
 
     vm.getData();

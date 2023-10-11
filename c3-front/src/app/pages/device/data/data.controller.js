@@ -198,6 +198,7 @@
                 type: function () {return type},
                 subtype: function () {return subtype},
                 treeid: function () {return vm.treeid},
+                selectedtimemachine: function () {return vm.selectedtimemachine},
               }
             })
           },
