@@ -190,7 +190,7 @@ def process_for_resource_code(cloud, resource_code, new_line_list):
     for t in threads:
         t.join()
 
-    final_ak_line_list = remove_duplicates(final_ak_line_list)
+    final_ak_line_list = sorted(remove_duplicates(final_ak_line_list))
 
     ext_filepath = os.path.join(PID_TMP_DIR, f"{cloud}.{resource_code}")
     append_to_account_file(
