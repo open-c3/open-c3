@@ -26,6 +26,7 @@
     vm.defaultTagsArr = []
     vm.tagLoading = false
     vm.saveLoading = false
+    vm.modalTitle = 'C3T.'+ vm.config['name']
     vm.cancel = function () { $uibModalInstance.dismiss() };
 
     // 删除标签
