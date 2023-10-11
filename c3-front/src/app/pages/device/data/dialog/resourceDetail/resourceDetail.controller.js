@@ -14,7 +14,7 @@
       }
     });
 
-  function ResourceDetailController ($uibModalInstance, $http, type, treeid, subtype, selectedtimemachine, uuid,  config) {
+  function ResourceDetailController ($uibModalInstance, $http, type, treeid, subtype, selectedtimemachine, uuid, config, $sce) {
 
     var vm = this;
     vm.treeid = treeid;
@@ -26,9 +26,13 @@
 
     vm.cancel = function () { $uibModalInstance.dismiss() };
 
+    vm.showDataText = function(htmlText) {
+      var rawHtml = `<div>${htmlText}</div>`
+      return $sce.trustAsHtml(rawHtml);
+    };
+
     // 请求资源列表返回的接口
     vm.getData = function () {
-        //uuid, type, subtype, config
       $http.post(`/api/agent/device/detail/${vm.type}/${vm.subtype}/${vm.treeid}/${vm.uuid}?timemachine=${vm.selectedtimemachine}`, { 'exturl': vm.config['url'] }).success(function (data) {
         if (data.stat) {
           $http.get(data.data).success(function (data) {

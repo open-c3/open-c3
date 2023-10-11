@@ -2,7 +2,21 @@
   <h4 class="modal-title">{{'C3T.资源详情'|translate}}</h4>
 </div>
 
-<div class="modal-body">{{resourceDetail.showData}}</div>
+<div class="modal-body">
+  <div class="modal-tags-loading-content" ng-if="!resourceDetail.showData">
+    <div class="modal-tags-list-loading">
+      <div class="modal-tags-loading">
+        <div class="loading-l1"><div></div></div>
+        <div class="loading-l2"><div></div></div>
+        <div class="loading-l3"><div></div></div>
+        <div class="loading-l4"><div></div> </div>
+      </div>
+    </div>
+  </div>
+  <div ng-if="!!resourceDetail.showData">
+    <pre ng-bind-html="resourceDetail.showDataText(resourceDetail.showData)"></pre>
+  </div>
+</div>
 </div>
 <div class="confirm-modal-button text-center">
   <button class="btn btn-warning" ng-click="resourceDetail.cancel()">{{'C3T.关闭'| translate }}</button>
