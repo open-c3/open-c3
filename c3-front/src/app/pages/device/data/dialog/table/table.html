@@ -1,0 +1,31 @@
+<div class="modal-header">
+  <h4 class="modal-title">{{ table.modalTitle | translate}}</h4>
+</div>
+
+<div class="modal-body">
+  <div class="modal-tags-loading-content" ng-if="table.tableLoading">
+    <div class="modal-tags-list-loading">
+      <div class="modal-tags-loading">
+        <div class="loading-l1"><div></div></div>
+        <div class="loading-l2"><div></div></div>
+        <div class="loading-l3"><div></div></div>
+        <div class="loading-l4"><div></div></div>
+      </div>
+    </div>
+  </div>
+  <div ng-if="!table.tableLoading">
+    <table ng-table="table.dataTable" class="table table-scroll table-hover text-center table-condensed"
+      show-filter="true">
+      <tr ng-if="table.showTitle.length > 0">
+        <th ng-repeat="item in table.showTitle">{{item}}</th>
+      </tr>
+      <tr ng-repeat="m in $data">
+        <td ng-repeat="item in table.showTitle| filter:searchText" data-title="item" sortable="item">{{m[item]|| '-'}}</td>
+      </tr>
+    </table>
+  </div>
+</div>
+</div>
+<div class="confirm-modal-button text-center">
+  <button class="btn btn-warning" ng-click="table.cancel()">{{'C3T.关闭'| translate }}</button>
+</div>

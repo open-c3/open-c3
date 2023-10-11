@@ -503,6 +503,7 @@ any '/device/detail/:type/:subtype/:treeid/:uuid' => sub {
         {
             map{ $url =~ s/\$\{$_->[0]\}/$_->[1]/; }@$r;
         }
+        map{ $url =~ s/{$_}/$param->{$_}/g }qw( type subtype uuid );
         return +{ stat => $JSON::true, data => $url };
     }
 

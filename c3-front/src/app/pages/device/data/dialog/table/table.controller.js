@@ -3,7 +3,7 @@
 
   angular
     .module('openc3')
-    .controller('ResourceDetailController', ResourceDetailController)
+    .controller('TableController', TableController)
     .filter('cut30', function () {
       return function (text) {
         if (text.length > 33) {
@@ -14,7 +14,7 @@
       }
     });
 
-  function ResourceDetailController ($uibModalInstance, $http, type, treeid, subtype, selectedtimemachine, uuid, config, $sce) {
+  function TableController ($uibModalInstance, ngTableParams, $http, type, treeid, subtype, selectedtimemachine, uuid, config, $sce) {
 
     var vm = this;
     vm.treeid = treeid;
@@ -22,30 +22,26 @@
     vm.subtype = subtype;
     vm.config = config;
     vm.uuid = uuid;
-    vm.modalTitle = 'C3T.'+ vm.config['name']
+    vm.tableLoading = false
     vm.selectedtimemachine = selectedtimemachine
-
+    vm.countOptions = [20, 30,50, 100, 500]
+    vm.modalTitle = 'C3T.'+ vm.config['name']
     vm.cancel = function () { $uibModalInstance.dismiss() };
-
-    vm.showDataText = function(htmlText) {
-      var rawHtml = `<div>${htmlText}</div>`
-      return $sce.trustAsHtml(rawHtml);
-    };
 
     // 请求资源列表返回的接口
     vm.getData = function () {
+      vm.tableLoading = true
       $http.post(`/api/agent/device/detail/${vm.type}/${vm.subtype}/${vm.treeid}/${vm.uuid}?timemachine=${vm.selectedtimemachine}`, { 'exturl': vm.config['url'] }).success(function (data) {
         if (data.stat) {
           $http.get(data.data).success(function (data) {
+            vm.tableLoading = false;
             if (data.stat) {
-              if (typeof data.data === 'string') {
-                vm.showData = data.data
-              }else {
-                vm.showData = JSON.stringify(data.data)
-              }
+              vm.showTitle = data.title;
+              vm.dataTable = new ngTableParams({ count: 20 }, { counts: vm.countOptions, data: data.data.reverse() });
             }
           })
         } else {
+          vm.tableLoading = false;
           swal({ title: '获取URL地址失败', text: data.info, type: 'error' });
         }
       });
