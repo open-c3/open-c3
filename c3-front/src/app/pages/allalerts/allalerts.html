@@ -62,7 +62,7 @@
         </div>
 
         <div class="panel-body">
-            <div class="panel-tabs">
+            <div class="panel-tabs" style="overflow-x: auto;">
                 <table ng-table="allalerts.dataTable" class="table table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data" ng-class="{'first-almost': m.labels.severity === 'level1','second-almost': m.labels.severity === 'level2','third-almost': m.labels.severity === 'level3','forth-almost': m.labels.severity === 'level4'}">
                         <td header="'headerCheckbox.html'" data-title="">
@@ -88,7 +88,7 @@
  
                         <td class="textcenter"  data-title="'C3T.操作'|translate" width="200">
                            <button class="btn btn-primary btn-sm" ng-click="allalerts.openOneTab(m.generatorURL)">{{'C3T.查看图表'|translate}}</button>
-                           <button class="btn btn-primary btn-sm" ng-click="allalerts.tott(m)">{{'C3T.转工单'|translate}}</button>
+                           <button class="btn btn-primary btn-sm" ng-click="allalerts.tott(m)" style="margin: 3px;">{{'C3T.转工单'|translate}}</button>
                            <button class="btn btn-primary btn-sm" ng-click="allalerts.deal(m, 'single', [])">{{'C3T.认领'|translate}}</button>
                         </td>
                     </tr>

@@ -7,6 +7,8 @@ from aliyunsdkcore.client import AcsClient
 from aliyunsdkrds.request.v20140815.TagResourcesRequest import TagResourcesRequest
 from aliyunsdkrds.request.v20140815.RemoveTagsFromResourceRequest import RemoveTagsFromResourceRequest
 from aliyunsdkrds.request.v20140815.DescribeDBInstanceByTagsRequest import DescribeDBInstanceByTagsRequest
+from aliyunsdkrds.request.v20140815.DescribeRegionsRequest import DescribeRegionsRequest
+
 
 
 class LibAliyunRds:
@@ -55,3 +57,18 @@ class LibAliyunRds:
         request.set_DBInstanceId(instance_id)
         request.set_Tags({item["Key"]: item["Value"] for item in tag_list})
         return self.client.do_action_with_exception(request)
+
+    def describe_regions(self):
+        """查询可用的区域列表
+        """
+        request = DescribeRegionsRequest()
+        request.set_accept_format("json")
+        request.set_AcceptLanguage("zh-CN")
+        response = self.client.do_action_with_exception(request)
+
+        return list({
+            region_item["RegionId"]
+            for region_item in json.loads(str(response, encoding='utf-8'))["Regions"]["RDSRegion"]
+        })
+
+

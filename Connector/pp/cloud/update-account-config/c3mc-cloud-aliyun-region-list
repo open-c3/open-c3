@@ -8,6 +8,10 @@ from aliyunsdkcore.client import AcsClient
 from aliyunsdkcore.auth.credentials import AccessKeyCredential
 from aliyunsdkecs.request.v20140526.DescribeRegionsRequest import DescribeRegionsRequest
 
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_aliyun_redis import LibAliyunRedis
+from c3mc_cloud_aliyun_rds import LibAliyunRds
+
 
 class Aliyun:
     def __init__(self, access_id, access_key, resource_type):
@@ -42,6 +46,10 @@ class Aliyun:
 
         if self.resource_type == "oss":
             regions = ["cn-beijing"]
+        elif self.resource_type == "redis":
+            regions = LibAliyunRedis(self.access_id, self.access_key, "cn-hangzhou").describe_regions()
+        elif self.resource_type == "rds":
+            regions = LibAliyunRds(self.access_id, self.access_key, "cn-hangzhou").describe_regions()
         else:
             regions = self.list_ecs_regions()
 
