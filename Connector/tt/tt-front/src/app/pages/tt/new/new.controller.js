@@ -10,7 +10,7 @@
 
         var vm = this;
         var swal = $window.swal;
-        vm.personSelect = '默认配置';
+        vm.personSelect = '默认';
         vm.ticket = {
             "impact": 5
         };
@@ -154,12 +154,12 @@
             if (data.code === 200) {
               vm.personOption = data.data.map(function (item) {
                 if (item.target_user === '') {
-                  item.target_user = '默认配置'
+                  item.target_user = '默认'
                 }
                 return item
               })
               vm.personOption.unshift({
-                target_user: '自定义配置', 
+                target_user: '自定义', 
                 id: -1, 
                 impact:5, 
                 category:0,
@@ -169,7 +169,7 @@
                 group_user:0,
                 edit_user:''
               })
-              var itemToMove = vm.personOption.find(function(item) { return item.target_user === '默认配置' });
+              var itemToMove = vm.personOption.find(function(item) { return item.target_user === '默认' });
               vm.setTicket(itemToMove)
               if (itemToMove) {
                 var index = vm.personOption.indexOf(itemToMove)
@@ -186,11 +186,21 @@
         vm.getUserList();
 
         // 选择账号
-        vm.handlePersonChange = function () {
+        vm.handlePersonChange = function (value) {
+          vm.personSelect = value
           var selectItems = vm.personOption.find(function(item) { return item.target_user === vm.personSelect })
-           if (vm.personSelect !=='自定义配置') {
+           if (vm.personSelect !=='自定义') {
              vm.setTicket(selectItems)
            }
+        }
+
+        // 下拉框Change事件
+        vm.handleSelectChange = function (type, value) {
+          vm.ticket[type] = value
+          if (type === 'item') {
+            vm.item_change()
+          }
+          console.log(vm.ticket, type, value)
         }
 
         // submit
