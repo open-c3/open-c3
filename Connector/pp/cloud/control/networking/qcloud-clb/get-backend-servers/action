@@ -70,13 +70,12 @@ class ClbBackendServers:
         else:
             target_info = self.describe_target(clb_info["LoadBalancerId"])
             for listener in target_info.Listeners:
-                for rule in listener.Rules:
-                    for target in rule.Targets:
-                        if target.InstanceId in m:
-                            continue
-                        m[target.InstanceId] = {}
-                        result.append(target)
-        
+                for target in listener.Targets:
+                    if target.InstanceId in m:
+                        continue
+                    m[target.InstanceId] = {}
+                    result.append(target)
+    
         return result
 
     def show(self):
