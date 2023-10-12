@@ -1029,12 +1029,12 @@
 
                             //hide
                             angular.forEach($scope.jobVar, function (data, index) {
-                                if(data['show'] )
+                                if(data['show'])
                                 {
                                   // show为字符串数组
                                   if (typeof data['show'][0]  === 'string') {
                                     const showCondition = $scope.jobVar.find(item => item.name.includes(data['show']))
-                                    if (data['show'].includes(showCondition.value)) {
+                                    if (data['show'].includes(showCondition? showCondition.value: '')) {
                                       vm.selectxhide[data.name] = '1';
                                       data.value = "_openc3_hide_";
                                     }
