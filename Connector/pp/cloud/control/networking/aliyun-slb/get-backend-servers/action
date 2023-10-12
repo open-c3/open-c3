@@ -58,9 +58,13 @@ class SlbBackendServers:
                 continue
             m[item["ServerIp"]] = {}
 
-            public_ip = self.get_server_public_ip(item["ServerId"])
-            if public_ip is not None:
-                item["PublicIp"] = public_ip
+            # 解析后的有可能包含网卡 (ServerId以eni开头)。
+            # 这种情况暂时不做处理, 直接添加到返回结果
+            if item["ServerId"].startswith("i-"):
+                public_ip = self.get_server_public_ip(item["ServerId"])
+                if public_ip is not None:
+                    item["PublicIp"] = public_ip
+
             results.append(item)
         return results
 
