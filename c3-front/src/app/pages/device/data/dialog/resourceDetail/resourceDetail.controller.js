@@ -43,6 +43,8 @@
               }else {
                 vm.showData = JSON.stringify(data.data)
               }
+            } else {
+              swal({ title: '获取信息失败', text: data.info, type: 'error' });
             }
           })
         } else {
