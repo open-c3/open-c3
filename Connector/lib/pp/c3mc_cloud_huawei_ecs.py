@@ -83,10 +83,7 @@ class LibHuaweiEcs:
 
         request = BatchDeleteServerTagsRequest()
         request.server_id = instance_id
-        request.body = BatchDeleteServerTagsRequestBody(
-            tags=tag_list,
-            action="delete"
-        )
+        request.body = BatchDeleteServerTagsRequestBody(tags=tag_list, action="delete")
         return self.client.batch_delete_server_tags(request)
 
     def add_disk_tags(self, volume_id, tag_list):

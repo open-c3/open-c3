@@ -57,12 +57,7 @@ class LibAliyunEcs:
             instance_id (str): 实例id
             tag_list (list): 要添加的标签列表。格式为 [{"Key": "key1", "Value": "value1"}, {"Key": "key2", "Value": "value2"}]
         """
-        request = AddTagsRequest()
-        request.set_accept_format('json')
-        request.set_ResourceId(instance_id)
-        request.set_ResourceType("instance")
-        request.set_Tags(tag_list)
-        return self.client.do_action_with_exception(request)
+        return self._add_tags(instance_id, "instance", tag_list)
 
     def remove_tags(self, instance_id, tag_list):
         """给实例删除一个或多个标签
@@ -89,10 +84,13 @@ class LibAliyunEcs:
             disk_instance_id (str): 磁盘id
             tag_list (list): 要添加的标签列表。格式为 [{"Key": "key1", "Value": "value1"}, {"Key": "key2", "Value": "value2"}]
         """
+        return self._add_tags(disk_instance_id, "disk", tag_list)
+
+    def _add_tags(self, instance_id, instance_type, tag_list):
         request = AddTagsRequest()
         request.set_accept_format('json')
-        request.set_ResourceId(disk_instance_id)
-        request.set_ResourceType("disk")
+        request.set_ResourceId(instance_id)
+        request.set_ResourceType(instance_type)
         request.set_Tags(tag_list)
         return self.client.do_action_with_exception(request)
 
