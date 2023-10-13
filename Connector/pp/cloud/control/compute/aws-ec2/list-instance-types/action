@@ -1,0 +1,58 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+import boto3
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_aws_vpc import Vpc
+from c3mc_cloud_aws_ec2 import LIB_EC2
+
+
+def get_intance_types(account, region, az, architecture):
+    cmd_dict = {
+        "account": account,
+        "region": region,
+        "az": az,
+        "architecture": architecture,
+    }
+    cmd_str = json.dumps(cmd_dict)
+    resp = subprocess.run(
+        ["c3mc-ec2create-describe-instance-type-offerings"],
+        input=cmd_str.encode(),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
+    if resp.returncode != 0:
+        raise RuntimeError(f"获取实例类型失败: {resp.stderr.decode('utf-8').rstrip()}")
+    
+    return resp.stdout.decode("utf-8").strip()
+
+
+def get(data, access_id, access_key, region):
+    """
+    输出 aws ec2 的详情(json格式)
+    """
+
+    field_names = subprocess.getoutput(
+        "c3mc-cloud-get-real-field compute aws-ec2 account RegionId Placement.AvailabilityZone Architecture"
+    ).split()
+
+    data = get_intance_types(data[field_names[0]], data[field_names[1]], data[field_names[2]], data[field_names[3]])
+    for item in data.split("\n"):
+        print(json.loads(item)["instance_type"])
+
+
+def main(data, access_id, access_key, region):
+    get(data, access_id, access_key, region)
+
+
+if __name__ == "__main__":
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise RuntimeError("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4])

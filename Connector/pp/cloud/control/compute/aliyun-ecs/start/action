@@ -1,0 +1,35 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_aliyun_ecs import LibAliyunEcs
+
+
+def run(data, access_id, access_key, region):
+    """
+    启动ecs实例
+    """
+
+    field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field compute aliyun-ecs InstanceId"
+    )
+    instance_id = data[field_name]
+
+    LibAliyunEcs(access_id, access_key, region).start_instances([instance_id])
+
+
+def main(data, access_id, access_key, region):
+    run(data, access_id, access_key, region)
+
+
+if __name__ == "__main__":
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise RuntimeError("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4])

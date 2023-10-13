@@ -6,6 +6,8 @@ networking.aliyun-slb:
   tag-delete: networking/aliyun-slb/tag-delete
 compute.aliyun-ecs:
   get: compute/aliyun-ecs/get
+  start: compute/aliyun-ecs/start
+  stop: compute/aliyun-ecs/stop
   tag-add: compute/aliyun-ecs/tag-add
   tag-delete: compute/aliyun-ecs/tag-delete
 storage.aliyun-ecs-volume:
@@ -42,8 +44,13 @@ database.aws-dynamodb:
   tag-delete: database/aws-dynamodb/tag-delete
 compute.aws-ec2:
   get: compute/aws-ec2/get
+  start: compute/aws-ec2/start
+  stop: compute/aws-ec2/stop
+  modify_instance_type: compute/aws-ec2/modify_instance_type
   tag-add: compute/aws-ec2/tag-add
   tag-delete: compute/aws-ec2/tag-delete
+  # 查询ec2实例类型列表。根据当前ec2关联的账号、区域、可用区、架构等等信息进行查询
+  list-instance-types: compute/aws-ec2/list-instance-types
 storage.aws-ec2-volume:
   get: storage/aws-ec2-volume/get
   tag-add: storage/aws-ec2-volume/tag-add
@@ -70,6 +77,8 @@ networking.huawei-elb:
   get-backend-servers: networking/huawei-elb/get-backend-servers
 compute.huawei-ecs:
   get: compute/huawei-ecs/get
+  start: compute/huawei-ecs/start
+  stop: compute/huawei-ecs/stop
   tag-add: compute/huawei-ecs/tag-add
   tag-delete: compute/huawei-ecs/tag-delete
 database.huawei-rds:
@@ -113,6 +122,8 @@ storage.qcloud-cos:
   tag-delete: storage/qcloud-cos/tag-delete
 compute.qcloud-cvm:
   get: compute/qcloud-cvm/get
+  start: compute/qcloud-cvm/start
+  stop: compute/qcloud-cvm/stop
   tag-add: compute/qcloud-cvm/tag-add
   tag-delete: compute/qcloud-cvm/tag-delete
 database.qcloud-mongodb:

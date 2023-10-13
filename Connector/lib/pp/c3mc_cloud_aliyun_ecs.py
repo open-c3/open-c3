@@ -5,6 +5,8 @@
 from aliyunsdkcore.client import AcsClient
 from aliyunsdkecs.request.v20140526.AddTagsRequest import AddTagsRequest
 from aliyunsdkecs.request.v20140526.RemoveTagsRequest import RemoveTagsRequest
+from aliyunsdkecs.request.v20140526.StopInstanceRequest import StopInstanceRequest
+from aliyunsdkecs.request.v20140526.StartInstanceRequest import StartInstanceRequest
 
 
 class LibAliyunEcs:
@@ -16,6 +18,37 @@ class LibAliyunEcs:
 
     def create_client(self):
         return AcsClient(self.access_id, self.access_key, self.region)
+    
+    def stop_instances(self, instance_ids):
+        """停止一个或多个实例
+
+        Args:
+            instance_ids (list): 实例id列表
+        """
+        if not isinstance(instance_ids, list):
+            raise RuntimeError("instance_ids 变量必须是列表类型")
+        
+        for instance_id in instance_ids:
+            request = StopInstanceRequest()
+            request.set_accept_format('json')
+            request.set_InstanceId(instance_id)
+            self.client.do_action_with_exception(request)
+
+
+    def start_instances(self, instance_ids):
+        """启动一个或多个实例
+
+        Args:
+            instance_ids (list): 实例id列表
+        """
+        if not isinstance(instance_ids, list):
+            raise RuntimeError("instance_ids 变量必须是列表类型")
+        
+        for instance_id in instance_ids:
+            request = StartInstanceRequest()
+            request.set_accept_format('json')
+            request.set_InstanceId(instance_id)
+            self.client.do_action_with_exception(request)
 
     def add_tags(self, instance_id, tag_list):
         """给实例添加一个或多个标签
