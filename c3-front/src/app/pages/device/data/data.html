@@ -137,7 +137,7 @@
                           <div class="cmdb-control-flex">
                             <div ng-repeat="c in m.control" class="cmdb-control-repeat">
                               <div ng-if="devicedata.operateMap[c.type]" class="cmdb-control-icon" uib-tooltip="{{'C3T.' + c.name|translate}}"   ng-click="devicedata.show( m.uuid, m.type, m.subtype, c)">
-                                <img ng-src="{{devicedata.operateMap[c.type]}}" ng-alt="{{'C3T.' + c.name|translate}}"
+                                <img ng-src="{{c.type === 'table'? devicedata.tableClassificationMap[c.name]: devicedata.operateMap[c.type]}}" ng-alt="{{'C3T.' + c.name|translate}}"
                                   class="cmdb-control-icon-image">
                               </div>
                               <div ng-if="!devicedata.operateMap[c.type]">
