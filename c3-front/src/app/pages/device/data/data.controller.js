@@ -66,6 +66,10 @@
           modal: '/assets/images/cmdb-detail.png',
           table: '/assets/images/cmdb-table.png',
         }
+
+        vm.tableClassificationMap =  {
+          '后端机器': '/assets/images/cmdb-server.png',
+        }
         vm.tablePageSize = 200
 
         vm.pageSizeOption = [20, 30, 50, 100, 200];
