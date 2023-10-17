@@ -24,6 +24,10 @@
 #  server 127.0.0.1:9020;
 #}
 
+#upstream ci_api_cislave_192.168.1.111 {
+#  server 192.168.1.111;
+#}
+
 server {
     listen       80;
     server_name  api.ci.open-c3.org;
@@ -32,6 +36,20 @@ server {
     location  ^~  /slave/ {
         rewrite /slave/([0-9a-z\.-]+)/(.+)$ /$2 break;
         proxy_pass http://ci_api_slave_$1;
+
+        proxy_redirect    off;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Host $host:$server_port;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+    }
+
+    location  ^~  /cislavenode/ {
+        rewrite /cislavenode/([0-9a-z\.-]+)/(.+)$ /api/ci/$2 break;
+        proxy_pass http://ci_api_cislave_$1;
 
         proxy_redirect    off;
         proxy_set_header X-Real-IP $remote_addr;
