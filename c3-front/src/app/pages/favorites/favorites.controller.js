@@ -87,7 +87,14 @@
             });
         };
 
-        vm.showlog = function(versionuuid,slave){
+        vm.showlog = function(versionuuid,slave,cislave){
+            vm.cislavestr = '';
+            if( cislave != 'master' )
+            {
+                slave = 'openc3-srv-docker'
+                vm.cislavestr = '/cislavenode/' + cislave;
+            }
+
             $uibModal.open({
                 templateUrl: 'app/pages/quickentry/flowline/showlog.html',
                 controller: 'CiShowLogController',
@@ -100,7 +107,8 @@
                     nodeStr: function () { return vm.nodeStr },
                     reloadhome: function () { return vm.reload },
                     versionuuid: function () { return versionuuid },
-                    slave: function () { return slave }
+                    slave: function () { return slave },
+                    cislavestr: function () {return vm.cislavestr}
                 }
             });
         };
