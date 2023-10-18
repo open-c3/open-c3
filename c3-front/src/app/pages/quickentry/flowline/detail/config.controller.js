@@ -554,6 +554,12 @@
         };
 //        vm.getJobInfo(vm.treeid);
 
+        vm.handleSlave = function(){
+          if (vm.autobuild) {
+            vm.autobuild = false;
+            toastr.warning("自动构建已关闭")
+          }
+        }
 
     $scope.showIPstr = { 'test': [], 'online': [] };
     vm.loadNodeInfo = function(envname)
