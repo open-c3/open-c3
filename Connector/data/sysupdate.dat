@@ -1003,3 +1003,11 @@ CREATE TABLE IF NOT EXISTS openc3_tt_person_pre_config_params (
 
 # v2.6.0 sql openc3_ci_project add cislave
 ALTER TABLE openc3_ci_project ADD `cislave` VARCHAR(20) DEFAULT 'master' comment 'ci执行的slave';
+
+# v2.6.0 sql openc3_ci_cislave_change create
+create table if not exists `openc3_ci_cislave_change`(
+`id`        int(16) unsigned not null primary key auto_increment comment 'id',
+`projectid`  VARCHAR(20)   comment '项目id',
+`slavename`  VARCHAR(20)   comment 'slave的名字',
+UNIQUE KEY `uniq_projectid_slavename` (`projectid`,`slavename`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='cislave变更记录';

@@ -177,6 +177,13 @@ post '/project/:groupid/:projectid' => sub {
     eval{ $api::auditlog->run( user => $user, title => 'EDIT FLOWLINE CI', content => "TREEID:$param->{groupid} FLOWLINEID:$projectid NAME:$param->{name}" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
+    eval{ 
+        my $xx = $api::mysql->query( "select cislave from openc3_ci_project where id='$projectid'" ); 
+        $api::mysql->execute( "replace into openc3_ci_cislave_change (`projectid`,`slavename` ) values( '$projectid','$param->{cislave}' )" )
+            if $xx && @$xx && $xx->[0][0] ne $param->{cislave};
+    };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my @col = qw( 
         status autobuild name excuteflow calljobx calljob
         webhook webhook_password webhook_release rely buildimage buildscripts buildcachepath
