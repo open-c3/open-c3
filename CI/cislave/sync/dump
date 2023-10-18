@@ -1,0 +1,15 @@
+#!/bin/bash
+
+set -e
+
+docker exec openc3-mysql mysqldump -uroot -popenc3123456^! ci \
+                            openc3_ci_project  \
+                            openc3_ci_images  \
+                            openc3_ci_ticket > ci.sql
+
+
+docker exec openc3-mysql mysqldump -uroot -popenc3123456^! connector \
+                            openc3_connector_userinfo  \
+                            openc3_connector_userauth  \
+                            openc3_connector_tree > connector.sql
+

@@ -1,0 +1,66 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+
+use MYDan::Util::OptConf;
+use YAML::XS;
+use Data::Dumper;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $slave = YAML::XS::LoadFile "/data/Software/mydan/CI/cislave/conf/slave.yml";
+
+system "./dump";
+
+system "cd /data/Software/mydan/CI && tar -zcvf cislave.tar.gz cislave";
+sub syncone
+{
+    my $host = shift @_;
+    print "host: $host\n";
+    system "/data/Software/mydan/dan/tools/rcall -r '$host'  dump  /data/Software/mydan/CI/cislave.tar.gz  --path /data/open-c3/CI/cislave.tar.gz";
+    system "/data/Software/mydan/dan/tools/rcall -r '$host'  exec 'cd /data/open-c3/CI && tar -zxvf cislave.tar.gz'";
+    system "/data/Software/mydan/dan/tools/rcall -r '$host'  exec 'cd /data/open-c3/CI/cislave/sync &&  ./load'";
+}
+
+my $docker_image_mark_dir = '/data/open-c3-data/cislave/docker-image-mark';
+system( "mkdir -p '$docker_image_mark_dir'" ) unless -d $docker_image_mark_dir;
+
+sub syncimage
+{
+    my $host = shift @_;
+    for my $file ( glob "/data/open-c3-data/glusterfs/dockerimage/*" )
+    {
+        next unless -f $file;
+        my $name = File::Basename::basename( $file );
+        next unless $name =~ /^\d+$/;
+
+        my $mark = "$docker_image_mark_dir/$host.$name";
+        next if -f $mark;
+        my $x = `/data/Software/mydan/dan/tools/rcall --timeout 86400 --verbose -r '$host'  dump '$file'`;
+        if( $? )
+        {
+            warn "dump $file to $host fail";
+            next;
+        }
+        unless( $x && $x =~ /:ok/ )
+        {
+            warn "dump $file to $host fail";
+            next;
+        }
+        system "touch '$mark'";
+
+    }
+}
+
+for my $s ( @$slave )
+{
+    next unless my $host = $s->{host};
+    syncone(   $host );
+    syncimage( $host );
+}
+
