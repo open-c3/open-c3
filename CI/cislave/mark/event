@@ -8,9 +8,12 @@ use MYDB;
 
 =head1 SYNOPSIS
 
- $0
+ $0 projectid
 
 =cut
+
+my $projectid = shift @ARGV;
+die "projectid error" unless defined $projectid && $projectid =~ /^\d+$/;
 
 unless( -f '/data/Software/mydan/CI/cislave/conf/master.yml' )
 {
@@ -29,7 +32,7 @@ if( -f $mynamefile )
     die "myname $myname format error" unless $myname && $myname =~ /^\d+\.\d+\.\d+\.\d+$/;
 }
 
-my $x = eval{ $db->query( "select id from openc3_ci_cislave_change_event where slavename='$myname' and id not in(select eventid from openc3_ci_cislave_change_done)" ); };
+my $x = eval{ $db->query( "select id from openc3_ci_cislave_change_event where slavename='$myname' and projectid='$projectid' and id not in(select eventid from openc3_ci_cislave_change_done)" ); };
 die "get data from db err:$@" if $@;
 
 printf "%d\n", scalar @$x;
