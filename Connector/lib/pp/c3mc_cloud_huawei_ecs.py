@@ -23,10 +23,43 @@ class LibHuaweiEcs:
     def create_client(self):
         credentials = BasicCredentials(self.access_id, self.access_key, self.project_id)
 
-        return EcsClient.new_builder() \
-            .with_credentials(credentials) \
-            .with_region(EcsRegion.value_of(self.region)) \
+        return (
+            EcsClient.new_builder()
+            .with_credentials(credentials)
+            .with_region(EcsRegion.value_of(self.region))
             .build()
+        )
+
+    def stop_instances(self, instance_ids):
+        """停止一个或多个实例
+
+        Args:
+            instance_ids (list): 实例id列表
+        """
+        if not isinstance(instance_ids, list):
+            raise RuntimeError("instance_ids 变量必须是列表类型")
+
+        request = BatchStopServersRequest()
+        listServersOsstop = [ServerId(id=instance_id) for instance_id in instance_ids]
+        osstopbody = BatchStopServersOption(servers=listServersOsstop)
+        request.body = BatchStopServersRequestBody(os_stop=osstopbody)
+        return self.client.batch_stop_servers(request)
+
+    def start_instances(self, instance_ids):
+        """启动一个或多个实例
+
+        Args:
+            instance_ids (list): 实例id列表
+        """
+        if not isinstance(instance_ids, list):
+            raise RuntimeError("instance_ids 变量必须是列表类型")
+        
+        request = BatchStartServersRequest()
+        listServersOsstop = [ServerId(id=instance_id) for instance_id in instance_ids]
+        osstopbody = BatchStartServersOption(servers=listServersOsstop)
+        request.body = BatchStartServersRequestBody(os_start=osstopbody)
+        return self.client.batch_start_servers(request)
+
 
     def add_tags(self, instance_id, tag_list):
         """给实例添加一个或多个标签
@@ -50,10 +83,7 @@ class LibHuaweiEcs:
 
         request = BatchDeleteServerTagsRequest()
         request.server_id = instance_id
-        request.body = BatchDeleteServerTagsRequestBody(
-            tags=tag_list,
-            action="delete"
-        )
+        request.body = BatchDeleteServerTagsRequestBody(tags=tag_list, action="delete")
         return self.client.batch_delete_server_tags(request)
 
     def add_disk_tags(self, volume_id, tag_list):

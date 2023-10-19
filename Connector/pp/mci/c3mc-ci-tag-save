@@ -36,6 +36,23 @@ sub vcount
     return $vcount{$projectid} = $x->[0][0];
 }
 
+my %cislaveeventcount;
+sub cislaveeventcount
+{
+    my $projectid = shift @_;
+
+    # 可以去掉，为了更高效。没有配置cislave的c3就直接跳过了
+    return 0 unless -f '/data/Software/mydan/CI/cislave/conf/master.yml';
+
+    return $cislaveeventcount{$projectid} if defined $cislaveeventcount{$projectid};
+
+    my $cislaveeventcont = `/data/Software/mydan/CI/cislave/mark/event '$projectid'`;
+    chomp $cislaveeventcont;
+    die "get cislaveeventcont fail" unless defined $cislaveeventcont && $cislaveeventcont =~ /^\d+$/;
+
+    return $cislaveeventcount{$projectid} = $cislaveeventcont;
+}
+
 sub save
 {
     my ( $id, $version ) = split /;/, shift , 2;
@@ -70,6 +87,9 @@ sub save
     ( $status, $reason ) = ( 'done', 'sys@app sysctl.ci.autobuild off' ) unless $autobuild && $autobuild eq '1';
     ( $status, $reason ) = ( 'done', 'sys@app c3.maintain' ) if -f '/data/Software/mydan/Connector/c3.maintain';
 
+    my $cislaveeventcont = cislaveeventcount( $id );
+    ( $status, $reason ) = ( 'done', 'sys@app cislave init' ) if $status ne 'done' && $cislaveeventcont > 0;
+
     my $uuid = uuid->new()->create_str;
     eval{ $db->execute( "insert into openc3_ci_version (`projectid`,`name`,`status`,`calltype`,`user`,`uuid`,`slave`,`reason`) 
             values('$id','$version','$status','findtags','crontab','$uuid','','$reason')" ); };       
@@ -86,4 +106,11 @@ if( @ARGV )
 else
 {
     while(<STDIN>){ chomp; save($_); }
+}
+
+for my $projectid ( keys %cislaveeventcount )
+{
+    my $eventcont = $cislaveeventcount{$projectid};
+    next unless $eventcont;
+    system "/data/Software/mydan/CI/cislave/mark/reset '$projectid'";
 }

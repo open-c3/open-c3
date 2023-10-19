@@ -1,0 +1,49 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use MYDan::Util::OptConf;
+use Encode;
+use LWP::UserAgent;
+use JSON;
+
+=head1 SYNOPSIS
+
+ $0 uuid
+
+=cut
+
+my $option = MYDan::Util::OptConf->load();
+my %o = $option->set()->get()->dump();
+$option->assert() unless @ARGV;
+
+my $masterconf = YAML::XS::LoadFile "/data/Software/mydan/CI/cislave/conf/master.yml";
+
+my $ua = LWP::UserAgent->new;
+$ua->timeout( 30 );
+$ua->default_header( %{$masterconf->{env}} ) if $masterconf->{env};
+
+my $url = "$masterconf->{addr}/api/ci/v2/c3mc/cislave/c3mc-jobx-task-stat";
+
+my $cont = JSON::encode_json( +{ uuid => $ARGV[0] } );
+my $res = $ua->post( $url, Content => $cont, 'Content-Type' => 'application/json' );
+
+my $error = Encode::decode( 'utf8', $res->content // '' ) . Encode::decode( 'utf8', YAML::XS::Dump $res );
+
+my $err = sprintf "call url fail: $url\n%s\n", $error;
+$err =~ s/appkey:\s+['"]?[a-zA-Z0-9]+['"]?\b/appkey: ******/g;
+
+die sprintf( "$err: code %s", $res->code ) unless $res->is_success;
+
+my $v = eval{JSON::decode_json $res->decoded_content};
+die sprintf( "$err: data no JSON: $@" )if $@;
+
+die $err unless $v->{stat};
+
+print "$v->{data}\n";

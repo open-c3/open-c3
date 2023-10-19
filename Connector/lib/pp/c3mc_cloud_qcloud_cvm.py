@@ -54,36 +54,36 @@ class QcloudCvm:
     def run_instances(self, request):
         return self.cvm_client.RunInstances(request)
 
-    def stop_instances(self, instance_id):
+    def stop_instances(self, instance_ids):
         """停止实例
 
         Args:
-            instance_id (str): cvm实例id
+            instance_ids (list): 实例id列表
         """
         req = cvm_models.StopInstancesRequest()
         params = {
-            "InstanceIds": [instance_id]
+            "InstanceIds": instance_ids
         }
         req.from_json_string(json.dumps(params))
 
         res = self.cvm_client.StopInstances(req)
-        print(f"停止实例: {instance_id}, 响应: {res.to_json_string()}")
+        print(f"停止实例: {' '.join(instance_ids)}, 响应: {res.to_json_string()}")
         return res
 
-    def start_instances(self, instance_id):
+    def start_instances(self, instance_ids):
         """启动实例
 
         Args:
-            instance_id (str): cvm实例id
+            instance_ids (list): 实例id列表
         """
         req = cvm_models.StartInstancesRequest()
         params = {
-            "InstanceIds": [instance_id]
+            "InstanceIds": instance_ids
         }
         req.from_json_string(json.dumps(params))
 
         res = self.cvm_client.StartInstances(req)
-        print(f"启动实例: {instance_id}, 响应: {res.to_json_string()}")
+        print(f"启动实例: {' '.join(instance_ids)}, 响应: {res.to_json_string()}")
         return res
     
     def reset_instances_type(self, instance_ids, instance_type):
@@ -123,12 +123,13 @@ class QcloudCvm:
                     return False
                 else:
                     time.sleep(5)
-
         
-        if self.show_cvm(instance_id)["InstanceState"] in ["SHUTDOWN", "TERMINATING"]:
+        cvm_info = self.show_cvm(instance_id)
+        
+        if cvm_info["InstanceState"] in ["SHUTDOWN", "TERMINATING"]:
             return
         
-        if self.show_cvm(instance_id)["InstanceState"] != "STOPPED":
+        if cvm_info["InstanceState"] != "STOPPED":
             self.stop_instances(instance_id)
 
         # 获取实例磁盘信息

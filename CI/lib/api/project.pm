@@ -75,6 +75,7 @@ get '/project/:groupid/:projectid' => sub {
         saveasdir gitclonebycache
         nomail nomesg
         notifyci notifycd
+        cislave
         );
     my $r = eval{ 
         $api::mysql->query( 
@@ -127,6 +128,7 @@ post '/project/:groupid/:projectid' => sub {
         notify => [ 'mismatch', qr/'/ ], 0,
         notifyci => [ 'mismatch', qr/'/ ], 0,
         notifycd => [ 'mismatch', qr/'/ ], 0,
+        cislave => [ 'mismatch', qr/'/ ], 0,
         tag_regex => [ 'mismatch', qr/'/ ], 0,
         autofindtags => qr/^\d+$/, 1,
         callonlineenv => qr/^\d+$/, 1,
@@ -175,6 +177,13 @@ post '/project/:groupid/:projectid' => sub {
     eval{ $api::auditlog->run( user => $user, title => 'EDIT FLOWLINE CI', content => "TREEID:$param->{groupid} FLOWLINEID:$projectid NAME:$param->{name}" ); };
     return +{ stat => $JSON::false, info => $@ } if $@;
 
+    eval{ 
+        my $xx = $api::mysql->query( "select cislave from openc3_ci_project where id='$projectid'" ); 
+        $api::mysql->execute( "replace into openc3_ci_cislave_change_event (`projectid`,`slavename` ) values( '$projectid','$param->{cislave}' )" )
+            if $xx && @$xx && $xx->[0][0] ne $param->{cislave};
+    };
+    return +{ stat => $JSON::false, info => $@ } if $@;
+
     my @col = qw( 
         status autobuild name excuteflow calljobx calljob
         webhook webhook_password webhook_release rely buildimage buildscripts buildcachepath
@@ -187,6 +196,7 @@ post '/project/:groupid/:projectid' => sub {
         saveasdir gitclonebycache
         nomail nomesg
         notifyci notifycd
+        cislave
     );
     eval{ 
         $api::mysql->execute(

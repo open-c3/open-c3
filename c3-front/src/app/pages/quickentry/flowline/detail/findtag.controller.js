@@ -5,7 +5,7 @@
         .module('openc3')
         .controller('FindTagController', FindTagController);
 
-    function FindTagController($uibModalInstance, $location, $anchorScroll, $state, $http, $uibModal, treeService, ngTableParams, resoureceService, $websocket, $injector, $interval, $scope ) {
+    function FindTagController($uibModalInstance, $location, $anchorScroll, $state, $http, $uibModal, treeService, ngTableParams, resoureceService, $websocket, $injector, $interval, $scope, cislavestr ) {
 
         var vm = this;
         vm.treeid = $state.params.treeid;
@@ -26,7 +26,13 @@
             {
                 wsH = "wss://"
             }
-            var urlMySocket = wsH + vm.siteaddr + "/api/ci/slave/"+ vm.project.slave +"/ws?uuid="+ vm.projectid;
+
+            var slavename = vm.project.slave;
+            if( cislavestr )
+            {
+                slavename = 'openc3-srv-docker';
+            }
+            var urlMySocket = wsH + vm.siteaddr + "/api/ci" + cislavestr + "/slave/"+ slavename  +"/ws?uuid="+ vm.projectid;
             vm.ws = $websocket(urlMySocket);
 
             vm.logDetail = '';
@@ -67,7 +73,7 @@
         });
 
         vm.reloadprojectinfo = function(){
-            $http.get('/api/ci/project/' + vm.treeid + '/' + vm.projectid ).success(function(data){
+            $http.get('/api/ci' + cislavestr + '/project/' + vm.treeid + '/' + vm.projectid ).success(function(data){
                 if(data.stat == true) 
                 { 
                     vm.project = data.data;
@@ -85,7 +91,7 @@
         vm.loadfindtags_at_onceover = true;
         vm.findtags_at_once = function(){
             vm.loadfindtags_at_onceover = false;
-            $http.put('/api/ci/project/' + vm.treeid + '/' + vm.projectid + '/findtags_at_once' ).success(function(data){
+            $http.put('/api/ci' + cislavestr +'/project/' + vm.treeid + '/' + vm.projectid + '/findtags_at_once' ).success(function(data){
                 if(data.stat == true) 
                 {
                     vm.loadfindtags_at_onceover = true;

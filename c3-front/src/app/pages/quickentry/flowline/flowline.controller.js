@@ -18,8 +18,8 @@
 
         $scope.panelcolor = { "success": "green", "fail": "red", "refuse": "orange",  "running": "#98b2bc", "decision": "#aaa", "ignore": "#aaa" }
 
-        vm.versiondetail = function (id) {
-            $state.go('home.quickentry.flowlinedetail', {treeid:vm.treeid, projectid: id});
+        vm.versiondetail = function (id,cislave) {
+            $state.go('home.quickentry.flowlinedetail', {treeid:vm.treeid, projectid: id, cislave: "cislave" });
         };
 
         vm.editconfig = function (id,name) {
@@ -72,7 +72,8 @@
                     nodeStr: function () { return vm.nodeStr },
                     reloadhome: function () { return vm.reload },
                     versionuuid: function () { return versionuuid },
-                    slave: function () { return slave }
+                    slave: function () { return slave },
+                    cislavestr: function () {return ''},
                 }
             });
         };

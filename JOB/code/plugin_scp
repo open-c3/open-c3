@@ -143,9 +143,16 @@ return sub
         my $tv; eval { $tv = variable->new( variable => $variable, db => $db, jobuuid => $fromjob )->get( 'version' ); };
         $logs->die( "get version from variable fail:$@" ) if $@;
 
-        my $x = `c3mc-base-db-get status --table openc3_ci_version --filter "projectid=$src and name='$tv'"`;
-        chomp $x;
-        $logs->die( "the version no success on ci" ) unless $x && ( $x eq 'success' || $x eq 'running' );
+        my $cislave = `c3mc-base-db-get cislave --table openc3_ci_project --filter "id=$src"`;
+        chomp $cislave;
+        print "cislave: $cislave\n";
+
+        unless( $cislave && $cislave ne 'master' )
+        {
+            my $x = `c3mc-base-db-get status --table openc3_ci_version --filter "projectid=$src and name='$tv'"`;
+            chomp $x;
+            $logs->die( "the version no success on ci" ) unless $x && ( $x eq 'success' || $x eq 'running' );
+        }
 
         #my $slave = $data->{data}{slave};
         #my $hostname = Sys::Hostname::hostname;
@@ -155,6 +162,12 @@ return sub
         #
         @src = ();
         $sp = "/data/glusterfs/ci_repo/$src/$tv";
+
+        if( $cislave && $cislave ne 'master' )
+        {
+            @src = ( $cislave );
+            $sp = "/data/open-c3-data/glusterfs/ci_repo/$src/$tv";
+        }
     }
     elsif( $src_type eq 'builtin' )
     {

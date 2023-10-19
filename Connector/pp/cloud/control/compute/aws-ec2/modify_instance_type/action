@@ -1,0 +1,44 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import sys
+import json
+import subprocess
+
+
+sys.path.append("/data/Software/mydan/Connector/lib/pp")
+from c3mc_cloud_aws_ec2 import LIB_EC2
+
+
+def run(data, access_id, access_key, region):
+    """
+    修改ec2实例类型
+    """
+    field_name = subprocess.getoutput(
+        "c3mc-cloud-get-real-field compute aws-ec2 InstanceId"
+    )
+    instance_id = data[field_name]
+
+    lib_client = LIB_EC2(access_id, access_key, region)
+    lib_client.stop_instances([instance_id])
+    lib_client.wait_ec2_until_status(instance_id, "stopped")
+    lib_client.modify_instance_attribute({
+        "InstanceId": instance_id,
+        "InstanceType": {
+            'Value': data["_control_"]["arguments"]["new_instance_type"]
+        },
+    })
+    lib_client.start_instances([instance_id])
+
+
+def main(data, access_id, access_key, region):
+    data = run(data, access_id, access_key, region)
+    print(json.dumps(data, default=str))
+
+
+if __name__ == "__main__":
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise RuntimeError("数据格式不对, 需要一行json字符串")
+
+    main(json.loads(l[0]), sys.argv[2], sys.argv[3], sys.argv[4])

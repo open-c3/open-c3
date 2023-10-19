@@ -4,7 +4,7 @@
         .module('openc3')
         .controller('CiShowLogController', CiShowLogController);
 
-    function CiShowLogController($uibModalInstance, $http, $state, nodeStr, ngTableParams, reloadhome, versionuuid, slave, $websocket, $injector, $scope, $sce, $timeout, $interval ) {
+    function CiShowLogController($uibModalInstance, $http, $state, nodeStr, ngTableParams, reloadhome, versionuuid, slave, $websocket, $injector, $scope, $sce, $timeout, $interval, cislavestr ) {
 
         var vm = this;
         vm.nodeStr = nodeStr;
@@ -25,7 +25,7 @@
             {
                 wsH = "wss://"
             }
-            var urlMySocket = wsH + vm.siteaddr + "/api/ci/slave/"+ slave +"/ws?uuid="+ versionuuid;
+            var urlMySocket = wsH + vm.siteaddr + "/api/ci" + cislavestr + "/slave/"+ slave +"/ws?uuid="+ versionuuid;
  
              vm.ws = $websocket(urlMySocket);
              vm.logDetail = '';

@@ -40,7 +40,7 @@ class CvmRecycle:
         # 停止实例
         if recycle_type.lower() == "stop":
             lib_cvm = QcloudCvm(self.access_id, self.access_key, self.region)
-            lib_cvm.stop_instances(instance_identifier)
+            lib_cvm.stop_instances([instance_identifier])
             print(f"LOG. 成功停止实例: {instance_identifier}")
 
         # 删除实例

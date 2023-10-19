@@ -1,0 +1,56 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+binmode STDIN,  ':utf8';
+binmode STDOUT, ':utf8';
+binmode STDERR, ':utf8';
+
+$|++;
+
+use FindBin qw( $RealBin );
+use YAML::XS;
+use Encode;
+
+=head1 SYNOPSIS
+
+ $0 id1 id2 ... idn
+
+=cut
+
+my $f = '/data/Software/mydan/CI/cislave/conf/myname';
+
+my $myname = 'master';
+
+if( -f $f )
+{
+    my $x = `cat $f`;
+    chomp $x;
+    $myname = $x =~ /^[0-9\.]+$/ ? $x : "unknown";
+}
+
+my @x = `c3mc-base-db-get -table openc3_ci_project id -f "cislave='$myname'"`; chomp @x;
+my %idx = map{ $_ => 1 }@x;
+
+sub taskgrep
+{
+    my $str = shift @_;
+    my $id = $str =~ /^(\d+);/ ? $1 : $str;
+    unless( $id =~ /^\d+$/ )
+    {
+        warn "id err";
+        return;
+    }
+    
+    print "$str\n" if $idx{$id};
+}
+
+if( @ARGV )
+{
+    map{ taskgrep($_) }@ARGV;
+}
+else
+{
+    while(<STDIN>){ chomp; taskgrep($_); }
+}
+

@@ -20,6 +20,8 @@
         });
         $scope.panelcolor = { "success": "green", "fail": "red", "refuse": "orange", "running": "#98b2bc", "decision": "#aaa", "ignore": "#aaa", "ready": "#aaa" }
 
+        vm.cislavestr = '';
+
         vm.showEditLog = function () {
             $uibModal.open({
                 templateUrl: 'app/pages/quickentry/flowline/detail/log.html',
@@ -48,6 +50,7 @@
                 resolve: {
                     treeid: function () {return vm.treeid},
                     projectid: function () {},
+                    cislavestr: function () {return vm.cislavestr},
                 }
             });
         };
@@ -55,7 +58,7 @@
         vm.versionlist = [];
         vm.reload = function(limit){
             vm.loadover = false;
-            $http.get('/api/ci/version/' + vm.treeid + '/' + vm.projectid + '?limit=' + limit ).success(function(data){
+            $http.get('/api/ci' + vm.cislavestr + '/version/' + vm.treeid + '/' + vm.projectid + '?limit=' + limit ).success(function(data){
                 if(data.stat == true) 
                 { 
                     vm.versionlist = [];
@@ -78,7 +81,7 @@
         };
 
         vm.stop = function(){
-            $http.put('api/ci/version/' + vm.treeid + '/' + vm.projectid + '/stop_project').success(function(data){
+            $http.put('api/ci' + vm.cislavestr + '/version/' + vm.treeid + '/' + vm.projectid + '/stop_project').success(function(data){
                 if (data.stat == true) {
                     swal({ title: "停止成功!", type:'success' });
                     vm.reload();
@@ -88,7 +91,7 @@
             });
         };
 
-        vm.reload();
+//        vm.reload();
 
         vm.reloadprojectinfo = function(){
             vm.k8sname = [];
@@ -100,6 +103,14 @@
                     {
                         vm.k8sname = vm.project.ci_type_name.split(",");
                     }
+
+                    if ( vm.project.cislave != 'master' )
+                    {
+                        vm.cislavestr = '/cislavenode/' + vm.project.cislave;
+                    }
+
+                    vm.reload();
+
                 } else {
                     toastr.error( "加载项目信息失败:" + data.info )
                 }
@@ -122,7 +133,8 @@
                     nodeStr: function () { return vm.nodeStr },
                     reloadhome: function () { return vm.reload },
                     versionuuid: function () { return versionuuid },
-                    slave: function () { return slave }
+                    slave: function () { return slave },
+                    cislavestr: function () {return vm.cislavestr},
                 }
             });
         };
@@ -137,7 +149,7 @@
             confirmButtonText: "确定",
             closeOnConfirm: true
           }, function(){
-            $http.put('/api/ci/version/' + vm.treeid + '/' + vm.projectid + '/' + uuid + '/build' ).success(function(data){
+            $http.put('/api/ci' + vm.cislavestr + '/version/' + vm.treeid + '/' + vm.projectid + '/' + uuid + '/build' ).success(function(data){
                 if(data.stat == true) 
                 { 
                     vm.reload();
@@ -159,7 +171,7 @@
             confirmButtonText: "确定",
             closeOnConfirm: true
           }, function(){
-            $http.put('/api/ci/slave/' + slave + '/killbuild/' + uuid  ).success(function(data){
+            $http.put('/api/ci' + vm.cislavestr + '/slave/' + slave + '/killbuild/' + uuid  ).success(function(data){
                 if(data.stat == true) 
                 { 
                     vm.reload();

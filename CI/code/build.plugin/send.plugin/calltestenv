@@ -36,7 +36,9 @@ return sub
         $tagger = 'unknown';
     }
 
-    my $uuid = `c3mc-jobx-task-run $groupid $jobname $jobgroup --user ci\@app --variablekv version=$version,_jobtype_=test,_exit_=1,tagger=$tagger`;
+    my $tomaster = -f '/data/Software/mydan/CI/cislave/conf/myname' ? '-to-master' : '';
+
+    my $uuid = `c3mc-jobx-task-run$tomaster $groupid $jobname $jobgroup --user ci\@app --variablekv version=$version,_jobtype_=test,_exit_=1,tagger=$tagger`;
     chomp $uuid;
     $logs->die( "deploy test env fail" ) unless $uuid && $uuid =~ /^[a-zA-Z0-9]{12}$/;
 
@@ -47,7 +49,7 @@ return sub
     while(1)
     {
 
-        my $status = `c3mc-jobx-task-stat $uuid`;
+        my $status = `c3mc-jobx-task-stat$tomaster $uuid`;
         chomp $status;
         return if $status eq 'success';
 

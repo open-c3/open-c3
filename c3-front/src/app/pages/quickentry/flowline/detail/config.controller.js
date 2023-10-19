@@ -116,6 +116,22 @@
 
         vm.reloadimage();
 
+        vm.cislavenode = [];
+        vm.reloadcislave = function(){
+            $http.get('/api/ci/cislave/node').success(function(data){
+                if( data.stat )
+                {
+                     vm.cislavenode = data.data;
+                }
+                else
+                {
+                    toastr.error( "加载cislave失败:" + data.info )
+                }
+            });
+        };
+
+        vm.reloadcislave();
+
         vm.ticketinfoall = [];
         vm.ticketinfogit = [];
         vm.ticketinfok8s = [];
@@ -538,6 +554,12 @@
         };
 //        vm.getJobInfo(vm.treeid);
 
+        vm.handleSlave = function(){
+          if (vm.autobuild) {
+            vm.autobuild = false;
+            toastr.warning("自动构建已关闭")
+          }
+        }
 
     $scope.showIPstr = { 'test': [], 'online': [] };
     vm.loadNodeInfo = function(envname)

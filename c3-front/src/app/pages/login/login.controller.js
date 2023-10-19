@@ -9,7 +9,7 @@
         var vm = this;
         var toastr = toastr || $injector.get('toastr');
         vm.callback = sessionStorage.getItem('logoutRouter') ? sessionStorage.getItem('logoutRouter') : $location.search()['callback'];
-        vm.post
+        vm.post = {}
         vm.logining
         vm.mfakey = '';
         vm.mfa    = '';

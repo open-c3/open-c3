@@ -51,7 +51,7 @@
                               </div>
                         </td>
                         <td data-title="'C3T.构建状态'|translate">
-                                <div class="panel panel-info" ng-if="m.lastbuild.status" style="cursor:pointer;margin: 0 0 0 " ng-click="cigroup.showlog(m.lastbuild.uuid, m.lastbuild.slave)">
+                                <div class="panel panel-info" ng-if="m.cislave =='master' && m.lastbuild.status" style="cursor:pointer;margin: 0 0 0 " ng-click="cigroup.showlog(m.lastbuild.uuid, m.lastbuild.slave)">
                                     <span class="bold" style="cursor:pointer;color: {{panelcolor[m.lastbuild.status]}};margin: 0 0 0 ">
                                         <i class="fa fa-cloud" ng-if="m.lastbuild.status=='fail'" aria-hidden="true"></i>
                                         <i class="fa fa-spinner" ng-if="m.lastbuild.status=='running'" ng-class="{'fa-spin':1}" aria-hidden="true"></i>
@@ -63,7 +63,7 @@
                                 </div>
                         </td>
                         <td data-title="'C3T.测试环境状态'|translate">
-                                <div class="panel panel-info" ng-if="cigroup.taskInfoTest[m.id]" style="cursor:pointer;margin: 0 0 0 " ng-click="cigroup.deployDetail(cigroup.taskInfoTest[m.id].uuid)">
+                                <div class="panel panel-info" ng-if="m.cislave =='master' && cigroup.taskInfoTest[m.id]" style="cursor:pointer;margin: 0 0 0 " ng-click="cigroup.deployDetail(cigroup.taskInfoTest[m.id].uuid)">
                                     <span class="bold" style="cursor:pointer;color: {{panelcolor[cigroup.taskInfoTest[m.id].status]}};margin: 0 0 0 ">
                                         <i class="fa fa-cloud" ng-if="cigroup.taskInfoTest[m.id].status=='fail'" aria-hidden="true"></i>
                                         <i class="fa fa-spinner" ng-if="cigroup.taskInfoTest[m.id].status=='running'" ng-class="{'fa-spin':1}" aria-hidden="true"></i>
@@ -77,7 +77,7 @@
                         </td>
  
                         <td data-title="'C3T.线上环境状态'|translate">
-                                <div class="panel panel-info" ng-if="cigroup.taskInfoOnline[m.id]" style="cursor:pointer;margin: 0 0 0 " ng-click="cigroup.deployDetail(cigroup.taskInfoOnline[m.id].uuid)">
+                                <div class="panel panel-info" ng-if="m.cislave =='master' && cigroup.taskInfoOnline[m.id]" style="cursor:pointer;margin: 0 0 0 " ng-click="cigroup.deployDetail(cigroup.taskInfoOnline[m.id].uuid)">
                                     <span class="bold" style="cursor:pointer;color: {{panelcolor[cigroup.taskInfoOnline[m.id].status]}};margin: 0 0 0 ">
                                         {{cigroup.deployType(cigroup.taskInfoOnline[m.id].uuid)}}
                                         <i class="fa fa-cloud" ng-if="cigroup.taskInfoOnline[m.id].status=='fail'" aria-hidden="true"></i>
@@ -93,9 +93,10 @@
  
                         <td data-title="'C3T.编辑者'|translate" width="80" filter="{ edit_user: 'text'}" sortable="'edit_user'">{{m.edit_user}}</td>
                         <td data-title="'C3T.编号'|translate" width="30" filter="{ id: 'text'}" sortable="'id'">{{m.id}}</td>
+                        <td data-title="'cislave'" width="30" filter="{ cislave: 'text'}" sortable="'id'">{{m.cislave}}</td>
                         <td class="textcenter" width="175" data-title="'C3T.操作'|translate">
                             <nobr>
-                                <i class="fa fa-chevron-circle-right fa-2x" aria-hidden="true" ng-click="cigroup.versiondetail(m.id)" uib-tooltip="{{'C3T.进入'|translate}}" style="cursor:pointer;color: #339094;" ></i>
+                                <i class="fa fa-chevron-circle-right fa-2x" aria-hidden="true" ng-click="cigroup.versiondetail(m.id,m.cislave)" uib-tooltip="{{'C3T.进入'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                                 <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="cigroup.editconfig(m.id,m.name)" uib-tooltip="{{'C3T.编辑'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                                 <i class="fa fa-clone fa-2x" aria-hidden="true" ng-click="cigroup.copyProject(m.id,m.name)" uib-tooltip="{{'C3T.复制为'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                                 <i class="fa fa-bookmark fa-2x" aria-hidden="true" ng-click="cigroup.copyProjectToTemplate(m.id,m.name)" uib-tooltip="{{'C3T.另存为模版'|translate}}" style="cursor:pointer;color: #339094;" ></i>
