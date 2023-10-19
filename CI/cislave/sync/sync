@@ -41,6 +41,9 @@ sub syncimage
 
         my $mark = "$docker_image_mark_dir/$host.$name";
         next if -f $mark;
+
+        warn "sync image $file => $host.$name\n";
+
         my $x = `/data/Software/mydan/dan/tools/rcall --timeout 86400 --verbose -r '$host'  dump '$file'`;
         if( $? )
         {
