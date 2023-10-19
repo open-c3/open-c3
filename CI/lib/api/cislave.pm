@@ -33,10 +33,11 @@ BEGIN{
 get '/cislave/node' => sub {
     my $pmscheck = api::pmscheck( 'openc3_ci_read', 0 ); return $pmscheck if $pmscheck;
 
-    my @node = qw( master );
+    my @node = ( +{ host => 'master', alias => 'master' } );
     for( @$cislave )
     {
-        push @node, $_->{host};
+        $_->{alias} ||= $_->{host};
+        push @node, $_;
     }
     return $@ ? +{ stat => $JSON::false, info => $@ } : +{ stat => $JSON::true, data => \@node };
 };

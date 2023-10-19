@@ -22,10 +22,12 @@ cat myname
 ```
 
 在master机器上配置slave列表文件，用于标识可用的slave列表。c3集群本身用master进行标识。
+其中里面的alias字段不是必须的，不配置的情况下和host等同。
 
 # cat slave.yml
 - 
   host: 10.60.77.103
+  alias: cislave.c3.x.org
 
 在master上配置master信息文件，slave的ci构建结束后可能会触发cd，所以这里需要配置master的信息。
 
