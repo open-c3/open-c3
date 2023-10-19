@@ -5,4 +5,4 @@ if [ ! -f /data/Software/mydan/CI/cislave/conf/master.yml ]; then
     exit
 fi
 
-cd /data/Software/mydan/CI/cislave/sync && ./sync
+cd /data/Software/mydan/CI/cislave/sync && ./sync2
