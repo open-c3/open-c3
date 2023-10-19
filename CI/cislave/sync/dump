@@ -3,6 +3,9 @@
 set -e
 
 docker exec openc3-mysql mysqldump -uroot -popenc3123456^! ci \
+                            openc3_ci_cislave_change_event > cif.sql
+
+docker exec openc3-mysql mysqldump -uroot -popenc3123456^! ci \
                             openc3_ci_project  \
                             openc3_ci_images  \
                             openc3_ci_ticket > ci.sql

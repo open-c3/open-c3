@@ -2,7 +2,9 @@
 
 set -e
 
+docker cp /data/open-c3/CI/cislave/sync/cif.sql openc3-mysql:/tmp/cif.sql
 docker cp /data/open-c3/CI/cislave/sync/ci.sql openc3-mysql:/tmp/ci.sql
 docker cp /data/open-c3/CI/cislave/sync/connector.sql openc3-mysql:/tmp/connector.sql
+docker exec openc3-mysql mysql -uroot -popenc3123456^! ci -e "source /tmp/cif.sql"
 docker exec openc3-mysql mysql -uroot -popenc3123456^! ci -e "source /tmp/ci.sql"
 docker exec openc3-mysql mysql -uroot -popenc3123456^! connector -e "source /tmp/connector.sql"
