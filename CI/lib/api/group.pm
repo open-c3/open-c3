@@ -32,6 +32,7 @@ get '/group/:groupid' => sub {
         ticketid tag_regex autofindtags callonlineenv calltestenv findtags_at_once
         ci_type ci_type_ticketid ci_type_kind ci_type_namespace ci_type_name ci_type_container ci_type_dockerfile ci_type_repository
         audit_level
+        cislave
         );
     my $r = eval{ 
         $api::mysql->query( 
@@ -85,7 +86,7 @@ get '/group/favorites/:groupid' => sub {
         webhook webhook_password webhook_release rely buildimage buildscripts
         follow_up follow_up_ticketid callback groupid addr notify
         edit_user edit_time  slave last_findtags last_findtags_success 
-        ticketid tag_regex autofindtags callonlineenv calltestenv findtags_at_once );
+        ticketid tag_regex autofindtags callonlineenv calltestenv findtags_at_once cislave );
     my $r = eval{ 
         $api::mysql->query( 
             sprintf( "select %s from openc3_ci_project where id in( select ciid from openc3_ci_favorites where user='$user')", join( ',', @col)), \@col )};
