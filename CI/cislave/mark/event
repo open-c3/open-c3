@@ -1,0 +1,35 @@
+#!/data/Software/mydan/perl/bin/perl -I/data/Software/mydan/Connector/lib
+use strict;
+use warnings;
+
+$|++;
+
+use MYDB;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+unless( -f '/data/Software/mydan/CI/cislave/conf/master.yml' )
+{
+    print "0\n";
+    exit;
+}
+
+my $db = MYDB->new( "/data/Software/mydan/CI/conf/conn", delayedconnection => 1 );
+
+my $myname = 'master';
+my $mynamefile = '/data/Software/mydan/CI/cislave/conf/myname';
+if( -f $mynamefile )
+{
+    $myname = `cat '$mynamefile'`;
+    chomp $myname;
+    die "myname $myname format error" unless $myname && $myname =~ /^\d+\.\d+\.\d+\.\d+$/;
+}
+
+my $x = eval{ $db->query( "select id from openc3_ci_cislave_change_event where slavename='$myname' and id not in(select eventid from openc3_ci_cislave_change_done)" ); };
+die "get data from db err:$@" if $@;
+
+printf "%d\n", scalar @$x;
