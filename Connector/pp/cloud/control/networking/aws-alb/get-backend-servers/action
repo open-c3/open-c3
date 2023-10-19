@@ -71,7 +71,12 @@ class AlbBackendServers:
                 ec2_info_str = self.get_ec2_info(ec2_id)
                 if ec2_info_str == "":
                     continue
-                ec2_info = json.loads(ec2_info_str)
+
+                try:
+                    ec2_info = json.loads(ec2_info_str)
+                except Exception as e:
+                    raise RuntimeError(f"lb后端ec2详情解析失败, id: {ec2_id}") from e
+                
                 data = {
                     "ec2_id": ec2_info["InstanceId"],
                     "private_ip": ec2_info["PrivateIpAddress"],
