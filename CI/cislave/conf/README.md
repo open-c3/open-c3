@@ -18,6 +18,12 @@ cat myname
 
 ```
 
+```
+在slave上安装master的发布agent。
+master会通过agent给cislave推送数据。
+
+```
+
 ## master上操作
 ```
 
@@ -41,4 +47,3 @@ env:
 master上会把信息sync给所有的slave，信息包括上面的配置文件和数据库中的相关数据。
 
 ```
-
