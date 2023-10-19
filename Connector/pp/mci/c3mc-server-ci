@@ -69,6 +69,7 @@ if( $name eq 'findtags' )
       [
         'c3mc-base-db-get id -t openc3_ci_project -f "status=1 and autofindtags=1"',
         'c3mc-base-task-grep -m ci',
+        'c3mc-ci-cislave-task-grep',
         'c3mc-base-db-set -t openc3_ci_project --set "slave=\"`c3mc-base-hostname`\""',
         'xargs -P ' . $x . ' -i{} c3mc-app-findtags {}',
       ]
@@ -85,6 +86,7 @@ if( $name eq 'findtagsonce' )
       [
         'c3mc-base-db-get id -t openc3_ci_project -f "status=1 and findtags_at_once=1"',
         'c3mc-base-task-grep -m ci',
+        'c3mc-ci-cislave-task-grep',
         'c3mc-base-db-set -t openc3_ci_project --set "findtags_at_once=0,slave=\"`c3mc-base-hostname`\""',
         'xargs -P 2 -i{} bash -c "c3mc-app-findtags {} &"'
       ]
@@ -101,6 +103,7 @@ if( $name eq 'build' )
       [
         'c3mc-base-db-get -t openc3_ci_version projectid status uuid --filter "status=\"init\" or status=\"running\""',
         'c3mc-base-task-grep -m ci',
+        'c3mc-ci-cislave-task-grep',
         'c3mc-base-count-limit',
         'grep ";init"',
         'awk -F";" \'{print $3}\'',
