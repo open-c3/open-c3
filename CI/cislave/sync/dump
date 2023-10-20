@@ -3,16 +3,21 @@
 set -e
 
 docker exec openc3-mysql mysqldump -uroot -popenc3123456^! ci \
-                            openc3_ci_cislave_change_event > cif.sql
-
-docker exec openc3-mysql mysqldump -uroot -popenc3123456^! ci \
+                            openc3_ci_cislave_change_event  \
                             openc3_ci_project  \
                             openc3_ci_images  \
                             openc3_ci_ticket > ci.sql
-
 
 docker exec openc3-mysql mysqldump -uroot -popenc3123456^! connector \
                             openc3_connector_userinfo  \
                             openc3_connector_userauth  \
                             openc3_connector_tree > connector.sql
 
+sed -i 's/DROP TABLE IF EXISTS `openc3_/DROP TABLE IF EXISTS `temp_sync_openc3_/' *.sql 
+sed -i 's/CREATE TABLE `openc3_/CREATE TABLE `temp_sync_openc3_/'                 *.sql 
+sed -i 's/LOCK TABLES `openc3_/LOCK TABLES `temp_sync_openc3_/'                   *.sql 
+sed -i 's/INSERT INTO `openc3_/INSERT INTO `temp_sync_openc3_/'                   *.sql 
+
+sed -i 's/40000 ALTER TABLE `openc3_/40000 ALTER TABLE `temp_sync_openc3_/'       *.sql 
+sed -i 's/Table structure for table `openc3_/Table structure for table `temp_sync_openc3_/' *.sql 
+sed -i 's/Dumping data for table `openc3_/Dumping data for table `temp_sync_openc3_/'       *.sql 
