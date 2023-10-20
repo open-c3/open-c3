@@ -18,6 +18,30 @@ cat myname
 
 ```
 
+安装agent
+```
+在slave上安装master的发布agent。
+master会通过agent给cislave推送数据。
+
+```
+
+修改cislave的登录，保持master和slave是一样的登录方式。修改如下部分.
+
+```
+#ssousername: 'http://api.connector.open-c3.org/internal/user/username?cookie='
+#ssologoutapi: 'http://api.connector.open-c3.org/default/user/logout?sid='
+#ssocallback: '/#/login?callback='
+#cookiekey: sid
+#ssochpasswd: '/#/connector/chpasswd'
+
+
+ssocallback: http://sso.cmcloud.org/login?callback=
+ssochpasswd: http://sso.cmcloud.org
+ssologoutapi: http://10.x.x.x:1808/v2/user/logout/
+ssousername: http://10.x.x.x:1808/v2/user/userinfo/
+cookiekey: u
+```
+
 ## master上操作
 ```
 
@@ -41,4 +65,3 @@ env:
 master上会把信息sync给所有的slave，信息包括上面的配置文件和数据库中的相关数据。
 
 ```
-

@@ -1,0 +1,35 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+
+use MYDan::Util::OptConf;
+use YAML::XS;
+use Data::Dumper;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my $slave = YAML::XS::LoadFile "/data/Software/mydan/CI/cislave/conf/slave.yml";
+
+system "./dump";
+
+system "cd /data/Software/mydan/CI && tar -zcvf cislave.tar.gz cislave";
+sub syncone
+{
+    my $host = shift @_;
+    print "host: $host\n";
+    system "/data/Software/mydan/dan/tools/rcall -r '$host'  dump  /data/Software/mydan/CI/cislave.tar.gz  --path /data/open-c3/CI/cislave.tar.gz";
+    system "/data/Software/mydan/dan/tools/rcall -r '$host'  exec 'cd /data/open-c3/CI && tar -zxvf cislave.tar.gz'";
+    system "/data/Software/mydan/dan/tools/rcall -r '$host'  exec 'cd /data/open-c3/CI/cislave/sync &&  ./load'";
+}
+
+for my $s ( @$slave )
+{
+    next unless my $host = $s->{host};
+    syncone( $host );
+}
+

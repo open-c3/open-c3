@@ -15,18 +15,6 @@ use Data::Dumper;
 
 my $slave = YAML::XS::LoadFile "/data/Software/mydan/CI/cislave/conf/slave.yml";
 
-system "./dump";
-
-system "cd /data/Software/mydan/CI && tar -zcvf cislave.tar.gz cislave";
-sub syncone
-{
-    my $host = shift @_;
-    print "host: $host\n";
-    system "/data/Software/mydan/dan/tools/rcall -r '$host'  dump  /data/Software/mydan/CI/cislave.tar.gz  --path /data/open-c3/CI/cislave.tar.gz";
-    system "/data/Software/mydan/dan/tools/rcall -r '$host'  exec 'cd /data/open-c3/CI && tar -zxvf cislave.tar.gz'";
-    system "/data/Software/mydan/dan/tools/rcall -r '$host'  exec 'cd /data/open-c3/CI/cislave/sync &&  ./load'";
-}
-
 my $docker_image_mark_dir = '/data/open-c3-data/cislave/docker-image-mark';
 system( "mkdir -p '$docker_image_mark_dir'" ) unless -d $docker_image_mark_dir;
 
@@ -41,6 +29,9 @@ sub syncimage
 
         my $mark = "$docker_image_mark_dir/$host.$name";
         next if -f $mark;
+
+        warn "sync image $file => $host.$name\n";
+
         my $x = `/data/Software/mydan/dan/tools/rcall --timeout 86400 --verbose -r '$host'  dump '$file'`;
         if( $? )
         {
@@ -60,7 +51,6 @@ sub syncimage
 for my $s ( @$slave )
 {
     next unless my $host = $s->{host};
-    syncone(   $host );
     syncimage( $host );
 }
 

@@ -34,3 +34,6 @@ TZ=Asia/Shanghai
 */10 * * * * root flock -n /tmp/alertmanagercrontab.lock /data/Software/mydan/Connector/pp/mmon/alertmanagercrontab/run.sh > /tmp/alertmanagercrontab.log 2>&1
 
 0 10 * * * root /data/Software/mydan/Connector/pp/device/crontab/ssl-certificate-expired-notify/run.sh
+
+*/3 * * * * root flock -n /tmp/cislave.sync1.lock /data/Software/mydan/CI/cislave/sync/sync1.sh  > /tmp/cislave.sync1.log 2>&1
+*/5 * * * * root flock -n /tmp/cislave.sync1.lock /data/Software/mydan/CI/cislave/sync/sync2.sh  > /tmp/cislave.sync2.log 2>&1
