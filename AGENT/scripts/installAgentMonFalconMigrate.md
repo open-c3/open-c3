@@ -27,5 +27,7 @@ curl -L http://your_openc3_addr/api/scripts/installAgentMonFalconMigrate.sh |sud
 30+: 安装兼容程序时，脚本默认启动ecs标签处理的定时任务，5分钟执行一次。
 40+: ecs容器的id字符串允许有减号，否则可能很多ecs容器的tag无法识别。
 50+: 修复内存泄漏问题，tcp释放问题。【重要】
+60+: 添加文件标志 touch  /opt/mydan/dan/agent.mon/falcon_migrate.nofalcon，如果有这个标识就不发送复制数据到falcon了。
+     说明falcon下线了。 如果falcon下线（也就是有这个标识文件），那么版本是61。
 
 ```

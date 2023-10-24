@@ -20,4 +20,6 @@ $0 = 'mydan.falcon_migrate.'.$o{port};
 
 my @server = ( "localhost:1987", "localhost:65110" ); 
 
+@server = ( "localhost:65110" ) if -f '/opt/mydan/dan/agent.mon/falcon_migrate.nofalcon';
+
 OPENC3::MYDan::MonitorV3::FalconMigrate->new( %o, server => \@server )->run();
