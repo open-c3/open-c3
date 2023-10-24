@@ -33,6 +33,9 @@ networking.aws-alb:
   get: networking/aws-alb/get
   tag-add: networking/aws-alb/tag-add
   tag-delete: networking/aws-alb/tag-delete
+networking.aws-nlb:
+  # nlb和alb都是都是elbv2类型，因此使用相同的查询方式
+  get-backend-servers: networking/aws-alb/get-backend-servers
 networking.aws-elb:
   get-backend-servers: networking/aws-elb/get-backend-servers
   get: networking/aws-elb/get
