@@ -1,0 +1,37 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+use FindBin qw( $RealBin );
+use YAML::XS;
+
+=head1 SYNOPSIS
+
+ $0
+
+=cut
+
+my @x = `cat '$RealBin/../conf/cmdbcolsync.txt'`;
+chomp @x;
+
+sub run
+{
+    my ( $type, $subtype, $oldcol, $newcol ) = @_;
+
+    my @data = `c3mc-device-data-get curr '$type' '$subtype' uuid '$oldcol' '$newcol'`;
+    chomp @data;
+
+    for my $x ( @data )
+    {
+        next unless $x =~ /^[a-zA-Z0-9\t \@_\-\.]+$/;
+        my ( $uuid, $old, $new ) = split /\t/, $x;
+        print "$uuid, $old, $new\n";
+        next if ( ! $old ) ||  $new;
+        system "c3mc-base-db-ins -t openc3_device_extcol  type '$type' subtype '$subtype' uuid '$uuid' name '$newcol' data '$old'";
+    }
+}
+
+for ( @x )
+{
+    my @xx = split /;/, $_;
+    run(@xx);
+}
