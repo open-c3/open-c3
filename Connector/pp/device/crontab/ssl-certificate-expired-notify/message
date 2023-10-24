@@ -7,7 +7,7 @@ import datetime
 date2 = datetime.date.today()
 date2_datetime = datetime.datetime(date2.year, date2.month, date2.day)
 
-( status, output ) = subprocess.getstatusoutput( "c3mc-device-data-get curr others ssl-certificate uuid ExpiredTime RelationInfo" );
+( status, output ) = subprocess.getstatusoutput( "c3mc-device-data-get curr others ssl-certificate uuid _ExpiredTime_ RelationInfo" );
 if status != 0:
     raise Exception("err")
 
