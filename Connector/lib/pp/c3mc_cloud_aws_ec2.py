@@ -139,22 +139,18 @@ class LIB_EC2:
         """
         return self.client.terminate_instances(InstanceIds=instance_ids)
 
-    def run_instances(self, request):
+    def run_instances(self, request, max_retries=3):
         """
-        创建ec2实例
+        创建ec2实例, 最多重试max_retries次, 如果失败三次则抛出异常
         """
-        max_times = 3
-
-        while True:
+        for retry in range(max_retries):
             try:
                 return self.client.run_instances(**request)
             except Exception as e:
-                if max_times <= 0:
-                    raise e
-                if "We currently do not have sufficient" in str(e):
-                    time.sleep(5)
-                    max_times -= 1
-                    continue
+                print(f"开通ec2出现错误: {str(e)}", file=sys.stderr)
+                if retry >= max_retries - 1:
+                    raise RuntimeError(f"开通ec2在尝试 {max_retries} 次后仍旧失败.") from e
+                time.sleep(5)
 
     def describe_volumes_by_instance_id(self, instance_id):
         response = self.client.describe_volumes(Filters=[{'Name': 'attachment.instance-id', 'Values': [instance_id]}])
