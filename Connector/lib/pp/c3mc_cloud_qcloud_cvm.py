@@ -129,8 +129,10 @@ class QcloudCvm:
         if cvm_info["InstanceState"] in ["SHUTDOWN", "TERMINATING"]:
             return
         
-        if cvm_info["InstanceState"] != "STOPPED":
-            self.stop_instances(instance_id)
+        if cvm_info["InstanceState"] not in ["STOPPING", "STOPPED"]:
+            self.stop_instances([instance_id])
+        
+        self.wait_cvm_until_status(instance_id, "STOPPED")
 
         # 获取实例磁盘信息
         req = cvm_models.DescribeInstancesRequest()
