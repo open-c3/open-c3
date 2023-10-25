@@ -1,0 +1,193 @@
+#!/data/Software/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+use YAML::XS;
+use Encode;
+use utf8;
+use File::Temp;
+use POSIX;
+
+$| ++;
+
+my $d = "/data/open-c3-data/resources-owner-change-notify";
+system "mkdir -p $d" unless -d $d;
+
+my @oldcont = `cat $d/last.txt`;
+chomp @oldcont;
+
+my ( %old, %new );
+
+for ( @oldcont )
+{
+    my ( $uuid,  $systeminfo, $productowner, $opsowner ) = split /;/, $_;
+    $old{$uuid}{systeminfo  } = $systeminfo   if $systeminfo;
+    $old{$uuid}{productowner} = $productowner if $productowner;
+    $old{$uuid}{opsowner    } = $opsowner     if $opsowner;
+}
+
+my    @data = `c3mc-device-cat-all-cache get`;
+chomp @data;
+
+my @title = split /\t/, shift @data;
+die "unfind title" unless @title;
+
+my %title = map{ $title[$_] => $_ } 0 .. $#title;
+
+
+my ( $TEMP1, $tempfile1 ) = File::Temp::tempfile();
+
+for( @data )
+{
+    my @d = split /\t/, $_;
+
+    my $uuid         = join ',', map{ $d[$title{$_}] }map{ Encode::encode( 'utf8', $_ )}qw( 实例ID  );
+    my $systeminfo   = join ' ', map{ $d[$title{$_}] }map{ Encode::encode( 'utf8', $_ )}qw( system  );
+    $systeminfo =~ s/;/,/g;
+
+    my $productOwner = join ' ', map{ $d[$title{$_}] }map{ Encode::encode( 'utf8', $_ )}qw( 业务负责人 );
+    my $opsOwner     = join ' ', map{ $d[$title{$_}] }map{ Encode::encode( 'utf8', $_ )}qw( 运维负责人 );
+
+    $new{$uuid}{baseinfo    } = $systeminfo   if $systeminfo;
+    $new{$uuid}{productowner} = $productOwner if $productOwner;
+    $new{$uuid}{opsowner    } = $opsOwner     if $opsOwner;
+
+    print $TEMP1 "$uuid;$systeminfo;$productOwner;$opsOwner\n";
+}
+
+
+close $TEMP1;
+
+my %notify;
+
+my %uuid = ( %old, %new );
+
+for my $uuid ( keys %uuid )
+{
+    if( $old{$uuid} && $new{$uuid} )
+    {
+        my $oldproductowner = $old{$uuid}{productowner} || 'null';
+        my $oldopsowner     = $old{$uuid}{opsowner}     || 'null';
+
+        my $newproductowner = $new{$uuid}{productowner} || 'null';
+        my $newopsowner     = $new{$uuid}{opsowner}     || 'null';
+
+        if( $oldproductowner ne $newproductowner )
+        {
+            $notify{$oldproductowner}{productowner}{moveout}{$uuid} = $new{$uuid}{baseinfo};
+            $notify{$newproductowner}{productowner}{movein }{$uuid} = $new{$uuid}{baseinfo};
+        }
+
+        if( $oldopsowner ne $newopsowner )
+        {
+            $notify{$oldopsowner}{opsowner}{moveout}{$uuid} = $new{$uuid}{baseinfo};
+            $notify{$newopsowner}{opsowner}{movein }{$uuid} = $new{$uuid}{baseinfo};
+        }
+    }
+    elsif( ! $old{$uuid} && $new{$uuid} )
+    {
+        # 资源增加了
+        my $productowner = $new{$uuid}{productowner} || 'null';
+        my $opsowner     = $new{$uuid}{opsowner}     || 'null';
+
+        $notify{$productowner}{productowner}{add}{$uuid} = $new{$uuid}{baseinfo};
+        $notify{$opsowner    }{opsowner    }{add}{$uuid} = $new{$uuid}{baseinfo};
+ 
+    }
+    elsif( $old{$uuid} && ! $new{$uuid} )
+    {
+        # 资源删除了
+        my $productowner = $old{$uuid}{productowner} || 'null';
+        my $opsowner     = $old{$uuid}{opsowner}     || 'null';
+
+        $notify{$productowner}{productowner}{del}{$uuid} = $old{$uuid}{baseinfo};
+        $notify{$opsowner    }{opsowner    }{del}{$uuid} = $old{$uuid}{baseinfo};
+    }
+}
+
+sub getsubcontent
+{
+    my $data = shift @_;
+    my @content;
+
+    for my $uuid ( keys %$data )
+    {
+        push @content, sprintf "$uuid;%s", $data->{$uuid}||'unknown';
+    }
+    return @content;
+
+}
+
+sub getcontent
+{
+    my $data = shift @_;
+    return () unless $data;
+    my @content;
+
+    for my $event ( qw( add del movein moveout ))
+    {
+        next unless $data->{$event};
+        push @content, "",  "$event:";
+        push @content, getsubcontent( $data->{$event} );
+        push @content, "", "";
+    }
+    return @content;
+}
+
+my    $c3webaddr = `c3mc-sys-ctl sys.c3webaddr`;
+chomp $c3webaddr;
+
+sub sendmail
+{
+    my ( $user, @content ) = @_;
+
+
+    my $head = `cat /data/Software/mydan/Connector/pp/device/crontab/resources-owner-change-notify/conf/mail.head.txt`;
+    my $tail = `cat /data/Software/mydan/Connector/pp/device/crontab/resources-owner-change-notify/conf/mail.tail.txt`;
+
+    $head =~ s/\{c3webaddr\}/$c3webaddr/g;
+    $tail =~ s/\{c3webaddr\}/$c3webaddr/g;
+    $head =~ s/\{user\}/$user/g;
+
+
+    my $dir = sprintf "$d/send/%s", POSIX::strftime( "%Y-%m-%d-%H-%M-%S", localtime );
+    return if -f "$dir/$user.ok";
+
+    system "mkdir -p $dir" unless -d $dir;
+
+    my ( $TEMP, $tempfile ) = File::Temp::tempfile();
+
+    print $TEMP $head;
+    print $TEMP Encode::encode( 'utf8', join "\n", @content );
+    print $TEMP $tail;
+    close $TEMP;
+
+    system "mv $tempfile $dir/$user.todo";
+
+    return if $user =~ /'/;
+
+    system "cat $dir/$user.todo | c3mc-base-sendmail '$user' --subject '资源变动通知'";
+    system "mv $dir/$user.todo $dir/$user.ok";
+}
+
+sub notify
+{
+    my ( $user, $data ) = @_;
+    my @content;
+    for my $ownertype ( qw( productowner opsowner ) )
+    {
+        next unless $data->{$ownertype};
+        push @content, $ownertype;
+        push @content, "=" x 60;
+        push @content, getcontent( $data->{$ownertype} );
+    }
+
+    sendmail( $user, @content );
+}
+
+for my $user ( keys %notify )
+{
+    notify( $user, $notify{$user} );
+}
+
+system "mv '$tempfile1' $d/last.txt";
