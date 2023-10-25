@@ -158,6 +158,11 @@
             });
         };
 
+        vm.getRepeatInfo = function (item, obj) {
+          const newArr = Object.values(obj);
+           return newArr.find((cItem) => {return cItem.name === item || cItem.alias === item })
+        }
+
         vm.showFlag = function (index, type, flag) {
           vm.grpcol.forEach(item => {
             if (item.index === index) {
