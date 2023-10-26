@@ -160,7 +160,7 @@
 
         vm.getRepeatInfo = function (item, obj) {
           const newArr = Object.values(obj);
-           return newArr.find((cItem) => {return cItem.name === item || cItem.alias === item })
+           return newArr.find((cItem) => {return cItem.alias === item })
         }
 
         vm.showFlag = function (index, type, flag) {
