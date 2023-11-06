@@ -49,7 +49,9 @@ fi
 
 c3mc-k8s-nsctl-dump $TICKETID $SRC
 
-sed -i  "s/$SRC/$DST/g" *.yaml
+#sed -i  "s/$SRC/$DST/g" *.yaml
+sed -i "/- image: /!s/$SRC/$DST/g" *.yaml
+
 NS=$( bash -c "$kubectl  get ns  -o custom-columns='NAME:metadata.name' --no-headers|grep \"^$DST$\"|wc -l")
 if [ "X$NS" == "X0"  ];then
     bash -c "$kubectl create ns $DST"
