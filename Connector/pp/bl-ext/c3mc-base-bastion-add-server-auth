@@ -119,7 +119,7 @@ def process_element(thread_safe_set, ip_info, grant_auth_type, account, email, g
             continue
     
     for item in logs:
-        print(item)
+        print(item, file=sys.stderr)
 
 def grant_server_auth(email, ip_list, grant_auth_type, grant_sudo_hours, is_audit):
     account = email.split("@")[0]
@@ -175,7 +175,7 @@ def grant_server_auth(email, ip_list, grant_auth_type, grant_sudo_hours, is_audi
     for ip in thread_safe_set.data:
         data_list = [ip_info for ip_info in data_list if ip_info["inIP"] != ip and ip_info["exIP"] != ip]
 
-    print("******************************************************************************************************")
+    print("******************************************************************************************************", file=sys.stderr)
     for ip_info in data_list:
         print(f"LOG. 服务器权限申请失败, 内网ip: {ip_info['inIP']}, 外网ip: {ip_info['exIP']}", file=sys.stderr)
 
@@ -185,7 +185,7 @@ def grant_server_auth(email, ip_list, grant_auth_type, grant_sudo_hours, is_audi
     if has_not_found_error:
         exit(1)
 
-    print("LOG. 权限添加结束成功")
+    print("LOG. 权限添加结束成功", file=sys.stderr)
     
 
 def main(email, auth_type, ip_str, is_audit='0'):

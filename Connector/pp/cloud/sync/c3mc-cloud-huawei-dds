@@ -64,6 +64,10 @@ def main(access_id, access_key, project_id, region):
     try:
         Dds(access_id, access_key, project_id, region).page()
     except Exception as e:
+        # https://developer.huaweicloud.com/endpoint?all 支持的区域可能尚未包含在sdk区域配置文件中
+        # 对于这种错误直接忽略
+        if "Unexpected region_id" in str(e):
+            return
         print(f"同步华为云dds资源出错. access_id: {access_id}, region: {region}", file=sys.stderr)
         raise e
 

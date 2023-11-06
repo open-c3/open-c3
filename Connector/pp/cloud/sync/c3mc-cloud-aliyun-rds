@@ -84,6 +84,10 @@ def main(access_id, access_key, region):
     try:
         RDS(access_id, access_key, region).page()
     except Exception as e:
+        # 2023-11-02 查询rds支持的区域列表，可能包含cn-nantong这个区域,
+        # 但是这个区域目前尚未开放, 导致可能获取资源失败, 因此这种错误暂时忽略 
+        if "Name or service not known" in str(e):
+            return
         print(f"同步阿里云rds资源出错. access_id: {access_id}, region: {region}", file=sys.stderr)
         raise e
 
