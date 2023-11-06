@@ -1017,3 +1017,6 @@ create table if not exists `openc3_ci_cislave_change_done`(
 `id`        int(16) unsigned not null primary key auto_increment comment 'id',
 `eventid`  VARCHAR(20)   comment '事件id'
 )ENGINE=InnoDB DEFAULT CHARSET=utf8 comment='cislave变更事件处理完成';
+
+# v2.6.0 sql openc3_job_jobs modify uuids to 1200
+ALTER TABLE  openc3_job_jobs modify `uuids` varchar(1200) DEFAULT NULL COMMENT '作业流程编号列表';
