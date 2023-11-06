@@ -1,0 +1,165 @@
+version: '2.0'
+
+services:
+  openc3-mysql:
+    container_name: openc3-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: "openc3123456^!"
+      MYSQL_USER: 'openc3'
+      MYSQL_PASS: 'openc3123456^!'
+      TZ: 'Asia/Shanghai'
+    image: "mysql:5.7"
+    restart: always
+    volumes:
+      - "/data/open-c3-data/mysql-data:/var/lib/mysql"
+      - "./mysql/conf/my.cnf:/etc/my.cnf"
+      - "./mysql/init:/docker-entrypoint-initdb.d/"
+    networks:
+      JobNet:
+        aliases:
+          - OPENC3_DB_IP
+
+  openc3-server:
+    container_name: openc3-server
+    build:
+      context: JOB/
+    hostname: openc3-srv-docker
+    restart: always
+    environment:
+      TZ: 'Asia/Shanghai'
+      OPEN_C3_EXIP: ${OPEN_C3_EXIP}
+      OPEN_C3_NAME: ${OPEN_C3_NAME}
+      OPEN_C3_RANDOM: ${OPEN_C3_RANDOM}
+    extra_hosts:
+      - "api.agent.open-c3.org:127.0.0.1"
+      - "api.job.open-c3.org:127.0.0.1"
+      - "api.jobx.open-c3.org:127.0.0.1"
+      - "api.ci.open-c3.org:127.0.0.1"
+      - "api.connector.open-c3.org:127.0.0.1"
+    ports:
+      - "80:88"
+    volumes:
+      - "../../Connector:/data/Software/mydan/Connector"
+      - "../../MYDan:/data/Software/mydan/MYDan"
+      - "../../JOBX:/data/Software/mydan/JOBX"
+      - "../../JOB:/data/Software/mydan/JOB"
+      - "../../AGENT:/data/Software/mydan/AGENT"
+      - "../../CI:/data/Software/mydan/CI"
+      - "../../prometheus:/data/Software/mydan/prometheus"
+      - "../../c3-front:/data/Software/mydan/c3-front"
+      - "../../web-shell:/data/Software/mydan/web-shell"
+      #- "./JOB/auth:/data/Software/mydan/etc/agent/auth"  
+      #- "./JOB/logs:/data/logs" 
+      #- "./JOB/glusterfs:/data/glusterfs" 
+      - "/data/open-c3-data/auth:/data/Software/mydan/etc/agent/auth"  
+      - "/data/open-c3-data/logs:/data/logs" 
+#      - "/data/open-c3-data/glusterfs:/data/glusterfs" 
+      - "/data/open-c3-data:/data/open-c3-data" 
+      - "/bin/docker:/bin/docker" 
+      - "/var/run/docker.sock:/var/run/docker.sock" 
+    depends_on:
+      - openc3-mysql
+    networks:
+      JobNet:
+        aliases:
+          - OPENC3_SERVER_IP
+
+  openc3-grafana:
+    container_name: openc3-grafana
+    environment:
+      TZ: 'Asia/Shanghai'
+#    image: "grafana/grafana:7.3.6"
+#    image: "grafana/grafana:8.4.0"
+    image: "grafana/grafana:9.0.1"
+    restart: always
+    user: root
+#    ports:
+#      - "8080:3000"
+    volumes:
+      - "/data/open-c3-data/grafana-data:/var/lib/grafana"
+    networks:
+      JobNet:
+        aliases:
+          - OPENC3_GRAFANA_IP
+
+  openc3-grafana-fresh:
+    container_name: openc3-grafana-fresh
+    environment:
+      TZ: 'Asia/Shanghai'
+    image: "grafana/grafana:9.0.1"
+    restart: always
+    user: root
+#    ports:
+#      - "13000:3000"
+    volumes:
+      - "/data/open-c3-data/grafana-data-fresh:/var/lib/grafana"
+    networks:
+      JobNet:
+        aliases:
+          - OPENC3_GRAFANA_IP_FRESH
+
+  openc3-prometheus:
+    container_name: openc3-prometheus
+    environment:
+      TZ: 'Asia/Shanghai'
+    image: "openc3/prometheus:v3"
+    restart: always
+    ports:
+      - "9090:9090"
+    volumes:
+      - "/data/open-c3-data/prometheus-data:/data/prometheus-data"
+      - "/data/open-c3/prometheus:/data/prometheus-root"
+    command:
+      - '--config.file=/data/prometheus-root/config/prometheus.yml'
+      - '--storage.tsdb.path=/data/prometheus-data'
+      - '--web.enable-lifecycle'
+      - '--storage.tsdb.retention=7d'
+      - '--query.max-concurrency=20'
+      - '--rules.alert.resend-delay=3m'
+      - '--log.level=debug'
+    networks:
+      JobNet:
+        aliases:
+          - OPENC3_PROMETHEUS_IP
+
+  openc3-alertmanager:
+    container_name: openc3-alertmanager
+    environment:
+      TZ: 'Asia/Shanghai'
+    image: "prom/alertmanager:latest"
+    restart: always
+#    ports:
+#      - "9093:9093"
+    volumes:
+      - "/data/open-c3/alertmanager/config:/etc/alertmanager"
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--log.level=debug'
+      - '--web.external-url=http://10.10.10.1'
+    networks:
+      JobNet:
+        aliases:
+          - OPENC3_ALERTMANAGER_IP
+
+  openc3-lua:
+    container_name: openc3-lua
+    environment:
+      TZ: 'Asia/Shanghai'
+    image: "openresty/openresty:1.9.15.1-trusty"
+    restart: always
+    entrypoint: /entrypoint.sh
+    volumes:
+      - "/data/open-c3/lua/config/nginx.conf:/usr/local/openresty/nginx/conf/nginx.conf.tpl"
+      - "/data/open-c3/lua/config/lua:/usr/local/openresty/nginx/conf/lua"
+      - "/data/open-c3-data/logs/lua:/usr/local/openresty/nginx/logs"
+      - "/data/open-c3/lua/bin/entrypoint.sh:/entrypoint.sh"
+      - "/data/open-c3/lua/lualib:/lualib"
+    networks:
+      JobNet:
+        aliases:
+          - OPENC3_LUA_IP
+
+networks:
+  JobNet:
+    driver: bridge
