@@ -56,3 +56,11 @@ cat debug.csv |./make-data simplemetric
 ./run-debug  2   100 debug.csv # 导入第二行到100行， 第一行是标题
 ./run-debug  101 200 debug.csv # 导入第100行到200行
 ```
+
+# 后续注意
+```
+自定义 jvm_OldGen_Util/project=xxx-im > 0.9 导致误报，因为默认的函数是一个四舍五入
+round(avg(jvm_OldGen_Util{project="xxx-im"}) by (instance)) > 0.9
+改成了如下：
+(avg(jvm_OldGen_Util{project="xxx-im"}) by (instance)) > 0.9
+```
