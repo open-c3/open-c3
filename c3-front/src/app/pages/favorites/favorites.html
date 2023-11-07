@@ -25,13 +25,13 @@
             <div class="pt20">
                 <table ng-table="favorites.activeRegionTable" class="table table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td style="width: 10%" data-title="'ID'" filter="{ id: 'text'}" sortable="'id'">
+                        <td style="width: 10%" data-title="'ID'" filter="{ id: 'text'}" data-sortable="'id'">
                             <i class="fa fa-star fa-1x" aria-hidden="true"  ng-if="m.favorites" ng-click="favorites.delToFavorites(m.id,m.name)" uib-tooltip="{{'C3T.取消收藏'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                             {{m.id}}
                         </td>
-                        <td style="width: 10%" data-title="'C3T.名称'|translate" filter="{ name: 'text'}" sortable="'name'">{{m.name}}</td>
-                        <td style="width: 10%" data-title="'C3T.别名'|translate" filter="{ alias: 'text'}" sortable="'alias'">{{m.alias}}</td>
-                        <td style="width: 10%" data-title="'C3T.服务树名'|translate" filter="{ treename: 'text'}" sortable="'treename'">
+                        <td style="width: 10%" data-title="'C3T.名称'|translate" filter="{ name: 'text'}" data-sortable="'name'">{{m.name}}</td>
+                        <td style="width: 10%" data-title="'C3T.别名'|translate" filter="{ alias: 'text'}" data-sortable="'alias'">{{m.alias}}</td>
+                        <td style="width: 10%" data-title="'C3T.服务树名'|translate" filter="{ treename: 'text'}" data-sortable="'treename'">
                             <nobr>
                                 {{m.treename}}
                                 <i class="fa fa-chevron-circle-right fa-1x" aria-hidden="true" ng-click="favorites.treedetail(m.groupid)" uib-tooltip="{{'C3T.进入'|translate}}" style="cursor:pointer;color: #339094;" ></i>
@@ -70,8 +70,8 @@
  
 
 
-                        <td style="width: 10%" data-title="'C3T.编辑者'|translate" filter="{ user: 'text'}" sortable="'user'">{{m.edit_user}}</td>
-                        <td style="width: 10%" data-title="'cislave'" filter="{ cislave: 'text'}" sortable="'cislave'">{{m.cislave}}</td>
+                        <td style="width: 10%" data-title="'C3T.编辑者'|translate" filter="{ user: 'text'}" data-sortable="'user'">{{m.edit_user}}</td>
+                        <td style="width: 10%" data-title="'cislave'" filter="{ cislave: 'text'}" data-sortable="'cislave'">{{m.cislave}}</td>
                         <td data-title="'C3T.操作'|translate">
                             <nobr>
                                 <i class="fa fa-chevron-circle-right fa-2x" aria-hidden="true" ng-click="favorites.versiondetail(m.groupid,m.id)" uib-tooltip="{{'C3T.进入'|translate}}" style="cursor:pointer;color: #339094;" ></i>

@@ -14,15 +14,15 @@
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="ciwatcher.readyTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td width="60" class="textcenter" data-title="'C3T.流水线ID'|translate" filter="{ project_id: 'text'}" sortable="'project_id'"> {{m.project_id}} </td>
-                        <td width="60" class="textcenter" data-title="'C3T.服务树ID'|translate" filter="{ project_groupid: 'text'}" sortable="'project_groupid'"> {{m.project_groupid}} </td>
-                        <td data-title="'C3T.流水线名称'|translate" width="80" filter="{ project_name: 'text'}" sortable="'project_name'">{{m.project_name}}</td>
-                        <td data-title="'C3T.TAG版本'|translate" width="80" filter="{ version_name: 'text'}" sortable="'version_name'">{{m.version_name}}</td>
-                        <td data-title="'C3T.运行节点'|translate" width="80" filter="{ version_slave: 'text'}" sortable="'version_slave'">{{m.version_slave}}</td>
-                        <td data-title="'C3T.CPU限制(核)'|translate" width="80" filter="{ project_cpulimit: 'text'}" sortable="'project_cpulimit'">{{m.project_cpulimit}}</td>
-                        <td data-title="'C3T.内存限制(兆)'|translate" width="80" filter="{ project_memlimit: 'text'}" sortable="'project_memlimit'">{{m.project_memlimit}}</td>
-                        <td data-title="'C3T.当前状态'|translate" width="80" filter="{ version_status: 'text'}" sortable="'version_status'">{{m.version_status}}</td>
-                        <td data-title="'C3T.队列序号'|translate" width="80" filter="{ version_queueid: 'text'}" sortable="'version_queueid'">{{m.version_queueid}}</td>
+                        <td width="60" class="textcenter" data-title="'C3T.流水线ID'|translate" filter="{ project_id: 'text'}" data-sortable="'project_id'"> {{m.project_id}} </td>
+                        <td width="60" class="textcenter" data-title="'C3T.服务树ID'|translate" filter="{ project_groupid: 'text'}" data-sortable="'project_groupid'"> {{m.project_groupid}} </td>
+                        <td data-title="'C3T.流水线名称'|translate" width="80" filter="{ project_name: 'text'}" data-sortable="'project_name'">{{m.project_name}}</td>
+                        <td data-title="'C3T.TAG版本'|translate" width="80" filter="{ version_name: 'text'}" data-sortable="'version_name'">{{m.version_name}}</td>
+                        <td data-title="'C3T.运行节点'|translate" width="80" filter="{ version_slave: 'text'}" data-sortable="'version_slave'">{{m.version_slave}}</td>
+                        <td data-title="'C3T.CPU限制(核)'|translate" width="80" filter="{ project_cpulimit: 'text'}" data-sortable="'project_cpulimit'">{{m.project_cpulimit}}</td>
+                        <td data-title="'C3T.内存限制(兆)'|translate" width="80" filter="{ project_memlimit: 'text'}" data-sortable="'project_memlimit'">{{m.project_memlimit}}</td>
+                        <td data-title="'C3T.当前状态'|translate" width="80" filter="{ version_status: 'text'}" data-sortable="'version_status'">{{m.version_status}}</td>
+                        <td data-title="'C3T.队列序号'|translate" width="80" filter="{ version_queueid: 'text'}" data-sortable="'version_queueid'">{{m.version_queueid}}</td>
                         <td data-title="'C3T.操作'|translate" width="80" >
                             <i class="fa fa-chevron-circle-right fa-2x" aria-hidden="true" ng-click="ciwatcher.versiondetail(m.project_groupid, m.project_id)" uib-tooltip="{{'C3T.进入'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-chevron-circle-up fa-2x" aria-hidden="true" ng-click="ciwatcher.jump(m.version_uuid)" uib-tooltip="{{'C3T.插队'|translate}}" style="cursor:pointer;color: red;" ></i>
@@ -45,15 +45,15 @@
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="ciwatcher.runningTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td width="60" class="textcenter" data-title="'C3T.流水线ID'|translate" filter="{ project_id: 'text'}" sortable="'project_id'"> {{m.project_id}} </td>
-                        <td width="60" class="textcenter" data-title="'C3T.服务树ID'|translate" filter="{ project_groupid: 'text'}" sortable="'project_groupid'"> {{m.project_groupid}} </td>
-                        <td data-title="'C3T.流水线名称'|translate" width="80" filter="{ project_name: 'text'}" sortable="'project_name'">{{m.project_name}}</td>
-                        <td data-title="'C3T.TAG版本'|translate" width="80" filter="{ version_name: 'text'}" sortable="'version_name'">{{m.version_name}}</td>
-                        <td data-title="'C3T.运行节点'|translate" width="80" filter="{ version_slave: 'text'}" sortable="'version_slave'">{{m.version_slave}}</td>
-                        <td data-title="'C3T.CPU限制(核)'|translate" width="80" filter="{ project_cpulimit: 'text'}" sortable="'project_cpulimit'">{{m.project_cpulimit}}</td>
-                        <td data-title="'C3T.内存限制(兆)'|translate" width="80" filter="{ project_memlimit: 'text'}" sortable="'project_memlimit'">{{m.project_memlimit}}</td>
-                        <td data-title="'C3T.当前状态'|translate" width="80" filter="{ version_status: 'text'}" sortable="'version_status'">{{m.version_status}}</td>
-                        <td data-title="'C3T.队列序号'|translate" width="80" filter="{ version_queueid: 'text'}" sortable="'version_queueid'">{{m.version_queueid}}</td>
+                        <td width="60" class="textcenter" data-title="'C3T.流水线ID'|translate" filter="{ project_id: 'text'}" data-sortable="'project_id'"> {{m.project_id}} </td>
+                        <td width="60" class="textcenter" data-title="'C3T.服务树ID'|translate" filter="{ project_groupid: 'text'}" data-sortable="'project_groupid'"> {{m.project_groupid}} </td>
+                        <td data-title="'C3T.流水线名称'|translate" width="80" filter="{ project_name: 'text'}" data-sortable="'project_name'">{{m.project_name}}</td>
+                        <td data-title="'C3T.TAG版本'|translate" width="80" filter="{ version_name: 'text'}" data-sortable="'version_name'">{{m.version_name}}</td>
+                        <td data-title="'C3T.运行节点'|translate" width="80" filter="{ version_slave: 'text'}" data-sortable="'version_slave'">{{m.version_slave}}</td>
+                        <td data-title="'C3T.CPU限制(核)'|translate" width="80" filter="{ project_cpulimit: 'text'}" data-sortable="'project_cpulimit'">{{m.project_cpulimit}}</td>
+                        <td data-title="'C3T.内存限制(兆)'|translate" width="80" filter="{ project_memlimit: 'text'}" data-sortable="'project_memlimit'">{{m.project_memlimit}}</td>
+                        <td data-title="'C3T.当前状态'|translate" width="80" filter="{ version_status: 'text'}" data-sortable="'version_status'">{{m.version_status}}</td>
+                        <td data-title="'C3T.队列序号'|translate" width="80" filter="{ version_queueid: 'text'}" data-sortable="'version_queueid'">{{m.version_queueid}}</td>
                         <td data-title="'C3T.操作'|translate" width="80" >
                             <i class="fa fa-chevron-circle-right fa-2x" aria-hidden="true" ng-click="ciwatcher.versiondetail(m.project_groupid, m.project_id)" uib-tooltip="{{'C3T.进入'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                         </td>

@@ -19,16 +19,16 @@
                 <table ng-table="kubernetesnode.nodeTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
                         <td header="'headerCheckbox.html'" width="80"><input type="checkbox" ng-model="kubernetesnode.checkboxes.items[m.NAME]"/></td>
-                        <td data-title="'C3T.名称'|translate" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">{{m.NAME}}</td>
-                        <td data-title="'C3T.状态'|translate" width="80" filter="{ STATUS: 'text'}" sortable="'STATUS'">{{m.STATUS}}</td>
-                        <td data-title="'C3T.角色'|translate" width="80" filter="{ ROLES: 'text'}" sortable="'ROLES'">{{m.ROLES}}</td>
-                        <td data-title="'C3T.时间'|translate" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
-                        <td data-title="'C3T.版本'|translate" width="80" filter="{ VERSION: 'text'}" sortable="'VERSION'">{{m.VERSION}}</td>
-                        <td data-title="'C3T.内网IP'|translate" width="80" filter="{ INTERNAL_IP: 'text'}" sortable="'INTERNAL_IP'">{{m.INTERNAL_IP}}</td>
-                        <td data-title="'C3T.外网IP'|translate" width="80" filter="{ EXTERNAL_IP: 'text'}" sortable="'EXTERNAL_IP'">{{m.EXTERNAL_IP}}</td>
-                        <td data-title="'C3T.操作系统'|translate" width="80" filter="{ OS_IMAGE: 'text'}" sortable="'OS_IMAGE'">{{m.OS_IMAGE}}</td>
-                        <td data-title="'C3T.内核版本'|translate" width="80" filter="{ KERNEL_VERSION: 'text'}" sortable="'KERNEL_VERSION'">{{m.KERNEL_VERSION}}</td>
-                        <td data-title="'C3T.容器运行时'|translate" width="80" filter="{ CONTAINER_RUNTIME: 'text'}" sortable="'CONTAINER_RUNTIME'">{{m.CONTAINER_RUNTIME}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ NAME: 'text'}" data-sortable="'NAME'">{{m.NAME}}</td>
+                        <td data-title="'C3T.状态'|translate" width="80" filter="{ STATUS: 'text'}" data-sortable="'STATUS'">{{m.STATUS}}</td>
+                        <td data-title="'C3T.角色'|translate" width="80" filter="{ ROLES: 'text'}" data-sortable="'ROLES'">{{m.ROLES}}</td>
+                        <td data-title="'C3T.时间'|translate" width="80" filter="{ AGE: 'text'}" data-sortable="'AGE'">{{m.AGE}}</td>
+                        <td data-title="'C3T.版本'|translate" width="80" filter="{ VERSION: 'text'}" data-sortable="'VERSION'">{{m.VERSION}}</td>
+                        <td data-title="'C3T.内网IP'|translate" width="80" filter="{ INTERNAL_IP: 'text'}" data-sortable="'INTERNAL_IP'">{{m.INTERNAL_IP}}</td>
+                        <td data-title="'C3T.外网IP'|translate" width="80" filter="{ EXTERNAL_IP: 'text'}" data-sortable="'EXTERNAL_IP'">{{m.EXTERNAL_IP}}</td>
+                        <td data-title="'C3T.操作系统'|translate" width="80" filter="{ OS_IMAGE: 'text'}" data-sortable="'OS_IMAGE'">{{m.OS_IMAGE}}</td>
+                        <td data-title="'C3T.内核版本'|translate" width="80" filter="{ KERNEL_VERSION: 'text'}" data-sortable="'KERNEL_VERSION'">{{m.KERNEL_VERSION}}</td>
+                        <td data-title="'C3T.容器运行时'|translate" width="80" filter="{ CONTAINER_RUNTIME: 'text'}" data-sortable="'CONTAINER_RUNTIME'">{{m.CONTAINER_RUNTIME}}</td>
                         <td data-title="'C3T.调度设置'|translate" width="80" >
                               <button class="btn btn-danger" ng-disabled="m.stat.SchedulingDisabled" ng-click="kubernetesnode.cordon('single',m.NAME,'cordon')">{{'C3T.设置成不可调度'|translate}}</button>
                               <button class="btn btn-primary" ng-disabled="!m.stat.SchedulingDisabled" ng-click="kubernetesnode.cordon('single', m.NAME,'uncordon')">{{'C3T.设置成可调度'|translate}}</button>

@@ -97,39 +97,39 @@
                       <td data-title="">
                         <input type="checkbox" name="selected" ng-model="monitornodelow.checkboxes.items[m.ip]"  ng-disabled="m.owner !== monitornodelow.userInfo.email"/>
                       </td>
-                        <td data-title="'C3T.编号'|translate"   sortable="'id'"    >{{m.id}}</td>
-                        <td data-title="'C3T.名称'|translate" sortable="'name'" filter="{ name: 'text'}" >{{m.name}}</td>
-                        <td data-title="'C3T.主机名'|translate" sortable="'hostname'" filter="{ hostname: 'text'}" >{{m.hostname}}</td>
-                        <td data-title="'Owner'" sortable="'owner'" filter="{ owner: 'text'}" >
+                        <td data-title="'C3T.编号'|translate"   data-sortable="'id'"    >{{m.id}}</td>
+                        <td data-title="'C3T.名称'|translate" data-sortable="'name'" filter="{ name: 'text'}" >{{m.name}}</td>
+                        <td data-title="'C3T.主机名'|translate" data-sortable="'hostname'" filter="{ hostname: 'text'}" >{{m.hostname}}</td>
+                        <td data-title="'Owner'" data-sortable="'owner'" filter="{ owner: 'text'}" >
                           <div class="owner-mark">
                             <div class="owner-text">{{m.owner || '-'}}</div>
                             <!-- <button class="btn btn-primary owner-mark-button" ng-if="!monitornodelow.hashMarkData.includes(m.ip)" 
                             ng-disabled="m.owner !== monitornodelow.userInfo.name.toLowerCase()" ng-click="monitornodelow.handleMark(m)">{{'C3T.标记' | translate}}</button> -->
                           </div>
                         </td>
-                        <td data-title="'C3T.处理状态'|translate" sortable="'remarkStatus'" filter="{ remarkStatus: 'text'}" >{{m.remarkStatus}}</td>
-                        <td data-title="'C3T.处理备注'|translate" sortable="'remark'" filter="{ remark: 'text'}">{{m.remark}}</td>
-                        <td data-title="'C3T.实例类型'|translate" sortable="'instancetype'" filter="{ instancetype: 'text'}" >{{m.instancetype}}</td>
-                        <td data-title="'C3T.内网IP'|translate" sortable="'inip'" filter="{ inip: 'text'}" >{{m.inip}}</td>
-                        <td data-title="'C3T.外网IP'|translate" sortable="'exip'" filter="{ exip: 'text'}" >{{m.exip}}</td>
-                        <td data-title="'C3T.资源类型'|translate" sortable="'type'">{{m.type}}</td>
-                        <td data-title="'C3T.状态'|translate" sortable="'status'" filter="{ status: 'text'}" >
+                        <td data-title="'C3T.处理状态'|translate" data-sortable="'remarkStatus'" filter="{ remarkStatus: 'text'}" >{{m.remarkStatus}}</td>
+                        <td data-title="'C3T.处理备注'|translate" data-sortable="'remark'" filter="{ remark: 'text'}">{{m.remark}}</td>
+                        <td data-title="'C3T.实例类型'|translate" data-sortable="'instancetype'" filter="{ instancetype: 'text'}" >{{m.instancetype}}</td>
+                        <td data-title="'C3T.内网IP'|translate" data-sortable="'inip'" filter="{ inip: 'text'}" >{{m.inip}}</td>
+                        <td data-title="'C3T.外网IP'|translate" data-sortable="'exip'" filter="{ exip: 'text'}" >{{m.exip}}</td>
+                        <td data-title="'C3T.资源类型'|translate" data-sortable="'type'">{{m.type}}</td>
+                        <td data-title="'C3T.状态'|translate" data-sortable="'status'" filter="{ status: 'text'}" >
                           <a ng-style="{'color': monitornodelow.statusColorMap[m.status]}">{{m.status}}</a>
                         </td>
-                        <td data-title="'C3T.低利用率天数/14天'|translate" sortable="'lowcnt'">{{m.lowcnt}}</td>
-                        <td data-title="'CPU(%)'"            sortable="'cpu'"   >{{m.cpu}}</td>
-                        <td data-title="'C3T.内存(%)'|translate"           sortable="'mem'"   >{{m.mem}}</td>
-                        <td data-title="'C3T.下载带宽'|translate"    sortable="'netin'" >
+                        <td data-title="'C3T.低利用率天数/14天'|translate" data-sortable="'lowcnt'">{{m.lowcnt}}</td>
+                        <td data-title="'CPU(%)'"            data-sortable="'cpu'"   >{{m.cpu}}</td>
+                        <td data-title="'C3T.内存(%)'|translate"           data-sortable="'mem'"   >{{m.mem}}</td>
+                        <td data-title="'C3T.下载带宽'|translate"    data-sortable="'netin'" >
                             <a ng-if="1048576 < m.netin"                    >{{m.netin / 1048576 | number : 2 }} Mb/s<a>
                             <a ng-if="1024 < m.netin && m.netin <= 1048576" >{{m.netin / 1024    | number : 2 }} kb/s<a>
                             <a ng-if="m.netin <= 1024"                      >{{m.netin                        }}  b/s<a>
                         </td>
-                        <td data-title="'C3T.上传带宽'|translate"    sortable="'netout'" >
+                        <td data-title="'C3T.上传带宽'|translate"    data-sortable="'netout'" >
                             <a ng-if="1048576 < m.netout"                     >{{m.netout / 1048576 | number : 2 }} Mb/s<a>
                             <a ng-if="1024 < m.netout && m.netout <= 1048576" >{{m.netout / 1024    | number : 2 }} kb/s<a>
                             <a ng-if="m.netout <= 1024"                       >{{m.netout                        }}  b/s<a>
                         </td>
-                        <td data-title="'C3T.最后统计日期'|translate"      sortable="'date'"  >{{m.date}}</td>
+                        <td data-title="'C3T.最后统计日期'|translate"      data-sortable="'date'"  >{{m.date}}</td>
                         <td class="textcenter"  data-title="'C3T.操作'|translate">
                             <nobr>
                                 <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="monitornodelow.showDetail(m.inip)" uib-tooltip="{{'C3T.详情'|translate}}" style="cursor:pointer;color: #339094;" ></i>
@@ -152,7 +152,7 @@
                       <td ng-if="monitornodelow.headerList.length > 0">
                         <input type="checkbox" name="selected" ng-model="monitornodelow.checkboxes.items[m.ip]" ng-disabled="m['业务负责人'] !== monitornodelow.userInfo.email"/>
                       </td>
-                      <td ng-repeat="item in monitornodelow.headerList| filter:searchText" data-title="item" sortable="item">
+                      <td ng-repeat="item in monitornodelow.headerList| filter:searchText" data-title="item" data-sortable="item">
                         <div ng-if="item === 'lowstatus'"><a ng-style="{'color': monitornodelow.statusColorMap[m[item]]}">{{m[item]}}<a></div>
                         <div ng-if="item === '服务树'" class="service-tree-text" uib-tooltip="{{m[item]}}">{{m[item]}}<a></div>
                         <div ng-if="!monitornodelow.tabThead.includes(item)">{{m[item]}}</div>

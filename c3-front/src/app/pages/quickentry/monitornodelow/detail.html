@@ -17,22 +17,22 @@
                 <div class="pt20" style="overflow: auto;">
                     <table ng-table="MonitorNodeLowDetail.dataTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                         <tr ng-repeat="m in $data">
-                            <td data-title="'日期'" sortable="'id'">{{m.date}}</td>
-                            <td data-title="'状态'" sortable="'status'" filter="{ status: 'text'}" >
+                            <td data-title="'日期'" data-sortable="'id'">{{m.date}}</td>
+                            <td data-title="'状态'" data-sortable="'status'" filter="{ status: 'text'}" >
                                 <a ng-if="m.status=='low'"    style="color: red"     >{{m.status}}<a>
                                 <a ng-if="m.status=='warn'"   style="color: #f6bb42" >{{m.status}}<a>
                                 <a ng-if="m.status=='normal'" style="color: green"   >{{m.status}}<a>
                                 <a ng-if="m.status=='nodata'" style="color: #555"    >{{m.status}}<a>
                                 <a ng-if="m.status=='unknown'" >{{m.status}}<a>
                             </td>
-                            <td data-title="'CPU(%)'"         sortable="'cpu'"   >{{m.cpu}}</td>
-                            <td data-title="'内存(%)'"        sortable="'mem'"   >{{m.mem}}</td>
-                            <td data-title="'下载带宽'"    sortable="'netin'" >
+                            <td data-title="'CPU(%)'"         data-sortable="'cpu'"   >{{m.cpu}}</td>
+                            <td data-title="'内存(%)'"        data-sortable="'mem'"   >{{m.mem}}</td>
+                            <td data-title="'下载带宽'"    data-sortable="'netin'" >
                                 <a ng-if="1048576 < m.netin"                    >{{m.netin / 1048576 | number : 2 }} Mb/s<a>
                                 <a ng-if="1024 < m.netin && m.netin <= 1048576" >{{m.netin / 1024    | number : 2 }} kb/s<a>
                                 <a ng-if="m.netin <= 1024"                      >{{m.netin                        }}  b/s<a>
                             </td>
-                            <td data-title="'上传带宽'"    sortable="'netout'" >
+                            <td data-title="'上传带宽'"    data-sortable="'netout'" >
                                 <a ng-if="1048576 < m.netout"                     >{{m.netout / 1048576 | number : 2 }} Mb/s<a>
                                 <a ng-if="1024 < m.netout && m.netout <= 1048576" >{{m.netout / 1024    | number : 2 }} kb/s<a>
                                 <a ng-if="m.netout <= 1024"                       >{{m.netout                        }}  b/s<a>

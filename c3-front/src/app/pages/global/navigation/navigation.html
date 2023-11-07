@@ -28,7 +28,7 @@
           show-filter="true">
 
           <tr ng-repeat="item in $data">
-            <td data-title="'ID'" width="60" sortable="'id'">{{item.id}}</td>
+            <td data-title="'ID'" width="60" data-sortable="'id'">{{item.id}}</td>
             <td data-title="'C3T.图标'|translate" width="60">
               <div class="navigation-table-icon">
                 <div class="navigation-table-icon-content">
@@ -53,11 +53,11 @@
               </div>
             </td>
 
-            <td data-title="'C3T.当前是否展示'|translate" width="80" sortable="'show'">
+            <td data-title="'C3T.当前是否展示'|translate" width="80" data-sortable="'show'">
               {{navigation.showMap[item.show]|| '-'}}
             </td>
 
-            <td data-title="'C3T.创建时间'|translate" width="80" sortable="'time'"> {{item.time}} </td>
+            <td data-title="'C3T.创建时间'|translate" width="80" data-sortable="'time'"> {{item.time}} </td>
 
             <td data-title="'C3T.操作'|translate" width="80">
               <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="navigation.navigationOperate('edit', item.id)"

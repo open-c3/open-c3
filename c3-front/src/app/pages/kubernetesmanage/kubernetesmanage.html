@@ -140,19 +140,19 @@
               <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesmanage.ingressTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'C3T.名称'|translate" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">
+                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" data-sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ NAME: 'text'}" data-sortable="'NAME'">
                             <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="kubernetesmanage.createIngress(m.NAMESPACE,m.NAME)" uib-tooltip="{{'C3T.编辑'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                             {{m.NAME}}
                         </td>
-                        <td data-title="'CLASS'" width="80" filter="{ CLASS: 'text'}" sortable="'CLASS'">{{m.CLASS}}</td>
-                        <td data-title="'HOSTS'" width="80" filter="{ HOSTS: 'text'}" sortable="'HOSTS'">{{m.HOSTS}}</td>
-                        <td data-title="'ADDRESS'" width="80" filter="{ ADDRESS: 'text'}" sortable="'ADDRESS'">
+                        <td data-title="'CLASS'" width="80" filter="{ CLASS: 'text'}" data-sortable="'CLASS'">{{m.CLASS}}</td>
+                        <td data-title="'HOSTS'" width="80" filter="{ HOSTS: 'text'}" data-sortable="'HOSTS'">{{m.HOSTS}}</td>
+                        <td data-title="'ADDRESS'" width="80" filter="{ ADDRESS: 'text'}" data-sortable="'ADDRESS'">
                             <a ng-if="!m.ADDRESS" style="color: red" >null<a>
                             <a ng-if="m.ADDRESS">{{m.ADDRESS}}<a>
                         </td>
-                        <td data-title="'PORTS'" width="80" filter="{ PORTS: 'text'}" sortable="'PORTS'">{{m.PORTS}}</td>
-                        <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
+                        <td data-title="'PORTS'" width="80" filter="{ PORTS: 'text'}" data-sortable="'PORTS'">{{m.PORTS}}</td>
+                        <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" data-sortable="'AGE'">{{m.AGE}}</td>
                         <td data-title="'C3T.操作'|translate" width="80" >
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describeingress('ingress',m.NAME,m.NAMESPACE)" uib-tooltip="{{'C3T.查看'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('ingress',m.NAME,m.NAMESPACE)" uib-tooltip="{{'C3T.编辑yaml'|translate}}" style="cursor:pointer;color: #339094;" ></i>
@@ -180,17 +180,17 @@
               <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesmanage.serviceTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'C3T.名称'|translate" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">
+                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" data-sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ INAME: 'text'}" data-sortable="'INAME'">
                             <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="kubernetesmanage.createService(m.NAMESPACE,m.INAME)" uib-tooltip="{{'C3T.编辑'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                             {{m.INAME}}
                         </td>
-                        <td data-title="'TYPE'" width="80" filter="{ TYPE: 'text'}" sortable="'TYPE'">{{m.TYPE}}</td>
-                        <td data-title="'CLUSTER-IP'" width="80" filter="{ CLUSTER_IP: 'text'}" sortable="'CLUSTER_IP'">{{m.CLUSTER_IP}}</td>
-                        <td data-title="'EXTERNAL-IP'" width="80" filter="{ EXTERNAL_IP: 'text'}" sortable="'EXTERNAL_IP'">{{m.EXTERNAL_IP}}</td>
-                        <td data-title="'PORT(S)'" width="80" filter="{ PORT_S_: 'text'}" sortable="'PORT_S_'">{{m.PORT_S_}}</td>
-                        <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
-                        <td data-title="'SELECTOR'" width="80" filter="{ SELECTOR: 'text'}" sortable="'SELECTOR'">{{m.SELECTOR}}</td>
+                        <td data-title="'TYPE'" width="80" filter="{ TYPE: 'text'}" data-sortable="'TYPE'">{{m.TYPE}}</td>
+                        <td data-title="'CLUSTER-IP'" width="80" filter="{ CLUSTER_IP: 'text'}" data-sortable="'CLUSTER_IP'">{{m.CLUSTER_IP}}</td>
+                        <td data-title="'EXTERNAL-IP'" width="80" filter="{ EXTERNAL_IP: 'text'}" data-sortable="'EXTERNAL_IP'">{{m.EXTERNAL_IP}}</td>
+                        <td data-title="'PORT(S)'" width="80" filter="{ PORT_S_: 'text'}" data-sortable="'PORT_S_'">{{m.PORT_S_}}</td>
+                        <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" data-sortable="'AGE'">{{m.AGE}}</td>
+                        <td data-title="'SELECTOR'" width="80" filter="{ SELECTOR: 'text'}" data-sortable="'SELECTOR'">{{m.SELECTOR}}</td>
                         <td data-title="'C3T.操作'|translate" width="80" >
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describeservice('service',m.INAME,m.NAMESPACE)" uib-tooltip="{{'C3T.查看'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('service',m.INAME,m.NAMESPACE)" uib-tooltip="{{'C3T.编辑yaml'|translate}}" style="cursor:pointer;color: #339094;" ></i>
@@ -220,8 +220,8 @@
 
                 <table ng-table="kubernetesmanage.deploymentTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'C3T.名称'|translate" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">
+                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" data-sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ INAME: 'text'}" data-sortable="'INAME'">
 
                             <i class="fa fa-location-arrow fa-2x" aria-hidden="true" ng-click="kubernetesmanage.setimage('deployment',m.INAME,m.NAMESPACE,m.IMAGES,m.CONTAINERS)" uib-tooltip="{{'C3T.升级'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-life-ring fa-2x" aria-hidden="true" ng-click="kubernetesmanage.rollback('deployment',m.INAME,m.NAMESPACE,m.IMAGES,m.CONTAINERS)" uib-tooltip="{{'C3T.回滚'|translate}}" style="cursor:pointer;color: #339094;" ></i>
@@ -229,13 +229,13 @@
                             <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="kubernetesmanage.createDeployment(m.NAMESPACE,m.INAME)" uib-tooltip="{{'C3T.编辑'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                             {{m.INAME}}
                         </td>
-                        <td data-title="'READY'" width="80" filter="{ READY: 'text'}" sortable="'READY'">
+                        <td data-title="'READY'" width="80" filter="{ READY: 'text'}" data-sortable="'READY'">
                             <a ng-if="m.IREADY" >{{m.READY}}<a>
                             <a ng-if="!m.IREADY" style="color: red;" >{{m.READY}}<a>
                         </td>
-                        <td data-title="'UP-TO-DATE'" width="80" filter="{ UP_TO_DATE: 'text'}" sortable="'UP_TO_DATE'">{{m.UP_TO_DATE}}</td>
-                        <td data-title="'AVAILABLE'" width="80" filter="{ AVAILABLE: 'text'}" sortable="'AVAILABLE'">{{m.AVAILABLE}}</td>
-                        <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
+                        <td data-title="'UP-TO-DATE'" width="80" filter="{ UP_TO_DATE: 'text'}" data-sortable="'UP_TO_DATE'">{{m.UP_TO_DATE}}</td>
+                        <td data-title="'AVAILABLE'" width="80" filter="{ AVAILABLE: 'text'}" data-sortable="'AVAILABLE'">{{m.AVAILABLE}}</td>
+                        <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" data-sortable="'AGE'">{{m.AGE}}</td>
                         <td data-title="'HPA'" width="80" class="text-center">
                             <a ng-if="kubernetesmanage.hpa[m.NAMESPACE][m.NAME]" >{{kubernetesmanage.hpa[m.NAMESPACE][m.NAME]['describe']}}</a>
                             <i ng-if="!kubernetesmanage.hpa[m.NAMESPACE][m.NAME]" class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetesmanage.createHpa('deployment',m.INAME,m.NAMESPACE)" uib-tooltip="{{'C3T.添加HPA'|translate}}" style="cursor:pointer;color: #339094;" ></i>
@@ -256,9 +256,9 @@
                             </div>
                             <i class="fa fa-plus-circle fa-2x" aria-hidden="true" ng-click="kubernetesmanage.copyProjectByTemplate(m.INAME, 'deployment',m.INAME,m.NAMESPACE )" uib-tooltip="{{'C3T.创建流水线'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                         </td>
-                        <td data-title="'CONTAINERS'" width="80" filter="{ CONTAINERS: 'text'}" sortable="'CONTAINERS'">{{m.CONTAINERS}}</td>
-                        <td data-title="'IMAGES'" width="80" filter="{ IMAGES: 'text'}" sortable="'IMAGES'"><a uib-tooltip="{{m.IMAGES}}" >{{m.IMAGES|cut}}</a></td>
-                        <td data-title="'SELECTOR'" width="80" filter="{ SELECTOR: 'text'}" sortable="'SELECTOR'">{{m.SELECTOR}}</td>
+                        <td data-title="'CONTAINERS'" width="80" filter="{ CONTAINERS: 'text'}" data-sortable="'CONTAINERS'">{{m.CONTAINERS}}</td>
+                        <td data-title="'IMAGES'" width="80" filter="{ IMAGES: 'text'}" data-sortable="'IMAGES'"><a uib-tooltip="{{m.IMAGES}}" >{{m.IMAGES|cut}}</a></td>
+                        <td data-title="'SELECTOR'" width="80" filter="{ SELECTOR: 'text'}" data-sortable="'SELECTOR'">{{m.SELECTOR}}</td>
                         <td data-title="'C3T.操作'|translate" width="80" >
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describedeployment('deployment',m.INAME,m.NAMESPACE)" uib-tooltip="{{'C3T.查看'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('deployment',m.INAME,m.NAMESPACE)" uib-tooltip="{{'C3T.编辑yaml'|translate}}" style="cursor:pointer;color: #339094;" ></i>
@@ -294,21 +294,21 @@
               <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesmanage.daemonsetTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'C3T.名称'|translate" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">
+                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" data-sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ INAME: 'text'}" data-sortable="'INAME'">
 
                             <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="kubernetesmanage.createDaemonSet(m.NAMESPACE,m.INAME)" uib-tooltip="{{'C3T.编辑'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                             {{m.INAME}}
                         </td>
-                        <td data-title="'DESIRED'" width="80" filter="{ DESIRED: 'text'}" sortable="'DESIRED'">{{m.DESIRED}}</td>
-                        <td data-title="'CURRENT'" width="80" filter="{ CURRENT: 'text'}" sortable="'CURRENT'">{{m.CURRENT}}</td>
-                        <td data-title="'READY'" width="80" filter="{ READY: 'text'}" sortable="'READY'">{{m.READY}}</td>
-                        <td data-title="'UP-TO-DATE'" width="80" filter="{ UP_TO_DATE: 'text'}" sortable="'UP_TO_DATE'">{{m.UP_TO_DATE}}</td>
-                        <td data-title="'AVAILABLE'" width="80" filter="{ AVAILABLE: 'text'}" sortable="'AVAILABLE'">{{m.AVAILABLE}}</td>
-                        <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
-                        <td data-title="'CONTAINERS'" width="80" filter="{ CONTAINERS: 'text'}" sortable="'CONTAINERS'">{{m.CONTAINERS}}</td>
-                        <td data-title="'IMAGES'" width="80" filter="{ IMAGES: 'text'}" sortable="'IMAGES'"><a uib-tooltip="{{m.IMAGES}}" >{{m.IMAGES|cut}}</a></td>
-                        <td data-title="'SELECTOR'" width="80" filter="{ SELECTOR: 'text'}" sortable="'SELECTOR'">{{m.SELECTOR}}</td>
+                        <td data-title="'DESIRED'" width="80" filter="{ DESIRED: 'text'}" data-sortable="'DESIRED'">{{m.DESIRED}}</td>
+                        <td data-title="'CURRENT'" width="80" filter="{ CURRENT: 'text'}" data-sortable="'CURRENT'">{{m.CURRENT}}</td>
+                        <td data-title="'READY'" width="80" filter="{ READY: 'text'}" data-sortable="'READY'">{{m.READY}}</td>
+                        <td data-title="'UP-TO-DATE'" width="80" filter="{ UP_TO_DATE: 'text'}" data-sortable="'UP_TO_DATE'">{{m.UP_TO_DATE}}</td>
+                        <td data-title="'AVAILABLE'" width="80" filter="{ AVAILABLE: 'text'}" data-sortable="'AVAILABLE'">{{m.AVAILABLE}}</td>
+                        <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" data-sortable="'AGE'">{{m.AGE}}</td>
+                        <td data-title="'CONTAINERS'" width="80" filter="{ CONTAINERS: 'text'}" data-sortable="'CONTAINERS'">{{m.CONTAINERS}}</td>
+                        <td data-title="'IMAGES'" width="80" filter="{ IMAGES: 'text'}" data-sortable="'IMAGES'"><a uib-tooltip="{{m.IMAGES}}" >{{m.IMAGES|cut}}</a></td>
+                        <td data-title="'SELECTOR'" width="80" filter="{ SELECTOR: 'text'}" data-sortable="'SELECTOR'">{{m.SELECTOR}}</td>
                         <td data-title="'C3T.操作'|translate" width="80" >
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describe('daemonset',m.INAME,m.NAMESPACE)" uib-tooltip="{{'C3T.查看'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('daemonset',m.INAME,m.NAMESPACE)" uib-tooltip="{{'C3T.编辑yaml'|translate}}" style="cursor:pointer;color: #339094;" ></i>
@@ -345,26 +345,26 @@
               <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesmanage.podTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'C3T.名称'|translate" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">
+                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" data-sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ INAME: 'text'}" data-sortable="'INAME'">
                             <i class="fa fa-television fa-2x" aria-hidden="true" ng-click="kubernetesmanage.openOneTab(m,'sh')" uib-tooltip="{{'C3T.进入POD虚拟终端'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-file-text-o fa-2x" aria-hidden="true" ng-click="kubernetesmanage.openOneTab(m,'log')" uib-tooltip="{{'C3T.查看POD日志'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                             {{m.INAME}}
                         </td>
-                        <td data-title="'READY'" width="80" filter="{ READY: 'text'}" sortable="'READY'">
+                        <td data-title="'READY'" width="80" filter="{ READY: 'text'}" data-sortable="'READY'">
                             <a ng-if="m.IREADY" >{{m.READY}}<a>
                             <a ng-if="!m.IREADY" style="color: red;" >{{m.READY}}<a>
                         </td>
-                        <td data-title="'STATUS'" width="80" filter="{ STATUS: 'text'}" sortable="'STATUS'">
+                        <td data-title="'STATUS'" width="80" filter="{ STATUS: 'text'}" data-sortable="'STATUS'">
                             <a ng-if="m.STATUS=='Running'" >{{m.STATUS}}<a>
                             <a ng-if="m.STATUS!='Running'" style="color: red;" >{{m.STATUS}}<a>
                         </td>
-                        <td data-title="'RESTARTS'" width="80" filter="{ RESTARTS: 'text'}" sortable="'RESTARTS'">{{m.RESTARTS}}</td>
-                        <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
-                        <td data-title="'IP'" width="80" filter="{ IP: 'text'}" sortable="'IP'">{{m.IP}}</td>
-                        <td data-title="'NODE'" width="80" filter="{ NODE: 'text'}" sortable="'NODE'">{{m.NODE}}</td>
-                        <td data-title="'NOMINATED NODE'" width="80" filter="{ NOMINATED_NODE: 'text'}" sortable="'NOMINATED_NODE'">{{m.NOMINATED_NODE}}</td>
-                        <td data-title="'READINESS GATES'" width="80" filter="{ READINESS_GATES: 'text'}" sortable="'READINESS_GATES'">{{m.READINESS_GATES}}</td>
+                        <td data-title="'RESTARTS'" width="80" filter="{ RESTARTS: 'text'}" data-sortable="'RESTARTS'">{{m.RESTARTS}}</td>
+                        <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" data-sortable="'AGE'">{{m.AGE}}</td>
+                        <td data-title="'IP'" width="80" filter="{ IP: 'text'}" data-sortable="'IP'">{{m.IP}}</td>
+                        <td data-title="'NODE'" width="80" filter="{ NODE: 'text'}" data-sortable="'NODE'">{{m.NODE}}</td>
+                        <td data-title="'NOMINATED NODE'" width="80" filter="{ NOMINATED_NODE: 'text'}" data-sortable="'NOMINATED_NODE'">{{m.NOMINATED_NODE}}</td>
+                        <td data-title="'READINESS GATES'" width="80" filter="{ READINESS_GATES: 'text'}" data-sortable="'READINESS_GATES'">{{m.READINESS_GATES}}</td>
                         <td data-title="'C3T.操作'|translate" width="80" >
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describe('pod',m.INAME,m.NAMESPACE)" uib-tooltip="{{'C3T.查看'|translate}}" style="cursor:pointer;color: #339094;" ></i>
 
@@ -399,15 +399,15 @@
               <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesmanage.replicasetTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'C3T.名称'|translate" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">{{m.INAME}}</td>
-                        <td data-title="'DESIRED'" width="80" filter="{ DESIRED: 'text'}" sortable="'DESIRED'">{{m.DESIRED}}</td>
-                        <td data-title="'CURRENT'" width="80" filter="{ CURRENT: 'text'}" sortable="'CURRENT'">{{m.CURRENT}}</td>
-                        <td data-title="'READY'" width="80" filter="{ READY: 'text'}" sortable="'READY'">{{m.READY}}</td>
-                        <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
-                        <td data-title="'CONTAINERS'" width="80" filter="{ CONTAINERS: 'text'}" sortable="'CONTAINERS'">{{m.CONTAINERS}}</td>
-                        <td data-title="'IMAGES'" width="80" filter="{ IMAGES: 'text'}" sortable="'IMAGES'"><a uib-tooltip="{{m.IMAGES}}" >{{m.IMAGES|cut}}</a></td>
-                        <td data-title="'SELECTOR'" width="80" filter="{ SELECTOR: 'text'}" sortable="'SELECTOR'">{{m.SELECTOR}}</td>
+                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" data-sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ INAME: 'text'}" data-sortable="'INAME'">{{m.INAME}}</td>
+                        <td data-title="'DESIRED'" width="80" filter="{ DESIRED: 'text'}" data-sortable="'DESIRED'">{{m.DESIRED}}</td>
+                        <td data-title="'CURRENT'" width="80" filter="{ CURRENT: 'text'}" data-sortable="'CURRENT'">{{m.CURRENT}}</td>
+                        <td data-title="'READY'" width="80" filter="{ READY: 'text'}" data-sortable="'READY'">{{m.READY}}</td>
+                        <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" data-sortable="'AGE'">{{m.AGE}}</td>
+                        <td data-title="'CONTAINERS'" width="80" filter="{ CONTAINERS: 'text'}" data-sortable="'CONTAINERS'">{{m.CONTAINERS}}</td>
+                        <td data-title="'IMAGES'" width="80" filter="{ IMAGES: 'text'}" data-sortable="'IMAGES'"><a uib-tooltip="{{m.IMAGES}}" >{{m.IMAGES|cut}}</a></td>
+                        <td data-title="'SELECTOR'" width="80" filter="{ SELECTOR: 'text'}" data-sortable="'SELECTOR'">{{m.SELECTOR}}</td>
                         <td data-title="'C3T.操作'|translate" width="80" >
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describe('replicaset',m.INAME,m.NAMESPACE)" uib-tooltip="{{'C3T.查看'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('replicaset',m.INAME,m.NAMESPACE)" uib-tooltip="{{'C3T.编辑yaml'|translate}}" style="cursor:pointer;color: #339094;" ></i>
@@ -437,17 +437,17 @@
               <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesmanage.hpaTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'C3T.名称'|translate" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">
+                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" data-sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ INAME: 'text'}" data-sortable="'INAME'">
                             <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="kubernetesmanage.editHpa(m.NAMESPACE,m.INAME)" uib-tooltip="{{'C3T.编辑'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                             {{m.INAME}}
                         </td>
-                        <td data-title="'REFERENCE'" width="80" filter="{ REFERENCE: 'text'}" sortable="'REFERENCE'">{{m.REFERENCE}}</td>
-                        <td data-title="'TARGETS'" width="80" filter="{ TARGETS: 'text'}" sortable="'TARGETS'">{{m.TARGETS}}</td>
-                        <td data-title="'MINPODS'" width="80" filter="{ MINPODS: 'text'}" sortable="'MINPODS'">{{m.MINPODS}}</td>
-                        <td data-title="'MAXPODS'" width="80" filter="{ MAXPODS: 'text'}" sortable="'MAXPODS'">{{m.MAXPODS}}</td>
-                        <td data-title="'REPLICAS'" width="80" filter="{ REPLICAS: 'text'}" sortable="'REPLICAS'">{{m.REPLICAS}}</td>
-                        <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
+                        <td data-title="'REFERENCE'" width="80" filter="{ REFERENCE: 'text'}" data-sortable="'REFERENCE'">{{m.REFERENCE}}</td>
+                        <td data-title="'TARGETS'" width="80" filter="{ TARGETS: 'text'}" data-sortable="'TARGETS'">{{m.TARGETS}}</td>
+                        <td data-title="'MINPODS'" width="80" filter="{ MINPODS: 'text'}" data-sortable="'MINPODS'">{{m.MINPODS}}</td>
+                        <td data-title="'MAXPODS'" width="80" filter="{ MAXPODS: 'text'}" data-sortable="'MAXPODS'">{{m.MAXPODS}}</td>
+                        <td data-title="'REPLICAS'" width="80" filter="{ REPLICAS: 'text'}" data-sortable="'REPLICAS'">{{m.REPLICAS}}</td>
+                        <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" data-sortable="'AGE'">{{m.AGE}}</td>
                         <td data-title="'C3T.操作'|translate" width="80" >
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describe('hpa',m.INAME,m.NAMESPACE)" uib-tooltip="{{'C3T.查看'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('hpa',m.INAME,m.NAMESPACE)" uib-tooltip="{{'C3T.编辑yaml'|translate}}" style="cursor:pointer;color: #339094;" ></i>
@@ -476,13 +476,13 @@
               <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesmanage.endpointTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'C3T.名称'|translate" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">{{m.NAME}}</td>
-                        <td data-title="'ENDPOINTS'" width="80" filter="{ ENDPOINTS: 'text'}" sortable="'ENDPOINTS'">
+                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" data-sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ NAME: 'text'}" data-sortable="'NAME'">{{m.NAME}}</td>
+                        <td data-title="'ENDPOINTS'" width="80" filter="{ ENDPOINTS: 'text'}" data-sortable="'ENDPOINTS'">
                             <a ng-if="m.ENDPOINTS==='<none>'" style="color: red" >{{m.ENDPOINTS}}<a>
                             <a ng-if="m.ENDPOINTS!=='<none>'">{{m.ENDPOINTS}}<a>
                         </td>
-                        <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
+                        <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" data-sortable="'AGE'">{{m.AGE}}</td>
                         <td data-title="'C3T.操作'|translate" width="80" >
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describe('endpoints',m.NAME,m.NAMESPACE)" uib-tooltip="{{'C3T.查看'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('endpoints',m.NAME,m.NAMESPACE)" uib-tooltip="{{'C3T.编辑yaml'|translate}}" style="cursor:pointer;color: #339094;" ></i>
@@ -510,14 +510,14 @@
               <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesmanage.jobbatchTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'C3T.名称'|translate" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">{{m.NAME}}</td>
-                        <td data-title="'COMPLETIONS'" width="80" filter="{ COMPLETIONS: 'text'}" sortable="'COMPLETIONS'">{{m.COMPLETIONS}}</td>
-                        <td data-title="'DURATION'" width="80" filter="{ DURATION: 'text'}" sortable="'DURATION'">{{m.DURATION}}</td>
-                        <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
-                        <td data-title="'CONTAINERS'" width="80" filter="{ CONTAINERS: 'text'}" sortable="'CONTAINERS'">{{m.CONTAINERS}}</td>
-                        <td data-title="'IMAGES'" width="80" filter="{ IMAGES: 'text'}" sortable="'IMAGES'"><a uib-tooltip="{{m.IMAGES}}" >{{m.IMAGES|cut}}</a></td>
-                        <td data-title="'SELECTOR'" width="80" filter="{ SELECTOR: 'text'}" sortable="'SELECTOR'">{{m.SELECTOR}}</td>
+                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" data-sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ NAME: 'text'}" data-sortable="'NAME'">{{m.NAME}}</td>
+                        <td data-title="'COMPLETIONS'" width="80" filter="{ COMPLETIONS: 'text'}" data-sortable="'COMPLETIONS'">{{m.COMPLETIONS}}</td>
+                        <td data-title="'DURATION'" width="80" filter="{ DURATION: 'text'}" data-sortable="'DURATION'">{{m.DURATION}}</td>
+                        <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" data-sortable="'AGE'">{{m.AGE}}</td>
+                        <td data-title="'CONTAINERS'" width="80" filter="{ CONTAINERS: 'text'}" data-sortable="'CONTAINERS'">{{m.CONTAINERS}}</td>
+                        <td data-title="'IMAGES'" width="80" filter="{ IMAGES: 'text'}" data-sortable="'IMAGES'"><a uib-tooltip="{{m.IMAGES}}" >{{m.IMAGES|cut}}</a></td>
+                        <td data-title="'SELECTOR'" width="80" filter="{ SELECTOR: 'text'}" data-sortable="'SELECTOR'">{{m.SELECTOR}}</td>
                         <td data-title="'C3T.操作'|translate" width="80" >
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describe('job',m.INAME,m.NAMESPACE)" uib-tooltip="{{'C3T.查看'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('job',m.INAME,m.NAMESPACE)" uib-tooltip="{{'C3T.编辑yaml'|translate}}" style="cursor:pointer;color: #339094;" ></i>
@@ -548,16 +548,16 @@
               <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesmanage.cronjobbatchTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'C3T.名称'|translate" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">{{m.NAME}}</td>
+                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" data-sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ NAME: 'text'}" data-sortable="'NAME'">{{m.NAME}}</td>
                         <td data-title="'SCHEDULE'" width="80">{{m.SCHEDULE1}} {{m.SCHEDULE2}} {{m.SCHEDULE3}} {{m.SCHEDULE4}} {{m.SCHEDULE5}}</td>
-                        <td data-title="'SUSPEND'" width="80" filter="{ SUSPEND: 'text'}" sortable="'SUSPEND'">{{m.SUSPEND}}</td>
-                        <td data-title="'ACTIVE'" width="80" filter="{ ACTIVE: 'text'}" sortable="'ACTIVE'">{{m.ACTIVE}}</td>
-                        <td data-title="'LAST_SCHEDULE'" width="80" filter="{ LAST_SCHEDULE: 'text'}" sortable="'LAST_SCHEDULE'">{{m.LAST_SCHEDULE}}</td>
-                        <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
-                        <td data-title="'CONTAINERS'" width="80" filter="{ CONTAINERS: 'text'}" sortable="'CONTAINERS'">{{m.CONTAINERS}}</td>
-                        <td data-title="'IMAGES'" width="80" filter="{ IMAGES: 'text'}" sortable="'IMAGES'"><a uib-tooltip="{{m.IMAGES}}" >{{m.IMAGES|cut}}</a></td>
-                        <td data-title="'SELECTOR'" width="80" filter="{ SELECTOR: 'text'}" sortable="'SELECTOR'">{{m.SELECTOR}}</td>
+                        <td data-title="'SUSPEND'" width="80" filter="{ SUSPEND: 'text'}" data-sortable="'SUSPEND'">{{m.SUSPEND}}</td>
+                        <td data-title="'ACTIVE'" width="80" filter="{ ACTIVE: 'text'}" data-sortable="'ACTIVE'">{{m.ACTIVE}}</td>
+                        <td data-title="'LAST_SCHEDULE'" width="80" filter="{ LAST_SCHEDULE: 'text'}" data-sortable="'LAST_SCHEDULE'">{{m.LAST_SCHEDULE}}</td>
+                        <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" data-sortable="'AGE'">{{m.AGE}}</td>
+                        <td data-title="'CONTAINERS'" width="80" filter="{ CONTAINERS: 'text'}" data-sortable="'CONTAINERS'">{{m.CONTAINERS}}</td>
+                        <td data-title="'IMAGES'" width="80" filter="{ IMAGES: 'text'}" data-sortable="'IMAGES'"><a uib-tooltip="{{m.IMAGES}}" >{{m.IMAGES|cut}}</a></td>
+                        <td data-title="'SELECTOR'" width="80" filter="{ SELECTOR: 'text'}" data-sortable="'SELECTOR'">{{m.SELECTOR}}</td>
                         <td data-title="'C3T.操作'|translate" width="80" >
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describe('cronjob',m.INAME,m.NAMESPACE)" uib-tooltip="{{'C3T.查看'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('cronjob',m.INAME,m.NAMESPACE)" uib-tooltip="{{'C3T.编辑yaml'|translate}}" style="cursor:pointer;color: #339094;" ></i>
@@ -586,12 +586,12 @@
               <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesmanage.statefulsetTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'C3T.名称'|translate" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">{{m.NAME}}</td>
-                        <td data-title="'READY'" width="80" filter="{ READY: 'text'}" sortable="'READY'">{{m.READY}}</td>
-                        <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
-                        <td data-title="'CONTAINERS'" width="80" filter="{ CONTAINERS: 'text'}" sortable="'CONTAINERS'">{{m.CONTAINERS}}</td>
-                        <td data-title="'IMAGES'" width="80" filter="{ IMAGES: 'text'}" sortable="'IMAGES'"><a uib-tooltip="{{m.IMAGES}}" >{{m.IMAGES|cut}}</a></td>
+                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" data-sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ NAME: 'text'}" data-sortable="'NAME'">{{m.NAME}}</td>
+                        <td data-title="'READY'" width="80" filter="{ READY: 'text'}" data-sortable="'READY'">{{m.READY}}</td>
+                        <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" data-sortable="'AGE'">{{m.AGE}}</td>
+                        <td data-title="'CONTAINERS'" width="80" filter="{ CONTAINERS: 'text'}" data-sortable="'CONTAINERS'">{{m.CONTAINERS}}</td>
+                        <td data-title="'IMAGES'" width="80" filter="{ IMAGES: 'text'}" data-sortable="'IMAGES'"><a uib-tooltip="{{m.IMAGES}}" >{{m.IMAGES|cut}}</a></td>
                         <td data-title="'C3T.操作'|translate" width="80" >
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describe('statefulset',m.INAME,m.NAMESPACE)" uib-tooltip="{{'C3T.查看'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('statefulset',m.INAME,m.NAMESPACE)" uib-tooltip="{{'C3T.编辑yaml'|translate}}" style="cursor:pointer;color: #339094;" ></i>
@@ -619,9 +619,9 @@
               <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesmanage.ingressrouteTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'C3T.名称'|translate" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">{{m.INAME}}</td>
-                        <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
+                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" data-sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ INAME: 'text'}" data-sortable="'INAME'">{{m.INAME}}</td>
+                        <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" data-sortable="'AGE'">{{m.AGE}}</td>
                         <td data-title="'C3T.操作'|translate" width="80" >
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describe('ingressroute',m.INAME,m.NAMESPACE)" uib-tooltip="{{'C3T.查看'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('ingressroute',m.INAME,m.NAMESPACE)" uib-tooltip="{{'C3T.编辑yaml'|translate}}" style="cursor:pointer;color: #339094;" ></i>
@@ -649,9 +649,9 @@
               <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesmanage.ingressroutetcpTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
-                        <td data-title="'C3T.名称'|translate" width="80" filter="{ INAME: 'text'}" sortable="'INAME'">{{m.INAME}}</td>
-                        <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
+                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ NAMESPACE: 'text'}" data-sortable="'NAMESPACE'">{{m.NAMESPACE}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ INAME: 'text'}" data-sortable="'INAME'">{{m.INAME}}</td>
+                        <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" data-sortable="'AGE'">{{m.AGE}}</td>
                         <td data-title="'C3T.操作'|translate" width="80" >
                             <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesmanage.describe('ingressroutetcp',m.INAME,m.NAMESPACE)" uib-tooltip="{{'C3T.查看'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-edit fa-2x" aria-hidden="true" ng-click="kubernetesmanage.edityaml('ingressroutetcp',m.INAME,m.NAMESPACE)" uib-tooltip="{{'C3T.编辑yaml'|translate}}" style="cursor:pointer;color: #339094;" ></i>

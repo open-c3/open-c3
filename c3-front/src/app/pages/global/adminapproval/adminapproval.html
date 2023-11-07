@@ -15,13 +15,13 @@
             <div class="panel-tabs">
                 <table ng-table="adminapproval.dataTable" class="table table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="d in $data">
-                        <td style="width: 15px" data-title="'ID'" filter="{ id: 'text'}" sortable="'id'">{{d.id}}</td>
-                        <td style="width: 10%" data-title="'C3T.创建时间'|translate" filter="{ create_time: 'text'}" sortable="'create_time'">{{d.create_time}}</td>
-                        <td style="width: 10%" data-title="'C3T.提交人'|translate" filter="{ submitter: 'text'}" sortable="'submitter'">{{d.submitter}}</td>
-                        <td style="width: 10%" data-title="'C3T.审批人'|translate" filter="{ user: 'text'}" sortable="'user'">{{d.user}}</td>
-                        <td style="width: 10%" data-title="'C3T.协助操作人'|translate" filter="{ assist: 'text'}" sortable="'assist'">{{d.assist}}</td>
-                        <td style="width: 20%" data-title="'C3T.审批名称'|translate" filter="{ name: 'text'}" sortable="'name'">{{d.name}}</td>
-                        <td style="width: 10%" data-title="'C3T.OA单号'|translate" filter="{ oauuid: 'text'}" sortable="'oauuid'">
+                        <td style="width: 15px" data-title="'ID'" filter="{ id: 'text'}" data-sortable="'id'">{{d.id}}</td>
+                        <td style="width: 10%" data-title="'C3T.创建时间'|translate" filter="{ create_time: 'text'}" data-sortable="'create_time'">{{d.create_time}}</td>
+                        <td style="width: 10%" data-title="'C3T.提交人'|translate" filter="{ submitter: 'text'}" data-sortable="'submitter'">{{d.submitter}}</td>
+                        <td style="width: 10%" data-title="'C3T.审批人'|translate" filter="{ user: 'text'}" data-sortable="'user'">{{d.user}}</td>
+                        <td style="width: 10%" data-title="'C3T.协助操作人'|translate" filter="{ assist: 'text'}" data-sortable="'assist'">{{d.assist}}</td>
+                        <td style="width: 20%" data-title="'C3T.审批名称'|translate" filter="{ name: 'text'}" data-sortable="'name'">{{d.name}}</td>
+                        <td style="width: 10%" data-title="'C3T.OA单号'|translate" filter="{ oauuid: 'text'}" data-sortable="'oauuid'">
                             <button class="btn btn-info btn-sm" ng-click="adminapproval.oalog(d.id,1)">{{'C3T.日志'|translate}}</button>
                             <button class="btn btn-primary btn-sm" ng-disabled="d.opinion != 'unconfirmed'" ng-click="adminapproval.oaredo(d.id)">{{'C3T.重做'|translate}}</button>
                             <a ng-if="d.oauuid==0"> {{'C3T.尚未发送'|translate}}</a>
@@ -32,7 +32,7 @@
                             <button class="btn btn-primary btn-sm" ng-disabled="d.opinion != 'unconfirmed'" ng-click="adminapproval.notifyredo(d.id)">{{'C3T.重做'|translate}}</button>
                             {{ns[d.notifystatus]|translate}}
                         </td>
-                        <td style="width: 10%" data-title="'C3T.审批状态'|translate" sortable="'opinion'">
+                        <td style="width: 10%" data-title="'C3T.审批状态'|translate" data-sortable="'opinion'">
                             <a ng-if="d.opinion == 'agree'" style="color: green"> {{'C3T.同意'|translate}} </a>
                             <a ng-if="d.opinion == 'unconfirmed'"> {{'C3T.未审批'|translate}} </a>
                             <a ng-if="d.opinion == 'refuse'" style="color: red"> {{'C3T.拒绝'|translate}} </a>
