@@ -57,13 +57,14 @@ sub call
       %ssl,
     );
 
+    my $ct = $subject =~ /TT000/ ? 'text/html' : 'text/plain';
     my $message = Email::Simple->create(
         header => [
             From    => $conf{from},
             To      => $user,
             Subject => encode_mimewords($subject, Charset => 'UTF-8', Encoding => 'Q'),
 
-            'Content-Type' => 'text/plain; charset=UTF-8',
+            'Content-Type' => "$ct; charset=UTF-8",
             'charset'      => 'UTF-8',
         ],
         body => $content,
