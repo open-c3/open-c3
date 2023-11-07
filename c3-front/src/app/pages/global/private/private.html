@@ -23,10 +23,10 @@
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="private.dataTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td width="60" class="textcenter" data-title="'ID'" filter="{ id: 'text'}" sortable="'id'"> {{m.id}} </td>
-                        <td data-title="'C3T.用户'|translate" width="80" filter="{ user: 'text'}" sortable="'user'">{{m.user}}</td>
-                        <td data-title="'C3T.操作人'|translate" width="80" filter="{ edit_user: 'text'}" sortable="'edit_user'">{{m.edit_user}}</td>
-                        <td data-title="'C3T.时间'|translate" width="80" filter="{ edit_time: 'text'}" sortable="'edit_time'">{{m.edit_time}}</td>
+                        <td width="60" class="textcenter" data-title="'ID'" filter="{ id: 'text'}" data-sortable="'id'"> {{m.id}} </td>
+                        <td data-title="'C3T.用户'|translate" width="80" filter="{ user: 'text'}" data-sortable="'user'">{{m.user}}</td>
+                        <td data-title="'C3T.操作人'|translate" width="80" filter="{ edit_user: 'text'}" data-sortable="'edit_user'">{{m.edit_user}}</td>
+                        <td data-title="'C3T.时间'|translate" width="80" filter="{ edit_time: 'text'}" data-sortable="'edit_time'">{{m.edit_time}}</td>
                         <td data-title="'C3T.操作'|translate" width="80" >
                             <button class="btn btn-primary btn-sm" ng-click="private.testsend(m.user)">{{'C3T.测试消息通道'|translate}}</button>
                             <i class="fa fa-edit fa-2x" aria-hidden="true" ui-sref="home.business.machine({treeid: {{m.id}}})" uib-tooltip="{{'C3T.机器管理'|translate}}" style="cursor:pointer;" >{{'C3T.管理机器'|translate}}</i>

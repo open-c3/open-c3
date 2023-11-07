@@ -11,15 +11,15 @@
             <div class="panel-tabs">
                 <table ng-table="monitor.monitorTable" class="table table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="d in $data">
-                        <td data-title="'C3T.时间'|translate" filter="{ time: 'text'}" sortable="'time'">{{d.time}}</td>
-                        <td data-title="'C3T.监控对象'|translate" filter="{ host: 'text'}" sortable="'host'">{{d.host}}</td>
-                        <td data-title="'C3T.状态'|translate" filter="{ stat: 'text'}" sortable="'stat'">
+                        <td data-title="'C3T.时间'|translate" filter="{ time: 'text'}" data-sortable="'time'">{{d.time}}</td>
+                        <td data-title="'C3T.监控对象'|translate" filter="{ host: 'text'}" data-sortable="'host'">{{d.host}}</td>
+                        <td data-title="'C3T.状态'|translate" filter="{ stat: 'text'}" data-sortable="'stat'">
                             <span ng-if="d.stat=='ok' || d.stat=='healthy'" style="color: green">{{d.stat}}</span>
                             <span ng-if="d.stat!='ok' && d.stat!='healthy'">{{d.stat}}</span>
                         </td>
-                        <td data-title="'C3T.类型'|translate" filter="{ type: 'text'}" sortable="'type'">{{d.type}}</td>
-                        <td data-title="'C3T.监控指标'|translate" filter="{ key: 'text'}" sortable="'key'">{{d.key}}</td>
-                        <td data-title="'C3T.值'|translate" filter="{ val: 'text'}" sortable="'val'">{{d.val}}</td>
+                        <td data-title="'C3T.类型'|translate" filter="{ type: 'text'}" data-sortable="'type'">{{d.type}}</td>
+                        <td data-title="'C3T.监控指标'|translate" filter="{ key: 'text'}" data-sortable="'key'">{{d.key}}</td>
+                        <td data-title="'C3T.值'|translate" filter="{ val: 'text'}" data-sortable="'val'">{{d.val}}</td>
                     </tr>
                 </table>
             </div>

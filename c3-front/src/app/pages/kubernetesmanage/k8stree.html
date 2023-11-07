@@ -12,8 +12,8 @@
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesk8stree.k8sTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'C3T.名称'|translate" width="80" filter="{ name: 'text'}" sortable="'name'"> {{m.name}} </td>
-                        <td data-title="'C3T.描述'|translate" width="80" filter="{ describe: 'text'}" sortable="'describe'">{{m.describe}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ name: 'text'}" data-sortable="'name'"> {{m.name}} </td>
+                        <td data-title="'C3T.描述'|translate" width="80" filter="{ describe: 'text'}" data-sortable="'describe'">{{m.describe}}</td>
                         <td data-title="'C3T.流水线自动关联'|translate" width="80" >
                             <i ng-if="kubernetesk8stree.k8stree.auto[m.id] !== 1" class="fa fa-toggle-off fa-2x" aria-hidden="true" style="cursor:pointer;color: #C0C0C0;" ></i>
                             <i ng-if="kubernetesk8stree.k8stree.auto[m.id] === 1" class="fa fa-toggle-on fa-2x" aria-hidden="true"  style="cursor:pointer;color: black;" ></i>

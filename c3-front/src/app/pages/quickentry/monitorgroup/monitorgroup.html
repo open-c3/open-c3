@@ -22,12 +22,12 @@
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="monitorgroup.groupTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'C3T.编号'|translate" sortable="'id'" filter="{id: 'text'}">{{m.id}}</td>
-                        <td data-title="'C3T.名称'|translate" sortable="'name'" filter="{name: 'text'}">{{m.name}}</td>
-                        <td data-title="'C3T.描述'|translate" sortable="'summary'" filter="{description: 'text'}">{{m.description}}</td>
-                        <td data-title="'C3T.编辑者'|translate" sortable="'edit_user'" filter="{edit_user: 'text'}">{{m.edit_user}}</td>
-                        <td data-title="'C3T.编辑时间'|translate" sortable="'edit_time'" filter="{edit_time: 'text'}">{{m.edit_time}}</td>
-                        <td width="300" data-title="'C3T.服务树'|translate" sortable="'treestr'" filter="{treestr: 'text'}">
+                        <td data-title="'C3T.编号'|translate" data-sortable="'id'" filter="{id: 'text'}">{{m.id}}</td>
+                        <td data-title="'C3T.名称'|translate" data-sortable="'name'" filter="{name: 'text'}">{{m.name}}</td>
+                        <td data-title="'C3T.描述'|translate" data-sortable="'summary'" filter="{description: 'text'}">{{m.description}}</td>
+                        <td data-title="'C3T.编辑者'|translate" data-sortable="'edit_user'" filter="{edit_user: 'text'}">{{m.edit_user}}</td>
+                        <td data-title="'C3T.编辑时间'|translate" data-sortable="'edit_time'" filter="{edit_time: 'text'}">{{m.edit_time}}</td>
+                        <td width="300" data-title="'C3T.服务树'|translate" data-sortable="'treestr'" filter="{treestr: 'text'}">
                           <div class="monitor-tag-content blur-border" id="monitorTag">
                             <div ng-class="{'monitor-treestr-tags': data!==''}" ng-repeat="data in m.treestr.split(',')">{{data}}</div>
                           </div>
@@ -40,7 +40,7 @@
                               <i class="fa fa-angle-double-up" aria-hidden="true"></i>
                             </button>
                         </td>
-                        <td width="300" data-title="'C3T.成员'|translate" sortable="'userstr'" filter="{userstr: 'text'}">
+                        <td width="300" data-title="'C3T.成员'|translate" data-sortable="'userstr'" filter="{userstr: 'text'}">
                           <div class="monitor-tag-content blur-border " id="monitorTag">
                             <div ng-class="{'monitor-treestr-tags': data!==''}" ng-repeat="data in m.userstr.split(',')">{{data}}</div>
                           </div>

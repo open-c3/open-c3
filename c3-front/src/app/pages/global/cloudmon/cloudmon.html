@@ -23,11 +23,11 @@
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="cloudmon.dataTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'ID'"       width="60" filter="{ id: 'text'}"        sortable="'id'">       {{m.id}}       </td>
-                        <td data-title="'C3T.名称'|translate"     width="80" filter="{ name: 'text'}"      sortable="'name'">     {{m.name}}     </td>
-                        <td data-title="'C3T.类型'|translate"     width="80" filter="{ type: 'text'}"      sortable="'type'">     {{m.type}}     </td>
-                        <td data-title="'C3T.描述'|translate"     width="80" filter="{ describe: 'text'}"  sortable="'describe'"> {{m.describe}} </td>
-                        <td data-title="'C3T.编辑时间'|translate" width="80" filter="{ edit_time: 'text'}" sortable="'edit_time'">{{m.edit_time}}</td>
+                        <td data-title="'ID'"       width="60" filter="{ id: 'text'}"        data-sortable="'id'">       {{m.id}}       </td>
+                        <td data-title="'C3T.名称'|translate"     width="80" filter="{ name: 'text'}"      data-sortable="'name'">     {{m.name}}     </td>
+                        <td data-title="'C3T.类型'|translate"     width="80" filter="{ type: 'text'}"      data-sortable="'type'">     {{m.type}}     </td>
+                        <td data-title="'C3T.描述'|translate"     width="80" filter="{ describe: 'text'}"  data-sortable="'describe'"> {{m.describe}} </td>
+                        <td data-title="'C3T.编辑时间'|translate" width="80" filter="{ edit_time: 'text'}" data-sortable="'edit_time'">{{m.edit_time}}</td>
                         <td style="width: 10%" data-title="'C3T.操作'|translate">
                             <button class="btn btn-primary btn-sm" ng-click="cloudmon.create(m.id)">{{'C3T.编辑'|translate}}</button>
                             <button class="btn btn-danger btn-sm"  ng-click="cloudmon.delete(m.id)">{{'C3T.删除'|translate}}</button>

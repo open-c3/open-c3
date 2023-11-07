@@ -13,9 +13,9 @@
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="kubernetesnamespaceauth.nodeTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ namespace: 'text'}" sortable="'namespace'">{{m.namespace}}</td>
-                        <td data-title="'C3T.用户'|translate" width="80" filter="{ user: 'text'}" sortable="'user'">{{m.user}}</td>
-                        <td data-title="'C3T.权限'|translate" width="80" filter="{ auth: 'text'}" sortable="'auth'">
+                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ namespace: 'text'}" data-sortable="'namespace'">{{m.namespace}}</td>
+                        <td data-title="'C3T.用户'|translate" width="80" filter="{ user: 'text'}" data-sortable="'user'">{{m.user}}</td>
+                        <td data-title="'C3T.权限'|translate" width="80" filter="{ auth: 'text'}" data-sortable="'auth'">
                             <a ng-if="m.auth=='r'"  >{{'C3T.读权限'|translate}} </a>
                             <a ng-if="m.auth=='rx'"  >{{'C3T.[读+执行]权限'|translate}} </a>
                             <a ng-if="m.auth=='rw'" >{{'C3T.[读+写+执行]权限'|translate}}</a>

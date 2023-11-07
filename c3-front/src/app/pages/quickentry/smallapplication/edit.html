@@ -22,19 +22,19 @@
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="smallapplicationedit.dataTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td width="60" class="textcenter" data-title="'ID'" filter="{ id: 'text'}" sortable="'id'"> {{m.id}} </td>
-                        <td data-title="'C3T.服务树ID'|translate" width="80" filter="{ projectid: 'text'}" sortable="'projectid'">{{m.projectid}}</td>
-                        <td data-title="'C3T.可见度'|translate" width="80" sortable="'treeid'">
+                        <td width="60" class="textcenter" data-title="'ID'" filter="{ id: 'text'}" data-sortable="'id'"> {{m.id}} </td>
+                        <td data-title="'C3T.服务树ID'|translate" width="80" filter="{ projectid: 'text'}" data-sortable="'projectid'">{{m.projectid}}</td>
+                        <td data-title="'C3T.可见度'|translate" width="80" data-sortable="'treeid'">
                             <a ng-if="m.treeid!=0" >服务树</a><a ng-if="m.treeid==0">全局</a>
                         </td>
-                        <td data-title="'C3T.类型'|translate" width="80" filter="{ type: 'text'}" sortable="'type'">{{m.type}}</td>
-                        <td data-title="'C3T.名称'|translate" width="80" filter="{ title: 'text'}" sortable="'title'">{{m.title}}</td>
-                        <td data-title="'C3T.作业名称'|translate" width="80" filter="{ jobname: 'text'}" sortable="'jobname'">{{m.jobname}}</td>
-                        <td data-title="'C3T.描述'|translate" width="80" filter="{ describe: 'text'}" sortable="'describe'">{{m.describe}}</td>
-                        <td data-title="'C3T.创建人'|translate" width="80" filter="{ create_user: 'text'}" sortable="'create_user'">{{m.create_user}}</td>
-                        <td data-title="'C3T.最后编辑人'|translate" width="80" filter="{ edit_user: 'text'}" sortable="'edit_user'">{{m.edit_user}}</td>
-                        <td data-title="'C3T.创建时间'|translate" width="80" filter="{ create_time: 'text'}" sortable="'create_time'">{{m.create_time}}</td>
-                        <td data-title="'C3T.最后更新时间'|translate" width="80" filter="{ edit_time: 'text'}" sortable="'edit_time'">{{m.edit_time}}</td>
+                        <td data-title="'C3T.类型'|translate" width="80" filter="{ type: 'text'}" data-sortable="'type'">{{m.type}}</td>
+                        <td data-title="'C3T.名称'|translate" width="80" filter="{ title: 'text'}" data-sortable="'title'">{{m.title}}</td>
+                        <td data-title="'C3T.作业名称'|translate" width="80" filter="{ jobname: 'text'}" data-sortable="'jobname'">{{m.jobname}}</td>
+                        <td data-title="'C3T.描述'|translate" width="80" filter="{ describe: 'text'}" data-sortable="'describe'">{{m.describe}}</td>
+                        <td data-title="'C3T.创建人'|translate" width="80" filter="{ create_user: 'text'}" data-sortable="'create_user'">{{m.create_user}}</td>
+                        <td data-title="'C3T.最后编辑人'|translate" width="80" filter="{ edit_user: 'text'}" data-sortable="'edit_user'">{{m.edit_user}}</td>
+                        <td data-title="'C3T.创建时间'|translate" width="80" filter="{ create_time: 'text'}" data-sortable="'create_time'">{{m.create_time}}</td>
+                        <td data-title="'C3T.最后更新时间'|translate" width="80" filter="{ edit_time: 'text'}" data-sortable="'edit_time'">{{m.edit_time}}</td>
                         <td data-title="'C3T.操作'|translate" width="80" >
                             <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="smallapplicationedit.createSmallApplication(m.id)" uib-tooltip="{{'C3T.编辑'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                             <i class="fa fa-times-circle fa-2x" aria-hidden="true" ng-click="smallapplicationedit.deleteSmallApplication(m.id,m.jobid)" uib-tooltip="{{'C3T.删除'|translate}}" style="cursor:pointer;color: red;" ></i>
