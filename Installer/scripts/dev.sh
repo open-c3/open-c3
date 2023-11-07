@@ -138,6 +138,8 @@ function start() {
         fi
 
         rsync -av $BASE_PATH/c3-front/src/assets/ $BASE_PATH/c3-front/dist/assets/
+        mkdir -p $BASE_PATH/c3-front/dist/loginext
+        rsync -av $BASE_PATH/c3-front/src/loginext/ $BASE_PATH/c3-front/dist/loginext/
 
 #        NEWBOOK=0
 #        if [ ! -d $BASE_PATH/c3-front/dist/book ];then

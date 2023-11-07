@@ -22,7 +22,7 @@
                     </div>
                   </div>
                   <div ng-if="infoItems.baseinfoFlag" class="detail-card" ng-show="devicedatadetail">
-                    <div  class="detail-card-content">
+                    <div  class="detail-card-content" ng-class="{'info-repeat': !!devicedatadetail.getRepeatInfo(item[0],devicedatadetail.extcol)}">
                       <div class="row" ng-repeat="item in infoItems.baseinfo">
                         <div class="label-content">
                           <label class="col-md-4  control-label fwbold overflow-wraps">
@@ -63,7 +63,7 @@
                   <div ng-if="infoItems.systemFlag" class="detail-card" ng-show="infoItems">
                     <div class="detail-card-content">
                       <div class="row" ng-repeat="item in infoItems.system">
-                        <div class="label-content">
+                        <div class="label-content" ng-class="{'info-repeat': !!devicedatadetail.getRepeatInfo(item[0],devicedatadetail.extcol)}">
                           <label class="col-md-4  control-label fwbold overflow-wraps">
                             <div ng-if="item.color">
                               <div ng-style="{color: item.color}">{{item.name || cut30}}</div>
@@ -107,7 +107,7 @@
                     <div class="row" ng-repeat="item in infoItems.otherinfo">
                         <div ng-if="
                         devicedatadetail.treenamecol!=item[0]">
-                          <div ng-if="devicedatadetail.treenamecol!==item[0]" class="label-content">
+                          <div ng-if="devicedatadetail.treenamecol!==item[0]" class="label-content" ng-class="{'info-repeat': !!devicedatadetail.getRepeatInfo(item[0],devicedatadetail.extcol)}">
                             <label class="col-md-4  control-label fwbold overflow-wraps">
                               <div ng-if="item.color">
                                 <div ng-style="{color: item.color}">{{item[0] || cut30}}</div>

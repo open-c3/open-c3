@@ -22,7 +22,7 @@ if [ "X$X" == "X0" ];then
     exit 1
 fi
 
-KIND=( deploy )
+KIND=( deploy svc )
 #KIND=( deploy pv pvc )
 for kind in ${KIND[@]};do
     NAME=(`bash -c "$kubectl -n $NAMESPACE get $kind -o custom-columns='NAME:metadata.name' --no-headers"`)

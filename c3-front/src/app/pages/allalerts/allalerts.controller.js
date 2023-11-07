@@ -41,6 +41,8 @@
         vm.hasDebugStatus = false;
         vm.checkDataList = [];
         vm.selectedClaims = [];
+        vm.filterValue  = {};
+        vm.checkFilterDataList = [];
         vm.checkboxes = {
           checked: false,
           items: {},
@@ -283,9 +285,28 @@
           saveAs(blob, fileName);
         }
 
+        //监听表格过滤条件
+        $scope.$watch(function () { return vm.dataTable  && vm.dataTable.filter() }, function (value) {
+          vm.filterValue = value
+          // 构造过滤函数
+          const filterFn = (item) => {
+            return Object.entries(vm.filterValue).every(([key, value]) => {
+              return item[key].includes(value);
+            });
+          };
+          const newFilterData = vm.checkDataList.filter(filterFn)
+          vm.checkboxes = {
+            checked: false,
+            items: {},
+            itemsNumber: 0
+          };
+          vm.checkFilterDataList = newFilterData
+        }, true);
+
         // 监听全选checkbox
         $scope.$watch(function () { return vm.checkboxes.checked }, function (value) {
-          angular.forEach(vm.checkDataList, function (item, index, array) {
+          const newData = vm.filterValue && Object.values(vm.filterValue).join('')  === '' ? vm.checkDataList : vm.checkFilterDataList
+          angular.forEach(newData, function (item, index, array) {
             vm.checkboxes.items[[array[index].uuid]] = value
           });
           vm.checkboxes.itemsNumber = Object.values(vm.checkboxes.items).filter(item => item === true).length
@@ -298,12 +319,13 @@
         // 监听单个列表项的checkbox
         $scope.$watch(function () { return vm.checkboxes.items }, function (value) {
           var checked = 0, unchecked = 0
-          angular.forEach(vm.checkDataList, function (item, index, array) {
+          const newData = vm.filterValue && Object.values(vm.filterValue).join('')  === '' ? vm.checkDataList : vm.checkFilterDataList
+          angular.forEach(newData, function (item, index, array) {
             checked += (vm.checkboxes.items[array[index].uuid]) || 0;
             unchecked += (!vm.checkboxes.items[array[index].uuid]) || 0;
           });
-          if (vm.checkDataList.length > 0 && ((unchecked == 0) || (checked == 0))) {
-            vm.checkboxes.checked = (checked == vm.checkDataList.length);
+          if (newData.length > 0 && ((unchecked == 0) || (checked == 0))) {
+            vm.checkboxes.checked = (checked == newData.length);
           }
           vm.checkboxes.itemsNumber = checked
           angular.element(document.getElementsByClassName("select-all")).prop("indeterminate", (checked != 0 && unchecked != 0));
