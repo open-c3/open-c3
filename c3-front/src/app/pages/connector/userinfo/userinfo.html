@@ -23,8 +23,8 @@
             <div class="panel-tabs">
                 <table ng-table="connectoruserinfo.userTable" class="table table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="user in $data">
-                        <td style="width: 10%" data-title="'C3T.用户'|translate" filter="{ name: 'text'}" sortable="'name'">{{user.name}}</td>
-                        <td style="width: 10%" data-title="'C3T.密码未修改'|translate" sortable="'pass'">
+                        <td style="width: 10%" data-title="'C3T.用户'|translate" filter="{ name: 'text'}" data-sortable="'name'">{{user.name}}</td>
+                        <td style="width: 10%" data-title="'C3T.密码未修改'|translate" data-sortable="'pass'">
                             <a ng-if="user.pass==2" style="color: red"  > {{'C3T.是'|translate}}({{'C3T.危险'|translate}}) </a>
                             <a ng-if="user.pass==1" style="color: green"> {{'C3T.否'|translate}} </a>
                             <a ng-if="user.pass==0" >{{'C3T.非本地用户'|translate}} </a>

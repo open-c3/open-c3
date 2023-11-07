@@ -62,16 +62,16 @@
                         <div class="pt20" style="overflow: auto;">
                             <table ng-table="kubernetesdescribedeployment.oldpodTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                                 <tr ng-repeat="m in $data">
-                                    <td data-title="'C3T.旧容器'|translate" width="80" filter="{ NAME: 'text'}" sortable="'NAME'">
+                                    <td data-title="'C3T.旧容器'|translate" width="80" filter="{ NAME: 'text'}" data-sortable="'NAME'">
                                         {{m.NAME}}
                                     </td>
-                                    <td data-title="'READY'" width="80" filter="{ READY: 'text'}" sortable="'READY'">{{m.READY}}</td>
-                                    <td data-title="'STATUS'" width="80" filter="{ STATUS: 'text'}" sortable="'STATUS'">
+                                    <td data-title="'READY'" width="80" filter="{ READY: 'text'}" data-sortable="'READY'">{{m.READY}}</td>
+                                    <td data-title="'STATUS'" width="80" filter="{ STATUS: 'text'}" data-sortable="'STATUS'">
                                         <a ng-if="m.STATUS==='Running'" style="color: green;">{{m.STATUS}}</a>
                                         <a ng-if="m.STATUS!=='Running'" style="color: red;" >{{m.STATUS}}</a>
                                     </td>
-                                    <td data-title="'RESTARTS'" width="80" filter="{ RESTARTS: 'text'}" sortable="'RESTARTS'">{{m.RESTARTS}}</td>
-                                    <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" sortable="'AGE'">{{m.AGE}}</td>
+                                    <td data-title="'RESTARTS'" width="80" filter="{ RESTARTS: 'text'}" data-sortable="'RESTARTS'">{{m.RESTARTS}}</td>
+                                    <td data-title="'AGE'" width="80" filter="{ AGE: 'text'}" data-sortable="'AGE'">{{m.AGE}}</td>
                                     <td data-title="'C3T.操作'|translate" width="80" >
                                         <i class="fa fa-search fa-2x" aria-hidden="true" ng-click="kubernetesdescribedeployment.describexx('pod',m.NAME)" uib-tooltip="{{'C3T.查看'|translate}}" style="cursor:pointer;color: #339094;" ></i>
                                         <i class="fa fa-television fa-2x" aria-hidden="true" ng-click="kubernetesdescribedeployment.openOneTab(m.NAME,'sh','')" uib-tooltip="{{'C3T.进入POD虚拟终端'|translate}}" style="cursor:pointer;color: #339094;" ></i>

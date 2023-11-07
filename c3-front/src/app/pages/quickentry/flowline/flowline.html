@@ -32,18 +32,18 @@
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="cigroup.activeRegionTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td width="60" data-title="'C3T.名称'|translate" filter="{ name: 'text'}" sortable="'name'">
+                        <td width="60" data-title="'C3T.名称'|translate" filter="{ name: 'text'}" data-sortable="'name'">
                             <i class="fa fa-star-o fa-1x" aria-hidden="true"  ng-if="!m.favorites" ng-click="cigroup.addToFavorites(m.id,m.name)" uib-tooltip="{{'C3T.收藏'|translate}}" style="cursor:pointer;color: #339094;font-size: 18px;" ></i>
                             <i class="fa fa-star fa-1x" aria-hidden="true"  ng-if="m.favorites" ng-click="cigroup.delToFavorites(m.id,m.name)" uib-tooltip="{{'C3T.取消收藏'|translate}}" style="cursor:pointer;color: #339094;font-size: 18px;" ></i>
                             {{m.name}}
                         </td>
-                        <td data-title="'C3T.审计'|translate" width="80" filter="{ audit_level: 'text'}" sortable="'audit_level'">
+                        <td data-title="'C3T.审计'|translate" width="80" filter="{ audit_level: 'text'}" data-sortable="'audit_level'">
                             <a ng-if="m.audit_level==1" style="color: green;" >是<a>
                             <a ng-if="m.audit_level!=1" >否<a>
                         </td>
-                        <td data-title="'C3T.别名'|translate" width="80" filter="{ alias: 'text'}" sortable="'alias'">{{m.alias}}</td>
-                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ ci_type_namespace: 'text'}" sortable="'ci_type_namespace'">{{m.ci_type_namespace}}</td>
-                        <td data-title="'C3T.应用'|translate" width="80" filter="{ ci_type: 'text'}" sortable="'ci_type'">
+                        <td data-title="'C3T.别名'|translate" width="80" filter="{ alias: 'text'}" data-sortable="'alias'">{{m.alias}}</td>
+                        <td data-title="'C3T.命名空间'|translate" width="80" filter="{ ci_type_namespace: 'text'}" data-sortable="'ci_type_namespace'">{{m.ci_type_namespace}}</td>
+                        <td data-title="'C3T.应用'|translate" width="80" filter="{ ci_type: 'text'}" data-sortable="'ci_type'">
                              {{m.ci_type}}.{{m.ci_type_kind}}
                               <div ng-if="m.ci_type_name" ng-repeat="name in m.ci_type_name.split(',')" >
                                  {{m.ci_type_namespace}}/{{name}}
@@ -91,9 +91,9 @@
                                 </div>
                         </td>
  
-                        <td data-title="'C3T.编辑者'|translate" width="80" filter="{ edit_user: 'text'}" sortable="'edit_user'">{{m.edit_user}}</td>
-                        <td data-title="'C3T.编号'|translate" width="30" filter="{ id: 'text'}" sortable="'id'">{{m.id}}</td>
-                        <td data-title="'cislave'" width="30" filter="{ cislave: 'text'}" sortable="'id'">{{m.cislave}}</td>
+                        <td data-title="'C3T.编辑者'|translate" width="80" filter="{ edit_user: 'text'}" data-sortable="'edit_user'">{{m.edit_user}}</td>
+                        <td data-title="'C3T.编号'|translate" width="30" filter="{ id: 'text'}" data-sortable="'id'">{{m.id}}</td>
+                        <td data-title="'cislave'" width="30" filter="{ cislave: 'text'}" data-sortable="'id'">{{m.cislave}}</td>
                         <td class="textcenter" width="175" data-title="'C3T.操作'|translate">
                             <nobr>
                                 <i class="fa fa-chevron-circle-right fa-2x" aria-hidden="true" ng-click="cigroup.versiondetail(m.id,m.cislave)" uib-tooltip="{{'C3T.进入'|translate}}" style="cursor:pointer;color: #339094;" ></i>

@@ -44,13 +44,13 @@
             <div class="pt20">
                 <table ng-table="ci.activeRegionTable" class="table table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="( id, m ) in $data">
-                        <td style="width: 4%" data-title="'ID'" filter="{ id: 'text'}" sortable="'id'">{{m.id}}</td>
-                        <td style="width: 10%" data-title="'C3T.tag发现时间'|translate" filter="{ create_time: 'text'}" sortable="'create_time'">{{m.create_time}}</td>
-                        <td style="width: 9%" data-title="'C3T.版本'|translate" filter="{ name: 'text'}" sortable="'name'">{{m.name}}</td>
-                        <td style="width: 12%" data-title="'tagger'" filter="{ tagger: 'text'}" sortable="'tagger'">{{m.tagger}}</td>
-                        <td style="width: 12%" data-title="'C3T.版本信息'|translate" filter="{ taginfo: 'text'}" sortable="'taginfo'">{{m.taginfo}}</td>
-                        <td ng-if="ci.project.addr != 'null'" style="width: 12%" data-title="'C3T.触发人'|translate" filter="{ user: 'text'}" sortable="'user'">{{m.user}}</td>
-                        <td ng-if="ci.project.addr != 'null'" style="width: 10%" data-title="'C3T.构建状态'|translate" filter="{ status: 'text'}" sortable="'status'">
+                        <td style="width: 4%" data-title="'ID'" filter="{ id: 'text'}" data-sortable="'id'">{{m.id}}</td>
+                        <td style="width: 10%" data-title="'C3T.tag发现时间'|translate" filter="{ create_time: 'text'}" data-sortable="'create_time'">{{m.create_time}}</td>
+                        <td style="width: 9%" data-title="'C3T.版本'|translate" filter="{ name: 'text'}" data-sortable="'name'">{{m.name}}</td>
+                        <td style="width: 12%" data-title="'tagger'" filter="{ tagger: 'text'}" data-sortable="'tagger'">{{m.tagger}}</td>
+                        <td style="width: 12%" data-title="'C3T.版本信息'|translate" filter="{ taginfo: 'text'}" data-sortable="'taginfo'">{{m.taginfo}}</td>
+                        <td ng-if="ci.project.addr != 'null'" style="width: 12%" data-title="'C3T.触发人'|translate" filter="{ user: 'text'}" data-sortable="'user'">{{m.user}}</td>
+                        <td ng-if="ci.project.addr != 'null'" style="width: 10%" data-title="'C3T.构建状态'|translate" filter="{ status: 'text'}" data-sortable="'status'">
                                 <div class="panel panel-info" ng-if="m.starttime" style="cursor:pointer;background-color: {{panelcolor[m.status]}};" ng-click="ci.showlog(m.uuid, m.slave)">
                                     <i class="fa fa-cloud" ng-if="m.status=='fail'" aria-hidden="true"></i>
                                     <i class="fa fa-spinner" ng-if="m.status=='running'" ng-class="{'fa-spin':1}" aria-hidden="true"></i>

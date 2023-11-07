@@ -23,8 +23,8 @@
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="k8sapptpl.dataTable" class="table table-scroll table-hover text-left table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'C3T.名称'|translate"     width="80" filter="{ name: 'text'}"      sortable="'name'">     {{m.name}}     </td>
-                        <td data-title="'C3T.类型'|translate"     width="80" filter="{ type: 'text'}"      sortable="'type'">     {{m.type}}     </td>
+                        <td data-title="'C3T.名称'|translate"     width="80" filter="{ name: 'text'}"      data-sortable="'name'">     {{m.name}}     </td>
+                        <td data-title="'C3T.类型'|translate"     width="80" filter="{ type: 'text'}"      data-sortable="'type'">     {{m.type}}     </td>
                         <td style="width: 10%" data-title="'C3T.操作'|translate">
                             <button class="btn btn-primary btn-sm" ng-click="k8sapptpl.create(m.name)">{{'C3T.编辑'|translate}}</button>
                             <button class="btn btn-danger btn-sm" ng-disabled="m.type=='buildin'" ng-click="k8sapptpl.delete(m.name)">{{'C3T.删除'|translate}}</button>

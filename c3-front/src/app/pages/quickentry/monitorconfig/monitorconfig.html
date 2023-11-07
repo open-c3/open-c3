@@ -99,12 +99,12 @@
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="monitorconfig.activeAlertTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'C3T.开始时间'|translate" filter="{startsAt: 'text'}" sortable="'startsAt'">{{m.startsAt}}</td>
-                        <td data-title="'C3T.名称'|translate" filter="{labelsAlertname: 'text'}" sortable="'labels.alertname'">{{m.labels.alertname}}</td>
-                        <td data-title="'C3T.监控对象'|translate" filter="{labelsObj: 'text'}" sortable="'labels.instance'">{{monitorconfig.getinstancename(m.labels)}}</td>
-                        <td data-title="'C3T.状态'|translate" filter="{statueState: 'text'}" sortable="'status.state'">{{m.status.state}}</td>
-                        <td data-title="'C3T.概要'|translate" filter="{annotationsSummary: 'text'}" sortable="'annotations.summary'">{{m.annotations.summary}}</td>
-                        <td data-title="'C3T.值'|translate"  filter="{annotationsValue: 'text'}" sortable="'annotations.value'">{{m.annotations.value}}</td>
+                        <td data-title="'C3T.开始时间'|translate" filter="{startsAt: 'text'}" data-sortable="'startsAt'">{{m.startsAt}}</td>
+                        <td data-title="'C3T.名称'|translate" filter="{labelsAlertname: 'text'}" data-sortable="'labels.alertname'">{{m.labels.alertname}}</td>
+                        <td data-title="'C3T.监控对象'|translate" filter="{labelsObj: 'text'}" data-sortable="'labels.instance'">{{monitorconfig.getinstancename(m.labels)}}</td>
+                        <td data-title="'C3T.状态'|translate" filter="{statueState: 'text'}" data-sortable="'status.state'">{{m.status.state}}</td>
+                        <td data-title="'C3T.概要'|translate" filter="{annotationsSummary: 'text'}" data-sortable="'annotations.summary'">{{m.annotations.summary}}</td>
+                        <td data-title="'C3T.值'|translate"  filter="{annotationsValue: 'text'}" data-sortable="'annotations.value'">{{m.annotations.value}}</td>
                         <td class="textcenter"  data-title="'C3T.操作'|translate">
                             <nobr>
                                 <a style="font-size: 10px;font-weight: bold" class="btn btn-primary" href="{{m.generatorURL}}" target="_blank">{{'C3T.查看图表'|translate}}</a>
@@ -139,16 +139,16 @@
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="monitorconfig.activeRegionTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'C3T.编号'|translate" sortable="'edit_user'">{{m.id}}</td>
-                        <td data-title="'C3T.类型'|translate" filter="{ type: 'text'}" sortable="'type'">{{monitorconfig.alias[m.type] || m.type|translate}}</td>
-                        <td data-title="'C3T.分类'|translate" filter="{ subtype: 'text'}" sortable="'subtype'">{{monitorconfig.alias[m.subtype] || m.subtype | translate }}</td>
-                        <td data-title="'C3T.内容'|translate" filter="{ content1: 'text'}" sortable="'content1'">
+                        <td data-title="'C3T.编号'|translate" data-sortable="'edit_user'">{{m.id}}</td>
+                        <td data-title="'C3T.类型'|translate" filter="{ type: 'text'}" data-sortable="'type'">{{monitorconfig.alias[m.type] || m.type|translate}}</td>
+                        <td data-title="'C3T.分类'|translate" filter="{ subtype: 'text'}" data-sortable="'subtype'">{{monitorconfig.alias[m.subtype] || m.subtype | translate }}</td>
+                        <td data-title="'C3T.内容'|translate" filter="{ content1: 'text'}" data-sortable="'content1'">
                             <div ng-if="m.content2" >{{m.content1}}【{{'C3T.匹配'|translate}}:{{m.content2}}】</div>
                             <div ng-if="!m.content2" >{{m.content1}}</div>
                         </td>
-                        <td data-title="'C3T.虚拟服务树'|translate" sortable="'vtreeid'" filter="{ vtreeid: 'text'}" >{{m.vtreeid}}</td>
-                        <td data-title="'C3T.编辑者'|translate" sortable="'edit_user'">{{m.edit_user}}</td>
-                        <td data-title="'C3T.编辑时间'|translate" sortable="'edit_time'">{{m.edit_time}}</td>
+                        <td data-title="'C3T.虚拟服务树'|translate" data-sortable="'vtreeid'" filter="{ vtreeid: 'text'}" >{{m.vtreeid}}</td>
+                        <td data-title="'C3T.编辑者'|translate" data-sortable="'edit_user'">{{m.edit_user}}</td>
+                        <td data-title="'C3T.编辑时间'|translate" data-sortable="'edit_time'">{{m.edit_time}}</td>
                         <td class="textcenter"  data-title="'C3T.操作'|translate">
                             <nobr>
                                 <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="monitorconfig.createCollector(m,'C3T.编辑')" uib-tooltip="{{'C3T.编辑'|translate}}" style="cursor:pointer;color: #339094;" ></i>
@@ -190,16 +190,16 @@
             <div class="pt20" style="overflow: auto;">
                 <table ng-table="monitorconfig.activeRuleTable" class="table table-scroll table-hover text-center table-condensed" show-filter="true">
                     <tr ng-repeat="m in $data">
-                        <td data-title="'C3T.编号'|translate" sortable="'id'">{{m.id}}</td>
-                        <td data-title="'C3T.名称'|translate" sortable="'alert'" filter="{ alert: 'text'}" >{{m.alert}}</td>
-                        <td data-title="'C3T.子组'|translate" sortable="'subgroup'" filter="{ subgroup: 'text'}" >{{m.subgroup}}</td>
-                        <td data-title="'C3T.虚拟服务树'|translate" sortable="'vtreeid'" filter="{ vtreeid: 'text'}" >{{m.vtreeid}}</td>
-                        <td data-title="'C3T.表达式'|translate" sortable="'expr'" filter="{ expr: 'text'}" ><a uib-tooltip="{{m.expr}}" >{{m.expr|cut60}} </a></td>
-                        <td data-title="'C3T.告警级别'|translate" sortable="'severity'" filter="{ severity: 'text'}" >{{m.severity}}</td>
-                        <td data-title="'C3T.连环Call'|translate" sortable="'serialcall'" filter="{ serialcall: 'text'}" >{{monitorconfig.serialcallMap[m.serialcall]}}</td>
-                        <td data-title="'C3T.概要'|translate" sortable="'summary'" filter="{ summary: 'text'}" >{{m.summary}}</td>
-                        <td data-title="'C3T.编辑者'|translate" sortable="'edit_user'" filter="{ edit_user: 'text'}" >{{m.edit_user}}</td>
-                        <td data-title="'C3T.编辑时间'|translate" sortable="'edit_time'">{{m.edit_time}}</td>
+                        <td data-title="'C3T.编号'|translate" data-sortable="'id'">{{m.id}}</td>
+                        <td data-title="'C3T.名称'|translate" data-sortable="'alert'" filter="{ alert: 'text'}" >{{m.alert}}</td>
+                        <td data-title="'C3T.子组'|translate" data-sortable="'subgroup'" filter="{ subgroup: 'text'}" >{{m.subgroup}}</td>
+                        <td data-title="'C3T.虚拟服务树'|translate" data-sortable="'vtreeid'" filter="{ vtreeid: 'text'}" >{{m.vtreeid}}</td>
+                        <td data-title="'C3T.表达式'|translate" data-sortable="'expr'" filter="{ expr: 'text'}" ><a uib-tooltip="{{m.expr}}" >{{m.expr|cut60}} </a></td>
+                        <td data-title="'C3T.告警级别'|translate" data-sortable="'severity'" filter="{ severity: 'text'}" >{{m.severity}}</td>
+                        <td data-title="'C3T.连环Call'|translate" data-sortable="'serialcall'" filter="{ serialcall: 'text'}" >{{monitorconfig.serialcallMap[m.serialcall]}}</td>
+                        <td data-title="'C3T.概要'|translate" data-sortable="'summary'" filter="{ summary: 'text'}" >{{m.summary}}</td>
+                        <td data-title="'C3T.编辑者'|translate" data-sortable="'edit_user'" filter="{ edit_user: 'text'}" >{{m.edit_user}}</td>
+                        <td data-title="'C3T.编辑时间'|translate" data-sortable="'edit_time'">{{m.edit_time}}</td>
                         <td class="textcenter"  data-title="'C3T.操作'|translate">
                             <nobr>
                                 <i class="fa fa-cog fa-2x" aria-hidden="true" ng-click="monitorconfig.createRule(m,'C3T.编辑')" uib-tooltip="{{'C3T.编辑'|translate}}" style="cursor:pointer;color: #339094;" ></i>
