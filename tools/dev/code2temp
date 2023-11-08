@@ -1,0 +1,21 @@
+#!/data/mydan/perl/bin/perl
+use strict;
+use warnings;
+
+use File::Basename;
+use FindBin qw( $RealBin );
+
+$| ++;
+
+my $name = `cat $RealBin/.myname`;
+chomp $name;
+
+die "name undef" unless $name && $name =~ /^[a-zA-Z0-9\.\-_]+$/;
+my $path = shift @ARGV;
+die "path undef" unless $path;
+die "path format error" unless $path =~ /^[A-Za-z]/;
+
+my $dist = "/data/open-c3-code-dev/$name/". File::Basename::dirname( $path );
+
+system "mkdir -p $dist\n" unless -f $dist;
+system "mv '$path' '$dist/'";
