@@ -1,0 +1,64 @@
+<div class="modal-header">
+  <h4 class="modal-title">{{ select.modalTitle | translate}}</h4>
+</div>
+
+<div class="modal-body">
+  <div class="modal-tags-loading-content" ng-if="select.tableLoading">
+    <div class="modal-tags-list-loading">
+      <div class="modal-tags-loading">
+        <div class="loading-l1">
+          <div></div>
+        </div>
+        <div class="loading-l2">
+          <div></div>
+        </div>
+        <div class="loading-l3">
+          <div></div>
+        </div>
+        <div class="loading-l4">
+          <div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div ng-if="!select.tableLoading" class="select-modal-default-detail-content">
+    <table ng-table="select.dataTable" class="table table-scroll table-hover text-center table-condensed"
+      show-filter="true">
+      <tr ng-repeat="m in $data" toggle-class="info">
+        <td width="150" data-title="'C3T.资源类型'|translate">{{m.subtype}}</td>
+        <td width="360" class="line-feed" data-title="'C3T.基本信息'|translate">{{m.baseinfo}}
+        </td>
+        <td width="360" data-title="'C3T.系统信息'|translate">
+          <div ng-if="m.match=='2'" style="color: green;">{{m.system}}</div>
+          <div ng-if="m.match!='2'">{{m.system}}</div>
+        </td>
+        <td width="360" class="line-feed" data-title="'C3T.联系信息'|translate">
+          <div uib-tooltip="{{m.contact}}">{{m.contact |cut61}}</div>
+        </td>
+      </tr>
+    </table>
+    <!-- 实例类型 -->
+    <div  class="select-modal-label-style-flex">
+      <label class="col-md-2 control-label fwbold tags-item-content-key">
+        <div>{{ select.modalTitle | translate}}</div>
+      </label>
+      <label class="col-md-5 tags-item-content-value">
+        <ui-select appendToBody="true" ng-model="select.instanceType" ng-change="select.handleChange($select.selected.name)"
+          ng-disabled="select.instanceTypeList.length === 0">
+          <ui-select-match>
+            <span class="item-label">{{$select.selected.name}}</span>
+          </ui-select-match>
+          <ui-select-choices repeat="item.name as item in select.instanceTypeList | filter: $select.search">
+            <div ng-bind-html="item.name | highlight: item.name"></div>
+          </ui-select-choices>
+        </ui-select>
+      </label>
+    </div>
+  </div>
+</div>
+</div>
+<div class="confirm-modal-button text-center">
+  <button class="btn btn-warning" ng-click="select.cancel()">{{'C3T.关闭'| translate }}</button>
+  <button class="btn btn-primary" ng-click="select.confirm()" ng-disabled="select.instanceType === ''">{{select.modalTitle| translate }}</button>
+</div>

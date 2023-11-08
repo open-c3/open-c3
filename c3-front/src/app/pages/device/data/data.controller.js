@@ -65,10 +65,16 @@
           tags: '/assets/images/cmdb-tags.png',
           modal: '/assets/images/cmdb-detail.png',
           table: '/assets/images/cmdb-table.png',
+          button:'/assets/images/cmdb-button.png',
+          select:'/assets/images/cmdb-select.png',
         }
+
+        vm.specificType = ['table','button']
 
         vm.tableClassificationMap =  {
           '后端机器': '/assets/images/cmdb-server.png',
+          '开机': '/assets/images/cmdb-startup.png',
+          '关机':'/assets/images/cmdb-shutdown.png',
         }
         vm.tablePageSize = 200
 
@@ -244,11 +250,51 @@
                 selectedtimemachine: function () {return vm.selectedtimemachine},
               }
             })
+          },
+          button: function (uuid, type, subtype, config) {
+            swal({
+              title: `确认进行${config.name}操作吗？`,
+              type: "warning",
+              showCancelButton: true,
+              confirmButtonColor: "#DD6B55",
+              cancelButtonText: "取消",
+              confirmButtonText: "确定",
+              closeOnConfirm: true
+            }, function () {
+              $http.post(`/api/agent/device/detail/${type}/${subtype}/${vm.treeid}/${uuid}?timemachine=${vm.selectedtimemachine}`, { 'exturl': config['url'] }).success(function (data) {
+                if (data.stat) {
+                  toastr.success("操作成功！");
+                  vm.reload();
+                } else {
+                  swal({ title: '操作失败', text: data.info, type: 'error' });
+                }
+              });
+            });
+          },
+          select: function (uuid, type, subtype, config, item) {
+            $uibModal.open({
+              templateUrl: 'app/pages/device/data/dialog/select/select.html',
+              controller: 'SelectController',
+              controllerAs: 'select',
+              backdrop: 'static',
+              size: 'lg',
+              keyboard: false,
+              bindToController: true,
+              resolve: {
+                config: function () {return config},
+                uuid: function () {return uuid},
+                type: function () {return type},
+                subtype: function () {return subtype},
+                treeid: function () {return vm.treeid},
+                item: function () {return item},
+                selectedtimemachine: function () {return vm.selectedtimemachine},
+              }
+            })
           }
         }
 
-        vm.show = function ( uuid, type, subtype, config ) {
-            return vm.showTypeOperate[config['type']](uuid, type, subtype, config)
+        vm.show = function ( uuid, type, subtype, config, item ) {
+            return vm.showTypeOperate[config['type']](uuid, type, subtype, config, item)
         };
 
     vm.handleServiceTree = function (type) {
