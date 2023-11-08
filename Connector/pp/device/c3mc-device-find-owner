@@ -42,6 +42,7 @@ for( @data )
     next if $owner eq 'unkown';
     next if $owner eq 'unknown';
 
+    map{ next if $_ eq 'aws-eip' }@d;
     my @tmpid = grep{ $_ =~ /^\d+\.\d+\.\d+\.\d+$/ }split /\s/, $data;
     push @tmpid, $uuid;
     map{ $res{$_} = $owner; $cnt{$_} ++ } @tmpid;
