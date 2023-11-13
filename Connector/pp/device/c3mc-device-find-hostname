@@ -39,6 +39,10 @@ for( @data )
         $instancetype =~ s/\s*$//;
     }
 
+    next if $instancetype eq 'unkown';
+    next if $instancetype eq 'unknown';
+    next if $instancetype =~ /^i\-/;
+
     my @tmpid = grep{ $_ =~ /^\d+\.\d+\.\d+\.\d+$/ }split /\s/, $data;
     push @tmpid, $uuid;
     map{ $res{$_} = $instancetype; $cnt{$_} ++ } @tmpid;

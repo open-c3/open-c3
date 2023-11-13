@@ -37,3 +37,5 @@ TZ=Asia/Shanghai
 
 */3 * * * * root flock -n /tmp/cislave.sync1.lock /data/Software/mydan/CI/cislave/sync/sync1.sh  > /tmp/cislave.sync1.log 2>&1
 */5 * * * * root flock -n /tmp/cislave.sync1.lock /data/Software/mydan/CI/cislave/sync/sync2.sh  > /tmp/cislave.sync2.log 2>&1
+
+* * * * * root flock -n /tmp/dbtask.lock /data/Software/mydan/Connector/pp/dbfix/dbtask.sh  > /tmp/dbtask.log 2>&1

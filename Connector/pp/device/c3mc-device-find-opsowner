@@ -39,6 +39,9 @@ for( @data )
         $owner =~ s/\s*$//;
     }
 
+    next if $owner eq 'unkown';
+    next if $owner eq 'unknown';
+
     my @tmpid = grep{ $_ =~ /^\d+\.\d+\.\d+\.\d+$/ }split /\s/, $data;
     push @tmpid, $uuid;
     map{ $res{$_} = $owner; $cnt{$_} ++ } @tmpid;

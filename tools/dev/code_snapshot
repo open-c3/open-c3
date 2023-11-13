@@ -1,0 +1,15 @@
+#!/bin/bash
+
+cd /data/open-c3 || exit
+
+echo $(printf '#%.0s' {1..60})
+git branch
+
+echo $(printf '#%.0s' {1..60})
+LANG=en git status
+
+echo $(printf '#%.0s' {1..60})
+LANG=en git status|grep modified:|awk '{print $NF}'|xargs -i{} bash -c "echo $(printf '=%.0s' {1..60});git diff {}"
+
+echo $(printf '#%.0s' {1..60})
+git log
