@@ -474,7 +474,7 @@
           vm.reverseName = ''
           vm.reverseHosttName = ''
           vm.reverseOwner = ''
-          if (Object.values(sessionStorage.getItem('tableFilter')).length > 0) {
+          if (Object.values(sessionStorage.getItem('tableFilter')|| {}).length > 0) {
             sessionStorage.removeItem('tableFilter')
           }
         }
