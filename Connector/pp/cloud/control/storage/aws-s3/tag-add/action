@@ -19,13 +19,22 @@ def tag_add(data, access_id, access_key, region):
 
     tag_list = lib_client.list_tag(data[field_name])
 
-    m = {tag["Key"] for tag in tag_list}
     for item in data["_control_"]["tag-add"]["tags"].split(","):
         parts = item.split("=")
         if len(parts) != 2:
             continue
-        if parts[0] not in m:
-            tag_list.append({"Key": parts[0], "Value": parts[1]})
+
+        found = False
+        for i in range(len(tag_list)):
+            if tag_list[i]["Key"] == parts[0]:
+                tag_list[i]["Value"] = parts[1]
+                found = True
+                break
+        if not found:
+            tag_list.append({
+                "Key": parts[0],
+                "Value": parts[1],
+            })
     
     lib_client.update_tags(data[field_name], tag_list)
 
