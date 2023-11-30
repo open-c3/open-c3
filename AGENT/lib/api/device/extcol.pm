@@ -17,7 +17,7 @@ any '/device/extcol/:type/:subtype/:uuid/:name' => sub {
     my $error = Format->new(
         type       => qr/^[a-z\d\-_]+$/, 1,
         subtype    => qr/^[a-z\d\-_]+$/, 1,
-        uuid       => qr/^[a-zA-Z\d\-_\.]+$/,   1,
+        uuid       => qr/^[a-zA-Z\d\-_\.:]+$/,   1,
         name       => qr/^[a-zA-Z\d\-_\.\,]+$/, 1,
     )->check( %$param );
 
