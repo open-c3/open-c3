@@ -7,19 +7,13 @@ import subprocess
 
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
-from c3mc_cloud_qcloud_tag import QcloudTag
+from c3mc_cloud_qcloud_cos import QcloudCos
 
 
 def tag_add(data, access_id, access_key, region, uin):
-    lib_client = QcloudTag(access_id, access_key, region)
-
     field_name_list = subprocess.getoutput(
         "c3mc-cloud-get-real-field storage qcloud-cos Location Name").split()
     
-    name_parts = data[field_name_list[1]].split("-")
-    
-    rid = f"qcs::cos:{data[field_name_list[0]]}:uid/{name_parts[-1]}:prefix/{name_parts[-1]}/{'-'.join(name_parts[:-1])}/*"
-
     tags_list = []
     for item in data["_control_"]["tag-add"]["tags"].split(","):
         parts = item.split("=")
@@ -29,9 +23,9 @@ def tag_add(data, access_id, access_key, region, uin):
             "key": parts[0],
             "value": parts[1]
         })
-    
-    lib_client.add_tag_by_replace(rid, tags_list)
 
+    QcloudCos(access_id, access_key, region).tag_add(data[field_name_list[1]], tags_list)
+    
 
 def main(data, access_id, access_key, region, uin):
     tag_add(data, access_id, access_key, region, uin)
