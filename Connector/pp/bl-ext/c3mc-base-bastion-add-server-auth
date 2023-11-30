@@ -193,19 +193,33 @@ def main(email, auth_type, ip_str, is_audit='0'):
 
     Args:
         email (str): 邮箱 
-        auth_type (str): 权限处理类型。1: 添加普通权限; 2: 删除权限; 3: 添加sudo权限; 4: 删除sudo权限(保留账户)
+        auth_type (str): 权限处理类型。
+
+                普通权限:
+                normal_8, normal_100000, ...
+
+                sudo类型权限:
+                sudo_8, sudo_24, sudo_72, ...
+
         ip_str (str): 使用逗号分隔的ip地址列表
+        is_audit (str): 是否是审计ip。0:非审计ip, 1: 审计ip
     """
     ip_list = extract_ips(ip_str)
-    sudo_hours = int(auth_type.split("_")[1])
+
+    parts = auth_type.lower().split("_")
+    auth_type_str = parts[0]
+    hours = int(parts[1])
 
     if len(ip_list) == 0:
         print(f"没有查询到有效的ip, ip_list为空, ip_list原始参数为: {ip_str}", file=sys.stderr)
         exit(1)
     
     # add_type 参数取值说明
-    # 1: 添加普通权限; 2: 删除权限; 3: 添加sudo权限; 4: 删除sudo权限(保留账户)
-    add_type = 3 if sudo_hours > 0 else 1
+    # 1: 添加普通权限; 
+    # 3: 添加sudo权限
+    add_type = 1 
+    if auth_type_str == "sudo" and hours > 0:
+        add_type = 3
 
     if not is_valid_email(email):
         print("账号不是合法邮箱格式", file=sys.stderr)
@@ -218,9 +232,15 @@ def main(email, auth_type, ip_str, is_audit='0'):
         send_new_user_email(email, new_user_pass)
 
     # 添加服务器权限
-    grant_server_auth(email, ip_list, add_type, sudo_hours, is_audit)
+    grant_server_auth(email, ip_list, add_type, hours, is_audit)
 
 
 
 if __name__ == '__main__':
-    main(sys.argv[1], sys.argv[2], sys.argv[3])
+    if len(sys.argv) < 4:
+        raise RuntimeError("参数不足")
+    
+    if len(sys.argv) == 4:
+        main(sys.argv[1], sys.argv[2], sys.argv[3])
+    else:
+        main(sys.argv[1], sys.argv[2], sys.argv[3], sys.argv[4])
