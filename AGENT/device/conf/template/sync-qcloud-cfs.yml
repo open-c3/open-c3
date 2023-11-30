@@ -1,0 +1,98 @@
+download:
+  - url: "cmd:c3mc-cloud-account-list --type qcloud-cfs |xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-qcloud-cfs --account qcloud --cloudaccount {} | c3mc-cloud-tag-v2 --tagfield Tags --key TagKey --value TagValue | c3mc-cloud-attach-department-info | c3mc-base-json2tab "
+    datatype: tsv
+    type: storage
+    subtype: qcloud-cfs
+    treeinfo:
+      treename: "服务树"
+      treeinfo:
+        - ["实例ID", "instance"]
+    util:
+      defaulttree: defaulttree.pool
+      extcol:
+        - name: audit
+          alias: 审计
+          select: ["YES", "NO"]
+        - name: remarks
+          alias: 备注
+        - name: _buildintree_
+          alias: 内置服务树
+          readonly: 1
+
+      grpcol:
+        baseinfo:
+          - name: 用户自定义名称
+          - name: 实例ID
+          - name: 已使用容量
+          - name: 最大空间限制
+          - name: 区域
+          - name: 可用区
+          - name: 文件系统协议类型
+        system:
+          - name: 存储类型
+          - name: 文件系统是否加密
+          - name: 文件系统吞吐上限
+          - name: 文件系统总容量
+          - prefix: tag.
+
+    colmap:
+      treename: "服务树"
+      uuid: "实例ID"
+    alias:
+      FsName: "用户自定义名称"
+      FileSystemId: "实例ID"
+      GBSize: "已使用容量"
+      SizeLimit: "最大空间限制"
+      Region: "区域"
+      Zone: "可用区"
+      LifeCycleState: "文件系统状态"
+      Protocol: "文件系统协议类型"
+      StorageType: "存储类型"
+      Encrypted: "文件系统是否加密"
+      BandwidthLimit: "文件系统吞吐上限"
+      Capacity: "文件系统总容量"
+      _oneDeptName_: 一级部门
+      _twoDeptName_: 二级部门
+      _sybDeptName_: 产品线
+      _product_owner_: 业务负责人
+      _ops_owner_: "运维负责人"
+      _department_: "部门"
+    check:
+      col: ["实例ID"]
+      min: 0
+    filter:
+      - name: "account"
+        alias: 账号
+      - name: "区域"
+        alias: 区域
+      - name: "业务负责人"
+        alias: 业务负责人
+      - name: "运维负责人"
+        alias: 运维负责人
+      - name: "产品线"
+        alias: 产品线
+      - name: "一级部门"
+        alias: 一级部门
+      - name: "二级部门"
+        alias: 二级部门
+      - name: "部门"
+        alias: 部门
+    outline:
+      uuid:
+        - "实例ID"
+      baseinfo:
+        - "account"
+        - "实例ID"
+        - "用户自定义名称"
+        - "区域"
+        - "可用区"
+        - "文件系统协议类型"
+      system:
+        - "文件系统状态"
+        - "存储类型"
+        - "文件系统协议类型"
+      contact:
+        - "部门"
+        - "业务负责人"
+        - "运维负责人"
+        - "服务树"
