@@ -5,6 +5,7 @@ import json
 import sys
 
 from aliyunsdkcore.client import AcsClient
+from aliyunsdknas.request.v20170626.DescribeRegionsRequest import DescribeRegionsRequest
 from aliyunsdknas.request.v20170626.DescribeFileSystemsRequest import DescribeFileSystemsRequest
 
 
@@ -44,7 +45,13 @@ class LibAliyunFS:
             file_system_list = json.loads(str(response, encoding='utf-8'))["FileSystems"]["FileSystem"]
 
             for item in file_system_list:
-                item["MeteredIASize"] = int(bytes_to_gb(item["MeteredIASize"]))
+                if "Tags" in item and not isinstance(item["Tags"], list):
+                    if "Tag" in item["Tags"] and isinstance(item["Tags"]["Tag"], list):
+                        item["Tags"] = item["Tags"]["Tag"]
+
+                if "MeteredIASize" in item:
+                    item["MeteredIASize"] = int(bytes_to_gb(item["MeteredIASize"]))
+
                 item["Capacity"] = int(bytes_to_gb(item["Capacity"]))
                 item["MeteredSize"] = int(bytes_to_gb(item["MeteredSize"]))
             
@@ -57,3 +64,31 @@ class LibAliyunFS:
 
         return result
     
+    def describe_regions(self):
+        """查询支持的区域列表
+        """
+        result = []
+
+        req = DescribeRegionsRequest()
+        req.set_accept_format('json')
+
+        number = 100
+        for i in range(1, sys.maxsize):
+            request = DescribeRegionsRequest()
+
+            request.set_PageNumber(i)
+            request.set_PageSize(number)
+
+            response = self.client.do_action_with_exception(request)
+            response = json.loads(response.decode('utf-8'))
+
+            result.extend(response["Regions"]["Region"])
+
+            if len(response["Regions"]["Region"]) < number:
+                break
+
+        return result 
+    
+    def describe_region_list(self):
+        region_list = self.describe_regions()
+        return [item["RegionId"] for item in region_list]
