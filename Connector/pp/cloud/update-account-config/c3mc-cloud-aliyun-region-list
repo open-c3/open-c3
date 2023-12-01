@@ -11,6 +11,7 @@ from aliyunsdkecs.request.v20140526.DescribeRegionsRequest import DescribeRegion
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
 from c3mc_cloud_aliyun_redis import LibAliyunRedis
 from c3mc_cloud_aliyun_rds import LibAliyunRds
+from c3mc_cloud_aliyun_fs import LibAliyunFS
 
 
 class Aliyun:
@@ -50,6 +51,8 @@ class Aliyun:
             regions = LibAliyunRedis(self.access_id, self.access_key, "cn-hangzhou").describe_regions()
         elif self.resource_type == "rds":
             regions = LibAliyunRds(self.access_id, self.access_key, "cn-hangzhou").describe_regions()
+        elif self.resource_type == "fs":
+            regions = LibAliyunFS(self.access_id, self.access_key, "cn-hangzhou").describe_region_list()
         else:
             regions = self.list_ecs_regions()
 
