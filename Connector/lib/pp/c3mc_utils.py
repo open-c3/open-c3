@@ -493,3 +493,11 @@ def read_file_lines(file_path, remove_empty_line=True):
         return [line for line in data_list if line != ""]
     else:
         return data_list
+
+def bytes_to_gb(bytes_size):
+    """将Bytes转换为GB
+
+    Args:
+        bytes_size (int): Bytes大小
+    """
+    return bytes_size / (1024 ** 3)

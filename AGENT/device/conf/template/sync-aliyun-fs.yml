@@ -1,0 +1,104 @@
+download:
+  - url: "cmd:c3mc-cloud-account-list --type aliyun-fs |xargs -i{} -P 10 c3mc-cloud-account -p c3mc-cloud-aliyun-fs --account aliyun --cloudaccount {} | c3mc-cloud-tag-v2 --tagfield Tags --key Key --value Value | c3mc-cloud-attach-department-info | c3mc-base-json2tab "
+    datatype: tsv
+    type: storage
+    subtype: aliyun-fs
+    treeinfo:
+      treename: "服务树"
+      treeinfo:
+        - ["实例ID", "instance"]
+    util:
+      defaulttree: defaulttree.pool
+      extcol:
+        - name: audit
+          alias: 审计
+          select: ["YES", "NO"]
+        - name: remarks
+          alias: 备注
+        - name: _buildintree_
+          alias: 内置服务树
+          readonly: 1
+
+      grpcol:
+        baseinfo:
+          - name: 实例ID 
+          - name: 状态
+          - name: 低频介质存储用量
+          - name: 文件系统的容量
+          - name: 区域
+          - name: 可用区
+          - name: 计费类型
+          - name: 存储类型
+        system:
+          - name: 文件系统的使用量
+          - name: 文件系统的带宽
+          - name: 文件系统版本号
+          - name: 文件系统协议类型
+          - name: 文件系统类型
+          - name: 加密类型
+          - name: 文件系统到期时间
+          - prefix: tag.
+
+    colmap:
+      treename: "服务树"
+      uuid: "实例ID" 
+
+    alias:
+      FileSystemId: "实例ID"
+      Status: "状态"
+      MeteredIASize: "低频介质存储用量"
+      Capacity: "文件系统的容量"
+      ChargeType: "计费类型"
+      StorageType: "存储类型"
+      MeteredSize: "文件系统的使用量"
+      Bandwidth: "文件系统的带宽"
+      Version: "文件系统版本号"
+      ProtocolType: "文件系统协议类型"
+      RegionId: "区域"
+      ZoneId: "可用区"
+      FileSystemType: "文件系统类型"
+      EncryptType: "加密类型"
+      ExpiredTime: "文件系统到期时间"
+      _oneDeptName_: 一级部门
+      _twoDeptName_: 二级部门
+      _sybDeptName_: 产品线
+      _product_owner_: 业务负责人
+      _ops_owner_: "运维负责人"
+      _department_: "部门"
+    check:
+      col: ["实例ID"]
+      min: 0
+    filter:
+      - name: "account"
+        alias: 账号
+      - name: "区域"
+        alias: 区域
+      - name: "业务负责人"
+        alias: 业务负责人
+      - name: "运维负责人"
+        alias: 运维负责人
+      - name: "产品线"
+        alias: 产品线
+      - name: "一级部门"
+        alias: 一级部门
+      - name: "二级部门"
+        alias: 二级部门
+      - name: "部门"
+        alias: 部门
+    outline:
+      uuid:
+        - "实例ID"
+      baseinfo:
+        - "account"
+        - "实例ID"
+        - "区域"
+        - "可用区"
+      system:
+        - "状态"
+        - "文件系统类型"
+        - "文件系统协议类型"
+      contact:
+        - "部门"
+        - "业务负责人"
+        - "运维负责人"
+        - "服务树"

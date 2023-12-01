@@ -120,7 +120,7 @@ class Cvm:
 
                 return instance_info['Uuid'], private_ip, public_ip
             if time.time() - start_time > timeout:
-                return ""
+                raise RuntimeError(f"等待获取机器详情超时, instanceId: {instance_id}, 超时时间: {timeout}秒")
             else:
                 time.sleep(5)
 
