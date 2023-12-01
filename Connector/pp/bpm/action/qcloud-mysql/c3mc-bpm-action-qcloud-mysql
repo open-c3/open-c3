@@ -15,18 +15,8 @@ from tencentcloud.cdb.v20170320 import cdb_client, models
 
 sys.path.append("/data/Software/mydan/Connector/lib/pp")
 from c3mc_cloud_qcloud_cdb import QcloudCdb
-from c3mc_utils import bpm_merge_user_input_tags, generate_password, flatten_dict
+from c3mc_utils import bpm_merge_user_input_tags, generate_password, safe_run_pipe_command
 
-
-password_dir = "/data/open-c3-data/device/curr/auth"
-
-def record_cdb_password(file_name, file_content):
-    if not os.path.exists(password_dir):
-        os.makedirs(password_dir)
-
-    file_path = os.path.join(password_dir, file_name)
-    with open(file_path, "w") as file:
-        file.write(file_content)
 
 
 class Mysql:
@@ -324,24 +314,30 @@ class Mysql:
             cdb_addr_field, cdb_pord_field = self.get_template_ingestion_addr()
 
             for instance_id in resp.InstanceIds:
+                print(f"对 {instance_id} 进行密码存储...")
                 password_data = {
                     "root": root_password,
                 }
                 if self.get_bool_value(self.params["if_create_monitor_account"]):
                     # 等待实例从创建中变为运行中状态
                     self.lib_qcloud_cdb.wait_cdb_until_status(instance_id, 1, 900)
-
                     monitor_account, monitor_password = self.get_monitor_account_and_password()
                     self.create_monitor_account(instance_id, monitor_account, monitor_password)
-
+                    # 保存监控账号密码
                     password_data[monitor_account] = monitor_password
                     self.save_account_and_pass_to_cmdb(instance_id, cdb_addr_field, cdb_pord_field, monitor_account, monitor_password, "/usr/bin/c3mc-device-loadpasswd-mysql")
 
-                # 将数据库账号密码信息保存到cmdb
-                self.save_account_and_pass_to_cmdb(instance_id, cdb_addr_field, cdb_pord_field, "root", root_password, "/usr/bin/c3mc-device-loadpasswd-mysql-v2")
-
-                # 将账号密码信息记录到目录 /data/open-c3-data/device/curr/auth
-                record_cdb_password(f'{instance_id}:{self.params["port"]}', json.dumps(password_data))
+                # 将root账号密码保存到类似如下示例的目录中，这样资源详情里可以加载到账号密码
+                # /data/open-c3-data/device/curr/auth/database-qcloud-cdb
+                safe_run_pipe_command(
+                    [
+                        [
+                            "echo",
+                            f"database;qcloud-cdb;{instance_id};root/{root_password}"
+                        ],
+                        ["c3mc-device-loadpasswd-auth-v2"],
+                    ]
+                )
 
                 if self.params["if_need_open_wan"] == "是":
                     self.open_wan_service(instance_id)

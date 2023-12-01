@@ -1,0 +1,61 @@
+#!/usr/bin/env /data/Software/mydan/python3/bin/python3
+# -*- coding: utf-8 -*-
+
+import os
+import sys
+
+basepath = '/data/open-c3-data/device/curr/auth'
+
+type_info = {}
+
+def save(subpath, uuid, passwd):
+    path = os.path.join(basepath, subpath)
+    os.makedirs(path, exist_ok=True)
+    try:
+        with open(os.path.join(path, uuid), 'w') as file:
+            file.write("--- ")
+            file.write(passwd)
+    except Exception as e:
+        print(f"Save password {uuid} failed: {e}")
+
+
+def clean(subpath, uuid):
+    path = os.path.join(basepath, subpath)
+    file_path = os.path.join(path, uuid)
+    if os.path.isfile(file_path):
+        try:
+            os.remove(file_path)
+        except Exception as e:
+            print(f"Clean password {uuid} failed: {e}")
+
+
+def load(type, subtype, uuid, passwd):
+    subpath = '-'.join([type, subtype])
+    if passwd:
+        save(subpath, uuid, passwd)
+    else:
+        clean(subpath, uuid)
+
+
+def main(line):
+    parts = line.split(";")
+    if len(parts) != 4:
+        raise RuntimeError("参数格式不对")
+
+    load(parts[0], parts[1], parts[2], parts[3])
+
+
+if __name__ == '__main__':
+    """将资源的账号密码保存到指定路径下: /data/open-c3-data/device/curr/auth
+
+    注意: 该脚本是 c3mc-device-loadpasswd-auth 的v2版本。因为 c3mc-device-loadpasswd-auth 需要从数据库查询
+        实例的一级类型和二级类型。这样导致在创建资源时调用 c3mc-device-loadpasswd-auth 将不会起作用，因为资源尚未存储
+    
+    脚本调用示例:
+    echo "database;qcloud-cdb;cdb-xxxxxxx;root/wfiwefiwfwf" | c3mc-device-loadpasswd-auth-v2
+    """
+    l = list(sys.stdin)
+    if not l or len(l) > 1:
+        raise RuntimeError("请从标准输入传递参数, 使用方式请参数脚本中给出的示例")
+
+    main(l[0].strip())

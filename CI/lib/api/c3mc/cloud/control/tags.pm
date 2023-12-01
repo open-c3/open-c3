@@ -24,7 +24,7 @@ get '/c3mc/cloud/control/tags/get/:type/:subtype/:uuid' => sub {
     my $error = Format->new( 
         type    => qr/^[a-zA-Z0-9][a-zA-Z0-9\-]+$/,  1,
         subtype => qr/^[a-zA-Z0-9][a-zA-Z0-9\-]+$/,  1,
-        uuid    => qr/^[a-zA-Z0-9][a-zA-Z0-9\-_]+$/, 1,
+        uuid       => qr/^[a-zA-Z\d\-_\.:]+$/,       1,
     )->check( %$param );
 
     return  +{ stat => $JSON::false, info => "check format fail $error" } if $error;
@@ -75,7 +75,7 @@ post '/c3mc/cloud/control/tags/add/:type/:subtype/:uuid' => sub {
     my $error = Format->new( 
         type        => qr/^[a-zA-Z0-9][a-zA-Z0-9\-]+$/,  1,
         subtype     => qr/^[a-zA-Z0-9][a-zA-Z0-9\-]+$/,  1,
-        uuid        => qr/^[a-zA-Z0-9][a-zA-Z0-9\-_]+$/, 1,
+        uuid       => qr/^[a-zA-Z\d\-_\.:]+$/,           1,
         tagkey      => qr/^[a-zA-Z0-9][a-zA-Z0-9\-_]+$/, 1,
         tagvalue    => qr/^[a-zA-Z0-9][a-zA-Z0-9\-_@\.]+$/, 1,
 
@@ -111,7 +111,7 @@ post '/c3mc/cloud/control/tags/del/:type/:subtype/:uuid' => sub {
     my $error = Format->new( 
         type        => qr/^[a-zA-Z0-9][a-zA-Z0-9\-]+$/,  1,
         subtype     => qr/^[a-zA-Z0-9][a-zA-Z0-9\-]+$/,  1,
-        uuid        => qr/^[a-zA-Z0-9][a-zA-Z0-9\-_]+$/, 1,
+        uuid       => qr/^[a-zA-Z\d\-_\.:]+$/,           1,
         tagkey      => qr/^[a-zA-Z0-9][a-zA-Z0-9\-_]+$/, 1,
         tagvalue    => qr/^[a-zA-Z0-9][a-zA-Z0-9\-_@\.]+$/, 1,
 

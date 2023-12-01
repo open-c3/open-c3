@@ -56,16 +56,19 @@ class ClbBackendServers:
         return output
 
     def get_backend_server_info(self):
+        m = set()
+
         result = []
-        m = {}
 
         clb_info = json.loads(self.get_clb_info())
+
+        # 0 表示传统型负载均衡 
         if clb_info["Forward"] == 0:
             target_info = self.describe_classic_target(clb_info["LoadBalancerId"])
             for target in target_info.Targets:
                 if target.InstanceId in m:
                     continue
-                m[target.InstanceId] = {}
+                m.add(target.InstanceId)
                 result.append(target)
         else:
             target_info = self.describe_target(clb_info["LoadBalancerId"])
@@ -73,14 +76,21 @@ class ClbBackendServers:
                 for target in listener.Targets:
                     if target.InstanceId in m:
                         continue
-                    m[target.InstanceId] = {}
+                    m.add(target.InstanceId)
                     result.append(target)
-    
+
+                for rule in listener.Rules:
+                    for target in rule.Targets:
+                        if target.InstanceId in m:
+                            continue
+                        m.add(target.InstanceId)
+                        result.append(target)
+        
         return result
 
     def show(self):
         result = self.get_backend_server_info()
-        print(str(result))
+        print(result)
 
 
 def main(access_id, access_key, region, load_balancer_name):
