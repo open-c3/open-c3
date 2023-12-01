@@ -45,7 +45,13 @@ class LibAliyunFS:
             file_system_list = json.loads(str(response, encoding='utf-8'))["FileSystems"]["FileSystem"]
 
             for item in file_system_list:
-                item["MeteredIASize"] = int(bytes_to_gb(item["MeteredIASize"]))
+                if "Tags" in item and not isinstance(item["Tags"], list):
+                    if "Tag" in item["Tags"] and isinstance(item["Tags"]["Tag"], list):
+                        item["Tags"] = item["Tags"]["Tag"]
+
+                if "MeteredIASize" in item:
+                    item["MeteredIASize"] = int(bytes_to_gb(item["MeteredIASize"]))
+
                 item["Capacity"] = int(bytes_to_gb(item["Capacity"]))
                 item["MeteredSize"] = int(bytes_to_gb(item["MeteredSize"]))
             
