@@ -29,10 +29,12 @@ class HuaweiObs:
         self.client = self.create_client()
 
     def create_client(self):
+        domain = "eu" if self.region == "eu-west-101" else "com"
+   
         return ObsClient(
             access_key_id=self.access_id,
             secret_access_key=self.access_key,
-            server=f"https://obs.{self.region}.myhuaweicloud.com/",
+            server=f"https://obs.{self.region}.myhuaweicloud.{domain}/",
         )
 
     def list_buckets(self):
@@ -76,8 +78,9 @@ class HuaweiObs:
         return array._array
     
     def list_tags_of_bucket(self, bucket_info):
+        domain = "eu" if self.region == "eu-west-101" else "com"
         return ObsClient(
             access_key_id=self.access_id,
             secret_access_key=self.access_key,
-            server=f"https://obs.{bucket_info['location']}.myhuaweicloud.com/",
+            server=f"https://obs.{bucket_info['location']}.myhuaweicloud.{domain}/",
         ).getBucketTagging(bucket_info['name'])
