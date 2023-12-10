@@ -69,7 +69,7 @@ return sub
     if( $param{ci_type} && $param{ci_type} eq 'kubernetes' )
     {
         #--repository reg.harbordemo.com/c3test/app1 --dockerfile  foo/Dockerfile
-        if( $param{ci_type_repository} )
+        if( $param{ci_type_repository} && ( $param{follow_up} && $param{follow_up} !~ /\-\-repository/  ))
         {
             die "ci_type_repository format error" unless $param{ci_type_repository} =~ /^[a-zA-Z0-9][a-zA-Z0-9\._,\;\- \/\:=]*$/;
             $argv .= " --repository '$param{ci_type_repository}'";
