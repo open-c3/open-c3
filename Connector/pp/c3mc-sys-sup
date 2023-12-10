@@ -7,7 +7,13 @@ if [ -f $nenv ]; then
 fi
 
 cd /data/Software/mydan && tar -zxf Connector/pkg/perl.tar.gz
-cd /data/Software/mydan && tar -zxf Connector/pkg/python3.tar.gz
+
+mkdir -p /data/Software/mydan/Connector/pkg/patch/temp
+cd /data/Software/mydan/Connector/pkg/patch/temp && tar -zxf /data/Software/mydan/Connector/pkg/python3.tar.gz
+cd /data/Software/mydan/Connector/pkg/patch/temp && rsync -av /data/Software/mydan/Connector/pkg/patch/python3/ python3/
+cd /data/Software/mydan/Connector/pkg/patch/temp && rsync -av python3/ /data/Software/mydan/python3/
+
+#cd /data/Software/mydan && tar -zxf Connector/pkg/python3.tar.gz
 
 cp /data/Software/mydan/Connector/pkg/mysql /usr/bin/mysql
 chmod +x /usr/bin/mysql

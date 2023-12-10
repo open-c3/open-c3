@@ -56,12 +56,12 @@ class Ecs:
         ).list_flavors()
 
     def show(self):
-        huawei_vpc = Vpc(self.access_id, self.access_key, self.project_id, self.region)
+#        huawei_vpc = Vpc(self.access_id, self.access_key, self.project_id, self.region)
         response_data = self.get_response()
         servers = response_data["servers"]
         for server in servers:
             for key in server["addresses"]:
-                for item in server["addresses"][key]:
+                for item in server["addresses"][key][::-1]:
                     if item["OS-EXT-IPS:type"] == "fixed":
                         server["private_ip"] = item["addr"]
                     else:
@@ -85,12 +85,12 @@ class Ecs:
             server["_default_ip_kind_"] = "inip"
             if list(server["addresses"]):
                 vpc_id = list(server["addresses"])[0]
-                vpc_info = huawei_vpc.show_vpc(vpc_id)
+#                vpc_info = huawei_vpc.show_vpc(vpc_id)
 
-                server["_default_ip_kind_"] = huawei_vpc.check_vpc_internet(vpc_id)
+#                server["_default_ip_kind_"] = huawei_vpc.check_vpc_internet(vpc_id)
 
                 server["vpc_id"] = vpc_id
-                server["vpc_name"] = vpc_info["name"]
+#                server["vpc_name"] = vpc_info["name"]
 
                 self.sleep(max_times_for_get_vpc)
 
